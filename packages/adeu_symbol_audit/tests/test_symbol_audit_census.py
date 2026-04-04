@@ -1,10 +1,13 @@
 from __future__ import annotations
 
 import json
+import shutil
 from pathlib import Path
 
+import pytest
 from adeu_repo_description.models import compute_symbol_id
 from adeu_symbol_audit import (
+    REFERENCE_ARCHITECTURE_IR_PILOT_SCOPE_SOURCE_FILES,
     build_reference_architecture_ir_scope_manifest,
     build_symbol_census,
 )
@@ -63,3 +66,21 @@ def test_shared_kinds_match_released_symbol_id_law_in_built_census() -> None:
             qualname=entry.qualname,
             symbol_kind=entry.symbol_kind,
         )
+
+
+def test_build_symbol_census_rejects_manifest_hash_drift(tmp_path: Path) -> None:
+    repo_root = _repo_root()
+    for repo_rel_path in REFERENCE_ARCHITECTURE_IR_PILOT_SCOPE_SOURCE_FILES:
+        destination = tmp_path / repo_rel_path
+        destination.parent.mkdir(parents=True, exist_ok=True)
+        shutil.copy2(repo_root / repo_rel_path, destination)
+
+    manifest = build_reference_architecture_ir_scope_manifest(repo_root=tmp_path)
+    drifted_path = tmp_path / REFERENCE_ARCHITECTURE_IR_PILOT_SCOPE_SOURCE_FILES[0]
+    drifted_path.write_text(
+        drifted_path.read_text(encoding="utf-8") + "\n# drifted after manifest\n",
+        encoding="utf-8",
+    )
+
+    with pytest.raises(ValueError, match="scope_manifest source file hash"):
+        build_symbol_census(repo_root=tmp_path, scope_manifest=manifest)

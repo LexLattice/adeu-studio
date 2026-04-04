@@ -334,6 +334,7 @@ class SymbolAuditCoverageReport(BaseModel):
         alias="schema",
     )
     scope_manifest_ref: str
+    census_scope_manifest_ref: str
     census_hash: str
     expected_source_files: list[str] = Field(default_factory=list)
     observed_source_files: list[str] = Field(default_factory=list)
@@ -354,6 +355,13 @@ class SymbolAuditCoverageReport(BaseModel):
             self,
             "scope_manifest_ref",
             _assert_non_empty_text(self.scope_manifest_ref, field_name="scope_manifest_ref"),
+        )
+        object.__setattr__(
+            self,
+            "census_scope_manifest_ref",
+            _assert_non_empty_text(
+                self.census_scope_manifest_ref, field_name="census_scope_manifest_ref"
+            ),
         )
         object.__setattr__(
             self, "census_hash", _assert_sha256_hex(self.census_hash, field_name="census_hash")
@@ -392,6 +400,7 @@ class SymbolAuditCoverageReport(BaseModel):
         )
         has_mismatch = any(
             (
+                self.scope_manifest_ref != self.census_scope_manifest_ref,
                 self.missing_source_files,
                 self.unexpected_source_files,
                 self.disallowed_symbol_kinds,

@@ -34,6 +34,7 @@ def build_manifest_to_census_coverage_report(
         or unexpected_source_files
         or disallowed_symbol_kinds
         or duplicate_symbol_ids
+        or census.scope_manifest_ref != scope_manifest.scope_manifest_id
     ):
         coverage_status = "fail_closed_mismatch"
         coverage_gate_reason = (
@@ -51,6 +52,7 @@ def build_manifest_to_census_coverage_report(
         {
             "schema": "adeu_symbol_audit_coverage_report@1",
             "scope_manifest_ref": scope_manifest.scope_manifest_id,
+            "census_scope_manifest_ref": census.scope_manifest_ref,
             "census_hash": census.census_hash,
             "expected_source_files": expected_source_files,
             "observed_source_files": observed_source_files,

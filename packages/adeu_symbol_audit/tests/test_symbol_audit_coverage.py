@@ -90,3 +90,19 @@ def test_duplicate_symbol_id_fails_closed() -> None:
 
     assert report.coverage_status == "fail_closed_mismatch"
     assert report.duplicate_symbol_ids == [duplicate_entry.symbol_id]
+
+
+def test_scope_manifest_ref_mismatch_fails_closed() -> None:
+    manifest = build_reference_architecture_ir_scope_manifest(repo_root=_repo_root())
+    reference_census = SymbolCensus.model_validate(_read_json("reference_symbol_census.json"))
+    mismatched_census = reference_census.model_copy(
+        update={"scope_manifest_ref": "scope_manifest:0000000000000000"},
+        deep=True,
+    )
+
+    report = build_manifest_to_census_coverage_report(
+        scope_manifest=manifest, census=mismatched_census
+    )
+
+    assert report.coverage_status == "fail_closed_mismatch"
+    assert report.census_scope_manifest_ref == "scope_manifest:0000000000000000"

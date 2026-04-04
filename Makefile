@@ -26,6 +26,7 @@ bootstrap:
 		-e "packages/adeu_semantic_source[dev]" \
 		-e "packages/adeu_semantic_compiler[dev]" \
 		-e "packages/adeu_semantic_forms[dev]" \
+		-e "packages/adeu_symbol_audit[dev]" \
 		-e "packages/adeu_agent_harness[dev]" \
 		-e "packages/adeu_repo_description[dev]" \
 		-e packages/urm_runtime \

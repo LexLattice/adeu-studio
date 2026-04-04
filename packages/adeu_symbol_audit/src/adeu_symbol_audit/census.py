@@ -31,6 +31,19 @@ def _read_repo_file(repo_root: Path, repo_rel_path: str) -> bytes:
     return (repo_root / repo_rel_path).read_bytes()
 
 
+def _read_verified_manifest_source_file(
+    *, repo_root: Path, source_file: ScopeManifestSourceFile
+) -> bytes:
+    file_bytes = _read_repo_file(repo_root, source_file.file_path)
+    live_sha256 = _sha256_bytes(file_bytes)
+    if live_sha256 != source_file.sha256:
+        raise ValueError(
+            "scope_manifest source file hash must match live repo bytes for "
+            f"{source_file.file_path}"
+        )
+    return file_bytes
+
+
 def _signature_text(node: ast.AST) -> str:
     if isinstance(node, ast.ClassDef):
         pieces = [ast.unparse(base) for base in node.bases]
@@ -162,7 +175,12 @@ def build_symbol_census(
     source_files = [item.model_copy(deep=True) for item in scope_manifest.source_files]
     collected_entries: list[dict[str, object]] = []
     for source_file in source_files:
-        tree = ast.parse((repo_root / source_file.file_path).read_text(encoding="utf-8"))
+        tree = ast.parse(
+            _read_verified_manifest_source_file(
+                repo_root=repo_root, source_file=source_file
+            ).decode("utf-8"),
+            filename=source_file.file_path,
+        )
         collector = _Collector(module_path=source_file.file_path)
         collector.visit(tree)
         collected_entries.extend(collector.entries)
