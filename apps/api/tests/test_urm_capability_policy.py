@@ -30,6 +30,7 @@ def _reset_policy_cache() -> None:
         ("paper.extract_abstract_candidate", False, False),
         ("paper.check_constraints", False, False),
         ("paper.emit_artifact", False, False),
+        ("paper.run_semantic_decomposition", False, False),
         ("digest.ingest_text", False, False),
         ("digest.extract_digest_candidate", False, False),
         ("digest.check_constraints", False, False),
