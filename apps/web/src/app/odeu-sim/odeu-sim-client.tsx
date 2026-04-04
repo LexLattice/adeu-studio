@@ -318,7 +318,7 @@ export function OdeuSimClient() {
             )}
           </section>
         </div>
-      ) : (
+      ) : routeStatus === "idle" ? (
         <section className={styles.emptyPanel}>
           <h2>Idle first render</h2>
           <p>
@@ -326,7 +326,7 @@ export function OdeuSimClient() {
             released summary from <code>POST /odeu-sim/run</code>.
           </p>
         </section>
-      )}
+      ) : null}
     </div>
   );
 }

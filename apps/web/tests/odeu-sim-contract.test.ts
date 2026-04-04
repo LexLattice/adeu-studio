@@ -1,4 +1,5 @@
 import assert from "node:assert/strict";
+import { existsSync } from "node:fs";
 import { readdir, readFile } from "node:fs/promises";
 import path from "node:path";
 import test from "node:test";
@@ -18,6 +19,9 @@ import {
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 const REPO_ROOT = path.resolve(__dirname, "..", "..", "..");
+if (!existsSync(path.join(REPO_ROOT, "Makefile"))) {
+  throw new Error(`Could not resolve repository root at ${REPO_ROOT}`);
+}
 const ODEU_SIM_ROUTE_DIR = path.join(REPO_ROOT, "apps", "web", "src", "app", "odeu-sim");
 
 async function readFixture(name: string): Promise<unknown> {
@@ -101,7 +105,7 @@ test("odeu sim route: no direct kernel import under apps/web/src/app/odeu-sim", 
     const source = await readFile(routeFile, "utf-8");
     assert.doesNotMatch(
       source,
-      /\bfrom\s+["']adeu_odeu_sim["']|\bimport\s*\(\s*["']adeu_odeu_sim["']\s*\)/,
+      /\bfrom\s+["']adeu_odeu_sim(?:\/.*)?["']|\bimport\s*(?:\(\s*)?["']adeu_odeu_sim(?:\/.*)?["']\s*\)?/,
       `unexpected direct kernel import in ${routeFile}`,
     );
   }
