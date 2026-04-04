@@ -1206,6 +1206,8 @@ class WorldState(BaseModel):
             raise ValueError("seed must be non-negative")
         if self.turn < 0:
             raise ValueError("turn must be non-negative")
+        if not self.agents:
+            raise ValueError("agents must be non-empty")
         object.__setattr__(
             self,
             "scenario",

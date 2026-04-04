@@ -51,6 +51,8 @@ def compute_epistemic_integrity(
 
 
 def compute_metrics(world: WorldState) -> MetricPoint:
+    if not world.agents:
+        raise ValueError("world.agents must be non-empty")
     coop_actions = [
         action for action in world.planned_actions if action.action_type == ActionType.CONTRIBUTE
     ]

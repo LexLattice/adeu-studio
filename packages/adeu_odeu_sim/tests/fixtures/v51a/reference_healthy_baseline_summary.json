@@ -3,7 +3,7 @@
     "contribute_to_commons": 34,
     "share_claim": 14
   },
-  "event_record_count": 2519,
+  "event_record_count": 2520,
   "evidence_record_count": 17,
   "institution_legitimacy": 0.78,
   "institution_operativity": 0.77,
@@ -13,17 +13,17 @@
     "mean_uncertainty": 0.05
   },
   "last_metric": {
-    "average_belief_accuracy": 0.9459151311076683,
+    "average_belief_accuracy": 0.945915129618085,
     "commons_health": 1.0,
     "cooperation_rate": 1.0,
-    "epistemic_integrity": 0.5775812367101472,
+    "epistemic_integrity": 0.5775812362930639,
     "institution_legitimacy": 0.78,
     "institution_operativity": 0.7700000000000001,
     "regime_label": "Cooperative Legible Order",
     "sanction_consistency": 0.75,
     "schema": "adeu_odeu_metric_point@1",
     "symbolic_gap": 0.22999999999999987,
-    "trust_fragmentation": 0.15219969316967508,
+    "trust_fragmentation": 0.1521996932816082,
     "turn": 25,
     "utility_concentration": 0.506169398313352
   },

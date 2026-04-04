@@ -3,13 +3,16 @@ from __future__ import annotations
 import json
 from pathlib import Path
 
+import pytest
+from adeu_odeu_sim.actions import ACTION_LIBRARY
 from adeu_odeu_sim.engine import (
     ODEUSimulation,
     run_canonical_scenario,
     summarize_action_counts,
     summarize_lane_state,
 )
-from adeu_odeu_sim.models import EvidenceRecord
+from adeu_odeu_sim.metrics import compute_metrics
+from adeu_odeu_sim.models import Action, ActionType, EventRecordKind, EvidenceRecord
 from adeu_odeu_sim.scenarios import CANONICAL_REPLAY_HORIZON, CANONICAL_REPLAY_SEED
 
 
@@ -119,3 +122,46 @@ def test_sanction_target_tiebreak_is_deterministic() -> None:
         ),
     ]
     assert simulation._select_sanction_target(world) == "agent_02"
+
+
+def test_reset_records_initialization_event_on_new_world_only() -> None:
+    simulation = ODEUSimulation()
+    first_world = simulation.reset("healthy_baseline", seed=CANONICAL_REPLAY_SEED)
+    first_count = len(first_world.event_records)
+    assert first_world.event_records[0].event_kind == EventRecordKind.SIMULATION_INITIALIZED
+
+    second_world = simulation.reset("weak_d", seed=CANONICAL_REPLAY_SEED)
+    assert second_world.event_records[0].event_kind == EventRecordKind.SIMULATION_INITIALIZED
+    assert len(first_world.event_records) == first_count
+
+
+def test_verify_action_updates_last_action_for_epistemic_follow_on() -> None:
+    simulation = ODEUSimulation()
+    world = simulation.reset("healthy_baseline", seed=CANONICAL_REPLAY_SEED)
+    actor = world.agents[0]
+    template = ACTION_LIBRARY[ActionType.VERIFY]
+    action = Action(
+        id="act_verify",
+        turn=world.turn,
+        actor_id=actor.id,
+        action_type=ActionType.VERIFY,
+        material_cost=template.material_cost,
+        observability=template.observability,
+        evidence_emission=template.evidence_emission,
+        deontic_status=template.base_deontic_status,
+        lane_impact=template.lane_impact.model_copy(deep=True),
+        rationale="regression",
+    )
+    simulation._apply_action(world, action)
+    assert actor.last_action == "verify"
+
+
+def test_empty_agent_world_fails_closed() -> None:
+    simulation = ODEUSimulation()
+    world = simulation.reset("healthy_baseline", seed=CANONICAL_REPLAY_SEED)
+    empty_world = world.model_copy(deep=True)
+    object.__setattr__(empty_world, "agents", [])
+    with pytest.raises(ValueError, match="world.agents must be non-empty"):
+        summarize_lane_state(empty_world)
+    with pytest.raises(ValueError, match="world.agents must be non-empty"):
+        compute_metrics(empty_world)

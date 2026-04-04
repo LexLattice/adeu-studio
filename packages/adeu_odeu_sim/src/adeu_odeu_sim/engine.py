@@ -117,6 +117,7 @@ class ODEUSimulation:
             turn=0,
             summary=f"Initialized scenario {config.name} with seed {seed}",
             related_ids=(institution.id, resource_pool.id),
+            world=world,
         )
         return world
 
@@ -674,6 +675,7 @@ class ODEUSimulation:
 
     def _apply_action(self, world: WorldState, action: Action) -> None:
         actor = self._agent_by_id(world, action.actor_id)
+        actor.last_action = action.action_type.value
         actor.o_state.resources = max(0.0, actor.o_state.resources - action.material_cost)
         self._apply_lane_impact(actor, action.lane_impact)
         for contract in get_action_contracts(action.action_type):
@@ -1019,11 +1021,12 @@ class ODEUSimulation:
         turn: int,
         summary: str,
         related_ids: tuple[str, ...],
+        world: WorldState | None = None,
     ) -> None:
-        world = self.get_state() if self.state is not None else None
-        if world is None:
+        target_world = world if world is not None else self.state
+        if target_world is None:
             return
-        world.event_records.append(
+        target_world.event_records.append(
             EventRecord(
                 event_kind=event_kind,
                 turn=turn,
@@ -1048,6 +1051,8 @@ def summarize_action_counts(world: WorldState) -> dict[str, int]:
 
 
 def summarize_lane_state(world: WorldState) -> dict[str, float]:
+    if not world.agents:
+        raise ValueError("world.agents must be non-empty")
     return {
         "mean_legitimacy_belief": round(
             mean(agent.d_state.legitimacy_belief for agent in world.agents), 6
