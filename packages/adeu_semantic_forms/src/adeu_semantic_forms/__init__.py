@@ -1,7 +1,13 @@
+from .bridge_v48 import (
+    ADEU_SEMANTIC_SEED_V48_BRIDGE_ERROR_SCHEMA,
+    SemanticFormsV48BridgeError,
+    bridge_seed_to_v48a_taskpack_binding_profile,
+)
 from .models import (
     ADEU_SEMANTIC_NORMAL_FORM_SCHEMA,
     ADEU_SEMANTIC_PARSE_PROFILE_SCHEMA,
     ADEU_SEMANTIC_PARSE_RESULT_SCHEMA,
+    ADEU_SEMANTIC_SEED_V48_BRIDGE_CONTRACT_SCHEMA,
     ADEU_SEMANTIC_STATEMENT_CORE_SCHEMA,
     ADEU_SEMANTIC_TRANSFORM_CONTRACT_SCHEMA,
     ADEU_TASKPACK_BINDING_SPEC_SEED_SCHEMA,
@@ -17,6 +23,7 @@ from .models import (
     SemanticParseCandidate,
     SemanticParseProfile,
     SemanticParseResult,
+    SemanticSeedV48BridgeContract,
     SemanticStatementCore,
     SemanticTransformContract,
     TaskpackBindingSpecSeed,
@@ -27,6 +34,7 @@ from .models import (
 from .parse_profile import (
     build_reference_repo_policy_work_profile,
     build_reference_transform_contract,
+    build_reference_v48_bridge_contract,
 )
 from .parser import parse_nl_to_semantic_result
 from .transform_v48_seed import (
@@ -37,6 +45,8 @@ from .transform_v48_seed import (
 
 __all__ = [
     "ADEU_TASKPACK_BINDING_SPEC_SEED_SCHEMA",
+    "ADEU_SEMANTIC_SEED_V48_BRIDGE_CONTRACT_SCHEMA",
+    "ADEU_SEMANTIC_SEED_V48_BRIDGE_ERROR_SCHEMA",
     "ADEU_SEMANTIC_NORMAL_FORM_SCHEMA",
     "ADEU_SEMANTIC_PARSE_PROFILE_SCHEMA",
     "ADEU_SEMANTIC_PARSE_RESULT_SCHEMA",
@@ -54,16 +64,20 @@ __all__ = [
     "SemanticNormalForm",
     "SemanticParseProfile",
     "SemanticParseResult",
+    "SemanticSeedV48BridgeContract",
     "SemanticStatementCore",
     "SemanticTransformContract",
     "TaskpackBindingSpecSeed",
     "WorkerAnchor",
     "build_reference_repo_policy_work_profile",
+    "build_reference_v48_bridge_contract",
     "build_reference_transform_contract",
+    "bridge_seed_to_v48a_taskpack_binding_profile",
     "canonical_json",
     "lower_parse_result_to_taskpack_binding_spec_seed",
     "lower_semantic_normal_form_to_taskpack_binding_spec_seed",
     "parse_nl_to_semantic_result",
     "sha256_canonical_json",
     "SemanticFormsLoweringError",
+    "SemanticFormsV48BridgeError",
 ]

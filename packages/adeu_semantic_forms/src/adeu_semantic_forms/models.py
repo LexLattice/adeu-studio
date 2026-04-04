@@ -4,6 +4,14 @@ import hashlib
 import json
 from typing import Any, Literal
 
+from adeu_agent_harness.taskpack_binding import (
+    LineageResolutionPosture,
+    PromptProjectionInput,
+    PromptProjectionPosture,
+    TaskpackCommandProjection,
+    TaskpackEvidenceSlotProjection,
+    UnsupportedMappingPosture,
+)
 from pydantic import BaseModel, ConfigDict, Field, field_validator, model_validator
 
 ADEU_SEMANTIC_PARSE_PROFILE_SCHEMA = "adeu_semantic_parse_profile@1"
@@ -12,6 +20,7 @@ ADEU_SEMANTIC_NORMAL_FORM_SCHEMA = "adeu_semantic_normal_form@1"
 ADEU_SEMANTIC_PARSE_RESULT_SCHEMA = "adeu_semantic_parse_result@1"
 ADEU_SEMANTIC_TRANSFORM_CONTRACT_SCHEMA = "adeu_semantic_transform_contract@1"
 ADEU_TASKPACK_BINDING_SPEC_SEED_SCHEMA = "adeu_taskpack_binding_spec_seed@1"
+ADEU_SEMANTIC_SEED_V48_BRIDGE_CONTRACT_SCHEMA = "adeu_semantic_seed_v48_bridge_contract@1"
 
 IDENTITY_FIELD_NAMES = ("relation_kind", "object_value")
 PROJECTION_FIELD_NAMES = (
@@ -534,6 +543,109 @@ class SemanticTransformContract(BaseModel):
             raise ValueError(
                 "required_singleton_relations and supported_multi_relations must be disjoint"
             )
+        basis = self.model_dump(
+            mode="json",
+            by_alias=True,
+            exclude={"semantic_hash"},
+            exclude_none=True,
+        )
+        self.semantic_hash = sha256_canonical_json(basis)
+        return self
+
+
+class SemanticSeedV48BridgeContract(BaseModel):
+    model_config = MODEL_CONFIG
+
+    schema_id: Literal[ADEU_SEMANTIC_SEED_V48_BRIDGE_CONTRACT_SCHEMA] = Field(
+        default=ADEU_SEMANTIC_SEED_V48_BRIDGE_CONTRACT_SCHEMA,
+        alias="schema",
+    )
+    bridge_contract_id: str = Field(min_length=1)
+    profile_id: str = Field(min_length=1)
+    snapshot_id: str = Field(min_length=1)
+    snapshot_sha256: str = Field(min_length=1)
+    binding_profile_id: str = Field(min_length=1)
+    binding_subject_id: str = Field(min_length=1)
+    task_scope_summary: str = Field(min_length=1)
+    policy_source_ref: str = Field(min_length=1)
+    scope_source_ref: str = Field(min_length=1)
+    scope_binding_entry_ref: str = Field(min_length=1)
+    expected_scope_anchor_ref: str = Field(min_length=1)
+    expected_policy_anchor_ref: str = Field(min_length=1)
+    expected_worker_subject_ref: str = Field(min_length=1)
+    command_projection: list[TaskpackCommandProjection]
+    evidence_slot_projection: list[TaskpackEvidenceSlotProjection]
+    prompt_projection_inputs: list[PromptProjectionInput]
+    lineage_resolution_posture: LineageResolutionPosture
+    prompt_projection_posture: PromptProjectionPosture
+    unsupported_mapping_posture: UnsupportedMappingPosture
+    semantic_hash: str = Field(min_length=1)
+
+    @property
+    def schema(self) -> str:
+        return self.schema_id
+
+    @model_validator(mode="after")
+    def _validate(self) -> "SemanticSeedV48BridgeContract":
+        self.bridge_contract_id = self.bridge_contract_id.strip()
+        self.profile_id = self.profile_id.strip()
+        self.snapshot_id = self.snapshot_id.strip()
+        self.snapshot_sha256 = self.snapshot_sha256.strip()
+        self.binding_profile_id = self.binding_profile_id.strip()
+        self.binding_subject_id = self.binding_subject_id.strip()
+        self.task_scope_summary = self.task_scope_summary.strip()
+        self.policy_source_ref = self.policy_source_ref.strip()
+        self.scope_source_ref = self.scope_source_ref.strip()
+        self.scope_binding_entry_ref = self.scope_binding_entry_ref.strip()
+        self.expected_scope_anchor_ref = self.expected_scope_anchor_ref.strip()
+        self.expected_policy_anchor_ref = self.expected_policy_anchor_ref.strip()
+        self.expected_worker_subject_ref = self.expected_worker_subject_ref.strip()
+        for field_name in (
+            "bridge_contract_id",
+            "profile_id",
+            "snapshot_id",
+            "snapshot_sha256",
+            "binding_profile_id",
+            "binding_subject_id",
+            "task_scope_summary",
+            "policy_source_ref",
+            "scope_source_ref",
+            "scope_binding_entry_ref",
+            "expected_scope_anchor_ref",
+            "expected_policy_anchor_ref",
+            "expected_worker_subject_ref",
+        ):
+            if not getattr(self, field_name):
+                raise ValueError(f"{field_name} must not be empty")
+
+        command_ids = [row.command_id for row in self.command_projection]
+        if command_ids != sorted(command_ids):
+            raise ValueError("command_projection must be sorted by command_id")
+        if len(command_ids) != len(set(command_ids)):
+            raise ValueError("command_projection command_id values must be unique")
+
+        slot_ids = [row.slot_id for row in self.evidence_slot_projection]
+        if slot_ids != sorted(slot_ids):
+            raise ValueError("evidence_slot_projection must be sorted by slot_id")
+        if len(slot_ids) != len(set(slot_ids)):
+            raise ValueError("evidence_slot_projection slot_id values must be unique")
+
+        prompt_keys = [
+            (
+                row.source_kind,
+                row.text,
+                tuple(row.path_mentions),
+                tuple(row.command_ids_mentioned),
+                tuple(row.evidence_slot_ids_mentioned),
+                tuple(row.extra_authority_claims),
+            )
+            for row in self.prompt_projection_inputs
+        ]
+        if prompt_keys != sorted(prompt_keys):
+            raise ValueError("prompt_projection_inputs must be deterministically sorted")
+        if len(prompt_keys) != len(set(prompt_keys)):
+            raise ValueError("prompt_projection_inputs must not contain duplicates")
+
         basis = self.model_dump(
             mode="json",
             by_alias=True,

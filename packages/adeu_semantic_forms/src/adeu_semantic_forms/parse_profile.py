@@ -1,6 +1,10 @@
 from __future__ import annotations
 
-from .models import SemanticParseProfile, SemanticTransformContract
+from .models import (
+    SemanticParseProfile,
+    SemanticSeedV48BridgeContract,
+    SemanticTransformContract,
+)
 
 ENTITY_CATALOG_SCOPE_REF = (
     "apps/api/fixtures/repo_description/vnext_plus99/"
@@ -165,6 +169,87 @@ def build_reference_transform_contract(profile_id: str) -> SemanticTransformCont
                 "unsupported_mapping_posture": "fail_closed",
             },
             "unsupported_relation_kinds": [],
+            "semantic_hash": "derived-by-model-validator",
+        }
+    )
+
+
+def build_reference_v48_bridge_contract(profile_id: str) -> SemanticSeedV48BridgeContract:
+    return SemanticSeedV48BridgeContract.model_validate(
+        {
+            "bridge_contract_id": (
+                "repo_policy_work.reference_v49c_seed_to_v48a_binding_profile@1"
+            ),
+            "profile_id": profile_id,
+            "snapshot_id": "repo_snapshot_be15b89dfafbee994e98b291",
+            "snapshot_sha256": "be15b89dfafbee994e98b2917db37160810bc685d7731740b2b56defbfadd1ab",
+            "binding_profile_id": "v48a_reference_binding_profile",
+            "binding_subject_id": "binding_subject:repo_symbol_catalog:owner_projection",
+            "task_scope_summary": (
+                "Bind one released V47-E consumer row and one admitted V45 "
+                "symbol-catalog scope into kernel-shaped taskpack projections only."
+            ),
+            "policy_source_ref": POLICY_CONSUMER_REF,
+            "scope_source_ref": SYMBOL_CATALOG_SCOPE_REF,
+            "scope_binding_entry_ref": SYMBOL_CATALOG_BINDING_ENTRY_REF,
+            "expected_scope_anchor_ref": "repo_symbol_catalog",
+            "expected_policy_anchor_ref": "release_surface:owner",
+            "expected_worker_subject_ref": WORKER_SUBJECT_REF,
+            "command_projection": [
+                {
+                    "command_id": "pytest",
+                    "run": (
+                        ".venv/bin/python -m pytest "
+                        "packages/adeu_agent_harness/tests/test_taskpack_binding.py"
+                    ),
+                    "working_directory_or_repo_root": "repo_root",
+                    "env_overrides": {
+                        "LC_ALL": "C",
+                    },
+                },
+                {
+                    "command_id": "ruff",
+                    "run": ".venv/bin/python -m ruff check packages/adeu_agent_harness",
+                    "working_directory_or_repo_root": "repo_root",
+                    "env_overrides": {
+                        "TZ": "UTC",
+                    },
+                },
+            ],
+            "evidence_slot_projection": [
+                {
+                    "slot_id": "binding_profile_json",
+                    "description": "Capture the canonical binding profile JSON payload.",
+                    "required": True,
+                },
+                {
+                    "slot_id": "pytest_output",
+                    "description": "Capture focused pytest output for the V48-A harness lane.",
+                    "required": True,
+                },
+            ],
+            "prompt_projection_inputs": [
+                {
+                    "source_kind": "prompt_text",
+                    "text": (
+                        "Edit only the typed binding lane paths and run only the "
+                        "released pytest command."
+                    ),
+                    "path_mentions": [
+                        "packages/adeu_agent_harness/src/adeu_agent_harness/taskpack_binding.py",
+                        "packages/adeu_agent_harness/tests/test_taskpack_binding.py",
+                    ],
+                    "command_ids_mentioned": ["pytest"],
+                    "evidence_slot_ids_mentioned": [
+                        "binding_profile_json",
+                        "pytest_output",
+                    ],
+                    "extra_authority_claims": [],
+                }
+            ],
+            "lineage_resolution_posture": "fail_closed_on_unresolved_or_stale_lineage",
+            "prompt_projection_posture": "projection_only_non_authoritative",
+            "unsupported_mapping_posture": "fail_closed",
             "semantic_hash": "derived-by-model-validator",
         }
     )

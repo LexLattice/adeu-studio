@@ -1,0 +1,33 @@
+{
+  "schema": "adeu_taskpack_binding_spec_seed@1",
+  "seed_id": "seed:90cc644acbfeaa42",
+  "profile_id": "repo_policy_work.reference_v49a",
+  "source_normal_form_hash": "06e2e6449462c7b323af044020141478a26c2c30e3333d6096b94ef685853b6a",
+  "transform_contract_id": "repo_policy_work.reference_v49a_to_taskpack_binding_spec_seed@1",
+  "transform_contract_hash": "a86000152d96a1be01ec509ad224eeefd6ea7887581a21e1b4db45861cc5c528",
+  "scope_anchor_ref": "repo_symbol_catalog",
+  "policy_anchor_ref": "release_surface:owner",
+  "worker_subject_ref": "worker:repo_internal_single_codex_worker:default",
+  "mutation_posture": "read_only",
+  "allow_paths": [
+    "packages/adeu_agent_harness/src/adeu_agent_harness/taskpack_binding.py",
+    "packages/adeu_agent_harness/tests/test_taskpack_binding.py"
+  ],
+  "forbid_paths": [
+    "apps/web",
+    "packages/adeu_semantic_source"
+  ],
+  "forbid_effects": [
+    "multi_worker_topology",
+    "network_calls"
+  ],
+  "artifact_kinds": [
+    "taskpack_binding_spec_seed"
+  ],
+  "fixed_defaults": {
+    "lineage_resolution_posture": "fail_closed_on_unresolved_or_stale_lineage",
+    "prompt_projection_posture": "projection_only_non_authoritative",
+    "unsupported_mapping_posture": "fail_closed"
+  },
+  "seed_hash": "90cc644acbfeaa421a6a1626909d817ba64976e282a781a2c00cddfcc86d558b"
+}

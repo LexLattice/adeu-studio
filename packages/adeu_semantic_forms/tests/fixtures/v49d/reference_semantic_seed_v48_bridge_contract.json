@@ -1,0 +1,68 @@
+{
+  "schema": "adeu_semantic_seed_v48_bridge_contract@1",
+  "bridge_contract_id": "repo_policy_work.reference_v49c_seed_to_v48a_binding_profile@1",
+  "profile_id": "repo_policy_work.reference_v49a",
+  "snapshot_id": "repo_snapshot_be15b89dfafbee994e98b291",
+  "snapshot_sha256": "be15b89dfafbee994e98b2917db37160810bc685d7731740b2b56defbfadd1ab",
+  "binding_profile_id": "v48a_reference_binding_profile",
+  "binding_subject_id": "binding_subject:repo_symbol_catalog:owner_projection",
+  "task_scope_summary": "Bind one released V47-E consumer row and one admitted V45 symbol-catalog scope into kernel-shaped taskpack projections only.",
+  "policy_source_ref": "packages/adeu_commitments_ir/tests/fixtures/v47e/reference_anm_policy_consumer_binding_profile.json#consumer_rows[0]",
+  "scope_source_ref": "apps/api/fixtures/repo_description/vnext_plus101/repo_symbol_catalog_v101_reference.json",
+  "scope_binding_entry_ref": "apps/api/fixtures/repo_description/vnext_plus105/repo_descriptive_normative_binding_frame_v105_reference.json#binding_entry_d9b4bd5b1693dea4ec3c09cd",
+  "expected_scope_anchor_ref": "repo_symbol_catalog",
+  "expected_policy_anchor_ref": "release_surface:owner",
+  "expected_worker_subject_ref": "worker:repo_internal_single_codex_worker:default",
+  "command_projection": [
+    {
+      "command_id": "pytest",
+      "run": ".venv/bin/python -m pytest packages/adeu_agent_harness/tests/test_taskpack_binding.py",
+      "working_directory_or_repo_root": "repo_root",
+      "env_overrides": {
+        "LC_ALL": "C"
+      }
+    },
+    {
+      "command_id": "ruff",
+      "run": ".venv/bin/python -m ruff check packages/adeu_agent_harness",
+      "working_directory_or_repo_root": "repo_root",
+      "env_overrides": {
+        "TZ": "UTC"
+      }
+    }
+  ],
+  "evidence_slot_projection": [
+    {
+      "slot_id": "binding_profile_json",
+      "description": "Capture the canonical binding profile JSON payload.",
+      "required": true
+    },
+    {
+      "slot_id": "pytest_output",
+      "description": "Capture focused pytest output for the V48-A harness lane.",
+      "required": true
+    }
+  ],
+  "prompt_projection_inputs": [
+    {
+      "source_kind": "prompt_text",
+      "text": "Edit only the typed binding lane paths and run only the released pytest command.",
+      "path_mentions": [
+        "packages/adeu_agent_harness/src/adeu_agent_harness/taskpack_binding.py",
+        "packages/adeu_agent_harness/tests/test_taskpack_binding.py"
+      ],
+      "command_ids_mentioned": [
+        "pytest"
+      ],
+      "evidence_slot_ids_mentioned": [
+        "binding_profile_json",
+        "pytest_output"
+      ],
+      "extra_authority_claims": []
+    }
+  ],
+  "lineage_resolution_posture": "fail_closed_on_unresolved_or_stale_lineage",
+  "prompt_projection_posture": "projection_only_non_authoritative",
+  "unsupported_mapping_posture": "fail_closed",
+  "semantic_hash": "df7e58fb1cd57b5cdfefc51d632a54e04a7aca99e4a90ae4c867438f727a1f93"
+}
