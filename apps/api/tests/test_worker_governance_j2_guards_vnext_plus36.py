@@ -359,16 +359,36 @@ def test_v36_j2_anti_coupling_diff_guard_for_v31_g_surfaces() -> None:
     if touched_forbidden_surfaces:
         # v36 anti-coupling guard remains strict-by-default, but v37 K1 is
         # allowed to touch the frozen V31-G release surfaces with a narrow file set.
-        assert touched_forbidden_surfaces == sorted(forbidden_v31_g_surface_changes)
-        allowed_v31_g_release_changes = {
-            "apps/api/src/adeu_api/main.py",
-            "apps/api/src/adeu_api/storage.py",
-            "apps/api/tests/test_core_ir_proposer_y2.py",
-            "apps/api/tests/test_core_ir_proposer_y4_guards.py",
-            "apps/api/tests/test_worker_governance_j2_guards_vnext_plus36.py",
-        }
-        unexpected_changes = sorted(set(changed_files).difference(allowed_v31_g_release_changes))
-        assert unexpected_changes == []
+        if touched_forbidden_surfaces == ["apps/api/src/adeu_api/main.py"]:
+            # V51-B may touch the main API app only to register the bounded
+            # ODEU simulation route, without widening into the deferred V31-G
+            # storage/persistence seam.
+            allowed_v51_b_api_changes = {
+                "apps/api/pyproject.toml",
+                "apps/api/src/adeu_api/main.py",
+                "apps/api/src/adeu_api/odeu_sim.py",
+                "apps/api/tests/fixtures/v51b/reference_odeu_run_response_healthy_baseline.json",
+                "apps/api/tests/fixtures/v51b/reference_odeu_run_response_invalid_negative_seed.json",
+                "apps/api/tests/fixtures/v51b/reference_odeu_run_response_kernel_mismatch.json",
+                "apps/api/tests/fixtures/v51b/reference_odeu_run_response_weak_d.json",
+                "apps/api/tests/test_odeu_sim_vnext_plus125.py",
+                "apps/api/tests/test_worker_governance_j2_guards_vnext_plus36.py",
+            }
+            unexpected_changes = sorted(set(changed_files).difference(allowed_v51_b_api_changes))
+            assert unexpected_changes == []
+        else:
+            assert touched_forbidden_surfaces == sorted(forbidden_v31_g_surface_changes)
+            allowed_v31_g_release_changes = {
+                "apps/api/src/adeu_api/main.py",
+                "apps/api/src/adeu_api/storage.py",
+                "apps/api/tests/test_core_ir_proposer_y2.py",
+                "apps/api/tests/test_core_ir_proposer_y4_guards.py",
+                "apps/api/tests/test_worker_governance_j2_guards_vnext_plus36.py",
+            }
+            unexpected_changes = sorted(
+                set(changed_files).difference(allowed_v31_g_release_changes)
+            )
+            assert unexpected_changes == []
     else:
         assert touched_forbidden_surfaces == []
 

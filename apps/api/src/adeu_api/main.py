@@ -172,6 +172,7 @@ from .normative_advice_vnext_plus21 import (
     build_normative_advice_projection_vnext_plus21,
     normative_advice_non_enforcement_context,
 )
+from .odeu_sim import router as odeu_sim_router
 from .openai_concept_provider import propose_concept_codex, propose_concept_openai
 from .puzzle_id_canonicalization import canonicalize_puzzle_ids
 from .puzzle_mock_provider import get_puzzle_fixture_bundle
@@ -1346,6 +1347,7 @@ app.add_middleware(
     allow_headers=["*"],
 )
 app.include_router(urm_router)
+app.include_router(odeu_sim_router)
 
 
 class PuzzleProposeCandidate(BaseModel):

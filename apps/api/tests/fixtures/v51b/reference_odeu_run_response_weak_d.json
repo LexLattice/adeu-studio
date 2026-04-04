@@ -1,0 +1,77 @@
+{
+  "schema": "adeu_odeu_run_response@1",
+  "request_status": "completed_clean",
+  "request_ref": "artifact:odeu_run_request:0e3723643e98123c50c6b20b6a773ffe6e7a8e15cc4932ed9b4a773783922610",
+  "kernel_contract_ref": "docs/LOCKED_CONTINUATION_vNEXT_PLUS124.md#v124-continuation-contract-machine-checkable",
+  "run_summary": {
+    "schema": "adeu_odeu_run_summary@1",
+    "meta": {
+      "scenario": "weak_d",
+      "seed": 7,
+      "turn": 25,
+      "regime_label": "Symbolic Institution Drift"
+    },
+    "config_snapshot": {
+      "schema": "adeu_odeu_scenario_config@1",
+      "name": "weak_d",
+      "description": "Norms still exist, but enforcement throughput and consistency are too weak to stay operative.",
+      "num_agents": 48,
+      "scarcity": 0.35,
+      "regeneration_rate": 0.12,
+      "misinformation": 0.12,
+      "verification_capacity": 0.62,
+      "enforcement_capacity": 0.2,
+      "sanction_severity": 0.8,
+      "initial_legitimacy": 0.58,
+      "initial_operativity": 0.32,
+      "sanction_consistency": 0.3,
+      "archive_capacity": 0.62,
+      "appeal_availability": 0.7,
+      "public_epistemics_level": 0.58,
+      "ai_mode": "none",
+      "ai_reliability": 0.0,
+      "cooperator_share": 0.34,
+      "opportunist_share": 0.28,
+      "auditor_share": 0.18,
+      "official_share": 0.08,
+      "ai_dependent_share": 0.12,
+      "max_turns": 200
+    },
+    "scenario": "weak_d",
+    "seed": 7,
+    "turn": 25,
+    "current_metric": {
+      "schema": "adeu_odeu_metric_point@1",
+      "turn": 25,
+      "cooperation_rate": 0.8636363636363636,
+      "commons_health": 1.0,
+      "average_belief_accuracy": 0.9428437536607407,
+      "epistemic_integrity": 0.5841045843583408,
+      "institution_legitimacy": 0.0,
+      "institution_operativity": 0.32,
+      "symbolic_gap": 0.6799999999999999,
+      "sanction_consistency": 0.3,
+      "utility_concentration": 0.5890953178097784,
+      "trust_fragmentation": 0.1999614121163817,
+      "regime_label": "Symbolic Institution Drift"
+    },
+    "lane_summary": {
+      "mean_legitimacy_belief": 0.128134,
+      "mean_uncertainty": 0.05,
+      "mean_resources": 12.830185
+    },
+    "action_counts": {
+      "audit_institution": 9,
+      "contribute_to_commons": 19,
+      "defect_or_overextract": 3,
+      "sanction": 1,
+      "share_claim": 15,
+      "verify": 1
+    },
+    "event_record_count": 2849,
+    "evidence_record_count": 94,
+    "sanction_event_count": 18
+  },
+  "failure_code": null,
+  "response_hash": "0fc276510f8702dd0319323c4f133724716def4445affb51d6d1803183d9c2e9"
+}
