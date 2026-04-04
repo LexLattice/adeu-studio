@@ -1,0 +1,8 @@
+{
+  "schema": "adeu_symbol_audit_session_config@1",
+  "session_config_id": "symbol_audit_session_config:ca00f44adbb67c33",
+  "session_mode": "read_only_helper_render",
+  "output_format": "text",
+  "include_evidence_refs": false,
+  "semantic_hash": "242ff88a1ac4fee7c07677a8c2e7c7b298cfe1c7a0285ac4c252a480adb8ca82"
+}

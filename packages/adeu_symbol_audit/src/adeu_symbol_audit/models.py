@@ -15,6 +15,8 @@ ADEU_SYMBOL_AUDIT_COVERAGE_REPORT_SCHEMA = "adeu_symbol_audit_coverage_report@1"
 ADEU_SYMBOL_SEMANTIC_EVIDENCE_REF_SCHEMA = "adeu_symbol_semantic_evidence_ref@1"
 ADEU_SYMBOL_SEMANTIC_AUDIT_ENTRY_SCHEMA = "adeu_symbol_semantic_audit_entry@1"
 ADEU_SYMBOL_SEMANTIC_AUDIT_SCHEMA = "adeu_symbol_semantic_audit@1"
+ADEU_SYMBOL_AUDIT_SESSION_CONFIG_SCHEMA = "adeu_symbol_audit_session_config@1"
+ADEU_SYMBOL_AUDIT_SESSION_SCHEMA = "adeu_symbol_audit_session@1"
 
 MODEL_CONFIG = ConfigDict(extra="forbid", frozen=True, populate_by_name=True)
 
@@ -27,6 +29,13 @@ AuditStatus = Literal["audited_hypothesis", "audited_low_confidence", "unresolve
 ConfidenceBand = Literal["low", "medium"]
 EvidenceKind = Literal["source_span", "call_summary", "decorator", "baseclass"]
 SemanticVocabularyPosture = Literal["explicit_independence_from_v49"]
+SessionMode = Literal["read_only_helper_render"]
+SessionStatus = Literal[
+    "completed_clean",
+    "fail_closed_input_mismatch",
+    "fail_closed_invalid_config",
+]
+OutputFormat = Literal["text", "json"]
 
 _SYMBOL_KIND_ORDER: dict[SymbolKind, int] = {
     "class": 0,
@@ -109,6 +118,16 @@ def compute_symbol_audit_symbol_id(
 def compute_scope_manifest_id(payload_without_id: dict[str, Any]) -> str:
     digest = _sha256_canonical_payload(payload_without_id)
     return f"scope_manifest:{digest[:16]}"
+
+
+def compute_session_config_id(payload_without_id: dict[str, Any]) -> str:
+    digest = _sha256_canonical_payload(payload_without_id)
+    return f"symbol_audit_session_config:{digest[:16]}"
+
+
+def compute_session_id(payload_without_id: dict[str, Any]) -> str:
+    digest = _sha256_canonical_payload(payload_without_id)
+    return f"symbol_audit_session:{digest[:16]}"
 
 
 class ScopeManifestSourceFile(BaseModel):
@@ -569,9 +588,146 @@ class SymbolSemanticAudit(BaseModel):
         return self
 
 
+class SymbolAuditSessionConfig(BaseModel):
+    model_config = MODEL_CONFIG
+
+    schema_id: Literal[ADEU_SYMBOL_AUDIT_SESSION_CONFIG_SCHEMA] = Field(
+        default=ADEU_SYMBOL_AUDIT_SESSION_CONFIG_SCHEMA,
+        alias="schema",
+    )
+    session_config_id: str
+    session_mode: SessionMode
+    output_format: OutputFormat
+    include_evidence_refs: bool
+    semantic_hash: str
+
+    @property
+    def schema(self) -> str:
+        return self.schema_id
+
+    @model_validator(mode="after")
+    def _validate(self) -> "SymbolAuditSessionConfig":
+        object.__setattr__(
+            self,
+            "session_config_id",
+            _assert_non_empty_text(self.session_config_id, field_name="session_config_id"),
+        )
+        object.__setattr__(
+            self,
+            "semantic_hash",
+            _assert_sha256_hex(self.semantic_hash, field_name="semantic_hash"),
+        )
+        expected_semantic_hash = _sha256_canonical_payload(
+            {
+                "schema": self.schema,
+                "session_mode": self.session_mode,
+                "output_format": self.output_format,
+                "include_evidence_refs": self.include_evidence_refs,
+            }
+        )
+        if self.semantic_hash != expected_semantic_hash:
+            raise ValueError("semantic_hash must match canonical session config payload")
+        expected_session_config_id = compute_session_config_id(
+            {
+                "schema": self.schema,
+                "session_mode": self.session_mode,
+                "output_format": self.output_format,
+                "include_evidence_refs": self.include_evidence_refs,
+                "semantic_hash": self.semantic_hash,
+            }
+        )
+        if self.session_config_id != expected_session_config_id:
+            raise ValueError("session_config_id must match canonical session config identity")
+        return self
+
+
+class SymbolAuditSession(BaseModel):
+    model_config = MODEL_CONFIG
+
+    schema_id: Literal[ADEU_SYMBOL_AUDIT_SESSION_SCHEMA] = Field(
+        default=ADEU_SYMBOL_AUDIT_SESSION_SCHEMA,
+        alias="schema",
+    )
+    session_id: str
+    scope_manifest_ref: str
+    census_hash: str
+    audit_hash: str
+    session_config_ref: str
+    session_status: SessionStatus
+    rendered_output: str
+    exit_code: int
+    session_hash: str
+
+    @property
+    def schema(self) -> str:
+        return self.schema_id
+
+    @model_validator(mode="after")
+    def _validate(self) -> "SymbolAuditSession":
+        for field_name in (
+            "session_id",
+            "scope_manifest_ref",
+            "session_config_ref",
+            "rendered_output",
+        ):
+            object.__setattr__(
+                self,
+                field_name,
+                _assert_non_empty_text(getattr(self, field_name), field_name=field_name),
+            )
+        object.__setattr__(
+            self, "census_hash", _assert_sha256_hex(self.census_hash, field_name="census_hash")
+        )
+        object.__setattr__(
+            self, "audit_hash", _assert_sha256_hex(self.audit_hash, field_name="audit_hash")
+        )
+        object.__setattr__(
+            self, "session_hash", _assert_sha256_hex(self.session_hash, field_name="session_hash")
+        )
+        expected_exit_code = {
+            "completed_clean": 0,
+            "fail_closed_input_mismatch": 1,
+            "fail_closed_invalid_config": 2,
+        }[self.session_status]
+        if self.exit_code != expected_exit_code:
+            raise ValueError("exit_code must match the typed session_status posture")
+        expected_session_hash = _sha256_canonical_payload(
+            {
+                "schema": self.schema,
+                "scope_manifest_ref": self.scope_manifest_ref,
+                "census_hash": self.census_hash,
+                "audit_hash": self.audit_hash,
+                "session_config_ref": self.session_config_ref,
+                "session_status": self.session_status,
+                "rendered_output": self.rendered_output,
+                "exit_code": self.exit_code,
+            }
+        )
+        if self.session_hash != expected_session_hash:
+            raise ValueError("session_hash must match canonical session payload")
+        expected_session_id = compute_session_id(
+            {
+                "schema": self.schema,
+                "scope_manifest_ref": self.scope_manifest_ref,
+                "census_hash": self.census_hash,
+                "audit_hash": self.audit_hash,
+                "session_config_ref": self.session_config_ref,
+                "session_status": self.session_status,
+                "rendered_output": self.rendered_output,
+                "exit_code": self.exit_code,
+                "session_hash": self.session_hash,
+            }
+        )
+        if self.session_id != expected_session_id:
+            raise ValueError("session_id must match canonical session identity")
+        return self
+
+
 __all__ = [
     "ADEU_SYMBOL_AUDIT_COVERAGE_REPORT_SCHEMA",
     "ADEU_SYMBOL_AUDIT_SCOPE_MANIFEST_SCHEMA",
+    "ADEU_SYMBOL_AUDIT_SESSION_CONFIG_SCHEMA",
+    "ADEU_SYMBOL_AUDIT_SESSION_SCHEMA",
     "ADEU_SYMBOL_CENSUS_ENTRY_SCHEMA",
     "ADEU_SYMBOL_CENSUS_SCHEMA",
     "ADEU_SYMBOL_SEMANTIC_AUDIT_ENTRY_SCHEMA",
@@ -583,17 +739,24 @@ __all__ = [
     "EvidenceKind",
     "ExtractorConfidencePosture",
     "LanguageKind",
+    "OutputFormat",
     "ParseStatus",
     "SemanticVocabularyPosture",
+    "SessionMode",
+    "SessionStatus",
     "ScopeManifestSourceFile",
     "SymbolAuditCoverageReport",
     "SymbolAuditScopeManifest",
+    "SymbolAuditSession",
+    "SymbolAuditSessionConfig",
     "SymbolCensus",
     "SymbolCensusEntry",
     "SymbolSemanticAudit",
     "SymbolSemanticAuditEntry",
     "SymbolSemanticEvidenceRef",
     "SymbolKind",
+    "compute_session_config_id",
+    "compute_session_id",
     "compute_scope_manifest_id",
     "compute_symbol_audit_symbol_id",
 ]
