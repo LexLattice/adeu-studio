@@ -4,7 +4,9 @@ Status: planning draft after `docs/DRAFT_NEXT_ARC_OPTIONS_v31.md`, updated after
 bounded `V48` family closed on `main`, the imported GPT Pro prototype bundles were
 normalized into repo-owned intake packs plus maintainer-side moduleization planning,
 and the bounded `V49-A` semantic substrate contract slice, bounded `V49-B` semantic
-recovery slice, and bounded `V49-C` deterministic lowering slice closed on `main`.
+recovery slice, bounded `V49-C` deterministic lowering slice, and bounded `V49-D`
+semantic-seed bridge slice closed on `main`, completing the bounded `V49` family with
+no further internal `V49` path currently selected.
 
 This draft does not automatically supersede the contest-participation planning branch in
 `docs/DRAFT_NEXT_ARC_OPTIONS_v26.md`, the structural-reasoning assessment planning
@@ -53,10 +55,10 @@ Interpretive doctrine for this planning surface:
 - `V48-A` through `V48-E` are closed on `main` and now constitute the completed bounded
   policy-to-taskpack and worker-enforcement bridge recorded in
   `docs/DRAFT_NEXT_ARC_OPTIONS_v31.md`.
-- `V49-A` through `V49-C` are closed on `main` and now constitute the completed
-  bounded semantic substrate contract, bounded recovery, and bounded deterministic
-  lowering slices recorded in this draft.
-- `vNext+119` is the current implementation-arc baseline on `main`.
+- `V49-A` through `V49-D` are closed on `main` and now constitute the completed
+  bounded semantic substrate contract, bounded recovery, bounded deterministic
+  lowering, and bounded semantic-seed bridge slices recorded in this draft.
+- `vNext+120` is the current implementation-arc baseline on `main`.
 - imported GPT Pro prototype bundles have been normalized under:
   - `examples/external_prototypes/adeu-semantic-forms-v0-bundle`
   - `examples/external_prototypes/adeu-symbol-audit-v0-bundle`
@@ -81,17 +83,27 @@ The repo no longer lacks:
 - support/planning notes that tell the truth about the imported external bundles and
   their recommended moduleization order.
 
-The repo still lacks a released, repo-owned semantic substrate family for:
+The repo no longer lacks the branch-local internal `V49` ladder.
 
-- one bounded downstream bridge helper that consumes released `V49` and released
-  `V48` surfaces without reopening either family.
+The bounded semantic substrate family now covers, on `main`:
 
-So the missing layer is not another `V48` continuation and not direct import of the
-intake bundle into live package paths.
+- released substrate contracts;
+- released bounded recovery;
+- released deterministic lowering into one narrow seed family; and
+- released bounded semantic-seed bridge behavior into the already released `V48`
+  binding / compile stack.
 
-The missing layer is the final semantic substrate realization lane grounded in the
-released `V49-A` contracts, released `V49-B` recovery outputs, and released `V49-C`
-deterministic lowering outputs: one later bounded downstream bridge behavior.
+So the remaining work after `vNext+120` is not another implicit `V49-E`.
+
+Any later widening beyond the shipped bounded semantic substrate family should be
+treated as:
+
+- a new planning decision;
+- a downstream consumer or adjacent family choice; or
+- a separately scoped future seam selection,
+
+rather than as an ambient continuation automatically authorized by this planning
+surface.
 
 ## Relationship To `V45`, `V47`, `V48`, And The Imported Bundles
 
@@ -184,15 +196,18 @@ Planning relationship:
   - `docs/DRAFT_NEXT_ARC_OPTIONS_v31.md`
   - `docs/DRAFT_NEXT_ARC_OPTIONS_v30.md`
   - `docs/DRAFT_NEXT_ARC_OPTIONS_v28.md`
+- Current family state for this branch:
+  - `V49-A` closed on `main`
+  - `V49-B` closed on `main`
+  - `V49-C` closed on `main`
+  - `V49-D` closed on `main`
 - Recommended next path for this branch:
-  - `V49-D`
+  - no further internal `V49` path currently selected
 - Recommended next concrete arc for this branch if selected:
-  - `vNext+120`
+  - no further internal `V49` concrete arc currently selected
 - Default path selection for this branch:
-  - select `V49-D` as the next default candidate
-  - treat that default as the bounded downstream bridge helper after the
-    substrate-contract, bounded recovery, and deterministic lowering lanes closed on
-    `main`
+  - no further internal `V49` path currently selected after the bounded
+    `V49-A` through `V49-D` ladder closed on `main`
 
 This family/path recommendation is branch-local to the `v32` planning surface.
 
@@ -262,7 +277,7 @@ The current recommended path ladder is:
 | `V49-A` | core semantic contracts | candidate parse-profile, semantic-normal-form, parse-result, and transform-contract surfaces plus starter statement calculus, identity/equivalence law, ambiguity law, and unsupported law | closed_on_main |
 | `V49-B` | bounded recovery engine | candidate `NL -> ADEU` recovery lane over one starter domain with explicit ambiguity posture | closed_on_main |
 | `V49-C` | deterministic lowering lane | candidate `semantic_normal_form -> taskpack_binding_spec_seed` lowering for one downstream target | closed_on_main |
-| `V49-D` | downstream `V48` bridge | one narrow bridge helper into released `V48-A` / `V48-B` flows | planned |
+| `V49-D` | downstream `V48` bridge | one narrow bridge helper into released `V48-A` / `V48-B` flows | closed_on_main |
 
 These output names are planning-level candidate names, not lock-level schema authority.
 
@@ -275,7 +290,7 @@ That is:
 - `V49-B` then adds bounded fallible recovery into those contracts;
 - `V49-C` is now the released deterministic lowering move from those released
   contracts and released recovery outputs on `main`;
-- `V49-D` now becomes the next narrow bridge into the released `V48` stack.
+- `V49-D` is now the released bounded bridge into the released `V48` stack.
 
 So the `A -> B -> C -> D` staging is an intentional separation between:
 
@@ -284,11 +299,11 @@ So the `A -> B -> C -> D` staging is an intentional separation between:
 - deterministic lowering;
 - downstream operational bridge.
 
-## Recommended Next Path (`V49-D`)
+## Completed Final Path (`V49-D`)
 
-Implement the bounded downstream bridge helper next.
+`V49-D` is now closed on `main` as the bounded downstream bridge helper.
 
-`V49-D` should introduce:
+`V49-D` introduced:
 
 - one repo-owned downstream bridge helper surface inside
   `packages/adeu_semantic_forms`;
@@ -303,7 +318,8 @@ Implement the bounded downstream bridge helper next.
 - one small deterministic reference fixture set proving:
   - successful bridge handoff from one released seed;
   - fail-closed rejection on released `V48-A` mismatch;
-  - fail-closed rejection on released `V48-B` compile mismatch;
+  - released-`binding_profile_ref` admissibility into `V48-B` with separate compile
+    inputs;
   - deterministic bridge replay;
 - no worker-envelope, conformance, delegation, or CLI/API/web consumer surfaces.
 
@@ -316,18 +332,18 @@ Implement the bounded downstream bridge helper next.
 
 ## Why This Path
 
-- It is the narrowest safe consumer of the now-released `V49-C` seed contract.
+- It was the narrowest safe consumer of the released `V49-C` seed contract.
 - It keeps bridge behavior subordinate to already released semantic identity,
   recovery, and lowering doctrine rather than laundering bridge semantics back into
   `V49-C`.
-- It proves whether the frozen starter-domain seed can enter the released `V48-A` /
+- It proved that the frozen starter-domain seed can enter the released `V48-A` /
   `V48-B` stack without reopening binding or compile contracts.
-- It lets later consumers depend on an explicit bridge helper instead of local ad hoc
+- It lets later consumers depend on one explicit bridge helper instead of local ad hoc
   handoff code.
 - It aligns with the current cross-module dependency table in
   `docs/DRAFT_GPT_PRO_PROTOTYPE_MODULEIZATION_PLAN_v0.md`.
 
-## Current Next-Slice Boundary (`V49-D`)
+## Completed Final-Slice Boundary (`V49-D`)
 
 `V49-D` should stay bounded to:
 
@@ -358,16 +374,18 @@ It should not attempt:
 - simulation integration;
 - CLI, API, or web surfaces.
 
-## Follow-On Paths Inside `V49`
+## Current Internal Family State
 
-### `V49-D`
+`V49` is now closed on `main` and no further internal `V49` path is currently
+selected.
 
-Downstream bridge lane:
+Any later work should be treated as:
 
-- consume released `V49-C` seed lineage only;
-- consume released `V48-A` / `V48-B` surfaces only;
-- add one narrow helper that hands the seed into the released binding/compile flow;
-- keep worker runtime and broader consumer widening out of scope.
+- a downstream consumer of released `V49` primitives;
+- an adjacent semantic family; or
+- a new planning branch,
+
+not as an ambient continuation automatically authorized inside `v32`.
 
 ## Candidate Package Ownership
 
@@ -431,7 +449,7 @@ are:
 {
   "schema": "next_arc_planning_baseline@1",
   "source_baseline_doc": "docs/DRAFT_NEXT_ARC_OPTIONS_v31.md",
-  "baseline_arc": "vNext+119",
+  "baseline_arc": "vNext+120",
   "closed_prior_families": [
     "V45",
     "V47",
@@ -459,13 +477,11 @@ are:
   "closed_current_family_paths": [
     "V49-A",
     "V49-B",
-    "V49-C"
-  ],
-  "planned_current_family_paths": [
     "V49-D"
   ],
-  "default_next_arc_candidate_for_this_branch": "V49-D",
-  "default_next_concrete_arc_candidate_for_this_branch": "vNext+120",
+  "planned_current_family_paths": [],
+  "default_next_arc_candidate_for_this_branch": null,
+  "default_next_concrete_arc_candidate_for_this_branch": null,
   "family_architecture_doc": "docs/DRAFT_GPT_PRO_PROTOTYPE_MODULEIZATION_PLAN_v0.md",
   "pre_lock_companion_docs_expected": [
     "docs/DRAFT_GPT_PRO_PROTOTYPE_MODULEIZATION_PLAN_v0.md",
@@ -478,7 +494,7 @@ are:
   "first_slice_active_packages": [
     "packages/adeu_semantic_forms"
   ],
-  "package_selection_status": "likely_first_owner_selected_in_planning_not_locked_yet",
+  "package_selection_status": "selected_and_released_on_main",
   "family_theme": "adeu_semantic_forms_canonical_semantic_language_substrate",
   "branch_local_planning_selection_only": true,
   "imported_shaping_bundle": "examples/external_prototypes/adeu-semantic-forms-v0-bundle",
@@ -492,7 +508,7 @@ are:
   "ambiguity_posture_required": true,
   "nl_to_adeu_recovery_released_on_main": true,
   "adeu_to_adeu_lowering_released_on_main": true,
-  "v48_bridge_deferred_to_v49d": true,
+  "v48_bridge_released_on_main": true,
   "consumer_surfaces_initially_deferred": true,
   "planning_boundary_mode": "scope_guard_not_lock_authority",
   "authority_layering_note": "docs/DRAFT_INTENT_AUTHORITY_LAYERING_NOTE_v0.md",
