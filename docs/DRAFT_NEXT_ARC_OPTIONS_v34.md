@@ -2,10 +2,9 @@
 
 Status: planning draft after `docs/DRAFT_NEXT_ARC_OPTIONS_v33.md`, updated after the
 bounded `V50` family closed on `main`, the repo-owned `adeu_symbol_audit` package
-landed as a released census / coverage / semantic-audit / session stack, and the next
-recommended imported-prototype internalization move narrowed to the ODEU simulation
-kernel family rather than another implicit continuation inside `V50` or a direct
-promotion of the imported sandbox app into live runtime surfaces.
+landed as a released census / coverage / semantic-audit / session stack, and `V51-A`
+closed on `main` as the released deterministic ODEU simulation kernel rather than a
+direct promotion of the imported sandbox app into live API/UI surfaces.
 
 This draft does not automatically supersede the contest-participation planning branch in
 `docs/DRAFT_NEXT_ARC_OPTIONS_v26.md`, the structural-reasoning assessment planning
@@ -64,7 +63,9 @@ Interpretive doctrine for this planning surface:
 - `V50-A` through `V50-C` are closed on `main` and now constitute the completed
   bounded symbol census / coverage, semantic-audit ledger, and read-only
   session-helper family recorded in `docs/DRAFT_NEXT_ARC_OPTIONS_v33.md`.
-- `vNext+123` is the current implementation-arc baseline on `main`.
+- `V51-A` is now closed on `main` and constitutes the released deterministic
+  kernel-only lane inside `packages/adeu_odeu_sim`.
+- `vNext+124` is the current implementation-arc baseline on `main`.
 - imported GPT Pro prototype bundles have been normalized under:
   - `examples/external_prototypes/adeu-semantic-forms-v0-bundle`
   - `examples/external_prototypes/adeu-symbol-audit-v0-bundle`
@@ -101,28 +102,20 @@ The repo no longer lacks the branch-local internal `V49` ladder.
 
 The repo no longer lacks the branch-local internal `V50` ladder.
 
-The missing layer after `vNext+123` is therefore not another implicit `V49-E` and not
-another implicit `V50-D`.
+The missing layer after `vNext+124` is therefore not another implicit `V49-E`, not
+another implicit `V50-D`, and not another kernel-first `V51-A`.
 
 Today the repo still lacks a released way to:
 
-- own one typed ODEU simulation kernel as a repo package rather than as a standalone
-  prototype tree;
-- freeze one starter ontology, one action catalog, one scenario set, one metrics
-  family, one regime classifier posture, and one deterministic engine loop before any
-  API or browser surface is accepted;
-- freeze the key nested kernel submodels as first-class repo-owned models rather than
-  leaving most of the ontology implicit inside a single `world_state` blob;
-- keep the imported FastAPI/static UI split as support evidence rather than silently
-  promoting it to live app ownership;
-- keep typed lane-crossing contracts explicit so the simulation does not regress into
-  prose-soft O/E/D/U interpretation during implementation;
-- freeze one typed event-record posture and one deterministic action-order / tie-break
-  law early enough that replay claims remain inspectable;
-- freeze exact archetype-share validation for starter scenarios instead of leaving it
-  as a reject-fixture-only expectation.
-- freeze exact starter scenarios early enough that the first kernel lock cannot drift
-  into an ambient “sandbox” abstraction without explicit replay obligations.
+- expose the released kernel through one bounded non-persistent scenario-execution API
+  consumer without reopening kernel semantics in the route layer;
+- keep API request/response contracts subordinate to the released kernel rather than
+  turning the API surface into a second owner of simulation law;
+- preserve deterministic replay, typed stack compatibility, and no-persistence
+  posture when the first API seam is added;
+- keep the imported FastAPI shape as support evidence only while the repo re-authors
+  a bounded consumer over the released kernel;
+- defer browser/UI widening until after one kernel-subordinate API seam is accepted.
 
 The missing layer is therefore not:
 
@@ -131,8 +124,8 @@ The missing layer is therefore not:
 - more `V50` symbol audit work; or
 - a direct import of the sandbox app into `apps/` surfaces.
 
-The missing layer is the ODEU simulation family itself, starting with the kernel-only
-package.
+The missing layer is the next bounded consumer inside the ODEU simulation family:
+the first kernel-subordinate API seam.
 
 ## Relationship To `V49`, `V50`, And The Imported Bundle
 
@@ -270,14 +263,15 @@ Planning relationship:
   - `examples/external_prototypes/odeu-sandbox-app/ALIGNMENT.md`
   - `examples/external_prototypes/odeu-sandbox-app/source_tree/odeu_sandbox/README.md`
 - Current family state for this branch:
-  - no internal `V51` path is yet released on `main`
+  - `V51-A` is released on `main`
 - Recommended next path for this branch:
-  - `V51-A`
+  - `V51-B`
 - Recommended next concrete arc for this branch if selected:
-  - `vNext+124`
+  - `vNext+125`
 - Default path selection for this branch:
-  - select `V51-A` as the next default candidate
-  - treat that default as the kernel-only package lane before any API or web surface
+  - select `V51-B` as the next default candidate
+  - treat that default as the bounded non-persistent scenario-execution API lane over
+    the released kernel
 
 This family/path recommendation is branch-local to the `v34` planning surface.
 
@@ -291,8 +285,8 @@ The current recommended path ladder is:
 
 | Path | Theme | Primary output | Status |
 |---|---|---|---|
-| `V51-A` | kernel-only package lane | candidate typed simulation state/action/scenario/regime/metrics contracts plus deterministic engine loop | planned_selected_next |
-| `V51-B` | bounded API surface | candidate non-persistent scenario-execution API over one released kernel | planned_not_selected_yet |
+| `V51-A` | kernel-only package lane | released typed simulation state/action/scenario/regime/metrics contracts plus deterministic engine loop | closed_on_main |
+| `V51-B` | bounded API surface | candidate non-persistent scenario-execution API over one released kernel | planned_selected_next |
 | `V51-C` | bounded UI surface | candidate browser/UI route over one released kernel/API stack | planned_not_selected_yet |
 
 These output names are planning-level candidate names, not lock-level schema
@@ -313,49 +307,28 @@ So the `A -> B -> C` staging is an intentional separation between:
 - later API consumer;
 - still-later browser/UI surface.
 
-## Recommended Next Path (`V51-A`)
+## Recommended Next Path (`V51-B`)
 
-Implement the bounded kernel-only package lane next.
+Implement the bounded API consumer next.
 
-`V51-A` should introduce:
+`V51-B` should introduce:
 
-- one repo-owned simulation package inside:
-  - `packages/adeu_odeu_sim`
-- one canonical kernel contract rich enough to cover:
-  - one starter ontology over explicit O/E/D/U lane state;
-  - one first-class nested-model set only, including:
-    - lane-state models;
-    - `Agent`;
-    - `ResourcePool`;
-    - `Institution`;
-    - `Norm`;
-    - typed evidence/event carriers;
-  - one typed action catalog with lane-impact posture;
-  - one exact starter scenario family only:
-    - `healthy_baseline`
-    - `weak_d`
-  - one deterministic engine/update loop only;
-  - one deterministic agent-iteration and action tie-break law only;
-  - one starter metrics family only;
-  - one starter heuristic regime-classification posture only;
-  - one starter typed lane-crossing contract set only:
-    - `O -> E`
-    - `E -> D`
-    - `D -> O`
-    - `U -> D`
-  - one typed event-record posture only;
-  - one exact scenario share-allocation validation rule only;
-- one small deterministic fixture set rich enough to cover:
-  - accepted replay over the exact starter scenarios;
-  - fail-closed rejection on malformed scenario/config input;
-  - turn-by-turn, metrics, and regime-output replay stability.
+- one bounded non-persistent scenario-execution route over the released
+  `packages/adeu_odeu_sim` kernel only;
+- one request/response contract set that is kernel-subordinate rather than a second
+  owner of simulation semantics;
+- one stack-compatibility law that consumes the released kernel scenarios, typed
+  metrics, typed event records, and regime outputs without silently widening them;
+- one deterministic response/rendering posture for the starter scenarios;
+- one minimal fixture set covering accepted execution and typed fail-closed mismatch /
+  invalid-config outcomes.
 
-`V51-A` is kernel-first and still bounded:
+`V51-B` is API-first and still bounded:
 
-- it may emit package-local kernel artifacts, deterministic fixtures, and bounded
+- it may emit one non-persistent scenario-execution API seam and route-local
   diagnostics;
-- it may not yet emit FastAPI routes, static browser UI, persistent storage, or
-  product-surface entitlement.
+- it may not yet emit browser UI, persistent storage, product-wide routing, or
+  broader orchestration entitlement.
 
 ## Why This Path
 
@@ -535,14 +508,15 @@ Concrete released substrate anchors for this family direction are:
     "V49",
     "V50"
   ],
-  "closed_current_family_paths": [],
+  "closed_current_family_paths": [
+    "V51-A"
+  ],
   "planned_current_family_paths": [
-    "V51-A",
     "V51-B",
     "V51-C"
   ],
-  "default_next_arc_candidate_for_this_branch": "V51-A",
-  "default_next_concrete_arc_candidate_for_this_branch": "vNext+124",
+  "default_next_arc_candidate_for_this_branch": "V51-B",
+  "default_next_concrete_arc_candidate_for_this_branch": "vNext+125",
   "family_architecture_doc": "docs/DRAFT_GPT_PRO_PROTOTYPE_MODULEIZATION_PLAN_v0.md",
   "pre_lock_companion_docs_expected": [
     "docs/DRAFT_GPT_PRO_PROTOTYPE_MODULEIZATION_PLAN_v0.md",
