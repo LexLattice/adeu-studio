@@ -120,7 +120,7 @@ The missing layer is therefore not:
 - more `V49` semantic substrate work; or
 - another semantic-audit ledger slice.
 
-The missing layer is the later bounded CLI / orchestration seam inside that family.
+The missing layer is the later bounded session-helper / CLI seam inside that family.
 
 ## Relationship To `V45`, `V49`, And The Imported Bundles
 
@@ -179,8 +179,10 @@ This new family asks:
 `V50-C` should therefore be read as:
 
 - later than both `V50-A` and `V50-B`;
-- one bounded read-only CLI / orchestration seam that must consume released census,
-  coverage, and semantic-audit artifacts rather than re-deriving or reopening them.
+- one bounded read-only session-helper seam that must consume released census,
+  coverage, and semantic-audit artifacts rather than re-deriving or reopening them;
+- helper-first in the first concrete move, with any direct CLI entrypoint still
+  deferred inside the family.
 
 So this family may constrain:
 
@@ -369,7 +371,7 @@ The current recommended path ladder is:
 |---|---|---|---|
 | `V50-A` | symbol census + coverage lane | candidate `adeu_symbol_audit_scope_manifest@1`, candidate `adeu_symbol_census@1`, and candidate `adeu_symbol_audit_coverage_report@1` over one bounded pilot scope | closed_on_main |
 | `V50-B` | semantic audit ledger lane | candidate `adeu_symbol_semantic_audit@1` with one-audit-per-symbol posture over one released census | closed_on_main |
-| `V50-C` | CLI / orchestration seam | candidate `adeu_symbol_audit_session@1` and bounded runner / CLI doctrine | planned_selected_next |
+| `V50-C` | session-helper / CLI seam | candidate `adeu_symbol_audit_session@1` and bounded runner / CLI doctrine | planned_selected_next |
 
 These output names are planning-level candidate names, not lock-level schema
 authority.
@@ -392,7 +394,7 @@ So the `A -> B -> C` staging is an intentional separation between:
 
 ## Recommended Next Path (`V50-C`)
 
-Implement the bounded CLI / orchestration seam next.
+Implement the bounded session-helper seam next.
 
 `V50-C` should introduce:
 
@@ -405,7 +407,8 @@ Implement the bounded CLI / orchestration seam next.
     `coverage_status = closed_clean` only;
   - exactly one released `adeu_symbol_semantic_audit@1` only;
   - exactly one bounded session configuration / invocation posture only;
-- one explicit read-only invocation law over the released pilot scope artifacts only;
+- one explicit read-only helper invocation law over the released pilot scope artifacts
+  only;
 - one deterministic stdout/stderr / exit-status replay posture only;
 - one small deterministic fixture set rich enough to cover:
   - accepted session replay over one released symbol-audit stack;
@@ -415,8 +418,8 @@ Implement the bounded CLI / orchestration seam next.
 `V50-C` is session-first and still bounded:
 
 - it may emit one bounded session / invocation artifact plus bounded diagnostics;
-- it may not yet emit API or web product surfaces, repo-wide audit entitlement, or
-  runtime mutation behavior.
+- it may not yet emit a direct `cli.py` entrypoint, API or web product surfaces,
+  repo-wide audit entitlement, or runtime mutation behavior.
 
 ## Why This Path
 
@@ -425,7 +428,7 @@ Implement the bounded CLI / orchestration seam next.
 - It lets the repo expose one bounded user-facing or runner-facing seam without
   reopening the already closed scope, identity, closure, or semantic-audit laws.
 - It keeps the session layer subordinate to released artifacts instead of letting a
-  CLI surface rediscover scope or semantics ambiently.
+  later CLI surface rediscover scope or semantics ambiently.
 - It preserves the released `V50-B` semantic independence posture as fixed upstream
   contract rather than reopening that choice in the session lane.
 - It keeps API/web or repo-wide orchestration later, after one bounded session
@@ -455,7 +458,7 @@ It should not attempt:
 
 - reopening released `V50-A` scope, census, or coverage law;
 - reopening released `V50-B` semantic-audit or semantic-independence law;
-- API or web product surfaces;
+- direct `cli.py` entrypoint, API, or web product surfaces;
 - repo-wide scope;
 - write-capable or runtime mutation surfaces;
 - a second hidden semantic substrate;
@@ -475,13 +478,13 @@ Semantic audit ledger lane:
 
 ### `V50-C`
 
-CLI / orchestration seam:
+Session-helper / CLI seam:
 
 - add one bounded session / invocation artifact over released manifest, census,
   coverage, and semantic-audit artifacts;
 - keep the surface read-only and pilot-scope-bounded;
-- keep that seam subordinate to the released artifact stack rather than allowing
-  ambient scope or semantic rediscovery.
+- keep the first concrete move helper-first and the seam subordinate to the released
+  artifact stack rather than allowing ambient scope or semantic rediscovery.
 
 ## Candidate Package Ownership
 
