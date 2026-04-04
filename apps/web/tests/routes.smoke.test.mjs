@@ -61,7 +61,7 @@ async function stopProcess(proc) {
   }
 }
 
-test("route smoke: home, explain, concepts, puzzles, papers, copilot, evidence-explorer render core controls", { timeout: 120_000 }, async () => {
+test("route smoke: home, explain, concepts, puzzles, papers, paper semantic workbench, copilot, evidence-explorer render core controls", { timeout: 120_000 }, async () => {
   const proc = startWebServer();
   try {
     await waitForServerReady(proc);
@@ -72,6 +72,7 @@ test("route smoke: home, explain, concepts, puzzles, papers, copilot, evidence-e
       { path: "/concepts", mustInclude: "Generate alignment" },
       { path: "/puzzles", mustInclude: "Puzzle Text" },
       { path: "/papers", mustInclude: "Paper Abstract Studio" },
+      { path: "/papers/semantic-workbench", mustInclude: "Paper Semantic Workbench" },
       { path: "/copilot", mustInclude: "Copilot Runtime" },
       { path: "/evidence-explorer", mustInclude: "Evidence Explorer" },
       { path: "/artifact-inspector", mustInclude: "Artifact Inspector Reference Surface" },
