@@ -59,7 +59,10 @@ Interpretive doctrine for this planning surface:
   semantic substrate contract, bounded recovery, bounded deterministic lowering, and
   bounded semantic-seed bridge slices recorded in
   `docs/DRAFT_NEXT_ARC_OPTIONS_v32.md`.
-- `vNext+120` is the current implementation-arc baseline on `main`.
+- `V50-A` is closed on `main` and now constitutes the released bounded symbol census /
+  coverage lane for the three-file `adeu_architecture_ir` pilot scope inside
+  `packages/adeu_symbol_audit`.
+- `vNext+121` is the current implementation-arc baseline on `main`.
 - imported GPT Pro prototype bundles have been normalized under:
   - `examples/external_prototypes/adeu-semantic-forms-v0-bundle`
   - `examples/external_prototypes/adeu-symbol-audit-v0-bundle`
@@ -93,22 +96,19 @@ The repo no longer lacks:
 
 The repo no longer lacks the branch-local internal `V49` ladder.
 
-The missing layer after `vNext+120` is therefore not another implicit `V49-E`.
+The missing layer after `vNext+121` is therefore not another implicit `V49-E`.
 
 Today the repo still lacks a released way to:
 
-- produce one repo-owned, read-only symbol census over one explicit bounded pilot scope
-  while staying explicit about what is reused from `repo_symbol_catalog@1` and what is
-  separate from it;
-- prove mechanical audit coverage / closure over one frozen census without already
-  widening into semantic-ledger behavior;
-- freeze one symbol identity law, one pilot-scope manifest law, and one coverage
-  closure law inside a dedicated package rather than leaving them inside a support-only
-  intake bundle;
-- decide later, explicitly, whether semantic audit vocabulary in the `B2` lane reuses
+- emit one repo-owned, one-audit-per-symbol semantic audit ledger over one released
+  `V50-A` census while keeping closure truth separate from semantic uncertainty;
+- freeze one audit-entry schema, one evidence-minimum law, and one bounded
+  `audit_status` vocabulary inside the dedicated package rather than leaving them in a
+  support-only prototype;
+- decide explicitly whether the semantic/evidence vocabulary in the `B2` lane reuses
   released `V49` primitives or remains intentionally independent;
-- keep CLI/orchestration and repo-wide scope widening deferred while the read-only
-  census/coverage contract is still being established.
+- keep CLI/orchestration and repo-wide scope widening deferred while the semantic
+  audit-ledger contract is still being established.
 
 The missing layer is therefore not:
 
@@ -233,15 +233,14 @@ Planning relationship:
   - `docs/DRAFT_NEXT_ARC_OPTIONS_v28.md`
   - `examples/external_prototypes/adeu-symbol-audit-v0-bundle/ALIGNMENT.md`
 - Current family state for this branch:
-  - no internal `V50` path closed on `main` yet
+  - `V50-A` is closed on `main`
 - Recommended next path for this branch:
-  - `V50-A`
+  - `V50-B`
 - Recommended next concrete arc for this branch if selected:
-  - `vNext+121`
+  - `vNext+122`
 - Default path selection for this branch:
-  - select `V50-A` as the next default candidate
-  - treat that default as the census/coverage lane prior to any semantic-audit ledger
-    or CLI widening
+  - select `V50-B` as the next default candidate
+  - treat that default as the semantic-audit ledger lane prior to any CLI widening
 
 This family/path recommendation is branch-local to the `v33` planning surface.
 
@@ -278,12 +277,11 @@ The imported `adeu_symbol_audit` intake bundle should now be read as:
 
 None of those surfaces, by themselves, yet solve:
 
-- one repo-owned symbol census / coverage contract with explicit overlap law against
-  `repo_symbol_catalog@1`;
-- one bounded pilot-scope manifest and symbol identity law for a read-only audit
-  family;
-- one later explicit decision about whether semantic audit vocabulary reuses `V49`
-  primitives or stays intentionally independent.
+- one repo-owned one-audit-per-symbol semantic audit ledger over one released census;
+- one bounded audit-entry schema, evidence-minimum law, and semantic-uncertainty
+  vocabulary for that ledger lane;
+- one explicit family decision about whether `V50-B` reuses released `V49`
+  primitives or remains intentionally independent.
 
 `V50` is the planning move that fills that family gap without reopening released
 descriptive or semantic-substrate baselines.
@@ -355,8 +353,8 @@ The current recommended path ladder is:
 
 | Path | Theme | Primary output | Status |
 |---|---|---|---|
-| `V50-A` | symbol census + coverage lane | candidate `adeu_symbol_audit_scope_manifest@1`, candidate `adeu_symbol_census@1`, and candidate `adeu_symbol_audit_coverage_report@1` over one bounded pilot scope | planned |
-| `V50-B` | semantic audit ledger lane | candidate `adeu_symbol_semantic_audit@1` with one-audit-per-symbol posture over one released census | planned |
+| `V50-A` | symbol census + coverage lane | candidate `adeu_symbol_audit_scope_manifest@1`, candidate `adeu_symbol_census@1`, and candidate `adeu_symbol_audit_coverage_report@1` over one bounded pilot scope | closed_on_main |
+| `V50-B` | semantic audit ledger lane | candidate `adeu_symbol_semantic_audit@1` with one-audit-per-symbol posture over one released census | planned_selected_next |
 | `V50-C` | CLI / orchestration seam | candidate `adeu_symbol_audit_session@1` and bounded runner / CLI doctrine | planned_later_not_selected_here |
 
 These output names are planning-level candidate names, not lock-level schema
@@ -378,87 +376,79 @@ So the `A -> B -> C` staging is an intentional separation between:
 - later semantic-audit claims;
 - still-later user-facing orchestration.
 
-## Recommended Next Path (`V50-A`)
+## Recommended Next Path (`V50-B`)
 
-Implement the bounded symbol census / coverage lane first.
+Implement the bounded semantic audit-ledger lane next.
 
-`V50-A` should introduce:
+`V50-B` should introduce:
 
-- one repo-owned package scaffold only:
+- one repo-owned semantic-audit helper surface inside:
   - `packages/adeu_symbol_audit`
-- one canonical bounded pilot-scope manifest candidate rich enough to cover:
-  - exactly one pilot scope only;
-  - exactly one language only:
-    - `python`;
-  - exactly one starter symbol-kind set only:
-    - `class`
-    - `function`
-    - `method`
-    - `local_function`
-- one explicit exact-bytes replay posture over the selected pilot scope only;
-- one deterministic symbol census candidate over that pilot scope only;
-- one mechanical coverage / closure report candidate over one frozen census only;
-- one explicit overlap rule against released `repo_symbol_catalog@1` rather than one
-  silent fork of the repo’s symbol universe;
+- one canonical semantic-audit artifact candidate rich enough to cover:
+  - exactly one released `adeu_symbol_census@1` only;
+  - exactly one audit entry per released census symbol only;
+  - exactly one starter `audit_status` vocabulary only;
+  - exactly one bounded evidence-minimum law only;
+- one explicit separation between:
+  - closure truth already frozen by released `V50-A`; and
+  - semantic uncertainty carried by the new audit ledger;
+- one explicit family decision about whether semantic/evidence vocabulary:
+  - reuses released `V49` primitives; or
+  - remains intentionally independent;
 - one small deterministic fixture set rich enough to cover:
-  - accepted census over the pilot scope;
-  - accepted coverage report over that same census;
-  - fail-closed rejection on coverage mismatch.
+  - accepted one-audit-per-symbol replay over one released census;
+  - low-confidence handling;
+  - unresolved handling;
+  - fail-closed rejection on missing evidence or duplicate audit entries.
 
-`V50-A` is census-first and read-only:
+`V50-B` is ledger-first and still bounded:
 
-- it may emit census and coverage artifacts plus bounded diagnostics;
-- it may not yet emit semantic audit ledger entries, CLI surfaces, or repo-wide audit
-  entitlements.
+- it may emit semantic-audit ledger artifacts plus bounded diagnostics;
+- it may not yet emit CLI surfaces, repo-wide audit entitlement, or runtime mutation
+  behavior.
 
 ## Why This Path
 
-- It is the narrowest safe consumer of the imported `adeu_symbol_audit` concept bundle.
-- It makes symbol identity, bounded pilot scope, and coverage closure explicit before
-  the repo accepts semantic-audit claims.
-- It prevents the family from collapsing immediately into “semantic audit” without
-  first proving that the read-only census and closure surfaces are deterministic.
-- It keeps the overlap with released `repo_symbol_catalog@1` inspectable rather than
-  ambient.
-- It keeps the `V49` semantic primitive reuse decision explicit and later, instead of
-  letting that decision drift into the first slice.
+- It is the narrowest safe next consumer of the imported `adeu_symbol_audit` concept
+  bundle after the released `V50-A` census/coverage baseline.
+- It lets the repo freeze semantic-audit entry law without reopening the already
+  closed read-only scope, identity, and closure contracts.
+- It keeps the separation between completion accounting and semantic uncertainty
+  explicit rather than letting audit claims silently redefine closure truth.
+- It forces the `V49` primitive reuse-vs-independence decision to become explicit
+  before the repo accepts a second semantic/evidence idiom.
+- It keeps CLI/orchestration later, after the ledger contract is already inspectable.
 
-## First-Slice Boundary (`V50-A`)
+## First-Slice Boundary (`V50-B`)
 
-`V50-A` should stay bounded to:
+`V50-B` should stay bounded to:
 
 - one repo-owned package only:
   - `packages/adeu_symbol_audit`
-- one bounded pilot scope only:
-  - `packages/adeu_architecture_ir/src/adeu_architecture_ir/analysis_request.py`
-  - `packages/adeu_architecture_ir/src/adeu_architecture_ir/analysis_settlement.py`
-  - `packages/adeu_architecture_ir/src/adeu_architecture_ir/export_schema.py`
-- one exact-bytes replay posture over those three files only;
-- one language only:
-  - `python`
-- one starter symbol-kind set only:
-  - `class`
-  - `function`
-  - `method`
-  - `local_function`
-- released `repo_symbol_catalog@1` as overlap/comparison context only;
-- explicit lawful divergence only:
-  - narrower pilot scope;
-  - stricter coverage closure ordering;
-  - one explicit family-local `local_function` kind;
-- no silent divergence in shared identity law or shared kind meaning;
+- one released census input only:
+  - one released `adeu_symbol_census@1`
+- one released coverage baseline only:
+  - released `V50-A` closure truth remains fixed input context and is not reopened
+- one audit-entry cardinality law only:
+  - exactly one semantic-audit entry per census symbol
+- one starter `audit_status` vocabulary only
+- one starter `confidence_band` vocabulary only
+- one evidence-minimum law only:
+  - every audit entry must carry at least one `evidence_ref`
+- one explicit semantic-vocabulary posture only:
+  - either consume released `V49` primitives explicitly; or
+  - explicitly remain independent
 - deterministic local fixtures only;
-- explicit fail-closed coverage mismatch posture only;
 - repo-native unit tests only.
 
 It should not attempt:
 
-- semantic SPU or semantic audit ledger entries;
-- any decision about whether later audit vocabulary reuses released `V49` primitives;
+- reopening released `V50-A` scope, census, or coverage law;
 - CLI, API, or web surfaces;
 - repo-wide scope;
 - write-capable or runtime mutation surfaces;
-- reopening released `V45` or released `V49` contracts;
+- a second hidden semantic substrate outside the explicit reuse-vs-independence
+  decision;
 - direct import of the external intake bundle into live package paths.
 
 ## Follow-On Paths Inside `V50`
@@ -526,7 +516,9 @@ Concrete released substrate anchors for this family direction are:
 - `packages/adeu_repo_description/schema/repo_symbol_catalog.v1.json`
   as the authoritative schema anchor for that released descriptive surface;
 - released `packages/adeu_semantic_forms` contracts on `main` as adjacent semantic
-  substrate context, not as mandatory `V50-A` dependencies.
+  substrate context, not as mandatory `V50-B` dependencies;
+- released `packages/adeu_symbol_audit` census / coverage surfaces on `main` as the
+  fixed upstream baseline for the `V50-B` ledger lane.
 
 ## Planning Boundary
 
@@ -536,11 +528,10 @@ Concrete released substrate anchors for this family direction are:
   planning draft;
 - no silent fork of `repo_symbol_catalog@1` identity or scope is authorized by this
   planning draft;
-- no semantic audit ledger is selected by this planning draft;
 - no CLI, API, or web consumer surface is selected by this planning draft;
-- no decision about `V49` primitive reuse vs intentional independence is authorized by
-  this planning draft for `V50-A`;
 - no repo-wide scope widening is selected by this planning draft;
+- no semantic or evidence vocabulary supersession of released `V50-A` closure truth is
+  authorized by this planning draft;
 - no precedent-bearing authority is granted to the imported intake pack by this
   planning draft.
 
@@ -550,7 +541,7 @@ Concrete released substrate anchors for this family direction are:
 {
   "schema": "next_arc_planning_baseline@1",
   "source_baseline_doc": "docs/DRAFT_NEXT_ARC_OPTIONS_v32.md",
-  "baseline_arc": "vNext+120",
+  "baseline_arc": "vNext+121",
   "closed_prior_families": [
     "V45",
     "V47",
@@ -578,14 +569,16 @@ Concrete released substrate anchors for this family direction are:
     "V48",
     "V49"
   ],
-  "closed_current_family_paths": [],
+  "closed_current_family_paths": [
+    "V50-A"
+  ],
   "planned_current_family_paths": [
     "V50-A",
     "V50-B",
     "V50-C"
   ],
-  "default_next_arc_candidate_for_this_branch": "V50-A",
-  "default_next_concrete_arc_candidate_for_this_branch": "vNext+121",
+  "default_next_arc_candidate_for_this_branch": "V50-B",
+  "default_next_concrete_arc_candidate_for_this_branch": "vNext+122",
   "family_architecture_doc": "docs/DRAFT_GPT_PRO_PROTOTYPE_MODULEIZATION_PLAN_v0.md",
   "pre_lock_companion_docs_expected": [
     "docs/DRAFT_GPT_PRO_PROTOTYPE_MODULEIZATION_PLAN_v0.md",
@@ -605,7 +598,7 @@ Concrete released substrate anchors for this family direction are:
   "imported_bundle_authority_status": "support_only_non_precedent",
   "released_repo_symbol_catalog_family_consumed": "V45",
   "released_semantic_forms_family_adjacent": "V49",
-  "read_only_audit_family_required": true,
+  "released_v50a_census_coverage_required": true,
   "single_pilot_scope_initially_required": true,
   "pilot_scope_default": "packages/adeu_architecture_ir",
   "pilot_scope_reference_files": [
@@ -636,9 +629,9 @@ Concrete released substrate anchors for this family direction are:
   "symbol_identity_law_compatibility_declaration_required": true,
   "deterministic_replay_over_exact_pilot_scope_bytes_required": true,
   "coverage_closure_law_required": true,
-  "semantic_vocab_dependency_decision_deferred_until_v50b": true,
+  "semantic_vocab_dependency_decision_selected_in_v50b": true,
   "v50a_artifacts_semantically_minimal_to_keep_v50b_choice_open": true,
-  "semantic_ledger_initially_deferred": true,
+  "semantic_ledger_selected_next": true,
   "cli_and_orchestration_initially_deferred": true,
   "planning_boundary_mode": "scope_guard_not_lock_authority",
   "authority_layering_note": "docs/DRAFT_INTENT_AUTHORITY_LAYERING_NOTE_v0.md",
