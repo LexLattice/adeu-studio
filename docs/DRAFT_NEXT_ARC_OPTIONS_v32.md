@@ -477,6 +477,7 @@ are:
   "closed_current_family_paths": [
     "V49-A",
     "V49-B",
+    "V49-C",
     "V49-D"
   ],
   "planned_current_family_paths": [],
