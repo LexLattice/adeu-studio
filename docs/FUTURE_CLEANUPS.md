@@ -189,6 +189,26 @@ Notes:
     - remove or quarantine the legacy cache symbol and trim tests that still treat it as a
       meaningful surface unless it is intentionally retained as a non-authoritative sentinel.
 
+- `EDGE-P3-04` `V52-A` paper-semantics posture coverage could be made more explicit.
+  - Source:
+    - post-merge review of `docs/DRAFT_NEXT_ARC_OPTIONS_v35.md`
+    - current audit of `packages/adeu_paper_semantics`
+  - Current evidence:
+    - `packages/adeu_paper_semantics/src/adeu_paper_semantics/models.py` already
+      hard-freezes `source_authority_posture` and `interpretation_authority_posture`
+      via literal contract fields.
+    - `packages/adeu_paper_semantics/tests/test_paper_semantics_models.py` already
+      covers malformed span anchors and invalid worker-request posture.
+    - the shipped `v52a` fixture pack does not yet include a dedicated named reject
+      fixture for artifact-level source/interpretation-posture violation.
+  - Why it is still open:
+    - this is coverage polish only, not a known correctness bug or fail-open behavior in
+      the shipped `V52-A` code.
+  - Next action:
+    - if this area is touched again, add one explicit reject fixture/test for
+      artifact-level source-authority or interpretation-authority posture violation so
+      the coverage reads as directly as the lock doctrine.
+
 ## 2. Explicitly Deferred Follow-On Paths
 
 These are intentionally deferred capabilities, not regressions. They remain open only in
@@ -415,6 +435,7 @@ smaller set of current-state issues:
 - one cycle-policy ambiguity in proposer summary handling,
 - one weak continuity sentinel test,
 - several governance and portability hardening items,
+- one small `V52-A` paper-semantics posture-coverage polish item,
 - and a separate bucket of intentionally deferred future-path work.
 
 That is the set this tracker should carry forward.
