@@ -1,6 +1,6 @@
 # Assessment vNext+127 Edges
 
-Status: start-bundle edge assessment for `V52-A` (April 4, 2026 UTC).
+Status: post-closeout edge assessment for `V52-A` (April 4, 2026 UTC).
 
 ## Assessment-State Marker (Machine-Checkable)
 
@@ -8,102 +8,123 @@ Status: start-bundle edge assessment for `V52-A` (April 4, 2026 UTC).
 {
   "schema": "assessment_artifact_state@1",
   "artifact": "docs/ASSESSMENT_vNEXT_PLUS127_EDGES.md",
-  "phase": "pre_lock_assessment",
-  "authoritative": false,
+  "phase": "post_closeout_assessment",
+  "authoritative": true,
   "required_in_decision": true
 }
 ```
 
 ## Open Edges
 
-### Edge 1: Parallel Substrate Drift
+### Edge 1: Parallel `V49`-Adjacent Substrate Drift
 
 - Risk:
   paper-domain contracts could quietly mint a second semantic substrate instead of
   behaving as the first bounded domain consumer of released `V49`.
 - Response:
-  freeze explicit `V49` reuse or explicit narrow delta declaration, plus the
-  identity-vs-projection split and canonical hash posture.
-- Start-Bundle Evidence:
-  `docs/DRAFT_NEXT_ARC_OPTIONS_v35.md` and
-  `docs/LOCKED_CONTINUATION_vNEXT_PLUS127.md`.
+  keep direct `V49` hash-law reuse explicit and keep any paper-domain delta narrow,
+  visible, and non-silent.
+- Closeout Evidence:
+  `sha256_canonical_json` reuse from `adeu_semantic_forms`, `SEMANTIC_IDENTITY_MODE`,
+  and the committed `v52a` fixtures under
+  `packages/adeu_paper_semantics/tests/fixtures/v52a/`.
 
-### Edge 2: Scope Inflation Beyond Abstract Scale
-
-- Risk:
-  the first slice could claim full-paper semantics or admit `paper.abstract_digest`
-  and broader artifact classes before the family earns that breadth.
-- Response:
-  freeze the first slice to `paper.abstract` and `pasted.paragraph` only.
-- Start-Bundle Evidence:
-  bounded source-artifact strategy and selected vocabularies in
-  `docs/LOCKED_CONTINUATION_vNEXT_PLUS127.md`.
-
-### Edge 3: Source Authority Becomes Soft
+### Edge 2: Source-Authority Drift
 
 - Risk:
-  inferred content, bridge heuristics, or diagnostics could outrank anchored source
-  spans and collapse the intended source-authority posture.
+  inferred fragments or diagnostics could outrank anchored source text and collapse
+  the intended source-authority posture.
 - Response:
   keep source text plus explicit span anchors authoritative and keep interpretation
   advisory only.
-- Start-Bundle Evidence:
-  objective and authority-posture strategy in
-  `docs/LOCKED_CONTINUATION_vNEXT_PLUS127.md`.
+- Closeout Evidence:
+  `SOURCE_AUTHORITY_POSTURE`, `INTERPRETATION_AUTHORITY_POSTURE`, anchored quote-slice
+  validation in `models.py`, and the malformed-span reject fixture.
 
-### Edge 4: Diagnostics Become Second Semantic Owner
-
-- Risk:
-  diagnostics and projections could become effective semantic identity instead of
-  advisory/support surfaces.
-- Response:
-  exclude diagnostics and projections from semantic hash and keep them advisory-only.
-- Start-Bundle Evidence:
-  `diagnostic_and_projection_fields_excluded_from_semantic_hash = true` and
-  acceptance criteria in `docs/LOCKED_CONTINUATION_vNEXT_PLUS127.md`.
-
-### Edge 5: Overlay Laundering Into Live Authority
+### Edge 3: Projection/Diagnostic Identity Laundering
 
 - Risk:
-  the imported `adeu_core_ir` schema and `urm_domain_adeu` workflow additions could be
-  copied into live repo paths and treated as accepted authority.
+  diagnostics, projections, or explanatory warrant text could become effective
+  semantic identity instead of advisory/support surfaces.
 - Response:
-  keep the overlay support-only and re-author live ownership in
+  keep identity-vs-projection split explicit and exclude projection/support fields
+  from semantic hash.
+- Closeout Evidence:
+  `IDENTITY_FIELD_NAMES`, `PROJECTION_FIELD_NAMES`, and the paired mutation tests for
+  projection-only vs identity-bearing change in
+  `test_paper_semantics_models.py`.
+
+### Edge 4: Contradictory Claim/Fragment Ownership
+
+- Risk:
+  multi-claim artifacts could validate even when one claim lists a fragment owned by a
+  different claim, leaving downstream grouping ambiguous.
+- Response:
+  require exact bidirectional equality between `claim.lane_fragment_ids` and the
+  fragments whose `claim_id` points back to that claim.
+- Closeout Evidence:
+  `claim lane_fragment_ids must exactly match owned fragment claim_id bindings`
+  validation in `models.py` and
+  `test_claim_fragment_ownership_must_be_bidirectionally_consistent`.
+
+### Edge 5: Scale Inflation Beyond Abstract/Paragraph
+
+- Risk:
+  the first slice could over-claim broader paper semantics and silently admit
+  `paper.abstract_digest` or full-paper semantics.
+- Response:
+  freeze `V52-A` to `paper.abstract` and `pasted.paragraph` only.
+- Closeout Evidence:
+  `SourceArtifactKind` in `models.py`, committed reference fixtures, and absence of
+  broader paper-artifact kinds from the shipped package.
+
+### Edge 6: Overlay Laundering Into Live Authority
+
+- Risk:
+  the imported workbench overlay could be treated as accepted schema/route/domain
+  authority rather than shaping evidence only.
+- Response:
+  keep the imported bundle support-only and re-author live ownership in
   `packages/adeu_paper_semantics` only.
-- Start-Bundle Evidence:
-  `examples/external_prototypes/adeu-paper-semantic-workbench-poc/ALIGNMENT.md`,
-  `docs/DRAFT_NEXT_ARC_OPTIONS_v35.md`, and the lock package-ownership strategy.
+- Closeout Evidence:
+  shipped code exists only under `packages/adeu_paper_semantics`, while the imported
+  bundle remains under
+  `examples/external_prototypes/adeu-paper-semantic-workbench-poc`.
 
-### Edge 6: Consumer Surfaces Arrive Too Early
+### Edge 7: Consumer Prematurity
 
 - Risk:
-  the first contract slice could drift into `/papers/semantic-workbench`, live worker
-  bridge, or advanced visualization work.
+  the first paper-domain slice could drift into live workbench route, worker bridge,
+  or advanced visualization seams before the contract family is accepted.
 - Response:
   keep `V52-A` strictly package-first and pre-consumer.
-- Start-Bundle Evidence:
-  widening strategy in `docs/LOCKED_CONTINUATION_vNEXT_PLUS127.md`.
+- Closeout Evidence:
+  merged scope limited to package source, fixtures, tests, and bootstrap wiring, with
+  no `apps/web` or `urm_domain_*` implementation changes in the shipped slice.
 
-### Edge 7: Contract Shape Stays Too Coarse
+### Edge 8: CI Import-Path Drift
 
 - Risk:
-  the first slice could hide key paper semantics inside one broad workbench payload
-  and undercut later bounded consumers.
+  the bounded package could pass only under local `PYTHONPATH` overrides while failing
+  full repo collection on CI.
 - Response:
-  freeze first-class models for source artifacts, spans, claims, lane fragments,
-  inference bridges, diagnostics, projections, top-level artifacts, and worker
-  requests.
-- Start-Bundle Evidence:
-  artifact-family strategy and selected schema anchors in
-  `docs/LOCKED_CONTINUATION_vNEXT_PLUS127.md`.
+  wire the package into the repo bootstrap/editable-install path.
+- Closeout Evidence:
+  `Makefile` editable-install entry for `packages/adeu_paper_semantics[dev]` and green
+  merged `python` CI on PR `#349`.
 
 ## Current Judgment
 
-- `V52-A` is the right first D-track slice because it internalizes the imported
-  workbench concept at the narrowest seam that can actually carry domain authority.
-- the slice is properly bounded if implemented as written: one package, one abstract-
-  scale contract family, one explicit source-authority posture, one advisory-only
-  interpretation posture, one typed worker-request contract, and no web/worker/visual
-  widening.
-- the main implementation risk is silent parallel-substrate drift; the lock addresses
-  that by requiring explicit `V49` reuse or explicit narrow delta declaration.
+- `V52-A` was the right first D-track move because it internalized the paper semantic
+  authority seam at the narrowest package-first boundary that could actually carry
+  domain contracts.
+- the shipped result is properly bounded: one repo-owned `adeu_paper_semantics`
+  package, two bounded source-artifact kinds, explicit source-authority and
+  advisory-only interpretation posture, first-class typed semantic substructures,
+  direct `V49` identity/hash-law reuse, deterministic accepted/reject fixtures, and
+  no live workbench, worker bridge, or advanced visualization widening.
+- review hardening materially improved the release by closing the bidirectional
+  claim/fragment ownership gap and aligning the lock wording with the shipped
+  diagnostic contract.
+- `docs/DRAFT_NEXT_ARC_OPTIONS_v35.md` should now be read with `V52-A` closed on
+  `main` and the branch-local default next path advanced to `V52-B` / `vNext+128`.

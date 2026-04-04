@@ -1,0 +1,38 @@
+{
+  "schema": "v52a_paper_semantic_contract_evidence@1",
+  "evidence_input_path": "artifacts/agent_harness/v127/evidence_inputs/v52a_paper_semantic_contract_evidence_v127.json",
+  "contract_source": "docs/LOCKED_CONTINUATION_vNEXT_PLUS127.md#v127-continuation-contract-machine-checkable",
+  "merged_pr": "#349",
+  "merge_commit": "5f923ae849d15315951d881929c443615da2cba2",
+  "implementation_packages": [
+    "adeu_paper_semantics"
+  ],
+  "paper_semantics_package_root": "packages/adeu_paper_semantics",
+  "paper_semantics_pyproject_path": "packages/adeu_paper_semantics/pyproject.toml",
+  "paper_semantics_models_source_path": "packages/adeu_paper_semantics/src/adeu_paper_semantics/models.py",
+  "paper_semantics_package_init_source_path": "packages/adeu_paper_semantics/src/adeu_paper_semantics/__init__.py",
+  "repo_bootstrap_makefile_path": "Makefile",
+  "test_reference_paths": [
+    "packages/adeu_paper_semantics/tests/test_paper_semantics_models.py"
+  ],
+  "reference_worker_request_fixture_paths": [
+    "packages/adeu_paper_semantics/tests/fixtures/v52a/reference_paper_semantic_worker_request_abstract.json",
+    "packages/adeu_paper_semantics/tests/fixtures/v52a/reference_paper_semantic_worker_request_paragraph.json"
+  ],
+  "reference_artifact_fixture_paths": [
+    "packages/adeu_paper_semantics/tests/fixtures/v52a/reference_paper_semantic_artifact_abstract.json",
+    "packages/adeu_paper_semantics/tests/fixtures/v52a/reference_paper_semantic_artifact_paragraph.json"
+  ],
+  "identity_mutation_fixture_path": "packages/adeu_paper_semantics/tests/fixtures/v52a/mutation_paper_semantic_artifact_identity_change.json",
+  "projection_only_mutation_fixture_path": "packages/adeu_paper_semantics/tests/fixtures/v52a/mutation_paper_semantic_artifact_projection_only.json",
+  "reject_fixture_paths": [
+    "packages/adeu_paper_semantics/tests/fixtures/v52a/reject_invalid_diagnostic_kind.json",
+    "packages/adeu_paper_semantics/tests/fixtures/v52a/reject_malformed_span_anchor.json",
+    "packages/adeu_paper_semantics/tests/fixtures/v52a/reject_invalid_worker_request_posture.json"
+  ],
+  "released_semantic_forms_package_root": "packages/adeu_semantic_forms",
+  "metric_key_continuity_assertion_path": "artifacts/agent_harness/v127/evidence_inputs/metric_key_continuity_assertion_v127.json",
+  "runtime_observability_comparison_path": "artifacts/agent_harness/v127/evidence_inputs/runtime_observability_comparison_v127.json",
+  "runtime_event_stream_path": "artifacts/agent_harness/v127/runtime/evidence/local/urm_events.ndjson",
+  "notes": "v127 evidence pins the released V52-A paper semantic contract lane on main: one repo-owned adeu_paper_semantics package, one bounded source-artifact family over paper.abstract and pasted.paragraph only, one explicit source-authority posture, one advisory-only interpretation posture, first-class typed models for source artifacts, spans, claims, O/E/D/U lane fragments, inference bridges, diagnostics, projections, top-level artifacts, and worker requests, direct V49 canonical hash-law reuse through adeu_semantic_forms, explicit identity-vs-projection split with projection/support fields excluded from semantic identity, deterministic accepted/reject fixture replay, fail-closed request/anchor/hash validation, bidirectional claim/fragment ownership enforcement, repo bootstrap wiring for editable package installation, and no live workbench route, worker bridge, or advanced visualization widening."
+}
