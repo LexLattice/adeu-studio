@@ -75,6 +75,7 @@ test("route smoke: home, explain, concepts, puzzles, papers, copilot, evidence-e
       { path: "/copilot", mustInclude: "Copilot Runtime" },
       { path: "/evidence-explorer", mustInclude: "Evidence Explorer" },
       { path: "/artifact-inspector", mustInclude: "Artifact Inspector Reference Surface" },
+      { path: "/odeu-sim", mustInclude: "ODEU Simulation Summary" },
     ];
 
     for (const route of routeExpectations) {
