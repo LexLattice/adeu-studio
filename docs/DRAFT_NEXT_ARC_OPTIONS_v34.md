@@ -5,7 +5,9 @@ bounded `V50` family closed on `main`, the repo-owned `adeu_symbol_audit` packag
 landed as a released census / coverage / semantic-audit / session stack, `V51-A`
 closed on `main` as the released deterministic ODEU simulation kernel, and `V51-B`
 closed on `main` as the first bounded stateless ODEU simulation API route rather than
-a direct promotion of the imported sandbox app into live product surfaces.
+a direct promotion of the imported sandbox app into live product surfaces, and
+`V51-C` closed on `main` as the first bounded browser/UI consumer over the released
+kernel/API stack.
 
 This draft does not automatically supersede the contest-participation planning branch in
 `docs/DRAFT_NEXT_ARC_OPTIONS_v26.md`, the structural-reasoning assessment planning
@@ -22,8 +24,8 @@ It also does not replace the support/planning posture of:
 - `docs/DRAFT_GPT_PRO_PROTOTYPE_INTEGRATION_PLAN_v0.md`
 - `docs/DRAFT_GPT_PRO_PROTOTYPE_MODULEIZATION_PLAN_v0.md`
 
-Instead, it records a ninth connected candidate family and the next real
-implementation-family move grounded in those support notes:
+Instead, it records a ninth connected candidate family and its bounded internal
+realization on `main`, grounded in those support notes:
 
 how should ADEU internalize one repo-owned ODEU simulation kernel / API / UI family
 from the imported `odeu-sandbox-app` intake pack without laundering the imported app
@@ -64,10 +66,10 @@ Interpretive doctrine for this planning surface:
 - `V50-A` through `V50-C` are closed on `main` and now constitute the completed
   bounded symbol census / coverage, semantic-audit ledger, and read-only
   session-helper family recorded in `docs/DRAFT_NEXT_ARC_OPTIONS_v33.md`.
-- `V51-A` and `V51-B` are now closed on `main` and together constitute the released
-  deterministic kernel-plus-bounded-API ladder inside `packages/adeu_odeu_sim` and
-  `apps/api`.
-- `vNext+125` is the current implementation-arc baseline on `main`.
+- `V51-A` through `V51-C` are now closed on `main` and together constitute the
+  released deterministic kernel / bounded API / bounded browser ladder inside
+  `packages/adeu_odeu_sim`, `apps/api`, and `apps/web`.
+- `vNext+126` is the current implementation-arc baseline on `main`.
 - imported GPT Pro prototype bundles have been normalized under:
   - `examples/external_prototypes/adeu-semantic-forms-v0-bundle`
   - `examples/external_prototypes/adeu-symbol-audit-v0-bundle`
@@ -104,32 +106,26 @@ The repo no longer lacks the branch-local internal `V49` ladder.
 
 The repo no longer lacks the branch-local internal `V50` ladder.
 
-The missing layer after `vNext+125` is therefore not another implicit `V49-E`, not
-another implicit `V50-D`, and not another kernel-first or API-first `V51` slice.
+The repo no longer lacks:
 
-Today the repo still lacks a released way to:
+- one released repo-owned ODEU simulation family over bounded `V51`;
+- one bounded browser/UI consumer over the released kernel/API stack;
+- one deterministic route-smoke and minimal interaction posture for the first web
+  seam; or
+- one repo-owned web route that keeps the imported static sandbox surface as support
+  evidence only.
 
-- expose the released kernel/API stack through one bounded browser/UI consumer without
-  reopening kernel or route semantics in the web layer;
-- keep UI state, controls, and summary rendering subordinate to the released
-  `POST /odeu-sim/run` contract rather than turning `apps/web` into a second owner of
-  simulation law;
-- preserve deterministic route-smoke and minimal interaction posture when the first UI
-  seam is added;
-- keep the imported static sandbox surface as support evidence only while the repo
-  re-authors one bounded browser consumer over the released kernel/API stack;
-- defer richer controls, mutable session state, and product-surface widening until
-  after one bounded UI seam is accepted.
+The repo no longer lacks the branch-local internal `V51` ladder.
 
-The missing layer is therefore not:
+No further internal `V51` path is currently selected in this planning branch.
 
-- more `V45` descriptive extraction work;
-- more `V49` semantic substrate work;
-- more `V50` symbol audit work; or
-- a direct import of the sandbox app into `apps/` surfaces.
+Any later work should therefore be treated as:
 
-The missing layer is the next bounded consumer inside the ODEU simulation family:
-the first kernel/API-subordinate browser surface.
+- a downstream consumer of released `V51` artifacts;
+- a later simulation-related family selected in a new planning branch; or
+- a different module family,
+
+not as an ambient continuation automatically authorized inside `v34`.
 
 ## Relationship To `V49`, `V50`, And The Imported Bundle
 
@@ -201,8 +197,8 @@ This new family asks:
 
 `V51-C` should therefore be read as:
 
-- later than both `V51-A` and `V51-B`;
-- one bounded browser/UI consumer over the released kernel and any released API seam;
+- closed on `main`;
+- one bounded browser/UI consumer over the released kernel and released API seam;
 - not a license for product-surface sprawl or broader orchestration by default.
 
 So this family may constrain:
@@ -267,16 +263,13 @@ Planning relationship:
   - `examples/external_prototypes/odeu-sandbox-app/ALIGNMENT.md`
   - `examples/external_prototypes/odeu-sandbox-app/source_tree/odeu_sandbox/README.md`
 - Current family state for this branch:
-  - `V51-A` is released on `main`
-  - `V51-B` is released on `main`
+  - `V51-A` through `V51-C` are closed on `main`
 - Recommended next path for this branch:
-  - `V51-C`
+  - no further internal `V51` path is currently selected
 - Recommended next concrete arc for this branch if selected:
-  - `vNext+126`
+  - none selected inside `v34`
 - Default path selection for this branch:
-  - select `V51-C` as the next default candidate
-  - treat that default as the bounded browser/UI consumer lane over the released
-    kernel/API stack
+  - no further internal `V51` path is currently selected by default
 
 This family/path recommendation is branch-local to the `v34` planning surface.
 
@@ -292,7 +285,7 @@ The current recommended path ladder is:
 |---|---|---|---|
 | `V51-A` | kernel-only package lane | released typed simulation state/action/scenario/regime/metrics contracts plus deterministic engine loop | closed_on_main |
 | `V51-B` | bounded API surface | released non-persistent scenario-execution API over one released kernel | closed_on_main |
-| `V51-C` | bounded UI surface | candidate browser/UI route over one released kernel/API stack | planned_selected_next |
+| `V51-C` | bounded UI surface | released browser/UI route over one released kernel/API stack | closed_on_main |
 
 These output names are planning-level candidate names, not lock-level schema
 authority.
@@ -304,7 +297,7 @@ That is:
 
 - `V51-A` freezes the simulation kernel contracts first;
 - `V51-B` then adds one bounded API consumer over the released kernel;
-- `V51-C` is now the next path and remains subordinate to the released kernel / API
+- `V51-C` closes the first bounded browser/UI consumer over the released kernel / API
   stack.
 
 So the `A -> B -> C` staging is an intentional separation between:
@@ -313,11 +306,9 @@ So the `A -> B -> C` staging is an intentional separation between:
 - later API consumer;
 - still-later browser/UI surface.
 
-## Recommended Next Path (`V51-C`)
+## Completed Final-Slice Boundary (`V51-C`)
 
-Implement the bounded UI consumer next.
-
-`V51-C` should introduce:
+`V51-C` stays bounded to:
 
 - one bounded browser/UI route over the released `POST /odeu-sim/run` API only;
 - one request-input posture that remains subordinate to the released API contract:
@@ -331,16 +322,17 @@ Implement the bounded UI consumer next.
   - exact three-key lane summary
   - sparse observed-only action counts
   - event/evidence/sanction counts
-- one deterministic route-smoke and minimal interaction fixture/test posture;
+- one deterministic route-smoke and minimal interaction fixture/test posture only;
 - one minimal failure rendering posture for typed invalid-request and kernel-mismatch
-  responses.
+  responses only.
 
-`V51-C` is UI-first and still bounded:
+It does not widen into:
 
-- it may emit one browser route and its bounded support components/tests only;
-- it may not emit reset/step/state controls, mutable scenario override sliders,
-  persistent client state, static bundle import from the prototype, or broader
-  product-surface entitlement.
+- reset/step/state controls;
+- mutable scenario override sliders;
+- persistent client state;
+- static bundle import from the prototype; or
+- broader product-surface entitlement.
 
 ## Why This Path
 
@@ -410,27 +402,38 @@ Bounded API surface, now closed on `main`:
 
 ### `V51-C`
 
-Bounded UI surface:
+Bounded UI surface, now closed on `main`:
 
-- add one browser/UI route or app surface over one released kernel/API stack;
+- add one browser/UI route over one released kernel/API stack;
 - keep it bounded and deterministic enough for route smoke tests and minimal
   interaction checks;
 - do not widen into product-wide routing, persistent state, or prototype-style
-  mutable controls by default.
+  mutable controls.
+
+## Current Internal Family State
+
+`V51` is now closed on `main` and no further internal `V51` path is currently
+selected.
+
+Any later work should be treated as:
+
+- a downstream consumer of released `V51` artifacts;
+- a later direct API/browser/product family selected in a new planning branch; or
+- a different module family,
+
+not as an ambient continuation automatically authorized inside `v34`.
 
 ## Candidate Package Ownership
 
-Package ownership should remain planning-bound for now.
+The planning result should therefore be read as:
 
-The first planning pass should therefore assume:
-
-- `packages/adeu_odeu_sim` is the likely first owning package for this family;
-- `apps/api` is now a released bounded consumer only and not a first-owner surface;
-- later `apps/web` surfaces remain consumers only and not first-owner surfaces;
+- `packages/adeu_odeu_sim` is the released first owning package for this family;
+- `apps/api` is a released bounded consumer only and not a first-owner surface;
+- `apps/web` is a released bounded consumer only and not a first-owner surface;
 - released `packages/adeu_semantic_forms` outputs remain adjacent substrate only and
-  are not silently made mandatory in `V51-A`;
+  were not made mandatory in `V51`;
 - released `packages/adeu_symbol_audit` outputs remain adjacent analysis support only
-  and are not silently widened as required kernel dependencies in `V51-A`.
+  and were not widened as required kernel dependencies in `V51`.
 
 This should be read as intentional family restraint, not as missing planning detail.
 
@@ -476,8 +479,8 @@ Concrete released substrate anchors for this family direction are:
   authorized by this planning draft;
 - no reopening of released `V49` or released `V50` contracts is authorized by this
   planning draft;
-- no FastAPI, static UI, or persistent-storage surface is selected by this planning
-  draft;
+- no further FastAPI widening, prototype static-UI widening, or persistent-storage
+  surface is selected by this planning draft;
 - no repo-wide product entitlement is selected by this planning draft;
 - no worker orchestration or runtime mutation surface is selected by this planning
   draft;
@@ -490,7 +493,7 @@ Concrete released substrate anchors for this family direction are:
 {
   "schema": "next_arc_planning_baseline@1",
   "source_baseline_doc": "docs/DRAFT_NEXT_ARC_OPTIONS_v33.md",
-  "baseline_arc": "vNext+125",
+  "baseline_arc": "vNext+126",
   "closed_prior_families": [
     "V45",
     "V47",
@@ -523,13 +526,12 @@ Concrete released substrate anchors for this family direction are:
   ],
   "closed_current_family_paths": [
     "V51-A",
-    "V51-B"
-  ],
-  "planned_current_family_paths": [
+    "V51-B",
     "V51-C"
   ],
-  "default_next_arc_candidate_for_this_branch": "V51-C",
-  "default_next_concrete_arc_candidate_for_this_branch": "vNext+126",
+  "planned_current_family_paths": [],
+  "default_next_arc_candidate_for_this_branch": null,
+  "default_next_concrete_arc_candidate_for_this_branch": null,
   "family_architecture_doc": "docs/DRAFT_GPT_PRO_PROTOTYPE_MODULEIZATION_PLAN_v0.md",
   "pre_lock_companion_docs_expected": [
     "docs/DRAFT_GPT_PRO_PROTOTYPE_MODULEIZATION_PLAN_v0.md",
@@ -542,7 +544,7 @@ Concrete released substrate anchors for this family direction are:
   "first_slice_active_packages": [
     "packages/adeu_odeu_sim"
   ],
-  "package_selection_status": "selected_in_planning_not_locked_yet",
+  "package_selection_status": "selected_and_released_on_main",
   "family_theme": "adeu_odeu_simulation_kernel_api_ui_family",
   "branch_local_planning_selection_only": true,
   "imported_shaping_bundle": "examples/external_prototypes/odeu-sandbox-app",
@@ -580,7 +582,9 @@ Concrete released substrate anchors for this family direction are:
   "starter_scenario_count_minimum": 2,
   "starter_scenario_count_maximum": 2,
   "api_surface_deferred_to_v51b": false,
-  "web_surface_deferred_to_v51c": true,
+  "web_surface_deferred_to_v51c": false,
+  "v51b_api_released_on_main": true,
+  "v51c_web_route_released_on_main": true,
   "persistent_storage_not_selected_here": true,
   "planning_boundary_mode": "scope_guard_not_lock_authority",
   "authority_layering_note": "docs/DRAFT_INTENT_AUTHORITY_LAYERING_NOTE_v0.md",
