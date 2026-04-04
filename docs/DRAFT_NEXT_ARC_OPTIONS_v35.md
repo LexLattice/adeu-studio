@@ -68,7 +68,7 @@ Interpretive doctrine for this planning surface:
 - `V51-A` through `V51-C` are closed on `main` and now constitute the completed
   deterministic ODEU simulation kernel / bounded API / bounded browser family recorded
   in `docs/DRAFT_NEXT_ARC_OPTIONS_v34.md`.
-- `vNext+128` is the current implementation-arc baseline on `main`.
+- `vNext+129` is the current implementation-arc baseline on `main`.
 - imported GPT Pro prototype bundles have been normalized under:
   - `examples/external_prototypes/adeu-semantic-forms-v0-bundle`
   - `examples/external_prototypes/adeu-symbol-audit-v0-bundle`
@@ -202,13 +202,14 @@ This new family asks:
 `V52-C` should therefore be read as:
 
 - later than released `V52-A` and `V52-B`;
-- one bounded live worker request/response bridge only through repo-owned
-  domain/harness surfaces;
+- now closed on `main` as one bounded live worker request/response bridge through the
+  existing `urm_domain_paper` domain pack and URM tool-call surface;
 - not a license to import the prototype’s workflow overlay wholesale.
 
 `V52-D` should therefore be read as:
 
-- later than the core semantic-contract and read-only workbench slices;
+- later than the core semantic-contract, read-only workbench, and live worker-bridge
+  slices;
 - one bounded advanced visualization seam only;
 - not a license for unbounded frontend experimentation by default.
 
@@ -281,14 +282,15 @@ Planning relationship:
 - Current family state for this branch:
   - `V52-A` is closed on `main`
   - `V52-B` is closed on `main`
+  - `V52-C` is closed on `main`
 - Recommended next path for this branch:
-  - `V52-C`
+  - `V52-D`
 - Recommended next concrete arc for this branch if selected:
-  - `vNext+129`
+  - `vNext+130`
 - Default path selection for this branch:
-  - select `V52-C` as the next default candidate
-  - treat that default as the bounded live worker bridge lane over released `V52-A`
-    and released `V52-B` surfaces
+  - select `V52-D` as the next default candidate
+  - treat that default as the bounded advanced-visualization lane over released
+    `V52-A`, released `V52-B`, and the already accepted bounded `V52-C` bridge seam
 
 This family/path recommendation is branch-local to the `v35` planning surface.
 
@@ -304,8 +306,8 @@ The current recommended path ladder is:
 |---|---|---|---|
 | `V52-A` | semantic-contract package lane | released repo-owned paper semantic artifact / worker-request / diagnostics contracts | closed_on_main |
 | `V52-B` | bounded mock workbench | released read-only web route over committed/sample paper semantic artifacts only | closed_on_main |
-| `V52-C` | bounded worker bridge | candidate live worker request/response bridge over repo-owned domain/harness surfaces | planned_selected_next |
-| `V52-D` | advanced visualization | candidate bounded spatial / morphic visualization seam over released paper semantics surfaces | planned_not_selected_yet |
+| `V52-C` | bounded worker bridge | released live worker request/response bridge over repo-owned domain/harness surfaces | closed_on_main |
+| `V52-D` | advanced visualization | candidate bounded spatial / morphic visualization seam over released paper semantics surfaces | planned_selected_next |
 
 These output names are planning-level candidate names, not lock-level schema
 authority.
@@ -318,7 +320,7 @@ That is:
 - `V52-A` freezes the paper semantic contracts first;
 - `V52-B` then adds one bounded read-only mock workbench over those released
   contracts;
-- `V52-C` later adds one bounded live worker bridge over repo-owned domain/harness
+- `V52-C` then adds one bounded live worker bridge over repo-owned domain/harness
   surfaces;
 - `V52-D` remains last and only widens the visualization seam after the semantic and
   worker contracts are already accepted.
@@ -400,31 +402,70 @@ The released second slice introduced:
 - it does not add advanced visualization or 3D scene work;
 - it does not import the prototype overlay into live route code.
 
-## Recommended Next Path (`V52-C`)
+## Completed Third-Slice Boundary (`V52-C`)
 
-Implement the bounded live worker bridge next.
+`V52-C` is now closed on `main`.
 
-`V52-C` should introduce:
+The released third slice introduced:
 
-- one bounded live worker request/response bridge only;
-- one repo-owned bridge surface only over released paper semantic artifacts and
-  released workbench selections;
-- one explicit evidence-bearing bridge posture only;
-- one explicit ownership decision for the live bridge seam only:
+- one additive live bridge tool only:
+  - `paper.run_semantic_decomposition`
+- one additive owner extension only:
   - `packages/urm_domain_paper`
-  - `packages/urm_domain_adeu`
-  - or one narrower repo-owned bridge surface
-- one deterministic request/response test posture only;
-- no advanced visualization yet;
-- no prototype workflow overlay promotion yet.
+- one retained existing default template only:
+  - `paper.abstract.pipeline.v0`
+- one explicit released request-contract consumption posture only:
+  - `adeu_paper_semantic_worker_request@1`
+- one refs-only bridge result posture only:
+  - `bridge_status`
+  - `warrant_tag`
+  - `artifact_ref`
+  - `worker_id`
+  - `evidence_id`
+  - `worker_status`
+  - request lineage
+- one explicit capability-policy mapping posture only;
+- one bounded fail-closed bridge posture only:
+  - invalid request
+  - invalid returned artifact payload
+  - runtime/config mismatch
+- bounded `apps/api` / domain-pack regression coverage only.
 
-`V52-C` remains bridge-only and still bounded:
+`V52-C` remains bridge-only and bounded:
+
+- it does not widen the browser route into a live worker trigger surface;
+- it does not create a dedicated paper-semantics API route;
+- it does not supersede the existing paper-domain abstract-tool lane;
+- it does not import the prototype workflow overlay into live repo code;
+- it does not add advanced visualization or scene work.
+
+## Recommended Next Path (`V52-D`)
+
+Implement the bounded advanced-visualization seam next.
+
+`V52-D` should introduce:
+
+- one bounded advanced visualization seam only;
+- one route-local spatial / morphic scene posture only inside the existing
+  `/papers/semantic-workbench` route;
+- one explicit same-object morphic transition posture only between:
+  - `artifact`
+  - `local`
+  - `spatial`
+- one typed visualization projection posture only over released paper-semantic
+  artifacts and released workbench-local view state;
+- one deterministic frontend projection/test posture only;
+- no new semantic authority, worker-bridge ownership change, or API widening.
+
+`V52-D` remains visualization-only and still bounded:
 
 - it may consume released `packages/adeu_paper_semantics` outputs and the released
-  `V52-B` workbench seam only;
+  `/papers/semantic-workbench` consumer seam only;
+- it may constrain itself with the already accepted bounded `V52-C` bridge seam
+  without browser-triggering it;
 - it may not mint a parallel paper semantic substrate or reopen `V52-A` authority;
-- it may not widen into full product workbench sprawl or advanced visualization;
-- it may not import the prototype workflow overlay wholesale.
+- it may not widen into upload, live-fetch, or product-surface sprawl;
+- it may not import the prototype spatial scene wholesale.
 
 ## Why This Path
 
@@ -441,26 +482,26 @@ Implement the bounded live worker bridge next.
   seam separately.
 - It matches the moduleization plan’s explicit `D1 -> D2 -> D3 -> D4` order.
 
-## Next-Slice Boundary (`V52-C`)
+## Next-Slice Boundary (`V52-D`)
 
-`V52-C` should stay bounded to:
+`V52-D` should stay bounded to:
 
-- one live worker bridge seam only;
-- one repo-owned bridge ownership decision only;
-- request/response bridge ownership only:
-  - worker request selection
-  - released artifact / sample reference carriage
-  - evidence-bearing response posture
-- one deterministic bridge test posture only;
-- no web-route redesign, API fetch expansion, or advanced visualization.
+- one advanced visualization seam only;
+- one route-local spatial-scene projection posture only inside the released
+  `/papers/semantic-workbench` surface;
+- one typed morphic transition posture only over released artifact/view-model data;
+- one deterministic frontend scene/test posture only;
+- no web-route redesign beyond the existing route, no API fetch expansion, and no
+  browser-triggered live worker execution.
 
 It should not attempt:
 
 - reopening `V52-A` contract ownership;
+- reopening or re-owning `V52-C` bridge semantics;
 - widening `V52-B` into upload, live generation, or broader product flows;
-- prototype workflow overlay import into live domain/harness paths;
-- advanced spatial visualization or scene work;
-- silent bridge ownership laundering.
+- prototype workflow overlay import into live route paths;
+- new semantic authority or diagnostics vocabularies in the renderer;
+- silent worker-trigger or API-route laundering.
 
 ## Follow-On Paths Inside `V52`
 
@@ -474,15 +515,16 @@ Bounded read-only mock workbench, now closed on `main`:
 
 ### `V52-C`
 
-Bounded worker bridge, now selected as the next branch-local path:
+Bounded worker bridge, now closed on `main`:
 
-- add one live worker request/response bridge over repo-owned domain/harness surfaces;
-- keep it artifact-subordinate and evidence-bearing;
-- do not widen into advanced visualization yet.
+- shipped one additive `paper.run_semantic_decomposition` tool over the existing URM
+  tool-call surface;
+- kept it artifact-subordinate and evidence-bearing;
+- did not widen the browser route or visualization seam.
 
 ### `V52-D`
 
-Advanced visualization:
+Advanced visualization, now selected as the next branch-local path:
 
 - add the spatial-lane scene and richer morphic transitions only after the semantic
   contracts and worker bridge are accepted;
@@ -497,8 +539,10 @@ The branch should therefore assume:
 - `packages/adeu_paper_semantics` is the released first-owner package for this family;
 - released `apps/web/src/app/papers/semantic-workbench/` is a consumer only and not
   a first-owner semantic authority surface;
-- later `packages/urm_domain_paper` and/or `packages/urm_domain_adeu` surfaces are
-  candidate consumers/bridges only and not first-owner surfaces in `V52-C`;
+- released `packages/urm_domain_paper` now owns the additive bounded bridge seam and
+  remains a consumer/bridge surface rather than a first-owner semantic authority
+  surface;
+- `packages/urm_domain_adeu` remains not selected for bridge ownership;
 - released `packages/adeu_semantic_forms` outputs remain adjacent substrate and
   constraining context, not something later `V52` slices are allowed to silently
   fork;
@@ -553,12 +597,13 @@ Concrete released substrate anchors for this family direction are:
   planning draft;
 - no direct widening of `packages/adeu_core_ir` or `packages/urm_domain_adeu` as the
   first-owner surfaces is authorized by this planning draft;
-- no route widening beyond the released bounded mock-workbench consumer is selected by
-  this planning draft for `V52-C`;
-- no worker-template or domain-registration widening beyond one bounded live bridge is
-  selected by this planning draft for `V52-C`;
-- no spatial 3D or advanced visualization seam is selected by this planning draft for
-  `V52-C`;
+- no route widening beyond one bounded advanced-visualization seam inside the released
+  `/papers/semantic-workbench` consumer is selected by this planning draft for
+  `V52-D`;
+- no worker-template or domain-registration widening beyond the already released
+  bounded `V52-C` live bridge is selected by this planning draft for `V52-D`;
+- no spatial 3D or advanced visualization seam beyond one bounded `V52-D` lane is
+  selected by this planning draft;
 - no precedent-bearing authority is granted to the imported intake pack by this
   planning draft.
 
@@ -568,7 +613,7 @@ Concrete released substrate anchors for this family direction are:
 {
   "schema": "next_arc_planning_baseline@1",
   "source_baseline_doc": "docs/DRAFT_NEXT_ARC_OPTIONS_v34.md",
-  "baseline_arc": "vNext+128",
+  "baseline_arc": "vNext+129",
   "closed_prior_families": [
     "V45",
     "V47",
@@ -604,14 +649,14 @@ Concrete released substrate anchors for this family direction are:
   ],
   "closed_current_family_paths": [
     "V52-A",
-    "V52-B"
+    "V52-B",
+    "V52-C"
   ],
   "planned_current_family_paths": [
-    "V52-C",
     "V52-D"
   ],
-  "default_next_arc_candidate_for_this_branch": "V52-C",
-  "default_next_concrete_arc_candidate_for_this_branch": "vNext+129",
+  "default_next_arc_candidate_for_this_branch": "V52-D",
+  "default_next_concrete_arc_candidate_for_this_branch": "vNext+130",
   "family_architecture_doc": "docs/DRAFT_GPT_PRO_PROTOTYPE_MODULEIZATION_PLAN_v0.md",
   "pre_lock_companion_docs_expected": [
     "docs/DRAFT_GPT_PRO_PROTOTYPE_MODULEIZATION_PLAN_v0.md",
@@ -648,7 +693,7 @@ Concrete released substrate anchors for this family direction are:
   "sample_artifact_validation_required": true,
   "v49_primitive_reuse_or_explicit_delta_declaration_required": true,
   "mock_workbench_deferred_to_v52b": false,
-  "worker_bridge_deferred_to_v52c": true,
+  "worker_bridge_deferred_to_v52c": false,
   "advanced_visualization_deferred_to_v52d": true,
   "planning_boundary_mode": "scope_guard_not_lock_authority",
   "authority_layering_note": "docs/DRAFT_INTENT_AUTHORITY_LAYERING_NOTE_v0.md",
