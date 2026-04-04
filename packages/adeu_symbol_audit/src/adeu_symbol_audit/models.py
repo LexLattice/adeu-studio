@@ -12,6 +12,9 @@ ADEU_SYMBOL_AUDIT_SCOPE_MANIFEST_SCHEMA = "adeu_symbol_audit_scope_manifest@1"
 ADEU_SYMBOL_CENSUS_ENTRY_SCHEMA = "adeu_symbol_census_entry@1"
 ADEU_SYMBOL_CENSUS_SCHEMA = "adeu_symbol_census@1"
 ADEU_SYMBOL_AUDIT_COVERAGE_REPORT_SCHEMA = "adeu_symbol_audit_coverage_report@1"
+ADEU_SYMBOL_SEMANTIC_EVIDENCE_REF_SCHEMA = "adeu_symbol_semantic_evidence_ref@1"
+ADEU_SYMBOL_SEMANTIC_AUDIT_ENTRY_SCHEMA = "adeu_symbol_semantic_audit_entry@1"
+ADEU_SYMBOL_SEMANTIC_AUDIT_SCHEMA = "adeu_symbol_semantic_audit@1"
 
 MODEL_CONFIG = ConfigDict(extra="forbid", frozen=True, populate_by_name=True)
 
@@ -20,6 +23,10 @@ SymbolKind = Literal["class", "function", "method", "local_function"]
 ParseStatus = Literal["parsed"]
 ExtractorConfidencePosture = Literal["authoritative_for_explicit_parseable_defs"]
 CoverageStatus = Literal["closed_clean", "fail_closed_mismatch"]
+AuditStatus = Literal["audited_hypothesis", "audited_low_confidence", "unresolved"]
+ConfidenceBand = Literal["low", "medium"]
+EvidenceKind = Literal["source_span", "call_summary", "decorator", "baseclass"]
+SemanticVocabularyPosture = Literal["explicit_independence_from_v49"]
 
 _SYMBOL_KIND_ORDER: dict[SymbolKind, int] = {
     "class": 0,
@@ -413,20 +420,179 @@ class SymbolAuditCoverageReport(BaseModel):
         return self
 
 
+class SymbolSemanticEvidenceRef(BaseModel):
+    model_config = MODEL_CONFIG
+
+    evidence_kind: EvidenceKind
+    detail: str
+
+    @model_validator(mode="after")
+    def _validate(self) -> "SymbolSemanticEvidenceRef":
+        object.__setattr__(self, "detail", _assert_non_empty_text(self.detail, field_name="detail"))
+        return self
+
+
+class SymbolSemanticAuditEntry(BaseModel):
+    model_config = MODEL_CONFIG
+
+    symbol_id: str
+    audit_status: AuditStatus
+    confidence_band: ConfidenceBand
+    role_summary: str
+    architectural_purpose: str
+    local_behavior_summary: str
+    inputs_outputs_summary: str
+    side_effect_profile: list[str] = Field(min_length=1)
+    dependency_position: str
+    likely_canonical_family: str
+    overlap_candidate_symbol_ids: list[str] = Field(default_factory=list)
+    abstraction_candidate_notes: str | None = None
+    evidence_refs: list[SymbolSemanticEvidenceRef] = Field(min_length=1)
+    uncertainty_notes: list[str] = Field(default_factory=list)
+
+    @model_validator(mode="after")
+    def _validate(self) -> "SymbolSemanticAuditEntry":
+        for field_name in (
+            "symbol_id",
+            "role_summary",
+            "architectural_purpose",
+            "local_behavior_summary",
+            "inputs_outputs_summary",
+            "dependency_position",
+            "likely_canonical_family",
+        ):
+            object.__setattr__(
+                self,
+                field_name,
+                _assert_non_empty_text(getattr(self, field_name), field_name=field_name),
+            )
+        object.__setattr__(
+            self,
+            "side_effect_profile",
+            _assert_sorted_unique_strings(
+                self.side_effect_profile,
+                field_name="side_effect_profile",
+            ),
+        )
+        object.__setattr__(
+            self,
+            "overlap_candidate_symbol_ids",
+            _assert_sorted_unique_strings(
+                self.overlap_candidate_symbol_ids,
+                field_name="overlap_candidate_symbol_ids",
+            ),
+        )
+        object.__setattr__(
+            self,
+            "uncertainty_notes",
+            _assert_sorted_unique_strings(
+                self.uncertainty_notes,
+                field_name="uncertainty_notes",
+            ),
+        )
+        if self.abstraction_candidate_notes is not None:
+            object.__setattr__(
+                self,
+                "abstraction_candidate_notes",
+                _assert_non_empty_text(
+                    self.abstraction_candidate_notes,
+                    field_name="abstraction_candidate_notes",
+                ),
+            )
+        if not any(ref.evidence_kind == "source_span" for ref in self.evidence_refs):
+            raise ValueError("evidence_refs must include at least one source_span entry")
+        if self.audit_status == "audited_hypothesis" and self.confidence_band != "medium":
+            raise ValueError("audited_hypothesis requires confidence_band = medium")
+        if (
+            self.audit_status in {"audited_low_confidence", "unresolved"}
+            and self.confidence_band != "low"
+        ):
+            raise ValueError(
+                "audited_low_confidence and unresolved require confidence_band = low"
+            )
+        return self
+
+
+class SymbolSemanticAudit(BaseModel):
+    model_config = MODEL_CONFIG
+
+    schema_id: Literal[ADEU_SYMBOL_SEMANTIC_AUDIT_SCHEMA] = Field(
+        default=ADEU_SYMBOL_SEMANTIC_AUDIT_SCHEMA,
+        alias="schema",
+    )
+    scope_manifest_ref: str
+    census_hash: str
+    semantic_vocabulary_posture: SemanticVocabularyPosture
+    spu_name: str
+    spu_version: str
+    audit_entries: list[SymbolSemanticAuditEntry] = Field(min_length=1)
+    audit_hash: str
+
+    @property
+    def schema(self) -> str:
+        return self.schema_id
+
+    @model_validator(mode="after")
+    def _validate(self) -> "SymbolSemanticAudit":
+        object.__setattr__(
+            self,
+            "scope_manifest_ref",
+            _assert_non_empty_text(self.scope_manifest_ref, field_name="scope_manifest_ref"),
+        )
+        object.__setattr__(
+            self, "census_hash", _assert_sha256_hex(self.census_hash, field_name="census_hash")
+        )
+        object.__setattr__(
+            self, "spu_name", _assert_non_empty_text(self.spu_name, field_name="spu_name")
+        )
+        object.__setattr__(
+            self, "spu_version", _assert_non_empty_text(self.spu_version, field_name="spu_version")
+        )
+        symbol_ids = [entry.symbol_id for entry in self.audit_entries]
+        if len(symbol_ids) != len(set(symbol_ids)):
+            raise ValueError("audit_entries must be unique by symbol_id")
+        expected_audit_hash = _sha256_canonical_payload(
+            {
+                "schema": self.schema,
+                "scope_manifest_ref": self.scope_manifest_ref,
+                "census_hash": self.census_hash,
+                "semantic_vocabulary_posture": self.semantic_vocabulary_posture,
+                "spu_name": self.spu_name,
+                "spu_version": self.spu_version,
+                "audit_entries": [
+                    entry.model_dump(mode="json", exclude_none=True) for entry in self.audit_entries
+                ],
+            }
+        )
+        if self.audit_hash != expected_audit_hash:
+            raise ValueError("audit_hash must match canonical audit payload")
+        return self
+
+
 __all__ = [
     "ADEU_SYMBOL_AUDIT_COVERAGE_REPORT_SCHEMA",
     "ADEU_SYMBOL_AUDIT_SCOPE_MANIFEST_SCHEMA",
     "ADEU_SYMBOL_CENSUS_ENTRY_SCHEMA",
     "ADEU_SYMBOL_CENSUS_SCHEMA",
+    "ADEU_SYMBOL_SEMANTIC_AUDIT_ENTRY_SCHEMA",
+    "ADEU_SYMBOL_SEMANTIC_AUDIT_SCHEMA",
+    "ADEU_SYMBOL_SEMANTIC_EVIDENCE_REF_SCHEMA",
+    "AuditStatus",
+    "ConfidenceBand",
     "DEFAULT_SYMBOL_KINDS",
+    "EvidenceKind",
     "ExtractorConfidencePosture",
     "LanguageKind",
     "ParseStatus",
+    "SemanticVocabularyPosture",
     "ScopeManifestSourceFile",
     "SymbolAuditCoverageReport",
     "SymbolAuditScopeManifest",
     "SymbolCensus",
     "SymbolCensusEntry",
+    "SymbolSemanticAudit",
+    "SymbolSemanticAuditEntry",
+    "SymbolSemanticEvidenceRef",
     "SymbolKind",
     "compute_scope_manifest_id",
     "compute_symbol_audit_symbol_id",
