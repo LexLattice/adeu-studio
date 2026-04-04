@@ -1,0 +1,224 @@
+{
+  "schema": "adeu_paper_semantic_artifact@1",
+  "artifact_id": "paper_semantic:5ce49f7c50dff3f2",
+  "source": {
+    "schema": "adeu_paper_source_artifact@1",
+    "source_id": "paper_source:0057ad1fe47bc4ad",
+    "artifact_kind": "paper.abstract",
+    "title": "Transparent Evidence and Institutional Legitimacy",
+    "authors": [
+      "A. Researcher"
+    ],
+    "year": 2026,
+    "venue": "ADEU Notes",
+    "source_text": "This abstract argues that transparent evidence practices strengthen institutional legitimacy and improve collective outcomes.",
+    "source_text_hash": "ffe95c9f9b2745c1acd251b45e3c97d42229634081e24eb6e87728df910542e9",
+    "source_notes": [
+      "Imported prototype narrowed to abstract-scale contract."
+    ]
+  },
+  "spans": [
+    {
+      "schema": "adeu_paper_source_span@1",
+      "span_id": "span:2746e4906a7e91fa",
+      "start": 26,
+      "end": 56,
+      "quote": "transparent evidence practices",
+      "sentence_index": 0,
+      "paragraph_index": 0
+    },
+    {
+      "schema": "adeu_paper_source_span@1",
+      "span_id": "span:572282fb53146d13",
+      "start": 68,
+      "end": 92,
+      "quote": "institutional legitimacy",
+      "sentence_index": 0,
+      "paragraph_index": 0
+    },
+    {
+      "schema": "adeu_paper_source_span@1",
+      "span_id": "span:07d298fe7ff81dc1",
+      "start": 97,
+      "end": 124,
+      "quote": "improve collective outcomes",
+      "sentence_index": 0,
+      "paragraph_index": 0
+    }
+  ],
+  "claims": [
+    {
+      "schema": "adeu_paper_semantic_claim@1",
+      "claim_id": "claim:7320babfb0265114",
+      "claim_text": "Transparent evidence practices strengthen institutional legitimacy and improve collective outcomes.",
+      "status": "stable",
+      "span_ids": [
+        "span:07d298fe7ff81dc1",
+        "span:2746e4906a7e91fa",
+        "span:572282fb53146d13"
+      ],
+      "lane_fragment_ids": [
+        "fragment:742cf6b70b2145fe",
+        "fragment:7cdc05eefef97716",
+        "fragment:a5f3fbcc756d7513",
+        "fragment:fdce7d233286b59e"
+      ],
+      "summary": "One anchored claim with explicit O/E/U material and inferred D material.",
+      "confidence": 0.91
+    }
+  ],
+  "lane_fragments": [
+    {
+      "schema": "adeu_paper_semantic_lane_fragment@1",
+      "fragment_id": "fragment:a5f3fbcc756d7513",
+      "claim_id": "claim:7320babfb0265114",
+      "lane_id": "D",
+      "short_label": "Legitimacy norm",
+      "fragment_text": "Institutional legitimacy is treated as requiring transparent evidence practice.",
+      "source_kind": "inferred",
+      "status": "inferred",
+      "confidence": 0.72,
+      "warrant": "The abstract implies, but does not explicitly state, the governing norm.",
+      "span_ids": [
+        "span:572282fb53146d13"
+      ],
+      "bridge_ids": [
+        "bridge:6a263d31be1caa18"
+      ],
+      "diagnostic_ids": [
+        "diagnostic:3efed55f9abf808b"
+      ]
+    },
+    {
+      "schema": "adeu_paper_semantic_lane_fragment@1",
+      "fragment_id": "fragment:fdce7d233286b59e",
+      "claim_id": "claim:7320babfb0265114",
+      "lane_id": "E",
+      "short_label": "Legitimacy support",
+      "fragment_text": "The abstract explicitly links transparent evidence practices to stronger institutional legitimacy.",
+      "source_kind": "explicit",
+      "status": "explicit",
+      "confidence": 0.94,
+      "warrant": "The sentence states the evidence-to-legitimacy link directly.",
+      "span_ids": [
+        "span:2746e4906a7e91fa",
+        "span:572282fb53146d13"
+      ],
+      "bridge_ids": [
+        "bridge:6a263d31be1caa18"
+      ],
+      "diagnostic_ids": []
+    },
+    {
+      "schema": "adeu_paper_semantic_lane_fragment@1",
+      "fragment_id": "fragment:742cf6b70b2145fe",
+      "claim_id": "claim:7320babfb0265114",
+      "lane_id": "O",
+      "short_label": "Evidence practice",
+      "fragment_text": "Transparent evidence practices are presented as a structured institutional object.",
+      "source_kind": "explicit",
+      "status": "explicit",
+      "confidence": 0.95,
+      "warrant": "The source names the practice directly.",
+      "span_ids": [
+        "span:2746e4906a7e91fa"
+      ],
+      "bridge_ids": [],
+      "diagnostic_ids": []
+    },
+    {
+      "schema": "adeu_paper_semantic_lane_fragment@1",
+      "fragment_id": "fragment:7cdc05eefef97716",
+      "claim_id": "claim:7320babfb0265114",
+      "lane_id": "U",
+      "short_label": "Outcome gain",
+      "fragment_text": "Collective outcomes improve when transparent evidence practices hold.",
+      "source_kind": "explicit",
+      "status": "explicit",
+      "confidence": 0.9,
+      "warrant": "The abstract states the outcome gain directly.",
+      "span_ids": [
+        "span:07d298fe7ff81dc1",
+        "span:2746e4906a7e91fa"
+      ],
+      "bridge_ids": [],
+      "diagnostic_ids": []
+    }
+  ],
+  "inference_bridges": [
+    {
+      "schema": "adeu_paper_semantic_inference_bridge@1",
+      "bridge_id": "bridge:6a263d31be1caa18",
+      "bridge_kind": "supporting_bridge",
+      "from_fragment_ids": [
+        "fragment:fdce7d233286b59e"
+      ],
+      "to_fragment_ids": [
+        "fragment:a5f3fbcc756d7513"
+      ],
+      "rationale": "The explicit legitimacy evidence is used to infer the governing deontic implication.",
+      "confidence": 0.71,
+      "diagnostic_ids": [
+        "diagnostic:3efed55f9abf808b"
+      ]
+    }
+  ],
+  "diagnostics": [
+    {
+      "schema": "adeu_paper_semantic_diagnostic@1",
+      "diagnostic_id": "diagnostic:3efed55f9abf808b",
+      "diagnostic_kind": "unsupported_kind",
+      "lane_ids": [
+        "D"
+      ],
+      "related_fragment_ids": [
+        "fragment:a5f3fbcc756d7513"
+      ],
+      "severity": "warning",
+      "span_ids": [
+        "span:572282fb53146d13"
+      ],
+      "summary": "The deontic implication is inferred from the legitimacy claim rather than stated directly."
+    }
+  ],
+  "projections": [
+    {
+      "schema": "adeu_paper_semantic_projection@1",
+      "projection_id": "projection:47454065652b5127",
+      "surface": "artifact",
+      "lane_order": [
+        "O",
+        "E",
+        "D",
+        "U"
+      ],
+      "claim_order": [
+        "claim:7320babfb0265114"
+      ],
+      "recommended_focus_claim_id": "claim:7320babfb0265114",
+      "diagnostic_summary": {
+        "critical": 0,
+        "warning": 1,
+        "advisory": 0
+      }
+    }
+  ],
+  "source_authority_posture": "source_text_and_explicit_span_anchors_authoritative",
+  "interpretation_authority_posture": "advisory_only",
+  "semantic_identity_mode": "v49_hash_law_with_explicit_paper_domain_delta",
+  "identity_field_names": [
+    "source",
+    "spans",
+    "claims",
+    "lane_fragments",
+    "inference_bridges",
+    "semantic_identity_mode"
+  ],
+  "projection_field_names": [
+    "source_metadata",
+    "diagnostics",
+    "projections",
+    "confidence_and_warrant_fields"
+  ],
+  "semantic_hash": "5ce49f7c50dff3f2c569eb56b49a48c3448c3c9417d282abf80666cc4c61bb06"
+}

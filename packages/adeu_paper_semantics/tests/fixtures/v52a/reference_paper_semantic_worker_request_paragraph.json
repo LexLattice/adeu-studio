@@ -1,0 +1,23 @@
+{
+  "schema": "adeu_paper_semantic_worker_request@1",
+  "title": "Archive Disclosure and Auditable Sanctions",
+  "source_text": "The paragraph claims that archive disclosure logs let institutions verify stewardship promises, reducing uncertainty for participants while making sanction triggers auditable.",
+  "source_kind": "pasted.paragraph",
+  "requested_depth": 2,
+  "return_schema": "adeu_paper_semantic_artifact@1",
+  "operator_posture": {
+    "analysis_mode": "evidence-first",
+    "authority_mode": "advisory-only",
+    "preserve_source_anchor": true
+  },
+  "constraints": {
+    "anchor_explicit_claims_to_source_spans": true,
+    "infer_missing_odeu_lanes": true,
+    "mark_inferred_and_contested_content": true,
+    "include_diagnostics": true,
+    "max_top_level_claims": 4,
+    "max_subclaims_per_claim": 2
+  },
+  "request_hash": "a34c948021ca9b84acaebc72f5478267fabf82ca33163bca0cdb8c05c529bc75",
+  "request_id": "paper_semantic_request:a34c948021ca9b84"
+}
