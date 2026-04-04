@@ -258,6 +258,152 @@
   color: #6e7b76;
 }
 
+.scenePanel {
+  display: grid;
+  gap: 1rem;
+}
+
+.sceneHeader {
+  display: flex;
+  justify-content: space-between;
+  gap: 1rem;
+  align-items: flex-start;
+}
+
+.sceneEyebrow {
+  margin: 0 0 0.45rem;
+  text-transform: uppercase;
+  letter-spacing: 0.18em;
+  font-size: 0.72rem;
+  color: #7d5d2f;
+}
+
+.sceneMeta {
+  margin: 0;
+  display: grid;
+  gap: 0.55rem;
+}
+
+.sceneMeta div {
+  padding-top: 0.45rem;
+  border-top: 1px solid rgba(31, 42, 38, 0.08);
+}
+
+.sceneMeta dt {
+  font-size: 0.68rem;
+  text-transform: uppercase;
+  letter-spacing: 0.12em;
+  color: #7d5d2f;
+}
+
+.sceneMeta dd {
+  margin: 0.25rem 0 0;
+  word-break: break-word;
+  line-height: 1.5;
+}
+
+.sceneViewport {
+  position: relative;
+  min-height: 34rem;
+  overflow: hidden;
+  border-radius: 24px;
+  border: 1px solid rgba(31, 42, 38, 0.1);
+  background:
+    linear-gradient(90deg, rgba(125, 93, 47, 0.08) 0 1px, transparent 1px 100%),
+    linear-gradient(180deg, rgba(31, 42, 38, 0.05) 0 1px, transparent 1px 100%),
+    radial-gradient(circle at top left, rgba(42, 95, 83, 0.12), transparent 35%),
+    #fffdf8;
+  background-size: 20% 100%, 100% 14%, auto, auto;
+}
+
+.sceneEdges,
+.sceneNodes {
+  position: absolute;
+  inset: 0;
+}
+
+.sceneEdges {
+  width: 100%;
+  height: 100%;
+}
+
+.sceneNodes {
+  pointer-events: none;
+}
+
+.sceneNode,
+.sceneNodeActive {
+  position: absolute;
+  pointer-events: auto;
+  display: grid;
+  gap: 0.2rem;
+  min-width: 8.6rem;
+  max-width: 12rem;
+  padding: 0.65rem 0.8rem;
+  text-align: left;
+  border-radius: 18px;
+  border: 1px solid rgba(31, 42, 38, 0.12);
+  background: rgba(255, 251, 244, 0.94);
+  color: #1f2a26;
+  box-shadow: 0 10px 28px rgba(63, 54, 37, 0.12);
+}
+
+.sceneNode strong,
+.sceneNodeActive strong {
+  font-size: 0.68rem;
+  text-transform: uppercase;
+  letter-spacing: 0.14em;
+  color: #7d5d2f;
+}
+
+.sceneNodeActive {
+  border-color: #1f2a26;
+  background: #1f2a26;
+  color: #fff9ef;
+}
+
+.sceneNodeActive strong {
+  color: #e7cf92;
+}
+
+.sceneNode[data-node-kind="claim"],
+.sceneNodeActive[data-node-kind="claim"] {
+  border-left: 4px solid #7d5d2f;
+}
+
+.sceneNode[data-node-kind="lane_fragment"],
+.sceneNodeActive[data-node-kind="lane_fragment"] {
+  border-left: 4px solid #2a5f53;
+}
+
+.sceneLegend {
+  display: grid;
+  gap: 0.25rem;
+  color: #55645f;
+  line-height: 1.55;
+}
+
+.sceneLegend p {
+  margin: 0;
+}
+
+.sceneClaimEdge,
+.sceneInferenceEdge {
+  fill: none;
+  stroke-linecap: round;
+}
+
+.sceneClaimEdge {
+  stroke: rgba(125, 93, 47, 0.52);
+  stroke-width: 0.45;
+}
+
+.sceneInferenceEdge {
+  stroke: rgba(42, 95, 83, 0.66);
+  stroke-width: 0.6;
+  stroke-dasharray: 1.4 1.1;
+}
+
 @media (max-width: 980px) {
   .controlGrid,
   .grid,
@@ -268,5 +414,20 @@
 
   .hero {
     flex-direction: column;
+  }
+
+  .sceneHeader {
+    flex-direction: column;
+  }
+
+  .sceneViewport {
+    min-height: 28rem;
+  }
+
+  .sceneNode,
+  .sceneNodeActive {
+    min-width: 7.4rem;
+    max-width: 9.5rem;
+    padding: 0.55rem 0.7rem;
   }
 }

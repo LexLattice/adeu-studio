@@ -68,7 +68,19 @@ test("paper semantic workbench defaults: committed abstract sample is frozen", (
   assert.equal(config.route_id, PAPER_SEMANTIC_WORKBENCH_ROUTE_ID);
   assert.equal(config.selected_sample_artifact_ref, ABSTRACT_FIXTURE_REF);
   assert.equal(config.selected_surface, "artifact");
+  assert.equal(config.focus_claim_id, null);
   assert.deepEqual(config.visible_lane_ids, ["O", "E", "D", "U"]);
+  assert.deepEqual(
+    Object.keys(config).sort(),
+    [
+      "focus_claim_id",
+      "route_id",
+      "schema",
+      "selected_sample_artifact_ref",
+      "selected_surface",
+      "visible_lane_ids",
+    ],
+  );
 });
 
 test("paper semantic workbench parser: committed abstract fixture validates against released shape", async () => {
@@ -131,6 +143,47 @@ test("paper semantic workbench view-model: missing selected surface projection f
   assert.equal(viewModel.artifact, null);
 });
 
+test("paper semantic workbench view-model: spatial surface stays derived from released ordering anchors", async () => {
+  const abstract = parsePaperSemanticArtifact(
+    await readFixture("reference_paper_semantic_artifact_abstract.json"),
+  );
+  assert.ok(abstract);
+
+  const firstViewModel = createViewModel(
+    [{ ref: ABSTRACT_FIXTURE_REF, artifact: abstract }],
+    {
+      ...buildDefaultViewConfig(ABSTRACT_FIXTURE_REF),
+      selected_surface: "spatial",
+    },
+  );
+  const secondViewModel = createViewModel(
+    [{ ref: ABSTRACT_FIXTURE_REF, artifact: abstract }],
+    {
+      ...buildDefaultViewConfig(ABSTRACT_FIXTURE_REF),
+      selected_surface: "spatial",
+    },
+  );
+
+  assert.equal(firstViewModel.route_status, "ready_clean");
+  assert.ok(firstViewModel.spatial_scene);
+  assert.equal(firstViewModel.selected_surface, "spatial");
+  assert.equal(firstViewModel.spatial_scene.artifact_ref, abstract.artifact_id);
+  assert.equal(firstViewModel.spatial_scene.semantic_hash, abstract.semantic_hash);
+  assert.equal(firstViewModel.spatial_scene.scene_hash, secondViewModel.spatial_scene?.scene_hash);
+  assert.deepEqual(firstViewModel.spatial_scene.node_order, secondViewModel.spatial_scene?.node_order);
+  assert.ok(firstViewModel.spatial_scene.nodes.length > 0);
+  assert.ok(firstViewModel.spatial_scene.edges.length > 0);
+  assert.deepEqual(
+    [...new Set(firstViewModel.spatial_scene.nodes.map((node) => node.node_kind))].sort(),
+    ["claim", "lane_fragment"],
+  );
+  assert.deepEqual(
+    [...new Set(firstViewModel.spatial_scene.edges.map((edge) => edge.edge_kind))].sort(),
+    ["claim_to_fragment", "inference_bridge"],
+  );
+  assert.ok(firstViewModel.ordered_claim_ids.length > 0);
+});
+
 test("paper semantic workbench parser: invalid diagnostic enum fixture fails closed", async () => {
   const fixture = await readFixture("reject_invalid_diagnostic_kind.json");
   assert.equal(parsePaperSemanticArtifact(fixture), null);
@@ -158,13 +211,18 @@ test("paper semantic workbench route: no direct API, fetch, live-worker, or spat
     assert.doesNotMatch(source, /\bfetch\s*\(/, `unexpected fetch in ${routeFile}`);
     assert.doesNotMatch(
       source,
-      /\bfrom\s+["']\.\.\/\.\.\/lib\/api-base["']|\bfrom\s+["']\.\.?\/.*live-worker["']|\bfrom\s+["']\.\.?\/.*spatial-lane-scene["']/,
+      /\bfrom\s+["']\.\.\/\.\.\/lib\/api-base["']|\bfrom\s+["']\.\.?\/.*live-worker["']/,
       `unexpected live bridge import in ${routeFile}`,
     );
     assert.doesNotMatch(
       source,
       /examples\/external_prototypes\/adeu-paper-semantic-workbench-poc/,
       `unexpected direct prototype overlay import in ${routeFile}`,
+    );
+    assert.doesNotMatch(
+      source,
+      /from\s+["'].*adeu_paper_semantics.*spatial/i,
+      `unexpected artifact-authority spatial import in ${routeFile}`,
     );
   }
 });
