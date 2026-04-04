@@ -3,8 +3,8 @@
 Status: planning draft after `docs/DRAFT_NEXT_ARC_OPTIONS_v31.md`, updated after the
 bounded `V48` family closed on `main`, the imported GPT Pro prototype bundles were
 normalized into repo-owned intake packs plus maintainer-side moduleization planning,
-and the bounded `V49-A` semantic substrate contract slice plus bounded `V49-B`
-semantic recovery slice closed on `main`.
+and the bounded `V49-A` semantic substrate contract slice, bounded `V49-B` semantic
+recovery slice, and bounded `V49-C` deterministic lowering slice closed on `main`.
 
 This draft does not automatically supersede the contest-participation planning branch in
 `docs/DRAFT_NEXT_ARC_OPTIONS_v26.md`, the structural-reasoning assessment planning
@@ -53,9 +53,10 @@ Interpretive doctrine for this planning surface:
 - `V48-A` through `V48-E` are closed on `main` and now constitute the completed bounded
   policy-to-taskpack and worker-enforcement bridge recorded in
   `docs/DRAFT_NEXT_ARC_OPTIONS_v31.md`.
-- `V49-A` and `V49-B` are closed on `main` and now constitute the completed bounded
-  semantic substrate contract and bounded recovery slices recorded in this draft.
-- `vNext+118` is the current implementation-arc baseline on `main`.
+- `V49-A` through `V49-C` are closed on `main` and now constitute the completed
+  bounded semantic substrate contract, bounded recovery, and bounded deterministic
+  lowering slices recorded in this draft.
+- `vNext+119` is the current implementation-arc baseline on `main`.
 - imported GPT Pro prototype bundles have been normalized under:
   - `examples/external_prototypes/adeu-semantic-forms-v0-bundle`
   - `examples/external_prototypes/adeu-symbol-audit-v0-bundle`
@@ -82,17 +83,15 @@ The repo no longer lacks:
 
 The repo still lacks a released, repo-owned semantic substrate family for:
 
-- deterministic `ADEU -> ADEU` lowering from one released semantic normal form into
-  one narrow downstream `V48`-adjacent seed;
 - one bounded downstream bridge helper that consumes released `V49` and released
   `V48` surfaces without reopening either family.
 
 So the missing layer is not another `V48` continuation and not direct import of the
 intake bundle into live package paths.
 
-The missing layer is the next semantic substrate realization lane grounded in the
-released `V49-A` contracts and released `V49-B` recovery outputs: bounded lowering
-and later bounded downstream bridge behavior.
+The missing layer is the final semantic substrate realization lane grounded in the
+released `V49-A` contracts, released `V49-B` recovery outputs, and released `V49-C`
+deterministic lowering outputs: one later bounded downstream bridge behavior.
 
 ## Relationship To `V45`, `V47`, `V48`, And The Imported Bundles
 
@@ -186,14 +185,14 @@ Planning relationship:
   - `docs/DRAFT_NEXT_ARC_OPTIONS_v30.md`
   - `docs/DRAFT_NEXT_ARC_OPTIONS_v28.md`
 - Recommended next path for this branch:
-  - `V49-C`
+  - `V49-D`
 - Recommended next concrete arc for this branch if selected:
-  - `vNext+119`
+  - `vNext+120`
 - Default path selection for this branch:
-  - select `V49-C` as the next default candidate
-  - treat that default as the bounded deterministic lowering lane after the
-    substrate-contract and bounded recovery lanes closed on `main` and before any
-    downstream `V48` bridge helper widening
+  - select `V49-D` as the next default candidate
+  - treat that default as the bounded downstream bridge helper after the
+    substrate-contract, bounded recovery, and deterministic lowering lanes closed on
+    `main`
 
 This family/path recommendation is branch-local to the `v32` planning surface.
 
@@ -228,8 +227,8 @@ The family should treat natural-language recovery as:
 
 The family should treat deterministic lowering as:
 
-- one later, bounded lane;
-- not something selected before the substrate contracts are frozen.
+- one released, bounded lane on `main`;
+- not something that may be reopened implicitly inside later bridge code.
 
 The family should treat later modules such as symbol audit or paper semantics as:
 
@@ -250,7 +249,9 @@ At minimum, later `V49` work should make explicit:
 - what ambiguity outcomes are admissible;
 - what unsupported outcomes are admissible;
 - how one semantic normal form lowers into one narrow `V48`-adjacent seed without
-  reopening released `V48` contracts.
+  reopening released `V48` contracts;
+- how that released seed may later flow into one narrow released `V48` bridge helper
+  without laundering bridge authority back into lowering.
 
 ## Suggested `V49` Path Ladder
 
@@ -260,7 +261,7 @@ The current recommended path ladder is:
 |---|---|---|---|
 | `V49-A` | core semantic contracts | candidate parse-profile, semantic-normal-form, parse-result, and transform-contract surfaces plus starter statement calculus, identity/equivalence law, ambiguity law, and unsupported law | closed_on_main |
 | `V49-B` | bounded recovery engine | candidate `NL -> ADEU` recovery lane over one starter domain with explicit ambiguity posture | closed_on_main |
-| `V49-C` | deterministic lowering lane | candidate `semantic_normal_form -> taskpack_binding_spec_seed` lowering for one downstream target | planned |
+| `V49-C` | deterministic lowering lane | candidate `semantic_normal_form -> taskpack_binding_spec_seed` lowering for one downstream target | closed_on_main |
 | `V49-D` | downstream `V48` bridge | one narrow bridge helper into released `V48-A` / `V48-B` flows | planned |
 
 These output names are planning-level candidate names, not lock-level schema authority.
@@ -272,9 +273,9 @@ That is:
 
 - `V49-A` freezes the substrate contracts and semantic identity law first;
 - `V49-B` then adds bounded fallible recovery into those contracts;
-- `V49-C` now becomes the next deterministic lowering move from those released
-  contracts and released recovery outputs;
-- `V49-D` then adds one narrow bridge into the released `V48` stack.
+- `V49-C` is now the released deterministic lowering move from those released
+  contracts and released recovery outputs on `main`;
+- `V49-D` now becomes the next narrow bridge into the released `V48` stack.
 
 So the `A -> B -> C -> D` staging is an intentional separation between:
 
@@ -283,71 +284,65 @@ So the `A -> B -> C -> D` staging is an intentional separation between:
 - deterministic lowering;
 - downstream operational bridge.
 
-## Recommended Next Path (`V49-C`)
+## Recommended Next Path (`V49-D`)
 
-Implement the bounded deterministic lowering lane next.
+Implement the bounded downstream bridge helper next.
 
-`V49-C` should introduce:
+`V49-D` should introduce:
 
-- one repo-owned deterministic lowering surface:
-  - `packages/adeu_semantic_forms/src/adeu_semantic_forms/transform_v48_seed.py`
-- one bounded lowering input/output posture rich enough to cover:
-  - exactly one released `adeu_semantic_normal_form@1`;
-  - exactly one released `adeu_semantic_transform_contract@1`;
-  - exactly one emitted `adeu_taskpack_binding_spec_seed@1`;
-  - exactly one downstream target only:
-    - released `V48-A` binding-profile seed posture;
+- one repo-owned downstream bridge helper surface inside
+  `packages/adeu_semantic_forms`;
+- one bounded bridge input/output posture rich enough to cover:
+  - exactly one released `adeu_taskpack_binding_spec_seed@1`;
+  - exactly one released `V48-A` binding-profile posture;
+  - exactly one released `V48-B` compile posture;
   - exactly one starter domain only:
     - `repo_policy_work`;
-  - exactly the released `V49-A` identity / equivalence / ambiguity doctrine and
-    released `V49-B` recovery-consumable normal-form posture;
+  - exactly one released lowering lineage posture:
+    - released `V49-C` seed lineage only;
 - one small deterministic reference fixture set proving:
-  - successful lowering from one released normal form;
-  - fail-closed rejection on missing required relations;
-  - fail-closed rejection on unsupported transform-contract or domain mismatch;
-  - deterministic seed replay;
-- no `V48` bridge helper yet;
-- no CLI, API, or web consumer surfaces.
+  - successful bridge handoff from one released seed;
+  - fail-closed rejection on released `V48-A` mismatch;
+  - fail-closed rejection on released `V48-B` compile mismatch;
+  - deterministic bridge replay;
+- no worker-envelope, conformance, delegation, or CLI/API/web consumer surfaces.
 
-`V49-C` is lowering-first and still bounded:
+`V49-D` is bridge-first and still bounded:
 
-- it may emit bounded deterministic seed artifacts from released `V49` contracts;
-- it may not yet emit `V48-A` binding profiles, worker-boundary artifacts, runtime
+- it may emit only the narrow helper outputs needed to hand a released seed into the
+  already released `V48-A` / `V48-B` stack;
+- it may not reopen `V48` semantics, emit worker-boundary artifacts, runtime
   execution behavior, or product consumers.
 
 ## Why This Path
 
-- It is the narrowest safe consumer of the now-released `V49-A` contract surface and
-  `V49-B` bounded recovery outputs.
-- It keeps deterministic `ADEU -> ADEU` lowering subordinate to already released
-  semantic identity, equivalence, ambiguity, and recovery doctrine rather than
-  deciding those laws implicitly in bridge code.
-- It proves whether the frozen starter-domain normal forms can lower into one narrow
-  `V48`-adjacent seed before the repo accepts any downstream binding helper.
-- It lets later consumers such as symbol audit or paper semantics depend on an
-  explicit deterministic lowering lane instead of local ad hoc transforms.
+- It is the narrowest safe consumer of the now-released `V49-C` seed contract.
+- It keeps bridge behavior subordinate to already released semantic identity,
+  recovery, and lowering doctrine rather than laundering bridge semantics back into
+  `V49-C`.
+- It proves whether the frozen starter-domain seed can enter the released `V48-A` /
+  `V48-B` stack without reopening binding or compile contracts.
+- It lets later consumers depend on an explicit bridge helper instead of local ad hoc
+  handoff code.
 - It aligns with the current cross-module dependency table in
   `docs/DRAFT_GPT_PRO_PROTOTYPE_MODULEIZATION_PLAN_v0.md`.
 
-## Current Next-Slice Boundary (`V49-C`)
+## Current Next-Slice Boundary (`V49-D`)
 
-`V49-C` should stay bounded to:
+`V49-D` should stay bounded to:
 
 - one repo-owned package only:
   - `packages/adeu_semantic_forms`
-- deterministic lowering ownership only:
-  - `transform_v48_seed.py`
+- downstream bridge ownership only:
+  - one bounded helper alongside the released lowering surface
   - bounded additions to package tests / fixtures
-- exactly one released `V49-A` semantic normal form contract family only;
-- exactly one released `V49-A` transform-contract family only;
-- exactly one released `V49-B` recovery-normal-form posture as admissible upstream
-  source only;
+- exactly one released `V49-C` seed contract family only;
+- exactly one released `V48-A` binding-profile posture only;
+- exactly one released `V48-B` compile posture only;
 - exactly one starter domain only:
   - `repo_policy_work`;
-- exactly one downstream seed family only:
-  - `adeu_taskpack_binding_spec_seed@1`;
-- exactly the released `V49-A` relation / lane / object vocabularies only;
-- explicit deterministic fail-closed lowering posture only;
+- exactly one released lowering lineage posture only;
+- explicit deterministic fail-closed bridge posture only;
 - deterministic reference fixtures only;
 - repo-native unit tests only.
 
@@ -355,8 +350,8 @@ It should not attempt:
 
 - generalized semantic transforms beyond the released starter calculus;
 - recovery heuristics or new natural-language parsing behavior;
-- direct emission of released `V48-A` binding profiles or released `V48-B` compiled
-  boundaries;
+- reopening released `V48-A` binding-profile semantics or released `V48-B` compiled
+  boundary semantics;
 - worker execution or harness runtime wiring;
 - symbol audit integration;
 - paper semantic contract integration;
@@ -365,18 +360,11 @@ It should not attempt:
 
 ## Follow-On Paths Inside `V49`
 
-### `V49-C`
-
-Deterministic lowering lane:
-
-- add `transform_v48_seed.py`;
-- lower one semantic normal form into one narrow downstream seed artifact;
-- keep the lowering deterministic and blocked on ambiguity or missing relations.
-
 ### `V49-D`
 
 Downstream bridge lane:
 
+- consume released `V49-C` seed lineage only;
 - consume released `V48-A` / `V48-B` surfaces only;
 - add one narrow helper that hands the seed into the released binding/compile flow;
 - keep worker runtime and broader consumer widening out of scope.
@@ -427,8 +415,8 @@ are:
   planning draft;
 - no widening of released `V49-B` natural-language recovery behavior beyond its
   bounded one-profile / one-domain posture is authorized by this planning draft;
-- no downstream bridge helper into released `V48` binding or compile surfaces is
-  authorized by this planning draft before deterministic lowering is frozen;
+- no reopening of released `V49-C` deterministic lowering semantics is authorized by
+  this planning draft;
 - no CLI, API, or web consumer surface is selected by this planning draft;
 - no automatic supersession of the remaining imported bundles is authorized by this
   planning draft;
@@ -443,7 +431,7 @@ are:
 {
   "schema": "next_arc_planning_baseline@1",
   "source_baseline_doc": "docs/DRAFT_NEXT_ARC_OPTIONS_v31.md",
-  "baseline_arc": "vNext+118",
+  "baseline_arc": "vNext+119",
   "closed_prior_families": [
     "V45",
     "V47",
@@ -470,14 +458,14 @@ are:
   ],
   "closed_current_family_paths": [
     "V49-A",
-    "V49-B"
+    "V49-B",
+    "V49-C"
   ],
   "planned_current_family_paths": [
-    "V49-C",
     "V49-D"
   ],
-  "default_next_arc_candidate_for_this_branch": "V49-C",
-  "default_next_concrete_arc_candidate_for_this_branch": "vNext+119",
+  "default_next_arc_candidate_for_this_branch": "V49-D",
+  "default_next_concrete_arc_candidate_for_this_branch": "vNext+120",
   "family_architecture_doc": "docs/DRAFT_GPT_PRO_PROTOTYPE_MODULEIZATION_PLAN_v0.md",
   "pre_lock_companion_docs_expected": [
     "docs/DRAFT_GPT_PRO_PROTOTYPE_MODULEIZATION_PLAN_v0.md",
@@ -497,12 +485,13 @@ are:
   "imported_bundle_authority_status": "support_only_non_precedent",
   "released_semantic_forms_contract_slice_consumed": "V49-A",
   "released_semantic_forms_recovery_slice_consumed": "V49-B",
+  "released_semantic_forms_lowering_slice_consumed": "V49-C",
   "canonical_semantic_identity_required": true,
   "canonical_hash_subject_required": true,
   "semantic_equivalence_posture_required": true,
   "ambiguity_posture_required": true,
   "nl_to_adeu_recovery_released_on_main": true,
-  "adeu_to_adeu_lowering_deferred_to_v49c": true,
+  "adeu_to_adeu_lowering_released_on_main": true,
   "v48_bridge_deferred_to_v49d": true,
   "consumer_surfaces_initially_deferred": true,
   "planning_boundary_mode": "scope_guard_not_lock_authority",
