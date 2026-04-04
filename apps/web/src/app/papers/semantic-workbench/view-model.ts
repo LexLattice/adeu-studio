@@ -575,6 +575,20 @@ function buildSpatialScene(params: {
 }): PaperSemanticSpatialSceneModel | null {
   const laneOrder = normalizeProjectionLaneOrder(params.projection.lane_order);
   const claimOrder = params.orderedClaimIds;
+  const claimsById = new Map(
+    params.artifact.claims.map((claim) => [claim.claim_id, claim] as const),
+  );
+  const fragmentsByClaimAndLane = new Map<string, PaperSemanticLaneFragment[]>();
+  for (const fragment of params.artifact.lane_fragments) {
+    const key = `${fragment.claim_id}:${fragment.lane_id}`;
+    const existing = fragmentsByClaimAndLane.get(key);
+    if (existing) {
+      existing.push(fragment);
+    } else {
+      fragmentsByClaimAndLane.set(key, [fragment]);
+    }
+  }
+  const visibleLaneSet = new Set(params.visibleLaneIds);
   const claimNodeIds = new Map<string, string>();
   const fragmentNodeIds = new Map<string, string>();
   const nodes: PaperSemanticSpatialSceneNode[] = [];
@@ -582,7 +596,7 @@ function buildSpatialScene(params: {
 
   for (let claimIndex = 0; claimIndex < claimOrder.length; claimIndex += 1) {
     const claimId = claimOrder[claimIndex];
-    const claim = params.artifact.claims.find((item) => item.claim_id === claimId);
+    const claim = claimsById.get(claimId);
     if (!claim) return null;
     const claimNodeId = `scene-node:claim:${claimId}`;
     claimNodeIds.set(claimId, claimNodeId);
@@ -602,9 +616,8 @@ function buildSpatialScene(params: {
 
     for (let laneIndex = 0; laneIndex < laneOrder.length; laneIndex += 1) {
       const laneId = laneOrder[laneIndex];
-      if (!params.visibleLaneIds.includes(laneId)) continue;
-      const fragments = params.artifact.lane_fragments
-        .filter((fragment) => fragment.claim_id === claimId && fragment.lane_id === laneId)
+      if (!visibleLaneSet.has(laneId)) continue;
+      const fragments = [...(fragmentsByClaimAndLane.get(`${claimId}:${laneId}`) ?? [])]
         .sort((left, right) => left.fragment_id.localeCompare(right.fragment_id));
       for (let fragmentIndex = 0; fragmentIndex < fragments.length; fragmentIndex += 1) {
         const fragment = fragments[fragmentIndex];

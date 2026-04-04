@@ -314,6 +314,7 @@
     radial-gradient(circle at top left, rgba(42, 95, 83, 0.12), transparent 35%),
     #fffdf8;
   background-size: 20% 100%, 100% 14%, auto, auto;
+  perspective: 1200px;
 }
 
 .sceneEdges,
@@ -329,6 +330,7 @@
 
 .sceneNodes {
   pointer-events: none;
+  transform-style: preserve-3d;
 }
 
 .sceneNode,
