@@ -12,7 +12,7 @@ from adeu_odeu_sim import (
     summarize_lane_state,
 )
 from fastapi import APIRouter, Body
-from pydantic import BaseModel, ConfigDict, Field, model_validator
+from pydantic import BaseModel, ConfigDict, Field, ValidationError, model_validator
 
 from .hashing import sha256_canonical_json
 
@@ -65,7 +65,7 @@ class OdeuRunLaneSummary(BaseModel):
 
 
 class OdeuRunRequestArtifact(BaseModel):
-    model_config = ConfigDict(extra="forbid")
+    model_config = ConfigDict(extra="forbid", strict=True)
 
     schema: Literal[ODEU_RUN_REQUEST_SCHEMA] = ODEU_RUN_REQUEST_SCHEMA
     scenario_name: Literal["healthy_baseline", "weak_d"]
@@ -224,32 +224,10 @@ def _build_request_artifact(raw_request: Any) -> OdeuRunRequestArtifact:
         raise OdeuRunRouteError(failure_code=FAILURE_CODE_INVALID_REQUEST)
     if set(raw_request) != {"scenario_name", "seed", "steps", "output_mode"}:
         raise OdeuRunRouteError(failure_code=FAILURE_CODE_INVALID_REQUEST)
-
-    scenario_name = raw_request["scenario_name"]
-    seed = raw_request["seed"]
-    steps = raw_request["steps"]
-    output_mode = raw_request["output_mode"]
-
-    if not isinstance(scenario_name, str) or scenario_name not in RELEASED_SCENARIO_NAMES:
-        raise OdeuRunRouteError(failure_code=FAILURE_CODE_INVALID_REQUEST)
-    if not isinstance(seed, int) or isinstance(seed, bool) or seed < 0:
-        raise OdeuRunRouteError(failure_code=FAILURE_CODE_INVALID_REQUEST)
-    if (
-        not isinstance(steps, int)
-        or isinstance(steps, bool)
-        or steps < 1
-        or steps > CANONICAL_REPLAY_HORIZON
-    ):
-        raise OdeuRunRouteError(failure_code=FAILURE_CODE_INVALID_REQUEST)
-    if output_mode != OUTPUT_MODE_SUMMARY_ONLY_JSON:
-        raise OdeuRunRouteError(failure_code=FAILURE_CODE_INVALID_REQUEST)
-
-    return OdeuRunRequestArtifact(
-        scenario_name=scenario_name,
-        seed=seed,
-        steps=steps,
-        output_mode=output_mode,
-    )
+    try:
+        return OdeuRunRequestArtifact.model_validate(raw_request)
+    except ValidationError as exc:
+        raise OdeuRunRouteError(failure_code=FAILURE_CODE_INVALID_REQUEST) from exc
 
 
 def _build_run_summary(*, request: OdeuRunRequestArtifact) -> OdeuRunSummary:
@@ -277,40 +255,30 @@ def _build_run_summary(*, request: OdeuRunRequestArtifact) -> OdeuRunSummary:
             failure_code=FAILURE_CODE_KERNEL_MISMATCH,
             request_ref=_request_ref(request.request_hash),
         )
-    if tuple(lane_summary.keys()) != LANE_SUMMARY_KEYS:
-        raise OdeuRunRouteError(
-            failure_code=FAILURE_CODE_KERNEL_MISMATCH,
-            request_ref=_request_ref(request.request_hash),
-        )
-    if list(action_counts.keys()) != sorted(action_counts):
-        raise OdeuRunRouteError(
-            failure_code=FAILURE_CODE_KERNEL_MISMATCH,
-            request_ref=_request_ref(request.request_hash),
-        )
-    if any(count <= 0 for count in action_counts.values()):
-        raise OdeuRunRouteError(
-            failure_code=FAILURE_CODE_KERNEL_MISMATCH,
-            request_ref=_request_ref(request.request_hash),
-        )
-
-    return OdeuRunSummary(
-        meta=OdeuRunMeta(
+    try:
+        return OdeuRunSummary(
+            meta=OdeuRunMeta(
+                scenario=world.scenario,
+                seed=world.seed,
+                turn=world.turn,
+                regime_label=current_metric.regime_label,
+            ),
+            config_snapshot=world.config,
             scenario=world.scenario,
             seed=world.seed,
             turn=world.turn,
-            regime_label=current_metric.regime_label,
-        ),
-        config_snapshot=world.config,
-        scenario=world.scenario,
-        seed=world.seed,
-        turn=world.turn,
-        current_metric=current_metric,
-        lane_summary=OdeuRunLaneSummary.model_validate(lane_summary),
-        action_counts=action_counts,
-        event_record_count=len(world.event_records),
-        evidence_record_count=len(world.evidence_records),
-        sanction_event_count=len(world.sanction_events),
-    )
+            current_metric=current_metric,
+            lane_summary=OdeuRunLaneSummary.model_validate(lane_summary),
+            action_counts=action_counts,
+            event_record_count=len(world.event_records),
+            evidence_record_count=len(world.evidence_records),
+            sanction_event_count=len(world.sanction_events),
+        )
+    except ValidationError as exc:
+        raise OdeuRunRouteError(
+            failure_code=FAILURE_CODE_KERNEL_MISMATCH,
+            request_ref=_request_ref(request.request_hash),
+        ) from exc
 
 
 def build_odeu_run_response(raw_request: Any) -> OdeuRunResponse:
