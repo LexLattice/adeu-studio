@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import ast
+import hashlib
 from pathlib import Path
 
 from .models import (
@@ -45,6 +46,13 @@ def _call_names(node: ast.AST) -> list[str]:
     return sorted(names)
 
 
+def _read_verified_census_source_file(*, repo_root: Path, file_path: str, sha256: str) -> str:
+    file_bytes = (repo_root / file_path).read_bytes()
+    if hashlib.sha256(file_bytes).hexdigest() != sha256:
+        raise ValueError(f"semantic audit requires source file hash match for {file_path}")
+    return file_bytes.decode("utf-8")
+
+
 class _NodeCollector(ast.NodeVisitor):
     def __init__(self, *, module_path: str) -> None:
         self._module_path = module_path
@@ -83,7 +91,11 @@ class _NodeCollector(ast.NodeVisitor):
 def _collect_symbol_nodes(*, repo_root: Path, census: SymbolCensus) -> dict[str, ast.AST]:
     nodes: dict[str, ast.AST] = {}
     for source_file in census.source_files:
-        file_text = (repo_root / source_file.file_path).read_text(encoding="utf-8")
+        file_text = _read_verified_census_source_file(
+            repo_root=repo_root,
+            file_path=source_file.file_path,
+            sha256=source_file.sha256,
+        )
         tree = ast.parse(file_text, filename=source_file.file_path)
         collector = _NodeCollector(module_path=source_file.file_path)
         collector.visit(tree)

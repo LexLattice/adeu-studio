@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import json
+import shutil
 from pathlib import Path
 
 import pytest
@@ -130,6 +131,32 @@ def test_build_symbol_semantic_audit_rejects_census_hash_mismatch() -> None:
     with pytest.raises(ValueError, match="matching census_hash"):
         build_symbol_semantic_audit(
             repo_root=_repo_root(),
+            census=census,
+            coverage_report=coverage,
+        )
+
+
+def test_build_symbol_semantic_audit_rejects_source_file_hash_drift(tmp_path: Path) -> None:
+    repo_root = _repo_root()
+    census = SymbolCensus.model_validate(_read_json("v50a", "reference_symbol_census.json"))
+    coverage = SymbolAuditCoverageReport.model_validate(
+        _read_json("v50a", "reference_symbol_audit_coverage_report.json")
+    )
+
+    for source_file in census.source_files:
+        destination = tmp_path / source_file.file_path
+        destination.parent.mkdir(parents=True, exist_ok=True)
+        shutil.copy2(repo_root / source_file.file_path, destination)
+
+    drifted_path = tmp_path / census.source_files[0].file_path
+    drifted_path.write_text(
+        drifted_path.read_text(encoding="utf-8") + "\n# drifted after census\n",
+        encoding="utf-8",
+    )
+
+    with pytest.raises(ValueError, match="source file hash match"):
+        build_symbol_semantic_audit(
+            repo_root=tmp_path,
             census=census,
             coverage_report=coverage,
         )
