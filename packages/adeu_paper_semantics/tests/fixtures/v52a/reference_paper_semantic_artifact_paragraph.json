@@ -1,0 +1,239 @@
+{
+  "schema": "adeu_paper_semantic_artifact@1",
+  "artifact_id": "paper_semantic:535e7209e76a2e67",
+  "source": {
+    "schema": "adeu_paper_source_artifact@1",
+    "source_id": "paper_source:164a581e00f21b25",
+    "artifact_kind": "pasted.paragraph",
+    "title": "Archive Disclosure and Auditable Sanctions",
+    "authors": [
+      "B. Analyst"
+    ],
+    "year": 2026,
+    "venue": "ADEU Working Draft",
+    "source_text": "The paragraph claims that archive disclosure logs let institutions verify stewardship promises, reducing uncertainty for participants while making sanction triggers auditable.",
+    "source_text_hash": "51fa8397455fef75ce44525b2f9c6997c3e3d7084b78e9fbdcd786f8ffc20561",
+    "paragraph_index": 3,
+    "source_notes": [
+      "Paragraph-scale worker request for pasted source text."
+    ]
+  },
+  "spans": [
+    {
+      "schema": "adeu_paper_source_span@1",
+      "span_id": "span:26c09d36d830bca8",
+      "start": 26,
+      "end": 49,
+      "quote": "archive disclosure logs",
+      "sentence_index": 0,
+      "paragraph_index": 3
+    },
+    {
+      "schema": "adeu_paper_source_span@1",
+      "span_id": "span:9960289e9232a123",
+      "start": 74,
+      "end": 94,
+      "quote": "stewardship promises",
+      "sentence_index": 0,
+      "paragraph_index": 3
+    },
+    {
+      "schema": "adeu_paper_source_span@1",
+      "span_id": "span:e89cffc515da47b7",
+      "start": 96,
+      "end": 116,
+      "quote": "reducing uncertainty",
+      "sentence_index": 0,
+      "paragraph_index": 3
+    },
+    {
+      "schema": "adeu_paper_source_span@1",
+      "span_id": "span:9801780d02860b2c",
+      "start": 147,
+      "end": 174,
+      "quote": "sanction triggers auditable",
+      "sentence_index": 0,
+      "paragraph_index": 3
+    }
+  ],
+  "claims": [
+    {
+      "schema": "adeu_paper_semantic_claim@1",
+      "claim_id": "claim:75c131984eb99a60",
+      "claim_text": "Archive disclosure logs verify stewardship promises, reduce participant uncertainty, and render sanction triggers auditable.",
+      "status": "stable",
+      "span_ids": [
+        "span:26c09d36d830bca8",
+        "span:9801780d02860b2c",
+        "span:9960289e9232a123",
+        "span:e89cffc515da47b7"
+      ],
+      "lane_fragment_ids": [
+        "fragment:45a2f5c57266ded8",
+        "fragment:661854dbb5565059",
+        "fragment:cbb28865d4652701",
+        "fragment:fde8e792c7966183"
+      ],
+      "summary": "One paragraph-scale claim with explicit O/E/U material and inferred D material.",
+      "confidence": 0.89
+    }
+  ],
+  "lane_fragments": [
+    {
+      "schema": "adeu_paper_semantic_lane_fragment@1",
+      "fragment_id": "fragment:fde8e792c7966183",
+      "claim_id": "claim:75c131984eb99a60",
+      "lane_id": "D",
+      "short_label": "Auditable sanctions",
+      "fragment_text": "Sanction triggers should be auditable to preserve institutional legitimacy.",
+      "source_kind": "inferred",
+      "status": "inferred",
+      "confidence": 0.69,
+      "warrant": "Auditability is implied as a normative requirement rather than stated as a rule.",
+      "span_ids": [
+        "span:9801780d02860b2c"
+      ],
+      "bridge_ids": [
+        "bridge:c3e4d3abdbb0ccfb"
+      ],
+      "diagnostic_ids": [
+        "diagnostic:6b7a578997a677ba"
+      ]
+    },
+    {
+      "schema": "adeu_paper_semantic_lane_fragment@1",
+      "fragment_id": "fragment:cbb28865d4652701",
+      "claim_id": "claim:75c131984eb99a60",
+      "lane_id": "E",
+      "short_label": "Verification evidence",
+      "fragment_text": "Disclosure logs provide evidence for verifying stewardship promises.",
+      "source_kind": "explicit",
+      "status": "explicit",
+      "confidence": 0.93,
+      "warrant": "The paragraph explicitly ties logs to verification of promises.",
+      "span_ids": [
+        "span:26c09d36d830bca8",
+        "span:9960289e9232a123"
+      ],
+      "bridge_ids": [
+        "bridge:c3e4d3abdbb0ccfb"
+      ],
+      "diagnostic_ids": []
+    },
+    {
+      "schema": "adeu_paper_semantic_lane_fragment@1",
+      "fragment_id": "fragment:661854dbb5565059",
+      "claim_id": "claim:75c131984eb99a60",
+      "lane_id": "O",
+      "short_label": "Disclosure logs",
+      "fragment_text": "Archive disclosure logs function as a stable governance object.",
+      "source_kind": "explicit",
+      "status": "explicit",
+      "confidence": 0.96,
+      "warrant": "The paragraph names the disclosure logs directly.",
+      "span_ids": [
+        "span:26c09d36d830bca8"
+      ],
+      "bridge_ids": [],
+      "diagnostic_ids": []
+    },
+    {
+      "schema": "adeu_paper_semantic_lane_fragment@1",
+      "fragment_id": "fragment:45a2f5c57266ded8",
+      "claim_id": "claim:75c131984eb99a60",
+      "lane_id": "U",
+      "short_label": "Lower participant uncertainty",
+      "fragment_text": "Participants face lower uncertainty when disclosure logs verify stewardship promises.",
+      "source_kind": "explicit",
+      "status": "explicit",
+      "confidence": 0.88,
+      "warrant": "The paragraph explicitly links verification to reducing uncertainty.",
+      "span_ids": [
+        "span:26c09d36d830bca8",
+        "span:9960289e9232a123",
+        "span:e89cffc515da47b7"
+      ],
+      "bridge_ids": [
+        "bridge:c3e4d3abdbb0ccfb"
+      ],
+      "diagnostic_ids": []
+    }
+  ],
+  "inference_bridges": [
+    {
+      "schema": "adeu_paper_semantic_inference_bridge@1",
+      "bridge_id": "bridge:c3e4d3abdbb0ccfb",
+      "bridge_kind": "missing_bridge",
+      "from_fragment_ids": [
+        "fragment:45a2f5c57266ded8",
+        "fragment:cbb28865d4652701"
+      ],
+      "to_fragment_ids": [
+        "fragment:fde8e792c7966183"
+      ],
+      "rationale": "The paragraph leaves the governing deontic bridge implicit, so the D lane remains an inferred synthesis.",
+      "confidence": 0.66,
+      "diagnostic_ids": [
+        "diagnostic:6b7a578997a677ba"
+      ]
+    }
+  ],
+  "diagnostics": [
+    {
+      "schema": "adeu_paper_semantic_diagnostic@1",
+      "diagnostic_id": "diagnostic:6b7a578997a677ba",
+      "diagnostic_kind": "missing_bridge",
+      "lane_ids": [
+        "D"
+      ],
+      "related_fragment_ids": [
+        "fragment:fde8e792c7966183"
+      ],
+      "severity": "warning",
+      "span_ids": [
+        "span:9801780d02860b2c"
+      ],
+      "summary": "The paragraph implies but does not spell out the full deontic bridge from auditability to sanction legitimacy."
+    }
+  ],
+  "projections": [
+    {
+      "schema": "adeu_paper_semantic_projection@1",
+      "projection_id": "projection:b4276af7553c7f4f",
+      "surface": "artifact",
+      "lane_order": [
+        "O",
+        "E",
+        "D",
+        "U"
+      ],
+      "claim_order": [
+        "claim:75c131984eb99a60"
+      ],
+      "recommended_focus_claim_id": "claim:75c131984eb99a60",
+      "diagnostic_summary": {
+        "critical": 0,
+        "warning": 1,
+        "advisory": 0
+      }
+    }
+  ],
+  "source_authority_posture": "source_text_and_explicit_span_anchors_authoritative",
+  "interpretation_authority_posture": "advisory_only",
+  "semantic_identity_mode": "v49_hash_law_with_explicit_paper_domain_delta",
+  "identity_field_names": [
+    "source",
+    "spans",
+    "claims",
+    "lane_fragments",
+    "inference_bridges",
+    "semantic_identity_mode"
+  ],
+  "projection_field_names": [
+    "source_metadata",
+    "diagnostics",
+    "projections",
+    "confidence_and_warrant_fields"
+  ],
+  "semantic_hash": "535e7209e76a2e672a08b3d9334107863ef07af577e1d5e3278683ec44cb7118"
+}
