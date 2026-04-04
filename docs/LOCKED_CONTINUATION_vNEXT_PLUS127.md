@@ -284,9 +284,9 @@ The first `V52-A` release should freeze the following contract anchors.
    - `diagnostic_id`
    - `diagnostic_kind`
    - `severity`
-   - `message`
+   - `summary`
    - `span_ids`
-   - `fragment_ids`
+   - `related_fragment_ids`
 7. `adeu_paper_semantic_projection@1`
    - `projection_id`
    - `surface`
@@ -359,4 +359,3 @@ The local gate for this slice is:
 - relevant package lint and tests only for the bounded new package;
 - broader Python and product lanes remain out of scope unless the implementation
   itself forces wider integration work.
-

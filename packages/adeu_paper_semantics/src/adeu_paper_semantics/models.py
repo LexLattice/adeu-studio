@@ -751,12 +751,27 @@ class PaperSemanticArtifact(BaseModel):
         fragment_ids = {item.fragment_id for item in self.lane_fragments}
         bridge_ids = {item.bridge_id for item in self.inference_bridges}
         diagnostic_ids = {item.diagnostic_id for item in self.diagnostics}
+        claim_fragment_ids = {
+            claim.claim_id: set(claim.lane_fragment_ids) for claim in self.claims
+        }
+        fragment_owner_ids = {
+            claim_id: {
+                fragment.fragment_id
+                for fragment in self.lane_fragments
+                if fragment.claim_id == claim_id
+            }
+            for claim_id in claim_ids
+        }
 
         for claim in self.claims:
             if not set(claim.span_ids).issubset(span_ids):
                 raise ValueError("claim span_ids must resolve to released spans")
             if not set(claim.lane_fragment_ids).issubset(fragment_ids):
                 raise ValueError("claim lane_fragment_ids must resolve to released fragments")
+            if claim_fragment_ids[claim.claim_id] != fragment_owner_ids[claim.claim_id]:
+                raise ValueError(
+                    "claim lane_fragment_ids must exactly match owned fragment claim_id bindings"
+                )
 
         for fragment in self.lane_fragments:
             if fragment.claim_id not in claim_ids:
