@@ -151,6 +151,26 @@ def test_symbol_audit_session_fail_closed_on_invalid_output_format() -> None:
     assert "output_format must equal one of: json, text" in session.rendered_output
 
 
+def test_symbol_audit_session_fail_closed_on_non_json_serializable_config_value() -> None:
+    manifest, census, coverage, audit = _released_stack()
+
+    session = build_symbol_audit_session(
+        scope_manifest=manifest,
+        census=census,
+        coverage_report=coverage,
+        semantic_audit=audit,
+        session_config={
+            "session_mode": "read_only_helper_render",
+            "output_format": "json",
+            "include_evidence_refs": {True},
+        },
+    )
+
+    assert session.session_status == "fail_closed_invalid_config"
+    assert session.exit_code == 2
+    assert "include_evidence_refs must be boolean" in session.rendered_output
+
+
 def test_symbol_audit_session_hash_tracks_rendered_output_format() -> None:
     manifest, census, coverage, audit = _released_stack()
     text_session = build_symbol_audit_session(

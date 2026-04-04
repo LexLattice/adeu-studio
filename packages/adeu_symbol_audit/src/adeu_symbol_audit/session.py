@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from typing import Any
+from typing import Literal, NotRequired, TypedDict
 
 from .models import (
     ADEU_SYMBOL_AUDIT_SESSION_CONFIG_SCHEMA,
@@ -24,11 +24,33 @@ RELEASED_SEMANTIC_VOCABULARY_POSTURE: SemanticVocabularyPosture = (
 )
 
 
+class _ProjectedEvidenceRef(TypedDict):
+    evidence_kind: Literal["source_span", "call_summary", "decorator", "baseclass"]
+    detail: str
+
+
+class _ProjectedAuditRow(TypedDict):
+    symbol_id: str
+    audit_status: str
+    confidence_band: str
+    role_summary: str
+    architectural_purpose: str
+    local_behavior_summary: str
+    inputs_outputs_summary: str
+    side_effect_profile: list[str]
+    dependency_position: str
+    likely_canonical_family: str
+    overlap_candidate_symbol_ids: list[str]
+    uncertainty_notes: list[str]
+    abstraction_candidate_notes: NotRequired[str]
+    evidence_refs: NotRequired[list[_ProjectedEvidenceRef]]
+
+
 def _build_session_config_payload(
     *,
     session_mode: str,
     output_format: str,
-    include_evidence_refs: Any,
+    include_evidence_refs: bool | str,
 ) -> dict[str, object]:
     payload: dict[str, object] = {
         "schema": ADEU_SYMBOL_AUDIT_SESSION_CONFIG_SCHEMA,
@@ -99,10 +121,10 @@ def _project_audit_rows(
     *,
     semantic_audit: SymbolSemanticAudit,
     include_evidence_refs: bool,
-) -> list[dict[str, object]]:
-    projected_rows: list[dict[str, object]] = []
+) -> list[_ProjectedAuditRow]:
+    projected_rows: list[_ProjectedAuditRow] = []
     for entry in semantic_audit.audit_entries:
-        row: dict[str, object] = {
+        row: _ProjectedAuditRow = {
             "symbol_id": entry.symbol_id,
             "audit_status": entry.audit_status,
             "confidence_band": entry.confidence_band,
@@ -172,9 +194,10 @@ def _render_success_output(
             )
         )
         if include_evidence_refs:
+            assert "evidence_refs" in row
             evidence_parts = [
                 f"{item['evidence_kind']}={item['detail']}"
-                for item in row["evidence_refs"]  # type: ignore[index]
+                for item in row["evidence_refs"]
             ]
             lines.append(f"evidence_refs={' | '.join(evidence_parts)}")
     return "\n".join(lines)
@@ -235,6 +258,14 @@ def _build_session_artifact(
         }
     )
     return SymbolAuditSession.model_validate(payload)
+
+
+def _sanitize_invalid_include_evidence_refs(raw_value: object) -> bool | str:
+    if isinstance(raw_value, bool):
+        return raw_value
+    if raw_value is None:
+        return "invalid:none"
+    return f"invalid:{type(raw_value).__name__}"
 
 
 def _artifact_stack_mismatch_reason(
@@ -299,7 +330,9 @@ def build_symbol_audit_session(
             if isinstance(attempted_payload.get("output_format"), str)
             else "invalid_output_format"
         )
-        include_evidence_refs = attempted_payload.get("include_evidence_refs")
+        include_evidence_refs = _sanitize_invalid_include_evidence_refs(
+            attempted_payload.get("include_evidence_refs")
+        )
         session_config_payload = _build_session_config_payload(
             session_mode=session_mode,
             output_format=output_format,
