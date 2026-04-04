@@ -2,10 +2,10 @@
 
 Status: planning draft after `docs/DRAFT_NEXT_ARC_OPTIONS_v32.md`, updated after the
 bounded `V49` family closed on `main`, the repo-owned `adeu_semantic_forms` substrate
-landed as a released package, `V50-A` and `V50-B` closed on `main`, and the remaining
-selected seam inside the `adeu_symbol_audit` B track narrowed to the later bounded
-CLI / orchestration lane rather than another implicit continuation inside `V49` or a
-reopening of released census / audit law.
+landed as a released package, and `V50-A` through `V50-C` closed on `main` as the
+completed bounded symbol census / coverage / semantic-audit / session-helper family
+rather than another implicit continuation inside `V49` or a reopening of released
+census / audit law.
 
 This draft does not automatically supersede the contest-participation planning branch in
 `docs/DRAFT_NEXT_ARC_OPTIONS_v26.md`, the structural-reasoning assessment planning
@@ -60,10 +60,11 @@ Interpretive doctrine for this planning surface:
   semantic substrate contract, bounded recovery, bounded deterministic lowering, and
   bounded semantic-seed bridge slices recorded in
   `docs/DRAFT_NEXT_ARC_OPTIONS_v32.md`.
-- `V50-A` through `V50-B` are closed on `main` and now constitute the released bounded
-  symbol census / coverage plus semantic-audit ledger lanes for the three-file
-  `adeu_architecture_ir` pilot scope inside `packages/adeu_symbol_audit`.
-- `vNext+122` is the current implementation-arc baseline on `main`.
+- `V50-A` through `V50-C` are closed on `main` and now constitute the released bounded
+  symbol census / coverage, semantic-audit ledger, and read-only session-helper lanes
+  for the three-file `adeu_architecture_ir` pilot scope inside
+  `packages/adeu_symbol_audit`.
+- `vNext+123` is the current implementation-arc baseline on `main`.
 - imported GPT Pro prototype bundles have been normalized under:
   - `examples/external_prototypes/adeu-semantic-forms-v0-bundle`
   - `examples/external_prototypes/adeu-symbol-audit-v0-bundle`
@@ -95,32 +96,30 @@ The repo no longer lacks:
 - support/planning notes that tell the truth about the imported external bundles and
   their recommended moduleization order;
 - one released repo-owned semantic-audit ledger over one released `V50-A` census with
-  explicit independence from released `V49` primitives.
+  explicit independence from released `V49` primitives;
+- one released repo-owned read-only session/helper seam over the released `V50-A` /
+  `V50-B` artifact stack with deterministic text/json replay and typed fail-closed
+  mismatch / invalid-config posture.
 
 The repo no longer lacks the branch-local internal `V49` ladder.
 
-The missing layer after `vNext+122` is therefore not another implicit `V49-E` and not
+The repo no longer lacks the branch-local internal `V50` ladder.
+
+The missing layer after `vNext+123` is therefore not another implicit `V49-E` and not
 another implicit `V50-D`.
 
-Today the repo still lacks a released way to:
-
-- emit one bounded read-only CLI / orchestration surface over released `V50-A`
-  manifest/census/coverage artifacts plus the released `V50-B` semantic-audit ledger;
-- freeze one session artifact, one invocation law, and one deterministic read-only
-  replay posture inside `packages/adeu_symbol_audit`;
-- keep the released `V50-B` independence posture fixed rather than reopening the
-  semantic-vocabulary decision inside the first CLI seam;
-- keep repo-wide scope widening, runtime mutation behavior, and product-surface
-  entitlement deferred while the first bounded session surface is still being
-  established.
-
-The missing layer is therefore not:
+Any later missing layer is therefore not:
 
 - more `V45` descriptive extraction work;
-- more `V49` semantic substrate work; or
-- another semantic-audit ledger slice.
+- more `V49` semantic substrate work;
+- another semantic-audit ledger slice; or
+- another internal `V50` continuation selected by default inside this branch.
 
-The missing layer is the later bounded session-helper / CLI seam inside that family.
+Any later move should now be treated as:
+
+- a downstream consumer of the released `V50` family;
+- a later direct CLI/product seam selected in a new planning branch; or
+- a different module family altogether.
 
 ## Relationship To `V45`, `V49`, And The Imported Bundles
 
@@ -247,15 +246,13 @@ Planning relationship:
   - `docs/DRAFT_NEXT_ARC_OPTIONS_v28.md`
   - `examples/external_prototypes/adeu-symbol-audit-v0-bundle/ALIGNMENT.md`
 - Current family state for this branch:
-  - `V50-A` and `V50-B` are closed on `main`
+  - `V50-A` through `V50-C` are closed on `main`
 - Recommended next path for this branch:
-  - `V50-C`
+  - no further internal `V50` path is currently selected
 - Recommended next concrete arc for this branch if selected:
-  - `vNext+123`
+  - none selected inside `v33`
 - Default path selection for this branch:
-  - select `V50-C` as the next default candidate
-  - treat that default as the bounded CLI / orchestration lane after the released
-    census / coverage / semantic-audit stack
+  - no further internal `V50` path is currently selected by default
 
 This family/path recommendation is branch-local to the `v33` planning surface.
 
@@ -371,7 +368,7 @@ The current recommended path ladder is:
 |---|---|---|---|
 | `V50-A` | symbol census + coverage lane | candidate `adeu_symbol_audit_scope_manifest@1`, candidate `adeu_symbol_census@1`, and candidate `adeu_symbol_audit_coverage_report@1` over one bounded pilot scope | closed_on_main |
 | `V50-B` | semantic audit ledger lane | candidate `adeu_symbol_semantic_audit@1` with one-audit-per-symbol posture over one released census | closed_on_main |
-| `V50-C` | session-helper / CLI seam | candidate `adeu_symbol_audit_session@1` and bounded runner / CLI doctrine | planned_selected_next |
+| `V50-C` | session-helper / CLI seam | candidate `adeu_symbol_audit_session@1` and bounded runner / CLI doctrine | closed_on_main |
 
 These output names are planning-level candidate names, not lock-level schema
 authority.
@@ -383,8 +380,8 @@ That is:
 
 - `V50-A` intentionally freezes read-only census / coverage law first;
 - `V50-B` then adds one semantic-audit ledger over that frozen census;
-- `V50-C` is now the remaining selected seam and is read only after those earlier
-  contracts are already accepted.
+- `V50-C` is now the released read-only session/helper seam and is read only after
+  those earlier contracts are already accepted.
 
 So the `A -> B -> C` staging is an intentional separation between:
 
@@ -392,11 +389,11 @@ So the `A -> B -> C` staging is an intentional separation between:
 - later semantic-audit claims;
 - still-later user-facing orchestration.
 
-## Recommended Next Path (`V50-C`)
+## Completed Final Path (`V50-C`)
 
-Implement the bounded session-helper seam next.
+`V50-C` is now closed on `main` as the bounded read-only session/helper seam.
 
-`V50-C` should introduce:
+`V50-C` introduced:
 
 - one repo-owned session helper surface inside:
   - `packages/adeu_symbol_audit`
@@ -413,28 +410,29 @@ Implement the bounded session-helper seam next.
 - one small deterministic fixture set rich enough to cover:
   - accepted session replay over one released symbol-audit stack;
   - fail-closed rejection on artifact mismatch;
+  - fail-closed rejection on invalid config;
   - fail-closed rejection on repo-wide or write-capable widening.
 
 `V50-C` is session-first and still bounded:
 
 - it may emit one bounded session / invocation artifact plus bounded diagnostics;
-- it may not yet emit a direct `cli.py` entrypoint, API or web product surfaces,
+- it did not emit a direct `cli.py` entrypoint, API or web product surfaces,
   repo-wide audit entitlement, or runtime mutation behavior.
 
 ## Why This Path
 
-- It is the narrowest safe next consumer of the released `V50-A` / `V50-B`
+- It was the narrowest safe consumer of the released `V50-A` / `V50-B`
   symbol-audit stack.
-- It lets the repo expose one bounded user-facing or runner-facing seam without
-  reopening the already closed scope, identity, closure, or semantic-audit laws.
+- It lets the repo expose one bounded helper-facing seam without reopening the
+  already closed scope, identity, closure, or semantic-audit laws.
 - It keeps the session layer subordinate to released artifacts instead of letting a
-  later CLI surface rediscover scope or semantics ambiently.
+  later direct CLI surface rediscover scope or semantics ambiently.
 - It preserves the released `V50-B` semantic independence posture as fixed upstream
   contract rather than reopening that choice in the session lane.
-- It keeps API/web or repo-wide orchestration later, after one bounded session
-  contract is already inspectable.
+- It keeps direct CLI, API/web, or repo-wide orchestration later, after one bounded
+  session contract is already inspectable.
 
-## First-Slice Boundary (`V50-C`)
+## Completed Final-Slice Boundary (`V50-C`)
 
 `V50-C` should stay bounded to:
 
@@ -464,27 +462,18 @@ It should not attempt:
 - a second hidden semantic substrate;
 - direct import of the external intake bundle into live package paths.
 
-## Follow-On Paths Inside `V50`
+## Current Internal Family State
 
-### `V50-B`
+`V50` is now closed on `main` and no further internal `V50` path is currently
+selected.
 
-Semantic audit ledger lane:
+Any later work should be treated as:
 
-- add one-audit-per-symbol semantic audit entries over one released census;
-- freeze audit entry schema, evidence minimums, and allowed `audit_status` values;
-- decide explicitly whether semantic/evidence vocabulary:
-  - reuses released `V49` primitives; or
-  - is intentionally independent.
+- a downstream consumer of released `V50` artifacts;
+- a later direct CLI/product family selected in a new planning branch; or
+- a different module family,
 
-### `V50-C`
-
-Session-helper / CLI seam:
-
-- add one bounded session / invocation artifact over released manifest, census,
-  coverage, and semantic-audit artifacts;
-- keep the surface read-only and pilot-scope-bounded;
-- keep the first concrete move helper-first and the seam subordinate to the released
-  artifact stack rather than allowing ambient scope or semantic rediscovery.
+not as an ambient continuation automatically authorized inside `v33`.
 
 ## Candidate Package Ownership
 
@@ -533,8 +522,8 @@ Concrete released substrate anchors for this family direction are:
   as the authoritative schema anchor for that released descriptive surface;
 - released `packages/adeu_semantic_forms` contracts on `main` as adjacent semantic
   substrate context, not as mandatory `V50-C` dependencies;
-- released `packages/adeu_symbol_audit` census / coverage / semantic-audit surfaces on
-  `main` as the fixed upstream baseline for the `V50-C` session lane.
+- released `packages/adeu_symbol_audit` census / coverage / semantic-audit / session
+  surfaces on `main` as the fixed released baseline of the completed `V50` family.
 
 ## Planning Boundary
 
@@ -557,7 +546,7 @@ Concrete released substrate anchors for this family direction are:
 {
   "schema": "next_arc_planning_baseline@1",
   "source_baseline_doc": "docs/DRAFT_NEXT_ARC_OPTIONS_v32.md",
-  "baseline_arc": "vNext+122",
+  "baseline_arc": "vNext+123",
   "closed_prior_families": [
     "V45",
     "V47",
@@ -587,15 +576,12 @@ Concrete released substrate anchors for this family direction are:
   ],
   "closed_current_family_paths": [
     "V50-A",
-    "V50-B"
-  ],
-  "planned_current_family_paths": [
-    "V50-A",
     "V50-B",
     "V50-C"
   ],
-  "default_next_arc_candidate_for_this_branch": "V50-C",
-  "default_next_concrete_arc_candidate_for_this_branch": "vNext+123",
+  "planned_current_family_paths": [],
+  "default_next_arc_candidate_for_this_branch": null,
+  "default_next_concrete_arc_candidate_for_this_branch": null,
   "family_architecture_doc": "docs/DRAFT_GPT_PRO_PROTOTYPE_MODULEIZATION_PLAN_v0.md",
   "pre_lock_companion_docs_expected": [
     "docs/DRAFT_GPT_PRO_PROTOTYPE_MODULEIZATION_PLAN_v0.md",
@@ -608,7 +594,7 @@ Concrete released substrate anchors for this family direction are:
   "first_slice_active_packages": [
     "packages/adeu_symbol_audit"
   ],
-  "package_selection_status": "selected_in_planning_not_locked_yet",
+  "package_selection_status": "selected_and_released_on_main",
   "family_theme": "adeu_symbol_census_coverage_and_semantic_audit_family",
   "branch_local_planning_selection_only": true,
   "imported_shaping_bundle": "examples/external_prototypes/adeu-symbol-audit-v0-bundle",
@@ -650,7 +636,8 @@ Concrete released substrate anchors for this family direction are:
   "semantic_vocab_dependency_decision_selected_in_v50b": true,
   "v50b_semantic_vocabulary_posture": "explicit_independence_from_v49",
   "v50a_artifacts_semantically_minimal_to_keep_v50b_choice_open": true,
-  "cli_and_orchestration_selected_next": true,
+  "v50c_session_helper_released_on_main": true,
+  "cli_and_orchestration_selected_next": false,
   "planning_boundary_mode": "scope_guard_not_lock_authority",
   "authority_layering_note": "docs/DRAFT_INTENT_AUTHORITY_LAYERING_NOTE_v0.md",
   "horizon_glossary_note": "docs/DRAFT_INTENT_HORIZON_GLOSSARY_v0.md",
