@@ -143,7 +143,7 @@ def _get_runtime_components() -> tuple[
                 tool_packs=[
                     ADEUDomainTools(config=config, worker_runner=_WORKER_RUNNER),
                     DigestDomainTools(),
-                    PaperDomainTools(),
+                    PaperDomainTools(config=config, worker_runner=_WORKER_RUNNER),
                 ]
             )
             _MANAGER_ENV_KEY = key

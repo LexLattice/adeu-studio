@@ -49,6 +49,35 @@ def _load_json(path: Path) -> dict[str, object]:
     return json.loads(path.read_text(encoding="utf-8"))
 
 
+def _paper_semantics_fixtures_root() -> Path:
+    return (
+        Path(__file__).resolve().parents[3]
+        / "packages"
+        / "adeu_paper_semantics"
+        / "tests"
+        / "fixtures"
+        / "v52a"
+    )
+
+
+def _paper_semantics_fixture(name: str) -> dict[str, object]:
+    return _load_json(_paper_semantics_fixtures_root() / name)
+
+
+def _write_codex_jsonl_fixture(*, tmp_path: Path, artifact_payload: dict[str, object]) -> Path:
+    fixture_path = tmp_path / "paper_semantic_result.jsonl"
+    lines = [
+        {"type": "message", "text": "booting worker"},
+        {"type": "log", "level": "info", "msg": "running paper semantic decomposition"},
+        {"type": "result", "final_output": {"artifact": artifact_payload}},
+    ]
+    fixture_path.write_text(
+        "\n".join(json.dumps(line, sort_keys=True) for line in lines) + "\n",
+        encoding="utf-8",
+    )
+    return fixture_path
+
+
 def _brokered_reflexive_payload() -> dict[str, object]:
     return _load_json(_brokered_reflexive_fixtures_root() / "adeu_brokered_reflexive_payload.json")
 
@@ -421,6 +450,163 @@ def test_urm_tool_call_paper_extract_prefers_abstract_section_over_date_header(
     assert "keywords" not in extract.result["abstract_text"].lower()
     assert extract.result["sentence_count"] >= 2
     assert extract.result["candidate_date_like"] is False
+    _reset_manager_for_tests()
+
+
+def test_urm_tool_call_paper_semantic_decomposition_returns_bridge_result(
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    codex_bin = _prepare_fake_codex_exec(tmp_path=tmp_path)
+    _configure_exec_fixture(monkeypatch=monkeypatch, tmp_path=tmp_path)
+    artifact = _paper_semantics_fixture("reference_paper_semantic_artifact_abstract.json")
+    fixture_path = _write_codex_jsonl_fixture(tmp_path=tmp_path, artifact_payload=artifact)
+    monkeypatch.setenv("FAKE_CODEX_JSONL_PATH", str(fixture_path))
+    monkeypatch.setenv("ADEU_CODEX_BIN", str(codex_bin))
+    _reset_manager_for_tests()
+
+    worker_request = _paper_semantics_fixture(
+        "reference_paper_semantic_worker_request_abstract.json"
+    )
+    response = urm_tool_call_endpoint(
+        ToolCallRequest(
+            provider="codex",
+            role="copilot",
+            tool_name="paper.run_semantic_decomposition",
+            arguments={"worker_request": worker_request},
+        )
+    )
+
+    assert response.warrant == "checked"
+    assert response.result["schema"] == "adeu_paper_semantic_worker_bridge_result@1"
+    assert response.result["bridge_status"] == "completed_checked"
+    assert response.result["request_ref"] == worker_request["request_id"]
+    assert response.result["request_hash"] == worker_request["request_hash"]
+    assert response.result["tool_name"] == "paper.run_semantic_decomposition"
+    assert response.result["template_id"] == "paper.semantic_decomposition.v0"
+    assert response.result["warrant_tag"] == "checked"
+    assert response.result["artifact_ref"] == artifact["artifact_id"]
+    assert response.result["worker_status"] == "ok"
+    assert response.result["idempotent_replay"] is False
+    assert response.result["return_schema"] == "adeu_paper_semantic_artifact@1"
+    assert isinstance(response.result["bridge_hash"], str)
+    _reset_manager_for_tests()
+
+
+def test_urm_tool_call_paper_semantic_decomposition_idempotent_replay(
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    codex_bin = _prepare_fake_codex_exec(tmp_path=tmp_path)
+    _configure_exec_fixture(monkeypatch=monkeypatch, tmp_path=tmp_path)
+    artifact = _paper_semantics_fixture("reference_paper_semantic_artifact_paragraph.json")
+    fixture_path = _write_codex_jsonl_fixture(tmp_path=tmp_path, artifact_payload=artifact)
+    call_counter_path = tmp_path / "worker_call_counter.txt"
+    monkeypatch.setenv("FAKE_CODEX_JSONL_PATH", str(fixture_path))
+    monkeypatch.setenv("FAKE_CODEX_CALL_COUNTER_PATH", str(call_counter_path))
+    monkeypatch.setenv("ADEU_CODEX_BIN", str(codex_bin))
+    _reset_manager_for_tests()
+
+    worker_request = _paper_semantics_fixture(
+        "reference_paper_semantic_worker_request_paragraph.json"
+    )
+    first = urm_tool_call_endpoint(
+        ToolCallRequest(
+            provider="codex",
+            role="copilot",
+            tool_name="paper.run_semantic_decomposition",
+            arguments={"worker_request": worker_request},
+        )
+    )
+    first_exec_count = len(call_counter_path.read_text(encoding="utf-8").splitlines())
+    replay = urm_tool_call_endpoint(
+        ToolCallRequest(
+            provider="codex",
+            role="copilot",
+            tool_name="paper.run_semantic_decomposition",
+            arguments={"worker_request": worker_request},
+        )
+    )
+
+    assert first.result["bridge_status"] == "completed_checked"
+    assert first.result["idempotent_replay"] is False
+    assert replay.result["bridge_status"] == "completed_checked_idempotent_replay"
+    assert replay.result["idempotent_replay"] is True
+    assert replay.result["worker_id"] == first.result["worker_id"]
+    assert replay.result["evidence_id"] == first.result["evidence_id"]
+    assert replay.result["artifact_ref"] == first.result["artifact_ref"]
+    assert len(call_counter_path.read_text(encoding="utf-8").splitlines()) == first_exec_count
+    _reset_manager_for_tests()
+
+
+def test_urm_tool_call_paper_semantic_decomposition_fails_closed_on_invalid_request(
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    codex_bin = _prepare_fake_codex_exec(tmp_path=tmp_path)
+    _configure_exec_fixture(monkeypatch=monkeypatch, tmp_path=tmp_path)
+    call_counter_path = tmp_path / "invalid_request_call_counter.txt"
+    monkeypatch.setenv("FAKE_CODEX_CALL_COUNTER_PATH", str(call_counter_path))
+    monkeypatch.setenv("ADEU_CODEX_BIN", str(codex_bin))
+    _reset_manager_for_tests()
+
+    worker_request = _paper_semantics_fixture("reject_invalid_worker_request_posture.json")
+    response = urm_tool_call_endpoint(
+        ToolCallRequest(
+            provider="codex",
+            role="copilot",
+            tool_name="paper.run_semantic_decomposition",
+            arguments={"worker_request": worker_request},
+        )
+    )
+
+    assert response.warrant == "checked"
+    assert response.result["bridge_status"] == "fail_closed_invalid_request"
+    assert response.result["request_ref"] == worker_request["request_id"]
+    assert response.result["request_hash"] == worker_request["request_hash"]
+    assert response.result["artifact_ref"] is None
+    assert response.result["worker_id"] is None
+    assert response.result["evidence_id"] is None
+    assert response.result["worker_status"] is None
+    assert response.result["idempotent_replay"] is False
+    assert response.result["warrant_tag"] == "checked"
+    _reset_manager_for_tests()
+
+
+def test_urm_tool_call_paper_semantic_decomposition_fails_closed_on_invalid_artifact(
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    codex_bin = _prepare_fake_codex_exec(tmp_path=tmp_path)
+    _configure_exec_fixture(monkeypatch=monkeypatch, tmp_path=tmp_path)
+    fixture_path = _write_codex_jsonl_fixture(
+        tmp_path=tmp_path,
+        artifact_payload={"schema": "not_adeu_paper_semantic_artifact@1", "artifact_id": "bad"},
+    )
+    monkeypatch.setenv("FAKE_CODEX_JSONL_PATH", str(fixture_path))
+    monkeypatch.setenv("ADEU_CODEX_BIN", str(codex_bin))
+    _reset_manager_for_tests()
+
+    worker_request = _paper_semantics_fixture(
+        "reference_paper_semantic_worker_request_abstract.json"
+    )
+    response = urm_tool_call_endpoint(
+        ToolCallRequest(
+            provider="codex",
+            role="copilot",
+            tool_name="paper.run_semantic_decomposition",
+            arguments={"worker_request": worker_request},
+        )
+    )
+
+    assert response.warrant == "checked"
+    assert response.result["bridge_status"] == "fail_closed_bridge_config_mismatch"
+    assert response.result["request_ref"] == worker_request["request_id"]
+    assert response.result["request_hash"] == worker_request["request_hash"]
+    assert response.result["artifact_ref"] is None
+    assert response.result["worker_id"] is not None
+    assert response.result["evidence_id"] is not None
+    assert response.result["worker_status"] == "ok"
     _reset_manager_for_tests()
 
 

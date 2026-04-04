@@ -54,6 +54,11 @@
       "requires_writes_allowed": false,
       "requires_approval": false
     },
+    "paper.run_semantic_decomposition": {
+      "capability": "run_analysis_check",
+      "requires_writes_allowed": false,
+      "requires_approval": false
+    },
     "digest.ingest_text": {
       "capability": "run_analysis_check",
       "requires_writes_allowed": false,

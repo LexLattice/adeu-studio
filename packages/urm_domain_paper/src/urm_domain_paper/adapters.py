@@ -4,16 +4,31 @@ import re
 from dataclasses import dataclass
 from typing import Any
 
+from adeu_paper_semantics import (
+    ADEU_PAPER_SEMANTIC_ARTIFACT_SCHEMA,
+    ADEU_PAPER_SEMANTIC_WORKER_REQUEST_SCHEMA,
+    PaperSemanticArtifact,
+)
+from pydantic import ValidationError
+from urm_runtime.config import URMRuntimeConfig
 from urm_runtime.errors import URMError
-from urm_runtime.hashing import canonical_json, sha256_text
+from urm_runtime.hashing import canonical_json, sha256_canonical_json, sha256_text
+from urm_runtime.models import WorkerRunRequest
+from urm_runtime.worker import CodexExecWorkerRunner
 
 from .models import (
+    ADEU_PAPER_SEMANTIC_WORKER_BRIDGE_RESULT_SCHEMA,
+    SEMANTIC_DECOMPOSITION_TEMPLATE_ID,
+    SEMANTIC_DECOMPOSITION_TOOL_NAME,
     CheckConstraintsArgs,
     EmitArtifactArgs,
     ExtractAbstractArgs,
     IngestTextArgs,
+    PaperSemanticWorkerBridgeResult,
     PaperTemplateMeta,
+    RunSemanticDecompositionArgs,
     WarrantTag,
+    compute_bridge_result_id,
 )
 
 DOMAIN_PACK_ID = "urm_domain_paper"
@@ -27,6 +42,7 @@ SUPPORTED_TOOL_NAMES: frozenset[str] = frozenset(
         "paper.emit_artifact",
     }
 )
+SEMANTIC_BRIDGE_TOOL_NAMES: frozenset[str] = frozenset({SEMANTIC_DECOMPOSITION_TOOL_NAME})
 
 _TEMPLATES: tuple[PaperTemplateMeta, ...] = (
     PaperTemplateMeta(
@@ -37,6 +53,15 @@ _TEMPLATES: tuple[PaperTemplateMeta, ...] = (
         domain_pack_version=DOMAIN_PACK_VERSION,
         role="pipeline_worker",
         description="Closed-world paper abstract processing over provided local text.",
+    ),
+    PaperTemplateMeta(
+        template_id=SEMANTIC_DECOMPOSITION_TEMPLATE_ID,
+        template_version="v0",
+        schema_version=ADEU_PAPER_SEMANTIC_WORKER_REQUEST_SCHEMA,
+        domain_pack_id=DOMAIN_PACK_ID,
+        domain_pack_version=DOMAIN_PACK_VERSION,
+        role="pipeline_worker",
+        description="Read-only paper semantic decomposition over a released V52-A worker request.",
     ),
 )
 
@@ -52,17 +77,33 @@ _SENTENCE_BOUNDARY_RE = re.compile(r"[.!?](?:\s|$)")
 
 @dataclass
 class PaperDomainTools:
+    config: URMRuntimeConfig | None = None
+    worker_runner: CodexExecWorkerRunner | None = None
     domain_pack_id: str = DOMAIN_PACK_ID
     domain_pack_version: str = DOMAIN_PACK_VERSION
 
+    @classmethod
+    def from_config(cls, *, config: URMRuntimeConfig | None = None) -> "PaperDomainTools":
+        resolved = config or URMRuntimeConfig.from_env()
+        return cls(config=resolved, worker_runner=CodexExecWorkerRunner(config=resolved))
+
+    def _supported_tool_names(self) -> frozenset[str]:
+        if self._semantic_bridge_available():
+            return SUPPORTED_TOOL_NAMES | SEMANTIC_BRIDGE_TOOL_NAMES
+        return SUPPORTED_TOOL_NAMES
+
+    def _semantic_bridge_available(self) -> bool:
+        return self.config is not None and self.worker_runner is not None
+
     def supports_tool(self, *, tool_name: str) -> bool:
-        return tool_name in SUPPORTED_TOOL_NAMES
+        return tool_name in self._supported_tool_names()
 
     def list_tools(self) -> list[str]:
-        return sorted(SUPPORTED_TOOL_NAMES)
+        return sorted(self._supported_tool_names())
 
     def list_templates(self) -> list[PaperTemplateMeta]:
-        return sorted(_TEMPLATES, key=lambda item: item.template_id)
+        templates = _TEMPLATES if self._semantic_bridge_available() else (_TEMPLATES[0],)
+        return sorted(templates, key=lambda item: item.template_id)
 
     def call_tool(self, *, tool_name: str, arguments: dict[str, Any]) -> tuple[Any, WarrantTag]:
         if not self.supports_tool(tool_name=tool_name):
@@ -79,6 +120,10 @@ class PaperDomainTools:
             return self._check_constraints(arguments), "checked"
         if tool_name == "paper.emit_artifact":
             return self._emit_artifact(arguments), "checked"
+        if tool_name == SEMANTIC_DECOMPOSITION_TOOL_NAME:
+            return self._run_semantic_decomposition(arguments).model_dump(
+                mode="json", by_alias=True
+            ), "checked"
         raise AssertionError("unreachable: tool name validated via supports_tool")
 
     def _ingest_text(self, arguments: dict[str, Any]) -> IngestTextArgs:
@@ -129,6 +174,116 @@ class PaperDomainTools:
             "status": "ok",
             "artifact": payload,
         }
+
+    def _run_semantic_decomposition(
+        self, arguments: dict[str, Any]
+    ) -> PaperSemanticWorkerBridgeResult:
+        request_ref, request_hash, return_schema = _extract_bridge_request_lineage(arguments)
+        try:
+            args = RunSemanticDecompositionArgs.model_validate(arguments)
+        except ValidationError:
+            return _build_bridge_result(
+                bridge_status="fail_closed_invalid_request",
+                request_ref=request_ref,
+                request_hash=request_hash,
+                return_schema=return_schema,
+                domain_pack_id=self.domain_pack_id,
+                domain_pack_version=self.domain_pack_version,
+            )
+        if not self._semantic_bridge_available():
+            return _build_bridge_result(
+                bridge_status="fail_closed_bridge_config_mismatch",
+                request_ref=args.worker_request.request_id,
+                request_hash=args.worker_request.request_hash,
+                return_schema=args.worker_request.return_schema,
+                domain_pack_id=self.domain_pack_id,
+                domain_pack_version=self.domain_pack_version,
+            )
+        template = self._require_template(SEMANTIC_DECOMPOSITION_TEMPLATE_ID)
+        request = WorkerRunRequest(
+            provider="codex",
+            role=template.role,
+            client_request_id=f"paper-semantic-bridge:{args.worker_request.request_id}",
+            prompt=_build_semantic_decomposition_prompt(args=args),
+            template_id=template.template_id,
+            template_version=template.template_version,
+            schema_version=template.schema_version,
+            domain_pack_id=template.domain_pack_id,
+            domain_pack_version=template.domain_pack_version,
+        )
+        assert self.worker_runner is not None
+        try:
+            worker_result = self.worker_runner.run(request)
+        except URMError:
+            return _build_bridge_result(
+                bridge_status="fail_closed_bridge_config_mismatch",
+                request_ref=args.worker_request.request_id,
+                request_hash=args.worker_request.request_hash,
+                return_schema=args.worker_request.return_schema,
+                domain_pack_id=self.domain_pack_id,
+                domain_pack_version=self.domain_pack_version,
+            )
+        artifact_candidate = worker_result.artifact_candidate
+        if worker_result.status != "ok" or artifact_candidate is None:
+            return _build_bridge_result(
+                bridge_status="fail_closed_bridge_config_mismatch",
+                request_ref=args.worker_request.request_id,
+                request_hash=args.worker_request.request_hash,
+                return_schema=args.worker_request.return_schema,
+                domain_pack_id=self.domain_pack_id,
+                domain_pack_version=self.domain_pack_version,
+                worker_id=worker_result.worker_id,
+                evidence_id=worker_result.evidence_id,
+                worker_status=worker_result.status,
+                idempotent_replay=worker_result.idempotent_replay,
+            )
+        candidate_payload = artifact_candidate
+        if isinstance(artifact_candidate, dict) and isinstance(
+            artifact_candidate.get("artifact"), dict
+        ):
+            candidate_payload = artifact_candidate["artifact"]
+        try:
+            artifact = PaperSemanticArtifact.model_validate(candidate_payload)
+        except ValidationError:
+            return _build_bridge_result(
+                bridge_status="fail_closed_bridge_config_mismatch",
+                request_ref=args.worker_request.request_id,
+                request_hash=args.worker_request.request_hash,
+                return_schema=args.worker_request.return_schema,
+                domain_pack_id=self.domain_pack_id,
+                domain_pack_version=self.domain_pack_version,
+                worker_id=worker_result.worker_id,
+                evidence_id=worker_result.evidence_id,
+                worker_status=worker_result.status,
+                idempotent_replay=worker_result.idempotent_replay,
+            )
+        return _build_bridge_result(
+            bridge_status=(
+                "completed_checked_idempotent_replay"
+                if worker_result.idempotent_replay
+                else "completed_checked"
+            ),
+            request_ref=args.worker_request.request_id,
+            request_hash=args.worker_request.request_hash,
+            return_schema=args.worker_request.return_schema,
+            domain_pack_id=self.domain_pack_id,
+            domain_pack_version=self.domain_pack_version,
+            artifact_ref=artifact.artifact_id,
+            worker_id=worker_result.worker_id,
+            evidence_id=worker_result.evidence_id,
+            worker_status=worker_result.status,
+            idempotent_replay=worker_result.idempotent_replay,
+        )
+
+    def _require_template(self, template_id: str) -> PaperTemplateMeta:
+        for template in _TEMPLATES:
+            if template.template_id == template_id:
+                return template
+        raise URMError(
+            code="URM_POLICY_DENIED",
+            message="unknown template_id",
+            context={"template_id": template_id},
+        )
 
 
 def _normalize_whitespace(text: str) -> str:
@@ -226,3 +381,76 @@ def _word_count(text: str) -> int:
     if not text:
         return 0
     return len(text.split())
+
+
+def _extract_bridge_request_lineage(
+    arguments: dict[str, Any],
+) -> tuple[str | None, str | None, str]:
+    worker_request = arguments.get("worker_request")
+    if not isinstance(worker_request, dict):
+        return (None, None, ADEU_PAPER_SEMANTIC_ARTIFACT_SCHEMA)
+    request_ref = worker_request.get("request_id")
+    request_hash = worker_request.get("request_hash")
+    return_schema = worker_request.get("return_schema")
+    resolved_request_ref = request_ref if isinstance(request_ref, str) and request_ref else None
+    resolved_request_hash = request_hash if isinstance(request_hash, str) and request_hash else None
+    resolved_return_schema = (
+        return_schema
+        if return_schema == ADEU_PAPER_SEMANTIC_ARTIFACT_SCHEMA
+        else ADEU_PAPER_SEMANTIC_ARTIFACT_SCHEMA
+    )
+    return (resolved_request_ref, resolved_request_hash, resolved_return_schema)
+
+
+def _build_semantic_decomposition_prompt(*, args: RunSemanticDecompositionArgs) -> str:
+    request_payload = canonical_json(args.worker_request.model_dump(mode="json", by_alias=True))
+    return (
+        "Return exactly one released adeu_paper_semantic_artifact@1 JSON object for the "
+        "following released adeu_paper_semantic_worker_request@1. Preserve source-text and "
+        "explicit span-anchor authority, keep interpretation advisory-only, and return JSON only."
+        f"\n\nworker_request={request_payload}"
+    )
+
+
+def _build_bridge_result(
+    *,
+    bridge_status: str,
+    request_ref: str | None,
+    request_hash: str | None,
+    return_schema: str,
+    domain_pack_id: str,
+    domain_pack_version: str,
+    artifact_ref: str | None = None,
+    worker_id: str | None = None,
+    evidence_id: str | None = None,
+    worker_status: str | None = None,
+    idempotent_replay: bool = False,
+) -> PaperSemanticWorkerBridgeResult:
+    payload = {
+        "schema": ADEU_PAPER_SEMANTIC_WORKER_BRIDGE_RESULT_SCHEMA,
+        "bridge_status": bridge_status,
+        "request_ref": request_ref,
+        "request_hash": request_hash,
+        "tool_name": SEMANTIC_DECOMPOSITION_TOOL_NAME,
+        "template_id": SEMANTIC_DECOMPOSITION_TEMPLATE_ID,
+        "template_version": "v0",
+        "domain_pack_id": domain_pack_id,
+        "domain_pack_version": domain_pack_version,
+        "provider": "codex",
+        "role": "pipeline_worker",
+        "warrant_tag": "checked",
+        "artifact_ref": artifact_ref,
+        "worker_id": worker_id,
+        "evidence_id": evidence_id,
+        "worker_status": worker_status,
+        "idempotent_replay": idempotent_replay,
+        "return_schema": return_schema,
+    }
+    bridge_hash = sha256_canonical_json(payload)
+    return PaperSemanticWorkerBridgeResult.model_validate(
+        {
+            **payload,
+            "bridge_hash": bridge_hash,
+            "bridge_result_id": compute_bridge_result_id(bridge_hash),
+        }
+    )
