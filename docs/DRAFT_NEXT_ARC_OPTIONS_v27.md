@@ -115,13 +115,13 @@ Planning relationship:
 - Recommended decomposition reference:
   - `docs/LOCKED_CONTINUATION_vNEXT_PLUS135.md`
 - Recommended next path for this branch:
-  - `V44-E`
+  - no further internal `V44` path is currently selected
 - Recommended next concrete arc for this branch if selected:
-  - `vNext+135`
+  - none
 - Default path selection for this branch:
-  - select `V44-E` as the next default candidate
-  - keep that starter bounded to recursive-depth and structural-extension assessment
-    only, still prior to profile aggregation, benchmark scoring, or SRM release
+  - record the full internal `V44` ladder closed on `main`
+  - treat any later work as downstream consumption, a new planning branch, or a
+    different family rather than ambient continuation inside `v27`
 
 This family/path recommendation is branch-local to the `v27` planning surface.
 
@@ -183,7 +183,7 @@ The current recommended path ladder is:
 | `V44-B` | normalized failure taxonomy only | candidate `adeu_structural_failure_taxonomy@1` with blocked preserved as non-failure and no profile promotion posture | closed_on_main |
 | `V44-C` | paired-condition differential diagnosis | knowledge-vs-procedure assay posture over bounded probe suites, still prior to any released profile aggregation | closed_on_main |
 | `V44-D` | probe-library widening across template classes | expanded bounded probe library over decomposition, branching, repair, and invariance classes | closed_on_main |
-| `V44-E` | recursive-depth / structural-extension assessment seam | bounded recursive-closure assessment surfaces, still prior to SRM release | planned |
+| `V44-E` | recursive-depth / structural-extension assessment seam | bounded recursive-closure assessment surfaces, still prior to SRM release | closed_on_main |
 
 These output names are planning-level candidate names, not lock-level schema authority.
 
@@ -383,16 +383,59 @@ It did not attempt:
 
 ### `V44-E`
 
-Deferred recursive-depth and structural-extension lane:
+Recursive-depth and structural-extension assessment lane, now closed on `main`:
 
-- bounded recursive template-depth assessment;
-- explicit valid-closure versus invalid-early-closure posture;
-- released `V44-C` informative context only, not required starter input;
-- one bounded recursive re-entry layer only over released `V44-A` / `V44-B` /
-  `V44-D` structure;
-- at least one hierarchical recursive reference case;
-- explicit recursive re-entry and return semantics under typed controls;
-- still assessment-first and still prior to any released SRM governor family.
+- shipped one bounded recursive assessment contract only:
+  - `adeu_recursive_reasoning_assessment@1`
+- consumed released `V44-A`, `V44-B`, and `V44-D` surfaces as-is;
+- kept released `V44-C` informative context only and did not promote it into a
+  required upstream starter contract;
+- froze bounded recursive depth to exactly one recursive re-entry layer only;
+- froze explicit recursive status / closure-judgment coupling only;
+- required explicit recursive return-to-parent evidence only;
+- normalized invalid or under-evidenced baselines only to insufficient posture;
+- exercised at least one hierarchical recursive reference pair;
+- stayed assessment-first and still prior to profile aggregation, benchmark scoring,
+  or SRM release.
+
+## Completed Fifth-Slice Boundary (`V44-E`)
+
+`V44-E` stayed bounded to:
+
+- one recursive-depth assessment contract only;
+- one deterministic recursive assessment helper only;
+- released `V44-A` probe/trace consumption only;
+- released `V44-B` taxonomy consumption only;
+- released `V44-D` suite-member anchoring only;
+- released `V44-C` informative context only;
+- one bounded recursive re-entry depth only;
+- explicit lawful versus degraded versus invalid recursive-closure posture only;
+- explicit insufficient posture for broken or under-evidenced baselines only;
+- trace-qualified supporting event refs only;
+- deterministic local fixtures and mapping-matrix evidence only.
+
+It did not attempt:
+
+- unbounded or nested recursive grandchildren;
+- model-profile aggregation or model ranking;
+- one-number structural-fidelity summaries;
+- benchmark scoring or benchmark-family projection;
+- SRM governor execution surfaces;
+- any silent promotion of `V44-C` into a required starter dependency.
+
+## Current Internal Family State
+
+`V44` is now closed on `main` and no further internal `V44` path is currently
+selected.
+
+Any later work should be treated as:
+
+- a downstream consumer of released `V44` artifacts;
+- a later profile, benchmark, or SRM-adjacent family selected in a new planning
+  branch; or
+- a different module family,
+
+not as an ambient continuation automatically authorized inside `v27`.
 
 ## Candidate Package Ownership
 
@@ -464,13 +507,12 @@ are:
     "V44-A",
     "V44-B",
     "V44-C",
-    "V44-D"
-  ],
-  "planned_current_family_paths": [
+    "V44-D",
     "V44-E"
   ],
-  "default_next_arc_candidate_for_this_branch": "V44-E",
-  "default_next_concrete_arc_candidate_for_this_branch": "vNext+135",
+  "planned_current_family_paths": [],
+  "default_next_arc_candidate_for_this_branch": null,
+  "default_next_concrete_arc_candidate_for_this_branch": null,
   "family_architecture_doc": "docs/DRAFT_STRUCTURAL_REASONING_ASSESSMENT_SPEC_v0.md",
   "family_decomposition_doc": "docs/LOCKED_CONTINUATION_vNEXT_PLUS135.md",
   "planned_family_packages": [
