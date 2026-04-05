@@ -10,11 +10,13 @@ from adeu_ir.repo import repo_root
 from .models import (
     ADEU_REASONING_PROBE_SUITE_SCHEMA,
     ADEU_REASONING_TEMPLATE_PROBE_SCHEMA,
+    ADEU_RECURSIVE_REASONING_ASSESSMENT_SCHEMA,
     ADEU_STRUCTURAL_FAILURE_TAXONOMY_SCHEMA,
     ADEU_STRUCTURAL_REASONING_DIFFERENTIAL_SCHEMA,
     ADEU_STRUCTURAL_REASONING_TRACE_SCHEMA,
     ReasoningProbeSuite,
     ReasoningTemplateProbe,
+    RecursiveReasoningAssessment,
     StructuralFailureTaxonomy,
     StructuralReasoningDifferential,
     StructuralReasoningTrace,
@@ -82,6 +84,16 @@ def main() -> None:
             / "schema"
             / "adeu_reasoning_probe_suite.v1.json",
             root / "spec" / "adeu_reasoning_probe_suite.schema.json",
+        ),
+        (
+            RecursiveReasoningAssessment,
+            ADEU_RECURSIVE_REASONING_ASSESSMENT_SCHEMA,
+            root
+            / "packages"
+            / "adeu_reasoning_assessment"
+            / "schema"
+            / "adeu_recursive_reasoning_assessment.v1.json",
+            root / "spec" / "adeu_recursive_reasoning_assessment.schema.json",
         ),
         (
             ReasoningTemplateProbe,

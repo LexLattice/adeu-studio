@@ -113,15 +113,15 @@ Planning relationship:
 - Recommended architecture reference:
   - `docs/DRAFT_STRUCTURAL_REASONING_ASSESSMENT_SPEC_v0.md`
 - Recommended decomposition reference:
-  - `docs/LOCKED_CONTINUATION_vNEXT_PLUS134.md`
+  - `docs/LOCKED_CONTINUATION_vNEXT_PLUS135.md`
 - Recommended next path for this branch:
-  - `V44-D`
+  - `V44-E`
 - Recommended next concrete arc for this branch if selected:
-  - `vNext+134`
+  - `vNext+135`
 - Default path selection for this branch:
-  - select `V44-D` as the next default candidate
-  - keep that starter bounded to probe-library widening across template classes only,
-    still prior to profile aggregation, benchmark scoring, or recursive-depth release
+  - select `V44-E` as the next default candidate
+  - keep that starter bounded to recursive-depth and structural-extension assessment
+    only, still prior to profile aggregation, benchmark scoring, or SRM release
 
 This family/path recommendation is branch-local to the `v27` planning surface.
 
@@ -182,8 +182,8 @@ The current recommended path ladder is:
 | `V44-A` | template probe + structural trace substrate | candidate `adeu_reasoning_template_probe@1` and candidate `adeu_structural_reasoning_trace@1` | closed_on_main |
 | `V44-B` | normalized failure taxonomy only | candidate `adeu_structural_failure_taxonomy@1` with blocked preserved as non-failure and no profile promotion posture | closed_on_main |
 | `V44-C` | paired-condition differential diagnosis | knowledge-vs-procedure assay posture over bounded probe suites, still prior to any released profile aggregation | closed_on_main |
-| `V44-D` | probe-library widening across template classes | expanded bounded probe library over decomposition, branching, repair, and invariance classes | planned |
-| `V44-E` | recursive-depth / structural-extension assessment seam | bounded recursive-closure assessment surfaces, still prior to SRM release | planned_later |
+| `V44-D` | probe-library widening across template classes | expanded bounded probe library over decomposition, branching, repair, and invariance classes | closed_on_main |
+| `V44-E` | recursive-depth / structural-extension assessment seam | bounded recursive-closure assessment surfaces, still prior to SRM release | planned |
 
 These output names are planning-level candidate names, not lock-level schema authority.
 
@@ -315,6 +315,8 @@ The first `V44-D` starter should stop at probe-library widening only:
 - no benchmark projection;
 - no recursive-depth release.
 
+This path is now closed on `main`.
+
 ## Completed Second-Slice Boundary (`V44-B`)
 
 `V44-B` stayed bounded to:
@@ -356,12 +358,40 @@ It did not attempt:
 - recursive-depth or probe-library widening;
 - any silent three-condition override doctrine.
 
+## Completed Fourth-Slice Boundary (`V44-D`)
+
+`V44-D` stayed bounded to:
+
+- one probe-suite contract only;
+- one deterministic widening helper only;
+- released `V44-A` probe/trace consumption only;
+- released `V44-B` and released `V44-C` consumer compatibility replay only;
+- first-class suite-member semantics only;
+- widening across decomposition, branching, local repair, and invariance only;
+- explicit procedure-preserving surface variation only;
+- explicit local-only repair posture only;
+- deterministic local fixtures and suite-matrix evidence only.
+
+It did not attempt:
+
+- recursive-depth or nested-grandchild assessment;
+- model-profile aggregation or model ranking;
+- one-number structural-fidelity summaries;
+- benchmark scoring or benchmark-family projection;
+- any silent redefinition of released `V44-B` taxonomy or released `V44-C`
+  differential law.
+
 ### `V44-E`
 
 Deferred recursive-depth and structural-extension lane:
 
 - bounded recursive template-depth assessment;
 - explicit valid-closure versus invalid-early-closure posture;
+- released `V44-C` informative context only, not required starter input;
+- one bounded recursive re-entry layer only over released `V44-A` / `V44-B` /
+  `V44-D` structure;
+- at least one hierarchical recursive reference case;
+- explicit recursive re-entry and return semantics under typed controls;
 - still assessment-first and still prior to any released SRM governor family.
 
 ## Candidate Package Ownership
@@ -433,16 +463,16 @@ are:
   "closed_current_family_paths": [
     "V44-A",
     "V44-B",
-    "V44-C"
+    "V44-C",
+    "V44-D"
   ],
   "planned_current_family_paths": [
-    "V44-D",
     "V44-E"
   ],
-  "default_next_arc_candidate_for_this_branch": "V44-D",
-  "default_next_concrete_arc_candidate_for_this_branch": "vNext+134",
+  "default_next_arc_candidate_for_this_branch": "V44-E",
+  "default_next_concrete_arc_candidate_for_this_branch": "vNext+135",
   "family_architecture_doc": "docs/DRAFT_STRUCTURAL_REASONING_ASSESSMENT_SPEC_v0.md",
-  "family_decomposition_doc": "docs/LOCKED_CONTINUATION_vNEXT_PLUS134.md",
+  "family_decomposition_doc": "docs/LOCKED_CONTINUATION_vNEXT_PLUS135.md",
   "planned_family_packages": [
     "packages/adeu_reasoning_assessment"
   ],

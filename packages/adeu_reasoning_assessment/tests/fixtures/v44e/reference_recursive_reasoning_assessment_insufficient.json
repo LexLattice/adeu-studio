@@ -1,0 +1,19 @@
+{
+  "assessment_id": "reasoning_recursive_assessment:68e472c149f04447",
+  "baseline_probe_ref": "reasoning_probe:f11c5dcae19137e0",
+  "baseline_taxonomy_ref": "reasoning_taxonomy:d0306ffb7c6586d3",
+  "baseline_trace_ref": "reasoning_trace:1651a8be2b8540f7",
+  "closure_judgment": "recursive_extension_insufficient",
+  "open_questions": [
+    "missing_local_patch_basis"
+  ],
+  "recursive_depth_mode": "single_bounded_recursive_reentry",
+  "recursive_probe_ref": "reasoning_probe:f11c5dcae19137e0",
+  "recursive_status": "recursive_closure_stable",
+  "recursive_taxonomy_ref": "reasoning_taxonomy:805dede856c12877",
+  "recursive_trace_ref": "reasoning_trace:2a3be68bf0441df6",
+  "schema": "adeu_recursive_reasoning_assessment@1",
+  "suite_member_ref": "reasoning_probe_suite_member:89ff5053d6679fbe",
+  "supporting_failure_families": [],
+  "supporting_trace_event_refs": []
+}

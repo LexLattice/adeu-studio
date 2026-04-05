@@ -1,0 +1,32 @@
+{
+  "cases": [
+    {
+      "closure_judgment": "recursive_extension_lawful",
+      "expected_output_fixture": "reference_recursive_reasoning_assessment_lawful.json",
+      "input_fixture": "reference_recursive_input_lawful.json",
+      "recursive_status": "recursive_closure_stable"
+    },
+    {
+      "closure_judgment": "recursive_extension_structurally_degraded",
+      "expected_output_fixture": "reference_recursive_reasoning_assessment_structurally_degraded.json",
+      "input_fixture": "reference_recursive_input_structurally_degraded.json",
+      "recursive_status": "recursive_closure_degraded"
+    },
+    {
+      "closure_judgment": "recursive_extension_invalid_early_closure",
+      "expected_output_fixture": "reference_recursive_reasoning_assessment_invalid_early_closure.json",
+      "input_fixture": "reference_recursive_input_invalid_early_closure.json",
+      "recursive_status": "recursive_early_closure_invalid"
+    },
+    {
+      "closure_judgment": "recursive_extension_insufficient",
+      "expected_output_fixture": "reference_recursive_reasoning_assessment_insufficient.json",
+      "input_fixture": "reference_recursive_input_insufficient.json",
+      "recursive_status": "recursive_closure_stable"
+    }
+  ],
+  "hierarchy_posture": "single_level_parent_child",
+  "schema": "v44e_recursive_mapping_matrix@1",
+  "suite_member_probe_ref": "reasoning_probe:f11c5dcae19137e0",
+  "suite_member_ref": "reasoning_probe_suite_member:89ff5053d6679fbe"
+}

@@ -1,0 +1,35 @@
+{
+  "assessment_id": "reasoning_recursive_assessment:17f89839dce6bc3b",
+  "baseline_probe_ref": "reasoning_probe:f11c5dcae19137e0",
+  "baseline_taxonomy_ref": "reasoning_taxonomy:de04bb267f517acd",
+  "baseline_trace_ref": "reasoning_trace:7908754e1caf03fe",
+  "closure_judgment": "recursive_extension_invalid_early_closure",
+  "open_questions": [],
+  "recursive_depth_mode": "single_bounded_recursive_reentry",
+  "recursive_probe_ref": "reasoning_probe:f11c5dcae19137e0",
+  "recursive_status": "recursive_early_closure_invalid",
+  "recursive_taxonomy_ref": "reasoning_taxonomy:a8bac995375c332d",
+  "recursive_trace_ref": "reasoning_trace:f4f7d3141f62f35a",
+  "schema": "adeu_recursive_reasoning_assessment@1",
+  "suite_member_ref": "reasoning_probe_suite_member:89ff5053d6679fbe",
+  "supporting_failure_families": [
+    "invalid_early_closure"
+  ],
+  "supporting_trace_event_refs": [
+    {
+      "event_index": 8,
+      "trace_ref": "reasoning_trace:f4f7d3141f62f35a",
+      "trace_role": "recursive_extension"
+    },
+    {
+      "event_index": 13,
+      "trace_ref": "reasoning_trace:f4f7d3141f62f35a",
+      "trace_role": "recursive_extension"
+    },
+    {
+      "event_index": 14,
+      "trace_ref": "reasoning_trace:f4f7d3141f62f35a",
+      "trace_role": "recursive_extension"
+    }
+  ]
+}
