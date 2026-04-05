@@ -115,12 +115,12 @@ Planning relationship:
 - Recommended decomposition reference:
   - `docs/LOCKED_CONTINUATION_vNEXT_PLUS131.md`
 - Recommended next path for this branch:
-  - `V44-A`
+  - `V44-B`
 - Recommended next concrete arc for this branch if selected:
-  - `vNext+131`
+  - `vNext+132`
 - Default path selection for this branch:
-  - select `V44-A` as the next default candidate
-  - keep that starter bounded to contract-first probe/trace surfaces only
+  - select `V44-B` as the next default candidate
+  - keep that starter bounded to taxonomy-first structural-failure normalization only
 
 This family/path recommendation is branch-local to the `v27` planning surface.
 
@@ -186,9 +186,9 @@ The current recommended path ladder is:
 
 These output names are planning-level candidate names, not lock-level schema authority.
 
-## Recommended Next Path (`V44-A`)
+## Completed Next Path (`V44-A`)
 
-Implement the bounded probe-definition and structural-trace lane first.
+The bounded probe-definition and structural-trace lane is now closed on `main`.
 
 `V44-A` should introduce:
 
@@ -236,9 +236,9 @@ Implement the bounded probe-definition and structural-trace lane first.
 - It prevents the family from collapsing immediately into speculative SRM architecture
   or opaque "reasoning benchmark" claims.
 
-## First-Slice Boundary (`V44-A`)
+## Completed First-Slice Boundary (`V44-A`)
 
-`V44-A` should stay bounded to:
+`V44-A` stayed bounded to:
 
 - explicit template-probe definition only;
 - explicit structural trace emission only;
@@ -248,7 +248,7 @@ Implement the bounded probe-definition and structural-trace lane first.
 - explicit blocked versus invalid-closure posture only;
 - small inspectable probe environments only.
 
-It should not attempt:
+It did not attempt:
 
 - broad cross-model leaderboarding;
 - generic single-number "reasoning IQ" claims;
@@ -267,6 +267,10 @@ It should not attempt:
 Normalized taxonomy lane:
 
 - candidate `adeu_structural_failure_taxonomy@1`;
+- consume only released `V44-A` probe/trace contracts and deterministic `v44a`
+  fixtures;
+- preserve explicit blocked-versus-invalid posture while normalizing only structural
+  failure families;
 - explicit non-equivalence between task score and structural reasoning fidelity;
 - explicit rejection of one-number overclaim posture.
 
@@ -364,16 +368,17 @@ are:
   "branch_candidate_family": "V44",
   "branch_candidate_status": "selected_for_v27_planning_surface_not_repo_wide_family_selection",
   "connected_family_not_reopened_here": "V43",
-  "closed_current_family_paths": [],
+  "closed_current_family_paths": [
+    "V44-A"
+  ],
   "planned_current_family_paths": [
-    "V44-A",
     "V44-B",
     "V44-C",
     "V44-D",
     "V44-E"
   ],
-  "default_next_arc_candidate_for_this_branch": "V44-A",
-  "default_next_concrete_arc_candidate_for_this_branch": "vNext+131",
+  "default_next_arc_candidate_for_this_branch": "V44-B",
+  "default_next_concrete_arc_candidate_for_this_branch": "vNext+132",
   "family_architecture_doc": "docs/DRAFT_STRUCTURAL_REASONING_ASSESSMENT_SPEC_v0.md",
   "family_decomposition_doc": "docs/LOCKED_CONTINUATION_vNEXT_PLUS131.md",
   "planned_family_packages": [
