@@ -1,0 +1,89 @@
+{
+  "schema": "adeu_reasoning_template_probe@1",
+  "probe_id": "reasoning_probe:f11c5dcae19137e0",
+  "template_class": "local_repair_continuation",
+  "probe_label": "Hierarchical local repair continuation probe (bounded local patch)",
+  "lane_order": [
+    "O",
+    "E",
+    "D",
+    "U"
+  ],
+  "template_steps": [
+    {
+      "step_ref": "observe_context",
+      "step_label": "Observe the parent context before local repair.",
+      "lane_id": "O",
+      "order_index": 0,
+      "completion_boundary": "Capture the bounded local defect before descending into repair work.",
+      "local_constraints": [
+        "preserve_top_level_order"
+      ]
+    },
+    {
+      "step_ref": "repair_local_obligation",
+      "step_label": "Repair the active local obligation only.",
+      "lane_id": "E",
+      "order_index": 1,
+      "completion_boundary": "Complete only after the local patch is reintegrated to the parent step.",
+      "local_constraints": [
+        "active_step_only",
+        "no_non_local_repair"
+      ]
+    },
+    {
+      "step_ref": "reintegrate_local_patch",
+      "step_label": "Reintegrate the bounded local patch back to the plan spine.",
+      "lane_id": "D",
+      "order_index": 2,
+      "completion_boundary": "Resume the top-level plan using only the repaired local content.",
+      "local_constraints": [
+        "top_level_plan_resume_required"
+      ]
+    },
+    {
+      "step_ref": "inspect_local_gap",
+      "step_label": "Inspect the local gap inside the active repair step.",
+      "lane_id": "E",
+      "order_index": 0,
+      "parent_step_ref": "repair_local_obligation",
+      "completion_boundary": "Bound the local defect before patching it.",
+      "local_constraints": [
+        "child_step_only"
+      ]
+    },
+    {
+      "step_ref": "patch_local_gap",
+      "step_label": "Patch the local gap without rewriting unrelated steps.",
+      "lane_id": "D",
+      "order_index": 1,
+      "parent_step_ref": "repair_local_obligation",
+      "completion_boundary": "Emit a bounded patch that can be reintegrated to the active parent step.",
+      "local_constraints": [
+        "child_result_must_be_reintegrable"
+      ]
+    }
+  ],
+  "acceptance_posture": {
+    "completion_requires_all_top_level_steps": true,
+    "blocked_is_lawful": true,
+    "invalid_early_closure_rejected": true,
+    "return_to_parent_evidence_required_when_hierarchical": true
+  },
+  "paired_condition_compatibility": {
+    "mode": "standalone"
+  },
+  "hierarchy_posture": "single_level_parent_child",
+  "plan_spine_step_ids": [
+    "observe_context",
+    "repair_local_obligation",
+    "reintegrate_local_patch"
+  ],
+  "active_plan_step_ref": "repair_local_obligation",
+  "child_step_refs": [
+    "inspect_local_gap",
+    "patch_local_gap"
+  ],
+  "child_order_policy": "ordered",
+  "return_to_parent_required": true
+}

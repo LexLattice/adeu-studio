@@ -8,10 +8,12 @@ from typing import Any
 from adeu_ir.repo import repo_root
 
 from .models import (
+    ADEU_REASONING_PROBE_SUITE_SCHEMA,
     ADEU_REASONING_TEMPLATE_PROBE_SCHEMA,
     ADEU_STRUCTURAL_FAILURE_TAXONOMY_SCHEMA,
     ADEU_STRUCTURAL_REASONING_DIFFERENTIAL_SCHEMA,
     ADEU_STRUCTURAL_REASONING_TRACE_SCHEMA,
+    ReasoningProbeSuite,
     ReasoningTemplateProbe,
     StructuralFailureTaxonomy,
     StructuralReasoningDifferential,
@@ -71,6 +73,16 @@ def _assert_no_absolute_path_material(
 def main() -> None:
     root = repo_root(anchor=Path(__file__))
     schema_outputs = [
+        (
+            ReasoningProbeSuite,
+            ADEU_REASONING_PROBE_SUITE_SCHEMA,
+            root
+            / "packages"
+            / "adeu_reasoning_assessment"
+            / "schema"
+            / "adeu_reasoning_probe_suite.v1.json",
+            root / "spec" / "adeu_reasoning_probe_suite.schema.json",
+        ),
         (
             ReasoningTemplateProbe,
             ADEU_REASONING_TEMPLATE_PROBE_SCHEMA,

@@ -1,0 +1,72 @@
+{
+  "schema": "adeu_reasoning_probe_suite@1",
+  "suite_id": "reasoning_probe_suite:feb797e2a09a8920",
+  "suite_label": "V44-D widened starter probe suite",
+  "suite_members": [
+    {
+      "probe_ref": "reasoning_probe:a5b274b56c2a5d60",
+      "template_class": "lane_preserving_decomposition",
+      "consumer_compatibility_refs": [
+        "adeu_structural_failure_taxonomy@1",
+        "adeu_structural_reasoning_differential@1"
+      ],
+      "paired_condition_compatible": true
+    },
+    {
+      "probe_ref": "reasoning_probe:d5b5da4e68c7a15a",
+      "template_class": "lane_preserving_decomposition",
+      "consumer_compatibility_refs": [
+        "adeu_structural_failure_taxonomy@1",
+        "adeu_structural_reasoning_differential@1"
+      ],
+      "paired_condition_compatible": true
+    },
+    {
+      "probe_ref": "reasoning_probe:8712e10b2481ff3a",
+      "template_class": "branching_under_uncertainty",
+      "consumer_compatibility_refs": [
+        "adeu_structural_failure_taxonomy@1"
+      ],
+      "paired_condition_compatible": false
+    },
+    {
+      "probe_ref": "reasoning_probe:f11c5dcae19137e0",
+      "template_class": "local_repair_continuation",
+      "repair_locality_posture": "local_only",
+      "consumer_compatibility_refs": [
+        "adeu_structural_failure_taxonomy@1"
+      ],
+      "paired_condition_compatible": false
+    },
+    {
+      "probe_ref": "reasoning_probe:f0bc061ecf4dd27e",
+      "template_class": "invariance_under_surface_variation",
+      "surface_variation_kind": "paraphrase_preserving",
+      "consumer_compatibility_refs": [
+        "adeu_structural_failure_taxonomy@1"
+      ],
+      "paired_condition_compatible": false
+    },
+    {
+      "probe_ref": "reasoning_probe:5bf708e9df09b5ac",
+      "template_class": "invariance_under_surface_variation",
+      "surface_variation_kind": "presentation_shift_preserving",
+      "consumer_compatibility_refs": [
+        "adeu_structural_failure_taxonomy@1"
+      ],
+      "paired_condition_compatible": false
+    }
+  ],
+  "template_classes_included": [
+    "lane_preserving_decomposition",
+    "branching_under_uncertainty",
+    "local_repair_continuation",
+    "invariance_under_surface_variation"
+  ],
+  "accepted_surface_variation_kinds": [
+    "paraphrase_preserving",
+    "presentation_shift_preserving"
+  ],
+  "repair_locality_posture": "local_only",
+  "suite_hash": "feb797e2a09a8920f5ce5871f4a1598418d39a1daa2b661cb9fd0ce907390e1d"
+}

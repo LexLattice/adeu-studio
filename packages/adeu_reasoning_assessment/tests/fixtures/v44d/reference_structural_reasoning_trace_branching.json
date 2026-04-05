@@ -1,0 +1,60 @@
+{
+  "schema": "adeu_structural_reasoning_trace@1",
+  "trace_id": "reasoning_trace:789327f9d21fa1e8",
+  "probe_ref": "reasoning_probe:8712e10b2481ff3a",
+  "subject_label": "branching_clean_subject",
+  "trace_events": [
+    {
+      "event_index": 0,
+      "event_kind": "step_activate",
+      "step_ref": "observe_signal",
+      "lane_ref": "O",
+      "break_tags": []
+    },
+    {
+      "event_index": 1,
+      "event_kind": "step_complete",
+      "step_ref": "observe_signal",
+      "lane_ref": "O",
+      "break_tags": []
+    },
+    {
+      "event_index": 2,
+      "event_kind": "step_activate",
+      "step_ref": "evaluate_branch",
+      "lane_ref": "E",
+      "break_tags": []
+    },
+    {
+      "event_index": 3,
+      "event_kind": "branch_select",
+      "step_ref": "evaluate_branch",
+      "lane_ref": "E",
+      "break_tags": []
+    },
+    {
+      "event_index": 4,
+      "event_kind": "step_complete",
+      "step_ref": "evaluate_branch",
+      "lane_ref": "E",
+      "break_tags": []
+    },
+    {
+      "event_index": 5,
+      "event_kind": "step_activate",
+      "step_ref": "report_selected_branch",
+      "lane_ref": "D",
+      "break_tags": []
+    },
+    {
+      "event_index": 6,
+      "event_kind": "step_complete",
+      "step_ref": "report_selected_branch",
+      "lane_ref": "D",
+      "break_tags": []
+    }
+  ],
+  "terminal_trace_status": "completed_clean",
+  "structural_breaks": [],
+  "open_questions": []
+}

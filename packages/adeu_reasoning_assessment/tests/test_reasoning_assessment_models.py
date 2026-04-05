@@ -7,6 +7,7 @@ from pathlib import Path
 import pytest
 from adeu_ir.repo import repo_root
 from adeu_reasoning_assessment import (
+    ADEU_REASONING_PROBE_SUITE_SCHEMA,
     ADEU_REASONING_TEMPLATE_PROBE_SCHEMA,
     ADEU_STRUCTURAL_FAILURE_TAXONOMY_SCHEMA,
     ADEU_STRUCTURAL_REASONING_DIFFERENTIAL_SCHEMA,
@@ -40,6 +41,15 @@ def _load_json(name: str) -> object:
 def _schema_pairs() -> list[tuple[str, Path, Path]]:
     root = repo_root(anchor=Path(__file__))
     return [
+        (
+            ADEU_REASONING_PROBE_SUITE_SCHEMA,
+            root
+            / "packages"
+            / "adeu_reasoning_assessment"
+            / "schema"
+            / "adeu_reasoning_probe_suite.v1.json",
+            root / "spec" / "adeu_reasoning_probe_suite.schema.json",
+        ),
         (
             ADEU_REASONING_TEMPLATE_PROBE_SCHEMA,
             root
@@ -279,6 +289,10 @@ def test_exported_schema_has_stable_contract_markers() -> None:
         schema_label: json.loads(authoritative.read_text(encoding="utf-8"))
         for schema_label, authoritative, _mirror in _schema_pairs()
     }
+    assert (
+        payloads[ADEU_REASONING_PROBE_SUITE_SCHEMA]["properties"]["schema"]["const"]
+        == ADEU_REASONING_PROBE_SUITE_SCHEMA
+    )
     assert (
         payloads[ADEU_REASONING_TEMPLATE_PROBE_SCHEMA]["properties"]["schema"]["const"]
         == ADEU_REASONING_TEMPLATE_PROBE_SCHEMA

@@ -1,0 +1,89 @@
+{
+  "schema": "adeu_structural_reasoning_trace@1",
+  "trace_id": "reasoning_trace:7908754e1caf03fe",
+  "probe_ref": "reasoning_probe:f11c5dcae19137e0",
+  "subject_label": "local_repair_clean_subject",
+  "trace_events": [
+    {
+      "event_index": 0,
+      "event_kind": "step_activate",
+      "step_ref": "observe_context",
+      "lane_ref": "O",
+      "break_tags": []
+    },
+    {
+      "event_index": 1,
+      "event_kind": "step_complete",
+      "step_ref": "observe_context",
+      "lane_ref": "O",
+      "break_tags": []
+    },
+    {
+      "event_index": 2,
+      "event_kind": "step_activate",
+      "step_ref": "repair_local_obligation",
+      "lane_ref": "E",
+      "break_tags": []
+    },
+    {
+      "event_index": 3,
+      "event_kind": "step_activate",
+      "step_ref": "inspect_local_gap",
+      "lane_ref": "E",
+      "break_tags": []
+    },
+    {
+      "event_index": 4,
+      "event_kind": "step_complete",
+      "step_ref": "inspect_local_gap",
+      "lane_ref": "E",
+      "break_tags": []
+    },
+    {
+      "event_index": 5,
+      "event_kind": "step_activate",
+      "step_ref": "patch_local_gap",
+      "lane_ref": "D",
+      "break_tags": []
+    },
+    {
+      "event_index": 6,
+      "event_kind": "step_complete",
+      "step_ref": "patch_local_gap",
+      "lane_ref": "D",
+      "break_tags": []
+    },
+    {
+      "event_index": 7,
+      "event_kind": "return_to_parent",
+      "step_ref": "patch_local_gap",
+      "lane_ref": "D",
+      "target_step_ref": "repair_local_obligation",
+      "break_tags": []
+    },
+    {
+      "event_index": 8,
+      "event_kind": "step_complete",
+      "step_ref": "repair_local_obligation",
+      "lane_ref": "E",
+      "break_tags": []
+    },
+    {
+      "event_index": 9,
+      "event_kind": "step_activate",
+      "step_ref": "reintegrate_local_patch",
+      "lane_ref": "D",
+      "break_tags": []
+    },
+    {
+      "event_index": 10,
+      "event_kind": "step_complete",
+      "step_ref": "reintegrate_local_patch",
+      "lane_ref": "D",
+      "break_tags": []
+    }
+  ],
+  "terminal_trace_status": "completed_clean",
+  "structural_breaks": [],
+  "open_questions": []
+}

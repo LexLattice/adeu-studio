@@ -1,0 +1,149 @@
+{
+  "$defs": {
+    "ReasoningProbeSuiteMember": {
+      "additionalProperties": false,
+      "properties": {
+        "consumer_compatibility_refs": {
+          "items": {
+            "enum": [
+              "adeu_structural_failure_taxonomy@1",
+              "adeu_structural_reasoning_differential@1"
+            ],
+            "type": "string"
+          },
+          "minItems": 1,
+          "title": "Consumer Compatibility Refs",
+          "type": "array"
+        },
+        "paired_condition_compatible": {
+          "title": "Paired Condition Compatible",
+          "type": "boolean"
+        },
+        "probe_ref": {
+          "title": "Probe Ref",
+          "type": "string"
+        },
+        "repair_locality_posture": {
+          "anyOf": [
+            {
+              "const": "local_only",
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Repair Locality Posture"
+        },
+        "surface_variation_kind": {
+          "anyOf": [
+            {
+              "enum": [
+                "paraphrase_preserving",
+                "presentation_shift_preserving"
+              ],
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Surface Variation Kind"
+        },
+        "template_class": {
+          "enum": [
+            "lane_preserving_decomposition",
+            "branching_under_uncertainty",
+            "local_repair_continuation",
+            "invariance_under_surface_variation"
+          ],
+          "title": "Template Class",
+          "type": "string"
+        }
+      },
+      "required": [
+        "probe_ref",
+        "template_class",
+        "consumer_compatibility_refs",
+        "paired_condition_compatible"
+      ],
+      "title": "ReasoningProbeSuiteMember",
+      "type": "object"
+    }
+  },
+  "additionalProperties": false,
+  "properties": {
+    "accepted_surface_variation_kinds": {
+      "items": {
+        "enum": [
+          "paraphrase_preserving",
+          "presentation_shift_preserving"
+        ],
+        "type": "string"
+      },
+      "maxItems": 2,
+      "minItems": 2,
+      "title": "Accepted Surface Variation Kinds",
+      "type": "array"
+    },
+    "repair_locality_posture": {
+      "const": "local_only",
+      "title": "Repair Locality Posture",
+      "type": "string"
+    },
+    "schema": {
+      "const": "adeu_reasoning_probe_suite@1",
+      "default": "adeu_reasoning_probe_suite@1",
+      "title": "Schema",
+      "type": "string"
+    },
+    "suite_hash": {
+      "title": "Suite Hash",
+      "type": "string"
+    },
+    "suite_id": {
+      "title": "Suite Id",
+      "type": "string"
+    },
+    "suite_label": {
+      "title": "Suite Label",
+      "type": "string"
+    },
+    "suite_members": {
+      "items": {
+        "$ref": "#/$defs/ReasoningProbeSuiteMember"
+      },
+      "minItems": 6,
+      "title": "Suite Members",
+      "type": "array"
+    },
+    "template_classes_included": {
+      "items": {
+        "enum": [
+          "lane_preserving_decomposition",
+          "branching_under_uncertainty",
+          "local_repair_continuation",
+          "invariance_under_surface_variation"
+        ],
+        "type": "string"
+      },
+      "maxItems": 4,
+      "minItems": 4,
+      "title": "Template Classes Included",
+      "type": "array"
+    }
+  },
+  "required": [
+    "suite_id",
+    "suite_label",
+    "suite_members",
+    "template_classes_included",
+    "accepted_surface_variation_kinds",
+    "repair_locality_posture",
+    "suite_hash"
+  ],
+  "title": "ReasoningProbeSuite",
+  "type": "object"
+}

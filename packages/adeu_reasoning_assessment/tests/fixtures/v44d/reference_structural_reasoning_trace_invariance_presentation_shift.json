@@ -1,0 +1,53 @@
+{
+  "schema": "adeu_structural_reasoning_trace@1",
+  "trace_id": "reasoning_trace:2cc9402c4ee106d5",
+  "probe_ref": "reasoning_probe:5bf708e9df09b5ac",
+  "subject_label": "invariance_presentation_clean_subject",
+  "trace_events": [
+    {
+      "event_index": 0,
+      "event_kind": "step_activate",
+      "step_ref": "observe_anchor",
+      "lane_ref": "O",
+      "break_tags": []
+    },
+    {
+      "event_index": 1,
+      "event_kind": "step_complete",
+      "step_ref": "observe_anchor",
+      "lane_ref": "O",
+      "break_tags": []
+    },
+    {
+      "event_index": 2,
+      "event_kind": "step_activate",
+      "step_ref": "preserve_inference",
+      "lane_ref": "E",
+      "break_tags": []
+    },
+    {
+      "event_index": 3,
+      "event_kind": "step_complete",
+      "step_ref": "preserve_inference",
+      "lane_ref": "E",
+      "break_tags": []
+    },
+    {
+      "event_index": 4,
+      "event_kind": "step_activate",
+      "step_ref": "emit_variant",
+      "lane_ref": "D",
+      "break_tags": []
+    },
+    {
+      "event_index": 5,
+      "event_kind": "step_complete",
+      "step_ref": "emit_variant",
+      "lane_ref": "D",
+      "break_tags": []
+    }
+  ],
+  "terminal_trace_status": "completed_clean",
+  "structural_breaks": [],
+  "open_questions": []
+}

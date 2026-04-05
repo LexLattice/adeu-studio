@@ -1,0 +1,139 @@
+{
+  "suite_member_probe_ref": "reasoning_probe:8712e10b2481ff3a",
+  "probe": {
+    "schema": "adeu_reasoning_template_probe@1",
+    "probe_id": "reasoning_probe:8712e10b2481ff3a",
+    "template_class": "branching_under_uncertainty",
+    "probe_label": "Flat branching-under-uncertainty probe",
+    "lane_order": [
+      "O",
+      "E",
+      "D",
+      "U"
+    ],
+    "template_steps": [
+      {
+        "step_ref": "observe_signal",
+        "step_label": "Observe the bounded decision signal before branching.",
+        "lane_id": "O",
+        "order_index": 0,
+        "completion_boundary": "Record the bounded decision signal before branch evaluation.",
+        "local_constraints": [
+          "bounded_observation_only"
+        ]
+      },
+      {
+        "step_ref": "evaluate_branch",
+        "step_label": "Evaluate the bounded branch options under uncertainty.",
+        "lane_id": "E",
+        "order_index": 1,
+        "completion_boundary": "Select one bounded branch without collapsing uncertainty posture.",
+        "local_constraints": [
+          "branch_selection_must_remain_local",
+          "no_unsupported_certainty"
+        ]
+      },
+      {
+        "step_ref": "report_selected_branch",
+        "step_label": "Report only the selected bounded branch result.",
+        "lane_id": "D",
+        "order_index": 2,
+        "completion_boundary": "Emit the selected branch outcome without inventing alternate outcomes.",
+        "local_constraints": [
+          "report_selected_branch_only"
+        ]
+      }
+    ],
+    "acceptance_posture": {
+      "completion_requires_all_top_level_steps": true,
+      "blocked_is_lawful": true,
+      "invalid_early_closure_rejected": true,
+      "return_to_parent_evidence_required_when_hierarchical": true
+    },
+    "paired_condition_compatibility": {
+      "mode": "standalone"
+    },
+    "hierarchy_posture": "flat",
+    "plan_spine_step_ids": [
+      "observe_signal",
+      "evaluate_branch",
+      "report_selected_branch"
+    ],
+    "active_plan_step_ref": "evaluate_branch",
+    "child_step_refs": [],
+    "child_order_policy": "ordered",
+    "return_to_parent_required": false
+  },
+  "trace": {
+    "schema": "adeu_structural_reasoning_trace@1",
+    "trace_id": "reasoning_trace:789327f9d21fa1e8",
+    "probe_ref": "reasoning_probe:8712e10b2481ff3a",
+    "subject_label": "branching_clean_subject",
+    "trace_events": [
+      {
+        "event_index": 0,
+        "event_kind": "step_activate",
+        "step_ref": "observe_signal",
+        "lane_ref": "O",
+        "break_tags": []
+      },
+      {
+        "event_index": 1,
+        "event_kind": "step_complete",
+        "step_ref": "observe_signal",
+        "lane_ref": "O",
+        "break_tags": []
+      },
+      {
+        "event_index": 2,
+        "event_kind": "step_activate",
+        "step_ref": "evaluate_branch",
+        "lane_ref": "E",
+        "break_tags": []
+      },
+      {
+        "event_index": 3,
+        "event_kind": "branch_select",
+        "step_ref": "evaluate_branch",
+        "lane_ref": "E",
+        "break_tags": []
+      },
+      {
+        "event_index": 4,
+        "event_kind": "step_complete",
+        "step_ref": "evaluate_branch",
+        "lane_ref": "E",
+        "break_tags": []
+      },
+      {
+        "event_index": 5,
+        "event_kind": "step_activate",
+        "step_ref": "report_selected_branch",
+        "lane_ref": "D",
+        "break_tags": []
+      },
+      {
+        "event_index": 6,
+        "event_kind": "step_complete",
+        "step_ref": "report_selected_branch",
+        "lane_ref": "D",
+        "break_tags": []
+      }
+    ],
+    "terminal_trace_status": "completed_clean",
+    "structural_breaks": [],
+    "open_questions": []
+  },
+  "expected_taxonomy": {
+    "schema": "adeu_structural_failure_taxonomy@1",
+    "taxonomy_id": "reasoning_taxonomy:bf2aaa6b23b72f08",
+    "probe_ref": "reasoning_probe:8712e10b2481ff3a",
+    "trace_ref": "reasoning_trace:789327f9d21fa1e8",
+    "taxonomy_status": "completed_clean_no_failure",
+    "terminal_trace_status": "completed_clean",
+    "failure_families": [],
+    "supporting_break_refs": [],
+    "supporting_event_indexes": [],
+    "open_questions": []
+  }
+}
