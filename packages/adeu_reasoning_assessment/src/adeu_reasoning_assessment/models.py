@@ -10,6 +10,7 @@ ADEU_STRUCTURAL_REASONING_TRACE_SCHEMA = "adeu_structural_reasoning_trace@1"
 ADEU_STRUCTURAL_FAILURE_TAXONOMY_SCHEMA = "adeu_structural_failure_taxonomy@1"
 ADEU_STRUCTURAL_REASONING_DIFFERENTIAL_SCHEMA = "adeu_structural_reasoning_differential@1"
 ADEU_REASONING_PROBE_SUITE_SCHEMA = "adeu_reasoning_probe_suite@1"
+ADEU_RECURSIVE_REASONING_ASSESSMENT_SCHEMA = "adeu_recursive_reasoning_assessment@1"
 
 LANE_ORDER = ("O", "E", "D", "U")
 TEMPLATE_CLASS_VOCABULARY = (
@@ -73,6 +74,19 @@ DIFFERENTIAL_JUDGMENT_VOCABULARY = (
     "mixed_or_ambiguous",
     "paired_condition_insufficient",
 )
+RECURSIVE_DEPTH_MODE_VOCABULARY = ("single_bounded_recursive_reentry",)
+RECURSIVE_STATUS_VOCABULARY = (
+    "recursive_closure_stable",
+    "recursive_closure_degraded",
+    "recursive_early_closure_invalid",
+)
+CLOSURE_JUDGMENT_VOCABULARY = (
+    "recursive_extension_lawful",
+    "recursive_extension_structurally_degraded",
+    "recursive_extension_insufficient",
+    "recursive_extension_invalid_early_closure",
+)
+TRACE_ROLE_VOCABULARY = ("baseline", "recursive_extension")
 
 MODEL_CONFIG = ConfigDict(extra="forbid", frozen=True, populate_by_name=True)
 
@@ -141,6 +155,19 @@ DifferentialJudgment = Literal[
     "mixed_or_ambiguous",
     "paired_condition_insufficient",
 ]
+RecursiveDepthMode = Literal["single_bounded_recursive_reentry"]
+RecursiveStatus = Literal[
+    "recursive_closure_stable",
+    "recursive_closure_degraded",
+    "recursive_early_closure_invalid",
+]
+ClosureJudgment = Literal[
+    "recursive_extension_lawful",
+    "recursive_extension_structurally_degraded",
+    "recursive_extension_insufficient",
+    "recursive_extension_invalid_early_closure",
+]
+TraceRole = Literal["baseline", "recursive_extension"]
 
 
 def _assert_non_empty_text(value: str, *, field_name: str) -> str:
@@ -244,6 +271,11 @@ def _ordered_unique_surface_variation_kinds_from_members(
 
 def _condition_role_sort_key(role: str) -> tuple[int, str]:
     order = {value: index for index, value in enumerate(CONDITION_ROLE_VOCABULARY)}
+    return (order.get(role, len(order)), role)
+
+
+def _trace_role_sort_key(role: str) -> tuple[int, str]:
+    order = {value: index for index, value in enumerate(TRACE_ROLE_VOCABULARY)}
     return (order.get(role, len(order)), role)
 
 
@@ -353,6 +385,16 @@ def _supporting_trace_event_ref_basis(
     }
 
 
+def _recursive_supporting_trace_event_ref_basis(
+    ref: "RecursiveSupportingTraceEventRef",
+) -> dict[str, object]:
+    return {
+        "trace_role": ref.trace_role,
+        "trace_ref": ref.trace_ref,
+        "event_index": ref.event_index,
+    }
+
+
 def _differential_id_basis_from_model(
     model: "StructuralReasoningDifferential",
 ) -> dict[str, object]:
@@ -395,6 +437,30 @@ def _probe_suite_id_basis_from_model(model: "ReasoningProbeSuite") -> dict[str, 
     }
 
 
+def _recursive_assessment_id_basis_from_model(
+    model: "RecursiveReasoningAssessment",
+) -> dict[str, object]:
+    return {
+        "schema": model.schema,
+        "suite_member_ref": model.suite_member_ref,
+        "baseline_probe_ref": model.baseline_probe_ref,
+        "baseline_trace_ref": model.baseline_trace_ref,
+        "baseline_taxonomy_ref": model.baseline_taxonomy_ref,
+        "recursive_probe_ref": model.recursive_probe_ref,
+        "recursive_trace_ref": model.recursive_trace_ref,
+        "recursive_taxonomy_ref": model.recursive_taxonomy_ref,
+        "recursive_depth_mode": model.recursive_depth_mode,
+        "recursive_status": model.recursive_status,
+        "closure_judgment": model.closure_judgment,
+        "supporting_trace_event_refs": [
+            _recursive_supporting_trace_event_ref_basis(ref)
+            for ref in model.supporting_trace_event_refs
+        ],
+        "supporting_failure_families": model.supporting_failure_families,
+        "open_questions": model.open_questions,
+    }
+
+
 def compute_probe_id(basis: dict[str, object]) -> str:
     return f"reasoning_probe:{sha256_canonical_json(basis)[:16]}"
 
@@ -421,6 +487,18 @@ def compute_probe_suite_hash(basis: dict[str, object]) -> str:
 
 def compute_probe_suite_id(basis: dict[str, object]) -> str:
     return f"reasoning_probe_suite:{compute_probe_suite_hash(basis)[:16]}"
+
+
+def compute_probe_suite_member_ref(*, suite_id: str, probe_ref: str) -> str:
+    basis = {
+        "suite_id": _assert_non_empty_text(suite_id, field_name="suite_id"),
+        "probe_ref": _assert_non_empty_text(probe_ref, field_name="probe_ref"),
+    }
+    return f"reasoning_probe_suite_member:{sha256_canonical_json(basis)[:16]}"
+
+
+def compute_recursive_assessment_id(basis: dict[str, object]) -> str:
+    return f"reasoning_recursive_assessment:{sha256_canonical_json(basis)[:16]}"
 
 
 class ReasoningTemplateStep(BaseModel):
@@ -1253,6 +1331,153 @@ class ReasoningProbeSuite(BaseModel):
         return self
 
 
+class RecursiveSupportingTraceEventRef(BaseModel):
+    model_config = MODEL_CONFIG
+
+    trace_role: TraceRole
+    trace_ref: str
+    event_index: int = Field(ge=0)
+
+    @model_validator(mode="after")
+    def _validate(self) -> "RecursiveSupportingTraceEventRef":
+        object.__setattr__(
+            self, "trace_ref", _assert_non_empty_text(self.trace_ref, field_name="trace_ref")
+        )
+        return self
+
+
+class RecursiveReasoningAssessment(BaseModel):
+    model_config = MODEL_CONFIG
+
+    schema_id: Literal[ADEU_RECURSIVE_REASONING_ASSESSMENT_SCHEMA] = Field(
+        default=ADEU_RECURSIVE_REASONING_ASSESSMENT_SCHEMA,
+        alias="schema",
+    )
+    assessment_id: str
+    suite_member_ref: str
+    baseline_probe_ref: str
+    baseline_trace_ref: str
+    baseline_taxonomy_ref: str
+    recursive_probe_ref: str
+    recursive_trace_ref: str
+    recursive_taxonomy_ref: str
+    recursive_depth_mode: RecursiveDepthMode
+    recursive_status: RecursiveStatus
+    closure_judgment: ClosureJudgment
+    supporting_trace_event_refs: list[RecursiveSupportingTraceEventRef] = Field(
+        default_factory=list
+    )
+    supporting_failure_families: list[FailureFamily] = Field(default_factory=list)
+    open_questions: list[str] = Field(default_factory=list)
+
+    @property
+    def schema(self) -> str:
+        return self.schema_id
+
+    @model_validator(mode="after")
+    def _validate(self) -> "RecursiveReasoningAssessment":
+        for field_name in (
+            "suite_member_ref",
+            "baseline_probe_ref",
+            "baseline_trace_ref",
+            "baseline_taxonomy_ref",
+            "recursive_probe_ref",
+            "recursive_trace_ref",
+            "recursive_taxonomy_ref",
+        ):
+            object.__setattr__(
+                self,
+                field_name,
+                _assert_non_empty_text(getattr(self, field_name), field_name=field_name),
+            )
+
+        normalized_supporting_refs = sorted(
+            self.supporting_trace_event_refs,
+            key=lambda ref: (
+                _trace_role_sort_key(ref.trace_role),
+                ref.event_index,
+                ref.trace_ref,
+            ),
+        )
+        object.__setattr__(self, "supporting_trace_event_refs", normalized_supporting_refs)
+        object.__setattr__(
+            self,
+            "supporting_failure_families",
+            _sorted_unique_texts(
+                self.supporting_failure_families,
+                field_name="supporting_failure_families",
+                sort_values=False,
+            ),
+        )
+        object.__setattr__(
+            self,
+            "open_questions",
+            _sorted_unique_texts(self.open_questions, field_name="open_questions"),
+        )
+
+        if self.recursive_status == "recursive_closure_stable":
+            if self.closure_judgment not in (
+                "recursive_extension_lawful",
+                "recursive_extension_insufficient",
+            ):
+                raise ValueError(
+                    "recursive_closure_stable may emit only lawful or insufficient judgments"
+                )
+            if self.supporting_failure_families:
+                raise ValueError(
+                    "recursive_closure_stable may not carry supporting_failure_families"
+                )
+        elif self.recursive_status == "recursive_closure_degraded":
+            if self.closure_judgment not in (
+                "recursive_extension_structurally_degraded",
+                "recursive_extension_insufficient",
+            ):
+                raise ValueError(
+                    "recursive_closure_degraded may emit only degraded or insufficient judgments"
+                )
+            if not self.supporting_failure_families:
+                raise ValueError(
+                    "recursive_closure_degraded requires supporting_failure_families"
+                )
+        else:
+            if self.closure_judgment != "recursive_extension_invalid_early_closure":
+                raise ValueError(
+                    "recursive_early_closure_invalid may emit only "
+                    "recursive_extension_invalid_early_closure"
+                )
+            if self.supporting_failure_families != ["invalid_early_closure"]:
+                raise ValueError(
+                    "recursive_early_closure_invalid requires "
+                    "supporting_failure_families = ['invalid_early_closure']"
+                )
+
+        expected_trace_refs = {
+            "baseline": self.baseline_trace_ref,
+            "recursive_extension": self.recursive_trace_ref,
+        }
+        seen_support_keys: set[tuple[TraceRole, str, int]] = set()
+        for ref in self.supporting_trace_event_refs:
+            expected_trace_ref = expected_trace_refs[ref.trace_role]
+            if ref.trace_ref != expected_trace_ref:
+                raise ValueError(
+                    "supporting_trace_event_refs trace_ref must match the trace ref "
+                    "for the same trace_role"
+                )
+            key = (ref.trace_role, ref.trace_ref, ref.event_index)
+            if key in seen_support_keys:
+                raise ValueError("supporting_trace_event_refs must be unique")
+            seen_support_keys.add(key)
+
+        expected_assessment_id = compute_recursive_assessment_id(
+            _recursive_assessment_id_basis_from_model(self)
+        )
+        if self.assessment_id != expected_assessment_id:
+            raise ValueError(
+                "assessment_id must match canonical recursive reasoning assessment identity"
+            )
+        return self
+
+
 def validate_trace_against_probe(
     *,
     probe: ReasoningTemplateProbe,
@@ -1344,23 +1569,33 @@ def validate_trace_against_probe(
         for return_index in valid_return_indexes
     ):
         raise ValueError(
-            "hierarchical trace must return to active_plan_step_ref before parent completion"
+            "hierarchical trace must return_to_parent to active_plan_step_ref "
+            "before parent completion"
         )
 
 
 __all__ = [
     "ADEU_REASONING_PROBE_SUITE_SCHEMA",
+    "ADEU_RECURSIVE_REASONING_ASSESSMENT_SCHEMA",
     "ADEU_STRUCTURAL_REASONING_DIFFERENTIAL_SCHEMA",
     "ADEU_STRUCTURAL_FAILURE_TAXONOMY_SCHEMA",
     "ADEU_REASONING_TEMPLATE_PROBE_SCHEMA",
     "ADEU_STRUCTURAL_REASONING_TRACE_SCHEMA",
+    "CLOSURE_JUDGMENT_VOCABULARY",
     "CONDITION_ROLE_VOCABULARY",
     "CONSUMER_COMPATIBILITY_REF_VOCABULARY",
+    "ClosureJudgment",
     "ConsumerCompatibilityRef",
     "DIFFERENTIAL_JUDGMENT_VOCABULARY",
     "DIFFERENTIAL_STATUS_VOCABULARY",
     "FAILURE_FAMILY_VOCABULARY",
     "LANE_ORDER",
+    "RECURSIVE_DEPTH_MODE_VOCABULARY",
+    "RECURSIVE_STATUS_VOCABULARY",
+    "RecursiveDepthMode",
+    "RecursiveReasoningAssessment",
+    "RecursiveStatus",
+    "RecursiveSupportingTraceEventRef",
     "ReasoningProbeSuite",
     "ReasoningProbeSuiteMember",
     "REPAIR_LOCALITY_POSTURE_VOCABULARY",
@@ -1370,6 +1605,7 @@ __all__ = [
     "SURFACE_VARIATION_KIND_VOCABULARY",
     "SurfaceVariationKind",
     "TEMPLATE_CLASS_VOCABULARY",
+    "TRACE_ROLE_VOCABULARY",
     "TRACE_EVENT_VOCABULARY",
     "TERMINAL_TRACE_STATUS_VOCABULARY",
     "PairedConditionCompatibility",
@@ -1386,6 +1622,8 @@ __all__ = [
     "compute_probe_id",
     "compute_probe_suite_hash",
     "compute_probe_suite_id",
+    "compute_probe_suite_member_ref",
+    "compute_recursive_assessment_id",
     "compute_structural_break_ref",
     "compute_taxonomy_id",
     "compute_trace_id",

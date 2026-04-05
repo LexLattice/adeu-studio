@@ -1,0 +1,28 @@
+{
+  "assessment_id": "reasoning_recursive_assessment:7b3d3faa9f152130",
+  "baseline_probe_ref": "reasoning_probe:f11c5dcae19137e0",
+  "baseline_taxonomy_ref": "reasoning_taxonomy:de04bb267f517acd",
+  "baseline_trace_ref": "reasoning_trace:7908754e1caf03fe",
+  "closure_judgment": "recursive_extension_lawful",
+  "open_questions": [],
+  "recursive_depth_mode": "single_bounded_recursive_reentry",
+  "recursive_probe_ref": "reasoning_probe:f11c5dcae19137e0",
+  "recursive_status": "recursive_closure_stable",
+  "recursive_taxonomy_ref": "reasoning_taxonomy:805dede856c12877",
+  "recursive_trace_ref": "reasoning_trace:2a3be68bf0441df6",
+  "schema": "adeu_recursive_reasoning_assessment@1",
+  "suite_member_ref": "reasoning_probe_suite_member:89ff5053d6679fbe",
+  "supporting_failure_families": [],
+  "supporting_trace_event_refs": [
+    {
+      "event_index": 8,
+      "trace_ref": "reasoning_trace:2a3be68bf0441df6",
+      "trace_role": "recursive_extension"
+    },
+    {
+      "event_index": 13,
+      "trace_ref": "reasoning_trace:2a3be68bf0441df6",
+      "trace_role": "recursive_extension"
+    }
+  ]
+}

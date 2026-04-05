@@ -1,0 +1,498 @@
+{
+  "baseline_probe": {
+    "acceptance_posture": {
+      "blocked_is_lawful": true,
+      "completion_requires_all_top_level_steps": true,
+      "invalid_early_closure_rejected": true,
+      "return_to_parent_evidence_required_when_hierarchical": true
+    },
+    "active_plan_step_ref": "repair_local_obligation",
+    "child_order_policy": "ordered",
+    "child_step_refs": [
+      "inspect_local_gap",
+      "patch_local_gap"
+    ],
+    "hierarchy_posture": "single_level_parent_child",
+    "lane_order": [
+      "O",
+      "E",
+      "D",
+      "U"
+    ],
+    "paired_condition_compatibility": {
+      "mode": "standalone"
+    },
+    "plan_spine_step_ids": [
+      "observe_context",
+      "repair_local_obligation",
+      "reintegrate_local_patch"
+    ],
+    "probe_id": "reasoning_probe:f11c5dcae19137e0",
+    "probe_label": "Hierarchical local repair continuation probe (bounded local patch)",
+    "return_to_parent_required": true,
+    "schema": "adeu_reasoning_template_probe@1",
+    "template_class": "local_repair_continuation",
+    "template_steps": [
+      {
+        "completion_boundary": "Capture the bounded local defect before descending into repair work.",
+        "lane_id": "O",
+        "local_constraints": [
+          "preserve_top_level_order"
+        ],
+        "order_index": 0,
+        "step_label": "Observe the parent context before local repair.",
+        "step_ref": "observe_context"
+      },
+      {
+        "completion_boundary": "Complete only after the local patch is reintegrated to the parent step.",
+        "lane_id": "E",
+        "local_constraints": [
+          "active_step_only",
+          "no_non_local_repair"
+        ],
+        "order_index": 1,
+        "step_label": "Repair the active local obligation only.",
+        "step_ref": "repair_local_obligation"
+      },
+      {
+        "completion_boundary": "Resume the top-level plan using only the repaired local content.",
+        "lane_id": "D",
+        "local_constraints": [
+          "top_level_plan_resume_required"
+        ],
+        "order_index": 2,
+        "step_label": "Reintegrate the bounded local patch back to the plan spine.",
+        "step_ref": "reintegrate_local_patch"
+      },
+      {
+        "completion_boundary": "Bound the local defect before patching it.",
+        "lane_id": "E",
+        "local_constraints": [
+          "child_step_only"
+        ],
+        "order_index": 0,
+        "parent_step_ref": "repair_local_obligation",
+        "step_label": "Inspect the local gap inside the active repair step.",
+        "step_ref": "inspect_local_gap"
+      },
+      {
+        "completion_boundary": "Emit a bounded patch that can be reintegrated to the active parent step.",
+        "lane_id": "D",
+        "local_constraints": [
+          "child_result_must_be_reintegrable"
+        ],
+        "order_index": 1,
+        "parent_step_ref": "repair_local_obligation",
+        "step_label": "Patch the local gap without rewriting unrelated steps.",
+        "step_ref": "patch_local_gap"
+      }
+    ]
+  },
+  "baseline_taxonomy": {
+    "failure_families": [],
+    "open_questions": [],
+    "probe_ref": "reasoning_probe:f11c5dcae19137e0",
+    "schema": "adeu_structural_failure_taxonomy@1",
+    "supporting_break_refs": [],
+    "supporting_event_indexes": [],
+    "taxonomy_id": "reasoning_taxonomy:de04bb267f517acd",
+    "taxonomy_status": "completed_clean_no_failure",
+    "terminal_trace_status": "completed_clean",
+    "trace_ref": "reasoning_trace:7908754e1caf03fe"
+  },
+  "baseline_trace": {
+    "open_questions": [],
+    "probe_ref": "reasoning_probe:f11c5dcae19137e0",
+    "schema": "adeu_structural_reasoning_trace@1",
+    "structural_breaks": [],
+    "subject_label": "local_repair_clean_subject",
+    "terminal_trace_status": "completed_clean",
+    "trace_events": [
+      {
+        "break_tags": [],
+        "event_index": 0,
+        "event_kind": "step_activate",
+        "lane_ref": "O",
+        "step_ref": "observe_context"
+      },
+      {
+        "break_tags": [],
+        "event_index": 1,
+        "event_kind": "step_complete",
+        "lane_ref": "O",
+        "step_ref": "observe_context"
+      },
+      {
+        "break_tags": [],
+        "event_index": 2,
+        "event_kind": "step_activate",
+        "lane_ref": "E",
+        "step_ref": "repair_local_obligation"
+      },
+      {
+        "break_tags": [],
+        "event_index": 3,
+        "event_kind": "step_activate",
+        "lane_ref": "E",
+        "step_ref": "inspect_local_gap"
+      },
+      {
+        "break_tags": [],
+        "event_index": 4,
+        "event_kind": "step_complete",
+        "lane_ref": "E",
+        "step_ref": "inspect_local_gap"
+      },
+      {
+        "break_tags": [],
+        "event_index": 5,
+        "event_kind": "step_activate",
+        "lane_ref": "D",
+        "step_ref": "patch_local_gap"
+      },
+      {
+        "break_tags": [],
+        "event_index": 6,
+        "event_kind": "step_complete",
+        "lane_ref": "D",
+        "step_ref": "patch_local_gap"
+      },
+      {
+        "break_tags": [],
+        "event_index": 7,
+        "event_kind": "return_to_parent",
+        "lane_ref": "D",
+        "step_ref": "patch_local_gap",
+        "target_step_ref": "repair_local_obligation"
+      },
+      {
+        "break_tags": [],
+        "event_index": 8,
+        "event_kind": "step_complete",
+        "lane_ref": "E",
+        "step_ref": "repair_local_obligation"
+      },
+      {
+        "break_tags": [],
+        "event_index": 9,
+        "event_kind": "step_activate",
+        "lane_ref": "D",
+        "step_ref": "reintegrate_local_patch"
+      },
+      {
+        "break_tags": [],
+        "event_index": 10,
+        "event_kind": "step_complete",
+        "lane_ref": "D",
+        "step_ref": "reintegrate_local_patch"
+      }
+    ],
+    "trace_id": "reasoning_trace:7908754e1caf03fe"
+  },
+  "recursive_probe": {
+    "acceptance_posture": {
+      "blocked_is_lawful": true,
+      "completion_requires_all_top_level_steps": true,
+      "invalid_early_closure_rejected": true,
+      "return_to_parent_evidence_required_when_hierarchical": true
+    },
+    "active_plan_step_ref": "repair_local_obligation",
+    "child_order_policy": "ordered",
+    "child_step_refs": [
+      "inspect_local_gap",
+      "patch_local_gap"
+    ],
+    "hierarchy_posture": "single_level_parent_child",
+    "lane_order": [
+      "O",
+      "E",
+      "D",
+      "U"
+    ],
+    "paired_condition_compatibility": {
+      "mode": "standalone"
+    },
+    "plan_spine_step_ids": [
+      "observe_context",
+      "repair_local_obligation",
+      "reintegrate_local_patch"
+    ],
+    "probe_id": "reasoning_probe:60349d54a2192fa2",
+    "probe_label": "Hierarchical local repair continuation probe (bounded local patch)",
+    "return_to_parent_required": true,
+    "schema": "adeu_reasoning_template_probe@1",
+    "template_class": "local_repair_continuation",
+    "template_steps": [
+      {
+        "completion_boundary": "Capture the bounded local defect before descending into repair work.",
+        "lane_id": "O",
+        "local_constraints": [
+          "preserve_top_level_order"
+        ],
+        "order_index": 0,
+        "step_label": "Observe the parent context before local repair.",
+        "step_ref": "observe_context"
+      },
+      {
+        "completion_boundary": "Complete only after the local patch is reintegrated to the parent step.",
+        "lane_id": "E",
+        "local_constraints": [
+          "active_step_only",
+          "no_non_local_repair",
+          "non_local_rewrite_allowed"
+        ],
+        "order_index": 1,
+        "step_label": "Repair the active local obligation only.",
+        "step_ref": "repair_local_obligation"
+      },
+      {
+        "completion_boundary": "Resume the top-level plan using only the repaired local content.",
+        "lane_id": "D",
+        "local_constraints": [
+          "top_level_plan_resume_required"
+        ],
+        "order_index": 2,
+        "step_label": "Reintegrate the bounded local patch back to the plan spine.",
+        "step_ref": "reintegrate_local_patch"
+      },
+      {
+        "completion_boundary": "Bound the local defect before patching it.",
+        "lane_id": "E",
+        "local_constraints": [
+          "child_step_only"
+        ],
+        "order_index": 0,
+        "parent_step_ref": "repair_local_obligation",
+        "step_label": "Inspect the local gap inside the active repair step.",
+        "step_ref": "inspect_local_gap"
+      },
+      {
+        "completion_boundary": "Emit a bounded patch that can be reintegrated to the active parent step.",
+        "lane_id": "D",
+        "local_constraints": [
+          "child_result_must_be_reintegrable"
+        ],
+        "order_index": 1,
+        "parent_step_ref": "repair_local_obligation",
+        "step_label": "Patch the local gap without rewriting unrelated steps.",
+        "step_ref": "patch_local_gap"
+      }
+    ]
+  },
+  "recursive_taxonomy": {
+    "failure_families": [],
+    "open_questions": [],
+    "probe_ref": "reasoning_probe:60349d54a2192fa2",
+    "schema": "adeu_structural_failure_taxonomy@1",
+    "supporting_break_refs": [],
+    "supporting_event_indexes": [],
+    "taxonomy_id": "reasoning_taxonomy:a18c2a224e0dd887",
+    "taxonomy_status": "completed_clean_no_failure",
+    "terminal_trace_status": "completed_clean",
+    "trace_ref": "reasoning_trace:2addc999c29b5236"
+  },
+  "recursive_trace": {
+    "open_questions": [],
+    "probe_ref": "reasoning_probe:60349d54a2192fa2",
+    "schema": "adeu_structural_reasoning_trace@1",
+    "structural_breaks": [],
+    "subject_label": "recursive_local_repair_non_local_rewrite_subject",
+    "terminal_trace_status": "completed_clean",
+    "trace_events": [
+      {
+        "break_tags": [],
+        "event_index": 0,
+        "event_kind": "step_activate",
+        "lane_ref": "O",
+        "step_ref": "observe_context"
+      },
+      {
+        "break_tags": [],
+        "event_index": 1,
+        "event_kind": "step_complete",
+        "lane_ref": "O",
+        "step_ref": "observe_context"
+      },
+      {
+        "break_tags": [],
+        "event_index": 2,
+        "event_kind": "step_activate",
+        "lane_ref": "E",
+        "step_ref": "repair_local_obligation"
+      },
+      {
+        "break_tags": [],
+        "event_index": 3,
+        "event_kind": "step_activate",
+        "lane_ref": "E",
+        "step_ref": "inspect_local_gap"
+      },
+      {
+        "break_tags": [],
+        "event_index": 4,
+        "event_kind": "step_complete",
+        "lane_ref": "E",
+        "step_ref": "inspect_local_gap"
+      },
+      {
+        "break_tags": [],
+        "event_index": 5,
+        "event_kind": "step_activate",
+        "lane_ref": "D",
+        "step_ref": "patch_local_gap"
+      },
+      {
+        "break_tags": [],
+        "event_index": 6,
+        "event_kind": "step_complete",
+        "lane_ref": "D",
+        "step_ref": "patch_local_gap"
+      },
+      {
+        "break_tags": [],
+        "event_index": 7,
+        "event_kind": "return_to_parent",
+        "lane_ref": "D",
+        "step_ref": "patch_local_gap",
+        "target_step_ref": "repair_local_obligation"
+      },
+      {
+        "break_tags": [],
+        "event_index": 8,
+        "event_kind": "step_activate",
+        "lane_ref": "E",
+        "step_ref": "repair_local_obligation"
+      },
+      {
+        "break_tags": [],
+        "event_index": 9,
+        "event_kind": "step_activate",
+        "lane_ref": "E",
+        "step_ref": "inspect_local_gap"
+      },
+      {
+        "break_tags": [],
+        "event_index": 10,
+        "event_kind": "step_complete",
+        "lane_ref": "E",
+        "step_ref": "inspect_local_gap"
+      },
+      {
+        "break_tags": [],
+        "event_index": 11,
+        "event_kind": "step_activate",
+        "lane_ref": "D",
+        "step_ref": "patch_local_gap"
+      },
+      {
+        "break_tags": [],
+        "event_index": 12,
+        "event_kind": "step_complete",
+        "lane_ref": "D",
+        "step_ref": "patch_local_gap"
+      },
+      {
+        "break_tags": [],
+        "event_index": 13,
+        "event_kind": "return_to_parent",
+        "lane_ref": "D",
+        "step_ref": "patch_local_gap",
+        "target_step_ref": "repair_local_obligation"
+      },
+      {
+        "break_tags": [],
+        "event_index": 14,
+        "event_kind": "step_complete",
+        "lane_ref": "E",
+        "step_ref": "repair_local_obligation"
+      },
+      {
+        "break_tags": [],
+        "event_index": 15,
+        "event_kind": "step_activate",
+        "lane_ref": "D",
+        "step_ref": "reintegrate_local_patch"
+      },
+      {
+        "break_tags": [],
+        "event_index": 16,
+        "event_kind": "step_complete",
+        "lane_ref": "D",
+        "step_ref": "reintegrate_local_patch"
+      }
+    ],
+    "trace_id": "reasoning_trace:2addc999c29b5236"
+  },
+  "suite": {
+    "accepted_surface_variation_kinds": [
+      "paraphrase_preserving",
+      "presentation_shift_preserving"
+    ],
+    "repair_locality_posture": "local_only",
+    "schema": "adeu_reasoning_probe_suite@1",
+    "suite_hash": "feb797e2a09a8920f5ce5871f4a1598418d39a1daa2b661cb9fd0ce907390e1d",
+    "suite_id": "reasoning_probe_suite:feb797e2a09a8920",
+    "suite_label": "V44-D widened starter probe suite",
+    "suite_members": [
+      {
+        "consumer_compatibility_refs": [
+          "adeu_structural_failure_taxonomy@1",
+          "adeu_structural_reasoning_differential@1"
+        ],
+        "paired_condition_compatible": true,
+        "probe_ref": "reasoning_probe:a5b274b56c2a5d60",
+        "template_class": "lane_preserving_decomposition"
+      },
+      {
+        "consumer_compatibility_refs": [
+          "adeu_structural_failure_taxonomy@1",
+          "adeu_structural_reasoning_differential@1"
+        ],
+        "paired_condition_compatible": true,
+        "probe_ref": "reasoning_probe:d5b5da4e68c7a15a",
+        "template_class": "lane_preserving_decomposition"
+      },
+      {
+        "consumer_compatibility_refs": [
+          "adeu_structural_failure_taxonomy@1"
+        ],
+        "paired_condition_compatible": false,
+        "probe_ref": "reasoning_probe:8712e10b2481ff3a",
+        "template_class": "branching_under_uncertainty"
+      },
+      {
+        "consumer_compatibility_refs": [
+          "adeu_structural_failure_taxonomy@1"
+        ],
+        "paired_condition_compatible": false,
+        "probe_ref": "reasoning_probe:f11c5dcae19137e0",
+        "repair_locality_posture": "local_only",
+        "template_class": "local_repair_continuation"
+      },
+      {
+        "consumer_compatibility_refs": [
+          "adeu_structural_failure_taxonomy@1"
+        ],
+        "paired_condition_compatible": false,
+        "probe_ref": "reasoning_probe:f0bc061ecf4dd27e",
+        "surface_variation_kind": "paraphrase_preserving",
+        "template_class": "invariance_under_surface_variation"
+      },
+      {
+        "consumer_compatibility_refs": [
+          "adeu_structural_failure_taxonomy@1"
+        ],
+        "paired_condition_compatible": false,
+        "probe_ref": "reasoning_probe:5bf708e9df09b5ac",
+        "surface_variation_kind": "presentation_shift_preserving",
+        "template_class": "invariance_under_surface_variation"
+      }
+    ],
+    "template_classes_included": [
+      "lane_preserving_decomposition",
+      "branching_under_uncertainty",
+      "local_repair_continuation",
+      "invariance_under_surface_variation"
+    ]
+  }
+}

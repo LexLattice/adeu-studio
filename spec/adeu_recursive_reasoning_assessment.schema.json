@@ -1,0 +1,143 @@
+{
+  "$defs": {
+    "RecursiveSupportingTraceEventRef": {
+      "additionalProperties": false,
+      "properties": {
+        "event_index": {
+          "minimum": 0,
+          "title": "Event Index",
+          "type": "integer"
+        },
+        "trace_ref": {
+          "title": "Trace Ref",
+          "type": "string"
+        },
+        "trace_role": {
+          "enum": [
+            "baseline",
+            "recursive_extension"
+          ],
+          "title": "Trace Role",
+          "type": "string"
+        }
+      },
+      "required": [
+        "trace_role",
+        "trace_ref",
+        "event_index"
+      ],
+      "title": "RecursiveSupportingTraceEventRef",
+      "type": "object"
+    }
+  },
+  "additionalProperties": false,
+  "properties": {
+    "assessment_id": {
+      "title": "Assessment Id",
+      "type": "string"
+    },
+    "baseline_probe_ref": {
+      "title": "Baseline Probe Ref",
+      "type": "string"
+    },
+    "baseline_taxonomy_ref": {
+      "title": "Baseline Taxonomy Ref",
+      "type": "string"
+    },
+    "baseline_trace_ref": {
+      "title": "Baseline Trace Ref",
+      "type": "string"
+    },
+    "closure_judgment": {
+      "enum": [
+        "recursive_extension_lawful",
+        "recursive_extension_structurally_degraded",
+        "recursive_extension_insufficient",
+        "recursive_extension_invalid_early_closure"
+      ],
+      "title": "Closure Judgment",
+      "type": "string"
+    },
+    "open_questions": {
+      "items": {
+        "type": "string"
+      },
+      "title": "Open Questions",
+      "type": "array"
+    },
+    "recursive_depth_mode": {
+      "const": "single_bounded_recursive_reentry",
+      "title": "Recursive Depth Mode",
+      "type": "string"
+    },
+    "recursive_probe_ref": {
+      "title": "Recursive Probe Ref",
+      "type": "string"
+    },
+    "recursive_status": {
+      "enum": [
+        "recursive_closure_stable",
+        "recursive_closure_degraded",
+        "recursive_early_closure_invalid"
+      ],
+      "title": "Recursive Status",
+      "type": "string"
+    },
+    "recursive_taxonomy_ref": {
+      "title": "Recursive Taxonomy Ref",
+      "type": "string"
+    },
+    "recursive_trace_ref": {
+      "title": "Recursive Trace Ref",
+      "type": "string"
+    },
+    "schema": {
+      "const": "adeu_recursive_reasoning_assessment@1",
+      "default": "adeu_recursive_reasoning_assessment@1",
+      "title": "Schema",
+      "type": "string"
+    },
+    "suite_member_ref": {
+      "title": "Suite Member Ref",
+      "type": "string"
+    },
+    "supporting_failure_families": {
+      "items": {
+        "enum": [
+          "lane_collapse",
+          "branch_collapse",
+          "plan_spine_drift",
+          "active_step_decomposition_failure",
+          "reintegration_failure",
+          "invalid_early_closure",
+          "non_local_repair_drift"
+        ],
+        "type": "string"
+      },
+      "title": "Supporting Failure Families",
+      "type": "array"
+    },
+    "supporting_trace_event_refs": {
+      "items": {
+        "$ref": "#/$defs/RecursiveSupportingTraceEventRef"
+      },
+      "title": "Supporting Trace Event Refs",
+      "type": "array"
+    }
+  },
+  "required": [
+    "assessment_id",
+    "suite_member_ref",
+    "baseline_probe_ref",
+    "baseline_trace_ref",
+    "baseline_taxonomy_ref",
+    "recursive_probe_ref",
+    "recursive_trace_ref",
+    "recursive_taxonomy_ref",
+    "recursive_depth_mode",
+    "recursive_status",
+    "closure_judgment"
+  ],
+  "title": "RecursiveReasoningAssessment",
+  "type": "object"
+}
