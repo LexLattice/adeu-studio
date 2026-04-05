@@ -113,7 +113,7 @@ Planning relationship:
 - Recommended architecture reference:
   - `docs/DRAFT_STRUCTURAL_REASONING_ASSESSMENT_SPEC_v0.md`
 - Recommended decomposition reference:
-  - `docs/LOCKED_CONTINUATION_vNEXT_PLUS133.md`
+  - `docs/LOCKED_CONTINUATION_vNEXT_PLUS134.md`
 - Recommended next path for this branch:
   - `V44-D`
 - Recommended next concrete arc for this branch if selected:
@@ -302,6 +302,19 @@ Probe-library widening lane:
 - controlled surface-variation and local-repair suites;
 - richer termination and closure diagnostics without widening yet into SRM architecture.
 
+The first `V44-D` starter should stop at probe-library widening only:
+
+- one suite contract;
+- one deterministic library helper;
+- first-class suite-membership semantics rather than summary-only suite claims;
+- widened template coverage across decomposition, branching, repair, and invariance;
+- explicit procedure-preserving surface variation;
+- explicit local-only repair posture;
+- explicit member-level consumer compatibility posture;
+- no profile aggregation;
+- no benchmark projection;
+- no recursive-depth release.
+
 ## Completed Second-Slice Boundary (`V44-B`)
 
 `V44-B` stayed bounded to:
@@ -429,7 +442,7 @@ are:
   "default_next_arc_candidate_for_this_branch": "V44-D",
   "default_next_concrete_arc_candidate_for_this_branch": "vNext+134",
   "family_architecture_doc": "docs/DRAFT_STRUCTURAL_REASONING_ASSESSMENT_SPEC_v0.md",
-  "family_decomposition_doc": "docs/LOCKED_CONTINUATION_vNEXT_PLUS133.md",
+  "family_decomposition_doc": "docs/LOCKED_CONTINUATION_vNEXT_PLUS134.md",
   "planned_family_packages": [
     "packages/adeu_reasoning_assessment"
   ],
