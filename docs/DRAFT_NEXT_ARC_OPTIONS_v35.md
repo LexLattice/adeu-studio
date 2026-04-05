@@ -1,8 +1,9 @@
 # Draft Next Arc Options v35
 
 Status: planning draft after `docs/DRAFT_NEXT_ARC_OPTIONS_v34.md`, updated after the
-bounded `V51` family closed on `main`, with the repo-owned ODEU simulation kernel,
-bounded API, and bounded web consumer now released, and with the imported
+bounded `V52` family closed on `main`, with repo-owned paper semantic contracts,
+bounded read-only workbench, bounded worker bridge, and bounded advanced
+visualization now released, and with the imported
 `adeu-paper-semantic-workbench-poc` bundle still preserved as support-only intake
 evidence rather than live schema, route, or domain authority.
 
@@ -68,7 +69,7 @@ Interpretive doctrine for this planning surface:
 - `V51-A` through `V51-C` are closed on `main` and now constitute the completed
   deterministic ODEU simulation kernel / bounded API / bounded browser family recorded
   in `docs/DRAFT_NEXT_ARC_OPTIONS_v34.md`.
-- `vNext+129` is the current implementation-arc baseline on `main`.
+- `vNext+130` is the current implementation-arc baseline on `main`.
 - imported GPT Pro prototype bundles have been normalized under:
   - `examples/external_prototypes/adeu-semantic-forms-v0-bundle`
   - `examples/external_prototypes/adeu-symbol-audit-v0-bundle`
@@ -106,32 +107,30 @@ The repo no longer lacks:
 
 The repo no longer lacks the branch-local internal `V49`, `V50`, or `V51` ladders.
 
-Today the repo still lacks a released way to:
+The repo no longer lacks:
 
-- own one repo-native paper semantic artifact family in a dedicated package rather
-  than in an imported overlay or as ad hoc `adeu_core_ir` additions;
-- freeze source-authority posture, advisory-only interpretation posture, span-anchor
-  semantics, diagnostic kinds, and worker-request contract shape for one paper-domain
-  semantic family;
-- prove the post-`V49` syntax-of-concepts direction on a real paper-domain artifact
-  family before widening into a live workbench;
-- keep the imported workbench overlay as shaping evidence only while the repo
-  re-authors bounded package ownership, later bounded web ownership, and later bounded
-  worker-bridge ownership;
-- defer the live web route, domain/harness registration, and advanced visualization
-  until after one bounded semantic-contract slice is accepted.
+- one repo-native paper semantic artifact family in a dedicated package rather than
+  in an imported overlay or as ad hoc `adeu_core_ir` additions;
+- one released source-authority / advisory-only interpretation / span-anchor /
+  diagnostics / worker-request contract family for bounded paper semantics;
+- one bounded paper-domain proof that the released `V49` substrate can carry a real
+  domain artifact family;
+- one bounded read-only workbench over committed/sample paper-semantic artifacts;
+- one bounded live worker bridge over repo-owned `urm_domain_paper` surfaces; or
+- one bounded route-local advanced visualization seam over the released paper
+  semantic/workbench stack.
 
-The missing layer is therefore not:
+The repo no longer lacks the branch-local internal `V52` ladder.
 
-- more `V45` descriptive extraction work;
-- more `V49` substrate work;
-- more `V50` audit work;
-- more `V51` simulation work; or
-- a direct import of the paper-workbench overlay into live repo paths.
+No further internal `V52` path is currently selected in this planning branch.
 
-The missing layer is the next bounded internalization family from the porting
-operation:
-the paper semantic artifact / workbench family.
+Any later work should therefore be treated as:
+
+- a downstream consumer of released `V52` artifacts;
+- a later papers/product/visualization family selected in a new planning branch; or
+- a different module family,
+
+not as an ambient continuation automatically authorized inside `v35`.
 
 ## Relationship To `V49`, `V50`, `V51`, And The Imported Bundle
 
@@ -285,14 +284,13 @@ Planning relationship:
   - `V52-A` is closed on `main`
   - `V52-B` is closed on `main`
   - `V52-C` is closed on `main`
+  - `V52-D` is closed on `main`
 - Recommended next path for this branch:
-  - `V52-D`
+  - no further internal `V52` path is currently selected
 - Recommended next concrete arc for this branch if selected:
-  - `vNext+130`
+  - none selected inside `v35`
 - Default path selection for this branch:
-  - select `V52-D` as the next default candidate
-  - treat that default as the bounded advanced-visualization lane over released
-    `V52-A`, released `V52-B`, and the already accepted bounded `V52-C` bridge seam
+  - no further internal `V52` path is currently selected by default
 
 This family/path recommendation is branch-local to the `v35` planning surface.
 
@@ -309,7 +307,7 @@ The current recommended path ladder is:
 | `V52-A` | semantic-contract package lane | released repo-owned paper semantic artifact / worker-request / diagnostics contracts | closed_on_main |
 | `V52-B` | bounded mock workbench | released read-only web route over committed/sample paper semantic artifacts only | closed_on_main |
 | `V52-C` | bounded worker bridge | released live worker request/response bridge over repo-owned domain/harness surfaces | closed_on_main |
-| `V52-D` | advanced visualization | candidate bounded spatial / morphic visualization seam over released paper semantics surfaces | planned_selected_next |
+| `V52-D` | advanced visualization | released bounded spatial / morphic visualization seam over released paper semantics surfaces | closed_on_main |
 
 These output names are planning-level candidate names, not lock-level schema
 authority.
@@ -324,7 +322,7 @@ That is:
   contracts;
 - `V52-C` then adds one bounded live worker bridge over repo-owned domain/harness
   surfaces;
-- `V52-D` remains last and only widens the visualization seam after the semantic and
+- `V52-D` then closes the bounded advanced visualization seam after the semantic and
   worker contracts are already accepted.
 
 So the `A -> B -> C -> D` staging is an intentional separation between:
@@ -441,37 +439,47 @@ The released third slice introduced:
 - it does not import the prototype workflow overlay into live repo code;
 - it does not add advanced visualization or scene work.
 
-## Recommended Next Path (`V52-D`)
+## Completed Final-Slice Boundary (`V52-D`)
 
-Implement the bounded advanced-visualization seam next.
+`V52-D` is now closed on `main`.
 
-`V52-D` should introduce:
+The released final slice introduced:
 
-- one bounded advanced visualization seam only;
-- one route-local spatial / morphic scene posture only inside the existing
-  `/papers/semantic-workbench` route;
-- one explicit derived-surface posture only:
+- one bounded advanced visualization seam only inside the existing route:
+  - `/papers/semantic-workbench`
+- one route-local derived surface only:
+  - `spatial`
+- one explicit authoritative-ordering-anchor posture only:
   - released `artifact` / `local` projections remain authoritative ordering anchors
-  - `spatial` is route-local and does not require a released
-    `projection.surface = spatial`;
-- one explicit same-object morphic transition posture only between:
+  - no released `projection.surface = spatial` contract is required
+- one route-local typed scene posture only:
+  - claims
+  - lane fragments
+  - inference bridges
+  - deterministic node order
+  - deterministic `scene_hash`
+- one same-object transition posture only across:
   - `artifact`
   - `local`
   - `spatial`
-- one typed visualization projection posture only over released paper-semantic
-  artifacts and released workbench-local view state;
-- one deterministic frontend projection/test posture only;
-- no new semantic authority, worker-bridge ownership change, or API widening.
+- one explicit bounded 3D posture only:
+  - route-local `perspective`
+  - route-local `transform-style: preserve-3d`
+  - no external scene engine or product-surface widening
+- one bounded route-local hardening posture only:
+  - lookup-map scene construction
+  - contract coverage for minimal config and stable scene identity
+  - bounded route smoke and `next build` validation.
 
-`V52-D` remains visualization-only and still bounded:
+`V52-D` remains visualization-only and bounded:
 
-- it may consume released `packages/adeu_paper_semantics` outputs and the released
+- it consumes released `packages/adeu_paper_semantics` outputs and the released
   `/papers/semantic-workbench` consumer seam only;
-- it may constrain itself with the already accepted bounded `V52-C` bridge seam
+- it constrains itself with the already accepted bounded `V52-C` bridge seam
   without browser-triggering it;
-- it may not mint a parallel paper semantic substrate or reopen `V52-A` authority;
-- it may not widen into upload, live-fetch, or product-surface sprawl;
-- it may not import the prototype spatial scene wholesale.
+- it does not mint a parallel paper semantic substrate or reopen `V52-A` authority;
+- it does not widen into upload, live-fetch, or product-surface sprawl;
+- it does not import the prototype spatial scene wholesale.
 
 ## Why This Path
 
@@ -487,27 +495,6 @@ Implement the bounded advanced-visualization seam next.
   workflow, and visualization claims remain support-only until the repo accepts each
   seam separately.
 - It matches the moduleization plan’s explicit `D1 -> D2 -> D3 -> D4` order.
-
-## Next-Slice Boundary (`V52-D`)
-
-`V52-D` should stay bounded to:
-
-- one advanced visualization seam only;
-- one route-local spatial-scene projection posture only inside the released
-  `/papers/semantic-workbench` surface;
-- one typed morphic transition posture only over released artifact/view-model data;
-- one deterministic frontend scene/test posture only;
-- no web-route redesign beyond the existing route, no API fetch expansion, and no
-  browser-triggered live worker execution.
-
-It should not attempt:
-
-- reopening `V52-A` contract ownership;
-- reopening or re-owning `V52-C` bridge semantics;
-- widening `V52-B` into upload, live generation, or broader product flows;
-- prototype workflow overlay import into live route paths;
-- new semantic authority or diagnostics vocabularies in the renderer;
-- silent worker-trigger or API-route laundering.
 
 ## Follow-On Paths Inside `V52`
 
@@ -530,15 +517,28 @@ Bounded worker bridge, now closed on `main`:
 
 ### `V52-D`
 
-Advanced visualization, now selected as the next branch-local path:
+Advanced visualization, now closed on `main`:
 
-- add the spatial-lane scene and richer morphic transitions only after the semantic
-  contracts and worker bridge are accepted;
-- keep it bounded to frontend expression rather than new semantic authority.
+- shipped one route-local spatial-lane scene and same-object morphic transition
+  posture only after the semantic contracts and worker bridge were accepted;
+- kept it bounded to frontend expression rather than new semantic authority.
+
+## Current Internal Family State
+
+`V52` is now closed on `main` and no further internal `V52` path is currently
+selected.
+
+Any later work should be treated as:
+
+- a downstream consumer of released `V52` artifacts;
+- a later papers/product/visualization family selected in a new planning branch; or
+- a different module family,
+
+not as an ambient continuation automatically authorized inside `v35`.
 
 ## Candidate Package Ownership
 
-Package ownership is now partially instantiated.
+Package ownership is now instantiated across the bounded family seams.
 
 The branch should therefore assume:
 
@@ -553,7 +553,7 @@ The branch should therefore assume:
   constraining context, not something later `V52` slices are allowed to silently
   fork;
 - released `packages/adeu_symbol_audit` and released ODEU simulation surfaces remain
-  adjacent context only and are not mandatory `V52-C` dependencies.
+  adjacent context only and are not mandatory `V52-D` dependencies.
 
 This should be read as intentional family restraint, not as missing planning detail.
 
@@ -603,13 +603,13 @@ Concrete released substrate anchors for this family direction are:
   planning draft;
 - no direct widening of `packages/adeu_core_ir` or `packages/urm_domain_adeu` as the
   first-owner surfaces is authorized by this planning draft;
-- no route widening beyond one bounded advanced-visualization seam inside the released
-  `/papers/semantic-workbench` consumer is selected by this planning draft for
-  `V52-D`;
+- no route widening beyond the already released bounded `V52-D`
+  advanced-visualization seam inside `/papers/semantic-workbench` is selected by this
+  planning draft;
 - no worker-template or domain-registration widening beyond the already released
-  bounded `V52-C` live bridge is selected by this planning draft for `V52-D`;
-- no spatial 3D or advanced visualization seam beyond one bounded `V52-D` lane is
-  selected by this planning draft;
+  bounded `V52-C` live bridge is selected by this planning draft;
+- no further internal spatial/advanced-visualization seam is selected by this
+  planning draft;
 - no precedent-bearing authority is granted to the imported intake pack by this
   planning draft.
 
@@ -619,7 +619,7 @@ Concrete released substrate anchors for this family direction are:
 {
   "schema": "next_arc_planning_baseline@1",
   "source_baseline_doc": "docs/DRAFT_NEXT_ARC_OPTIONS_v34.md",
-  "baseline_arc": "vNext+129",
+  "baseline_arc": "vNext+130",
   "closed_prior_families": [
     "V45",
     "V47",
@@ -656,13 +656,12 @@ Concrete released substrate anchors for this family direction are:
   "closed_current_family_paths": [
     "V52-A",
     "V52-B",
-    "V52-C"
-  ],
-  "planned_current_family_paths": [
+    "V52-C",
     "V52-D"
   ],
-  "default_next_arc_candidate_for_this_branch": "V52-D",
-  "default_next_concrete_arc_candidate_for_this_branch": "vNext+130",
+  "planned_current_family_paths": [],
+  "default_next_arc_candidate_for_this_branch": null,
+  "default_next_concrete_arc_candidate_for_this_branch": null,
   "family_architecture_doc": "docs/DRAFT_GPT_PRO_PROTOTYPE_MODULEIZATION_PLAN_v0.md",
   "pre_lock_companion_docs_expected": [
     "docs/DRAFT_GPT_PRO_PROTOTYPE_MODULEIZATION_PLAN_v0.md",
@@ -700,7 +699,8 @@ Concrete released substrate anchors for this family direction are:
   "v49_primitive_reuse_or_explicit_delta_declaration_required": true,
   "mock_workbench_deferred_to_v52b": false,
   "worker_bridge_deferred_to_v52c": false,
-  "advanced_visualization_deferred_to_v52d": true,
+  "advanced_visualization_deferred_to_v52d": false,
+  "v52d_advanced_visualization_released_on_main": true,
   "planning_boundary_mode": "scope_guard_not_lock_authority",
   "authority_layering_note": "docs/DRAFT_INTENT_AUTHORITY_LAYERING_NOTE_v0.md",
   "horizon_glossary_note": "docs/DRAFT_INTENT_HORIZON_GLOSSARY_v0.md",
