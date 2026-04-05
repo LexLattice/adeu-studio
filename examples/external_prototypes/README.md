@@ -26,3 +26,4 @@ Current packs:
 - [odeu-sandbox-app](/home/rose/work/LexLattice/odeu/examples/external_prototypes/odeu-sandbox-app)
 - [adeu-semantic-forms-v0-bundle](/home/rose/work/LexLattice/odeu/examples/external_prototypes/adeu-semantic-forms-v0-bundle)
 - [adeu-symbol-audit-v0-bundle](/home/rose/work/LexLattice/odeu/examples/external_prototypes/adeu-symbol-audit-v0-bundle)
+- [adeu-studio-reasoning-benchmark-bundle](/home/rose/work/LexLattice/odeu/examples/external_prototypes/adeu-studio-reasoning-benchmark-bundle)

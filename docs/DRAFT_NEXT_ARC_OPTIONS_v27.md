@@ -147,13 +147,19 @@ released contest or practical-analysis contracts.
 - explicit abstract reasoning templates as assessable objects;
 - small, inspectable structural probes;
 - per-run structural traces;
+- explicit hierarchical-action assessment posture when a probe carries parent/child task
+  structure rather than remaining flat;
 - normalized structural failure taxonomy;
 - model structural suitability profiling;
 - explicit distinction between:
   - knowledge deficit,
   - procedural-discipline deficit,
   - blocked posture,
-  - invalid early closure.
+  - invalid early closure;
+- explicit distinction between:
+  - horizontal action continuity / plan-spine fidelity,
+  - vertical semantic decomposition / active-step compilation fidelity,
+  - reintegration fidelity after local descent.
 
 The family should treat future SRM-like architectures as:
 
@@ -188,6 +194,8 @@ Implement the bounded probe-definition and structural-trace lane first.
 - one canonical bounded probe artifact candidate:
   - explicit template identity and class;
   - explicit lane structure;
+  - explicit top-level action spine and active-step posture when the probe is
+    hierarchically staged;
   - explicit completion versus invalid-closure posture;
   - explicit blocked posture when information is intentionally withheld;
   - optional paired-condition compatibility fields for later `V44-C` use, including:
@@ -197,10 +205,14 @@ Implement the bounded probe-definition and structural-trace lane first.
 - one canonical bounded structural trace artifact candidate:
   - per-step or per-lane reasoning evidence;
   - explicit trace of preserved versus broken structure;
+  - explicit return-to-parent or return-to-plan evidence when local descent occurs;
   - local-repair entrypoint posture when repair is part of the probe;
 - one small initial probe set rich enough to expose:
   - lane collapse;
   - branch collapse;
+  - plan-spine drift;
+  - active-step decomposition failure;
+  - reintegration failure after local descent;
   - unsupported certainty;
   - invalid early closure;
   - non-local repair drift;
@@ -230,6 +242,7 @@ Implement the bounded probe-definition and structural-trace lane first.
 - explicit template-probe definition only;
 - explicit structural trace emission only;
 - one small initial probe library only;
+- one tiny hierarchical probe chain when it materially sharpens failure diagnosis;
 - deterministic local fixtures only;
 - explicit blocked versus invalid-closure posture only;
 - small inspectable probe environments only.
@@ -378,6 +391,11 @@ are:
   "small_inspectable_probe_design_required": true,
   "blocked_vs_invalid_closure_separation_required": true,
   "task_score_and_structural_fidelity_non_equivalent_required": true,
+  "horizontal_plan_spine_fidelity_required": true,
+  "vertical_active_step_compilation_fidelity_required": true,
+  "reintegration_fidelity_required": true,
+  "flat_arbitrary_instruction_following_rejected_when_hierarchy_matters": true,
+  "connected_v46_benchmark_projection_consumer_expected": true,
   "failure_taxonomy_and_profile_lane_planned": true,
   "differential_diagnosis_lane_planned": true,
   "recursive_depth_assessment_seam_planned_later": true,

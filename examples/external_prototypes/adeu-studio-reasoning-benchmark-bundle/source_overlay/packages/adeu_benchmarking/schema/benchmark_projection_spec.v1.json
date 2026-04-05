@@ -1,0 +1,86 @@
+{
+  "additionalProperties": false,
+  "properties": {
+    "benchmark_family_spec_ref": {
+      "title": "Benchmark Family Spec Ref",
+      "type": "string"
+    },
+    "benchmark_projection_spec_id": {
+      "title": "Benchmark Projection Spec Id",
+      "type": "string"
+    },
+    "diagnostic_report_schema": {
+      "title": "Diagnostic Report Schema",
+      "type": "string"
+    },
+    "explicit_reintegration_trace_required": {
+      "title": "Explicit Reintegration Trace Required",
+      "type": "boolean"
+    },
+    "gold_trace_schema": {
+      "title": "Gold Trace Schema",
+      "type": "string"
+    },
+    "hierarchical_trace_required": {
+      "title": "Hierarchical Trace Required",
+      "type": "boolean"
+    },
+    "instance_schema": {
+      "title": "Instance Schema",
+      "type": "string"
+    },
+    "metrics_schema": {
+      "title": "Metrics Schema",
+      "type": "string"
+    },
+    "projection_key": {
+      "title": "Projection Key",
+      "type": "string"
+    },
+    "projection_label": {
+      "title": "Projection Label",
+      "type": "string"
+    },
+    "projection_notes": {
+      "items": {
+        "type": "string"
+      },
+      "title": "Projection Notes",
+      "type": "array"
+    },
+    "run_trace_schema": {
+      "title": "Run Trace Schema",
+      "type": "string"
+    },
+    "schema": {
+      "const": "benchmark_projection_spec@1",
+      "default": "benchmark_projection_spec@1",
+      "title": "Schema",
+      "type": "string"
+    },
+    "target_capability_axes": {
+      "items": {
+        "type": "string"
+      },
+      "minItems": 1,
+      "title": "Target Capability Axes",
+      "type": "array"
+    }
+  },
+  "required": [
+    "benchmark_projection_spec_id",
+    "benchmark_family_spec_ref",
+    "projection_key",
+    "projection_label",
+    "target_capability_axes",
+    "instance_schema",
+    "gold_trace_schema",
+    "run_trace_schema",
+    "metrics_schema",
+    "diagnostic_report_schema",
+    "hierarchical_trace_required",
+    "explicit_reintegration_trace_required"
+  ],
+  "title": "BenchmarkProjectionSpec",
+  "type": "object"
+}

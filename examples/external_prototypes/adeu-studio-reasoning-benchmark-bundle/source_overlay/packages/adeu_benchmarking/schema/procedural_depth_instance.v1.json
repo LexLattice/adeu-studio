@@ -1,0 +1,165 @@
+{
+  "$defs": {
+    "ProceduralDepthStepSpec": {
+      "additionalProperties": false,
+      "properties": {
+        "child_order_policy": {
+          "default": "ordered",
+          "enum": [
+            "ordered",
+            "unordered"
+          ],
+          "title": "Child Order Policy",
+          "type": "string"
+        },
+        "completion_boundary": {
+          "title": "Completion Boundary",
+          "type": "string"
+        },
+        "label": {
+          "title": "Label",
+          "type": "string"
+        },
+        "local_constraints": {
+          "items": {
+            "type": "string"
+          },
+          "title": "Local Constraints",
+          "type": "array"
+        },
+        "order_index": {
+          "minimum": 0,
+          "title": "Order Index",
+          "type": "integer"
+        },
+        "parent_step_id": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Parent Step Id"
+        },
+        "required_child_step_ids": {
+          "items": {
+            "type": "string"
+          },
+          "title": "Required Child Step Ids",
+          "type": "array"
+        },
+        "return_to_parent_step_id": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Return To Parent Step Id"
+        },
+        "step_id": {
+          "title": "Step Id",
+          "type": "string"
+        }
+      },
+      "required": [
+        "step_id",
+        "label",
+        "order_index",
+        "completion_boundary"
+      ],
+      "title": "ProceduralDepthStepSpec",
+      "type": "object"
+    }
+  },
+  "additionalProperties": false,
+  "properties": {
+    "benchmark_projection_spec_ref": {
+      "title": "Benchmark Projection Spec Ref",
+      "type": "string"
+    },
+    "benchmark_tags": {
+      "items": {
+        "type": "string"
+      },
+      "minItems": 1,
+      "title": "Benchmark Tags",
+      "type": "array"
+    },
+    "expected_final_step_id": {
+      "title": "Expected Final Step Id",
+      "type": "string"
+    },
+    "instance_family_label": {
+      "title": "Instance Family Label",
+      "type": "string"
+    },
+    "instance_label": {
+      "title": "Instance Label",
+      "type": "string"
+    },
+    "instruction_constitution": {
+      "title": "Instruction Constitution",
+      "type": "string"
+    },
+    "procedural_depth_instance_id": {
+      "title": "Procedural Depth Instance Id",
+      "type": "string"
+    },
+    "repo_snapshot_ref": {
+      "title": "Repo Snapshot Ref",
+      "type": "string"
+    },
+    "schema": {
+      "const": "procedural_depth_instance@1",
+      "default": "procedural_depth_instance@1",
+      "title": "Schema",
+      "type": "string"
+    },
+    "source_surface_refs": {
+      "items": {
+        "type": "string"
+      },
+      "minItems": 1,
+      "title": "Source Surface Refs",
+      "type": "array"
+    },
+    "step_specs": {
+      "items": {
+        "$ref": "#/$defs/ProceduralDepthStepSpec"
+      },
+      "minItems": 1,
+      "title": "Step Specs",
+      "type": "array"
+    },
+    "top_level_spine": {
+      "items": {
+        "type": "string"
+      },
+      "minItems": 1,
+      "title": "Top Level Spine",
+      "type": "array"
+    }
+  },
+  "required": [
+    "procedural_depth_instance_id",
+    "benchmark_projection_spec_ref",
+    "instance_family_label",
+    "instance_label",
+    "repo_snapshot_ref",
+    "source_surface_refs",
+    "instruction_constitution",
+    "benchmark_tags",
+    "top_level_spine",
+    "expected_final_step_id",
+    "step_specs"
+  ],
+  "title": "ProceduralDepthInstance",
+  "type": "object"
+}

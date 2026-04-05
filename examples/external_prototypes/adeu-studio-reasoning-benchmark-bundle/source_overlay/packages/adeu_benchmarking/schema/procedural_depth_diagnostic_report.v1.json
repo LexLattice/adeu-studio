@@ -1,0 +1,133 @@
+{
+  "$defs": {
+    "ProceduralDepthFailureRecord": {
+      "additionalProperties": false,
+      "properties": {
+        "expected": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Expected"
+        },
+        "failure_code": {
+          "title": "Failure Code",
+          "type": "string"
+        },
+        "failure_family": {
+          "enum": [
+            "horizontal_plan_spine",
+            "vertical_active_step_compilation",
+            "reintegration"
+          ],
+          "title": "Failure Family",
+          "type": "string"
+        },
+        "failure_record_id": {
+          "title": "Failure Record Id",
+          "type": "string"
+        },
+        "observed": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Observed"
+        },
+        "step_id": {
+          "title": "Step Id",
+          "type": "string"
+        },
+        "supporting_event_index": {
+          "anyOf": [
+            {
+              "minimum": 0,
+              "type": "integer"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Supporting Event Index"
+        }
+      },
+      "required": [
+        "failure_record_id",
+        "failure_family",
+        "failure_code",
+        "step_id"
+      ],
+      "title": "ProceduralDepthFailureRecord",
+      "type": "object"
+    }
+  },
+  "additionalProperties": false,
+  "properties": {
+    "diagnostic_summary": {
+      "title": "Diagnostic Summary",
+      "type": "string"
+    },
+    "dominant_failure_family": {
+      "enum": [
+        "clean_success",
+        "horizontal_plan_spine",
+        "vertical_active_step_compilation",
+        "reintegration",
+        "mixed"
+      ],
+      "title": "Dominant Failure Family",
+      "type": "string"
+    },
+    "epistemic_posture": {
+      "const": "derived_deterministically_from_run_and_gold",
+      "title": "Epistemic Posture",
+      "type": "string"
+    },
+    "failure_records": {
+      "items": {
+        "$ref": "#/$defs/ProceduralDepthFailureRecord"
+      },
+      "title": "Failure Records",
+      "type": "array"
+    },
+    "procedural_depth_diagnostic_report_id": {
+      "title": "Procedural Depth Diagnostic Report Id",
+      "type": "string"
+    },
+    "procedural_depth_metrics_ref": {
+      "title": "Procedural Depth Metrics Ref",
+      "type": "string"
+    },
+    "procedural_depth_run_trace_ref": {
+      "title": "Procedural Depth Run Trace Ref",
+      "type": "string"
+    },
+    "schema": {
+      "const": "procedural_depth_diagnostic_report@1",
+      "default": "procedural_depth_diagnostic_report@1",
+      "title": "Schema",
+      "type": "string"
+    }
+  },
+  "required": [
+    "procedural_depth_diagnostic_report_id",
+    "procedural_depth_run_trace_ref",
+    "procedural_depth_metrics_ref",
+    "dominant_failure_family",
+    "epistemic_posture",
+    "diagnostic_summary"
+  ],
+  "title": "ProceduralDepthDiagnosticReport",
+  "type": "object"
+}

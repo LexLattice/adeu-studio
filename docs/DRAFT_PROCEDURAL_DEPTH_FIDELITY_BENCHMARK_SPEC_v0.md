@@ -42,7 +42,8 @@ This benchmark is designed to isolate:
 - branch obedience;
 - state-carry fidelity;
 - constraint compliance;
-- failure topology.
+- failure topology;
+- hierarchical action execution fidelity when the constitution has parent/child steps.
 
 It is not primarily a knowledge benchmark.
 
@@ -52,6 +53,13 @@ Before diagnosing higher-order reasoning failures, we need a clean measure of wh
 the subject under test can inhabit an externally imposed procedural world at all.
 
 This benchmark exists to answer that lower-layer question directly.
+
+For hierarchical constitutions, that lower layer is not flat. The benchmark should
+separate:
+
+- horizontal action continuity / plan-spine fidelity;
+- vertical semantic decomposition / active-step compilation fidelity;
+- reintegration fidelity after local descent.
 
 ## 4. Target Capability
 
@@ -66,7 +74,10 @@ This includes:
 - obeying negative constraints;
 - selecting correct branches;
 - avoiding forbidden actions;
-- maintaining fidelity over long chains.
+- maintaining fidelity over long chains;
+- preserving the top-level plan spine when a local step becomes active;
+- correctly compiling the active parent step into its required child steps;
+- returning from local child work to the parent plan without drift.
 
 ## 5. Relationship To Structural Assessment
 
@@ -181,6 +192,13 @@ Illustrative pattern:
 - store result in variable `Z`;
 - use `Z` in step `N+5`;
 - emit exact structured answer.
+
+Illustrative hierarchical pattern:
+
+- complete top-level step `inspect_workspace`;
+- while that step is active, perform child steps `read_status` then `verify_tests`;
+- return to parent step `inspect_workspace` after each child completion;
+- only then advance to top-level step `deliver_summary`.
 
 ### 8.3 Reliability semantics
 
@@ -529,16 +547,16 @@ A `v0` of this benchmark projection should be considered real only if it can:
 
 Illustrative candidate artifacts are:
 
-- `procedural_depth_family_spec@1`
-- `procedural_depth_projection_spec@1`
+- `benchmark_family_spec@1`
+- `benchmark_projection_spec@1`
+- `benchmark_execution_context@1`
+- `benchmark_validation_report@1`
 - `procedural_depth_instance@1`
-- `procedural_depth_execution_context@1`
 - `procedural_depth_gold_trace@1`
 - `procedural_depth_run_trace@1`
 - `procedural_depth_metrics@1`
-- `procedural_depth_failure_topology@1`
+- `procedural_depth_diagnostic_report@1`
 - `procedural_depth_non_regression_report@1`
-- `procedural_depth_benchmark_validation_report@1`
 
 These names are planning-level candidate names, not frozen lock-level schema IDs.
 
@@ -583,6 +601,9 @@ be:
   "core_metrics": [
     "step_follow_rate",
     "longest_correct_prefix",
+    "plan_spine_fidelity_score",
+    "active_step_compilation_score",
+    "reintegration_fidelity_score",
     "depth_degradation_curve",
     "branch_accuracy",
     "constraint_violation_rate",
@@ -603,17 +624,19 @@ be:
   ],
   "linear_100_early_extension_until_scoring_stable": true,
   "candidate_artifacts": [
-    "procedural_depth_family_spec@1",
-    "procedural_depth_projection_spec@1",
+    "benchmark_family_spec@1",
+    "benchmark_projection_spec@1",
+    "benchmark_execution_context@1",
+    "benchmark_validation_report@1",
     "procedural_depth_instance@1",
-    "procedural_depth_execution_context@1",
     "procedural_depth_gold_trace@1",
     "procedural_depth_run_trace@1",
     "procedural_depth_metrics@1",
-    "procedural_depth_failure_topology@1",
-    "procedural_depth_non_regression_report@1",
-    "procedural_depth_benchmark_validation_report@1"
+    "procedural_depth_diagnostic_report@1",
+    "procedural_depth_non_regression_report@1"
   ],
+  "hierarchical_action_trace_supported": true,
+  "plan_spine_active_step_and_reintegration_split_required": true,
   "source_docs": [
     "docs/DRAFT_BENCHMARKING_META_MODULE_SPEC_v0.md",
     "docs/DRAFT_STRUCTURAL_REASONING_ASSESSMENT_SPEC_v0.md",

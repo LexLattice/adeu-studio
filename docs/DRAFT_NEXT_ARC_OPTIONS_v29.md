@@ -204,7 +204,13 @@ branches.
 - benchmark validation reports over the benchmark instrument itself;
 - explicit subject-under-test taxonomy;
 - explicit reliability semantics;
-- explicit diagnostic-to-promotion boundaries.
+- explicit diagnostic-to-promotion boundaries;
+- hierarchical execution traces when the projection carries parent/child action
+  structure;
+- explicit diagnostic separation between:
+  - horizontal plan-spine fidelity,
+  - vertical active-step compilation fidelity,
+  - reintegration fidelity.
 
 The family should treat concrete benchmark projections such as Procedural Depth Fidelity
 as:
@@ -243,7 +249,7 @@ The current recommended path ladder is:
 | Path | Theme | Primary output | Status |
 |---|---|---|---|
 | `V46-A` | benchmark family/projection substrate | candidate `benchmark_family_spec@1`, candidate `benchmark_projection_spec@1`, candidate `benchmark_run_trace@1`, candidate `benchmark_metrics_report@1`, candidate `benchmark_diagnostic_report@1`, and benchmark validation/context substrate | planned |
-| `V46-B` | Procedural Depth Fidelity baseline projection | candidate `procedural_depth_family_spec@1`, candidate `procedural_depth_projection_spec@1`, and tiny `Linear-20` / `Linear-50` baseline family | planned |
+| `V46-B` | Procedural Depth Fidelity hierarchical baseline projection | candidate `procedural_depth_instance@1`, candidate `procedural_depth_gold_trace@1`, candidate `procedural_depth_run_trace@1`, candidate `procedural_depth_metrics@1`, candidate `procedural_depth_diagnostic_report@1`, and tiny hierarchical reference chain | planned |
 | `V46-C` | Procedural Depth perturbation + non-regression widening | typed perturbation lanes plus candidate `procedural_depth_non_regression_report@1` | planned |
 | `V46-D` | benchmark projection library + cross-subject comparison widening | additional bounded benchmark projections and cross-subject comparison posture | planned |
 | `V46-E` | downstream consumer seam | separately governed consumers of benchmark diagnostics for routing/model/role/training research | planned_later_not_selected_here |
@@ -273,10 +279,12 @@ Implement the bounded benchmark-substrate lane first.
   - explicit subject-under-test typing posture;
   - explicit projection-specific validity and interpretation rules;
   - explicit inheritance of benchmark output epistemic posture;
+  - explicit requirement flag for hierarchical traces when the projection is not flat;
 - one canonical bounded benchmark instance spec candidate artifact:
   - explicit bounded instructions or source surfaces;
   - explicit validity rules;
   - explicit gold-surface binding posture;
+  - explicit top-level action spine and active-step parent/child structure when needed;
 - one canonical bounded benchmark execution-context candidate artifact:
   - subject identity and version;
   - prompt or wrapper identity when applicable;
@@ -288,14 +296,21 @@ Implement the bounded benchmark-substrate lane first.
   - explicit observed benchmark execution trace for one subject under test;
   - explicit linkage to the declared execution context and benchmark instance;
   - explicit step, event, or transition evidence sufficient for later scoring review;
+  - explicit return-to-parent or return-to-plan events when the projection descends
+    into local child work;
 - one canonical bounded benchmark metrics-report candidate artifact:
   - explicit derived benchmark scores and deltas under declared scoring rules;
   - explicit baseline and non-regression posture over the tiny reference chain;
   - explicit distinction between measured result and later diagnostic interpretation;
+  - explicit separate scores for:
+    - plan-spine fidelity,
+    - active-step compilation fidelity,
+    - reintegration fidelity;
 - one canonical bounded benchmark diagnostic-report candidate artifact:
   - explicit diagnostic summary over the bounded trace and metrics surfaces;
   - explicit open-question and failure-topology posture;
   - explicit non-promotional interpretation posture;
+  - explicit dominant-failure-family field over the three-way split above;
 - one canonical bounded benchmark validation report candidate artifact:
   - repeated-run stability posture;
   - benchmark-instance quality posture;
@@ -317,8 +332,10 @@ Implement the bounded benchmark-substrate lane first.
   - metrics report;
   - diagnostic report;
   - validation report;
-- no widening yet into full procedural-depth family release, projection-library
-  widening, or downstream operational promotion.
+  - one hierarchical procedural-depth case bundle with success, horizontal failure,
+    vertical failure, and reintegration failure variants;
+- no widening yet into full projection-library widening or downstream operational
+  promotion.
 
 `V46-A` is diagnostic-first and non-promotional:
 
@@ -351,6 +368,7 @@ Implement the bounded benchmark-substrate lane first.
 - benchmark diagnostic-report substrate only;
 - benchmark validation-report substrate only;
 - one tiny end-to-end reference chain only;
+- one bounded hierarchical procedural-depth bundle only;
 - explicit reliability semantics only;
 - one minimal operational reliability policy for that tiny reference chain only;
 - explicit diagnostic-first interpretation posture only.
@@ -535,6 +553,8 @@ are:
   "v46a_tiny_reference_chain_required": true,
   "v46a_non_promotional_required": true,
   "v46b_procedural_depth_projection_planned": true,
+  "hierarchical_trace_support_required_for_non_flat_projections": true,
+  "plan_spine_active_step_and_reintegration_split_required": true,
   "v46c_procedural_depth_perturbation_and_non_regression_planned": true,
   "v46d_projection_library_and_cross_subject_widening_planned": true,
   "v46e_downstream_consumer_seam_not_selected_here": true,

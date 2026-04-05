@@ -1,0 +1,87 @@
+{
+  "$defs": {
+    "ProceduralDepthTraceEvent": {
+      "additionalProperties": false,
+      "properties": {
+        "event_index": {
+          "minimum": 0,
+          "title": "Event Index",
+          "type": "integer"
+        },
+        "event_type": {
+          "enum": [
+            "activate",
+            "complete",
+            "return"
+          ],
+          "title": "Event Type",
+          "type": "string"
+        },
+        "step_id": {
+          "title": "Step Id",
+          "type": "string"
+        },
+        "target_step_id": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Target Step Id"
+        }
+      },
+      "required": [
+        "event_index",
+        "event_type",
+        "step_id"
+      ],
+      "title": "ProceduralDepthTraceEvent",
+      "type": "object"
+    }
+  },
+  "additionalProperties": false,
+  "properties": {
+    "gold_events": {
+      "items": {
+        "$ref": "#/$defs/ProceduralDepthTraceEvent"
+      },
+      "minItems": 1,
+      "title": "Gold Events",
+      "type": "array"
+    },
+    "procedural_depth_gold_trace_id": {
+      "title": "Procedural Depth Gold Trace Id",
+      "type": "string"
+    },
+    "procedural_depth_instance_ref": {
+      "title": "Procedural Depth Instance Ref",
+      "type": "string"
+    },
+    "schema": {
+      "const": "procedural_depth_gold_trace@1",
+      "default": "procedural_depth_gold_trace@1",
+      "title": "Schema",
+      "type": "string"
+    },
+    "top_level_spine": {
+      "items": {
+        "type": "string"
+      },
+      "minItems": 1,
+      "title": "Top Level Spine",
+      "type": "array"
+    }
+  },
+  "required": [
+    "procedural_depth_gold_trace_id",
+    "procedural_depth_instance_ref",
+    "top_level_spine",
+    "gold_events"
+  ],
+  "title": "ProceduralDepthGoldTrace",
+  "type": "object"
+}

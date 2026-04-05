@@ -51,6 +51,14 @@ A useful benchmark is a typed measurement instrument with explicit:
 - epistemic interpretation of what results do and do not justify;
 - utility posture for why the benchmark exists.
 
+When the benchmark world itself is hierarchical, the substrate should also support:
+
+- explicit plan-spine objects;
+- explicit active-step and child-step relations;
+- explicit reintegration events after local descent;
+- explicit diagnostic separation between horizontal, vertical, and reintegration failure
+  classes.
+
 The module's job is to make benchmarks explicit enough that they become:
 
 - composable;
@@ -397,6 +405,7 @@ Without that, repeated comparisons become hard to interpret and easy to overclai
 The top-layer module should support at least these benchmark axis types:
 
 - procedural depth;
+- hierarchical action-plan fidelity;
 - branching complexity;
 - recursive structure;
 - delayed constraints;

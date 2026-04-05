@@ -1,0 +1,76 @@
+{
+  "additionalProperties": false,
+  "properties": {
+    "benchmark_family_spec_id": {
+      "title": "Benchmark Family Spec Id",
+      "type": "string"
+    },
+    "capability_axes": {
+      "items": {
+        "type": "string"
+      },
+      "minItems": 1,
+      "title": "Capability Axes",
+      "type": "array"
+    },
+    "diagnostic_posture": {
+      "const": "diagnostic_only",
+      "title": "Diagnostic Posture",
+      "type": "string"
+    },
+    "doctrinal_source_refs": {
+      "items": {
+        "type": "string"
+      },
+      "minItems": 1,
+      "title": "Doctrinal Source Refs",
+      "type": "array"
+    },
+    "family_key": {
+      "title": "Family Key",
+      "type": "string"
+    },
+    "family_label": {
+      "title": "Family Label",
+      "type": "string"
+    },
+    "implementation_posture": {
+      "const": "bounded_proto_non_promotional",
+      "title": "Implementation Posture",
+      "type": "string"
+    },
+    "schema": {
+      "const": "benchmark_family_spec@1",
+      "default": "benchmark_family_spec@1",
+      "title": "Schema",
+      "type": "string"
+    },
+    "subject_under_test_classes": {
+      "items": {
+        "enum": [
+          "base_model",
+          "prompted_model",
+          "routed_runtime",
+          "multi_agent_system",
+          "adeu_runtime_surface"
+        ],
+        "type": "string"
+      },
+      "minItems": 1,
+      "title": "Subject Under Test Classes",
+      "type": "array"
+    }
+  },
+  "required": [
+    "benchmark_family_spec_id",
+    "family_key",
+    "family_label",
+    "doctrinal_source_refs",
+    "capability_axes",
+    "subject_under_test_classes",
+    "diagnostic_posture",
+    "implementation_posture"
+  ],
+  "title": "BenchmarkFamilySpec",
+  "type": "object"
+}

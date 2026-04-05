@@ -1,0 +1,129 @@
+{
+  "additionalProperties": false,
+  "properties": {
+    "active_step_compilation_posture": {
+      "enum": [
+        "clean",
+        "degraded"
+      ],
+      "title": "Active Step Compilation Posture",
+      "type": "string"
+    },
+    "active_step_compilation_score": {
+      "maximum": 1.0,
+      "minimum": 0.0,
+      "title": "Active Step Compilation Score",
+      "type": "number"
+    },
+    "evaluated_parent_steps": {
+      "minimum": 0,
+      "title": "Evaluated Parent Steps",
+      "type": "integer"
+    },
+    "expected_top_level_spine": {
+      "items": {
+        "type": "string"
+      },
+      "minItems": 1,
+      "title": "Expected Top Level Spine",
+      "type": "array"
+    },
+    "observed_top_level_activation_sequence": {
+      "items": {
+        "type": "string"
+      },
+      "minItems": 1,
+      "title": "Observed Top Level Activation Sequence",
+      "type": "array"
+    },
+    "overall_structural_fidelity_score": {
+      "maximum": 1.0,
+      "minimum": 0.0,
+      "title": "Overall Structural Fidelity Score",
+      "type": "number"
+    },
+    "plan_spine_fidelity_score": {
+      "maximum": 1.0,
+      "minimum": 0.0,
+      "title": "Plan Spine Fidelity Score",
+      "type": "number"
+    },
+    "plan_spine_posture": {
+      "enum": [
+        "clean",
+        "degraded"
+      ],
+      "title": "Plan Spine Posture",
+      "type": "string"
+    },
+    "procedural_depth_gold_trace_ref": {
+      "title": "Procedural Depth Gold Trace Ref",
+      "type": "string"
+    },
+    "procedural_depth_metrics_id": {
+      "title": "Procedural Depth Metrics Id",
+      "type": "string"
+    },
+    "procedural_depth_run_trace_ref": {
+      "title": "Procedural Depth Run Trace Ref",
+      "type": "string"
+    },
+    "reintegration_fidelity_score": {
+      "maximum": 1.0,
+      "minimum": 0.0,
+      "title": "Reintegration Fidelity Score",
+      "type": "number"
+    },
+    "reintegration_posture": {
+      "enum": [
+        "clean",
+        "degraded"
+      ],
+      "title": "Reintegration Posture",
+      "type": "string"
+    },
+    "required_child_completion_rate": {
+      "maximum": 1.0,
+      "minimum": 0.0,
+      "title": "Required Child Completion Rate",
+      "type": "number"
+    },
+    "return_event_success_rate": {
+      "maximum": 1.0,
+      "minimum": 0.0,
+      "title": "Return Event Success Rate",
+      "type": "number"
+    },
+    "schema": {
+      "const": "procedural_depth_metrics@1",
+      "default": "procedural_depth_metrics@1",
+      "title": "Schema",
+      "type": "string"
+    },
+    "top_level_longest_correct_prefix": {
+      "minimum": 0,
+      "title": "Top Level Longest Correct Prefix",
+      "type": "integer"
+    }
+  },
+  "required": [
+    "procedural_depth_metrics_id",
+    "procedural_depth_run_trace_ref",
+    "procedural_depth_gold_trace_ref",
+    "expected_top_level_spine",
+    "observed_top_level_activation_sequence",
+    "plan_spine_fidelity_score",
+    "active_step_compilation_score",
+    "reintegration_fidelity_score",
+    "overall_structural_fidelity_score",
+    "top_level_longest_correct_prefix",
+    "evaluated_parent_steps",
+    "required_child_completion_rate",
+    "return_event_success_rate",
+    "plan_spine_posture",
+    "active_step_compilation_posture",
+    "reintegration_posture"
+  ],
+  "title": "ProceduralDepthMetrics",
+  "type": "object"
+}

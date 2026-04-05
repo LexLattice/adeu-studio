@@ -39,6 +39,23 @@ The relevant upstream question is:
 That capability should be treated as a first-class assessed surface rather than as an
 implicit property inferred from downstream task performance.
 
+When the skeleton is explicitly hierarchical, ADEU should not treat "arbitrary
+instruction following" as a flat monolithic capability. The benchmarkable structural
+split is:
+
+- horizontal action continuity / plan-spine fidelity:
+  - preserve top-level order;
+  - preserve pending versus completed status;
+  - preserve the current active step;
+  - return to the plan without global drift;
+- vertical semantic decomposition / active-step compilation fidelity:
+  - unpack the active parent step into the required local substeps;
+  - preserve local order, local constraints, and completion boundary;
+  - emit the lawful local output of that step;
+- reintegration fidelity:
+  - after local descent, return to the parent plan spine cleanly rather than collapsing,
+    switching tasks, or skipping forward.
+
 ## 2. Core Thesis
 
 Many downstream reasoning interventions sit on top of a more primitive capability:
@@ -62,6 +79,17 @@ The key distinction is:
 
 ADEU is well positioned to separate those failure classes because the repo already treats
 lane separation, authority discipline, and fail-closed ambiguity posture as first-class.
+
+For hierarchical probe families, the assessment doctrine should additionally separate:
+
+- plan-spine failure:
+  - the model loses the high-level sequence even if one local step is executed well;
+- active-step decomposition failure:
+  - the current parent step becomes active but the required child-step structure is not
+    compiled faithfully;
+- reintegration failure:
+  - the model completes some local child work but fails to rejoin the parent plan or the
+    next lawful top-level step.
 
 ## 3. Why This Is A Separate Arc Direction
 
@@ -540,6 +568,9 @@ No concrete family/path label is selected by this document.
   "structural_reasoning_fidelity_first_class_required": true,
   "knowledge_deficit_and_procedural_deficit_non_equivalent_required": true,
   "knowledge_vs_procedural_deficit_operational_discriminator_required": true,
+  "horizontal_plan_spine_fidelity_required_when_hierarchy_present": true,
+  "vertical_active_step_compilation_fidelity_required_when_hierarchy_present": true,
+  "reintegration_fidelity_required_when_local_descent_occurs": true,
   "assessment_before_srm_architecture_required": true,
   "explicit_abstract_reasoning_template_definition_required": true,
   "initial_template_classes": [
