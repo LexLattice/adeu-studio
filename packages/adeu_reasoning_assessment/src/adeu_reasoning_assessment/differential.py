@@ -34,6 +34,10 @@ def diagnose_condition_pair_differential(
             "condition_taxonomies"
         )
 
+    unrecognized_roles = sorted(set(condition_probes) - set(CONDITION_ROLE_VOCABULARY))
+    if unrecognized_roles:
+        raise ValueError("unsupported condition role")
+
     missing_roles = [
         role for role in REQUIRED_STARTER_ROLES if role not in condition_probes
     ]
@@ -114,6 +118,7 @@ def diagnose_condition_pair_differential(
         ordered_roles=ordered_roles,
         condition_taxonomies=condition_taxonomies,
     )
+    open_questions = sorted(set(open_questions))
 
     basis = {
         "schema": "adeu_structural_reasoning_differential@1",

@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import json
+from copy import deepcopy
 from pathlib import Path
 
 import pytest
@@ -10,6 +11,7 @@ from adeu_reasoning_assessment import (
     StructuralReasoningDifferential,
     StructuralReasoningTrace,
     canonical_json,
+    compute_taxonomy_id,
     diagnose_condition_pair_differential,
 )
 
@@ -113,6 +115,61 @@ def test_incompatible_pair_compatibility_fails_closed() -> None:
             condition_traces=condition_traces,
             condition_taxonomies=condition_taxonomies,
         )
+
+
+def test_unknown_condition_role_fails_closed() -> None:
+    condition_probes, condition_traces, condition_taxonomies = _load_bundle(
+        "reference_differential_input_knowledge_deficit.json"
+    )
+    condition_probes["surprise_role"] = condition_probes["supplied_knowledge"]
+    condition_traces["surprise_role"] = condition_traces["supplied_knowledge"]
+    condition_taxonomies["surprise_role"] = condition_taxonomies["supplied_knowledge"]
+
+    with pytest.raises(ValueError, match="unsupported condition role"):
+        diagnose_condition_pair_differential(
+            condition_probes=condition_probes,
+            condition_traces=condition_traces,
+            condition_taxonomies=condition_taxonomies,
+        )
+
+
+def test_differential_id_uses_normalized_open_questions() -> None:
+    condition_probes, condition_traces, condition_taxonomies = _load_bundle(
+        "reference_differential_input_paired_condition_insufficient.json"
+    )
+    mutated_taxonomies = deepcopy(condition_taxonomies)
+    for role, questions in (
+        ("supplied_knowledge", ["z_missing_authoritative_observation"]),
+        ("withheld_knowledge", ["a_missing_authoritative_observation"]),
+    ):
+        payload = mutated_taxonomies[role].model_dump(
+            mode="json", by_alias=True, exclude_none=True
+        )
+        payload["open_questions"] = questions
+        basis = {
+            "schema": payload["schema"],
+            "probe_ref": payload["probe_ref"],
+            "trace_ref": payload["trace_ref"],
+            "taxonomy_status": payload["taxonomy_status"],
+            "terminal_trace_status": payload["terminal_trace_status"],
+            "failure_families": payload["failure_families"],
+            "primary_failure_family": payload.get("primary_failure_family"),
+            "supporting_break_refs": payload["supporting_break_refs"],
+            "supporting_event_indexes": payload["supporting_event_indexes"],
+            "open_questions": payload["open_questions"],
+        }
+        payload["taxonomy_id"] = compute_taxonomy_id(basis)
+        mutated_taxonomies[role] = StructuralFailureTaxonomy.model_validate(payload)
+
+    differential = diagnose_condition_pair_differential(
+        condition_probes=condition_probes,
+        condition_traces=condition_traces,
+        condition_taxonomies=mutated_taxonomies,
+    )
+    assert differential.open_questions == [
+        "a_missing_authoritative_observation",
+        "z_missing_authoritative_observation",
+    ]
 
 
 def test_mapping_matrix_covers_all_starter_judgments() -> None:
