@@ -10,14 +10,23 @@ export const PAPER_SEMANTIC_WORKBENCH_VIEW_CONFIG_SCHEMA =
   "adeu_paper_semantic_workbench_view_config@1";
 export const PAPER_SEMANTIC_WORKBENCH_VIEW_MODEL_SCHEMA =
   "adeu_paper_semantic_workbench_view_model@1";
+export const PAPER_SEMANTIC_SPATIAL_SCENE_MODEL_SCHEMA =
+  "adeu_paper_semantic_spatial_scene_model@1";
+export const PAPER_SEMANTIC_SPATIAL_SCENE_NODE_SCHEMA =
+  "adeu_paper_semantic_spatial_scene_node@1";
+export const PAPER_SEMANTIC_SPATIAL_SCENE_EDGE_SCHEMA =
+  "adeu_paper_semantic_spatial_scene_edge@1";
 export const PAPER_SEMANTIC_WORKBENCH_ROUTE_ID = "paper_semantic_mock_workbench_surface";
 export const PAPER_SEMANTIC_WORKBENCH_ROUTE_CONTRACT_REF =
   "v52b_paper_semantic_mock_workbench_contract";
 
 export const ROUTE_STATUS_VALUES = ["ready_clean", "fail_closed_invalid_fixture_stack"] as const;
-export const SELECTED_SURFACE_VALUES = ["artifact", "local"] as const;
+export const RELEASED_PROJECTION_SURFACE_VALUES = ["artifact", "local"] as const;
+export const SELECTED_SURFACE_VALUES = ["artifact", "local", "spatial"] as const;
 export const VISIBLE_LANE_VALUES = ["O", "E", "D", "U"] as const;
 export const SOURCE_ARTIFACT_KIND_VALUES = ["paper.abstract", "pasted.paragraph"] as const;
+export const SPATIAL_NODE_KIND_VALUES = ["claim", "lane_fragment"] as const;
+export const SPATIAL_EDGE_KIND_VALUES = ["claim_to_fragment", "inference_bridge"] as const;
 export const DIAGNOSTIC_KIND_VALUES = [
   "contradiction",
   "underdetermination",
@@ -33,9 +42,12 @@ export const INTERPRETATION_AUTHORITY_POSTURE = "advisory_only" as const;
 export const SEMANTIC_IDENTITY_MODE = "v49_hash_law_with_explicit_paper_domain_delta" as const;
 
 export type WorkbenchRouteStatus = (typeof ROUTE_STATUS_VALUES)[number];
+export type ReleasedProjectionSurface = (typeof RELEASED_PROJECTION_SURFACE_VALUES)[number];
 export type SelectedSurface = (typeof SELECTED_SURFACE_VALUES)[number];
 export type VisibleLaneId = (typeof VISIBLE_LANE_VALUES)[number];
 export type SourceArtifactKind = (typeof SOURCE_ARTIFACT_KIND_VALUES)[number];
+export type SpatialNodeKind = (typeof SPATIAL_NODE_KIND_VALUES)[number];
+export type SpatialEdgeKind = (typeof SPATIAL_EDGE_KIND_VALUES)[number];
 export type DiagnosticKind = (typeof DIAGNOSTIC_KIND_VALUES)[number];
 export type DiagnosticSeverity = (typeof DIAGNOSTIC_SEVERITY_VALUES)[number];
 
@@ -115,7 +127,7 @@ export type PaperSemanticDiagnostic = {
 export type PaperSemanticProjection = {
   schema: "adeu_paper_semantic_projection@1";
   projection_id: string;
-  surface: SelectedSurface;
+  surface: ReleasedProjectionSurface;
   lane_order: VisibleLaneId[];
   claim_order: string[];
   recommended_focus_claim_id: string | null;
@@ -158,6 +170,42 @@ export type PaperSemanticWorkbenchViewConfig = {
   visible_lane_ids: VisibleLaneId[];
 };
 
+export type SpatialScenePosition = {
+  x: number;
+  y: number;
+  z: number;
+};
+
+export type PaperSemanticSpatialSceneNode = {
+  schema: "adeu_paper_semantic_spatial_scene_node@1";
+  node_id: string;
+  node_kind: SpatialNodeKind;
+  claim_id: string;
+  lane_id: VisibleLaneId | null;
+  label: string;
+  position: SpatialScenePosition;
+};
+
+export type PaperSemanticSpatialSceneEdge = {
+  schema: "adeu_paper_semantic_spatial_scene_edge@1";
+  edge_id: string;
+  edge_kind: SpatialEdgeKind;
+  from_node_id: string;
+  to_node_id: string;
+  bridge_id: string | null;
+};
+
+export type PaperSemanticSpatialSceneModel = {
+  schema: "adeu_paper_semantic_spatial_scene_model@1";
+  artifact_ref: string;
+  semantic_hash: string;
+  recommended_focus_claim_id: string | null;
+  node_order: string[];
+  nodes: PaperSemanticSpatialSceneNode[];
+  edges: PaperSemanticSpatialSceneEdge[];
+  scene_hash: string;
+};
+
 export type PaperSemanticWorkbenchViewModel = {
   schema: "adeu_paper_semantic_workbench_view_model@1";
   route_status: WorkbenchRouteStatus;
@@ -173,6 +221,7 @@ export type PaperSemanticWorkbenchViewModel = {
   focus_claim_id: string | null;
   visible_lane_ids: VisibleLaneId[];
   ordered_claim_ids: string[];
+  spatial_scene: PaperSemanticSpatialSceneModel | null;
   failure_code: string | null;
   view_hash: string;
 };
@@ -221,10 +270,18 @@ export function createViewModel(
   }
 
   const projection =
-    selectedArtifact.artifact.projections.find((item) => item.surface === config.selected_surface) ??
-    null;
+    config.selected_surface === "spatial"
+      ? selectSpatialOrderingProjection(selectedArtifact.artifact)
+      : selectedArtifact.artifact.projections.find((item) => item.surface === config.selected_surface) ??
+        null;
   if (!projection) {
-    return buildFailureViewModel(config, availableRefs, "INVALID_SELECTED_SURFACE_PROJECTION");
+    return buildFailureViewModel(
+      config,
+      availableRefs,
+      config.selected_surface === "spatial"
+        ? "INVALID_SPATIAL_ORDERING_PROJECTION"
+        : "INVALID_SELECTED_SURFACE_PROJECTION",
+    );
   }
   const claimIds = new Set(selectedArtifact.artifact.claims.map((item) => item.claim_id));
   const orderedClaimIds =
@@ -240,6 +297,16 @@ export function createViewModel(
       : projection?.recommended_focus_claim_id && claimIds.has(projection.recommended_focus_claim_id)
         ? projection.recommended_focus_claim_id
         : orderedClaimIds[0] ?? null;
+  const spatialScene = buildSpatialScene({
+    artifact: selectedArtifact.artifact,
+    focusClaimId,
+    orderedClaimIds,
+    visibleLaneIds,
+    projection,
+  });
+  if (config.selected_surface === "spatial" && !spatialScene) {
+    return buildFailureViewModel(config, availableRefs, "INVALID_SPATIAL_SCENE_PROJECTION");
+  }
 
   const subject = {
     route_status: "ready_clean",
@@ -249,6 +316,7 @@ export function createViewModel(
     focus_claim_id: focusClaimId,
     visible_lane_ids: visibleLaneIds,
     ordered_claim_ids: orderedClaimIds,
+    scene_hash: spatialScene?.scene_hash ?? null,
     failure_code: null,
   };
 
@@ -267,6 +335,7 @@ export function createViewModel(
     focus_claim_id: focusClaimId,
     visible_lane_ids: visibleLaneIds,
     ordered_claim_ids: orderedClaimIds,
+    spatial_scene: spatialScene,
     failure_code: null,
     view_hash: computeStableViewHash(subject),
   };
@@ -463,6 +532,7 @@ function buildFailureViewModel(
     focus_claim_id: config.focus_claim_id,
     visible_lane_ids: [...config.visible_lane_ids].sort(),
     ordered_claim_ids: [],
+    scene_hash: null,
     failure_code: failureCode,
   };
   return {
@@ -480,9 +550,163 @@ function buildFailureViewModel(
     focus_claim_id: config.focus_claim_id,
     visible_lane_ids: [...config.visible_lane_ids],
     ordered_claim_ids: [],
+    spatial_scene: null,
     failure_code: failureCode,
     view_hash: computeStableViewHash(subject),
   };
+}
+
+function selectSpatialOrderingProjection(
+  artifact: PaperSemanticArtifact,
+): PaperSemanticProjection | null {
+  return (
+    artifact.projections.find((item) => item.surface === "local") ??
+    artifact.projections.find((item) => item.surface === "artifact") ??
+    null
+  );
+}
+
+function buildSpatialScene(params: {
+  artifact: PaperSemanticArtifact;
+  projection: PaperSemanticProjection;
+  orderedClaimIds: string[];
+  focusClaimId: string | null;
+  visibleLaneIds: VisibleLaneId[];
+}): PaperSemanticSpatialSceneModel | null {
+  const laneOrder = normalizeProjectionLaneOrder(params.projection.lane_order);
+  const claimOrder = params.orderedClaimIds;
+  const claimsById = new Map(
+    params.artifact.claims.map((claim) => [claim.claim_id, claim] as const),
+  );
+  const fragmentsByClaimAndLane = new Map<string, PaperSemanticLaneFragment[]>();
+  for (const fragment of params.artifact.lane_fragments) {
+    const key = `${fragment.claim_id}:${fragment.lane_id}`;
+    const existing = fragmentsByClaimAndLane.get(key);
+    if (existing) {
+      existing.push(fragment);
+    } else {
+      fragmentsByClaimAndLane.set(key, [fragment]);
+    }
+  }
+  const visibleLaneSet = new Set(params.visibleLaneIds);
+  const claimNodeIds = new Map<string, string>();
+  const fragmentNodeIds = new Map<string, string>();
+  const nodes: PaperSemanticSpatialSceneNode[] = [];
+  const edges: PaperSemanticSpatialSceneEdge[] = [];
+
+  for (let claimIndex = 0; claimIndex < claimOrder.length; claimIndex += 1) {
+    const claimId = claimOrder[claimIndex];
+    const claim = claimsById.get(claimId);
+    if (!claim) return null;
+    const claimNodeId = `scene-node:claim:${claimId}`;
+    claimNodeIds.set(claimId, claimNodeId);
+    nodes.push({
+      schema: PAPER_SEMANTIC_SPATIAL_SCENE_NODE_SCHEMA,
+      node_id: claimNodeId,
+      node_kind: "claim",
+      claim_id: claimId,
+      lane_id: null,
+      label: shortenLabel(claim.claim_text, 56),
+      position: {
+        x: 0,
+        y: claimIndex * 3,
+        z: params.focusClaimId === claimId ? 0.8 : 0,
+      },
+    });
+
+    for (let laneIndex = 0; laneIndex < laneOrder.length; laneIndex += 1) {
+      const laneId = laneOrder[laneIndex];
+      if (!visibleLaneSet.has(laneId)) continue;
+      const fragments = [...(fragmentsByClaimAndLane.get(`${claimId}:${laneId}`) ?? [])]
+        .sort((left, right) => left.fragment_id.localeCompare(right.fragment_id));
+      for (let fragmentIndex = 0; fragmentIndex < fragments.length; fragmentIndex += 1) {
+        const fragment = fragments[fragmentIndex];
+        const fragmentNodeId = `scene-node:fragment:${fragment.fragment_id}`;
+        fragmentNodeIds.set(fragment.fragment_id, fragmentNodeId);
+        nodes.push({
+          schema: PAPER_SEMANTIC_SPATIAL_SCENE_NODE_SCHEMA,
+          node_id: fragmentNodeId,
+          node_kind: "lane_fragment",
+          claim_id: claimId,
+          lane_id: laneId,
+          label: fragment.short_label,
+          position: {
+            x: (laneIndex + 1) * 3.2,
+            y: claimIndex * 3 + fragmentIndex * 0.7,
+            z: laneIndex * 0.25,
+          },
+        });
+        edges.push({
+          schema: PAPER_SEMANTIC_SPATIAL_SCENE_EDGE_SCHEMA,
+          edge_id: `scene-edge:claim_to_fragment:${claimId}:${fragment.fragment_id}`,
+          edge_kind: "claim_to_fragment",
+          from_node_id: claimNodeId,
+          to_node_id: fragmentNodeId,
+          bridge_id: null,
+        });
+      }
+    }
+  }
+
+  for (const bridge of [...params.artifact.inference_bridges].sort((left, right) =>
+    left.bridge_id.localeCompare(right.bridge_id),
+  )) {
+    const fromIds = [...bridge.from_fragment_ids].sort((left, right) => left.localeCompare(right));
+    const toIds = [...bridge.to_fragment_ids].sort((left, right) => left.localeCompare(right));
+    for (const fromId of fromIds) {
+      for (const toId of toIds) {
+        const fromNodeId = fragmentNodeIds.get(fromId);
+        const toNodeId = fragmentNodeIds.get(toId);
+        if (!fromNodeId || !toNodeId) continue;
+        edges.push({
+          schema: PAPER_SEMANTIC_SPATIAL_SCENE_EDGE_SCHEMA,
+          edge_id: `scene-edge:bridge:${bridge.bridge_id}:${fromId}:${toId}`,
+          edge_kind: "inference_bridge",
+          from_node_id: fromNodeId,
+          to_node_id: toNodeId,
+          bridge_id: bridge.bridge_id,
+        });
+      }
+    }
+  }
+
+  const nodeOrder = nodes.map((node) => node.node_id);
+  const sceneSubject = {
+    artifact_ref: params.artifact.artifact_id,
+    semantic_hash: params.artifact.semantic_hash,
+    recommended_focus_claim_id: params.focusClaimId,
+    node_order: nodeOrder,
+    nodes,
+    edges,
+  };
+  return {
+    schema: PAPER_SEMANTIC_SPATIAL_SCENE_MODEL_SCHEMA,
+    artifact_ref: params.artifact.artifact_id,
+    semantic_hash: params.artifact.semantic_hash,
+    recommended_focus_claim_id: params.focusClaimId,
+    node_order: nodeOrder,
+    nodes,
+    edges,
+    scene_hash: computeStableSceneHash(sceneSubject),
+  };
+}
+
+function normalizeProjectionLaneOrder(value: readonly VisibleLaneId[]): VisibleLaneId[] {
+  const unique = new Set<VisibleLaneId>();
+  for (const laneId of value) {
+    if (VISIBLE_LANE_VALUES.includes(laneId)) {
+      unique.add(laneId);
+    }
+  }
+  if (unique.size === 0) {
+    return [...VISIBLE_LANE_VALUES];
+  }
+  return [...VISIBLE_LANE_VALUES].filter((laneId) => unique.has(laneId));
+}
+
+function shortenLabel(value: string, maxLength: number): string {
+  if (value.length <= maxLength) return value;
+  return `${value.slice(0, maxLength - 1).trimEnd()}…`;
 }
 
 function normalizeVisibleLaneIds(value: readonly string[]): VisibleLaneId[] | null {
@@ -682,7 +906,7 @@ function parsePaperSemanticProjection(value: unknown): PaperSemanticProjection |
     !claimOrder ||
     !diagnosticSummary ||
     typeof value.projection_id !== "string" ||
-    !SELECTED_SURFACE_VALUES.includes(value.surface as SelectedSurface) ||
+    !RELEASED_PROJECTION_SURFACE_VALUES.includes(value.surface as ReleasedProjectionSurface) ||
     (value.recommended_focus_claim_id !== null &&
       value.recommended_focus_claim_id !== undefined &&
       typeof value.recommended_focus_claim_id !== "string")
@@ -692,7 +916,7 @@ function parsePaperSemanticProjection(value: unknown): PaperSemanticProjection |
   return {
     schema: PAPER_SEMANTIC_PROJECTION_SCHEMA,
     projection_id: value.projection_id,
-    surface: value.surface as SelectedSurface,
+    surface: value.surface as ReleasedProjectionSurface,
     lane_order: laneOrder,
     claim_order: claimOrder,
     recommended_focus_claim_id:
@@ -763,6 +987,16 @@ function computeStableViewHash(value: Record<string, unknown>): string {
     hash = Math.imul(hash, 16777619);
   }
   return `view:${(hash >>> 0).toString(16).padStart(8, "0")}`;
+}
+
+function computeStableSceneHash(value: Record<string, unknown>): string {
+  const serialized = stableStringify(value);
+  let hash = 2166136261;
+  for (let index = 0; index < serialized.length; index += 1) {
+    hash ^= serialized.charCodeAt(index);
+    hash = Math.imul(hash, 16777619);
+  }
+  return `scene:${(hash >>> 0).toString(16).padStart(8, "0")}`;
 }
 
 function stableStringify(value: unknown): string {

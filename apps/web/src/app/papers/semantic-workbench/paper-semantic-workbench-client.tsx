@@ -3,6 +3,7 @@
 import { useState, useTransition, type ChangeEvent } from "react";
 
 import styles from "./page.module.css";
+import { SpatialLaneScene } from "./spatial-lane-scene";
 import {
   type CommittedSampleArtifact,
   createViewModel,
@@ -160,12 +161,12 @@ export function PaperSemanticWorkbenchClient({
     >
       <section className={styles.hero}>
         <div>
-          <p className={styles.eyebrow}>V52-B bounded read-only consumer</p>
+          <p className={styles.eyebrow}>V52-D bounded route-local visualization</p>
           <h1>Paper Semantic Workbench</h1>
           <p className={styles.lede}>
             One released paper-semantic artifact in, one bounded local workbench projection out.
-            This route consumes committed `V52-A` artifacts only and refuses live-worker,
-            API, and spatial-scene widening.
+            This route consumes committed `V52-A` artifacts only, derives a route-local spatial
+            scene from released ordering anchors, and still refuses live-worker and API widening.
           </p>
         </div>
         <span className={styles.statusBadge} data-status={viewModel.route_status}>
@@ -194,7 +195,7 @@ export function PaperSemanticWorkbenchClient({
           <div className={styles.field}>
             <span>Surface</span>
             <div className={styles.toggleRow}>
-              {(["artifact", "local"] as const).map((surface) => (
+              {(["artifact", "local", "spatial"] as const).map((surface) => (
                 <button
                   key={surface}
                   type="button"
@@ -251,6 +252,14 @@ export function PaperSemanticWorkbenchClient({
               <div>
                 <dt>view_hash</dt>
                 <dd>{viewModel.view_hash}</dd>
+              </div>
+              <div>
+                <dt>selected_surface</dt>
+                <dd>{viewModel.selected_surface}</dd>
+              </div>
+              <div>
+                <dt>scene_hash</dt>
+                <dd>{viewModel.spatial_scene?.scene_hash ?? "n/a"}</dd>
               </div>
             </dl>
           </section>
@@ -442,6 +451,16 @@ export function PaperSemanticWorkbenchClient({
               ))}
             </ul>
           </section>
+
+          {viewModel.selected_surface === "spatial" && viewModel.spatial_scene ? (
+            <section className={styles.panel}>
+              <SpatialLaneScene
+                scene={viewModel.spatial_scene}
+                focusClaimId={viewModel.focus_claim_id}
+                onFocusClaim={focusClaim}
+              />
+            </section>
+          ) : null}
         </div>
       )}
     </div>

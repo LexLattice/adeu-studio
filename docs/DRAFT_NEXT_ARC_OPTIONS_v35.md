@@ -211,6 +211,8 @@ This new family asks:
 - later than the core semantic-contract, read-only workbench, and live worker-bridge
   slices;
 - one bounded advanced visualization seam only;
+- explicit that `spatial` is route-local derived presentation over released
+  paper-semantic artifacts rather than a new released projection surface by default;
 - not a license for unbounded frontend experimentation by default.
 
 So this family may constrain:
@@ -448,6 +450,10 @@ Implement the bounded advanced-visualization seam next.
 - one bounded advanced visualization seam only;
 - one route-local spatial / morphic scene posture only inside the existing
   `/papers/semantic-workbench` route;
+- one explicit derived-surface posture only:
+  - released `artifact` / `local` projections remain authoritative ordering anchors
+  - `spatial` is route-local and does not require a released
+    `projection.surface = spatial`;
 - one explicit same-object morphic transition posture only between:
   - `artifact`
   - `local`
