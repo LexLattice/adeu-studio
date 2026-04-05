@@ -1,0 +1,121 @@
+{
+  "additionalProperties": false,
+  "properties": {
+    "benchmark_family_spec_ref": {
+      "title": "Benchmark Family Spec Ref",
+      "type": "string"
+    },
+    "benchmark_projection_spec_id": {
+      "title": "Benchmark Projection Spec Id",
+      "type": "string"
+    },
+    "constraint_source_refs": {
+      "items": {
+        "type": "string"
+      },
+      "minItems": 1,
+      "title": "Constraint Source Refs",
+      "type": "array"
+    },
+    "declared_diagnostic_report_contract_id": {
+      "title": "Declared Diagnostic Report Contract Id",
+      "type": "string"
+    },
+    "declared_gold_trace_contract_id": {
+      "title": "Declared Gold Trace Contract Id",
+      "type": "string"
+    },
+    "declared_instance_contract_id": {
+      "title": "Declared Instance Contract Id",
+      "type": "string"
+    },
+    "declared_metrics_contract_id": {
+      "title": "Declared Metrics Contract Id",
+      "type": "string"
+    },
+    "declared_run_trace_contract_id": {
+      "title": "Declared Run Trace Contract Id",
+      "type": "string"
+    },
+    "explicit_reintegration_trace_required": {
+      "title": "Explicit Reintegration Trace Required",
+      "type": "boolean"
+    },
+    "hierarchical_trace_required": {
+      "title": "Hierarchical Trace Required",
+      "type": "boolean"
+    },
+    "interpretation_boundary_summary": {
+      "title": "Interpretation Boundary Summary",
+      "type": "string"
+    },
+    "projection_key": {
+      "title": "Projection Key",
+      "type": "string"
+    },
+    "projection_label": {
+      "title": "Projection Label",
+      "type": "string"
+    },
+    "projection_notes": {
+      "items": {
+        "type": "string"
+      },
+      "title": "Projection Notes",
+      "type": "array"
+    },
+    "projection_validity_posture": {
+      "title": "Projection Validity Posture",
+      "type": "string"
+    },
+    "schema": {
+      "const": "adeu_benchmark_projection_spec@1",
+      "default": "adeu_benchmark_projection_spec@1",
+      "title": "Schema",
+      "type": "string"
+    },
+    "target_capability_axes": {
+      "items": {
+        "type": "string"
+      },
+      "minItems": 1,
+      "title": "Target Capability Axes",
+      "type": "array"
+    },
+    "target_subject_under_test_classes": {
+      "items": {
+        "enum": [
+          "base_model",
+          "prompted_model",
+          "routed_runtime",
+          "multi_agent_system",
+          "adeu_runtime_surface"
+        ],
+        "type": "string"
+      },
+      "minItems": 1,
+      "title": "Target Subject Under Test Classes",
+      "type": "array"
+    }
+  },
+  "required": [
+    "benchmark_projection_spec_id",
+    "benchmark_family_spec_ref",
+    "projection_key",
+    "projection_label",
+    "constraint_source_refs",
+    "target_capability_axes",
+    "target_subject_under_test_classes",
+    "hierarchical_trace_required",
+    "explicit_reintegration_trace_required",
+    "projection_validity_posture",
+    "interpretation_boundary_summary",
+    "declared_instance_contract_id",
+    "declared_gold_trace_contract_id",
+    "declared_run_trace_contract_id",
+    "declared_metrics_contract_id",
+    "declared_diagnostic_report_contract_id"
+  ],
+  "title": "BenchmarkProjectionSpec",
+  "type": "object"
+}

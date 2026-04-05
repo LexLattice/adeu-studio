@@ -1,0 +1,120 @@
+{
+  "$defs": {
+    "BenchmarkValidationCaseResult": {
+      "additionalProperties": false,
+      "properties": {
+        "case_label": {
+          "title": "Case Label",
+          "type": "string"
+        },
+        "case_ref": {
+          "title": "Case Ref",
+          "type": "string"
+        },
+        "expected_dominant_failure_family": {
+          "enum": [
+            "clean_success",
+            "horizontal_plan_spine",
+            "vertical_active_step_compilation",
+            "reintegration",
+            "mixed"
+          ],
+          "title": "Expected Dominant Failure Family",
+          "type": "string"
+        },
+        "match": {
+          "title": "Match",
+          "type": "boolean"
+        },
+        "observed_dominant_failure_family": {
+          "enum": [
+            "clean_success",
+            "horizontal_plan_spine",
+            "vertical_active_step_compilation",
+            "reintegration",
+            "mixed"
+          ],
+          "title": "Observed Dominant Failure Family",
+          "type": "string"
+        },
+        "validation_case_result_id": {
+          "title": "Validation Case Result Id",
+          "type": "string"
+        }
+      },
+      "required": [
+        "validation_case_result_id",
+        "case_label",
+        "case_ref",
+        "expected_dominant_failure_family",
+        "observed_dominant_failure_family",
+        "match"
+      ],
+      "title": "BenchmarkValidationCaseResult",
+      "type": "object"
+    }
+  },
+  "additionalProperties": false,
+  "properties": {
+    "all_expected_diagnostics_matched": {
+      "title": "All Expected Diagnostics Matched",
+      "type": "boolean"
+    },
+    "benchmark_limitations": {
+      "items": {
+        "type": "string"
+      },
+      "minItems": 1,
+      "title": "Benchmark Limitations",
+      "type": "array"
+    },
+    "benchmark_projection_spec_ref": {
+      "title": "Benchmark Projection Spec Ref",
+      "type": "string"
+    },
+    "benchmark_validation_report_id": {
+      "title": "Benchmark Validation Report Id",
+      "type": "string"
+    },
+    "schema": {
+      "const": "adeu_benchmark_validation_report@1",
+      "default": "adeu_benchmark_validation_report@1",
+      "title": "Schema",
+      "type": "string"
+    },
+    "scorer_determinism_posture": {
+      "const": "deterministic_fixture_replay_confirmed",
+      "title": "Scorer Determinism Posture",
+      "type": "string"
+    },
+    "validation_case_results": {
+      "items": {
+        "$ref": "#/$defs/BenchmarkValidationCaseResult"
+      },
+      "minItems": 1,
+      "title": "Validation Case Results",
+      "type": "array"
+    },
+    "validation_label": {
+      "title": "Validation Label",
+      "type": "string"
+    },
+    "validation_scope": {
+      "const": "tiny_reference_fixture_bundle",
+      "title": "Validation Scope",
+      "type": "string"
+    }
+  },
+  "required": [
+    "benchmark_validation_report_id",
+    "benchmark_projection_spec_ref",
+    "validation_label",
+    "validation_scope",
+    "scorer_determinism_posture",
+    "validation_case_results",
+    "all_expected_diagnostics_matched",
+    "benchmark_limitations"
+  ],
+  "title": "BenchmarkValidationReport",
+  "type": "object"
+}

@@ -1,0 +1,102 @@
+{
+  "additionalProperties": false,
+  "properties": {
+    "benchmark_execution_context_id": {
+      "title": "Benchmark Execution Context Id",
+      "type": "string"
+    },
+    "context_budget_posture": {
+      "const": "fixed_context_budget_declared",
+      "title": "Context Budget Posture",
+      "type": "string"
+    },
+    "determinism_posture": {
+      "enum": [
+        "deterministic_fixed_context",
+        "stochastic_context"
+      ],
+      "title": "Determinism Posture",
+      "type": "string"
+    },
+    "notes": {
+      "items": {
+        "type": "string"
+      },
+      "title": "Notes",
+      "type": "array"
+    },
+    "orchestration_topology_ref": {
+      "anyOf": [
+        {
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Orchestration Topology Ref"
+    },
+    "prompt_wrapper_ref": {
+      "anyOf": [
+        {
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Prompt Wrapper Ref"
+    },
+    "repo_snapshot_ref": {
+      "title": "Repo Snapshot Ref",
+      "type": "string"
+    },
+    "schema": {
+      "const": "adeu_benchmark_execution_context@1",
+      "default": "adeu_benchmark_execution_context@1",
+      "title": "Schema",
+      "type": "string"
+    },
+    "subject_label": {
+      "title": "Subject Label",
+      "type": "string"
+    },
+    "subject_under_test_class": {
+      "enum": [
+        "base_model",
+        "prompted_model",
+        "routed_runtime",
+        "multi_agent_system",
+        "adeu_runtime_surface"
+      ],
+      "title": "Subject Under Test Class",
+      "type": "string"
+    },
+    "subject_version": {
+      "title": "Subject Version",
+      "type": "string"
+    },
+    "tool_availability": {
+      "items": {
+        "type": "string"
+      },
+      "minItems": 1,
+      "title": "Tool Availability",
+      "type": "array"
+    }
+  },
+  "required": [
+    "benchmark_execution_context_id",
+    "subject_under_test_class",
+    "subject_label",
+    "subject_version",
+    "tool_availability",
+    "context_budget_posture",
+    "determinism_posture",
+    "repo_snapshot_ref"
+  ],
+  "title": "BenchmarkExecutionContext",
+  "type": "object"
+}

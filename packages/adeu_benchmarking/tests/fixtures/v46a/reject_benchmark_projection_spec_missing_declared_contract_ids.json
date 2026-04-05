@@ -1,0 +1,35 @@
+{
+  "benchmark_family_spec_ref": "benchfam_73952621547ba8a17ea53e43cf579388",
+  "benchmark_projection_spec_id": "benchproj_583343267376892b3e0b7f7e6328f426",
+  "constraint_source_refs": [
+    "adeu_reasoning_template_probe@1",
+    "adeu_structural_failure_taxonomy@1",
+    "adeu_structural_reasoning_trace@1",
+    "docs/DRAFT_PROCEDURAL_DEPTH_FIDELITY_BENCHMARK_SPEC_v0.md"
+  ],
+  "declared_diagnostic_report_contract_id": "adeu_procedural_depth_diagnostic_report@1",
+  "declared_gold_trace_contract_id": "adeu_procedural_depth_gold_trace@1",
+  "declared_instance_contract_id": "adeu_procedural_depth_instance@1",
+  "declared_run_trace_contract_id": "adeu_procedural_depth_run_trace@1",
+  "explicit_reintegration_trace_required": true,
+  "hierarchical_trace_required": true,
+  "interpretation_boundary_summary": "V46-A may validate the substrate and dominant-family replay only; it does not release procedural-depth scoring or benchmark promotion.",
+  "projection_key": "procedural_depth_reference_projection",
+  "projection_label": "Procedural Depth Reference Projection",
+  "projection_notes": [
+    "declares downstream procedural-depth contract ids only",
+    "starter slice keeps V44 as doctrinal constraint only"
+  ],
+  "projection_validity_posture": "Projection validity is bounded to deterministic fixture replay over declared starter cases only.",
+  "schema": "adeu_benchmark_projection_spec@1",
+  "target_capability_axes": [
+    "active_step_compilation_fidelity",
+    "plan_spine_fidelity",
+    "reintegration_fidelity"
+  ],
+  "target_subject_under_test_classes": [
+    "base_model",
+    "prompted_model",
+    "routed_runtime"
+  ]
+}
