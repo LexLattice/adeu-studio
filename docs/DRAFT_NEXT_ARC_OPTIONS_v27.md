@@ -115,12 +115,13 @@ Planning relationship:
 - Recommended decomposition reference:
   - `docs/LOCKED_CONTINUATION_vNEXT_PLUS132.md`
 - Recommended next path for this branch:
-  - `V44-B`
+  - `V44-C`
 - Recommended next concrete arc for this branch if selected:
-  - `vNext+132`
+  - `vNext+133`
 - Default path selection for this branch:
-  - select `V44-B` as the next default candidate
-  - keep that starter bounded to taxonomy-first structural-failure normalization only
+  - select `V44-C` as the next default candidate
+  - keep that starter bounded to paired-condition differential diagnosis only, still
+    prior to benchmark scoring or strong profile promotion
 
 This family/path recommendation is branch-local to the `v27` planning surface.
 
@@ -179,7 +180,7 @@ The current recommended path ladder is:
 | Path | Theme | Primary output | Status |
 |---|---|---|---|
 | `V44-A` | template probe + structural trace substrate | candidate `adeu_reasoning_template_probe@1` and candidate `adeu_structural_reasoning_trace@1` | planned |
-| `V44-B` | normalized failure taxonomy only | candidate `adeu_structural_failure_taxonomy@1` with blocked preserved as non-failure and no profile promotion posture | planned |
+| `V44-B` | normalized failure taxonomy only | candidate `adeu_structural_failure_taxonomy@1` with blocked preserved as non-failure and no profile promotion posture | closed_on_main |
 | `V44-C` | paired-condition differential diagnosis + provisional profile lane | knowledge-vs-procedure assay posture over bounded probe suites plus explicitly pre-differential model profile aggregation | planned |
 | `V44-D` | probe-library widening across template classes | expanded bounded probe library over decomposition, branching, repair, and invariance classes | planned |
 | `V44-E` | recursive-depth / structural-extension assessment seam | bounded recursive-closure assessment surfaces, still prior to SRM release | planned_later |
@@ -274,6 +275,8 @@ Normalized taxonomy lane:
 - explicit non-equivalence between task score and structural reasoning fidelity;
 - explicit rejection of one-number overclaim posture.
 
+This path is now closed on `main`.
+
 ### `V44-C`
 
 Differential diagnosis lane:
@@ -293,6 +296,26 @@ Probe-library widening lane:
 - broader coverage across template classes;
 - controlled surface-variation and local-repair suites;
 - richer termination and closure diagnostics without widening yet into SRM architecture.
+
+## Completed Second-Slice Boundary (`V44-B`)
+
+`V44-B` stayed bounded to:
+
+- one normalized structural-failure taxonomy contract only;
+- one deterministic taxonomy helper only;
+- released `V44-A` probe/trace consumption only;
+- explicit blocked-versus-invalid posture preservation only;
+- explicit hierarchy-aware starter normalization only;
+- deterministic local fixtures and mapping-matrix evidence only.
+
+It did not attempt:
+
+- paired-condition diagnosis;
+- supplied-versus-withheld condition comparison;
+- injected-knowledge continuation doctrine;
+- model-profile aggregation or model ranking;
+- benchmark scoring or benchmark-family projection;
+- any one-number structural-fidelity score.
 
 ### `V44-E`
 
@@ -369,16 +392,16 @@ are:
   "branch_candidate_status": "selected_for_v27_planning_surface_not_repo_wide_family_selection",
   "connected_family_not_reopened_here": "V43",
   "closed_current_family_paths": [
-    "V44-A"
+    "V44-A",
+    "V44-B"
   ],
   "planned_current_family_paths": [
-    "V44-B",
     "V44-C",
     "V44-D",
     "V44-E"
   ],
-  "default_next_arc_candidate_for_this_branch": "V44-B",
-  "default_next_concrete_arc_candidate_for_this_branch": "vNext+132",
+  "default_next_arc_candidate_for_this_branch": "V44-C",
+  "default_next_concrete_arc_candidate_for_this_branch": "vNext+133",
   "family_architecture_doc": "docs/DRAFT_STRUCTURAL_REASONING_ASSESSMENT_SPEC_v0.md",
   "family_decomposition_doc": "docs/LOCKED_CONTINUATION_vNEXT_PLUS132.md",
   "planned_family_packages": [
