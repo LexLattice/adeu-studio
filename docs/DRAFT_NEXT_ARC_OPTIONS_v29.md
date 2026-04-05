@@ -37,7 +37,7 @@ Interpretive doctrine for this planning surface:
 - `V39-A` through `V39-E` are closed on `main`.
 - `V40-A` through `V40-F` are closed on `main`.
 - `V41-A` through `V41-F` are closed on `main`.
-- `vNext+135` is the current baseline implementation state.
+- `vNext+136` is the current baseline implementation state.
 - `V42-A` through `V42-G4` are closed on `main`.
 - `V44-A` through `V44-E` are closed on `main`.
 - `docs/DRAFT_NEXT_ARC_OPTIONS_v25.md` is the authoritative planning record for the
@@ -49,6 +49,11 @@ Interpretive doctrine for this planning surface:
   `main`:
   - `V44`
   - ADEU structural reasoning assessment substrate
+- `V46-A` is now closed on `main`:
+  - benchmark family spec
+  - benchmark projection spec
+  - benchmark execution context
+  - benchmark validation report
 - `docs/DRAFT_NEXT_ARC_OPTIONS_v28.md` records one connected candidate family:
   - `V45`
   - ADEU repo self-description substrate
@@ -158,13 +163,13 @@ Planning relationship:
 - Recommended first projection reference:
   - `docs/DRAFT_PROCEDURAL_DEPTH_FIDELITY_BENCHMARK_SPEC_v0.md`
 - Recommended decomposition reference:
-  - `docs/LOCKED_CONTINUATION_vNEXT_PLUS136.md`
+  - `not_selected_yet`
 - Recommended next path for this branch:
-  - `V46-A`
+  - `V46-B`
 - Recommended next concrete arc for this branch if selected:
-  - `vNext+136`
+  - `vNext+137`
 - Default path selection for this branch:
-  - select `V46-A` as the next default candidate
+  - select `V46-B` as the next default candidate
 
 This family/path recommendation is branch-local to the `v29` planning surface.
 
@@ -256,7 +261,7 @@ The current recommended path ladder is:
 
 | Path | Theme | Primary output | Status |
 |---|---|---|---|
-| `V46-A` | benchmark substrate and validation lane | candidate `adeu_benchmark_family_spec@1`, candidate `adeu_benchmark_projection_spec@1`, candidate `adeu_benchmark_execution_context@1`, and candidate `adeu_benchmark_validation_report@1` | planned |
+| `V46-A` | benchmark substrate and validation lane | released `adeu_benchmark_family_spec@1`, released `adeu_benchmark_projection_spec@1`, released `adeu_benchmark_execution_context@1`, and released `adeu_benchmark_validation_report@1` | closed_on_main |
 | `V46-B` | Procedural Depth Fidelity first concrete projection | candidate `adeu_procedural_depth_instance@1`, candidate `adeu_procedural_depth_gold_trace@1`, candidate `adeu_procedural_depth_run_trace@1`, candidate `adeu_procedural_depth_metrics@1`, candidate `adeu_procedural_depth_diagnostic_report@1`, and tiny hierarchical reference chain | planned |
 | `V46-C` | Procedural Depth perturbation + non-regression widening | typed perturbation lanes plus candidate `procedural_depth_non_regression_report@1` | planned |
 | `V46-D` | benchmark projection library + cross-subject comparison widening | additional bounded benchmark projections and cross-subject comparison posture | planned |
@@ -270,70 +275,39 @@ If `V46-A` reveals that execution-context capture, validation burden, or reliabi
 semantics are weaker or noisier than expected, widening into later paths may need to
 pause, reorder, or narrow.
 
-## Recommended Next Path (`V46-A`)
+## Recommended Next Path (`V46-B`)
 
-Implement the bounded benchmark-substrate lane first.
+Implement the first concrete Procedural Depth Fidelity projection next.
 
-`V46-A` should introduce:
+`V46-B` should introduce:
 
-- one canonical bounded benchmark family-spec artifact:
-  - explicit benchmark purpose;
-  - explicit capability axes;
-  - explicit baseline regime and perturbation posture;
-  - explicit reliability and non-regression policy summaries only;
-  - explicit benchmark-output epistemic postures;
-- one canonical bounded benchmark projection-spec artifact:
-  - explicit projection identity;
-  - explicit subject-under-test typing posture;
-  - explicit projection validity and interpretation boundaries;
-  - explicit hierarchical/reintegration trace requirement flags when relevant;
-  - explicit declared downstream artifact-contract ids for the later projection lane;
-- one canonical bounded benchmark execution-context artifact:
-  - subject identity and version;
-  - prompt or wrapper identity when applicable;
-  - tool availability;
-  - context-budget posture;
-  - determinism or stochasticity posture;
-  - repo snapshot or source-surface identity when relevant;
-- one canonical bounded benchmark validation-report artifact:
-  - deterministic validation-case replay over a tiny reference fixture bundle;
-  - scorer determinism posture;
-  - benchmark limitations and non-promotional validation posture;
-  - bounded dominant-family vocabulary constrained by released `V44`, with
-    `clean_success` as the starter non-failure sentinel;
-- one tiny deterministic starter reference bundle sufficient to exercise:
-  - family spec;
-  - projection spec;
-  - execution context;
-  - validation report;
-  - dominant failure-family coverage for:
-    - clean success,
-    - horizontal plan-spine failure,
-    - vertical active-step compilation failure,
-    - reintegration failure,
-    - mixed failure support;
-- no released benchmark instance, run-trace, metrics, or diagnostic-report contracts
-  yet;
-- no widening yet into benchmark scoring, projection-library widening, or downstream
-  operational promotion.
+- one canonical bounded procedural-depth instance artifact;
+- one canonical bounded procedural-depth gold-trace artifact;
+- one canonical bounded procedural-depth run-trace artifact;
+- one canonical bounded procedural-depth metrics artifact;
+- one canonical bounded procedural-depth diagnostic-report artifact;
+- one tiny deterministic hierarchical reference chain over a bounded repo snapshot;
+- explicit reuse of the released `V46-A` family-spec, projection-spec, and
+  execution-context substrate instead of a second benchmark-substrate fork.
 
-`V46-A` is diagnostic-first and non-promotional:
+`V46-B` is still diagnostic-first and non-promotional:
 
-- it may emit bounded benchmark definitions, execution contexts, and validation reports;
+- it may emit the first concrete procedural-depth benchmark artifacts;
 - it may not yet emit routing authority, role-assignment authority, model-promotion
-  authority, or training entitlement.
+  authority, training entitlement, or cross-subject ranking surfaces;
+- it may not yet widen into perturbation/non-regression or benchmark-library seams
+  that belong to later `V46` paths.
 
 ## Why This Path
 
-- It is the narrowest safe consumer of the benchmarking-module seed.
+- It is the narrowest safe concrete consumer of the now-released benchmark substrate.
 - It preserves the parent/child distinction between benchmark substrate and the first
-  concrete procedural-depth projection rather than collapsing doctrine into the
-  imported prototype's partial package shape.
-- It establishes execution-context, reliability, and benchmark-self-validation posture
-  before any released instance, run-trace, metrics, or diagnostic artifacts are made.
-- It creates the reusable measurement layer needed before Procedural Depth Fidelity or
-  later projections are widened into concrete scoring surfaces.
-- It prevents the family from collapsing immediately into stealth leaderboard logic,
+  concrete procedural-depth projection rather than reopening doctrine that `V46-A`
+  already shipped.
+- It creates the first real benchmark artifact stack while still deferring
+  perturbation, non-regression, cross-subject comparison, and downstream consumer
+  widening.
+- It keeps the family from collapsing immediately into stealth leaderboard logic,
   model-ranking overclaim, or operational promotion from diagnostics.
 
 ## First-Slice Boundary (`V46-A`)
@@ -466,7 +440,7 @@ are:
 {
   "schema": "next_arc_planning_baseline@1",
   "source_baseline_doc": "docs/DRAFT_NEXT_ARC_OPTIONS_v28.md",
-  "baseline_arc": "vNext+135",
+  "baseline_arc": "vNext+136",
   "closed_prior_families": [
     "V41",
     "V42"
@@ -484,19 +458,20 @@ are:
     "V44",
     "V45"
   ],
-  "closed_current_family_paths": [],
+  "closed_current_family_paths": [
+    "V46-A"
+  ],
   "planned_current_family_paths": [
-    "V46-A",
     "V46-B",
     "V46-C",
     "V46-D",
     "V46-E"
   ],
-  "default_next_arc_candidate_for_this_branch": "V46-A",
-  "default_next_concrete_arc_candidate_for_this_branch": "vNext+136",
+  "default_next_arc_candidate_for_this_branch": "V46-B",
+  "default_next_concrete_arc_candidate_for_this_branch": "vNext+137",
   "family_architecture_doc": "docs/DRAFT_BENCHMARKING_META_MODULE_SPEC_v0.md",
   "first_projection_seed_doc": "docs/DRAFT_PROCEDURAL_DEPTH_FIDELITY_BENCHMARK_SPEC_v0.md",
-  "family_decomposition_doc": "docs/LOCKED_CONTINUATION_vNEXT_PLUS136.md",
+  "family_decomposition_doc": "not_selected_yet",
   "pre_lock_companion_docs_expected": [
     "docs/DRAFT_BENCHMARK_FAMILY_DECOMPOSITION_v0.md",
     "docs/DRAFT_BENCHMARK_ARTIFACT_SURFACES_v0.md"
@@ -519,14 +494,14 @@ are:
   "execution_context_capture_required": true,
   "diagnostic_first_output_posture_required": true,
   "benchmark_output_epistemic_postures_required": true,
-  "v46a_benchmark_family_spec_required": true,
-  "v46a_benchmark_projection_spec_required": true,
-  "v46a_benchmark_execution_context_required": true,
-  "v46a_benchmark_validation_report_required": true,
-  "v46a_benchmark_instance_spec_deferred_to_v46b": true,
-  "v46a_benchmark_run_trace_deferred_to_v46b": true,
-  "v46a_benchmark_metrics_report_deferred_to_v46b": true,
-  "v46a_benchmark_diagnostic_report_deferred_to_v46b": true,
+  "v46a_benchmark_family_spec_released_on_main": true,
+  "v46a_benchmark_projection_spec_released_on_main": true,
+  "v46a_benchmark_execution_context_released_on_main": true,
+  "v46a_benchmark_validation_report_released_on_main": true,
+  "v46b_benchmark_instance_spec_selected_next": true,
+  "v46b_benchmark_run_trace_selected_next": true,
+  "v46b_benchmark_metrics_report_selected_next": true,
+  "v46b_benchmark_diagnostic_report_selected_next": true,
   "v46a_projection_declares_future_contract_ids_only": true,
   "v46a_minimal_operational_reliability_policy_required": true,
   "v46a_tiny_reference_fixture_bundle_required": true,
