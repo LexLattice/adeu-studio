@@ -1243,41 +1243,6 @@ class ReasoningProbeSuite(BaseModel):
             self, "accepted_surface_variation_kinds", normalized_variation_kinds
         )
 
-        per_class_counts = {
-            template_class: sum(
-                1 for member in normalized_members if member.template_class == template_class
-            )
-            for template_class in TEMPLATE_CLASS_VOCABULARY
-        }
-        if any(count < 1 for count in per_class_counts.values()):
-            raise ValueError(
-                "suite_members must include at least one member for each "
-                "template_class"
-            )
-
-        per_variation_counts = {
-            kind: sum(
-                1
-                for member in normalized_members
-                if member.surface_variation_kind == kind
-            )
-            for kind in SURFACE_VARIATION_KIND_VOCABULARY
-        }
-        if any(count < 1 for count in per_variation_counts.values()):
-            raise ValueError(
-                "suite_members must include at least one invariance member "
-                "for each surface_variation_kind"
-            )
-
-        if self.repair_locality_posture != "local_only":
-            raise ValueError("V44-D suite repair_locality_posture must remain local_only")
-
-        if not any(
-            member.template_class == "local_repair_continuation"
-            for member in normalized_members
-        ):
-            raise ValueError("suite_members must include a local_repair_continuation member")
-
         expected_suite_hash = compute_probe_suite_hash(_probe_suite_id_basis_from_model(self))
         if self.suite_hash != expected_suite_hash:
             raise ValueError("suite_hash must match canonical probe-suite hash subject")

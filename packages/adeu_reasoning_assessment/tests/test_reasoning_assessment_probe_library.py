@@ -223,6 +223,29 @@ def test_non_local_repair_probe_fails_closed() -> None:
         )
 
 
+def test_unknown_surface_variation_kind_fails_closed() -> None:
+    probe = ReasoningTemplateProbe.model_validate(
+        _load_json(
+            V44D_FIXTURE_ROOT,
+            "reference_reasoning_template_probe_invariance_paraphrase.json",
+        )
+    )
+
+    with pytest.raises(ValueError, match="unsupported surface_variation_kind"):
+        build_reasoning_probe_suite(
+            suite_label="reject_unknown_surface_variation_kind",
+            member_specs=[
+                ProbeSuiteMemberSpec(
+                    probe=probe,
+                    surface_variation_kind="presentation_shift",  # type: ignore[arg-type]
+                    consumer_compatibility_refs=supported_consumer_compatibility_refs(
+                        paired_condition_compatible=False
+                    ),
+                )
+            ],
+        )
+
+
 def test_suite_matrix_covers_all_classes_and_variation_kinds() -> None:
     payload = _load_json(V44D_FIXTURE_ROOT, "reference_v44d_suite_matrix.json")
     assert isinstance(payload, dict)

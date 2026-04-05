@@ -155,7 +155,7 @@ def _surface_variation_order(value: SurfaceVariationKind | None) -> tuple[int, i
         "paraphrase_preserving": 0,
         "presentation_shift_preserving": 1,
     }
-    return (1, order[value], value)
+    return (1, order.get(value, len(order)), value)
 
 
 def _all_constraints(probe: ReasoningTemplateProbe) -> set[str]:
@@ -180,6 +180,12 @@ def _assert_invariance_probe(
 ) -> None:
     if surface_variation_kind is None:
         raise ValueError("invariance suite members require surface_variation_kind")
+
+    if surface_variation_kind not in {
+        "paraphrase_preserving",
+        "presentation_shift_preserving",
+    }:
+        raise ValueError("unsupported surface_variation_kind for V44-D invariance member")
 
     constraints = _all_constraints(probe)
     if PROCEDURE_PRESERVATION_REQUIRED not in constraints:
