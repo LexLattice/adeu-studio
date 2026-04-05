@@ -163,7 +163,7 @@ Planning relationship:
 - Recommended first projection reference:
   - `docs/DRAFT_PROCEDURAL_DEPTH_FIDELITY_BENCHMARK_SPEC_v0.md`
 - Recommended decomposition reference:
-  - `not_selected_yet`
+  - `docs/LOCKED_CONTINUATION_vNEXT_PLUS137.md`
 - Recommended next path for this branch:
   - `V46-B`
 - Recommended next concrete arc for this branch if selected:
@@ -288,7 +288,15 @@ Implement the first concrete Procedural Depth Fidelity projection next.
 - one canonical bounded procedural-depth diagnostic-report artifact;
 - one tiny deterministic hierarchical reference chain over a bounded repo snapshot;
 - explicit reuse of the released `V46-A` family-spec, projection-spec, and
-  execution-context substrate instead of a second benchmark-substrate fork.
+  execution-context substrate instead of a second benchmark-substrate fork;
+- one event-anchored scoring law with:
+  - trace-qualified supporting event refs
+  - exact starter terminal-status vocabulary
+  - exact starter boolean component fidelities for:
+    - `plan_spine_fidelity`
+    - `active_step_compilation_fidelity`
+    - `reintegration_fidelity`
+  - dominant-family derivation from that frozen boolean component pattern.
 
 `V46-B` is still diagnostic-first and non-promotional:
 
@@ -310,23 +318,28 @@ Implement the first concrete Procedural Depth Fidelity projection next.
 - It keeps the family from collapsing immediately into stealth leaderboard logic,
   model-ranking overclaim, or operational promotion from diagnostics.
 
-## First-Slice Boundary (`V46-A`)
+## Next-Slice Boundary (`V46-B`)
 
-`V46-A` should stay bounded to:
+`V46-B` should stay bounded to:
 
-- benchmark family definition only;
-- benchmark projection definition only;
-- execution-context capture only;
-- benchmark validation-report substrate only;
-- one tiny deterministic reference fixture bundle only;
-- policy-declarative reliability and non-regression summaries only;
-- one minimal operational reliability policy for that tiny fixture bundle only;
+- one concrete Procedural Depth Fidelity projection only;
+- one repo-owned procedural-depth implementation surface only inside
+  `packages/adeu_benchmarking`;
+- one tiny deterministic hierarchical `3x3` reference chain only over a bounded repo
+  snapshot;
+- one released instance contract only;
+- one released gold-trace contract only;
+- one released run-trace contract only;
+- one released metrics contract only;
+- one released diagnostic-report contract only;
+- explicit reuse of the released `V46-A` family spec, projection spec, and
+  execution-context substrate only;
 - explicit diagnostic-first interpretation posture only.
 
 It should not attempt:
 
-- released Procedural Depth Fidelity instance, trace, metrics, or diagnostic artifacts;
-- broad benchmark library release;
+- perturbation or non-regression widening;
+- broader benchmark-library release;
 - broad cross-model or cross-system leaderboarding;
 - routing or role-fit promotion;
 - training or distillation entitlement;
@@ -340,11 +353,13 @@ It should not attempt:
 
 Procedural Depth Fidelity baseline lane:
 
-- candidate `procedural_depth_family_spec@1`;
-- candidate `procedural_depth_projection_spec@1`;
-- candidate `procedural_depth_instance@1`;
-- candidate `procedural_depth_gold_trace@1`;
-- tiny `Linear-20` and `Linear-50` reference families over a bounded repo snapshot.
+- released `adeu_procedural_depth_instance@1`;
+- released `adeu_procedural_depth_gold_trace@1`;
+- released `adeu_procedural_depth_run_trace@1`;
+- released `adeu_procedural_depth_metrics@1`;
+- released `adeu_procedural_depth_diagnostic_report@1`;
+- one tiny deterministic hierarchical `3x3` reference chain over a bounded repo
+  snapshot.
 
 ### `V46-C`
 
@@ -384,9 +399,9 @@ The first planning pass should assume one primary family package:
 
 - `packages/adeu_benchmarking`
 
-The first slice should assume:
+The next slice should assume:
 
-- `packages/adeu_benchmarking` is the only active implementation package for `V46-A`.
+- `packages/adeu_benchmarking` is the only active implementation package for `V46-B`.
 
 This package-ownership assumption is provisional and subordinate to the later `V46`
 decomposition draft.
@@ -471,7 +486,7 @@ are:
   "default_next_concrete_arc_candidate_for_this_branch": "vNext+137",
   "family_architecture_doc": "docs/DRAFT_BENCHMARKING_META_MODULE_SPEC_v0.md",
   "first_projection_seed_doc": "docs/DRAFT_PROCEDURAL_DEPTH_FIDELITY_BENCHMARK_SPEC_v0.md",
-  "family_decomposition_doc": "not_selected_yet",
+  "family_decomposition_doc": "docs/LOCKED_CONTINUATION_vNEXT_PLUS137.md",
   "pre_lock_companion_docs_expected": [
     "docs/DRAFT_BENCHMARK_FAMILY_DECOMPOSITION_v0.md",
     "docs/DRAFT_BENCHMARK_ARTIFACT_SURFACES_v0.md"
@@ -502,6 +517,7 @@ are:
   "v46b_benchmark_run_trace_selected_next": true,
   "v46b_benchmark_metrics_report_selected_next": true,
   "v46b_benchmark_diagnostic_report_selected_next": true,
+  "v46b_tiny_hierarchical_reference_chain_selected_next": true,
   "v46a_projection_declares_future_contract_ids_only": true,
   "v46a_minimal_operational_reliability_policy_required": true,
   "v46a_tiny_reference_fixture_bundle_required": true,
