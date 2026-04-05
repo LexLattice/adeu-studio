@@ -1,0 +1,198 @@
+{
+  "$defs": {
+    "StructuralBreakRecord": {
+      "additionalProperties": false,
+      "properties": {
+        "break_ref": {
+          "title": "Break Ref",
+          "type": "string"
+        },
+        "break_tags": {
+          "items": {
+            "type": "string"
+          },
+          "minItems": 1,
+          "title": "Break Tags",
+          "type": "array"
+        },
+        "detail": {
+          "title": "Detail",
+          "type": "string"
+        },
+        "lane_ref": {
+          "anyOf": [
+            {
+              "enum": [
+                "O",
+                "E",
+                "D",
+                "U"
+              ],
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Lane Ref"
+        },
+        "step_ref": {
+          "title": "Step Ref",
+          "type": "string"
+        },
+        "supporting_event_indexes": {
+          "items": {
+            "type": "integer"
+          },
+          "minItems": 1,
+          "title": "Supporting Event Indexes",
+          "type": "array"
+        }
+      },
+      "required": [
+        "break_ref",
+        "step_ref",
+        "break_tags",
+        "supporting_event_indexes",
+        "detail"
+      ],
+      "title": "StructuralBreakRecord",
+      "type": "object"
+    },
+    "StructuralReasoningTraceEvent": {
+      "additionalProperties": false,
+      "properties": {
+        "break_tags": {
+          "items": {
+            "type": "string"
+          },
+          "title": "Break Tags",
+          "type": "array"
+        },
+        "event_index": {
+          "minimum": 0,
+          "title": "Event Index",
+          "type": "integer"
+        },
+        "event_kind": {
+          "enum": [
+            "step_activate",
+            "step_complete",
+            "branch_select",
+            "blocked",
+            "invalid_early_closure",
+            "repair_enter",
+            "repair_exit",
+            "return_to_parent"
+          ],
+          "title": "Event Kind",
+          "type": "string"
+        },
+        "lane_ref": {
+          "anyOf": [
+            {
+              "enum": [
+                "O",
+                "E",
+                "D",
+                "U"
+              ],
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Lane Ref"
+        },
+        "step_ref": {
+          "title": "Step Ref",
+          "type": "string"
+        },
+        "target_step_ref": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Target Step Ref"
+        }
+      },
+      "required": [
+        "event_index",
+        "event_kind",
+        "step_ref"
+      ],
+      "title": "StructuralReasoningTraceEvent",
+      "type": "object"
+    }
+  },
+  "additionalProperties": false,
+  "properties": {
+    "open_questions": {
+      "items": {
+        "type": "string"
+      },
+      "title": "Open Questions",
+      "type": "array"
+    },
+    "probe_ref": {
+      "title": "Probe Ref",
+      "type": "string"
+    },
+    "schema": {
+      "const": "adeu_structural_reasoning_trace@1",
+      "default": "adeu_structural_reasoning_trace@1",
+      "title": "Schema",
+      "type": "string"
+    },
+    "structural_breaks": {
+      "items": {
+        "$ref": "#/$defs/StructuralBreakRecord"
+      },
+      "title": "Structural Breaks",
+      "type": "array"
+    },
+    "subject_label": {
+      "title": "Subject Label",
+      "type": "string"
+    },
+    "terminal_trace_status": {
+      "enum": [
+        "completed_clean",
+        "completed_with_structural_break",
+        "blocked",
+        "invalid_early_closure"
+      ],
+      "title": "Terminal Trace Status",
+      "type": "string"
+    },
+    "trace_events": {
+      "items": {
+        "$ref": "#/$defs/StructuralReasoningTraceEvent"
+      },
+      "minItems": 1,
+      "title": "Trace Events",
+      "type": "array"
+    },
+    "trace_id": {
+      "title": "Trace Id",
+      "type": "string"
+    }
+  },
+  "required": [
+    "trace_id",
+    "probe_ref",
+    "subject_label",
+    "trace_events",
+    "terminal_trace_status"
+  ],
+  "title": "StructuralReasoningTrace",
+  "type": "object"
+}
