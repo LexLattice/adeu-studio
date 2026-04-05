@@ -165,9 +165,14 @@ This slice should not add:
   - `differential_status = paired_conditions_complete`
   - the admitted pair does not satisfy the frozen laws for
     `knowledge_deficit_supported` or `procedural_discipline_deficit_supported`
+  - the admitted pair is not the starter underdetermined complete pattern frozen for
+    `paired_condition_insufficient`
 - `paired_condition_insufficient` is lawful only when:
   - the starter pair is incomplete, incompatible, or complete but still too
     underdetermined to support a stronger judgment
+  - the only admitted complete underdetermined starter pattern is:
+    - supplied `taxonomy_status = blocked_lawful_insufficiency`
+    - withheld `taxonomy_status = blocked_lawful_insufficiency`
 - `paired_conditions_incomplete` may emit only:
   - `paired_condition_insufficient`
 - `paired_conditions_incompatible` may emit only:
