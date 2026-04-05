@@ -1,6 +1,6 @@
 # Assessment vNext+133 Edges
 
-Status: planning-edge assessment for `V44-C`.
+Status: post-closeout edge assessment for `V44-C` (April 5, 2026 UTC).
 
 ## Assessment-State Marker (Machine-Checkable)
 
@@ -8,8 +8,8 @@ Status: planning-edge assessment for `V44-C`.
 {
   "schema": "assessment_artifact_state@1",
   "artifact": "docs/ASSESSMENT_vNEXT_PLUS133_EDGES.md",
-  "phase": "pre_lock_assessment",
-  "authoritative": false,
+  "phase": "post_closeout_assessment",
+  "authoritative": true,
   "required_in_decision": true
 }
 ```
@@ -24,6 +24,9 @@ Status: planning-edge assessment for `V44-C`.
 - Response:
   keep `V44-C` differential-first only and forbid profile artifacts, rankings, and
   one-number outputs in the starter slice.
+- Closeout Evidence:
+  the shipped schema/package surface carries differential diagnosis only, with no
+  profile, ranking, benchmark, or one-number summary fields.
 
 ### Edge 2: Knowledge Deficit Is Claimed Without A Real Pair
 
@@ -33,6 +36,10 @@ Status: planning-edge assessment for `V44-C`.
 - Response:
   require released paired-condition compatibility posture and the full starter
   supplied/withheld pair before any strong differential judgment is lawful.
+- Closeout Evidence:
+  the shipped helper rejects missing required starter roles, requires released paired
+  compatibility anchors, and exercises the supplied-versus-withheld starter law
+  directly in the committed reference fixtures.
 
 ### Edge 3: Pair Semantics Become Implementation Taste
 
@@ -42,6 +49,10 @@ Status: planning-edge assessment for `V44-C`.
 - Response:
   bind pairing law to released `V44-A` compatibility anchors and fail closed on
   incompatible or incomplete pairs.
+- Closeout Evidence:
+  `differential.py` consumes only released probe compatibility posture and released
+  taxonomy outputs, while the reject incompatible-pair fixture and mapping matrix keep
+  the starter law explicit.
 
 ### Edge 3A: Pair-Level Evidence Refs Stay Ambiguous
 
@@ -51,6 +62,10 @@ Status: planning-edge assessment for `V44-C`.
 - Response:
   require trace-qualified supporting event refs in the released artifact so every
   supporting event is anchored to one condition role and one trace.
+- Closeout Evidence:
+  the released artifact ships `supporting_trace_event_refs` with explicit
+  `condition_role`, `trace_ref`, and `event_index`, and all starter reference
+  differentials validate under that shape.
 
 ### Edge 4: `paired_condition_insufficient` Hides Real Structural Failure
 
@@ -61,6 +76,10 @@ Status: planning-edge assessment for `V44-C`.
   keep strong judgments available whenever supplied/withheld evidence is strong enough,
   and use `paired_condition_insufficient` only for incomplete, incompatible, or
   materially underdetermined pairs.
+- Closeout Evidence:
+  the starter fixture set now includes a positive lawful
+  `paired_condition_insufficient` reference pair, while strong starter judgments remain
+  separately exercised by their own reference pairs.
 
 ### Edge 4A: Status/Judgment Coupling Stays Implicit
 
@@ -72,6 +91,9 @@ Status: planning-edge assessment for `V44-C`.
   freeze the coupling explicitly so incomplete/incompatible pairs may emit only
   `paired_condition_insufficient`, while strong and ambiguous judgments require
   complete starter pairs.
+- Closeout Evidence:
+  the released helper/model law enforces incomplete/incompatible-to-insufficient
+  coupling, and the starter judgment mapping tests cover those boundaries explicitly.
 
 ### Edge 5: `V46` Benchmark Projection Bleeds Upstream
 
@@ -81,6 +103,9 @@ Status: planning-edge assessment for `V44-C`.
 - Response:
   keep `V44-C` as a released substrate consumer of `V44-A` and `V44-B` only, with
   `V46` remaining a later consumer of the differential surface.
+- Closeout Evidence:
+  the shipped package surface contains no benchmark-instance, benchmark-score, or
+  benchmarking-family projections; `V46` remains planning/support context only.
 
 ### Edge 6: External Bundle Becomes Silent Pairing Authority
 
@@ -90,6 +115,10 @@ Status: planning-edge assessment for `V44-C`.
 - Response:
   use the external bundle only as support evidence, and re-author pair law from the
   released `V44-A` / `V44-B` contracts and committed fixtures.
+- Closeout Evidence:
+  live implementation ownership is entirely under
+  `packages/adeu_reasoning_assessment`, while the benchmarking bundle remains
+  normalized under `examples/external_prototypes/...` and non-precedent.
 
 ### Edge 7: Optional Injected-Knowledge Evidence Widens The Slice
 
@@ -100,17 +129,22 @@ Status: planning-edge assessment for `V44-C`.
 - Response:
   allow injected-knowledge evidence only as bounded support that cannot override the
   starter pair law by itself.
+- Closeout Evidence:
+  the released contract keeps injected knowledge optional and non-overriding, and no
+  starter judgment may be upgraded solely from injected-knowledge support.
 
 ## Current Judgment
 
-- `V44-C` is the right next move because the family now has both the assessment object
-  (`V44-A`) and the normalized failure substrate (`V44-B`) needed for bounded
+- `V44-C` was the right next move because the family already had both the assessment
+  object (`V44-A`) and the normalized failure substrate (`V44-B`) needed for bounded
   knowledge-versus-procedure diagnosis.
-- the slice should remain narrow and differential-first:
+- the shipped result remains properly bounded:
+  - one repo-owned package
   - one differential schema
   - one deterministic pair helper
   - deterministic starter pair fixtures
+  - trace-qualified evidence refs
   - no profile aggregation
   - no benchmark projection
-- if the implementation stays that narrow, it should prepare later profile work
-  without letting the differential lane overclaim as model ranking.
+- `V44-D` is now the right next path because the pair-level diagnostic seam exists
+  without overclaiming as profile, ranking, or benchmark scoring.
