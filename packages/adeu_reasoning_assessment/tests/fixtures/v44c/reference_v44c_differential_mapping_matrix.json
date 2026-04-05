@@ -1,0 +1,29 @@
+{
+  "fixtures": [
+    {
+      "differential_fixture_name": "reference_structural_reasoning_differential_knowledge_deficit.json",
+      "expected_differential_judgment": "knowledge_deficit_supported",
+      "expected_differential_status": "paired_conditions_complete",
+      "input_fixture_name": "reference_differential_input_knowledge_deficit.json"
+    },
+    {
+      "differential_fixture_name": "reference_structural_reasoning_differential_procedural_discipline_deficit.json",
+      "expected_differential_judgment": "procedural_discipline_deficit_supported",
+      "expected_differential_status": "paired_conditions_complete",
+      "input_fixture_name": "reference_differential_input_procedural_discipline_deficit.json"
+    },
+    {
+      "differential_fixture_name": "reference_structural_reasoning_differential_mixed_or_ambiguous.json",
+      "expected_differential_judgment": "mixed_or_ambiguous",
+      "expected_differential_status": "paired_conditions_complete",
+      "input_fixture_name": "reference_differential_input_mixed_or_ambiguous.json"
+    },
+    {
+      "differential_fixture_name": "reference_structural_reasoning_differential_paired_condition_insufficient.json",
+      "expected_differential_judgment": "paired_condition_insufficient",
+      "expected_differential_status": "paired_conditions_complete",
+      "input_fixture_name": "reference_differential_input_paired_condition_insufficient.json"
+    }
+  ],
+  "schema": "v44c_differential_mapping_matrix@1"
+}

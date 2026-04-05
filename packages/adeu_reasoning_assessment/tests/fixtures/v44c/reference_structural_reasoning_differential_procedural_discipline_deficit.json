@@ -1,0 +1,36 @@
+{
+  "condition_roles_present": [
+    "supplied_knowledge",
+    "withheld_knowledge"
+  ],
+  "condition_taxonomy_refs": {
+    "supplied_knowledge": "reasoning_taxonomy:59fcae4352c4b37d",
+    "withheld_knowledge": "reasoning_taxonomy:cb8995df0f239070"
+  },
+  "condition_trace_refs": {
+    "supplied_knowledge": "reasoning_trace:3b06b3d400331bf0",
+    "withheld_knowledge": "reasoning_trace:4aca6f382a345876"
+  },
+  "differential_id": "reasoning_differential:9da98b16f743b585",
+  "differential_judgment": "procedural_discipline_deficit_supported",
+  "differential_status": "paired_conditions_complete",
+  "open_questions": [],
+  "probe_template_ref": "reasoning_probe_template:v44c.hier_pair",
+  "schema": "adeu_structural_reasoning_differential@1",
+  "supporting_failure_families": [
+    "active_step_decomposition_failure",
+    "plan_spine_drift"
+  ],
+  "supporting_trace_event_refs": [
+    {
+      "condition_role": "supplied_knowledge",
+      "event_index": 8,
+      "trace_ref": "reasoning_trace:3b06b3d400331bf0"
+    },
+    {
+      "condition_role": "withheld_knowledge",
+      "event_index": 9,
+      "trace_ref": "reasoning_trace:4aca6f382a345876"
+    }
+  ]
+}

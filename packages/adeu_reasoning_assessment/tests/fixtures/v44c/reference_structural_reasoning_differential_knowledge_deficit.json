@@ -1,0 +1,24 @@
+{
+  "condition_roles_present": [
+    "supplied_knowledge",
+    "withheld_knowledge"
+  ],
+  "condition_taxonomy_refs": {
+    "supplied_knowledge": "reasoning_taxonomy:d9859351443fcad7",
+    "withheld_knowledge": "reasoning_taxonomy:dfb9f630f2ee7185"
+  },
+  "condition_trace_refs": {
+    "supplied_knowledge": "reasoning_trace:d1fa37e9dcb3f13c",
+    "withheld_knowledge": "reasoning_trace:df7bd18fc3320c4c"
+  },
+  "differential_id": "reasoning_differential:7c28510da1841e85",
+  "differential_judgment": "knowledge_deficit_supported",
+  "differential_status": "paired_conditions_complete",
+  "open_questions": [
+    "Missing authoritative observation needed to advance assemble_claim."
+  ],
+  "probe_template_ref": "reasoning_probe_template:v44c.flat_pair",
+  "schema": "adeu_structural_reasoning_differential@1",
+  "supporting_failure_families": [],
+  "supporting_trace_event_refs": []
+}

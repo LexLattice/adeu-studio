@@ -8,6 +8,7 @@ from urm_runtime.hashing import canonical_json, sha256_canonical_json
 ADEU_REASONING_TEMPLATE_PROBE_SCHEMA = "adeu_reasoning_template_probe@1"
 ADEU_STRUCTURAL_REASONING_TRACE_SCHEMA = "adeu_structural_reasoning_trace@1"
 ADEU_STRUCTURAL_FAILURE_TAXONOMY_SCHEMA = "adeu_structural_failure_taxonomy@1"
+ADEU_STRUCTURAL_REASONING_DIFFERENTIAL_SCHEMA = "adeu_structural_reasoning_differential@1"
 
 LANE_ORDER = ("O", "E", "D", "U")
 TEMPLATE_CLASS_VOCABULARY = (
@@ -44,6 +45,22 @@ FAILURE_FAMILY_VOCABULARY = (
     "reintegration_failure",
     "invalid_early_closure",
     "non_local_repair_drift",
+)
+CONDITION_ROLE_VOCABULARY = (
+    "supplied_knowledge",
+    "withheld_knowledge",
+    "injected_knowledge_continuation",
+)
+DIFFERENTIAL_STATUS_VOCABULARY = (
+    "paired_conditions_complete",
+    "paired_conditions_incomplete",
+    "paired_conditions_incompatible",
+)
+DIFFERENTIAL_JUDGMENT_VOCABULARY = (
+    "knowledge_deficit_supported",
+    "procedural_discipline_deficit_supported",
+    "mixed_or_ambiguous",
+    "paired_condition_insufficient",
 )
 
 MODEL_CONFIG = ConfigDict(extra="forbid", frozen=True, populate_by_name=True)
@@ -87,6 +104,22 @@ FailureFamily = Literal[
     "invalid_early_closure",
     "non_local_repair_drift",
 ]
+ConditionRole = Literal[
+    "supplied_knowledge",
+    "withheld_knowledge",
+    "injected_knowledge_continuation",
+]
+DifferentialStatus = Literal[
+    "paired_conditions_complete",
+    "paired_conditions_incomplete",
+    "paired_conditions_incompatible",
+]
+DifferentialJudgment = Literal[
+    "knowledge_deficit_supported",
+    "procedural_discipline_deficit_supported",
+    "mixed_or_ambiguous",
+    "paired_condition_insufficient",
+]
 
 
 def _assert_non_empty_text(value: str, *, field_name: str) -> str:
@@ -112,6 +145,35 @@ def _sorted_unique_ints(values: list[int], *, field_name: str) -> list[int]:
     if len(normalized) != len(set(normalized)):
         raise ValueError(f"{field_name} must be unique")
     return sorted(normalized)
+
+
+def _condition_role_sort_key(role: str) -> tuple[int, str]:
+    order = {value: index for index, value in enumerate(CONDITION_ROLE_VOCABULARY)}
+    return (order.get(role, len(order)), role)
+
+
+def _sorted_unique_condition_roles(
+    values: list[ConditionRole], *, field_name: str
+) -> list[ConditionRole]:
+    normalized = [
+        _assert_non_empty_text(value, field_name=field_name)  # type: ignore[arg-type]
+        for value in values
+    ]
+    if len(normalized) != len(set(normalized)):
+        raise ValueError(f"{field_name} must be unique")
+    return list(sorted(normalized, key=_condition_role_sort_key))  # type: ignore[return-value]
+
+
+def _canonical_condition_ref_map(
+    mapping: dict[ConditionRole, str], *, field_name: str
+) -> dict[ConditionRole, str]:
+    normalized: dict[ConditionRole, str] = {}
+    for role, ref in mapping.items():
+        normalized[role] = _assert_non_empty_text(ref, field_name=f"{field_name}.{role}")
+    return {
+        role: normalized[role]
+        for role in sorted(normalized, key=_condition_role_sort_key)
+    }
 
 
 def _canonical_step_sort_key(step: "ReasoningTemplateStep") -> tuple[int, int, str]:
@@ -186,6 +248,36 @@ def _taxonomy_id_basis_from_model(model: "StructuralFailureTaxonomy") -> dict[st
     }
 
 
+def _supporting_trace_event_ref_basis(
+    ref: "SupportingTraceEventRef",
+) -> dict[str, object]:
+    return {
+        "condition_role": ref.condition_role,
+        "trace_ref": ref.trace_ref,
+        "event_index": ref.event_index,
+    }
+
+
+def _differential_id_basis_from_model(
+    model: "StructuralReasoningDifferential",
+) -> dict[str, object]:
+    return {
+        "schema": model.schema,
+        "probe_template_ref": model.probe_template_ref,
+        "condition_trace_refs": model.condition_trace_refs,
+        "condition_taxonomy_refs": model.condition_taxonomy_refs,
+        "condition_roles_present": model.condition_roles_present,
+        "differential_status": model.differential_status,
+        "differential_judgment": model.differential_judgment,
+        "supporting_failure_families": model.supporting_failure_families,
+        "supporting_trace_event_refs": [
+            _supporting_trace_event_ref_basis(ref)
+            for ref in model.supporting_trace_event_refs
+        ],
+        "open_questions": model.open_questions,
+    }
+
+
 def compute_probe_id(basis: dict[str, object]) -> str:
     return f"reasoning_probe:{sha256_canonical_json(basis)[:16]}"
 
@@ -200,6 +292,10 @@ def compute_trace_id(basis: dict[str, object]) -> str:
 
 def compute_taxonomy_id(basis: dict[str, object]) -> str:
     return f"reasoning_taxonomy:{sha256_canonical_json(basis)[:16]}"
+
+
+def compute_differential_id(basis: dict[str, object]) -> str:
+    return f"reasoning_differential:{sha256_canonical_json(basis)[:16]}"
 
 
 class ReasoningTemplateStep(BaseModel):
@@ -726,6 +822,148 @@ class StructuralFailureTaxonomy(BaseModel):
         return self
 
 
+class SupportingTraceEventRef(BaseModel):
+    model_config = MODEL_CONFIG
+
+    condition_role: ConditionRole
+    trace_ref: str
+    event_index: int = Field(ge=0)
+
+    @model_validator(mode="after")
+    def _validate(self) -> "SupportingTraceEventRef":
+        object.__setattr__(
+            self, "trace_ref", _assert_non_empty_text(self.trace_ref, field_name="trace_ref")
+        )
+        return self
+
+
+class StructuralReasoningDifferential(BaseModel):
+    model_config = MODEL_CONFIG
+
+    schema_id: Literal[ADEU_STRUCTURAL_REASONING_DIFFERENTIAL_SCHEMA] = Field(
+        default=ADEU_STRUCTURAL_REASONING_DIFFERENTIAL_SCHEMA,
+        alias="schema",
+    )
+    differential_id: str
+    probe_template_ref: str
+    condition_trace_refs: dict[ConditionRole, str]
+    condition_taxonomy_refs: dict[ConditionRole, str]
+    condition_roles_present: list[ConditionRole] = Field(min_length=1)
+    differential_status: DifferentialStatus
+    differential_judgment: DifferentialJudgment
+    supporting_failure_families: list[FailureFamily] = Field(default_factory=list)
+    supporting_trace_event_refs: list[SupportingTraceEventRef] = Field(default_factory=list)
+    open_questions: list[str] = Field(default_factory=list)
+
+    @property
+    def schema(self) -> str:
+        return self.schema_id
+
+    @model_validator(mode="after")
+    def _validate(self) -> "StructuralReasoningDifferential":
+        object.__setattr__(
+            self,
+            "probe_template_ref",
+            _assert_non_empty_text(self.probe_template_ref, field_name="probe_template_ref"),
+        )
+        object.__setattr__(
+            self,
+            "condition_roles_present",
+            _sorted_unique_condition_roles(
+                self.condition_roles_present, field_name="condition_roles_present"
+            ),
+        )
+        object.__setattr__(
+            self,
+            "condition_trace_refs",
+            _canonical_condition_ref_map(
+                self.condition_trace_refs, field_name="condition_trace_refs"
+            ),
+        )
+        object.__setattr__(
+            self,
+            "condition_taxonomy_refs",
+            _canonical_condition_ref_map(
+                self.condition_taxonomy_refs, field_name="condition_taxonomy_refs"
+            ),
+        )
+        object.__setattr__(
+            self,
+            "supporting_failure_families",
+            _sorted_unique_texts(
+                self.supporting_failure_families,
+                field_name="supporting_failure_families",
+                sort_values=False,
+            ),
+        )
+        object.__setattr__(
+            self,
+            "open_questions",
+            _sorted_unique_texts(self.open_questions, field_name="open_questions"),
+        )
+
+        role_set = set(self.condition_roles_present)
+        if set(self.condition_trace_refs) != role_set:
+            raise ValueError(
+                "condition_trace_refs keys must match condition_roles_present exactly"
+            )
+        if set(self.condition_taxonomy_refs) != role_set:
+            raise ValueError(
+                "condition_taxonomy_refs keys must match condition_roles_present exactly"
+            )
+
+        if self.differential_status in (
+            "paired_conditions_incomplete",
+            "paired_conditions_incompatible",
+        ):
+            if self.differential_judgment != "paired_condition_insufficient":
+                raise ValueError(
+                    "incomplete or incompatible differential status may only emit "
+                    "paired_condition_insufficient"
+                )
+
+        if self.differential_judgment == "knowledge_deficit_supported":
+            if self.supporting_failure_families or self.supporting_trace_event_refs:
+                raise ValueError(
+                    "knowledge_deficit_supported may not carry supporting failure families "
+                    "or supporting trace event refs in the starter slice"
+                )
+
+        if self.differential_judgment == "paired_condition_insufficient":
+            if self.supporting_failure_families or self.supporting_trace_event_refs:
+                raise ValueError(
+                    "paired_condition_insufficient may not carry supporting failure "
+                    "families or supporting trace event refs"
+                )
+
+        seen_support_keys: set[tuple[ConditionRole, str, int]] = set()
+        for ref in self.supporting_trace_event_refs:
+            if ref.condition_role not in role_set:
+                raise ValueError(
+                    "supporting_trace_event_refs condition_role must be present in "
+                    "condition_roles_present"
+                )
+            expected_trace_ref = self.condition_trace_refs[ref.condition_role]
+            if ref.trace_ref != expected_trace_ref:
+                raise ValueError(
+                    "supporting_trace_event_refs trace_ref must match "
+                    "condition_trace_refs for the same condition_role"
+                )
+            key = (ref.condition_role, ref.trace_ref, ref.event_index)
+            if key in seen_support_keys:
+                raise ValueError("supporting_trace_event_refs must be unique")
+            seen_support_keys.add(key)
+
+        expected_differential_id = compute_differential_id(
+            _differential_id_basis_from_model(self)
+        )
+        if self.differential_id != expected_differential_id:
+            raise ValueError(
+                "differential_id must match canonical structural reasoning differential identity"
+            )
+        return self
+
+
 def validate_trace_against_probe(
     *,
     probe: ReasoningTemplateProbe,
@@ -822,12 +1060,17 @@ def validate_trace_against_probe(
 
 
 __all__ = [
+    "ADEU_STRUCTURAL_REASONING_DIFFERENTIAL_SCHEMA",
     "ADEU_STRUCTURAL_FAILURE_TAXONOMY_SCHEMA",
     "ADEU_REASONING_TEMPLATE_PROBE_SCHEMA",
     "ADEU_STRUCTURAL_REASONING_TRACE_SCHEMA",
+    "CONDITION_ROLE_VOCABULARY",
+    "DIFFERENTIAL_JUDGMENT_VOCABULARY",
+    "DIFFERENTIAL_STATUS_VOCABULARY",
     "FAILURE_FAMILY_VOCABULARY",
     "LANE_ORDER",
     "STRUCTURAL_FAILURE_TAXONOMY_STATUS_VOCABULARY",
+    "SupportingTraceEventRef",
     "TEMPLATE_CLASS_VOCABULARY",
     "TRACE_EVENT_VOCABULARY",
     "TERMINAL_TRACE_STATUS_VOCABULARY",
@@ -835,11 +1078,13 @@ __all__ = [
     "ReasoningAcceptancePosture",
     "ReasoningTemplateProbe",
     "ReasoningTemplateStep",
+    "StructuralReasoningDifferential",
     "StructuralFailureTaxonomy",
     "StructuralBreakRecord",
     "StructuralReasoningTrace",
     "StructuralReasoningTraceEvent",
     "canonical_json",
+    "compute_differential_id",
     "compute_probe_id",
     "compute_structural_break_ref",
     "compute_taxonomy_id",

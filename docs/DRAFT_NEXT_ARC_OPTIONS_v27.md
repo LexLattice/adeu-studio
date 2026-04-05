@@ -113,7 +113,7 @@ Planning relationship:
 - Recommended architecture reference:
   - `docs/DRAFT_STRUCTURAL_REASONING_ASSESSMENT_SPEC_v0.md`
 - Recommended decomposition reference:
-  - `docs/LOCKED_CONTINUATION_vNEXT_PLUS132.md`
+  - `docs/LOCKED_CONTINUATION_vNEXT_PLUS133.md`
 - Recommended next path for this branch:
   - `V44-C`
 - Recommended next concrete arc for this branch if selected:
@@ -181,7 +181,7 @@ The current recommended path ladder is:
 |---|---|---|---|
 | `V44-A` | template probe + structural trace substrate | candidate `adeu_reasoning_template_probe@1` and candidate `adeu_structural_reasoning_trace@1` | planned |
 | `V44-B` | normalized failure taxonomy only | candidate `adeu_structural_failure_taxonomy@1` with blocked preserved as non-failure and no profile promotion posture | closed_on_main |
-| `V44-C` | paired-condition differential diagnosis + provisional profile lane | knowledge-vs-procedure assay posture over bounded probe suites plus explicitly pre-differential model profile aggregation | planned |
+| `V44-C` | paired-condition differential diagnosis | knowledge-vs-procedure assay posture over bounded probe suites, still prior to any released profile aggregation | planned |
 | `V44-D` | probe-library widening across template classes | expanded bounded probe library over decomposition, branching, repair, and invariance classes | planned |
 | `V44-E` | recursive-depth / structural-extension assessment seam | bounded recursive-closure assessment surfaces, still prior to SRM release | planned_later |
 
@@ -283,11 +283,14 @@ Differential diagnosis lane:
 
 - paired supplied-knowledge versus withheld-knowledge probe conditions;
 - injected-knowledge continuation posture;
-- only after that, provisional model-profile aggregation with explicit
-  pre-differential caution posture;
 - clearer empirical separation between:
   - knowledge deficit,
   - procedural-discipline deficit.
+
+The first `V44-C` starter should stop at pair-level differential diagnosis only.
+
+Any later explicitly pre-differential profile lane must consume the released
+`V44-C` differential surface rather than being silently embedded in the starter slice.
 
 ### `V44-D`
 
@@ -403,7 +406,7 @@ are:
   "default_next_arc_candidate_for_this_branch": "V44-C",
   "default_next_concrete_arc_candidate_for_this_branch": "vNext+133",
   "family_architecture_doc": "docs/DRAFT_STRUCTURAL_REASONING_ASSESSMENT_SPEC_v0.md",
-  "family_decomposition_doc": "docs/LOCKED_CONTINUATION_vNEXT_PLUS132.md",
+  "family_decomposition_doc": "docs/LOCKED_CONTINUATION_vNEXT_PLUS133.md",
   "planned_family_packages": [
     "packages/adeu_reasoning_assessment"
   ],

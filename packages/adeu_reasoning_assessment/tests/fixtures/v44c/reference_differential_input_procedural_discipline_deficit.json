@@ -1,0 +1,458 @@
+{
+  "condition_probes": {
+    "supplied_knowledge": {
+      "acceptance_posture": {
+        "blocked_is_lawful": true,
+        "completion_requires_all_top_level_steps": true,
+        "invalid_early_closure_rejected": true,
+        "return_to_parent_evidence_required_when_hierarchical": true
+      },
+      "active_plan_step_ref": "decompose_active_step",
+      "child_order_policy": "ordered",
+      "child_step_refs": [
+        "scan_constraints",
+        "compose_local_result"
+      ],
+      "hierarchy_posture": "single_level_parent_child",
+      "lane_order": [
+        "O",
+        "E",
+        "D",
+        "U"
+      ],
+      "paired_condition_compatibility": {
+        "condition_variant_key": "supplied_knowledge",
+        "mode": "paired_reference",
+        "paired_suite_key": "v44c.hier_pair"
+      },
+      "plan_spine_step_ids": [
+        "observe_frame",
+        "decompose_active_step",
+        "reintegrate_findings"
+      ],
+      "probe_id": "reasoning_probe:2b2c2bc06814061e",
+      "probe_label": "Hierarchical local repair continuation probe (supplied knowledge)",
+      "return_to_parent_required": true,
+      "schema": "adeu_reasoning_template_probe@1",
+      "template_class": "local_repair_continuation",
+      "template_steps": [
+        {
+          "completion_boundary": "Complete the opening frame without collapsing the plan spine.",
+          "lane_id": "O",
+          "local_constraints": [
+            "preserve_top_level_order"
+          ],
+          "order_index": 0,
+          "parent_step_ref": null,
+          "step_label": "Observe the parent frame before descent.",
+          "step_ref": "observe_frame"
+        },
+        {
+          "completion_boundary": "Complete only after lawful child work is reintegrated to the parent step.",
+          "lane_id": "E",
+          "local_constraints": [
+            "active_step_only",
+            "no_non_local_repair"
+          ],
+          "order_index": 1,
+          "parent_step_ref": null,
+          "step_label": "Decompose the active parent step into lawful child work.",
+          "step_ref": "decompose_active_step"
+        },
+        {
+          "completion_boundary": "Return to the top-level plan and emit the next lawful step.",
+          "lane_id": "D",
+          "local_constraints": [
+            "top_level_plan_resume_required"
+          ],
+          "order_index": 2,
+          "parent_step_ref": null,
+          "step_label": "Rejoin the top-level plan after local descent.",
+          "step_ref": "reintegrate_findings"
+        },
+        {
+          "completion_boundary": "List the bounded child constraints before local synthesis.",
+          "lane_id": "E",
+          "local_constraints": [
+            "child_step_only"
+          ],
+          "order_index": 0,
+          "parent_step_ref": "decompose_active_step",
+          "step_label": "Scan the child-step constraints for the active parent step.",
+          "step_ref": "scan_constraints"
+        },
+        {
+          "completion_boundary": "Emit a bounded child result that can be reintegrated to the parent step.",
+          "lane_id": "D",
+          "local_constraints": [
+            "child_result_must_be_reintegrable"
+          ],
+          "order_index": 1,
+          "parent_step_ref": "decompose_active_step",
+          "step_label": "Compose the bounded local result for the active parent step.",
+          "step_ref": "compose_local_result"
+        }
+      ]
+    },
+    "withheld_knowledge": {
+      "acceptance_posture": {
+        "blocked_is_lawful": true,
+        "completion_requires_all_top_level_steps": true,
+        "invalid_early_closure_rejected": true,
+        "return_to_parent_evidence_required_when_hierarchical": true
+      },
+      "active_plan_step_ref": "decompose_active_step",
+      "child_order_policy": "ordered",
+      "child_step_refs": [
+        "scan_constraints",
+        "compose_local_result"
+      ],
+      "hierarchy_posture": "single_level_parent_child",
+      "lane_order": [
+        "O",
+        "E",
+        "D",
+        "U"
+      ],
+      "paired_condition_compatibility": {
+        "condition_variant_key": "withheld_knowledge",
+        "mode": "paired_reference",
+        "paired_suite_key": "v44c.hier_pair"
+      },
+      "plan_spine_step_ids": [
+        "observe_frame",
+        "decompose_active_step",
+        "reintegrate_findings"
+      ],
+      "probe_id": "reasoning_probe:01a6ff599d96be70",
+      "probe_label": "Hierarchical local repair continuation probe (withheld knowledge)",
+      "return_to_parent_required": true,
+      "schema": "adeu_reasoning_template_probe@1",
+      "template_class": "local_repair_continuation",
+      "template_steps": [
+        {
+          "completion_boundary": "Complete the opening frame without collapsing the plan spine.",
+          "lane_id": "O",
+          "local_constraints": [
+            "preserve_top_level_order"
+          ],
+          "order_index": 0,
+          "parent_step_ref": null,
+          "step_label": "Observe the parent frame before descent.",
+          "step_ref": "observe_frame"
+        },
+        {
+          "completion_boundary": "Complete only after lawful child work is reintegrated to the parent step.",
+          "lane_id": "E",
+          "local_constraints": [
+            "active_step_only",
+            "no_non_local_repair"
+          ],
+          "order_index": 1,
+          "parent_step_ref": null,
+          "step_label": "Decompose the active parent step into lawful child work.",
+          "step_ref": "decompose_active_step"
+        },
+        {
+          "completion_boundary": "Return to the top-level plan and emit the next lawful step.",
+          "lane_id": "D",
+          "local_constraints": [
+            "top_level_plan_resume_required"
+          ],
+          "order_index": 2,
+          "parent_step_ref": null,
+          "step_label": "Rejoin the top-level plan after local descent.",
+          "step_ref": "reintegrate_findings"
+        },
+        {
+          "completion_boundary": "List the bounded child constraints before local synthesis.",
+          "lane_id": "E",
+          "local_constraints": [
+            "child_step_only"
+          ],
+          "order_index": 0,
+          "parent_step_ref": "decompose_active_step",
+          "step_label": "Scan the child-step constraints for the active parent step.",
+          "step_ref": "scan_constraints"
+        },
+        {
+          "completion_boundary": "Emit a bounded child result that can be reintegrated to the parent step.",
+          "lane_id": "D",
+          "local_constraints": [
+            "child_result_must_be_reintegrable"
+          ],
+          "order_index": 1,
+          "parent_step_ref": "decompose_active_step",
+          "step_label": "Compose the bounded local result for the active parent step.",
+          "step_ref": "compose_local_result"
+        }
+      ]
+    }
+  },
+  "condition_taxonomies": {
+    "supplied_knowledge": {
+      "failure_families": [
+        "active_step_decomposition_failure"
+      ],
+      "open_questions": [],
+      "primary_failure_family": "active_step_decomposition_failure",
+      "probe_ref": "reasoning_probe:2b2c2bc06814061e",
+      "schema": "adeu_structural_failure_taxonomy@1",
+      "supporting_break_refs": [
+        "reasoning_break:b1ac6f165240805f"
+      ],
+      "supporting_event_indexes": [
+        8
+      ],
+      "taxonomy_id": "reasoning_taxonomy:59fcae4352c4b37d",
+      "taxonomy_status": "normalized_structural_failure",
+      "terminal_trace_status": "completed_with_structural_break",
+      "trace_ref": "reasoning_trace:3b06b3d400331bf0"
+    },
+    "withheld_knowledge": {
+      "failure_families": [
+        "plan_spine_drift"
+      ],
+      "open_questions": [],
+      "primary_failure_family": "plan_spine_drift",
+      "probe_ref": "reasoning_probe:01a6ff599d96be70",
+      "schema": "adeu_structural_failure_taxonomy@1",
+      "supporting_break_refs": [
+        "reasoning_break:3b0e4ac149cd85ed"
+      ],
+      "supporting_event_indexes": [
+        9
+      ],
+      "taxonomy_id": "reasoning_taxonomy:cb8995df0f239070",
+      "taxonomy_status": "normalized_structural_failure",
+      "terminal_trace_status": "completed_with_structural_break",
+      "trace_ref": "reasoning_trace:4aca6f382a345876"
+    }
+  },
+  "condition_traces": {
+    "supplied_knowledge": {
+      "open_questions": [],
+      "probe_ref": "reasoning_probe:2b2c2bc06814061e",
+      "schema": "adeu_structural_reasoning_trace@1",
+      "structural_breaks": [
+        {
+          "break_ref": "reasoning_break:b1ac6f165240805f",
+          "break_tags": [
+            "active_step_decomposition_failure"
+          ],
+          "detail": "The active parent step closes with a decomposition failure visible at parent completion.",
+          "lane_ref": "E",
+          "step_ref": "decompose_active_step",
+          "supporting_event_indexes": [
+            8
+          ]
+        }
+      ],
+      "subject_label": "hier_supplied_active_step_subject",
+      "terminal_trace_status": "completed_with_structural_break",
+      "trace_events": [
+        {
+          "break_tags": [],
+          "event_index": 0,
+          "event_kind": "step_activate",
+          "lane_ref": "O",
+          "step_ref": "observe_frame",
+          "target_step_ref": null
+        },
+        {
+          "break_tags": [],
+          "event_index": 1,
+          "event_kind": "step_complete",
+          "lane_ref": "O",
+          "step_ref": "observe_frame",
+          "target_step_ref": null
+        },
+        {
+          "break_tags": [],
+          "event_index": 2,
+          "event_kind": "step_activate",
+          "lane_ref": "E",
+          "step_ref": "decompose_active_step",
+          "target_step_ref": null
+        },
+        {
+          "break_tags": [],
+          "event_index": 3,
+          "event_kind": "step_activate",
+          "lane_ref": "E",
+          "step_ref": "scan_constraints",
+          "target_step_ref": null
+        },
+        {
+          "break_tags": [],
+          "event_index": 4,
+          "event_kind": "step_complete",
+          "lane_ref": "E",
+          "step_ref": "scan_constraints",
+          "target_step_ref": null
+        },
+        {
+          "break_tags": [],
+          "event_index": 5,
+          "event_kind": "step_activate",
+          "lane_ref": "D",
+          "step_ref": "compose_local_result",
+          "target_step_ref": null
+        },
+        {
+          "break_tags": [],
+          "event_index": 6,
+          "event_kind": "step_complete",
+          "lane_ref": "D",
+          "step_ref": "compose_local_result",
+          "target_step_ref": null
+        },
+        {
+          "break_tags": [],
+          "event_index": 7,
+          "event_kind": "return_to_parent",
+          "lane_ref": "D",
+          "step_ref": "compose_local_result",
+          "target_step_ref": "decompose_active_step"
+        },
+        {
+          "break_tags": [],
+          "event_index": 8,
+          "event_kind": "step_complete",
+          "lane_ref": "E",
+          "step_ref": "decompose_active_step",
+          "target_step_ref": null
+        },
+        {
+          "break_tags": [],
+          "event_index": 9,
+          "event_kind": "step_activate",
+          "lane_ref": "D",
+          "step_ref": "reintegrate_findings",
+          "target_step_ref": null
+        },
+        {
+          "break_tags": [],
+          "event_index": 10,
+          "event_kind": "step_complete",
+          "lane_ref": "D",
+          "step_ref": "reintegrate_findings",
+          "target_step_ref": null
+        }
+      ],
+      "trace_id": "reasoning_trace:3b06b3d400331bf0"
+    },
+    "withheld_knowledge": {
+      "open_questions": [],
+      "probe_ref": "reasoning_probe:01a6ff599d96be70",
+      "schema": "adeu_structural_reasoning_trace@1",
+      "structural_breaks": [
+        {
+          "break_ref": "reasoning_break:3b0e4ac149cd85ed",
+          "break_tags": [
+            "plan_spine_drift"
+          ],
+          "detail": "The trace resumes the top-level plan with observable plan-spine drift at reintegration.",
+          "lane_ref": "D",
+          "step_ref": "reintegrate_findings",
+          "supporting_event_indexes": [
+            9
+          ]
+        }
+      ],
+      "subject_label": "hier_withheld_plan_spine_subject",
+      "terminal_trace_status": "completed_with_structural_break",
+      "trace_events": [
+        {
+          "break_tags": [],
+          "event_index": 0,
+          "event_kind": "step_activate",
+          "lane_ref": "O",
+          "step_ref": "observe_frame",
+          "target_step_ref": null
+        },
+        {
+          "break_tags": [],
+          "event_index": 1,
+          "event_kind": "step_complete",
+          "lane_ref": "O",
+          "step_ref": "observe_frame",
+          "target_step_ref": null
+        },
+        {
+          "break_tags": [],
+          "event_index": 2,
+          "event_kind": "step_activate",
+          "lane_ref": "E",
+          "step_ref": "decompose_active_step",
+          "target_step_ref": null
+        },
+        {
+          "break_tags": [],
+          "event_index": 3,
+          "event_kind": "step_activate",
+          "lane_ref": "E",
+          "step_ref": "scan_constraints",
+          "target_step_ref": null
+        },
+        {
+          "break_tags": [],
+          "event_index": 4,
+          "event_kind": "step_complete",
+          "lane_ref": "E",
+          "step_ref": "scan_constraints",
+          "target_step_ref": null
+        },
+        {
+          "break_tags": [],
+          "event_index": 5,
+          "event_kind": "step_activate",
+          "lane_ref": "D",
+          "step_ref": "compose_local_result",
+          "target_step_ref": null
+        },
+        {
+          "break_tags": [],
+          "event_index": 6,
+          "event_kind": "step_complete",
+          "lane_ref": "D",
+          "step_ref": "compose_local_result",
+          "target_step_ref": null
+        },
+        {
+          "break_tags": [],
+          "event_index": 7,
+          "event_kind": "return_to_parent",
+          "lane_ref": "D",
+          "step_ref": "compose_local_result",
+          "target_step_ref": "decompose_active_step"
+        },
+        {
+          "break_tags": [],
+          "event_index": 8,
+          "event_kind": "step_complete",
+          "lane_ref": "E",
+          "step_ref": "decompose_active_step",
+          "target_step_ref": null
+        },
+        {
+          "break_tags": [],
+          "event_index": 9,
+          "event_kind": "step_activate",
+          "lane_ref": "D",
+          "step_ref": "reintegrate_findings",
+          "target_step_ref": null
+        },
+        {
+          "break_tags": [],
+          "event_index": 10,
+          "event_kind": "step_complete",
+          "lane_ref": "D",
+          "step_ref": "reintegrate_findings",
+          "target_step_ref": null
+        }
+      ],
+      "trace_id": "reasoning_trace:4aca6f382a345876"
+    }
+  }
+}
