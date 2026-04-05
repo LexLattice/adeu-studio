@@ -113,7 +113,7 @@ Planning relationship:
 - Recommended architecture reference:
   - `docs/DRAFT_STRUCTURAL_REASONING_ASSESSMENT_SPEC_v0.md`
 - Recommended decomposition reference:
-  - `docs/LOCKED_CONTINUATION_vNEXT_PLUS134.md`
+  - `docs/LOCKED_CONTINUATION_vNEXT_PLUS135.md`
 - Recommended next path for this branch:
   - `V44-E`
 - Recommended next concrete arc for this branch if selected:
@@ -387,6 +387,10 @@ Deferred recursive-depth and structural-extension lane:
 
 - bounded recursive template-depth assessment;
 - explicit valid-closure versus invalid-early-closure posture;
+- released `V44-C` informative context only, not required starter input;
+- one bounded recursive re-entry layer only over released `V44-A` / `V44-B` /
+  `V44-D` structure;
+- at least one hierarchical recursive reference case;
 - explicit recursive re-entry and return semantics under typed controls;
 - still assessment-first and still prior to any released SRM governor family.
 
@@ -468,7 +472,7 @@ are:
   "default_next_arc_candidate_for_this_branch": "V44-E",
   "default_next_concrete_arc_candidate_for_this_branch": "vNext+135",
   "family_architecture_doc": "docs/DRAFT_STRUCTURAL_REASONING_ASSESSMENT_SPEC_v0.md",
-  "family_decomposition_doc": "docs/LOCKED_CONTINUATION_vNEXT_PLUS134.md",
+  "family_decomposition_doc": "docs/LOCKED_CONTINUATION_vNEXT_PLUS135.md",
   "planned_family_packages": [
     "packages/adeu_reasoning_assessment"
   ],
