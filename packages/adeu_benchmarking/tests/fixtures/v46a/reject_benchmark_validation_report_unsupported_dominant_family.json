@@ -1,0 +1,55 @@
+{
+  "all_expected_diagnostics_matched": true,
+  "benchmark_limitations": [
+    "Empirical repeated-run reliability remains deferred until V46-B and later projection lanes.",
+    "Validation cases are fixture-scoped and do not constitute released run-trace artifacts."
+  ],
+  "benchmark_projection_spec_ref": "benchproj_583343267376892b3e0b7f7e6328f426",
+  "benchmark_validation_report_id": "benchval_ab7d9fae7cab420361e4227a5f0539ce",
+  "schema": "adeu_benchmark_validation_report@1",
+  "scorer_determinism_posture": "deterministic_fixture_replay_confirmed",
+  "validation_case_results": [
+    {
+      "case_label": "case_clean_success",
+      "case_ref": "fixture:v46a/case_clean_success",
+      "expected_dominant_failure_family": "clean_success",
+      "match": true,
+      "observed_dominant_failure_family": "unsupported_family",
+      "validation_case_result_id": "benchvalcase_7865b2d64e26af13d31b8353802298fd"
+    },
+    {
+      "case_label": "case_horizontal_plan_spine",
+      "case_ref": "fixture:v46a/case_horizontal_plan_spine",
+      "expected_dominant_failure_family": "horizontal_plan_spine",
+      "match": true,
+      "observed_dominant_failure_family": "horizontal_plan_spine",
+      "validation_case_result_id": "benchvalcase_2c5e5b13dac6f686bd480fbd65f0ebdb"
+    },
+    {
+      "case_label": "case_mixed",
+      "case_ref": "fixture:v46a/case_mixed",
+      "expected_dominant_failure_family": "mixed",
+      "match": true,
+      "observed_dominant_failure_family": "mixed",
+      "validation_case_result_id": "benchvalcase_08240b3b567d81a65718671fea90c1e6"
+    },
+    {
+      "case_label": "case_reintegration",
+      "case_ref": "fixture:v46a/case_reintegration",
+      "expected_dominant_failure_family": "reintegration",
+      "match": true,
+      "observed_dominant_failure_family": "reintegration",
+      "validation_case_result_id": "benchvalcase_8575dbaeab1dbf52efacf1c7f454e4db"
+    },
+    {
+      "case_label": "case_vertical_active_step_compilation",
+      "case_ref": "fixture:v46a/case_vertical_active_step_compilation",
+      "expected_dominant_failure_family": "vertical_active_step_compilation",
+      "match": true,
+      "observed_dominant_failure_family": "vertical_active_step_compilation",
+      "validation_case_result_id": "benchvalcase_bc83670cb1cac551b39829e710db838b"
+    }
+  ],
+  "validation_label": "v46a_reference_fixture_bundle",
+  "validation_scope": "tiny_reference_fixture_bundle"
+}

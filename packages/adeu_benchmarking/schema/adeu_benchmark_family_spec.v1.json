@@ -1,0 +1,112 @@
+{
+  "additionalProperties": false,
+  "properties": {
+    "baseline_regime_summary": {
+      "title": "Baseline Regime Summary",
+      "type": "string"
+    },
+    "benchmark_family_spec_id": {
+      "title": "Benchmark Family Spec Id",
+      "type": "string"
+    },
+    "benchmark_output_epistemic_postures": {
+      "items": {
+        "enum": [
+          "observed",
+          "derived_deterministically",
+          "inferred_interpretively",
+          "adjudicated",
+          "settled"
+        ],
+        "type": "string"
+      },
+      "minItems": 1,
+      "title": "Benchmark Output Epistemic Postures",
+      "type": "array"
+    },
+    "capability_axes": {
+      "items": {
+        "type": "string"
+      },
+      "minItems": 1,
+      "title": "Capability Axes",
+      "type": "array"
+    },
+    "diagnostic_posture": {
+      "const": "diagnostic_only",
+      "title": "Diagnostic Posture",
+      "type": "string"
+    },
+    "doctrinal_source_refs": {
+      "items": {
+        "type": "string"
+      },
+      "minItems": 1,
+      "title": "Doctrinal Source Refs",
+      "type": "array"
+    },
+    "family_key": {
+      "title": "Family Key",
+      "type": "string"
+    },
+    "family_label": {
+      "title": "Family Label",
+      "type": "string"
+    },
+    "implementation_posture": {
+      "const": "bounded_repo_owned_non_promotional",
+      "title": "Implementation Posture",
+      "type": "string"
+    },
+    "non_regression_policy_summary": {
+      "title": "Non Regression Policy Summary",
+      "type": "string"
+    },
+    "perturbation_axis_posture": {
+      "title": "Perturbation Axis Posture",
+      "type": "string"
+    },
+    "reliability_policy_summary": {
+      "title": "Reliability Policy Summary",
+      "type": "string"
+    },
+    "schema": {
+      "const": "adeu_benchmark_family_spec@1",
+      "default": "adeu_benchmark_family_spec@1",
+      "title": "Schema",
+      "type": "string"
+    },
+    "subject_under_test_classes": {
+      "items": {
+        "enum": [
+          "base_model",
+          "prompted_model",
+          "routed_runtime",
+          "multi_agent_system",
+          "adeu_runtime_surface"
+        ],
+        "type": "string"
+      },
+      "minItems": 1,
+      "title": "Subject Under Test Classes",
+      "type": "array"
+    }
+  },
+  "required": [
+    "benchmark_family_spec_id",
+    "family_key",
+    "family_label",
+    "doctrinal_source_refs",
+    "capability_axes",
+    "baseline_regime_summary",
+    "perturbation_axis_posture",
+    "reliability_policy_summary",
+    "non_regression_policy_summary",
+    "subject_under_test_classes",
+    "benchmark_output_epistemic_postures",
+    "diagnostic_posture",
+    "implementation_posture"
+  ],
+  "title": "BenchmarkFamilySpec",
+  "type": "object"
+}

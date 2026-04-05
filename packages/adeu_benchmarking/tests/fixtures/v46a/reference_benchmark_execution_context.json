@@ -1,0 +1,20 @@
+{
+  "benchmark_execution_context_id": "benchctx_8633173282b2dcab7c4fd430552ebc52",
+  "context_budget_posture": "fixed_context_budget_declared",
+  "determinism_posture": "deterministic_fixed_context",
+  "notes": [
+    "deterministic local fixture replay only",
+    "no released run-trace contract in V46-A"
+  ],
+  "orchestration_topology_ref": "topology:single_evaluator_lane",
+  "prompt_wrapper_ref": "prompt_wrapper:fixture:procedural_depth_reference",
+  "repo_snapshot_ref": "git:main@1528aee",
+  "schema": "adeu_benchmark_execution_context@1",
+  "subject_label": "reference-fixture-runtime",
+  "subject_under_test_class": "routed_runtime",
+  "subject_version": "v46a-fixture",
+  "tool_availability": [
+    "filesystem_read_only",
+    "structured_json_output"
+  ]
+}

@@ -1,0 +1,39 @@
+{
+  "benchmark_limitations": [
+    "Empirical repeated-run reliability remains deferred until V46-B and later projection lanes.",
+    "Validation cases are fixture-scoped and do not constitute released run-trace artifacts."
+  ],
+  "validation_case_results": [
+    {
+      "case_label": "case_clean_success",
+      "case_ref": "fixture:v46a/case_clean_success",
+      "expected_dominant_failure_family": "clean_success",
+      "observed_dominant_failure_family": "clean_success"
+    },
+    {
+      "case_label": "case_horizontal_plan_spine",
+      "case_ref": "fixture:v46a/case_horizontal_plan_spine",
+      "expected_dominant_failure_family": "horizontal_plan_spine",
+      "observed_dominant_failure_family": "horizontal_plan_spine"
+    },
+    {
+      "case_label": "case_mixed",
+      "case_ref": "fixture:v46a/case_mixed",
+      "expected_dominant_failure_family": "mixed",
+      "observed_dominant_failure_family": "mixed"
+    },
+    {
+      "case_label": "case_reintegration",
+      "case_ref": "fixture:v46a/case_reintegration",
+      "expected_dominant_failure_family": "reintegration",
+      "observed_dominant_failure_family": "reintegration"
+    },
+    {
+      "case_label": "case_vertical_active_step_compilation",
+      "case_ref": "fixture:v46a/case_vertical_active_step_compilation",
+      "expected_dominant_failure_family": "vertical_active_step_compilation",
+      "observed_dominant_failure_family": "vertical_active_step_compilation"
+    }
+  ],
+  "validation_label": "v46a_reference_fixture_bundle"
+}

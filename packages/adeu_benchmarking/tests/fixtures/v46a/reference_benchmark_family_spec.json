@@ -1,0 +1,37 @@
+{
+  "baseline_regime_summary": "Deterministic fixture-scoped benchmark substrate baseline only prior to live procedural-depth artifacts.",
+  "benchmark_family_spec_id": "benchfam_73952621547ba8a17ea53e43cf579388",
+  "benchmark_output_epistemic_postures": [
+    "observed",
+    "derived_deterministically",
+    "inferred_interpretively",
+    "adjudicated",
+    "settled"
+  ],
+  "capability_axes": [
+    "active_step_compilation_fidelity",
+    "plan_spine_fidelity",
+    "reintegration_fidelity"
+  ],
+  "diagnostic_posture": "diagnostic_only",
+  "doctrinal_source_refs": [
+    "docs/DRAFT_BENCHMARKING_META_MODULE_SPEC_v0.md",
+    "docs/DRAFT_NEXT_ARC_OPTIONS_v29.md",
+    "docs/DRAFT_PROCEDURAL_DEPTH_FIDELITY_BENCHMARK_SPEC_v0.md",
+    "docs/DRAFT_STRUCTURAL_REASONING_ASSESSMENT_SPEC_v0.md"
+  ],
+  "family_key": "benchmark_substrate",
+  "family_label": "ADEU Benchmark Substrate",
+  "implementation_posture": "bounded_repo_owned_non_promotional",
+  "non_regression_policy_summary": "Non-regression posture is declared at substrate level only and may not be overread as empirical benchmark evidence before later projection lanes.",
+  "perturbation_axis_posture": "Projection-specific perturbations are declared but empirically deferred to later V46 lanes.",
+  "reliability_policy_summary": "Reliability posture is policy-declarative only in V46-A and must be empirically demonstrated later through repeated-run projection artifacts.",
+  "schema": "adeu_benchmark_family_spec@1",
+  "subject_under_test_classes": [
+    "base_model",
+    "prompted_model",
+    "routed_runtime",
+    "multi_agent_system",
+    "adeu_runtime_surface"
+  ]
+}

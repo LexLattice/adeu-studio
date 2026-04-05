@@ -2,7 +2,8 @@
 
 Status: planning draft after `docs/DRAFT_NEXT_ARC_OPTIONS_v28.md`, updated after the
 benchmarking-module seed and its first procedural-depth projection were clarified as a
-separate but connected family direction.
+separate but connected family direction, and refreshed after the full internal `V44`
+family closed on `main`.
 
 This draft does not automatically supersede the contest-participation planning branch in
 `docs/DRAFT_NEXT_ARC_OPTIONS_v26.md`, the structural-reasoning assessment planning
@@ -36,14 +37,16 @@ Interpretive doctrine for this planning surface:
 - `V39-A` through `V39-E` are closed on `main`.
 - `V40-A` through `V40-F` are closed on `main`.
 - `V41-A` through `V41-F` are closed on `main`.
-- `vNext+98` is the current baseline implementation state.
+- `vNext+135` is the current baseline implementation state.
 - `V42-A` through `V42-G4` are closed on `main`.
+- `V44-A` through `V44-E` are closed on `main`.
 - `docs/DRAFT_NEXT_ARC_OPTIONS_v25.md` is the authoritative planning record for the
   state where post-`V42` next-family selection remained unselected.
 - `docs/DRAFT_NEXT_ARC_OPTIONS_v26.md` records one connected candidate family:
   - `V43`
   - ADEU external governed contest participation substrate
-- `docs/DRAFT_NEXT_ARC_OPTIONS_v27.md` records one connected candidate family:
+- `docs/DRAFT_NEXT_ARC_OPTIONS_v27.md` now records one connected family as complete on
+  `main`:
   - `V44`
   - ADEU structural reasoning assessment substrate
 - `docs/DRAFT_NEXT_ARC_OPTIONS_v28.md` records one connected candidate family:
@@ -96,7 +99,7 @@ The missing layer is an ADEU benchmark substrate.
 - what is measured?
 - where could reasoning AI help?
 
-`V44` asks:
+`V44` asks and now answers on `main`:
 
 - is a candidate model structurally suitable to inhabit an explicit inferential
   skeleton under ADEU discipline?
@@ -132,7 +135,7 @@ But it may not mint:
 Planning relationship:
 
 - `V43` remains a valid connected candidate family from `v26`;
-- `V44` remains a valid connected candidate family from `v27`;
+- `V44` remains a connected released family that may now constrain `V46`;
 - `V45` remains a valid connected candidate family from `v28`;
 - this draft introduces a fourth connected candidate family rather than replacing any of
   them;
@@ -155,16 +158,13 @@ Planning relationship:
 - Recommended first projection reference:
   - `docs/DRAFT_PROCEDURAL_DEPTH_FIDELITY_BENCHMARK_SPEC_v0.md`
 - Recommended decomposition reference:
-  - required before the first `V46` lock and should explicitly include:
-    - `docs/DRAFT_BENCHMARK_FAMILY_DECOMPOSITION_v0.md`
-    - `docs/DRAFT_BENCHMARK_ARTIFACT_SURFACES_v0.md`
-    - one concrete `V46` decomposition draft (`not_selected_yet`)
+  - `docs/LOCKED_CONTINUATION_vNEXT_PLUS136.md`
 - Recommended next path for this branch:
   - `V46-A`
 - Recommended next concrete arc for this branch if selected:
-  - `vNext+102_placeholder`
+  - `vNext+136`
 - Default path selection for this branch:
-  - select `V46-A` as the bounded starter
+  - select `V46-A` as the next default candidate
 
 This family/path recommendation is branch-local to the `v29` planning surface.
 
@@ -225,6 +225,14 @@ The family should treat outputs such as routing, role-fit, or training proposals
 
 The family should treat benchmark validity as first-class.
 
+The starter `V46-A` taxonomy is intentionally narrower than the broader benchmarking
+seed:
+
+- composite `human_plus_tool_plus_model` subject-under-test posture remains deferred
+  from the starter vocabulary;
+- starter reliability and non-regression summaries remain declared substrate policy
+  only until later projection lanes release empirical benchmark artifacts.
+
 At minimum, later `V46` work should make explicit:
 
 - how repeated-run stability is measured;
@@ -248,8 +256,8 @@ The current recommended path ladder is:
 
 | Path | Theme | Primary output | Status |
 |---|---|---|---|
-| `V46-A` | benchmark family/projection substrate | candidate `benchmark_family_spec@1`, candidate `benchmark_projection_spec@1`, candidate `benchmark_run_trace@1`, candidate `benchmark_metrics_report@1`, candidate `benchmark_diagnostic_report@1`, and benchmark validation/context substrate | planned |
-| `V46-B` | Procedural Depth Fidelity hierarchical baseline projection | candidate `procedural_depth_instance@1`, candidate `procedural_depth_gold_trace@1`, candidate `procedural_depth_run_trace@1`, candidate `procedural_depth_metrics@1`, candidate `procedural_depth_diagnostic_report@1`, and tiny hierarchical reference chain | planned |
+| `V46-A` | benchmark substrate and validation lane | candidate `adeu_benchmark_family_spec@1`, candidate `adeu_benchmark_projection_spec@1`, candidate `adeu_benchmark_execution_context@1`, and candidate `adeu_benchmark_validation_report@1` | planned |
+| `V46-B` | Procedural Depth Fidelity first concrete projection | candidate `adeu_procedural_depth_instance@1`, candidate `adeu_procedural_depth_gold_trace@1`, candidate `adeu_procedural_depth_run_trace@1`, candidate `adeu_procedural_depth_metrics@1`, candidate `adeu_procedural_depth_diagnostic_report@1`, and tiny hierarchical reference chain | planned |
 | `V46-C` | Procedural Depth perturbation + non-regression widening | typed perturbation lanes plus candidate `procedural_depth_non_regression_report@1` | planned |
 | `V46-D` | benchmark projection library + cross-subject comparison widening | additional bounded benchmark projections and cross-subject comparison posture | planned |
 | `V46-E` | downstream consumer seam | separately governed consumers of benchmark diagnostics for routing/model/role/training research | planned_later_not_selected_here |
@@ -268,90 +276,63 @@ Implement the bounded benchmark-substrate lane first.
 
 `V46-A` should introduce:
 
-- one canonical bounded benchmark family spec candidate artifact:
+- one canonical bounded benchmark family-spec artifact:
   - explicit benchmark purpose;
   - explicit capability axes;
-  - explicit baseline regime;
-  - explicit perturbation-axis posture;
-  - explicit scoring and non-regression posture;
-- one canonical bounded benchmark projection spec candidate artifact:
+  - explicit baseline regime and perturbation posture;
+  - explicit reliability and non-regression policy summaries only;
+  - explicit benchmark-output epistemic postures;
+- one canonical bounded benchmark projection-spec artifact:
   - explicit projection identity;
   - explicit subject-under-test typing posture;
-  - explicit projection-specific validity and interpretation rules;
-  - explicit inheritance of benchmark output epistemic posture;
-  - explicit requirement flag for hierarchical traces when the projection is not flat;
-- one canonical bounded benchmark instance spec candidate artifact:
-  - explicit bounded instructions or source surfaces;
-  - explicit validity rules;
-  - explicit gold-surface binding posture;
-  - explicit top-level action spine and active-step parent/child structure when needed;
-- one canonical bounded benchmark execution-context candidate artifact:
+  - explicit projection validity and interpretation boundaries;
+  - explicit hierarchical/reintegration trace requirement flags when relevant;
+  - explicit declared downstream artifact-contract ids for the later projection lane;
+- one canonical bounded benchmark execution-context artifact:
   - subject identity and version;
   - prompt or wrapper identity when applicable;
   - tool availability;
   - context-budget posture;
   - determinism or stochasticity posture;
   - repo snapshot or source-surface identity when relevant;
-- one canonical bounded benchmark run-trace candidate artifact:
-  - explicit observed benchmark execution trace for one subject under test;
-  - explicit linkage to the declared execution context and benchmark instance;
-  - explicit step, event, or transition evidence sufficient for later scoring review;
-  - explicit return-to-parent or return-to-plan events when the projection descends
-    into local child work;
-- one canonical bounded benchmark metrics-report candidate artifact:
-  - explicit derived benchmark scores and deltas under declared scoring rules;
-  - explicit baseline and non-regression posture over the tiny reference chain;
-  - explicit distinction between measured result and later diagnostic interpretation;
-  - explicit separate scores for:
-    - plan-spine fidelity,
-    - active-step compilation fidelity,
-    - reintegration fidelity;
-- one canonical bounded benchmark diagnostic-report candidate artifact:
-  - explicit diagnostic summary over the bounded trace and metrics surfaces;
-  - explicit open-question and failure-topology posture;
-  - explicit non-promotional interpretation posture;
-  - explicit dominant-failure-family field over the three-way split above;
-- one canonical bounded benchmark validation report candidate artifact:
-  - repeated-run stability posture;
-  - benchmark-instance quality posture;
+- one canonical bounded benchmark validation-report artifact:
+  - deterministic validation-case replay over a tiny reference fixture bundle;
   - scorer determinism posture;
-  - baseline noise-floor posture;
-  - trace or gold adequacy posture;
-- one minimal first reliability policy for the `V46-A` reference chain:
-  - explicit repeated-run bundle definition;
-  - explicit reliable-`100%` criterion over that declared bundle;
-  - explicit first variance tolerance or zero-variance requirement for the tiny baseline;
-  - explicit rule that perturbation-style interpretation is not promoted if the tiny
-    baseline itself is unstable;
-- one tiny bounded end-to-end reference chain sufficient to exercise:
+  - benchmark limitations and non-promotional validation posture;
+  - bounded dominant-family vocabulary constrained by released `V44`, with
+    `clean_success` as the starter non-failure sentinel;
+- one tiny deterministic starter reference bundle sufficient to exercise:
   - family spec;
   - projection spec;
-  - instance spec;
   - execution context;
-  - run trace;
-  - metrics report;
-  - diagnostic report;
   - validation report;
-  - one hierarchical procedural-depth case bundle with success, horizontal failure,
-    vertical failure, and reintegration failure variants;
-- no widening yet into full projection-library widening or downstream operational
-  promotion.
+  - dominant failure-family coverage for:
+    - clean success,
+    - horizontal plan-spine failure,
+    - vertical active-step compilation failure,
+    - reintegration failure,
+    - mixed failure support;
+- no released benchmark instance, run-trace, metrics, or diagnostic-report contracts
+  yet;
+- no widening yet into benchmark scoring, projection-library widening, or downstream
+  operational promotion.
 
 `V46-A` is diagnostic-first and non-promotional:
 
-- it may emit bounded benchmark definitions, traces, metrics, and validation reports;
+- it may emit bounded benchmark definitions, execution contexts, and validation reports;
 - it may not yet emit routing authority, role-assignment authority, model-promotion
   authority, or training entitlement.
 
 ## Why This Path
 
 - It is the narrowest safe consumer of the benchmarking-module seed.
-- It preserves the parent/child distinction between benchmark substrate and benchmark
-  projection rather than collapsing doctrine into the first selected benchmark family.
+- It preserves the parent/child distinction between benchmark substrate and the first
+  concrete procedural-depth projection rather than collapsing doctrine into the
+  imported prototype's partial package shape.
 - It establishes execution-context, reliability, and benchmark-self-validation posture
-  before any stronger benchmark claims are made.
+  before any released instance, run-trace, metrics, or diagnostic artifacts are made.
 - It creates the reusable measurement layer needed before Procedural Depth Fidelity or
-  later projections are widened.
+  later projections are widened into concrete scoring surfaces.
 - It prevents the family from collapsing immediately into stealth leaderboard logic,
   model-ranking overclaim, or operational promotion from diagnostics.
 
@@ -361,21 +342,16 @@ Implement the bounded benchmark-substrate lane first.
 
 - benchmark family definition only;
 - benchmark projection definition only;
-- benchmark instance-spec substrate only;
 - execution-context capture only;
-- benchmark run-trace substrate only;
-- benchmark metrics-report substrate only;
-- benchmark diagnostic-report substrate only;
 - benchmark validation-report substrate only;
-- one tiny end-to-end reference chain only;
-- one bounded hierarchical procedural-depth bundle only;
-- explicit reliability semantics only;
-- one minimal operational reliability policy for that tiny reference chain only;
+- one tiny deterministic reference fixture bundle only;
+- policy-declarative reliability and non-regression summaries only;
+- one minimal operational reliability policy for that tiny fixture bundle only;
 - explicit diagnostic-first interpretation posture only.
 
 It should not attempt:
 
-- full Procedural Depth Fidelity family release;
+- released Procedural Depth Fidelity instance, trace, metrics, or diagnostic artifacts;
 - broad benchmark library release;
 - broad cross-model or cross-system leaderboarding;
 - routing or role-fit promotion;
@@ -490,7 +466,7 @@ are:
 {
   "schema": "next_arc_planning_baseline@1",
   "source_baseline_doc": "docs/DRAFT_NEXT_ARC_OPTIONS_v28.md",
-  "baseline_arc": "vNext+98",
+  "baseline_arc": "vNext+135",
   "closed_prior_families": [
     "V41",
     "V42"
@@ -517,10 +493,10 @@ are:
     "V46-E"
   ],
   "default_next_arc_candidate_for_this_branch": "V46-A",
-  "default_next_concrete_arc_candidate_for_this_branch": "vNext+102_placeholder",
+  "default_next_concrete_arc_candidate_for_this_branch": "vNext+136",
   "family_architecture_doc": "docs/DRAFT_BENCHMARKING_META_MODULE_SPEC_v0.md",
   "first_projection_seed_doc": "docs/DRAFT_PROCEDURAL_DEPTH_FIDELITY_BENCHMARK_SPEC_v0.md",
-  "family_decomposition_doc": "not_selected_yet",
+  "family_decomposition_doc": "docs/LOCKED_CONTINUATION_vNEXT_PLUS136.md",
   "pre_lock_companion_docs_expected": [
     "docs/DRAFT_BENCHMARK_FAMILY_DECOMPOSITION_v0.md",
     "docs/DRAFT_BENCHMARK_ARTIFACT_SURFACES_v0.md"
@@ -536,21 +512,25 @@ are:
   "general_benchmark_substrate_first_required": true,
   "projection_modularity_required": true,
   "subject_under_test_taxonomy_required": true,
+  "composite_human_tool_model_subject_class_deferred_from_v46a": true,
   "reliability_semantics_required": true,
+  "v46a_reliability_and_non_regression_policy_summaries_declarative_only": true,
   "benchmark_validation_required": true,
   "execution_context_capture_required": true,
   "diagnostic_first_output_posture_required": true,
   "benchmark_output_epistemic_postures_required": true,
   "v46a_benchmark_family_spec_required": true,
   "v46a_benchmark_projection_spec_required": true,
-  "v46a_benchmark_instance_spec_required": true,
   "v46a_benchmark_execution_context_required": true,
-  "v46a_benchmark_run_trace_required": true,
-  "v46a_benchmark_metrics_report_required": true,
-  "v46a_benchmark_diagnostic_report_required": true,
   "v46a_benchmark_validation_report_required": true,
+  "v46a_benchmark_instance_spec_deferred_to_v46b": true,
+  "v46a_benchmark_run_trace_deferred_to_v46b": true,
+  "v46a_benchmark_metrics_report_deferred_to_v46b": true,
+  "v46a_benchmark_diagnostic_report_deferred_to_v46b": true,
+  "v46a_projection_declares_future_contract_ids_only": true,
   "v46a_minimal_operational_reliability_policy_required": true,
-  "v46a_tiny_reference_chain_required": true,
+  "v46a_tiny_reference_fixture_bundle_required": true,
+  "v46a_positive_mixed_validation_case_required": true,
   "v46a_non_promotional_required": true,
   "v46b_procedural_depth_projection_planned": true,
   "hierarchical_trace_support_required_for_non_flat_projections": true,
