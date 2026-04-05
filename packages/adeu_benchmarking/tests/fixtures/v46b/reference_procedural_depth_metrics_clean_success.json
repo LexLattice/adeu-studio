@@ -1,0 +1,26 @@
+{
+  "active_step_compilation_fidelity": true,
+  "dominant_failure_family": "clean_success",
+  "plan_spine_fidelity": true,
+  "procedural_depth_gold_trace_ref": "pdepthgold_0e78b0227b1f0b140d00f1a65311f324",
+  "procedural_depth_metrics_id": "pdepthmetrics_e48fb7271585a83e853594d7ed0ceb68",
+  "procedural_depth_run_trace_ref": "pdepthrun_22a2e9d60b44a8715e84995a45893cbb",
+  "reintegration_fidelity": true,
+  "schema": "adeu_procedural_depth_metrics@1",
+  "scoring_notes": [
+    "component fidelities are exact boolean checks in the V46-B starter scorer",
+    "dominant failure family derives from the starter boolean component pattern plus terminal status"
+  ],
+  "supporting_event_refs": [
+    {
+      "event_index": 14,
+      "trace_ref": "pdepthgold_0e78b0227b1f0b140d00f1a65311f324",
+      "trace_role": "gold"
+    },
+    {
+      "event_index": 14,
+      "trace_ref": "pdepthrun_22a2e9d60b44a8715e84995a45893cbb",
+      "trace_role": "run"
+    }
+  ]
+}

@@ -1,0 +1,116 @@
+{
+  "$defs": {
+    "ProceduralDepthTraceEvent": {
+      "additionalProperties": false,
+      "properties": {
+        "event_index": {
+          "minimum": 0,
+          "title": "Event Index",
+          "type": "integer"
+        },
+        "event_kind": {
+          "enum": [
+            "activate",
+            "complete",
+            "return"
+          ],
+          "title": "Event Kind",
+          "type": "string"
+        },
+        "parent_step_ref": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Parent Step Ref"
+        },
+        "return_target_step_ref": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Return Target Step Ref"
+        },
+        "step_ref": {
+          "title": "Step Ref",
+          "type": "string"
+        },
+        "step_role": {
+          "enum": [
+            "top_level",
+            "active_parent",
+            "child"
+          ],
+          "title": "Step Role",
+          "type": "string"
+        }
+      },
+      "required": [
+        "event_index",
+        "event_kind",
+        "step_ref",
+        "step_role"
+      ],
+      "title": "ProceduralDepthTraceEvent",
+      "type": "object"
+    }
+  },
+  "additionalProperties": false,
+  "properties": {
+    "derivation_notes": {
+      "items": {
+        "type": "string"
+      },
+      "title": "Derivation Notes",
+      "type": "array"
+    },
+    "gold_events": {
+      "items": {
+        "$ref": "#/$defs/ProceduralDepthTraceEvent"
+      },
+      "minItems": 1,
+      "title": "Gold Events",
+      "type": "array"
+    },
+    "procedural_depth_gold_trace_id": {
+      "title": "Procedural Depth Gold Trace Id",
+      "type": "string"
+    },
+    "procedural_depth_instance_ref": {
+      "title": "Procedural Depth Instance Ref",
+      "type": "string"
+    },
+    "schema": {
+      "const": "adeu_procedural_depth_gold_trace@1",
+      "default": "adeu_procedural_depth_gold_trace@1",
+      "title": "Schema",
+      "type": "string"
+    },
+    "terminal_trace_status": {
+      "enum": [
+        "completed_clean",
+        "completed_with_structural_break"
+      ],
+      "title": "Terminal Trace Status",
+      "type": "string"
+    }
+  },
+  "required": [
+    "procedural_depth_gold_trace_id",
+    "procedural_depth_instance_ref",
+    "gold_events",
+    "terminal_trace_status"
+  ],
+  "title": "ProceduralDepthGoldTrace",
+  "type": "object"
+}

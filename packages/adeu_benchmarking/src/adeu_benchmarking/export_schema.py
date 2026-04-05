@@ -12,10 +12,20 @@ from .models import (
     ADEU_BENCHMARK_FAMILY_SPEC_SCHEMA,
     ADEU_BENCHMARK_PROJECTION_SPEC_SCHEMA,
     ADEU_BENCHMARK_VALIDATION_REPORT_SCHEMA,
+    ADEU_PROCEDURAL_DEPTH_DIAGNOSTIC_REPORT_SCHEMA,
+    ADEU_PROCEDURAL_DEPTH_GOLD_TRACE_SCHEMA,
+    ADEU_PROCEDURAL_DEPTH_INSTANCE_SCHEMA,
+    ADEU_PROCEDURAL_DEPTH_METRICS_SCHEMA,
+    ADEU_PROCEDURAL_DEPTH_RUN_TRACE_SCHEMA,
     BenchmarkExecutionContext,
     BenchmarkFamilySpec,
     BenchmarkProjectionSpec,
     BenchmarkValidationReport,
+    ProceduralDepthDiagnosticReport,
+    ProceduralDepthGoldTrace,
+    ProceduralDepthInstance,
+    ProceduralDepthMetrics,
+    ProceduralDepthRunTrace,
 )
 
 _WINDOWS_ABSOLUTE_PATH_RE = re.compile(r"[A-Za-z]:\\")
@@ -110,6 +120,56 @@ def main() -> None:
             / "schema"
             / "adeu_benchmark_validation_report.v1.json",
             root / "spec" / "adeu_benchmark_validation_report.schema.json",
+        ),
+        (
+            ProceduralDepthInstance,
+            ADEU_PROCEDURAL_DEPTH_INSTANCE_SCHEMA,
+            root
+            / "packages"
+            / "adeu_benchmarking"
+            / "schema"
+            / "adeu_procedural_depth_instance.v1.json",
+            root / "spec" / "adeu_procedural_depth_instance.schema.json",
+        ),
+        (
+            ProceduralDepthGoldTrace,
+            ADEU_PROCEDURAL_DEPTH_GOLD_TRACE_SCHEMA,
+            root
+            / "packages"
+            / "adeu_benchmarking"
+            / "schema"
+            / "adeu_procedural_depth_gold_trace.v1.json",
+            root / "spec" / "adeu_procedural_depth_gold_trace.schema.json",
+        ),
+        (
+            ProceduralDepthRunTrace,
+            ADEU_PROCEDURAL_DEPTH_RUN_TRACE_SCHEMA,
+            root
+            / "packages"
+            / "adeu_benchmarking"
+            / "schema"
+            / "adeu_procedural_depth_run_trace.v1.json",
+            root / "spec" / "adeu_procedural_depth_run_trace.schema.json",
+        ),
+        (
+            ProceduralDepthMetrics,
+            ADEU_PROCEDURAL_DEPTH_METRICS_SCHEMA,
+            root
+            / "packages"
+            / "adeu_benchmarking"
+            / "schema"
+            / "adeu_procedural_depth_metrics.v1.json",
+            root / "spec" / "adeu_procedural_depth_metrics.schema.json",
+        ),
+        (
+            ProceduralDepthDiagnosticReport,
+            ADEU_PROCEDURAL_DEPTH_DIAGNOSTIC_REPORT_SCHEMA,
+            root
+            / "packages"
+            / "adeu_benchmarking"
+            / "schema"
+            / "adeu_procedural_depth_diagnostic_report.v1.json",
+            root / "spec" / "adeu_procedural_depth_diagnostic_report.schema.json",
         ),
     ]
 

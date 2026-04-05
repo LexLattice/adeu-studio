@@ -1,0 +1,25 @@
+{
+  "benchmark_output_epistemic_posture": "inferred_interpretively",
+  "diagnostic_summary": "Run preserved the top-level plan spine, active-step compilation, and reintegration over the tiny hierarchical_3x3 reference chain.",
+  "dominant_failure_family": "clean_success",
+  "limitations": [
+    "Diagnostic interpretation remains bounded to one tiny hierarchical_3x3 reference chain only.",
+    "Perturbation, non-regression, cross-subject comparison, and downstream consumer seams remain deferred from V46-B."
+  ],
+  "procedural_depth_diagnostic_report_id": "pdepthdiag_160c0101c296759216b44ec336b61ddc",
+  "procedural_depth_metrics_ref": "pdepthmetrics_e48fb7271585a83e853594d7ed0ceb68",
+  "procedural_depth_run_trace_ref": "pdepthrun_22a2e9d60b44a8715e84995a45893cbb",
+  "schema": "adeu_procedural_depth_diagnostic_report@1",
+  "supporting_event_refs": [
+    {
+      "event_index": 14,
+      "trace_ref": "pdepthgold_0e78b0227b1f0b140d00f1a65311f324",
+      "trace_role": "gold"
+    },
+    {
+      "event_index": 14,
+      "trace_ref": "pdepthrun_22a2e9d60b44a8715e84995a45893cbb",
+      "trace_role": "run"
+    }
+  ]
+}

@@ -1,0 +1,106 @@
+{
+  "$defs": {
+    "ProceduralDepthSupportingEventRef": {
+      "additionalProperties": false,
+      "properties": {
+        "event_index": {
+          "minimum": 0,
+          "title": "Event Index",
+          "type": "integer"
+        },
+        "trace_ref": {
+          "title": "Trace Ref",
+          "type": "string"
+        },
+        "trace_role": {
+          "enum": [
+            "gold",
+            "run"
+          ],
+          "title": "Trace Role",
+          "type": "string"
+        }
+      },
+      "required": [
+        "trace_role",
+        "trace_ref",
+        "event_index"
+      ],
+      "title": "ProceduralDepthSupportingEventRef",
+      "type": "object"
+    }
+  },
+  "additionalProperties": false,
+  "properties": {
+    "active_step_compilation_fidelity": {
+      "title": "Active Step Compilation Fidelity",
+      "type": "boolean"
+    },
+    "dominant_failure_family": {
+      "enum": [
+        "clean_success",
+        "horizontal_plan_spine",
+        "vertical_active_step_compilation",
+        "reintegration",
+        "mixed"
+      ],
+      "title": "Dominant Failure Family",
+      "type": "string"
+    },
+    "plan_spine_fidelity": {
+      "title": "Plan Spine Fidelity",
+      "type": "boolean"
+    },
+    "procedural_depth_gold_trace_ref": {
+      "title": "Procedural Depth Gold Trace Ref",
+      "type": "string"
+    },
+    "procedural_depth_metrics_id": {
+      "title": "Procedural Depth Metrics Id",
+      "type": "string"
+    },
+    "procedural_depth_run_trace_ref": {
+      "title": "Procedural Depth Run Trace Ref",
+      "type": "string"
+    },
+    "reintegration_fidelity": {
+      "title": "Reintegration Fidelity",
+      "type": "boolean"
+    },
+    "schema": {
+      "const": "adeu_procedural_depth_metrics@1",
+      "default": "adeu_procedural_depth_metrics@1",
+      "title": "Schema",
+      "type": "string"
+    },
+    "scoring_notes": {
+      "items": {
+        "type": "string"
+      },
+      "minItems": 1,
+      "title": "Scoring Notes",
+      "type": "array"
+    },
+    "supporting_event_refs": {
+      "items": {
+        "$ref": "#/$defs/ProceduralDepthSupportingEventRef"
+      },
+      "minItems": 1,
+      "title": "Supporting Event Refs",
+      "type": "array"
+    }
+  },
+  "required": [
+    "procedural_depth_metrics_id",
+    "procedural_depth_run_trace_ref",
+    "procedural_depth_gold_trace_ref",
+    "plan_spine_fidelity",
+    "active_step_compilation_fidelity",
+    "reintegration_fidelity",
+    "dominant_failure_family",
+    "supporting_event_refs",
+    "scoring_notes"
+  ],
+  "title": "ProceduralDepthMetrics",
+  "type": "object"
+}
