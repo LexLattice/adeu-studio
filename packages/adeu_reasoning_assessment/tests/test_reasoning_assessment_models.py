@@ -9,6 +9,7 @@ from adeu_ir.repo import repo_root
 from adeu_reasoning_assessment import (
     ADEU_REASONING_TEMPLATE_PROBE_SCHEMA,
     ADEU_STRUCTURAL_FAILURE_TAXONOMY_SCHEMA,
+    ADEU_STRUCTURAL_REASONING_DIFFERENTIAL_SCHEMA,
     ADEU_STRUCTURAL_REASONING_TRACE_SCHEMA,
     ReasoningTemplateProbe,
     StructuralReasoningTrace,
@@ -65,6 +66,15 @@ def _schema_pairs() -> list[tuple[str, Path, Path]]:
             / "schema"
             / "adeu_structural_failure_taxonomy.v1.json",
             root / "spec" / "adeu_structural_failure_taxonomy.schema.json",
+        ),
+        (
+            ADEU_STRUCTURAL_REASONING_DIFFERENTIAL_SCHEMA,
+            root
+            / "packages"
+            / "adeu_reasoning_assessment"
+            / "schema"
+            / "adeu_structural_reasoning_differential.v1.json",
+            root / "spec" / "adeu_structural_reasoning_differential.schema.json",
         ),
     ]
 

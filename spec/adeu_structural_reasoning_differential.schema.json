@@ -1,0 +1,152 @@
+{
+  "$defs": {
+    "SupportingTraceEventRef": {
+      "additionalProperties": false,
+      "properties": {
+        "condition_role": {
+          "enum": [
+            "supplied_knowledge",
+            "withheld_knowledge",
+            "injected_knowledge_continuation"
+          ],
+          "title": "Condition Role",
+          "type": "string"
+        },
+        "event_index": {
+          "minimum": 0,
+          "title": "Event Index",
+          "type": "integer"
+        },
+        "trace_ref": {
+          "title": "Trace Ref",
+          "type": "string"
+        }
+      },
+      "required": [
+        "condition_role",
+        "trace_ref",
+        "event_index"
+      ],
+      "title": "SupportingTraceEventRef",
+      "type": "object"
+    }
+  },
+  "additionalProperties": false,
+  "properties": {
+    "condition_roles_present": {
+      "items": {
+        "enum": [
+          "supplied_knowledge",
+          "withheld_knowledge",
+          "injected_knowledge_continuation"
+        ],
+        "type": "string"
+      },
+      "minItems": 1,
+      "title": "Condition Roles Present",
+      "type": "array"
+    },
+    "condition_taxonomy_refs": {
+      "additionalProperties": {
+        "type": "string"
+      },
+      "propertyNames": {
+        "enum": [
+          "supplied_knowledge",
+          "withheld_knowledge",
+          "injected_knowledge_continuation"
+        ]
+      },
+      "title": "Condition Taxonomy Refs",
+      "type": "object"
+    },
+    "condition_trace_refs": {
+      "additionalProperties": {
+        "type": "string"
+      },
+      "propertyNames": {
+        "enum": [
+          "supplied_knowledge",
+          "withheld_knowledge",
+          "injected_knowledge_continuation"
+        ]
+      },
+      "title": "Condition Trace Refs",
+      "type": "object"
+    },
+    "differential_id": {
+      "title": "Differential Id",
+      "type": "string"
+    },
+    "differential_judgment": {
+      "enum": [
+        "knowledge_deficit_supported",
+        "procedural_discipline_deficit_supported",
+        "mixed_or_ambiguous",
+        "paired_condition_insufficient"
+      ],
+      "title": "Differential Judgment",
+      "type": "string"
+    },
+    "differential_status": {
+      "enum": [
+        "paired_conditions_complete",
+        "paired_conditions_incomplete",
+        "paired_conditions_incompatible"
+      ],
+      "title": "Differential Status",
+      "type": "string"
+    },
+    "open_questions": {
+      "items": {
+        "type": "string"
+      },
+      "title": "Open Questions",
+      "type": "array"
+    },
+    "probe_template_ref": {
+      "title": "Probe Template Ref",
+      "type": "string"
+    },
+    "schema": {
+      "const": "adeu_structural_reasoning_differential@1",
+      "default": "adeu_structural_reasoning_differential@1",
+      "title": "Schema",
+      "type": "string"
+    },
+    "supporting_failure_families": {
+      "items": {
+        "enum": [
+          "lane_collapse",
+          "branch_collapse",
+          "plan_spine_drift",
+          "active_step_decomposition_failure",
+          "reintegration_failure",
+          "invalid_early_closure",
+          "non_local_repair_drift"
+        ],
+        "type": "string"
+      },
+      "title": "Supporting Failure Families",
+      "type": "array"
+    },
+    "supporting_trace_event_refs": {
+      "items": {
+        "$ref": "#/$defs/SupportingTraceEventRef"
+      },
+      "title": "Supporting Trace Event Refs",
+      "type": "array"
+    }
+  },
+  "required": [
+    "differential_id",
+    "probe_template_ref",
+    "condition_trace_refs",
+    "condition_taxonomy_refs",
+    "condition_roles_present",
+    "differential_status",
+    "differential_judgment"
+  ],
+  "title": "StructuralReasoningDifferential",
+  "type": "object"
+}
