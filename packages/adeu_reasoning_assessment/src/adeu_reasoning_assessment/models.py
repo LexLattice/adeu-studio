@@ -7,6 +7,7 @@ from urm_runtime.hashing import canonical_json, sha256_canonical_json
 
 ADEU_REASONING_TEMPLATE_PROBE_SCHEMA = "adeu_reasoning_template_probe@1"
 ADEU_STRUCTURAL_REASONING_TRACE_SCHEMA = "adeu_structural_reasoning_trace@1"
+ADEU_STRUCTURAL_FAILURE_TAXONOMY_SCHEMA = "adeu_structural_failure_taxonomy@1"
 
 LANE_ORDER = ("O", "E", "D", "U")
 TEMPLATE_CLASS_VOCABULARY = (
@@ -29,6 +30,20 @@ TERMINAL_TRACE_STATUS_VOCABULARY = (
     "completed_with_structural_break",
     "blocked",
     "invalid_early_closure",
+)
+STRUCTURAL_FAILURE_TAXONOMY_STATUS_VOCABULARY = (
+    "completed_clean_no_failure",
+    "blocked_lawful_insufficiency",
+    "normalized_structural_failure",
+)
+FAILURE_FAMILY_VOCABULARY = (
+    "lane_collapse",
+    "branch_collapse",
+    "plan_spine_drift",
+    "active_step_decomposition_failure",
+    "reintegration_failure",
+    "invalid_early_closure",
+    "non_local_repair_drift",
 )
 
 MODEL_CONFIG = ConfigDict(extra="forbid", frozen=True, populate_by_name=True)
@@ -57,6 +72,20 @@ TerminalTraceStatus = Literal[
     "completed_with_structural_break",
     "blocked",
     "invalid_early_closure",
+]
+StructuralFailureTaxonomyStatus = Literal[
+    "completed_clean_no_failure",
+    "blocked_lawful_insufficiency",
+    "normalized_structural_failure",
+]
+FailureFamily = Literal[
+    "lane_collapse",
+    "branch_collapse",
+    "plan_spine_drift",
+    "active_step_decomposition_failure",
+    "reintegration_failure",
+    "invalid_early_closure",
+    "non_local_repair_drift",
 ]
 
 
@@ -142,6 +171,21 @@ def _trace_id_basis_from_model(model: "StructuralReasoningTrace") -> dict[str, o
     }
 
 
+def _taxonomy_id_basis_from_model(model: "StructuralFailureTaxonomy") -> dict[str, object]:
+    return {
+        "schema": model.schema,
+        "probe_ref": model.probe_ref,
+        "trace_ref": model.trace_ref,
+        "taxonomy_status": model.taxonomy_status,
+        "terminal_trace_status": model.terminal_trace_status,
+        "failure_families": model.failure_families,
+        "primary_failure_family": model.primary_failure_family,
+        "supporting_break_refs": model.supporting_break_refs,
+        "supporting_event_indexes": model.supporting_event_indexes,
+        "open_questions": model.open_questions,
+    }
+
+
 def compute_probe_id(basis: dict[str, object]) -> str:
     return f"reasoning_probe:{sha256_canonical_json(basis)[:16]}"
 
@@ -152,6 +196,10 @@ def compute_structural_break_ref(basis: dict[str, object]) -> str:
 
 def compute_trace_id(basis: dict[str, object]) -> str:
     return f"reasoning_trace:{sha256_canonical_json(basis)[:16]}"
+
+
+def compute_taxonomy_id(basis: dict[str, object]) -> str:
+    return f"reasoning_taxonomy:{sha256_canonical_json(basis)[:16]}"
 
 
 class ReasoningTemplateStep(BaseModel):
@@ -530,6 +578,154 @@ class StructuralReasoningTrace(BaseModel):
         return self
 
 
+class StructuralFailureTaxonomy(BaseModel):
+    model_config = MODEL_CONFIG
+
+    schema_id: Literal[ADEU_STRUCTURAL_FAILURE_TAXONOMY_SCHEMA] = Field(
+        default=ADEU_STRUCTURAL_FAILURE_TAXONOMY_SCHEMA,
+        alias="schema",
+    )
+    taxonomy_id: str
+    probe_ref: str
+    trace_ref: str
+    taxonomy_status: StructuralFailureTaxonomyStatus
+    terminal_trace_status: TerminalTraceStatus
+    failure_families: list[FailureFamily] = Field(default_factory=list)
+    primary_failure_family: FailureFamily | None = None
+    supporting_break_refs: list[str] = Field(default_factory=list)
+    supporting_event_indexes: list[int] = Field(default_factory=list)
+    open_questions: list[str] = Field(default_factory=list)
+
+    @property
+    def schema(self) -> str:
+        return self.schema_id
+
+    @model_validator(mode="after")
+    def _validate(self) -> "StructuralFailureTaxonomy":
+        object.__setattr__(
+            self, "probe_ref", _assert_non_empty_text(self.probe_ref, field_name="probe_ref")
+        )
+        object.__setattr__(
+            self, "trace_ref", _assert_non_empty_text(self.trace_ref, field_name="trace_ref")
+        )
+        object.__setattr__(
+            self,
+            "failure_families",
+            _sorted_unique_texts(
+                self.failure_families,
+                field_name="failure_families",
+                sort_values=False,
+            ),
+        )
+        object.__setattr__(
+            self,
+            "supporting_break_refs",
+            _sorted_unique_texts(
+                self.supporting_break_refs,
+                field_name="supporting_break_refs",
+                sort_values=False,
+            ),
+        )
+        object.__setattr__(
+            self,
+            "supporting_event_indexes",
+            _sorted_unique_ints(
+                self.supporting_event_indexes, field_name="supporting_event_indexes"
+            ),
+        )
+        object.__setattr__(
+            self,
+            "open_questions",
+            _sorted_unique_texts(self.open_questions, field_name="open_questions"),
+        )
+
+        if self.primary_failure_family is not None:
+            object.__setattr__(
+                self,
+                "primary_failure_family",
+                _assert_non_empty_text(
+                    self.primary_failure_family, field_name="primary_failure_family"
+                ),
+            )
+
+        if self.taxonomy_status == "completed_clean_no_failure":
+            if self.terminal_trace_status != "completed_clean":
+                raise ValueError(
+                    "completed_clean_no_failure taxonomy requires "
+                    "terminal_trace_status completed_clean"
+                )
+            if (
+                self.failure_families
+                or self.primary_failure_family is not None
+                or self.supporting_break_refs
+                or self.supporting_event_indexes
+            ):
+                raise ValueError(
+                    "completed_clean_no_failure taxonomy may not carry "
+                    "failure families or supporting refs"
+                )
+        elif self.taxonomy_status == "blocked_lawful_insufficiency":
+            if self.terminal_trace_status != "blocked":
+                raise ValueError(
+                    "blocked_lawful_insufficiency taxonomy requires terminal_trace_status blocked"
+                )
+            if (
+                self.failure_families
+                or self.primary_failure_family is not None
+                or self.supporting_break_refs
+                or self.supporting_event_indexes
+            ):
+                raise ValueError(
+                    "blocked_lawful_insufficiency taxonomy may not carry "
+                    "failure families or supporting refs"
+                )
+        else:
+            if self.terminal_trace_status not in (
+                "completed_with_structural_break",
+                "invalid_early_closure",
+            ):
+                raise ValueError(
+                    "normalized_structural_failure taxonomy requires "
+                    "completed_with_structural_break or invalid_early_closure "
+                    "terminal status"
+                )
+            if not self.failure_families:
+                raise ValueError(
+                    "normalized_structural_failure taxonomy requires non-empty failure_families"
+                )
+            if self.primary_failure_family is not None and (
+                self.primary_failure_family not in self.failure_families
+            ):
+                raise ValueError(
+                    "primary_failure_family must be a member of failure_families"
+                )
+            if not self.supporting_event_indexes:
+                raise ValueError(
+                    "normalized_structural_failure taxonomy requires supporting_event_indexes"
+                )
+            if self.terminal_trace_status == "completed_with_structural_break":
+                if not self.supporting_break_refs:
+                    raise ValueError(
+                        "completed_with_structural_break taxonomy requires supporting_break_refs"
+                    )
+            else:
+                if self.failure_families != ["invalid_early_closure"]:
+                    raise ValueError(
+                        "invalid_early_closure taxonomy may normalize only to invalid_early_closure"
+                    )
+                if self.supporting_break_refs:
+                    raise ValueError(
+                        "invalid_early_closure taxonomy may not carry supporting_break_refs"
+                    )
+
+        expected_taxonomy_id = compute_taxonomy_id(_taxonomy_id_basis_from_model(self))
+        if self.taxonomy_id != expected_taxonomy_id:
+            raise ValueError(
+                "taxonomy_id must match canonical structural failure taxonomy identity"
+            )
+        return self
+
+
 def validate_trace_against_probe(
     *,
     probe: ReasoningTemplateProbe,
@@ -626,9 +822,12 @@ def validate_trace_against_probe(
 
 
 __all__ = [
+    "ADEU_STRUCTURAL_FAILURE_TAXONOMY_SCHEMA",
     "ADEU_REASONING_TEMPLATE_PROBE_SCHEMA",
     "ADEU_STRUCTURAL_REASONING_TRACE_SCHEMA",
+    "FAILURE_FAMILY_VOCABULARY",
     "LANE_ORDER",
+    "STRUCTURAL_FAILURE_TAXONOMY_STATUS_VOCABULARY",
     "TEMPLATE_CLASS_VOCABULARY",
     "TRACE_EVENT_VOCABULARY",
     "TERMINAL_TRACE_STATUS_VOCABULARY",
@@ -636,12 +835,14 @@ __all__ = [
     "ReasoningAcceptancePosture",
     "ReasoningTemplateProbe",
     "ReasoningTemplateStep",
+    "StructuralFailureTaxonomy",
     "StructuralBreakRecord",
     "StructuralReasoningTrace",
     "StructuralReasoningTraceEvent",
     "canonical_json",
     "compute_probe_id",
     "compute_structural_break_ref",
+    "compute_taxonomy_id",
     "compute_trace_id",
     "sha256_canonical_json",
     "validate_trace_against_probe",
