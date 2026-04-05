@@ -1,0 +1,109 @@
+{
+  "additionalProperties": false,
+  "properties": {
+    "failure_families": {
+      "items": {
+        "enum": [
+          "lane_collapse",
+          "branch_collapse",
+          "plan_spine_drift",
+          "active_step_decomposition_failure",
+          "reintegration_failure",
+          "invalid_early_closure",
+          "non_local_repair_drift"
+        ],
+        "type": "string"
+      },
+      "title": "Failure Families",
+      "type": "array"
+    },
+    "open_questions": {
+      "items": {
+        "type": "string"
+      },
+      "title": "Open Questions",
+      "type": "array"
+    },
+    "primary_failure_family": {
+      "anyOf": [
+        {
+          "enum": [
+            "lane_collapse",
+            "branch_collapse",
+            "plan_spine_drift",
+            "active_step_decomposition_failure",
+            "reintegration_failure",
+            "invalid_early_closure",
+            "non_local_repair_drift"
+          ],
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Primary Failure Family"
+    },
+    "probe_ref": {
+      "title": "Probe Ref",
+      "type": "string"
+    },
+    "schema": {
+      "const": "adeu_structural_failure_taxonomy@1",
+      "default": "adeu_structural_failure_taxonomy@1",
+      "title": "Schema",
+      "type": "string"
+    },
+    "supporting_break_refs": {
+      "items": {
+        "type": "string"
+      },
+      "title": "Supporting Break Refs",
+      "type": "array"
+    },
+    "supporting_event_indexes": {
+      "items": {
+        "type": "integer"
+      },
+      "title": "Supporting Event Indexes",
+      "type": "array"
+    },
+    "taxonomy_id": {
+      "title": "Taxonomy Id",
+      "type": "string"
+    },
+    "taxonomy_status": {
+      "enum": [
+        "completed_clean_no_failure",
+        "blocked_lawful_insufficiency",
+        "normalized_structural_failure"
+      ],
+      "title": "Taxonomy Status",
+      "type": "string"
+    },
+    "terminal_trace_status": {
+      "enum": [
+        "completed_clean",
+        "completed_with_structural_break",
+        "blocked",
+        "invalid_early_closure"
+      ],
+      "title": "Terminal Trace Status",
+      "type": "string"
+    },
+    "trace_ref": {
+      "title": "Trace Ref",
+      "type": "string"
+    }
+  },
+  "required": [
+    "taxonomy_id",
+    "probe_ref",
+    "trace_ref",
+    "taxonomy_status",
+    "terminal_trace_status"
+  ],
+  "title": "StructuralFailureTaxonomy",
+  "type": "object"
+}

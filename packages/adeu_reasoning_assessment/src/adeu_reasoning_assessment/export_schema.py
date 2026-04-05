@@ -9,8 +9,10 @@ from adeu_ir.repo import repo_root
 
 from .models import (
     ADEU_REASONING_TEMPLATE_PROBE_SCHEMA,
+    ADEU_STRUCTURAL_FAILURE_TAXONOMY_SCHEMA,
     ADEU_STRUCTURAL_REASONING_TRACE_SCHEMA,
     ReasoningTemplateProbe,
+    StructuralFailureTaxonomy,
     StructuralReasoningTrace,
 )
 
@@ -86,6 +88,16 @@ def main() -> None:
             / "schema"
             / "adeu_structural_reasoning_trace.v1.json",
             root / "spec" / "adeu_structural_reasoning_trace.schema.json",
+        ),
+        (
+            StructuralFailureTaxonomy,
+            ADEU_STRUCTURAL_FAILURE_TAXONOMY_SCHEMA,
+            root
+            / "packages"
+            / "adeu_reasoning_assessment"
+            / "schema"
+            / "adeu_structural_failure_taxonomy.v1.json",
+            root / "spec" / "adeu_structural_failure_taxonomy.schema.json",
         ),
     ]
 
