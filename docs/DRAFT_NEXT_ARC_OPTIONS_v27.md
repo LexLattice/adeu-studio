@@ -113,13 +113,14 @@ Planning relationship:
 - Recommended architecture reference:
   - `docs/DRAFT_STRUCTURAL_REASONING_ASSESSMENT_SPEC_v0.md`
 - Recommended decomposition reference:
-  - required before the first `V44` lock (`not_selected_yet`)
+  - `docs/LOCKED_CONTINUATION_vNEXT_PLUS131.md`
 - Recommended next path for this branch:
   - `V44-A`
 - Recommended next concrete arc for this branch if selected:
-  - `vNext+100_placeholder`
+  - `vNext+131`
 - Default path selection for this branch:
-  - select `V44-A` as the bounded starter
+  - select `V44-A` as the next default candidate
+  - keep that starter bounded to contract-first probe/trace surfaces only
 
 This family/path recommendation is branch-local to the `v27` planning surface.
 
@@ -178,8 +179,8 @@ The current recommended path ladder is:
 | Path | Theme | Primary output | Status |
 |---|---|---|---|
 | `V44-A` | template probe + structural trace substrate | candidate `adeu_reasoning_template_probe@1` and candidate `adeu_structural_reasoning_trace@1` | planned |
-| `V44-B` | normalized failure taxonomy + model profile aggregation | candidate `adeu_structural_failure_taxonomy@1` and candidate `adeu_model_structural_reasoning_profile@1` | planned |
-| `V44-C` | paired-condition differential diagnosis lane | knowledge-vs-procedure assay posture over bounded probe suites | planned |
+| `V44-B` | normalized failure taxonomy | candidate `adeu_structural_failure_taxonomy@1` with no strong profile promotion posture yet | planned |
+| `V44-C` | paired-condition differential diagnosis + provisional profile lane | knowledge-vs-procedure assay posture over bounded probe suites plus explicitly pre-differential model profile aggregation | planned |
 | `V44-D` | probe-library widening across template classes | expanded bounded probe library over decomposition, branching, repair, and invariance classes | planned |
 | `V44-E` | recursive-depth / structural-extension assessment seam | bounded recursive-closure assessment surfaces, still prior to SRM release | planned_later |
 
@@ -263,10 +264,9 @@ It should not attempt:
 
 ### `V44-B`
 
-Normalized taxonomy and profile lane:
+Normalized taxonomy lane:
 
 - candidate `adeu_structural_failure_taxonomy@1`;
-- candidate `adeu_model_structural_reasoning_profile@1`;
 - explicit non-equivalence between task score and structural reasoning fidelity;
 - explicit rejection of one-number overclaim posture.
 
@@ -276,6 +276,8 @@ Differential diagnosis lane:
 
 - paired supplied-knowledge versus withheld-knowledge probe conditions;
 - injected-knowledge continuation posture;
+- only after that, provisional model-profile aggregation with explicit
+  pre-differential caution posture;
 - clearer empirical separation between:
   - knowledge deficit,
   - procedural-discipline deficit.
@@ -371,9 +373,9 @@ are:
     "V44-E"
   ],
   "default_next_arc_candidate_for_this_branch": "V44-A",
-  "default_next_concrete_arc_candidate_for_this_branch": "vNext+100_placeholder",
+  "default_next_concrete_arc_candidate_for_this_branch": "vNext+131",
   "family_architecture_doc": "docs/DRAFT_STRUCTURAL_REASONING_ASSESSMENT_SPEC_v0.md",
-  "family_decomposition_doc": "not_selected_yet",
+  "family_decomposition_doc": "docs/LOCKED_CONTINUATION_vNEXT_PLUS131.md",
   "planned_family_packages": [
     "packages/adeu_reasoning_assessment"
   ],
@@ -396,7 +398,8 @@ are:
   "reintegration_fidelity_required": true,
   "flat_arbitrary_instruction_following_rejected_when_hierarchy_matters": true,
   "connected_v46_benchmark_projection_consumer_expected": true,
-  "failure_taxonomy_and_profile_lane_planned": true,
+  "failure_taxonomy_lane_planned": true,
+  "profile_lane_deferred_until_post_differential_or_explicitly_pre_differential": true,
   "differential_diagnosis_lane_planned": true,
   "recursive_depth_assessment_seam_planned_later": true,
   "srm_release_initially_deferred": true,
