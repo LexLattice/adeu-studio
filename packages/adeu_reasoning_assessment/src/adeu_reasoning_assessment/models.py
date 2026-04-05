@@ -576,8 +576,14 @@ def validate_trace_against_probe(
         if event.step_ref in seen_top_level:
             continue
         seen_top_level.append(event.step_ref)
-    if seen_top_level != probe.plan_spine_step_ids[: len(seen_top_level)]:
+    expected_prefix = probe.plan_spine_step_ids[: len(seen_top_level)]
+    if seen_top_level != expected_prefix:
         raise ValueError("trace top-level activation order must follow probe plan_spine_step_ids")
+    if trace.terminal_trace_status in (
+        "completed_clean",
+        "completed_with_structural_break",
+    ) and seen_top_level != probe.plan_spine_step_ids:
+        raise ValueError("completed traces must activate the full top-level plan spine")
 
     if probe.hierarchy_posture == "flat":
         if any(event.step_ref in child_step_set for event in trace.trace_events):

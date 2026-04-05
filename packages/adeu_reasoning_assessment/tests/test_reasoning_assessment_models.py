@@ -19,7 +19,7 @@ from adeu_reasoning_assessment.export_schema import main as export_schema_main
 from pydantic import ValidationError
 
 FIXTURE_ROOT = Path(__file__).parent / "fixtures" / "v44a"
-_WINDOWS_ABSOLUTE_PATH_RE = re.compile(r"[A-Za-z]:\\\\")
+_WINDOWS_ABSOLUTE_PATH_RE = re.compile(r"[A-Za-z]:\\")
 EXPECTED_FAILURE_SURFACES = {
     "lane_collapse",
     "branch_collapse",
@@ -179,6 +179,45 @@ def test_hierarchical_return_fixture_fails_closed_against_probe() -> None:
 
     with pytest.raises(ValueError, match="return_to_parent"):
         validate_trace_against_probe(probe=hierarchical_probe, trace=invalid_trace)
+
+
+def test_completed_trace_missing_trailing_plan_step_fails_closed() -> None:
+    hierarchical_probe = ReasoningTemplateProbe.model_validate(
+        _load_json("reference_reasoning_template_probe_hierarchical.json")
+    )
+    payload = _load_json("reference_structural_reasoning_trace_clean.json")
+    assert isinstance(payload, dict)
+
+    truncated_events = payload["trace_events"][:-2]
+    truncated_payload = {
+        **payload,
+        "trace_events": truncated_events,
+        "trace_id": compute_trace_id(
+            {
+                "schema": payload["schema"],
+                "probe_ref": payload["probe_ref"],
+                "subject_label": payload["subject_label"],
+                "trace_events": [
+                    {
+                        "event_index": item["event_index"],
+                        "event_kind": item["event_kind"],
+                        "step_ref": item["step_ref"],
+                        "lane_ref": item.get("lane_ref"),
+                        "target_step_ref": item.get("target_step_ref"),
+                        "break_tags": item.get("break_tags", []),
+                    }
+                    for item in truncated_events
+                ],
+                "terminal_trace_status": payload["terminal_trace_status"],
+                "structural_breaks": payload["structural_breaks"],
+                "open_questions": payload["open_questions"],
+            }
+        ),
+    }
+    truncated_trace = StructuralReasoningTrace.model_validate(truncated_payload)
+
+    with pytest.raises(ValueError, match="full top-level plan spine"):
+        validate_trace_against_probe(probe=hierarchical_probe, trace=truncated_trace)
 
 
 def test_fixture_expectation_matrix_is_compact_and_complete() -> None:

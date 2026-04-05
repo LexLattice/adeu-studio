@@ -14,7 +14,7 @@ from .models import (
     StructuralReasoningTrace,
 )
 
-_WINDOWS_ABSOLUTE_PATH_RE = re.compile(r"[A-Za-z]:\\\\")
+_WINDOWS_ABSOLUTE_PATH_RE = re.compile(r"[A-Za-z]:\\")
 
 
 def _write_schema(path: Path, schema: dict[str, Any]) -> None:
