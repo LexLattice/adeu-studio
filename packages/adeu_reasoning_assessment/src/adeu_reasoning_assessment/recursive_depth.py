@@ -61,6 +61,7 @@ def assess_recursive_reasoning(
     )
 
     recursive_status = _determine_recursive_status(
+        baseline_trace=baseline_trace,
         baseline_taxonomy=baseline_taxonomy,
         recursive_trace=recursive_trace,
         recursive_taxonomy=recursive_taxonomy,
@@ -133,6 +134,17 @@ def _validate_taxonomy_refs(
         raise ValueError("taxonomy.probe_ref must match probe.probe_id")
     if taxonomy.trace_ref != trace.trace_id:
         raise ValueError("taxonomy.trace_ref must match trace.trace_id")
+    if taxonomy.terminal_trace_status != trace.terminal_trace_status:
+        raise ValueError(
+            "taxonomy.terminal_trace_status must match the bound trace terminal status"
+        )
+    if taxonomy.supporting_event_indexes:
+        max_event_index = len(trace.trace_events) - 1
+        for event_index in taxonomy.supporting_event_indexes:
+            if event_index > max_event_index:
+                raise ValueError(
+                    "taxonomy.supporting_event_indexes may not reference missing trace events"
+                )
 
 
 def _select_suite_member(
@@ -244,6 +256,7 @@ def _terminal_status_rank(status: str) -> int:
 
 def _determine_recursive_status(
     *,
+    baseline_trace: StructuralReasoningTrace,
     baseline_taxonomy: StructuralFailureTaxonomy,
     recursive_trace: StructuralReasoningTrace,
     recursive_taxonomy: StructuralFailureTaxonomy,
@@ -257,7 +270,7 @@ def _determine_recursive_status(
     recursive_failure_families = set(recursive_taxonomy.failure_families)
     if (
         _terminal_status_rank(recursive_trace.terminal_trace_status)
-        > _terminal_status_rank(baseline_taxonomy.terminal_trace_status)
+        > _terminal_status_rank(baseline_trace.terminal_trace_status)
     ):
         return "recursive_closure_degraded"
     if recursive_failure_families - baseline_failure_families:
@@ -320,10 +333,10 @@ def _supporting_trace_event_refs(
     elif recursive_status == "recursive_early_closure_invalid":
         indexes.extend(recursive_taxonomy.supporting_event_indexes)
 
-    ordered_indexes: list[int] = []
-    for event_index in sorted(set(indexes)):
-        if event_index not in ordered_indexes:
-            ordered_indexes.append(event_index)
+    ordered_indexes = _validated_recursive_supporting_event_indexes(
+        indexes=indexes,
+        trace=recursive_trace,
+    )
     return [
         RecursiveSupportingTraceEventRef(
             trace_role="recursive_extension",
@@ -332,6 +345,26 @@ def _supporting_trace_event_refs(
         )
         for event_index in ordered_indexes
     ]
+
+
+def _validated_recursive_supporting_event_indexes(
+    *,
+    indexes: list[int],
+    trace: StructuralReasoningTrace,
+) -> list[int]:
+    max_event_index = len(trace.trace_events) - 1
+    ordered_indexes: list[int] = []
+    for event_index in indexes:
+        if event_index < 0 or event_index > max_event_index:
+            raise ValueError(
+                "supporting_trace_event_refs may not reference missing recursive trace events"
+            )
+        if ordered_indexes and event_index <= ordered_indexes[-1]:
+            raise ValueError(
+                "supporting_trace_event_refs must follow strict recursive trace event order"
+            )
+        ordered_indexes.append(event_index)
+    return ordered_indexes
 
 
 __all__ = [

@@ -12,6 +12,7 @@ from adeu_reasoning_assessment import (
     StructuralReasoningTrace,
     assess_recursive_reasoning,
     canonical_json,
+    compute_taxonomy_id,
 )
 
 V44D_FIXTURE_ROOT = Path(__file__).parent / "fixtures" / "v44d"
@@ -48,6 +49,29 @@ def _load_recursive_bundle(
         StructuralReasoningTrace.model_validate(payload["recursive_trace"]),
         StructuralFailureTaxonomy.model_validate(payload["recursive_taxonomy"]),
     )
+
+
+def _rebuild_taxonomy(
+    taxonomy: StructuralFailureTaxonomy,
+    **overrides: object,
+) -> StructuralFailureTaxonomy:
+    payload = taxonomy.model_dump(mode="json", by_alias=True, exclude_none=True)
+    payload.update(overrides)
+    payload["taxonomy_id"] = compute_taxonomy_id(
+        {
+            "schema": payload["schema"],
+            "probe_ref": payload["probe_ref"],
+            "trace_ref": payload["trace_ref"],
+            "taxonomy_status": payload["taxonomy_status"],
+            "terminal_trace_status": payload["terminal_trace_status"],
+            "failure_families": payload["failure_families"],
+            "primary_failure_family": payload.get("primary_failure_family"),
+            "supporting_break_refs": payload["supporting_break_refs"],
+            "supporting_event_indexes": payload["supporting_event_indexes"],
+            "open_questions": payload["open_questions"],
+        }
+    )
+    return StructuralFailureTaxonomy.model_validate(payload)
 
 
 def test_reference_recursive_assessment_fixtures_validate() -> None:
@@ -151,6 +175,65 @@ def test_non_local_rewrite_fails_closed() -> None:
             recursive_probe=recursive_probe,
             recursive_trace=recursive_trace,
             recursive_taxonomy=recursive_taxonomy,
+        )
+
+
+def test_baseline_taxonomy_terminal_status_mismatch_fails_closed() -> None:
+    suite = _load_suite()
+    (
+        baseline_probe,
+        baseline_trace,
+        baseline_taxonomy,
+        recursive_probe,
+        recursive_trace,
+        recursive_taxonomy,
+    ) = _load_recursive_bundle("reference_recursive_input_lawful.json")
+    mismatched_baseline_taxonomy = _rebuild_taxonomy(
+        baseline_taxonomy,
+        taxonomy_status="normalized_structural_failure",
+        terminal_trace_status="completed_with_structural_break",
+        failure_families=["reintegration_failure"],
+        primary_failure_family="reintegration_failure",
+        supporting_break_refs=["reasoning_break:synthetic"],
+        supporting_event_indexes=[10],
+    )
+
+    with pytest.raises(ValueError, match="terminal status"):
+        assess_recursive_reasoning(
+            suite=suite,
+            baseline_probe=baseline_probe,
+            baseline_trace=baseline_trace,
+            baseline_taxonomy=mismatched_baseline_taxonomy,
+            recursive_probe=recursive_probe,
+            recursive_trace=recursive_trace,
+            recursive_taxonomy=recursive_taxonomy,
+        )
+
+
+def test_recursive_taxonomy_missing_event_index_fails_closed() -> None:
+    suite = _load_suite()
+    (
+        baseline_probe,
+        baseline_trace,
+        baseline_taxonomy,
+        recursive_probe,
+        recursive_trace,
+        recursive_taxonomy,
+    ) = _load_recursive_bundle("reference_recursive_input_structurally_degraded.json")
+    invalid_recursive_taxonomy = _rebuild_taxonomy(
+        recursive_taxonomy,
+        supporting_event_indexes=[999],
+    )
+
+    with pytest.raises(ValueError, match="missing trace events"):
+        assess_recursive_reasoning(
+            suite=suite,
+            baseline_probe=baseline_probe,
+            baseline_trace=baseline_trace,
+            baseline_taxonomy=baseline_taxonomy,
+            recursive_probe=recursive_probe,
+            recursive_trace=recursive_trace,
+            recursive_taxonomy=invalid_recursive_taxonomy,
         )
 
 
