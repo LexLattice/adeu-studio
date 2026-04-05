@@ -1,0 +1,245 @@
+{
+  "$defs": {
+    "PairedConditionCompatibility": {
+      "additionalProperties": false,
+      "properties": {
+        "condition_variant_key": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Condition Variant Key"
+        },
+        "mode": {
+          "default": "standalone",
+          "enum": [
+            "standalone",
+            "paired_reference"
+          ],
+          "title": "Mode",
+          "type": "string"
+        },
+        "paired_suite_key": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Paired Suite Key"
+        }
+      },
+      "title": "PairedConditionCompatibility",
+      "type": "object"
+    },
+    "ReasoningAcceptancePosture": {
+      "additionalProperties": false,
+      "properties": {
+        "blocked_is_lawful": {
+          "const": true,
+          "default": true,
+          "title": "Blocked Is Lawful",
+          "type": "boolean"
+        },
+        "completion_requires_all_top_level_steps": {
+          "const": true,
+          "default": true,
+          "title": "Completion Requires All Top Level Steps",
+          "type": "boolean"
+        },
+        "invalid_early_closure_rejected": {
+          "const": true,
+          "default": true,
+          "title": "Invalid Early Closure Rejected",
+          "type": "boolean"
+        },
+        "return_to_parent_evidence_required_when_hierarchical": {
+          "const": true,
+          "default": true,
+          "title": "Return To Parent Evidence Required When Hierarchical",
+          "type": "boolean"
+        }
+      },
+      "title": "ReasoningAcceptancePosture",
+      "type": "object"
+    },
+    "ReasoningTemplateStep": {
+      "additionalProperties": false,
+      "properties": {
+        "completion_boundary": {
+          "title": "Completion Boundary",
+          "type": "string"
+        },
+        "lane_id": {
+          "enum": [
+            "O",
+            "E",
+            "D",
+            "U"
+          ],
+          "title": "Lane Id",
+          "type": "string"
+        },
+        "local_constraints": {
+          "items": {
+            "type": "string"
+          },
+          "title": "Local Constraints",
+          "type": "array"
+        },
+        "order_index": {
+          "minimum": 0,
+          "title": "Order Index",
+          "type": "integer"
+        },
+        "parent_step_ref": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Parent Step Ref"
+        },
+        "step_label": {
+          "title": "Step Label",
+          "type": "string"
+        },
+        "step_ref": {
+          "title": "Step Ref",
+          "type": "string"
+        }
+      },
+      "required": [
+        "step_ref",
+        "step_label",
+        "lane_id",
+        "order_index",
+        "completion_boundary"
+      ],
+      "title": "ReasoningTemplateStep",
+      "type": "object"
+    }
+  },
+  "additionalProperties": false,
+  "properties": {
+    "acceptance_posture": {
+      "$ref": "#/$defs/ReasoningAcceptancePosture"
+    },
+    "active_plan_step_ref": {
+      "title": "Active Plan Step Ref",
+      "type": "string"
+    },
+    "child_order_policy": {
+      "default": "ordered",
+      "enum": [
+        "ordered",
+        "unordered"
+      ],
+      "title": "Child Order Policy",
+      "type": "string"
+    },
+    "child_step_refs": {
+      "items": {
+        "type": "string"
+      },
+      "title": "Child Step Refs",
+      "type": "array"
+    },
+    "hierarchy_posture": {
+      "enum": [
+        "flat",
+        "single_level_parent_child"
+      ],
+      "title": "Hierarchy Posture",
+      "type": "string"
+    },
+    "lane_order": {
+      "items": {
+        "enum": [
+          "O",
+          "E",
+          "D",
+          "U"
+        ],
+        "type": "string"
+      },
+      "maxItems": 4,
+      "minItems": 4,
+      "title": "Lane Order",
+      "type": "array"
+    },
+    "paired_condition_compatibility": {
+      "$ref": "#/$defs/PairedConditionCompatibility"
+    },
+    "plan_spine_step_ids": {
+      "items": {
+        "type": "string"
+      },
+      "minItems": 1,
+      "title": "Plan Spine Step Ids",
+      "type": "array"
+    },
+    "probe_id": {
+      "title": "Probe Id",
+      "type": "string"
+    },
+    "probe_label": {
+      "title": "Probe Label",
+      "type": "string"
+    },
+    "return_to_parent_required": {
+      "title": "Return To Parent Required",
+      "type": "boolean"
+    },
+    "schema": {
+      "const": "adeu_reasoning_template_probe@1",
+      "default": "adeu_reasoning_template_probe@1",
+      "title": "Schema",
+      "type": "string"
+    },
+    "template_class": {
+      "enum": [
+        "lane_preserving_decomposition",
+        "branching_under_uncertainty",
+        "local_repair_continuation"
+      ],
+      "title": "Template Class",
+      "type": "string"
+    },
+    "template_steps": {
+      "items": {
+        "$ref": "#/$defs/ReasoningTemplateStep"
+      },
+      "minItems": 1,
+      "title": "Template Steps",
+      "type": "array"
+    }
+  },
+  "required": [
+    "probe_id",
+    "template_class",
+    "probe_label",
+    "lane_order",
+    "template_steps",
+    "acceptance_posture",
+    "paired_condition_compatibility",
+    "hierarchy_posture",
+    "plan_spine_step_ids",
+    "active_plan_step_ref",
+    "return_to_parent_required"
+  ],
+  "title": "ReasoningTemplateProbe",
+  "type": "object"
+}

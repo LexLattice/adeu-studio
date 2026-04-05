@@ -26,6 +26,7 @@ bootstrap:
 		-e "packages/adeu_semantic_source[dev]" \
 		-e "packages/adeu_semantic_compiler[dev]" \
 		-e "packages/adeu_semantic_forms[dev]" \
+		-e "packages/adeu_reasoning_assessment[dev]" \
 		-e "packages/adeu_symbol_audit[dev]" \
 		-e "packages/adeu_odeu_sim[dev]" \
 		-e "packages/adeu_paper_semantics[dev]" \
