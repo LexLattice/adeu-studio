@@ -1,0 +1,288 @@
+{
+  "suite_member_probe_refs": {
+    "supplied_knowledge": "reasoning_probe:a5b274b56c2a5d60",
+    "withheld_knowledge": "reasoning_probe:d5b5da4e68c7a15a"
+  },
+  "condition_probes": {
+    "supplied_knowledge": {
+      "schema": "adeu_reasoning_template_probe@1",
+      "probe_id": "reasoning_probe:a5b274b56c2a5d60",
+      "template_class": "lane_preserving_decomposition",
+      "probe_label": "Flat lane-preserving decomposition probe (supplied knowledge)",
+      "lane_order": [
+        "O",
+        "E",
+        "D",
+        "U"
+      ],
+      "template_steps": [
+        {
+          "step_ref": "observe_frame",
+          "step_label": "Observe the bounded frame before synthesis.",
+          "lane_id": "O",
+          "order_index": 0,
+          "completion_boundary": "Emit the bounded observation frame before moving to synthesis.",
+          "local_constraints": [
+            "bounded_observation_only"
+          ]
+        },
+        {
+          "step_ref": "assemble_claim",
+          "step_label": "Assemble the local claim without collapsing lanes.",
+          "lane_id": "E",
+          "order_index": 1,
+          "completion_boundary": "Preserve observed facts while forming the local claim.",
+          "local_constraints": [
+            "no_unsupported_certainty",
+            "preserve_observation_evidence"
+          ]
+        },
+        {
+          "step_ref": "report_result",
+          "step_label": "Report the bounded result.",
+          "lane_id": "D",
+          "order_index": 2,
+          "completion_boundary": "Produce the bounded report without adding unsupported certainty.",
+          "local_constraints": [
+            "report_only_assembled_claim"
+          ]
+        }
+      ],
+      "acceptance_posture": {
+        "completion_requires_all_top_level_steps": true,
+        "blocked_is_lawful": true,
+        "invalid_early_closure_rejected": true,
+        "return_to_parent_evidence_required_when_hierarchical": true
+      },
+      "paired_condition_compatibility": {
+        "mode": "paired_reference",
+        "paired_suite_key": "v44c.flat_pair",
+        "condition_variant_key": "supplied_knowledge"
+      },
+      "hierarchy_posture": "flat",
+      "plan_spine_step_ids": [
+        "observe_frame",
+        "assemble_claim",
+        "report_result"
+      ],
+      "active_plan_step_ref": "assemble_claim",
+      "child_step_refs": [],
+      "child_order_policy": "ordered",
+      "return_to_parent_required": false
+    },
+    "withheld_knowledge": {
+      "schema": "adeu_reasoning_template_probe@1",
+      "probe_id": "reasoning_probe:d5b5da4e68c7a15a",
+      "template_class": "lane_preserving_decomposition",
+      "probe_label": "Flat lane-preserving decomposition probe (withheld knowledge)",
+      "lane_order": [
+        "O",
+        "E",
+        "D",
+        "U"
+      ],
+      "template_steps": [
+        {
+          "step_ref": "observe_frame",
+          "step_label": "Observe the bounded frame before synthesis.",
+          "lane_id": "O",
+          "order_index": 0,
+          "completion_boundary": "Emit the bounded observation frame before moving to synthesis.",
+          "local_constraints": [
+            "bounded_observation_only"
+          ]
+        },
+        {
+          "step_ref": "assemble_claim",
+          "step_label": "Assemble the local claim without collapsing lanes.",
+          "lane_id": "E",
+          "order_index": 1,
+          "completion_boundary": "Preserve observed facts while forming the local claim.",
+          "local_constraints": [
+            "no_unsupported_certainty",
+            "preserve_observation_evidence"
+          ]
+        },
+        {
+          "step_ref": "report_result",
+          "step_label": "Report the bounded result.",
+          "lane_id": "D",
+          "order_index": 2,
+          "completion_boundary": "Produce the bounded report without adding unsupported certainty.",
+          "local_constraints": [
+            "report_only_assembled_claim"
+          ]
+        }
+      ],
+      "acceptance_posture": {
+        "completion_requires_all_top_level_steps": true,
+        "blocked_is_lawful": true,
+        "invalid_early_closure_rejected": true,
+        "return_to_parent_evidence_required_when_hierarchical": true
+      },
+      "paired_condition_compatibility": {
+        "mode": "paired_reference",
+        "paired_suite_key": "v44c.flat_pair",
+        "condition_variant_key": "withheld_knowledge"
+      },
+      "hierarchy_posture": "flat",
+      "plan_spine_step_ids": [
+        "observe_frame",
+        "assemble_claim",
+        "report_result"
+      ],
+      "active_plan_step_ref": "assemble_claim",
+      "child_step_refs": [],
+      "child_order_policy": "ordered",
+      "return_to_parent_required": false
+    }
+  },
+  "condition_traces": {
+    "supplied_knowledge": {
+      "schema": "adeu_structural_reasoning_trace@1",
+      "trace_id": "reasoning_trace:d1fa37e9dcb3f13c",
+      "probe_ref": "reasoning_probe:a5b274b56c2a5d60",
+      "subject_label": "flat_supplied_clean_subject",
+      "trace_events": [
+        {
+          "event_index": 0,
+          "event_kind": "step_activate",
+          "step_ref": "observe_frame",
+          "lane_ref": "O",
+          "break_tags": []
+        },
+        {
+          "event_index": 1,
+          "event_kind": "step_complete",
+          "step_ref": "observe_frame",
+          "lane_ref": "O",
+          "break_tags": []
+        },
+        {
+          "event_index": 2,
+          "event_kind": "step_activate",
+          "step_ref": "assemble_claim",
+          "lane_ref": "E",
+          "break_tags": []
+        },
+        {
+          "event_index": 3,
+          "event_kind": "step_complete",
+          "step_ref": "assemble_claim",
+          "lane_ref": "E",
+          "break_tags": []
+        },
+        {
+          "event_index": 4,
+          "event_kind": "step_activate",
+          "step_ref": "report_result",
+          "lane_ref": "D",
+          "break_tags": []
+        },
+        {
+          "event_index": 5,
+          "event_kind": "step_complete",
+          "step_ref": "report_result",
+          "lane_ref": "D",
+          "break_tags": []
+        }
+      ],
+      "terminal_trace_status": "completed_clean",
+      "structural_breaks": [],
+      "open_questions": []
+    },
+    "withheld_knowledge": {
+      "schema": "adeu_structural_reasoning_trace@1",
+      "trace_id": "reasoning_trace:df7bd18fc3320c4c",
+      "probe_ref": "reasoning_probe:d5b5da4e68c7a15a",
+      "subject_label": "flat_withheld_blocked_subject",
+      "trace_events": [
+        {
+          "event_index": 0,
+          "event_kind": "step_activate",
+          "step_ref": "observe_frame",
+          "lane_ref": "O",
+          "break_tags": []
+        },
+        {
+          "event_index": 1,
+          "event_kind": "step_complete",
+          "step_ref": "observe_frame",
+          "lane_ref": "O",
+          "break_tags": []
+        },
+        {
+          "event_index": 2,
+          "event_kind": "step_activate",
+          "step_ref": "assemble_claim",
+          "lane_ref": "E",
+          "break_tags": []
+        },
+        {
+          "event_index": 3,
+          "event_kind": "blocked",
+          "step_ref": "assemble_claim",
+          "lane_ref": "E",
+          "break_tags": []
+        }
+      ],
+      "terminal_trace_status": "blocked",
+      "structural_breaks": [],
+      "open_questions": [
+        "Missing authoritative observation needed to advance assemble_claim."
+      ]
+    }
+  },
+  "condition_taxonomies": {
+    "supplied_knowledge": {
+      "schema": "adeu_structural_failure_taxonomy@1",
+      "taxonomy_id": "reasoning_taxonomy:d9859351443fcad7",
+      "probe_ref": "reasoning_probe:a5b274b56c2a5d60",
+      "trace_ref": "reasoning_trace:d1fa37e9dcb3f13c",
+      "taxonomy_status": "completed_clean_no_failure",
+      "terminal_trace_status": "completed_clean",
+      "failure_families": [],
+      "supporting_break_refs": [],
+      "supporting_event_indexes": [],
+      "open_questions": []
+    },
+    "withheld_knowledge": {
+      "schema": "adeu_structural_failure_taxonomy@1",
+      "taxonomy_id": "reasoning_taxonomy:dfb9f630f2ee7185",
+      "probe_ref": "reasoning_probe:d5b5da4e68c7a15a",
+      "trace_ref": "reasoning_trace:df7bd18fc3320c4c",
+      "taxonomy_status": "blocked_lawful_insufficiency",
+      "terminal_trace_status": "blocked",
+      "failure_families": [],
+      "supporting_break_refs": [],
+      "supporting_event_indexes": [],
+      "open_questions": [
+        "Missing authoritative observation needed to advance assemble_claim."
+      ]
+    }
+  },
+  "expected_differential": {
+    "schema": "adeu_structural_reasoning_differential@1",
+    "differential_id": "reasoning_differential:7c28510da1841e85",
+    "probe_template_ref": "reasoning_probe_template:v44c.flat_pair",
+    "condition_trace_refs": {
+      "supplied_knowledge": "reasoning_trace:d1fa37e9dcb3f13c",
+      "withheld_knowledge": "reasoning_trace:df7bd18fc3320c4c"
+    },
+    "condition_taxonomy_refs": {
+      "supplied_knowledge": "reasoning_taxonomy:d9859351443fcad7",
+      "withheld_knowledge": "reasoning_taxonomy:dfb9f630f2ee7185"
+    },
+    "condition_roles_present": [
+      "supplied_knowledge",
+      "withheld_knowledge"
+    ],
+    "differential_status": "paired_conditions_complete",
+    "differential_judgment": "knowledge_deficit_supported",
+    "supporting_failure_families": [],
+    "supporting_trace_event_refs": [],
+    "open_questions": [
+      "Missing authoritative observation needed to advance assemble_claim."
+    ]
+  }
+}

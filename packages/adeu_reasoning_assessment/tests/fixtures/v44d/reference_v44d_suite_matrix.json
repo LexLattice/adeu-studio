@@ -1,0 +1,79 @@
+{
+  "suite_ref": "reasoning_probe_suite:feb797e2a09a8920",
+  "suite_members": [
+    {
+      "source_fixture_name": "reference_differential_input_knowledge_deficit.json",
+      "condition_role": "supplied_knowledge",
+      "probe_ref": "reasoning_probe:a5b274b56c2a5d60",
+      "template_class": "lane_preserving_decomposition",
+      "surface_variation_kind": null,
+      "repair_locality_posture": null,
+      "consumer_compatibility_refs": [
+        "adeu_structural_failure_taxonomy@1",
+        "adeu_structural_reasoning_differential@1"
+      ],
+      "paired_condition_compatible": true
+    },
+    {
+      "source_fixture_name": "reference_differential_input_knowledge_deficit.json",
+      "condition_role": "withheld_knowledge",
+      "probe_ref": "reasoning_probe:d5b5da4e68c7a15a",
+      "template_class": "lane_preserving_decomposition",
+      "surface_variation_kind": null,
+      "repair_locality_posture": null,
+      "consumer_compatibility_refs": [
+        "adeu_structural_failure_taxonomy@1",
+        "adeu_structural_reasoning_differential@1"
+      ],
+      "paired_condition_compatible": true
+    },
+    {
+      "source_fixture_name": "reference_reasoning_template_probe_branching.json",
+      "condition_role": null,
+      "probe_ref": "reasoning_probe:8712e10b2481ff3a",
+      "template_class": "branching_under_uncertainty",
+      "surface_variation_kind": null,
+      "repair_locality_posture": null,
+      "consumer_compatibility_refs": [
+        "adeu_structural_failure_taxonomy@1"
+      ],
+      "paired_condition_compatible": false
+    },
+    {
+      "source_fixture_name": "reference_reasoning_template_probe_local_repair.json",
+      "condition_role": null,
+      "probe_ref": "reasoning_probe:f11c5dcae19137e0",
+      "template_class": "local_repair_continuation",
+      "surface_variation_kind": null,
+      "repair_locality_posture": "local_only",
+      "consumer_compatibility_refs": [
+        "adeu_structural_failure_taxonomy@1"
+      ],
+      "paired_condition_compatible": false
+    },
+    {
+      "source_fixture_name": "reference_reasoning_template_probe_invariance_paraphrase.json",
+      "condition_role": null,
+      "probe_ref": "reasoning_probe:f0bc061ecf4dd27e",
+      "template_class": "invariance_under_surface_variation",
+      "surface_variation_kind": "paraphrase_preserving",
+      "repair_locality_posture": null,
+      "consumer_compatibility_refs": [
+        "adeu_structural_failure_taxonomy@1"
+      ],
+      "paired_condition_compatible": false
+    },
+    {
+      "source_fixture_name": "reference_reasoning_template_probe_invariance_presentation_shift.json",
+      "condition_role": null,
+      "probe_ref": "reasoning_probe:5bf708e9df09b5ac",
+      "template_class": "invariance_under_surface_variation",
+      "surface_variation_kind": "presentation_shift_preserving",
+      "repair_locality_posture": null,
+      "consumer_compatibility_refs": [
+        "adeu_structural_failure_taxonomy@1"
+      ],
+      "paired_condition_compatible": false
+    }
+  ]
+}

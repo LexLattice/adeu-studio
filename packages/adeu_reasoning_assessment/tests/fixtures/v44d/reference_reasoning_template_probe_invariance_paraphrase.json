@@ -1,0 +1,69 @@
+{
+  "schema": "adeu_reasoning_template_probe@1",
+  "probe_id": "reasoning_probe:f0bc061ecf4dd27e",
+  "template_class": "invariance_under_surface_variation",
+  "probe_label": "Flat invariance probe under paraphrase-preserving variation",
+  "lane_order": [
+    "O",
+    "E",
+    "D",
+    "U"
+  ],
+  "template_steps": [
+    {
+      "step_ref": "observe_anchor",
+      "step_label": "Observe the anchor span before paraphrase-preserving variation.",
+      "lane_id": "O",
+      "order_index": 0,
+      "completion_boundary": "Record the bounded anchor span before variant-preserving transformation.",
+      "local_constraints": [
+        "bounded_observation_only",
+        "procedure_preservation_required",
+        "surface_variation_kind:paraphrase_preserving"
+      ]
+    },
+    {
+      "step_ref": "preserve_inference",
+      "step_label": "Preserve the abstract inference while paraphrasing the surface realization.",
+      "lane_id": "E",
+      "order_index": 1,
+      "completion_boundary": "Preserve the abstract inference procedure while varying only the admitted surface.",
+      "local_constraints": [
+        "preserve_abstract_inference",
+        "procedure_preservation_required",
+        "surface_variation_kind:paraphrase_preserving"
+      ]
+    },
+    {
+      "step_ref": "emit_variant",
+      "step_label": "Emit the paraphrased variant without changing the abstract procedure.",
+      "lane_id": "D",
+      "order_index": 2,
+      "completion_boundary": "Emit the bounded variant output without altering the abstract procedure.",
+      "local_constraints": [
+        "emit_variant_only",
+        "procedure_preservation_required",
+        "surface_variation_kind:paraphrase_preserving"
+      ]
+    }
+  ],
+  "acceptance_posture": {
+    "completion_requires_all_top_level_steps": true,
+    "blocked_is_lawful": true,
+    "invalid_early_closure_rejected": true,
+    "return_to_parent_evidence_required_when_hierarchical": true
+  },
+  "paired_condition_compatibility": {
+    "mode": "standalone"
+  },
+  "hierarchy_posture": "flat",
+  "plan_spine_step_ids": [
+    "observe_anchor",
+    "preserve_inference",
+    "emit_variant"
+  ],
+  "active_plan_step_ref": "preserve_inference",
+  "child_step_refs": [],
+  "child_order_policy": "ordered",
+  "return_to_parent_required": false
+}

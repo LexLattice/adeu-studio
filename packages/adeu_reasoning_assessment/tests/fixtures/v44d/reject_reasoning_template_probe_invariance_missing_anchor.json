@@ -1,0 +1,66 @@
+{
+  "schema": "adeu_reasoning_template_probe@1",
+  "probe_id": "reasoning_probe:f5965ef282757197",
+  "template_class": "invariance_under_surface_variation",
+  "probe_label": "Reject invariance probe missing procedure anchor",
+  "lane_order": [
+    "O",
+    "E",
+    "D",
+    "U"
+  ],
+  "template_steps": [
+    {
+      "step_ref": "observe_anchor",
+      "step_label": "Observe the anchor span without a procedure anchor.",
+      "lane_id": "O",
+      "order_index": 0,
+      "completion_boundary": "Record the anchor span before a paraphrase variation.",
+      "local_constraints": [
+        "bounded_observation_only",
+        "surface_variation_kind:paraphrase_preserving"
+      ]
+    },
+    {
+      "step_ref": "preserve_inference",
+      "step_label": "Attempt to preserve inference without an explicit procedure anchor.",
+      "lane_id": "E",
+      "order_index": 1,
+      "completion_boundary": "Attempt to preserve inference without the required explicit anchor.",
+      "local_constraints": [
+        "preserve_abstract_inference",
+        "surface_variation_kind:paraphrase_preserving"
+      ]
+    },
+    {
+      "step_ref": "emit_variant",
+      "step_label": "Emit the paraphrased variant without the required procedure anchor.",
+      "lane_id": "D",
+      "order_index": 2,
+      "completion_boundary": "Emit the paraphrased output without the required explicit anchor.",
+      "local_constraints": [
+        "emit_variant_only",
+        "surface_variation_kind:paraphrase_preserving"
+      ]
+    }
+  ],
+  "acceptance_posture": {
+    "completion_requires_all_top_level_steps": true,
+    "blocked_is_lawful": true,
+    "invalid_early_closure_rejected": true,
+    "return_to_parent_evidence_required_when_hierarchical": true
+  },
+  "paired_condition_compatibility": {
+    "mode": "standalone"
+  },
+  "hierarchy_posture": "flat",
+  "plan_spine_step_ids": [
+    "observe_anchor",
+    "preserve_inference",
+    "emit_variant"
+  ],
+  "active_plan_step_ref": "preserve_inference",
+  "child_step_refs": [],
+  "child_order_policy": "ordered",
+  "return_to_parent_required": false
+}

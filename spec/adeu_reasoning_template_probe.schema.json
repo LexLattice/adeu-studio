@@ -213,7 +213,8 @@
       "enum": [
         "lane_preserving_decomposition",
         "branching_under_uncertainty",
-        "local_repair_continuation"
+        "local_repair_continuation",
+        "invariance_under_surface_variation"
       ],
       "title": "Template Class",
       "type": "string"

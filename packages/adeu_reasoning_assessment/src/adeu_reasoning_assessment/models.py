@@ -9,12 +9,23 @@ ADEU_REASONING_TEMPLATE_PROBE_SCHEMA = "adeu_reasoning_template_probe@1"
 ADEU_STRUCTURAL_REASONING_TRACE_SCHEMA = "adeu_structural_reasoning_trace@1"
 ADEU_STRUCTURAL_FAILURE_TAXONOMY_SCHEMA = "adeu_structural_failure_taxonomy@1"
 ADEU_STRUCTURAL_REASONING_DIFFERENTIAL_SCHEMA = "adeu_structural_reasoning_differential@1"
+ADEU_REASONING_PROBE_SUITE_SCHEMA = "adeu_reasoning_probe_suite@1"
 
 LANE_ORDER = ("O", "E", "D", "U")
 TEMPLATE_CLASS_VOCABULARY = (
     "lane_preserving_decomposition",
     "branching_under_uncertainty",
     "local_repair_continuation",
+    "invariance_under_surface_variation",
+)
+SURFACE_VARIATION_KIND_VOCABULARY = (
+    "paraphrase_preserving",
+    "presentation_shift_preserving",
+)
+REPAIR_LOCALITY_POSTURE_VOCABULARY = ("local_only",)
+CONSUMER_COMPATIBILITY_REF_VOCABULARY = (
+    ADEU_STRUCTURAL_FAILURE_TAXONOMY_SCHEMA,
+    ADEU_STRUCTURAL_REASONING_DIFFERENTIAL_SCHEMA,
 )
 TRACE_EVENT_VOCABULARY = (
     "step_activate",
@@ -69,6 +80,16 @@ TemplateClass = Literal[
     "lane_preserving_decomposition",
     "branching_under_uncertainty",
     "local_repair_continuation",
+    "invariance_under_surface_variation",
+]
+SurfaceVariationKind = Literal[
+    "paraphrase_preserving",
+    "presentation_shift_preserving",
+]
+RepairLocalityPosture = Literal["local_only"]
+ConsumerCompatibilityRef = Literal[
+    "adeu_structural_failure_taxonomy@1",
+    "adeu_structural_reasoning_differential@1",
 ]
 LaneId = Literal["O", "E", "D", "U"]
 HierarchyPosture = Literal["flat", "single_level_parent_child"]
@@ -145,6 +166,80 @@ def _sorted_unique_ints(values: list[int], *, field_name: str) -> list[int]:
     if len(normalized) != len(set(normalized)):
         raise ValueError(f"{field_name} must be unique")
     return sorted(normalized)
+
+
+def _template_class_sort_key(value: str) -> tuple[int, str]:
+    order = {item: index for index, item in enumerate(TEMPLATE_CLASS_VOCABULARY)}
+    return (order.get(value, len(order)), value)
+
+
+def _surface_variation_sort_key(value: str | None) -> tuple[int, int, str]:
+    if value is None:
+        return (0, -1, "")
+    order = {
+        item: index for index, item in enumerate(SURFACE_VARIATION_KIND_VOCABULARY)
+    }
+    return (1, order.get(value, len(order)), value)
+
+
+def _consumer_compatibility_sort_key(value: str) -> tuple[int, str]:
+    order = {
+        item: index for index, item in enumerate(CONSUMER_COMPATIBILITY_REF_VOCABULARY)
+    }
+    return (order.get(value, len(order)), value)
+
+
+def _sorted_unique_template_classes(
+    values: list[TemplateClass], *, field_name: str
+) -> list[TemplateClass]:
+    normalized = [_assert_non_empty_text(value, field_name=field_name) for value in values]
+    if len(normalized) != len(set(normalized)):
+        raise ValueError(f"{field_name} must be unique")
+    return list(sorted(normalized, key=_template_class_sort_key))  # type: ignore[return-value]
+
+
+def _sorted_unique_surface_variation_kinds(
+    values: list[SurfaceVariationKind], *, field_name: str
+) -> list[SurfaceVariationKind]:
+    normalized = [_assert_non_empty_text(value, field_name=field_name) for value in values]
+    if len(normalized) != len(set(normalized)):
+        raise ValueError(f"{field_name} must be unique")
+    return list(
+        sorted(normalized, key=lambda item: _surface_variation_sort_key(item))
+    )  # type: ignore[return-value]
+
+
+def _sorted_unique_consumer_compatibility_refs(
+    values: list[ConsumerCompatibilityRef], *, field_name: str
+) -> list[ConsumerCompatibilityRef]:
+    normalized = [_assert_non_empty_text(value, field_name=field_name) for value in values]
+    if len(normalized) != len(set(normalized)):
+        raise ValueError(f"{field_name} must be unique")
+    return list(
+        sorted(normalized, key=_consumer_compatibility_sort_key)
+    )  # type: ignore[return-value]
+
+
+def _ordered_unique_template_classes_from_members(
+    values: list[TemplateClass], *, field_name: str
+) -> list[TemplateClass]:
+    normalized = [_assert_non_empty_text(value, field_name=field_name) for value in values]
+    ordered: list[str] = []
+    for value in sorted(normalized, key=_template_class_sort_key):
+        if value not in ordered:
+            ordered.append(value)
+    return ordered  # type: ignore[return-value]
+
+
+def _ordered_unique_surface_variation_kinds_from_members(
+    values: list[SurfaceVariationKind], *, field_name: str
+) -> list[SurfaceVariationKind]:
+    normalized = [_assert_non_empty_text(value, field_name=field_name) for value in values]
+    ordered: list[str] = []
+    for value in sorted(normalized, key=lambda item: _surface_variation_sort_key(item)):
+        if value not in ordered:
+            ordered.append(value)
+    return ordered  # type: ignore[return-value]
 
 
 def _condition_role_sort_key(role: str) -> tuple[int, str]:
@@ -278,6 +373,28 @@ def _differential_id_basis_from_model(
     }
 
 
+def _probe_suite_member_basis(member: "ReasoningProbeSuiteMember") -> dict[str, object]:
+    return {
+        "probe_ref": member.probe_ref,
+        "template_class": member.template_class,
+        "surface_variation_kind": member.surface_variation_kind,
+        "repair_locality_posture": member.repair_locality_posture,
+        "consumer_compatibility_refs": member.consumer_compatibility_refs,
+        "paired_condition_compatible": member.paired_condition_compatible,
+    }
+
+
+def _probe_suite_id_basis_from_model(model: "ReasoningProbeSuite") -> dict[str, object]:
+    return {
+        "schema": model.schema,
+        "suite_label": model.suite_label,
+        "suite_members": [_probe_suite_member_basis(member) for member in model.suite_members],
+        "template_classes_included": model.template_classes_included,
+        "accepted_surface_variation_kinds": model.accepted_surface_variation_kinds,
+        "repair_locality_posture": model.repair_locality_posture,
+    }
+
+
 def compute_probe_id(basis: dict[str, object]) -> str:
     return f"reasoning_probe:{sha256_canonical_json(basis)[:16]}"
 
@@ -296,6 +413,14 @@ def compute_taxonomy_id(basis: dict[str, object]) -> str:
 
 def compute_differential_id(basis: dict[str, object]) -> str:
     return f"reasoning_differential:{sha256_canonical_json(basis)[:16]}"
+
+
+def compute_probe_suite_hash(basis: dict[str, object]) -> str:
+    return sha256_canonical_json(basis)
+
+
+def compute_probe_suite_id(basis: dict[str, object]) -> str:
+    return f"reasoning_probe_suite:{compute_probe_suite_hash(basis)[:16]}"
 
 
 class ReasoningTemplateStep(BaseModel):
@@ -964,6 +1089,205 @@ class StructuralReasoningDifferential(BaseModel):
         return self
 
 
+class ReasoningProbeSuiteMember(BaseModel):
+    model_config = MODEL_CONFIG
+
+    probe_ref: str
+    template_class: TemplateClass
+    surface_variation_kind: SurfaceVariationKind | None = None
+    repair_locality_posture: RepairLocalityPosture | None = None
+    consumer_compatibility_refs: list[ConsumerCompatibilityRef] = Field(min_length=1)
+    paired_condition_compatible: bool
+
+    @model_validator(mode="after")
+    def _validate(self) -> "ReasoningProbeSuiteMember":
+        object.__setattr__(
+            self, "probe_ref", _assert_non_empty_text(self.probe_ref, field_name="probe_ref")
+        )
+        object.__setattr__(
+            self,
+            "consumer_compatibility_refs",
+            _sorted_unique_consumer_compatibility_refs(
+                self.consumer_compatibility_refs,
+                field_name="consumer_compatibility_refs",
+            ),
+        )
+
+        if self.template_class == "invariance_under_surface_variation":
+            if self.surface_variation_kind is None:
+                raise ValueError(
+                    "invariance_under_surface_variation members require surface_variation_kind"
+                )
+        elif self.surface_variation_kind is not None:
+            raise ValueError(
+                "only invariance_under_surface_variation members may declare surface_variation_kind"
+            )
+
+        if self.template_class == "local_repair_continuation":
+            if self.repair_locality_posture != "local_only":
+                raise ValueError(
+                    "local_repair_continuation members require repair_locality_posture local_only"
+                )
+        elif self.repair_locality_posture is not None:
+            raise ValueError(
+                "only local_repair_continuation members may declare repair_locality_posture"
+            )
+
+        if (
+            ADEU_STRUCTURAL_REASONING_DIFFERENTIAL_SCHEMA in self.consumer_compatibility_refs
+            and not self.paired_condition_compatible
+        ):
+            raise ValueError(
+                "differential compatibility requires paired_condition_compatible = true"
+            )
+        if (
+            ADEU_STRUCTURAL_REASONING_DIFFERENTIAL_SCHEMA in self.consumer_compatibility_refs
+            and ADEU_STRUCTURAL_FAILURE_TAXONOMY_SCHEMA
+            not in self.consumer_compatibility_refs
+        ):
+            raise ValueError(
+                "differential compatibility requires taxonomy compatibility in the starter slice"
+            )
+        if self.paired_condition_compatible and (
+            ADEU_STRUCTURAL_REASONING_DIFFERENTIAL_SCHEMA
+            not in self.consumer_compatibility_refs
+        ):
+            raise ValueError(
+                "paired_condition_compatible members must declare differential compatibility"
+            )
+        return self
+
+
+class ReasoningProbeSuite(BaseModel):
+    model_config = MODEL_CONFIG
+
+    schema_id: Literal[ADEU_REASONING_PROBE_SUITE_SCHEMA] = Field(
+        default=ADEU_REASONING_PROBE_SUITE_SCHEMA,
+        alias="schema",
+    )
+    suite_id: str
+    suite_label: str
+    suite_members: list[ReasoningProbeSuiteMember] = Field(min_length=6)
+    template_classes_included: list[TemplateClass] = Field(min_length=4, max_length=4)
+    accepted_surface_variation_kinds: list[SurfaceVariationKind] = Field(
+        min_length=2, max_length=2
+    )
+    repair_locality_posture: RepairLocalityPosture
+    suite_hash: str
+
+    @property
+    def schema(self) -> str:
+        return self.schema_id
+
+    @model_validator(mode="after")
+    def _validate(self) -> "ReasoningProbeSuite":
+        object.__setattr__(
+            self, "suite_label", _assert_non_empty_text(self.suite_label, field_name="suite_label")
+        )
+        normalized_members = sorted(
+            self.suite_members,
+            key=lambda member: (
+                _template_class_sort_key(member.template_class),
+                _surface_variation_sort_key(member.surface_variation_kind),
+                member.probe_ref,
+            ),
+        )
+        object.__setattr__(self, "suite_members", normalized_members)
+
+        probe_refs = [member.probe_ref for member in normalized_members]
+        if len(probe_refs) != len(set(probe_refs)):
+            raise ValueError("suite_members probe_ref values must be unique")
+
+        normalized_classes = _sorted_unique_template_classes(
+            self.template_classes_included,
+            field_name="template_classes_included",
+        )
+        derived_classes = _ordered_unique_template_classes_from_members(
+            [member.template_class for member in normalized_members],
+            field_name="derived_template_classes_included",
+        )
+        if normalized_classes != derived_classes:
+            raise ValueError(
+                "template_classes_included must match the canonical class set "
+                "present in suite_members"
+            )
+        if normalized_classes != list(TEMPLATE_CLASS_VOCABULARY):
+            raise ValueError(
+                "template_classes_included must match the frozen V44-D starter template classes"
+            )
+        object.__setattr__(self, "template_classes_included", normalized_classes)
+
+        normalized_variation_kinds = _sorted_unique_surface_variation_kinds(
+            self.accepted_surface_variation_kinds,
+            field_name="accepted_surface_variation_kinds",
+        )
+        derived_variation_kinds = _ordered_unique_surface_variation_kinds_from_members(
+            [
+                member.surface_variation_kind
+                for member in normalized_members
+                if member.surface_variation_kind is not None
+            ],
+            field_name="derived_accepted_surface_variation_kinds",
+        )
+        if normalized_variation_kinds != derived_variation_kinds:
+            raise ValueError(
+                "accepted_surface_variation_kinds must match the canonical "
+                "variation kinds present in suite_members"
+            )
+        if normalized_variation_kinds != list(SURFACE_VARIATION_KIND_VOCABULARY):
+            raise ValueError(
+                "accepted_surface_variation_kinds must match the frozen "
+                "V44-D starter variation kinds"
+            )
+        object.__setattr__(
+            self, "accepted_surface_variation_kinds", normalized_variation_kinds
+        )
+
+        per_class_counts = {
+            template_class: sum(
+                1 for member in normalized_members if member.template_class == template_class
+            )
+            for template_class in TEMPLATE_CLASS_VOCABULARY
+        }
+        if any(count < 1 for count in per_class_counts.values()):
+            raise ValueError(
+                "suite_members must include at least one member for each "
+                "template_class"
+            )
+
+        per_variation_counts = {
+            kind: sum(
+                1
+                for member in normalized_members
+                if member.surface_variation_kind == kind
+            )
+            for kind in SURFACE_VARIATION_KIND_VOCABULARY
+        }
+        if any(count < 1 for count in per_variation_counts.values()):
+            raise ValueError(
+                "suite_members must include at least one invariance member "
+                "for each surface_variation_kind"
+            )
+
+        if self.repair_locality_posture != "local_only":
+            raise ValueError("V44-D suite repair_locality_posture must remain local_only")
+
+        if not any(
+            member.template_class == "local_repair_continuation"
+            for member in normalized_members
+        ):
+            raise ValueError("suite_members must include a local_repair_continuation member")
+
+        expected_suite_hash = compute_probe_suite_hash(_probe_suite_id_basis_from_model(self))
+        if self.suite_hash != expected_suite_hash:
+            raise ValueError("suite_hash must match canonical probe-suite hash subject")
+
+        expected_suite_id = compute_probe_suite_id(_probe_suite_id_basis_from_model(self))
+        if self.suite_id != expected_suite_id:
+            raise ValueError("suite_id must match canonical probe-suite identity")
+        return self
+
+
 def validate_trace_against_probe(
     *,
     probe: ReasoningTemplateProbe,
@@ -1060,17 +1384,26 @@ def validate_trace_against_probe(
 
 
 __all__ = [
+    "ADEU_REASONING_PROBE_SUITE_SCHEMA",
     "ADEU_STRUCTURAL_REASONING_DIFFERENTIAL_SCHEMA",
     "ADEU_STRUCTURAL_FAILURE_TAXONOMY_SCHEMA",
     "ADEU_REASONING_TEMPLATE_PROBE_SCHEMA",
     "ADEU_STRUCTURAL_REASONING_TRACE_SCHEMA",
     "CONDITION_ROLE_VOCABULARY",
+    "CONSUMER_COMPATIBILITY_REF_VOCABULARY",
+    "ConsumerCompatibilityRef",
     "DIFFERENTIAL_JUDGMENT_VOCABULARY",
     "DIFFERENTIAL_STATUS_VOCABULARY",
     "FAILURE_FAMILY_VOCABULARY",
     "LANE_ORDER",
+    "ReasoningProbeSuite",
+    "ReasoningProbeSuiteMember",
+    "REPAIR_LOCALITY_POSTURE_VOCABULARY",
+    "RepairLocalityPosture",
     "STRUCTURAL_FAILURE_TAXONOMY_STATUS_VOCABULARY",
     "SupportingTraceEventRef",
+    "SURFACE_VARIATION_KIND_VOCABULARY",
+    "SurfaceVariationKind",
     "TEMPLATE_CLASS_VOCABULARY",
     "TRACE_EVENT_VOCABULARY",
     "TERMINAL_TRACE_STATUS_VOCABULARY",
@@ -1086,6 +1419,8 @@ __all__ = [
     "canonical_json",
     "compute_differential_id",
     "compute_probe_id",
+    "compute_probe_suite_hash",
+    "compute_probe_suite_id",
     "compute_structural_break_ref",
     "compute_taxonomy_id",
     "compute_trace_id",
