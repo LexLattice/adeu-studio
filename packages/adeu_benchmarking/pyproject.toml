@@ -15,6 +15,7 @@ classifiers = [
 dependencies = [
   "pydantic>=2.6,<3",
   "adeu-ir>=0.0.0",
+  "urm-runtime>=0.0.0",
 ]
 
 [project.optional-dependencies]

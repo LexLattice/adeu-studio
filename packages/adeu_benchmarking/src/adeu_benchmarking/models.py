@@ -1,13 +1,17 @@
 from __future__ import annotations
 
-import hashlib
-import json
 from copy import deepcopy
 from typing import Any, Callable, Literal
 
 from pydantic import BaseModel, ConfigDict, Field, model_validator
+from urm_runtime.hashing import sha256_canonical_json
 
-MODEL_CONFIG = ConfigDict(extra="forbid", frozen=True, protected_namespaces=())
+MODEL_CONFIG = ConfigDict(
+    extra="forbid",
+    frozen=True,
+    populate_by_name=True,
+    protected_namespaces=(),
+)
 
 ADEU_BENCHMARK_FAMILY_SPEC_SCHEMA = "adeu_benchmark_family_spec@1"
 ADEU_BENCHMARK_PROJECTION_SPEC_SCHEMA = "adeu_benchmark_projection_spec@1"
@@ -74,14 +78,6 @@ DominantFailureFamily = Literal[
 ]
 
 
-def canonical_json(value: Any) -> str:
-    return json.dumps(value, separators=(",", ":"), sort_keys=True, ensure_ascii=True)
-
-
-def sha256_canonical_json(value: Any) -> str:
-    return hashlib.sha256(canonical_json(value).encode("utf-8")).hexdigest()
-
-
 def _assert_non_empty_text(value: str, *, field_name: str) -> str:
     if not isinstance(value, str):
         raise ValueError(f"{field_name} must be a string")
@@ -127,7 +123,7 @@ def _exact_ordered_vocabulary(
 
 
 def _canonical_model_payload(model: BaseModel) -> dict[str, Any]:
-    return model.model_dump(mode="json", exclude_none=True)
+    return model.model_dump(mode="json", by_alias=True, exclude_none=True)
 
 
 def _prepare_payload(
@@ -283,7 +279,10 @@ def compute_benchmark_validation_report_id(payload: dict[str, Any]) -> str:
 class BenchmarkFamilySpec(BaseModel):
     model_config = MODEL_CONFIG
 
-    schema: Literal[ADEU_BENCHMARK_FAMILY_SPEC_SCHEMA] = ADEU_BENCHMARK_FAMILY_SPEC_SCHEMA
+    schema_id: Literal[ADEU_BENCHMARK_FAMILY_SPEC_SCHEMA] = Field(
+        default=ADEU_BENCHMARK_FAMILY_SPEC_SCHEMA,
+        alias="schema",
+    )
     benchmark_family_spec_id: str
     family_key: str
     family_label: str
@@ -358,8 +357,9 @@ class BenchmarkFamilySpec(BaseModel):
 class BenchmarkProjectionSpec(BaseModel):
     model_config = MODEL_CONFIG
 
-    schema: Literal[ADEU_BENCHMARK_PROJECTION_SPEC_SCHEMA] = (
-        ADEU_BENCHMARK_PROJECTION_SPEC_SCHEMA
+    schema_id: Literal[ADEU_BENCHMARK_PROJECTION_SPEC_SCHEMA] = Field(
+        default=ADEU_BENCHMARK_PROJECTION_SPEC_SCHEMA,
+        alias="schema",
     )
     benchmark_projection_spec_id: str
     benchmark_family_spec_ref: str
@@ -450,8 +450,9 @@ class BenchmarkProjectionSpec(BaseModel):
 class BenchmarkExecutionContext(BaseModel):
     model_config = MODEL_CONFIG
 
-    schema: Literal[ADEU_BENCHMARK_EXECUTION_CONTEXT_SCHEMA] = (
-        ADEU_BENCHMARK_EXECUTION_CONTEXT_SCHEMA
+    schema_id: Literal[ADEU_BENCHMARK_EXECUTION_CONTEXT_SCHEMA] = Field(
+        default=ADEU_BENCHMARK_EXECUTION_CONTEXT_SCHEMA,
+        alias="schema",
     )
     benchmark_execution_context_id: str
     subject_under_test_class: SubjectUnderTestClass
@@ -560,8 +561,9 @@ class BenchmarkValidationCaseResult(BaseModel):
 class BenchmarkValidationReport(BaseModel):
     model_config = MODEL_CONFIG
 
-    schema: Literal[ADEU_BENCHMARK_VALIDATION_REPORT_SCHEMA] = (
-        ADEU_BENCHMARK_VALIDATION_REPORT_SCHEMA
+    schema_id: Literal[ADEU_BENCHMARK_VALIDATION_REPORT_SCHEMA] = Field(
+        default=ADEU_BENCHMARK_VALIDATION_REPORT_SCHEMA,
+        alias="schema",
     )
     benchmark_validation_report_id: str
     benchmark_projection_spec_ref: str

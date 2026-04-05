@@ -1,3 +1,5 @@
+from urm_runtime.hashing import canonical_json, sha256_canonical_json
+
 from .export_schema import main as export_schema_main
 from .models import (
     ADEU_BENCHMARK_EXECUTION_CONTEXT_SCHEMA,
@@ -27,7 +29,6 @@ from .models import (
     ScorerDeterminismPosture,
     SubjectUnderTestClass,
     ValidationScope,
-    canonical_json,
     canonicalize_benchmark_execution_context_payload,
     canonicalize_benchmark_family_spec_payload,
     canonicalize_benchmark_projection_spec_payload,
@@ -42,7 +43,6 @@ from .models import (
     materialize_benchmark_family_spec_payload,
     materialize_benchmark_projection_spec_payload,
     materialize_benchmark_validation_report_payload,
-    sha256_canonical_json,
 )
 
 __all__ = [
