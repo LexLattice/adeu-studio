@@ -126,6 +126,25 @@ def test_current_repo_v71_start_bundle_passes() -> None:
     assert payload["failures"] == []
 
 
+def test_repo_root_discovery_accepts_worktree_git_file(tmp_path: Path) -> None:
+    worktree_root = tmp_path / "synthetic_worktree"
+    script_path = worktree_root / "apps" / "api" / "scripts" / "lint_arc_bundle.py"
+    script_path.parent.mkdir(parents=True, exist_ok=True)
+    script_path.write_text("# synthetic", encoding="utf-8")
+    (worktree_root / ".git").write_text(
+        "gitdir: /tmp/synthetic-main-repo/.git/worktrees/synthetic_worktree\n",
+        encoding="utf-8",
+    )
+
+    module = _load_script_module()
+    original_file = module.__file__
+    try:
+        module.__file__ = str(script_path)
+        assert module._repo_root_from_script() == worktree_root
+    finally:
+        module.__file__ = original_file
+
+
 def test_start_bundle_fails_on_closeout_heading_and_wrong_phase(tmp_path: Path) -> None:
     _copy_start_bundle(arc=60, target_root=tmp_path)
     decision_doc = tmp_path / "docs" / "DRAFT_STOP_GATE_DECISION_vNEXT_PLUS60.md"
