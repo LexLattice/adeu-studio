@@ -37,7 +37,7 @@ Interpretive doctrine for this planning surface:
 - `V39-A` through `V39-E` are closed on `main`.
 - `V40-A` through `V40-F` are closed on `main`.
 - `V41-A` through `V41-F` are closed on `main`.
-- `vNext+136` is the current baseline implementation state.
+- `vNext+137` is the current baseline implementation state.
 - `V42-A` through `V42-G4` are closed on `main`.
 - `V44-A` through `V44-E` are closed on `main`.
 - `docs/DRAFT_NEXT_ARC_OPTIONS_v25.md` is the authoritative planning record for the
@@ -54,6 +54,12 @@ Interpretive doctrine for this planning surface:
   - benchmark projection spec
   - benchmark execution context
   - benchmark validation report
+- `V46-B` is now closed on `main`:
+  - procedural-depth instance
+  - procedural-depth gold trace
+  - procedural-depth run trace
+  - procedural-depth metrics
+  - procedural-depth diagnostic report
 - `docs/DRAFT_NEXT_ARC_OPTIONS_v28.md` records one connected candidate family:
   - `V45`
   - ADEU repo self-description substrate
@@ -165,11 +171,11 @@ Planning relationship:
 - Recommended decomposition reference:
   - `docs/LOCKED_CONTINUATION_vNEXT_PLUS137.md`
 - Recommended next path for this branch:
-  - `V46-B`
+  - `V46-C`
 - Recommended next concrete arc for this branch if selected:
-  - `vNext+137`
+  - `vNext+138`
 - Default path selection for this branch:
-  - select `V46-B` as the next default candidate
+  - select `V46-C` as the next default candidate
 
 This family/path recommendation is branch-local to the `v29` planning surface.
 
@@ -262,7 +268,7 @@ The current recommended path ladder is:
 | Path | Theme | Primary output | Status |
 |---|---|---|---|
 | `V46-A` | benchmark substrate and validation lane | released `adeu_benchmark_family_spec@1`, released `adeu_benchmark_projection_spec@1`, released `adeu_benchmark_execution_context@1`, and released `adeu_benchmark_validation_report@1` | closed_on_main |
-| `V46-B` | Procedural Depth Fidelity first concrete projection | candidate `adeu_procedural_depth_instance@1`, candidate `adeu_procedural_depth_gold_trace@1`, candidate `adeu_procedural_depth_run_trace@1`, candidate `adeu_procedural_depth_metrics@1`, candidate `adeu_procedural_depth_diagnostic_report@1`, and tiny hierarchical reference chain | planned |
+| `V46-B` | Procedural Depth Fidelity first concrete projection | released `adeu_procedural_depth_instance@1`, released `adeu_procedural_depth_gold_trace@1`, released `adeu_procedural_depth_run_trace@1`, released `adeu_procedural_depth_metrics@1`, released `adeu_procedural_depth_diagnostic_report@1`, and tiny hierarchical reference chain | closed_on_main |
 | `V46-C` | Procedural Depth perturbation + non-regression widening | typed perturbation lanes plus candidate `procedural_depth_non_regression_report@1` | planned |
 | `V46-D` | benchmark projection library + cross-subject comparison widening | additional bounded benchmark projections and cross-subject comparison posture | planned |
 | `V46-E` | downstream consumer seam | separately governed consumers of benchmark diagnostics for routing/model/role/training research | planned_later_not_selected_here |
@@ -275,83 +281,73 @@ If `V46-A` reveals that execution-context capture, validation burden, or reliabi
 semantics are weaker or noisier than expected, widening into later paths may need to
 pause, reorder, or narrow.
 
-## Recommended Next Path (`V46-B`)
+## Recommended Next Path (`V46-C`)
 
-Implement the first concrete Procedural Depth Fidelity projection next.
+Implement the first Procedural Depth perturbation and non-regression widening next.
 
-`V46-B` should introduce:
+`V46-C` should introduce:
 
-- one canonical bounded procedural-depth instance artifact;
-- one canonical bounded procedural-depth gold-trace artifact;
-- one canonical bounded procedural-depth run-trace artifact;
-- one canonical bounded procedural-depth metrics artifact;
-- one canonical bounded procedural-depth diagnostic-report artifact;
-- one tiny deterministic hierarchical reference chain over a bounded repo snapshot;
-- explicit reuse of the released `V46-A` family-spec, projection-spec, and
-  execution-context substrate instead of a second benchmark-substrate fork;
-- one event-anchored scoring law with:
-  - trace-qualified supporting event refs
-  - exact starter terminal-status vocabulary
-  - exact starter boolean component fidelities for:
-    - `plan_spine_fidelity`
-    - `active_step_compilation_fidelity`
-    - `reintegration_fidelity`
-  - dominant-family derivation from that frozen boolean component pattern.
+- one bounded perturbation-case family over the released `V46-B` baseline instance and
+  gold-trace world;
+- one bounded perturbation-run evaluation lane that reuses the released
+  `adeu_procedural_depth_run_trace@1`, `adeu_procedural_depth_metrics@1`, and
+  `adeu_procedural_depth_diagnostic_report@1` contracts rather than forking them;
+- one bounded failure-topology summary over repeated perturbation cases;
+- one bounded non-regression report over repeated perturbation replays;
+- one bounded benchmark-validation report for the perturbation bundle itself;
+- explicit reuse of the released `V46-A` family/projection/execution-context substrate
+  and the released `V46-B` baseline procedural-depth stack;
+- explicit repeated-run stability and non-regression posture without widening yet into
+  cross-subject comparison or downstream operational promotion.
 
-`V46-B` is still diagnostic-first and non-promotional:
+`V46-C` is still diagnostic-first and non-promotional:
 
-- it may emit the first concrete procedural-depth benchmark artifacts;
-- it may not yet emit routing authority, role-assignment authority, model-promotion
-  authority, training entitlement, or cross-subject ranking surfaces;
-- it may not yet widen into perturbation/non-regression or benchmark-library seams
-  that belong to later `V46` paths.
+- it may widen procedural-depth evaluation into perturbation and non-regression law;
+- it may not yet emit cross-subject ranking surfaces, projection-library sprawl, or
+  routing/role/training authority;
+- it may not yet widen into the benchmark-library and comparison seams that belong to
+  later `V46-D` and `V46-E` paths.
 
 ## Why This Path
 
-- It is the narrowest safe concrete consumer of the now-released benchmark substrate.
-- It preserves the parent/child distinction between benchmark substrate and the first
-  concrete procedural-depth projection rather than reopening doctrine that `V46-A`
-  already shipped.
-- It creates the first real benchmark artifact stack while still deferring
-  perturbation, non-regression, cross-subject comparison, and downstream consumer
-  widening.
-- It keeps the family from collapsing immediately into stealth leaderboard logic,
-  model-ranking overclaim, or operational promotion from diagnostics.
+- It is the narrowest safe next consumer of the now-released procedural-depth baseline.
+- It preserves the ladder already selected by the family:
+  - `V46-A` substrate first
+  - `V46-B` first concrete projection second
+  - `V46-C` perturbation and non-regression only after a released baseline exists
+- It makes repeated-run stability and non-regression explicit before the family widens
+  into broader benchmark-library or cross-subject comparison claims.
+- It keeps the family from collapsing prematurely into stealth leaderboard logic,
+  cross-subject ranking, or operational promotion from benchmark diagnostics.
 
-## Next-Slice Boundary (`V46-B`)
+## Next-Slice Boundary (`V46-C`)
 
-`V46-B` should stay bounded to:
+`V46-C` should stay bounded to:
 
-- one concrete Procedural Depth Fidelity projection only;
-- one repo-owned procedural-depth implementation surface only inside
-  `packages/adeu_benchmarking`;
-- one tiny deterministic hierarchical `3x3` reference chain only over a bounded repo
-  snapshot;
-- one released instance contract only;
-- one released gold-trace contract only;
-- one released run-trace contract only;
-- one released metrics contract only;
-- one released diagnostic-report contract only;
-- explicit reuse of the released `V46-A` family spec, projection spec, and
-  execution-context substrate only;
+- one Procedural Depth perturbation and non-regression widening lane only;
+- one repo-owned implementation surface only inside `packages/adeu_benchmarking`;
+- one released `V46-B` baseline projection stack only as the benchmark baseline;
+- one bounded perturbation vocabulary only;
+- one bounded non-regression report family only;
+- one bounded failure-topology summary only;
+- one bounded benchmark-validation report over the perturbation bundle only;
 - explicit diagnostic-first interpretation posture only.
 
 It should not attempt:
 
-- perturbation or non-regression widening;
-- broader benchmark-library release;
-- broad cross-model or cross-system leaderboarding;
+- additional benchmark projections outside Procedural Depth Fidelity;
+- broad cross-model or cross-system comparison;
+- benchmark-library release beyond the bounded perturbation bundle;
 - routing or role-fit promotion;
 - training or distillation entitlement;
 - contest-law or runtime-governance doctrine;
-- broad benchmark consumer integrations;
 - downstream operational promotion from diagnostic outputs.
 
 ## Follow-On Paths Inside `V46`
 
 ### `V46-B`
 
-Procedural Depth Fidelity baseline lane:
+Procedural Depth Fidelity baseline lane, now released on `main`:
 
 - released `adeu_procedural_depth_instance@1`;
 - released `adeu_procedural_depth_gold_trace@1`;
@@ -365,12 +361,12 @@ Procedural Depth Fidelity baseline lane:
 
 Procedural Depth perturbation and non-regression lane:
 
-- branch, depth, delayed-constraint, paraphrase, ambiguity, evidence, and recursive
-  perturbation widening;
-- candidate `procedural_depth_metrics@1`;
-- candidate `procedural_depth_failure_topology@1`;
-- candidate `procedural_depth_non_regression_report@1`;
-- candidate `procedural_depth_benchmark_validation_report@1`.
+- bounded perturbation-case widening over the released `V46-B` baseline chain;
+- explicit repeated-run stability and non-regression reporting;
+- candidate `adeu_procedural_depth_perturbation_case@1`;
+- candidate `adeu_procedural_depth_failure_topology@1`;
+- candidate `adeu_procedural_depth_non_regression_report@1`;
+- candidate `adeu_procedural_depth_benchmark_validation_report@1`.
 
 ### `V46-D`
 
@@ -401,7 +397,7 @@ The first planning pass should assume one primary family package:
 
 The next slice should assume:
 
-- `packages/adeu_benchmarking` is the only active implementation package for `V46-B`.
+- `packages/adeu_benchmarking` is the only active implementation package for `V46-C`.
 
 This package-ownership assumption is provisional and subordinate to the later `V46`
 decomposition draft.
@@ -455,7 +451,7 @@ are:
 {
   "schema": "next_arc_planning_baseline@1",
   "source_baseline_doc": "docs/DRAFT_NEXT_ARC_OPTIONS_v28.md",
-  "baseline_arc": "vNext+136",
+  "baseline_arc": "vNext+137",
   "closed_prior_families": [
     "V41",
     "V42"
@@ -474,16 +470,16 @@ are:
     "V45"
   ],
   "closed_current_family_paths": [
-    "V46-A"
+    "V46-A",
+    "V46-B"
   ],
   "planned_current_family_paths": [
-    "V46-B",
     "V46-C",
     "V46-D",
     "V46-E"
   ],
-  "default_next_arc_candidate_for_this_branch": "V46-B",
-  "default_next_concrete_arc_candidate_for_this_branch": "vNext+137",
+  "default_next_arc_candidate_for_this_branch": "V46-C",
+  "default_next_concrete_arc_candidate_for_this_branch": "vNext+138",
   "family_architecture_doc": "docs/DRAFT_BENCHMARKING_META_MODULE_SPEC_v0.md",
   "first_projection_seed_doc": "docs/DRAFT_PROCEDURAL_DEPTH_FIDELITY_BENCHMARK_SPEC_v0.md",
   "family_decomposition_doc": "docs/LOCKED_CONTINUATION_vNEXT_PLUS137.md",
@@ -513,17 +509,17 @@ are:
   "v46a_benchmark_projection_spec_released_on_main": true,
   "v46a_benchmark_execution_context_released_on_main": true,
   "v46a_benchmark_validation_report_released_on_main": true,
-  "v46b_benchmark_instance_spec_selected_next": true,
-  "v46b_benchmark_run_trace_selected_next": true,
-  "v46b_benchmark_metrics_report_selected_next": true,
-  "v46b_benchmark_diagnostic_report_selected_next": true,
-  "v46b_tiny_hierarchical_reference_chain_selected_next": true,
+  "v46b_benchmark_instance_spec_released_on_main": true,
+  "v46b_benchmark_run_trace_released_on_main": true,
+  "v46b_benchmark_metrics_report_released_on_main": true,
+  "v46b_benchmark_diagnostic_report_released_on_main": true,
+  "v46b_tiny_hierarchical_reference_chain_released_on_main": true,
   "v46a_projection_declares_future_contract_ids_only": true,
   "v46a_minimal_operational_reliability_policy_required": true,
   "v46a_tiny_reference_fixture_bundle_required": true,
   "v46a_positive_mixed_validation_case_required": true,
   "v46a_non_promotional_required": true,
-  "v46b_procedural_depth_projection_planned": true,
+  "v46b_procedural_depth_projection_released_on_main": true,
   "hierarchical_trace_support_required_for_non_flat_projections": true,
   "plan_spine_active_step_and_reintegration_split_required": true,
   "v46c_procedural_depth_perturbation_and_non_regression_planned": true,
