@@ -330,7 +330,7 @@ Support-layer implementation mapping for this family direction:
   "default_next_arc_candidate_for_this_branch": "V53-A",
   "default_next_concrete_arc_candidate_for_this_branch": "vNext+141",
   "family_architecture_doc": "not_selected_yet",
-  "family_decomposition_doc": "docs/DRAFT_ADEU_EDGE_LEDGER_V53_IMPLEMENTATION_MAPPING_v0.md",
+  "family_decomposition_doc": "not_selected_yet",
   "support_mapping_doc": "docs/DRAFT_ADEU_EDGE_LEDGER_V53_IMPLEMENTATION_MAPPING_v0.md",
   "starter_slice_support_mapping_doc": "docs/DRAFT_ADEU_EDGE_LEDGER_V53A_IMPLEMENTATION_MAPPING_v0.md",
   "planned_family_packages": [
@@ -359,14 +359,3 @@ Support-layer implementation mapping for this family direction:
   "future_seam_promotion_rules_note": "docs/DRAFT_FUTURE_SEAM_PROMOTION_RULES_v0.md"
 }
 ```
-
-`family_decomposition_doc` currently points to
-`docs/DRAFT_ADEU_EDGE_LEDGER_V53_IMPLEMENTATION_MAPPING_v0.md` only as a
-support-layer placeholder for the `V53` family. It is not architecture or
-decomposition authority.
-
-Historical-evidence note: the preserved first-draft planning copy intentionally
-remains pre-repair, while the live planning baseline carries the repaired
-`family_decomposition_doc` value. Baton
-`artifacts/meta_loop/V53/V53-A/batons/006_arc_worker_starter_repair_claim.json`
-remains the truth record for that repair.
