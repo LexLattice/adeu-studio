@@ -174,7 +174,7 @@ Planning relationship:
 - Recommended first projection reference:
   - `docs/DRAFT_PROCEDURAL_DEPTH_FIDELITY_BENCHMARK_SPEC_v0.md`
 - Recommended decomposition reference:
-  - `docs/LOCKED_CONTINUATION_vNEXT_PLUS138.md`
+  - `docs/LOCKED_CONTINUATION_vNEXT_PLUS139.md`
 - Recommended next path for this branch:
   - `V46-D`
 - Recommended next concrete arc for this branch if selected:
@@ -275,7 +275,7 @@ The current recommended path ladder is:
 | `V46-A` | benchmark substrate and validation lane | released `adeu_benchmark_family_spec@1`, released `adeu_benchmark_projection_spec@1`, released `adeu_benchmark_execution_context@1`, and released `adeu_benchmark_validation_report@1` | closed_on_main |
 | `V46-B` | Procedural Depth Fidelity first concrete projection | released `adeu_procedural_depth_instance@1`, released `adeu_procedural_depth_gold_trace@1`, released `adeu_procedural_depth_run_trace@1`, released `adeu_procedural_depth_metrics@1`, released `adeu_procedural_depth_diagnostic_report@1`, and tiny hierarchical reference chain | closed_on_main |
 | `V46-C` | Procedural Depth perturbation + non-regression widening | released typed perturbation lanes plus released `procedural_depth_non_regression_report@1` and released bundle validation artifacts | closed_on_main |
-| `V46-D` | benchmark projection library + cross-subject comparison widening | additional bounded benchmark projections and cross-subject comparison posture | planned |
+| `V46-D` | cross-subject comparison-first widening with projection-library growth deferred inside the path | bounded cross-subject comparison posture over the released Procedural Depth stack first | planned |
 | `V46-E` | downstream consumer seam | separately governed consumers of benchmark diagnostics for routing/model/role/training research | planned_later_not_selected_here |
 
 These output names are planning-level candidate names, not lock-level schema authority.
@@ -302,6 +302,16 @@ Implement the first cross-subject comparison widening next.
   collapsing comparison into one-number promotion;
 - one bounded comparison-validation lane that proves the comparison bundle remains
   deterministic, replayable, and diagnostic-first;
+- subject-specific execution contexts with explicit compatibility law rather than one
+  shared execution-context artifact:
+  - `repo_snapshot_ref`
+  - `tool_availability`
+  - `context_budget_posture`
+  - `determinism_posture`
+  must match exactly across the starter pair
+  while subject-specific fields may differ;
+- one explicit perturbation-bundle anchor so cross-subject comparison stays bound to
+  the same ordered released perturbation cases on both sides;
 - explicit reuse of the released `V46-A` family/projection/execution-context
   substrate and the released `V46-B` / `V46-C` procedural-depth stack without
   forking their schema ids or scorer law;
@@ -338,6 +348,7 @@ Implement the first cross-subject comparison widening next.
 - one repo-owned implementation surface only inside `packages/adeu_benchmarking`;
 - one released `V46-B` / `V46-C` procedural-depth stack only as the comparison basis;
 - one bounded deterministic subject-pair or subject-bundle posture only;
+- one explicit context-compatibility law over subject-specific execution contexts only;
 - one bounded cross-subject comparison artifact family only;
 - one bounded comparison-validation report family only;
 - per-subject and per-comparison evidence structure only:
@@ -384,6 +395,8 @@ Projection-library and cross-subject widening lane:
 
 - starter selection may begin comparison-first over the released Procedural Depth
   stack rather than widening projection-library scope immediately;
+- subject-specific execution contexts remain lawful only when the frozen starter
+  compatibility fields match exactly across the comparison pair;
 - explicit comparison posture across bounded subject-under-test classes that already
   exist in the released `V46-A` taxonomy, while keeping the starter subject set
   narrower and deterministic;
@@ -490,7 +503,7 @@ are:
   "default_next_concrete_arc_candidate_for_this_branch": "vNext+139",
   "family_architecture_doc": "docs/DRAFT_BENCHMARKING_META_MODULE_SPEC_v0.md",
   "first_projection_seed_doc": "docs/DRAFT_PROCEDURAL_DEPTH_FIDELITY_BENCHMARK_SPEC_v0.md",
-  "family_decomposition_doc": "docs/LOCKED_CONTINUATION_vNEXT_PLUS138.md",
+  "family_decomposition_doc": "docs/LOCKED_CONTINUATION_vNEXT_PLUS139.md",
   "pre_lock_companion_docs_expected": [
     "docs/DRAFT_BENCHMARK_FAMILY_DECOMPOSITION_v0.md",
     "docs/DRAFT_BENCHMARK_ARTIFACT_SURFACES_v0.md"
