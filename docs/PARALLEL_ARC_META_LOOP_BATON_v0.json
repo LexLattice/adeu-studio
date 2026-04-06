@@ -139,6 +139,38 @@
         "red"
       ]
     },
+    "bot_review_overall_status": {
+      "type": [
+        "string",
+        "null"
+      ],
+      "allowed_when_present": [
+        "not_started",
+        "waiting_initial_window",
+        "waiting_for_pickup_witness",
+        "picked_up_in_progress",
+        "findings_present",
+        "no_findings_terminal",
+        "manual_trigger_required",
+        "manual_triggered_waiting",
+        "escalated_bot_absence",
+        "complete"
+      ]
+    },
+    "bot_review_observations": {
+      "type": [
+        "array",
+        "null"
+      ],
+      "entry_contract_note": "Each entry should identify one required bot such as codex or gemini and record: bot, state, witness_kind, witness_ref, and optional manual_trigger_ref / note."
+    },
+    "manual_trigger_actions": {
+      "type": [
+        "array",
+        "null"
+      ],
+      "entry_contract_note": "Use for explicit PR trigger actions such as @codex review, with the emitted comment ref when available."
+    },
     "controlling_refs": {
       "type": "array"
     },

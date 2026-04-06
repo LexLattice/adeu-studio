@@ -187,13 +187,17 @@ Per slice, the legal sequence is:
 4. starter bundle is committed on the family arc branch
 5. arc worker implements on a slice branch
 6. slice PR opens against the family arc branch
-7. wait 5 minutes, then harvest GitHub inline bot comments
-8. arc worker applies worthwhile review fixes
-9. push the review-fix update to the same PR branch
-10. wait 5 minutes, then verify CI is green
-11. slice PR merges into the family arc branch once green
-12. arc worker drafts closeout on the family arc branch
-13. meta-orchestrator verifies the baton and advances to next slice
+7. wait 5 minutes, then inspect the explicit GitHub bot-review witnesses for Codex and
+   Gemini
+8. if either required bot has not picked up the PR, follow the manual-trigger rule
+9. once both required bots reach a terminal witnessed state, harvest and classify any
+   inline findings
+10. arc worker applies worthwhile review fixes
+11. push the review-fix update to the same PR branch
+12. wait 5 minutes, then verify CI is green
+13. slice PR merges into the family arc branch once green
+14. arc worker drafts closeout on the family arc branch
+15. meta-orchestrator verifies the baton and advances to next slice
 
 ## Pre-Review Integrity Gate
 
@@ -221,13 +225,103 @@ If that integrity gate fails:
 
 The 5-minute waits are deliberate pilot rules, not suggestions:
 
-- after PR open, wait 5 minutes before harvesting Codex/Gemini inline review signals
+- after PR open, wait 5 minutes before checking Codex/Gemini review witnesses
 - after pushing review fixes, wait 5 minutes before deciding CI readiness
 
 If the first check occurs before the signal is complete:
 
 - continue polling at 30-second intervals until the relevant bot-review or CI state is
   complete enough to trust
+
+## GitHub Bot Review Witness Model
+
+For this pilot, the required GitHub inline review bots are:
+
+- `codex`
+- `gemini`
+
+The bot-review step is not atemporal. It may not be discharged by a single empty query
+against review threads or review comments.
+
+The meta-orchestrator must inspect explicit witnesses for each required bot.
+
+### Witness Surfaces
+
+Primary witness surfaces on the PR:
+
+- reactions on the main PR body/comment
+- bot-authored parent review comments
+- bot-authored inline review comments or review-thread descendants
+
+### Per-Bot Pickup Witness
+
+For both `codex` and `gemini`, pickup-in-progress is witnessed by:
+
+- an `eyes` reaction on the main PR body/comment from that bot
+
+This means the bot has picked up the review task and is still working.
+
+### Terminal Witnesses
+
+For `codex`, the accepted terminal witnessed states are:
+
+- `completed_no_findings`
+  - witnessed by replacement of the prior `eyes` reaction with a `thumbs_up` reaction
+    on the main PR body/comment
+- `completed_with_findings`
+  - witnessed by:
+    - one generic/header parent comment from Codex; and
+    - one or more subordinate inline findings or review-thread comments
+
+For `gemini`, the accepted terminal witnessed states are:
+
+- `completed_no_findings`
+  - witnessed by one Gemini-authored parent comment explicitly stating that no issues
+    were found
+- `completed_with_findings`
+  - witnessed by:
+    - one generic/header parent comment from Gemini; and
+    - one or more subordinate inline findings or review-thread comments
+
+### Non-Pickup Witness
+
+A required bot is `not_picked_up` only when:
+
+- the 5-minute post-PR-open wait has elapsed; and
+- there is still no reaction or comment witness from that bot on the PR
+
+Absence of review threads alone is not sufficient evidence of `not_picked_up`.
+
+### Manual Trigger Rule
+
+If `codex` is still `not_picked_up` after the initial 5-minute wait, the
+meta-orchestrator should trigger it manually by commenting:
+
+- `@codex review`
+
+After that manual trigger:
+
+- wait another 5 minutes
+- then resume witness polling at 30-second intervals until Codex reaches a terminal
+  witnessed state or the orchestrator explicitly logs an unresolved bot-outage posture
+
+Gemini manual-trigger behavior is not frozen by this first pilot. If Gemini does not
+pick up a PR, the orchestrator must log that explicitly rather than silently treating
+Gemini as complete.
+
+### Review-Step Discharge Law
+
+The GitHub bot-review step is complete only when each required bot is in one of:
+
+- `completed_no_findings`
+- `completed_with_findings`
+- explicitly logged unresolved outage posture accepted by the meta-orchestrator
+
+So the orchestrator may not conclude:
+
+- `no reviews were present`
+
+unless the relevant terminal witness for each required bot has actually been observed.
 
 ## Evidence Preservation Rule
 
@@ -301,6 +395,14 @@ For the pilot, baton semantics are split minimally into:
 
 This is intentionally lighter than a full runtime constitution, but it prevents the
 pilot from collapsing worker claims and governance acceptance into one artifact.
+
+For PR-phase batons, the relevant bot-review witness fields should be populated when
+applicable, especially during:
+
+- `pr_open_against_arc_branch`
+- `inline_review_pending`
+- `review_fixing_pending`
+- `ci_pending`
 
 ## Canonical Storage
 
@@ -376,7 +478,9 @@ Before PR merge:
 - required local checks were run and recorded
 - CI is green
 - review-fix baton exists if inline comments were present
-- the 5-minute review-harvest wait rule was honored
+- the 5-minute bot-review witness wait rule was honored
+- Codex bot state is terminally witnessed or explicitly escalated
+- Gemini bot state is terminally witnessed or explicitly escalated
 - the 5-minute post-fix CI wait rule was honored or explicitly escalated in the log
 
 Before family merge to `main`:
