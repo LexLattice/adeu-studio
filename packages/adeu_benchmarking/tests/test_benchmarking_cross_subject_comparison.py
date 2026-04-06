@@ -10,6 +10,9 @@ from adeu_benchmarking import (
     ADEU_CROSS_SUBJECT_COMPARISON_REPORT_SCHEMA,
     ADEU_CROSS_SUBJECT_COMPARISON_VALIDATION_REPORT_SCHEMA,
     BenchmarkSubjectRecord,
+    compute_benchmark_subject_record_id,
+    compute_procedural_depth_diagnostic_report_id,
+    compute_procedural_depth_metrics_id,
     derive_benchmark_subject_record,
     derive_cross_subject_comparison_case,
     evaluate_cross_subject_comparison_case,
@@ -353,4 +356,273 @@ def test_reject_cross_subject_comparison_on_mismatched_projection_spec_fixture()
                 "reject_benchmark_subject_record_mismatched_projection_spec_ref.json",
             ),
             comparison_label="reject_projection_mismatch",
+        )
+
+
+def test_reject_cross_subject_comparison_on_subject_class_context_mismatch() -> None:
+    base_subject = _load_json(
+        V46D_FIXTURE_ROOT, "reference_benchmark_subject_record_base_model.json"
+    )
+    prompted_subject = _load_json(
+        V46D_FIXTURE_ROOT, "reference_benchmark_subject_record_prompted_model.json"
+    )
+    base_context = _load_json(
+        V46D_FIXTURE_ROOT, "reference_benchmark_execution_context_base_model.json"
+    )
+    prompted_context = _load_json(
+        V46D_FIXTURE_ROOT, "reference_benchmark_execution_context_prompted_model.json"
+    )
+    clean_run = _load_json(
+        V46B_FIXTURE_ROOT, "reference_procedural_depth_run_trace_clean_success.json"
+    )
+    clean_metrics = _load_json(
+        V46B_FIXTURE_ROOT, "reference_procedural_depth_metrics_clean_success.json"
+    )
+    clean_diagnostic = _load_json(
+        V46B_FIXTURE_ROOT, "reference_procedural_depth_diagnostic_report_clean_success.json"
+    )
+    vertical_run = _load_json(
+        V46B_FIXTURE_ROOT,
+        "reference_procedural_depth_run_trace_vertical_active_step_compilation.json",
+    )
+    instance = _load_json(V46B_FIXTURE_ROOT, "reference_procedural_depth_instance.json")
+    gold = _load_json(V46B_FIXTURE_ROOT, "reference_procedural_depth_gold_trace.json")
+    vertical_metrics, vertical_diagnostic = score_procedural_depth_run(
+        instance_payload=instance,
+        gold_trace_payload=gold,
+        run_trace_payload=vertical_run,
+    )
+    stable_non_regression = _load_json(
+        V46C_FIXTURE_ROOT, "reference_procedural_depth_non_regression_report_stable.json"
+    )
+    stable_validation = _load_json(
+        V46C_FIXTURE_ROOT,
+        "reference_procedural_depth_benchmark_validation_report_stable.json",
+    )
+    regression_non_regression = _load_json(
+        V46C_FIXTURE_ROOT,
+        "reference_procedural_depth_non_regression_report_regression_detected.json",
+    )
+    regression_validation = _load_json(
+        V46C_FIXTURE_ROOT,
+        "reference_procedural_depth_benchmark_validation_report_regression_detected.json",
+    )
+
+    mismatched_prompted_subject = dict(prompted_subject)
+    mismatched_prompted_subject["subject_class"] = "base_model"
+    mismatched_prompted_subject["benchmark_subject_record_id"] = (
+        compute_benchmark_subject_record_id(mismatched_prompted_subject)
+    )
+    comparison_case = derive_cross_subject_comparison_case(
+        left_subject_record_payload=base_subject,
+        right_subject_record_payload=mismatched_prompted_subject,
+        comparison_label="reject_subject_class_context_mismatch",
+    )
+
+    with pytest.raises(
+        ValueError,
+        match="right subject_class must match bound execution context subject_under_test_class",
+    ):
+        evaluate_cross_subject_comparison_case(
+            comparison_case_payload=comparison_case,
+            left_subject_record_payload=base_subject,
+            right_subject_record_payload=mismatched_prompted_subject,
+            left_execution_context_payload=base_context,
+            right_execution_context_payload=prompted_context,
+            left_baseline_run_trace_payload=clean_run,
+            right_baseline_run_trace_payload=vertical_run,
+            left_baseline_metrics_payload=clean_metrics,
+            right_baseline_metrics_payload=vertical_metrics,
+            left_baseline_diagnostic_report_payload=clean_diagnostic,
+            right_baseline_diagnostic_report_payload=vertical_diagnostic,
+            left_perturbation_non_regression_report_payload=stable_non_regression,
+            right_perturbation_non_regression_report_payload=regression_non_regression,
+            left_perturbation_benchmark_validation_report_payload=stable_validation,
+            right_perturbation_benchmark_validation_report_payload=regression_validation,
+        )
+
+
+def test_reject_cross_subject_comparison_on_metric_run_trace_chain_mismatch() -> None:
+    base_subject = _load_json(
+        V46D_FIXTURE_ROOT, "reference_benchmark_subject_record_base_model.json"
+    )
+    prompted_subject = _load_json(
+        V46D_FIXTURE_ROOT, "reference_benchmark_subject_record_prompted_model.json"
+    )
+    base_context = _load_json(
+        V46D_FIXTURE_ROOT, "reference_benchmark_execution_context_base_model.json"
+    )
+    prompted_context = _load_json(
+        V46D_FIXTURE_ROOT, "reference_benchmark_execution_context_prompted_model.json"
+    )
+    clean_run = _load_json(
+        V46B_FIXTURE_ROOT, "reference_procedural_depth_run_trace_clean_success.json"
+    )
+    clean_metrics = _load_json(
+        V46B_FIXTURE_ROOT, "reference_procedural_depth_metrics_clean_success.json"
+    )
+    clean_diagnostic = _load_json(
+        V46B_FIXTURE_ROOT, "reference_procedural_depth_diagnostic_report_clean_success.json"
+    )
+    vertical_run = _load_json(
+        V46B_FIXTURE_ROOT,
+        "reference_procedural_depth_run_trace_vertical_active_step_compilation.json",
+    )
+    instance = _load_json(V46B_FIXTURE_ROOT, "reference_procedural_depth_instance.json")
+    gold = _load_json(V46B_FIXTURE_ROOT, "reference_procedural_depth_gold_trace.json")
+    vertical_metrics, vertical_diagnostic = score_procedural_depth_run(
+        instance_payload=instance,
+        gold_trace_payload=gold,
+        run_trace_payload=vertical_run,
+    )
+    stable_non_regression = _load_json(
+        V46C_FIXTURE_ROOT, "reference_procedural_depth_non_regression_report_stable.json"
+    )
+    stable_validation = _load_json(
+        V46C_FIXTURE_ROOT,
+        "reference_procedural_depth_benchmark_validation_report_stable.json",
+    )
+    regression_non_regression = _load_json(
+        V46C_FIXTURE_ROOT,
+        "reference_procedural_depth_non_regression_report_regression_detected.json",
+    )
+    regression_validation = _load_json(
+        V46C_FIXTURE_ROOT,
+        "reference_procedural_depth_benchmark_validation_report_regression_detected.json",
+    )
+
+    bad_metrics = dict(clean_metrics)
+    bad_metrics["procedural_depth_run_trace_ref"] = vertical_run["procedural_depth_run_trace_id"]
+    bad_metrics["procedural_depth_metrics_id"] = compute_procedural_depth_metrics_id(bad_metrics)
+    bad_diagnostic = dict(clean_diagnostic)
+    bad_diagnostic["procedural_depth_metrics_ref"] = bad_metrics["procedural_depth_metrics_id"]
+    bad_diagnostic["procedural_depth_diagnostic_report_id"] = (
+        compute_procedural_depth_diagnostic_report_id(bad_diagnostic)
+    )
+    bad_base_subject = dict(base_subject)
+    bad_base_subject["baseline_metric_ref"] = bad_metrics["procedural_depth_metrics_id"]
+    bad_base_subject["baseline_diagnostic_report_ref"] = bad_diagnostic[
+        "procedural_depth_diagnostic_report_id"
+    ]
+    bad_base_subject["benchmark_subject_record_id"] = compute_benchmark_subject_record_id(
+        bad_base_subject
+    )
+    comparison_case = derive_cross_subject_comparison_case(
+        left_subject_record_payload=bad_base_subject,
+        right_subject_record_payload=prompted_subject,
+        comparison_label="reject_metric_chain_mismatch",
+    )
+
+    with pytest.raises(
+        ValueError,
+        match="left baseline metrics must bind to left baseline run trace",
+    ):
+        evaluate_cross_subject_comparison_case(
+            comparison_case_payload=comparison_case,
+            left_subject_record_payload=bad_base_subject,
+            right_subject_record_payload=prompted_subject,
+            left_execution_context_payload=base_context,
+            right_execution_context_payload=prompted_context,
+            left_baseline_run_trace_payload=clean_run,
+            right_baseline_run_trace_payload=vertical_run,
+            left_baseline_metrics_payload=bad_metrics,
+            right_baseline_metrics_payload=vertical_metrics,
+            left_baseline_diagnostic_report_payload=bad_diagnostic,
+            right_baseline_diagnostic_report_payload=vertical_diagnostic,
+            left_perturbation_non_regression_report_payload=stable_non_regression,
+            right_perturbation_non_regression_report_payload=regression_non_regression,
+            left_perturbation_benchmark_validation_report_payload=stable_validation,
+            right_perturbation_benchmark_validation_report_payload=regression_validation,
+        )
+
+
+def test_reject_cross_subject_comparison_on_diagnostic_chain_mismatch() -> None:
+    base_subject = _load_json(
+        V46D_FIXTURE_ROOT, "reference_benchmark_subject_record_base_model.json"
+    )
+    prompted_subject = _load_json(
+        V46D_FIXTURE_ROOT, "reference_benchmark_subject_record_prompted_model.json"
+    )
+    base_context = _load_json(
+        V46D_FIXTURE_ROOT, "reference_benchmark_execution_context_base_model.json"
+    )
+    prompted_context = _load_json(
+        V46D_FIXTURE_ROOT, "reference_benchmark_execution_context_prompted_model.json"
+    )
+    clean_run = _load_json(
+        V46B_FIXTURE_ROOT, "reference_procedural_depth_run_trace_clean_success.json"
+    )
+    clean_metrics = _load_json(
+        V46B_FIXTURE_ROOT, "reference_procedural_depth_metrics_clean_success.json"
+    )
+    clean_diagnostic = _load_json(
+        V46B_FIXTURE_ROOT, "reference_procedural_depth_diagnostic_report_clean_success.json"
+    )
+    vertical_run = _load_json(
+        V46B_FIXTURE_ROOT,
+        "reference_procedural_depth_run_trace_vertical_active_step_compilation.json",
+    )
+    instance = _load_json(V46B_FIXTURE_ROOT, "reference_procedural_depth_instance.json")
+    gold = _load_json(V46B_FIXTURE_ROOT, "reference_procedural_depth_gold_trace.json")
+    vertical_metrics, vertical_diagnostic = score_procedural_depth_run(
+        instance_payload=instance,
+        gold_trace_payload=gold,
+        run_trace_payload=vertical_run,
+    )
+    stable_non_regression = _load_json(
+        V46C_FIXTURE_ROOT, "reference_procedural_depth_non_regression_report_stable.json"
+    )
+    stable_validation = _load_json(
+        V46C_FIXTURE_ROOT,
+        "reference_procedural_depth_benchmark_validation_report_stable.json",
+    )
+    regression_non_regression = _load_json(
+        V46C_FIXTURE_ROOT,
+        "reference_procedural_depth_non_regression_report_regression_detected.json",
+    )
+    regression_validation = _load_json(
+        V46C_FIXTURE_ROOT,
+        "reference_procedural_depth_benchmark_validation_report_regression_detected.json",
+    )
+
+    bad_diagnostic = dict(clean_diagnostic)
+    bad_diagnostic["procedural_depth_run_trace_ref"] = vertical_run[
+        "procedural_depth_run_trace_id"
+    ]
+    bad_diagnostic["procedural_depth_diagnostic_report_id"] = (
+        compute_procedural_depth_diagnostic_report_id(bad_diagnostic)
+    )
+    bad_base_subject = dict(base_subject)
+    bad_base_subject["baseline_diagnostic_report_ref"] = bad_diagnostic[
+        "procedural_depth_diagnostic_report_id"
+    ]
+    bad_base_subject["benchmark_subject_record_id"] = compute_benchmark_subject_record_id(
+        bad_base_subject
+    )
+    comparison_case = derive_cross_subject_comparison_case(
+        left_subject_record_payload=bad_base_subject,
+        right_subject_record_payload=prompted_subject,
+        comparison_label="reject_diagnostic_chain_mismatch",
+    )
+
+    with pytest.raises(
+        ValueError,
+        match="left baseline diagnostic must bind to left baseline run trace",
+    ):
+        evaluate_cross_subject_comparison_case(
+            comparison_case_payload=comparison_case,
+            left_subject_record_payload=bad_base_subject,
+            right_subject_record_payload=prompted_subject,
+            left_execution_context_payload=base_context,
+            right_execution_context_payload=prompted_context,
+            left_baseline_run_trace_payload=clean_run,
+            right_baseline_run_trace_payload=vertical_run,
+            left_baseline_metrics_payload=clean_metrics,
+            right_baseline_metrics_payload=vertical_metrics,
+            left_baseline_diagnostic_report_payload=bad_diagnostic,
+            right_baseline_diagnostic_report_payload=vertical_diagnostic,
+            left_perturbation_non_regression_report_payload=stable_non_regression,
+            right_perturbation_non_regression_report_payload=regression_non_regression,
+            left_perturbation_benchmark_validation_report_payload=stable_validation,
+            right_perturbation_benchmark_validation_report_payload=regression_validation,
         )

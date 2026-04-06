@@ -1025,6 +1025,43 @@ def _validate_comparison_contexts(
             )
 
 
+def _validate_subject_context_binding(
+    *,
+    side: str,
+    subject: BenchmarkSubjectRecord,
+    context: BenchmarkExecutionContext,
+) -> None:
+    if context.benchmark_execution_context_id != subject.benchmark_execution_context_ref:
+        raise ValueError(f"{side} execution context ref must bind to {side} subject record")
+    if subject.subject_class != context.subject_under_test_class:
+        raise ValueError(
+            f"{side} subject_class must match bound execution context "
+            "subject_under_test_class"
+        )
+
+
+def _validate_subject_baseline_chain(
+    *,
+    side: str,
+    subject: BenchmarkSubjectRecord,
+    run_trace: ProceduralDepthRunTrace,
+    metrics: ProceduralDepthMetrics,
+    diagnostic: ProceduralDepthDiagnosticReport,
+) -> None:
+    if run_trace.procedural_depth_run_trace_id != subject.baseline_run_trace_ref:
+        raise ValueError(f"{side} baseline run trace ref must bind to {side} subject record")
+    if metrics.procedural_depth_metrics_id != subject.baseline_metric_ref:
+        raise ValueError(f"{side} baseline metric ref must bind to {side} subject record")
+    if diagnostic.procedural_depth_diagnostic_report_id != subject.baseline_diagnostic_report_ref:
+        raise ValueError(f"{side} baseline diagnostic ref must bind to {side} subject record")
+    if metrics.procedural_depth_run_trace_ref != run_trace.procedural_depth_run_trace_id:
+        raise ValueError(f"{side} baseline metrics must bind to {side} baseline run trace")
+    if diagnostic.procedural_depth_run_trace_ref != run_trace.procedural_depth_run_trace_id:
+        raise ValueError(f"{side} baseline diagnostic must bind to {side} baseline run trace")
+    if diagnostic.procedural_depth_metrics_ref != metrics.procedural_depth_metrics_id:
+        raise ValueError(f"{side} baseline diagnostic must bind to {side} baseline metrics")
+
+
 def _baseline_signature(
     *,
     metrics: ProceduralDepthMetrics,
@@ -1254,13 +1291,16 @@ def evaluate_cross_subject_comparison_case(
     right_context = BenchmarkExecutionContext.model_validate(
         canonicalize_benchmark_execution_context_payload(right_execution_context_payload)
     )
-    if left_context.benchmark_execution_context_id != left_subject.benchmark_execution_context_ref:
-        raise ValueError("left execution context ref must bind to left subject record")
-    if (
-        right_context.benchmark_execution_context_id
-        != right_subject.benchmark_execution_context_ref
-    ):
-        raise ValueError("right execution context ref must bind to right subject record")
+    _validate_subject_context_binding(
+        side="left",
+        subject=left_subject,
+        context=left_context,
+    )
+    _validate_subject_context_binding(
+        side="right",
+        subject=right_subject,
+        context=right_context,
+    )
     _validate_comparison_contexts(left_context=left_context, right_context=right_context)
 
     left_run_trace = ProceduralDepthRunTrace.model_validate(
@@ -1306,24 +1346,20 @@ def evaluate_cross_subject_comparison_case(
         )
     )
 
-    if left_run_trace.procedural_depth_run_trace_id != left_subject.baseline_run_trace_ref:
-        raise ValueError("left baseline run trace ref must bind to left subject record")
-    if right_run_trace.procedural_depth_run_trace_id != right_subject.baseline_run_trace_ref:
-        raise ValueError("right baseline run trace ref must bind to right subject record")
-    if left_metrics.procedural_depth_metrics_id != left_subject.baseline_metric_ref:
-        raise ValueError("left baseline metric ref must bind to left subject record")
-    if right_metrics.procedural_depth_metrics_id != right_subject.baseline_metric_ref:
-        raise ValueError("right baseline metric ref must bind to right subject record")
-    if (
-        left_diagnostic.procedural_depth_diagnostic_report_id
-        != left_subject.baseline_diagnostic_report_ref
-    ):
-        raise ValueError("left baseline diagnostic ref must bind to left subject record")
-    if (
-        right_diagnostic.procedural_depth_diagnostic_report_id
-        != right_subject.baseline_diagnostic_report_ref
-    ):
-        raise ValueError("right baseline diagnostic ref must bind to right subject record")
+    _validate_subject_baseline_chain(
+        side="left",
+        subject=left_subject,
+        run_trace=left_run_trace,
+        metrics=left_metrics,
+        diagnostic=left_diagnostic,
+    )
+    _validate_subject_baseline_chain(
+        side="right",
+        subject=right_subject,
+        run_trace=right_run_trace,
+        metrics=right_metrics,
+        diagnostic=right_diagnostic,
+    )
     if (
         left_non_regression.procedural_depth_non_regression_report_id
         != left_subject.perturbation_non_regression_report_ref

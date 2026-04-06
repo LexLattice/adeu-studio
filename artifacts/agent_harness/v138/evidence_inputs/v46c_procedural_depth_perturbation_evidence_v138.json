@@ -69,8 +69,8 @@
   "unknown_override_case_refs_fail_closed": true,
   "top_level_validation_requires_expected_observed_agreement": true,
   "targeted_local_checks": [
-    "PYTHONPATH=packages/adeu_benchmarking/src:packages/adeu_ir/src .venv/bin/python -m ruff check packages/adeu_benchmarking",
-    "PYTHONPATH=packages/adeu_benchmarking/src:packages/adeu_ir/src .venv/bin/python -m pytest packages/adeu_benchmarking/tests"
+    "PYTHONPATH=packages/adeu_benchmarking/src:packages/adeu_ir/src:packages/urm_runtime/src .venv/bin/python -m ruff check packages/adeu_benchmarking",
+    "PYTHONPATH=packages/adeu_benchmarking/src:packages/adeu_ir/src:packages/urm_runtime/src .venv/bin/python -m pytest packages/adeu_benchmarking/tests"
   ],
   "metric_key_continuity_assertion_path": "artifacts/agent_harness/v138/evidence_inputs/metric_key_continuity_assertion_v138.json",
   "runtime_observability_comparison_path": "artifacts/agent_harness/v138/evidence_inputs/runtime_observability_comparison_v138.json",
