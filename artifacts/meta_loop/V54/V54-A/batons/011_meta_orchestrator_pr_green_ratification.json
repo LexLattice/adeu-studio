@@ -1,0 +1,86 @@
+{
+  "schema": "parallel_arc_meta_loop_baton@1",
+  "baton_id": "baton_v54a_pr_green_ratification_011",
+  "baton_kind": "transition_ratification",
+  "emitted_at_utc": "2026-04-07T06:30:00Z",
+  "previous_baton_id": "baton_v54a_arc_worker_review_fix_claim_010",
+  "arc_family": "V54",
+  "slice": "V54-A",
+  "phase": "merge_ready_to_arc_branch",
+  "role": "meta_orchestrator",
+  "model": "codex-host",
+  "reasoning_effort": "host-default",
+  "arc_branch": "arc/v54-r3",
+  "feature_branch": "v142-v54a-history-semantics-impl-r3",
+  "base_branch": "arc/v54-r3",
+  "commit_sha": "00c4449",
+  "pr_url": "https://github.com/LexLattice/adeu-studio/pull/364",
+  "review_verdict": null,
+  "ci_status": "green",
+  "bot_review_overall_status": "complete",
+  "bot_review_observations": [
+    {
+      "bot": "gemini",
+      "state": "completed_with_findings",
+      "witness_kind": "parent_review_plus_inline_threads",
+      "witness_ref": "PRR_kwDORIaRj87yRWFr",
+      "note": "Two Gemini findings were taken and one shorthand-header narrowing suggestion was rejected as doctrinally incompatible with the V54-A lock."
+    },
+    {
+      "bot": "codex",
+      "state": "completed_with_findings",
+      "witness_kind": "parent_review_plus_inline_threads",
+      "witness_ref": "PRR_kwDORIaRj87yRX3d",
+      "note": "The CRLF fixture concern was addressed by generating true CRLF content in-test."
+    }
+  ],
+  "manual_trigger_actions": [],
+  "controlling_refs": [
+    "docs/DRAFT_PARALLEL_ARC_META_LOOP_PROTOCOL_v0.md",
+    "docs/PARALLEL_ARC_META_LOOP_BATON_v0.json",
+    "docs/LOCKED_CONTINUATION_vNEXT_PLUS142.md",
+    "docs/DRAFT_ADEU_HISTORY_SEMANTICS_V54A_IMPLEMENTATION_MAPPING_v0.md"
+  ],
+  "required_outputs_claimed_satisfied": [
+    "v54_a_implementation_commit_present_on_pr_branch",
+    "v54_a_review_fix_commit_present_on_pr_branch",
+    "v54_a_targeted_package_checks_green",
+    "v54_a_bot_review_step_terminally_witnessed",
+    "v54_a_github_ci_green",
+    "v54_a_merge_ready_to_arc_branch"
+  ],
+  "unsatisfied_requirements": [],
+  "status": "completed",
+  "artifacts_produced": [
+    "artifacts/meta_loop/V54/V54-A/batons/011_meta_orchestrator_pr_green_ratification.json",
+    "artifacts/meta_loop/orchestrator_log/2026-04-07_v53_v54_run3_pr_green_ratification.md"
+  ],
+  "evidence_refs": [
+    "https://github.com/LexLattice/adeu-studio/pull/364",
+    "00c4449",
+    "PRR_kwDORIaRj87yRWFr",
+    "PRR_kwDORIaRj87yRX3d",
+    "https://github.com/LexLattice/adeu-studio/actions/runs/24055476892/job/70160551275",
+    "https://github.com/LexLattice/adeu-studio/actions/runs/24055476892/job/70160551272",
+    "https://github.com/LexLattice/adeu-studio/actions/runs/24055476892/job/70160551341"
+  ],
+  "checks_run": [
+    "github_review_thread_harvest_for_pr_364",
+    "targeted_ruff_check_packages_adeu_history_semantics_reported_green",
+    "targeted_pytest_packages_adeu_history_semantics_tests_reported_green",
+    "github_ci_python_green",
+    "github_ci_web_green",
+    "github_ci_lean_formal_green"
+  ],
+  "checks_skipped": [
+    "make_check",
+    "broader_repo_python_lane_outside_targeted_package_scope"
+  ],
+  "blockers": [],
+  "next_allowed_actions": [
+    "merge_pr_364_into_arc_v54_r3",
+    "start_v54_a_closeout_on_family_trunk_after_merge"
+  ],
+  "notes": "This ratification records the final green PR state and the explicit doctrinal reason for not taking the shorthand-header narrowing suggestion.",
+  "ratifies_baton_id": "baton_v54a_arc_worker_review_fix_claim_010"
+}
