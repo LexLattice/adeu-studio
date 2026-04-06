@@ -454,7 +454,9 @@ def _default_output_summary(case: ProceduralDepthPerturbationCase) -> str:
         return "Shifted the top-level plan spine while preserving child execution."
     if case.perturbation_kind == "delayed_constraint":
         return "Completed child work but delayed the required return to the parent plan."
-    raise ValueError("paraphrase_preserving perturbation requires output_summary_override")
+    raise NotImplementedError(
+        f"Missing default output summary for perturbation kind {case.perturbation_kind!r}"
+    )
 
 
 def materialize_procedural_depth_run_trace_from_perturbation_case(
@@ -681,52 +683,58 @@ def derive_procedural_depth_benchmark_validation_report(
     }
     if context_values != {"deterministic_fixed_context"}:
         raise ValueError("all case evaluations must carry deterministic_fixed_context")
+    validation_case_results = [
+        {
+            "perturbation_case_ref": evaluation["perturbation_case"][
+                "procedural_depth_perturbation_case_id"
+            ],
+            "expected_dominant_failure_family": evaluation["perturbation_case"][
+                "expected_dominant_failure_family"
+            ],
+            "observed_dominant_failure_family": evaluation[
+                "observed_dominant_failure_family"
+            ],
+            "expected_terminal_trace_status": evaluation["perturbation_case"][
+                "expected_terminal_trace_status"
+            ],
+            "observed_terminal_trace_status": evaluation[
+                "observed_terminal_trace_status"
+            ],
+            "deterministic_replay_confirmed": evaluation[
+                "deterministic_replay_confirmed"
+            ],
+            "replay_results": [
+                {
+                    "replay_index": replay["replay_index"],
+                    "run_trace_ref": replay["run_trace"][
+                        "procedural_depth_run_trace_id"
+                    ],
+                    "metric_ref": replay["metrics"][
+                        "procedural_depth_metrics_id"
+                    ],
+                    "diagnostic_report_ref": replay["diagnostic_report"][
+                        "procedural_depth_diagnostic_report_id"
+                    ],
+                }
+                for replay in evaluation["replay_results"]
+            ],
+        }
+        for evaluation in case_evaluations
+    ]
+    deterministic_replay_confirmed = all(
+        case_result["deterministic_replay_confirmed"]
+        and case_result["expected_dominant_failure_family"]
+        == case_result["observed_dominant_failure_family"]
+        and case_result["expected_terminal_trace_status"]
+        == case_result["observed_terminal_trace_status"]
+        for case_result in validation_case_results
+    )
     return materialize_procedural_depth_benchmark_validation_report_payload(
         {
             "evaluation_context_posture": "deterministic_fixed_context",
             "replay_count": 3,
-            "deterministic_replay_confirmed": all(
-                evaluation["deterministic_replay_confirmed"]
-                for evaluation in case_evaluations
-            ),
-            "validation_case_results": [
-                {
-                    "perturbation_case_ref": evaluation["perturbation_case"][
-                        "procedural_depth_perturbation_case_id"
-                    ],
-                    "expected_dominant_failure_family": evaluation["perturbation_case"][
-                        "expected_dominant_failure_family"
-                    ],
-                    "observed_dominant_failure_family": evaluation[
-                        "observed_dominant_failure_family"
-                    ],
-                    "expected_terminal_trace_status": evaluation["perturbation_case"][
-                        "expected_terminal_trace_status"
-                    ],
-                    "observed_terminal_trace_status": evaluation[
-                        "observed_terminal_trace_status"
-                    ],
-                    "deterministic_replay_confirmed": evaluation[
-                        "deterministic_replay_confirmed"
-                    ],
-                    "replay_results": [
-                        {
-                            "replay_index": replay["replay_index"],
-                            "run_trace_ref": replay["run_trace"][
-                                "procedural_depth_run_trace_id"
-                            ],
-                            "metric_ref": replay["metrics"][
-                                "procedural_depth_metrics_id"
-                            ],
-                            "diagnostic_report_ref": replay["diagnostic_report"][
-                                "procedural_depth_diagnostic_report_id"
-                            ],
-                        }
-                        for replay in evaluation["replay_results"]
-                    ],
-                }
-                for evaluation in case_evaluations
-            ],
+            "deterministic_replay_confirmed": deterministic_replay_confirmed,
+            "validation_case_results": validation_case_results,
             "limitations": list(_V46C_VALIDATION_LIMITATIONS),
         }
     )
@@ -747,9 +755,23 @@ def evaluate_procedural_depth_perturbation_bundle(
     if not perturbation_case_payloads:
         raise ValueError("perturbation_case_payloads must not be empty")
     replay_run_trace_payloads_by_case_ref = replay_run_trace_payloads_by_case_ref or {}
+    perturbation_cases = [
+        materialize_procedural_depth_perturbation_case_payload(case_payload)
+        for case_payload in perturbation_case_payloads
+    ]
+    known_case_refs = {
+        case["procedural_depth_perturbation_case_id"] for case in perturbation_cases
+    }
+    unknown_case_refs = sorted(
+        set(replay_run_trace_payloads_by_case_ref) - known_case_refs
+    )
+    if unknown_case_refs:
+        raise ValueError(
+            "replay_run_trace_payloads_by_case_ref contains unknown perturbation case refs: "
+            f"{unknown_case_refs}"
+        )
     case_evaluations = []
-    for case_payload in perturbation_case_payloads:
-        case = materialize_procedural_depth_perturbation_case_payload(case_payload)
+    for case in perturbation_cases:
         case_evaluations.append(
             evaluate_procedural_depth_perturbation_case(
                 benchmark_execution_context_payload=benchmark_execution_context_payload,

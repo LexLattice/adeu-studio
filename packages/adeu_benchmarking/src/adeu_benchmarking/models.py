@@ -1930,11 +1930,17 @@ class ProceduralDepthBenchmarkValidationReport(BaseModel):
             _sorted_unique_texts(self.limitations, field_name="limitations"),
         )
         expected_deterministic = all(
-            item.deterministic_replay_confirmed for item in self.validation_case_results
+            item.deterministic_replay_confirmed
+            and item.expected_dominant_failure_family
+            == item.observed_dominant_failure_family
+            and item.expected_terminal_trace_status
+            == item.observed_terminal_trace_status
+            for item in self.validation_case_results
         )
         if self.deterministic_replay_confirmed != expected_deterministic:
             raise ValueError(
-                "deterministic_replay_confirmed must equal conjunction of validation case results"
+                "deterministic_replay_confirmed must equal conjunction of validation "
+                "case replay stability and expected/observed agreement"
             )
         expected_id = compute_procedural_depth_benchmark_validation_report_id(
             _canonical_model_payload(self)

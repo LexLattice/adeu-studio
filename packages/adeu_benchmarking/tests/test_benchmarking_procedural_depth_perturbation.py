@@ -240,6 +240,52 @@ def test_reference_bundle_detects_regression_from_drifted_replay() -> None:
     assert bundle["benchmark_validation_report"] == expected_validation
 
 
+def test_reject_unknown_override_case_refs_fail_closed() -> None:
+    context = _load_json(V46A_FIXTURE_ROOT, "reference_benchmark_execution_context.json")
+    instance = _load_json(V46B_FIXTURE_ROOT, "reference_procedural_depth_instance.json")
+    gold = _load_json(V46B_FIXTURE_ROOT, "reference_procedural_depth_gold_trace.json")
+    cases = [_load_json(V46C_FIXTURE_ROOT, name) for name in _reference_case_fixture_names()]
+
+    with pytest.raises(ValueError, match="unknown perturbation case refs"):
+        evaluate_procedural_depth_perturbation_bundle(
+            benchmark_execution_context_payload=context,
+            instance_payload=instance,
+            gold_trace_payload=gold,
+            perturbation_case_payloads=cases,
+            replay_run_trace_payloads_by_case_ref={
+                "fixture:v46c/unknown_case_ref": [{}, {}, {}]
+            },
+        )
+
+
+def test_validation_report_top_level_flag_fails_when_expectation_is_deterministically_wrong(
+) -> None:
+    context = _load_json(V46A_FIXTURE_ROOT, "reference_benchmark_execution_context.json")
+    instance = _load_json(V46B_FIXTURE_ROOT, "reference_procedural_depth_instance.json")
+    gold = _load_json(V46B_FIXTURE_ROOT, "reference_procedural_depth_gold_trace.json")
+    branch_case = _load_json(
+        V46C_FIXTURE_ROOT, "reference_procedural_depth_perturbation_case_branch_shift.json"
+    )
+
+    assert isinstance(branch_case, dict)
+    mismatched_case = dict(branch_case)
+    mismatched_case.pop("procedural_depth_perturbation_case_id", None)
+    mismatched_case["expected_dominant_failure_family"] = "mixed"
+
+    bundle = evaluate_procedural_depth_perturbation_bundle(
+        benchmark_execution_context_payload=context,
+        instance_payload=instance,
+        gold_trace_payload=gold,
+        perturbation_case_payloads=[mismatched_case],
+    )
+
+    case_result = bundle["benchmark_validation_report"]["validation_case_results"][0]
+    assert case_result["deterministic_replay_confirmed"] is True
+    assert case_result["expected_dominant_failure_family"] == "mixed"
+    assert case_result["observed_dominant_failure_family"] == "horizontal_plan_spine"
+    assert bundle["benchmark_validation_report"]["deterministic_replay_confirmed"] is False
+
+
 @pytest.mark.parametrize(
     ("model", "fixture_name"),
     [
