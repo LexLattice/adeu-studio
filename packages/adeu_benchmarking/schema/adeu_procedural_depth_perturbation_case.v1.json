@@ -1,0 +1,155 @@
+{
+  "$defs": {
+    "ProceduralDepthTraceEvent": {
+      "additionalProperties": false,
+      "properties": {
+        "event_index": {
+          "minimum": 0,
+          "title": "Event Index",
+          "type": "integer"
+        },
+        "event_kind": {
+          "enum": [
+            "activate",
+            "complete",
+            "return"
+          ],
+          "title": "Event Kind",
+          "type": "string"
+        },
+        "parent_step_ref": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Parent Step Ref"
+        },
+        "return_target_step_ref": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Return Target Step Ref"
+        },
+        "step_ref": {
+          "title": "Step Ref",
+          "type": "string"
+        },
+        "step_role": {
+          "enum": [
+            "top_level",
+            "active_parent",
+            "child"
+          ],
+          "title": "Step Role",
+          "type": "string"
+        }
+      },
+      "required": [
+        "event_index",
+        "event_kind",
+        "step_ref",
+        "step_role"
+      ],
+      "title": "ProceduralDepthTraceEvent",
+      "type": "object"
+    }
+  },
+  "additionalProperties": false,
+  "properties": {
+    "baseline_instance_ref": {
+      "title": "Baseline Instance Ref",
+      "type": "string"
+    },
+    "expected_dominant_failure_family": {
+      "enum": [
+        "clean_success",
+        "horizontal_plan_spine",
+        "vertical_active_step_compilation",
+        "reintegration",
+        "mixed"
+      ],
+      "title": "Expected Dominant Failure Family",
+      "type": "string"
+    },
+    "expected_terminal_trace_status": {
+      "enum": [
+        "completed_clean",
+        "completed_with_structural_break"
+      ],
+      "title": "Expected Terminal Trace Status",
+      "type": "string"
+    },
+    "notes": {
+      "items": {
+        "type": "string"
+      },
+      "title": "Notes",
+      "type": "array"
+    },
+    "output_summary_override": {
+      "anyOf": [
+        {
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Output Summary Override"
+    },
+    "perturbation_kind": {
+      "enum": [
+        "branch_shift",
+        "delayed_constraint",
+        "paraphrase_preserving"
+      ],
+      "title": "Perturbation Kind",
+      "type": "string"
+    },
+    "perturbation_label": {
+      "title": "Perturbation Label",
+      "type": "string"
+    },
+    "perturbation_overlay_events": {
+      "items": {
+        "$ref": "#/$defs/ProceduralDepthTraceEvent"
+      },
+      "minItems": 1,
+      "title": "Perturbation Overlay Events",
+      "type": "array"
+    },
+    "procedural_depth_perturbation_case_id": {
+      "title": "Procedural Depth Perturbation Case Id",
+      "type": "string"
+    },
+    "schema": {
+      "const": "adeu_procedural_depth_perturbation_case@1",
+      "default": "adeu_procedural_depth_perturbation_case@1",
+      "title": "Schema",
+      "type": "string"
+    }
+  },
+  "required": [
+    "procedural_depth_perturbation_case_id",
+    "baseline_instance_ref",
+    "perturbation_kind",
+    "perturbation_label",
+    "perturbation_overlay_events",
+    "expected_dominant_failure_family",
+    "expected_terminal_trace_status"
+  ],
+  "title": "ProceduralDepthPerturbationCase",
+  "type": "object"
+}

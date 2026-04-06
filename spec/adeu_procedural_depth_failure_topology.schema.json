@@ -1,0 +1,98 @@
+{
+  "$defs": {
+    "ProceduralDepthFailureTopologyCase": {
+      "additionalProperties": false,
+      "properties": {
+        "observed_dominant_failure_family": {
+          "enum": [
+            "clean_success",
+            "horizontal_plan_spine",
+            "vertical_active_step_compilation",
+            "reintegration",
+            "mixed"
+          ],
+          "title": "Observed Dominant Failure Family",
+          "type": "string"
+        },
+        "perturbation_case_ref": {
+          "title": "Perturbation Case Ref",
+          "type": "string"
+        },
+        "supporting_replay_refs": {
+          "items": {
+            "$ref": "#/$defs/ProceduralDepthSupportingReplayRef"
+          },
+          "minItems": 1,
+          "title": "Supporting Replay Refs",
+          "type": "array"
+        }
+      },
+      "required": [
+        "perturbation_case_ref",
+        "observed_dominant_failure_family",
+        "supporting_replay_refs"
+      ],
+      "title": "ProceduralDepthFailureTopologyCase",
+      "type": "object"
+    },
+    "ProceduralDepthSupportingReplayRef": {
+      "additionalProperties": false,
+      "properties": {
+        "replay_index": {
+          "minimum": 0,
+          "title": "Replay Index",
+          "type": "integer"
+        },
+        "run_trace_ref": {
+          "title": "Run Trace Ref",
+          "type": "string"
+        }
+      },
+      "required": [
+        "replay_index",
+        "run_trace_ref"
+      ],
+      "title": "ProceduralDepthSupportingReplayRef",
+      "type": "object"
+    }
+  },
+  "additionalProperties": false,
+  "properties": {
+    "evaluated_cases": {
+      "items": {
+        "$ref": "#/$defs/ProceduralDepthFailureTopologyCase"
+      },
+      "minItems": 1,
+      "title": "Evaluated Cases",
+      "type": "array"
+    },
+    "notes": {
+      "items": {
+        "type": "string"
+      },
+      "title": "Notes",
+      "type": "array"
+    },
+    "procedural_depth_failure_topology_id": {
+      "title": "Procedural Depth Failure Topology Id",
+      "type": "string"
+    },
+    "schema": {
+      "const": "adeu_procedural_depth_failure_topology@1",
+      "default": "adeu_procedural_depth_failure_topology@1",
+      "title": "Schema",
+      "type": "string"
+    },
+    "topology_summary": {
+      "title": "Topology Summary",
+      "type": "string"
+    }
+  },
+  "required": [
+    "procedural_depth_failure_topology_id",
+    "evaluated_cases",
+    "topology_summary"
+  ],
+  "title": "ProceduralDepthFailureTopology",
+  "type": "object"
+}

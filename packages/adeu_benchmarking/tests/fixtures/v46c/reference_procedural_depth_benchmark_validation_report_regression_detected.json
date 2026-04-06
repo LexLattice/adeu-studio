@@ -1,0 +1,97 @@
+{
+  "deterministic_replay_confirmed": false,
+  "evaluation_context_posture": "deterministic_fixed_context",
+  "limitations": [
+    "Cross-subject comparison and downstream consumer seams remain deferred from V46-C.",
+    "Validation remains bounded to one tiny deterministic perturbation bundle over hierarchical_3x3 only."
+  ],
+  "procedural_depth_benchmark_validation_report_id": "pdepthbval_e16a728197229ac98d0361ac19081077",
+  "replay_count": 3,
+  "schema": "adeu_procedural_depth_benchmark_validation_report@1",
+  "validation_case_results": [
+    {
+      "deterministic_replay_confirmed": false,
+      "expected_dominant_failure_family": "clean_success",
+      "expected_terminal_trace_status": "completed_clean",
+      "observed_dominant_failure_family": "clean_success",
+      "observed_terminal_trace_status": "completed_clean",
+      "perturbation_case_ref": "pdepthpert_3099cdab20b4c5c498cd351f7cdb7f61",
+      "replay_results": [
+        {
+          "diagnostic_report_ref": "pdepthdiag_b7f09a2ac1fc41264987ddc96ee5f495",
+          "metric_ref": "pdepthmetrics_55c22f2feabbe3011464df77ca73d049",
+          "replay_index": 0,
+          "run_trace_ref": "pdepthrun_b07c584c1716066d0af4c20348dca4de"
+        },
+        {
+          "diagnostic_report_ref": "pdepthdiag_91c875af95830e828b7e50ab49015d99",
+          "metric_ref": "pdepthmetrics_04a74380c88e2d9e8a3ab31058babdf0",
+          "replay_index": 1,
+          "run_trace_ref": "pdepthrun_39ff6a7e52606ae37b377549900795fd"
+        },
+        {
+          "diagnostic_report_ref": "pdepthdiag_b7f09a2ac1fc41264987ddc96ee5f495",
+          "metric_ref": "pdepthmetrics_55c22f2feabbe3011464df77ca73d049",
+          "replay_index": 2,
+          "run_trace_ref": "pdepthrun_b07c584c1716066d0af4c20348dca4de"
+        }
+      ]
+    },
+    {
+      "deterministic_replay_confirmed": true,
+      "expected_dominant_failure_family": "horizontal_plan_spine",
+      "expected_terminal_trace_status": "completed_with_structural_break",
+      "observed_dominant_failure_family": "horizontal_plan_spine",
+      "observed_terminal_trace_status": "completed_with_structural_break",
+      "perturbation_case_ref": "pdepthpert_4a8cc1d7e79d8748f3a634dfe4c40cc9",
+      "replay_results": [
+        {
+          "diagnostic_report_ref": "pdepthdiag_7b782c8e25b5ae4e61adad435606c459",
+          "metric_ref": "pdepthmetrics_a5c89dcb8fa9e7db836c0bda9aa4bfc8",
+          "replay_index": 0,
+          "run_trace_ref": "pdepthrun_0dba820dd011ffbef87282abdacf85b5"
+        },
+        {
+          "diagnostic_report_ref": "pdepthdiag_7b782c8e25b5ae4e61adad435606c459",
+          "metric_ref": "pdepthmetrics_a5c89dcb8fa9e7db836c0bda9aa4bfc8",
+          "replay_index": 1,
+          "run_trace_ref": "pdepthrun_0dba820dd011ffbef87282abdacf85b5"
+        },
+        {
+          "diagnostic_report_ref": "pdepthdiag_7b782c8e25b5ae4e61adad435606c459",
+          "metric_ref": "pdepthmetrics_a5c89dcb8fa9e7db836c0bda9aa4bfc8",
+          "replay_index": 2,
+          "run_trace_ref": "pdepthrun_0dba820dd011ffbef87282abdacf85b5"
+        }
+      ]
+    },
+    {
+      "deterministic_replay_confirmed": true,
+      "expected_dominant_failure_family": "reintegration",
+      "expected_terminal_trace_status": "completed_with_structural_break",
+      "observed_dominant_failure_family": "reintegration",
+      "observed_terminal_trace_status": "completed_with_structural_break",
+      "perturbation_case_ref": "pdepthpert_e4cae96730d15577dc463ec54d351a03",
+      "replay_results": [
+        {
+          "diagnostic_report_ref": "pdepthdiag_1954821a6bcca5c1b0d1ab7b957038b1",
+          "metric_ref": "pdepthmetrics_014af4be06ed136312eb71f30db4d5b0",
+          "replay_index": 0,
+          "run_trace_ref": "pdepthrun_335e5616067d782aad466a3d585f01b5"
+        },
+        {
+          "diagnostic_report_ref": "pdepthdiag_1954821a6bcca5c1b0d1ab7b957038b1",
+          "metric_ref": "pdepthmetrics_014af4be06ed136312eb71f30db4d5b0",
+          "replay_index": 1,
+          "run_trace_ref": "pdepthrun_335e5616067d782aad466a3d585f01b5"
+        },
+        {
+          "diagnostic_report_ref": "pdepthdiag_1954821a6bcca5c1b0d1ab7b957038b1",
+          "metric_ref": "pdepthmetrics_014af4be06ed136312eb71f30db4d5b0",
+          "replay_index": 2,
+          "run_trace_ref": "pdepthrun_335e5616067d782aad466a3d585f01b5"
+        }
+      ]
+    }
+  ]
+}

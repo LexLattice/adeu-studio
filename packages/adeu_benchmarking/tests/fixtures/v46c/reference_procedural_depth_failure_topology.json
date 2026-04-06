@@ -1,0 +1,65 @@
+{
+  "evaluated_cases": [
+    {
+      "observed_dominant_failure_family": "clean_success",
+      "perturbation_case_ref": "pdepthpert_3099cdab20b4c5c498cd351f7cdb7f61",
+      "supporting_replay_refs": [
+        {
+          "replay_index": 0,
+          "run_trace_ref": "pdepthrun_b07c584c1716066d0af4c20348dca4de"
+        },
+        {
+          "replay_index": 1,
+          "run_trace_ref": "pdepthrun_b07c584c1716066d0af4c20348dca4de"
+        },
+        {
+          "replay_index": 2,
+          "run_trace_ref": "pdepthrun_b07c584c1716066d0af4c20348dca4de"
+        }
+      ]
+    },
+    {
+      "observed_dominant_failure_family": "horizontal_plan_spine",
+      "perturbation_case_ref": "pdepthpert_4a8cc1d7e79d8748f3a634dfe4c40cc9",
+      "supporting_replay_refs": [
+        {
+          "replay_index": 0,
+          "run_trace_ref": "pdepthrun_0dba820dd011ffbef87282abdacf85b5"
+        },
+        {
+          "replay_index": 1,
+          "run_trace_ref": "pdepthrun_0dba820dd011ffbef87282abdacf85b5"
+        },
+        {
+          "replay_index": 2,
+          "run_trace_ref": "pdepthrun_0dba820dd011ffbef87282abdacf85b5"
+        }
+      ]
+    },
+    {
+      "observed_dominant_failure_family": "reintegration",
+      "perturbation_case_ref": "pdepthpert_e4cae96730d15577dc463ec54d351a03",
+      "supporting_replay_refs": [
+        {
+          "replay_index": 0,
+          "run_trace_ref": "pdepthrun_335e5616067d782aad466a3d585f01b5"
+        },
+        {
+          "replay_index": 1,
+          "run_trace_ref": "pdepthrun_335e5616067d782aad466a3d585f01b5"
+        },
+        {
+          "replay_index": 2,
+          "run_trace_ref": "pdepthrun_335e5616067d782aad466a3d585f01b5"
+        }
+      ]
+    }
+  ],
+  "notes": [
+    "Cross-subject topology widening remains deferred to V46-D.",
+    "Failure topology is bundle-scoped over the bounded V46-C perturbation set only."
+  ],
+  "procedural_depth_failure_topology_id": "pdepthtopo_30f28a77d14ee7178f2891186d2efb29",
+  "schema": "adeu_procedural_depth_failure_topology@1",
+  "topology_summary": "Starter V46-C failure topology aggregated the bounded perturbation bundle under deterministic fixed context and observed: clean_success, horizontal_plan_spine, reintegration."
+}

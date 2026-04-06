@@ -1,0 +1,83 @@
+{
+  "baseline_instance_ref": "pdepthinst_4e2ace8ed445a7010809453180a6a478",
+  "evaluated_cases": [
+    {
+      "perturbation_case_ref": "pdepthpert_3099cdab20b4c5c498cd351f7cdb7f61",
+      "regression_detected": false,
+      "replay_indexes": [
+        0,
+        2
+      ],
+      "supporting_metric_refs": [
+        {
+          "metric_ref": "pdepthmetrics_55c22f2feabbe3011464df77ca73d049",
+          "replay_index": 0
+        },
+        {
+          "metric_ref": "pdepthmetrics_55c22f2feabbe3011464df77ca73d049",
+          "replay_index": 1
+        },
+        {
+          "metric_ref": "pdepthmetrics_55c22f2feabbe3011464df77ca73d049",
+          "replay_index": 2
+        }
+      ]
+    },
+    {
+      "perturbation_case_ref": "pdepthpert_4a8cc1d7e79d8748f3a634dfe4c40cc9",
+      "regression_detected": false,
+      "replay_indexes": [
+        0,
+        1,
+        2
+      ],
+      "supporting_metric_refs": [
+        {
+          "metric_ref": "pdepthmetrics_a5c89dcb8fa9e7db836c0bda9aa4bfc8",
+          "replay_index": 0
+        },
+        {
+          "metric_ref": "pdepthmetrics_a5c89dcb8fa9e7db836c0bda9aa4bfc8",
+          "replay_index": 1
+        },
+        {
+          "metric_ref": "pdepthmetrics_a5c89dcb8fa9e7db836c0bda9aa4bfc8",
+          "replay_index": 2
+        }
+      ]
+    },
+    {
+      "perturbation_case_ref": "pdepthpert_e4cae96730d15577dc463ec54d351a03",
+      "regression_detected": false,
+      "replay_indexes": [
+        0,
+        1,
+        2
+      ],
+      "supporting_metric_refs": [
+        {
+          "metric_ref": "pdepthmetrics_014af4be06ed136312eb71f30db4d5b0",
+          "replay_index": 0
+        },
+        {
+          "metric_ref": "pdepthmetrics_014af4be06ed136312eb71f30db4d5b0",
+          "replay_index": 1
+        },
+        {
+          "metric_ref": "pdepthmetrics_014af4be06ed136312eb71f30db4d5b0",
+          "replay_index": 2
+        }
+      ]
+    }
+  ],
+  "evaluation_context_posture": "deterministic_fixed_context",
+  "notes": [
+    "No stochastic tolerance or variance-floor doctrine is selected in the V46-C starter lane.",
+    "Non-regression is exact-match over run-trace id, metrics id, diagnostic-report id, dominant failure family, and terminal trace status."
+  ],
+  "procedural_depth_non_regression_report_id": "pdepthnreg_933aa67ab8b164450dd9e0f9672867af",
+  "regression_detected": false,
+  "replay_count": 3,
+  "report_summary": "All perturbation cases stayed exact-match stable across the frozen three-replay starter law.",
+  "schema": "adeu_procedural_depth_non_regression_report@1"
+}

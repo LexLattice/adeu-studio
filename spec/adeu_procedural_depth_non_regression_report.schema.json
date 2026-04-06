@@ -1,0 +1,122 @@
+{
+  "$defs": {
+    "ProceduralDepthNonRegressionCase": {
+      "additionalProperties": false,
+      "properties": {
+        "perturbation_case_ref": {
+          "title": "Perturbation Case Ref",
+          "type": "string"
+        },
+        "regression_detected": {
+          "title": "Regression Detected",
+          "type": "boolean"
+        },
+        "replay_indexes": {
+          "items": {
+            "type": "integer"
+          },
+          "minItems": 1,
+          "title": "Replay Indexes",
+          "type": "array"
+        },
+        "supporting_metric_refs": {
+          "items": {
+            "$ref": "#/$defs/ProceduralDepthSupportingMetricRef"
+          },
+          "minItems": 1,
+          "title": "Supporting Metric Refs",
+          "type": "array"
+        }
+      },
+      "required": [
+        "perturbation_case_ref",
+        "replay_indexes",
+        "regression_detected",
+        "supporting_metric_refs"
+      ],
+      "title": "ProceduralDepthNonRegressionCase",
+      "type": "object"
+    },
+    "ProceduralDepthSupportingMetricRef": {
+      "additionalProperties": false,
+      "properties": {
+        "metric_ref": {
+          "title": "Metric Ref",
+          "type": "string"
+        },
+        "replay_index": {
+          "minimum": 0,
+          "title": "Replay Index",
+          "type": "integer"
+        }
+      },
+      "required": [
+        "replay_index",
+        "metric_ref"
+      ],
+      "title": "ProceduralDepthSupportingMetricRef",
+      "type": "object"
+    }
+  },
+  "additionalProperties": false,
+  "properties": {
+    "baseline_instance_ref": {
+      "title": "Baseline Instance Ref",
+      "type": "string"
+    },
+    "evaluated_cases": {
+      "items": {
+        "$ref": "#/$defs/ProceduralDepthNonRegressionCase"
+      },
+      "minItems": 1,
+      "title": "Evaluated Cases",
+      "type": "array"
+    },
+    "evaluation_context_posture": {
+      "const": "deterministic_fixed_context",
+      "title": "Evaluation Context Posture",
+      "type": "string"
+    },
+    "notes": {
+      "items": {
+        "type": "string"
+      },
+      "title": "Notes",
+      "type": "array"
+    },
+    "procedural_depth_non_regression_report_id": {
+      "title": "Procedural Depth Non Regression Report Id",
+      "type": "string"
+    },
+    "regression_detected": {
+      "title": "Regression Detected",
+      "type": "boolean"
+    },
+    "replay_count": {
+      "minimum": 1,
+      "title": "Replay Count",
+      "type": "integer"
+    },
+    "report_summary": {
+      "title": "Report Summary",
+      "type": "string"
+    },
+    "schema": {
+      "const": "adeu_procedural_depth_non_regression_report@1",
+      "default": "adeu_procedural_depth_non_regression_report@1",
+      "title": "Schema",
+      "type": "string"
+    }
+  },
+  "required": [
+    "procedural_depth_non_regression_report_id",
+    "baseline_instance_ref",
+    "evaluation_context_posture",
+    "replay_count",
+    "regression_detected",
+    "evaluated_cases",
+    "report_summary"
+  ],
+  "title": "ProceduralDepthNonRegressionReport",
+  "type": "object"
+}

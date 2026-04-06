@@ -1,0 +1,116 @@
+{
+  "observed_events": [
+    {
+      "event_index": 0,
+      "event_kind": "activate",
+      "step_ref": "inspect_workspace",
+      "step_role": "top_level"
+    },
+    {
+      "event_index": 1,
+      "event_kind": "complete",
+      "step_ref": "inspect_workspace",
+      "step_role": "top_level"
+    },
+    {
+      "event_index": 2,
+      "event_kind": "activate",
+      "step_ref": "verify_hierarchy",
+      "step_role": "active_parent"
+    },
+    {
+      "event_index": 3,
+      "event_kind": "activate",
+      "parent_step_ref": "verify_hierarchy",
+      "step_ref": "verify_child_status",
+      "step_role": "child"
+    },
+    {
+      "event_index": 4,
+      "event_kind": "complete",
+      "parent_step_ref": "verify_hierarchy",
+      "step_ref": "verify_child_status",
+      "step_role": "child"
+    },
+    {
+      "event_index": 5,
+      "event_kind": "return",
+      "parent_step_ref": "verify_hierarchy",
+      "return_target_step_ref": "verify_hierarchy",
+      "step_ref": "verify_child_status",
+      "step_role": "child"
+    },
+    {
+      "event_index": 6,
+      "event_kind": "activate",
+      "parent_step_ref": "verify_hierarchy",
+      "step_ref": "verify_child_contracts",
+      "step_role": "child"
+    },
+    {
+      "event_index": 7,
+      "event_kind": "complete",
+      "parent_step_ref": "verify_hierarchy",
+      "step_ref": "verify_child_contracts",
+      "step_role": "child"
+    },
+    {
+      "event_index": 8,
+      "event_kind": "return",
+      "parent_step_ref": "verify_hierarchy",
+      "return_target_step_ref": "verify_hierarchy",
+      "step_ref": "verify_child_contracts",
+      "step_role": "child"
+    },
+    {
+      "event_index": 9,
+      "event_kind": "activate",
+      "parent_step_ref": "verify_hierarchy",
+      "step_ref": "verify_child_summary",
+      "step_role": "child"
+    },
+    {
+      "event_index": 10,
+      "event_kind": "complete",
+      "parent_step_ref": "verify_hierarchy",
+      "step_ref": "verify_child_summary",
+      "step_role": "child"
+    },
+    {
+      "event_index": 11,
+      "event_kind": "return",
+      "parent_step_ref": "verify_hierarchy",
+      "return_target_step_ref": "verify_hierarchy",
+      "step_ref": "verify_child_summary",
+      "step_role": "child"
+    },
+    {
+      "event_index": 12,
+      "event_kind": "complete",
+      "step_ref": "verify_hierarchy",
+      "step_role": "active_parent"
+    },
+    {
+      "event_index": 13,
+      "event_kind": "activate",
+      "step_ref": "deliver_summary",
+      "step_role": "top_level"
+    },
+    {
+      "event_index": 14,
+      "event_kind": "complete",
+      "step_ref": "deliver_summary",
+      "step_role": "top_level"
+    }
+  ],
+  "observed_output_summary": "Produced a paraphrased yet structure-preserving summary.",
+  "procedural_depth_instance_ref": "pdepthinst_4e2ace8ed445a7010809453180a6a478",
+  "procedural_depth_run_trace_id": "pdepthrun_39ff6a7e52606ae37b377549900795fd",
+  "schema": "adeu_procedural_depth_run_trace@1",
+  "terminal_trace_status": "completed_clean",
+  "trace_notes": [
+    "perturbation_case_ref=pdepthpert_3099cdab20b4c5c498cd351f7cdb7f61",
+    "perturbation_kind=paraphrase_preserving",
+    "starter v46c deterministic perturbation replay"
+  ]
+}
