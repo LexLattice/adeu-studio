@@ -3,6 +3,7 @@ from __future__ import annotations
 import json
 from pathlib import Path
 
+import adeu_edge_ledger.applicability as applicability_module
 import pytest
 from adeu_edge_ledger import (
     SymbolEdgeApplicabilityFrame,
@@ -86,6 +87,36 @@ def test_scope_applicability_frames_cover_every_census_symbol(
         frame.bound_probe_template_catalog_ref == probe_catalog.catalog_id for frame in frames
     )
     assert all(len(frame.applicability_rows) == 16 for frame in frames)
+
+
+def test_scope_derivation_collects_symbol_nodes_once(
+    released_stack,
+    starter_catalogs,
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    repo_root, _manifest, census, coverage, audit = released_stack
+    edge_catalog, probe_catalog = starter_catalogs
+    original_collect = applicability_module._collect_symbol_nodes
+    calls = 0
+
+    def counting_collect(*, repo_root: Path, census):
+        nonlocal calls
+        calls += 1
+        return original_collect(repo_root=repo_root, census=census)
+
+    monkeypatch.setattr(applicability_module, "_collect_symbol_nodes", counting_collect)
+
+    frames = derive_scope_symbol_edge_applicability_frames(
+        repo_root=repo_root,
+        census=census,
+        coverage_report=coverage,
+        semantic_audit=audit,
+        edge_class_catalog=edge_catalog,
+        probe_template_catalog=probe_catalog,
+    )
+
+    assert len(frames) == census.symbol_count
+    assert calls == 1
 
 
 def test_reject_non_closed_clean_coverage_input_fails_closed(

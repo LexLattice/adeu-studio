@@ -10,6 +10,7 @@ from .models import (
     EdgeClassNode,
     EdgeProbeTemplate,
     EdgeProbeTemplateCatalog,
+    _sha256_canonical_payload,
     compute_edge_class_catalog_id,
     compute_edge_probe_template_catalog_id,
 )
@@ -681,8 +682,6 @@ def validate_probe_template_catalog_binding(
 
 
 def compute_catalog_hash(payload_without_hash: dict[str, Any]) -> str:
-    from .models import _sha256_canonical_payload
-
     return _sha256_canonical_payload(payload_without_hash)
 
 

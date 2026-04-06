@@ -1,0 +1,91 @@
+{
+  "schema": "parallel_arc_meta_loop_baton@1",
+  "baton_id": "baton_v53a_arc_worker_review_fix_claim_011",
+  "baton_kind": "transition_claim",
+  "emitted_at_utc": "2026-04-06T23:00:35Z",
+  "previous_baton_id": "baton_v53a_arc_worker_implementation_claim_010",
+  "arc_family": "V53",
+  "slice": "V53-A",
+  "phase": "review_fixing_pending",
+  "role": "arc_worker",
+  "model": "gpt-5.4",
+  "reasoning_effort": "xhigh",
+  "arc_branch": "arc/v53-r3",
+  "feature_branch": "v141-v53a-edge-ledger-impl-r3",
+  "base_branch": "arc/v53-r3",
+  "commit_sha": null,
+  "pr_url": "https://github.com/LexLattice/adeu-studio/pull/363",
+  "review_verdict": null,
+  "ci_status": "not_started",
+  "bot_review_overall_status": "complete",
+  "bot_review_observations": [
+    {
+      "bot": "gemini",
+      "state": "completed_with_findings",
+      "witness_kind": "review_thread_comments",
+      "witness_ref": "PRRT_kwDORIaRj855IUVP, PRRT_kwDORIaRj855IUVR",
+      "note": "Two worthwhile explicit-dependency comments were addressed."
+    },
+    {
+      "bot": "codex",
+      "state": "completed_with_findings",
+      "witness_kind": "parent_review_plus_inline_thread",
+      "witness_ref": "PRR_kwDORIaRj87yRmLL, PRRT_kwDORIaRj855IeDN",
+      "note": "The cached-node-map performance hardening comment was addressed."
+    }
+  ],
+  "manual_trigger_actions": [
+    {
+      "bot": "codex",
+      "trigger_text": "@codex review",
+      "trigger_ref": "IC_kwDORIaRj876DL8D"
+    }
+  ],
+  "controlling_refs": [
+    "docs/LOCKED_CONTINUATION_vNEXT_PLUS141.md",
+    "docs/DRAFT_ADEU_EDGE_LEDGER_V53A_IMPLEMENTATION_MAPPING_v0.md",
+    "docs/DRAFT_PARALLEL_ARC_META_LOOP_PROTOCOL_v0.md",
+    "docs/PARALLEL_ARC_META_LOOP_BATON_v0.json"
+  ],
+  "required_outputs_claimed_satisfied": [
+    "v53_a_review_threads_harvested",
+    "v53_a_worthwhile_review_fixes_applied",
+    "v53_a_targeted_package_checks_green",
+    "v53_a_review_fix_claim_baton"
+  ],
+  "unsatisfied_requirements": [
+    "v53_a_review_fix_commit_and_push",
+    "v53_a_post_push_ci_green"
+  ],
+  "status": "completed",
+  "artifacts_produced": [
+    "packages/adeu_edge_ledger/src/adeu_edge_ledger/applicability.py",
+    "packages/adeu_edge_ledger/src/adeu_edge_ledger/taxonomy.py",
+    "packages/adeu_edge_ledger/tests/test_edge_ledger_applicability.py",
+    "artifacts/meta_loop/V53/V53-A/batons/011_arc_worker_review_fix_claim.json"
+  ],
+  "evidence_refs": [
+    "packages/adeu_edge_ledger/src/adeu_edge_ledger/applicability.py",
+    "packages/adeu_edge_ledger/src/adeu_edge_ledger/taxonomy.py",
+    "packages/adeu_edge_ledger/tests/test_edge_ledger_applicability.py",
+    "PR #363 thread PRRT_kwDORIaRj855IUVP",
+    "PR #363 thread PRRT_kwDORIaRj855IUVR",
+    "PR #363 thread PRRT_kwDORIaRj855IeDN"
+  ],
+  "checks_run": [
+    "PYTHONPATH=packages/adeu_edge_ledger/src:packages/adeu_architecture_ir/src:packages/adeu_repo_description/src:packages/urm_runtime/src .venv/bin/python -m ruff check packages/adeu_edge_ledger (pass)",
+    "PYTHONPATH=packages/adeu_edge_ledger/src:packages/adeu_architecture_ir/src:packages/adeu_repo_description/src:packages/urm_runtime/src .venv/bin/python -m pytest packages/adeu_edge_ledger/tests -q (pass)"
+  ],
+  "checks_skipped": [
+    "make check skipped by instruction for this review-fix step",
+    "broader repo-wide lint, pytest, closeout, and CI-equivalent local gates were not run"
+  ],
+  "blockers": [],
+  "next_allowed_actions": [
+    "commit_review_fix_changes_on_v141_v53a_edge_ledger_impl_r3",
+    "push_review_fix_commit_to_pr_363_branch",
+    "wait_5_minutes_then_check_pr_363_ci",
+    "poll_ci_every_30_seconds_until_trustworthy"
+  ],
+  "notes": "Took all three triaged comments for PR #363. The scope path now parses symbol nodes once per scope derivation and threads the cached node map through an internal helper. The two local hash-helper proxy imports were replaced with explicit top-level imports from models."
+}

@@ -24,6 +24,7 @@ from .models import (
     SymbolEdgeApplicabilityFrame,
     SymbolEdgeApplicabilityRow,
     SymbolKind,
+    _sha256_canonical_payload,
     compute_symbol_edge_applicability_frame_id,
 )
 from .taxonomy import (
@@ -36,12 +37,6 @@ from .taxonomy import (
 
 FRAME_POSTURE = "starter_taxonomy_applicability_over_released_v50_pilot_scope"
 _WORD_RE = re.compile(r"[A-Za-z_][A-Za-z0-9_]*")
-
-
-def _sha256_canonical_payload(value: Any) -> str:
-    from .models import _sha256_canonical_payload as _hash_payload
-
-    return _hash_payload(value)
 
 
 def _ordered_deduplicated(values: list[str]) -> list[str]:
@@ -611,6 +606,27 @@ def derive_symbol_edge_applicability_frame(
     )
 
     nodes = _collect_symbol_nodes(repo_root=repo_root, census=census)
+    return _derive_symbol_edge_applicability_frame_from_nodes(
+        census=census,
+        coverage_report=coverage_report,
+        semantic_audit=semantic_audit,
+        symbol_id=symbol_id,
+        edge_class_catalog=catalog,
+        probe_template_catalog=probes,
+        nodes=nodes,
+    )
+
+
+def _derive_symbol_edge_applicability_frame_from_nodes(
+    *,
+    census: SymbolCensus,
+    coverage_report: SymbolAuditCoverageReport,
+    semantic_audit: SymbolSemanticAudit,
+    symbol_id: str,
+    edge_class_catalog: EdgeClassCatalog,
+    probe_template_catalog: EdgeProbeTemplateCatalog,
+    nodes: dict[str, ast.AST],
+) -> SymbolEdgeApplicabilityFrame:
     census_by_id = {entry.symbol_id: entry for entry in census.symbols}
     audit_by_id = {entry.symbol_id: entry for entry in semantic_audit.audit_entries}
     if symbol_id not in census_by_id:
@@ -633,14 +649,14 @@ def derive_symbol_edge_applicability_frame(
             present_features=present_features,
             feature_evidence=feature_evidence,
         )
-        for catalog_node in catalog.nodes
+        for catalog_node in edge_class_catalog.nodes
         if catalog_node.node_kind == "archetype"
     ]
     applicability_rows.sort(key=lambda row: row.edge_class_ref)
     payload = {
         "schema": ADEU_SYMBOL_EDGE_APPLICABILITY_FRAME_SCHEMA,
-        "bound_edge_class_catalog_ref": catalog.catalog_id,
-        "bound_probe_template_catalog_ref": probes.catalog_id,
+        "bound_edge_class_catalog_ref": edge_class_catalog.catalog_id,
+        "bound_probe_template_catalog_ref": probe_template_catalog.catalog_id,
         "scope_manifest_ref": census.scope_manifest_ref,
         "census_hash": census.census_hash,
         "audit_hash": semantic_audit.audit_hash,
@@ -657,8 +673,8 @@ def derive_symbol_edge_applicability_frame(
     payload["frame_id"] = compute_symbol_edge_applicability_frame_id(payload)
     return validate_symbol_edge_applicability_frame_bindings(
         frame_payload=payload,
-        edge_class_catalog=catalog,
-        probe_template_catalog=probes,
+        edge_class_catalog=edge_class_catalog,
+        probe_template_catalog=probe_template_catalog,
         census=census,
         coverage_report=coverage_report,
         semantic_audit=semantic_audit,
@@ -678,15 +694,16 @@ def derive_scope_symbol_edge_applicability_frames(
     probes = probe_template_catalog or build_starter_edge_probe_template_catalog(
         edge_class_catalog=catalog
     )
+    nodes = _collect_symbol_nodes(repo_root=repo_root, census=census)
     return [
-        derive_symbol_edge_applicability_frame(
-            repo_root=repo_root,
+        _derive_symbol_edge_applicability_frame_from_nodes(
             census=census,
             coverage_report=coverage_report,
             semantic_audit=semantic_audit,
             symbol_id=symbol.symbol_id,
             edge_class_catalog=catalog,
             probe_template_catalog=probes,
+            nodes=nodes,
         )
         for symbol in census.symbols
     ]
