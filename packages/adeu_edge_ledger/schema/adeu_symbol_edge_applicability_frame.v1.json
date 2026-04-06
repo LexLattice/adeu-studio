@@ -1,0 +1,151 @@
+{
+  "$defs": {
+    "SymbolEdgeApplicabilityRow": {
+      "additionalProperties": false,
+      "properties": {
+        "applicability_status": {
+          "enum": [
+            "applicable",
+            "not_applicable",
+            "underdetermined"
+          ],
+          "title": "Applicability Status",
+          "type": "string"
+        },
+        "concrete_binding_refs": {
+          "items": {
+            "type": "string"
+          },
+          "title": "Concrete Binding Refs",
+          "type": "array"
+        },
+        "edge_class_ref": {
+          "title": "Edge Class Ref",
+          "type": "string"
+        },
+        "epistemic_posture": {
+          "enum": [
+            "derived_deterministically",
+            "inferred_heuristically"
+          ],
+          "title": "Epistemic Posture",
+          "type": "string"
+        },
+        "matched_cue_tags": {
+          "items": {
+            "type": "string"
+          },
+          "title": "Matched Cue Tags",
+          "type": "array"
+        },
+        "rationale": {
+          "title": "Rationale",
+          "type": "string"
+        },
+        "suggested_probe_template_refs": {
+          "items": {
+            "type": "string"
+          },
+          "title": "Suggested Probe Template Refs",
+          "type": "array"
+        }
+      },
+      "required": [
+        "edge_class_ref",
+        "applicability_status",
+        "epistemic_posture",
+        "rationale"
+      ],
+      "title": "SymbolEdgeApplicabilityRow",
+      "type": "object"
+    }
+  },
+  "additionalProperties": false,
+  "properties": {
+    "applicability_rows": {
+      "items": {
+        "$ref": "#/$defs/SymbolEdgeApplicabilityRow"
+      },
+      "minItems": 1,
+      "title": "Applicability Rows",
+      "type": "array"
+    },
+    "audit_hash": {
+      "title": "Audit Hash",
+      "type": "string"
+    },
+    "bound_edge_class_catalog_ref": {
+      "title": "Bound Edge Class Catalog Ref",
+      "type": "string"
+    },
+    "bound_probe_template_catalog_ref": {
+      "title": "Bound Probe Template Catalog Ref",
+      "type": "string"
+    },
+    "census_hash": {
+      "title": "Census Hash",
+      "type": "string"
+    },
+    "frame_hash": {
+      "title": "Frame Hash",
+      "type": "string"
+    },
+    "frame_id": {
+      "title": "Frame Id",
+      "type": "string"
+    },
+    "frame_posture": {
+      "title": "Frame Posture",
+      "type": "string"
+    },
+    "module_path": {
+      "title": "Module Path",
+      "type": "string"
+    },
+    "qualname": {
+      "title": "Qualname",
+      "type": "string"
+    },
+    "schema": {
+      "const": "adeu_symbol_edge_applicability_frame@1",
+      "default": "adeu_symbol_edge_applicability_frame@1",
+      "title": "Schema",
+      "type": "string"
+    },
+    "scope_manifest_ref": {
+      "title": "Scope Manifest Ref",
+      "type": "string"
+    },
+    "symbol_id": {
+      "title": "Symbol Id",
+      "type": "string"
+    },
+    "symbol_kind": {
+      "enum": [
+        "class",
+        "function",
+        "method",
+        "local_function"
+      ],
+      "title": "Symbol Kind",
+      "type": "string"
+    }
+  },
+  "required": [
+    "frame_id",
+    "bound_edge_class_catalog_ref",
+    "bound_probe_template_catalog_ref",
+    "scope_manifest_ref",
+    "census_hash",
+    "audit_hash",
+    "symbol_id",
+    "module_path",
+    "qualname",
+    "symbol_kind",
+    "frame_posture",
+    "applicability_rows",
+    "frame_hash"
+  ],
+  "title": "SymbolEdgeApplicabilityFrame",
+  "type": "object"
+}

@@ -1,0 +1,229 @@
+{
+  "bound_edge_class_catalog_ref": "edge_class_catalog:239e31a78de0460c",
+  "catalog_hash": "0a67ab0bc71aff9ccd79b649e1237a91fa0551fd8c0c2615b4c84f67f7414c25",
+  "catalog_id": "edge_probe_template_catalog:39fda60ecb6bfc82",
+  "catalog_name": "adeu_edge_ledger.v53a_starter_probe_templates",
+  "catalog_version": "0.1.0",
+  "probe_templates": [
+    {
+      "execution_postures": [
+        "example_tests",
+        "property_based"
+      ],
+      "lifecycle_posture": "stabilized",
+      "probe_template_ref": "probe:boundary_partition",
+      "required_signal_tags": [
+        "feature:compare_ops"
+      ],
+      "short_label": "Boundary partition",
+      "strategy_kind": "boundary_partition",
+      "suited_edge_class_refs": [
+        "edge_class:boundary_order/numeric_interval/inclusive_exclusive_boundary"
+      ],
+      "summary": "Probe values immediately below, at, and above a decisive boundary."
+    },
+    {
+      "execution_postures": [
+        "example_tests",
+        "property_based"
+      ],
+      "lifecycle_posture": "stabilized",
+      "probe_template_ref": "probe:branch_partition_matrix",
+      "required_signal_tags": [
+        "feature:literal_like"
+      ],
+      "short_label": "Branch partition matrix",
+      "strategy_kind": "branch_partition",
+      "suited_edge_class_refs": [
+        "edge_class:control_partition/branch_exhaustiveness/unhandled_variant"
+      ],
+      "summary": "Probe admitted and non-admitted branch variants against explicit mode vocabularies."
+    },
+    {
+      "execution_postures": [
+        "example_tests",
+        "property_based"
+      ],
+      "lifecycle_posture": "stabilized",
+      "probe_template_ref": "probe:cross_field_invariant",
+      "required_signal_tags": [
+        "feature:model_validator"
+      ],
+      "short_label": "Cross-field invariant",
+      "strategy_kind": "cross_field_invariant",
+      "suited_edge_class_refs": [
+        "edge_class:contract_invariant/cross_field_binding/cross_field_consistency",
+        "edge_class:contract_invariant/vocabulary_order_identity/ordered_unique_sequence_invariant"
+      ],
+      "summary": "Probe multi-field or multi-ref invariants that should hold jointly."
+    },
+    {
+      "execution_postures": [
+        "example_tests",
+        "review_only"
+      ],
+      "lifecycle_posture": "stabilized",
+      "probe_template_ref": "probe:dependency_boundary_fault",
+      "required_signal_tags": [
+        "feature:side_effect_boundary"
+      ],
+      "short_label": "Dependency boundary fault",
+      "strategy_kind": "dependency_boundary",
+      "suited_edge_class_refs": [
+        "edge_class:boundary_order/numeric_interval/inclusive_exclusive_boundary",
+        "edge_class:control_partition/guard_short_circuit/guard_before_side_effect",
+        "edge_class:dependency_boundary/filesystem_external_tool/file_exists_and_kind",
+        "edge_class:dependency_boundary/parse_validation_boundary/schema_validation_rejection"
+      ],
+      "summary": "Exercise filesystem, subprocess, or parse boundaries under error conditions."
+    },
+    {
+      "execution_postures": [
+        "example_tests",
+        "review_only"
+      ],
+      "lifecycle_posture": "stabilized",
+      "probe_template_ref": "probe:fail_closed_rejection",
+      "required_signal_tags": [
+        "feature:raises_value_error"
+      ],
+      "short_label": "Fail-closed rejection",
+      "strategy_kind": "fail_closed_rejection",
+      "suited_edge_class_refs": [
+        "edge_class:canonicalization_representation/normalization_canonical_form/path_or_text_normalization",
+        "edge_class:contract_invariant/cross_field_binding/cross_field_consistency",
+        "edge_class:control_partition/branch_exhaustiveness/unhandled_variant",
+        "edge_class:dependency_boundary/parse_validation_boundary/schema_validation_rejection",
+        "edge_class:failure_path/fallback_underdetermination/no_silent_repair",
+        "edge_class:failure_path/rejection_fail_closed/raises_on_invalid_input",
+        "edge_class:input_domain/absence_nullability/none_missing_input"
+      ],
+      "summary": "Check that invalid states reject explicitly without soft degradation or silent repair."
+    },
+    {
+      "execution_postures": [
+        "example_tests",
+        "metamorphic"
+      ],
+      "lifecycle_posture": "stabilized",
+      "probe_template_ref": "probe:identity_hash_consistency",
+      "required_signal_tags": [
+        "feature:hashlib_or_sha"
+      ],
+      "short_label": "Identity and hash consistency",
+      "strategy_kind": "hash_consistency",
+      "suited_edge_class_refs": [
+        "edge_class:state_sequence/temporal_reentry/repeat_application_idempotence"
+      ],
+      "summary": "Probe whether derived hashes or IDs change only when semantic basis fields change."
+    },
+    {
+      "execution_postures": [
+        "example_tests",
+        "metamorphic"
+      ],
+      "lifecycle_posture": "stabilized",
+      "probe_template_ref": "probe:normalization_round_trip",
+      "required_signal_tags": [
+        "feature:strip_or_replace"
+      ],
+      "short_label": "Normalization round-trip",
+      "strategy_kind": "round_trip",
+      "suited_edge_class_refs": [
+        "edge_class:canonicalization_representation/normalization_canonical_form/path_or_text_normalization"
+      ],
+      "summary": "Round-trip through normalization to ensure canonical surface forms are stable."
+    },
+    {
+      "execution_postures": [
+        "example_tests",
+        "property_based"
+      ],
+      "lifecycle_posture": "stabilized",
+      "probe_template_ref": "probe:null_absence_matrix",
+      "required_signal_tags": [
+        "feature:none_compare",
+        "feature:optional_annotation"
+      ],
+      "short_label": "Null or missing matrix",
+      "strategy_kind": "absence_matrix",
+      "suited_edge_class_refs": [
+        "edge_class:input_domain/absence_nullability/none_missing_input"
+      ],
+      "summary": "Probe required, optional, and absent variants over one symbol boundary."
+    },
+    {
+      "execution_postures": [
+        "example_tests",
+        "metamorphic"
+      ],
+      "lifecycle_posture": "stabilized",
+      "probe_template_ref": "probe:ordering_permutation",
+      "required_signal_tags": [
+        "feature:sorted_call"
+      ],
+      "short_label": "Ordering permutation",
+      "strategy_kind": "ordering_permutation",
+      "suited_edge_class_refs": [
+        "edge_class:boundary_order/ordering_permutation/stable_ordering_preservation",
+        "edge_class:contract_invariant/vocabulary_order_identity/ordered_unique_sequence_invariant"
+      ],
+      "summary": "Probe whether order-sensitive inputs preserve or normalize order lawfully."
+    },
+    {
+      "execution_postures": [
+        "example_tests",
+        "metamorphic"
+      ],
+      "lifecycle_posture": "stabilized",
+      "probe_template_ref": "probe:round_trip_and_idempotence",
+      "required_signal_tags": [
+        "feature:model_validate_call"
+      ],
+      "short_label": "Round-trip and idempotence",
+      "strategy_kind": "round_trip",
+      "suited_edge_class_refs": [
+        "edge_class:boundary_order/ordering_permutation/stable_ordering_preservation",
+        "edge_class:canonicalization_representation/serialization_identity/round_trip_serialization",
+        "edge_class:state_sequence/temporal_reentry/repeat_application_idempotence"
+      ],
+      "summary": "Check whether canonicalization or materialization replays without semantic drift."
+    },
+    {
+      "execution_postures": [
+        "example_tests",
+        "property_based"
+      ],
+      "lifecycle_posture": "stabilized",
+      "probe_template_ref": "probe:shape_and_cardinality_matrix",
+      "required_signal_tags": [
+        "feature:collection_like"
+      ],
+      "short_label": "Shape and cardinality matrix",
+      "strategy_kind": "shape_matrix",
+      "suited_edge_class_refs": [
+        "edge_class:input_domain/cardinality_shape/empty_collection_or_text"
+      ],
+      "summary": "Probe empty, singleton, and degenerate shapes over collections or text-like inputs."
+    },
+    {
+      "execution_postures": [
+        "example_tests",
+        "metamorphic"
+      ],
+      "lifecycle_posture": "stabilized",
+      "probe_template_ref": "probe:state_sequence_replay",
+      "required_signal_tags": [
+        "feature:side_effect_boundary"
+      ],
+      "short_label": "State-sequence replay",
+      "strategy_kind": "state_sequence",
+      "suited_edge_class_refs": [
+        "edge_class:control_partition/guard_short_circuit/guard_before_side_effect",
+        "edge_class:state_sequence/mutation_aliasing/copy_isolation"
+      ],
+      "summary": "Replay the same or slightly permuted sequence to expose aliasing or sequencing drift."
+    }
+  ],
+  "schema": "adeu_edge_probe_template_catalog@1"
+}
