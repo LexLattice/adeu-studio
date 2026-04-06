@@ -1,0 +1,262 @@
+{
+  "applicability_rows": [
+    {
+      "adjudication_status": "witness_found",
+      "applicability_status": "underdetermined",
+      "concrete_binding_refs": [
+        "param:repository_root"
+      ],
+      "edge_class_ref": "edge_class:boundary_order/numeric_interval/inclusive_exclusive_boundary",
+      "epistemic_posture": "inferred_heuristically",
+      "matched_cue_tags": [
+        "feature:boundary_terms",
+        "feature:scope_terms"
+      ],
+      "rationale": "partial cue activation without full required closure",
+      "suggested_probe_template_refs": [
+        "probe:boundary_partition",
+        "probe:dependency_boundary_fault"
+      ]
+    },
+    {
+      "applicability_status": "not_applicable",
+      "concrete_binding_refs": [],
+      "edge_class_ref": "edge_class:boundary_order/ordering_permutation/stable_ordering_preservation",
+      "epistemic_posture": "derived_deterministically",
+      "matched_cue_tags": [],
+      "rationale": "no required or supporting applicability cues matched",
+      "suggested_probe_template_refs": [
+        "probe:ordering_permutation",
+        "probe:round_trip_and_idempotence"
+      ]
+    },
+    {
+      "applicability_status": "underdetermined",
+      "concrete_binding_refs": [
+        "param:repository_root",
+        "symbol:_sha256_repo_file"
+      ],
+      "edge_class_ref": "edge_class:canonicalization_representation/normalization_canonical_form/path_or_text_normalization",
+      "epistemic_posture": "inferred_heuristically",
+      "matched_cue_tags": [
+        "feature:path_like",
+        "feature:scope_terms"
+      ],
+      "rationale": "partial cue activation without full required closure",
+      "suggested_probe_template_refs": [
+        "probe:fail_closed_rejection",
+        "probe:normalization_round_trip"
+      ]
+    },
+    {
+      "applicability_status": "not_applicable",
+      "concrete_binding_refs": [],
+      "edge_class_ref": "edge_class:canonicalization_representation/serialization_identity/round_trip_serialization",
+      "epistemic_posture": "derived_deterministically",
+      "matched_cue_tags": [],
+      "rationale": "no required or supporting applicability cues matched",
+      "suggested_probe_template_refs": [
+        "probe:round_trip_and_idempotence"
+      ]
+    },
+    {
+      "applicability_status": "not_applicable",
+      "concrete_binding_refs": [],
+      "edge_class_ref": "edge_class:contract_invariant/cross_field_binding/cross_field_consistency",
+      "epistemic_posture": "derived_deterministically",
+      "matched_cue_tags": [],
+      "rationale": "no required or supporting applicability cues matched",
+      "suggested_probe_template_refs": [
+        "probe:cross_field_invariant",
+        "probe:fail_closed_rejection"
+      ]
+    },
+    {
+      "applicability_status": "not_applicable",
+      "concrete_binding_refs": [],
+      "edge_class_ref": "edge_class:contract_invariant/vocabulary_order_identity/ordered_unique_sequence_invariant",
+      "epistemic_posture": "derived_deterministically",
+      "matched_cue_tags": [],
+      "rationale": "no required or supporting applicability cues matched",
+      "suggested_probe_template_refs": [
+        "probe:cross_field_invariant",
+        "probe:ordering_permutation"
+      ]
+    },
+    {
+      "applicability_status": "underdetermined",
+      "concrete_binding_refs": [
+        "line:160"
+      ],
+      "edge_class_ref": "edge_class:control_partition/branch_exhaustiveness/unhandled_variant",
+      "epistemic_posture": "inferred_heuristically",
+      "matched_cue_tags": [
+        "feature:raises_value_error"
+      ],
+      "rationale": "partial cue activation without full required closure",
+      "suggested_probe_template_refs": [
+        "probe:branch_partition_matrix",
+        "probe:fail_closed_rejection"
+      ]
+    },
+    {
+      "applicability_status": "applicable",
+      "concrete_binding_refs": [
+        "call:file_path.read_text",
+        "side_effect:filesystem_read",
+        "line:159",
+        "line:160"
+      ],
+      "edge_class_ref": "edge_class:control_partition/guard_short_circuit/guard_before_side_effect",
+      "epistemic_posture": "derived_deterministically",
+      "matched_cue_tags": [
+        "feature:side_effect_boundary",
+        "feature:has_if",
+        "feature:raises_value_error"
+      ],
+      "rationale": "full required cue closure with supporting cue support",
+      "suggested_probe_template_refs": [
+        "probe:dependency_boundary_fault",
+        "probe:state_sequence_replay"
+      ]
+    },
+    {
+      "applicability_status": "underdetermined",
+      "concrete_binding_refs": [
+        "call:file_path.is_file",
+        "call:file_path.read_text",
+        "side_effect:filesystem_read",
+        "param:repository_root",
+        "symbol:_sha256_repo_file",
+        "line:160"
+      ],
+      "edge_class_ref": "edge_class:dependency_boundary/filesystem_external_tool/file_exists_and_kind",
+      "epistemic_posture": "inferred_heuristically",
+      "matched_cue_tags": [
+        "feature:exists_or_is_file",
+        "feature:file_read_boundary",
+        "feature:path_like",
+        "feature:raises_value_error"
+      ],
+      "rationale": "partial cue activation without full required closure",
+      "suggested_probe_template_refs": [
+        "probe:dependency_boundary_fault"
+      ]
+    },
+    {
+      "applicability_status": "underdetermined",
+      "concrete_binding_refs": [
+        "line:160"
+      ],
+      "edge_class_ref": "edge_class:dependency_boundary/parse_validation_boundary/schema_validation_rejection",
+      "epistemic_posture": "inferred_heuristically",
+      "matched_cue_tags": [
+        "feature:raises_value_error"
+      ],
+      "rationale": "partial cue activation without full required closure",
+      "suggested_probe_template_refs": [
+        "probe:dependency_boundary_fault",
+        "probe:fail_closed_rejection"
+      ]
+    },
+    {
+      "applicability_status": "underdetermined",
+      "concrete_binding_refs": [
+        "line:160",
+        "line:161"
+      ],
+      "edge_class_ref": "edge_class:failure_path/fallback_underdetermination/no_silent_repair",
+      "epistemic_posture": "inferred_heuristically",
+      "matched_cue_tags": [
+        "feature:error_message_string",
+        "feature:raises_value_error"
+      ],
+      "rationale": "partial cue activation without full required closure",
+      "suggested_probe_template_refs": [
+        "probe:fail_closed_rejection"
+      ]
+    },
+    {
+      "applicability_status": "underdetermined",
+      "concrete_binding_refs": [
+        "line:160"
+      ],
+      "edge_class_ref": "edge_class:failure_path/rejection_fail_closed/raises_on_invalid_input",
+      "epistemic_posture": "inferred_heuristically",
+      "matched_cue_tags": [
+        "feature:raises_value_error"
+      ],
+      "rationale": "partial cue activation without full required closure",
+      "suggested_probe_template_refs": [
+        "probe:fail_closed_rejection"
+      ]
+    },
+    {
+      "applicability_status": "underdetermined",
+      "concrete_binding_refs": [
+        "line:160",
+        "param:path",
+        "param:repository_root"
+      ],
+      "edge_class_ref": "edge_class:input_domain/absence_nullability/none_missing_input",
+      "epistemic_posture": "inferred_heuristically",
+      "matched_cue_tags": [
+        "feature:ref_or_path_name"
+      ],
+      "rationale": "partial cue activation without full required closure",
+      "suggested_probe_template_refs": [
+        "probe:fail_closed_rejection",
+        "probe:null_absence_matrix"
+      ]
+    },
+    {
+      "applicability_status": "not_applicable",
+      "concrete_binding_refs": [],
+      "edge_class_ref": "edge_class:input_domain/cardinality_shape/empty_collection_or_text",
+      "epistemic_posture": "derived_deterministically",
+      "matched_cue_tags": [],
+      "rationale": "no required or supporting applicability cues matched",
+      "suggested_probe_template_refs": [
+        "probe:shape_and_cardinality_matrix"
+      ]
+    },
+    {
+      "applicability_status": "not_applicable",
+      "concrete_binding_refs": [],
+      "edge_class_ref": "edge_class:state_sequence/mutation_aliasing/copy_isolation",
+      "epistemic_posture": "derived_deterministically",
+      "matched_cue_tags": [],
+      "rationale": "no required or supporting applicability cues matched",
+      "suggested_probe_template_refs": [
+        "probe:state_sequence_replay"
+      ]
+    },
+    {
+      "applicability_status": "not_applicable",
+      "concrete_binding_refs": [],
+      "edge_class_ref": "edge_class:state_sequence/temporal_reentry/repeat_application_idempotence",
+      "epistemic_posture": "derived_deterministically",
+      "matched_cue_tags": [],
+      "rationale": "no required or supporting applicability cues matched",
+      "suggested_probe_template_refs": [
+        "probe:identity_hash_consistency",
+        "probe:round_trip_and_idempotence"
+      ]
+    }
+  ],
+  "audit_hash": "12906d927f08fbfeb52fa384eedb0ce8e70d982810ffb2f0836939ba354242d6",
+  "bound_edge_class_catalog_ref": "edge_class_catalog:239e31a78de0460c",
+  "bound_probe_template_catalog_ref": "edge_probe_template_catalog:39fda60ecb6bfc82",
+  "census_hash": "31a6005dd9f3d4f8df4bf0d2f46dc96066ae761c33952bc5b1d22b88c684b79d",
+  "checked_no_witness_edge_class_refs": [],
+  "frame_hash": "059e689d27dde69b3d1b898056c3fa310f38f8bb42cd49c6dfe790463cc58af8",
+  "frame_id": "symbol_edge_applicability_frame:405eceecb90559be",
+  "frame_posture": "starter_taxonomy_applicability_over_released_v50_pilot_scope",
+  "module_path": "packages/adeu_architecture_ir/src/adeu_architecture_ir/analysis_request.py",
+  "qualname": "_sha256_repo_file",
+  "schema": "adeu_symbol_edge_applicability_frame@1",
+  "scope_manifest_ref": "scope_manifest:2f7b371e44ed6e39",
+  "symbol_id": "symbol:packages/adeu_architecture_ir/src/adeu_architecture_ir/analysis_request.py:_sha256_repo_file:function",
+  "symbol_kind": "function",
+  "witness_summaries": []
+}

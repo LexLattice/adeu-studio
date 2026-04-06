@@ -1,0 +1,751 @@
+{
+  "catalog_hash": "375d7780b2a6c86c7fe033c90d6cb9230e9a43b2d7a317dd7e104f104dde5ea9",
+  "catalog_id": "edge_class_catalog:239e31a78de0460c",
+  "catalog_name": "adeu_edge_ledger.v53a_starter_taxonomy",
+  "catalog_posture": "starter_taxonomy_over_released_v50_pilot_scope",
+  "catalog_version": "0.1.0",
+  "nodes": [
+    {
+      "default_probe_template_refs": [],
+      "edge_class_ref": "edge_class:boundary_order",
+      "lifecycle_posture": "stabilized",
+      "node_kind": "family",
+      "required_cue_tags": [],
+      "short_label": "boundary order",
+      "structural_safety_cue_tags": [],
+      "summary": "Edges caused by boundaries, ordering laws, and partition cut points.",
+      "supporting_cue_tags": [],
+      "test_token_tags": []
+    },
+    {
+      "default_probe_template_refs": [],
+      "edge_class_ref": "edge_class:boundary_order/numeric_interval",
+      "lifecycle_posture": "stabilized",
+      "node_kind": "subfamily",
+      "parent_edge_class_ref": "edge_class:boundary_order",
+      "required_cue_tags": [],
+      "short_label": "numeric interval",
+      "structural_safety_cue_tags": [],
+      "summary": "Numeric, index, or interval boundaries that may exclude or admit the wrong region.",
+      "supporting_cue_tags": [],
+      "test_token_tags": []
+    },
+    {
+      "default_probe_template_refs": [
+        "probe:boundary_partition",
+        "probe:dependency_boundary_fault"
+      ],
+      "edge_class_ref": "edge_class:boundary_order/numeric_interval/inclusive_exclusive_boundary",
+      "lifecycle_posture": "stabilized",
+      "node_kind": "archetype",
+      "parent_edge_class_ref": "edge_class:boundary_order/numeric_interval",
+      "required_cue_tags": [],
+      "short_label": "inclusive exclusive boundary",
+      "structural_safety_cue_tags": [
+        "feature:raises_value_error"
+      ],
+      "summary": "A boundary check may be off by one or mis-handle inclusion versus exclusion.",
+      "supporting_cue_tags": [
+        "feature:boundary_terms",
+        "feature:compare_ops",
+        "feature:scope_terms"
+      ],
+      "test_token_tags": [
+        "boundary",
+        "escape",
+        "outside",
+        "within"
+      ]
+    },
+    {
+      "default_probe_template_refs": [],
+      "edge_class_ref": "edge_class:boundary_order/ordering_permutation",
+      "lifecycle_posture": "stabilized",
+      "node_kind": "subfamily",
+      "parent_edge_class_ref": "edge_class:boundary_order",
+      "required_cue_tags": [],
+      "short_label": "ordering permutation",
+      "structural_safety_cue_tags": [],
+      "summary": "Order-sensitive behavior that may drift under sorting or permutation.",
+      "supporting_cue_tags": [],
+      "test_token_tags": []
+    },
+    {
+      "default_probe_template_refs": [
+        "probe:ordering_permutation",
+        "probe:round_trip_and_idempotence"
+      ],
+      "edge_class_ref": "edge_class:boundary_order/ordering_permutation/stable_ordering_preservation",
+      "lifecycle_posture": "stabilized",
+      "node_kind": "archetype",
+      "parent_edge_class_ref": "edge_class:boundary_order/ordering_permutation",
+      "required_cue_tags": [],
+      "short_label": "stable ordering preservation",
+      "structural_safety_cue_tags": [
+        "feature:sorted_call"
+      ],
+      "summary": "Canonical order should be stable under replay and not depend on incidental input order.",
+      "supporting_cue_tags": [
+        "feature:canonicalization_name",
+        "feature:sorted_call",
+        "feature:sorted_unique_pattern"
+      ],
+      "test_token_tags": [
+        "canonicalizes",
+        "order",
+        "sort",
+        "sorted"
+      ]
+    },
+    {
+      "default_probe_template_refs": [],
+      "edge_class_ref": "edge_class:canonicalization_representation",
+      "lifecycle_posture": "stabilized",
+      "node_kind": "family",
+      "required_cue_tags": [],
+      "short_label": "canonicalization representation",
+      "structural_safety_cue_tags": [],
+      "summary": "Edges where different surface forms should collapse to one canonical representation.",
+      "supporting_cue_tags": [],
+      "test_token_tags": []
+    },
+    {
+      "default_probe_template_refs": [],
+      "edge_class_ref": "edge_class:canonicalization_representation/normalization_canonical_form",
+      "lifecycle_posture": "stabilized",
+      "node_kind": "subfamily",
+      "parent_edge_class_ref": "edge_class:canonicalization_representation",
+      "required_cue_tags": [],
+      "short_label": "normalization canonical form",
+      "structural_safety_cue_tags": [],
+      "summary": "Text, paths, and refs may need canonical normalization.",
+      "supporting_cue_tags": [],
+      "test_token_tags": []
+    },
+    {
+      "default_probe_template_refs": [
+        "probe:fail_closed_rejection",
+        "probe:normalization_round_trip"
+      ],
+      "edge_class_ref": "edge_class:canonicalization_representation/normalization_canonical_form/path_or_text_normalization",
+      "lifecycle_posture": "stabilized",
+      "node_kind": "archetype",
+      "parent_edge_class_ref": "edge_class:canonicalization_representation/normalization_canonical_form",
+      "required_cue_tags": [],
+      "short_label": "path or text normalization",
+      "structural_safety_cue_tags": [
+        "feature:raises_value_error",
+        "feature:strip_or_replace"
+      ],
+      "summary": "Paths or textual refs should normalize into one repo-safe canonical form.",
+      "supporting_cue_tags": [
+        "feature:normalize_name",
+        "feature:path_like",
+        "feature:scope_terms",
+        "feature:strip_or_replace"
+      ],
+      "test_token_tags": [
+        "canonicalizes",
+        "normalized",
+        "path",
+        "scope"
+      ]
+    },
+    {
+      "default_probe_template_refs": [],
+      "edge_class_ref": "edge_class:canonicalization_representation/serialization_identity",
+      "lifecycle_posture": "stabilized",
+      "node_kind": "subfamily",
+      "parent_edge_class_ref": "edge_class:canonicalization_representation",
+      "required_cue_tags": [],
+      "short_label": "serialization identity",
+      "structural_safety_cue_tags": [],
+      "summary": "Canonical serialization and identity must round-trip cleanly.",
+      "supporting_cue_tags": [],
+      "test_token_tags": []
+    },
+    {
+      "default_probe_template_refs": [
+        "probe:round_trip_and_idempotence"
+      ],
+      "edge_class_ref": "edge_class:canonicalization_representation/serialization_identity/round_trip_serialization",
+      "lifecycle_posture": "stabilized",
+      "node_kind": "archetype",
+      "parent_edge_class_ref": "edge_class:canonicalization_representation/serialization_identity",
+      "required_cue_tags": [],
+      "short_label": "round trip serialization",
+      "structural_safety_cue_tags": [
+        "feature:model_dump_call",
+        "feature:model_validate_call"
+      ],
+      "summary": "Canonicalization or materialization should round-trip through validated payload form without semantic loss.",
+      "supporting_cue_tags": [
+        "feature:canonicalization_name",
+        "feature:json_loads_or_dumps",
+        "feature:materialization_name",
+        "feature:model_dump_call",
+        "feature:model_validate_call"
+      ],
+      "test_token_tags": [
+        "fixture",
+        "materialize",
+        "replays",
+        "validates"
+      ]
+    },
+    {
+      "default_probe_template_refs": [],
+      "edge_class_ref": "edge_class:contract_invariant",
+      "lifecycle_posture": "stabilized",
+      "node_kind": "family",
+      "required_cue_tags": [],
+      "short_label": "contract invariant",
+      "structural_safety_cue_tags": [],
+      "summary": "Edges where stable contract law, identity, or cross-field invariants must hold.",
+      "supporting_cue_tags": [],
+      "test_token_tags": []
+    },
+    {
+      "default_probe_template_refs": [],
+      "edge_class_ref": "edge_class:contract_invariant/cross_field_binding",
+      "lifecycle_posture": "stabilized",
+      "node_kind": "subfamily",
+      "parent_edge_class_ref": "edge_class:contract_invariant",
+      "required_cue_tags": [],
+      "short_label": "cross field binding",
+      "structural_safety_cue_tags": [],
+      "summary": "Multiple fields or refs must remain jointly consistent.",
+      "supporting_cue_tags": [],
+      "test_token_tags": []
+    },
+    {
+      "default_probe_template_refs": [
+        "probe:cross_field_invariant",
+        "probe:fail_closed_rejection"
+      ],
+      "edge_class_ref": "edge_class:contract_invariant/cross_field_binding/cross_field_consistency",
+      "lifecycle_posture": "stabilized",
+      "node_kind": "archetype",
+      "parent_edge_class_ref": "edge_class:contract_invariant/cross_field_binding",
+      "required_cue_tags": [],
+      "short_label": "cross field consistency",
+      "structural_safety_cue_tags": [
+        "feature:model_validator"
+      ],
+      "summary": "One field constrains another and the relationship must stay internally consistent.",
+      "supporting_cue_tags": [
+        "feature:cross_field_terms",
+        "feature:has_compare",
+        "feature:model_validator"
+      ],
+      "test_token_tags": [
+        "coverage",
+        "drift",
+        "lineage",
+        "missing"
+      ]
+    },
+    {
+      "default_probe_template_refs": [],
+      "edge_class_ref": "edge_class:contract_invariant/vocabulary_order_identity",
+      "lifecycle_posture": "stabilized",
+      "node_kind": "subfamily",
+      "parent_edge_class_ref": "edge_class:contract_invariant",
+      "required_cue_tags": [],
+      "short_label": "vocabulary order identity",
+      "structural_safety_cue_tags": [],
+      "summary": "Vocabularies, unique lists, and identities should remain frozen and canonical.",
+      "supporting_cue_tags": [],
+      "test_token_tags": []
+    },
+    {
+      "default_probe_template_refs": [
+        "probe:cross_field_invariant",
+        "probe:ordering_permutation"
+      ],
+      "edge_class_ref": "edge_class:contract_invariant/vocabulary_order_identity/ordered_unique_sequence_invariant",
+      "lifecycle_posture": "stabilized",
+      "node_kind": "archetype",
+      "parent_edge_class_ref": "edge_class:contract_invariant/vocabulary_order_identity",
+      "required_cue_tags": [],
+      "short_label": "ordered unique sequence invariant",
+      "structural_safety_cue_tags": [
+        "feature:set_call",
+        "feature:sorted_call"
+      ],
+      "summary": "A list should be unique and canonicalized into a stable order before identity or equality claims are made.",
+      "supporting_cue_tags": [
+        "feature:set_call",
+        "feature:sorted_call",
+        "feature:sorted_unique_pattern"
+      ],
+      "test_token_tags": [
+        "canonicalization",
+        "duplicate",
+        "order",
+        "sorted"
+      ]
+    },
+    {
+      "default_probe_template_refs": [],
+      "edge_class_ref": "edge_class:control_partition",
+      "lifecycle_posture": "stabilized",
+      "node_kind": "family",
+      "required_cue_tags": [],
+      "short_label": "control partition",
+      "structural_safety_cue_tags": [],
+      "summary": "Edges in branch partitioning, variant handling, and guard placement.",
+      "supporting_cue_tags": [],
+      "test_token_tags": []
+    },
+    {
+      "default_probe_template_refs": [],
+      "edge_class_ref": "edge_class:control_partition/branch_exhaustiveness",
+      "lifecycle_posture": "stabilized",
+      "node_kind": "subfamily",
+      "parent_edge_class_ref": "edge_class:control_partition",
+      "required_cue_tags": [],
+      "short_label": "branch exhaustiveness",
+      "structural_safety_cue_tags": [],
+      "summary": "Branches or vocabularies that must remain exhaustive over admitted variants.",
+      "supporting_cue_tags": [],
+      "test_token_tags": []
+    },
+    {
+      "default_probe_template_refs": [
+        "probe:branch_partition_matrix",
+        "probe:fail_closed_rejection"
+      ],
+      "edge_class_ref": "edge_class:control_partition/branch_exhaustiveness/unhandled_variant",
+      "lifecycle_posture": "stabilized",
+      "node_kind": "archetype",
+      "parent_edge_class_ref": "edge_class:control_partition/branch_exhaustiveness",
+      "required_cue_tags": [],
+      "short_label": "unhandled variant",
+      "structural_safety_cue_tags": [
+        "feature:raises_value_error"
+      ],
+      "summary": "A newly introduced or unexpected variant is not handled explicitly and falls into undefined behavior.",
+      "supporting_cue_tags": [
+        "feature:literal_like",
+        "feature:membership_check",
+        "feature:raises_value_error"
+      ],
+      "test_token_tags": [
+        "class",
+        "unknown",
+        "unsupported",
+        "variant"
+      ]
+    },
+    {
+      "default_probe_template_refs": [],
+      "edge_class_ref": "edge_class:control_partition/guard_short_circuit",
+      "lifecycle_posture": "stabilized",
+      "node_kind": "subfamily",
+      "parent_edge_class_ref": "edge_class:control_partition",
+      "required_cue_tags": [],
+      "short_label": "guard short circuit",
+      "structural_safety_cue_tags": [],
+      "summary": "Guards or early exits that should precede boundary actions.",
+      "supporting_cue_tags": [],
+      "test_token_tags": []
+    },
+    {
+      "default_probe_template_refs": [
+        "probe:dependency_boundary_fault",
+        "probe:state_sequence_replay"
+      ],
+      "edge_class_ref": "edge_class:control_partition/guard_short_circuit/guard_before_side_effect",
+      "lifecycle_posture": "stabilized",
+      "node_kind": "archetype",
+      "parent_edge_class_ref": "edge_class:control_partition/guard_short_circuit",
+      "required_cue_tags": [
+        "feature:side_effect_boundary"
+      ],
+      "short_label": "guard before side effect",
+      "structural_safety_cue_tags": [
+        "feature:raises_value_error"
+      ],
+      "summary": "Validation or scope guards should fire before any file or subprocess boundary executes.",
+      "supporting_cue_tags": [
+        "feature:has_if",
+        "feature:has_try",
+        "feature:raises_value_error"
+      ],
+      "test_token_tags": [
+        "before",
+        "blocked",
+        "outside",
+        "scope"
+      ]
+    },
+    {
+      "default_probe_template_refs": [],
+      "edge_class_ref": "edge_class:dependency_boundary",
+      "lifecycle_posture": "stabilized",
+      "node_kind": "family",
+      "required_cue_tags": [],
+      "short_label": "dependency boundary",
+      "structural_safety_cue_tags": [],
+      "summary": "Edges at file, subprocess, parse, and validation boundaries.",
+      "supporting_cue_tags": [],
+      "test_token_tags": []
+    },
+    {
+      "default_probe_template_refs": [],
+      "edge_class_ref": "edge_class:dependency_boundary/filesystem_external_tool",
+      "lifecycle_posture": "stabilized",
+      "node_kind": "subfamily",
+      "parent_edge_class_ref": "edge_class:dependency_boundary",
+      "required_cue_tags": [],
+      "short_label": "filesystem external tool",
+      "structural_safety_cue_tags": [],
+      "summary": "Local file and subprocess boundaries may fail or return unexpected shapes.",
+      "supporting_cue_tags": [],
+      "test_token_tags": []
+    },
+    {
+      "default_probe_template_refs": [
+        "probe:dependency_boundary_fault"
+      ],
+      "edge_class_ref": "edge_class:dependency_boundary/filesystem_external_tool/file_exists_and_kind",
+      "lifecycle_posture": "stabilized",
+      "node_kind": "archetype",
+      "parent_edge_class_ref": "edge_class:dependency_boundary/filesystem_external_tool",
+      "required_cue_tags": [],
+      "short_label": "file exists and kind",
+      "structural_safety_cue_tags": [
+        "feature:exists_or_is_file"
+      ],
+      "summary": "A referenced file may not exist, may be the wrong kind, or may sit outside the declared scope.",
+      "supporting_cue_tags": [
+        "feature:exists_or_is_file",
+        "feature:file_read_boundary",
+        "feature:path_like",
+        "feature:raises_value_error"
+      ],
+      "test_token_tags": [
+        "exists",
+        "file",
+        "missing",
+        "reference"
+      ]
+    },
+    {
+      "default_probe_template_refs": [],
+      "edge_class_ref": "edge_class:dependency_boundary/parse_validation_boundary",
+      "lifecycle_posture": "stabilized",
+      "node_kind": "subfamily",
+      "parent_edge_class_ref": "edge_class:dependency_boundary",
+      "required_cue_tags": [],
+      "short_label": "parse validation boundary",
+      "structural_safety_cue_tags": [],
+      "summary": "Parsing and schema validation boundaries may reject malformed or drifted payloads.",
+      "supporting_cue_tags": [],
+      "test_token_tags": []
+    },
+    {
+      "default_probe_template_refs": [
+        "probe:dependency_boundary_fault",
+        "probe:fail_closed_rejection"
+      ],
+      "edge_class_ref": "edge_class:dependency_boundary/parse_validation_boundary/schema_validation_rejection",
+      "lifecycle_posture": "stabilized",
+      "node_kind": "archetype",
+      "parent_edge_class_ref": "edge_class:dependency_boundary/parse_validation_boundary",
+      "required_cue_tags": [],
+      "short_label": "schema validation rejection",
+      "structural_safety_cue_tags": [
+        "feature:model_validate_call"
+      ],
+      "summary": "A parse or model-validation boundary should reject invalid payloads instead of coercing them silently.",
+      "supporting_cue_tags": [
+        "feature:json_loads_or_dumps",
+        "feature:model_dump_call",
+        "feature:model_validate_call",
+        "feature:raises_value_error"
+      ],
+      "test_token_tags": [
+        "rejects",
+        "schema",
+        "validates",
+        "validation"
+      ]
+    },
+    {
+      "default_probe_template_refs": [],
+      "edge_class_ref": "edge_class:failure_path",
+      "lifecycle_posture": "stabilized",
+      "node_kind": "family",
+      "required_cue_tags": [],
+      "short_label": "failure path",
+      "structural_safety_cue_tags": [],
+      "summary": "Edges on the rejection path, mismatch path, or fail-closed fallback path.",
+      "supporting_cue_tags": [],
+      "test_token_tags": []
+    },
+    {
+      "default_probe_template_refs": [],
+      "edge_class_ref": "edge_class:failure_path/fallback_underdetermination",
+      "lifecycle_posture": "stabilized",
+      "node_kind": "subfamily",
+      "parent_edge_class_ref": "edge_class:failure_path",
+      "required_cue_tags": [],
+      "short_label": "fallback underdetermination",
+      "structural_safety_cue_tags": [],
+      "summary": "Errors should not be silently repaired or softened into untyped success.",
+      "supporting_cue_tags": [],
+      "test_token_tags": []
+    },
+    {
+      "default_probe_template_refs": [
+        "probe:fail_closed_rejection"
+      ],
+      "edge_class_ref": "edge_class:failure_path/fallback_underdetermination/no_silent_repair",
+      "lifecycle_posture": "stabilized",
+      "node_kind": "archetype",
+      "parent_edge_class_ref": "edge_class:failure_path/fallback_underdetermination",
+      "required_cue_tags": [],
+      "short_label": "no silent repair",
+      "structural_safety_cue_tags": [
+        "feature:raises_value_error"
+      ],
+      "summary": "A malformed or out-of-bound condition should not be auto-repaired into apparent success.",
+      "supporting_cue_tags": [
+        "feature:error_message_string",
+        "feature:except_block",
+        "feature:raises_value_error"
+      ],
+      "test_token_tags": [
+        "absolute",
+        "no",
+        "outside",
+        "rejects"
+      ]
+    },
+    {
+      "default_probe_template_refs": [],
+      "edge_class_ref": "edge_class:failure_path/rejection_fail_closed",
+      "lifecycle_posture": "stabilized",
+      "node_kind": "subfamily",
+      "parent_edge_class_ref": "edge_class:failure_path",
+      "required_cue_tags": [],
+      "short_label": "rejection fail closed",
+      "structural_safety_cue_tags": [],
+      "summary": "Invalid states should reject cleanly and remain fail-closed.",
+      "supporting_cue_tags": [],
+      "test_token_tags": []
+    },
+    {
+      "default_probe_template_refs": [
+        "probe:fail_closed_rejection"
+      ],
+      "edge_class_ref": "edge_class:failure_path/rejection_fail_closed/raises_on_invalid_input",
+      "lifecycle_posture": "stabilized",
+      "node_kind": "archetype",
+      "parent_edge_class_ref": "edge_class:failure_path/rejection_fail_closed",
+      "required_cue_tags": [],
+      "short_label": "raises on invalid input",
+      "structural_safety_cue_tags": [
+        "feature:raises_value_error"
+      ],
+      "summary": "Invalid input should raise or reject rather than proceeding with a latent bad state.",
+      "supporting_cue_tags": [
+        "feature:model_validator",
+        "feature:raises_value_error",
+        "feature:validation_name"
+      ],
+      "test_token_tags": [
+        "missing",
+        "raises",
+        "rejects",
+        "unsupported"
+      ]
+    },
+    {
+      "default_probe_template_refs": [],
+      "edge_class_ref": "edge_class:input_domain",
+      "lifecycle_posture": "stabilized",
+      "node_kind": "family",
+      "required_cue_tags": [],
+      "short_label": "input domain",
+      "structural_safety_cue_tags": [],
+      "summary": "Edges arising from what inputs exist, which may be absent, and which shapes are admitted.",
+      "supporting_cue_tags": [],
+      "test_token_tags": []
+    },
+    {
+      "default_probe_template_refs": [],
+      "edge_class_ref": "edge_class:input_domain/absence_nullability",
+      "lifecycle_posture": "stabilized",
+      "node_kind": "subfamily",
+      "parent_edge_class_ref": "edge_class:input_domain",
+      "required_cue_tags": [],
+      "short_label": "absence nullability",
+      "structural_safety_cue_tags": [],
+      "summary": "Inputs or fields whose absence changes behavior or validity.",
+      "supporting_cue_tags": [],
+      "test_token_tags": []
+    },
+    {
+      "default_probe_template_refs": [
+        "probe:fail_closed_rejection",
+        "probe:null_absence_matrix"
+      ],
+      "edge_class_ref": "edge_class:input_domain/absence_nullability/none_missing_input",
+      "lifecycle_posture": "stabilized",
+      "node_kind": "archetype",
+      "parent_edge_class_ref": "edge_class:input_domain/absence_nullability",
+      "required_cue_tags": [],
+      "short_label": "none missing input",
+      "structural_safety_cue_tags": [
+        "feature:model_validator",
+        "feature:raises_value_error"
+      ],
+      "summary": "A required input, field, or argument may be missing, None, or unresolved.",
+      "supporting_cue_tags": [
+        "feature:missing_terms",
+        "feature:none_compare",
+        "feature:optional_annotation",
+        "feature:ref_or_path_name"
+      ],
+      "test_token_tags": [
+        "missing",
+        "none",
+        "optional",
+        "required"
+      ]
+    },
+    {
+      "default_probe_template_refs": [],
+      "edge_class_ref": "edge_class:input_domain/cardinality_shape",
+      "lifecycle_posture": "stabilized",
+      "node_kind": "subfamily",
+      "parent_edge_class_ref": "edge_class:input_domain",
+      "required_cue_tags": [],
+      "short_label": "cardinality shape",
+      "structural_safety_cue_tags": [],
+      "summary": "Collections or text-like inputs whose empty or degenerate form matters.",
+      "supporting_cue_tags": [],
+      "test_token_tags": []
+    },
+    {
+      "default_probe_template_refs": [
+        "probe:shape_and_cardinality_matrix"
+      ],
+      "edge_class_ref": "edge_class:input_domain/cardinality_shape/empty_collection_or_text",
+      "lifecycle_posture": "stabilized",
+      "node_kind": "archetype",
+      "parent_edge_class_ref": "edge_class:input_domain/cardinality_shape",
+      "required_cue_tags": [],
+      "short_label": "empty collection or text",
+      "structural_safety_cue_tags": [
+        "feature:raises_value_error"
+      ],
+      "summary": "Empty lists, empty strings, or degenerate source sets may violate the contract.",
+      "supporting_cue_tags": [
+        "feature:collection_like",
+        "feature:len_call",
+        "feature:sorted_unique_pattern",
+        "feature:strip_or_replace"
+      ],
+      "test_token_tags": [
+        "duplicate",
+        "duplicates",
+        "empty",
+        "source_set"
+      ]
+    },
+    {
+      "default_probe_template_refs": [],
+      "edge_class_ref": "edge_class:state_sequence",
+      "lifecycle_posture": "stabilized",
+      "node_kind": "family",
+      "required_cue_tags": [],
+      "short_label": "state sequence",
+      "structural_safety_cue_tags": [],
+      "summary": "Edges caused by mutation, aliasing, or repeated application over time.",
+      "supporting_cue_tags": [],
+      "test_token_tags": []
+    },
+    {
+      "default_probe_template_refs": [],
+      "edge_class_ref": "edge_class:state_sequence/mutation_aliasing",
+      "lifecycle_posture": "stabilized",
+      "node_kind": "subfamily",
+      "parent_edge_class_ref": "edge_class:state_sequence",
+      "required_cue_tags": [],
+      "short_label": "mutation aliasing",
+      "structural_safety_cue_tags": [],
+      "summary": "State may be shared, mutated, or copied incorrectly across references.",
+      "supporting_cue_tags": [],
+      "test_token_tags": []
+    },
+    {
+      "default_probe_template_refs": [
+        "probe:state_sequence_replay"
+      ],
+      "edge_class_ref": "edge_class:state_sequence/mutation_aliasing/copy_isolation",
+      "lifecycle_posture": "stabilized",
+      "node_kind": "archetype",
+      "parent_edge_class_ref": "edge_class:state_sequence/mutation_aliasing",
+      "required_cue_tags": [],
+      "short_label": "copy isolation",
+      "structural_safety_cue_tags": [
+        "feature:deepcopy_call"
+      ],
+      "summary": "A defensive copy is required to avoid aliasing or accidental mutation across stages.",
+      "supporting_cue_tags": [
+        "feature:deepcopy_call"
+      ],
+      "test_token_tags": [
+        "copy",
+        "deepcopy",
+        "isolation"
+      ]
+    },
+    {
+      "default_probe_template_refs": [],
+      "edge_class_ref": "edge_class:state_sequence/temporal_reentry",
+      "lifecycle_posture": "stabilized",
+      "node_kind": "subfamily",
+      "parent_edge_class_ref": "edge_class:state_sequence",
+      "required_cue_tags": [],
+      "short_label": "temporal reentry",
+      "structural_safety_cue_tags": [],
+      "summary": "Repeated application or stage ordering should preserve the intended contract.",
+      "supporting_cue_tags": [],
+      "test_token_tags": []
+    },
+    {
+      "default_probe_template_refs": [
+        "probe:identity_hash_consistency",
+        "probe:round_trip_and_idempotence"
+      ],
+      "edge_class_ref": "edge_class:state_sequence/temporal_reentry/repeat_application_idempotence",
+      "lifecycle_posture": "stabilized",
+      "node_kind": "archetype",
+      "parent_edge_class_ref": "edge_class:state_sequence/temporal_reentry",
+      "required_cue_tags": [],
+      "short_label": "repeat application idempotence",
+      "structural_safety_cue_tags": [
+        "feature:sorted_call"
+      ],
+      "summary": "Applying canonicalization, materialization, or hashing twice should not drift the result.",
+      "supporting_cue_tags": [
+        "feature:canonicalization_name",
+        "feature:compute_name",
+        "feature:materialization_name",
+        "feature:model_dump_call"
+      ],
+      "test_token_tags": [
+        "canonicalizes",
+        "hash",
+        "materialize",
+        "replays"
+      ]
+    }
+  ],
+  "schema": "adeu_edge_class_catalog@1"
+}
