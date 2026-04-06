@@ -42,6 +42,12 @@ Optional later shared helper:
 
 - one PR/CI janitor role
 
+Model restriction for the pilot:
+
+- all sub-workers and reviewers use `gpt-5.4`
+- all sub-workers and reviewers use reasoning effort `xhigh`
+- no other child model is used during the first experiment
+
 This pilot does not authorize:
 
 - direct implementation on `main`
@@ -181,11 +187,23 @@ Per slice, the legal sequence is:
 4. starter bundle is committed on the family arc branch
 5. arc worker implements on a slice branch
 6. slice PR opens against the family arc branch
-7. GitHub inline bot comments and CI are harvested
+7. wait 5 minutes, then harvest GitHub inline bot comments
 8. arc worker applies worthwhile review fixes
-9. slice PR merges into the family arc branch once green
-10. arc worker drafts closeout on the family arc branch
-11. meta-orchestrator verifies the baton and advances to next slice
+9. push the review-fix update to the same PR branch
+10. wait 5 minutes, then verify CI is green
+11. slice PR merges into the family arc branch once green
+12. arc worker drafts closeout on the family arc branch
+13. meta-orchestrator verifies the baton and advances to next slice
+
+The 5-minute waits are deliberate pilot rules, not suggestions:
+
+- after PR open, wait 5 minutes before harvesting Codex/Gemini inline review signals
+- after pushing review fixes, wait 5 minutes before deciding CI readiness
+
+If the first check occurs before the signal is complete:
+
+- continue polling at 30-second intervals until the relevant bot-review or CI state is
+  complete enough to trust
 
 ## Evidence Preservation Rule
 
@@ -301,6 +319,8 @@ Before PR merge:
 - required local checks were run and recorded
 - CI is green
 - review-fix baton exists if inline comments were present
+- the 5-minute review-harvest wait rule was honored
+- the 5-minute post-fix CI wait rule was honored or explicitly escalated in the log
 
 Before family merge to `main`:
 
@@ -313,6 +333,24 @@ Cross-family preflight:
 - if two live families touch the same authoritative package, schema family, or
   generated artifact space, the meta-orchestrator must log the declared collision
   posture before both proceed in parallel
+
+## Merge Governance Note
+
+Review-rule bypass is not assumed by default in this pilot.
+
+For slice PRs against family arc branches:
+
+- merge without bypass if the branch policy allows it
+- use review-rule bypass only if the repository policy actually requires it and the
+  meta-orchestrator records the reason explicitly in the loop log
+
+For family-to-`main` integration:
+
+- any required bypass decision is always a meta-orchestrator governance action
+- the orchestrator log must record:
+  - whether bypass was needed
+  - why it was needed
+  - which checks were green at the time
 
 ## Validation Posture
 

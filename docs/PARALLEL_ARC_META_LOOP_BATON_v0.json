@@ -9,6 +9,8 @@
     "slice",
     "phase",
     "role",
+    "model",
+    "reasoning_effort",
     "arc_branch",
     "base_branch",
     "status",
@@ -83,6 +85,12 @@
         "conceptual_reviewer",
         "pr_ci_janitor"
       ]
+    },
+    "model": {
+      "type": "string"
+    },
+    "reasoning_effort": {
+      "type": "string"
     },
     "arc_branch": {
       "type": "string"
