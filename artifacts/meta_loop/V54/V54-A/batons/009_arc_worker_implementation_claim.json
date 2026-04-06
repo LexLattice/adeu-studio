@@ -1,0 +1,97 @@
+{
+  "schema": "parallel_arc_meta_loop_baton@1",
+  "baton_id": "baton_v54a_arc_worker_implementation_claim_009",
+  "baton_kind": "transition_claim",
+  "emitted_at_utc": "2026-04-06T20:55:53Z",
+  "previous_baton_id": "baton_v54a_arc_worker_review_integration_claim_007",
+  "arc_family": "V54",
+  "slice": "V54-A",
+  "phase": "pr_open_against_arc_branch",
+  "role": "arc_worker",
+  "model": "gpt-5.4",
+  "reasoning_effort": "xhigh",
+  "arc_branch": "v142-v54a-history-semantics-impl-r3",
+  "feature_branch": null,
+  "base_branch": "v142-v54a-history-semantics-impl-r3",
+  "commit_sha": null,
+  "pr_url": null,
+  "review_verdict": null,
+  "ci_status": "not_started",
+  "controlling_refs": [
+    "docs/LOCKED_CONTINUATION_vNEXT_PLUS142.md",
+    "docs/DRAFT_ADEU_HISTORY_SEMANTICS_V54A_IMPLEMENTATION_MAPPING_v0.md",
+    "docs/DRAFT_ADEU_HISTORY_SEMANTICS_V54_IMPLEMENTATION_MAPPING_v0.md",
+    "docs/DRAFT_NEXT_ARC_OPTIONS_v37.md",
+    "docs/PARALLEL_ARC_META_LOOP_BATON_v0.json",
+    "artifacts/meta_loop/V54/V54-A/batons/007_arc_worker_review_integration_claim.json"
+  ],
+  "required_outputs_claimed_satisfied": [
+    "v54_a_repo_owned_history_semantics_package",
+    "v54_a_source_authority_and_preclassification_models",
+    "v54_a_schema_exports_and_root_spec_mirrors",
+    "v54_a_targeted_tests_and_fixtures",
+    "v54_a_implementation_claim_baton"
+  ],
+  "unsatisfied_requirements": [
+    "v54_a_commit_on_work_branch",
+    "v54_a_pr_open_step",
+    "full_repo_make_check"
+  ],
+  "status": "completed",
+  "artifacts_produced": [
+    "Makefile",
+    "packages/adeu_history_semantics/pyproject.toml",
+    "packages/adeu_history_semantics/schema/adeu_history_preclassification.v1.json",
+    "packages/adeu_history_semantics/schema/adeu_history_source_artifact.v1.json",
+    "packages/adeu_history_semantics/schema/adeu_history_text_shape_signals.v1.json",
+    "packages/adeu_history_semantics/src/adeu_history_semantics/__init__.py",
+    "packages/adeu_history_semantics/src/adeu_history_semantics/export_schema.py",
+    "packages/adeu_history_semantics/src/adeu_history_semantics/models.py",
+    "packages/adeu_history_semantics/src/adeu_history_semantics/preclassify.py",
+    "packages/adeu_history_semantics/tests/fixtures/v54a/reference_conversation_history_crlf.txt",
+    "packages/adeu_history_semantics/tests/fixtures/v54a/reference_conversation_history_lf.txt",
+    "packages/adeu_history_semantics/tests/fixtures/v54a/reference_history_preclassifications.json",
+    "packages/adeu_history_semantics/tests/fixtures/v54a/reference_history_source_artifact.json",
+    "packages/adeu_history_semantics/tests/fixtures/v54a/reject_attempted_widened_surface.json",
+    "packages/adeu_history_semantics/tests/fixtures/v54a/reject_mixed_domain_and_malformed_block.txt",
+    "packages/adeu_history_semantics/tests/fixtures/v54a/reject_nonconforming_timestamp_prefix.txt",
+    "packages/adeu_history_semantics/tests/fixtures/v54a/reject_raw_byte_authority_claim.json",
+    "packages/adeu_history_semantics/tests/fixtures/v54a/reject_shorthand_aliases.txt",
+    "packages/adeu_history_semantics/tests/fixtures/v54a/reject_unheadered_conversation_history.txt",
+    "packages/adeu_history_semantics/tests/test_history_semantics_export_schema.py",
+    "packages/adeu_history_semantics/tests/test_history_semantics_v54a.py",
+    "spec/adeu_history_preclassification.schema.json",
+    "spec/adeu_history_source_artifact.schema.json",
+    "spec/adeu_history_text_shape_signals.schema.json",
+    "artifacts/meta_loop/V54/V54-A/batons/009_arc_worker_implementation_claim.json"
+  ],
+  "evidence_refs": [
+    "docs/LOCKED_CONTINUATION_vNEXT_PLUS142.md",
+    "docs/DRAFT_ADEU_HISTORY_SEMANTICS_V54A_IMPLEMENTATION_MAPPING_v0.md",
+    "docs/DRAFT_ADEU_HISTORY_SEMANTICS_V54_IMPLEMENTATION_MAPPING_v0.md",
+    "docs/DRAFT_NEXT_ARC_OPTIONS_v37.md",
+    "artifacts/meta_loop/V54/V54-A/batons/007_arc_worker_review_integration_claim.json",
+    "packages/adeu_history_semantics/tests/fixtures/v54a/reference_history_source_artifact.json",
+    "packages/adeu_history_semantics/tests/fixtures/v54a/reference_history_preclassifications.json",
+    "packages/adeu_history_semantics/tests/test_history_semantics_v54a.py",
+    "packages/adeu_history_semantics/tests/test_history_semantics_export_schema.py"
+  ],
+  "checks_run": [
+    ".venv/bin/pip install -e \"packages/adeu_history_semantics[dev]\" (pass)",
+    ".venv/bin/python -m adeu_history_semantics.export_schema (pass)",
+    ".venv/bin/python -m ruff check packages/adeu_history_semantics (pass)",
+    ".venv/bin/python -m pytest packages/adeu_history_semantics/tests (pass: 15 passed, 21 warnings)"
+  ],
+  "checks_skipped": [
+    "make check skipped for this phase because the task requested targeted package-local validation only",
+    "repo-wide lint/test/closeout/instruction-policy checks were skipped in favor of package-local checks only"
+  ],
+  "blockers": [],
+  "next_allowed_actions": [
+    "review_and_stage_v54_a_implementation_diff",
+    "commit_v54_a_starter_slice_on_v142_v54a_history_semantics_impl_r3",
+    "open_pr_for_v54_a_when_maintainer_ready"
+  ],
+  "notes": "V54-A now exists as one repo-owned package only. The starter slice enforces normalized source text after line-ending normalization as the sole authority root, accepts only explicit full role-header conversation_history sources with exact bracketed YYYY-MM-DD HH:MM timestamp prefixes, fails closed on unsupported domain or malformed timestamp placement, exports only the three authorized starter schemas, and includes targeted fixtures/tests for normalization equivalence, projection-only metadata identity stability, and bounded reject cases. An exploratory ruff invocation that mistakenly included Makefile was not treated as a gate check; the final targeted lint/test commands above are the intended validation set for this phase.",
+  "ratifies_baton_id": null
+}

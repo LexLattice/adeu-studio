@@ -1,0 +1,64 @@
+{
+  "additionalProperties": false,
+  "properties": {
+    "corpus_wave_posture": {
+      "enum": [
+        "unassigned",
+        "wave_0_bootstrap_candidate",
+        "later_wave_candidate"
+      ],
+      "title": "Corpus Wave Posture",
+      "type": "string"
+    },
+    "input_kind": {
+      "const": "conversation_history",
+      "title": "Input Kind",
+      "type": "string"
+    },
+    "schema": {
+      "const": "adeu_history_source_artifact@1",
+      "default": "adeu_history_source_artifact@1",
+      "title": "Schema",
+      "type": "string"
+    },
+    "source_authority_posture": {
+      "const": "normalized_source_text_authoritative",
+      "default": "normalized_source_text_authoritative",
+      "title": "Source Authority Posture",
+      "type": "string"
+    },
+    "source_id": {
+      "title": "Source Id",
+      "type": "string"
+    },
+    "source_label": {
+      "title": "Source Label",
+      "type": "string"
+    },
+    "source_notes": {
+      "items": {
+        "type": "string"
+      },
+      "title": "Source Notes",
+      "type": "array"
+    },
+    "source_text": {
+      "title": "Source Text",
+      "type": "string"
+    },
+    "source_text_hash": {
+      "title": "Source Text Hash",
+      "type": "string"
+    }
+  },
+  "required": [
+    "source_id",
+    "input_kind",
+    "source_label",
+    "source_text",
+    "source_text_hash",
+    "corpus_wave_posture"
+  ],
+  "title": "HistorySourceArtifact",
+  "type": "object"
+}

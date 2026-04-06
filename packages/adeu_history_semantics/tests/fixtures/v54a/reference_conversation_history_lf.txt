@@ -1,0 +1,5 @@
+[2026-02-02 10:00] System: Starter scope is bounded to one repo-owned package.
+[2026-02-02 10:01] User: Keep normalized source text authoritative.
+[2026-02-02 10:02] Assistant: Agreed. The release stays fail-closed.
+- keep exact User/Assistant/System headers
+- reject shorthand aliases and malformed timestamps

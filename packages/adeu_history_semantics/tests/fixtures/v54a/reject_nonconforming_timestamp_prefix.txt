@@ -1,0 +1,2 @@
+[2026-02-02 10:00] User: Keep the starter slice bounded.
+[2026/02/02 10:01] Assistant: This malformed timestamp prefix should reject the whole source.

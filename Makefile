@@ -31,6 +31,7 @@ bootstrap:
 		-e "packages/adeu_symbol_audit[dev]" \
 		-e "packages/adeu_odeu_sim[dev]" \
 		-e "packages/adeu_paper_semantics[dev]" \
+		-e "packages/adeu_history_semantics[dev]" \
 		-e "packages/adeu_agent_harness[dev]" \
 		-e "packages/adeu_repo_description[dev]" \
 		-e packages/urm_runtime \
