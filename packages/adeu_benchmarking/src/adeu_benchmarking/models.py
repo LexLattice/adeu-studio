@@ -348,72 +348,167 @@ def compute_benchmark_validation_report_id(payload: dict[str, Any]) -> str:
     return f"benchval_{sha256_canonical_json(material)[:32]}"
 
 
+def _canonicalize_procedural_depth_gold_trace_material(
+    payload: dict[str, Any],
+) -> dict[str, Any]:
+    prepared = deepcopy(payload)
+    prepared["procedural_depth_instance_ref"] = _assert_non_empty_text(
+        prepared["procedural_depth_instance_ref"],
+        field_name="procedural_depth_instance_ref",
+    )
+    prepared["gold_events"] = _canonicalize_trace_events(
+        list(prepared.get("gold_events", [])),
+        field_name="gold_events",
+    )
+    prepared["derivation_notes"] = _sorted_unique_texts(
+        list(prepared.get("derivation_notes", [])),
+        field_name="derivation_notes",
+    )
+    prepared.setdefault("terminal_trace_status", "completed_clean")
+    return prepared
+
+
+def _canonicalize_procedural_depth_run_trace_material(
+    payload: dict[str, Any],
+) -> dict[str, Any]:
+    prepared = deepcopy(payload)
+    prepared["procedural_depth_instance_ref"] = _assert_non_empty_text(
+        prepared["procedural_depth_instance_ref"],
+        field_name="procedural_depth_instance_ref",
+    )
+    prepared["observed_output_summary"] = _assert_non_empty_text(
+        prepared["observed_output_summary"],
+        field_name="observed_output_summary",
+    )
+    prepared["observed_events"] = _canonicalize_trace_events(
+        list(prepared.get("observed_events", [])),
+        field_name="observed_events",
+    )
+    prepared["trace_notes"] = _sorted_unique_texts(
+        list(prepared.get("trace_notes", [])),
+        field_name="trace_notes",
+    )
+    return prepared
+
+
+def _canonicalize_procedural_depth_metrics_material(
+    payload: dict[str, Any],
+) -> dict[str, Any]:
+    prepared = deepcopy(payload)
+    prepared["procedural_depth_run_trace_ref"] = _assert_non_empty_text(
+        prepared["procedural_depth_run_trace_ref"],
+        field_name="procedural_depth_run_trace_ref",
+    )
+    prepared["procedural_depth_gold_trace_ref"] = _assert_non_empty_text(
+        prepared["procedural_depth_gold_trace_ref"],
+        field_name="procedural_depth_gold_trace_ref",
+    )
+    prepared["supporting_event_refs"] = _canonicalize_supporting_event_refs(
+        list(prepared.get("supporting_event_refs", []))
+    )
+    prepared["scoring_notes"] = _sorted_unique_texts(
+        list(prepared.get("scoring_notes", [])),
+        field_name="scoring_notes",
+    )
+    return prepared
+
+
+def _canonicalize_procedural_depth_diagnostic_report_material(
+    payload: dict[str, Any],
+) -> dict[str, Any]:
+    prepared = deepcopy(payload)
+    for field_name in (
+        "procedural_depth_run_trace_ref",
+        "procedural_depth_metrics_ref",
+        "diagnostic_summary",
+    ):
+        prepared[field_name] = _assert_non_empty_text(
+            prepared[field_name], field_name=field_name
+        )
+    prepared["supporting_event_refs"] = _canonicalize_supporting_event_refs(
+        list(prepared.get("supporting_event_refs", []))
+    )
+    prepared["limitations"] = _sorted_unique_texts(
+        list(prepared.get("limitations", [])),
+        field_name="limitations",
+    )
+    prepared.setdefault("benchmark_output_epistemic_posture", "inferred_interpretively")
+    return prepared
+
+
 def compute_procedural_depth_instance_id(payload: dict[str, Any]) -> str:
+    prepared = _canonicalize_instance_material(payload)
     material = {
-        "benchmark_projection_spec_ref": payload.get("benchmark_projection_spec_ref"),
-        "benchmark_execution_context_ref": payload.get(
+        "benchmark_projection_spec_ref": prepared.get("benchmark_projection_spec_ref"),
+        "benchmark_execution_context_ref": prepared.get(
             "benchmark_execution_context_ref"
         ),
-        "instance_label": payload.get("instance_label"),
-        "repo_snapshot_ref": payload.get("repo_snapshot_ref"),
-        "reference_chain_key": payload.get("reference_chain_key"),
-        "top_level_plan_spine": payload.get("top_level_plan_spine"),
-        "step_specs": payload.get("step_specs"),
-        "expected_terminal_posture": payload.get("expected_terminal_posture"),
-        "gold_trace_derivation_posture": payload.get("gold_trace_derivation_posture"),
-        "notes": payload.get("notes"),
+        "instance_label": prepared.get("instance_label"),
+        "repo_snapshot_ref": prepared.get("repo_snapshot_ref"),
+        "reference_chain_key": prepared.get("reference_chain_key"),
+        "top_level_plan_spine": prepared.get("top_level_plan_spine"),
+        "step_specs": prepared.get("step_specs"),
+        "expected_terminal_posture": prepared.get("expected_terminal_posture"),
+        "gold_trace_derivation_posture": prepared.get("gold_trace_derivation_posture"),
+        "notes": prepared.get("notes"),
     }
     return f"pdepthinst_{sha256_canonical_json(material)[:32]}"
 
 
 def compute_procedural_depth_gold_trace_id(payload: dict[str, Any]) -> str:
+    prepared = _canonicalize_procedural_depth_gold_trace_material(payload)
     material = {
-        "procedural_depth_instance_ref": payload.get("procedural_depth_instance_ref"),
-        "gold_events": payload.get("gold_events"),
-        "terminal_trace_status": payload.get("terminal_trace_status"),
-        "derivation_notes": payload.get("derivation_notes"),
+        "procedural_depth_instance_ref": prepared.get("procedural_depth_instance_ref"),
+        "gold_events": prepared.get("gold_events"),
+        "terminal_trace_status": prepared.get("terminal_trace_status"),
+        "derivation_notes": prepared.get("derivation_notes"),
     }
     return f"pdepthgold_{sha256_canonical_json(material)[:32]}"
 
 
 def compute_procedural_depth_run_trace_id(payload: dict[str, Any]) -> str:
+    prepared = _canonicalize_procedural_depth_run_trace_material(payload)
     material = {
-        "procedural_depth_instance_ref": payload.get("procedural_depth_instance_ref"),
-        "observed_events": payload.get("observed_events"),
-        "terminal_trace_status": payload.get("terminal_trace_status"),
-        "observed_output_summary": payload.get("observed_output_summary"),
-        "trace_notes": payload.get("trace_notes"),
+        "procedural_depth_instance_ref": prepared.get("procedural_depth_instance_ref"),
+        "observed_events": prepared.get("observed_events"),
+        "terminal_trace_status": prepared.get("terminal_trace_status"),
+        "observed_output_summary": prepared.get("observed_output_summary"),
+        "trace_notes": prepared.get("trace_notes"),
     }
     return f"pdepthrun_{sha256_canonical_json(material)[:32]}"
 
 
 def compute_procedural_depth_metrics_id(payload: dict[str, Any]) -> str:
+    prepared = _canonicalize_procedural_depth_metrics_material(payload)
     material = {
-        "procedural_depth_run_trace_ref": payload.get("procedural_depth_run_trace_ref"),
-        "procedural_depth_gold_trace_ref": payload.get("procedural_depth_gold_trace_ref"),
-        "plan_spine_fidelity": payload.get("plan_spine_fidelity"),
-        "active_step_compilation_fidelity": payload.get(
+        "procedural_depth_run_trace_ref": prepared.get("procedural_depth_run_trace_ref"),
+        "procedural_depth_gold_trace_ref": prepared.get(
+            "procedural_depth_gold_trace_ref"
+        ),
+        "plan_spine_fidelity": prepared.get("plan_spine_fidelity"),
+        "active_step_compilation_fidelity": prepared.get(
             "active_step_compilation_fidelity"
         ),
-        "reintegration_fidelity": payload.get("reintegration_fidelity"),
-        "dominant_failure_family": payload.get("dominant_failure_family"),
-        "supporting_event_refs": payload.get("supporting_event_refs"),
-        "scoring_notes": payload.get("scoring_notes"),
+        "reintegration_fidelity": prepared.get("reintegration_fidelity"),
+        "dominant_failure_family": prepared.get("dominant_failure_family"),
+        "supporting_event_refs": prepared.get("supporting_event_refs"),
+        "scoring_notes": prepared.get("scoring_notes"),
     }
     return f"pdepthmetrics_{sha256_canonical_json(material)[:32]}"
 
 
 def compute_procedural_depth_diagnostic_report_id(payload: dict[str, Any]) -> str:
+    prepared = _canonicalize_procedural_depth_diagnostic_report_material(payload)
     material = {
-        "procedural_depth_run_trace_ref": payload.get("procedural_depth_run_trace_ref"),
-        "procedural_depth_metrics_ref": payload.get("procedural_depth_metrics_ref"),
-        "dominant_failure_family": payload.get("dominant_failure_family"),
-        "supporting_event_refs": payload.get("supporting_event_refs"),
-        "benchmark_output_epistemic_posture": payload.get(
+        "procedural_depth_run_trace_ref": prepared.get("procedural_depth_run_trace_ref"),
+        "procedural_depth_metrics_ref": prepared.get("procedural_depth_metrics_ref"),
+        "dominant_failure_family": prepared.get("dominant_failure_family"),
+        "supporting_event_refs": prepared.get("supporting_event_refs"),
+        "benchmark_output_epistemic_posture": prepared.get(
             "benchmark_output_epistemic_posture"
         ),
-        "limitations": payload.get("limitations"),
-        "diagnostic_summary": payload.get("diagnostic_summary"),
+        "limitations": prepared.get("limitations"),
+        "diagnostic_summary": prepared.get("diagnostic_summary"),
     }
     return f"pdepthdiag_{sha256_canonical_json(material)[:32]}"
 
@@ -1397,20 +1492,7 @@ def _canonicalize_trace_events(
 
 
 def materialize_procedural_depth_gold_trace_payload(payload: dict[str, Any]) -> dict[str, Any]:
-    prepared = deepcopy(payload)
-    prepared["procedural_depth_instance_ref"] = _assert_non_empty_text(
-        prepared["procedural_depth_instance_ref"],
-        field_name="procedural_depth_instance_ref",
-    )
-    prepared["gold_events"] = _canonicalize_trace_events(
-        list(prepared.get("gold_events", [])),
-        field_name="gold_events",
-    )
-    prepared["derivation_notes"] = _sorted_unique_texts(
-        list(prepared.get("derivation_notes", [])),
-        field_name="derivation_notes",
-    )
-    prepared.setdefault("terminal_trace_status", "completed_clean")
+    prepared = _canonicalize_procedural_depth_gold_trace_material(payload)
     prepared.setdefault(
         "procedural_depth_gold_trace_id",
         compute_procedural_depth_gold_trace_id(prepared),
@@ -1423,23 +1505,7 @@ def canonicalize_procedural_depth_gold_trace_payload(payload: dict[str, Any]) ->
 
 
 def materialize_procedural_depth_run_trace_payload(payload: dict[str, Any]) -> dict[str, Any]:
-    prepared = deepcopy(payload)
-    prepared["procedural_depth_instance_ref"] = _assert_non_empty_text(
-        prepared["procedural_depth_instance_ref"],
-        field_name="procedural_depth_instance_ref",
-    )
-    prepared["observed_output_summary"] = _assert_non_empty_text(
-        prepared["observed_output_summary"],
-        field_name="observed_output_summary",
-    )
-    prepared["observed_events"] = _canonicalize_trace_events(
-        list(prepared.get("observed_events", [])),
-        field_name="observed_events",
-    )
-    prepared["trace_notes"] = _sorted_unique_texts(
-        list(prepared.get("trace_notes", [])),
-        field_name="trace_notes",
-    )
+    prepared = _canonicalize_procedural_depth_run_trace_material(payload)
     prepared.setdefault(
         "procedural_depth_run_trace_id",
         compute_procedural_depth_run_trace_id(prepared),
@@ -1470,22 +1536,7 @@ def _canonicalize_supporting_event_refs(
 
 
 def materialize_procedural_depth_metrics_payload(payload: dict[str, Any]) -> dict[str, Any]:
-    prepared = deepcopy(payload)
-    prepared["procedural_depth_run_trace_ref"] = _assert_non_empty_text(
-        prepared["procedural_depth_run_trace_ref"],
-        field_name="procedural_depth_run_trace_ref",
-    )
-    prepared["procedural_depth_gold_trace_ref"] = _assert_non_empty_text(
-        prepared["procedural_depth_gold_trace_ref"],
-        field_name="procedural_depth_gold_trace_ref",
-    )
-    prepared["supporting_event_refs"] = _canonicalize_supporting_event_refs(
-        list(prepared.get("supporting_event_refs", []))
-    )
-    prepared["scoring_notes"] = _sorted_unique_texts(
-        list(prepared.get("scoring_notes", [])),
-        field_name="scoring_notes",
-    )
+    prepared = _canonicalize_procedural_depth_metrics_material(payload)
     prepared.setdefault(
         "procedural_depth_metrics_id",
         compute_procedural_depth_metrics_id(prepared),
@@ -1500,23 +1551,7 @@ def canonicalize_procedural_depth_metrics_payload(payload: dict[str, Any]) -> di
 def materialize_procedural_depth_diagnostic_report_payload(
     payload: dict[str, Any],
 ) -> dict[str, Any]:
-    prepared = deepcopy(payload)
-    for field_name in (
-        "procedural_depth_run_trace_ref",
-        "procedural_depth_metrics_ref",
-        "diagnostic_summary",
-    ):
-        prepared[field_name] = _assert_non_empty_text(
-            prepared[field_name], field_name=field_name
-        )
-    prepared["supporting_event_refs"] = _canonicalize_supporting_event_refs(
-        list(prepared.get("supporting_event_refs", []))
-    )
-    prepared["limitations"] = _sorted_unique_texts(
-        list(prepared.get("limitations", [])),
-        field_name="limitations",
-    )
-    prepared.setdefault("benchmark_output_epistemic_posture", "inferred_interpretively")
+    prepared = _canonicalize_procedural_depth_diagnostic_report_material(payload)
     prepared.setdefault(
         "procedural_depth_diagnostic_report_id",
         compute_procedural_depth_diagnostic_report_id(prepared),

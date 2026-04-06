@@ -14,6 +14,11 @@ from adeu_benchmarking import (
     ProceduralDepthGoldTrace,
     ProceduralDepthInstance,
     ProceduralDepthRunTrace,
+    compute_procedural_depth_diagnostic_report_id,
+    compute_procedural_depth_gold_trace_id,
+    compute_procedural_depth_instance_id,
+    compute_procedural_depth_metrics_id,
+    compute_procedural_depth_run_trace_id,
     derive_procedural_depth_gold_trace,
     materialize_procedural_depth_instance_payload,
     score_procedural_depth_run,
@@ -119,6 +124,61 @@ def test_materialize_instance_canonicalizes_step_order_before_id_assignment() ->
     materialized = materialize_procedural_depth_instance_payload(unordered)
 
     assert materialized == expected
+
+
+def test_compute_helpers_canonicalize_order_insensitive_procedural_depth_fields() -> None:
+    instance = _load_json(FIXTURE_ROOT, "reference_procedural_depth_instance.json")
+    gold = _load_json(FIXTURE_ROOT, "reference_procedural_depth_gold_trace.json")
+    run = _load_json(FIXTURE_ROOT, "reference_procedural_depth_run_trace_clean_success.json")
+    metrics = _load_json(FIXTURE_ROOT, "reference_procedural_depth_metrics_clean_success.json")
+    diagnostic = _load_json(
+        FIXTURE_ROOT, "reference_procedural_depth_diagnostic_report_clean_success.json"
+    )
+    assert isinstance(instance, dict)
+    assert isinstance(gold, dict)
+    assert isinstance(run, dict)
+    assert isinstance(metrics, dict)
+    assert isinstance(diagnostic, dict)
+
+    instance_unordered = dict(instance)
+    instance_unordered["step_specs"] = list(reversed(instance["step_specs"]))
+    instance_unordered["notes"] = list(reversed(instance["notes"]))
+    assert (
+        compute_procedural_depth_instance_id(instance_unordered)
+        == instance["procedural_depth_instance_id"]
+    )
+
+    gold_reordered = dict(gold)
+    gold_reordered["derivation_notes"] = list(reversed(gold["derivation_notes"]))
+    assert (
+        compute_procedural_depth_gold_trace_id(gold_reordered)
+        == gold["procedural_depth_gold_trace_id"]
+    )
+
+    run_reordered = dict(run)
+    run_reordered["trace_notes"] = list(reversed(run["trace_notes"]))
+    assert (
+        compute_procedural_depth_run_trace_id(run_reordered)
+        == run["procedural_depth_run_trace_id"]
+    )
+
+    metrics_reordered = dict(metrics)
+    metrics_reordered["supporting_event_refs"] = list(reversed(metrics["supporting_event_refs"]))
+    metrics_reordered["scoring_notes"] = list(reversed(metrics["scoring_notes"]))
+    assert (
+        compute_procedural_depth_metrics_id(metrics_reordered)
+        == metrics["procedural_depth_metrics_id"]
+    )
+
+    diagnostic_reordered = dict(diagnostic)
+    diagnostic_reordered["supporting_event_refs"] = list(
+        reversed(diagnostic["supporting_event_refs"])
+    )
+    diagnostic_reordered["limitations"] = list(reversed(diagnostic["limitations"]))
+    assert (
+        compute_procedural_depth_diagnostic_report_id(diagnostic_reordered)
+        == diagnostic["procedural_depth_diagnostic_report_id"]
+    )
 
 
 def test_derive_gold_trace_replays_reference_fixture() -> None:
