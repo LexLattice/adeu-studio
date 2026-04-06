@@ -1,0 +1,54 @@
+{
+  "schema": "v54a_history_semantics_evidence@1",
+  "evidence_input_path": "artifacts/agent_harness/v142/evidence_inputs/v54a_history_semantics_evidence_v142.json",
+  "contract_source": "docs/LOCKED_CONTINUATION_vNEXT_PLUS142.md#v142-continuation-contract-machine-checkable",
+  "merged_pr": "#364",
+  "merge_commit": "54c3933d0e4b9dac77cfa97ffa4130b1bb473426",
+  "implementation_commit": "95f26b72310d8a9844097ea6bb0a19560098cde7",
+  "review_hardening_commit": "00c44494d3fcdb17543a1115f7ad92554ef9b2e2",
+  "implementation_packages": [
+    "adeu_history_semantics"
+  ],
+  "starter_schema_ids": [
+    "adeu_history_source_artifact@1",
+    "adeu_history_text_shape_signals@1",
+    "adeu_history_preclassification@1"
+  ],
+  "starter_source_domain": "conversation_history_with_explicit_role_headers",
+  "starter_source_authority_semantics": "normalized_source_text_authoritative_after_line_ending_normalization",
+  "starter_timestamp_prefix_format": "optional_bracketed_yyyy_mm_dd_hh_mm_immediately_before_full_role_header_only",
+  "starter_projection_only_metadata": [
+    "source_label",
+    "corpus_wave_posture",
+    "source_notes"
+  ],
+  "test_reference_paths": [
+    "packages/adeu_history_semantics/tests/test_history_semantics_v54a.py",
+    "packages/adeu_history_semantics/tests/test_history_semantics_export_schema.py"
+  ],
+  "fixture_reference_paths": [
+    "packages/adeu_history_semantics/tests/fixtures/v54a/reference_conversation_history_crlf.txt",
+    "packages/adeu_history_semantics/tests/fixtures/v54a/reference_conversation_history_lf.txt",
+    "packages/adeu_history_semantics/tests/fixtures/v54a/reference_history_preclassifications.json",
+    "packages/adeu_history_semantics/tests/fixtures/v54a/reference_history_source_artifact.json",
+    "packages/adeu_history_semantics/tests/fixtures/v54a/reject_attempted_widened_surface.json",
+    "packages/adeu_history_semantics/tests/fixtures/v54a/reject_mixed_domain_and_malformed_block.txt",
+    "packages/adeu_history_semantics/tests/fixtures/v54a/reject_nonconforming_timestamp_prefix.txt",
+    "packages/adeu_history_semantics/tests/fixtures/v54a/reject_raw_byte_authority_claim.json",
+    "packages/adeu_history_semantics/tests/fixtures/v54a/reject_shorthand_aliases.txt",
+    "packages/adeu_history_semantics/tests/fixtures/v54a/reject_unheadered_conversation_history.txt"
+  ],
+  "targeted_local_checks": [
+    "PYTHONPATH=packages/adeu_history_semantics/src .venv/bin/python -m ruff check packages/adeu_history_semantics",
+    "PYTHONPATH=packages/adeu_history_semantics/src .venv/bin/python -m pytest packages/adeu_history_semantics/tests -q"
+  ],
+  "green_pr_checks": [
+    "python",
+    "web",
+    "lean-formal"
+  ],
+  "metric_key_continuity_assertion_path": "artifacts/agent_harness/v142/evidence_inputs/metric_key_continuity_assertion_v142.json",
+  "runtime_observability_comparison_path": "artifacts/agent_harness/v142/evidence_inputs/runtime_observability_comparison_v142.json",
+  "runtime_event_stream_path": "artifacts/agent_harness/v142/runtime/evidence/local/urm_events.ndjson",
+  "notes": "v142 evidence pins the released V54-A history-semantics starter on arc/v54-r3: one repo-owned adeu_history_semantics package only, three bounded source-authority contracts, normalized source text after line-ending normalization as the only authority root, one explicit-role-header conversation_history starter domain, one exact optional bracketed timestamp prefix form, deterministic text-shape and preclassification overlays, projection-only source metadata outside identity law, deterministic schema mirrors and v54a fixtures, and no ledger slice theme O/E/D/U workspace API UI runtime or broader corpus-ingestion widening."
+}

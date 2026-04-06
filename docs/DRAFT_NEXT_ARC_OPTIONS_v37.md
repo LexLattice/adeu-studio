@@ -2,7 +2,8 @@
 
 Status: planning draft after `docs/DRAFT_NEXT_ARC_OPTIONS_v36.md`, refreshed after the
 history-semantics external bundle was normalized as support-only intake evidence rather
-than live package, schema, or family authority.
+than live package, schema, or family authority, and now updated with `V54-A` closed on
+`arc/v54-r3`.
 
 Authority layer: planning.
 
@@ -52,7 +53,7 @@ Interpretive doctrine for this planning surface:
   semantics / workbench ladder recorded in `docs/DRAFT_NEXT_ARC_OPTIONS_v35.md`.
 - `V46-A` through `V46-E` are closed on `main` and now constitute the completed
   applied-benchmarking ladder recorded in `docs/DRAFT_NEXT_ARC_OPTIONS_v29.md`.
-- `vNext+140` is the current implementation-arc baseline on `main`.
+- `vNext+142` is the current implementation-arc baseline on `arc/v54-r3`.
 - imported prototype bundles have now been normalized under
   `examples/external_prototypes/`, including:
   - `adeu-history-semantics-bundle`
@@ -64,6 +65,17 @@ Interpretive doctrine for this planning surface:
   bundle:
   - `examples/external_prototypes/adeu-history-semantics-bundle/CLAIMED_SCOPE.md`
   - `examples/external_prototypes/adeu-history-semantics-bundle/ALIGNMENT.md`
+- `V54-A` is now closed on `arc/v54-r3`:
+  - one repo-owned `packages/adeu_history_semantics` starter package
+  - three released starter contracts:
+    - `adeu_history_source_artifact@1`
+    - `adeu_history_text_shape_signals@1`
+    - `adeu_history_preclassification@1`
+  - normalized source text after line-ending normalization as the released authority
+    root
+  - one explicit-role-header `conversation_history` starter domain only
+  - no ledger, slice, theme, O/E/D/U, workspace, API/UI/runtime, or broader
+    corpus-ingestion widening
 
 ## Gap
 
@@ -209,11 +221,11 @@ Planning relationship:
 - Recommended `V54-A` slice mapping reference:
   - `docs/DRAFT_ADEU_HISTORY_SEMANTICS_V54A_IMPLEMENTATION_MAPPING_v0.md`
 - Recommended next path for this branch:
-  - `V54-A`
+  - `V54-B`
 - Recommended next concrete arc for this branch if selected:
-  - `vNext+142`
+  - `vNext+144`
 - Default path selection for this branch:
-  - select `V54-A` as the next default candidate
+  - select `V54-B` as the next default candidate
 
 This family/path recommendation is branch-local to the `v37` planning surface.
 
@@ -226,7 +238,7 @@ The current recommended path ladder is:
 
 | Path | Theme | Primary output | Status |
 |---|---|---|---|
-| `V54-A` | source contract + authority/export substrate | released `adeu_history_source_artifact@1`, released text-shape / preclassification substrate, and released schema/export posture over one bounded starter source domain | planned |
+| `V54-A` | source contract + authority/export substrate | released `adeu_history_source_artifact@1`, released text-shape / preclassification substrate, and released schema/export posture over one bounded starter source domain | closed on `arc/v54-r3` |
 | `V54-B` | ledger / slice / theme substrate hardening | released `adeu_history_ledger@1`, released `adeu_history_slice@1`, and released `adeu_history_theme_anchor@1` with regression-hardened deterministic grouping/parsing law | planned |
 | `V54-C` | advisory O/E/D/U reconstruction lane | released advisory lane reconstruction and packet artifacts only | planned |
 | `V54-D` | advisory workspace synthesis lane | released bounded workspace question / theme-frame / snapshot seam only | planned |
@@ -255,8 +267,8 @@ The first planning pass should assume one primary family package:
   "schema": "draft_next_arc_options@1",
   "planning_doc": "docs/DRAFT_NEXT_ARC_OPTIONS_v37.md",
   "branch_candidate_family": "V54",
-  "branch_candidate_status": "candidate_family_planning_only",
-  "baseline_arc": "vNext+140",
+  "branch_candidate_status": "candidate_family_planning_after_v54a_closeout",
+  "baseline_arc": "vNext+142",
   "closed_prior_families": [
     "V49",
     "V52"
@@ -268,10 +280,18 @@ The first planning pass should assume one primary family package:
     "V53"
   ],
   "recommended_family": "V54",
-  "default_next_path_recommendation": "V54-A",
-  "default_next_concrete_arc_candidate_for_this_branch": "vNext+142",
+  "default_next_path_recommendation": "V54-B",
+  "default_next_concrete_arc_candidate_for_this_branch": "vNext+144",
   "family_decomposition_doc": "docs/DRAFT_ADEU_HISTORY_SEMANTICS_V54_IMPLEMENTATION_MAPPING_v0.md",
   "v54a_slice_mapping_doc": "docs/DRAFT_ADEU_HISTORY_SEMANTICS_V54A_IMPLEMENTATION_MAPPING_v0.md",
+  "closed_current_family_paths": [
+    "V54-A"
+  ],
+  "planned_current_family_paths": [
+    "V54-B",
+    "V54-C",
+    "V54-D"
+  ],
   "recommended_owner_package": "packages/adeu_history_semantics",
   "v54a_starter_source_domain": "conversation_history_with_explicit_role_headers",
   "v54a_selected_source_authority_semantics": "normalized_source_text_authoritative_after_line_ending_normalization",
