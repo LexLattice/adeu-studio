@@ -1,0 +1,33 @@
+{
+  "schema": "v46e_benchmark_consumer_evidence@1",
+  "evidence_input_path": "artifacts/agent_harness/v140/evidence_inputs/v46e_benchmark_consumer_evidence_v140.json",
+  "contract_source": "docs/LOCKED_CONTINUATION_vNEXT_PLUS140.md#v140-continuation-contract-machine-checkable",
+  "merged_pr": "#362",
+  "merge_commit": "8453b95de932311f2594d5b86e7b9e46df713820",
+  "implementation_commit": "35b453a33d43aa3442692705bbb9a5a0e57f5549",
+  "review_hardening_commit": "7647a200b8e17db430ae098ca82d23fe3e7a2b28",
+  "implementation_packages": [
+    "adeu_benchmarking"
+  ],
+  "starter_schema_ids": [
+    "adeu_benchmark_consumer_case@1",
+    "adeu_benchmark_consumer_advisory_report@1",
+    "adeu_benchmark_consumer_validation_report@1"
+  ],
+  "starter_consumer_target": "architecture_comparison_research",
+  "consumer_output_epistemic_posture": "inferred_interpretively",
+  "consumer_statuses": [
+    "consumer_ready_advisory_only",
+    "consumer_insufficient",
+    "consumer_incompatible"
+  ],
+  "recommendation_statuses": [
+    "architecture_difference_supported",
+    "mixed_or_cautionary",
+    "insufficient_evidence"
+  ],
+  "test_reference_path": "packages/adeu_benchmarking/tests/test_benchmarking_consumer_advisory.py",
+  "metric_key_continuity_assertion_path": "artifacts/agent_harness/v140/evidence_inputs/metric_key_continuity_assertion_v140.json",
+  "runtime_observability_comparison_path": "artifacts/agent_harness/v140/evidence_inputs/runtime_observability_comparison_v140.json",
+  "notes": "v140 evidence pins the released V46-E benchmark consumer seam on main: one repo-owned adeu_benchmarking package only, three new bounded consumer contracts over the released V46-D comparison stack, one advisory architecture_comparison_research target only, finite released derivation law for consumer outputs, explicit separation between deterministic replay confirmation and epistemic warrant, granular released comparison-field and validation-result support refs with review hardening for single-report provenance, deterministic schema mirrors and v46e fixtures, and no routing role-fit training or promotion authority."
+}

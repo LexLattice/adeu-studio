@@ -3,7 +3,7 @@
 Status: planning draft after `docs/DRAFT_NEXT_ARC_OPTIONS_v28.md`, updated after the
 benchmarking-module seed and its first procedural-depth projection were clarified as a
 separate but connected family direction, and refreshed after the full internal `V44`
-family closed on `main`.
+and `V46` families closed on `main`.
 
 This draft does not automatically supersede the contest-participation planning branch in
 `docs/DRAFT_NEXT_ARC_OPTIONS_v26.md`, the structural-reasoning assessment planning
@@ -37,7 +37,7 @@ Interpretive doctrine for this planning surface:
 - `V39-A` through `V39-E` are closed on `main`.
 - `V40-A` through `V40-F` are closed on `main`.
 - `V41-A` through `V41-F` are closed on `main`.
-- `vNext+139` is the current baseline implementation state.
+- `vNext+140` is the current baseline implementation state.
 - `V42-A` through `V42-G4` are closed on `main`.
 - `V44-A` through `V44-E` are closed on `main`.
 - `docs/DRAFT_NEXT_ARC_OPTIONS_v25.md` is the authoritative planning record for the
@@ -70,6 +70,10 @@ Interpretive doctrine for this planning surface:
   - cross-subject comparison case
   - cross-subject comparison report
   - cross-subject comparison validation report
+- `V46-E` is now closed on `main`:
+  - benchmark consumer case
+  - benchmark consumer advisory report
+  - benchmark consumer validation report
 - `docs/DRAFT_NEXT_ARC_OPTIONS_v28.md` records one connected candidate family:
   - `V45`
   - ADEU repo self-description substrate
@@ -82,32 +86,32 @@ Interpretive doctrine for this planning surface:
 
 ## Gap
 
-The repo still lacks a released way to:
+The repo no longer lacks:
 
-- represent benchmarks as typed semantic measurement systems rather than as ad hoc task
-  plus score bundles;
-- distinguish general benchmark doctrine from concrete benchmark projections without
-  collapsing the top-layer artifact family into the first benchmark family selected;
-- capture subject-under-test identity and execution context cleanly across:
-  - base models;
-  - prompted models;
-  - routed runtimes;
-  - multi-agent systems;
-  - ADEU harness surfaces;
-- validate the benchmark itself for stability, noise, trace adequacy, and
-  reproducibility rather than only score the subject under test;
-- carry explicit reliability semantics for:
-  - stable baseline;
-  - reliable `100%`;
-  - acceptable variance;
-  - non-regression floors;
-- keep benchmark diagnostics explicitly non-promotional unless a separate downstream
-  promotion law exists.
+- one repo-owned benchmark substrate package that releases:
+  - benchmark family specs;
+  - benchmark projection specs;
+  - execution-context capture; and
+  - benchmark-self-validation contracts;
+- one released concrete Procedural Depth Fidelity projection over a tiny deterministic
+  hierarchical reference world;
+- one released perturbation and non-regression widening lane over that baseline
+  projection;
+- one released cross-subject comparison lane over the bounded Procedural Depth stack; or
+- one released advisory-only downstream consumer seam over those released comparison
+  artifacts.
 
-The missing layer is therefore not merely another benchmark idea and not yet a routing,
-role-assignment, or training-governance doctrine.
+The repo no longer lacks the branch-local internal `V46` ladder.
 
-The missing layer is an ADEU benchmark substrate.
+No further internal `V46` path is currently selected in this planning branch.
+
+Any later work should therefore be treated as:
+
+- a downstream consumer of released `V46` artifacts;
+- a later benchmarking/product/consumer family selected in a new planning branch; or
+- a different module family,
+
+not as an ambient continuation automatically authorized inside `v29`.
 
 ## Relationship To `V43`, `V44`, And `V45`
 
@@ -181,11 +185,11 @@ Planning relationship:
 - Recommended decomposition reference:
   - `docs/LOCKED_CONTINUATION_vNEXT_PLUS140.md`
 - Recommended next path for this branch:
-  - `V46-E`
+  - no further internal `V46` path is currently selected
 - Recommended next concrete arc for this branch if selected:
-  - `vNext+140`
+  - none currently selected inside `V46`
 - Default path selection for this branch:
-  - select `V46-E` as the next default candidate
+  - no further internal `V46` path is currently selected
 
 This family/path recommendation is branch-local to the `v29` planning surface.
 
@@ -281,7 +285,7 @@ The current recommended path ladder is:
 | `V46-B` | Procedural Depth Fidelity first concrete projection | released `adeu_procedural_depth_instance@1`, released `adeu_procedural_depth_gold_trace@1`, released `adeu_procedural_depth_run_trace@1`, released `adeu_procedural_depth_metrics@1`, released `adeu_procedural_depth_diagnostic_report@1`, and tiny hierarchical reference chain | closed_on_main |
 | `V46-C` | Procedural Depth perturbation + non-regression widening | released typed perturbation lanes plus released `procedural_depth_non_regression_report@1` and released bundle validation artifacts | closed_on_main |
 | `V46-D` | cross-subject comparison-first widening with projection-library growth deferred inside the path | bounded cross-subject comparison posture over the released Procedural Depth stack first | closed_on_main |
-| `V46-E` | downstream consumer seam | separately governed consumers of benchmark diagnostics for routing/model/role/training research | planned |
+| `V46-E` | downstream consumer seam | separately governed consumers of benchmark diagnostics for routing/model/role/training research | closed_on_main |
 
 These output names are planning-level candidate names, not lock-level schema authority.
 
@@ -291,11 +295,11 @@ If `V46-A` reveals that execution-context capture, validation burden, or reliabi
 semantics are weaker or noisier than expected, widening into later paths may need to
 pause, reorder, or narrow.
 
-## Recommended Next Path (`V46-E`)
+## Released `V46-E`
 
-Implement the first downstream consumer seam next.
+`V46-E` is now released on `main`.
 
-`V46-E` should introduce:
+It introduced:
 
 - one bounded consumer-first lane over the released `V46-A` through `V46-D`
   benchmarking stack only:
@@ -326,8 +330,8 @@ Implement the first downstream consumer seam next.
 - it may consume the released benchmarking stack into bounded downstream research
   artifacts;
 - it may not yet emit live routing, role-fit, training, or promotion authority;
-- it should keep any wider operational consumer seams deferred unless the starter
-  advisory boundary proves stable first.
+- it keeps any wider operational consumer seams deferred unless a later planning family
+  selects and locks them explicitly.
 
 ## Why This Path
 
@@ -404,15 +408,27 @@ Cross-subject comparison-first lane, now released on `main`:
 
 ### `V46-E`
 
-Deferred downstream-consumer seam, now selected as the next branch-local default:
+Downstream-consumer seam, now closed on `main`:
 
-- starter selection should begin with one advisory
-  `architecture_comparison_research` target only;
-- starter advisory outputs should remain derived from released comparison status,
-  released field-comparison rows, and released comparison-validation posture only;
-- separately governed consumers may later convert benchmark diagnostics into bounded
-  research inputs for routing, role-fit, training, or architecture comparison;
-- that seam remains later and advisory-first by default.
+- starter release shipped one advisory `architecture_comparison_research` target only;
+- shipped advisory outputs remain derived from released comparison status, released
+  field-comparison rows, and released comparison-validation posture only;
+- later consumer widening for routing, role-fit, training, or broader architecture
+  comparison remains a separate future-family selection problem;
+- the released seam remains advisory-first and non-promotional.
+
+## Current Internal Family State
+
+`V46` is now closed on `main` and no further internal `V46` path is currently
+selected.
+
+Any later work should be treated as:
+
+- a downstream consumer of released `V46` artifacts;
+- a later benchmarking/product/consumer family selected in a new planning branch; or
+- a different module family,
+
+not as an ambient continuation automatically authorized inside `v29`.
 
 ## Candidate Package Ownership
 
@@ -420,7 +436,7 @@ The first planning pass should assume one primary family package:
 
 - `packages/adeu_benchmarking`
 
-The next slice should assume:
+The released final slice used:
 
 - `packages/adeu_benchmarking` is the only active implementation package for `V46-E`.
 
@@ -467,8 +483,8 @@ are:
 - no model-promotion or training entitlement is authorized by this planning draft;
 - no benchmark result becomes operational authority merely because a metric looks
   strong;
-- no benchmark consumer seam is selected by this planning draft beyond the diagnostic
-  substrate itself.
+- no further benchmark consumer seam is selected by this planning draft beyond the
+  released `V46-E` advisory consumer lane.
 
 ## Machine-Checkable Planning Baseline
 
@@ -476,7 +492,7 @@ are:
 {
   "schema": "next_arc_planning_baseline@1",
   "source_baseline_doc": "docs/DRAFT_NEXT_ARC_OPTIONS_v28.md",
-  "baseline_arc": "vNext+139",
+  "baseline_arc": "vNext+140",
   "closed_prior_families": [
     "V41",
     "V42"
@@ -498,13 +514,12 @@ are:
     "V46-A",
     "V46-B",
     "V46-C",
-    "V46-D"
-  ],
-  "planned_current_family_paths": [
+    "V46-D",
     "V46-E"
   ],
-  "default_next_arc_candidate_for_this_branch": "V46-E",
-  "default_next_concrete_arc_candidate_for_this_branch": "vNext+140",
+  "planned_current_family_paths": [],
+  "default_next_arc_candidate_for_this_branch": null,
+  "default_next_concrete_arc_candidate_for_this_branch": null,
   "family_architecture_doc": "docs/DRAFT_BENCHMARKING_META_MODULE_SPEC_v0.md",
   "first_projection_seed_doc": "docs/DRAFT_PROCEDURAL_DEPTH_FIDELITY_BENCHMARK_SPEC_v0.md",
   "family_decomposition_doc": "docs/LOCKED_CONTINUATION_vNEXT_PLUS140.md",
@@ -549,8 +564,9 @@ are:
   "plan_spine_active_step_and_reintegration_split_required": true,
   "v46c_procedural_depth_perturbation_and_non_regression_released_on_main": true,
   "v46d_cross_subject_comparison_released_on_main": true,
+  "v46e_benchmark_consumer_released_on_main": true,
   "v46d_projection_library_and_cross_subject_widening_planned": true,
-  "v46e_downstream_consumer_seam_not_selected_here": true,
+  "v46e_downstream_consumer_seam_closed_on_main": true,
   "benchmark_results_non_promotional_required": true,
   "routing_role_training_authority_initially_deferred": true,
   "package_ownership_assumption_provisional_pending_decomposition_required": true,
