@@ -1,0 +1,70 @@
+{
+  "schema": "parallel_arc_meta_loop_baton@1",
+  "baton_id": "baton_v54a_arc_worker_review_integration_claim_007",
+  "baton_kind": "transition_claim",
+  "emitted_at_utc": "2026-04-06T19:45:56Z",
+  "previous_baton_id": "baton_v54a_conceptual_reviewer_round1_006",
+  "arc_family": "V54",
+  "slice": "V54-A",
+  "phase": "starter_integration_pending",
+  "role": "arc_worker",
+  "model": "gpt-5.4",
+  "reasoning_effort": "xhigh",
+  "arc_branch": "arc/v54-r3",
+  "feature_branch": null,
+  "base_branch": "arc/v54-r3",
+  "commit_sha": null,
+  "pr_url": null,
+  "review_verdict": null,
+  "ci_status": null,
+  "controlling_refs": [
+    "artifacts/meta_loop/V54/V54-A/review/conceptual_review_round1.md",
+    "artifacts/meta_loop/V54/V54-A/batons/006_conceptual_reviewer_claim.json",
+    "docs/DRAFT_NEXT_ARC_OPTIONS_v37.md",
+    "docs/LOCKED_CONTINUATION_vNEXT_PLUS142.md",
+    "docs/DRAFT_STOP_GATE_DECISION_vNEXT_PLUS142.md",
+    "docs/ASSESSMENT_vNEXT_PLUS142_EDGES.md",
+    "docs/DRAFT_ADEU_HISTORY_SEMANTICS_V54_IMPLEMENTATION_MAPPING_v0.md",
+    "docs/DRAFT_ADEU_HISTORY_SEMANTICS_V54A_IMPLEMENTATION_MAPPING_v0.md",
+    "docs/DRAFT_PARALLEL_ARC_META_LOOP_PROTOCOL_v0.md",
+    "docs/PARALLEL_ARC_META_LOOP_BATON_v0.json"
+  ],
+  "required_outputs_claimed_satisfied": [
+    "v54_a_targeted_review_findings_integrated_into_starter_bundle",
+    "v54_a_integrated_starter_bundle",
+    "v54_a_review_integration_claim_baton"
+  ],
+  "unsatisfied_requirements": [
+    "v54_a_starter_commit_to_arc_branch"
+  ],
+  "status": "completed",
+  "artifacts_produced": [
+    "docs/LOCKED_CONTINUATION_vNEXT_PLUS142.md",
+    "artifacts/meta_loop/V54/V54-A/batons/007_arc_worker_review_integration_claim.json"
+  ],
+  "evidence_refs": [
+    "artifacts/meta_loop/V54/V54-A/review/conceptual_review_round1.md",
+    "artifacts/meta_loop/V54/V54-A/batons/006_conceptual_reviewer_claim.json",
+    "artifacts/meta_loop/V54/V54-A/batons/004_arc_worker_starter_draft_claim.json",
+    "artifacts/meta_loop/V54/V54-A/starter_bundle/first_draft_LOCKED_CONTINUATION_vNEXT_PLUS142.md",
+    "docs/LOCKED_CONTINUATION_vNEXT_PLUS142.md",
+    "docs/DRAFT_STOP_GATE_DECISION_vNEXT_PLUS142.md",
+    "docs/ASSESSMENT_vNEXT_PLUS142_EDGES.md"
+  ],
+  "checks_run": [
+    "make arc-start-check ARC=142 (failed during lint_arc_bundle startup: FileNotFoundError: repository root not found from script location; make target exited with error 2)",
+    ".venv/bin/python apps/api/scripts/lint_arc_bundle.py --arc 142 --phase start --repo-root . (pass)",
+    "make instruction-policy-check (pass)"
+  ],
+  "checks_skipped": [
+    "make check skipped because the diff is docs/artifacts-only starter-bundle review integration work"
+  ],
+  "blockers": [],
+  "next_allowed_actions": [
+    "commit_integrated_v54_a_starter_bundle_to_arc_branch",
+    "carry_forward_preserved_first_draft_evidence_alongside_live_bundle",
+    "advance_to_v54_a_starter_commit_when_maintainer_ready"
+  ],
+  "notes": "The live starter bundle now resolves the authority-layer promotion mismatch by keeping docs/DRAFT_ADEU_HISTORY_SEMANTICS_V54_IMPLEMENTATION_MAPPING_v0.md support-only and making the lock carry the V54-to-V54-A narrowing law directly. The lock objective sentence was tightened so it names text-shape signals and repo-native schema/export posture explicitly. The optional assessment state-marker cleanup was not taken because apps/api/scripts/lint_arc_bundle.py currently expects phase=pre_lock_assessment for start-phase docs-only validation. The canonical make arc-start-check helper still fails in this worktree because repo-root discovery expects a .git directory while this worktree exposes a .git file, but the truthful substitute docs-only lint plus instruction-policy check both passed.",
+  "ratifies_baton_id": null
+}
