@@ -1,0 +1,25 @@
+{
+  "baseline_diagnostic_report_ref": "pdepthdiag_9c0458adec8a442f7bdf65e285882a68",
+  "baseline_instance_ref": "pdepthinst_4e2ace8ed445a7010809453180a6a478",
+  "baseline_metric_ref": "pdepthmetrics_1bbde79b5616c436392cf17425238003",
+  "baseline_run_trace_ref": "pdepthrun_e362b55eb76c3010d4fb66d52e427fb1",
+  "benchmark_execution_context_ref": "benchctx_516fb545ae96d21e3efa19535d9fc8ab",
+  "benchmark_family_spec_ref": "benchfam_73952621547ba8a17ea53e43cf579388",
+  "benchmark_projection_spec_ref": "benchproj_other",
+  "benchmark_subject_record_id": "benchsubj_b501f8a9f061e581a950bf1b29fc52d2",
+  "notes": [
+    "starter v46d prompted-model reference subject"
+  ],
+  "perturbation_benchmark_validation_report_ref": "pdepthbval_e16a728197229ac98d0361ac19081077",
+  "perturbation_bundle_ref": "pdepthbundle_d1410ff60a6411789589fba7e61d3ff9",
+  "perturbation_case_refs": [
+    "pdepthpert_3099cdab20b4c5c498cd351f7cdb7f61",
+    "pdepthpert_4a8cc1d7e79d8748f3a634dfe4c40cc9",
+    "pdepthpert_e4cae96730d15577dc463ec54d351a03"
+  ],
+  "perturbation_non_regression_report_ref": "pdepthnreg_4f89cadb9b4872d4b252c87b83a7157c",
+  "schema": "adeu_benchmark_subject_record@1",
+  "subject_class": "prompted_model",
+  "subject_identity_ref": "subject:v46d/prompted_model/reference",
+  "subject_label": "gpt-5.4 prompted procedural-depth starter"
+}

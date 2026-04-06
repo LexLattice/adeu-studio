@@ -1,0 +1,104 @@
+{
+  "$defs": {
+    "CrossSubjectComparisonValidationResult": {
+      "additionalProperties": false,
+      "properties": {
+        "comparison_status": {
+          "enum": [
+            "exact_match",
+            "different_but_comparable",
+            "insufficient_evidence"
+          ],
+          "title": "Comparison Status",
+          "type": "string"
+        },
+        "comparison_surface": {
+          "enum": [
+            "baseline_structural_fidelity",
+            "perturbation_non_regression",
+            "perturbation_validation"
+          ],
+          "title": "Comparison Surface",
+          "type": "string"
+        },
+        "deterministic_comparison_confirmed": {
+          "title": "Deterministic Comparison Confirmed",
+          "type": "boolean"
+        },
+        "left_ref": {
+          "title": "Left Ref",
+          "type": "string"
+        },
+        "right_ref": {
+          "title": "Right Ref",
+          "type": "string"
+        }
+      },
+      "required": [
+        "comparison_surface",
+        "left_ref",
+        "right_ref",
+        "comparison_status",
+        "deterministic_comparison_confirmed"
+      ],
+      "title": "CrossSubjectComparisonValidationResult",
+      "type": "object"
+    }
+  },
+  "additionalProperties": false,
+  "properties": {
+    "comparison_case_ref": {
+      "title": "Comparison Case Ref",
+      "type": "string"
+    },
+    "cross_subject_comparison_validation_report_id": {
+      "title": "Cross Subject Comparison Validation Report Id",
+      "type": "string"
+    },
+    "deterministic_comparison_confirmed": {
+      "title": "Deterministic Comparison Confirmed",
+      "type": "boolean"
+    },
+    "limitations": {
+      "items": {
+        "type": "string"
+      },
+      "minItems": 1,
+      "title": "Limitations",
+      "type": "array"
+    },
+    "schema": {
+      "const": "adeu_cross_subject_comparison_validation_report@1",
+      "default": "adeu_cross_subject_comparison_validation_report@1",
+      "title": "Schema",
+      "type": "string"
+    },
+    "validation_results": {
+      "items": {
+        "$ref": "#/$defs/CrossSubjectComparisonValidationResult"
+      },
+      "minItems": 1,
+      "title": "Validation Results",
+      "type": "array"
+    },
+    "validation_status": {
+      "enum": [
+        "validation_ready_clean",
+        "validation_insufficient",
+        "validation_incompatible"
+      ],
+      "title": "Validation Status",
+      "type": "string"
+    }
+  },
+  "required": [
+    "cross_subject_comparison_validation_report_id",
+    "comparison_case_ref",
+    "deterministic_comparison_confirmed",
+    "validation_status",
+    "validation_results",
+    "limitations"
+  ],
+  "title": "CrossSubjectComparisonValidationReport",
+  "type": "object"
+}

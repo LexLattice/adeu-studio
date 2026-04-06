@@ -1,0 +1,95 @@
+{
+  "additionalProperties": false,
+  "properties": {
+    "baseline_instance_ref": {
+      "title": "Baseline Instance Ref",
+      "type": "string"
+    },
+    "benchmark_family_spec_ref": {
+      "title": "Benchmark Family Spec Ref",
+      "type": "string"
+    },
+    "benchmark_projection_spec_ref": {
+      "title": "Benchmark Projection Spec Ref",
+      "type": "string"
+    },
+    "comparison_label": {
+      "title": "Comparison Label",
+      "type": "string"
+    },
+    "cross_subject_comparison_case_id": {
+      "title": "Cross Subject Comparison Case Id",
+      "type": "string"
+    },
+    "left_subject_ref": {
+      "title": "Left Subject Ref",
+      "type": "string"
+    },
+    "notes": {
+      "items": {
+        "type": "string"
+      },
+      "title": "Notes",
+      "type": "array"
+    },
+    "perturbation_case_refs": {
+      "items": {
+        "type": "string"
+      },
+      "minItems": 1,
+      "title": "Perturbation Case Refs",
+      "type": "array"
+    },
+    "required_comparison_surfaces": {
+      "items": {
+        "enum": [
+          "baseline_structural_fidelity",
+          "perturbation_non_regression",
+          "perturbation_validation"
+        ],
+        "type": "string"
+      },
+      "minItems": 1,
+      "title": "Required Comparison Surfaces",
+      "type": "array"
+    },
+    "required_execution_context_compatibility_fields": {
+      "items": {
+        "enum": [
+          "repo_snapshot_ref",
+          "tool_availability",
+          "context_budget_posture",
+          "determinism_posture"
+        ],
+        "type": "string"
+      },
+      "minItems": 1,
+      "title": "Required Execution Context Compatibility Fields",
+      "type": "array"
+    },
+    "right_subject_ref": {
+      "title": "Right Subject Ref",
+      "type": "string"
+    },
+    "schema": {
+      "const": "adeu_cross_subject_comparison_case@1",
+      "default": "adeu_cross_subject_comparison_case@1",
+      "title": "Schema",
+      "type": "string"
+    }
+  },
+  "required": [
+    "cross_subject_comparison_case_id",
+    "comparison_label",
+    "left_subject_ref",
+    "right_subject_ref",
+    "benchmark_family_spec_ref",
+    "benchmark_projection_spec_ref",
+    "baseline_instance_ref",
+    "required_execution_context_compatibility_fields",
+    "perturbation_case_refs",
+    "required_comparison_surfaces"
+  ],
+  "title": "CrossSubjectComparisonCase",
+  "type": "object"
+}

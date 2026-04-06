@@ -24,11 +24,15 @@ ADEU_PROCEDURAL_DEPTH_METRICS_SCHEMA = "adeu_procedural_depth_metrics@1"
 ADEU_PROCEDURAL_DEPTH_DIAGNOSTIC_REPORT_SCHEMA = "adeu_procedural_depth_diagnostic_report@1"
 ADEU_PROCEDURAL_DEPTH_PERTURBATION_CASE_SCHEMA = "adeu_procedural_depth_perturbation_case@1"
 ADEU_PROCEDURAL_DEPTH_FAILURE_TOPOLOGY_SCHEMA = "adeu_procedural_depth_failure_topology@1"
-ADEU_PROCEDURAL_DEPTH_NON_REGRESSION_REPORT_SCHEMA = (
-    "adeu_procedural_depth_non_regression_report@1"
-)
+ADEU_PROCEDURAL_DEPTH_NON_REGRESSION_REPORT_SCHEMA = "adeu_procedural_depth_non_regression_report@1"
 ADEU_PROCEDURAL_DEPTH_BENCHMARK_VALIDATION_REPORT_SCHEMA = (
     "adeu_procedural_depth_benchmark_validation_report@1"
+)
+ADEU_BENCHMARK_SUBJECT_RECORD_SCHEMA = "adeu_benchmark_subject_record@1"
+ADEU_CROSS_SUBJECT_COMPARISON_CASE_SCHEMA = "adeu_cross_subject_comparison_case@1"
+ADEU_CROSS_SUBJECT_COMPARISON_REPORT_SCHEMA = "adeu_cross_subject_comparison_report@1"
+ADEU_CROSS_SUBJECT_COMPARISON_VALIDATION_REPORT_SCHEMA = (
+    "adeu_cross_subject_comparison_validation_report@1"
 )
 
 SUBJECT_UNDER_TEST_CLASS_VOCABULARY = [
@@ -70,15 +74,39 @@ PROCEDURAL_DEPTH_TERMINAL_TRACE_STATUS_VOCABULARY = [
     "completed_with_structural_break",
 ]
 TRACE_ROLE_VOCABULARY = ["gold", "run"]
-PROCEDURAL_DEPTH_DIAGNOSTIC_EPISTEMIC_POSTURE_VOCABULARY = [
-    "inferred_interpretively"
-]
+PROCEDURAL_DEPTH_DIAGNOSTIC_EPISTEMIC_POSTURE_VOCABULARY = ["inferred_interpretively"]
 PERTURBATION_KIND_VOCABULARY = [
     "branch_shift",
     "delayed_constraint",
     "paraphrase_preserving",
 ]
 EVALUATION_CONTEXT_POSTURE_VOCABULARY = ["deterministic_fixed_context"]
+EXECUTION_CONTEXT_COMPATIBILITY_FIELD_VOCABULARY = [
+    "repo_snapshot_ref",
+    "tool_availability",
+    "context_budget_posture",
+    "determinism_posture",
+]
+COMPARISON_SURFACE_VOCABULARY = [
+    "baseline_structural_fidelity",
+    "perturbation_non_regression",
+    "perturbation_validation",
+]
+COMPARISON_STATUS_VOCABULARY = [
+    "comparison_ready_clean",
+    "comparison_insufficient",
+    "comparison_incompatible",
+]
+COMPARISON_MATCH_STATUS_VOCABULARY = [
+    "exact_match",
+    "different_but_comparable",
+    "insufficient_evidence",
+]
+COMPARISON_VALIDATION_STATUS_VOCABULARY = [
+    "validation_ready_clean",
+    "validation_insufficient",
+    "validation_incompatible",
+]
 
 SubjectUnderTestClass = Literal[
     "base_model",
@@ -123,6 +151,32 @@ PerturbationKind = Literal[
     "paraphrase_preserving",
 ]
 EvaluationContextPosture = Literal["deterministic_fixed_context"]
+ExecutionContextCompatibilityField = Literal[
+    "repo_snapshot_ref",
+    "tool_availability",
+    "context_budget_posture",
+    "determinism_posture",
+]
+ComparisonSurface = Literal[
+    "baseline_structural_fidelity",
+    "perturbation_non_regression",
+    "perturbation_validation",
+]
+ComparisonStatus = Literal[
+    "comparison_ready_clean",
+    "comparison_insufficient",
+    "comparison_incompatible",
+]
+ComparisonMatchStatus = Literal[
+    "exact_match",
+    "different_but_comparable",
+    "insufficient_evidence",
+]
+ComparisonValidationStatus = Literal[
+    "validation_ready_clean",
+    "validation_insufficient",
+    "validation_incompatible",
+]
 
 
 def _assert_non_empty_text(value: str, *, field_name: str) -> str:
@@ -348,12 +402,8 @@ def compute_benchmark_validation_report_id(payload: dict[str, Any]) -> str:
         {
             "case_label": case.get("case_label"),
             "case_ref": case.get("case_ref"),
-            "expected_dominant_failure_family": case.get(
-                "expected_dominant_failure_family"
-            ),
-            "observed_dominant_failure_family": case.get(
-                "observed_dominant_failure_family"
-            ),
+            "expected_dominant_failure_family": case.get("expected_dominant_failure_family"),
+            "observed_dominant_failure_family": case.get("observed_dominant_failure_family"),
             "match": case.get("match"),
         }
         for case in sorted(
@@ -367,9 +417,7 @@ def compute_benchmark_validation_report_id(payload: dict[str, Any]) -> str:
         "validation_scope": payload.get("validation_scope"),
         "scorer_determinism_posture": payload.get("scorer_determinism_posture"),
         "validation_case_results": case_material,
-        "all_expected_diagnostics_matched": payload.get(
-            "all_expected_diagnostics_matched"
-        ),
+        "all_expected_diagnostics_matched": payload.get("all_expected_diagnostics_matched"),
         "benchmark_limitations": _sorted_unique_texts(
             list(payload.get("benchmark_limitations", [])),
             field_name="benchmark_limitations",
@@ -452,9 +500,7 @@ def _canonicalize_procedural_depth_diagnostic_report_material(
         "procedural_depth_metrics_ref",
         "diagnostic_summary",
     ):
-        prepared[field_name] = _assert_non_empty_text(
-            prepared[field_name], field_name=field_name
-        )
+        prepared[field_name] = _assert_non_empty_text(prepared[field_name], field_name=field_name)
     prepared["supporting_event_refs"] = _canonicalize_supporting_event_refs(
         list(prepared.get("supporting_event_refs", []))
     )
@@ -469,10 +515,7 @@ def _canonicalize_procedural_depth_diagnostic_report_material(
 def _canonicalize_supporting_replay_refs(
     payloads: list[dict[str, Any]],
 ) -> list[dict[str, Any]]:
-    refs = [
-        ProceduralDepthSupportingReplayRef.model_validate(payload)
-        for payload in payloads
-    ]
+    refs = [ProceduralDepthSupportingReplayRef.model_validate(payload) for payload in payloads]
     refs = sorted(refs, key=lambda entry: entry.replay_index)
     return [_canonical_model_payload(entry) for entry in refs]
 
@@ -480,10 +523,7 @@ def _canonicalize_supporting_replay_refs(
 def _canonicalize_supporting_metric_refs(
     payloads: list[dict[str, Any]],
 ) -> list[dict[str, Any]]:
-    refs = [
-        ProceduralDepthSupportingMetricRef.model_validate(payload)
-        for payload in payloads
-    ]
+    refs = [ProceduralDepthSupportingMetricRef.model_validate(payload) for payload in payloads]
     refs = sorted(refs, key=lambda entry: entry.replay_index)
     return [_canonical_model_payload(entry) for entry in refs]
 
@@ -491,10 +531,7 @@ def _canonicalize_supporting_metric_refs(
 def _canonicalize_validation_replay_results(
     payloads: list[dict[str, Any]],
 ) -> list[dict[str, Any]]:
-    refs = [
-        ProceduralDepthValidationReplayResult.model_validate(payload)
-        for payload in payloads
-    ]
+    refs = [ProceduralDepthValidationReplayResult.model_validate(payload) for payload in payloads]
     refs = sorted(refs, key=lambda entry: entry.replay_index)
     return [_canonical_model_payload(entry) for entry in refs]
 
@@ -504,9 +541,7 @@ def _canonicalize_procedural_depth_perturbation_case_material(
 ) -> dict[str, Any]:
     prepared = deepcopy(payload)
     for field_name in ("baseline_instance_ref", "perturbation_label"):
-        prepared[field_name] = _assert_non_empty_text(
-            prepared[field_name], field_name=field_name
-        )
+        prepared[field_name] = _assert_non_empty_text(prepared[field_name], field_name=field_name)
     prepared["perturbation_overlay_events"] = _canonicalize_trace_events(
         list(prepared.get("perturbation_overlay_events", [])),
         field_name="perturbation_overlay_events",
@@ -527,9 +562,7 @@ def _canonicalize_failure_topology_evaluated_cases(
     payloads: list[dict[str, Any]],
 ) -> list[dict[str, Any]]:
     rows = [
-        _canonical_model_payload(
-            ProceduralDepthFailureTopologyCase.model_validate(payload)
-        )
+        _canonical_model_payload(ProceduralDepthFailureTopologyCase.model_validate(payload))
         for payload in payloads
     ]
     return sorted(rows, key=lambda row: row["perturbation_case_ref"])
@@ -557,9 +590,7 @@ def _canonicalize_non_regression_evaluated_cases(
     payloads: list[dict[str, Any]],
 ) -> list[dict[str, Any]]:
     rows = [
-        _canonical_model_payload(
-            ProceduralDepthNonRegressionCase.model_validate(payload)
-        )
+        _canonical_model_payload(ProceduralDepthNonRegressionCase.model_validate(payload))
         for payload in payloads
     ]
     return sorted(rows, key=lambda row: row["perturbation_case_ref"])
@@ -613,13 +644,168 @@ def _canonicalize_procedural_depth_benchmark_validation_report_material(
     return prepared
 
 
+def _canonicalize_benchmark_subject_record_material(
+    payload: dict[str, Any],
+) -> dict[str, Any]:
+    prepared = deepcopy(payload)
+    for field_name in (
+        "subject_label",
+        "subject_identity_ref",
+        "benchmark_family_spec_ref",
+        "benchmark_projection_spec_ref",
+        "benchmark_execution_context_ref",
+        "perturbation_bundle_ref",
+        "baseline_instance_ref",
+        "baseline_run_trace_ref",
+        "baseline_metric_ref",
+        "baseline_diagnostic_report_ref",
+        "perturbation_non_regression_report_ref",
+        "perturbation_benchmark_validation_report_ref",
+    ):
+        prepared[field_name] = _assert_non_empty_text(
+            prepared[field_name],
+            field_name=field_name,
+        )
+    prepared["perturbation_case_refs"] = _ordered_unique_texts(
+        list(prepared.get("perturbation_case_refs", [])),
+        field_name="perturbation_case_refs",
+    )
+    prepared["notes"] = _sorted_unique_texts(
+        list(prepared.get("notes", [])),
+        field_name="notes",
+    )
+    return prepared
+
+
+def _canonicalize_cross_subject_comparison_case_material(
+    payload: dict[str, Any],
+) -> dict[str, Any]:
+    prepared = deepcopy(payload)
+    for field_name in (
+        "comparison_label",
+        "left_subject_ref",
+        "right_subject_ref",
+        "benchmark_family_spec_ref",
+        "benchmark_projection_spec_ref",
+        "baseline_instance_ref",
+    ):
+        prepared[field_name] = _assert_non_empty_text(
+            prepared[field_name],
+            field_name=field_name,
+        )
+    prepared["required_execution_context_compatibility_fields"] = _exact_ordered_vocabulary(
+        list(prepared.get("required_execution_context_compatibility_fields", [])),
+        expected_order=EXECUTION_CONTEXT_COMPATIBILITY_FIELD_VOCABULARY,
+        field_name="required_execution_context_compatibility_fields",
+    )
+    prepared["perturbation_case_refs"] = _ordered_unique_texts(
+        list(prepared.get("perturbation_case_refs", [])),
+        field_name="perturbation_case_refs",
+    )
+    prepared["required_comparison_surfaces"] = _exact_ordered_vocabulary(
+        list(prepared.get("required_comparison_surfaces", [])),
+        expected_order=COMPARISON_SURFACE_VOCABULARY,
+        field_name="required_comparison_surfaces",
+    )
+    prepared["notes"] = _sorted_unique_texts(
+        list(prepared.get("notes", [])),
+        field_name="notes",
+    )
+    return prepared
+
+
+def _canonicalize_subject_summaries(payloads: list[dict[str, Any]]) -> list[dict[str, Any]]:
+    rows = [
+        _canonical_model_payload(CrossSubjectSubjectSummary.model_validate(payload))
+        for payload in payloads
+    ]
+    return sorted(rows, key=lambda row: row["subject_record_ref"])
+
+
+def _canonicalize_field_comparisons(payloads: list[dict[str, Any]]) -> list[dict[str, Any]]:
+    rows = [
+        _canonical_model_payload(CrossSubjectFieldComparison.model_validate(payload))
+        for payload in payloads
+    ]
+    return sorted(
+        rows,
+        key=lambda row: (
+            COMPARISON_SURFACE_VOCABULARY.index(row["comparison_surface"]),
+            row["left_ref"],
+            row["right_ref"],
+        ),
+    )
+
+
+def _canonicalize_cross_subject_comparison_report_material(
+    payload: dict[str, Any],
+) -> dict[str, Any]:
+    prepared = deepcopy(payload)
+    for field_name in (
+        "comparison_case_ref",
+        "comparison_summary",
+    ):
+        prepared[field_name] = _assert_non_empty_text(
+            prepared[field_name],
+            field_name=field_name,
+        )
+    prepared["subject_summaries"] = _canonicalize_subject_summaries(
+        list(prepared.get("subject_summaries", []))
+    )
+    prepared["field_comparisons"] = _canonicalize_field_comparisons(
+        list(prepared.get("field_comparisons", []))
+    )
+    prepared["supporting_artifact_refs"] = _ordered_unique_texts(
+        list(prepared.get("supporting_artifact_refs", [])),
+        field_name="supporting_artifact_refs",
+    )
+    prepared["notes"] = _sorted_unique_texts(
+        list(prepared.get("notes", [])),
+        field_name="notes",
+    )
+    return prepared
+
+
+def _canonicalize_comparison_validation_results(
+    payloads: list[dict[str, Any]],
+) -> list[dict[str, Any]]:
+    rows = [
+        _canonical_model_payload(CrossSubjectComparisonValidationResult.model_validate(payload))
+        for payload in payloads
+    ]
+    return sorted(
+        rows,
+        key=lambda row: (
+            COMPARISON_SURFACE_VOCABULARY.index(row["comparison_surface"]),
+            row["left_ref"],
+            row["right_ref"],
+        ),
+    )
+
+
+def _canonicalize_cross_subject_comparison_validation_report_material(
+    payload: dict[str, Any],
+) -> dict[str, Any]:
+    prepared = deepcopy(payload)
+    prepared["comparison_case_ref"] = _assert_non_empty_text(
+        prepared["comparison_case_ref"],
+        field_name="comparison_case_ref",
+    )
+    prepared["validation_results"] = _canonicalize_comparison_validation_results(
+        list(prepared.get("validation_results", []))
+    )
+    prepared["limitations"] = _sorted_unique_texts(
+        list(prepared.get("limitations", [])),
+        field_name="limitations",
+    )
+    return prepared
+
+
 def compute_procedural_depth_instance_id(payload: dict[str, Any]) -> str:
     prepared = _canonicalize_instance_material(payload)
     material = {
         "benchmark_projection_spec_ref": prepared.get("benchmark_projection_spec_ref"),
-        "benchmark_execution_context_ref": prepared.get(
-            "benchmark_execution_context_ref"
-        ),
+        "benchmark_execution_context_ref": prepared.get("benchmark_execution_context_ref"),
         "instance_label": prepared.get("instance_label"),
         "repo_snapshot_ref": prepared.get("repo_snapshot_ref"),
         "reference_chain_key": prepared.get("reference_chain_key"),
@@ -659,13 +845,9 @@ def compute_procedural_depth_metrics_id(payload: dict[str, Any]) -> str:
     prepared = _canonicalize_procedural_depth_metrics_material(payload)
     material = {
         "procedural_depth_run_trace_ref": prepared.get("procedural_depth_run_trace_ref"),
-        "procedural_depth_gold_trace_ref": prepared.get(
-            "procedural_depth_gold_trace_ref"
-        ),
+        "procedural_depth_gold_trace_ref": prepared.get("procedural_depth_gold_trace_ref"),
         "plan_spine_fidelity": prepared.get("plan_spine_fidelity"),
-        "active_step_compilation_fidelity": prepared.get(
-            "active_step_compilation_fidelity"
-        ),
+        "active_step_compilation_fidelity": prepared.get("active_step_compilation_fidelity"),
         "reintegration_fidelity": prepared.get("reintegration_fidelity"),
         "dominant_failure_family": prepared.get("dominant_failure_family"),
         "supporting_event_refs": prepared.get("supporting_event_refs"),
@@ -681,9 +863,7 @@ def compute_procedural_depth_diagnostic_report_id(payload: dict[str, Any]) -> st
         "procedural_depth_metrics_ref": prepared.get("procedural_depth_metrics_ref"),
         "dominant_failure_family": prepared.get("dominant_failure_family"),
         "supporting_event_refs": prepared.get("supporting_event_refs"),
-        "benchmark_output_epistemic_posture": prepared.get(
-            "benchmark_output_epistemic_posture"
-        ),
+        "benchmark_output_epistemic_posture": prepared.get("benchmark_output_epistemic_posture"),
         "limitations": prepared.get("limitations"),
         "diagnostic_summary": prepared.get("diagnostic_summary"),
     }
@@ -698,12 +878,8 @@ def compute_procedural_depth_perturbation_case_id(payload: dict[str, Any]) -> st
         "perturbation_label": prepared.get("perturbation_label"),
         "perturbation_overlay_events": prepared.get("perturbation_overlay_events"),
         "output_summary_override": prepared.get("output_summary_override"),
-        "expected_dominant_failure_family": prepared.get(
-            "expected_dominant_failure_family"
-        ),
-        "expected_terminal_trace_status": prepared.get(
-            "expected_terminal_trace_status"
-        ),
+        "expected_dominant_failure_family": prepared.get("expected_dominant_failure_family"),
+        "expected_terminal_trace_status": prepared.get("expected_terminal_trace_status"),
         "notes": prepared.get("notes"),
     }
     return f"pdepthpert_{sha256_canonical_json(material)[:32]}"
@@ -736,19 +912,106 @@ def compute_procedural_depth_non_regression_report_id(payload: dict[str, Any]) -
 def compute_procedural_depth_benchmark_validation_report_id(
     payload: dict[str, Any],
 ) -> str:
-    prepared = _canonicalize_procedural_depth_benchmark_validation_report_material(
-        payload
-    )
+    prepared = _canonicalize_procedural_depth_benchmark_validation_report_material(payload)
     material = {
         "evaluation_context_posture": prepared.get("evaluation_context_posture"),
         "replay_count": prepared.get("replay_count"),
-        "deterministic_replay_confirmed": prepared.get(
-            "deterministic_replay_confirmed"
-        ),
+        "deterministic_replay_confirmed": prepared.get("deterministic_replay_confirmed"),
         "validation_case_results": prepared.get("validation_case_results"),
         "limitations": prepared.get("limitations"),
     }
     return f"pdepthbval_{sha256_canonical_json(material)[:32]}"
+
+
+def compute_procedural_depth_perturbation_bundle_ref(
+    *,
+    baseline_instance_ref: str,
+    perturbation_case_refs: list[str],
+) -> str:
+    material = {
+        "baseline_instance_ref": _assert_non_empty_text(
+            baseline_instance_ref,
+            field_name="baseline_instance_ref",
+        ),
+        "perturbation_case_refs": _ordered_unique_texts(
+            list(perturbation_case_refs),
+            field_name="perturbation_case_refs",
+        ),
+    }
+    return f"pdepthbundle_{sha256_canonical_json(material)[:32]}"
+
+
+def compute_benchmark_subject_record_id(payload: dict[str, Any]) -> str:
+    prepared = _canonicalize_benchmark_subject_record_material(payload)
+    material = {
+        "subject_class": prepared.get("subject_class"),
+        "subject_label": prepared.get("subject_label"),
+        "subject_identity_ref": prepared.get("subject_identity_ref"),
+        "benchmark_family_spec_ref": prepared.get("benchmark_family_spec_ref"),
+        "benchmark_projection_spec_ref": prepared.get("benchmark_projection_spec_ref"),
+        "benchmark_execution_context_ref": prepared.get("benchmark_execution_context_ref"),
+        "perturbation_bundle_ref": prepared.get("perturbation_bundle_ref"),
+        "perturbation_case_refs": prepared.get("perturbation_case_refs"),
+        "baseline_instance_ref": prepared.get("baseline_instance_ref"),
+        "baseline_run_trace_ref": prepared.get("baseline_run_trace_ref"),
+        "baseline_metric_ref": prepared.get("baseline_metric_ref"),
+        "baseline_diagnostic_report_ref": prepared.get("baseline_diagnostic_report_ref"),
+        "perturbation_non_regression_report_ref": prepared.get(
+            "perturbation_non_regression_report_ref"
+        ),
+        "perturbation_benchmark_validation_report_ref": prepared.get(
+            "perturbation_benchmark_validation_report_ref"
+        ),
+        "notes": prepared.get("notes"),
+    }
+    return f"benchsubj_{sha256_canonical_json(material)[:32]}"
+
+
+def compute_cross_subject_comparison_case_id(payload: dict[str, Any]) -> str:
+    prepared = _canonicalize_cross_subject_comparison_case_material(payload)
+    material = {
+        "comparison_label": prepared.get("comparison_label"),
+        "left_subject_ref": prepared.get("left_subject_ref"),
+        "right_subject_ref": prepared.get("right_subject_ref"),
+        "benchmark_family_spec_ref": prepared.get("benchmark_family_spec_ref"),
+        "benchmark_projection_spec_ref": prepared.get("benchmark_projection_spec_ref"),
+        "baseline_instance_ref": prepared.get("baseline_instance_ref"),
+        "required_execution_context_compatibility_fields": prepared.get(
+            "required_execution_context_compatibility_fields"
+        ),
+        "perturbation_case_refs": prepared.get("perturbation_case_refs"),
+        "required_comparison_surfaces": prepared.get("required_comparison_surfaces"),
+        "notes": prepared.get("notes"),
+    }
+    return f"xsubcase_{sha256_canonical_json(material)[:32]}"
+
+
+def compute_cross_subject_comparison_report_id(payload: dict[str, Any]) -> str:
+    prepared = _canonicalize_cross_subject_comparison_report_material(payload)
+    material = {
+        "comparison_case_ref": prepared.get("comparison_case_ref"),
+        "comparison_status": prepared.get("comparison_status"),
+        "subject_summaries": prepared.get("subject_summaries"),
+        "field_comparisons": prepared.get("field_comparisons"),
+        "supporting_artifact_refs": prepared.get("supporting_artifact_refs"),
+        "comparison_summary": prepared.get("comparison_summary"),
+        "notes": prepared.get("notes"),
+    }
+    return f"xsubreport_{sha256_canonical_json(material)[:32]}"
+
+
+def compute_cross_subject_comparison_validation_report_id(
+    payload: dict[str, Any],
+) -> str:
+    prepared = _canonicalize_cross_subject_comparison_validation_report_material(payload)
+    material = {
+        "comparison_case_ref": prepared.get("comparison_case_ref"),
+        "deterministic_comparison_confirmed": prepared.get("deterministic_comparison_confirmed"),
+        "validation_status": prepared.get("validation_status"),
+        "validation_results": prepared.get("validation_results"),
+        "limitations": prepared.get("limitations"),
+    }
+    return f"xsubvalid_{sha256_canonical_json(material)[:32]}"
 
 
 class BenchmarkFamilySpec(BaseModel):
@@ -768,9 +1031,7 @@ class BenchmarkFamilySpec(BaseModel):
     reliability_policy_summary: str
     non_regression_policy_summary: str
     subject_under_test_classes: list[SubjectUnderTestClass] = Field(min_length=1)
-    benchmark_output_epistemic_postures: list[BenchmarkOutputEpistemicPosture] = Field(
-        min_length=1
-    )
+    benchmark_output_epistemic_postures: list[BenchmarkOutputEpistemicPosture] = Field(min_length=1)
     diagnostic_posture: DiagnosticPosture
     implementation_posture: ImplementationPosture
 
@@ -823,9 +1084,7 @@ class BenchmarkFamilySpec(BaseModel):
         )
         expected_id = compute_benchmark_family_spec_id(_canonical_model_payload(self))
         if self.benchmark_family_spec_id != expected_id:
-            raise ValueError(
-                "benchmark_family_spec_id must match canonical family spec identity"
-            )
+            raise ValueError("benchmark_family_spec_id must match canonical family spec identity")
         return self
 
 
@@ -907,10 +1166,7 @@ class BenchmarkProjectionSpec(BaseModel):
                 field_name="projection_notes",
             ),
         )
-        if (
-            self.explicit_reintegration_trace_required
-            and not self.hierarchical_trace_required
-        ):
+        if self.explicit_reintegration_trace_required and not self.hierarchical_trace_required:
             raise ValueError(
                 "explicit_reintegration_trace_required requires hierarchical_trace_required"
             )
@@ -1016,16 +1272,13 @@ class BenchmarkValidationCaseResult(BaseModel):
                 _assert_non_empty_text(getattr(self, field_name), field_name=field_name),
             )
         expected_match = (
-            self.expected_dominant_failure_family
-            == self.observed_dominant_failure_family
+            self.expected_dominant_failure_family == self.observed_dominant_failure_family
         )
         if self.match != expected_match:
             raise ValueError(
                 "match must equal equality of expected and observed dominant failure family"
             )
-        expected_id = compute_benchmark_validation_case_result_id(
-            _canonical_model_payload(self)
-        )
+        expected_id = compute_benchmark_validation_case_result_id(_canonical_model_payload(self))
         if self.validation_case_result_id != expected_id:
             raise ValueError(
                 "validation_case_result_id must match canonical validation case identity"
@@ -1082,9 +1335,7 @@ class BenchmarkValidationReport(BaseModel):
             raise ValueError(
                 "all_expected_diagnostics_matched must equal conjunction of case matches"
             )
-        expected_id = compute_benchmark_validation_report_id(
-            _canonical_model_payload(self)
-        )
+        expected_id = compute_benchmark_validation_report_id(_canonical_model_payload(self))
         if self.benchmark_validation_report_id != expected_id:
             raise ValueError(
                 "benchmark_validation_report_id must match canonical validation report identity"
@@ -1141,9 +1392,7 @@ class ProceduralDepthStepSpec(BaseModel):
             if self.parent_step_ref is None:
                 raise ValueError("child step must declare parent_step_ref")
             if self.return_target_step_ref != self.parent_step_ref:
-                raise ValueError(
-                    "child step return_target_step_ref must equal parent_step_ref"
-                )
+                raise ValueError("child step return_target_step_ref must equal parent_step_ref")
             if self.required_child_step_refs:
                 raise ValueError("child step may not declare required_child_step_refs")
         else:
@@ -1274,9 +1523,7 @@ class ProceduralDepthInstance(BaseModel):
         root_steps = children_by_parent.get(None, [])
         root_refs = [step.step_ref for step in root_steps]
         if self.top_level_plan_spine != root_refs:
-            raise ValueError(
-                "top_level_plan_spine must match canonical ordered root step sequence"
-            )
+            raise ValueError("top_level_plan_spine must match canonical ordered root step sequence")
         if self.reference_chain_key != "hierarchical_3x3":
             raise ValueError("reference_chain_key must equal hierarchical_3x3")
         if len(root_steps) != 3 or len(self.top_level_plan_spine) != 3:
@@ -1302,9 +1549,7 @@ class ProceduralDepthInstance(BaseModel):
             if step.parent_step_ref != active_parent.step_ref:
                 raise ValueError("child parent_step_ref must equal active_parent step_ref")
             if step.return_target_step_ref != active_parent.step_ref:
-                raise ValueError(
-                    "child return_target_step_ref must equal active_parent step_ref"
-                )
+                raise ValueError("child return_target_step_ref must equal active_parent step_ref")
         for step in top_level_steps:
             if step.required_child_step_refs:
                 raise ValueError("top_level root steps may not declare child refs")
@@ -1322,9 +1567,7 @@ class ProceduralDepthInstance(BaseModel):
         object.__setattr__(self, "step_specs", [step_map[step_ref] for step_ref in canonical_order])
         expected_id = compute_procedural_depth_instance_id(_canonical_model_payload(self))
         if self.procedural_depth_instance_id != expected_id:
-            raise ValueError(
-                "procedural_depth_instance_id must match canonical instance identity"
-            )
+            raise ValueError("procedural_depth_instance_id must match canonical instance identity")
         return self
 
 
@@ -1484,9 +1727,7 @@ class ProceduralDepthMetrics(BaseModel):
             )
         expected_id = compute_procedural_depth_metrics_id(_canonical_model_payload(self))
         if self.procedural_depth_metrics_id != expected_id:
-            raise ValueError(
-                "procedural_depth_metrics_id must match canonical metrics identity"
-            )
+            raise ValueError("procedural_depth_metrics_id must match canonical metrics identity")
         return self
 
 
@@ -1533,9 +1774,7 @@ class ProceduralDepthDiagnosticReport(BaseModel):
             "limitations",
             _sorted_unique_texts(self.limitations, field_name="limitations"),
         )
-        expected_id = compute_procedural_depth_diagnostic_report_id(
-            _canonical_model_payload(self)
-        )
+        expected_id = compute_procedural_depth_diagnostic_report_id(_canonical_model_payload(self))
         if self.procedural_depth_diagnostic_report_id != expected_id:
             raise ValueError(
                 "procedural_depth_diagnostic_report_id must match canonical diagnostic identity"
@@ -1600,18 +1839,14 @@ class ProceduralDepthPerturbationCase(BaseModel):
             )
         if self.expected_dominant_failure_family == "clean_success":
             if self.expected_terminal_trace_status != "completed_clean":
-                raise ValueError(
-                    "clean_success perturbation cases must expect completed_clean"
-                )
+                raise ValueError("clean_success perturbation cases must expect completed_clean")
         elif self.expected_terminal_trace_status != "completed_with_structural_break":
             raise ValueError(
                 "starter structural-break perturbation cases must expect "
                 "completed_with_structural_break"
             )
         object.__setattr__(self, "notes", _sorted_unique_texts(self.notes, field_name="notes"))
-        expected_id = compute_procedural_depth_perturbation_case_id(
-            _canonical_model_payload(self)
-        )
+        expected_id = compute_procedural_depth_perturbation_case_id(_canonical_model_payload(self))
         if self.procedural_depth_perturbation_case_id != expected_id:
             raise ValueError(
                 "procedural_depth_perturbation_case_id must match canonical perturbation identity"
@@ -1691,9 +1926,7 @@ class ProceduralDepthFailureTopology(BaseModel):
             raise ValueError("evaluated_cases perturbation_case_ref values must be unique")
         object.__setattr__(self, "evaluated_cases", ordered_cases)
         object.__setattr__(self, "notes", _sorted_unique_texts(self.notes, field_name="notes"))
-        expected_id = compute_procedural_depth_failure_topology_id(
-            _canonical_model_payload(self)
-        )
+        expected_id = compute_procedural_depth_failure_topology_id(_canonical_model_payload(self))
         if self.procedural_depth_failure_topology_id != expected_id:
             raise ValueError(
                 "procedural_depth_failure_topology_id must match canonical topology identity"
@@ -1918,9 +2151,7 @@ class ProceduralDepthBenchmarkValidationReport(BaseModel):
         )
         case_refs = [item.perturbation_case_ref for item in ordered_cases]
         if len(case_refs) != len(set(case_refs)):
-            raise ValueError(
-                "validation_case_results perturbation_case_ref values must be unique"
-            )
+            raise ValueError("validation_case_results perturbation_case_ref values must be unique")
         if any(len(item.replay_results) != self.replay_count for item in ordered_cases):
             raise ValueError("replay_count must match every validation case replay_results length")
         object.__setattr__(self, "validation_case_results", ordered_cases)
@@ -1931,10 +2162,8 @@ class ProceduralDepthBenchmarkValidationReport(BaseModel):
         )
         expected_deterministic = all(
             item.deterministic_replay_confirmed
-            and item.expected_dominant_failure_family
-            == item.observed_dominant_failure_family
-            and item.expected_terminal_trace_status
-            == item.observed_terminal_trace_status
+            and item.expected_dominant_failure_family == item.observed_dominant_failure_family
+            and item.expected_terminal_trace_status == item.observed_terminal_trace_status
             for item in self.validation_case_results
         )
         if self.deterministic_replay_confirmed != expected_deterministic:
@@ -1949,6 +2178,381 @@ class ProceduralDepthBenchmarkValidationReport(BaseModel):
             raise ValueError(
                 "procedural_depth_benchmark_validation_report_id must match "
                 "canonical validation identity"
+            )
+        return self
+
+
+class BenchmarkSubjectRecord(BaseModel):
+    model_config = MODEL_CONFIG
+
+    schema_id: Literal[ADEU_BENCHMARK_SUBJECT_RECORD_SCHEMA] = Field(
+        default=ADEU_BENCHMARK_SUBJECT_RECORD_SCHEMA,
+        alias="schema",
+    )
+    benchmark_subject_record_id: str
+    subject_class: SubjectUnderTestClass
+    subject_label: str
+    subject_identity_ref: str
+    benchmark_family_spec_ref: str
+    benchmark_projection_spec_ref: str
+    benchmark_execution_context_ref: str
+    perturbation_bundle_ref: str
+    perturbation_case_refs: list[str] = Field(min_length=1)
+    baseline_instance_ref: str
+    baseline_run_trace_ref: str
+    baseline_metric_ref: str
+    baseline_diagnostic_report_ref: str
+    perturbation_non_regression_report_ref: str
+    perturbation_benchmark_validation_report_ref: str
+    notes: list[str] = Field(default_factory=list)
+
+    @model_validator(mode="after")
+    def _validate_model(self) -> "BenchmarkSubjectRecord":
+        for field_name in (
+            "benchmark_subject_record_id",
+            "subject_label",
+            "subject_identity_ref",
+            "benchmark_family_spec_ref",
+            "benchmark_projection_spec_ref",
+            "benchmark_execution_context_ref",
+            "perturbation_bundle_ref",
+            "baseline_instance_ref",
+            "baseline_run_trace_ref",
+            "baseline_metric_ref",
+            "baseline_diagnostic_report_ref",
+            "perturbation_non_regression_report_ref",
+            "perturbation_benchmark_validation_report_ref",
+        ):
+            object.__setattr__(
+                self,
+                field_name,
+                _assert_non_empty_text(getattr(self, field_name), field_name=field_name),
+            )
+        object.__setattr__(
+            self,
+            "perturbation_case_refs",
+            _ordered_unique_texts(
+                self.perturbation_case_refs,
+                field_name="perturbation_case_refs",
+            ),
+        )
+        expected_bundle_ref = compute_procedural_depth_perturbation_bundle_ref(
+            baseline_instance_ref=self.baseline_instance_ref,
+            perturbation_case_refs=self.perturbation_case_refs,
+        )
+        if self.perturbation_bundle_ref != expected_bundle_ref:
+            raise ValueError(
+                "perturbation_bundle_ref must match canonical bundle identity over "
+                "baseline_instance_ref and perturbation_case_refs"
+            )
+        object.__setattr__(self, "notes", _sorted_unique_texts(self.notes, field_name="notes"))
+        expected_id = compute_benchmark_subject_record_id(_canonical_model_payload(self))
+        if self.benchmark_subject_record_id != expected_id:
+            raise ValueError("benchmark_subject_record_id must match canonical subject identity")
+        return self
+
+
+class CrossSubjectComparisonCase(BaseModel):
+    model_config = MODEL_CONFIG
+
+    schema_id: Literal[ADEU_CROSS_SUBJECT_COMPARISON_CASE_SCHEMA] = Field(
+        default=ADEU_CROSS_SUBJECT_COMPARISON_CASE_SCHEMA,
+        alias="schema",
+    )
+    cross_subject_comparison_case_id: str
+    comparison_label: str
+    left_subject_ref: str
+    right_subject_ref: str
+    benchmark_family_spec_ref: str
+    benchmark_projection_spec_ref: str
+    baseline_instance_ref: str
+    required_execution_context_compatibility_fields: list[ExecutionContextCompatibilityField] = (
+        Field(min_length=1)
+    )
+    perturbation_case_refs: list[str] = Field(min_length=1)
+    required_comparison_surfaces: list[ComparisonSurface] = Field(min_length=1)
+    notes: list[str] = Field(default_factory=list)
+
+    @model_validator(mode="after")
+    def _validate_model(self) -> "CrossSubjectComparisonCase":
+        for field_name in (
+            "cross_subject_comparison_case_id",
+            "comparison_label",
+            "left_subject_ref",
+            "right_subject_ref",
+            "benchmark_family_spec_ref",
+            "benchmark_projection_spec_ref",
+            "baseline_instance_ref",
+        ):
+            object.__setattr__(
+                self,
+                field_name,
+                _assert_non_empty_text(getattr(self, field_name), field_name=field_name),
+            )
+        if self.left_subject_ref == self.right_subject_ref:
+            raise ValueError("left_subject_ref and right_subject_ref must differ")
+        object.__setattr__(
+            self,
+            "required_execution_context_compatibility_fields",
+            _exact_ordered_vocabulary(
+                list(self.required_execution_context_compatibility_fields),
+                expected_order=EXECUTION_CONTEXT_COMPATIBILITY_FIELD_VOCABULARY,
+                field_name="required_execution_context_compatibility_fields",
+            ),
+        )
+        object.__setattr__(
+            self,
+            "perturbation_case_refs",
+            _ordered_unique_texts(
+                self.perturbation_case_refs,
+                field_name="perturbation_case_refs",
+            ),
+        )
+        object.__setattr__(
+            self,
+            "required_comparison_surfaces",
+            _exact_ordered_vocabulary(
+                list(self.required_comparison_surfaces),
+                expected_order=COMPARISON_SURFACE_VOCABULARY,
+                field_name="required_comparison_surfaces",
+            ),
+        )
+        object.__setattr__(self, "notes", _sorted_unique_texts(self.notes, field_name="notes"))
+        expected_id = compute_cross_subject_comparison_case_id(_canonical_model_payload(self))
+        if self.cross_subject_comparison_case_id != expected_id:
+            raise ValueError(
+                "cross_subject_comparison_case_id must match canonical comparison-case identity"
+            )
+        return self
+
+
+class CrossSubjectSubjectSummary(BaseModel):
+    model_config = MODEL_CONFIG
+
+    subject_record_ref: str
+    baseline_metric_ref: str
+    baseline_diagnostic_report_ref: str
+    perturbation_non_regression_report_ref: str
+    perturbation_benchmark_validation_report_ref: str
+
+    @model_validator(mode="after")
+    def _validate_model(self) -> "CrossSubjectSubjectSummary":
+        for field_name in (
+            "subject_record_ref",
+            "baseline_metric_ref",
+            "baseline_diagnostic_report_ref",
+            "perturbation_non_regression_report_ref",
+            "perturbation_benchmark_validation_report_ref",
+        ):
+            object.__setattr__(
+                self,
+                field_name,
+                _assert_non_empty_text(getattr(self, field_name), field_name=field_name),
+            )
+        return self
+
+
+class CrossSubjectFieldComparison(BaseModel):
+    model_config = MODEL_CONFIG
+
+    comparison_surface: ComparisonSurface
+    left_ref: str
+    right_ref: str
+    match_status: ComparisonMatchStatus
+    difference_summary: str
+
+    @model_validator(mode="after")
+    def _validate_model(self) -> "CrossSubjectFieldComparison":
+        for field_name in ("left_ref", "right_ref", "difference_summary"):
+            object.__setattr__(
+                self,
+                field_name,
+                _assert_non_empty_text(getattr(self, field_name), field_name=field_name),
+            )
+        if self.left_ref == self.right_ref and self.match_status == "different_but_comparable":
+            raise ValueError(
+                "different_but_comparable requires distinct left_ref and right_ref values"
+            )
+        return self
+
+
+class CrossSubjectComparisonReport(BaseModel):
+    model_config = MODEL_CONFIG
+
+    schema_id: Literal[ADEU_CROSS_SUBJECT_COMPARISON_REPORT_SCHEMA] = Field(
+        default=ADEU_CROSS_SUBJECT_COMPARISON_REPORT_SCHEMA,
+        alias="schema",
+    )
+    cross_subject_comparison_report_id: str
+    comparison_case_ref: str
+    comparison_status: ComparisonStatus
+    subject_summaries: list[CrossSubjectSubjectSummary] = Field(min_length=2, max_length=2)
+    field_comparisons: list[CrossSubjectFieldComparison] = Field(min_length=1)
+    supporting_artifact_refs: list[str] = Field(min_length=1)
+    comparison_summary: str
+    notes: list[str] = Field(default_factory=list)
+
+    @model_validator(mode="after")
+    def _validate_model(self) -> "CrossSubjectComparisonReport":
+        for field_name in (
+            "cross_subject_comparison_report_id",
+            "comparison_case_ref",
+            "comparison_summary",
+        ):
+            object.__setattr__(
+                self,
+                field_name,
+                _assert_non_empty_text(getattr(self, field_name), field_name=field_name),
+            )
+        ordered_subject_summaries = sorted(
+            self.subject_summaries,
+            key=lambda item: item.subject_record_ref,
+        )
+        subject_refs = [item.subject_record_ref for item in ordered_subject_summaries]
+        if len(subject_refs) != len(set(subject_refs)):
+            raise ValueError("subject_summaries subject_record_ref values must be unique")
+        object.__setattr__(self, "subject_summaries", ordered_subject_summaries)
+        ordered_field_comparisons = sorted(
+            self.field_comparisons,
+            key=lambda item: (
+                COMPARISON_SURFACE_VOCABULARY.index(item.comparison_surface),
+                item.left_ref,
+                item.right_ref,
+            ),
+        )
+        surfaces = [item.comparison_surface for item in ordered_field_comparisons]
+        if surfaces != COMPARISON_SURFACE_VOCABULARY:
+            raise ValueError(
+                "field_comparisons must cover the starter comparison surfaces exactly once"
+            )
+        object.__setattr__(self, "field_comparisons", ordered_field_comparisons)
+        object.__setattr__(
+            self,
+            "supporting_artifact_refs",
+            _ordered_unique_texts(
+                self.supporting_artifact_refs,
+                field_name="supporting_artifact_refs",
+            ),
+        )
+        object.__setattr__(self, "notes", _sorted_unique_texts(self.notes, field_name="notes"))
+        has_incompatible = self.comparison_status == "comparison_incompatible"
+        has_insufficient = any(
+            item.match_status == "insufficient_evidence" for item in self.field_comparisons
+        )
+        if has_incompatible and not has_insufficient:
+            raise ValueError(
+                "comparison_incompatible requires at least one "
+                "insufficient_evidence field comparison"
+            )
+        if self.comparison_status == "comparison_ready_clean" and has_insufficient:
+            raise ValueError(
+                "comparison_ready_clean requires every field comparison to stay comparable"
+            )
+        expected_id = compute_cross_subject_comparison_report_id(_canonical_model_payload(self))
+        if self.cross_subject_comparison_report_id != expected_id:
+            raise ValueError(
+                "cross_subject_comparison_report_id must match canonical comparison identity"
+            )
+        return self
+
+
+class CrossSubjectComparisonValidationResult(BaseModel):
+    model_config = MODEL_CONFIG
+
+    comparison_surface: ComparisonSurface
+    left_ref: str
+    right_ref: str
+    comparison_status: ComparisonMatchStatus
+    deterministic_comparison_confirmed: bool
+
+    @model_validator(mode="after")
+    def _validate_model(self) -> "CrossSubjectComparisonValidationResult":
+        for field_name in ("left_ref", "right_ref"):
+            object.__setattr__(
+                self,
+                field_name,
+                _assert_non_empty_text(getattr(self, field_name), field_name=field_name),
+            )
+        if (
+            self.comparison_status == "insufficient_evidence"
+            and self.deterministic_comparison_confirmed
+        ):
+            raise ValueError(
+                "insufficient_evidence validation results may not claim deterministic comparison"
+            )
+        return self
+
+
+class CrossSubjectComparisonValidationReport(BaseModel):
+    model_config = MODEL_CONFIG
+
+    schema_id: Literal[ADEU_CROSS_SUBJECT_COMPARISON_VALIDATION_REPORT_SCHEMA] = Field(
+        default=ADEU_CROSS_SUBJECT_COMPARISON_VALIDATION_REPORT_SCHEMA,
+        alias="schema",
+    )
+    cross_subject_comparison_validation_report_id: str
+    comparison_case_ref: str
+    deterministic_comparison_confirmed: bool
+    validation_status: ComparisonValidationStatus
+    validation_results: list[CrossSubjectComparisonValidationResult] = Field(min_length=1)
+    limitations: list[str] = Field(min_length=1)
+
+    @model_validator(mode="after")
+    def _validate_model(self) -> "CrossSubjectComparisonValidationReport":
+        for field_name in (
+            "cross_subject_comparison_validation_report_id",
+            "comparison_case_ref",
+        ):
+            object.__setattr__(
+                self,
+                field_name,
+                _assert_non_empty_text(getattr(self, field_name), field_name=field_name),
+            )
+        ordered_results = sorted(
+            self.validation_results,
+            key=lambda item: (
+                COMPARISON_SURFACE_VOCABULARY.index(item.comparison_surface),
+                item.left_ref,
+                item.right_ref,
+            ),
+        )
+        surfaces = [item.comparison_surface for item in ordered_results]
+        if surfaces != COMPARISON_SURFACE_VOCABULARY:
+            raise ValueError(
+                "validation_results must cover the starter comparison surfaces exactly once"
+            )
+        object.__setattr__(self, "validation_results", ordered_results)
+        object.__setattr__(
+            self,
+            "limitations",
+            _sorted_unique_texts(self.limitations, field_name="limitations"),
+        )
+        expected_deterministic = all(
+            item.deterministic_comparison_confirmed for item in self.validation_results
+        )
+        if self.deterministic_comparison_confirmed != expected_deterministic:
+            raise ValueError(
+                "deterministic_comparison_confirmed must equal conjunction of validation results"
+            )
+        has_insufficient = any(
+            item.comparison_status == "insufficient_evidence" for item in self.validation_results
+        )
+        expected_status: ComparisonValidationStatus
+        if has_insufficient:
+            expected_status = "validation_incompatible"
+        elif self.deterministic_comparison_confirmed:
+            expected_status = "validation_ready_clean"
+        else:
+            expected_status = "validation_insufficient"
+        if self.validation_status != expected_status:
+            raise ValueError("validation_status must match the starter validation aggregation law")
+        expected_id = compute_cross_subject_comparison_validation_report_id(
+            _canonical_model_payload(self)
+        )
+        if self.cross_subject_comparison_validation_report_id != expected_id:
+            raise ValueError(
+                "cross_subject_comparison_validation_report_id must match canonical "
+                "comparison validation identity"
             )
         return self
 
@@ -2017,9 +2621,7 @@ def materialize_benchmark_validation_report_payload(
             compute_benchmark_validation_case_result_id(case_material),
         )
         case_results.append(
-            _canonical_model_payload(
-                BenchmarkValidationCaseResult.model_validate(case_material)
-            )
+            _canonical_model_payload(BenchmarkValidationCaseResult.model_validate(case_material))
         )
     prepared["validation_case_results"] = case_results
     prepared.setdefault(
@@ -2047,9 +2649,7 @@ def _canonicalize_instance_material(payload: dict[str, Any]) -> dict[str, Any]:
         "instance_label",
         "repo_snapshot_ref",
     ):
-        prepared[field_name] = _assert_non_empty_text(
-            prepared[field_name], field_name=field_name
-        )
+        prepared[field_name] = _assert_non_empty_text(prepared[field_name], field_name=field_name)
     prepared["top_level_plan_spine"] = _ordered_unique_texts(
         list(prepared.get("top_level_plan_spine", [])),
         field_name="top_level_plan_spine",
@@ -2168,10 +2768,7 @@ def canonicalize_procedural_depth_run_trace_payload(payload: dict[str, Any]) -> 
 def _canonicalize_supporting_event_refs(
     payloads: list[dict[str, Any]],
 ) -> list[dict[str, Any]]:
-    refs = [
-        ProceduralDepthSupportingEventRef.model_validate(payload)
-        for payload in payloads
-    ]
+    refs = [ProceduralDepthSupportingEventRef.model_validate(payload) for payload in payloads]
     refs = sorted(
         refs,
         key=lambda entry: (
@@ -2204,17 +2801,13 @@ def materialize_procedural_depth_diagnostic_report_payload(
         "procedural_depth_diagnostic_report_id",
         compute_procedural_depth_diagnostic_report_id(prepared),
     )
-    return _canonical_model_payload(
-        ProceduralDepthDiagnosticReport.model_validate(prepared)
-    )
+    return _canonical_model_payload(ProceduralDepthDiagnosticReport.model_validate(prepared))
 
 
 def canonicalize_procedural_depth_diagnostic_report_payload(
     payload: dict[str, Any],
 ) -> dict[str, Any]:
-    return _canonical_model_payload(
-        ProceduralDepthDiagnosticReport.model_validate(payload)
-    )
+    return _canonical_model_payload(ProceduralDepthDiagnosticReport.model_validate(payload))
 
 
 def materialize_procedural_depth_perturbation_case_payload(
@@ -2225,17 +2818,13 @@ def materialize_procedural_depth_perturbation_case_payload(
         "procedural_depth_perturbation_case_id",
         compute_procedural_depth_perturbation_case_id(prepared),
     )
-    return _canonical_model_payload(
-        ProceduralDepthPerturbationCase.model_validate(prepared)
-    )
+    return _canonical_model_payload(ProceduralDepthPerturbationCase.model_validate(prepared))
 
 
 def canonicalize_procedural_depth_perturbation_case_payload(
     payload: dict[str, Any],
 ) -> dict[str, Any]:
-    return _canonical_model_payload(
-        ProceduralDepthPerturbationCase.model_validate(payload)
-    )
+    return _canonical_model_payload(ProceduralDepthPerturbationCase.model_validate(payload))
 
 
 def materialize_procedural_depth_failure_topology_payload(
@@ -2263,25 +2852,19 @@ def materialize_procedural_depth_non_regression_report_payload(
         "procedural_depth_non_regression_report_id",
         compute_procedural_depth_non_regression_report_id(prepared),
     )
-    return _canonical_model_payload(
-        ProceduralDepthNonRegressionReport.model_validate(prepared)
-    )
+    return _canonical_model_payload(ProceduralDepthNonRegressionReport.model_validate(prepared))
 
 
 def canonicalize_procedural_depth_non_regression_report_payload(
     payload: dict[str, Any],
 ) -> dict[str, Any]:
-    return _canonical_model_payload(
-        ProceduralDepthNonRegressionReport.model_validate(payload)
-    )
+    return _canonical_model_payload(ProceduralDepthNonRegressionReport.model_validate(payload))
 
 
 def materialize_procedural_depth_benchmark_validation_report_payload(
     payload: dict[str, Any],
 ) -> dict[str, Any]:
-    prepared = _canonicalize_procedural_depth_benchmark_validation_report_material(
-        payload
-    )
+    prepared = _canonicalize_procedural_depth_benchmark_validation_report_material(payload)
     prepared.setdefault(
         "procedural_depth_benchmark_validation_report_id",
         compute_procedural_depth_benchmark_validation_report_id(prepared),
@@ -2299,6 +2882,74 @@ def canonicalize_procedural_depth_benchmark_validation_report_payload(
     )
 
 
+def materialize_benchmark_subject_record_payload(
+    payload: dict[str, Any],
+) -> dict[str, Any]:
+    prepared = _canonicalize_benchmark_subject_record_material(payload)
+    prepared.setdefault(
+        "benchmark_subject_record_id",
+        compute_benchmark_subject_record_id(prepared),
+    )
+    return _canonical_model_payload(BenchmarkSubjectRecord.model_validate(prepared))
+
+
+def canonicalize_benchmark_subject_record_payload(
+    payload: dict[str, Any],
+) -> dict[str, Any]:
+    return _canonical_model_payload(BenchmarkSubjectRecord.model_validate(payload))
+
+
+def materialize_cross_subject_comparison_case_payload(
+    payload: dict[str, Any],
+) -> dict[str, Any]:
+    prepared = _canonicalize_cross_subject_comparison_case_material(payload)
+    prepared.setdefault(
+        "cross_subject_comparison_case_id",
+        compute_cross_subject_comparison_case_id(prepared),
+    )
+    return _canonical_model_payload(CrossSubjectComparisonCase.model_validate(prepared))
+
+
+def canonicalize_cross_subject_comparison_case_payload(
+    payload: dict[str, Any],
+) -> dict[str, Any]:
+    return _canonical_model_payload(CrossSubjectComparisonCase.model_validate(payload))
+
+
+def materialize_cross_subject_comparison_report_payload(
+    payload: dict[str, Any],
+) -> dict[str, Any]:
+    prepared = _canonicalize_cross_subject_comparison_report_material(payload)
+    prepared.setdefault(
+        "cross_subject_comparison_report_id",
+        compute_cross_subject_comparison_report_id(prepared),
+    )
+    return _canonical_model_payload(CrossSubjectComparisonReport.model_validate(prepared))
+
+
+def canonicalize_cross_subject_comparison_report_payload(
+    payload: dict[str, Any],
+) -> dict[str, Any]:
+    return _canonical_model_payload(CrossSubjectComparisonReport.model_validate(payload))
+
+
+def materialize_cross_subject_comparison_validation_report_payload(
+    payload: dict[str, Any],
+) -> dict[str, Any]:
+    prepared = _canonicalize_cross_subject_comparison_validation_report_material(payload)
+    prepared.setdefault(
+        "cross_subject_comparison_validation_report_id",
+        compute_cross_subject_comparison_validation_report_id(prepared),
+    )
+    return _canonical_model_payload(CrossSubjectComparisonValidationReport.model_validate(prepared))
+
+
+def canonicalize_cross_subject_comparison_validation_report_payload(
+    payload: dict[str, Any],
+) -> dict[str, Any]:
+    return _canonical_model_payload(CrossSubjectComparisonValidationReport.model_validate(payload))
+
+
 def derive_benchmark_validation_report(
     *,
     benchmark_projection_spec_ref: str,
@@ -2310,12 +2961,8 @@ def derive_benchmark_validation_report(
         {
             "case_label": expectation["case_label"],
             "case_ref": expectation["case_ref"],
-            "expected_dominant_failure_family": expectation[
-                "expected_dominant_failure_family"
-            ],
-            "observed_dominant_failure_family": expectation[
-                "observed_dominant_failure_family"
-            ],
+            "expected_dominant_failure_family": expectation["expected_dominant_failure_family"],
+            "observed_dominant_failure_family": expectation["observed_dominant_failure_family"],
             "match": expectation["expected_dominant_failure_family"]
             == expectation["observed_dominant_failure_family"],
         }
