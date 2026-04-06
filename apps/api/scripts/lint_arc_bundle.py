@@ -85,7 +85,8 @@ def _parse_args(argv: list[str]) -> argparse.Namespace:
 def _repo_root_from_script() -> Path:
     current = Path(__file__).resolve()
     for parent in current.parents:
-        if (parent / ".git").is_dir():
+        git_marker = parent / ".git"
+        if git_marker.is_dir() or git_marker.is_file():
             return parent
     raise FileNotFoundError("repository root not found from script location")
 
