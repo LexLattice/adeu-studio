@@ -11,7 +11,11 @@ from .models import (
     ADEU_BENCHMARK_EXECUTION_CONTEXT_SCHEMA,
     ADEU_BENCHMARK_FAMILY_SPEC_SCHEMA,
     ADEU_BENCHMARK_PROJECTION_SPEC_SCHEMA,
+    ADEU_BENCHMARK_SUBJECT_RECORD_SCHEMA,
     ADEU_BENCHMARK_VALIDATION_REPORT_SCHEMA,
+    ADEU_CROSS_SUBJECT_COMPARISON_CASE_SCHEMA,
+    ADEU_CROSS_SUBJECT_COMPARISON_REPORT_SCHEMA,
+    ADEU_CROSS_SUBJECT_COMPARISON_VALIDATION_REPORT_SCHEMA,
     ADEU_PROCEDURAL_DEPTH_BENCHMARK_VALIDATION_REPORT_SCHEMA,
     ADEU_PROCEDURAL_DEPTH_DIAGNOSTIC_REPORT_SCHEMA,
     ADEU_PROCEDURAL_DEPTH_FAILURE_TOPOLOGY_SCHEMA,
@@ -24,7 +28,11 @@ from .models import (
     BenchmarkExecutionContext,
     BenchmarkFamilySpec,
     BenchmarkProjectionSpec,
+    BenchmarkSubjectRecord,
     BenchmarkValidationReport,
+    CrossSubjectComparisonCase,
+    CrossSubjectComparisonReport,
+    CrossSubjectComparisonValidationReport,
     ProceduralDepthBenchmarkValidationReport,
     ProceduralDepthDiagnosticReport,
     ProceduralDepthFailureTopology,
@@ -130,6 +138,16 @@ def main() -> None:
             root / "spec" / "adeu_benchmark_validation_report.schema.json",
         ),
         (
+            BenchmarkSubjectRecord,
+            ADEU_BENCHMARK_SUBJECT_RECORD_SCHEMA,
+            root
+            / "packages"
+            / "adeu_benchmarking"
+            / "schema"
+            / "adeu_benchmark_subject_record.v1.json",
+            root / "spec" / "adeu_benchmark_subject_record.schema.json",
+        ),
+        (
             ProceduralDepthInstance,
             ADEU_PROCEDURAL_DEPTH_INSTANCE_SCHEMA,
             root
@@ -220,6 +238,38 @@ def main() -> None:
             root
             / "spec"
             / "adeu_procedural_depth_benchmark_validation_report.schema.json",
+        ),
+        (
+            CrossSubjectComparisonCase,
+            ADEU_CROSS_SUBJECT_COMPARISON_CASE_SCHEMA,
+            root
+            / "packages"
+            / "adeu_benchmarking"
+            / "schema"
+            / "adeu_cross_subject_comparison_case.v1.json",
+            root / "spec" / "adeu_cross_subject_comparison_case.schema.json",
+        ),
+        (
+            CrossSubjectComparisonReport,
+            ADEU_CROSS_SUBJECT_COMPARISON_REPORT_SCHEMA,
+            root
+            / "packages"
+            / "adeu_benchmarking"
+            / "schema"
+            / "adeu_cross_subject_comparison_report.v1.json",
+            root / "spec" / "adeu_cross_subject_comparison_report.schema.json",
+        ),
+        (
+            CrossSubjectComparisonValidationReport,
+            ADEU_CROSS_SUBJECT_COMPARISON_VALIDATION_REPORT_SCHEMA,
+            root
+            / "packages"
+            / "adeu_benchmarking"
+            / "schema"
+            / "adeu_cross_subject_comparison_validation_report.v1.json",
+            root
+            / "spec"
+            / "adeu_cross_subject_comparison_validation_report.schema.json",
         ),
     ]
 

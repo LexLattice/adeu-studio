@@ -1,0 +1,17 @@
+{
+  "benchmark_execution_context_id": "benchctx_eed562817a8a6fab90dbd347d343d5d4",
+  "context_budget_posture": "fixed_context_budget_declared",
+  "determinism_posture": "deterministic_fixed_context",
+  "notes": [
+    "starter v46d base-model comparison context"
+  ],
+  "repo_snapshot_ref": "git:main@1528aee",
+  "schema": "adeu_benchmark_execution_context@1",
+  "subject_label": "gpt-5.4 base procedural-depth starter",
+  "subject_under_test_class": "base_model",
+  "subject_version": "gpt-5.4",
+  "tool_availability": [
+    "filesystem_read_only",
+    "structured_json_output"
+  ]
+}

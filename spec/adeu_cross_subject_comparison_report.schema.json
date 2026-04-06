@@ -1,0 +1,155 @@
+{
+  "$defs": {
+    "CrossSubjectFieldComparison": {
+      "additionalProperties": false,
+      "properties": {
+        "comparison_surface": {
+          "enum": [
+            "baseline_structural_fidelity",
+            "perturbation_non_regression",
+            "perturbation_validation"
+          ],
+          "title": "Comparison Surface",
+          "type": "string"
+        },
+        "difference_summary": {
+          "title": "Difference Summary",
+          "type": "string"
+        },
+        "left_ref": {
+          "title": "Left Ref",
+          "type": "string"
+        },
+        "match_status": {
+          "enum": [
+            "exact_match",
+            "different_but_comparable",
+            "insufficient_evidence"
+          ],
+          "title": "Match Status",
+          "type": "string"
+        },
+        "right_ref": {
+          "title": "Right Ref",
+          "type": "string"
+        }
+      },
+      "required": [
+        "comparison_surface",
+        "left_ref",
+        "right_ref",
+        "match_status",
+        "difference_summary"
+      ],
+      "title": "CrossSubjectFieldComparison",
+      "type": "object"
+    },
+    "CrossSubjectSubjectSummary": {
+      "additionalProperties": false,
+      "properties": {
+        "baseline_diagnostic_report_ref": {
+          "title": "Baseline Diagnostic Report Ref",
+          "type": "string"
+        },
+        "baseline_metric_ref": {
+          "title": "Baseline Metric Ref",
+          "type": "string"
+        },
+        "perturbation_benchmark_validation_report_ref": {
+          "title": "Perturbation Benchmark Validation Report Ref",
+          "type": "string"
+        },
+        "perturbation_non_regression_report_ref": {
+          "title": "Perturbation Non Regression Report Ref",
+          "type": "string"
+        },
+        "subject_record_ref": {
+          "title": "Subject Record Ref",
+          "type": "string"
+        }
+      },
+      "required": [
+        "subject_record_ref",
+        "baseline_metric_ref",
+        "baseline_diagnostic_report_ref",
+        "perturbation_non_regression_report_ref",
+        "perturbation_benchmark_validation_report_ref"
+      ],
+      "title": "CrossSubjectSubjectSummary",
+      "type": "object"
+    }
+  },
+  "additionalProperties": false,
+  "properties": {
+    "comparison_case_ref": {
+      "title": "Comparison Case Ref",
+      "type": "string"
+    },
+    "comparison_status": {
+      "enum": [
+        "comparison_ready_clean",
+        "comparison_insufficient",
+        "comparison_incompatible"
+      ],
+      "title": "Comparison Status",
+      "type": "string"
+    },
+    "comparison_summary": {
+      "title": "Comparison Summary",
+      "type": "string"
+    },
+    "cross_subject_comparison_report_id": {
+      "title": "Cross Subject Comparison Report Id",
+      "type": "string"
+    },
+    "field_comparisons": {
+      "items": {
+        "$ref": "#/$defs/CrossSubjectFieldComparison"
+      },
+      "minItems": 1,
+      "title": "Field Comparisons",
+      "type": "array"
+    },
+    "notes": {
+      "items": {
+        "type": "string"
+      },
+      "title": "Notes",
+      "type": "array"
+    },
+    "schema": {
+      "const": "adeu_cross_subject_comparison_report@1",
+      "default": "adeu_cross_subject_comparison_report@1",
+      "title": "Schema",
+      "type": "string"
+    },
+    "subject_summaries": {
+      "items": {
+        "$ref": "#/$defs/CrossSubjectSubjectSummary"
+      },
+      "maxItems": 2,
+      "minItems": 2,
+      "title": "Subject Summaries",
+      "type": "array"
+    },
+    "supporting_artifact_refs": {
+      "items": {
+        "type": "string"
+      },
+      "minItems": 1,
+      "title": "Supporting Artifact Refs",
+      "type": "array"
+    }
+  },
+  "required": [
+    "cross_subject_comparison_report_id",
+    "comparison_case_ref",
+    "comparison_status",
+    "subject_summaries",
+    "field_comparisons",
+    "supporting_artifact_refs",
+    "comparison_summary"
+  ],
+  "title": "CrossSubjectComparisonReport",
+  "type": "object"
+}

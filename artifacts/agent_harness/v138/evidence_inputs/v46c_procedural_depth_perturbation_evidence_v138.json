@@ -1,0 +1,79 @@
+{
+  "schema": "v46c_procedural_depth_perturbation_evidence@1",
+  "evidence_input_path": "artifacts/agent_harness/v138/evidence_inputs/v46c_procedural_depth_perturbation_evidence_v138.json",
+  "contract_source": "docs/LOCKED_CONTINUATION_vNEXT_PLUS138.md#v138-continuation-contract-machine-checkable",
+  "merged_pr": "#360",
+  "merge_commit": "a782dfdcadc264a8b879750374b8039436db7b45",
+  "implementation_commit": "bafac3712d401c81910e16dd364f3024ab6b972a",
+  "review_hardening_commit": "85c02d2bc348a1a96066e24c209a147ee6e4fc26",
+  "implementation_packages": [
+    "adeu_benchmarking"
+  ],
+  "benchmarking_package_root": "packages/adeu_benchmarking",
+  "benchmarking_pyproject_path": "packages/adeu_benchmarking/pyproject.toml",
+  "benchmarking_models_source_path": "packages/adeu_benchmarking/src/adeu_benchmarking/models.py",
+  "benchmarking_procedural_depth_source_path": "packages/adeu_benchmarking/src/adeu_benchmarking/procedural_depth.py",
+  "benchmarking_export_schema_source_path": "packages/adeu_benchmarking/src/adeu_benchmarking/export_schema.py",
+  "benchmarking_package_init_source_path": "packages/adeu_benchmarking/src/adeu_benchmarking/__init__.py",
+  "procedural_depth_perturbation_case_authoritative_schema_path": "packages/adeu_benchmarking/schema/adeu_procedural_depth_perturbation_case.v1.json",
+  "procedural_depth_failure_topology_authoritative_schema_path": "packages/adeu_benchmarking/schema/adeu_procedural_depth_failure_topology.v1.json",
+  "procedural_depth_non_regression_report_authoritative_schema_path": "packages/adeu_benchmarking/schema/adeu_procedural_depth_non_regression_report.v1.json",
+  "procedural_depth_benchmark_validation_report_authoritative_schema_path": "packages/adeu_benchmarking/schema/adeu_procedural_depth_benchmark_validation_report.v1.json",
+  "procedural_depth_perturbation_case_mirror_schema_path": "spec/adeu_procedural_depth_perturbation_case.schema.json",
+  "procedural_depth_failure_topology_mirror_schema_path": "spec/adeu_procedural_depth_failure_topology.schema.json",
+  "procedural_depth_non_regression_report_mirror_schema_path": "spec/adeu_procedural_depth_non_regression_report.schema.json",
+  "procedural_depth_benchmark_validation_report_mirror_schema_path": "spec/adeu_procedural_depth_benchmark_validation_report.schema.json",
+  "released_family_spec_fixture_path": "packages/adeu_benchmarking/tests/fixtures/v46a/reference_benchmark_family_spec.json",
+  "released_projection_spec_fixture_path": "packages/adeu_benchmarking/tests/fixtures/v46a/reference_benchmark_projection_spec.json",
+  "released_execution_context_fixture_path": "packages/adeu_benchmarking/tests/fixtures/v46a/reference_benchmark_execution_context.json",
+  "released_instance_fixture_path": "packages/adeu_benchmarking/tests/fixtures/v46b/reference_procedural_depth_instance.json",
+  "released_gold_trace_fixture_path": "packages/adeu_benchmarking/tests/fixtures/v46b/reference_procedural_depth_gold_trace.json",
+  "reference_branch_shift_case_fixture_path": "packages/adeu_benchmarking/tests/fixtures/v46c/reference_procedural_depth_perturbation_case_branch_shift.json",
+  "reference_delayed_constraint_case_fixture_path": "packages/adeu_benchmarking/tests/fixtures/v46c/reference_procedural_depth_perturbation_case_delayed_constraint.json",
+  "reference_paraphrase_preserving_case_fixture_path": "packages/adeu_benchmarking/tests/fixtures/v46c/reference_procedural_depth_perturbation_case_paraphrase_preserving.json",
+  "reference_failure_topology_fixture_path": "packages/adeu_benchmarking/tests/fixtures/v46c/reference_procedural_depth_failure_topology.json",
+  "reference_non_regression_stable_fixture_path": "packages/adeu_benchmarking/tests/fixtures/v46c/reference_procedural_depth_non_regression_report_stable.json",
+  "reference_non_regression_regression_fixture_path": "packages/adeu_benchmarking/tests/fixtures/v46c/reference_procedural_depth_non_regression_report_regression_detected.json",
+  "reference_validation_stable_fixture_path": "packages/adeu_benchmarking/tests/fixtures/v46c/reference_procedural_depth_benchmark_validation_report_stable.json",
+  "reference_validation_regression_fixture_path": "packages/adeu_benchmarking/tests/fixtures/v46c/reference_procedural_depth_benchmark_validation_report_regression_detected.json",
+  "reference_case_matrix_fixture_path": "packages/adeu_benchmarking/tests/fixtures/v46c/reference_v46c_case_matrix.json",
+  "reference_paraphrase_drift_run_fixture_path": "packages/adeu_benchmarking/tests/fixtures/v46c/reference_procedural_depth_run_trace_paraphrase_preserving_drift.json",
+  "reject_missing_output_summary_fixture_path": "packages/adeu_benchmarking/tests/fixtures/v46c/reject_procedural_depth_perturbation_case_paraphrase_missing_output_summary.json",
+  "reject_non_regression_replay_index_mismatch_fixture_path": "packages/adeu_benchmarking/tests/fixtures/v46c/reject_procedural_depth_non_regression_report_replay_index_mismatch.json",
+  "test_reference_path": "packages/adeu_benchmarking/tests/test_benchmarking_procedural_depth_perturbation.py",
+  "starter_schema_ids": [
+    "adeu_procedural_depth_perturbation_case@1",
+    "adeu_procedural_depth_failure_topology@1",
+    "adeu_procedural_depth_non_regression_report@1",
+    "adeu_procedural_depth_benchmark_validation_report@1"
+  ],
+  "starter_perturbation_kind_vocabulary": [
+    "branch_shift",
+    "delayed_constraint",
+    "paraphrase_preserving"
+  ],
+  "reused_v46b_dominant_failure_family_vocabulary": [
+    "clean_success",
+    "horizontal_plan_spine",
+    "vertical_active_step_compilation",
+    "reintegration",
+    "mixed"
+  ],
+  "reused_v46b_terminal_trace_status_vocabulary": [
+    "completed_clean",
+    "completed_with_structural_break"
+  ],
+  "starter_replay_count": 3,
+  "evaluation_context_posture": "deterministic_fixed_context",
+  "per_case_per_replay_aggregation_required": true,
+  "unknown_override_case_refs_fail_closed": true,
+  "top_level_validation_requires_expected_observed_agreement": true,
+  "targeted_local_checks": [
+    "PYTHONPATH=packages/adeu_benchmarking/src:packages/adeu_ir/src:packages/urm_runtime/src .venv/bin/python -m ruff check packages/adeu_benchmarking",
+    "PYTHONPATH=packages/adeu_benchmarking/src:packages/adeu_ir/src:packages/urm_runtime/src .venv/bin/python -m pytest packages/adeu_benchmarking/tests"
+  ],
+  "metric_key_continuity_assertion_path": "artifacts/agent_harness/v138/evidence_inputs/metric_key_continuity_assertion_v138.json",
+  "runtime_observability_comparison_path": "artifacts/agent_harness/v138/evidence_inputs/runtime_observability_comparison_v138.json",
+  "runtime_event_stream_path": "apps/api/tests/fixtures/urm_events/sample_valid.ndjson",
+  "notes": "v138 evidence pins the released V46-C perturbation and non-regression seam on main: one repo-owned adeu_benchmarking package only, four new bounded V46-C contracts over the released V46-A/V46-B stack, one tiny deterministic perturbation bundle over hierarchical_3x3, operational perturbation overlays for branch_shift delayed_constraint and paraphrase_preserving, exact three-replay deterministic non-regression thresholds over run-trace metrics diagnostic dominant-family and terminal-status subjects, per-case and per-replay aggregation across failure topology non-regression and validation reports, deterministic schema mirrors and v46c fixtures, and no cross-subject comparison or downstream consumer widening."
+}

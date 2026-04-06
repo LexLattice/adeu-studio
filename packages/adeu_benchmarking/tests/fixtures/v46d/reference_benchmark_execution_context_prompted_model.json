@@ -1,0 +1,18 @@
+{
+  "benchmark_execution_context_id": "benchctx_516fb545ae96d21e3efa19535d9fc8ab",
+  "context_budget_posture": "fixed_context_budget_declared",
+  "determinism_posture": "deterministic_fixed_context",
+  "notes": [
+    "starter v46d prompted-model comparison context"
+  ],
+  "prompt_wrapper_ref": "prompt_wrapper:procedural_depth.v46d.prompted.v1",
+  "repo_snapshot_ref": "git:main@1528aee",
+  "schema": "adeu_benchmark_execution_context@1",
+  "subject_label": "gpt-5.4 prompted procedural-depth starter",
+  "subject_under_test_class": "prompted_model",
+  "subject_version": "gpt-5.4",
+  "tool_availability": [
+    "filesystem_read_only",
+    "structured_json_output"
+  ]
+}

@@ -4,18 +4,37 @@ from typing import Any
 
 from .models import (
     BenchmarkExecutionContext,
+    BenchmarkFamilySpec,
+    BenchmarkProjectionSpec,
+    BenchmarkSubjectRecord,
+    CrossSubjectComparisonCase,
+    ProceduralDepthBenchmarkValidationReport,
+    ProceduralDepthDiagnosticReport,
     ProceduralDepthGoldTrace,
     ProceduralDepthInstance,
+    ProceduralDepthMetrics,
+    ProceduralDepthNonRegressionReport,
     ProceduralDepthPerturbationCase,
     ProceduralDepthRunTrace,
     ProceduralDepthStepSpec,
     ProceduralDepthTraceEvent,
     _canonical_model_payload,
     canonicalize_benchmark_execution_context_payload,
+    canonicalize_benchmark_subject_record_payload,
+    canonicalize_cross_subject_comparison_case_payload,
+    canonicalize_procedural_depth_benchmark_validation_report_payload,
+    canonicalize_procedural_depth_diagnostic_report_payload,
     canonicalize_procedural_depth_gold_trace_payload,
     canonicalize_procedural_depth_instance_payload,
+    canonicalize_procedural_depth_metrics_payload,
+    canonicalize_procedural_depth_non_regression_report_payload,
     canonicalize_procedural_depth_perturbation_case_payload,
     canonicalize_procedural_depth_run_trace_payload,
+    compute_procedural_depth_perturbation_bundle_ref,
+    materialize_benchmark_subject_record_payload,
+    materialize_cross_subject_comparison_case_payload,
+    materialize_cross_subject_comparison_report_payload,
+    materialize_cross_subject_comparison_validation_report_payload,
     materialize_procedural_depth_benchmark_validation_report_payload,
     materialize_procedural_depth_diagnostic_report_payload,
     materialize_procedural_depth_failure_topology_payload,
@@ -58,6 +77,24 @@ _V46C_VALIDATION_LIMITATIONS = [
     ),
     "Cross-subject comparison and downstream consumer seams remain deferred from V46-C.",
 ]
+_V46D_COMPARISON_NOTES = [
+    "Cross-subject comparison remains descriptive and non-promotional in the V46-D starter lane.",
+    (
+        "Projection-library widening and downstream consumer seams remain "
+        "deferred beyond this starter pair."
+    ),
+]
+_V46D_VALIDATION_LIMITATIONS = [
+    (
+        "Validation remains bounded to one deterministic subject pair over "
+        "the released Procedural Depth stack only."
+    ),
+    (
+        "No ranking, leaderboard, or downstream consumer authority is "
+        "selected in the V46-D starter lane."
+    ),
+]
+_STARTER_SUBJECT_CLASS_SET = {"base_model", "prompted_model"}
 
 
 def _step_map(
@@ -273,14 +310,18 @@ def score_procedural_depth_run(
 
     gold_plan_events = [event for event in gold_trace.gold_events if event.step_role != "child"]
     run_plan_events = [event for event in run_trace.observed_events if event.step_role != "child"]
-    plan_spine_fidelity = [
-        _trace_signature(event) for event in gold_plan_events
-    ] == [_trace_signature(event) for event in run_plan_events]
-    plan_support = [] if plan_spine_fidelity else _first_mismatch_refs(
-        expected_events=gold_plan_events,
-        observed_events=run_plan_events,
-        gold_trace_ref=gold_trace.procedural_depth_gold_trace_id,
-        run_trace_ref=run_trace.procedural_depth_run_trace_id,
+    plan_spine_fidelity = [_trace_signature(event) for event in gold_plan_events] == [
+        _trace_signature(event) for event in run_plan_events
+    ]
+    plan_support = (
+        []
+        if plan_spine_fidelity
+        else _first_mismatch_refs(
+            expected_events=gold_plan_events,
+            observed_events=run_plan_events,
+            gold_trace_ref=gold_trace.procedural_depth_gold_trace_id,
+            run_trace_ref=run_trace.procedural_depth_run_trace_id,
+        )
     )
 
     gold_vertical_events = [
@@ -296,11 +337,15 @@ def score_procedural_depth_run(
     active_step_compilation_fidelity = [
         _trace_signature(event) for event in gold_vertical_events
     ] == [_trace_signature(event) for event in run_vertical_events]
-    vertical_support = [] if active_step_compilation_fidelity else _first_mismatch_refs(
-        expected_events=gold_vertical_events,
-        observed_events=run_vertical_events,
-        gold_trace_ref=gold_trace.procedural_depth_gold_trace_id,
-        run_trace_ref=run_trace.procedural_depth_run_trace_id,
+    vertical_support = (
+        []
+        if active_step_compilation_fidelity
+        else _first_mismatch_refs(
+            expected_events=gold_vertical_events,
+            observed_events=run_vertical_events,
+            gold_trace_ref=gold_trace.procedural_depth_gold_trace_id,
+            run_trace_ref=run_trace.procedural_depth_run_trace_id,
+        )
     )
 
     gold_reintegration_events = [
@@ -323,21 +368,21 @@ def score_procedural_depth_run(
             and event.step_role == "active_parent"
         )
     ]
-    reintegration_fidelity = [
-        _trace_signature(event) for event in gold_reintegration_events
-    ] == [_trace_signature(event) for event in run_reintegration_events]
-    reintegration_support = [] if reintegration_fidelity else _first_mismatch_refs(
-        expected_events=gold_reintegration_events,
-        observed_events=run_reintegration_events,
-        gold_trace_ref=gold_trace.procedural_depth_gold_trace_id,
-        run_trace_ref=run_trace.procedural_depth_run_trace_id,
+    reintegration_fidelity = [_trace_signature(event) for event in gold_reintegration_events] == [
+        _trace_signature(event) for event in run_reintegration_events
+    ]
+    reintegration_support = (
+        []
+        if reintegration_fidelity
+        else _first_mismatch_refs(
+            expected_events=gold_reintegration_events,
+            observed_events=run_reintegration_events,
+            gold_trace_ref=gold_trace.procedural_depth_gold_trace_id,
+            run_trace_ref=run_trace.procedural_depth_run_trace_id,
+        )
     )
 
-    if (
-        plan_spine_fidelity
-        and active_step_compilation_fidelity
-        and reintegration_fidelity
-    ):
+    if plan_spine_fidelity and active_step_compilation_fidelity and reintegration_fidelity:
         if run_trace.terminal_trace_status != "completed_clean":
             raise ValueError(
                 "completed_clean terminal status is required when all starter "
@@ -433,9 +478,7 @@ def _validate_deterministic_context(
     instance_payload: dict[str, Any],
 ) -> BenchmarkExecutionContext:
     context = BenchmarkExecutionContext.model_validate(
-        canonicalize_benchmark_execution_context_payload(
-            benchmark_execution_context_payload
-        )
+        canonicalize_benchmark_execution_context_payload(benchmark_execution_context_payload)
     )
     instance = ProceduralDepthInstance.model_validate(instance_payload)
     if context.determinism_posture != "deterministic_fixed_context":
@@ -546,8 +589,7 @@ def evaluate_procedural_depth_perturbation_case(
         == first_replay["metrics"]["procedural_depth_metrics_id"]
         and replay["diagnostic_report"]["procedural_depth_diagnostic_report_id"]
         == first_replay["diagnostic_report"]["procedural_depth_diagnostic_report_id"]
-        and replay["observed_dominant_failure_family"]
-        == observed_dominant_failure_family
+        and replay["observed_dominant_failure_family"] == observed_dominant_failure_family
         and replay["observed_terminal_trace_status"] == observed_terminal_trace_status
         for replay in replay_results[1:]
     )
@@ -571,10 +613,7 @@ def derive_procedural_depth_failure_topology(
     if not case_evaluations:
         raise ValueError("case_evaluations must not be empty")
     observed_families = sorted(
-        {
-            evaluation["observed_dominant_failure_family"]
-            for evaluation in case_evaluations
-        }
+        {evaluation["observed_dominant_failure_family"] for evaluation in case_evaluations}
     )
     family_text = ", ".join(observed_families)
     return materialize_procedural_depth_failure_topology_payload(
@@ -590,9 +629,7 @@ def derive_procedural_depth_failure_topology(
                     "supporting_replay_refs": [
                         {
                             "replay_index": replay["replay_index"],
-                            "run_trace_ref": replay["run_trace"][
-                                "procedural_depth_run_trace_id"
-                            ],
+                            "run_trace_ref": replay["run_trace"]["procedural_depth_run_trace_id"],
                         }
                         for replay in evaluation["replay_results"]
                     ],
@@ -619,14 +656,10 @@ def derive_procedural_depth_non_regression_report(
     replay_count_values = {evaluation["replay_count"] for evaluation in case_evaluations}
     if replay_count_values != {3}:
         raise ValueError("all case evaluations must carry replay_count 3")
-    context_values = {
-        evaluation["evaluation_context_posture"] for evaluation in case_evaluations
-    }
+    context_values = {evaluation["evaluation_context_posture"] for evaluation in case_evaluations}
     if context_values != {"deterministic_fixed_context"}:
         raise ValueError("all case evaluations must carry deterministic_fixed_context")
-    regression_detected = any(
-        evaluation["regression_detected"] for evaluation in case_evaluations
-    )
+    regression_detected = any(evaluation["regression_detected"] for evaluation in case_evaluations)
     report_summary = (
         "At least one perturbation case drifted across the frozen three-replay "
         "exact-match subjects."
@@ -654,9 +687,7 @@ def derive_procedural_depth_non_regression_report(
                     "supporting_metric_refs": [
                         {
                             "replay_index": replay["replay_index"],
-                            "metric_ref": replay["metrics"][
-                                "procedural_depth_metrics_id"
-                            ],
+                            "metric_ref": replay["metrics"]["procedural_depth_metrics_id"],
                         }
                         for replay in evaluation["replay_results"]
                     ],
@@ -678,9 +709,7 @@ def derive_procedural_depth_benchmark_validation_report(
     replay_count_values = {evaluation["replay_count"] for evaluation in case_evaluations}
     if replay_count_values != {3}:
         raise ValueError("all case evaluations must carry replay_count 3")
-    context_values = {
-        evaluation["evaluation_context_posture"] for evaluation in case_evaluations
-    }
+    context_values = {evaluation["evaluation_context_posture"] for evaluation in case_evaluations}
     if context_values != {"deterministic_fixed_context"}:
         raise ValueError("all case evaluations must carry deterministic_fixed_context")
     validation_case_results = [
@@ -691,27 +720,17 @@ def derive_procedural_depth_benchmark_validation_report(
             "expected_dominant_failure_family": evaluation["perturbation_case"][
                 "expected_dominant_failure_family"
             ],
-            "observed_dominant_failure_family": evaluation[
-                "observed_dominant_failure_family"
-            ],
+            "observed_dominant_failure_family": evaluation["observed_dominant_failure_family"],
             "expected_terminal_trace_status": evaluation["perturbation_case"][
                 "expected_terminal_trace_status"
             ],
-            "observed_terminal_trace_status": evaluation[
-                "observed_terminal_trace_status"
-            ],
-            "deterministic_replay_confirmed": evaluation[
-                "deterministic_replay_confirmed"
-            ],
+            "observed_terminal_trace_status": evaluation["observed_terminal_trace_status"],
+            "deterministic_replay_confirmed": evaluation["deterministic_replay_confirmed"],
             "replay_results": [
                 {
                     "replay_index": replay["replay_index"],
-                    "run_trace_ref": replay["run_trace"][
-                        "procedural_depth_run_trace_id"
-                    ],
-                    "metric_ref": replay["metrics"][
-                        "procedural_depth_metrics_id"
-                    ],
+                    "run_trace_ref": replay["run_trace"]["procedural_depth_run_trace_id"],
+                    "metric_ref": replay["metrics"]["procedural_depth_metrics_id"],
                     "diagnostic_report_ref": replay["diagnostic_report"][
                         "procedural_depth_diagnostic_report_id"
                     ],
@@ -759,12 +778,8 @@ def evaluate_procedural_depth_perturbation_bundle(
         materialize_procedural_depth_perturbation_case_payload(case_payload)
         for case_payload in perturbation_case_payloads
     ]
-    known_case_refs = {
-        case["procedural_depth_perturbation_case_id"] for case in perturbation_cases
-    }
-    unknown_case_refs = sorted(
-        set(replay_run_trace_payloads_by_case_ref) - known_case_refs
-    )
+    known_case_refs = {case["procedural_depth_perturbation_case_id"] for case in perturbation_cases}
+    unknown_case_refs = sorted(set(replay_run_trace_payloads_by_case_ref) - known_case_refs)
     if unknown_case_refs:
         raise ValueError(
             "replay_run_trace_payloads_by_case_ref contains unknown perturbation case refs: "
@@ -798,13 +813,723 @@ def evaluate_procedural_depth_perturbation_bundle(
     }
 
 
+def _validate_v46d_subject_context(
+    *,
+    context: BenchmarkExecutionContext,
+) -> None:
+    if context.determinism_posture != "deterministic_fixed_context":
+        raise ValueError("V46-D starter comparison requires deterministic_fixed_context")
+    if context.subject_under_test_class not in _STARTER_SUBJECT_CLASS_SET:
+        raise ValueError(
+            "V46-D starter comparison only admits base_model and prompted_model subject classes"
+        )
+
+
+def _ordered_case_refs_from_non_regression(
+    report: ProceduralDepthNonRegressionReport,
+) -> list[str]:
+    return [item.perturbation_case_ref for item in report.evaluated_cases]
+
+
+def _ordered_case_refs_from_validation(
+    report: ProceduralDepthBenchmarkValidationReport,
+) -> list[str]:
+    return [item.perturbation_case_ref for item in report.validation_case_results]
+
+
+def _validate_matching_perturbation_bundle(
+    *,
+    baseline_instance_ref: str,
+    non_regression_report: ProceduralDepthNonRegressionReport,
+    benchmark_validation_report: ProceduralDepthBenchmarkValidationReport,
+) -> tuple[str, list[str]]:
+    non_regression_case_refs = _ordered_case_refs_from_non_regression(non_regression_report)
+    validation_case_refs = _ordered_case_refs_from_validation(benchmark_validation_report)
+    if non_regression_case_refs != validation_case_refs:
+        raise ValueError(
+            "non-regression and validation reports must carry the same "
+            "ordered perturbation_case_ref values"
+        )
+    bundle_ref = compute_procedural_depth_perturbation_bundle_ref(
+        baseline_instance_ref=baseline_instance_ref,
+        perturbation_case_refs=non_regression_case_refs,
+    )
+    return bundle_ref, non_regression_case_refs
+
+
+def derive_benchmark_subject_record(
+    *,
+    benchmark_family_spec_payload: dict[str, Any],
+    benchmark_projection_spec_payload: dict[str, Any],
+    benchmark_execution_context_payload: dict[str, Any],
+    baseline_instance_payload: dict[str, Any],
+    baseline_run_trace_payload: dict[str, Any],
+    baseline_metrics_payload: dict[str, Any],
+    baseline_diagnostic_report_payload: dict[str, Any],
+    perturbation_non_regression_report_payload: dict[str, Any],
+    perturbation_benchmark_validation_report_payload: dict[str, Any],
+    subject_identity_ref: str,
+    notes: list[str] | None = None,
+) -> dict[str, Any]:
+    family_spec = BenchmarkFamilySpec.model_validate(benchmark_family_spec_payload)
+    projection_spec = BenchmarkProjectionSpec.model_validate(benchmark_projection_spec_payload)
+    context = BenchmarkExecutionContext.model_validate(
+        canonicalize_benchmark_execution_context_payload(benchmark_execution_context_payload)
+    )
+    _validate_v46d_subject_context(context=context)
+    instance = ProceduralDepthInstance.model_validate(
+        canonicalize_procedural_depth_instance_payload(baseline_instance_payload)
+    )
+    run_trace = ProceduralDepthRunTrace.model_validate(
+        canonicalize_procedural_depth_run_trace_payload(baseline_run_trace_payload)
+    )
+    metrics = ProceduralDepthMetrics.model_validate(
+        canonicalize_procedural_depth_metrics_payload(baseline_metrics_payload)
+    )
+    diagnostic_report = ProceduralDepthDiagnosticReport.model_validate(
+        canonicalize_procedural_depth_diagnostic_report_payload(baseline_diagnostic_report_payload)
+    )
+    non_regression_report = ProceduralDepthNonRegressionReport.model_validate(
+        canonicalize_procedural_depth_non_regression_report_payload(
+            perturbation_non_regression_report_payload
+        )
+    )
+    benchmark_validation_report = ProceduralDepthBenchmarkValidationReport.model_validate(
+        canonicalize_procedural_depth_benchmark_validation_report_payload(
+            perturbation_benchmark_validation_report_payload
+        )
+    )
+    if context.subject_under_test_class not in family_spec.subject_under_test_classes:
+        raise ValueError("subject class must be declared by the released family spec")
+    if context.subject_under_test_class not in projection_spec.target_subject_under_test_classes:
+        raise ValueError("subject class must be declared by the released projection spec")
+    if instance.benchmark_projection_spec_ref != projection_spec.benchmark_projection_spec_id:
+        raise ValueError("baseline instance must reference the supplied projection spec")
+    if run_trace.procedural_depth_instance_ref != instance.procedural_depth_instance_id:
+        raise ValueError("baseline run trace must reference the supplied baseline instance")
+    if metrics.procedural_depth_run_trace_ref != run_trace.procedural_depth_run_trace_id:
+        raise ValueError("baseline metrics must reference the supplied baseline run trace")
+    if diagnostic_report.procedural_depth_run_trace_ref != run_trace.procedural_depth_run_trace_id:
+        raise ValueError(
+            "baseline diagnostic report must reference the supplied baseline run trace"
+        )
+    if metrics.procedural_depth_metrics_id != diagnostic_report.procedural_depth_metrics_ref:
+        raise ValueError("baseline diagnostic report must reference the supplied baseline metrics")
+    if non_regression_report.baseline_instance_ref != instance.procedural_depth_instance_id:
+        raise ValueError("non-regression report must reference the supplied baseline instance")
+    bundle_ref, perturbation_case_refs = _validate_matching_perturbation_bundle(
+        baseline_instance_ref=instance.procedural_depth_instance_id,
+        non_regression_report=non_regression_report,
+        benchmark_validation_report=benchmark_validation_report,
+    )
+    return materialize_benchmark_subject_record_payload(
+        {
+            "subject_class": context.subject_under_test_class,
+            "subject_label": context.subject_label,
+            "subject_identity_ref": subject_identity_ref,
+            "benchmark_family_spec_ref": family_spec.benchmark_family_spec_id,
+            "benchmark_projection_spec_ref": projection_spec.benchmark_projection_spec_id,
+            "benchmark_execution_context_ref": context.benchmark_execution_context_id,
+            "perturbation_bundle_ref": bundle_ref,
+            "perturbation_case_refs": perturbation_case_refs,
+            "baseline_instance_ref": instance.procedural_depth_instance_id,
+            "baseline_run_trace_ref": run_trace.procedural_depth_run_trace_id,
+            "baseline_metric_ref": metrics.procedural_depth_metrics_id,
+            "baseline_diagnostic_report_ref": (
+                diagnostic_report.procedural_depth_diagnostic_report_id
+            ),
+            "perturbation_non_regression_report_ref": (
+                non_regression_report.procedural_depth_non_regression_report_id
+            ),
+            "perturbation_benchmark_validation_report_ref": (
+                benchmark_validation_report.procedural_depth_benchmark_validation_report_id
+            ),
+            "notes": notes or [],
+        }
+    )
+
+
+def derive_cross_subject_comparison_case(
+    *,
+    left_subject_record_payload: dict[str, Any],
+    right_subject_record_payload: dict[str, Any],
+    comparison_label: str,
+    notes: list[str] | None = None,
+) -> dict[str, Any]:
+    left_subject = BenchmarkSubjectRecord.model_validate(
+        canonicalize_benchmark_subject_record_payload(left_subject_record_payload)
+    )
+    right_subject = BenchmarkSubjectRecord.model_validate(
+        canonicalize_benchmark_subject_record_payload(right_subject_record_payload)
+    )
+    if left_subject.benchmark_family_spec_ref != right_subject.benchmark_family_spec_ref:
+        raise ValueError("starter pair must share one released benchmark family spec")
+    if left_subject.benchmark_projection_spec_ref != right_subject.benchmark_projection_spec_ref:
+        raise ValueError("starter pair must share one released benchmark projection spec")
+    if left_subject.baseline_instance_ref != right_subject.baseline_instance_ref:
+        raise ValueError("starter pair must share one released baseline instance")
+    if left_subject.perturbation_bundle_ref != right_subject.perturbation_bundle_ref:
+        raise ValueError("starter pair must share one released perturbation bundle")
+    if left_subject.perturbation_case_refs != right_subject.perturbation_case_refs:
+        raise ValueError("starter pair must share one ordered released perturbation-case bundle")
+    return materialize_cross_subject_comparison_case_payload(
+        {
+            "comparison_label": comparison_label,
+            "left_subject_ref": left_subject.benchmark_subject_record_id,
+            "right_subject_ref": right_subject.benchmark_subject_record_id,
+            "benchmark_family_spec_ref": left_subject.benchmark_family_spec_ref,
+            "benchmark_projection_spec_ref": left_subject.benchmark_projection_spec_ref,
+            "baseline_instance_ref": left_subject.baseline_instance_ref,
+            "required_execution_context_compatibility_fields": [
+                "repo_snapshot_ref",
+                "tool_availability",
+                "context_budget_posture",
+                "determinism_posture",
+            ],
+            "perturbation_case_refs": list(left_subject.perturbation_case_refs),
+            "required_comparison_surfaces": [
+                "baseline_structural_fidelity",
+                "perturbation_non_regression",
+                "perturbation_validation",
+            ],
+            "notes": notes or [],
+        }
+    )
+
+
+def _validate_comparison_contexts(
+    *,
+    left_context: BenchmarkExecutionContext,
+    right_context: BenchmarkExecutionContext,
+) -> None:
+    _validate_v46d_subject_context(context=left_context)
+    _validate_v46d_subject_context(context=right_context)
+    if {
+        left_context.subject_under_test_class,
+        right_context.subject_under_test_class,
+    } != _STARTER_SUBJECT_CLASS_SET:
+        raise ValueError(
+            "V46-D starter comparison requires one base_model and one "
+            "prompted_model execution context"
+        )
+    compatibility_fields = (
+        "repo_snapshot_ref",
+        "tool_availability",
+        "context_budget_posture",
+        "determinism_posture",
+    )
+    for field_name in compatibility_fields:
+        if getattr(left_context, field_name) != getattr(right_context, field_name):
+            raise ValueError(
+                f"execution contexts must match on {field_name} for V46-D starter comparison"
+            )
+
+
+def _validate_subject_context_binding(
+    *,
+    side: str,
+    subject: BenchmarkSubjectRecord,
+    context: BenchmarkExecutionContext,
+) -> None:
+    if context.benchmark_execution_context_id != subject.benchmark_execution_context_ref:
+        raise ValueError(f"{side} execution context ref must bind to {side} subject record")
+    if subject.subject_class != context.subject_under_test_class:
+        raise ValueError(
+            f"{side} subject_class must match bound execution context "
+            "subject_under_test_class"
+        )
+
+
+def _validate_subject_baseline_chain(
+    *,
+    side: str,
+    subject: BenchmarkSubjectRecord,
+    run_trace: ProceduralDepthRunTrace,
+    metrics: ProceduralDepthMetrics,
+    diagnostic: ProceduralDepthDiagnosticReport,
+) -> None:
+    if run_trace.procedural_depth_run_trace_id != subject.baseline_run_trace_ref:
+        raise ValueError(f"{side} baseline run trace ref must bind to {side} subject record")
+    if metrics.procedural_depth_metrics_id != subject.baseline_metric_ref:
+        raise ValueError(f"{side} baseline metric ref must bind to {side} subject record")
+    if diagnostic.procedural_depth_diagnostic_report_id != subject.baseline_diagnostic_report_ref:
+        raise ValueError(f"{side} baseline diagnostic ref must bind to {side} subject record")
+    if metrics.procedural_depth_run_trace_ref != run_trace.procedural_depth_run_trace_id:
+        raise ValueError(f"{side} baseline metrics must bind to {side} baseline run trace")
+    if diagnostic.procedural_depth_run_trace_ref != run_trace.procedural_depth_run_trace_id:
+        raise ValueError(f"{side} baseline diagnostic must bind to {side} baseline run trace")
+    if diagnostic.procedural_depth_metrics_ref != metrics.procedural_depth_metrics_id:
+        raise ValueError(f"{side} baseline diagnostic must bind to {side} baseline metrics")
+
+
+def _baseline_signature(
+    *,
+    metrics: ProceduralDepthMetrics,
+    run_trace: ProceduralDepthRunTrace,
+) -> tuple[bool, bool, bool, str, str]:
+    return (
+        metrics.plan_spine_fidelity,
+        metrics.active_step_compilation_fidelity,
+        metrics.reintegration_fidelity,
+        metrics.dominant_failure_family,
+        run_trace.terminal_trace_status,
+    )
+
+
+def _non_regression_signature(
+    report: ProceduralDepthNonRegressionReport,
+) -> tuple[str, int, bool, tuple[tuple[str, bool], ...]]:
+    return (
+        report.evaluation_context_posture,
+        report.replay_count,
+        report.regression_detected,
+        tuple(
+            (item.perturbation_case_ref, item.regression_detected)
+            for item in report.evaluated_cases
+        ),
+    )
+
+
+def _validation_signature(
+    report: ProceduralDepthBenchmarkValidationReport,
+) -> tuple[str, int, bool, tuple[tuple[str, str, str, bool], ...]]:
+    return (
+        report.evaluation_context_posture,
+        report.replay_count,
+        report.deterministic_replay_confirmed,
+        tuple(
+            (
+                item.perturbation_case_ref,
+                item.observed_dominant_failure_family,
+                item.observed_terminal_trace_status,
+                item.deterministic_replay_confirmed,
+            )
+            for item in report.validation_case_results
+        ),
+    )
+
+
+def _compare_baseline_structural_fidelity(
+    *,
+    left_run_trace: ProceduralDepthRunTrace,
+    right_run_trace: ProceduralDepthRunTrace,
+    left_metrics: ProceduralDepthMetrics,
+    right_metrics: ProceduralDepthMetrics,
+) -> tuple[dict[str, Any], dict[str, Any]]:
+    left_signature = _baseline_signature(metrics=left_metrics, run_trace=left_run_trace)
+    right_signature = _baseline_signature(metrics=right_metrics, run_trace=right_run_trace)
+    if left_signature == right_signature:
+        match_status = "exact_match"
+        difference_summary = (
+            "Released baseline structural-fidelity fields match exactly across the starter pair."
+        )
+    else:
+        match_status = "different_but_comparable"
+        differing_fields = [
+            field_name
+            for field_name, left_value, right_value in (
+                ("plan_spine_fidelity", left_signature[0], right_signature[0]),
+                (
+                    "active_step_compilation_fidelity",
+                    left_signature[1],
+                    right_signature[1],
+                ),
+                ("reintegration_fidelity", left_signature[2], right_signature[2]),
+                ("dominant_failure_family", left_signature[3], right_signature[3]),
+                ("terminal_trace_status", left_signature[4], right_signature[4]),
+            )
+            if left_value != right_value
+        ]
+        difference_summary = (
+            "Released baseline structural-fidelity fields differ while staying "
+            f"comparable across the starter pair: {', '.join(differing_fields)}."
+        )
+    return (
+        {
+            "comparison_surface": "baseline_structural_fidelity",
+            "left_ref": left_metrics.procedural_depth_metrics_id,
+            "right_ref": right_metrics.procedural_depth_metrics_id,
+            "match_status": match_status,
+            "difference_summary": difference_summary,
+        },
+        {
+            "comparison_surface": "baseline_structural_fidelity",
+            "left_ref": left_metrics.procedural_depth_metrics_id,
+            "right_ref": right_metrics.procedural_depth_metrics_id,
+            "comparison_status": match_status,
+            "deterministic_comparison_confirmed": True,
+        },
+    )
+
+
+def _compare_perturbation_non_regression(
+    *,
+    left_report: ProceduralDepthNonRegressionReport,
+    right_report: ProceduralDepthNonRegressionReport,
+) -> tuple[dict[str, Any], dict[str, Any]]:
+    left_signature = _non_regression_signature(left_report)
+    right_signature = _non_regression_signature(right_report)
+    if left_signature == right_signature:
+        match_status = "exact_match"
+        difference_summary = (
+            "Released perturbation non-regression fields match exactly across the starter pair."
+        )
+    else:
+        match_status = "different_but_comparable"
+        difference_summary = (
+            "Released perturbation non-regression fields differ while staying "
+            "comparable across the shared deterministic perturbation bundle."
+        )
+    return (
+        {
+            "comparison_surface": "perturbation_non_regression",
+            "left_ref": left_report.procedural_depth_non_regression_report_id,
+            "right_ref": right_report.procedural_depth_non_regression_report_id,
+            "match_status": match_status,
+            "difference_summary": difference_summary,
+        },
+        {
+            "comparison_surface": "perturbation_non_regression",
+            "left_ref": left_report.procedural_depth_non_regression_report_id,
+            "right_ref": right_report.procedural_depth_non_regression_report_id,
+            "comparison_status": match_status,
+            "deterministic_comparison_confirmed": True,
+        },
+    )
+
+
+def _compare_perturbation_validation(
+    *,
+    left_report: ProceduralDepthBenchmarkValidationReport,
+    right_report: ProceduralDepthBenchmarkValidationReport,
+) -> tuple[dict[str, Any], dict[str, Any]]:
+    left_signature = _validation_signature(left_report)
+    right_signature = _validation_signature(right_report)
+    if left_signature == right_signature:
+        match_status = "exact_match"
+        difference_summary = (
+            "Released perturbation validation fields match exactly across the starter pair."
+        )
+    else:
+        match_status = "different_but_comparable"
+        difference_summary = (
+            "Released perturbation validation fields differ while staying "
+            "comparable across the shared deterministic perturbation bundle."
+        )
+    return (
+        {
+            "comparison_surface": "perturbation_validation",
+            "left_ref": left_report.procedural_depth_benchmark_validation_report_id,
+            "right_ref": right_report.procedural_depth_benchmark_validation_report_id,
+            "match_status": match_status,
+            "difference_summary": difference_summary,
+        },
+        {
+            "comparison_surface": "perturbation_validation",
+            "left_ref": left_report.procedural_depth_benchmark_validation_report_id,
+            "right_ref": right_report.procedural_depth_benchmark_validation_report_id,
+            "comparison_status": match_status,
+            "deterministic_comparison_confirmed": True,
+        },
+    )
+
+
+def evaluate_cross_subject_comparison_case(
+    *,
+    comparison_case_payload: dict[str, Any],
+    left_subject_record_payload: dict[str, Any],
+    right_subject_record_payload: dict[str, Any],
+    left_execution_context_payload: dict[str, Any],
+    right_execution_context_payload: dict[str, Any],
+    left_baseline_run_trace_payload: dict[str, Any],
+    right_baseline_run_trace_payload: dict[str, Any],
+    left_baseline_metrics_payload: dict[str, Any],
+    right_baseline_metrics_payload: dict[str, Any],
+    left_baseline_diagnostic_report_payload: dict[str, Any],
+    right_baseline_diagnostic_report_payload: dict[str, Any],
+    left_perturbation_non_regression_report_payload: dict[str, Any],
+    right_perturbation_non_regression_report_payload: dict[str, Any],
+    left_perturbation_benchmark_validation_report_payload: dict[str, Any],
+    right_perturbation_benchmark_validation_report_payload: dict[str, Any],
+) -> dict[str, Any]:
+    comparison_case = CrossSubjectComparisonCase.model_validate(
+        canonicalize_cross_subject_comparison_case_payload(comparison_case_payload)
+    )
+    left_subject = BenchmarkSubjectRecord.model_validate(
+        canonicalize_benchmark_subject_record_payload(left_subject_record_payload)
+    )
+    right_subject = BenchmarkSubjectRecord.model_validate(
+        canonicalize_benchmark_subject_record_payload(right_subject_record_payload)
+    )
+    if comparison_case.left_subject_ref != left_subject.benchmark_subject_record_id:
+        raise ValueError("comparison case left_subject_ref must bind to left subject record")
+    if comparison_case.right_subject_ref != right_subject.benchmark_subject_record_id:
+        raise ValueError("comparison case right_subject_ref must bind to right subject record")
+    if left_subject.benchmark_family_spec_ref != comparison_case.benchmark_family_spec_ref:
+        raise ValueError("left subject family spec must match comparison case")
+    if right_subject.benchmark_family_spec_ref != comparison_case.benchmark_family_spec_ref:
+        raise ValueError("right subject family spec must match comparison case")
+    if (
+        left_subject.benchmark_projection_spec_ref != comparison_case.benchmark_projection_spec_ref
+        or right_subject.benchmark_projection_spec_ref
+        != comparison_case.benchmark_projection_spec_ref
+    ):
+        raise ValueError("subject projection spec refs must match comparison case")
+    if (
+        left_subject.baseline_instance_ref != comparison_case.baseline_instance_ref
+        or right_subject.baseline_instance_ref != comparison_case.baseline_instance_ref
+    ):
+        raise ValueError("subject baseline instance refs must match comparison case")
+    if left_subject.perturbation_case_refs != comparison_case.perturbation_case_refs:
+        raise ValueError("left subject perturbation_case_refs must match comparison case")
+    if right_subject.perturbation_case_refs != comparison_case.perturbation_case_refs:
+        raise ValueError("right subject perturbation_case_refs must match comparison case")
+
+    left_context = BenchmarkExecutionContext.model_validate(
+        canonicalize_benchmark_execution_context_payload(left_execution_context_payload)
+    )
+    right_context = BenchmarkExecutionContext.model_validate(
+        canonicalize_benchmark_execution_context_payload(right_execution_context_payload)
+    )
+    _validate_subject_context_binding(
+        side="left",
+        subject=left_subject,
+        context=left_context,
+    )
+    _validate_subject_context_binding(
+        side="right",
+        subject=right_subject,
+        context=right_context,
+    )
+    _validate_comparison_contexts(left_context=left_context, right_context=right_context)
+
+    left_run_trace = ProceduralDepthRunTrace.model_validate(
+        canonicalize_procedural_depth_run_trace_payload(left_baseline_run_trace_payload)
+    )
+    right_run_trace = ProceduralDepthRunTrace.model_validate(
+        canonicalize_procedural_depth_run_trace_payload(right_baseline_run_trace_payload)
+    )
+    left_metrics = ProceduralDepthMetrics.model_validate(
+        canonicalize_procedural_depth_metrics_payload(left_baseline_metrics_payload)
+    )
+    right_metrics = ProceduralDepthMetrics.model_validate(
+        canonicalize_procedural_depth_metrics_payload(right_baseline_metrics_payload)
+    )
+    left_diagnostic = ProceduralDepthDiagnosticReport.model_validate(
+        canonicalize_procedural_depth_diagnostic_report_payload(
+            left_baseline_diagnostic_report_payload
+        )
+    )
+    right_diagnostic = ProceduralDepthDiagnosticReport.model_validate(
+        canonicalize_procedural_depth_diagnostic_report_payload(
+            right_baseline_diagnostic_report_payload
+        )
+    )
+    left_non_regression = ProceduralDepthNonRegressionReport.model_validate(
+        canonicalize_procedural_depth_non_regression_report_payload(
+            left_perturbation_non_regression_report_payload
+        )
+    )
+    right_non_regression = ProceduralDepthNonRegressionReport.model_validate(
+        canonicalize_procedural_depth_non_regression_report_payload(
+            right_perturbation_non_regression_report_payload
+        )
+    )
+    left_validation = ProceduralDepthBenchmarkValidationReport.model_validate(
+        canonicalize_procedural_depth_benchmark_validation_report_payload(
+            left_perturbation_benchmark_validation_report_payload
+        )
+    )
+    right_validation = ProceduralDepthBenchmarkValidationReport.model_validate(
+        canonicalize_procedural_depth_benchmark_validation_report_payload(
+            right_perturbation_benchmark_validation_report_payload
+        )
+    )
+
+    _validate_subject_baseline_chain(
+        side="left",
+        subject=left_subject,
+        run_trace=left_run_trace,
+        metrics=left_metrics,
+        diagnostic=left_diagnostic,
+    )
+    _validate_subject_baseline_chain(
+        side="right",
+        subject=right_subject,
+        run_trace=right_run_trace,
+        metrics=right_metrics,
+        diagnostic=right_diagnostic,
+    )
+    if (
+        left_non_regression.procedural_depth_non_regression_report_id
+        != left_subject.perturbation_non_regression_report_ref
+    ):
+        raise ValueError("left non-regression ref must bind to left subject record")
+    if (
+        right_non_regression.procedural_depth_non_regression_report_id
+        != right_subject.perturbation_non_regression_report_ref
+    ):
+        raise ValueError("right non-regression ref must bind to right subject record")
+    if (
+        left_validation.procedural_depth_benchmark_validation_report_id
+        != left_subject.perturbation_benchmark_validation_report_ref
+    ):
+        raise ValueError("left validation ref must bind to left subject record")
+    if (
+        right_validation.procedural_depth_benchmark_validation_report_id
+        != right_subject.perturbation_benchmark_validation_report_ref
+    ):
+        raise ValueError("right validation ref must bind to right subject record")
+
+    if left_non_regression.baseline_instance_ref != comparison_case.baseline_instance_ref:
+        raise ValueError("left non-regression report must bind to comparison baseline instance")
+    if right_non_regression.baseline_instance_ref != comparison_case.baseline_instance_ref:
+        raise ValueError("right non-regression report must bind to comparison baseline instance")
+
+    left_bundle_ref, left_case_refs = _validate_matching_perturbation_bundle(
+        baseline_instance_ref=comparison_case.baseline_instance_ref,
+        non_regression_report=left_non_regression,
+        benchmark_validation_report=left_validation,
+    )
+    right_bundle_ref, right_case_refs = _validate_matching_perturbation_bundle(
+        baseline_instance_ref=comparison_case.baseline_instance_ref,
+        non_regression_report=right_non_regression,
+        benchmark_validation_report=right_validation,
+    )
+    if left_bundle_ref != left_subject.perturbation_bundle_ref:
+        raise ValueError("left perturbation bundle must bind to left subject record")
+    if right_bundle_ref != right_subject.perturbation_bundle_ref:
+        raise ValueError("right perturbation bundle must bind to right subject record")
+    if left_bundle_ref != right_bundle_ref:
+        raise ValueError("starter pair must share one perturbation bundle ref")
+    if left_case_refs != comparison_case.perturbation_case_refs:
+        raise ValueError("left ordered perturbation case refs must match comparison case")
+    if right_case_refs != comparison_case.perturbation_case_refs:
+        raise ValueError("right ordered perturbation case refs must match comparison case")
+
+    baseline_field_comparison, baseline_validation_result = _compare_baseline_structural_fidelity(
+        left_run_trace=left_run_trace,
+        right_run_trace=right_run_trace,
+        left_metrics=left_metrics,
+        right_metrics=right_metrics,
+    )
+    non_regression_field_comparison, non_regression_validation_result = (
+        _compare_perturbation_non_regression(
+            left_report=left_non_regression,
+            right_report=right_non_regression,
+        )
+    )
+    validation_field_comparison, validation_validation_result = _compare_perturbation_validation(
+        left_report=left_validation,
+        right_report=right_validation,
+    )
+    field_comparisons = [
+        baseline_field_comparison,
+        non_regression_field_comparison,
+        validation_field_comparison,
+    ]
+    validation_results = [
+        baseline_validation_result,
+        non_regression_validation_result,
+        validation_validation_result,
+    ]
+    differing_surfaces = [
+        row["comparison_surface"]
+        for row in field_comparisons
+        if row["match_status"] == "different_but_comparable"
+    ]
+    comparison_summary = (
+        "Released comparison surfaces match exactly across the deterministic starter pair."
+        if not differing_surfaces
+        else (
+            "Released comparison surfaces stay comparable across the deterministic "
+            f"starter pair while differing on: {', '.join(differing_surfaces)}."
+        )
+    )
+    comparison_report = materialize_cross_subject_comparison_report_payload(
+        {
+            "comparison_case_ref": comparison_case.cross_subject_comparison_case_id,
+            "comparison_status": "comparison_ready_clean",
+            "subject_summaries": [
+                {
+                    "subject_record_ref": left_subject.benchmark_subject_record_id,
+                    "baseline_metric_ref": left_metrics.procedural_depth_metrics_id,
+                    "baseline_diagnostic_report_ref": (
+                        left_diagnostic.procedural_depth_diagnostic_report_id
+                    ),
+                    "perturbation_non_regression_report_ref": (
+                        left_non_regression.procedural_depth_non_regression_report_id
+                    ),
+                    "perturbation_benchmark_validation_report_ref": (
+                        left_validation.procedural_depth_benchmark_validation_report_id
+                    ),
+                },
+                {
+                    "subject_record_ref": right_subject.benchmark_subject_record_id,
+                    "baseline_metric_ref": right_metrics.procedural_depth_metrics_id,
+                    "baseline_diagnostic_report_ref": (
+                        right_diagnostic.procedural_depth_diagnostic_report_id
+                    ),
+                    "perturbation_non_regression_report_ref": (
+                        right_non_regression.procedural_depth_non_regression_report_id
+                    ),
+                    "perturbation_benchmark_validation_report_ref": (
+                        right_validation.procedural_depth_benchmark_validation_report_id
+                    ),
+                },
+            ],
+            "field_comparisons": field_comparisons,
+            "supporting_artifact_refs": [
+                comparison_case.cross_subject_comparison_case_id,
+                left_subject.benchmark_subject_record_id,
+                right_subject.benchmark_subject_record_id,
+                left_context.benchmark_execution_context_id,
+                right_context.benchmark_execution_context_id,
+                left_run_trace.procedural_depth_run_trace_id,
+                right_run_trace.procedural_depth_run_trace_id,
+                left_metrics.procedural_depth_metrics_id,
+                right_metrics.procedural_depth_metrics_id,
+                left_non_regression.procedural_depth_non_regression_report_id,
+                right_non_regression.procedural_depth_non_regression_report_id,
+                left_validation.procedural_depth_benchmark_validation_report_id,
+                right_validation.procedural_depth_benchmark_validation_report_id,
+            ],
+            "comparison_summary": comparison_summary,
+            "notes": list(_V46D_COMPARISON_NOTES),
+        }
+    )
+    comparison_validation_report = materialize_cross_subject_comparison_validation_report_payload(
+        {
+            "comparison_case_ref": comparison_case.cross_subject_comparison_case_id,
+            "deterministic_comparison_confirmed": True,
+            "validation_status": "validation_ready_clean",
+            "validation_results": validation_results,
+            "limitations": list(_V46D_VALIDATION_LIMITATIONS),
+        }
+    )
+    return {
+        "comparison_case": _canonical_model_payload(comparison_case),
+        "comparison_report": comparison_report,
+        "comparison_validation_report": comparison_validation_report,
+    }
+
+
 __all__ = [
     "canonicalize_benchmark_execution_context_payload",
+    "canonicalize_benchmark_subject_record_payload",
+    "canonicalize_cross_subject_comparison_case_payload",
     "canonicalize_procedural_depth_gold_trace_payload",
     "canonicalize_procedural_depth_instance_payload",
+    "canonicalize_procedural_depth_metrics_payload",
+    "canonicalize_procedural_depth_diagnostic_report_payload",
+    "canonicalize_procedural_depth_non_regression_report_payload",
+    "canonicalize_procedural_depth_benchmark_validation_report_payload",
     "canonicalize_procedural_depth_perturbation_case_payload",
     "canonicalize_procedural_depth_run_trace_payload",
+    "derive_benchmark_subject_record",
+    "derive_cross_subject_comparison_case",
     "derive_procedural_depth_gold_trace",
+    "evaluate_cross_subject_comparison_case",
     "derive_procedural_depth_benchmark_validation_report",
     "derive_procedural_depth_failure_topology",
     "derive_procedural_depth_non_regression_report",

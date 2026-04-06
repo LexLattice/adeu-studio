@@ -1,0 +1,108 @@
+{
+  "additionalProperties": false,
+  "properties": {
+    "baseline_diagnostic_report_ref": {
+      "title": "Baseline Diagnostic Report Ref",
+      "type": "string"
+    },
+    "baseline_instance_ref": {
+      "title": "Baseline Instance Ref",
+      "type": "string"
+    },
+    "baseline_metric_ref": {
+      "title": "Baseline Metric Ref",
+      "type": "string"
+    },
+    "baseline_run_trace_ref": {
+      "title": "Baseline Run Trace Ref",
+      "type": "string"
+    },
+    "benchmark_execution_context_ref": {
+      "title": "Benchmark Execution Context Ref",
+      "type": "string"
+    },
+    "benchmark_family_spec_ref": {
+      "title": "Benchmark Family Spec Ref",
+      "type": "string"
+    },
+    "benchmark_projection_spec_ref": {
+      "title": "Benchmark Projection Spec Ref",
+      "type": "string"
+    },
+    "benchmark_subject_record_id": {
+      "title": "Benchmark Subject Record Id",
+      "type": "string"
+    },
+    "notes": {
+      "items": {
+        "type": "string"
+      },
+      "title": "Notes",
+      "type": "array"
+    },
+    "perturbation_benchmark_validation_report_ref": {
+      "title": "Perturbation Benchmark Validation Report Ref",
+      "type": "string"
+    },
+    "perturbation_bundle_ref": {
+      "title": "Perturbation Bundle Ref",
+      "type": "string"
+    },
+    "perturbation_case_refs": {
+      "items": {
+        "type": "string"
+      },
+      "minItems": 1,
+      "title": "Perturbation Case Refs",
+      "type": "array"
+    },
+    "perturbation_non_regression_report_ref": {
+      "title": "Perturbation Non Regression Report Ref",
+      "type": "string"
+    },
+    "schema": {
+      "const": "adeu_benchmark_subject_record@1",
+      "default": "adeu_benchmark_subject_record@1",
+      "title": "Schema",
+      "type": "string"
+    },
+    "subject_class": {
+      "enum": [
+        "base_model",
+        "prompted_model",
+        "routed_runtime",
+        "multi_agent_system",
+        "adeu_runtime_surface"
+      ],
+      "title": "Subject Class",
+      "type": "string"
+    },
+    "subject_identity_ref": {
+      "title": "Subject Identity Ref",
+      "type": "string"
+    },
+    "subject_label": {
+      "title": "Subject Label",
+      "type": "string"
+    }
+  },
+  "required": [
+    "benchmark_subject_record_id",
+    "subject_class",
+    "subject_label",
+    "subject_identity_ref",
+    "benchmark_family_spec_ref",
+    "benchmark_projection_spec_ref",
+    "benchmark_execution_context_ref",
+    "perturbation_bundle_ref",
+    "perturbation_case_refs",
+    "baseline_instance_ref",
+    "baseline_run_trace_ref",
+    "baseline_metric_ref",
+    "baseline_diagnostic_report_ref",
+    "perturbation_non_regression_report_ref",
+    "perturbation_benchmark_validation_report_ref"
+  ],
+  "title": "BenchmarkSubjectRecord",
+  "type": "object"
+}

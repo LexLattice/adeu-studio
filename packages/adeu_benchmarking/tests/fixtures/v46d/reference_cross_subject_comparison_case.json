@@ -1,0 +1,29 @@
+{
+  "baseline_instance_ref": "pdepthinst_4e2ace8ed445a7010809453180a6a478",
+  "benchmark_family_spec_ref": "benchfam_73952621547ba8a17ea53e43cf579388",
+  "benchmark_projection_spec_ref": "benchproj_583343267376892b3e0b7f7e6328f426",
+  "comparison_label": "reference_procedural_depth_base_vs_prompted",
+  "cross_subject_comparison_case_id": "xsubcase_8468d222a788b6149af32ce20facc8f6",
+  "left_subject_ref": "benchsubj_097b335017d3dd28fe8e5171ec90d74a",
+  "notes": [
+    "starter v46d deterministic subject-pair comparison case"
+  ],
+  "perturbation_case_refs": [
+    "pdepthpert_3099cdab20b4c5c498cd351f7cdb7f61",
+    "pdepthpert_4a8cc1d7e79d8748f3a634dfe4c40cc9",
+    "pdepthpert_e4cae96730d15577dc463ec54d351a03"
+  ],
+  "required_comparison_surfaces": [
+    "baseline_structural_fidelity",
+    "perturbation_non_regression",
+    "perturbation_validation"
+  ],
+  "required_execution_context_compatibility_fields": [
+    "repo_snapshot_ref",
+    "tool_availability",
+    "context_budget_posture",
+    "determinism_posture"
+  ],
+  "right_subject_ref": "benchsubj_62308d1c6e9b162d2e729444e4d56844",
+  "schema": "adeu_cross_subject_comparison_case@1"
+}

@@ -1,0 +1,11 @@
+{
+  "schema": "runtime_observability_comparison@1",
+  "baseline_arc": "vNext+137",
+  "current_arc": "vNext+138",
+  "baseline_source": "artifacts/stop_gate/report_v137_closeout.md",
+  "current_source": "artifacts/stop_gate/report_v138_closeout.md",
+  "baseline_elapsed_ms": 134,
+  "current_elapsed_ms": 134,
+  "delta_ms": 0,
+  "notes": "v138 closeout keeps the frozen stop-gate schema family and exact metric keyset unchanged while shipping the released V46-C Procedural Depth perturbation and non-regression lane: one repo-owned adeu_benchmarking package only, four new bounded V46-C contracts over the released V46-A/V46-B stack, operational perturbation overlays for branch_shift delayed_constraint and paraphrase_preserving, exact three-replay deterministic non-regression thresholds, per-case and per-replay aggregation across failure topology non-regression and benchmark validation artifacts, schema mirrors and deterministic v46c fixtures, fail-closed unknown override-case handling, validation aggregation that now requires expected/observed agreement in addition to replay stability, and no cross-subject comparison or downstream consumer widening."
+}
