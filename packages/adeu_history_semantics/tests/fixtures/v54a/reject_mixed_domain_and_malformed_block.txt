@@ -1,0 +1,3 @@
+[2026-02-02 10:00] User: Keep the starter slice bounded.
+This continuation line is still within the same message.
+Assistant : This malformed block must reject the whole source.

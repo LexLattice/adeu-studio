@@ -1,0 +1,14 @@
+{
+  "corpus_wave_posture": "wave_0_bootstrap_candidate",
+  "input_kind": "conversation_history",
+  "schema": "adeu_history_source_artifact@1",
+  "source_authority_posture": "raw_source_text_authoritative",
+  "source_id": "history_source:61a2f3e5f461597f",
+  "source_label": "starter fixture",
+  "source_notes": [
+    "starter_fixture",
+    "projection_only_metadata"
+  ],
+  "source_text": "[2026-02-02 10:00] System: Starter scope is bounded to one repo-owned package.\n[2026-02-02 10:01] User: Keep normalized source text authoritative.\n[2026-02-02 10:02] Assistant: Agreed. The release stays fail-closed.\n- keep exact User/Assistant/System headers\n- reject shorthand aliases and malformed timestamps\n",
+  "source_text_hash": "1c7ab2eb8c997702a480098a7b5791911368add1e1d1961a4621607273670a84"
+}

@@ -1,0 +1,2 @@
+This line does not start with a full role header.
+Assistant: The starter slice should reject it fail-closed.
