@@ -37,7 +37,7 @@ Interpretive doctrine for this planning surface:
 - `V39-A` through `V39-E` are closed on `main`.
 - `V40-A` through `V40-F` are closed on `main`.
 - `V41-A` through `V41-F` are closed on `main`.
-- `vNext+138` is the current baseline implementation state.
+- `vNext+139` is the current baseline implementation state.
 - `V42-A` through `V42-G4` are closed on `main`.
 - `V44-A` through `V44-E` are closed on `main`.
 - `docs/DRAFT_NEXT_ARC_OPTIONS_v25.md` is the authoritative planning record for the
@@ -65,6 +65,11 @@ Interpretive doctrine for this planning surface:
   - failure topology
   - non-regression report
   - procedural-depth benchmark validation report
+- `V46-D` is now closed on `main`:
+  - benchmark subject record
+  - cross-subject comparison case
+  - cross-subject comparison report
+  - cross-subject comparison validation report
 - `docs/DRAFT_NEXT_ARC_OPTIONS_v28.md` records one connected candidate family:
   - `V45`
   - ADEU repo self-description substrate
@@ -174,13 +179,13 @@ Planning relationship:
 - Recommended first projection reference:
   - `docs/DRAFT_PROCEDURAL_DEPTH_FIDELITY_BENCHMARK_SPEC_v0.md`
 - Recommended decomposition reference:
-  - `docs/LOCKED_CONTINUATION_vNEXT_PLUS139.md`
+  - `not_selected_yet`
 - Recommended next path for this branch:
-  - `V46-D`
+  - `V46-E`
 - Recommended next concrete arc for this branch if selected:
-  - `vNext+139`
+  - `vNext+140`
 - Default path selection for this branch:
-  - select `V46-D` as the next default candidate
+  - select `V46-E` as the next default candidate
 
 This family/path recommendation is branch-local to the `v29` planning surface.
 
@@ -275,91 +280,82 @@ The current recommended path ladder is:
 | `V46-A` | benchmark substrate and validation lane | released `adeu_benchmark_family_spec@1`, released `adeu_benchmark_projection_spec@1`, released `adeu_benchmark_execution_context@1`, and released `adeu_benchmark_validation_report@1` | closed_on_main |
 | `V46-B` | Procedural Depth Fidelity first concrete projection | released `adeu_procedural_depth_instance@1`, released `adeu_procedural_depth_gold_trace@1`, released `adeu_procedural_depth_run_trace@1`, released `adeu_procedural_depth_metrics@1`, released `adeu_procedural_depth_diagnostic_report@1`, and tiny hierarchical reference chain | closed_on_main |
 | `V46-C` | Procedural Depth perturbation + non-regression widening | released typed perturbation lanes plus released `procedural_depth_non_regression_report@1` and released bundle validation artifacts | closed_on_main |
-| `V46-D` | cross-subject comparison-first widening with projection-library growth deferred inside the path | bounded cross-subject comparison posture over the released Procedural Depth stack first | planned |
-| `V46-E` | downstream consumer seam | separately governed consumers of benchmark diagnostics for routing/model/role/training research | planned_later_not_selected_here |
+| `V46-D` | cross-subject comparison-first widening with projection-library growth deferred inside the path | bounded cross-subject comparison posture over the released Procedural Depth stack first | closed_on_main |
+| `V46-E` | downstream consumer seam | separately governed consumers of benchmark diagnostics for routing/model/role/training research | planned |
 
 These output names are planning-level candidate names, not lock-level schema authority.
 
-The `V46-B` through `V46-D` ladder should be read as provisional planning scaffolding.
+The `V46-B` through `V46-E` ladder should be read as provisional planning scaffolding.
 
 If `V46-A` reveals that execution-context capture, validation burden, or reliability
 semantics are weaker or noisier than expected, widening into later paths may need to
 pause, reorder, or narrow.
 
-## Recommended Next Path (`V46-D`)
+## Recommended Next Path (`V46-E`)
 
-Implement the first cross-subject comparison widening next.
+Implement the first downstream consumer seam next.
 
-`V46-D` should introduce:
+`V46-E` should introduce:
 
-- one bounded comparison-first lane over the released Procedural Depth stack only:
-  - released `V46-B` baseline projection artifacts
-  - released `V46-C` perturbation and non-regression artifacts
-- one bounded subject-comparison posture over deterministic subjects only:
-  - no stochastic context class
-  - no leaderboard or ranking doctrine
-- one bounded comparison bundle that keeps per-subject evidence explicit rather than
-  collapsing comparison into one-number promotion;
-- one bounded comparison-validation lane that proves the comparison bundle remains
-  deterministic, replayable, and diagnostic-first;
-- subject-specific execution contexts with explicit compatibility law rather than one
-  shared execution-context artifact:
-  - `repo_snapshot_ref`
-  - `tool_availability`
-  - `context_budget_posture`
-  - `determinism_posture`
-  must match exactly across the starter pair
-  while subject-specific fields may differ;
-- one explicit perturbation-bundle anchor so cross-subject comparison stays bound to
-  the same ordered released perturbation cases on both sides;
-- explicit reuse of the released `V46-A` family/projection/execution-context
-  substrate and the released `V46-B` / `V46-C` procedural-depth stack without
-  forking their schema ids or scorer law;
-- explicit cross-subject posture without widening yet into downstream routing, role,
-  training, or consumer promotion.
+- one bounded consumer-first lane over the released `V46-A` through `V46-D`
+  benchmarking stack only:
+  - released benchmark substrate
+  - released baseline Procedural Depth projection
+  - released perturbation/non-regression artifacts
+  - released cross-subject comparison artifacts
+- one bounded advisory consumer artifact family only:
+  - consumer inputs remain released benchmark artifacts and refs
+  - consumer outputs remain diagnostic and advisory by default
+- one explicit diagnostic-to-consumer boundary that keeps benchmark evidence
+  authoritative while allowing a later consumer to summarize or package it for bounded
+  research use;
+- one bounded starter consumer posture only:
+  - no routing enactment
+  - no role assignment
+  - no model-promotion or leaderboard doctrine
+  - no training or distillation entitlement
+- one narrow downstream seam that proves benchmark diagnostics can be consumed without
+  silently becoming operational authority.
 
-`V46-D` is still diagnostic-first and non-promotional:
+`V46-E` should stay advisory-first and non-promotional:
 
-- it may widen from one-subject procedural-depth evaluation into bounded
-  cross-subject comparison law;
-- it may not yet emit leaderboard, routing, role-fit, model-promotion, or training
-  authority;
-- it may keep additional benchmark-projection-library widening deferred if the
-  comparison-first seam proves to be the narrower and safer starting move.
+- it may consume the released benchmarking stack into bounded downstream research
+  artifacts;
+- it may not yet emit live routing, role-fit, training, or promotion authority;
+- it should keep any wider operational consumer seams deferred unless the starter
+  advisory boundary proves stable first.
 
 ## Why This Path
 
-- It is the narrowest safe next consumer of the now-released procedural-depth
-  perturbation stack.
+- It is the narrowest safe next consumer of the now-released cross-subject comparison
+  stack.
 - It preserves the ladder already selected by the family:
   - `V46-A` substrate first
   - `V46-B` first concrete projection second
   - `V46-C` perturbation and non-regression only after a released baseline exists
-- It consumes repeated-run stability and non-regression evidence before the family
-  widens into broader benchmark-library or downstream consumer claims.
+  - `V46-D` comparison only after released perturbation evidence exists
+- It consumes released comparison evidence before the family widens into downstream
+  consumer claims.
 - It keeps the family from collapsing prematurely into stealth leaderboard logic,
-  broad cross-subject ranking, or operational promotion from benchmark diagnostics.
+  operational promotion from benchmark diagnostics, or training entitlement.
 
-## Next-Slice Boundary (`V46-D`)
+## Next-Slice Boundary (`V46-E`)
 
-`V46-D` should stay bounded to:
+`V46-E` should stay bounded to:
 
-- one cross-subject comparison-first widening lane only;
+- one downstream consumer seam only;
 - one repo-owned implementation surface only inside `packages/adeu_benchmarking`;
-- one released `V46-B` / `V46-C` procedural-depth stack only as the comparison basis;
-- one bounded deterministic subject-pair or subject-bundle posture only;
-- one explicit context-compatibility law over subject-specific execution contexts only;
-- one bounded cross-subject comparison artifact family only;
-- one bounded comparison-validation report family only;
-- per-subject and per-comparison evidence structure only:
-  - no ambiguous parallel top-level arrays
-- explicit diagnostic-first interpretation posture only.
+- one released `V46-A` through `V46-D` benchmarking stack only as the consumer basis;
+- one bounded advisory consumer artifact family only;
+- one explicit benchmark-evidence-to-consumer-summary law only;
+- one explicit non-promotional interpretation posture only.
 
 It should not attempt:
 
-- broad benchmark-library release beyond the bounded comparison starter;
-- broad cross-model or cross-system ranking;
-- routing or role-fit promotion;
+- broad benchmark-library release beyond the released Procedural Depth and comparison
+  stack;
+- cross-model ranking or leaderboard doctrine;
+- live routing or role-fit enactment;
 - training or distillation entitlement;
 - contest-law or runtime-governance doctrine;
 - downstream operational promotion from diagnostic outputs.
@@ -391,24 +387,22 @@ Procedural Depth perturbation and non-regression lane, now released on `main`:
 
 ### `V46-D`
 
-Projection-library and cross-subject widening lane:
+Cross-subject comparison-first lane, now released on `main`:
 
-- starter selection may begin comparison-first over the released Procedural Depth
-  stack rather than widening projection-library scope immediately;
-- subject-specific execution contexts remain lawful only when the frozen starter
-  compatibility fields match exactly across the comparison pair;
-- explicit comparison posture across bounded subject-under-test classes that already
-  exist in the released `V46-A` taxonomy, while keeping the starter subject set
-  narrower and deterministic;
-- still diagnostic-first and non-promotional.
+- released `adeu_benchmark_subject_record@1`;
+- released `adeu_cross_subject_comparison_case@1`;
+- released `adeu_cross_subject_comparison_report@1`;
+- released `adeu_cross_subject_comparison_validation_report@1`;
+- one deterministic `base_model` versus `prompted_model` subject pair over the
+  released Procedural Depth stack only.
 
 ### `V46-E`
 
-Deferred downstream-consumer seam:
+Deferred downstream-consumer seam, now selected as the next branch-local default:
 
 - separately governed consumers may later convert benchmark diagnostics into bounded
   research inputs for routing, role-fit, training, or architecture comparison;
-- that seam remains later and not selected by this planning draft.
+- that seam remains later and advisory-first by default.
 
 ## Candidate Package Ownership
 
@@ -418,7 +412,7 @@ The first planning pass should assume one primary family package:
 
 The next slice should assume:
 
-- `packages/adeu_benchmarking` is the only active implementation package for `V46-D`.
+- `packages/adeu_benchmarking` is the only active implementation package for `V46-E`.
 
 This package-ownership assumption is provisional and subordinate to the later `V46`
 decomposition draft.
@@ -472,7 +466,7 @@ are:
 {
   "schema": "next_arc_planning_baseline@1",
   "source_baseline_doc": "docs/DRAFT_NEXT_ARC_OPTIONS_v28.md",
-  "baseline_arc": "vNext+138",
+  "baseline_arc": "vNext+139",
   "closed_prior_families": [
     "V41",
     "V42"
@@ -493,17 +487,17 @@ are:
   "closed_current_family_paths": [
     "V46-A",
     "V46-B",
-    "V46-C"
+    "V46-C",
+    "V46-D"
   ],
   "planned_current_family_paths": [
-    "V46-D",
     "V46-E"
   ],
-  "default_next_arc_candidate_for_this_branch": "V46-D",
-  "default_next_concrete_arc_candidate_for_this_branch": "vNext+139",
+  "default_next_arc_candidate_for_this_branch": "V46-E",
+  "default_next_concrete_arc_candidate_for_this_branch": "vNext+140",
   "family_architecture_doc": "docs/DRAFT_BENCHMARKING_META_MODULE_SPEC_v0.md",
   "first_projection_seed_doc": "docs/DRAFT_PROCEDURAL_DEPTH_FIDELITY_BENCHMARK_SPEC_v0.md",
-  "family_decomposition_doc": "docs/LOCKED_CONTINUATION_vNEXT_PLUS139.md",
+  "family_decomposition_doc": "not_selected_yet",
   "pre_lock_companion_docs_expected": [
     "docs/DRAFT_BENCHMARK_FAMILY_DECOMPOSITION_v0.md",
     "docs/DRAFT_BENCHMARK_ARTIFACT_SURFACES_v0.md"
@@ -511,9 +505,7 @@ are:
   "planned_family_packages": [
     "packages/adeu_benchmarking"
   ],
-  "first_slice_active_packages": [
-    "packages/adeu_benchmarking"
-  ],
+  "first_slice_active_packages": [],
   "family_theme": "adeu_applied_benchmarking_substrate_with_projection_modularity",
   "branch_local_planning_selection_only": true,
   "general_benchmark_substrate_first_required": true,
@@ -544,6 +536,7 @@ are:
   "hierarchical_trace_support_required_for_non_flat_projections": true,
   "plan_spine_active_step_and_reintegration_split_required": true,
   "v46c_procedural_depth_perturbation_and_non_regression_released_on_main": true,
+  "v46d_cross_subject_comparison_released_on_main": true,
   "v46d_projection_library_and_cross_subject_widening_planned": true,
   "v46e_downstream_consumer_seam_not_selected_here": true,
   "benchmark_results_non_promotional_required": true,

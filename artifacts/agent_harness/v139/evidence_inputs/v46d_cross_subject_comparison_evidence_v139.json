@@ -1,0 +1,45 @@
+{
+  "schema": "v46d_cross_subject_comparison_evidence@1",
+  "merged_pr": "#361",
+  "merge_commit": "c898bf9da452a7b2c8ba8811e81c98ad261c6674",
+  "implementation_commit": "c88a927dfff6f06fd20b903bc0852aaf066fe9c5",
+  "review_hardening_commit": "a4c7ea0211900d134febc48764f43d06b216f22e",
+  "implementation_packages": [
+    "adeu_benchmarking"
+  ],
+  "starter_schema_ids": [
+    "adeu_benchmark_subject_record@1",
+    "adeu_cross_subject_comparison_case@1",
+    "adeu_cross_subject_comparison_report@1",
+    "adeu_cross_subject_comparison_validation_report@1"
+  ],
+  "starter_subject_pair": [
+    "base_model",
+    "prompted_model"
+  ],
+  "required_execution_context_compatibility_fields": [
+    "repo_snapshot_ref",
+    "tool_availability",
+    "context_budget_posture",
+    "determinism_posture"
+  ],
+  "required_comparison_surfaces": [
+    "baseline_structural_fidelity",
+    "perturbation_non_regression",
+    "perturbation_validation"
+  ],
+  "deterministic_context_required": true,
+  "same_released_baseline_instance_required": true,
+  "same_released_perturbation_bundle_required": true,
+  "descriptive_non_promotional_posture": true,
+  "review_hardening_enforces_subject_context_binding": true,
+  "review_hardening_enforces_baseline_metric_diagnostic_chain_binding": true,
+  "targeted_local_checks": [
+    "PYTHONPATH=packages/adeu_benchmarking/src:packages/adeu_ir/src:packages/urm_runtime/src .venv/bin/python -m ruff check packages/adeu_benchmarking",
+    "PYTHONPATH=packages/adeu_benchmarking/src:packages/adeu_ir/src:packages/urm_runtime/src .venv/bin/python -m pytest packages/adeu_benchmarking/tests"
+  ],
+  "test_reference_path": "packages/adeu_benchmarking/tests/test_benchmarking_cross_subject_comparison.py",
+  "metric_key_continuity_assertion_path": "artifacts/agent_harness/v139/evidence_inputs/metric_key_continuity_assertion_v139.json",
+  "runtime_observability_comparison_path": "artifacts/agent_harness/v139/evidence_inputs/runtime_observability_comparison_v139.json",
+  "notes": "v139 evidence pins the released V46-D cross-subject comparison seam on main: one repo-owned adeu_benchmarking package only, four new bounded comparison contracts over the released V46-A/V46-B/V46-C procedural-depth stack, one deterministic base_model versus prompted_model subject pair, descriptive comparison-only posture, explicit perturbation-bundle sameness and compatibility law, fail-closed subject-class/context and baseline artifact-chain validation, deterministic schema mirrors and v46d fixtures, and no ranking or downstream consumer widening."
+}
