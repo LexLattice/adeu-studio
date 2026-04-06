@@ -1,0 +1,67 @@
+{
+  "schema": "parallel_arc_meta_loop_baton@1",
+  "baton_id": "baton_v53a_arc_worker_closeout_claim_012",
+  "baton_kind": "transition_claim",
+  "emitted_at_utc": "2026-04-07T07:15:00Z",
+  "previous_baton_id": "baton_v53a_arc_worker_review_fix_claim_011",
+  "arc_family": "V53",
+  "slice": "V53-A",
+  "phase": "closeout_committed_to_arc_branch",
+  "role": "arc_worker",
+  "model": "gpt-5.4",
+  "reasoning_effort": "xhigh",
+  "arc_branch": "arc/v53-r3",
+  "feature_branch": null,
+  "base_branch": "arc/v53-r3",
+  "commit_sha": null,
+  "pr_url": "https://github.com/LexLattice/adeu-studio/pull/363",
+  "review_verdict": null,
+  "ci_status": "green",
+  "bot_review_overall_status": "complete",
+  "controlling_refs": [
+    "docs/LOCKED_CONTINUATION_vNEXT_PLUS141.md",
+    "docs/DRAFT_ADEU_EDGE_LEDGER_V53A_IMPLEMENTATION_MAPPING_v0.md",
+    "docs/DRAFT_PARALLEL_ARC_META_LOOP_PROTOCOL_v0.md",
+    "docs/PARALLEL_ARC_META_LOOP_BATON_v0.json"
+  ],
+  "required_outputs_claimed_satisfied": [
+    "v53_a_family_branch_merge_complete",
+    "v53_a_closeout_docs_updated",
+    "v53_a_closeout_artifacts_present",
+    "v53_a_arc_closeout_check_green"
+  ],
+  "unsatisfied_requirements": [
+    "meta_orchestrator_closeout_ratification"
+  ],
+  "status": "completed",
+  "artifacts_produced": [
+    "docs/DRAFT_STOP_GATE_DECISION_vNEXT_PLUS141.md",
+    "docs/ASSESSMENT_vNEXT_PLUS141_EDGES.md",
+    "docs/DRAFT_NEXT_ARC_OPTIONS_v36.md",
+    "artifacts/quality_dashboard_v141_closeout.json",
+    "artifacts/stop_gate/metrics_v141_closeout.json",
+    "artifacts/stop_gate/report_v141_closeout.md",
+    "artifacts/agent_harness/v141/evidence_inputs/metric_key_continuity_assertion_v141.json",
+    "artifacts/agent_harness/v141/evidence_inputs/runtime_observability_comparison_v141.json",
+    "artifacts/agent_harness/v141/evidence_inputs/v53a_edge_ledger_evidence_v141.json",
+    "artifacts/meta_loop/V53/V53-A/batons/012_arc_worker_closeout_claim.json"
+  ],
+  "evidence_refs": [
+    "5f20beb52c7a3ac5f3414426d695d65a1999142f",
+    "https://github.com/LexLattice/adeu-studio/pull/363",
+    "artifacts/agent_harness/v141/evidence_inputs/v53a_edge_ledger_evidence_v141.json"
+  ],
+  "checks_run": [
+    "make arc-closeout-check ARC=141 (pass)"
+  ],
+  "checks_skipped": [
+    "make check skipped because this step was docs/artifacts-only closeout work",
+    "broader repo-wide Python lane was not rerun in this closeout step"
+  ],
+  "blockers": [],
+  "next_allowed_actions": [
+    "meta_orchestrator_verify_v53_a_closeout",
+    "advance_branch_local_default_to_v53_b"
+  ],
+  "notes": "This claim records the family-branch closeout bundle after PR #363 merged green. Final closeout commit sha should be recorded by meta-orchestrator ratification."
+}
