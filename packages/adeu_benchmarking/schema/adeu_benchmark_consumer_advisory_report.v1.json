@@ -1,0 +1,140 @@
+{
+  "$defs": {
+    "BenchmarkConsumerComparisonFieldRef": {
+      "additionalProperties": false,
+      "properties": {
+        "comparison_report_ref": {
+          "title": "Comparison Report Ref",
+          "type": "string"
+        },
+        "comparison_surface": {
+          "enum": [
+            "baseline_structural_fidelity",
+            "perturbation_non_regression",
+            "perturbation_validation"
+          ],
+          "title": "Comparison Surface",
+          "type": "string"
+        }
+      },
+      "required": [
+        "comparison_report_ref",
+        "comparison_surface"
+      ],
+      "title": "BenchmarkConsumerComparisonFieldRef",
+      "type": "object"
+    },
+    "BenchmarkConsumerValidationResultRef": {
+      "additionalProperties": false,
+      "properties": {
+        "comparison_surface": {
+          "enum": [
+            "baseline_structural_fidelity",
+            "perturbation_non_regression",
+            "perturbation_validation"
+          ],
+          "title": "Comparison Surface",
+          "type": "string"
+        },
+        "comparison_validation_report_ref": {
+          "title": "Comparison Validation Report Ref",
+          "type": "string"
+        }
+      },
+      "required": [
+        "comparison_validation_report_ref",
+        "comparison_surface"
+      ],
+      "title": "BenchmarkConsumerValidationResultRef",
+      "type": "object"
+    }
+  },
+  "additionalProperties": false,
+  "properties": {
+    "advisory_summary": {
+      "title": "Advisory Summary",
+      "type": "string"
+    },
+    "benchmark_consumer_advisory_report_id": {
+      "title": "Benchmark Consumer Advisory Report Id",
+      "type": "string"
+    },
+    "consumer_case_ref": {
+      "title": "Consumer Case Ref",
+      "type": "string"
+    },
+    "consumer_output_epistemic_posture": {
+      "const": "inferred_interpretively",
+      "title": "Consumer Output Epistemic Posture",
+      "type": "string"
+    },
+    "consumer_status": {
+      "enum": [
+        "consumer_ready_advisory_only",
+        "consumer_insufficient",
+        "consumer_incompatible"
+      ],
+      "title": "Consumer Status",
+      "type": "string"
+    },
+    "limitations": {
+      "items": {
+        "type": "string"
+      },
+      "minItems": 1,
+      "title": "Limitations",
+      "type": "array"
+    },
+    "notes": {
+      "items": {
+        "type": "string"
+      },
+      "title": "Notes",
+      "type": "array"
+    },
+    "recommendation_status": {
+      "enum": [
+        "architecture_difference_supported",
+        "mixed_or_cautionary",
+        "insufficient_evidence"
+      ],
+      "title": "Recommendation Status",
+      "type": "string"
+    },
+    "schema": {
+      "const": "adeu_benchmark_consumer_advisory_report@1",
+      "default": "adeu_benchmark_consumer_advisory_report@1",
+      "title": "Schema",
+      "type": "string"
+    },
+    "supporting_comparison_field_refs": {
+      "items": {
+        "$ref": "#/$defs/BenchmarkConsumerComparisonFieldRef"
+      },
+      "minItems": 1,
+      "title": "Supporting Comparison Field Refs",
+      "type": "array"
+    },
+    "supporting_validation_result_refs": {
+      "items": {
+        "$ref": "#/$defs/BenchmarkConsumerValidationResultRef"
+      },
+      "minItems": 1,
+      "title": "Supporting Validation Result Refs",
+      "type": "array"
+    }
+  },
+  "required": [
+    "benchmark_consumer_advisory_report_id",
+    "consumer_case_ref",
+    "consumer_status",
+    "recommendation_status",
+    "consumer_output_epistemic_posture",
+    "supporting_comparison_field_refs",
+    "supporting_validation_result_refs",
+    "advisory_summary",
+    "limitations"
+  ],
+  "title": "BenchmarkConsumerAdvisoryReport",
+  "type": "object"
+}

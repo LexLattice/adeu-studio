@@ -1,0 +1,34 @@
+{
+  "comparison_case_ref": "xsubcase_8468d222a788b6149af32ce20facc8f6",
+  "cross_subject_comparison_validation_report_id": "xsubvalid_19732f7bf117706bef184616044a17c8",
+  "deterministic_comparison_confirmed": false,
+  "limitations": [
+    "No ranking, leaderboard, or downstream consumer authority is selected in the V46-D starter lane.",
+    "Validation remains bounded to one deterministic subject pair over the released Procedural Depth stack only."
+  ],
+  "schema": "adeu_cross_subject_comparison_validation_report@1",
+  "validation_results": [
+    {
+      "comparison_status": "different_but_comparable",
+      "comparison_surface": "baseline_structural_fidelity",
+      "deterministic_comparison_confirmed": true,
+      "left_ref": "pdepthmetrics_e48fb7271585a83e853594d7ed0ceb68",
+      "right_ref": "pdepthmetrics_1bbde79b5616c436392cf17425238003"
+    },
+    {
+      "comparison_status": "different_but_comparable",
+      "comparison_surface": "perturbation_non_regression",
+      "deterministic_comparison_confirmed": true,
+      "left_ref": "pdepthnreg_933aa67ab8b164450dd9e0f9672867af",
+      "right_ref": "pdepthnreg_4f89cadb9b4872d4b252c87b83a7157c"
+    },
+    {
+      "comparison_status": "different_but_comparable",
+      "comparison_surface": "perturbation_validation",
+      "deterministic_comparison_confirmed": false,
+      "left_ref": "pdepthbval_2083b280f4a301a92d471e57651f7554",
+      "right_ref": "pdepthbval_e16a728197229ac98d0361ac19081077"
+    }
+  ],
+  "validation_status": "validation_insufficient"
+}

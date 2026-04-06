@@ -34,6 +34,13 @@ ADEU_CROSS_SUBJECT_COMPARISON_REPORT_SCHEMA = "adeu_cross_subject_comparison_rep
 ADEU_CROSS_SUBJECT_COMPARISON_VALIDATION_REPORT_SCHEMA = (
     "adeu_cross_subject_comparison_validation_report@1"
 )
+ADEU_BENCHMARK_CONSUMER_CASE_SCHEMA = "adeu_benchmark_consumer_case@1"
+ADEU_BENCHMARK_CONSUMER_ADVISORY_REPORT_SCHEMA = (
+    "adeu_benchmark_consumer_advisory_report@1"
+)
+ADEU_BENCHMARK_CONSUMER_VALIDATION_REPORT_SCHEMA = (
+    "adeu_benchmark_consumer_validation_report@1"
+)
 
 SUBJECT_UNDER_TEST_CLASS_VOCABULARY = [
     "base_model",
@@ -107,6 +114,23 @@ COMPARISON_VALIDATION_STATUS_VOCABULARY = [
     "validation_insufficient",
     "validation_incompatible",
 ]
+BENCHMARK_CONSUMER_TARGET_VOCABULARY = ["architecture_comparison_research"]
+BENCHMARK_CONSUMER_ADVISORY_POSTURE_VOCABULARY = ["advisory_only_non_promotional"]
+BENCHMARK_CONSUMER_STATUS_VOCABULARY = [
+    "consumer_ready_advisory_only",
+    "consumer_insufficient",
+    "consumer_incompatible",
+]
+BENCHMARK_CONSUMER_RECOMMENDATION_STATUS_VOCABULARY = [
+    "architecture_difference_supported",
+    "mixed_or_cautionary",
+    "insufficient_evidence",
+]
+BENCHMARK_CONSUMER_VALIDATION_STATUS_VOCABULARY = [
+    "validated_clean",
+    "validated_insufficient",
+    "validated_incompatible",
+]
 
 SubjectUnderTestClass = Literal[
     "base_model",
@@ -176,6 +200,23 @@ ComparisonValidationStatus = Literal[
     "validation_ready_clean",
     "validation_insufficient",
     "validation_incompatible",
+]
+BenchmarkConsumerTarget = Literal["architecture_comparison_research"]
+BenchmarkConsumerAdvisoryPosture = Literal["advisory_only_non_promotional"]
+BenchmarkConsumerStatus = Literal[
+    "consumer_ready_advisory_only",
+    "consumer_insufficient",
+    "consumer_incompatible",
+]
+BenchmarkConsumerRecommendationStatus = Literal[
+    "architecture_difference_supported",
+    "mixed_or_cautionary",
+    "insufficient_evidence",
+]
+BenchmarkConsumerValidationStatus = Literal[
+    "validated_clean",
+    "validated_insufficient",
+    "validated_incompatible",
 ]
 
 
@@ -801,6 +842,110 @@ def _canonicalize_cross_subject_comparison_validation_report_material(
     return prepared
 
 
+def _canonicalize_benchmark_consumer_case_material(
+    payload: dict[str, Any],
+) -> dict[str, Any]:
+    prepared = deepcopy(payload)
+    for field_name in (
+        "consumer_label",
+        "comparison_case_ref",
+        "comparison_report_ref",
+        "comparison_validation_report_ref",
+    ):
+        prepared[field_name] = _assert_non_empty_text(
+            prepared[field_name],
+            field_name=field_name,
+        )
+    prepared["notes"] = _sorted_unique_texts(
+        list(prepared.get("notes", [])),
+        field_name="notes",
+    )
+    return prepared
+
+
+def _canonicalize_consumer_comparison_field_refs(
+    payloads: list[dict[str, Any]],
+) -> list[dict[str, Any]]:
+    rows = [
+        _canonical_model_payload(BenchmarkConsumerComparisonFieldRef.model_validate(payload))
+        for payload in payloads
+    ]
+    return sorted(
+        rows,
+        key=lambda row: (
+            COMPARISON_SURFACE_VOCABULARY.index(row["comparison_surface"]),
+            row["comparison_report_ref"],
+        ),
+    )
+
+
+def _canonicalize_consumer_validation_result_refs(
+    payloads: list[dict[str, Any]],
+) -> list[dict[str, Any]]:
+    rows = [
+        _canonical_model_payload(BenchmarkConsumerValidationResultRef.model_validate(payload))
+        for payload in payloads
+    ]
+    return sorted(
+        rows,
+        key=lambda row: (
+            COMPARISON_SURFACE_VOCABULARY.index(row["comparison_surface"]),
+            row["comparison_validation_report_ref"],
+        ),
+    )
+
+
+def _canonicalize_benchmark_consumer_advisory_report_material(
+    payload: dict[str, Any],
+) -> dict[str, Any]:
+    prepared = deepcopy(payload)
+    for field_name in ("consumer_case_ref", "advisory_summary"):
+        prepared[field_name] = _assert_non_empty_text(
+            prepared[field_name],
+            field_name=field_name,
+        )
+    prepared["supporting_comparison_field_refs"] = _canonicalize_consumer_comparison_field_refs(
+        list(prepared.get("supporting_comparison_field_refs", []))
+    )
+    prepared["supporting_validation_result_refs"] = _canonicalize_consumer_validation_result_refs(
+        list(prepared.get("supporting_validation_result_refs", []))
+    )
+    prepared["limitations"] = _sorted_unique_texts(
+        list(prepared.get("limitations", [])),
+        field_name="limitations",
+    )
+    prepared["notes"] = _sorted_unique_texts(
+        list(prepared.get("notes", [])),
+        field_name="notes",
+    )
+    return prepared
+
+
+def _canonicalize_benchmark_consumer_validation_report_material(
+    payload: dict[str, Any],
+) -> dict[str, Any]:
+    prepared = deepcopy(payload)
+    prepared["consumer_case_ref"] = _assert_non_empty_text(
+        prepared["consumer_case_ref"],
+        field_name="consumer_case_ref",
+    )
+    prepared["supporting_comparison_field_refs"] = _canonicalize_consumer_comparison_field_refs(
+        list(prepared.get("supporting_comparison_field_refs", []))
+    )
+    prepared["supporting_validation_result_refs"] = _canonicalize_consumer_validation_result_refs(
+        list(prepared.get("supporting_validation_result_refs", []))
+    )
+    prepared["limitations"] = _sorted_unique_texts(
+        list(prepared.get("limitations", [])),
+        field_name="limitations",
+    )
+    prepared["notes"] = _sorted_unique_texts(
+        list(prepared.get("notes", [])),
+        field_name="notes",
+    )
+    return prepared
+
+
 def compute_procedural_depth_instance_id(payload: dict[str, Any]) -> str:
     prepared = _canonicalize_instance_material(payload)
     material = {
@@ -1012,6 +1157,54 @@ def compute_cross_subject_comparison_validation_report_id(
         "limitations": prepared.get("limitations"),
     }
     return f"xsubvalid_{sha256_canonical_json(material)[:32]}"
+
+
+def compute_benchmark_consumer_case_id(payload: dict[str, Any]) -> str:
+    prepared = _canonicalize_benchmark_consumer_case_material(payload)
+    material = {
+        "consumer_label": prepared.get("consumer_label"),
+        "consumer_target": prepared.get("consumer_target"),
+        "comparison_case_ref": prepared.get("comparison_case_ref"),
+        "comparison_report_ref": prepared.get("comparison_report_ref"),
+        "comparison_validation_report_ref": prepared.get("comparison_validation_report_ref"),
+        "advisory_posture": prepared.get("advisory_posture"),
+        "notes": prepared.get("notes"),
+    }
+    return f"benchcons_{sha256_canonical_json(material)[:32]}"
+
+
+def compute_benchmark_consumer_advisory_report_id(payload: dict[str, Any]) -> str:
+    prepared = _canonicalize_benchmark_consumer_advisory_report_material(payload)
+    material = {
+        "consumer_case_ref": prepared.get("consumer_case_ref"),
+        "consumer_status": prepared.get("consumer_status"),
+        "recommendation_status": prepared.get("recommendation_status"),
+        "consumer_output_epistemic_posture": prepared.get(
+            "consumer_output_epistemic_posture"
+        ),
+        "supporting_comparison_field_refs": prepared.get("supporting_comparison_field_refs"),
+        "supporting_validation_result_refs": prepared.get("supporting_validation_result_refs"),
+        "advisory_summary": prepared.get("advisory_summary"),
+        "limitations": prepared.get("limitations"),
+        "notes": prepared.get("notes"),
+    }
+    return f"benchadv_{sha256_canonical_json(material)[:32]}"
+
+
+def compute_benchmark_consumer_validation_report_id(payload: dict[str, Any]) -> str:
+    prepared = _canonicalize_benchmark_consumer_validation_report_material(payload)
+    material = {
+        "consumer_case_ref": prepared.get("consumer_case_ref"),
+        "validation_status": prepared.get("validation_status"),
+        "deterministic_advisory_projection_confirmed": prepared.get(
+            "deterministic_advisory_projection_confirmed"
+        ),
+        "supporting_comparison_field_refs": prepared.get("supporting_comparison_field_refs"),
+        "supporting_validation_result_refs": prepared.get("supporting_validation_result_refs"),
+        "limitations": prepared.get("limitations"),
+        "notes": prepared.get("notes"),
+    }
+    return f"benchcvalid_{sha256_canonical_json(material)[:32]}"
 
 
 class BenchmarkFamilySpec(BaseModel):
@@ -2557,6 +2750,288 @@ class CrossSubjectComparisonValidationReport(BaseModel):
         return self
 
 
+class BenchmarkConsumerCase(BaseModel):
+    model_config = MODEL_CONFIG
+
+    schema_id: Literal[ADEU_BENCHMARK_CONSUMER_CASE_SCHEMA] = Field(
+        default=ADEU_BENCHMARK_CONSUMER_CASE_SCHEMA,
+        alias="schema",
+    )
+    benchmark_consumer_case_id: str
+    consumer_label: str
+    consumer_target: BenchmarkConsumerTarget
+    comparison_case_ref: str
+    comparison_report_ref: str
+    comparison_validation_report_ref: str
+    advisory_posture: BenchmarkConsumerAdvisoryPosture
+    notes: list[str] = Field(default_factory=list)
+
+    @model_validator(mode="after")
+    def _validate_model(self) -> "BenchmarkConsumerCase":
+        for field_name in (
+            "benchmark_consumer_case_id",
+            "consumer_label",
+            "comparison_case_ref",
+            "comparison_report_ref",
+            "comparison_validation_report_ref",
+        ):
+            object.__setattr__(
+                self,
+                field_name,
+                _assert_non_empty_text(getattr(self, field_name), field_name=field_name),
+            )
+        object.__setattr__(self, "notes", _sorted_unique_texts(self.notes, field_name="notes"))
+        expected_id = compute_benchmark_consumer_case_id(_canonical_model_payload(self))
+        if self.benchmark_consumer_case_id != expected_id:
+            raise ValueError(
+                "benchmark_consumer_case_id must match canonical consumer-case identity"
+            )
+        return self
+
+
+class BenchmarkConsumerComparisonFieldRef(BaseModel):
+    model_config = MODEL_CONFIG
+
+    comparison_report_ref: str
+    comparison_surface: ComparisonSurface
+
+    @model_validator(mode="after")
+    def _validate_model(self) -> "BenchmarkConsumerComparisonFieldRef":
+        object.__setattr__(
+            self,
+            "comparison_report_ref",
+            _assert_non_empty_text(
+                self.comparison_report_ref,
+                field_name="comparison_report_ref",
+            ),
+        )
+        return self
+
+
+class BenchmarkConsumerValidationResultRef(BaseModel):
+    model_config = MODEL_CONFIG
+
+    comparison_validation_report_ref: str
+    comparison_surface: ComparisonSurface
+
+    @model_validator(mode="after")
+    def _validate_model(self) -> "BenchmarkConsumerValidationResultRef":
+        object.__setattr__(
+            self,
+            "comparison_validation_report_ref",
+            _assert_non_empty_text(
+                self.comparison_validation_report_ref,
+                field_name="comparison_validation_report_ref",
+            ),
+        )
+        return self
+
+
+class BenchmarkConsumerAdvisoryReport(BaseModel):
+    model_config = MODEL_CONFIG
+
+    schema_id: Literal[ADEU_BENCHMARK_CONSUMER_ADVISORY_REPORT_SCHEMA] = Field(
+        default=ADEU_BENCHMARK_CONSUMER_ADVISORY_REPORT_SCHEMA,
+        alias="schema",
+    )
+    benchmark_consumer_advisory_report_id: str
+    consumer_case_ref: str
+    consumer_status: BenchmarkConsumerStatus
+    recommendation_status: BenchmarkConsumerRecommendationStatus
+    consumer_output_epistemic_posture: Literal["inferred_interpretively"]
+    supporting_comparison_field_refs: list[BenchmarkConsumerComparisonFieldRef] = Field(
+        min_length=1
+    )
+    supporting_validation_result_refs: list[BenchmarkConsumerValidationResultRef] = Field(
+        min_length=1
+    )
+    advisory_summary: str
+    limitations: list[str] = Field(min_length=1)
+    notes: list[str] = Field(default_factory=list)
+
+    @model_validator(mode="after")
+    def _validate_model(self) -> "BenchmarkConsumerAdvisoryReport":
+        for field_name in (
+            "benchmark_consumer_advisory_report_id",
+            "consumer_case_ref",
+            "advisory_summary",
+        ):
+            object.__setattr__(
+                self,
+                field_name,
+                _assert_non_empty_text(getattr(self, field_name), field_name=field_name),
+            )
+        ordered_comparison_refs = sorted(
+            self.supporting_comparison_field_refs,
+            key=lambda item: (
+                COMPARISON_SURFACE_VOCABULARY.index(item.comparison_surface),
+                item.comparison_report_ref,
+            ),
+        )
+        ordered_validation_refs = sorted(
+            self.supporting_validation_result_refs,
+            key=lambda item: (
+                COMPARISON_SURFACE_VOCABULARY.index(item.comparison_surface),
+                item.comparison_validation_report_ref,
+            ),
+        )
+        comparison_surfaces = [item.comparison_surface for item in ordered_comparison_refs]
+        validation_surfaces = [item.comparison_surface for item in ordered_validation_refs]
+        comparison_report_refs = {
+            item.comparison_report_ref for item in ordered_comparison_refs
+        }
+        validation_report_refs = {
+            item.comparison_validation_report_ref for item in ordered_validation_refs
+        }
+        if comparison_surfaces != COMPARISON_SURFACE_VOCABULARY:
+            raise ValueError(
+                "supporting_comparison_field_refs must cover the starter comparison surfaces "
+                "exactly once"
+            )
+        if validation_surfaces != COMPARISON_SURFACE_VOCABULARY:
+            raise ValueError(
+                "supporting_validation_result_refs must cover the starter comparison surfaces "
+                "exactly once"
+            )
+        if len(comparison_report_refs) != 1:
+            raise ValueError(
+                "supporting_comparison_field_refs must bind to exactly one comparison_report_ref"
+            )
+        if len(validation_report_refs) != 1:
+            raise ValueError(
+                "supporting_validation_result_refs must bind to exactly one "
+                "comparison_validation_report_ref"
+            )
+        object.__setattr__(self, "supporting_comparison_field_refs", ordered_comparison_refs)
+        object.__setattr__(self, "supporting_validation_result_refs", ordered_validation_refs)
+        object.__setattr__(
+            self,
+            "limitations",
+            _sorted_unique_texts(self.limitations, field_name="limitations"),
+        )
+        object.__setattr__(self, "notes", _sorted_unique_texts(self.notes, field_name="notes"))
+        if self.consumer_status != "consumer_ready_advisory_only":
+            if self.recommendation_status != "insufficient_evidence":
+                raise ValueError(
+                    "non-ready consumer_status may only emit insufficient_evidence"
+                )
+        expected_id = compute_benchmark_consumer_advisory_report_id(_canonical_model_payload(self))
+        if self.benchmark_consumer_advisory_report_id != expected_id:
+            raise ValueError(
+                "benchmark_consumer_advisory_report_id must match canonical advisory identity"
+            )
+        return self
+
+
+class BenchmarkConsumerValidationReport(BaseModel):
+    model_config = MODEL_CONFIG
+
+    schema_id: Literal[ADEU_BENCHMARK_CONSUMER_VALIDATION_REPORT_SCHEMA] = Field(
+        default=ADEU_BENCHMARK_CONSUMER_VALIDATION_REPORT_SCHEMA,
+        alias="schema",
+    )
+    benchmark_consumer_validation_report_id: str
+    consumer_case_ref: str
+    validation_status: BenchmarkConsumerValidationStatus
+    deterministic_advisory_projection_confirmed: bool
+    supporting_comparison_field_refs: list[BenchmarkConsumerComparisonFieldRef] = Field(
+        min_length=1
+    )
+    supporting_validation_result_refs: list[BenchmarkConsumerValidationResultRef] = Field(
+        min_length=1
+    )
+    limitations: list[str] = Field(min_length=1)
+    notes: list[str] = Field(default_factory=list)
+
+    @model_validator(mode="after")
+    def _validate_model(self) -> "BenchmarkConsumerValidationReport":
+        object.__setattr__(
+            self,
+            "benchmark_consumer_validation_report_id",
+            _assert_non_empty_text(
+                self.benchmark_consumer_validation_report_id,
+                field_name="benchmark_consumer_validation_report_id",
+            ),
+        )
+        object.__setattr__(
+            self,
+            "consumer_case_ref",
+            _assert_non_empty_text(self.consumer_case_ref, field_name="consumer_case_ref"),
+        )
+        ordered_comparison_refs = sorted(
+            self.supporting_comparison_field_refs,
+            key=lambda item: (
+                COMPARISON_SURFACE_VOCABULARY.index(item.comparison_surface),
+                item.comparison_report_ref,
+            ),
+        )
+        ordered_validation_refs = sorted(
+            self.supporting_validation_result_refs,
+            key=lambda item: (
+                COMPARISON_SURFACE_VOCABULARY.index(item.comparison_surface),
+                item.comparison_validation_report_ref,
+            ),
+        )
+        comparison_surfaces = [item.comparison_surface for item in ordered_comparison_refs]
+        validation_surfaces = [item.comparison_surface for item in ordered_validation_refs]
+        comparison_report_refs = {
+            item.comparison_report_ref for item in ordered_comparison_refs
+        }
+        validation_report_refs = {
+            item.comparison_validation_report_ref for item in ordered_validation_refs
+        }
+        if comparison_surfaces != COMPARISON_SURFACE_VOCABULARY:
+            raise ValueError(
+                "supporting_comparison_field_refs must cover the starter comparison surfaces "
+                "exactly once"
+            )
+        if validation_surfaces != COMPARISON_SURFACE_VOCABULARY:
+            raise ValueError(
+                "supporting_validation_result_refs must cover the starter comparison surfaces "
+                "exactly once"
+            )
+        if len(comparison_report_refs) != 1:
+            raise ValueError(
+                "supporting_comparison_field_refs must bind to exactly one comparison_report_ref"
+            )
+        if len(validation_report_refs) != 1:
+            raise ValueError(
+                "supporting_validation_result_refs must bind to exactly one "
+                "comparison_validation_report_ref"
+            )
+        object.__setattr__(self, "supporting_comparison_field_refs", ordered_comparison_refs)
+        object.__setattr__(self, "supporting_validation_result_refs", ordered_validation_refs)
+        object.__setattr__(
+            self,
+            "limitations",
+            _sorted_unique_texts(self.limitations, field_name="limitations"),
+        )
+        object.__setattr__(self, "notes", _sorted_unique_texts(self.notes, field_name="notes"))
+        if (
+            self.validation_status == "validated_clean"
+            and not self.deterministic_advisory_projection_confirmed
+        ):
+            raise ValueError(
+                "validated_clean requires deterministic_advisory_projection_confirmed"
+            )
+        if (
+            self.validation_status != "validated_clean"
+            and self.deterministic_advisory_projection_confirmed
+        ):
+            raise ValueError(
+                "only validated_clean may claim deterministic_advisory_projection_confirmed"
+            )
+        expected_id = compute_benchmark_consumer_validation_report_id(
+            _canonical_model_payload(self)
+        )
+        if self.benchmark_consumer_validation_report_id != expected_id:
+            raise ValueError(
+                "benchmark_consumer_validation_report_id must match canonical "
+                "consumer-validation identity"
+            )
+        return self
+
+
 def materialize_benchmark_family_spec_payload(payload: dict[str, Any]) -> dict[str, Any]:
     prepared = _prepare_payload(
         payload,
@@ -2948,6 +3423,57 @@ def canonicalize_cross_subject_comparison_validation_report_payload(
     payload: dict[str, Any],
 ) -> dict[str, Any]:
     return _canonical_model_payload(CrossSubjectComparisonValidationReport.model_validate(payload))
+
+
+def materialize_benchmark_consumer_case_payload(
+    payload: dict[str, Any],
+) -> dict[str, Any]:
+    prepared = _canonicalize_benchmark_consumer_case_material(payload)
+    prepared.setdefault(
+        "benchmark_consumer_case_id",
+        compute_benchmark_consumer_case_id(prepared),
+    )
+    return _canonical_model_payload(BenchmarkConsumerCase.model_validate(prepared))
+
+
+def canonicalize_benchmark_consumer_case_payload(
+    payload: dict[str, Any],
+) -> dict[str, Any]:
+    return _canonical_model_payload(BenchmarkConsumerCase.model_validate(payload))
+
+
+def materialize_benchmark_consumer_advisory_report_payload(
+    payload: dict[str, Any],
+) -> dict[str, Any]:
+    prepared = _canonicalize_benchmark_consumer_advisory_report_material(payload)
+    prepared.setdefault(
+        "benchmark_consumer_advisory_report_id",
+        compute_benchmark_consumer_advisory_report_id(prepared),
+    )
+    return _canonical_model_payload(BenchmarkConsumerAdvisoryReport.model_validate(prepared))
+
+
+def canonicalize_benchmark_consumer_advisory_report_payload(
+    payload: dict[str, Any],
+) -> dict[str, Any]:
+    return _canonical_model_payload(BenchmarkConsumerAdvisoryReport.model_validate(payload))
+
+
+def materialize_benchmark_consumer_validation_report_payload(
+    payload: dict[str, Any],
+) -> dict[str, Any]:
+    prepared = _canonicalize_benchmark_consumer_validation_report_material(payload)
+    prepared.setdefault(
+        "benchmark_consumer_validation_report_id",
+        compute_benchmark_consumer_validation_report_id(prepared),
+    )
+    return _canonical_model_payload(BenchmarkConsumerValidationReport.model_validate(prepared))
+
+
+def canonicalize_benchmark_consumer_validation_report_payload(
+    payload: dict[str, Any],
+) -> dict[str, Any]:
+    return _canonical_model_payload(BenchmarkConsumerValidationReport.model_validate(payload))
 
 
 def derive_benchmark_validation_report(

@@ -8,6 +8,9 @@ from typing import Any
 from adeu_ir.repo import repo_root
 
 from .models import (
+    ADEU_BENCHMARK_CONSUMER_ADVISORY_REPORT_SCHEMA,
+    ADEU_BENCHMARK_CONSUMER_CASE_SCHEMA,
+    ADEU_BENCHMARK_CONSUMER_VALIDATION_REPORT_SCHEMA,
     ADEU_BENCHMARK_EXECUTION_CONTEXT_SCHEMA,
     ADEU_BENCHMARK_FAMILY_SPEC_SCHEMA,
     ADEU_BENCHMARK_PROJECTION_SPEC_SCHEMA,
@@ -25,6 +28,9 @@ from .models import (
     ADEU_PROCEDURAL_DEPTH_NON_REGRESSION_REPORT_SCHEMA,
     ADEU_PROCEDURAL_DEPTH_PERTURBATION_CASE_SCHEMA,
     ADEU_PROCEDURAL_DEPTH_RUN_TRACE_SCHEMA,
+    BenchmarkConsumerAdvisoryReport,
+    BenchmarkConsumerCase,
+    BenchmarkConsumerValidationReport,
     BenchmarkExecutionContext,
     BenchmarkFamilySpec,
     BenchmarkProjectionSpec,
@@ -146,6 +152,36 @@ def main() -> None:
             / "schema"
             / "adeu_benchmark_subject_record.v1.json",
             root / "spec" / "adeu_benchmark_subject_record.schema.json",
+        ),
+        (
+            BenchmarkConsumerCase,
+            ADEU_BENCHMARK_CONSUMER_CASE_SCHEMA,
+            root
+            / "packages"
+            / "adeu_benchmarking"
+            / "schema"
+            / "adeu_benchmark_consumer_case.v1.json",
+            root / "spec" / "adeu_benchmark_consumer_case.schema.json",
+        ),
+        (
+            BenchmarkConsumerAdvisoryReport,
+            ADEU_BENCHMARK_CONSUMER_ADVISORY_REPORT_SCHEMA,
+            root
+            / "packages"
+            / "adeu_benchmarking"
+            / "schema"
+            / "adeu_benchmark_consumer_advisory_report.v1.json",
+            root / "spec" / "adeu_benchmark_consumer_advisory_report.schema.json",
+        ),
+        (
+            BenchmarkConsumerValidationReport,
+            ADEU_BENCHMARK_CONSUMER_VALIDATION_REPORT_SCHEMA,
+            root
+            / "packages"
+            / "adeu_benchmarking"
+            / "schema"
+            / "adeu_benchmark_consumer_validation_report.v1.json",
+            root / "spec" / "adeu_benchmark_consumer_validation_report.schema.json",
         ),
         (
             ProceduralDepthInstance,

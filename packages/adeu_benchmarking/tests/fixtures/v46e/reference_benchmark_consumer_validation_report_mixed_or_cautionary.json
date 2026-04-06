@@ -1,0 +1,43 @@
+{
+  "benchmark_consumer_validation_report_id": "benchcvalid_013cbe04e0b138f3d7fcc03bfcb38111",
+  "consumer_case_ref": "benchcons_a352fe04583e6aa5d0cb40542893b8cb",
+  "deterministic_advisory_projection_confirmed": true,
+  "limitations": [
+    "Routing, role-fit, training, and operational promotion remain deferred beyond V46-E starter scope.",
+    "Validation confirms replayable advisory derivation only over released V46-D comparison artifacts."
+  ],
+  "notes": [
+    "Advisory consumer output remains bounded to released V46-D comparison artifacts only.",
+    "The starter V46-E consumer lane is advisory-only and may not act as winner or promotion authority."
+  ],
+  "schema": "adeu_benchmark_consumer_validation_report@1",
+  "supporting_comparison_field_refs": [
+    {
+      "comparison_report_ref": "xsubreport_ebc153f889339e02611e34f4961d79bb",
+      "comparison_surface": "baseline_structural_fidelity"
+    },
+    {
+      "comparison_report_ref": "xsubreport_ebc153f889339e02611e34f4961d79bb",
+      "comparison_surface": "perturbation_non_regression"
+    },
+    {
+      "comparison_report_ref": "xsubreport_ebc153f889339e02611e34f4961d79bb",
+      "comparison_surface": "perturbation_validation"
+    }
+  ],
+  "supporting_validation_result_refs": [
+    {
+      "comparison_surface": "baseline_structural_fidelity",
+      "comparison_validation_report_ref": "xsubvalid_23b6778cd9222f75060c681cd7338e3f"
+    },
+    {
+      "comparison_surface": "perturbation_non_regression",
+      "comparison_validation_report_ref": "xsubvalid_23b6778cd9222f75060c681cd7338e3f"
+    },
+    {
+      "comparison_surface": "perturbation_validation",
+      "comparison_validation_report_ref": "xsubvalid_23b6778cd9222f75060c681cd7338e3f"
+    }
+  ],
+  "validation_status": "validated_clean"
+}

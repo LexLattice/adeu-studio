@@ -1,0 +1,11 @@
+{
+  "schema": "runtime_observability_comparison@1",
+  "baseline_arc": "vNext+138",
+  "current_arc": "vNext+139",
+  "baseline_source": "artifacts/stop_gate/report_v138_closeout.md",
+  "current_source": "artifacts/stop_gate/report_v139_closeout.md",
+  "baseline_elapsed_ms": 134,
+  "current_elapsed_ms": 134,
+  "delta_ms": 0,
+  "notes": "v139 closeout keeps the frozen stop-gate schema family and exact metric keyset unchanged while shipping the released V46-D cross-subject comparison lane: one repo-owned adeu_benchmarking package only, four new bounded comparison contracts over the released V46-A/V46-B/V46-C procedural-depth stack, one deterministic base_model versus prompted_model subject pair, explicit execution-context compatibility law rather than shared-context identity, per-surface comparison over baseline structural fidelity perturbation non-regression and perturbation validation only, review hardening for subject-class/context binding and baseline metric/diagnostic chain integrity, deterministic schema mirrors and v46d fixtures, and no ranking or downstream consumer widening."
+}

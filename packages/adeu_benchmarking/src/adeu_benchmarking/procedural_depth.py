@@ -3,11 +3,14 @@ from __future__ import annotations
 from typing import Any
 
 from .models import (
+    BenchmarkConsumerCase,
     BenchmarkExecutionContext,
     BenchmarkFamilySpec,
     BenchmarkProjectionSpec,
     BenchmarkSubjectRecord,
     CrossSubjectComparisonCase,
+    CrossSubjectComparisonReport,
+    CrossSubjectComparisonValidationReport,
     ProceduralDepthBenchmarkValidationReport,
     ProceduralDepthDiagnosticReport,
     ProceduralDepthGoldTrace,
@@ -19,9 +22,12 @@ from .models import (
     ProceduralDepthStepSpec,
     ProceduralDepthTraceEvent,
     _canonical_model_payload,
+    canonicalize_benchmark_consumer_case_payload,
     canonicalize_benchmark_execution_context_payload,
     canonicalize_benchmark_subject_record_payload,
     canonicalize_cross_subject_comparison_case_payload,
+    canonicalize_cross_subject_comparison_report_payload,
+    canonicalize_cross_subject_comparison_validation_report_payload,
     canonicalize_procedural_depth_benchmark_validation_report_payload,
     canonicalize_procedural_depth_diagnostic_report_payload,
     canonicalize_procedural_depth_gold_trace_payload,
@@ -31,6 +37,9 @@ from .models import (
     canonicalize_procedural_depth_perturbation_case_payload,
     canonicalize_procedural_depth_run_trace_payload,
     compute_procedural_depth_perturbation_bundle_ref,
+    materialize_benchmark_consumer_advisory_report_payload,
+    materialize_benchmark_consumer_case_payload,
+    materialize_benchmark_consumer_validation_report_payload,
     materialize_benchmark_subject_record_payload,
     materialize_cross_subject_comparison_case_payload,
     materialize_cross_subject_comparison_report_payload,
@@ -92,6 +101,33 @@ _V46D_VALIDATION_LIMITATIONS = [
     (
         "No ranking, leaderboard, or downstream consumer authority is "
         "selected in the V46-D starter lane."
+    ),
+]
+_V46E_ADVISORY_NOTES = [
+    "Advisory consumer output remains bounded to released V46-D comparison artifacts only.",
+    (
+        "The starter V46-E consumer lane is advisory-only and may not act as "
+        "winner or promotion authority."
+    ),
+]
+_V46E_ADVISORY_LIMITATIONS = [
+    (
+        "Advisory output remains bounded to architecture_comparison_research only "
+        "in the starter lane."
+    ),
+    (
+        "Deterministic projection confirmation does not widen advisory epistemic "
+        "posture beyond inferred_interpretively."
+    ),
+]
+_V46E_VALIDATION_LIMITATIONS = [
+    (
+        "Validation confirms replayable advisory derivation only over released "
+        "V46-D comparison artifacts."
+    ),
+    (
+        "Routing, role-fit, training, and operational promotion remain deferred "
+        "beyond V46-E starter scope."
     ),
 ]
 _STARTER_SUBJECT_CLASS_SET = {"base_model", "prompted_model"}
@@ -1514,9 +1550,244 @@ def evaluate_cross_subject_comparison_case(
     }
 
 
+def _consumer_supporting_comparison_field_refs(
+    comparison_report: CrossSubjectComparisonReport,
+) -> list[dict[str, Any]]:
+    return [
+        {
+            "comparison_report_ref": comparison_report.cross_subject_comparison_report_id,
+            "comparison_surface": row.comparison_surface,
+        }
+        for row in comparison_report.field_comparisons
+    ]
+
+
+def _consumer_supporting_validation_result_refs(
+    comparison_validation_report: CrossSubjectComparisonValidationReport,
+) -> list[dict[str, Any]]:
+    return [
+        {
+            "comparison_validation_report_ref": (
+                comparison_validation_report.cross_subject_comparison_validation_report_id
+            ),
+            "comparison_surface": row.comparison_surface,
+        }
+        for row in comparison_validation_report.validation_results
+    ]
+
+
+def _derive_consumer_status(
+    *,
+    comparison_report: CrossSubjectComparisonReport,
+    comparison_validation_report: CrossSubjectComparisonValidationReport,
+) -> str:
+    if (
+        comparison_report.comparison_status == "comparison_incompatible"
+        or comparison_validation_report.validation_status == "validation_incompatible"
+    ):
+        return "consumer_incompatible"
+    if (
+        comparison_report.comparison_status == "comparison_insufficient"
+        or comparison_validation_report.validation_status == "validation_insufficient"
+    ):
+        return "consumer_insufficient"
+    return "consumer_ready_advisory_only"
+
+
+def _derive_recommendation_status(
+    *,
+    consumer_status: str,
+    comparison_report: CrossSubjectComparisonReport,
+) -> str:
+    if consumer_status != "consumer_ready_advisory_only":
+        return "insufficient_evidence"
+    match_statuses = [row.match_status for row in comparison_report.field_comparisons]
+    if all(status == "different_but_comparable" for status in match_statuses):
+        return "architecture_difference_supported"
+    if (
+        any(status == "different_but_comparable" for status in match_statuses)
+        and any(status == "exact_match" for status in match_statuses)
+    ):
+        return "mixed_or_cautionary"
+    return "insufficient_evidence"
+
+
+def _consumer_validation_status(
+    *,
+    consumer_status: str,
+) -> str:
+    if consumer_status == "consumer_incompatible":
+        return "validated_incompatible"
+    if consumer_status == "consumer_insufficient":
+        return "validated_insufficient"
+    return "validated_clean"
+
+
+def _consumer_advisory_summary(
+    *,
+    recommendation_status: str,
+    comparison_report: CrossSubjectComparisonReport,
+) -> str:
+    differing_surfaces = [
+        row.comparison_surface
+        for row in comparison_report.field_comparisons
+        if row.match_status == "different_but_comparable"
+    ]
+    if recommendation_status == "architecture_difference_supported":
+        return (
+            "Released comparison evidence supports that the compared architectures differ "
+            "across every starter comparison surface. This is advisory research output "
+            "only and not a winner, selection, or promotion claim."
+        )
+    if recommendation_status == "mixed_or_cautionary":
+        return (
+            "Released comparison evidence stays comparable while mixing exact-match and "
+            "different-but-comparable outcomes across starter comparison surfaces: "
+            f"{', '.join(differing_surfaces)}. This is advisory-only and not a winner "
+            "or selection claim."
+        )
+    return (
+        "Released comparison evidence is insufficient for a stronger "
+        "architecture-comparison advisory in the starter consumer lane."
+    )
+
+
+def derive_benchmark_consumer_case(
+    *,
+    comparison_case_payload: dict[str, Any],
+    comparison_report_payload: dict[str, Any],
+    comparison_validation_report_payload: dict[str, Any],
+    consumer_label: str,
+    notes: list[str] | None = None,
+) -> dict[str, Any]:
+    comparison_case = CrossSubjectComparisonCase.model_validate(
+        canonicalize_cross_subject_comparison_case_payload(comparison_case_payload)
+    )
+    comparison_report = CrossSubjectComparisonReport.model_validate(
+        canonicalize_cross_subject_comparison_report_payload(comparison_report_payload)
+    )
+    comparison_validation_report = CrossSubjectComparisonValidationReport.model_validate(
+        canonicalize_cross_subject_comparison_validation_report_payload(
+            comparison_validation_report_payload
+        )
+    )
+    if comparison_report.comparison_case_ref != comparison_case.cross_subject_comparison_case_id:
+        raise ValueError("comparison report must bind to consumer comparison case")
+    if (
+        comparison_validation_report.comparison_case_ref
+        != comparison_case.cross_subject_comparison_case_id
+    ):
+        raise ValueError("comparison validation report must bind to consumer comparison case")
+    return materialize_benchmark_consumer_case_payload(
+        {
+            "consumer_label": consumer_label,
+            "consumer_target": "architecture_comparison_research",
+            "comparison_case_ref": comparison_case.cross_subject_comparison_case_id,
+            "comparison_report_ref": comparison_report.cross_subject_comparison_report_id,
+            "comparison_validation_report_ref": (
+                comparison_validation_report.cross_subject_comparison_validation_report_id
+            ),
+            "advisory_posture": "advisory_only_non_promotional",
+            "notes": [] if notes is None else notes,
+        }
+    )
+
+
+def evaluate_benchmark_consumer_case(
+    *,
+    consumer_case_payload: dict[str, Any],
+    comparison_case_payload: dict[str, Any],
+    comparison_report_payload: dict[str, Any],
+    comparison_validation_report_payload: dict[str, Any],
+) -> dict[str, Any]:
+    consumer_case = BenchmarkConsumerCase.model_validate(
+        canonicalize_benchmark_consumer_case_payload(consumer_case_payload)
+    )
+    comparison_case = CrossSubjectComparisonCase.model_validate(
+        canonicalize_cross_subject_comparison_case_payload(comparison_case_payload)
+    )
+    comparison_report = CrossSubjectComparisonReport.model_validate(
+        canonicalize_cross_subject_comparison_report_payload(comparison_report_payload)
+    )
+    comparison_validation_report = CrossSubjectComparisonValidationReport.model_validate(
+        canonicalize_cross_subject_comparison_validation_report_payload(
+            comparison_validation_report_payload
+        )
+    )
+
+    if consumer_case.comparison_case_ref != comparison_case.cross_subject_comparison_case_id:
+        raise ValueError("consumer case must bind to released comparison case")
+    if consumer_case.comparison_report_ref != comparison_report.cross_subject_comparison_report_id:
+        raise ValueError("consumer case must bind to released comparison report")
+    if (
+        consumer_case.comparison_validation_report_ref
+        != comparison_validation_report.cross_subject_comparison_validation_report_id
+    ):
+        raise ValueError("consumer case must bind to released comparison validation report")
+    if comparison_report.comparison_case_ref != comparison_case.cross_subject_comparison_case_id:
+        raise ValueError("comparison report must bind to released comparison case")
+    if (
+        comparison_validation_report.comparison_case_ref
+        != comparison_case.cross_subject_comparison_case_id
+    ):
+        raise ValueError("comparison validation report must bind to released comparison case")
+
+    consumer_status = _derive_consumer_status(
+        comparison_report=comparison_report,
+        comparison_validation_report=comparison_validation_report,
+    )
+    recommendation_status = _derive_recommendation_status(
+        consumer_status=consumer_status,
+        comparison_report=comparison_report,
+    )
+    supporting_comparison_field_refs = _consumer_supporting_comparison_field_refs(comparison_report)
+    supporting_validation_result_refs = _consumer_supporting_validation_result_refs(
+        comparison_validation_report
+    )
+    advisory_report = materialize_benchmark_consumer_advisory_report_payload(
+        {
+            "consumer_case_ref": consumer_case.benchmark_consumer_case_id,
+            "consumer_status": consumer_status,
+            "recommendation_status": recommendation_status,
+            "consumer_output_epistemic_posture": "inferred_interpretively",
+            "supporting_comparison_field_refs": supporting_comparison_field_refs,
+            "supporting_validation_result_refs": supporting_validation_result_refs,
+            "advisory_summary": _consumer_advisory_summary(
+                recommendation_status=recommendation_status,
+                comparison_report=comparison_report,
+            ),
+            "limitations": list(_V46E_ADVISORY_LIMITATIONS),
+            "notes": list(_V46E_ADVISORY_NOTES),
+        }
+    )
+    validation_status = _consumer_validation_status(consumer_status=consumer_status)
+    validation_report = materialize_benchmark_consumer_validation_report_payload(
+        {
+            "consumer_case_ref": consumer_case.benchmark_consumer_case_id,
+            "validation_status": validation_status,
+            "deterministic_advisory_projection_confirmed": (
+                comparison_validation_report.deterministic_comparison_confirmed
+                and validation_status == "validated_clean"
+            ),
+            "supporting_comparison_field_refs": supporting_comparison_field_refs,
+            "supporting_validation_result_refs": supporting_validation_result_refs,
+            "limitations": list(_V46E_VALIDATION_LIMITATIONS),
+            "notes": list(_V46E_ADVISORY_NOTES),
+        }
+    )
+    return {
+        "consumer_case": _canonical_model_payload(consumer_case),
+        "advisory_report": advisory_report,
+        "validation_report": validation_report,
+    }
+
+
 __all__ = [
     "canonicalize_benchmark_execution_context_payload",
+    "canonicalize_benchmark_consumer_case_payload",
     "canonicalize_benchmark_subject_record_payload",
+    "canonicalize_cross_subject_comparison_report_payload",
+    "canonicalize_cross_subject_comparison_validation_report_payload",
     "canonicalize_cross_subject_comparison_case_payload",
     "canonicalize_procedural_depth_gold_trace_payload",
     "canonicalize_procedural_depth_instance_payload",
@@ -1526,9 +1797,11 @@ __all__ = [
     "canonicalize_procedural_depth_benchmark_validation_report_payload",
     "canonicalize_procedural_depth_perturbation_case_payload",
     "canonicalize_procedural_depth_run_trace_payload",
+    "derive_benchmark_consumer_case",
     "derive_benchmark_subject_record",
     "derive_cross_subject_comparison_case",
     "derive_procedural_depth_gold_trace",
+    "evaluate_benchmark_consumer_case",
     "evaluate_cross_subject_comparison_case",
     "derive_procedural_depth_benchmark_validation_report",
     "derive_procedural_depth_failure_topology",
