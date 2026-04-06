@@ -1,0 +1,65 @@
+{
+  "comparison_case_ref": "xsubcase_8468d222a788b6149af32ce20facc8f6",
+  "comparison_status": "comparison_ready_clean",
+  "comparison_summary": "Released comparison surfaces stay comparable across the deterministic starter pair while differing on: perturbation_non_regression, perturbation_validation.",
+  "cross_subject_comparison_report_id": "xsubreport_ebc153f889339e02611e34f4961d79bb",
+  "field_comparisons": [
+    {
+      "comparison_surface": "baseline_structural_fidelity",
+      "difference_summary": "Released baseline structural-fidelity fields match exactly across the deterministic starter pair.",
+      "left_ref": "pdepthmetrics_e48fb7271585a83e853594d7ed0ceb68",
+      "match_status": "exact_match",
+      "right_ref": "pdepthmetrics_e48fb7271585a83e853594d7ed0ceb68"
+    },
+    {
+      "comparison_surface": "perturbation_non_regression",
+      "difference_summary": "Released perturbation non-regression fields differ while staying comparable across the shared deterministic perturbation bundle.",
+      "left_ref": "pdepthnreg_933aa67ab8b164450dd9e0f9672867af",
+      "match_status": "different_but_comparable",
+      "right_ref": "pdepthnreg_4f89cadb9b4872d4b252c87b83a7157c"
+    },
+    {
+      "comparison_surface": "perturbation_validation",
+      "difference_summary": "Released perturbation validation fields differ while staying comparable across the shared deterministic perturbation bundle.",
+      "left_ref": "pdepthbval_2083b280f4a301a92d471e57651f7554",
+      "match_status": "different_but_comparable",
+      "right_ref": "pdepthbval_e16a728197229ac98d0361ac19081077"
+    }
+  ],
+  "notes": [
+    "Cross-subject comparison remains descriptive and non-promotional in the V46-D starter lane.",
+    "Projection-library widening and downstream consumer seams remain deferred beyond this starter pair."
+  ],
+  "schema": "adeu_cross_subject_comparison_report@1",
+  "subject_summaries": [
+    {
+      "baseline_diagnostic_report_ref": "pdepthdiag_160c0101c296759216b44ec336b61ddc",
+      "baseline_metric_ref": "pdepthmetrics_e48fb7271585a83e853594d7ed0ceb68",
+      "perturbation_benchmark_validation_report_ref": "pdepthbval_2083b280f4a301a92d471e57651f7554",
+      "perturbation_non_regression_report_ref": "pdepthnreg_933aa67ab8b164450dd9e0f9672867af",
+      "subject_record_ref": "benchsubj_097b335017d3dd28fe8e5171ec90d74a"
+    },
+    {
+      "baseline_diagnostic_report_ref": "pdepthdiag_9c0458adec8a442f7bdf65e285882a68",
+      "baseline_metric_ref": "pdepthmetrics_1bbde79b5616c436392cf17425238003",
+      "perturbation_benchmark_validation_report_ref": "pdepthbval_e16a728197229ac98d0361ac19081077",
+      "perturbation_non_regression_report_ref": "pdepthnreg_4f89cadb9b4872d4b252c87b83a7157c",
+      "subject_record_ref": "benchsubj_62308d1c6e9b162d2e729444e4d56844"
+    }
+  ],
+  "supporting_artifact_refs": [
+    "xsubcase_8468d222a788b6149af32ce20facc8f6",
+    "benchsubj_097b335017d3dd28fe8e5171ec90d74a",
+    "benchsubj_62308d1c6e9b162d2e729444e4d56844",
+    "benchctx_eed562817a8a6fab90dbd347d343d5d4",
+    "benchctx_516fb545ae96d21e3efa19535d9fc8ab",
+    "pdepthrun_22a2e9d60b44a8715e84995a45893cbb",
+    "pdepthrun_e362b55eb76c3010d4fb66d52e427fb1",
+    "pdepthmetrics_e48fb7271585a83e853594d7ed0ceb68",
+    "pdepthmetrics_1bbde79b5616c436392cf17425238003",
+    "pdepthnreg_933aa67ab8b164450dd9e0f9672867af",
+    "pdepthnreg_4f89cadb9b4872d4b252c87b83a7157c",
+    "pdepthbval_2083b280f4a301a92d471e57651f7554",
+    "pdepthbval_e16a728197229ac98d0361ac19081077"
+  ]
+}

@@ -1,0 +1,45 @@
+{
+  "advisory_summary": "Released comparison evidence is insufficient for a stronger architecture-comparison advisory in the starter consumer lane.",
+  "benchmark_consumer_advisory_report_id": "benchadv_1505171d30f6d08bbbd5184b247c1eb3",
+  "consumer_case_ref": "benchcons_cf480ea0e5bfb2e8bd235d77cc4a4df0",
+  "consumer_output_epistemic_posture": "inferred_interpretively",
+  "consumer_status": "consumer_insufficient",
+  "limitations": [
+    "Advisory output remains bounded to architecture_comparison_research only in the starter lane.",
+    "Deterministic projection confirmation does not widen advisory epistemic posture beyond inferred_interpretively."
+  ],
+  "notes": [
+    "Advisory consumer output remains bounded to released V46-D comparison artifacts only.",
+    "The starter V46-E consumer lane is advisory-only and may not act as winner or promotion authority."
+  ],
+  "recommendation_status": "insufficient_evidence",
+  "schema": "adeu_benchmark_consumer_advisory_report@1",
+  "supporting_comparison_field_refs": [
+    {
+      "comparison_report_ref": "xsubreport_76ffe02f9acb9d6c7e0393d422053689",
+      "comparison_surface": "baseline_structural_fidelity"
+    },
+    {
+      "comparison_report_ref": "xsubreport_76ffe02f9acb9d6c7e0393d422053689",
+      "comparison_surface": "perturbation_non_regression"
+    },
+    {
+      "comparison_report_ref": "xsubreport_76ffe02f9acb9d6c7e0393d422053689",
+      "comparison_surface": "perturbation_validation"
+    }
+  ],
+  "supporting_validation_result_refs": [
+    {
+      "comparison_surface": "baseline_structural_fidelity",
+      "comparison_validation_report_ref": "xsubvalid_19732f7bf117706bef184616044a17c8"
+    },
+    {
+      "comparison_surface": "perturbation_non_regression",
+      "comparison_validation_report_ref": "xsubvalid_19732f7bf117706bef184616044a17c8"
+    },
+    {
+      "comparison_surface": "perturbation_validation",
+      "comparison_validation_report_ref": "xsubvalid_19732f7bf117706bef184616044a17c8"
+    }
+  ]
+}

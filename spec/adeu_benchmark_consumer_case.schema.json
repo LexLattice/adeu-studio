@@ -1,0 +1,59 @@
+{
+  "additionalProperties": false,
+  "properties": {
+    "advisory_posture": {
+      "const": "advisory_only_non_promotional",
+      "title": "Advisory Posture",
+      "type": "string"
+    },
+    "benchmark_consumer_case_id": {
+      "title": "Benchmark Consumer Case Id",
+      "type": "string"
+    },
+    "comparison_case_ref": {
+      "title": "Comparison Case Ref",
+      "type": "string"
+    },
+    "comparison_report_ref": {
+      "title": "Comparison Report Ref",
+      "type": "string"
+    },
+    "comparison_validation_report_ref": {
+      "title": "Comparison Validation Report Ref",
+      "type": "string"
+    },
+    "consumer_label": {
+      "title": "Consumer Label",
+      "type": "string"
+    },
+    "consumer_target": {
+      "const": "architecture_comparison_research",
+      "title": "Consumer Target",
+      "type": "string"
+    },
+    "notes": {
+      "items": {
+        "type": "string"
+      },
+      "title": "Notes",
+      "type": "array"
+    },
+    "schema": {
+      "const": "adeu_benchmark_consumer_case@1",
+      "default": "adeu_benchmark_consumer_case@1",
+      "title": "Schema",
+      "type": "string"
+    }
+  },
+  "required": [
+    "benchmark_consumer_case_id",
+    "consumer_label",
+    "consumer_target",
+    "comparison_case_ref",
+    "comparison_report_ref",
+    "comparison_validation_report_ref",
+    "advisory_posture"
+  ],
+  "title": "BenchmarkConsumerCase",
+  "type": "object"
+}

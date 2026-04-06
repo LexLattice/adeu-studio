@@ -1,0 +1,11 @@
+{
+  "advisory_posture": "advisory_only_non_promotional",
+  "benchmark_consumer_case_id": "benchcons_d23dccfb892b289d82e4b44d91331a23",
+  "comparison_case_ref": "xsubcase_8468d222a788b6149af32ce20facc8f6",
+  "comparison_report_ref": "xsubreport_ebc153f889339e02611e34f4961d79bb",
+  "comparison_validation_report_ref": "xsubvalid_5ad1aede68058d937b137b975a1c2a2b",
+  "consumer_label": "reference_architecture_difference_supported",
+  "consumer_target": "architecture_comparison_research",
+  "notes": [],
+  "schema": "adeu_benchmark_consumer_case@1"
+}

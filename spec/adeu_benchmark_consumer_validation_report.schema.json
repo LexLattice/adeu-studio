@@ -1,0 +1,124 @@
+{
+  "$defs": {
+    "BenchmarkConsumerComparisonFieldRef": {
+      "additionalProperties": false,
+      "properties": {
+        "comparison_report_ref": {
+          "title": "Comparison Report Ref",
+          "type": "string"
+        },
+        "comparison_surface": {
+          "enum": [
+            "baseline_structural_fidelity",
+            "perturbation_non_regression",
+            "perturbation_validation"
+          ],
+          "title": "Comparison Surface",
+          "type": "string"
+        }
+      },
+      "required": [
+        "comparison_report_ref",
+        "comparison_surface"
+      ],
+      "title": "BenchmarkConsumerComparisonFieldRef",
+      "type": "object"
+    },
+    "BenchmarkConsumerValidationResultRef": {
+      "additionalProperties": false,
+      "properties": {
+        "comparison_surface": {
+          "enum": [
+            "baseline_structural_fidelity",
+            "perturbation_non_regression",
+            "perturbation_validation"
+          ],
+          "title": "Comparison Surface",
+          "type": "string"
+        },
+        "comparison_validation_report_ref": {
+          "title": "Comparison Validation Report Ref",
+          "type": "string"
+        }
+      },
+      "required": [
+        "comparison_validation_report_ref",
+        "comparison_surface"
+      ],
+      "title": "BenchmarkConsumerValidationResultRef",
+      "type": "object"
+    }
+  },
+  "additionalProperties": false,
+  "properties": {
+    "benchmark_consumer_validation_report_id": {
+      "title": "Benchmark Consumer Validation Report Id",
+      "type": "string"
+    },
+    "consumer_case_ref": {
+      "title": "Consumer Case Ref",
+      "type": "string"
+    },
+    "deterministic_advisory_projection_confirmed": {
+      "title": "Deterministic Advisory Projection Confirmed",
+      "type": "boolean"
+    },
+    "limitations": {
+      "items": {
+        "type": "string"
+      },
+      "minItems": 1,
+      "title": "Limitations",
+      "type": "array"
+    },
+    "notes": {
+      "items": {
+        "type": "string"
+      },
+      "title": "Notes",
+      "type": "array"
+    },
+    "schema": {
+      "const": "adeu_benchmark_consumer_validation_report@1",
+      "default": "adeu_benchmark_consumer_validation_report@1",
+      "title": "Schema",
+      "type": "string"
+    },
+    "supporting_comparison_field_refs": {
+      "items": {
+        "$ref": "#/$defs/BenchmarkConsumerComparisonFieldRef"
+      },
+      "minItems": 1,
+      "title": "Supporting Comparison Field Refs",
+      "type": "array"
+    },
+    "supporting_validation_result_refs": {
+      "items": {
+        "$ref": "#/$defs/BenchmarkConsumerValidationResultRef"
+      },
+      "minItems": 1,
+      "title": "Supporting Validation Result Refs",
+      "type": "array"
+    },
+    "validation_status": {
+      "enum": [
+        "validated_clean",
+        "validated_insufficient",
+        "validated_incompatible"
+      ],
+      "title": "Validation Status",
+      "type": "string"
+    }
+  },
+  "required": [
+    "benchmark_consumer_validation_report_id",
+    "consumer_case_ref",
+    "validation_status",
+    "deterministic_advisory_projection_confirmed",
+    "supporting_comparison_field_refs",
+    "supporting_validation_result_refs",
+    "limitations"
+  ],
+  "title": "BenchmarkConsumerValidationReport",
+  "type": "object"
+}

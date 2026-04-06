@@ -1,0 +1,45 @@
+{
+  "advisory_summary": "Released comparison evidence supports that the compared architectures differ across every starter comparison surface. This is advisory research output only and not a winner, selection, or promotion claim.",
+  "benchmark_consumer_advisory_report_id": "benchadv_7d8480da0001b2b2425f7bc3700fa875",
+  "consumer_case_ref": "benchcons_811bcacf7d365b8ee6eb535d85cd1eb8",
+  "consumer_output_epistemic_posture": "inferred_interpretively",
+  "consumer_status": "consumer_ready_advisory_only",
+  "limitations": [
+    "Advisory output remains bounded to architecture_comparison_research only in the starter lane.",
+    "Deterministic projection confirmation does not widen advisory epistemic posture beyond inferred_interpretively."
+  ],
+  "notes": [
+    "Advisory consumer output remains bounded to released V46-D comparison artifacts only.",
+    "The starter V46-E consumer lane is advisory-only and may not act as winner or promotion authority."
+  ],
+  "recommendation_status": "architecture_difference_supported",
+  "schema": "adeu_benchmark_consumer_advisory_report@1",
+  "supporting_comparison_field_refs": [
+    {
+      "comparison_report_ref": "xsubreport_76ffe02f9acb9d6c7e0393d422053689",
+      "comparison_surface": "baseline_structural_fidelity"
+    },
+    {
+      "comparison_report_ref": "xsubreport_76ffe02f9acb9d6c7e0393d422053689",
+      "comparison_surface": "perturbation_non_regression"
+    },
+    {
+      "comparison_report_ref": "xsubreport_76ffe02f9acb9d6c7e0393d422053689",
+      "comparison_surface": "perturbation_validation"
+    }
+  ],
+  "supporting_validation_result_refs": [
+    {
+      "comparison_surface": "baseline_structural_fidelity",
+      "comparison_validation_report_ref": "xsubvalid_5ad1aede68058d937b137b975a1c2a2b"
+    },
+    {
+      "comparison_surface": "perturbation_non_regression",
+      "comparison_validation_report_ref": "xsubvalid_5ad1aede68058d937b137b975a1c2a2b"
+    },
+    {
+      "comparison_surface": "perturbation_validation",
+      "comparison_validation_report_ref": "xsubvalid_5ad1aede68058d937b137b975a1c2a2b"
+    }
+  ]
+}

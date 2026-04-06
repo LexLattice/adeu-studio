@@ -1,0 +1,45 @@
+{
+  "advisory_summary": "Released comparison evidence stays comparable while mixing exact-match and different-but-comparable outcomes across starter comparison surfaces: perturbation_non_regression, perturbation_validation. This is advisory-only and not a winner or selection claim.",
+  "benchmark_consumer_advisory_report_id": "benchadv_8320126a417f76c50c78b17f127fdde0",
+  "consumer_case_ref": "benchcons_a352fe04583e6aa5d0cb40542893b8cb",
+  "consumer_output_epistemic_posture": "inferred_interpretively",
+  "consumer_status": "consumer_ready_advisory_only",
+  "limitations": [
+    "Advisory output remains bounded to architecture_comparison_research only in the starter lane.",
+    "Deterministic projection confirmation does not widen advisory epistemic posture beyond inferred_interpretively."
+  ],
+  "notes": [
+    "Advisory consumer output remains bounded to released V46-D comparison artifacts only.",
+    "The starter V46-E consumer lane is advisory-only and may not act as winner or promotion authority."
+  ],
+  "recommendation_status": "mixed_or_cautionary",
+  "schema": "adeu_benchmark_consumer_advisory_report@1",
+  "supporting_comparison_field_refs": [
+    {
+      "comparison_report_ref": "xsubreport_ebc153f889339e02611e34f4961d79bb",
+      "comparison_surface": "baseline_structural_fidelity"
+    },
+    {
+      "comparison_report_ref": "xsubreport_ebc153f889339e02611e34f4961d79bb",
+      "comparison_surface": "perturbation_non_regression"
+    },
+    {
+      "comparison_report_ref": "xsubreport_ebc153f889339e02611e34f4961d79bb",
+      "comparison_surface": "perturbation_validation"
+    }
+  ],
+  "supporting_validation_result_refs": [
+    {
+      "comparison_surface": "baseline_structural_fidelity",
+      "comparison_validation_report_ref": "xsubvalid_23b6778cd9222f75060c681cd7338e3f"
+    },
+    {
+      "comparison_surface": "perturbation_non_regression",
+      "comparison_validation_report_ref": "xsubvalid_23b6778cd9222f75060c681cd7338e3f"
+    },
+    {
+      "comparison_surface": "perturbation_validation",
+      "comparison_validation_report_ref": "xsubvalid_23b6778cd9222f75060c681cd7338e3f"
+    }
+  ]
+}
