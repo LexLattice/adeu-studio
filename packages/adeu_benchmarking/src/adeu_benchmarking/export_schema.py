@@ -12,19 +12,27 @@ from .models import (
     ADEU_BENCHMARK_FAMILY_SPEC_SCHEMA,
     ADEU_BENCHMARK_PROJECTION_SPEC_SCHEMA,
     ADEU_BENCHMARK_VALIDATION_REPORT_SCHEMA,
+    ADEU_PROCEDURAL_DEPTH_BENCHMARK_VALIDATION_REPORT_SCHEMA,
     ADEU_PROCEDURAL_DEPTH_DIAGNOSTIC_REPORT_SCHEMA,
+    ADEU_PROCEDURAL_DEPTH_FAILURE_TOPOLOGY_SCHEMA,
     ADEU_PROCEDURAL_DEPTH_GOLD_TRACE_SCHEMA,
     ADEU_PROCEDURAL_DEPTH_INSTANCE_SCHEMA,
     ADEU_PROCEDURAL_DEPTH_METRICS_SCHEMA,
+    ADEU_PROCEDURAL_DEPTH_NON_REGRESSION_REPORT_SCHEMA,
+    ADEU_PROCEDURAL_DEPTH_PERTURBATION_CASE_SCHEMA,
     ADEU_PROCEDURAL_DEPTH_RUN_TRACE_SCHEMA,
     BenchmarkExecutionContext,
     BenchmarkFamilySpec,
     BenchmarkProjectionSpec,
     BenchmarkValidationReport,
+    ProceduralDepthBenchmarkValidationReport,
     ProceduralDepthDiagnosticReport,
+    ProceduralDepthFailureTopology,
     ProceduralDepthGoldTrace,
     ProceduralDepthInstance,
     ProceduralDepthMetrics,
+    ProceduralDepthNonRegressionReport,
+    ProceduralDepthPerturbationCase,
     ProceduralDepthRunTrace,
 )
 
@@ -170,6 +178,48 @@ def main() -> None:
             / "schema"
             / "adeu_procedural_depth_diagnostic_report.v1.json",
             root / "spec" / "adeu_procedural_depth_diagnostic_report.schema.json",
+        ),
+        (
+            ProceduralDepthPerturbationCase,
+            ADEU_PROCEDURAL_DEPTH_PERTURBATION_CASE_SCHEMA,
+            root
+            / "packages"
+            / "adeu_benchmarking"
+            / "schema"
+            / "adeu_procedural_depth_perturbation_case.v1.json",
+            root / "spec" / "adeu_procedural_depth_perturbation_case.schema.json",
+        ),
+        (
+            ProceduralDepthFailureTopology,
+            ADEU_PROCEDURAL_DEPTH_FAILURE_TOPOLOGY_SCHEMA,
+            root
+            / "packages"
+            / "adeu_benchmarking"
+            / "schema"
+            / "adeu_procedural_depth_failure_topology.v1.json",
+            root / "spec" / "adeu_procedural_depth_failure_topology.schema.json",
+        ),
+        (
+            ProceduralDepthNonRegressionReport,
+            ADEU_PROCEDURAL_DEPTH_NON_REGRESSION_REPORT_SCHEMA,
+            root
+            / "packages"
+            / "adeu_benchmarking"
+            / "schema"
+            / "adeu_procedural_depth_non_regression_report.v1.json",
+            root / "spec" / "adeu_procedural_depth_non_regression_report.schema.json",
+        ),
+        (
+            ProceduralDepthBenchmarkValidationReport,
+            ADEU_PROCEDURAL_DEPTH_BENCHMARK_VALIDATION_REPORT_SCHEMA,
+            root
+            / "packages"
+            / "adeu_benchmarking"
+            / "schema"
+            / "adeu_procedural_depth_benchmark_validation_report.v1.json",
+            root
+            / "spec"
+            / "adeu_procedural_depth_benchmark_validation_report.schema.json",
         ),
     ]
 

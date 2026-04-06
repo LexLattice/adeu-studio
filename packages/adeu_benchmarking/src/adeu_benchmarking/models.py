@@ -22,6 +22,14 @@ ADEU_PROCEDURAL_DEPTH_GOLD_TRACE_SCHEMA = "adeu_procedural_depth_gold_trace@1"
 ADEU_PROCEDURAL_DEPTH_RUN_TRACE_SCHEMA = "adeu_procedural_depth_run_trace@1"
 ADEU_PROCEDURAL_DEPTH_METRICS_SCHEMA = "adeu_procedural_depth_metrics@1"
 ADEU_PROCEDURAL_DEPTH_DIAGNOSTIC_REPORT_SCHEMA = "adeu_procedural_depth_diagnostic_report@1"
+ADEU_PROCEDURAL_DEPTH_PERTURBATION_CASE_SCHEMA = "adeu_procedural_depth_perturbation_case@1"
+ADEU_PROCEDURAL_DEPTH_FAILURE_TOPOLOGY_SCHEMA = "adeu_procedural_depth_failure_topology@1"
+ADEU_PROCEDURAL_DEPTH_NON_REGRESSION_REPORT_SCHEMA = (
+    "adeu_procedural_depth_non_regression_report@1"
+)
+ADEU_PROCEDURAL_DEPTH_BENCHMARK_VALIDATION_REPORT_SCHEMA = (
+    "adeu_procedural_depth_benchmark_validation_report@1"
+)
 
 SUBJECT_UNDER_TEST_CLASS_VOCABULARY = [
     "base_model",
@@ -65,6 +73,12 @@ TRACE_ROLE_VOCABULARY = ["gold", "run"]
 PROCEDURAL_DEPTH_DIAGNOSTIC_EPISTEMIC_POSTURE_VOCABULARY = [
     "inferred_interpretively"
 ]
+PERTURBATION_KIND_VOCABULARY = [
+    "branch_shift",
+    "delayed_constraint",
+    "paraphrase_preserving",
+]
+EVALUATION_CONTEXT_POSTURE_VOCABULARY = ["deterministic_fixed_context"]
 
 SubjectUnderTestClass = Literal[
     "base_model",
@@ -103,6 +117,12 @@ ProceduralDepthTerminalTraceStatus = Literal[
 ]
 TraceRole = Literal["gold", "run"]
 ProceduralDepthDiagnosticEpistemicPosture = Literal["inferred_interpretively"]
+PerturbationKind = Literal[
+    "branch_shift",
+    "delayed_constraint",
+    "paraphrase_preserving",
+]
+EvaluationContextPosture = Literal["deterministic_fixed_context"]
 
 
 def _assert_non_empty_text(value: str, *, field_name: str) -> str:
@@ -127,6 +147,16 @@ def _ordered_unique_texts(values: list[str], *, field_name: str) -> list[str]:
     if len(normalized) != len(set(normalized)):
         raise ValueError(f"{field_name} must not contain duplicates")
     return normalized
+
+
+def _ordered_unique_ints(values: list[int], *, field_name: str) -> list[int]:
+    if any(not isinstance(value, int) for value in values):
+        raise ValueError(f"{field_name} must contain only integers")
+    if any(value < 0 for value in values):
+        raise ValueError(f"{field_name} must contain only non-negative integers")
+    if len(values) != len(set(values)):
+        raise ValueError(f"{field_name} must not contain duplicates")
+    return sorted(values)
 
 
 def _ordered_subset(
@@ -436,6 +466,153 @@ def _canonicalize_procedural_depth_diagnostic_report_material(
     return prepared
 
 
+def _canonicalize_supporting_replay_refs(
+    payloads: list[dict[str, Any]],
+) -> list[dict[str, Any]]:
+    refs = [
+        ProceduralDepthSupportingReplayRef.model_validate(payload)
+        for payload in payloads
+    ]
+    refs = sorted(refs, key=lambda entry: entry.replay_index)
+    return [_canonical_model_payload(entry) for entry in refs]
+
+
+def _canonicalize_supporting_metric_refs(
+    payloads: list[dict[str, Any]],
+) -> list[dict[str, Any]]:
+    refs = [
+        ProceduralDepthSupportingMetricRef.model_validate(payload)
+        for payload in payloads
+    ]
+    refs = sorted(refs, key=lambda entry: entry.replay_index)
+    return [_canonical_model_payload(entry) for entry in refs]
+
+
+def _canonicalize_validation_replay_results(
+    payloads: list[dict[str, Any]],
+) -> list[dict[str, Any]]:
+    refs = [
+        ProceduralDepthValidationReplayResult.model_validate(payload)
+        for payload in payloads
+    ]
+    refs = sorted(refs, key=lambda entry: entry.replay_index)
+    return [_canonical_model_payload(entry) for entry in refs]
+
+
+def _canonicalize_procedural_depth_perturbation_case_material(
+    payload: dict[str, Any],
+) -> dict[str, Any]:
+    prepared = deepcopy(payload)
+    for field_name in ("baseline_instance_ref", "perturbation_label"):
+        prepared[field_name] = _assert_non_empty_text(
+            prepared[field_name], field_name=field_name
+        )
+    prepared["perturbation_overlay_events"] = _canonicalize_trace_events(
+        list(prepared.get("perturbation_overlay_events", [])),
+        field_name="perturbation_overlay_events",
+    )
+    if prepared.get("output_summary_override") is not None:
+        prepared["output_summary_override"] = _assert_non_empty_text(
+            prepared["output_summary_override"],
+            field_name="output_summary_override",
+        )
+    prepared["notes"] = _sorted_unique_texts(
+        list(prepared.get("notes", [])),
+        field_name="notes",
+    )
+    return prepared
+
+
+def _canonicalize_failure_topology_evaluated_cases(
+    payloads: list[dict[str, Any]],
+) -> list[dict[str, Any]]:
+    rows = [
+        _canonical_model_payload(
+            ProceduralDepthFailureTopologyCase.model_validate(payload)
+        )
+        for payload in payloads
+    ]
+    return sorted(rows, key=lambda row: row["perturbation_case_ref"])
+
+
+def _canonicalize_procedural_depth_failure_topology_material(
+    payload: dict[str, Any],
+) -> dict[str, Any]:
+    prepared = deepcopy(payload)
+    prepared["evaluated_cases"] = _canonicalize_failure_topology_evaluated_cases(
+        list(prepared.get("evaluated_cases", []))
+    )
+    prepared["topology_summary"] = _assert_non_empty_text(
+        prepared["topology_summary"],
+        field_name="topology_summary",
+    )
+    prepared["notes"] = _sorted_unique_texts(
+        list(prepared.get("notes", [])),
+        field_name="notes",
+    )
+    return prepared
+
+
+def _canonicalize_non_regression_evaluated_cases(
+    payloads: list[dict[str, Any]],
+) -> list[dict[str, Any]]:
+    rows = [
+        _canonical_model_payload(
+            ProceduralDepthNonRegressionCase.model_validate(payload)
+        )
+        for payload in payloads
+    ]
+    return sorted(rows, key=lambda row: row["perturbation_case_ref"])
+
+
+def _canonicalize_procedural_depth_non_regression_report_material(
+    payload: dict[str, Any],
+) -> dict[str, Any]:
+    prepared = deepcopy(payload)
+    prepared["baseline_instance_ref"] = _assert_non_empty_text(
+        prepared["baseline_instance_ref"],
+        field_name="baseline_instance_ref",
+    )
+    prepared["evaluated_cases"] = _canonicalize_non_regression_evaluated_cases(
+        list(prepared.get("evaluated_cases", []))
+    )
+    prepared["report_summary"] = _assert_non_empty_text(
+        prepared["report_summary"],
+        field_name="report_summary",
+    )
+    prepared["notes"] = _sorted_unique_texts(
+        list(prepared.get("notes", [])),
+        field_name="notes",
+    )
+    return prepared
+
+
+def _canonicalize_benchmark_validation_case_results(
+    payloads: list[dict[str, Any]],
+) -> list[dict[str, Any]]:
+    rows = [
+        _canonical_model_payload(
+            ProceduralDepthBenchmarkValidationCaseResult.model_validate(payload)
+        )
+        for payload in payloads
+    ]
+    return sorted(rows, key=lambda row: row["perturbation_case_ref"])
+
+
+def _canonicalize_procedural_depth_benchmark_validation_report_material(
+    payload: dict[str, Any],
+) -> dict[str, Any]:
+    prepared = deepcopy(payload)
+    prepared["validation_case_results"] = _canonicalize_benchmark_validation_case_results(
+        list(prepared.get("validation_case_results", []))
+    )
+    prepared["limitations"] = _sorted_unique_texts(
+        list(prepared.get("limitations", [])),
+        field_name="limitations",
+    )
+    return prepared
+
+
 def compute_procedural_depth_instance_id(payload: dict[str, Any]) -> str:
     prepared = _canonicalize_instance_material(payload)
     material = {
@@ -511,6 +688,67 @@ def compute_procedural_depth_diagnostic_report_id(payload: dict[str, Any]) -> st
         "diagnostic_summary": prepared.get("diagnostic_summary"),
     }
     return f"pdepthdiag_{sha256_canonical_json(material)[:32]}"
+
+
+def compute_procedural_depth_perturbation_case_id(payload: dict[str, Any]) -> str:
+    prepared = _canonicalize_procedural_depth_perturbation_case_material(payload)
+    material = {
+        "baseline_instance_ref": prepared.get("baseline_instance_ref"),
+        "perturbation_kind": prepared.get("perturbation_kind"),
+        "perturbation_label": prepared.get("perturbation_label"),
+        "perturbation_overlay_events": prepared.get("perturbation_overlay_events"),
+        "output_summary_override": prepared.get("output_summary_override"),
+        "expected_dominant_failure_family": prepared.get(
+            "expected_dominant_failure_family"
+        ),
+        "expected_terminal_trace_status": prepared.get(
+            "expected_terminal_trace_status"
+        ),
+        "notes": prepared.get("notes"),
+    }
+    return f"pdepthpert_{sha256_canonical_json(material)[:32]}"
+
+
+def compute_procedural_depth_failure_topology_id(payload: dict[str, Any]) -> str:
+    prepared = _canonicalize_procedural_depth_failure_topology_material(payload)
+    material = {
+        "evaluated_cases": prepared.get("evaluated_cases"),
+        "topology_summary": prepared.get("topology_summary"),
+        "notes": prepared.get("notes"),
+    }
+    return f"pdepthtopo_{sha256_canonical_json(material)[:32]}"
+
+
+def compute_procedural_depth_non_regression_report_id(payload: dict[str, Any]) -> str:
+    prepared = _canonicalize_procedural_depth_non_regression_report_material(payload)
+    material = {
+        "baseline_instance_ref": prepared.get("baseline_instance_ref"),
+        "evaluation_context_posture": prepared.get("evaluation_context_posture"),
+        "replay_count": prepared.get("replay_count"),
+        "regression_detected": prepared.get("regression_detected"),
+        "evaluated_cases": prepared.get("evaluated_cases"),
+        "report_summary": prepared.get("report_summary"),
+        "notes": prepared.get("notes"),
+    }
+    return f"pdepthnreg_{sha256_canonical_json(material)[:32]}"
+
+
+def compute_procedural_depth_benchmark_validation_report_id(
+    payload: dict[str, Any],
+) -> str:
+    prepared = _canonicalize_procedural_depth_benchmark_validation_report_material(
+        payload
+    )
+    material = {
+        "evaluation_context_posture": prepared.get("evaluation_context_posture"),
+        "replay_count": prepared.get("replay_count"),
+        "deterministic_replay_confirmed": prepared.get(
+            "deterministic_replay_confirmed"
+        ),
+        "validation_case_results": prepared.get("validation_case_results"),
+        "limitations": prepared.get("limitations"),
+    }
+    return f"pdepthbval_{sha256_canonical_json(material)[:32]}"
 
 
 class BenchmarkFamilySpec(BaseModel):
@@ -1305,6 +1543,410 @@ class ProceduralDepthDiagnosticReport(BaseModel):
         return self
 
 
+class ProceduralDepthPerturbationCase(BaseModel):
+    model_config = MODEL_CONFIG
+
+    schema_id: Literal[ADEU_PROCEDURAL_DEPTH_PERTURBATION_CASE_SCHEMA] = Field(
+        default=ADEU_PROCEDURAL_DEPTH_PERTURBATION_CASE_SCHEMA,
+        alias="schema",
+    )
+    procedural_depth_perturbation_case_id: str
+    baseline_instance_ref: str
+    perturbation_kind: PerturbationKind
+    perturbation_label: str
+    perturbation_overlay_events: list[ProceduralDepthTraceEvent] = Field(min_length=1)
+    output_summary_override: str | None = None
+    expected_dominant_failure_family: DominantFailureFamily
+    expected_terminal_trace_status: ProceduralDepthTerminalTraceStatus
+    notes: list[str] = Field(default_factory=list)
+
+    @model_validator(mode="after")
+    def _validate_model(self) -> "ProceduralDepthPerturbationCase":
+        for field_name in (
+            "procedural_depth_perturbation_case_id",
+            "baseline_instance_ref",
+            "perturbation_label",
+        ):
+            object.__setattr__(
+                self,
+                field_name,
+                _assert_non_empty_text(getattr(self, field_name), field_name=field_name),
+            )
+        object.__setattr__(
+            self,
+            "perturbation_overlay_events",
+            _assert_contiguous_event_indexes(
+                self.perturbation_overlay_events,
+                field_name="perturbation_overlay_events",
+            ),
+        )
+        if self.output_summary_override is not None:
+            object.__setattr__(
+                self,
+                "output_summary_override",
+                _assert_non_empty_text(
+                    self.output_summary_override,
+                    field_name="output_summary_override",
+                ),
+            )
+        if self.perturbation_kind == "paraphrase_preserving":
+            if self.output_summary_override is None:
+                raise ValueError(
+                    "paraphrase_preserving perturbation must declare output_summary_override"
+                )
+        elif self.output_summary_override is not None:
+            raise ValueError(
+                "output_summary_override is only allowed for paraphrase_preserving perturbations"
+            )
+        if self.expected_dominant_failure_family == "clean_success":
+            if self.expected_terminal_trace_status != "completed_clean":
+                raise ValueError(
+                    "clean_success perturbation cases must expect completed_clean"
+                )
+        elif self.expected_terminal_trace_status != "completed_with_structural_break":
+            raise ValueError(
+                "starter structural-break perturbation cases must expect "
+                "completed_with_structural_break"
+            )
+        object.__setattr__(self, "notes", _sorted_unique_texts(self.notes, field_name="notes"))
+        expected_id = compute_procedural_depth_perturbation_case_id(
+            _canonical_model_payload(self)
+        )
+        if self.procedural_depth_perturbation_case_id != expected_id:
+            raise ValueError(
+                "procedural_depth_perturbation_case_id must match canonical perturbation identity"
+            )
+        return self
+
+
+class ProceduralDepthSupportingReplayRef(BaseModel):
+    model_config = MODEL_CONFIG
+
+    replay_index: int = Field(ge=0)
+    run_trace_ref: str
+
+    @model_validator(mode="after")
+    def _validate_model(self) -> "ProceduralDepthSupportingReplayRef":
+        object.__setattr__(
+            self,
+            "run_trace_ref",
+            _assert_non_empty_text(self.run_trace_ref, field_name="run_trace_ref"),
+        )
+        return self
+
+
+class ProceduralDepthFailureTopologyCase(BaseModel):
+    model_config = MODEL_CONFIG
+
+    perturbation_case_ref: str
+    observed_dominant_failure_family: DominantFailureFamily
+    supporting_replay_refs: list[ProceduralDepthSupportingReplayRef] = Field(min_length=1)
+
+    @model_validator(mode="after")
+    def _validate_model(self) -> "ProceduralDepthFailureTopologyCase":
+        object.__setattr__(
+            self,
+            "perturbation_case_ref",
+            _assert_non_empty_text(
+                self.perturbation_case_ref,
+                field_name="perturbation_case_ref",
+            ),
+        )
+        replay_indexes = [entry.replay_index for entry in self.supporting_replay_refs]
+        _ordered_unique_ints(replay_indexes, field_name="supporting_replay_refs.replay_index")
+        object.__setattr__(
+            self,
+            "supporting_replay_refs",
+            sorted(self.supporting_replay_refs, key=lambda entry: entry.replay_index),
+        )
+        return self
+
+
+class ProceduralDepthFailureTopology(BaseModel):
+    model_config = MODEL_CONFIG
+
+    schema_id: Literal[ADEU_PROCEDURAL_DEPTH_FAILURE_TOPOLOGY_SCHEMA] = Field(
+        default=ADEU_PROCEDURAL_DEPTH_FAILURE_TOPOLOGY_SCHEMA,
+        alias="schema",
+    )
+    procedural_depth_failure_topology_id: str
+    evaluated_cases: list[ProceduralDepthFailureTopologyCase] = Field(min_length=1)
+    topology_summary: str
+    notes: list[str] = Field(default_factory=list)
+
+    @model_validator(mode="after")
+    def _validate_model(self) -> "ProceduralDepthFailureTopology":
+        for field_name in ("procedural_depth_failure_topology_id", "topology_summary"):
+            object.__setattr__(
+                self,
+                field_name,
+                _assert_non_empty_text(getattr(self, field_name), field_name=field_name),
+            )
+        ordered_cases = sorted(
+            self.evaluated_cases,
+            key=lambda item: item.perturbation_case_ref,
+        )
+        case_refs = [item.perturbation_case_ref for item in ordered_cases]
+        if len(case_refs) != len(set(case_refs)):
+            raise ValueError("evaluated_cases perturbation_case_ref values must be unique")
+        object.__setattr__(self, "evaluated_cases", ordered_cases)
+        object.__setattr__(self, "notes", _sorted_unique_texts(self.notes, field_name="notes"))
+        expected_id = compute_procedural_depth_failure_topology_id(
+            _canonical_model_payload(self)
+        )
+        if self.procedural_depth_failure_topology_id != expected_id:
+            raise ValueError(
+                "procedural_depth_failure_topology_id must match canonical topology identity"
+            )
+        return self
+
+
+class ProceduralDepthSupportingMetricRef(BaseModel):
+    model_config = MODEL_CONFIG
+
+    replay_index: int = Field(ge=0)
+    metric_ref: str
+
+    @model_validator(mode="after")
+    def _validate_model(self) -> "ProceduralDepthSupportingMetricRef":
+        object.__setattr__(
+            self,
+            "metric_ref",
+            _assert_non_empty_text(self.metric_ref, field_name="metric_ref"),
+        )
+        return self
+
+
+class ProceduralDepthNonRegressionCase(BaseModel):
+    model_config = MODEL_CONFIG
+
+    perturbation_case_ref: str
+    replay_indexes: list[int] = Field(min_length=1)
+    regression_detected: bool
+    supporting_metric_refs: list[ProceduralDepthSupportingMetricRef] = Field(min_length=1)
+
+    @model_validator(mode="after")
+    def _validate_model(self) -> "ProceduralDepthNonRegressionCase":
+        object.__setattr__(
+            self,
+            "perturbation_case_ref",
+            _assert_non_empty_text(
+                self.perturbation_case_ref,
+                field_name="perturbation_case_ref",
+            ),
+        )
+        ordered_indexes = _ordered_unique_ints(
+            self.replay_indexes,
+            field_name="replay_indexes",
+        )
+        metric_replay_indexes = _ordered_unique_ints(
+            [entry.replay_index for entry in self.supporting_metric_refs],
+            field_name="supporting_metric_refs.replay_index",
+        )
+        if ordered_indexes != metric_replay_indexes:
+            raise ValueError(
+                "supporting_metric_refs replay indexes must match replay_indexes exactly"
+            )
+        object.__setattr__(self, "replay_indexes", ordered_indexes)
+        object.__setattr__(
+            self,
+            "supporting_metric_refs",
+            sorted(self.supporting_metric_refs, key=lambda entry: entry.replay_index),
+        )
+        return self
+
+
+class ProceduralDepthNonRegressionReport(BaseModel):
+    model_config = MODEL_CONFIG
+
+    schema_id: Literal[ADEU_PROCEDURAL_DEPTH_NON_REGRESSION_REPORT_SCHEMA] = Field(
+        default=ADEU_PROCEDURAL_DEPTH_NON_REGRESSION_REPORT_SCHEMA,
+        alias="schema",
+    )
+    procedural_depth_non_regression_report_id: str
+    baseline_instance_ref: str
+    evaluation_context_posture: EvaluationContextPosture
+    replay_count: int = Field(ge=1)
+    regression_detected: bool
+    evaluated_cases: list[ProceduralDepthNonRegressionCase] = Field(min_length=1)
+    report_summary: str
+    notes: list[str] = Field(default_factory=list)
+
+    @model_validator(mode="after")
+    def _validate_model(self) -> "ProceduralDepthNonRegressionReport":
+        for field_name in (
+            "procedural_depth_non_regression_report_id",
+            "baseline_instance_ref",
+            "report_summary",
+        ):
+            object.__setattr__(
+                self,
+                field_name,
+                _assert_non_empty_text(getattr(self, field_name), field_name=field_name),
+            )
+        ordered_cases = sorted(
+            self.evaluated_cases,
+            key=lambda item: item.perturbation_case_ref,
+        )
+        case_refs = [item.perturbation_case_ref for item in ordered_cases]
+        if len(case_refs) != len(set(case_refs)):
+            raise ValueError("evaluated_cases perturbation_case_ref values must be unique")
+        if any(len(item.replay_indexes) != self.replay_count for item in ordered_cases):
+            raise ValueError("replay_count must match every evaluated case replay_indexes length")
+        object.__setattr__(self, "evaluated_cases", ordered_cases)
+        object.__setattr__(self, "notes", _sorted_unique_texts(self.notes, field_name="notes"))
+        expected_regression = any(item.regression_detected for item in self.evaluated_cases)
+        if self.regression_detected != expected_regression:
+            raise ValueError(
+                "regression_detected must equal disjunction of evaluated case regression_detected"
+            )
+        expected_id = compute_procedural_depth_non_regression_report_id(
+            _canonical_model_payload(self)
+        )
+        if self.procedural_depth_non_regression_report_id != expected_id:
+            raise ValueError(
+                "procedural_depth_non_regression_report_id must match canonical "
+                "non-regression identity"
+            )
+        return self
+
+
+class ProceduralDepthValidationReplayResult(BaseModel):
+    model_config = MODEL_CONFIG
+
+    replay_index: int = Field(ge=0)
+    run_trace_ref: str
+    metric_ref: str
+    diagnostic_report_ref: str
+
+    @model_validator(mode="after")
+    def _validate_model(self) -> "ProceduralDepthValidationReplayResult":
+        for field_name in ("run_trace_ref", "metric_ref", "diagnostic_report_ref"):
+            object.__setattr__(
+                self,
+                field_name,
+                _assert_non_empty_text(getattr(self, field_name), field_name=field_name),
+            )
+        return self
+
+
+class ProceduralDepthBenchmarkValidationCaseResult(BaseModel):
+    model_config = MODEL_CONFIG
+
+    perturbation_case_ref: str
+    expected_dominant_failure_family: DominantFailureFamily
+    observed_dominant_failure_family: DominantFailureFamily
+    expected_terminal_trace_status: ProceduralDepthTerminalTraceStatus
+    observed_terminal_trace_status: ProceduralDepthTerminalTraceStatus
+    deterministic_replay_confirmed: bool
+    replay_results: list[ProceduralDepthValidationReplayResult] = Field(min_length=1)
+
+    @model_validator(mode="after")
+    def _validate_model(self) -> "ProceduralDepthBenchmarkValidationCaseResult":
+        object.__setattr__(
+            self,
+            "perturbation_case_ref",
+            _assert_non_empty_text(
+                self.perturbation_case_ref,
+                field_name="perturbation_case_ref",
+            ),
+        )
+        replay_indexes = _ordered_unique_ints(
+            [entry.replay_index for entry in self.replay_results],
+            field_name="replay_results.replay_index",
+        )
+        object.__setattr__(
+            self,
+            "replay_results",
+            sorted(self.replay_results, key=lambda entry: entry.replay_index),
+        )
+        first = self.replay_results[0]
+        identical_replays = all(
+            entry.run_trace_ref == first.run_trace_ref
+            and entry.metric_ref == first.metric_ref
+            and entry.diagnostic_report_ref == first.diagnostic_report_ref
+            for entry in self.replay_results[1:]
+        )
+        if self.deterministic_replay_confirmed != identical_replays:
+            raise ValueError(
+                "deterministic_replay_confirmed must equal exact replay identity stability"
+            )
+        if replay_indexes != list(range(len(self.replay_results))):
+            raise ValueError("replay_results replay_index values must be contiguous from 0")
+        if self.observed_dominant_failure_family == "clean_success":
+            if self.observed_terminal_trace_status != "completed_clean":
+                raise ValueError(
+                    "clean_success observed results must pair with completed_clean terminal status"
+                )
+        elif self.observed_terminal_trace_status != "completed_with_structural_break":
+            raise ValueError(
+                "starter structural-break observed results must pair with "
+                "completed_with_structural_break"
+            )
+        return self
+
+
+class ProceduralDepthBenchmarkValidationReport(BaseModel):
+    model_config = MODEL_CONFIG
+
+    schema_id: Literal[ADEU_PROCEDURAL_DEPTH_BENCHMARK_VALIDATION_REPORT_SCHEMA] = Field(
+        default=ADEU_PROCEDURAL_DEPTH_BENCHMARK_VALIDATION_REPORT_SCHEMA,
+        alias="schema",
+    )
+    procedural_depth_benchmark_validation_report_id: str
+    evaluation_context_posture: EvaluationContextPosture
+    replay_count: int = Field(ge=1)
+    deterministic_replay_confirmed: bool
+    validation_case_results: list[ProceduralDepthBenchmarkValidationCaseResult] = Field(
+        min_length=1
+    )
+    limitations: list[str] = Field(min_length=1)
+
+    @model_validator(mode="after")
+    def _validate_model(self) -> "ProceduralDepthBenchmarkValidationReport":
+        object.__setattr__(
+            self,
+            "procedural_depth_benchmark_validation_report_id",
+            _assert_non_empty_text(
+                self.procedural_depth_benchmark_validation_report_id,
+                field_name="procedural_depth_benchmark_validation_report_id",
+            ),
+        )
+        ordered_cases = sorted(
+            self.validation_case_results,
+            key=lambda item: item.perturbation_case_ref,
+        )
+        case_refs = [item.perturbation_case_ref for item in ordered_cases]
+        if len(case_refs) != len(set(case_refs)):
+            raise ValueError(
+                "validation_case_results perturbation_case_ref values must be unique"
+            )
+        if any(len(item.replay_results) != self.replay_count for item in ordered_cases):
+            raise ValueError("replay_count must match every validation case replay_results length")
+        object.__setattr__(self, "validation_case_results", ordered_cases)
+        object.__setattr__(
+            self,
+            "limitations",
+            _sorted_unique_texts(self.limitations, field_name="limitations"),
+        )
+        expected_deterministic = all(
+            item.deterministic_replay_confirmed for item in self.validation_case_results
+        )
+        if self.deterministic_replay_confirmed != expected_deterministic:
+            raise ValueError(
+                "deterministic_replay_confirmed must equal conjunction of validation case results"
+            )
+        expected_id = compute_procedural_depth_benchmark_validation_report_id(
+            _canonical_model_payload(self)
+        )
+        if self.procedural_depth_benchmark_validation_report_id != expected_id:
+            raise ValueError(
+                "procedural_depth_benchmark_validation_report_id must match "
+                "canonical validation identity"
+            )
+        return self
+
+
 def materialize_benchmark_family_spec_payload(payload: dict[str, Any]) -> dict[str, Any]:
     prepared = _prepare_payload(
         payload,
@@ -1566,6 +2208,88 @@ def canonicalize_procedural_depth_diagnostic_report_payload(
 ) -> dict[str, Any]:
     return _canonical_model_payload(
         ProceduralDepthDiagnosticReport.model_validate(payload)
+    )
+
+
+def materialize_procedural_depth_perturbation_case_payload(
+    payload: dict[str, Any],
+) -> dict[str, Any]:
+    prepared = _canonicalize_procedural_depth_perturbation_case_material(payload)
+    prepared.setdefault(
+        "procedural_depth_perturbation_case_id",
+        compute_procedural_depth_perturbation_case_id(prepared),
+    )
+    return _canonical_model_payload(
+        ProceduralDepthPerturbationCase.model_validate(prepared)
+    )
+
+
+def canonicalize_procedural_depth_perturbation_case_payload(
+    payload: dict[str, Any],
+) -> dict[str, Any]:
+    return _canonical_model_payload(
+        ProceduralDepthPerturbationCase.model_validate(payload)
+    )
+
+
+def materialize_procedural_depth_failure_topology_payload(
+    payload: dict[str, Any],
+) -> dict[str, Any]:
+    prepared = _canonicalize_procedural_depth_failure_topology_material(payload)
+    prepared.setdefault(
+        "procedural_depth_failure_topology_id",
+        compute_procedural_depth_failure_topology_id(prepared),
+    )
+    return _canonical_model_payload(ProceduralDepthFailureTopology.model_validate(prepared))
+
+
+def canonicalize_procedural_depth_failure_topology_payload(
+    payload: dict[str, Any],
+) -> dict[str, Any]:
+    return _canonical_model_payload(ProceduralDepthFailureTopology.model_validate(payload))
+
+
+def materialize_procedural_depth_non_regression_report_payload(
+    payload: dict[str, Any],
+) -> dict[str, Any]:
+    prepared = _canonicalize_procedural_depth_non_regression_report_material(payload)
+    prepared.setdefault(
+        "procedural_depth_non_regression_report_id",
+        compute_procedural_depth_non_regression_report_id(prepared),
+    )
+    return _canonical_model_payload(
+        ProceduralDepthNonRegressionReport.model_validate(prepared)
+    )
+
+
+def canonicalize_procedural_depth_non_regression_report_payload(
+    payload: dict[str, Any],
+) -> dict[str, Any]:
+    return _canonical_model_payload(
+        ProceduralDepthNonRegressionReport.model_validate(payload)
+    )
+
+
+def materialize_procedural_depth_benchmark_validation_report_payload(
+    payload: dict[str, Any],
+) -> dict[str, Any]:
+    prepared = _canonicalize_procedural_depth_benchmark_validation_report_material(
+        payload
+    )
+    prepared.setdefault(
+        "procedural_depth_benchmark_validation_report_id",
+        compute_procedural_depth_benchmark_validation_report_id(prepared),
+    )
+    return _canonical_model_payload(
+        ProceduralDepthBenchmarkValidationReport.model_validate(prepared)
+    )
+
+
+def canonicalize_procedural_depth_benchmark_validation_report_payload(
+    payload: dict[str, Any],
+) -> dict[str, Any]:
+    return _canonical_model_payload(
+        ProceduralDepthBenchmarkValidationReport.model_validate(payload)
     )
 
 
