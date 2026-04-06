@@ -179,7 +179,7 @@ Planning relationship:
 - Recommended first projection reference:
   - `docs/DRAFT_PROCEDURAL_DEPTH_FIDELITY_BENCHMARK_SPEC_v0.md`
 - Recommended decomposition reference:
-  - `not_selected_yet`
+  - `docs/LOCKED_CONTINUATION_vNEXT_PLUS140.md`
 - Recommended next path for this branch:
   - `V46-E`
 - Recommended next concrete arc for this branch if selected:
@@ -306,10 +306,14 @@ Implement the first downstream consumer seam next.
 - one bounded advisory consumer artifact family only:
   - consumer inputs remain released benchmark artifacts and refs
   - consumer outputs remain diagnostic and advisory by default
+  - starter advisory mapping should remain finite over released comparison status,
+    released comparison-field outcomes, and released comparison-validation posture
 - one explicit diagnostic-to-consumer boundary that keeps benchmark evidence
   authoritative while allowing a later consumer to summarize or package it for bounded
   research use;
 - one bounded starter consumer posture only:
+  - one starter target only:
+    - `architecture_comparison_research`
   - no routing enactment
   - no role assignment
   - no model-promotion or leaderboard doctrine
@@ -348,6 +352,8 @@ Implement the first downstream consumer seam next.
 - one released `V46-A` through `V46-D` benchmarking stack only as the consumer basis;
 - one bounded advisory consumer artifact family only;
 - one explicit benchmark-evidence-to-consumer-summary law only;
+- one explicit interpretive epistemic posture over deterministically replayable
+  advisory output only;
 - one explicit non-promotional interpretation posture only.
 
 It should not attempt:
@@ -400,6 +406,10 @@ Cross-subject comparison-first lane, now released on `main`:
 
 Deferred downstream-consumer seam, now selected as the next branch-local default:
 
+- starter selection should begin with one advisory
+  `architecture_comparison_research` target only;
+- starter advisory outputs should remain derived from released comparison status,
+  released field-comparison rows, and released comparison-validation posture only;
 - separately governed consumers may later convert benchmark diagnostics into bounded
   research inputs for routing, role-fit, training, or architecture comparison;
 - that seam remains later and advisory-first by default.
@@ -497,7 +507,7 @@ are:
   "default_next_concrete_arc_candidate_for_this_branch": "vNext+140",
   "family_architecture_doc": "docs/DRAFT_BENCHMARKING_META_MODULE_SPEC_v0.md",
   "first_projection_seed_doc": "docs/DRAFT_PROCEDURAL_DEPTH_FIDELITY_BENCHMARK_SPEC_v0.md",
-  "family_decomposition_doc": "not_selected_yet",
+  "family_decomposition_doc": "docs/LOCKED_CONTINUATION_vNEXT_PLUS140.md",
   "pre_lock_companion_docs_expected": [
     "docs/DRAFT_BENCHMARK_FAMILY_DECOMPOSITION_v0.md",
     "docs/DRAFT_BENCHMARK_ARTIFACT_SURFACES_v0.md"
@@ -505,7 +515,9 @@ are:
   "planned_family_packages": [
     "packages/adeu_benchmarking"
   ],
-  "first_slice_active_packages": [],
+  "first_slice_active_packages": [
+    "packages/adeu_benchmarking"
+  ],
   "family_theme": "adeu_applied_benchmarking_substrate_with_projection_modularity",
   "branch_local_planning_selection_only": true,
   "general_benchmark_substrate_first_required": true,
