@@ -11,6 +11,8 @@ from adeu_benchmarking import (
     BenchmarkConsumerCase,
     derive_benchmark_consumer_case,
     evaluate_benchmark_consumer_case,
+    materialize_benchmark_consumer_advisory_report_payload,
+    materialize_benchmark_consumer_validation_report_payload,
 )
 from adeu_benchmarking.export_schema import main as export_schema_main
 from adeu_ir.repo import repo_root
@@ -176,3 +178,54 @@ def test_reject_consumer_case_mismatched_comparison_report_ref() -> None:
             comparison_report_payload=comparison_report,
             comparison_validation_report_payload=comparison_validation,
         )
+
+
+def test_reject_advisory_report_mixed_comparison_report_refs() -> None:
+    payload = _load_json(
+        V46E_FIXTURE_ROOT,
+        "reference_benchmark_consumer_advisory_report_architecture_difference_supported.json",
+    )
+    mixed_report = _load_json(
+        V46E_FIXTURE_ROOT,
+        "reference_cross_subject_comparison_report_mixed_or_cautionary.json",
+    )
+
+    assert isinstance(payload, dict)
+    assert isinstance(mixed_report, dict)
+    payload["supporting_comparison_field_refs"][0]["comparison_report_ref"] = mixed_report[
+        "cross_subject_comparison_report_id"
+    ]
+    payload.pop("benchmark_consumer_advisory_report_id", None)
+
+    with pytest.raises(
+        ValueError,
+        match="supporting_comparison_field_refs must bind to exactly one comparison_report_ref",
+    ):
+        materialize_benchmark_consumer_advisory_report_payload(payload)
+
+
+def test_reject_validation_report_mixed_validation_report_refs() -> None:
+    payload = _load_json(
+        V46E_FIXTURE_ROOT,
+        "reference_benchmark_consumer_validation_report_architecture_difference_supported.json",
+    )
+    mixed_validation = _load_json(
+        V46E_FIXTURE_ROOT,
+        "reference_cross_subject_comparison_validation_report_mixed_or_cautionary.json",
+    )
+
+    assert isinstance(payload, dict)
+    assert isinstance(mixed_validation, dict)
+    payload["supporting_validation_result_refs"][0]["comparison_validation_report_ref"] = (
+        mixed_validation["cross_subject_comparison_validation_report_id"]
+    )
+    payload.pop("benchmark_consumer_validation_report_id", None)
+
+    with pytest.raises(
+        ValueError,
+        match=(
+            "supporting_validation_result_refs must bind to exactly one "
+            "comparison_validation_report_ref"
+        ),
+    ):
+        materialize_benchmark_consumer_validation_report_payload(payload)

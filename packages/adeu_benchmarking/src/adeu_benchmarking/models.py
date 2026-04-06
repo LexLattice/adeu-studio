@@ -2877,6 +2877,12 @@ class BenchmarkConsumerAdvisoryReport(BaseModel):
         )
         comparison_surfaces = [item.comparison_surface for item in ordered_comparison_refs]
         validation_surfaces = [item.comparison_surface for item in ordered_validation_refs]
+        comparison_report_refs = {
+            item.comparison_report_ref for item in ordered_comparison_refs
+        }
+        validation_report_refs = {
+            item.comparison_validation_report_ref for item in ordered_validation_refs
+        }
         if comparison_surfaces != COMPARISON_SURFACE_VOCABULARY:
             raise ValueError(
                 "supporting_comparison_field_refs must cover the starter comparison surfaces "
@@ -2886,6 +2892,15 @@ class BenchmarkConsumerAdvisoryReport(BaseModel):
             raise ValueError(
                 "supporting_validation_result_refs must cover the starter comparison surfaces "
                 "exactly once"
+            )
+        if len(comparison_report_refs) != 1:
+            raise ValueError(
+                "supporting_comparison_field_refs must bind to exactly one comparison_report_ref"
+            )
+        if len(validation_report_refs) != 1:
+            raise ValueError(
+                "supporting_validation_result_refs must bind to exactly one "
+                "comparison_validation_report_ref"
             )
         object.__setattr__(self, "supporting_comparison_field_refs", ordered_comparison_refs)
         object.__setattr__(self, "supporting_validation_result_refs", ordered_validation_refs)
@@ -2959,6 +2974,12 @@ class BenchmarkConsumerValidationReport(BaseModel):
         )
         comparison_surfaces = [item.comparison_surface for item in ordered_comparison_refs]
         validation_surfaces = [item.comparison_surface for item in ordered_validation_refs]
+        comparison_report_refs = {
+            item.comparison_report_ref for item in ordered_comparison_refs
+        }
+        validation_report_refs = {
+            item.comparison_validation_report_ref for item in ordered_validation_refs
+        }
         if comparison_surfaces != COMPARISON_SURFACE_VOCABULARY:
             raise ValueError(
                 "supporting_comparison_field_refs must cover the starter comparison surfaces "
@@ -2968,6 +2989,15 @@ class BenchmarkConsumerValidationReport(BaseModel):
             raise ValueError(
                 "supporting_validation_result_refs must cover the starter comparison surfaces "
                 "exactly once"
+            )
+        if len(comparison_report_refs) != 1:
+            raise ValueError(
+                "supporting_comparison_field_refs must bind to exactly one comparison_report_ref"
+            )
+        if len(validation_report_refs) != 1:
+            raise ValueError(
+                "supporting_validation_result_refs must bind to exactly one "
+                "comparison_validation_report_ref"
             )
         object.__setattr__(self, "supporting_comparison_field_refs", ordered_comparison_refs)
         object.__setattr__(self, "supporting_validation_result_refs", ordered_validation_refs)
