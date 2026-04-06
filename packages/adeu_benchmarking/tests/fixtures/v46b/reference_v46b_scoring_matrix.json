@@ -1,0 +1,110 @@
+{
+  "projection_spec_ref": "benchproj_583343267376892b3e0b7f7e6328f426",
+  "scoring_rows": [
+    {
+      "active_step_compilation_fidelity": true,
+      "case_label": "clean_success",
+      "expected_dominant_failure_family": "clean_success",
+      "plan_spine_fidelity": true,
+      "reintegration_fidelity": true,
+      "run_trace_ref": "pdepthrun_22a2e9d60b44a8715e84995a45893cbb",
+      "supporting_event_refs": [
+        {
+          "event_index": 14,
+          "trace_ref": "pdepthgold_0e78b0227b1f0b140d00f1a65311f324",
+          "trace_role": "gold"
+        },
+        {
+          "event_index": 14,
+          "trace_ref": "pdepthrun_22a2e9d60b44a8715e84995a45893cbb",
+          "trace_role": "run"
+        }
+      ]
+    },
+    {
+      "active_step_compilation_fidelity": true,
+      "case_label": "horizontal_plan_spine",
+      "expected_dominant_failure_family": "horizontal_plan_spine",
+      "plan_spine_fidelity": false,
+      "reintegration_fidelity": true,
+      "run_trace_ref": "pdepthrun_0e8dfa9a69619e50e91cb4d49b456baf",
+      "supporting_event_refs": [
+        {
+          "event_index": 2,
+          "trace_ref": "pdepthgold_0e78b0227b1f0b140d00f1a65311f324",
+          "trace_role": "gold"
+        },
+        {
+          "event_index": 2,
+          "trace_ref": "pdepthrun_0e8dfa9a69619e50e91cb4d49b456baf",
+          "trace_role": "run"
+        }
+      ]
+    },
+    {
+      "active_step_compilation_fidelity": false,
+      "case_label": "vertical_active_step_compilation",
+      "expected_dominant_failure_family": "vertical_active_step_compilation",
+      "plan_spine_fidelity": true,
+      "reintegration_fidelity": true,
+      "run_trace_ref": "pdepthrun_e362b55eb76c3010d4fb66d52e427fb1",
+      "supporting_event_refs": [
+        {
+          "event_index": 10,
+          "trace_ref": "pdepthgold_0e78b0227b1f0b140d00f1a65311f324",
+          "trace_role": "gold"
+        }
+      ]
+    },
+    {
+      "active_step_compilation_fidelity": true,
+      "case_label": "reintegration",
+      "expected_dominant_failure_family": "reintegration",
+      "plan_spine_fidelity": true,
+      "reintegration_fidelity": false,
+      "run_trace_ref": "pdepthrun_8f8af4dd7928b372384143e65df10f2f",
+      "supporting_event_refs": [
+        {
+          "event_index": 11,
+          "trace_ref": "pdepthgold_0e78b0227b1f0b140d00f1a65311f324",
+          "trace_role": "gold"
+        },
+        {
+          "event_index": 11,
+          "trace_ref": "pdepthrun_8f8af4dd7928b372384143e65df10f2f",
+          "trace_role": "run"
+        }
+      ]
+    },
+    {
+      "active_step_compilation_fidelity": true,
+      "case_label": "mixed",
+      "expected_dominant_failure_family": "mixed",
+      "plan_spine_fidelity": false,
+      "reintegration_fidelity": false,
+      "run_trace_ref": "pdepthrun_f595a509ea78ddca3e148cef628fc608",
+      "supporting_event_refs": [
+        {
+          "event_index": 2,
+          "trace_ref": "pdepthgold_0e78b0227b1f0b140d00f1a65311f324",
+          "trace_role": "gold"
+        },
+        {
+          "event_index": 11,
+          "trace_ref": "pdepthgold_0e78b0227b1f0b140d00f1a65311f324",
+          "trace_role": "gold"
+        },
+        {
+          "event_index": 2,
+          "trace_ref": "pdepthrun_f595a509ea78ddca3e148cef628fc608",
+          "trace_role": "run"
+        },
+        {
+          "event_index": 13,
+          "trace_ref": "pdepthrun_f595a509ea78ddca3e148cef628fc608",
+          "trace_role": "run"
+        }
+      ]
+    }
+  ]
+}

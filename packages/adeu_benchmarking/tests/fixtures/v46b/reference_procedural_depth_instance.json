@@ -1,0 +1,73 @@
+{
+  "benchmark_execution_context_ref": "benchctx_8633173282b2dcab7c4fd430552ebc52",
+  "benchmark_projection_spec_ref": "benchproj_583343267376892b3e0b7f7e6328f426",
+  "expected_terminal_posture": "complete_after_required_return",
+  "gold_trace_derivation_posture": "deterministically_derived_from_instance",
+  "instance_label": "hierarchical_3x3_reference",
+  "notes": [
+    "tiny deterministic hierarchical starter chain"
+  ],
+  "procedural_depth_instance_id": "pdepthinst_4e2ace8ed445a7010809453180a6a478",
+  "reference_chain_key": "hierarchical_3x3",
+  "repo_snapshot_ref": "git:main@1528aee",
+  "schema": "adeu_procedural_depth_instance@1",
+  "step_specs": [
+    {
+      "order_index": 0,
+      "required_child_step_refs": [],
+      "step_label": "Inspect workspace",
+      "step_ref": "inspect_workspace",
+      "step_role": "top_level"
+    },
+    {
+      "order_index": 1,
+      "required_child_step_refs": [
+        "verify_child_status",
+        "verify_child_contracts",
+        "verify_child_summary"
+      ],
+      "step_label": "Verify hierarchy",
+      "step_ref": "verify_hierarchy",
+      "step_role": "active_parent"
+    },
+    {
+      "order_index": 0,
+      "parent_step_ref": "verify_hierarchy",
+      "required_child_step_refs": [],
+      "return_target_step_ref": "verify_hierarchy",
+      "step_label": "Verify child status",
+      "step_ref": "verify_child_status",
+      "step_role": "child"
+    },
+    {
+      "order_index": 1,
+      "parent_step_ref": "verify_hierarchy",
+      "required_child_step_refs": [],
+      "return_target_step_ref": "verify_hierarchy",
+      "step_label": "Verify child contracts",
+      "step_ref": "verify_child_contracts",
+      "step_role": "child"
+    },
+    {
+      "order_index": 2,
+      "parent_step_ref": "verify_hierarchy",
+      "required_child_step_refs": [],
+      "return_target_step_ref": "verify_hierarchy",
+      "step_label": "Verify child summary",
+      "step_ref": "verify_child_summary",
+      "step_role": "child"
+    },
+    {
+      "order_index": 2,
+      "required_child_step_refs": [],
+      "step_label": "Deliver summary",
+      "step_ref": "deliver_summary",
+      "step_role": "top_level"
+    }
+  ],
+  "top_level_plan_spine": [
+    "inspect_workspace",
+    "verify_hierarchy",
+    "deliver_summary"
+  ]
+}

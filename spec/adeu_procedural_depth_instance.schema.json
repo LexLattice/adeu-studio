@@ -1,0 +1,151 @@
+{
+  "$defs": {
+    "ProceduralDepthStepSpec": {
+      "additionalProperties": false,
+      "properties": {
+        "order_index": {
+          "minimum": 0,
+          "title": "Order Index",
+          "type": "integer"
+        },
+        "parent_step_ref": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Parent Step Ref"
+        },
+        "required_child_step_refs": {
+          "items": {
+            "type": "string"
+          },
+          "title": "Required Child Step Refs",
+          "type": "array"
+        },
+        "return_target_step_ref": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Return Target Step Ref"
+        },
+        "step_label": {
+          "title": "Step Label",
+          "type": "string"
+        },
+        "step_ref": {
+          "title": "Step Ref",
+          "type": "string"
+        },
+        "step_role": {
+          "enum": [
+            "top_level",
+            "active_parent",
+            "child"
+          ],
+          "title": "Step Role",
+          "type": "string"
+        }
+      },
+      "required": [
+        "step_ref",
+        "step_role",
+        "step_label",
+        "order_index"
+      ],
+      "title": "ProceduralDepthStepSpec",
+      "type": "object"
+    }
+  },
+  "additionalProperties": false,
+  "properties": {
+    "benchmark_execution_context_ref": {
+      "title": "Benchmark Execution Context Ref",
+      "type": "string"
+    },
+    "benchmark_projection_spec_ref": {
+      "title": "Benchmark Projection Spec Ref",
+      "type": "string"
+    },
+    "expected_terminal_posture": {
+      "const": "complete_after_required_return",
+      "title": "Expected Terminal Posture",
+      "type": "string"
+    },
+    "gold_trace_derivation_posture": {
+      "const": "deterministically_derived_from_instance",
+      "title": "Gold Trace Derivation Posture",
+      "type": "string"
+    },
+    "instance_label": {
+      "title": "Instance Label",
+      "type": "string"
+    },
+    "notes": {
+      "items": {
+        "type": "string"
+      },
+      "title": "Notes",
+      "type": "array"
+    },
+    "procedural_depth_instance_id": {
+      "title": "Procedural Depth Instance Id",
+      "type": "string"
+    },
+    "reference_chain_key": {
+      "const": "hierarchical_3x3",
+      "title": "Reference Chain Key",
+      "type": "string"
+    },
+    "repo_snapshot_ref": {
+      "title": "Repo Snapshot Ref",
+      "type": "string"
+    },
+    "schema": {
+      "const": "adeu_procedural_depth_instance@1",
+      "default": "adeu_procedural_depth_instance@1",
+      "title": "Schema",
+      "type": "string"
+    },
+    "step_specs": {
+      "items": {
+        "$ref": "#/$defs/ProceduralDepthStepSpec"
+      },
+      "minItems": 1,
+      "title": "Step Specs",
+      "type": "array"
+    },
+    "top_level_plan_spine": {
+      "items": {
+        "type": "string"
+      },
+      "minItems": 1,
+      "title": "Top Level Plan Spine",
+      "type": "array"
+    }
+  },
+  "required": [
+    "procedural_depth_instance_id",
+    "benchmark_projection_spec_ref",
+    "benchmark_execution_context_ref",
+    "instance_label",
+    "repo_snapshot_ref",
+    "reference_chain_key",
+    "top_level_plan_spine",
+    "step_specs",
+    "expected_terminal_posture",
+    "gold_trace_derivation_posture"
+  ],
+  "title": "ProceduralDepthInstance",
+  "type": "object"
+}

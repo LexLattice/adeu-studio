@@ -1,0 +1,102 @@
+{
+  "$defs": {
+    "ProceduralDepthSupportingEventRef": {
+      "additionalProperties": false,
+      "properties": {
+        "event_index": {
+          "minimum": 0,
+          "title": "Event Index",
+          "type": "integer"
+        },
+        "trace_ref": {
+          "title": "Trace Ref",
+          "type": "string"
+        },
+        "trace_role": {
+          "enum": [
+            "gold",
+            "run"
+          ],
+          "title": "Trace Role",
+          "type": "string"
+        }
+      },
+      "required": [
+        "trace_role",
+        "trace_ref",
+        "event_index"
+      ],
+      "title": "ProceduralDepthSupportingEventRef",
+      "type": "object"
+    }
+  },
+  "additionalProperties": false,
+  "properties": {
+    "benchmark_output_epistemic_posture": {
+      "const": "inferred_interpretively",
+      "title": "Benchmark Output Epistemic Posture",
+      "type": "string"
+    },
+    "diagnostic_summary": {
+      "title": "Diagnostic Summary",
+      "type": "string"
+    },
+    "dominant_failure_family": {
+      "enum": [
+        "clean_success",
+        "horizontal_plan_spine",
+        "vertical_active_step_compilation",
+        "reintegration",
+        "mixed"
+      ],
+      "title": "Dominant Failure Family",
+      "type": "string"
+    },
+    "limitations": {
+      "items": {
+        "type": "string"
+      },
+      "minItems": 1,
+      "title": "Limitations",
+      "type": "array"
+    },
+    "procedural_depth_diagnostic_report_id": {
+      "title": "Procedural Depth Diagnostic Report Id",
+      "type": "string"
+    },
+    "procedural_depth_metrics_ref": {
+      "title": "Procedural Depth Metrics Ref",
+      "type": "string"
+    },
+    "procedural_depth_run_trace_ref": {
+      "title": "Procedural Depth Run Trace Ref",
+      "type": "string"
+    },
+    "schema": {
+      "const": "adeu_procedural_depth_diagnostic_report@1",
+      "default": "adeu_procedural_depth_diagnostic_report@1",
+      "title": "Schema",
+      "type": "string"
+    },
+    "supporting_event_refs": {
+      "items": {
+        "$ref": "#/$defs/ProceduralDepthSupportingEventRef"
+      },
+      "minItems": 1,
+      "title": "Supporting Event Refs",
+      "type": "array"
+    }
+  },
+  "required": [
+    "procedural_depth_diagnostic_report_id",
+    "procedural_depth_run_trace_ref",
+    "procedural_depth_metrics_ref",
+    "dominant_failure_family",
+    "supporting_event_refs",
+    "benchmark_output_epistemic_posture",
+    "limitations",
+    "diagnostic_summary"
+  ],
+  "title": "ProceduralDepthDiagnosticReport",
+  "type": "object"
+}
