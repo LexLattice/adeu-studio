@@ -1,0 +1,19 @@
+ADEU history semantics diff payload
+
+Included paths:
+- Makefile
+- docs/DRAFT_ADEU_HISTORY_SEMANTICS_IMPLEMENTATION_MAPPING_v0.md
+- packages/adeu_history_semantics/pyproject.toml
+- packages/adeu_history_semantics/src/adeu_history_semantics/__init__.py
+- packages/adeu_history_semantics/src/adeu_history_semantics/hashing.py
+- packages/adeu_history_semantics/src/adeu_history_semantics/models.py
+- packages/adeu_history_semantics/src/adeu_history_semantics/pipeline.py
+- packages/adeu_history_semantics/src/adeu_history_semantics/preclassify.py
+- packages/adeu_history_semantics/tests/fixtures/v0/README.md
+- packages/adeu_history_semantics/tests/fixtures/v0/demo_abstract_like_source.txt
+- packages/adeu_history_semantics/tests/fixtures/v0/demo_conversation_history_source.txt
+- packages/adeu_history_semantics/tests/fixtures/v0/reference_history_semantic_bundle_abstract.json
+- packages/adeu_history_semantics/tests/fixtures/v0/reference_history_semantic_bundle_conversation.json
+- packages/adeu_history_semantics/tests/test_history_semantics_models.py
+- packages/adeu_history_semantics/tests/test_history_semantics_pipeline.py
+- packages/adeu_history_semantics/tests/test_history_semantics_preclassify.py

@@ -1,0 +1,10 @@
+[2026-02-02 10:00] User: I want a bounded history semantics package, not a generic memory layer. Raw history must stay authoritative.
+[2026-02-02 10:02] Assistant: O: The module can treat raw history as an immutable source artifact plus a ledger of preclassified entries.
+E: Higher-level artifacts should remain provenance-linked overlays and mark underdetermined lanes honestly.
+D: We must keep the implementation package-first, fail-closed, and avoid database or vector-store widening.
+U: The first target is bootstrap conversation-history material so the workspace can later stabilize ODEU emergence.
+[2026-02-02 10:05] User: Keep user messages first-order for theme anchoring, but assistant replies can make the inferential structure explicit.
+[2026-02-02 10:07] Assistant: O: Each bounded slice can own a theme anchor, an ODEU packet, and a workspace snapshot entry.
+E: Assistant explication should attach back to the user-anchored theme frame instead of replacing it.
+D: Do not collapse everything into one blended summary.
+U: This gives us a bounded inferential workspace that can guide later corpus waves.

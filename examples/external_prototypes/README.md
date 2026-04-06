@@ -27,3 +27,5 @@ Current packs:
 - [adeu-semantic-forms-v0-bundle](/home/rose/work/LexLattice/odeu/examples/external_prototypes/adeu-semantic-forms-v0-bundle)
 - [adeu-symbol-audit-v0-bundle](/home/rose/work/LexLattice/odeu/examples/external_prototypes/adeu-symbol-audit-v0-bundle)
 - [adeu-studio-reasoning-benchmark-bundle](/home/rose/work/LexLattice/odeu/examples/external_prototypes/adeu-studio-reasoning-benchmark-bundle)
+- [adeu-edge-ledger-change-bundle](/home/rose/work/LexLattice/odeu/examples/external_prototypes/adeu-edge-ledger-change-bundle)
+- [adeu-history-semantics-bundle](/home/rose/work/LexLattice/odeu/examples/external_prototypes/adeu-history-semantics-bundle)

@@ -1,0 +1,657 @@
+{
+  "schema": "adeu_history_semantic_bundle@1",
+  "bundle_id": "history_bundle:6448bbe897036ece",
+  "compiler_version": "v0",
+  "source": {
+    "schema": "adeu_history_source_artifact@1",
+    "source_id": "history_source:c6f73a26514ecd4e",
+    "input_kind": "abstract_like",
+    "source_label": "Demo abstract-like fixture",
+    "source_text": "Abstract\nThis bounded reference abstract proposes a history semantics proto-module for conversation-like material. The raw text remains authoritative, while higher semantic artifacts are provenance-linked overlays.\n\nThe module separates chronology from inferential maturity and reconstructs O, E, and U lanes explicitly when the local material supports them. It aims to stabilize a bootstrap corpus around ODEU emergence and produce a workspace snapshot for later corpus waves.\n\nBecause the abstract does not specify detailed operator rules, the deontic lane remains underdetermined here.",
+    "source_text_hash": "543afd18b92d3423d9f0ca9552a23c79067d3957655bd5ae7112046f3aadb529",
+    "corpus_wave_posture": "unassigned",
+    "source_authority_posture": "raw_source_text_authoritative",
+    "source_notes": [
+      "bounded demo fixture",
+      "non-authoritative simulated abstract sample"
+    ]
+  },
+  "ledger": {
+    "schema": "adeu_history_ledger@1",
+    "ledger_id": "history_ledger:356e453451c79fa9",
+    "source_id": "history_source:c6f73a26514ecd4e",
+    "input_kind": "abstract_like",
+    "entries": [
+      {
+        "schema": "adeu_history_ledger_entry@1",
+        "entry_id": "history_entry:48ed00d2ee1b73ea",
+        "source_id": "history_source:c6f73a26514ecd4e",
+        "unit_kind": "abstract_paragraph",
+        "entry_text": "Abstract\nThis bounded reference abstract proposes a history semantics proto-module for conversation-like material. The raw text remains authoritative, while higher semantic artifacts are provenance-linked overlays.",
+        "entry_text_hash": "f3e0b9a6cc82f503997aa59cfed479687a1e8686e999a31ec8390e5ca6032b68",
+        "source_line_start": 1,
+        "source_line_end": 2,
+        "preclassification": {
+          "schema": "adeu_history_preclassification@1",
+          "role": "unknown",
+          "origin_type": "abstract_paragraph",
+          "source_declaration_hints": [
+            "abstract_header_present"
+          ],
+          "timestamp_text": null,
+          "structural_markers": [],
+          "text_shape_signals": {
+            "schema": "adeu_history_text_shape_signals@1",
+            "char_count": 214,
+            "word_count": 25,
+            "sentence_count": 2,
+            "line_count": 2,
+            "question_count": 0,
+            "bullet_line_count": 0,
+            "quoted_line_count": 0,
+            "code_fence_count": 0
+          },
+          "local_group_id": "abstract:0000",
+          "suggested_slice_boundary_before": false,
+          "order_index": 0
+        }
+      },
+      {
+        "schema": "adeu_history_ledger_entry@1",
+        "entry_id": "history_entry:19c6124502d5aee5",
+        "source_id": "history_source:c6f73a26514ecd4e",
+        "unit_kind": "abstract_paragraph",
+        "entry_text": "The module separates chronology from inferential maturity and reconstructs O, E, and U lanes explicitly when the local material supports them. It aims to stabilize a bootstrap corpus around ODEU emergence and produce a workspace snapshot for later corpus waves.",
+        "entry_text_hash": "da0f6187157bf4abf5457ba044bd7bf88b46cc94d1ecbef9b9633a89ced626c7",
+        "source_line_start": 4,
+        "source_line_end": 4,
+        "preclassification": {
+          "schema": "adeu_history_preclassification@1",
+          "role": "unknown",
+          "origin_type": "abstract_paragraph",
+          "source_declaration_hints": [
+            "abstract_header_present"
+          ],
+          "timestamp_text": null,
+          "structural_markers": [
+            "odeu_marker_present"
+          ],
+          "text_shape_signals": {
+            "schema": "adeu_history_text_shape_signals@1",
+            "char_count": 261,
+            "word_count": 40,
+            "sentence_count": 2,
+            "line_count": 1,
+            "question_count": 0,
+            "bullet_line_count": 0,
+            "quoted_line_count": 0,
+            "code_fence_count": 0
+          },
+          "local_group_id": "abstract:0001",
+          "suggested_slice_boundary_before": true,
+          "order_index": 1
+        }
+      },
+      {
+        "schema": "adeu_history_ledger_entry@1",
+        "entry_id": "history_entry:0c396d947df99625",
+        "source_id": "history_source:c6f73a26514ecd4e",
+        "unit_kind": "abstract_paragraph",
+        "entry_text": "Because the abstract does not specify detailed operator rules, the deontic lane remains underdetermined here.",
+        "entry_text_hash": "ff92831267d0c573ea16bb1d8ee352cba4b67513a6599accf00c59b7b46b87a9",
+        "source_line_start": 6,
+        "source_line_end": 6,
+        "preclassification": {
+          "schema": "adeu_history_preclassification@1",
+          "role": "unknown",
+          "origin_type": "abstract_paragraph",
+          "source_declaration_hints": [
+            "abstract_header_present"
+          ],
+          "timestamp_text": null,
+          "structural_markers": [],
+          "text_shape_signals": {
+            "schema": "adeu_history_text_shape_signals@1",
+            "char_count": 109,
+            "word_count": 15,
+            "sentence_count": 1,
+            "line_count": 1,
+            "question_count": 0,
+            "bullet_line_count": 0,
+            "quoted_line_count": 0,
+            "code_fence_count": 0
+          },
+          "local_group_id": "abstract:0002",
+          "suggested_slice_boundary_before": true,
+          "order_index": 2
+        }
+      }
+    ],
+    "entry_count": 3
+  },
+  "slices": [
+    {
+      "schema": "adeu_history_slice@1",
+      "slice_id": "history_slice:06bab0cf6b00e5e9",
+      "source_id": "history_source:c6f73a26514ecd4e",
+      "slice_index": 0,
+      "primary_entry_ids": [
+        "history_entry:48ed00d2ee1b73ea"
+      ],
+      "support_entry_ids": [],
+      "chronology_start_index": 0,
+      "chronology_end_index": 0,
+      "suggested_theme_terms": [
+        "abstract",
+        "semantics",
+        "semantic",
+        "bounded"
+      ],
+      "suggested_theme_label": "abstract / semantics / semantic",
+      "inferential_maturity_score": 1,
+      "inferential_maturity_band": "emergent",
+      "slice_notes": [
+        "local_group_id=abstract:0000"
+      ]
+    },
+    {
+      "schema": "adeu_history_slice@1",
+      "slice_id": "history_slice:9ed022012b2613f1",
+      "source_id": "history_source:c6f73a26514ecd4e",
+      "slice_index": 1,
+      "primary_entry_ids": [
+        "history_entry:19c6124502d5aee5"
+      ],
+      "support_entry_ids": [],
+      "chronology_start_index": 1,
+      "chronology_end_index": 1,
+      "suggested_theme_terms": [
+        "corpus",
+        "chronology",
+        "inferential",
+        "maturity"
+      ],
+      "suggested_theme_label": "corpus / chronology / inferential",
+      "inferential_maturity_score": 4,
+      "inferential_maturity_band": "explicit",
+      "slice_notes": [
+        "local_group_id=abstract:0001"
+      ]
+    },
+    {
+      "schema": "adeu_history_slice@1",
+      "slice_id": "history_slice:487e3a6516b107d2",
+      "source_id": "history_source:c6f73a26514ecd4e",
+      "slice_index": 2,
+      "primary_entry_ids": [
+        "history_entry:0c396d947df99625"
+      ],
+      "support_entry_ids": [],
+      "chronology_start_index": 2,
+      "chronology_end_index": 2,
+      "suggested_theme_terms": [
+        "abstract",
+        "not",
+        "specify",
+        "detailed"
+      ],
+      "suggested_theme_label": "abstract / not / specify",
+      "inferential_maturity_score": 0,
+      "inferential_maturity_band": "emergent",
+      "slice_notes": [
+        "local_group_id=abstract:0002"
+      ]
+    }
+  ],
+  "theme_anchors": [
+    {
+      "schema": "adeu_history_theme_anchor@1",
+      "theme_anchor_id": "history_theme:f3bf0322cfd90377",
+      "source_id": "history_source:c6f73a26514ecd4e",
+      "theme_key": "abstract__not__specify",
+      "display_label": "abstract / not / specify",
+      "selection_posture": "source_fallback_primary",
+      "anchor_terms": [
+        "abstract",
+        "not",
+        "specify",
+        "detailed"
+      ],
+      "primary_entry_ids": [
+        "history_entry:0c396d947df99625"
+      ],
+      "support_entry_ids": [],
+      "slice_ids": [
+        "history_slice:487e3a6516b107d2"
+      ]
+    },
+    {
+      "schema": "adeu_history_theme_anchor@1",
+      "theme_anchor_id": "history_theme:05578da69c6cdd6c",
+      "source_id": "history_source:c6f73a26514ecd4e",
+      "theme_key": "abstract__semantics__semantic",
+      "display_label": "abstract / semantics / semantic",
+      "selection_posture": "source_fallback_primary",
+      "anchor_terms": [
+        "abstract",
+        "semantics",
+        "semantic",
+        "bounded"
+      ],
+      "primary_entry_ids": [
+        "history_entry:48ed00d2ee1b73ea"
+      ],
+      "support_entry_ids": [],
+      "slice_ids": [
+        "history_slice:06bab0cf6b00e5e9"
+      ]
+    },
+    {
+      "schema": "adeu_history_theme_anchor@1",
+      "theme_anchor_id": "history_theme:e4dc3d3e785d1c38",
+      "source_id": "history_source:c6f73a26514ecd4e",
+      "theme_key": "corpus__chronology__inferential",
+      "display_label": "corpus / chronology / inferential",
+      "selection_posture": "source_fallback_primary",
+      "anchor_terms": [
+        "corpus",
+        "chronology",
+        "inferential",
+        "maturity"
+      ],
+      "primary_entry_ids": [
+        "history_entry:19c6124502d5aee5"
+      ],
+      "support_entry_ids": [],
+      "slice_ids": [
+        "history_slice:9ed022012b2613f1"
+      ]
+    }
+  ],
+  "reconstruction_packets": [
+    {
+      "schema": "adeu_history_odeu_reconstruction_packet@1",
+      "packet_id": "history_packet:65c63deb06d20637",
+      "source_id": "history_source:c6f73a26514ecd4e",
+      "slice_id": "history_slice:06bab0cf6b00e5e9",
+      "theme_anchor_id": "history_theme:05578da69c6cdd6c",
+      "lane_reconstructions": [
+        {
+          "schema": "adeu_history_odeu_lane_reconstruction@1",
+          "lane_id": "O",
+          "presence_status": "weakly_present",
+          "explicitation_status": "contextually_reconstructed",
+          "dominant_role_posture": "source_primary",
+          "reconstruction_text": "Contextually reconstructed from: This bounded reference abstract proposes a history semantics proto-module for conversation-like material.; The raw text remains authoritative, while higher semantic artifacts are provenance-linked overlays.",
+          "evidence_refs": [
+            {
+              "schema": "adeu_history_evidence_ref@1",
+              "entry_id": "history_entry:48ed00d2ee1b73ea",
+              "role": "unknown",
+              "excerpt": "This bounded reference abstract proposes a history semantics proto-module for conversation-like material."
+            },
+            {
+              "schema": "adeu_history_evidence_ref@1",
+              "entry_id": "history_entry:48ed00d2ee1b73ea",
+              "role": "unknown",
+              "excerpt": "The raw text remains authoritative, while higher semantic artifacts are provenance-linked overlays."
+            }
+          ]
+        },
+        {
+          "schema": "adeu_history_odeu_lane_reconstruction@1",
+          "lane_id": "E",
+          "presence_status": "weakly_present",
+          "explicitation_status": "contextually_reconstructed",
+          "dominant_role_posture": "source_primary",
+          "reconstruction_text": "Contextually reconstructed from: The raw text remains authoritative, while higher semantic artifacts are provenance-linked overlays.",
+          "evidence_refs": [
+            {
+              "schema": "adeu_history_evidence_ref@1",
+              "entry_id": "history_entry:48ed00d2ee1b73ea",
+              "role": "unknown",
+              "excerpt": "The raw text remains authoritative, while higher semantic artifacts are provenance-linked overlays."
+            }
+          ]
+        },
+        {
+          "schema": "adeu_history_odeu_lane_reconstruction@1",
+          "lane_id": "D",
+          "presence_status": "not_salient",
+          "explicitation_status": "underdetermined",
+          "dominant_role_posture": "none",
+          "reconstruction_text": "deontic lane is not salient in this slice.",
+          "evidence_refs": []
+        },
+        {
+          "schema": "adeu_history_odeu_lane_reconstruction@1",
+          "lane_id": "U",
+          "presence_status": "not_salient",
+          "explicitation_status": "underdetermined",
+          "dominant_role_posture": "none",
+          "reconstruction_text": "utility lane is not salient in this slice.",
+          "evidence_refs": []
+        }
+      ],
+      "reintegrated_summary": "abstract / semantics / semantic -> O: weakly_present; E: weakly_present",
+      "interpretation_authority_posture": "advisory_overlay_only",
+      "semantic_identity_mode": "adeu_history_semantics_v0_hash_law",
+      "semantic_hash": "65c63deb06d206371913cfdecd5f7de2eb69757f1c6d4fff0b6eeca890d3d159"
+    },
+    {
+      "schema": "adeu_history_odeu_reconstruction_packet@1",
+      "packet_id": "history_packet:6f3c1fea61b00320",
+      "source_id": "history_source:c6f73a26514ecd4e",
+      "slice_id": "history_slice:487e3a6516b107d2",
+      "theme_anchor_id": "history_theme:f3bf0322cfd90377",
+      "lane_reconstructions": [
+        {
+          "schema": "adeu_history_odeu_lane_reconstruction@1",
+          "lane_id": "O",
+          "presence_status": "weakly_present",
+          "explicitation_status": "contextually_reconstructed",
+          "dominant_role_posture": "source_primary",
+          "reconstruction_text": "Contextually reconstructed from: Because the abstract does not specify detailed operator rules, the deontic lane remains underdetermined here.",
+          "evidence_refs": [
+            {
+              "schema": "adeu_history_evidence_ref@1",
+              "entry_id": "history_entry:0c396d947df99625",
+              "role": "unknown",
+              "excerpt": "Because the abstract does not specify detailed operator rules, the deontic lane remains underdetermined here."
+            }
+          ]
+        },
+        {
+          "schema": "adeu_history_odeu_lane_reconstruction@1",
+          "lane_id": "E",
+          "presence_status": "weakly_present",
+          "explicitation_status": "contextually_reconstructed",
+          "dominant_role_posture": "source_primary",
+          "reconstruction_text": "Contextually reconstructed from: Because the abstract does not specify detailed operator rules, the deontic lane remains underdetermined here.",
+          "evidence_refs": [
+            {
+              "schema": "adeu_history_evidence_ref@1",
+              "entry_id": "history_entry:0c396d947df99625",
+              "role": "unknown",
+              "excerpt": "Because the abstract does not specify detailed operator rules, the deontic lane remains underdetermined here."
+            }
+          ]
+        },
+        {
+          "schema": "adeu_history_odeu_lane_reconstruction@1",
+          "lane_id": "D",
+          "presence_status": "underdetermined",
+          "explicitation_status": "underdetermined",
+          "dominant_role_posture": "none",
+          "reconstruction_text": "deontic lane remains underdetermined from the available local material.",
+          "evidence_refs": []
+        },
+        {
+          "schema": "adeu_history_odeu_lane_reconstruction@1",
+          "lane_id": "U",
+          "presence_status": "underdetermined",
+          "explicitation_status": "underdetermined",
+          "dominant_role_posture": "none",
+          "reconstruction_text": "utility lane remains underdetermined from the available local material.",
+          "evidence_refs": []
+        }
+      ],
+      "reintegrated_summary": "abstract / not / specify -> O: weakly_present; E: weakly_present",
+      "interpretation_authority_posture": "advisory_overlay_only",
+      "semantic_identity_mode": "adeu_history_semantics_v0_hash_law",
+      "semantic_hash": "6f3c1fea61b0032002a6c8e9d8c40d96cb4c8d7b003f992d391759b074bc5afa"
+    },
+    {
+      "schema": "adeu_history_odeu_reconstruction_packet@1",
+      "packet_id": "history_packet:f55a7355b87f0335",
+      "source_id": "history_source:c6f73a26514ecd4e",
+      "slice_id": "history_slice:9ed022012b2613f1",
+      "theme_anchor_id": "history_theme:e4dc3d3e785d1c38",
+      "lane_reconstructions": [
+        {
+          "schema": "adeu_history_odeu_lane_reconstruction@1",
+          "lane_id": "O",
+          "presence_status": "weakly_present",
+          "explicitation_status": "contextually_reconstructed",
+          "dominant_role_posture": "source_primary",
+          "reconstruction_text": "Contextually reconstructed from: The module separates chronology from inferential maturity and reconstructs O, E, and U lanes explicitly when the local material supports them.; It aims to stabilize a bootstrap corpus around ODEU emergence and produce a workspace snapshot for later corpus waves.",
+          "evidence_refs": [
+            {
+              "schema": "adeu_history_evidence_ref@1",
+              "entry_id": "history_entry:19c6124502d5aee5",
+              "role": "unknown",
+              "excerpt": "The module separates chronology from inferential maturity and reconstructs O, E, and U lanes explicitly when the local material supports them."
+            },
+            {
+              "schema": "adeu_history_evidence_ref@1",
+              "entry_id": "history_entry:19c6124502d5aee5",
+              "role": "unknown",
+              "excerpt": "It aims to stabilize a bootstrap corpus around ODEU emergence and produce a workspace snapshot for later corpus waves."
+            }
+          ]
+        },
+        {
+          "schema": "adeu_history_odeu_lane_reconstruction@1",
+          "lane_id": "E",
+          "presence_status": "weakly_present",
+          "explicitation_status": "contextually_reconstructed",
+          "dominant_role_posture": "source_primary",
+          "reconstruction_text": "Contextually reconstructed from: The module separates chronology from inferential maturity and reconstructs O, E, and U lanes explicitly when the local material supports them.",
+          "evidence_refs": [
+            {
+              "schema": "adeu_history_evidence_ref@1",
+              "entry_id": "history_entry:19c6124502d5aee5",
+              "role": "unknown",
+              "excerpt": "The module separates chronology from inferential maturity and reconstructs O, E, and U lanes explicitly when the local material supports them."
+            }
+          ]
+        },
+        {
+          "schema": "adeu_history_odeu_lane_reconstruction@1",
+          "lane_id": "D",
+          "presence_status": "underdetermined",
+          "explicitation_status": "underdetermined",
+          "dominant_role_posture": "none",
+          "reconstruction_text": "deontic lane remains underdetermined from the available local material.",
+          "evidence_refs": []
+        },
+        {
+          "schema": "adeu_history_odeu_lane_reconstruction@1",
+          "lane_id": "U",
+          "presence_status": "weakly_present",
+          "explicitation_status": "contextually_reconstructed",
+          "dominant_role_posture": "source_primary",
+          "reconstruction_text": "Contextually reconstructed from: It aims to stabilize a bootstrap corpus around ODEU emergence and produce a workspace snapshot for later corpus waves.",
+          "evidence_refs": [
+            {
+              "schema": "adeu_history_evidence_ref@1",
+              "entry_id": "history_entry:19c6124502d5aee5",
+              "role": "unknown",
+              "excerpt": "It aims to stabilize a bootstrap corpus around ODEU emergence and produce a workspace snapshot for later corpus waves."
+            }
+          ]
+        }
+      ],
+      "reintegrated_summary": "corpus / chronology / inferential -> O: weakly_present; E: weakly_present; U: weakly_present",
+      "interpretation_authority_posture": "advisory_overlay_only",
+      "semantic_identity_mode": "adeu_history_semantics_v0_hash_law",
+      "semantic_hash": "f55a7355b87f0335ebf462218fb8b89fb1861e4de5f2a392e883bb565de629ce"
+    }
+  ],
+  "workspace_snapshot": {
+    "schema": "adeu_history_workspace_snapshot@1",
+    "workspace_snapshot_id": "history_workspace:3ef43da941420631",
+    "source_id": "history_source:c6f73a26514ecd4e",
+    "ledger_id": "history_ledger:356e453451c79fa9",
+    "chronology_slice_order": [
+      "history_slice:06bab0cf6b00e5e9",
+      "history_slice:9ed022012b2613f1",
+      "history_slice:487e3a6516b107d2"
+    ],
+    "inferential_slice_order": [
+      "history_slice:9ed022012b2613f1",
+      "history_slice:06bab0cf6b00e5e9",
+      "history_slice:487e3a6516b107d2"
+    ],
+    "theme_frames": [
+      {
+        "schema": "adeu_history_workspace_theme_frame@1",
+        "frame_id": "history_frame:79b56992dfc6d61d",
+        "theme_anchor_id": "history_theme:05578da69c6cdd6c",
+        "theme_display_label": "abstract / semantics / semantic",
+        "slice_ids": [
+          "history_slice:06bab0cf6b00e5e9"
+        ],
+        "packet_ids": [
+          "history_packet:65c63deb06d20637"
+        ],
+        "chronology_start_index": 0,
+        "chronology_end_index": 0,
+        "inferential_maturity_band": "emergent",
+        "underdeveloped_lane_ids": [
+          "O",
+          "E"
+        ],
+        "provenance_entry_ids": [
+          "history_entry:48ed00d2ee1b73ea"
+        ],
+        "open_questions": [
+          {
+            "schema": "adeu_history_workspace_question@1",
+            "question_id": "history_question:5eef39348f80fe3c",
+            "lane_id": "O",
+            "reason_kind": "weak_lane",
+            "question_text": "ontological lane for theme 'abstract / semantics / semantic' is weakly_present; collect more explicit local material or later explication."
+          },
+          {
+            "schema": "adeu_history_workspace_question@1",
+            "question_id": "history_question:b1ec4b41ef96a44d",
+            "lane_id": "E",
+            "reason_kind": "weak_lane",
+            "question_text": "epistemic lane for theme 'abstract / semantics / semantic' is weakly_present; collect more explicit local material or later explication."
+          }
+        ]
+      },
+      {
+        "schema": "adeu_history_workspace_theme_frame@1",
+        "frame_id": "history_frame:473481a9775447b2",
+        "theme_anchor_id": "history_theme:e4dc3d3e785d1c38",
+        "theme_display_label": "corpus / chronology / inferential",
+        "slice_ids": [
+          "history_slice:9ed022012b2613f1"
+        ],
+        "packet_ids": [
+          "history_packet:f55a7355b87f0335"
+        ],
+        "chronology_start_index": 1,
+        "chronology_end_index": 1,
+        "inferential_maturity_band": "explicit",
+        "underdeveloped_lane_ids": [
+          "O",
+          "E",
+          "D",
+          "U"
+        ],
+        "provenance_entry_ids": [
+          "history_entry:19c6124502d5aee5"
+        ],
+        "open_questions": [
+          {
+            "schema": "adeu_history_workspace_question@1",
+            "question_id": "history_question:ad3ab31f8fc06438",
+            "lane_id": "O",
+            "reason_kind": "weak_lane",
+            "question_text": "ontological lane for theme 'corpus / chronology / inferential' is weakly_present; collect more explicit local material or later explication."
+          },
+          {
+            "schema": "adeu_history_workspace_question@1",
+            "question_id": "history_question:55f0375ca7838dfb",
+            "lane_id": "E",
+            "reason_kind": "weak_lane",
+            "question_text": "epistemic lane for theme 'corpus / chronology / inferential' is weakly_present; collect more explicit local material or later explication."
+          },
+          {
+            "schema": "adeu_history_workspace_question@1",
+            "question_id": "history_question:3cc3dee456c0ae1f",
+            "lane_id": "D",
+            "reason_kind": "underdetermined_lane",
+            "question_text": "deontic lane for theme 'corpus / chronology / inferential' is underdetermined; collect more explicit local material or later explication."
+          },
+          {
+            "schema": "adeu_history_workspace_question@1",
+            "question_id": "history_question:cd8c381c832fd45c",
+            "lane_id": "U",
+            "reason_kind": "weak_lane",
+            "question_text": "utility lane for theme 'corpus / chronology / inferential' is weakly_present; collect more explicit local material or later explication."
+          }
+        ]
+      },
+      {
+        "schema": "adeu_history_workspace_theme_frame@1",
+        "frame_id": "history_frame:4219cf73414ee73f",
+        "theme_anchor_id": "history_theme:f3bf0322cfd90377",
+        "theme_display_label": "abstract / not / specify",
+        "slice_ids": [
+          "history_slice:487e3a6516b107d2"
+        ],
+        "packet_ids": [
+          "history_packet:6f3c1fea61b00320"
+        ],
+        "chronology_start_index": 2,
+        "chronology_end_index": 2,
+        "inferential_maturity_band": "emergent",
+        "underdeveloped_lane_ids": [
+          "O",
+          "E",
+          "D",
+          "U"
+        ],
+        "provenance_entry_ids": [
+          "history_entry:0c396d947df99625"
+        ],
+        "open_questions": [
+          {
+            "schema": "adeu_history_workspace_question@1",
+            "question_id": "history_question:0db3f7b81a8ad157",
+            "lane_id": "O",
+            "reason_kind": "weak_lane",
+            "question_text": "ontological lane for theme 'abstract / not / specify' is weakly_present; collect more explicit local material or later explication."
+          },
+          {
+            "schema": "adeu_history_workspace_question@1",
+            "question_id": "history_question:b275b884ac359891",
+            "lane_id": "E",
+            "reason_kind": "weak_lane",
+            "question_text": "epistemic lane for theme 'abstract / not / specify' is weakly_present; collect more explicit local material or later explication."
+          },
+          {
+            "schema": "adeu_history_workspace_question@1",
+            "question_id": "history_question:102a30fe0cd09b63",
+            "lane_id": "D",
+            "reason_kind": "underdetermined_lane",
+            "question_text": "deontic lane for theme 'abstract / not / specify' is underdetermined; collect more explicit local material or later explication."
+          },
+          {
+            "schema": "adeu_history_workspace_question@1",
+            "question_id": "history_question:0bd64507eb39a4f8",
+            "lane_id": "U",
+            "reason_kind": "underdetermined_lane",
+            "question_text": "utility lane for theme 'abstract / not / specify' is underdetermined; collect more explicit local material or later explication."
+          }
+        ]
+      }
+    ],
+    "lane_order": [
+      "O",
+      "E",
+      "D",
+      "U"
+    ],
+    "source_authority_posture": "raw_source_text_authoritative",
+    "interpretation_authority_posture": "advisory_overlay_only",
+    "theme_selection_posture": "user_messages_first_order_when_available",
+    "assistant_explication_posture": "assistant_second_order_for_theme_first_order_for_explication_when_attached",
+    "semantic_identity_mode": "adeu_history_semantics_v0_hash_law",
+    "semantic_hash": "3ef43da941420631366e28ff8af1350fee9c49bbb7606b080a323593ac13d176"
+  }
+}

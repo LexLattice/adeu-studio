@@ -1,0 +1,144 @@
+{
+  "$defs": {
+    "EdgeClassNode": {
+      "additionalProperties": false,
+      "properties": {
+        "default_probe_template_refs": {
+          "items": {
+            "type": "string"
+          },
+          "title": "Default Probe Template Refs",
+          "type": "array"
+        },
+        "edge_class_ref": {
+          "title": "Edge Class Ref",
+          "type": "string"
+        },
+        "lifecycle_posture": {
+          "default": "stabilized",
+          "enum": [
+            "candidate",
+            "stabilized",
+            "split",
+            "merged",
+            "deprecated"
+          ],
+          "title": "Lifecycle Posture",
+          "type": "string"
+        },
+        "node_kind": {
+          "enum": [
+            "family",
+            "subfamily",
+            "archetype"
+          ],
+          "title": "Node Kind",
+          "type": "string"
+        },
+        "parent_edge_class_ref": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Parent Edge Class Ref"
+        },
+        "required_cue_tags": {
+          "items": {
+            "type": "string"
+          },
+          "title": "Required Cue Tags",
+          "type": "array"
+        },
+        "short_label": {
+          "title": "Short Label",
+          "type": "string"
+        },
+        "structural_safety_cue_tags": {
+          "items": {
+            "type": "string"
+          },
+          "title": "Structural Safety Cue Tags",
+          "type": "array"
+        },
+        "summary": {
+          "title": "Summary",
+          "type": "string"
+        },
+        "supporting_cue_tags": {
+          "items": {
+            "type": "string"
+          },
+          "title": "Supporting Cue Tags",
+          "type": "array"
+        },
+        "test_token_tags": {
+          "items": {
+            "type": "string"
+          },
+          "title": "Test Token Tags",
+          "type": "array"
+        }
+      },
+      "required": [
+        "edge_class_ref",
+        "node_kind",
+        "short_label",
+        "summary"
+      ],
+      "title": "EdgeClassNode",
+      "type": "object"
+    }
+  },
+  "additionalProperties": false,
+  "properties": {
+    "catalog_hash": {
+      "title": "Catalog Hash",
+      "type": "string"
+    },
+    "catalog_id": {
+      "title": "Catalog Id",
+      "type": "string"
+    },
+    "catalog_name": {
+      "title": "Catalog Name",
+      "type": "string"
+    },
+    "catalog_posture": {
+      "title": "Catalog Posture",
+      "type": "string"
+    },
+    "catalog_version": {
+      "title": "Catalog Version",
+      "type": "string"
+    },
+    "nodes": {
+      "items": {
+        "$ref": "#/$defs/EdgeClassNode"
+      },
+      "minItems": 1,
+      "title": "Nodes",
+      "type": "array"
+    },
+    "schema": {
+      "const": "adeu_edge_class_catalog@1",
+      "default": "adeu_edge_class_catalog@1",
+      "title": "Schema",
+      "type": "string"
+    }
+  },
+  "required": [
+    "catalog_id",
+    "catalog_name",
+    "catalog_version",
+    "catalog_posture",
+    "nodes",
+    "catalog_hash"
+  ],
+  "title": "EdgeClassCatalog",
+  "type": "object"
+}

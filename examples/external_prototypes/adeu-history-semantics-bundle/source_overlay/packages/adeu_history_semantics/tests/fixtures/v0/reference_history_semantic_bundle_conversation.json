@@ -1,0 +1,543 @@
+{
+  "schema": "adeu_history_semantic_bundle@1",
+  "bundle_id": "history_bundle:288f096ea669c8cc",
+  "compiler_version": "v0",
+  "source": {
+    "schema": "adeu_history_source_artifact@1",
+    "source_id": "history_source:09832ed5e9ba14df",
+    "input_kind": "conversation_history",
+    "source_label": "Demo conversation history fixture",
+    "source_text": "[2026-02-02 10:00] User: I want a bounded history semantics package, not a generic memory layer. Raw history must stay authoritative.\n[2026-02-02 10:02] Assistant: O: The module can treat raw history as an immutable source artifact plus a ledger of preclassified entries.\nE: Higher-level artifacts should remain provenance-linked overlays and mark underdetermined lanes honestly.\nD: We must keep the implementation package-first, fail-closed, and avoid database or vector-store widening.\nU: The first target is bootstrap conversation-history material so the workspace can later stabilize ODEU emergence.\n[2026-02-02 10:05] User: Keep user messages first-order for theme anchoring, but assistant replies can make the inferential structure explicit.\n[2026-02-02 10:07] Assistant: O: Each bounded slice can own a theme anchor, an ODEU packet, and a workspace snapshot entry.\nE: Assistant explication should attach back to the user-anchored theme frame instead of replacing it.\nD: Do not collapse everything into one blended summary.\nU: This gives us a bounded inferential workspace that can guide later corpus waves.",
+    "source_text_hash": "d0319af4b5879e6b6d24606a06f4faebe455ea52271771d16cd3a91bb4760c7c",
+    "corpus_wave_posture": "wave_0_bootstrap_candidate",
+    "source_authority_posture": "raw_source_text_authoritative",
+    "source_notes": [
+      "bounded demo fixture",
+      "non-authoritative simulated bootstrap corpus sample"
+    ]
+  },
+  "ledger": {
+    "schema": "adeu_history_ledger@1",
+    "ledger_id": "history_ledger:bd4edd3580b5025a",
+    "source_id": "history_source:09832ed5e9ba14df",
+    "input_kind": "conversation_history",
+    "entries": [
+      {
+        "schema": "adeu_history_ledger_entry@1",
+        "entry_id": "history_entry:227545e0e4f3d176",
+        "source_id": "history_source:09832ed5e9ba14df",
+        "unit_kind": "message",
+        "entry_text": "I want a bounded history semantics package, not a generic memory layer. Raw history must stay authoritative.",
+        "entry_text_hash": "041ba573bf93e04cefd40db17a6f92c6047f98629b62b28a43a0caeeb5b73007",
+        "source_line_start": 1,
+        "source_line_end": 1,
+        "preclassification": {
+          "schema": "adeu_history_preclassification@1",
+          "role": "user",
+          "origin_type": "user_native",
+          "source_declaration_hints": [
+            "timestamp_header_detected"
+          ],
+          "timestamp_text": "2026-02-02 10:00",
+          "structural_markers": [
+            "imperative_signal_present",
+            "role_header_detected"
+          ],
+          "text_shape_signals": {
+            "schema": "adeu_history_text_shape_signals@1",
+            "char_count": 108,
+            "word_count": 17,
+            "sentence_count": 2,
+            "line_count": 1,
+            "question_count": 0,
+            "bullet_line_count": 0,
+            "quoted_line_count": 0,
+            "code_fence_count": 0
+          },
+          "local_group_id": "turn:0000",
+          "suggested_slice_boundary_before": false,
+          "order_index": 0
+        }
+      },
+      {
+        "schema": "adeu_history_ledger_entry@1",
+        "entry_id": "history_entry:479a1d5d6528c66e",
+        "source_id": "history_source:09832ed5e9ba14df",
+        "unit_kind": "message",
+        "entry_text": "O: The module can treat raw history as an immutable source artifact plus a ledger of preclassified entries.\nE: Higher-level artifacts should remain provenance-linked overlays and mark underdetermined lanes honestly.\nD: We must keep the implementation package-first, fail-closed, and avoid database or vector-store widening.\nU: The first target is bootstrap conversation-history material so the workspace can later stabilize ODEU emergence.",
+        "entry_text_hash": "bb5eaf5a4c5b8dfb8e30bea89d5161bff6c78ab953408b0450a6c05f880d9d0e",
+        "source_line_start": 2,
+        "source_line_end": 5,
+        "preclassification": {
+          "schema": "adeu_history_preclassification@1",
+          "role": "assistant",
+          "origin_type": "assistant_reply",
+          "source_declaration_hints": [
+            "timestamp_header_detected"
+          ],
+          "timestamp_text": "2026-02-02 10:02",
+          "structural_markers": [
+            "imperative_signal_present",
+            "odeu_marker_present",
+            "role_header_detected"
+          ],
+          "text_shape_signals": {
+            "schema": "adeu_history_text_shape_signals@1",
+            "char_count": 439,
+            "word_count": 60,
+            "sentence_count": 4,
+            "line_count": 4,
+            "question_count": 0,
+            "bullet_line_count": 0,
+            "quoted_line_count": 0,
+            "code_fence_count": 0
+          },
+          "local_group_id": "turn:0000",
+          "suggested_slice_boundary_before": false,
+          "order_index": 1
+        }
+      },
+      {
+        "schema": "adeu_history_ledger_entry@1",
+        "entry_id": "history_entry:cd2149905322028f",
+        "source_id": "history_source:09832ed5e9ba14df",
+        "unit_kind": "message",
+        "entry_text": "Keep user messages first-order for theme anchoring, but assistant replies can make the inferential structure explicit.",
+        "entry_text_hash": "99c3147e3b90feb94074dbb3dc3ca7c719f75889362401b1edb1a45de80bae90",
+        "source_line_start": 6,
+        "source_line_end": 6,
+        "preclassification": {
+          "schema": "adeu_history_preclassification@1",
+          "role": "user",
+          "origin_type": "user_native",
+          "source_declaration_hints": [
+            "timestamp_header_detected"
+          ],
+          "timestamp_text": "2026-02-02 10:05",
+          "structural_markers": [
+            "imperative_signal_present",
+            "role_header_detected"
+          ],
+          "text_shape_signals": {
+            "schema": "adeu_history_text_shape_signals@1",
+            "char_count": 118,
+            "word_count": 16,
+            "sentence_count": 1,
+            "line_count": 1,
+            "question_count": 0,
+            "bullet_line_count": 0,
+            "quoted_line_count": 0,
+            "code_fence_count": 0
+          },
+          "local_group_id": "turn:0001",
+          "suggested_slice_boundary_before": true,
+          "order_index": 2
+        }
+      },
+      {
+        "schema": "adeu_history_ledger_entry@1",
+        "entry_id": "history_entry:934c244b04f92c16",
+        "source_id": "history_source:09832ed5e9ba14df",
+        "unit_kind": "message",
+        "entry_text": "O: Each bounded slice can own a theme anchor, an ODEU packet, and a workspace snapshot entry.\nE: Assistant explication should attach back to the user-anchored theme frame instead of replacing it.\nD: Do not collapse everything into one blended summary.\nU: This gives us a bounded inferential workspace that can guide later corpus waves.",
+        "entry_text_hash": "5600b253a4477d049fdcdb5b07213b3c6c9e1db623ea8cfa0b476f0eef742fb8",
+        "source_line_start": 7,
+        "source_line_end": 10,
+        "preclassification": {
+          "schema": "adeu_history_preclassification@1",
+          "role": "assistant",
+          "origin_type": "assistant_reply",
+          "source_declaration_hints": [
+            "timestamp_header_detected"
+          ],
+          "timestamp_text": "2026-02-02 10:07",
+          "structural_markers": [
+            "imperative_signal_present",
+            "negation_guard_present",
+            "odeu_marker_present",
+            "role_header_detected"
+          ],
+          "text_shape_signals": {
+            "schema": "adeu_history_text_shape_signals@1",
+            "char_count": 335,
+            "word_count": 55,
+            "sentence_count": 4,
+            "line_count": 4,
+            "question_count": 0,
+            "bullet_line_count": 0,
+            "quoted_line_count": 0,
+            "code_fence_count": 0
+          },
+          "local_group_id": "turn:0001",
+          "suggested_slice_boundary_before": false,
+          "order_index": 3
+        }
+      }
+    ],
+    "entry_count": 4
+  },
+  "slices": [
+    {
+      "schema": "adeu_history_slice@1",
+      "slice_id": "history_slice:6cc126c2091a6637",
+      "source_id": "history_source:09832ed5e9ba14df",
+      "slice_index": 0,
+      "primary_entry_ids": [
+        "history_entry:227545e0e4f3d176"
+      ],
+      "support_entry_ids": [
+        "history_entry:479a1d5d6528c66e"
+      ],
+      "chronology_start_index": 0,
+      "chronology_end_index": 1,
+      "suggested_theme_terms": [
+        "history",
+        "semantics",
+        "want",
+        "bounded"
+      ],
+      "suggested_theme_label": "history / semantics / want",
+      "inferential_maturity_score": 9,
+      "inferential_maturity_band": "consolidated",
+      "slice_notes": [
+        "local_group_id=turn:0000"
+      ]
+    },
+    {
+      "schema": "adeu_history_slice@1",
+      "slice_id": "history_slice:b09f86ff984e2b97",
+      "source_id": "history_source:09832ed5e9ba14df",
+      "slice_index": 1,
+      "primary_entry_ids": [
+        "history_entry:cd2149905322028f"
+      ],
+      "support_entry_ids": [
+        "history_entry:934c244b04f92c16"
+      ],
+      "chronology_start_index": 2,
+      "chronology_end_index": 3,
+      "suggested_theme_terms": [
+        "theme",
+        "inferential",
+        "first-order",
+        "anchoring"
+      ],
+      "suggested_theme_label": "theme / inferential / first-order",
+      "inferential_maturity_score": 9,
+      "inferential_maturity_band": "consolidated",
+      "slice_notes": [
+        "local_group_id=turn:0001"
+      ]
+    }
+  ],
+  "theme_anchors": [
+    {
+      "schema": "adeu_history_theme_anchor@1",
+      "theme_anchor_id": "history_theme:ac51903482fd73a4",
+      "source_id": "history_source:09832ed5e9ba14df",
+      "theme_key": "history__semantics__want",
+      "display_label": "history / semantics / want",
+      "selection_posture": "user_message_primary",
+      "anchor_terms": [
+        "history",
+        "semantics",
+        "want",
+        "bounded"
+      ],
+      "primary_entry_ids": [
+        "history_entry:227545e0e4f3d176"
+      ],
+      "support_entry_ids": [
+        "history_entry:479a1d5d6528c66e"
+      ],
+      "slice_ids": [
+        "history_slice:6cc126c2091a6637"
+      ]
+    },
+    {
+      "schema": "adeu_history_theme_anchor@1",
+      "theme_anchor_id": "history_theme:9e2a32d25138909d",
+      "source_id": "history_source:09832ed5e9ba14df",
+      "theme_key": "theme__inferential__first-order",
+      "display_label": "theme / inferential / first-order",
+      "selection_posture": "user_message_primary",
+      "anchor_terms": [
+        "theme",
+        "inferential",
+        "first-order",
+        "anchoring"
+      ],
+      "primary_entry_ids": [
+        "history_entry:cd2149905322028f"
+      ],
+      "support_entry_ids": [
+        "history_entry:934c244b04f92c16"
+      ],
+      "slice_ids": [
+        "history_slice:b09f86ff984e2b97"
+      ]
+    }
+  ],
+  "reconstruction_packets": [
+    {
+      "schema": "adeu_history_odeu_reconstruction_packet@1",
+      "packet_id": "history_packet:9893e6cda8cfcc8f",
+      "source_id": "history_source:09832ed5e9ba14df",
+      "slice_id": "history_slice:6cc126c2091a6637",
+      "theme_anchor_id": "history_theme:ac51903482fd73a4",
+      "lane_reconstructions": [
+        {
+          "schema": "adeu_history_odeu_lane_reconstruction@1",
+          "lane_id": "O",
+          "presence_status": "present",
+          "explicitation_status": "dialogically_explicitated",
+          "dominant_role_posture": "mixed",
+          "reconstruction_text": "O: The module can treat raw history as an immutable source artifact plus a ledger of preclassified entries.; I want a bounded history semantics package, not a generic memory layer.",
+          "evidence_refs": [
+            {
+              "schema": "adeu_history_evidence_ref@1",
+              "entry_id": "history_entry:479a1d5d6528c66e",
+              "role": "assistant",
+              "excerpt": "O: The module can treat raw history as an immutable source artifact plus a ledger of preclassified entries."
+            },
+            {
+              "schema": "adeu_history_evidence_ref@1",
+              "entry_id": "history_entry:227545e0e4f3d176",
+              "role": "user",
+              "excerpt": "I want a bounded history semantics package, not a generic memory layer."
+            }
+          ]
+        },
+        {
+          "schema": "adeu_history_odeu_lane_reconstruction@1",
+          "lane_id": "E",
+          "presence_status": "present",
+          "explicitation_status": "dialogically_explicitated",
+          "dominant_role_posture": "mixed",
+          "reconstruction_text": "E: Higher-level artifacts should remain provenance-linked overlays and mark underdetermined lanes honestly.; Raw history must stay authoritative.",
+          "evidence_refs": [
+            {
+              "schema": "adeu_history_evidence_ref@1",
+              "entry_id": "history_entry:479a1d5d6528c66e",
+              "role": "assistant",
+              "excerpt": "E: Higher-level artifacts should remain provenance-linked overlays and mark underdetermined lanes honestly."
+            },
+            {
+              "schema": "adeu_history_evidence_ref@1",
+              "entry_id": "history_entry:227545e0e4f3d176",
+              "role": "user",
+              "excerpt": "Raw history must stay authoritative."
+            }
+          ]
+        },
+        {
+          "schema": "adeu_history_odeu_lane_reconstruction@1",
+          "lane_id": "D",
+          "presence_status": "present",
+          "explicitation_status": "dialogically_explicitated",
+          "dominant_role_posture": "mixed",
+          "reconstruction_text": "D: We must keep the implementation package-first, fail-closed, and avoid database or vector-store widening.; Raw history must stay authoritative.",
+          "evidence_refs": [
+            {
+              "schema": "adeu_history_evidence_ref@1",
+              "entry_id": "history_entry:479a1d5d6528c66e",
+              "role": "assistant",
+              "excerpt": "D: We must keep the implementation package-first, fail-closed, and avoid database or vector-store widening."
+            },
+            {
+              "schema": "adeu_history_evidence_ref@1",
+              "entry_id": "history_entry:227545e0e4f3d176",
+              "role": "user",
+              "excerpt": "Raw history must stay authoritative."
+            }
+          ]
+        },
+        {
+          "schema": "adeu_history_odeu_lane_reconstruction@1",
+          "lane_id": "U",
+          "presence_status": "present",
+          "explicitation_status": "dialogically_explicitated",
+          "dominant_role_posture": "assistant_explication",
+          "reconstruction_text": "U: The first target is bootstrap conversation-history material so the workspace can later stabilize ODEU emergence.",
+          "evidence_refs": [
+            {
+              "schema": "adeu_history_evidence_ref@1",
+              "entry_id": "history_entry:479a1d5d6528c66e",
+              "role": "assistant",
+              "excerpt": "U: The first target is bootstrap conversation-history material so the workspace can later stabilize ODEU emergence."
+            }
+          ]
+        }
+      ],
+      "reintegrated_summary": "history / semantics / want -> O: present; E: present; D: present; U: present",
+      "interpretation_authority_posture": "advisory_overlay_only",
+      "semantic_identity_mode": "adeu_history_semantics_v0_hash_law",
+      "semantic_hash": "9893e6cda8cfcc8f0b13a61abeba7465eb8bfc4a79ac523502b317ff80c795d9"
+    },
+    {
+      "schema": "adeu_history_odeu_reconstruction_packet@1",
+      "packet_id": "history_packet:058f22f5faa8f3b7",
+      "source_id": "history_source:09832ed5e9ba14df",
+      "slice_id": "history_slice:b09f86ff984e2b97",
+      "theme_anchor_id": "history_theme:9e2a32d25138909d",
+      "lane_reconstructions": [
+        {
+          "schema": "adeu_history_odeu_lane_reconstruction@1",
+          "lane_id": "O",
+          "presence_status": "present",
+          "explicitation_status": "dialogically_explicitated",
+          "dominant_role_posture": "mixed",
+          "reconstruction_text": "O: Each bounded slice can own a theme anchor, an ODEU packet, and a workspace snapshot entry.; Keep user messages first-order for theme anchoring, but assistant replies can make the inferential structure explicit.",
+          "evidence_refs": [
+            {
+              "schema": "adeu_history_evidence_ref@1",
+              "entry_id": "history_entry:934c244b04f92c16",
+              "role": "assistant",
+              "excerpt": "O: Each bounded slice can own a theme anchor, an ODEU packet, and a workspace snapshot entry."
+            },
+            {
+              "schema": "adeu_history_evidence_ref@1",
+              "entry_id": "history_entry:cd2149905322028f",
+              "role": "user",
+              "excerpt": "Keep user messages first-order for theme anchoring, but assistant replies can make the inferential structure explicit."
+            }
+          ]
+        },
+        {
+          "schema": "adeu_history_odeu_lane_reconstruction@1",
+          "lane_id": "E",
+          "presence_status": "present",
+          "explicitation_status": "dialogically_explicitated",
+          "dominant_role_posture": "mixed",
+          "reconstruction_text": "E: Assistant explication should attach back to the user-anchored theme frame instead of replacing it.; Keep user messages first-order for theme anchoring, but assistant replies can make the inferential structure explicit.",
+          "evidence_refs": [
+            {
+              "schema": "adeu_history_evidence_ref@1",
+              "entry_id": "history_entry:934c244b04f92c16",
+              "role": "assistant",
+              "excerpt": "E: Assistant explication should attach back to the user-anchored theme frame instead of replacing it."
+            },
+            {
+              "schema": "adeu_history_evidence_ref@1",
+              "entry_id": "history_entry:cd2149905322028f",
+              "role": "user",
+              "excerpt": "Keep user messages first-order for theme anchoring, but assistant replies can make the inferential structure explicit."
+            }
+          ]
+        },
+        {
+          "schema": "adeu_history_odeu_lane_reconstruction@1",
+          "lane_id": "D",
+          "presence_status": "present",
+          "explicitation_status": "dialogically_explicitated",
+          "dominant_role_posture": "mixed",
+          "reconstruction_text": "D: Do not collapse everything into one blended summary.; Keep user messages first-order for theme anchoring, but assistant replies can make the inferential structure explicit.",
+          "evidence_refs": [
+            {
+              "schema": "adeu_history_evidence_ref@1",
+              "entry_id": "history_entry:934c244b04f92c16",
+              "role": "assistant",
+              "excerpt": "D: Do not collapse everything into one blended summary."
+            },
+            {
+              "schema": "adeu_history_evidence_ref@1",
+              "entry_id": "history_entry:cd2149905322028f",
+              "role": "user",
+              "excerpt": "Keep user messages first-order for theme anchoring, but assistant replies can make the inferential structure explicit."
+            }
+          ]
+        },
+        {
+          "schema": "adeu_history_odeu_lane_reconstruction@1",
+          "lane_id": "U",
+          "presence_status": "present",
+          "explicitation_status": "dialogically_explicitated",
+          "dominant_role_posture": "assistant_explication",
+          "reconstruction_text": "U: This gives us a bounded inferential workspace that can guide later corpus waves.",
+          "evidence_refs": [
+            {
+              "schema": "adeu_history_evidence_ref@1",
+              "entry_id": "history_entry:934c244b04f92c16",
+              "role": "assistant",
+              "excerpt": "U: This gives us a bounded inferential workspace that can guide later corpus waves."
+            }
+          ]
+        }
+      ],
+      "reintegrated_summary": "theme / inferential / first-order -> O: present; E: present; D: present; U: present",
+      "interpretation_authority_posture": "advisory_overlay_only",
+      "semantic_identity_mode": "adeu_history_semantics_v0_hash_law",
+      "semantic_hash": "058f22f5faa8f3b755fad9be59ba717df904bf2c359a85b920dd8505b074ef27"
+    }
+  ],
+  "workspace_snapshot": {
+    "schema": "adeu_history_workspace_snapshot@1",
+    "workspace_snapshot_id": "history_workspace:8301919685cc6522",
+    "source_id": "history_source:09832ed5e9ba14df",
+    "ledger_id": "history_ledger:bd4edd3580b5025a",
+    "chronology_slice_order": [
+      "history_slice:6cc126c2091a6637",
+      "history_slice:b09f86ff984e2b97"
+    ],
+    "inferential_slice_order": [
+      "history_slice:6cc126c2091a6637",
+      "history_slice:b09f86ff984e2b97"
+    ],
+    "theme_frames": [
+      {
+        "schema": "adeu_history_workspace_theme_frame@1",
+        "frame_id": "history_frame:67c1f8819b39e571",
+        "theme_anchor_id": "history_theme:9e2a32d25138909d",
+        "theme_display_label": "theme / inferential / first-order",
+        "slice_ids": [
+          "history_slice:b09f86ff984e2b97"
+        ],
+        "packet_ids": [
+          "history_packet:058f22f5faa8f3b7"
+        ],
+        "chronology_start_index": 2,
+        "chronology_end_index": 3,
+        "inferential_maturity_band": "consolidated",
+        "underdeveloped_lane_ids": [],
+        "provenance_entry_ids": [
+          "history_entry:cd2149905322028f",
+          "history_entry:934c244b04f92c16"
+        ],
+        "open_questions": []
+      },
+      {
+        "schema": "adeu_history_workspace_theme_frame@1",
+        "frame_id": "history_frame:f00acab0397ad39e",
+        "theme_anchor_id": "history_theme:ac51903482fd73a4",
+        "theme_display_label": "history / semantics / want",
+        "slice_ids": [
+          "history_slice:6cc126c2091a6637"
+        ],
+        "packet_ids": [
+          "history_packet:9893e6cda8cfcc8f"
+        ],
+        "chronology_start_index": 0,
+        "chronology_end_index": 1,
+        "inferential_maturity_band": "consolidated",
+        "underdeveloped_lane_ids": [],
+        "provenance_entry_ids": [
+          "history_entry:227545e0e4f3d176",
+          "history_entry:479a1d5d6528c66e"
+        ],
+        "open_questions": []
+      }
+    ],
+    "lane_order": [
+      "O",
+      "E",
+      "D",
+      "U"
+    ],
+    "source_authority_posture": "raw_source_text_authoritative",
+    "interpretation_authority_posture": "advisory_overlay_only",
+    "theme_selection_posture": "user_messages_first_order_when_available",
+    "assistant_explication_posture": "assistant_second_order_for_theme_first_order_for_explication_when_attached",
+    "semantic_identity_mode": "adeu_history_semantics_v0_hash_law",
+    "semantic_hash": "8301919685cc6522ab7118664a2012d7896a1108abefd6ace2b2be16ac6ba5a4"
+  }
+}

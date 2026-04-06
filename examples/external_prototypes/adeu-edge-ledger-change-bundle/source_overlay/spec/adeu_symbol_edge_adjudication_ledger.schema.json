@@ -1,0 +1,193 @@
+{
+  "$defs": {
+    "SymbolEdgeAdjudicationRow": {
+      "additionalProperties": false,
+      "properties": {
+        "adjudication_status": {
+          "enum": [
+            "not_applicable",
+            "applicable_unchecked",
+            "covered_by_existing_tests",
+            "checked_no_witness_found",
+            "bounded_safe_by_structure",
+            "witness_found",
+            "underdetermined",
+            "deferred"
+          ],
+          "title": "Adjudication Status",
+          "type": "string"
+        },
+        "edge_class_ref": {
+          "title": "Edge Class Ref",
+          "type": "string"
+        },
+        "matched_cue_tags": {
+          "items": {
+            "type": "string"
+          },
+          "title": "Matched Cue Tags",
+          "type": "array"
+        },
+        "rationale": {
+          "title": "Rationale",
+          "type": "string"
+        },
+        "source_applicability_status": {
+          "enum": [
+            "applicable",
+            "not_applicable",
+            "underdetermined"
+          ],
+          "title": "Source Applicability Status",
+          "type": "string"
+        },
+        "status_posture": {
+          "enum": [
+            "observed",
+            "derived_deterministically",
+            "inferred_heuristically",
+            "adjudicated",
+            "settled"
+          ],
+          "title": "Status Posture",
+          "type": "string"
+        },
+        "suggested_probe_template_refs": {
+          "items": {
+            "type": "string"
+          },
+          "title": "Suggested Probe Template Refs",
+          "type": "array"
+        },
+        "supporting_evidence_refs": {
+          "items": {
+            "type": "string"
+          },
+          "title": "Supporting Evidence Refs",
+          "type": "array"
+        },
+        "supporting_test_refs": {
+          "items": {
+            "type": "string"
+          },
+          "title": "Supporting Test Refs",
+          "type": "array"
+        },
+        "witness_summary": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Witness Summary"
+        }
+      },
+      "required": [
+        "edge_class_ref",
+        "source_applicability_status",
+        "adjudication_status",
+        "status_posture",
+        "rationale"
+      ],
+      "title": "SymbolEdgeAdjudicationRow",
+      "type": "object"
+    }
+  },
+  "additionalProperties": false,
+  "properties": {
+    "adjudication_rows": {
+      "items": {
+        "$ref": "#/$defs/SymbolEdgeAdjudicationRow"
+      },
+      "minItems": 1,
+      "title": "Adjudication Rows",
+      "type": "array"
+    },
+    "audit_hash": {
+      "title": "Audit Hash",
+      "type": "string"
+    },
+    "bound_applicability_frame_ref": {
+      "title": "Bound Applicability Frame Ref",
+      "type": "string"
+    },
+    "bound_edge_class_catalog_ref": {
+      "title": "Bound Edge Class Catalog Ref",
+      "type": "string"
+    },
+    "bound_probe_template_catalog_ref": {
+      "title": "Bound Probe Template Catalog Ref",
+      "type": "string"
+    },
+    "census_hash": {
+      "title": "Census Hash",
+      "type": "string"
+    },
+    "ledger_hash": {
+      "title": "Ledger Hash",
+      "type": "string"
+    },
+    "ledger_id": {
+      "title": "Ledger Id",
+      "type": "string"
+    },
+    "ledger_posture": {
+      "title": "Ledger Posture",
+      "type": "string"
+    },
+    "module_path": {
+      "title": "Module Path",
+      "type": "string"
+    },
+    "qualname": {
+      "title": "Qualname",
+      "type": "string"
+    },
+    "schema": {
+      "const": "adeu_symbol_edge_adjudication_ledger@1",
+      "default": "adeu_symbol_edge_adjudication_ledger@1",
+      "title": "Schema",
+      "type": "string"
+    },
+    "scope_manifest_ref": {
+      "title": "Scope Manifest Ref",
+      "type": "string"
+    },
+    "symbol_id": {
+      "title": "Symbol Id",
+      "type": "string"
+    },
+    "symbol_kind": {
+      "enum": [
+        "class",
+        "function",
+        "method",
+        "local_function"
+      ],
+      "title": "Symbol Kind",
+      "type": "string"
+    }
+  },
+  "required": [
+    "ledger_id",
+    "bound_edge_class_catalog_ref",
+    "bound_probe_template_catalog_ref",
+    "scope_manifest_ref",
+    "census_hash",
+    "audit_hash",
+    "symbol_id",
+    "module_path",
+    "qualname",
+    "symbol_kind",
+    "bound_applicability_frame_ref",
+    "ledger_posture",
+    "adjudication_rows",
+    "ledger_hash"
+  ],
+  "title": "SymbolEdgeAdjudicationLedger",
+  "type": "object"
+}

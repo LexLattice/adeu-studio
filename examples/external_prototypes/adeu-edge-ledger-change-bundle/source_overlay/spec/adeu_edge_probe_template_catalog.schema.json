@@ -1,0 +1,137 @@
+{
+  "$defs": {
+    "EdgeProbeTemplate": {
+      "additionalProperties": false,
+      "properties": {
+        "execution_postures": {
+          "items": {
+            "enum": [
+              "example_tests",
+              "property_based",
+              "metamorphic",
+              "review_only"
+            ],
+            "type": "string"
+          },
+          "minItems": 1,
+          "title": "Execution Postures",
+          "type": "array"
+        },
+        "lifecycle_posture": {
+          "default": "stabilized",
+          "enum": [
+            "candidate",
+            "stabilized",
+            "split",
+            "merged",
+            "deprecated"
+          ],
+          "title": "Lifecycle Posture",
+          "type": "string"
+        },
+        "probe_template_ref": {
+          "title": "Probe Template Ref",
+          "type": "string"
+        },
+        "required_signal_tags": {
+          "items": {
+            "type": "string"
+          },
+          "title": "Required Signal Tags",
+          "type": "array"
+        },
+        "short_label": {
+          "title": "Short Label",
+          "type": "string"
+        },
+        "strategy_kind": {
+          "enum": [
+            "absence_matrix",
+            "shape_matrix",
+            "boundary_partition",
+            "ordering_permutation",
+            "branch_partition",
+            "state_sequence",
+            "round_trip",
+            "hash_consistency",
+            "cross_field_invariant",
+            "dependency_boundary",
+            "fail_closed_rejection",
+            "manual_adjudication"
+          ],
+          "title": "Strategy Kind",
+          "type": "string"
+        },
+        "suited_edge_class_refs": {
+          "items": {
+            "type": "string"
+          },
+          "minItems": 1,
+          "title": "Suited Edge Class Refs",
+          "type": "array"
+        },
+        "summary": {
+          "title": "Summary",
+          "type": "string"
+        }
+      },
+      "required": [
+        "probe_template_ref",
+        "strategy_kind",
+        "execution_postures",
+        "short_label",
+        "summary",
+        "suited_edge_class_refs"
+      ],
+      "title": "EdgeProbeTemplate",
+      "type": "object"
+    }
+  },
+  "additionalProperties": false,
+  "properties": {
+    "bound_edge_class_catalog_ref": {
+      "title": "Bound Edge Class Catalog Ref",
+      "type": "string"
+    },
+    "catalog_hash": {
+      "title": "Catalog Hash",
+      "type": "string"
+    },
+    "catalog_id": {
+      "title": "Catalog Id",
+      "type": "string"
+    },
+    "catalog_name": {
+      "title": "Catalog Name",
+      "type": "string"
+    },
+    "catalog_version": {
+      "title": "Catalog Version",
+      "type": "string"
+    },
+    "probe_templates": {
+      "items": {
+        "$ref": "#/$defs/EdgeProbeTemplate"
+      },
+      "minItems": 1,
+      "title": "Probe Templates",
+      "type": "array"
+    },
+    "schema": {
+      "const": "adeu_edge_probe_template_catalog@1",
+      "default": "adeu_edge_probe_template_catalog@1",
+      "title": "Schema",
+      "type": "string"
+    }
+  },
+  "required": [
+    "catalog_id",
+    "catalog_name",
+    "catalog_version",
+    "bound_edge_class_catalog_ref",
+    "probe_templates",
+    "catalog_hash"
+  ],
+  "title": "EdgeProbeTemplateCatalog",
+  "type": "object"
+}

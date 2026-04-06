@@ -1,0 +1,190 @@
+{
+  "schema": "parallel_arc_meta_loop_baton@1",
+  "description": "Machine-readable handoff/result surface for the parallel-family pilot.",
+  "required_fields": [
+    "baton_id",
+    "baton_kind",
+    "emitted_at_utc",
+    "arc_family",
+    "slice",
+    "phase",
+    "role",
+    "arc_branch",
+    "base_branch",
+    "status",
+    "controlling_refs",
+    "artifacts_produced",
+    "evidence_refs",
+    "checks_run",
+    "checks_skipped",
+    "blockers",
+    "next_allowed_actions"
+  ],
+  "field_contract": {
+    "baton_id": {
+      "type": "string"
+    },
+    "baton_kind": {
+      "type": "string",
+      "allowed": [
+        "transition_claim",
+        "transition_ratification"
+      ]
+    },
+    "emitted_at_utc": {
+      "type": "string"
+    },
+    "previous_baton_id": {
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "arc_family": {
+      "type": "string",
+      "examples": [
+        "V53",
+        "V54"
+      ]
+    },
+    "slice": {
+      "type": "string",
+      "examples": [
+        "V53-A",
+        "V54-A"
+      ]
+    },
+    "phase": {
+      "type": "string",
+      "allowed": [
+        "starter_draft_pending",
+        "starter_review_pending",
+        "starter_integration_pending",
+        "starter_committed_to_arc_branch",
+        "implementation_pending",
+        "pr_open_against_arc_branch",
+        "inline_review_pending",
+        "review_fixing_pending",
+        "ci_pending",
+        "merge_ready_to_arc_branch",
+        "merged_to_arc_branch",
+        "closeout_pending",
+        "closeout_committed_to_arc_branch",
+        "next_slice_ready",
+        "family_complete_pending_main_merge",
+        "merged_to_main"
+      ]
+    },
+    "role": {
+      "type": "string",
+      "allowed": [
+        "meta_orchestrator",
+        "arc_worker",
+        "conceptual_reviewer",
+        "pr_ci_janitor"
+      ]
+    },
+    "arc_branch": {
+      "type": "string"
+    },
+    "feature_branch": {
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "base_branch": {
+      "type": "string"
+    },
+    "commit_sha": {
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "pr_url": {
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "review_verdict": {
+      "type": [
+        "string",
+        "null"
+      ],
+      "allowed_when_present": [
+        "approve",
+        "approve_with_targeted_tightening",
+        "not_yet_lock_ready"
+      ]
+    },
+    "ci_status": {
+      "type": [
+        "string",
+        "null"
+      ],
+      "allowed_when_present": [
+        "not_started",
+        "pending",
+        "green",
+        "red"
+      ]
+    },
+    "controlling_refs": {
+      "type": "array"
+    },
+    "required_outputs_claimed_satisfied": {
+      "type": [
+        "array",
+        "null"
+      ]
+    },
+    "unsatisfied_requirements": {
+      "type": [
+        "array",
+        "null"
+      ]
+    },
+    "status": {
+      "type": "string",
+      "allowed": [
+        "completed",
+        "blocked",
+        "waiting",
+        "needs_review",
+        "needs_governance_transition"
+      ]
+    },
+    "artifacts_produced": {
+      "type": "array"
+    },
+    "evidence_refs": {
+      "type": "array"
+    },
+    "checks_run": {
+      "type": "array"
+    },
+    "checks_skipped": {
+      "type": "array"
+    },
+    "blockers": {
+      "type": "array"
+    },
+    "next_allowed_actions": {
+      "type": "array"
+    },
+    "notes": {
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "ratifies_baton_id": {
+      "type": [
+        "string",
+        "null"
+      ]
+    }
+  }
+}

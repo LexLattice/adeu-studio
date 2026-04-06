@@ -1,0 +1,6 @@
+Abstract
+This bounded reference abstract proposes a history semantics proto-module for conversation-like material. The raw text remains authoritative, while higher semantic artifacts are provenance-linked overlays.
+
+The module separates chronology from inferential maturity and reconstructs O, E, and U lanes explicitly when the local material supports them. It aims to stabilize a bootstrap corpus around ODEU emergence and produce a workspace snapshot for later corpus waves.
+
+Because the abstract does not specify detailed operator rules, the deontic lane remains underdetermined here.

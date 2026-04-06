@@ -1,0 +1,176 @@
+{
+  "additionalProperties": false,
+  "properties": {
+    "applicability_cue_tags": {
+      "items": {
+        "type": "string"
+      },
+      "title": "Applicability Cue Tags",
+      "type": "array"
+    },
+    "applicability_pattern_distinctness": {
+      "enum": [
+        "same",
+        "attribute_refinement_only",
+        "adjacent_but_representable",
+        "distinct"
+      ],
+      "title": "Applicability Pattern Distinctness",
+      "type": "string"
+    },
+    "bound_edge_class_catalog_ref": {
+      "title": "Bound Edge Class Catalog Ref",
+      "type": "string"
+    },
+    "candidate_label": {
+      "title": "Candidate Label",
+      "type": "string"
+    },
+    "decision": {
+      "enum": [
+        "instance_of_existing_class",
+        "specialize_under_existing_class",
+        "split_existing_class",
+        "new_sibling_under_existing_parent",
+        "new_intermediate_node",
+        "new_top_level_family",
+        "defer_candidate"
+      ],
+      "title": "Decision",
+      "type": "string"
+    },
+    "evidence_count": {
+      "title": "Evidence Count",
+      "type": "integer"
+    },
+    "judgment_hash": {
+      "title": "Judgment Hash",
+      "type": "string"
+    },
+    "judgment_id": {
+      "title": "Judgment Id",
+      "type": "string"
+    },
+    "judgment_posture": {
+      "enum": [
+        "observed",
+        "derived_deterministically",
+        "inferred_heuristically",
+        "adjudicated",
+        "settled"
+      ],
+      "title": "Judgment Posture",
+      "type": "string"
+    },
+    "nearest_existing_edge_class_refs": {
+      "items": {
+        "type": "string"
+      },
+      "minItems": 1,
+      "title": "Nearest Existing Edge Class Refs",
+      "type": "array"
+    },
+    "observed_symbol_ids": {
+      "items": {
+        "type": "string"
+      },
+      "minItems": 1,
+      "title": "Observed Symbol Ids",
+      "type": "array"
+    },
+    "probe_pattern_distinctness": {
+      "enum": [
+        "same",
+        "attribute_refinement_only",
+        "adjacent_but_representable",
+        "distinct"
+      ],
+      "title": "Probe Pattern Distinctness",
+      "type": "string"
+    },
+    "probe_signature_tags": {
+      "items": {
+        "type": "string"
+      },
+      "title": "Probe Signature Tags",
+      "type": "array"
+    },
+    "proposed_edge_class_ref": {
+      "anyOf": [
+        {
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Proposed Edge Class Ref"
+    },
+    "proposed_lifecycle_posture": {
+      "enum": [
+        "candidate",
+        "stabilized",
+        "split",
+        "merged",
+        "deprecated"
+      ],
+      "title": "Proposed Lifecycle Posture",
+      "type": "string"
+    },
+    "proposed_parent_edge_class_ref": {
+      "anyOf": [
+        {
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Proposed Parent Edge Class Ref"
+    },
+    "rationale": {
+      "title": "Rationale",
+      "type": "string"
+    },
+    "representable_without_information_loss": {
+      "title": "Representable Without Information Loss",
+      "type": "boolean"
+    },
+    "reuse_posture": {
+      "enum": [
+        "single_symbol",
+        "multi_symbol_candidate",
+        "recurrent_pattern"
+      ],
+      "title": "Reuse Posture",
+      "type": "string"
+    },
+    "schema": {
+      "const": "adeu_edge_taxonomy_revision_judgment@1",
+      "default": "adeu_edge_taxonomy_revision_judgment@1",
+      "title": "Schema",
+      "type": "string"
+    }
+  },
+  "required": [
+    "judgment_id",
+    "bound_edge_class_catalog_ref",
+    "candidate_label",
+    "nearest_existing_edge_class_refs",
+    "observed_symbol_ids",
+    "applicability_pattern_distinctness",
+    "probe_pattern_distinctness",
+    "representable_without_information_loss",
+    "reuse_posture",
+    "evidence_count",
+    "decision",
+    "proposed_lifecycle_posture",
+    "judgment_posture",
+    "rationale",
+    "judgment_hash"
+  ],
+  "title": "EdgeTaxonomyRevisionJudgment",
+  "type": "object"
+}
