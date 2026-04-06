@@ -1,0 +1,75 @@
+{
+  "schema": "parallel_arc_meta_loop_baton@1",
+  "baton_id": "baton_v53a_arc_worker_starter_draft_claim_002",
+  "baton_kind": "transition_claim",
+  "emitted_at_utc": "2026-04-06T18:25:31Z",
+  "previous_baton_id": "baton_v53a_launch_000",
+  "arc_family": "V53",
+  "slice": "V53-A",
+  "phase": "starter_review_pending",
+  "role": "arc_worker",
+  "model": "gpt-5.4",
+  "reasoning_effort": "xhigh",
+  "arc_branch": "arc/v53",
+  "feature_branch": null,
+  "base_branch": "arc/v53",
+  "commit_sha": null,
+  "pr_url": null,
+  "review_verdict": null,
+  "ci_status": null,
+  "controlling_refs": [
+    "docs/DRAFT_NEXT_ARC_OPTIONS_v36.md",
+    "docs/DRAFT_ADEU_EDGE_LEDGER_V53_IMPLEMENTATION_MAPPING_v0.md",
+    "examples/external_prototypes/adeu-edge-ledger-change-bundle/ALIGNMENT.md",
+    "examples/external_prototypes/adeu-edge-ledger-change-bundle/CLAIMED_SCOPE.md",
+    "docs/DRAFT_PARALLEL_ARC_META_LOOP_PROTOCOL_v0.md",
+    "docs/PARALLEL_ARC_META_LOOP_BATON_v0.json"
+  ],
+  "required_outputs_claimed_satisfied": [
+    "v53_a_starter_live_bundle_docs",
+    "v53_a_starter_first_draft_evidence_copies",
+    "v53_a_transition_claim_baton"
+  ],
+  "unsatisfied_requirements": [
+    "v53_a_conceptual_review",
+    "v53_a_integrated_starter_bundle",
+    "successful_make_arc-start-check_arc_141_in_this_worktree"
+  ],
+  "status": "completed",
+  "artifacts_produced": [
+    "docs/LOCKED_CONTINUATION_vNEXT_PLUS141.md",
+    "docs/DRAFT_STOP_GATE_DECISION_vNEXT_PLUS141.md",
+    "docs/ASSESSMENT_vNEXT_PLUS141_EDGES.md",
+    "docs/DRAFT_NEXT_ARC_OPTIONS_v36.md",
+    "artifacts/meta_loop/V53/V53-A/starter_bundle/first_draft_LOCKED_CONTINUATION_vNEXT_PLUS141.md",
+    "artifacts/meta_loop/V53/V53-A/starter_bundle/first_draft_DRAFT_STOP_GATE_DECISION_vNEXT_PLUS141.md",
+    "artifacts/meta_loop/V53/V53-A/starter_bundle/first_draft_ASSESSMENT_vNEXT_PLUS141_EDGES.md",
+    "artifacts/meta_loop/V53/V53-A/batons/002_arc_worker_starter_draft_claim.json"
+  ],
+  "evidence_refs": [
+    "artifacts/meta_loop/V53/V53-A/batons/000_meta_orchestrator_launch_ratification.json",
+    "docs/LOCKED_CONTINUATION_vNEXT_PLUS141.md",
+    "docs/DRAFT_STOP_GATE_DECISION_vNEXT_PLUS141.md",
+    "docs/ASSESSMENT_vNEXT_PLUS141_EDGES.md",
+    "artifacts/meta_loop/V53/V53-A/starter_bundle/first_draft_LOCKED_CONTINUATION_vNEXT_PLUS141.md",
+    "artifacts/meta_loop/V53/V53-A/starter_bundle/first_draft_DRAFT_STOP_GATE_DECISION_vNEXT_PLUS141.md",
+    "artifacts/meta_loop/V53/V53-A/starter_bundle/first_draft_ASSESSMENT_vNEXT_PLUS141_EDGES.md"
+  ],
+  "checks_run": [
+    "make arc-start-check ARC=141 (failed during lint_arc_bundle startup: FileNotFoundError: repository root not found from script location; make target exited with error 1)"
+  ],
+  "checks_skipped": [
+    "make check skipped because the diff is docs/artifacts-only starter-bundle work",
+    "instruction-policy-check was not reached inside make arc-start-check ARC=141 because lint_arc_bundle.py exited before finishing start-phase validation"
+  ],
+  "blockers": [
+    "make arc-start-check ARC=141 failed inside apps/api/scripts/lint_arc_bundle.py because _repo_root_from_script() only accepts a .git directory, while this worktree has a .git file; the concrete failure was FileNotFoundError: repository root not found from script location."
+  ],
+  "next_allowed_actions": [
+    "conceptual_review_of_the_current_v53_a_starter_bundle",
+    "repair_or_work_around_lint_arc_bundle_repo_root_discovery_for_this_worktree_and_rerun_make_arc-start-check_ARC=141",
+    "integrate_any_accepted_conceptual_review_tightenings_on_arc/v53"
+  ],
+  "notes": "The V53-A starter-draft package and first-draft evidence copies remain present and ready for conceptual review handoff. The authoritative .venv is now available, but the docs-only gate still cannot complete in this worktree because lint_arc_bundle.py does not recognize the worktree's .git file during repo-root discovery.",
+  "ratifies_baton_id": null
+}

@@ -195,6 +195,30 @@ Per slice, the legal sequence is:
 12. arc worker drafts closeout on the family arc branch
 13. meta-orchestrator verifies the baton and advances to next slice
 
+## Pre-Review Integrity Gate
+
+Before a starter bundle is handed to a conceptual reviewer, the meta-orchestrator
+should verify at minimum:
+
+- the expected starter-doc set exists:
+  - lock
+  - stop-gate
+  - assessment
+  - updated family planning doc
+- required starter support docs for that slice exist if the family pattern calls for
+  them:
+  - for imported-prototype-derived slices, include the slice-level starter mapping doc
+    if selected by that family pattern
+- first-draft evidence copies are present for every required starter doc
+- the worker baton and the starter stop-gate doc do not materially contradict each
+  other on claimed local validation status
+
+If that integrity gate fails:
+
+- the family remains in `starter_integration_pending`
+- the reviewer should not be treated as the primary repair surface for missing starter
+  structure
+
 The 5-minute waits are deliberate pilot rules, not suggestions:
 
 - after PR open, wait 5 minutes before harvesting Codex/Gemini inline review signals
@@ -247,6 +271,17 @@ The reviewer may not:
 - propose implementation details that contradict the controlling lock
 - silently promote planning language into lock-level prohibition
 
+Reviewer completion law for the pilot:
+
+- the reviewer must always emit:
+  - one review artifact
+  - one reviewer baton
+- bundle inconsistency or incompleteness should normally produce:
+  - `not_yet_lock_ready`
+  rather than silent reviewer halt
+- operational/tooling quirks should be recorded as operational notes unless they are
+  genuinely the main conceptual blocker in the reviewed slice
+
 ## Baton Requirement
 
 Every role handoff must emit one baton JSON document matching:
@@ -279,6 +314,8 @@ Recommended layout:
 - `artifacts/meta_loop/<family>/<slice>/batons/`
 - `artifacts/meta_loop/<family>/<slice>/starter_bundle/`
 - `artifacts/meta_loop/<family>/<slice>/review/`
+- `artifacts/meta_loop/r<run_number>/` for preserved run snapshots when the same pilot
+  family is relaunched on fresh branches
 
 The orchestrator log should be append-oriented and reconstructable, so later analysis
 can inspect:
@@ -300,6 +337,26 @@ For the first pilot:
 
 This intentionally leaves room for error while still making mid-run redesign visible
 rather than ambient.
+
+## Worktree Preflight Rule
+
+Before a family slice begins on a fresh worktree, the meta-orchestrator should prepare:
+
+- authoritative `.venv` availability in that worktree
+- canonical meta-loop evidence directories for that family/slice
+- one explicit note if known docs-only helper tooling is not yet worktree-clean
+
+Known pilot quirk already observed:
+
+- `apps/api/scripts/lint_arc_bundle.py` currently does not accept the worktree `.git`
+  file layout as repository-root evidence
+
+That quirk should be:
+
+- logged explicitly
+- treated as an operational note
+- not rediscovered ad hoc by every worker/reviewer as if it were a family-specific
+  blocker
 
 ## Readiness Gates
 

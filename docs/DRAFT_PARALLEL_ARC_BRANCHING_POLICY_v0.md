@@ -44,6 +44,18 @@ Purpose:
 - merged slice PRs for that family
 - family-local closeout commits
 
+For repeated pilot runs:
+
+- preserve prior family trunks with explicit run suffixes such as:
+  - `arc/v53-r2`
+  - `arc/v54-r2`
+- create fresh family trunks for the new run with explicit run suffixes such as:
+  - `arc/v53-r3`
+  - `arc/v54-r3`
+
+This keeps comparative run evidence inspectable instead of overwriting one family trunk
+in place.
+
 ### Slice Branches
 
 Canonical pattern:
@@ -58,6 +70,9 @@ Examples:
 Purpose:
 
 - one bounded slice implementation or slice review-fix lane only
+
+For repeated pilot runs, the slice branch may also carry the run marker if needed for
+clarity.
 
 ## PR Base Rules
 

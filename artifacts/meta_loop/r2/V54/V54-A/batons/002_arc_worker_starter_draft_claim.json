@@ -1,0 +1,75 @@
+{
+  "schema": "parallel_arc_meta_loop_baton@1",
+  "baton_id": "baton_v54a_arc_worker_starter_draft_002",
+  "baton_kind": "transition_claim",
+  "emitted_at_utc": "2026-04-06T18:14:11Z",
+  "previous_baton_id": "baton_v54a_launch_000",
+  "arc_family": "V54",
+  "slice": "V54-A",
+  "phase": "starter_review_pending",
+  "role": "arc_worker",
+  "model": "gpt-5.4",
+  "reasoning_effort": "xhigh",
+  "arc_branch": "arc/v54",
+  "feature_branch": null,
+  "base_branch": "arc/v54",
+  "commit_sha": null,
+  "pr_url": null,
+  "review_verdict": null,
+  "ci_status": null,
+  "controlling_refs": [
+    "docs/DRAFT_NEXT_ARC_OPTIONS_v37.md",
+    "docs/DRAFT_ADEU_HISTORY_SEMANTICS_V54_IMPLEMENTATION_MAPPING_v0.md",
+    "examples/external_prototypes/adeu-history-semantics-bundle/ALIGNMENT.md",
+    "examples/external_prototypes/adeu-history-semantics-bundle/CLAIMED_SCOPE.md",
+    "docs/DRAFT_PARALLEL_ARC_META_LOOP_PROTOCOL_v0.md",
+    "docs/PARALLEL_ARC_META_LOOP_BATON_v0.json"
+  ],
+  "required_outputs_claimed_satisfied": [
+    "v54_a_starter_first_draft_docs",
+    "v54_a_first_draft_evidence_copies",
+    "v54_a_starter_draft_ready_for_conceptual_review"
+  ],
+  "unsatisfied_requirements": [
+    "v54_a_conceptual_review",
+    "v54_a_integrated_starter_bundle",
+    "v54_a_starter_commit_to_arc_branch"
+  ],
+  "status": "completed",
+  "artifacts_produced": [
+    "docs/LOCKED_CONTINUATION_vNEXT_PLUS142.md",
+    "docs/DRAFT_STOP_GATE_DECISION_vNEXT_PLUS142.md",
+    "docs/ASSESSMENT_vNEXT_PLUS142_EDGES.md",
+    "docs/DRAFT_NEXT_ARC_OPTIONS_v37.md",
+    "artifacts/meta_loop/V54/V54-A/starter_bundle/first_draft_LOCKED_CONTINUATION_vNEXT_PLUS142.md",
+    "artifacts/meta_loop/V54/V54-A/starter_bundle/first_draft_DRAFT_STOP_GATE_DECISION_vNEXT_PLUS142.md",
+    "artifacts/meta_loop/V54/V54-A/starter_bundle/first_draft_ASSESSMENT_vNEXT_PLUS142_EDGES.md",
+    "artifacts/meta_loop/V54/V54-A/starter_bundle/first_draft_DRAFT_NEXT_ARC_OPTIONS_v37.md",
+    "artifacts/meta_loop/V54/V54-A/batons/002_arc_worker_starter_draft_claim.json"
+  ],
+  "evidence_refs": [
+    "artifacts/meta_loop/V54/V54-A/batons/000_meta_orchestrator_launch_ratification.json",
+    "docs/LOCKED_CONTINUATION_vNEXT_PLUS142.md",
+    "docs/DRAFT_STOP_GATE_DECISION_vNEXT_PLUS142.md",
+    "docs/ASSESSMENT_vNEXT_PLUS142_EDGES.md",
+    "docs/DRAFT_NEXT_ARC_OPTIONS_v37.md",
+    "artifacts/meta_loop/V54/V54-A/starter_bundle/first_draft_LOCKED_CONTINUATION_vNEXT_PLUS142.md",
+    "artifacts/meta_loop/V54/V54-A/starter_bundle/first_draft_DRAFT_STOP_GATE_DECISION_vNEXT_PLUS142.md",
+    "artifacts/meta_loop/V54/V54-A/starter_bundle/first_draft_ASSESSMENT_vNEXT_PLUS142_EDGES.md",
+    "artifacts/meta_loop/V54/V54-A/starter_bundle/first_draft_DRAFT_NEXT_ARC_OPTIONS_v37.md"
+  ],
+  "checks_run": [
+    ".venv/bin/python apps/api/scripts/lint_arc_bundle.py --arc 142 --phase start --repo-root . (pass)",
+    "make instruction-policy-check (pass)"
+  ],
+  "checks_skipped": [
+    "make arc-start-check ARC=142 (skipped as canonical gate because worktree repo-root discovery failed in lint_arc_bundle.py: the worktree exposes a .git file rather than a .git/ directory; equivalent non-invasive start-bundle checks were run manually without changing repo tooling)"
+  ],
+  "blockers": [],
+  "next_allowed_actions": [
+    "spawn_v54_conceptual_reviewer_for_starter_bundle",
+    "perform_v54_a_conceptual_review_over_the_starter_docs_and_first_draft_evidence",
+    "return_review_feedback_to_arc_worker_for_targeted_starter_integration"
+  ],
+  "notes": "V54-A starter draft is ready for conceptual review. The starter lock selects normalized source text after line-ending normalization as the authority root, bounds V54-A to explicit-role-header conversation_history only, defers slice/theme/O-E-D-U/workspace surfaces to later V54 paths, and preserves first-draft evidence under artifacts/meta_loop/V54/V54-A/starter_bundle/."
+}

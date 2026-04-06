@@ -106,3 +106,7 @@ Do not:
 - replace a bounded ADEU slice with a generic benchmark/runtime/app pattern
 - treat external prototype code as authority merely because it exists
 - collapse descriptive difference into selection, ranking, promotion, or entitlement
+- refuse to emit a review artifact merely because the starter bundle is inconsistent;
+  use `not_yet_lock_ready` instead
+- turn a known operational/tooling quirk into the whole review unless it is genuinely
+  the dominant blocker

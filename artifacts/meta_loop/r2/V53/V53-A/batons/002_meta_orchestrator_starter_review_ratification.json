@@ -1,0 +1,61 @@
+{
+  "schema": "parallel_arc_meta_loop_baton@1",
+  "baton_id": "baton_v53a_starter_review_ratification_002",
+  "baton_kind": "transition_ratification",
+  "emitted_at_utc": "2026-04-06T18:16:00Z",
+  "previous_baton_id": "baton_v53a_relaunch_001",
+  "arc_family": "V53",
+  "slice": "V53-A",
+  "phase": "starter_review_pending",
+  "role": "meta_orchestrator",
+  "model": "codex-host",
+  "reasoning_effort": "host-default",
+  "arc_branch": "arc/v53",
+  "feature_branch": null,
+  "base_branch": "arc/v53",
+  "commit_sha": "f3cd09d",
+  "pr_url": null,
+  "review_verdict": null,
+  "ci_status": null,
+  "controlling_refs": [
+    "docs/DRAFT_PARALLEL_ARC_META_LOOP_PROTOCOL_v0.md",
+    "docs/DRAFT_SELF_DISTILLED_CONCEPTUAL_REVIEWER_PROMPT_v0.md",
+    "docs/PARALLEL_ARC_META_LOOP_BATON_v0.json",
+    "docs/DRAFT_NEXT_ARC_OPTIONS_v36.md",
+    "docs/DRAFT_ADEU_EDGE_LEDGER_V53_IMPLEMENTATION_MAPPING_v0.md"
+  ],
+  "required_outputs_claimed_satisfied": [
+    "v53_a_starter_first_draft_exists",
+    "v53_a_worker_claim_baton_exists",
+    "v53_a_starter_bundle_ready_for_conceptual_review"
+  ],
+  "unsatisfied_requirements": [
+    "v53_a_conceptual_review_output",
+    "v53_a_integrated_starter_bundle",
+    "clean_docs_only_gate_in_family_worktree"
+  ],
+  "status": "completed",
+  "artifacts_produced": [
+    "artifacts/meta_loop/V53/V53-A/batons/002_meta_orchestrator_starter_review_ratification.json"
+  ],
+  "evidence_refs": [
+    "/home/rose/work/LexLattice/odeu_arc_v53/artifacts/meta_loop/V53/V53-A/batons/002_arc_worker_starter_draft_claim.json",
+    "/home/rose/work/LexLattice/odeu_arc_v53/docs/LOCKED_CONTINUATION_vNEXT_PLUS141.md",
+    "/home/rose/work/LexLattice/odeu_arc_v53/docs/DRAFT_STOP_GATE_DECISION_vNEXT_PLUS141.md",
+    "/home/rose/work/LexLattice/odeu_arc_v53/docs/ASSESSMENT_vNEXT_PLUS141_EDGES.md",
+    "/home/rose/work/LexLattice/odeu_arc_v53/docs/DRAFT_NEXT_ARC_OPTIONS_v36.md"
+  ],
+  "checks_run": [
+    "worker_claim_baton_present",
+    "starter_draft_files_present"
+  ],
+  "checks_skipped": [
+    "full starter gate not yet clean in family worktree because .venv/bin/python is missing there"
+  ],
+  "blockers": [],
+  "next_allowed_actions": [
+    "spawn_v53_conceptual_reviewer"
+  ],
+  "notes": "V53-A is ratified into conceptual review despite the local worktree environment quirk blocking make arc-start-check.",
+  "ratifies_baton_id": "baton_v53a_arc_worker_starter_draft_claim_002"
+}
