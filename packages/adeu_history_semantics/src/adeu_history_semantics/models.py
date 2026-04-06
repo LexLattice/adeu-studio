@@ -33,6 +33,11 @@ STRUCTURAL_MARKER_VOCABULARY = (
     "code_fence_present",
     "question_mark_present",
 )
+ROLE_TO_ORIGIN_TYPE = {
+    "user": "user_native",
+    "assistant": "assistant_reply",
+    "system": "system_instruction",
+}
 
 MODEL_CONFIG = ConfigDict(extra="forbid", frozen=True, populate_by_name=True)
 
@@ -306,11 +311,7 @@ class HistoryPreclassification(BaseModel):
                 "plus timestamp presence"
             )
 
-        expected_origin_type = {
-            "user": "user_native",
-            "assistant": "assistant_reply",
-            "system": "system_instruction",
-        }[self.role]
+        expected_origin_type = ROLE_TO_ORIGIN_TYPE[self.role]
         if self.origin_type != expected_origin_type:
             raise ValueError("origin_type must match the bounded starter role mapping")
 
@@ -330,6 +331,7 @@ __all__ = [
     "CORPUS_WAVE_POSTURE_VOCABULARY",
     "INPUT_KIND_VOCABULARY",
     "ORIGIN_TYPE_VOCABULARY",
+    "ROLE_TO_ORIGIN_TYPE",
     "ROLE_VOCABULARY",
     "SOURCE_AUTHORITY_POSTURE",
     "SOURCE_DECLARATION_HINT_VOCABULARY",

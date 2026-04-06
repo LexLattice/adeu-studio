@@ -57,16 +57,33 @@ def test_reference_source_and_preclassifications_validate_against_committed_fixt
 
 
 def test_normalization_equivalence_keeps_source_identity_stable() -> None:
+    lf_text = _load_text("reference_conversation_history_lf.txt")
     lf_source = _build_reference_source(
-        source_text=_load_text("reference_conversation_history_lf.txt")
+        source_text=lf_text
     )
     crlf_source = _build_reference_source(
-        source_text=_load_text("reference_conversation_history_crlf.txt")
+        source_text=lf_text.replace("\n", "\r\n")
     )
 
+    assert "\r\n" in lf_text.replace("\n", "\r\n")
     assert lf_source.source_text == crlf_source.source_text
     assert lf_source.source_text_hash == crlf_source.source_text_hash
     assert lf_source.source_id == crlf_source.source_id
+
+
+def test_bracket_led_continuation_content_is_admitted_when_not_timestamp_like() -> None:
+    source = _build_reference_source(
+        source_text=(
+            "User: Please keep this bounded.\n"
+            "[docs](https://example.com) remains part of the same message.\n"
+            "Assistant: Acknowledged."
+        )
+    )
+
+    preclassifications = preclassify_history_source(source=source)
+
+    assert len(preclassifications) == 2
+    assert preclassifications[0].message_text.startswith("Please keep this bounded.\n[docs]")
 
 
 def test_projection_only_metadata_does_not_mint_identity() -> None:

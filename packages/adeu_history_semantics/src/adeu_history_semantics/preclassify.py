@@ -5,6 +5,7 @@ from dataclasses import dataclass
 from datetime import datetime
 
 from .models import (
+    ROLE_TO_ORIGIN_TYPE,
     SOURCE_AUTHORITY_POSTURE,
     HistoryPreclassification,
     HistorySourceArtifact,
@@ -23,6 +24,7 @@ _HEADER_LIKE_RE = re.compile(
     re.IGNORECASE,
 )
 _TIMESTAMP_TOKEN_RE = re.compile(r"\[\d{4}-\d{2}-\d{2} \d{2}:\d{2}\]")
+_TIMESTAMP_PREFIX_LIKE_RE = re.compile(r"^\[\d{4}[-/][^\]]*\]")
 _WORD_RE = re.compile(r"\b[\w'-]+\b")
 _BULLET_RE = re.compile(r"^\s*(?:[-*•]|\d+[.)])\s+")
 _QUOTE_RE = re.compile(r"^\s*>")
@@ -180,7 +182,7 @@ def _assert_no_disallowed_timestamp_material(
     line_number: int,
     context: str,
 ) -> None:
-    if _TIMESTAMP_TOKEN_RE.search(text) is not None or text.startswith("["):
+    if _TIMESTAMP_TOKEN_RE.search(text) is not None or _TIMESTAMP_PREFIX_LIKE_RE.match(text):
         raise ValueError(f"unsupported timestamp placement in {context} at line {line_number}")
 
 
@@ -204,11 +206,7 @@ def _normalize_role(role: str) -> str:
 
 
 def _origin_type_for_role(role: str) -> str:
-    return {
-        "User": "user_native",
-        "Assistant": "assistant_reply",
-        "System": "system_instruction",
-    }[role]
+    return ROLE_TO_ORIGIN_TYPE[_normalize_role(role)]
 
 
 def _source_declaration_hints(*, timestamp_text: str | None) -> list[str]:

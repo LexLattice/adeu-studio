@@ -1,0 +1,86 @@
+{
+  "schema": "parallel_arc_meta_loop_baton@1",
+  "baton_id": "baton_v54a_arc_worker_review_fix_claim_010",
+  "baton_kind": "transition_claim",
+  "emitted_at_utc": "2026-04-06T23:00:35Z",
+  "previous_baton_id": "baton_v54a_arc_worker_implementation_claim_009",
+  "arc_family": "V54",
+  "slice": "V54-A",
+  "phase": "review_fixing_pending",
+  "role": "arc_worker",
+  "model": "gpt-5.4",
+  "reasoning_effort": "xhigh",
+  "arc_branch": "arc/v54-r3",
+  "feature_branch": "v142-v54a-history-semantics-impl-r3",
+  "base_branch": "arc/v54-r3",
+  "commit_sha": null,
+  "pr_url": "https://github.com/LexLattice/adeu-studio/pull/364",
+  "review_verdict": null,
+  "ci_status": "not_started",
+  "bot_review_overall_status": "complete",
+  "bot_review_observations": [
+    {
+      "bot": "gemini",
+      "state": "completed_with_findings",
+      "witness_kind": "parent_review_plus_inline_threads",
+      "witness_ref": "PRR_kwDORIaRj87yRWFr, PRRT_kwDORIaRj855ISn6, PRRT_kwDORIaRj855ISoD, PRRT_kwDORIaRj855ISoI",
+      "note": "Took the timestamp-domain and shared-mapping comments; skipped the shorthand-alias regex suggestion because it conflicts with the V54-A lock."
+    },
+    {
+      "bot": "codex",
+      "state": "completed_with_findings",
+      "witness_kind": "parent_review_plus_inline_thread",
+      "witness_ref": "PRR_kwDORIaRj87yRX3d, PRRT_kwDORIaRj855IT1R",
+      "note": "Took the CRLF-normalization test hardening comment."
+    }
+  ],
+  "manual_trigger_actions": [],
+  "controlling_refs": [
+    "docs/LOCKED_CONTINUATION_vNEXT_PLUS142.md",
+    "docs/DRAFT_ADEU_HISTORY_SEMANTICS_V54A_IMPLEMENTATION_MAPPING_v0.md",
+    "docs/DRAFT_PARALLEL_ARC_META_LOOP_PROTOCOL_v0.md",
+    "docs/PARALLEL_ARC_META_LOOP_BATON_v0.json"
+  ],
+  "required_outputs_claimed_satisfied": [
+    "v54_a_review_threads_harvested",
+    "v54_a_worthwhile_review_fixes_applied",
+    "v54_a_targeted_package_checks_green",
+    "v54_a_review_fix_claim_baton"
+  ],
+  "unsatisfied_requirements": [
+    "v54_a_review_fix_commit_and_push",
+    "v54_a_post_push_ci_green"
+  ],
+  "status": "completed",
+  "artifacts_produced": [
+    "packages/adeu_history_semantics/src/adeu_history_semantics/models.py",
+    "packages/adeu_history_semantics/src/adeu_history_semantics/preclassify.py",
+    "packages/adeu_history_semantics/tests/test_history_semantics_v54a.py",
+    "artifacts/meta_loop/V54/V54-A/batons/010_arc_worker_review_fix_claim.json"
+  ],
+  "evidence_refs": [
+    "packages/adeu_history_semantics/src/adeu_history_semantics/models.py",
+    "packages/adeu_history_semantics/src/adeu_history_semantics/preclassify.py",
+    "packages/adeu_history_semantics/tests/test_history_semantics_v54a.py",
+    "PR #364 thread PRRT_kwDORIaRj855ISn6",
+    "PR #364 thread PRRT_kwDORIaRj855ISoD",
+    "PR #364 thread PRRT_kwDORIaRj855ISoI",
+    "PR #364 thread PRRT_kwDORIaRj855IT1R"
+  ],
+  "checks_run": [
+    "PYTHONPATH=packages/adeu_history_semantics/src .venv/bin/python -m ruff check packages/adeu_history_semantics (pass)",
+    "PYTHONPATH=packages/adeu_history_semantics/src .venv/bin/python -m pytest packages/adeu_history_semantics/tests -q (pass)"
+  ],
+  "checks_skipped": [
+    "make check skipped by instruction for this review-fix step",
+    "broader repo-wide lint, pytest, closeout, and CI-equivalent local gates were not run"
+  ],
+  "blockers": [],
+  "next_allowed_actions": [
+    "commit_review_fix_changes_on_v142_v54a_history_semantics_impl_r3",
+    "push_review_fix_commit_to_pr_364_branch",
+    "wait_5_minutes_then_check_pr_364_ci",
+    "poll_ci_every_30_seconds_until_trustworthy"
+  ],
+  "notes": "Took three of the four triaged comments for PR #364. The timestamp guard now admits bracket-led content unless it actually looks like an out-of-domain timestamp prefix, role-to-origin mapping is shared through one exported constant, and the CRLF normalization test now generates true CRLF content in-test. The shorthand-alias regex narrowing suggestion was not taken because the V54-A lock still requires fail-closed rejection of shorthand U:/A:/S: lines."
+}
