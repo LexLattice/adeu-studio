@@ -4,7 +4,9 @@ import json
 import os
 import subprocess
 import sys
+import importlib.util
 from pathlib import Path
+from types import ModuleType
 
 
 def _repo_root() -> Path:
@@ -17,6 +19,17 @@ def _repo_root() -> Path:
 
 def _script_path() -> Path:
     return _repo_root() / "apps" / "api" / "scripts" / "lint_closeout_consistency.py"
+
+
+def _load_script_module() -> ModuleType:
+    module_name = "lint_closeout_consistency_for_tests"
+    spec = importlib.util.spec_from_file_location(module_name, _script_path())
+    if spec is None or spec.loader is None:
+        raise RuntimeError("failed to load lint_closeout_consistency module")
+    module = importlib.util.module_from_spec(spec)
+    sys.modules[module_name] = module
+    spec.loader.exec_module(module)
+    return module
 
 
 def _pythonpath_env() -> dict[str, str]:
@@ -157,6 +170,25 @@ def test_lint_passes_for_valid_required_docs(tmp_path: Path) -> None:
         "docs/DRAFT_STOP_GATE_DECISION_vNEXT_PLUS30.md",
     ]
     assert payload["failures"] == []
+
+
+def test_repo_root_discovery_accepts_worktree_git_file(tmp_path: Path) -> None:
+    worktree_root = tmp_path / "synthetic_worktree"
+    script_path = worktree_root / "apps" / "api" / "scripts" / "lint_closeout_consistency.py"
+    script_path.parent.mkdir(parents=True, exist_ok=True)
+    script_path.write_text("# synthetic", encoding="utf-8")
+    (worktree_root / ".git").write_text(
+        "gitdir: /tmp/synthetic-main-repo/.git/worktrees/synthetic_worktree\n",
+        encoding="utf-8",
+    )
+
+    module = _load_script_module()
+    original_file = module.__file__
+    try:
+        module.__file__ = str(script_path)
+        assert module._repo_root_from_script() == worktree_root
+    finally:
+        module.__file__ = original_file
 
 
 def test_lint_required_doc_missing_block_fails_closed(tmp_path: Path) -> None:
