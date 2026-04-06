@@ -169,7 +169,7 @@ Planning relationship:
 - Recommended first projection reference:
   - `docs/DRAFT_PROCEDURAL_DEPTH_FIDELITY_BENCHMARK_SPEC_v0.md`
 - Recommended decomposition reference:
-  - `docs/LOCKED_CONTINUATION_vNEXT_PLUS137.md`
+  - `docs/LOCKED_CONTINUATION_vNEXT_PLUS138.md`
 - Recommended next path for this branch:
   - `V46-C`
 - Recommended next concrete arc for this branch if selected:
@@ -289,6 +289,9 @@ Implement the first Procedural Depth perturbation and non-regression widening ne
 
 - one bounded perturbation-case family over the released `V46-B` baseline instance and
   gold-trace world;
+- operational perturbation cases rather than label-only shells:
+  - each starter case should carry the bounded transformed observed-event overlay that
+    will be materialized into repeated starter run traces
 - one bounded perturbation-run evaluation lane that reuses the released
   `adeu_procedural_depth_run_trace@1`, `adeu_procedural_depth_metrics@1`, and
   `adeu_procedural_depth_diagnostic_report@1` contracts rather than forking them;
@@ -299,6 +302,11 @@ Implement the first Procedural Depth perturbation and non-regression widening ne
   and the released `V46-B` baseline procedural-depth stack;
 - explicit repeated-run stability and non-regression posture without widening yet into
   cross-subject comparison or downstream operational promotion.
+- exact deterministic starter replay posture only:
+  - `deterministic_fixed_context`
+  - replay count `3`
+  - exact-match drift subjects over run-trace, metrics, diagnostic, dominant family,
+    and terminal status
 
 `V46-C` is still diagnostic-first and non-promotional:
 
@@ -331,6 +339,8 @@ Implement the first Procedural Depth perturbation and non-regression widening ne
 - one bounded non-regression report family only;
 - one bounded failure-topology summary only;
 - one bounded benchmark-validation report over the perturbation bundle only;
+- per-case and per-replay aggregation structure only:
+  - no ambiguous parallel top-level arrays
 - explicit diagnostic-first interpretation posture only.
 
 It should not attempt:
@@ -482,7 +492,7 @@ are:
   "default_next_concrete_arc_candidate_for_this_branch": "vNext+138",
   "family_architecture_doc": "docs/DRAFT_BENCHMARKING_META_MODULE_SPEC_v0.md",
   "first_projection_seed_doc": "docs/DRAFT_PROCEDURAL_DEPTH_FIDELITY_BENCHMARK_SPEC_v0.md",
-  "family_decomposition_doc": "docs/LOCKED_CONTINUATION_vNEXT_PLUS137.md",
+  "family_decomposition_doc": "docs/LOCKED_CONTINUATION_vNEXT_PLUS138.md",
   "pre_lock_companion_docs_expected": [
     "docs/DRAFT_BENCHMARK_FAMILY_DECOMPOSITION_v0.md",
     "docs/DRAFT_BENCHMARK_ARTIFACT_SURFACES_v0.md"
