@@ -20,6 +20,7 @@ in strict step-checkpoint mode.
 
 - `docs/PARALLEL_ARC_STARTER_BUNDLE_EXECUTION_TEMPLATE_v0.json`
 - `docs/PARALLEL_ARC_IMPLEMENTATION_EXECUTION_TEMPLATE_v0.json`
+- `docs/PARALLEL_ARC_IMPLEMENTATION_STAGE_REPORT_TEMPLATE_v0.json`
 - `docs/PARALLEL_ARC_REVIEW_FIX_EXECUTION_TEMPLATE_v0.json`
 - `docs/PARALLEL_ARC_CLOSEOUT_EXECUTION_TEMPLATE_v0.json`
 
@@ -59,6 +60,10 @@ Current observed hardening direction:
 - require `apply_patch` as the first next write action for file-creation steps
 - record contradictions inside the current step artifact rather than letting them
   trigger extra repo research
+- for code, prefer semantic-IR stage artifacts over pre-materialized live code stubs
+- keep self-report at implementation stage boundaries rather than during live coding
+- use the semantic-IR stage as the durable bridge from starter contract to final code
+  rather than relying on hidden model reasoning alone
 
 ## Not Frozen Yet
 

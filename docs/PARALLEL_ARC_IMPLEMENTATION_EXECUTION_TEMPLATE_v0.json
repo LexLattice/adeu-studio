@@ -7,40 +7,45 @@
   "continue_only_on_orchestrator_ratification": true,
   "steps": [
     {
-      "step_id": "confirm_finish_line_and_owned_surface",
+      "step_id": "materialize_semantic_ir_bridge",
       "step_order": 1,
       "required_inputs": [
         "assigned family and slice",
         "feature branch and worktree",
         "controlling lock and slice mapping refs",
-        "exact allowed write scope"
+        "exact allowed write scope",
+        "exact finish line"
       ],
       "required_outputs": [
-        "worker checkpoint confirming finish-line items and owned surfaces"
+        "one semantic-ir checkpoint note",
+        "one machine-checkable stage report mapping contract items to planned code surfaces"
       ],
       "success_predicate": [
-        "the worker is grounded on the exact slice finish line before mutating code"
+        "the worker has materialized a durable semantic bridge from starter contract to intended code surfaces before mutating code"
       ],
       "required_checks": [],
       "forbidden_shortcuts": [
-        "starting implementation before naming the finish line",
+        "starting live code mutation before materializing the semantic-ir bridge",
+        "keeping the contract-to-code mapping only in hidden reasoning",
         "editing outside the allowed write scope"
       ],
-      "next_step_if_pass": "implement_contract_surfaces",
+      "next_step_if_pass": "transpose_semantic_ir_into_code",
       "escalate_if_fail": "emit scope or finish-line blocker and wait"
     },
     {
-      "step_id": "implement_contract_surfaces",
+      "step_id": "transpose_semantic_ir_into_code",
       "step_order": 2,
       "required_inputs": [
-        "confirmed finish line",
+        "semantic-ir checkpoint note",
+        "semantic-ir stage report",
         "owned write scope"
       ],
       "required_outputs": [
         "required package code surfaces",
         "required schema export surfaces",
         "required root spec mirrors",
-        "required deterministic fixtures and tests"
+        "required deterministic fixtures and tests",
+        "one code-transposition stage report"
       ],
       "success_predicate": [
         "all contract surfaces selected by the slice exist coherently in the assigned package lane"
@@ -51,20 +56,23 @@
         "only adding tests without contract surfaces",
         "claiming completion while required package wiring is missing"
       ],
-      "next_step_if_pass": "run_targeted_checks",
+      "next_step_if_pass": "verify_and_attest_implementation",
       "escalate_if_fail": "emit exact missing-surface blocker and wait"
     },
     {
-      "step_id": "run_targeted_checks",
+      "step_id": "verify_and_attest_implementation",
       "step_order": 3,
       "required_inputs": [
-        "implemented contract surfaces"
+        "implemented contract surfaces",
+        "code-transposition stage report"
       ],
       "required_outputs": [
-        "targeted check results for the owned package lane"
+        "targeted check results for the owned package lane",
+        "one verification stage report",
+        "implementation worker baton with changed files, checks run, checks skipped, blockers, and readiness judgment"
       ],
       "success_predicate": [
-        "the bounded targeted checks selected by the finish line pass"
+        "the bounded targeted checks selected by the finish line pass and the orchestrator can inspect implementation readiness without recovering hidden reasoning"
       ],
       "required_checks": [
         "package-local lint",
@@ -76,28 +84,8 @@
         "claiming completion while targeted checks are red",
         "pretending make check was run if it was intentionally skipped"
       ],
-      "next_step_if_pass": "emit_implementation_baton",
-      "escalate_if_fail": "emit exact failing check and wait"
-    },
-    {
-      "step_id": "emit_implementation_baton",
-      "step_order": 4,
-      "required_inputs": [
-        "implemented contract surfaces",
-        "passing targeted checks"
-      ],
-      "required_outputs": [
-        "implementation worker baton with changed files, checks run, checks skipped, blockers, and readiness judgment"
-      ],
-      "success_predicate": [
-        "the orchestrator can inspect implementation readiness without recovering missing context"
-      ],
-      "required_checks": [],
-      "forbidden_shortcuts": [
-        "claiming implementation completion without the baton"
-      ],
       "next_step_if_pass": "wait_for_orchestrator_pr_authorization",
-      "escalate_if_fail": "stay on this step until the baton exists"
+      "escalate_if_fail": "emit exact failing check or missing-attestation blocker and wait"
     }
   ]
 }

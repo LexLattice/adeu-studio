@@ -45,6 +45,7 @@ Optional later shared helper:
 Implementation-worker launch reference for the pilot:
 
 - `docs/DRAFT_PARALLEL_ARC_IMPLEMENTATION_WORKER_PROMPT_v0.md`
+- `docs/PARALLEL_ARC_IMPLEMENTATION_STAGE_REPORT_TEMPLATE_v0.json`
 
 Starter-worker launch reference for the pilot:
 
@@ -55,7 +56,7 @@ Model restriction for the pilot:
 - baseline sub-worker and reviewer posture is `gpt-5.4` with reasoning effort
   `xhigh`
 - explicit model-comparison runs may instead use `gpt-5.3-codex` with reasoning
-  effort `high`, but only when the orchestrator logs that variance test explicitly
+  effort `xhigh`, but only when the orchestrator logs that variance test explicitly
 - do not mix worker models casually inside one run without logging the reason
 
 This pilot does not authorize:
@@ -214,20 +215,80 @@ Per slice, the legal sequence is:
 14. arc worker drafts closeout on the family arc branch
 15. meta-orchestrator verifies the baton and advances to next slice
 
-## Implementation Worker Finish-Line Law
+## Implementation Three-Stage Law
 
-For the pilot, an implementation worker launch must carry one explicit finish line.
+For the pilot, the implementation phase should be split into three explicit stages:
 
-That finish line must name at minimum:
+1. semantic-IR bridge
+2. code transposition
+3. verification and attestation
+
+The purpose of stage 1 is to materialize the code-facing reasoning bridge between the
+starter lock/mapping contract and the intended code surfaces. The worker should not
+leave that bridge implicit inside model reasoning alone.
+
+### Stage 1: Semantic-IR Bridge
+
+The worker should produce one bounded semantic-IR artifact that names:
 
 - the exact slice lock and slice mapping docs being implemented
-- the owned write scope
-- the required contract surfaces to exist at completion
+- the exact contract names or schema ids being introduced
+- the planned package files/modules to own those contracts
 - the required authoritative schema exports and root `spec/` mirrors, if the lock
   selects released contracts
-- the required deterministic fixtures/tests for the slice
-- the exact targeted checks the worker must run before claiming completion
-- the exact baton artifact the worker must emit
+- the planned deterministic fixtures/tests
+- the explicit non-goals and deferred seams that must remain out of scope
+
+This stage may also include pseudocode, function/class skeletons, or a package/file
+plan, but it should remain meta-code rather than live implementation.
+
+### Stage 2: Code Transposition
+
+The worker should transpose the semantic-IR bridge into live code by materializing:
+
+- required package code surfaces
+- required schema export surfaces
+- required root `spec/` mirrors
+- required deterministic fixtures/tests
+- required package wiring
+
+### Stage 3: Verification And Attestation
+
+The worker should run the bounded targeted checks selected by the finish line and then
+emit:
+
+- one stage-end self-report for verification
+- one final implementation baton
+
+The implementation baton remains the authoritative completion claim for the phase.
+
+### Stage-End Reporting
+
+At the end of each implementation stage, the worker should emit one machine-checkable
+stage report using:
+
+- `docs/PARALLEL_ARC_IMPLEMENTATION_STAGE_REPORT_TEMPLATE_v0.json`
+
+The stage report should map contract items to concrete code/test/export surfaces so the
+orchestrator can inspect compliance without reconstructing the worker's hidden
+reasoning.
+
+### Completion Law
+
+Implementation completion is satisfied only when:
+
+- the semantic-IR bridge exists
+- the required live package surfaces exist and are coherent
+- the required schema exports exist under the package schema directory
+- the required root `spec/` mirrors exist
+- the required deterministic fixtures/tests for the slice exist
+- the bounded targeted checks for the owned package lane pass
+- the worker emits one final implementation baton with:
+  - changed files
+  - checks run
+  - checks skipped
+  - blockers
+  - readiness judgment
 
 Implementation completion is not satisfied by:
 
@@ -236,7 +297,8 @@ Implementation completion is not satisfied by:
   release
 - only adding helpers without fixtures/tests
 - red targeted checks
-- a narrative status message without a baton
+- a narrative status message without the stage-end artifacts
+- a narrative status message without the baton
 
 If a worker is handed a partial implementation state on a slice retry, the worker
 must finish that state or fail loudly against the missing finish-line items; it may not
@@ -246,6 +308,21 @@ that reset.
 If targeted tests reveal released-surface drift inside the slice's owned package lane
 for the bounded contract, the worker should repair that drift inside the slice rather
 than reporting a partial completion.
+
+### Interruption Rule
+
+The meta-orchestrator should not interrupt a worker routinely inside an implementation
+stage.
+
+Normal deep work inside a coding stage is not itself drift.
+
+Interruption during implementation should be reserved for significant drift such as:
+
+- no material `O` artifact at the expected stage boundary
+- writes outside the allowed scope
+- explicit blocked state
+- doctrinal widening against the controlling lock
+- repeated refusal to cross from stage contract to required stage artifact
 
 ## Pre-Review Integrity Gate
 
@@ -280,6 +357,10 @@ If a slice implementation worker stops mid-slice and leaves only partial code:
 - relaunch from the committed family-trunk starter baseline on a fresh retry slice
   branch unless the orchestrator explicitly chooses a different recovery posture
 - the retry prompt must name the concrete misses from the failed attempt
+
+If the worker repeatedly fails to cross from semantic-IR to live code mutation, prefer
+sharpening the implementation contract and stage-end self-reporting rather than
+pre-materializing live code stubs too early.
 
 The 5-minute waits are deliberate pilot rules, not suggestions:
 
@@ -655,6 +736,10 @@ Before implementation:
 - distinct starter draft/review/integrated artifacts are preserved
 
 Before PR merge:
+
+- semantic-IR stage report exists
+- code-transposition stage report exists
+- final implementation baton exists
 
 - PR targets the family arc branch
 - required local checks were run and recorded

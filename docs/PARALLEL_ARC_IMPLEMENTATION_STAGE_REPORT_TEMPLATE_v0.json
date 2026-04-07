@@ -1,0 +1,114 @@
+{
+  "schema": "parallel_arc_implementation_stage_report@1",
+  "description": "Machine-checkable stage-end self-report for the parallel-family implementation cycle.",
+  "required_fields": [
+    "report_id",
+    "stage_name",
+    "arc_family",
+    "slice",
+    "arc_branch",
+    "feature_branch",
+    "worktree_path",
+    "status",
+    "controlling_refs",
+    "contract_items",
+    "artifacts_produced",
+    "blockers"
+  ],
+  "field_contract": {
+    "report_id": {
+      "type": "string"
+    },
+    "stage_name": {
+      "type": "string",
+      "allowed": [
+        "semantic_ir_bridge",
+        "code_transposition",
+        "verification_attestation"
+      ]
+    },
+    "arc_family": {
+      "type": "string"
+    },
+    "slice": {
+      "type": "string"
+    },
+    "arc_branch": {
+      "type": "string"
+    },
+    "feature_branch": {
+      "type": "string"
+    },
+    "worktree_path": {
+      "type": "string"
+    },
+    "status": {
+      "type": "string",
+      "allowed": [
+        "completed",
+        "blocked"
+      ]
+    },
+    "controlling_refs": {
+      "type": "array"
+    },
+    "contract_items": {
+      "type": "array",
+      "entry_contract": {
+        "required_fields": [
+          "contract_item",
+          "status",
+          "evidence_ref"
+        ],
+        "field_contract": {
+          "contract_item": {
+            "type": "string"
+          },
+          "status": {
+            "type": "string",
+            "allowed": [
+              "planned",
+              "implemented",
+              "verified",
+              "deferred",
+              "blocked"
+            ]
+          },
+          "evidence_ref": {
+            "type": "string"
+          },
+          "notes": {
+            "type": [
+              "string",
+              "null"
+            ]
+          }
+        }
+      }
+    },
+    "artifacts_produced": {
+      "type": "array"
+    },
+    "checks_run": {
+      "type": [
+        "array",
+        "null"
+      ]
+    },
+    "checks_skipped": {
+      "type": [
+        "array",
+        "null"
+      ]
+    },
+    "blockers": {
+      "type": "array"
+    },
+    "notes": {
+      "type": [
+        "string",
+        "null"
+      ]
+    }
+  }
+}
