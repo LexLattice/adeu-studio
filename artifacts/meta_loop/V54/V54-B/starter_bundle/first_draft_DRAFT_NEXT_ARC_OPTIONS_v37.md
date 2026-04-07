@@ -168,8 +168,6 @@ This new family asks:
 - explicit that source-authority semantics, source identity law, and the explicit full
   role-header starter source domain from `V54-A` remain inherited rather than
   reopened;
-- explicit finite derivation law for slice-local `theme_terms`, `theme_label`, and
-  `theme_key` before theme-anchor grouping is released;
 - no API/UI/runtime widening.
 
 `V54-C` should therefore be read as:
@@ -248,7 +246,7 @@ The current recommended path ladder is:
 | Path | Theme | Primary output | Status |
 |---|---|---|---|
 | `V54-A` | source contract + authority/export substrate | released `adeu_history_source_artifact@1`, released text-shape / preclassification substrate, and released schema/export posture over one bounded starter source domain | closed on `arc/v54-r3` |
-| `V54-B` | ledger / slice / theme substrate hardening | released `adeu_history_ledger_entry@1`, released `adeu_history_ledger@1`, released `adeu_history_slice@1`, and released `adeu_history_theme_anchor@1` with regression-hardened deterministic grouping/parsing law | planned |
+| `V54-B` | ledger / slice / theme substrate hardening | released `adeu_history_ledger@1`, released `adeu_history_slice@1`, and released `adeu_history_theme_anchor@1` with regression-hardened deterministic grouping/parsing law | planned |
 | `V54-C` | advisory O/E/D/U reconstruction lane | released advisory lane reconstruction and packet artifacts only | planned |
 | `V54-D` | advisory workspace synthesis lane | released bounded workspace question / theme-frame / snapshot seam only | planned |
 
