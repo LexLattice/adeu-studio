@@ -1,0 +1,116 @@
+{
+  "$defs": {
+    "HistoryEvidenceRef": {
+      "additionalProperties": false,
+      "properties": {
+        "entry_id": {
+          "title": "Entry Id",
+          "type": "string"
+        },
+        "excerpt": {
+          "title": "Excerpt",
+          "type": "string"
+        },
+        "role": {
+          "enum": [
+            "user",
+            "assistant",
+            "system"
+          ],
+          "title": "Role",
+          "type": "string"
+        },
+        "schema": {
+          "const": "adeu_history_evidence_ref@1",
+          "default": "adeu_history_evidence_ref@1",
+          "title": "Schema",
+          "type": "string"
+        }
+      },
+      "required": [
+        "entry_id",
+        "role",
+        "excerpt"
+      ],
+      "title": "HistoryEvidenceRef",
+      "type": "object"
+    }
+  },
+  "additionalProperties": false,
+  "properties": {
+    "dominant_role_posture": {
+      "enum": [
+        "user_primary",
+        "assistant_explication",
+        "mixed",
+        "source_primary",
+        "none"
+      ],
+      "title": "Dominant Role Posture",
+      "type": "string"
+    },
+    "evidence_refs": {
+      "items": {
+        "$ref": "#/$defs/HistoryEvidenceRef"
+      },
+      "title": "Evidence Refs",
+      "type": "array"
+    },
+    "explicitation_status": {
+      "enum": [
+        "locally_explicit",
+        "dialogically_explicitated",
+        "contextually_reconstructed",
+        "underdetermined"
+      ],
+      "title": "Explicitation Status",
+      "type": "string"
+    },
+    "lane_id": {
+      "enum": [
+        "O",
+        "E",
+        "D",
+        "U"
+      ],
+      "title": "Lane Id",
+      "type": "string"
+    },
+    "presence_status": {
+      "enum": [
+        "present",
+        "weakly_present",
+        "underdetermined",
+        "not_salient"
+      ],
+      "title": "Presence Status",
+      "type": "string"
+    },
+    "reconstruction_text": {
+      "anyOf": [
+        {
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Reconstruction Text"
+    },
+    "schema": {
+      "const": "adeu_history_odeu_lane_reconstruction@1",
+      "default": "adeu_history_odeu_lane_reconstruction@1",
+      "title": "Schema",
+      "type": "string"
+    }
+  },
+  "required": [
+    "lane_id",
+    "presence_status",
+    "explicitation_status",
+    "dominant_role_posture"
+  ],
+  "title": "HistoryODEULaneReconstruction",
+  "type": "object"
+}

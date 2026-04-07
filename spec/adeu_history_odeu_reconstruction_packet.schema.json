@@ -1,0 +1,176 @@
+{
+  "$defs": {
+    "HistoryEvidenceRef": {
+      "additionalProperties": false,
+      "properties": {
+        "entry_id": {
+          "title": "Entry Id",
+          "type": "string"
+        },
+        "excerpt": {
+          "title": "Excerpt",
+          "type": "string"
+        },
+        "role": {
+          "enum": [
+            "user",
+            "assistant",
+            "system"
+          ],
+          "title": "Role",
+          "type": "string"
+        },
+        "schema": {
+          "const": "adeu_history_evidence_ref@1",
+          "default": "adeu_history_evidence_ref@1",
+          "title": "Schema",
+          "type": "string"
+        }
+      },
+      "required": [
+        "entry_id",
+        "role",
+        "excerpt"
+      ],
+      "title": "HistoryEvidenceRef",
+      "type": "object"
+    },
+    "HistoryODEULaneReconstruction": {
+      "additionalProperties": false,
+      "properties": {
+        "dominant_role_posture": {
+          "enum": [
+            "user_primary",
+            "assistant_explication",
+            "mixed",
+            "source_primary",
+            "none"
+          ],
+          "title": "Dominant Role Posture",
+          "type": "string"
+        },
+        "evidence_refs": {
+          "items": {
+            "$ref": "#/$defs/HistoryEvidenceRef"
+          },
+          "title": "Evidence Refs",
+          "type": "array"
+        },
+        "explicitation_status": {
+          "enum": [
+            "locally_explicit",
+            "dialogically_explicitated",
+            "contextually_reconstructed",
+            "underdetermined"
+          ],
+          "title": "Explicitation Status",
+          "type": "string"
+        },
+        "lane_id": {
+          "enum": [
+            "O",
+            "E",
+            "D",
+            "U"
+          ],
+          "title": "Lane Id",
+          "type": "string"
+        },
+        "presence_status": {
+          "enum": [
+            "present",
+            "weakly_present",
+            "underdetermined",
+            "not_salient"
+          ],
+          "title": "Presence Status",
+          "type": "string"
+        },
+        "reconstruction_text": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Reconstruction Text"
+        },
+        "schema": {
+          "const": "adeu_history_odeu_lane_reconstruction@1",
+          "default": "adeu_history_odeu_lane_reconstruction@1",
+          "title": "Schema",
+          "type": "string"
+        }
+      },
+      "required": [
+        "lane_id",
+        "presence_status",
+        "explicitation_status",
+        "dominant_role_posture"
+      ],
+      "title": "HistoryODEULaneReconstruction",
+      "type": "object"
+    }
+  },
+  "additionalProperties": false,
+  "properties": {
+    "interpretation_authority_posture": {
+      "const": "advisory_overlay_only",
+      "default": "advisory_overlay_only",
+      "title": "Interpretation Authority Posture",
+      "type": "string"
+    },
+    "lane_reconstructions": {
+      "items": {
+        "$ref": "#/$defs/HistoryODEULaneReconstruction"
+      },
+      "title": "Lane Reconstructions",
+      "type": "array"
+    },
+    "packet_id": {
+      "title": "Packet Id",
+      "type": "string"
+    },
+    "schema": {
+      "const": "adeu_history_odeu_reconstruction_packet@1",
+      "default": "adeu_history_odeu_reconstruction_packet@1",
+      "title": "Schema",
+      "type": "string"
+    },
+    "semantic_hash": {
+      "title": "Semantic Hash",
+      "type": "string"
+    },
+    "semantic_identity_mode": {
+      "const": "v54c_history_packet_hash_law",
+      "default": "v54c_history_packet_hash_law",
+      "title": "Semantic Identity Mode",
+      "type": "string"
+    },
+    "slice_id": {
+      "title": "Slice Id",
+      "type": "string"
+    },
+    "source_id": {
+      "title": "Source Id",
+      "type": "string"
+    },
+    "theme_anchor_id": {
+      "title": "Theme Anchor Id",
+      "type": "string"
+    }
+  },
+  "required": [
+    "packet_id",
+    "source_id",
+    "slice_id",
+    "theme_anchor_id",
+    "lane_reconstructions",
+    "semantic_hash"
+  ],
+  "title": "HistoryODEUReconstructionPacket",
+  "type": "object"
+}

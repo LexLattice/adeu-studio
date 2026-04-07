@@ -2,7 +2,7 @@ from __future__ import annotations
 
 import re
 from datetime import datetime
-from typing import Literal
+from typing import Literal, TypeVar
 
 from pydantic import BaseModel, ConfigDict, Field, model_validator
 from urm_runtime.hashing import canonical_json, sha256_canonical_json
@@ -14,8 +14,13 @@ ADEU_HISTORY_LEDGER_ENTRY_SCHEMA = "adeu_history_ledger_entry@1"
 ADEU_HISTORY_LEDGER_SCHEMA = "adeu_history_ledger@1"
 ADEU_HISTORY_SLICE_SCHEMA = "adeu_history_slice@1"
 ADEU_HISTORY_THEME_ANCHOR_SCHEMA = "adeu_history_theme_anchor@1"
+ADEU_HISTORY_EVIDENCE_REF_SCHEMA = "adeu_history_evidence_ref@1"
+ADEU_HISTORY_ODEU_LANE_RECONSTRUCTION_SCHEMA = "adeu_history_odeu_lane_reconstruction@1"
+ADEU_HISTORY_ODEU_RECONSTRUCTION_PACKET_SCHEMA = "adeu_history_odeu_reconstruction_packet@1"
 
 SOURCE_AUTHORITY_POSTURE = "normalized_source_text_authoritative"
+HISTORY_ODEU_INTERPRETATION_AUTHORITY_POSTURE = "advisory_overlay_only"
+HISTORY_ODEU_PACKET_SEMANTIC_IDENTITY_MODE = "v54c_history_packet_hash_law"
 INPUT_KIND_VOCABULARY = ("conversation_history",)
 ROLE_VOCABULARY = ("user", "assistant", "system")
 ORIGIN_TYPE_VOCABULARY = ("user_native", "assistant_reply", "system_instruction")
@@ -37,6 +42,26 @@ STRUCTURAL_MARKER_VOCABULARY = (
     "quoted_line_present",
     "code_fence_present",
     "question_mark_present",
+)
+ODEU_LANE_ORDER = ("O", "E", "D", "U")
+LANE_PRESENCE_STATUS_VOCABULARY = (
+    "present",
+    "weakly_present",
+    "underdetermined",
+    "not_salient",
+)
+LANE_EXPLICATION_STATUS_VOCABULARY = (
+    "locally_explicit",
+    "dialogically_explicitated",
+    "contextually_reconstructed",
+    "underdetermined",
+)
+DOMINANT_ROLE_POSTURE_VOCABULARY = (
+    "user_primary",
+    "assistant_explication",
+    "mixed",
+    "source_primary",
+    "none",
 )
 SLICE_BOUNDARY_TAG_VOCABULARY = (
     "conversation_start",
@@ -89,8 +114,31 @@ SliceBoundaryTag = Literal[
     "contains_code_fence_present",
     "contains_question_mark_present",
 ]
+LaneId = Literal["O", "E", "D", "U"]
+LanePresenceStatus = Literal[
+    "present",
+    "weakly_present",
+    "underdetermined",
+    "not_salient",
+]
+LaneExplicitationStatus = Literal[
+    "locally_explicit",
+    "dialogically_explicitated",
+    "contextually_reconstructed",
+    "underdetermined",
+]
+DominantRolePosture = Literal[
+    "user_primary",
+    "assistant_explication",
+    "mixed",
+    "source_primary",
+    "none",
+]
+HistoryODEUInterpretationAuthorityPosture = Literal["advisory_overlay_only"]
+HistoryODEUPacketSemanticIdentityMode = Literal["v54c_history_packet_hash_law"]
 
 _THEME_TERM_RE = re.compile(r"^[a-z0-9]+$")
+ModelT = TypeVar("ModelT", bound=BaseModel)
 
 
 def _assert_present_text(value: str, *, field_name: str) -> str:
@@ -138,6 +186,18 @@ def _validated_theme_terms(values: list[str], *, field_name: str) -> list[str]:
             raise ValueError(f"{field_name} must discard terms shorter than 4 chars")
         if value in ROLE_VOCABULARY:
             raise ValueError(f"{field_name} must discard role tokens")
+    return ordered
+
+
+def _ordered_unique_models(values: list[ModelT], *, field_name: str) -> list[ModelT]:
+    seen: set[str] = set()
+    ordered: list[ModelT] = []
+    for value in values:
+        payload = canonical_json(value.model_dump(by_alias=True))
+        if payload in seen:
+            raise ValueError(f"{field_name} must be unique")
+        seen.add(payload)
+        ordered.append(value)
     return ordered
 
 
@@ -231,6 +291,66 @@ def compute_history_theme_anchor_id(
         }
     )
     return f"history_theme_anchor:{digest[:16]}"
+
+
+def build_history_odeu_packet_identity_basis(
+    *,
+    source_id: str,
+    slice_id: str,
+    theme_anchor_id: str,
+    lane_reconstructions: list[HistoryODEULaneReconstruction],
+    semantic_identity_mode: str = HISTORY_ODEU_PACKET_SEMANTIC_IDENTITY_MODE,
+) -> dict[str, object]:
+    order = {lane_id: index for index, lane_id in enumerate(ODEU_LANE_ORDER)}
+    ordered_lanes = sorted(lane_reconstructions, key=lambda item: order[item.lane_id])
+    return {
+        "schema": ADEU_HISTORY_ODEU_RECONSTRUCTION_PACKET_SCHEMA,
+        "source_id": source_id,
+        "slice_id": slice_id,
+        "theme_anchor_id": theme_anchor_id,
+        "lane_reconstructions": [
+            {
+                "lane_id": lane.lane_id,
+                "presence_status": lane.presence_status,
+                "explicitation_status": lane.explicitation_status,
+                "dominant_role_posture": lane.dominant_role_posture,
+                "reconstruction_text": lane.reconstruction_text,
+                "evidence_refs": [
+                    {
+                        "entry_id": item.entry_id,
+                        "role": item.role,
+                        "excerpt": item.excerpt,
+                    }
+                    for item in lane.evidence_refs
+                ],
+            }
+            for lane in ordered_lanes
+        ],
+        "semantic_identity_mode": semantic_identity_mode,
+    }
+
+
+def compute_history_odeu_packet_semantic_hash(
+    *,
+    source_id: str,
+    slice_id: str,
+    theme_anchor_id: str,
+    lane_reconstructions: list[HistoryODEULaneReconstruction],
+    semantic_identity_mode: str = HISTORY_ODEU_PACKET_SEMANTIC_IDENTITY_MODE,
+) -> str:
+    return sha256_canonical_json(
+        build_history_odeu_packet_identity_basis(
+            source_id=source_id,
+            slice_id=slice_id,
+            theme_anchor_id=theme_anchor_id,
+            lane_reconstructions=lane_reconstructions,
+            semantic_identity_mode=semantic_identity_mode,
+        )
+    )
+
+
+def compute_history_odeu_packet_id(*, semantic_hash: str) -> str:
+    return f"history_packet:{semantic_hash[:16]}"
 
 
 class HistoryTextShapeSignals(BaseModel):
@@ -781,9 +901,177 @@ class HistoryThemeAnchor(BaseModel):
         return self
 
 
+class HistoryEvidenceRef(BaseModel):
+    model_config = MODEL_CONFIG
+
+    schema_id: Literal[ADEU_HISTORY_EVIDENCE_REF_SCHEMA] = Field(
+        default=ADEU_HISTORY_EVIDENCE_REF_SCHEMA,
+        alias="schema",
+    )
+    entry_id: str
+    role: RoleKind
+    excerpt: str
+
+    @property
+    def schema(self) -> str:
+        return self.schema_id
+
+    @model_validator(mode="after")
+    def _validate(self) -> "HistoryEvidenceRef":
+        object.__setattr__(
+            self,
+            "entry_id",
+            _assert_present_text(self.entry_id, field_name="entry_id"),
+        )
+        object.__setattr__(
+            self,
+            "excerpt",
+            _assert_present_text(self.excerpt, field_name="excerpt"),
+        )
+        return self
+
+
+class HistoryODEULaneReconstruction(BaseModel):
+    model_config = MODEL_CONFIG
+
+    schema_id: Literal[ADEU_HISTORY_ODEU_LANE_RECONSTRUCTION_SCHEMA] = Field(
+        default=ADEU_HISTORY_ODEU_LANE_RECONSTRUCTION_SCHEMA,
+        alias="schema",
+    )
+    lane_id: LaneId
+    presence_status: LanePresenceStatus
+    explicitation_status: LaneExplicitationStatus
+    dominant_role_posture: DominantRolePosture
+    reconstruction_text: str | None = None
+    evidence_refs: list[HistoryEvidenceRef] = Field(default_factory=list)
+
+    @property
+    def schema(self) -> str:
+        return self.schema_id
+
+    @model_validator(mode="after")
+    def _validate(self) -> "HistoryODEULaneReconstruction":
+        object.__setattr__(
+            self,
+            "evidence_refs",
+            _ordered_unique_models(
+                list(self.evidence_refs),
+                field_name="evidence_refs",
+            ),
+        )
+        if self.reconstruction_text is not None:
+            object.__setattr__(
+                self,
+                "reconstruction_text",
+                _assert_present_text(
+                    self.reconstruction_text,
+                    field_name="reconstruction_text",
+                ),
+            )
+        if self.presence_status in {"present", "weakly_present"}:
+            if self.reconstruction_text is None:
+                raise ValueError("present or weakly_present lanes require reconstruction_text")
+            if not self.evidence_refs:
+                raise ValueError("present or weakly_present lanes require evidence_refs")
+            return self
+        if self.reconstruction_text is not None:
+            raise ValueError("absent lanes must omit reconstruction_text")
+        if self.evidence_refs:
+            raise ValueError("absent lanes may not carry evidence_refs")
+        if self.explicitation_status != "underdetermined":
+            raise ValueError("absent lanes must use explicitation_status=underdetermined")
+        if self.dominant_role_posture != "none":
+            raise ValueError("absent lanes must use dominant_role_posture=none")
+        return self
+
+
+class HistoryODEUReconstructionPacket(BaseModel):
+    model_config = MODEL_CONFIG
+
+    schema_id: Literal[ADEU_HISTORY_ODEU_RECONSTRUCTION_PACKET_SCHEMA] = Field(
+        default=ADEU_HISTORY_ODEU_RECONSTRUCTION_PACKET_SCHEMA,
+        alias="schema",
+    )
+    packet_id: str
+    source_id: str
+    slice_id: str
+    theme_anchor_id: str
+    lane_reconstructions: list[HistoryODEULaneReconstruction]
+    interpretation_authority_posture: HistoryODEUInterpretationAuthorityPosture = (
+        HISTORY_ODEU_INTERPRETATION_AUTHORITY_POSTURE
+    )
+    semantic_identity_mode: HistoryODEUPacketSemanticIdentityMode = (
+        HISTORY_ODEU_PACKET_SEMANTIC_IDENTITY_MODE
+    )
+    semantic_hash: str
+
+    @property
+    def schema(self) -> str:
+        return self.schema_id
+
+    def identity_basis(self) -> dict[str, object]:
+        return build_history_odeu_packet_identity_basis(
+            source_id=self.source_id,
+            slice_id=self.slice_id,
+            theme_anchor_id=self.theme_anchor_id,
+            lane_reconstructions=self.lane_reconstructions,
+            semantic_identity_mode=self.semantic_identity_mode,
+        )
+
+    @model_validator(mode="after")
+    def _validate(self) -> "HistoryODEUReconstructionPacket":
+        object.__setattr__(
+            self,
+            "packet_id",
+            _assert_present_text(self.packet_id, field_name="packet_id"),
+        )
+        object.__setattr__(
+            self,
+            "source_id",
+            _assert_present_text(self.source_id, field_name="source_id"),
+        )
+        object.__setattr__(
+            self,
+            "slice_id",
+            _assert_present_text(self.slice_id, field_name="slice_id"),
+        )
+        object.__setattr__(
+            self,
+            "theme_anchor_id",
+            _assert_present_text(self.theme_anchor_id, field_name="theme_anchor_id"),
+        )
+        object.__setattr__(
+            self,
+            "semantic_hash",
+            _assert_present_text(self.semantic_hash, field_name="semantic_hash"),
+        )
+        order = {lane_id: index for index, lane_id in enumerate(ODEU_LANE_ORDER)}
+        normalized_lanes = sorted(self.lane_reconstructions, key=lambda item: order[item.lane_id])
+        if [item.lane_id for item in normalized_lanes] != list(ODEU_LANE_ORDER):
+            raise ValueError("lane_reconstructions must contain exactly one O/E/D/U lane")
+        object.__setattr__(self, "lane_reconstructions", normalized_lanes)
+
+        expected_semantic_hash = compute_history_odeu_packet_semantic_hash(
+            source_id=self.source_id,
+            slice_id=self.slice_id,
+            theme_anchor_id=self.theme_anchor_id,
+            lane_reconstructions=self.lane_reconstructions,
+            semantic_identity_mode=self.semantic_identity_mode,
+        )
+        if self.semantic_hash != expected_semantic_hash:
+            raise ValueError("semantic_hash must match canonical packet identity basis")
+        expected_packet_id = compute_history_odeu_packet_id(semantic_hash=self.semantic_hash)
+        if self.packet_id != expected_packet_id:
+            raise ValueError("packet_id must match canonical packet identity")
+        return self
+
+
 __all__ = [
+    "ADEU_HISTORY_EVIDENCE_REF_SCHEMA",
     "ADEU_HISTORY_LEDGER_ENTRY_SCHEMA",
     "ADEU_HISTORY_LEDGER_SCHEMA",
+    "ADEU_HISTORY_ODEU_LANE_RECONSTRUCTION_SCHEMA",
+    "ADEU_HISTORY_ODEU_RECONSTRUCTION_PACKET_SCHEMA",
     "ADEU_HISTORY_PRECLASSIFICATION_SCHEMA",
     "ADEU_HISTORY_SLICE_SCHEMA",
     "ADEU_HISTORY_SOURCE_ARTIFACT_SCHEMA",
@@ -799,23 +1087,35 @@ __all__ = [
     "SOURCE_DECLARATION_HINT_VOCABULARY",
     "SliceBoundaryTag",
     "STRUCTURAL_MARKER_VOCABULARY",
+    "DOMINANT_ROLE_POSTURE_VOCABULARY",
+    "HistoryEvidenceRef",
     "HistoryLedger",
     "HistoryLedgerEntry",
+    "HistoryODEULaneReconstruction",
+    "HistoryODEUReconstructionPacket",
+    "HISTORY_ODEU_INTERPRETATION_AUTHORITY_POSTURE",
+    "HISTORY_ODEU_PACKET_SEMANTIC_IDENTITY_MODE",
     "HistoryPreclassification",
     "HistorySlice",
     "HistorySourceArtifact",
     "HistoryThemeAnchor",
     "HistoryTextShapeSignals",
+    "LANE_EXPLICATION_STATUS_VOCABULARY",
+    "LANE_PRESENCE_STATUS_VOCABULARY",
+    "ODEU_LANE_ORDER",
     "canonical_json",
     "compute_history_entry_text_hash",
     "compute_history_ledger_entry_id",
     "compute_history_ledger_id",
+    "compute_history_odeu_packet_id",
+    "compute_history_odeu_packet_semantic_hash",
     "compute_history_preclassification_id",
     "compute_history_source_id",
     "compute_history_slice_id",
     "compute_history_theme_anchor_id",
     "compute_history_theme_key",
     "compute_history_theme_label",
+    "build_history_odeu_packet_identity_basis",
     "compute_source_text_hash",
     "sha256_canonical_json",
 ]

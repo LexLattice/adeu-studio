@@ -1,0 +1,194 @@
+{
+  "packets": [
+    {
+      "interpretation_authority_posture": "advisory_overlay_only",
+      "lane_reconstructions": [
+        {
+          "dominant_role_posture": "source_primary",
+          "evidence_refs": [
+            {
+              "entry_id": "history_ledger_entry:7d956ce777606bdf",
+              "excerpt": "- Ontological lane is the downstream packet overlay over the released ledger.",
+              "role": "assistant",
+              "schema": "adeu_history_evidence_ref@1"
+            },
+            {
+              "entry_id": "history_ledger_entry:7d956ce777606bdf",
+              "excerpt": "Packet authority posture bundle.",
+              "role": "assistant",
+              "schema": "adeu_history_evidence_ref@1"
+            }
+          ],
+          "explicitation_status": "locally_explicit",
+          "lane_id": "O",
+          "presence_status": "present",
+          "reconstruction_text": "- Ontological lane is the downstream packet overlay over the released ledger. Packet authority posture bundle.",
+          "schema": "adeu_history_odeu_lane_reconstruction@1"
+        },
+        {
+          "dominant_role_posture": "source_primary",
+          "evidence_refs": [
+            {
+              "entry_id": "history_ledger_entry:7d956ce777606bdf",
+              "excerpt": "- Epistemic lane keeps evidence grounded to released source entries.",
+              "role": "assistant",
+              "schema": "adeu_history_evidence_ref@1"
+            }
+          ],
+          "explicitation_status": "locally_explicit",
+          "lane_id": "E",
+          "presence_status": "present",
+          "reconstruction_text": "- Epistemic lane keeps evidence grounded to released source entries.",
+          "schema": "adeu_history_odeu_lane_reconstruction@1"
+        },
+        {
+          "dominant_role_posture": "source_primary",
+          "evidence_refs": [
+            {
+              "entry_id": "history_ledger_entry:7d956ce777606bdf",
+              "excerpt": "- Deontic lane must stay fail-closed and avoid workspace widening.",
+              "role": "assistant",
+              "schema": "adeu_history_evidence_ref@1"
+            },
+            {
+              "entry_id": "history_ledger_entry:7d956ce777606bdf",
+              "excerpt": "- Epistemic lane keeps evidence grounded to released source entries.",
+              "role": "assistant",
+              "schema": "adeu_history_evidence_ref@1"
+            }
+          ],
+          "explicitation_status": "locally_explicit",
+          "lane_id": "D",
+          "presence_status": "present",
+          "reconstruction_text": "- Deontic lane must stay fail-closed and avoid workspace widening. - Epistemic lane keeps evidence grounded to released source entries.",
+          "schema": "adeu_history_odeu_lane_reconstruction@1"
+        },
+        {
+          "dominant_role_posture": "source_primary",
+          "evidence_refs": [
+            {
+              "entry_id": "history_ledger_entry:7d956ce777606bdf",
+              "excerpt": "- Utility lane helps later bounded follow-up work.",
+              "role": "assistant",
+              "schema": "adeu_history_evidence_ref@1"
+            }
+          ],
+          "explicitation_status": "locally_explicit",
+          "lane_id": "U",
+          "presence_status": "weakly_present",
+          "reconstruction_text": "Contextually reconstructed from: - Utility lane helps later bounded follow-up work.",
+          "schema": "adeu_history_odeu_lane_reconstruction@1"
+        }
+      ],
+      "packet_id": "history_packet:ab16415f0a8f9960",
+      "schema": "adeu_history_odeu_reconstruction_packet@1",
+      "semantic_hash": "ab16415f0a8f99606f2b6492f80f5ee19965d8e5b1f1385881d174feb4aacffc",
+      "semantic_identity_mode": "v54c_history_packet_hash_law",
+      "slice_id": "history_slice:5bd5119c97f5245e",
+      "source_id": "history_source:3add14e185e76aea",
+      "theme_anchor_id": "history_theme_anchor:ab6b69782545a98a"
+    }
+  ],
+  "slices": [
+    {
+      "boundary_tags": [
+        "conversation_start",
+        "conversation_end",
+        "contains_multi_line_message",
+        "contains_bullet_line_present"
+      ],
+      "chronology_end_order_index": 0,
+      "chronology_start_order_index": 0,
+      "entry_ids": [
+        "history_ledger_entry:7d956ce777606bdf"
+      ],
+      "schema": "adeu_history_slice@1",
+      "slice_id": "history_slice:5bd5119c97f5245e",
+      "slice_index": 0,
+      "source_id": "history_source:3add14e185e76aea",
+      "theme_key": "packet::authority::posture::bundle::ontological",
+      "theme_label": "packet authority posture",
+      "theme_terms": [
+        "packet",
+        "authority",
+        "posture",
+        "bundle",
+        "ontological",
+        "lane",
+        "downstream",
+        "overlay",
+        "over",
+        "released",
+        "ledger",
+        "epistemic",
+        "keeps",
+        "evidence",
+        "grounded",
+        "source",
+        "entries",
+        "deontic",
+        "must",
+        "stay",
+        "fail",
+        "closed",
+        "avoid",
+        "workspace",
+        "widening",
+        "utility",
+        "helps",
+        "later",
+        "bounded",
+        "follow",
+        "work"
+      ]
+    }
+  ],
+  "theme_anchors": [
+    {
+      "anchor_entry_ids": [
+        "history_ledger_entry:7d956ce777606bdf"
+      ],
+      "display_label": "packet authority posture",
+      "schema": "adeu_history_theme_anchor@1",
+      "slice_ids": [
+        "history_slice:5bd5119c97f5245e"
+      ],
+      "source_id": "history_source:3add14e185e76aea",
+      "supporting_terms": [
+        "packet",
+        "authority",
+        "posture",
+        "bundle",
+        "ontological",
+        "lane",
+        "downstream",
+        "overlay",
+        "over",
+        "released",
+        "ledger",
+        "epistemic",
+        "keeps",
+        "evidence",
+        "grounded",
+        "source",
+        "entries",
+        "deontic",
+        "must",
+        "stay",
+        "fail",
+        "closed",
+        "avoid",
+        "workspace",
+        "widening",
+        "utility",
+        "helps",
+        "later",
+        "bounded",
+        "follow",
+        "work"
+      ],
+      "theme_anchor_id": "history_theme_anchor:ab6b69782545a98a",
+      "theme_key": "packet::authority::posture::bundle::ontological"
+    }
+  ]
+}

@@ -1,0 +1,86 @@
+{
+  "schema": "parallel_arc_meta_loop_baton@1",
+  "baton_id": "baton_v54c_arc_worker_review_fix_claim_007",
+  "baton_kind": "transition_claim",
+  "emitted_at_utc": "2026-04-07T17:19:01Z",
+  "previous_baton_id": "baton_v54c_meta_orchestrator_implementation_verification_006",
+  "arc_family": "V54",
+  "slice": "V54-C",
+  "phase": "review_fix_completed",
+  "role": "arc_worker",
+  "model": "gpt-5.4",
+  "reasoning_effort": "xhigh",
+  "arc_branch": "arc/v54-r5",
+  "feature_branch": "v146-v54c-history-reconstruction-impl-r5",
+  "base_branch": "arc/v54-r5",
+  "commit_sha": "b950f85",
+  "pr_url": "https://github.com/LexLattice/adeu-studio/pull/367",
+  "review_verdict": "actionable_pr367_review_feedback_addressed_locally",
+  "ci_status": null,
+  "status": "completed",
+  "controlling_refs": [
+    "docs/DRAFT_PARALLEL_ARC_META_LOOP_PROTOCOL_v0.md",
+    "docs/PARALLEL_ARC_META_LOOP_BATON_v0.json",
+    "docs/LOCKED_CONTINUATION_vNEXT_PLUS146.md",
+    "artifacts/meta_loop/V54/V54-C/batons/006_meta_orchestrator_implementation_verification_ratification.json",
+    "https://github.com/LexLattice/adeu-studio/pull/367"
+  ],
+  "required_outputs_claimed_satisfied": [
+    "v54_c_pr367_clustered_review_feedback_fixed",
+    "v54_c_exact_substring_evidence_ref_law_preserved_for_explicit_lane_lines",
+    "v54_c_reconstruction_join_punctuation_normalized",
+    "v54_c_underdetermined_absent_lane_scan_streamed_per_entry",
+    "v54_c_slice_local_review_fix_checks_green",
+    "v54_c_review_fix_baton_present"
+  ],
+  "unsatisfied_requirements": [],
+  "artifacts_produced": [
+    "packages/adeu_history_semantics/src/adeu_history_semantics/models.py",
+    "packages/adeu_history_semantics/src/adeu_history_semantics/reconstruct.py",
+    "packages/adeu_history_semantics/tests/test_history_semantics_v54c.py",
+    "packages/adeu_history_semantics/tests/fixtures/v54c/reference_history_reconstruction.json",
+    "packages/adeu_history_semantics/tests/fixtures/v54c/assistant_local_explicit_reconstruction.json",
+    "packages/adeu_history_semantics/tests/fixtures/v54c/weak_underdetermined_reconstruction.json",
+    "artifacts/meta_loop/V54/V54-C/batons/007_arc_worker_review_fix_claim.json"
+  ],
+  "evidence_refs": [
+    "packages/adeu_history_semantics/src/adeu_history_semantics/models.py",
+    "packages/adeu_history_semantics/src/adeu_history_semantics/reconstruct.py",
+    "packages/adeu_history_semantics/tests/test_history_semantics_v54c.py",
+    "packages/adeu_history_semantics/tests/fixtures/v54c/reference_history_reconstruction.json",
+    "packages/adeu_history_semantics/tests/fixtures/v54c/assistant_local_explicit_reconstruction.json",
+    "packages/adeu_history_semantics/tests/fixtures/v54c/weak_underdetermined_reconstruction.json"
+  ],
+  "checks_run": [
+    ".venv/bin/ruff check packages/adeu_history_semantics/src/adeu_history_semantics/models.py packages/adeu_history_semantics/src/adeu_history_semantics/reconstruct.py packages/adeu_history_semantics/tests/test_history_semantics_v54c.py (pass)",
+    "PYTHONPATH=packages/adeu_history_semantics/src .venv/bin/pytest packages/adeu_history_semantics/tests/test_history_semantics_v54c.py (pass: 13 passed, 21 warnings)"
+  ],
+  "checks_skipped": [
+    "make check skipped per instruction to rerun only slice-relevant local checks",
+    "package-wide adeu_history_semantics test suite skipped because the review-fix slice is bounded to V54-C only",
+    "PR write actions intentionally skipped per instruction"
+  ],
+  "branch_info": {
+    "worktree_path": "/home/rose/work/LexLattice/odeu_v146_v54c_impl_r5",
+    "current_branch": "v146-v54c-history-reconstruction-impl-r5",
+    "head_commit_short": "b950f85",
+    "branch_left_dirty": true
+  },
+  "changed_files": [
+    "packages/adeu_history_semantics/src/adeu_history_semantics/models.py",
+    "packages/adeu_history_semantics/src/adeu_history_semantics/reconstruct.py",
+    "packages/adeu_history_semantics/tests/test_history_semantics_v54c.py",
+    "packages/adeu_history_semantics/tests/fixtures/v54c/reference_history_reconstruction.json",
+    "packages/adeu_history_semantics/tests/fixtures/v54c/assistant_local_explicit_reconstruction.json",
+    "packages/adeu_history_semantics/tests/fixtures/v54c/weak_underdetermined_reconstruction.json",
+    "artifacts/meta_loop/V54/V54-C/batons/007_arc_worker_review_fix_claim.json"
+  ],
+  "blockers": [],
+  "next_allowed_actions": [
+    "handoff_dirty_v54c_review_fix_worktree_for_commit_or_follow_on_review",
+    "resolve_pr367_threads_out_of_band_if_maintainer_wants_remote_writeback",
+    "do_not_open_or_update_pr_from_this_worker_turn"
+  ],
+  "notes": "This worker turn stayed bounded to the four actionable PR #367 V54-C review comments. The fix removes redundant evidence-ref revalidation, keeps reconstruction joins from injecting extra punctuation, scans underdetermined markers per entry instead of materializing one combined string, and preserves original explicit-lane line text so evidence_refs remain exact substrings of released entry_text.",
+  "ratifies_baton_id": null
+}
