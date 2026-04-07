@@ -195,7 +195,7 @@ Per slice, the legal sequence is:
 3. arc worker integrates worthwhile review findings
 4. starter bundle is committed on the family arc branch
 5. arc worker implements on a slice branch
-6. slice PR opens against the family arc branch
+6. slice PR opens as a full PR against the family arc branch
 7. wait 5 minutes, then inspect the explicit GitHub bot-review witnesses for Codex and
    Gemini
 8. if either required bot has not picked up the PR, follow the manual-trigger rule
@@ -297,50 +297,71 @@ against review threads or review comments.
 
 The meta-orchestrator must inspect explicit witnesses for each required bot.
 
+Implementation PR policy for this pilot:
+
+- implementation PRs are opened as full PRs, not drafts
+- a draft PR is a process deviation, not a neutral equivalent state
+- if a PR is accidentally opened as draft, the orchestrator should either:
+  - convert it to ready-for-review immediately; or
+  - explicitly log the manual bot-trigger fallback it had to use because of the draft
+    posture
+
 ### Witness Surfaces
 
 Primary witness surfaces on the PR:
 
-- reactions on the main PR body/comment
 - bot-authored parent review comments
 - bot-authored inline review comments or review-thread descendants
 
-### Per-Bot Pickup Witness
+Fallback witness surface on the PR:
 
-For both `codex` and `gemini`, pickup-in-progress is witnessed by:
-
-- an `eyes` reaction on the main PR body/comment from that bot
-
-This means the bot has picked up the review task and is still working.
+- reactions on the main PR body/comment
 
 ### Terminal Witnesses
 
 For `codex`, the accepted terminal witnessed states are:
 
-- `completed_no_findings`
-  - witnessed by replacement of the prior `eyes` reaction with a `thumbs_up` reaction
-    on the main PR body/comment
 - `completed_with_findings`
-  - witnessed by:
-    - one generic/header parent comment from Codex; and
+  - primary witness:
+    - one parent review comment titled `Codex Review`; and
     - one or more subordinate inline findings or review-thread comments
+- `completed_no_findings`
+  - fallback witness when no parent review comment exists:
+    - replacement of the prior `eyes` reaction with a `thumbs_up` reaction on the main
+      PR body/comment
 
 For `gemini`, the accepted terminal witnessed states are:
 
-- `completed_no_findings`
-  - witnessed by one Gemini-authored parent comment explicitly stating that no issues
-    were found
 - `completed_with_findings`
-  - witnessed by:
-    - one generic/header parent comment from Gemini; and
+  - primary witness:
+    - one Gemini-authored parent review comment titled `Code Review`; and
     - one or more subordinate inline findings or review-thread comments
+- `completed_no_findings`
+  - primary witness:
+    - one Gemini-authored parent review comment titled `Code Review` whose body
+      explicitly states that no feedback is being provided
+
+If the relevant parent review comment exists, it is the primary witness of pickup and
+terminal completion. The orchestrator should then inspect inline findings beneath it
+rather than re-deriving completion from reactions.
+
+### Per-Bot Pickup Witness
+
+Only when the relevant parent review comment is absent, inspect reactions.
+
+For both `codex` and `gemini`, pickup-in-progress is then witnessed by:
+
+- an `eyes` reaction on the main PR body/comment from that bot
+
+This means the bot has picked up the review task and is still working.
 
 ### Non-Pickup Witness
 
 A required bot is `not_picked_up` only when:
 
 - the 5-minute post-PR-open wait has elapsed; and
-- there is still no reaction or comment witness from that bot on the PR
+- there is still no parent review comment witness from that bot; and
+- there is still no reaction witness from that bot on the PR
 
 Absence of review threads alone is not sufficient evidence of `not_picked_up`.
 
