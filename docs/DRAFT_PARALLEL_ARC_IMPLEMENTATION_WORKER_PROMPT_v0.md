@@ -51,22 +51,39 @@ The prompt should define the implementation phase as:
 The worker should first materialize one code-facing semantic-IR artifact that names:
 
 - the exact contract names or schema ids being introduced
-- the planned package/file ownership
+- the exact contract item -> planned package/file ownership mapping
 - the planned schema export and root `spec/` mirror surfaces
-- the planned deterministic fixtures/tests
+- the exact contract item -> planned deterministic fixtures/tests/check mapping
 - the exact non-goals and deferred seams that must remain out of scope
 
 This stage may include pseudocode or function/class skeletons, but it should not
 pretend the live code already exists.
 
+For the implementation phase, this semantic-IR artifact should be treated as the
+authoritative lowering artifact between the starter contract and the final code. Do not
+silently diverge from it during code transposition.
+
 ### Code Transposition
 
 The worker should then transpose that semantic-IR into live code surfaces.
+
+If the worker must change the semantic-IR lowering while coding, the stage-end report
+must explicitly say:
+
+- which contract item changed
+- what code/test/export surface changed
+- why the lowering changed
+- whether the change introduced any extra or newly deferred surface
 
 ### Verification And Attestation
 
 The worker should finally run the bounded targeted checks and emit the final
 implementation baton.
+
+Verification should be judged against both:
+
+- the starter lock and slice mapping
+- the semantic-IR artifact that lowered them into code
 
 ## Finish-Line Law
 
@@ -104,9 +121,15 @@ stage report using:
 The stage report should map:
 
 - contract item
+- planned code surface
+- planned test/check surface
+- deferred or non-goal status
 - implementation status
 - evidence ref
 - remaining gap if any
+
+For stage 2 and stage 3, the report should also say whether the worker changed the
+semantic-IR mapping and whether any extra or unmapped surfaces are present.
 
 This is the durable semantic bridge between the starter contract and the final code
 diff.

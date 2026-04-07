@@ -18,10 +18,10 @@
       ],
       "required_outputs": [
         "one semantic-ir checkpoint note",
-        "one machine-checkable stage report mapping contract items to planned code surfaces"
+        "one machine-checkable stage report mapping contract items to planned code surfaces and planned checks"
       ],
       "success_predicate": [
-        "the worker has materialized a durable semantic bridge from starter contract to intended code surfaces before mutating code"
+        "the worker has materialized a durable semantic bridge from starter contract to intended code/test/export surfaces before mutating code"
       ],
       "required_checks": [],
       "forbidden_shortcuts": [
@@ -45,16 +45,17 @@
         "required schema export surfaces",
         "required root spec mirrors",
         "required deterministic fixtures and tests",
-        "one code-transposition stage report"
+        "one code-transposition stage report with semantic-ir conformance or explicit justified mapping changes"
       ],
       "success_predicate": [
-        "all contract surfaces selected by the slice exist coherently in the assigned package lane"
+        "all contract surfaces selected by the slice exist coherently in the assigned package lane and conform to the semantic-ir lowering unless a justified mapping change is recorded"
       ],
       "required_checks": [],
       "forbidden_shortcuts": [
         "only adding models without export surfaces when contract release is selected",
         "only adding tests without contract surfaces",
-        "claiming completion while required package wiring is missing"
+        "claiming completion while required package wiring is missing",
+        "silently diverging from the semantic-ir bridge"
       ],
       "next_step_if_pass": "verify_and_attest_implementation",
       "escalate_if_fail": "emit exact missing-surface blocker and wait"
@@ -64,15 +65,16 @@
       "step_order": 3,
       "required_inputs": [
         "implemented contract surfaces",
-        "code-transposition stage report"
+        "code-transposition stage report",
+        "semantic-ir stage report"
       ],
       "required_outputs": [
         "targeted check results for the owned package lane",
-        "one verification stage report",
+        "one verification stage report comparing the final code against both the starter contract and semantic-ir bridge",
         "implementation worker baton with changed files, checks run, checks skipped, blockers, and readiness judgment"
       ],
       "success_predicate": [
-        "the bounded targeted checks selected by the finish line pass and the orchestrator can inspect implementation readiness without recovering hidden reasoning"
+        "the bounded targeted checks selected by the finish line pass, the final code conforms to the starter contract and semantic-ir bridge, and the orchestrator can inspect implementation readiness without recovering hidden reasoning"
       ],
       "required_checks": [
         "package-local lint",
@@ -82,6 +84,7 @@
       "forbidden_shortcuts": [
         "running no checks",
         "claiming completion while targeted checks are red",
+        "omitting semantic-ir conformance or extra-surface findings from the verification report",
         "pretending make check was run if it was intentionally skipped"
       ],
       "next_step_if_pass": "wait_for_orchestrator_pr_authorization",

@@ -227,16 +227,21 @@ The purpose of stage 1 is to materialize the code-facing reasoning bridge betwee
 starter lock/mapping contract and the intended code surfaces. The worker should not
 leave that bridge implicit inside model reasoning alone.
 
+For the pilot, this semantic-IR artifact should be treated as the authoritative
+implementation-lowering artifact for the slice. Stage 2 and stage 3 should conform to
+it unless an explicit mapping change is recorded in the stage-end artifacts with a
+reason.
+
 ### Stage 1: Semantic-IR Bridge
 
 The worker should produce one bounded semantic-IR artifact that names:
 
 - the exact slice lock and slice mapping docs being implemented
 - the exact contract names or schema ids being introduced
-- the planned package files/modules to own those contracts
+- the exact contract item -> planned package file/module ownership mapping
 - the required authoritative schema exports and root `spec/` mirrors, if the lock
   selects released contracts
-- the planned deterministic fixtures/tests
+- the exact contract item -> planned deterministic fixture/test/check mapping
 - the explicit non-goals and deferred seams that must remain out of scope
 
 This stage may also include pseudocode, function/class skeletons, or a package/file
@@ -252,6 +257,15 @@ The worker should transpose the semantic-IR bridge into live code by materializi
 - required deterministic fixtures/tests
 - required package wiring
 
+The stage-2 worker should judge its own completion first against the semantic-IR bridge
+and only secondarily against the higher-level starter contract. If the worker changes
+the semantic-IR mapping during transposition, it should record:
+
+- which contract item changed
+- what code/test/export surface changed
+- why the original lowering was changed
+- whether the change leaves any new deferred or extra surface
+
 ### Stage 3: Verification And Attestation
 
 The worker should run the bounded targeted checks selected by the finish line and then
@@ -261,6 +275,17 @@ emit:
 - one final implementation baton
 
 The implementation baton remains the authoritative completion claim for the phase.
+
+The verification stage should compare the final code both to:
+
+- the starter lock and slice mapping contract
+- the stage-1 semantic-IR bridge
+
+The worker should explicitly surface any:
+
+- contract items that were promised in semantic-IR but not implemented
+- implemented surfaces that were not declared in semantic-IR
+- planned checks from semantic-IR that were not actually run
 
 ### Stage-End Reporting
 
@@ -273,11 +298,21 @@ The stage report should map contract items to concrete code/test/export surfaces
 orchestrator can inspect compliance without reconstructing the worker's hidden
 reasoning.
 
+The stage report should also carry enough structure to answer:
+
+- what code surfaces each contract item lowered into
+- what checks each contract item was expected to receive
+- which seams were explicitly deferred or declared as non-goals
+- whether stage 2 changed the semantic-IR lowering and why
+- whether stage 3 found any extra or unmapped surfaces
+
 ### Completion Law
 
 Implementation completion is satisfied only when:
 
 - the semantic-IR bridge exists
+- the semantic-IR bridge is treated as the implementation-lowering reference unless a
+  justified mapping change is recorded
 - the required live package surfaces exist and are coherent
 - the required schema exports exist under the package schema directory
 - the required root `spec/` mirrors exist
@@ -288,6 +323,8 @@ Implementation completion is satisfied only when:
   - checks run
   - checks skipped
   - blockers
+  - semantic-IR conformance statement
+  - semantic-IR mapping changes, if any
   - readiness judgment
 
 Implementation completion is not satisfied by:
@@ -297,6 +334,8 @@ Implementation completion is not satisfied by:
   release
 - only adding helpers without fixtures/tests
 - red targeted checks
+- silently diverging from the semantic-IR bridge during implementation
+- passing targeted checks while leaving promised semantic-IR surfaces unimplemented
 - a narrative status message without the stage-end artifacts
 - a narrative status message without the baton
 

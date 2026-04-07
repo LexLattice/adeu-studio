@@ -1,5 +1,5 @@
 {
-  "schema": "parallel_arc_implementation_stage_report@1",
+  "schema": "parallel_arc_implementation_stage_report@2",
   "description": "Machine-checkable stage-end self-report for the parallel-family implementation cycle.",
   "required_fields": [
     "report_id",
@@ -12,6 +12,11 @@
     "status",
     "controlling_refs",
     "contract_items",
+    "declared_non_goals",
+    "semantic_ir_conformance",
+    "mapping_changes",
+    "extra_surface_refs",
+    "unmapped_surface_refs",
     "artifacts_produced",
     "blockers"
   ],
@@ -58,6 +63,9 @@
         "required_fields": [
           "contract_item",
           "status",
+          "code_surface_refs",
+          "planned_check_refs",
+          "deferred_or_non_goal",
           "evidence_ref"
         ],
         "field_contract": {
@@ -74,6 +82,15 @@
               "blocked"
             ]
           },
+          "code_surface_refs": {
+            "type": "array"
+          },
+          "planned_check_refs": {
+            "type": "array"
+          },
+          "deferred_or_non_goal": {
+            "type": "boolean"
+          },
           "evidence_ref": {
             "type": "string"
           },
@@ -85,6 +102,9 @@
           }
         }
       }
+    },
+    "declared_non_goals": {
+      "type": "array"
     },
     "artifacts_produced": {
       "type": "array"
@@ -103,6 +123,55 @@
     },
     "blockers": {
       "type": "array"
+    },
+    "semantic_ir_conformance": {
+      "type": [
+        "string",
+        "null"
+      ],
+      "allowed": [
+        "not_applicable_yet",
+        "conformant",
+        "changed_with_reason",
+        "non_conformant",
+        null
+      ]
+    },
+    "mapping_changes": {
+      "type": [
+        "array",
+        "null"
+      ],
+      "entry_contract": {
+        "required_fields": [
+          "contract_item",
+          "change_summary",
+          "reason"
+        ],
+        "field_contract": {
+          "contract_item": {
+            "type": "string"
+          },
+          "change_summary": {
+            "type": "string"
+          },
+          "reason": {
+            "type": "string"
+          }
+        }
+      }
+    },
+    "extra_surface_refs": {
+      "type": [
+        "array",
+        "null"
+      ]
+    },
+    "unmapped_surface_refs": {
+      "type": [
+        "array",
+        "null"
+      ]
     },
     "notes": {
       "type": [

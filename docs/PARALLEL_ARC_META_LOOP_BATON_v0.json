@@ -238,6 +238,37 @@
     "checks_skipped": {
       "type": "array"
     },
+    "semantic_ir_conformance": {
+      "type": [
+        "string",
+        "null"
+      ],
+      "allowed_when_present": [
+        "not_applicable",
+        "conformant",
+        "changed_with_reason",
+        "non_conformant"
+      ]
+    },
+    "mapping_changes": {
+      "type": [
+        "array",
+        "null"
+      ],
+      "entry_contract_note": "Use for implementation-phase mapping changes from semantic-IR to final code; each entry should identify contract_item, change_summary, and reason."
+    },
+    "extra_surface_refs": {
+      "type": [
+        "array",
+        "null"
+      ]
+    },
+    "unmapped_surface_refs": {
+      "type": [
+        "array",
+        "null"
+      ]
+    },
     "blockers": {
       "type": "array"
     },

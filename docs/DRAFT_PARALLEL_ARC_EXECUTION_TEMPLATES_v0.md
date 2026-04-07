@@ -64,6 +64,10 @@ Current observed hardening direction:
 - keep self-report at implementation stage boundaries rather than during live coding
 - use the semantic-IR stage as the durable bridge from starter contract to final code
   rather than relying on hidden model reasoning alone
+- treat the semantic-IR stage as the authoritative implementation-lowering artifact
+  unless a later stage records an explicit justified mapping change
+- require stage-2 and stage-3 reports to compare against both the starter contract and
+  the semantic-IR bridge rather than only asserting final code presence
 
 ## Not Frozen Yet
 
