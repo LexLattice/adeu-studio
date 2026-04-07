@@ -1,0 +1,49 @@
+{
+  "run_id": "run-8",
+  "slice": "V53-D",
+  "step": 5,
+  "mode": "strict_starter",
+  "authorized_step": "run_starter_gate",
+  "command": "make arc-start-check ARC=147",
+  "status": "blocker",
+  "completed": false,
+  "result": {
+    "exit_code": 2,
+    "make_target_error": "make: *** [Makefile:65: arc-start-check] Error 1",
+    "lint_summary": {
+      "arc": 147,
+      "phase": "start",
+      "schema": "arc_bundle_lint@1",
+      "failures": [
+        {
+          "code": "CONTRACT_BLOCK_COUNT_INVALID",
+          "details": {
+            "count": 0,
+            "doc_path": "docs/LOCKED_CONTINUATION_vNEXT_PLUS147.md",
+            "target_arc": "vNext+147"
+          }
+        },
+        {
+          "code": "JSON_BLOCK_COUNT_INVALID",
+          "details": {
+            "count": 0,
+            "doc_path": "docs/ASSESSMENT_vNEXT_PLUS147_EDGES.md",
+            "schema": "assessment_artifact_state@1"
+          }
+        },
+        {
+          "code": "JSON_BLOCK_COUNT_INVALID",
+          "details": {
+            "count": 0,
+            "doc_path": "docs/DRAFT_STOP_GATE_DECISION_vNEXT_PLUS147.md",
+            "schema": "decision_artifact_state@1"
+          }
+        }
+      ]
+    }
+  },
+  "blocker": {
+    "failing_command": "make arc-start-check ARC=147",
+    "failing_result": "Process exited with code 2; make reported [Makefile:65: arc-start-check] Error 1 with arc_bundle_lint@1 failures CONTRACT_BLOCK_COUNT_INVALID and JSON_BLOCK_COUNT_INVALID."
+  }
+}

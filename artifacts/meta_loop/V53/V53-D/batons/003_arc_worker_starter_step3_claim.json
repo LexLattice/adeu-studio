@@ -1,0 +1,16 @@
+{
+  "schema": "arc_worker_step_claim@1",
+  "family": "V53",
+  "slice": "V53-D",
+  "step": "fill_required_starter_docs",
+  "status": "completed",
+  "branch": "arc/v53-r8",
+  "produced_artifacts": [
+    "docs/LOCKED_CONTINUATION_vNEXT_PLUS147.md",
+    "docs/DRAFT_STOP_GATE_DECISION_vNEXT_PLUS147.md",
+    "docs/ASSESSMENT_vNEXT_PLUS147_EDGES.md",
+    "docs/DRAFT_ADEU_EDGE_LEDGER_V53D_IMPLEMENTATION_MAPPING_v0.md",
+    "docs/DRAFT_NEXT_ARC_OPTIONS_v36.md",
+    "artifacts/meta_loop/V53/V53-D/batons/003_arc_worker_starter_step3_claim.json"
+  ]
+}

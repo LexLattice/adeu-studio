@@ -334,22 +334,22 @@ Support-layer implementation mapping for this family direction:
   ],
   "closed_current_family_paths": [
     "V53-A",
-    "V53-B",
-    "V53-C"
+    "V53-B"
   ],
   "planned_current_family_paths": [
+    "V53-C",
     "V53-D"
   ],
-  "default_next_arc_candidate_for_this_branch": "V53-D",
-  "default_next_concrete_arc_candidate_for_this_branch": "vNext+147",
-  "selected_current_family_path_for_this_branch": "V53-D",
-  "selected_current_concrete_arc_for_this_branch": "vNext+147",
-  "selected_current_path_branch": "arc/v53-r8",
-  "selected_current_path_phase": "starter_integration_pending",
+  "default_next_arc_candidate_for_this_branch": "V53-C",
+  "default_next_concrete_arc_candidate_for_this_branch": "vNext+145",
+  "selected_current_family_path_for_this_branch": "V53-C",
+  "selected_current_concrete_arc_for_this_branch": "vNext+145",
+  "selected_current_path_branch": "arc/v53-r5",
+  "selected_current_path_phase": "starter_draft",
   "family_architecture_doc": "not_selected_yet",
   "family_decomposition_doc": "docs/DRAFT_ADEU_EDGE_LEDGER_V53_IMPLEMENTATION_MAPPING_v0.md",
   "support_mapping_doc": "docs/DRAFT_ADEU_EDGE_LEDGER_V53_IMPLEMENTATION_MAPPING_v0.md",
-  "starter_slice_support_mapping_doc": "docs/DRAFT_ADEU_EDGE_LEDGER_V53D_IMPLEMENTATION_MAPPING_v0.md",
+  "starter_slice_support_mapping_doc": "docs/DRAFT_ADEU_EDGE_LEDGER_V53C_IMPLEMENTATION_MAPPING_v0.md",
   "planned_family_packages": [
     "packages/adeu_edge_ledger"
   ],
@@ -391,18 +391,17 @@ remains the truth record for that repair.
 Branch-local closeout note:
 
 - `V53-A` is closed on `arc/v53-r3`
-- `V53-B` is closed on `arc/v53-r4`
-- `V53-C` is closed on `arc/v53-r5`
-- branch-local default next path is now `V53-D`
-- branch-local default next concrete arc candidate is now `vNext+147`
-## V53-D Starter Integration Status
+- `V53-B` is now closed on `arc/v53-r4`
+- `V53-C` is now the selected starter-draft target on `arc/v53-r5`
+- branch-local default next path remains `V53-C`
+- branch-local default next concrete arc candidate remains `vNext+145`
+## V53-D Starter Drafting Status (Step-3)
 
-Status: starter integration pending on `arc/v53-r8`.
+Status: in_progress on `arc/v53-r8`.
 
 Starter drafting note:
 
-- `V53-D` starter drafting completed on `arc/v53-r8`, and targeted starter
-  integration is now pending after conceptual review.
+- `V53-D` starter drafting is now in progress on `arc/v53-r8`.
 - Targeted outputs are the four `vNEXT_PLUS147` starter docs plus the
   slice-specific `docs/DRAFT_ADEU_EDGE_LEDGER_V53D_IMPLEMENTATION_MAPPING_v0.md`.
-- This remains pre-commit starter work only and is not a released slice.
+- This remains starter drafting only and is not a released slice.

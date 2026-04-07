@@ -1,0 +1,50 @@
+{
+  "schema": "parallel_arc_meta_loop_baton@1",
+  "baton_id": "v53-d-r8-starter-step1-001",
+  "baton_kind": "transition_claim",
+  "emitted_at_utc": "2026-04-07T19:35:34Z",
+  "previous_baton_id": null,
+  "arc_family": "V53",
+  "slice": "V53-D",
+  "phase": "starter_draft_pending",
+  "role": "arc_worker",
+  "model": "gpt-5.3-codex",
+  "reasoning_effort": "high",
+  "arc_branch": "arc/v53-r8",
+  "feature_branch": null,
+  "base_branch": "arc/v53-r8",
+  "execution_template_ref": "starter_bundle_execution_template_v0",
+  "template_step_id": "collect_controlling_refs_and_bundle_targets",
+  "template_step_order": 1,
+  "claimed_step_complete": true,
+  "continuation_required_before_next_step": true,
+  "commit_sha": null,
+  "pr_url": null,
+  "review_verdict": null,
+  "ci_status": null,
+  "controlling_refs": [
+    "docs/DRAFT_NEXT_ARC_OPTIONS_v36.md",
+    "docs/DRAFT_ADEU_EDGE_LEDGER_V53_IMPLEMENTATION_MAPPING_v0.md",
+    "docs/DRAFT_STOP_GATE_DECISION_vNEXT_PLUS145.md",
+    "docs/ASSESSMENT_vNEXT_PLUS145_EDGES.md"
+  ],
+  "artifacts_produced": [
+    "artifacts/meta_loop/V53/V53-D/starter_bundle/001_step1_controlling_refs.md",
+    "artifacts/meta_loop/V53/V53-D/batons/001_arc_worker_starter_step1_claim.json"
+  ],
+  "evidence_refs": [
+    "docs/DRAFT_NEXT_ARC_OPTIONS_v36.md#gap",
+    "docs/DRAFT_NEXT_ARC_OPTIONS_v36.md#recommended-family",
+    "docs/DRAFT_ADEU_EDGE_LEDGER_V53_IMPLEMENTATION_MAPPING_v0.md#defer-to-later-slice",
+    "docs/DRAFT_STOP_GATE_DECISION_vNEXT_PLUS145.md#recommendation-post-v145",
+    "docs/ASSESSMENT_vNEXT_PLUS145_EDGES.md#current-judgment"
+  ],
+  "checks_run": [],
+  "checks_skipped": [],
+  "blockers": [],
+  "next_allowed_actions": [
+    "wait_for_orchestrator_continuation"
+  ],
+  "notes": "Step 1 completed in strict checkpoint mode. Explicit later starter target set for V53-D is: docs/LOCKED_CONTINUATION_vNEXT_PLUS147.md; docs/DRAFT_STOP_GATE_DECISION_vNEXT_PLUS147.md; docs/ASSESSMENT_vNEXT_PLUS147_EDGES.md; docs/DRAFT_NEXT_ARC_OPTIONS_v36.md (update); docs/DRAFT_ADEU_EDGE_LEDGER_V53D_IMPLEMENTATION_MAPPING_v0.md.",
+  "ratifies_baton_id": null
+}

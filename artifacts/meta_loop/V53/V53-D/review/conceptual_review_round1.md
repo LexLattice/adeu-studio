@@ -1,0 +1,13 @@
+Verdict: `approve_with_targeted_tightening`
+
+The starter bundle is conceptually coherent on the main review axes. The live lock, stop-gate, assessment, and slice mapping stay bounded to one `V53-D` probe-strategy / test-intent seam, preserve fail-closed posture around soft evidence and override behavior, keep `V45-D` integration downstream, and record the `vNEXT_PLUS145` carry-forward mismatch instead of silently repairing it.
+
+## Findings
+
+1. Medium: the planning-to-lock handoff still shows a stale slice/branch selector in the reviewed bundle evidence. In `artifacts/meta_loop/V53/V53-D/starter_bundle/first_draft/first_draft_DRAFT_NEXT_ARC_OPTIONS_v36.md`, the `Recommended starter slice mapping reference` still points to `docs/DRAFT_ADEU_EDGE_LEDGER_V53C_IMPLEMENTATION_MAPPING_v0.md`, and the `Default path selection` line still names `arc/v53-r5`. That conflicts with the actual starter target carried by `artifacts/meta_loop/V53/V53-D/starter_bundle/001_step1_controlling_refs.md`, `docs/LOCKED_CONTINUATION_vNEXT_PLUS147.md`, `docs/DRAFT_STOP_GATE_DECISION_vNEXT_PLUS147.md`, `docs/ASSESSMENT_vNEXT_PLUS147_EDGES.md`, `docs/DRAFT_ADEU_EDGE_LEDGER_V53D_IMPLEMENTATION_MAPPING_v0.md`, and `artifacts/meta_loop/V53/V53-D/batons/006_arc_worker_starter_draft_claim.json`, all of which point to `V53-D`, `vNEXT_PLUS147`, and `arc/v53-r8`. This is narrow, but it is the main remaining authority-layering and machine-check consistency risk.
+2. Low: the live lock keeps its `Read Together With` support pointer at the family-level mapping only. `docs/LOCKED_CONTINUATION_vNEXT_PLUS147.md` cites `docs/DRAFT_ADEU_EDGE_LEDGER_V53_IMPLEMENTATION_MAPPING_v0.md`, while the reviewed bundle also contains the slice-specific support doc `docs/DRAFT_ADEU_EDGE_LEDGER_V53D_IMPLEMENTATION_MAPPING_v0.md` that actually carries the `V53-D` objective, starter outputs, and deferred surfaces. The lock is still bounded and lawful, but the slice-specific support chain is more indirect than it needs to be.
+
+## Exact Targeted Changes
+
+1. In `docs/DRAFT_NEXT_ARC_OPTIONS_v36.md`, align the `V53-D` planning handoff so the starter slice mapping reference names `docs/DRAFT_ADEU_EDGE_LEDGER_V53D_IMPLEMENTATION_MAPPING_v0.md`, and the default branch-local selection text names `arc/v53-r8` rather than the stale `arc/v53-r5`.
+2. In `docs/LOCKED_CONTINUATION_vNEXT_PLUS147.md`, add the slice-level support companion `docs/DRAFT_ADEU_EDGE_LEDGER_V53D_IMPLEMENTATION_MAPPING_v0.md` to `Read Together With`, while preserving the recorded carry-forward `vNEXT_PLUS145` mismatch note as a mismatch note rather than repairing it.

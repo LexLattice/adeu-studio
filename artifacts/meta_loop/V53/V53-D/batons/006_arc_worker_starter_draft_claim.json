@@ -1,0 +1,94 @@
+{
+  "schema": "parallel_arc_meta_loop_baton@1",
+  "baton_id": "baton_v53d_arc_worker_starter_draft_claim_006",
+  "baton_kind": "transition_claim",
+  "emitted_at_utc": "2026-04-07T20:37:16Z",
+  "previous_baton_id": null,
+  "arc_family": "V53",
+  "slice": "V53-D",
+  "phase": "starter_review_pending",
+  "role": "arc_worker",
+  "model": "gpt-5.3-codex",
+  "reasoning_effort": "high",
+  "arc_branch": "arc/v53-r8",
+  "feature_branch": null,
+  "execution_template_ref": "docs/PARALLEL_ARC_STARTER_BUNDLE_EXECUTION_TEMPLATE_v0.json",
+  "template_step_id": "starter_step_6_emit_final_claim",
+  "template_step_order": 6,
+  "continuation_required_before_next_step": true,
+  "claimed_step_complete": true,
+  "base_branch": "arc/v53-r8",
+  "commit_sha": null,
+  "pr_url": null,
+  "review_verdict": null,
+  "ci_status": null,
+  "bot_review_overall_status": null,
+  "bot_review_observations": null,
+  "manual_trigger_actions": null,
+  "controlling_refs": [
+    "docs/DRAFT_NEXT_ARC_OPTIONS_v36.md",
+    "docs/DRAFT_ADEU_EDGE_LEDGER_V53_IMPLEMENTATION_MAPPING_v0.md",
+    "docs/DRAFT_PARALLEL_ARC_META_LOOP_PROTOCOL_v0.md",
+    "docs/DRAFT_PARALLEL_ARC_EXECUTION_TEMPLATES_v0.md",
+    "docs/DRAFT_PARALLEL_ARC_STARTER_WORKER_PROMPT_v0.md",
+    "docs/PARALLEL_ARC_STARTER_BUNDLE_EXECUTION_TEMPLATE_v0.json",
+    "artifacts/meta_loop/V53/V53-D/starter_bundle/001_step1_controlling_refs.md",
+    "artifacts/meta_loop/V53/V53-D/starter_bundle/002_step3_drafting_packet.md"
+  ],
+  "required_outputs_claimed_satisfied": [
+    "v53_d_starter_live_bundle_docs",
+    "v53_d_first_draft_evidence_copies",
+    "v53_d_starter_gate_pass",
+    "v53_d_ready_for_conceptual_review"
+  ],
+  "unsatisfied_requirements": [
+    "v53_d_conceptual_review",
+    "v53_d_integrated_starter_bundle",
+    "v53_d_starter_commit_to_arc_branch"
+  ],
+  "status": "completed",
+  "artifacts_produced": [
+    "docs/DRAFT_NEXT_ARC_OPTIONS_v36.md",
+    "docs/LOCKED_CONTINUATION_vNEXT_PLUS147.md",
+    "docs/DRAFT_STOP_GATE_DECISION_vNEXT_PLUS147.md",
+    "docs/ASSESSMENT_vNEXT_PLUS147_EDGES.md",
+    "docs/DRAFT_ADEU_EDGE_LEDGER_V53D_IMPLEMENTATION_MAPPING_v0.md",
+    "artifacts/meta_loop/V53/V53-D/starter_bundle/first_draft/first_draft_DRAFT_NEXT_ARC_OPTIONS_v36.md",
+    "artifacts/meta_loop/V53/V53-D/starter_bundle/first_draft/first_draft_LOCKED_CONTINUATION_vNEXT_PLUS147.md",
+    "artifacts/meta_loop/V53/V53-D/starter_bundle/first_draft/first_draft_DRAFT_STOP_GATE_DECISION_vNEXT_PLUS147.md",
+    "artifacts/meta_loop/V53/V53-D/starter_bundle/first_draft/first_draft_ASSESSMENT_vNEXT_PLUS147_EDGES.md",
+    "artifacts/meta_loop/V53/V53-D/starter_bundle/first_draft/first_draft_DRAFT_ADEU_EDGE_LEDGER_V53D_IMPLEMENTATION_MAPPING_v0.md",
+    "artifacts/meta_loop/V53/V53-D/batons/006_arc_worker_starter_draft_claim.json"
+  ],
+  "evidence_refs": [
+    "artifacts/meta_loop/V53/V53-D/batons/001_arc_worker_starter_step1_claim.json",
+    "artifacts/meta_loop/V53/V53-D/batons/002_arc_worker_starter_step2_claim.json",
+    "artifacts/meta_loop/V53/V53-D/batons/003_arc_worker_starter_step3_claim.json",
+    "artifacts/meta_loop/V53/V53-D/batons/004_arc_worker_starter_step4_claim.json",
+    "artifacts/meta_loop/V53/V53-D/batons/005_arc_worker_starter_step5_claim.json",
+    "docs/DRAFT_NEXT_ARC_OPTIONS_v36.md",
+    "docs/LOCKED_CONTINUATION_vNEXT_PLUS147.md",
+    "docs/DRAFT_STOP_GATE_DECISION_vNEXT_PLUS147.md",
+    "docs/ASSESSMENT_vNEXT_PLUS147_EDGES.md",
+    "docs/DRAFT_ADEU_EDGE_LEDGER_V53D_IMPLEMENTATION_MAPPING_v0.md",
+    "artifacts/meta_loop/V53/V53-D/starter_bundle/first_draft/first_draft_DRAFT_NEXT_ARC_OPTIONS_v36.md",
+    "artifacts/meta_loop/V53/V53-D/starter_bundle/first_draft/first_draft_LOCKED_CONTINUATION_vNEXT_PLUS147.md",
+    "artifacts/meta_loop/V53/V53-D/starter_bundle/first_draft/first_draft_DRAFT_STOP_GATE_DECISION_vNEXT_PLUS147.md",
+    "artifacts/meta_loop/V53/V53-D/starter_bundle/first_draft/first_draft_ASSESSMENT_vNEXT_PLUS147_EDGES.md",
+    "artifacts/meta_loop/V53/V53-D/starter_bundle/first_draft/first_draft_DRAFT_ADEU_EDGE_LEDGER_V53D_IMPLEMENTATION_MAPPING_v0.md"
+  ],
+  "checks_run": [
+    "make arc-start-check ARC=147 (pass)"
+  ],
+  "checks_skipped": [
+    "make check skipped because the diff is docs-only starter-bundle work"
+  ],
+  "blockers": [],
+  "next_allowed_actions": [
+    "spawn_v53_d_conceptual_reviewer_for_starter_bundle",
+    "perform_v53_d_conceptual_review_over_the_starter_docs_and_first_draft_evidence",
+    "return_review_feedback_for_targeted_starter_integration"
+  ],
+  "notes": "The V53-D starter bundle now exists as a bounded live draft with preserved first-draft evidence and a passing arc start gate. Carry-forward mismatch posture was preserved rather than silently repaired, and the gate only passed after the lock contract block was made explicit with the required target_arc and target_path fields. Run 8 is an explicitly logged model-comparison run under docs/DRAFT_PARALLEL_ARC_META_LOOP_PROTOCOL_v0.md, so the gpt-5.3-codex/high worker metadata is an intentional variance test rather than an implicit governance drift.",
+  "ratifies_baton_id": null
+}
