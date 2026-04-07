@@ -31,10 +31,10 @@ def _load_json(name: str) -> object:
     return json.loads((FIXTURE_ROOT / name).read_text(encoding="utf-8"))
 
 
-def _build_projection(source_name: str) -> dict[str, object]:
+def _build_projection_from_text(source_text: str, *, source_label: str) -> dict[str, object]:
     source = build_history_source_artifact(
-        source_text=_load_text(source_name),
-        source_label=source_name,
+        source_text=source_text,
+        source_label=source_label,
         corpus_wave_posture="wave_0_bootstrap_candidate",
         source_notes=["v54c_fixture"],
     )
@@ -54,6 +54,10 @@ def _build_projection(source_name: str) -> dict[str, object]:
         "theme_anchors": theme_anchors,
         "packets": packets,
     }
+
+
+def _build_projection(source_name: str) -> dict[str, object]:
+    return _build_projection_from_text(_load_text(source_name), source_label=source_name)
 
 
 def _projection_payload(projection: dict[str, object]) -> dict[str, object]:
@@ -178,6 +182,35 @@ def test_evidence_ref_grounding_must_match_released_ledger_text() -> None:
             theme_anchors=projection["theme_anchors"],
             packets=[packet, *projection["packets"][1:]],
         )
+
+
+def test_explicit_lane_evidence_refs_preserve_original_entry_substrings() -> None:
+    projection = _build_projection_from_text(
+        "\n".join(
+            [
+                "Assistant: o - Ontological lane keeps packet history bounded.",
+                "e: Evidence lane keeps source provenance explicit.",
+                "D - Deontic lane must preserve exact excerpts.",
+                "u - Utility lane helps later bounded work.",
+            ]
+        ),
+        source_label="explicit_lane_original_excerpt_history_lf.txt",
+    )
+    packet = projection["packets"][0]
+    entry_text = projection["ledger"].entries[0].entry_text
+    lanes = {lane.lane_id: lane for lane in packet.lane_reconstructions}
+
+    assert (
+        lanes["O"].evidence_refs[0].excerpt
+        == "o - Ontological lane keeps packet history bounded."
+    )
+    assert (
+        lanes["E"].evidence_refs[0].excerpt
+        == "e: Evidence lane keeps source provenance explicit."
+    )
+    assert lanes["D"].evidence_refs[0].excerpt == "D - Deontic lane must preserve exact excerpts."
+    assert lanes["U"].evidence_refs[0].excerpt == "u - Utility lane helps later bounded work."
+    assert all(lane.evidence_refs[0].excerpt in entry_text for lane in lanes.values())
 
 
 def test_missing_or_duplicate_lane_sets_are_rejected() -> None:

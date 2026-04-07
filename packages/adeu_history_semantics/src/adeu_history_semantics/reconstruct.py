@@ -34,6 +34,7 @@ _U_EXPLICIT_RE = re.compile(
     r"\b(goal|purpose|bootstrap|ready for|help|used for|so that|enable|target|future)\b",
     re.IGNORECASE,
 )
+_UNDERDETERMINED_MARKERS = ("odeu", "four lanes", "all four", "explicit lanes", "unclear", "?")
 
 _LANE_KEYWORDS: dict[str, tuple[str, ...]] = {
     "O": (
@@ -357,7 +358,7 @@ def _candidate_spans(text: str) -> list[str]:
             continue
         explicit = _LANE_EXPLICIT_LINE_RE.match(line)
         if explicit is not None:
-            spans.append(f"{explicit.group(1).upper()}: {explicit.group(2).strip()}")
+            spans.append(line)
             continue
         sentences = [piece.strip() for piece in _SENTENCE_SPLIT_RE.split(line) if piece.strip()]
         spans.extend(sentences or [line])
@@ -440,7 +441,7 @@ def _reconstruction_text(
     candidates: list[_LaneCandidate],
 ) -> str:
     excerpts = [_normalize_reconstruction_excerpt(item.excerpt) for item in candidates]
-    joined = "; ".join(excerpts)
+    joined = " ".join(excerpts)
     if presence_status == "weakly_present" or explicitation_status == "contextually_reconstructed":
         return f"Contextually reconstructed from: {joined}"
     return joined
@@ -454,12 +455,10 @@ def _normalize_reconstruction_excerpt(text: str) -> str:
 
 
 def _absent_lane_posture(*, entries: list[HistoryLedgerEntry]) -> str:
-    combined = " ".join(entry.entry_text for entry in entries).casefold()
-    if any(
-        marker in combined
-        for marker in ("odeu", "four lanes", "all four", "explicit lanes", "unclear", "?")
-    ):
-        return "underdetermined"
+    for entry in entries:
+        lowered = entry.entry_text.casefold()
+        if any(marker in lowered for marker in _UNDERDETERMINED_MARKERS):
+            return "underdetermined"
     return "not_salient"
 
 

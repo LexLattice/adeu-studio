@@ -22,7 +22,7 @@
           "explicitation_status": "locally_explicit",
           "lane_id": "O",
           "presence_status": "present",
-          "reconstruction_text": "- Ontological lane is the downstream packet overlay over the released ledger.; Packet authority posture bundle.",
+          "reconstruction_text": "- Ontological lane is the downstream packet overlay over the released ledger. Packet authority posture bundle.",
           "schema": "adeu_history_odeu_lane_reconstruction@1"
         },
         {
@@ -60,7 +60,7 @@
           "explicitation_status": "locally_explicit",
           "lane_id": "D",
           "presence_status": "present",
-          "reconstruction_text": "- Deontic lane must stay fail-closed and avoid workspace widening.; - Epistemic lane keeps evidence grounded to released source entries.",
+          "reconstruction_text": "- Deontic lane must stay fail-closed and avoid workspace widening. - Epistemic lane keeps evidence grounded to released source entries.",
           "schema": "adeu_history_odeu_lane_reconstruction@1"
         },
         {
@@ -80,9 +80,9 @@
           "schema": "adeu_history_odeu_lane_reconstruction@1"
         }
       ],
-      "packet_id": "history_packet:dc62645f6939b191",
+      "packet_id": "history_packet:ab16415f0a8f9960",
       "schema": "adeu_history_odeu_reconstruction_packet@1",
-      "semantic_hash": "dc62645f6939b1914d3663b898a565d15519c2a9ee72f072fd40e297c1fbbbe5",
+      "semantic_hash": "ab16415f0a8f99606f2b6492f80f5ee19965d8e5b1f1385881d174feb4aacffc",
       "semantic_identity_mode": "v54c_history_packet_hash_law",
       "slice_id": "history_slice:5bd5119c97f5245e",
       "source_id": "history_source:3add14e185e76aea",

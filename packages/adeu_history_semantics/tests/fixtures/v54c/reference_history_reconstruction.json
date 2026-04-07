@@ -22,7 +22,7 @@
           "explicitation_status": "dialogically_explicitated",
           "lane_id": "O",
           "presence_status": "present",
-          "reconstruction_text": "- Ontological lane is the downstream packet overlay over the released ledger and theme anchor.; History semantics packet ledger theme should stay bounded and authoritative.",
+          "reconstruction_text": "- Ontological lane is the downstream packet overlay over the released ledger and theme anchor. History semantics packet ledger theme should stay bounded and authoritative.",
           "schema": "adeu_history_odeu_lane_reconstruction@1"
         },
         {
@@ -44,7 +44,7 @@
           "explicitation_status": "dialogically_explicitated",
           "lane_id": "E",
           "presence_status": "present",
-          "reconstruction_text": "- Epistemic lane keeps evidence grounded to released source provenance and concrete entries.; The source evidence remains explicit for the released slice and theme anchor.",
+          "reconstruction_text": "- Epistemic lane keeps evidence grounded to released source provenance and concrete entries. The source evidence remains explicit for the released slice and theme anchor.",
           "schema": "adeu_history_odeu_lane_reconstruction@1"
         },
         {
@@ -66,7 +66,7 @@
           "explicitation_status": "dialogically_explicitated",
           "lane_id": "D",
           "presence_status": "present",
-          "reconstruction_text": "- Deontic lane must stay fail-closed and must not widen into workspace synthesis.; History semantics packet ledger theme should stay bounded and authoritative.",
+          "reconstruction_text": "- Deontic lane must stay fail-closed and must not widen into workspace synthesis. History semantics packet ledger theme should stay bounded and authoritative.",
           "schema": "adeu_history_odeu_lane_reconstruction@1"
         },
         {
@@ -86,9 +86,9 @@
           "schema": "adeu_history_odeu_lane_reconstruction@1"
         }
       ],
-      "packet_id": "history_packet:bb139c04fbcd405a",
+      "packet_id": "history_packet:eaa06e31294219c5",
       "schema": "adeu_history_odeu_reconstruction_packet@1",
-      "semantic_hash": "bb139c04fbcd405aa72643df54ac590514d7699290a4062085d81c1cb54f7259",
+      "semantic_hash": "eaa06e31294219c5758362211c4e220b33ebf5de49fcadc0720b18376fbd7e5a",
       "semantic_identity_mode": "v54c_history_packet_hash_law",
       "slice_id": "history_slice:41318eaafc80b675",
       "source_id": "history_source:af4a76c222d8c819",
@@ -116,7 +116,7 @@
           "explicitation_status": "dialogically_explicitated",
           "lane_id": "O",
           "presence_status": "present",
-          "reconstruction_text": "- Ontological lane is the downstream packet overlay over the released ledger and theme anchor.; History semantics packet ledger theme follow-up.",
+          "reconstruction_text": "- Ontological lane is the downstream packet overlay over the released ledger and theme anchor. History semantics packet ledger theme follow-up.",
           "schema": "adeu_history_odeu_lane_reconstruction@1"
         },
         {
@@ -138,7 +138,7 @@
           "explicitation_status": "dialogically_explicitated",
           "lane_id": "E",
           "presence_status": "present",
-          "reconstruction_text": "- Epistemic lane keeps evidence grounded to released source provenance and concrete entries.; The source evidence remains explicit for the released slice and theme anchor.",
+          "reconstruction_text": "- Epistemic lane keeps evidence grounded to released source provenance and concrete entries. The source evidence remains explicit for the released slice and theme anchor.",
           "schema": "adeu_history_odeu_lane_reconstruction@1"
         },
         {
@@ -160,7 +160,7 @@
           "explicitation_status": "dialogically_explicitated",
           "lane_id": "D",
           "presence_status": "present",
-          "reconstruction_text": "- Deontic lane must stay fail-closed and must not widen into workspace synthesis.; History semantics packet ledger theme should stay bounded and authoritative.",
+          "reconstruction_text": "- Deontic lane must stay fail-closed and must not widen into workspace synthesis. History semantics packet ledger theme should stay bounded and authoritative.",
           "schema": "adeu_history_odeu_lane_reconstruction@1"
         },
         {
@@ -180,9 +180,9 @@
           "schema": "adeu_history_odeu_lane_reconstruction@1"
         }
       ],
-      "packet_id": "history_packet:f0f61ae63b95771e",
+      "packet_id": "history_packet:b73d7bc6b37cf827",
       "schema": "adeu_history_odeu_reconstruction_packet@1",
-      "semantic_hash": "f0f61ae63b95771ee9906f396b2be0a4249e9dd60a9579bd4098098ea5794842",
+      "semantic_hash": "b73d7bc6b37cf827e9b5f40449b9719b867c1e4a3b8591215441fde7135657d9",
       "semantic_identity_mode": "v54c_history_packet_hash_law",
       "slice_id": "history_slice:f0f4e56de7a95ec6",
       "source_id": "history_source:af4a76c222d8c819",

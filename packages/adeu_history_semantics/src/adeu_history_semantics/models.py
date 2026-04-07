@@ -2,7 +2,7 @@ from __future__ import annotations
 
 import re
 from datetime import datetime
-from typing import Literal
+from typing import Literal, TypeVar
 
 from pydantic import BaseModel, ConfigDict, Field, model_validator
 from urm_runtime.hashing import canonical_json, sha256_canonical_json
@@ -138,6 +138,7 @@ HistoryODEUInterpretationAuthorityPosture = Literal["advisory_overlay_only"]
 HistoryODEUPacketSemanticIdentityMode = Literal["v54c_history_packet_hash_law"]
 
 _THEME_TERM_RE = re.compile(r"^[a-z0-9]+$")
+ModelT = TypeVar("ModelT", bound=BaseModel)
 
 
 def _assert_present_text(value: str, *, field_name: str) -> str:
@@ -188,9 +189,9 @@ def _validated_theme_terms(values: list[str], *, field_name: str) -> list[str]:
     return ordered
 
 
-def _ordered_unique_models(values: list[BaseModel], *, field_name: str) -> list[BaseModel]:
+def _ordered_unique_models(values: list[ModelT], *, field_name: str) -> list[ModelT]:
     seen: set[str] = set()
-    ordered: list[BaseModel] = []
+    ordered: list[ModelT] = []
     for value in values:
         payload = canonical_json(value.model_dump(by_alias=True))
         if payload in seen:
@@ -953,13 +954,10 @@ class HistoryODEULaneReconstruction(BaseModel):
         object.__setattr__(
             self,
             "evidence_refs",
-            [
-                HistoryEvidenceRef.model_validate(item.model_dump(by_alias=True))
-                for item in _ordered_unique_models(
-                    list(self.evidence_refs),
-                    field_name="evidence_refs",
-                )
-            ],
+            _ordered_unique_models(
+                list(self.evidence_refs),
+                field_name="evidence_refs",
+            ),
         )
         if self.reconstruction_text is not None:
             object.__setattr__(

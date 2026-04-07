@@ -22,7 +22,7 @@
           "explicitation_status": "contextually_reconstructed",
           "lane_id": "O",
           "presence_status": "weakly_present",
-          "reconstruction_text": "Contextually reconstructed from: Anchor chronology packet theme source remains unclear.; Anchor chronology packet theme source cites provenance, but meaning stays unclear.",
+          "reconstruction_text": "Contextually reconstructed from: Anchor chronology packet theme source remains unclear. Anchor chronology packet theme source cites provenance, but meaning stays unclear.",
           "schema": "adeu_history_odeu_lane_reconstruction@1"
         },
         {
@@ -44,7 +44,7 @@
           "explicitation_status": "dialogically_explicitated",
           "lane_id": "E",
           "presence_status": "weakly_present",
-          "reconstruction_text": "Contextually reconstructed from: Anchor chronology packet theme source cites provenance, but meaning stays unclear.; Anchor chronology packet theme source remains unclear.",
+          "reconstruction_text": "Contextually reconstructed from: Anchor chronology packet theme source cites provenance, but meaning stays unclear. Anchor chronology packet theme source remains unclear.",
           "schema": "adeu_history_odeu_lane_reconstruction@1"
         },
         {
@@ -66,9 +66,9 @@
           "schema": "adeu_history_odeu_lane_reconstruction@1"
         }
       ],
-      "packet_id": "history_packet:d9059d80c8cab1ff",
+      "packet_id": "history_packet:44105d62f4931082",
       "schema": "adeu_history_odeu_reconstruction_packet@1",
-      "semantic_hash": "d9059d80c8cab1ffc288c7bd1206016a27565001df9aa2ec9eb628876cb6461e",
+      "semantic_hash": "44105d62f49310829fc6b41121adeba49de6f236207cc75a553f26386ea2ff5a",
       "semantic_identity_mode": "v54c_history_packet_hash_law",
       "slice_id": "history_slice:d7bf114ce8674183",
       "source_id": "history_source:e19fe09bf191f511",
@@ -96,7 +96,7 @@
           "explicitation_status": "dialogically_explicitated",
           "lane_id": "O",
           "presence_status": "weakly_present",
-          "reconstruction_text": "Contextually reconstructed from: Anchor chronology packet theme source cites provenance, but meaning stays unclear.; Anchor chronology packet theme source remains unclear.",
+          "reconstruction_text": "Contextually reconstructed from: Anchor chronology packet theme source cites provenance, but meaning stays unclear. Anchor chronology packet theme source remains unclear.",
           "schema": "adeu_history_odeu_lane_reconstruction@1"
         },
         {
@@ -118,7 +118,7 @@
           "explicitation_status": "dialogically_explicitated",
           "lane_id": "E",
           "presence_status": "weakly_present",
-          "reconstruction_text": "Contextually reconstructed from: Anchor chronology packet theme source cites provenance, but meaning stays unclear.; Anchor chronology packet theme source remains unclear.",
+          "reconstruction_text": "Contextually reconstructed from: Anchor chronology packet theme source cites provenance, but meaning stays unclear. Anchor chronology packet theme source remains unclear.",
           "schema": "adeu_history_odeu_lane_reconstruction@1"
         },
         {
@@ -140,9 +140,9 @@
           "schema": "adeu_history_odeu_lane_reconstruction@1"
         }
       ],
-      "packet_id": "history_packet:39e91f6a215ef766",
+      "packet_id": "history_packet:51f1902b6406eaf8",
       "schema": "adeu_history_odeu_reconstruction_packet@1",
-      "semantic_hash": "39e91f6a215ef766af83ec5ce4ec9562d6f67a8b0495f32825a459b81f84b398",
+      "semantic_hash": "51f1902b6406eaf89e462f04774d907307b4855935ae088a4a5d56935ea64e20",
       "semantic_identity_mode": "v54c_history_packet_hash_law",
       "slice_id": "history_slice:e6c22ce503c017be",
       "source_id": "history_source:e19fe09bf191f511",
