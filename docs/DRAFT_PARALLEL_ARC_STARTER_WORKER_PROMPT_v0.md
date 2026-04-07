@@ -45,6 +45,9 @@ too much `read more before writing` inertia.
 For starter drafting steps that are supposed to create files:
 
 - the first next write action should be `apply_patch`
+- the orchestrator may pre-materialize the exact target files as minimal stubs, in
+  which case the worker should fill those stubs rather than spending the step creating
+  filenames or searching for examples
 - the worker should not perform exploratory `rg`, `find`, `git`, or broad `sed`/`cat`
   calls after the step is authorized unless the prompt explicitly names one bounded
   read as allowed
