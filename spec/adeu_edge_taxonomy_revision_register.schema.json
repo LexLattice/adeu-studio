@@ -1,0 +1,141 @@
+{
+  "$defs": {
+    "EdgeTaxonomyRevisionEntry": {
+      "additionalProperties": false,
+      "properties": {
+        "candidate_edge_class_refs": {
+          "items": {
+            "type": "string"
+          },
+          "title": "Candidate Edge Class Refs",
+          "type": "array"
+        },
+        "lineage_parent_entry_refs": {
+          "items": {
+            "type": "string"
+          },
+          "title": "Lineage Parent Entry Refs",
+          "type": "array"
+        },
+        "proposed_lifecycle_posture": {
+          "enum": [
+            "stabilized",
+            "split",
+            "merged",
+            "deprecated"
+          ],
+          "title": "Proposed Lifecycle Posture",
+          "type": "string"
+        },
+        "rationale": {
+          "title": "Rationale",
+          "type": "string"
+        },
+        "revision_decision": {
+          "enum": [
+            "stabilize_existing_class",
+            "split_existing_class",
+            "merge_existing_classes",
+            "deprecate_existing_class"
+          ],
+          "title": "Revision Decision",
+          "type": "string"
+        },
+        "revision_entry_ref": {
+          "title": "Revision Entry Ref",
+          "type": "string"
+        },
+        "subject_edge_class_refs": {
+          "items": {
+            "type": "string"
+          },
+          "minItems": 1,
+          "title": "Subject Edge Class Refs",
+          "type": "array"
+        },
+        "supporting_adjudication_ledger_ref": {
+          "title": "Supporting Adjudication Ledger Ref",
+          "type": "string"
+        },
+        "supporting_adjudication_row_refs": {
+          "items": {
+            "type": "string"
+          },
+          "minItems": 1,
+          "title": "Supporting Adjudication Row Refs",
+          "type": "array"
+        }
+      },
+      "required": [
+        "revision_entry_ref",
+        "revision_decision",
+        "subject_edge_class_refs",
+        "supporting_adjudication_ledger_ref",
+        "supporting_adjudication_row_refs",
+        "proposed_lifecycle_posture",
+        "rationale"
+      ],
+      "title": "EdgeTaxonomyRevisionEntry",
+      "type": "object"
+    }
+  },
+  "additionalProperties": false,
+  "properties": {
+    "bound_adjudication_ledger_ref": {
+      "title": "Bound Adjudication Ledger Ref",
+      "type": "string"
+    },
+    "bound_edge_class_catalog_ref": {
+      "title": "Bound Edge Class Catalog Ref",
+      "type": "string"
+    },
+    "bound_probe_template_catalog_ref": {
+      "title": "Bound Probe Template Catalog Ref",
+      "type": "string"
+    },
+    "prior_revision_register_ref": {
+      "anyOf": [
+        {
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Prior Revision Register Ref"
+    },
+    "register_hash": {
+      "title": "Register Hash",
+      "type": "string"
+    },
+    "register_id": {
+      "title": "Register Id",
+      "type": "string"
+    },
+    "revision_entries": {
+      "items": {
+        "$ref": "#/$defs/EdgeTaxonomyRevisionEntry"
+      },
+      "minItems": 1,
+      "title": "Revision Entries",
+      "type": "array"
+    },
+    "schema": {
+      "const": "adeu_edge_taxonomy_revision_register@1",
+      "default": "adeu_edge_taxonomy_revision_register@1",
+      "title": "Schema",
+      "type": "string"
+    }
+  },
+  "required": [
+    "register_id",
+    "bound_edge_class_catalog_ref",
+    "bound_probe_template_catalog_ref",
+    "bound_adjudication_ledger_ref",
+    "revision_entries",
+    "register_hash"
+  ],
+  "title": "EdgeTaxonomyRevisionRegister",
+  "type": "object"
+}

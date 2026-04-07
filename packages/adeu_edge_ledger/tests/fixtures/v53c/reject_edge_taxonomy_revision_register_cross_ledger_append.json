@@ -1,0 +1,88 @@
+{
+  "bound_adjudication_ledger_ref": "symbol_edge_adjudication_ledger:deadbeefdeadbeef",
+  "bound_edge_class_catalog_ref": "edge_class_catalog:239e31a78de0460c",
+  "bound_probe_template_catalog_ref": "edge_probe_template_catalog:39fda60ecb6bfc82",
+  "prior_revision_register_ref": "edge_taxonomy_revision_register:55ae86f859043126",
+  "register_hash": "75634531ae7bbab6eb7cf82283caf9375d1377b7913f2f9a6ad71b9b7d04bff3",
+  "register_id": "edge_taxonomy_revision_register:5510b4466fbbe938",
+  "revision_entries": [
+    {
+      "candidate_edge_class_refs": [],
+      "lineage_parent_entry_refs": [],
+      "proposed_lifecycle_posture": "stabilized",
+      "rationale": "The released witness-backed serialization row already supports keeping this class stable.",
+      "revision_decision": "stabilize_existing_class",
+      "revision_entry_ref": "revision_entry:stabilize_round_trip_serialization",
+      "subject_edge_class_refs": [
+        "edge_class:canonicalization_representation/serialization_identity/round_trip_serialization"
+      ],
+      "supporting_adjudication_ledger_ref": "symbol_edge_adjudication_ledger:deadbeefdeadbeef",
+      "supporting_adjudication_row_refs": [
+        "edge_class:canonicalization_representation/serialization_identity/round_trip_serialization"
+      ]
+    },
+    {
+      "candidate_edge_class_refs": [
+        "edge_class:contract_invariant/cross_field_binding/field_consistency_strict",
+        "edge_class:contract_invariant/cross_field_binding/field_consistency_relaxed"
+      ],
+      "lineage_parent_entry_refs": [
+        "revision_entry:stabilize_round_trip_serialization"
+      ],
+      "proposed_lifecycle_posture": "split",
+      "rationale": "The released checked-no-witness row suggests one existing cross-field class should split into two explicit successor candidates.",
+      "revision_decision": "split_existing_class",
+      "revision_entry_ref": "revision_entry:split_cross_field_consistency",
+      "subject_edge_class_refs": [
+        "edge_class:contract_invariant/cross_field_binding/cross_field_consistency"
+      ],
+      "supporting_adjudication_ledger_ref": "symbol_edge_adjudication_ledger:deadbeefdeadbeef",
+      "supporting_adjudication_row_refs": [
+        "edge_class:contract_invariant/cross_field_binding/cross_field_consistency",
+        "edge_class:canonicalization_representation/serialization_identity/round_trip_serialization"
+      ]
+    },
+    {
+      "candidate_edge_class_refs": [
+        "edge_class:canonicalization_representation/serialization_identity/canonical_order_normalization_contract"
+      ],
+      "lineage_parent_entry_refs": [
+        "revision_entry:stabilize_round_trip_serialization",
+        "revision_entry:split_cross_field_consistency"
+      ],
+      "proposed_lifecycle_posture": "merged",
+      "rationale": "The released ledger supports carrying a merged evidence record for normalization and ordering pressure without mutating the released catalog.",
+      "revision_decision": "merge_existing_classes",
+      "revision_entry_ref": "revision_entry:merge_normalization_and_ordering",
+      "subject_edge_class_refs": [
+        "edge_class:canonicalization_representation/normalization_canonical_form/path_or_text_normalization",
+        "edge_class:contract_invariant/vocabulary_order_identity/ordered_unique_sequence_invariant"
+      ],
+      "supporting_adjudication_ledger_ref": "symbol_edge_adjudication_ledger:deadbeefdeadbeef",
+      "supporting_adjudication_row_refs": [
+        "edge_class:canonicalization_representation/serialization_identity/round_trip_serialization",
+        "edge_class:contract_invariant/cross_field_binding/cross_field_consistency",
+        "edge_class:contract_invariant/vocabulary_order_identity/ordered_unique_sequence_invariant"
+      ]
+    },
+    {
+      "candidate_edge_class_refs": [],
+      "lineage_parent_entry_refs": [
+        "revision_entry:merge_normalization_and_ordering"
+      ],
+      "proposed_lifecycle_posture": "deprecated",
+      "rationale": "The released ledger supports recording deprecation pressure while keeping the result as evidence-only V53-C history.",
+      "revision_decision": "deprecate_existing_class",
+      "revision_entry_ref": "revision_entry:deprecate_stable_ordering_preservation",
+      "subject_edge_class_refs": [
+        "edge_class:boundary_order/ordering_permutation/stable_ordering_preservation"
+      ],
+      "supporting_adjudication_ledger_ref": "symbol_edge_adjudication_ledger:deadbeefdeadbeef",
+      "supporting_adjudication_row_refs": [
+        "edge_class:contract_invariant/cross_field_binding/cross_field_consistency",
+        "edge_class:boundary_order/ordering_permutation/stable_ordering_preservation"
+      ]
+    }
+  ],
+  "schema": "adeu_edge_taxonomy_revision_register@1"
+}

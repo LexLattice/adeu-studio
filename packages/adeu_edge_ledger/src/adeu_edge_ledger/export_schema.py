@@ -10,6 +10,7 @@ from adeu_ir.repo import repo_root
 from .models import (
     EdgeClassCatalog,
     EdgeProbeTemplateCatalog,
+    EdgeTaxonomyRevisionRegister,
     SymbolEdgeAdjudicationLedger,
     SymbolEdgeApplicabilityFrame,
 )
@@ -81,6 +82,15 @@ def main() -> None:
             / "schema"
             / "adeu_symbol_edge_adjudication_ledger.v1.json",
             root / "spec" / "adeu_symbol_edge_adjudication_ledger.schema.json",
+        ),
+        (
+            EdgeTaxonomyRevisionRegister.model_json_schema(by_alias=True),
+            root
+            / "packages"
+            / "adeu_edge_ledger"
+            / "schema"
+            / "adeu_edge_taxonomy_revision_register.v1.json",
+            root / "spec" / "adeu_edge_taxonomy_revision_register.schema.json",
         ),
     )
     for schema, authoritative_path, mirror_path in mappings:
