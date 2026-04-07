@@ -5,8 +5,11 @@ import re
 from pathlib import Path
 
 from adeu_history_semantics import (
+    ADEU_HISTORY_EVIDENCE_REF_SCHEMA,
     ADEU_HISTORY_LEDGER_ENTRY_SCHEMA,
     ADEU_HISTORY_LEDGER_SCHEMA,
+    ADEU_HISTORY_ODEU_LANE_RECONSTRUCTION_SCHEMA,
+    ADEU_HISTORY_ODEU_RECONSTRUCTION_PACKET_SCHEMA,
     ADEU_HISTORY_PRECLASSIFICATION_SCHEMA,
     ADEU_HISTORY_SLICE_SCHEMA,
     ADEU_HISTORY_SOURCE_ARTIFACT_SCHEMA,
@@ -77,6 +80,30 @@ def _schema_pairs() -> dict[str, tuple[Path, Path]]:
             / "schema"
             / "adeu_history_theme_anchor.v1.json",
             root / "spec" / "adeu_history_theme_anchor.schema.json",
+        ),
+        ADEU_HISTORY_EVIDENCE_REF_SCHEMA: (
+            root
+            / "packages"
+            / "adeu_history_semantics"
+            / "schema"
+            / "adeu_history_evidence_ref.v1.json",
+            root / "spec" / "adeu_history_evidence_ref.schema.json",
+        ),
+        ADEU_HISTORY_ODEU_LANE_RECONSTRUCTION_SCHEMA: (
+            root
+            / "packages"
+            / "adeu_history_semantics"
+            / "schema"
+            / "adeu_history_odeu_lane_reconstruction.v1.json",
+            root / "spec" / "adeu_history_odeu_lane_reconstruction.schema.json",
+        ),
+        ADEU_HISTORY_ODEU_RECONSTRUCTION_PACKET_SCHEMA: (
+            root
+            / "packages"
+            / "adeu_history_semantics"
+            / "schema"
+            / "adeu_history_odeu_reconstruction_packet.v1.json",
+            root / "spec" / "adeu_history_odeu_reconstruction_packet.schema.json",
         ),
     }
 
