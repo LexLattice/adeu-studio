@@ -392,7 +392,7 @@ class HistoryPreclassification(BaseModel):
             self,
             "structural_markers",
             _ordered_unique_texts(
-                list(self.structural_markers),
+                self.structural_markers,
                 field_name="structural_markers",
             ),
         )
@@ -562,8 +562,6 @@ class HistoryLedger(BaseModel):
             raise ValueError("entry_count must match the number of entries")
 
         order_indexes = [entry.order_index for entry in self.entries]
-        if order_indexes != sorted(order_indexes):
-            raise ValueError("entries must be ordered by order_index")
         if order_indexes != list(range(len(self.entries))):
             raise ValueError("entries must cover a contiguous order_index range starting at 0")
         if len({entry.entry_id for entry in self.entries}) != len(self.entries):

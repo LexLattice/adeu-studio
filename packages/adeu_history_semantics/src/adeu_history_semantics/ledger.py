@@ -2,6 +2,7 @@ from __future__ import annotations
 
 import re
 from collections.abc import Iterable
+from typing import TypedDict
 
 from .models import (
     ROLE_VOCABULARY,
@@ -28,6 +29,13 @@ _BOUNDARY_TAG_MARKER_MAP = (
     ("code_fence_present", "contains_code_fence_present"),
     ("question_mark_present", "contains_question_mark_present"),
 )
+
+
+class _ThemeAnchorAggregate(TypedDict):
+    slice_ids: list[str]
+    anchor_entry_ids: list[str]
+    supporting_terms: list[str]
+    display_label: str
 
 
 def build_history_ledger(
@@ -69,7 +77,7 @@ def build_history_ledger(
             origin_type=item.origin_type,
             source_line_start=item.source_line_start,
             source_line_end=item.source_line_end,
-            structural_markers=list(item.structural_markers),
+            structural_markers=item.structural_markers,
         )
         for item in ordered_preclassifications
     ]
@@ -90,7 +98,7 @@ def build_history_slices(*, ledger: HistoryLedger) -> list[HistorySlice]:
 
     slices: list[HistorySlice] = []
     run_start = 0
-    entries = list(ledger.entries)
+    entries = ledger.entries
     for index in range(1, len(entries) + 1):
         if index < len(entries) and entries[index].role == entries[run_start].role:
             continue
@@ -141,7 +149,7 @@ def build_history_theme_anchors(
     if any(item.source_id != ledger.source_id for item in ordered_slices):
         raise ValueError("slices must share the ledger source_id")
 
-    grouped: dict[str, dict[str, list[str] | str]] = {}
+    grouped: dict[str, _ThemeAnchorAggregate] = {}
     for current_slice in ordered_slices:
         aggregate = grouped.setdefault(
             current_slice.theme_key,
@@ -152,11 +160,15 @@ def build_history_theme_anchors(
                 "display_label": current_slice.theme_label,
             },
         )
-        aggregate["slice_ids"] = _ordered_unique(
-            [*aggregate["slice_ids"], current_slice.slice_id]
+        aggregate["slice_ids"] = _extend_unique_or_raise(
+            aggregate["slice_ids"],
+            [current_slice.slice_id],
+            field_name="slice_ids",
         )
-        aggregate["anchor_entry_ids"] = _ordered_unique(
-            [*aggregate["anchor_entry_ids"], *current_slice.entry_ids]
+        aggregate["anchor_entry_ids"] = _extend_unique_or_raise(
+            aggregate["anchor_entry_ids"],
+            current_slice.entry_ids,
+            field_name="anchor_entry_ids",
         )
         aggregate["supporting_terms"] = _ordered_unique(
             [*aggregate["supporting_terms"], *current_slice.theme_terms]
@@ -167,14 +179,14 @@ def build_history_theme_anchors(
             theme_anchor_id=compute_history_theme_anchor_id(
                 source_id=ledger.source_id,
                 theme_key=theme_key,
-                slice_ids=list(aggregate["slice_ids"]),
+                slice_ids=aggregate["slice_ids"],
             ),
             source_id=ledger.source_id,
             theme_key=theme_key,
-            display_label=str(aggregate["display_label"]),
-            slice_ids=list(aggregate["slice_ids"]),
-            anchor_entry_ids=list(aggregate["anchor_entry_ids"]),
-            supporting_terms=list(aggregate["supporting_terms"]),
+            display_label=aggregate["display_label"],
+            slice_ids=aggregate["slice_ids"],
+            anchor_entry_ids=aggregate["anchor_entry_ids"],
+            supporting_terms=aggregate["supporting_terms"],
         )
         for theme_key, aggregate in grouped.items()
     ]
@@ -224,6 +236,22 @@ def _ordered_unique(values: list[str]) -> list[str]:
     for value in values:
         if value in seen:
             continue
+        seen.add(value)
+        ordered.append(value)
+    return ordered
+
+
+def _extend_unique_or_raise(
+    existing_values: list[str],
+    new_values: Iterable[str],
+    *,
+    field_name: str,
+) -> list[str]:
+    seen = set(existing_values)
+    ordered = list(existing_values)
+    for value in new_values:
+        if value in seen:
+            raise ValueError(f"{field_name} must not contain duplicates during aggregation")
         seen.add(value)
         ordered.append(value)
     return ordered

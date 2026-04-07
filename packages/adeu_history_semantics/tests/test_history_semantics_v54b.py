@@ -10,6 +10,7 @@ from adeu_history_semantics import (
     build_history_slices,
     build_history_source_artifact,
     build_history_theme_anchors,
+    compute_history_slice_id,
     preclassify_history_source,
 )
 
@@ -135,3 +136,28 @@ def test_degenerate_input_with_no_lawful_theme_terms_fails_closed() -> None:
 def test_out_of_domain_shorthand_rejection_still_holds() -> None:
     with pytest.raises(ValueError, match="unsupported or malformed role header placement"):
         _build_source(source_text=_load_text("reject_shorthand_aliases.txt"))
+
+
+def test_theme_anchor_aggregation_rejects_overlapping_entry_ids() -> None:
+    projection = _build_projection(_load_text("consecutive_same_speaker_history_lf.txt"))
+    ledger = projection["ledger"]
+    slices = projection["slices"]
+
+    overlapping_slice = slices[0].model_copy(
+        update={
+            "slice_id": compute_history_slice_id(
+                source_id=ledger.source_id,
+                slice_index=1,
+                entry_ids=slices[0].entry_ids,
+            ),
+            "slice_index": 1,
+            "chronology_start_order_index": 1,
+            "chronology_end_order_index": 1,
+        }
+    )
+
+    with pytest.raises(ValueError, match="anchor_entry_ids must not contain duplicates"):
+        build_history_theme_anchors(
+            ledger=ledger,
+            slices=[slices[0], overlapping_slice],
+        )
