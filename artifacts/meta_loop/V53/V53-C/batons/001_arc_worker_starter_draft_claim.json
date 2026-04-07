@@ -1,0 +1,86 @@
+{
+  "schema": "parallel_arc_meta_loop_baton@1",
+  "baton_id": "baton_v53c_arc_worker_starter_draft_claim_001",
+  "baton_kind": "transition_claim",
+  "emitted_at_utc": "2026-04-07T15:55:00Z",
+  "previous_baton_id": "baton_v53b_meta_orchestrator_implementation_verification_ratification_006",
+  "arc_family": "V53",
+  "slice": "V53-C",
+  "phase": "starter_review_pending",
+  "role": "arc_worker",
+  "model": "gpt-5.3-codex",
+  "reasoning_effort": "xhigh",
+  "arc_branch": "arc/v53-r5",
+  "feature_branch": null,
+  "base_branch": "arc/v53-r5",
+  "commit_sha": null,
+  "pr_url": null,
+  "review_verdict": null,
+  "ci_status": null,
+  "controlling_refs": [
+    "docs/DRAFT_NEXT_ARC_OPTIONS_v36.md",
+    "docs/DRAFT_ADEU_EDGE_LEDGER_V53_IMPLEMENTATION_MAPPING_v0.md",
+    "docs/DRAFT_ADEU_EDGE_LEDGER_V53C_IMPLEMENTATION_MAPPING_v0.md",
+    "docs/LOCKED_CONTINUATION_vNEXT_PLUS141.md",
+    "docs/LOCKED_CONTINUATION_vNEXT_PLUS143.md",
+    "examples/external_prototypes/adeu-edge-ledger-change-bundle/ALIGNMENT.md",
+    "examples/external_prototypes/adeu-edge-ledger-change-bundle/CLAIMED_SCOPE.md",
+    "docs/DRAFT_PARALLEL_ARC_META_LOOP_PROTOCOL_v0.md",
+    "docs/PARALLEL_ARC_META_LOOP_BATON_v0.json"
+  ],
+  "required_outputs_claimed_satisfied": [
+    "v53_c_starter_first_draft_docs",
+    "v53_c_starter_slice_mapping_doc",
+    "v53_c_first_draft_evidence_copies",
+    "v53_c_starter_draft_ready_for_conceptual_review"
+  ],
+  "unsatisfied_requirements": [
+    "v53_c_conceptual_review",
+    "v53_c_integrated_starter_bundle",
+    "v53_c_starter_commit_to_arc_branch"
+  ],
+  "status": "completed",
+  "artifacts_produced": [
+    "docs/DRAFT_NEXT_ARC_OPTIONS_v36.md",
+    "docs/DRAFT_ADEU_EDGE_LEDGER_V53C_IMPLEMENTATION_MAPPING_v0.md",
+    "docs/LOCKED_CONTINUATION_vNEXT_PLUS145.md",
+    "docs/DRAFT_STOP_GATE_DECISION_vNEXT_PLUS145.md",
+    "docs/ASSESSMENT_vNEXT_PLUS145_EDGES.md",
+    "artifacts/meta_loop/V53/V53-C/starter_bundle/first_draft/first_draft_DRAFT_NEXT_ARC_OPTIONS_v36.md",
+    "artifacts/meta_loop/V53/V53-C/starter_bundle/first_draft/first_draft_DRAFT_ADEU_EDGE_LEDGER_V53C_IMPLEMENTATION_MAPPING_v0.md",
+    "artifacts/meta_loop/V53/V53-C/starter_bundle/first_draft/first_draft_LOCKED_CONTINUATION_vNEXT_PLUS145.md",
+    "artifacts/meta_loop/V53/V53-C/starter_bundle/first_draft/first_draft_DRAFT_STOP_GATE_DECISION_vNEXT_PLUS145.md",
+    "artifacts/meta_loop/V53/V53-C/starter_bundle/first_draft/first_draft_ASSESSMENT_vNEXT_PLUS145_EDGES.md",
+    "artifacts/meta_loop/V53/V53-C/batons/001_arc_worker_starter_draft_claim.json"
+  ],
+  "evidence_refs": [
+    "artifacts/meta_loop/V53/V53-B/batons/006_meta_orchestrator_implementation_verification_ratification.json",
+    "docs/DRAFT_NEXT_ARC_OPTIONS_v36.md",
+    "docs/DRAFT_ADEU_EDGE_LEDGER_V53C_IMPLEMENTATION_MAPPING_v0.md",
+    "docs/LOCKED_CONTINUATION_vNEXT_PLUS145.md",
+    "docs/DRAFT_STOP_GATE_DECISION_vNEXT_PLUS145.md",
+    "docs/ASSESSMENT_vNEXT_PLUS145_EDGES.md",
+    "artifacts/meta_loop/V53/V53-C/starter_bundle/first_draft/first_draft_DRAFT_NEXT_ARC_OPTIONS_v36.md",
+    "artifacts/meta_loop/V53/V53-C/starter_bundle/first_draft/first_draft_DRAFT_ADEU_EDGE_LEDGER_V53C_IMPLEMENTATION_MAPPING_v0.md",
+    "artifacts/meta_loop/V53/V53-C/starter_bundle/first_draft/first_draft_LOCKED_CONTINUATION_vNEXT_PLUS145.md",
+    "artifacts/meta_loop/V53/V53-C/starter_bundle/first_draft/first_draft_DRAFT_STOP_GATE_DECISION_vNEXT_PLUS145.md",
+    "artifacts/meta_loop/V53/V53-C/starter_bundle/first_draft/first_draft_ASSESSMENT_vNEXT_PLUS145_EDGES.md"
+  ],
+  "checks_run": [
+    "make arc-start-check ARC=145 (fail: OPTIONS_TARGET_MISMATCH on exact V53-C selection phrase in docs/DRAFT_NEXT_ARC_OPTIONS_v36.md)",
+    "make arc-start-check ARC=145 (pass after restoring the exact `select `V53-C` as the next default candidate` phrase in docs/DRAFT_NEXT_ARC_OPTIONS_v36.md)",
+    "make arc-start-check ARC=145 (pass on finalized starter bundle after stop-gate and baton reconciliation)",
+    "make arc-start-check ARC=145 (pass after final stop-gate wording reconciliation)"
+  ],
+  "checks_skipped": [
+    "make check skipped because the change is docs/artifacts-only starter-bundle work"
+  ],
+  "blockers": [],
+  "next_allowed_actions": [
+    "spawn_v53_c_conceptual_reviewer_for_starter_bundle",
+    "perform_v53_c_conceptual_review_over_the_starter_docs_and_first_draft_evidence",
+    "return_review_feedback_to_arc_worker_for_targeted_starter_integration"
+  ],
+  "notes": "The required V53-C starter docs and first-draft evidence copies now exist on disk. The slice stays bounded to one cumulative revision register contract over released V53-A and released V53-B, one append-only lineage law, and one exact starter decision-shape law, with probe/test-intent widening still deferred to V53-D. The first docs-only gate run failed on an exact planning-phrase mismatch in docs/DRAFT_NEXT_ARC_OPTIONS_v36.md; the second run passed after that narrow wording repair.",
+  "ratifies_baton_id": null
+}
