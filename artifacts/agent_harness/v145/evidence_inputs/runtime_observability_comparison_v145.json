@@ -1,0 +1,11 @@
+{
+  "schema": "runtime_observability_comparison@1",
+  "baseline_arc": "vNext+143",
+  "current_arc": "vNext+145",
+  "baseline_source": "artifacts/stop_gate/report_v143_closeout.md",
+  "current_source": "artifacts/stop_gate/report_v145_closeout.md",
+  "baseline_elapsed_ms": 98,
+  "current_elapsed_ms": 98,
+  "delta_ms": 0,
+  "notes": "v145 closeout keeps the frozen stop-gate schema family and exact metric keyset unchanged while shipping the released V53-C edge revision-register lane on arc/v53-r5: one repo-owned adeu_edge_ledger package only, one released adeu_edge_taxonomy_revision_register@1 contract over released V53-A and V53-B surfaces, append-only same-ledger lineage, fail-closed decision-shape and lineage-parent law, bounded edge_class candidate refs with no subject overlap, deterministic authoritative schema export plus root mirror, deterministic v53c fixtures/tests, bounded review hardening for unexpected revision_decision rejection, and no live taxonomy mutation or direct V45-D test-intent integration."
+}
