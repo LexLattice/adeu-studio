@@ -211,3 +211,13 @@ def test_reject_not_applicable_override_and_support_ref_drift(
         match="starter checked-no-witness support ref",
     ):
         SymbolEdgeAdjudicationLedger.model_validate(payload)
+
+    payload = _load_json("reference_symbol_edge_adjudication_ledger.json")
+    payload["adjudication_rows"][0]["supporting_checked_no_witness_refs"] = [
+        payload["adjudication_rows"][0]["edge_class_ref"]
+    ]
+    with pytest.raises(
+        ValidationError,
+        match="must not carry both witness and checked-no-witness support refs",
+    ):
+        SymbolEdgeAdjudicationLedger.model_validate(payload)

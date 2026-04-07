@@ -931,6 +931,11 @@ class SymbolEdgeAdjudicationRow(BaseModel):
             if self.adjudication_status == "deferred":
                 if not (self.supporting_witness_refs or self.supporting_checked_no_witness_refs):
                     raise ValueError("deferred rows require explicit support refs")
+                if self.supporting_witness_refs and self.supporting_checked_no_witness_refs:
+                    raise ValueError(
+                        "deferred rows must not carry both witness and "
+                        "checked-no-witness support refs"
+                    )
                 if self.supporting_checked_no_witness_refs not in ([], [self.edge_class_ref]):
                     raise ValueError(
                         "deferred rows with checked-no-witness support must carry the "
