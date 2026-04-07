@@ -477,6 +477,14 @@ applicable, especially during:
 - `review_fixing_pending`
 - `ci_pending`
 
+For strict step-checkpoint runs, the baton should also carry:
+
+- `execution_template_ref`
+- `template_step_id`
+- `template_step_order`
+- `claimed_step_complete`
+- `continuation_required_before_next_step`
+
 ## Canonical Storage
 
 The pilot should use one canonical evidence root:
@@ -499,6 +507,70 @@ can inspect:
 - what transition was ratified
 - what evidence was cited
 - what branch/PR/CI state existed at that moment
+
+## Machine-Checkable Execution Templates
+
+For diagnostic runs where fidelity is more important than speed, the pilot may switch a
+slice into strict step-checkpoint mode.
+
+In that mode, the worker must follow one explicit machine-checkable template exactly.
+
+Canonical template refs for the current pilot are:
+
+- `docs/PARALLEL_ARC_STARTER_BUNDLE_EXECUTION_TEMPLATE_v0.json`
+- `docs/PARALLEL_ARC_IMPLEMENTATION_EXECUTION_TEMPLATE_v0.json`
+- `docs/PARALLEL_ARC_REVIEW_FIX_EXECUTION_TEMPLATE_v0.json`
+- `docs/PARALLEL_ARC_CLOSEOUT_EXECUTION_TEMPLATE_v0.json`
+
+Each template step must define:
+
+- `step_id`
+- `step_order`
+- `required_inputs`
+- `required_outputs`
+- `success_predicate`
+- `required_checks`
+- `forbidden_shortcuts`
+- `next_step_if_pass`
+- `escalate_if_fail`
+
+The template is not descriptive only. In strict step-checkpoint mode it becomes the
+required execution order for the assigned role.
+
+## Strict Step-Checkpoint Mode
+
+When the orchestrator enables strict step-checkpoint mode for a slice:
+
+- the worker may execute only the currently authorized template step
+- after completing that step, the worker must emit one baton naming the template ref
+  and current step id/order
+- the worker must then stop and wait for explicit orchestrator continuation before
+  beginning the next template step
+- the orchestrator must verify the claimed outputs before authorizing the next step
+- the worker may not self-advance merely because the next step looks obvious
+
+The purpose is diagnostic rather than throughput-oriented:
+
+- isolate where procedural drift happens
+- separate “did work” from “completed the correct step”
+- make partial compliance visible at the step level
+
+In this mode, the baton semantics become:
+
+- worker baton:
+  - exact step-complete claim only
+- orchestrator baton:
+  - exact step-ratification or step-rejection only
+
+If a step fails:
+
+- the worker should stay blocked on that step
+- the baton should name the unsatisfied outputs or failed checks
+- the orchestrator should either:
+  - authorize repair on the same step; or
+  - halt the slice and log the failure as evidence
+
+The worker may not silently skip ahead to later cleanup or compensating edits.
 
 ## Governance Revision Rule
 

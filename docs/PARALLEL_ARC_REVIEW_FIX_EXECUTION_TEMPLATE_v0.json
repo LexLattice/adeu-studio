@@ -1,0 +1,94 @@
+{
+  "schema": "parallel_arc_execution_template@1",
+  "template_id": "review_fix_execution_template_v0",
+  "phase_family": "review_fix",
+  "execution_mode": "strict_step_checkpointed",
+  "pause_after_each_step": true,
+  "continue_only_on_orchestrator_ratification": true,
+  "steps": [
+    {
+      "step_id": "classify_review_findings",
+      "step_order": 1,
+      "required_inputs": [
+        "bot review witnesses",
+        "inline review findings",
+        "controlling lock and slice refs"
+      ],
+      "required_outputs": [
+        "classified finding set with worthwhile versus not-taken judgments"
+      ],
+      "success_predicate": [
+        "the worker has an explicit bounded fix list tied to real review findings"
+      ],
+      "required_checks": [],
+      "forbidden_shortcuts": [
+        "patching speculative issues not grounded in the harvested review",
+        "taking a finding that contradicts the controlling lock without escalation"
+      ],
+      "next_step_if_pass": "apply_bounded_review_fixes",
+      "escalate_if_fail": "emit classification blocker and wait"
+    },
+    {
+      "step_id": "apply_bounded_review_fixes",
+      "step_order": 2,
+      "required_inputs": [
+        "classified worthwhile review findings"
+      ],
+      "required_outputs": [
+        "bounded code or doc fixes for the worthwhile findings only"
+      ],
+      "success_predicate": [
+        "the taken findings are implemented without widening the slice"
+      ],
+      "required_checks": [],
+      "forbidden_shortcuts": [
+        "widening the slice under the banner of review response",
+        "quietly skipping a taken finding without recording why"
+      ],
+      "next_step_if_pass": "rerun_targeted_checks",
+      "escalate_if_fail": "emit exact fix blocker and wait"
+    },
+    {
+      "step_id": "rerun_targeted_checks",
+      "step_order": 3,
+      "required_inputs": [
+        "applied bounded review fixes"
+      ],
+      "required_outputs": [
+        "fresh targeted check results over the touched owned lane"
+      ],
+      "success_predicate": [
+        "the touched slice lane is green after the review fixes"
+      ],
+      "required_checks": [
+        "same targeted package lane checks used for implementation readiness, narrowed only if the touched surface is narrower and that narrowing is stated explicitly"
+      ],
+      "forbidden_shortcuts": [
+        "claiming review fixes are ready without rerunning the touched lane",
+        "overclaiming broader checks than were actually rerun"
+      ],
+      "next_step_if_pass": "emit_review_fix_baton",
+      "escalate_if_fail": "emit exact failing check and wait"
+    },
+    {
+      "step_id": "emit_review_fix_baton",
+      "step_order": 4,
+      "required_inputs": [
+        "review-fix diff",
+        "fresh targeted checks"
+      ],
+      "required_outputs": [
+        "review-fix worker baton naming taken findings, skipped findings, checks run, and readiness judgment"
+      ],
+      "success_predicate": [
+        "the orchestrator can decide on push/CI without interpretive recovery"
+      ],
+      "required_checks": [],
+      "forbidden_shortcuts": [
+        "claiming review-fix completion without the baton"
+      ],
+      "next_step_if_pass": "wait_for_orchestrator_push_authorization",
+      "escalate_if_fail": "stay on this step until the baton exists"
+    }
+  ]
+}

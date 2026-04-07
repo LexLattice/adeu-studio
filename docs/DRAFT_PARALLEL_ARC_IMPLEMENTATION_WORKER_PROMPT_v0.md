@@ -28,6 +28,12 @@ Every implementation-worker launch for the pilot should state explicitly:
 7. exact baton artifact to emit
 8. explicit prohibition on claiming completion while red, partial, or baton-less
 
+For strict diagnostic runs, the launch should also state:
+
+9. exact execution-template ref
+10. exact currently authorized template step id/order
+11. explicit instruction to stop after that step and wait for orchestrator continuation
+
 ## Finish-Line Law
 
 The prompt should define completion as all of the following:
@@ -51,6 +57,22 @@ The prompt should explicitly say that these do **not** count as completion:
 - only writing tests without contract surfaces
 - red targeted checks
 - a prose status message without the baton
+
+## Strict Step-Checkpoint Law
+
+If the orchestrator has enabled strict step-checkpoint mode, the prompt should say:
+
+- follow `docs/PARALLEL_ARC_IMPLEMENTATION_EXECUTION_TEMPLATE_v0.json` exactly
+- execute only the currently authorized template step
+- after completing that step:
+  - emit a baton carrying the template ref plus step id/order
+  - set `claimed_step_complete = true`
+  - set `continuation_required_before_next_step = true`
+  - stop and wait for explicit orchestrator continuation
+- do not self-advance to the next step even if it looks routine
+
+This mode is intentionally slower and is used to inspect procedural compliance rather
+than maximize throughput.
 
 ## Retry Law
 

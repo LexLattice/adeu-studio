@@ -1,0 +1,122 @@
+{
+  "schema": "parallel_arc_execution_template@1",
+  "template_id": "closeout_execution_template_v0",
+  "phase_family": "closeout",
+  "execution_mode": "strict_step_checkpointed",
+  "pause_after_each_step": true,
+  "continue_only_on_orchestrator_ratification": true,
+  "steps": [
+    {
+      "step_id": "update_closeout_docs",
+      "step_order": 1,
+      "required_inputs": [
+        "merged PR evidence",
+        "controlling lock and slice refs",
+        "closeout note pattern for the family"
+      ],
+      "required_outputs": [
+        "updated stop-gate doc",
+        "updated assessment doc",
+        "updated branch-local planning doc"
+      ],
+      "success_predicate": [
+        "the closeout docs all reflect post-merge state and the correct next branch-local path"
+      ],
+      "required_checks": [],
+      "forbidden_shortcuts": [
+        "leaving the planning doc in pre-closeout state",
+        "claiming closeout while one of the required closeout docs is still stale"
+      ],
+      "next_step_if_pass": "populate_closeout_evidence",
+      "escalate_if_fail": "emit exact stale-doc blocker and wait"
+    },
+    {
+      "step_id": "populate_closeout_evidence",
+      "step_order": 2,
+      "required_inputs": [
+        "updated closeout docs",
+        "merged PR evidence and runtime/event artifacts"
+      ],
+      "required_outputs": [
+        "quality dashboard closeout JSON",
+        "stop-gate metrics closeout JSON",
+        "stop-gate closeout report",
+        "agent_harness evidence_inputs files",
+        "runtime event-stream artifact when required by the family pattern"
+      ],
+      "success_predicate": [
+        "the evidence tree matches the closeout docs and the family closeout pattern"
+      ],
+      "required_checks": [],
+      "forbidden_shortcuts": [
+        "copy-forwarding stale baseline/current arc linkage without review",
+        "omitting required evidence-input JSONs while the closeout docs reference them"
+      ],
+      "next_step_if_pass": "verify_copied_linkage",
+      "escalate_if_fail": "emit exact evidence gap and wait"
+    },
+    {
+      "step_id": "verify_copied_linkage",
+      "step_order": 3,
+      "required_inputs": [
+        "populated closeout evidence tree"
+      ],
+      "required_outputs": [
+        "confirmed baseline/current linkage for copied closeout JSONs",
+        "confirmed agreement between closeout docs and evidence-input refs"
+      ],
+      "success_predicate": [
+        "copied JSONs do not retain stale baseline/current arc linkage"
+      ],
+      "required_checks": [],
+      "forbidden_shortcuts": [
+        "assuming copied metrics linkage is correct without inspection"
+      ],
+      "next_step_if_pass": "run_closeout_gate",
+      "escalate_if_fail": "emit exact linkage mismatch and wait"
+    },
+    {
+      "step_id": "run_closeout_gate",
+      "step_order": 4,
+      "required_inputs": [
+        "updated closeout docs",
+        "populated closeout evidence tree",
+        "verified linkage"
+      ],
+      "required_outputs": [
+        "closeout gate result"
+      ],
+      "success_predicate": [
+        "the docs-only closeout gate selected for the slice passes"
+      ],
+      "required_checks": [
+        "make arc-closeout-check ARC=<n>"
+      ],
+      "forbidden_shortcuts": [
+        "claiming closeout complete while the closeout gate is red",
+        "claiming broader Python validation than the docs-only closeout gate actually covers"
+      ],
+      "next_step_if_pass": "emit_closeout_baton",
+      "escalate_if_fail": "emit exact gate failure and wait"
+    },
+    {
+      "step_id": "emit_closeout_baton",
+      "step_order": 5,
+      "required_inputs": [
+        "passing closeout gate"
+      ],
+      "required_outputs": [
+        "closeout worker baton naming docs updated, evidence created, gate run, blockers, and readiness judgment"
+      ],
+      "success_predicate": [
+        "the orchestrator can decide on commit/push without interpretive recovery"
+      ],
+      "required_checks": [],
+      "forbidden_shortcuts": [
+        "claiming closeout completion without the baton"
+      ],
+      "next_step_if_pass": "wait_for_orchestrator_commit_authorization",
+      "escalate_if_fail": "stay on this step until the baton exists"
+    }
+  ]
+}

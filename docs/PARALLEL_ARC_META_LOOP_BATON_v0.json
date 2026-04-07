@@ -101,6 +101,36 @@
         "null"
       ]
     },
+    "execution_template_ref": {
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "template_step_id": {
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "template_step_order": {
+      "type": [
+        "integer",
+        "null"
+      ]
+    },
+    "continuation_required_before_next_step": {
+      "type": [
+        "boolean",
+        "null"
+      ]
+    },
+    "claimed_step_complete": {
+      "type": [
+        "boolean",
+        "null"
+      ]
+    },
     "base_branch": {
       "type": "string"
     },
