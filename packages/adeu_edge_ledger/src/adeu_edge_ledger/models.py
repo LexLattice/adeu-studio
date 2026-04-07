@@ -13,6 +13,7 @@ ADEU_EDGE_CLASS_CATALOG_SCHEMA = "adeu_edge_class_catalog@1"
 ADEU_EDGE_PROBE_TEMPLATE_CATALOG_SCHEMA = "adeu_edge_probe_template_catalog@1"
 ADEU_SYMBOL_EDGE_APPLICABILITY_FRAME_SCHEMA = "adeu_symbol_edge_applicability_frame@1"
 ADEU_SYMBOL_EDGE_ADJUDICATION_LEDGER_SCHEMA = "adeu_symbol_edge_adjudication_ledger@1"
+ADEU_EDGE_TAXONOMY_REVISION_REGISTER_SCHEMA = "adeu_edge_taxonomy_revision_register@1"
 
 MODEL_CONFIG = ConfigDict(extra="forbid", frozen=True, populate_by_name=True)
 
@@ -32,6 +33,18 @@ STARTER_TOP_LEVEL_FAMILY_REFS = tuple(
 STARTER_NODE_KIND_VOCABULARY = ("family", "subfamily", "archetype")
 STARTER_LIFECYCLE_POSTURE_VOCABULARY = (
     "candidate",
+    "stabilized",
+    "split",
+    "merged",
+    "deprecated",
+)
+STARTER_REVISION_DECISION_VOCABULARY = (
+    "stabilize_existing_class",
+    "split_existing_class",
+    "merge_existing_classes",
+    "deprecate_existing_class",
+)
+STARTER_REVISION_LIFECYCLE_POSTURE_VOCABULARY = (
     "stabilized",
     "split",
     "merged",
@@ -77,6 +90,13 @@ ADMITTED_V50_SYMBOL_KIND_VOCABULARY = ("class", "function", "method", "local_fun
 
 TaxonomyNodeKind = Literal["family", "subfamily", "archetype"]
 TaxonomyNodeLifecycle = Literal["candidate", "stabilized", "split", "merged", "deprecated"]
+RevisionDecision = Literal[
+    "stabilize_existing_class",
+    "split_existing_class",
+    "merge_existing_classes",
+    "deprecate_existing_class",
+]
+RevisionLifecyclePosture = Literal["stabilized", "split", "merged", "deprecated"]
 ProbeExecutionPosture = Literal["example_tests", "property_based", "metamorphic", "review_only"]
 ProbeStrategyKind = Literal[
     "absence_matrix",
@@ -213,11 +233,15 @@ def _assert_probe_template_ref(value: str, *, field_name: str) -> str:
     return normalized
 
 
-def _assert_catalog_ref(value: str, *, field_name: str, prefix: str) -> str:
+def _assert_prefixed_ref(value: str, *, field_name: str, prefix: str) -> str:
     normalized = _assert_non_empty_text(value, field_name=field_name)
     if not normalized.startswith(prefix):
         raise ValueError(f"{field_name} must use the {prefix} prefix")
     return normalized
+
+
+def _assert_catalog_ref(value: str, *, field_name: str, prefix: str) -> str:
+    return _assert_prefixed_ref(value, field_name=field_name, prefix=prefix)
 
 
 def _dump_canonical_json(value: Any) -> str:
@@ -242,6 +266,10 @@ def compute_symbol_edge_applicability_frame_id(payload_without_id: dict[str, Any
 
 def compute_symbol_edge_adjudication_ledger_id(payload_without_id: dict[str, Any]) -> str:
     return f"symbol_edge_adjudication_ledger:{_sha256_canonical_payload(payload_without_id)[:16]}"
+
+
+def compute_edge_taxonomy_revision_register_id(payload_without_id: dict[str, Any]) -> str:
+    return f"edge_taxonomy_revision_register:{_sha256_canonical_payload(payload_without_id)[:16]}"
 
 
 class EdgeClassNode(BaseModel):
@@ -912,9 +940,7 @@ class SymbolEdgeAdjudicationRow(BaseModel):
                         "as the starter checked-no-witness support ref"
                     )
                 if self.deferral_reason is not None:
-                    raise ValueError(
-                        "checked_no_witness_found rows must not carry deferral_reason"
-                    )
+                    raise ValueError("checked_no_witness_found rows must not carry deferral_reason")
                 return self
             raise ValueError(
                 "applicable source_applicability_status only admits applicable_unchecked, "
@@ -1021,9 +1047,7 @@ class SymbolEdgeAdjudicationLedger(BaseModel):
         if len(rows_by_ref) != len(self.adjudication_rows):
             raise ValueError("adjudication_rows edge_class_ref values must be unique")
         if [row.edge_class_ref for row in self.adjudication_rows] != sorted(rows_by_ref):
-            raise ValueError(
-                "adjudication_rows must be sorted lexicographically by edge_class_ref"
-            )
+            raise ValueError("adjudication_rows must be sorted lexicographically by edge_class_ref")
         expected_ledger_hash = _sha256_canonical_payload(
             {
                 "schema": self.schema,
@@ -1035,8 +1059,7 @@ class SymbolEdgeAdjudicationLedger(BaseModel):
                 "qualname": self.qualname,
                 "symbol_kind": self.symbol_kind,
                 "adjudication_rows": [
-                    row.model_dump(mode="json", exclude_none=True)
-                    for row in self.adjudication_rows
+                    row.model_dump(mode="json", exclude_none=True) for row in self.adjudication_rows
                 ],
             }
         )
@@ -1053,14 +1076,300 @@ class SymbolEdgeAdjudicationLedger(BaseModel):
                 "qualname": self.qualname,
                 "symbol_kind": self.symbol_kind,
                 "adjudication_rows": [
-                    row.model_dump(mode="json", exclude_none=True)
-                    for row in self.adjudication_rows
+                    row.model_dump(mode="json", exclude_none=True) for row in self.adjudication_rows
                 ],
                 "ledger_hash": self.ledger_hash,
             }
         )
         if self.ledger_id != expected_ledger_id:
             raise ValueError("ledger_id must match canonical adjudication ledger identity")
+        return self
+
+
+class EdgeTaxonomyRevisionEntry(BaseModel):
+    model_config = MODEL_CONFIG
+
+    revision_entry_ref: str
+    revision_decision: RevisionDecision
+    subject_edge_class_refs: list[str] = Field(min_length=1)
+    candidate_edge_class_refs: list[str] = Field(default_factory=list)
+    supporting_adjudication_ledger_ref: str
+    supporting_adjudication_row_refs: list[str] = Field(min_length=1)
+    lineage_parent_entry_refs: list[str] = Field(default_factory=list)
+    proposed_lifecycle_posture: RevisionLifecyclePosture
+    rationale: str
+
+    @model_validator(mode="after")
+    def _validate(self) -> "EdgeTaxonomyRevisionEntry":
+        object.__setattr__(
+            self,
+            "revision_entry_ref",
+            _assert_non_empty_text(self.revision_entry_ref, field_name="revision_entry_ref"),
+        )
+        object.__setattr__(
+            self,
+            "subject_edge_class_refs",
+            [
+                _assert_edge_class_ref(
+                    value,
+                    field_name="subject_edge_class_refs",
+                    expected_kind="archetype",
+                )
+                for value in _assert_ordered_unique_texts(
+                    self.subject_edge_class_refs,
+                    field_name="subject_edge_class_refs",
+                )
+            ],
+        )
+        object.__setattr__(
+            self,
+            "candidate_edge_class_refs",
+            [
+                _assert_edge_class_ref(
+                    value,
+                    field_name="candidate_edge_class_refs",
+                )
+                for value in _assert_ordered_unique_texts(
+                    self.candidate_edge_class_refs,
+                    field_name="candidate_edge_class_refs",
+                )
+            ],
+        )
+        object.__setattr__(
+            self,
+            "supporting_adjudication_ledger_ref",
+            _assert_prefixed_ref(
+                self.supporting_adjudication_ledger_ref,
+                field_name="supporting_adjudication_ledger_ref",
+                prefix="symbol_edge_adjudication_ledger:",
+            ),
+        )
+        object.__setattr__(
+            self,
+            "supporting_adjudication_row_refs",
+            [
+                _assert_edge_class_ref(
+                    value,
+                    field_name="supporting_adjudication_row_refs",
+                    expected_kind="archetype",
+                )
+                for value in _assert_ordered_unique_texts(
+                    self.supporting_adjudication_row_refs,
+                    field_name="supporting_adjudication_row_refs",
+                )
+            ],
+        )
+        object.__setattr__(
+            self,
+            "lineage_parent_entry_refs",
+            _assert_ordered_unique_texts(
+                self.lineage_parent_entry_refs,
+                field_name="lineage_parent_entry_refs",
+            ),
+        )
+        object.__setattr__(
+            self,
+            "rationale",
+            _assert_non_empty_text(self.rationale, field_name="rationale"),
+        )
+
+        if set(self.candidate_edge_class_refs) & set(self.subject_edge_class_refs):
+            raise ValueError("candidate_edge_class_refs must not overlap subject_edge_class_refs")
+
+        if self.revision_decision == "stabilize_existing_class":
+            if len(self.subject_edge_class_refs) != 1 or self.candidate_edge_class_refs:
+                raise ValueError(
+                    "stabilize_existing_class requires exactly one subject ref "
+                    "and no candidate refs"
+                )
+            if self.proposed_lifecycle_posture != "stabilized":
+                raise ValueError(
+                    "stabilize_existing_class requires proposed_lifecycle_posture = stabilized"
+                )
+            return self
+
+        if self.revision_decision == "split_existing_class":
+            if len(self.subject_edge_class_refs) != 1 or not self.candidate_edge_class_refs:
+                raise ValueError(
+                    "split_existing_class requires exactly one subject ref and non-empty "
+                    "candidate refs"
+                )
+            if self.proposed_lifecycle_posture != "split":
+                raise ValueError("split_existing_class requires proposed_lifecycle_posture = split")
+            return self
+
+        if self.revision_decision == "merge_existing_classes":
+            if len(self.subject_edge_class_refs) < 2 or len(self.candidate_edge_class_refs) != 1:
+                raise ValueError(
+                    "merge_existing_classes requires at least two subject refs and exactly "
+                    "one candidate ref"
+                )
+            if self.proposed_lifecycle_posture != "merged":
+                raise ValueError(
+                    "merge_existing_classes requires proposed_lifecycle_posture = merged"
+                )
+            return self
+
+        if len(self.subject_edge_class_refs) != 1 or self.candidate_edge_class_refs:
+            raise ValueError(
+                "deprecate_existing_class requires exactly one subject ref and no candidate refs"
+            )
+        if self.proposed_lifecycle_posture != "deprecated":
+            raise ValueError(
+                "deprecate_existing_class requires proposed_lifecycle_posture = deprecated"
+            )
+        return self
+
+
+class EdgeTaxonomyRevisionRegister(BaseModel):
+    model_config = MODEL_CONFIG
+
+    schema_id: Literal[ADEU_EDGE_TAXONOMY_REVISION_REGISTER_SCHEMA] = Field(
+        default=ADEU_EDGE_TAXONOMY_REVISION_REGISTER_SCHEMA,
+        alias="schema",
+    )
+    register_id: str
+    bound_edge_class_catalog_ref: str
+    bound_probe_template_catalog_ref: str
+    bound_adjudication_ledger_ref: str
+    prior_revision_register_ref: str | None = None
+    revision_entries: list[EdgeTaxonomyRevisionEntry] = Field(min_length=1)
+    register_hash: str
+
+    @property
+    def schema(self) -> str:
+        return self.schema_id
+
+    @model_validator(mode="after")
+    def _validate(self) -> "EdgeTaxonomyRevisionRegister":
+        object.__setattr__(
+            self,
+            "register_id",
+            _assert_prefixed_ref(
+                self.register_id,
+                field_name="register_id",
+                prefix="edge_taxonomy_revision_register:",
+            ),
+        )
+        object.__setattr__(
+            self,
+            "bound_edge_class_catalog_ref",
+            _assert_catalog_ref(
+                self.bound_edge_class_catalog_ref,
+                field_name="bound_edge_class_catalog_ref",
+                prefix="edge_class_catalog:",
+            ),
+        )
+        object.__setattr__(
+            self,
+            "bound_probe_template_catalog_ref",
+            _assert_catalog_ref(
+                self.bound_probe_template_catalog_ref,
+                field_name="bound_probe_template_catalog_ref",
+                prefix="edge_probe_template_catalog:",
+            ),
+        )
+        object.__setattr__(
+            self,
+            "bound_adjudication_ledger_ref",
+            _assert_prefixed_ref(
+                self.bound_adjudication_ledger_ref,
+                field_name="bound_adjudication_ledger_ref",
+                prefix="symbol_edge_adjudication_ledger:",
+            ),
+        )
+        if self.prior_revision_register_ref is not None:
+            object.__setattr__(
+                self,
+                "prior_revision_register_ref",
+                _assert_prefixed_ref(
+                    self.prior_revision_register_ref,
+                    field_name="prior_revision_register_ref",
+                    prefix="edge_taxonomy_revision_register:",
+                ),
+            )
+        object.__setattr__(
+            self,
+            "register_hash",
+            _assert_sha256_hex(self.register_hash, field_name="register_hash"),
+        )
+
+        entries_by_ref = {entry.revision_entry_ref: entry for entry in self.revision_entries}
+        if len(entries_by_ref) != len(self.revision_entries):
+            raise ValueError("revision_entries revision_entry_ref values must be unique")
+
+        parent_graph: dict[str, list[str]] = {}
+        for entry in self.revision_entries:
+            if entry.supporting_adjudication_ledger_ref != self.bound_adjudication_ledger_ref:
+                raise ValueError(
+                    "every revision entry supporting_adjudication_ledger_ref must match "
+                    "bound_adjudication_ledger_ref"
+                )
+            for parent_ref in entry.lineage_parent_entry_refs:
+                if parent_ref not in entries_by_ref:
+                    raise ValueError(
+                        "lineage_parent_entry_refs must resolve inside revision_entries"
+                    )
+            parent_graph[entry.revision_entry_ref] = entry.lineage_parent_entry_refs
+
+        visited: set[str] = set()
+        active: set[str] = set()
+
+        def _visit(entry_ref: str) -> None:
+            if entry_ref in visited:
+                return
+            if entry_ref in active:
+                raise ValueError("lineage_parent_entry_refs must not form cycles")
+            active.add(entry_ref)
+            for parent_ref in parent_graph[entry_ref]:
+                _visit(parent_ref)
+            active.remove(entry_ref)
+            visited.add(entry_ref)
+
+        for entry_ref in parent_graph:
+            _visit(entry_ref)
+
+        entry_positions = {
+            entry.revision_entry_ref: index for index, entry in enumerate(self.revision_entries)
+        }
+        for entry in self.revision_entries:
+            for parent_ref in entry.lineage_parent_entry_refs:
+                if entry_positions[parent_ref] >= entry_positions[entry.revision_entry_ref]:
+                    raise ValueError(
+                        "lineage_parent_entry_refs must resolve only to earlier revision_entries"
+                    )
+
+        expected_register_hash = _sha256_canonical_payload(
+            {
+                "schema": self.schema,
+                "bound_edge_class_catalog_ref": self.bound_edge_class_catalog_ref,
+                "bound_probe_template_catalog_ref": self.bound_probe_template_catalog_ref,
+                "bound_adjudication_ledger_ref": self.bound_adjudication_ledger_ref,
+                "prior_revision_register_ref": self.prior_revision_register_ref,
+                "revision_entries": [
+                    entry.model_dump(mode="json", exclude_none=True)
+                    for entry in self.revision_entries
+                ],
+            }
+        )
+        if self.register_hash != expected_register_hash:
+            raise ValueError("register_hash must match canonical revision register payload")
+        expected_register_id = compute_edge_taxonomy_revision_register_id(
+            {
+                "schema": self.schema,
+                "bound_edge_class_catalog_ref": self.bound_edge_class_catalog_ref,
+                "bound_probe_template_catalog_ref": self.bound_probe_template_catalog_ref,
+                "bound_adjudication_ledger_ref": self.bound_adjudication_ledger_ref,
+                "prior_revision_register_ref": self.prior_revision_register_ref,
+                "revision_entries": [
+                    entry.model_dump(mode="json", exclude_none=True)
+                    for entry in self.revision_entries
+                ],
+                "register_hash": self.register_hash,
+            }
+        )
+        if self.register_id != expected_register_id:
+            raise ValueError("register_id must match canonical revision register identity")
         return self
 
 

@@ -1,0 +1,68 @@
+{
+  "bound_adjudication_ledger_ref": "symbol_edge_adjudication_ledger:ac2387f176947a44",
+  "bound_edge_class_catalog_ref": "edge_class_catalog:239e31a78de0460c",
+  "bound_probe_template_catalog_ref": "edge_probe_template_catalog:39fda60ecb6bfc82",
+  "register_hash": "9f62a55ee14541db0b3fc49c0c4698b9f1796339459ae28ea6f89a8691d32795",
+  "register_id": "edge_taxonomy_revision_register:430be66d82badb16",
+  "revision_entries": [
+    {
+      "candidate_edge_class_refs": [],
+      "lineage_parent_entry_refs": [],
+      "proposed_lifecycle_posture": "stabilized",
+      "rationale": "The released witness-backed serialization row already supports keeping this class stable.",
+      "revision_decision": "stabilize_existing_class",
+      "revision_entry_ref": "revision_entry:stabilize_round_trip_serialization",
+      "subject_edge_class_refs": [
+        "edge_class:canonicalization_representation/serialization_identity/round_trip_serialization"
+      ],
+      "supporting_adjudication_ledger_ref": "symbol_edge_adjudication_ledger:ac2387f176947a44",
+      "supporting_adjudication_row_refs": [
+        "edge_class:canonicalization_representation/serialization_identity/round_trip_serialization"
+      ]
+    },
+    {
+      "candidate_edge_class_refs": [
+        "probe:not_edge_class_ref"
+      ],
+      "lineage_parent_entry_refs": [
+        "revision_entry:stabilize_round_trip_serialization"
+      ],
+      "proposed_lifecycle_posture": "split",
+      "rationale": "The released checked-no-witness row suggests one existing cross-field class should split into two explicit successor candidates.",
+      "revision_decision": "split_existing_class",
+      "revision_entry_ref": "revision_entry:split_cross_field_consistency",
+      "subject_edge_class_refs": [
+        "edge_class:contract_invariant/cross_field_binding/cross_field_consistency"
+      ],
+      "supporting_adjudication_ledger_ref": "symbol_edge_adjudication_ledger:ac2387f176947a44",
+      "supporting_adjudication_row_refs": [
+        "edge_class:contract_invariant/cross_field_binding/cross_field_consistency",
+        "edge_class:canonicalization_representation/serialization_identity/round_trip_serialization"
+      ]
+    },
+    {
+      "candidate_edge_class_refs": [
+        "edge_class:canonicalization_representation/serialization_identity/canonical_order_normalization_contract"
+      ],
+      "lineage_parent_entry_refs": [
+        "revision_entry:stabilize_round_trip_serialization",
+        "revision_entry:split_cross_field_consistency"
+      ],
+      "proposed_lifecycle_posture": "merged",
+      "rationale": "The released ledger supports carrying a merged evidence record for normalization and ordering pressure without mutating the released catalog.",
+      "revision_decision": "merge_existing_classes",
+      "revision_entry_ref": "revision_entry:merge_normalization_and_ordering",
+      "subject_edge_class_refs": [
+        "edge_class:canonicalization_representation/normalization_canonical_form/path_or_text_normalization",
+        "edge_class:contract_invariant/vocabulary_order_identity/ordered_unique_sequence_invariant"
+      ],
+      "supporting_adjudication_ledger_ref": "symbol_edge_adjudication_ledger:ac2387f176947a44",
+      "supporting_adjudication_row_refs": [
+        "edge_class:canonicalization_representation/serialization_identity/round_trip_serialization",
+        "edge_class:contract_invariant/cross_field_binding/cross_field_consistency",
+        "edge_class:contract_invariant/vocabulary_order_identity/ordered_unique_sequence_invariant"
+      ]
+    }
+  ],
+  "schema": "adeu_edge_taxonomy_revision_register@1"
+}
