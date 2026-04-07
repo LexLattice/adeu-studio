@@ -1,0 +1,59 @@
+{
+  "additionalProperties": false,
+  "properties": {
+    "anchor_entry_ids": {
+      "items": {
+        "type": "string"
+      },
+      "title": "Anchor Entry Ids",
+      "type": "array"
+    },
+    "display_label": {
+      "title": "Display Label",
+      "type": "string"
+    },
+    "schema": {
+      "const": "adeu_history_theme_anchor@1",
+      "default": "adeu_history_theme_anchor@1",
+      "title": "Schema",
+      "type": "string"
+    },
+    "slice_ids": {
+      "items": {
+        "type": "string"
+      },
+      "title": "Slice Ids",
+      "type": "array"
+    },
+    "source_id": {
+      "title": "Source Id",
+      "type": "string"
+    },
+    "supporting_terms": {
+      "items": {
+        "type": "string"
+      },
+      "title": "Supporting Terms",
+      "type": "array"
+    },
+    "theme_anchor_id": {
+      "title": "Theme Anchor Id",
+      "type": "string"
+    },
+    "theme_key": {
+      "title": "Theme Key",
+      "type": "string"
+    }
+  },
+  "required": [
+    "theme_anchor_id",
+    "source_id",
+    "theme_key",
+    "display_label",
+    "slice_ids",
+    "anchor_entry_ids",
+    "supporting_terms"
+  ],
+  "title": "HistoryThemeAnchor",
+  "type": "object"
+}

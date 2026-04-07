@@ -5,9 +5,13 @@ import re
 from pathlib import Path
 
 from adeu_history_semantics import (
+    ADEU_HISTORY_LEDGER_ENTRY_SCHEMA,
+    ADEU_HISTORY_LEDGER_SCHEMA,
     ADEU_HISTORY_PRECLASSIFICATION_SCHEMA,
+    ADEU_HISTORY_SLICE_SCHEMA,
     ADEU_HISTORY_SOURCE_ARTIFACT_SCHEMA,
     ADEU_HISTORY_TEXT_SHAPE_SIGNALS_SCHEMA,
+    ADEU_HISTORY_THEME_ANCHOR_SCHEMA,
 )
 from adeu_history_semantics.export_schema import main as export_schema_main
 from adeu_ir.repo import repo_root
@@ -41,6 +45,38 @@ def _schema_pairs() -> dict[str, tuple[Path, Path]]:
             / "schema"
             / "adeu_history_preclassification.v1.json",
             root / "spec" / "adeu_history_preclassification.schema.json",
+        ),
+        ADEU_HISTORY_LEDGER_ENTRY_SCHEMA: (
+            root
+            / "packages"
+            / "adeu_history_semantics"
+            / "schema"
+            / "adeu_history_ledger_entry.v1.json",
+            root / "spec" / "adeu_history_ledger_entry.schema.json",
+        ),
+        ADEU_HISTORY_LEDGER_SCHEMA: (
+            root
+            / "packages"
+            / "adeu_history_semantics"
+            / "schema"
+            / "adeu_history_ledger.v1.json",
+            root / "spec" / "adeu_history_ledger.schema.json",
+        ),
+        ADEU_HISTORY_SLICE_SCHEMA: (
+            root
+            / "packages"
+            / "adeu_history_semantics"
+            / "schema"
+            / "adeu_history_slice.v1.json",
+            root / "spec" / "adeu_history_slice.schema.json",
+        ),
+        ADEU_HISTORY_THEME_ANCHOR_SCHEMA: (
+            root
+            / "packages"
+            / "adeu_history_semantics"
+            / "schema"
+            / "adeu_history_theme_anchor.v1.json",
+            root / "spec" / "adeu_history_theme_anchor.schema.json",
         ),
     }
 

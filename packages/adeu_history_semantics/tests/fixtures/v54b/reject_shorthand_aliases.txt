@@ -1,0 +1,2 @@
+[2026-02-02 10:00] User: Keep the starter slice bounded.
+U: This shorthand alias is not authorized here.

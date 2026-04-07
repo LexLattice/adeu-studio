@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import re
 from datetime import datetime
 from typing import Literal
 
@@ -9,6 +10,10 @@ from urm_runtime.hashing import canonical_json, sha256_canonical_json
 ADEU_HISTORY_SOURCE_ARTIFACT_SCHEMA = "adeu_history_source_artifact@1"
 ADEU_HISTORY_TEXT_SHAPE_SIGNALS_SCHEMA = "adeu_history_text_shape_signals@1"
 ADEU_HISTORY_PRECLASSIFICATION_SCHEMA = "adeu_history_preclassification@1"
+ADEU_HISTORY_LEDGER_ENTRY_SCHEMA = "adeu_history_ledger_entry@1"
+ADEU_HISTORY_LEDGER_SCHEMA = "adeu_history_ledger@1"
+ADEU_HISTORY_SLICE_SCHEMA = "adeu_history_slice@1"
+ADEU_HISTORY_THEME_ANCHOR_SCHEMA = "adeu_history_theme_anchor@1"
 
 SOURCE_AUTHORITY_POSTURE = "normalized_source_text_authoritative"
 INPUT_KIND_VOCABULARY = ("conversation_history",)
@@ -32,6 +37,16 @@ STRUCTURAL_MARKER_VOCABULARY = (
     "quoted_line_present",
     "code_fence_present",
     "question_mark_present",
+)
+SLICE_BOUNDARY_TAG_VOCABULARY = (
+    "conversation_start",
+    "conversation_end",
+    "contains_multi_line_message",
+    "contains_blank_line_present",
+    "contains_bullet_line_present",
+    "contains_quoted_line_present",
+    "contains_code_fence_present",
+    "contains_question_mark_present",
 )
 ROLE_TO_ORIGIN_TYPE = {
     "user": "user_native",
@@ -64,6 +79,18 @@ StructuralMarker = Literal[
     "code_fence_present",
     "question_mark_present",
 ]
+SliceBoundaryTag = Literal[
+    "conversation_start",
+    "conversation_end",
+    "contains_multi_line_message",
+    "contains_blank_line_present",
+    "contains_bullet_line_present",
+    "contains_quoted_line_present",
+    "contains_code_fence_present",
+    "contains_question_mark_present",
+]
+
+_THEME_TERM_RE = re.compile(r"^[a-z0-9]+$")
 
 
 def _assert_present_text(value: str, *, field_name: str) -> str:
@@ -96,6 +123,24 @@ def _ordered_unique_texts(values: list[str], *, field_name: str) -> list[str]:
     return ordered
 
 
+def _validated_theme_terms(values: list[str], *, field_name: str) -> list[str]:
+    ordered = _ordered_unique_texts(values, field_name=field_name)
+    if not ordered:
+        raise ValueError(f"{field_name} must be non-empty")
+    for value in ordered:
+        if value != value.lower():
+            raise ValueError(f"{field_name} must use lowercase terms only")
+        if _THEME_TERM_RE.fullmatch(value) is None:
+            raise ValueError(f"{field_name} must contain alphanumeric terms only")
+        if value.isdigit():
+            raise ValueError(f"{field_name} must discard pure-digit terms")
+        if len(value) < 4:
+            raise ValueError(f"{field_name} must discard terms shorter than 4 chars")
+        if value in ROLE_VOCABULARY:
+            raise ValueError(f"{field_name} must discard role tokens")
+    return ordered
+
+
 def _validate_timestamp_text(value: str) -> str:
     parsed = datetime.strptime(value, "%Y-%m-%d %H:%M")
     if parsed.strftime("%Y-%m-%d %H:%M") != value:
@@ -125,6 +170,67 @@ def compute_history_preclassification_id(*, source_id: str, order_index: int) ->
         }
     )
     return f"history_preclassification:{digest[:16]}"
+
+
+def compute_history_entry_text_hash(entry_text: str) -> str:
+    return sha256_canonical_json({"entry_text": entry_text})
+
+
+def compute_history_ledger_entry_id(*, source_id: str, preclassification_id: str) -> str:
+    digest = sha256_canonical_json(
+        {
+            "source_id": source_id,
+            "preclassification_id": preclassification_id,
+        }
+    )
+    return f"history_ledger_entry:{digest[:16]}"
+
+
+def compute_history_ledger_id(*, source_id: str, entry_ids: list[str]) -> str:
+    digest = sha256_canonical_json(
+        {
+            "source_id": source_id,
+            "entry_ids": entry_ids,
+        }
+    )
+    return f"history_ledger:{digest[:16]}"
+
+
+def compute_history_theme_label(*, theme_terms: list[str]) -> str:
+    normalized_terms = _validated_theme_terms(list(theme_terms), field_name="theme_terms")
+    return " ".join(normalized_terms[:3])
+
+
+def compute_history_theme_key(*, theme_terms: list[str]) -> str:
+    normalized_terms = _validated_theme_terms(list(theme_terms), field_name="theme_terms")
+    return "::".join(normalized_terms[:5])
+
+
+def compute_history_slice_id(*, source_id: str, slice_index: int, entry_ids: list[str]) -> str:
+    digest = sha256_canonical_json(
+        {
+            "source_id": source_id,
+            "slice_index": slice_index,
+            "entry_ids": entry_ids,
+        }
+    )
+    return f"history_slice:{digest[:16]}"
+
+
+def compute_history_theme_anchor_id(
+    *,
+    source_id: str,
+    theme_key: str,
+    slice_ids: list[str],
+) -> str:
+    digest = sha256_canonical_json(
+        {
+            "source_id": source_id,
+            "theme_key": theme_key,
+            "slice_ids": slice_ids,
+        }
+    )
+    return f"history_theme_anchor:{digest[:16]}"
 
 
 class HistoryTextShapeSignals(BaseModel):
@@ -324,24 +430,394 @@ class HistoryPreclassification(BaseModel):
         return self
 
 
+class HistoryLedgerEntry(BaseModel):
+    model_config = MODEL_CONFIG
+
+    schema_id: Literal[ADEU_HISTORY_LEDGER_ENTRY_SCHEMA] = Field(
+        default=ADEU_HISTORY_LEDGER_ENTRY_SCHEMA,
+        alias="schema",
+    )
+    entry_id: str
+    source_id: str
+    preclassification_id: str
+    order_index: int
+    entry_text: str
+    entry_text_hash: str
+    role: RoleKind
+    origin_type: OriginType
+    source_line_start: int
+    source_line_end: int
+    structural_markers: list[StructuralMarker]
+
+    @property
+    def schema(self) -> str:
+        return self.schema_id
+
+    @model_validator(mode="after")
+    def _validate(self) -> "HistoryLedgerEntry":
+        object.__setattr__(
+            self,
+            "entry_id",
+            _assert_present_text(self.entry_id, field_name="entry_id"),
+        )
+        object.__setattr__(
+            self,
+            "source_id",
+            _assert_present_text(self.source_id, field_name="source_id"),
+        )
+        object.__setattr__(
+            self,
+            "preclassification_id",
+            _assert_present_text(self.preclassification_id, field_name="preclassification_id"),
+        )
+        object.__setattr__(
+            self,
+            "order_index",
+            _assert_non_negative_int(self.order_index, field_name="order_index"),
+        )
+        object.__setattr__(
+            self,
+            "entry_text",
+            _assert_present_text(self.entry_text, field_name="entry_text"),
+        )
+        object.__setattr__(
+            self,
+            "entry_text_hash",
+            _assert_present_text(self.entry_text_hash, field_name="entry_text_hash"),
+        )
+        object.__setattr__(
+            self,
+            "source_line_start",
+            _assert_positive_int(self.source_line_start, field_name="source_line_start"),
+        )
+        object.__setattr__(
+            self,
+            "source_line_end",
+            _assert_positive_int(self.source_line_end, field_name="source_line_end"),
+        )
+        if self.source_line_end < self.source_line_start:
+            raise ValueError("source_line_end must be greater than or equal to source_line_start")
+        object.__setattr__(
+            self,
+            "structural_markers",
+            _ordered_unique_texts(
+                list(self.structural_markers),
+                field_name="structural_markers",
+            ),
+        )
+
+        expected_origin_type = ROLE_TO_ORIGIN_TYPE[self.role]
+        if self.origin_type != expected_origin_type:
+            raise ValueError("origin_type must match the bounded starter role mapping")
+
+        expected_entry_text_hash = compute_history_entry_text_hash(self.entry_text)
+        if self.entry_text_hash != expected_entry_text_hash:
+            raise ValueError("entry_text_hash must match entry_text")
+
+        expected_entry_id = compute_history_ledger_entry_id(
+            source_id=self.source_id,
+            preclassification_id=self.preclassification_id,
+        )
+        if self.entry_id != expected_entry_id:
+            raise ValueError("entry_id must derive from source_id and preclassification_id")
+        return self
+
+
+class HistoryLedger(BaseModel):
+    model_config = MODEL_CONFIG
+
+    schema_id: Literal[ADEU_HISTORY_LEDGER_SCHEMA] = Field(
+        default=ADEU_HISTORY_LEDGER_SCHEMA,
+        alias="schema",
+    )
+    ledger_id: str
+    source_id: str
+    entries: list[HistoryLedgerEntry]
+    entry_count: int
+
+    @property
+    def schema(self) -> str:
+        return self.schema_id
+
+    @model_validator(mode="after")
+    def _validate(self) -> "HistoryLedger":
+        object.__setattr__(
+            self,
+            "ledger_id",
+            _assert_present_text(self.ledger_id, field_name="ledger_id"),
+        )
+        object.__setattr__(
+            self,
+            "source_id",
+            _assert_present_text(self.source_id, field_name="source_id"),
+        )
+        object.__setattr__(
+            self,
+            "entry_count",
+            _assert_positive_int(self.entry_count, field_name="entry_count"),
+        )
+        if not self.entries:
+            raise ValueError("entries must be non-empty")
+        if self.entry_count != len(self.entries):
+            raise ValueError("entry_count must match the number of entries")
+
+        order_indexes = [entry.order_index for entry in self.entries]
+        if order_indexes != sorted(order_indexes):
+            raise ValueError("entries must be ordered by order_index")
+        if order_indexes != list(range(len(self.entries))):
+            raise ValueError("entries must cover a contiguous order_index range starting at 0")
+        if len({entry.entry_id for entry in self.entries}) != len(self.entries):
+            raise ValueError("entries must have unique entry_id values")
+        if len({entry.preclassification_id for entry in self.entries}) != len(self.entries):
+            raise ValueError("entries must have unique preclassification_id values")
+        if any(entry.source_id != self.source_id for entry in self.entries):
+            raise ValueError("entries must share the ledger source_id")
+
+        expected_ledger_id = compute_history_ledger_id(
+            source_id=self.source_id,
+            entry_ids=[entry.entry_id for entry in self.entries],
+        )
+        if self.ledger_id != expected_ledger_id:
+            raise ValueError("ledger_id must derive from source_id and entry_ids")
+        return self
+
+
+class HistorySlice(BaseModel):
+    model_config = MODEL_CONFIG
+
+    schema_id: Literal[ADEU_HISTORY_SLICE_SCHEMA] = Field(
+        default=ADEU_HISTORY_SLICE_SCHEMA,
+        alias="schema",
+    )
+    slice_id: str
+    source_id: str
+    slice_index: int
+    entry_ids: list[str]
+    chronology_start_order_index: int
+    chronology_end_order_index: int
+    boundary_tags: list[SliceBoundaryTag]
+    theme_terms: list[str]
+    theme_label: str
+    theme_key: str
+
+    @property
+    def schema(self) -> str:
+        return self.schema_id
+
+    @model_validator(mode="after")
+    def _validate(self) -> "HistorySlice":
+        object.__setattr__(
+            self,
+            "slice_id",
+            _assert_present_text(self.slice_id, field_name="slice_id"),
+        )
+        object.__setattr__(
+            self,
+            "source_id",
+            _assert_present_text(self.source_id, field_name="source_id"),
+        )
+        object.__setattr__(
+            self,
+            "slice_index",
+            _assert_non_negative_int(self.slice_index, field_name="slice_index"),
+        )
+        object.__setattr__(
+            self,
+            "entry_ids",
+            _ordered_unique_texts(list(self.entry_ids), field_name="entry_ids"),
+        )
+        object.__setattr__(
+            self,
+            "chronology_start_order_index",
+            _assert_non_negative_int(
+                self.chronology_start_order_index,
+                field_name="chronology_start_order_index",
+            ),
+        )
+        object.__setattr__(
+            self,
+            "chronology_end_order_index",
+            _assert_non_negative_int(
+                self.chronology_end_order_index,
+                field_name="chronology_end_order_index",
+            ),
+        )
+        if self.chronology_end_order_index < self.chronology_start_order_index:
+            raise ValueError(
+                "chronology_end_order_index must be greater than or equal to "
+                "chronology_start_order_index"
+            )
+        if not self.entry_ids:
+            raise ValueError("entry_ids must be non-empty")
+        expected_entry_count = (
+            self.chronology_end_order_index - self.chronology_start_order_index + 1
+        )
+        if len(self.entry_ids) != expected_entry_count:
+            raise ValueError(
+                "entry_ids must span a contiguous order_index range without gaps"
+            )
+        object.__setattr__(
+            self,
+            "boundary_tags",
+            _ordered_unique_texts(list(self.boundary_tags), field_name="boundary_tags"),
+        )
+        object.__setattr__(
+            self,
+            "theme_terms",
+            _validated_theme_terms(list(self.theme_terms), field_name="theme_terms"),
+        )
+        object.__setattr__(
+            self,
+            "theme_label",
+            _assert_present_text(self.theme_label, field_name="theme_label"),
+        )
+        object.__setattr__(
+            self,
+            "theme_key",
+            _assert_present_text(self.theme_key, field_name="theme_key"),
+        )
+
+        expected_theme_label = compute_history_theme_label(theme_terms=self.theme_terms)
+        if self.theme_label != expected_theme_label:
+            raise ValueError("theme_label must derive from theme_terms")
+
+        expected_theme_key = compute_history_theme_key(theme_terms=self.theme_terms)
+        if self.theme_key != expected_theme_key:
+            raise ValueError("theme_key must derive from theme_terms")
+
+        expected_slice_id = compute_history_slice_id(
+            source_id=self.source_id,
+            slice_index=self.slice_index,
+            entry_ids=self.entry_ids,
+        )
+        if self.slice_id != expected_slice_id:
+            raise ValueError("slice_id must derive from source_id, slice_index, and entry_ids")
+        return self
+
+
+class HistoryThemeAnchor(BaseModel):
+    model_config = MODEL_CONFIG
+
+    schema_id: Literal[ADEU_HISTORY_THEME_ANCHOR_SCHEMA] = Field(
+        default=ADEU_HISTORY_THEME_ANCHOR_SCHEMA,
+        alias="schema",
+    )
+    theme_anchor_id: str
+    source_id: str
+    theme_key: str
+    display_label: str
+    slice_ids: list[str]
+    anchor_entry_ids: list[str]
+    supporting_terms: list[str]
+
+    @property
+    def schema(self) -> str:
+        return self.schema_id
+
+    @model_validator(mode="after")
+    def _validate(self) -> "HistoryThemeAnchor":
+        object.__setattr__(
+            self,
+            "theme_anchor_id",
+            _assert_present_text(self.theme_anchor_id, field_name="theme_anchor_id"),
+        )
+        object.__setattr__(
+            self,
+            "source_id",
+            _assert_present_text(self.source_id, field_name="source_id"),
+        )
+        object.__setattr__(
+            self,
+            "theme_key",
+            _assert_present_text(self.theme_key, field_name="theme_key"),
+        )
+        object.__setattr__(
+            self,
+            "display_label",
+            _assert_present_text(self.display_label, field_name="display_label"),
+        )
+        object.__setattr__(
+            self,
+            "slice_ids",
+            _ordered_unique_texts(list(self.slice_ids), field_name="slice_ids"),
+        )
+        object.__setattr__(
+            self,
+            "anchor_entry_ids",
+            _ordered_unique_texts(list(self.anchor_entry_ids), field_name="anchor_entry_ids"),
+        )
+        object.__setattr__(
+            self,
+            "supporting_terms",
+            _validated_theme_terms(list(self.supporting_terms), field_name="supporting_terms"),
+        )
+        if not self.slice_ids:
+            raise ValueError("slice_ids must be non-empty")
+        if not self.anchor_entry_ids:
+            raise ValueError("anchor_entry_ids must be non-empty")
+
+        theme_key_terms = _validated_theme_terms(
+            self.theme_key.split("::"),
+            field_name="theme_key_terms",
+        )
+        if len(theme_key_terms) > 5:
+            raise ValueError("theme_key must contain at most 5 terms")
+        if self.theme_key != "::".join(theme_key_terms):
+            raise ValueError("theme_key must use ::-joined lawful theme terms")
+
+        expected_display_label = " ".join(theme_key_terms[:3])
+        if self.display_label != expected_display_label:
+            raise ValueError("display_label must match the theme_key prefix")
+        if self.supporting_terms[: len(theme_key_terms)] != theme_key_terms:
+            raise ValueError("supporting_terms must begin with the theme_key terms")
+
+        expected_theme_anchor_id = compute_history_theme_anchor_id(
+            source_id=self.source_id,
+            theme_key=self.theme_key,
+            slice_ids=self.slice_ids,
+        )
+        if self.theme_anchor_id != expected_theme_anchor_id:
+            raise ValueError(
+                "theme_anchor_id must derive from source_id, theme_key, and slice_ids"
+            )
+        return self
+
+
 __all__ = [
+    "ADEU_HISTORY_LEDGER_ENTRY_SCHEMA",
+    "ADEU_HISTORY_LEDGER_SCHEMA",
     "ADEU_HISTORY_PRECLASSIFICATION_SCHEMA",
+    "ADEU_HISTORY_SLICE_SCHEMA",
     "ADEU_HISTORY_SOURCE_ARTIFACT_SCHEMA",
+    "ADEU_HISTORY_THEME_ANCHOR_SCHEMA",
     "ADEU_HISTORY_TEXT_SHAPE_SIGNALS_SCHEMA",
     "CORPUS_WAVE_POSTURE_VOCABULARY",
     "INPUT_KIND_VOCABULARY",
     "ORIGIN_TYPE_VOCABULARY",
     "ROLE_TO_ORIGIN_TYPE",
     "ROLE_VOCABULARY",
+    "SLICE_BOUNDARY_TAG_VOCABULARY",
     "SOURCE_AUTHORITY_POSTURE",
     "SOURCE_DECLARATION_HINT_VOCABULARY",
+    "SliceBoundaryTag",
     "STRUCTURAL_MARKER_VOCABULARY",
+    "HistoryLedger",
+    "HistoryLedgerEntry",
     "HistoryPreclassification",
+    "HistorySlice",
     "HistorySourceArtifact",
+    "HistoryThemeAnchor",
     "HistoryTextShapeSignals",
     "canonical_json",
+    "compute_history_entry_text_hash",
+    "compute_history_ledger_entry_id",
+    "compute_history_ledger_id",
     "compute_history_preclassification_id",
     "compute_history_source_id",
+    "compute_history_slice_id",
+    "compute_history_theme_anchor_id",
+    "compute_history_theme_key",
+    "compute_history_theme_label",
     "compute_source_text_hash",
     "sha256_canonical_json",
 ]
