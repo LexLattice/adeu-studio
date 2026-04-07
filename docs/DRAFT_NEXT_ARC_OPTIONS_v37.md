@@ -2,8 +2,8 @@
 
 Status: planning draft after `docs/DRAFT_NEXT_ARC_OPTIONS_v36.md`, refreshed after the
 history-semantics external bundle was normalized as support-only intake evidence rather
-than live package, schema, or family authority, and now updated with `V54-A` closed on
-`arc/v54-r3`.
+than live package, schema, or family authority, and now updated with `V54-B` closed on
+`arc/v54-r4`.
 
 Authority layer: planning.
 
@@ -53,7 +53,7 @@ Interpretive doctrine for this planning surface:
   semantics / workbench ladder recorded in `docs/DRAFT_NEXT_ARC_OPTIONS_v35.md`.
 - `V46-A` through `V46-E` are closed on `main` and now constitute the completed
   applied-benchmarking ladder recorded in `docs/DRAFT_NEXT_ARC_OPTIONS_v29.md`.
-- `vNext+142` is the current implementation-arc baseline on `arc/v54-r3`.
+- `vNext+144` is the current implementation-arc baseline on `arc/v54-r4`.
 - imported prototype bundles have now been normalized under
   `examples/external_prototypes/`, including:
   - `adeu-history-semantics-bundle`
@@ -76,6 +76,18 @@ Interpretive doctrine for this planning surface:
   - one explicit-role-header `conversation_history` starter domain only
   - no ledger, slice, theme, O/E/D/U, workspace, API/UI/runtime, or broader
     corpus-ingestion widening
+- `V54-B` is now closed on `arc/v54-r4`:
+  - four released downstream contracts:
+    - `adeu_history_ledger_entry@1`
+    - `adeu_history_ledger@1`
+    - `adeu_history_slice@1`
+    - `adeu_history_theme_anchor@1`
+  - one preclassification to one ledger-entry law only
+  - one maximal contiguous same-role slice grouping law only
+  - one deterministic descriptive theme-anchor grouping law only
+  - fail-closed no-lawful-theme-term rejection
+  - no evidence ref, O/E/D/U, workspace, API/UI/runtime, or broader
+    corpus-ingestion widening
 
 ## Gap
 
@@ -84,25 +96,22 @@ The repo no longer lacks:
 - one released semantic substrate family over `V49`;
 - one released paper-domain consumer proof over `V52`;
 - one normalized intake pack that tells the truth about the external
-  history-semantics bundle and its blocker set.
+  history-semantics bundle and its blocker set;
+- one repo-owned history-semantics package that freezes source, preclassification,
+  ledger, slice, and theme schema/export posture under repo authority;
+- one explicit source-authority decision for this family:
+  normalized source text authoritative after line-ending normalization;
+- one bounded deterministic source/preclassification/ledger/slice/theme substrate
+  whose heuristics are governed by committed regression coverage rather than ambient
+  prototype taste.
 
 The repo still lacks:
 
-- one repo-owned history-semantics package that freezes the artifact-family ladder and
-  schema/export posture under repo authority;
-- one explicit source-authority decision for this family:
-  - raw bytes authoritative; or
-  - normalized text authoritative; or
-  - dual raw-plus-normalized surfaces with one declared authority root;
-- one bounded deterministic preclassification / ledger / slice / theme substrate whose
-  heuristics are governed by regression coverage rather than ambient prototype taste;
-- one explicit authority ladder that separates:
-  - authority root artifacts
-  - deterministic derived overlays
-  - advisory reconstruction artifacts
-  - advisory workspace synthesis;
-- one clear rule for how O/E/D/U reconstruction and workspace snapshots remain
-  advisory, never the source authority root.
+- one released advisory O/E/D/U packet seam over the closed source/ledger/slice/theme
+  substrate;
+- one released workspace question / theme-frame / workspace-snapshot seam;
+- one released proof, not just planning language, that O/E/D/U reconstruction and
+  workspace synthesis remain advisory rather than authority roots.
 
 The missing layer is therefore not merely another semantic substrate family, not a
 paper-semantics widening, not a digest runtime bridge, and not yet a corpus-ingestion or
@@ -230,11 +239,11 @@ Planning relationship:
 - Recommended `V54-B` slice mapping reference:
   - `docs/DRAFT_ADEU_HISTORY_SEMANTICS_V54B_IMPLEMENTATION_MAPPING_v0.md`
 - Recommended next path for this branch:
-  - `V54-B`
+  - `V54-C`
 - Recommended next concrete arc for this branch if selected:
-  - `vNext+144`
+  - `vNext+146`
 - Default path selection for this branch:
-  - select `V54-B` as the next default candidate
+  - select `V54-C` as the next default candidate
 
 This family/path recommendation is branch-local to the `v37` planning surface.
 
@@ -248,7 +257,7 @@ The current recommended path ladder is:
 | Path | Theme | Primary output | Status |
 |---|---|---|---|
 | `V54-A` | source contract + authority/export substrate | released `adeu_history_source_artifact@1`, released text-shape / preclassification substrate, and released schema/export posture over one bounded starter source domain | closed on `arc/v54-r3` |
-| `V54-B` | ledger / slice / theme substrate hardening | released `adeu_history_ledger_entry@1`, released `adeu_history_ledger@1`, released `adeu_history_slice@1`, and released `adeu_history_theme_anchor@1` with regression-hardened deterministic grouping/parsing law | planned |
+| `V54-B` | ledger / slice / theme substrate hardening | released `adeu_history_ledger_entry@1`, released `adeu_history_ledger@1`, released `adeu_history_slice@1`, and released `adeu_history_theme_anchor@1` with regression-hardened deterministic grouping/parsing law | closed on `arc/v54-r4` |
 | `V54-C` | advisory O/E/D/U reconstruction lane | released advisory lane reconstruction and packet artifacts only | planned |
 | `V54-D` | advisory workspace synthesis lane | released bounded workspace question / theme-frame / snapshot seam only | planned |
 
@@ -276,8 +285,8 @@ The first planning pass should assume one primary family package:
   "schema": "draft_next_arc_options@1",
   "planning_doc": "docs/DRAFT_NEXT_ARC_OPTIONS_v37.md",
   "branch_candidate_family": "V54",
-  "branch_candidate_status": "candidate_family_planning_after_v54a_closeout",
-  "baseline_arc": "vNext+142",
+  "branch_candidate_status": "candidate_family_planning_after_v54b_closeout",
+  "baseline_arc": "vNext+144",
   "closed_prior_families": [
     "V49",
     "V52"
@@ -289,16 +298,16 @@ The first planning pass should assume one primary family package:
     "V53"
   ],
   "recommended_family": "V54",
-  "default_next_path_recommendation": "V54-B",
-  "default_next_concrete_arc_candidate_for_this_branch": "vNext+144",
+  "default_next_path_recommendation": "V54-C",
+  "default_next_concrete_arc_candidate_for_this_branch": "vNext+146",
   "family_decomposition_doc": "docs/DRAFT_ADEU_HISTORY_SEMANTICS_V54_IMPLEMENTATION_MAPPING_v0.md",
   "v54a_slice_mapping_doc": "docs/DRAFT_ADEU_HISTORY_SEMANTICS_V54A_IMPLEMENTATION_MAPPING_v0.md",
   "v54b_slice_mapping_doc": "docs/DRAFT_ADEU_HISTORY_SEMANTICS_V54B_IMPLEMENTATION_MAPPING_v0.md",
   "closed_current_family_paths": [
-    "V54-A"
+    "V54-A",
+    "V54-B"
   ],
   "planned_current_family_paths": [
-    "V54-B",
     "V54-C",
     "V54-D"
   ],
