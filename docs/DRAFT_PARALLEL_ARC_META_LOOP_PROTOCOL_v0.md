@@ -46,11 +46,17 @@ Implementation-worker launch reference for the pilot:
 
 - `docs/DRAFT_PARALLEL_ARC_IMPLEMENTATION_WORKER_PROMPT_v0.md`
 
+Starter-worker launch reference for the pilot:
+
+- `docs/DRAFT_PARALLEL_ARC_STARTER_WORKER_PROMPT_v0.md`
+
 Model restriction for the pilot:
 
-- all sub-workers and reviewers use `gpt-5.4`
-- all sub-workers and reviewers use reasoning effort `xhigh`
-- no other child model is used during the first experiment
+- baseline sub-worker and reviewer posture is `gpt-5.4` with reasoning effort
+  `xhigh`
+- explicit model-comparison runs may instead use `gpt-5.3-codex` with reasoning
+  effort `high`, but only when the orchestrator logs that variance test explicitly
+- do not mix worker models casually inside one run without logging the reason
 
 This pilot does not authorize:
 
@@ -542,6 +548,8 @@ required execution order for the assigned role.
 When the orchestrator enables strict step-checkpoint mode for a slice:
 
 - the worker may execute only the currently authorized template step
+- each material template step should use a fresh worker instance by default,
+  especially for drafting-heavy steps
 - after completing that step, the worker must emit one baton naming the template ref
   and current step id/order
 - the worker must then stop and wait for explicit orchestrator continuation before
@@ -571,6 +579,35 @@ If a step fails:
   - halt the slice and log the failure as evidence
 
 The worker may not silently skip ahead to later cleanup or compensating edits.
+
+## Drafting-Step Start Law
+
+For strict-mode drafting steps:
+
+- the prompt should name the exact files to create or update
+- if the step is meant to create files, the first next write action should be
+  `apply_patch`
+- exploratory searches for local conventions or historical examples are not assumed
+  lawful once the step has been authorized
+- if the worker uses exploratory tools before the required files exist, the
+  orchestrator should treat that as a step-compliance failure rather than harmless
+  progress
+
+The pilot evidence so far shows a recurring `read more before writing` loop. This rule
+exists to make that loop visible and actionable rather than tolerating it as partial
+progress.
+
+## Contradiction Recording Law
+
+If a worker encounters a real doc mismatch during a step that is not authorized to
+repair that mismatch yet:
+
+- record the mismatch in the required step artifact
+- do not widen the step into extra repo research or self-directed reconciliation
+- do not silently repair the mismatch unless the step explicitly owns that repair
+
+This keeps contradiction-bearing steps from drifting into reviewer-like behavior when
+the assigned task is only to checkpoint or boundedly draft.
 
 ## Governance Revision Rule
 

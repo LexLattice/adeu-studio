@@ -17,49 +17,85 @@
       ],
       "required_outputs": [
         "starter-bundle target list confirmed",
-        "controlling refs named in worker baton or checkpoint note"
+        "checkpoint note naming controlling refs and exact target set",
+        "step-1 baton"
       ],
       "success_predicate": [
         "worker is grounded on the exact slice and exact starter bundle surfaces"
       ],
       "required_checks": [],
+      "allowed_reads": [
+        "the explicitly named controlling refs only",
+        "one bounded branch/worktree sanity check if needed"
+      ],
       "forbidden_shortcuts": [
         "starting doc edits before controlling refs are named",
-        "inventing extra starter docs not selected by the family pattern"
+        "inventing extra starter docs not selected by the family pattern",
+        "searching for prior baton or starter-bundle examples",
+        "widening a discovered mismatch into extra repo research"
       ],
-      "next_step_if_pass": "draft_required_starter_docs",
+      "next_step_if_pass": "create_required_starter_stub_files",
       "escalate_if_fail": "emit blocker and wait for orchestrator repair guidance"
     },
     {
-      "step_id": "draft_required_starter_docs",
+      "step_id": "create_required_starter_stub_files",
       "step_order": 2,
       "required_inputs": [
         "confirmed starter bundle target list",
         "controlling refs from step 1"
       ],
       "required_outputs": [
-        "lock doc draft",
-        "stop-gate doc draft",
-        "assessment doc draft",
-        "updated family planning doc",
-        "slice-level starter mapping doc when the family pattern requires it"
+        "lock doc stub",
+        "stop-gate doc stub",
+        "assessment doc stub",
+        "family planning doc targeted update stub",
+        "slice-level starter mapping doc stub when the family pattern requires it"
       ],
       "success_predicate": [
-        "all required starter docs exist in the assigned branch worktree"
+        "all required starter docs exist in the assigned branch worktree, even if still skeletal"
       ],
       "required_checks": [],
+      "first_next_tool_must_be": "apply_patch",
       "forbidden_shortcuts": [
-        "claiming starter completion while any required doc is missing",
-        "editing outside assigned family starter surfaces"
+        "claiming step completion while any required doc file is missing",
+        "editing outside assigned family starter surfaces",
+        "using exploratory tool calls before the stub files exist"
       ],
-      "next_step_if_pass": "preserve_first_draft_evidence",
+      "next_step_if_pass": "fill_required_starter_docs",
       "escalate_if_fail": "emit missing-doc blocker and wait"
     },
     {
-      "step_id": "preserve_first_draft_evidence",
+      "step_id": "fill_required_starter_docs",
       "step_order": 3,
       "required_inputs": [
-        "complete starter-doc draft set"
+        "complete starter-doc stub set",
+        "step-1 controlling refs and target set"
+      ],
+      "required_outputs": [
+        "lock doc draft",
+        "stop-gate doc draft",
+        "assessment doc draft",
+        "updated family planning doc draft",
+        "slice-level starter mapping draft when the family pattern requires it"
+      ],
+      "success_predicate": [
+        "all required starter docs are populated enough to represent the bounded starter bundle"
+      ],
+      "required_checks": [],
+      "first_next_tool_must_be": "apply_patch",
+      "forbidden_shortcuts": [
+        "restarting broad repo research before filling the stub files",
+        "repairing contradictions not owned by this step instead of recording them in the drafted docs"
+      ],
+      "next_step_if_pass": "preserve_first_draft_evidence",
+      "escalate_if_fail": "emit exact drafting blocker and wait"
+    },
+    {
+      "step_id": "preserve_first_draft_evidence",
+      "step_order": 4,
+      "required_inputs": [
+        "complete starter-doc draft set",
+        "completed starter-doc draft set"
       ],
       "required_outputs": [
         "preserved first-draft evidence copy for every required starter doc"
@@ -76,14 +112,15 @@
     },
     {
       "step_id": "run_starter_gate",
-      "step_order": 4,
+      "step_order": 5,
       "required_inputs": [
-        "complete starter-doc draft set",
+        "starter docs",
+        "first-draft evidence",
         "preserved first-draft evidence copies"
       ],
       "required_outputs": [
         "starter gate result",
-        "truthful local validation note in worker baton"
+        "truthful local validation note in worker baton or checkpoint note"
       ],
       "success_predicate": [
         "the worker has run the selected starter validation lane and recorded the result truthfully"
@@ -100,7 +137,7 @@
     },
     {
       "step_id": "emit_starter_claim_baton",
-      "step_order": 5,
+      "step_order": 6,
       "required_inputs": [
         "starter docs",
         "first-draft evidence",

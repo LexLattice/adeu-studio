@@ -52,6 +52,14 @@ This is intentionally slower than the normal pilot path. The purpose is to ident
 - which steps are robust
 - which steps are fragile under copy-forward or partial-completion pressure
 
+Current observed hardening direction:
+
+- use a fresh worker per material step
+- split drafting into `stub -> fill` rather than one broad draft step
+- require `apply_patch` as the first next write action for file-creation steps
+- record contradictions inside the current step artifact rather than letting them
+  trigger extra repo research
+
 ## Not Frozen Yet
 
 This first template set does not yet freeze:
