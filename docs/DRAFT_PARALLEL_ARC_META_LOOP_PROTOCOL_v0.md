@@ -42,6 +42,10 @@ Optional later shared helper:
 
 - one PR/CI janitor role
 
+Implementation-worker launch reference for the pilot:
+
+- `docs/DRAFT_PARALLEL_ARC_IMPLEMENTATION_WORKER_PROMPT_v0.md`
+
 Model restriction for the pilot:
 
 - all sub-workers and reviewers use `gpt-5.4`
@@ -125,12 +129,17 @@ Owns:
 - review-fix integration
 - closeout drafting for the assigned family branch
 - preserving the slice-local draft/review/integrated artifact sequence
+- finishing the full implementation contract for the assigned slice rather than
+  stopping at exploratory or partial package mutation
 
 Does not own:
 
 - governance-state advancement by fiat
 - family-to-`main` merge decisions
 - conceptual-review authority
+
+The arc worker may not claim implementation completion while any required contract
+surface for the slice is still missing, red, or only partially wired.
 
 ### Conceptual Reviewer
 
@@ -199,6 +208,39 @@ Per slice, the legal sequence is:
 14. arc worker drafts closeout on the family arc branch
 15. meta-orchestrator verifies the baton and advances to next slice
 
+## Implementation Worker Finish-Line Law
+
+For the pilot, an implementation worker launch must carry one explicit finish line.
+
+That finish line must name at minimum:
+
+- the exact slice lock and slice mapping docs being implemented
+- the owned write scope
+- the required contract surfaces to exist at completion
+- the required authoritative schema exports and root `spec/` mirrors, if the lock
+  selects released contracts
+- the required deterministic fixtures/tests for the slice
+- the exact targeted checks the worker must run before claiming completion
+- the exact baton artifact the worker must emit
+
+Implementation completion is not satisfied by:
+
+- a partial package diff
+- only adding models without schema export surfaces when the lock requires contract
+  release
+- only adding helpers without fixtures/tests
+- red targeted checks
+- a narrative status message without a baton
+
+If a worker is handed a partial implementation state on a slice retry, the worker
+must finish that state or fail loudly against the missing finish-line items; it may not
+quietly restart the slice from scratch unless the orchestrator explicitly authorizes
+that reset.
+
+If targeted tests reveal released-surface drift inside the slice's owned package lane
+for the bounded contract, the worker should repair that drift inside the slice rather
+than reporting a partial completion.
+
 ## Pre-Review Integrity Gate
 
 Before a starter bundle is handed to a conceptual reviewer, the meta-orchestrator
@@ -222,6 +264,16 @@ If that integrity gate fails:
 - the family remains in `starter_integration_pending`
 - the reviewer should not be treated as the primary repair surface for missing starter
   structure
+
+## Implementation Retry Recovery Rule
+
+If a slice implementation worker stops mid-slice and leaves only partial code:
+
+- preserve the partial diff as pilot evidence before relaunch
+- do not overwrite the failed state in place without an evidence record
+- relaunch from the committed family-trunk starter baseline on a fresh retry slice
+  branch unless the orchestrator explicitly chooses a different recovery posture
+- the retry prompt must name the concrete misses from the failed attempt
 
 The 5-minute waits are deliberate pilot rules, not suggestions:
 

@@ -74,6 +74,15 @@ Purpose:
 For repeated pilot runs, the slice branch may also carry the run marker if needed for
 clarity.
 
+For implementation retries inside one run:
+
+- preserve the failed slice branch/worktree as evidence if it contains non-trivial
+  partial state
+- create a fresh retry slice branch from the committed family trunk, for example:
+  - `v143-v53b-edge-adjudication-impl-r4-retry1`
+  - `v144-v54b-history-ledger-theme-impl-r4-retry1`
+- record the preserved failure sample in the orchestrator log before relaunch
+
 ## PR Base Rules
 
 - slice PRs target the family arc branch
