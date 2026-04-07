@@ -161,7 +161,6 @@ This new family asks:
 - explicit adjudication-law hardening over the released taxonomy + applicability stack;
 - explicit fail-closed override law;
 - explicit evidence-semantics law for stronger statuses;
-- explicit support-ref identity and input-order law for starter support fields;
 - not a license to treat lexical adjacency as proof by default.
 
 `V53-C` should therefore be read as:
@@ -245,7 +244,7 @@ The current recommended path ladder is:
 | Path | Theme | Primary output | Status |
 |---|---|---|---|
 | `V53-A` | taxonomy + applicability substrate | released `adeu_edge_class_catalog@1`, released `adeu_edge_probe_template_catalog@1`, and released `adeu_symbol_edge_applicability_frame@1` over one bounded pilot scope | closed on `arc/v53-r3` |
-| `V53-B` | adjudication hardening lane | released `adeu_symbol_edge_adjudication_ledger@1` with fail-closed override law, explicit evidence semantics, and explicit support-ref identity/order law | planned |
+| `V53-B` | adjudication hardening lane | released `adeu_symbol_edge_adjudication_ledger@1` with fail-closed override law and explicit evidence semantics | planned |
 | `V53-C` | cumulative revision register lane | released revision lineage / register surface above isolated revision judgments | planned |
 | `V53-D` | bounded probe/test-intent integration lane | one explicit integration seam with later probe strategy or released `V45-D` test-intent surfaces only after the core ledger is stable | planned |
 
