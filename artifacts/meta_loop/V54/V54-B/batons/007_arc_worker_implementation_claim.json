@@ -1,0 +1,14 @@
+{
+  "schema": "v1",
+  "baton_id": "007_arc_worker_implementation_claim",
+  "arc_family": "V54",
+  "slice": "V54-B",
+  "phase": "implementation",
+  "role": "arc_worker",
+  "status": "claimed",
+  "commit_sha": null,
+  "checks_run": [
+    "PYTHONPATH=packages/adeu_history_semantics/src:packages/adeu_ir/src .venv/bin/python -m ruff check packages/adeu_history_semantics",
+    "PYTHONPATH=packages/adeu_history_semantics/src:packages/adeu_ir/src .venv/bin/python -m pytest packages/adeu_history_semantics/tests -q"
+  ]
+}

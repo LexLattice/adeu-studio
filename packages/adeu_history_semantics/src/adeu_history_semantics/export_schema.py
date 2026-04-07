@@ -8,12 +8,20 @@ from typing import Any
 from adeu_ir.repo import repo_root
 
 from .models import (
+    ADEU_HISTORY_LEDGER_ENTRY_SCHEMA,
+    ADEU_HISTORY_LEDGER_SCHEMA,
     ADEU_HISTORY_PRECLASSIFICATION_SCHEMA,
+    ADEU_HISTORY_SLICE_SCHEMA,
     ADEU_HISTORY_SOURCE_ARTIFACT_SCHEMA,
     ADEU_HISTORY_TEXT_SHAPE_SIGNALS_SCHEMA,
+    ADEU_HISTORY_THEME_ANCHOR_SCHEMA,
+    HistoryLedger,
+    HistoryLedgerEntry,
     HistoryPreclassification,
+    HistorySlice,
     HistorySourceArtifact,
     HistoryTextShapeSignals,
+    HistoryThemeAnchor,
 )
 
 _WINDOWS_ABSOLUTE_PATH_RE = re.compile(r"[A-Za-z]:\\")
@@ -98,6 +106,46 @@ def main() -> None:
             / "schema"
             / "adeu_history_preclassification.v1.json",
             root / "spec" / "adeu_history_preclassification.schema.json",
+        ),
+        (
+            HistoryLedgerEntry,
+            ADEU_HISTORY_LEDGER_ENTRY_SCHEMA,
+            root
+            / "packages"
+            / "adeu_history_semantics"
+            / "schema"
+            / "adeu_history_ledger_entry.v1.json",
+            root / "spec" / "adeu_history_ledger_entry.schema.json",
+        ),
+        (
+            HistoryLedger,
+            ADEU_HISTORY_LEDGER_SCHEMA,
+            root
+            / "packages"
+            / "adeu_history_semantics"
+            / "schema"
+            / "adeu_history_ledger.v1.json",
+            root / "spec" / "adeu_history_ledger.schema.json",
+        ),
+        (
+            HistorySlice,
+            ADEU_HISTORY_SLICE_SCHEMA,
+            root
+            / "packages"
+            / "adeu_history_semantics"
+            / "schema"
+            / "adeu_history_slice.v1.json",
+            root / "spec" / "adeu_history_slice.schema.json",
+        ),
+        (
+            HistoryThemeAnchor,
+            ADEU_HISTORY_THEME_ANCHOR_SCHEMA,
+            root
+            / "packages"
+            / "adeu_history_semantics"
+            / "schema"
+            / "adeu_history_theme_anchor.v1.json",
+            root / "spec" / "adeu_history_theme_anchor.schema.json",
         ),
     ]
 

@@ -1,0 +1,84 @@
+{
+  "additionalProperties": false,
+  "properties": {
+    "boundary_tags": {
+      "items": {
+        "enum": [
+          "conversation_start",
+          "conversation_end",
+          "contains_multi_line_message",
+          "contains_blank_line_present",
+          "contains_bullet_line_present",
+          "contains_quoted_line_present",
+          "contains_code_fence_present",
+          "contains_question_mark_present"
+        ],
+        "type": "string"
+      },
+      "title": "Boundary Tags",
+      "type": "array"
+    },
+    "chronology_end_order_index": {
+      "title": "Chronology End Order Index",
+      "type": "integer"
+    },
+    "chronology_start_order_index": {
+      "title": "Chronology Start Order Index",
+      "type": "integer"
+    },
+    "entry_ids": {
+      "items": {
+        "type": "string"
+      },
+      "title": "Entry Ids",
+      "type": "array"
+    },
+    "schema": {
+      "const": "adeu_history_slice@1",
+      "default": "adeu_history_slice@1",
+      "title": "Schema",
+      "type": "string"
+    },
+    "slice_id": {
+      "title": "Slice Id",
+      "type": "string"
+    },
+    "slice_index": {
+      "title": "Slice Index",
+      "type": "integer"
+    },
+    "source_id": {
+      "title": "Source Id",
+      "type": "string"
+    },
+    "theme_key": {
+      "title": "Theme Key",
+      "type": "string"
+    },
+    "theme_label": {
+      "title": "Theme Label",
+      "type": "string"
+    },
+    "theme_terms": {
+      "items": {
+        "type": "string"
+      },
+      "title": "Theme Terms",
+      "type": "array"
+    }
+  },
+  "required": [
+    "slice_id",
+    "source_id",
+    "slice_index",
+    "entry_ids",
+    "chronology_start_order_index",
+    "chronology_end_order_index",
+    "boundary_tags",
+    "theme_terms",
+    "theme_label",
+    "theme_key"
+  ],
+  "title": "HistorySlice",
+  "type": "object"
+}
