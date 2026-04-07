@@ -1,0 +1,140 @@
+{
+  "$defs": {
+    "SymbolEdgeAdjudicationRow": {
+      "additionalProperties": false,
+      "properties": {
+        "adjudication_status": {
+          "enum": [
+            "not_applicable",
+            "applicable_unchecked",
+            "witness_found",
+            "checked_no_witness_found",
+            "underdetermined",
+            "deferred"
+          ],
+          "title": "Adjudication Status",
+          "type": "string"
+        },
+        "deferral_reason": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Deferral Reason"
+        },
+        "edge_class_ref": {
+          "title": "Edge Class Ref",
+          "type": "string"
+        },
+        "source_applicability_status": {
+          "enum": [
+            "applicable",
+            "not_applicable",
+            "underdetermined"
+          ],
+          "title": "Source Applicability Status",
+          "type": "string"
+        },
+        "supporting_checked_no_witness_refs": {
+          "items": {
+            "type": "string"
+          },
+          "title": "Supporting Checked No Witness Refs",
+          "type": "array"
+        },
+        "supporting_witness_refs": {
+          "items": {
+            "type": "string"
+          },
+          "title": "Supporting Witness Refs",
+          "type": "array"
+        }
+      },
+      "required": [
+        "edge_class_ref",
+        "source_applicability_status",
+        "adjudication_status"
+      ],
+      "title": "SymbolEdgeAdjudicationRow",
+      "type": "object"
+    }
+  },
+  "additionalProperties": false,
+  "properties": {
+    "adjudication_rows": {
+      "items": {
+        "$ref": "#/$defs/SymbolEdgeAdjudicationRow"
+      },
+      "minItems": 1,
+      "title": "Adjudication Rows",
+      "type": "array"
+    },
+    "applicability_frame_ref": {
+      "title": "Applicability Frame Ref",
+      "type": "string"
+    },
+    "bound_edge_class_catalog_ref": {
+      "title": "Bound Edge Class Catalog Ref",
+      "type": "string"
+    },
+    "bound_probe_template_catalog_ref": {
+      "title": "Bound Probe Template Catalog Ref",
+      "type": "string"
+    },
+    "ledger_hash": {
+      "title": "Ledger Hash",
+      "type": "string"
+    },
+    "ledger_id": {
+      "title": "Ledger Id",
+      "type": "string"
+    },
+    "module_path": {
+      "title": "Module Path",
+      "type": "string"
+    },
+    "qualname": {
+      "title": "Qualname",
+      "type": "string"
+    },
+    "schema": {
+      "const": "adeu_symbol_edge_adjudication_ledger@1",
+      "default": "adeu_symbol_edge_adjudication_ledger@1",
+      "title": "Schema",
+      "type": "string"
+    },
+    "symbol_id": {
+      "title": "Symbol Id",
+      "type": "string"
+    },
+    "symbol_kind": {
+      "enum": [
+        "class",
+        "function",
+        "method",
+        "local_function"
+      ],
+      "title": "Symbol Kind",
+      "type": "string"
+    }
+  },
+  "required": [
+    "ledger_id",
+    "applicability_frame_ref",
+    "bound_edge_class_catalog_ref",
+    "bound_probe_template_catalog_ref",
+    "symbol_id",
+    "module_path",
+    "qualname",
+    "symbol_kind",
+    "adjudication_rows",
+    "ledger_hash"
+  ],
+  "title": "SymbolEdgeAdjudicationLedger",
+  "type": "object"
+}
