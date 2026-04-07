@@ -12,6 +12,7 @@ from pydantic import BaseModel, ConfigDict, Field, model_validator
 ADEU_EDGE_CLASS_CATALOG_SCHEMA = "adeu_edge_class_catalog@1"
 ADEU_EDGE_PROBE_TEMPLATE_CATALOG_SCHEMA = "adeu_edge_probe_template_catalog@1"
 ADEU_SYMBOL_EDGE_APPLICABILITY_FRAME_SCHEMA = "adeu_symbol_edge_applicability_frame@1"
+ADEU_SYMBOL_EDGE_ADJUDICATION_LEDGER_SCHEMA = "adeu_symbol_edge_adjudication_ledger@1"
 
 MODEL_CONFIG = ConfigDict(extra="forbid", frozen=True, populate_by_name=True)
 
@@ -60,6 +61,14 @@ STARTER_APPLICABILITY_STATUS_VOCABULARY = (
     "not_applicable",
     "underdetermined",
 )
+STARTER_ADJUDICATION_STATUS_VOCABULARY = (
+    "not_applicable",
+    "applicable_unchecked",
+    "witness_found",
+    "checked_no_witness_found",
+    "underdetermined",
+    "deferred",
+)
 STARTER_EPISTEMIC_POSTURE_VOCABULARY = (
     "derived_deterministically",
     "inferred_heuristically",
@@ -83,6 +92,14 @@ ProbeStrategyKind = Literal[
     "fail_closed_rejection",
 ]
 ApplicabilityStatus = Literal["applicable", "not_applicable", "underdetermined"]
+AdjudicationStatus = Literal[
+    "not_applicable",
+    "applicable_unchecked",
+    "witness_found",
+    "checked_no_witness_found",
+    "underdetermined",
+    "deferred",
+]
 EpistemicPosture = Literal["derived_deterministically", "inferred_heuristically"]
 SymbolKind = Literal["class", "function", "method", "local_function"]
 
@@ -221,6 +238,10 @@ def compute_edge_probe_template_catalog_id(payload_without_id: dict[str, Any]) -
 
 def compute_symbol_edge_applicability_frame_id(payload_without_id: dict[str, Any]) -> str:
     return f"symbol_edge_applicability_frame:{_sha256_canonical_payload(payload_without_id)[:16]}"
+
+
+def compute_symbol_edge_adjudication_ledger_id(payload_without_id: dict[str, Any]) -> str:
+    return f"symbol_edge_adjudication_ledger:{_sha256_canonical_payload(payload_without_id)[:16]}"
 
 
 class EdgeClassNode(BaseModel):
@@ -771,11 +792,285 @@ class SymbolEdgeApplicabilityFrame(BaseModel):
         return self
 
 
+class WitnessSummaryRecord(BaseModel):
+    model_config = MODEL_CONFIG
+
+    witness_ref: str
+    edge_class_ref: str
+    summary_text: str
+
+    @model_validator(mode="after")
+    def _validate(self) -> "WitnessSummaryRecord":
+        object.__setattr__(
+            self,
+            "witness_ref",
+            _assert_non_empty_text(self.witness_ref, field_name="witness_ref"),
+        )
+        object.__setattr__(
+            self,
+            "edge_class_ref",
+            _assert_edge_class_ref(
+                self.edge_class_ref,
+                field_name="edge_class_ref",
+                expected_kind="archetype",
+            ),
+        )
+        object.__setattr__(
+            self,
+            "summary_text",
+            _assert_non_empty_text(self.summary_text, field_name="summary_text"),
+        )
+        return self
+
+
+class SymbolEdgeAdjudicationRow(BaseModel):
+    model_config = MODEL_CONFIG
+
+    edge_class_ref: str
+    source_applicability_status: ApplicabilityStatus
+    adjudication_status: AdjudicationStatus
+    supporting_witness_refs: list[str] = Field(default_factory=list)
+    supporting_checked_no_witness_refs: list[str] = Field(default_factory=list)
+    deferral_reason: str | None = None
+
+    @model_validator(mode="after")
+    def _validate(self) -> "SymbolEdgeAdjudicationRow":
+        object.__setattr__(
+            self,
+            "edge_class_ref",
+            _assert_edge_class_ref(
+                self.edge_class_ref,
+                field_name="edge_class_ref",
+                expected_kind="archetype",
+            ),
+        )
+        object.__setattr__(
+            self,
+            "supporting_witness_refs",
+            _assert_ordered_unique_texts(
+                self.supporting_witness_refs,
+                field_name="supporting_witness_refs",
+            ),
+        )
+        object.__setattr__(
+            self,
+            "supporting_checked_no_witness_refs",
+            [
+                _assert_edge_class_ref(
+                    value,
+                    field_name="supporting_checked_no_witness_refs",
+                    expected_kind="archetype",
+                )
+                for value in _assert_ordered_unique_texts(
+                    self.supporting_checked_no_witness_refs,
+                    field_name="supporting_checked_no_witness_refs",
+                )
+            ],
+        )
+        if self.deferral_reason is not None:
+            object.__setattr__(
+                self,
+                "deferral_reason",
+                _assert_non_empty_text(self.deferral_reason, field_name="deferral_reason"),
+            )
+
+        if self.source_applicability_status == "not_applicable":
+            if self.adjudication_status != "not_applicable":
+                raise ValueError(
+                    "not_applicable source_applicability_status must remain not_applicable"
+                )
+            if self.supporting_witness_refs or self.supporting_checked_no_witness_refs:
+                raise ValueError("not_applicable rows must have empty support refs")
+            if self.deferral_reason is not None:
+                raise ValueError("not_applicable rows must not carry deferral_reason")
+            return self
+
+        if self.source_applicability_status == "applicable":
+            if self.adjudication_status == "applicable_unchecked":
+                if self.supporting_witness_refs or self.supporting_checked_no_witness_refs:
+                    raise ValueError("applicable_unchecked rows must have empty support refs")
+                if self.deferral_reason is not None:
+                    raise ValueError("applicable_unchecked rows must not carry deferral_reason")
+                return self
+            if self.adjudication_status == "witness_found":
+                if not self.supporting_witness_refs or self.supporting_checked_no_witness_refs:
+                    raise ValueError(
+                        "witness_found rows require non-empty supporting_witness_refs only"
+                    )
+                if self.deferral_reason is not None:
+                    raise ValueError("witness_found rows must not carry deferral_reason")
+                return self
+            if self.adjudication_status == "checked_no_witness_found":
+                if self.supporting_witness_refs or not self.supporting_checked_no_witness_refs:
+                    raise ValueError(
+                        "checked_no_witness_found rows require non-empty "
+                        "supporting_checked_no_witness_refs only"
+                    )
+                if self.supporting_checked_no_witness_refs != [self.edge_class_ref]:
+                    raise ValueError(
+                        "checked_no_witness_found rows must carry the row edge_class_ref "
+                        "as the starter checked-no-witness support ref"
+                    )
+                if self.deferral_reason is not None:
+                    raise ValueError(
+                        "checked_no_witness_found rows must not carry deferral_reason"
+                    )
+                return self
+            raise ValueError(
+                "applicable source_applicability_status only admits applicable_unchecked, "
+                "witness_found, or checked_no_witness_found"
+            )
+
+        if self.source_applicability_status == "underdetermined":
+            if self.adjudication_status == "underdetermined":
+                if self.supporting_witness_refs or self.supporting_checked_no_witness_refs:
+                    raise ValueError("underdetermined rows must have empty support refs")
+                if self.deferral_reason is not None:
+                    raise ValueError("underdetermined rows must not carry deferral_reason")
+                return self
+            if self.adjudication_status == "deferred":
+                if not (self.supporting_witness_refs or self.supporting_checked_no_witness_refs):
+                    raise ValueError("deferred rows require explicit support refs")
+                if self.supporting_witness_refs and self.supporting_checked_no_witness_refs:
+                    raise ValueError(
+                        "deferred rows must not carry both witness and "
+                        "checked-no-witness support refs"
+                    )
+                if self.supporting_checked_no_witness_refs not in ([], [self.edge_class_ref]):
+                    raise ValueError(
+                        "deferred rows with checked-no-witness support must carry the "
+                        "row edge_class_ref exactly once"
+                    )
+                if self.deferral_reason is None:
+                    raise ValueError("deferred rows require deferral_reason")
+                return self
+            raise ValueError(
+                "underdetermined source_applicability_status only admits underdetermined "
+                "or deferred"
+            )
+
+        return self
+
+
+class SymbolEdgeAdjudicationLedger(BaseModel):
+    model_config = MODEL_CONFIG
+
+    schema_id: Literal[ADEU_SYMBOL_EDGE_ADJUDICATION_LEDGER_SCHEMA] = Field(
+        default=ADEU_SYMBOL_EDGE_ADJUDICATION_LEDGER_SCHEMA,
+        alias="schema",
+    )
+    ledger_id: str
+    applicability_frame_ref: str
+    bound_edge_class_catalog_ref: str
+    bound_probe_template_catalog_ref: str
+    symbol_id: str
+    module_path: str
+    qualname: str
+    symbol_kind: SymbolKind
+    adjudication_rows: list[SymbolEdgeAdjudicationRow] = Field(min_length=1)
+    ledger_hash: str
+
+    @property
+    def schema(self) -> str:
+        return self.schema_id
+
+    @model_validator(mode="after")
+    def _validate(self) -> "SymbolEdgeAdjudicationLedger":
+        for field_name in ("ledger_id", "applicability_frame_ref", "qualname"):
+            object.__setattr__(
+                self,
+                field_name,
+                _assert_non_empty_text(getattr(self, field_name), field_name=field_name),
+            )
+        object.__setattr__(
+            self,
+            "bound_edge_class_catalog_ref",
+            _assert_catalog_ref(
+                self.bound_edge_class_catalog_ref,
+                field_name="bound_edge_class_catalog_ref",
+                prefix="edge_class_catalog:",
+            ),
+        )
+        object.__setattr__(
+            self,
+            "bound_probe_template_catalog_ref",
+            _assert_catalog_ref(
+                self.bound_probe_template_catalog_ref,
+                field_name="bound_probe_template_catalog_ref",
+                prefix="edge_probe_template_catalog:",
+            ),
+        )
+        object.__setattr__(
+            self,
+            "module_path",
+            _assert_repo_rel_path(self.module_path, field_name="module_path"),
+        )
+        object.__setattr__(
+            self,
+            "ledger_hash",
+            _assert_sha256_hex(self.ledger_hash, field_name="ledger_hash"),
+        )
+        expected_symbol_id = compute_symbol_id(
+            module_path=self.module_path,
+            qualname=self.qualname,
+            symbol_kind=self.symbol_kind,
+        )
+        if self.symbol_id != expected_symbol_id:
+            raise ValueError("symbol_id must match canonical module_path + qualname + symbol_kind")
+        rows_by_ref = {row.edge_class_ref: row for row in self.adjudication_rows}
+        if len(rows_by_ref) != len(self.adjudication_rows):
+            raise ValueError("adjudication_rows edge_class_ref values must be unique")
+        if [row.edge_class_ref for row in self.adjudication_rows] != sorted(rows_by_ref):
+            raise ValueError(
+                "adjudication_rows must be sorted lexicographically by edge_class_ref"
+            )
+        expected_ledger_hash = _sha256_canonical_payload(
+            {
+                "schema": self.schema,
+                "applicability_frame_ref": self.applicability_frame_ref,
+                "bound_edge_class_catalog_ref": self.bound_edge_class_catalog_ref,
+                "bound_probe_template_catalog_ref": self.bound_probe_template_catalog_ref,
+                "symbol_id": self.symbol_id,
+                "module_path": self.module_path,
+                "qualname": self.qualname,
+                "symbol_kind": self.symbol_kind,
+                "adjudication_rows": [
+                    row.model_dump(mode="json", exclude_none=True)
+                    for row in self.adjudication_rows
+                ],
+            }
+        )
+        if self.ledger_hash != expected_ledger_hash:
+            raise ValueError("ledger_hash must match canonical adjudication payload")
+        expected_ledger_id = compute_symbol_edge_adjudication_ledger_id(
+            {
+                "schema": self.schema,
+                "applicability_frame_ref": self.applicability_frame_ref,
+                "bound_edge_class_catalog_ref": self.bound_edge_class_catalog_ref,
+                "bound_probe_template_catalog_ref": self.bound_probe_template_catalog_ref,
+                "symbol_id": self.symbol_id,
+                "module_path": self.module_path,
+                "qualname": self.qualname,
+                "symbol_kind": self.symbol_kind,
+                "adjudication_rows": [
+                    row.model_dump(mode="json", exclude_none=True)
+                    for row in self.adjudication_rows
+                ],
+                "ledger_hash": self.ledger_hash,
+            }
+        )
+        if self.ledger_id != expected_ledger_id:
+            raise ValueError("ledger_id must match canonical adjudication ledger identity")
+        return self
+
+
 __all__ = [
+    "ADEU_SYMBOL_EDGE_ADJUDICATION_LEDGER_SCHEMA",
     "ADEU_EDGE_CLASS_CATALOG_SCHEMA",
     "ADEU_EDGE_PROBE_TEMPLATE_CATALOG_SCHEMA",
     "ADEU_SYMBOL_EDGE_APPLICABILITY_FRAME_SCHEMA",
     "ADMITTED_V50_SYMBOL_KIND_VOCABULARY",
+    "AdjudicationStatus",
     "ApplicabilityStatus",
     "EdgeClassCatalog",
     "EdgeClassNode",
@@ -785,6 +1080,7 @@ __all__ = [
     "MODEL_CONFIG",
     "ProbeExecutionPosture",
     "ProbeStrategyKind",
+    "STARTER_ADJUDICATION_STATUS_VOCABULARY",
     "STARTER_APPLICABILITY_STATUS_VOCABULARY",
     "STARTER_EPISTEMIC_POSTURE_VOCABULARY",
     "STARTER_LIFECYCLE_POSTURE_VOCABULARY",
@@ -793,11 +1089,15 @@ __all__ = [
     "STARTER_PROBE_STRATEGY_KIND_VOCABULARY",
     "STARTER_TOP_LEVEL_FAMILY_REFS",
     "STARTER_TOP_LEVEL_FAMILY_SLUGS",
+    "SymbolEdgeAdjudicationLedger",
+    "SymbolEdgeAdjudicationRow",
     "SymbolEdgeApplicabilityFrame",
     "SymbolEdgeApplicabilityRow",
     "SymbolKind",
     "TaxonomyNodeKind",
     "TaxonomyNodeLifecycle",
+    "WitnessSummaryRecord",
+    "compute_symbol_edge_adjudication_ledger_id",
     "compute_edge_class_catalog_id",
     "compute_edge_probe_template_catalog_id",
     "compute_symbol_edge_applicability_frame_id",

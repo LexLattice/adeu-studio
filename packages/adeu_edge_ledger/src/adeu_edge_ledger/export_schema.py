@@ -7,7 +7,12 @@ from typing import Any
 
 from adeu_ir.repo import repo_root
 
-from .models import EdgeClassCatalog, EdgeProbeTemplateCatalog, SymbolEdgeApplicabilityFrame
+from .models import (
+    EdgeClassCatalog,
+    EdgeProbeTemplateCatalog,
+    SymbolEdgeAdjudicationLedger,
+    SymbolEdgeApplicabilityFrame,
+)
 
 _WINDOWS_ABSOLUTE_PATH_RE = re.compile(r"[A-Za-z]:\\")
 
@@ -67,6 +72,15 @@ def main() -> None:
             / "schema"
             / "adeu_symbol_edge_applicability_frame.v1.json",
             root / "spec" / "adeu_symbol_edge_applicability_frame.schema.json",
+        ),
+        (
+            SymbolEdgeAdjudicationLedger.model_json_schema(by_alias=True),
+            root
+            / "packages"
+            / "adeu_edge_ledger"
+            / "schema"
+            / "adeu_symbol_edge_adjudication_ledger.v1.json",
+            root / "spec" / "adeu_symbol_edge_adjudication_ledger.schema.json",
         ),
     )
     for schema, authoritative_path, mirror_path in mappings:

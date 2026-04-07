@@ -1,0 +1,81 @@
+{
+  "schema": "parallel_arc_meta_loop_baton@1",
+  "baton_id": "baton_v53b_arc_worker_implementation_claim_005",
+  "baton_kind": "transition_claim",
+  "emitted_at_utc": "2026-04-07T00:34:37Z",
+  "previous_baton_id": "baton_v53b_meta_orchestrator_readiness_ratification_004",
+  "arc_family": "V53",
+  "slice": "V53-B",
+  "phase": "implementation_complete_pending_orchestrator_verification",
+  "role": "arc_worker",
+  "model": "gpt-5.4",
+  "reasoning_effort": "xhigh",
+  "arc_branch": "arc/v53-r4",
+  "feature_branch": "v143-v53b-edge-adjudication-impl-r4",
+  "base_branch": "arc/v53-r4",
+  "commit_sha": null,
+  "pr_url": null,
+  "review_verdict": null,
+  "ci_status": null,
+  "controlling_refs": [
+    "docs/LOCKED_CONTINUATION_vNEXT_PLUS143.md",
+    "docs/DRAFT_ADEU_EDGE_LEDGER_V53B_IMPLEMENTATION_MAPPING_v0.md",
+    "docs/DRAFT_ADEU_EDGE_LEDGER_V53_IMPLEMENTATION_MAPPING_v0.md",
+    "docs/DRAFT_NEXT_ARC_OPTIONS_v36.md",
+    "docs/DRAFT_PARALLEL_ARC_META_LOOP_PROTOCOL_v0.md",
+    "docs/PARALLEL_ARC_META_LOOP_BATON_v0.json",
+    "artifacts/meta_loop/V53/V53-B/batons/004_meta_orchestrator_readiness_ratification.json"
+  ],
+  "required_outputs_claimed_satisfied": [
+    "v53_b_adjudication_contract_models",
+    "v53_b_adjudication_helper",
+    "v53_b_schema_export_and_root_mirror",
+    "v53_b_committed_deterministic_fixtures",
+    "v53_b_targeted_package_checks",
+    "v53_b_worker_implementation_baton"
+  ],
+  "unsatisfied_requirements": [
+    "v53_b_full_repo_make_check",
+    "v53_b_pr_open_step"
+  ],
+  "status": "completed",
+  "artifacts_produced": [
+    "packages/adeu_edge_ledger/src/adeu_edge_ledger/__init__.py",
+    "packages/adeu_edge_ledger/src/adeu_edge_ledger/models.py",
+    "packages/adeu_edge_ledger/src/adeu_edge_ledger/adjudication.py",
+    "packages/adeu_edge_ledger/src/adeu_edge_ledger/export_schema.py",
+    "packages/adeu_edge_ledger/schema/adeu_symbol_edge_adjudication_ledger.v1.json",
+    "packages/adeu_edge_ledger/tests/test_edge_ledger_adjudication.py",
+    "packages/adeu_edge_ledger/tests/test_edge_ledger_export_schema.py",
+    "packages/adeu_edge_ledger/tests/fixtures/v53b/reference_symbol_edge_adjudication_ledger.json",
+    "packages/adeu_edge_ledger/tests/fixtures/v53b/reject_contradictory_witness_input.json",
+    "spec/adeu_symbol_edge_adjudication_ledger.schema.json",
+    "artifacts/meta_loop/V53/V53-B/batons/005_arc_worker_implementation_claim.json"
+  ],
+  "evidence_refs": [
+    "packages/adeu_edge_ledger/src/adeu_edge_ledger/models.py",
+    "packages/adeu_edge_ledger/src/adeu_edge_ledger/adjudication.py",
+    "packages/adeu_edge_ledger/src/adeu_edge_ledger/export_schema.py",
+    "packages/adeu_edge_ledger/schema/adeu_symbol_edge_adjudication_ledger.v1.json",
+    "packages/adeu_edge_ledger/tests/test_edge_ledger_adjudication.py",
+    "packages/adeu_edge_ledger/tests/test_edge_ledger_export_schema.py",
+    "packages/adeu_edge_ledger/tests/fixtures/v53b/reference_symbol_edge_adjudication_ledger.json",
+    "spec/adeu_symbol_edge_adjudication_ledger.schema.json"
+  ],
+  "checks_run": [
+    "PYTHONPATH=packages/adeu_edge_ledger/src:packages/adeu_symbol_audit/src:packages/adeu_repo_description/src:packages/adeu_ir/src .venv/bin/python -m ruff check packages/adeu_edge_ledger (pass)",
+    "PYTHONPATH=packages/adeu_edge_ledger/src:packages/adeu_symbol_audit/src:packages/adeu_repo_description/src:packages/adeu_ir/src .venv/bin/python -m pytest packages/adeu_edge_ledger/tests -q (pass)"
+  ],
+  "checks_skipped": [
+    "make check skipped at worker stage per explicit slice instruction to use targeted checks only while working",
+    "repo-wide lint, pytest, closeout consistency, semantic compiler closeout, and generated instruction policy checks remain pending for orchestrator verification / PR prep"
+  ],
+  "blockers": [],
+  "next_allowed_actions": [
+    "meta_orchestrator_verify_v53_b_worker_outputs",
+    "run_full_make_check_before_pr_open",
+    "open_pr_against_arc_v53_r4_if_repo_gate_passes"
+  ],
+  "notes": "The V53-B package lane now publishes the locked adeu_symbol_edge_adjudication_ledger@1 contract over the released applicability frame. The helper fails closed on contradictory explicit overrides, out-of-frame override refs, and attempts to outrank not_applicable applicability rows. Package-local pytest passed with existing upstream warnings from released adeu_repo_description and urm_runtime modules; no new slice-local warnings or failures were introduced.",
+  "ratifies_baton_id": null
+}
