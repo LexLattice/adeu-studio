@@ -6,6 +6,7 @@ from pathlib import Path
 
 import pytest
 from adeu_edge_ledger import (
+    EdgeTaxonomyRevisionEntry,
     EdgeTaxonomyRevisionRegister,
     SymbolEdgeAdjudicationLedger,
     compute_edge_taxonomy_revision_register_id,
@@ -99,6 +100,24 @@ def test_reference_revision_register_append_replays_deterministically() -> None:
         prior_revision_register=initial_register,
     )
     assert rebound.model_dump(mode="json", by_alias=True, exclude_none=True) == append_payload
+
+
+def test_revision_entry_validator_rejects_unexpected_decision_value() -> None:
+    entry_payload = _load_v53c_fixture("reference_edge_taxonomy_revision_register_initial.json")[
+        "revision_entries"
+    ][0]
+    entry = EdgeTaxonomyRevisionEntry.model_construct(
+        **{
+            **entry_payload,
+            "revision_decision": "unexpected_revision_decision",
+        }
+    )
+
+    with pytest.raises(
+        ValueError,
+        match="unexpected revision_decision 'unexpected_revision_decision'",
+    ):
+        entry._validate()
 
 
 @pytest.mark.parametrize(

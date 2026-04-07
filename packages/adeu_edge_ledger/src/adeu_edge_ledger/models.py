@@ -1210,15 +1210,22 @@ class EdgeTaxonomyRevisionEntry(BaseModel):
                 )
             return self
 
-        if len(self.subject_edge_class_refs) != 1 or self.candidate_edge_class_refs:
-            raise ValueError(
-                "deprecate_existing_class requires exactly one subject ref and no candidate refs"
-            )
-        if self.proposed_lifecycle_posture != "deprecated":
-            raise ValueError(
-                "deprecate_existing_class requires proposed_lifecycle_posture = deprecated"
-            )
-        return self
+        if self.revision_decision == "deprecate_existing_class":
+            if len(self.subject_edge_class_refs) != 1 or self.candidate_edge_class_refs:
+                raise ValueError(
+                    "deprecate_existing_class requires exactly one subject ref "
+                    "and no candidate refs"
+                )
+            if self.proposed_lifecycle_posture != "deprecated":
+                raise ValueError(
+                    "deprecate_existing_class requires proposed_lifecycle_posture = deprecated"
+                )
+            return self
+
+        raise ValueError(
+            f"unexpected revision_decision {self.revision_decision!r}; "
+            "must use the frozen starter vocabulary"
+        )
 
 
 class EdgeTaxonomyRevisionRegister(BaseModel):
