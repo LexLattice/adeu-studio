@@ -335,8 +335,8 @@ The first planning pass should assume one primary family package:
   "branch_local_planning_selection_only": true,
   "selected_current_family_path_for_this_branch": "V54-D",
   "selected_current_concrete_arc_for_this_branch": "vNext+148",
-  "selected_current_path_branch": "arc/v54-r8",
-  "selected_current_path_phase": "starter_integration_pending"
+  "selected_current_path_branch": "arc/v54-r5",
+  "selected_current_path_phase": "post_closeout_planning"
 }
 ```
 
@@ -347,12 +347,11 @@ Branch-local closeout note:
 - `V54-C` is now closed on `arc/v54-r5`
 - branch-local default next path is now `V54-D`
 - branch-local default next concrete arc candidate is now `vNext+148`
-## V54-D Starter Integration (vNEXT_PLUS148)
+## V54-D Starter Drafting (vNEXT_PLUS148)
 
-Status: starter integration pending on `arc/v54-r8`.
+Status: in progress on `arc/v54-r8` (strict starter mode, step-3 drafting).
 Starter drafting note:
-- `V54-D` starter drafting completed on `arc/v54-r8`, and targeted starter
-  integration is now pending after conceptual review.
+- `V54-D` starter drafting is now in progress on `arc/v54-r8`.
 - Targeted outputs are the four new `vNEXT_PLUS148` docs plus the slice-specific
   `V54D` mapping doc.
-- This is still pre-commit starter work only, not a released slice.
+- This is still starter drafting only, not a released slice.

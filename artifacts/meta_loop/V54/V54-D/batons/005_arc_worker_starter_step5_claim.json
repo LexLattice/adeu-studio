@@ -1,0 +1,20 @@
+{
+  "run_id": "run-8",
+  "slice": "V54-D",
+  "mode": "strict starter",
+  "worker_step": "step-5",
+  "authorized_step": "run_starter_gate",
+  "status": "blocked",
+  "completed": false,
+  "gate": {
+    "command": "make arc-start-check ARC=148",
+    "arc": 148,
+    "exit_code": 2,
+    "result": "TZ=UTC LC_ALL=C PYTHONHASHSEED=0 PYTHONPATH=apps/api/src:packages/urm_runtime/src \\\n\t.venv/bin/python apps/api/scripts/lint_arc_bundle.py --arc 148 --phase start\n{\"arc\":148,\"checked_paths\":[\"docs/ASSESSMENT_vNEXT_PLUS148_EDGES.md\",\"docs/DRAFT_NEXT_ARC_OPTIONS_v10.md\",\"docs/DRAFT_NEXT_ARC_OPTIONS_v11.md\",\"docs/DRAFT_NEXT_ARC_OPTIONS_v12.md\",\"docs/DRAFT_NEXT_ARC_OPTIONS_v13.md\",\"docs/DRAFT_NEXT_ARC_OPTIONS_v14.md\",\"docs/DRAFT_NEXT_ARC_OPTIONS_v15.md\",\"docs/DRAFT_NEXT_ARC_OPTIONS_v16.md\",\"docs/DRAFT_NEXT_ARC_OPTIONS_v17.md\",\"docs/DRAFT_NEXT_ARC_OPTIONS_v18.md\",\"docs/DRAFT_NEXT_ARC_OPTIONS_v19.md\",\"docs/DRAFT_NEXT_ARC_OPTIONS_v2.md\",\"docs/DRAFT_NEXT_ARC_OPTIONS_v20.md\",\"docs/DRAFT_NEXT_ARC_OPTIONS_v21.md\",\"docs/DRAFT_NEXT_ARC_OPTIONS_v22.md\",\"docs/DRAFT_NEXT_ARC_OPTIONS_v23.md\",\"docs/DRAFT_NEXT_ARC_OPTIONS_v24.md\",\"docs/DRAFT_NEXT_ARC_OPTIONS_v25.md\",\"docs/DRAFT_NEXT_ARC_OPTIONS_v26.md\",\"docs/DRAFT_NEXT_ARC_OPTIONS_v27.md\",\"docs/DRAFT_NEXT_ARC_OPTIONS_v28.md\",\"docs/DRAFT_NEXT_ARC_OPTIONS_v29.md\",\"docs/DRAFT_NEXT_ARC_OPTIONS_v3.md\",\"docs/DRAFT_NEXT_ARC_OPTIONS_v30.md\",\"docs/DRAFT_NEXT_ARC_OPTIONS_v31.md\",\"docs/DRAFT_NEXT_ARC_OPTIONS_v32.md\",\"docs/DRAFT_NEXT_ARC_OPTIONS_v33.md\",\"docs/DRAFT_NEXT_ARC_OPTIONS_v34.md\",\"docs/DRAFT_NEXT_ARC_OPTIONS_v35.md\",\"docs/DRAFT_NEXT_ARC_OPTIONS_v36.md\",\"docs/DRAFT_NEXT_ARC_OPTIONS_v37.md\",\"docs/DRAFT_NEXT_ARC_OPTIONS_v4.md\",\"docs/DRAFT_NEXT_ARC_OPTIONS_v5.md\",\"docs/DRAFT_NEXT_ARC_OPTIONS_v6.md\",\"docs/DRAFT_NEXT_ARC_OPTIONS_v7.md\",\"docs/DRAFT_NEXT_ARC_OPTIONS_v8.md\",\"docs/DRAFT_NEXT_ARC_OPTIONS_v9.md\",\"docs/DRAFT_STOP_GATE_DECISION_vNEXT_PLUS148.md\",\"docs/LOCKED_CONTINUATION_vNEXT_PLUS148.md\"],\"failures\":[{\"code\":\"CONTRACT_BLOCK_COUNT_INVALID\",\"details\":{\"count\":0,\"doc_path\":\"docs/LOCKED_CONTINUATION_vNEXT_PLUS148.md\",\"target_arc\":\"vNext+148\"}},{\"code\":\"JSON_BLOCK_COUNT_INVALID\",\"details\":{\"count\":0,\"doc_path\":\"docs/ASSESSMENT_vNEXT_PLUS148_EDGES.md\",\"schema\":\"assessment_artifact_state@1\"}},{\"code\":\"JSON_BLOCK_COUNT_INVALID\",\"details\":{\"count\":0,\"doc_path\":\"docs/DRAFT_STOP_GATE_DECISION_vNEXT_PLUS148.md\",\"schema\":\"decision_artifact_state@1\"}}],\"phase\":\"start\",\"schema\":\"arc_bundle_lint@1\"}\nmake: *** [Makefile:65: arc-start-check] Error 1"
+  },
+  "blocker": {
+    "type": "starter_gate_failed",
+    "failing_command": "make arc-start-check ARC=148",
+    "failing_result_recorded": true
+  }
+}
