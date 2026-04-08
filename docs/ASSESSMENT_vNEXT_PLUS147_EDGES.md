@@ -1,48 +1,99 @@
-# ASSESSMENT_vNEXT_PLUS147_EDGES
+# Assessment vNext+147 Edges
 
-## Status
+Status: post-closeout edge assessment for `V53-D` (April 8, 2026 UTC).
 
-Bounded starter edge/risk assessment for `V53-D` (step-3 fill).
+Authority layer: closeout evidence on `arc/v53-r8`.
+
+## Assessment-State Marker (Machine-Checkable)
 
 ```json
 {
-  "artifact": "docs/ASSESSMENT_vNEXT_PLUS147_EDGES.md",
   "schema": "assessment_artifact_state@1",
-  "phase": "pre_lock_assessment",
-  "authoritative": false,
+  "artifact": "docs/ASSESSMENT_vNEXT_PLUS147_EDGES.md",
+  "phase": "post_closeout_assessment",
+  "authoritative": true,
   "required_in_decision": true
 }
 ```
 
-## Authority Layer
+## Open Edges
 
-support
+### Edge 1: Probe/Test-Intent Bridging Could Quietly Promote Soft Signals Into Hard Status
+
+- Risk:
+  bridge rows could start sounding like proof, even though the family still forbids
+  lexical adjacency or similar weak cues from outranking the released applicability
+  and adjudication substrate.
+- Response:
+  keep the bridge downstream of the closed taxonomy/adjudication/revision core and
+  preserve fail-closed behavior for malformed or unknown probe references.
+- Closeout Evidence:
+  shipped bridge validation rejects unknown probe refs and keeps the slice scoped to
+  one bridge contract rather than a new proof or override surface.
+
+### Edge 2: Bridge Entry Identity Could Drift Into Looser Helper Taste
+
+- Risk:
+  the bridge could look typed while allowing unstable identity or ad hoc field
+  combinations that weaken downstream auditability.
+- Response:
+  require canonical `bridge_entry_id` validation and keep the schema/export surface
+  deterministic.
+- Closeout Evidence:
+  review hardening added canonical bridge-entry validation without widening the
+  contract family.
+
+### Edge 3: Strategy Ordering Could Become Non-Deterministic
+
+- Risk:
+  test-intent strategy lists could fluctuate by incidental discovery order, making the
+  bridge look lawful while drifting across runs.
+- Response:
+  keep strategy-kind ordering deterministic in the shipped bridge surface.
+- Closeout Evidence:
+  review hardening sorts `selected_strategy_kinds` deterministically and the owned
+  package tests passed after the change.
+
+### Edge 4: The Bridge Could Quietly Reopen Closed `V53-A`/`V53-B`/`V53-C` Law
+
+- Risk:
+  the new seam could mutate released applicability, adjudication, or revision meaning
+  under the banner of “integration.”
+- Response:
+  freeze `V53-D` as downstream consumption only over the closed family substrate.
+- Closeout Evidence:
+  the shipped slice adds one bridge contract only and does not mint new catalog,
+  adjudication, or revision semantics.
+
+### Edge 5: Broader Probe Execution Or Governance Surfaces Could Leak In Too Early
+
+- Risk:
+  once the bridge exists, the slice could quietly add execution helpers, mutation
+  flows, or CI-governance surfaces that were never selected.
+- Response:
+  keep `V53-D` at one bounded bridge seam only and leave wider follow-on selection
+  `not_selected_yet`.
+- Closeout Evidence:
+  the shipped slice adds no broader probe execution framework, no mutation helpers,
+  and no CI-governance widening.
 
 ## Current Judgment
 
-`V53-D` can proceed as a bounded starter drafting seam if scope remains constrained to
-one probe-strategy / test-intent integration boundary and no new proof or override
-authority is implied.
-
-## Main Edge Cases
-
-- Soft evidence must not be laundered into hard status.
-- Released `V45-D` integration remains downstream, not silently opened here.
-- Lexical adjacency and similar cues are still non-proof by default.
-- Override pathways must remain fail-closed when applicability or frame membership is
-  missing or violated.
-
-## Carry-Forward Mismatches
-
-- Controlling closeout references remain `vNEXT_PLUS145` artifacts, while this starter
-  set is `vNEXT_PLUS147`.
-- Family-level support mapping reference remains
-  `docs/DRAFT_ADEU_EDGE_LEDGER_V53_IMPLEMENTATION_MAPPING_v0.md`, while this starter
-  slice introduces
-  `docs/DRAFT_ADEU_EDGE_LEDGER_V53D_IMPLEMENTATION_MAPPING_v0.md`.
-
-## Deferred Seams
-
-- Broad probe execution framework and helper platform semantics.
-- Mutation, enforcement, and CI-governance expansion.
-- Any repo-wide widening beyond the released `V50` pilot boundary.
+- `V53-D` was the right next slice because the strongest remaining family gap after
+  released `V53-C` was no longer revision history itself:
+  - lawful bridge from released edge semantics into bounded probe/test-intent posture
+  - stable bridge identity
+  - deterministic bridge ordering
+  - preservation of the fail-closed evidence ladder
+- the shipped result remained properly bounded:
+  - one repo-owned package
+  - one released bridge schema
+  - exact downstream `V53-A`, `V53-B`, and `V53-C` consumption only
+  - one explicit bridge-entry identity law
+  - one explicit unknown-probe-ref fail-closed law
+  - one explicit deterministic strategy-ordering law
+  - no broader probe execution or governance widening
+- `V53-D` is now closed on `arc/v53-r8` in the branch-local sense:
+  - `adeu_edge_probe_test_intent_bridge@1`
+- the next meaningful family work is intentionally not selected in this planning
+  surface yet.
