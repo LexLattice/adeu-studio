@@ -1,25 +1,69 @@
 {
   "schema": "parallel_arc_meta_loop_baton@1",
   "baton_id": "baton_v53d_arc_worker_review_fix_claim_011",
-  "baton_kind": "review_fix_claim",
+  "baton_kind": "transition_claim",
   "emitted_at_utc": "2026-04-08T01:13:35Z",
   "previous_baton_id": "baton_v53d_arc_worker_implementation_claim_010",
   "arc_family": "V53",
   "slice": "V53-D",
-  "phase": "review_fix_pending",
+  "phase": "review_fixing_pending",
   "role": "arc_worker",
-  "model": "gpt-5",
-  "reasoning_effort": "high",
+  "model": "gpt-5.3-codex",
+  "reasoning_effort": "xhigh",
   "arc_branch": "arc/v53-r8",
   "feature_branch": "v147-v53d-probe-test-intent-impl-r8",
-  "status": "completed",
-  "comments_taken": [
-    "Enforced canonical bridge_entry_id in EdgeProbeTestIntentBridgeEntry._validate by recomputing and verifying canonical identity.",
-    "Made derive_edge_probe_test_intent_bridge fail closed with ValueError when applicability-frame probe refs are absent from the supplied probe template catalog.",
-    "Enforced deterministic sorted selected_strategy_kinds at model-validation layer and aligned derivation/binding validation to the same sorted strategy computation."
+  "execution_template_ref": "docs/PARALLEL_ARC_REVIEW_FIX_EXECUTION_TEMPLATE_v0.json",
+  "template_step_id": "address_actionable_review_feedback",
+  "template_step_order": 1,
+  "continuation_required_before_next_step": false,
+  "claimed_step_complete": true,
+  "base_branch": "arc/v53-r8",
+  "commit_sha": "07ae4a89cf8a1064f7593d46e8fdf7f104a17acc",
+  "pr_url": "https://github.com/LexLattice/adeu-studio/pull/369",
+  "review_verdict": null,
+  "ci_status": "not_started",
+  "bot_review_overall_status": "findings_present",
+  "bot_review_observations": [
+    {
+      "bot": "codex",
+      "state": "findings_present",
+      "witness_kind": "main_review_plus_inline_threads",
+      "witness_ref": "https://github.com/LexLattice/adeu-studio/pull/369"
+    },
+    {
+      "bot": "gemini",
+      "state": "findings_present",
+      "witness_kind": "main_review_plus_inline_threads",
+      "witness_ref": "https://github.com/LexLattice/adeu-studio/pull/369"
+    }
   ],
-  "comments_skipped": [
-    "Skipped non-actionable readability-only variable rename suggestion for payload_without_entry_id."
+  "manual_trigger_actions": null,
+  "controlling_refs": [
+    "docs/LOCKED_CONTINUATION_vNEXT_PLUS147.md",
+    "docs/DRAFT_ADEU_EDGE_LEDGER_V53D_IMPLEMENTATION_MAPPING_v0.md",
+    "docs/DRAFT_NEXT_ARC_OPTIONS_v36.md",
+    "artifacts/meta_loop/V53/V53-D/implementation/007_semantic_ir_stage_report.json",
+    "artifacts/meta_loop/V53/V53-D/implementation/008_code_transposition_stage_report.json",
+    "artifacts/meta_loop/V53/V53-D/implementation/009_verification_stage_report.json"
+  ],
+  "required_outputs_claimed_satisfied": [
+    "v53_d_review_fixes_for_inline_bot_findings",
+    "v53_d_targeted_review_fix_checks"
+  ],
+  "unsatisfied_requirements": [
+    "push_review_fix_commit_to_pr_branch",
+    "green_ci_after_review_fix"
+  ],
+  "status": "completed",
+  "artifacts_produced": [
+    "packages/adeu_edge_ledger/src/adeu_edge_ledger/probe_test_intent.py",
+    "packages/adeu_edge_ledger/tests/test_edge_ledger_probe_test_intent.py",
+    "artifacts/meta_loop/V53/V53-D/batons/011_arc_worker_review_fix_claim.json"
+  ],
+  "evidence_refs": [
+    "packages/adeu_edge_ledger/src/adeu_edge_ledger/probe_test_intent.py",
+    "packages/adeu_edge_ledger/tests/test_edge_ledger_probe_test_intent.py",
+    "https://github.com/LexLattice/adeu-studio/pull/369"
   ],
   "checks_run": [
     "PYTHONPATH=packages/adeu_edge_ledger/src:packages/adeu_symbol_audit/src:packages/adeu_repo_description/src:packages/adeu_ir/src .venv/bin/python -m ruff check packages/adeu_edge_ledger (pass)",
@@ -28,15 +72,16 @@
   "checks_skipped": [
     "make check intentionally skipped; review-fix scope required targeted checks only."
   ],
-  "artifacts_produced": [
-    "packages/adeu_edge_ledger/src/adeu_edge_ledger/probe_test_intent.py",
-    "packages/adeu_edge_ledger/tests/test_edge_ledger_probe_test_intent.py",
-    "artifacts/meta_loop/V53/V53-D/batons/011_arc_worker_review_fix_claim.json"
+  "semantic_ir_conformance": "conformant",
+  "mapping_changes": [],
+  "extra_surface_refs": [],
+  "unmapped_surface_refs": [],
+  "blockers": [],
+  "next_allowed_actions": [
+    "push_v53d_review_fix_commit",
+    "wait_for_pr_ci",
+    "assess_merge_readiness"
   ],
-  "evidence_refs": [
-    "packages/adeu_edge_ledger/src/adeu_edge_ledger/probe_test_intent.py",
-    "packages/adeu_edge_ledger/tests/test_edge_ledger_probe_test_intent.py"
-  ],
-  "commit_sha": null,
-  "notes": "Review-fix edits remained within owned write scope and preserved existing implementation evidence/stage reports."
+  "notes": "Maintainer-normalized review-fix baton. Worthwhile findings taken: canonical bridge_entry_id validation, fail-closed handling for unknown probe refs, and deterministic sorted selected_strategy_kinds. Readability-only rename was intentionally skipped. Model fields record the orchestrator-requested worker configuration for this review-fix step.",
+  "ratifies_baton_id": null
 }
