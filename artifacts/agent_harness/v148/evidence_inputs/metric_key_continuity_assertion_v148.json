@@ -1,0 +1,1 @@
+{"schema":"metric_key_continuity_assertion@1","baseline_metrics_path":"artifacts/stop_gate/metrics_v146_closeout.json","current_metrics_path":"artifacts/stop_gate/metrics_v148_closeout.json","expected_relation":"exact_keyset_equality"}
