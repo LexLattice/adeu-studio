@@ -1,0 +1,94 @@
+{
+  "schema": "parallel_arc_meta_loop_baton@1",
+  "baton_id": "baton_v53d_arc_worker_implementation_claim_010",
+  "baton_kind": "transition_claim",
+  "emitted_at_utc": "2026-04-08T02:05:00Z",
+  "previous_baton_id": "baton_v53d_conceptual_reviewer_claim_007",
+  "arc_family": "V53",
+  "slice": "V53-D",
+  "phase": "implementation_pending",
+  "role": "arc_worker",
+  "model": "gpt-5",
+  "reasoning_effort": "high",
+  "arc_branch": "arc/v53-r8",
+  "feature_branch": "v147-v53d-probe-test-intent-impl-r8",
+  "execution_template_ref": "docs/PARALLEL_ARC_IMPLEMENTATION_EXECUTION_TEMPLATE_v0.json",
+  "template_step_id": "verify_and_attest_implementation",
+  "template_step_order": 3,
+  "continuation_required_before_next_step": true,
+  "claimed_step_complete": true,
+  "base_branch": "arc/v53-r8",
+  "commit_sha": null,
+  "pr_url": null,
+  "review_verdict": null,
+  "ci_status": null,
+  "bot_review_overall_status": null,
+  "bot_review_observations": null,
+  "manual_trigger_actions": null,
+  "controlling_refs": [
+    "docs/LOCKED_CONTINUATION_vNEXT_PLUS147.md",
+    "docs/DRAFT_ADEU_EDGE_LEDGER_V53D_IMPLEMENTATION_MAPPING_v0.md",
+    "docs/DRAFT_NEXT_ARC_OPTIONS_v36.md",
+    "docs/DRAFT_STOP_GATE_DECISION_vNEXT_PLUS145.md",
+    "docs/ASSESSMENT_vNEXT_PLUS145_EDGES.md",
+    "artifacts/meta_loop/V53/V53-D/implementation/007_semantic_ir_bridge.md",
+    "artifacts/meta_loop/V53/V53-D/implementation/007_semantic_ir_stage_report.json",
+    "artifacts/meta_loop/V53/V53-D/implementation/008_code_transposition_stage_report.json",
+    "artifacts/meta_loop/V53/V53-D/implementation/009_verification_stage_report.json"
+  ],
+  "required_outputs_claimed_satisfied": [
+    "v53_d_bounded_probe_test_intent_bridge_contract",
+    "v53_d_schema_export_and_spec_mirror",
+    "v53_d_fixture_and_test_lane",
+    "v53_d_stage_reports_007_008_009",
+    "v53_d_targeted_package_lane_checks"
+  ],
+  "unsatisfied_requirements": [
+    "v53_d_review_and_merge"
+  ],
+  "status": "completed",
+  "artifacts_produced": [
+    "packages/adeu_edge_ledger/src/adeu_edge_ledger/probe_test_intent.py",
+    "packages/adeu_edge_ledger/src/adeu_edge_ledger/export_schema.py",
+    "packages/adeu_edge_ledger/src/adeu_edge_ledger/__init__.py",
+    "packages/adeu_edge_ledger/schema/adeu_edge_probe_test_intent_bridge.v1.json",
+    "spec/adeu_edge_probe_test_intent_bridge.schema.json",
+    "packages/adeu_edge_ledger/tests/fixtures/v53d/reference_edge_probe_test_intent_bridge.json",
+    "packages/adeu_edge_ledger/tests/test_edge_ledger_probe_test_intent.py",
+    "packages/adeu_edge_ledger/tests/test_edge_ledger_export_schema.py",
+    "artifacts/meta_loop/V53/V53-D/implementation/007_semantic_ir_bridge.md",
+    "artifacts/meta_loop/V53/V53-D/implementation/007_semantic_ir_stage_report.json",
+    "artifacts/meta_loop/V53/V53-D/implementation/008_code_transposition_stage_report.json",
+    "artifacts/meta_loop/V53/V53-D/implementation/009_verification_stage_report.json",
+    "artifacts/meta_loop/V53/V53-D/batons/010_arc_worker_implementation_claim.json"
+  ],
+  "evidence_refs": [
+    "artifacts/meta_loop/V53/V53-D/implementation/007_semantic_ir_bridge.md",
+    "artifacts/meta_loop/V53/V53-D/implementation/007_semantic_ir_stage_report.json",
+    "artifacts/meta_loop/V53/V53-D/implementation/008_code_transposition_stage_report.json",
+    "artifacts/meta_loop/V53/V53-D/implementation/009_verification_stage_report.json",
+    "packages/adeu_edge_ledger/src/adeu_edge_ledger/probe_test_intent.py",
+    "packages/adeu_edge_ledger/tests/test_edge_ledger_probe_test_intent.py",
+    "packages/adeu_edge_ledger/tests/test_edge_ledger_export_schema.py"
+  ],
+  "checks_run": [
+    "PYTHONPATH=packages/adeu_edge_ledger/src:packages/adeu_symbol_audit/src:packages/adeu_repo_description/src:packages/adeu_ir/src .venv/bin/python -m ruff check packages/adeu_edge_ledger (pass)",
+    "PYTHONPATH=packages/adeu_edge_ledger/src:packages/adeu_symbol_audit/src:packages/adeu_repo_description/src:packages/adeu_ir/src .venv/bin/python -m adeu_edge_ledger.export_schema (pass)",
+    "PYTHONPATH=packages/adeu_edge_ledger/src:packages/adeu_symbol_audit/src:packages/adeu_repo_description/src:packages/adeu_ir/src .venv/bin/python -m pytest packages/adeu_edge_ledger/tests -q -s (pass)"
+  ],
+  "checks_skipped": [
+    "make check intentionally skipped because this implementation phase is bounded to targeted package-lane checks only"
+  ],
+  "semantic_ir_conformance": "conformant",
+  "mapping_changes": [],
+  "extra_surface_refs": [],
+  "unmapped_surface_refs": [],
+  "blockers": [],
+  "next_allowed_actions": [
+    "review_v53d_impl_diff",
+    "open_v53d_impl_pr_against_arc_branch",
+    "run_ci_for_v53d_impl"
+  ],
+  "notes": "Maintainer-normalized implementation claim. Semantic-IR to code transposition remained conformant. User manually retriggered this worker mid-turn after a model-limit interruption, so the recorded model provenance should not be treated as clean comparison evidence for the original spark/high request.",
+  "ratifies_baton_id": null
+}

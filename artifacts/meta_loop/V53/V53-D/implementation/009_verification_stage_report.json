@@ -1,0 +1,88 @@
+{
+  "schema": "parallel_arc_implementation_stage_report@2",
+  "report_id": "v53d_stage_009_verification_attestation",
+  "stage_name": "verification_attestation",
+  "arc_family": "V53",
+  "slice": "V53-D",
+  "arc_branch": "arc/v53-r8",
+  "feature_branch": "v147-v53d-probe-test-intent-impl-r8",
+  "worktree_path": "/home/rose/work/LexLattice/odeu_v147_v53d_impl_r8",
+  "status": "completed",
+  "controlling_refs": [
+    "docs/LOCKED_CONTINUATION_vNEXT_PLUS147.md",
+    "docs/DRAFT_ADEU_EDGE_LEDGER_V53D_IMPLEMENTATION_MAPPING_v0.md",
+    "docs/DRAFT_NEXT_ARC_OPTIONS_v36.md",
+    "artifacts/meta_loop/V53/V53-D/implementation/007_semantic_ir_bridge.md",
+    "artifacts/meta_loop/V53/V53-D/implementation/007_semantic_ir_stage_report.json",
+    "artifacts/meta_loop/V53/V53-D/implementation/008_code_transposition_stage_report.json"
+  ],
+  "contract_items": [
+    {
+      "contract_item": "C1 bounded bridge contract surface",
+      "status": "verified",
+      "code_surface_refs": [
+        "packages/adeu_edge_ledger/schema/adeu_edge_probe_test_intent_bridge.v1.json",
+        "spec/adeu_edge_probe_test_intent_bridge.schema.json",
+        "packages/adeu_edge_ledger/src/adeu_edge_ledger/export_schema.py"
+      ],
+      "planned_check_refs": [
+        "PYTHONPATH=packages/adeu_edge_ledger/src:packages/adeu_symbol_audit/src:packages/adeu_repo_description/src:packages/adeu_ir/src .venv/bin/python -m adeu_edge_ledger.export_schema",
+        "PYTHONPATH=packages/adeu_edge_ledger/src:packages/adeu_symbol_audit/src:packages/adeu_repo_description/src:packages/adeu_ir/src .venv/bin/python -m pytest packages/adeu_edge_ledger/tests/test_edge_ledger_export_schema.py -q -s"
+      ],
+      "deferred_or_non_goal": false,
+      "evidence_ref": "packages/adeu_edge_ledger/tests/test_edge_ledger_export_schema.py",
+      "notes": "Verified schema export, authoritative schema, and root mirror correctness."
+    },
+    {
+      "contract_item": "C2 deterministic bridge row per admitted V45-D test-intent row",
+      "status": "verified",
+      "code_surface_refs": [
+        "packages/adeu_edge_ledger/src/adeu_edge_ledger/probe_test_intent.py",
+        "packages/adeu_edge_ledger/tests/fixtures/v53d/reference_edge_probe_test_intent_bridge.json",
+        "packages/adeu_edge_ledger/tests/test_edge_ledger_probe_test_intent.py"
+      ],
+      "planned_check_refs": [
+        "PYTHONPATH=packages/adeu_edge_ledger/src:packages/adeu_symbol_audit/src:packages/adeu_repo_description/src:packages/adeu_ir/src .venv/bin/python -m pytest packages/adeu_edge_ledger/tests/test_edge_ledger_probe_test_intent.py -q -s"
+      ],
+      "deferred_or_non_goal": false,
+      "evidence_ref": "packages/adeu_edge_ledger/tests/test_edge_ledger_probe_test_intent.py",
+      "notes": "Verified deterministic replay fixture plus fail-closed mapping behavior."
+    },
+    {
+      "contract_item": "C3 bounded package-lane verification only",
+      "status": "verified",
+      "code_surface_refs": [
+        "packages/adeu_edge_ledger/**"
+      ],
+      "planned_check_refs": [
+        "PYTHONPATH=packages/adeu_edge_ledger/src:packages/adeu_symbol_audit/src:packages/adeu_repo_description/src:packages/adeu_ir/src .venv/bin/python -m ruff check packages/adeu_edge_ledger",
+        "PYTHONPATH=packages/adeu_edge_ledger/src:packages/adeu_symbol_audit/src:packages/adeu_repo_description/src:packages/adeu_ir/src .venv/bin/python -m pytest packages/adeu_edge_ledger/tests -q -s"
+      ],
+      "deferred_or_non_goal": false,
+      "evidence_ref": "packages/adeu_edge_ledger/tests/test_edge_ledger_probe_test_intent.py",
+      "notes": "Verified bounded package-lane checks only; full make check remains intentionally deferred."
+    }
+  ],
+  "declared_non_goals": [
+    "no additional schema-family widening",
+    "probe execution and governance semantics remain deferred",
+    "full make check intentionally deferred for this phase"
+  ],
+  "semantic_ir_conformance": "conformant",
+  "mapping_changes": [],
+  "extra_surface_refs": [],
+  "unmapped_surface_refs": [],
+  "artifacts_produced": [
+    "artifacts/meta_loop/V53/V53-D/implementation/009_verification_stage_report.json"
+  ],
+  "checks_run": [
+    "PYTHONPATH=packages/adeu_edge_ledger/src:packages/adeu_symbol_audit/src:packages/adeu_repo_description/src:packages/adeu_ir/src .venv/bin/python -m ruff check packages/adeu_edge_ledger (pass)",
+    "PYTHONPATH=packages/adeu_edge_ledger/src:packages/adeu_symbol_audit/src:packages/adeu_repo_description/src:packages/adeu_ir/src .venv/bin/python -m adeu_edge_ledger.export_schema (pass)",
+    "PYTHONPATH=packages/adeu_edge_ledger/src:packages/adeu_symbol_audit/src:packages/adeu_repo_description/src:packages/adeu_ir/src .venv/bin/python -m pytest packages/adeu_edge_ledger/tests -q -s (pass)"
+  ],
+  "checks_skipped": [
+    "make check intentionally skipped for this phase because verification is bounded to the owned package lane"
+  ],
+  "blockers": [],
+  "notes": "Verification confirms conformance against both the starter contract and the authoritative semantic-IR bridge. The earlier pytest capture issue was resolved by the final -s rerun and is not preserved as a live blocker."
+}

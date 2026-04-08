@@ -7,6 +7,7 @@ from pathlib import Path
 from adeu_edge_ledger import (
     ADEU_EDGE_CLASS_CATALOG_SCHEMA,
     ADEU_EDGE_PROBE_TEMPLATE_CATALOG_SCHEMA,
+    ADEU_EDGE_PROBE_TEST_INTENT_BRIDGE_SCHEMA,
     ADEU_EDGE_TAXONOMY_REVISION_REGISTER_SCHEMA,
     ADEU_SYMBOL_EDGE_ADJUDICATION_LEDGER_SCHEMA,
     ADEU_SYMBOL_EDGE_APPLICABILITY_FRAME_SCHEMA,
@@ -58,6 +59,14 @@ def _schema_paths() -> list[tuple[Path, Path]]:
             / "adeu_edge_taxonomy_revision_register.v1.json",
             root / "spec" / "adeu_edge_taxonomy_revision_register.schema.json",
         ),
+        (
+            root
+            / "packages"
+            / "adeu_edge_ledger"
+            / "schema"
+            / "adeu_edge_probe_test_intent_bridge.v1.json",
+            root / "spec" / "adeu_edge_probe_test_intent_bridge.schema.json",
+        ),
     ]
 
 
@@ -95,6 +104,7 @@ def test_exported_schema_has_stable_contract_markers() -> None:
         "adeu_symbol_edge_applicability_frame.v1.json": ADEU_SYMBOL_EDGE_APPLICABILITY_FRAME_SCHEMA,
         "adeu_symbol_edge_adjudication_ledger.v1.json": ADEU_SYMBOL_EDGE_ADJUDICATION_LEDGER_SCHEMA,
         "adeu_edge_taxonomy_revision_register.v1.json": ADEU_EDGE_TAXONOMY_REVISION_REGISTER_SCHEMA,
+        "adeu_edge_probe_test_intent_bridge.v1.json": ADEU_EDGE_PROBE_TEST_INTENT_BRIDGE_SCHEMA,
     }
     for authoritative, _mirror in _schema_paths():
         payload = json.loads(authoritative.read_text(encoding="utf-8"))

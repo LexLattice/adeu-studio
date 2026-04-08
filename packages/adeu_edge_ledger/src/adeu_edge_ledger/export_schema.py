@@ -14,6 +14,7 @@ from .models import (
     SymbolEdgeAdjudicationLedger,
     SymbolEdgeApplicabilityFrame,
 )
+from .probe_test_intent import EdgeProbeTestIntentBridge
 
 _WINDOWS_ABSOLUTE_PATH_RE = re.compile(r"[A-Za-z]:\\")
 
@@ -91,6 +92,15 @@ def main() -> None:
             / "schema"
             / "adeu_edge_taxonomy_revision_register.v1.json",
             root / "spec" / "adeu_edge_taxonomy_revision_register.schema.json",
+        ),
+        (
+            EdgeProbeTestIntentBridge.model_json_schema(by_alias=True),
+            root
+            / "packages"
+            / "adeu_edge_ledger"
+            / "schema"
+            / "adeu_edge_probe_test_intent_bridge.v1.json",
+            root / "spec" / "adeu_edge_probe_test_intent_bridge.schema.json",
         ),
     )
     for schema, authoritative_path, mirror_path in mappings:
