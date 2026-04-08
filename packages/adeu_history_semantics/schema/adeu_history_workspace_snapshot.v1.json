@@ -1,0 +1,212 @@
+{
+  "$defs": {
+    "HistoryWorkspaceQuestion": {
+      "additionalProperties": false,
+      "properties": {
+        "lane_id": {
+          "enum": [
+            "O",
+            "E",
+            "D",
+            "U"
+          ],
+          "title": "Lane Id",
+          "type": "string"
+        },
+        "question_id": {
+          "title": "Question Id",
+          "type": "string"
+        },
+        "question_text": {
+          "title": "Question Text",
+          "type": "string"
+        },
+        "reason_kind": {
+          "enum": [
+            "weak_lane",
+            "underdetermined_lane"
+          ],
+          "title": "Reason Kind",
+          "type": "string"
+        },
+        "schema": {
+          "const": "adeu_history_workspace_question@1",
+          "default": "adeu_history_workspace_question@1",
+          "title": "Schema",
+          "type": "string"
+        }
+      },
+      "required": [
+        "question_id",
+        "lane_id",
+        "reason_kind",
+        "question_text"
+      ],
+      "title": "HistoryWorkspaceQuestion",
+      "type": "object"
+    },
+    "HistoryWorkspaceThemeFrame": {
+      "additionalProperties": false,
+      "properties": {
+        "chronology_end_order_index": {
+          "title": "Chronology End Order Index",
+          "type": "integer"
+        },
+        "chronology_start_order_index": {
+          "title": "Chronology Start Order Index",
+          "type": "integer"
+        },
+        "frame_id": {
+          "title": "Frame Id",
+          "type": "string"
+        },
+        "open_questions": {
+          "items": {
+            "$ref": "#/$defs/HistoryWorkspaceQuestion"
+          },
+          "title": "Open Questions",
+          "type": "array"
+        },
+        "packet_ids": {
+          "items": {
+            "type": "string"
+          },
+          "title": "Packet Ids",
+          "type": "array"
+        },
+        "provenance_entry_ids": {
+          "items": {
+            "type": "string"
+          },
+          "title": "Provenance Entry Ids",
+          "type": "array"
+        },
+        "schema": {
+          "const": "adeu_history_workspace_theme_frame@1",
+          "default": "adeu_history_workspace_theme_frame@1",
+          "title": "Schema",
+          "type": "string"
+        },
+        "slice_ids": {
+          "items": {
+            "type": "string"
+          },
+          "title": "Slice Ids",
+          "type": "array"
+        },
+        "theme_anchor_id": {
+          "title": "Theme Anchor Id",
+          "type": "string"
+        },
+        "theme_display_label": {
+          "title": "Theme Display Label",
+          "type": "string"
+        },
+        "underdeveloped_lane_ids": {
+          "items": {
+            "enum": [
+              "O",
+              "E",
+              "D",
+              "U"
+            ],
+            "type": "string"
+          },
+          "title": "Underdeveloped Lane Ids",
+          "type": "array"
+        }
+      },
+      "required": [
+        "frame_id",
+        "theme_anchor_id",
+        "theme_display_label",
+        "slice_ids",
+        "packet_ids",
+        "chronology_start_order_index",
+        "chronology_end_order_index"
+      ],
+      "title": "HistoryWorkspaceThemeFrame",
+      "type": "object"
+    }
+  },
+  "additionalProperties": false,
+  "properties": {
+    "chronology_slice_order": {
+      "items": {
+        "type": "string"
+      },
+      "title": "Chronology Slice Order",
+      "type": "array"
+    },
+    "inferential_slice_order": {
+      "items": {
+        "type": "string"
+      },
+      "title": "Inferential Slice Order",
+      "type": "array"
+    },
+    "interpretation_authority_posture": {
+      "const": "advisory_overlay_only",
+      "default": "advisory_overlay_only",
+      "title": "Interpretation Authority Posture",
+      "type": "string"
+    },
+    "ledger_id": {
+      "title": "Ledger Id",
+      "type": "string"
+    },
+    "schema": {
+      "const": "adeu_history_workspace_snapshot@1",
+      "default": "adeu_history_workspace_snapshot@1",
+      "title": "Schema",
+      "type": "string"
+    },
+    "semantic_hash": {
+      "title": "Semantic Hash",
+      "type": "string"
+    },
+    "semantic_identity_mode": {
+      "default": "v54d_workspace_snapshot_hash_law",
+      "title": "Semantic Identity Mode",
+      "type": "string"
+    },
+    "source_authority_posture": {
+      "const": "normalized_source_text_authoritative",
+      "default": "normalized_source_text_authoritative",
+      "title": "Source Authority Posture",
+      "type": "string"
+    },
+    "source_id": {
+      "title": "Source Id",
+      "type": "string"
+    },
+    "theme_frames": {
+      "items": {
+        "$ref": "#/$defs/HistoryWorkspaceThemeFrame"
+      },
+      "title": "Theme Frames",
+      "type": "array"
+    },
+    "workspace_snapshot_id": {
+      "title": "Workspace Snapshot Id",
+      "type": "string"
+    },
+    "workspace_synthesis_posture": {
+      "const": "advisory_reconstruction_only",
+      "default": "advisory_reconstruction_only",
+      "title": "Workspace Synthesis Posture",
+      "type": "string"
+    }
+  },
+  "required": [
+    "workspace_snapshot_id",
+    "source_id",
+    "ledger_id",
+    "chronology_slice_order",
+    "inferential_slice_order",
+    "theme_frames",
+    "semantic_hash"
+  ],
+  "title": "HistoryWorkspaceSnapshot",
+  "type": "object"
+}

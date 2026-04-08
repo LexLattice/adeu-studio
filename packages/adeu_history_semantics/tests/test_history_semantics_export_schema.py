@@ -15,6 +15,9 @@ from adeu_history_semantics import (
     ADEU_HISTORY_SOURCE_ARTIFACT_SCHEMA,
     ADEU_HISTORY_TEXT_SHAPE_SIGNALS_SCHEMA,
     ADEU_HISTORY_THEME_ANCHOR_SCHEMA,
+    ADEU_HISTORY_WORKSPACE_QUESTION_SCHEMA,
+    ADEU_HISTORY_WORKSPACE_SNAPSHOT_SCHEMA,
+    ADEU_HISTORY_WORKSPACE_THEME_FRAME_SCHEMA,
 )
 from adeu_history_semantics.export_schema import main as export_schema_main
 from adeu_ir.repo import repo_root
@@ -104,6 +107,30 @@ def _schema_pairs() -> dict[str, tuple[Path, Path]]:
             / "schema"
             / "adeu_history_odeu_reconstruction_packet.v1.json",
             root / "spec" / "adeu_history_odeu_reconstruction_packet.schema.json",
+        ),
+        ADEU_HISTORY_WORKSPACE_QUESTION_SCHEMA: (
+            root
+            / "packages"
+            / "adeu_history_semantics"
+            / "schema"
+            / "adeu_history_workspace_question.v1.json",
+            root / "spec" / "adeu_history_workspace_question.schema.json",
+        ),
+        ADEU_HISTORY_WORKSPACE_THEME_FRAME_SCHEMA: (
+            root
+            / "packages"
+            / "adeu_history_semantics"
+            / "schema"
+            / "adeu_history_workspace_theme_frame.v1.json",
+            root / "spec" / "adeu_history_workspace_theme_frame.schema.json",
+        ),
+        ADEU_HISTORY_WORKSPACE_SNAPSHOT_SCHEMA: (
+            root
+            / "packages"
+            / "adeu_history_semantics"
+            / "schema"
+            / "adeu_history_workspace_snapshot.v1.json",
+            root / "spec" / "adeu_history_workspace_snapshot.schema.json",
         ),
     }
 

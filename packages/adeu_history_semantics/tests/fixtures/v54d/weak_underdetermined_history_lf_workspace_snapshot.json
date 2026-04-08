@@ -1,0 +1,429 @@
+{
+  "ledger": {
+    "schema": "adeu_history_ledger@1",
+    "ledger_id": "history_ledger:a3fe74374b31574b",
+    "source_id": "history_source:e19fe09bf191f511",
+    "entries": [
+      {
+        "schema": "adeu_history_ledger_entry@1",
+        "entry_id": "history_ledger_entry:1da8777ac045e039",
+        "source_id": "history_source:e19fe09bf191f511",
+        "preclassification_id": "history_preclassification:a3ecc38d8fa0fa91",
+        "order_index": 0,
+        "entry_text": "Anchor chronology packet theme source remains unclear.",
+        "entry_text_hash": "e097410578265497777ea913675f822f1147613be26f5bfe51db0a6e079f65ac",
+        "role": "user",
+        "origin_type": "user_native",
+        "source_line_start": 1,
+        "source_line_end": 1,
+        "structural_markers": [
+          "single_line_message"
+        ]
+      },
+      {
+        "schema": "adeu_history_ledger_entry@1",
+        "entry_id": "history_ledger_entry:8ff1ae65f38a3bcd",
+        "source_id": "history_source:e19fe09bf191f511",
+        "preclassification_id": "history_preclassification:b5c48d1965bb4d10",
+        "order_index": 1,
+        "entry_text": "Anchor chronology packet theme source cites provenance, but meaning stays unclear.",
+        "entry_text_hash": "4972dff3a66bb738f0439f2f774be9b2854e9565bdb20c470b73cb68b3b7b89c",
+        "role": "assistant",
+        "origin_type": "assistant_reply",
+        "source_line_start": 2,
+        "source_line_end": 2,
+        "structural_markers": [
+          "single_line_message"
+        ]
+      }
+    ],
+    "entry_count": 2
+  },
+  "slices": [
+    {
+      "schema": "adeu_history_slice@1",
+      "slice_id": "history_slice:d7bf114ce8674183",
+      "source_id": "history_source:e19fe09bf191f511",
+      "slice_index": 0,
+      "entry_ids": [
+        "history_ledger_entry:1da8777ac045e039"
+      ],
+      "chronology_start_order_index": 0,
+      "chronology_end_order_index": 0,
+      "boundary_tags": [
+        "conversation_start"
+      ],
+      "theme_terms": [
+        "anchor",
+        "chronology",
+        "packet",
+        "theme",
+        "source",
+        "remains",
+        "unclear"
+      ],
+      "theme_label": "anchor chronology packet",
+      "theme_key": "anchor::chronology::packet::theme::source"
+    },
+    {
+      "schema": "adeu_history_slice@1",
+      "slice_id": "history_slice:e6c22ce503c017be",
+      "source_id": "history_source:e19fe09bf191f511",
+      "slice_index": 1,
+      "entry_ids": [
+        "history_ledger_entry:8ff1ae65f38a3bcd"
+      ],
+      "chronology_start_order_index": 1,
+      "chronology_end_order_index": 1,
+      "boundary_tags": [
+        "conversation_end"
+      ],
+      "theme_terms": [
+        "anchor",
+        "chronology",
+        "packet",
+        "theme",
+        "source",
+        "cites",
+        "provenance",
+        "meaning",
+        "stays",
+        "unclear"
+      ],
+      "theme_label": "anchor chronology packet",
+      "theme_key": "anchor::chronology::packet::theme::source"
+    }
+  ],
+  "theme_anchors": [
+    {
+      "schema": "adeu_history_theme_anchor@1",
+      "theme_anchor_id": "history_theme_anchor:00109b1a9c01e8f3",
+      "source_id": "history_source:e19fe09bf191f511",
+      "theme_key": "anchor::chronology::packet::theme::source",
+      "display_label": "anchor chronology packet",
+      "slice_ids": [
+        "history_slice:d7bf114ce8674183",
+        "history_slice:e6c22ce503c017be"
+      ],
+      "anchor_entry_ids": [
+        "history_ledger_entry:1da8777ac045e039",
+        "history_ledger_entry:8ff1ae65f38a3bcd"
+      ],
+      "supporting_terms": [
+        "anchor",
+        "chronology",
+        "packet",
+        "theme",
+        "source",
+        "remains",
+        "unclear",
+        "cites",
+        "provenance",
+        "meaning",
+        "stays"
+      ]
+    }
+  ],
+  "packets": [
+    {
+      "schema": "adeu_history_odeu_reconstruction_packet@1",
+      "packet_id": "history_packet:44105d62f4931082",
+      "source_id": "history_source:e19fe09bf191f511",
+      "slice_id": "history_slice:d7bf114ce8674183",
+      "theme_anchor_id": "history_theme_anchor:00109b1a9c01e8f3",
+      "lane_reconstructions": [
+        {
+          "schema": "adeu_history_odeu_lane_reconstruction@1",
+          "lane_id": "O",
+          "presence_status": "weakly_present",
+          "explicitation_status": "contextually_reconstructed",
+          "dominant_role_posture": "mixed",
+          "reconstruction_text": "Contextually reconstructed from: Anchor chronology packet theme source remains unclear. Anchor chronology packet theme source cites provenance, but meaning stays unclear.",
+          "evidence_refs": [
+            {
+              "schema": "adeu_history_evidence_ref@1",
+              "entry_id": "history_ledger_entry:1da8777ac045e039",
+              "role": "user",
+              "excerpt": "Anchor chronology packet theme source remains unclear."
+            },
+            {
+              "schema": "adeu_history_evidence_ref@1",
+              "entry_id": "history_ledger_entry:8ff1ae65f38a3bcd",
+              "role": "assistant",
+              "excerpt": "Anchor chronology packet theme source cites provenance, but meaning stays unclear."
+            }
+          ]
+        },
+        {
+          "schema": "adeu_history_odeu_lane_reconstruction@1",
+          "lane_id": "E",
+          "presence_status": "weakly_present",
+          "explicitation_status": "dialogically_explicitated",
+          "dominant_role_posture": "mixed",
+          "reconstruction_text": "Contextually reconstructed from: Anchor chronology packet theme source cites provenance, but meaning stays unclear. Anchor chronology packet theme source remains unclear.",
+          "evidence_refs": [
+            {
+              "schema": "adeu_history_evidence_ref@1",
+              "entry_id": "history_ledger_entry:8ff1ae65f38a3bcd",
+              "role": "assistant",
+              "excerpt": "Anchor chronology packet theme source cites provenance, but meaning stays unclear."
+            },
+            {
+              "schema": "adeu_history_evidence_ref@1",
+              "entry_id": "history_ledger_entry:1da8777ac045e039",
+              "role": "user",
+              "excerpt": "Anchor chronology packet theme source remains unclear."
+            }
+          ]
+        },
+        {
+          "schema": "adeu_history_odeu_lane_reconstruction@1",
+          "lane_id": "D",
+          "presence_status": "underdetermined",
+          "explicitation_status": "underdetermined",
+          "dominant_role_posture": "none",
+          "reconstruction_text": null,
+          "evidence_refs": []
+        },
+        {
+          "schema": "adeu_history_odeu_lane_reconstruction@1",
+          "lane_id": "U",
+          "presence_status": "underdetermined",
+          "explicitation_status": "underdetermined",
+          "dominant_role_posture": "none",
+          "reconstruction_text": null,
+          "evidence_refs": []
+        }
+      ],
+      "interpretation_authority_posture": "advisory_overlay_only",
+      "semantic_identity_mode": "v54c_history_packet_hash_law",
+      "semantic_hash": "44105d62f49310829fc6b41121adeba49de6f236207cc75a553f26386ea2ff5a"
+    },
+    {
+      "schema": "adeu_history_odeu_reconstruction_packet@1",
+      "packet_id": "history_packet:51f1902b6406eaf8",
+      "source_id": "history_source:e19fe09bf191f511",
+      "slice_id": "history_slice:e6c22ce503c017be",
+      "theme_anchor_id": "history_theme_anchor:00109b1a9c01e8f3",
+      "lane_reconstructions": [
+        {
+          "schema": "adeu_history_odeu_lane_reconstruction@1",
+          "lane_id": "O",
+          "presence_status": "weakly_present",
+          "explicitation_status": "dialogically_explicitated",
+          "dominant_role_posture": "mixed",
+          "reconstruction_text": "Contextually reconstructed from: Anchor chronology packet theme source cites provenance, but meaning stays unclear. Anchor chronology packet theme source remains unclear.",
+          "evidence_refs": [
+            {
+              "schema": "adeu_history_evidence_ref@1",
+              "entry_id": "history_ledger_entry:8ff1ae65f38a3bcd",
+              "role": "assistant",
+              "excerpt": "Anchor chronology packet theme source cites provenance, but meaning stays unclear."
+            },
+            {
+              "schema": "adeu_history_evidence_ref@1",
+              "entry_id": "history_ledger_entry:1da8777ac045e039",
+              "role": "user",
+              "excerpt": "Anchor chronology packet theme source remains unclear."
+            }
+          ]
+        },
+        {
+          "schema": "adeu_history_odeu_lane_reconstruction@1",
+          "lane_id": "E",
+          "presence_status": "weakly_present",
+          "explicitation_status": "dialogically_explicitated",
+          "dominant_role_posture": "mixed",
+          "reconstruction_text": "Contextually reconstructed from: Anchor chronology packet theme source cites provenance, but meaning stays unclear. Anchor chronology packet theme source remains unclear.",
+          "evidence_refs": [
+            {
+              "schema": "adeu_history_evidence_ref@1",
+              "entry_id": "history_ledger_entry:8ff1ae65f38a3bcd",
+              "role": "assistant",
+              "excerpt": "Anchor chronology packet theme source cites provenance, but meaning stays unclear."
+            },
+            {
+              "schema": "adeu_history_evidence_ref@1",
+              "entry_id": "history_ledger_entry:1da8777ac045e039",
+              "role": "user",
+              "excerpt": "Anchor chronology packet theme source remains unclear."
+            }
+          ]
+        },
+        {
+          "schema": "adeu_history_odeu_lane_reconstruction@1",
+          "lane_id": "D",
+          "presence_status": "underdetermined",
+          "explicitation_status": "underdetermined",
+          "dominant_role_posture": "none",
+          "reconstruction_text": null,
+          "evidence_refs": []
+        },
+        {
+          "schema": "adeu_history_odeu_lane_reconstruction@1",
+          "lane_id": "U",
+          "presence_status": "underdetermined",
+          "explicitation_status": "underdetermined",
+          "dominant_role_posture": "none",
+          "reconstruction_text": null,
+          "evidence_refs": []
+        }
+      ],
+      "interpretation_authority_posture": "advisory_overlay_only",
+      "semantic_identity_mode": "v54c_history_packet_hash_law",
+      "semantic_hash": "51f1902b6406eaf89e462f04774d907307b4855935ae088a4a5d56935ea64e20"
+    }
+  ],
+  "source": {
+    "schema": "adeu_history_source_artifact@1",
+    "source_id": "history_source:e19fe09bf191f511",
+    "input_kind": "conversation_history",
+    "source_label": "v54d weak_underdetermined_history_lf.txt",
+    "source_text": "User: Anchor chronology packet theme source remains unclear.\nAssistant: Anchor chronology packet theme source cites provenance, but meaning stays unclear.\n",
+    "source_text_hash": "fabe2b2ca1d536b8a4905703de761d45ff0dc57510dd14fc2ce5850f2df5867a",
+    "corpus_wave_posture": "wave_0_bootstrap_candidate",
+    "source_authority_posture": "normalized_source_text_authoritative",
+    "source_notes": [
+      "v54d_reference_workspace_bundle"
+    ]
+  },
+  "preclassifications": [
+    {
+      "schema": "adeu_history_preclassification@1",
+      "preclassification_id": "history_preclassification:a3ecc38d8fa0fa91",
+      "source_id": "history_source:e19fe09bf191f511",
+      "order_index": 0,
+      "message_text": "Anchor chronology packet theme source remains unclear.",
+      "source_line_start": 1,
+      "source_line_end": 1,
+      "role": "user",
+      "origin_type": "user_native",
+      "source_declaration_hints": [
+        "full_role_header_present",
+        "timestamp_prefix_absent"
+      ],
+      "timestamp_text": null,
+      "structural_markers": [
+        "single_line_message"
+      ],
+      "text_shape_signals": {
+        "schema": "adeu_history_text_shape_signals@1",
+        "char_count": 54,
+        "word_count": 7,
+        "line_count": 1,
+        "nonempty_line_count": 1,
+        "question_count": 0,
+        "bullet_line_count": 0,
+        "quoted_line_count": 0,
+        "code_fence_count": 0
+      }
+    },
+    {
+      "schema": "adeu_history_preclassification@1",
+      "preclassification_id": "history_preclassification:b5c48d1965bb4d10",
+      "source_id": "history_source:e19fe09bf191f511",
+      "order_index": 1,
+      "message_text": "Anchor chronology packet theme source cites provenance, but meaning stays unclear.",
+      "source_line_start": 2,
+      "source_line_end": 2,
+      "role": "assistant",
+      "origin_type": "assistant_reply",
+      "source_declaration_hints": [
+        "full_role_header_present",
+        "timestamp_prefix_absent"
+      ],
+      "timestamp_text": null,
+      "structural_markers": [
+        "single_line_message"
+      ],
+      "text_shape_signals": {
+        "schema": "adeu_history_text_shape_signals@1",
+        "char_count": 82,
+        "word_count": 11,
+        "line_count": 1,
+        "nonempty_line_count": 1,
+        "question_count": 0,
+        "bullet_line_count": 0,
+        "quoted_line_count": 0,
+        "code_fence_count": 0
+      }
+    }
+  ],
+  "workspace_snapshot": {
+    "schema": "adeu_history_workspace_snapshot@1",
+    "workspace_snapshot_id": "history_workspace:2a43b6b311ff4f4c",
+    "source_id": "history_source:e19fe09bf191f511",
+    "ledger_id": "history_ledger:a3fe74374b31574b",
+    "chronology_slice_order": [
+      "history_slice:d7bf114ce8674183",
+      "history_slice:e6c22ce503c017be"
+    ],
+    "inferential_slice_order": [
+      "history_slice:d7bf114ce8674183",
+      "history_slice:e6c22ce503c017be"
+    ],
+    "theme_frames": [
+      {
+        "schema": "adeu_history_workspace_theme_frame@1",
+        "frame_id": "history_workspace_frame:603f66c262c6e309",
+        "theme_anchor_id": "history_theme_anchor:00109b1a9c01e8f3",
+        "theme_display_label": "anchor chronology packet",
+        "slice_ids": [
+          "history_slice:d7bf114ce8674183",
+          "history_slice:e6c22ce503c017be"
+        ],
+        "packet_ids": [
+          "history_packet:44105d62f4931082",
+          "history_packet:51f1902b6406eaf8"
+        ],
+        "chronology_start_order_index": 0,
+        "chronology_end_order_index": 1,
+        "underdeveloped_lane_ids": [
+          "O",
+          "E",
+          "D",
+          "U"
+        ],
+        "provenance_entry_ids": [
+          "history_ledger_entry:1da8777ac045e039",
+          "history_ledger_entry:8ff1ae65f38a3bcd"
+        ],
+        "open_questions": [
+          {
+            "schema": "adeu_history_workspace_question@1",
+            "question_id": "history_workspace_question:ec8d8f5270b64c3d",
+            "lane_id": "O",
+            "reason_kind": "weak_lane",
+            "question_text": "ontological lane for theme 'anchor chronology packet' is weakly_present; collect more explicit local material or later explication."
+          },
+          {
+            "schema": "adeu_history_workspace_question@1",
+            "question_id": "history_workspace_question:6bac0a0755951f83",
+            "lane_id": "E",
+            "reason_kind": "weak_lane",
+            "question_text": "epistemic lane for theme 'anchor chronology packet' is weakly_present; collect more explicit local material or later explication."
+          },
+          {
+            "schema": "adeu_history_workspace_question@1",
+            "question_id": "history_workspace_question:dd851a029a0d59e4",
+            "lane_id": "D",
+            "reason_kind": "underdetermined_lane",
+            "question_text": "deontic lane for theme 'anchor chronology packet' is underdetermined; collect more explicit local material or later explication."
+          },
+          {
+            "schema": "adeu_history_workspace_question@1",
+            "question_id": "history_workspace_question:29e9978a4853ef58",
+            "lane_id": "U",
+            "reason_kind": "underdetermined_lane",
+            "question_text": "utility lane for theme 'anchor chronology packet' is underdetermined; collect more explicit local material or later explication."
+          }
+        ]
+      }
+    ],
+    "source_authority_posture": "normalized_source_text_authoritative",
+    "interpretation_authority_posture": "advisory_overlay_only",
+    "workspace_synthesis_posture": "advisory_reconstruction_only",
+    "semantic_identity_mode": "v54d_workspace_snapshot_hash_law",
+    "semantic_hash": "2a43b6b311ff4f4ca9cecb08f00170e381354ac64816c7c56cdb8b3a1510de25"
+  }
+}

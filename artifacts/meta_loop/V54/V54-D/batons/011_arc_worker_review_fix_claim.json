@@ -1,0 +1,101 @@
+{
+  "schema": "parallel_arc_meta_loop_baton@1",
+  "baton_id": "baton_v54d_arc_worker_review_fix_claim_011",
+  "baton_kind": "transition_claim",
+  "emitted_at_utc": "2026-04-08T01:18:30Z",
+  "previous_baton_id": "baton_v54d_arc_worker_implementation_claim_010",
+  "arc_family": "V54",
+  "slice": "V54-D",
+  "phase": "review_fixing_pending",
+  "role": "arc_worker",
+  "model": "gpt-5.3-codex",
+  "reasoning_effort": "xhigh",
+  "arc_branch": "arc/v54-r8",
+  "feature_branch": "v148-v54d-workspace-advisory-impl-r8",
+  "execution_template_ref": "docs/PARALLEL_ARC_REVIEW_FIX_EXECUTION_TEMPLATE_v0.json",
+  "template_step_id": "address_actionable_review_feedback",
+  "template_step_order": 1,
+  "continuation_required_before_next_step": false,
+  "claimed_step_complete": true,
+  "base_branch": "arc/v54-r8",
+  "commit_sha": "fe5d405840f844091538ac502b681eb6afd479d0",
+  "pr_url": "https://github.com/LexLattice/adeu-studio/pull/370",
+  "review_verdict": null,
+  "ci_status": "not_started",
+  "bot_review_overall_status": "findings_present",
+  "bot_review_observations": [
+    {
+      "bot": "codex",
+      "state": "findings_present",
+      "witness_kind": "main_review_plus_inline_threads",
+      "witness_ref": "https://github.com/LexLattice/adeu-studio/pull/370"
+    },
+    {
+      "bot": "gemini",
+      "state": "findings_present",
+      "witness_kind": "main_review_plus_inline_threads",
+      "witness_ref": "https://github.com/LexLattice/adeu-studio/pull/370"
+    }
+  ],
+  "manual_trigger_actions": null,
+  "controlling_refs": [
+    "docs/LOCKED_CONTINUATION_vNEXT_PLUS148.md",
+    "docs/DRAFT_ADEU_HISTORY_SEMANTICS_V54D_IMPLEMENTATION_MAPPING_v0.md",
+    "docs/DRAFT_NEXT_ARC_OPTIONS_v37.md",
+    "artifacts/meta_loop/V54/V54-D/implementation/007_semantic_ir_stage_report.json",
+    "artifacts/meta_loop/V54/V54-D/implementation/008_code_transposition_stage_report.json",
+    "artifacts/meta_loop/V54/V54-D/implementation/009_verification_stage_report.json"
+  ],
+  "required_outputs_claimed_satisfied": [
+    "v54_d_review_fixes_for_inline_bot_findings",
+    "v54_d_targeted_review_fix_checks"
+  ],
+  "unsatisfied_requirements": [
+    "push_review_fix_commit_to_pr_branch",
+    "green_ci_after_review_fix"
+  ],
+  "status": "completed",
+  "artifacts_produced": [
+    "packages/adeu_history_semantics/src/adeu_history_semantics/models.py",
+    "packages/adeu_history_semantics/src/adeu_history_semantics/reconstruct.py",
+    "packages/adeu_history_semantics/src/adeu_history_semantics/__init__.py",
+    "packages/adeu_history_semantics/tests/test_history_semantics_v54d.py",
+    "packages/adeu_history_semantics/tests/fixtures/v54d/reference_conversation_history_lf_workspace_snapshot.json",
+    "packages/adeu_history_semantics/tests/fixtures/v54d/assistant_local_explicit_history_lf_workspace_snapshot.json",
+    "packages/adeu_history_semantics/tests/fixtures/v54d/weak_underdetermined_history_lf_workspace_snapshot.json",
+    "artifacts/meta_loop/V54/V54-D/implementation/007_semantic_ir_stage_report.json",
+    "artifacts/meta_loop/V54/V54-D/implementation/008_code_transposition_stage_report.json",
+    "artifacts/meta_loop/V54/V54-D/implementation/009_verification_stage_report.json",
+    "artifacts/meta_loop/V54/V54-D/batons/011_arc_worker_review_fix_claim.json"
+  ],
+  "evidence_refs": [
+    "packages/adeu_history_semantics/src/adeu_history_semantics/models.py",
+    "packages/adeu_history_semantics/src/adeu_history_semantics/reconstruct.py",
+    "packages/adeu_history_semantics/tests/test_history_semantics_v54d.py",
+    "artifacts/meta_loop/V54/V54-D/implementation/007_semantic_ir_stage_report.json",
+    "artifacts/meta_loop/V54/V54-D/implementation/008_code_transposition_stage_report.json",
+    "artifacts/meta_loop/V54/V54-D/implementation/009_verification_stage_report.json",
+    "https://github.com/LexLattice/adeu-studio/pull/370"
+  ],
+  "checks_run": [
+    "PYTHONPATH=packages/adeu_history_semantics/src .venv/bin/python -m adeu_history_semantics.export_schema (pass)",
+    ".venv/bin/ruff check packages/adeu_history_semantics (pass)",
+    "PYTHONPATH=packages/adeu_history_semantics/src .venv/bin/python -m pytest packages/adeu_history_semantics/tests/test_history_semantics_export_schema.py -q -s (pass)",
+    "PYTHONPATH=packages/adeu_history_semantics/src .venv/bin/python -m pytest packages/adeu_history_semantics/tests/test_history_semantics_v54d.py -q -s (pass)"
+  ],
+  "checks_skipped": [
+    "make check intentionally skipped; review-fix scope required targeted checks only."
+  ],
+  "semantic_ir_conformance": "conformant",
+  "mapping_changes": [],
+  "extra_surface_refs": [],
+  "unmapped_surface_refs": [],
+  "blockers": [],
+  "next_allowed_actions": [
+    "push_v54d_review_fix_commit",
+    "wait_for_pr_ci",
+    "assess_merge_readiness"
+  ],
+  "notes": "Maintainer-normalized review-fix baton. Worthwhile findings taken: snapshot semantic-hash/id split, canonical helper alignment in reconstruct.py, and portable repo-relative worktree_path values in stage reports. Model fields record the orchestrator-requested worker configuration for this review-fix step.",
+  "ratifies_baton_id": null
+}

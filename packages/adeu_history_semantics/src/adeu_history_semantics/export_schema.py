@@ -18,6 +18,9 @@ from .models import (
     ADEU_HISTORY_SOURCE_ARTIFACT_SCHEMA,
     ADEU_HISTORY_TEXT_SHAPE_SIGNALS_SCHEMA,
     ADEU_HISTORY_THEME_ANCHOR_SCHEMA,
+    ADEU_HISTORY_WORKSPACE_QUESTION_SCHEMA,
+    ADEU_HISTORY_WORKSPACE_SNAPSHOT_SCHEMA,
+    ADEU_HISTORY_WORKSPACE_THEME_FRAME_SCHEMA,
     HistoryEvidenceRef,
     HistoryLedger,
     HistoryLedgerEntry,
@@ -28,6 +31,9 @@ from .models import (
     HistorySourceArtifact,
     HistoryTextShapeSignals,
     HistoryThemeAnchor,
+    HistoryWorkspaceQuestion,
+    HistoryWorkspaceSnapshot,
+    HistoryWorkspaceThemeFrame,
 )
 
 _WINDOWS_ABSOLUTE_PATH_RE = re.compile(r"[A-Za-z]:\\")
@@ -182,6 +188,36 @@ def main() -> None:
             / "schema"
             / "adeu_history_odeu_reconstruction_packet.v1.json",
             root / "spec" / "adeu_history_odeu_reconstruction_packet.schema.json",
+        ),
+        (
+            HistoryWorkspaceQuestion,
+            ADEU_HISTORY_WORKSPACE_QUESTION_SCHEMA,
+            root
+            / "packages"
+            / "adeu_history_semantics"
+            / "schema"
+            / "adeu_history_workspace_question.v1.json",
+            root / "spec" / "adeu_history_workspace_question.schema.json",
+        ),
+        (
+            HistoryWorkspaceThemeFrame,
+            ADEU_HISTORY_WORKSPACE_THEME_FRAME_SCHEMA,
+            root
+            / "packages"
+            / "adeu_history_semantics"
+            / "schema"
+            / "adeu_history_workspace_theme_frame.v1.json",
+            root / "spec" / "adeu_history_workspace_theme_frame.schema.json",
+        ),
+        (
+            HistoryWorkspaceSnapshot,
+            ADEU_HISTORY_WORKSPACE_SNAPSHOT_SCHEMA,
+            root
+            / "packages"
+            / "adeu_history_semantics"
+            / "schema"
+            / "adeu_history_workspace_snapshot.v1.json",
+            root / "spec" / "adeu_history_workspace_snapshot.schema.json",
         ),
     ]
 

@@ -1,0 +1,313 @@
+{
+  "ledger": {
+    "schema": "adeu_history_ledger@1",
+    "ledger_id": "history_ledger:299b771fbd2a05b4",
+    "source_id": "history_source:3add14e185e76aea",
+    "entries": [
+      {
+        "schema": "adeu_history_ledger_entry@1",
+        "entry_id": "history_ledger_entry:7d956ce777606bdf",
+        "source_id": "history_source:3add14e185e76aea",
+        "preclassification_id": "history_preclassification:bc350d3aba13594d",
+        "order_index": 0,
+        "entry_text": "Packet authority posture bundle.\n- Ontological lane is the downstream packet overlay over the released ledger.\n- Epistemic lane keeps evidence grounded to released source entries.\n- Deontic lane must stay fail-closed and avoid workspace widening.\n- Utility lane helps later bounded follow-up work.",
+        "entry_text_hash": "6c0daeefdccb2cffe3367bc34e973d8c65b6449011cbf8a59ede4512e471d3c7",
+        "role": "assistant",
+        "origin_type": "assistant_reply",
+        "source_line_start": 1,
+        "source_line_end": 5,
+        "structural_markers": [
+          "multi_line_message",
+          "bullet_line_present"
+        ]
+      }
+    ],
+    "entry_count": 1
+  },
+  "slices": [
+    {
+      "schema": "adeu_history_slice@1",
+      "slice_id": "history_slice:5bd5119c97f5245e",
+      "source_id": "history_source:3add14e185e76aea",
+      "slice_index": 0,
+      "entry_ids": [
+        "history_ledger_entry:7d956ce777606bdf"
+      ],
+      "chronology_start_order_index": 0,
+      "chronology_end_order_index": 0,
+      "boundary_tags": [
+        "conversation_start",
+        "conversation_end",
+        "contains_multi_line_message",
+        "contains_bullet_line_present"
+      ],
+      "theme_terms": [
+        "packet",
+        "authority",
+        "posture",
+        "bundle",
+        "ontological",
+        "lane",
+        "downstream",
+        "overlay",
+        "over",
+        "released",
+        "ledger",
+        "epistemic",
+        "keeps",
+        "evidence",
+        "grounded",
+        "source",
+        "entries",
+        "deontic",
+        "must",
+        "stay",
+        "fail",
+        "closed",
+        "avoid",
+        "workspace",
+        "widening",
+        "utility",
+        "helps",
+        "later",
+        "bounded",
+        "follow",
+        "work"
+      ],
+      "theme_label": "packet authority posture",
+      "theme_key": "packet::authority::posture::bundle::ontological"
+    }
+  ],
+  "theme_anchors": [
+    {
+      "schema": "adeu_history_theme_anchor@1",
+      "theme_anchor_id": "history_theme_anchor:ab6b69782545a98a",
+      "source_id": "history_source:3add14e185e76aea",
+      "theme_key": "packet::authority::posture::bundle::ontological",
+      "display_label": "packet authority posture",
+      "slice_ids": [
+        "history_slice:5bd5119c97f5245e"
+      ],
+      "anchor_entry_ids": [
+        "history_ledger_entry:7d956ce777606bdf"
+      ],
+      "supporting_terms": [
+        "packet",
+        "authority",
+        "posture",
+        "bundle",
+        "ontological",
+        "lane",
+        "downstream",
+        "overlay",
+        "over",
+        "released",
+        "ledger",
+        "epistemic",
+        "keeps",
+        "evidence",
+        "grounded",
+        "source",
+        "entries",
+        "deontic",
+        "must",
+        "stay",
+        "fail",
+        "closed",
+        "avoid",
+        "workspace",
+        "widening",
+        "utility",
+        "helps",
+        "later",
+        "bounded",
+        "follow",
+        "work"
+      ]
+    }
+  ],
+  "packets": [
+    {
+      "schema": "adeu_history_odeu_reconstruction_packet@1",
+      "packet_id": "history_packet:ab16415f0a8f9960",
+      "source_id": "history_source:3add14e185e76aea",
+      "slice_id": "history_slice:5bd5119c97f5245e",
+      "theme_anchor_id": "history_theme_anchor:ab6b69782545a98a",
+      "lane_reconstructions": [
+        {
+          "schema": "adeu_history_odeu_lane_reconstruction@1",
+          "lane_id": "O",
+          "presence_status": "present",
+          "explicitation_status": "locally_explicit",
+          "dominant_role_posture": "source_primary",
+          "reconstruction_text": "- Ontological lane is the downstream packet overlay over the released ledger. Packet authority posture bundle.",
+          "evidence_refs": [
+            {
+              "schema": "adeu_history_evidence_ref@1",
+              "entry_id": "history_ledger_entry:7d956ce777606bdf",
+              "role": "assistant",
+              "excerpt": "- Ontological lane is the downstream packet overlay over the released ledger."
+            },
+            {
+              "schema": "adeu_history_evidence_ref@1",
+              "entry_id": "history_ledger_entry:7d956ce777606bdf",
+              "role": "assistant",
+              "excerpt": "Packet authority posture bundle."
+            }
+          ]
+        },
+        {
+          "schema": "adeu_history_odeu_lane_reconstruction@1",
+          "lane_id": "E",
+          "presence_status": "present",
+          "explicitation_status": "locally_explicit",
+          "dominant_role_posture": "source_primary",
+          "reconstruction_text": "- Epistemic lane keeps evidence grounded to released source entries.",
+          "evidence_refs": [
+            {
+              "schema": "adeu_history_evidence_ref@1",
+              "entry_id": "history_ledger_entry:7d956ce777606bdf",
+              "role": "assistant",
+              "excerpt": "- Epistemic lane keeps evidence grounded to released source entries."
+            }
+          ]
+        },
+        {
+          "schema": "adeu_history_odeu_lane_reconstruction@1",
+          "lane_id": "D",
+          "presence_status": "present",
+          "explicitation_status": "locally_explicit",
+          "dominant_role_posture": "source_primary",
+          "reconstruction_text": "- Deontic lane must stay fail-closed and avoid workspace widening. - Epistemic lane keeps evidence grounded to released source entries.",
+          "evidence_refs": [
+            {
+              "schema": "adeu_history_evidence_ref@1",
+              "entry_id": "history_ledger_entry:7d956ce777606bdf",
+              "role": "assistant",
+              "excerpt": "- Deontic lane must stay fail-closed and avoid workspace widening."
+            },
+            {
+              "schema": "adeu_history_evidence_ref@1",
+              "entry_id": "history_ledger_entry:7d956ce777606bdf",
+              "role": "assistant",
+              "excerpt": "- Epistemic lane keeps evidence grounded to released source entries."
+            }
+          ]
+        },
+        {
+          "schema": "adeu_history_odeu_lane_reconstruction@1",
+          "lane_id": "U",
+          "presence_status": "weakly_present",
+          "explicitation_status": "locally_explicit",
+          "dominant_role_posture": "source_primary",
+          "reconstruction_text": "Contextually reconstructed from: - Utility lane helps later bounded follow-up work.",
+          "evidence_refs": [
+            {
+              "schema": "adeu_history_evidence_ref@1",
+              "entry_id": "history_ledger_entry:7d956ce777606bdf",
+              "role": "assistant",
+              "excerpt": "- Utility lane helps later bounded follow-up work."
+            }
+          ]
+        }
+      ],
+      "interpretation_authority_posture": "advisory_overlay_only",
+      "semantic_identity_mode": "v54c_history_packet_hash_law",
+      "semantic_hash": "ab16415f0a8f99606f2b6492f80f5ee19965d8e5b1f1385881d174feb4aacffc"
+    }
+  ],
+  "source": {
+    "schema": "adeu_history_source_artifact@1",
+    "source_id": "history_source:3add14e185e76aea",
+    "input_kind": "conversation_history",
+    "source_label": "v54d assistant_local_explicit_history_lf.txt",
+    "source_text": "Assistant: Packet authority posture bundle.\n- Ontological lane is the downstream packet overlay over the released ledger.\n- Epistemic lane keeps evidence grounded to released source entries.\n- Deontic lane must stay fail-closed and avoid workspace widening.\n- Utility lane helps later bounded follow-up work.\n",
+    "source_text_hash": "956717dbca1fd6f8f9fbde4a961d0321523ad9e85c13c6bd496535e178b9aa63",
+    "corpus_wave_posture": "wave_0_bootstrap_candidate",
+    "source_authority_posture": "normalized_source_text_authoritative",
+    "source_notes": [
+      "v54d_reference_workspace_bundle"
+    ]
+  },
+  "preclassifications": [
+    {
+      "schema": "adeu_history_preclassification@1",
+      "preclassification_id": "history_preclassification:bc350d3aba13594d",
+      "source_id": "history_source:3add14e185e76aea",
+      "order_index": 0,
+      "message_text": "Packet authority posture bundle.\n- Ontological lane is the downstream packet overlay over the released ledger.\n- Epistemic lane keeps evidence grounded to released source entries.\n- Deontic lane must stay fail-closed and avoid workspace widening.\n- Utility lane helps later bounded follow-up work.",
+      "source_line_start": 1,
+      "source_line_end": 5,
+      "role": "assistant",
+      "origin_type": "assistant_reply",
+      "source_declaration_hints": [
+        "full_role_header_present",
+        "timestamp_prefix_absent"
+      ],
+      "timestamp_text": null,
+      "structural_markers": [
+        "multi_line_message",
+        "bullet_line_present"
+      ],
+      "text_shape_signals": {
+        "schema": "adeu_history_text_shape_signals@1",
+        "char_count": 297,
+        "word_count": 40,
+        "line_count": 5,
+        "nonempty_line_count": 5,
+        "question_count": 0,
+        "bullet_line_count": 4,
+        "quoted_line_count": 0,
+        "code_fence_count": 0
+      }
+    }
+  ],
+  "workspace_snapshot": {
+    "schema": "adeu_history_workspace_snapshot@1",
+    "workspace_snapshot_id": "history_workspace:3225d8cb94ba1ae7",
+    "source_id": "history_source:3add14e185e76aea",
+    "ledger_id": "history_ledger:299b771fbd2a05b4",
+    "chronology_slice_order": [
+      "history_slice:5bd5119c97f5245e"
+    ],
+    "inferential_slice_order": [
+      "history_slice:5bd5119c97f5245e"
+    ],
+    "theme_frames": [
+      {
+        "schema": "adeu_history_workspace_theme_frame@1",
+        "frame_id": "history_workspace_frame:65339b3564c77327",
+        "theme_anchor_id": "history_theme_anchor:ab6b69782545a98a",
+        "theme_display_label": "packet authority posture",
+        "slice_ids": [
+          "history_slice:5bd5119c97f5245e"
+        ],
+        "packet_ids": [
+          "history_packet:ab16415f0a8f9960"
+        ],
+        "chronology_start_order_index": 0,
+        "chronology_end_order_index": 0,
+        "underdeveloped_lane_ids": [
+          "U"
+        ],
+        "provenance_entry_ids": [
+          "history_ledger_entry:7d956ce777606bdf"
+        ],
+        "open_questions": [
+          {
+            "schema": "adeu_history_workspace_question@1",
+            "question_id": "history_workspace_question:7ee097927cff1985",
+            "lane_id": "U",
+            "reason_kind": "weak_lane",
+            "question_text": "utility lane for theme 'packet authority posture' is weakly_present; collect more explicit local material or later explication."
+          }
+        ]
+      }
+    ],
+    "source_authority_posture": "normalized_source_text_authoritative",
+    "interpretation_authority_posture": "advisory_overlay_only",
+    "workspace_synthesis_posture": "advisory_reconstruction_only",
+    "semantic_identity_mode": "v54d_workspace_snapshot_hash_law",
+    "semantic_hash": "3225d8cb94ba1ae7c8a5d987bae5d1d8d2b0695d83ff716f3f5bf19895ac4248"
+  }
+}
