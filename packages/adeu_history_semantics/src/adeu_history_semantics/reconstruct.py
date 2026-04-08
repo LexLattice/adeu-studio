@@ -4,6 +4,7 @@ import re
 from dataclasses import dataclass
 
 from .models import (
+    HISTORY_WORKSPACE_IDENTITY_MODE,
     ODEU_LANE_ORDER,
     HistoryEvidenceRef,
     HistoryLedger,
@@ -12,8 +13,15 @@ from .models import (
     HistoryODEUReconstructionPacket,
     HistorySlice,
     HistoryThemeAnchor,
+    HistoryWorkspaceQuestion,
+    HistoryWorkspaceSnapshot,
+    HistoryWorkspaceThemeFrame,
+    WorkspaceQuestionReasonKind,
     compute_history_odeu_packet_id,
     compute_history_odeu_packet_semantic_hash,
+    compute_history_workspace_frame_id,
+    compute_history_workspace_question_id,
+    compute_history_workspace_snapshot_id,
 )
 
 _SENTENCE_SPLIT_RE = re.compile(r"(?<=[.!?])\s+")
@@ -35,6 +43,12 @@ _U_EXPLICIT_RE = re.compile(
     re.IGNORECASE,
 )
 _UNDERDETERMINED_MARKERS = ("odeu", "four lanes", "all four", "explicit lanes", "unclear", "?")
+_LANE_LONG_NAMES: dict[str, str] = {
+    "O": "ontological lane",
+    "E": "epistemic lane",
+    "D": "deontic lane",
+    "U": "utility lane",
+}
 
 _LANE_KEYWORDS: dict[str, tuple[str, ...]] = {
     "O": (
@@ -131,6 +145,375 @@ def build_history_evidence_ref(
         role=entry.role,
         excerpt=normalized_excerpt,
     )
+
+
+def build_history_workspace_theme_frames(
+    *,
+    ledger: HistoryLedger,
+    slices: list[HistorySlice],
+    theme_anchors: list[HistoryThemeAnchor],
+    packets: list[HistoryODEUReconstructionPacket],
+) -> list[HistoryWorkspaceThemeFrame]:
+    validate_history_odeu_reconstruction_packets(
+        ledger=ledger,
+        slices=slices,
+        theme_anchors=theme_anchors,
+        packets=packets,
+    )
+
+    entry_lookup = {entry.entry_id: entry for entry in ledger.entries}
+    slice_lookup = {item.slice_id: item for item in slices}
+    packets_by_anchor: dict[str, list[HistoryODEUReconstructionPacket]] = {}
+    for packet in packets:
+        packets_by_anchor.setdefault(packet.theme_anchor_id, []).append(packet)
+
+    theme_frames: list[HistoryWorkspaceThemeFrame] = []
+    for anchor in sorted(theme_anchors, key=lambda item: item.theme_anchor_id):
+        anchor_slices = [slice_lookup[item] for item in anchor.slice_ids]
+        anchor_packets = sorted(
+            packets_by_anchor.get(anchor.theme_anchor_id, []),
+            key=lambda item: slice_lookup[item.slice_id].slice_index,
+        )
+        chronology_start_order_index = min(
+            item.chronology_start_order_index for item in anchor_slices
+        )
+        chronology_end_order_index = max(
+            item.chronology_end_order_index for item in anchor_slices
+        )
+        underdeveloped_lane_ids = _ordered_unique_lane_ids(
+            [
+                lane.lane_id
+                for packet in anchor_packets
+                for lane in packet.lane_reconstructions
+                if lane.presence_status in {"weakly_present", "underdetermined"}
+            ],
+            field_name="underdeveloped_lane_ids",
+        )
+        provenance_entry_ids = _ordered_unique_texts(
+            [
+                *anchor.anchor_entry_ids,
+                *[
+                    evidence.entry_id
+                    for packet in anchor_packets
+                    for lane in packet.lane_reconstructions
+                    for evidence in lane.evidence_refs
+                ],
+            ],
+            field_name="provenance_entry_ids",
+        )
+        ordered_provenance_entry_ids = _ordered_by_entry_order(
+            provenance_entry_ids,
+            entry_lookup=entry_lookup,
+        )
+        open_questions = _workspace_questions(
+            theme_display_label=anchor.display_label,
+            packets=anchor_packets,
+        )
+        theme_frames.append(
+            HistoryWorkspaceThemeFrame(
+                frame_id=compute_history_workspace_frame_id(
+                    theme_anchor_id=anchor.theme_anchor_id,
+                    theme_display_label=anchor.display_label,
+                    slice_ids=[item.slice_id for item in anchor_slices],
+                    packet_ids=[item.packet_id for item in anchor_packets],
+                    chronology_start_order_index=chronology_start_order_index,
+                    chronology_end_order_index=chronology_end_order_index,
+                    underdeveloped_lane_ids=underdeveloped_lane_ids,
+                    provenance_entry_ids=ordered_provenance_entry_ids,
+                    open_questions=open_questions,
+                ),
+                theme_anchor_id=anchor.theme_anchor_id,
+                theme_display_label=anchor.display_label,
+                slice_ids=[item.slice_id for item in anchor_slices],
+                packet_ids=[item.packet_id for item in anchor_packets],
+                chronology_start_order_index=chronology_start_order_index,
+                chronology_end_order_index=chronology_end_order_index,
+                underdeveloped_lane_ids=underdeveloped_lane_ids,
+                provenance_entry_ids=ordered_provenance_entry_ids,
+                open_questions=open_questions,
+            )
+        )
+
+        # local consistency checks after construction so this function fails fast
+        _validate_theme_frame_slice_consistency(
+            anchor=anchor,
+            frame=theme_frames[-1],
+            anchor_packets=anchor_packets,
+            slice_lookup=slice_lookup,
+        )
+
+    if len(packets_by_anchor) != len(theme_anchors):
+        raise ValueError("every released anchor must have at least one workspace frame packet")
+    if len(theme_frames) != len(theme_anchors):
+        raise ValueError("theme frames must cover every released theme anchor")
+    return theme_frames
+
+
+def build_history_workspace_snapshot(
+    *,
+    ledger: HistoryLedger,
+    slices: list[HistorySlice],
+    theme_anchors: list[HistoryThemeAnchor],
+    packets: list[HistoryODEUReconstructionPacket],
+) -> HistoryWorkspaceSnapshot:
+    theme_frames = build_history_workspace_theme_frames(
+        ledger=ledger,
+        slices=slices,
+        theme_anchors=theme_anchors,
+        packets=packets,
+    )
+    ordered_slices = sorted(slices, key=lambda item: item.slice_index)
+    chronology_slice_order = [item.slice_id for item in ordered_slices]
+    inferential_slice_order = sorted(
+        ordered_slices,
+        key=lambda item: (
+            -sum(
+                1
+                for packet in packets
+                if packet.slice_id == item.slice_id
+                for lane in packet.lane_reconstructions
+                if lane.presence_status == "present"
+            ),
+            item.slice_index,
+        ),
+    )
+    inferential_slice_ids = [item.slice_id for item in inferential_slice_order]
+
+    semantic_hash = compute_history_workspace_snapshot_id(
+        source_id=ledger.source_id,
+        ledger_id=ledger.ledger_id,
+        chronology_slice_order=chronology_slice_order,
+        inferential_slice_order=inferential_slice_ids,
+        theme_frames=theme_frames,
+        source_authority_posture="normalized_source_text_authoritative",
+        interpretation_authority_posture="advisory_overlay_only",
+        workspace_synthesis_posture="advisory_reconstruction_only",
+        semantic_identity_mode=HISTORY_WORKSPACE_IDENTITY_MODE,
+    )
+    snapshot = HistoryWorkspaceSnapshot(
+        workspace_snapshot_id=f"history_workspace:{semantic_hash[:16]}",
+        source_id=ledger.source_id,
+        ledger_id=ledger.ledger_id,
+        chronology_slice_order=chronology_slice_order,
+        inferential_slice_order=inferential_slice_ids,
+        theme_frames=theme_frames,
+        semantic_hash=semantic_hash,
+    )
+    validate_history_workspace_snapshot(
+        ledger=ledger,
+        slices=slices,
+        theme_anchors=theme_anchors,
+        packets=packets,
+        snapshot=snapshot,
+    )
+    return snapshot
+
+
+def validate_history_workspace_snapshot(
+    *,
+    ledger: HistoryLedger,
+    slices: list[HistorySlice],
+    theme_anchors: list[HistoryThemeAnchor],
+    packets: list[HistoryODEUReconstructionPacket],
+    snapshot: HistoryWorkspaceSnapshot,
+) -> None:
+    validate_history_odeu_reconstruction_packets(
+        ledger=ledger,
+        slices=slices,
+        theme_anchors=theme_anchors,
+        packets=packets,
+    )
+    if snapshot.source_id != ledger.source_id:
+        raise ValueError("snapshot source_id must match ledger source_id")
+    if snapshot.ledger_id != ledger.ledger_id:
+        raise ValueError("snapshot ledger_id must match ledger_id")
+
+    if not slices:
+        raise ValueError("slices must be non-empty")
+    if not theme_anchors:
+        raise ValueError("theme_anchors must be non-empty")
+    if not snapshot.theme_frames:
+        raise ValueError("snapshot theme_frames must be non-empty")
+
+    slice_lookup = {item.slice_id: item for item in slices}
+    anchor_by_id = {item.theme_anchor_id: item for item in theme_anchors}
+    packets_by_slice = {item.slice_id: item for item in packets}
+    if len(slice_lookup) != len(slices):
+        raise ValueError("slices must be non-empty and unique")
+
+    ordered_slices = sorted(slices, key=lambda item: item.slice_index)
+    ordered_slice_ids = [item.slice_id for item in ordered_slices]
+    if set(snapshot.chronology_slice_order) != set(ordered_slice_ids):
+        raise ValueError(
+            "snapshot chronology_slice_order must contain every released slice id"
+        )
+    if set(snapshot.inferential_slice_order) != set(ordered_slice_ids):
+        raise ValueError(
+            "snapshot inferential_slice_order must contain every released slice id"
+        )
+    if snapshot.chronology_slice_order != ordered_slice_ids:
+        raise ValueError("snapshot chronology_slice_order must use released slice ordering")
+
+    observed_frame_anchor_ids: set[str] = set()
+    for frame in snapshot.theme_frames:
+        if frame.theme_anchor_id not in anchor_by_id:
+            raise ValueError(
+                "snapshot theme frame theme_anchor_id must reference a "
+                "released anchor"
+            )
+        anchor = anchor_by_id[frame.theme_anchor_id]
+        if frame.theme_anchor_id in observed_frame_anchor_ids:
+            raise ValueError(
+                "snapshot theme_frames must map to each released theme anchor exactly once"
+            )
+        observed_frame_anchor_ids.add(frame.theme_anchor_id)
+        frame_slice_ids = set(frame.slice_ids)
+        if frame_slice_ids != set(anchor.slice_ids):
+            raise ValueError(
+                "theme frame slice_ids must exactly match the released anchor slice_ids"
+            )
+        packet_ids = {
+            item.packet_id
+            for item in packets_by_slice.values()
+            if item.theme_anchor_id == anchor.theme_anchor_id
+        }
+        if set(frame.packet_ids) != packet_ids:
+            raise ValueError(
+                "theme frame packet_ids must match the released packets for "
+                "that anchor"
+            )
+        if snapshot.source_id != anchor.source_id:
+            raise ValueError("snapshot source_id must match anchor source_id")
+        if snapshot.ledger_id != ledger.ledger_id:
+            raise ValueError("snapshot ledger_id must match ledger")
+        _validate_theme_frame_slice_consistency(
+            anchor=anchor,
+            frame=frame,
+            anchor_packets=[packets_by_slice[slice_id] for slice_id in anchor.slice_ids],
+            slice_lookup=slice_lookup,
+        )
+        ordered_provenance_entry_ids = _ordered_by_entry_order(
+            frame.provenance_entry_ids,
+            entry_lookup={entry.entry_id: entry for entry in ledger.entries},
+        )
+        if ordered_provenance_entry_ids != frame.provenance_entry_ids:
+            raise ValueError("provenance_entry_ids must be canonical order")
+        for provenance_entry_id in frame.provenance_entry_ids:
+            if provenance_entry_id not in {entry.entry_id for entry in ledger.entries}:
+                raise ValueError(
+                    "provenance_entry_ids must reference released ledger entries"
+                )
+    if observed_frame_anchor_ids != set(anchor_by_id):
+        raise ValueError("snapshot theme_frames must cover every released theme anchor")
+
+    expected_semantic_hash = compute_history_workspace_snapshot_id(
+        source_id=snapshot.source_id,
+        ledger_id=snapshot.ledger_id,
+        chronology_slice_order=snapshot.chronology_slice_order,
+        inferential_slice_order=snapshot.inferential_slice_order,
+        theme_frames=snapshot.theme_frames,
+        source_authority_posture=snapshot.source_authority_posture,
+        interpretation_authority_posture=snapshot.interpretation_authority_posture,
+        workspace_synthesis_posture=snapshot.workspace_synthesis_posture,
+        semantic_identity_mode=snapshot.semantic_identity_mode,
+    )
+    if snapshot.semantic_hash != expected_semantic_hash:
+        raise ValueError("snapshot semantic_hash must match canonical workspace identity basis")
+
+
+def _ordered_by_entry_order(
+    entry_ids: list[str],
+    *,
+    entry_lookup: dict[str, HistoryLedgerEntry],
+) -> list[str]:
+    for entry_id in entry_ids:
+        if entry_id not in entry_lookup:
+            raise ValueError("provenance_entry_ids must reference released ledger entries")
+    return sorted(
+        set(entry_ids),
+        key=lambda item: entry_lookup[item].order_index,
+    )
+
+
+def _ordered_unique_texts(values: list[str], *, field_name: str) -> list[str]:
+    seen: set[str] = set()
+    ordered: list[str] = []
+    for value in values:
+        if not value:
+            raise ValueError(f"{field_name} must be non-empty")
+        if value in seen:
+            continue
+        seen.add(value)
+        ordered.append(value)
+    return ordered
+
+
+def _ordered_unique_lane_ids(values: list[str], *, field_name: str) -> list[str]:
+    return _ordered_unique_texts(values, field_name=field_name)
+
+
+def _workspace_questions(
+    *,
+    theme_display_label: str,
+    packets: list[HistoryODEUReconstructionPacket],
+) -> list[HistoryWorkspaceQuestion]:
+    questions: list[HistoryWorkspaceQuestion] = []
+    seen: set[tuple[str, WorkspaceQuestionReasonKind]] = set()
+    for packet in packets:
+        for lane in packet.lane_reconstructions:
+            if lane.presence_status not in {"weakly_present", "underdetermined"}:
+                continue
+            reason_kind: WorkspaceQuestionReasonKind = (
+                "weak_lane"
+                if lane.presence_status == "weakly_present"
+                else "underdetermined_lane"
+            )
+            question_subject = (
+                f"{_LANE_LONG_NAMES[lane.lane_id]} for theme "
+                f"'{theme_display_label}'"
+            )
+            question_text = (
+                f"{question_subject} is "
+                f"{lane.presence_status}; collect more explicit local material or "
+                "later explication."
+            )
+            key = (lane.lane_id, reason_kind)
+            if key in seen:
+                continue
+            seen.add(key)
+            questions.append(
+                HistoryWorkspaceQuestion(
+                    question_id=compute_history_workspace_question_id(
+                        lane_id=lane.lane_id,
+                        reason_kind=reason_kind,
+                        question_text=question_text,
+                    ),
+                    lane_id=lane.lane_id,
+                    reason_kind=reason_kind,
+                    question_text=question_text,
+                )
+            )
+    return questions
+
+
+def _validate_theme_frame_slice_consistency(
+    *,
+    anchor: HistoryThemeAnchor,
+    frame: HistoryWorkspaceThemeFrame,
+    anchor_packets: list[HistoryODEUReconstructionPacket],
+    slice_lookup: dict[str, HistorySlice],
+) -> None:
+    frame_slice_ids = [item for item in frame.slice_ids]
+    anchor_slice_ids = anchor.slice_ids
+    if set(frame_slice_ids) != set(anchor_slice_ids):
+        raise ValueError("theme frame slice_ids must map to released slice ids")
+    if set(packet.slice_id for packet in anchor_packets) != set(frame_slice_ids):
+        raise ValueError("theme frame packet_ids must map exactly to its anchor slices")
+    if _ordered_unique_texts(frame_slice_ids, field_name="slice_ids") != frame_slice_ids:
+        raise ValueError("theme frame slice_ids must be canonical")
+    for packet in anchor_packets:
+        if packet.slice_id not in slice_lookup:
+            raise ValueError("theme frame packet slice_id must reference a released slice")
 
 
 def build_history_odeu_reconstruction_packets(
@@ -464,6 +847,9 @@ def _absent_lane_posture(*, entries: list[HistoryLedgerEntry]) -> str:
 
 __all__ = [
     "build_history_evidence_ref",
+    "build_history_workspace_snapshot",
+    "build_history_workspace_theme_frames",
     "build_history_odeu_reconstruction_packets",
+    "validate_history_workspace_snapshot",
     "validate_history_odeu_reconstruction_packets",
 ]

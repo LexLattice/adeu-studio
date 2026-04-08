@@ -17,10 +17,16 @@ ADEU_HISTORY_THEME_ANCHOR_SCHEMA = "adeu_history_theme_anchor@1"
 ADEU_HISTORY_EVIDENCE_REF_SCHEMA = "adeu_history_evidence_ref@1"
 ADEU_HISTORY_ODEU_LANE_RECONSTRUCTION_SCHEMA = "adeu_history_odeu_lane_reconstruction@1"
 ADEU_HISTORY_ODEU_RECONSTRUCTION_PACKET_SCHEMA = "adeu_history_odeu_reconstruction_packet@1"
+ADEU_HISTORY_WORKSPACE_QUESTION_SCHEMA = "adeu_history_workspace_question@1"
+ADEU_HISTORY_WORKSPACE_THEME_FRAME_SCHEMA = "adeu_history_workspace_theme_frame@1"
+ADEU_HISTORY_WORKSPACE_SNAPSHOT_SCHEMA = "adeu_history_workspace_snapshot@1"
 
 SOURCE_AUTHORITY_POSTURE = "normalized_source_text_authoritative"
 HISTORY_ODEU_INTERPRETATION_AUTHORITY_POSTURE = "advisory_overlay_only"
+HISTORY_WORKSPACE_SYNTHESIS_AUTHORITY_POSTURE = "advisory_reconstruction_only"
+HISTORY_WORKSPACE_SYNTHESIS_POSTURE = "advisory_reconstruction_only"
 HISTORY_ODEU_PACKET_SEMANTIC_IDENTITY_MODE = "v54c_history_packet_hash_law"
+HISTORY_WORKSPACE_IDENTITY_MODE = "v54d_workspace_snapshot_hash_law"
 INPUT_KIND_VOCABULARY = ("conversation_history",)
 ROLE_VOCABULARY = ("user", "assistant", "system")
 ORIGIN_TYPE_VOCABULARY = ("user_native", "assistant_reply", "system_instruction")
@@ -135,7 +141,16 @@ DominantRolePosture = Literal[
     "none",
 ]
 HistoryODEUInterpretationAuthorityPosture = Literal["advisory_overlay_only"]
+HistoryWorkspaceSynthesisPosture = Literal["advisory_reconstruction_only"]
 HistoryODEUPacketSemanticIdentityMode = Literal["v54c_history_packet_hash_law"]
+WorkspaceQuestionReasonKind = Literal["weak_lane", "underdetermined_lane"]
+
+
+def _ordered_unique_lane_ids(values: list[LaneId], *, field_name: str) -> list[LaneId]:
+    if len(values) != len(set(values)):
+        raise ValueError(f"{field_name} must be unique")
+    order = {lane_id: index for index, lane_id in enumerate(ODEU_LANE_ORDER)}
+    return sorted(values, key=lambda item: order[item])
 
 _THEME_TERM_RE = re.compile(r"^[a-z0-9]+$")
 ModelT = TypeVar("ModelT", bound=BaseModel)
@@ -351,6 +366,166 @@ def compute_history_odeu_packet_semantic_hash(
 
 def compute_history_odeu_packet_id(*, semantic_hash: str) -> str:
     return f"history_packet:{semantic_hash[:16]}"
+
+
+def build_history_workspace_question_identity_basis(
+    *,
+    lane_id: LaneId,
+    reason_kind: WorkspaceQuestionReasonKind,
+    question_text: str,
+) -> dict[str, object]:
+    return {
+        "lane_id": lane_id,
+        "reason_kind": reason_kind,
+        "question_text": question_text,
+    }
+
+
+def compute_history_workspace_question_id(
+    *,
+    lane_id: LaneId,
+    reason_kind: WorkspaceQuestionReasonKind,
+    question_text: str,
+) -> str:
+    return f"history_workspace_question:{sha256_canonical_json(
+        build_history_workspace_question_identity_basis(
+            lane_id=lane_id,
+            reason_kind=reason_kind,
+            question_text=question_text,
+        )
+    )[:16]}"
+
+
+def build_history_workspace_theme_frame_identity_basis(
+    *,
+    theme_anchor_id: str,
+    theme_display_label: str,
+    slice_ids: list[str],
+    packet_ids: list[str],
+    chronology_start_order_index: int,
+    chronology_end_order_index: int,
+    underdeveloped_lane_ids: list[LaneId],
+    provenance_entry_ids: list[str],
+    open_questions: list[HistoryWorkspaceQuestion],
+) -> dict[str, object]:
+    return {
+        "theme_anchor_id": theme_anchor_id,
+        "theme_display_label": theme_display_label,
+        "slice_ids": slice_ids,
+        "packet_ids": packet_ids,
+        "chronology_start_order_index": chronology_start_order_index,
+        "chronology_end_order_index": chronology_end_order_index,
+        "underdeveloped_lane_ids": underdeveloped_lane_ids,
+        "provenance_entry_ids": provenance_entry_ids,
+        "open_questions": [
+            {
+                "lane_id": item.lane_id,
+                "reason_kind": item.reason_kind,
+                "question_text": item.question_text,
+            }
+            for item in open_questions
+        ],
+    }
+
+
+def compute_history_workspace_frame_id(
+    *,
+    theme_anchor_id: str,
+    theme_display_label: str,
+    slice_ids: list[str],
+    packet_ids: list[str],
+    chronology_start_order_index: int,
+    chronology_end_order_index: int,
+    underdeveloped_lane_ids: list[LaneId],
+    provenance_entry_ids: list[str],
+    open_questions: list[HistoryWorkspaceQuestion],
+) -> str:
+    return f"history_workspace_frame:{sha256_canonical_json(
+        build_history_workspace_theme_frame_identity_basis(
+            theme_anchor_id=theme_anchor_id,
+            theme_display_label=theme_display_label,
+            slice_ids=slice_ids,
+            packet_ids=packet_ids,
+            chronology_start_order_index=chronology_start_order_index,
+            chronology_end_order_index=chronology_end_order_index,
+            underdeveloped_lane_ids=underdeveloped_lane_ids,
+            provenance_entry_ids=provenance_entry_ids,
+            open_questions=open_questions,
+        )
+    )[:16]}"
+
+
+def build_history_workspace_snapshot_identity_basis(
+    *,
+    source_id: str,
+    ledger_id: str,
+    chronology_slice_order: list[str],
+    inferential_slice_order: list[str],
+    theme_frames: list[HistoryWorkspaceThemeFrame],
+    source_authority_posture: SourceAuthorityPosture,
+    interpretation_authority_posture: HistoryODEUInterpretationAuthorityPosture,
+    workspace_synthesis_posture: HistoryWorkspaceSynthesisPosture,
+    semantic_identity_mode: str,
+) -> dict[str, object]:
+    return {
+        "schema": ADEU_HISTORY_WORKSPACE_SNAPSHOT_SCHEMA,
+        "source_id": source_id,
+        "ledger_id": ledger_id,
+        "chronology_slice_order": chronology_slice_order,
+        "inferential_slice_order": inferential_slice_order,
+        "theme_frames": [
+            {
+                "theme_anchor_id": item.theme_anchor_id,
+                "theme_display_label": item.theme_display_label,
+                "slice_ids": item.slice_ids,
+                "packet_ids": item.packet_ids,
+                "chronology_start_order_index": item.chronology_start_order_index,
+                "chronology_end_order_index": item.chronology_end_order_index,
+                "underdeveloped_lane_ids": item.underdeveloped_lane_ids,
+                "provenance_entry_ids": item.provenance_entry_ids,
+                "open_questions": [
+                    {
+                        "lane_id": question.lane_id,
+                        "reason_kind": question.reason_kind,
+                        "question_text": question.question_text,
+                    }
+                    for question in item.open_questions
+                ],
+            }
+            for item in theme_frames
+        ],
+        "source_authority_posture": source_authority_posture,
+        "interpretation_authority_posture": interpretation_authority_posture,
+        "workspace_synthesis_posture": workspace_synthesis_posture,
+        "semantic_identity_mode": semantic_identity_mode,
+    }
+
+
+def compute_history_workspace_snapshot_id(
+    *,
+    source_id: str,
+    ledger_id: str,
+    chronology_slice_order: list[str],
+    inferential_slice_order: list[str],
+    theme_frames: list[HistoryWorkspaceThemeFrame],
+    source_authority_posture: SourceAuthorityPosture,
+    interpretation_authority_posture: HistoryODEUInterpretationAuthorityPosture,
+    workspace_synthesis_posture: HistoryWorkspaceSynthesisPosture,
+    semantic_identity_mode: str = HISTORY_WORKSPACE_IDENTITY_MODE,
+) -> str:
+    return f"history_workspace:{sha256_canonical_json(
+        build_history_workspace_snapshot_identity_basis(
+            source_id=source_id,
+            ledger_id=ledger_id,
+            chronology_slice_order=chronology_slice_order,
+            inferential_slice_order=inferential_slice_order,
+            theme_frames=theme_frames,
+            source_authority_posture=source_authority_posture,
+            interpretation_authority_posture=interpretation_authority_posture,
+            workspace_synthesis_posture=workspace_synthesis_posture,
+            semantic_identity_mode=semantic_identity_mode,
+        )
+    )[:16]}"
 
 
 class HistoryTextShapeSignals(BaseModel):
@@ -1066,6 +1241,256 @@ class HistoryODEUReconstructionPacket(BaseModel):
         return self
 
 
+class HistoryWorkspaceQuestion(BaseModel):
+    model_config = MODEL_CONFIG
+
+    schema_id: Literal[ADEU_HISTORY_WORKSPACE_QUESTION_SCHEMA] = Field(
+        default=ADEU_HISTORY_WORKSPACE_QUESTION_SCHEMA,
+        alias="schema",
+    )
+    question_id: str
+    lane_id: LaneId
+    reason_kind: WorkspaceQuestionReasonKind
+    question_text: str
+
+    @property
+    def schema(self) -> str:
+        return self.schema_id
+
+    @model_validator(mode="after")
+    def _validate(self) -> "HistoryWorkspaceQuestion":
+        object.__setattr__(
+            self,
+            "question_text",
+            _assert_present_text(self.question_text, field_name="question_text"),
+        )
+        expected_question_id = compute_history_workspace_question_id(
+            lane_id=self.lane_id,
+            reason_kind=self.reason_kind,
+            question_text=self.question_text,
+        )
+        if self.question_id != expected_question_id:
+            raise ValueError("question_id must match canonical workspace question identity")
+        return self
+
+
+class HistoryWorkspaceThemeFrame(BaseModel):
+    model_config = MODEL_CONFIG
+
+    schema_id: Literal[ADEU_HISTORY_WORKSPACE_THEME_FRAME_SCHEMA] = Field(
+        default=ADEU_HISTORY_WORKSPACE_THEME_FRAME_SCHEMA,
+        alias="schema",
+    )
+    frame_id: str
+    theme_anchor_id: str
+    theme_display_label: str
+    slice_ids: list[str]
+    packet_ids: list[str]
+    chronology_start_order_index: int
+    chronology_end_order_index: int
+    underdeveloped_lane_ids: list[LaneId] = Field(default_factory=list)
+    provenance_entry_ids: list[str] = Field(default_factory=list)
+    open_questions: list[HistoryWorkspaceQuestion] = Field(default_factory=list)
+
+    @property
+    def schema(self) -> str:
+        return self.schema_id
+
+    @model_validator(mode="after")
+    def _validate(self) -> "HistoryWorkspaceThemeFrame":
+        object.__setattr__(
+            self,
+            "theme_anchor_id",
+            _assert_present_text(self.theme_anchor_id, field_name="theme_anchor_id"),
+        )
+        object.__setattr__(
+            self,
+            "theme_display_label",
+            _assert_present_text(self.theme_display_label, field_name="theme_display_label"),
+        )
+        object.__setattr__(
+            self,
+            "slice_ids",
+            _ordered_unique_texts(self.slice_ids, field_name="slice_ids"),
+        )
+        object.__setattr__(
+            self,
+            "packet_ids",
+            _ordered_unique_texts(self.packet_ids, field_name="packet_ids"),
+        )
+        object.__setattr__(
+            self,
+            "underdeveloped_lane_ids",
+            _ordered_unique_lane_ids(
+                self.underdeveloped_lane_ids,
+                field_name="underdeveloped_lane_ids",
+            ),
+        )
+        object.__setattr__(
+            self,
+            "provenance_entry_ids",
+            _ordered_unique_texts(
+                list(self.provenance_entry_ids),
+                field_name="provenance_entry_ids",
+            ),
+        )
+        object.__setattr__(
+            self,
+            "chronology_start_order_index",
+            _assert_non_negative_int(
+                self.chronology_start_order_index,
+                field_name="chronology_start_order_index",
+            ),
+        )
+        object.__setattr__(
+            self,
+            "chronology_end_order_index",
+            _assert_non_negative_int(
+                self.chronology_end_order_index,
+                field_name="chronology_end_order_index",
+            ),
+        )
+        if self.chronology_end_order_index < self.chronology_start_order_index:
+            raise ValueError("chronology_end_order_index must be >= chronology_start_order_index")
+
+        expected_frame_id = compute_history_workspace_frame_id(
+            theme_anchor_id=self.theme_anchor_id,
+            theme_display_label=self.theme_display_label,
+            slice_ids=self.slice_ids,
+            packet_ids=self.packet_ids,
+            chronology_start_order_index=self.chronology_start_order_index,
+            chronology_end_order_index=self.chronology_end_order_index,
+            underdeveloped_lane_ids=self.underdeveloped_lane_ids,
+            provenance_entry_ids=self.provenance_entry_ids,
+            open_questions=self.open_questions,
+        )
+        if self.frame_id != expected_frame_id:
+            raise ValueError("frame_id must match canonical workspace theme-frame identity")
+        return self
+
+
+class HistoryWorkspaceSnapshot(BaseModel):
+    model_config = MODEL_CONFIG
+
+    schema_id: Literal[ADEU_HISTORY_WORKSPACE_SNAPSHOT_SCHEMA] = Field(
+        default=ADEU_HISTORY_WORKSPACE_SNAPSHOT_SCHEMA,
+        alias="schema",
+    )
+    workspace_snapshot_id: str
+    source_id: str
+    ledger_id: str
+    chronology_slice_order: list[str]
+    inferential_slice_order: list[str]
+    theme_frames: list[HistoryWorkspaceThemeFrame]
+    source_authority_posture: SourceAuthorityPosture = SOURCE_AUTHORITY_POSTURE
+    interpretation_authority_posture: HistoryODEUInterpretationAuthorityPosture = (
+        HISTORY_ODEU_INTERPRETATION_AUTHORITY_POSTURE
+    )
+    workspace_synthesis_posture: HistoryWorkspaceSynthesisPosture = (
+        HISTORY_WORKSPACE_SYNTHESIS_POSTURE
+    )
+    semantic_identity_mode: str = HISTORY_WORKSPACE_IDENTITY_MODE
+    semantic_hash: str
+
+    @property
+    def schema(self) -> str:
+        return self.schema_id
+
+    def identity_basis(self) -> dict[str, object]:
+        return build_history_workspace_snapshot_identity_basis(
+            source_id=self.source_id,
+            ledger_id=self.ledger_id,
+            chronology_slice_order=self.chronology_slice_order,
+            inferential_slice_order=self.inferential_slice_order,
+            theme_frames=self.theme_frames,
+            source_authority_posture=self.source_authority_posture,
+            interpretation_authority_posture=self.interpretation_authority_posture,
+            workspace_synthesis_posture=self.workspace_synthesis_posture,
+            semantic_identity_mode=self.semantic_identity_mode,
+        )
+
+    @model_validator(mode="after")
+    def _validate(self) -> "HistoryWorkspaceSnapshot":
+        object.__setattr__(
+            self,
+            "workspace_snapshot_id",
+            _assert_present_text(self.workspace_snapshot_id, field_name="workspace_snapshot_id"),
+        )
+        object.__setattr__(
+            self,
+            "source_id",
+            _assert_present_text(self.source_id, field_name="source_id"),
+        )
+        object.__setattr__(
+            self,
+            "ledger_id",
+            _assert_present_text(self.ledger_id, field_name="ledger_id"),
+        )
+        object.__setattr__(
+            self,
+            "semantic_hash",
+            _assert_present_text(self.semantic_hash, field_name="semantic_hash"),
+        )
+        object.__setattr__(
+            self,
+            "chronology_slice_order",
+            _ordered_unique_texts(
+                self.chronology_slice_order,
+                field_name="chronology_slice_order",
+            ),
+        )
+        object.__setattr__(
+            self,
+            "inferential_slice_order",
+            _ordered_unique_texts(
+                self.inferential_slice_order,
+                field_name="inferential_slice_order",
+            ),
+        )
+        if len(self.chronology_slice_order) != len(self.inferential_slice_order):
+            raise ValueError("chronology_slice_order and inferential_slice_order must align")
+        if set(self.chronology_slice_order) != set(self.inferential_slice_order):
+            raise ValueError(
+                "chronology_slice_order and inferential_slice_order must "
+                "resolve the same slices"
+            )
+        object.__setattr__(
+            self,
+            "theme_frames",
+            sorted(self.theme_frames, key=lambda item: item.theme_anchor_id),
+        )
+
+        expected_source_authority = SOURCE_AUTHORITY_POSTURE
+        if self.source_authority_posture != expected_source_authority:
+            raise ValueError("source_authority_posture must match source authority boundary")
+
+        expected_interpretation_authority = HISTORY_ODEU_INTERPRETATION_AUTHORITY_POSTURE
+        if self.interpretation_authority_posture != expected_interpretation_authority:
+            raise ValueError("interpretation_authority_posture must remain advisory")
+
+        expected_synthesis_posture = HISTORY_WORKSPACE_SYNTHESIS_POSTURE
+        if self.workspace_synthesis_posture != expected_synthesis_posture:
+            raise ValueError("workspace_synthesis_posture must remain advisory")
+
+        expected_semantic_hash = compute_history_workspace_snapshot_id(
+            source_id=self.source_id,
+            ledger_id=self.ledger_id,
+            chronology_slice_order=self.chronology_slice_order,
+            inferential_slice_order=self.inferential_slice_order,
+            theme_frames=self.theme_frames,
+            source_authority_posture=self.source_authority_posture,
+            interpretation_authority_posture=self.interpretation_authority_posture,
+            workspace_synthesis_posture=self.workspace_synthesis_posture,
+            semantic_identity_mode=self.semantic_identity_mode,
+        )
+        if self.semantic_hash != expected_semantic_hash:
+            raise ValueError("semantic_hash must match canonical workspace identity basis")
+        expected_snapshot_id = f"history_workspace:{self.semantic_hash[:16]}"
+        if self.workspace_snapshot_id != expected_snapshot_id:
+            raise ValueError("workspace_snapshot_id must match canonical workspace identity")
+        return self
+
+
 __all__ = [
     "ADEU_HISTORY_EVIDENCE_REF_SCHEMA",
     "ADEU_HISTORY_LEDGER_ENTRY_SCHEMA",
@@ -1109,6 +1534,9 @@ __all__ = [
     "compute_history_ledger_id",
     "compute_history_odeu_packet_id",
     "compute_history_odeu_packet_semantic_hash",
+    "compute_history_workspace_frame_id",
+    "compute_history_workspace_question_id",
+    "compute_history_workspace_snapshot_id",
     "compute_history_preclassification_id",
     "compute_history_source_id",
     "compute_history_slice_id",
@@ -1116,6 +1544,13 @@ __all__ = [
     "compute_history_theme_key",
     "compute_history_theme_label",
     "build_history_odeu_packet_identity_basis",
+    "HistoryWorkspaceQuestion",
+    "HistoryWorkspaceSnapshot",
+    "HistoryWorkspaceThemeFrame",
+    "HISTORY_WORKSPACE_IDENTITY_MODE",
+    "HISTORY_WORKSPACE_SYNTHESIS_AUTHORITY_POSTURE",
+    "HISTORY_WORKSPACE_SYNTHESIS_POSTURE",
+    "WorkspaceQuestionReasonKind",
     "compute_source_text_hash",
     "sha256_canonical_json",
 ]
