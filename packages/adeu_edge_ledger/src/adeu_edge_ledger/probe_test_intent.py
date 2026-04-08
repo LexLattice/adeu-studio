@@ -77,6 +77,10 @@ def _ordered_unique(values: Iterable[str]) -> list[str]:
     return list(dict.fromkeys(values))
 
 
+def _sorted_unique(values: Iterable[str]) -> list[str]:
+    return sorted(set(values))
+
+
 def _symbol_kind_from_symbol_id(symbol_id: str) -> str:
     normalized = _assert_prefixed_ref(symbol_id, field_name="symbol_id", prefix="symbol:")
     parts = normalized.split(":")
@@ -178,11 +182,18 @@ class EdgeProbeTestIntentBridgeEntry(BaseModel):
                 field_name="supporting_evidence_refs",
             ),
         )
-        if len(self.selected_strategy_kinds) != len(set(self.selected_strategy_kinds)):
+        selected_strategy_kinds = [
+            _assert_non_empty_text(strategy, field_name="selected_strategy_kinds")
+            for strategy in self.selected_strategy_kinds
+        ]
+        if len(selected_strategy_kinds) != len(set(selected_strategy_kinds)):
             raise ValueError("selected_strategy_kinds must be unique")
-        for strategy in self.selected_strategy_kinds:
+        for strategy in selected_strategy_kinds:
             if strategy not in STARTER_PROBE_STRATEGY_KIND_VOCABULARY:
                 raise ValueError("selected_strategy_kinds must use the released probe vocabulary")
+        if selected_strategy_kinds != sorted(selected_strategy_kinds):
+            raise ValueError("selected_strategy_kinds must be sorted")
+        object.__setattr__(self, "selected_strategy_kinds", selected_strategy_kinds)
 
         if self.symbol_id is not None:
             object.__setattr__(
@@ -215,9 +226,7 @@ class EdgeProbeTestIntentBridgeEntry(BaseModel):
                 raise ValueError(
                     "mapped_from_applicability_frame rows require non-empty mapped probes"
                 )
-            return self
-
-        if self.mapping_status == "no_applicable_probe_in_frame":
+        elif self.mapping_status == "no_applicable_probe_in_frame":
             if self.symbol_id is None or self.bound_applicability_frame_ref is None:
                 raise ValueError(
                     "no_applicable_probe_in_frame rows require symbol_id and "
@@ -231,9 +240,7 @@ class EdgeProbeTestIntentBridgeEntry(BaseModel):
                 raise ValueError(
                     "no_applicable_probe_in_frame rows must not carry mapped probes"
                 )
-            return self
-
-        if self.mapping_status == "out_of_scope_non_symbol_guard":
+        elif self.mapping_status == "out_of_scope_non_symbol_guard":
             if self.guarded_surface_ref_kind == "internal_symbol":
                 raise ValueError(
                     "out_of_scope_non_symbol_guard rows must not use internal_symbol guards"
@@ -248,9 +255,7 @@ class EdgeProbeTestIntentBridgeEntry(BaseModel):
                 raise ValueError(
                     "out_of_scope_non_symbol_guard rows must not carry symbol or probe mapping data"
                 )
-            return self
-
-        if self.mapping_status == "out_of_scope_outside_v50_scope":
+        elif self.mapping_status == "out_of_scope_outside_v50_scope":
             if self.guarded_surface_ref_kind != "internal_symbol":
                 raise ValueError(
                     "out_of_scope_outside_v50_scope rows require internal_symbol guards"
@@ -266,7 +271,31 @@ class EdgeProbeTestIntentBridgeEntry(BaseModel):
                 raise ValueError(
                     "out_of_scope_outside_v50_scope rows must not carry mapped probes"
                 )
-            return self
+        else:
+            raise ValueError(
+                "mapping_status must be one of the released bridge mapping status values"
+            )
+
+        expected_bridge_entry_id = compute_edge_probe_test_intent_bridge_entry_id(
+            {
+                "test_intent_entry_ref": self.test_intent_entry_ref,
+                "test_ref": self.test_ref,
+                "guarded_surface_ref_kind": self.guarded_surface_ref_kind,
+                "guarded_surface_ref_value": self.guarded_surface_ref_value,
+                "symbol_id": self.symbol_id,
+                "bound_applicability_frame_ref": self.bound_applicability_frame_ref,
+                "mapping_status": self.mapping_status,
+                "applicable_edge_class_refs": self.applicable_edge_class_refs,
+                "selected_probe_template_refs": self.selected_probe_template_refs,
+                "selected_strategy_kinds": self.selected_strategy_kinds,
+                "supporting_evidence_refs": self.supporting_evidence_refs,
+                "mapping_rationale": self.mapping_rationale,
+            }
+        )
+        if self.bridge_entry_id != expected_bridge_entry_id:
+            raise ValueError(
+                "bridge_entry_id must match canonical probe-test-intent bridge entry identity"
+            )
 
         return self
 
@@ -475,6 +504,28 @@ def _strategy_map(probe_template_catalog: EdgeProbeTemplateCatalog) -> dict[str,
     }
 
 
+def _selected_strategy_kinds_for_probe_refs(
+    probe_refs: Iterable[str],
+    *,
+    strategy_by_probe_ref: dict[str, ProbeStrategyKind],
+    error_context: str,
+) -> list[ProbeStrategyKind]:
+    strategies: list[ProbeStrategyKind] = []
+    missing_probe_refs: list[str] = []
+    for probe_ref in probe_refs:
+        strategy_kind = strategy_by_probe_ref.get(probe_ref)
+        if strategy_kind is None:
+            missing_probe_refs.append(probe_ref)
+            continue
+        strategies.append(strategy_kind)
+
+    if missing_probe_refs:
+        missing_refs = ", ".join(_sorted_unique(missing_probe_refs))
+        raise ValueError(f"{error_context} includes probe refs absent from catalog: {missing_refs}")
+
+    return _sorted_unique(strategies)
+
+
 def derive_edge_probe_test_intent_bridge(
     *,
     test_intent_matrix: RepoTestIntentMatrix | dict[str, Any],
@@ -555,9 +606,10 @@ def derive_edge_probe_test_intent_bridge(
                             "bound_applicability_frame_ref": frame.frame_id,
                             "applicable_edge_class_refs": applicable_edge_refs,
                             "selected_probe_template_refs": selected_probe_refs,
-                            "selected_strategy_kinds": _ordered_unique(
-                                strategy_by_probe_ref[probe_ref]
-                                for probe_ref in selected_probe_refs
+                            "selected_strategy_kinds": _selected_strategy_kinds_for_probe_refs(
+                                selected_probe_refs,
+                                strategy_by_probe_ref=strategy_by_probe_ref,
+                                error_context="applicability frame suggested_probe_template_refs",
                             ),
                             "mapping_rationale": (
                                 "probe mapping derived only from applicable or "
@@ -726,9 +778,10 @@ def validate_edge_probe_test_intent_bridge_bindings(
                 raise ValueError(
                     "mapped probe template refs must resolve in probe template catalog"
                 )
-            expected_kinds = _ordered_unique(
-                strategy_by_probe_ref[probe_ref]
-                for probe_ref in bridge_entry.selected_probe_template_refs
+            expected_kinds = _selected_strategy_kinds_for_probe_refs(
+                bridge_entry.selected_probe_template_refs,
+                strategy_by_probe_ref=strategy_by_probe_ref,
+                error_context="bridge entry selected_probe_template_refs",
             )
             if bridge_entry.selected_strategy_kinds != expected_kinds:
                 raise ValueError(

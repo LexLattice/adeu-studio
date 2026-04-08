@@ -7,6 +7,7 @@ from pathlib import Path
 import pytest
 from adeu_edge_ledger import (
     BRIDGE_SCOPE,
+    EdgeProbeTestIntentBridgeEntry,
     SymbolEdgeApplicabilityFrame,
     SymbolEdgeApplicabilityRow,
     build_starter_edge_class_catalog,
@@ -99,7 +100,10 @@ def _canonicalize_bridge_payload(payload: dict[str, object]) -> dict[str, object
     for raw_entry in canonical["bridge_entries"]:
         entry = dict(raw_entry)
         entry.pop("bridge_entry_id", None)
-        entry["bridge_entry_id"] = compute_edge_probe_test_intent_bridge_entry_id(entry)
+        identity_payload = dict(entry)
+        identity_payload.setdefault("symbol_id", None)
+        identity_payload.setdefault("bound_applicability_frame_ref", None)
+        entry["bridge_entry_id"] = compute_edge_probe_test_intent_bridge_entry_id(identity_payload)
         entries.append(entry)
     entries.sort(key=lambda row: row["test_intent_entry_ref"])
     canonical["bridge_entries"] = entries
@@ -286,3 +290,91 @@ def test_reject_mapped_probe_templates_not_suggested_by_frame() -> None:
             probe_template_catalog=probe_catalog,
             applicability_frames=[frame],
         )
+
+
+def test_reject_non_canonical_bridge_entry_id() -> None:
+    edge_catalog = build_starter_edge_class_catalog()
+    probe_catalog = build_starter_edge_probe_template_catalog(edge_class_catalog=edge_catalog)
+    matrix, symbol_catalog, dependency_graph = _v45d_stack()
+    payload = _load_v53d("reference_edge_probe_test_intent_bridge.json")
+
+    payload["bridge_entries"][0]["bridge_entry_id"] = (
+        "edge_probe_test_intent_bridge_entry:ffffffffffffffffffffffff"
+    )
+
+    with pytest.raises(
+        ValueError,
+        match="bridge_entry_id must match canonical probe-test-intent bridge entry identity",
+    ):
+        validate_edge_probe_test_intent_bridge_bindings(
+            bridge_payload=payload,
+            test_intent_matrix=matrix,
+            symbol_catalog=symbol_catalog,
+            dependency_graph=dependency_graph,
+            edge_class_catalog=edge_catalog,
+            probe_template_catalog=probe_catalog,
+            applicability_frames=[],
+        )
+
+
+def test_derive_fails_closed_for_probe_refs_absent_from_catalog() -> None:
+    edge_catalog = build_starter_edge_class_catalog()
+    probe_catalog = build_starter_edge_probe_template_catalog(edge_class_catalog=edge_catalog)
+    matrix, symbol_catalog, dependency_graph = _v45d_stack()
+
+    target_symbol_id = (
+        "symbol:packages/adeu_repo_description/src/adeu_repo_description/models.py:"
+        "compute_repo_symbol_catalog_id:function"
+    )
+    frame = _make_single_symbol_frame(
+        symbol_id=target_symbol_id,
+        bound_edge_class_catalog_ref=edge_catalog.catalog_id,
+        bound_probe_template_catalog_ref=probe_catalog.catalog_id,
+    ).model_dump(mode="json", by_alias=True, exclude_none=True)
+    frame["applicability_rows"][0]["suggested_probe_template_refs"] = ["probe:not_in_catalog"]
+    frame.pop("frame_hash", None)
+    frame.pop("frame_id", None)
+    frame["frame_hash"] = _sha256_canonical_payload(frame)
+    frame["frame_id"] = compute_symbol_edge_applicability_frame_id(frame)
+
+    with pytest.raises(
+        ValueError,
+        match="includes probe refs absent from catalog: probe:not_in_catalog",
+    ):
+        derive_edge_probe_test_intent_bridge(
+            test_intent_matrix=matrix,
+            symbol_catalog=symbol_catalog,
+            dependency_graph=dependency_graph,
+            edge_class_catalog=edge_catalog,
+            probe_template_catalog=probe_catalog,
+            applicability_frames=[SymbolEdgeApplicabilityFrame.model_validate(frame)],
+        )
+
+
+def test_reject_unsorted_selected_strategy_kinds_in_entry_model_validation() -> None:
+    payload = {
+        "test_intent_entry_ref": "repo_test_intent_entry:sample",
+        "test_ref": "test:sample",
+        "guarded_surface_ref_kind": "internal_symbol",
+        "guarded_surface_ref_value": "symbol:pkg/mod.py:sample:function",
+        "symbol_id": "symbol:pkg/mod.py:sample:function",
+        "bound_applicability_frame_ref": "symbol_edge_applicability_frame:sample",
+        "mapping_status": "mapped_from_applicability_frame",
+        "applicable_edge_class_refs": [
+            "edge_class:contract_invariant/cross_field_binding/cross_field_consistency"
+        ],
+        "selected_probe_template_refs": [
+            "probe:cross_field_invariant",
+            "probe:fail_closed_rejection",
+        ],
+        "selected_strategy_kinds": [
+            "fail_closed_rejection",
+            "cross_field_invariant",
+        ],
+        "supporting_evidence_refs": ["evidence:sample"],
+        "mapping_rationale": "validation ordering test",
+    }
+    payload["bridge_entry_id"] = compute_edge_probe_test_intent_bridge_entry_id(payload)
+
+    with pytest.raises(ValueError, match="selected_strategy_kinds must be sorted"):
+        EdgeProbeTestIntentBridgeEntry.model_validate(payload)
