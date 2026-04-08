@@ -60,6 +60,7 @@ from .models import (
     compute_history_workspace_frame_id,
     compute_history_workspace_question_id,
     compute_history_workspace_snapshot_id,
+    compute_history_workspace_snapshot_semantic_hash,
     compute_source_text_hash,
     sha256_canonical_json,
 )
@@ -142,6 +143,7 @@ __all__ = [
     "compute_source_text_hash",
     "compute_history_workspace_frame_id",
     "compute_history_workspace_question_id",
+    "compute_history_workspace_snapshot_semantic_hash",
     "compute_history_workspace_snapshot_id",
     "normalize_source_text",
     "preclassify_history_source",

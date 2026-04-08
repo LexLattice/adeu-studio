@@ -22,6 +22,13 @@ from .models import (
     compute_history_workspace_frame_id,
     compute_history_workspace_question_id,
     compute_history_workspace_snapshot_id,
+    compute_history_workspace_snapshot_semantic_hash,
+)
+from .models import (
+    _ordered_unique_lane_ids as _canonical_ordered_unique_lane_ids,
+)
+from .models import (
+    _ordered_unique_texts as _canonical_ordered_unique_texts,
 )
 
 _SENTENCE_SPLIT_RE = re.compile(r"(?<=[.!?])\s+")
@@ -180,25 +187,29 @@ def build_history_workspace_theme_frames(
         chronology_end_order_index = max(
             item.chronology_end_order_index for item in anchor_slices
         )
-        underdeveloped_lane_ids = _ordered_unique_lane_ids(
-            [
-                lane.lane_id
-                for packet in anchor_packets
-                for lane in packet.lane_reconstructions
-                if lane.presence_status in {"weakly_present", "underdetermined"}
-            ],
-            field_name="underdeveloped_lane_ids",
-        )
-        provenance_entry_ids = _ordered_unique_texts(
-            [
-                *anchor.anchor_entry_ids,
-                *[
-                    evidence.entry_id
+        underdeveloped_lane_ids = _canonical_ordered_unique_lane_ids(
+            _dedupe_preserving_order(
+                [
+                    lane.lane_id
                     for packet in anchor_packets
                     for lane in packet.lane_reconstructions
-                    for evidence in lane.evidence_refs
-                ],
-            ],
+                    if lane.presence_status in {"weakly_present", "underdetermined"}
+                ]
+            ),
+            field_name="underdeveloped_lane_ids",
+        )
+        provenance_entry_ids = _canonical_ordered_unique_texts(
+            _dedupe_preserving_order(
+                [
+                    *anchor.anchor_entry_ids,
+                    *[
+                        evidence.entry_id
+                        for packet in anchor_packets
+                        for lane in packet.lane_reconstructions
+                        for evidence in lane.evidence_refs
+                    ],
+                ]
+            ),
             field_name="provenance_entry_ids",
         )
         ordered_provenance_entry_ids = _ordered_by_entry_order(
@@ -249,6 +260,10 @@ def build_history_workspace_theme_frames(
     return theme_frames
 
 
+def _dedupe_preserving_order(values: list[str]) -> list[str]:
+    return list(dict.fromkeys(values))
+
+
 def build_history_workspace_snapshot(
     *,
     ledger: HistoryLedger,
@@ -279,7 +294,7 @@ def build_history_workspace_snapshot(
     )
     inferential_slice_ids = [item.slice_id for item in inferential_slice_order]
 
-    semantic_hash = compute_history_workspace_snapshot_id(
+    semantic_hash = compute_history_workspace_snapshot_semantic_hash(
         source_id=ledger.source_id,
         ledger_id=ledger.ledger_id,
         chronology_slice_order=chronology_slice_order,
@@ -291,7 +306,9 @@ def build_history_workspace_snapshot(
         semantic_identity_mode=HISTORY_WORKSPACE_IDENTITY_MODE,
     )
     snapshot = HistoryWorkspaceSnapshot(
-        workspace_snapshot_id=f"history_workspace:{semantic_hash[:16]}",
+        workspace_snapshot_id=compute_history_workspace_snapshot_id(
+            semantic_hash=semantic_hash
+        ),
         source_id=ledger.source_id,
         ledger_id=ledger.ledger_id,
         chronology_slice_order=chronology_slice_order,
@@ -406,7 +423,7 @@ def validate_history_workspace_snapshot(
     if observed_frame_anchor_ids != set(anchor_by_id):
         raise ValueError("snapshot theme_frames must cover every released theme anchor")
 
-    expected_semantic_hash = compute_history_workspace_snapshot_id(
+    expected_semantic_hash = compute_history_workspace_snapshot_semantic_hash(
         source_id=snapshot.source_id,
         ledger_id=snapshot.ledger_id,
         chronology_slice_order=snapshot.chronology_slice_order,
@@ -433,23 +450,6 @@ def _ordered_by_entry_order(
         set(entry_ids),
         key=lambda item: entry_lookup[item].order_index,
     )
-
-
-def _ordered_unique_texts(values: list[str], *, field_name: str) -> list[str]:
-    seen: set[str] = set()
-    ordered: list[str] = []
-    for value in values:
-        if not value:
-            raise ValueError(f"{field_name} must be non-empty")
-        if value in seen:
-            continue
-        seen.add(value)
-        ordered.append(value)
-    return ordered
-
-
-def _ordered_unique_lane_ids(values: list[str], *, field_name: str) -> list[str]:
-    return _ordered_unique_texts(values, field_name=field_name)
 
 
 def _workspace_questions(
@@ -509,7 +509,10 @@ def _validate_theme_frame_slice_consistency(
         raise ValueError("theme frame slice_ids must map to released slice ids")
     if set(packet.slice_id for packet in anchor_packets) != set(frame_slice_ids):
         raise ValueError("theme frame packet_ids must map exactly to its anchor slices")
-    if _ordered_unique_texts(frame_slice_ids, field_name="slice_ids") != frame_slice_ids:
+    if (
+        _canonical_ordered_unique_texts(frame_slice_ids, field_name="slice_ids")
+        != frame_slice_ids
+    ):
         raise ValueError("theme frame slice_ids must be canonical")
     for packet in anchor_packets:
         if packet.slice_id not in slice_lookup:

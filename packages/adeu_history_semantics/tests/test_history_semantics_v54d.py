@@ -15,6 +15,7 @@ from adeu_history_semantics import (
     compute_history_workspace_frame_id,
     compute_history_workspace_question_id,
     compute_history_workspace_snapshot_id,
+    compute_history_workspace_snapshot_semantic_hash,
     preclassify_history_source,
     validate_history_workspace_snapshot,
 )
@@ -152,7 +153,7 @@ def test_workspace_frame_and_question_ids_are_semantically_canonical() -> None:
     projection = _build_projection("assistant_local_explicit_history_lf.txt")
     snapshot = projection["workspace_snapshot"]
 
-    assert snapshot.semantic_hash == compute_history_workspace_snapshot_id(
+    assert snapshot.semantic_hash == compute_history_workspace_snapshot_semantic_hash(
         source_id=projection["ledger"].source_id,
         ledger_id=projection["ledger"].ledger_id,
         chronology_slice_order=snapshot.chronology_slice_order,
@@ -162,6 +163,9 @@ def test_workspace_frame_and_question_ids_are_semantically_canonical() -> None:
         interpretation_authority_posture=snapshot.interpretation_authority_posture,
         workspace_synthesis_posture=snapshot.workspace_synthesis_posture,
         semantic_identity_mode=snapshot.semantic_identity_mode,
+    )
+    assert snapshot.workspace_snapshot_id == compute_history_workspace_snapshot_id(
+        semantic_hash=snapshot.semantic_hash
     )
     for frame in snapshot.theme_frames:
         assert frame.frame_id == compute_history_workspace_frame_id(

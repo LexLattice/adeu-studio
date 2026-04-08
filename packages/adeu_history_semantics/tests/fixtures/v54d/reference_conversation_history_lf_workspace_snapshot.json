@@ -1,315 +1,60 @@
 {
   "ledger": {
+    "schema": "adeu_history_ledger@1",
+    "ledger_id": "history_ledger:d3a994ae54072c66",
+    "source_id": "history_source:af4a76c222d8c819",
     "entries": [
       {
+        "schema": "adeu_history_ledger_entry@1",
         "entry_id": "history_ledger_entry:1427df0ef27d348c",
+        "source_id": "history_source:af4a76c222d8c819",
+        "preclassification_id": "history_preclassification:aba2e173360d841a",
+        "order_index": 0,
         "entry_text": "History semantics packet ledger theme should stay bounded and authoritative.\nThe source evidence remains explicit for the released slice and theme anchor.",
         "entry_text_hash": "19be4a51e04a095ec6b70592901375e95a44d23317c9834985b194ac04e872e6",
-        "order_index": 0,
-        "origin_type": "user_native",
-        "preclassification_id": "history_preclassification:aba2e173360d841a",
         "role": "user",
-        "schema": "adeu_history_ledger_entry@1",
-        "source_id": "history_source:af4a76c222d8c819",
-        "source_line_end": 2,
+        "origin_type": "user_native",
         "source_line_start": 1,
+        "source_line_end": 2,
         "structural_markers": [
           "multi_line_message"
         ]
       },
       {
+        "schema": "adeu_history_ledger_entry@1",
         "entry_id": "history_ledger_entry:cdcfb748053751cb",
+        "source_id": "history_source:af4a76c222d8c819",
+        "preclassification_id": "history_preclassification:ea2e6f264aedb534",
+        "order_index": 1,
         "entry_text": "History semantics packet ledger theme follow-up.\n- Ontological lane is the downstream packet overlay over the released ledger and theme anchor.\n- Epistemic lane keeps evidence grounded to released source provenance and concrete entries.\n- Deontic lane must stay fail-closed and must not widen into workspace synthesis.\n- Utility lane helps later bounded follow-up work.",
         "entry_text_hash": "c841e5389aaeb5ba73ab703163b7f6915eb666a8d5a60e440f51467ca261aed4",
-        "order_index": 1,
-        "origin_type": "assistant_reply",
-        "preclassification_id": "history_preclassification:ea2e6f264aedb534",
         "role": "assistant",
-        "schema": "adeu_history_ledger_entry@1",
-        "source_id": "history_source:af4a76c222d8c819",
-        "source_line_end": 7,
+        "origin_type": "assistant_reply",
         "source_line_start": 3,
+        "source_line_end": 7,
         "structural_markers": [
           "multi_line_message",
           "bullet_line_present"
         ]
       }
     ],
-    "entry_count": 2,
-    "ledger_id": "history_ledger:d3a994ae54072c66",
-    "schema": "adeu_history_ledger@1",
-    "source_id": "history_source:af4a76c222d8c819"
+    "entry_count": 2
   },
-  "packets": [
-    {
-      "interpretation_authority_posture": "advisory_overlay_only",
-      "lane_reconstructions": [
-        {
-          "dominant_role_posture": "mixed",
-          "evidence_refs": [
-            {
-              "entry_id": "history_ledger_entry:cdcfb748053751cb",
-              "excerpt": "- Ontological lane is the downstream packet overlay over the released ledger and theme anchor.",
-              "role": "assistant",
-              "schema": "adeu_history_evidence_ref@1"
-            },
-            {
-              "entry_id": "history_ledger_entry:1427df0ef27d348c",
-              "excerpt": "History semantics packet ledger theme should stay bounded and authoritative.",
-              "role": "user",
-              "schema": "adeu_history_evidence_ref@1"
-            }
-          ],
-          "explicitation_status": "dialogically_explicitated",
-          "lane_id": "O",
-          "presence_status": "present",
-          "reconstruction_text": "- Ontological lane is the downstream packet overlay over the released ledger and theme anchor. History semantics packet ledger theme should stay bounded and authoritative.",
-          "schema": "adeu_history_odeu_lane_reconstruction@1"
-        },
-        {
-          "dominant_role_posture": "mixed",
-          "evidence_refs": [
-            {
-              "entry_id": "history_ledger_entry:cdcfb748053751cb",
-              "excerpt": "- Epistemic lane keeps evidence grounded to released source provenance and concrete entries.",
-              "role": "assistant",
-              "schema": "adeu_history_evidence_ref@1"
-            },
-            {
-              "entry_id": "history_ledger_entry:1427df0ef27d348c",
-              "excerpt": "The source evidence remains explicit for the released slice and theme anchor.",
-              "role": "user",
-              "schema": "adeu_history_evidence_ref@1"
-            }
-          ],
-          "explicitation_status": "dialogically_explicitated",
-          "lane_id": "E",
-          "presence_status": "present",
-          "reconstruction_text": "- Epistemic lane keeps evidence grounded to released source provenance and concrete entries. The source evidence remains explicit for the released slice and theme anchor.",
-          "schema": "adeu_history_odeu_lane_reconstruction@1"
-        },
-        {
-          "dominant_role_posture": "mixed",
-          "evidence_refs": [
-            {
-              "entry_id": "history_ledger_entry:cdcfb748053751cb",
-              "excerpt": "- Deontic lane must stay fail-closed and must not widen into workspace synthesis.",
-              "role": "assistant",
-              "schema": "adeu_history_evidence_ref@1"
-            },
-            {
-              "entry_id": "history_ledger_entry:1427df0ef27d348c",
-              "excerpt": "History semantics packet ledger theme should stay bounded and authoritative.",
-              "role": "user",
-              "schema": "adeu_history_evidence_ref@1"
-            }
-          ],
-          "explicitation_status": "dialogically_explicitated",
-          "lane_id": "D",
-          "presence_status": "present",
-          "reconstruction_text": "- Deontic lane must stay fail-closed and must not widen into workspace synthesis. History semantics packet ledger theme should stay bounded and authoritative.",
-          "schema": "adeu_history_odeu_lane_reconstruction@1"
-        },
-        {
-          "dominant_role_posture": "assistant_explication",
-          "evidence_refs": [
-            {
-              "entry_id": "history_ledger_entry:cdcfb748053751cb",
-              "excerpt": "- Utility lane helps later bounded follow-up work.",
-              "role": "assistant",
-              "schema": "adeu_history_evidence_ref@1"
-            }
-          ],
-          "explicitation_status": "dialogically_explicitated",
-          "lane_id": "U",
-          "presence_status": "weakly_present",
-          "reconstruction_text": "Contextually reconstructed from: - Utility lane helps later bounded follow-up work.",
-          "schema": "adeu_history_odeu_lane_reconstruction@1"
-        }
-      ],
-      "packet_id": "history_packet:eaa06e31294219c5",
-      "schema": "adeu_history_odeu_reconstruction_packet@1",
-      "semantic_hash": "eaa06e31294219c5758362211c4e220b33ebf5de49fcadc0720b18376fbd7e5a",
-      "semantic_identity_mode": "v54c_history_packet_hash_law",
-      "slice_id": "history_slice:41318eaafc80b675",
-      "source_id": "history_source:af4a76c222d8c819",
-      "theme_anchor_id": "history_theme_anchor:8c86257a8e778f92"
-    },
-    {
-      "interpretation_authority_posture": "advisory_overlay_only",
-      "lane_reconstructions": [
-        {
-          "dominant_role_posture": "assistant_explication",
-          "evidence_refs": [
-            {
-              "entry_id": "history_ledger_entry:cdcfb748053751cb",
-              "excerpt": "- Ontological lane is the downstream packet overlay over the released ledger and theme anchor.",
-              "role": "assistant",
-              "schema": "adeu_history_evidence_ref@1"
-            },
-            {
-              "entry_id": "history_ledger_entry:cdcfb748053751cb",
-              "excerpt": "History semantics packet ledger theme follow-up.",
-              "role": "assistant",
-              "schema": "adeu_history_evidence_ref@1"
-            }
-          ],
-          "explicitation_status": "dialogically_explicitated",
-          "lane_id": "O",
-          "presence_status": "present",
-          "reconstruction_text": "- Ontological lane is the downstream packet overlay over the released ledger and theme anchor. History semantics packet ledger theme follow-up.",
-          "schema": "adeu_history_odeu_lane_reconstruction@1"
-        },
-        {
-          "dominant_role_posture": "mixed",
-          "evidence_refs": [
-            {
-              "entry_id": "history_ledger_entry:cdcfb748053751cb",
-              "excerpt": "- Epistemic lane keeps evidence grounded to released source provenance and concrete entries.",
-              "role": "assistant",
-              "schema": "adeu_history_evidence_ref@1"
-            },
-            {
-              "entry_id": "history_ledger_entry:1427df0ef27d348c",
-              "excerpt": "The source evidence remains explicit for the released slice and theme anchor.",
-              "role": "user",
-              "schema": "adeu_history_evidence_ref@1"
-            }
-          ],
-          "explicitation_status": "dialogically_explicitated",
-          "lane_id": "E",
-          "presence_status": "present",
-          "reconstruction_text": "- Epistemic lane keeps evidence grounded to released source provenance and concrete entries. The source evidence remains explicit for the released slice and theme anchor.",
-          "schema": "adeu_history_odeu_lane_reconstruction@1"
-        },
-        {
-          "dominant_role_posture": "mixed",
-          "evidence_refs": [
-            {
-              "entry_id": "history_ledger_entry:cdcfb748053751cb",
-              "excerpt": "- Deontic lane must stay fail-closed and must not widen into workspace synthesis.",
-              "role": "assistant",
-              "schema": "adeu_history_evidence_ref@1"
-            },
-            {
-              "entry_id": "history_ledger_entry:1427df0ef27d348c",
-              "excerpt": "History semantics packet ledger theme should stay bounded and authoritative.",
-              "role": "user",
-              "schema": "adeu_history_evidence_ref@1"
-            }
-          ],
-          "explicitation_status": "dialogically_explicitated",
-          "lane_id": "D",
-          "presence_status": "present",
-          "reconstruction_text": "- Deontic lane must stay fail-closed and must not widen into workspace synthesis. History semantics packet ledger theme should stay bounded and authoritative.",
-          "schema": "adeu_history_odeu_lane_reconstruction@1"
-        },
-        {
-          "dominant_role_posture": "assistant_explication",
-          "evidence_refs": [
-            {
-              "entry_id": "history_ledger_entry:cdcfb748053751cb",
-              "excerpt": "- Utility lane helps later bounded follow-up work.",
-              "role": "assistant",
-              "schema": "adeu_history_evidence_ref@1"
-            }
-          ],
-          "explicitation_status": "dialogically_explicitated",
-          "lane_id": "U",
-          "presence_status": "weakly_present",
-          "reconstruction_text": "Contextually reconstructed from: - Utility lane helps later bounded follow-up work.",
-          "schema": "adeu_history_odeu_lane_reconstruction@1"
-        }
-      ],
-      "packet_id": "history_packet:b73d7bc6b37cf827",
-      "schema": "adeu_history_odeu_reconstruction_packet@1",
-      "semantic_hash": "b73d7bc6b37cf827e9b5f40449b9719b867c1e4a3b8591215441fde7135657d9",
-      "semantic_identity_mode": "v54c_history_packet_hash_law",
-      "slice_id": "history_slice:f0f4e56de7a95ec6",
-      "source_id": "history_source:af4a76c222d8c819",
-      "theme_anchor_id": "history_theme_anchor:8c86257a8e778f92"
-    }
-  ],
-  "preclassifications": [
-    {
-      "message_text": "History semantics packet ledger theme should stay bounded and authoritative.\nThe source evidence remains explicit for the released slice and theme anchor.",
-      "order_index": 0,
-      "origin_type": "user_native",
-      "preclassification_id": "history_preclassification:aba2e173360d841a",
-      "role": "user",
-      "schema": "adeu_history_preclassification@1",
-      "source_declaration_hints": [
-        "full_role_header_present",
-        "timestamp_prefix_absent"
-      ],
-      "source_id": "history_source:af4a76c222d8c819",
-      "source_line_end": 2,
-      "source_line_start": 1,
-      "structural_markers": [
-        "multi_line_message"
-      ],
-      "text_shape_signals": {
-        "bullet_line_count": 0,
-        "char_count": 154,
-        "code_fence_count": 0,
-        "line_count": 2,
-        "nonempty_line_count": 2,
-        "question_count": 0,
-        "quoted_line_count": 0,
-        "schema": "adeu_history_text_shape_signals@1",
-        "word_count": 22
-      },
-      "timestamp_text": null
-    },
-    {
-      "message_text": "History semantics packet ledger theme follow-up.\n- Ontological lane is the downstream packet overlay over the released ledger and theme anchor.\n- Epistemic lane keeps evidence grounded to released source provenance and concrete entries.\n- Deontic lane must stay fail-closed and must not widen into workspace synthesis.\n- Utility lane helps later bounded follow-up work.",
-      "order_index": 1,
-      "origin_type": "assistant_reply",
-      "preclassification_id": "history_preclassification:ea2e6f264aedb534",
-      "role": "assistant",
-      "schema": "adeu_history_preclassification@1",
-      "source_declaration_hints": [
-        "full_role_header_present",
-        "timestamp_prefix_absent"
-      ],
-      "source_id": "history_source:af4a76c222d8c819",
-      "source_line_end": 7,
-      "source_line_start": 3,
-      "structural_markers": [
-        "multi_line_message",
-        "bullet_line_present"
-      ],
-      "text_shape_signals": {
-        "bullet_line_count": 4,
-        "char_count": 369,
-        "code_fence_count": 0,
-        "line_count": 5,
-        "nonempty_line_count": 5,
-        "question_count": 0,
-        "quoted_line_count": 0,
-        "schema": "adeu_history_text_shape_signals@1",
-        "word_count": 51
-      },
-      "timestamp_text": null
-    }
-  ],
   "slices": [
     {
+      "schema": "adeu_history_slice@1",
+      "slice_id": "history_slice:41318eaafc80b675",
+      "source_id": "history_source:af4a76c222d8c819",
+      "slice_index": 0,
+      "entry_ids": [
+        "history_ledger_entry:1427df0ef27d348c"
+      ],
+      "chronology_start_order_index": 0,
+      "chronology_end_order_index": 0,
       "boundary_tags": [
         "conversation_start",
         "contains_multi_line_message"
       ],
-      "chronology_end_order_index": 0,
-      "chronology_start_order_index": 0,
-      "entry_ids": [
-        "history_ledger_entry:1427df0ef27d348c"
-      ],
-      "schema": "adeu_history_slice@1",
-      "slice_id": "history_slice:41318eaafc80b675",
-      "slice_index": 0,
-      "source_id": "history_source:af4a76c222d8c819",
-      "theme_key": "history::semantics::packet::ledger::theme",
-      "theme_label": "history semantics packet",
       "theme_terms": [
         "history",
         "semantics",
@@ -327,25 +72,25 @@
         "released",
         "slice",
         "anchor"
-      ]
+      ],
+      "theme_label": "history semantics packet",
+      "theme_key": "history::semantics::packet::ledger::theme"
     },
     {
+      "schema": "adeu_history_slice@1",
+      "slice_id": "history_slice:f0f4e56de7a95ec6",
+      "source_id": "history_source:af4a76c222d8c819",
+      "slice_index": 1,
+      "entry_ids": [
+        "history_ledger_entry:cdcfb748053751cb"
+      ],
+      "chronology_start_order_index": 1,
+      "chronology_end_order_index": 1,
       "boundary_tags": [
         "conversation_end",
         "contains_multi_line_message",
         "contains_bullet_line_present"
       ],
-      "chronology_end_order_index": 1,
-      "chronology_start_order_index": 1,
-      "entry_ids": [
-        "history_ledger_entry:cdcfb748053751cb"
-      ],
-      "schema": "adeu_history_slice@1",
-      "slice_id": "history_slice:f0f4e56de7a95ec6",
-      "slice_index": 1,
-      "source_id": "history_source:af4a76c222d8c819",
-      "theme_key": "history::semantics::packet::ledger::theme",
-      "theme_label": "history semantics packet",
       "theme_terms": [
         "history",
         "semantics",
@@ -382,35 +127,26 @@
         "later",
         "bounded",
         "work"
-      ]
+      ],
+      "theme_label": "history semantics packet",
+      "theme_key": "history::semantics::packet::ledger::theme"
     }
   ],
-  "source": {
-    "corpus_wave_posture": "wave_0_bootstrap_candidate",
-    "input_kind": "conversation_history",
-    "schema": "adeu_history_source_artifact@1",
-    "source_authority_posture": "normalized_source_text_authoritative",
-    "source_id": "history_source:af4a76c222d8c819",
-    "source_label": "v54d reference_conversation_history_lf.txt",
-    "source_notes": [
-      "v54d_reference_workspace_bundle"
-    ],
-    "source_text": "User: History semantics packet ledger theme should stay bounded and authoritative.\nThe source evidence remains explicit for the released slice and theme anchor.\nAssistant: History semantics packet ledger theme follow-up.\n- Ontological lane is the downstream packet overlay over the released ledger and theme anchor.\n- Epistemic lane keeps evidence grounded to released source provenance and concrete entries.\n- Deontic lane must stay fail-closed and must not widen into workspace synthesis.\n- Utility lane helps later bounded follow-up work.\n",
-    "source_text_hash": "32afb5894ac403192ed0b2dac4d8e1f908160cf1d4bee7ed03390083fb303c6f"
-  },
   "theme_anchors": [
     {
-      "anchor_entry_ids": [
-        "history_ledger_entry:1427df0ef27d348c",
-        "history_ledger_entry:cdcfb748053751cb"
-      ],
-      "display_label": "history semantics packet",
       "schema": "adeu_history_theme_anchor@1",
+      "theme_anchor_id": "history_theme_anchor:8c86257a8e778f92",
+      "source_id": "history_source:af4a76c222d8c819",
+      "theme_key": "history::semantics::packet::ledger::theme",
+      "display_label": "history semantics packet",
       "slice_ids": [
         "history_slice:41318eaafc80b675",
         "history_slice:f0f4e56de7a95ec6"
       ],
-      "source_id": "history_source:af4a76c222d8c819",
+      "anchor_entry_ids": [
+        "history_ledger_entry:1427df0ef27d348c",
+        "history_ledger_entry:cdcfb748053751cb"
+      ],
       "supporting_terms": [
         "history",
         "semantics",
@@ -452,12 +188,280 @@
         "helps",
         "later",
         "work"
-      ],
+      ]
+    }
+  ],
+  "packets": [
+    {
+      "schema": "adeu_history_odeu_reconstruction_packet@1",
+      "packet_id": "history_packet:eaa06e31294219c5",
+      "source_id": "history_source:af4a76c222d8c819",
+      "slice_id": "history_slice:41318eaafc80b675",
       "theme_anchor_id": "history_theme_anchor:8c86257a8e778f92",
-      "theme_key": "history::semantics::packet::ledger::theme"
+      "lane_reconstructions": [
+        {
+          "schema": "adeu_history_odeu_lane_reconstruction@1",
+          "lane_id": "O",
+          "presence_status": "present",
+          "explicitation_status": "dialogically_explicitated",
+          "dominant_role_posture": "mixed",
+          "reconstruction_text": "- Ontological lane is the downstream packet overlay over the released ledger and theme anchor. History semantics packet ledger theme should stay bounded and authoritative.",
+          "evidence_refs": [
+            {
+              "schema": "adeu_history_evidence_ref@1",
+              "entry_id": "history_ledger_entry:cdcfb748053751cb",
+              "role": "assistant",
+              "excerpt": "- Ontological lane is the downstream packet overlay over the released ledger and theme anchor."
+            },
+            {
+              "schema": "adeu_history_evidence_ref@1",
+              "entry_id": "history_ledger_entry:1427df0ef27d348c",
+              "role": "user",
+              "excerpt": "History semantics packet ledger theme should stay bounded and authoritative."
+            }
+          ]
+        },
+        {
+          "schema": "adeu_history_odeu_lane_reconstruction@1",
+          "lane_id": "E",
+          "presence_status": "present",
+          "explicitation_status": "dialogically_explicitated",
+          "dominant_role_posture": "mixed",
+          "reconstruction_text": "- Epistemic lane keeps evidence grounded to released source provenance and concrete entries. The source evidence remains explicit for the released slice and theme anchor.",
+          "evidence_refs": [
+            {
+              "schema": "adeu_history_evidence_ref@1",
+              "entry_id": "history_ledger_entry:cdcfb748053751cb",
+              "role": "assistant",
+              "excerpt": "- Epistemic lane keeps evidence grounded to released source provenance and concrete entries."
+            },
+            {
+              "schema": "adeu_history_evidence_ref@1",
+              "entry_id": "history_ledger_entry:1427df0ef27d348c",
+              "role": "user",
+              "excerpt": "The source evidence remains explicit for the released slice and theme anchor."
+            }
+          ]
+        },
+        {
+          "schema": "adeu_history_odeu_lane_reconstruction@1",
+          "lane_id": "D",
+          "presence_status": "present",
+          "explicitation_status": "dialogically_explicitated",
+          "dominant_role_posture": "mixed",
+          "reconstruction_text": "- Deontic lane must stay fail-closed and must not widen into workspace synthesis. History semantics packet ledger theme should stay bounded and authoritative.",
+          "evidence_refs": [
+            {
+              "schema": "adeu_history_evidence_ref@1",
+              "entry_id": "history_ledger_entry:cdcfb748053751cb",
+              "role": "assistant",
+              "excerpt": "- Deontic lane must stay fail-closed and must not widen into workspace synthesis."
+            },
+            {
+              "schema": "adeu_history_evidence_ref@1",
+              "entry_id": "history_ledger_entry:1427df0ef27d348c",
+              "role": "user",
+              "excerpt": "History semantics packet ledger theme should stay bounded and authoritative."
+            }
+          ]
+        },
+        {
+          "schema": "adeu_history_odeu_lane_reconstruction@1",
+          "lane_id": "U",
+          "presence_status": "weakly_present",
+          "explicitation_status": "dialogically_explicitated",
+          "dominant_role_posture": "assistant_explication",
+          "reconstruction_text": "Contextually reconstructed from: - Utility lane helps later bounded follow-up work.",
+          "evidence_refs": [
+            {
+              "schema": "adeu_history_evidence_ref@1",
+              "entry_id": "history_ledger_entry:cdcfb748053751cb",
+              "role": "assistant",
+              "excerpt": "- Utility lane helps later bounded follow-up work."
+            }
+          ]
+        }
+      ],
+      "interpretation_authority_posture": "advisory_overlay_only",
+      "semantic_identity_mode": "v54c_history_packet_hash_law",
+      "semantic_hash": "eaa06e31294219c5758362211c4e220b33ebf5de49fcadc0720b18376fbd7e5a"
+    },
+    {
+      "schema": "adeu_history_odeu_reconstruction_packet@1",
+      "packet_id": "history_packet:b73d7bc6b37cf827",
+      "source_id": "history_source:af4a76c222d8c819",
+      "slice_id": "history_slice:f0f4e56de7a95ec6",
+      "theme_anchor_id": "history_theme_anchor:8c86257a8e778f92",
+      "lane_reconstructions": [
+        {
+          "schema": "adeu_history_odeu_lane_reconstruction@1",
+          "lane_id": "O",
+          "presence_status": "present",
+          "explicitation_status": "dialogically_explicitated",
+          "dominant_role_posture": "assistant_explication",
+          "reconstruction_text": "- Ontological lane is the downstream packet overlay over the released ledger and theme anchor. History semantics packet ledger theme follow-up.",
+          "evidence_refs": [
+            {
+              "schema": "adeu_history_evidence_ref@1",
+              "entry_id": "history_ledger_entry:cdcfb748053751cb",
+              "role": "assistant",
+              "excerpt": "- Ontological lane is the downstream packet overlay over the released ledger and theme anchor."
+            },
+            {
+              "schema": "adeu_history_evidence_ref@1",
+              "entry_id": "history_ledger_entry:cdcfb748053751cb",
+              "role": "assistant",
+              "excerpt": "History semantics packet ledger theme follow-up."
+            }
+          ]
+        },
+        {
+          "schema": "adeu_history_odeu_lane_reconstruction@1",
+          "lane_id": "E",
+          "presence_status": "present",
+          "explicitation_status": "dialogically_explicitated",
+          "dominant_role_posture": "mixed",
+          "reconstruction_text": "- Epistemic lane keeps evidence grounded to released source provenance and concrete entries. The source evidence remains explicit for the released slice and theme anchor.",
+          "evidence_refs": [
+            {
+              "schema": "adeu_history_evidence_ref@1",
+              "entry_id": "history_ledger_entry:cdcfb748053751cb",
+              "role": "assistant",
+              "excerpt": "- Epistemic lane keeps evidence grounded to released source provenance and concrete entries."
+            },
+            {
+              "schema": "adeu_history_evidence_ref@1",
+              "entry_id": "history_ledger_entry:1427df0ef27d348c",
+              "role": "user",
+              "excerpt": "The source evidence remains explicit for the released slice and theme anchor."
+            }
+          ]
+        },
+        {
+          "schema": "adeu_history_odeu_lane_reconstruction@1",
+          "lane_id": "D",
+          "presence_status": "present",
+          "explicitation_status": "dialogically_explicitated",
+          "dominant_role_posture": "mixed",
+          "reconstruction_text": "- Deontic lane must stay fail-closed and must not widen into workspace synthesis. History semantics packet ledger theme should stay bounded and authoritative.",
+          "evidence_refs": [
+            {
+              "schema": "adeu_history_evidence_ref@1",
+              "entry_id": "history_ledger_entry:cdcfb748053751cb",
+              "role": "assistant",
+              "excerpt": "- Deontic lane must stay fail-closed and must not widen into workspace synthesis."
+            },
+            {
+              "schema": "adeu_history_evidence_ref@1",
+              "entry_id": "history_ledger_entry:1427df0ef27d348c",
+              "role": "user",
+              "excerpt": "History semantics packet ledger theme should stay bounded and authoritative."
+            }
+          ]
+        },
+        {
+          "schema": "adeu_history_odeu_lane_reconstruction@1",
+          "lane_id": "U",
+          "presence_status": "weakly_present",
+          "explicitation_status": "dialogically_explicitated",
+          "dominant_role_posture": "assistant_explication",
+          "reconstruction_text": "Contextually reconstructed from: - Utility lane helps later bounded follow-up work.",
+          "evidence_refs": [
+            {
+              "schema": "adeu_history_evidence_ref@1",
+              "entry_id": "history_ledger_entry:cdcfb748053751cb",
+              "role": "assistant",
+              "excerpt": "- Utility lane helps later bounded follow-up work."
+            }
+          ]
+        }
+      ],
+      "interpretation_authority_posture": "advisory_overlay_only",
+      "semantic_identity_mode": "v54c_history_packet_hash_law",
+      "semantic_hash": "b73d7bc6b37cf827e9b5f40449b9719b867c1e4a3b8591215441fde7135657d9"
+    }
+  ],
+  "source": {
+    "schema": "adeu_history_source_artifact@1",
+    "source_id": "history_source:af4a76c222d8c819",
+    "input_kind": "conversation_history",
+    "source_label": "v54d reference_conversation_history_lf.txt",
+    "source_text": "User: History semantics packet ledger theme should stay bounded and authoritative.\nThe source evidence remains explicit for the released slice and theme anchor.\nAssistant: History semantics packet ledger theme follow-up.\n- Ontological lane is the downstream packet overlay over the released ledger and theme anchor.\n- Epistemic lane keeps evidence grounded to released source provenance and concrete entries.\n- Deontic lane must stay fail-closed and must not widen into workspace synthesis.\n- Utility lane helps later bounded follow-up work.\n",
+    "source_text_hash": "32afb5894ac403192ed0b2dac4d8e1f908160cf1d4bee7ed03390083fb303c6f",
+    "corpus_wave_posture": "wave_0_bootstrap_candidate",
+    "source_authority_posture": "normalized_source_text_authoritative",
+    "source_notes": [
+      "v54d_reference_workspace_bundle"
+    ]
+  },
+  "preclassifications": [
+    {
+      "schema": "adeu_history_preclassification@1",
+      "preclassification_id": "history_preclassification:aba2e173360d841a",
+      "source_id": "history_source:af4a76c222d8c819",
+      "order_index": 0,
+      "message_text": "History semantics packet ledger theme should stay bounded and authoritative.\nThe source evidence remains explicit for the released slice and theme anchor.",
+      "source_line_start": 1,
+      "source_line_end": 2,
+      "role": "user",
+      "origin_type": "user_native",
+      "source_declaration_hints": [
+        "full_role_header_present",
+        "timestamp_prefix_absent"
+      ],
+      "timestamp_text": null,
+      "structural_markers": [
+        "multi_line_message"
+      ],
+      "text_shape_signals": {
+        "schema": "adeu_history_text_shape_signals@1",
+        "char_count": 154,
+        "word_count": 22,
+        "line_count": 2,
+        "nonempty_line_count": 2,
+        "question_count": 0,
+        "bullet_line_count": 0,
+        "quoted_line_count": 0,
+        "code_fence_count": 0
+      }
+    },
+    {
+      "schema": "adeu_history_preclassification@1",
+      "preclassification_id": "history_preclassification:ea2e6f264aedb534",
+      "source_id": "history_source:af4a76c222d8c819",
+      "order_index": 1,
+      "message_text": "History semantics packet ledger theme follow-up.\n- Ontological lane is the downstream packet overlay over the released ledger and theme anchor.\n- Epistemic lane keeps evidence grounded to released source provenance and concrete entries.\n- Deontic lane must stay fail-closed and must not widen into workspace synthesis.\n- Utility lane helps later bounded follow-up work.",
+      "source_line_start": 3,
+      "source_line_end": 7,
+      "role": "assistant",
+      "origin_type": "assistant_reply",
+      "source_declaration_hints": [
+        "full_role_header_present",
+        "timestamp_prefix_absent"
+      ],
+      "timestamp_text": null,
+      "structural_markers": [
+        "multi_line_message",
+        "bullet_line_present"
+      ],
+      "text_shape_signals": {
+        "schema": "adeu_history_text_shape_signals@1",
+        "char_count": 369,
+        "word_count": 51,
+        "line_count": 5,
+        "nonempty_line_count": 5,
+        "question_count": 0,
+        "bullet_line_count": 4,
+        "quoted_line_count": 0,
+        "code_fence_count": 0
+      }
     }
   ],
   "workspace_snapshot": {
+    "schema": "adeu_history_workspace_snapshot@1",
+    "workspace_snapshot_id": "history_workspace:1f9e93898372dc6c",
+    "source_id": "history_source:af4a76c222d8c819",
+    "ledger_id": "history_ledger:d3a994ae54072c66",
     "chronology_slice_order": [
       "history_slice:41318eaafc80b675",
       "history_slice:f0f4e56de7a95ec6"
@@ -466,48 +470,44 @@
       "history_slice:41318eaafc80b675",
       "history_slice:f0f4e56de7a95ec6"
     ],
-    "interpretation_authority_posture": "advisory_overlay_only",
-    "ledger_id": "history_ledger:d3a994ae54072c66",
-    "schema": "adeu_history_workspace_snapshot@1",
-    "semantic_hash": "history_workspace:1f9e93898372dc6c",
-    "semantic_identity_mode": "v54d_workspace_snapshot_hash_law",
-    "source_authority_posture": "normalized_source_text_authoritative",
-    "source_id": "history_source:af4a76c222d8c819",
     "theme_frames": [
       {
-        "chronology_end_order_index": 1,
-        "chronology_start_order_index": 0,
+        "schema": "adeu_history_workspace_theme_frame@1",
         "frame_id": "history_workspace_frame:02dc85e490697893",
-        "open_questions": [
-          {
-            "lane_id": "U",
-            "question_id": "history_workspace_question:48eae61e13ac622b",
-            "question_text": "utility lane for theme 'history semantics packet' is weakly_present; collect more explicit local material or later explication.",
-            "reason_kind": "weak_lane",
-            "schema": "adeu_history_workspace_question@1"
-          }
+        "theme_anchor_id": "history_theme_anchor:8c86257a8e778f92",
+        "theme_display_label": "history semantics packet",
+        "slice_ids": [
+          "history_slice:41318eaafc80b675",
+          "history_slice:f0f4e56de7a95ec6"
         ],
         "packet_ids": [
           "history_packet:eaa06e31294219c5",
           "history_packet:b73d7bc6b37cf827"
         ],
+        "chronology_start_order_index": 0,
+        "chronology_end_order_index": 1,
+        "underdeveloped_lane_ids": [
+          "U"
+        ],
         "provenance_entry_ids": [
           "history_ledger_entry:1427df0ef27d348c",
           "history_ledger_entry:cdcfb748053751cb"
         ],
-        "schema": "adeu_history_workspace_theme_frame@1",
-        "slice_ids": [
-          "history_slice:41318eaafc80b675",
-          "history_slice:f0f4e56de7a95ec6"
-        ],
-        "theme_anchor_id": "history_theme_anchor:8c86257a8e778f92",
-        "theme_display_label": "history semantics packet",
-        "underdeveloped_lane_ids": [
-          "U"
+        "open_questions": [
+          {
+            "schema": "adeu_history_workspace_question@1",
+            "question_id": "history_workspace_question:48eae61e13ac622b",
+            "lane_id": "U",
+            "reason_kind": "weak_lane",
+            "question_text": "utility lane for theme 'history semantics packet' is weakly_present; collect more explicit local material or later explication."
+          }
         ]
       }
     ],
-    "workspace_snapshot_id": "history_workspace:history_workspac",
-    "workspace_synthesis_posture": "advisory_reconstruction_only"
+    "source_authority_posture": "normalized_source_text_authoritative",
+    "interpretation_authority_posture": "advisory_overlay_only",
+    "workspace_synthesis_posture": "advisory_reconstruction_only",
+    "semantic_identity_mode": "v54d_workspace_snapshot_hash_law",
+    "semantic_hash": "1f9e93898372dc6ce9ee85292bd2a21b332fa8dcffd2493cd9721df23d9e8311"
   }
 }

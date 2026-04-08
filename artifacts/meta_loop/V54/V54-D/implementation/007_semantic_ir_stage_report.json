@@ -6,7 +6,7 @@
   "slice": "V54-D",
   "arc_branch": "arc/v54-r8",
   "feature_branch": "v148-v54d-workspace-advisory-impl-r8",
-  "worktree_path": "/home/rose/work/LexLattice/odeu_v148_v54d_impl_r8",
+  "worktree_path": ".",
   "status": "completed",
   "controlling_refs": [
     "docs/LOCKED_CONTINUATION_vNEXT_PLUS148.md",

@@ -501,7 +501,7 @@ def build_history_workspace_snapshot_identity_basis(
     }
 
 
-def compute_history_workspace_snapshot_id(
+def compute_history_workspace_snapshot_semantic_hash(
     *,
     source_id: str,
     ledger_id: str,
@@ -513,7 +513,7 @@ def compute_history_workspace_snapshot_id(
     workspace_synthesis_posture: HistoryWorkspaceSynthesisPosture,
     semantic_identity_mode: str = HISTORY_WORKSPACE_IDENTITY_MODE,
 ) -> str:
-    return f"history_workspace:{sha256_canonical_json(
+    return sha256_canonical_json(
         build_history_workspace_snapshot_identity_basis(
             source_id=source_id,
             ledger_id=ledger_id,
@@ -525,7 +525,11 @@ def compute_history_workspace_snapshot_id(
             workspace_synthesis_posture=workspace_synthesis_posture,
             semantic_identity_mode=semantic_identity_mode,
         )
-    )[:16]}"
+    )
+
+
+def compute_history_workspace_snapshot_id(*, semantic_hash: str) -> str:
+    return f"history_workspace:{semantic_hash[:16]}"
 
 
 class HistoryTextShapeSignals(BaseModel):
@@ -1472,7 +1476,7 @@ class HistoryWorkspaceSnapshot(BaseModel):
         if self.workspace_synthesis_posture != expected_synthesis_posture:
             raise ValueError("workspace_synthesis_posture must remain advisory")
 
-        expected_semantic_hash = compute_history_workspace_snapshot_id(
+        expected_semantic_hash = compute_history_workspace_snapshot_semantic_hash(
             source_id=self.source_id,
             ledger_id=self.ledger_id,
             chronology_slice_order=self.chronology_slice_order,
@@ -1485,7 +1489,9 @@ class HistoryWorkspaceSnapshot(BaseModel):
         )
         if self.semantic_hash != expected_semantic_hash:
             raise ValueError("semantic_hash must match canonical workspace identity basis")
-        expected_snapshot_id = f"history_workspace:{self.semantic_hash[:16]}"
+        expected_snapshot_id = compute_history_workspace_snapshot_id(
+            semantic_hash=self.semantic_hash
+        )
         if self.workspace_snapshot_id != expected_snapshot_id:
             raise ValueError("workspace_snapshot_id must match canonical workspace identity")
         return self
@@ -1536,6 +1542,7 @@ __all__ = [
     "compute_history_odeu_packet_semantic_hash",
     "compute_history_workspace_frame_id",
     "compute_history_workspace_question_id",
+    "compute_history_workspace_snapshot_semantic_hash",
     "compute_history_workspace_snapshot_id",
     "compute_history_preclassification_id",
     "compute_history_source_id",
