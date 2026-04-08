@@ -1,0 +1,63 @@
+{
+  "adjudication_rows": [
+    {
+      "adjudication_status": "deferred",
+      "deferral_reason": "starter_v53b_does_not_permit_positive_promotion_from_underdetermined_applicability",
+      "edge_class_ref": "edge_class:boundary_order/numeric_interval/inclusive_exclusive_boundary",
+      "source_applicability_status": "underdetermined",
+      "supporting_checked_no_witness_refs": [],
+      "supporting_witness_refs": [
+        "witness:inclusive_boundary_example"
+      ]
+    },
+    {
+      "adjudication_status": "not_applicable",
+      "edge_class_ref": "edge_class:boundary_order/ordering_permutation/stable_ordering_preservation",
+      "source_applicability_status": "not_applicable",
+      "supporting_checked_no_witness_refs": [],
+      "supporting_witness_refs": []
+    },
+    {
+      "adjudication_status": "applicable_unchecked",
+      "edge_class_ref": "edge_class:canonicalization_representation/normalization_canonical_form/path_or_text_normalization",
+      "source_applicability_status": "applicable",
+      "supporting_checked_no_witness_refs": [],
+      "supporting_witness_refs": []
+    },
+    {
+      "adjudication_status": "witness_found",
+      "edge_class_ref": "edge_class:canonicalization_representation/serialization_identity/round_trip_serialization",
+      "source_applicability_status": "applicable",
+      "supporting_checked_no_witness_refs": [],
+      "supporting_witness_refs": [
+        "witness:round_trip_serialization_example"
+      ]
+    },
+    {
+      "adjudication_status": "checked_no_witness_found",
+      "edge_class_ref": "edge_class:contract_invariant/cross_field_binding/cross_field_consistency",
+      "source_applicability_status": "applicable",
+      "supporting_checked_no_witness_refs": [
+        "edge_class:contract_invariant/cross_field_binding/cross_field_consistency"
+      ],
+      "supporting_witness_refs": []
+    },
+    {
+      "adjudication_status": "underdetermined",
+      "edge_class_ref": "edge_class:contract_invariant/vocabulary_order_identity/ordered_unique_sequence_invariant",
+      "source_applicability_status": "underdetermined",
+      "supporting_checked_no_witness_refs": [],
+      "supporting_witness_refs": []
+    }
+  ],
+  "applicability_frame_ref": "symbol_edge_applicability_frame:1107d1b44c16603e",
+  "bound_edge_class_catalog_ref": "edge_class_catalog:239e31a78de0460c",
+  "bound_probe_template_catalog_ref": "edge_probe_template_catalog:39fda60ecb6bfc82",
+  "ledger_hash": "a762c1c301b073bee007f2d74a5f545fb6870864836038d73d4d9e321b272fc0",
+  "ledger_id": "symbol_edge_adjudication_ledger:ac2387f176947a44",
+  "module_path": "packages/adeu_architecture_ir/src/adeu_architecture_ir/analysis_request.py",
+  "qualname": "_validation_context",
+  "schema": "adeu_symbol_edge_adjudication_ledger@1",
+  "symbol_id": "symbol:packages/adeu_architecture_ir/src/adeu_architecture_ir/analysis_request.py:_validation_context:function",
+  "symbol_kind": "function"
+}

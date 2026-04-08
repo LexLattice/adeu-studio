@@ -1,0 +1,5 @@
+{
+  "edge_class_ref": "edge_class:canonicalization_representation/serialization_identity/round_trip_serialization",
+  "summary_text": "contradictory explicit witness",
+  "witness_ref": "witness:contradictory_round_trip"
+}

@@ -1,0 +1,90 @@
+{
+  "schema": "parallel_arc_meta_loop_baton@1",
+  "baton_id": "baton_v53c_arc_worker_review_fix_claim_007",
+  "baton_kind": "transition_claim",
+  "emitted_at_utc": "2026-04-07T17:16:11Z",
+  "previous_baton_id": "baton_v53c_meta_orchestrator_implementation_verification_006",
+  "arc_family": "V53",
+  "slice": "V53-C",
+  "phase": "review_fixing_pending",
+  "role": "arc_worker",
+  "model": "gpt-5.4",
+  "reasoning_effort": "xhigh",
+  "arc_branch": "arc/v53-r5",
+  "feature_branch": "v145-v53c-revision-register-impl-r5",
+  "base_branch": "arc/v53-r5",
+  "commit_sha": null,
+  "pr_url": "https://github.com/LexLattice/adeu-studio/pull/368",
+  "review_verdict": null,
+  "ci_status": "not_started",
+  "branch_info": {
+    "worktree_path": "/home/rose/work/LexLattice/odeu_v145_v53c_impl_r5",
+    "current_branch": "v145-v53c-revision-register-impl-r5",
+    "base_branch": "arc/v53-r5",
+    "dirty_worktree_expected": true
+  },
+  "bot_review_overall_status": "complete",
+  "bot_review_observations": [
+    {
+      "bot": "codex",
+      "state": "completed_with_findings",
+      "witness_kind": "user_scoped_review_feedback_cluster",
+      "witness_ref": "PR #368 actionable cluster in EdgeTaxonomyRevisionEntry validation",
+      "note": "Handled deprecate_existing_class explicitly and added a dedicated unexpected revision_decision fail-closed guard."
+    }
+  ],
+  "manual_trigger_actions": [],
+  "controlling_refs": [
+    "docs/LOCKED_CONTINUATION_vNEXT_PLUS145.md",
+    "docs/DRAFT_ADEU_EDGE_LEDGER_V53C_IMPLEMENTATION_MAPPING_v0.md",
+    "artifacts/meta_loop/V53/V53-C/integration/round1_review_integration.md",
+    "artifacts/meta_loop/V53/V53-C/batons/006_meta_orchestrator_implementation_verification_ratification.json",
+    "docs/DRAFT_PARALLEL_ARC_META_LOOP_PROTOCOL_v0.md",
+    "docs/PARALLEL_ARC_META_LOOP_BATON_v0.json"
+  ],
+  "required_outputs_claimed_satisfied": [
+    "v53_c_pr_368_revision_decision_review_cluster_addressed",
+    "v53_c_fail_closed_revision_decision_validation_hardened",
+    "v53_c_targeted_review_fix_checks_rerun",
+    "v53_c_review_fix_claim_baton"
+  ],
+  "unsatisfied_requirements": [
+    "v53_c_full_repo_make_check",
+    "v53_c_review_fix_commit_and_push",
+    "v53_c_remote_ci_refresh"
+  ],
+  "status": "completed",
+  "changed_files": [
+    "packages/adeu_edge_ledger/src/adeu_edge_ledger/models.py",
+    "packages/adeu_edge_ledger/tests/test_edge_ledger_revision.py",
+    "artifacts/meta_loop/V53/V53-C/batons/007_arc_worker_review_fix_claim.json"
+  ],
+  "artifacts_produced": [
+    "packages/adeu_edge_ledger/src/adeu_edge_ledger/models.py",
+    "packages/adeu_edge_ledger/tests/test_edge_ledger_revision.py",
+    "artifacts/meta_loop/V53/V53-C/batons/007_arc_worker_review_fix_claim.json"
+  ],
+  "evidence_refs": [
+    "packages/adeu_edge_ledger/src/adeu_edge_ledger/models.py",
+    "packages/adeu_edge_ledger/tests/test_edge_ledger_revision.py",
+    "PR #368 review feedback cluster: explicit fail-closed handling for revision_decision"
+  ],
+  "checks_run": [
+    "PYTHONPATH=packages/adeu_edge_ledger/src:packages/adeu_symbol_audit/src:packages/adeu_repo_description/src:packages/adeu_ir/src .venv/bin/python -m ruff check packages/adeu_edge_ledger (initial fail: E501 in models.py and I001 in test_edge_ledger_revision.py after first patch)",
+    "PYTHONPATH=packages/adeu_edge_ledger/src:packages/adeu_symbol_audit/src:packages/adeu_repo_description/src:packages/adeu_ir/src .venv/bin/python -m pytest packages/adeu_edge_ledger/tests/test_edge_ledger_revision.py -q (pass, 14 passed, existing upstream warnings)",
+    "PYTHONPATH=packages/adeu_edge_ledger/src:packages/adeu_symbol_audit/src:packages/adeu_repo_description/src:packages/adeu_ir/src .venv/bin/python -m ruff check packages/adeu_edge_ledger (pass)",
+    "PYTHONPATH=packages/adeu_edge_ledger/src:packages/adeu_symbol_audit/src:packages/adeu_repo_description/src:packages/adeu_ir/src .venv/bin/python -m pytest packages/adeu_edge_ledger/tests/test_edge_ledger_revision.py -q (pass, 14 passed, existing upstream warnings)"
+  ],
+  "checks_skipped": [
+    "make check skipped per instruction to rerun only slice-relevant local checks after the review fix",
+    "repo-wide lint, pytest, closeout consistency, semantic closeout, and instruction policy checks were intentionally not rerun",
+    "the broader packages/adeu_edge_ledger/tests suite was not rerun; verification was limited to the revision-register test file touched by this fix"
+  ],
+  "blockers": [],
+  "next_allowed_actions": [
+    "commit_review_fix_changes_on_v145_v53c_revision_register_impl_r5",
+    "push_review_fix_commit_to_pr_368_branch",
+    "refresh_pr_368_ci_after_push"
+  ],
+  "notes": "This review-fix stays bounded to V53-C. The validator now treats deprecate_existing_class as an explicit branch and raises a dedicated fail-closed error for any unexpected revision_decision value. A focused unit test covers the unexpected-decision path through model_construct without widening production scope."
+}

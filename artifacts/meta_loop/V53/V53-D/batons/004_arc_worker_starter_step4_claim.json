@@ -1,0 +1,18 @@
+{
+  "run_id": "run-8",
+  "family": "V53-D",
+  "mode": "strict_starter",
+  "branch": "arc/v53-r8",
+  "authorized_step": "preserve_first_draft_evidence",
+  "step": 4,
+  "status": "completed",
+  "first_draft_evidence": [
+    "artifacts/meta_loop/V53/V53-D/starter_bundle/first_draft/first_draft_LOCKED_CONTINUATION_vNEXT_PLUS147.md",
+    "artifacts/meta_loop/V53/V53-D/starter_bundle/first_draft/first_draft_DRAFT_STOP_GATE_DECISION_vNEXT_PLUS147.md",
+    "artifacts/meta_loop/V53/V53-D/starter_bundle/first_draft/first_draft_ASSESSMENT_vNEXT_PLUS147_EDGES.md",
+    "artifacts/meta_loop/V53/V53-D/starter_bundle/first_draft/first_draft_DRAFT_ADEU_EDGE_LEDGER_V53D_IMPLEMENTATION_MAPPING_v0.md",
+    "artifacts/meta_loop/V53/V53-D/starter_bundle/first_draft/first_draft_DRAFT_NEXT_ARC_OPTIONS_v36.md"
+  ],
+  "copy_mode": "cp -n",
+  "timestamp_utc": "2026-04-07T00:00:00Z"
+}

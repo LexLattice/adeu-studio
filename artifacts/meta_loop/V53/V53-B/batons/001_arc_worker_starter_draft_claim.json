@@ -1,0 +1,82 @@
+{
+  "schema": "parallel_arc_meta_loop_baton@1",
+  "baton_id": "baton_v53b_arc_worker_starter_draft_claim_001",
+  "baton_kind": "transition_claim",
+  "emitted_at_utc": "2026-04-06T23:50:09Z",
+  "previous_baton_id": "baton_v53b_run4_launch_ratification_000",
+  "arc_family": "V53",
+  "slice": "V53-B",
+  "phase": "starter_review_pending",
+  "role": "arc_worker",
+  "model": "gpt-5.4",
+  "reasoning_effort": "xhigh",
+  "arc_branch": "arc/v53-r4",
+  "feature_branch": null,
+  "base_branch": "arc/v53-r4",
+  "commit_sha": null,
+  "pr_url": null,
+  "review_verdict": null,
+  "ci_status": null,
+  "controlling_refs": [
+    "docs/DRAFT_NEXT_ARC_OPTIONS_v36.md",
+    "docs/DRAFT_ADEU_EDGE_LEDGER_V53_IMPLEMENTATION_MAPPING_v0.md",
+    "docs/DRAFT_ADEU_EDGE_LEDGER_V53B_IMPLEMENTATION_MAPPING_v0.md",
+    "docs/LOCKED_CONTINUATION_vNEXT_PLUS141.md",
+    "examples/external_prototypes/adeu-edge-ledger-change-bundle/ALIGNMENT.md",
+    "examples/external_prototypes/adeu-edge-ledger-change-bundle/CLAIMED_SCOPE.md",
+    "docs/DRAFT_PARALLEL_ARC_META_LOOP_PROTOCOL_v0.md",
+    "docs/PARALLEL_ARC_META_LOOP_BATON_v0.json"
+  ],
+  "required_outputs_claimed_satisfied": [
+    "v53_b_starter_first_draft_docs",
+    "v53_b_starter_slice_mapping_doc",
+    "v53_b_first_draft_evidence_copies",
+    "v53_b_starter_draft_ready_for_conceptual_review"
+  ],
+  "unsatisfied_requirements": [
+    "v53_b_conceptual_review",
+    "v53_b_integrated_starter_bundle",
+    "v53_b_starter_commit_to_arc_branch"
+  ],
+  "status": "completed",
+  "artifacts_produced": [
+    "docs/DRAFT_NEXT_ARC_OPTIONS_v36.md",
+    "docs/DRAFT_ADEU_EDGE_LEDGER_V53B_IMPLEMENTATION_MAPPING_v0.md",
+    "docs/LOCKED_CONTINUATION_vNEXT_PLUS143.md",
+    "docs/DRAFT_STOP_GATE_DECISION_vNEXT_PLUS143.md",
+    "docs/ASSESSMENT_vNEXT_PLUS143_EDGES.md",
+    "artifacts/meta_loop/V53/V53-B/starter_bundle/first_draft/first_draft_DRAFT_NEXT_ARC_OPTIONS_v36.md",
+    "artifacts/meta_loop/V53/V53-B/starter_bundle/first_draft/first_draft_DRAFT_ADEU_EDGE_LEDGER_V53B_IMPLEMENTATION_MAPPING_v0.md",
+    "artifacts/meta_loop/V53/V53-B/starter_bundle/first_draft/first_draft_LOCKED_CONTINUATION_vNEXT_PLUS143.md",
+    "artifacts/meta_loop/V53/V53-B/starter_bundle/first_draft/first_draft_DRAFT_STOP_GATE_DECISION_vNEXT_PLUS143.md",
+    "artifacts/meta_loop/V53/V53-B/starter_bundle/first_draft/first_draft_ASSESSMENT_vNEXT_PLUS143_EDGES.md",
+    "artifacts/meta_loop/V53/V53-B/batons/001_arc_worker_starter_draft_claim.json"
+  ],
+  "evidence_refs": [
+    "artifacts/meta_loop/V53/V53-B/batons/000_meta_orchestrator_run4_launch_ratification.json",
+    "docs/DRAFT_NEXT_ARC_OPTIONS_v36.md",
+    "docs/DRAFT_ADEU_EDGE_LEDGER_V53B_IMPLEMENTATION_MAPPING_v0.md",
+    "docs/LOCKED_CONTINUATION_vNEXT_PLUS143.md",
+    "docs/DRAFT_STOP_GATE_DECISION_vNEXT_PLUS143.md",
+    "docs/ASSESSMENT_vNEXT_PLUS143_EDGES.md",
+    "artifacts/meta_loop/V53/V53-B/starter_bundle/first_draft/first_draft_DRAFT_NEXT_ARC_OPTIONS_v36.md",
+    "artifacts/meta_loop/V53/V53-B/starter_bundle/first_draft/first_draft_DRAFT_ADEU_EDGE_LEDGER_V53B_IMPLEMENTATION_MAPPING_v0.md",
+    "artifacts/meta_loop/V53/V53-B/starter_bundle/first_draft/first_draft_LOCKED_CONTINUATION_vNEXT_PLUS143.md",
+    "artifacts/meta_loop/V53/V53-B/starter_bundle/first_draft/first_draft_DRAFT_STOP_GATE_DECISION_vNEXT_PLUS143.md",
+    "artifacts/meta_loop/V53/V53-B/starter_bundle/first_draft/first_draft_ASSESSMENT_vNEXT_PLUS143_EDGES.md"
+  ],
+  "checks_run": [
+    "make arc-start-check ARC=143 (pass)"
+  ],
+  "checks_skipped": [
+    "make check skipped because the change is docs/artifacts-only starter-bundle work"
+  ],
+  "blockers": [],
+  "next_allowed_actions": [
+    "spawn_v53_b_conceptual_reviewer_for_starter_bundle",
+    "perform_v53_b_conceptual_review_over_the_starter_docs_and_first_draft_evidence",
+    "return_review_feedback_to_arc_worker_for_targeted_starter_integration"
+  ],
+  "notes": "The required V53-B starter docs and first-draft evidence copies now exist on disk. The slice stays bounded to one adjudication ledger contract over released V53-A, one exact fail-closed override law, and one exact evidence/status law, with revision/register and test-intent widening still deferred.",
+  "ratifies_baton_id": null
+}

@@ -1,0 +1,66 @@
+{
+  "schema": "parallel_arc_meta_loop_baton@1",
+  "baton_id": "baton_v53a_arc_worker_starter_repair_claim_006",
+  "baton_kind": "transition_claim",
+  "emitted_at_utc": "2026-04-06T19:37:16Z",
+  "previous_baton_id": "baton_v53a_arc_worker_starter_draft_claim_004",
+  "arc_family": "V53",
+  "slice": "V53-A",
+  "phase": "starter_review_pending",
+  "role": "arc_worker",
+  "model": "gpt-5.4",
+  "reasoning_effort": "xhigh",
+  "arc_branch": "arc/v53-r3",
+  "feature_branch": null,
+  "base_branch": "arc/v53-r3",
+  "commit_sha": null,
+  "pr_url": null,
+  "review_verdict": null,
+  "ci_status": null,
+  "controlling_refs": [
+    "docs/DRAFT_NEXT_ARC_OPTIONS_v36.md",
+    "docs/DRAFT_ADEU_EDGE_LEDGER_V53_IMPLEMENTATION_MAPPING_v0.md",
+    "docs/DRAFT_ADEU_EDGE_LEDGER_V53A_IMPLEMENTATION_MAPPING_v0.md",
+    "artifacts/meta_loop/V53/V53-A/batons/004_arc_worker_starter_draft_claim.json",
+    "docs/DRAFT_PARALLEL_ARC_META_LOOP_PROTOCOL_v0.md",
+    "docs/PARALLEL_ARC_META_LOOP_BATON_v0.json"
+  ],
+  "required_outputs_claimed_satisfied": [
+    "v53_a_starter_bundle_consistency_repair",
+    "v53_a_starter_repair_claim_baton"
+  ],
+  "unsatisfied_requirements": [
+    "v53_a_conceptual_review",
+    "v53_a_integrated_starter_bundle",
+    "v53_a_starter_commit_to_arc_branch"
+  ],
+  "status": "completed",
+  "artifacts_produced": [
+    "docs/DRAFT_NEXT_ARC_OPTIONS_v36.md",
+    "artifacts/meta_loop/V53/V53-A/batons/006_arc_worker_starter_repair_claim.json"
+  ],
+  "evidence_refs": [
+    "artifacts/meta_loop/V53/V53-A/batons/004_arc_worker_starter_draft_claim.json",
+    "docs/DRAFT_NEXT_ARC_OPTIONS_v36.md",
+    "docs/DRAFT_ADEU_EDGE_LEDGER_V53_IMPLEMENTATION_MAPPING_v0.md",
+    "docs/DRAFT_ADEU_EDGE_LEDGER_V53A_IMPLEMENTATION_MAPPING_v0.md",
+    "artifacts/meta_loop/V53/V53-A/starter_bundle/first_draft/first_draft_DRAFT_NEXT_ARC_OPTIONS_v36.md"
+  ],
+  "checks_run": [
+    "make arc-start-check ARC=141 (failed during repo-root autodiscovery inside apps/api/scripts/lint_arc_bundle.py: FileNotFoundError: repository root not found from script location)",
+    ".venv/bin/python apps/api/scripts/lint_arc_bundle.py --arc 141 --phase start --repo-root . (pass)",
+    "make instruction-policy-check (pass)",
+    ".venv/bin/python -m json.tool artifacts/meta_loop/V53/V53-A/batons/006_arc_worker_starter_repair_claim.json (pass)"
+  ],
+  "checks_skipped": [
+    "make check skipped because the change is docs/artifacts-only starter-bundle work"
+  ],
+  "blockers": [],
+  "next_allowed_actions": [
+    "spawn_v53_conceptual_reviewer_for_starter_bundle",
+    "perform_v53_a_conceptual_review_over_the_starter_docs_and_first_draft_evidence",
+    "return_review_feedback_to_arc_worker_for_targeted_starter_integration"
+  ],
+  "notes": "This repair only resolves the live-doc inconsistency in docs/DRAFT_NEXT_ARC_OPTIONS_v36.md by setting family_decomposition_doc to the existing V53 family mapping doc. First-draft evidence copies were preserved untouched as historical evidence. The canonical docs-only helper still fails in this worktree because lint_arc_bundle.py autodiscovers repo root only from a .git directory while this worktree exposes a .git file; the explicit --repo-root substitute lint and instruction-policy checks passed. The new 006 baton exists on disk under artifacts/meta_loop/... and is ignored by the repo's artifacts/* pattern, so it will require an explicit force-add in any later commit step.",
+  "ratifies_baton_id": null
+}

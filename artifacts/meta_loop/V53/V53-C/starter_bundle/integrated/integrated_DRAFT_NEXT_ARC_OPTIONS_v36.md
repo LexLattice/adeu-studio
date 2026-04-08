@@ -4,8 +4,8 @@ Status: planning draft after `docs/DRAFT_NEXT_ARC_OPTIONS_v35.md`, refreshed aft
 full internal `V46` family closed on `main`, after the imported
 `adeu-edge-ledger-change-bundle` was normalized as support-only intake evidence rather
 than live package, schema, or family authority, after `V53-B` closed on
-`arc/v53-r4`, after `V53-C` closed on `arc/v53-r5`, and now updated with `V53-D`
-closed on `arc/v53-r8`.
+`arc/v53-r4`, and after `V53-C` was selected on `arc/v53-r5` as the starter-draft
+target for `vNext+145`.
 
 Authority layer: planning.
 
@@ -60,7 +60,7 @@ Interpretive doctrine for this planning surface:
   `docs/DRAFT_NEXT_ARC_OPTIONS_v33.md`.
 - `V51-A` through `V51-C` are closed on `main`.
 - `V52-A` through `V52-D` are closed on `main`.
-- `vNext+147` is the current implementation-arc baseline on `arc/v53-r8`.
+- `vNext+140` is the current implementation-arc baseline on `main`.
 - `V53-A` is now closed on `arc/v53-r3`:
   - released `adeu_edge_class_catalog@1`
   - released `adeu_edge_probe_template_catalog@1`
@@ -74,23 +74,15 @@ Interpretive doctrine for this planning surface:
   - attempted pre-merge `make check` hit then-pre-existing branch-baseline import-order
     lint, later repaired in the merged PR; no local passing `make check` claim is made
     here
-- `V53-C` is now closed on `arc/v53-r5`:
-  - released `adeu_edge_taxonomy_revision_register@1`
-  - green PR CI on `#368`
-  - targeted package checks passed with `34 passed`
-  - focused review-fix rerun passed with `14 passed`
-  - attempted local `make check` remained red in the same shared dedicated-worktree
-    baseline cluster; no local passing `make check` claim is made here
-- `V53-D` is now closed on `arc/v53-r8`:
-  - released `adeu_edge_probe_test_intent_bridge@1`
-  - green PR CI on `#369`
-  - targeted local verification passed on the implementation branch:
-    - schema export
-    - `ruff`
-    - full `packages/adeu_edge_ledger/tests`
-  - focused review-fix rerun passed on the touched lane after Codex/Gemini review
-  - no local full `make check` claim is made here; the run kept Python verification
-    intentionally bounded to the owned package lane
+- `V53-C` is now selected on `arc/v53-r5` as the branch-local starter-draft target:
+  - target arc:
+    - `vNext+145`
+  - bounded scope:
+    - cumulative revision register / lineage lane only
+  - not claimed here:
+    - implementation
+    - conceptual review
+    - closeout
 - imported prototype bundles have now been normalized under
   `examples/external_prototypes/`, including:
   - `adeu-edge-ledger-change-bundle`
@@ -112,13 +104,18 @@ The repo no longer lacks:
 - one normalized intake pack that tells the truth about the external edge-ledger
   bundle and its blocker set.
 
-The repo no longer lacks:
+The repo still lacks:
 
+- one cumulative revision register / lineage posture rather than only one-off
+  adjudication ledgers or isolated revision judgments;
 - one explicit bounded probe-strategy / test-intent integration seam after the core
   edge-ledger semantics are stable enough to consume it lawfully.
 
-No additional `V53` continuation slice is selected by this planning draft after the
-closed `V53-D` release on `arc/v53-r8`.
+The next missing layer is therefore not merely more symbol audit, not a read-only
+session helper extension, and not yet a probe-execution or mutation platform.
+
+The next missing layer is the `V53-C` cumulative revision register lane inside the
+already-instantiated ADEU edge ledger family.
 
 ## Relationship To `V45`, `V50`, And The Imported Bundle
 
@@ -174,21 +171,19 @@ This new family asks:
 - explicit support-ref identity and input-order law for starter support fields;
 - not a license to treat lexical adjacency as proof by default.
 
-`V53-C` should therefore now be read as:
+`V53-C` should therefore be read as:
 
 - later than closed `V53-A` and closed `V53-B`;
-- closed on `arc/v53-r5`;
 - one cumulative revision register / lineage lane only;
-- explicit that split / merge / deprecate / stabilize history is now representable
-  over time without minting live taxonomy mutation.
+- explicit that split / merge / deprecate / stabilize history must be representable
+  over time, not only through isolated revision judgments.
 
-`V53-D` should therefore now be read as:
+`V53-D` should therefore be read as:
 
-- closed on `arc/v53-r8`;
-- later than the closed taxonomy, adjudication, and revision core slices;
+- later than the taxonomy, adjudication, and revision core slices;
 - one bounded probe-strategy / test-intent integration seam only;
-- explicit that later widening beyond the shipped bridge remains `not_selected_yet`
-  after the now-closed revision-register core.
+- explicit that later integration with released `V45-D` test-intent surfaces remains
+  deferred until the edge ledger itself is stable enough to consume them lawfully.
 
 So this family may constrain:
 
@@ -235,15 +230,15 @@ Planning relationship:
   - `V50`
 - Recommended support mapping reference:
   - `docs/DRAFT_ADEU_EDGE_LEDGER_V53_IMPLEMENTATION_MAPPING_v0.md`
-- Most recently closed slice mapping reference:
-  - `docs/DRAFT_ADEU_EDGE_LEDGER_V53D_IMPLEMENTATION_MAPPING_v0.md`
+- Recommended starter slice mapping reference:
+  - `docs/DRAFT_ADEU_EDGE_LEDGER_V53C_IMPLEMENTATION_MAPPING_v0.md`
 - Recommended next path for this branch:
-  - `not_selected_yet`
+  - `V53-C`
 - Recommended next concrete arc for this branch if selected:
-  - `not_selected_yet`
+  - `vNext+145`
 - Default path selection for this branch:
-  - no post-`V53-D` continuation path is selected yet after `vNext+147` closeout on
-    `arc/v53-r8`
+  - select `V53-C` as the next default candidate and current starter-draft candidate
+    for `vNext+145` on `arc/v53-r5`
 
 This family/path recommendation is branch-local to the `v36` planning surface.
 
@@ -258,8 +253,8 @@ The current recommended path ladder is:
 |---|---|---|---|
 | `V53-A` | taxonomy + applicability substrate | released `adeu_edge_class_catalog@1`, released `adeu_edge_probe_template_catalog@1`, and released `adeu_symbol_edge_applicability_frame@1` over one bounded pilot scope | closed on `arc/v53-r3` |
 | `V53-B` | adjudication hardening lane | released `adeu_symbol_edge_adjudication_ledger@1` with fail-closed override law, explicit evidence semantics, and explicit support-ref identity/order law | closed on `arc/v53-r4` |
-| `V53-C` | cumulative revision register lane | released revision lineage / register surface above isolated revision judgments | closed on `arc/v53-r5` |
-| `V53-D` | bounded probe/test-intent integration lane | released `adeu_edge_probe_test_intent_bridge@1` over the closed taxonomy/adjudication/revision substrate only | closed on `arc/v53-r8` |
+| `V53-C` | cumulative revision register lane | released revision lineage / register surface above isolated revision judgments | selected starter draft on `arc/v53-r5` |
+| `V53-D` | bounded probe/test-intent integration lane | one explicit integration seam with later probe strategy or released `V45-D` test-intent surfaces only after the core ledger is stable | planned |
 
 These output names are planning-level candidate names, not lock-level schema authority.
 
@@ -342,21 +337,22 @@ Support-layer implementation mapping for this family direction:
   ],
   "closed_current_family_paths": [
     "V53-A",
-    "V53-B",
+    "V53-B"
+  ],
+  "planned_current_family_paths": [
     "V53-C",
     "V53-D"
   ],
-  "planned_current_family_paths": [],
-  "default_next_arc_candidate_for_this_branch": null,
-  "default_next_concrete_arc_candidate_for_this_branch": null,
-  "selected_current_family_path_for_this_branch": null,
-  "selected_current_concrete_arc_for_this_branch": null,
-  "selected_current_path_branch": null,
-  "selected_current_path_phase": "closed_no_next_path_selected",
+  "default_next_arc_candidate_for_this_branch": "V53-C",
+  "default_next_concrete_arc_candidate_for_this_branch": "vNext+145",
+  "selected_current_family_path_for_this_branch": "V53-C",
+  "selected_current_concrete_arc_for_this_branch": "vNext+145",
+  "selected_current_path_branch": "arc/v53-r5",
+  "selected_current_path_phase": "starter_draft",
   "family_architecture_doc": "not_selected_yet",
   "family_decomposition_doc": "docs/DRAFT_ADEU_EDGE_LEDGER_V53_IMPLEMENTATION_MAPPING_v0.md",
   "support_mapping_doc": "docs/DRAFT_ADEU_EDGE_LEDGER_V53_IMPLEMENTATION_MAPPING_v0.md",
-  "starter_slice_support_mapping_doc": "docs/DRAFT_ADEU_EDGE_LEDGER_V53D_IMPLEMENTATION_MAPPING_v0.md",
+  "starter_slice_support_mapping_doc": "docs/DRAFT_ADEU_EDGE_LEDGER_V53C_IMPLEMENTATION_MAPPING_v0.md",
   "planned_family_packages": [
     "packages/adeu_edge_ledger"
   ],
@@ -398,21 +394,7 @@ remains the truth record for that repair.
 Branch-local closeout note:
 
 - `V53-A` is closed on `arc/v53-r3`
-- `V53-B` is closed on `arc/v53-r4`
-- `V53-C` is closed on `arc/v53-r5`
-- `V53-D` is closed on `arc/v53-r8`
-- branch-local default next path is now `not_selected_yet`
-- branch-local default next concrete arc candidate is now `not_selected_yet`
-## V53-D Closeout Status
-
-Status: closed on `arc/v53-r8`.
-
-Closeout note:
-
-- `V53-D` shipped one bounded probe/test-intent bridge over the closed taxonomy,
-  adjudication, and revision-register substrate.
-- Released outputs are the live `packages/adeu_edge_ledger` package surface,
-  authoritative and mirrored `adeu_edge_probe_test_intent_bridge@1` schema export,
-  deterministic `v53d` fixtures/tests, and the canonical
-  `v53d_edge_probe_test_intent_bridge_evidence@1` closeout evidence input.
-- No post-`V53-D` continuation path is selected yet in this planning surface.
+- `V53-B` is now closed on `arc/v53-r4`
+- `V53-C` is now the selected starter-draft target on `arc/v53-r5`
+- branch-local default next path remains `V53-C`
+- branch-local default next concrete arc candidate remains `vNext+145`

@@ -1,0 +1,100 @@
+{
+  "schema": "parallel_arc_meta_loop_baton@1",
+  "baton_id": "baton_v53a_arc_worker_implementation_claim_010",
+  "baton_kind": "transition_claim",
+  "emitted_at_utc": "2026-04-06T21:05:27Z",
+  "previous_baton_id": "baton_v53a_arc_worker_review_integration_claim_008",
+  "arc_family": "V53",
+  "slice": "V53-A",
+  "phase": "implementation_complete_pending_pr_open",
+  "role": "arc_worker",
+  "model": "gpt-5.4",
+  "reasoning_effort": "xhigh",
+  "arc_branch": "v141-v53a-edge-ledger-impl-r3",
+  "feature_branch": null,
+  "base_branch": "v141-v53a-edge-ledger-impl-r3",
+  "commit_sha": null,
+  "pr_url": null,
+  "review_verdict": null,
+  "ci_status": null,
+  "controlling_refs": [
+    "artifacts/meta_loop/V53/V53-A/batons/008_arc_worker_review_integration_claim.json",
+    "docs/LOCKED_CONTINUATION_vNEXT_PLUS141.md",
+    "docs/DRAFT_ADEU_EDGE_LEDGER_V53A_IMPLEMENTATION_MAPPING_v0.md",
+    "docs/DRAFT_ADEU_EDGE_LEDGER_V53_IMPLEMENTATION_MAPPING_v0.md",
+    "docs/DRAFT_NEXT_ARC_OPTIONS_v36.md",
+    "docs/DRAFT_PARALLEL_ARC_META_LOOP_PROTOCOL_v0.md",
+    "docs/PARALLEL_ARC_META_LOOP_BATON_v0.json"
+  ],
+  "required_outputs_claimed_satisfied": [
+    "v53_a_edge_ledger_package_scaffold",
+    "v53_a_taxonomy_and_applicability_only_surface",
+    "v53_a_schema_export_mirror_parity",
+    "v53_a_targeted_tests_and_fixtures",
+    "v53_a_implementation_claim_baton"
+  ],
+  "unsatisfied_requirements": [
+    "v53_a_full_repo_make_check",
+    "v53_a_pr_open_step"
+  ],
+  "status": "completed",
+  "artifacts_produced": [
+    "Makefile",
+    "packages/adeu_edge_ledger/pyproject.toml",
+    "packages/adeu_edge_ledger/src/adeu_edge_ledger/__init__.py",
+    "packages/adeu_edge_ledger/src/adeu_edge_ledger/models.py",
+    "packages/adeu_edge_ledger/src/adeu_edge_ledger/taxonomy.py",
+    "packages/adeu_edge_ledger/src/adeu_edge_ledger/applicability.py",
+    "packages/adeu_edge_ledger/src/adeu_edge_ledger/export_schema.py",
+    "packages/adeu_edge_ledger/schema/adeu_edge_class_catalog.v1.json",
+    "packages/adeu_edge_ledger/schema/adeu_edge_probe_template_catalog.v1.json",
+    "packages/adeu_edge_ledger/schema/adeu_symbol_edge_applicability_frame.v1.json",
+    "packages/adeu_edge_ledger/tests/conftest.py",
+    "packages/adeu_edge_ledger/tests/test_edge_ledger_taxonomy.py",
+    "packages/adeu_edge_ledger/tests/test_edge_ledger_applicability.py",
+    "packages/adeu_edge_ledger/tests/test_edge_ledger_export_schema.py",
+    "packages/adeu_edge_ledger/tests/fixtures/v53a/reference_edge_class_catalog.json",
+    "packages/adeu_edge_ledger/tests/fixtures/v53a/reference_edge_probe_template_catalog.json",
+    "packages/adeu_edge_ledger/tests/fixtures/v53a/reference_symbol_edge_applicability_frame.json",
+    "packages/adeu_edge_ledger/tests/fixtures/v53a/reject_symbol_audit_coverage_report_fail_closed_mismatch.json",
+    "packages/adeu_edge_ledger/tests/fixtures/v53a/reject_symbol_edge_applicability_frame_applicable_empty_support.json",
+    "packages/adeu_edge_ledger/tests/fixtures/v53a/reject_symbol_edge_applicability_frame_not_applicable_non_empty_support.json",
+    "packages/adeu_edge_ledger/tests/fixtures/v53a/reject_symbol_edge_applicability_frame_sparse_rows.json",
+    "packages/adeu_edge_ledger/tests/fixtures/v53a/reject_symbol_edge_applicability_frame_symbol_id_drift.json",
+    "packages/adeu_edge_ledger/tests/fixtures/v53a/reject_symbol_edge_applicability_frame_with_adjudication_fields.json",
+    "spec/adeu_edge_class_catalog.schema.json",
+    "spec/adeu_edge_probe_template_catalog.schema.json",
+    "spec/adeu_symbol_edge_applicability_frame.schema.json",
+    "artifacts/meta_loop/V53/V53-A/batons/010_arc_worker_implementation_claim.json"
+  ],
+  "evidence_refs": [
+    "docs/LOCKED_CONTINUATION_vNEXT_PLUS141.md",
+    "packages/adeu_edge_ledger/src/adeu_edge_ledger/models.py",
+    "packages/adeu_edge_ledger/src/adeu_edge_ledger/taxonomy.py",
+    "packages/adeu_edge_ledger/src/adeu_edge_ledger/applicability.py",
+    "packages/adeu_edge_ledger/schema/adeu_edge_class_catalog.v1.json",
+    "packages/adeu_edge_ledger/schema/adeu_edge_probe_template_catalog.v1.json",
+    "packages/adeu_edge_ledger/schema/adeu_symbol_edge_applicability_frame.v1.json",
+    "packages/adeu_edge_ledger/tests/fixtures/v53a/reference_symbol_edge_applicability_frame.json",
+    "packages/adeu_edge_ledger/tests/test_edge_ledger_applicability.py",
+    "packages/adeu_edge_ledger/tests/test_edge_ledger_taxonomy.py",
+    "packages/adeu_edge_ledger/tests/test_edge_ledger_export_schema.py"
+  ],
+  "checks_run": [
+    ".venv/bin/pip install -e \"packages/adeu_edge_ledger[dev]\" (pass)",
+    ".venv/bin/python -m ruff format packages/adeu_edge_ledger (pass)",
+    ".venv/bin/python -m ruff check packages/adeu_edge_ledger (pass)",
+    ".venv/bin/python -m pytest packages/adeu_edge_ledger/tests (pass)"
+  ],
+  "checks_skipped": [
+    "make check skipped for this phase; only targeted package-local lint and tests were run",
+    "repo-wide lint/test/closeout/instruction-policy checks remain pending for the PR-open step"
+  ],
+  "blockers": [],
+  "next_allowed_actions": [
+    "run_full_make_check_before_or_during_pr_open_step",
+    "open_pr_for_v53_a_starter_slice_if_desired"
+  ],
+  "notes": "This implementation keeps V53-A package-first, taxonomy-first, and applicability-first. The live surface is limited to the new adeu_edge_ledger package, authoritative plus mirrored schema exports for the three selected contracts, and package-local fixtures/tests. The starter taxonomy keeps the lock-frozen eight top-level families and sixteen subfamilies, the applicability builder reuses the released V45 symbol-id helper from adeu_repo_description.models.compute_symbol_id, and binding validation fails closed on released-stack mismatches, sparse archetype coverage, row-support cardinality drift, and adjudication-only field injection. Targeted pytest passed with existing upstream warnings from released adeu_repo_description and urm_runtime modules; no new blockers were introduced locally.",
+  "ratifies_baton_id": null
+}

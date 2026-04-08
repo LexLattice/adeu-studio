@@ -1,0 +1,40 @@
+{
+  "schema": "v53d_edge_probe_test_intent_bridge_evidence@1",
+  "evidence_input_path": "artifacts/agent_harness/v147/evidence_inputs/v53d_edge_probe_test_intent_bridge_evidence_v147.json",
+  "contract_source": "docs/LOCKED_CONTINUATION_vNEXT_PLUS147.md#machine-checkable-contract",
+  "merged_pr": "#369",
+  "merge_commit": "49cb5a89562f2c16673d263b2b3e70301e61f71d",
+  "implementation_commit": "2ff204b5705b878b825a33ff5a816659bf69fa50",
+  "review_hardening_commit": "07ae4a89cf8a1064f7593d46e8fdf7f104a17acc",
+  "implementation_packages": [
+    "adeu_edge_ledger"
+  ],
+  "released_upstream_schema_ids": [
+    "adeu_edge_class_catalog@1",
+    "adeu_edge_probe_template_catalog@1",
+    "adeu_symbol_edge_applicability_frame@1",
+    "adeu_symbol_edge_adjudication_ledger@1",
+    "adeu_edge_taxonomy_revision_register@1"
+  ],
+  "released_schema_ids": [
+    "adeu_edge_probe_test_intent_bridge@1"
+  ],
+  "edge_ledger_package_root": "packages/adeu_edge_ledger",
+  "edge_ledger_pyproject_path": "packages/adeu_edge_ledger/pyproject.toml",
+  "edge_ledger_package_init_source_path": "packages/adeu_edge_ledger/src/adeu_edge_ledger/__init__.py",
+  "edge_ledger_probe_test_intent_source_path": "packages/adeu_edge_ledger/src/adeu_edge_ledger/probe_test_intent.py",
+  "edge_ledger_export_schema_source_path": "packages/adeu_edge_ledger/src/adeu_edge_ledger/export_schema.py",
+  "edge_probe_test_intent_bridge_authoritative_schema_path": "packages/adeu_edge_ledger/schema/adeu_edge_probe_test_intent_bridge.v1.json",
+  "edge_probe_test_intent_bridge_mirror_schema_path": "spec/adeu_edge_probe_test_intent_bridge.schema.json",
+  "reference_probe_test_intent_bridge_fixture_path": "packages/adeu_edge_ledger/tests/fixtures/v53d/reference_edge_probe_test_intent_bridge.json",
+  "test_probe_test_intent_reference_path": "packages/adeu_edge_ledger/tests/test_edge_ledger_probe_test_intent.py",
+  "test_export_schema_reference_path": "packages/adeu_edge_ledger/tests/test_edge_ledger_export_schema.py",
+  "worker_claim_baton_path": "artifacts/meta_loop/V53/V53-D/batons/010_arc_worker_implementation_claim.json",
+  "review_fix_baton_path": "artifacts/meta_loop/V53/V53-D/batons/011_arc_worker_review_fix_claim.json",
+  "targeted_local_checks_only": true,
+  "full_local_python_gate_not_claimed": true,
+  "metric_key_continuity_assertion_path": "artifacts/agent_harness/v147/evidence_inputs/metric_key_continuity_assertion_v147.json",
+  "runtime_observability_comparison_path": "artifacts/agent_harness/v147/evidence_inputs/runtime_observability_comparison_v147.json",
+  "runtime_event_stream_path": "artifacts/agent_harness/v147/runtime/evidence/local/urm_events.ndjson",
+  "notes": "v147 evidence pins the released V53-D probe/test-intent bridge seam on arc/v53-r8: one repo-owned adeu_edge_ledger package only, one released adeu_edge_probe_test_intent_bridge@1 contract over closed V53-A, V53-B, and V53-C surfaces, deterministic authoritative schema export plus root mirror, deterministic v53d fixtures/tests, canonical bridge_entry_id validation, fail-closed unknown probe ref handling, deterministic selected_strategy_kinds ordering, and no broader probe execution, mutation, enforcement, or CI-governance widening."
+}

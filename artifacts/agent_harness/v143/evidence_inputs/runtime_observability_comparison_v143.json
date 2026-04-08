@@ -1,0 +1,11 @@
+{
+  "schema": "runtime_observability_comparison@1",
+  "baseline_arc": "vNext+141",
+  "current_arc": "vNext+143",
+  "baseline_source": "artifacts/stop_gate/report_v141_closeout.md",
+  "current_source": "artifacts/stop_gate/report_v143_closeout.md",
+  "baseline_elapsed_ms": 134,
+  "current_elapsed_ms": 98,
+  "delta_ms": -36,
+  "notes": "v143 closeout keeps the frozen stop-gate schema family and exact metric keyset unchanged while shipping the released V53-B edge adjudication lane on arc/v53-r4: one repo-owned adeu_edge_ledger package only, one released adeu_symbol_edge_adjudication_ledger@1 contract over the released V53-A frame, full-catalog row coverage in released order, fail-closed contradictory/out-of-frame/not_applicable override rejection, underdetermined rows that defer rather than promote on explicit evidence, deterministic authoritative schema export plus root mirror, deterministic v53b fixtures/tests, bounded review hardening for contradictory deferred supports, and no cumulative revision/register or direct test-intent integration."
+}
