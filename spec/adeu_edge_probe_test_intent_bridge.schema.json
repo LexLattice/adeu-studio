@@ -1,0 +1,194 @@
+{
+  "$defs": {
+    "EdgeProbeTestIntentBridgeEntry": {
+      "additionalProperties": false,
+      "properties": {
+        "applicable_edge_class_refs": {
+          "items": {
+            "type": "string"
+          },
+          "title": "Applicable Edge Class Refs",
+          "type": "array"
+        },
+        "bound_applicability_frame_ref": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Bound Applicability Frame Ref"
+        },
+        "bridge_entry_id": {
+          "title": "Bridge Entry Id",
+          "type": "string"
+        },
+        "guarded_surface_ref_kind": {
+          "title": "Guarded Surface Ref Kind",
+          "type": "string"
+        },
+        "guarded_surface_ref_value": {
+          "title": "Guarded Surface Ref Value",
+          "type": "string"
+        },
+        "mapping_rationale": {
+          "title": "Mapping Rationale",
+          "type": "string"
+        },
+        "mapping_status": {
+          "enum": [
+            "mapped_from_applicability_frame",
+            "no_applicable_probe_in_frame",
+            "out_of_scope_non_symbol_guard",
+            "out_of_scope_outside_v50_scope"
+          ],
+          "title": "Mapping Status",
+          "type": "string"
+        },
+        "selected_probe_template_refs": {
+          "items": {
+            "type": "string"
+          },
+          "title": "Selected Probe Template Refs",
+          "type": "array"
+        },
+        "selected_strategy_kinds": {
+          "items": {
+            "enum": [
+              "absence_matrix",
+              "shape_matrix",
+              "boundary_partition",
+              "ordering_permutation",
+              "branch_partition",
+              "state_sequence",
+              "round_trip",
+              "hash_consistency",
+              "cross_field_invariant",
+              "dependency_boundary",
+              "fail_closed_rejection"
+            ],
+            "type": "string"
+          },
+          "title": "Selected Strategy Kinds",
+          "type": "array"
+        },
+        "supporting_evidence_refs": {
+          "items": {
+            "type": "string"
+          },
+          "title": "Supporting Evidence Refs",
+          "type": "array"
+        },
+        "symbol_id": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Symbol Id"
+        },
+        "test_intent_entry_ref": {
+          "title": "Test Intent Entry Ref",
+          "type": "string"
+        },
+        "test_ref": {
+          "title": "Test Ref",
+          "type": "string"
+        }
+      },
+      "required": [
+        "bridge_entry_id",
+        "test_intent_entry_ref",
+        "test_ref",
+        "guarded_surface_ref_kind",
+        "guarded_surface_ref_value",
+        "mapping_status",
+        "mapping_rationale"
+      ],
+      "title": "EdgeProbeTestIntentBridgeEntry",
+      "type": "object"
+    }
+  },
+  "additionalProperties": false,
+  "properties": {
+    "bound_applicability_frame_refs": {
+      "items": {
+        "type": "string"
+      },
+      "title": "Bound Applicability Frame Refs",
+      "type": "array"
+    },
+    "bound_dependency_graph_ref": {
+      "title": "Bound Dependency Graph Ref",
+      "type": "string"
+    },
+    "bound_edge_class_catalog_ref": {
+      "title": "Bound Edge Class Catalog Ref",
+      "type": "string"
+    },
+    "bound_probe_template_catalog_ref": {
+      "title": "Bound Probe Template Catalog Ref",
+      "type": "string"
+    },
+    "bound_symbol_catalog_ref": {
+      "title": "Bound Symbol Catalog Ref",
+      "type": "string"
+    },
+    "bound_test_intent_matrix_ref": {
+      "title": "Bound Test Intent Matrix Ref",
+      "type": "string"
+    },
+    "bridge_entries": {
+      "items": {
+        "$ref": "#/$defs/EdgeProbeTestIntentBridgeEntry"
+      },
+      "minItems": 1,
+      "title": "Bridge Entries",
+      "type": "array"
+    },
+    "bridge_hash": {
+      "title": "Bridge Hash",
+      "type": "string"
+    },
+    "bridge_id": {
+      "title": "Bridge Id",
+      "type": "string"
+    },
+    "bridge_posture": {
+      "title": "Bridge Posture",
+      "type": "string"
+    },
+    "bridge_scope": {
+      "title": "Bridge Scope",
+      "type": "string"
+    },
+    "schema": {
+      "const": "adeu_edge_probe_test_intent_bridge@1",
+      "default": "adeu_edge_probe_test_intent_bridge@1",
+      "title": "Schema",
+      "type": "string"
+    }
+  },
+  "required": [
+    "bridge_id",
+    "bridge_scope",
+    "bridge_posture",
+    "bound_edge_class_catalog_ref",
+    "bound_probe_template_catalog_ref",
+    "bound_test_intent_matrix_ref",
+    "bound_symbol_catalog_ref",
+    "bound_dependency_graph_ref",
+    "bound_applicability_frame_refs",
+    "bridge_entries",
+    "bridge_hash"
+  ],
+  "title": "EdgeProbeTestIntentBridge",
+  "type": "object"
+}
