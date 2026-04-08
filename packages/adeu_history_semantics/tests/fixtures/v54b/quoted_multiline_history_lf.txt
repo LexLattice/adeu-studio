@@ -1,0 +1,6 @@
+User: Preserve this excerpt exactly.
+> Assistant: keep role parsing bounded.
+```text
+keep fenced content inside one entry
+```
+Assistant: Acknowledged. Theme anchors stay lawful.

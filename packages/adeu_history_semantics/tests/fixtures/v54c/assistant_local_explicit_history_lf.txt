@@ -1,0 +1,5 @@
+Assistant: Packet authority posture bundle.
+- Ontological lane is the downstream packet overlay over the released ledger.
+- Epistemic lane keeps evidence grounded to released source entries.
+- Deontic lane must stay fail-closed and avoid workspace widening.
+- Utility lane helps later bounded follow-up work.

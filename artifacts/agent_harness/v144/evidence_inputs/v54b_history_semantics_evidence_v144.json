@@ -1,0 +1,44 @@
+{
+  "schema": "v54b_history_semantics_evidence@1",
+  "evidence_input_path": "artifacts/agent_harness/v144/evidence_inputs/v54b_history_semantics_evidence_v144.json",
+  "contract_source": "docs/LOCKED_CONTINUATION_vNEXT_PLUS144.md#v144-continuation-contract-machine-checkable",
+  "merged_pr": "#365",
+  "merge_commit": "490416ad472f6e9f4476fef995929502c4afbbaa",
+  "implementation_commit": "5e8b44fd65c2f137604f5498d7dd31df3bea8a21",
+  "review_hardening_commit": "cdfb7fdb5ab3b469611707146306aedbf2cb7172",
+  "closeout_lint_hygiene_commit": "5f9c9301df8d4ab8f8c11553cfeb9a023cec58e3",
+  "implementation_packages": [
+    "adeu_history_semantics"
+  ],
+  "upstream_released_schema_ids": [
+    "adeu_history_source_artifact@1",
+    "adeu_history_text_shape_signals@1",
+    "adeu_history_preclassification@1"
+  ],
+  "released_schema_ids": [
+    "adeu_history_ledger_entry@1",
+    "adeu_history_ledger@1",
+    "adeu_history_slice@1",
+    "adeu_history_theme_anchor@1"
+  ],
+  "test_reference_paths": [
+    "packages/adeu_history_semantics/tests/test_history_semantics_v54b.py",
+    "packages/adeu_history_semantics/tests/test_history_semantics_export_schema.py"
+  ],
+  "fixture_reference_paths": [
+    "packages/adeu_history_semantics/tests/fixtures/v54b/consecutive_same_speaker_history_lf.txt",
+    "packages/adeu_history_semantics/tests/fixtures/v54b/quoted_multiline_history_lf.txt",
+    "packages/adeu_history_semantics/tests/fixtures/v54b/reference_conversation_history_lf.txt",
+    "packages/adeu_history_semantics/tests/fixtures/v54b/reference_history_projection.json",
+    "packages/adeu_history_semantics/tests/fixtures/v54b/reject_no_lawful_theme_terms.txt",
+    "packages/adeu_history_semantics/tests/fixtures/v54b/reject_shorthand_aliases.txt"
+  ],
+  "targeted_local_checks": [
+    "PYTHONPATH=packages/adeu_history_semantics/src:packages/adeu_ir/src .venv/bin/python -m ruff check packages/adeu_history_semantics",
+    "PYTHONPATH=packages/adeu_history_semantics/src:packages/adeu_ir/src .venv/bin/python -m pytest packages/adeu_history_semantics/tests -q"
+  ],
+  "metric_key_continuity_assertion_path": "artifacts/agent_harness/v144/evidence_inputs/metric_key_continuity_assertion_v144.json",
+  "runtime_observability_comparison_path": "artifacts/agent_harness/v144/evidence_inputs/runtime_observability_comparison_v144.json",
+  "runtime_event_stream_path": "artifacts/agent_harness/v144/runtime/evidence/local/urm_events.ndjson",
+  "notes": "v144 evidence pins the released V54-B history-semantics ledger/slice/theme substrate on arc/v54-r4: one repo-owned adeu_history_semantics package only, four bounded downstream contracts over released V54-A source and preclassification surfaces, one preclassification to one ledger-entry law, maximal contiguous same-role slices, deterministic theme-anchor grouping by identical derived theme_key only, fail-closed no-lawful-theme-term rejection, deterministic schema mirrors and v54b fixtures, and no evidence-ref O/E/D/U workspace API UI runtime or broader corpus-ingestion widening."
+}

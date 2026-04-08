@@ -1,0 +1,7 @@
+User: History semantics packet ledger theme should stay bounded and authoritative.
+The source evidence remains explicit for the released slice and theme anchor.
+Assistant: History semantics packet ledger theme follow-up.
+- Ontological lane is the downstream packet overlay over the released ledger and theme anchor.
+- Epistemic lane keeps evidence grounded to released source provenance and concrete entries.
+- Deontic lane must stay fail-closed and must not widen into workspace synthesis.
+- Utility lane helps later bounded follow-up work.

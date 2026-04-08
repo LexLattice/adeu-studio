@@ -1,0 +1,55 @@
+{
+  "additionalProperties": false,
+  "properties": {
+    "bullet_line_count": {
+      "title": "Bullet Line Count",
+      "type": "integer"
+    },
+    "char_count": {
+      "title": "Char Count",
+      "type": "integer"
+    },
+    "code_fence_count": {
+      "title": "Code Fence Count",
+      "type": "integer"
+    },
+    "line_count": {
+      "title": "Line Count",
+      "type": "integer"
+    },
+    "nonempty_line_count": {
+      "title": "Nonempty Line Count",
+      "type": "integer"
+    },
+    "question_count": {
+      "title": "Question Count",
+      "type": "integer"
+    },
+    "quoted_line_count": {
+      "title": "Quoted Line Count",
+      "type": "integer"
+    },
+    "schema": {
+      "const": "adeu_history_text_shape_signals@1",
+      "default": "adeu_history_text_shape_signals@1",
+      "title": "Schema",
+      "type": "string"
+    },
+    "word_count": {
+      "title": "Word Count",
+      "type": "integer"
+    }
+  },
+  "required": [
+    "char_count",
+    "word_count",
+    "line_count",
+    "nonempty_line_count",
+    "question_count",
+    "bullet_line_count",
+    "quoted_line_count",
+    "code_fence_count"
+  ],
+  "title": "HistoryTextShapeSignals",
+  "type": "object"
+}

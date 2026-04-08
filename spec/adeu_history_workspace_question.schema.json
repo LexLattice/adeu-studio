@@ -1,0 +1,45 @@
+{
+  "additionalProperties": false,
+  "properties": {
+    "lane_id": {
+      "enum": [
+        "O",
+        "E",
+        "D",
+        "U"
+      ],
+      "title": "Lane Id",
+      "type": "string"
+    },
+    "question_id": {
+      "title": "Question Id",
+      "type": "string"
+    },
+    "question_text": {
+      "title": "Question Text",
+      "type": "string"
+    },
+    "reason_kind": {
+      "enum": [
+        "weak_lane",
+        "underdetermined_lane"
+      ],
+      "title": "Reason Kind",
+      "type": "string"
+    },
+    "schema": {
+      "const": "adeu_history_workspace_question@1",
+      "default": "adeu_history_workspace_question@1",
+      "title": "Schema",
+      "type": "string"
+    }
+  },
+  "required": [
+    "question_id",
+    "lane_id",
+    "reason_kind",
+    "question_text"
+  ],
+  "title": "HistoryWorkspaceQuestion",
+  "type": "object"
+}

@@ -1,0 +1,93 @@
+[
+  {
+    "message_text": "Starter scope is bounded to one repo-owned package.",
+    "order_index": 0,
+    "origin_type": "system_instruction",
+    "preclassification_id": "history_preclassification:2a353e00b973d073",
+    "role": "system",
+    "schema": "adeu_history_preclassification@1",
+    "source_declaration_hints": [
+      "full_role_header_present",
+      "timestamp_prefix_present"
+    ],
+    "source_id": "history_source:61a2f3e5f461597f",
+    "source_line_end": 1,
+    "source_line_start": 1,
+    "structural_markers": [
+      "single_line_message"
+    ],
+    "text_shape_signals": {
+      "bullet_line_count": 0,
+      "char_count": 51,
+      "code_fence_count": 0,
+      "line_count": 1,
+      "nonempty_line_count": 1,
+      "question_count": 0,
+      "quoted_line_count": 0,
+      "schema": "adeu_history_text_shape_signals@1",
+      "word_count": 8
+    },
+    "timestamp_text": "2026-02-02 10:00"
+  },
+  {
+    "message_text": "Keep normalized source text authoritative.",
+    "order_index": 1,
+    "origin_type": "user_native",
+    "preclassification_id": "history_preclassification:a49fc65b55f3864f",
+    "role": "user",
+    "schema": "adeu_history_preclassification@1",
+    "source_declaration_hints": [
+      "full_role_header_present",
+      "timestamp_prefix_present"
+    ],
+    "source_id": "history_source:61a2f3e5f461597f",
+    "source_line_end": 2,
+    "source_line_start": 2,
+    "structural_markers": [
+      "single_line_message"
+    ],
+    "text_shape_signals": {
+      "bullet_line_count": 0,
+      "char_count": 42,
+      "code_fence_count": 0,
+      "line_count": 1,
+      "nonempty_line_count": 1,
+      "question_count": 0,
+      "quoted_line_count": 0,
+      "schema": "adeu_history_text_shape_signals@1",
+      "word_count": 5
+    },
+    "timestamp_text": "2026-02-02 10:01"
+  },
+  {
+    "message_text": "Agreed. The release stays fail-closed.\n- keep exact User/Assistant/System headers\n- reject shorthand aliases and malformed timestamps",
+    "order_index": 2,
+    "origin_type": "assistant_reply",
+    "preclassification_id": "history_preclassification:d08dabb65d4219c1",
+    "role": "assistant",
+    "schema": "adeu_history_preclassification@1",
+    "source_declaration_hints": [
+      "full_role_header_present",
+      "timestamp_prefix_present"
+    ],
+    "source_id": "history_source:61a2f3e5f461597f",
+    "source_line_end": 5,
+    "source_line_start": 3,
+    "structural_markers": [
+      "multi_line_message",
+      "bullet_line_present"
+    ],
+    "text_shape_signals": {
+      "bullet_line_count": 2,
+      "char_count": 133,
+      "code_fence_count": 0,
+      "line_count": 3,
+      "nonempty_line_count": 3,
+      "question_count": 0,
+      "quoted_line_count": 0,
+      "schema": "adeu_history_text_shape_signals@1",
+      "word_count": 17
+    },
+    "timestamp_text": "2026-02-02 10:02"
+  }
+]

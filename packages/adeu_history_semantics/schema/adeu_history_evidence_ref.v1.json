@@ -1,0 +1,35 @@
+{
+  "additionalProperties": false,
+  "properties": {
+    "entry_id": {
+      "title": "Entry Id",
+      "type": "string"
+    },
+    "excerpt": {
+      "title": "Excerpt",
+      "type": "string"
+    },
+    "role": {
+      "enum": [
+        "user",
+        "assistant",
+        "system"
+      ],
+      "title": "Role",
+      "type": "string"
+    },
+    "schema": {
+      "const": "adeu_history_evidence_ref@1",
+      "default": "adeu_history_evidence_ref@1",
+      "title": "Schema",
+      "type": "string"
+    }
+  },
+  "required": [
+    "entry_id",
+    "role",
+    "excerpt"
+  ],
+  "title": "HistoryEvidenceRef",
+  "type": "object"
+}

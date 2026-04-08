@@ -1,0 +1,210 @@
+{
+  "ledger": {
+    "entries": [
+      {
+        "entry_id": "history_ledger_entry:205b1a3d4b45d63d",
+        "entry_text": "Starter scope is bounded to one repo-owned package.",
+        "entry_text_hash": "4b6a1adc44b37cfb568f7ebf8aee6760248f1efa61644c2263c0864056d06aa7",
+        "order_index": 0,
+        "origin_type": "system_instruction",
+        "preclassification_id": "history_preclassification:2a353e00b973d073",
+        "role": "system",
+        "schema": "adeu_history_ledger_entry@1",
+        "source_id": "history_source:61a2f3e5f461597f",
+        "source_line_end": 1,
+        "source_line_start": 1,
+        "structural_markers": [
+          "single_line_message"
+        ]
+      },
+      {
+        "entry_id": "history_ledger_entry:f1bb5a2582ec9f19",
+        "entry_text": "Keep normalized source text authoritative.",
+        "entry_text_hash": "17a61720958ffd8926c0126e99f90e1b5275c7a6542335267c6440b0263ae3e8",
+        "order_index": 1,
+        "origin_type": "user_native",
+        "preclassification_id": "history_preclassification:a49fc65b55f3864f",
+        "role": "user",
+        "schema": "adeu_history_ledger_entry@1",
+        "source_id": "history_source:61a2f3e5f461597f",
+        "source_line_end": 2,
+        "source_line_start": 2,
+        "structural_markers": [
+          "single_line_message"
+        ]
+      },
+      {
+        "entry_id": "history_ledger_entry:167cb7da61e512b7",
+        "entry_text": "Agreed. The release stays fail-closed.\n- keep exact User/Assistant/System headers\n- reject shorthand aliases and malformed timestamps",
+        "entry_text_hash": "e37ca8f8b89678c9e24711cee9295fe38e096500fd3879d48fb3cebe56664908",
+        "order_index": 2,
+        "origin_type": "assistant_reply",
+        "preclassification_id": "history_preclassification:d08dabb65d4219c1",
+        "role": "assistant",
+        "schema": "adeu_history_ledger_entry@1",
+        "source_id": "history_source:61a2f3e5f461597f",
+        "source_line_end": 5,
+        "source_line_start": 3,
+        "structural_markers": [
+          "multi_line_message",
+          "bullet_line_present"
+        ]
+      }
+    ],
+    "entry_count": 3,
+    "ledger_id": "history_ledger:ab994af8a741476f",
+    "schema": "adeu_history_ledger@1",
+    "source_id": "history_source:61a2f3e5f461597f"
+  },
+  "slices": [
+    {
+      "boundary_tags": [
+        "conversation_start"
+      ],
+      "chronology_end_order_index": 0,
+      "chronology_start_order_index": 0,
+      "entry_ids": [
+        "history_ledger_entry:205b1a3d4b45d63d"
+      ],
+      "schema": "adeu_history_slice@1",
+      "slice_id": "history_slice:c08ad2912016ae0c",
+      "slice_index": 0,
+      "source_id": "history_source:61a2f3e5f461597f",
+      "theme_key": "starter::scope::bounded::repo::owned",
+      "theme_label": "starter scope bounded",
+      "theme_terms": [
+        "starter",
+        "scope",
+        "bounded",
+        "repo",
+        "owned",
+        "package"
+      ]
+    },
+    {
+      "boundary_tags": [],
+      "chronology_end_order_index": 1,
+      "chronology_start_order_index": 1,
+      "entry_ids": [
+        "history_ledger_entry:f1bb5a2582ec9f19"
+      ],
+      "schema": "adeu_history_slice@1",
+      "slice_id": "history_slice:760fd2a565648471",
+      "slice_index": 1,
+      "source_id": "history_source:61a2f3e5f461597f",
+      "theme_key": "keep::normalized::source::text::authoritative",
+      "theme_label": "keep normalized source",
+      "theme_terms": [
+        "keep",
+        "normalized",
+        "source",
+        "text",
+        "authoritative"
+      ]
+    },
+    {
+      "boundary_tags": [
+        "conversation_end",
+        "contains_multi_line_message",
+        "contains_bullet_line_present"
+      ],
+      "chronology_end_order_index": 2,
+      "chronology_start_order_index": 2,
+      "entry_ids": [
+        "history_ledger_entry:167cb7da61e512b7"
+      ],
+      "schema": "adeu_history_slice@1",
+      "slice_id": "history_slice:2f07bff44ea35c10",
+      "slice_index": 2,
+      "source_id": "history_source:61a2f3e5f461597f",
+      "theme_key": "agreed::release::stays::fail::closed",
+      "theme_label": "agreed release stays",
+      "theme_terms": [
+        "agreed",
+        "release",
+        "stays",
+        "fail",
+        "closed",
+        "keep",
+        "exact",
+        "headers",
+        "reject",
+        "shorthand",
+        "aliases",
+        "malformed",
+        "timestamps"
+      ]
+    }
+  ],
+  "theme_anchors": [
+    {
+      "anchor_entry_ids": [
+        "history_ledger_entry:205b1a3d4b45d63d"
+      ],
+      "display_label": "starter scope bounded",
+      "schema": "adeu_history_theme_anchor@1",
+      "slice_ids": [
+        "history_slice:c08ad2912016ae0c"
+      ],
+      "source_id": "history_source:61a2f3e5f461597f",
+      "supporting_terms": [
+        "starter",
+        "scope",
+        "bounded",
+        "repo",
+        "owned",
+        "package"
+      ],
+      "theme_anchor_id": "history_theme_anchor:a5bd55ad51bbd1ce",
+      "theme_key": "starter::scope::bounded::repo::owned"
+    },
+    {
+      "anchor_entry_ids": [
+        "history_ledger_entry:f1bb5a2582ec9f19"
+      ],
+      "display_label": "keep normalized source",
+      "schema": "adeu_history_theme_anchor@1",
+      "slice_ids": [
+        "history_slice:760fd2a565648471"
+      ],
+      "source_id": "history_source:61a2f3e5f461597f",
+      "supporting_terms": [
+        "keep",
+        "normalized",
+        "source",
+        "text",
+        "authoritative"
+      ],
+      "theme_anchor_id": "history_theme_anchor:0dfb6120489f6caf",
+      "theme_key": "keep::normalized::source::text::authoritative"
+    },
+    {
+      "anchor_entry_ids": [
+        "history_ledger_entry:167cb7da61e512b7"
+      ],
+      "display_label": "agreed release stays",
+      "schema": "adeu_history_theme_anchor@1",
+      "slice_ids": [
+        "history_slice:2f07bff44ea35c10"
+      ],
+      "source_id": "history_source:61a2f3e5f461597f",
+      "supporting_terms": [
+        "agreed",
+        "release",
+        "stays",
+        "fail",
+        "closed",
+        "keep",
+        "exact",
+        "headers",
+        "reject",
+        "shorthand",
+        "aliases",
+        "malformed",
+        "timestamps"
+      ],
+      "theme_anchor_id": "history_theme_anchor:12c726b354c5be61",
+      "theme_key": "agreed::release::stays::fail::closed"
+    }
+  ]
+}

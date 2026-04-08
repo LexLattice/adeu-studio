@@ -1,0 +1,48 @@
+{
+  "schema": "parallel_arc_meta_loop_baton@1",
+  "baton_id": "v54d-r8-step1-arc-worker-claim",
+  "baton_kind": "transition_claim",
+  "emitted_at_utc": "2026-04-07T19:35:34Z",
+  "previous_baton_id": null,
+  "arc_family": "V54",
+  "slice": "V54-D",
+  "phase": "starter_draft_pending",
+  "role": "arc_worker",
+  "model": "gpt-5.3-codex",
+  "reasoning_effort": "high",
+  "arc_branch": "arc/v54-r8",
+  "feature_branch": null,
+  "base_branch": "arc/v54-r8",
+  "execution_template_ref": "starter_bundle_execution_template_v0",
+  "template_step_id": "collect_controlling_refs_and_bundle_targets",
+  "template_step_order": 1,
+  "claimed_step_complete": true,
+  "continuation_required_before_next_step": true,
+  "commit_sha": null,
+  "pr_url": null,
+  "review_verdict": null,
+  "ci_status": null,
+  "controlling_refs": [
+    "docs/DRAFT_NEXT_ARC_OPTIONS_v37.md",
+    "docs/DRAFT_ADEU_HISTORY_SEMANTICS_V54_IMPLEMENTATION_MAPPING_v0.md",
+    "docs/DRAFT_STOP_GATE_DECISION_vNEXT_PLUS146.md",
+    "docs/ASSESSMENT_vNEXT_PLUS146_EDGES.md"
+  ],
+  "artifacts_produced": [
+    "artifacts/meta_loop/V54/V54-D/starter_bundle/001_step1_controlling_refs.md",
+    "artifacts/meta_loop/V54/V54-D/batons/001_arc_worker_starter_step1_claim.json"
+  ],
+  "evidence_refs": [
+    "artifacts/meta_loop/V54/V54-D/starter_bundle/001_step1_controlling_refs.md",
+    "branch_sanity_check: git branch --show-current && pwd => arc/v54-r8 | /home/rose/work/LexLattice/odeu_arc_v54_r8",
+    "target_set_explicit: docs/LOCKED_CONTINUATION_vNEXT_PLUS148.md; docs/DRAFT_STOP_GATE_DECISION_vNEXT_PLUS148.md; docs/ASSESSMENT_vNEXT_PLUS148_EDGES.md; docs/DRAFT_NEXT_ARC_OPTIONS_v37.md (update); docs/DRAFT_ADEU_HISTORY_SEMANTICS_V54D_IMPLEMENTATION_MAPPING_v0.md"
+  ],
+  "checks_run": [],
+  "checks_skipped": [],
+  "blockers": [],
+  "next_allowed_actions": [
+    "wait_for_orchestrator_continuation"
+  ],
+  "notes": "Step 1 completed in strict starter mode. Controlling refs collected and V54-D later starter target set made explicit. No mismatches found in inspected refs for this step scope.",
+  "ratifies_baton_id": null
+}

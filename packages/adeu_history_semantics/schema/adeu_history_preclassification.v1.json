@@ -1,0 +1,168 @@
+{
+  "$defs": {
+    "HistoryTextShapeSignals": {
+      "additionalProperties": false,
+      "properties": {
+        "bullet_line_count": {
+          "title": "Bullet Line Count",
+          "type": "integer"
+        },
+        "char_count": {
+          "title": "Char Count",
+          "type": "integer"
+        },
+        "code_fence_count": {
+          "title": "Code Fence Count",
+          "type": "integer"
+        },
+        "line_count": {
+          "title": "Line Count",
+          "type": "integer"
+        },
+        "nonempty_line_count": {
+          "title": "Nonempty Line Count",
+          "type": "integer"
+        },
+        "question_count": {
+          "title": "Question Count",
+          "type": "integer"
+        },
+        "quoted_line_count": {
+          "title": "Quoted Line Count",
+          "type": "integer"
+        },
+        "schema": {
+          "const": "adeu_history_text_shape_signals@1",
+          "default": "adeu_history_text_shape_signals@1",
+          "title": "Schema",
+          "type": "string"
+        },
+        "word_count": {
+          "title": "Word Count",
+          "type": "integer"
+        }
+      },
+      "required": [
+        "char_count",
+        "word_count",
+        "line_count",
+        "nonempty_line_count",
+        "question_count",
+        "bullet_line_count",
+        "quoted_line_count",
+        "code_fence_count"
+      ],
+      "title": "HistoryTextShapeSignals",
+      "type": "object"
+    }
+  },
+  "additionalProperties": false,
+  "properties": {
+    "message_text": {
+      "title": "Message Text",
+      "type": "string"
+    },
+    "order_index": {
+      "title": "Order Index",
+      "type": "integer"
+    },
+    "origin_type": {
+      "enum": [
+        "user_native",
+        "assistant_reply",
+        "system_instruction"
+      ],
+      "title": "Origin Type",
+      "type": "string"
+    },
+    "preclassification_id": {
+      "title": "Preclassification Id",
+      "type": "string"
+    },
+    "role": {
+      "enum": [
+        "user",
+        "assistant",
+        "system"
+      ],
+      "title": "Role",
+      "type": "string"
+    },
+    "schema": {
+      "const": "adeu_history_preclassification@1",
+      "default": "adeu_history_preclassification@1",
+      "title": "Schema",
+      "type": "string"
+    },
+    "source_declaration_hints": {
+      "items": {
+        "enum": [
+          "full_role_header_present",
+          "timestamp_prefix_present",
+          "timestamp_prefix_absent"
+        ],
+        "type": "string"
+      },
+      "title": "Source Declaration Hints",
+      "type": "array"
+    },
+    "source_id": {
+      "title": "Source Id",
+      "type": "string"
+    },
+    "source_line_end": {
+      "title": "Source Line End",
+      "type": "integer"
+    },
+    "source_line_start": {
+      "title": "Source Line Start",
+      "type": "integer"
+    },
+    "structural_markers": {
+      "items": {
+        "enum": [
+          "single_line_message",
+          "multi_line_message",
+          "blank_line_present",
+          "bullet_line_present",
+          "quoted_line_present",
+          "code_fence_present",
+          "question_mark_present"
+        ],
+        "type": "string"
+      },
+      "title": "Structural Markers",
+      "type": "array"
+    },
+    "text_shape_signals": {
+      "$ref": "#/$defs/HistoryTextShapeSignals"
+    },
+    "timestamp_text": {
+      "anyOf": [
+        {
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Timestamp Text"
+    }
+  },
+  "required": [
+    "preclassification_id",
+    "source_id",
+    "order_index",
+    "message_text",
+    "source_line_start",
+    "source_line_end",
+    "role",
+    "origin_type",
+    "source_declaration_hints",
+    "structural_markers",
+    "text_shape_signals"
+  ],
+  "title": "HistoryPreclassification",
+  "type": "object"
+}

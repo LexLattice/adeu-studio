@@ -3,8 +3,7 @@
 Status: planning draft after `docs/DRAFT_NEXT_ARC_OPTIONS_v36.md`, refreshed after the
 history-semantics external bundle was normalized as support-only intake evidence rather
 than live package, schema, or family authority, then updated with `V54-B` closed on
-`arc/v54-r4`, after `V54-C` closed on `arc/v54-r5`, and now updated with `V54-D`
-closed on `arc/v54-r8`.
+`arc/v54-r4`, and now updated with `V54-C` closed on `arc/v54-r5`.
 
 Authority layer: planning.
 
@@ -54,7 +53,7 @@ Interpretive doctrine for this planning surface:
   semantics / workbench ladder recorded in `docs/DRAFT_NEXT_ARC_OPTIONS_v35.md`.
 - `V46-A` through `V46-E` are closed on `main` and now constitute the completed
   applied-benchmarking ladder recorded in `docs/DRAFT_NEXT_ARC_OPTIONS_v29.md`.
-- `vNext+148` is the current implementation-arc baseline on `arc/v54-r8`.
+- `vNext+144` is the current implementation-arc baseline on `arc/v54-r4`.
 - `V54-C` is now closed on `arc/v54-r5`:
   - released `adeu_history_evidence_ref@1`
   - released `adeu_history_odeu_lane_reconstruction@1`
@@ -98,17 +97,6 @@ Interpretive doctrine for this planning surface:
   - fail-closed no-lawful-theme-term rejection
   - no evidence ref, O/E/D/U, workspace, API/UI/runtime, or broader
     corpus-ingestion widening
-- `V54-D` is now closed on `arc/v54-r8`:
-  - released `adeu_history_workspace_question@1`
-  - released `adeu_history_workspace_theme_frame@1`
-  - released `adeu_history_workspace_snapshot@1`
-  - green PR CI on `#370`
-  - targeted local verification passed on the implementation branch:
-    - schema export
-    - `ruff`
-    - focused `v54d` pytest lanes
-  - no local full `make check` claim is made here; the run kept verification bounded
-    to the owned package lane
 
 ## Gap
 
@@ -126,14 +114,18 @@ The repo no longer lacks:
   whose heuristics are governed by committed regression coverage rather than ambient
   prototype taste.
 
-The repo no longer lacks:
+The repo still lacks:
 
 - one released workspace question / theme-frame / workspace-snapshot seam;
 - one released proof, not just planning language, that workspace synthesis remains
   advisory rather than an authority root.
 
-No additional `V54` continuation slice is selected by this planning draft after the
-closed `V54-D` release on `arc/v54-r8`.
+The next missing layer is therefore not merely another semantic substrate family, not a
+paper-semantics widening, not a digest runtime bridge, and not yet a corpus-ingestion or
+API/UI feature.
+
+The next missing layer is the `V54-D` bounded workspace synthesis lane inside the
+already-instantiated ADEU history-semantics family.
 
 ## Relationship To `V49`, `V52`, And The Imported Bundle
 
@@ -207,12 +199,10 @@ This new family asks:
 
 `V54-D` should therefore be read as:
 
-- closed on `arc/v54-r8`;
 - later than the source, ledger, and O/E/D/U core slices;
 - one bounded workspace question / theme-frame / workspace-snapshot advisory seam only;
-- explicit that any later Wave 0 or broader corpus lane remains `not_selected_yet`
-  until the core history-semantics family is stable enough to consume such material
-  lawfully.
+- explicit that any later Wave 0 or broader corpus lane remains deferred until the core
+  history-semantics family is stable enough to consume such material lawfully.
 
 So this family may constrain:
 
@@ -259,15 +249,13 @@ Planning relationship:
   - `docs/DRAFT_ADEU_HISTORY_SEMANTICS_V54B_IMPLEMENTATION_MAPPING_v0.md`
 - Recommended `V54-C` slice mapping reference:
   - `docs/DRAFT_ADEU_HISTORY_SEMANTICS_V54C_IMPLEMENTATION_MAPPING_v0.md`
-- Most recently closed `V54-D` slice mapping reference:
-  - `docs/DRAFT_ADEU_HISTORY_SEMANTICS_V54D_IMPLEMENTATION_MAPPING_v0.md`
 - Recommended next path for this branch:
-  - `not_selected_yet`
+  - `V54-D`
 - Recommended next concrete arc for this branch if selected:
-  - `not_selected_yet`
+  - `vNext+148`
 - Default path selection for this branch:
-  - no post-`V54-D` continuation path is selected yet after `vNext+148` closeout on
-    `arc/v54-r8`
+  - select `V54-D` as the next default candidate and current branch-local next path
+    for `vNext+148` on `arc/v54-r5`
 
 This family/path recommendation is branch-local to the `v37` planning surface.
 
@@ -283,7 +271,7 @@ The current recommended path ladder is:
 | `V54-A` | source contract + authority/export substrate | released `adeu_history_source_artifact@1`, released text-shape / preclassification substrate, and released schema/export posture over one bounded starter source domain | closed on `arc/v54-r3` |
 | `V54-B` | ledger / slice / theme substrate hardening | released `adeu_history_ledger_entry@1`, released `adeu_history_ledger@1`, released `adeu_history_slice@1`, and released `adeu_history_theme_anchor@1` with regression-hardened deterministic grouping/parsing law | closed on `arc/v54-r4` |
 | `V54-C` | advisory O/E/D/U reconstruction lane | released advisory evidence-ref, lane reconstruction, and packet artifacts only | closed on `arc/v54-r5` |
-| `V54-D` | advisory workspace synthesis lane | released bounded workspace question / theme-frame / snapshot seam only | closed on `arc/v54-r8` |
+| `V54-D` | advisory workspace synthesis lane | released bounded workspace question / theme-frame / snapshot seam only | selected next path |
 
 These output names are planning-level candidate names, not lock-level schema authority.
 
@@ -322,8 +310,8 @@ The first planning pass should assume one primary family package:
     "V53"
   ],
   "recommended_family": "V54",
-  "default_next_path_recommendation": null,
-  "default_next_concrete_arc_candidate_for_this_branch": null,
+  "default_next_path_recommendation": "V54-D",
+  "default_next_concrete_arc_candidate_for_this_branch": "vNext+148",
   "family_decomposition_doc": "docs/DRAFT_ADEU_HISTORY_SEMANTICS_V54_IMPLEMENTATION_MAPPING_v0.md",
   "v54a_slice_mapping_doc": "docs/DRAFT_ADEU_HISTORY_SEMANTICS_V54A_IMPLEMENTATION_MAPPING_v0.md",
   "v54b_slice_mapping_doc": "docs/DRAFT_ADEU_HISTORY_SEMANTICS_V54B_IMPLEMENTATION_MAPPING_v0.md",
@@ -331,10 +319,11 @@ The first planning pass should assume one primary family package:
   "closed_current_family_paths": [
     "V54-A",
     "V54-B",
-    "V54-C",
+    "V54-C"
+  ],
+  "planned_current_family_paths": [
     "V54-D"
   ],
-  "planned_current_family_paths": [],
   "recommended_owner_package": "packages/adeu_history_semantics",
   "v54a_starter_source_domain": "conversation_history_with_explicit_role_headers",
   "v54a_selected_source_authority_semantics": "normalized_source_text_authoritative_after_line_ending_normalization",
@@ -344,10 +333,10 @@ The first planning pass should assume one primary family package:
   "schema_export_posture_required_before_internalization": true,
   "advisory_reconstruction_not_authority_root": true,
   "branch_local_planning_selection_only": true,
-  "selected_current_family_path_for_this_branch": null,
-  "selected_current_concrete_arc_for_this_branch": null,
-  "selected_current_path_branch": null,
-  "selected_current_path_phase": "closed_no_next_path_selected"
+  "selected_current_family_path_for_this_branch": "V54-D",
+  "selected_current_concrete_arc_for_this_branch": "vNext+148",
+  "selected_current_path_branch": "arc/v54-r5",
+  "selected_current_path_phase": "post_closeout_planning"
 }
 ```
 
@@ -356,17 +345,13 @@ Branch-local closeout note:
 - `V54-A` is closed on `arc/v54-r3`
 - `V54-B` is now closed on `arc/v54-r4`
 - `V54-C` is now closed on `arc/v54-r5`
-- `V54-D` is now closed on `arc/v54-r8`
-- branch-local default next path is now `not_selected_yet`
-- branch-local default next concrete arc candidate is now `not_selected_yet`
-## V54-D Closeout Status (vNEXT_PLUS148)
+- branch-local default next path is now `V54-D`
+- branch-local default next concrete arc candidate is now `vNext+148`
+## V54-D Starter Drafting (vNEXT_PLUS148)
 
-Status: closed on `arc/v54-r8`.
-Closeout note:
-- `V54-D` shipped one bounded advisory workspace seam:
-  workspace question / theme-frame / workspace-snapshot.
-- Released outputs are the live `packages/adeu_history_semantics` package surface,
-  authoritative and mirrored workspace schema exports, deterministic `v54d`
-  fixtures/tests, and the canonical
-  `v54d_history_workspace_advisory_evidence@1` closeout evidence input.
-- No post-`V54-D` continuation path is selected yet in this planning surface.
+Status: in progress on `arc/v54-r8` (strict starter mode, step-3 drafting).
+Starter drafting note:
+- `V54-D` starter drafting is now in progress on `arc/v54-r8`.
+- Targeted outputs are the four new `vNEXT_PLUS148` docs plus the slice-specific
+  `V54D` mapping doc.
+- This is still starter drafting only, not a released slice.

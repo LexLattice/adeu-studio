@@ -1,0 +1,92 @@
+{
+  "schema": "parallel_arc_implementation_stage_report@2",
+  "report_id": "v54d_stage_007_semantic_ir_bridge",
+  "stage_name": "semantic_ir_bridge",
+  "arc_family": "V54",
+  "slice": "V54-D",
+  "arc_branch": "arc/v54-r8",
+  "feature_branch": "v148-v54d-workspace-advisory-impl-r8",
+  "worktree_path": ".",
+  "status": "completed",
+  "controlling_refs": [
+    "docs/LOCKED_CONTINUATION_vNEXT_PLUS148.md",
+    "docs/DRAFT_ADEU_HISTORY_SEMANTICS_V54D_IMPLEMENTATION_MAPPING_v0.md",
+    "docs/DRAFT_NEXT_ARC_OPTIONS_v37.md",
+    "docs/DRAFT_STOP_GATE_DECISION_vNEXT_PLUS146.md",
+    "docs/ASSESSMENT_vNEXT_PLUS146_EDGES.md"
+  ],
+  "contract_items": [
+    {
+      "contract_item": "adeu_history_workspace_question@1",
+      "status": "planned",
+      "code_surface_refs": [
+        "packages/adeu_history_semantics/src/adeu_history_semantics/models.py",
+        "packages/adeu_history_semantics/src/adeu_history_semantics/__init__.py",
+        "packages/adeu_history_semantics/src/adeu_history_semantics/export_schema.py"
+      ],
+      "planned_check_refs": [
+        "PYTHONPATH=packages/adeu_history_semantics/src .venv/bin/python -m adeu_history_semantics.export_schema",
+        "PYTHONPATH=packages/adeu_history_semantics/src .venv/bin/python -m pytest packages/adeu_history_semantics/tests/test_history_semantics_export_schema.py -q -s",
+        "PYTHONPATH=packages/adeu_history_semantics/src .venv/bin/python -m pytest packages/adeu_history_semantics/tests/test_history_semantics_v54d.py -q -s"
+      ],
+      "deferred_or_non_goal": false,
+      "evidence_ref": "artifacts/meta_loop/V54/V54-D/implementation/007_semantic_ir_bridge.md",
+      "notes": "Workspace questions remain advisory prompts only and do not alter source authority."
+    },
+    {
+      "contract_item": "adeu_history_workspace_theme_frame@1",
+      "status": "planned",
+      "code_surface_refs": [
+        "packages/adeu_history_semantics/src/adeu_history_semantics/models.py",
+        "packages/adeu_history_semantics/src/adeu_history_semantics/reconstruct.py",
+        "packages/adeu_history_semantics/src/adeu_history_semantics/__init__.py",
+        "packages/adeu_history_semantics/src/adeu_history_semantics/export_schema.py"
+      ],
+      "planned_check_refs": [
+        "PYTHONPATH=packages/adeu_history_semantics/src .venv/bin/python -m adeu_history_semantics.export_schema",
+        "PYTHONPATH=packages/adeu_history_semantics/src .venv/bin/python -m pytest packages/adeu_history_semantics/tests/test_history_semantics_v54d.py -q -s"
+      ],
+      "deferred_or_non_goal": false,
+      "evidence_ref": "artifacts/meta_loop/V54/V54-D/implementation/007_semantic_ir_bridge.md",
+      "notes": "Theme-frame lowering remains bounded to advisory frame construction and validation only."
+    },
+    {
+      "contract_item": "adeu_history_workspace_snapshot@1",
+      "status": "planned",
+      "code_surface_refs": [
+        "packages/adeu_history_semantics/src/adeu_history_semantics/models.py",
+        "packages/adeu_history_semantics/src/adeu_history_semantics/reconstruct.py",
+        "packages/adeu_history_semantics/src/adeu_history_semantics/__init__.py",
+        "packages/adeu_history_semantics/src/adeu_history_semantics/export_schema.py",
+        "packages/adeu_history_semantics/tests/test_history_semantics_v54d.py"
+      ],
+      "planned_check_refs": [
+        "PYTHONPATH=packages/adeu_history_semantics/src .venv/bin/python -m adeu_history_semantics.export_schema",
+        "PYTHONPATH=packages/adeu_history_semantics/src .venv/bin/python -m pytest packages/adeu_history_semantics/tests/test_history_semantics_v54d.py -q -s"
+      ],
+      "deferred_or_non_goal": false,
+      "evidence_ref": "artifacts/meta_loop/V54/V54-D/implementation/007_semantic_ir_bridge.md",
+      "notes": "Snapshot lowering preserves advisory reconstruction posture and forbids authority-root promotion."
+    }
+  ],
+  "declared_non_goals": [
+    "workspace questions are advisory prompts only and do not alter source authority",
+    "no downstream API/UI runtime surfaces",
+    "no corpus widening",
+    "no semantic bundle assembly",
+    "no runtime consumers",
+    "no authority-posture expansion",
+    "no V49/V52 ambient continuation claims",
+    "no ambient re-ranking or certainty scoring"
+  ],
+  "semantic_ir_conformance": "not_applicable_yet",
+  "mapping_changes": [],
+  "extra_surface_refs": [],
+  "unmapped_surface_refs": [],
+  "artifacts_produced": [
+    "artifacts/meta_loop/V54/V54-D/implementation/007_semantic_ir_bridge.md",
+    "artifacts/meta_loop/V54/V54-D/implementation/007_semantic_ir_stage_report.json"
+  ],
+  "blockers": [],
+  "notes": "Stage 1 is the authoritative implementation-lowering artifact for the bounded V54-D advisory workspace seam."
+}

@@ -1,0 +1,11 @@
+{
+  "schema": "runtime_observability_comparison@1",
+  "baseline_arc": "vNext+142",
+  "current_arc": "vNext+144",
+  "baseline_source": "artifacts/stop_gate/report_v142_closeout.md",
+  "current_source": "artifacts/stop_gate/report_v144_closeout.md",
+  "baseline_elapsed_ms": 134,
+  "current_elapsed_ms": 134,
+  "delta_ms": 0,
+  "notes": "v144 closeout keeps the frozen stop-gate schema family and exact metric keyset unchanged while shipping the released V54-B history-semantics ledger/slice/theme substrate on arc/v54-r4: one repo-owned adeu_history_semantics package only, four new bounded downstream contracts over released V54-A source and preclassification surfaces, one preclassification to one ledger-entry law, maximal contiguous same-role slice grouping, deterministic theme-term/theme-label/theme-key/supporting-term derivation with fail-closed no-term rejection, deterministic schema mirrors and v54b fixtures, and no evidence-ref O/E/D/U workspace API UI runtime or broader corpus-ingestion widening."
+}

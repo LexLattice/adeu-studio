@@ -1,0 +1,85 @@
+{
+  "schema": "parallel_arc_meta_loop_baton@1",
+  "baton_id": "baton_v54a_arc_worker_starter_draft_claim_004",
+  "baton_kind": "transition_claim",
+  "emitted_at_utc": "2026-04-06T19:27:58Z",
+  "previous_baton_id": "baton_v54a_launch_000",
+  "arc_family": "V54",
+  "slice": "V54-A",
+  "phase": "starter_review_pending",
+  "role": "arc_worker",
+  "model": "gpt-5.4",
+  "reasoning_effort": "xhigh",
+  "arc_branch": "arc/v54-r3",
+  "feature_branch": null,
+  "base_branch": "arc/v54-r3",
+  "commit_sha": null,
+  "pr_url": null,
+  "review_verdict": null,
+  "ci_status": null,
+  "controlling_refs": [
+    "docs/DRAFT_NEXT_ARC_OPTIONS_v37.md",
+    "docs/DRAFT_ADEU_HISTORY_SEMANTICS_V54_IMPLEMENTATION_MAPPING_v0.md",
+    "docs/DRAFT_ADEU_HISTORY_SEMANTICS_V54A_IMPLEMENTATION_MAPPING_v0.md",
+    "examples/external_prototypes/adeu-history-semantics-bundle/ALIGNMENT.md",
+    "examples/external_prototypes/adeu-history-semantics-bundle/CLAIMED_SCOPE.md",
+    "docs/DRAFT_PARALLEL_ARC_META_LOOP_PROTOCOL_v0.md",
+    "docs/PARALLEL_ARC_META_LOOP_BATON_v0.json"
+  ],
+  "required_outputs_claimed_satisfied": [
+    "v54_a_starter_live_bundle_docs",
+    "v54_a_slice_mapping_doc",
+    "v54_a_starter_first_draft_evidence_copies",
+    "v54_a_transition_claim_baton",
+    "v54_a_starter_draft_ready_for_conceptual_review"
+  ],
+  "unsatisfied_requirements": [
+    "v54_a_conceptual_review",
+    "v54_a_integrated_starter_bundle",
+    "v54_a_starter_commit_to_arc_branch"
+  ],
+  "status": "completed",
+  "artifacts_produced": [
+    "docs/DRAFT_NEXT_ARC_OPTIONS_v37.md",
+    "docs/LOCKED_CONTINUATION_vNEXT_PLUS142.md",
+    "docs/DRAFT_STOP_GATE_DECISION_vNEXT_PLUS142.md",
+    "docs/ASSESSMENT_vNEXT_PLUS142_EDGES.md",
+    "docs/DRAFT_ADEU_HISTORY_SEMANTICS_V54A_IMPLEMENTATION_MAPPING_v0.md",
+    "artifacts/meta_loop/V54/V54-A/starter_bundle/first_draft_DRAFT_NEXT_ARC_OPTIONS_v37.md",
+    "artifacts/meta_loop/V54/V54-A/starter_bundle/first_draft_LOCKED_CONTINUATION_vNEXT_PLUS142.md",
+    "artifacts/meta_loop/V54/V54-A/starter_bundle/first_draft_DRAFT_STOP_GATE_DECISION_vNEXT_PLUS142.md",
+    "artifacts/meta_loop/V54/V54-A/starter_bundle/first_draft_ASSESSMENT_vNEXT_PLUS142_EDGES.md",
+    "artifacts/meta_loop/V54/V54-A/starter_bundle/first_draft_DRAFT_ADEU_HISTORY_SEMANTICS_V54A_IMPLEMENTATION_MAPPING_v0.md",
+    "artifacts/meta_loop/V54/V54-A/batons/004_arc_worker_starter_draft_claim.json"
+  ],
+  "evidence_refs": [
+    "artifacts/meta_loop/V54/V54-A/batons/000_meta_orchestrator_launch_ratification.json",
+    "docs/DRAFT_NEXT_ARC_OPTIONS_v37.md",
+    "docs/LOCKED_CONTINUATION_vNEXT_PLUS142.md",
+    "docs/DRAFT_STOP_GATE_DECISION_vNEXT_PLUS142.md",
+    "docs/ASSESSMENT_vNEXT_PLUS142_EDGES.md",
+    "docs/DRAFT_ADEU_HISTORY_SEMANTICS_V54A_IMPLEMENTATION_MAPPING_v0.md",
+    "artifacts/meta_loop/V54/V54-A/starter_bundle/first_draft_DRAFT_NEXT_ARC_OPTIONS_v37.md",
+    "artifacts/meta_loop/V54/V54-A/starter_bundle/first_draft_LOCKED_CONTINUATION_vNEXT_PLUS142.md",
+    "artifacts/meta_loop/V54/V54-A/starter_bundle/first_draft_DRAFT_STOP_GATE_DECISION_vNEXT_PLUS142.md",
+    "artifacts/meta_loop/V54/V54-A/starter_bundle/first_draft_ASSESSMENT_vNEXT_PLUS142_EDGES.md",
+    "artifacts/meta_loop/V54/V54-A/starter_bundle/first_draft_DRAFT_ADEU_HISTORY_SEMANTICS_V54A_IMPLEMENTATION_MAPPING_v0.md"
+  ],
+  "checks_run": [
+    "make arc-start-check ARC=142 (failed during lint_arc_bundle startup: FileNotFoundError: repository root not found from script location; make target exited with error 2)",
+    ".venv/bin/python apps/api/scripts/lint_arc_bundle.py --arc 142 --phase start --repo-root . (pass)",
+    "make instruction-policy-check (pass)",
+    "cmp -s live starter docs against first_draft evidence copies and test -f artifacts/meta_loop/V54/V54-A/batons/004_arc_worker_starter_draft_claim.json (pass)"
+  ],
+  "checks_skipped": [
+    "make check skipped because the diff is docs/artifacts-only starter-bundle work"
+  ],
+  "blockers": [],
+  "next_allowed_actions": [
+    "spawn_v54_conceptual_reviewer_for_starter_bundle",
+    "perform_v54_a_conceptual_review_over_the_starter_docs_and_first_draft_evidence",
+    "return_review_feedback_to_arc_worker_for_targeted_starter_integration"
+  ],
+  "notes": "V54-A is drafted as a narrower starter seam: normalized source text after line-ending normalization is the only authority root, the starter domain is explicit full role-header conversation_history only, timestamp acceptance is frozen to one exact bracketed YYYY-MM-DD HH:MM prefix form, ledger and later reconstruction/workspace surfaces remain deferred, and first-draft evidence is preserved under artifacts/meta_loop/V54/V54-A/starter_bundle/. The canonical make arc-start-check helper is still blocked in this worktree because lint_arc_bundle.py repo-root discovery accepts a .git directory but the worktree exposes a .git file; the truthful substitute docs-only lint plus instruction-policy checks passed.",
+  "ratifies_baton_id": null
+}
