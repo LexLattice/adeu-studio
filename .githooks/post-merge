@@ -1,0 +1,13 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+repo_root="$(git rev-parse --show-toplevel)"
+cd "${repo_root}"
+
+if [[ ! -x ".venv/bin/python" ]]; then
+  echo "post-merge: skipping merge-post-check because .venv is missing; run 'make bootstrap'." >&2
+  exit 0
+fi
+
+echo "post-merge: running merge-post-check on merge result" >&2
+make merge-post-check

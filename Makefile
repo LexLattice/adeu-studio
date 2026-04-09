@@ -1,4 +1,4 @@
-.PHONY: bootstrap test lint format check closeout-lint semantic-closeout-lint instruction-policy-check arc-start-check arc-closeout-check
+.PHONY: bootstrap install-hooks test lint format check closeout-lint semantic-closeout-lint instruction-policy-check arc-start-check arc-closeout-check merge-post-check
 
 VENV ?= .venv
 PY := $(VENV)/bin/python
@@ -40,6 +40,10 @@ bootstrap:
 		-e packages/urm_domain_digest \
 		-e packages/urm_domain_paper \
 		-e apps/api
+	$(MAKE) install-hooks
+
+install-hooks:
+	git config core.hooksPath .githooks
 
 test:
 	$(PY) -m pytest
@@ -76,3 +80,5 @@ arc-closeout-check:
 	$(MAKE) instruction-policy-check
 
 check: lint test closeout-lint semantic-closeout-lint instruction-policy-check
+
+merge-post-check: lint

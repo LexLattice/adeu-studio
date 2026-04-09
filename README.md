@@ -44,6 +44,10 @@ make bootstrap
 make check
 ```
 
+`make bootstrap` also installs the repo-managed Git hooks path. After any local
+`git merge`, the `post-merge` hook runs `make merge-post-check` so merge-result
+lint regressions are caught before the next push.
+
 Run the API:
 
 ```bash

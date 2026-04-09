@@ -1,0 +1,7 @@
+interface:
+  display_name: "Morphic UX Frontend"
+  short_description: "Design governed evidence-first operator surfaces"
+  default_prompt: "Use $morphic-ux-frontend to design or review this frontend surface with explicit morph axes, evidence-before-commit reachability, and clear authority boundaries."
+
+policy:
+  allow_implicit_invocation: true
