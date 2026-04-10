@@ -1,12 +1,13 @@
 .PHONY: bootstrap install-hooks test lint format check closeout-lint semantic-closeout-lint instruction-policy-check arc-start-check arc-closeout-check merge-post-check
 
 VENV ?= .venv
+BOOTSTRAP_PYTHON ?= python3.14
 PY := $(VENV)/bin/python
 PIP := $(VENV)/bin/pip
 CLOSEOUT_LINT_PYTHONPATH := apps/api/src:packages/urm_runtime/src
 
 bootstrap:
-	python -m venv $(VENV)
+	$(BOOTSTRAP_PYTHON) -m venv $(VENV)
 	$(PIP) install -U pip
 	$(PIP) install \
 		-e packages/adeu_ir \

@@ -7,7 +7,7 @@ name = "adeu-repo-description"
 version = "0.0.0"
 description = "Typed ADEU repo self-description artifacts for V45-A schema-visible cataloging."
 readme = "../../README.md"
-requires-python = ">=3.11"
+requires-python = ">=3.14"
 license = { file = "../../LICENSE" }
 classifiers = [
   "License :: OSI Approved :: Apache Software License",

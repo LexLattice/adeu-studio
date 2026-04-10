@@ -7,7 +7,7 @@ name = "adeu-edge-ledger"
 version = "0.0.0"
 description = "Repo-owned ADEU edge taxonomy and applicability substrate for V53-A."
 readme = "../../README.md"
-requires-python = ">=3.11"
+requires-python = ">=3.14"
 license = { file = "../../LICENSE" }
 classifiers = [
   "License :: OSI Approved :: Apache Software License",

@@ -7,7 +7,7 @@ name = "adeu-commitments-ir"
 version = "0.0.0"
 description = "Typed ADEU commitments IR contract models + schema export."
 readme = "../../README.md"
-requires-python = ">=3.11"
+requires-python = ">=3.14"
 license = { file = "../../LICENSE" }
 classifiers = [
   "License :: OSI Approved :: Apache Software License",

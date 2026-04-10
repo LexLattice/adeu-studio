@@ -1,36 +1,9 @@
 {
-  "accepted_doc_refs": [
-    "docs/ARCHITECTURE_ADEU_ARCHITECTURE_IR_v0.md"
-  ],
+  "schema": "adeu_architecture_analysis_request@1",
   "analysis_request_id": "v41a_v88_architecture_ir_completed_runner_request_derivative",
-  "authority_boundary_policy": {
-    "inline_policy": null,
-    "policy_ref": "docs/LOCKED_CONTINUATION_vNEXT_PLUS83.md#v41a_practical_analysis_request_contract@1"
-  },
-  "captured_inputs": [],
-  "declared_non_goals": [
-    "alignment_diagnostics",
-    "practical_runner_release",
-    "remediation_planning",
-    "repo_grounded_checkpoint_oracle_reuse",
-    "repo_mutation_authority",
-    "workbench_release"
-  ],
-  "maintainer_brief_refs": [
-    "docs/DRAFT_NEXT_ARC_OPTIONS_v23.md"
-  ],
-  "notes": [
-    "v88 runner completed case over the released practical analysis stack."
-  ],
   "repo_root_ref": ".",
   "request_scope": {
-    "allowed_artifact_kinds": [
-      "configuration",
-      "documentation",
-      "source_code",
-      "test"
-    ],
-    "exclude_paths": [],
+    "subtree_root": "packages/adeu_architecture_ir/src/adeu_architecture_ir",
     "include_paths": [
       "artifacts/quality_dashboard_v83_closeout.json",
       "artifacts/stop_gate/metrics_v83_closeout.json",
@@ -40,80 +13,107 @@
       "packages/adeu_architecture_ir/tests/test_analysis_request.py",
       "packages/adeu_architecture_ir/tests/test_analysis_settlement.py"
     ],
-    "subtree_root": "packages/adeu_architecture_ir/src/adeu_architecture_ir"
-  },
-  "schema": "adeu_architecture_analysis_request@1",
-  "settlement_frame_ref": "apps/api/fixtures/architecture/vnext_plus88/completed_run_outputs/adeu_architecture_analysis_settlement_frame.json",
-  "snapshot_identity": {
-    "commit_sha": "9dc95ff9b61a05a460b8258c5d43301fb8bec19e",
-    "snapshot_manifest_hash": null,
-    "snapshot_manifest_ref": null,
-    "tree_sha": null
+    "exclude_paths": [],
+    "allowed_artifact_kinds": [
+      "configuration",
+      "documentation",
+      "source_code",
+      "test"
+    ]
   },
   "snapshot_mode": "committed_tree",
+  "snapshot_identity": {
+    "commit_sha": "2c0166f1a8bf7ad7c7703996d837c03681b46191",
+    "tree_sha": null,
+    "snapshot_manifest_ref": null,
+    "snapshot_manifest_hash": null
+  },
   "source_set": {
     "items": [
       {
-        "artifact_kind": "configuration",
         "path": "artifacts/quality_dashboard_v83_closeout.json",
+        "artifact_kind": "configuration",
         "sha256": "c70d1c4c1c60c1fd3a9f8d7b8c957320c912a3831f17ffaa4fb60d6ed4dc1bc7"
       },
       {
-        "artifact_kind": "configuration",
         "path": "artifacts/stop_gate/metrics_v83_closeout.json",
+        "artifact_kind": "configuration",
         "sha256": "55bdaa1bf91db73bebedb1afaa5060a83749ce19934fe9c908839f82e257d136"
       },
       {
-        "artifact_kind": "documentation",
         "path": "docs/ARCHITECTURE_ADEU_ARCHITECTURE_IR_v0.md",
+        "artifact_kind": "documentation",
         "sha256": "48338497f866736184a3cc1d5fa5c29f3ae2cafdb39295b98636ad69a1373fd9"
       },
       {
-        "artifact_kind": "documentation",
         "path": "docs/DRAFT_NEXT_ARC_OPTIONS_v23.md",
+        "artifact_kind": "documentation",
         "sha256": "848e1cdfb5698e32ba535764a39c1267a26cfb6a815f7966a8406c95755a43d8"
       },
       {
-        "artifact_kind": "configuration",
         "path": "packages/adeu_architecture_ir/pyproject.toml",
-        "sha256": "b697c4c47b6a074c80fb371b35855bdd6350da74590f17f1d80d745cbd02dafc"
+        "artifact_kind": "configuration",
+        "sha256": "a8d75f0603e45955764928965712b535d2eab5919d46540c18452645bc79812e"
       },
       {
-        "artifact_kind": "source_code",
         "path": "packages/adeu_architecture_ir/src/adeu_architecture_ir/__init__.py",
+        "artifact_kind": "source_code",
         "sha256": "466051eacfddd36ca2cab052fbfe85f5591fd79272d10d5aa0e5dfafa1fd2d16"
       },
       {
-        "artifact_kind": "source_code",
         "path": "packages/adeu_architecture_ir/src/adeu_architecture_ir/analysis_request.py",
+        "artifact_kind": "source_code",
         "sha256": "d7fb92a6aafc0260c0c4fc8f7ee6fb47c0b7db9a91467b24d6936a181720085d"
       },
       {
-        "artifact_kind": "source_code",
         "path": "packages/adeu_architecture_ir/src/adeu_architecture_ir/analysis_settlement.py",
+        "artifact_kind": "source_code",
         "sha256": "9e2ae229e3f2f5f19d7f462b2e115b18d29be253388b9adbbcd909bf3d8fde4a"
       },
       {
-        "artifact_kind": "source_code",
         "path": "packages/adeu_architecture_ir/src/adeu_architecture_ir/export_schema.py",
+        "artifact_kind": "source_code",
         "sha256": "babd1b68d92dfded0bd97e87dc2af9c5fd6d35e9068bde01b5df8e0a268ca03b"
       },
       {
-        "artifact_kind": "source_code",
         "path": "packages/adeu_architecture_ir/src/adeu_architecture_ir/root_family.py",
+        "artifact_kind": "source_code",
         "sha256": "98d447e946c966f1aebd333d7c23e1e332ca2e0952bda9f539d8ec68abf068d4"
       },
       {
-        "artifact_kind": "test",
         "path": "packages/adeu_architecture_ir/tests/test_analysis_request.py",
+        "artifact_kind": "test",
         "sha256": "85e7d59e95c17e0476c803efa0df3f70f4d802af882efa337cee3d75e2bf3d6a"
       },
       {
-        "artifact_kind": "test",
         "path": "packages/adeu_architecture_ir/tests/test_analysis_settlement.py",
+        "artifact_kind": "test",
         "sha256": "201b66ea0c2c57b8e5a6f8b10fca18543a8b11549b1827eee7bb0135694630ad"
       }
     ]
   },
-  "source_set_hash": "554ed5195d7e82ac78a4eb827dedb360ee573aab703fb91124c0e6b77299ecbb"
+  "source_set_hash": "f79e45fd6301a2e97480a0b006a6063b9b82faf739e1792926ad91c1c309dc18",
+  "maintainer_brief_refs": [
+    "docs/DRAFT_NEXT_ARC_OPTIONS_v23.md"
+  ],
+  "accepted_doc_refs": [
+    "docs/ARCHITECTURE_ADEU_ARCHITECTURE_IR_v0.md"
+  ],
+  "declared_non_goals": [
+    "alignment_diagnostics",
+    "practical_runner_release",
+    "remediation_planning",
+    "repo_grounded_checkpoint_oracle_reuse",
+    "repo_mutation_authority",
+    "workbench_release"
+  ],
+  "authority_boundary_policy": {
+    "policy_ref": "docs/LOCKED_CONTINUATION_vNEXT_PLUS83.md#v41a_practical_analysis_request_contract@1",
+    "inline_policy": null
+  },
+  "settlement_frame_ref": "apps/api/fixtures/architecture/vnext_plus88/completed_run_outputs/adeu_architecture_analysis_settlement_frame.json",
+  "captured_inputs": [],
+  "notes": [
+    "v88 runner completed case over the released practical analysis stack."
+  ]
 }

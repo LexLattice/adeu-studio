@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>ADEU Codex Desktop Workbench</title>
+  <meta name="description" content="ADEU Codex Desktop Workbench — minimalist, chat-first, Codex-wired operator surface for expert ADEU workflows." />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="/src/styles/index.css" />
+  <link rel="stylesheet" href="/src/styles/workbench.css" />
+  <link rel="stylesheet" href="/src/styles/conversation.css" />
+  <link rel="stylesheet" href="/src/styles/surfaces.css" />
+  <link rel="stylesheet" href="/src/styles/overlays.css" />
+</head>
+<body>
+  <div id="workbench" class="workbench-root">
+    <!-- Status Boundary Region -->
+    <header id="status-boundary-region" class="region region--status" data-region="status_boundary_region">
+    </header>
+
+    <!-- Workspace Region (Sidebar) -->
+    <aside id="workspace-region" class="region region--sidebar" data-region="workspace_region">
+    </aside>
+
+    <!-- Primary Conversation Region -->
+    <main id="conversation-region" class="region region--conversation" data-region="primary_conversation_region">
+    </main>
+
+    <!-- Context Artifact Region -->
+    <section id="context-region" class="region region--context" data-region="context_artifact_region">
+    </section>
+
+    <!-- Trust Boundary Region -->
+    <footer id="trust-boundary-region" class="region region--trust" data-region="trust_boundary_region">
+    </footer>
+
+    <!-- Transient Overlay Region (positioned absolute) -->
+    <div id="overlay-region" class="overlay-region" data-region="transient_overlay_region">
+    </div>
+  </div>
+
+  <script type="module" src="/src/main.js"></script>
+</body>
+</html>

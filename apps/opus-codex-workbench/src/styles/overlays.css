@@ -1,0 +1,288 @@
+/* ============================================================
+   Overlays — Peek, Trust Boundary Notices
+   ============================================================ */
+
+/* ---- File Peek Overlay ---- */
+.peek-overlay {
+  position: fixed;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  width: min(680px, 90vw);
+  max-height: 80vh;
+  background: var(--wb-bg-elevated);
+  border: 1px solid var(--wb-glass-border);
+  border-radius: var(--wb-radius-xl);
+  box-shadow: var(--wb-shadow-lg);
+  display: flex;
+  flex-direction: column;
+  z-index: 60;
+  animation: peekIn 0.2s ease;
+}
+
+@keyframes peekIn {
+  from { opacity: 0; transform: translate(-50%, -50%) scale(0.96); }
+  to   { opacity: 1; transform: translate(-50%, -50%) scale(1); }
+}
+
+.peek-overlay-backdrop {
+  position: fixed;
+  inset: 0;
+  background: rgba(0,0,0,0.5);
+  z-index: 55;
+  animation: fadeIn 0.15s ease;
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to   { opacity: 1; }
+}
+
+.peek-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--wb-space-3);
+  padding: var(--wb-space-3) var(--wb-space-4);
+  border-bottom: 1px solid var(--wb-glass-border);
+}
+
+.peek-header h3 {
+  margin: 0;
+  font-size: var(--wb-text-md);
+  font-weight: 600;
+  flex: 1;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.peek-close {
+  padding: 4px 8px;
+  border: 1px solid var(--wb-glass-border);
+  border-radius: var(--wb-radius-sm);
+  background: var(--wb-bg-surface);
+  color: var(--wb-text-muted);
+  cursor: pointer;
+  font-family: var(--wb-font-sans);
+  font-size: var(--wb-text-sm);
+  transition: all var(--wb-transition-fast);
+}
+
+.peek-close:hover {
+  color: var(--wb-text-primary);
+  background: var(--wb-bg-hover);
+}
+
+.peek-body {
+  flex: 1;
+  overflow: auto;
+  padding: var(--wb-space-3);
+}
+
+.peek-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: var(--wb-space-2);
+  padding: var(--wb-space-2) var(--wb-space-4) var(--wb-space-3);
+  border-top: 1px solid var(--wb-glass-border);
+}
+
+/* ---- Trust Boundary Notices ---- */
+.trust-notice {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--wb-space-2);
+  padding: var(--wb-space-1) var(--wb-space-3);
+  font-size: var(--wb-text-xs);
+  font-weight: 500;
+  border-radius: var(--wb-radius-pill);
+  animation: noticeIn 0.3s ease;
+}
+
+@keyframes noticeIn {
+  from { opacity: 0; transform: translateY(4px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+.trust-notice--writes {
+  background: var(--wb-authoritative-bg);
+  color: var(--wb-authoritative);
+  border: 1px solid var(--wb-authoritative-border);
+}
+
+.trust-notice--review {
+  background: var(--wb-warning-bg);
+  color: var(--wb-warning);
+  border: 1px solid var(--wb-warning-border);
+}
+
+.trust-notice--workflow {
+  background: var(--wb-provisional-bg);
+  color: var(--wb-provisional);
+  border: 1px solid var(--wb-provisional-border);
+}
+
+.trust-notice--terminal {
+  background: var(--wb-stale-bg);
+  color: var(--wb-text-secondary);
+  border: 1px solid var(--wb-glass-border);
+}
+
+/* ---- Origin-Attached Review Markers ---- */
+.origin-review-markers {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  padding: 6px 0;
+}
+
+.origin-review-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 3px 8px;
+  border: 1px solid var(--wb-warning-border);
+  border-radius: var(--wb-radius-pill);
+  background: var(--wb-warning-bg);
+  font-size: var(--wb-text-xs);
+  animation: noticeIn 0.2s ease;
+}
+
+.origin-review-pill-icon {
+  font-size: 10px;
+}
+
+.origin-review-pill-id {
+  font-family: var(--wb-font-mono);
+  font-size: 10px;
+  color: var(--wb-warning);
+}
+
+.origin-review-pill-goto {
+  padding: 0 4px;
+  border: none;
+  background: transparent;
+  color: var(--wb-warning);
+  cursor: pointer;
+  font-size: 12px;
+  font-weight: 600;
+  opacity: 0.7;
+  transition: opacity var(--wb-transition-fast);
+}
+
+.origin-review-pill-goto:hover {
+  opacity: 1;
+}
+
+.trust-notice-dismiss {
+  padding: 1px 6px;
+  border: none;
+  background: transparent;
+  color: inherit;
+  cursor: pointer;
+  font-size: var(--wb-text-xs);
+  opacity: 0.7;
+  font-family: var(--wb-font-sans);
+}
+
+.trust-notice-dismiss:hover {
+  opacity: 1;
+}
+
+/* ---- Confirmation Dialog ---- */
+.confirm-dialog {
+  position: fixed;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  width: min(400px, 90vw);
+  background: var(--wb-bg-elevated);
+  border: 1px solid var(--wb-glass-border);
+  border-radius: var(--wb-radius-xl);
+  box-shadow: var(--wb-shadow-lg);
+  z-index: 70;
+  animation: peekIn 0.15s ease;
+}
+
+.confirm-dialog-body {
+  padding: var(--wb-space-6);
+  display: flex;
+  flex-direction: column;
+  gap: var(--wb-space-3);
+}
+
+.confirm-dialog-title {
+  font-size: var(--wb-text-lg);
+  font-weight: 600;
+}
+
+.confirm-dialog-message {
+  font-size: var(--wb-text-md);
+  color: var(--wb-text-secondary);
+  line-height: 1.6;
+}
+
+.confirm-dialog-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: var(--wb-space-2);
+  margin-top: var(--wb-space-2);
+}
+
+/* ---- Review Target Picker (bounded overlay) ---- */
+.review-picker {
+  position: fixed;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  width: min(440px, 90vw);
+  background: var(--wb-bg-elevated);
+  border: 1px solid var(--wb-glass-border);
+  border-radius: var(--wb-radius-xl);
+  box-shadow: var(--wb-shadow-lg);
+  z-index: 60;
+  animation: peekIn 0.15s ease;
+}
+
+.review-picker-header {
+  padding: var(--wb-space-3) var(--wb-space-4);
+  border-bottom: 1px solid var(--wb-glass-border);
+}
+
+.review-picker-header h3 {
+  margin: 0;
+  font-size: var(--wb-text-md);
+  font-weight: 600;
+}
+
+.review-picker-list {
+  padding: var(--wb-space-3);
+  display: flex;
+  flex-direction: column;
+  gap: var(--wb-space-2);
+}
+
+.review-picker-target {
+  padding: var(--wb-space-3);
+  border: 1px solid var(--wb-glass-border);
+  border-radius: var(--wb-radius-md);
+  cursor: pointer;
+  transition: all var(--wb-transition-fast);
+}
+
+.review-picker-target:hover {
+  background: var(--wb-bg-hover);
+  border-color: var(--wb-accent-border);
+}
+
+.review-picker-target-name {
+  font-weight: 500;
+  font-size: var(--wb-text-md);
+}
+
+.review-picker-target-desc {
+  font-size: var(--wb-text-sm);
+  color: var(--wb-text-muted);
+  margin-top: 2px;
+}

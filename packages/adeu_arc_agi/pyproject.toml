@@ -7,7 +7,7 @@ name = "adeu-arc-agi"
 version = "0.0.0"
 description = "Typed ARC-AGI task/session packet artifacts, canonicalization, and schema export."
 readme = "../../README.md"
-requires-python = ">=3.11"
+requires-python = ">=3.14"
 license = { file = "../../LICENSE" }
 classifiers = [
   "License :: OSI Approved :: Apache Software License",

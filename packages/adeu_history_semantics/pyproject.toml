@@ -7,7 +7,7 @@ name = "adeu-history-semantics"
 version = "0.0.0"
 description = "Repo-owned ADEU history source-authority and preclassification starter contracts for V54-A."
 readme = "../../README.md"
-requires-python = ">=3.11"
+requires-python = ">=3.14"
 license = { file = "../../LICENSE" }
 classifiers = [
   "License :: OSI Approved :: Apache Software License",

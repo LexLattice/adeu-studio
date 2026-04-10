@@ -1,0 +1,173 @@
+@import "tailwindcss";
+@source "../../prototypes/**/*.{js,jsx,ts,tsx}";
+
+:root {
+  color-scheme: light;
+  --border: #e5e7eb;
+  --muted: #6b7280;
+  --bg: #ffffff;
+  --panel: #fafafa;
+  --mono: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New",
+    monospace;
+}
+
+html,
+body {
+  height: 100%;
+  margin: 0;
+  background: var(--bg);
+  font-family: ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial,
+    "Apple Color Emoji", "Segoe UI Emoji";
+  overflow-x: hidden;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+.app {
+  min-height: 100vh;
+  height: auto;
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 12px;
+  padding: 12px;
+  overflow-x: hidden;
+}
+
+.panel {
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  background: var(--panel);
+  padding: 12px;
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+}
+
+.panel h2 {
+  margin: 0 0 8px 0;
+  font-size: 14px;
+  font-weight: 600;
+}
+
+.row {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+  flex-wrap: wrap;
+}
+
+textarea {
+  width: 100%;
+  min-height: 180px;
+  resize: vertical;
+  padding: 10px;
+  border-radius: 8px;
+  border: 1px solid var(--border);
+  font-family: inherit;
+}
+
+button {
+  border: 1px solid var(--border);
+  background: white;
+  border-radius: 8px;
+  padding: 8px 10px;
+  cursor: pointer;
+  max-width: 100%;
+}
+
+button:disabled {
+  cursor: not-allowed;
+  opacity: 0.6;
+}
+
+input,
+select {
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 8px 10px;
+  background: white;
+  font-family: inherit;
+  max-width: 100%;
+}
+
+.muted {
+  color: var(--muted);
+  font-size: 12px;
+}
+
+.mono {
+  font-family: var(--mono);
+  font-size: 12px;
+}
+
+pre {
+  margin: 8px 0 0 0;
+  padding: 10px;
+  border-radius: 8px;
+  border: 1px solid var(--border);
+  background: #fff;
+  font-family: var(--mono);
+  font-size: 12px;
+  overflow: auto;
+  flex: 1;
+}
+
+.clause-preview {
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  background: #fff;
+  padding: 10px;
+  font-family: var(--mono);
+  font-size: 12px;
+  white-space: pre-wrap;
+  overflow: auto;
+  max-height: 240px;
+}
+
+mark {
+  background: #fde68a;
+  padding: 0 2px;
+  border-radius: 3px;
+}
+
+.table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+.table th,
+.table td {
+  border-bottom: 1px solid var(--border);
+  padding: 8px;
+  text-align: left;
+  vertical-align: top;
+  font-size: 12px;
+}
+
+.table th {
+  color: var(--muted);
+  font-weight: 600;
+  background: #fff;
+}
+
+.evidence-explorer-entry-list {
+  margin-top: 8px;
+  max-height: 420px;
+  overflow: auto;
+}
+
+@media (max-width: 1180px) {
+  .app {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+@media (max-width: 860px) {
+  .app {
+    grid-template-columns: minmax(0, 1fr);
+    padding: 10px;
+    gap: 10px;
+  }
+}

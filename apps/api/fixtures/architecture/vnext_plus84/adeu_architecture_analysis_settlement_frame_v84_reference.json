@@ -1,58 +1,61 @@
 {
-  "active_escalation_records": [
-    {
-      "supporting_refs": [
-        "packages/adeu_architecture_ir/pyproject.toml"
-      ],
-      "trigger_id": "impossibility_claim_without_proof"
-    },
-    {
-      "supporting_refs": [
-        "docs/DRAFT_NEXT_ARC_OPTIONS_v23.md#v41b_governance_seam"
-      ],
-      "trigger_id": "unresolved_high_impact_ambiguity"
-    }
-  ],
-  "advisory_notes": [
-    "v84 records the interpretive and entitlement seam only; observed extraction, intended compile, alignment, and runner release remain deferred."
-  ],
-  "affordance_decisions": [
-    {
-      "decision_class": "intentionally_declined",
-      "decision_id": "decision_decline_test_fallback",
-      "rationale": "The fallback test artifact is intentionally declined as an interpretive substitute because this slice must settle over the released request/doc boundary first.",
-      "target_ref": "packages/adeu_architecture_ir/tests/test_root_family.py"
-    },
-    {
-      "decision_class": "deferred",
-      "decision_id": "decision_defer_family_options_hint",
-      "rationale": "The maintainer-brief hint is recorded but deferred until settlement can discharge the remaining governance ambiguity explicitly.",
-      "target_ref": "docs/DRAFT_NEXT_ARC_OPTIONS_v23.md"
-    }
-  ],
+  "schema": "adeu_architecture_analysis_settlement_frame@1",
+  "settlement_frame_id": "v41b_v84_architecture_ir_settlement_reference",
   "analysis_request_id": "v41a_v83_architecture_ir_request_reference",
   "analysis_request_ref": "apps/api/fixtures/architecture/vnext_plus83/adeu_architecture_analysis_request_v83_reference.json",
+  "source_set_hash": "b930c873393c66bcbc942046e4e8704b1a60719d78088f448224353ec6c3b47e",
   "authority_boundary_policy": {
-    "inline_policy": null,
-    "policy_ref": "docs/LOCKED_CONTINUATION_vNEXT_PLUS83.md#v41a_practical_analysis_request_contract@1"
+    "policy_ref": "docs/LOCKED_CONTINUATION_vNEXT_PLUS83.md#v41a_practical_analysis_request_contract@1",
+    "inline_policy": null
   },
-  "blocking_lineage": [
+  "interpretation_register": [
     {
-      "blocking_kind": "unresolved_high_impact_ambiguity",
-      "blocking_ref_id": "blocking_governance_ambiguity",
-      "supporting_refs": [
+      "interpretation_id": "interpretation_request_bound_architecture_docs",
+      "summary": "Treat the released architecture doc and active family planning doc as the governing interpretation boundary for later practical analysis.",
+      "support_refs": [
+        "docs/ARCHITECTURE_ADEU_ARCHITECTURE_IR_v0.md",
+        "docs/DRAFT_NEXT_ARC_OPTIONS_v23.md"
+      ],
+      "linked_ambiguity_refs": [
         "docs/DRAFT_NEXT_ARC_OPTIONS_v23.md#v41b_governance_seam"
       ]
     },
     {
-      "blocking_kind": "claim_posture",
-      "blocking_ref_id": "blocking_unentitled_negative_claim",
-      "supporting_refs": [
-        "packages/adeu_architecture_ir/pyproject.toml"
-      ]
+      "interpretation_id": "interpretation_settlement_before_compile",
+      "summary": "Downstream observation, intended compile, and drift diagnostics remain blocked until settlement earns entitlement explicitly.",
+      "support_refs": [
+        "docs/ARCHITECTURE_ADEU_ARCHITECTURE_IR_v0.md"
+      ],
+      "linked_ambiguity_refs": []
     }
   ],
   "chosen_interpretation_id": "interpretation_request_bound_architecture_docs",
+  "unresolved_high_impact_ambiguity_refs": [
+    "docs/DRAFT_NEXT_ARC_OPTIONS_v23.md#v41b_governance_seam"
+  ],
+  "deontic_typing_register": [
+    {
+      "typing_id": "typing_architecture_doc_required",
+      "target_ref": "docs/ARCHITECTURE_ADEU_ARCHITECTURE_IR_v0.md",
+      "target_kind": "accepted_doc",
+      "deontic_class": "required",
+      "rationale": "The architecture constitution remains the primary accepted semantic source for the practical-analysis family."
+    },
+    {
+      "typing_id": "typing_family_options_optional_hint",
+      "target_ref": "docs/DRAFT_NEXT_ARC_OPTIONS_v23.md",
+      "target_kind": "maintainer_brief",
+      "deontic_class": "optional_hint",
+      "rationale": "The active family options draft guides interpretation but may still leave bounded ambiguity that blocks compile entitlement."
+    },
+    {
+      "typing_id": "typing_test_fixture_fallback",
+      "target_ref": "packages/adeu_architecture_ir/tests/test_root_family.py",
+      "target_kind": "request_named_artifact",
+      "deontic_class": "fallback_affordance",
+      "rationale": "Existing package tests are available as a fallback affordance for narrowing interpretation if explicit settlement later permits deeper checking."
+    }
+  ],
   "claim_posture_register": [
     {
       "claim_id": "claim_architecture_docs_govern_loop",
@@ -69,28 +72,18 @@
       "support_limit_class": "proof_not_attempted"
     }
   ],
-  "compile_entitlement": "blocked",
-  "deontic_typing_register": [
+  "affordance_decisions": [
     {
-      "deontic_class": "required",
-      "rationale": "The architecture constitution remains the primary accepted semantic source for the practical-analysis family.",
-      "target_kind": "accepted_doc",
-      "target_ref": "docs/ARCHITECTURE_ADEU_ARCHITECTURE_IR_v0.md",
-      "typing_id": "typing_architecture_doc_required"
-    },
-    {
-      "deontic_class": "optional_hint",
-      "rationale": "The active family options draft guides interpretation but may still leave bounded ambiguity that blocks compile entitlement.",
-      "target_kind": "maintainer_brief",
-      "target_ref": "docs/DRAFT_NEXT_ARC_OPTIONS_v23.md",
-      "typing_id": "typing_family_options_optional_hint"
-    },
-    {
-      "deontic_class": "fallback_affordance",
-      "rationale": "Existing package tests are available as a fallback affordance for narrowing interpretation if explicit settlement later permits deeper checking.",
-      "target_kind": "request_named_artifact",
+      "decision_id": "decision_decline_test_fallback",
       "target_ref": "packages/adeu_architecture_ir/tests/test_root_family.py",
-      "typing_id": "typing_test_fixture_fallback"
+      "decision_class": "intentionally_declined",
+      "rationale": "The fallback test artifact is intentionally declined as an interpretive substitute because this slice must settle over the released request/doc boundary first."
+    },
+    {
+      "decision_id": "decision_defer_family_options_hint",
+      "target_ref": "docs/DRAFT_NEXT_ARC_OPTIONS_v23.md",
+      "decision_class": "deferred",
+      "rationale": "The maintainer-brief hint is recorded but deferred until settlement can discharge the remaining governance ambiguity explicitly."
     }
   ],
   "escalation_trigger_policy": {
@@ -101,31 +94,38 @@
       "unresolved_high_impact_ambiguity"
     ]
   },
-  "interpretation_register": [
+  "active_escalation_records": [
     {
-      "interpretation_id": "interpretation_request_bound_architecture_docs",
-      "linked_ambiguity_refs": [
-        "docs/DRAFT_NEXT_ARC_OPTIONS_v23.md#v41b_governance_seam"
-      ],
-      "summary": "Treat the released architecture doc and active family planning doc as the governing interpretation boundary for later practical analysis.",
-      "support_refs": [
-        "docs/ARCHITECTURE_ADEU_ARCHITECTURE_IR_v0.md",
-        "docs/DRAFT_NEXT_ARC_OPTIONS_v23.md"
+      "trigger_id": "impossibility_claim_without_proof",
+      "supporting_refs": [
+        "packages/adeu_architecture_ir/pyproject.toml"
       ]
     },
     {
-      "interpretation_id": "interpretation_settlement_before_compile",
-      "linked_ambiguity_refs": [],
-      "summary": "Downstream observation, intended compile, and drift diagnostics remain blocked until settlement earns entitlement explicitly.",
-      "support_refs": [
-        "docs/ARCHITECTURE_ADEU_ARCHITECTURE_IR_v0.md"
+      "trigger_id": "unresolved_high_impact_ambiguity",
+      "supporting_refs": [
+        "docs/DRAFT_NEXT_ARC_OPTIONS_v23.md#v41b_governance_seam"
       ]
     }
   ],
-  "schema": "adeu_architecture_analysis_settlement_frame@1",
-  "settlement_frame_id": "v41b_v84_architecture_ir_settlement_reference",
-  "source_set_hash": "b930c873393c66bcbc942046e4e8704b1a60719d78088f448224353ec6c3b47e",
-  "unresolved_high_impact_ambiguity_refs": [
-    "docs/DRAFT_NEXT_ARC_OPTIONS_v23.md#v41b_governance_seam"
+  "compile_entitlement": "blocked",
+  "blocking_lineage": [
+    {
+      "blocking_ref_id": "blocking_governance_ambiguity",
+      "blocking_kind": "unresolved_high_impact_ambiguity",
+      "supporting_refs": [
+        "docs/DRAFT_NEXT_ARC_OPTIONS_v23.md#v41b_governance_seam"
+      ]
+    },
+    {
+      "blocking_ref_id": "blocking_unentitled_negative_claim",
+      "blocking_kind": "claim_posture",
+      "supporting_refs": [
+        "packages/adeu_architecture_ir/pyproject.toml"
+      ]
+    }
+  ],
+  "advisory_notes": [
+    "v84 records the interpretive and entitlement seam only; observed extraction, intended compile, alignment, and runner release remain deferred."
   ]
 }

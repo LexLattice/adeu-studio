@@ -7,7 +7,7 @@ name = "urm-domain-paper"
 version = "0.0.0"
 description = "Paper abstract domain-pack adapters for URM runtime."
 readme = "../../README.md"
-requires-python = ">=3.11"
+requires-python = ">=3.14"
 license = { file = "../../LICENSE" }
 classifiers = [
   "License :: OSI Approved :: Apache Software License",
