@@ -22,6 +22,6 @@ child.on("exit", (code, signal) => {
 });
 
 child.on("error", (error) => {
-  console.error(error);
+  console.error("Failed to launch Electron child process.", error);
   process.exit(1);
 });

@@ -1,39 +1,34 @@
 {
-  "alignment_report_id": "v41e_v87_packages_adeu_architecture_ir_src_adeu_architecture_ir_alignment_report",
-  "alignment_report_ref": "apps/api/fixtures/architecture/vnext_plus88/completed_run_outputs/adeu_architecture_alignment_report.json",
+  "schema": "adeu_architecture_analysis_run_manifest@1",
+  "run_id": "run_v88_f444befe9909aea002a461074a5017a0",
+  "runner": {
+    "name": "adeu_architecture_compiler.v41f",
+    "version": "1",
+    "mode": "cli_first",
+    "contract_source": "docs/LOCKED_CONTINUATION_vNEXT_PLUS88.md#v88-continuation-contract-machine-checkable"
+  },
+  "repo_root_ref": ".",
+  "output_root_ref": "apps/api/fixtures/architecture/vnext_plus88/completed_run_outputs",
+  "runtime_evidence_root_ref": "apps/api/fixtures/architecture/vnext_plus88/completed_run_runtime",
   "analysis_request_id": "v41a_v88_architecture_ir_completed_runner_request_derivative",
   "analysis_request_ref": "apps/api/fixtures/architecture/vnext_plus88/completed_run_outputs/adeu_architecture_analysis_request.json",
+  "settlement_frame_id": "v41b_v88_architecture_ir_completed_runner_settlement_derivative",
+  "settlement_frame_ref": "apps/api/fixtures/architecture/vnext_plus88/completed_run_outputs/adeu_architecture_analysis_settlement_frame.json",
+  "observation_frame_id": "v41b_v88_architecture_ir_completed_runner_observation_derivative",
+  "observation_frame_ref": "apps/api/fixtures/architecture/vnext_plus88/completed_run_outputs/adeu_architecture_observation_frame.json",
+  "semantic_ir_id": "asir_v86_packages_adeu_architecture_ir_src_adeu_architecture_ir_repo_grounded_compile",
+  "semantic_ir_ref": "apps/api/fixtures/architecture/vnext_plus88/completed_run_outputs/adeu_architecture_semantic_ir.json",
+  "alignment_report_id": "v41e_v87_packages_adeu_architecture_ir_src_adeu_architecture_ir_alignment_report",
+  "alignment_report_ref": "apps/api/fixtures/architecture/vnext_plus88/completed_run_outputs/adeu_architecture_alignment_report.json",
   "architecture_id": "asir_v86_packages_adeu_architecture_ir_src_adeu_architecture_ir_repo_grounded_compile",
+  "semantic_hash": "d8a284ae3b5930320713c61ad0f21289b9c75ab664aa72f5265eba211a1c269a",
+  "source_set_hash": "f79e45fd6301a2e97480a0b006a6063b9b82faf739e1792926ad91c1c309dc18",
   "authority_boundary_policy": {
     "policy_ref": "docs/LOCKED_CONTINUATION_vNEXT_PLUS83.md#v41a_practical_analysis_request_contract@1"
   },
-  "emitted_artifact_refs": [
-    "apps/api/fixtures/architecture/vnext_plus88/completed_run_outputs/adeu_architecture_analysis_request.json",
-    "apps/api/fixtures/architecture/vnext_plus88/completed_run_outputs/adeu_architecture_analysis_settlement_frame.json",
-    "apps/api/fixtures/architecture/vnext_plus88/completed_run_outputs/adeu_architecture_observation_frame.json",
-    "apps/api/fixtures/architecture/vnext_plus88/completed_run_outputs/adeu_architecture_semantic_ir.json",
-    "apps/api/fixtures/architecture/vnext_plus88/completed_run_outputs/adeu_architecture_alignment_report.json"
-  ],
-  "observation_frame_id": "v41b_v88_architecture_ir_completed_runner_observation_derivative",
-  "observation_frame_ref": "apps/api/fixtures/architecture/vnext_plus88/completed_run_outputs/adeu_architecture_observation_frame.json",
-  "output_root_ref": "apps/api/fixtures/architecture/vnext_plus88/completed_run_outputs",
-  "repo_root_ref": ".",
-  "run_id": "run_v88_f444befe9909aea002a461074a5017a0",
   "run_outcome": "completed",
-  "runner": {
-    "contract_source": "docs/LOCKED_CONTINUATION_vNEXT_PLUS88.md#v88-continuation-contract-machine-checkable",
-    "mode": "cli_first",
-    "name": "adeu_architecture_compiler.v41f",
-    "version": "1"
-  },
-  "runtime_evidence_root_ref": "apps/api/fixtures/architecture/vnext_plus88/completed_run_runtime",
-  "schema": "adeu_architecture_analysis_run_manifest@1",
-  "semantic_hash": "823304b9af347c68ffbb8791a364826dd396338fd04cc5e0e1c2401045b623aa",
-  "semantic_ir_id": "asir_v86_packages_adeu_architecture_ir_src_adeu_architecture_ir_repo_grounded_compile",
-  "semantic_ir_ref": "apps/api/fixtures/architecture/vnext_plus88/completed_run_outputs/adeu_architecture_semantic_ir.json",
-  "settlement_frame_id": "v41b_v88_architecture_ir_completed_runner_settlement_derivative",
-  "settlement_frame_ref": "apps/api/fixtures/architecture/vnext_plus88/completed_run_outputs/adeu_architecture_analysis_settlement_frame.json",
-  "source_set_hash": "554ed5195d7e82ac78a4eb827dedb360ee573aab703fb91124c0e6b77299ecbb",
+  "stop_reason_kind": "none",
+  "terminal_alignment_posture": "blocked",
   "stage_statuses": [
     {
       "stage_id": "request",
@@ -60,6 +55,11 @@
       "stage_state": "completed"
     }
   ],
-  "stop_reason_kind": "none",
-  "terminal_alignment_posture": "blocked"
+  "emitted_artifact_refs": [
+    "apps/api/fixtures/architecture/vnext_plus88/completed_run_outputs/adeu_architecture_analysis_request.json",
+    "apps/api/fixtures/architecture/vnext_plus88/completed_run_outputs/adeu_architecture_analysis_settlement_frame.json",
+    "apps/api/fixtures/architecture/vnext_plus88/completed_run_outputs/adeu_architecture_observation_frame.json",
+    "apps/api/fixtures/architecture/vnext_plus88/completed_run_outputs/adeu_architecture_semantic_ir.json",
+    "apps/api/fixtures/architecture/vnext_plus88/completed_run_outputs/adeu_architecture_alignment_report.json"
+  ]
 }

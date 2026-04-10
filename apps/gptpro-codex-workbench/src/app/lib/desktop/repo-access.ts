@@ -1,7 +1,7 @@
 import { spawnSync } from "node:child_process";
 import { createHash } from "node:crypto";
 import { constants as fsConstants, existsSync } from "node:fs";
-import { access, readFile, readdir, stat } from "node:fs/promises";
+import { access, readFile, readdir, realpath, stat } from "node:fs/promises";
 import os from "node:os";
 import path from "node:path";
 
@@ -73,11 +73,22 @@ function ensureRepoRelativePath(input: string | null | undefined): string {
 function resolveRepoPath(relativePath: string): string {
   const safeRelative = ensureRepoRelativePath(relativePath);
   const resolved = path.resolve(REPO_ROOT, safeRelative);
-  const relative = path.relative(REPO_ROOT, resolved);
+  assertWithinRepoRoot(resolved);
+  return resolved;
+}
+
+function assertWithinRepoRoot(targetPath: string): void {
+  const relative = path.relative(REPO_ROOT, targetPath);
   if (relative.startsWith("..") || path.isAbsolute(relative)) {
     throw new Error("path escapes the repo root");
   }
-  return resolved;
+}
+
+async function resolveExistingRepoPath(relativePath: string): Promise<string> {
+  const lexicalPath = resolveRepoPath(relativePath);
+  const boundedRealPath = await realpath(lexicalPath);
+  assertWithinRepoRoot(boundedRealPath);
+  return boundedRealPath;
 }
 
 function extensionOf(name: string): string | null {
@@ -116,7 +127,7 @@ export function normalizeRepoRelativePath(input: string | null | undefined): str
 
 export async function listRepoDirectory(relativePath = ""): Promise<RepoTreeResponse> {
   const safeRelative = ensureRepoRelativePath(relativePath);
-  const absolutePath = resolveRepoPath(safeRelative);
+  const absolutePath = await resolveExistingRepoPath(safeRelative);
   const metadata = await stat(absolutePath);
   if (!metadata.isDirectory()) {
     throw new Error(`${safeRelative || "."} is not a directory`);
@@ -137,7 +148,7 @@ export async function listRepoDirectory(relativePath = ""): Promise<RepoTreeResp
     let size: number | null = null;
     if (kind !== "directory") {
       try {
-        size = (await stat(resolveRepoPath(entryRelativePath))).size;
+        size = (await stat(await resolveExistingRepoPath(entryRelativePath))).size;
       } catch {
         size = null;
       }
@@ -172,7 +183,7 @@ export async function readRepoFile(
 ): Promise<FileDocument> {
   const safeRelative = ensureRepoRelativePath(relativePath);
   if (!safeRelative) throw new Error("a file path is required");
-  const absolutePath = resolveRepoPath(safeRelative);
+  const absolutePath = await resolveExistingRepoPath(safeRelative);
   const metadata = await stat(absolutePath);
   if (!metadata.isFile()) {
     throw new Error(`${safeRelative} is not a file`);
@@ -540,8 +551,8 @@ export async function buildDiffDocument(
         "--no-index",
         "--no-color",
         "--unified=3",
-        resolveRepoPath(left.path),
-        resolveRepoPath(right.path),
+        await resolveExistingRepoPath(left.path),
+        await resolveExistingRepoPath(right.path),
       ],
       {
         cwd: REPO_ROOT,
@@ -610,7 +621,7 @@ export async function runTerminalSnapshot(
   relativeCwd = "",
 ): Promise<TerminalSnapshot> {
   const safeCwd = ensureRepoRelativePath(relativeCwd);
-  const cwd = resolveRepoPath(safeCwd);
+  const cwd = await resolveExistingRepoPath(safeCwd);
 
   if (commandId === "pwd") {
     return {

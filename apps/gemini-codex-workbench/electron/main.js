@@ -169,7 +169,7 @@ ipcMain.on('terminal.resize', (_event, cols, rows) => {
     try {
       ptyProcess.resize(cols, rows);
     } catch(e) {
-      console.log('resize issue', e);
+      console.error('resize issue', e);
     }
   }
 });

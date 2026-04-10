@@ -1,39 +1,14 @@
 {
-  "authority_boundary_policy": {
-    "deterministic_adjudicator_authoritative": true,
-    "fail_closed_on_high_impact_ambiguity": true,
-    "no_direct_brief_to_codegen": true,
-    "oracle_output_advisory_only": true,
-    "projections_may_express_but_may_not_mint_authority": true
-  },
-  "authority_crossings": [
-    "edge_request_to_compile"
-  ],
+  "schema": "adeu_architecture_boundary_graph@1",
   "boundary_graph_id": "bg_v86_packages_adeu_architecture_ir_src_adeu_architecture_ir_repo_grounded_compile",
-  "edge_set": [
-    {
-      "boundary_ref": "bnd_request_to_compile",
-      "crossing_class": "authority_crossing",
-      "edge_id": "edge_request_to_compile",
-      "from_ref": "srf_request_boundary",
-      "to_ref": "srf_intended_compile_entry"
-    },
-    {
-      "boundary_ref": "bnd_observation_to_compile",
-      "crossing_class": "sensitivity_crossing",
-      "edge_id": "edge_observation_to_compile",
-      "from_ref": "srf_observation_companion",
-      "to_ref": "srf_intended_compile_entry"
-    },
-    {
-      "boundary_ref": "bnd_compile_to_validation",
-      "crossing_class": "audit_crossing",
-      "edge_id": "edge_compile_to_validation",
-      "from_ref": "srf_intended_compile_entry",
-      "to_ref": "srf_validation_harness"
-    }
-  ],
   "intent_packet_id": "intent_v86_packages_adeu_architecture_ir_src_adeu_architecture_ir_repo_grounded_compile",
+  "authority_boundary_policy": {
+    "no_direct_brief_to_codegen": true,
+    "projections_may_express_but_may_not_mint_authority": true,
+    "deterministic_adjudicator_authoritative": true,
+    "oracle_output_advisory_only": true,
+    "fail_closed_on_high_impact_ambiguity": true
+  },
   "node_refs": [
     "act_intended_compile_engine",
     "act_maintainer_brief_author",
@@ -50,7 +25,32 @@
     "srf_request_boundary",
     "srf_validation_harness"
   ],
-  "schema": "adeu_architecture_boundary_graph@1",
+  "edge_set": [
+    {
+      "edge_id": "edge_request_to_compile",
+      "from_ref": "srf_request_boundary",
+      "to_ref": "srf_intended_compile_entry",
+      "boundary_ref": "bnd_request_to_compile",
+      "crossing_class": "authority_crossing"
+    },
+    {
+      "edge_id": "edge_observation_to_compile",
+      "from_ref": "srf_observation_companion",
+      "to_ref": "srf_intended_compile_entry",
+      "boundary_ref": "bnd_observation_to_compile",
+      "crossing_class": "sensitivity_crossing"
+    },
+    {
+      "edge_id": "edge_compile_to_validation",
+      "from_ref": "srf_intended_compile_entry",
+      "to_ref": "srf_validation_harness",
+      "boundary_ref": "bnd_compile_to_validation",
+      "crossing_class": "audit_crossing"
+    }
+  ],
+  "authority_crossings": [
+    "edge_request_to_compile"
+  ],
   "sensitivity_crossings": [
     "edge_observation_to_compile"
   ]
