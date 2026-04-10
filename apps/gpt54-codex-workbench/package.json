@@ -1,0 +1,24 @@
+{
+  "name": "gpt54-codex-workbench",
+  "private": true,
+  "version": "0.1.0",
+  "description": "GPT-5.4 Codex ADEU desktop workbench variant",
+  "license": "Apache-2.0",
+  "main": "dist/main.js",
+  "scripts": {
+    "build": "node ./scripts/build.mjs",
+    "dev": "npm run build && node ./scripts/run-electron.mjs .",
+    "start": "npm run dev",
+    "smoke": "npm run build && env OPUS_WORKBENCH_SMOKE_EXIT_MS=1500 xvfb-run -a node ./scripts/run-electron.mjs .",
+    "typecheck": "tsc --noEmit",
+    "check": "npm run typecheck && npm run build"
+  },
+  "dependencies": {
+    "electron": "^41.2.0"
+  },
+  "devDependencies": {
+    "@types/node": "^20.11.30",
+    "esbuild": "^0.25.3",
+    "typescript": "^5.4.5"
+  }
+}

@@ -1,0 +1,328 @@
+/* ============================================================
+   ADEU Codex Desktop Workbench — Design System Tokens & Base
+   Profile: adeu_codex_desktop_reference
+   ============================================================ */
+
+:root {
+  /* ---- Background & Surface ---- */
+  --wb-bg-deep:        #0b0e14;
+  --wb-bg-primary:     #0f1219;
+  --wb-bg-elevated:    #151a24;
+  --wb-bg-surface:     #1a2030;
+  --wb-bg-surface-alt: #1e2538;
+  --wb-bg-hover:       #232b3e;
+  --wb-bg-active:      #2a3550;
+
+  /* ---- Glass ---- */
+  --wb-glass:          rgba(21, 26, 36, 0.82);
+  --wb-glass-border:   rgba(255, 255, 255, 0.06);
+  --wb-glass-shine:    rgba(255, 255, 255, 0.03);
+
+  /* ---- Text ---- */
+  --wb-text-primary:   #e8ecf4;
+  --wb-text-secondary: #8b95a8;
+  --wb-text-muted:     #5a6478;
+  --wb-text-disabled:  #3a4256;
+
+  /* ---- Accent (warm amber) ---- */
+  --wb-accent:         #d4a04a;
+  --wb-accent-soft:    rgba(212, 160, 74, 0.15);
+  --wb-accent-border:  rgba(212, 160, 74, 0.25);
+  --wb-accent-text:    #e8b85c;
+
+  /* ---- Posture Colors ---- */
+  /* Advisory (blue) */
+  --wb-advisory:       #60a5fa;
+  --wb-advisory-bg:    rgba(96, 165, 250, 0.10);
+  --wb-advisory-border:rgba(96, 165, 250, 0.20);
+
+  /* Authoritative (rose) */
+  --wb-authoritative:       #f43f5e;
+  --wb-authoritative-bg:    rgba(244, 63, 94, 0.10);
+  --wb-authoritative-border:rgba(244, 63, 94, 0.25);
+
+  /* Provisional (amber) */
+  --wb-provisional:         #f59e0b;
+  --wb-provisional-bg:      rgba(245, 158, 11, 0.10);
+  --wb-provisional-border:  rgba(245, 158, 11, 0.20);
+
+  /* Warning (orange) */
+  --wb-warning:         #fb923c;
+  --wb-warning-bg:      rgba(251, 146, 60, 0.10);
+  --wb-warning-border:  rgba(251, 146, 60, 0.25);
+
+  /* Success (green) */
+  --wb-success:         #34d399;
+  --wb-success-bg:      rgba(52, 211, 153, 0.10);
+  --wb-success-border:  rgba(52, 211, 153, 0.20);
+
+  /* Stale / Disabled */
+  --wb-stale:           #6b7280;
+  --wb-stale-bg:        rgba(107, 114, 128, 0.10);
+
+  /* ---- Spacing ---- */
+  --wb-space-1: 4px;
+  --wb-space-2: 8px;
+  --wb-space-3: 12px;
+  --wb-space-4: 16px;
+  --wb-space-5: 20px;
+  --wb-space-6: 24px;
+  --wb-space-8: 32px;
+
+  /* ---- Radii ---- */
+  --wb-radius-sm: 6px;
+  --wb-radius-md: 8px;
+  --wb-radius-lg: 12px;
+  --wb-radius-xl: 16px;
+  --wb-radius-pill: 999px;
+
+  /* ---- Shadows ---- */
+  --wb-shadow-sm: 0 1px 3px rgba(0,0,0,0.3);
+  --wb-shadow-md: 0 4px 12px rgba(0,0,0,0.35);
+  --wb-shadow-lg: 0 8px 32px rgba(0,0,0,0.4);
+  --wb-shadow-glow: 0 0 24px rgba(212, 160, 74, 0.08);
+
+  /* ---- Typography ---- */
+  --wb-font-sans: 'Inter', ui-sans-serif, system-ui, -apple-system, sans-serif;
+  --wb-font-mono: 'JetBrains Mono', ui-monospace, SFMono-Regular, Menlo, Monaco, monospace;
+
+  --wb-text-xs: 11px;
+  --wb-text-sm: 12px;
+  --wb-text-base: 13px;
+  --wb-text-md: 14px;
+  --wb-text-lg: 16px;
+  --wb-text-xl: 18px;
+  --wb-text-2xl: 22px;
+
+  /* ---- Transitions ---- */
+  --wb-transition-fast: 120ms ease;
+  --wb-transition-base: 200ms ease;
+  --wb-transition-slow: 350ms cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+/* ---- Base Reset ---- */
+*, *::before, *::after {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+html, body {
+  height: 100%;
+  background: var(--wb-bg-deep);
+  color: var(--wb-text-primary);
+  font-family: var(--wb-font-sans);
+  font-size: var(--wb-text-base);
+  line-height: 1.5;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  overflow: hidden;
+}
+
+/* ---- Scrollbar Styling ---- */
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+::-webkit-scrollbar-thumb {
+  background: var(--wb-text-muted);
+  border-radius: var(--wb-radius-pill);
+}
+::-webkit-scrollbar-thumb:hover {
+  background: var(--wb-text-secondary);
+}
+
+/* ---- Utility Classes ---- */
+.mono {
+  font-family: var(--wb-font-mono);
+  font-size: var(--wb-text-sm);
+}
+
+.label {
+  font-size: var(--wb-text-xs);
+  font-weight: 500;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: var(--wb-text-muted);
+}
+
+.badge {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--wb-space-1);
+  padding: 2px 8px;
+  border-radius: var(--wb-radius-pill);
+  font-size: var(--wb-text-xs);
+  font-weight: 500;
+  line-height: 1.5;
+}
+
+.badge--accent {
+  background: var(--wb-accent-soft);
+  color: var(--wb-accent-text);
+  border: 1px solid var(--wb-accent-border);
+}
+
+.badge--advisory {
+  background: var(--wb-advisory-bg);
+  color: var(--wb-advisory);
+  border: 1px solid var(--wb-advisory-border);
+}
+
+.badge--authoritative {
+  background: var(--wb-authoritative-bg);
+  color: var(--wb-authoritative);
+  border: 1px solid var(--wb-authoritative-border);
+}
+
+.badge--provisional {
+  background: var(--wb-provisional-bg);
+  color: var(--wb-provisional);
+  border: 1px solid var(--wb-provisional-border);
+}
+
+.badge--warning {
+  background: var(--wb-warning-bg);
+  color: var(--wb-warning);
+  border: 1px solid var(--wb-warning-border);
+}
+
+.badge--success {
+  background: var(--wb-success-bg);
+  color: var(--wb-success);
+  border: 1px solid var(--wb-success-border);
+}
+
+.badge--stale {
+  background: var(--wb-stale-bg);
+  color: var(--wb-stale);
+}
+
+/* ---- Buttons ---- */
+.btn {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--wb-space-2);
+  padding: 6px 12px;
+  border: 1px solid var(--wb-glass-border);
+  border-radius: var(--wb-radius-md);
+  background: var(--wb-bg-surface);
+  color: var(--wb-text-primary);
+  font-family: var(--wb-font-sans);
+  font-size: var(--wb-text-sm);
+  font-weight: 500;
+  cursor: pointer;
+  transition: all var(--wb-transition-fast);
+  white-space: nowrap;
+  user-select: none;
+}
+
+.btn:hover {
+  background: var(--wb-bg-hover);
+  border-color: rgba(255,255,255,0.10);
+}
+
+.btn:active {
+  background: var(--wb-bg-active);
+}
+
+.btn:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+}
+
+.btn--accent {
+  background: var(--wb-accent-soft);
+  color: var(--wb-accent-text);
+  border-color: var(--wb-accent-border);
+}
+
+.btn--accent:hover {
+  background: rgba(212, 160, 74, 0.22);
+}
+
+.btn--danger {
+  background: var(--wb-authoritative-bg);
+  color: var(--wb-authoritative);
+  border-color: var(--wb-authoritative-border);
+}
+
+.btn--danger:hover {
+  background: rgba(244, 63, 94, 0.18);
+}
+
+/* Handoff boundary buttons — visually distinct from conversation-local buttons */
+.btn--handoff {
+  background: var(--wb-warning-bg);
+  color: var(--wb-warning);
+  border: 1px dashed var(--wb-warning-border);
+  font-weight: 600;
+  letter-spacing: 0.02em;
+}
+
+.btn--handoff:hover {
+  background: rgba(251, 146, 60, 0.18);
+  border-style: solid;
+}
+
+.btn--sm {
+  padding: 3px 8px;
+  font-size: var(--wb-text-xs);
+}
+
+/* ---- Inputs ---- */
+.input {
+  width: 100%;
+  padding: 8px 12px;
+  border: 1px solid var(--wb-glass-border);
+  border-radius: var(--wb-radius-md);
+  background: var(--wb-bg-surface);
+  color: var(--wb-text-primary);
+  font-family: var(--wb-font-sans);
+  font-size: var(--wb-text-base);
+  transition: border-color var(--wb-transition-fast);
+}
+
+.input:focus {
+  outline: none;
+  border-color: var(--wb-accent-border);
+  box-shadow: 0 0 0 2px var(--wb-accent-soft);
+}
+
+.input::placeholder {
+  color: var(--wb-text-muted);
+}
+
+.select {
+  padding: 6px 10px;
+  border: 1px solid var(--wb-glass-border);
+  border-radius: var(--wb-radius-md);
+  background: var(--wb-bg-surface);
+  color: var(--wb-text-primary);
+  font-family: var(--wb-font-sans);
+  font-size: var(--wb-text-sm);
+  cursor: pointer;
+}
+
+.select:focus {
+  outline: none;
+  border-color: var(--wb-accent-border);
+}
+
+/* ---- Dot indicator ---- */
+.dot {
+  display: inline-block;
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  flex-shrink: 0;
+}
+
+.dot--green  { background: var(--wb-success); box-shadow: 0 0 6px var(--wb-success); }
+.dot--amber  { background: var(--wb-provisional); box-shadow: 0 0 6px var(--wb-provisional); }
+.dot--red    { background: var(--wb-authoritative); box-shadow: 0 0 6px var(--wb-authoritative); }
+.dot--gray   { background: var(--wb-stale); }
+.dot--blue   { background: var(--wb-advisory); box-shadow: 0 0 6px var(--wb-advisory); }

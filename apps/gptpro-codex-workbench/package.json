@@ -1,0 +1,38 @@
+{
+  "name": "gptpro-codex-workbench",
+  "private": true,
+  "version": "0.0.0",
+  "license": "Apache-2.0",
+  "scripts": {
+    "gen:types": "node scripts/gen-types.mjs",
+    "predev": "npm run gen:types",
+    "prebuild": "npm run gen:types",
+    "dev": "next dev",
+    "build": "next build",
+    "start": "next start",
+    "lint": "eslint .",
+    "test:contracts": "node --test tests/evidence-explorer-contract.test.ts",
+    "test:smoke": "node --test tests/routes.smoke.test.mjs"
+  },
+  "dependencies": {
+    "@react-three/drei": "^10.7.7",
+    "@react-three/fiber": "^9.5.0",
+    "@tailwindcss/postcss": "^4.1.14",
+    "framer-motion": "^12.23.24",
+    "next": "^16.1.6",
+    "postcss": "^8.5.8",
+    "react": "^19.2.4",
+    "react-dom": "^19.2.4",
+    "tailwindcss": "^4.1.14",
+    "three": "^0.183.2"
+  },
+  "devDependencies": {
+    "@types/node": "^20.11.30",
+    "@types/react": "^19.2.14",
+    "@types/react-dom": "^19.2.3",
+    "eslint": "^9.39.2",
+    "eslint-config-next": "^16.1.6",
+    "json-schema-to-typescript": "^15.0.4",
+    "typescript": "^5.4.5"
+  }
+}

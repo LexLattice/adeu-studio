@@ -1,0 +1,587 @@
+/* ============================================================
+   Surface Artifacts — File Tree, Terminal, Diff, Git,
+   Review, Workflow, File Viewer
+   ============================================================ */
+
+/* ---- Shared Surface Chrome ---- */
+.surface-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--wb-space-2);
+  padding-bottom: var(--wb-space-2);
+  border-bottom: 1px solid var(--wb-glass-border);
+  margin-bottom: var(--wb-space-3);
+}
+
+.surface-header h3 {
+  font-size: var(--wb-text-md);
+  font-weight: 600;
+  margin: 0;
+  display: flex;
+  align-items: center;
+  gap: var(--wb-space-2);
+}
+
+.surface-posture {
+  font-size: var(--wb-text-xs);
+  color: var(--wb-text-muted);
+  font-weight: 400;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+}
+
+/* ---- File Tree ---- */
+.file-tree {
+  display: flex;
+  flex-direction: column;
+  gap: 1px;
+  font-size: var(--wb-text-sm);
+}
+
+.tree-item {
+  display: flex;
+  align-items: center;
+  gap: var(--wb-space-2);
+  padding: 3px var(--wb-space-2);
+  padding-left: calc(var(--wb-space-4) * var(--tree-depth, 0) + var(--wb-space-2));
+  border-radius: var(--wb-radius-sm);
+  cursor: pointer;
+  transition: background var(--wb-transition-fast);
+  user-select: none;
+  color: var(--wb-text-secondary);
+}
+
+.tree-item:hover {
+  background: var(--wb-bg-hover);
+  color: var(--wb-text-primary);
+}
+
+.tree-item--selected {
+  background: var(--wb-accent-soft);
+  color: var(--wb-accent-text);
+}
+
+.tree-item--dir {
+  color: var(--wb-text-primary);
+  font-weight: 500;
+}
+
+.tree-icon {
+  flex-shrink: 0;
+  width: 14px;
+  text-align: center;
+  font-size: var(--wb-text-xs);
+  opacity: 0.6;
+}
+
+.tree-name {
+  flex: 1;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.tree-context-actions {
+  display: flex;
+  gap: 2px;
+  opacity: 0;
+  transition: opacity var(--wb-transition-fast);
+}
+
+.tree-item:hover .tree-context-actions {
+  opacity: 1;
+}
+
+.tree-session-marker {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 22px;
+  height: 18px;
+  padding: 0 6px;
+  border-radius: var(--wb-radius-pill);
+  border: 1px solid var(--wb-warning-border);
+  background: var(--wb-warning-bg);
+  color: var(--wb-warning);
+  font-size: 10px;
+  font-weight: 600;
+  font-family: var(--wb-font-mono);
+}
+
+.tree-session-marker--current {
+  border-color: var(--wb-accent-border);
+  background: var(--wb-accent-soft);
+  color: var(--wb-accent-text);
+}
+
+/* ---- File Viewer ---- */
+.file-viewer {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+}
+
+.file-viewer-header {
+  display: flex;
+  align-items: center;
+  gap: var(--wb-space-2);
+  padding-bottom: var(--wb-space-2);
+  border-bottom: 1px solid var(--wb-glass-border);
+  margin-bottom: var(--wb-space-2);
+}
+
+.file-viewer-path {
+  font-family: var(--wb-font-mono);
+  font-size: var(--wb-text-sm);
+  color: var(--wb-text-secondary);
+  flex: 1;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.file-viewer-content {
+  flex: 1;
+  overflow: auto;
+  font-family: var(--wb-font-mono);
+  font-size: var(--wb-text-sm);
+  line-height: 1.7;
+  background: var(--wb-bg-deep);
+  border-radius: var(--wb-radius-md);
+  padding: var(--wb-space-3);
+}
+
+.file-line {
+  display: flex;
+  gap: var(--wb-space-3);
+}
+
+.file-line-num {
+  min-width: 32px;
+  text-align: right;
+  color: var(--wb-text-muted);
+  user-select: none;
+  flex-shrink: 0;
+}
+
+.file-line-content {
+  flex: 1;
+  white-space: pre;
+}
+
+/* Syntax token colors */
+.tok-keyword  { color: #c792ea; }
+.tok-string   { color: #c3e88d; }
+.tok-comment  { color: #546e7a; font-style: italic; }
+.tok-number   { color: #f78c6c; }
+.tok-function { color: #82aaff; }
+.tok-operator { color: #89ddff; }
+
+/* ---- Terminal Surface ---- */
+.terminal-surface {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+}
+
+.terminal-output {
+  flex: 1;
+  overflow: auto;
+  font-family: var(--wb-font-mono);
+  font-size: var(--wb-text-sm);
+  line-height: 1.6;
+  background: var(--wb-bg-deep);
+  border-radius: var(--wb-radius-md);
+  padding: var(--wb-space-3);
+  color: var(--wb-text-secondary);
+}
+
+.terminal-line {
+  white-space: pre-wrap;
+  word-break: break-all;
+}
+
+.terminal-line--prompt {
+  color: var(--wb-success);
+}
+
+.terminal-line--error {
+  color: var(--wb-authoritative);
+}
+
+.terminal-line--info {
+  color: var(--wb-advisory);
+}
+
+.terminal-input-row {
+  display: flex;
+  gap: var(--wb-space-2);
+  padding-top: var(--wb-space-2);
+}
+
+.terminal-input {
+  flex: 1;
+  padding: 6px 10px;
+  border: 1px solid var(--wb-glass-border);
+  border-radius: var(--wb-radius-md);
+  background: var(--wb-bg-surface);
+  color: var(--wb-success);
+  font-family: var(--wb-font-mono);
+  font-size: var(--wb-text-sm);
+}
+
+.terminal-input:focus {
+  outline: none;
+  border-color: var(--wb-success-border);
+}
+
+/* ---- Diff Surface ---- */
+.diff-surface {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+}
+
+.diff-content {
+  flex: 1;
+  overflow: auto;
+  font-family: var(--wb-font-mono);
+  font-size: var(--wb-text-sm);
+  line-height: 1.7;
+  background: var(--wb-bg-deep);
+  border-radius: var(--wb-radius-md);
+  padding: var(--wb-space-3);
+}
+
+.diff-file-header {
+  padding: var(--wb-space-2) var(--wb-space-3);
+  background: var(--wb-bg-surface-alt);
+  border-radius: var(--wb-radius-sm);
+  margin-bottom: var(--wb-space-2);
+  font-weight: 500;
+  color: var(--wb-text-primary);
+}
+
+.diff-line {
+  display: flex;
+  padding: 0 var(--wb-space-2);
+  border-radius: 2px;
+}
+
+.diff-line--add {
+  background: rgba(52, 211, 153, 0.08);
+  color: var(--wb-success);
+}
+
+.diff-line--del {
+  background: rgba(244, 63, 94, 0.08);
+  color: var(--wb-authoritative);
+}
+
+.diff-line--context {
+  color: var(--wb-text-muted);
+}
+
+.diff-line--hunk {
+  color: var(--wb-advisory);
+  font-weight: 500;
+  margin-top: var(--wb-space-2);
+}
+
+.diff-gutter {
+  min-width: 24px;
+  text-align: center;
+  color: var(--wb-text-muted);
+  user-select: none;
+  flex-shrink: 0;
+  margin-right: var(--wb-space-2);
+}
+
+/* ---- Git Status Surface ---- */
+.git-surface {
+  display: flex;
+  flex-direction: column;
+  gap: var(--wb-space-3);
+}
+
+.git-branch {
+  display: flex;
+  align-items: center;
+  gap: var(--wb-space-2);
+  font-size: var(--wb-text-md);
+  font-weight: 600;
+}
+
+.git-branch-icon {
+  color: var(--wb-advisory);
+}
+
+.git-file-list {
+  display: flex;
+  flex-direction: column;
+  gap: 1px;
+}
+
+.git-file {
+  display: flex;
+  align-items: center;
+  gap: var(--wb-space-2);
+  padding: var(--wb-space-1) var(--wb-space-2);
+  font-family: var(--wb-font-mono);
+  font-size: var(--wb-text-sm);
+  border-radius: var(--wb-radius-sm);
+}
+
+.git-file:hover {
+  background: var(--wb-bg-hover);
+}
+
+.git-file-status {
+  font-size: var(--wb-text-xs);
+  font-weight: 600;
+  width: 14px;
+  text-align: center;
+}
+
+.git-file-status--M { color: var(--wb-provisional); }
+.git-file-status--A { color: var(--wb-success); }
+.git-file-status--D { color: var(--wb-authoritative); }
+.git-file-status--U { color: var(--wb-warning); }
+
+.git-log {
+  display: flex;
+  flex-direction: column;
+  gap: var(--wb-space-2);
+}
+
+.git-log-entry {
+  padding: var(--wb-space-2) var(--wb-space-3);
+  background: var(--wb-bg-surface);
+  border-radius: var(--wb-radius-md);
+  border: 1px solid var(--wb-glass-border);
+}
+
+.git-log-hash {
+  font-family: var(--wb-font-mono);
+  font-size: var(--wb-text-xs);
+  color: var(--wb-accent-text);
+}
+
+.git-log-message {
+  font-size: var(--wb-text-sm);
+  color: var(--wb-text-primary);
+  margin-top: 2px;
+}
+
+.git-log-meta {
+  font-size: var(--wb-text-xs);
+  color: var(--wb-text-muted);
+  margin-top: 2px;
+}
+
+/* ---- Review Routing Surface ---- */
+.review-surface {
+  display: flex;
+  flex-direction: column;
+  gap: var(--wb-space-3);
+}
+
+.review-request {
+  padding: var(--wb-space-3);
+  border: 1px solid var(--wb-glass-border);
+  border-radius: var(--wb-radius-md);
+  background: var(--wb-bg-surface);
+  display: flex;
+  flex-direction: column;
+  gap: var(--wb-space-2);
+}
+
+.review-request-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.review-request-id {
+  font-family: var(--wb-font-mono);
+  font-size: var(--wb-text-xs);
+  color: var(--wb-text-muted);
+}
+
+.review-field {
+  display: flex;
+  gap: var(--wb-space-2);
+  font-size: var(--wb-text-sm);
+  align-items: baseline;
+}
+
+.review-field-label {
+  font-size: var(--wb-text-xs);
+  color: var(--wb-text-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  min-width: 80px;
+  flex-shrink: 0;
+}
+
+.review-field-value {
+  color: var(--wb-text-primary);
+  font-family: var(--wb-font-mono);
+  font-size: var(--wb-text-sm);
+}
+
+.review-returned {
+  margin-top: var(--wb-space-2);
+  padding: var(--wb-space-2) var(--wb-space-3);
+  border-radius: var(--wb-radius-md);
+  border: 1px dashed var(--wb-advisory-border);
+  background: var(--wb-advisory-bg);
+}
+
+/* ---- Workflow Dock ---- */
+.workflow-surface {
+  display: flex;
+  flex-direction: column;
+  gap: var(--wb-space-3);
+}
+
+.workflow-launcher {
+  padding: var(--wb-space-3);
+  border: 1px solid var(--wb-glass-border);
+  border-radius: var(--wb-radius-md);
+  background: var(--wb-bg-surface);
+  display: flex;
+  flex-direction: column;
+  gap: var(--wb-space-3);
+}
+
+.workflow-launcher h4 {
+  margin: 0;
+  font-size: var(--wb-text-md);
+  font-weight: 600;
+}
+
+.workflow-field {
+  display: flex;
+  flex-direction: column;
+  gap: var(--wb-space-1);
+}
+
+.workflow-field-label {
+  font-size: var(--wb-text-xs);
+  font-weight: 500;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: var(--wb-text-muted);
+}
+
+.workflow-run {
+  padding: var(--wb-space-3);
+  border: 1px solid var(--wb-glass-border);
+  border-radius: var(--wb-radius-md);
+  background: var(--wb-bg-surface);
+  display: flex;
+  flex-direction: column;
+  gap: var(--wb-space-2);
+}
+
+.workflow-run-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.workflow-run-template {
+  font-family: var(--wb-font-mono);
+  font-size: var(--wb-text-sm);
+  color: var(--wb-accent-text);
+}
+
+.workflow-run-evidence {
+  display: flex;
+  flex-direction: column;
+  gap: var(--wb-space-1);
+  padding: var(--wb-space-2) var(--wb-space-3);
+  background: var(--wb-bg-elevated);
+  border-radius: var(--wb-radius-md);
+  font-size: var(--wb-text-sm);
+}
+
+/* ---- Session List ---- */
+.session-list {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.session-item {
+  display: flex;
+  align-items: center;
+  gap: var(--wb-space-2);
+  padding: var(--wb-space-2) var(--wb-space-2);
+  border-radius: var(--wb-radius-sm);
+  cursor: default;
+  transition: background var(--wb-transition-fast);
+  font-size: var(--wb-text-sm);
+  color: var(--wb-text-secondary);
+}
+
+.session-item:hover {
+  background: var(--wb-bg-hover);
+  color: var(--wb-text-primary);
+}
+
+.session-item--active {
+  background: var(--wb-accent-soft);
+  color: var(--wb-accent-text);
+}
+
+.session-item-label {
+  flex: 1;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.session-item-time {
+  font-size: var(--wb-text-xs);
+  color: var(--wb-text-muted);
+  flex-shrink: 0;
+}
+
+.workspace-switch-row {
+  display: flex;
+  align-items: center;
+  gap: var(--wb-space-2);
+}
+
+.workspace-switch-row .select {
+  flex: 1;
+  min-width: 0;
+}
+
+.workspace-switch-note {
+  margin-top: var(--wb-space-2);
+  color: var(--wb-text-muted);
+  font-size: var(--wb-text-xs);
+  line-height: 1.4;
+}
+
+/* ---- Empty state ---- */
+.empty-state {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: var(--wb-space-2);
+  padding: var(--wb-space-8) var(--wb-space-4);
+  text-align: center;
+  color: var(--wb-text-muted);
+  font-size: var(--wb-text-sm);
+}
+
+.empty-state-icon {
+  font-size: 28px;
+  opacity: 0.4;
+}
