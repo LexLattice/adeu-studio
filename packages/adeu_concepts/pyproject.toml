@@ -7,7 +7,7 @@ name = "adeu-concepts"
 version = "0.0.0"
 description = "Typed concept composition IR + coherence checks for ADEU Studio."
 readme = "../../README.md"
-requires-python = ">=3.11"
+requires-python = ">=3.14"
 license = { file = "../../LICENSE" }
 classifiers = [
   "License :: OSI Approved :: Apache Software License",

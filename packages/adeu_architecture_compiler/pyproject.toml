@@ -7,7 +7,7 @@ name = "adeu-architecture-compiler"
 version = "0.0.0"
 description = "Deterministic ASIR assembly, conformance reporting, and gating."
 readme = "../../README.md"
-requires-python = ">=3.11"
+requires-python = ">=3.14"
 license = { file = "../../LICENSE" }
 classifiers = [
   "License :: OSI Approved :: Apache Software License",

@@ -52,7 +52,7 @@ odeu/
 ├── examples/          Fixtures, eval sets, puzzle/concept examples
 ├── .github/workflows/ CI (3-lane: Python, Lean formal, Web)
 ├── Makefile           Bootstrap, test, lint, check, arc-bundle gates
-└── pyproject.toml     Root ruff/pytest config (Python 3.11+)
+└── pyproject.toml     Root ruff/pytest config (Python 3.14+)
 ```
 
 ---
@@ -400,7 +400,7 @@ flowchart LR
 
 ### 12.1 Environment
 
-- **Python:** 3.11+ (CI uses 3.12)
+- **Python:** 3.14+ (CI uses 3.14)
 - **Node:** 20.18.0 (Web lane)
 - **Build system:** Hatchling
 - **Linter:** Ruff (E, F, W, I rules; `E741` ignored)

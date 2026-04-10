@@ -7,7 +7,7 @@ name = "adeu-semantic-source"
 version = "0.0.0"
 description = "Deterministic semantic-source parser/normalizer for ASC V32-B."
 readme = "../../README.md"
-requires-python = ">=3.11"
+requires-python = ">=3.14"
 license = { file = "../../LICENSE" }
 classifiers = [
   "License :: OSI Approved :: Apache Software License",
