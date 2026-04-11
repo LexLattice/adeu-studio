@@ -9,4 +9,4 @@ ignore = ["E741"]
 
 [tool.pytest.ini_options]
 addopts = "-q"
-norecursedirs = ["examples/external_prototypes"]
+norecursedirs = ["examples/external_prototypes", "node_modules"]
