@@ -62,6 +62,12 @@ def _write_coordinate_doc(tmp_path: Path, *, payload: dict[str, object]) -> Path
     return doc_path
 
 
+def _write_raw_doc(tmp_path: Path, *, body: str) -> Path:
+    doc_path = tmp_path / "coordinate.md"
+    doc_path.write_text(body, encoding="utf-8")
+    return doc_path
+
+
 def test_recursive_coordinate_warning_lint_passes_on_current_pilot_reports() -> None:
     completed = _run_lint()
     assert completed.returncode == 0, completed.stdout + completed.stderr
@@ -133,3 +139,44 @@ def test_recursive_coordinate_warning_lint_warns_on_invalid_occupancy(tmp_path: 
 
     assert payload["warning_count"] == 1
     assert payload["warnings"][0]["code"] == "INVALID_OCCUPANCY"
+
+
+def test_recursive_coordinate_warning_lint_ignores_malformed_non_record_block(
+    tmp_path: Path,
+) -> None:
+    doc_path = _write_raw_doc(
+        tmp_path,
+        body=(
+            "# Coordinate Test\n\n"
+            "```json\n"
+            '{\n  "schemas": ["recursive_schema_coordinate@1"],\n'
+            '  "note": "broken on purpose"\n'
+            "```\n"
+        ),
+    )
+
+    completed = _run_lint(docs=[doc_path])
+    assert completed.returncode == 0, completed.stdout + completed.stderr
+    assert completed.stderr == ""
+    payload = json.loads(completed.stdout)
+    assert payload["checked_record_count"] == 0
+    assert payload["warning_count"] == 0
+
+
+def test_recursive_coordinate_warning_lint_fails_closed_on_malformed_record_block(
+    tmp_path: Path,
+) -> None:
+    doc_path = _write_raw_doc(
+        tmp_path,
+        body=(
+            "# Coordinate Test\n\n"
+            "```json\n"
+            '{\n  "schema": "recursive_schema_coordinate@1",\n'
+            '  "placement_subject_ref": "docs/example.md"\n'
+            "```\n"
+        ),
+    )
+
+    completed = _run_lint(docs=[doc_path])
+    assert completed.returncode != 0
+    assert "invalid recursive_schema_coordinate@1 json block" in completed.stderr

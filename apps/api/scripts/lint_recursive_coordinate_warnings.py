@@ -2,6 +2,7 @@ from __future__ import annotations
 
 import argparse
 import json
+import re
 import sys
 from dataclasses import dataclass, field
 from pathlib import Path
@@ -37,6 +38,9 @@ PROMOTION_FIELD_NAMES: tuple[str, ...] = (
     "promotion_basis",
     "promotion_note",
     "promotion_requested",
+)
+COORDINATE_SCHEMA_FIELD_RE = re.compile(
+    rf'"schema"\s*:\s*"{re.escape(COORDINATE_SCHEMA)}"'
 )
 
 
@@ -170,7 +174,7 @@ def _iter_coordinate_records(*, doc_path: Path) -> list[tuple[int, dict[str, Any
         try:
             payload = json.loads(block_text)
         except json.JSONDecodeError as exc:
-            if COORDINATE_SCHEMA in block_text:
+            if _looks_like_coordinate_record_block(block_text):
                 message = (
                     f"{doc_path}: invalid {COORDINATE_SCHEMA} json block at "
                     f"index {block_index}: {exc}"
@@ -184,6 +188,10 @@ def _iter_coordinate_records(*, doc_path: Path) -> list[tuple[int, dict[str, Any
         if payload.get("schema") == COORDINATE_SCHEMA:
             records.append((block_index, payload))
     return records
+
+
+def _looks_like_coordinate_record_block(block_text: str) -> bool:
+    return COORDINATE_SCHEMA_FIELD_RE.search(block_text) is not None
 
 
 def _warn_missing_placement_basis(
