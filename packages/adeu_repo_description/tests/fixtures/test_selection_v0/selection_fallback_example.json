@@ -1,0 +1,89 @@
+{
+  "schema": "repo_test_selection_plan@2",
+  "selection_algorithm": "dependency_witness_selector_v0_2",
+  "repo_root": "<repo-root>",
+  "changed_paths": [
+    "packages/pkg_a/src/pkg_a/latent.py"
+  ],
+  "dependency_class_statuses": [
+    {
+      "witness_id": "owner_fallback:packages/pkg_a:pkg_a.latent",
+      "dependency_class": "package_local_blast_radius",
+      "subject": "packages/pkg_a",
+      "status": "unknown",
+      "detail": "no direct dependency evidence was recovered for the changed source module; widening to owner tests",
+      "related_tests": [
+        "packages/pkg_a/tests/test_api.py",
+        "packages/pkg_a/tests/test_smoke.py"
+      ],
+      "changed_paths": [
+        "packages/pkg_a/src/pkg_a/latent.py"
+      ]
+    },
+    {
+      "witness_id": "source_module:pkg_a.latent",
+      "dependency_class": "source_module",
+      "subject": "packages/pkg_a/src/pkg_a/latent.py",
+      "status": "changed",
+      "detail": "changed source module pkg_a.latent propagates through recovered imports",
+      "related_tests": [],
+      "changed_paths": [
+        "packages/pkg_a/src/pkg_a/latent.py"
+      ]
+    }
+  ],
+  "evidence_selected_test_paths": [],
+  "fallback_selected_test_paths": [
+    "packages/pkg_a/tests/test_api.py",
+    "packages/pkg_a/tests/test_smoke.py"
+  ],
+  "escalation_selected_test_paths": [],
+  "selected_test_paths": [
+    "packages/pkg_a/tests/test_api.py",
+    "packages/pkg_a/tests/test_smoke.py"
+  ],
+  "skipped_test_paths": [],
+  "selection_reasons": [
+    {
+      "test_path": "packages/pkg_a/tests/test_api.py",
+      "selection_stage": "fallback",
+      "reason_kind": "owner_fallback_widening",
+      "dependency_class": "package_local_blast_radius",
+      "witness_id": "owner_fallback:packages/pkg_a:pkg_a.latent",
+      "detail": "no direct dependency evidence was recovered for the changed source module; widening to owner tests",
+      "changed_paths": [
+        "packages/pkg_a/src/pkg_a/latent.py"
+      ]
+    },
+    {
+      "test_path": "packages/pkg_a/tests/test_smoke.py",
+      "selection_stage": "fallback",
+      "reason_kind": "owner_fallback_widening",
+      "dependency_class": "package_local_blast_radius",
+      "witness_id": "owner_fallback:packages/pkg_a:pkg_a.latent",
+      "detail": "no direct dependency evidence was recovered for the changed source module; widening to owner tests",
+      "changed_paths": [
+        "packages/pkg_a/src/pkg_a/latent.py"
+      ]
+    }
+  ],
+  "risk_posture": "widened",
+  "full_suite_recommended": false,
+  "escalation_reasons": [],
+  "out_of_scope_changed_paths": [],
+  "warnings": [],
+  "pytest_args": [
+    "packages/pkg_a/tests/test_api.py",
+    "packages/pkg_a/tests/test_smoke.py"
+  ],
+  "summary": {
+    "selected_test_count": 2,
+    "evidence_selected_test_count": 0,
+    "fallback_selected_test_count": 2,
+    "escalation_selected_test_count": 0,
+    "skipped_test_count": 0,
+    "unknown_witness_count": 1,
+    "changed_witness_count": 1,
+    "out_of_scope_changed_path_count": 0
+  }
+}

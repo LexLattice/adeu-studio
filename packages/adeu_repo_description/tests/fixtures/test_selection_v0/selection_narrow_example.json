@@ -1,0 +1,65 @@
+{
+  "schema": "repo_test_selection_plan@2",
+  "selection_algorithm": "dependency_witness_selector_v0_2",
+  "repo_root": "<repo-root>",
+  "changed_paths": [
+    "packages/pkg_a/src/pkg_a/core.py"
+  ],
+  "dependency_class_statuses": [
+    {
+      "witness_id": "source_module:pkg_a.core",
+      "dependency_class": "source_module",
+      "subject": "packages/pkg_a/src/pkg_a/core.py",
+      "status": "changed",
+      "detail": "changed source module pkg_a.core propagates through recovered imports",
+      "related_tests": [
+        "packages/pkg_b/tests/test_service.py"
+      ],
+      "changed_paths": [
+        "packages/pkg_a/src/pkg_a/core.py"
+      ]
+    }
+  ],
+  "evidence_selected_test_paths": [
+    "packages/pkg_b/tests/test_service.py"
+  ],
+  "fallback_selected_test_paths": [],
+  "escalation_selected_test_paths": [],
+  "selected_test_paths": [
+    "packages/pkg_b/tests/test_service.py"
+  ],
+  "skipped_test_paths": [
+    "packages/pkg_b/tests/test_other.py"
+  ],
+  "selection_reasons": [
+    {
+      "test_path": "packages/pkg_b/tests/test_service.py",
+      "selection_stage": "evidence",
+      "reason_kind": "direct_import_dependency",
+      "dependency_class": "source_module",
+      "witness_id": "source_module:pkg_a.core",
+      "detail": "changed source module pkg_a.core propagates through recovered imports",
+      "changed_paths": [
+        "packages/pkg_a/src/pkg_a/core.py"
+      ]
+    }
+  ],
+  "risk_posture": "narrow",
+  "full_suite_recommended": false,
+  "escalation_reasons": [],
+  "out_of_scope_changed_paths": [],
+  "warnings": [],
+  "pytest_args": [
+    "packages/pkg_b/tests/test_service.py"
+  ],
+  "summary": {
+    "selected_test_count": 1,
+    "evidence_selected_test_count": 1,
+    "fallback_selected_test_count": 0,
+    "escalation_selected_test_count": 0,
+    "skipped_test_count": 1,
+    "unknown_witness_count": 0,
+    "changed_witness_count": 1,
+    "out_of_scope_changed_path_count": 0
+  }
+}

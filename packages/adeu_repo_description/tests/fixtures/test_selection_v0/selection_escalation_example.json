@@ -1,0 +1,102 @@
+{
+  "schema": "repo_test_selection_plan@2",
+  "selection_algorithm": "dependency_witness_selector_v0_2",
+  "repo_root": "<repo-root>",
+  "changed_paths": [
+    "pyproject.toml"
+  ],
+  "dependency_class_statuses": [
+    {
+      "witness_id": "escalation:full_suite",
+      "dependency_class": "escalation_rule",
+      "subject": "full_python_suite",
+      "status": "unknown",
+      "detail": "one or more widening rules require a full local Python test run",
+      "related_tests": [
+        "apps/api/tests/test_health.py",
+        "packages/pkg_a/tests/test_core.py"
+      ],
+      "changed_paths": [
+        "pyproject.toml"
+      ]
+    },
+    {
+      "witness_id": "escalation:root_config:pyproject.toml",
+      "dependency_class": "escalation_rule",
+      "subject": "full_python_suite",
+      "status": "unknown",
+      "detail": "foundational repo config changed: pyproject.toml",
+      "related_tests": [],
+      "changed_paths": [
+        "pyproject.toml"
+      ]
+    },
+    {
+      "witness_id": "root_config:pyproject.toml",
+      "dependency_class": "foundational_repo_config",
+      "subject": "pyproject.toml",
+      "status": "changed",
+      "detail": "pyproject.toml changes collection or execution posture for the repo",
+      "related_tests": [],
+      "changed_paths": [
+        "pyproject.toml"
+      ]
+    }
+  ],
+  "evidence_selected_test_paths": [],
+  "fallback_selected_test_paths": [],
+  "escalation_selected_test_paths": [
+    "apps/api/tests/test_health.py",
+    "packages/pkg_a/tests/test_core.py"
+  ],
+  "selected_test_paths": [
+    "apps/api/tests/test_health.py",
+    "packages/pkg_a/tests/test_core.py"
+  ],
+  "skipped_test_paths": [],
+  "selection_reasons": [
+    {
+      "test_path": "apps/api/tests/test_health.py",
+      "selection_stage": "escalation",
+      "reason_kind": "root_config_escalation",
+      "dependency_class": "escalation_rule",
+      "witness_id": "escalation:root_config:pyproject.toml",
+      "detail": "foundational repo config changed: pyproject.toml",
+      "changed_paths": [
+        "pyproject.toml"
+      ]
+    },
+    {
+      "test_path": "packages/pkg_a/tests/test_core.py",
+      "selection_stage": "escalation",
+      "reason_kind": "root_config_escalation",
+      "dependency_class": "escalation_rule",
+      "witness_id": "escalation:root_config:pyproject.toml",
+      "detail": "foundational repo config changed: pyproject.toml",
+      "changed_paths": [
+        "pyproject.toml"
+      ]
+    }
+  ],
+  "risk_posture": "escalated",
+  "full_suite_recommended": true,
+  "escalation_reasons": [
+    "foundational repo config changed: pyproject.toml"
+  ],
+  "out_of_scope_changed_paths": [],
+  "warnings": [],
+  "pytest_args": [
+    "apps/api/tests/test_health.py",
+    "packages/pkg_a/tests/test_core.py"
+  ],
+  "summary": {
+    "selected_test_count": 2,
+    "evidence_selected_test_count": 0,
+    "fallback_selected_test_count": 0,
+    "escalation_selected_test_count": 2,
+    "skipped_test_count": 0,
+    "unknown_witness_count": 2,
+    "changed_witness_count": 1,
+    "out_of_scope_changed_path_count": 0
+  }
+}

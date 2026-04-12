@@ -109,6 +109,21 @@ from .models import (
     validate_repo_symbol_catalog_dependency_graph_pair,
     validate_repo_test_intent_matrix_against_v45b,
 )
+from .test_selection_v0 import (
+    DEFAULT_INTENT_MATRIX_PATH,
+    build_selector_index,
+    discover_changed_paths_from_git,
+    select_python_tests_v0,
+)
+from .test_selection_v0 import (
+    SCHEMA as TEST_SELECTION_PLAN_SCHEMA,
+)
+from .test_selection_v0 import (
+    SELECTOR_VERSION as TEST_SELECTION_SELECTOR_VERSION,
+)
+from .test_selection_v0 import (
+    main as test_selection_main,
+)
 
 __all__ = [
     "RECONSTRUCTION_EQUIVALENCE_MODE",
@@ -218,6 +233,13 @@ __all__ = [
     "validate_repo_optimization_register_against_v45_baseline",
     "validate_repo_symbol_catalog_dependency_graph_pair",
     "validate_repo_test_intent_matrix_against_v45b",
+    "DEFAULT_INTENT_MATRIX_PATH",
+    "TEST_SELECTION_PLAN_SCHEMA",
+    "TEST_SELECTION_SELECTOR_VERSION",
+    "build_selector_index",
+    "discover_changed_paths_from_git",
+    "test_selection_main",
+    "select_python_tests_v0",
 ]
 
 __version__ = "0.0.0"
