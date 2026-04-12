@@ -1,0 +1,1677 @@
+--- /mnt/data/adeu_repo_orig/adeu-studio-main/packages/adeu_repo_description/src/adeu_repo_description/__init__.py	2026-04-10 18:21:07.000000000 +0000
++++ /mnt/data/adeu_repo_work/adeu-studio-main/packages/adeu_repo_description/src/adeu_repo_description/__init__.py	2026-04-11 17:53:38.986055256 +0000
+@@ -17,6 +17,15 @@
+     derive_v45e_repo_optimization_register,
+     derive_v45f_repo_descriptive_normative_binding_frame,
+ )
++from .test_selection_v0 import (
++    DEFAULT_INTENT_MATRIX_PATH,
++    SCHEMA as TEST_SELECTION_PLAN_SCHEMA,
++    SELECTOR_VERSION as TEST_SELECTION_SELECTOR_VERSION,
++    build_selector_index,
++    discover_changed_paths_from_git,
++    main as test_selection_main,
++    select_python_tests_v0,
++)
+ from .models import (
+     RECONSTRUCTION_EQUIVALENCE_MODE,
+     REPO_ARC_DEPENDENCY_REGISTER_SCHEMA,
+@@ -218,6 +227,13 @@
+     "validate_repo_optimization_register_against_v45_baseline",
+     "validate_repo_symbol_catalog_dependency_graph_pair",
+     "validate_repo_test_intent_matrix_against_v45b",
++    "DEFAULT_INTENT_MATRIX_PATH",
++    "TEST_SELECTION_PLAN_SCHEMA",
++    "TEST_SELECTION_SELECTOR_VERSION",
++    "build_selector_index",
++    "discover_changed_paths_from_git",
++    "test_selection_main",
++    "select_python_tests_v0",
+ ]
+ 
+ __version__ = "0.0.0"
+--- /dev/null	2026-04-11 17:26:05.774830649 +0000
++++ /mnt/data/adeu_repo_work/adeu-studio-main/packages/adeu_repo_description/src/adeu_repo_description/test_selection_v0.py	2026-04-11 17:58:49.970991251 +0000
+@@ -0,0 +1,1309 @@
++from __future__ import annotations
++
++import argparse
++import ast
++import json
++import re
++import subprocess
++import tomllib
++from collections import defaultdict
++from dataclasses import dataclass, field
++from pathlib import Path, PurePosixPath
++from typing import Any, Iterable, Literal
++
++from adeu_ir.repo import repo_root as canonical_repo_root
++
++WitnessStatus = Literal["identical", "changed", "unknown"]
++
++SCHEMA = "repo_test_selection_plan@1"
++SELECTOR_VERSION = "dependency_witness_selector_v0"
++DEFAULT_INTENT_MATRIX_PATH = (
++    "apps/api/fixtures/repo_description/vnext_plus103/"
++    "repo_test_intent_matrix_v103_reference.json"
++)
++ROOT_ESCALATION_PATHS = {"pyproject.toml", "Makefile"}
++RECOGNIZED_REPO_PREFIXES = (
++    "apps/",
++    "packages/",
++    "docs/",
++    "artifacts/",
++    "policy/",
++    "spec/",
++    "RequestProject/",
++)
++RECOGNIZED_ARTIFACT_ROOT_PREFIXES = (
++    "apps/api/fixtures/",
++    "apps/api/tests/fixtures/",
++    "packages/",
++    "spec/",
++    "artifacts/",
++)
++RECOGNIZED_ARTIFACT_EXTENSIONS = {
++    ".json",
++    ".toml",
++    ".yaml",
++    ".yml",
++    ".sql",
++    ".md",
++    ".txt",
++    ".csv",
++    ".patch",
++    ".svg",
++}
++FOUNDATIONAL_REVERSE_DEPENDENCY_THRESHOLD = 8
++
++
++@dataclass(frozen=True)
++class OwnerInfo:
++    owner_key: str
++    owner_kind: Literal["package", "app"]
++    distribution_name: str | None
++    import_roots: tuple[str, ...] = ()
++    src_root: str | None = None
++    tests_root: str | None = None
++    pyproject_path: str | None = None
++    scripts_root: str | None = None
++    direct_local_dependency_owners: tuple[str, ...] = ()
++    reverse_local_dependency_owners: tuple[str, ...] = ()
++
++
++@dataclass
++class SelectorIndex:
++    repo_root: Path
++    owners: dict[str, OwnerInfo]
++    all_test_paths: list[str]
++    tests_by_owner: dict[str, list[str]]
++    module_to_source_path: dict[str, str]
++    source_path_to_module: dict[str, str]
++    module_to_owner: dict[str, str]
++    reverse_source_imports: dict[str, set[str]]
++    test_imported_modules: dict[str, set[str]]
++    test_literal_paths: dict[str, set[str]]
++    test_parse_errors: dict[str, str]
++    source_parse_errors: dict[str, str]
++    intent_source_path_to_tests: dict[str, set[str]]
++    warnings: list[str] = field(default_factory=list)
++
++
++@dataclass(frozen=True)
++class SelectionReason:
++    test_path: str
++    reason_kind: str
++    dependency_class: str
++    witness_id: str
++    detail: str
++    changed_paths: tuple[str, ...] = ()
++
++    def to_dict(self) -> dict[str, Any]:
++        return {
++            "test_path": self.test_path,
++            "reason_kind": self.reason_kind,
++            "dependency_class": self.dependency_class,
++            "witness_id": self.witness_id,
++            "detail": self.detail,
++            "changed_paths": list(self.changed_paths),
++        }
++
++
++@dataclass(frozen=True)
++class DependencyWitness:
++    witness_id: str
++    dependency_class: str
++    subject: str
++    status: WitnessStatus
++    detail: str
++    related_tests: tuple[str, ...] = ()
++    changed_paths: tuple[str, ...] = ()
++
++    def to_dict(self) -> dict[str, Any]:
++        return {
++            "witness_id": self.witness_id,
++            "dependency_class": self.dependency_class,
++            "subject": self.subject,
++            "status": self.status,
++            "detail": self.detail,
++            "related_tests": list(self.related_tests),
++            "changed_paths": list(self.changed_paths),
++        }
++
++
++@dataclass
++class _Accumulator:
++    selected: set[str] = field(default_factory=set)
++    reasons_by_test: dict[str, dict[tuple[str, str, str, str], SelectionReason]] = field(
++        default_factory=lambda: defaultdict(dict)
++    )
++    witnesses: dict[str, DependencyWitness] = field(default_factory=dict)
++    warnings: list[str] = field(default_factory=list)
++    escalation_reasons: list[str] = field(default_factory=list)
++    out_of_scope_changed_paths: list[str] = field(default_factory=list)
++
++    def add_witness(self, witness: DependencyWitness) -> None:
++        existing = self.witnesses.get(witness.witness_id)
++        if existing is None:
++            self.witnesses[witness.witness_id] = witness
++            return
++        status_order = {"identical": 0, "changed": 1, "unknown": 2}
++        if status_order[witness.status] >= status_order[existing.status]:
++            merged_tests = tuple(sorted(set(existing.related_tests) | set(witness.related_tests)))
++            merged_changed = tuple(sorted(set(existing.changed_paths) | set(witness.changed_paths)))
++            self.witnesses[witness.witness_id] = DependencyWitness(
++                witness_id=witness.witness_id,
++                dependency_class=witness.dependency_class,
++                subject=witness.subject,
++                status=witness.status,
++                detail=witness.detail,
++                related_tests=merged_tests,
++                changed_paths=merged_changed,
++            )
++
++    def select_tests(
++        self,
++        *,
++        test_paths: Iterable[str],
++        reason_kind: str,
++        dependency_class: str,
++        witness_id: str,
++        detail: str,
++        changed_paths: Iterable[str],
++    ) -> None:
++        normalized_changed_paths = tuple(sorted(set(changed_paths)))
++        for test_path in sorted(set(test_paths)):
++            self.selected.add(test_path)
++            reason = SelectionReason(
++                test_path=test_path,
++                reason_kind=reason_kind,
++                dependency_class=dependency_class,
++                witness_id=witness_id,
++                detail=detail,
++                changed_paths=normalized_changed_paths,
++            )
++            key = (
++                reason.reason_kind,
++                reason.dependency_class,
++                reason.witness_id,
++                reason.detail,
++            )
++            self.reasons_by_test[test_path][key] = reason
++
++    def selection_reasons(self) -> list[dict[str, Any]]:
++        rows: list[dict[str, Any]] = []
++        for test_path in sorted(self.reasons_by_test):
++            for reason in self.reasons_by_test[test_path].values():
++                rows.append(reason.to_dict())
++        return rows
++
++
++def _normalize_repo_rel_path(value: str) -> str:
++    normalized = value.strip().replace("\\", "/")
++    if not normalized:
++        raise ValueError("path must not be empty")
++    if normalized.startswith("/"):
++        raise ValueError(f"path must be repository-relative: {value!r}")
++    pure = PurePosixPath(normalized)
++    if ".." in pure.parts:
++        raise ValueError(f"path must not contain parent traversal: {value!r}")
++    return pure.as_posix()
++
++
++def _normalize_dependency_name(raw_dependency: str) -> str:
++    match = re.match(r"^[A-Za-z0-9_.-]+", raw_dependency.strip())
++    if not match:
++        return raw_dependency.strip()
++    return match.group(0)
++
++
++def _source_module_path_for_file(*, owner: OwnerInfo, repo_rel_path: str) -> str | None:
++    if owner.src_root is None:
++        return None
++    prefix = f"{owner.src_root}/"
++    if not repo_rel_path.startswith(prefix) or not repo_rel_path.endswith(".py"):
++        return None
++    suffix = repo_rel_path[len(prefix) :]
++    if suffix == "__init__.py":
++        if not owner.import_roots:
++            return None
++        return owner.import_roots[0]
++    if suffix.endswith("/__init__.py"):
++        return suffix[: -len("/__init__.py")].replace("/", ".")
++    return suffix[: -len(".py")].replace("/", ".")
++
++
++def _parent_modules(module_path: str) -> list[str]:
++    parts = module_path.split(".")
++    parents: list[str] = []
++    for index in range(1, len(parts)):
++        parents.append(".".join(parts[:index]))
++    return parents
++
++
++def _resolve_relative_import(*, current_module: str, module: str | None, level: int) -> str | None:
++    if level == 0:
++        return module or ""
++    current_parts = current_module.split(".")
++    package_parts = current_parts if not current_module.endswith(".__init__") else current_parts[:-1]
++    if not package_parts:
++        package_parts = current_parts[:-1]
++    else:
++        package_parts = current_parts[:-1] if current_parts else []
++    ascend = level - 1
++    if ascend > len(package_parts):
++        return None
++    base_parts = package_parts[: len(package_parts) - ascend]
++    if module:
++        base_parts.extend(module.split("."))
++    return ".".join(part for part in base_parts if part)
++
++
++def _best_known_module(name: str, *, known_modules: set[str], known_roots: set[str]) -> str | None:
++    if name in known_modules:
++        return name
++    parts = name.split(".")
++    if not parts or parts[0] not in known_roots:
++        return None
++    for size in range(len(parts), 0, -1):
++        candidate = ".".join(parts[:size])
++        if candidate in known_modules:
++            return candidate
++    return parts[0] if parts[0] in known_modules else None
++
++
++def _local_module_imports_from_tree(
++    tree: ast.AST,
++    *,
++    current_module: str | None,
++    known_modules: set[str],
++    known_roots: set[str],
++) -> set[str]:
++    imported_modules: set[str] = set()
++
++    for node in ast.walk(tree):
++        if isinstance(node, ast.Import):
++            for alias in node.names:
++                candidate = _best_known_module(alias.name, known_modules=known_modules, known_roots=known_roots)
++                if candidate is not None:
++                    imported_modules.add(candidate)
++        elif isinstance(node, ast.ImportFrom):
++            if node.level:
++                if current_module is None:
++                    continue
++                resolved = _resolve_relative_import(
++                    current_module=current_module,
++                    module=node.module,
++                    level=node.level,
++                )
++                if not resolved:
++                    continue
++            else:
++                resolved = node.module or ""
++            if resolved:
++                candidate = _best_known_module(
++                    resolved,
++                    known_modules=known_modules,
++                    known_roots=known_roots,
++                )
++                if candidate is not None:
++                    imported_modules.add(candidate)
++            for alias in node.names:
++                if alias.name == "*" or not resolved:
++                    continue
++                submodule_candidate = f"{resolved}.{alias.name}"
++                candidate = _best_known_module(
++                    submodule_candidate,
++                    known_modules=known_modules,
++                    known_roots=known_roots,
++                )
++                if candidate is not None:
++                    imported_modules.add(candidate)
++
++    expanded: set[str] = set(imported_modules)
++    for module_path in list(imported_modules):
++        expanded.update(parent for parent in _parent_modules(module_path) if parent in known_modules)
++    return expanded
++
++
++def _normalize_path_fragment(value: str) -> str:
++    normalized = value.strip().replace("\\", "/")
++    while "//" in normalized:
++        normalized = normalized.replace("//", "/")
++    normalized = normalized.strip()
++    return normalized
++
++
++def _is_repo_candidate_path(candidate: str, *, repo_root: Path) -> bool:
++    if not candidate:
++        return False
++    if candidate in ROOT_ESCALATION_PATHS:
++        return True
++    if any(candidate.startswith(prefix) for prefix in RECOGNIZED_REPO_PREFIXES):
++        return (repo_root / candidate.rstrip("/")).exists()
++    return False
++
++
++def _joined_path_suffixes(node: ast.AST) -> set[str]:
++    if isinstance(node, ast.Constant) and isinstance(node.value, str):
++        normalized = _normalize_path_fragment(node.value)
++        return {normalized} if normalized else set()
++    if isinstance(node, ast.BinOp) and isinstance(node.op, ast.Div):
++        left_suffixes = _joined_path_suffixes(node.left)
++        right_suffixes = _joined_path_suffixes(node.right)
++        if not right_suffixes:
++            return set()
++        if not left_suffixes:
++            left_suffixes = {""}
++        joined: set[str] = set()
++        for left in left_suffixes:
++            for right in right_suffixes:
++                if not right:
++                    continue
++                if left:
++                    joined.add(f"{left.rstrip('/')}/{right.lstrip('/')}".rstrip("/"))
++                else:
++                    joined.add(right.rstrip("/"))
++        return joined
++    return set()
++
++
++def _literal_repo_paths_from_tree(tree: ast.AST, *, repo_root: Path) -> set[str]:
++    parent_by_id: dict[int, ast.AST] = {}
++    for parent in ast.walk(tree):
++        for child in ast.iter_child_nodes(parent):
++            parent_by_id[id(child)] = parent
++
++    candidates: set[str] = set()
++    for node in ast.walk(tree):
++        if isinstance(node, ast.Constant) and isinstance(node.value, str):
++            parent = parent_by_id.get(id(node))
++            if isinstance(parent, ast.BinOp) and isinstance(parent.op, ast.Div):
++                continue
++            normalized = _normalize_path_fragment(node.value)
++            if _is_repo_candidate_path(normalized, repo_root=repo_root):
++                candidates.add(normalized.rstrip("/"))
++        elif isinstance(node, ast.BinOp) and isinstance(node.op, ast.Div):
++            parent = parent_by_id.get(id(node))
++            if isinstance(parent, ast.BinOp) and isinstance(parent.op, ast.Div):
++                continue
++            for suffix in _joined_path_suffixes(node):
++                normalized = _normalize_path_fragment(suffix)
++                if _is_repo_candidate_path(normalized, repo_root=repo_root):
++                    candidates.add(normalized.rstrip("/"))
++    return candidates
++
++
++def _walk_python_sources(repo_root: Path, owners: dict[str, OwnerInfo]) -> tuple[dict[str, str], dict[str, str], dict[str, str]]:
++    module_to_source_path: dict[str, str] = {}
++    source_path_to_module: dict[str, str] = {}
++    module_to_owner: dict[str, str] = {}
++    for owner in owners.values():
++        if owner.src_root is None:
++            continue
++        src_root_path = repo_root / owner.src_root
++        if not src_root_path.is_dir():
++            continue
++        for file_path in sorted(src_root_path.rglob("*.py")):
++            repo_rel_path = file_path.relative_to(repo_root).as_posix()
++            module_path = _source_module_path_for_file(owner=owner, repo_rel_path=repo_rel_path)
++            if module_path is None:
++                continue
++            module_to_source_path[module_path] = repo_rel_path
++            source_path_to_module[repo_rel_path] = module_path
++            module_to_owner[module_path] = owner.owner_key
++    return module_to_source_path, source_path_to_module, module_to_owner
++
++
++def _owner_key_for_path(*, path: str, owners: dict[str, OwnerInfo]) -> str | None:
++    best_match: str | None = None
++    for owner_key in owners:
++        if path == owner_key or path.startswith(f"{owner_key}/"):
++            if best_match is None or len(owner_key) > len(best_match):
++                best_match = owner_key
++    return best_match
++
++
++def _parse_python_file(
++    path: Path,
++    *,
++    current_module: str | None,
++    known_modules: set[str],
++    known_roots: set[str],
++    repo_root: Path,
++) -> tuple[set[str], set[str], str | None]:
++    try:
++        tree = ast.parse(path.read_text(encoding="utf-8"), filename=path.as_posix())
++    except SyntaxError as exc:
++        return set(), set(), f"{type(exc).__name__}: {exc.msg}"
++
++    imported_modules = _local_module_imports_from_tree(
++        tree,
++        current_module=current_module,
++        known_modules=known_modules,
++        known_roots=known_roots,
++    )
++    literal_paths = _literal_repo_paths_from_tree(tree, repo_root=repo_root)
++    return imported_modules, literal_paths, None
++
++
++def _discover_owners(repo_root: Path) -> dict[str, OwnerInfo]:
++    pyproject_paths = sorted(repo_root.glob("packages/*/pyproject.toml")) + sorted(
++        repo_root.glob("apps/*/pyproject.toml")
++    )
++    raw_owners: dict[str, dict[str, Any]] = {}
++    distribution_to_owner: dict[str, str] = {}
++
++    for pyproject_path in pyproject_paths:
++        payload = tomllib.loads(pyproject_path.read_text(encoding="utf-8"))
++        project = payload.get("project", {})
++        owner_root = pyproject_path.parent
++        owner_key = owner_root.relative_to(repo_root).as_posix()
++        owner_kind: Literal["package", "app"] = "package" if owner_key.startswith("packages/") else "app"
++        src_root_path = owner_root / "src"
++        import_roots: list[str] = []
++        if src_root_path.is_dir():
++            for child in sorted(src_root_path.iterdir()):
++                if child.is_dir() and (child / "__init__.py").is_file():
++                    import_roots.append(child.name)
++        scripts_root = owner_root / "scripts"
++        direct_deps = [
++            _normalize_dependency_name(dependency)
++            for dependency in project.get("dependencies", [])
++            if isinstance(dependency, str)
++        ]
++        raw_owners[owner_key] = {
++            "owner_kind": owner_kind,
++            "distribution_name": project.get("name"),
++            "import_roots": tuple(import_roots),
++            "src_root": (src_root_path.relative_to(repo_root).as_posix() if src_root_path.is_dir() else None),
++            "tests_root": (
++                (owner_root / "tests").relative_to(repo_root).as_posix()
++                if (owner_root / "tests").is_dir()
++                else None
++            ),
++            "pyproject_path": pyproject_path.relative_to(repo_root).as_posix(),
++            "scripts_root": (
++                scripts_root.relative_to(repo_root).as_posix() if scripts_root.is_dir() else None
++            ),
++            "direct_deps": tuple(direct_deps),
++        }
++        distribution_name = project.get("name")
++        if isinstance(distribution_name, str) and distribution_name:
++            distribution_to_owner[distribution_name] = owner_key
++
++    reverse_dependencies: dict[str, set[str]] = defaultdict(set)
++    direct_local_dependencies: dict[str, set[str]] = defaultdict(set)
++    for owner_key, metadata in raw_owners.items():
++        for dependency_name in metadata["direct_deps"]:
++            dependency_owner = distribution_to_owner.get(dependency_name)
++            if dependency_owner is None:
++                continue
++            direct_local_dependencies[owner_key].add(dependency_owner)
++            reverse_dependencies[dependency_owner].add(owner_key)
++
++    def reverse_closure(start_owner: str) -> set[str]:
++        seen: set[str] = set()
++        stack = list(reverse_dependencies.get(start_owner, ()))
++        while stack:
++            owner_key = stack.pop()
++            if owner_key in seen:
++                continue
++            seen.add(owner_key)
++            stack.extend(reverse_dependencies.get(owner_key, ()))
++        return seen
++
++    owners: dict[str, OwnerInfo] = {}
++    for owner_key, metadata in raw_owners.items():
++        owners[owner_key] = OwnerInfo(
++            owner_key=owner_key,
++            owner_kind=metadata["owner_kind"],
++            distribution_name=metadata["distribution_name"],
++            import_roots=tuple(sorted(metadata["import_roots"])),
++            src_root=metadata["src_root"],
++            tests_root=metadata["tests_root"],
++            pyproject_path=metadata["pyproject_path"],
++            scripts_root=metadata["scripts_root"],
++            direct_local_dependency_owners=tuple(sorted(direct_local_dependencies.get(owner_key, set()))),
++            reverse_local_dependency_owners=tuple(sorted(reverse_closure(owner_key))),
++        )
++    return owners
++
++
++def build_selector_index(
++    *,
++    repo_root: Path | None = None,
++    intent_matrix_path: str | None = DEFAULT_INTENT_MATRIX_PATH,
++) -> SelectorIndex:
++    resolved_repo_root = canonical_repo_root(anchor=repo_root or Path.cwd())
++    owners = _discover_owners(resolved_repo_root)
++    module_to_source_path, source_path_to_module, module_to_owner = _walk_python_sources(
++        resolved_repo_root,
++        owners,
++    )
++    known_modules = set(module_to_source_path)
++    known_roots = {module.split(".", 1)[0] for module in known_modules}
++
++    reverse_source_imports: dict[str, set[str]] = defaultdict(set)
++    source_parse_errors: dict[str, str] = {}
++    for module_path, source_path in module_to_source_path.items():
++        imported_modules, _, parse_error = _parse_python_file(
++            resolved_repo_root / source_path,
++            current_module=module_path,
++            known_modules=known_modules,
++            known_roots=known_roots,
++            repo_root=resolved_repo_root,
++        )
++        if parse_error is not None:
++            source_parse_errors[source_path] = parse_error
++        for imported_module in imported_modules:
++            if imported_module == module_path:
++                continue
++            reverse_source_imports[imported_module].add(module_path)
++        for parent_module in _parent_modules(module_path):
++            if parent_module in known_modules and parent_module != module_path:
++                reverse_source_imports[parent_module].add(module_path)
++
++    tests_by_owner: dict[str, list[str]] = defaultdict(list)
++    all_test_paths: list[str] = []
++    test_imported_modules: dict[str, set[str]] = {}
++    test_literal_paths: dict[str, set[str]] = {}
++    test_parse_errors: dict[str, str] = {}
++    for owner in owners.values():
++        if owner.tests_root is None:
++            continue
++        tests_root_path = resolved_repo_root / owner.tests_root
++        if not tests_root_path.is_dir():
++            continue
++        for test_file in sorted(tests_root_path.rglob("test_*.py")):
++            repo_rel_path = test_file.relative_to(resolved_repo_root).as_posix()
++            all_test_paths.append(repo_rel_path)
++            tests_by_owner[owner.owner_key].append(repo_rel_path)
++            imported_modules, literal_paths, parse_error = _parse_python_file(
++                test_file,
++                current_module=None,
++                known_modules=known_modules,
++                known_roots=known_roots,
++                repo_root=resolved_repo_root,
++            )
++            test_imported_modules[repo_rel_path] = imported_modules
++            test_literal_paths[repo_rel_path] = literal_paths
++            if parse_error is not None:
++                test_parse_errors[repo_rel_path] = parse_error
++
++    intent_source_path_to_tests: dict[str, set[str]] = defaultdict(set)
++    warnings: list[str] = []
++    if intent_matrix_path is not None:
++        candidate_path = resolved_repo_root / intent_matrix_path
++        if candidate_path.is_file():
++            try:
++                payload = json.loads(candidate_path.read_text(encoding="utf-8"))
++                for entry in payload.get("test_intent_entries", []):
++                    if not isinstance(entry, dict):
++                        continue
++                    test_ref = entry.get("test_ref")
++                    guarded_surface_ref = entry.get("guarded_surface_ref")
++                    if not isinstance(test_ref, str) or not isinstance(guarded_surface_ref, dict):
++                        continue
++                    if not test_ref.startswith("test:"):
++                        continue
++                    test_path = test_ref.split(":", 1)[1].split("#", 1)[0]
++                    guard_kind = guarded_surface_ref.get("guarded_surface_ref_kind")
++                    guard_value = guarded_surface_ref.get("guarded_surface_ref_value")
++                    if not isinstance(guard_kind, str) or not isinstance(guard_value, str):
++                        continue
++                    source_path: str | None = None
++                    if guard_kind == "internal_module_boundary" and guard_value.startswith("module:"):
++                        source_path = guard_value.split(":", 1)[1]
++                    elif guard_kind == "internal_symbol" and guard_value.startswith("symbol:"):
++                        parts = guard_value.split(":")
++                        if len(parts) >= 4:
++                            source_path = ":".join(parts[1:-2])
++                    if source_path is not None:
++                        intent_source_path_to_tests[_normalize_repo_rel_path(source_path)].add(
++                            _normalize_repo_rel_path(test_path)
++                        )
++            except (json.JSONDecodeError, ValueError) as exc:
++                warnings.append(
++                    f"intent matrix ignored due to parse failure at {intent_matrix_path}: {exc}"
++                )
++        else:
++            warnings.append(f"intent matrix path not found: {intent_matrix_path}")
++
++    return SelectorIndex(
++        repo_root=resolved_repo_root,
++        owners=owners,
++        all_test_paths=sorted(all_test_paths),
++        tests_by_owner={owner_key: sorted(paths) for owner_key, paths in tests_by_owner.items()},
++        module_to_source_path=module_to_source_path,
++        source_path_to_module=source_path_to_module,
++        module_to_owner=module_to_owner,
++        reverse_source_imports={key: set(value) for key, value in reverse_source_imports.items()},
++        test_imported_modules=test_imported_modules,
++        test_literal_paths=test_literal_paths,
++        test_parse_errors=test_parse_errors,
++        source_parse_errors=source_parse_errors,
++        intent_source_path_to_tests={key: set(value) for key, value in intent_source_path_to_tests.items()},
++        warnings=warnings,
++    )
++
++
++def discover_changed_paths_from_git(
++    *,
++    repo_root: Path | None = None,
++    base_ref: str | None = None,
++    include_untracked: bool = True,
++) -> list[str]:
++    resolved_repo_root = canonical_repo_root(anchor=repo_root or Path.cwd())
++
++    def _run_git(*args: str) -> list[str]:
++        completed = subprocess.run(
++            ["git", *args],
++            cwd=resolved_repo_root,
++            check=True,
++            capture_output=True,
++            text=True,
++        )
++        return [
++            _normalize_repo_rel_path(line)
++            for line in completed.stdout.splitlines()
++            if line.strip()
++        ]
++
++    changed_paths: set[str] = set()
++    if base_ref is not None:
++        merge_base_completed = subprocess.run(
++            ["git", "merge-base", base_ref, "HEAD"],
++            cwd=resolved_repo_root,
++            check=True,
++            capture_output=True,
++            text=True,
++        )
++        merge_base = merge_base_completed.stdout.strip()
++        if not merge_base:
++            raise RuntimeError(f"git merge-base returned empty output for {base_ref!r}")
++        changed_paths.update(
++            _run_git("diff", "--name-only", "--diff-filter=ACMRD", f"{merge_base}..HEAD")
++        )
++    changed_paths.update(_run_git("diff", "--name-only", "--diff-filter=ACMRD", "HEAD"))
++    if include_untracked:
++        changed_paths.update(_run_git("ls-files", "--others", "--exclude-standard"))
++    return sorted(changed_paths)
++
++
++def _reverse_module_closure(index: SelectorIndex, starting_modules: Iterable[str]) -> set[str]:
++    seen: set[str] = set()
++    stack = list(starting_modules)
++    while stack:
++        module_path = stack.pop()
++        if module_path in seen:
++            continue
++        seen.add(module_path)
++        stack.extend(sorted(index.reverse_source_imports.get(module_path, ())))
++    return seen
++
++
++def _tests_importing_any_module(index: SelectorIndex, modules: set[str]) -> list[str]:
++    matched: list[str] = []
++    for test_path, imported_modules in index.test_imported_modules.items():
++        if imported_modules & modules:
++            matched.append(test_path)
++    return sorted(matched)
++
++
++def _tests_referencing_path(index: SelectorIndex, changed_path: str) -> list[str]:
++    changed_norm = changed_path.rstrip("/")
++    matched: list[str] = []
++    for test_path, literal_paths in index.test_literal_paths.items():
++        for literal_path in literal_paths:
++            literal_norm = literal_path.rstrip("/")
++            if (
++                literal_norm == changed_norm
++                or changed_norm.startswith(f"{literal_norm}/")
++                or literal_norm.startswith(f"{changed_norm}/")
++            ):
++                matched.append(test_path)
++                break
++    return sorted(set(matched))
++
++
++def _owner_tests(index: SelectorIndex, owner_key: str | None) -> list[str]:
++    if owner_key is None:
++        return []
++    return list(index.tests_by_owner.get(owner_key, ()))
++
++
++def _is_foundational_owner(owner: OwnerInfo) -> bool:
++    return len(owner.reverse_local_dependency_owners) >= FOUNDATIONAL_REVERSE_DEPENDENCY_THRESHOLD
++
++
++def _artifact_family_prefix(changed_path: str) -> str | None:
++    if changed_path.startswith("apps/api/fixtures/"):
++        parts = changed_path.split("/")
++        if len(parts) >= 4:
++            return "/".join(parts[:4])
++    match = re.match(r"^(packages/[^/]+/tests/fixtures(?:/[^/]+)?)", changed_path)
++    if match:
++        return match.group(1)
++    match = re.match(r"^(packages/[^/]+/schema)", changed_path)
++    if match:
++        return match.group(1)
++    if changed_path.startswith("apps/api/tests/fixtures/"):
++        parts = changed_path.split("/")
++        if len(parts) >= 4:
++            return "/".join(parts[:4])
++    return None
++
++
++def _tests_for_unknown_artifact(index: SelectorIndex, changed_path: str) -> list[str]:
++    owner_key = _owner_key_for_path(path=changed_path, owners=index.owners)
++    matched_tests = _tests_referencing_path(index, changed_path)
++    if matched_tests:
++        return matched_tests
++    family_prefix = _artifact_family_prefix(changed_path)
++    if family_prefix is not None:
++        matched_tests = _tests_referencing_path(index, family_prefix)
++        if matched_tests:
++            return matched_tests
++    if changed_path.startswith("apps/api/fixtures/"):
++        any_fixture_tests = [
++            test_path
++            for test_path, literal_paths in index.test_literal_paths.items()
++            if any(path.startswith("apps/api/fixtures/") for path in literal_paths)
++        ]
++        if any_fixture_tests:
++            return sorted(any_fixture_tests)
++    return _owner_tests(index, owner_key)
++
++
++def _record_owner_dependency_widening(
++    *,
++    accumulator: _Accumulator,
++    index: SelectorIndex,
++    owner: OwnerInfo,
++    changed_path: str,
++) -> None:
++    owner_tests = _owner_tests(index, owner.owner_key)
++    if owner_tests:
++        accumulator.select_tests(
++            test_paths=owner_tests,
++            reason_kind="owner_local_surface",
++            dependency_class="package_local_blast_radius",
++            witness_id=f"package_surface:{owner.owner_key}",
++            detail=f"{owner.owner_key} local surface changed",
++            changed_paths=[changed_path],
++        )
++        accumulator.add_witness(
++            DependencyWitness(
++                witness_id=f"package_surface:{owner.owner_key}",
++                dependency_class="package_local_blast_radius",
++                subject=owner.owner_key,
++                status="changed",
++                detail=f"{owner.owner_key} local surface changed",
++                related_tests=tuple(owner_tests),
++                changed_paths=(changed_path,),
++            )
++        )
++    for dependent_owner_key in owner.reverse_local_dependency_owners:
++        dependent_tests = _owner_tests(index, dependent_owner_key)
++        if not dependent_tests:
++            continue
++        accumulator.select_tests(
++            test_paths=dependent_tests,
++            reason_kind="reverse_owner_dependency",
++            dependency_class="reverse_local_package_dependency",
++            witness_id=f"reverse_dep:{owner.owner_key}:{dependent_owner_key}",
++            detail=f"{dependent_owner_key} depends transitively on {owner.owner_key}",
++            changed_paths=[changed_path],
++        )
++        accumulator.add_witness(
++            DependencyWitness(
++                witness_id=f"reverse_dep:{owner.owner_key}:{dependent_owner_key}",
++                dependency_class="reverse_local_package_dependency",
++                subject=f"{dependent_owner_key}<-{owner.owner_key}",
++                status="changed",
++                detail=f"{dependent_owner_key} depends transitively on {owner.owner_key}",
++                related_tests=tuple(dependent_tests),
++                changed_paths=(changed_path,),
++            )
++        )
++
++
++def _process_changed_path(index: SelectorIndex, accumulator: _Accumulator, changed_path: str) -> None:
++    matched_scope = False
++    owner_key = _owner_key_for_path(path=changed_path, owners=index.owners)
++    owner = index.owners.get(owner_key) if owner_key is not None else None
++
++    if changed_path in ROOT_ESCALATION_PATHS:
++        matched_scope = True
++        accumulator.escalation_reasons.append(f"foundational repo config changed: {changed_path}")
++        accumulator.add_witness(
++            DependencyWitness(
++                witness_id=f"root_config:{changed_path}",
++                dependency_class="foundational_repo_config",
++                subject=changed_path,
++                status="changed",
++                detail=f"{changed_path} changes collection or execution posture for the repo",
++                changed_paths=(changed_path,),
++            )
++        )
++        return
++
++    if owner is not None and owner.pyproject_path == changed_path:
++        matched_scope = True
++        accumulator.add_witness(
++            DependencyWitness(
++                witness_id=f"owner_pyproject:{owner.owner_key}",
++                dependency_class="owner_pyproject",
++                subject=changed_path,
++                status="changed",
++                detail=f"{owner.owner_key} package metadata changed",
++                changed_paths=(changed_path,),
++            )
++        )
++        _record_owner_dependency_widening(
++            accumulator=accumulator,
++            index=index,
++            owner=owner,
++            changed_path=changed_path,
++        )
++        if _is_foundational_owner(owner):
++            accumulator.escalation_reasons.append(
++                f"foundational owner metadata changed: {owner.owner_key}"
++            )
++
++    if changed_path in index.tests_by_owner.get(owner_key or "", ()) or re.match(
++        r"^(packages/[^/]+/tests|apps/[^/]+/tests)/test_.*\.py$",
++        changed_path,
++    ):
++        matched_scope = True
++        selected_test = changed_path if changed_path in index.all_test_paths else None
++        accumulator.add_witness(
++            DependencyWitness(
++                witness_id=f"test_file:{changed_path}",
++                dependency_class="changed_test_file",
++                subject=changed_path,
++                status="changed",
++                detail="pytest module changed directly",
++                related_tests=((selected_test,) if selected_test is not None else ()),
++                changed_paths=(changed_path,),
++            )
++        )
++        if selected_test is not None:
++            accumulator.select_tests(
++                test_paths=[selected_test],
++                reason_kind="changed_test_file",
++                dependency_class="changed_test_file",
++                witness_id=f"test_file:{changed_path}",
++                detail="pytest module changed directly",
++                changed_paths=[changed_path],
++            )
++
++    if owner is not None and owner.tests_root is not None:
++        tests_root_prefix = f"{owner.tests_root}/"
++        if changed_path.startswith(tests_root_prefix) and changed_path.endswith(".py") and not Path(changed_path).name.startswith("test_"):
++            matched_scope = True
++            related_tests = _owner_tests(index, owner.owner_key)
++            accumulator.add_witness(
++                DependencyWitness(
++                    witness_id=f"test_support:{changed_path}",
++                    dependency_class="test_support_surface",
++                    subject=changed_path,
++                    status="changed",
++                    detail="test support module changed",
++                    related_tests=tuple(related_tests),
++                    changed_paths=(changed_path,),
++                )
++            )
++            accumulator.select_tests(
++                test_paths=related_tests,
++                reason_kind="test_support_file_changed",
++                dependency_class="test_support_surface",
++                witness_id=f"test_support:{changed_path}",
++                detail="test support module changed",
++                changed_paths=[changed_path],
++            )
++
++    if owner is not None and owner.src_root is not None and changed_path.startswith(f"{owner.src_root}/") and changed_path.endswith(".py"):
++        matched_scope = True
++        module_path = _source_module_path_for_file(owner=owner, repo_rel_path=changed_path)
++        if module_path is None:
++            accumulator.add_witness(
++                DependencyWitness(
++                    witness_id=f"source_module:{changed_path}",
++                    dependency_class="source_module",
++                    subject=changed_path,
++                    status="unknown",
++                    detail="could not derive module import path for changed source file",
++                    changed_paths=(changed_path,),
++                )
++            )
++        else:
++            impacted_modules = _reverse_module_closure(index, [module_path])
++            impacted_tests = _tests_importing_any_module(index, impacted_modules)
++            if changed_path in index.source_parse_errors:
++                status: WitnessStatus = "unknown"
++                detail = (
++                    f"changed source file could not be parsed ({index.source_parse_errors[changed_path]})"
++                )
++            else:
++                status = "changed"
++                detail = f"changed source module {module_path} propagates through local imports"
++            accumulator.add_witness(
++                DependencyWitness(
++                    witness_id=f"source_module:{module_path}",
++                    dependency_class="source_module",
++                    subject=changed_path,
++                    status=status,
++                    detail=detail,
++                    related_tests=tuple(impacted_tests),
++                    changed_paths=(changed_path,),
++                )
++            )
++            if impacted_tests:
++                accumulator.select_tests(
++                    test_paths=impacted_tests,
++                    reason_kind="source_import_closure",
++                    dependency_class="source_module",
++                    witness_id=f"source_module:{module_path}",
++                    detail=detail,
++                    changed_paths=[changed_path],
++                )
++        intent_tests = sorted(index.intent_source_path_to_tests.get(changed_path, set()))
++        if intent_tests:
++            accumulator.add_witness(
++                DependencyWitness(
++                    witness_id=f"intent_guard:{changed_path}",
++                    dependency_class="intent_guarded_surface",
++                    subject=changed_path,
++                    status="changed",
++                    detail="repo_test_intent_matrix binds tests to this guarded surface",
++                    related_tests=tuple(intent_tests),
++                    changed_paths=(changed_path,),
++                )
++            )
++            accumulator.select_tests(
++                test_paths=intent_tests,
++                reason_kind="intent_guarded_surface",
++                dependency_class="intent_guarded_surface",
++                witness_id=f"intent_guard:{changed_path}",
++                detail="repo_test_intent_matrix binds tests to this guarded surface",
++                changed_paths=[changed_path],
++            )
++        _record_owner_dependency_widening(
++            accumulator=accumulator,
++            index=index,
++            owner=owner,
++            changed_path=changed_path,
++        )
++        if _is_foundational_owner(owner):
++            accumulator.escalation_reasons.append(
++                f"foundational owner changed: {owner.owner_key}"
++            )
++
++    if owner is not None and owner.scripts_root is not None and changed_path.startswith(f"{owner.scripts_root}/") and changed_path.endswith(".py"):
++        matched_scope = True
++        matched_tests = _tests_referencing_path(index, changed_path)
++        if matched_tests:
++            accumulator.add_witness(
++                DependencyWitness(
++                    witness_id=f"script_path:{changed_path}",
++                    dependency_class="app_script_surface",
++                    subject=changed_path,
++                    status="changed",
++                    detail="app script changed and literal path consumers were found",
++                    related_tests=tuple(matched_tests),
++                    changed_paths=(changed_path,),
++                )
++            )
++            accumulator.select_tests(
++                test_paths=matched_tests,
++                reason_kind="script_path_reference",
++                dependency_class="app_script_surface",
++                witness_id=f"script_path:{changed_path}",
++                detail="app script changed and literal path consumers were found",
++                changed_paths=[changed_path],
++            )
++        else:
++            unknown_tests = _owner_tests(index, owner.owner_key)
++            accumulator.add_witness(
++                DependencyWitness(
++                    witness_id=f"script_path:{changed_path}",
++                    dependency_class="app_script_surface",
++                    subject=changed_path,
++                    status="unknown",
++                    detail="app script changed but no literal consumers were recovered",
++                    related_tests=tuple(unknown_tests),
++                    changed_paths=(changed_path,),
++                )
++            )
++            accumulator.select_tests(
++                test_paths=unknown_tests,
++                reason_kind="unknown_script_reach",
++                dependency_class="app_script_surface",
++                witness_id=f"script_path:{changed_path}",
++                detail="app script changed but no literal consumers were recovered",
++                changed_paths=[changed_path],
++            )
++
++    is_artifact_surface = (
++        any(changed_path.startswith(prefix) for prefix in RECOGNIZED_ARTIFACT_ROOT_PREFIXES)
++        or Path(changed_path).suffix in RECOGNIZED_ARTIFACT_EXTENSIONS
++    )
++    if is_artifact_surface and not changed_path.endswith(".py"):
++        matched_scope = True
++        matched_tests = _tests_referencing_path(index, changed_path)
++        if matched_tests:
++            accumulator.add_witness(
++                DependencyWitness(
++                    witness_id=f"artifact_path:{changed_path}",
++                    dependency_class="artifact_or_fixture_surface",
++                    subject=changed_path,
++                    status="changed",
++                    detail="artifact or fixture path changed and explicit consumers were found",
++                    related_tests=tuple(matched_tests),
++                    changed_paths=(changed_path,),
++                )
++            )
++            accumulator.select_tests(
++                test_paths=matched_tests,
++                reason_kind="artifact_path_reference",
++                dependency_class="artifact_or_fixture_surface",
++                witness_id=f"artifact_path:{changed_path}",
++                detail="artifact or fixture path changed and explicit consumers were found",
++                changed_paths=[changed_path],
++            )
++        else:
++            unknown_tests = _tests_for_unknown_artifact(index, changed_path)
++            accumulator.add_witness(
++                DependencyWitness(
++                    witness_id=f"artifact_path:{changed_path}",
++                    dependency_class="artifact_or_fixture_surface",
++                    subject=changed_path,
++                    status="unknown",
++                    detail=(
++                        "artifact or fixture path changed but explicit consumers were not fully "
++                        "recoverable"
++                    ),
++                    related_tests=tuple(unknown_tests),
++                    changed_paths=(changed_path,),
++                )
++            )
++            accumulator.select_tests(
++                test_paths=unknown_tests,
++                reason_kind="unknown_artifact_reach",
++                dependency_class="artifact_or_fixture_surface",
++                witness_id=f"artifact_path:{changed_path}",
++                detail=(
++                    "artifact or fixture path changed but explicit consumers were not fully "
++                    "recoverable"
++                ),
++                changed_paths=[changed_path],
++            )
++
++    if not matched_scope:
++        accumulator.out_of_scope_changed_paths.append(changed_path)
++
++
++def select_python_tests_v0(
++    *,
++    changed_paths: Iterable[str],
++    repo_root: Path | None = None,
++    intent_matrix_path: str | None = DEFAULT_INTENT_MATRIX_PATH,
++) -> dict[str, Any]:
++    index = build_selector_index(repo_root=repo_root, intent_matrix_path=intent_matrix_path)
++    accumulator = _Accumulator()
++    accumulator.warnings.extend(index.warnings)
++
++    normalized_changed_paths = sorted({_normalize_repo_rel_path(path) for path in changed_paths})
++    for changed_path in normalized_changed_paths:
++        _process_changed_path(index, accumulator, changed_path)
++
++    full_suite_recommended = bool(accumulator.escalation_reasons)
++    if full_suite_recommended:
++        for test_path in index.all_test_paths:
++            accumulator.select_tests(
++                test_paths=[test_path],
++                reason_kind="escalation_full_suite",
++                dependency_class="escalation_rule",
++                witness_id="escalation:full_suite",
++                detail="one or more widening rules require a full local Python test run",
++                changed_paths=normalized_changed_paths,
++            )
++        accumulator.add_witness(
++            DependencyWitness(
++                witness_id="escalation:full_suite",
++                dependency_class="escalation_rule",
++                subject="full_python_suite",
++                status="unknown",
++                detail="widening rules recommend a full local Python test run",
++                related_tests=tuple(index.all_test_paths),
++                changed_paths=tuple(normalized_changed_paths),
++            )
++        )
++
++    selected_test_paths = sorted(accumulator.selected)
++    skipped_test_paths = sorted(set(index.all_test_paths) - set(selected_test_paths))
++    if full_suite_recommended:
++        risk_posture = "escalated"
++    elif any(witness.status == "unknown" for witness in accumulator.witnesses.values()):
++        risk_posture = "widened"
++    else:
++        risk_posture = "narrow"
++
++    return {
++        "schema": SCHEMA,
++        "selection_algorithm": SELECTOR_VERSION,
++        "repo_root": index.repo_root.as_posix(),
++        "changed_paths": normalized_changed_paths,
++        "dependency_class_statuses": [
++            witness.to_dict()
++            for witness in sorted(accumulator.witnesses.values(), key=lambda row: row.witness_id)
++        ],
++        "selected_test_paths": selected_test_paths,
++        "skipped_test_paths": skipped_test_paths,
++        "selection_reasons": accumulator.selection_reasons(),
++        "risk_posture": risk_posture,
++        "full_suite_recommended": full_suite_recommended,
++        "escalation_reasons": sorted(set(accumulator.escalation_reasons)),
++        "out_of_scope_changed_paths": sorted(set(accumulator.out_of_scope_changed_paths)),
++        "warnings": sorted(set(accumulator.warnings)),
++        "pytest_args": selected_test_paths,
++        "summary": {
++            "selected_test_count": len(selected_test_paths),
++            "skipped_test_count": len(skipped_test_paths),
++            "unknown_witness_count": sum(
++                1 for witness in accumulator.witnesses.values() if witness.status == "unknown"
++            ),
++            "changed_witness_count": sum(
++                1 for witness in accumulator.witnesses.values() if witness.status == "changed"
++            ),
++            "out_of_scope_changed_path_count": len(set(accumulator.out_of_scope_changed_paths)),
++        },
++    }
++
++
++def _parse_args(argv: list[str]) -> argparse.Namespace:
++    parser = argparse.ArgumentParser(
++        description=(
++            "Plan a conservative local Python pytest selection using dependency witnesses, "
++            "owner metadata, import closure, and optional repo_test_intent_matrix bindings."
++        )
++    )
++    parser.add_argument(
++        "--repo-root",
++        type=Path,
++        default=None,
++        help="Repository root. Defaults to adeu_ir.repo.repo_root().",
++    )
++    parser.add_argument(
++        "--changed-path",
++        action="append",
++        default=[],
++        help="Repository-relative changed path. May be repeated.",
++    )
++    parser.add_argument(
++        "--changed-paths-file",
++        type=Path,
++        default=None,
++        help="Optional newline-delimited file of repository-relative changed paths.",
++    )
++    parser.add_argument(
++        "--base-ref",
++        default=None,
++        help=(
++            "Optional git base ref. When supplied, changed paths are discovered from the merge-base "
++            "to HEAD and current working tree state."
++        ),
++    )
++    parser.add_argument(
++        "--no-untracked",
++        action="store_true",
++        help="Do not include untracked files when discovering changed paths from git.",
++    )
++    parser.add_argument(
++        "--intent-matrix-path",
++        default=DEFAULT_INTENT_MATRIX_PATH,
++        help="Repository-relative repo_test_intent_matrix fixture path.",
++    )
++    parser.add_argument(
++        "--no-intent-matrix",
++        action="store_true",
++        help="Disable repo_test_intent_matrix overlay loading.",
++    )
++    parser.add_argument(
++        "--write-artifact",
++        type=Path,
++        default=None,
++        help="Optional output path for the JSON selection artifact.",
++    )
++    parser.add_argument(
++        "--stdout-format",
++        choices=("json", "paths", "pytest-args"),
++        default="json",
++        help="How to print the result to stdout.",
++    )
++    return parser.parse_args(argv)
++
++
++def _load_changed_paths_from_file(path: Path) -> list[str]:
++    return [
++        _normalize_repo_rel_path(line)
++        for line in path.read_text(encoding="utf-8").splitlines()
++        if line.strip()
++    ]
++
++
++def _emit_stdout(payload: dict[str, Any], *, stdout_format: str) -> str:
++    if stdout_format == "json":
++        return json.dumps(payload, sort_keys=True, indent=2) + "\n"
++    if stdout_format == "paths":
++        return "".join(f"{path}\n" for path in payload["selected_test_paths"])
++    if stdout_format == "pytest-args":
++        return " ".join(payload["pytest_args"]) + "\n"
++    raise ValueError(f"unsupported stdout_format: {stdout_format}")
++
++
++def main(argv: list[str] | None = None) -> int:
++    import sys
++
++    args = _parse_args(sys.argv[1:] if argv is None else argv)
++    explicit_changed_paths = [_normalize_repo_rel_path(path) for path in args.changed_path]
++    if args.changed_paths_file is not None:
++        explicit_changed_paths.extend(_load_changed_paths_from_file(args.changed_paths_file))
++
++    if args.base_ref is not None:
++        explicit_changed_paths.extend(
++            discover_changed_paths_from_git(
++                repo_root=args.repo_root,
++                base_ref=args.base_ref,
++                include_untracked=not args.no_untracked,
++            )
++        )
++
++    changed_paths = sorted(set(explicit_changed_paths))
++    intent_matrix_path = None if args.no_intent_matrix else args.intent_matrix_path
++    payload = select_python_tests_v0(
++        changed_paths=changed_paths,
++        repo_root=args.repo_root,
++        intent_matrix_path=intent_matrix_path,
++    )
++
++    if args.write_artifact is not None:
++        args.write_artifact.parent.mkdir(parents=True, exist_ok=True)
++        args.write_artifact.write_text(
++            json.dumps(payload, sort_keys=True, indent=2) + "\n",
++            encoding="utf-8",
++        )
++
++    import sys
++
++    sys.stdout.write(_emit_stdout(payload, stdout_format=args.stdout_format))
++    return 0
++
++
++__all__ = [
++    "DEFAULT_INTENT_MATRIX_PATH",
++    "SCHEMA",
++    "SELECTOR_VERSION",
++    "build_selector_index",
++    "discover_changed_paths_from_git",
++    "main",
++    "select_python_tests_v0",
++]
+--- /dev/null	2026-04-11 17:26:05.774830649 +0000
++++ /mnt/data/adeu_repo_work/adeu-studio-main/apps/api/scripts/select_tests_v0.py	2026-04-11 17:53:23.575645807 +0000
+@@ -0,0 +1,7 @@
++from __future__ import annotations
++
++from adeu_repo_description.test_selection_v0 import main
++
++
++if __name__ == "__main__":
++    raise SystemExit(main())
+--- /dev/null	2026-04-11 17:26:05.774830649 +0000
++++ /mnt/data/adeu_repo_work/adeu-studio-main/packages/adeu_repo_description/tests/test_test_selection_v0.py	2026-04-11 17:55:48.346832153 +0000
+@@ -0,0 +1,320 @@
++from __future__ import annotations
++
++import json
++from pathlib import Path
++
++from adeu_repo_description.test_selection_v0 import select_python_tests_v0
++
++
++def _root_pyproject() -> str:
++    return (
++        "[tool.pytest.ini_options]\n"
++        'addopts = "-q"\n'
++    )
++
++
++def _package_pyproject(name: str, *, deps: tuple[str, ...] = ()) -> str:
++    dependency_lines = "\n".join(f'  "{dependency}",' for dependency in deps)
++    if dependency_lines:
++        dependency_lines = f"\n{dependency_lines}\n"
++    return (
++        "[build-system]\n"
++        'requires = ["hatchling"]\n'
++        'build-backend = "hatchling.build"\n\n'
++        "[project]\n"
++        f'name = "{name}"\n'
++        'version = "0.0.0"\n'
++        f'dependencies = [{dependency_lines}]\n\n'
++        "[tool.hatch.build.targets.wheel]\n"
++        f'packages = ["src/{name}"]\n'
++    )
++
++
++def _bootstrap_repo(tmp_path: Path, files: dict[str, str]) -> Path:
++    base_files = {
++        "pyproject.toml": _root_pyproject(),
++        "packages/urm_runtime/pyproject.toml": _package_pyproject("urm_runtime"),
++        "packages/urm_runtime/src/urm_runtime/__init__.py": "__all__ = []\n",
++    }
++    base_files.update(files)
++    for relative_path, content in base_files.items():
++        path = tmp_path / relative_path
++        path.parent.mkdir(parents=True, exist_ok=True)
++        path.write_text(content, encoding="utf-8")
++    return tmp_path
++
++
++def _reason_kinds(payload: dict[str, object], *, test_path: str) -> set[str]:
++    return {
++        row["reason_kind"]
++        for row in payload["selection_reasons"]
++        if row["test_path"] == test_path
++    }
++
++
++def _witness_status(payload: dict[str, object], witness_id: str) -> str:
++    for witness in payload["dependency_class_statuses"]:
++        if witness["witness_id"] == witness_id:
++            return witness["status"]
++    raise AssertionError(f"missing witness_id: {witness_id}")
++
++
++def test_changed_test_file_is_selected(tmp_path: Path) -> None:
++    repo_root = _bootstrap_repo(
++        tmp_path,
++        {
++            "packages/pkg_a/pyproject.toml": _package_pyproject("pkg_a"),
++            "packages/pkg_a/src/pkg_a/__init__.py": "from .core import VALUE\n",
++            "packages/pkg_a/src/pkg_a/core.py": "VALUE = 1\n",
++            "packages/pkg_a/tests/test_core.py": (
++                "from pkg_a import VALUE\n\n"
++                "def test_value() -> None:\n"
++                "    assert VALUE == 1\n"
++            ),
++        },
++    )
++
++    payload = select_python_tests_v0(
++        repo_root=repo_root,
++        changed_paths=["packages/pkg_a/tests/test_core.py"],
++        intent_matrix_path=None,
++    )
++
++    assert payload["selected_test_paths"] == ["packages/pkg_a/tests/test_core.py"]
++    assert _witness_status(payload, "test_file:packages/pkg_a/tests/test_core.py") == "changed"
++    assert "changed_test_file" in _reason_kinds(
++        payload,
++        test_path="packages/pkg_a/tests/test_core.py",
++    )
++    assert payload["full_suite_recommended"] is False
++
++
++def test_direct_source_import_closure_selects_dependent_tests(tmp_path: Path) -> None:
++    repo_root = _bootstrap_repo(
++        tmp_path,
++        {
++            "packages/pkg_a/pyproject.toml": _package_pyproject("pkg_a"),
++            "packages/pkg_a/src/pkg_a/__init__.py": "from .api import get_value\n",
++            "packages/pkg_a/src/pkg_a/core.py": "VALUE = 1\n",
++            "packages/pkg_a/src/pkg_a/api.py": (
++                "from pkg_a.core import VALUE\n\n"
++                "def get_value() -> int:\n"
++                "    return VALUE\n"
++            ),
++            "packages/pkg_a/tests/test_api.py": (
++                "from pkg_a.api import get_value\n\n"
++                "def test_get_value() -> None:\n"
++                "    assert get_value() == 1\n"
++            ),
++        },
++    )
++
++    payload = select_python_tests_v0(
++        repo_root=repo_root,
++        changed_paths=["packages/pkg_a/src/pkg_a/core.py"],
++        intent_matrix_path=None,
++    )
++
++    assert "packages/pkg_a/tests/test_api.py" in payload["selected_test_paths"]
++    assert _witness_status(payload, "source_module:pkg_a.core") == "changed"
++    assert "source_import_closure" in _reason_kinds(
++        payload,
++        test_path="packages/pkg_a/tests/test_api.py",
++    )
++
++
++def test_reverse_local_package_dependency_widening_pulls_in_dependent_owner_tests(
++    tmp_path: Path,
++) -> None:
++    repo_root = _bootstrap_repo(
++        tmp_path,
++        {
++            "packages/pkg_a/pyproject.toml": _package_pyproject("pkg_a"),
++            "packages/pkg_a/src/pkg_a/__init__.py": "from .core import VALUE\n",
++            "packages/pkg_a/src/pkg_a/core.py": "VALUE = 1\n",
++            "packages/pkg_b/pyproject.toml": _package_pyproject("pkg_b", deps=("pkg_a>=0.0.0",)),
++            "packages/pkg_b/src/pkg_b/__init__.py": "from .service import read_marker\n",
++            "packages/pkg_b/src/pkg_b/service.py": (
++                "def read_marker() -> str:\n"
++                '    return "ok"\n'
++            ),
++            "packages/pkg_b/tests/test_service.py": (
++                "from pkg_b.service import read_marker\n\n"
++                "def test_service() -> None:\n"
++                '    assert read_marker() == "ok"\n'
++            ),
++        },
++    )
++
++    payload = select_python_tests_v0(
++        repo_root=repo_root,
++        changed_paths=["packages/pkg_a/src/pkg_a/core.py"],
++        intent_matrix_path=None,
++    )
++
++    assert "packages/pkg_b/tests/test_service.py" in payload["selected_test_paths"]
++    assert _witness_status(payload, "reverse_dep:packages/pkg_a:packages/pkg_b") == "changed"
++    assert "reverse_owner_dependency" in _reason_kinds(
++        payload,
++        test_path="packages/pkg_b/tests/test_service.py",
++    )
++
++
++def test_empty_delta_skips_all_tests(tmp_path: Path) -> None:
++    repo_root = _bootstrap_repo(
++        tmp_path,
++        {
++            "packages/pkg_a/pyproject.toml": _package_pyproject("pkg_a"),
++            "packages/pkg_a/src/pkg_a/__init__.py": "VALUE = 1\n",
++            "packages/pkg_a/tests/test_core.py": (
++                "from pkg_a import VALUE\n\n"
++                "def test_value() -> None:\n"
++                "    assert VALUE == 1\n"
++            ),
++        },
++    )
++
++    payload = select_python_tests_v0(repo_root=repo_root, changed_paths=[], intent_matrix_path=None)
++
++    assert payload["selected_test_paths"] == []
++    assert payload["skipped_test_paths"] == ["packages/pkg_a/tests/test_core.py"]
++    assert payload["risk_posture"] == "narrow"
++
++
++def test_unknown_fixture_reach_widens_conservatively(tmp_path: Path) -> None:
++    repo_root = _bootstrap_repo(
++        tmp_path,
++        {
++            "packages/pkg_a/pyproject.toml": _package_pyproject("pkg_a"),
++            "packages/pkg_a/src/pkg_a/__init__.py": "VALUE = 1\n",
++            "packages/pkg_a/tests/test_core.py": (
++                "from pkg_a import VALUE\n\n"
++                "def test_value() -> None:\n"
++                "    assert VALUE == 1\n"
++            ),
++            "packages/pkg_a/tests/fixtures/data.json": json.dumps({"value": 1}),
++        },
++    )
++
++    payload = select_python_tests_v0(
++        repo_root=repo_root,
++        changed_paths=["packages/pkg_a/tests/fixtures/data.json"],
++        intent_matrix_path=None,
++    )
++
++    assert payload["risk_posture"] == "widened"
++    assert _witness_status(payload, "artifact_path:packages/pkg_a/tests/fixtures/data.json") == "unknown"
++    assert payload["selected_test_paths"] == ["packages/pkg_a/tests/test_core.py"]
++    assert "unknown_artifact_reach" in _reason_kinds(
++        payload,
++        test_path="packages/pkg_a/tests/test_core.py",
++    )
++
++
++def test_foundational_root_config_change_escalates_to_full_suite(tmp_path: Path) -> None:
++    repo_root = _bootstrap_repo(
++        tmp_path,
++        {
++            "packages/pkg_a/pyproject.toml": _package_pyproject("pkg_a"),
++            "packages/pkg_a/src/pkg_a/__init__.py": "VALUE = 1\n",
++            "packages/pkg_a/tests/test_core.py": (
++                "from pkg_a import VALUE\n\n"
++                "def test_value() -> None:\n"
++                "    assert VALUE == 1\n"
++            ),
++            "apps/api/pyproject.toml": _package_pyproject("adeu_api", deps=("pkg_a>=0.0.0",)),
++            "apps/api/src/adeu_api/__init__.py": "__all__ = []\n",
++            "apps/api/tests/test_health.py": (
++                "def test_health() -> None:\n"
++                "    assert True\n"
++            ),
++        },
++    )
++
++    payload = select_python_tests_v0(
++        repo_root=repo_root,
++        changed_paths=["pyproject.toml"],
++        intent_matrix_path=None,
++    )
++
++    assert payload["full_suite_recommended"] is True
++    assert sorted(payload["selected_test_paths"]) == [
++        "apps/api/tests/test_health.py",
++        "packages/pkg_a/tests/test_core.py",
++    ]
++    assert _witness_status(payload, "root_config:pyproject.toml") == "changed"
++    assert _witness_status(payload, "escalation:full_suite") == "unknown"
++    assert "foundational repo config changed: pyproject.toml" in payload["escalation_reasons"]
++
++
++def test_repo_test_intent_matrix_bindings_are_used_when_present(tmp_path: Path) -> None:
++    repo_root = _bootstrap_repo(
++        tmp_path,
++        {
++            "packages/pkg_a/pyproject.toml": _package_pyproject("pkg_a"),
++            "packages/pkg_a/src/pkg_a/__init__.py": "__all__ = []\n",
++            "packages/pkg_a/src/pkg_a/core.py": "VALUE = 1\n",
++            "packages/pkg_b/pyproject.toml": _package_pyproject("pkg_b"),
++            "packages/pkg_b/src/pkg_b/__init__.py": "__all__ = []\n",
++            "packages/pkg_b/tests/test_contract.py": (
++                "def test_contract() -> None:\n"
++                "    assert True\n"
++            ),
++            "apps/api/fixtures/repo_description/vnext_plus103/repo_test_intent_matrix_v103_reference.json": json.dumps(
++                {
++                    "test_intent_entries": [
++                        {
++                            "test_ref": "test:packages/pkg_b/tests/test_contract.py#test_contract",
++                            "guarded_surface_ref": {
++                                "guarded_surface_ref_kind": "internal_module_boundary",
++                                "guarded_surface_ref_value": "module:packages/pkg_a/src/pkg_a/core.py",
++                            },
++                        }
++                    ]
++                }
++            ),
++        },
++    )
++
++    payload = select_python_tests_v0(
++        repo_root=repo_root,
++        changed_paths=["packages/pkg_a/src/pkg_a/core.py"],
++    )
++
++    assert "packages/pkg_b/tests/test_contract.py" in payload["selected_test_paths"]
++    assert _witness_status(payload, "intent_guard:packages/pkg_a/src/pkg_a/core.py") == "changed"
++    assert "intent_guarded_surface" in _reason_kinds(
++        payload,
++        test_path="packages/pkg_b/tests/test_contract.py",
++    )
++
++
++def test_changed_app_script_selects_piecewise_path_consumers(tmp_path: Path) -> None:
++    repo_root = _bootstrap_repo(
++        tmp_path,
++        {
++            "apps/api/pyproject.toml": _package_pyproject("adeu_api"),
++            "apps/api/src/adeu_api/__init__.py": "__all__ = []\n",
++            "apps/api/scripts/tool.py": "def main() -> int:\n    return 0\n",
++            "apps/api/tests/test_tool.py": (
++                "from pathlib import Path\n\n"
++                "def _script_path(root: Path) -> Path:\n"
++                '    return root / "apps" / "api" / "scripts" / "tool.py"\n\n'
++                "def test_script_path() -> None:\n"
++                '    assert _script_path(Path("."))\n'
++            ),
++        },
++    )
++
++    payload = select_python_tests_v0(
++        repo_root=repo_root,
++        changed_paths=["apps/api/scripts/tool.py"],
++        intent_matrix_path=None,
++    )
++
++    assert payload["selected_test_paths"] == ["apps/api/tests/test_tool.py"]
++    assert _witness_status(payload, "script_path:apps/api/scripts/tool.py") == "changed"
++    assert "script_path_reference" in _reason_kinds(
++        payload,
++        test_path="apps/api/tests/test_tool.py",
++    )
