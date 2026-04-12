@@ -1,0 +1,94 @@
+{
+  "schema": "adeu_test_selection_ab_corpus@2",
+  "name": "adeu_selector_vs_pytest_testmon_v0_pilot",
+  "description": "Smaller honest pilot corpus for local A/B benchmark of ADEU selector against pytest-testmon across benchmark target trees.",
+  "deltas": [
+    {
+      "delta_id": "pilot_edge_probe_review_fix_07ae4a8",
+      "source_kind": "git_commit_pair",
+      "base_revision": "2ff204b5705b878b825a33ff5a816659bf69fa50",
+      "changed_revision": "07ae4a89cf8a1064f7593d46e8fdf7f104a17acc",
+      "category": "narrow_package_local_python_source_change",
+      "blast_radius": "narrow",
+      "expected_blast_radius_intuition": "package-local source change should be judged against the full edge-ledger test tree",
+      "eligibility": [
+        "cold",
+        "warm"
+      ],
+      "target_scope_kind": "directory_tree",
+      "target_scope_note": "entire package test tree for packages/adeu_edge_ledger",
+      "pytest_targets": [
+        "packages/adeu_edge_ledger/tests"
+      ],
+      "notes": "Real git-derived narrow package-local delta with a small complete owner test tree."
+    },
+    {
+      "delta_id": "pilot_app_script_parse_guard_fcd36f6",
+      "source_kind": "git_commit_pair",
+      "base_revision": "fff3abd6e4312c7f8788048735be054234dad6e0",
+      "changed_revision": "fcd36f6c46cd972b1e40f3f6e84e68c23eead954",
+      "category": "app_level_python_source_change",
+      "blast_radius": "narrow",
+      "expected_blast_radius_intuition": "app-level script change should be judged against the full apps/api test tree, not a single coupled file",
+      "eligibility": [
+        "cold",
+        "warm"
+      ],
+      "target_scope_kind": "directory_tree",
+      "target_scope_note": "entire app test tree for apps/api",
+      "pytest_targets": [
+        "apps/api/tests"
+      ],
+      "notes": "Real git-derived app-level delta with a broad owner-local benchmark target tree."
+    },
+    {
+      "delta_id": "pilot_intent_matrix_hardening_2b6362e",
+      "source_kind": "git_commit_pair",
+      "base_revision": "576e28979d8f64edd8d4795d940805a407aaaf50",
+      "changed_revision": "2b6362e897451b0aa0b2ac95e2d9a79e1e2fd636",
+      "category": "intent_matrix_artifact_driven_change",
+      "blast_radius": "broad",
+      "expected_blast_radius_intuition": "repo_description fixture and intent-matrix hardening should be judged against the full repo_description package test tree",
+      "eligibility": [
+        "cold",
+        "warm"
+      ],
+      "target_scope_kind": "directory_tree",
+      "target_scope_note": "entire package test tree for packages/adeu_repo_description",
+      "pytest_targets": [
+        "packages/adeu_repo_description/tests"
+      ],
+      "notes": "Real git-derived repo_description delta with artifact-driven reach."
+    },
+    {
+      "delta_id": "pilot_synthetic_safety_calibration_edge_schema_break",
+      "source_kind": "synthetic_patch",
+      "base_revision": "14ac4cdf2d2f36fc1d023e1b07391a8cfe11c91b",
+      "changed_revision": "14ac4cdf2d2f36fc1d023e1b07391a8cfe11c91b",
+      "category": "synthetic_safety_calibration",
+      "blast_radius": "narrow",
+      "expected_blast_radius_intuition": "single-package schema constant corruption should create a failing owner-local ground truth",
+      "eligibility": [
+        "cold",
+        "warm"
+      ],
+      "target_scope_kind": "directory_tree",
+      "target_scope_note": "entire package test tree for packages/adeu_edge_ledger",
+      "pytest_targets": [
+        "packages/adeu_edge_ledger/tests"
+      ],
+      "changed_paths": [
+        "packages/adeu_edge_ledger/src/adeu_edge_ledger/probe_test_intent.py"
+      ],
+      "synthetic_replace_operations": [
+        {
+          "file_path": "packages/adeu_edge_ledger/src/adeu_edge_ledger/probe_test_intent.py",
+          "find": "ADEU_EDGE_PROBE_TEST_INTENT_BRIDGE_SCHEMA = \"adeu_edge_probe_test_intent_bridge@1\"",
+          "replace": "ADEU_EDGE_PROBE_TEST_INTENT_BRIDGE_SCHEMA = \"adeu_edge_probe_test_intent_bridge@999\"",
+          "reason": "seed an explicit failing-surface calibration delta"
+        }
+      ],
+      "notes": "Synthetic calibration retained so the pilot has at least one failing owner-local ground truth."
+    }
+  ]
+}
