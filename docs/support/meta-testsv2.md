@@ -524,3 +524,17 @@ The highest-value next steps after this pass are:
 * later executable phase-1 witness tests, built on top of this sharper planner rather than replacing it
 
 This is still the same repo-native `v0` backbone, but now it behaves much more like an evidence-first selector and much less like a package-wide blaster.
+
+## H. Local workflow adoption
+
+The selector remains a planner first, not a hidden pytest wrapper. The repo’s local workflow now uses that planner to drive `make check`, while keeping:
+
+* `make test` as the explicit full pytest suite
+* `make check-full` as the explicit full local gate
+* CI on the full pytest lane separately
+
+So the practical posture is:
+
+* local default: selector-driven subset with conservative full fallback
+* explicit full local verification still available on demand
+* branch protection still enforced by the full CI lane

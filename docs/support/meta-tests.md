@@ -204,7 +204,7 @@ Not `adeu_edge_ledger`: `probe_test_intent.py` is downstream and bridge-oriented
 
 Not root-only script code: the owner graph, AST indexing, witness computation, and artifact schema are reusable library logic.
 
-Not a Makefile-first landing: root `Makefile` currently keeps `test` as plain `pytest`. I left that contract unchanged so `v0` lands as an opt-in local accelerator rather than silently redefining repo test behavior.
+Not a `make test` redefinition: root `Makefile` still keeps `test` as plain `pytest`. The later local workflow adoption uses the selector to drive `make check`, while `make test` and `make check-full` remain explicit full-suite paths.
 
 ---
 
@@ -756,7 +756,7 @@ Sample artifact: [broad selection JSON fixture](/home/rose/work/LexLattice/odeu/
 
 6. `identical` is implicit, not globally enumerated as a full witness inventory.
 
-7. The selector does not change `make test`; it is opt-in for local developer speedup.
+7. The selector does not change `make test`; full local pytest remains explicit via `make test` and `make check-full`, while `make check` uses the selector as the default local gate.
 
 ### Best next extensions
 
@@ -770,7 +770,7 @@ Sample artifact: [broad selection JSON fixture](/home/rose/work/LexLattice/odeu/
 
 5. Add provider/runtime witness classes for app contract surfaces where the repo already has parity/config assets.
 
-6. Add optional Makefile sugar such as `make test-select BASE_REF=origin/main`, while keeping `make test` unchanged.
+6. Tighten the default local gate further only if later evidence supports it; `make check` already uses the selector by default while `make test` stays unchanged.
 
 7. Use the existing `probe_test_intent.py` seam as the basis for a later `v1` executable witness layer, once there is broader released applicability-frame coverage.
 

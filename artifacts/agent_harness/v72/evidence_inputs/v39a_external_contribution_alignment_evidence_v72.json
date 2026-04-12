@@ -5,17 +5,17 @@
   "evaluator_id": "adeu_core_ir.external_contribution_alignment.derive_v39a_module_conformance@1",
   "evaluator_version": "1",
   "evidence_input_path": "artifacts/agent_harness/v72/evidence_inputs/v39a_external_contribution_alignment_evidence_v72.json",
-  "external_contribution_alignment_packet_reference_hash": "5b1c26ea8efcf79e57f45c1dec858dcb9e09faa41609b2dbe2d0a43a40faf224",
+  "external_contribution_alignment_packet_reference_hash": "1374a9b440084367d7bbbf14332709ad1dfcceee8af84a2ba6ee53a4bc4fe133",
   "external_contribution_alignment_packet_reference_path": "apps/api/fixtures/external_contribution_alignment/vnext_plus72/external_contribution_alignment_packet_pr293_poetry_utility.json",
   "live_github_dependency_absent": true,
   "localized_subject_inputs_verified": true,
-  "module_conformance_report_reference_hash": "a9713d28a89830f063357bd009338852a4413d1016e1d5866f2d5c63cc9d85b7",
+  "module_conformance_report_reference_hash": "58fe6700ced4b0e151cf191d8b1c720370637b239a31526fc32675c01423e64b",
   "module_conformance_report_reference_path": "apps/api/fixtures/external_contribution_alignment/vnext_plus72/module_conformance_report_pr293_poetry_utility.json",
   "notes": "v72 evidence pins the localized subject bundle, packet/report hash binding, policy provenance, and default-negative precedent semantics for the first retrospective external-alignment reference.",
   "policy_sources": [
     {
       "path": "AGENTS.md",
-      "sha256": "582d99edbb06c4cc73e60ce2e04dc019b57ac42cd34b50b372c149a15d4eddbb"
+      "sha256": "a2a77ee9926608c0b4bb2da83437b6c095de20afd5ed85b5058c9dee1fb49348"
     },
     {
       "path": "docs/DRAFT_EXTERNAL_CONTRIBUTION_ALIGNMENT_v0.md",

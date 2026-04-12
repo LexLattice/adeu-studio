@@ -1,10 +1,11 @@
-.PHONY: bootstrap install-hooks test lint format check closeout-lint semantic-closeout-lint instruction-policy-check arc-start-check arc-closeout-check merge-post-check
+.PHONY: bootstrap install-hooks test test-selected lint format check check-full closeout-lint semantic-closeout-lint instruction-policy-check arc-start-check arc-closeout-check merge-post-check
 
 VENV ?= .venv
 BOOTSTRAP_PYTHON ?= python3.14
 PY := $(VENV)/bin/python
 PIP := $(VENV)/bin/pip
 CLOSEOUT_LINT_PYTHONPATH := apps/api/src:packages/urm_runtime/src
+CHECK_BASE_REF ?= origin/main
 
 bootstrap:
 	$(BOOTSTRAP_PYTHON) -m venv $(VENV)
@@ -50,6 +51,9 @@ install-hooks:
 test:
 	$(PY) -m pytest
 
+test-selected:
+	$(PY) apps/api/scripts/run_selected_tests_v0.py --base-ref $(CHECK_BASE_REF)
+
 lint:
 	$(PY) -m ruff check .
 
@@ -81,6 +85,8 @@ arc-closeout-check:
 	$(MAKE) semantic-closeout-lint
 	$(MAKE) instruction-policy-check
 
-check: lint test closeout-lint semantic-closeout-lint instruction-policy-check
+check: lint test-selected closeout-lint semantic-closeout-lint instruction-policy-check
+
+check-full: lint test closeout-lint semantic-closeout-lint instruction-policy-check
 
 merge-post-check: lint

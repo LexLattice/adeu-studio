@@ -70,7 +70,7 @@
   "policy_sources": [
     {
       "path": "AGENTS.md",
-      "sha256": "582d99edbb06c4cc73e60ce2e04dc019b57ac42cd34b50b372c149a15d4eddbb"
+      "sha256": "a2a77ee9926608c0b4bb2da83437b6c095de20afd5ed85b5058c9dee1fb49348"
     },
     {
       "path": "docs/DRAFT_EXTERNAL_CONTRIBUTION_ALIGNMENT_v0.md",

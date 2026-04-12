@@ -12,10 +12,12 @@
 - Before opening or updating a Python PR, run `make check`.
 - `make check` is the default local gate for the Python lane and includes:
   - Ruff lint
-  - pytest
+  - selector-driven pytest planning plus the relevant subset, with conservative full-suite fallback for explicit selector escalations and unmatched Python/config-like changes
   - closeout consistency lint
   - semantic compiler closeout lint
   - generated instruction policy doc check
+- `make test` remains the explicit full pytest suite target.
+- `make check-full` preserves the old full local gate: lint + full pytest + closeout consistency lint + semantic compiler closeout lint + generated instruction policy doc check.
 - If you intentionally run a narrower subset instead of `make check`, state what was skipped.
 
 ## Docs-Only Arc Bundles

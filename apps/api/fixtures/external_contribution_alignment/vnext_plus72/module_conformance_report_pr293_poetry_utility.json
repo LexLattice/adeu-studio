@@ -22,7 +22,7 @@
     "record_alignment_artifacts"
   ],
   "derivation_metadata": {
-    "alignment_packet_hash": "4bffb938d4b3ffbf7b01abd3a273e2e41b3e7ee871870cd01d597a7c68daa3db",
+    "alignment_packet_hash": "ea9031a0165cc919762ed9fa99b049446931ece8343684b4bf741c4c7ac75a0d",
     "canonical_local_subject_only": true,
     "default_precedent_status": "non_precedent",
     "evaluator_id": "adeu_core_ir.external_contribution_alignment.derive_v39a_module_conformance@1",
@@ -30,7 +30,7 @@
     "policy_sources": [
       {
         "path": "AGENTS.md",
-        "sha256": "582d99edbb06c4cc73e60ce2e04dc019b57ac42cd34b50b372c149a15d4eddbb"
+        "sha256": "a2a77ee9926608c0b4bb2da83437b6c095de20afd5ed85b5058c9dee1fb49348"
       },
       {
         "path": "docs/DRAFT_EXTERNAL_CONTRIBUTION_ALIGNMENT_v0.md",

@@ -1,10 +1,14 @@
 from __future__ import annotations
 
 import json
+import subprocess
 from pathlib import Path
 
 import adeu_repo_description.test_selection_v0 as test_selection_module
-from adeu_repo_description.test_selection_v0 import select_python_tests_v0
+from adeu_repo_description.test_selection_v0 import (
+    discover_changed_paths_from_git,
+    select_python_tests_v0,
+)
 
 FIXTURE_ROOT = Path(__file__).parent / "fixtures" / "test_selection_v0"
 
@@ -42,6 +46,24 @@ def _bootstrap_repo(tmp_path: Path, files: dict[str, str]) -> Path:
         path.parent.mkdir(parents=True, exist_ok=True)
         path.write_text(content, encoding="utf-8")
     return tmp_path
+
+
+def _git(repo_root: Path, *args: str) -> subprocess.CompletedProcess[str]:
+    return subprocess.run(
+        ["git", *args],
+        cwd=repo_root,
+        check=True,
+        capture_output=True,
+        text=True,
+    )
+
+
+def _init_git_repo(repo_root: Path) -> None:
+    _git(repo_root, "init")
+    _git(repo_root, "config", "user.email", "test@example.com")
+    _git(repo_root, "config", "user.name", "Test User")
+    _git(repo_root, "add", ".")
+    _git(repo_root, "commit", "-m", "base")
 
 
 def _reasons_for_test(payload: dict[str, object], *, test_path: str) -> list[dict[str, object]]:
@@ -95,6 +117,51 @@ def test_changed_test_file_is_selected_directly(tmp_path: Path) -> None:
         "changed_test_file"
     }
     assert _selection_stages(payload, test_path="packages/pkg_a/tests/test_core.py") == {"evidence"}
+
+
+def test_newly_created_test_file_is_selected_directly_without_prior_history(tmp_path: Path) -> None:
+    repo_root = _bootstrap_repo(
+        tmp_path,
+        {
+            "packages/pkg_a/pyproject.toml": _package_pyproject("pkg_a"),
+            "packages/pkg_a/src/pkg_a/__init__.py": "VALUE = 1\n",
+            "packages/pkg_a/tests/test_new_case.py": (
+                "def test_new_case() -> None:\n    assert True\n"
+            ),
+        },
+    )
+
+    payload = select_python_tests_v0(
+        repo_root=repo_root,
+        changed_paths=["packages/pkg_a/tests/test_new_case.py"],
+        intent_matrix_path=None,
+    )
+
+    assert payload["selected_test_paths"] == ["packages/pkg_a/tests/test_new_case.py"]
+    assert payload["evidence_selected_test_paths"] == ["packages/pkg_a/tests/test_new_case.py"]
+    assert payload["fallback_selected_test_paths"] == []
+    assert _reason_kinds(payload, test_path="packages/pkg_a/tests/test_new_case.py") == {
+        "changed_test_file"
+    }
+
+
+def test_discover_changed_paths_from_git_includes_untracked_new_test_file(tmp_path: Path) -> None:
+    repo_root = _bootstrap_repo(
+        tmp_path,
+        {
+            "packages/pkg_a/pyproject.toml": _package_pyproject("pkg_a"),
+            "packages/pkg_a/src/pkg_a/__init__.py": "VALUE = 1\n",
+        },
+    )
+    _init_git_repo(repo_root)
+
+    new_test_path = repo_root / "packages" / "pkg_a" / "tests" / "test_new_case.py"
+    new_test_path.parent.mkdir(parents=True, exist_ok=True)
+    new_test_path.write_text("def test_new_case() -> None:\n    assert True\n", encoding="utf-8")
+
+    changed_paths = discover_changed_paths_from_git(repo_root=repo_root, base_ref="HEAD")
+
+    assert "packages/pkg_a/tests/test_new_case.py" in changed_paths
 
 
 def test_direct_source_import_closure_wins_before_owner_fallback(tmp_path: Path) -> None:
