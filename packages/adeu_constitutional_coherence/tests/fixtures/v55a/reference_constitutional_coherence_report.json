@@ -1,0 +1,410 @@
+{
+  "checked_artifact_refs": [
+    "docs/LOCKED_RECURSIVE_COORDINATE_ADOPTION_v0.md",
+    "docs/DRAFT_RECURSIVE_COORDINATE_MIGRATION_LINT_POSTURE_v0.md",
+    "docs/support/ADEU_SCHEMA_META_GRAMMAR.md",
+    "docs/support/VERTICAL_ALIGNMENT_ARCHITECTURE_HARDENED.md",
+    "docs/support/ODEU_MEMBRANE_ARCHITECTURE.md",
+    "docs/support/crypto data spec2.md"
+  ],
+  "checker_version": "v55a_constitutional_coherence_checker@1",
+  "evaluations": [
+    {
+      "artifact_ref": "docs/LOCKED_RECURSIVE_COORDINATE_ADOPTION_v0.md",
+      "detail_note": "authority layer declared as lock",
+      "evidence_source": "support_admission_record",
+      "predicate_id": "authority_layer_declared",
+      "status": "pass"
+    },
+    {
+      "artifact_ref": "docs/LOCKED_RECURSIVE_COORDINATE_ADOPTION_v0.md",
+      "detail_note": "authority relation admitted as released_lock",
+      "evidence_source": "support_admission_record",
+      "predicate_id": "authority_relation_legal",
+      "status": "pass"
+    },
+    {
+      "artifact_ref": "docs/LOCKED_RECURSIVE_COORDINATE_ADOPTION_v0.md",
+      "detail_note": "placement basis declared as doctrine_surface",
+      "evidence_source": "support_admission_record",
+      "predicate_id": "placement_basis_present_when_required",
+      "status": "pass"
+    },
+    {
+      "artifact_ref": "docs/LOCKED_RECURSIVE_COORDINATE_ADOPTION_v0.md",
+      "detail_note": "coverage scope declared as single_artifact",
+      "evidence_source": "support_admission_record",
+      "predicate_id": "coverage_scope_present_when_required",
+      "status": "pass"
+    },
+    {
+      "artifact_ref": "docs/LOCKED_RECURSIVE_COORDINATE_ADOPTION_v0.md",
+      "detail_note": "dominant force band declared as governing",
+      "evidence_source": "support_admission_record",
+      "predicate_id": "dominant_force_band_resolved",
+      "status": "pass"
+    },
+    {
+      "artifact_ref": "docs/LOCKED_RECURSIVE_COORDINATE_ADOPTION_v0.md",
+      "detail_note": "no promotion claim declared in starter posture",
+      "evidence_source": "support_admission_record",
+      "predicate_id": "promotion_claim_has_witness",
+      "status": "pass"
+    },
+    {
+      "artifact_ref": "docs/LOCKED_RECURSIVE_COORDINATE_ADOPTION_v0.md",
+      "detail_note": "artifact is not declared as a descendant surface",
+      "evidence_source": "support_admission_record",
+      "predicate_id": "descendant_claim_within_parent_entitlement",
+      "status": "not_evaluable_yet"
+    },
+    {
+      "artifact_ref": "docs/LOCKED_RECURSIVE_COORDINATE_ADOPTION_v0.md",
+      "detail_note": "projection posture keeps authority minting disabled",
+      "evidence_source": "support_admission_record",
+      "predicate_id": "projection_does_not_mint_authority",
+      "status": "pass"
+    },
+    {
+      "artifact_ref": "docs/LOCKED_RECURSIVE_COORDINATE_ADOPTION_v0.md",
+      "detail_note": "predicate applies only to support-layer surfaces",
+      "evidence_source": "support_admission_record",
+      "predicate_id": "support_surface_not_self_promoted",
+      "status": "not_evaluable_yet"
+    },
+    {
+      "artifact_ref": "docs/DRAFT_RECURSIVE_COORDINATE_MIGRATION_LINT_POSTURE_v0.md",
+      "detail_note": "authority layer declared as planning",
+      "evidence_source": "support_admission_record",
+      "predicate_id": "authority_layer_declared",
+      "status": "pass"
+    },
+    {
+      "artifact_ref": "docs/DRAFT_RECURSIVE_COORDINATE_MIGRATION_LINT_POSTURE_v0.md",
+      "detail_note": "authority relation admitted as planning_companion",
+      "evidence_source": "support_admission_record",
+      "predicate_id": "authority_relation_legal",
+      "status": "pass"
+    },
+    {
+      "artifact_ref": "docs/DRAFT_RECURSIVE_COORDINATE_MIGRATION_LINT_POSTURE_v0.md",
+      "detail_note": "placement basis declared as doctrine_surface",
+      "evidence_source": "support_admission_record",
+      "predicate_id": "placement_basis_present_when_required",
+      "status": "pass"
+    },
+    {
+      "artifact_ref": "docs/DRAFT_RECURSIVE_COORDINATE_MIGRATION_LINT_POSTURE_v0.md",
+      "detail_note": "coverage scope declared as single_artifact",
+      "evidence_source": "support_admission_record",
+      "predicate_id": "coverage_scope_present_when_required",
+      "status": "pass"
+    },
+    {
+      "artifact_ref": "docs/DRAFT_RECURSIVE_COORDINATE_MIGRATION_LINT_POSTURE_v0.md",
+      "detail_note": "dominant force band declared as interpretive",
+      "evidence_source": "support_admission_record",
+      "predicate_id": "dominant_force_band_resolved",
+      "status": "pass"
+    },
+    {
+      "artifact_ref": "docs/DRAFT_RECURSIVE_COORDINATE_MIGRATION_LINT_POSTURE_v0.md",
+      "detail_note": "no promotion claim declared in starter posture",
+      "evidence_source": "support_admission_record",
+      "predicate_id": "promotion_claim_has_witness",
+      "status": "pass"
+    },
+    {
+      "artifact_ref": "docs/DRAFT_RECURSIVE_COORDINATE_MIGRATION_LINT_POSTURE_v0.md",
+      "detail_note": "artifact is not declared as a descendant surface",
+      "evidence_source": "support_admission_record",
+      "predicate_id": "descendant_claim_within_parent_entitlement",
+      "status": "not_evaluable_yet"
+    },
+    {
+      "artifact_ref": "docs/DRAFT_RECURSIVE_COORDINATE_MIGRATION_LINT_POSTURE_v0.md",
+      "detail_note": "projection posture keeps authority minting disabled",
+      "evidence_source": "support_admission_record",
+      "predicate_id": "projection_does_not_mint_authority",
+      "status": "pass"
+    },
+    {
+      "artifact_ref": "docs/DRAFT_RECURSIVE_COORDINATE_MIGRATION_LINT_POSTURE_v0.md",
+      "detail_note": "predicate applies only to support-layer surfaces",
+      "evidence_source": "support_admission_record",
+      "predicate_id": "support_surface_not_self_promoted",
+      "status": "not_evaluable_yet"
+    },
+    {
+      "artifact_ref": "docs/support/ADEU_SCHEMA_META_GRAMMAR.md",
+      "detail_note": "authority layer declared as support",
+      "evidence_source": "support_admission_record",
+      "predicate_id": "authority_layer_declared",
+      "status": "pass"
+    },
+    {
+      "artifact_ref": "docs/support/ADEU_SCHEMA_META_GRAMMAR.md",
+      "detail_note": "authority relation admitted as coexisting_non_override",
+      "evidence_source": "support_admission_record",
+      "predicate_id": "authority_relation_legal",
+      "status": "pass"
+    },
+    {
+      "artifact_ref": "docs/support/ADEU_SCHEMA_META_GRAMMAR.md",
+      "detail_note": "placement basis declared as doctrine_surface",
+      "evidence_source": "support_admission_record",
+      "predicate_id": "placement_basis_present_when_required",
+      "status": "pass"
+    },
+    {
+      "artifact_ref": "docs/support/ADEU_SCHEMA_META_GRAMMAR.md",
+      "detail_note": "coverage scope declared as single_artifact",
+      "evidence_source": "support_admission_record",
+      "predicate_id": "coverage_scope_present_when_required",
+      "status": "pass"
+    },
+    {
+      "artifact_ref": "docs/support/ADEU_SCHEMA_META_GRAMMAR.md",
+      "detail_note": "dominant force band declared as interpretive",
+      "evidence_source": "support_admission_record",
+      "predicate_id": "dominant_force_band_resolved",
+      "status": "pass"
+    },
+    {
+      "artifact_ref": "docs/support/ADEU_SCHEMA_META_GRAMMAR.md",
+      "detail_note": "no promotion claim declared in starter posture",
+      "evidence_source": "support_admission_record",
+      "predicate_id": "promotion_claim_has_witness",
+      "status": "pass"
+    },
+    {
+      "artifact_ref": "docs/support/ADEU_SCHEMA_META_GRAMMAR.md",
+      "detail_note": "artifact is not declared as a descendant surface",
+      "evidence_source": "support_admission_record",
+      "predicate_id": "descendant_claim_within_parent_entitlement",
+      "status": "not_evaluable_yet"
+    },
+    {
+      "artifact_ref": "docs/support/ADEU_SCHEMA_META_GRAMMAR.md",
+      "detail_note": "projection posture keeps authority minting disabled",
+      "evidence_source": "support_admission_record",
+      "predicate_id": "projection_does_not_mint_authority",
+      "status": "pass"
+    },
+    {
+      "artifact_ref": "docs/support/ADEU_SCHEMA_META_GRAMMAR.md",
+      "detail_note": "support surface remains non-promoted",
+      "evidence_source": "support_admission_record",
+      "predicate_id": "support_surface_not_self_promoted",
+      "status": "pass"
+    },
+    {
+      "artifact_ref": "docs/support/VERTICAL_ALIGNMENT_ARCHITECTURE_HARDENED.md",
+      "detail_note": "authority layer declared as support",
+      "evidence_source": "support_admission_record",
+      "predicate_id": "authority_layer_declared",
+      "status": "pass"
+    },
+    {
+      "artifact_ref": "docs/support/VERTICAL_ALIGNMENT_ARCHITECTURE_HARDENED.md",
+      "detail_note": "authority relation admitted as coexisting_non_override",
+      "evidence_source": "support_admission_record",
+      "predicate_id": "authority_relation_legal",
+      "status": "pass"
+    },
+    {
+      "artifact_ref": "docs/support/VERTICAL_ALIGNMENT_ARCHITECTURE_HARDENED.md",
+      "detail_note": "placement basis declared as doctrine_surface",
+      "evidence_source": "support_admission_record",
+      "predicate_id": "placement_basis_present_when_required",
+      "status": "pass"
+    },
+    {
+      "artifact_ref": "docs/support/VERTICAL_ALIGNMENT_ARCHITECTURE_HARDENED.md",
+      "detail_note": "coverage scope declared as single_artifact",
+      "evidence_source": "support_admission_record",
+      "predicate_id": "coverage_scope_present_when_required",
+      "status": "pass"
+    },
+    {
+      "artifact_ref": "docs/support/VERTICAL_ALIGNMENT_ARCHITECTURE_HARDENED.md",
+      "detail_note": "dominant force band declared as interpretive",
+      "evidence_source": "support_admission_record",
+      "predicate_id": "dominant_force_band_resolved",
+      "status": "pass"
+    },
+    {
+      "artifact_ref": "docs/support/VERTICAL_ALIGNMENT_ARCHITECTURE_HARDENED.md",
+      "detail_note": "no promotion claim declared in starter posture",
+      "evidence_source": "support_admission_record",
+      "predicate_id": "promotion_claim_has_witness",
+      "status": "pass"
+    },
+    {
+      "artifact_ref": "docs/support/VERTICAL_ALIGNMENT_ARCHITECTURE_HARDENED.md",
+      "detail_note": "artifact is not declared as a descendant surface",
+      "evidence_source": "support_admission_record",
+      "predicate_id": "descendant_claim_within_parent_entitlement",
+      "status": "not_evaluable_yet"
+    },
+    {
+      "artifact_ref": "docs/support/VERTICAL_ALIGNMENT_ARCHITECTURE_HARDENED.md",
+      "detail_note": "projection posture keeps authority minting disabled",
+      "evidence_source": "support_admission_record",
+      "predicate_id": "projection_does_not_mint_authority",
+      "status": "pass"
+    },
+    {
+      "artifact_ref": "docs/support/VERTICAL_ALIGNMENT_ARCHITECTURE_HARDENED.md",
+      "detail_note": "support surface remains non-promoted",
+      "evidence_source": "support_admission_record",
+      "predicate_id": "support_surface_not_self_promoted",
+      "status": "pass"
+    },
+    {
+      "artifact_ref": "docs/support/ODEU_MEMBRANE_ARCHITECTURE.md",
+      "detail_note": "authority layer declared as support",
+      "evidence_source": "support_admission_record",
+      "predicate_id": "authority_layer_declared",
+      "status": "pass"
+    },
+    {
+      "artifact_ref": "docs/support/ODEU_MEMBRANE_ARCHITECTURE.md",
+      "detail_note": "authority relation admitted as coexisting_non_override",
+      "evidence_source": "support_admission_record",
+      "predicate_id": "authority_relation_legal",
+      "status": "pass"
+    },
+    {
+      "artifact_ref": "docs/support/ODEU_MEMBRANE_ARCHITECTURE.md",
+      "detail_note": "placement basis declared as doctrine_surface",
+      "evidence_source": "support_admission_record",
+      "predicate_id": "placement_basis_present_when_required",
+      "status": "pass"
+    },
+    {
+      "artifact_ref": "docs/support/ODEU_MEMBRANE_ARCHITECTURE.md",
+      "detail_note": "coverage scope declared as single_artifact",
+      "evidence_source": "support_admission_record",
+      "predicate_id": "coverage_scope_present_when_required",
+      "status": "pass"
+    },
+    {
+      "artifact_ref": "docs/support/ODEU_MEMBRANE_ARCHITECTURE.md",
+      "detail_note": "dominant force band declared as interpretive",
+      "evidence_source": "support_admission_record",
+      "predicate_id": "dominant_force_band_resolved",
+      "status": "pass"
+    },
+    {
+      "artifact_ref": "docs/support/ODEU_MEMBRANE_ARCHITECTURE.md",
+      "detail_note": "no promotion claim declared in starter posture",
+      "evidence_source": "support_admission_record",
+      "predicate_id": "promotion_claim_has_witness",
+      "status": "pass"
+    },
+    {
+      "artifact_ref": "docs/support/ODEU_MEMBRANE_ARCHITECTURE.md",
+      "detail_note": "artifact is not declared as a descendant surface",
+      "evidence_source": "support_admission_record",
+      "predicate_id": "descendant_claim_within_parent_entitlement",
+      "status": "not_evaluable_yet"
+    },
+    {
+      "artifact_ref": "docs/support/ODEU_MEMBRANE_ARCHITECTURE.md",
+      "detail_note": "projection posture keeps authority minting disabled",
+      "evidence_source": "support_admission_record",
+      "predicate_id": "projection_does_not_mint_authority",
+      "status": "pass"
+    },
+    {
+      "artifact_ref": "docs/support/ODEU_MEMBRANE_ARCHITECTURE.md",
+      "detail_note": "support surface remains non-promoted",
+      "evidence_source": "support_admission_record",
+      "predicate_id": "support_surface_not_self_promoted",
+      "status": "pass"
+    },
+    {
+      "artifact_ref": "docs/support/crypto data spec2.md",
+      "detail_note": "authority layer declared as support",
+      "evidence_source": "support_admission_record",
+      "predicate_id": "authority_layer_declared",
+      "status": "pass"
+    },
+    {
+      "artifact_ref": "docs/support/crypto data spec2.md",
+      "detail_note": "authority relation admitted as support_descendant_exemplar",
+      "evidence_source": "support_admission_record",
+      "predicate_id": "authority_relation_legal",
+      "status": "pass"
+    },
+    {
+      "artifact_ref": "docs/support/crypto data spec2.md",
+      "detail_note": "placement basis declared as doctrine_surface",
+      "evidence_source": "support_admission_record",
+      "predicate_id": "placement_basis_present_when_required",
+      "status": "pass"
+    },
+    {
+      "artifact_ref": "docs/support/crypto data spec2.md",
+      "detail_note": "coverage scope declared as descendant_trial_input",
+      "evidence_source": "support_admission_record",
+      "predicate_id": "coverage_scope_present_when_required",
+      "status": "pass"
+    },
+    {
+      "artifact_ref": "docs/support/crypto data spec2.md",
+      "detail_note": "dominant force band declared as interpretive",
+      "evidence_source": "support_admission_record",
+      "predicate_id": "dominant_force_band_resolved",
+      "status": "pass"
+    },
+    {
+      "artifact_ref": "docs/support/crypto data spec2.md",
+      "detail_note": "no promotion claim declared in starter posture",
+      "evidence_source": "support_admission_record",
+      "predicate_id": "promotion_claim_has_witness",
+      "status": "pass"
+    },
+    {
+      "artifact_ref": "docs/support/crypto data spec2.md",
+      "detail_note": "descendant surface kept within parent entitlement under family:V55",
+      "evidence_source": "support_admission_record",
+      "predicate_id": "descendant_claim_within_parent_entitlement",
+      "status": "pass"
+    },
+    {
+      "artifact_ref": "docs/support/crypto data spec2.md",
+      "detail_note": "projection posture keeps authority minting disabled",
+      "evidence_source": "support_admission_record",
+      "predicate_id": "projection_does_not_mint_authority",
+      "status": "pass"
+    },
+    {
+      "artifact_ref": "docs/support/crypto data spec2.md",
+      "detail_note": "support surface remains non-promoted",
+      "evidence_source": "support_admission_record",
+      "predicate_id": "support_surface_not_self_promoted",
+      "status": "pass"
+    }
+  ],
+  "report_id": "constitutional_report:1d6fbbfa46b92066",
+  "schema": "constitutional_coherence_report@1",
+  "target_arc": "vNext+149",
+  "target_path": "V55-A",
+  "warning_count": 2,
+  "warnings": [
+    {
+      "artifact_ref": "docs/support/ADEU_SCHEMA_META_GRAMMAR.md",
+      "code": "NO_STRUCTURED_DOC_CLAIMS_VISIBLE",
+      "message": "seed artifact exposes no visible status line or json block; starter evaluation depends entirely on the admission record",
+      "predicate_id": "authority_layer_declared"
+    },
+    {
+      "artifact_ref": "docs/support/ODEU_MEMBRANE_ARCHITECTURE.md",
+      "code": "NO_STRUCTURED_DOC_CLAIMS_VISIBLE",
+      "message": "seed artifact exposes no visible status line or json block; starter evaluation depends entirely on the admission record",
+      "predicate_id": "authority_layer_declared"
+    }
+  ]
+}

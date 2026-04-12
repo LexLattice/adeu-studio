@@ -1,0 +1,80 @@
+{
+  "$defs": {
+    "ConstitutionalCoherenceLaneDriftEntry": {
+      "additionalProperties": false,
+      "properties": {
+        "assumption_ref": {
+          "title": "Assumption Ref",
+          "type": "string"
+        },
+        "note": {
+          "title": "Note",
+          "type": "string"
+        },
+        "status": {
+          "enum": [
+            "holds",
+            "amended",
+            "superseded",
+            "not_selected_anymore"
+          ],
+          "title": "Status",
+          "type": "string"
+        }
+      },
+      "required": [
+        "assumption_ref",
+        "status",
+        "note"
+      ],
+      "title": "ConstitutionalCoherenceLaneDriftEntry",
+      "type": "object"
+    }
+  },
+  "additionalProperties": false,
+  "properties": {
+    "entries": {
+      "items": {
+        "$ref": "#/$defs/ConstitutionalCoherenceLaneDriftEntry"
+      },
+      "title": "Entries",
+      "type": "array"
+    },
+    "entry_count": {
+      "title": "Entry Count",
+      "type": "integer"
+    },
+    "prior_lane_ref": {
+      "title": "Prior Lane Ref",
+      "type": "string"
+    },
+    "record_id": {
+      "title": "Record Id",
+      "type": "string"
+    },
+    "schema": {
+      "const": "constitutional_coherence_lane_drift_record@1",
+      "default": "constitutional_coherence_lane_drift_record@1",
+      "title": "Schema",
+      "type": "string"
+    },
+    "target_arc": {
+      "title": "Target Arc",
+      "type": "string"
+    },
+    "target_path": {
+      "title": "Target Path",
+      "type": "string"
+    }
+  },
+  "required": [
+    "record_id",
+    "target_arc",
+    "target_path",
+    "prior_lane_ref",
+    "entry_count",
+    "entries"
+  ],
+  "title": "ConstitutionalCoherenceLaneDriftRecord",
+  "type": "object"
+}

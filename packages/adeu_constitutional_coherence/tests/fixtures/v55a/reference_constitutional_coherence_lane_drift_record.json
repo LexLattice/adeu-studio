@@ -1,0 +1,25 @@
+{
+  "entries": [
+    {
+      "assumption_ref": "structured_input_only",
+      "note": "V55-A checker remains deterministic over admissions, headers, JSON blocks, refs, and witness refs only.",
+      "status": "holds"
+    },
+    {
+      "assumption_ref": "exact_admitted_seed_set",
+      "note": "The starter run keeps the admitted six-artifact seed set closed with no thematic widening.",
+      "status": "holds"
+    },
+    {
+      "assumption_ref": "warning_only_checker",
+      "note": "The checker emits warnings and unresolved seams without CI or branch-protection gating.",
+      "status": "holds"
+    }
+  ],
+  "entry_count": 3,
+  "prior_lane_ref": "docs/LOCKED_CONTINUATION_vNEXT_PLUS149.md",
+  "record_id": "constitutional_lane_drift:b9b2bdce50e79533",
+  "schema": "constitutional_coherence_lane_drift_record@1",
+  "target_arc": "vNext+149",
+  "target_path": "V55-A"
+}
