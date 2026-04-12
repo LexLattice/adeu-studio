@@ -10,6 +10,7 @@ from adeu_ir.repo import repo_root
 from .models import (
     CONSTITUTIONAL_SUPPORT_ADMISSION_RECORD_SCHEMA,
     ConstitutionalCoherenceFinding,
+    ConstitutionalCoherenceLaneDriftRecord,
     ConstitutionalCoherencePredicateEvaluation,
     ConstitutionalCoherenceReport,
     ConstitutionalSupportAdmissionRecord,
@@ -23,10 +24,21 @@ from .models import (
 CHECKER_VERSION = "v55a_constitutional_coherence_checker@1"
 TARGET_ARC = "vNext+149"
 TARGET_PATH = "V55-A"
+V55B_CHECKER_VERSION = "v55b_constitutional_coherence_checker@1"
+V55B_TARGET_ARC = "vNext+150"
+V55B_TARGET_PATH = "V55-B"
 MAX_STRUCTURED_DOC_BYTES = 1_048_576
 DEFAULT_ADMISSIONS_PATH = (
     "packages/adeu_constitutional_coherence/tests/fixtures/v55a/"
     "constitutional_support_admission_records_v55a.json"
+)
+DEFAULT_V55B_ADMISSIONS_PATH = (
+    "packages/adeu_constitutional_coherence/tests/fixtures/v55b/"
+    "constitutional_support_admission_records_v55b.json"
+)
+DEFAULT_V55B_DRIFT_RECORD_PATH = (
+    "packages/adeu_constitutional_coherence/tests/fixtures/v55b/"
+    "reference_constitutional_coherence_lane_drift_record.json"
 )
 EXPECTED_ADMITTED_SEED_ARTIFACTS = (
     "docs/LOCKED_RECURSIVE_COORDINATE_ADOPTION_v0.md",
@@ -36,6 +48,15 @@ EXPECTED_ADMITTED_SEED_ARTIFACTS = (
     "docs/support/ODEU_MEMBRANE_ARCHITECTURE.md",
     "docs/support/crypto data spec2.md",
 )
+PREFERRED_DESCENDANT_ARTIFACT = "docs/support/crypto data spec2.md"
+REQUIRED_V55B_DRIFT_ENTRY_STATUSES: dict[str, str] = {
+    "structured_input_only": "holds",
+    "exact_admitted_seed_set": "holds",
+    "warning_only_checker": "holds",
+    "checker_report_surface_reuse_default": "holds",
+    "descendant_trial_profile_hardening": "amended",
+}
+EXPECTED_V55B_PRIOR_LANE_REF = "docs/LOCKED_CONTINUATION_vNEXT_PLUS149.md"
 
 _AUTHORITY_LINE_RE = re.compile(r"^Authority layer:\s*(.+)$", re.MULTILINE)
 _STATUS_LINE_RE = re.compile(r"^Status:\s*(.+)$", re.MULTILINE)
@@ -152,16 +173,20 @@ def load_support_admission_records(*, path: Path) -> list[ConstitutionalSupportA
     payload = json.loads(path.read_text(encoding="utf-8"))
     if not isinstance(payload, list):
         raise ValueError("support admission payload must be a list of records")
-    records = [
-        ConstitutionalSupportAdmissionRecord.model_validate(item)
-        for item in payload
-    ]
+    records = [ConstitutionalSupportAdmissionRecord.model_validate(item) for item in payload]
     seen: set[str] = set()
     for record in records:
         if record.artifact_ref in seen:
             raise ValueError(f"duplicate artifact_ref in admission records: {record.artifact_ref}")
         seen.add(record.artifact_ref)
     return records
+
+
+def load_lane_drift_record(*, path: Path) -> ConstitutionalCoherenceLaneDriftRecord:
+    payload = json.loads(path.read_text(encoding="utf-8"))
+    if not isinstance(payload, dict):
+        raise ValueError("lane drift payload must be an object")
+    return ConstitutionalCoherenceLaneDriftRecord.model_validate(payload)
 
 
 def _canonicalize_admitted_seed_records(
@@ -179,8 +204,7 @@ def _canonicalize_admitted_seed_records(
         if extra_refs:
             detail_parts.append(f"extra={extra_refs}")
         raise ValueError(
-            "admissions must match the exact V55-A admitted seed set; "
-            + ", ".join(detail_parts)
+            "admissions must match the exact admitted seed set; " + ", ".join(detail_parts)
         )
     return [records_by_ref[artifact_ref] for artifact_ref in EXPECTED_ADMITTED_SEED_ARTIFACTS]
 
@@ -202,6 +226,10 @@ def _evaluation(
     )
 
 
+def _resolve_repo_input_path(*, repo_root_path: Path, value: str) -> Path:
+    return _resolve_path(repo_root_path=repo_root_path, value=value)
+
+
 def _warning(
     *,
     code: str,
@@ -215,6 +243,141 @@ def _warning(
         predicate_id=predicate_id,
         message=message,
     )
+
+
+def _validate_v55b_lane_drift_record(
+    record: ConstitutionalCoherenceLaneDriftRecord,
+) -> ConstitutionalCoherenceLaneDriftRecord:
+    if record.target_arc != V55B_TARGET_ARC:
+        raise ValueError(
+            f"V55-B lane drift record must target {V55B_TARGET_ARC!r}, got {record.target_arc!r}"
+        )
+    if record.target_path != V55B_TARGET_PATH:
+        raise ValueError(
+            f"V55-B lane drift record must target {V55B_TARGET_PATH!r}, got {record.target_path!r}"
+        )
+    if record.prior_lane_ref != EXPECTED_V55B_PRIOR_LANE_REF:
+        raise ValueError(
+            "V55-B lane drift record must point at "
+            f"{EXPECTED_V55B_PRIOR_LANE_REF!r}, got {record.prior_lane_ref!r}"
+        )
+
+    seen_assumption_refs: set[str] = set()
+    duplicate_assumption_refs: list[str] = []
+    for entry in record.entries:
+        if entry.assumption_ref in seen_assumption_refs:
+            duplicate_assumption_refs.append(entry.assumption_ref)
+            continue
+        seen_assumption_refs.add(entry.assumption_ref)
+    if duplicate_assumption_refs:
+        raise ValueError(
+            "V55-B lane drift record must not repeat assumption refs; "
+            f"duplicates={sorted(set(duplicate_assumption_refs))}"
+        )
+
+    actual_statuses = {entry.assumption_ref: entry.status for entry in record.entries}
+    missing_assumptions = sorted(set(REQUIRED_V55B_DRIFT_ENTRY_STATUSES) - set(actual_statuses))
+    unexpected_statuses = sorted(
+        assumption_ref
+        for assumption_ref, expected_status in REQUIRED_V55B_DRIFT_ENTRY_STATUSES.items()
+        if assumption_ref in actual_statuses
+        and actual_statuses[assumption_ref] != expected_status
+    )
+    if missing_assumptions or unexpected_statuses:
+        detail_parts: list[str] = []
+        if missing_assumptions:
+            detail_parts.append(f"missing={missing_assumptions}")
+        if unexpected_statuses:
+            detail_parts.append(f"status_mismatch={unexpected_statuses}")
+        raise ValueError(
+            "V55-B lane drift record does not satisfy the required handoff posture; "
+            + ", ".join(detail_parts)
+        )
+    return record
+
+
+def _reclassify_v55b_unresolved_entry(
+    entry: ConstitutionalUnresolvedSeamEntry,
+) -> ConstitutionalUnresolvedSeamEntry:
+    if entry.predicate_id == "descendant_claim_within_parent_entitlement":
+        reason_kind = "family_law_gap"
+    elif entry.predicate_id == "support_surface_not_self_promoted":
+        reason_kind = "admission_surface_gap"
+    else:
+        reason_kind = entry.reason_kind
+    return entry.model_copy(update={"reason_kind": reason_kind})
+
+
+def _v55b_descendant_record(
+    records: list[ConstitutionalSupportAdmissionRecord],
+) -> ConstitutionalSupportAdmissionRecord:
+    descendant_records = [record for record in records if record.is_descendant_surface]
+    if len(descendant_records) != 1:
+        raise ValueError(
+            "V55-B requires exactly one admitted descendant support surface in the seed set"
+        )
+    record = descendant_records[0]
+    if record.artifact_ref != PREFERRED_DESCENDANT_ARTIFACT:
+        raise ValueError(
+            "V55-B requires the preferred descendant artifact "
+            f"{PREFERRED_DESCENDANT_ARTIFACT!r}, got {record.artifact_ref!r}"
+        )
+    if record.authority_layer != "support":
+        raise ValueError(
+            "V55-B requires the preferred descendant to remain a support-surface admission"
+        )
+    if record.current_authority_relation != "support_descendant_exemplar":
+        raise ValueError(
+            "V55-B requires the preferred descendant to keep the "
+            "'support_descendant_exemplar' relation"
+        )
+    return record
+
+
+def _build_v55b_descendant_hardening(
+    *,
+    repo_root_path: Path,
+    descendant_record: ConstitutionalSupportAdmissionRecord,
+) -> tuple[list[ConstitutionalCoherenceFinding], list[ConstitutionalUnresolvedSeamEntry]]:
+    surface = _extract_structured_doc_surface(
+        repo_root_path=repo_root_path,
+        artifact_ref=descendant_record.artifact_ref,
+    )
+    warnings: list[ConstitutionalCoherenceFinding] = []
+    unresolved_entries: list[ConstitutionalUnresolvedSeamEntry] = []
+
+    if surface.authority_layer_line is None:
+        warnings.append(
+            _warning(
+                code="DESCENDANT_STRUCTURED_AUTHORITY_LAYER_MISSING",
+                artifact_ref=descendant_record.artifact_ref,
+                predicate_id="authority_layer_declared",
+                message=(
+                    "preferred descendant support surface lacks an explicit "
+                    "'Authority layer:' line; V55-B keeps it support-surface only and "
+                    "non-promoting until the local claim surface is tightened"
+                ),
+            )
+        )
+        unresolved_entries.append(
+            _unresolved(
+                artifact_ref=descendant_record.artifact_ref,
+                predicate_id="authority_layer_declared",
+                reason_kind="descendant_law_gap",
+                required_follow_up=[
+                    (
+                        "declare explicit authority-layer posture inside the preferred "
+                        "descendant support surface"
+                    ),
+                    (
+                        "keep the descendant trial non-promoting and support-surface "
+                        "only until the local claim surface is tightened"
+                    ),
+                ],
+            )
+        )
+
+    return warnings, unresolved_entries
 
 
 def _unresolved(
@@ -274,10 +437,7 @@ def run_constitutional_coherence_v55a(
                 artifact_ref=record.artifact_ref,
                 status="pass",
                 evidence_source="support_admission_record",
-                detail_note=(
-                    "authority relation admitted as "
-                    f"{record.current_authority_relation}"
-                ),
+                detail_note=(f"authority relation admitted as {record.current_authority_relation}"),
             )
         )
         evaluations.append(
@@ -295,10 +455,7 @@ def run_constitutional_coherence_v55a(
                 artifact_ref=record.artifact_ref,
                 status="pass",
                 evidence_source="support_admission_record",
-                detail_note=(
-                    "coverage scope declared as "
-                    f"{record.coverage_scope.scope_kind}"
-                ),
+                detail_note=(f"coverage scope declared as {record.coverage_scope.scope_kind}"),
             )
         )
         evaluations.append(
@@ -307,10 +464,7 @@ def run_constitutional_coherence_v55a(
                 artifact_ref=record.artifact_ref,
                 status="pass",
                 evidence_source="support_admission_record",
-                detail_note=(
-                    "dominant force band declared as "
-                    f"{record.dominant_force_band}"
-                ),
+                detail_note=(f"dominant force band declared as {record.dominant_force_band}"),
             )
         )
         if record.promotion_claim:
@@ -484,6 +638,72 @@ def run_constitutional_coherence_v55a(
         ),
         target_arc=TARGET_ARC,
         target_path=TARGET_PATH,
+        entry_count=len(unresolved_entries),
+        entries=unresolved_entries,
+    )
+    return report, unresolved_register
+
+
+def run_constitutional_coherence_v55b(
+    *,
+    repo_root_path: Path | None = None,
+    admissions_path: Path | None = None,
+    lane_drift_path: Path | None = None,
+) -> tuple[ConstitutionalCoherenceReport, ConstitutionalUnresolvedSeamRegister]:
+    root = repo_root_path or repo_root(anchor=Path(__file__))
+    resolved_admissions = _resolve_repo_input_path(
+        repo_root_path=root,
+        value=str(admissions_path or DEFAULT_V55B_ADMISSIONS_PATH),
+    )
+    resolved_lane_drift = _resolve_repo_input_path(
+        repo_root_path=root,
+        value=str(lane_drift_path or DEFAULT_V55B_DRIFT_RECORD_PATH),
+    )
+    _validate_v55b_lane_drift_record(load_lane_drift_record(path=resolved_lane_drift))
+
+    records = _canonicalize_admitted_seed_records(
+        load_support_admission_records(path=resolved_admissions)
+    )
+    descendant_record = _v55b_descendant_record(records)
+
+    base_report, base_unresolved = run_constitutional_coherence_v55a(
+        repo_root_path=root,
+        admissions_path=resolved_admissions,
+    )
+    descendant_warnings, descendant_unresolved = _build_v55b_descendant_hardening(
+        repo_root_path=root,
+        descendant_record=descendant_record,
+    )
+
+    warnings = [*base_report.warnings, *descendant_warnings]
+    unresolved_entries = [
+        *(_reclassify_v55b_unresolved_entry(entry) for entry in base_unresolved.entries),
+        *descendant_unresolved,
+    ]
+    checked_artifact_refs = list(base_report.checked_artifact_refs)
+    report = ConstitutionalCoherenceReport(
+        report_id=compute_constitutional_report_id(
+            target_arc=V55B_TARGET_ARC,
+            target_path=V55B_TARGET_PATH,
+            checked_artifact_refs=checked_artifact_refs,
+            checker_version=V55B_CHECKER_VERSION,
+        ),
+        target_arc=V55B_TARGET_ARC,
+        target_path=V55B_TARGET_PATH,
+        checker_version=V55B_CHECKER_VERSION,
+        checked_artifact_refs=checked_artifact_refs,
+        evaluations=list(base_report.evaluations),
+        warning_count=len(warnings),
+        warnings=warnings,
+    )
+    unresolved_register = ConstitutionalUnresolvedSeamRegister(
+        register_id=compute_constitutional_unresolved_seam_register_id(
+            target_arc=V55B_TARGET_ARC,
+            target_path=V55B_TARGET_PATH,
+            seam_ids=[entry.seam_id for entry in unresolved_entries],
+        ),
+        target_arc=V55B_TARGET_ARC,
+        target_path=V55B_TARGET_PATH,
         entry_count=len(unresolved_entries),
         entries=unresolved_entries,
     )

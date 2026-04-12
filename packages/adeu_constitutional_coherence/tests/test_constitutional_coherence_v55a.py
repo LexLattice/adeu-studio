@@ -116,7 +116,7 @@ def test_checker_rejects_admission_payloads_outside_exact_seed_set(tmp_path: Pat
     payload = _load_admissions_payload()
 
     missing_path = _write_records(tmp_path / "missing.json", payload[:-1])
-    with pytest.raises(ValueError, match="exact V55-A admitted seed set"):
+    with pytest.raises(ValueError, match="exact admitted seed set"):
         run_constitutional_coherence_v55a(
             repo_root_path=_repo_root_path(),
             admissions_path=missing_path,
@@ -128,7 +128,7 @@ def test_checker_rejects_admission_payloads_outside_exact_seed_set(tmp_path: Pat
         artifact_ref=extra_record["artifact_ref"]
     )
     extra_path = _write_records(tmp_path / "extra.json", [*payload, extra_record])
-    with pytest.raises(ValueError, match="exact V55-A admitted seed set"):
+    with pytest.raises(ValueError, match="exact admitted seed set"):
         run_constitutional_coherence_v55a(
             repo_root_path=_repo_root_path(),
             admissions_path=extra_path,
