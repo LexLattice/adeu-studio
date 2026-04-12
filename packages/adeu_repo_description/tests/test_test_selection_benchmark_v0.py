@@ -227,11 +227,12 @@ def test_run_benchmark_keep_worktrees_controls_forced_worktree_remove(
         seen_git_commands.append(tuple(command))
 
     monkeypatch.setattr(benchmark, "_ensure_git_success", _fake_ensure_git_success)
-    monkeypatch.setattr(
-        benchmark,
-        "_discover_changed_paths_from_pair",
-        lambda **kwargs: (_ for _ in ()).throw(RuntimeError("stop after add")),
-    )
+
+    def _raise_after_add(**kwargs: object) -> list[str]:
+        del kwargs
+        raise RuntimeError("stop after add")
+
+    monkeypatch.setattr(benchmark, "_discover_changed_paths_from_pair", _raise_after_add)
 
     with pytest.raises(RuntimeError, match="stop after add"):
         benchmark.run_benchmark(
@@ -245,3 +246,4 @@ def test_run_benchmark_keep_worktrees_controls_forced_worktree_remove(
         command[:4] == ("git", "worktree", "remove", "--force") for command in seen_git_commands
     )
     assert remove_was_called is expect_remove_call
+    assert temp_root.exists() is keep_worktrees
