@@ -109,9 +109,6 @@ def _run_command(
 
 
 def _parse_junit_xml(path: Path) -> tuple[tuple[str, ...], tuple[str, ...], dict[str, int]]:
-    if not path.exists():
-        return (), (), {"passed": 0, "failed": 0, "error": 0, "skipped": 0}
-
     tree = ET.parse(path)
     root = tree.getroot()
     executed: list[str] = []
@@ -152,6 +149,12 @@ def _run_pytest(
     failing: tuple[str, ...] = ()
     outcome_counts: dict[str, int] = {"passed": 0, "failed": 0, "error": 0, "skipped": 0}
     if junit_xml_path is not None:
+        if not junit_xml_path.exists():
+            raise RuntimeError(
+                "pytest run did not produce expected junit xml: "
+                f"{junit_xml_path.as_posix()} (exit_code={result.exit_code}, "
+                f"command={result.command})"
+            )
         executed, failing, outcome_counts = _parse_junit_xml(junit_xml_path)
     return PytestRunResult(
         command=result.command,
@@ -711,22 +714,24 @@ def run_benchmark(
             tempfile.mkdtemp(prefix=f"adeu_test_selection_benchmark_{delta.delta_id}_")
         )
         worktree_path = temp_root / "worktree"
+        worktree_created = False
         delta_output_dir = deltas_output_dir / delta.delta_id
         delta_output_dir.mkdir(parents=True, exist_ok=True)
 
-        _ensure_git_success(
-            command=[
-                "git",
-                "worktree",
-                "add",
-                "--detach",
-                worktree_path.as_posix(),
-                delta.base_revision,
-            ],
-            cwd=repo_root,
-            env=git_env,
-        )
         try:
+            _ensure_git_success(
+                command=[
+                    "git",
+                    "worktree",
+                    "add",
+                    "--detach",
+                    worktree_path.as_posix(),
+                    delta.base_revision,
+                ],
+                cwd=repo_root,
+                env=git_env,
+            )
+            worktree_created = True
             changed_paths = (
                 sorted(delta.changed_paths)
                 if delta.changed_paths is not None
@@ -1017,14 +1022,21 @@ def run_benchmark(
                 }
             )
         finally:
-            try:
-                _ensure_git_success(
-                    command=["git", "worktree", "remove", "--force", worktree_path.as_posix()],
-                    cwd=repo_root,
-                    env=git_env,
-                )
-            finally:
-                if not keep_worktrees:
+            if not keep_worktrees:
+                try:
+                    if worktree_created:
+                        _ensure_git_success(
+                            command=[
+                                "git",
+                                "worktree",
+                                "remove",
+                                "--force",
+                                worktree_path.as_posix(),
+                            ],
+                            cwd=repo_root,
+                            env=git_env,
+                        )
+                finally:
                     shutil.rmtree(temp_root, ignore_errors=True)
 
     benchmark_rows.sort(key=lambda row: (row["delta_id"], row["regime"]))
@@ -1109,7 +1121,7 @@ def _parse_args(argv: list[str]) -> argparse.Namespace:
     parser.add_argument(
         "--python-executable",
         type=Path,
-        default=Path(".venv/bin/python"),
+        default=Path(sys.executable),
         help="Python interpreter used for pytest executions.",
     )
     parser.add_argument(
