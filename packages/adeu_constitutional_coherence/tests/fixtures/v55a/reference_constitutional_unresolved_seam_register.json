@@ -1,0 +1,72 @@
+{
+  "entries": [
+    {
+      "artifact_ref": "docs/LOCKED_RECURSIVE_COORDINATE_ADOPTION_v0.md",
+      "predicate_id": "descendant_claim_within_parent_entitlement",
+      "reason_kind": "not_evaluable_yet",
+      "required_follow_up": [
+        "keep descendant-specific predicate evaluation limited to declared descendants"
+      ],
+      "seam_id": "constitutional_seam:563e08407d34b972"
+    },
+    {
+      "artifact_ref": "docs/LOCKED_RECURSIVE_COORDINATE_ADOPTION_v0.md",
+      "predicate_id": "support_surface_not_self_promoted",
+      "reason_kind": "not_evaluable_yet",
+      "required_follow_up": [
+        "keep support-self-promotion checks scoped to admitted support surfaces"
+      ],
+      "seam_id": "constitutional_seam:4a5a734e76e4dbcc"
+    },
+    {
+      "artifact_ref": "docs/DRAFT_RECURSIVE_COORDINATE_MIGRATION_LINT_POSTURE_v0.md",
+      "predicate_id": "descendant_claim_within_parent_entitlement",
+      "reason_kind": "not_evaluable_yet",
+      "required_follow_up": [
+        "keep descendant-specific predicate evaluation limited to declared descendants"
+      ],
+      "seam_id": "constitutional_seam:7df428fdde09347d"
+    },
+    {
+      "artifact_ref": "docs/DRAFT_RECURSIVE_COORDINATE_MIGRATION_LINT_POSTURE_v0.md",
+      "predicate_id": "support_surface_not_self_promoted",
+      "reason_kind": "not_evaluable_yet",
+      "required_follow_up": [
+        "keep support-self-promotion checks scoped to admitted support surfaces"
+      ],
+      "seam_id": "constitutional_seam:ec6ef61ae5681ce4"
+    },
+    {
+      "artifact_ref": "docs/support/ADEU_SCHEMA_META_GRAMMAR.md",
+      "predicate_id": "descendant_claim_within_parent_entitlement",
+      "reason_kind": "not_evaluable_yet",
+      "required_follow_up": [
+        "keep descendant-specific predicate evaluation limited to declared descendants"
+      ],
+      "seam_id": "constitutional_seam:7a24b50825a8bc49"
+    },
+    {
+      "artifact_ref": "docs/support/VERTICAL_ALIGNMENT_ARCHITECTURE_HARDENED.md",
+      "predicate_id": "descendant_claim_within_parent_entitlement",
+      "reason_kind": "not_evaluable_yet",
+      "required_follow_up": [
+        "keep descendant-specific predicate evaluation limited to declared descendants"
+      ],
+      "seam_id": "constitutional_seam:97f66503495a2c7e"
+    },
+    {
+      "artifact_ref": "docs/support/ODEU_MEMBRANE_ARCHITECTURE.md",
+      "predicate_id": "descendant_claim_within_parent_entitlement",
+      "reason_kind": "not_evaluable_yet",
+      "required_follow_up": [
+        "keep descendant-specific predicate evaluation limited to declared descendants"
+      ],
+      "seam_id": "constitutional_seam:28c5a577ad8c3b79"
+    }
+  ],
+  "entry_count": 7,
+  "register_id": "constitutional_seam_register:7a9485af9e287b2e",
+  "schema": "constitutional_unresolved_seam_register@1",
+  "target_arc": "vNext+149",
+  "target_path": "V55-A"
+}

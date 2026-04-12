@@ -1,0 +1,168 @@
+{
+  "$defs": {
+    "CoverageScope": {
+      "additionalProperties": false,
+      "properties": {
+        "covered_paths": {
+          "items": {
+            "type": "string"
+          },
+          "title": "Covered Paths",
+          "type": "array"
+        },
+        "scope_kind": {
+          "title": "Scope Kind",
+          "type": "string"
+        }
+      },
+      "required": [
+        "scope_kind",
+        "covered_paths"
+      ],
+      "title": "CoverageScope",
+      "type": "object"
+    }
+  },
+  "additionalProperties": false,
+  "properties": {
+    "admission_id": {
+      "title": "Admission Id",
+      "type": "string"
+    },
+    "allowed_kernel_use": {
+      "items": {
+        "type": "string"
+      },
+      "title": "Allowed Kernel Use",
+      "type": "array"
+    },
+    "artifact_ref": {
+      "title": "Artifact Ref",
+      "type": "string"
+    },
+    "authority_layer": {
+      "enum": [
+        "lock",
+        "planning",
+        "support",
+        "architecture_decomposition"
+      ],
+      "title": "Authority Layer",
+      "type": "string"
+    },
+    "coverage_scope": {
+      "$ref": "#/$defs/CoverageScope"
+    },
+    "current_authority_relation": {
+      "enum": [
+        "released_lock",
+        "planning_companion",
+        "support_shaping_only",
+        "support_descendant_exemplar",
+        "coexisting_non_override"
+      ],
+      "title": "Current Authority Relation",
+      "type": "string"
+    },
+    "dominant_force_band": {
+      "enum": [
+        "observational",
+        "interpretive",
+        "governing",
+        "operative"
+      ],
+      "title": "Dominant Force Band",
+      "type": "string"
+    },
+    "forbidden_inference": {
+      "items": {
+        "type": "string"
+      },
+      "title": "Forbidden Inference",
+      "type": "array"
+    },
+    "is_descendant_surface": {
+      "default": false,
+      "title": "Is Descendant Surface",
+      "type": "boolean"
+    },
+    "later_promotion_requirement": {
+      "items": {
+        "type": "string"
+      },
+      "title": "Later Promotion Requirement",
+      "type": "array"
+    },
+    "parent_family_ref": {
+      "anyOf": [
+        {
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Parent Family Ref"
+    },
+    "placement_basis": {
+      "enum": [
+        "doctrine_surface",
+        "schema_kind_definition",
+        "artifact_instance",
+        "runtime_kind_definition"
+      ],
+      "title": "Placement Basis",
+      "type": "string"
+    },
+    "projection_mints_authority": {
+      "default": false,
+      "title": "Projection Mints Authority",
+      "type": "boolean"
+    },
+    "promotion_claim": {
+      "default": false,
+      "title": "Promotion Claim",
+      "type": "boolean"
+    },
+    "promotion_witness_refs": {
+      "items": {
+        "type": "string"
+      },
+      "title": "Promotion Witness Refs",
+      "type": "array"
+    },
+    "schema": {
+      "const": "constitutional_support_admission_record@1",
+      "default": "constitutional_support_admission_record@1",
+      "title": "Schema",
+      "type": "string"
+    },
+    "within_parent_entitlement": {
+      "anyOf": [
+        {
+          "type": "boolean"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Within Parent Entitlement"
+    }
+  },
+  "required": [
+    "admission_id",
+    "artifact_ref",
+    "authority_layer",
+    "current_authority_relation",
+    "allowed_kernel_use",
+    "forbidden_inference",
+    "later_promotion_requirement",
+    "placement_basis",
+    "coverage_scope",
+    "dominant_force_band"
+  ],
+  "title": "ConstitutionalSupportAdmissionRecord",
+  "type": "object"
+}

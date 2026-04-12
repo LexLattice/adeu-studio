@@ -1,0 +1,82 @@
+{
+  "$defs": {
+    "ConstitutionalUnresolvedSeamEntry": {
+      "additionalProperties": false,
+      "properties": {
+        "artifact_ref": {
+          "title": "Artifact Ref",
+          "type": "string"
+        },
+        "predicate_id": {
+          "title": "Predicate Id",
+          "type": "string"
+        },
+        "reason_kind": {
+          "title": "Reason Kind",
+          "type": "string"
+        },
+        "required_follow_up": {
+          "items": {
+            "type": "string"
+          },
+          "title": "Required Follow Up",
+          "type": "array"
+        },
+        "seam_id": {
+          "title": "Seam Id",
+          "type": "string"
+        }
+      },
+      "required": [
+        "seam_id",
+        "artifact_ref",
+        "predicate_id",
+        "reason_kind",
+        "required_follow_up"
+      ],
+      "title": "ConstitutionalUnresolvedSeamEntry",
+      "type": "object"
+    }
+  },
+  "additionalProperties": false,
+  "properties": {
+    "entries": {
+      "items": {
+        "$ref": "#/$defs/ConstitutionalUnresolvedSeamEntry"
+      },
+      "title": "Entries",
+      "type": "array"
+    },
+    "entry_count": {
+      "title": "Entry Count",
+      "type": "integer"
+    },
+    "register_id": {
+      "title": "Register Id",
+      "type": "string"
+    },
+    "schema": {
+      "const": "constitutional_unresolved_seam_register@1",
+      "default": "constitutional_unresolved_seam_register@1",
+      "title": "Schema",
+      "type": "string"
+    },
+    "target_arc": {
+      "title": "Target Arc",
+      "type": "string"
+    },
+    "target_path": {
+      "title": "Target Path",
+      "type": "string"
+    }
+  },
+  "required": [
+    "register_id",
+    "target_arc",
+    "target_path",
+    "entry_count",
+    "entries"
+  ],
+  "title": "ConstitutionalUnresolvedSeamRegister",
+  "type": "object"
+}

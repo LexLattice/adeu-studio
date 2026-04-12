@@ -1,0 +1,134 @@
+{
+  "$defs": {
+    "ConstitutionalCoherenceFinding": {
+      "additionalProperties": false,
+      "properties": {
+        "artifact_ref": {
+          "title": "Artifact Ref",
+          "type": "string"
+        },
+        "code": {
+          "title": "Code",
+          "type": "string"
+        },
+        "message": {
+          "title": "Message",
+          "type": "string"
+        },
+        "predicate_id": {
+          "title": "Predicate Id",
+          "type": "string"
+        }
+      },
+      "required": [
+        "code",
+        "artifact_ref",
+        "predicate_id",
+        "message"
+      ],
+      "title": "ConstitutionalCoherenceFinding",
+      "type": "object"
+    },
+    "ConstitutionalCoherencePredicateEvaluation": {
+      "additionalProperties": false,
+      "properties": {
+        "artifact_ref": {
+          "title": "Artifact Ref",
+          "type": "string"
+        },
+        "detail_note": {
+          "title": "Detail Note",
+          "type": "string"
+        },
+        "evidence_source": {
+          "title": "Evidence Source",
+          "type": "string"
+        },
+        "predicate_id": {
+          "title": "Predicate Id",
+          "type": "string"
+        },
+        "status": {
+          "enum": [
+            "pass",
+            "warn",
+            "not_evaluable_yet"
+          ],
+          "title": "Status",
+          "type": "string"
+        }
+      },
+      "required": [
+        "predicate_id",
+        "artifact_ref",
+        "status",
+        "evidence_source",
+        "detail_note"
+      ],
+      "title": "ConstitutionalCoherencePredicateEvaluation",
+      "type": "object"
+    }
+  },
+  "additionalProperties": false,
+  "properties": {
+    "checked_artifact_refs": {
+      "items": {
+        "type": "string"
+      },
+      "title": "Checked Artifact Refs",
+      "type": "array"
+    },
+    "checker_version": {
+      "title": "Checker Version",
+      "type": "string"
+    },
+    "evaluations": {
+      "items": {
+        "$ref": "#/$defs/ConstitutionalCoherencePredicateEvaluation"
+      },
+      "title": "Evaluations",
+      "type": "array"
+    },
+    "report_id": {
+      "title": "Report Id",
+      "type": "string"
+    },
+    "schema": {
+      "const": "constitutional_coherence_report@1",
+      "default": "constitutional_coherence_report@1",
+      "title": "Schema",
+      "type": "string"
+    },
+    "target_arc": {
+      "title": "Target Arc",
+      "type": "string"
+    },
+    "target_path": {
+      "title": "Target Path",
+      "type": "string"
+    },
+    "warning_count": {
+      "title": "Warning Count",
+      "type": "integer"
+    },
+    "warnings": {
+      "items": {
+        "$ref": "#/$defs/ConstitutionalCoherenceFinding"
+      },
+      "title": "Warnings",
+      "type": "array"
+    }
+  },
+  "required": [
+    "report_id",
+    "target_arc",
+    "target_path",
+    "checker_version",
+    "checked_artifact_refs",
+    "evaluations",
+    "warning_count",
+    "warnings"
+  ],
+  "title": "ConstitutionalCoherenceReport",
+  "type": "object"
+}
