@@ -206,15 +206,15 @@ Planning relationship:
 - Recommended family/slice mapping reference to draft next:
   - `docs/DRAFT_ADEU_CONSTITUTIONAL_COHERENCE_V55_IMPLEMENTATION_MAPPING_v0.md`
 - Recommended next path for this branch:
-  - `V55-B`
+  - `V55-C`
 - Recommended next concrete arc for this branch if selected:
-  - `V55-B`
+  - `V55-C`
 - Default path selection for this branch:
-  - one bounded second slice is recommended:
-    - explicit `V55-A` lane handoff
-    - one hardened descendant trial only
-    - one tighter report/register ownership split
-  - if this family is selected, select `V55-B` as the next default candidate
+  - one bounded third slice is recommended:
+    - explicit `V55-B` lane handoff
+    - one per-predicate/per-surface governance and migration decision surface only
+    - one bounded decision on whether any checks remain warning-only locally
+  - if this family is selected, select `V55-C` as the next default candidate
 
 This family/path recommendation is branch-local to the `v38` planning surface.
 
@@ -228,8 +228,8 @@ The current recommended path ladder is:
 | Path | Theme | Primary output | Status |
 |---|---|---|---|
 | `V55-A` | intermediate family + bounded kernel starter | one architecture/decomposition doc for the general domain-substrate family, one thin warning-level coherence checker package, one small promoted seed-set manifest/check lane | closed on `main` via `v149` |
-| `V55-B` | descendant-trial hardening | one bounded descendant trial over one real exemplar, one coherence report shape, one explicit unresolved-seam register, one ownership-tightened lint/check protocol | recommended next path |
-| `V55-C` | promotion / migration widening | one later decision on whether any checks move from warning-only into stronger governance posture | `not_selected_yet` |
+| `V55-B` | descendant-trial hardening | one bounded descendant trial over one real exemplar, one coherence report shape, one explicit unresolved-seam register, one ownership-tightened lint/check protocol | closed on `main` via `v150` |
+| `V55-C` | promotion / migration widening | one bounded decision on whether any predicates or surfaces remain warning-only locally and whether any stronger local governance posture is warranted | recommended next path |
 
 These output names are planning-level candidate names, not lock-level schema authority.
 
@@ -305,9 +305,9 @@ Preferred descendant trial for `V55-A`:
     projection barriers, and force monotonicity inside one bounded domain substrate
     surface.
 
-## Recommended `V55-B` Scope
+## Closed `V55-B` Scope
 
-`V55-B` should be bounded to:
+`V55-B` was bounded to:
 
 - one explicit `V55-A` handoff/drift record over:
   - `constitutional_coherence_lane_drift_record@1`
@@ -324,20 +324,66 @@ Preferred descendant trial for `V55-A`:
 - one explicit proof that support-surface descendant hardening does not mint release,
   runtime, or product authority.
 
-`V55-B` should carry forward nearly as-is:
+`V55-B` carried forward nearly as-is:
 
 - the closed admitted seed artifact set from `V55-A`;
 - the structured-input-only contract;
 - the same closed predicate family unless one later lock explicitly amends it; and
 - the warning-only posture.
 
-`V55-B` should explicitly not select:
+`V55-B` explicitly did not select:
 
 - multi-descendant rollout;
 - descendant runtime/product implementation;
 - per-predicate or per-surface governance escalation;
 - support-companion admission by thematic similarity alone; or
 - generic lawful-morphism or hyperspace execution layers.
+
+## Recommended `V55-C` Scope
+
+`V55-C` should be bounded to:
+
+- one explicit `V55-B` handoff/drift record over:
+  - `constitutional_coherence_lane_drift_record@1`
+- one continued repo-owned package only:
+  - `packages/adeu_constitutional_coherence`
+- one continued thin script seam under existing repo operations;
+- one inherited preferred descendant evidence baseline only:
+  - `docs/support/crypto data spec2.md`
+- one bounded governance calibration register:
+  - `constitutional_governance_calibration_register@1`
+- one bounded migration decision register:
+  - `constitutional_migration_decision_register@1`
+- one explicit per-predicate/per-surface calibration decision on:
+  - which checks remain warning-only locally
+  - whether any stronger local governance posture is warranted
+  - whether any migration path beyond warning-only should remain deferred
+- one explicit proof that no checker-global switch, CI gating, or runtime/product
+  authority widening is introduced in this slice.
+
+`V55-C` should carry forward nearly as-is:
+
+- the closed admitted seed artifact set from `V55-A` and `V55-B`;
+- the structured-input-only contract;
+- the same preferred descendant evidence baseline unless one later amendment says
+  otherwise; and
+- the warning-only baseline as the inherited starting posture.
+
+`V55-C` decision surfaces should remain advisory-only:
+
+- they do not change checker exit codes by default;
+- they do not change warning behavior by default;
+- they do not change report semantics by default; and
+- they do not change unresolved-seam emission by default.
+
+`V55-C` should explicitly not select:
+
+- automatic promotion from warning-only to gating;
+- checker-global escalation by default;
+- repo-wide CI or branch-protection gating;
+- multi-descendant governance rollout;
+- descendant runtime/product implementation; or
+- support-companion admission by thematic similarity alone.
 
 ## Candidate Package Ownership
 
@@ -357,7 +403,7 @@ implementation family.
   "planning_doc": "docs/DRAFT_NEXT_ARC_OPTIONS_v38.md",
   "branch_candidate_family": "V55",
   "branch_candidate_status": "candidate_family_planning_for_constitutional_coherence_kernel_and_domain_substrate_family",
-  "baseline_arc": "vNext+149",
+  "baseline_arc": "vNext+150",
   "closed_prior_families": [
     "V49",
     "V52"
@@ -370,8 +416,8 @@ implementation family.
     "V54"
   ],
   "recommended_family": "V55",
-  "default_next_path_recommendation": "V55-B",
-  "default_next_concrete_arc_candidate_for_this_branch": "V55-B",
+  "default_next_path_recommendation": "V55-C",
+  "default_next_concrete_arc_candidate_for_this_branch": "V55-C",
   "family_architecture_doc": "docs/ARCHITECTURE_ADEU_DOMAIN_SUBSTRATE_FAMILY_v0.md",
   "kernel_spec_doc": "docs/DRAFT_CONSTITUTIONAL_COHERENCE_KERNEL_SPEC_v0.md",
   "family_decomposition_doc": "docs/DRAFT_ADEU_CONSTITUTIONAL_COHERENCE_V55_IMPLEMENTATION_MAPPING_v0.md",
@@ -413,8 +459,8 @@ implementation family.
     "ci_gating_introduced": false,
     "autonomous_prose_interpretation_introduced": false
   },
-  "selected_current_family_path_for_this_branch": "V55-B",
-  "selected_current_concrete_arc_for_this_branch": "V55-B",
+  "selected_current_family_path_for_this_branch": "V55-C",
+  "selected_current_concrete_arc_for_this_branch": "V55-C",
   "selected_current_path_phase": "starter_bundle_drafted_not_implemented"
 }
 ```
@@ -424,6 +470,8 @@ Branch-local note:
 - recursive-coordinate promotion and warning-only lint are now baseline shaping inputs
   for this family;
 - `V55-A` is now the closed bounded starter slice on `main`;
-- the next selected `V55` move should be one bounded `V55-B` descendant-trial
-  hardening slice only;
-- no `V55-C` governance widening is authorized by this planning draft yet.
+- `V55-B` is now the closed bounded descendant-trial hardening slice on `main`;
+- the next selected `V55` move should be one bounded `V55-C` governance and migration
+  decision slice only;
+- no checker-global escalation, repo-wide CI gating, or runtime/product widening is
+  authorized by this planning draft yet.

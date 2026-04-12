@@ -38,11 +38,34 @@ That decision should be evidence-led and should consume:
 - `V55-B` descendant-trial findings; and
 - one explicit prior-lane drift/amendment record:
   - `constitutional_coherence_lane_drift_record@1`
+- shipped prior-lane bounded outputs rather than narrative docs alone:
+  - `packages/adeu_constitutional_coherence/tests/fixtures/v55a/reference_constitutional_coherence_report.json`
+  - `packages/adeu_constitutional_coherence/tests/fixtures/v55a/reference_constitutional_unresolved_seam_register.json`
+  - `packages/adeu_constitutional_coherence/tests/fixtures/v55b/reference_constitutional_coherence_report.json`
+  - `packages/adeu_constitutional_coherence/tests/fixtures/v55b/reference_constitutional_unresolved_seam_register.json`
+  - `packages/adeu_constitutional_coherence/tests/fixtures/v55b/reference_constitutional_coherence_lane_drift_record.json`
+  - `artifacts/agent_harness/v150/evidence_inputs/v55b_descendant_trial_hardening_evidence_v150.json`
+
+In `V55-C`, the new decision surfaces should remain advisory-only:
+
+- they do not change checker exit codes by default;
+- they do not change warning behavior by default;
+- they do not change report semantics by default; and
+- they do not change unresolved-seam emission by default.
 
 ## Instantiated Here
 
-- one migration-decision surface if later selected
-- one explicit stronger-governance decision register if later selected
+- one governance calibration register if later selected:
+  - `constitutional_governance_calibration_register@1`
+- one migration decision register if later selected:
+  - `constitutional_migration_decision_register@1`
+
+Allowed `V55-C` decision outcomes should remain bounded to:
+
+- `keep_warning_only`
+- `needs_more_evidence`
+- `candidate_for_later_local_hardening`
+- `not_selected_for_escalation`
 
 ## Defer To Later Family Or Later Selection
 
@@ -54,5 +77,8 @@ That decision should be evidence-led and should consume:
 ## Do Not Import
 
 - automatic promotion from warning-only to gating
+- `gate_now`
+- `checker_global_gate_now`
+- `ci_required_now`
 - automatic support-doc promotion into release law
 - any assumption that `V55-C` is already selected merely because it is drafted here
