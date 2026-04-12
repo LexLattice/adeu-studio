@@ -1,0 +1,89 @@
+{
+  "schema": "v55a_constitutional_coherence_starter_evidence@1",
+  "evidence_input_path": "artifacts/agent_harness/v149/evidence_inputs/v55a_constitutional_coherence_starter_evidence_v149.json",
+  "contract_source": "docs/LOCKED_CONTINUATION_vNEXT_PLUS149.md#machine-checkable-contract",
+  "merged_pr": "#375",
+  "merge_commit": "48c27957dc74c04a1b445204b3211a77ac8ded48",
+  "implementation_commit": "bd52338cb9aee98f48ddf6aa891b83ac3799a072",
+  "review_hardening_commit": "0ef5dd679009bc266b3738d0f4c25cc59b3dcaa2",
+  "implementation_packages": [
+    "adeu_constitutional_coherence"
+  ],
+  "starter_schema_ids": [
+    "constitutional_support_admission_record@1",
+    "constitutional_coherence_report@1",
+    "constitutional_unresolved_seam_register@1",
+    "constitutional_coherence_lane_drift_record@1"
+  ],
+  "selected_predicates": [
+    "authority_layer_declared",
+    "authority_relation_legal",
+    "placement_basis_present_when_required",
+    "coverage_scope_present_when_required",
+    "dominant_force_band_resolved",
+    "promotion_claim_has_witness",
+    "descendant_claim_within_parent_entitlement",
+    "projection_does_not_mint_authority",
+    "support_surface_not_self_promoted"
+  ],
+  "structured_input_kinds": [
+    "explicit_headers",
+    "explicit_json_blocks",
+    "explicit_refs",
+    "explicit_witness_refs",
+    "explicit_family_or_descendant_declarations"
+  ],
+  "admitted_seed_artifact_refs": [
+    "docs/LOCKED_RECURSIVE_COORDINATE_ADOPTION_v0.md",
+    "docs/DRAFT_RECURSIVE_COORDINATE_MIGRATION_LINT_POSTURE_v0.md",
+    "docs/support/ADEU_SCHEMA_META_GRAMMAR.md",
+    "docs/support/VERTICAL_ALIGNMENT_ARCHITECTURE_HARDENED.md",
+    "docs/support/ODEU_MEMBRANE_ARCHITECTURE.md",
+    "docs/support/crypto data spec2.md"
+  ],
+  "constitutional_coherence_package_root": "packages/adeu_constitutional_coherence",
+  "constitutional_coherence_pyproject_path": "packages/adeu_constitutional_coherence/pyproject.toml",
+  "constitutional_coherence_package_init_source_path": "packages/adeu_constitutional_coherence/src/adeu_constitutional_coherence/__init__.py",
+  "constitutional_coherence_checker_source_path": "packages/adeu_constitutional_coherence/src/adeu_constitutional_coherence/checker.py",
+  "constitutional_coherence_models_source_path": "packages/adeu_constitutional_coherence/src/adeu_constitutional_coherence/models.py",
+  "constitutional_coherence_export_schema_source_path": "packages/adeu_constitutional_coherence/src/adeu_constitutional_coherence/export_schema.py",
+  "constitutional_coherence_cli_source_path": "apps/api/scripts/lint_constitutional_coherence_v55a.py",
+  "constitutional_support_admission_record_authoritative_schema_path": "packages/adeu_constitutional_coherence/schema/constitutional_support_admission_record.v1.json",
+  "constitutional_coherence_report_authoritative_schema_path": "packages/adeu_constitutional_coherence/schema/constitutional_coherence_report.v1.json",
+  "constitutional_unresolved_seam_register_authoritative_schema_path": "packages/adeu_constitutional_coherence/schema/constitutional_unresolved_seam_register.v1.json",
+  "constitutional_coherence_lane_drift_record_authoritative_schema_path": "packages/adeu_constitutional_coherence/schema/constitutional_coherence_lane_drift_record.v1.json",
+  "constitutional_support_admission_record_mirror_schema_path": "spec/constitutional_support_admission_record.schema.json",
+  "constitutional_coherence_report_mirror_schema_path": "spec/constitutional_coherence_report.schema.json",
+  "constitutional_unresolved_seam_register_mirror_schema_path": "spec/constitutional_unresolved_seam_register.schema.json",
+  "constitutional_coherence_lane_drift_record_mirror_schema_path": "spec/constitutional_coherence_lane_drift_record.schema.json",
+  "support_admission_fixture_path": "packages/adeu_constitutional_coherence/tests/fixtures/v55a/constitutional_support_admission_records_v55a.json",
+  "reference_coherence_report_fixture_path": "packages/adeu_constitutional_coherence/tests/fixtures/v55a/reference_constitutional_coherence_report.json",
+  "reference_unresolved_register_fixture_path": "packages/adeu_constitutional_coherence/tests/fixtures/v55a/reference_constitutional_unresolved_seam_register.json",
+  "reference_lane_drift_record_fixture_path": "packages/adeu_constitutional_coherence/tests/fixtures/v55a/reference_constitutional_coherence_lane_drift_record.json",
+  "test_reference_paths": [
+    "packages/adeu_constitutional_coherence/tests/test_constitutional_coherence_export_schema.py",
+    "packages/adeu_constitutional_coherence/tests/test_constitutional_coherence_v55a.py",
+    "apps/api/tests/test_lint_constitutional_coherence_v55a.py"
+  ],
+  "targeted_local_checks": [
+    ".venv/bin/python -m pytest -q packages/adeu_constitutional_coherence/tests",
+    ".venv/bin/python -m pytest -q packages/adeu_constitutional_coherence/tests apps/api/tests/test_lint_constitutional_coherence_v55a.py"
+  ],
+  "local_full_python_gate": "make check",
+  "warning_only_checker_preserved": true,
+  "support_surface_descendant_trial_only": true,
+  "exact_admitted_seed_set_enforced": true,
+  "support_admission_required_for_each_seed_artifact": true,
+  "structurally_unevaluable_predicates_emit_not_evaluable_yet": true,
+  "path_safety_review_hardening_applied": true,
+  "unresolved_default_stderr_emission_enabled": true,
+  "ci_gating_introduced": false,
+  "runtime_or_product_surface_introduced": false,
+  "reference_warning_count": 2,
+  "reference_unresolved_entry_count": 7,
+  "reference_lane_drift_entry_count": 3,
+  "metric_key_continuity_assertion_path": "artifacts/agent_harness/v149/evidence_inputs/metric_key_continuity_assertion_v149.json",
+  "runtime_observability_comparison_path": "artifacts/agent_harness/v149/evidence_inputs/runtime_observability_comparison_v149.json",
+  "runtime_event_stream_path": "artifacts/agent_harness/v149/runtime/evidence/local/urm_events.ndjson",
+  "notes": "v149 evidence pins the bounded V55-A constitutional coherence starter on main: one repo-owned adeu_constitutional_coherence package only, one thin warning-only CLI seam, four canonical record-shape schemas with authoritative and mirrored export, one exact six-artifact admitted seed set, deterministic admissions/report/unresolved/drift fixtures, exact seed-set enforcement and path-safety review hardening, a support-surface-only descendant trial over docs/support/crypto data spec2.md, and no V55-B/V55-C widening, autonomous prose-native reasoning, runtime/product surfaces, or CI-gating promotion."
+}

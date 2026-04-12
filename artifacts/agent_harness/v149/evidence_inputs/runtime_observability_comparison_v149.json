@@ -1,0 +1,11 @@
+{
+  "schema": "runtime_observability_comparison@1",
+  "baseline_arc": "vNext+147",
+  "current_arc": "vNext+149",
+  "baseline_source": "artifacts/stop_gate/report_v147_closeout.md",
+  "current_source": "artifacts/stop_gate/report_v149_closeout.md",
+  "baseline_elapsed_ms": 98,
+  "current_elapsed_ms": 67,
+  "delta_ms": -31,
+  "notes": "v149 closeout keeps the frozen stop-gate schema family and exact metric keyset unchanged while shipping the bounded V55-A constitutional coherence starter on main: one repo-owned adeu_constitutional_coherence package only, one thin warning-only CLI seam, four canonical record-shape schemas, one exact six-artifact admitted seed set, committed admissions/report/unresolved/drift fixtures, a support-surface-only descendant trial over docs/support/crypto data spec2.md, review hardening for exact seed-set enforcement and path safety, and no runtime/product or CI-gating widening."
+}
