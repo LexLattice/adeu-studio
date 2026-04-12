@@ -3,7 +3,7 @@ from __future__ import annotations
 from typing import Literal
 
 from pydantic import BaseModel, ConfigDict, Field, model_validator
-from urm_runtime.hashing import canonical_json, sha256_canonical_json
+from urm_runtime.hashing import sha256_canonical_json
 
 CONSTITUTIONAL_SUPPORT_ADMISSION_RECORD_SCHEMA = "constitutional_support_admission_record@1"
 CONSTITUTIONAL_COHERENCE_REPORT_SCHEMA = "constitutional_coherence_report@1"
@@ -392,7 +392,3 @@ def compute_constitutional_lane_drift_record_id(
         }
     )
     return f"constitutional_lane_drift:{digest[:16]}"
-
-
-def report_payload(report: ConstitutionalCoherenceReport) -> str:
-    return canonical_json(report.model_dump(by_alias=True))

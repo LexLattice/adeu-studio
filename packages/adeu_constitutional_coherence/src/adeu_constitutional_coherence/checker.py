@@ -23,12 +23,20 @@ from .models import (
 CHECKER_VERSION = "v55a_constitutional_coherence_checker@1"
 TARGET_ARC = "vNext+149"
 TARGET_PATH = "V55-A"
+MAX_STRUCTURED_DOC_BYTES = 1_048_576
 DEFAULT_ADMISSIONS_PATH = (
     "packages/adeu_constitutional_coherence/tests/fixtures/v55a/"
     "constitutional_support_admission_records_v55a.json"
 )
+EXPECTED_ADMITTED_SEED_ARTIFACTS = (
+    "docs/LOCKED_RECURSIVE_COORDINATE_ADOPTION_v0.md",
+    "docs/DRAFT_RECURSIVE_COORDINATE_MIGRATION_LINT_POSTURE_v0.md",
+    "docs/support/ADEU_SCHEMA_META_GRAMMAR.md",
+    "docs/support/VERTICAL_ALIGNMENT_ARCHITECTURE_HARDENED.md",
+    "docs/support/ODEU_MEMBRANE_ARCHITECTURE.md",
+    "docs/support/crypto data spec2.md",
+)
 
-_JSON_BLOCK_SCHEMA_RE = re.compile(r'"schema"\s*:\s*"([^"]+)"')
 _AUTHORITY_LINE_RE = re.compile(r"^Authority layer:\s*(.+)$", re.MULTILINE)
 _STATUS_LINE_RE = re.compile(r"^Status:\s*(.+)$", re.MULTILINE)
 _DESIGNATED_SUPPORT_BLOCK_RE = re.compile(
@@ -48,6 +56,37 @@ class StructuredDocSurface:
 def _resolve_path(*, repo_root_path: Path, value: str) -> Path:
     path = Path(value)
     return path if path.is_absolute() else repo_root_path / path
+
+
+def _resolve_structured_doc_path(*, repo_root_path: Path, artifact_ref: str) -> Path:
+    path = Path(artifact_ref)
+    if path.is_absolute():
+        raise ValueError(f"{artifact_ref}: artifact_ref must remain repo-relative in V55-A")
+
+    root = repo_root_path.resolve()
+    cursor = root
+    for part in path.parts:
+        cursor = cursor / part
+        if cursor.is_symlink():
+            raise ValueError(f"{artifact_ref}: symlink component forbidden in V55-A")
+
+    try:
+        resolved = cursor.resolve(strict=True)
+    except FileNotFoundError as exc:
+        raise ValueError(f"{artifact_ref}: admitted seed artifact not found") from exc
+
+    try:
+        resolved.relative_to(root)
+    except ValueError as exc:
+        raise ValueError(f"{artifact_ref}: resolved path escapes repository root") from exc
+
+    if not resolved.is_file():
+        raise ValueError(f"{artifact_ref}: admitted seed artifact must be a file")
+    if resolved.stat().st_size > MAX_STRUCTURED_DOC_BYTES:
+        raise ValueError(
+            f"{artifact_ref}: admitted seed artifact exceeds {MAX_STRUCTURED_DOC_BYTES} bytes"
+        )
+    return resolved
 
 
 def _extract_json_blocks(text: str) -> list[str]:
@@ -78,7 +117,10 @@ def _extract_structured_doc_surface(
     repo_root_path: Path,
     artifact_ref: str,
 ) -> StructuredDocSurface:
-    doc_path = _resolve_path(repo_root_path=repo_root_path, value=artifact_ref)
+    doc_path = _resolve_structured_doc_path(
+        repo_root_path=repo_root_path,
+        artifact_ref=artifact_ref,
+    )
     text = doc_path.read_text(encoding="utf-8")
     json_block_schemas: list[str] = []
     for block_text in _extract_json_blocks(text):
@@ -95,10 +137,6 @@ def _extract_structured_doc_surface(
         schema = payload.get("schema")
         if isinstance(schema, str):
             json_block_schemas.append(schema)
-            continue
-        match = _JSON_BLOCK_SCHEMA_RE.search(block_text)
-        if match is not None:
-            json_block_schemas.append(match.group(1))
     status_match = _STATUS_LINE_RE.search(text)
     authority_match = _AUTHORITY_LINE_RE.search(text)
     return StructuredDocSurface(
@@ -124,6 +162,27 @@ def load_support_admission_records(*, path: Path) -> list[ConstitutionalSupportA
             raise ValueError(f"duplicate artifact_ref in admission records: {record.artifact_ref}")
         seen.add(record.artifact_ref)
     return records
+
+
+def _canonicalize_admitted_seed_records(
+    records: list[ConstitutionalSupportAdmissionRecord],
+) -> list[ConstitutionalSupportAdmissionRecord]:
+    records_by_ref = {record.artifact_ref: record for record in records}
+    actual_refs = set(records_by_ref)
+    expected_refs = set(EXPECTED_ADMITTED_SEED_ARTIFACTS)
+    missing_refs = sorted(expected_refs - actual_refs)
+    extra_refs = sorted(actual_refs - expected_refs)
+    if missing_refs or extra_refs:
+        detail_parts: list[str] = []
+        if missing_refs:
+            detail_parts.append(f"missing={missing_refs}")
+        if extra_refs:
+            detail_parts.append(f"extra={extra_refs}")
+        raise ValueError(
+            "admissions must match the exact V55-A admitted seed set; "
+            + ", ".join(detail_parts)
+        )
+    return [records_by_ref[artifact_ref] for artifact_ref in EXPECTED_ADMITTED_SEED_ARTIFACTS]
 
 
 def _evaluation(
@@ -187,7 +246,9 @@ def run_constitutional_coherence_v55a(
         repo_root_path=root,
         value=str(admissions_path or DEFAULT_ADMISSIONS_PATH),
     )
-    records = load_support_admission_records(path=resolved_admissions)
+    records = _canonicalize_admitted_seed_records(
+        load_support_admission_records(path=resolved_admissions)
+    )
     evaluations: list[ConstitutionalCoherencePredicateEvaluation] = []
     warnings: list[ConstitutionalCoherenceFinding] = []
     unresolved_entries: list[ConstitutionalUnresolvedSeamEntry] = []

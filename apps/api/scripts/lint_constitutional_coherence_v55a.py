@@ -2,9 +2,19 @@ from __future__ import annotations
 
 import argparse
 import sys
+import warnings
 from pathlib import Path
 
-from adeu_constitutional_coherence import (
+warnings.filterwarnings(
+    "ignore",
+    message=(
+        r'Field name "schema" in "Constitutional.*" shadows an attribute in parent '
+        r'"BaseModel"'
+    ),
+    category=UserWarning,
+)
+
+from adeu_constitutional_coherence import (  # noqa: E402
     DEFAULT_ADMISSIONS_PATH,
     render_report_payload,
     render_unresolved_register_payload,
@@ -65,6 +75,8 @@ def main(argv: list[str] | None = None) -> int:
         sys.stdout.write(report_payload)
     if args.unresolved_output:
         _write_text(Path(args.unresolved_output), unresolved_payload)
+    elif unresolved.entry_count > 0:
+        sys.stderr.write(unresolved_payload)
     return 0
 
 

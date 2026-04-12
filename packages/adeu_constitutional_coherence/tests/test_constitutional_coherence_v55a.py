@@ -6,10 +6,14 @@ from pathlib import Path
 import pytest
 from adeu_constitutional_coherence import (
     ConstitutionalCoherenceLaneDriftRecord,
-    ConstitutionalSupportAdmissionRecord,
     compute_constitutional_support_admission_record_id,
     load_support_admission_records,
     run_constitutional_coherence_v55a,
+)
+from adeu_constitutional_coherence.checker import (
+    EXPECTED_ADMITTED_SEED_ARTIFACTS,
+    MAX_STRUCTURED_DOC_BYTES,
+    _extract_structured_doc_surface,
 )
 from adeu_ir.repo import repo_root
 
@@ -25,15 +29,9 @@ def _repo_root_path() -> Path:
     return repo_root(anchor=Path(__file__))
 
 
-def _record_with_artifact(
-    record: ConstitutionalSupportAdmissionRecord,
-    artifact_ref: str,
-) -> dict[str, object]:
-    payload = record.model_dump(mode="json")
-    payload["artifact_ref"] = artifact_ref
-    payload["admission_id"] = compute_constitutional_support_admission_record_id(
-        artifact_ref=artifact_ref
-    )
+def _load_admissions_payload() -> list[dict[str, object]]:
+    payload = _load_json("constitutional_support_admission_records_v55a.json")
+    assert isinstance(payload, list)
     return payload
 
 
@@ -42,18 +40,23 @@ def _write_records(path: Path, payload: list[dict[str, object]]) -> Path:
     return path
 
 
+def _bootstrap_seed_docs(root: Path, *, overrides: dict[str, str] | None = None) -> None:
+    contents = {
+        artifact_ref: "Status: temporary seed\nAuthority layer: support\n"
+        for artifact_ref in EXPECTED_ADMITTED_SEED_ARTIFACTS
+    }
+    contents.update(overrides or {})
+    for artifact_ref, body in contents.items():
+        path = root / artifact_ref
+        path.parent.mkdir(parents=True, exist_ok=True)
+        path.write_text(body, encoding="utf-8")
+
+
 def test_committed_admissions_fixture_matches_artifact_ids() -> None:
     records = load_support_admission_records(path=ADMISSIONS_FIXTURE)
 
-    assert len(records) == 6
-    assert [record.artifact_ref for record in records] == [
-        "docs/LOCKED_RECURSIVE_COORDINATE_ADOPTION_v0.md",
-        "docs/DRAFT_RECURSIVE_COORDINATE_MIGRATION_LINT_POSTURE_v0.md",
-        "docs/support/ADEU_SCHEMA_META_GRAMMAR.md",
-        "docs/support/VERTICAL_ALIGNMENT_ARCHITECTURE_HARDENED.md",
-        "docs/support/ODEU_MEMBRANE_ARCHITECTURE.md",
-        "docs/support/crypto data spec2.md",
-    ]
+    assert len(records) == len(EXPECTED_ADMITTED_SEED_ARTIFACTS)
+    assert [record.artifact_ref for record in records] == list(EXPECTED_ADMITTED_SEED_ARTIFACTS)
     for record in records:
         assert record.admission_id == compute_constitutional_support_admission_record_id(
             artifact_ref=record.artifact_ref
@@ -109,57 +112,116 @@ def test_reference_lane_drift_fixture_validates() -> None:
     assert record.target_path == "V55-A"
 
 
-def test_malformed_designated_support_block_fails_closed(tmp_path: Path) -> None:
-    records = load_support_admission_records(path=ADMISSIONS_FIXTURE)
-    designated_doc = tmp_path / "designated_seed.md"
-    designated_doc.write_text(
-        (
-            "Status: temporary seed\n"
-            "Authority layer: support\n\n"
-            "```json\n"
-            '{\n  "schema": "constitutional_support_admission_record@1",\n'
-            '  "artifact_ref": "docs/placeholder.md",\n'
-            "```"
-        ),
-        encoding="utf-8",
-    )
-    admissions_path = _write_records(
-        tmp_path / "admissions.json",
-        [_record_with_artifact(records[2], str(designated_doc))],
-    )
+def test_checker_rejects_admission_payloads_outside_exact_seed_set(tmp_path: Path) -> None:
+    payload = _load_admissions_payload()
 
-    with pytest.raises(ValueError, match="invalid designated structured block"):
+    missing_path = _write_records(tmp_path / "missing.json", payload[:-1])
+    with pytest.raises(ValueError, match="exact V55-A admitted seed set"):
         run_constitutional_coherence_v55a(
             repo_root_path=_repo_root_path(),
-            admissions_path=admissions_path,
+            admissions_path=missing_path,
+        )
+
+    extra_record = dict(payload[0])
+    extra_record["artifact_ref"] = "docs/EXTRA_SUPPORT_SURFACE.md"
+    extra_record["admission_id"] = compute_constitutional_support_admission_record_id(
+        artifact_ref=extra_record["artifact_ref"]
+    )
+    extra_path = _write_records(tmp_path / "extra.json", [*payload, extra_record])
+    with pytest.raises(ValueError, match="exact V55-A admitted seed set"):
+        run_constitutional_coherence_v55a(
+            repo_root_path=_repo_root_path(),
+            admissions_path=extra_path,
         )
 
 
-def test_malformed_non_designated_block_is_ignored(tmp_path: Path) -> None:
-    records = load_support_admission_records(path=ADMISSIONS_FIXTURE)
-    plain_doc = tmp_path / "plain_seed.md"
-    plain_doc.write_text(
-        (
-            "Status: temporary seed\n"
-            "Authority layer: support\n\n"
-            "```json\n"
-            '{\n  "schema": "unrelated_support_shape@1",\n'
-            '  "note": "broken"\n'
-            "```"
-        ),
-        encoding="utf-8",
-    )
-    admissions_path = _write_records(
-        tmp_path / "admissions.json",
-        [_record_with_artifact(records[2], str(plain_doc))],
-    )
+def test_checker_canonicalizes_admission_order_before_report_generation(tmp_path: Path) -> None:
+    payload = list(reversed(_load_admissions_payload()))
+    admissions_path = _write_records(tmp_path / "reordered.json", payload)
 
     report, unresolved = run_constitutional_coherence_v55a(
         repo_root_path=_repo_root_path(),
         admissions_path=admissions_path,
     )
 
-    assert report.checked_artifact_refs == [str(plain_doc)]
+    assert report.model_dump(mode="json") == _load_json(
+        "reference_constitutional_coherence_report.json"
+    )
+    assert unresolved.model_dump(mode="json") == _load_json(
+        "reference_constitutional_unresolved_seam_register.json"
+    )
+
+
+def test_malformed_designated_support_block_fails_closed(tmp_path: Path) -> None:
+    _bootstrap_seed_docs(
+        tmp_path,
+        overrides={
+            "docs/support/ADEU_SCHEMA_META_GRAMMAR.md": (
+                "Status: temporary seed\n"
+                "Authority layer: support\n\n"
+                "```json\n"
+                '{\n  "schema": "constitutional_support_admission_record@1",\n'
+                '  "artifact_ref": "docs/placeholder.md",\n'
+                "```"
+            )
+        },
+    )
+
+    with pytest.raises(ValueError, match="invalid designated structured block"):
+        run_constitutional_coherence_v55a(
+            repo_root_path=tmp_path,
+            admissions_path=ADMISSIONS_FIXTURE,
+        )
+
+
+def test_malformed_non_designated_block_is_ignored(tmp_path: Path) -> None:
+    _bootstrap_seed_docs(
+        tmp_path,
+        overrides={
+            "docs/support/ADEU_SCHEMA_META_GRAMMAR.md": (
+                "Status: temporary seed\n"
+                "Authority layer: support\n\n"
+                "```json\n"
+                '{\n  "schema": "unrelated_support_shape@1",\n'
+                '  "note": "broken"\n'
+                "```"
+            )
+        },
+    )
+
+    report, unresolved = run_constitutional_coherence_v55a(
+        repo_root_path=tmp_path,
+        admissions_path=ADMISSIONS_FIXTURE,
+    )
+
+    assert report.checked_artifact_refs == list(EXPECTED_ADMITTED_SEED_ARTIFACTS)
     assert report.warning_count == 0
-    assert unresolved.entry_count == 1
-    assert unresolved.entries[0].predicate_id == "descendant_claim_within_parent_entitlement"
+    assert unresolved.entry_count == 7
+
+
+def test_structured_doc_surface_rejects_symlink_parent_traversal(tmp_path: Path) -> None:
+    outside = tmp_path / "outside"
+    outside.mkdir()
+    (outside / "escape.md").write_text(
+        "Status: escaped\nAuthority layer: support\n",
+        encoding="utf-8",
+    )
+    (tmp_path / "docs").symlink_to(outside, target_is_directory=True)
+
+    with pytest.raises(ValueError, match="symlink component forbidden"):
+        _extract_structured_doc_surface(
+            repo_root_path=tmp_path,
+            artifact_ref="docs/escape.md",
+        )
+
+
+def test_structured_doc_surface_rejects_oversized_seed_artifact(tmp_path: Path) -> None:
+    large_doc = tmp_path / "docs" / "large.md"
+    large_doc.parent.mkdir(parents=True, exist_ok=True)
+    large_doc.write_text("x" * (MAX_STRUCTURED_DOC_BYTES + 1), encoding="utf-8")
+
+    with pytest.raises(ValueError, match="exceeds"):
+        _extract_structured_doc_surface(
+            repo_root_path=tmp_path,
+            artifact_ref="docs/large.md",
+        )
