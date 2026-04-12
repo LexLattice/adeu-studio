@@ -1,0 +1,35 @@
+{
+  "schema": "constitutional_coherence_lane_drift_record@1",
+  "record_id": "constitutional_lane_drift:3ad0509f3a24c448",
+  "target_arc": "vNext+150",
+  "target_path": "V55-B",
+  "prior_lane_ref": "docs/LOCKED_CONTINUATION_vNEXT_PLUS149.md",
+  "entry_count": 5,
+  "entries": [
+    {
+      "assumption_ref": "structured_input_only",
+      "status": "holds",
+      "note": "V55-B continues to consume admissions, headers, JSON blocks, refs, and witness refs only."
+    },
+    {
+      "assumption_ref": "exact_admitted_seed_set",
+      "status": "holds",
+      "note": "The admitted six-artifact seed set remains closed with no thematic widening in V55-B."
+    },
+    {
+      "assumption_ref": "warning_only_checker",
+      "status": "holds",
+      "note": "V55-B preserves warning-only report and unresolved seam emission without CI or branch-protection gating."
+    },
+    {
+      "assumption_ref": "checker_report_surface_reuse_default",
+      "status": "holds",
+      "note": "V55-B reuses the shipped V55-A checker/report surfaces by default and does not fork them implicitly."
+    },
+    {
+      "assumption_ref": "descendant_trial_profile_hardening",
+      "status": "amended",
+      "note": "V55-B adds one bounded descendant-trial hardening pass over the preferred crypto support surface while keeping the same record shapes and predicate family."
+    }
+  ]
+}

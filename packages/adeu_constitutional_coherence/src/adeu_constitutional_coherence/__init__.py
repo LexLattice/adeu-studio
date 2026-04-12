@@ -1,11 +1,16 @@
 from .checker import (
     CHECKER_VERSION,
     DEFAULT_ADMISSIONS_PATH,
+    DEFAULT_V55B_ADMISSIONS_PATH,
+    DEFAULT_V55B_DRIFT_RECORD_PATH,
+    V55B_CHECKER_VERSION,
     StructuredDocSurface,
+    load_lane_drift_record,
     load_support_admission_records,
     render_report_payload,
     render_unresolved_register_payload,
     run_constitutional_coherence_v55a,
+    run_constitutional_coherence_v55b,
 )
 from .export_schema import main as export_schema_main
 from .models import (
@@ -38,7 +43,10 @@ __all__ = [
     "CONSTITUTIONAL_SUPPORT_ADMISSION_RECORD_SCHEMA",
     "CONSTITUTIONAL_UNRESOLVED_SEAM_REGISTER_SCHEMA",
     "DEFAULT_ADMISSIONS_PATH",
+    "DEFAULT_V55B_ADMISSIONS_PATH",
+    "DEFAULT_V55B_DRIFT_RECORD_PATH",
     "StructuredDocSurface",
+    "V55B_CHECKER_VERSION",
     "ConstitutionalCoherenceLaneDriftEntry",
     "ConstitutionalCoherenceLaneDriftRecord",
     "ConstitutionalCoherencePredicateEvaluation",
@@ -52,8 +60,10 @@ __all__ = [
     "compute_constitutional_unresolved_seam_entry_id",
     "compute_constitutional_unresolved_seam_register_id",
     "export_schema_main",
+    "load_lane_drift_record",
     "load_support_admission_records",
     "render_report_payload",
     "render_unresolved_register_payload",
     "run_constitutional_coherence_v55a",
+    "run_constitutional_coherence_v55b",
 ]
