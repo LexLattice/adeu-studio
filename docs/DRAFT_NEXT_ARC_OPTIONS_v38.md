@@ -77,7 +77,11 @@ Interpretive doctrine for this planning surface:
 - one downstream descendant exemplar now exists as shaping evidence rather than live
   repo family authority:
   - `docs/support/crypto data spec2.md`
-- `vNext+148` remains the current implementation-arc baseline.
+- `V55-A` is now closed on `main` as the bounded constitutional coherence starter:
+  - `docs/LOCKED_CONTINUATION_vNEXT_PLUS149.md`
+  - `docs/DRAFT_STOP_GATE_DECISION_vNEXT_PLUS149.md`
+  - `docs/ASSESSMENT_vNEXT_PLUS149_EDGES.md`
+- `vNext+149` remains the current implementation-arc baseline.
 
 ## Gap
 
@@ -202,15 +206,15 @@ Planning relationship:
 - Recommended family/slice mapping reference to draft next:
   - `docs/DRAFT_ADEU_CONSTITUTIONAL_COHERENCE_V55_IMPLEMENTATION_MAPPING_v0.md`
 - Recommended next path for this branch:
-  - `V55-A`
+  - `V55-B`
 - Recommended next concrete arc for this branch if selected:
-  - `V55-A`
+  - `V55-B`
 - Default path selection for this branch:
-  - one bounded first slice is recommended:
-    - intermediate family definition
-    - thin coherence kernel
-    - one descendant trial only
-  - if this family is selected, select `V55-A` as the next default candidate
+  - one bounded second slice is recommended:
+    - explicit `V55-A` lane handoff
+    - one hardened descendant trial only
+    - one tighter report/register ownership split
+  - if this family is selected, select `V55-B` as the next default candidate
 
 This family/path recommendation is branch-local to the `v38` planning surface.
 
@@ -223,8 +227,8 @@ The current recommended path ladder is:
 
 | Path | Theme | Primary output | Status |
 |---|---|---|---|
-| `V55-A` | intermediate family + bounded kernel starter | one architecture/decomposition doc for the general domain-substrate family, one thin warning-level coherence checker package, one small promoted seed-set manifest/check lane | recommended next path |
-| `V55-B` | descendant-trial hardening | one bounded descendant trial over one real exemplar, one coherence report shape, one explicit unresolved-seam register, one ownership-tightened lint/check protocol | `not_selected_yet` |
+| `V55-A` | intermediate family + bounded kernel starter | one architecture/decomposition doc for the general domain-substrate family, one thin warning-level coherence checker package, one small promoted seed-set manifest/check lane | closed on `main` via `v149` |
+| `V55-B` | descendant-trial hardening | one bounded descendant trial over one real exemplar, one coherence report shape, one explicit unresolved-seam register, one ownership-tightened lint/check protocol | recommended next path |
 | `V55-C` | promotion / migration widening | one later decision on whether any checks move from warning-only into stronger governance posture | `not_selected_yet` |
 
 These output names are planning-level candidate names, not lock-level schema authority.
@@ -243,9 +247,9 @@ These output names are planning-level candidate names, not lock-level schema aut
 - It leaves descendant runtime/product families later.
 - It leaves broad CI promotion later.
 
-## Recommended `V55-A` Scope
+## Closed `V55-A` Scope
 
-`V55-A` should be bounded to:
+`V55-A` was bounded to:
 
 - one architecture/decomposition artifact for the intermediate general domain-substrate
   family;
@@ -262,7 +266,7 @@ These output names are planning-level candidate names, not lock-level schema aut
   - `docs/support/crypto data spec2.md`
 - one descendant exemplar trial only.
 
-`V55-A` should explicitly check:
+`V55-A` explicitly checked:
 
 - `authority_layer_declared`;
 - `authority_relation_legal`;
@@ -274,7 +278,7 @@ These output names are planning-level candidate names, not lock-level schema aut
 - `projection_does_not_mint_authority`;
 - `support_surface_not_self_promoted`.
 
-`V55-A` checker input contract should be deterministic over structured claims only:
+`V55-A` checker input contract was deterministic over structured claims only:
 
 - explicit headers;
 - explicit JSON records or blocks;
@@ -284,7 +288,7 @@ These output names are planning-level candidate names, not lock-level schema aut
 
 Free text may explain, but only declared structured surfaces are checker-authoritative.
 
-`V55-A` should explicitly not select:
+`V55-A` explicitly did not select:
 
 - open-ended theorem proving;
 - repo-wide CI gating;
@@ -300,6 +304,40 @@ Preferred descendant trial for `V55-A`:
   - it already exercises descendant inheritance, binding law, admissibility law,
     projection barriers, and force monotonicity inside one bounded domain substrate
     surface.
+
+## Recommended `V55-B` Scope
+
+`V55-B` should be bounded to:
+
+- one explicit `V55-A` handoff/drift record over:
+  - `constitutional_coherence_lane_drift_record@1`
+- one continued repo-owned package only:
+  - `packages/adeu_constitutional_coherence`
+- one continued thin script seam under existing repo operations;
+- one warning-level checker posture only;
+- one preferred descendant hardening trial only:
+  - `docs/support/crypto data spec2.md`
+- one tighter unresolved seam split across:
+  - `family_law_gap`
+  - `descendant_law_gap`
+  - `admission_surface_gap`
+- one explicit proof that support-surface descendant hardening does not mint release,
+  runtime, or product authority.
+
+`V55-B` should carry forward nearly as-is:
+
+- the closed admitted seed artifact set from `V55-A`;
+- the structured-input-only contract;
+- the same closed predicate family unless one later lock explicitly amends it; and
+- the warning-only posture.
+
+`V55-B` should explicitly not select:
+
+- multi-descendant rollout;
+- descendant runtime/product implementation;
+- per-predicate or per-surface governance escalation;
+- support-companion admission by thematic similarity alone; or
+- generic lawful-morphism or hyperspace execution layers.
 
 ## Candidate Package Ownership
 
@@ -319,7 +357,7 @@ implementation family.
   "planning_doc": "docs/DRAFT_NEXT_ARC_OPTIONS_v38.md",
   "branch_candidate_family": "V55",
   "branch_candidate_status": "candidate_family_planning_for_constitutional_coherence_kernel_and_domain_substrate_family",
-  "baseline_arc": "vNext+148",
+  "baseline_arc": "vNext+149",
   "closed_prior_families": [
     "V49",
     "V52"
@@ -332,8 +370,8 @@ implementation family.
     "V54"
   ],
   "recommended_family": "V55",
-  "default_next_path_recommendation": "V55-A",
-  "default_next_concrete_arc_candidate_for_this_branch": "V55-A",
+  "default_next_path_recommendation": "V55-B",
+  "default_next_concrete_arc_candidate_for_this_branch": "V55-B",
   "family_architecture_doc": "docs/ARCHITECTURE_ADEU_DOMAIN_SUBSTRATE_FAMILY_v0.md",
   "kernel_spec_doc": "docs/DRAFT_CONSTITUTIONAL_COHERENCE_KERNEL_SPEC_v0.md",
   "family_decomposition_doc": "docs/DRAFT_ADEU_CONSTITUTIONAL_COHERENCE_V55_IMPLEMENTATION_MAPPING_v0.md",
@@ -375,9 +413,9 @@ implementation family.
     "ci_gating_introduced": false,
     "autonomous_prose_interpretation_introduced": false
   },
-  "selected_current_family_path_for_this_branch": "V55-A",
-  "selected_current_concrete_arc_for_this_branch": "V55-A",
-  "selected_current_path_phase": "recommended_not_yet_locked"
+  "selected_current_family_path_for_this_branch": "V55-B",
+  "selected_current_concrete_arc_for_this_branch": "V55-B",
+  "selected_current_path_phase": "starter_bundle_drafted_not_implemented"
 }
 ```
 
@@ -385,5 +423,7 @@ Branch-local note:
 
 - recursive-coordinate promotion and warning-only lint are now baseline shaping inputs
   for this family;
-- the first selected `V55` move should be one bounded `V55-A` starter slice only;
-- no `V55-B` or `V55-C` widening is authorized by this planning draft yet.
+- `V55-A` is now the closed bounded starter slice on `main`;
+- the next selected `V55` move should be one bounded `V55-B` descendant-trial
+  hardening slice only;
+- no `V55-C` governance widening is authorized by this planning draft yet.
