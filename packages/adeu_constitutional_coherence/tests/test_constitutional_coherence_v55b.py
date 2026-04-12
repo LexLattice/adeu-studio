@@ -112,3 +112,39 @@ def test_missing_required_lane_drift_assumption_fails_closed(tmp_path: Path) -> 
             admissions_path=ADMISSIONS_FIXTURE,
             lane_drift_path=bad_path,
         )
+
+
+def test_duplicate_lane_drift_assumption_fails_closed(tmp_path: Path) -> None:
+    payload = _load_json("reference_constitutional_coherence_lane_drift_record.json")
+    assert isinstance(payload, dict)
+    entries = payload["entries"]
+    assert isinstance(entries, list)
+    payload["entries"] = [*entries, dict(entries[0])]
+    payload["entry_count"] = len(payload["entries"])
+    bad_path = tmp_path / "duplicate_lane_drift.json"
+    bad_path.write_text(json.dumps(payload, indent=2) + "\n", encoding="utf-8")
+
+    with pytest.raises(ValueError, match="must not repeat assumption refs"):
+        run_constitutional_coherence_v55b(
+            repo_root_path=_repo_root_path(),
+            admissions_path=ADMISSIONS_FIXTURE,
+            lane_drift_path=bad_path,
+        )
+
+
+def test_descendant_must_remain_support_surface_only(tmp_path: Path) -> None:
+    payload = _load_json("constitutional_support_admission_records_v55b.json")
+    assert isinstance(payload, list)
+    descendant_entry = next(
+        entry for entry in payload if entry["artifact_ref"] == "docs/support/crypto data spec2.md"
+    )
+    descendant_entry["authority_layer"] = "lock"
+    bad_path = tmp_path / "bad_admissions.json"
+    bad_path.write_text(json.dumps(payload, indent=2) + "\n", encoding="utf-8")
+
+    with pytest.raises(ValueError, match="support-surface admission"):
+        run_constitutional_coherence_v55b(
+            repo_root_path=_repo_root_path(),
+            admissions_path=bad_path,
+            lane_drift_path=LANE_DRIFT_FIXTURE,
+        )

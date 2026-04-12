@@ -83,4 +83,5 @@ def test_invalid_lane_drift_path_fails_closed(tmp_path: Path) -> None:
     completed = _run_lint("--lane-drift", str(bad_path))
 
     assert completed.returncode != 0
+    assert "error:" in completed.stderr
     assert "required handoff posture" in completed.stderr

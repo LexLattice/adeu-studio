@@ -32,6 +32,7 @@ def _parse_args(argv: list[str]) -> argparse.Namespace:
     )
     parser.add_argument(
         "--admissions",
+        type=Path,
         default=DEFAULT_V55B_ADMISSIONS_PATH,
         help=(
             "Path to the constitutional_support_admission_record@1 list. "
@@ -40,6 +41,7 @@ def _parse_args(argv: list[str]) -> argparse.Namespace:
     )
     parser.add_argument(
         "--lane-drift",
+        type=Path,
         default=DEFAULT_V55B_DRIFT_RECORD_PATH,
         help=(
             "Path to the constitutional_coherence_lane_drift_record@1 handoff. "
@@ -48,11 +50,13 @@ def _parse_args(argv: list[str]) -> argparse.Namespace:
     )
     parser.add_argument(
         "--report-output",
+        type=Path,
         default=None,
         help="Optional path to write constitutional_coherence_report@1 JSON.",
     )
     parser.add_argument(
         "--unresolved-output",
+        type=Path,
         default=None,
         help="Optional path to write constitutional_unresolved_seam_register@1 JSON.",
     )
@@ -72,19 +76,23 @@ def _write_text(path: Path, payload: str) -> None:
 
 def main(argv: list[str] | None = None) -> int:
     args = _parse_args(sys.argv[1:] if argv is None else argv)
-    report, unresolved = run_constitutional_coherence_v55b(
-        repo_root_path=args.repo_root,
-        admissions_path=Path(args.admissions),
-        lane_drift_path=Path(args.lane_drift),
-    )
+    try:
+        report, unresolved = run_constitutional_coherence_v55b(
+            repo_root_path=args.repo_root,
+            admissions_path=args.admissions,
+            lane_drift_path=args.lane_drift,
+        )
+    except (ValueError, FileNotFoundError) as exc:
+        sys.stderr.write(f"error: {exc}\n")
+        return 1
     report_payload = render_report_payload(report)
     unresolved_payload = render_unresolved_register_payload(unresolved)
     if args.report_output:
-        _write_text(Path(args.report_output), report_payload)
+        _write_text(args.report_output, report_payload)
     else:
         sys.stdout.write(report_payload)
     if args.unresolved_output:
-        _write_text(Path(args.unresolved_output), unresolved_payload)
+        _write_text(args.unresolved_output, unresolved_payload)
     elif unresolved.entry_count > 0:
         sys.stderr.write(unresolved_payload)
     return 0

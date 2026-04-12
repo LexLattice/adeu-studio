@@ -204,7 +204,7 @@ def _canonicalize_admitted_seed_records(
         if extra_refs:
             detail_parts.append(f"extra={extra_refs}")
         raise ValueError(
-            "admissions must match the exact V55-A admitted seed set; " + ", ".join(detail_parts)
+            "admissions must match the exact admitted seed set; " + ", ".join(detail_parts)
         )
     return [records_by_ref[artifact_ref] for artifact_ref in EXPECTED_ADMITTED_SEED_ARTIFACTS]
 
@@ -262,12 +262,26 @@ def _validate_v55b_lane_drift_record(
             f"{EXPECTED_V55B_PRIOR_LANE_REF!r}, got {record.prior_lane_ref!r}"
         )
 
+    seen_assumption_refs: set[str] = set()
+    duplicate_assumption_refs: list[str] = []
+    for entry in record.entries:
+        if entry.assumption_ref in seen_assumption_refs:
+            duplicate_assumption_refs.append(entry.assumption_ref)
+            continue
+        seen_assumption_refs.add(entry.assumption_ref)
+    if duplicate_assumption_refs:
+        raise ValueError(
+            "V55-B lane drift record must not repeat assumption refs; "
+            f"duplicates={sorted(set(duplicate_assumption_refs))}"
+        )
+
     actual_statuses = {entry.assumption_ref: entry.status for entry in record.entries}
     missing_assumptions = sorted(set(REQUIRED_V55B_DRIFT_ENTRY_STATUSES) - set(actual_statuses))
     unexpected_statuses = sorted(
         assumption_ref
         for assumption_ref, expected_status in REQUIRED_V55B_DRIFT_ENTRY_STATUSES.items()
-        if actual_statuses.get(assumption_ref) != expected_status
+        if assumption_ref in actual_statuses
+        and actual_statuses[assumption_ref] != expected_status
     )
     if missing_assumptions or unexpected_statuses:
         detail_parts: list[str] = []
@@ -307,6 +321,15 @@ def _v55b_descendant_record(
         raise ValueError(
             "V55-B requires the preferred descendant artifact "
             f"{PREFERRED_DESCENDANT_ARTIFACT!r}, got {record.artifact_ref!r}"
+        )
+    if record.authority_layer != "support":
+        raise ValueError(
+            "V55-B requires the preferred descendant to remain a support-surface admission"
+        )
+    if record.current_authority_relation != "support_descendant_exemplar":
+        raise ValueError(
+            "V55-B requires the preferred descendant to keep the "
+            "'support_descendant_exemplar' relation"
         )
     return record
 
