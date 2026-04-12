@@ -3,6 +3,7 @@ from __future__ import annotations
 import json
 from pathlib import Path
 
+import adeu_repo_description.test_selection_v0 as test_selection_module
 from adeu_repo_description.test_selection_v0 import select_python_tests_v0
 
 FIXTURE_ROOT = Path(__file__).parent / "fixtures" / "test_selection_v0"
@@ -506,6 +507,40 @@ def test_foundational_root_config_change_still_escalates(tmp_path: Path) -> None
     assert _witness_status(payload, "root_config:pyproject.toml") == "changed"
     assert _witness_status(payload, "escalation:full_suite") == "unknown"
     assert payload["escalation_reasons"] == ["foundational repo config changed: pyproject.toml"]
+
+
+def test_main_uses_process_argv_when_argv_is_none(monkeypatch, capsys) -> None:
+    observed: dict[str, object] = {}
+
+    def _fake_selector(
+        *,
+        changed_paths: list[str],
+        repo_root: Path | None,
+        intent_matrix_path: str | None,
+    ) -> dict[str, object]:
+        observed["changed_paths"] = changed_paths
+        observed["repo_root"] = repo_root
+        observed["intent_matrix_path"] = intent_matrix_path
+        return {"selected_test_paths": []}
+
+    monkeypatch.setattr(test_selection_module, "select_python_tests_v0", _fake_selector)
+    monkeypatch.setattr(
+        "sys.argv",
+        [
+            "select_tests_v0.py",
+            "--changed-path",
+            "packages/pkg_a/tests/test_core.py",
+            "--stdout-format",
+            "paths",
+            "--no-intent-matrix",
+        ],
+    )
+
+    assert test_selection_module.main() == 0
+    assert observed["changed_paths"] == ["packages/pkg_a/tests/test_core.py"]
+    assert observed["repo_root"] is None
+    assert observed["intent_matrix_path"] is None
+    assert capsys.readouterr().out == ""
 
 
 def test_selection_example_fixtures_are_parseable_and_stably_normalized() -> None:

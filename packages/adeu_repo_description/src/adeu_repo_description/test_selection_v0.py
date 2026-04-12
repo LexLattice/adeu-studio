@@ -472,7 +472,7 @@ def _is_repo_candidate_path(candidate: str, *, repo_root: Path) -> bool:
         return False
     try:
         return (repo_root / candidate.rstrip("/")).exists()
-    except OSError, RuntimeError, ValueError:
+    except (OSError, RuntimeError, ValueError):
         return False
 
 
@@ -495,7 +495,7 @@ def _resolve_repo_candidate_path(
     else:
         try:
             joined = (file_path.parent / normalized).resolve()
-        except OSError, RuntimeError, ValueError:
+        except (OSError, RuntimeError, ValueError):
             resolved = None
         else:
             try:
@@ -505,7 +505,7 @@ def _resolve_repo_candidate_path(
             else:
                 try:
                     exists = joined.exists()
-                except OSError, RuntimeError, ValueError:
+                except (OSError, RuntimeError, ValueError):
                     resolved = None
                 else:
                     if exists and _has_repo_candidate_prefix(repo_rel):
@@ -1699,7 +1699,7 @@ def select_python_tests_v0(
     }
 
 
-def _parse_args(argv: list[str]) -> argparse.Namespace:
+def _parse_args(argv: list[str] | None = None) -> argparse.Namespace:
     parser = argparse.ArgumentParser(
         description=(
             "Plan a conservative local Python pytest selection using dependency witnesses, "
@@ -1731,7 +1731,7 @@ def _read_changed_paths_from_file(path: Path) -> list[str]:
 
 
 def main(argv: list[str] | None = None) -> int:
-    namespace = _parse_args(argv or [])
+    namespace = _parse_args(argv)
     changed_paths = list(namespace.changed_path)
     if namespace.changed_paths_file is not None:
         changed_paths.extend(_read_changed_paths_from_file(namespace.changed_paths_file))
