@@ -11,13 +11,34 @@ changes.
 ## Purpose
 
 - record the current practical flow for one arc slice;
+- record the current practical flow for drafting a whole lane ladder before the first
+  implementation slice starts;
 - make the flow legible enough to later embed into a kernel-owned interaction cycle;
 - distinguish the already-working operational pattern from the improvements still worth
   institutionalizing.
 
+## Current Practical Arc-Ladder Rule
+
+Before implementing the first slice of a newly selected family:
+
+- draft the family architecture/decomposition docs first;
+- draft the family-level implementation mapping first;
+- draft the planned later-lane bundle notes first, even if only the first lane will be
+  locked and implemented now;
+- keep those later-lane bundles at `planning`, `architecture / decomposition`, or
+  `support` authority until their turn arrives;
+- do not silently treat drafted later-lane bundles as lock authority.
+
+This up-front lane-ladder drafting exists to:
+
+- force cross-lane coherence before code starts to drift the sequence;
+- expose missing dependencies early rather than discovering them mid-implementation;
+- keep later lanes shaped by the intended architecture rather than by accidental
+  leftovers from the previous slice.
+
 ## Current Practical Slice Cycle
 
-### 1. Draft the three-doc bundle on `main`
+### 1. Draft the controlling slice bundle on `main`
 
 For each slice, draft:
 
@@ -88,9 +109,19 @@ Once the slice PRs are merged:
   - two JSON artifacts under `artifacts/`;
 - commit the closeout update directly to `main`.
 
-### 5. Repeat for the next slice
+### 5. Run a pre-next-slice drift check, then repeat for the next slice
 
-- draft the next slice bundle;
+- compare the drafted next-lane bundle against what the previous implementation
+  actually changed;
+- classify each controlling assumption at least as:
+  - `holds`
+  - `amended`
+  - `superseded`
+  - `not_selected_anymore`
+- if drift is immaterial, keep the drafted next-lane bundle and record a short
+  confirmation update;
+- if drift is material, revise the drafted next-lane bundle before locking it;
+- then draft or refresh the next slice bundle if needed;
 - implement the next slice PRs;
 - close out the next slice;
 - continue until the current arc is exhausted.
@@ -131,7 +162,21 @@ flowchart TD
 
 ## What Is Worth Institutionalizing More Explicitly
 
-### 1. An explicit readiness gate between drafting and implementation
+### 1. An explicit lane-ladder drafting rule before first implementation
+
+Before the first implementation slice of a selected family:
+
+- draft the family architecture/decomposition docs;
+- draft the family-wide implementation mapping;
+- draft the later-lane bundle notes early enough that dependencies between lanes are
+  already visible;
+- keep later-lane bundles below lock authority until their turn arrives;
+- record which later-lane assumptions are expected to be drift-sensitive.
+
+This prevents later slices from being invented ad hoc after the earlier slice has
+already constrained the shape accidentally.
+
+### 2. An explicit readiness gate between drafting and implementation
 
 Before any implementation PR starts, confirm:
 
@@ -153,7 +198,7 @@ Before any implementation PR starts, confirm:
 
 This is the first upgrade worth making formal.
 
-### 2. A deterministic review-harvest gate
+### 3. A deterministic review-harvest gate
 
 Do not start PR review assessment until the bot-review state is complete enough to trust.
 
@@ -164,7 +209,22 @@ Practical rule:
 
 This should eventually be kernel-owned instead of being checked ad hoc.
 
-### 3. Edge IDs carried across the whole slice lifecycle
+### 4. A short pre-next-slice drift check against drafted later lanes
+
+Before implementing the next drafted lane:
+
+- compare the drafted lane bundle against the real results of the previous lane;
+- mark each controlling assumption as:
+  - `holds`
+  - `amended`
+  - `superseded`
+  - `not_selected_anymore`
+- revise the next lane only when drift is material rather than redrafting it from
+  scratch every time.
+
+This keeps the lane ladder coherent without freezing it unrealistically early.
+
+### 5. Edge IDs carried across the whole slice lifecycle
 
 If a slice has named open edges, those IDs should survive across:
 
@@ -176,7 +236,7 @@ If a slice has named open edges, those IDs should survive across:
 
 That makes it harder for edges to disappear semantically while remaining open operationally.
 
-### 4. A stronger edge-status vocabulary
+### 6. A stronger edge-status vocabulary
 
 Not all "closed" states are equal.
 
@@ -188,7 +248,7 @@ Useful future split:
 
 This prevents overclaiming completion when only a partial layer has landed.
 
-### 5. A short pre-next-slice reality check
+### 7. A short pre-next-slice reality check
 
 Before drafting the next lock:
 
@@ -198,7 +258,7 @@ Before drafting the next lock:
 
 This is especially useful for slices that add new authority boundaries.
 
-### 6. A doctrine-edge check before next-family selection
+### 8. A doctrine-edge check before next-family selection
 
 Before selecting a successor family:
 

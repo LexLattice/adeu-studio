@@ -164,6 +164,18 @@ But it may not mint:
 - descendant runtime/product behavior by itself; or
 - automatic promotion of support docs into released family law.
 
+Support-doc admission law for this branch:
+
+- support-layer doctrine may shape `V55-A` only through explicit seed admission;
+- no support artifact becomes family law, checker law, or release-gating law by
+  citation alone;
+- each admitted support artifact must declare:
+  - authority layer;
+  - current authority relation;
+  - allowed use inside the kernel;
+  - forbidden inference; and
+  - later promotion requirement.
+
 Planning relationship:
 
 - `V49` remains the released semantic substrate family from `v32`;
@@ -198,6 +210,7 @@ Planning relationship:
     - intermediate family definition
     - thin coherence kernel
     - one descendant trial only
+  - if this family is selected, select `V55-A` as the next default candidate
 
 This family/path recommendation is branch-local to the `v38` planning surface.
 
@@ -240,17 +253,36 @@ These output names are planning-level candidate names, not lock-level schema aut
   - `packages/adeu_constitutional_coherence`
 - one thin script seam under existing repo operations;
 - one warning-level checker only;
-- one seed artifact set of roughly 5 to 8 promoted or near-promoted artifacts;
+- one exact admitted seed artifact set:
+  - `docs/LOCKED_RECURSIVE_COORDINATE_ADOPTION_v0.md`
+  - `docs/DRAFT_RECURSIVE_COORDINATE_MIGRATION_LINT_POSTURE_v0.md`
+  - `docs/support/ADEU_SCHEMA_META_GRAMMAR.md`
+  - `docs/support/VERTICAL_ALIGNMENT_ARCHITECTURE_HARDENED.md`
+  - `docs/support/ODEU_MEMBRANE_ARCHITECTURE.md`
+  - `docs/support/crypto data spec2.md`
 - one descendant exemplar trial only.
 
 `V55-A` should explicitly check:
 
-- authority-layer consistency;
-- recursive-coordinate placement consistency;
-- force-profile consistency;
-- descendant-vs-parent entitlement;
-- projection / promotion barrier consistency;
-- required witness/ref presence for promoted claims.
+- `authority_layer_declared`;
+- `authority_relation_legal`;
+- `placement_basis_present_when_required`;
+- `coverage_scope_present_when_required`;
+- `dominant_force_band_resolved`;
+- `promotion_claim_has_witness`;
+- `descendant_claim_within_parent_entitlement`;
+- `projection_does_not_mint_authority`;
+- `support_surface_not_self_promoted`.
+
+`V55-A` checker input contract should be deterministic over structured claims only:
+
+- explicit headers;
+- explicit JSON records or blocks;
+- explicit refs;
+- explicit witness refs; and
+- explicit family/descendant declarations.
+
+Free text may explain, but only declared structured surfaces are checker-authoritative.
 
 `V55-A` should explicitly not select:
 
@@ -259,6 +291,15 @@ These output names are planning-level candidate names, not lock-level schema aut
 - autonomous prose interpretation as the default execution path;
 - broad descendant runtime implementation;
 - multi-domain downstream rollout.
+
+Preferred descendant trial for `V55-A`:
+
+- default preferred descendant trial: `docs/support/crypto data spec2.md`;
+- trial posture: support-surface mode only;
+- reason for default preference:
+  - it already exercises descendant inheritance, binding law, admissibility law,
+    projection barriers, and force monotonicity inside one bounded domain substrate
+    surface.
 
 ## Candidate Package Ownership
 
@@ -297,17 +338,43 @@ implementation family.
   "kernel_spec_doc": "docs/DRAFT_CONSTITUTIONAL_COHERENCE_KERNEL_SPEC_v0.md",
   "family_decomposition_doc": "docs/DRAFT_ADEU_CONSTITUTIONAL_COHERENCE_V55_IMPLEMENTATION_MAPPING_v0.md",
   "recommended_owner_package": "packages/adeu_constitutional_coherence",
-  "selected_seed_artifact_classes": [
-    "recursive_coordinate_core_bundle",
-    "recursive_coordinate_adoption_lock",
-    "schema_meta_grammar_surface",
-    "membrane_architecture_surface",
-    "one_descendant_exemplar"
+  "structured_input_only": true,
+  "support_doc_admission_required": true,
+  "selected_seed_artifacts": [
+    "docs/LOCKED_RECURSIVE_COORDINATE_ADOPTION_v0.md",
+    "docs/DRAFT_RECURSIVE_COORDINATE_MIGRATION_LINT_POSTURE_v0.md",
+    "docs/support/ADEU_SCHEMA_META_GRAMMAR.md",
+    "docs/support/VERTICAL_ALIGNMENT_ARCHITECTURE_HARDENED.md",
+    "docs/support/ODEU_MEMBRANE_ARCHITECTURE.md",
+    "docs/support/crypto data spec2.md"
+  ],
+  "selected_closed_predicates_v55_a": [
+    "authority_layer_declared",
+    "authority_relation_legal",
+    "placement_basis_present_when_required",
+    "coverage_scope_present_when_required",
+    "dominant_force_band_resolved",
+    "promotion_claim_has_witness",
+    "descendant_claim_within_parent_entitlement",
+    "projection_does_not_mint_authority",
+    "support_surface_not_self_promoted"
   ],
   "descendant_trial_default_kind": "support_surface_trial_only",
+  "descendant_trial_default_artifact": "docs/support/crypto data spec2.md",
   "warning_only_checker_required": true,
   "ci_gating_not_selected_yet": true,
   "open_ended_meta_reasoner_not_selected_yet": true,
+  "v55_a_acceptance": {
+    "owner_package_exists": "packages/adeu_constitutional_coherence",
+    "warning_only_checker_exists": true,
+    "structured_input_contract_explicit": true,
+    "exact_seed_artifact_set_declared": true,
+    "coherence_report_shape_exists": true,
+    "unresolved_seam_register_exists": true,
+    "descendant_trial_support_surface_mode_only": true,
+    "ci_gating_introduced": false,
+    "autonomous_prose_interpretation_introduced": false
+  },
   "selected_current_family_path_for_this_branch": "V55-A",
   "selected_current_concrete_arc_for_this_branch": "V55-A",
   "selected_current_path_phase": "recommended_not_yet_locked"
