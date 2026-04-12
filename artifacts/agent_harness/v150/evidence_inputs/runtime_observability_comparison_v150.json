@@ -1,0 +1,11 @@
+{
+  "schema": "runtime_observability_comparison@1",
+  "baseline_arc": "vNext+149",
+  "current_arc": "vNext+150",
+  "baseline_source": "artifacts/stop_gate/report_v149_closeout.md",
+  "current_source": "artifacts/stop_gate/report_v150_closeout.md",
+  "baseline_elapsed_ms": 67,
+  "current_elapsed_ms": 67,
+  "delta_ms": 0,
+  "notes": "v150 closeout keeps the frozen stop-gate schema family and exact metric keyset unchanged while shipping the bounded V55-B descendant-trial hardening slice on main: the existing adeu_constitutional_coherence package and warning-only CLI were reused, one explicit constitutional_coherence_lane_drift_record@1 handoff became required before descendant evaluation, the preferred crypto descendant remained support-surface only, unresolved seams stayed split across family-law/descendant-law/admission-surface gaps, and no runtime/product or CI-gating widening was introduced."
+}
