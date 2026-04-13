@@ -1,0 +1,111 @@
+{
+  "$defs": {
+    "AgenticDeInteractionContractEntry": {
+      "additionalProperties": false,
+      "properties": {
+        "action_class": {
+          "enum": [
+            "inspect",
+            "write",
+            "execute",
+            "dispatch"
+          ],
+          "title": "Action Class",
+          "type": "string"
+        },
+        "action_id": {
+          "title": "Action Id",
+          "type": "string"
+        },
+        "authority_required": {
+          "title": "Authority Required",
+          "type": "boolean"
+        },
+        "consequence_visibility": {
+          "title": "Consequence Visibility",
+          "type": "string"
+        },
+        "evidence_required": {
+          "title": "Evidence Required",
+          "type": "boolean"
+        },
+        "live_effect_permitted": {
+          "const": false,
+          "default": false,
+          "title": "Live Effect Permitted",
+          "type": "boolean"
+        }
+      },
+      "required": [
+        "action_id",
+        "action_class",
+        "evidence_required",
+        "authority_required",
+        "consequence_visibility"
+      ],
+      "title": "AgenticDeInteractionContractEntry",
+      "type": "object"
+    }
+  },
+  "additionalProperties": false,
+  "properties": {
+    "advisory_until_governed_gate": {
+      "const": true,
+      "default": true,
+      "title": "Advisory Until Governed Gate",
+      "type": "boolean"
+    },
+    "contract_id": {
+      "anyOf": [
+        {
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Contract Id"
+    },
+    "domain_packet_ref": {
+      "title": "Domain Packet Ref",
+      "type": "string"
+    },
+    "interactions": {
+      "items": {
+        "$ref": "#/$defs/AgenticDeInteractionContractEntry"
+      },
+      "title": "Interactions",
+      "type": "array"
+    },
+    "lineage_source_schema": {
+      "const": "ux_interaction_contract@1",
+      "default": "ux_interaction_contract@1",
+      "title": "Lineage Source Schema",
+      "type": "string"
+    },
+    "morph_ir_ref": {
+      "title": "Morph Ir Ref",
+      "type": "string"
+    },
+    "no_hidden_write_execute_or_dispatch_boundary": {
+      "const": true,
+      "default": true,
+      "title": "No Hidden Write Execute Or Dispatch Boundary",
+      "type": "boolean"
+    },
+    "schema": {
+      "const": "agentic_de_interaction_contract@1",
+      "default": "agentic_de_interaction_contract@1",
+      "title": "Schema",
+      "type": "string"
+    }
+  },
+  "required": [
+    "domain_packet_ref",
+    "morph_ir_ref",
+    "interactions"
+  ],
+  "title": "AgenticDeInteractionContract",
+  "type": "object"
+}

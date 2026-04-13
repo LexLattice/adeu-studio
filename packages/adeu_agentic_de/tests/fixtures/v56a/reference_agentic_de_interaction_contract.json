@@ -1,0 +1,19 @@
+{
+  "advisory_until_governed_gate": true,
+  "contract_id": "agentic_de_interaction_contract_fd06a57f7029",
+  "domain_packet_ref": "agentic_de_domain_packet_4254046501b1",
+  "interactions": [
+    {
+      "action_class": "write",
+      "action_id": "write_repo_patch_candidate",
+      "authority_required": true,
+      "consequence_visibility": "checkpoint_and_diagnostics_surface",
+      "evidence_required": true,
+      "live_effect_permitted": false
+    }
+  ],
+  "lineage_source_schema": "ux_interaction_contract@1",
+  "morph_ir_ref": "agentic_de_morph_ir_009a5767d9bc",
+  "no_hidden_write_execute_or_dispatch_boundary": true,
+  "schema": "agentic_de_interaction_contract@1"
+}

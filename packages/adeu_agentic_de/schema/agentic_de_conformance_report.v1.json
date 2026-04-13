@@ -1,0 +1,86 @@
+{
+  "additionalProperties": false,
+  "properties": {
+    "checkpoint_entitlement_summary": {
+      "title": "Checkpoint Entitlement Summary",
+      "type": "string"
+    },
+    "checkpoint_ref": {
+      "title": "Checkpoint Ref",
+      "type": "string"
+    },
+    "conformance_status": {
+      "enum": [
+        "dry_run_aligned",
+        "dry_run_divergent"
+      ],
+      "title": "Conformance Status",
+      "type": "string"
+    },
+    "delta_notes": {
+      "items": {
+        "type": "string"
+      },
+      "title": "Delta Notes",
+      "type": "array"
+    },
+    "executed_or_observed_effect": {
+      "const": "no_live_effect",
+      "default": "no_live_effect",
+      "title": "Executed Or Observed Effect",
+      "type": "string"
+    },
+    "live_effect_present": {
+      "const": false,
+      "default": false,
+      "title": "Live Effect Present",
+      "type": "boolean"
+    },
+    "packed_state_summary": {
+      "title": "Packed State Summary",
+      "type": "string"
+    },
+    "packet_ref": {
+      "title": "Packet Ref",
+      "type": "string"
+    },
+    "proposal_ref": {
+      "title": "Proposal Ref",
+      "type": "string"
+    },
+    "proposed_action_summary": {
+      "title": "Proposed Action Summary",
+      "type": "string"
+    },
+    "report_id": {
+      "anyOf": [
+        {
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Report Id"
+    },
+    "schema": {
+      "const": "agentic_de_conformance_report@1",
+      "default": "agentic_de_conformance_report@1",
+      "title": "Schema",
+      "type": "string"
+    }
+  },
+  "required": [
+    "packet_ref",
+    "proposal_ref",
+    "checkpoint_ref",
+    "packed_state_summary",
+    "proposed_action_summary",
+    "checkpoint_entitlement_summary",
+    "conformance_status",
+    "delta_notes"
+  ],
+  "title": "AgenticDeConformanceReport",
+  "type": "object"
+}

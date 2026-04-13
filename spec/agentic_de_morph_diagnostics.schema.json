@@ -1,0 +1,103 @@
+{
+  "$defs": {
+    "AgenticDeMorphDiagnosticFinding": {
+      "additionalProperties": false,
+      "properties": {
+        "code": {
+          "title": "Code",
+          "type": "string"
+        },
+        "finding_id": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Finding Id"
+        },
+        "message": {
+          "title": "Message",
+          "type": "string"
+        },
+        "severity": {
+          "enum": [
+            "info",
+            "warn",
+            "error"
+          ],
+          "title": "Severity",
+          "type": "string"
+        },
+        "subject_ref": {
+          "title": "Subject Ref",
+          "type": "string"
+        }
+      },
+      "required": [
+        "severity",
+        "code",
+        "subject_ref",
+        "message"
+      ],
+      "title": "AgenticDeMorphDiagnosticFinding",
+      "type": "object"
+    }
+  },
+  "additionalProperties": false,
+  "properties": {
+    "checkpoint_ref": {
+      "title": "Checkpoint Ref",
+      "type": "string"
+    },
+    "diagnostics_id": {
+      "anyOf": [
+        {
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Diagnostics Id"
+    },
+    "finding_count": {
+      "title": "Finding Count",
+      "type": "integer"
+    },
+    "findings": {
+      "items": {
+        "$ref": "#/$defs/AgenticDeMorphDiagnosticFinding"
+      },
+      "title": "Findings",
+      "type": "array"
+    },
+    "packet_ref": {
+      "title": "Packet Ref",
+      "type": "string"
+    },
+    "proposal_ref": {
+      "title": "Proposal Ref",
+      "type": "string"
+    },
+    "schema": {
+      "const": "agentic_de_morph_diagnostics@1",
+      "default": "agentic_de_morph_diagnostics@1",
+      "title": "Schema",
+      "type": "string"
+    }
+  },
+  "required": [
+    "packet_ref",
+    "proposal_ref",
+    "checkpoint_ref",
+    "finding_count",
+    "findings"
+  ],
+  "title": "AgenticDeMorphDiagnostics",
+  "type": "object"
+}

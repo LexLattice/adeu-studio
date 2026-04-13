@@ -1,0 +1,17 @@
+{
+  "action_class": "write",
+  "action_id": "write_repo_patch_candidate",
+  "authority_basis_refs": [
+    "docs/LOCKED_CONTINUATION_vNEXT_PLUS152.md#machine-checkable-contract"
+  ],
+  "claimed_basis_summary": "The candidate write remains bounded by the active V56-A lock and carries dry-run checkpointability only.",
+  "contract_ref": "agentic_de_interaction_contract_fd06a57f7029",
+  "domain_packet_ref": "agentic_de_domain_packet_4254046501b1",
+  "entitlement_posture": "non_entitling_candidate",
+  "evidence_refs": [
+    "docs/DRAFT_ADEU_RESIDENT_AGENT_INTERACTION_GOVERNANCE_V56A_IMPLEMENTATION_MAPPING_v0.md#v56-a-runtime-posture"
+  ],
+  "proposal_id": "agentic_de_action_proposal_6fda60050fa6",
+  "requested_effect_summary": "Prepare a dry-run patch candidate for the current resident-agent task.",
+  "schema": "agentic_de_action_proposal@1"
+}

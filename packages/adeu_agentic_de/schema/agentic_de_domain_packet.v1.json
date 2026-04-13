@@ -1,0 +1,73 @@
+{
+  "additionalProperties": false,
+  "properties": {
+    "authority_frame_ref": {
+      "title": "Authority Frame Ref",
+      "type": "string"
+    },
+    "capability_posture": {
+      "enum": [
+        "read_only",
+        "dry_run_only",
+        "live_gate_required"
+      ],
+      "title": "Capability Posture",
+      "type": "string"
+    },
+    "environment_identity": {
+      "title": "Environment Identity",
+      "type": "string"
+    },
+    "lineage_source_schema": {
+      "const": "ux_domain_packet@1",
+      "default": "ux_domain_packet@1",
+      "title": "Lineage Source Schema",
+      "type": "string"
+    },
+    "packet_id": {
+      "anyOf": [
+        {
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Packet Id"
+    },
+    "risk_posture": {
+      "enum": [
+        "low",
+        "medium",
+        "high"
+      ],
+      "title": "Risk Posture",
+      "type": "string"
+    },
+    "schema": {
+      "const": "agentic_de_domain_packet@1",
+      "default": "agentic_de_domain_packet@1",
+      "title": "Schema",
+      "type": "string"
+    },
+    "task_scope_ref": {
+      "title": "Task Scope Ref",
+      "type": "string"
+    },
+    "task_scope_summary": {
+      "title": "Task Scope Summary",
+      "type": "string"
+    }
+  },
+  "required": [
+    "task_scope_ref",
+    "task_scope_summary",
+    "authority_frame_ref",
+    "risk_posture",
+    "capability_posture",
+    "environment_identity"
+  ],
+  "title": "AgenticDeDomainPacket",
+  "type": "object"
+}

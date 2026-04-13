@@ -1,0 +1,20 @@
+{
+  "deontic_guards": [
+    "externalized_proposal_before_effect",
+    "no_live_boundary_crossing_without_governed_gate",
+    "surrogate_hidden_cognition_proxies_forbidden"
+  ],
+  "domain_packet_ref": "agentic_de_domain_packet_4254046501b1",
+  "evaluation_readiness": "ready",
+  "evidence_expectations": [
+    "evidence_refs_required_before_write_candidate_acceptance"
+  ],
+  "lineage_source_schema": "ux_morph_ir@1",
+  "morph_ir_id": "agentic_de_morph_ir_009a5767d9bc",
+  "schema": "agentic_de_morph_ir@1",
+  "semantic_frame_summary": "Dry-run resident-agent governance evaluation over one candidate repository write action.",
+  "utility_posture": [
+    "diagnostics_first",
+    "typed_delta_conformance"
+  ]
+}
