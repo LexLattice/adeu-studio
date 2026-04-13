@@ -535,6 +535,6 @@ The selector remains a planner first, not a hidden pytest wrapper. The repo’s 
 
 So the practical posture is:
 
-* local default: selector-driven subset with conservative full fallback
+* local default: selector-driven subset with manual escalation when the planner recommends full-suite coverage
 * explicit full local verification still available on demand
 * branch protection still enforced by the full CI lane

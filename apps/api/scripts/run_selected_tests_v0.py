@@ -14,6 +14,7 @@ from adeu_repo_description.test_selection_v0 import (
 
 RUN_SCHEMA = "repo_selected_test_run@1"
 DEFAULT_BASE_REF = "origin/main"
+MANUAL_INSPECTION_EXIT_CODE = 10
 FULL_FALLBACK_BASENAMES = {"Makefile", "pyproject.toml"}
 FULL_FALLBACK_PREFIXES = (".github/workflows/",)
 FULL_FALLBACK_SUFFIXES = (".py",)
@@ -22,14 +23,22 @@ FULL_FALLBACK_SUFFIXES = (".py",)
 def _parse_args(argv: list[str] | None = None) -> argparse.Namespace:
     parser = argparse.ArgumentParser(
         description=(
-            "Run the selector-driven local pytest workflow, with conservative full-suite "
-            "fallback for escalations and unmatched Python/config surfaces."
+            "Run the selector-driven local pytest workflow, escalating back for manual "
+            "inspection when the planner recommends full-suite coverage."
         )
     )
     parser.add_argument("--repo-root", type=Path, default=None)
     parser.add_argument("--base-ref", default=DEFAULT_BASE_REF)
     parser.add_argument("--no-untracked", action="store_true")
     parser.add_argument("--dry-run", action="store_true")
+    parser.add_argument(
+        "--allow-full-fallback",
+        action="store_true",
+        help=(
+            "Allow conservative full pytest execution after inspecting the escalation "
+            "reason. By default, full-suite recommendations stop for manual review."
+        ),
+    )
     return parser.parse_args(argv)
 
 
@@ -114,12 +123,13 @@ def _build_run_summary(
         "schema": RUN_SCHEMA,
         "selection_schema": payload["schema"],
         "selection_algorithm": payload["selection_algorithm"],
-        "repo_root": payload["repo_root"],
+        "repo_root": str(payload["repo_root"]),
         "base_ref_requested": base_ref,
         "base_ref_used": resolved_base_ref,
         "changed_paths": payload["changed_paths"],
         "selector_warnings": sorted(set(payload["warnings"]) | set(warnings)),
         "mode": mode,
+        "manual_inspection_required": mode == "full",
         "full_suite_reason": full_suite_reason,
         "selected_test_paths": payload["selected_test_paths"],
         "out_of_scope_changed_paths": payload["out_of_scope_changed_paths"],
@@ -129,6 +139,16 @@ def _build_run_summary(
         "summary": payload["summary"],
         "pytest_args": pytest_args,
     }
+
+
+def _command_cwd_from_summary(summary: dict[str, Any]) -> Path:
+    repo_root = summary.get("repo_root")
+    if not isinstance(repo_root, str) or not repo_root.strip():
+        raise RuntimeError("selector summary must include a non-empty repo_root string")
+    command_cwd = Path(repo_root).resolve()
+    if not command_cwd.is_dir():
+        raise RuntimeError(f"selector repo_root is not a directory: {repo_root!r}")
+    return command_cwd
 
 
 def main(argv: list[str] | None = None) -> int:
@@ -154,6 +174,7 @@ def main(argv: list[str] | None = None) -> int:
         return 0
 
     command = [sys.executable, "-m", "pytest"]
+    command_cwd = _command_cwd_from_summary(summary)
     if summary["mode"] == "selected":
         command.extend(summary["pytest_args"])
         print(
@@ -162,13 +183,25 @@ def main(argv: list[str] | None = None) -> int:
             file=sys.stderr,
         )
     else:
+        if not namespace.allow_full_fallback:
+            print(
+                "[selected-test-runner] manual inspection required before full pytest: "
+                f"{summary['full_suite_reason']}",
+                file=sys.stderr,
+            )
+            print(
+                "[selected-test-runner] rerun with --allow-full-fallback, or use "
+                "`make test` / `make check-full` once the escalation reason is accepted",
+                file=sys.stderr,
+            )
+            return MANUAL_INSPECTION_EXIT_CODE
         print(
             "[selected-test-runner] falling back to full pytest suite: "
             f"{summary['full_suite_reason']}",
             file=sys.stderr,
         )
 
-    completed = subprocess.run(command, check=False)
+    completed = subprocess.run(command, check=False, cwd=command_cwd)
     return completed.returncode
 
 

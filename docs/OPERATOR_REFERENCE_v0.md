@@ -19,7 +19,7 @@ make check-full
 ```
 
 - `make test` runs the full pytest suite.
-- `make check` is the default local diff-aware gate: lint + selector-driven pytest subset with conservative full-suite fallback + closeout/semantic/instruction policy checks.
+- `make check` is the default local diff-aware gate: lint + selector-driven pytest subset with manual escalation on full-suite recommendations + closeout/semantic/instruction policy checks.
 - `make check-full` preserves the explicit full local gate.
 
 Deterministic eval fixture inputs used by roadmap quality checks live under:
