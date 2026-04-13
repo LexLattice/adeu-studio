@@ -390,7 +390,7 @@ flowchart LR
 | `make test` | Run full pytest suite |
 | `make lint` | Run ruff linter |
 | `make format` | Run ruff formatter |
-| `make check` | **Default local diff-aware gate:** lint + selector-driven pytest subset with conservative full-suite fallback + closeout lint + semantic closeout lint + instruction policy check |
+| `make check` | **Default local diff-aware gate:** lint + selector-driven pytest subset with manual escalation on full-suite recommendations + closeout lint + semantic closeout lint + instruction policy check |
 | `make check-full` | **Explicit full local gate:** lint + full pytest + closeout lint + semantic closeout lint + instruction policy check |
 | `make arc-start-check ARC=N` | Arc-start bundle check (scaffold lint + policy doc check) |
 | `make arc-closeout-check ARC=N` | Arc-closeout bundle check (closeout lint + consistency + semantic + policy) |

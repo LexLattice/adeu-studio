@@ -156,8 +156,79 @@ def test_dry_run_falls_back_to_full_suite_for_root_makefile_change(tmp_path: Pat
     assert completed.returncode == 0, completed.stdout + completed.stderr
     payload = json.loads(completed.stdout)
     assert payload["mode"] == "full"
+    assert payload["manual_inspection_required"] is True
     assert payload["full_suite_recommended"] is True
     assert "Makefile" in payload["full_suite_reason"]
+
+
+def test_non_dry_run_escalates_for_manual_inspection_before_full_suite(tmp_path: Path) -> None:
+    repo_root = _bootstrap_repo(
+        tmp_path,
+        {
+            "Makefile": "test:\n\tpython -m pytest\n",
+            "packages/pkg_a/pyproject.toml": (
+                "[build-system]\n"
+                'requires = ["hatchling"]\n'
+                'build-backend = "hatchling.build"\n\n'
+                "[project]\n"
+                'name = "pkg_a"\n'
+                'version = "0.0.0"\n\n'
+                "[tool.hatch.build.targets.wheel]\n"
+                'packages = ["src/pkg_a"]\n'
+            ),
+            "packages/pkg_a/src/pkg_a/__init__.py": "VALUE = 1\n",
+            "packages/pkg_a/tests/test_core.py": "def test_core() -> None:\n    assert False\n",
+        },
+    )
+    _init_git_repo(repo_root)
+    (repo_root / "Makefile").write_text("test:\n\tpython -m pytest -q\n", encoding="utf-8")
+
+    completed = _run_script(
+        "--repo-root",
+        str(repo_root),
+        "--base-ref",
+        "HEAD",
+    )
+
+    assert completed.returncode == 3
+    assert completed.stdout == ""
+    assert "manual inspection required before full pytest" in completed.stderr
+    assert "Makefile" in completed.stderr
+
+
+def test_full_suite_can_be_run_explicitly_after_manual_inspection(tmp_path: Path) -> None:
+    repo_root = _bootstrap_repo(
+        tmp_path,
+        {
+            "Makefile": "test:\n\tpython -m pytest\n",
+            "packages/pkg_a/pyproject.toml": (
+                "[build-system]\n"
+                'requires = ["hatchling"]\n'
+                'build-backend = "hatchling.build"\n\n'
+                "[project]\n"
+                'name = "pkg_a"\n'
+                'version = "0.0.0"\n\n'
+                "[tool.hatch.build.targets.wheel]\n"
+                'packages = ["src/pkg_a"]\n'
+            ),
+            "packages/pkg_a/src/pkg_a/__init__.py": "VALUE = 1\n",
+            "packages/pkg_a/tests/test_core.py": "def test_core() -> None:\n    assert True\n",
+        },
+    )
+    _init_git_repo(repo_root)
+    (repo_root / "Makefile").write_text("test:\n\tpython -m pytest -q\n", encoding="utf-8")
+
+    completed = _run_script(
+        "--repo-root",
+        str(repo_root),
+        "--base-ref",
+        "HEAD",
+        "--allow-full-fallback",
+    )
+
+    assert completed.returncode == 0, completed.stdout + completed.stderr
+    assert "falling back to full pytest suite" in completed.stderr
+    assert "." in completed.stdout or "passed" in completed.stdout
 
 
 def test_dry_run_skips_docs_only_out_of_scope_changes(tmp_path: Path) -> None:
