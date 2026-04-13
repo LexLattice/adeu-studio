@@ -2,6 +2,7 @@ from __future__ import annotations
 
 import json
 import os
+import shutil
 import subprocess
 import sys
 from pathlib import Path
@@ -86,3 +87,27 @@ def test_invalid_v55b_drift_path_fails_closed(tmp_path: Path) -> None:
     assert completed.returncode != 0
     assert "error:" in completed.stderr
     assert "required handoff posture" in completed.stderr
+
+
+def test_absolute_override_path_outside_repo_root_does_not_crash(tmp_path: Path) -> None:
+    repo_root = _repo_root()
+    source_report = (
+        repo_root
+        / "packages"
+        / "adeu_constitutional_coherence"
+        / "tests"
+        / "fixtures"
+        / "v55a"
+        / "reference_constitutional_coherence_report.json"
+    )
+    override_report = tmp_path / "external_v55a_report.json"
+    shutil.copyfile(source_report, override_report)
+
+    completed = _run_lint("--v55a-report", str(override_report))
+
+    assert completed.returncode == 0, completed.stdout + completed.stderr
+    migration_payload = json.loads(completed.stderr)
+    warning_behavior = next(
+        entry for entry in migration_payload["entries"] if entry["surface_id"] == "warning_behavior"
+    )
+    assert str(override_report) in warning_behavior["evidence_refs"]

@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import json
+import shutil
 from pathlib import Path
 
 import pytest
@@ -141,3 +142,37 @@ def test_missing_required_v55b_evidence_fails_closed(tmp_path: Path) -> None:
             lane_drift_path=LANE_DRIFT_FIXTURE,
             v55b_evidence_path=bad_evidence_path,
         )
+
+
+def test_absolute_override_paths_outside_repo_root_are_preserved_in_evidence_refs(
+    tmp_path: Path,
+) -> None:
+    repo_root_path = _repo_root_path()
+    source_report = (
+        repo_root_path
+        / "packages"
+        / "adeu_constitutional_coherence"
+        / "tests"
+        / "fixtures"
+        / "v55a"
+        / "reference_constitutional_coherence_report.json"
+    )
+    override_report = tmp_path / "external_v55a_report.json"
+    shutil.copyfile(source_report, override_report)
+
+    _governance, migration = run_constitutional_coherence_v55c(
+        repo_root_path=repo_root_path,
+        admissions_path=ADMISSIONS_FIXTURE,
+        lane_drift_path=LANE_DRIFT_FIXTURE,
+        v55a_report_path=override_report,
+    )
+
+    warning_behavior = next(
+        entry for entry in migration.entries if entry.surface_id == "warning_behavior"
+    )
+    report_semantics = next(
+        entry for entry in migration.entries if entry.surface_id == "report_semantics"
+    )
+
+    assert str(override_report) in warning_behavior.evidence_refs
+    assert str(override_report) in report_semantics.evidence_refs

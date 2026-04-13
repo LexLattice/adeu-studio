@@ -296,6 +296,13 @@ def _resolve_repo_input_path(*, repo_root_path: Path, value: str) -> Path:
     return _resolve_path(repo_root_path=repo_root_path, value=value)
 
 
+def _render_input_ref(*, repo_root_path: Path, path: Path) -> str:
+    try:
+        return str(path.relative_to(repo_root_path))
+    except ValueError:
+        return str(path)
+
+
 def _warning(
     *,
     code: str,
@@ -615,7 +622,6 @@ def _build_v55c_governance_calibration_register(
     v55b_unresolved_path: str,
     v55b_evidence_path: str,
     v55b_report: ConstitutionalCoherenceReport,
-    v55a_unresolved: ConstitutionalUnresolvedSeamRegister,
     v55b_unresolved: ConstitutionalUnresolvedSeamRegister,
 ) -> ConstitutionalGovernanceCalibrationRegister:
     descendant_warning = next(
@@ -1206,7 +1212,7 @@ def run_constitutional_coherence_v55c(
         target_path=TARGET_PATH,
         checker_version=CHECKER_VERSION,
     )
-    v55a_unresolved = _validate_expected_unresolved_register(
+    _validate_expected_unresolved_register(
         register=load_unresolved_seam_register(path=resolved_v55a_unresolved),
         target_arc=TARGET_ARC,
         target_path=TARGET_PATH,
@@ -1231,20 +1237,46 @@ def run_constitutional_coherence_v55c(
     )
 
     governance_register = _build_v55c_governance_calibration_register(
-        v55a_unresolved_path=str(resolved_v55a_unresolved.relative_to(root)),
-        v55b_report_path=str(resolved_v55b_report.relative_to(root)),
-        v55b_unresolved_path=str(resolved_v55b_unresolved.relative_to(root)),
-        v55b_evidence_path=str(resolved_v55b_evidence.relative_to(root)),
+        v55a_unresolved_path=_render_input_ref(
+            repo_root_path=root,
+            path=resolved_v55a_unresolved,
+        ),
+        v55b_report_path=_render_input_ref(
+            repo_root_path=root,
+            path=resolved_v55b_report,
+        ),
+        v55b_unresolved_path=_render_input_ref(
+            repo_root_path=root,
+            path=resolved_v55b_unresolved,
+        ),
+        v55b_evidence_path=_render_input_ref(
+            repo_root_path=root,
+            path=resolved_v55b_evidence,
+        ),
         v55b_report=v55b_report,
-        v55a_unresolved=v55a_unresolved,
         v55b_unresolved=v55b_unresolved,
     )
     migration_register = _build_v55c_migration_decision_register(
-        v55a_report_path=str(resolved_v55a_report.relative_to(root)),
-        v55b_report_path=str(resolved_v55b_report.relative_to(root)),
-        v55b_unresolved_path=str(resolved_v55b_unresolved.relative_to(root)),
-        v55b_drift_path=str(resolved_v55b_drift.relative_to(root)),
-        v55b_evidence_path=str(resolved_v55b_evidence.relative_to(root)),
+        v55a_report_path=_render_input_ref(
+            repo_root_path=root,
+            path=resolved_v55a_report,
+        ),
+        v55b_report_path=_render_input_ref(
+            repo_root_path=root,
+            path=resolved_v55b_report,
+        ),
+        v55b_unresolved_path=_render_input_ref(
+            repo_root_path=root,
+            path=resolved_v55b_unresolved,
+        ),
+        v55b_drift_path=_render_input_ref(
+            repo_root_path=root,
+            path=resolved_v55b_drift,
+        ),
+        v55b_evidence_path=_render_input_ref(
+            repo_root_path=root,
+            path=resolved_v55b_evidence,
+        ),
     )
     return governance_register, migration_register
 
