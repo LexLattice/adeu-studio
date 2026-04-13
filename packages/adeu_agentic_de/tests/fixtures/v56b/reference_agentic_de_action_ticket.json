@@ -1,0 +1,15 @@
+{
+  "authority_frame_ref": "docs/LOCKED_CONTINUATION_vNEXT_PLUS152.md#machine-checkable-contract",
+  "checkpoint_ref": "agentic_de_membrane_checkpoint_90507134239a",
+  "contract_ref": "agentic_de_interaction_contract_fd06a57f7029",
+  "domain_packet_ref": "agentic_de_domain_packet_4254046501b1",
+  "exact_action_class": "local_write",
+  "live_effect_authorized": true,
+  "proposal_ref": "agentic_de_action_proposal_6fda60050fa6",
+  "runtime_state_ref": "agentic_de_runtime_state_f96409da1d49",
+  "schema": "agentic_de_action_ticket@1",
+  "taxonomy_ref": "agentic_de_action_class_taxonomy_1c651135a9e7",
+  "ticket_duration_mode": "single_step_local",
+  "ticket_id": "agentic_de_action_ticket_866f90c6f22a",
+  "ticket_scope_summary": "single local patch-candidate materialization step inside the current workspace only"
+}

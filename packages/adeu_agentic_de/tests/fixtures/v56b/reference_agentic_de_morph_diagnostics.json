@@ -1,0 +1,31 @@
+{
+  "checkpoint_ref": "agentic_de_membrane_checkpoint_90507134239a",
+  "diagnostics_id": "agentic_de_morph_diagnostics_138e54816592",
+  "finding_count": 3,
+  "findings": [
+    {
+      "code": "ACTION_PROPOSAL_NON_ENTITLING",
+      "finding_id": "agentic_de_morph_diagnostic_finding_395fac271675",
+      "message": "V56-A proposals remain non-entitling: candidate action, claimed basis, and dry-run checkpointability only",
+      "severity": "info",
+      "subject_ref": "agentic_de_action_proposal_6fda60050fa6"
+    },
+    {
+      "code": "DRY_RUN_CHECKPOINT_ACCEPTED",
+      "finding_id": "agentic_de_morph_diagnostic_finding_a0af691615af",
+      "message": "proposal is checkpointable in dry-run mode only; no live write/execute/dispatch entitlement is carried in V56-A",
+      "severity": "info",
+      "subject_ref": "agentic_de_membrane_checkpoint_90507134239a"
+    },
+    {
+      "code": "LIVE_ACTION_TICKET_ISSUED",
+      "finding_id": "agentic_de_morph_diagnostic_finding_5769952fbbcb",
+      "message": "ticket issued for bounded local live action class",
+      "severity": "info",
+      "subject_ref": "agentic_de_action_ticket_866f90c6f22a"
+    }
+  ],
+  "packet_ref": "agentic_de_domain_packet_4254046501b1",
+  "proposal_ref": "agentic_de_action_proposal_6fda60050fa6",
+  "schema": "agentic_de_morph_diagnostics@1"
+}

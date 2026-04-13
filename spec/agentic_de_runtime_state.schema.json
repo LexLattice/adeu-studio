@@ -1,0 +1,95 @@
+{
+  "additionalProperties": false,
+  "properties": {
+    "authority_frame_ref": {
+      "title": "Authority Frame Ref",
+      "type": "string"
+    },
+    "checkpoint_ref": {
+      "title": "Checkpoint Ref",
+      "type": "string"
+    },
+    "compatibility_note": {
+      "title": "Compatibility Note",
+      "type": "string"
+    },
+    "compatibility_status": {
+      "enum": [
+        "compatible",
+        "incompatible"
+      ],
+      "title": "Compatibility Status",
+      "type": "string"
+    },
+    "contract_ref": {
+      "title": "Contract Ref",
+      "type": "string"
+    },
+    "domain_packet_ref": {
+      "title": "Domain Packet Ref",
+      "type": "string"
+    },
+    "issuance_capability_posture": {
+      "const": "live_gate_required",
+      "default": "live_gate_required",
+      "title": "Issuance Capability Posture",
+      "type": "string"
+    },
+    "local_scope_summary": {
+      "title": "Local Scope Summary",
+      "type": "string"
+    },
+    "schema": {
+      "const": "agentic_de_runtime_state@1",
+      "default": "agentic_de_runtime_state@1",
+      "title": "Schema",
+      "type": "string"
+    },
+    "selected_live_action_classes": {
+      "items": {
+        "enum": [
+          "local_reversible_execute",
+          "local_write"
+        ],
+        "type": "string"
+      },
+      "title": "Selected Live Action Classes",
+      "type": "array"
+    },
+    "state_id": {
+      "anyOf": [
+        {
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "State Id"
+    },
+    "ticket_duration_mode": {
+      "const": "single_step_local",
+      "default": "single_step_local",
+      "title": "Ticket Duration Mode",
+      "type": "string"
+    },
+    "ticket_scope_summary": {
+      "title": "Ticket Scope Summary",
+      "type": "string"
+    }
+  },
+  "required": [
+    "domain_packet_ref",
+    "contract_ref",
+    "checkpoint_ref",
+    "authority_frame_ref",
+    "selected_live_action_classes",
+    "compatibility_status",
+    "compatibility_note",
+    "local_scope_summary",
+    "ticket_scope_summary"
+  ],
+  "title": "AgenticDeRuntimeState",
+  "type": "object"
+}

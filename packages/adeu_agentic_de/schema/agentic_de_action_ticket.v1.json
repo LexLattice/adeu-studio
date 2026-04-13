@@ -1,0 +1,88 @@
+{
+  "additionalProperties": false,
+  "properties": {
+    "authority_frame_ref": {
+      "title": "Authority Frame Ref",
+      "type": "string"
+    },
+    "checkpoint_ref": {
+      "title": "Checkpoint Ref",
+      "type": "string"
+    },
+    "contract_ref": {
+      "title": "Contract Ref",
+      "type": "string"
+    },
+    "domain_packet_ref": {
+      "title": "Domain Packet Ref",
+      "type": "string"
+    },
+    "exact_action_class": {
+      "enum": [
+        "local_reversible_execute",
+        "local_write"
+      ],
+      "title": "Exact Action Class",
+      "type": "string"
+    },
+    "live_effect_authorized": {
+      "const": true,
+      "default": true,
+      "title": "Live Effect Authorized",
+      "type": "boolean"
+    },
+    "proposal_ref": {
+      "title": "Proposal Ref",
+      "type": "string"
+    },
+    "runtime_state_ref": {
+      "title": "Runtime State Ref",
+      "type": "string"
+    },
+    "schema": {
+      "const": "agentic_de_action_ticket@1",
+      "default": "agentic_de_action_ticket@1",
+      "title": "Schema",
+      "type": "string"
+    },
+    "taxonomy_ref": {
+      "title": "Taxonomy Ref",
+      "type": "string"
+    },
+    "ticket_duration_mode": {
+      "const": "single_step_local",
+      "default": "single_step_local",
+      "title": "Ticket Duration Mode",
+      "type": "string"
+    },
+    "ticket_id": {
+      "anyOf": [
+        {
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Ticket Id"
+    },
+    "ticket_scope_summary": {
+      "title": "Ticket Scope Summary",
+      "type": "string"
+    }
+  },
+  "required": [
+    "domain_packet_ref",
+    "contract_ref",
+    "proposal_ref",
+    "checkpoint_ref",
+    "runtime_state_ref",
+    "taxonomy_ref",
+    "exact_action_class",
+    "authority_frame_ref",
+    "ticket_scope_summary"
+  ],
+  "title": "AgenticDeActionTicket",
+  "type": "object"
+}

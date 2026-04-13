@@ -1,0 +1,17 @@
+{
+  "contract_ref": "agentic_de_interaction_contract_fd06a57f7029",
+  "entries": [
+    {
+      "action_id": "write_repo_patch_candidate",
+      "base_action_class": "write",
+      "effect_scope_summary": "bounded workspace-local patch material only; no lock docs, CI config, secrets, credentials, or dispatch surfaces",
+      "exact_action_class": "local_write",
+      "live_selected_in_v56b": true,
+      "reversibility_mode": "not_applicable",
+      "write_surface_category": "bounded_local_artifact"
+    }
+  ],
+  "entry_count": 1,
+  "schema": "agentic_de_action_class_taxonomy@1",
+  "taxonomy_id": "agentic_de_action_class_taxonomy_1c651135a9e7"
+}
