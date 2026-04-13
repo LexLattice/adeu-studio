@@ -190,7 +190,7 @@ def test_non_dry_run_escalates_for_manual_inspection_before_full_suite(tmp_path:
         "HEAD",
     )
 
-    assert completed.returncode == 3
+    assert completed.returncode == 10
     assert completed.stdout == ""
     assert "manual inspection required before full pytest" in completed.stderr
     assert "Makefile" in completed.stderr

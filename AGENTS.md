@@ -12,7 +12,7 @@
 - Before opening or updating a Python PR, run `make check`.
 - `make check` is the default local gate for the Python lane and includes:
   - Ruff lint
-  - selector-driven pytest planning plus the relevant subset, with explicit manual escalation for selector full-suite recommendations and unmatched Python/config-like changes instead of silent full-suite execution
+  - selector-driven pytest planning plus the relevant subset, with conservative full-suite fallback for explicit selector escalations and unmatched Python/config-like changes
   - closeout consistency lint
   - semantic compiler closeout lint
   - generated instruction policy doc check
