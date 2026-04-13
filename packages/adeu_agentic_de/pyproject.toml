@@ -1,0 +1,28 @@
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[project]
+name = "adeu-agentic-de"
+version = "0.0.0"
+description = "Resident-agent interaction governance starter contracts and dry-run checkpoint for V56-A."
+readme = "../../README.md"
+requires-python = ">=3.14"
+license = { file = "../../LICENSE" }
+classifiers = [
+  "License :: OSI Approved :: Apache Software License",
+]
+dependencies = [
+  "pydantic>=2.6,<3",
+  "adeu-ir>=0.0.0",
+  "urm-runtime>=0.0.0",
+]
+
+[project.optional-dependencies]
+dev = [
+  "pytest>=8,<9",
+  "ruff>=0.6,<1",
+]
+
+[tool.hatch.build.targets.wheel]
+packages = ["src/adeu_agentic_de"]

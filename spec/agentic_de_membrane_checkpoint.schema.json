@@ -1,0 +1,98 @@
+{
+  "additionalProperties": false,
+  "properties": {
+    "action_ticket_issuable": {
+      "const": false,
+      "default": false,
+      "title": "Action Ticket Issuable",
+      "type": "boolean"
+    },
+    "checkpoint_id": {
+      "anyOf": [
+        {
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Checkpoint Id"
+    },
+    "contract_ref": {
+      "title": "Contract Ref",
+      "type": "string"
+    },
+    "domain_packet_ref": {
+      "title": "Domain Packet Ref",
+      "type": "string"
+    },
+    "dry_run_only": {
+      "const": true,
+      "default": true,
+      "title": "Dry Run Only",
+      "type": "boolean"
+    },
+    "live_effect_authorized": {
+      "const": false,
+      "default": false,
+      "title": "Live Effect Authorized",
+      "type": "boolean"
+    },
+    "proposal_ref": {
+      "title": "Proposal Ref",
+      "type": "string"
+    },
+    "reason_code": {
+      "anyOf": [
+        {
+          "enum": [
+            "authority_missing",
+            "insufficient_evidence",
+            "proposal_malformed",
+            "out_of_scope",
+            "noncomparable",
+            "unresolved_dependency",
+            "not_evaluable_yet"
+          ],
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Reason Code"
+    },
+    "schema": {
+      "const": "agentic_de_membrane_checkpoint@1",
+      "default": "agentic_de_membrane_checkpoint@1",
+      "title": "Schema",
+      "type": "string"
+    },
+    "status": {
+      "enum": [
+        "accepted",
+        "residualized",
+        "blocked",
+        "escalated",
+        "rejected_by_form"
+      ],
+      "title": "Status",
+      "type": "string"
+    },
+    "status_explanation": {
+      "title": "Status Explanation",
+      "type": "string"
+    }
+  },
+  "required": [
+    "domain_packet_ref",
+    "contract_ref",
+    "proposal_ref",
+    "status",
+    "status_explanation"
+  ],
+  "title": "AgenticDeMembraneCheckpoint",
+  "type": "object"
+}

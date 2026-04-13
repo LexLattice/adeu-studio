@@ -1,0 +1,18 @@
+{
+  "checkpoint_entitlement_summary": "dry_run_checkpoint_accepted_non_entitling",
+  "checkpoint_ref": "agentic_de_membrane_checkpoint_90507134239a",
+  "conformance_status": "dry_run_aligned",
+  "delta_notes": [
+    "proposal remained non-entitling in V56-A",
+    "checkpoint status=accepted",
+    "executed_or_observed_effect=no_live_effect"
+  ],
+  "executed_or_observed_effect": "no_live_effect",
+  "live_effect_present": false,
+  "packed_state_summary": "Prepare a bounded dry-run patch candidate for the active resident-agent task without executing a live repository write.",
+  "packet_ref": "agentic_de_domain_packet_4254046501b1",
+  "proposal_ref": "agentic_de_action_proposal_6fda60050fa6",
+  "proposed_action_summary": "Prepare a dry-run patch candidate for the current resident-agent task.",
+  "report_id": "agentic_de_conformance_report_b3472020d072",
+  "schema": "agentic_de_conformance_report@1"
+}

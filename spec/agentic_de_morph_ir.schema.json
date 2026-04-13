@@ -1,0 +1,76 @@
+{
+  "additionalProperties": false,
+  "properties": {
+    "deontic_guards": {
+      "items": {
+        "type": "string"
+      },
+      "title": "Deontic Guards",
+      "type": "array"
+    },
+    "domain_packet_ref": {
+      "title": "Domain Packet Ref",
+      "type": "string"
+    },
+    "evaluation_readiness": {
+      "enum": [
+        "ready",
+        "not_evaluable_yet"
+      ],
+      "title": "Evaluation Readiness",
+      "type": "string"
+    },
+    "evidence_expectations": {
+      "items": {
+        "type": "string"
+      },
+      "title": "Evidence Expectations",
+      "type": "array"
+    },
+    "lineage_source_schema": {
+      "const": "ux_morph_ir@1",
+      "default": "ux_morph_ir@1",
+      "title": "Lineage Source Schema",
+      "type": "string"
+    },
+    "morph_ir_id": {
+      "anyOf": [
+        {
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Morph Ir Id"
+    },
+    "schema": {
+      "const": "agentic_de_morph_ir@1",
+      "default": "agentic_de_morph_ir@1",
+      "title": "Schema",
+      "type": "string"
+    },
+    "semantic_frame_summary": {
+      "title": "Semantic Frame Summary",
+      "type": "string"
+    },
+    "utility_posture": {
+      "items": {
+        "type": "string"
+      },
+      "title": "Utility Posture",
+      "type": "array"
+    }
+  },
+  "required": [
+    "domain_packet_ref",
+    "semantic_frame_summary",
+    "evaluation_readiness",
+    "deontic_guards",
+    "evidence_expectations",
+    "utility_posture"
+  ],
+  "title": "AgenticDeMorphIr",
+  "type": "object"
+}

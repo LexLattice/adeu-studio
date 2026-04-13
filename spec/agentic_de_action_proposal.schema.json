@@ -1,0 +1,83 @@
+{
+  "additionalProperties": false,
+  "properties": {
+    "action_class": {
+      "enum": [
+        "inspect",
+        "write",
+        "execute",
+        "dispatch"
+      ],
+      "title": "Action Class",
+      "type": "string"
+    },
+    "action_id": {
+      "title": "Action Id",
+      "type": "string"
+    },
+    "authority_basis_refs": {
+      "items": {
+        "type": "string"
+      },
+      "title": "Authority Basis Refs",
+      "type": "array"
+    },
+    "claimed_basis_summary": {
+      "title": "Claimed Basis Summary",
+      "type": "string"
+    },
+    "contract_ref": {
+      "title": "Contract Ref",
+      "type": "string"
+    },
+    "domain_packet_ref": {
+      "title": "Domain Packet Ref",
+      "type": "string"
+    },
+    "entitlement_posture": {
+      "const": "non_entitling_candidate",
+      "default": "non_entitling_candidate",
+      "title": "Entitlement Posture",
+      "type": "string"
+    },
+    "evidence_refs": {
+      "items": {
+        "type": "string"
+      },
+      "title": "Evidence Refs",
+      "type": "array"
+    },
+    "proposal_id": {
+      "anyOf": [
+        {
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Proposal Id"
+    },
+    "requested_effect_summary": {
+      "title": "Requested Effect Summary",
+      "type": "string"
+    },
+    "schema": {
+      "const": "agentic_de_action_proposal@1",
+      "default": "agentic_de_action_proposal@1",
+      "title": "Schema",
+      "type": "string"
+    }
+  },
+  "required": [
+    "domain_packet_ref",
+    "contract_ref",
+    "action_id",
+    "action_class",
+    "claimed_basis_summary",
+    "requested_effect_summary"
+  ],
+  "title": "AgenticDeActionProposal",
+  "type": "object"
+}

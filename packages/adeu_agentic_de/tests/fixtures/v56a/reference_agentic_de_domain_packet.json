@@ -1,0 +1,11 @@
+{
+  "authority_frame_ref": "docs/LOCKED_CONTINUATION_vNEXT_PLUS152.md#machine-checkable-contract",
+  "capability_posture": "dry_run_only",
+  "environment_identity": "repo:odeu:local",
+  "lineage_source_schema": "ux_domain_packet@1",
+  "packet_id": "agentic_de_domain_packet_4254046501b1",
+  "risk_posture": "high",
+  "schema": "agentic_de_domain_packet@1",
+  "task_scope_ref": "task:turn:v56a_reference",
+  "task_scope_summary": "Prepare a bounded dry-run patch candidate for the active resident-agent task without executing a live repository write."
+}
