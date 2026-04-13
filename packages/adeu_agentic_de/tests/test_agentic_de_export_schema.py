@@ -4,13 +4,17 @@ import json
 from pathlib import Path
 
 from adeu_agentic_de import (
+    AGENTIC_DE_ACTION_CLASS_TAXONOMY_SCHEMA,
     AGENTIC_DE_ACTION_PROPOSAL_SCHEMA,
+    AGENTIC_DE_ACTION_TICKET_SCHEMA,
     AGENTIC_DE_CONFORMANCE_REPORT_SCHEMA,
     AGENTIC_DE_DOMAIN_PACKET_SCHEMA,
     AGENTIC_DE_INTERACTION_CONTRACT_SCHEMA,
+    AGENTIC_DE_LANE_DRIFT_RECORD_SCHEMA,
     AGENTIC_DE_MEMBRANE_CHECKPOINT_SCHEMA,
     AGENTIC_DE_MORPH_DIAGNOSTICS_SCHEMA,
     AGENTIC_DE_MORPH_IR_SCHEMA,
+    AGENTIC_DE_RUNTIME_STATE_SCHEMA,
 )
 from adeu_agentic_de.export_schema import _assert_no_absolute_path_material
 from adeu_agentic_de.export_schema import main as export_schema_main
@@ -40,6 +44,14 @@ def _schema_pairs() -> dict[str, tuple[Path, Path]]:
             root / "packages" / "adeu_agentic_de" / "schema" / "agentic_de_action_proposal.v1.json",
             root / "spec" / "agentic_de_action_proposal.schema.json",
         ),
+        AGENTIC_DE_ACTION_CLASS_TAXONOMY_SCHEMA: (
+            root
+            / "packages"
+            / "adeu_agentic_de"
+            / "schema"
+            / "agentic_de_action_class_taxonomy.v1.json",
+            root / "spec" / "agentic_de_action_class_taxonomy.schema.json",
+        ),
         AGENTIC_DE_MEMBRANE_CHECKPOINT_SCHEMA: (
             root
             / "packages"
@@ -63,6 +75,22 @@ def _schema_pairs() -> dict[str, tuple[Path, Path]]:
             / "schema"
             / "agentic_de_conformance_report.v1.json",
             root / "spec" / "agentic_de_conformance_report.schema.json",
+        ),
+        AGENTIC_DE_RUNTIME_STATE_SCHEMA: (
+            root / "packages" / "adeu_agentic_de" / "schema" / "agentic_de_runtime_state.v1.json",
+            root / "spec" / "agentic_de_runtime_state.schema.json",
+        ),
+        AGENTIC_DE_ACTION_TICKET_SCHEMA: (
+            root / "packages" / "adeu_agentic_de" / "schema" / "agentic_de_action_ticket.v1.json",
+            root / "spec" / "agentic_de_action_ticket.schema.json",
+        ),
+        AGENTIC_DE_LANE_DRIFT_RECORD_SCHEMA: (
+            root
+            / "packages"
+            / "adeu_agentic_de"
+            / "schema"
+            / "agentic_de_lane_drift_record.v1.json",
+            root / "spec" / "agentic_de_lane_drift_record.schema.json",
         ),
     }
 

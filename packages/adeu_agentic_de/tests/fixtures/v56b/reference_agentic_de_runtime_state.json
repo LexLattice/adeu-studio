@@ -1,0 +1,18 @@
+{
+  "authority_frame_ref": "docs/LOCKED_CONTINUATION_vNEXT_PLUS152.md#machine-checkable-contract",
+  "checkpoint_ref": "agentic_de_membrane_checkpoint_90507134239a",
+  "compatibility_note": "The current runtime state permits bounded local ticket issuance only for the selected V56-B local classes.",
+  "compatibility_status": "compatible",
+  "contract_ref": "agentic_de_interaction_contract_fd06a57f7029",
+  "domain_packet_ref": "agentic_de_domain_packet_4254046501b1",
+  "issuance_capability_posture": "live_gate_required",
+  "local_scope_summary": "current repo workspace plus current local process/sandbox surface only",
+  "schema": "agentic_de_runtime_state@1",
+  "selected_live_action_classes": [
+    "local_reversible_execute",
+    "local_write"
+  ],
+  "state_id": "agentic_de_runtime_state_f96409da1d49",
+  "ticket_duration_mode": "single_step_local",
+  "ticket_scope_summary": "single local patch-candidate materialization step inside the current workspace only"
+}

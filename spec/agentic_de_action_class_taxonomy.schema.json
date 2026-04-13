@@ -1,0 +1,118 @@
+{
+  "$defs": {
+    "AgenticDeActionClassTaxonomyEntry": {
+      "additionalProperties": false,
+      "properties": {
+        "action_id": {
+          "title": "Action Id",
+          "type": "string"
+        },
+        "base_action_class": {
+          "enum": [
+            "inspect",
+            "write",
+            "execute",
+            "dispatch"
+          ],
+          "title": "Base Action Class",
+          "type": "string"
+        },
+        "effect_scope_summary": {
+          "title": "Effect Scope Summary",
+          "type": "string"
+        },
+        "exact_action_class": {
+          "enum": [
+            "pure_read_inspect",
+            "capability_sensitive_inspect",
+            "local_reversible_execute",
+            "stronger_execute",
+            "local_write",
+            "delegated_or_external_dispatch"
+          ],
+          "title": "Exact Action Class",
+          "type": "string"
+        },
+        "live_selected_in_v56b": {
+          "title": "Live Selected In V56B",
+          "type": "boolean"
+        },
+        "reversibility_mode": {
+          "enum": [
+            "not_applicable",
+            "rollback_defined_and_testable"
+          ],
+          "title": "Reversibility Mode",
+          "type": "string"
+        },
+        "write_surface_category": {
+          "enum": [
+            "not_applicable",
+            "bounded_local_artifact",
+            "family_constitution",
+            "lock_doc",
+            "ci_config",
+            "secret_or_credential",
+            "dispatch_surface"
+          ],
+          "title": "Write Surface Category",
+          "type": "string"
+        }
+      },
+      "required": [
+        "action_id",
+        "base_action_class",
+        "exact_action_class",
+        "effect_scope_summary",
+        "reversibility_mode",
+        "write_surface_category",
+        "live_selected_in_v56b"
+      ],
+      "title": "AgenticDeActionClassTaxonomyEntry",
+      "type": "object"
+    }
+  },
+  "additionalProperties": false,
+  "properties": {
+    "contract_ref": {
+      "title": "Contract Ref",
+      "type": "string"
+    },
+    "entries": {
+      "items": {
+        "$ref": "#/$defs/AgenticDeActionClassTaxonomyEntry"
+      },
+      "title": "Entries",
+      "type": "array"
+    },
+    "entry_count": {
+      "title": "Entry Count",
+      "type": "integer"
+    },
+    "schema": {
+      "const": "agentic_de_action_class_taxonomy@1",
+      "default": "agentic_de_action_class_taxonomy@1",
+      "title": "Schema",
+      "type": "string"
+    },
+    "taxonomy_id": {
+      "anyOf": [
+        {
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Taxonomy Id"
+    }
+  },
+  "required": [
+    "contract_ref",
+    "entry_count",
+    "entries"
+  ],
+  "title": "AgenticDeActionClassTaxonomy",
+  "type": "object"
+}

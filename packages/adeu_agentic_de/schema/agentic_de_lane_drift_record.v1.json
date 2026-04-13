@@ -1,0 +1,87 @@
+{
+  "$defs": {
+    "AgenticDeLaneDriftEntry": {
+      "additionalProperties": false,
+      "properties": {
+        "assumption_ref": {
+          "title": "Assumption Ref",
+          "type": "string"
+        },
+        "note": {
+          "title": "Note",
+          "type": "string"
+        },
+        "status": {
+          "enum": [
+            "holds",
+            "amended",
+            "superseded",
+            "not_selected_anymore"
+          ],
+          "title": "Status",
+          "type": "string"
+        }
+      },
+      "required": [
+        "assumption_ref",
+        "status",
+        "note"
+      ],
+      "title": "AgenticDeLaneDriftEntry",
+      "type": "object"
+    }
+  },
+  "additionalProperties": false,
+  "properties": {
+    "entries": {
+      "items": {
+        "$ref": "#/$defs/AgenticDeLaneDriftEntry"
+      },
+      "title": "Entries",
+      "type": "array"
+    },
+    "entry_count": {
+      "title": "Entry Count",
+      "type": "integer"
+    },
+    "prior_lane_ref": {
+      "title": "Prior Lane Ref",
+      "type": "string"
+    },
+    "record_id": {
+      "anyOf": [
+        {
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Record Id"
+    },
+    "schema": {
+      "const": "agentic_de_lane_drift_record@1",
+      "default": "agentic_de_lane_drift_record@1",
+      "title": "Schema",
+      "type": "string"
+    },
+    "target_arc": {
+      "title": "Target Arc",
+      "type": "string"
+    },
+    "target_path": {
+      "title": "Target Path",
+      "type": "string"
+    }
+  },
+  "required": [
+    "target_arc",
+    "target_path",
+    "prior_lane_ref",
+    "entry_count",
+    "entries"
+  ],
+  "title": "AgenticDeLaneDriftRecord",
+  "type": "object"
+}

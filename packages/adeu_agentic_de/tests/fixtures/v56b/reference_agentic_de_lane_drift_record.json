@@ -1,0 +1,30 @@
+{
+  "entries": [
+    {
+      "assumption_ref": "v56a_surface_reuse_default",
+      "note": "V56-B consumes the shipped V56-A packet, contract, proposal, checkpoint, diagnostics, and conformance surfaces by default.",
+      "status": "holds"
+    },
+    {
+      "assumption_ref": "exact_action_class_taxonomy",
+      "note": "V56-B adds one exact action-class taxonomy over the shipped V56-A contract/proposal surfaces before any live ticket issuance.",
+      "status": "amended"
+    },
+    {
+      "assumption_ref": "accepted_necessary_not_sufficient_for_ticket_issuance",
+      "note": "Checkpoint acceptance remains necessary, but runtime-state compatibility, selected live class membership, and bounded ticket scope are also required before ticket issuance.",
+      "status": "amended"
+    },
+    {
+      "assumption_ref": "selected_live_subset_local_only",
+      "note": "V56-B selects only local_write and local_reversible_execute as live-gated classes, with the starter reference path using local_write only.",
+      "status": "amended"
+    }
+  ],
+  "entry_count": 4,
+  "prior_lane_ref": "docs/LOCKED_CONTINUATION_vNEXT_PLUS152.md",
+  "record_id": "agentic_de_lane_drift_1f77714a6cdc",
+  "schema": "agentic_de_lane_drift_record@1",
+  "target_arc": "vNext+153",
+  "target_path": "V56-B"
+}
