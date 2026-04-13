@@ -1,0 +1,11 @@
+{
+  "schema": "runtime_observability_comparison@1",
+  "baseline_arc": "vNext+150",
+  "current_arc": "vNext+151",
+  "baseline_source": "artifacts/stop_gate/report_v150_closeout.md",
+  "current_source": "artifacts/stop_gate/report_v151_closeout.md",
+  "baseline_elapsed_ms": 67,
+  "current_elapsed_ms": 67,
+  "delta_ms": 0,
+  "notes": "v151 closeout keeps the frozen stop-gate schema family and exact metric keyset unchanged while shipping the bounded V55-C governance and migration decision slice on main: the existing adeu_constitutional_coherence package was reused, the thin v55c CLI and committed advisory register fixtures landed, shipped V55-A/V55-B reports/registers/drift/evidence remained the machine inputs, advisory-only governance and migration registers did not change live checker behavior, and review hardening preserved absolute override-path evidence refs without widening into gating, runtime/product authority, or multi-descendant rollout."
+}

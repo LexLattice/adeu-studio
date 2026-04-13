@@ -1,8 +1,8 @@
 # Assessment vNext+151 Edges
 
-Status: pre-lock edge assessment for `V55-C` (April 13, 2026 UTC).
+Status: post-closeout edge assessment for `V55-C` (April 13, 2026 UTC).
 
-Authority layer: pre-lock assessment only.
+Authority layer: closeout evidence on `main`.
 
 ## Assessment-State Marker (Machine-Checkable)
 
@@ -10,36 +10,9 @@ Authority layer: pre-lock assessment only.
 {
   "schema": "assessment_artifact_state@1",
   "artifact": "docs/ASSESSMENT_vNEXT_PLUS151_EDGES.md",
-  "phase": "pre_lock_assessment",
-  "authoritative": false,
+  "phase": "post_closeout_assessment",
+  "authoritative": true,
   "required_in_decision": true
-}
-```
-
-## Pre-Lock Inputs (Machine-Checkable)
-
-```json
-{
-  "schema": "v55c_pre_lock_inputs@1",
-  "artifact": "docs/ASSESSMENT_vNEXT_PLUS151_EDGES.md",
-  "prerequisite_lock_doc": "docs/LOCKED_CONTINUATION_vNEXT_PLUS150.md",
-  "prerequisite_decision_doc": "docs/DRAFT_STOP_GATE_DECISION_vNEXT_PLUS150.md",
-  "prerequisite_assessment_doc": "docs/ASSESSMENT_vNEXT_PLUS150_EDGES.md",
-  "prior_lane_handoff_required": "constitutional_coherence_lane_drift_record@1",
-  "required_prior_lane_evidence_surfaces": [
-    "packages/adeu_constitutional_coherence/tests/fixtures/v55a/reference_constitutional_coherence_report.json",
-    "packages/adeu_constitutional_coherence/tests/fixtures/v55a/reference_constitutional_unresolved_seam_register.json",
-    "packages/adeu_constitutional_coherence/tests/fixtures/v55b/reference_constitutional_coherence_report.json",
-    "packages/adeu_constitutional_coherence/tests/fixtures/v55b/reference_constitutional_unresolved_seam_register.json",
-    "packages/adeu_constitutional_coherence/tests/fixtures/v55b/reference_constitutional_coherence_lane_drift_record.json",
-    "artifacts/agent_harness/v150/evidence_inputs/v55b_descendant_trial_hardening_evidence_v150.json"
-  ],
-  "v55b_checker_report_surface_reuse_default": true,
-  "admitted_seed_set_changed": false,
-  "predicate_set_changed": false,
-  "surface_family_changed": false,
-  "preferred_descendant_artifact": "docs/support/crypto data spec2.md",
-  "governance_posture": "warning_only_baseline"
 }
 ```
 
@@ -53,16 +26,22 @@ Authority layer: pre-lock assessment only.
 - Response:
   require `constitutional_coherence_lane_drift_record@1` before governance/migration
   calibration begins.
+- Closeout Evidence:
+  the shipped `v55c` checker path requires the committed lane-drift fixture before any
+  advisory register is built and fails closed on missing or malformed handoff input.
 
 ### Edge 2: Governance Decisions Could Collapse Into One Checker-Global Switch
 
 - Risk:
   once governance calibration starts, the repo could flip the checker from
-  warning-only to “gating” wholesale instead of deciding per predicate and per
-  surface.
+  warning-only to gating wholesale instead of deciding per predicate and per surface.
 - Response:
   require escalation decisions to remain per predicate and per surface by default
   unless a later explicit lock authorizes checker-global behavior.
+- Closeout Evidence:
+  the committed governance register contains only `3` bounded predicate/surface
+  entries and the migration register explicitly leaves `checker_global_escalation` as
+  `not_selected_for_escalation`.
 
 ### Edge 3: Warning-Only Could Auto-Promote Into Gating
 
@@ -72,6 +51,10 @@ Authority layer: pre-lock assessment only.
 - Response:
   forbid automatic promotion from warning-only to gating and require one explicit
   migration decision surface if any stronger local posture is proposed.
+- Closeout Evidence:
+  the shipped migration register keeps `checker_exit_codes`,
+  `warning_behavior`, and `unresolved_seam_emission` inside advisory-only,
+  non-live outcomes, and no CLI/checker exit-code change was introduced.
 
 ### Edge 4: New Decision Surfaces Could Drift Into Live Checker Behavior Changes
 
@@ -80,8 +63,12 @@ Authority layer: pre-lock assessment only.
   warning behavior, report semantics, or unresolved-seam emission by default merely
   because they exist.
 - Response:
-  keep the new `V55-C` governance and migration decision surfaces advisory-only in this
-  slice and require live checker behavior to remain unchanged by default.
+  keep the new `V55-C` governance and migration decision surfaces advisory-only in
+  this slice and require live checker behavior to remain unchanged by default.
+- Closeout Evidence:
+  the committed governance and migration register fixtures both carry
+  `advisory_only = true` and `changes_live_checker_behavior = false`, and the merged
+  slice adds no live-behavior mutation path.
 
 ### Edge 5: Governance Discussion Could Launder Support Success Into Runtime Or Release Authority
 
@@ -91,6 +78,9 @@ Authority layer: pre-lock assessment only.
 - Response:
   keep the crypto descendant baseline support-surface only and forbid any runtime or
   product authority minting in `V55-C`.
+- Closeout Evidence:
+  `V55-C` consumes the shipped `V55-B` descendant baseline exactly as support-surface
+  evidence only and adds no descendant runtime/product surfaces or release authority.
 
 ### Edge 6: Governance Widening Could Leap Straight To CI Or Branch Protection
 
@@ -100,6 +90,10 @@ Authority layer: pre-lock assessment only.
 - Response:
   keep repo-wide CI and branch-protection gating outside `V55-C` unless a later
   explicit lock selects that wider path.
+- Closeout Evidence:
+  the committed migration register keeps `ci_branch_protection` at
+  `not_selected_for_escalation` and the merged slice adds no CI or branch-protection
+  helper surface.
 
 ### Edge 7: Governance Calibration Could Quietly Widen The Seed Set Or Predicate/Surface Family
 
@@ -109,6 +103,10 @@ Authority layer: pre-lock assessment only.
 - Response:
   keep the admitted seed set closed and carry forward the same closed predicate and
   surface family unless a later explicit amendment says otherwise.
+- Closeout Evidence:
+  the shared canonical admission enforcement remains in force, the same six admitted
+  seed artifacts were consumed, and `V55-C` shipped without widening the selected
+  predicate or surface family.
 
 ### Edge 8: Governance Calibration Could Drift Away From The Actual Shipped Prior Outputs
 
@@ -118,6 +116,10 @@ Authority layer: pre-lock assessment only.
 - Response:
   require the shipped `V55-A`/`V55-B` report/register/drift/evidence surfaces as the
   machine inputs for governance calibration.
+- Closeout Evidence:
+  the merged checker loads the committed `v55a`/`v55b` report/register/drift fixtures
+  and the `v55b_descendant_trial_hardening_evidence@1` payload before any advisory
+  register is emitted.
 
 ### Edge 9: New Support Companions Could Enter By Thematic Similarity Alone
 
@@ -128,21 +130,30 @@ Authority layer: pre-lock assessment only.
 - Response:
   keep later support companions outside `V55-C` unless one explicit amendment record
   admits them.
+- Closeout Evidence:
+  the merged `v55c` slice continued to consume only the exact six admitted seed
+  artifacts and did not widen the support-admission surface beyond the locked seed
+  set.
 
 ## Current Judgment
 
-- `V55-C` is the right next slice because `V55-B` already shipped the bounded
-  descendant-trial hardening seam on `main`, and the strongest remaining bounded gap is
-  now:
+- `V55-C` was the right next slice because `V55-B` had already shipped the bounded
+  descendant-trial hardening seam on `main`, and the strongest remaining bounded gap
+  was:
   - one explicit lane handoff from `V55-B`
   - one per-predicate/per-surface governance calibration surface
   - one bounded migration decision on whether any stronger local posture is warranted
-- `V55-C` should stay bounded to:
-  - the existing `adeu_constitutional_coherence` package
-  - the existing preferred crypto descendant evidence baseline
-  - warning-only as the inherited starting posture
+- the shipped result remained properly bounded:
+  - one existing repo-owned package
+  - one existing thin script seam
+  - advisory-only governance and migration registers only
+  - one explicit lane-drift handoff only
+  - one preferred descendant evidence baseline only
   - no runtime/product widening
-  - no multi-descendant rollout
-  - no repo-wide CI or branch-protection gating
-- any checker-global escalation should remain out of scope unless a later explicit lock
-  says otherwise.
+  - no CI or branch-protection gating
+  - no checker-global escalation
+  - no support-doc self-promotion
+- `V55-C` is now closed on `main` in the branch-local sense:
+  - `adeu_constitutional_coherence`
+- any later governance escalation or migration widening should remain subject to a new
+  explicit lock rather than being inferred from `V55-C` success alone.
