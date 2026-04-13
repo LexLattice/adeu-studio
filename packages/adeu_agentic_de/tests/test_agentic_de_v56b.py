@@ -123,11 +123,19 @@ def test_not_evaluable_yet_reason_code_blocks_ticket_issuance(tmp_path: Path) ->
         json.dumps(runtime_state.model_dump(mode="json"), indent=2, sort_keys=True) + "\n",
         encoding="utf-8",
     )
+    taxonomy_payload = _fixture_payload(DEFAULT_V56B_ACTION_CLASS_TAXONOMY_PATH)
+    taxonomy_payload["contract_ref"] = contract.contract_id
+    taxonomy_payload["taxonomy_id"] = None
+    taxonomy_path = tmp_path / "taxonomy.json"
+    taxonomy_path.write_text(
+        json.dumps(taxonomy_payload, indent=2, sort_keys=True) + "\n", encoding="utf-8"
+    )
 
     checkpoint, _runtime_state, ticket, diagnostics, _conformance = run_agentic_de_interaction_v56b(
         morph_ir_path=morph_path,
         interaction_contract_path=contract_path,
         action_proposal_path=proposal_path,
+        action_class_taxonomy_path=taxonomy_path,
         runtime_state_path=runtime_state_path,
     )
 
@@ -167,6 +175,50 @@ def test_action_taxonomy_must_classify_the_proposed_action(tmp_path: Path) -> No
 
     with pytest.raises(ValueError, match="does not classify the proposed action"):
         run_agentic_de_interaction_v56b(action_class_taxonomy_path=path)
+
+
+def test_invalid_taxonomy_contract_is_rejected_before_runtime_compatibility_return(
+    tmp_path: Path,
+) -> None:
+    taxonomy_payload = _fixture_payload(DEFAULT_V56B_ACTION_CLASS_TAXONOMY_PATH)
+    taxonomy_payload["contract_ref"] = "agentic_de_interaction_contract@1:wrong"
+    taxonomy_payload["taxonomy_id"] = None
+    taxonomy_path = tmp_path / "taxonomy.json"
+    taxonomy_path.write_text(
+        json.dumps(taxonomy_payload, indent=2, sort_keys=True) + "\n", encoding="utf-8"
+    )
+
+    runtime_payload = _fixture_payload(DEFAULT_V56B_RUNTIME_STATE_PATH)
+    runtime_payload["compatibility_status"] = "incompatible"
+    runtime_payload["compatibility_note"] = "incompatible for fail-closed taxonomy validation"
+    runtime_payload["state_id"] = None
+    runtime_path = tmp_path / "runtime_state.json"
+    runtime_path.write_text(
+        json.dumps(runtime_payload, indent=2, sort_keys=True) + "\n", encoding="utf-8"
+    )
+
+    with pytest.raises(ValueError, match="does not bind the provided interaction contract"):
+        run_agentic_de_interaction_v56b(
+            action_class_taxonomy_path=taxonomy_path,
+            runtime_state_path=runtime_path,
+        )
+
+
+def test_dispatch_taxonomy_requires_not_applicable_reversibility_mode() -> None:
+    payload = _load_fixture("reference_agentic_de_action_class_taxonomy.json")
+    payload["entries"][0]["action_id"] = "dispatch_action"
+    payload["entries"][0]["base_action_class"] = "dispatch"
+    payload["entries"][0]["exact_action_class"] = "delegated_or_external_dispatch"
+    payload["entries"][0]["reversibility_mode"] = "rollback_defined_and_testable"
+    payload["entries"][0]["write_surface_category"] = "dispatch_surface"
+    payload["entries"][0]["live_selected_in_v56b"] = False
+    payload["taxonomy_id"] = None
+
+    with pytest.raises(
+        ValueError,
+        match="delegated_or_external_dispatch may not declare a reversibility mode",
+    ):
+        AgenticDeActionClassTaxonomy.model_validate(payload)
 
 
 def test_load_action_class_taxonomy_round_trips_reference_fixture() -> None:

@@ -521,6 +521,10 @@ class AgenticDeActionClassTaxonomyEntry(BaseModel):
             if self.write_surface_category != "bounded_local_artifact":
                 raise ValueError("local_write must remain bounded_local_artifact in V56-B")
         elif self.exact_action_class == "delegated_or_external_dispatch":
+            if self.reversibility_mode != "not_applicable":
+                raise ValueError(
+                    "delegated_or_external_dispatch may not declare a reversibility mode"
+                )
             if self.write_surface_category != "dispatch_surface":
                 raise ValueError("delegated_or_external_dispatch must declare dispatch_surface")
             if self.live_selected_in_v56b:

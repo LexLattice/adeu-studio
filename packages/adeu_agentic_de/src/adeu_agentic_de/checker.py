@@ -144,6 +144,22 @@ def _taxonomy_entry_for_action(
     return None
 
 
+def _validate_taxonomy_for_proposal(
+    *,
+    contract: AgenticDeInteractionContract,
+    proposal: AgenticDeActionProposal,
+    taxonomy: AgenticDeActionClassTaxonomy,
+) -> AgenticDeActionClassTaxonomyEntry:
+    if taxonomy.contract_ref != contract.contract_id:
+        raise ValueError("action taxonomy does not bind the provided interaction contract")
+    taxonomy_entry = _taxonomy_entry_for_action(taxonomy, action_id=proposal.action_id)
+    if taxonomy_entry is None:
+        raise ValueError("action taxonomy does not classify the proposed action")
+    if taxonomy_entry.base_action_class != proposal.action_class:
+        raise ValueError("action taxonomy base class does not match the proposed action class")
+    return taxonomy_entry
+
+
 def _validate_v56b_lane_drift_record(record: AgenticDeLaneDriftRecord) -> AgenticDeLaneDriftRecord:
     if record.target_arc != "vNext+153":
         raise ValueError(
@@ -373,17 +389,15 @@ def _issue_action_ticket(
         raise ValueError("runtime state does not bind the provided checkpoint")
     if runtime_state.authority_frame_ref != domain_packet.authority_frame_ref:
         raise ValueError("runtime state authority frame does not match the domain packet")
+    taxonomy_entry = _validate_taxonomy_for_proposal(
+        contract=contract,
+        proposal=proposal,
+        taxonomy=taxonomy,
+    )
     if checkpoint.status != "accepted":
         return None, f"checkpoint status {checkpoint.status} is non-entitling for ticket issuance"
     if runtime_state.compatibility_status != "compatible":
         return None, "runtime state is not compatible for live ticket issuance"
-    taxonomy_entry = _taxonomy_entry_for_action(taxonomy, action_id=proposal.action_id)
-    if taxonomy_entry is None:
-        raise ValueError("action taxonomy does not classify the proposed action")
-    if taxonomy.contract_ref != contract.contract_id:
-        raise ValueError("action taxonomy does not bind the provided interaction contract")
-    if taxonomy_entry.base_action_class != proposal.action_class:
-        raise ValueError("action taxonomy base class does not match the proposed action class")
     if not taxonomy_entry.live_selected_in_v56b:
         return (
             None,
@@ -393,14 +407,6 @@ def _issue_action_ticket(
         return None, "runtime state does not admit the proposed exact action class"
     if runtime_state.issuance_capability_posture != "live_gate_required":
         return None, "runtime state capability posture is not live_gate_required"
-    if taxonomy_entry.exact_action_class == "local_write" and (
-        taxonomy_entry.write_surface_category != "bounded_local_artifact"
-    ):
-        return None, "local_write must remain bounded_local_artifact in V56-B"
-    if taxonomy_entry.exact_action_class == "local_reversible_execute" and (
-        taxonomy_entry.reversibility_mode != "rollback_defined_and_testable"
-    ):
-        return None, "local_reversible_execute requires rollback_defined_and_testable"
     ticket = AgenticDeActionTicket(
         domain_packet_ref=domain_packet.packet_id,
         contract_ref=contract.contract_id,
