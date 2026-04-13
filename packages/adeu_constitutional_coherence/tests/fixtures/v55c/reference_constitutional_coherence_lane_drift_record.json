@@ -1,0 +1,35 @@
+{
+  "schema": "constitutional_coherence_lane_drift_record@1",
+  "record_id": "constitutional_lane_drift:f5f7574788e67bf2",
+  "target_arc": "vNext+151",
+  "target_path": "V55-C",
+  "prior_lane_ref": "docs/LOCKED_CONTINUATION_vNEXT_PLUS150.md",
+  "entry_count": 5,
+  "entries": [
+    {
+      "assumption_ref": "structured_input_only",
+      "status": "holds",
+      "note": "V55-C continues to consume admissions, reports, registers, drift records, evidence refs, and explicit structured descendant declarations only."
+    },
+    {
+      "assumption_ref": "exact_admitted_seed_set",
+      "status": "holds",
+      "note": "The admitted six-artifact seed set remains closed in V55-C with no thematic or companion widening."
+    },
+    {
+      "assumption_ref": "warning_only_checker",
+      "status": "holds",
+      "note": "V55-C preserves the inherited warning-only checker family posture and does not alter live gating behavior."
+    },
+    {
+      "assumption_ref": "checker_report_surface_reuse_default",
+      "status": "holds",
+      "note": "V55-C consumes the shipped V55-A/V55-B checker, report, and unresolved surfaces by default without silently forking them."
+    },
+    {
+      "assumption_ref": "governance_migration_decision_surfaces",
+      "status": "amended",
+      "note": "V55-C adds one bounded advisory governance calibration register and one bounded advisory migration decision register over the unchanged predicate and surface family."
+    }
+  ]
+}

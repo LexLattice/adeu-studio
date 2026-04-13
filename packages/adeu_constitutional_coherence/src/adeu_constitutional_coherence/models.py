@@ -7,12 +7,12 @@ from urm_runtime.hashing import sha256_canonical_json
 
 CONSTITUTIONAL_SUPPORT_ADMISSION_RECORD_SCHEMA = "constitutional_support_admission_record@1"
 CONSTITUTIONAL_COHERENCE_REPORT_SCHEMA = "constitutional_coherence_report@1"
-CONSTITUTIONAL_UNRESOLVED_SEAM_REGISTER_SCHEMA = (
-    "constitutional_unresolved_seam_register@1"
+CONSTITUTIONAL_UNRESOLVED_SEAM_REGISTER_SCHEMA = "constitutional_unresolved_seam_register@1"
+CONSTITUTIONAL_COHERENCE_LANE_DRIFT_RECORD_SCHEMA = "constitutional_coherence_lane_drift_record@1"
+CONSTITUTIONAL_GOVERNANCE_CALIBRATION_REGISTER_SCHEMA = (
+    "constitutional_governance_calibration_register@1"
 )
-CONSTITUTIONAL_COHERENCE_LANE_DRIFT_RECORD_SCHEMA = (
-    "constitutional_coherence_lane_drift_record@1"
-)
+CONSTITUTIONAL_MIGRATION_DECISION_REGISTER_SCHEMA = "constitutional_migration_decision_register@1"
 
 AUTHORITY_LAYER_VOCABULARY = ("lock", "planning", "support", "architecture_decomposition")
 AUTHORITY_RELATION_VOCABULARY = (
@@ -33,6 +33,12 @@ DOMINANT_FORCE_BAND_VOCABULARY = (
     "interpretive",
     "governing",
     "operative",
+)
+GOVERNANCE_DECISION_OUTCOME_VOCABULARY = (
+    "keep_warning_only",
+    "needs_more_evidence",
+    "candidate_for_later_local_hardening",
+    "not_selected_for_escalation",
 )
 
 MODEL_CONFIG = ConfigDict(
@@ -59,6 +65,12 @@ PlacementBasis = Literal[
 DominantForceBand = Literal["observational", "interpretive", "governing", "operative"]
 PredicateStatus = Literal["pass", "warn", "not_evaluable_yet"]
 DriftStatus = Literal["holds", "amended", "superseded", "not_selected_anymore"]
+GovernanceDecisionOutcome = Literal[
+    "keep_warning_only",
+    "needs_more_evidence",
+    "candidate_for_later_local_hardening",
+    "not_selected_for_escalation",
+]
 
 
 def _assert_present_text(value: str, *, field_name: str) -> str:
@@ -158,9 +170,7 @@ class ConstitutionalSupportAdmissionRecord(BaseModel):
         if self.is_descendant_surface:
             _assert_present_text(self.parent_family_ref or "", field_name="parent_family_ref")
             if self.within_parent_entitlement is not True:
-                raise ValueError(
-                    "within_parent_entitlement must be true for descendant surfaces"
-                )
+                raise ValueError("within_parent_entitlement must be true for descendant surfaces")
         elif self.parent_family_ref is not None or self.within_parent_entitlement is not None:
             raise ValueError(
                 "parent_family_ref and within_parent_entitlement are descendant-only fields"
@@ -206,9 +216,7 @@ class ConstitutionalCoherenceFinding(BaseModel):
 class ConstitutionalCoherenceReport(BaseModel):
     model_config = MODEL_CONFIG
 
-    schema: Literal[CONSTITUTIONAL_COHERENCE_REPORT_SCHEMA] = (
-        CONSTITUTIONAL_COHERENCE_REPORT_SCHEMA
-    )
+    schema: Literal[CONSTITUTIONAL_COHERENCE_REPORT_SCHEMA] = CONSTITUTIONAL_COHERENCE_REPORT_SCHEMA
     report_id: str
     target_arc: str
     target_path: str
@@ -323,6 +331,116 @@ class ConstitutionalCoherenceLaneDriftRecord(BaseModel):
         return self
 
 
+class ConstitutionalGovernanceCalibrationEntry(BaseModel):
+    model_config = MODEL_CONFIG
+
+    calibration_id: str
+    predicate_id: str
+    surface_ref: str
+    current_posture: str
+    recommended_outcome: GovernanceDecisionOutcome
+    rationale: str
+    evidence_refs: list[str]
+
+    @model_validator(mode="after")
+    def _validate_entry(self) -> ConstitutionalGovernanceCalibrationEntry:
+        _assert_present_text(self.calibration_id, field_name="calibration_id")
+        _assert_present_text(self.predicate_id, field_name="predicate_id")
+        _assert_present_text(self.surface_ref, field_name="surface_ref")
+        _assert_present_text(self.current_posture, field_name="current_posture")
+        _assert_present_text(self.rationale, field_name="rationale")
+        object.__setattr__(
+            self,
+            "evidence_refs",
+            _ordered_unique_texts(self.evidence_refs, field_name="evidence_refs"),
+        )
+        return self
+
+
+class ConstitutionalGovernanceCalibrationRegister(BaseModel):
+    model_config = MODEL_CONFIG
+
+    schema: Literal[CONSTITUTIONAL_GOVERNANCE_CALIBRATION_REGISTER_SCHEMA] = (
+        CONSTITUTIONAL_GOVERNANCE_CALIBRATION_REGISTER_SCHEMA
+    )
+    register_id: str
+    target_arc: str
+    target_path: str
+    advisory_only: bool = True
+    changes_live_checker_behavior: bool = False
+    baseline_checker_version: str
+    entry_count: int
+    entries: list[ConstitutionalGovernanceCalibrationEntry]
+
+    @model_validator(mode="after")
+    def _validate_register(self) -> ConstitutionalGovernanceCalibrationRegister:
+        _assert_present_text(self.register_id, field_name="register_id")
+        _assert_present_text(self.target_arc, field_name="target_arc")
+        _assert_present_text(self.target_path, field_name="target_path")
+        _assert_present_text(self.baseline_checker_version, field_name="baseline_checker_version")
+        if self.advisory_only is not True:
+            raise ValueError("advisory_only must remain true in V55-C")
+        if self.changes_live_checker_behavior is not False:
+            raise ValueError("changes_live_checker_behavior must remain false in V55-C")
+        if self.entry_count != len(self.entries):
+            raise ValueError("entry_count must equal len(entries)")
+        return self
+
+
+class ConstitutionalMigrationDecisionEntry(BaseModel):
+    model_config = MODEL_CONFIG
+
+    decision_id: str
+    surface_id: str
+    current_posture: str
+    recommended_outcome: GovernanceDecisionOutcome
+    rationale: str
+    evidence_refs: list[str]
+
+    @model_validator(mode="after")
+    def _validate_entry(self) -> ConstitutionalMigrationDecisionEntry:
+        _assert_present_text(self.decision_id, field_name="decision_id")
+        _assert_present_text(self.surface_id, field_name="surface_id")
+        _assert_present_text(self.current_posture, field_name="current_posture")
+        _assert_present_text(self.rationale, field_name="rationale")
+        object.__setattr__(
+            self,
+            "evidence_refs",
+            _ordered_unique_texts(self.evidence_refs, field_name="evidence_refs"),
+        )
+        return self
+
+
+class ConstitutionalMigrationDecisionRegister(BaseModel):
+    model_config = MODEL_CONFIG
+
+    schema: Literal[CONSTITUTIONAL_MIGRATION_DECISION_REGISTER_SCHEMA] = (
+        CONSTITUTIONAL_MIGRATION_DECISION_REGISTER_SCHEMA
+    )
+    register_id: str
+    target_arc: str
+    target_path: str
+    advisory_only: bool = True
+    changes_live_checker_behavior: bool = False
+    baseline_checker_version: str
+    entry_count: int
+    entries: list[ConstitutionalMigrationDecisionEntry]
+
+    @model_validator(mode="after")
+    def _validate_register(self) -> ConstitutionalMigrationDecisionRegister:
+        _assert_present_text(self.register_id, field_name="register_id")
+        _assert_present_text(self.target_arc, field_name="target_arc")
+        _assert_present_text(self.target_path, field_name="target_path")
+        _assert_present_text(self.baseline_checker_version, field_name="baseline_checker_version")
+        if self.advisory_only is not True:
+            raise ValueError("advisory_only must remain true in V55-C")
+        if self.changes_live_checker_behavior is not False:
+            raise ValueError("changes_live_checker_behavior must remain false in V55-C")
+        if self.entry_count != len(self.entries):
+            raise ValueError("entry_count must equal len(entries)")
+        return self
+
+
 def compute_constitutional_support_admission_record_id(*, artifact_ref: str) -> str:
     digest = sha256_canonical_json({"artifact_ref": artifact_ref})
     return f"constitutional_admission:{digest[:16]}"
@@ -392,3 +510,54 @@ def compute_constitutional_lane_drift_record_id(
         }
     )
     return f"constitutional_lane_drift:{digest[:16]}"
+
+
+def compute_constitutional_governance_calibration_entry_id(
+    *,
+    predicate_id: str,
+    surface_ref: str,
+) -> str:
+    digest = sha256_canonical_json(
+        {
+            "predicate_id": predicate_id,
+            "surface_ref": surface_ref,
+        }
+    )
+    return f"constitutional_governance_calibration:{digest[:16]}"
+
+
+def compute_constitutional_governance_calibration_register_id(
+    *,
+    target_arc: str,
+    target_path: str,
+    calibration_ids: list[str],
+) -> str:
+    digest = sha256_canonical_json(
+        {
+            "target_arc": target_arc,
+            "target_path": target_path,
+            "calibration_ids": calibration_ids,
+        }
+    )
+    return f"constitutional_governance_register:{digest[:16]}"
+
+
+def compute_constitutional_migration_decision_entry_id(*, surface_id: str) -> str:
+    digest = sha256_canonical_json({"surface_id": surface_id})
+    return f"constitutional_migration_decision:{digest[:16]}"
+
+
+def compute_constitutional_migration_decision_register_id(
+    *,
+    target_arc: str,
+    target_path: str,
+    decision_ids: list[str],
+) -> str:
+    digest = sha256_canonical_json(
+        {
+            "target_arc": target_arc,
+            "target_path": target_path,
+            "decision_ids": decision_ids,
+        }
+    )
+    return f"constitutional_migration_register:{digest[:16]}"

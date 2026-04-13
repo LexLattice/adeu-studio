@@ -1,0 +1,194 @@
+[
+  {
+    "schema": "constitutional_support_admission_record@1",
+    "admission_id": "constitutional_admission:d1ba5dfb0fee5b61",
+    "artifact_ref": "docs/LOCKED_RECURSIVE_COORDINATE_ADOPTION_v0.md",
+    "authority_layer": "lock",
+    "current_authority_relation": "released_lock",
+    "allowed_kernel_use": [
+      "starter_family_seed",
+      "placement_boundary_reference"
+    ],
+    "forbidden_inference": [
+      "support_self_promotion",
+      "runtime_authority_minting"
+    ],
+    "later_promotion_requirement": [
+      "no_additional_promotion_required_for_lock_surface"
+    ],
+    "placement_basis": "doctrine_surface",
+    "coverage_scope": {
+      "scope_kind": "single_artifact",
+      "covered_paths": [
+        "docs/LOCKED_RECURSIVE_COORDINATE_ADOPTION_v0.md"
+      ]
+    },
+    "dominant_force_band": "governing",
+    "promotion_claim": false,
+    "promotion_witness_refs": [],
+    "is_descendant_surface": false,
+    "parent_family_ref": null,
+    "within_parent_entitlement": null,
+    "projection_mints_authority": false
+  },
+  {
+    "schema": "constitutional_support_admission_record@1",
+    "admission_id": "constitutional_admission:2a65c14ec4e48656",
+    "artifact_ref": "docs/DRAFT_RECURSIVE_COORDINATE_MIGRATION_LINT_POSTURE_v0.md",
+    "authority_layer": "planning",
+    "current_authority_relation": "planning_companion",
+    "allowed_kernel_use": [
+      "warning_only_rollout_shaping",
+      "placement_boundary_reference"
+    ],
+    "forbidden_inference": [
+      "lock_authority_inference",
+      "ci_gating_inference"
+    ],
+    "later_promotion_requirement": [
+      "requires_explicit_lock_or_release_adoption"
+    ],
+    "placement_basis": "doctrine_surface",
+    "coverage_scope": {
+      "scope_kind": "single_artifact",
+      "covered_paths": [
+        "docs/DRAFT_RECURSIVE_COORDINATE_MIGRATION_LINT_POSTURE_v0.md"
+      ]
+    },
+    "dominant_force_band": "interpretive",
+    "promotion_claim": false,
+    "promotion_witness_refs": [],
+    "is_descendant_surface": false,
+    "parent_family_ref": null,
+    "within_parent_entitlement": null,
+    "projection_mints_authority": false
+  },
+  {
+    "schema": "constitutional_support_admission_record@1",
+    "admission_id": "constitutional_admission:6c11de5968fbbd2c",
+    "artifact_ref": "docs/support/ADEU_SCHEMA_META_GRAMMAR.md",
+    "authority_layer": "support",
+    "current_authority_relation": "coexisting_non_override",
+    "allowed_kernel_use": [
+      "family_authoring_shaping",
+      "field_ownership_shaping"
+    ],
+    "forbidden_inference": [
+      "released_family_law_inference",
+      "runtime_behavior_inference"
+    ],
+    "later_promotion_requirement": [
+      "requires_explicit_family_adoption"
+    ],
+    "placement_basis": "doctrine_surface",
+    "coverage_scope": {
+      "scope_kind": "single_artifact",
+      "covered_paths": [
+        "docs/support/ADEU_SCHEMA_META_GRAMMAR.md"
+      ]
+    },
+    "dominant_force_band": "interpretive",
+    "promotion_claim": false,
+    "promotion_witness_refs": [],
+    "is_descendant_surface": false,
+    "parent_family_ref": null,
+    "within_parent_entitlement": null,
+    "projection_mints_authority": false
+  },
+  {
+    "schema": "constitutional_support_admission_record@1",
+    "admission_id": "constitutional_admission:90889e9294d6bc58",
+    "artifact_ref": "docs/support/VERTICAL_ALIGNMENT_ARCHITECTURE_HARDENED.md",
+    "authority_layer": "support",
+    "current_authority_relation": "coexisting_non_override",
+    "allowed_kernel_use": [
+      "authority_descent_shaping",
+      "publicity_boundary_shaping"
+    ],
+    "forbidden_inference": [
+      "released_family_law_inference",
+      "gating_authority_inference"
+    ],
+    "later_promotion_requirement": [
+      "requires_explicit_family_adoption"
+    ],
+    "placement_basis": "doctrine_surface",
+    "coverage_scope": {
+      "scope_kind": "single_artifact",
+      "covered_paths": [
+        "docs/support/VERTICAL_ALIGNMENT_ARCHITECTURE_HARDENED.md"
+      ]
+    },
+    "dominant_force_band": "interpretive",
+    "promotion_claim": false,
+    "promotion_witness_refs": [],
+    "is_descendant_surface": false,
+    "parent_family_ref": null,
+    "within_parent_entitlement": null,
+    "projection_mints_authority": false
+  },
+  {
+    "schema": "constitutional_support_admission_record@1",
+    "admission_id": "constitutional_admission:bead927316ade3df",
+    "artifact_ref": "docs/support/ODEU_MEMBRANE_ARCHITECTURE.md",
+    "authority_layer": "support",
+    "current_authority_relation": "coexisting_non_override",
+    "allowed_kernel_use": [
+      "anti_laundering_shaping",
+      "membrane_boundary_shaping"
+    ],
+    "forbidden_inference": [
+      "released_family_law_inference",
+      "runtime_authority_inference"
+    ],
+    "later_promotion_requirement": [
+      "requires_explicit_family_adoption"
+    ],
+    "placement_basis": "doctrine_surface",
+    "coverage_scope": {
+      "scope_kind": "single_artifact",
+      "covered_paths": [
+        "docs/support/ODEU_MEMBRANE_ARCHITECTURE.md"
+      ]
+    },
+    "dominant_force_band": "interpretive",
+    "promotion_claim": false,
+    "promotion_witness_refs": [],
+    "is_descendant_surface": false,
+    "parent_family_ref": null,
+    "within_parent_entitlement": null,
+    "projection_mints_authority": false
+  },
+  {
+    "schema": "constitutional_support_admission_record@1",
+    "admission_id": "constitutional_admission:3b458448e1ceb570",
+    "artifact_ref": "docs/support/crypto data spec2.md",
+    "authority_layer": "support",
+    "current_authority_relation": "support_descendant_exemplar",
+    "allowed_kernel_use": [
+      "descendant_trial_input",
+      "descendant_entitlement_shaping"
+    ],
+    "forbidden_inference": [
+      "released_descendant_family_inference",
+      "runtime_authority_inference"
+    ],
+    "later_promotion_requirement": [
+      "requires_explicit_descendant_family_selection"
+    ],
+    "placement_basis": "doctrine_surface",
+    "coverage_scope": {
+      "scope_kind": "descendant_trial_input",
+      "covered_paths": [
+        "docs/support/crypto data spec2.md"
+      ]
+    },
+    "dominant_force_band": "interpretive",
+    "promotion_claim": false,
+    "promotion_witness_refs": [],
+    "is_descendant_surface": true,
+    "parent_family_ref": "family:V55",
+    "within_parent_entitlement": true,
+    "projection_mints_authority": false
+  }
+]

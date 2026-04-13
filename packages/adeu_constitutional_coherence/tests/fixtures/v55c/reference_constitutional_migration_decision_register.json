@@ -1,0 +1,81 @@
+{
+  "advisory_only": true,
+  "baseline_checker_version": "v55b_constitutional_coherence_checker@1",
+  "changes_live_checker_behavior": false,
+  "entries": [
+    {
+      "current_posture": "warning_only_exit_zero_in_v55a_and_v55b",
+      "decision_id": "constitutional_migration_decision:de286fea1828b6ac",
+      "evidence_refs": [
+        "artifacts/agent_harness/v150/evidence_inputs/v55b_descendant_trial_hardening_evidence_v150.json",
+        "packages/adeu_constitutional_coherence/tests/fixtures/v55b/reference_constitutional_coherence_lane_drift_record.json"
+      ],
+      "rationale": "V55-C is advisory-only, so checker exit codes must stay warning-only until a later explicit migration lane selects stronger local gating",
+      "recommended_outcome": "keep_warning_only",
+      "surface_id": "checker_exit_codes"
+    },
+    {
+      "current_posture": "warnings_emitted_without_live_promotion",
+      "decision_id": "constitutional_migration_decision:960d3344cb27d712",
+      "evidence_refs": [
+        "packages/adeu_constitutional_coherence/tests/fixtures/v55a/reference_constitutional_coherence_report.json",
+        "packages/adeu_constitutional_coherence/tests/fixtures/v55b/reference_constitutional_coherence_report.json",
+        "artifacts/agent_harness/v150/evidence_inputs/v55b_descendant_trial_hardening_evidence_v150.json"
+      ],
+      "rationale": "the inherited warning behavior remains the bounded live posture for the constitutional coherence checker family in V55-C",
+      "recommended_outcome": "keep_warning_only",
+      "surface_id": "warning_behavior"
+    },
+    {
+      "current_posture": "report_provenance_is_multi_artifact_not_report_only",
+      "decision_id": "constitutional_migration_decision:64062dcc7bbddd46",
+      "evidence_refs": [
+        "packages/adeu_constitutional_coherence/tests/fixtures/v55a/reference_constitutional_coherence_report.json",
+        "packages/adeu_constitutional_coherence/tests/fixtures/v55b/reference_constitutional_coherence_report.json",
+        "packages/adeu_constitutional_coherence/tests/fixtures/v55b/reference_constitutional_coherence_lane_drift_record.json",
+        "artifacts/agent_harness/v150/evidence_inputs/v55b_descendant_trial_hardening_evidence_v150.json"
+      ],
+      "rationale": "the shipped report surface is not yet self-sufficient for audit without the paired unresolved register, lane-drift record, and evidence input, so report-semantics changes should stay deferred",
+      "recommended_outcome": "needs_more_evidence",
+      "surface_id": "report_semantics"
+    },
+    {
+      "current_posture": "unresolved_seams_remain_visible_and_non_gating",
+      "decision_id": "constitutional_migration_decision:fc738959cf09fc83",
+      "evidence_refs": [
+        "packages/adeu_constitutional_coherence/tests/fixtures/v55b/reference_constitutional_unresolved_seam_register.json",
+        "artifacts/agent_harness/v150/evidence_inputs/v55b_descendant_trial_hardening_evidence_v150.json"
+      ],
+      "rationale": "V55-C should preserve unresolved-seam visibility while keeping those outputs advisory-only and non-live by default",
+      "recommended_outcome": "keep_warning_only",
+      "surface_id": "unresolved_seam_emission"
+    },
+    {
+      "current_posture": "not_selected_in_v55c",
+      "decision_id": "constitutional_migration_decision:f624f610c47615cd",
+      "evidence_refs": [
+        "packages/adeu_constitutional_coherence/tests/fixtures/v55b/reference_constitutional_coherence_lane_drift_record.json",
+        "artifacts/agent_harness/v150/evidence_inputs/v55b_descendant_trial_hardening_evidence_v150.json"
+      ],
+      "rationale": "the lane is bounded to per-predicate/per-surface decisions only, so checker-global escalation stays outside the selected scope",
+      "recommended_outcome": "not_selected_for_escalation",
+      "surface_id": "checker_global_escalation"
+    },
+    {
+      "current_posture": "not_selected_in_v55c",
+      "decision_id": "constitutional_migration_decision:3847b9422183e6b2",
+      "evidence_refs": [
+        "packages/adeu_constitutional_coherence/tests/fixtures/v55b/reference_constitutional_coherence_lane_drift_record.json",
+        "artifacts/agent_harness/v150/evidence_inputs/v55b_descendant_trial_hardening_evidence_v150.json"
+      ],
+      "rationale": "repo-wide CI or branch-protection gating remains explicitly deferred beyond V55-C",
+      "recommended_outcome": "not_selected_for_escalation",
+      "surface_id": "ci_branch_protection"
+    }
+  ],
+  "entry_count": 6,
+  "register_id": "constitutional_migration_register:96fa1a3adfe5182c",
+  "schema": "constitutional_migration_decision_register@1",
+  "target_arc": "vNext+151",
+  "target_path": "V55-C"
+}
