@@ -1,0 +1,108 @@
+{
+  "$defs": {
+    "ConstitutionalMigrationDecisionEntry": {
+      "additionalProperties": false,
+      "properties": {
+        "current_posture": {
+          "title": "Current Posture",
+          "type": "string"
+        },
+        "decision_id": {
+          "title": "Decision Id",
+          "type": "string"
+        },
+        "evidence_refs": {
+          "items": {
+            "type": "string"
+          },
+          "title": "Evidence Refs",
+          "type": "array"
+        },
+        "rationale": {
+          "title": "Rationale",
+          "type": "string"
+        },
+        "recommended_outcome": {
+          "enum": [
+            "keep_warning_only",
+            "needs_more_evidence",
+            "candidate_for_later_local_hardening",
+            "not_selected_for_escalation"
+          ],
+          "title": "Recommended Outcome",
+          "type": "string"
+        },
+        "surface_id": {
+          "title": "Surface Id",
+          "type": "string"
+        }
+      },
+      "required": [
+        "decision_id",
+        "surface_id",
+        "current_posture",
+        "recommended_outcome",
+        "rationale",
+        "evidence_refs"
+      ],
+      "title": "ConstitutionalMigrationDecisionEntry",
+      "type": "object"
+    }
+  },
+  "additionalProperties": false,
+  "properties": {
+    "advisory_only": {
+      "default": true,
+      "title": "Advisory Only",
+      "type": "boolean"
+    },
+    "baseline_checker_version": {
+      "title": "Baseline Checker Version",
+      "type": "string"
+    },
+    "changes_live_checker_behavior": {
+      "default": false,
+      "title": "Changes Live Checker Behavior",
+      "type": "boolean"
+    },
+    "entries": {
+      "items": {
+        "$ref": "#/$defs/ConstitutionalMigrationDecisionEntry"
+      },
+      "title": "Entries",
+      "type": "array"
+    },
+    "entry_count": {
+      "title": "Entry Count",
+      "type": "integer"
+    },
+    "register_id": {
+      "title": "Register Id",
+      "type": "string"
+    },
+    "schema": {
+      "const": "constitutional_migration_decision_register@1",
+      "default": "constitutional_migration_decision_register@1",
+      "title": "Schema",
+      "type": "string"
+    },
+    "target_arc": {
+      "title": "Target Arc",
+      "type": "string"
+    },
+    "target_path": {
+      "title": "Target Path",
+      "type": "string"
+    }
+  },
+  "required": [
+    "register_id",
+    "target_arc",
+    "target_path",
+    "baseline_checker_version",
+    "entry_count",
+    "entries"
+  ],
+  "title": "ConstitutionalMigrationDecisionRegister",
+  "type": "object"
+}

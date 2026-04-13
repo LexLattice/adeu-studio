@@ -1,0 +1,49 @@
+{
+  "advisory_only": true,
+  "baseline_checker_version": "v55b_constitutional_coherence_checker@1",
+  "changes_live_checker_behavior": false,
+  "entries": [
+    {
+      "calibration_id": "constitutional_governance_calibration:76c0fea8a18c070e",
+      "current_posture": "v55b_warning_plus_descendant_law_gap",
+      "evidence_refs": [
+        "packages/adeu_constitutional_coherence/tests/fixtures/v55b/reference_constitutional_coherence_report.json",
+        "packages/adeu_constitutional_coherence/tests/fixtures/v55b/reference_constitutional_unresolved_seam_register.json",
+        "artifacts/agent_harness/v150/evidence_inputs/v55b_descendant_trial_hardening_evidence_v150.json"
+      ],
+      "predicate_id": "authority_layer_declared",
+      "rationale": "the preferred crypto descendant is the one concrete local claim surface with an explicit V55-B warning plus descendant-law gap, so it is the only predicate/surface pair currently worth carrying forward as a later local hardening candidate",
+      "recommended_outcome": "candidate_for_later_local_hardening",
+      "surface_ref": "docs/support/crypto data spec2.md"
+    },
+    {
+      "calibration_id": "constitutional_governance_calibration:5d09ccb7123a50ea",
+      "current_posture": "5 v55b family_law_gap entries on non-descendant seed surfaces",
+      "evidence_refs": [
+        "packages/adeu_constitutional_coherence/tests/fixtures/v55a/reference_constitutional_unresolved_seam_register.json",
+        "packages/adeu_constitutional_coherence/tests/fixtures/v55b/reference_constitutional_unresolved_seam_register.json"
+      ],
+      "predicate_id": "descendant_claim_within_parent_entitlement",
+      "rationale": "these unresolved entries reflect bounded non-descendant scope rather than a concrete escalation target, so the family-level posture should remain advisory-only and non-escalated in V55-C",
+      "recommended_outcome": "not_selected_for_escalation",
+      "surface_ref": "surface_family:non_descendant_seed_surfaces"
+    },
+    {
+      "calibration_id": "constitutional_governance_calibration:2c424f846e7f97ab",
+      "current_posture": "2 v55b admission_surface_gap entries on non-support seed surfaces",
+      "evidence_refs": [
+        "packages/adeu_constitutional_coherence/tests/fixtures/v55a/reference_constitutional_unresolved_seam_register.json",
+        "packages/adeu_constitutional_coherence/tests/fixtures/v55b/reference_constitutional_unresolved_seam_register.json"
+      ],
+      "predicate_id": "support_surface_not_self_promoted",
+      "rationale": "the admission-surface gaps still describe scope-bounded non-applicability rather than a predicate/surface pair ready for stronger local governance",
+      "recommended_outcome": "not_selected_for_escalation",
+      "surface_ref": "surface_family:non_support_seed_surfaces"
+    }
+  ],
+  "entry_count": 3,
+  "register_id": "constitutional_governance_register:5f301d3a40b34835",
+  "schema": "constitutional_governance_calibration_register@1",
+  "target_arc": "vNext+151",
+  "target_path": "V55-C"
+}

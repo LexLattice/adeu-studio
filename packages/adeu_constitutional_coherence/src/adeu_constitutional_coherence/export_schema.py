@@ -10,10 +10,14 @@ from adeu_ir.repo import repo_root
 from .models import (
     CONSTITUTIONAL_COHERENCE_LANE_DRIFT_RECORD_SCHEMA,
     CONSTITUTIONAL_COHERENCE_REPORT_SCHEMA,
+    CONSTITUTIONAL_GOVERNANCE_CALIBRATION_REGISTER_SCHEMA,
+    CONSTITUTIONAL_MIGRATION_DECISION_REGISTER_SCHEMA,
     CONSTITUTIONAL_SUPPORT_ADMISSION_RECORD_SCHEMA,
     CONSTITUTIONAL_UNRESOLVED_SEAM_REGISTER_SCHEMA,
     ConstitutionalCoherenceLaneDriftRecord,
     ConstitutionalCoherenceReport,
+    ConstitutionalGovernanceCalibrationRegister,
+    ConstitutionalMigrationDecisionRegister,
     ConstitutionalSupportAdmissionRecord,
     ConstitutionalUnresolvedSeamRegister,
 )
@@ -110,6 +114,26 @@ def main() -> None:
             / "schema"
             / "constitutional_coherence_lane_drift_record.v1.json",
             root / "spec" / "constitutional_coherence_lane_drift_record.schema.json",
+        ),
+        (
+            ConstitutionalGovernanceCalibrationRegister,
+            CONSTITUTIONAL_GOVERNANCE_CALIBRATION_REGISTER_SCHEMA,
+            root
+            / "packages"
+            / "adeu_constitutional_coherence"
+            / "schema"
+            / "constitutional_governance_calibration_register.v1.json",
+            root / "spec" / "constitutional_governance_calibration_register.schema.json",
+        ),
+        (
+            ConstitutionalMigrationDecisionRegister,
+            CONSTITUTIONAL_MIGRATION_DECISION_REGISTER_SCHEMA,
+            root
+            / "packages"
+            / "adeu_constitutional_coherence"
+            / "schema"
+            / "constitutional_migration_decision_register.v1.json",
+            root / "spec" / "constitutional_migration_decision_register.schema.json",
         ),
     ]
 
