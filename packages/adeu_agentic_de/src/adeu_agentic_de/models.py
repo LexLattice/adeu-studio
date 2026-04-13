@@ -87,6 +87,24 @@ def _compute_id(prefix: str, payload: dict[str, object]) -> str:
     return f"{prefix}_{sha256_canonical_json(payload)[:12]}"
 
 
+def _assign_or_verify_content_addressed_id(
+    *,
+    value: str | None,
+    field_name: str,
+    prefix: str,
+    payload: dict[str, object],
+) -> str:
+    computed_id = _compute_id(prefix, payload)
+    if value is None:
+        return computed_id
+    normalized = _assert_present_text(value, field_name=field_name)
+    if normalized != computed_id:
+        raise ValueError(
+            f"{field_name} mismatch: expected {computed_id}, got {normalized}"
+        )
+    return normalized
+
+
 class AgenticDeDomainPacket(BaseModel):
     model_config = MODEL_CONFIG
 
@@ -106,17 +124,16 @@ class AgenticDeDomainPacket(BaseModel):
         _assert_present_text(self.task_scope_summary, field_name="task_scope_summary")
         _assert_present_text(self.authority_frame_ref, field_name="authority_frame_ref")
         _assert_present_text(self.environment_identity, field_name="environment_identity")
-        if self.packet_id is None:
-            object.__setattr__(
-                self,
-                "packet_id",
-                _compute_id(
-                    "agentic_de_domain_packet",
-                    self.model_dump(mode="json", exclude={"packet_id"}),
-                ),
-            )
-        else:
-            _assert_present_text(self.packet_id, field_name="packet_id")
+        object.__setattr__(
+            self,
+            "packet_id",
+            _assign_or_verify_content_addressed_id(
+                value=self.packet_id,
+                field_name="packet_id",
+                prefix="agentic_de_domain_packet",
+                payload=self.model_dump(mode="json", exclude={"packet_id"}),
+            ),
+        )
         return self
 
 
@@ -155,17 +172,16 @@ class AgenticDeMorphIr(BaseModel):
             "utility_posture",
             _ordered_unique_texts(self.utility_posture, field_name="utility_posture"),
         )
-        if self.morph_ir_id is None:
-            object.__setattr__(
-                self,
-                "morph_ir_id",
-                _compute_id(
-                    "agentic_de_morph_ir",
-                    self.model_dump(mode="json", exclude={"morph_ir_id"}),
-                ),
-            )
-        else:
-            _assert_present_text(self.morph_ir_id, field_name="morph_ir_id")
+        object.__setattr__(
+            self,
+            "morph_ir_id",
+            _assign_or_verify_content_addressed_id(
+                value=self.morph_ir_id,
+                field_name="morph_ir_id",
+                prefix="agentic_de_morph_ir",
+                payload=self.model_dump(mode="json", exclude={"morph_ir_id"}),
+            ),
+        )
         return self
 
 
@@ -209,17 +225,16 @@ class AgenticDeInteractionContract(BaseModel):
             if entry.action_id in seen:
                 raise ValueError("interaction action_id values must be unique")
             seen.add(entry.action_id)
-        if self.contract_id is None:
-            object.__setattr__(
-                self,
-                "contract_id",
-                _compute_id(
-                    "agentic_de_interaction_contract",
-                    self.model_dump(mode="json", exclude={"contract_id"}),
-                ),
-            )
-        else:
-            _assert_present_text(self.contract_id, field_name="contract_id")
+        object.__setattr__(
+            self,
+            "contract_id",
+            _assign_or_verify_content_addressed_id(
+                value=self.contract_id,
+                field_name="contract_id",
+                prefix="agentic_de_interaction_contract",
+                payload=self.model_dump(mode="json", exclude={"contract_id"}),
+            ),
+        )
         return self
 
 
@@ -269,17 +284,16 @@ class AgenticDeActionProposal(BaseModel):
                 else []
             ),
         )
-        if self.proposal_id is None:
-            object.__setattr__(
-                self,
-                "proposal_id",
-                _compute_id(
-                    "agentic_de_action_proposal",
-                    self.model_dump(mode="json", exclude={"proposal_id"}),
-                ),
-            )
-        else:
-            _assert_present_text(self.proposal_id, field_name="proposal_id")
+        object.__setattr__(
+            self,
+            "proposal_id",
+            _assign_or_verify_content_addressed_id(
+                value=self.proposal_id,
+                field_name="proposal_id",
+                prefix="agentic_de_action_proposal",
+                payload=self.model_dump(mode="json", exclude={"proposal_id"}),
+            ),
+        )
         return self
 
 
@@ -308,17 +322,16 @@ class AgenticDeMembraneCheckpoint(BaseModel):
             raise ValueError("accepted checkpoints may not carry a reason_code")
         if self.status != "accepted" and self.reason_code is None:
             raise ValueError("non-accepted checkpoints must carry a reason_code")
-        if self.checkpoint_id is None:
-            object.__setattr__(
-                self,
-                "checkpoint_id",
-                _compute_id(
-                    "agentic_de_membrane_checkpoint",
-                    self.model_dump(mode="json", exclude={"checkpoint_id"}),
-                ),
-            )
-        else:
-            _assert_present_text(self.checkpoint_id, field_name="checkpoint_id")
+        object.__setattr__(
+            self,
+            "checkpoint_id",
+            _assign_or_verify_content_addressed_id(
+                value=self.checkpoint_id,
+                field_name="checkpoint_id",
+                prefix="agentic_de_membrane_checkpoint",
+                payload=self.model_dump(mode="json", exclude={"checkpoint_id"}),
+            ),
+        )
         return self
 
 
@@ -336,17 +349,16 @@ class AgenticDeMorphDiagnosticFinding(BaseModel):
         _assert_present_text(self.code, field_name="code")
         _assert_present_text(self.subject_ref, field_name="subject_ref")
         _assert_present_text(self.message, field_name="message")
-        if self.finding_id is None:
-            object.__setattr__(
-                self,
-                "finding_id",
-                _compute_id(
-                    "agentic_de_morph_diagnostic_finding",
-                    self.model_dump(mode="json", exclude={"finding_id"}),
-                ),
-            )
-        else:
-            _assert_present_text(self.finding_id, field_name="finding_id")
+        object.__setattr__(
+            self,
+            "finding_id",
+            _assign_or_verify_content_addressed_id(
+                value=self.finding_id,
+                field_name="finding_id",
+                prefix="agentic_de_morph_diagnostic_finding",
+                payload=self.model_dump(mode="json", exclude={"finding_id"}),
+            ),
+        )
         return self
 
 
@@ -368,17 +380,16 @@ class AgenticDeMorphDiagnostics(BaseModel):
         _assert_present_text(self.checkpoint_ref, field_name="checkpoint_ref")
         if self.finding_count != len(self.findings):
             raise ValueError("finding_count must equal len(findings)")
-        if self.diagnostics_id is None:
-            object.__setattr__(
-                self,
-                "diagnostics_id",
-                _compute_id(
-                    "agentic_de_morph_diagnostics",
-                    self.model_dump(mode="json", exclude={"diagnostics_id"}),
-                ),
-            )
-        else:
-            _assert_present_text(self.diagnostics_id, field_name="diagnostics_id")
+        object.__setattr__(
+            self,
+            "diagnostics_id",
+            _assign_or_verify_content_addressed_id(
+                value=self.diagnostics_id,
+                field_name="diagnostics_id",
+                prefix="agentic_de_morph_diagnostics",
+                payload=self.model_dump(mode="json", exclude={"diagnostics_id"}),
+            ),
+        )
         return self
 
 
@@ -414,17 +425,16 @@ class AgenticDeConformanceReport(BaseModel):
             "delta_notes",
             _ordered_unique_texts(self.delta_notes, field_name="delta_notes"),
         )
-        if self.report_id is None:
-            object.__setattr__(
-                self,
-                "report_id",
-                _compute_id(
-                    "agentic_de_conformance_report",
-                    self.model_dump(mode="json", exclude={"report_id"}),
-                ),
-            )
-        else:
-            _assert_present_text(self.report_id, field_name="report_id")
+        object.__setattr__(
+            self,
+            "report_id",
+            _assign_or_verify_content_addressed_id(
+                value=self.report_id,
+                field_name="report_id",
+                prefix="agentic_de_conformance_report",
+                payload=self.model_dump(mode="json", exclude={"report_id"}),
+            ),
+        )
         return self
 
 

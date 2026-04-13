@@ -41,6 +41,11 @@ def _read_json_object(path: Path) -> dict[str, object]:
     payload = json.loads(path.read_text(encoding="utf-8"))
     if not isinstance(payload, dict):
         raise ValueError(f"{path} must contain one JSON object")
+    if "schema" not in payload:
+        raise ValueError(f"{path} missing required schema marker")
+    schema_value = payload["schema"]
+    if not isinstance(schema_value, str) or not schema_value.strip():
+        raise ValueError(f"{path} has invalid schema marker")
     return payload
 
 

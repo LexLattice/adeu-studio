@@ -6,14 +6,11 @@ import subprocess
 import sys
 from pathlib import Path
 
+from adeu_ir.repo import repo_root
+
 
 def _repo_root() -> Path:
-    current = Path(__file__).resolve()
-    for parent in current.parents:
-        git_marker = parent / ".git"
-        if git_marker.is_dir() or git_marker.is_file():
-            return parent
-    raise FileNotFoundError("repository root not found")
+    return repo_root(anchor=Path(__file__))
 
 
 def _script_path() -> Path:
@@ -89,6 +86,7 @@ def test_missing_evidence_emits_warn_diagnostics_to_stderr(tmp_path: Path) -> No
     )
     payload = json.loads(proposal_path.read_text(encoding="utf-8"))
     payload["evidence_refs"] = []
+    payload["proposal_id"] = None
     override_path = tmp_path / "proposal.json"
     override_path.write_text(json.dumps(payload, indent=2, sort_keys=True) + "\n", encoding="utf-8")
 
