@@ -24,23 +24,31 @@ Read together with:
 
 `V56-B` should add exactly:
 
+- `agentic_de_action_class_taxonomy@1`
 - `agentic_de_runtime_state@1`
 - `agentic_de_action_ticket@1`
 
-and one bounded live use path over the shipped checkpoint for selected action classes
-only:
+and one bounded live use path over the shipped checkpoint for one narrow selected live
+subset only:
 
-- `write`
-- `execute`
-- `dispatch`
+- `local_reversible_execute`
+- `local_write`
 
 The gate should:
 
 - consume the shipped `V56-A` packet / contract / proposal surfaces unchanged by
   default;
 - consume the shipped `V56-A` checkpoint surface unchanged by default;
-- require checkpoint `accepted` status before issuing an action ticket;
+- require checkpoint `accepted` status before considering action-ticket issuance;
+- treat checkpoint acceptance as necessary but not sufficient for ticket issuance;
+- also require:
+  - selected live action class membership;
+  - runtime-state compatibility;
+  - authority/capability posture validity at issuance time; and
+  - bounded ticket scope/time;
 - preserve unresolved and rejected states explicitly;
+- preserve non-entitling reason postures, including `not_evaluable_yet`, as explicit
+  blockers within non-accepted checkpoint states;
 - remain local and bounded rather than becoming a repo-wide execution authority.
 
 Likely starter script seam:
@@ -55,15 +63,36 @@ Likely starter script seam:
 - ticket issuance;
 - checkpoint and consequence logging.
 
+Ticket issuance must not become an invisible intermediate.
+
+`V56-B` should keep ticket-issued-or-not visibility inside the typed consequence chain
+through either:
+
+- one explicit typed ticket axis in conformance; or
+- one explicit linked ticket reference/summary surface carried alongside conformance.
+
 Before `V56-B` lock, the family should freeze one exact starter action-class taxonomy
 for:
 
 - pure read / inspect
-- effect-bearing or capability-sensitive inspect
+- capability-sensitive inspect
 - local reversible execute
 - stronger execute
 - local write
 - delegated or external dispatch
+
+For `V56-B`, the starter exactness should include:
+
+- `local`
+  - confined to the current bounded workspace / process / sandbox surface;
+  - excludes delegated, remote, networked, or broader system effects.
+- `reversible`
+  - rollback or compensating restore is defined and testable inside the same local
+    authority envelope.
+- `local_write`
+  - excludes authority-bearing writes to family constitutions, lock docs, CI config,
+    secrets/credentials, and dispatch surfaces unless a later lock explicitly selects
+    them.
 
 `V56-B` should not yet govern:
 

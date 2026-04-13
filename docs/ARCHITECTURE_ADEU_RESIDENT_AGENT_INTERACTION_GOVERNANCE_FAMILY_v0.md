@@ -220,6 +220,16 @@ Starter reason-code vocabulary may include:
 
 The family should not collapse reasons into statuses or statuses into reasons.
 
+Checkpoint acceptance should remain necessary but not sufficient for later action
+ticket issuance.
+
+Later live slices should also require:
+
+- selected live action-class membership;
+- runtime-state compatibility;
+- authority/capability posture validity at issuance time; and
+- bounded ticket scope/time.
+
 ## 8. Starter Package Shape
 
 The likely starter implementation home is:
@@ -268,6 +278,12 @@ At minimum it should compare:
 - what was proposed;
 - what the checkpoint entitled; and
 - what was actually executed or observed.
+
+For ticketed live slices such as `V56-B`, the delta chain should also make ticket
+issuance explicit through either:
+
+- one typed ticket-issued-or-not axis; or
+- one explicit linked ticket reference/summary surface carried alongside conformance.
 
 For dry-run slices such as `V56-A`, the effect axis should remain explicit as one
 non-live posture such as `no_live_effect` rather than pretending an execution effect

@@ -71,7 +71,12 @@ Interpretive doctrine for this planning surface:
   - `docs/support/ODEU AS A COUPLED SEMANTIC HYPERSPACE WITH LAWFUL MORPHISMS_v2.md`
   - `docs/DRAFT_PRACTICAL_HARNESS_FLOW_v0.md`
   - `docs/DRAFT_PRACTICAL_REASONING_SIX_LANE_LOOP_v0.md`
-- `v151` is the current implementation-arc baseline on `main`.
+- `V56-A` is closed on `main` through `v152` and now constitutes the released bounded
+  resident-agent interaction-governance starter recorded by:
+  - `docs/LOCKED_CONTINUATION_vNEXT_PLUS152.md`
+  - `docs/DRAFT_STOP_GATE_DECISION_vNEXT_PLUS152.md`
+  - `docs/ASSESSMENT_vNEXT_PLUS152_EDGES.md`
+- `v152` is the current implementation-arc baseline on `main`.
 
 ## Gap
 
@@ -185,16 +190,24 @@ Ordering discipline for this branch:
 - Recommended family/slice mapping reference to draft next:
   - `docs/DRAFT_ADEU_RESIDENT_AGENT_INTERACTION_GOVERNANCE_V56_IMPLEMENTATION_MAPPING_v0.md`
 - Recommended next path for this branch:
-  - `V56-A`
+  - `V56-B`
 - Recommended next concrete arc for this branch if selected:
-  - `V56-A`
+  - `V56-B`
 - Default path selection for this branch:
-  - one bounded starter slice is recommended:
-    - typed packet + interaction-contract + action-proposal starter surfaces
-    - one dry-run membrane gate
-    - one diagnostics / conformance path
-    - no live runtime widening beyond a bounded local starter seam
-  - if this family is selected, select `V56-A` as the next default candidate
+  - one bounded live-gate hardening slice is recommended:
+    - reuse the shipped `V56-A` packet / interaction-contract / action-proposal /
+      membrane-checkpoint surfaces by default
+    - freeze one exact starter action-class taxonomy
+    - add one bounded runtime-state surface
+    - add one bounded action-ticket surface
+    - add one bounded live use path for one narrow selected subset of local
+      effect-bearing classes only
+    - checkpoint `accepted` remains necessary but not sufficient for ticket issuance
+    - local/reversible bounds are frozen explicitly before implementation
+    - ticket-issued-or-not must remain explicit in the typed consequence chain
+    - no harvest/calibration yet
+    - no delegated worker-topology widening yet
+  - if this family is selected, select `V56-B` as the next default candidate
 
 This family/path recommendation is branch-local to the `v39` planning surface.
 
@@ -207,8 +220,8 @@ The current recommended path ladder is:
 
 | Path | Theme | Primary output | Status |
 |---|---|---|---|
-| `V56-A` | family contract + starter runtime-governance seam | one resident-agent domain packet, one interaction contract, one action-proposal artifact, one dry-run membrane checkpoint / gate, one diagnostics surface, one conformance report surface | recommended next path |
-| `V56-B` | bounded live action gate | one runtime state path, one action ticket / gate surface, one bounded live use path over the shipped checkpoint for selected write / execute / dispatch classes | not selected yet |
+| `V56-A` | family contract + starter runtime-governance seam | one resident-agent domain packet, one interaction contract, one action-proposal artifact, one dry-run membrane checkpoint / gate, one diagnostics surface, one conformance report surface | closed on `main` through `v152` |
+| `V56-B` | bounded live action gate | one runtime state path, one action-class taxonomy, one action ticket / gate surface, one bounded live use path over the shipped checkpoint for one narrow selected subset of local effect-bearing classes | recommended next path |
 | `V56-C` | conformance / harvest / migration decision | one harvest record, one governance calibration register, one bounded migration decision on any stronger local enforcement | not selected yet |
 
 These output names are planning-level candidate names, not lock-level schema authority.
@@ -233,29 +246,40 @@ These output names are planning-level candidate names, not lock-level schema aut
   - bounded gate;
   - explicit post-action trace.
 
-## Proposed `V56-A` Scope
+## Proposed `V56-B` Scope
 
-`V56-A` should be bounded to:
+`V56-B` should be bounded to:
 
-- one primary family package:
+- one existing primary family package:
   - `packages/adeu_agentic_de`
-- one thin script seam under existing repo operations;
-- one exact starter artifact ladder:
-  - `agentic_de_domain_packet@1`
-  - `agentic_de_morph_ir@1`
-  - `agentic_de_interaction_contract@1`
-  - `agentic_de_action_proposal@1`
-  - `agentic_de_membrane_checkpoint@1`
-  - `agentic_de_morph_diagnostics@1`
-  - `agentic_de_conformance_report@1`
-- one dry-run membrane-gate posture only;
-- one exact shaping-input set closed for `V56-A`;
-- no live write/execute/dispatch interception yet;
-- no claim that hidden cognition is governed.
+- one existing thin script seam under repo operations;
+- one explicit `V56-A` to `V56-B` handoff via:
+  - `agentic_de_lane_drift_record@1`
+- reuse of the shipped `V56-A` packet / morph IR / interaction-contract /
+  action-proposal / membrane-checkpoint / diagnostics / conformance surfaces by
+  default;
+- one exact action-class taxonomy:
+  - pure read / inspect
+  - capability-sensitive inspect
+  - local reversible execute
+  - stronger execute
+  - local write
+  - delegated or external dispatch
+- one bounded runtime-state surface:
+  - `agentic_de_runtime_state@1`
+- one bounded action-ticket surface:
+  - `agentic_de_action_ticket@1`
+- one bounded live use path over the shipped checkpoint for a narrow selected subset
+  of local effect-bearing classes only;
+- the same shaping-input set carried forward unless a later explicit amendment says
+  otherwise;
+- no product/API rollout;
+- no hidden-cognition governance claim;
+- no delegated worker-topology widening under cover of resident-agent gating.
 
-Starter shaping-input admission law for this branch:
+Shaping-input admission law carried forward for this branch:
 
-- support-layer doctrine may shape `V56-A` only through explicit admission;
+- support-layer doctrine may shape `V56-B` only through explicit admission;
 - no support artifact becomes family law or live runtime authority by citation alone;
 - each admitted support artifact must declare:
   - authority layer;
@@ -266,18 +290,21 @@ Starter shaping-input admission law for this branch:
 
 Action-class taxonomy note for this branch:
 
-- `write`, `execute`, and `dispatch` remain the bounded starter action classes for the
-  path ladder;
-- before `V56-B` lock, the family should type what counts as each class and should
-  distinguish:
-  - pure read / inspect;
-  - effect-bearing or capability-sensitive inspect;
-  - local reversible execute;
-  - stronger execute;
-  - local write; and
-  - delegated or external dispatch.
+- the `V56-A` planning requirement for exact action-class typing remains in force;
+- `V56-B` should freeze one exact starter taxonomy before any live ticket issuance;
+- the starter live-gate subset should remain narrower than the full taxonomy and
+  should prefer local reversible execute and local write before any delegated or
+  external dispatch class is considered;
+- for `V56-B`, `local` should remain confined to the current bounded workspace /
+  process / sandbox surface and exclude delegated, remote, networked, or broader
+  system effects;
+- for `V56-B`, `reversible` should mean rollback or compensating restore is defined
+  and testable inside the same local authority envelope;
+- for `V56-B`, `local_write` should exclude authority-bearing writes to family
+  constitutions, lock docs, CI config, secrets/credentials, and dispatch surfaces
+  unless a later lock explicitly selects them;
 - this taxonomy note is a planning requirement for exactness, not a claim that the
-  full class lattice is already released.
+  full class lattice is already released or that every class becomes live in `V56-B`.
 
 ## Machine-Checkable Seed Summary
 
@@ -289,11 +316,12 @@ Action-class taxonomy note for this branch:
   "authority_layer": "planning",
   "family_name": "V56",
   "family_theme": "adeu_resident_agent_interaction_governance",
-  "recommended_next_path": "V56-A",
+  "recommended_next_path": "V56-B",
   "controls_hidden_cognition": false,
   "controls_boundary_crossing": true,
   "dry_run_gate_selected_for_v56a": true,
-  "live_write_execute_dispatch_gate_selected_for_v56a": false,
+  "bounded_live_gate_selected_for_v56b": true,
+  "starter_live_gate_subset_prefers_local_execute_and_write": true,
   "admitted_shaping_input_required": true
 }
 ```
