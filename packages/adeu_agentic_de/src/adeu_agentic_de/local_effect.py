@@ -16,6 +16,9 @@ DEFAULT_LOCAL_EFFECT_PAYLOAD_TEXT = (
     "--- v57a bounded local effect patch candidate ---\n"
     "+ one bounded local write effect observed inside the designated sandbox root\n"
 )
+MAX_HASH_FILE_SIZE_BYTES = 100 * 1024 * 1024
+MAX_TEXT_READ_SIZE_BYTES = 10 * 1024 * 1024
+HASH_CHUNK_SIZE_BYTES = 8192
 
 
 @dataclass(frozen=True)
@@ -39,7 +42,19 @@ def _sha256_bytes(payload: bytes) -> str:
 
 
 def _sha256_file(path: Path) -> str:
-    return hashlib.sha256(path.read_bytes()).hexdigest()
+    if path.stat().st_size > MAX_HASH_FILE_SIZE_BYTES:
+        raise ValueError("file size exceeds safety limit for hashing")
+    digest = hashlib.sha256()
+    with path.open("rb") as handle:
+        while chunk := handle.read(HASH_CHUNK_SIZE_BYTES):
+            digest.update(chunk)
+    return digest.hexdigest()
+
+
+def _read_text_with_size_guard(path: Path) -> str:
+    if path.stat().st_size > MAX_TEXT_READ_SIZE_BYTES:
+        raise ValueError("file size exceeds safety limit for text inspection")
+    return path.read_text(encoding="utf-8")
 
 
 def _relative_display(path: Path, *, repo_root_path: Path) -> str:
@@ -57,16 +72,28 @@ def _assert_safe_relative_target(relative_target: Path) -> None:
         raise ValueError("local-effect target may not write into the internal observer area")
 
 
-def _assert_no_symlink_components(*, sandbox_root: Path, candidate: Path) -> None:
-    current = sandbox_root
+def _assert_repo_contained_path(*, repo_root_path: Path, candidate: Path) -> None:
+    repo_root_resolved = repo_root_path.resolve()
+    candidate_resolved = candidate.resolve(strict=False)
+    try:
+        candidate_resolved.relative_to(repo_root_resolved)
+    except ValueError as exc:
+        raise ValueError(
+            "sandbox anti-escape law forbids paths outside the repository root"
+        ) from exc
+
+
+def _assert_no_symlink_components(*, repo_root_path: Path, candidate: Path) -> None:
+    current = repo_root_path.resolve()
     if current.exists() and current.is_symlink():
-        raise ValueError("designated local-effect sandbox root may not be a symlink")
-    relative = candidate.relative_to(sandbox_root)
+        raise ValueError("repository root may not be a symlink for V57-A local-effect observation")
+    relative = candidate.relative_to(repo_root_path)
     for part in relative.parts:
         current = current / part
         if current.exists() and current.is_symlink():
             raise ValueError(
-                "sandbox anti-escape law forbids symlink components inside the designated root"
+                "sandbox anti-escape law forbids symlink components from the repository root "
+                "through the designated local-effect root"
             )
 
 
@@ -82,10 +109,14 @@ def _assert_within_designated_sandbox(*, sandbox_root: Path, candidate: Path) ->
         ) from exc
 
 
-def _ensure_clean_runtime_tree(*, sandbox_root: Path) -> None:
+def _ensure_clean_runtime_tree(*, repo_root_path: Path, sandbox_root: Path) -> None:
+    _assert_repo_contained_path(repo_root_path=repo_root_path, candidate=sandbox_root)
+    _assert_no_symlink_components(repo_root_path=repo_root_path, candidate=sandbox_root)
     sandbox_root.mkdir(parents=True, exist_ok=True)
     for child_name in (LOCAL_EFFECT_RUNTIME_DIRNAME, LOCAL_EFFECT_OBSERVER_DIRNAME):
         child = sandbox_root / child_name
+        _assert_repo_contained_path(repo_root_path=repo_root_path, candidate=child)
+        _assert_no_symlink_components(repo_root_path=repo_root_path, candidate=child)
         if child.exists():
             if child.is_symlink():
                 raise ValueError("sandbox anti-escape law forbids symlink runtime helper paths")
@@ -131,12 +162,13 @@ def observe_local_write_effect(
     expected_content_contains: str | None = None,
 ) -> ObservedLocalWriteEffect:
     sandbox_root = resolve_designated_local_effect_sandbox_root(repo_root_path=repo_root_path)
-    _ensure_clean_runtime_tree(sandbox_root=sandbox_root)
+    _ensure_clean_runtime_tree(repo_root_path=repo_root_path, sandbox_root=sandbox_root)
 
     relative_target = Path(target_relative_path.strip())
     _assert_safe_relative_target(relative_target)
     target_path = sandbox_root / relative_target
-    _assert_no_symlink_components(sandbox_root=sandbox_root, candidate=target_path)
+    _assert_repo_contained_path(repo_root_path=repo_root_path, candidate=target_path)
+    _assert_no_symlink_components(repo_root_path=repo_root_path, candidate=target_path)
     _assert_within_designated_sandbox(sandbox_root=sandbox_root, candidate=target_path)
 
     pre_state_path = sandbox_root / LOCAL_EFFECT_OBSERVER_DIRNAME / "reference_pre_state.json"
@@ -148,7 +180,8 @@ def observe_local_write_effect(
     _write_json(pre_state_path, pre_state_payload)
 
     target_path.parent.mkdir(parents=True, exist_ok=True)
-    _assert_no_symlink_components(sandbox_root=sandbox_root, candidate=target_path.parent)
+    _assert_repo_contained_path(repo_root_path=repo_root_path, candidate=target_path.parent)
+    _assert_no_symlink_components(repo_root_path=repo_root_path, candidate=target_path.parent)
     _assert_within_designated_sandbox(sandbox_root=sandbox_root, candidate=target_path.parent)
 
     payload_bytes = payload_text.encode("utf-8")
@@ -166,7 +199,8 @@ def observe_local_write_effect(
         raise ValueError(f"unsupported local-write kind for V57-A: {write_kind}")
 
     observed_write_set: list[AgenticDeObservedWriteEntry]
-    if payload_bytes:
+    effect_observed = write_kind == "create_new" or bool(payload_bytes)
+    if effect_observed:
         observed_write_set = [
             AgenticDeObservedWriteEntry(
                 relative_path=_relative_display(target_path, repo_root_path=repo_root_path),
@@ -191,12 +225,14 @@ def observe_local_write_effect(
         if expected_relative_paths is not None
         else (_relative_display(target_path, repo_root_path=repo_root_path),)
     )
+    actual_path_set = set(actual_relative_paths)
+    expected_path_set = set(expected_paths)
     if not observed_write_set:
         observation_outcome = "no_effect_observed"
         boundedness_verdict = "bounded"
         boundedness_note = "no file content change was observed inside the designated sandbox root"
         observed_effect = "no local write effect observed inside the designated sandbox root"
-    elif any(path not in expected_paths for path in actual_relative_paths):
+    elif not actual_path_set.issubset(expected_path_set):
         observation_outcome = "out_of_scope_write_observed"
         boundedness_verdict = "failed"
         boundedness_note = (
@@ -206,9 +242,19 @@ def observe_local_write_effect(
         observed_effect = (
             "observed write set did not match the checkpoint-entitled local-write target set"
         )
+    elif actual_path_set != expected_path_set:
+        observation_outcome = "mismatched_effect_observed"
+        boundedness_verdict = "bounded"
+        boundedness_note = (
+            "effect stayed within the designated sandbox root but did not satisfy the full "
+            "checkpoint-entitled target set"
+        )
+        observed_effect = (
+            "observed local write stayed bounded but did not cover the full expected write set"
+        )
     elif (
         expected_content_contains is not None
-        and expected_content_contains not in target_path.read_text(encoding="utf-8")
+        and expected_content_contains not in _read_text_with_size_guard(target_path)
     ):
         observation_outcome = "mismatched_effect_observed"
         boundedness_verdict = "bounded"

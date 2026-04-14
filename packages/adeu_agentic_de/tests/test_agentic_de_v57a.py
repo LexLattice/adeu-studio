@@ -7,6 +7,7 @@ from pathlib import Path
 import pytest
 from adeu_agentic_de import (
     AgenticDeLocalEffectObservationRecord,
+    local_effect,
     run_agentic_de_local_effect_v57a,
 )
 from adeu_ir.repo import repo_root
@@ -113,6 +114,18 @@ def test_symlink_escape_inside_designated_sandbox_fails_closed(tmp_path: Path) -
         )
 
 
+def test_symlink_component_between_repo_root_and_sandbox_fails_closed(tmp_path: Path) -> None:
+    temp_root = _copy_v57a_input_tree(tmp_path)
+    agentic_de_root = temp_root / "artifacts" / "agentic_de"
+    outside_root = temp_root / "outside_agentic_de"
+    shutil.rmtree(agentic_de_root)
+    outside_root.mkdir(parents=True)
+    agentic_de_root.symlink_to(outside_root, target_is_directory=True)
+
+    with pytest.raises(ValueError, match="forbids symlink components from the repository root"):
+        run_agentic_de_local_effect_v57a(repo_root_path=temp_root)
+
+
 def test_append_only_empty_payload_emits_no_effect_observed(tmp_path: Path) -> None:
     temp_root = _copy_v57a_input_tree(tmp_path)
     target = (
@@ -139,6 +152,22 @@ def test_append_only_empty_payload_emits_no_effect_observed(tmp_path: Path) -> N
     assert observation.observed_write_set == []
     assert conformance.conformance_status == "effect_divergent"
     assert conformance.live_effect_present is False
+
+
+def test_create_new_empty_payload_is_still_recorded_as_observed_effect(tmp_path: Path) -> None:
+    temp_root = _copy_v57a_input_tree(tmp_path)
+
+    observation, conformance = run_agentic_de_local_effect_v57a(
+        repo_root_path=temp_root,
+        payload_text="",
+        expected_content_contains=None,
+    )
+
+    assert observation.observation_outcome == "bounded_effect_observed"
+    assert len(observation.observed_write_set) == 1
+    assert observation.observed_write_set[0].bytes_written == 0
+    assert conformance.conformance_status == "effect_aligned"
+    assert conformance.live_effect_present is True
 
 
 def test_destructive_or_overwrite_write_kinds_remain_out_of_scope(tmp_path: Path) -> None:
@@ -216,3 +245,48 @@ def test_negative_observation_outcomes_remain_explicit_vocab(tmp_path: Path) -> 
         }
         record = AgenticDeLocalEffectObservationRecord.model_validate(candidate)
         assert record.observation_outcome == outcome
+
+
+def test_expected_write_set_must_match_exactly(tmp_path: Path) -> None:
+    temp_root = _copy_v57a_input_tree(tmp_path)
+
+    observation, conformance = run_agentic_de_local_effect_v57a(
+        repo_root_path=temp_root,
+        expected_relative_paths=(
+            "artifacts/agentic_de/v57/local_effect/runtime/reference_patch_candidate.diff",
+            "artifacts/agentic_de/v57/local_effect/runtime/second_expected.diff",
+        ),
+    )
+
+    assert observation.observation_outcome == "mismatched_effect_observed"
+    assert observation.boundedness_verdict == "bounded"
+    assert conformance.conformance_status == "effect_divergent"
+
+
+def test_hashing_guard_fails_closed_on_oversized_file(
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    temp_root = _copy_v57a_input_tree(tmp_path)
+    monkeypatch.setattr(local_effect, "MAX_HASH_FILE_SIZE_BYTES", 8)
+
+    with pytest.raises(ValueError, match="safety limit for hashing"):
+        run_agentic_de_local_effect_v57a(
+            repo_root_path=temp_root,
+            payload_text="0123456789",
+            expected_content_contains=None,
+        )
+
+
+def test_text_inspection_guard_fails_closed_on_oversized_file(
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    temp_root = _copy_v57a_input_tree(tmp_path)
+    monkeypatch.setattr(local_effect, "MAX_TEXT_READ_SIZE_BYTES", 8)
+
+    with pytest.raises(ValueError, match="safety limit for text inspection"):
+        run_agentic_de_local_effect_v57a(
+            repo_root_path=temp_root,
+            payload_text="0123456789",
+        )
