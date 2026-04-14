@@ -1,0 +1,160 @@
+{
+  "additionalProperties": false,
+  "properties": {
+    "action_proposal_ref": {
+      "title": "Action Proposal Ref",
+      "type": "string"
+    },
+    "boundedness_verdict": {
+      "enum": [
+        "bounded",
+        "failed"
+      ],
+      "title": "Boundedness Verdict",
+      "type": "string"
+    },
+    "changes_live_behavior_by_default": {
+      "const": false,
+      "default": false,
+      "title": "Changes Live Behavior By Default",
+      "type": "boolean"
+    },
+    "checkpoint_entitlement_summary": {
+      "title": "Checkpoint Entitlement Summary",
+      "type": "string"
+    },
+    "checkpoint_ref": {
+      "title": "Checkpoint Ref",
+      "type": "string"
+    },
+    "conformance_status": {
+      "enum": [
+        "effect_aligned",
+        "effect_divergent"
+      ],
+      "title": "Conformance Status",
+      "type": "string"
+    },
+    "delta_notes": {
+      "items": {
+        "type": "string"
+      },
+      "title": "Delta Notes",
+      "type": "array"
+    },
+    "evidence_only": {
+      "const": true,
+      "default": true,
+      "title": "Evidence Only",
+      "type": "boolean"
+    },
+    "evidence_refs": {
+      "items": {
+        "type": "string"
+      },
+      "title": "Evidence Refs",
+      "type": "array"
+    },
+    "harvest_ref": {
+      "title": "Harvest Ref",
+      "type": "string"
+    },
+    "live_effect_present": {
+      "title": "Live Effect Present",
+      "type": "boolean"
+    },
+    "observation_outcome": {
+      "enum": [
+        "bounded_effect_observed",
+        "no_effect_observed",
+        "out_of_scope_write_observed",
+        "mismatched_effect_observed",
+        "boundedness_verdict_failed"
+      ],
+      "title": "Observation Outcome",
+      "type": "string"
+    },
+    "observation_ref": {
+      "title": "Observation Ref",
+      "type": "string"
+    },
+    "observed_effect": {
+      "title": "Observed Effect",
+      "type": "string"
+    },
+    "packed_state_summary": {
+      "title": "Packed State Summary",
+      "type": "string"
+    },
+    "packet_ref": {
+      "title": "Packet Ref",
+      "type": "string"
+    },
+    "proposed_action_summary": {
+      "title": "Proposed Action Summary",
+      "type": "string"
+    },
+    "report_id": {
+      "anyOf": [
+        {
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Report Id"
+    },
+    "runtime_state_ref": {
+      "title": "Runtime State Ref",
+      "type": "string"
+    },
+    "schema": {
+      "const": "agentic_de_local_effect_conformance_report@1",
+      "default": "agentic_de_local_effect_conformance_report@1",
+      "title": "Schema",
+      "type": "string"
+    },
+    "target_arc": {
+      "title": "Target Arc",
+      "type": "string"
+    },
+    "target_path": {
+      "title": "Target Path",
+      "type": "string"
+    },
+    "ticket_ref": {
+      "title": "Ticket Ref",
+      "type": "string"
+    },
+    "ticket_visibility_summary": {
+      "title": "Ticket Visibility Summary",
+      "type": "string"
+    }
+  },
+  "required": [
+    "target_arc",
+    "target_path",
+    "packet_ref",
+    "action_proposal_ref",
+    "checkpoint_ref",
+    "runtime_state_ref",
+    "ticket_ref",
+    "harvest_ref",
+    "observation_ref",
+    "packed_state_summary",
+    "proposed_action_summary",
+    "checkpoint_entitlement_summary",
+    "ticket_visibility_summary",
+    "observed_effect",
+    "observation_outcome",
+    "live_effect_present",
+    "boundedness_verdict",
+    "conformance_status",
+    "delta_notes",
+    "evidence_refs"
+  ],
+  "title": "AgenticDeLocalEffectConformanceReport",
+  "type": "object"
+}

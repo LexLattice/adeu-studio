@@ -1,0 +1,35 @@
+{
+  "entries": [
+    {
+      "assumption_ref": "v56_surface_reuse_default",
+      "note": "V57-A consumes the shipped V56 packet, checkpoint, ticket, and harvest surfaces unchanged by default.",
+      "status": "holds"
+    },
+    {
+      "assumption_ref": "local_write_only_actual_effect",
+      "note": "V57-A selects actual effect for local_write only while leaving the broader V56 live subset unchanged.",
+      "status": "amended"
+    },
+    {
+      "assumption_ref": "selected_local_write_subset_create_new_append_only",
+      "note": "V57-A narrows the first observed local_write subset to create_new and append_only only.",
+      "status": "amended"
+    },
+    {
+      "assumption_ref": "designated_sandbox_only",
+      "note": "V57-A adds one designated sandbox root for the first observed bounded local effect.",
+      "status": "amended"
+    },
+    {
+      "assumption_ref": "effect_observation_outputs_evidence_only",
+      "note": "V57-A adds evidence-only observation and conformance outputs without mutating live behavior by default.",
+      "status": "amended"
+    }
+  ],
+  "entry_count": 5,
+  "prior_lane_ref": "docs/LOCKED_CONTINUATION_vNEXT_PLUS154.md",
+  "record_id": "agentic_de_lane_drift_5bbafc1420e2",
+  "schema": "agentic_de_lane_drift_record@1",
+  "target_arc": "vNext+155",
+  "target_path": "V57-A"
+}
