@@ -180,37 +180,51 @@ Ordering discipline for this branch:
 - Recommended family/slice mapping reference to draft next:
   - `docs/DRAFT_ADEU_RESIDENT_AGENT_LIVE_HARNESS_INTEGRATION_V58_IMPLEMENTATION_MAPPING_v0.md`
 - Recommended next path for this branch:
-  - `V58-A`
+  - `V58-B`
 - Recommended next concrete arc for this branch if selected:
-  - `V58-A`
+  - `V58-B`
 
 Default path selection for this branch:
 
-- one bounded live harness bind starter is recommended:
+- one bounded live harness restoration-state integration slice is recommended:
   - reuse the existing URM copilot session path by default
   - reuse the shipped `V56-A`, `V56-B`, and `V56-C` packet / proposal / checkpoint /
     ticket / conformance / harvest surfaces by default
-  - reuse the shipped `V57-A` observation and local-effect conformance surfaces by
-    default
-  - consume the shipped `V57-B` and `V57-C` restoration / hardening outputs only as
-    shaping and drift-guard context, not as live entitlement
-  - treat outer live harness capability as necessary at most, never sufficient
+  - reuse the shipped `V57-A` observation, `V57-B` restoration, and `V57-C`
+    hardening surfaces by default as lineage and drift context only where allowed
+  - reuse the shipped `V58-A` live-turn admission / handoff / reintegration surfaces
+    by default
+  - keep outer live harness capability necessary at most, never sufficient
   - select one current-turn live path only:
     - `local_write`
     - `create_new`
     - designated root `artifacts/agentic_de/v57/local_effect/`
     - target centered on `runtime/reference_patch_candidate.diff`
   - preserve the fresh-sandbox semantics from shipped `V57-A`
-  - instantiate one explicit live-turn admission record with typed verdict semantics
-  - instantiate one explicit ticket-to-effect handoff record
-  - instantiate one explicit reintegration report with declared witness basis
+  - preserve the compensating-restore exemplar semantics from shipped `V57-B`
+  - instantiate one explicit live restoration handoff record
+  - instantiate one explicit live restoration reintegration report with declared
+    current-turn restoration witness basis
+  - keep restoration explicit harness state rather than hidden cleanup
+  - keep restoration-time capability / approval posture fresh:
+    - same-session and same-turn continuation only
+    - restoration-time capability / approval posture must be re-snapshotted
+    - mismatch or missing resnapshot fails closed
+  - treat prior `action_ticket_ref` and prior reintegration refs as historical lineage
+    inputs only:
+    - they support bounded compensating-scope derivation
+    - they do not by themselves mint current-turn restoration entitlement
+  - keep replay bounded to recomputation / re-evaluation of the same exact restoration
+    event, not arbitrary re-execution
+  - keep the replay-law proof embedded in the live restoration reintegration report:
+    - no separate replay-authority artifact is implied in this slice
   - keep current-turn origin / dependence tags explicit so transcript, event stream,
     prior fixtures, and shaping inputs cannot quietly re-enter as native support
   - keep repeated references root-deduplicated so echoed observability or prior-artifact
     lineage does not count as independent current-turn witness
-  - do not auto-call restoration in the starter slice
-  - do not widen class, sandbox, repo-authority, or dispatch scope
-  - if this family is selected, select `V58-A` as the next default candidate
+  - do not widen class, target, sandbox, repo-authority, execute, or dispatch scope
+  - do not emit hardening or migration outputs in this slice
+  - if this family is selected, select `V58-B` as the next default candidate
 
 This family/path recommendation is branch-local to the `v41` planning surface.
 
@@ -223,8 +237,8 @@ The current recommended path ladder is:
 
 | Path | Theme | Primary output | Status |
 |---|---|---|---|
-| `V58-A` | live harness bind starter | one live-turn admission record, one live turn handoff record, and one reintegration report over the exact `V56-B -> V57-A` `local_write/create_new` path only | recommended next path |
-| `V58-B` | explicit restoration-state integration | one bounded restore-state handoff / reintegration path over the same lineage using shipped `V57-B`, with no hidden cleanup | drafted only |
+| `V58-A` | live harness bind starter | one live-turn admission record, one live turn handoff record, and one reintegration report over the exact `V56-B -> V57-A` `local_write/create_new` path only | complete on `main` |
+| `V58-B` | explicit restoration-state integration | one bounded live restoration handoff / reintegration path over the same lineage using shipped `V57-B`, with no hidden cleanup | recommended next path |
 | `V58-C` | harness replay / drift hardening | one advisory hardening or drift surface over the same exact harness-bound path, without mutating live behavior by default | drafted only |
 
 These output names are planning-level candidate names, not lock-level schema
@@ -233,24 +247,27 @@ authority.
 ## Why This Path
 
 - It addresses the actual missing capability:
-  lawful composition of the shipped inner `V56` / `V57` action law with the already
-  real outer URM live harness.
+  lawful live restoration-state composition over the now-shipped `V58-A` bind path,
+  so restoration no longer sits outside the explicit harness reintegration chain.
 - It keeps the next family narrow:
-  one current-turn path, one exact class, one exact write kind, one exact target root.
+  one current-turn path, one exact class, one exact write kind, one exact target root,
+  and one exact compensating-restore exemplar only.
 - It prevents the main sovereignty failure:
-  `writes_allowed` or approval posture being misread as equivalent to `V56` ticket
-  entitlement.
+  `writes_allowed`, approval posture, or implicit cleanup being misread as equivalent
+  to `V56` / `V57-B` restoration entitlement.
 - It keeps current-turn witness explicit:
-  transcript and event stream remain observability surfaces, not native witness.
-- It defers breadth widening until the first live path is operationally real:
-  no second `local_write` exemplar yet, no `local_reversible_execute`, no dispatch.
+  transcript and event stream remain observability surfaces, not native restoration
+  witness.
+- It defers breadth widening until the first restore-state path is operationally real:
+  no second `local_write` exemplar yet, no append-only restore integration, no
+  `local_reversible_execute`, no dispatch.
 - It follows the practical harness doctrine:
   institutionalization should mean an artifact-authoritative state machine, not more
   prose.
 
-## Proposed `V58-A` Scope
+## Proposed `V58-B` Scope
 
-`V58-A` should be bounded to:
+`V58-B` should be bounded to:
 
 - primary implementation homes:
   - `packages/adeu_agentic_de`
@@ -259,9 +276,10 @@ authority.
   - `apps/api/src/adeu_api/`
   - `apps/api/scripts/`
 - no new product/UI authority source
-- one explicit `V57-C` to `V58-A` lane handoff via:
+- one explicit `V58-A` to `V58-B` lane handoff via:
   - `agentic_de_lane_drift_record@1`
-- reuse of the shipped `V56-A`, `V56-B`, and `V57-A` surfaces by default
+- reuse of the shipped `V56-A`, `V56-B`, `V56-C`, `V57-A`, `V57-B`, `V57-C`, and
+  `V58-A` surfaces by default
 - one existing live session path only:
   - URM copilot session path
 - one selected live action class only:
@@ -270,24 +288,35 @@ authority.
   - `create_new`
 - one designated local-effect sandbox root only:
   - `artifacts/agentic_de/v57/local_effect/`
-- one exact starter target only:
+- one exact live restoration target only:
   - `runtime/reference_patch_candidate.diff`
-- one starter effect phase only:
-  - observed effect through shipped `V57-A`
-- no auto-restoration in this slice
-- three new bounded starter surfaces only:
-  - `agentic_de_live_turn_admission_record@1`
-  - `agentic_de_live_turn_handoff_record@1`
-  - `agentic_de_live_turn_reintegration_report@1`
+- one selected restoration exemplar only:
+  - compensating restore of the shipped `V57-A` `create_new` artifact through shipped
+    `V57-B`
+- no hidden cleanup or auto-restore in this slice
+- two new bounded restore-state surfaces only:
+  - `agentic_de_live_restoration_handoff_record@1`
+  - `agentic_de_live_restoration_reintegration_report@1`
+- restoration remains a new live act:
+  - not ambient continuing ticket authority
+  - not cleanup implied by success of the earlier turn
+- positive live restoration reintegration requires declared current-turn restoration
+  witness basis or equivalent certificate ref
+- restoration-time capability / approval posture must be re-snapshotted and matched
+  fail-closed against the admitted live-turn continuation
+- `action_ticket_ref` and prior reintegration refs remain historical lineage inputs
+  only until bounded compensating-scope derivation and current-turn witness basis
+  independently pass
 
 ## Do Not Select Yet
 
 - a second `local_write` exemplar
-- append-only live harness integration
+- append-only live harness restoration integration
 - `local_reversible_execute`
 - stronger execute
 - delegated or external dispatch
 - worker reconciliation after dispatch
+- harness replay / drift hardening
 - product/UI rollout as authority
 - broader persistent workspace continuity
 - hidden-cognition or proxy-authority governance

@@ -72,8 +72,29 @@ The family should remain backend-first in `V58-A`:
 - `V58-B`
   - add one explicit restoration-state harness integration path over the same exact
     lineage using shipped `V57-B`
+  - reuse the shipped `V58-A` admission / handoff / reintegration surfaces by default
+  - instantiate one explicit live restoration handoff record
+  - instantiate one explicit live restoration reintegration report
   - keep restoration as explicit state, not hidden cleanup
+  - keep restoration a new live act rather than ambient ongoing ticket authority
+  - keep restoration-time admission fresh:
+    - same-session and same-turn continuation only
+    - restoration-time capability / approval posture must be re-snapshotted
+    - mismatch or missing resnapshot fails closed
+  - keep `action_ticket_ref` and prior reintegration refs as historical lineage inputs
+    only:
+    - they participate in bounded compensating-scope derivation
+    - they never stand in for current-turn restoration entitlement by themselves
+  - keep the exact `local_write/create_new` interpretation and target/root identity
+    frozen
   - keep replay bounded to recomputation / re-evaluation of that same restore path
+  - keep the replay-law proof embedded in the live restoration reintegration report
+  - keep positive restoration reintegration witness-bearing:
+    - explicit current-turn restoration witness basis or certificate ref
+    - not status-only closure
+  - keep handoff / reintegration fields origin-tagged and dependence-tagged
+  - keep repeated observability or prior-artifact lineage root-deduplicated so echo
+    cannot look like independent current-turn restoration support
 - `V58-C`
   - add one advisory harness drift / hardening surface over the same exact bound path
   - keep outputs advisory-only
