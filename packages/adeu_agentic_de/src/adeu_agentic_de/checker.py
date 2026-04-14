@@ -10,6 +10,7 @@ from .local_effect import (
     DEFAULT_LOCAL_EFFECT_PAYLOAD_SHA256,
     DEFAULT_LOCAL_EFFECT_PAYLOAD_TEXT,
     DEFAULT_LOCAL_EFFECT_TARGET_RELATIVE_PATH,
+    DESIGNATED_LOCAL_EFFECT_SANDBOX_ROOT,
     observe_local_write_effect,
     observe_local_write_restoration_effect,
 )
@@ -546,17 +547,18 @@ def _validate_v57b_lane_drift_record(record: AgenticDeLaneDriftRecord) -> Agenti
         )
     actual_statuses = {entry.assumption_ref: entry.status for entry in record.entries}
     missing_assumptions = sorted(set(REQUIRED_V57B_DRIFT_ENTRY_STATUSES) - set(actual_statuses))
-    unexpected_statuses = sorted(
+    mismatched_statuses = sorted(
         assumption_ref
         for assumption_ref, expected_status in REQUIRED_V57B_DRIFT_ENTRY_STATUSES.items()
-        if actual_statuses.get(assumption_ref) != expected_status
+        if assumption_ref in actual_statuses
+        and actual_statuses[assumption_ref] != expected_status
     )
-    if missing_assumptions or unexpected_statuses:
+    if missing_assumptions or mismatched_statuses:
         detail_parts: list[str] = []
         if missing_assumptions:
             detail_parts.append(f"missing={missing_assumptions}")
-        if unexpected_statuses:
-            detail_parts.append(f"status_mismatch={unexpected_statuses}")
+        if mismatched_statuses:
+            detail_parts.append(f"status_mismatch={mismatched_statuses}")
         raise ValueError(
             "V57-B lane drift record does not satisfy the required handoff posture; "
             + ", ".join(detail_parts)
@@ -847,6 +849,12 @@ def _validate_v57a_local_effect_surfaces(
 ) -> None:
     if observation.target_arc != V57A_TARGET_ARC or observation.target_path != V57A_TARGET_PATH:
         raise ValueError("V57-B requires the shipped V57-A observation surface")
+    expected_designated_root = DESIGNATED_LOCAL_EFFECT_SANDBOX_ROOT.as_posix()
+    if observation.designated_sandbox_root != expected_designated_root:
+        raise ValueError(
+            "V57-A observation designated_sandbox_root must preserve the shipped V57-A "
+            "sandbox root before restoration replay is admitted"
+        )
     if observation.packet_ref != packet.packet_id:
         raise ValueError("V57-A observation does not bind the provided domain packet")
     if observation.action_proposal_ref != proposal.proposal_id:

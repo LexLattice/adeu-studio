@@ -1380,8 +1380,9 @@ class AgenticDeLocalEffectRestorationRecord(BaseModel):
                 raise ValueError(
                     "restoration_mismatched_effect_observed requires bounded verdict"
                 )
-        elif self.restoration_boundedness_verdict != "failed":
-            raise ValueError("restoration_boundedness_verdict_failed requires failed verdict")
+        elif self.restoration_outcome == "restoration_boundedness_verdict_failed":
+            if self.restoration_boundedness_verdict != "failed":
+                raise ValueError("restoration_boundedness_verdict_failed requires failed verdict")
         object.__setattr__(
             self,
             "restoration_id",

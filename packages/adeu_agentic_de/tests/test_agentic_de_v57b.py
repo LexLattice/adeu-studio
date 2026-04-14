@@ -137,6 +137,33 @@ def test_missing_required_v57b_lane_drift_assumption_fails_closed(tmp_path: Path
         run_agentic_de_local_effect_v57b(repo_root_path=temp_root)
 
 
+def test_missing_v57b_lane_drift_assumption_is_not_reported_as_status_mismatch(
+    tmp_path: Path,
+) -> None:
+    temp_root = _copy_v57b_input_tree(tmp_path)
+    lane_drift_path = (
+        temp_root
+        / "packages"
+        / "adeu_agentic_de"
+        / "tests"
+        / "fixtures"
+        / "v57b"
+        / "reference_agentic_de_lane_drift_record.json"
+    )
+    payload = json.loads(lane_drift_path.read_text(encoding="utf-8"))
+    payload["entries"] = payload["entries"][:-1]
+    payload["entry_count"] = len(payload["entries"])
+    payload["record_id"] = None
+    lane_drift_path.write_text(json.dumps(payload, indent=2) + "\n", encoding="utf-8")
+
+    with pytest.raises(ValueError) as excinfo:
+        run_agentic_de_local_effect_v57b(repo_root_path=temp_root)
+
+    message = str(excinfo.value)
+    assert "missing=['restoration_outputs_evidence_only']" in message
+    assert "status_mismatch" not in message
+
+
 def test_lineage_bound_content_match_required(tmp_path: Path) -> None:
     temp_root = _copy_v57b_input_tree(tmp_path)
 
@@ -167,6 +194,29 @@ def test_v57a_conformance_ticket_lineage_mismatch_fails_closed(tmp_path: Path) -
         run_agentic_de_local_effect_v57b(
             repo_root_path=temp_root,
             v57a_local_effect_conformance_path=conformance_path,
+        )
+
+
+def test_v57a_observation_designated_sandbox_root_must_match_shipped_root(tmp_path: Path) -> None:
+    temp_root = _copy_v57b_input_tree(tmp_path)
+    observation_path = (
+        temp_root
+        / "packages"
+        / "adeu_agentic_de"
+        / "tests"
+        / "fixtures"
+        / "v57a"
+        / "reference_agentic_de_local_effect_observation_record.json"
+    )
+    payload = json.loads(observation_path.read_text(encoding="utf-8"))
+    payload["designated_sandbox_root"] = "artifacts/agentic_de/v57/other_root"
+    payload["observation_id"] = None
+    observation_path.write_text(json.dumps(payload, indent=2) + "\n", encoding="utf-8")
+
+    with pytest.raises(ValueError, match="designated_sandbox_root must preserve"):
+        run_agentic_de_local_effect_v57b(
+            repo_root_path=temp_root,
+            v57a_observation_path=observation_path,
         )
 
 
@@ -232,3 +282,18 @@ def test_negative_restoration_outcomes_remain_explicit_vocab() -> None:
         }
         record = AgenticDeLocalEffectRestorationRecord.model_validate(candidate)
         assert record.restoration_outcome == outcome
+
+
+def test_restoration_boundedness_verdict_failed_requires_failed_verdict() -> None:
+    payload = _load_json("reference_agentic_de_local_effect_restoration_record.json")
+    assert isinstance(payload, dict)
+
+    with pytest.raises(ValueError, match="requires failed verdict"):
+        AgenticDeLocalEffectRestorationRecord.model_validate(
+            {
+                **payload,
+                "restoration_id": None,
+                "restoration_outcome": "restoration_boundedness_verdict_failed",
+                "restoration_boundedness_verdict": "bounded",
+            }
+        )
