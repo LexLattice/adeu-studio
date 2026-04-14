@@ -12,6 +12,9 @@ from adeu_agentic_de import (
     AGENTIC_DE_GOVERNANCE_CALIBRATION_REGISTER_SCHEMA,
     AGENTIC_DE_INTERACTION_CONTRACT_SCHEMA,
     AGENTIC_DE_LANE_DRIFT_RECORD_SCHEMA,
+    AGENTIC_DE_LIVE_TURN_ADMISSION_RECORD_SCHEMA,
+    AGENTIC_DE_LIVE_TURN_HANDOFF_RECORD_SCHEMA,
+    AGENTIC_DE_LIVE_TURN_REINTEGRATION_REPORT_SCHEMA,
     AGENTIC_DE_LOCAL_EFFECT_CONFORMANCE_REPORT_SCHEMA,
     AGENTIC_DE_LOCAL_EFFECT_HARDENING_REGISTER_SCHEMA,
     AGENTIC_DE_LOCAL_EFFECT_OBSERVATION_RECORD_SCHEMA,
@@ -98,6 +101,30 @@ def _schema_pairs() -> dict[str, tuple[Path, Path]]:
             / "schema"
             / "agentic_de_lane_drift_record.v1.json",
             root / "spec" / "agentic_de_lane_drift_record.schema.json",
+        ),
+        AGENTIC_DE_LIVE_TURN_ADMISSION_RECORD_SCHEMA: (
+            root
+            / "packages"
+            / "adeu_agentic_de"
+            / "schema"
+            / "agentic_de_live_turn_admission_record.v1.json",
+            root / "spec" / "agentic_de_live_turn_admission_record.schema.json",
+        ),
+        AGENTIC_DE_LIVE_TURN_HANDOFF_RECORD_SCHEMA: (
+            root
+            / "packages"
+            / "adeu_agentic_de"
+            / "schema"
+            / "agentic_de_live_turn_handoff_record.v1.json",
+            root / "spec" / "agentic_de_live_turn_handoff_record.schema.json",
+        ),
+        AGENTIC_DE_LIVE_TURN_REINTEGRATION_REPORT_SCHEMA: (
+            root
+            / "packages"
+            / "adeu_agentic_de"
+            / "schema"
+            / "agentic_de_live_turn_reintegration_report.v1.json",
+            root / "spec" / "agentic_de_live_turn_reintegration_report.schema.json",
         ),
         AGENTIC_DE_RUNTIME_HARVEST_RECORD_SCHEMA: (
             root

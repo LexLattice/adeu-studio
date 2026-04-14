@@ -1,0 +1,138 @@
+{
+  "additionalProperties": false,
+  "properties": {
+    "admission_id": {
+      "anyOf": [
+        {
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Admission Id"
+    },
+    "admission_reason_codes": {
+      "items": {
+        "type": "string"
+      },
+      "title": "Admission Reason Codes",
+      "type": "array"
+    },
+    "admission_verdict": {
+      "enum": [
+        "admitted",
+        "absent_not_owed",
+        "rejected_inadmissible",
+        "stale_or_expired",
+        "withheld",
+        "unknown",
+        "partial"
+      ],
+      "title": "Admission Verdict",
+      "type": "string"
+    },
+    "approval_posture_snapshot": {
+      "title": "Approval Posture Snapshot",
+      "type": "string"
+    },
+    "changes_live_behavior_by_default": {
+      "const": false,
+      "default": false,
+      "title": "Changes Live Behavior By Default",
+      "type": "boolean"
+    },
+    "cwd_path": {
+      "title": "Cwd Path",
+      "type": "string"
+    },
+    "designated_sandbox_root": {
+      "title": "Designated Sandbox Root",
+      "type": "string"
+    },
+    "evidence_only": {
+      "const": true,
+      "default": true,
+      "title": "Evidence Only",
+      "type": "boolean"
+    },
+    "evidence_refs": {
+      "items": {
+        "type": "string"
+      },
+      "title": "Evidence Refs",
+      "type": "array"
+    },
+    "live_session_id": {
+      "title": "Live Session Id",
+      "type": "string"
+    },
+    "live_session_surface": {
+      "const": "urm_copilot_session_path",
+      "default": "urm_copilot_session_path",
+      "title": "Live Session Surface",
+      "type": "string"
+    },
+    "live_turn_id": {
+      "title": "Live Turn Id",
+      "type": "string"
+    },
+    "observability_refs": {
+      "items": {
+        "type": "string"
+      },
+      "title": "Observability Refs",
+      "type": "array"
+    },
+    "repo_root_path": {
+      "title": "Repo Root Path",
+      "type": "string"
+    },
+    "schema": {
+      "const": "agentic_de_live_turn_admission_record@1",
+      "default": "agentic_de_live_turn_admission_record@1",
+      "title": "Schema",
+      "type": "string"
+    },
+    "selected_live_path_identity": {
+      "title": "Selected Live Path Identity",
+      "type": "string"
+    },
+    "session_capability_snapshot": {
+      "title": "Session Capability Snapshot",
+      "type": "string"
+    },
+    "session_status": {
+      "title": "Session Status",
+      "type": "string"
+    },
+    "target_arc": {
+      "title": "Target Arc",
+      "type": "string"
+    },
+    "target_path": {
+      "title": "Target Path",
+      "type": "string"
+    }
+  },
+  "required": [
+    "target_arc",
+    "target_path",
+    "live_session_id",
+    "live_turn_id",
+    "session_status",
+    "session_capability_snapshot",
+    "approval_posture_snapshot",
+    "admission_verdict",
+    "admission_reason_codes",
+    "repo_root_path",
+    "cwd_path",
+    "designated_sandbox_root",
+    "selected_live_path_identity",
+    "observability_refs",
+    "evidence_refs"
+  ],
+  "title": "AgenticDeLiveTurnAdmissionRecord",
+  "type": "object"
+}

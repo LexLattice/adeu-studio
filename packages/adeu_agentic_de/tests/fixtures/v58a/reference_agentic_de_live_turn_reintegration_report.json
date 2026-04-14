@@ -1,0 +1,85 @@
+{
+  "schema": "agentic_de_live_turn_reintegration_report@1",
+  "report_id": "agentic_de_live_turn_reintegration_report_93f489200170",
+  "target_arc": "vNext+158",
+  "target_path": "V58-A",
+  "evidence_only": true,
+  "changes_live_behavior_by_default": false,
+  "turn_admission_ref": "agentic_de_live_turn_admission_c85e2c54fc29",
+  "turn_handoff_ref": "agentic_de_live_turn_handoff_d4437509f4e5",
+  "observation_ref": "agentic_de_local_effect_observation_ce3297b70609",
+  "local_effect_conformance_ref": "agentic_de_local_effect_conformance_report_5575a6521a52",
+  "observed_effect_summary": "observed bounded local write remained inside the designated sandbox root and matched the checkpoint-entitled target",
+  "reintegration_status": "reintegrated",
+  "reason_codes": [
+    "current_turn_witness_declared",
+    "ticket_to_effect_handoff_bound",
+    "observed_effect_aligned"
+  ],
+  "reintegration_witness_basis_summary": "current-turn admission + ticket lineage + observed pre/post state + observation/conformance chain",
+  "reintegration_certificate_ref_or_equivalent": "v58a_reintegration::copilot-v58a-session-1::turn-v58a-live-1::agentic_de_local_effect_observation_ce3297b70609",
+  "field_origin_tags": {
+    "observed_effect_summary": "current_turn_derived",
+    "reintegration_witness_basis_summary": "current_turn_derived",
+    "six_lane_closeout_posture": "current_turn_derived"
+  },
+  "field_dependence_tags": {
+    "observed_effect_summary": [
+      "agentic_de_local_effect_observation_ce3297b70609",
+      "agentic_de_local_effect_conformance_report_5575a6521a52"
+    ],
+    "reintegration_witness_basis_summary": [
+      "agentic_de_live_turn_admission_c85e2c54fc29",
+      "agentic_de_live_turn_handoff_d4437509f4e5",
+      "agentic_de_local_effect_observation_ce3297b70609",
+      "agentic_de_local_effect_conformance_report_5575a6521a52"
+    ],
+    "six_lane_closeout_posture": [
+      "agentic_de_live_turn_admission_c85e2c54fc29",
+      "agentic_de_live_turn_handoff_d4437509f4e5",
+      "agentic_de_local_effect_observation_ce3297b70609",
+      "agentic_de_local_effect_conformance_report_5575a6521a52"
+    ]
+  },
+  "root_origin_dedup_summary": "dedup roots=session:copilot-v58a-session-1,turn:turn-v58a-live-1,ticket:agentic_de_action_ticket_866f90c6f22a,observation:agentic_de_local_effect_observation_ce3297b70609,conformance:agentic_de_local_effect_conformance_report_5575a6521a52; observability refs remain non-independent support",
+  "six_lane_closeout_posture": "current_turn_admitted_then_ticket_handoff_bound_then_bounded_local_effect_observed_then_reintegrated_without_restoration",
+  "evidence_refs": [
+    "agentic_de_live_turn_admission_c85e2c54fc29",
+    "agentic_de_live_turn_handoff_d4437509f4e5",
+    "agentic_de_local_effect_observation_ce3297b70609",
+    "agentic_de_local_effect_conformance_report_5575a6521a52",
+    "packages/adeu_agentic_de/tests/fixtures/v56a/reference_agentic_de_domain_packet.json",
+    "packages/adeu_agentic_de/tests/fixtures/v56a/reference_agentic_de_morph_ir.json",
+    "packages/adeu_agentic_de/tests/fixtures/v56a/reference_agentic_de_interaction_contract.json",
+    "packages/adeu_agentic_de/tests/fixtures/v56a/reference_agentic_de_action_proposal.json",
+    "packages/adeu_agentic_de/tests/fixtures/v56a/reference_agentic_de_membrane_checkpoint.json",
+    "packages/adeu_agentic_de/tests/fixtures/v56a/reference_agentic_de_morph_diagnostics.json",
+    "packages/adeu_agentic_de/tests/fixtures/v56a/reference_agentic_de_conformance_report.json",
+    "packages/adeu_agentic_de/tests/fixtures/v56b/reference_agentic_de_action_class_taxonomy.json",
+    "packages/adeu_agentic_de/tests/fixtures/v56b/reference_agentic_de_runtime_state.json",
+    "packages/adeu_agentic_de/tests/fixtures/v56b/reference_agentic_de_action_ticket.json",
+    "packages/adeu_agentic_de/tests/fixtures/v56b/reference_agentic_de_lane_drift_record.json",
+    "packages/adeu_agentic_de/tests/fixtures/v56b/reference_agentic_de_morph_diagnostics.json",
+    "packages/adeu_agentic_de/tests/fixtures/v56b/reference_agentic_de_conformance_report.json",
+    "packages/adeu_agentic_de/tests/fixtures/v56c/reference_agentic_de_lane_drift_record.json",
+    "packages/adeu_agentic_de/tests/fixtures/v56c/reference_agentic_de_runtime_harvest_record.json",
+    "packages/adeu_agentic_de/tests/fixtures/v56c/reference_agentic_de_governance_calibration_register.json",
+    "packages/adeu_agentic_de/tests/fixtures/v56c/reference_agentic_de_migration_decision_register.json",
+    "packages/adeu_agentic_de/tests/fixtures/v57a/reference_agentic_de_lane_drift_record.json",
+    "packages/adeu_agentic_de/tests/fixtures/v57a/reference_agentic_de_local_effect_observation_record.json",
+    "packages/adeu_agentic_de/tests/fixtures/v57a/reference_agentic_de_local_effect_conformance_report.json",
+    "packages/adeu_agentic_de/tests/fixtures/v57b/reference_agentic_de_lane_drift_record.json",
+    "packages/adeu_agentic_de/tests/fixtures/v57b/reference_agentic_de_local_effect_restoration_record.json",
+    "packages/adeu_agentic_de/tests/fixtures/v57c/reference_agentic_de_lane_drift_record.json",
+    "packages/adeu_agentic_de/tests/fixtures/v57c/reference_agentic_de_local_effect_hardening_register.json",
+    "packages/adeu_agentic_de/tests/fixtures/v58a/reference_agentic_de_lane_drift_record.json",
+    "artifacts/agent_harness/v152/evidence_inputs/v56a_agentic_de_interaction_governance_starter_evidence_v152.json",
+    "artifacts/agent_harness/v153/evidence_inputs/v56b_bounded_live_gate_starter_evidence_v153.json",
+    "artifacts/agent_harness/v154/evidence_inputs/v56c_harvest_calibration_migration_evidence_v154.json",
+    "artifacts/agent_harness/v155/evidence_inputs/v57a_local_effect_observation_evidence_v155.json",
+    "artifacts/agent_harness/v156/evidence_inputs/v57b_local_effect_restoration_evidence_v156.json",
+    "artifacts/agent_harness/v157/evidence_inputs/v57c_local_effect_hardening_evidence_v157.json",
+    "artifacts/agentic_de/v57/local_effect/_observer/reference_pre_state.json",
+    "artifacts/agentic_de/v57/local_effect/_observer/reference_post_state.json"
+  ]
+}

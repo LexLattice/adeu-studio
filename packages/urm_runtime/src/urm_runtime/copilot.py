@@ -65,6 +65,7 @@ from .models import (
     CopilotSteerRequest,
     CopilotSteerResponse,
     CopilotStopRequest,
+    CopilotTurnSnapshot,
     DelegatedScopeDescriptor,
     NormalizedEvent,
     PolicyActivationResponse,
@@ -735,6 +736,92 @@ class URMCopilotManager:
             active_turn_id=None,
             last_turn_id=None,
         )
+
+    def get_copilot_turn_snapshot(
+        self,
+        *,
+        session_id: str,
+        target_turn_id: str | None = None,
+        use_last_turn: bool = True,
+    ) -> CopilotTurnSnapshot:
+        with self._lock:
+            with transaction(db_path=self.config.db_path) as con:
+                row = get_copilot_session(con=con, copilot_session_id=session_id)
+                child_rows = list_copilot_child_runs_for_parent(
+                    con=con,
+                    parent_session_id=session_id,
+                )
+            session = self._build_session_state_input_locked(
+                session_id=session_id,
+                row=row,
+                child_rows=child_rows,
+            )
+            runtime = self._sessions.get(session_id)
+            active_turn_id = session.active_turn_id
+            last_turn_id = session.last_turn_id
+            if target_turn_id is not None:
+                if active_turn_id is None and last_turn_id is None:
+                    raise URMError(
+                        code="URM_STEER_DENIED",
+                        message="target_turn_id is not visible in the current session turn state",
+                        context={
+                            "session_id": session_id,
+                            "target_turn_id": target_turn_id,
+                            "active_turn_id": active_turn_id,
+                            "last_turn_id": last_turn_id,
+                        },
+                    )
+                if target_turn_id not in {active_turn_id, last_turn_id}:
+                    raise URMError(
+                        code="URM_STEER_DENIED",
+                        message="target_turn_id is not visible in the current session turn state",
+                        context={
+                            "session_id": session_id,
+                            "target_turn_id": target_turn_id,
+                            "active_turn_id": active_turn_id,
+                            "last_turn_id": last_turn_id,
+                        },
+                    )
+                selected_turn_id = target_turn_id
+                turn_selection_mode: Literal[
+                    "runtime_active_turn",
+                    "runtime_last_turn",
+                    "explicit_target",
+                ] = "explicit_target"
+            elif active_turn_id is not None:
+                selected_turn_id = active_turn_id
+                turn_selection_mode = "runtime_active_turn"
+            elif use_last_turn and last_turn_id is not None:
+                selected_turn_id = last_turn_id
+                turn_selection_mode = "runtime_last_turn"
+            elif not use_last_turn:
+                raise URMError(
+                    code="URM_STEER_DENIED",
+                    message="target_turn_id is required when use_last_turn is false",
+                    context={"session_id": session_id},
+                )
+            else:
+                raise URMError(
+                    code="URM_STEER_DENIED",
+                    message="unable to resolve a visible live turn for this session",
+                    context={"session_id": session_id},
+                )
+
+            return CopilotTurnSnapshot(
+                session_id=session.session_id,
+                status=session.status,  # type: ignore[arg-type]
+                writes_allowed=session.writes_allowed,
+                profile_id=session.profile_id,
+                profile_version=session.profile_version,
+                profile_policy_hash=session.profile_policy_hash,
+                raw_jsonl_path=session.raw_jsonl_path,
+                urm_events_path=session.urm_events_path,
+                cwd=runtime.cwd if runtime is not None else None,
+                active_turn_id=active_turn_id,
+                last_turn_id=last_turn_id,
+                selected_turn_id=selected_turn_id,
+                turn_selection_mode=turn_selection_mode,
+            )
 
     def _build_child_state_inputs_locked(
         self,

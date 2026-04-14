@@ -162,6 +162,24 @@ class CopilotSessionResponse(BaseModel):
     idempotent_replay: bool = False
 
 
+class CopilotTurnSnapshot(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+
+    session_id: str = Field(min_length=1)
+    status: Literal["starting", "running", "stopped", "failed"]
+    writes_allowed: bool
+    profile_id: str = Field(min_length=1)
+    profile_version: str = Field(min_length=1)
+    profile_policy_hash: str | None = None
+    raw_jsonl_path: str | None = None
+    urm_events_path: str | None = None
+    cwd: str | None = None
+    active_turn_id: str | None = None
+    last_turn_id: str | None = None
+    selected_turn_id: str = Field(min_length=1)
+    turn_selection_mode: Literal["runtime_active_turn", "runtime_last_turn", "explicit_target"]
+
+
 class PolicyProfileDescriptor(BaseModel):
     model_config = ConfigDict(extra="forbid")
 

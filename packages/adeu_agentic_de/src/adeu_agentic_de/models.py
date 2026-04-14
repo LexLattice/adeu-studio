@@ -33,6 +33,13 @@ AGENTIC_DE_LOCAL_EFFECT_RESTORATION_RECORD_SCHEMA = (
 AGENTIC_DE_LOCAL_EFFECT_HARDENING_REGISTER_SCHEMA = (
     "agentic_de_local_effect_hardening_register@1"
 )
+AGENTIC_DE_LIVE_TURN_ADMISSION_RECORD_SCHEMA = (
+    "agentic_de_live_turn_admission_record@1"
+)
+AGENTIC_DE_LIVE_TURN_HANDOFF_RECORD_SCHEMA = "agentic_de_live_turn_handoff_record@1"
+AGENTIC_DE_LIVE_TURN_REINTEGRATION_REPORT_SCHEMA = (
+    "agentic_de_live_turn_reintegration_report@1"
+)
 
 ACTION_CLASS_VOCABULARY = ("inspect", "write", "execute", "dispatch")
 EXACT_ACTION_CLASS_VOCABULARY = (
@@ -101,6 +108,28 @@ LOCAL_EFFECT_RESTORATION_OUTCOME_VOCABULARY = (
 )
 LOCAL_EFFECT_RESTORATION_OPERATION_VOCABULARY = (
     "compensating_remove_create_new_artifact",
+)
+LIVE_TURN_ADMISSION_VERDICT_VOCABULARY = (
+    "admitted",
+    "absent_not_owed",
+    "rejected_inadmissible",
+    "stale_or_expired",
+    "withheld",
+    "unknown",
+    "partial",
+)
+LIVE_TURN_FIELD_ORIGIN_TAG_VOCABULARY = (
+    "current_turn_native",
+    "current_turn_derived",
+    "observability_only",
+    "prior_artifact",
+    "shaping_only",
+)
+LIVE_TURN_REINTEGRATION_STATUS_VOCABULARY = (
+    "reintegrated",
+    "blocked",
+    "residualized",
+    "not_evaluable_yet",
 )
 
 MODEL_CONFIG = ConfigDict(
@@ -179,6 +208,28 @@ LocalEffectRestorationOutcome = Literal[
     "restoration_boundedness_verdict_failed",
 ]
 LocalEffectRestorationOperation = Literal["compensating_remove_create_new_artifact"]
+LiveTurnAdmissionVerdict = Literal[
+    "admitted",
+    "absent_not_owed",
+    "rejected_inadmissible",
+    "stale_or_expired",
+    "withheld",
+    "unknown",
+    "partial",
+]
+LiveTurnFieldOriginTag = Literal[
+    "current_turn_native",
+    "current_turn_derived",
+    "observability_only",
+    "prior_artifact",
+    "shaping_only",
+]
+LiveTurnReintegrationStatus = Literal[
+    "reintegrated",
+    "blocked",
+    "residualized",
+    "not_evaluable_yet",
+]
 
 
 def _assert_present_text(value: str, *, field_name: str) -> str:
@@ -1536,6 +1587,271 @@ class AgenticDeLocalEffectHardeningRegister(BaseModel):
         return self
 
 
+class AgenticDeLiveTurnAdmissionRecord(BaseModel):
+    model_config = MODEL_CONFIG
+
+    schema: Literal[AGENTIC_DE_LIVE_TURN_ADMISSION_RECORD_SCHEMA] = (
+        AGENTIC_DE_LIVE_TURN_ADMISSION_RECORD_SCHEMA
+    )
+    admission_id: str | None = None
+    target_arc: str
+    target_path: str
+    evidence_only: Literal[True] = True
+    changes_live_behavior_by_default: Literal[False] = False
+    live_session_surface: Literal["urm_copilot_session_path"] = "urm_copilot_session_path"
+    live_session_id: str
+    live_turn_id: str
+    session_status: str
+    session_capability_snapshot: str
+    approval_posture_snapshot: str
+    admission_verdict: LiveTurnAdmissionVerdict
+    admission_reason_codes: list[str]
+    repo_root_path: str
+    cwd_path: str
+    designated_sandbox_root: str
+    selected_live_path_identity: str
+    observability_refs: list[str]
+    evidence_refs: list[str]
+
+    @model_validator(mode="after")
+    def _validate_record(self) -> AgenticDeLiveTurnAdmissionRecord:
+        _assert_present_text(self.target_arc, field_name="target_arc")
+        _assert_present_text(self.target_path, field_name="target_path")
+        _assert_present_text(self.live_session_id, field_name="live_session_id")
+        _assert_present_text(self.live_turn_id, field_name="live_turn_id")
+        _assert_present_text(self.session_status, field_name="session_status")
+        _assert_present_text(
+            self.session_capability_snapshot,
+            field_name="session_capability_snapshot",
+        )
+        _assert_present_text(
+            self.approval_posture_snapshot,
+            field_name="approval_posture_snapshot",
+        )
+        _assert_present_text(self.repo_root_path, field_name="repo_root_path")
+        _assert_present_text(self.cwd_path, field_name="cwd_path")
+        _assert_present_text(
+            self.designated_sandbox_root,
+            field_name="designated_sandbox_root",
+        )
+        _assert_present_text(
+            self.selected_live_path_identity,
+            field_name="selected_live_path_identity",
+        )
+        object.__setattr__(
+            self,
+            "admission_reason_codes",
+            _ordered_unique_texts(
+                self.admission_reason_codes,
+                field_name="admission_reason_codes",
+            ),
+        )
+        object.__setattr__(
+            self,
+            "observability_refs",
+            _ordered_unique_texts(self.observability_refs, field_name="observability_refs"),
+        )
+        object.__setattr__(
+            self,
+            "evidence_refs",
+            _ordered_unique_texts(self.evidence_refs, field_name="evidence_refs"),
+        )
+        if not self.admission_reason_codes:
+            raise ValueError("admission_reason_codes must be non-empty")
+        object.__setattr__(
+            self,
+            "admission_id",
+            _assign_or_verify_content_addressed_id(
+                value=self.admission_id,
+                field_name="admission_id",
+                prefix="agentic_de_live_turn_admission",
+                payload=self.model_dump(mode="json", exclude={"admission_id"}),
+            ),
+        )
+        return self
+
+
+class AgenticDeLiveTurnHandoffRecord(BaseModel):
+    model_config = MODEL_CONFIG
+
+    schema: Literal[AGENTIC_DE_LIVE_TURN_HANDOFF_RECORD_SCHEMA] = (
+        AGENTIC_DE_LIVE_TURN_HANDOFF_RECORD_SCHEMA
+    )
+    handoff_id: str | None = None
+    target_arc: str
+    target_path: str
+    evidence_only: Literal[True] = True
+    changes_live_behavior_by_default: Literal[False] = False
+    turn_admission_ref: str
+    domain_packet_ref: str
+    action_proposal_ref: str
+    checkpoint_ref: str
+    action_ticket_ref: str
+    target_relative_path: str
+    selected_effect_scope: str
+    field_origin_tags: dict[str, LiveTurnFieldOriginTag]
+    field_dependence_tags: dict[str, list[str]]
+    root_origin_ids: list[str]
+    evidence_refs: list[str]
+
+    @model_validator(mode="after")
+    def _validate_record(self) -> AgenticDeLiveTurnHandoffRecord:
+        required_fields = (
+            "turn_admission_ref",
+            "domain_packet_ref",
+            "action_proposal_ref",
+            "checkpoint_ref",
+            "action_ticket_ref",
+            "target_relative_path",
+            "selected_effect_scope",
+        )
+        _assert_present_text(self.target_arc, field_name="target_arc")
+        _assert_present_text(self.target_path, field_name="target_path")
+        for field_name in required_fields:
+            _assert_present_text(getattr(self, field_name), field_name=field_name)
+            if field_name not in self.field_origin_tags:
+                raise ValueError(f"field_origin_tags missing required key {field_name}")
+            if field_name not in self.field_dependence_tags:
+                raise ValueError(f"field_dependence_tags missing required key {field_name}")
+        normalized_dependence_tags: dict[str, list[str]] = {}
+        for key, values in self.field_dependence_tags.items():
+            normalized_dependence_tags[key] = _ordered_unique_texts(
+                values,
+                field_name=f"field_dependence_tags[{key}]",
+            )
+        object.__setattr__(self, "field_dependence_tags", normalized_dependence_tags)
+        object.__setattr__(
+            self,
+            "root_origin_ids",
+            _ordered_unique_texts(self.root_origin_ids, field_name="root_origin_ids"),
+        )
+        object.__setattr__(
+            self,
+            "evidence_refs",
+            _ordered_unique_texts(self.evidence_refs, field_name="evidence_refs"),
+        )
+        object.__setattr__(
+            self,
+            "handoff_id",
+            _assign_or_verify_content_addressed_id(
+                value=self.handoff_id,
+                field_name="handoff_id",
+                prefix="agentic_de_live_turn_handoff",
+                payload=self.model_dump(mode="json", exclude={"handoff_id"}),
+            ),
+        )
+        return self
+
+
+class AgenticDeLiveTurnReintegrationReport(BaseModel):
+    model_config = MODEL_CONFIG
+
+    schema: Literal[AGENTIC_DE_LIVE_TURN_REINTEGRATION_REPORT_SCHEMA] = (
+        AGENTIC_DE_LIVE_TURN_REINTEGRATION_REPORT_SCHEMA
+    )
+    report_id: str | None = None
+    target_arc: str
+    target_path: str
+    evidence_only: Literal[True] = True
+    changes_live_behavior_by_default: Literal[False] = False
+    turn_admission_ref: str
+    turn_handoff_ref: str
+    observation_ref: str
+    local_effect_conformance_ref: str
+    observed_effect_summary: str
+    reintegration_status: LiveTurnReintegrationStatus
+    reason_codes: list[str]
+    reintegration_witness_basis_summary: str
+    reintegration_certificate_ref_or_equivalent: str | None = None
+    field_origin_tags: dict[str, LiveTurnFieldOriginTag]
+    field_dependence_tags: dict[str, list[str]]
+    root_origin_dedup_summary: str
+    six_lane_closeout_posture: str
+    evidence_refs: list[str]
+
+    @model_validator(mode="after")
+    def _validate_report(self) -> AgenticDeLiveTurnReintegrationReport:
+        _assert_present_text(self.target_arc, field_name="target_arc")
+        _assert_present_text(self.target_path, field_name="target_path")
+        _assert_present_text(self.turn_admission_ref, field_name="turn_admission_ref")
+        _assert_present_text(self.turn_handoff_ref, field_name="turn_handoff_ref")
+        _assert_present_text(self.observation_ref, field_name="observation_ref")
+        _assert_present_text(
+            self.local_effect_conformance_ref,
+            field_name="local_effect_conformance_ref",
+        )
+        _assert_present_text(
+            self.observed_effect_summary,
+            field_name="observed_effect_summary",
+        )
+        _assert_present_text(
+            self.reintegration_witness_basis_summary,
+            field_name="reintegration_witness_basis_summary",
+        )
+        _assert_present_text(
+            self.root_origin_dedup_summary,
+            field_name="root_origin_dedup_summary",
+        )
+        _assert_present_text(
+            self.six_lane_closeout_posture,
+            field_name="six_lane_closeout_posture",
+        )
+        required_fields = (
+            "observed_effect_summary",
+            "reintegration_witness_basis_summary",
+            "six_lane_closeout_posture",
+        )
+        for field_name in required_fields:
+            if field_name not in self.field_origin_tags:
+                raise ValueError(f"field_origin_tags missing required key {field_name}")
+            if field_name not in self.field_dependence_tags:
+                raise ValueError(f"field_dependence_tags missing required key {field_name}")
+        normalized_dependence_tags: dict[str, list[str]] = {}
+        for key, values in self.field_dependence_tags.items():
+            normalized_dependence_tags[key] = _ordered_unique_texts(
+                values,
+                field_name=f"field_dependence_tags[{key}]",
+            )
+        object.__setattr__(self, "field_dependence_tags", normalized_dependence_tags)
+        object.__setattr__(
+            self,
+            "reason_codes",
+            _ordered_unique_texts(self.reason_codes, field_name="reason_codes"),
+        )
+        object.__setattr__(
+            self,
+            "evidence_refs",
+            _ordered_unique_texts(self.evidence_refs, field_name="evidence_refs"),
+        )
+        if not self.reason_codes:
+            raise ValueError("reason_codes must be non-empty")
+        if self.reintegration_status == "reintegrated":
+            if self.reintegration_certificate_ref_or_equivalent is None:
+                raise ValueError(
+                    "reintegrated status requires reintegration_certificate_ref_or_equivalent"
+                )
+            _assert_present_text(
+                self.reintegration_certificate_ref_or_equivalent,
+                field_name="reintegration_certificate_ref_or_equivalent",
+            )
+        elif self.reintegration_certificate_ref_or_equivalent is not None:
+            _assert_present_text(
+                self.reintegration_certificate_ref_or_equivalent,
+                field_name="reintegration_certificate_ref_or_equivalent",
+            )
+        object.__setattr__(
+            self,
+            "report_id",
+            _assign_or_verify_content_addressed_id(
+                value=self.report_id,
+                field_name="report_id",
+                prefix="agentic_de_live_turn_reintegration_report",
+                payload=self.model_dump(mode="json", exclude={"report_id"}),
+            ),
+        )
+        return self
+
+
 def compute_agentic_de_domain_packet_id(payload: dict[str, object]) -> str:
     return _compute_id("agentic_de_domain_packet", payload)
 
@@ -1626,3 +1942,17 @@ def compute_agentic_de_local_effect_hardening_register_id(
     payload: dict[str, object],
 ) -> str:
     return _compute_id("agentic_de_local_effect_hardening_register", payload)
+
+
+def compute_agentic_de_live_turn_admission_record_id(payload: dict[str, object]) -> str:
+    return _compute_id("agentic_de_live_turn_admission", payload)
+
+
+def compute_agentic_de_live_turn_handoff_record_id(payload: dict[str, object]) -> str:
+    return _compute_id("agentic_de_live_turn_handoff", payload)
+
+
+def compute_agentic_de_live_turn_reintegration_report_id(
+    payload: dict[str, object],
+) -> str:
+    return _compute_id("agentic_de_live_turn_reintegration_report", payload)

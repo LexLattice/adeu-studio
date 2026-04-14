@@ -1,0 +1,40 @@
+{
+  "schema": "agentic_de_lane_drift_record@1",
+  "record_id": "agentic_de_lane_drift_f6381d035a30",
+  "target_arc": "vNext+158",
+  "target_path": "V58-A",
+  "prior_lane_ref": "docs/LOCKED_CONTINUATION_vNEXT_PLUS157.md",
+  "entry_count": 6,
+  "entries": [
+    {
+      "assumption_ref": "v57_surface_reuse_default",
+      "status": "holds",
+      "note": "V58-A reuses the shipped V57 observation, restoration, and hardening surfaces by default."
+    },
+    {
+      "assumption_ref": "current_turn_admission_required",
+      "status": "amended",
+      "note": "V58-A adds one explicit current-turn admission record before live-turn reintegration may be declared."
+    },
+    {
+      "assumption_ref": "outer_harness_capability_not_inner_entitlement",
+      "status": "amended",
+      "note": "Outer writes_allowed and approval posture remain necessary at most and do not mint inner V56 ticket authority."
+    },
+    {
+      "assumption_ref": "ticket_to_effect_handoff_required",
+      "status": "amended",
+      "note": "V58-A requires one explicit handoff from the shipped V56-B ticket lineage into the selected V57-A observed create_new effect path."
+    },
+    {
+      "assumption_ref": "positive_reintegration_requires_declared_current_turn_witness",
+      "status": "amended",
+      "note": "Positive reintegration in V58-A requires declared current-turn witness basis rather than transcript or prior-artifact replay alone."
+    },
+    {
+      "assumption_ref": "observability_echo_dedup_required",
+      "status": "amended",
+      "note": "Observability echoes remain non-independent support and must preserve root-origin dedup discipline."
+    }
+  ]
+}
