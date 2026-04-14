@@ -1,0 +1,154 @@
+{
+  "additionalProperties": false,
+  "properties": {
+    "changes_live_behavior_by_default": {
+      "const": false,
+      "default": false,
+      "title": "Changes Live Behavior By Default",
+      "type": "boolean"
+    },
+    "evidence_only": {
+      "const": true,
+      "default": true,
+      "title": "Evidence Only",
+      "type": "boolean"
+    },
+    "evidence_refs": {
+      "items": {
+        "type": "string"
+      },
+      "title": "Evidence Refs",
+      "type": "array"
+    },
+    "field_dependence_tags": {
+      "additionalProperties": {
+        "items": {
+          "type": "string"
+        },
+        "type": "array"
+      },
+      "title": "Field Dependence Tags",
+      "type": "object"
+    },
+    "field_origin_tags": {
+      "additionalProperties": {
+        "enum": [
+          "current_turn_native",
+          "current_turn_derived",
+          "observability_only",
+          "prior_artifact",
+          "shaping_only"
+        ],
+        "type": "string"
+      },
+      "title": "Field Origin Tags",
+      "type": "object"
+    },
+    "local_effect_conformance_ref": {
+      "title": "Local Effect Conformance Ref",
+      "type": "string"
+    },
+    "observation_ref": {
+      "title": "Observation Ref",
+      "type": "string"
+    },
+    "observed_effect_summary": {
+      "title": "Observed Effect Summary",
+      "type": "string"
+    },
+    "reason_codes": {
+      "items": {
+        "type": "string"
+      },
+      "title": "Reason Codes",
+      "type": "array"
+    },
+    "reintegration_certificate_ref_or_equivalent": {
+      "anyOf": [
+        {
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Reintegration Certificate Ref Or Equivalent"
+    },
+    "reintegration_status": {
+      "enum": [
+        "reintegrated",
+        "blocked",
+        "residualized",
+        "not_evaluable_yet"
+      ],
+      "title": "Reintegration Status",
+      "type": "string"
+    },
+    "reintegration_witness_basis_summary": {
+      "title": "Reintegration Witness Basis Summary",
+      "type": "string"
+    },
+    "report_id": {
+      "anyOf": [
+        {
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Report Id"
+    },
+    "root_origin_dedup_summary": {
+      "title": "Root Origin Dedup Summary",
+      "type": "string"
+    },
+    "schema": {
+      "const": "agentic_de_live_turn_reintegration_report@1",
+      "default": "agentic_de_live_turn_reintegration_report@1",
+      "title": "Schema",
+      "type": "string"
+    },
+    "six_lane_closeout_posture": {
+      "title": "Six Lane Closeout Posture",
+      "type": "string"
+    },
+    "target_arc": {
+      "title": "Target Arc",
+      "type": "string"
+    },
+    "target_path": {
+      "title": "Target Path",
+      "type": "string"
+    },
+    "turn_admission_ref": {
+      "title": "Turn Admission Ref",
+      "type": "string"
+    },
+    "turn_handoff_ref": {
+      "title": "Turn Handoff Ref",
+      "type": "string"
+    }
+  },
+  "required": [
+    "target_arc",
+    "target_path",
+    "turn_admission_ref",
+    "turn_handoff_ref",
+    "observation_ref",
+    "local_effect_conformance_ref",
+    "observed_effect_summary",
+    "reintegration_status",
+    "reason_codes",
+    "reintegration_witness_basis_summary",
+    "field_origin_tags",
+    "field_dependence_tags",
+    "root_origin_dedup_summary",
+    "six_lane_closeout_posture",
+    "evidence_refs"
+  ],
+  "title": "AgenticDeLiveTurnReintegrationReport",
+  "type": "object"
+}

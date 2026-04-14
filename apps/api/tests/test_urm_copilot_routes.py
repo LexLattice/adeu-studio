@@ -11,6 +11,7 @@ from pathlib import Path
 
 import pytest
 import urm_runtime.orchestration_evidence as orchestration_evidence_module
+from adeu_agentic_de import run_agentic_de_live_harness_v58a
 from adeu_api.urm_routes import (
     _get_manager,
     _reset_manager_for_tests,
@@ -6604,3 +6605,126 @@ def test_role_handoff_entry_rejects_missing_required_fields() -> None:
                 "escalation_reason": None,
             }
         )
+
+
+def _copy_v58a_live_bind_input_tree(tmp_path: Path) -> Path:
+    repo_root_path = _repo_root()
+    relative_paths = [
+        "packages/adeu_agentic_de/tests/fixtures/v56a/reference_agentic_de_domain_packet.json",
+        "packages/adeu_agentic_de/tests/fixtures/v56a/reference_agentic_de_morph_ir.json",
+        "packages/adeu_agentic_de/tests/fixtures/v56a/reference_agentic_de_interaction_contract.json",
+        "packages/adeu_agentic_de/tests/fixtures/v56a/reference_agentic_de_action_proposal.json",
+        "packages/adeu_agentic_de/tests/fixtures/v56a/reference_agentic_de_membrane_checkpoint.json",
+        "packages/adeu_agentic_de/tests/fixtures/v56a/reference_agentic_de_morph_diagnostics.json",
+        "packages/adeu_agentic_de/tests/fixtures/v56a/reference_agentic_de_conformance_report.json",
+        "packages/adeu_agentic_de/tests/fixtures/v56b/reference_agentic_de_lane_drift_record.json",
+        "packages/adeu_agentic_de/tests/fixtures/v56b/reference_agentic_de_action_class_taxonomy.json",
+        "packages/adeu_agentic_de/tests/fixtures/v56b/reference_agentic_de_runtime_state.json",
+        "packages/adeu_agentic_de/tests/fixtures/v56b/reference_agentic_de_action_ticket.json",
+        "packages/adeu_agentic_de/tests/fixtures/v56b/reference_agentic_de_morph_diagnostics.json",
+        "packages/adeu_agentic_de/tests/fixtures/v56b/reference_agentic_de_conformance_report.json",
+        "packages/adeu_agentic_de/tests/fixtures/v56c/reference_agentic_de_lane_drift_record.json",
+        "packages/adeu_agentic_de/tests/fixtures/v56c/reference_agentic_de_runtime_harvest_record.json",
+        "packages/adeu_agentic_de/tests/fixtures/v56c/reference_agentic_de_governance_calibration_register.json",
+        "packages/adeu_agentic_de/tests/fixtures/v56c/reference_agentic_de_migration_decision_register.json",
+        "packages/adeu_agentic_de/tests/fixtures/v57a/reference_agentic_de_lane_drift_record.json",
+        "packages/adeu_agentic_de/tests/fixtures/v57a/reference_agentic_de_local_effect_observation_record.json",
+        "packages/adeu_agentic_de/tests/fixtures/v57a/reference_agentic_de_local_effect_conformance_report.json",
+        "packages/adeu_agentic_de/tests/fixtures/v57b/reference_agentic_de_lane_drift_record.json",
+        "packages/adeu_agentic_de/tests/fixtures/v57b/reference_agentic_de_local_effect_restoration_record.json",
+        "packages/adeu_agentic_de/tests/fixtures/v57c/reference_agentic_de_lane_drift_record.json",
+        "packages/adeu_agentic_de/tests/fixtures/v57c/reference_agentic_de_local_effect_hardening_register.json",
+        "packages/adeu_agentic_de/tests/fixtures/v58a/reference_agentic_de_lane_drift_record.json",
+        "artifacts/agent_harness/v152/evidence_inputs/v56a_agentic_de_interaction_governance_starter_evidence_v152.json",
+        "artifacts/agent_harness/v153/evidence_inputs/v56b_bounded_live_gate_starter_evidence_v153.json",
+        "artifacts/agent_harness/v154/evidence_inputs/v56c_harvest_calibration_migration_evidence_v154.json",
+        "artifacts/agent_harness/v155/evidence_inputs/v57a_local_effect_observation_evidence_v155.json",
+        "artifacts/agent_harness/v156/evidence_inputs/v57b_local_effect_restoration_evidence_v156.json",
+        "artifacts/agent_harness/v157/evidence_inputs/v57c_local_effect_hardening_evidence_v157.json",
+        "artifacts/agentic_de/v57/local_effect/.gitignore",
+    ]
+    for relative_path in relative_paths:
+        source = repo_root_path / relative_path
+        target = tmp_path / relative_path
+        target.parent.mkdir(parents=True, exist_ok=True)
+        shutil.copyfile(source, target)
+    return tmp_path
+
+
+def test_v58a_live_harness_bind_runs_over_real_copilot_turn_snapshot(
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    temp_root = _copy_v58a_live_bind_input_tree(tmp_path / "repo")
+    codex_bin = _prepare_fake_codex(tmp_path=tmp_path)
+    monkeypatch.setenv("ADEU_API_DB_PATH", str(tmp_path / "adeu.sqlite3"))
+    monkeypatch.setenv("ADEU_CODEX_BIN", str(codex_bin))
+    monkeypatch.delenv("FAKE_APP_SERVER_DISABLE_READY", raising=False)
+    _reset_manager_for_tests()
+
+    start = urm_copilot_start_endpoint(
+        CopilotSessionStartRequest(
+            provider="codex",
+            client_request_id="v58a-live-bind-start-1",
+            cwd=str(temp_root),
+        )
+    )
+    session_id = start.session_id
+    urm_copilot_send_endpoint(
+        CopilotSessionSendRequest(
+            provider="codex",
+            session_id=session_id,
+            client_request_id="v58a-live-bind-bootstrap-1",
+            message={
+                "jsonrpc": "2.0",
+                "id": "v58a-live-bind-bootstrap-1",
+                "method": "copilot.user_message",
+                "params": {"text": "bootstrap one bounded local write turn"},
+            },
+        )
+    )
+    approval = urm_approval_issue_endpoint(
+        ApprovalIssueRequest(
+            provider="codex",
+            session_id=session_id,
+            action_kind="urm.set_mode.enable_writes",
+            action_payload={"writes_allowed": True},
+        )
+    )
+    urm_copilot_mode_endpoint(
+        CopilotModeRequest(
+            provider="codex",
+            session_id=session_id,
+            writes_allowed=True,
+            approval_id=approval.approval_id,
+        )
+    )
+
+    manager = _get_manager()
+
+    def _snapshot_ready() -> bool:
+        try:
+            snapshot = manager.get_copilot_turn_snapshot(session_id=session_id)
+        except URMError:
+            return False
+        return snapshot.selected_turn_id != ""
+
+    assert _wait_for(_snapshot_ready, timeout_secs=5.0, interval_secs=0.05)
+    snapshot = manager.get_copilot_turn_snapshot(session_id=session_id)
+
+    admission, handoff, observation, conformance, reintegration = run_agentic_de_live_harness_v58a(
+        repo_root_path=temp_root,
+        live_turn_snapshot=snapshot,
+    )
+
+    assert admission.admission_verdict == "admitted"
+    assert "writes_allowed_present_but_not_ticket_equivalent" in admission.admission_reason_codes
+    assert handoff.action_ticket_ref == observation.ticket_ref
+    assert observation.observed_write_set[0].relative_path == (
+        "artifacts/agentic_de/v57/local_effect/runtime/reference_patch_candidate.diff"
+    )
+    assert conformance.conformance_status == "effect_aligned"
+    assert reintegration.reintegration_status == "reintegrated"
+    assert reintegration.reintegration_certificate_ref_or_equivalent is not None
+
+    _reset_manager_for_tests()

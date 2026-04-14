@@ -1,0 +1,126 @@
+{
+  "additionalProperties": false,
+  "properties": {
+    "action_proposal_ref": {
+      "title": "Action Proposal Ref",
+      "type": "string"
+    },
+    "action_ticket_ref": {
+      "title": "Action Ticket Ref",
+      "type": "string"
+    },
+    "changes_live_behavior_by_default": {
+      "const": false,
+      "default": false,
+      "title": "Changes Live Behavior By Default",
+      "type": "boolean"
+    },
+    "checkpoint_ref": {
+      "title": "Checkpoint Ref",
+      "type": "string"
+    },
+    "domain_packet_ref": {
+      "title": "Domain Packet Ref",
+      "type": "string"
+    },
+    "evidence_only": {
+      "const": true,
+      "default": true,
+      "title": "Evidence Only",
+      "type": "boolean"
+    },
+    "evidence_refs": {
+      "items": {
+        "type": "string"
+      },
+      "title": "Evidence Refs",
+      "type": "array"
+    },
+    "field_dependence_tags": {
+      "additionalProperties": {
+        "items": {
+          "type": "string"
+        },
+        "type": "array"
+      },
+      "title": "Field Dependence Tags",
+      "type": "object"
+    },
+    "field_origin_tags": {
+      "additionalProperties": {
+        "enum": [
+          "current_turn_native",
+          "current_turn_derived",
+          "observability_only",
+          "prior_artifact",
+          "shaping_only"
+        ],
+        "type": "string"
+      },
+      "title": "Field Origin Tags",
+      "type": "object"
+    },
+    "handoff_id": {
+      "anyOf": [
+        {
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Handoff Id"
+    },
+    "root_origin_ids": {
+      "items": {
+        "type": "string"
+      },
+      "title": "Root Origin Ids",
+      "type": "array"
+    },
+    "schema": {
+      "const": "agentic_de_live_turn_handoff_record@1",
+      "default": "agentic_de_live_turn_handoff_record@1",
+      "title": "Schema",
+      "type": "string"
+    },
+    "selected_effect_scope": {
+      "title": "Selected Effect Scope",
+      "type": "string"
+    },
+    "target_arc": {
+      "title": "Target Arc",
+      "type": "string"
+    },
+    "target_path": {
+      "title": "Target Path",
+      "type": "string"
+    },
+    "target_relative_path": {
+      "title": "Target Relative Path",
+      "type": "string"
+    },
+    "turn_admission_ref": {
+      "title": "Turn Admission Ref",
+      "type": "string"
+    }
+  },
+  "required": [
+    "target_arc",
+    "target_path",
+    "turn_admission_ref",
+    "domain_packet_ref",
+    "action_proposal_ref",
+    "checkpoint_ref",
+    "action_ticket_ref",
+    "target_relative_path",
+    "selected_effect_scope",
+    "field_origin_tags",
+    "field_dependence_tags",
+    "root_origin_ids",
+    "evidence_refs"
+  ],
+  "title": "AgenticDeLiveTurnHandoffRecord",
+  "type": "object"
+}
