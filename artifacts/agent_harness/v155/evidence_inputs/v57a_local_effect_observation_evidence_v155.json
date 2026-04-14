@@ -1,0 +1,129 @@
+{
+  "schema": "v57a_local_effect_observation_evidence@1",
+  "evidence_input_path": "artifacts/agent_harness/v155/evidence_inputs/v57a_local_effect_observation_evidence_v155.json",
+  "contract_source": "docs/LOCKED_CONTINUATION_vNEXT_PLUS155.md#machine-checkable-contract",
+  "merged_pr": "#382",
+  "merge_commit": "30b38ff933f669c1289fb1de1f32774ee18707e2",
+  "implementation_commit": "ab2af6be133616f2648022ef9ec0056c5c2e6010",
+  "review_hardening_commit": "844e2b378476f27cf5f4b219103fe01490086305",
+  "implementation_packages": [
+    "adeu_agentic_de"
+  ],
+  "selected_record_shapes": [
+    "agentic_de_domain_packet@1",
+    "agentic_de_morph_ir@1",
+    "agentic_de_interaction_contract@1",
+    "agentic_de_action_proposal@1",
+    "agentic_de_membrane_checkpoint@1",
+    "agentic_de_morph_diagnostics@1",
+    "agentic_de_conformance_report@1",
+    "agentic_de_lane_drift_record@1",
+    "agentic_de_action_class_taxonomy@1",
+    "agentic_de_runtime_state@1",
+    "agentic_de_action_ticket@1",
+    "agentic_de_runtime_harvest_record@1",
+    "agentic_de_governance_calibration_register@1",
+    "agentic_de_migration_decision_register@1",
+    "agentic_de_local_effect_observation_record@1",
+    "agentic_de_local_effect_conformance_report@1"
+  ],
+  "admitted_shaping_input_refs": [
+    "docs/ARCHITECTURE_ADEU_RESIDENT_AGENT_INTERACTION_GOVERNANCE_FAMILY_v0.md",
+    "docs/DRAFT_ADEU_RESIDENT_AGENT_INTERACTION_GOVERNANCE_V56_IMPLEMENTATION_MAPPING_v0.md",
+    "docs/DRAFT_ADEU_RESIDENT_AGENT_INTERACTION_GOVERNANCE_V56C_IMPLEMENTATION_MAPPING_v0.md",
+    "docs/support/ADEU_SCHEMA_META_GRAMMAR.md",
+    "docs/support/ODEU_MEMBRANE_ARCHITECTURE.md",
+    "docs/DRAFT_PRACTICAL_HARNESS_FLOW_v0.md",
+    "docs/DRAFT_PRACTICAL_REASONING_SIX_LANE_LOOP_v0.md"
+  ],
+  "admitted_shaping_input_set_closed_for_v57a": true,
+  "prior_lane_handoff_record_required": true,
+  "prior_lane_handoff_record_schema": "agentic_de_lane_drift_record@1",
+  "v56_surface_reuse_default": true,
+  "surface_fork_requires_explicit_drift_amendment": true,
+  "agentic_de_package_root": "packages/adeu_agentic_de",
+  "agentic_de_pyproject_path": "packages/adeu_agentic_de/pyproject.toml",
+  "agentic_de_package_init_source_path": "packages/adeu_agentic_de/src/adeu_agentic_de/__init__.py",
+  "agentic_de_checker_source_path": "packages/adeu_agentic_de/src/adeu_agentic_de/checker.py",
+  "agentic_de_models_source_path": "packages/adeu_agentic_de/src/adeu_agentic_de/models.py",
+  "agentic_de_export_schema_source_path": "packages/adeu_agentic_de/src/adeu_agentic_de/export_schema.py",
+  "agentic_de_local_effect_source_path": "packages/adeu_agentic_de/src/adeu_agentic_de/local_effect.py",
+  "agentic_de_local_effect_conformance_source_path": "packages/adeu_agentic_de/src/adeu_agentic_de/local_effect_conformance.py",
+  "agentic_de_cli_source_path": "apps/api/scripts/observe_agentic_de_local_effect_v57a.py",
+  "agentic_de_local_effect_observation_authoritative_schema_path": "packages/adeu_agentic_de/schema/agentic_de_local_effect_observation_record.v1.json",
+  "agentic_de_local_effect_conformance_authoritative_schema_path": "packages/adeu_agentic_de/schema/agentic_de_local_effect_conformance_report.v1.json",
+  "agentic_de_local_effect_observation_mirror_schema_path": "spec/agentic_de_local_effect_observation_record.schema.json",
+  "agentic_de_local_effect_conformance_mirror_schema_path": "spec/agentic_de_local_effect_conformance_report.schema.json",
+  "reference_local_effect_observation_fixture_path": "packages/adeu_agentic_de/tests/fixtures/v57a/reference_agentic_de_local_effect_observation_record.json",
+  "reference_local_effect_conformance_fixture_path": "packages/adeu_agentic_de/tests/fixtures/v57a/reference_agentic_de_local_effect_conformance_report.json",
+  "reference_lane_drift_record_fixture_path": "packages/adeu_agentic_de/tests/fixtures/v57a/reference_agentic_de_lane_drift_record.json",
+  "required_prior_lane_evidence_paths": [
+    "artifacts/agent_harness/v152/evidence_inputs/v56a_agentic_de_interaction_governance_starter_evidence_v152.json",
+    "artifacts/agent_harness/v153/evidence_inputs/v56b_bounded_live_gate_starter_evidence_v153.json",
+    "artifacts/agent_harness/v154/evidence_inputs/v56c_harvest_calibration_migration_evidence_v154.json"
+  ],
+  "test_reference_paths": [
+    "packages/adeu_agentic_de/tests/test_agentic_de_v57a.py",
+    "packages/adeu_agentic_de/tests/test_agentic_de_export_schema.py",
+    "apps/api/tests/test_observe_agentic_de_local_effect_v57a.py"
+  ],
+  "targeted_local_checks": [
+    "focused_ruff_on_touched_v57a_package_helper_and_cli_files",
+    "focused_pytest_on_v57a_package_and_cli_tests"
+  ],
+  "local_full_python_gate": "make check",
+  "selected_live_action_class_for_v57a": "local_write",
+  "selected_live_action_class_reused_from_v56b": true,
+  "selected_live_action_class_interpretation_closed_for_v57a": true,
+  "selected_live_action_class_semantic_repartition_forbidden_by_default": true,
+  "selected_local_write_first_subset_for_v57a": [
+    "create_new",
+    "append_only"
+  ],
+  "destructive_or_overwrite_local_write_kinds_forbidden_in_v57a": [
+    "overwrite",
+    "truncate",
+    "rename_or_move",
+    "delete",
+    "metadata_mutation"
+  ],
+  "designated_local_effect_sandbox_root": "artifacts/agentic_de/v57/local_effect/",
+  "writes_must_remain_within_designated_local_effect_sandbox_root": true,
+  "sandbox_escape_routes_forbidden": [
+    "symlink_escape",
+    "parent_traversal",
+    "indirect_alias_or_mount_redirection",
+    "write_through_to_authority_bearing_surfaces_via_sandbox_references"
+  ],
+  "ticket_to_effect_binding_required": true,
+  "required_pre_post_effect_axes": [
+    "ticket_ref",
+    "action_proposal_ref",
+    "checkpoint_ref",
+    "pre_state_ref",
+    "observed_write_set",
+    "post_state_ref",
+    "observed_effect",
+    "boundedness_verdict"
+  ],
+  "allowed_observation_outcomes_for_v57a": [
+    "bounded_effect_observed",
+    "no_effect_observed",
+    "out_of_scope_write_observed",
+    "mismatched_effect_observed",
+    "boundedness_verdict_failed"
+  ],
+  "effect_outputs_evidence_only": true,
+  "effect_observation_outputs_change_live_behavior_by_default": false,
+  "effect_observation_governance_classification_deferred": true,
+  "restoration_selected_for_v57a": false,
+  "hardening_register_selected_for_v57a": false,
+  "product_or_api_rollout_selected": false,
+  "multi_agent_rollout_selected": false,
+  "surrogate_hidden_cognition_proxies_forbidden": true,
+  "governs_hidden_cognition": false,
+  "metric_key_continuity_assertion_path": "artifacts/agent_harness/v155/evidence_inputs/metric_key_continuity_assertion_v155.json",
+  "runtime_observability_comparison_path": "artifacts/agent_harness/v155/evidence_inputs/runtime_observability_comparison_v155.json",
+  "runtime_event_stream_path": "artifacts/agent_harness/v155/runtime/evidence/local/urm_events.ndjson",
+  "notes": "v155 evidence pins the bounded V57-A local-effect observation slice on main: shipped V56 packet, checkpoint, ticket, and harvest surfaces are consumed by default, one designated sandbox-root local-effect observation record plus one bounded conformance report are added, actual effect remains narrowed to the first safe local_write subset only, observation outputs remain evidence-bearing only, and review hardening tightened bounded streaming hash/text handling, symlink-component sandbox validation, zero-byte create_new observation handling, and exact expected-write-set divergence detection without widening the slice."
+}
