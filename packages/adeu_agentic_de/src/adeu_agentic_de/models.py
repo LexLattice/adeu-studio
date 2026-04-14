@@ -21,6 +21,12 @@ AGENTIC_DE_GOVERNANCE_CALIBRATION_REGISTER_SCHEMA = (
     "agentic_de_governance_calibration_register@1"
 )
 AGENTIC_DE_MIGRATION_DECISION_REGISTER_SCHEMA = "agentic_de_migration_decision_register@1"
+AGENTIC_DE_LOCAL_EFFECT_OBSERVATION_RECORD_SCHEMA = (
+    "agentic_de_local_effect_observation_record@1"
+)
+AGENTIC_DE_LOCAL_EFFECT_CONFORMANCE_REPORT_SCHEMA = (
+    "agentic_de_local_effect_conformance_report@1"
+)
 
 ACTION_CLASS_VOCABULARY = ("inspect", "write", "execute", "dispatch")
 EXACT_ACTION_CLASS_VOCABULARY = (
@@ -70,6 +76,16 @@ WRITE_SURFACE_CATEGORY_VOCABULARY = (
     "dispatch_surface",
 )
 TICKET_DURATION_MODE_VOCABULARY = ("single_step_local",)
+LOCAL_WRITE_KIND_VOCABULARY = ("create_new", "append_only")
+LOCAL_EFFECT_OBSERVATION_OUTCOME_VOCABULARY = (
+    "bounded_effect_observed",
+    "no_effect_observed",
+    "out_of_scope_write_observed",
+    "mismatched_effect_observed",
+    "boundedness_verdict_failed",
+)
+BOUNDEDNESS_VERDICT_VOCABULARY = ("bounded", "failed")
+LOCAL_EFFECT_CONFORMANCE_STATUS_VOCABULARY = ("effect_aligned", "effect_divergent")
 
 MODEL_CONFIG = ConfigDict(
     extra="forbid",
@@ -129,6 +145,16 @@ WriteSurfaceCategory = Literal[
     "dispatch_surface",
 ]
 TicketDurationMode = Literal["single_step_local"]
+LocalWriteKind = Literal["create_new", "append_only"]
+LocalEffectObservationOutcome = Literal[
+    "bounded_effect_observed",
+    "no_effect_observed",
+    "out_of_scope_write_observed",
+    "mismatched_effect_observed",
+    "boundedness_verdict_failed",
+]
+BoundednessVerdict = Literal["bounded", "failed"]
+LocalEffectConformanceStatus = Literal["effect_aligned", "effect_divergent"]
 
 
 def _assert_present_text(value: str, *, field_name: str) -> str:
@@ -1005,6 +1031,200 @@ class AgenticDeMigrationDecisionRegister(BaseModel):
         return self
 
 
+class AgenticDeObservedWriteEntry(BaseModel):
+    model_config = MODEL_CONFIG
+
+    relative_path: str
+    write_kind: LocalWriteKind
+    existed_before: bool
+    bytes_written: int = Field(ge=0)
+    content_sha256: str
+
+    @model_validator(mode="after")
+    def _validate_entry(self) -> AgenticDeObservedWriteEntry:
+        _assert_present_text(self.relative_path, field_name="relative_path")
+        _assert_present_text(self.content_sha256, field_name="content_sha256")
+        return self
+
+
+class AgenticDeLocalEffectObservationRecord(BaseModel):
+    model_config = MODEL_CONFIG
+
+    schema: Literal[AGENTIC_DE_LOCAL_EFFECT_OBSERVATION_RECORD_SCHEMA] = (
+        AGENTIC_DE_LOCAL_EFFECT_OBSERVATION_RECORD_SCHEMA
+    )
+    observation_id: str | None = None
+    target_arc: str
+    target_path: str
+    evidence_only: Literal[True] = True
+    changes_live_behavior_by_default: Literal[False] = False
+    selected_live_action_class: Literal["local_write"] = "local_write"
+    selected_local_write_kind: LocalWriteKind
+    designated_sandbox_root: str
+    packet_ref: str
+    action_proposal_ref: str
+    checkpoint_ref: str
+    runtime_state_ref: str
+    ticket_ref: str
+    harvest_ref: str
+    pre_state_ref: str
+    observed_write_set: list[AgenticDeObservedWriteEntry]
+    post_state_ref: str
+    observed_effect: str
+    observation_outcome: LocalEffectObservationOutcome
+    boundedness_verdict: BoundednessVerdict
+    boundedness_note: str
+    evidence_refs: list[str]
+
+    @model_validator(mode="after")
+    def _validate_record(self) -> AgenticDeLocalEffectObservationRecord:
+        _assert_present_text(self.target_arc, field_name="target_arc")
+        _assert_present_text(self.target_path, field_name="target_path")
+        _assert_present_text(
+            self.designated_sandbox_root,
+            field_name="designated_sandbox_root",
+        )
+        _assert_present_text(self.packet_ref, field_name="packet_ref")
+        _assert_present_text(self.action_proposal_ref, field_name="action_proposal_ref")
+        _assert_present_text(self.checkpoint_ref, field_name="checkpoint_ref")
+        _assert_present_text(self.runtime_state_ref, field_name="runtime_state_ref")
+        _assert_present_text(self.ticket_ref, field_name="ticket_ref")
+        _assert_present_text(self.harvest_ref, field_name="harvest_ref")
+        _assert_present_text(self.pre_state_ref, field_name="pre_state_ref")
+        _assert_present_text(self.post_state_ref, field_name="post_state_ref")
+        _assert_present_text(self.observed_effect, field_name="observed_effect")
+        _assert_present_text(self.boundedness_note, field_name="boundedness_note")
+        object.__setattr__(
+            self,
+            "evidence_refs",
+            _ordered_unique_texts(self.evidence_refs, field_name="evidence_refs"),
+        )
+        observed_paths = [entry.relative_path for entry in self.observed_write_set]
+        if len(set(observed_paths)) != len(observed_paths):
+            raise ValueError("observed_write_set relative_path values must be unique")
+        if self.observation_outcome == "bounded_effect_observed":
+            if not self.observed_write_set:
+                raise ValueError("bounded_effect_observed requires an observed_write_set")
+            if self.boundedness_verdict != "bounded":
+                raise ValueError("bounded_effect_observed requires bounded verdict")
+        elif self.observation_outcome == "no_effect_observed":
+            if self.observed_write_set:
+                raise ValueError("no_effect_observed may not carry observed writes")
+            if self.boundedness_verdict != "bounded":
+                raise ValueError("no_effect_observed requires bounded verdict")
+        elif self.observation_outcome == "out_of_scope_write_observed":
+            if not self.observed_write_set:
+                raise ValueError("out_of_scope_write_observed requires observed writes")
+            if self.boundedness_verdict != "failed":
+                raise ValueError("out_of_scope_write_observed requires failed verdict")
+        elif self.observation_outcome == "mismatched_effect_observed":
+            if not self.observed_write_set:
+                raise ValueError("mismatched_effect_observed requires observed writes")
+            if self.boundedness_verdict != "bounded":
+                raise ValueError("mismatched_effect_observed requires bounded verdict")
+        elif self.boundedness_verdict != "failed":
+            raise ValueError("boundedness_verdict_failed requires failed verdict")
+        object.__setattr__(
+            self,
+            "observation_id",
+            _assign_or_verify_content_addressed_id(
+                value=self.observation_id,
+                field_name="observation_id",
+                prefix="agentic_de_local_effect_observation",
+                payload=self.model_dump(mode="json", exclude={"observation_id"}),
+            ),
+        )
+        return self
+
+
+class AgenticDeLocalEffectConformanceReport(BaseModel):
+    model_config = MODEL_CONFIG
+
+    schema: Literal[AGENTIC_DE_LOCAL_EFFECT_CONFORMANCE_REPORT_SCHEMA] = (
+        AGENTIC_DE_LOCAL_EFFECT_CONFORMANCE_REPORT_SCHEMA
+    )
+    report_id: str | None = None
+    target_arc: str
+    target_path: str
+    evidence_only: Literal[True] = True
+    changes_live_behavior_by_default: Literal[False] = False
+    packet_ref: str
+    action_proposal_ref: str
+    checkpoint_ref: str
+    runtime_state_ref: str
+    ticket_ref: str
+    harvest_ref: str
+    observation_ref: str
+    packed_state_summary: str
+    proposed_action_summary: str
+    checkpoint_entitlement_summary: str
+    ticket_visibility_summary: str
+    observed_effect: str
+    observation_outcome: LocalEffectObservationOutcome
+    live_effect_present: bool
+    boundedness_verdict: BoundednessVerdict
+    conformance_status: LocalEffectConformanceStatus
+    delta_notes: list[str]
+    evidence_refs: list[str]
+
+    @model_validator(mode="after")
+    def _validate_report(self) -> AgenticDeLocalEffectConformanceReport:
+        _assert_present_text(self.target_arc, field_name="target_arc")
+        _assert_present_text(self.target_path, field_name="target_path")
+        _assert_present_text(self.packet_ref, field_name="packet_ref")
+        _assert_present_text(self.action_proposal_ref, field_name="action_proposal_ref")
+        _assert_present_text(self.checkpoint_ref, field_name="checkpoint_ref")
+        _assert_present_text(self.runtime_state_ref, field_name="runtime_state_ref")
+        _assert_present_text(self.ticket_ref, field_name="ticket_ref")
+        _assert_present_text(self.harvest_ref, field_name="harvest_ref")
+        _assert_present_text(self.observation_ref, field_name="observation_ref")
+        _assert_present_text(self.packed_state_summary, field_name="packed_state_summary")
+        _assert_present_text(self.proposed_action_summary, field_name="proposed_action_summary")
+        _assert_present_text(
+            self.checkpoint_entitlement_summary,
+            field_name="checkpoint_entitlement_summary",
+        )
+        _assert_present_text(
+            self.ticket_visibility_summary,
+            field_name="ticket_visibility_summary",
+        )
+        _assert_present_text(self.observed_effect, field_name="observed_effect")
+        object.__setattr__(
+            self,
+            "delta_notes",
+            _ordered_unique_texts(self.delta_notes, field_name="delta_notes"),
+        )
+        object.__setattr__(
+            self,
+            "evidence_refs",
+            _ordered_unique_texts(self.evidence_refs, field_name="evidence_refs"),
+        )
+        expected_live_effect_present = self.observation_outcome != "no_effect_observed"
+        if self.live_effect_present != expected_live_effect_present:
+            raise ValueError(
+                "live_effect_present must match whether the observation outcome recorded an effect"
+            )
+        if self.conformance_status == "effect_aligned":
+            if self.observation_outcome != "bounded_effect_observed":
+                raise ValueError("effect_aligned requires bounded_effect_observed")
+            if self.boundedness_verdict != "bounded":
+                raise ValueError("effect_aligned requires bounded verdict")
+        else:
+            if self.observation_outcome == "bounded_effect_observed":
+                raise ValueError("effect_divergent may not carry bounded_effect_observed")
+        object.__setattr__(
+            self,
+            "report_id",
+            _assign_or_verify_content_addressed_id(
+                value=self.report_id,
+                field_name="report_id",
+                prefix="agentic_de_local_effect_conformance_report",
+                payload=self.model_dump(mode="json", exclude={"report_id"}),
+            ),
+        )
+        return self
+
+
 def compute_agentic_de_domain_packet_id(payload: dict[str, object]) -> str:
     return _compute_id("agentic_de_domain_packet", payload)
 
@@ -1067,3 +1287,15 @@ def compute_agentic_de_migration_decision_entry_id(payload: dict[str, object]) -
 
 def compute_agentic_de_migration_decision_register_id(payload: dict[str, object]) -> str:
     return _compute_id("agentic_de_migration_decision_register", payload)
+
+
+def compute_agentic_de_local_effect_observation_record_id(
+    payload: dict[str, object],
+) -> str:
+    return _compute_id("agentic_de_local_effect_observation", payload)
+
+
+def compute_agentic_de_local_effect_conformance_report_id(
+    payload: dict[str, object],
+) -> str:
+    return _compute_id("agentic_de_local_effect_conformance_report", payload)

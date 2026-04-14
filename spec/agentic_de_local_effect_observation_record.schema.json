@@ -1,0 +1,197 @@
+{
+  "$defs": {
+    "AgenticDeObservedWriteEntry": {
+      "additionalProperties": false,
+      "properties": {
+        "bytes_written": {
+          "minimum": 0,
+          "title": "Bytes Written",
+          "type": "integer"
+        },
+        "content_sha256": {
+          "title": "Content Sha256",
+          "type": "string"
+        },
+        "existed_before": {
+          "title": "Existed Before",
+          "type": "boolean"
+        },
+        "relative_path": {
+          "title": "Relative Path",
+          "type": "string"
+        },
+        "write_kind": {
+          "enum": [
+            "create_new",
+            "append_only"
+          ],
+          "title": "Write Kind",
+          "type": "string"
+        }
+      },
+      "required": [
+        "relative_path",
+        "write_kind",
+        "existed_before",
+        "bytes_written",
+        "content_sha256"
+      ],
+      "title": "AgenticDeObservedWriteEntry",
+      "type": "object"
+    }
+  },
+  "additionalProperties": false,
+  "properties": {
+    "action_proposal_ref": {
+      "title": "Action Proposal Ref",
+      "type": "string"
+    },
+    "boundedness_note": {
+      "title": "Boundedness Note",
+      "type": "string"
+    },
+    "boundedness_verdict": {
+      "enum": [
+        "bounded",
+        "failed"
+      ],
+      "title": "Boundedness Verdict",
+      "type": "string"
+    },
+    "changes_live_behavior_by_default": {
+      "const": false,
+      "default": false,
+      "title": "Changes Live Behavior By Default",
+      "type": "boolean"
+    },
+    "checkpoint_ref": {
+      "title": "Checkpoint Ref",
+      "type": "string"
+    },
+    "designated_sandbox_root": {
+      "title": "Designated Sandbox Root",
+      "type": "string"
+    },
+    "evidence_only": {
+      "const": true,
+      "default": true,
+      "title": "Evidence Only",
+      "type": "boolean"
+    },
+    "evidence_refs": {
+      "items": {
+        "type": "string"
+      },
+      "title": "Evidence Refs",
+      "type": "array"
+    },
+    "harvest_ref": {
+      "title": "Harvest Ref",
+      "type": "string"
+    },
+    "observation_id": {
+      "anyOf": [
+        {
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Observation Id"
+    },
+    "observation_outcome": {
+      "enum": [
+        "bounded_effect_observed",
+        "no_effect_observed",
+        "out_of_scope_write_observed",
+        "mismatched_effect_observed",
+        "boundedness_verdict_failed"
+      ],
+      "title": "Observation Outcome",
+      "type": "string"
+    },
+    "observed_effect": {
+      "title": "Observed Effect",
+      "type": "string"
+    },
+    "observed_write_set": {
+      "items": {
+        "$ref": "#/$defs/AgenticDeObservedWriteEntry"
+      },
+      "title": "Observed Write Set",
+      "type": "array"
+    },
+    "packet_ref": {
+      "title": "Packet Ref",
+      "type": "string"
+    },
+    "post_state_ref": {
+      "title": "Post State Ref",
+      "type": "string"
+    },
+    "pre_state_ref": {
+      "title": "Pre State Ref",
+      "type": "string"
+    },
+    "runtime_state_ref": {
+      "title": "Runtime State Ref",
+      "type": "string"
+    },
+    "schema": {
+      "const": "agentic_de_local_effect_observation_record@1",
+      "default": "agentic_de_local_effect_observation_record@1",
+      "title": "Schema",
+      "type": "string"
+    },
+    "selected_live_action_class": {
+      "const": "local_write",
+      "default": "local_write",
+      "title": "Selected Live Action Class",
+      "type": "string"
+    },
+    "selected_local_write_kind": {
+      "enum": [
+        "create_new",
+        "append_only"
+      ],
+      "title": "Selected Local Write Kind",
+      "type": "string"
+    },
+    "target_arc": {
+      "title": "Target Arc",
+      "type": "string"
+    },
+    "target_path": {
+      "title": "Target Path",
+      "type": "string"
+    },
+    "ticket_ref": {
+      "title": "Ticket Ref",
+      "type": "string"
+    }
+  },
+  "required": [
+    "target_arc",
+    "target_path",
+    "selected_local_write_kind",
+    "designated_sandbox_root",
+    "packet_ref",
+    "action_proposal_ref",
+    "checkpoint_ref",
+    "runtime_state_ref",
+    "ticket_ref",
+    "harvest_ref",
+    "pre_state_ref",
+    "observed_write_set",
+    "post_state_ref",
+    "observed_effect",
+    "observation_outcome",
+    "boundedness_verdict",
+    "boundedness_note",
+    "evidence_refs"
+  ],
+  "title": "AgenticDeLocalEffectObservationRecord",
+  "type": "object"
+}
