@@ -1,0 +1,35 @@
+{
+  "entries": [
+    {
+      "assumption_ref": "v57a_surface_reuse_default",
+      "note": "V57-B consumes the shipped V57-A observation and local-effect conformance surfaces unchanged by default.",
+      "status": "holds"
+    },
+    {
+      "assumption_ref": "restoration_exemplar_create_new_only",
+      "note": "V57-B narrows the first restoration exemplar to compensating restore of the shipped create_new artifact only.",
+      "status": "amended"
+    },
+    {
+      "assumption_ref": "replay_mode_bounded_recomputation_only",
+      "note": "V57-B defines replay as bounded recomputation and re-evaluation of the restoration event against the prior observed-effect lineage only.",
+      "status": "amended"
+    },
+    {
+      "assumption_ref": "restoration_entitlement_derived_not_ambient",
+      "note": "V57-B treats the original ticket as lineage only, not ambient ongoing authority, and requires an explicit bounded compensating-scope match.",
+      "status": "amended"
+    },
+    {
+      "assumption_ref": "restoration_outputs_evidence_only",
+      "note": "V57-B adds one evidence-bearing restoration record without mutating live behavior by default.",
+      "status": "amended"
+    }
+  ],
+  "entry_count": 5,
+  "prior_lane_ref": "docs/LOCKED_CONTINUATION_vNEXT_PLUS155.md",
+  "record_id": "agentic_de_lane_drift_ef43f4fe4b48",
+  "schema": "agentic_de_lane_drift_record@1",
+  "target_arc": "vNext+156",
+  "target_path": "V57-B"
+}

@@ -27,6 +27,9 @@ AGENTIC_DE_LOCAL_EFFECT_OBSERVATION_RECORD_SCHEMA = (
 AGENTIC_DE_LOCAL_EFFECT_CONFORMANCE_REPORT_SCHEMA = (
     "agentic_de_local_effect_conformance_report@1"
 )
+AGENTIC_DE_LOCAL_EFFECT_RESTORATION_RECORD_SCHEMA = (
+    "agentic_de_local_effect_restoration_record@1"
+)
 
 ACTION_CLASS_VOCABULARY = ("inspect", "write", "execute", "dispatch")
 EXACT_ACTION_CLASS_VOCABULARY = (
@@ -86,6 +89,16 @@ LOCAL_EFFECT_OBSERVATION_OUTCOME_VOCABULARY = (
 )
 BOUNDEDNESS_VERDICT_VOCABULARY = ("bounded", "failed")
 LOCAL_EFFECT_CONFORMANCE_STATUS_VOCABULARY = ("effect_aligned", "effect_divergent")
+LOCAL_EFFECT_RESTORATION_OUTCOME_VOCABULARY = (
+    "restoration_effect_observed",
+    "no_restoration_effect_observed",
+    "restoration_out_of_scope_write_observed",
+    "restoration_mismatched_effect_observed",
+    "restoration_boundedness_verdict_failed",
+)
+LOCAL_EFFECT_RESTORATION_OPERATION_VOCABULARY = (
+    "compensating_remove_create_new_artifact",
+)
 
 MODEL_CONFIG = ConfigDict(
     extra="forbid",
@@ -155,6 +168,14 @@ LocalEffectObservationOutcome = Literal[
 ]
 BoundednessVerdict = Literal["bounded", "failed"]
 LocalEffectConformanceStatus = Literal["effect_aligned", "effect_divergent"]
+LocalEffectRestorationOutcome = Literal[
+    "restoration_effect_observed",
+    "no_restoration_effect_observed",
+    "restoration_out_of_scope_write_observed",
+    "restoration_mismatched_effect_observed",
+    "restoration_boundedness_verdict_failed",
+]
+LocalEffectRestorationOperation = Literal["compensating_remove_create_new_artifact"]
 
 
 def _assert_present_text(value: str, *, field_name: str) -> str:
@@ -1225,6 +1246,156 @@ class AgenticDeLocalEffectConformanceReport(BaseModel):
         return self
 
 
+class AgenticDeObservedRestorationWriteEntry(BaseModel):
+    model_config = MODEL_CONFIG
+
+    relative_path: str
+    restoration_operation: LocalEffectRestorationOperation
+    prior_observation_write_kind: Literal["create_new"] = "create_new"
+    existed_before_restoration: bool
+    exists_after_restoration: bool
+    bytes_removed: int = Field(ge=0)
+    removed_content_sha256: str
+
+    @model_validator(mode="after")
+    def _validate_entry(self) -> AgenticDeObservedRestorationWriteEntry:
+        _assert_present_text(self.relative_path, field_name="relative_path")
+        _assert_present_text(
+            self.removed_content_sha256,
+            field_name="removed_content_sha256",
+        )
+        if self.exists_after_restoration:
+            raise ValueError("restoration observed write entries must end with no surviving target")
+        return self
+
+
+class AgenticDeLocalEffectRestorationRecord(BaseModel):
+    model_config = MODEL_CONFIG
+
+    schema: Literal[AGENTIC_DE_LOCAL_EFFECT_RESTORATION_RECORD_SCHEMA] = (
+        AGENTIC_DE_LOCAL_EFFECT_RESTORATION_RECORD_SCHEMA
+    )
+    restoration_id: str | None = None
+    target_arc: str
+    target_path: str
+    evidence_only: Literal[True] = True
+    changes_live_behavior_by_default: Literal[False] = False
+    selected_live_action_class: Literal["local_write"] = "local_write"
+    selected_restoration_exemplar: Literal[
+        "compensating_restore_of_v57a_create_new_artifact_only"
+    ] = "compensating_restore_of_v57a_create_new_artifact_only"
+    replay_mode: Literal[
+        "bounded_recomputation_and_re_evaluation_of_the_restoration_event_against_prior_observed_effect_lineage_only"
+    ] = (
+        "bounded_recomputation_and_re_evaluation_of_the_restoration_event_"
+        "against_prior_observed_effect_lineage_only"
+    )
+    restoration_entitlement_mode: Literal[
+        "lineage_bound_evidence_bound_bounded_compensating_scope_derivation_only"
+    ] = "lineage_bound_evidence_bound_bounded_compensating_scope_derivation_only"
+    designated_sandbox_root: str
+    packet_ref: str
+    action_proposal_ref: str
+    checkpoint_ref: str
+    runtime_state_ref: str
+    ticket_ref: str
+    harvest_ref: str
+    observation_ref: str
+    conformance_ref: str
+    restoration_pre_state_ref: str
+    restoration_observed_write_set: list[AgenticDeObservedRestorationWriteEntry]
+    restoration_post_state_ref: str
+    restoration_effect: str
+    restoration_outcome: LocalEffectRestorationOutcome
+    restoration_boundedness_verdict: BoundednessVerdict
+    restoration_boundedness_note: str
+    evidence_refs: list[str]
+
+    @model_validator(mode="after")
+    def _validate_record(self) -> AgenticDeLocalEffectRestorationRecord:
+        _assert_present_text(self.target_arc, field_name="target_arc")
+        _assert_present_text(self.target_path, field_name="target_path")
+        _assert_present_text(
+            self.designated_sandbox_root,
+            field_name="designated_sandbox_root",
+        )
+        _assert_present_text(self.packet_ref, field_name="packet_ref")
+        _assert_present_text(self.action_proposal_ref, field_name="action_proposal_ref")
+        _assert_present_text(self.checkpoint_ref, field_name="checkpoint_ref")
+        _assert_present_text(self.runtime_state_ref, field_name="runtime_state_ref")
+        _assert_present_text(self.ticket_ref, field_name="ticket_ref")
+        _assert_present_text(self.harvest_ref, field_name="harvest_ref")
+        _assert_present_text(self.observation_ref, field_name="observation_ref")
+        _assert_present_text(self.conformance_ref, field_name="conformance_ref")
+        _assert_present_text(
+            self.restoration_pre_state_ref,
+            field_name="restoration_pre_state_ref",
+        )
+        _assert_present_text(
+            self.restoration_post_state_ref,
+            field_name="restoration_post_state_ref",
+        )
+        _assert_present_text(self.restoration_effect, field_name="restoration_effect")
+        _assert_present_text(
+            self.restoration_boundedness_note,
+            field_name="restoration_boundedness_note",
+        )
+        object.__setattr__(
+            self,
+            "evidence_refs",
+            _ordered_unique_texts(self.evidence_refs, field_name="evidence_refs"),
+        )
+        observed_paths = [entry.relative_path for entry in self.restoration_observed_write_set]
+        if len(set(observed_paths)) != len(observed_paths):
+            raise ValueError("restoration_observed_write_set relative_path values must be unique")
+        if self.restoration_outcome == "restoration_effect_observed":
+            if not self.restoration_observed_write_set:
+                raise ValueError(
+                    "restoration_effect_observed requires a restoration_observed_write_set"
+                )
+            if self.restoration_boundedness_verdict != "bounded":
+                raise ValueError("restoration_effect_observed requires bounded verdict")
+        elif self.restoration_outcome == "no_restoration_effect_observed":
+            if self.restoration_observed_write_set:
+                raise ValueError(
+                    "no_restoration_effect_observed may not carry restoration observed writes"
+                )
+            if self.restoration_boundedness_verdict != "bounded":
+                raise ValueError("no_restoration_effect_observed requires bounded verdict")
+        elif self.restoration_outcome == "restoration_out_of_scope_write_observed":
+            if not self.restoration_observed_write_set:
+                raise ValueError(
+                    "restoration_out_of_scope_write_observed requires restoration observed writes"
+                )
+            if self.restoration_boundedness_verdict != "failed":
+                raise ValueError(
+                    "restoration_out_of_scope_write_observed requires failed verdict"
+                )
+        elif self.restoration_outcome == "restoration_mismatched_effect_observed":
+            if not self.restoration_observed_write_set:
+                raise ValueError(
+                    "restoration_mismatched_effect_observed requires restoration observed writes"
+                )
+            if self.restoration_boundedness_verdict != "bounded":
+                raise ValueError(
+                    "restoration_mismatched_effect_observed requires bounded verdict"
+                )
+        elif self.restoration_outcome == "restoration_boundedness_verdict_failed":
+            if self.restoration_boundedness_verdict != "failed":
+                raise ValueError("restoration_boundedness_verdict_failed requires failed verdict")
+        object.__setattr__(
+            self,
+            "restoration_id",
+            _assign_or_verify_content_addressed_id(
+                value=self.restoration_id,
+                field_name="restoration_id",
+                prefix="agentic_de_local_effect_restoration",
+                payload=self.model_dump(mode="json", exclude={"restoration_id"}),
+            ),
+        )
+        return self
+
+
 def compute_agentic_de_domain_packet_id(payload: dict[str, object]) -> str:
     return _compute_id("agentic_de_domain_packet", payload)
 
@@ -1299,3 +1470,9 @@ def compute_agentic_de_local_effect_conformance_report_id(
     payload: dict[str, object],
 ) -> str:
     return _compute_id("agentic_de_local_effect_conformance_report", payload)
+
+
+def compute_agentic_de_local_effect_restoration_record_id(
+    payload: dict[str, object],
+) -> str:
+    return _compute_id("agentic_de_local_effect_restoration", payload)
