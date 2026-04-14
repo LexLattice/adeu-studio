@@ -1,0 +1,40 @@
+{
+  "entries": [
+    {
+      "assumption_ref": "v56b_surface_reuse_default",
+      "note": "V56-C consumes the shipped V56-A and V56-B packet, contract, checkpoint, runtime-state, ticket, diagnostics, and conformance surfaces by default.",
+      "status": "holds"
+    },
+    {
+      "assumption_ref": "selected_live_action_classes_closed_for_v56c",
+      "note": "V56-C preserves the exact V56-B selected live subset of local_reversible_execute and local_write only.",
+      "status": "holds"
+    },
+    {
+      "assumption_ref": "selected_live_action_class_interpretation_closed_for_v56c",
+      "note": "V56-C preserves the shipped operative interpretation of local scope, reversible scope, and bounded local write exclusions without semantic repartition.",
+      "status": "holds"
+    },
+    {
+      "assumption_ref": "runtime_harvest_observation_only",
+      "note": "V56-C adds one observation-only runtime harvest record over the shipped V56-B evidence chain.",
+      "status": "amended"
+    },
+    {
+      "assumption_ref": "advisory_governance_and_migration_only",
+      "note": "V56-C adds advisory-only governance calibration and migration decision registers that do not mutate live behavior by default.",
+      "status": "amended"
+    },
+    {
+      "assumption_ref": "committed_lane_artifacts_outrank_narrative_docs",
+      "note": "V56-C derives harvest, calibration, and migration outputs from committed fixtures, tickets, conformance, lane drift, and closeout evidence before any narrative interpretation.",
+      "status": "amended"
+    }
+  ],
+  "entry_count": 6,
+  "prior_lane_ref": "docs/LOCKED_CONTINUATION_vNEXT_PLUS153.md",
+  "record_id": "agentic_de_lane_drift_48941a27d38e",
+  "schema": "agentic_de_lane_drift_record@1",
+  "target_arc": "vNext+154",
+  "target_path": "V56-C"
+}

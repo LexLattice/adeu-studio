@@ -9,11 +9,14 @@ from adeu_agentic_de import (
     AGENTIC_DE_ACTION_TICKET_SCHEMA,
     AGENTIC_DE_CONFORMANCE_REPORT_SCHEMA,
     AGENTIC_DE_DOMAIN_PACKET_SCHEMA,
+    AGENTIC_DE_GOVERNANCE_CALIBRATION_REGISTER_SCHEMA,
     AGENTIC_DE_INTERACTION_CONTRACT_SCHEMA,
     AGENTIC_DE_LANE_DRIFT_RECORD_SCHEMA,
     AGENTIC_DE_MEMBRANE_CHECKPOINT_SCHEMA,
+    AGENTIC_DE_MIGRATION_DECISION_REGISTER_SCHEMA,
     AGENTIC_DE_MORPH_DIAGNOSTICS_SCHEMA,
     AGENTIC_DE_MORPH_IR_SCHEMA,
+    AGENTIC_DE_RUNTIME_HARVEST_RECORD_SCHEMA,
     AGENTIC_DE_RUNTIME_STATE_SCHEMA,
 )
 from adeu_agentic_de.export_schema import _assert_no_absolute_path_material
@@ -91,6 +94,30 @@ def _schema_pairs() -> dict[str, tuple[Path, Path]]:
             / "schema"
             / "agentic_de_lane_drift_record.v1.json",
             root / "spec" / "agentic_de_lane_drift_record.schema.json",
+        ),
+        AGENTIC_DE_RUNTIME_HARVEST_RECORD_SCHEMA: (
+            root
+            / "packages"
+            / "adeu_agentic_de"
+            / "schema"
+            / "agentic_de_runtime_harvest_record.v1.json",
+            root / "spec" / "agentic_de_runtime_harvest_record.schema.json",
+        ),
+        AGENTIC_DE_GOVERNANCE_CALIBRATION_REGISTER_SCHEMA: (
+            root
+            / "packages"
+            / "adeu_agentic_de"
+            / "schema"
+            / "agentic_de_governance_calibration_register.v1.json",
+            root / "spec" / "agentic_de_governance_calibration_register.schema.json",
+        ),
+        AGENTIC_DE_MIGRATION_DECISION_REGISTER_SCHEMA: (
+            root
+            / "packages"
+            / "adeu_agentic_de"
+            / "schema"
+            / "agentic_de_migration_decision_register.v1.json",
+            root / "spec" / "agentic_de_migration_decision_register.schema.json",
         ),
     }
 

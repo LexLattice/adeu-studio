@@ -1,0 +1,62 @@
+{
+  "advisory_only": true,
+  "baseline_checker_version": "agentic_de_interaction_v56b",
+  "changes_live_behavior_by_default": false,
+  "entries": [
+    {
+      "calibration_id": "agentic_de_governance_calibration_335cc2868686",
+      "current_posture": "shipped V56-B exercises local_write only under bounded_local_artifact semantics with explicit ticket visibility and no_live_effect conformance",
+      "evidence_refs": [
+        "packages/adeu_agentic_de/tests/fixtures/v56b/reference_agentic_de_action_ticket.json",
+        "packages/adeu_agentic_de/tests/fixtures/v56b/reference_agentic_de_conformance_report.json",
+        "artifacts/agent_harness/v153/evidence_inputs/v56b_bounded_live_gate_starter_evidence_v153.json"
+      ],
+      "rationale": "the shipped reference path proves the bounded local_write issuance chain, but not an executed local effect, so later local hardening would require more post-effect evidence rather than immediate escalation",
+      "recommended_outcome": "needs_more_evidence",
+      "subject_kind": "action_class",
+      "subject_ref": "local_write"
+    },
+    {
+      "calibration_id": "agentic_de_governance_calibration_e9665e598c23",
+      "current_posture": "selected in the frozen V56-B live subset but unexercised in the shipped reference path",
+      "evidence_refs": [
+        "packages/adeu_agentic_de/tests/fixtures/v56b/reference_agentic_de_lane_drift_record.json",
+        "artifacts/agent_harness/v153/evidence_inputs/v56b_bounded_live_gate_starter_evidence_v153.json"
+      ],
+      "rationale": "the class remains selected but unobserved in the shipped baseline, so V56-C should not infer stronger governance posture from narrative symmetry alone",
+      "recommended_outcome": "not_selected_for_escalation",
+      "subject_kind": "action_class",
+      "subject_ref": "local_reversible_execute"
+    },
+    {
+      "calibration_id": "agentic_de_governance_calibration_4c015fee4b0c",
+      "current_posture": "accepted remains necessary but not sufficient, with runtime compatibility and selected-class membership still required before ticket issuance",
+      "evidence_refs": [
+        "artifacts/agent_harness/v152/evidence_inputs/v56a_agentic_de_interaction_governance_starter_evidence_v152.json",
+        "packages/adeu_agentic_de/tests/fixtures/v56b/reference_agentic_de_lane_drift_record.json",
+        "artifacts/agent_harness/v153/evidence_inputs/v56b_bounded_live_gate_starter_evidence_v153.json"
+      ],
+      "rationale": "the shipped V56-B evidence shows the boundary law is already explicit and bounded; V56-C should preserve it without mutating live behavior by default",
+      "recommended_outcome": "keep_warning_only",
+      "subject_kind": "surface",
+      "subject_ref": "checkpoint_to_ticket_boundary"
+    },
+    {
+      "calibration_id": "agentic_de_governance_calibration_d083902a6999",
+      "current_posture": "only externalized packet/proposal/checkpoint/ticket/conformance artifacts are treated as governance-bearing inputs",
+      "evidence_refs": [
+        "artifacts/agent_harness/v152/evidence_inputs/v56a_agentic_de_interaction_governance_starter_evidence_v152.json",
+        "artifacts/agent_harness/v153/evidence_inputs/v56b_bounded_live_gate_starter_evidence_v153.json"
+      ],
+      "rationale": "the governed chain already excludes surrogate hidden-cognition and derived internalist proxies, and V56-C should preserve that boundary without inventing new internal telemetry surfaces",
+      "recommended_outcome": "keep_warning_only",
+      "subject_kind": "surface",
+      "subject_ref": "hidden_cognition_proxy_boundary"
+    }
+  ],
+  "entry_count": 4,
+  "register_id": "agentic_de_governance_calibration_register_d0ed195b0ac6",
+  "schema": "agentic_de_governance_calibration_register@1",
+  "target_arc": "vNext+154",
+  "target_path": "V56-C"
+}
