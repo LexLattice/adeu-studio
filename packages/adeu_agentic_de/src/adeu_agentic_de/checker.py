@@ -1,14 +1,17 @@
 from __future__ import annotations
 
+import hashlib
 import json
 from pathlib import Path
 
 from adeu_ir.repo import repo_root
 
 from .local_effect import (
+    DEFAULT_LOCAL_EFFECT_PAYLOAD_SHA256,
     DEFAULT_LOCAL_EFFECT_PAYLOAD_TEXT,
     DEFAULT_LOCAL_EFFECT_TARGET_RELATIVE_PATH,
     observe_local_write_effect,
+    observe_local_write_restoration_effect,
 )
 from .local_effect_conformance import build_local_effect_conformance_report
 from .models import (
@@ -22,6 +25,7 @@ from .models import (
     AGENTIC_DE_LANE_DRIFT_RECORD_SCHEMA,
     AGENTIC_DE_LOCAL_EFFECT_CONFORMANCE_REPORT_SCHEMA,
     AGENTIC_DE_LOCAL_EFFECT_OBSERVATION_RECORD_SCHEMA,
+    AGENTIC_DE_LOCAL_EFFECT_RESTORATION_RECORD_SCHEMA,
     AGENTIC_DE_MEMBRANE_CHECKPOINT_SCHEMA,
     AGENTIC_DE_MIGRATION_DECISION_REGISTER_SCHEMA,
     AGENTIC_DE_MORPH_DIAGNOSTICS_SCHEMA,
@@ -41,6 +45,7 @@ from .models import (
     AgenticDeLaneDriftRecord,
     AgenticDeLocalEffectConformanceReport,
     AgenticDeLocalEffectObservationRecord,
+    AgenticDeLocalEffectRestorationRecord,
     AgenticDeMembraneCheckpoint,
     AgenticDeMigrationDecisionEntry,
     AgenticDeMigrationDecisionRegister,
@@ -60,6 +65,9 @@ V56C_TARGET_PATH = "V56-C"
 V57A_CHECKER_VERSION = "agentic_de_local_effect_v57a"
 V57A_TARGET_ARC = "vNext+155"
 V57A_TARGET_PATH = "V57-A"
+V57B_CHECKER_VERSION = "agentic_de_local_effect_v57b"
+V57B_TARGET_ARC = "vNext+156"
+V57B_TARGET_PATH = "V57-B"
 
 
 def _default_fixture_path(variant: str, filename: str) -> Path:
@@ -136,6 +144,12 @@ DEFAULT_V56C_V56B_EVIDENCE_PATH = (
 DEFAULT_V57A_LANE_DRIFT_PATH = _default_fixture_path(
     "v57a", "reference_agentic_de_lane_drift_record.json"
 )
+DEFAULT_V57A_OBSERVATION_PATH = _default_fixture_path(
+    "v57a", "reference_agentic_de_local_effect_observation_record.json"
+)
+DEFAULT_V57A_LOCAL_EFFECT_CONFORMANCE_PATH = _default_fixture_path(
+    "v57a", "reference_agentic_de_local_effect_conformance_report.json"
+)
 DEFAULT_V57A_V56C_EVIDENCE_PATH = (
     repo_root(anchor=Path(__file__))
     / "artifacts"
@@ -143,6 +157,17 @@ DEFAULT_V57A_V56C_EVIDENCE_PATH = (
     / "v154"
     / "evidence_inputs"
     / "v56c_harvest_calibration_migration_evidence_v154.json"
+)
+DEFAULT_V57B_LANE_DRIFT_PATH = _default_fixture_path(
+    "v57b", "reference_agentic_de_lane_drift_record.json"
+)
+DEFAULT_V57A_EVIDENCE_PATH = (
+    repo_root(anchor=Path(__file__))
+    / "artifacts"
+    / "agent_harness"
+    / "v155"
+    / "evidence_inputs"
+    / "v57a_local_effect_observation_evidence_v155.json"
 )
 
 EXPECTED_V56A_EVIDENCE_SCHEMA = "v56a_agentic_de_interaction_governance_starter_evidence@1"
@@ -185,6 +210,15 @@ REQUIRED_V57A_DRIFT_ENTRY_STATUSES: dict[str, str] = {
     "selected_local_write_subset_create_new_append_only": "amended",
     "designated_sandbox_only": "amended",
     "effect_observation_outputs_evidence_only": "amended",
+}
+EXPECTED_V57A_EVIDENCE_SCHEMA = "v57a_local_effect_observation_evidence@1"
+EXPECTED_V57B_PRIOR_LANE_REF = "docs/LOCKED_CONTINUATION_vNEXT_PLUS155.md"
+REQUIRED_V57B_DRIFT_ENTRY_STATUSES: dict[str, str] = {
+    "v57a_surface_reuse_default": "holds",
+    "restoration_exemplar_create_new_only": "amended",
+    "replay_mode_bounded_recomputation_only": "amended",
+    "restoration_entitlement_derived_not_ambient": "amended",
+    "restoration_outputs_evidence_only": "amended",
 }
 
 
@@ -320,6 +354,16 @@ def load_local_effect_conformance_report(path: Path) -> AgenticDeLocalEffectConf
     if payload.schema != AGENTIC_DE_LOCAL_EFFECT_CONFORMANCE_REPORT_SCHEMA:
         raise ValueError(
             "unexpected schema marker for local-effect conformance report: "
+            f"{payload.schema}"
+        )
+    return payload
+
+
+def load_local_effect_restoration_record(path: Path) -> AgenticDeLocalEffectRestorationRecord:
+    payload = AgenticDeLocalEffectRestorationRecord.model_validate(_read_json_object(path))
+    if payload.schema != AGENTIC_DE_LOCAL_EFFECT_RESTORATION_RECORD_SCHEMA:
+        raise ValueError(
+            "unexpected schema marker for local-effect restoration record: "
             f"{payload.schema}"
         )
     return payload
@@ -486,6 +530,40 @@ def _validate_v57a_lane_drift_record(record: AgenticDeLaneDriftRecord) -> Agenti
     return record
 
 
+def _validate_v57b_lane_drift_record(record: AgenticDeLaneDriftRecord) -> AgenticDeLaneDriftRecord:
+    if record.target_arc != V57B_TARGET_ARC:
+        raise ValueError(
+            f"V57-B lane drift record must target {V57B_TARGET_ARC!r}, got {record.target_arc!r}"
+        )
+    if record.target_path != V57B_TARGET_PATH:
+        raise ValueError(
+            f"V57-B lane drift record must target {V57B_TARGET_PATH!r}, got {record.target_path!r}"
+        )
+    if record.prior_lane_ref != EXPECTED_V57B_PRIOR_LANE_REF:
+        raise ValueError(
+            "V57-B lane drift record must point at "
+            f"{EXPECTED_V57B_PRIOR_LANE_REF!r}, got {record.prior_lane_ref!r}"
+        )
+    actual_statuses = {entry.assumption_ref: entry.status for entry in record.entries}
+    missing_assumptions = sorted(set(REQUIRED_V57B_DRIFT_ENTRY_STATUSES) - set(actual_statuses))
+    unexpected_statuses = sorted(
+        assumption_ref
+        for assumption_ref, expected_status in REQUIRED_V57B_DRIFT_ENTRY_STATUSES.items()
+        if actual_statuses.get(assumption_ref) != expected_status
+    )
+    if missing_assumptions or unexpected_statuses:
+        detail_parts: list[str] = []
+        if missing_assumptions:
+            detail_parts.append(f"missing={missing_assumptions}")
+        if unexpected_statuses:
+            detail_parts.append(f"status_mismatch={unexpected_statuses}")
+        raise ValueError(
+            "V57-B lane drift record does not satisfy the required handoff posture; "
+            + ", ".join(detail_parts)
+        )
+    return record
+
+
 def _validate_v56a_evidence_payload(payload: dict[str, object]) -> dict[str, object]:
     if payload.get("schema") != EXPECTED_V56A_EVIDENCE_SCHEMA:
         raise ValueError("V56-C requires the shipped V56-A starter evidence payload on main")
@@ -560,6 +638,27 @@ def _validate_v56c_evidence_payload(payload: dict[str, object]) -> dict[str, obj
         )
     if payload.get("surrogate_hidden_cognition_proxies_forbidden") is not True:
         raise ValueError("V56-C evidence must preserve the hidden-cognition proxy boundary")
+    return payload
+
+
+def _validate_v57a_evidence_payload(payload: dict[str, object]) -> dict[str, object]:
+    if payload.get("schema") != EXPECTED_V57A_EVIDENCE_SCHEMA:
+        raise ValueError("V57-B requires the shipped V57-A local-effect evidence payload on main")
+    if payload.get("effect_outputs_evidence_only") is not True:
+        raise ValueError("V57-A evidence must preserve evidence-only local-effect outputs")
+    if payload.get("effect_observation_outputs_change_live_behavior_by_default") is not False:
+        raise ValueError("V57-A evidence must preserve non-live local-effect outputs")
+    if payload.get("restoration_selected_for_v57a") is not False:
+        raise ValueError("V57-A evidence must preserve restoration as deferred")
+    if payload.get("selected_live_action_class_for_v57a") != "local_write":
+        raise ValueError("V57-A evidence must preserve the local_write-only actual-effect path")
+    if payload.get("selected_local_write_first_subset_for_v57a") != [
+        "create_new",
+        "append_only",
+    ]:
+        raise ValueError("V57-A evidence must preserve the shipped first local_write subset")
+    if payload.get("ticket_to_effect_binding_required") is not True:
+        raise ValueError("V57-A evidence must preserve ticket-to-effect binding")
     return payload
 
 
@@ -732,6 +831,109 @@ def _validate_v57a_reference_surfaces(
     if candidate_entry.recommended_outcome != "candidate_for_later_local_hardening":
         raise ValueError(
             "V57-A requires the shipped V56-C local-write post-effect candidate outcome"
+        )
+
+
+def _validate_v57a_local_effect_surfaces(
+    *,
+    packet: AgenticDeDomainPacket,
+    proposal: AgenticDeActionProposal,
+    checkpoint: AgenticDeMembraneCheckpoint,
+    runtime_state: AgenticDeRuntimeState,
+    ticket: AgenticDeActionTicket,
+    harvest: AgenticDeRuntimeHarvestRecord,
+    observation: AgenticDeLocalEffectObservationRecord,
+    conformance: AgenticDeLocalEffectConformanceReport,
+) -> None:
+    if observation.target_arc != V57A_TARGET_ARC or observation.target_path != V57A_TARGET_PATH:
+        raise ValueError("V57-B requires the shipped V57-A observation surface")
+    if observation.packet_ref != packet.packet_id:
+        raise ValueError("V57-A observation does not bind the provided domain packet")
+    if observation.action_proposal_ref != proposal.proposal_id:
+        raise ValueError("V57-A observation does not bind the provided action proposal")
+    if observation.checkpoint_ref != checkpoint.checkpoint_id:
+        raise ValueError("V57-A observation does not bind the provided checkpoint")
+    if observation.runtime_state_ref != runtime_state.state_id:
+        raise ValueError("V57-A observation does not bind the provided runtime state")
+    if observation.ticket_ref != ticket.ticket_id:
+        raise ValueError("V57-A observation does not bind the provided action ticket")
+    if observation.harvest_ref != harvest.harvest_id:
+        raise ValueError("V57-A observation does not bind the provided harvest")
+    if observation.selected_live_action_class != "local_write":
+        raise ValueError("V57-B requires the shipped local_write observation class")
+    if observation.selected_local_write_kind != "create_new":
+        raise ValueError("V57-B only admits compensating restore of the shipped create_new path")
+    if observation.observation_outcome != "bounded_effect_observed":
+        raise ValueError("V57-B requires one prior bounded_effect_observed outcome")
+    if observation.boundedness_verdict != "bounded":
+        raise ValueError("V57-B requires one prior bounded observation verdict")
+    if len(observation.observed_write_set) != 1:
+        raise ValueError("V57-B requires exactly one prior observed create_new artifact")
+    observed_entry = observation.observed_write_set[0]
+    if observed_entry.write_kind != "create_new":
+        raise ValueError("V57-B only admits the shipped create_new observation exemplar")
+    if observed_entry.existed_before:
+        raise ValueError(
+            "V57-B requires the shipped create_new artifact to have been absent before"
+        )
+
+    if conformance.target_arc != V57A_TARGET_ARC or conformance.target_path != V57A_TARGET_PATH:
+        raise ValueError("V57-B requires the shipped V57-A conformance surface")
+    if conformance.packet_ref != packet.packet_id:
+        raise ValueError("V57-A conformance does not bind the provided domain packet")
+    if conformance.action_proposal_ref != proposal.proposal_id:
+        raise ValueError("V57-A conformance does not bind the provided action proposal")
+    if conformance.checkpoint_ref != checkpoint.checkpoint_id:
+        raise ValueError("V57-A conformance does not bind the provided checkpoint")
+    if conformance.runtime_state_ref != runtime_state.state_id:
+        raise ValueError("V57-A conformance does not bind the provided runtime state")
+    if conformance.ticket_ref != ticket.ticket_id:
+        raise ValueError("V57-A conformance does not bind the provided action ticket")
+    if conformance.harvest_ref != harvest.harvest_id:
+        raise ValueError("V57-A conformance does not bind the provided harvest")
+    if conformance.observation_ref != observation.observation_id:
+        raise ValueError("V57-A conformance does not bind the provided observation")
+    if conformance.observation_outcome != observation.observation_outcome:
+        raise ValueError("V57-A conformance must preserve the shipped observation outcome")
+    if conformance.boundedness_verdict != observation.boundedness_verdict:
+        raise ValueError("V57-A conformance must preserve the shipped boundedness verdict")
+    if conformance.conformance_status != "effect_aligned":
+        raise ValueError("V57-B requires the shipped aligned V57-A conformance path")
+
+
+def _derived_restore_target_relative_path(
+    observation: AgenticDeLocalEffectObservationRecord,
+) -> str:
+    sandbox_root = Path(observation.designated_sandbox_root)
+    observed_path = Path(observation.observed_write_set[0].relative_path)
+    try:
+        relative_path = observed_path.relative_to(sandbox_root)
+    except ValueError as exc:
+        raise ValueError(
+            "V57-B requires the shipped observation target to remain inside the designated "
+            "sandbox effect region"
+        ) from exc
+    if not relative_path.parts:
+        raise ValueError("V57-B requires a non-empty restoration target relative path")
+    return relative_path.as_posix()
+
+
+def _validate_restoration_materialization_lineage(
+    *,
+    observation: AgenticDeLocalEffectObservationRecord,
+    materialized_observed_content_text: str,
+) -> None:
+    if materialized_observed_content_text == DEFAULT_LOCAL_EFFECT_PAYLOAD_TEXT:
+        expected_sha256 = DEFAULT_LOCAL_EFFECT_PAYLOAD_SHA256
+    else:
+        expected_sha256 = hashlib.sha256(
+            materialized_observed_content_text.encode("utf-8")
+        ).hexdigest()
+    observed_entry = observation.observed_write_set[0]
+    if expected_sha256 != observed_entry.content_sha256:
+        raise ValueError(
+            "V57-B requires one explicit bounded compensating scope match against the shipped "
+            "observed create_new artifact content"
         )
 
 
@@ -1021,6 +1223,49 @@ def _build_v57a_local_effect_observation_record(
         observation_outcome=observation_outcome,
         boundedness_verdict=boundedness_verdict,
         boundedness_note=boundedness_note,
+        evidence_refs=evidence_refs,
+    )
+
+
+def _build_v57b_local_effect_restoration_record(
+    *,
+    packet: AgenticDeDomainPacket,
+    proposal: AgenticDeActionProposal,
+    checkpoint: AgenticDeMembraneCheckpoint,
+    runtime_state: AgenticDeRuntimeState,
+    ticket: AgenticDeActionTicket,
+    harvest: AgenticDeRuntimeHarvestRecord,
+    observation: AgenticDeLocalEffectObservationRecord,
+    conformance: AgenticDeLocalEffectConformanceReport,
+    designated_sandbox_root: str,
+    restoration_pre_state_ref: str,
+    restoration_observed_write_set: list[object],
+    restoration_post_state_ref: str,
+    restoration_effect: str,
+    restoration_outcome: str,
+    restoration_boundedness_verdict: str,
+    restoration_boundedness_note: str,
+    evidence_refs: list[str],
+) -> AgenticDeLocalEffectRestorationRecord:
+    return AgenticDeLocalEffectRestorationRecord(
+        target_arc=V57B_TARGET_ARC,
+        target_path=V57B_TARGET_PATH,
+        designated_sandbox_root=designated_sandbox_root,
+        packet_ref=packet.packet_id,
+        action_proposal_ref=proposal.proposal_id,
+        checkpoint_ref=checkpoint.checkpoint_id,
+        runtime_state_ref=runtime_state.state_id,
+        ticket_ref=ticket.ticket_id,
+        harvest_ref=harvest.harvest_id,
+        observation_ref=observation.observation_id,
+        conformance_ref=conformance.report_id,
+        restoration_pre_state_ref=restoration_pre_state_ref,
+        restoration_observed_write_set=restoration_observed_write_set,
+        restoration_post_state_ref=restoration_post_state_ref,
+        restoration_effect=restoration_effect,
+        restoration_outcome=restoration_outcome,
+        restoration_boundedness_verdict=restoration_boundedness_verdict,
+        restoration_boundedness_note=restoration_boundedness_note,
         evidence_refs=evidence_refs,
     )
 
@@ -1667,6 +1912,219 @@ def run_agentic_de_local_effect_v57a(
     return observation, conformance
 
 
+def run_agentic_de_local_effect_v57b(
+    *,
+    repo_root_path: Path | None = None,
+    domain_packet_path: Path = DEFAULT_DOMAIN_PACKET_PATH,
+    morph_ir_path: Path = DEFAULT_MORPH_IR_PATH,
+    interaction_contract_path: Path = DEFAULT_INTERACTION_CONTRACT_PATH,
+    action_proposal_path: Path = DEFAULT_ACTION_PROPOSAL_PATH,
+    v56a_checkpoint_path: Path = DEFAULT_V56A_CHECKPOINT_PATH,
+    v56a_diagnostics_path: Path = DEFAULT_V56A_DIAGNOSTICS_PATH,
+    v56a_conformance_path: Path = DEFAULT_V56A_CONFORMANCE_PATH,
+    v56b_lane_drift_path: Path = DEFAULT_V56B_LANE_DRIFT_PATH,
+    v56b_action_class_taxonomy_path: Path = DEFAULT_V56B_ACTION_CLASS_TAXONOMY_PATH,
+    v56b_runtime_state_path: Path = DEFAULT_V56B_RUNTIME_STATE_PATH,
+    v56b_action_ticket_path: Path = DEFAULT_V56B_TICKET_PATH,
+    v56b_diagnostics_path: Path = DEFAULT_V56B_DIAGNOSTICS_PATH,
+    v56b_conformance_path: Path = DEFAULT_V56B_CONFORMANCE_PATH,
+    v56c_lane_drift_path: Path = DEFAULT_V56C_LANE_DRIFT_PATH,
+    v56c_runtime_harvest_path: Path = DEFAULT_V56C_RUNTIME_HARVEST_PATH,
+    v56c_governance_calibration_path: Path = DEFAULT_V56C_GOVERNANCE_CALIBRATION_PATH,
+    v56c_migration_decision_path: Path = DEFAULT_V56C_MIGRATION_DECISION_PATH,
+    v57a_lane_drift_path: Path = DEFAULT_V57A_LANE_DRIFT_PATH,
+    v57a_observation_path: Path = DEFAULT_V57A_OBSERVATION_PATH,
+    v57a_local_effect_conformance_path: Path = DEFAULT_V57A_LOCAL_EFFECT_CONFORMANCE_PATH,
+    lane_drift_path: Path = DEFAULT_V57B_LANE_DRIFT_PATH,
+    v56a_evidence_path: Path = DEFAULT_V56C_V56A_EVIDENCE_PATH,
+    v56b_evidence_path: Path = DEFAULT_V56C_V56B_EVIDENCE_PATH,
+    v56c_evidence_path: Path = DEFAULT_V57A_V56C_EVIDENCE_PATH,
+    v57a_evidence_path: Path = DEFAULT_V57A_EVIDENCE_PATH,
+    materialized_observed_content_text: str = DEFAULT_LOCAL_EFFECT_PAYLOAD_TEXT,
+    expected_relative_paths: tuple[str, ...] | None = None,
+    materialize_observed_effect: bool = True,
+) -> AgenticDeLocalEffectRestorationRecord:
+    if repo_root_path is None:
+        root = repo_root(anchor=Path(__file__)).resolve()
+    else:
+        root = repo_root_path.resolve()
+
+    domain_packet_path = _resolve_path(repo_root_path=root, path=domain_packet_path)
+    morph_ir_path = _resolve_path(repo_root_path=root, path=morph_ir_path)
+    interaction_contract_path = _resolve_path(repo_root_path=root, path=interaction_contract_path)
+    action_proposal_path = _resolve_path(repo_root_path=root, path=action_proposal_path)
+    v56a_checkpoint_path = _resolve_path(repo_root_path=root, path=v56a_checkpoint_path)
+    v56a_diagnostics_path = _resolve_path(repo_root_path=root, path=v56a_diagnostics_path)
+    v56a_conformance_path = _resolve_path(repo_root_path=root, path=v56a_conformance_path)
+    v56b_lane_drift_path = _resolve_path(repo_root_path=root, path=v56b_lane_drift_path)
+    v56b_action_class_taxonomy_path = _resolve_path(
+        repo_root_path=root, path=v56b_action_class_taxonomy_path
+    )
+    v56b_runtime_state_path = _resolve_path(repo_root_path=root, path=v56b_runtime_state_path)
+    v56b_action_ticket_path = _resolve_path(repo_root_path=root, path=v56b_action_ticket_path)
+    v56b_diagnostics_path = _resolve_path(repo_root_path=root, path=v56b_diagnostics_path)
+    v56b_conformance_path = _resolve_path(repo_root_path=root, path=v56b_conformance_path)
+    v56c_lane_drift_path = _resolve_path(repo_root_path=root, path=v56c_lane_drift_path)
+    v56c_runtime_harvest_path = _resolve_path(repo_root_path=root, path=v56c_runtime_harvest_path)
+    v56c_governance_calibration_path = _resolve_path(
+        repo_root_path=root, path=v56c_governance_calibration_path
+    )
+    v56c_migration_decision_path = _resolve_path(
+        repo_root_path=root, path=v56c_migration_decision_path
+    )
+    v57a_lane_drift_path = _resolve_path(repo_root_path=root, path=v57a_lane_drift_path)
+    v57a_observation_path = _resolve_path(repo_root_path=root, path=v57a_observation_path)
+    v57a_local_effect_conformance_path = _resolve_path(
+        repo_root_path=root, path=v57a_local_effect_conformance_path
+    )
+    lane_drift_path = _resolve_path(repo_root_path=root, path=lane_drift_path)
+    v56a_evidence_path = _resolve_path(repo_root_path=root, path=v56a_evidence_path)
+    v56b_evidence_path = _resolve_path(repo_root_path=root, path=v56b_evidence_path)
+    v56c_evidence_path = _resolve_path(repo_root_path=root, path=v56c_evidence_path)
+    v57a_evidence_path = _resolve_path(repo_root_path=root, path=v57a_evidence_path)
+
+    _validate_v57b_lane_drift_record(load_lane_drift_record(lane_drift_path))
+    _validate_v57a_lane_drift_record(load_lane_drift_record(v57a_lane_drift_path))
+    _validate_v56b_lane_drift_record(load_lane_drift_record(v56b_lane_drift_path))
+    _validate_v56c_lane_drift_record(load_lane_drift_record(v56c_lane_drift_path))
+    _validate_v56a_evidence_payload(
+        _load_json_object(v56a_evidence_path, error_label="V56-A evidence")
+    )
+    _validate_v56b_evidence_payload(
+        _load_json_object(v56b_evidence_path, error_label="V56-B evidence")
+    )
+    _validate_v56c_evidence_payload(
+        _load_json_object(v56c_evidence_path, error_label="V56-C evidence")
+    )
+    _validate_v57a_evidence_payload(
+        _load_json_object(v57a_evidence_path, error_label="V57-A evidence")
+    )
+
+    packet = load_domain_packet(domain_packet_path)
+    morph_ir = load_morph_ir(morph_ir_path)
+    contract = load_interaction_contract(interaction_contract_path)
+    proposal = load_action_proposal(action_proposal_path)
+    v56a_checkpoint = load_membrane_checkpoint(v56a_checkpoint_path)
+    v56a_diagnostics = load_morph_diagnostics(v56a_diagnostics_path)
+    v56a_conformance = load_conformance_report(v56a_conformance_path)
+    v56b_taxonomy = load_action_class_taxonomy(v56b_action_class_taxonomy_path)
+    v56b_runtime_state = load_runtime_state(v56b_runtime_state_path)
+    v56b_ticket = load_action_ticket(v56b_action_ticket_path)
+    v56b_diagnostics = load_morph_diagnostics(v56b_diagnostics_path)
+    v56b_conformance = load_conformance_report(v56b_conformance_path)
+    v56c_harvest = load_runtime_harvest_record(v56c_runtime_harvest_path)
+    v56c_governance = load_governance_calibration_register(v56c_governance_calibration_path)
+    v56c_migration = load_migration_decision_register(v56c_migration_decision_path)
+    v57a_observation = load_local_effect_observation_record(v57a_observation_path)
+    v57a_local_effect_conformance = load_local_effect_conformance_report(
+        v57a_local_effect_conformance_path
+    )
+
+    _validate_v56a_reference_surfaces(
+        domain_packet=packet,
+        morph_ir=morph_ir,
+        contract=contract,
+        proposal=proposal,
+        checkpoint=v56a_checkpoint,
+        diagnostics=v56a_diagnostics,
+        conformance=v56a_conformance,
+    )
+    _validate_v56b_reference_surfaces(
+        domain_packet=packet,
+        contract=contract,
+        proposal=proposal,
+        checkpoint=v56a_checkpoint,
+        taxonomy=v56b_taxonomy,
+        runtime_state=v56b_runtime_state,
+        ticket=v56b_ticket,
+        diagnostics=v56b_diagnostics,
+        conformance=v56b_conformance,
+    )
+    _validate_v57a_reference_surfaces(
+        packet=packet,
+        proposal=proposal,
+        checkpoint=v56a_checkpoint,
+        runtime_state=v56b_runtime_state,
+        ticket=v56b_ticket,
+        taxonomy=v56b_taxonomy,
+        harvest=v56c_harvest,
+        governance=v56c_governance,
+        migration=v56c_migration,
+    )
+    _validate_v57a_local_effect_surfaces(
+        packet=packet,
+        proposal=proposal,
+        checkpoint=v56a_checkpoint,
+        runtime_state=v56b_runtime_state,
+        ticket=v56b_ticket,
+        harvest=v56c_harvest,
+        observation=v57a_observation,
+        conformance=v57a_local_effect_conformance,
+    )
+    _validate_restoration_materialization_lineage(
+        observation=v57a_observation,
+        materialized_observed_content_text=materialized_observed_content_text,
+    )
+
+    restoration_target_relative_path = _derived_restore_target_relative_path(v57a_observation)
+    restoration_effect = observe_local_write_restoration_effect(
+        repo_root_path=root,
+        restoration_target_relative_path=restoration_target_relative_path,
+        materialized_observed_content_text=materialized_observed_content_text,
+        expected_relative_paths=expected_relative_paths,
+        materialize_observed_effect=materialize_observed_effect,
+    )
+
+    evidence_refs = [
+        _render_input_ref(repo_root_path=root, path=domain_packet_path),
+        _render_input_ref(repo_root_path=root, path=morph_ir_path),
+        _render_input_ref(repo_root_path=root, path=interaction_contract_path),
+        _render_input_ref(repo_root_path=root, path=action_proposal_path),
+        _render_input_ref(repo_root_path=root, path=v56a_checkpoint_path),
+        _render_input_ref(repo_root_path=root, path=v56a_diagnostics_path),
+        _render_input_ref(repo_root_path=root, path=v56a_conformance_path),
+        _render_input_ref(repo_root_path=root, path=v56b_action_class_taxonomy_path),
+        _render_input_ref(repo_root_path=root, path=v56b_runtime_state_path),
+        _render_input_ref(repo_root_path=root, path=v56b_action_ticket_path),
+        _render_input_ref(repo_root_path=root, path=v56b_lane_drift_path),
+        _render_input_ref(repo_root_path=root, path=v56b_diagnostics_path),
+        _render_input_ref(repo_root_path=root, path=v56b_conformance_path),
+        _render_input_ref(repo_root_path=root, path=v56c_lane_drift_path),
+        _render_input_ref(repo_root_path=root, path=v56c_runtime_harvest_path),
+        _render_input_ref(repo_root_path=root, path=v56c_governance_calibration_path),
+        _render_input_ref(repo_root_path=root, path=v56c_migration_decision_path),
+        _render_input_ref(repo_root_path=root, path=v57a_lane_drift_path),
+        _render_input_ref(repo_root_path=root, path=v57a_observation_path),
+        _render_input_ref(repo_root_path=root, path=v57a_local_effect_conformance_path),
+        _render_input_ref(repo_root_path=root, path=lane_drift_path),
+        _render_input_ref(repo_root_path=root, path=v56a_evidence_path),
+        _render_input_ref(repo_root_path=root, path=v56b_evidence_path),
+        _render_input_ref(repo_root_path=root, path=v56c_evidence_path),
+        _render_input_ref(repo_root_path=root, path=v57a_evidence_path),
+        restoration_effect.restoration_pre_state_ref,
+        restoration_effect.restoration_post_state_ref,
+    ]
+    return _build_v57b_local_effect_restoration_record(
+        packet=packet,
+        proposal=proposal,
+        checkpoint=v56a_checkpoint,
+        runtime_state=v56b_runtime_state,
+        ticket=v56b_ticket,
+        harvest=v56c_harvest,
+        observation=v57a_observation,
+        conformance=v57a_local_effect_conformance,
+        designated_sandbox_root=restoration_effect.designated_sandbox_root,
+        restoration_pre_state_ref=restoration_effect.restoration_pre_state_ref,
+        restoration_observed_write_set=restoration_effect.restoration_observed_write_set,
+        restoration_post_state_ref=restoration_effect.restoration_post_state_ref,
+        restoration_effect=restoration_effect.restoration_effect,
+        restoration_outcome=restoration_effect.restoration_outcome,
+        restoration_boundedness_verdict=restoration_effect.restoration_boundedness_verdict,
+        restoration_boundedness_note=restoration_effect.restoration_boundedness_note,
+        evidence_refs=evidence_refs,
+    )
+
+
 def render_checkpoint_payload(checkpoint: AgenticDeMembraneCheckpoint) -> str:
     return json.dumps(checkpoint.model_dump(mode="json"), indent=2, sort_keys=True) + "\n"
 
@@ -1713,3 +2171,9 @@ def render_local_effect_conformance_payload(
     report: AgenticDeLocalEffectConformanceReport,
 ) -> str:
     return json.dumps(report.model_dump(mode="json"), indent=2, sort_keys=True) + "\n"
+
+
+def render_local_effect_restoration_payload(
+    restoration: AgenticDeLocalEffectRestorationRecord,
+) -> str:
+    return json.dumps(restoration.model_dump(mode="json"), indent=2, sort_keys=True) + "\n"

@@ -6,7 +6,11 @@ import shutil
 from dataclasses import dataclass
 from pathlib import Path
 
-from .models import AgenticDeObservedWriteEntry, LocalWriteKind
+from .models import (
+    AgenticDeObservedRestorationWriteEntry,
+    AgenticDeObservedWriteEntry,
+    LocalWriteKind,
+)
 
 DESIGNATED_LOCAL_EFFECT_SANDBOX_ROOT = Path("artifacts/agentic_de/v57/local_effect")
 LOCAL_EFFECT_RUNTIME_DIRNAME = "runtime"
@@ -33,12 +37,29 @@ class ObservedLocalWriteEffect:
     boundedness_note: str
 
 
+@dataclass(frozen=True)
+class ObservedLocalRestorationEffect:
+    designated_sandbox_root: str
+    restoration_pre_state_ref: str
+    restoration_observed_write_set: list[AgenticDeObservedRestorationWriteEntry]
+    restoration_post_state_ref: str
+    restoration_effect: str
+    restoration_outcome: str
+    restoration_boundedness_verdict: str
+    restoration_boundedness_note: str
+
+
 def resolve_designated_local_effect_sandbox_root(*, repo_root_path: Path) -> Path:
     return repo_root_path / DESIGNATED_LOCAL_EFFECT_SANDBOX_ROOT
 
 
 def _sha256_bytes(payload: bytes) -> str:
     return hashlib.sha256(payload).hexdigest()
+
+
+DEFAULT_LOCAL_EFFECT_PAYLOAD_SHA256 = _sha256_bytes(
+    DEFAULT_LOCAL_EFFECT_PAYLOAD_TEXT.encode("utf-8")
+)
 
 
 def _sha256_file(path: Path) -> str:
@@ -280,4 +301,132 @@ def observe_local_write_effect(
         observation_outcome=observation_outcome,
         boundedness_verdict=boundedness_verdict,
         boundedness_note=boundedness_note,
+    )
+
+
+def observe_local_write_restoration_effect(
+    *,
+    repo_root_path: Path,
+    restoration_target_relative_path: str,
+    materialized_observed_content_text: str,
+    expected_relative_paths: tuple[str, ...] | None = None,
+    materialize_observed_effect: bool = True,
+) -> ObservedLocalRestorationEffect:
+    sandbox_root = resolve_designated_local_effect_sandbox_root(repo_root_path=repo_root_path)
+    _ensure_clean_runtime_tree(repo_root_path=repo_root_path, sandbox_root=sandbox_root)
+
+    relative_target = Path(restoration_target_relative_path.strip())
+    _assert_safe_relative_target(relative_target)
+    target_path = sandbox_root / relative_target
+    _assert_repo_contained_path(repo_root_path=repo_root_path, candidate=target_path)
+    _assert_no_symlink_components(repo_root_path=repo_root_path, candidate=target_path)
+    _assert_within_designated_sandbox(sandbox_root=sandbox_root, candidate=target_path)
+
+    target_path.parent.mkdir(parents=True, exist_ok=True)
+    _assert_repo_contained_path(repo_root_path=repo_root_path, candidate=target_path.parent)
+    _assert_no_symlink_components(repo_root_path=repo_root_path, candidate=target_path.parent)
+    _assert_within_designated_sandbox(sandbox_root=sandbox_root, candidate=target_path.parent)
+
+    payload_bytes = materialized_observed_content_text.encode("utf-8")
+    if materialize_observed_effect:
+        target_path.write_bytes(payload_bytes)
+
+    pre_state_path = (
+        sandbox_root / LOCAL_EFFECT_OBSERVER_DIRNAME / "reference_restoration_pre_state.json"
+    )
+    post_state_path = (
+        sandbox_root / LOCAL_EFFECT_OBSERVER_DIRNAME / "reference_restoration_post_state.json"
+    )
+    pre_state_payload = _snapshot_sandbox_state(
+        sandbox_root=sandbox_root,
+        repo_root_path=repo_root_path,
+    )
+    _write_json(pre_state_path, pre_state_payload)
+
+    existed_before_restoration = target_path.exists()
+    restoration_observed_write_set: list[AgenticDeObservedRestorationWriteEntry]
+    if existed_before_restoration:
+        removed_content_sha256 = _sha256_file(target_path)
+        bytes_removed = target_path.stat().st_size
+        target_path.unlink()
+        restoration_observed_write_set = [
+            AgenticDeObservedRestorationWriteEntry(
+                relative_path=_relative_display(target_path, repo_root_path=repo_root_path),
+                restoration_operation="compensating_remove_create_new_artifact",
+                existed_before_restoration=True,
+                exists_after_restoration=target_path.exists(),
+                bytes_removed=bytes_removed,
+                removed_content_sha256=removed_content_sha256,
+            )
+        ]
+    else:
+        restoration_observed_write_set = []
+
+    post_state_payload = _snapshot_sandbox_state(
+        sandbox_root=sandbox_root,
+        repo_root_path=repo_root_path,
+    )
+    _write_json(post_state_path, post_state_payload)
+
+    actual_relative_paths = tuple(entry.relative_path for entry in restoration_observed_write_set)
+    expected_paths = (
+        expected_relative_paths
+        if expected_relative_paths is not None
+        else (_relative_display(target_path, repo_root_path=repo_root_path),)
+    )
+    actual_path_set = set(actual_relative_paths)
+    expected_path_set = set(expected_paths)
+    if not restoration_observed_write_set:
+        restoration_outcome = "no_restoration_effect_observed"
+        restoration_boundedness_verdict = "bounded"
+        restoration_boundedness_note = (
+            "no compensating restoration effect was observed inside the designated sandbox root"
+        )
+        restoration_effect = (
+            "no bounded compensating restoration effect was observed inside the designated "
+            "sandbox root"
+        )
+    elif not actual_path_set.issubset(expected_path_set):
+        restoration_outcome = "restoration_out_of_scope_write_observed"
+        restoration_boundedness_verdict = "failed"
+        restoration_boundedness_note = (
+            "observed restoration writes escaped the derived compensating scope even though "
+            "they remained path-local"
+        )
+        restoration_effect = (
+            "observed restoration write set did not match the derived compensating target set"
+        )
+    elif actual_path_set != expected_path_set:
+        restoration_outcome = "restoration_mismatched_effect_observed"
+        restoration_boundedness_verdict = "bounded"
+        restoration_boundedness_note = (
+            "restoration stayed within the designated sandbox root but did not satisfy the "
+            "full derived compensating target set"
+        )
+        restoration_effect = (
+            "observed restoration stayed bounded but did not cover the full expected "
+            "compensating target set"
+        )
+    else:
+        restoration_outcome = "restoration_effect_observed"
+        restoration_boundedness_verdict = "bounded"
+        restoration_boundedness_note = (
+            "observed compensating restoration remained inside the designated sandbox root"
+        )
+        restoration_effect = (
+            "observed bounded compensating restoration remained inside the designated sandbox "
+            "root and matched the derived compensating target"
+        )
+
+    return ObservedLocalRestorationEffect(
+        designated_sandbox_root=_relative_display(sandbox_root, repo_root_path=repo_root_path),
+        restoration_pre_state_ref=_relative_display(pre_state_path, repo_root_path=repo_root_path),
+        restoration_observed_write_set=restoration_observed_write_set,
+        restoration_post_state_ref=_relative_display(
+            post_state_path, repo_root_path=repo_root_path
+        ),
+        restoration_effect=restoration_effect,
+        restoration_outcome=restoration_outcome,
+        restoration_boundedness_verdict=restoration_boundedness_verdict,
+        restoration_boundedness_note=restoration_boundedness_note,
     )

@@ -1,0 +1,224 @@
+{
+  "$defs": {
+    "AgenticDeObservedRestorationWriteEntry": {
+      "additionalProperties": false,
+      "properties": {
+        "bytes_removed": {
+          "minimum": 0,
+          "title": "Bytes Removed",
+          "type": "integer"
+        },
+        "existed_before_restoration": {
+          "title": "Existed Before Restoration",
+          "type": "boolean"
+        },
+        "exists_after_restoration": {
+          "title": "Exists After Restoration",
+          "type": "boolean"
+        },
+        "prior_observation_write_kind": {
+          "const": "create_new",
+          "default": "create_new",
+          "title": "Prior Observation Write Kind",
+          "type": "string"
+        },
+        "relative_path": {
+          "title": "Relative Path",
+          "type": "string"
+        },
+        "removed_content_sha256": {
+          "title": "Removed Content Sha256",
+          "type": "string"
+        },
+        "restoration_operation": {
+          "const": "compensating_remove_create_new_artifact",
+          "title": "Restoration Operation",
+          "type": "string"
+        }
+      },
+      "required": [
+        "relative_path",
+        "restoration_operation",
+        "existed_before_restoration",
+        "exists_after_restoration",
+        "bytes_removed",
+        "removed_content_sha256"
+      ],
+      "title": "AgenticDeObservedRestorationWriteEntry",
+      "type": "object"
+    }
+  },
+  "additionalProperties": false,
+  "properties": {
+    "action_proposal_ref": {
+      "title": "Action Proposal Ref",
+      "type": "string"
+    },
+    "changes_live_behavior_by_default": {
+      "const": false,
+      "default": false,
+      "title": "Changes Live Behavior By Default",
+      "type": "boolean"
+    },
+    "checkpoint_ref": {
+      "title": "Checkpoint Ref",
+      "type": "string"
+    },
+    "conformance_ref": {
+      "title": "Conformance Ref",
+      "type": "string"
+    },
+    "designated_sandbox_root": {
+      "title": "Designated Sandbox Root",
+      "type": "string"
+    },
+    "evidence_only": {
+      "const": true,
+      "default": true,
+      "title": "Evidence Only",
+      "type": "boolean"
+    },
+    "evidence_refs": {
+      "items": {
+        "type": "string"
+      },
+      "title": "Evidence Refs",
+      "type": "array"
+    },
+    "harvest_ref": {
+      "title": "Harvest Ref",
+      "type": "string"
+    },
+    "observation_ref": {
+      "title": "Observation Ref",
+      "type": "string"
+    },
+    "packet_ref": {
+      "title": "Packet Ref",
+      "type": "string"
+    },
+    "replay_mode": {
+      "const": "bounded_recomputation_and_re_evaluation_of_the_restoration_event_against_prior_observed_effect_lineage_only",
+      "default": "bounded_recomputation_and_re_evaluation_of_the_restoration_event_against_prior_observed_effect_lineage_only",
+      "title": "Replay Mode",
+      "type": "string"
+    },
+    "restoration_boundedness_note": {
+      "title": "Restoration Boundedness Note",
+      "type": "string"
+    },
+    "restoration_boundedness_verdict": {
+      "enum": [
+        "bounded",
+        "failed"
+      ],
+      "title": "Restoration Boundedness Verdict",
+      "type": "string"
+    },
+    "restoration_effect": {
+      "title": "Restoration Effect",
+      "type": "string"
+    },
+    "restoration_entitlement_mode": {
+      "const": "lineage_bound_evidence_bound_bounded_compensating_scope_derivation_only",
+      "default": "lineage_bound_evidence_bound_bounded_compensating_scope_derivation_only",
+      "title": "Restoration Entitlement Mode",
+      "type": "string"
+    },
+    "restoration_id": {
+      "anyOf": [
+        {
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Restoration Id"
+    },
+    "restoration_observed_write_set": {
+      "items": {
+        "$ref": "#/$defs/AgenticDeObservedRestorationWriteEntry"
+      },
+      "title": "Restoration Observed Write Set",
+      "type": "array"
+    },
+    "restoration_outcome": {
+      "enum": [
+        "restoration_effect_observed",
+        "no_restoration_effect_observed",
+        "restoration_out_of_scope_write_observed",
+        "restoration_mismatched_effect_observed",
+        "restoration_boundedness_verdict_failed"
+      ],
+      "title": "Restoration Outcome",
+      "type": "string"
+    },
+    "restoration_post_state_ref": {
+      "title": "Restoration Post State Ref",
+      "type": "string"
+    },
+    "restoration_pre_state_ref": {
+      "title": "Restoration Pre State Ref",
+      "type": "string"
+    },
+    "runtime_state_ref": {
+      "title": "Runtime State Ref",
+      "type": "string"
+    },
+    "schema": {
+      "const": "agentic_de_local_effect_restoration_record@1",
+      "default": "agentic_de_local_effect_restoration_record@1",
+      "title": "Schema",
+      "type": "string"
+    },
+    "selected_live_action_class": {
+      "const": "local_write",
+      "default": "local_write",
+      "title": "Selected Live Action Class",
+      "type": "string"
+    },
+    "selected_restoration_exemplar": {
+      "const": "compensating_restore_of_v57a_create_new_artifact_only",
+      "default": "compensating_restore_of_v57a_create_new_artifact_only",
+      "title": "Selected Restoration Exemplar",
+      "type": "string"
+    },
+    "target_arc": {
+      "title": "Target Arc",
+      "type": "string"
+    },
+    "target_path": {
+      "title": "Target Path",
+      "type": "string"
+    },
+    "ticket_ref": {
+      "title": "Ticket Ref",
+      "type": "string"
+    }
+  },
+  "required": [
+    "target_arc",
+    "target_path",
+    "designated_sandbox_root",
+    "packet_ref",
+    "action_proposal_ref",
+    "checkpoint_ref",
+    "runtime_state_ref",
+    "ticket_ref",
+    "harvest_ref",
+    "observation_ref",
+    "conformance_ref",
+    "restoration_pre_state_ref",
+    "restoration_observed_write_set",
+    "restoration_post_state_ref",
+    "restoration_effect",
+    "restoration_outcome",
+    "restoration_boundedness_verdict",
+    "restoration_boundedness_note",
+    "evidence_refs"
+  ],
+  "title": "AgenticDeLocalEffectRestorationRecord",
+  "type": "object"
+}
