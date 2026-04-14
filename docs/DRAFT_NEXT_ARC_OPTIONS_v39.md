@@ -76,7 +76,12 @@ Interpretive doctrine for this planning surface:
   - `docs/LOCKED_CONTINUATION_vNEXT_PLUS152.md`
   - `docs/DRAFT_STOP_GATE_DECISION_vNEXT_PLUS152.md`
   - `docs/ASSESSMENT_vNEXT_PLUS152_EDGES.md`
-- `v152` is the current implementation-arc baseline on `main`.
+- `V56-B` is closed on `main` through `v153` and now constitutes the released bounded
+  resident-agent live-gate starter recorded by:
+  - `docs/LOCKED_CONTINUATION_vNEXT_PLUS153.md`
+  - `docs/DRAFT_STOP_GATE_DECISION_vNEXT_PLUS153.md`
+  - `docs/ASSESSMENT_vNEXT_PLUS153_EDGES.md`
+- `v153` is the current implementation-arc baseline on `main`.
 
 ## Gap
 
@@ -190,24 +195,26 @@ Ordering discipline for this branch:
 - Recommended family/slice mapping reference to draft next:
   - `docs/DRAFT_ADEU_RESIDENT_AGENT_INTERACTION_GOVERNANCE_V56_IMPLEMENTATION_MAPPING_v0.md`
 - Recommended next path for this branch:
-  - `V56-B`
+  - `V56-C`
 - Recommended next concrete arc for this branch if selected:
-  - `V56-B`
+  - `V56-C`
 - Default path selection for this branch:
-  - one bounded live-gate hardening slice is recommended:
-    - reuse the shipped `V56-A` packet / interaction-contract / action-proposal /
-      membrane-checkpoint surfaces by default
-    - freeze one exact starter action-class taxonomy
-    - add one bounded runtime-state surface
-    - add one bounded action-ticket surface
-    - add one bounded live use path for one narrow selected subset of local
-      effect-bearing classes only
-    - checkpoint `accepted` remains necessary but not sufficient for ticket issuance
-    - local/reversible bounds are frozen explicitly before implementation
-    - ticket-issued-or-not must remain explicit in the typed consequence chain
-    - no harvest/calibration yet
+- one bounded harvest/calibration/migration slice is recommended:
+    - reuse the shipped `V56-A` and `V56-B` packet / contract / proposal /
+      checkpoint / diagnostics / conformance / runtime-state / action-ticket
+      surfaces by default
+    - carry forward the exact `V56-B` action-class taxonomy and selected local live
+      subset unchanged by default
+    - keep the operative interpretation of the selected `V56-B` live classes frozen
+      by default
+    - add one bounded runtime-harvest record
+    - add one bounded governance-calibration register
+    - add one bounded migration-decision register
+    - keep ticket-issued-or-not explicit in the typed post-action delta chain
+    - keep all new decision outputs advisory-only in this slice
+    - no live behavior widening by advisory output alone
     - no delegated worker-topology widening yet
-  - if this family is selected, select `V56-B` as the next default candidate
+  - if this family is selected, select `V56-C` as the next default candidate
 
 This family/path recommendation is branch-local to the `v39` planning surface.
 
@@ -221,8 +228,8 @@ The current recommended path ladder is:
 | Path | Theme | Primary output | Status |
 |---|---|---|---|
 | `V56-A` | family contract + starter runtime-governance seam | one resident-agent domain packet, one interaction contract, one action-proposal artifact, one dry-run membrane checkpoint / gate, one diagnostics surface, one conformance report surface | closed on `main` through `v152` |
-| `V56-B` | bounded live action gate | one runtime state path, one action-class taxonomy, one action ticket / gate surface, one bounded live use path over the shipped checkpoint for one narrow selected subset of local effect-bearing classes | recommended next path |
-| `V56-C` | conformance / harvest / migration decision | one harvest record, one governance calibration register, one bounded migration decision on any stronger local enforcement | not selected yet |
+| `V56-B` | bounded live action gate | one runtime state path, one action-class taxonomy, one action ticket / gate surface, one bounded live use path over the shipped checkpoint for one narrow selected subset of local effect-bearing classes | closed on `main` through `v153` |
+| `V56-C` | conformance / harvest / migration decision | one harvest record, one governance calibration register, one bounded migration decision on any stronger local enforcement | recommended next path |
 
 These output names are planning-level candidate names, not lock-level schema authority.
 
@@ -246,40 +253,37 @@ These output names are planning-level candidate names, not lock-level schema aut
   - bounded gate;
   - explicit post-action trace.
 
-## Proposed `V56-B` Scope
+## Proposed `V56-C` Scope
 
-`V56-B` should be bounded to:
+`V56-C` should be bounded to:
 
 - one existing primary family package:
   - `packages/adeu_agentic_de`
 - one existing thin script seam under repo operations;
-- one explicit `V56-A` to `V56-B` handoff via:
+- one explicit `V56-B` to `V56-C` handoff via:
   - `agentic_de_lane_drift_record@1`
-- reuse of the shipped `V56-A` packet / morph IR / interaction-contract /
-  action-proposal / membrane-checkpoint / diagnostics / conformance surfaces by
-  default;
-- one exact action-class taxonomy:
-  - pure read / inspect
-  - capability-sensitive inspect
-  - local reversible execute
-  - stronger execute
-  - local write
-  - delegated or external dispatch
-- one bounded runtime-state surface:
-  - `agentic_de_runtime_state@1`
-- one bounded action-ticket surface:
-  - `agentic_de_action_ticket@1`
-- one bounded live use path over the shipped checkpoint for a narrow selected subset
-  of local effect-bearing classes only;
+- reuse of the shipped `V56-A` and `V56-B` packet / morph IR / interaction-contract /
+  action-proposal / membrane-checkpoint / diagnostics / conformance / runtime-state /
+  action-ticket surfaces by default;
+- one bounded runtime-harvest surface:
+  - `agentic_de_runtime_harvest_record@1`
+- one bounded governance-calibration surface:
+  - `agentic_de_governance_calibration_register@1`
+- one bounded migration-decision surface:
+  - `agentic_de_migration_decision_register@1`
+- one explicit evidence-consumption path over shipped `V56-A` and `V56-B` fixtures and
+  closeout evidence, not narrative docs alone;
 - the same shaping-input set carried forward unless a later explicit amendment says
   otherwise;
+- no new live action classes;
+- no stronger execute rollout;
+- no delegated or external dispatch rollout;
 - no product/API rollout;
-- no hidden-cognition governance claim;
-- no delegated worker-topology widening under cover of resident-agent gating.
+- no hidden-cognition governance claim.
 
 Shaping-input admission law carried forward for this branch:
 
-- support-layer doctrine may shape `V56-B` only through explicit admission;
+- support-layer doctrine may shape `V56-C` only through explicit admission;
 - no support artifact becomes family law or live runtime authority by citation alone;
 - each admitted support artifact must declare:
   - authority layer;
@@ -288,23 +292,24 @@ Shaping-input admission law carried forward for this branch:
   - forbidden inference; and
   - later promotion requirement.
 
-Action-class taxonomy note for this branch:
+Post-action evidence note for this branch:
 
-- the `V56-A` planning requirement for exact action-class typing remains in force;
-- `V56-B` should freeze one exact starter taxonomy before any live ticket issuance;
-- the starter live-gate subset should remain narrower than the full taxonomy and
-  should prefer local reversible execute and local write before any delegated or
-  external dispatch class is considered;
-- for `V56-B`, `local` should remain confined to the current bounded workspace /
-  process / sandbox surface and exclude delegated, remote, networked, or broader
-  system effects;
-- for `V56-B`, `reversible` should mean rollback or compensating restore is defined
-  and testable inside the same local authority envelope;
-- for `V56-B`, `local_write` should exclude authority-bearing writes to family
-  constitutions, lock docs, CI config, secrets/credentials, and dispatch surfaces
-  unless a later lock explicitly selects them;
-- this taxonomy note is a planning requirement for exactness, not a claim that the
-  full class lattice is already released or that every class becomes live in `V56-B`.
+- `V56-C` should keep conformance and harvest as typed delta surfaces rather than
+  narrative summaries;
+- `agentic_de_runtime_harvest_record@1` should record observed pattern, delta, and
+  bounded derived summaries only; it should not by itself classify those patterns as
+  governance defects or candidate escalations;
+- the minimum delta chain should remain explicit across:
+  - packed state
+  - proposed action
+  - checkpoint entitlement
+  - ticket issued or not
+  - executed or observed local effect
+- advisory calibration in `V56-C` should remain per action class and per surface by
+  default, not checker-global by default.
+- committed fixtures, tickets, conformance outputs, lane-drift record, and closeout
+  evidence should outrank narrative interpretation when `V56-C` derives calibration or
+  migration surfaces.
 
 ## Machine-Checkable Seed Summary
 
@@ -316,12 +321,13 @@ Action-class taxonomy note for this branch:
   "authority_layer": "planning",
   "family_name": "V56",
   "family_theme": "adeu_resident_agent_interaction_governance",
-  "recommended_next_path": "V56-B",
+  "recommended_next_path": "V56-C",
   "controls_hidden_cognition": false,
   "controls_boundary_crossing": true,
   "dry_run_gate_selected_for_v56a": true,
   "bounded_live_gate_selected_for_v56b": true,
-  "starter_live_gate_subset_prefers_local_execute_and_write": true,
+  "bounded_harvest_and_calibration_selected_for_v56c": true,
+  "v56b_selected_live_subset_carried_forward_unchanged_by_default": true,
   "admitted_shaping_input_required": true
 }
 ```
