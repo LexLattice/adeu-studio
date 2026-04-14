@@ -79,6 +79,13 @@ The family should remain package-first in `V57-A`:
   - add one hardening register
   - decide whether the observed/restored local-write path deserves stronger local
     hardening later
+  - keep the selected hardening target narrowed to the shipped observed/restored
+    `create_new` exemplar
+  - keep exemplar evidence non-generalizing by default:
+    - not class-level `local_write` law
+    - not restoration-family law
+  - keep the hardening register advisory-only and candidate-only in this slice
+  - keep the hardening register path-level rather than family-wide migration
   - do not assume such hardening is selected in advance
 
 ## Pre-Lane Drift Check Rule
@@ -115,5 +122,7 @@ should be recorded as confirmation or narrow amendment.
 - destructive, overwrite, rename, delete, or metadata-mutating writes in the first
   slice
 - automatic hardening from one observed effect
+- automatic hardening from one observed/restored exemplar
 - semantic repartition of `local_write`
+- semantic repartition of the shipped `V57-B` restoration exemplar
 - any assumption that later `V57` lanes are authorized merely because they are drafted

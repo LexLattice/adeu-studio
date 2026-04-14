@@ -1,12 +1,14 @@
 # Draft Next Arc Options v40
 
 Status: planning draft after `docs/DRAFT_NEXT_ARC_OPTIONS_v39.md`, updated after the
-bounded `V57-A` local-effect observation starter closed on `main` through `v155`, and
-after the shipped `V57-A` observation/conformance surfaces captured one actually
-observed bounded local effect but still left one bounded restoration/replay path
-unowned:
-the shipped `create_new` local-write exemplar still lacks a compensating-restore
-surface inside the same sandbox and authority envelope.
+bounded `V57-A` local-effect observation starter closed on `main` through `v155`,
+after the bounded `V57-B` local-effect restoration/replay starter closed on `main`
+through `v156`, and after the shipped `V57-A`/`V57-B` surfaces captured one actually
+observed bounded local effect plus one compensating-restore path but still left one
+bounded local hardening decision seam unowned:
+the shipped observed/restored `create_new` local-write exemplar still lacks one
+repo-owned advisory hardening register over whether that path deserves stronger local
+hardening later.
 
 Authority layer: planning.
 
@@ -52,6 +54,8 @@ Interpretive doctrine for this planning surface:
   `docs/DRAFT_NEXT_ARC_OPTIONS_v39.md`.
 - `V57-A` is closed on `main` and now constitutes the released bounded local-effect
   observation starter recorded in this `v40` planning branch.
+- `V57-B` is closed on `main` and now constitutes the released bounded local-effect
+  restoration / replay starter recorded in this `v40` planning branch.
 - the released `V56` family now owns:
   - packet / morph IR / interaction-contract loading;
   - action proposal;
@@ -72,7 +76,13 @@ Interpretive doctrine for this planning surface:
   - one designated sandbox-root local-effect conformance report
   - one actual bounded `create_new` exemplar under the frozen `local_write` class
   - explicit negative observation outcomes
-- `v155` is the current implementation-arc baseline on `main`.
+- the shipped `V57-B` outputs now externalize:
+  - one designated sandbox-root local-effect restoration record
+  - one bounded compensating-restore path over the shipped `create_new` exemplar only
+  - one explicit restoration-entitlement law tied to the same observation / ticket /
+    checkpoint lineage
+  - explicit negative restoration outcomes
+- `v156` is the current implementation-arc baseline on `main`.
 
 ## Gap
 
@@ -85,18 +95,19 @@ The repo no longer lacks:
 
 The repo still lacks:
 
-- one repo-owned slice that captures bounded restoration / compensating-restore
-  evidence over the shipped `V57-A` observed local effect;
-- one typed restoration surface that binds one prior observation and one prior
-  conformance output to one restoration effect inside the same sandbox root;
-- one bounded replay/restoration path that stays inside the same authority envelope
-  rather than laundering into broader delete/overwrite repo authority; and
-- one later hardening decision seam over the observed/restored path that stays
-  downstream of `V56` and `V57-A` rather than silently mutating them.
+- one repo-owned local hardening decision seam over the shipped observed/restored
+  local-write path;
+- one typed hardening register that consumes the shipped observation / conformance /
+  restoration lineage rather than narrative interpretation alone;
+- one bounded advisory decision surface over whether the observed/restored
+  `create_new` exemplar deserves stronger local hardening later; and
+- one later migration posture over that path that stays downstream of `V56`, `V57-A`,
+  and `V57-B` rather than silently mutating live behavior.
 
-So the repo still lacks the slice that would turn the shipped `V57-A` observation of
-`local_write_post_effect_observation_path` into one lawful bounded restoration path
-rather than leaving it as evidence with no repo-owned replay/restore follow-through.
+So the repo still lacks the slice that would turn the shipped `V57-A` observation plus
+the shipped `V57-B` restoration of `local_write_post_effect_observation_path` into
+one lawful bounded hardening-decision surface rather than leaving the observed and
+restored evidence with no repo-owned local hardening judgment.
 
 ## Relationship To `V48`, `V51`, `V55`, And `V56`
 
@@ -113,17 +124,18 @@ This new family asks:
 
 - how should one already selected `V56` local live path produce lawful post-effect
   evidence without reopening `V56` gate law?
-- how should ADEU capture actual local-write observation, boundedness, and later
+- how should ADEU capture actual local-write observation, boundedness, and bounded
   restoration evidence inside one designated local sandbox?
-- how should one observed effect constrain later hardening discussion without minting
-  it automatically?
+- how should one observed and restored effect constrain later hardening discussion
+  without minting it automatically?
 
 So this family may constrain:
 
 - actual bounded local-effect execution over a shipped `V56` ticket;
 - effect target-root selection and path boundedness;
 - post-effect observation and conformance;
-- later restoration and hardening discussion over the same frozen semantics.
+- bounded restoration / replay over the same frozen semantics;
+- later local hardening discussion over the same observed/restored path.
 
 But it may not mint:
 
@@ -162,38 +174,34 @@ Ordering discipline for this branch:
 - Recommended family/slice mapping reference to draft next:
   - `docs/DRAFT_ADEU_RESIDENT_AGENT_LOCAL_EFFECT_HARDENING_V57_IMPLEMENTATION_MAPPING_v0.md`
 - Recommended next path for this branch:
-  - `V57-B`
+  - `V57-C`
 - Recommended next concrete arc for this branch if selected:
-  - `V57-B`
+  - `V57-C`
 - Default path selection for this branch:
-  - one bounded restoration / replay starter is recommended:
+  - one bounded local hardening decision starter is recommended:
     - reuse the shipped `V56-A`, `V56-B`, `V56-C`, and `V57-A` packet / contract /
       proposal / checkpoint / ticket / conformance / harvest / observation surfaces by
       default
+    - reuse the shipped `V57-B` restoration surface by default
     - keep the operative interpretation of `local_write` frozen from shipped `V56-B`,
-      shipped `V56-C`, and shipped `V57-A`
-    - define replay here narrowly:
-      - bounded recomputation and re-evaluation of the restoration event against the
-        prior observed-effect lineage only
-      - not general re-execution of arbitrary prior live actions
+      shipped `V56-C`, shipped `V57-A`, and shipped `V57-B`
+    - keep the operative interpretation of the shipped `V57-B` restoration exemplar
+      frozen:
+      - compensating restore of the shipped `create_new` artifact only
     - keep the designated local-effect sandbox root from shipped `V57-A`
-    - select one restoration / compensating-restore path only over the shipped
-      `create_new` exemplar from `V57-A`
-    - reuse of the `V57-A` observation subset does not imply restoration eligibility
-      for every observed subset member
-    - keep append-only restoration out of the first restoration slice
-    - restoration does not reuse the original ticket as ambient ongoing authority
-    - restoration is lawful only when one explicit bounded compensating scope can be
-      derived from the prior observed path and matched fail-closed against the shipped
-      ticket / checkpoint lineage
-    - keep general delete, overwrite, rename, and broader destructive semantics out of
-      the selected live-class interpretation
-    - add one bounded local-effect restoration record
-    - keep the new restoration surfaces evidence-bearing only in this slice
-    - no hardening decision yet
+    - select one bounded local hardening register only over the shipped observed and
+      restored `create_new` exemplar
+    - keep the hardening-decision seam advisory-only in this slice
+    - keep committed fixtures, observation/conformance/restoration outputs, lane-drift
+      records, and closeout evidence higher-ranked than narrative interpretation
+    - keep one observed/restored effect from minting checkpoint, ticket, sandbox, or
+      class changes by default
     - no action-class widening
+    - no restoration-exemplar reinterpretation
     - no repo-source/doc/CI/secret/dispatch writes
-  - if this family is selected, select `V57-B` as the next default candidate
+    - no checkpoint/ticket mutation
+    - no restoration-law widening
+  - if this family is selected, select `V57-C` as the next default candidate
 
 This family/path recommendation is branch-local to the `v40` planning surface.
 
@@ -207,8 +215,8 @@ The current recommended path ladder is:
 | Path | Theme | Primary output | Status |
 |---|---|---|---|
 | `V57-A` | bounded post-effect observation starter | one designated local-effect sandbox, one local-effect observation record, one local-effect conformance report over the frozen `local_write` path only | closed on `main` |
-| `V57-B` | bounded restoration / replay hardening | one local-effect restoration record and one bounded replay/restoration path first over the shipped `create_new` exemplar inside the same sandbox authority envelope | recommended next path |
-| `V57-C` | local hardening decision | one local-effect hardening register over whether the observed and restored path deserves stronger local hardening later | later lane |
+| `V57-B` | bounded restoration / replay hardening | one local-effect restoration record and one bounded replay/restoration path first over the shipped `create_new` exemplar inside the same sandbox authority envelope | closed on `main` |
+| `V57-C` | local hardening decision | one local-effect hardening register over whether the observed and restored path deserves stronger local hardening later | recommended next path |
 
 These output names are planning-level candidate names, not lock-level schema
 authority.
@@ -228,62 +236,79 @@ authority.
   - `V57` owns bounded post-effect evidence, bounded restoration, and later hardening
     over one already selected live class.
 
-## Proposed `V57-B` Scope
+## Proposed `V57-C` Scope
 
-`V57-B` should be bounded to:
+`V57-C` should be bounded to:
 
 - one existing primary family package:
   - `packages/adeu_agentic_de`
 - one existing thin script seam under repo operations;
-- one explicit `V57-A` to `V57-B` handoff via:
+- one explicit `V57-B` to `V57-C` handoff via:
   - `agentic_de_lane_drift_record@1`
 - reuse of the shipped `V56-A`, `V56-B`, and `V56-C` packet / morph IR /
   interaction-contract / action-proposal / membrane-checkpoint / diagnostics /
   conformance / runtime-state / action-ticket / harvest surfaces by default;
 - reuse of the shipped `V57-A` observation / local-effect conformance surfaces by
   default;
+- reuse of the shipped `V57-B` restoration surface by default;
 - one selected live action class only:
   - `local_write`
 - one designated local-effect sandbox root only:
   - `artifacts/agentic_de/v57/local_effect/`
-- one bounded local-effect restoration surface:
-  - `agentic_de_local_effect_restoration_record@1`
-- one bounded restoration / replay path only over the shipped `create_new` exemplar
-  from `V57-A`;
-- one explicit replay law only:
-  - bounded recomputation and re-evaluation of the restoration event against the prior
-    observed-effect lineage
-  - not general re-execution of arbitrary prior live actions
-- one explicit restoration lineage law only:
-  - one prior bounded observation outcome only:
-    - `bounded_effect_observed`
-  - one prior observation ref
-  - one prior local-effect conformance ref
-  - one live ticket / selected action proposal / checkpoint-entitled effect lineage
-    reused from the prior observed path
-  - the original ticket is not ambient ongoing authority
-  - restoration is lawful only when one bounded compensating scope can be derived and
-    matched fail-closed from that lineage
-- reuse of the `V57-A` observation subset does not imply restoration eligibility for
-  every observed subset member
-- one explicit anti-escape sandbox law only:
-  - no symlink escape
-  - no parent traversal
-  - no indirect alias or mount redirection
-  - no write-through into authority-bearing surfaces through sandbox references
-- one explicit sandbox-region state law only:
-  - restoration pre-state and post-state are scoped to the designated sandbox effect
-    region only
-  - not to repo-global state
-- one explicit restoration outcome vocabulary only:
-  - restoration effect observed
-  - no restoration effect observed
-  - restoration out-of-scope write observed
-  - restoration mismatched effect observed
-  - restoration boundedness verdict failed
-- no append-only restoration yet;
-- no hardening register yet;
+- one bounded local hardening decision surface:
+  - `agentic_de_local_effect_hardening_register@1`
+- one selected hardening target only:
+  - the shipped observed and restored `create_new` exemplar inside the same sandbox
+    authority envelope
+- one explicit no-generalization law only:
+  - exemplar evidence may not be generalized by default into class-level conclusions
+    about `local_write`
+  - exemplar evidence may not be generalized by default into restoration-family law
+- one explicit evidence-consumption law only:
+  - committed observation / conformance / restoration fixtures
+  - committed lane-drift record
+  - committed closeout evidence
+  - outrank narrative interpretation by default
+- one explicit hardening-decision law only:
+  - advisory-only in this slice
+  - candidate-only for any later local hardening selection
+  - path-level advisory only:
+    - not a family-wide migration surface
+  - may assess the shipped path but may not mutate live checkpoint, ticket,
+    observation, conformance, or restoration behavior by default
+- one explicit hardening-evidence chain only:
+  - ticket ref
+  - action proposal ref
+  - checkpoint ref
+  - observation ref
+  - local-effect conformance ref
+  - restoration ref
+  - observation boundedness verdict
+  - restoration boundedness verdict
+  - selected hardening target surface
+  - recommended outcome
+  - evidence refs / reason codes
+- one explicit allowed outcome vocabulary only:
+  - `keep_warning_only`
+  - `needs_more_evidence`
+  - `candidate_for_later_local_hardening`
+  - `not_selected_for_escalation`
+- one explicit forbidden outcome vocabulary only:
+  - `gate_now`
+  - `sandbox_widen_now`
+  - `broader_write_now`
+  - `restoration_generalize_now`
+  - `dispatch_now`
+  - `ci_required_now`
+- one explicit anti-laundering law only:
+  - one observed/restored effect does not by itself nominate checkpoint, ticket,
+    class, sandbox, or entitlement changes
+  - restoration evidence does not by itself become hardening authority
+  - `candidate_for_later_local_hardening` nominates only one later bounded evaluation
+    target and does not identify later hardening scope unless a later lock types and
+    selects that scope
 - no class widening;
+- no restoration-exemplar reinterpretation;
 - no stronger execute rollout;
 - no delegated or external dispatch rollout;
 - no repo-source / lock-doc / CI / secret / dispatch-surface writes;
@@ -299,7 +324,7 @@ authority.
   "authority_layer": "planning",
   "family_name": "V57",
   "family_theme": "adeu_resident_agent_local_effect_hardening",
-  "recommended_next_path": "V57-B",
+  "recommended_next_path": "V57-C",
   "depends_on_closed_v56_family": true,
   "selected_live_action_class_for_v57a": "local_write",
   "selected_live_action_class_interpretation_reused_from_v56b": true,
@@ -321,6 +346,12 @@ authority.
   "ticket_to_effect_binding_required": true,
   "restoration_state_pair_scoped_to_designated_sandbox_effect_region_only": true,
   "negative_restoration_outcomes_required": true,
+  "bounded_local_hardening_selected_for_v57c": true,
+  "selected_hardening_target_for_v57c": "observed_and_restored_v57a_create_new_exemplar_only",
+  "local_effect_hardening_register_selected_for_v57c": true,
+  "advisory_only_hardening_outputs_in_v57c": true,
+  "committed_lane_artifacts_outrank_narrative_docs_for_v57c": true,
+  "hardening_may_not_change_live_behavior_by_default": true,
   "hardening_decision_selected_for_v57b": false,
   "governs_hidden_cognition": false
 }
