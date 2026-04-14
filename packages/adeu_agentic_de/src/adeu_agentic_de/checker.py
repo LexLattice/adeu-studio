@@ -25,6 +25,8 @@ from .models import (
     AGENTIC_DE_GOVERNANCE_CALIBRATION_REGISTER_SCHEMA,
     AGENTIC_DE_INTERACTION_CONTRACT_SCHEMA,
     AGENTIC_DE_LANE_DRIFT_RECORD_SCHEMA,
+    AGENTIC_DE_LIVE_RESTORATION_HANDOFF_RECORD_SCHEMA,
+    AGENTIC_DE_LIVE_RESTORATION_REINTEGRATION_REPORT_SCHEMA,
     AGENTIC_DE_LIVE_TURN_ADMISSION_RECORD_SCHEMA,
     AGENTIC_DE_LIVE_TURN_HANDOFF_RECORD_SCHEMA,
     AGENTIC_DE_LIVE_TURN_REINTEGRATION_REPORT_SCHEMA,
@@ -49,6 +51,8 @@ from .models import (
     AgenticDeInteractionContract,
     AgenticDeInteractionContractEntry,
     AgenticDeLaneDriftRecord,
+    AgenticDeLiveRestorationHandoffRecord,
+    AgenticDeLiveRestorationReintegrationReport,
     AgenticDeLiveTurnAdmissionRecord,
     AgenticDeLiveTurnHandoffRecord,
     AgenticDeLiveTurnReintegrationReport,
@@ -85,6 +89,9 @@ V57C_TARGET_PATH = "V57-C"
 V58A_CHECKER_VERSION = "agentic_de_live_harness_v58a"
 V58A_TARGET_ARC = "vNext+158"
 V58A_TARGET_PATH = "V58-A"
+V58B_CHECKER_VERSION = "agentic_de_live_harness_v58b"
+V58B_TARGET_ARC = "vNext+159"
+V58B_TARGET_PATH = "V58-B"
 
 
 def _default_fixture_path(variant: str, filename: str) -> Path:
@@ -214,6 +221,26 @@ DEFAULT_V57C_EVIDENCE_PATH = (
 DEFAULT_V58A_LANE_DRIFT_PATH = _default_fixture_path(
     "v58a", "reference_agentic_de_lane_drift_record.json"
 )
+DEFAULT_V58A_LIVE_TURN_ADMISSION_PATH = _default_fixture_path(
+    "v58a", "reference_agentic_de_live_turn_admission_record.json"
+)
+DEFAULT_V58A_LIVE_TURN_HANDOFF_PATH = _default_fixture_path(
+    "v58a", "reference_agentic_de_live_turn_handoff_record.json"
+)
+DEFAULT_V58A_LIVE_TURN_REINTEGRATION_PATH = _default_fixture_path(
+    "v58a", "reference_agentic_de_live_turn_reintegration_report.json"
+)
+DEFAULT_V58B_LANE_DRIFT_PATH = _default_fixture_path(
+    "v58b", "reference_agentic_de_lane_drift_record.json"
+)
+DEFAULT_V58A_EVIDENCE_PATH = (
+    repo_root(anchor=Path(__file__))
+    / "artifacts"
+    / "agent_harness"
+    / "v158"
+    / "evidence_inputs"
+    / "v58a_live_harness_bind_evidence_v158.json"
+)
 
 EXPECTED_V56A_EVIDENCE_SCHEMA = "v56a_agentic_de_interaction_governance_starter_evidence@1"
 EXPECTED_V56B_EVIDENCE_SCHEMA = "v56b_bounded_live_gate_starter_evidence@1"
@@ -283,6 +310,15 @@ REQUIRED_V58A_DRIFT_ENTRY_STATUSES: dict[str, str] = {
     "ticket_to_effect_handoff_required": "amended",
     "positive_reintegration_requires_declared_current_turn_witness": "amended",
     "observability_echo_dedup_required": "amended",
+}
+EXPECTED_V58A_EVIDENCE_SCHEMA = "v58a_live_harness_bind_evidence@1"
+EXPECTED_V58B_PRIOR_LANE_REF = "docs/LOCKED_CONTINUATION_vNEXT_PLUS158.md"
+REQUIRED_V58B_DRIFT_ENTRY_STATUSES: dict[str, str] = {
+    "v58a_surface_reuse_default": "holds",
+    "restoration_state_explicit_not_hidden_cleanup": "amended",
+    "restoration_time_admission_resnapshot_required": "amended",
+    "historical_lineage_refs_non_entitling": "amended",
+    "replay_law_proof_embedded_in_reintegration_report": "amended",
 }
 
 
@@ -372,6 +408,30 @@ def load_live_turn_reintegration_report(path: Path) -> AgenticDeLiveTurnReintegr
     if payload.schema != AGENTIC_DE_LIVE_TURN_REINTEGRATION_REPORT_SCHEMA:
         raise ValueError(
             "unexpected schema marker for live-turn reintegration report: "
+            f"{payload.schema}"
+        )
+    return payload
+
+
+def load_live_restoration_handoff_record(path: Path) -> AgenticDeLiveRestorationHandoffRecord:
+    payload = AgenticDeLiveRestorationHandoffRecord.model_validate(_read_json_object(path))
+    if payload.schema != AGENTIC_DE_LIVE_RESTORATION_HANDOFF_RECORD_SCHEMA:
+        raise ValueError(
+            "unexpected schema marker for live restoration handoff record: "
+            f"{payload.schema}"
+        )
+    return payload
+
+
+def load_live_restoration_reintegration_report(
+    path: Path,
+) -> AgenticDeLiveRestorationReintegrationReport:
+    payload = AgenticDeLiveRestorationReintegrationReport.model_validate(
+        _read_json_object(path)
+    )
+    if payload.schema != AGENTIC_DE_LIVE_RESTORATION_REINTEGRATION_REPORT_SCHEMA:
+        raise ValueError(
+            "unexpected schema marker for live restoration reintegration report: "
             f"{payload.schema}"
         )
     return payload
@@ -735,6 +795,41 @@ def _validate_v58a_lane_drift_record(record: AgenticDeLaneDriftRecord) -> Agenti
         raise ValueError(
             "V58-A lane drift record does not satisfy the required handoff posture; "
             + ", ".join(detail_parts)
+    )
+    return record
+
+
+def _validate_v58b_lane_drift_record(record: AgenticDeLaneDriftRecord) -> AgenticDeLaneDriftRecord:
+    if record.target_arc != V58B_TARGET_ARC:
+        raise ValueError(
+            f"V58-B lane drift record must target {V58B_TARGET_ARC!r}, got {record.target_arc!r}"
+        )
+    if record.target_path != V58B_TARGET_PATH:
+        raise ValueError(
+            f"V58-B lane drift record must target {V58B_TARGET_PATH!r}, got {record.target_path!r}"
+        )
+    if record.prior_lane_ref != EXPECTED_V58B_PRIOR_LANE_REF:
+        raise ValueError(
+            "V58-B lane drift record must point at "
+            f"{EXPECTED_V58B_PRIOR_LANE_REF!r}, got {record.prior_lane_ref!r}"
+        )
+    actual_statuses = {entry.assumption_ref: entry.status for entry in record.entries}
+    missing_assumptions = sorted(set(REQUIRED_V58B_DRIFT_ENTRY_STATUSES) - set(actual_statuses))
+    mismatched_statuses = sorted(
+        assumption_ref
+        for assumption_ref, expected_status in REQUIRED_V58B_DRIFT_ENTRY_STATUSES.items()
+        if assumption_ref in actual_statuses
+        and actual_statuses[assumption_ref] != expected_status
+    )
+    if missing_assumptions or mismatched_statuses:
+        detail_parts: list[str] = []
+        if missing_assumptions:
+            detail_parts.append(f"missing={missing_assumptions}")
+        if mismatched_statuses:
+            detail_parts.append(f"status_mismatch={mismatched_statuses}")
+        raise ValueError(
+            "V58-B lane drift record does not satisfy the required handoff posture; "
+            + ", ".join(detail_parts)
         )
     return record
 
@@ -890,6 +985,37 @@ def _validate_v57c_evidence_payload(payload: dict[str, object]) -> dict[str, obj
         raise ValueError(
             "V57-C evidence must preserve committed-lane-artifacts-over-narrative ordering"
         )
+    return payload
+
+
+def _validate_v58a_evidence_payload(payload: dict[str, object]) -> dict[str, object]:
+    if payload.get("schema") != EXPECTED_V58A_EVIDENCE_SCHEMA:
+        raise ValueError("V58-B requires the shipped V58-A live harness evidence payload on main")
+    selected_shapes = payload.get("selected_record_shapes")
+    if not isinstance(selected_shapes, list) or {
+        "agentic_de_live_turn_admission_record@1",
+        "agentic_de_live_turn_handoff_record@1",
+        "agentic_de_live_turn_reintegration_report@1",
+    } - set(selected_shapes):
+        raise ValueError("V58-A evidence must preserve the shipped live-turn bind surfaces")
+    if payload.get("selected_live_session_surface_for_v58a") != "urm_copilot_session_path_only":
+        raise ValueError("V58-A evidence must preserve the URM copilot session path only")
+    if payload.get("selected_live_action_class_for_v58a") != "local_write":
+        raise ValueError("V58-A evidence must preserve the local_write-only live class")
+    if payload.get("selected_local_write_kind_for_v58a") != "create_new":
+        raise ValueError("V58-A evidence must preserve the create_new-only live write kind")
+    if payload.get("restoration_selected_in_v58a") is not False:
+        raise ValueError("V58-A evidence must preserve restoration as deferred")
+    if payload.get("outer_harness_capability_necessary_but_not_sufficient") is not True:
+        raise ValueError(
+            "V58-A evidence must preserve outer-harness-necessary-but-not-sufficient law"
+        )
+    if payload.get("positive_reintegration_requires_witness_basis_or_certificate_ref") is not True:
+        raise ValueError(
+            "V58-A evidence must preserve witness-bearing positive reintegration"
+        )
+    if payload.get("root_origin_dedup_required_for_current_turn_support") is not True:
+        raise ValueError("V58-A evidence must preserve current-turn root-origin dedup")
     return payload
 
 
@@ -2766,6 +2892,22 @@ def _snapshot_observability_refs(
     return refs
 
 
+def _session_capability_snapshot(live_turn_snapshot: CopilotTurnSnapshot) -> str:
+    return (
+        f"status={live_turn_snapshot.status};"
+        f"writes_allowed={'true' if live_turn_snapshot.writes_allowed else 'false'};"
+        f"profile={live_turn_snapshot.profile_id}@{live_turn_snapshot.profile_version}"
+    )
+
+
+def _approval_posture_snapshot(live_turn_snapshot: CopilotTurnSnapshot) -> str:
+    return (
+        "writes_allowed_enabled"
+        if live_turn_snapshot.writes_allowed
+        else "writes_allowed_disabled"
+    )
+
+
 def _build_v58a_live_turn_admission_record(
     *,
     repo_root_path: Path,
@@ -2773,16 +2915,8 @@ def _build_v58a_live_turn_admission_record(
     target_relative_path: str,
     evidence_refs: list[str],
 ) -> AgenticDeLiveTurnAdmissionRecord:
-    session_capability_snapshot = (
-        f"status={live_turn_snapshot.status};"
-        f"writes_allowed={'true' if live_turn_snapshot.writes_allowed else 'false'};"
-        f"profile={live_turn_snapshot.profile_id}@{live_turn_snapshot.profile_version}"
-    )
-    approval_posture_snapshot = (
-        "writes_allowed_enabled"
-        if live_turn_snapshot.writes_allowed
-        else "writes_allowed_disabled"
-    )
+    session_capability_snapshot = _session_capability_snapshot(live_turn_snapshot)
+    approval_posture_snapshot = _approval_posture_snapshot(live_turn_snapshot)
     cwd_resolved = _resolve_snapshot_cwd_path(
         repo_root_path=repo_root_path,
         raw_value=live_turn_snapshot.cwd,
@@ -3328,6 +3462,672 @@ def run_agentic_de_live_harness_v58a(
     )
 
 
+def _validate_v58a_live_turn_surfaces(
+    *,
+    live_turn_snapshot: CopilotTurnSnapshot,
+    admission: AgenticDeLiveTurnAdmissionRecord,
+    handoff: AgenticDeLiveTurnHandoffRecord,
+    reintegration: AgenticDeLiveTurnReintegrationReport,
+    packet: AgenticDeDomainPacket,
+    proposal: AgenticDeActionProposal,
+    checkpoint: AgenticDeMembraneCheckpoint,
+    ticket: AgenticDeActionTicket,
+    observation: AgenticDeLocalEffectObservationRecord,
+    conformance: AgenticDeLocalEffectConformanceReport,
+    target_relative_path: str,
+) -> None:
+    if admission.target_arc != V58A_TARGET_ARC or admission.target_path != V58A_TARGET_PATH:
+        raise ValueError("V58-B requires the shipped V58-A admission surface")
+    if handoff.target_arc != V58A_TARGET_ARC or handoff.target_path != V58A_TARGET_PATH:
+        raise ValueError("V58-B requires the shipped V58-A handoff surface")
+    if (
+        reintegration.target_arc != V58A_TARGET_ARC
+        or reintegration.target_path != V58A_TARGET_PATH
+    ):
+        raise ValueError("V58-B requires the shipped V58-A reintegration surface")
+    if admission.admission_verdict != "admitted":
+        raise ValueError("V58-B requires one prior admitted V58-A live turn")
+    if handoff.turn_admission_ref != admission.admission_id:
+        raise ValueError("V58-A handoff must bind the provided admission record")
+    if handoff.domain_packet_ref != packet.packet_id:
+        raise ValueError("V58-A handoff does not bind the provided domain packet")
+    if handoff.action_proposal_ref != proposal.proposal_id:
+        raise ValueError("V58-A handoff does not bind the provided action proposal")
+    if handoff.checkpoint_ref != checkpoint.checkpoint_id:
+        raise ValueError("V58-A handoff does not bind the provided checkpoint")
+    if handoff.action_ticket_ref != ticket.ticket_id:
+        raise ValueError("V58-A handoff does not bind the provided action ticket")
+    if handoff.target_relative_path != target_relative_path:
+        raise ValueError("V58-A handoff must preserve the selected target relative path")
+    if reintegration.turn_admission_ref != admission.admission_id:
+        raise ValueError("V58-A reintegration must bind the provided admission record")
+    if reintegration.turn_handoff_ref != handoff.handoff_id:
+        raise ValueError("V58-A reintegration must bind the provided handoff record")
+    if reintegration.observation_ref != observation.observation_id:
+        raise ValueError("V58-A reintegration must bind the shipped V57-A observation")
+    if reintegration.local_effect_conformance_ref != conformance.report_id:
+        raise ValueError("V58-A reintegration must bind the shipped V57-A conformance")
+    if reintegration.reintegration_status != "reintegrated":
+        raise ValueError("V58-B requires one prior reintegrated V58-A live turn")
+    if reintegration.reintegration_certificate_ref_or_equivalent is None:
+        raise ValueError("V58-B requires one prior witness-bearing V58-A reintegration")
+    if admission.live_session_id != live_turn_snapshot.session_id:
+        raise ValueError("V58-B requires the same live session as the shipped V58-A admission")
+    if admission.live_turn_id != live_turn_snapshot.selected_turn_id:
+        raise ValueError("V58-B requires the same live turn as the shipped V58-A admission")
+
+
+def _validate_v58b_restoration_time_continuation(
+    *,
+    repo_root_path: Path,
+    live_turn_snapshot: CopilotTurnSnapshot,
+    admission: AgenticDeLiveTurnAdmissionRecord,
+    target_relative_path: str,
+) -> tuple[str, str]:
+    if live_turn_snapshot.session_id != admission.live_session_id:
+        raise ValueError("V58-B requires same-session continuation from the shipped V58-A turn")
+    if live_turn_snapshot.selected_turn_id != admission.live_turn_id:
+        raise ValueError("V58-B requires same-turn continuation from the shipped V58-A turn")
+    current_capability_snapshot = _session_capability_snapshot(live_turn_snapshot)
+    current_approval_posture_snapshot = _approval_posture_snapshot(live_turn_snapshot)
+    if current_capability_snapshot != admission.session_capability_snapshot:
+        raise ValueError(
+            "V58-B restoration-time session capability snapshot must match the admitted "
+            "V58-A continuation posture"
+        )
+    if current_approval_posture_snapshot != admission.approval_posture_snapshot:
+        raise ValueError(
+            "V58-B restoration-time approval posture snapshot must match the admitted "
+            "V58-A continuation posture"
+        )
+    cwd_resolved = _resolve_snapshot_cwd_path(
+        repo_root_path=repo_root_path,
+        raw_value=live_turn_snapshot.cwd,
+        field_name="cwd",
+    )
+    if cwd_resolved != repo_root_path.resolve():
+        raise ValueError(
+            "V58-B restoration-time cwd must resolve to the admitted repository root"
+        )
+    if live_turn_snapshot.status not in {"starting", "running"}:
+        raise ValueError("V58-B restoration-time session must remain live for continuation")
+    selected_live_path_identity = (
+        "urm_copilot_session_path::local_write/create_new::"
+        f"{DESIGNATED_LOCAL_EFFECT_SANDBOX_ROOT.as_posix()}/{target_relative_path}"
+    )
+    if admission.selected_live_path_identity != selected_live_path_identity:
+        raise ValueError("V58-B requires the shipped V58-A selected live path identity")
+    return current_capability_snapshot, current_approval_posture_snapshot
+
+
+def _build_v58b_live_restoration_handoff_record(
+    *,
+    live_turn_snapshot: CopilotTurnSnapshot,
+    admission: AgenticDeLiveTurnAdmissionRecord,
+    handoff: AgenticDeLiveTurnHandoffRecord,
+    prior_reintegration: AgenticDeLiveTurnReintegrationReport,
+    restoration: AgenticDeLocalEffectRestorationRecord,
+    restoration_time_session_capability_snapshot: str,
+    restoration_time_approval_posture_snapshot: str,
+    target_relative_path: str,
+    evidence_refs: list[str],
+) -> AgenticDeLiveRestorationHandoffRecord:
+    field_origin_tags = {
+        "turn_admission_ref": "prior_artifact",
+        "turn_handoff_ref": "prior_artifact",
+        "prior_reintegration_ref": "prior_artifact",
+        "restoration_time_session_capability_snapshot": "current_turn_native",
+        "restoration_time_approval_posture_snapshot": "current_turn_native",
+        "restoration_time_continuation_verdict": "current_turn_derived",
+        "restoration_record_ref": "current_turn_derived",
+        "action_ticket_ref": "prior_artifact",
+        "bounded_compensating_scope_derivation_summary": "current_turn_derived",
+        "target_relative_path": "current_turn_derived",
+        "selected_restoration_scope": "current_turn_derived",
+    }
+    field_dependence_tags = {
+        "turn_admission_ref": [],
+        "turn_handoff_ref": [],
+        "prior_reintegration_ref": [],
+        "restoration_time_session_capability_snapshot": [],
+        "restoration_time_approval_posture_snapshot": [],
+        "restoration_time_continuation_verdict": [
+            admission.admission_id,
+            handoff.handoff_id,
+            prior_reintegration.report_id,
+        ],
+        "restoration_record_ref": [],
+        "action_ticket_ref": [],
+        "bounded_compensating_scope_derivation_summary": [
+            handoff.action_ticket_ref,
+            prior_reintegration.report_id,
+            restoration.restoration_id,
+        ],
+        "target_relative_path": [
+            admission.selected_live_path_identity,
+        ],
+        "selected_restoration_scope": [
+            handoff.action_ticket_ref,
+            prior_reintegration.report_id,
+            restoration.restoration_id,
+            target_relative_path,
+        ],
+    }
+    root_origin_ids = [
+        f"session:{live_turn_snapshot.session_id}",
+        f"turn:{live_turn_snapshot.selected_turn_id}",
+        f"ticket:{handoff.action_ticket_ref}",
+        f"restoration:{restoration.restoration_id}",
+        f"target:{target_relative_path}",
+    ]
+    return AgenticDeLiveRestorationHandoffRecord(
+        target_arc=V58B_TARGET_ARC,
+        target_path=V58B_TARGET_PATH,
+        turn_admission_ref=admission.admission_id,
+        turn_handoff_ref=handoff.handoff_id,
+        prior_reintegration_ref=prior_reintegration.report_id,
+        restoration_time_session_capability_snapshot=restoration_time_session_capability_snapshot,
+        restoration_time_approval_posture_snapshot=restoration_time_approval_posture_snapshot,
+        restoration_time_continuation_verdict="continued",
+        restoration_record_ref=restoration.restoration_id,
+        action_ticket_ref=handoff.action_ticket_ref,
+        bounded_compensating_scope_derivation_summary=(
+            "bounded compensating scope derived from historical ticket/reintegration lineage "
+            "+ current-turn restoration witness; historical refs remain non-entitling by "
+            "themselves"
+        ),
+        target_relative_path=target_relative_path,
+        selected_restoration_scope=(
+            "bounded compensating remove-create-new restore over the designated sandbox "
+            "root and selected target only"
+        ),
+        field_origin_tags=field_origin_tags,
+        field_dependence_tags=field_dependence_tags,
+        root_origin_ids=root_origin_ids,
+        evidence_refs=[
+            admission.admission_id,
+            handoff.handoff_id,
+            prior_reintegration.report_id,
+            restoration.restoration_id,
+            *evidence_refs,
+        ],
+    )
+
+
+def _build_v58b_live_restoration_reintegration_report(
+    *,
+    live_turn_snapshot: CopilotTurnSnapshot,
+    admission: AgenticDeLiveTurnAdmissionRecord,
+    live_restoration_handoff: AgenticDeLiveRestorationHandoffRecord,
+    restoration: AgenticDeLocalEffectRestorationRecord,
+    evidence_refs: list[str],
+) -> AgenticDeLiveRestorationReintegrationReport:
+    if (
+        restoration.restoration_outcome == "restoration_effect_observed"
+        and restoration.restoration_boundedness_verdict == "bounded"
+    ):
+        reintegration_status = "reintegrated"
+        reason_codes = [
+            "current_turn_restoration_witness_declared",
+            "bounded_compensating_scope_matched",
+            "restoration_effect_aligned",
+        ]
+        certificate_ref = (
+            "v58b_restoration_reintegration::"
+            f"{live_turn_snapshot.session_id}::"
+            f"{live_turn_snapshot.selected_turn_id}::"
+            f"{restoration.restoration_id}"
+        )
+        six_lane_closeout_posture = (
+            "current_turn_admitted_then_ticket_handoff_bound_then_observed_effect_"
+            "reintegrated_then_bounded_compensating_restore_reintegrated"
+        )
+    elif restoration.restoration_outcome == "no_restoration_effect_observed":
+        reintegration_status = "residualized"
+        reason_codes = [
+            "no_current_turn_restoration_effect_observed",
+            "positive_restoration_reintegration_not_declared",
+        ]
+        certificate_ref = None
+        six_lane_closeout_posture = "current_turn_restoration_residualized_no_effect"
+    elif restoration.restoration_outcome == "restoration_boundedness_verdict_failed":
+        reintegration_status = "blocked"
+        reason_codes = [
+            "restoration_boundedness_verdict_failed",
+            "positive_restoration_reintegration_not_declared",
+        ]
+        certificate_ref = None
+        six_lane_closeout_posture = "current_turn_restoration_blocked_boundedness_failed"
+    else:
+        reintegration_status = "blocked"
+        reason_codes = [
+            "restoration_effect_not_reintegrable",
+            "positive_restoration_reintegration_not_declared",
+        ]
+        certificate_ref = None
+        six_lane_closeout_posture = "current_turn_restoration_blocked_non_aligned_effect"
+
+    field_origin_tags = {
+        "restoration_effect_summary": "current_turn_derived",
+        "restoration_reintegration_witness_basis_summary": "current_turn_derived",
+        "replay_law_proof_summary": "current_turn_derived",
+        "six_lane_closeout_posture": "current_turn_derived",
+    }
+    field_dependence_tags = {
+        "restoration_effect_summary": [
+            restoration.restoration_id,
+        ],
+        "restoration_reintegration_witness_basis_summary": [
+            admission.admission_id,
+            live_restoration_handoff.handoff_id,
+            restoration.restoration_id,
+        ],
+        "replay_law_proof_summary": [
+            live_restoration_handoff.prior_reintegration_ref,
+            restoration.restoration_id,
+        ],
+        "six_lane_closeout_posture": [
+            admission.admission_id,
+            live_restoration_handoff.handoff_id,
+            restoration.restoration_id,
+        ],
+    }
+    root_origin_dedup_summary = (
+        "dedup roots="
+        f"session:{live_turn_snapshot.session_id},"
+        f"turn:{live_turn_snapshot.selected_turn_id},"
+        f"ticket:{live_restoration_handoff.action_ticket_ref},"
+        f"prior_reintegration:{live_restoration_handoff.prior_reintegration_ref},"
+        f"restoration:{restoration.restoration_id};"
+        " observability refs remain non-independent support"
+    )
+    return AgenticDeLiveRestorationReintegrationReport(
+        target_arc=V58B_TARGET_ARC,
+        target_path=V58B_TARGET_PATH,
+        turn_admission_ref=admission.admission_id,
+        live_restoration_handoff_ref=live_restoration_handoff.handoff_id,
+        restoration_record_ref=restoration.restoration_id,
+        restoration_effect_summary=restoration.restoration_effect,
+        restoration_reintegration_status=reintegration_status,
+        reason_codes=reason_codes,
+        restoration_reintegration_witness_basis_summary=(
+            "current-turn admission continuity + prior handoff/reintegration lineage + "
+            "restoration pre/post state + restoration record"
+        ),
+        restoration_reintegration_certificate_ref_or_equivalent=certificate_ref,
+        replay_law_proof_summary=(
+            "bounded recomputation and re-evaluation of the exact compensating restore "
+            "event over the same selected target and sandbox root only"
+        ),
+        field_origin_tags=field_origin_tags,
+        field_dependence_tags=field_dependence_tags,
+        root_origin_dedup_summary=root_origin_dedup_summary,
+        six_lane_closeout_posture=six_lane_closeout_posture,
+        evidence_refs=[
+            admission.admission_id,
+            live_restoration_handoff.handoff_id,
+            restoration.restoration_id,
+            *evidence_refs,
+        ],
+    )
+
+
+def run_agentic_de_live_harness_v58b(
+    *,
+    live_turn_snapshot: CopilotTurnSnapshot,
+    repo_root_path: Path | None = None,
+    domain_packet_path: Path = DEFAULT_DOMAIN_PACKET_PATH,
+    morph_ir_path: Path = DEFAULT_MORPH_IR_PATH,
+    interaction_contract_path: Path = DEFAULT_INTERACTION_CONTRACT_PATH,
+    action_proposal_path: Path = DEFAULT_ACTION_PROPOSAL_PATH,
+    v56a_checkpoint_path: Path = DEFAULT_V56A_CHECKPOINT_PATH,
+    v56a_diagnostics_path: Path = DEFAULT_V56A_DIAGNOSTICS_PATH,
+    v56a_conformance_path: Path = DEFAULT_V56A_CONFORMANCE_PATH,
+    v56b_lane_drift_path: Path = DEFAULT_V56B_LANE_DRIFT_PATH,
+    v56b_action_class_taxonomy_path: Path = DEFAULT_V56B_ACTION_CLASS_TAXONOMY_PATH,
+    v56b_runtime_state_path: Path = DEFAULT_V56B_RUNTIME_STATE_PATH,
+    v56b_action_ticket_path: Path = DEFAULT_V56B_TICKET_PATH,
+    v56b_diagnostics_path: Path = DEFAULT_V56B_DIAGNOSTICS_PATH,
+    v56b_conformance_path: Path = DEFAULT_V56B_CONFORMANCE_PATH,
+    v56c_lane_drift_path: Path = DEFAULT_V56C_LANE_DRIFT_PATH,
+    v56c_runtime_harvest_path: Path = DEFAULT_V56C_RUNTIME_HARVEST_PATH,
+    v56c_governance_calibration_path: Path = DEFAULT_V56C_GOVERNANCE_CALIBRATION_PATH,
+    v56c_migration_decision_path: Path = DEFAULT_V56C_MIGRATION_DECISION_PATH,
+    v57a_lane_drift_path: Path = DEFAULT_V57A_LANE_DRIFT_PATH,
+    v57a_observation_path: Path = DEFAULT_V57A_OBSERVATION_PATH,
+    v57a_local_effect_conformance_path: Path = DEFAULT_V57A_LOCAL_EFFECT_CONFORMANCE_PATH,
+    v57b_lane_drift_path: Path = DEFAULT_V57B_LANE_DRIFT_PATH,
+    v57b_restoration_path: Path = DEFAULT_V57B_RESTORATION_PATH,
+    v57c_lane_drift_path: Path = DEFAULT_V57C_LANE_DRIFT_PATH,
+    v57c_hardening_path: Path = DEFAULT_V57C_HARDENING_PATH,
+    v58a_lane_drift_path: Path = DEFAULT_V58A_LANE_DRIFT_PATH,
+    v58a_admission_path: Path = DEFAULT_V58A_LIVE_TURN_ADMISSION_PATH,
+    v58a_handoff_path: Path = DEFAULT_V58A_LIVE_TURN_HANDOFF_PATH,
+    v58a_reintegration_path: Path = DEFAULT_V58A_LIVE_TURN_REINTEGRATION_PATH,
+    lane_drift_path: Path = DEFAULT_V58B_LANE_DRIFT_PATH,
+    v56a_evidence_path: Path = DEFAULT_V56C_V56A_EVIDENCE_PATH,
+    v56b_evidence_path: Path = DEFAULT_V56C_V56B_EVIDENCE_PATH,
+    v56c_evidence_path: Path = DEFAULT_V57A_V56C_EVIDENCE_PATH,
+    v57a_evidence_path: Path = DEFAULT_V57A_EVIDENCE_PATH,
+    v57b_evidence_path: Path = DEFAULT_V57B_EVIDENCE_PATH,
+    v57c_evidence_path: Path = DEFAULT_V57C_EVIDENCE_PATH,
+    v58a_evidence_path: Path = DEFAULT_V58A_EVIDENCE_PATH,
+    target_relative_path: str = str(DEFAULT_LOCAL_EFFECT_TARGET_RELATIVE_PATH),
+    materialized_observed_content_text: str = DEFAULT_LOCAL_EFFECT_PAYLOAD_TEXT,
+    expected_relative_paths: tuple[str, ...] | None = None,
+    materialize_observed_effect: bool = True,
+) -> tuple[
+    AgenticDeLiveRestorationHandoffRecord,
+    AgenticDeLocalEffectRestorationRecord,
+    AgenticDeLiveRestorationReintegrationReport,
+]:
+    if repo_root_path is None:
+        root = repo_root(anchor=Path(__file__)).resolve()
+    else:
+        root = repo_root_path.resolve()
+
+    domain_packet_path = _resolve_path(repo_root_path=root, path=domain_packet_path)
+    morph_ir_path = _resolve_path(repo_root_path=root, path=morph_ir_path)
+    interaction_contract_path = _resolve_path(repo_root_path=root, path=interaction_contract_path)
+    action_proposal_path = _resolve_path(repo_root_path=root, path=action_proposal_path)
+    v56a_checkpoint_path = _resolve_path(repo_root_path=root, path=v56a_checkpoint_path)
+    v56a_diagnostics_path = _resolve_path(repo_root_path=root, path=v56a_diagnostics_path)
+    v56a_conformance_path = _resolve_path(repo_root_path=root, path=v56a_conformance_path)
+    v56b_lane_drift_path = _resolve_path(repo_root_path=root, path=v56b_lane_drift_path)
+    v56b_action_class_taxonomy_path = _resolve_path(
+        repo_root_path=root, path=v56b_action_class_taxonomy_path
+    )
+    v56b_runtime_state_path = _resolve_path(repo_root_path=root, path=v56b_runtime_state_path)
+    v56b_action_ticket_path = _resolve_path(repo_root_path=root, path=v56b_action_ticket_path)
+    v56b_diagnostics_path = _resolve_path(repo_root_path=root, path=v56b_diagnostics_path)
+    v56b_conformance_path = _resolve_path(repo_root_path=root, path=v56b_conformance_path)
+    v56c_lane_drift_path = _resolve_path(repo_root_path=root, path=v56c_lane_drift_path)
+    v56c_runtime_harvest_path = _resolve_path(repo_root_path=root, path=v56c_runtime_harvest_path)
+    v56c_governance_calibration_path = _resolve_path(
+        repo_root_path=root, path=v56c_governance_calibration_path
+    )
+    v56c_migration_decision_path = _resolve_path(
+        repo_root_path=root, path=v56c_migration_decision_path
+    )
+    v57a_lane_drift_path = _resolve_path(repo_root_path=root, path=v57a_lane_drift_path)
+    v57a_observation_path = _resolve_path(repo_root_path=root, path=v57a_observation_path)
+    v57a_local_effect_conformance_path = _resolve_path(
+        repo_root_path=root, path=v57a_local_effect_conformance_path
+    )
+    v57b_lane_drift_path = _resolve_path(repo_root_path=root, path=v57b_lane_drift_path)
+    v57b_restoration_path = _resolve_path(repo_root_path=root, path=v57b_restoration_path)
+    v57c_lane_drift_path = _resolve_path(repo_root_path=root, path=v57c_lane_drift_path)
+    v57c_hardening_path = _resolve_path(repo_root_path=root, path=v57c_hardening_path)
+    v58a_lane_drift_path = _resolve_path(repo_root_path=root, path=v58a_lane_drift_path)
+    v58a_admission_path = _resolve_path(repo_root_path=root, path=v58a_admission_path)
+    v58a_handoff_path = _resolve_path(repo_root_path=root, path=v58a_handoff_path)
+    v58a_reintegration_path = _resolve_path(
+        repo_root_path=root, path=v58a_reintegration_path
+    )
+    lane_drift_path = _resolve_path(repo_root_path=root, path=lane_drift_path)
+    v56a_evidence_path = _resolve_path(repo_root_path=root, path=v56a_evidence_path)
+    v56b_evidence_path = _resolve_path(repo_root_path=root, path=v56b_evidence_path)
+    v56c_evidence_path = _resolve_path(repo_root_path=root, path=v56c_evidence_path)
+    v57a_evidence_path = _resolve_path(repo_root_path=root, path=v57a_evidence_path)
+    v57b_evidence_path = _resolve_path(repo_root_path=root, path=v57b_evidence_path)
+    v57c_evidence_path = _resolve_path(repo_root_path=root, path=v57c_evidence_path)
+    v58a_evidence_path = _resolve_path(repo_root_path=root, path=v58a_evidence_path)
+
+    _validate_v58b_lane_drift_record(load_lane_drift_record(lane_drift_path))
+    _validate_v58a_lane_drift_record(load_lane_drift_record(v58a_lane_drift_path))
+    _validate_v57c_lane_drift_record(load_lane_drift_record(v57c_lane_drift_path))
+    _validate_v57b_lane_drift_record(load_lane_drift_record(v57b_lane_drift_path))
+    _validate_v57a_lane_drift_record(load_lane_drift_record(v57a_lane_drift_path))
+    _validate_v56b_lane_drift_record(load_lane_drift_record(v56b_lane_drift_path))
+    _validate_v56c_lane_drift_record(load_lane_drift_record(v56c_lane_drift_path))
+    _validate_v56a_evidence_payload(
+        _load_json_object(v56a_evidence_path, error_label="V56-A evidence")
+    )
+    _validate_v56b_evidence_payload(
+        _load_json_object(v56b_evidence_path, error_label="V56-B evidence")
+    )
+    _validate_v56c_evidence_payload(
+        _load_json_object(v56c_evidence_path, error_label="V56-C evidence")
+    )
+    _validate_v57a_evidence_payload(
+        _load_json_object(v57a_evidence_path, error_label="V57-A evidence")
+    )
+    _validate_v57b_evidence_payload(
+        _load_json_object(v57b_evidence_path, error_label="V57-B evidence")
+    )
+    _validate_v57c_evidence_payload(
+        _load_json_object(v57c_evidence_path, error_label="V57-C evidence")
+    )
+    _validate_v58a_evidence_payload(
+        _load_json_object(v58a_evidence_path, error_label="V58-A evidence")
+    )
+
+    packet = load_domain_packet(domain_packet_path)
+    morph_ir = load_morph_ir(morph_ir_path)
+    contract = load_interaction_contract(interaction_contract_path)
+    proposal = load_action_proposal(action_proposal_path)
+    v56a_checkpoint = load_membrane_checkpoint(v56a_checkpoint_path)
+    v56a_diagnostics = load_morph_diagnostics(v56a_diagnostics_path)
+    v56a_conformance = load_conformance_report(v56a_conformance_path)
+    v56b_taxonomy = load_action_class_taxonomy(v56b_action_class_taxonomy_path)
+    v56b_runtime_state = load_runtime_state(v56b_runtime_state_path)
+    v56b_ticket = load_action_ticket(v56b_action_ticket_path)
+    v56b_diagnostics = load_morph_diagnostics(v56b_diagnostics_path)
+    v56b_conformance = load_conformance_report(v56b_conformance_path)
+    v56c_harvest = load_runtime_harvest_record(v56c_runtime_harvest_path)
+    v56c_governance = load_governance_calibration_register(v56c_governance_calibration_path)
+    v56c_migration = load_migration_decision_register(v56c_migration_decision_path)
+    reference_v57a_observation = load_local_effect_observation_record(v57a_observation_path)
+    reference_v57a_conformance = load_local_effect_conformance_report(
+        v57a_local_effect_conformance_path
+    )
+    reference_v57b_restoration = load_local_effect_restoration_record(v57b_restoration_path)
+    v57c_hardening = load_local_effect_hardening_register(v57c_hardening_path)
+    v58a_admission = load_live_turn_admission_record(v58a_admission_path)
+    v58a_handoff = load_live_turn_handoff_record(v58a_handoff_path)
+    v58a_reintegration = load_live_turn_reintegration_report(v58a_reintegration_path)
+
+    _validate_v56a_reference_surfaces(
+        domain_packet=packet,
+        morph_ir=morph_ir,
+        contract=contract,
+        proposal=proposal,
+        checkpoint=v56a_checkpoint,
+        diagnostics=v56a_diagnostics,
+        conformance=v56a_conformance,
+    )
+    _validate_v56b_reference_surfaces(
+        domain_packet=packet,
+        contract=contract,
+        proposal=proposal,
+        checkpoint=v56a_checkpoint,
+        taxonomy=v56b_taxonomy,
+        runtime_state=v56b_runtime_state,
+        ticket=v56b_ticket,
+        diagnostics=v56b_diagnostics,
+        conformance=v56b_conformance,
+    )
+    _validate_v57a_reference_surfaces(
+        packet=packet,
+        proposal=proposal,
+        checkpoint=v56a_checkpoint,
+        runtime_state=v56b_runtime_state,
+        ticket=v56b_ticket,
+        taxonomy=v56b_taxonomy,
+        harvest=v56c_harvest,
+        governance=v56c_governance,
+        migration=v56c_migration,
+    )
+    _validate_v57a_local_effect_surfaces(
+        packet=packet,
+        proposal=proposal,
+        checkpoint=v56a_checkpoint,
+        runtime_state=v56b_runtime_state,
+        ticket=v56b_ticket,
+        harvest=v56c_harvest,
+        observation=reference_v57a_observation,
+        conformance=reference_v57a_conformance,
+    )
+    _validate_v57b_local_effect_restoration_surface(
+        packet=packet,
+        proposal=proposal,
+        checkpoint=v56a_checkpoint,
+        runtime_state=v56b_runtime_state,
+        ticket=v56b_ticket,
+        harvest=v56c_harvest,
+        observation=reference_v57a_observation,
+        conformance=reference_v57a_conformance,
+        restoration=reference_v57b_restoration,
+    )
+    _validate_v57c_local_effect_hardening_surface(
+        observation=reference_v57a_observation,
+        conformance=reference_v57a_conformance,
+        restoration=reference_v57b_restoration,
+        hardening=v57c_hardening,
+    )
+    _validate_v58a_live_turn_surfaces(
+        live_turn_snapshot=live_turn_snapshot,
+        admission=v58a_admission,
+        handoff=v58a_handoff,
+        reintegration=v58a_reintegration,
+        packet=packet,
+        proposal=proposal,
+        checkpoint=v56a_checkpoint,
+        ticket=v56b_ticket,
+        observation=reference_v57a_observation,
+        conformance=reference_v57a_conformance,
+        target_relative_path=target_relative_path,
+    )
+    if v58a_handoff.action_ticket_ref != v56b_ticket.ticket_id:
+        raise ValueError("V58-B requires the shipped V58-A ticket lineage")
+    if v58a_reintegration.observation_ref != reference_v57a_observation.observation_id:
+        raise ValueError("V58-B requires the shipped V58-A observed effect lineage")
+    if v58a_reintegration.local_effect_conformance_ref != reference_v57a_conformance.report_id:
+        raise ValueError("V58-B requires the shipped V58-A conformance lineage")
+
+    (
+        restoration_time_session_capability_snapshot,
+        restoration_time_approval_posture_snapshot,
+    ) = _validate_v58b_restoration_time_continuation(
+        repo_root_path=root,
+        live_turn_snapshot=live_turn_snapshot,
+        admission=v58a_admission,
+        target_relative_path=target_relative_path,
+    )
+
+    restoration = run_agentic_de_local_effect_v57b(
+        repo_root_path=root,
+        domain_packet_path=domain_packet_path,
+        morph_ir_path=morph_ir_path,
+        interaction_contract_path=interaction_contract_path,
+        action_proposal_path=action_proposal_path,
+        v56a_checkpoint_path=v56a_checkpoint_path,
+        v56a_diagnostics_path=v56a_diagnostics_path,
+        v56a_conformance_path=v56a_conformance_path,
+        v56b_lane_drift_path=v56b_lane_drift_path,
+        v56b_action_class_taxonomy_path=v56b_action_class_taxonomy_path,
+        v56b_runtime_state_path=v56b_runtime_state_path,
+        v56b_action_ticket_path=v56b_action_ticket_path,
+        v56b_diagnostics_path=v56b_diagnostics_path,
+        v56b_conformance_path=v56b_conformance_path,
+        v56c_lane_drift_path=v56c_lane_drift_path,
+        v56c_runtime_harvest_path=v56c_runtime_harvest_path,
+        v56c_governance_calibration_path=v56c_governance_calibration_path,
+        v56c_migration_decision_path=v56c_migration_decision_path,
+        v57a_lane_drift_path=v57a_lane_drift_path,
+        v57a_observation_path=v57a_observation_path,
+        v57a_local_effect_conformance_path=v57a_local_effect_conformance_path,
+        lane_drift_path=v57b_lane_drift_path,
+        v56a_evidence_path=v56a_evidence_path,
+        v56b_evidence_path=v56b_evidence_path,
+        v56c_evidence_path=v56c_evidence_path,
+        v57a_evidence_path=v57a_evidence_path,
+        materialized_observed_content_text=materialized_observed_content_text,
+        expected_relative_paths=expected_relative_paths,
+        materialize_observed_effect=materialize_observed_effect,
+    )
+    if restoration.ticket_ref != v58a_handoff.action_ticket_ref:
+        raise ValueError("V58-B restoration must preserve the shipped V58-A ticket lineage")
+    if restoration.observation_ref != v58a_reintegration.observation_ref:
+        raise ValueError("V58-B restoration must preserve the shipped V58-A observation lineage")
+    if restoration.conformance_ref != v58a_reintegration.local_effect_conformance_ref:
+        raise ValueError("V58-B restoration must preserve the shipped V58-A conformance lineage")
+    if len(restoration.restoration_observed_write_set) != 1:
+        raise ValueError("V58-B requires exactly one observed restoration target")
+    expected_restoration_relative_path = (
+        DESIGNATED_LOCAL_EFFECT_SANDBOX_ROOT / target_relative_path
+    ).as_posix()
+    if (
+        restoration.restoration_observed_write_set[0].relative_path
+        != expected_restoration_relative_path
+    ):
+        raise ValueError("V58-B restoration path must preserve the selected live target")
+
+    base_evidence_refs = [
+        _render_input_ref(repo_root_path=root, path=domain_packet_path),
+        _render_input_ref(repo_root_path=root, path=morph_ir_path),
+        _render_input_ref(repo_root_path=root, path=interaction_contract_path),
+        _render_input_ref(repo_root_path=root, path=action_proposal_path),
+        _render_input_ref(repo_root_path=root, path=v56a_checkpoint_path),
+        _render_input_ref(repo_root_path=root, path=v56a_diagnostics_path),
+        _render_input_ref(repo_root_path=root, path=v56a_conformance_path),
+        _render_input_ref(repo_root_path=root, path=v56b_action_class_taxonomy_path),
+        _render_input_ref(repo_root_path=root, path=v56b_runtime_state_path),
+        _render_input_ref(repo_root_path=root, path=v56b_action_ticket_path),
+        _render_input_ref(repo_root_path=root, path=v56b_lane_drift_path),
+        _render_input_ref(repo_root_path=root, path=v56b_diagnostics_path),
+        _render_input_ref(repo_root_path=root, path=v56b_conformance_path),
+        _render_input_ref(repo_root_path=root, path=v56c_lane_drift_path),
+        _render_input_ref(repo_root_path=root, path=v56c_runtime_harvest_path),
+        _render_input_ref(repo_root_path=root, path=v56c_governance_calibration_path),
+        _render_input_ref(repo_root_path=root, path=v56c_migration_decision_path),
+        _render_input_ref(repo_root_path=root, path=v57a_lane_drift_path),
+        _render_input_ref(repo_root_path=root, path=v57a_observation_path),
+        _render_input_ref(repo_root_path=root, path=v57a_local_effect_conformance_path),
+        _render_input_ref(repo_root_path=root, path=v57b_lane_drift_path),
+        _render_input_ref(repo_root_path=root, path=v57b_restoration_path),
+        _render_input_ref(repo_root_path=root, path=v57c_lane_drift_path),
+        _render_input_ref(repo_root_path=root, path=v57c_hardening_path),
+        _render_input_ref(repo_root_path=root, path=v58a_lane_drift_path),
+        _render_input_ref(repo_root_path=root, path=v58a_admission_path),
+        _render_input_ref(repo_root_path=root, path=v58a_handoff_path),
+        _render_input_ref(repo_root_path=root, path=v58a_reintegration_path),
+        _render_input_ref(repo_root_path=root, path=lane_drift_path),
+        _render_input_ref(repo_root_path=root, path=v56a_evidence_path),
+        _render_input_ref(repo_root_path=root, path=v56b_evidence_path),
+        _render_input_ref(repo_root_path=root, path=v56c_evidence_path),
+        _render_input_ref(repo_root_path=root, path=v57a_evidence_path),
+        _render_input_ref(repo_root_path=root, path=v57b_evidence_path),
+        _render_input_ref(repo_root_path=root, path=v57c_evidence_path),
+        _render_input_ref(repo_root_path=root, path=v58a_evidence_path),
+        *_snapshot_observability_refs(
+            repo_root_path=root,
+            live_turn_snapshot=live_turn_snapshot,
+        ),
+        restoration.restoration_pre_state_ref,
+        restoration.restoration_post_state_ref,
+    ]
+    live_restoration_handoff = _build_v58b_live_restoration_handoff_record(
+        live_turn_snapshot=live_turn_snapshot,
+        admission=v58a_admission,
+        handoff=v58a_handoff,
+        prior_reintegration=v58a_reintegration,
+        restoration=restoration,
+        restoration_time_session_capability_snapshot=restoration_time_session_capability_snapshot,
+        restoration_time_approval_posture_snapshot=restoration_time_approval_posture_snapshot,
+        target_relative_path=target_relative_path,
+        evidence_refs=base_evidence_refs,
+    )
+    restoration_reintegration = _build_v58b_live_restoration_reintegration_report(
+        live_turn_snapshot=live_turn_snapshot,
+        admission=v58a_admission,
+        live_restoration_handoff=live_restoration_handoff,
+        restoration=restoration,
+        evidence_refs=base_evidence_refs,
+    )
+    return live_restoration_handoff, restoration, restoration_reintegration
+
+
 def render_checkpoint_payload(checkpoint: AgenticDeMembraneCheckpoint) -> str:
     return json.dumps(checkpoint.model_dump(mode="json"), indent=2, sort_keys=True) + "\n"
 
@@ -3368,6 +4168,18 @@ def render_live_turn_handoff_payload(handoff: AgenticDeLiveTurnHandoffRecord) ->
 
 def render_live_turn_reintegration_payload(
     report: AgenticDeLiveTurnReintegrationReport,
+) -> str:
+    return json.dumps(report.model_dump(mode="json"), indent=2, sort_keys=True) + "\n"
+
+
+def render_live_restoration_handoff_payload(
+    handoff: AgenticDeLiveRestorationHandoffRecord,
+) -> str:
+    return json.dumps(handoff.model_dump(mode="json"), indent=2, sort_keys=True) + "\n"
+
+
+def render_live_restoration_reintegration_payload(
+    report: AgenticDeLiveRestorationReintegrationReport,
 ) -> str:
     return json.dumps(report.model_dump(mode="json"), indent=2, sort_keys=True) + "\n"
 

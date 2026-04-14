@@ -1,0 +1,35 @@
+{
+  "schema": "agentic_de_lane_drift_record@1",
+  "record_id": "agentic_de_lane_drift_bc9d4ef40f8b",
+  "target_arc": "vNext+159",
+  "target_path": "V58-B",
+  "prior_lane_ref": "docs/LOCKED_CONTINUATION_vNEXT_PLUS158.md",
+  "entry_count": 5,
+  "entries": [
+    {
+      "assumption_ref": "v58a_surface_reuse_default",
+      "status": "holds",
+      "note": "V58-B reuses the shipped V58-A live-turn admission, handoff, and reintegration surfaces by default."
+    },
+    {
+      "assumption_ref": "restoration_state_explicit_not_hidden_cleanup",
+      "status": "amended",
+      "note": "V58-B adds one explicit live restoration handoff and reintegration path; restoration is explicit harness state, not hidden cleanup."
+    },
+    {
+      "assumption_ref": "restoration_time_admission_resnapshot_required",
+      "status": "amended",
+      "note": "V58-B requires same-session and same-turn restoration continuation plus restoration-time capability and approval resnapshot before reintegration may be declared."
+    },
+    {
+      "assumption_ref": "historical_lineage_refs_non_entitling",
+      "status": "amended",
+      "note": "The original ticket and prior reintegration refs remain historical lineage inputs only and do not by themselves mint restoration entitlement."
+    },
+    {
+      "assumption_ref": "replay_law_proof_embedded_in_reintegration_report",
+      "status": "amended",
+      "note": "Replay remains bounded recomputation and re-evaluation of the exact restoration event only, with replay-law proof embedded in the V58-B reintegration report."
+    }
+  ]
+}

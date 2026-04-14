@@ -1,0 +1,15 @@
+{
+  "session_id": "copilot-v58a-session-1",
+  "status": "running",
+  "writes_allowed": true,
+  "profile_id": "default",
+  "profile_version": "profile.v1",
+  "profile_policy_hash": null,
+  "raw_jsonl_path": "artifacts/agent_harness/v158/runtime/evidence/local/copilot_raw.ndjson",
+  "urm_events_path": "artifacts/agent_harness/v158/runtime/evidence/local/urm_events.ndjson",
+  "cwd": ".",
+  "active_turn_id": "turn-v58a-live-1",
+  "last_turn_id": "turn-v58a-live-1",
+  "selected_turn_id": "turn-v58a-live-1",
+  "turn_selection_mode": "runtime_active_turn"
+}

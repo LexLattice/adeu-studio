@@ -1,0 +1,147 @@
+{
+  "additionalProperties": false,
+  "properties": {
+    "action_ticket_ref": {
+      "title": "Action Ticket Ref",
+      "type": "string"
+    },
+    "bounded_compensating_scope_derivation_summary": {
+      "title": "Bounded Compensating Scope Derivation Summary",
+      "type": "string"
+    },
+    "changes_live_behavior_by_default": {
+      "const": false,
+      "default": false,
+      "title": "Changes Live Behavior By Default",
+      "type": "boolean"
+    },
+    "evidence_only": {
+      "const": true,
+      "default": true,
+      "title": "Evidence Only",
+      "type": "boolean"
+    },
+    "evidence_refs": {
+      "items": {
+        "type": "string"
+      },
+      "title": "Evidence Refs",
+      "type": "array"
+    },
+    "field_dependence_tags": {
+      "additionalProperties": {
+        "items": {
+          "type": "string"
+        },
+        "type": "array"
+      },
+      "title": "Field Dependence Tags",
+      "type": "object"
+    },
+    "field_origin_tags": {
+      "additionalProperties": {
+        "enum": [
+          "current_turn_native",
+          "current_turn_derived",
+          "observability_only",
+          "prior_artifact",
+          "shaping_only"
+        ],
+        "type": "string"
+      },
+      "title": "Field Origin Tags",
+      "type": "object"
+    },
+    "handoff_id": {
+      "anyOf": [
+        {
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Handoff Id"
+    },
+    "prior_reintegration_ref": {
+      "title": "Prior Reintegration Ref",
+      "type": "string"
+    },
+    "restoration_record_ref": {
+      "title": "Restoration Record Ref",
+      "type": "string"
+    },
+    "restoration_time_approval_posture_snapshot": {
+      "title": "Restoration Time Approval Posture Snapshot",
+      "type": "string"
+    },
+    "restoration_time_continuation_verdict": {
+      "const": "continued",
+      "title": "Restoration Time Continuation Verdict",
+      "type": "string"
+    },
+    "restoration_time_session_capability_snapshot": {
+      "title": "Restoration Time Session Capability Snapshot",
+      "type": "string"
+    },
+    "root_origin_ids": {
+      "items": {
+        "type": "string"
+      },
+      "title": "Root Origin Ids",
+      "type": "array"
+    },
+    "schema": {
+      "const": "agentic_de_live_restoration_handoff_record@1",
+      "default": "agentic_de_live_restoration_handoff_record@1",
+      "title": "Schema",
+      "type": "string"
+    },
+    "selected_restoration_scope": {
+      "title": "Selected Restoration Scope",
+      "type": "string"
+    },
+    "target_arc": {
+      "title": "Target Arc",
+      "type": "string"
+    },
+    "target_path": {
+      "title": "Target Path",
+      "type": "string"
+    },
+    "target_relative_path": {
+      "title": "Target Relative Path",
+      "type": "string"
+    },
+    "turn_admission_ref": {
+      "title": "Turn Admission Ref",
+      "type": "string"
+    },
+    "turn_handoff_ref": {
+      "title": "Turn Handoff Ref",
+      "type": "string"
+    }
+  },
+  "required": [
+    "target_arc",
+    "target_path",
+    "turn_admission_ref",
+    "turn_handoff_ref",
+    "prior_reintegration_ref",
+    "restoration_time_session_capability_snapshot",
+    "restoration_time_approval_posture_snapshot",
+    "restoration_time_continuation_verdict",
+    "restoration_record_ref",
+    "action_ticket_ref",
+    "bounded_compensating_scope_derivation_summary",
+    "target_relative_path",
+    "selected_restoration_scope",
+    "field_origin_tags",
+    "field_dependence_tags",
+    "root_origin_ids",
+    "evidence_refs"
+  ],
+  "title": "AgenticDeLiveRestorationHandoffRecord",
+  "type": "object"
+}
