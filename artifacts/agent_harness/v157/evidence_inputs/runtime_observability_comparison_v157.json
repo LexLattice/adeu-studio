@@ -1,0 +1,11 @@
+{
+  "schema": "runtime_observability_comparison@1",
+  "baseline_arc": "vNext+156",
+  "current_arc": "vNext+157",
+  "baseline_source": "artifacts/stop_gate/report_v156_closeout.md",
+  "current_source": "artifacts/stop_gate/report_v157_closeout.md",
+  "baseline_elapsed_ms": 103,
+  "current_elapsed_ms": 103,
+  "delta_ms": 0,
+  "notes": "v157 closeout keeps the frozen stop-gate schema family and exact metric keyset unchanged while shipping the bounded V57-C local-effect hardening decision slice on main: shipped V56, V57-A, and V57-B packet/checkpoint/ticket/harvest/observation/conformance/restoration surfaces are consumed by default, one advisory path-level hardening register is added over the observed-and-restored create_new exemplar only, boundedness verdicts from both observation and restoration remain mandatory inputs, exemplar evidence remains non-generalizing by default, and review hardening tightened restoration-lineage equivalence checks without widening class, restoration-family, repo, dispatch, product, or hidden-cognition authority."
+}
