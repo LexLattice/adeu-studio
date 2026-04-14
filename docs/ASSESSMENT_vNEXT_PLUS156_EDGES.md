@@ -1,6 +1,8 @@
 # Assessment vNext+156 Edges
 
-Status: planning-edge assessment for `V57-B`.
+Status: post-closeout edge assessment for `V57-B` (April 14, 2026 UTC).
+
+Authority layer: closeout evidence on `main`.
 
 ## Assessment-State Marker (Machine-Checkable)
 
@@ -8,8 +10,8 @@ Status: planning-edge assessment for `V57-B`.
 {
   "schema": "assessment_artifact_state@1",
   "artifact": "docs/ASSESSMENT_vNEXT_PLUS156_EDGES.md",
-  "phase": "pre_lock_assessment",
-  "authoritative": false,
+  "phase": "post_closeout_assessment",
+  "authoritative": true,
   "required_in_decision": true
 }
 ```
@@ -28,6 +30,10 @@ Status: planning-edge assessment for `V57-B`.
   - no parent traversal
   - no indirect alias or mount redirection
   - no write-through into authority-bearing surfaces through sandbox references
+- Closeout Evidence:
+  merged `V57-B` keeps restoration under
+  `artifacts/agentic_de/v57/local_effect/` and tests preserve fail-closed anti-escape
+  checks.
 
 ### Edge 2: Restoration Could Be Claimed Without Prior Observation Evidence
 
@@ -38,6 +44,9 @@ Status: planning-edge assessment for `V57-B`.
   require one restoration record that binds exactly one prior
   `bounded_effect_observed` outcome and one prior conformance ref before restoration
   can be evaluated.
+- Closeout Evidence:
+  shipped checker path requires prior observation + conformance lineage and rejects
+  malformed/missing prior evidence posture.
 
 ### Edge 3: Restoration Entitlement Could Be Misread As Ambient Ongoing Ticket Authority
 
@@ -48,10 +57,12 @@ Status: planning-edge assessment for `V57-B`.
   make the restoration entitlement law explicit.
   - the original ticket is not ambient ongoing authority
   - restoration is lawful only when one bounded compensating scope can be derived and
-    matched fail-closed from the prior observation and shipped ticket / checkpoint
-    lineage
+    matched fail-closed from prior observation and shipped ticket/checkpoint lineage
   - replay means bounded recomputation and re-evaluation of the restoration event, not
     general re-execution of arbitrary prior live actions
+- Closeout Evidence:
+  merged `V57-B` fixtures and tests preserve the lineage-bound entitlement posture and
+  fail closed when ticket/conformance lineage mismatches appear.
 
 ### Edge 4: `V57-B` Could Smuggle In Broader Destructive Authority
 
@@ -61,9 +72,12 @@ Status: planning-edge assessment for `V57-B`.
 - Response:
   keep the exact `V56-B` `bounded_local_artifact` interpretation frozen, reject any
   semantic repartition by default, and narrow the first restoration exemplar to:
-  - compensating restore of the shipped `create_new` artifact only
+  - compensating restore of the shipped `V57-A` `create_new` artifact only
   - reuse of the `V57-A` observation subset does not imply restoration eligibility for
     every observed subset member
+- Closeout Evidence:
+  shipped `V57-B` checker and tests enforce create-new restoration-only posture and
+  reject append-only restoration in this slice.
 
 ### Edge 5: Restoration Could Drift Away From Ticket Lineage
 
@@ -76,6 +90,10 @@ Status: planning-edge assessment for `V57-B`.
   checkpoint-entitled bounded effect lineage.
   - restoration pre-state and post-state remain scoped only to the designated sandbox
     effect region, not to repo-global state
+- Closeout Evidence:
+  shipped restoration fixture includes explicit observation/conformance/ticket/
+  proposal/checkpoint refs with sandbox-scoped pre/post state refs, and tests preserve
+  fail-closed lineage checks.
 
 ### Edge 6: Restoration Could Quietly Mutate Ticket Or Checkpoint Law
 
@@ -85,6 +103,9 @@ Status: planning-edge assessment for `V57-B`.
 - Response:
   keep the new restoration output evidence-bearing only in this slice and forbid
   default mutation of checkpoint or ticket behavior.
+- Closeout Evidence:
+  shipped restoration fixture keeps `evidence_only = true` and
+  `changes_live_behavior_by_default = false`.
 
 ### Edge 7: `V57-B` Could Overclaim Hardening
 
@@ -97,6 +118,9 @@ Status: planning-edge assessment for `V57-B`.
     slice
   - the restoration record does not by itself nominate policy, class, or entitlement
     changes
+- Closeout Evidence:
+  merged `V57-B` ships no hardening register and no advisory hardening output over the
+  restoration record.
 
 ### Edge 8: `V57-B` Could Smuggle In Other Live Classes
 
@@ -106,6 +130,9 @@ Status: planning-edge assessment for `V57-B`.
 - Response:
   keep the live class exactly `local_write` only and keep all other live classes out
   of scope.
+- Closeout Evidence:
+  merged `V57-B` adds bounded `local_write` restoration only and introduces no new
+  live class or dispatch/stronger-execute path.
 
 ### Edge 9: Hidden-Cognition Or Product/Worker Boundaries Could Reappear
 
@@ -116,19 +143,23 @@ Status: planning-edge assessment for `V57-B`.
   keep `V57-B` grounded in externalized restoration evidence only, keep
   product/multi-agent widening out, and preserve `V48` ownership after any later
   lawful dispatch.
+- Closeout Evidence:
+  shipped `V57-B` is sandbox-local, lineage-bound, evidence-bearing only, and
+  introduces no hidden-thought proxy input, product/API surface, or delegated worker
+  ownership.
 
 ## Current Judgment
 
-- `V57-B` is worth implementing next because `V57-A` already shipped one bounded
-  `create_new` observation on `main`, and the strongest remaining bounded gap is one
-  compensating-restore path over that same sandbox-local exemplar.
-- the slice remains properly bounded if it stays:
+- `V57-B` was the right next slice because `V57-A` closed one bounded local-effect
+  observation path on `main` and surfaced one exact later candidate:
+  - `compensating_restore_of_observed_create_new_local_write_path`
+- the shipped result remained properly bounded:
   - existing-package-first
   - shipped-`V56`-surface-reuse-first
   - shipped-`V57-A`-surface-reuse-first
   - designated-sandbox-first
   - `local_write`-only
-  - `create_new`-restore-exemplar-only
+  - create-new-restore-exemplar-only
   - explicit restoration-entitlement law
   - narrow replay meaning only
   - explicit prior observation/conformance lineage
@@ -139,3 +170,8 @@ Status: planning-edge assessment for `V57-B`.
   - non-dispatch
   - non-product
   - non-hidden-cognition-governing
+- `V57-B` is now closed on `main` in the branch-local sense:
+  - `adeu_agentic_de`
+- any later restoration widening, hardening-register addition, execute selection,
+  dispatch widening, or repo-authority widening should proceed only through explicit
+  next-lane lock and drift-check handoff.
