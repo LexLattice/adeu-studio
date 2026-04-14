@@ -6728,3 +6728,31 @@ def test_v58a_live_harness_bind_runs_over_real_copilot_turn_snapshot(
     assert reintegration.reintegration_certificate_ref_or_equivalent is not None
 
     _reset_manager_for_tests()
+
+
+def test_get_copilot_turn_snapshot_rejects_explicit_target_without_visible_turn(
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    codex_bin = _prepare_fake_codex(tmp_path=tmp_path)
+    monkeypatch.setenv("ADEU_API_DB_PATH", str(tmp_path / "adeu.sqlite3"))
+    monkeypatch.setenv("ADEU_CODEX_BIN", str(codex_bin))
+    monkeypatch.delenv("FAKE_APP_SERVER_DISABLE_READY", raising=False)
+    _reset_manager_for_tests()
+
+    start = urm_copilot_start_endpoint(
+        CopilotSessionStartRequest(
+            provider="codex",
+            client_request_id="v58a-explicit-target-start-1",
+        )
+    )
+
+    manager = _get_manager()
+    with pytest.raises(URMError) as excinfo:
+        manager.get_copilot_turn_snapshot(
+            session_id=start.session_id,
+            target_turn_id="turn-minted-before-visible",
+        )
+
+    assert excinfo.value.detail.code == "URM_STEER_DENIED"
+    _reset_manager_for_tests()

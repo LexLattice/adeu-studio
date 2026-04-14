@@ -2723,16 +2723,18 @@ def run_agentic_de_local_effect_v57c(
     )
 
 
-def _resolve_snapshot_text_path(
+def _resolve_snapshot_cwd_path(
     *,
     repo_root_path: Path,
     raw_value: str | None,
     field_name: str,
-) -> str:
+) -> Path:
     if raw_value is None or not raw_value.strip():
         raise ValueError(f"{field_name} must be present for V58-A live-turn admission")
-    resolved = _resolve_path(repo_root_path=repo_root_path, path=Path(raw_value.strip()))
-    return _render_input_ref(repo_root_path=repo_root_path, path=resolved)
+    raw_path = Path(raw_value.strip())
+    if raw_path.is_absolute():
+        return raw_path.resolve()
+    return (repo_root_path / raw_path).resolve()
 
 
 def _snapshot_observability_refs(
@@ -2781,11 +2783,12 @@ def _build_v58a_live_turn_admission_record(
         if live_turn_snapshot.writes_allowed
         else "writes_allowed_disabled"
     )
-    cwd_path = _resolve_snapshot_text_path(
+    cwd_resolved = _resolve_snapshot_cwd_path(
         repo_root_path=repo_root_path,
         raw_value=live_turn_snapshot.cwd,
         field_name="cwd",
     )
+    cwd_path = _render_input_ref(repo_root_path=repo_root_path, path=cwd_resolved)
     designated_sandbox_root = DESIGNATED_LOCAL_EFFECT_SANDBOX_ROOT.as_posix()
     selected_live_path_identity = (
         "urm_copilot_session_path::local_write/create_new::"
@@ -2798,7 +2801,7 @@ def _build_v58a_live_turn_admission_record(
             "session_not_live",
             "current_turn_witness_not_admissible",
         ]
-    elif cwd_path != ".":
+    elif cwd_resolved != repo_root_path.resolve():
         admission_verdict = "rejected_inadmissible"
         admission_reason_codes = [
             "cwd_repo_root_mismatch",

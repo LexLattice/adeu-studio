@@ -202,3 +202,22 @@ def test_non_admitted_snapshot_returns_clean_error(tmp_path: Path) -> None:
     assert completed.returncode == 2
     assert completed.stdout == ""
     assert completed.stderr.startswith("error: ")
+
+
+def test_snapshot_absolute_cwd_from_other_repo_root_returns_clean_error(tmp_path: Path) -> None:
+    temp_root, fixture_root = _copy_v58a_input_tree(tmp_path / "repo")
+    snapshot_path = fixture_root / "reference_copilot_turn_snapshot.json"
+    payload = json.loads(snapshot_path.read_text(encoding="utf-8"))
+    payload["cwd"] = str(_repo_root())
+    snapshot_path.write_text(json.dumps(payload, indent=2) + "\n", encoding="utf-8")
+
+    completed = _run_script(
+        "--repo-root",
+        str(temp_root),
+        "--live-turn-snapshot",
+        str(snapshot_path),
+    )
+
+    assert completed.returncode == 2
+    assert completed.stdout == ""
+    assert completed.stderr.startswith("error: ")

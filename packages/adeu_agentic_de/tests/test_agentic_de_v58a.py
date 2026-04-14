@@ -188,3 +188,16 @@ def test_snapshot_cwd_must_match_repo_root(tmp_path: Path) -> None:
             repo_root_path=temp_root,
             live_turn_snapshot=CopilotTurnSnapshot.model_validate(payload),
         )
+
+
+def test_snapshot_absolute_cwd_from_other_repo_root_fails_closed(tmp_path: Path) -> None:
+    temp_root, fixture_root = _copy_v58a_input_tree(tmp_path)
+    payload = _load_json(fixture_root, "reference_copilot_turn_snapshot.json")
+    assert isinstance(payload, dict)
+    payload["cwd"] = str(_repo_root_path())
+
+    with pytest.raises(ValueError, match="must resolve to admitted"):
+        run_agentic_de_live_harness_v58a(
+            repo_root_path=temp_root,
+            live_turn_snapshot=CopilotTurnSnapshot.model_validate(payload),
+        )

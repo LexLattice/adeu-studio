@@ -760,10 +760,7 @@ class URMCopilotManager:
             active_turn_id = session.active_turn_id
             last_turn_id = session.last_turn_id
             if target_turn_id is not None:
-                selected_turn_id = target_turn_id
-                if (
-                    active_turn_id is not None or last_turn_id is not None
-                ) and target_turn_id not in {active_turn_id, last_turn_id}:
+                if active_turn_id is None and last_turn_id is None:
                     raise URMError(
                         code="URM_STEER_DENIED",
                         message="target_turn_id is not visible in the current session turn state",
@@ -774,6 +771,18 @@ class URMCopilotManager:
                             "last_turn_id": last_turn_id,
                         },
                     )
+                if target_turn_id not in {active_turn_id, last_turn_id}:
+                    raise URMError(
+                        code="URM_STEER_DENIED",
+                        message="target_turn_id is not visible in the current session turn state",
+                        context={
+                            "session_id": session_id,
+                            "target_turn_id": target_turn_id,
+                            "active_turn_id": active_turn_id,
+                            "last_turn_id": last_turn_id,
+                        },
+                    )
+                selected_turn_id = target_turn_id
                 turn_selection_mode: Literal[
                     "runtime_active_turn",
                     "runtime_last_turn",
