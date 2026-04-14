@@ -68,8 +68,13 @@ The family should remain package-first in `V57-A`:
   - keep the path bounded to `local_write` only
 - `V57-B`
   - add one restoration / compensating-restore record
-  - add one bounded replay/restoration path over the same frozen `local_write`
-    semantics
+  - add one bounded replay/restoration path first over the shipped `create_new`
+    exemplar from `V57-A`
+  - keep replay narrow:
+    - bounded recomputation and re-evaluation of the restoration event against the
+      prior observed-effect lineage
+    - not general re-execution of arbitrary prior live actions
+  - keep append-only restoration not selected yet
 - `V57-C`
   - add one hardening register
   - decide whether the observed/restored local-write path deserves stronger local
