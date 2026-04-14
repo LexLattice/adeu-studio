@@ -1,0 +1,209 @@
+{
+  "$defs": {
+    "AgenticDeLocalEffectHardeningEntry": {
+      "additionalProperties": false,
+      "properties": {
+        "action_proposal_ref": {
+          "title": "Action Proposal Ref",
+          "type": "string"
+        },
+        "boundedness_conformance_summary": {
+          "title": "Boundedness Conformance Summary",
+          "type": "string"
+        },
+        "checkpoint_ref": {
+          "title": "Checkpoint Ref",
+          "type": "string"
+        },
+        "evidence_basis_summary": {
+          "title": "Evidence Basis Summary",
+          "type": "string"
+        },
+        "evidence_refs": {
+          "items": {
+            "type": "string"
+          },
+          "title": "Evidence Refs",
+          "type": "array"
+        },
+        "hardening_id": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Hardening Id"
+        },
+        "local_effect_conformance_ref": {
+          "title": "Local Effect Conformance Ref",
+          "type": "string"
+        },
+        "observation_boundedness_verdict": {
+          "enum": [
+            "bounded",
+            "failed"
+          ],
+          "title": "Observation Boundedness Verdict",
+          "type": "string"
+        },
+        "observation_ref": {
+          "title": "Observation Ref",
+          "type": "string"
+        },
+        "rationale": {
+          "title": "Rationale",
+          "type": "string"
+        },
+        "reason_codes": {
+          "items": {
+            "type": "string"
+          },
+          "title": "Reason Codes",
+          "type": "array"
+        },
+        "recommendation_scope_requires_later_lock": {
+          "const": true,
+          "default": true,
+          "title": "Recommendation Scope Requires Later Lock",
+          "type": "boolean"
+        },
+        "recommended_outcome": {
+          "enum": [
+            "keep_warning_only",
+            "needs_more_evidence",
+            "candidate_for_later_local_hardening",
+            "not_selected_for_escalation"
+          ],
+          "title": "Recommended Outcome",
+          "type": "string"
+        },
+        "restoration_boundedness_verdict": {
+          "enum": [
+            "bounded",
+            "failed"
+          ],
+          "title": "Restoration Boundedness Verdict",
+          "type": "string"
+        },
+        "restoration_ref": {
+          "title": "Restoration Ref",
+          "type": "string"
+        },
+        "selected_hardening_target_surface": {
+          "title": "Selected Hardening Target Surface",
+          "type": "string"
+        },
+        "ticket_ref": {
+          "title": "Ticket Ref",
+          "type": "string"
+        }
+      },
+      "required": [
+        "ticket_ref",
+        "action_proposal_ref",
+        "checkpoint_ref",
+        "observation_ref",
+        "local_effect_conformance_ref",
+        "restoration_ref",
+        "observation_boundedness_verdict",
+        "restoration_boundedness_verdict",
+        "selected_hardening_target_surface",
+        "evidence_basis_summary",
+        "boundedness_conformance_summary",
+        "recommended_outcome",
+        "rationale",
+        "reason_codes",
+        "evidence_refs"
+      ],
+      "title": "AgenticDeLocalEffectHardeningEntry",
+      "type": "object"
+    }
+  },
+  "additionalProperties": false,
+  "properties": {
+    "advisory_only": {
+      "const": true,
+      "default": true,
+      "title": "Advisory Only",
+      "type": "boolean"
+    },
+    "baseline_checker_version": {
+      "title": "Baseline Checker Version",
+      "type": "string"
+    },
+    "candidate_only": {
+      "const": true,
+      "default": true,
+      "title": "Candidate Only",
+      "type": "boolean"
+    },
+    "changes_live_behavior_by_default": {
+      "const": false,
+      "default": false,
+      "title": "Changes Live Behavior By Default",
+      "type": "boolean"
+    },
+    "entries": {
+      "items": {
+        "$ref": "#/$defs/AgenticDeLocalEffectHardeningEntry"
+      },
+      "title": "Entries",
+      "type": "array"
+    },
+    "entry_count": {
+      "title": "Entry Count",
+      "type": "integer"
+    },
+    "exemplar_evidence_non_generalizing_by_default": {
+      "const": true,
+      "default": true,
+      "title": "Exemplar Evidence Non Generalizing By Default",
+      "type": "boolean"
+    },
+    "path_level_only": {
+      "const": true,
+      "default": true,
+      "title": "Path Level Only",
+      "type": "boolean"
+    },
+    "register_id": {
+      "anyOf": [
+        {
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Register Id"
+    },
+    "schema": {
+      "const": "agentic_de_local_effect_hardening_register@1",
+      "default": "agentic_de_local_effect_hardening_register@1",
+      "title": "Schema",
+      "type": "string"
+    },
+    "target_arc": {
+      "title": "Target Arc",
+      "type": "string"
+    },
+    "target_path": {
+      "title": "Target Path",
+      "type": "string"
+    }
+  },
+  "required": [
+    "target_arc",
+    "target_path",
+    "baseline_checker_version",
+    "entry_count",
+    "entries"
+  ],
+  "title": "AgenticDeLocalEffectHardeningRegister",
+  "type": "object"
+}

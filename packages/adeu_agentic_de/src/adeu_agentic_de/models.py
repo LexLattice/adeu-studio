@@ -30,6 +30,9 @@ AGENTIC_DE_LOCAL_EFFECT_CONFORMANCE_REPORT_SCHEMA = (
 AGENTIC_DE_LOCAL_EFFECT_RESTORATION_RECORD_SCHEMA = (
     "agentic_de_local_effect_restoration_record@1"
 )
+AGENTIC_DE_LOCAL_EFFECT_HARDENING_REGISTER_SCHEMA = (
+    "agentic_de_local_effect_hardening_register@1"
+)
 
 ACTION_CLASS_VOCABULARY = ("inspect", "write", "execute", "dispatch")
 EXACT_ACTION_CLASS_VOCABULARY = (
@@ -1396,6 +1399,143 @@ class AgenticDeLocalEffectRestorationRecord(BaseModel):
         return self
 
 
+class AgenticDeLocalEffectHardeningEntry(BaseModel):
+    model_config = MODEL_CONFIG
+
+    hardening_id: str | None = None
+    ticket_ref: str
+    action_proposal_ref: str
+    checkpoint_ref: str
+    observation_ref: str
+    local_effect_conformance_ref: str
+    restoration_ref: str
+    observation_boundedness_verdict: BoundednessVerdict
+    restoration_boundedness_verdict: BoundednessVerdict
+    selected_hardening_target_surface: str
+    evidence_basis_summary: str
+    boundedness_conformance_summary: str
+    recommendation_scope_requires_later_lock: Literal[True] = True
+    recommended_outcome: GovernanceDecisionOutcome
+    rationale: str
+    reason_codes: list[str]
+    evidence_refs: list[str]
+
+    @model_validator(mode="after")
+    def _validate_entry(self) -> AgenticDeLocalEffectHardeningEntry:
+        _assert_present_text(self.ticket_ref, field_name="ticket_ref")
+        _assert_present_text(self.action_proposal_ref, field_name="action_proposal_ref")
+        _assert_present_text(self.checkpoint_ref, field_name="checkpoint_ref")
+        _assert_present_text(self.observation_ref, field_name="observation_ref")
+        _assert_present_text(
+            self.local_effect_conformance_ref,
+            field_name="local_effect_conformance_ref",
+        )
+        _assert_present_text(self.restoration_ref, field_name="restoration_ref")
+        _assert_present_text(
+            self.selected_hardening_target_surface,
+            field_name="selected_hardening_target_surface",
+        )
+        _assert_present_text(
+            self.evidence_basis_summary,
+            field_name="evidence_basis_summary",
+        )
+        _assert_present_text(
+            self.boundedness_conformance_summary,
+            field_name="boundedness_conformance_summary",
+        )
+        _assert_present_text(self.rationale, field_name="rationale")
+        object.__setattr__(
+            self,
+            "reason_codes",
+            _ordered_unique_texts(self.reason_codes, field_name="reason_codes"),
+        )
+        object.__setattr__(
+            self,
+            "evidence_refs",
+            _ordered_unique_texts(self.evidence_refs, field_name="evidence_refs"),
+        )
+        if self.recommended_outcome == "candidate_for_later_local_hardening":
+            if self.observation_boundedness_verdict != "bounded":
+                raise ValueError(
+                    "candidate_for_later_local_hardening requires bounded observation verdict"
+                )
+            if self.restoration_boundedness_verdict != "bounded":
+                raise ValueError(
+                    "candidate_for_later_local_hardening requires bounded restoration verdict"
+                )
+            if "later_lock_required_for_scope" not in self.reason_codes:
+                raise ValueError(
+                    "candidate_for_later_local_hardening requires later_lock_required_for_scope"
+                )
+        object.__setattr__(
+            self,
+            "hardening_id",
+            _assign_or_verify_content_addressed_id(
+                value=self.hardening_id,
+                field_name="hardening_id",
+                prefix="agentic_de_local_effect_hardening",
+                payload=self.model_dump(mode="json", exclude={"hardening_id"}),
+            ),
+        )
+        return self
+
+
+class AgenticDeLocalEffectHardeningRegister(BaseModel):
+    model_config = MODEL_CONFIG
+
+    schema: Literal[AGENTIC_DE_LOCAL_EFFECT_HARDENING_REGISTER_SCHEMA] = (
+        AGENTIC_DE_LOCAL_EFFECT_HARDENING_REGISTER_SCHEMA
+    )
+    register_id: str | None = None
+    target_arc: str
+    target_path: str
+    advisory_only: Literal[True] = True
+    candidate_only: Literal[True] = True
+    path_level_only: Literal[True] = True
+    exemplar_evidence_non_generalizing_by_default: Literal[True] = True
+    changes_live_behavior_by_default: Literal[False] = False
+    baseline_checker_version: str
+    entry_count: int
+    entries: list[AgenticDeLocalEffectHardeningEntry]
+
+    @model_validator(mode="after")
+    def _validate_register(self) -> AgenticDeLocalEffectHardeningRegister:
+        _assert_present_text(self.target_arc, field_name="target_arc")
+        _assert_present_text(self.target_path, field_name="target_path")
+        _assert_present_text(
+            self.baseline_checker_version,
+            field_name="baseline_checker_version",
+        )
+        if self.advisory_only is not True:
+            raise ValueError("advisory_only must remain true in V57-C")
+        if self.candidate_only is not True:
+            raise ValueError("candidate_only must remain true in V57-C")
+        if self.path_level_only is not True:
+            raise ValueError("path_level_only must remain true in V57-C")
+        if self.exemplar_evidence_non_generalizing_by_default is not True:
+            raise ValueError(
+                "exemplar_evidence_non_generalizing_by_default must remain true in V57-C"
+            )
+        if self.changes_live_behavior_by_default is not False:
+            raise ValueError("changes_live_behavior_by_default must remain false in V57-C")
+        if self.entry_count != len(self.entries):
+            raise ValueError("entry_count must equal len(entries)")
+        target_surfaces = [entry.selected_hardening_target_surface for entry in self.entries]
+        if len(set(target_surfaces)) != len(target_surfaces):
+            raise ValueError("selected_hardening_target_surface values must be unique")
+        object.__setattr__(
+            self,
+            "register_id",
+            _assign_or_verify_content_addressed_id(
+                value=self.register_id,
+                field_name="register_id",
+                prefix="agentic_de_local_effect_hardening_register",
+                payload=self.model_dump(mode="json", exclude={"register_id"}),
+            ),
+        )
+        return self
+
+
 def compute_agentic_de_domain_packet_id(payload: dict[str, object]) -> str:
     return _compute_id("agentic_de_domain_packet", payload)
 
@@ -1476,3 +1616,13 @@ def compute_agentic_de_local_effect_restoration_record_id(
     payload: dict[str, object],
 ) -> str:
     return _compute_id("agentic_de_local_effect_restoration", payload)
+
+
+def compute_agentic_de_local_effect_hardening_entry_id(payload: dict[str, object]) -> str:
+    return _compute_id("agentic_de_local_effect_hardening", payload)
+
+
+def compute_agentic_de_local_effect_hardening_register_id(
+    payload: dict[str, object],
+) -> str:
+    return _compute_id("agentic_de_local_effect_hardening_register", payload)

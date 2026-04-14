@@ -13,6 +13,7 @@ from adeu_agentic_de import (
     AGENTIC_DE_INTERACTION_CONTRACT_SCHEMA,
     AGENTIC_DE_LANE_DRIFT_RECORD_SCHEMA,
     AGENTIC_DE_LOCAL_EFFECT_CONFORMANCE_REPORT_SCHEMA,
+    AGENTIC_DE_LOCAL_EFFECT_HARDENING_REGISTER_SCHEMA,
     AGENTIC_DE_LOCAL_EFFECT_OBSERVATION_RECORD_SCHEMA,
     AGENTIC_DE_LOCAL_EFFECT_RESTORATION_RECORD_SCHEMA,
     AGENTIC_DE_MEMBRANE_CHECKPOINT_SCHEMA,
@@ -145,6 +146,14 @@ def _schema_pairs() -> dict[str, tuple[Path, Path]]:
             / "schema"
             / "agentic_de_local_effect_restoration_record.v1.json",
             root / "spec" / "agentic_de_local_effect_restoration_record.schema.json",
+        ),
+        AGENTIC_DE_LOCAL_EFFECT_HARDENING_REGISTER_SCHEMA: (
+            root
+            / "packages"
+            / "adeu_agentic_de"
+            / "schema"
+            / "agentic_de_local_effect_hardening_register.v1.json",
+            root / "spec" / "agentic_de_local_effect_hardening_register.schema.json",
         ),
     }
 
