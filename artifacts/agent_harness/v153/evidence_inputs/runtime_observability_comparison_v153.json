@@ -1,0 +1,11 @@
+{
+  "schema": "runtime_observability_comparison@1",
+  "baseline_arc": "vNext+152",
+  "current_arc": "vNext+153",
+  "baseline_source": "artifacts/stop_gate/report_v152_closeout.md",
+  "current_source": "artifacts/stop_gate/report_v153_closeout.md",
+  "baseline_elapsed_ms": 73,
+  "current_elapsed_ms": 76,
+  "delta_ms": 3,
+  "notes": "v153 closeout keeps the frozen stop-gate schema family and exact metric keyset unchanged while shipping the bounded V56-B live gate starter on main: V56-A packet/contract/proposal/checkpoint surfaces are reused by default, exact action taxonomy plus runtime-state and action-ticket records are added, ticket issuance remains accepted-necessary-but-not-sufficient over a local-only selected subset, delegated/external dispatch and stronger execute remain out of scope, and review hardening tightened fail-closed taxonomy validation."
+}

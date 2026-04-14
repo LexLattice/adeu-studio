@@ -1,0 +1,122 @@
+{
+  "schema": "v56b_bounded_live_gate_starter_evidence@1",
+  "evidence_input_path": "artifacts/agent_harness/v153/evidence_inputs/v56b_bounded_live_gate_starter_evidence_v153.json",
+  "contract_source": "docs/LOCKED_CONTINUATION_vNEXT_PLUS153.md#machine-checkable-contract",
+  "merged_pr": "#380",
+  "merge_commit": "37dacd49dbff6c7c930d84b24340350bd69fcc43",
+  "implementation_commit": "843442cd39eca660e63a1a8d2e3f7a25de0f11ab",
+  "review_hardening_commit": "b36530b6e38a4710ba9b022a5bcd9543721d829f",
+  "implementation_packages": [
+    "adeu_agentic_de"
+  ],
+  "selected_record_shapes": [
+    "agentic_de_domain_packet@1",
+    "agentic_de_morph_ir@1",
+    "agentic_de_interaction_contract@1",
+    "agentic_de_action_proposal@1",
+    "agentic_de_membrane_checkpoint@1",
+    "agentic_de_morph_diagnostics@1",
+    "agentic_de_conformance_report@1",
+    "agentic_de_lane_drift_record@1",
+    "agentic_de_action_class_taxonomy@1",
+    "agentic_de_runtime_state@1",
+    "agentic_de_action_ticket@1"
+  ],
+  "admitted_shaping_input_refs": [
+    "docs/support/ADEU_SCHEMA_META_GRAMMAR.md",
+    "docs/support/AGENTIC_DE_TYPE_GRAMMAR.md",
+    "docs/support/ODEU_MEMBRANE_ARCHITECTURE.md",
+    "docs/support/ODEU AS A COUPLED SEMANTIC HYPERSPACE WITH LAWFUL MORPHISMS_v2.md",
+    "docs/DRAFT_PRACTICAL_HARNESS_FLOW_v0.md",
+    "docs/DRAFT_PRACTICAL_REASONING_SIX_LANE_LOOP_v0.md",
+    "packages/adeu_core_ir/schema/ux_domain_packet.v1.json",
+    "packages/adeu_core_ir/schema/ux_morph_ir.v1.json",
+    "packages/adeu_core_ir/schema/ux_interaction_contract.v1.json"
+  ],
+  "admitted_shaping_input_set_closed_for_v56b": true,
+  "prior_lane_handoff_record_required": true,
+  "prior_lane_handoff_record_schema": "agentic_de_lane_drift_record@1",
+  "v56a_surface_reuse_default": true,
+  "surface_fork_requires_explicit_drift_amendment": true,
+  "agentic_de_package_root": "packages/adeu_agentic_de",
+  "agentic_de_pyproject_path": "packages/adeu_agentic_de/pyproject.toml",
+  "agentic_de_package_init_source_path": "packages/adeu_agentic_de/src/adeu_agentic_de/__init__.py",
+  "agentic_de_checker_source_path": "packages/adeu_agentic_de/src/adeu_agentic_de/checker.py",
+  "agentic_de_models_source_path": "packages/adeu_agentic_de/src/adeu_agentic_de/models.py",
+  "agentic_de_export_schema_source_path": "packages/adeu_agentic_de/src/adeu_agentic_de/export_schema.py",
+  "agentic_de_cli_source_path": "apps/api/scripts/run_agentic_de_interaction_v56b.py",
+  "agentic_de_action_class_taxonomy_authoritative_schema_path": "packages/adeu_agentic_de/schema/agentic_de_action_class_taxonomy.v1.json",
+  "agentic_de_runtime_state_authoritative_schema_path": "packages/adeu_agentic_de/schema/agentic_de_runtime_state.v1.json",
+  "agentic_de_action_ticket_authoritative_schema_path": "packages/adeu_agentic_de/schema/agentic_de_action_ticket.v1.json",
+  "agentic_de_lane_drift_record_authoritative_schema_path": "packages/adeu_agentic_de/schema/agentic_de_lane_drift_record.v1.json",
+  "agentic_de_action_class_taxonomy_mirror_schema_path": "spec/agentic_de_action_class_taxonomy.schema.json",
+  "agentic_de_runtime_state_mirror_schema_path": "spec/agentic_de_runtime_state.schema.json",
+  "agentic_de_action_ticket_mirror_schema_path": "spec/agentic_de_action_ticket.schema.json",
+  "agentic_de_lane_drift_record_mirror_schema_path": "spec/agentic_de_lane_drift_record.schema.json",
+  "reference_action_class_taxonomy_fixture_path": "packages/adeu_agentic_de/tests/fixtures/v56b/reference_agentic_de_action_class_taxonomy.json",
+  "reference_runtime_state_fixture_path": "packages/adeu_agentic_de/tests/fixtures/v56b/reference_agentic_de_runtime_state.json",
+  "reference_action_ticket_fixture_path": "packages/adeu_agentic_de/tests/fixtures/v56b/reference_agentic_de_action_ticket.json",
+  "reference_lane_drift_record_fixture_path": "packages/adeu_agentic_de/tests/fixtures/v56b/reference_agentic_de_lane_drift_record.json",
+  "reference_morph_diagnostics_fixture_path": "packages/adeu_agentic_de/tests/fixtures/v56b/reference_agentic_de_morph_diagnostics.json",
+  "reference_conformance_report_fixture_path": "packages/adeu_agentic_de/tests/fixtures/v56b/reference_agentic_de_conformance_report.json",
+  "required_prior_lane_evidence_path": "artifacts/agent_harness/v152/evidence_inputs/v56a_agentic_de_interaction_governance_starter_evidence_v152.json",
+  "test_reference_paths": [
+    "packages/adeu_agentic_de/tests/test_agentic_de_v56b.py",
+    "packages/adeu_agentic_de/tests/test_agentic_de_export_schema.py",
+    "apps/api/tests/test_run_agentic_de_interaction_v56b.py",
+    "apps/api/tests/test_lint_agentic_de_interaction_v56a.py"
+  ],
+  "targeted_local_checks": [
+    ".venv/bin/python -m pytest -q packages/adeu_agentic_de/tests apps/api/tests/test_lint_agentic_de_interaction_v56a.py apps/api/tests/test_run_agentic_de_interaction_v56b.py"
+  ],
+  "local_full_python_gate": "make check",
+  "selected_live_gate_action_classes_for_v56b": [
+    "local_reversible_execute",
+    "local_write"
+  ],
+  "selected_live_gate_class_definitions_for_v56b": {
+    "local_scope": "current_bounded_workspace_process_and_sandbox_surface_only_excluding_delegated_remote_networked_or_broader_system_effects",
+    "reversible_scope": "rollback_or_compensating_restore_defined_and_testable_inside_the_same_local_authority_envelope",
+    "local_write_exclusions": [
+      "family_constitutions",
+      "lock_docs",
+      "ci_config",
+      "secrets_or_credentials",
+      "dispatch_surfaces"
+    ]
+  },
+  "checkpoint_accepted_required_before_ticket_issuance": true,
+  "checkpoint_accepted_necessary_but_not_sufficient_for_ticket_issuance": true,
+  "additional_ticket_issuance_preconditions_enforced": [
+    "selected_live_action_class_membership",
+    "runtime_state_compatible",
+    "authority_capability_posture_valid_at_issuance",
+    "ticket_scope_and_time_bounded"
+  ],
+  "non_accepted_checkpoint_statuses_must_not_issue_ticket": [
+    "residualized",
+    "blocked",
+    "escalated",
+    "rejected_by_form"
+  ],
+  "non_entitling_reason_codes_preserved_for_v56b": [
+    "authority_missing",
+    "insufficient_evidence",
+    "proposal_malformed",
+    "out_of_scope",
+    "noncomparable",
+    "unresolved_dependency",
+    "not_evaluable_yet"
+  ],
+  "ticket_visibility_in_consequence_chain_required": true,
+  "ticket_visibility_satisfied_by": "explicit_linked_ticket_reference_or_summary_alongside_conformance",
+  "delegated_or_external_dispatch_selected_for_v56b": false,
+  "stronger_execute_selected_for_v56b": false,
+  "harvest_or_governance_calibration_selected": false,
+  "surrogate_hidden_cognition_proxies_forbidden": true,
+  "governs_hidden_cognition": false,
+  "metric_key_continuity_assertion_path": "artifacts/agent_harness/v153/evidence_inputs/metric_key_continuity_assertion_v153.json",
+  "runtime_observability_comparison_path": "artifacts/agent_harness/v153/evidence_inputs/runtime_observability_comparison_v153.json",
+  "runtime_event_stream_path": "artifacts/agent_harness/v153/runtime/evidence/local/urm_events.ndjson",
+  "notes": "v153 evidence pins the bounded V56-B live gate starter on main: shipped V56-A packet/contract/proposal/checkpoint surfaces were reused by default, one exact action-class taxonomy plus runtime-state and action-ticket surfaces were added, ticket issuance remained accepted-necessary-but-not-sufficient over a local-only selected subset, delegated/external dispatch and stronger execute remained deferred, and review hardening tightened fail-closed taxonomy validation."
+}
