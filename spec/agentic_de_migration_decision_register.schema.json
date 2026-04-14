@@ -1,0 +1,130 @@
+{
+  "$defs": {
+    "AgenticDeMigrationDecisionEntry": {
+      "additionalProperties": false,
+      "properties": {
+        "current_posture": {
+          "title": "Current Posture",
+          "type": "string"
+        },
+        "decision_id": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Decision Id"
+        },
+        "evidence_refs": {
+          "items": {
+            "type": "string"
+          },
+          "title": "Evidence Refs",
+          "type": "array"
+        },
+        "rationale": {
+          "title": "Rationale",
+          "type": "string"
+        },
+        "recommended_outcome": {
+          "enum": [
+            "keep_warning_only",
+            "needs_more_evidence",
+            "candidate_for_later_local_hardening",
+            "not_selected_for_escalation"
+          ],
+          "title": "Recommended Outcome",
+          "type": "string"
+        },
+        "surface_id": {
+          "title": "Surface Id",
+          "type": "string"
+        }
+      },
+      "required": [
+        "surface_id",
+        "current_posture",
+        "recommended_outcome",
+        "rationale",
+        "evidence_refs"
+      ],
+      "title": "AgenticDeMigrationDecisionEntry",
+      "type": "object"
+    }
+  },
+  "additionalProperties": false,
+  "properties": {
+    "advisory_only": {
+      "const": true,
+      "default": true,
+      "title": "Advisory Only",
+      "type": "boolean"
+    },
+    "baseline_checker_version": {
+      "title": "Baseline Checker Version",
+      "type": "string"
+    },
+    "candidate_only": {
+      "const": true,
+      "default": true,
+      "title": "Candidate Only",
+      "type": "boolean"
+    },
+    "changes_live_behavior_by_default": {
+      "const": false,
+      "default": false,
+      "title": "Changes Live Behavior By Default",
+      "type": "boolean"
+    },
+    "entries": {
+      "items": {
+        "$ref": "#/$defs/AgenticDeMigrationDecisionEntry"
+      },
+      "title": "Entries",
+      "type": "array"
+    },
+    "entry_count": {
+      "title": "Entry Count",
+      "type": "integer"
+    },
+    "register_id": {
+      "anyOf": [
+        {
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Register Id"
+    },
+    "schema": {
+      "const": "agentic_de_migration_decision_register@1",
+      "default": "agentic_de_migration_decision_register@1",
+      "title": "Schema",
+      "type": "string"
+    },
+    "target_arc": {
+      "title": "Target Arc",
+      "type": "string"
+    },
+    "target_path": {
+      "title": "Target Path",
+      "type": "string"
+    }
+  },
+  "required": [
+    "target_arc",
+    "target_path",
+    "baseline_checker_version",
+    "entry_count",
+    "entries"
+  ],
+  "title": "AgenticDeMigrationDecisionRegister",
+  "type": "object"
+}

@@ -1,0 +1,178 @@
+{
+  "additionalProperties": false,
+  "properties": {
+    "baseline_checker_version": {
+      "title": "Baseline Checker Version",
+      "type": "string"
+    },
+    "bounded_derived_summaries": {
+      "items": {
+        "type": "string"
+      },
+      "title": "Bounded Derived Summaries",
+      "type": "array"
+    },
+    "checkpoint_entitlement_summary": {
+      "title": "Checkpoint Entitlement Summary",
+      "type": "string"
+    },
+    "checkpoint_ref": {
+      "title": "Checkpoint Ref",
+      "type": "string"
+    },
+    "conformance_ref": {
+      "title": "Conformance Ref",
+      "type": "string"
+    },
+    "delta_notes": {
+      "items": {
+        "type": "string"
+      },
+      "title": "Delta Notes",
+      "type": "array"
+    },
+    "diagnostics_ref": {
+      "title": "Diagnostics Ref",
+      "type": "string"
+    },
+    "evidence_refs": {
+      "items": {
+        "type": "string"
+      },
+      "title": "Evidence Refs",
+      "type": "array"
+    },
+    "executed_or_observed_effect": {
+      "title": "Executed Or Observed Effect",
+      "type": "string"
+    },
+    "governance_classification_deferred": {
+      "const": true,
+      "default": true,
+      "title": "Governance Classification Deferred",
+      "type": "boolean"
+    },
+    "harvest_id": {
+      "anyOf": [
+        {
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Harvest Id"
+    },
+    "live_effect_present": {
+      "title": "Live Effect Present",
+      "type": "boolean"
+    },
+    "observation_only": {
+      "const": true,
+      "default": true,
+      "title": "Observation Only",
+      "type": "boolean"
+    },
+    "observed_pattern_summary": {
+      "title": "Observed Pattern Summary",
+      "type": "string"
+    },
+    "packed_state_summary": {
+      "title": "Packed State Summary",
+      "type": "string"
+    },
+    "packet_ref": {
+      "title": "Packet Ref",
+      "type": "string"
+    },
+    "proposal_ref": {
+      "title": "Proposal Ref",
+      "type": "string"
+    },
+    "proposed_action_summary": {
+      "title": "Proposed Action Summary",
+      "type": "string"
+    },
+    "runtime_state_ref": {
+      "title": "Runtime State Ref",
+      "type": "string"
+    },
+    "schema": {
+      "const": "agentic_de_runtime_harvest_record@1",
+      "default": "agentic_de_runtime_harvest_record@1",
+      "title": "Schema",
+      "type": "string"
+    },
+    "selected_live_action_class_interpretation_frozen": {
+      "const": true,
+      "default": true,
+      "title": "Selected Live Action Class Interpretation Frozen",
+      "type": "boolean"
+    },
+    "selected_live_action_classes": {
+      "items": {
+        "enum": [
+          "local_reversible_execute",
+          "local_write"
+        ],
+        "type": "string"
+      },
+      "title": "Selected Live Action Classes",
+      "type": "array"
+    },
+    "target_arc": {
+      "title": "Target Arc",
+      "type": "string"
+    },
+    "target_path": {
+      "title": "Target Path",
+      "type": "string"
+    },
+    "ticket_issued": {
+      "title": "Ticket Issued",
+      "type": "boolean"
+    },
+    "ticket_ref": {
+      "anyOf": [
+        {
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Ticket Ref"
+    },
+    "ticket_visibility_summary": {
+      "title": "Ticket Visibility Summary",
+      "type": "string"
+    }
+  },
+  "required": [
+    "target_arc",
+    "target_path",
+    "baseline_checker_version",
+    "packet_ref",
+    "proposal_ref",
+    "checkpoint_ref",
+    "runtime_state_ref",
+    "diagnostics_ref",
+    "conformance_ref",
+    "selected_live_action_classes",
+    "packed_state_summary",
+    "proposed_action_summary",
+    "checkpoint_entitlement_summary",
+    "ticket_issued",
+    "ticket_visibility_summary",
+    "executed_or_observed_effect",
+    "live_effect_present",
+    "observed_pattern_summary",
+    "delta_notes",
+    "bounded_derived_summaries",
+    "evidence_refs"
+  ],
+  "title": "AgenticDeRuntimeHarvestRecord",
+  "type": "object"
+}

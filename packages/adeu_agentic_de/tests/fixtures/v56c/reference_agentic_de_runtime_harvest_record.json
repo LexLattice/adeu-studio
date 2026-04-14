@@ -1,0 +1,59 @@
+{
+  "baseline_checker_version": "agentic_de_interaction_v56b",
+  "bounded_derived_summaries": [
+    "observed pattern remains local_write-only in the shipped V56-B reference path",
+    "selected live class interpretation remains frozen to bounded local artifact write and locally reversible execute semantics",
+    "harvest stays observation-only and defers governance classification to advisory registers"
+  ],
+  "checkpoint_entitlement_summary": "dry_run_checkpoint_accepted_non_entitling",
+  "checkpoint_ref": "agentic_de_membrane_checkpoint_90507134239a",
+  "conformance_ref": "agentic_de_conformance_report_3978104391d1",
+  "delta_notes": [
+    "packed_state=Prepare a bounded dry-run patch candidate for the active resident-agent task without executing a live repository write.",
+    "proposed_action=Prepare a dry-run patch candidate for the current resident-agent task.",
+    "checkpoint_entitlement=dry_run_checkpoint_accepted_non_entitling",
+    "ticket_issued=true",
+    "ticket_ref=agentic_de_action_ticket_866f90c6f22a",
+    "executed_or_observed_effect=no_live_effect"
+  ],
+  "diagnostics_ref": "agentic_de_morph_diagnostics_138e54816592",
+  "evidence_refs": [
+    "packages/adeu_agentic_de/tests/fixtures/v56a/reference_agentic_de_domain_packet.json",
+    "packages/adeu_agentic_de/tests/fixtures/v56a/reference_agentic_de_morph_ir.json",
+    "packages/adeu_agentic_de/tests/fixtures/v56a/reference_agentic_de_interaction_contract.json",
+    "packages/adeu_agentic_de/tests/fixtures/v56a/reference_agentic_de_action_proposal.json",
+    "packages/adeu_agentic_de/tests/fixtures/v56a/reference_agentic_de_membrane_checkpoint.json",
+    "packages/adeu_agentic_de/tests/fixtures/v56a/reference_agentic_de_morph_diagnostics.json",
+    "packages/adeu_agentic_de/tests/fixtures/v56a/reference_agentic_de_conformance_report.json",
+    "packages/adeu_agentic_de/tests/fixtures/v56b/reference_agentic_de_action_class_taxonomy.json",
+    "packages/adeu_agentic_de/tests/fixtures/v56b/reference_agentic_de_runtime_state.json",
+    "packages/adeu_agentic_de/tests/fixtures/v56b/reference_agentic_de_action_ticket.json",
+    "packages/adeu_agentic_de/tests/fixtures/v56b/reference_agentic_de_lane_drift_record.json",
+    "packages/adeu_agentic_de/tests/fixtures/v56b/reference_agentic_de_morph_diagnostics.json",
+    "packages/adeu_agentic_de/tests/fixtures/v56b/reference_agentic_de_conformance_report.json",
+    "artifacts/agent_harness/v152/evidence_inputs/v56a_agentic_de_interaction_governance_starter_evidence_v152.json",
+    "artifacts/agent_harness/v153/evidence_inputs/v56b_bounded_live_gate_starter_evidence_v153.json"
+  ],
+  "executed_or_observed_effect": "no_live_effect",
+  "governance_classification_deferred": true,
+  "harvest_id": "agentic_de_runtime_harvest_bd3a5aca0c1f",
+  "live_effect_present": false,
+  "observation_only": true,
+  "observed_pattern_summary": "shipped V56-B evidence preserves one bounded local_write ticket over the frozen local-only live subset while conformance still records no_live_effect",
+  "packed_state_summary": "Prepare a bounded dry-run patch candidate for the active resident-agent task without executing a live repository write.",
+  "packet_ref": "agentic_de_domain_packet_4254046501b1",
+  "proposal_ref": "agentic_de_action_proposal_6fda60050fa6",
+  "proposed_action_summary": "Prepare a dry-run patch candidate for the current resident-agent task.",
+  "runtime_state_ref": "agentic_de_runtime_state_f96409da1d49",
+  "schema": "agentic_de_runtime_harvest_record@1",
+  "selected_live_action_class_interpretation_frozen": true,
+  "selected_live_action_classes": [
+    "local_reversible_execute",
+    "local_write"
+  ],
+  "target_arc": "vNext+154",
+  "target_path": "V56-C",
+  "ticket_issued": true,
+  "ticket_ref": "agentic_de_action_ticket_866f90c6f22a",
+  "ticket_visibility_summary": "explicit_ticket_ref:agentic_de_action_ticket_866f90c6f22a"
+}

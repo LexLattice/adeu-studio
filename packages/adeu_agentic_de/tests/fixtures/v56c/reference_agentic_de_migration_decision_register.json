@@ -1,0 +1,77 @@
+{
+  "advisory_only": true,
+  "baseline_checker_version": "agentic_de_interaction_v56b",
+  "candidate_only": true,
+  "changes_live_behavior_by_default": false,
+  "entries": [
+    {
+      "current_posture": "reused_from_shipped_v56a_v56b_without_live_mutation",
+      "decision_id": "agentic_de_migration_decision_a11abed15edd",
+      "evidence_refs": [
+        "artifacts/agent_harness/v152/evidence_inputs/v56a_agentic_de_interaction_governance_starter_evidence_v152.json",
+        "artifacts/agent_harness/v153/evidence_inputs/v56b_bounded_live_gate_starter_evidence_v153.json"
+      ],
+      "rationale": "V56-C is advisory-only, so checkpoint semantics stay unchanged until a later explicit lock selects stronger local hardening",
+      "recommended_outcome": "keep_warning_only",
+      "surface_id": "checkpoint_semantics"
+    },
+    {
+      "current_posture": "accepted_necessary_but_not_sufficient_with_bounded_local_ticket_scope",
+      "decision_id": "agentic_de_migration_decision_03e2c98b9be7",
+      "evidence_refs": [
+        "packages/adeu_agentic_de/tests/fixtures/v56b/reference_agentic_de_lane_drift_record.json",
+        "artifacts/agent_harness/v153/evidence_inputs/v56b_bounded_live_gate_starter_evidence_v153.json"
+      ],
+      "rationale": "the shipped live gate remains intentionally narrow and should not widen inside an advisory harvest/calibration slice",
+      "recommended_outcome": "keep_warning_only",
+      "surface_id": "ticket_issuance_behavior"
+    },
+    {
+      "current_posture": "local_reversible_execute_and_local_write_only",
+      "decision_id": "agentic_de_migration_decision_efb56b734e05",
+      "evidence_refs": [
+        "packages/adeu_agentic_de/tests/fixtures/v56b/reference_agentic_de_lane_drift_record.json",
+        "artifacts/agent_harness/v153/evidence_inputs/v56b_bounded_live_gate_starter_evidence_v153.json"
+      ],
+      "rationale": "the selected live subset is frozen for V56-C and any widening requires a later lock rather than a calibration-side reinterpretation",
+      "recommended_outcome": "keep_warning_only",
+      "surface_id": "selected_live_action_classes"
+    },
+    {
+      "current_posture": "frozen_local_scope_reversible_scope_and_local_write_exclusions",
+      "decision_id": "agentic_de_migration_decision_769be834dfa7",
+      "evidence_refs": [
+        "artifacts/agent_harness/v153/evidence_inputs/v56b_bounded_live_gate_starter_evidence_v153.json"
+      ],
+      "rationale": "V56-C may assess the shipped live classes but may not repartition or reinterpret their operative meaning in a way that changes live behavior by default",
+      "recommended_outcome": "keep_warning_only",
+      "surface_id": "selected_live_action_class_interpretation"
+    },
+    {
+      "current_posture": "ticket_visible_but_reference_conformance_still_reports_no_live_effect",
+      "decision_id": "agentic_de_migration_decision_c288e3361691",
+      "evidence_refs": [
+        "packages/adeu_agentic_de/tests/fixtures/v56b/reference_agentic_de_conformance_report.json",
+        "artifacts/agent_harness/v153/evidence_inputs/v56b_bounded_live_gate_starter_evidence_v153.json"
+      ],
+      "rationale": "if a later lane captures an actually observed bounded local effect under the same frozen local_write semantics, that path could become a narrow hardening candidate",
+      "recommended_outcome": "candidate_for_later_local_hardening",
+      "surface_id": "local_write_post_effect_observation_path"
+    },
+    {
+      "current_posture": "still_deferred_outside_v56b_selected_local_subset",
+      "decision_id": "agentic_de_migration_decision_9e2b128d02a9",
+      "evidence_refs": [
+        "artifacts/agent_harness/v153/evidence_inputs/v56b_bounded_live_gate_starter_evidence_v153.json"
+      ],
+      "rationale": "stronger execute and delegated or external dispatch remain outside the shipped live subset and are not selected for escalation in V56-C",
+      "recommended_outcome": "not_selected_for_escalation",
+      "surface_id": "stronger_execute_and_dispatch_rollout"
+    }
+  ],
+  "entry_count": 6,
+  "register_id": "agentic_de_migration_decision_register_525e96dcf54a",
+  "schema": "agentic_de_migration_decision_register@1",
+  "target_arc": "vNext+154",
+  "target_path": "V56-C"
+}

@@ -16,6 +16,11 @@ AGENTIC_DE_ACTION_CLASS_TAXONOMY_SCHEMA = "agentic_de_action_class_taxonomy@1"
 AGENTIC_DE_RUNTIME_STATE_SCHEMA = "agentic_de_runtime_state@1"
 AGENTIC_DE_ACTION_TICKET_SCHEMA = "agentic_de_action_ticket@1"
 AGENTIC_DE_LANE_DRIFT_RECORD_SCHEMA = "agentic_de_lane_drift_record@1"
+AGENTIC_DE_RUNTIME_HARVEST_RECORD_SCHEMA = "agentic_de_runtime_harvest_record@1"
+AGENTIC_DE_GOVERNANCE_CALIBRATION_REGISTER_SCHEMA = (
+    "agentic_de_governance_calibration_register@1"
+)
+AGENTIC_DE_MIGRATION_DECISION_REGISTER_SCHEMA = "agentic_de_migration_decision_register@1"
 
 ACTION_CLASS_VOCABULARY = ("inspect", "write", "execute", "dispatch")
 EXACT_ACTION_CLASS_VOCABULARY = (
@@ -46,6 +51,13 @@ CHECKPOINT_REASON_CODE_VOCABULARY = (
 )
 DIAGNOSTIC_SEVERITY_VOCABULARY = ("info", "warn", "error")
 DRIFT_STATUS_VOCABULARY = ("holds", "amended", "superseded", "not_selected_anymore")
+CALIBRATION_SUBJECT_KIND_VOCABULARY = ("action_class", "surface")
+GOVERNANCE_DECISION_OUTCOME_VOCABULARY = (
+    "keep_warning_only",
+    "needs_more_evidence",
+    "candidate_for_later_local_hardening",
+    "not_selected_for_escalation",
+)
 RUNTIME_COMPATIBILITY_VOCABULARY = ("compatible", "incompatible")
 REVERSIBILITY_MODE_VOCABULARY = ("not_applicable", "rollback_defined_and_testable")
 WRITE_SURFACE_CATEGORY_VOCABULARY = (
@@ -98,6 +110,13 @@ DiagnosticSeverity = Literal["info", "warn", "error"]
 ConformanceStatus = Literal["dry_run_aligned", "dry_run_divergent"]
 EvaluationReadiness = Literal["ready", "not_evaluable_yet"]
 DriftStatus = Literal["holds", "amended", "superseded", "not_selected_anymore"]
+CalibrationSubjectKind = Literal["action_class", "surface"]
+GovernanceDecisionOutcome = Literal[
+    "keep_warning_only",
+    "needs_more_evidence",
+    "candidate_for_later_local_hardening",
+    "not_selected_for_escalation",
+]
 RuntimeCompatibility = Literal["compatible", "incompatible"]
 ReversibilityMode = Literal["not_applicable", "rollback_defined_and_testable"]
 WriteSurfaceCategory = Literal[
@@ -718,6 +737,274 @@ class AgenticDeLaneDriftRecord(BaseModel):
         return self
 
 
+class AgenticDeRuntimeHarvestRecord(BaseModel):
+    model_config = MODEL_CONFIG
+
+    schema: Literal[AGENTIC_DE_RUNTIME_HARVEST_RECORD_SCHEMA] = (
+        AGENTIC_DE_RUNTIME_HARVEST_RECORD_SCHEMA
+    )
+    harvest_id: str | None = None
+    target_arc: str
+    target_path: str
+    observation_only: Literal[True] = True
+    governance_classification_deferred: Literal[True] = True
+    baseline_checker_version: str
+    packet_ref: str
+    proposal_ref: str
+    checkpoint_ref: str
+    runtime_state_ref: str
+    ticket_ref: str | None = None
+    diagnostics_ref: str
+    conformance_ref: str
+    selected_live_action_classes: list[SelectedLiveActionClass]
+    selected_live_action_class_interpretation_frozen: Literal[True] = True
+    packed_state_summary: str
+    proposed_action_summary: str
+    checkpoint_entitlement_summary: str
+    ticket_issued: bool
+    ticket_visibility_summary: str
+    executed_or_observed_effect: str
+    live_effect_present: bool
+    observed_pattern_summary: str
+    delta_notes: list[str]
+    bounded_derived_summaries: list[str]
+    evidence_refs: list[str]
+
+    @model_validator(mode="after")
+    def _validate_record(self) -> AgenticDeRuntimeHarvestRecord:
+        _assert_present_text(self.target_arc, field_name="target_arc")
+        _assert_present_text(self.target_path, field_name="target_path")
+        _assert_present_text(
+            self.baseline_checker_version,
+            field_name="baseline_checker_version",
+        )
+        _assert_present_text(self.packet_ref, field_name="packet_ref")
+        _assert_present_text(self.proposal_ref, field_name="proposal_ref")
+        _assert_present_text(self.checkpoint_ref, field_name="checkpoint_ref")
+        _assert_present_text(self.runtime_state_ref, field_name="runtime_state_ref")
+        _assert_present_text(self.diagnostics_ref, field_name="diagnostics_ref")
+        _assert_present_text(self.conformance_ref, field_name="conformance_ref")
+        _assert_present_text(self.packed_state_summary, field_name="packed_state_summary")
+        _assert_present_text(self.proposed_action_summary, field_name="proposed_action_summary")
+        _assert_present_text(
+            self.checkpoint_entitlement_summary,
+            field_name="checkpoint_entitlement_summary",
+        )
+        _assert_present_text(
+            self.ticket_visibility_summary,
+            field_name="ticket_visibility_summary",
+        )
+        _assert_present_text(
+            self.executed_or_observed_effect,
+            field_name="executed_or_observed_effect",
+        )
+        _assert_present_text(
+            self.observed_pattern_summary,
+            field_name="observed_pattern_summary",
+        )
+        if self.observation_only is not True:
+            raise ValueError("observation_only must remain true in V56-C")
+        if self.governance_classification_deferred is not True:
+            raise ValueError("governance_classification_deferred must remain true in V56-C")
+        if self.selected_live_action_class_interpretation_frozen is not True:
+            raise ValueError(
+                "selected_live_action_class_interpretation_frozen must remain true in V56-C"
+            )
+        if not self.selected_live_action_classes:
+            raise ValueError("selected_live_action_classes must be non-empty")
+        if len(set(self.selected_live_action_classes)) != len(self.selected_live_action_classes):
+            raise ValueError("selected_live_action_classes must be unique")
+        object.__setattr__(
+            self,
+            "delta_notes",
+            _ordered_unique_texts(self.delta_notes, field_name="delta_notes"),
+        )
+        object.__setattr__(
+            self,
+            "bounded_derived_summaries",
+            _ordered_unique_texts(
+                self.bounded_derived_summaries,
+                field_name="bounded_derived_summaries",
+            ),
+        )
+        object.__setattr__(
+            self,
+            "evidence_refs",
+            _ordered_unique_texts(self.evidence_refs, field_name="evidence_refs"),
+        )
+        if self.ticket_issued and self.ticket_ref is None:
+            raise ValueError("ticket_ref required when ticket_issued is true")
+        if not self.ticket_issued and self.ticket_ref is not None:
+            raise ValueError("ticket_ref must be omitted when ticket_issued is false")
+        if self.ticket_ref is not None:
+            _assert_present_text(self.ticket_ref, field_name="ticket_ref")
+        object.__setattr__(
+            self,
+            "harvest_id",
+            _assign_or_verify_content_addressed_id(
+                value=self.harvest_id,
+                field_name="harvest_id",
+                prefix="agentic_de_runtime_harvest",
+                payload=self.model_dump(mode="json", exclude={"harvest_id"}),
+            ),
+        )
+        return self
+
+
+class AgenticDeGovernanceCalibrationEntry(BaseModel):
+    model_config = MODEL_CONFIG
+
+    calibration_id: str | None = None
+    subject_kind: CalibrationSubjectKind
+    subject_ref: str
+    current_posture: str
+    recommended_outcome: GovernanceDecisionOutcome
+    rationale: str
+    evidence_refs: list[str]
+
+    @model_validator(mode="after")
+    def _validate_entry(self) -> AgenticDeGovernanceCalibrationEntry:
+        _assert_present_text(self.subject_ref, field_name="subject_ref")
+        _assert_present_text(self.current_posture, field_name="current_posture")
+        _assert_present_text(self.rationale, field_name="rationale")
+        object.__setattr__(
+            self,
+            "evidence_refs",
+            _ordered_unique_texts(self.evidence_refs, field_name="evidence_refs"),
+        )
+        object.__setattr__(
+            self,
+            "calibration_id",
+            _assign_or_verify_content_addressed_id(
+                value=self.calibration_id,
+                field_name="calibration_id",
+                prefix="agentic_de_governance_calibration",
+                payload=self.model_dump(mode="json", exclude={"calibration_id"}),
+            ),
+        )
+        return self
+
+
+class AgenticDeGovernanceCalibrationRegister(BaseModel):
+    model_config = MODEL_CONFIG
+
+    schema: Literal[AGENTIC_DE_GOVERNANCE_CALIBRATION_REGISTER_SCHEMA] = (
+        AGENTIC_DE_GOVERNANCE_CALIBRATION_REGISTER_SCHEMA
+    )
+    register_id: str | None = None
+    target_arc: str
+    target_path: str
+    advisory_only: Literal[True] = True
+    changes_live_behavior_by_default: Literal[False] = False
+    baseline_checker_version: str
+    entry_count: int
+    entries: list[AgenticDeGovernanceCalibrationEntry]
+
+    @model_validator(mode="after")
+    def _validate_register(self) -> AgenticDeGovernanceCalibrationRegister:
+        _assert_present_text(self.target_arc, field_name="target_arc")
+        _assert_present_text(self.target_path, field_name="target_path")
+        _assert_present_text(
+            self.baseline_checker_version,
+            field_name="baseline_checker_version",
+        )
+        if self.advisory_only is not True:
+            raise ValueError("advisory_only must remain true in V56-C")
+        if self.changes_live_behavior_by_default is not False:
+            raise ValueError("changes_live_behavior_by_default must remain false in V56-C")
+        if self.entry_count != len(self.entries):
+            raise ValueError("entry_count must equal len(entries)")
+        object.__setattr__(
+            self,
+            "register_id",
+            _assign_or_verify_content_addressed_id(
+                value=self.register_id,
+                field_name="register_id",
+                prefix="agentic_de_governance_calibration_register",
+                payload=self.model_dump(mode="json", exclude={"register_id"}),
+            ),
+        )
+        return self
+
+
+class AgenticDeMigrationDecisionEntry(BaseModel):
+    model_config = MODEL_CONFIG
+
+    decision_id: str | None = None
+    surface_id: str
+    current_posture: str
+    recommended_outcome: GovernanceDecisionOutcome
+    rationale: str
+    evidence_refs: list[str]
+
+    @model_validator(mode="after")
+    def _validate_entry(self) -> AgenticDeMigrationDecisionEntry:
+        _assert_present_text(self.surface_id, field_name="surface_id")
+        _assert_present_text(self.current_posture, field_name="current_posture")
+        _assert_present_text(self.rationale, field_name="rationale")
+        object.__setattr__(
+            self,
+            "evidence_refs",
+            _ordered_unique_texts(self.evidence_refs, field_name="evidence_refs"),
+        )
+        object.__setattr__(
+            self,
+            "decision_id",
+            _assign_or_verify_content_addressed_id(
+                value=self.decision_id,
+                field_name="decision_id",
+                prefix="agentic_de_migration_decision",
+                payload=self.model_dump(mode="json", exclude={"decision_id"}),
+            ),
+        )
+        return self
+
+
+class AgenticDeMigrationDecisionRegister(BaseModel):
+    model_config = MODEL_CONFIG
+
+    schema: Literal[AGENTIC_DE_MIGRATION_DECISION_REGISTER_SCHEMA] = (
+        AGENTIC_DE_MIGRATION_DECISION_REGISTER_SCHEMA
+    )
+    register_id: str | None = None
+    target_arc: str
+    target_path: str
+    advisory_only: Literal[True] = True
+    candidate_only: Literal[True] = True
+    changes_live_behavior_by_default: Literal[False] = False
+    baseline_checker_version: str
+    entry_count: int
+    entries: list[AgenticDeMigrationDecisionEntry]
+
+    @model_validator(mode="after")
+    def _validate_register(self) -> AgenticDeMigrationDecisionRegister:
+        _assert_present_text(self.target_arc, field_name="target_arc")
+        _assert_present_text(self.target_path, field_name="target_path")
+        _assert_present_text(
+            self.baseline_checker_version,
+            field_name="baseline_checker_version",
+        )
+        if self.advisory_only is not True:
+            raise ValueError("advisory_only must remain true in V56-C")
+        if self.candidate_only is not True:
+            raise ValueError("candidate_only must remain true in V56-C")
+        if self.changes_live_behavior_by_default is not False:
+            raise ValueError("changes_live_behavior_by_default must remain false in V56-C")
+        if self.entry_count != len(self.entries):
+            raise ValueError("entry_count must equal len(entries)")
+        object.__setattr__(
+            self,
+            "register_id",
+            _assign_or_verify_content_addressed_id(
+                value=self.register_id,
+                field_name="register_id",
+                prefix="agentic_de_migration_decision_register",
+                payload=self.model_dump(mode="json", exclude={"register_id"}),
+            ),
+        )
+        return self
+
+
 def compute_agentic_de_domain_packet_id(payload: dict[str, object]) -> str:
     return _compute_id("agentic_de_domain_packet", payload)
 
@@ -760,3 +1047,23 @@ def compute_agentic_de_action_ticket_id(payload: dict[str, object]) -> str:
 
 def compute_agentic_de_lane_drift_record_id(payload: dict[str, object]) -> str:
     return _compute_id("agentic_de_lane_drift", payload)
+
+
+def compute_agentic_de_runtime_harvest_record_id(payload: dict[str, object]) -> str:
+    return _compute_id("agentic_de_runtime_harvest", payload)
+
+
+def compute_agentic_de_governance_calibration_entry_id(payload: dict[str, object]) -> str:
+    return _compute_id("agentic_de_governance_calibration", payload)
+
+
+def compute_agentic_de_governance_calibration_register_id(payload: dict[str, object]) -> str:
+    return _compute_id("agentic_de_governance_calibration_register", payload)
+
+
+def compute_agentic_de_migration_decision_entry_id(payload: dict[str, object]) -> str:
+    return _compute_id("agentic_de_migration_decision", payload)
+
+
+def compute_agentic_de_migration_decision_register_id(payload: dict[str, object]) -> str:
+    return _compute_id("agentic_de_migration_decision_register", payload)
