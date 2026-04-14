@@ -19,6 +19,34 @@ def _repo_root_path() -> Path:
     return repo_root(anchor=Path(__file__))
 
 
+def _copy_v56c_input_tree(tmp_path: Path) -> Path:
+    repo_root_path = _repo_root_path()
+    relative_paths = [
+        "packages/adeu_agentic_de/tests/fixtures/v56a/reference_agentic_de_domain_packet.json",
+        "packages/adeu_agentic_de/tests/fixtures/v56a/reference_agentic_de_morph_ir.json",
+        "packages/adeu_agentic_de/tests/fixtures/v56a/reference_agentic_de_interaction_contract.json",
+        "packages/adeu_agentic_de/tests/fixtures/v56a/reference_agentic_de_action_proposal.json",
+        "packages/adeu_agentic_de/tests/fixtures/v56a/reference_agentic_de_membrane_checkpoint.json",
+        "packages/adeu_agentic_de/tests/fixtures/v56a/reference_agentic_de_morph_diagnostics.json",
+        "packages/adeu_agentic_de/tests/fixtures/v56a/reference_agentic_de_conformance_report.json",
+        "packages/adeu_agentic_de/tests/fixtures/v56b/reference_agentic_de_action_class_taxonomy.json",
+        "packages/adeu_agentic_de/tests/fixtures/v56b/reference_agentic_de_runtime_state.json",
+        "packages/adeu_agentic_de/tests/fixtures/v56b/reference_agentic_de_action_ticket.json",
+        "packages/adeu_agentic_de/tests/fixtures/v56b/reference_agentic_de_lane_drift_record.json",
+        "packages/adeu_agentic_de/tests/fixtures/v56b/reference_agentic_de_morph_diagnostics.json",
+        "packages/adeu_agentic_de/tests/fixtures/v56b/reference_agentic_de_conformance_report.json",
+        "packages/adeu_agentic_de/tests/fixtures/v56c/reference_agentic_de_lane_drift_record.json",
+        "artifacts/agent_harness/v152/evidence_inputs/v56a_agentic_de_interaction_governance_starter_evidence_v152.json",
+        "artifacts/agent_harness/v153/evidence_inputs/v56b_bounded_live_gate_starter_evidence_v153.json",
+    ]
+    for relative_path in relative_paths:
+        source = repo_root_path / relative_path
+        target = tmp_path / relative_path
+        target.parent.mkdir(parents=True, exist_ok=True)
+        shutil.copyfile(source, target)
+    return tmp_path
+
+
 def test_reference_outputs_match_live_evaluator() -> None:
     harvest, governance, migration = run_agentic_de_interaction_v56c(
         repo_root_path=_repo_root_path()
@@ -144,3 +172,77 @@ def test_external_v56b_evidence_override_path_is_preserved_in_output_refs(tmp_pa
     assert str(override) in harvest.evidence_refs
     assert any(str(override) in entry.evidence_refs for entry in governance.entries)
     assert any(str(override) in entry.evidence_refs for entry in migration.entries)
+
+
+def test_repo_root_rebases_default_v56c_inputs(tmp_path: Path) -> None:
+    temp_root = _copy_v56c_input_tree(tmp_path)
+    lane_drift_path = (
+        temp_root
+        / "packages"
+        / "adeu_agentic_de"
+        / "tests"
+        / "fixtures"
+        / "v56c"
+        / "reference_agentic_de_lane_drift_record.json"
+    )
+    payload = json.loads(lane_drift_path.read_text(encoding="utf-8"))
+    payload["entries"] = payload["entries"][:-1]
+    payload["entry_count"] = len(payload["entries"])
+    payload["record_id"] = None
+    lane_drift_path.write_text(json.dumps(payload, indent=2) + "\n", encoding="utf-8")
+
+    with pytest.raises(ValueError, match="required handoff posture"):
+        run_agentic_de_interaction_v56c(repo_root_path=temp_root)
+
+
+def test_taxonomy_contract_must_bind_the_provided_interaction_contract(tmp_path: Path) -> None:
+    repo_root_path = _repo_root_path()
+    taxonomy_path = (
+        repo_root_path
+        / "packages"
+        / "adeu_agentic_de"
+        / "tests"
+        / "fixtures"
+        / "v56b"
+        / "reference_agentic_de_action_class_taxonomy.json"
+    )
+    payload = json.loads(taxonomy_path.read_text(encoding="utf-8"))
+    payload["contract_ref"] = "agentic_de_interaction_contract_wrong"
+    payload["taxonomy_id"] = None
+    override_path = tmp_path / "bad_taxonomy.json"
+    override_path.write_text(json.dumps(payload, indent=2) + "\n", encoding="utf-8")
+
+    with pytest.raises(ValueError, match="does not bind the provided interaction contract"):
+        run_agentic_de_interaction_v56c(
+            repo_root_path=repo_root_path,
+            v56b_action_class_taxonomy_path=override_path,
+        )
+
+
+def test_v56b_conformance_delta_chain_must_match_exact_expected_order(tmp_path: Path) -> None:
+    repo_root_path = _repo_root_path()
+    conformance_path = (
+        repo_root_path
+        / "packages"
+        / "adeu_agentic_de"
+        / "tests"
+        / "fixtures"
+        / "v56b"
+        / "reference_agentic_de_conformance_report.json"
+    )
+    payload = json.loads(conformance_path.read_text(encoding="utf-8"))
+    payload["delta_notes"] = [
+        payload["delta_notes"][0],
+        payload["delta_notes"][2],
+        payload["delta_notes"][1],
+        *payload["delta_notes"][3:],
+    ]
+    payload["report_id"] = None
+    override_path = tmp_path / "bad_v56b_conformance.json"
+    override_path.write_text(json.dumps(payload, indent=2) + "\n", encoding="utf-8")
+
+    with pytest.raises(ValueError, match="exact deterministic order"):
+        run_agentic_de_interaction_v56c(
+            repo_root_path=repo_root_path,
+            v56b_conformance_path=override_path,
+        )

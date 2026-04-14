@@ -308,7 +308,14 @@ def _validate_v56b_lane_drift_record(record: AgenticDeLaneDriftRecord) -> Agenti
 
 
 def _resolve_path(*, repo_root_path: Path, path: Path) -> Path:
-    return path if path.is_absolute() else repo_root_path / path
+    if not path.is_absolute():
+        return repo_root_path / path
+    default_root = repo_root(anchor=Path(__file__)).resolve()
+    try:
+        relative = path.resolve().relative_to(default_root)
+    except ValueError:
+        return path
+    return repo_root_path / relative
 
 
 def _render_input_ref(*, repo_root_path: Path, path: Path) -> str:
@@ -458,6 +465,8 @@ def _validate_v56b_reference_surfaces(
     diagnostics: AgenticDeMorphDiagnostics,
     conformance: AgenticDeConformanceReport,
 ) -> None:
+    if taxonomy.contract_ref != contract.contract_id:
+        raise ValueError("V56-B taxonomy does not bind the provided interaction contract")
     taxonomy_entry = _taxonomy_entry_for_action(taxonomy, action_id=proposal.action_id)
     if taxonomy_entry is None:
         raise ValueError("V56-B taxonomy must classify the shipped reference action")
@@ -1146,8 +1155,16 @@ def run_agentic_de_interaction_v56c(
         diagnostics=v56b_diagnostics,
         conformance=v56b_conformance,
     )
-    if v56b_conformance.delta_notes[:3] != v56a_conformance.delta_notes:
-        raise ValueError("V56-B conformance must preserve the shipped V56-A typed delta base")
+    expected_v56b_delta_notes = [
+        *v56a_conformance.delta_notes,
+        "ticket_issued=true",
+        f"ticket_ref={v56b_ticket.ticket_id}",
+    ]
+    if v56b_conformance.delta_notes != expected_v56b_delta_notes:
+        raise ValueError(
+            "V56-B conformance must preserve the shipped V56-A base plus explicit "
+            "ticket visibility in exact deterministic order"
+        )
     if v56b_conformance.executed_or_observed_effect != v56a_conformance.executed_or_observed_effect:
         raise ValueError("V56-C requires the shipped no_live_effect conformance axis")
     if v56b_conformance.live_effect_present != v56a_conformance.live_effect_present:
