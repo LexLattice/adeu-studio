@@ -1,0 +1,11 @@
+{
+  "schema": "runtime_observability_comparison@1",
+  "baseline_arc": "vNext+153",
+  "current_arc": "vNext+154",
+  "baseline_source": "artifacts/stop_gate/report_v153_closeout.md",
+  "current_source": "artifacts/stop_gate/report_v154_closeout.md",
+  "baseline_elapsed_ms": 76,
+  "current_elapsed_ms": 79,
+  "delta_ms": 3,
+  "notes": "v154 closeout keeps the frozen stop-gate schema family and exact metric keyset unchanged while shipping the bounded V56-C harvest/calibration/migration slice on main: shipped V56-A and V56-B packet/contract/proposal/checkpoint/ticket/conformance surfaces are consumed by default, one typed runtime-harvest record plus advisory governance-calibration and migration-decision registers are added, live class selection and operative interpretation remain frozen to the V56-B local subset, advisory outputs do not mutate live behavior by default, and review hardening tightened evidence reuse correctness without widening the slice."
+}
