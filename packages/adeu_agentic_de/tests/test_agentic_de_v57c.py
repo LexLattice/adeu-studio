@@ -138,6 +138,51 @@ def test_non_bounded_restoration_verdict_fails_closed(tmp_path: Path) -> None:
         run_agentic_de_local_effect_v57c(repo_root_path=temp_root)
 
 
+@pytest.mark.parametrize(
+    ("field_name", "field_value", "message"),
+    [
+        (
+            "existed_before_restoration",
+            False,
+            "record an existing target before compensating removal",
+        ),
+        (
+            "bytes_removed",
+            126,
+            "preserve removed-bytes equivalence",
+        ),
+        (
+            "removed_content_sha256",
+            "0" * 64,
+            "preserve removed-content equivalence",
+        ),
+    ],
+)
+def test_v57c_requires_exact_restoration_lineage_metadata(
+    tmp_path: Path,
+    field_name: str,
+    field_value: object,
+    message: str,
+) -> None:
+    temp_root = _copy_v57c_input_tree(tmp_path)
+    restoration_path = (
+        temp_root
+        / "packages"
+        / "adeu_agentic_de"
+        / "tests"
+        / "fixtures"
+        / "v57b"
+        / "reference_agentic_de_local_effect_restoration_record.json"
+    )
+    payload = json.loads(restoration_path.read_text(encoding="utf-8"))
+    payload["restoration_observed_write_set"][0][field_name] = field_value
+    payload["restoration_id"] = None
+    restoration_path.write_text(json.dumps(payload, indent=2) + "\n", encoding="utf-8")
+
+    with pytest.raises(ValueError, match=message):
+        run_agentic_de_local_effect_v57c(repo_root_path=temp_root)
+
+
 def test_v57b_evidence_must_preserve_shipped_restoration_exemplar(tmp_path: Path) -> None:
     temp_root = _copy_v57c_input_tree(tmp_path)
     evidence_path = (

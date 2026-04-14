@@ -1048,23 +1048,6 @@ def _validate_v57b_local_effect_restoration_surface(
         raise ValueError("V57-B restoration does not bind the provided observation")
     if restoration.conformance_ref != conformance.report_id:
         raise ValueError("V57-B restoration does not bind the provided local-effect conformance")
-    if restoration.selected_live_action_class != "local_write":
-        raise ValueError("V57-C requires the shipped local_write restoration class")
-    if (
-        restoration.selected_restoration_exemplar
-        != "compensating_restore_of_v57a_create_new_artifact_only"
-    ):
-        raise ValueError("V57-C requires the shipped create_new restoration exemplar")
-    if restoration.replay_mode != (
-        "bounded_recomputation_and_re_evaluation_of_the_restoration_event_"
-        "against_prior_observed_effect_lineage_only"
-    ):
-        raise ValueError("V57-C requires the shipped bounded replay meaning")
-    if (
-        restoration.restoration_entitlement_mode
-        != "lineage_bound_evidence_bound_bounded_compensating_scope_derivation_only"
-    ):
-        raise ValueError("V57-C requires the shipped lineage-bound restoration entitlement")
     if restoration.restoration_boundedness_verdict != "bounded":
         raise ValueError("V57-C requires one prior bounded restoration verdict")
     if restoration.restoration_outcome != "restoration_effect_observed":
@@ -1075,10 +1058,21 @@ def _validate_v57b_local_effect_restoration_surface(
     restoration_entry = restoration.restoration_observed_write_set[0]
     if restoration_entry.relative_path != observed_entry.relative_path:
         raise ValueError("V57-B restoration must preserve the shipped observed target path")
-    if restoration_entry.prior_observation_write_kind != "create_new":
-        raise ValueError("V57-C requires the shipped create_new restoration lineage")
-    if restoration_entry.restoration_operation != "compensating_remove_create_new_artifact":
-        raise ValueError("V57-C requires the shipped compensating remove restoration operation")
+    if restoration_entry.existed_before_restoration is not True:
+        raise ValueError(
+            "V57-C requires the shipped restoration lineage to record an existing target "
+            "before compensating removal"
+        )
+    if restoration_entry.bytes_removed != observed_entry.bytes_written:
+        raise ValueError(
+            "V57-C requires the shipped restoration lineage to preserve removed-bytes "
+            "equivalence with the observed exemplar"
+        )
+    if restoration_entry.removed_content_sha256 != observed_entry.content_sha256:
+        raise ValueError(
+            "V57-C requires the shipped restoration lineage to preserve removed-content "
+            "equivalence with the observed exemplar"
+        )
 
 
 def _derived_restore_target_relative_path(
