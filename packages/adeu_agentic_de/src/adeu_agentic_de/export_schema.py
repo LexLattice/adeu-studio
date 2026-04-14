@@ -16,6 +16,8 @@ from .models import (
     AGENTIC_DE_GOVERNANCE_CALIBRATION_REGISTER_SCHEMA,
     AGENTIC_DE_INTERACTION_CONTRACT_SCHEMA,
     AGENTIC_DE_LANE_DRIFT_RECORD_SCHEMA,
+    AGENTIC_DE_LIVE_RESTORATION_HANDOFF_RECORD_SCHEMA,
+    AGENTIC_DE_LIVE_RESTORATION_REINTEGRATION_REPORT_SCHEMA,
     AGENTIC_DE_LIVE_TURN_ADMISSION_RECORD_SCHEMA,
     AGENTIC_DE_LIVE_TURN_HANDOFF_RECORD_SCHEMA,
     AGENTIC_DE_LIVE_TURN_REINTEGRATION_REPORT_SCHEMA,
@@ -37,6 +39,8 @@ from .models import (
     AgenticDeGovernanceCalibrationRegister,
     AgenticDeInteractionContract,
     AgenticDeLaneDriftRecord,
+    AgenticDeLiveRestorationHandoffRecord,
+    AgenticDeLiveRestorationReintegrationReport,
     AgenticDeLiveTurnAdmissionRecord,
     AgenticDeLiveTurnHandoffRecord,
     AgenticDeLiveTurnReintegrationReport,
@@ -222,6 +226,28 @@ def main() -> None:
             / "schema"
             / "agentic_de_live_turn_reintegration_report.v1.json",
             root / "spec" / "agentic_de_live_turn_reintegration_report.schema.json",
+        ),
+        (
+            AgenticDeLiveRestorationHandoffRecord,
+            AGENTIC_DE_LIVE_RESTORATION_HANDOFF_RECORD_SCHEMA,
+            root
+            / "packages"
+            / "adeu_agentic_de"
+            / "schema"
+            / "agentic_de_live_restoration_handoff_record.v1.json",
+            root / "spec" / "agentic_de_live_restoration_handoff_record.schema.json",
+        ),
+        (
+            AgenticDeLiveRestorationReintegrationReport,
+            AGENTIC_DE_LIVE_RESTORATION_REINTEGRATION_REPORT_SCHEMA,
+            root
+            / "packages"
+            / "adeu_agentic_de"
+            / "schema"
+            / "agentic_de_live_restoration_reintegration_report.v1.json",
+            root
+            / "spec"
+            / "agentic_de_live_restoration_reintegration_report.schema.json",
         ),
         (
             AgenticDeRuntimeHarvestRecord,
