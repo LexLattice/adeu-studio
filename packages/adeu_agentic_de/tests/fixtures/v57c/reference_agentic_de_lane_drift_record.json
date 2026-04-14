@@ -1,0 +1,35 @@
+{
+  "entries": [
+    {
+      "assumption_ref": "v57b_surface_reuse_default",
+      "note": "V57-C consumes the shipped V57-B restoration surface unchanged by default.",
+      "status": "holds"
+    },
+    {
+      "assumption_ref": "hardening_target_create_new_only",
+      "note": "V57-C narrows the hardening target to the shipped observed and restored create_new exemplar only.",
+      "status": "amended"
+    },
+    {
+      "assumption_ref": "exemplar_evidence_non_generalizing",
+      "note": "V57-C treats the selected exemplar as path-level evidence only and does not generalize it into class-level or restoration-family law by default.",
+      "status": "amended"
+    },
+    {
+      "assumption_ref": "hardening_outputs_advisory_only",
+      "note": "V57-C emits one advisory-only and candidate-only hardening register without mutating live behavior by default.",
+      "status": "amended"
+    },
+    {
+      "assumption_ref": "committed_lane_artifacts_outrank_narrative_docs",
+      "note": "V57-C derives hardening judgment from committed observation, conformance, restoration, lane-drift, and closeout artifacts before narrative interpretation.",
+      "status": "amended"
+    }
+  ],
+  "entry_count": 5,
+  "prior_lane_ref": "docs/LOCKED_CONTINUATION_vNEXT_PLUS156.md",
+  "record_id": "agentic_de_lane_drift_ab3e72fda0a4",
+  "schema": "agentic_de_lane_drift_record@1",
+  "target_arc": "vNext+157",
+  "target_path": "V57-C"
+}
