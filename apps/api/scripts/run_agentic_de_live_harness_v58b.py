@@ -78,6 +78,12 @@ def _default_live_turn_snapshot_path() -> Path:
     )
 
 
+def _default_live_turn_snapshot_relative_path() -> Path:
+    return Path(
+        "packages/adeu_agentic_de/tests/fixtures/v58b/reference_copilot_turn_snapshot.json"
+    )
+
+
 def _parse_args(argv: list[str]) -> argparse.Namespace:
     parser = argparse.ArgumentParser(
         description=(
@@ -90,7 +96,7 @@ def _parse_args(argv: list[str]) -> argparse.Namespace:
     parser.add_argument(
         "--live-turn-snapshot",
         type=Path,
-        default=_default_live_turn_snapshot_path(),
+        default=None,
     )
     parser.add_argument("--domain-packet", type=Path, default=DEFAULT_DOMAIN_PACKET_PATH)
     parser.add_argument("--morph-ir", type=Path, default=DEFAULT_MORPH_IR_PATH)
@@ -192,11 +198,28 @@ def _load_live_turn_snapshot(path: Path) -> CopilotTurnSnapshot:
     return CopilotTurnSnapshot.model_validate(payload)
 
 
+def _resolve_live_turn_snapshot_path(
+    *,
+    repo_root_path: Path | None,
+    live_turn_snapshot_path: Path | None,
+) -> Path:
+    if live_turn_snapshot_path is not None:
+        return live_turn_snapshot_path
+    if repo_root_path is not None:
+        return repo_root_path / _default_live_turn_snapshot_relative_path()
+    return _default_live_turn_snapshot_path()
+
+
 def main(argv: list[str] | None = None) -> int:
     args = _parse_args(sys.argv[1:] if argv is None else argv)
     try:
         handoff, restoration, reintegration = run_agentic_de_live_harness_v58b(
-            live_turn_snapshot=_load_live_turn_snapshot(args.live_turn_snapshot),
+            live_turn_snapshot=_load_live_turn_snapshot(
+                _resolve_live_turn_snapshot_path(
+                    repo_root_path=args.repo_root,
+                    live_turn_snapshot_path=args.live_turn_snapshot,
+                )
+            ),
             repo_root_path=args.repo_root,
             domain_packet_path=args.domain_packet,
             morph_ir_path=args.morph_ir,

@@ -115,8 +115,6 @@ def test_default_cli_emits_live_restoration_reintegration_report(tmp_path: Path)
     completed = _run_script(
         "--repo-root",
         str(temp_root),
-        "--live-turn-snapshot",
-        str(fixture_root / "reference_copilot_turn_snapshot.json"),
     )
 
     assert completed.returncode == 0, completed.stdout + completed.stderr
@@ -195,6 +193,20 @@ def test_invalid_v58a_lane_drift_returns_clean_error(tmp_path: Path) -> None:
         "--live-turn-snapshot",
         str(fixture_root / "reference_copilot_turn_snapshot.json"),
     )
+
+    assert completed.returncode == 2
+    assert completed.stdout == ""
+    assert completed.stderr.startswith("error: ")
+
+
+def test_default_snapshot_path_follows_selected_repo_root(tmp_path: Path) -> None:
+    temp_root, fixture_root = _copy_v58b_input_tree(tmp_path / "repo")
+    snapshot_path = fixture_root / "reference_copilot_turn_snapshot.json"
+    payload = json.loads(snapshot_path.read_text(encoding="utf-8"))
+    payload["writes_allowed"] = False
+    snapshot_path.write_text(json.dumps(payload, indent=2) + "\n", encoding="utf-8")
+
+    completed = _run_script("--repo-root", str(temp_root))
 
     assert completed.returncode == 2
     assert completed.stdout == ""
