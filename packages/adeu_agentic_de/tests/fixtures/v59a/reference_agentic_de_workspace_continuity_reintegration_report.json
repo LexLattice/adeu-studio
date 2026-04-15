@@ -7,14 +7,14 @@
   "continuity_witness_certificate_ref_or_equivalent": "v59a_continuity_reintegration::copilot-v59a-session-1::turn-v59a-continuity-1::agentic_de_local_effect_observation_be1062f37c36",
   "evidence_only": true,
   "evidence_refs": [
-    "agentic_de_live_turn_reintegration_report_66a5b16d34ea",
+    "agentic_de_live_turn_reintegration_report_f131e6392e1e",
     "agentic_de_workspace_continuity_admission_3b72bff4a1b0",
     "agentic_de_workspace_occupancy_report_7412f9d8203f",
     "agentic_de_local_effect_observation_be1062f37c36",
-    "agentic_de_local_effect_conformance_report_6294deaf2936",
+    "agentic_de_local_effect_conformance_report_287f87d5addc",
     "agentic_de_workspace_continuity_region_0bb0246a64a8",
-    "artifacts/agentic_de/v59/workspace_continuity/_observer/reference_governed_target_lineage.json",
     "artifacts/agentic_de/v59/workspace_continuity/_observer/reference_post_state.json",
+    "artifacts/agentic_de/v59/workspace_continuity/_observer/reference_governed_target_lineage.json",
     "packages/adeu_agentic_de/tests/fixtures/v56a/reference_agentic_de_domain_packet.json",
     "packages/adeu_agentic_de/tests/fixtures/v56a/reference_agentic_de_morph_ir.json",
     "packages/adeu_agentic_de/tests/fixtures/v56a/reference_agentic_de_interaction_contract.json",
@@ -41,15 +41,15 @@
       "agentic_de_local_effect_observation_be1062f37c36"
     ],
     "continuity_witness_basis_summary": [
-      "agentic_de_live_turn_reintegration_report_66a5b16d34ea",
+      "agentic_de_live_turn_reintegration_report_f131e6392e1e",
       "agentic_de_workspace_continuity_admission_3b72bff4a1b0",
       "agentic_de_workspace_occupancy_report_7412f9d8203f",
       "agentic_de_local_effect_observation_be1062f37c36",
-      "agentic_de_local_effect_conformance_report_6294deaf2936"
+      "agentic_de_local_effect_conformance_report_287f87d5addc"
     ],
     "observed_effect_summary": [
       "agentic_de_local_effect_observation_be1062f37c36",
-      "agentic_de_local_effect_conformance_report_6294deaf2936"
+      "agentic_de_local_effect_conformance_report_287f87d5addc"
     ]
   },
   "field_origin_tags": {
@@ -57,8 +57,8 @@
     "continuity_witness_basis_summary": "current_turn_derived",
     "observed_effect_summary": "current_turn_derived"
   },
-  "live_turn_reintegration_ref": "agentic_de_live_turn_reintegration_report_66a5b16d34ea",
-  "local_effect_conformance_ref": "agentic_de_local_effect_conformance_report_6294deaf2936",
+  "live_turn_reintegration_ref": "agentic_de_live_turn_reintegration_report_f131e6392e1e",
+  "local_effect_conformance_ref": "agentic_de_local_effect_conformance_report_287f87d5addc",
   "observation_ref": "agentic_de_local_effect_observation_be1062f37c36",
   "observed_effect_summary": "observed bounded local write remained inside the declared continuity root and matched the continuity-entitled target",
   "occupancy_report_ref": "agentic_de_workspace_occupancy_report_7412f9d8203f",
@@ -67,8 +67,8 @@
     "unoccupied_target_entitlement_bound",
     "continuity_effect_aligned"
   ],
-  "report_id": "agentic_de_workspace_continuity_reintegration_report_d3eff094aeb7",
-  "root_origin_dedup_summary": "dedup roots=session:copilot-v59a-session-1,turn:turn-v59a-continuity-1,occupancy:agentic_de_workspace_occupancy_report_7412f9d8203f,observation:agentic_de_local_effect_observation_be1062f37c36,conformance:agentic_de_local_effect_conformance_report_6294deaf2936; repeated observability and prior-artifact refs remain non-independent support",
+  "report_id": "agentic_de_workspace_continuity_reintegration_report_c8e2566a1646",
+  "root_origin_dedup_summary": "dedup roots=session:copilot-v59a-session-1,turn:turn-v59a-continuity-1,occupancy:agentic_de_workspace_occupancy_report_7412f9d8203f,observation:agentic_de_local_effect_observation_be1062f37c36,conformance:agentic_de_local_effect_conformance_report_287f87d5addc; repeated observability and prior-artifact refs remain non-independent support",
   "schema": "agentic_de_workspace_continuity_reintegration_report@1",
   "target_arc": "vNext+161",
   "target_path": "V59-A"

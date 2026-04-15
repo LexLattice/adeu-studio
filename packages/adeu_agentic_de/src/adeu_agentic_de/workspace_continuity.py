@@ -113,9 +113,9 @@ def _assert_repo_contained_path(*, repo_root_path: Path, candidate: Path) -> Non
 
 
 def _assert_no_symlink_components(*, repo_root_path: Path, candidate: Path) -> None:
-    current = repo_root_path.resolve()
-    if current.exists() and current.is_symlink():
+    if repo_root_path.exists() and repo_root_path.is_symlink():
         raise ValueError("repository root may not be a symlink for V59-A continuity")
+    current = repo_root_path
     relative = candidate.relative_to(repo_root_path)
     for part in relative.parts:
         current = current / part
@@ -161,6 +161,10 @@ def _snapshot_continuity_state_payload(
 ) -> dict[str, object]:
     files: list[dict[str, object]] = []
     for path in sorted(continuity_root.rglob("*")):
+        if path.is_symlink():
+            raise ValueError(
+                "continuity anti-escape law forbids symlinked entries in continuity snapshots"
+            )
         if not path.is_file():
             continue
         if WORKSPACE_CONTINUITY_OBSERVER_DIRNAME in path.relative_to(continuity_root).parts:
@@ -228,7 +232,7 @@ def snapshot_workspace_continuity_state(
     if marker_path.exists():
         marker_ref = _relative_display(marker_path, repo_root_path=repo_root_path)
         try:
-            marker_payload = json.loads(marker_path.read_text(encoding="utf-8"))
+            marker_payload = json.loads(_read_text_with_size_guard(marker_path))
             if not isinstance(marker_payload, dict):
                 raise ValueError("marker payload must be an object")
             marker_target = marker_payload.get("target_relative_path")
@@ -246,7 +250,7 @@ def snapshot_workspace_continuity_state(
                 prior_governed_content_sha256 = marker_content_sha.strip()
             elif isinstance(marker_target, str) and marker_target == target_relative_path:
                 marker_parse_error = "target marker fields malformed"
-        except (ValueError, json.JSONDecodeError) as exc:
+        except (ValueError, OSError) as exc:
             marker_parse_error = str(exc)
 
     target_exists = target_path.exists()

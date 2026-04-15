@@ -19,7 +19,6 @@
   ],
   "evidence_only": true,
   "evidence_refs": [
-    "artifacts/agentic_de/v59/workspace_continuity/_observer/reference_governed_target_lineage.json",
     "agentic_de_workspace_continuity_region_0bb0246a64a8",
     "agentic_de_workspace_continuity_admission_3b72bff4a1b0",
     "agentic_de_workspace_occupancy_report_7412f9d8203f",
@@ -53,7 +52,7 @@
   "packed_state_summary": "Prepare a bounded dry-run patch candidate for the active resident-agent task without executing a live repository write.",
   "packet_ref": "agentic_de_domain_packet_4254046501b1",
   "proposed_action_summary": "Prepare a dry-run patch candidate for the current resident-agent task.",
-  "report_id": "agentic_de_local_effect_conformance_report_6294deaf2936",
+  "report_id": "agentic_de_local_effect_conformance_report_287f87d5addc",
   "runtime_state_ref": "agentic_de_runtime_state_f96409da1d49",
   "schema": "agentic_de_local_effect_conformance_report@1",
   "target_arc": "vNext+161",

@@ -85,6 +85,7 @@ from .workspace_continuity import (
     DEFAULT_WORKSPACE_CONTINUITY_PAYLOAD_TEXT,
     DEFAULT_WORKSPACE_CONTINUITY_TARGET_RELATIVE_PATH,
     DESIGNATED_WORKSPACE_CONTINUITY_ROOT,
+    WorkspaceOccupancyAssessment,
     classify_workspace_occupancy,
     observe_workspace_continuity_create_new_effect,
     snapshot_workspace_continuity_state,
@@ -2557,6 +2558,8 @@ def run_agentic_de_interaction_v56c(
     if repo_root_path is None:
         root = repo_root(anchor=Path(__file__)).resolve()
     else:
+        if repo_root_path.exists() and repo_root_path.is_symlink():
+            raise ValueError("repository root may not be a symlink for V59-A continuity")
         root = repo_root_path.resolve()
 
     domain_packet_path = _resolve_path(repo_root_path=root, path=domain_packet_path)
@@ -2719,6 +2722,8 @@ def run_agentic_de_local_effect_v57a(
     if repo_root_path is None:
         root = repo_root(anchor=Path(__file__)).resolve()
     else:
+        if repo_root_path.exists() and repo_root_path.is_symlink():
+            raise ValueError("repository root may not be a symlink for V59-A continuity")
         root = repo_root_path.resolve()
 
     domain_packet_path = _resolve_path(repo_root_path=root, path=domain_packet_path)
@@ -3979,7 +3984,7 @@ def _build_v59a_workspace_occupancy_report(
     *,
     continuity_admission: AgenticDeWorkspaceContinuityAdmissionRecord,
     target_relative_path: str,
-    occupancy_assessment: object,
+    occupancy_assessment: WorkspaceOccupancyAssessment,
     evidence_refs: list[str],
 ) -> AgenticDeWorkspaceOccupancyReport:
     field_origin_tags = {
@@ -3992,20 +3997,19 @@ def _build_v59a_workspace_occupancy_report(
         "out_of_band_evidence_summary": [continuity_admission.continuity_admission_id],
         "occupancy_witness_basis_summary": [continuity_admission.continuity_admission_id],
     }
-    assessment = occupancy_assessment
     return AgenticDeWorkspaceOccupancyReport(
         target_arc=V59A_TARGET_ARC,
         target_path=V59A_TARGET_PATH,
         continuity_admission_ref=continuity_admission.continuity_admission_id,
         target_relative_path=target_relative_path,
-        occupancy_verdict=assessment.occupancy_verdict,
-        prior_governed_lineage_ref=assessment.prior_governed_lineage_ref,
-        drift_posture_summary=assessment.drift_posture_summary,
-        out_of_band_evidence_summary=assessment.out_of_band_evidence_summary,
-        occupancy_witness_basis_summary=assessment.occupancy_witness_basis_summary,
+        occupancy_verdict=occupancy_assessment.occupancy_verdict,
+        prior_governed_lineage_ref=occupancy_assessment.prior_governed_lineage_ref,
+        drift_posture_summary=occupancy_assessment.drift_posture_summary,
+        out_of_band_evidence_summary=occupancy_assessment.out_of_band_evidence_summary,
+        occupancy_witness_basis_summary=occupancy_assessment.occupancy_witness_basis_summary,
         field_origin_tags=field_origin_tags,
         field_dependence_tags=field_dependence_tags,
-        root_origin_ids=assessment.root_origin_ids,
+        root_origin_ids=occupancy_assessment.root_origin_ids,
         evidence_refs=[continuity_admission.continuity_admission_id, *evidence_refs],
     )
 
@@ -5443,6 +5447,8 @@ def run_agentic_de_workspace_continuity_v59a(
     if repo_root_path is None:
         root = repo_root(anchor=Path(__file__)).resolve()
     else:
+        if repo_root_path.exists() and repo_root_path.is_symlink():
+            raise ValueError("repository root may not be a symlink for V59-A continuity")
         root = repo_root_path.resolve()
 
     domain_packet_path = _resolve_path(repo_root_path=root, path=domain_packet_path)
@@ -5636,12 +5642,6 @@ def run_agentic_de_workspace_continuity_v59a(
         boundedness_note=observed_effect.boundedness_note,
         evidence_refs=observation_evidence_refs,
     )
-    governed_marker_ref = write_workspace_governed_lineage_marker(
-        repo_root_path=root,
-        target_relative_path=target_relative_path,
-        governed_observation_ref=observation.observation_id,
-        target_content_sha256=observation.observed_write_set[0].content_sha256,
-    )
     conformance = build_local_effect_conformance_report(
         target_arc=V59A_TARGET_ARC,
         target_path=V59A_TARGET_PATH,
@@ -5652,7 +5652,7 @@ def run_agentic_de_workspace_continuity_v59a(
         ticket=v56b_ticket,
         harvest=v56c_harvest,
         observation=observation,
-        evidence_refs=[governed_marker_ref, *observation_evidence_refs],
+        evidence_refs=observation_evidence_refs,
     )
     live_turn_reintegration = _build_v59a_live_turn_reintegration_report(
         live_turn_snapshot=live_turn_snapshot,
@@ -5664,10 +5664,21 @@ def run_agentic_de_workspace_continuity_v59a(
             continuity_region.continuity_region_id,
             continuity_admission.continuity_admission_id,
             occupancy_report.occupancy_report_id,
-            governed_marker_ref,
             *base_evidence_refs,
         ],
     )
+    governed_marker_ref: str | None = None
+    if (
+        observation.observation_outcome == "bounded_effect_observed"
+        and conformance.conformance_status == "effect_aligned"
+        and live_turn_reintegration.reintegration_status == "reintegrated"
+    ):
+        governed_marker_ref = write_workspace_governed_lineage_marker(
+            repo_root_path=root,
+            target_relative_path=target_relative_path,
+            governed_observation_ref=observation.observation_id,
+            target_content_sha256=observation.observed_write_set[0].content_sha256,
+        )
     continuity_reintegration = _build_v59a_workspace_continuity_reintegration_report(
         live_turn_snapshot=live_turn_snapshot,
         live_turn_reintegration=live_turn_reintegration,
@@ -5678,8 +5689,8 @@ def run_agentic_de_workspace_continuity_v59a(
         continuity_region_state_summary_after_act=observed_effect.post_state_summary,
         evidence_refs=[
             continuity_region.continuity_region_id,
-            governed_marker_ref,
             observed_effect.post_state_ref,
+            *([governed_marker_ref] if governed_marker_ref is not None else []),
             *base_evidence_refs,
         ],
     )

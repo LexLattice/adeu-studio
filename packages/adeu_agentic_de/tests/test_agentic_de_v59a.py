@@ -191,6 +191,41 @@ def test_occupied_target_fails_closed(tmp_path: Path) -> None:
         )
 
 
+def test_mismatched_effect_does_not_persist_governed_lineage_marker(tmp_path: Path) -> None:
+    temp_root, fixture_root = _copy_v59a_input_tree(tmp_path)
+    marker_path = (
+        temp_root
+        / "artifacts"
+        / "agentic_de"
+        / "v59"
+        / "workspace_continuity"
+        / "_observer"
+        / "reference_governed_target_lineage.json"
+    )
+
+    (
+        _region,
+        _continuity_admission,
+        _occupancy,
+        _live_turn_admission,
+        _live_turn_handoff,
+        observation,
+        conformance,
+        live_turn_reintegration,
+        continuity_reintegration,
+    ) = run_agentic_de_workspace_continuity_v59a(
+        repo_root_path=temp_root,
+        live_turn_snapshot=_load_snapshot(fixture_root),
+        expected_content_contains="not present in the V59-A payload",
+    )
+
+    assert observation.observation_outcome == "mismatched_effect_observed"
+    assert conformance.conformance_status == "effect_divergent"
+    assert live_turn_reintegration.reintegration_status == "blocked"
+    assert continuity_reintegration.continuity_reintegration_status == "blocked"
+    assert not marker_path.exists()
+
+
 def test_non_target_occupants_remain_contextual_only(tmp_path: Path) -> None:
     temp_root, fixture_root = _copy_v59a_input_tree(tmp_path)
     context_path = (
@@ -223,6 +258,44 @@ def test_non_target_occupants_remain_contextual_only(tmp_path: Path) -> None:
     assert occupancy.occupancy_verdict == "unoccupied"
     assert "contextual only" in occupancy.drift_posture_summary
     assert continuity_reintegration.continuity_reintegration_status == "reintegrated"
+
+
+def test_symlinked_non_target_entry_fails_closed(tmp_path: Path) -> None:
+    temp_root, fixture_root = _copy_v59a_input_tree(tmp_path)
+    outside_path = temp_root / "outside_continuity_source.txt"
+    outside_path.write_text("outside continuity root\n", encoding="utf-8")
+    symlink_path = (
+        temp_root
+        / "artifacts"
+        / "agentic_de"
+        / "v59"
+        / "workspace_continuity"
+        / "runtime"
+        / "linked_context.txt"
+    )
+    symlink_path.parent.mkdir(parents=True, exist_ok=True)
+    symlink_path.symlink_to(outside_path)
+
+    with pytest.raises(ValueError, match="symlinked entries in continuity snapshots"):
+        run_agentic_de_workspace_continuity_v59a(
+            repo_root_path=temp_root,
+            live_turn_snapshot=_load_snapshot(fixture_root),
+        )
+
+
+def test_symlinked_repo_root_fails_closed(tmp_path: Path) -> None:
+    temp_root, _fixture_root = _copy_v59a_input_tree(tmp_path / "repo")
+    linked_root = tmp_path / "repo-link"
+    linked_root.symlink_to(temp_root, target_is_directory=True)
+    linked_fixture_root = (
+        linked_root / "packages" / "adeu_agentic_de" / "tests" / "fixtures" / "v59a"
+    )
+
+    with pytest.raises(ValueError, match="repository root may not be a symlink"):
+        run_agentic_de_workspace_continuity_v59a(
+            repo_root_path=linked_root,
+            live_turn_snapshot=_load_snapshot(linked_fixture_root),
+        )
 
 
 def test_missing_required_v59a_lane_drift_assumption_fails_closed(tmp_path: Path) -> None:
