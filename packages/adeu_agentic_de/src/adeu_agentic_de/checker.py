@@ -1455,7 +1455,7 @@ def _validate_v59a_evidence_payload(payload: dict[str, object]) -> dict[str, obj
     if payload.get("selected_local_write_kind_for_v59a") != "create_new":
         raise ValueError("V59-A evidence must preserve the create_new-only live write kind")
     if payload.get("selected_continuity_root_for_v59a") != (
-        "artifacts/agentic_de/v59/workspace_continuity/"
+        DESIGNATED_WORKSPACE_CONTINUITY_ROOT.as_posix() + "/"
     ):
         raise ValueError("V59-A evidence must preserve the selected continuity root")
     if payload.get("changes_live_behavior_by_default") is not False:

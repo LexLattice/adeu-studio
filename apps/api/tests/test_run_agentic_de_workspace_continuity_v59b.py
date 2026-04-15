@@ -124,14 +124,20 @@ def _copy_v59b_input_tree(tmp_path: Path) -> tuple[Path, Path]:
     return tmp_path, fixture_root
 
 
-def _run_script(*args: str) -> subprocess.CompletedProcess[str]:
+def _run_script(
+    *args: str,
+    extra_env: dict[str, str] | None = None,
+) -> subprocess.CompletedProcess[str]:
+    env = _pythonpath_env()
+    if extra_env:
+        env.update(extra_env)
     return subprocess.run(
         [sys.executable, str(_script_path()), *args],
         cwd=_repo_root(),
         check=False,
         capture_output=True,
         text=True,
-        env=_pythonpath_env(),
+        env=env,
     )
 
 
@@ -183,6 +189,7 @@ def test_cli_can_write_all_v59b_outputs(tmp_path: Path) -> None:
     assert json.loads(reintegration_path.read_text(encoding="utf-8"))["schema"] == (
         "agentic_de_workspace_continuity_restoration_reintegration_report@1"
     )
+    assert completed.stdout == ""
 
 
 def test_invalid_v59b_lane_drift_returns_clean_error(tmp_path: Path) -> None:

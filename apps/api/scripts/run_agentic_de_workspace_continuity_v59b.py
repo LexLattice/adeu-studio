@@ -239,7 +239,7 @@ def main(argv: list[str] | None = None) -> int:
                 else None
             ),
         )
-    except (FileNotFoundError, ValueError) as exc:
+    except (FileNotFoundError, RuntimeError, ValueError) as exc:
         sys.stderr.write(f"error: {exc}\n")
         return 2
 
@@ -258,10 +258,10 @@ def main(argv: list[str] | None = None) -> int:
             args.reintegration_output,
             render_workspace_continuity_restoration_reintegration_payload(reintegration),
         )
-
-    sys.stdout.write(
-        render_workspace_continuity_restoration_reintegration_payload(reintegration)
-    )
+    else:
+        sys.stdout.write(
+            render_workspace_continuity_restoration_reintegration_payload(reintegration)
+        )
     return 0
 
 
