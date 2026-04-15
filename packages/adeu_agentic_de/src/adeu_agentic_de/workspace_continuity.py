@@ -5,7 +5,7 @@ import json
 from dataclasses import dataclass
 from pathlib import Path
 
-from .models import AgenticDeObservedWriteEntry
+from .models import AgenticDeObservedRestorationWriteEntry, AgenticDeObservedWriteEntry
 
 DESIGNATED_WORKSPACE_CONTINUITY_ROOT = Path(
     "artifacts/agentic_de/v59/workspace_continuity"
@@ -60,6 +60,21 @@ class ObservedWorkspaceContinuityEffect:
     boundedness_verdict: str
     boundedness_note: str
     post_state_summary: str
+
+
+@dataclass(frozen=True)
+class ObservedWorkspaceContinuityRestorationEffect:
+    declared_continuity_root: str
+    restoration_pre_state_ref: str
+    restoration_observed_write_set: list[AgenticDeObservedRestorationWriteEntry]
+    restoration_post_state_ref: str
+    restoration_effect: str
+    restoration_outcome: str
+    restoration_boundedness_verdict: str
+    restoration_boundedness_note: str
+    prior_governed_state_baseline_summary: str
+    prior_governed_state_baseline_match_verdict: str
+    restoration_time_target_or_region_state_summary: str
 
 
 def resolve_workspace_continuity_root(*, repo_root_path: Path) -> Path:
@@ -493,6 +508,163 @@ def observe_workspace_continuity_create_new_effect(
         post_state_summary=(
             f"target_present={'true' if post_state.target_exists else 'false'};"
             f"non_target_context_count={len(post_state.non_target_context_paths)}"
+        ),
+    )
+
+
+def observe_workspace_continuity_create_new_restoration_effect(
+    *,
+    repo_root_path: Path,
+    target_relative_path: str,
+    expected_prior_governed_lineage_ref: str,
+    expected_target_content_sha256: str,
+    expected_relative_paths: tuple[str, ...] | None = None,
+    materialize_restoration_effect: bool = True,
+) -> ObservedWorkspaceContinuityRestorationEffect:
+    continuity_root = resolve_workspace_continuity_root(repo_root_path=repo_root_path)
+    _ensure_continuity_tree(repo_root_path=repo_root_path, continuity_root=continuity_root)
+
+    relative_target = Path(target_relative_path.strip())
+    _assert_safe_relative_target(relative_target)
+    target_path = continuity_root / relative_target
+    _assert_repo_contained_path(repo_root_path=repo_root_path, candidate=target_path)
+    _assert_no_symlink_components(repo_root_path=repo_root_path, candidate=target_path)
+    _assert_within_continuity_root(continuity_root=continuity_root, candidate=target_path)
+
+    pre_state = snapshot_workspace_continuity_state(
+        repo_root_path=repo_root_path,
+        target_relative_path=target_relative_path,
+        snapshot_name="reference_restoration_pre_state.json",
+    )
+    prior_governed_state_baseline_summary = (
+        f"target_present={'true' if pre_state.target_exists else 'false'};"
+        f"marker_present={'true' if pre_state.marker_ref is not None else 'false'};"
+        "lineage_ref_present="
+        f"{'true' if pre_state.prior_governed_lineage_ref is not None else 'false'};"
+        f"non_target_context_count={len(pre_state.non_target_context_paths)}"
+    )
+    restoration_time_target_or_region_state_summary = (
+        f"target_present={'true' if pre_state.target_exists else 'false'};"
+        f"target_content_sha256={pre_state.target_content_sha256 or 'absent'};"
+        f"marker_parse_error={pre_state.marker_parse_error or 'none'};"
+        f"non_target_context_count={len(pre_state.non_target_context_paths)}"
+    )
+    if not pre_state.target_exists:
+        raise ValueError(
+            "V59-B continuity-safe restoration requires the selected target to exist "
+            "inside the declared continuity root"
+        )
+    if pre_state.marker_parse_error is not None:
+        raise ValueError(
+            "V59-B continuity-safe restoration requires a readable prior governed "
+            "continuity marker"
+        )
+    if pre_state.prior_governed_lineage_ref != expected_prior_governed_lineage_ref:
+        raise ValueError(
+            "V59-B continuity-safe restoration requires prior governed lineage to bind "
+            "the shipped V59-A observation"
+        )
+    if pre_state.prior_governed_content_sha256 != expected_target_content_sha256:
+        raise ValueError(
+            "V59-B continuity-safe restoration requires prior governed-state baseline "
+            "content to match the shipped V59-A observed artifact"
+        )
+    if pre_state.target_content_sha256 != expected_target_content_sha256:
+        raise ValueError(
+            "V59-B continuity-safe restoration requires current target state to match "
+            "the shipped governed baseline before restore"
+        )
+
+    restoration_observed_write_set: list[AgenticDeObservedRestorationWriteEntry]
+    if materialize_restoration_effect:
+        removed_bytes = target_path.stat().st_size
+        removed_sha256 = _sha256_file(target_path)
+        target_path.unlink()
+        restoration_observed_write_set = [
+            AgenticDeObservedRestorationWriteEntry(
+                relative_path=_relative_display(target_path, repo_root_path=repo_root_path),
+                restoration_operation="compensating_remove_create_new_artifact",
+                existed_before_restoration=True,
+                exists_after_restoration=False,
+                bytes_removed=removed_bytes,
+                removed_content_sha256=removed_sha256,
+            )
+        ]
+    else:
+        restoration_observed_write_set = []
+
+    post_state = snapshot_workspace_continuity_state(
+        repo_root_path=repo_root_path,
+        target_relative_path=target_relative_path,
+        snapshot_name="reference_restoration_post_state.json",
+    )
+    actual_relative_paths = tuple(
+        entry.relative_path for entry in restoration_observed_write_set
+    )
+    expected_paths = (
+        expected_relative_paths
+        if expected_relative_paths is not None
+        else (_relative_display(target_path, repo_root_path=repo_root_path),)
+    )
+    actual_path_set = set(actual_relative_paths)
+    expected_path_set = set(expected_paths)
+    if not restoration_observed_write_set:
+        restoration_outcome = "no_restoration_effect_observed"
+        restoration_boundedness_verdict = "bounded"
+        restoration_boundedness_note = (
+            "no compensating restore effect was observed inside the declared continuity root"
+        )
+        restoration_effect = (
+            "no continuity-safe compensating restore effect observed inside the declared "
+            "continuity root"
+        )
+    elif not actual_path_set.issubset(expected_path_set):
+        restoration_outcome = "restoration_out_of_scope_write_observed"
+        restoration_boundedness_verdict = "failed"
+        restoration_boundedness_note = (
+            "restoration writes escaped the continuity-entitled compensating scope even "
+            "though they remained path-local"
+        )
+        restoration_effect = (
+            "observed continuity-safe restoration write set did not match the bounded "
+            "compensating target set"
+        )
+    elif actual_path_set != expected_path_set or post_state.target_exists:
+        restoration_outcome = "restoration_mismatched_effect_observed"
+        restoration_boundedness_verdict = "bounded"
+        restoration_boundedness_note = (
+            "restoration stayed within the declared continuity root but did not fully "
+            "remove the selected target state"
+        )
+        restoration_effect = (
+            "observed continuity-safe restoration stayed bounded but did not match the "
+            "full compensating restore expectation"
+        )
+    else:
+        restoration_outcome = "restoration_effect_observed"
+        restoration_boundedness_verdict = "bounded"
+        restoration_boundedness_note = (
+            "observed continuity-safe compensating restore remained inside the declared "
+            "continuity root"
+        )
+        restoration_effect = (
+            "observed bounded continuity-safe compensating restore removed the selected "
+            "create_new target inside the declared continuity root"
+        )
+
+    return ObservedWorkspaceContinuityRestorationEffect(
+        declared_continuity_root=pre_state.declared_continuity_root,
+        restoration_pre_state_ref=pre_state.snapshot_ref,
+        restoration_observed_write_set=restoration_observed_write_set,
+        restoration_post_state_ref=post_state.snapshot_ref,
+        restoration_effect=restoration_effect,
+        restoration_outcome=restoration_outcome,
+        restoration_boundedness_verdict=restoration_boundedness_verdict,
+        restoration_boundedness_note=restoration_boundedness_note,
+        prior_governed_state_baseline_summary=prior_governed_state_baseline_summary,
+        prior_governed_state_baseline_match_verdict="matched",
+        restoration_time_target_or_region_state_summary=(
+            restoration_time_target_or_region_state_summary
         ),
     )
 

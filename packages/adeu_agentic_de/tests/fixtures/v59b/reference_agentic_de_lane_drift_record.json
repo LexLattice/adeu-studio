@@ -1,0 +1,35 @@
+{
+  "schema": "agentic_de_lane_drift_record@1",
+  "record_id": null,
+  "target_arc": "vNext+162",
+  "target_path": "V59-B",
+  "prior_lane_ref": "docs/LOCKED_CONTINUATION_vNEXT_PLUS161.md",
+  "entry_count": 5,
+  "entries": [
+    {
+      "assumption_ref": "v59a_surface_reuse_default",
+      "status": "holds",
+      "note": "V59-B reuses the shipped V59-A continuity region, admission, occupancy, live-turn reintegration, and continuity reintegration surfaces by default."
+    },
+    {
+      "assumption_ref": "continuity_safe_restoration_explicit_not_hidden_cleanup",
+      "status": "amended",
+      "note": "V59-B adds one explicit continuity-safe restoration handoff and one explicit continuity-safe restoration reintegration surface; restoration remains explicit state, not hidden cleanup."
+    },
+    {
+      "assumption_ref": "restoration_time_continuation_resnapshot_required",
+      "status": "amended",
+      "note": "V59-B requires same-session and same-turn continuation plus restoration-time capability and approval resnapshot before continuity-safe restoration may be reintegrated."
+    },
+    {
+      "assumption_ref": "historical_lineage_refs_non_entitling",
+      "status": "amended",
+      "note": "Historical ticket, occupancy, and prior continuity reintegration refs remain lineage inputs only and do not by themselves mint current-turn restoration entitlement."
+    },
+    {
+      "assumption_ref": "baseline_match_and_replay_law_proof_required",
+      "status": "amended",
+      "note": "V59-B requires explicit prior governed-state baseline match, explicit restoration-time state summary, and replay-law proof embedded in the continuity restoration reintegration report."
+    }
+  ]
+}

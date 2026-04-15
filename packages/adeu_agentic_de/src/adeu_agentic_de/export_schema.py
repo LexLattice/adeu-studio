@@ -35,6 +35,8 @@ from .models import (
     AGENTIC_DE_WORKSPACE_CONTINUITY_ADMISSION_RECORD_SCHEMA,
     AGENTIC_DE_WORKSPACE_CONTINUITY_REGION_DECLARATION_SCHEMA,
     AGENTIC_DE_WORKSPACE_CONTINUITY_REINTEGRATION_REPORT_SCHEMA,
+    AGENTIC_DE_WORKSPACE_CONTINUITY_RESTORATION_HANDOFF_RECORD_SCHEMA,
+    AGENTIC_DE_WORKSPACE_CONTINUITY_RESTORATION_REINTEGRATION_REPORT_SCHEMA,
     AGENTIC_DE_WORKSPACE_OCCUPANCY_REPORT_SCHEMA,
     AgenticDeActionClassTaxonomy,
     AgenticDeActionProposal,
@@ -63,6 +65,8 @@ from .models import (
     AgenticDeWorkspaceContinuityAdmissionRecord,
     AgenticDeWorkspaceContinuityRegionDeclaration,
     AgenticDeWorkspaceContinuityReintegrationReport,
+    AgenticDeWorkspaceContinuityRestorationHandoffRecord,
+    AgenticDeWorkspaceContinuityRestorationReintegrationReport,
     AgenticDeWorkspaceOccupancyReport,
 )
 
@@ -278,6 +282,30 @@ def main() -> None:
             root
             / "spec"
             / "agentic_de_workspace_continuity_reintegration_report.schema.json",
+        ),
+        (
+            AgenticDeWorkspaceContinuityRestorationHandoffRecord,
+            AGENTIC_DE_WORKSPACE_CONTINUITY_RESTORATION_HANDOFF_RECORD_SCHEMA,
+            root
+            / "packages"
+            / "adeu_agentic_de"
+            / "schema"
+            / "agentic_de_workspace_continuity_restoration_handoff_record.v1.json",
+            root
+            / "spec"
+            / "agentic_de_workspace_continuity_restoration_handoff_record.schema.json",
+        ),
+        (
+            AgenticDeWorkspaceContinuityRestorationReintegrationReport,
+            AGENTIC_DE_WORKSPACE_CONTINUITY_RESTORATION_REINTEGRATION_REPORT_SCHEMA,
+            root
+            / "packages"
+            / "adeu_agentic_de"
+            / "schema"
+            / "agentic_de_workspace_continuity_restoration_reintegration_report.v1.json",
+            root
+            / "spec"
+            / "agentic_de_workspace_continuity_restoration_reintegration_report.schema.json",
         ),
         (
             AgenticDeLiveRestorationHandoffRecord,

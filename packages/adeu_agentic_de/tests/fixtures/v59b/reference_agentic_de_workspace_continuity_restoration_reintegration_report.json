@@ -1,0 +1,87 @@
+{
+  "schema": "agentic_de_workspace_continuity_restoration_reintegration_report@1",
+  "report_id": "agentic_de_workspace_continuity_restoration_reintegration_report_c2d2fcceb4b6",
+  "target_arc": "vNext+162",
+  "target_path": "V59-B",
+  "evidence_only": true,
+  "changes_live_behavior_by_default": false,
+  "turn_admission_ref": "agentic_de_live_turn_admission_77953b57cdbb",
+  "workspace_continuity_restoration_handoff_ref": "agentic_de_workspace_continuity_restoration_handoff_48bae4548a40",
+  "restoration_record_ref": "agentic_de_local_effect_restoration_4ed86f8725b1",
+  "restoration_effect_summary": "observed bounded continuity-safe compensating restore removed the selected create_new target inside the declared continuity root",
+  "continuity_restoration_reintegration_status": "reintegrated",
+  "reason_codes": [
+    "current_turn_restoration_witness_declared",
+    "prior_governed_state_baseline_matched",
+    "bounded_compensating_scope_matched",
+    "continuity_safe_restoration_effect_aligned"
+  ],
+  "continuity_restoration_reintegration_witness_basis_summary": "current-turn live admission continuity + prior continuity reintegration lineage + restoration-time baseline match + restoration pre/post state + restoration record",
+  "continuity_restoration_reintegration_certificate_ref_or_equivalent": "v59b_continuity_restoration_reintegration::copilot-v59a-session-1::turn-v59a-continuity-1::agentic_de_local_effect_restoration_4ed86f8725b1",
+  "replay_law_proof_summary": "bounded recomputation and re-evaluation of the exact continuity-safe compensating restore event against the prior continuity-bound lineage only",
+  "field_origin_tags": {
+    "restoration_effect_summary": "current_turn_derived",
+    "continuity_restoration_reintegration_witness_basis_summary": "current_turn_derived",
+    "replay_law_proof_summary": "current_turn_derived",
+    "six_lane_closeout_posture": "current_turn_derived"
+  },
+  "field_dependence_tags": {
+    "restoration_effect_summary": [
+      "agentic_de_local_effect_restoration_4ed86f8725b1"
+    ],
+    "continuity_restoration_reintegration_witness_basis_summary": [
+      "agentic_de_live_turn_admission_77953b57cdbb",
+      "agentic_de_workspace_continuity_restoration_handoff_48bae4548a40",
+      "agentic_de_local_effect_restoration_4ed86f8725b1"
+    ],
+    "replay_law_proof_summary": [
+      "agentic_de_workspace_continuity_reintegration_report_c8e2566a1646",
+      "agentic_de_local_effect_restoration_4ed86f8725b1"
+    ],
+    "six_lane_closeout_posture": [
+      "agentic_de_live_turn_admission_77953b57cdbb",
+      "agentic_de_workspace_continuity_restoration_handoff_48bae4548a40",
+      "agentic_de_local_effect_restoration_4ed86f8725b1"
+    ]
+  },
+  "root_origin_dedup_summary": "dedup roots=session:copilot-v59a-session-1,turn:turn-v59a-continuity-1,ticket:agentic_de_action_ticket_866f90c6f22a,prior_continuity_reintegration:agentic_de_workspace_continuity_reintegration_report_c8e2566a1646,restoration:agentic_de_local_effect_restoration_4ed86f8725b1; repeated continuity and observability refs remain non-independent support",
+  "six_lane_closeout_posture": "current_turn_continuity_lineage_preserved_then_bounded_compensating_continuity_restore_reintegrated",
+  "evidence_refs": [
+    "agentic_de_live_turn_admission_77953b57cdbb",
+    "agentic_de_workspace_continuity_restoration_handoff_48bae4548a40",
+    "agentic_de_local_effect_restoration_4ed86f8725b1",
+    "packages/adeu_agentic_de/tests/fixtures/v56a/reference_agentic_de_domain_packet.json",
+    "packages/adeu_agentic_de/tests/fixtures/v56a/reference_agentic_de_morph_ir.json",
+    "packages/adeu_agentic_de/tests/fixtures/v56a/reference_agentic_de_interaction_contract.json",
+    "packages/adeu_agentic_de/tests/fixtures/v56a/reference_agentic_de_action_proposal.json",
+    "packages/adeu_agentic_de/tests/fixtures/v56a/reference_agentic_de_membrane_checkpoint.json",
+    "packages/adeu_agentic_de/tests/fixtures/v56a/reference_agentic_de_morph_diagnostics.json",
+    "packages/adeu_agentic_de/tests/fixtures/v56a/reference_agentic_de_conformance_report.json",
+    "packages/adeu_agentic_de/tests/fixtures/v56b/reference_agentic_de_action_class_taxonomy.json",
+    "packages/adeu_agentic_de/tests/fixtures/v56b/reference_agentic_de_runtime_state.json",
+    "packages/adeu_agentic_de/tests/fixtures/v56b/reference_agentic_de_action_ticket.json",
+    "packages/adeu_agentic_de/tests/fixtures/v56b/reference_agentic_de_lane_drift_record.json",
+    "packages/adeu_agentic_de/tests/fixtures/v56b/reference_agentic_de_morph_diagnostics.json",
+    "packages/adeu_agentic_de/tests/fixtures/v56b/reference_agentic_de_conformance_report.json",
+    "packages/adeu_agentic_de/tests/fixtures/v56c/reference_agentic_de_lane_drift_record.json",
+    "packages/adeu_agentic_de/tests/fixtures/v56c/reference_agentic_de_runtime_harvest_record.json",
+    "packages/adeu_agentic_de/tests/fixtures/v56c/reference_agentic_de_governance_calibration_register.json",
+    "packages/adeu_agentic_de/tests/fixtures/v56c/reference_agentic_de_migration_decision_register.json",
+    "packages/adeu_agentic_de/tests/fixtures/v59a/reference_agentic_de_lane_drift_record.json",
+    "packages/adeu_agentic_de/tests/fixtures/v59a/reference_agentic_de_workspace_continuity_region_declaration.json",
+    "packages/adeu_agentic_de/tests/fixtures/v59a/reference_agentic_de_workspace_continuity_admission_record.json",
+    "packages/adeu_agentic_de/tests/fixtures/v59a/reference_agentic_de_workspace_occupancy_report.json",
+    "packages/adeu_agentic_de/tests/fixtures/v59a/reference_agentic_de_live_turn_admission_record.json",
+    "packages/adeu_agentic_de/tests/fixtures/v59a/reference_agentic_de_live_turn_handoff_record.json",
+    "packages/adeu_agentic_de/tests/fixtures/v59a/reference_agentic_de_local_effect_observation_record.json",
+    "packages/adeu_agentic_de/tests/fixtures/v59a/reference_agentic_de_local_effect_conformance_report.json",
+    "packages/adeu_agentic_de/tests/fixtures/v59a/reference_agentic_de_live_turn_reintegration_report.json",
+    "packages/adeu_agentic_de/tests/fixtures/v59a/reference_agentic_de_workspace_continuity_reintegration_report.json",
+    "packages/adeu_agentic_de/tests/fixtures/v59b/reference_agentic_de_lane_drift_record.json",
+    "artifacts/agent_harness/v161/evidence_inputs/v59a_workspace_continuity_starter_evidence_v161.json",
+    "artifacts/agent_harness/v161/runtime/evidence/local/copilot_raw.ndjson",
+    "artifacts/agent_harness/v161/runtime/evidence/local/urm_events.ndjson",
+    "artifacts/agentic_de/v59/workspace_continuity/_observer/reference_restoration_pre_state.json",
+    "artifacts/agentic_de/v59/workspace_continuity/_observer/reference_restoration_post_state.json"
+  ]
+}
