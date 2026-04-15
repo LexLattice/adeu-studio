@@ -221,13 +221,13 @@ Ordering discipline for this branch:
 - Recommended family/slice mapping reference to draft next:
   - `docs/DRAFT_ADEU_RESIDENT_AGENT_PERSISTENT_WORKSPACE_CONTINUITY_V59_IMPLEMENTATION_MAPPING_v0.md`
 - Recommended next path for this branch:
-  - `V59-B`
+  - `V59-C`
 - Recommended next concrete arc for this branch if selected:
-  - `V59-B`
+  - `V59-C`
 
 Default path selection for this branch:
 
-- one bounded continuity-safe restoration slice is recommended:
+- one bounded continuity hardening / drift slice is recommended:
   - reuse the shipped `V56-A`, `V56-B`, and `V56-C` packet / proposal / checkpoint /
     ticket / conformance / harvest surfaces by default
   - reuse the shipped `V57-A`, `V57-B`, and `V57-C` observation / restoration /
@@ -236,52 +236,54 @@ Default path selection for this branch:
     reintegration / advisory surfaces by default
   - reuse the shipped `V59-A` continuity region / admission / occupancy /
     reintegration surfaces by default
-  - keep current-turn live admission still required
-  - keep prior workspace state necessary as context at most, never sufficient
-    authority
-  - keep the selected continuity path frozen exactly:
+  - reuse the shipped `V59-B` continuity-safe restoration handoff / restoration /
+    reintegration surfaces by default
+  - keep the exact selected continuity path frozen:
     - `local_write`
     - `create_new`
     - declared continuity root `artifacts/agentic_de/v59/workspace_continuity/`
     - target centered on `runtime/reference_patch_candidate.diff`
-  - instantiate one explicit continuity-safe restoration handoff surface
-  - instantiate one explicit continuity-safe restoration reintegration surface
-  - keep continuity-safe restoration a new live act, not standing continuity
-    authority
-  - keep shipped `V57-B` / `V58-B` restoration semantics baseline-only:
-    - they shape the continuity-safe restore slice
-    - they do not by themselves prove continuity-safe restoration entitlement
-  - keep restoration-time freshness explicit:
-    - same-session and same-turn continuation only in this slice
-    - restoration-time capability / approval posture must be re-snapshotted
-    - restoration-time continuation verdict must be typed, witness-bearing, and
-      replayable:
-      - same selected evidence chain
-      - same frozen policy
-      - same restoration-time continuation verdict
-    - mismatch or missing resnapshot is non-entitling and fail-closed
-  - keep prior continuity lineage inputs historical only:
-    - `action_ticket_ref`
-    - prior continuity reintegration ref
-    - prior occupancy ref
-    - prior governed-state baseline refs
-    - none of them is current-turn restoration entitlement by reference alone
-  - keep continuity-safe restoration dependent on:
-    - one explicit prior governed-state baseline inside the declared continuity root
-    - one explicit prior governed-state baseline-match verdict
-    - one explicit restoration-time target/region state summary
-    - one explicit bounded compensating-scope match
-    - one explicit current-turn restoration witness basis
-  - keep replay semantics narrow:
-    - bounded recomputation and re-evaluation of the exact continuity-safe restoration
-      event only
-    - not arbitrary prior live-action re-execution
-  - keep positive restoration reintegration witness-bearing:
-    - explicit witness basis or certificate ref for any positive reintegration claim
-  - keep append-only, overwrite, destructive, or repo-source restoration not selected
-  - keep continuity hardening / migration not selected in this slice
-  - keep replay / resume widening not selected in this slice
-  - if this family is selected, select `V59-B` as the next default candidate
+  - instantiate one advisory continuity hardening register only
+  - keep the selected hardening target exact:
+    - the shipped continuity-bound observed-and-restored `create_new` exemplar only
+  - keep one explicit frozen-policy anchor in the advisory register:
+    - same selected evidence basis
+    - same frozen policy anchor
+    - same recommendation outcome
+  - keep the recommendation function extensional and replayable:
+    - same selected evidence basis
+    - same frozen policy anchor
+    - same recommendation outcome
+  - keep common lineage roots non-independent at the advisory layer
+  - keep evidence basis distinct from recommendation outcome
+  - keep occupancy / boundedness / reintegration verdicts first-class:
+    - occupancy verdict
+    - continuity reintegration status
+    - observation boundedness verdict
+    - restoration boundedness verdict
+    - continuity restoration reintegration status
+    - restoration-time continuation verdict
+    - prior governed-state baseline-match verdict
+    - bounded compensating-scope-match verdict
+    - not artifact refs alone
+  - keep the advisory register path-level only:
+    - not a family migration surface
+    - not a live entitlement surface
+    - not a checkpoint or ticket mutation surface
+  - keep exemplar evidence non-generalizing by default:
+    - not class-level `local_write` law
+    - not continuity-family law
+    - not restoration-family law
+    - not replay-family law
+  - keep allowed outcomes bounded and non-entitling:
+    - `keep_warning_only`
+    - `needs_more_evidence`
+    - `candidate_for_later_continuity_hardening`
+    - `not_selected_for_escalation`
+  - keep live behavior mutation, continuity entitlement widening, replay/resume
+    widening, restoration-law widening, execute widening, dispatch widening, and
+    product/UI authority not selected in this slice
+  - if this family is selected, select `V59-C` as the next default candidate
 
 This family/path recommendation is branch-local to the `v42` planning surface.
 
@@ -295,8 +297,8 @@ The current recommended path ladder is:
 | Path | Theme | Primary output | Status |
 |---|---|---|---|
 | `V59-A` | persistent continuity starter | one declared continuity-region surface, one continuity admission record, one occupancy report, and one continuity reintegration report over the exact `local_write/create_new` path only | closed on `main` through `v161` |
-| `V59-B` | continuity-safe restoration | one explicit restoration / compensating-restore continuation over the same exact continuity-bound lineage, without replay widening or standing restore authority | recommended next path |
-| `V59-C` | continuity hardening / drift | one advisory path-level continuity hardening surface over the same exact continuity-bound lineage, without mutating live behavior by default | drafted, not selected yet |
+| `V59-B` | continuity-safe restoration | one explicit restoration / compensating-restore continuation over the same exact continuity-bound lineage, without replay widening or standing restore authority | closed on `main` through `v162` |
+| `V59-C` | continuity hardening / drift | one advisory path-level continuity hardening surface over the same exact continuity-bound lineage, without mutating live behavior by default | recommended next path |
 
 These output names are planning-level candidate names, not lock-level schema
 commitments yet.

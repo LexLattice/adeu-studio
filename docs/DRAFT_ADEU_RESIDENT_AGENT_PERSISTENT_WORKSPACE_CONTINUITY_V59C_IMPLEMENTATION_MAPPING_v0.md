@@ -1,6 +1,7 @@
 # Draft ADEU Resident-Agent Persistent Workspace Continuity V59C Implementation Mapping v0
 
-Status: support note for the `V59-C` implementation pass.
+Status: support note for the `V59-C` implementation pass after `V59-B` closed on
+`main`.
 
 Authority layer: support only.
 
@@ -17,7 +18,7 @@ Read together with:
 ## Carry Forward Nearly As-Is
 
 - `V59-A` continuity region / admission / occupancy / reintegration
-- `V59-B` explicit continuity-safe restoration if that slice lands
+- `V59-B` explicit continuity-safe restoration
 - shipped `V57-C` and `V58-C` advisory hardening posture as shaping input only
 
 ## Re-Author With Repo Alignment
@@ -49,11 +50,20 @@ hardening or broader drift checks, while keeping:
   broader restoration-family or replay-family selection
 - committed lane artifacts outrank narrative docs when the hardening register is
   derived
+- the hardening register carries one explicit frozen-policy anchor:
+  - same selected evidence basis
+  - same frozen policy anchor
+  - same recommendation outcome
 - the register depends on the shipped occupancy / boundedness / reintegration verdicts,
   not on artifact refs alone
+- the register carries forward the shipped `V59-B` restoration freshness and baseline
+  verdicts explicitly:
+  - restoration-time continuation verdict
+  - prior governed-state baseline-match verdict
+  - bounded compensating-scope-match verdict
 - the recommendation function must remain extensional and replayable:
-  - same selected evidence chain
-  - same frozen policy
+  - same selected evidence basis
+  - same frozen policy anchor
   - same recommendation outcome
 - evidence basis remains distinct from recommendation outcome
 - common lineage roots remain non-independent at the advisory layer

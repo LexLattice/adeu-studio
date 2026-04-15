@@ -125,13 +125,29 @@ The family should remain backend-first in `V59-A`:
   - add one advisory continuity hardening / drift surface over the same exact
     continuity-bound path
   - reuse the shipped `V59-A` continuity lineage by default
-  - reuse the shipped `V59-B` continuity-safe restoration lineage by default if that
-    slice lands
+  - reuse the shipped `V59-B` continuity-safe restoration lineage by default
   - keep outputs advisory-only and path-level only
+  - keep one explicit frozen-policy anchor in the advisory register:
+    - same selected evidence basis
+    - same frozen policy anchor
+    - same recommendation outcome
+  - keep the recommendation function extensional and replayable:
+    - same selected evidence basis
+    - same frozen policy anchor
+    - same recommendation outcome
+  - keep common lineage roots non-independent at the advisory layer
+  - keep evidence basis distinct from recommendation outcome
+  - keep occupancy / boundedness / reintegration verdicts first-class:
+    - not artifact refs alone
+  - keep the shipped `V59-B` restoration freshness and baseline verdicts first-class:
+    - restoration-time continuation verdict
+    - prior governed-state baseline-match verdict
+    - bounded compensating-scope-match verdict
   - keep continuity evidence non-generalizing by default:
     - not class-level `local_write` law
     - not replay-family law
     - not continuity-family law
+    - not restoration-family law
   - keep any later widening or migration decision separate from live behavior by
     default
 
