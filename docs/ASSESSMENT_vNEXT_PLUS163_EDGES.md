@@ -1,8 +1,8 @@
 # Assessment vNext+163 Edges
 
-Status: starter edge assessment for `V59-C` (April 15, 2026 UTC).
+Status: post-closeout edge assessment for `V59-C` (April 15, 2026 UTC).
 
-Authority layer: starter planning + lock draft only.
+Authority layer: closeout evidence on `main`.
 
 ## Assessment-State Marker (Machine-Checkable)
 
@@ -10,8 +10,8 @@ Authority layer: starter planning + lock draft only.
 {
   "schema": "assessment_artifact_state@1",
   "artifact": "docs/ASSESSMENT_vNEXT_PLUS163_EDGES.md",
-  "phase": "pre_lock_assessment",
-  "authoritative": false,
+  "phase": "post_closeout_assessment",
+  "authoritative": true,
   "required_in_decision": true
 }
 ```
@@ -21,20 +21,22 @@ Authority layer: starter planning + lock draft only.
 ### Edge 1: Advisory Hardening Could Quietly Become A Soft Continuity Sovereign
 
 - Risk:
-  the new hardening register could still act like a discretionary continuity authority
-  layer if the same evidence chain can yield different recommendation outcomes across
-  runs.
+  the hardening register could still act like a discretionary continuity authority if
+  the same evidence chain can yield different recommendation outcomes across runs.
 - Response:
   keep the recommendation function extensional and replayable.
-  - same selected evidence basis
+  - same selected evidence chain
   - same frozen policy anchor
   - same recommendation outcome
+- Closeout Evidence:
+  shipped `V59-C` checker semantics and replayability tests keep the recommendation
+  function extensional under the frozen policy anchor.
 
 ### Edge 2: One Successful Continuity Exemplar Could Be Over-Read As Family-Level Law
 
 - Risk:
-  the continuity-bound observed-and-restored `create_new` exemplar could be treated
-  as if it proves class-level `local_write` safety, continuity-family law,
+  the continuity-bound observed-and-restored `create_new` exemplar could be treated as
+  if it proves class-level `local_write` safety, continuity-family law,
   restoration-family law, or replay-family law.
 - Response:
   keep the selected hardening target exact and non-generalizing by default.
@@ -43,6 +45,9 @@ Authority layer: starter planning + lock draft only.
   - not continuity-family law
   - not restoration-family law
   - not replay-family law
+- Closeout Evidence:
+  shipped hardening target surface remains exact and the merged slice does not add
+  any broader class or family recommendation surface.
 
 ### Edge 3: Artifact Refs Could Replace Occupancy, Boundedness, And Reintegration Verdicts
 
@@ -59,6 +64,9 @@ Authority layer: starter planning + lock draft only.
   - bounded observation verdict required
   - bounded restoration verdict required
   - continuity restoration reintegration status required
+- Closeout Evidence:
+  shipped `V59-C` entry schema and checker keep those verdicts first-class and fail
+  closed when any prerequisite verdict posture drifts.
 
 ### Edge 4: Lineage Repetition Could Be Counted More Than Once At The Advisory Layer
 
@@ -71,6 +79,10 @@ Authority layer: starter planning + lock draft only.
   - root-origin dedup remains required
   - repeated lineage artifacts may support traceability
   - they may not become independent escalation support by repetition alone
+- Closeout Evidence:
+  shipped `V59-C` hardening entry keeps root-origin ids and dedup summary, and review
+  hardening now validates structured non-independent dependence tags from `V59-B`
+  instead of relying on prose summaries.
 
 ### Edge 5: Recommendation Could Be Smuggled In As If It Were Evidence
 
@@ -80,11 +92,43 @@ Authority layer: starter planning + lock draft only.
 - Response:
   keep evidence basis distinct from recommendation outcome.
   - evidence summary is not recommendation
+  - verdict basis is not recommendation
   - recommendation is not treated as an attribute of the evidence itself
-  - frozen policy anchor is not ambient or implied
-  - replayability depends on declared policy, not narrative assumption
+  - frozen policy anchor is explicit, not ambient or implied
+- Closeout Evidence:
+  shipped `V59-C` schema separates evidence basis, verdict basis, frozen policy ref,
+  and recommended outcome into distinct required fields.
 
-### Edge 6: Advisory Continuity Hardening Could Quietly Mutate Live Behavior
+### Edge 6: Upstream Restoration Drift Could Be Laundered Through Advisory Reuse
+
+- Risk:
+  because `V59-C` consumes shipped `V59-B` restoration lineage, a caller-supplied but
+  internally consistent non-`V59-B` restoration trio could slip through and produce a
+  recommendation from unshipped restoration data.
+- Response:
+  validate the `V59-B` restoration surface itself, not just cross-refs to it.
+  - shipped `target_arc` / `target_path` required
+  - shipped continuity root required
+  - shipped exemplar / replay / entitlement posture required
+  - shipped lineage bindings and observed-write equivalence required
+- Closeout Evidence:
+  review hardening on `#390` added explicit validation of the supplied `V59-B`
+  restoration record and regression coverage for non-`V59-B` restoration drift.
+
+### Edge 7: Structured Restoration Scope Could Drift Back Into Narrative Summary Matching
+
+- Risk:
+  compensating-scope checks could quietly depend on human-oriented summary strings
+  instead of the shipped structured scope posture.
+- Response:
+  validate structured scope, not prose wording.
+  - shipped `selected_restoration_scope` required
+  - summary wording is informational only
+- Closeout Evidence:
+  review hardening on `#390` replaced brittle summary-substring validation with
+  fail-closed checks against the shipped structured restoration-scope contract.
+
+### Edge 8: Advisory Continuity Hardening Could Quietly Mutate Live Behavior
 
 - Risk:
   a hardening surface could start behaving like live continuity admission,
@@ -95,8 +139,11 @@ Authority layer: starter planning + lock draft only.
   - no live behavior mutation by default
   - no checkpoint or ticket mutation
   - no continuity admission, reintegration, or restoration mutation
+- Closeout Evidence:
+  shipped `V59-C` register is advisory-only, candidate-only, and non-entitling, and
+  no live mutation surfaces were added in the merged diff.
 
-### Edge 7: Broader Replay, Restoration, Region, Execute, Dispatch, Or Product Authority Could Reappear
+### Edge 9: Broader Replay, Restoration, Region, Execute, Dispatch, Or Product Authority Could Reappear
 
 - Risk:
   the family could use the hardening slice to reintroduce replay/resume widening,
@@ -110,8 +157,11 @@ Authority layer: starter planning + lock draft only.
   - no execute widening
   - no dispatch widening
   - no product/UI authority source
+- Closeout Evidence:
+  merged `V59-C` diff and closeout artifacts remain advisory hardening only and do not
+  add replay/execute/dispatch/product widening surfaces.
 
-### Edge 8: Hidden-Cognition Or Proxy Metrics Could Reappear As Authority Basis
+### Edge 10: Hidden-Cognition Or Proxy Metrics Could Reappear As Authority Basis
 
 - Risk:
   once the slice discusses hardening, internalist quality heuristics or
@@ -121,13 +171,16 @@ Authority layer: starter planning + lock draft only.
   - no hidden-cognition governance
   - no surrogate proxies
   - no derived internalist runtime features as authority basis
+- Closeout Evidence:
+  shipped `V59-C` reasoning remains grounded in committed lane artifacts, explicit
+  verdicts, and the frozen policy anchor; no hidden proxy basis was introduced.
 
 ## Current Judgment
 
-- `V59-C` is the right next slice because `V59-A` and `V59-B` already closed one exact
-  continuity-bound observed-and-restored path on `main`, and the next exact gap is
-  bounded advisory hardening / drift over that same lineage.
-- the starter should remain properly bounded:
+- `V59-C` was the right next slice because `V59-A` and `V59-B` already closed one
+  exact continuity-bound observed-and-restored path on `main`, and the next exact gap
+  was bounded advisory hardening / drift over that same lineage.
+- the shipped result remained properly bounded:
   - existing-path-first
   - existing-lineage-first
   - advisory-surface-first
@@ -140,5 +193,6 @@ Authority layer: starter planning + lock draft only.
   - non-dispatch
   - non-product
   - non-hidden-cognition-governing
-- any next move after `V59-C` should be new family selection or later explicitly
-  selected widening, not widening `V59-C` in place.
+- `V59-C` is now closed on `main` in the starter-lane sense.
+- any next move after `V59-C` should be a new arc selection rather than widening
+  continuity hardening authority in place.
