@@ -1,7 +1,7 @@
 {
   "blocker_summary": "none_under_current_v60a_policy",
   "changes_live_behavior_by_default": false,
-  "current_frontier_summary": "exact downstream frontier remains the shipped V59 continuity-bound local_write/create_new exemplar over runtime/reference_patch_candidate.diff",
+  "current_frontier_summary": "exact downstream frontier remains the shipped V59 continuity-bound local_write/create_new exemplar over artifacts/agentic_de/v59/workspace_continuity/runtime/reference_patch_candidate.diff",
   "evidence_only": true,
   "evidence_refs": [
     "agentic_de_task_charter_4ba381fc318f",
@@ -100,7 +100,7 @@
   "open_obligation_summary": "if continued, descend only into the exact shipped downstream path under fresh V58/V56 act law; broader communication, replay, and repo widening remain deferred",
   "owed_communication_posture_summary": "none_now; emit_governed_communication remains posture-only until V61",
   "residual_derivation_basis_summary": "task charter + shipped live/continuity reintegration lineage + shipped continuity-safe restoration reintegration + shipped V59-C advisory hardening + same-session same-turn continuation + current capability/approval posture match + repository-root cwd match + admitted continuity lineage",
-  "residual_id": "agentic_de_task_residual_ad34240f8cdb",
+  "residual_id": "agentic_de_task_residual_ab780d503f8c",
   "root_origin_ids": [
     "session:copilot-v59a-session-1",
     "turn:turn-v59a-continuity-1",

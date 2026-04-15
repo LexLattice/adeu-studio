@@ -5,7 +5,13 @@ import shutil
 from pathlib import Path
 
 import pytest
-from adeu_agentic_de import run_agentic_de_continuation_v60a
+from adeu_agentic_de import (
+    load_live_turn_reintegration_report,
+    load_workspace_continuity_hardening_register,
+    load_workspace_continuity_reintegration_report,
+    load_workspace_continuity_restoration_reintegration_report,
+    run_agentic_de_continuation_v60a,
+)
 from adeu_agentic_de.workspace_continuity import (
     DEFAULT_WORKSPACE_CONTINUITY_TARGET_RELATIVE_PATH,
     DESIGNATED_WORKSPACE_CONTINUITY_ROOT,
@@ -86,6 +92,14 @@ def _expected_selected_path_summary() -> str:
     )
 
 
+def _expected_frontier_summary(target_relative_path: str) -> str:
+    return (
+        "exact downstream frontier remains the shipped V59 continuity-bound "
+        "local_write/create_new exemplar over "
+        f"{DESIGNATED_WORKSPACE_CONTINUITY_ROOT.as_posix()}/{target_relative_path}"
+    )
+
+
 def test_reference_outputs_match_live_v60a_runner(tmp_path: Path) -> None:
     temp_root, fixture_root = _copy_v60a_input_tree(tmp_path)
 
@@ -135,6 +149,9 @@ def test_v60a_outputs_remain_evidence_only_and_exact_path_bound(tmp_path: Path) 
     assert task_charter.frozen_policy_basis_ref == (
         "docs/LOCKED_CONTINUATION_vNEXT_PLUS164.md#machine-checkable-contract"
     )
+    assert task_residual.current_frontier_summary == _expected_frontier_summary(
+        str(DEFAULT_WORKSPACE_CONTINUITY_TARGET_RELATIVE_PATH)
+    )
     assert task_residual.open_approval_refs == []
     assert "deferred" in task_residual.open_obligation_summary
     assert loop_state_ledger.latest_continuity_reintegration_ref_or_none is not None
@@ -174,4 +191,86 @@ def test_live_turn_mismatch_fails_closed(tmp_path: Path) -> None:
         run_agentic_de_continuation_v60a(
             repo_root_path=temp_root,
             live_turn_snapshot=CopilotTurnSnapshot.model_validate(payload),
+        )
+
+
+def test_task_residual_frontier_tracks_selected_target_path() -> None:
+    from adeu_agentic_de.checker import _build_v60a_task_residual_packet
+
+    repo_root_path = _repo_root_path()
+    fixture_root = repo_root_path / "packages" / "adeu_agentic_de" / "tests" / "fixtures"
+    live_turn_snapshot = _load_snapshot(FIXTURE_ROOT)
+    task_charter = run_agentic_de_continuation_v60a(
+        live_turn_snapshot=live_turn_snapshot,
+    )[1]
+    custom_target_relative_path = "runtime/custom_frontier.diff"
+    custom_task_charter = task_charter.model_copy(
+        update={
+            "selected_downstream_path_summary": (
+                "urm_copilot_session_path::local_write/create_new::"
+                f"{DESIGNATED_WORKSPACE_CONTINUITY_ROOT.as_posix()}/{custom_target_relative_path}"
+            )
+        }
+    )
+
+    task_residual = _build_v60a_task_residual_packet(
+        live_turn_snapshot=live_turn_snapshot,
+        task_charter=custom_task_charter,
+        live_turn_reintegration=load_live_turn_reintegration_report(
+            fixture_root / "v59a" / "reference_agentic_de_live_turn_reintegration_report.json"
+        ),
+        continuity_reintegration=load_workspace_continuity_reintegration_report(
+            fixture_root
+            / "v59a"
+            / "reference_agentic_de_workspace_continuity_reintegration_report.json"
+        ),
+        continuity_restoration_reintegration=(
+            load_workspace_continuity_restoration_reintegration_report(
+                fixture_root
+                / "v59b"
+                / "reference_agentic_de_workspace_continuity_restoration_reintegration_report.json"
+            )
+        ),
+        hardening=load_workspace_continuity_hardening_register(
+            fixture_root
+            / "v59c"
+            / "reference_agentic_de_workspace_continuity_hardening_register.json"
+        ),
+        target_relative_path=custom_target_relative_path,
+        current_session_witness_basis_summary="same-session same-turn continuation",
+        evidence_refs=[],
+    )
+
+    assert task_residual.current_frontier_summary == _expected_frontier_summary(
+        custom_target_relative_path
+    )
+
+
+def test_seed_intent_path_traversal_fails_closed(tmp_path: Path) -> None:
+    temp_root, fixture_root = _copy_v60a_input_tree(tmp_path / "repo")
+    escaped_seed_intent_path = tmp_path / "escaped_seed_intent.json"
+    shutil.copyfile(
+        fixture_root / "reference_agentic_de_seed_intent_record.json",
+        escaped_seed_intent_path,
+    )
+
+    with pytest.raises(ValueError, match="seed_intent_path must remain within the repository root"):
+        run_agentic_de_continuation_v60a(
+            repo_root_path=temp_root,
+            live_turn_snapshot=_load_snapshot(fixture_root),
+            seed_intent_path=Path("../escaped_seed_intent.json"),
+        )
+
+
+@pytest.mark.skipif(not hasattr(Path, "symlink_to"), reason="symlink support required")
+def test_seed_intent_symlink_component_fails_closed(tmp_path: Path) -> None:
+    temp_root, fixture_root = _copy_v60a_input_tree(tmp_path / "repo")
+    linked_dir = temp_root / "linked"
+    linked_dir.symlink_to(fixture_root, target_is_directory=True)
+
+    with pytest.raises(ValueError, match="seed_intent_path may not traverse symlink components"):
+        run_agentic_de_continuation_v60a(
+            repo_root_path=temp_root,
+            live_turn_snapshot=_load_snapshot(fixture_root),
+            seed_intent_path=Path("linked/reference_agentic_de_seed_intent_record.json"),
         )

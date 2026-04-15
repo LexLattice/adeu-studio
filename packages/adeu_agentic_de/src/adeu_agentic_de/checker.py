@@ -1001,6 +1001,35 @@ def _resolve_path(*, repo_root_path: Path, path: Path) -> Path:
     return repo_root_path / relative
 
 
+def _assert_v60a_repo_local_input_path(
+    *,
+    repo_root_path: Path,
+    candidate: Path,
+    field_name: str,
+) -> None:
+    if repo_root_path.exists() and repo_root_path.is_symlink():
+        raise ValueError("repository root may not be a symlink for V60-A continuation")
+    try:
+        relative = candidate.relative_to(repo_root_path)
+    except ValueError:
+        relative = None
+    if relative is not None:
+        current = repo_root_path
+        for part in relative.parts:
+            current = current / part
+            if current.exists() and current.is_symlink():
+                raise ValueError(
+                    f"{field_name} may not traverse symlink components for V60-A continuation"
+                )
+    candidate_resolved = candidate.resolve(strict=False)
+    try:
+        candidate_resolved.relative_to(repo_root_path.resolve())
+    except ValueError as exc:
+        raise ValueError(
+            f"{field_name} must remain within the repository root for V60-A continuation"
+        ) from exc
+
+
 def _render_input_ref(*, repo_root_path: Path, path: Path) -> str:
     try:
         return str(path.relative_to(repo_root_path))
@@ -7728,6 +7757,7 @@ def _build_v60a_task_residual_packet(
         AgenticDeWorkspaceContinuityRestorationReintegrationReport
     ),
     hardening: AgenticDeWorkspaceContinuityHardeningRegister,
+    target_relative_path: str,
     current_session_witness_basis_summary: str,
     evidence_refs: list[str],
 ) -> AgenticDeTaskResidualPacket:
@@ -7785,7 +7815,8 @@ def _build_v60a_task_residual_packet(
         latest_continuity_reintegration_ref_or_none=continuity_reintegration.report_id,
         current_frontier_summary=(
             "exact downstream frontier remains the shipped V59 continuity-bound "
-            "local_write/create_new exemplar over runtime/reference_patch_candidate.diff"
+            "local_write/create_new exemplar over "
+            f"{DESIGNATED_WORKSPACE_CONTINUITY_ROOT.as_posix()}/{target_relative_path}"
         ),
         open_obligation_summary=(
             "if continued, descend only into the exact shipped downstream path under fresh "
@@ -8099,6 +8130,66 @@ def run_agentic_de_continuation_v60a(
     v59a_evidence_path = _resolve_path(repo_root_path=root, path=v59a_evidence_path)
     v59b_evidence_path = _resolve_path(repo_root_path=root, path=v59b_evidence_path)
     v59c_evidence_path = _resolve_path(repo_root_path=root, path=v59c_evidence_path)
+    for field_name, candidate in (
+        ("domain_packet_path", domain_packet_path),
+        ("morph_ir_path", morph_ir_path),
+        ("interaction_contract_path", interaction_contract_path),
+        ("action_proposal_path", action_proposal_path),
+        ("v56a_checkpoint_path", v56a_checkpoint_path),
+        ("v56a_diagnostics_path", v56a_diagnostics_path),
+        ("v56a_conformance_path", v56a_conformance_path),
+        ("v56b_lane_drift_path", v56b_lane_drift_path),
+        ("v56b_action_class_taxonomy_path", v56b_action_class_taxonomy_path),
+        ("v56b_runtime_state_path", v56b_runtime_state_path),
+        ("v56b_action_ticket_path", v56b_action_ticket_path),
+        ("v56b_diagnostics_path", v56b_diagnostics_path),
+        ("v56b_conformance_path", v56b_conformance_path),
+        ("v56c_lane_drift_path", v56c_lane_drift_path),
+        ("v56c_runtime_harvest_path", v56c_runtime_harvest_path),
+        ("v56c_governance_calibration_path", v56c_governance_calibration_path),
+        ("v56c_migration_decision_path", v56c_migration_decision_path),
+        ("v59a_lane_drift_path", v59a_lane_drift_path),
+        ("v59a_continuity_region_path", v59a_continuity_region_path),
+        ("v59a_continuity_admission_path", v59a_continuity_admission_path),
+        ("v59a_occupancy_path", v59a_occupancy_path),
+        ("v59a_live_turn_admission_path", v59a_live_turn_admission_path),
+        ("v59a_live_turn_handoff_path", v59a_live_turn_handoff_path),
+        ("v59a_observation_path", v59a_observation_path),
+        ("v59a_local_effect_conformance_path", v59a_local_effect_conformance_path),
+        ("v59a_live_turn_reintegration_path", v59a_live_turn_reintegration_path),
+        ("v59a_continuity_reintegration_path", v59a_continuity_reintegration_path),
+        ("v59b_lane_drift_path", v59b_lane_drift_path),
+        (
+            "v59b_continuity_restoration_handoff_path",
+            v59b_continuity_restoration_handoff_path,
+        ),
+        ("v59b_restoration_path", v59b_restoration_path),
+        (
+            "v59b_continuity_restoration_reintegration_path",
+            v59b_continuity_restoration_reintegration_path,
+        ),
+        ("v59c_lane_drift_path", v59c_lane_drift_path),
+        ("v59c_hardening_path", v59c_hardening_path),
+        ("lane_drift_path", lane_drift_path),
+        ("seed_intent_path", seed_intent_path),
+        ("v56a_evidence_path", v56a_evidence_path),
+        ("v56b_evidence_path", v56b_evidence_path),
+        ("v56c_evidence_path", v56c_evidence_path),
+        ("v57a_evidence_path", v57a_evidence_path),
+        ("v57b_evidence_path", v57b_evidence_path),
+        ("v57c_evidence_path", v57c_evidence_path),
+        ("v58a_evidence_path", v58a_evidence_path),
+        ("v58b_evidence_path", v58b_evidence_path),
+        ("v58c_evidence_path", v58c_evidence_path),
+        ("v59a_evidence_path", v59a_evidence_path),
+        ("v59b_evidence_path", v59b_evidence_path),
+        ("v59c_evidence_path", v59c_evidence_path),
+    ):
+        _assert_v60a_repo_local_input_path(
+            repo_root_path=root,
+            candidate=candidate,
+            field_name=field_name,
+        )
 
     _validate_v60a_lane_drift_record(load_lane_drift_record(lane_drift_path))
     _validate_v59c_lane_drift_record(load_lane_drift_record(v59c_lane_drift_path))
@@ -8351,6 +8442,7 @@ def run_agentic_de_continuation_v60a(
         continuity_reintegration=v59a_continuity_reintegration,
         continuity_restoration_reintegration=v59b_continuity_restoration_reintegration,
         hardening=v59c_hardening,
+        target_relative_path=target_relative_path,
         current_session_witness_basis_summary=current_session_witness_basis_summary,
         evidence_refs=base_evidence_refs,
     )

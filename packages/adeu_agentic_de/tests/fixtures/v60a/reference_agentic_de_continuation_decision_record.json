@@ -9,14 +9,14 @@
     "single_step_local_ticket_duration_preserved",
     "communication_law_still_deferred_to_v61"
   ],
-  "decision_id": "agentic_de_continuation_decision_937c10a825d8",
+  "decision_id": "agentic_de_continuation_decision_feebcc3227d6",
   "evidence_basis_summary": "typed seed intent + replayable charter + derived residual + shipped V59 continuity/restoration/hardening lineage + frozen V60-A policy anchor",
   "evidence_only": true,
   "evidence_refs": [
     "agentic_de_seed_intent_abb9aca449be",
     "agentic_de_task_charter_4ba381fc318f",
-    "agentic_de_task_residual_ad34240f8cdb",
-    "agentic_de_loop_state_ledger_169c6636bd1a",
+    "agentic_de_task_residual_ab780d503f8c",
+    "agentic_de_loop_state_ledger_22492d7ad8a7",
     "agentic_de_workspace_continuity_hardening_register_60fcb73dba08",
     "packages/adeu_agentic_de/tests/fixtures/v56a/reference_agentic_de_domain_packet.json",
     "packages/adeu_agentic_de/tests/fixtures/v56a/reference_agentic_de_morph_ir.json",
@@ -70,21 +70,21 @@
   ],
   "field_dependence_tags": {
     "continuation_outcome": [
-      "agentic_de_loop_state_ledger_169c6636bd1a",
+      "agentic_de_loop_state_ledger_22492d7ad8a7",
       "agentic_de_workspace_continuity_hardening_register_60fcb73dba08",
       "docs/LOCKED_CONTINUATION_vNEXT_PLUS164.md#machine-checkable-contract"
     ],
     "evidence_basis_summary": [
       "agentic_de_seed_intent_abb9aca449be",
       "agentic_de_task_charter_4ba381fc318f",
-      "agentic_de_task_residual_ad34240f8cdb",
-      "agentic_de_loop_state_ledger_169c6636bd1a",
+      "agentic_de_task_residual_ab780d503f8c",
+      "agentic_de_loop_state_ledger_22492d7ad8a7",
       "agentic_de_workspace_continuity_hardening_register_60fcb73dba08"
     ],
     "frozen_policy_anchor_ref": [],
     "selected_next_path_summary": [
       "agentic_de_seed_intent_abb9aca449be",
-      "agentic_de_loop_state_ledger_169c6636bd1a"
+      "agentic_de_loop_state_ledger_22492d7ad8a7"
     ]
   },
   "field_origin_tags": {
@@ -94,14 +94,14 @@
     "selected_next_path_summary": "current_turn_derived"
   },
   "frozen_policy_anchor_ref": "docs/LOCKED_CONTINUATION_vNEXT_PLUS164.md#machine-checkable-contract",
-  "loop_state_ledger_ref": "agentic_de_loop_state_ledger_169c6636bd1a",
+  "loop_state_ledger_ref": "agentic_de_loop_state_ledger_22492d7ad8a7",
   "root_origin_ids": [
     "session:copilot-v59a-session-1",
     "turn:turn-v59a-continuity-1",
     "seed:agentic_de_seed_intent_abb9aca449be",
     "charter:agentic_de_task_charter_4ba381fc318f",
-    "residual:agentic_de_task_residual_ad34240f8cdb",
-    "loop:agentic_de_loop_state_ledger_169c6636bd1a",
+    "residual:agentic_de_task_residual_ab780d503f8c",
+    "loop:agentic_de_loop_state_ledger_22492d7ad8a7",
     "hardening:agentic_de_workspace_continuity_hardening_e8d2f92abb78",
     "policy:docs/LOCKED_CONTINUATION_vNEXT_PLUS164.md#machine-checkable-contract"
   ],
