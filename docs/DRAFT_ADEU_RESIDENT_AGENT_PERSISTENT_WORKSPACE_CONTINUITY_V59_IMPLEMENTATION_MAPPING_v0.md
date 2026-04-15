@@ -24,6 +24,8 @@ Read together with:
   surfaces
 - the shipped `V58-A`, `V58-B`, and `V58-C` live admission / handoff /
   reintegration / advisory surfaces
+- the shipped `V59-A` continuity region / admission / occupancy / reintegration
+  surfaces
 - the rule that `agentic_de_*` naming remains the lineage carrier while `V59` is the
   persistent workspace-continuity family role
 - the rule that hidden cognition is not the governance surface
@@ -100,8 +102,22 @@ The family should remain backend-first in `V59-A`:
     reintegration surfaces by default
   - instantiate explicit restoration handoff / reintegration under continuity
   - keep restoration a new live act, not standing continuity authority
+  - keep same-session and same-turn continuation only in the starter restore slice
+  - keep restoration-time capability / approval posture re-snapshotted against the
+    admitted continuity continuation posture
+  - keep restoration-time continuation verdict typed, witness-bearing, and replayable:
+    - same selected evidence chain
+    - same frozen policy
+    - same continuation verdict
+  - keep mismatch or missing restoration-time resnapshot fail-closed
+  - keep `action_ticket_ref`, prior continuity reintegration refs, and prior occupancy
+    refs historical lineage inputs only until bounded compensating-scope derivation
+    and current-turn restoration witness basis independently pass
   - keep continuity-safe restoration dependent on explicit prior governed-state
     baseline comparison
+  - keep explicit prior governed-state baseline-match verdict
+  - keep explicit restoration-time target or region state summary
+  - keep explicit bounded compensating-scope match or fail closed
   - keep replay bounded to recomputation / re-evaluation of that same continuity-safe
     restoration event only
   - keep append-only, overwrite, destructive, or repo-source restoration not selected
@@ -142,7 +158,8 @@ Each controlling assumption should be classified at least as:
 - `V57` remains the bounded observed / restored local-effect evidence family
 - `V58` remains the live harness admission / handoff / reintegration family
 - `V59` owns only declared persistent continuity-region identity, occupancy, and
-  continuity reintegration over that already integrated path
+  continuity reintegration over that already integrated path, plus later selected
+  continuity-safe restoration over the same exact path
 - `V48` remains the owner of delegated worker execution after lawful dispatch
 
 ## Do Not Import
@@ -151,6 +168,8 @@ Each controlling assumption should be classified at least as:
 - carried-forward state as current-turn native witness by default
 - prior ticket or prior reintegration as standing authority
 - occupied target state silently normalized into `create_new` admissibility
+- shipped `V57-B` / `V58-B` fresh-sandbox restoration semantics treated as
+  automatically continuity-safe
 - restoration or replay widening by continuity implication alone
 - out-of-band drift treated as if it were governed carried-forward lineage
 - any assumption that later `V59` lanes are authorized merely because they are drafted

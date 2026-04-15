@@ -1,10 +1,10 @@
 # Draft Next Arc Options v42
 
 Status: planning draft after `docs/DRAFT_NEXT_ARC_OPTIONS_v41.md`, updated after the
-bounded `V58` family closed on `main` through `v160`, and after support-layer review
-of the endogenous grounding / reintegration notes clarified that the strongest
-remaining gap is bounded persistent workspace continuity rather than additional
-live-harness breadth.
+bounded `V59-A` starter closed on `main` through `v161`, and after support-layer
+review clarified that the strongest remaining gap is continuity-safe restoration over
+the same exact continuity-bound lineage rather than broader workspace, replay, or live
+harness widening.
 
 Authority layer: planning.
 
@@ -12,10 +12,10 @@ This draft does not automatically supersede the connected planning branches in
 `docs/DRAFT_NEXT_ARC_OPTIONS_v26.md` through `docs/DRAFT_NEXT_ARC_OPTIONS_v41.md`.
 Instead, it records one seventeenth connected candidate family:
 
-how should ADEU own one bounded resident-agent persistent workspace-continuity family
-so the already shipped `V56` / `V57` / `V58` governed live path can persist across
-turns inside one declared work region without letting prior workspace state become
-ambient authority?
+how should ADEU continue one bounded resident-agent persistent workspace-continuity
+family so the shipped `V59-A` continuity starter can add one explicit
+continuity-safe restoration seam without letting prior workspace state, prior
+continuity success, or prior restoration lineage become ambient restoration authority?
 
 This is a planning document only. It is not a lock doc and does not authorize runtime
 behavior, schema release, or implementation by itself.
@@ -54,6 +54,9 @@ Interpretive doctrine for this planning surface:
 - `V58-A` through `V58-C` are closed on `main` and remain the released bounded live
   harness bind / restoration-state integration / advisory live hardening ladder
   recorded in `docs/DRAFT_NEXT_ARC_OPTIONS_v41.md`.
+- `V59-A` is closed on `main` and remains the released declared continuity-region /
+  typed continuity admission / occupancy / continuity reintegration starter recorded
+  in this planning branch.
 - the live URM copilot path is already real in the repo:
   - session start / send / mode / approvals / events
   - session-level `writes_allowed` posture
@@ -78,13 +81,15 @@ Interpretive doctrine for this planning surface:
   - one witness-bearing reintegration report
   - one explicit live restoration handoff / reintegration path
   - one advisory-only live harness hardening register
-- the support-layer endogenous notes now sharpen the same practical warning:
+- the support-layer endogenous notes and the shipped `V59-A` landing now sharpen the
+  same practical warning:
   - prior workspace continuity is context at most, never standing authority
   - stopping a reset does not by itself create lawful continuity
   - prior successful lineage may inform but may not self-authenticate as current-turn
     witness
   - occupancy and drift must be typed before `create_new` can remain semantically
     honest inside a persistent region
+  - continuity-safe restoration is a new live act, not ambient continuation power
 
 ## Gap
 
@@ -98,25 +103,30 @@ The repo no longer lacks:
 
 The repo still lacks:
 
-- one declared persistent work region over the already shipped governed live path;
-- one explicit continuity admission surface for current-turn use of carried-forward
-  workspace state;
-- one explicit occupancy / prior-presence law for `create_new` inside that persistent
-  region;
-- one explicit drift classification over prior governed state versus out-of-band state;
-- one explicit continuity reintegration surface that closes the turn without promoting
-  prior workspace state into ambient entitlement; and
-- one bounded family posture that keeps continuity distinct from replay widening,
-  restoration widening, or standing ticket reuse.
+- one explicit continuity-safe restoration seam over the shipped `V59-A` continuity
+  region / admission / occupancy / reintegration lineage;
+- one explicit restoration-time handoff surface that proves a new current-turn restore
+  act rather than ambient continuation;
+- one explicit restoration-time reintegration surface over the same exact
+  continuity-bound `create_new` exemplar;
+- one explicit prior governed-state baseline and bounded compensating-scope match under
+  the declared continuity root;
+- one bounded family posture that keeps continuity-safe restoration distinct from
+  replay widening, restoration-family widening, or standing ticket reuse; and
+- one fail-closed resnapshot law for restoration-time capability / approval posture
+  inside the continuity-bound path.
 
-So the repo still lacks the slice that would make one governed resident turn say:
+So the repo still lacks the slice that would make one governed resident continuity turn
+say:
 
 - this current live turn admitted these exact continuity facts;
 - this exact declared persistent region bounded the carried-forward state;
 - this exact occupancy verdict governed whether `create_new` remained admissible;
-- this exact `V56` / `V57` / `V58` lineage still governed the act in the current turn;
+- this exact restoration-time continuation posture admitted one new compensating
+  restore act over that same lineage;
+- this exact prior governed-state baseline and bounded compensating scope were matched;
   and
-- prior workspace state remained context only, not ambient permission.
+- prior workspace state remained context only, not ambient restoration authority.
 
 ## Relationship To `V48`, `V55`, `V56`, `V57`, And `V58`
 
@@ -139,12 +149,13 @@ So the repo still lacks the slice that would make one governed resident turn say
 - how should one real live URM turn carry the shipped `V56` / `V57` lineage through
   admission, handoff, reintegration, and explicit restoration-state integration?
 
-This new family asks:
+This family now asks:
 
-- how should the already integrated `V58` live path persist across turns inside one
-  declared bounded work region without prior state becoming ambient authority?
-- how should `create_new` remain semantically exact once prior occupancy, prior
-  governed state, and out-of-band drift become possible?
+- how should the shipped `V59-A` continuity-bound path add one explicit
+  continuity-safe restoration seam without prior continuity success becoming ambient
+  restore authority?
+- how should one compensating restore stay bound to the same declared continuity root,
+  target, occupancy lineage, and prior governed-state baseline?
 
 So this family may constrain:
 
@@ -176,8 +187,9 @@ Ordering discipline for this branch:
   selected local-effect path;
 - `V58` remains the sole owner of live-turn admission / handoff / reintegration over
   that selected path;
-- `V59` would own explicit persistent-region continuity, occupancy, and continuity
-  reintegration over that already integrated path;
+- `V59` owns explicit persistent-region continuity, occupancy, and continuity
+  reintegration over that already integrated path, and would next own bounded
+  continuity-safe restoration over the same exact path;
 - `V48` still governs delegated worker execution after any later lawful dispatch;
 - `V51` may shape membrane and reintegration reading, but does not own runtime
   authority here.
@@ -209,72 +221,67 @@ Ordering discipline for this branch:
 - Recommended family/slice mapping reference to draft next:
   - `docs/DRAFT_ADEU_RESIDENT_AGENT_PERSISTENT_WORKSPACE_CONTINUITY_V59_IMPLEMENTATION_MAPPING_v0.md`
 - Recommended next path for this branch:
-  - `V59-A`
+  - `V59-B`
 - Recommended next concrete arc for this branch if selected:
-  - `V59-A`
+  - `V59-B`
 
 Default path selection for this branch:
 
-- one bounded persistent workspace-continuity starter slice is recommended:
+- one bounded continuity-safe restoration slice is recommended:
   - reuse the shipped `V56-A`, `V56-B`, and `V56-C` packet / proposal / checkpoint /
     ticket / conformance / harvest surfaces by default
-  - reuse the shipped `V57-A`, `V57-B`, and `V57-C` surfaces by default
+  - reuse the shipped `V57-A`, `V57-B`, and `V57-C` observation / restoration /
+    hardening surfaces by default
   - reuse the shipped `V58-A`, `V58-B`, and `V58-C` live admission / handoff /
     reintegration / advisory surfaces by default
+  - reuse the shipped `V59-A` continuity region / admission / occupancy /
+    reintegration surfaces by default
   - keep current-turn live admission still required
   - keep prior workspace state necessary as context at most, never sufficient
     authority
-  - instantiate one declared persistent continuity region only:
-    - bounded under `artifacts/agentic_de/v59/workspace_continuity/`
-    - not general repo-source continuity
-  - instantiate one current-turn continuity admission surface
-  - instantiate one occupancy / prior-presence surface
-  - instantiate one continuity reintegration surface
-  - keep continuity admission typed and replayable:
-    - same selected continuity evidence chain
-    - same frozen policy
-    - same continuity admission verdict
-    - starter verdict family should distinguish at least:
-      - `admitted`
-      - `region_mismatch`
-      - `stale_continuity_basis`
-      - `unresolved_drift`
-      - `withheld_by_policy`
-      - `unknown`
-    - any continuity verdict other than `admitted` is non-entitling and fail-closed in
-      the starter slice
-  - keep the selected live path frozen exactly:
+  - keep the selected continuity path frozen exactly:
     - `local_write`
     - `create_new`
     - declared continuity root `artifacts/agentic_de/v59/workspace_continuity/`
     - target centered on `runtime/reference_patch_candidate.diff`
-  - keep `create_new` semantically honest through explicit occupancy law:
-    - only `unoccupied` target state is entitling in the starter slice
-    - any occupied, drifted, out-of-band, or unknown target state is non-entitling
-  - keep occupancy verdict witness-bearing and replayable:
-    - declared region snapshot identity
-    - prior governed artifact refs when matched
-    - root-origin linkage
-    - explicit out-of-band detection grounds when asserted
-    - same selected evidence chain plus same frozen policy yields same occupancy verdict
-  - keep carried-forward state typed only as:
-    - carried-forward state
-    - lineage context
-    - drift context
-    - declared continuity witness
-  - keep those categories non-equivalent to current-turn native witness or standing
-    entitlement
-  - keep non-target occupants inside the declared continuity root explicit:
-    - contextual only in the starter slice
-    - recorded as region-scope context or out-of-scope drift
-    - not silently promoted into ambient admissibility or target entitlement
-  - keep restoration under continuity not selected in the starter slice
-  - keep replay / resume widening not selected in the starter slice
-  - keep prior successful turn, prior ticket, or prior reintegration non-equivalent to
-    ambient admissibility for the next turn
-  - keep continuity reintegration witness-bearing:
+  - instantiate one explicit continuity-safe restoration handoff surface
+  - instantiate one explicit continuity-safe restoration reintegration surface
+  - keep continuity-safe restoration a new live act, not standing continuity
+    authority
+  - keep shipped `V57-B` / `V58-B` restoration semantics baseline-only:
+    - they shape the continuity-safe restore slice
+    - they do not by themselves prove continuity-safe restoration entitlement
+  - keep restoration-time freshness explicit:
+    - same-session and same-turn continuation only in this slice
+    - restoration-time capability / approval posture must be re-snapshotted
+    - restoration-time continuation verdict must be typed, witness-bearing, and
+      replayable:
+      - same selected evidence chain
+      - same frozen policy
+      - same restoration-time continuation verdict
+    - mismatch or missing resnapshot is non-entitling and fail-closed
+  - keep prior continuity lineage inputs historical only:
+    - `action_ticket_ref`
+    - prior continuity reintegration ref
+    - prior occupancy ref
+    - prior governed-state baseline refs
+    - none of them is current-turn restoration entitlement by reference alone
+  - keep continuity-safe restoration dependent on:
+    - one explicit prior governed-state baseline inside the declared continuity root
+    - one explicit prior governed-state baseline-match verdict
+    - one explicit restoration-time target/region state summary
+    - one explicit bounded compensating-scope match
+    - one explicit current-turn restoration witness basis
+  - keep replay semantics narrow:
+    - bounded recomputation and re-evaluation of the exact continuity-safe restoration
+      event only
+    - not arbitrary prior live-action re-execution
+  - keep positive restoration reintegration witness-bearing:
     - explicit witness basis or certificate ref for any positive reintegration claim
-  - if this family is selected, select `V59-A` as the next default candidate
+  - keep append-only, overwrite, destructive, or repo-source restoration not selected
+  - keep continuity hardening / migration not selected in this slice
+  - keep replay / resume widening not selected in this slice
+  - if this family is selected, select `V59-B` as the next default candidate
 
 This family/path recommendation is branch-local to the `v42` planning surface.
 
@@ -287,8 +294,8 @@ The current recommended path ladder is:
 
 | Path | Theme | Primary output | Status |
 |---|---|---|---|
-| `V59-A` | persistent continuity starter | one declared continuity-region surface, one continuity admission record, one occupancy report, and one continuity reintegration report over the exact `local_write/create_new` path only | recommended next path |
-| `V59-B` | continuity-safe restoration | one explicit restoration / compensating-restore continuation over the same exact continuity-bound lineage, without replay widening or standing restore authority | drafted, not selected yet |
+| `V59-A` | persistent continuity starter | one declared continuity-region surface, one continuity admission record, one occupancy report, and one continuity reintegration report over the exact `local_write/create_new` path only | closed on `main` through `v161` |
+| `V59-B` | continuity-safe restoration | one explicit restoration / compensating-restore continuation over the same exact continuity-bound lineage, without replay widening or standing restore authority | recommended next path |
 | `V59-C` | continuity hardening / drift | one advisory path-level continuity hardening surface over the same exact continuity-bound lineage, without mutating live behavior by default | drafted, not selected yet |
 
 These output names are planning-level candidate names, not lock-level schema

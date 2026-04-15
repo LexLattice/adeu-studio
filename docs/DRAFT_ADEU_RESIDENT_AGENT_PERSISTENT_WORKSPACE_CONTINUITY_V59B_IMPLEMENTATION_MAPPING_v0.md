@@ -1,6 +1,7 @@
 # Draft ADEU Resident-Agent Persistent Workspace Continuity V59B Implementation Mapping v0
 
-Status: support note for the `V59-B` implementation pass.
+Status: support note for the `V59-B` implementation pass after `V59-A` closed on
+`main`.
 
 Authority layer: support only.
 
@@ -18,7 +19,8 @@ Read together with:
 
 - shipped `V57-B` restoration law as the bounded restore baseline
 - shipped `V58-B` explicit live restoration handoff / reintegration posture
-- the `V59-A` continuity region / admission / occupancy / reintegration surfaces
+- the shipped `V59-A` continuity region / admission / occupancy / reintegration
+  surfaces
 - the rule that prior workspace state remains context at most, never sufficient
   authority
 
@@ -40,17 +42,29 @@ Candidate new surfaces:
   ticket / checkpoint chain
 - continuity-safe restoration requires one explicit prior governed-state baseline inside
   the declared continuity region
+- continuity-safe restoration remains same-session and same-turn only in the starter
+  slice
 - restoration-time capability / approval posture must be re-snapshotted and compared
   against the admitted continuation posture
+- restoration-time continuation verdict must remain typed, witness-bearing, and
+  replayable:
+  - same selected evidence chain
+  - same frozen policy
+  - same restoration-time continuation verdict
 - missing or mismatched restoration-time resnapshot fails closed
 - `action_ticket_ref`, prior reintegration refs, and prior occupancy refs remain
   historical lineage inputs only until bounded compensating-scope derivation and
   current-turn restoration witness basis independently pass
 - continuity-safe restoration remains explicit state, not hidden cleanup
+- prior governed-state baseline match should be first-class:
+  - explicit baseline-match verdict
+  - explicit restoration-time target or region state summary
 - replay means bounded recomputation / re-evaluation of that exact continuity-safe
   restoration event, not arbitrary prior live-action re-execution
 - positive continuity-safe restoration reintegration requires declared current-turn
   witness basis or equivalent certificate ref
+- the replay-law proof surface should live inside the continuity restoration
+  reintegration report rather than a separate artifact
 - handoff / reintegration fields remain origin-tagged and dependence-tagged
 - exact continuity root, target, and `create_new` compensating-restore exemplar remain
   frozen
