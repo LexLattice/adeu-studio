@@ -176,3 +176,15 @@ def test_blocker_summary_yields_reproposal_required(tmp_path: Path) -> None:
     assert refreshed_continuation_decision.refresh_outcome == "reproposal_required"
     assert refreshed_continuation_decision.selected_next_path_summary_or_none is None
     assert refreshed_continuation_decision.reproposal_basis_summary_or_none is not None
+
+
+def test_broken_symlink_component_input_fails_closed(tmp_path: Path) -> None:
+    temp_root, _fixture_root = _copy_v60b_input_tree(tmp_path / "repo")
+    broken_dir = temp_root / "broken-link"
+    broken_dir.symlink_to(temp_root / "missing-target", target_is_directory=True)
+
+    with pytest.raises(ValueError, match="may not traverse symlink components"):
+        run_agentic_de_continuation_v60b(
+            repo_root_path=temp_root,
+            lane_drift_path=broken_dir / "reference_agentic_de_lane_drift_record.json",
+        )

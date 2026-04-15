@@ -47,6 +47,7 @@ def _pythonpath_env() -> dict[str, str]:
     existing = env.get("PYTHONPATH")
     paths = [
         str(root / "apps" / "api" / "src"),
+        str(root / "packages" / "adeu_agentic_de" / "src"),
         str(root / "packages" / "urm_runtime" / "src"),
     ]
     if existing:

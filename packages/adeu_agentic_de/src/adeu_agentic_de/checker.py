@@ -1102,7 +1102,7 @@ def _assert_v60b_repo_local_input_path(
         current = repo_root_path
         for part in relative.parts:
             current = current / part
-            if current.exists() and current.is_symlink():
+            if current.is_symlink():
                 raise ValueError(
                     f"{field_name} may not traverse symlink components for V60-B continuation"
                 )
