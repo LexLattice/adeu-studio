@@ -1,0 +1,119 @@
+{
+  "additionalProperties": false,
+  "properties": {
+    "changes_live_behavior_by_default": {
+      "const": false,
+      "default": false,
+      "title": "Changes Live Behavior By Default",
+      "type": "boolean"
+    },
+    "declared_completion_test_summary": {
+      "title": "Declared Completion Test Summary",
+      "type": "string"
+    },
+    "declared_stop_condition_summary": {
+      "title": "Declared Stop Condition Summary",
+      "type": "string"
+    },
+    "evidence_only": {
+      "const": true,
+      "default": true,
+      "title": "Evidence Only",
+      "type": "boolean"
+    },
+    "evidence_refs": {
+      "items": {
+        "type": "string"
+      },
+      "title": "Evidence Refs",
+      "type": "array"
+    },
+    "field_dependence_tags": {
+      "additionalProperties": {
+        "items": {
+          "type": "string"
+        },
+        "type": "array"
+      },
+      "title": "Field Dependence Tags",
+      "type": "object"
+    },
+    "field_origin_tags": {
+      "additionalProperties": {
+        "enum": [
+          "current_turn_native",
+          "current_turn_derived",
+          "observability_only",
+          "prior_artifact",
+          "shaping_only"
+        ],
+        "type": "string"
+      },
+      "title": "Field Origin Tags",
+      "type": "object"
+    },
+    "schema": {
+      "const": "agentic_de_seed_intent_record@1",
+      "default": "agentic_de_seed_intent_record@1",
+      "title": "Schema",
+      "type": "string"
+    },
+    "seed_ingress_basis_summary": {
+      "title": "Seed Ingress Basis Summary",
+      "type": "string"
+    },
+    "seed_intent_id": {
+      "anyOf": [
+        {
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Seed Intent Id"
+    },
+    "seed_source_class": {
+      "const": "typed_seed_intent_record",
+      "title": "Seed Source Class",
+      "type": "string"
+    },
+    "seed_source_ref_or_equivalent": {
+      "title": "Seed Source Ref Or Equivalent",
+      "type": "string"
+    },
+    "selected_downstream_path_summary": {
+      "title": "Selected Downstream Path Summary",
+      "type": "string"
+    },
+    "structured_seed_intent_summary": {
+      "title": "Structured Seed Intent Summary",
+      "type": "string"
+    },
+    "target_arc": {
+      "title": "Target Arc",
+      "type": "string"
+    },
+    "target_path": {
+      "title": "Target Path",
+      "type": "string"
+    }
+  },
+  "required": [
+    "target_arc",
+    "target_path",
+    "structured_seed_intent_summary",
+    "seed_source_ref_or_equivalent",
+    "seed_ingress_basis_summary",
+    "selected_downstream_path_summary",
+    "declared_completion_test_summary",
+    "declared_stop_condition_summary",
+    "seed_source_class",
+    "field_origin_tags",
+    "field_dependence_tags",
+    "evidence_refs"
+  ],
+  "title": "AgenticDeSeedIntentRecord",
+  "type": "object"
+}

@@ -1,0 +1,103 @@
+{
+  "changes_live_behavior_by_default": false,
+  "charter_compilation_basis_summary": "typed seed intent + frozen policy anchor + exact shipped downstream path freeze",
+  "charter_id": "agentic_de_task_charter_4ba381fc318f",
+  "charter_scope_summary": "compile bounded task law over the exact shipped V59 continuity-bound local_write/create_new exemplar only",
+  "completion_test_summary": "emit deterministic charter, residual, ledger, and continuation decision over the exact shipped downstream path",
+  "evidence_only": true,
+  "evidence_refs": [
+    "agentic_de_seed_intent_abb9aca449be",
+    "packages/adeu_agentic_de/tests/fixtures/v56a/reference_agentic_de_domain_packet.json",
+    "packages/adeu_agentic_de/tests/fixtures/v56a/reference_agentic_de_morph_ir.json",
+    "packages/adeu_agentic_de/tests/fixtures/v56a/reference_agentic_de_interaction_contract.json",
+    "packages/adeu_agentic_de/tests/fixtures/v56a/reference_agentic_de_action_proposal.json",
+    "packages/adeu_agentic_de/tests/fixtures/v56a/reference_agentic_de_membrane_checkpoint.json",
+    "packages/adeu_agentic_de/tests/fixtures/v56a/reference_agentic_de_morph_diagnostics.json",
+    "packages/adeu_agentic_de/tests/fixtures/v56a/reference_agentic_de_conformance_report.json",
+    "packages/adeu_agentic_de/tests/fixtures/v56b/reference_agentic_de_action_class_taxonomy.json",
+    "packages/adeu_agentic_de/tests/fixtures/v56b/reference_agentic_de_runtime_state.json",
+    "packages/adeu_agentic_de/tests/fixtures/v56b/reference_agentic_de_action_ticket.json",
+    "packages/adeu_agentic_de/tests/fixtures/v56b/reference_agentic_de_lane_drift_record.json",
+    "packages/adeu_agentic_de/tests/fixtures/v56b/reference_agentic_de_morph_diagnostics.json",
+    "packages/adeu_agentic_de/tests/fixtures/v56b/reference_agentic_de_conformance_report.json",
+    "packages/adeu_agentic_de/tests/fixtures/v56c/reference_agentic_de_lane_drift_record.json",
+    "packages/adeu_agentic_de/tests/fixtures/v56c/reference_agentic_de_runtime_harvest_record.json",
+    "packages/adeu_agentic_de/tests/fixtures/v56c/reference_agentic_de_governance_calibration_register.json",
+    "packages/adeu_agentic_de/tests/fixtures/v56c/reference_agentic_de_migration_decision_register.json",
+    "packages/adeu_agentic_de/tests/fixtures/v59a/reference_agentic_de_lane_drift_record.json",
+    "packages/adeu_agentic_de/tests/fixtures/v59a/reference_agentic_de_workspace_continuity_region_declaration.json",
+    "packages/adeu_agentic_de/tests/fixtures/v59a/reference_agentic_de_workspace_continuity_admission_record.json",
+    "packages/adeu_agentic_de/tests/fixtures/v59a/reference_agentic_de_workspace_occupancy_report.json",
+    "packages/adeu_agentic_de/tests/fixtures/v59a/reference_agentic_de_live_turn_admission_record.json",
+    "packages/adeu_agentic_de/tests/fixtures/v59a/reference_agentic_de_live_turn_handoff_record.json",
+    "packages/adeu_agentic_de/tests/fixtures/v59a/reference_agentic_de_local_effect_observation_record.json",
+    "packages/adeu_agentic_de/tests/fixtures/v59a/reference_agentic_de_local_effect_conformance_report.json",
+    "packages/adeu_agentic_de/tests/fixtures/v59a/reference_agentic_de_live_turn_reintegration_report.json",
+    "packages/adeu_agentic_de/tests/fixtures/v59a/reference_agentic_de_workspace_continuity_reintegration_report.json",
+    "packages/adeu_agentic_de/tests/fixtures/v59b/reference_agentic_de_lane_drift_record.json",
+    "packages/adeu_agentic_de/tests/fixtures/v59b/reference_agentic_de_workspace_continuity_restoration_handoff_record.json",
+    "packages/adeu_agentic_de/tests/fixtures/v59b/reference_agentic_de_local_effect_restoration_record.json",
+    "packages/adeu_agentic_de/tests/fixtures/v59b/reference_agentic_de_workspace_continuity_restoration_reintegration_report.json",
+    "packages/adeu_agentic_de/tests/fixtures/v59c/reference_agentic_de_lane_drift_record.json",
+    "packages/adeu_agentic_de/tests/fixtures/v59c/reference_agentic_de_workspace_continuity_hardening_register.json",
+    "packages/adeu_agentic_de/tests/fixtures/v60a/reference_agentic_de_lane_drift_record.json",
+    "packages/adeu_agentic_de/tests/fixtures/v60a/reference_agentic_de_seed_intent_record.json",
+    "artifacts/agent_harness/v152/evidence_inputs/v56a_agentic_de_interaction_governance_starter_evidence_v152.json",
+    "artifacts/agent_harness/v153/evidence_inputs/v56b_bounded_live_gate_starter_evidence_v153.json",
+    "artifacts/agent_harness/v154/evidence_inputs/v56c_harvest_calibration_migration_evidence_v154.json",
+    "artifacts/agent_harness/v155/evidence_inputs/v57a_local_effect_observation_evidence_v155.json",
+    "artifacts/agent_harness/v156/evidence_inputs/v57b_local_effect_restoration_evidence_v156.json",
+    "artifacts/agent_harness/v157/evidence_inputs/v57c_local_effect_hardening_evidence_v157.json",
+    "artifacts/agent_harness/v158/evidence_inputs/v58a_live_harness_bind_evidence_v158.json",
+    "artifacts/agent_harness/v159/evidence_inputs/v58b_live_restoration_state_evidence_v159.json",
+    "artifacts/agent_harness/v160/evidence_inputs/v58c_live_harness_hardening_evidence_v160.json",
+    "artifacts/agent_harness/v161/evidence_inputs/v59a_workspace_continuity_starter_evidence_v161.json",
+    "artifacts/agent_harness/v162/evidence_inputs/v59b_workspace_continuity_restoration_evidence_v162.json",
+    "artifacts/agent_harness/v163/evidence_inputs/v59c_workspace_continuity_hardening_evidence_v163.json",
+    "artifacts/agent_harness/v164/runtime/evidence/local/copilot_raw.ndjson",
+    "artifacts/agent_harness/v164/runtime/evidence/local/urm_events.ndjson"
+  ],
+  "field_dependence_tags": {
+    "charter_compilation_basis_summary": [
+      "agentic_de_seed_intent_abb9aca449be",
+      "docs/LOCKED_CONTINUATION_vNEXT_PLUS164.md#machine-checkable-contract"
+    ],
+    "charter_scope_summary": [
+      "agentic_de_seed_intent_abb9aca449be",
+      "docs/LOCKED_CONTINUATION_vNEXT_PLUS164.md#machine-checkable-contract"
+    ],
+    "completion_test_summary": [
+      "agentic_de_seed_intent_abb9aca449be",
+      "docs/LOCKED_CONTINUATION_vNEXT_PLUS164.md#machine-checkable-contract"
+    ],
+    "frozen_policy_basis_ref": [],
+    "required_imports_summary": [
+      "agentic_de_seed_intent_abb9aca449be",
+      "docs/LOCKED_CONTINUATION_vNEXT_PLUS164.md#machine-checkable-contract"
+    ],
+    "selected_downstream_path_summary": [
+      "agentic_de_seed_intent_abb9aca449be"
+    ],
+    "stop_condition_summary": [
+      "agentic_de_seed_intent_abb9aca449be",
+      "docs/LOCKED_CONTINUATION_vNEXT_PLUS164.md#machine-checkable-contract"
+    ]
+  },
+  "field_origin_tags": {
+    "charter_compilation_basis_summary": "current_turn_derived",
+    "charter_scope_summary": "current_turn_derived",
+    "completion_test_summary": "current_turn_derived",
+    "frozen_policy_basis_ref": "shaping_only",
+    "required_imports_summary": "current_turn_derived",
+    "selected_downstream_path_summary": "current_turn_derived",
+    "stop_condition_summary": "current_turn_derived"
+  },
+  "frozen_policy_basis_ref": "docs/LOCKED_CONTINUATION_vNEXT_PLUS164.md#machine-checkable-contract",
+  "required_imports_summary": "typed seed intent + frozen V60-A policy + shipped V59 continuity/reintegration/restoration/hardening lineage only",
+  "schema": "agentic_de_task_charter_packet@1",
+  "seed_intent_ref": "agentic_de_seed_intent_abb9aca449be",
+  "selected_downstream_path_summary": "urm_copilot_session_path::local_write/create_new::artifacts/agentic_de/v59/workspace_continuity/runtime/reference_patch_candidate.diff",
+  "stop_condition_summary": "stop if continuation would widen communication law, ticket duration, replay scope, or the selected downstream path",
+  "target_arc": "vNext+164",
+  "target_path": "V60-A"
+}

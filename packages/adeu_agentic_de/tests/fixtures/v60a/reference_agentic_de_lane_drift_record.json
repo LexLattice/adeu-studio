@@ -1,0 +1,45 @@
+{
+  "entries": [
+    {
+      "assumption_ref": "v59_surface_reuse_default",
+      "note": "V60-A reuses the shipped V59 continuity, continuity-safe restoration, and advisory hardening surfaces by default.",
+      "status": "holds"
+    },
+    {
+      "assumption_ref": "typed_seed_ingress_non_chat_native",
+      "note": "V60-A admits only one typed non-chat-native seed intent record and does not compile raw transcript semantics into task law.",
+      "status": "amended"
+    },
+    {
+      "assumption_ref": "task_charter_compilation_extensional_and_replayable",
+      "note": "V60-A compiles one replayable task charter from the same selected seed intent plus the same frozen policy basis.",
+      "status": "amended"
+    },
+    {
+      "assumption_ref": "task_residual_derived_not_authorizing",
+      "note": "TaskResidual stays derived, replayable, and non-authorizing; it carries continuation context only.",
+      "status": "amended"
+    },
+    {
+      "assumption_ref": "continue_to_governed_act_exact_path_only",
+      "note": "If V60-A continues, it may descend only into the exact shipped V59 continuity-bound create_new exemplar path.",
+      "status": "amended"
+    },
+    {
+      "assumption_ref": "emit_governed_communication_posture_only",
+      "note": "emit_governed_communication is posture only in V60-A; actual communication packet law remains deferred to V61.",
+      "status": "amended"
+    },
+    {
+      "assumption_ref": "single_step_local_ticket_duration_preserved",
+      "note": "V60-A preserves the shipped V56 single_step_local ticket duration and does not widen tickets into standing authority.",
+      "status": "amended"
+    }
+  ],
+  "entry_count": 7,
+  "prior_lane_ref": "docs/LOCKED_CONTINUATION_vNEXT_PLUS163.md",
+  "record_id": "agentic_de_lane_drift_5e1002c4d90b",
+  "schema": "agentic_de_lane_drift_record@1",
+  "target_arc": "vNext+164",
+  "target_path": "V60-A"
+}

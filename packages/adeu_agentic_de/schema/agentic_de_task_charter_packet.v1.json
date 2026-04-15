@@ -1,0 +1,123 @@
+{
+  "additionalProperties": false,
+  "properties": {
+    "changes_live_behavior_by_default": {
+      "const": false,
+      "default": false,
+      "title": "Changes Live Behavior By Default",
+      "type": "boolean"
+    },
+    "charter_compilation_basis_summary": {
+      "title": "Charter Compilation Basis Summary",
+      "type": "string"
+    },
+    "charter_id": {
+      "anyOf": [
+        {
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Charter Id"
+    },
+    "charter_scope_summary": {
+      "title": "Charter Scope Summary",
+      "type": "string"
+    },
+    "completion_test_summary": {
+      "title": "Completion Test Summary",
+      "type": "string"
+    },
+    "evidence_only": {
+      "const": true,
+      "default": true,
+      "title": "Evidence Only",
+      "type": "boolean"
+    },
+    "evidence_refs": {
+      "items": {
+        "type": "string"
+      },
+      "title": "Evidence Refs",
+      "type": "array"
+    },
+    "field_dependence_tags": {
+      "additionalProperties": {
+        "items": {
+          "type": "string"
+        },
+        "type": "array"
+      },
+      "title": "Field Dependence Tags",
+      "type": "object"
+    },
+    "field_origin_tags": {
+      "additionalProperties": {
+        "enum": [
+          "current_turn_native",
+          "current_turn_derived",
+          "observability_only",
+          "prior_artifact",
+          "shaping_only"
+        ],
+        "type": "string"
+      },
+      "title": "Field Origin Tags",
+      "type": "object"
+    },
+    "frozen_policy_basis_ref": {
+      "title": "Frozen Policy Basis Ref",
+      "type": "string"
+    },
+    "required_imports_summary": {
+      "title": "Required Imports Summary",
+      "type": "string"
+    },
+    "schema": {
+      "const": "agentic_de_task_charter_packet@1",
+      "default": "agentic_de_task_charter_packet@1",
+      "title": "Schema",
+      "type": "string"
+    },
+    "seed_intent_ref": {
+      "title": "Seed Intent Ref",
+      "type": "string"
+    },
+    "selected_downstream_path_summary": {
+      "title": "Selected Downstream Path Summary",
+      "type": "string"
+    },
+    "stop_condition_summary": {
+      "title": "Stop Condition Summary",
+      "type": "string"
+    },
+    "target_arc": {
+      "title": "Target Arc",
+      "type": "string"
+    },
+    "target_path": {
+      "title": "Target Path",
+      "type": "string"
+    }
+  },
+  "required": [
+    "target_arc",
+    "target_path",
+    "seed_intent_ref",
+    "charter_scope_summary",
+    "completion_test_summary",
+    "stop_condition_summary",
+    "required_imports_summary",
+    "selected_downstream_path_summary",
+    "frozen_policy_basis_ref",
+    "charter_compilation_basis_summary",
+    "field_origin_tags",
+    "field_dependence_tags",
+    "evidence_refs"
+  ],
+  "title": "AgenticDeTaskCharterPacket",
+  "type": "object"
+}

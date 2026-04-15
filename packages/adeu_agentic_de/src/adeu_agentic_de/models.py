@@ -70,6 +70,13 @@ AGENTIC_DE_WORKSPACE_CONTINUITY_RESTORATION_REINTEGRATION_REPORT_SCHEMA = (
 AGENTIC_DE_WORKSPACE_CONTINUITY_HARDENING_REGISTER_SCHEMA = (
     "agentic_de_workspace_continuity_hardening_register@1"
 )
+AGENTIC_DE_SEED_INTENT_RECORD_SCHEMA = "agentic_de_seed_intent_record@1"
+AGENTIC_DE_TASK_CHARTER_PACKET_SCHEMA = "agentic_de_task_charter_packet@1"
+AGENTIC_DE_TASK_RESIDUAL_PACKET_SCHEMA = "agentic_de_task_residual_packet@1"
+AGENTIC_DE_LOOP_STATE_LEDGER_SCHEMA = "agentic_de_loop_state_ledger@1"
+AGENTIC_DE_CONTINUATION_DECISION_RECORD_SCHEMA = (
+    "agentic_de_continuation_decision_record@1"
+)
 
 ACTION_CLASS_VOCABULARY = ("inspect", "write", "execute", "dispatch")
 EXACT_ACTION_CLASS_VOCABULARY = (
@@ -191,6 +198,15 @@ WORKSPACE_OCCUPANCY_VERDICT_VOCABULARY = (
     "occupied_unknown",
 )
 WORKSPACE_CONTINUITY_BASELINE_MATCH_VERDICT_VOCABULARY = ("matched",)
+SEED_SOURCE_CLASS_VOCABULARY = ("typed_seed_intent_record",)
+CONTINUATION_OUTCOME_VOCABULARY = (
+    "continue_to_governed_act",
+    "await_authority",
+    "emit_governed_communication",
+    "pause_blocked",
+    "stop_complete",
+    "escalate_for_review",
+)
 
 MODEL_CONFIG = ConfigDict(
     extra="forbid",
@@ -320,6 +336,15 @@ WorkspaceOccupancyVerdict = Literal[
     "occupied_unknown",
 ]
 WorkspaceContinuityBaselineMatchVerdict = Literal["matched"]
+SeedSourceClass = Literal["typed_seed_intent_record"]
+ContinuationOutcome = Literal[
+    "continue_to_governed_act",
+    "await_authority",
+    "emit_governed_communication",
+    "pause_blocked",
+    "stop_complete",
+    "escalate_for_review",
+]
 
 
 def _assert_present_text(value: str, *, field_name: str) -> str:
@@ -3023,6 +3048,430 @@ class AgenticDeWorkspaceContinuityHardeningRegister(BaseModel):
         return self
 
 
+class AgenticDeSeedIntentRecord(BaseModel):
+    model_config = MODEL_CONFIG
+
+    schema: Literal[AGENTIC_DE_SEED_INTENT_RECORD_SCHEMA] = (
+        AGENTIC_DE_SEED_INTENT_RECORD_SCHEMA
+    )
+    seed_intent_id: str | None = None
+    target_arc: str
+    target_path: str
+    evidence_only: Literal[True] = True
+    changes_live_behavior_by_default: Literal[False] = False
+    structured_seed_intent_summary: str
+    seed_source_ref_or_equivalent: str
+    seed_ingress_basis_summary: str
+    selected_downstream_path_summary: str
+    declared_completion_test_summary: str
+    declared_stop_condition_summary: str
+    seed_source_class: SeedSourceClass
+    field_origin_tags: dict[str, LiveTurnFieldOriginTag]
+    field_dependence_tags: dict[str, list[str]]
+    evidence_refs: list[str]
+
+    @model_validator(mode="after")
+    def _validate_record(self) -> AgenticDeSeedIntentRecord:
+        _assert_present_text(self.target_arc, field_name="target_arc")
+        _assert_present_text(self.target_path, field_name="target_path")
+        required_fields = (
+            "structured_seed_intent_summary",
+            "seed_source_ref_or_equivalent",
+            "seed_ingress_basis_summary",
+            "selected_downstream_path_summary",
+            "declared_completion_test_summary",
+            "declared_stop_condition_summary",
+            "seed_source_class",
+        )
+        for field_name in required_fields:
+            _assert_present_text(getattr(self, field_name), field_name=field_name)
+            if field_name not in self.field_origin_tags:
+                raise ValueError(f"field_origin_tags missing required key {field_name}")
+            if field_name not in self.field_dependence_tags:
+                raise ValueError(f"field_dependence_tags missing required key {field_name}")
+        normalized_dependence_tags: dict[str, list[str]] = {}
+        for key, values in self.field_dependence_tags.items():
+            normalized_dependence_tags[key] = _ordered_unique_texts(
+                values,
+                field_name=f"field_dependence_tags[{key}]",
+            )
+        object.__setattr__(self, "field_dependence_tags", normalized_dependence_tags)
+        object.__setattr__(
+            self,
+            "evidence_refs",
+            _ordered_unique_texts(self.evidence_refs, field_name="evidence_refs"),
+        )
+        if not self.evidence_refs:
+            raise ValueError("evidence_refs must be non-empty")
+        object.__setattr__(
+            self,
+            "seed_intent_id",
+            _assign_or_verify_content_addressed_id(
+                value=self.seed_intent_id,
+                field_name="seed_intent_id",
+                prefix="agentic_de_seed_intent",
+                payload=self.model_dump(mode="json", exclude={"seed_intent_id"}),
+            ),
+        )
+        return self
+
+
+class AgenticDeTaskCharterPacket(BaseModel):
+    model_config = MODEL_CONFIG
+
+    schema: Literal[AGENTIC_DE_TASK_CHARTER_PACKET_SCHEMA] = (
+        AGENTIC_DE_TASK_CHARTER_PACKET_SCHEMA
+    )
+    charter_id: str | None = None
+    target_arc: str
+    target_path: str
+    evidence_only: Literal[True] = True
+    changes_live_behavior_by_default: Literal[False] = False
+    seed_intent_ref: str
+    charter_scope_summary: str
+    completion_test_summary: str
+    stop_condition_summary: str
+    required_imports_summary: str
+    selected_downstream_path_summary: str
+    frozen_policy_basis_ref: str
+    charter_compilation_basis_summary: str
+    field_origin_tags: dict[str, LiveTurnFieldOriginTag]
+    field_dependence_tags: dict[str, list[str]]
+    evidence_refs: list[str]
+
+    @model_validator(mode="after")
+    def _validate_packet(self) -> AgenticDeTaskCharterPacket:
+        _assert_present_text(self.target_arc, field_name="target_arc")
+        _assert_present_text(self.target_path, field_name="target_path")
+        required_fields = (
+            "seed_intent_ref",
+            "charter_scope_summary",
+            "completion_test_summary",
+            "stop_condition_summary",
+            "required_imports_summary",
+            "selected_downstream_path_summary",
+            "frozen_policy_basis_ref",
+            "charter_compilation_basis_summary",
+        )
+        for field_name in required_fields:
+            _assert_present_text(getattr(self, field_name), field_name=field_name)
+        required_tag_fields = (
+            "charter_scope_summary",
+            "completion_test_summary",
+            "stop_condition_summary",
+            "required_imports_summary",
+            "selected_downstream_path_summary",
+            "frozen_policy_basis_ref",
+            "charter_compilation_basis_summary",
+        )
+        for field_name in required_tag_fields:
+            if field_name not in self.field_origin_tags:
+                raise ValueError(f"field_origin_tags missing required key {field_name}")
+            if field_name not in self.field_dependence_tags:
+                raise ValueError(f"field_dependence_tags missing required key {field_name}")
+        normalized_dependence_tags: dict[str, list[str]] = {}
+        for key, values in self.field_dependence_tags.items():
+            normalized_dependence_tags[key] = _ordered_unique_texts(
+                values,
+                field_name=f"field_dependence_tags[{key}]",
+            )
+        object.__setattr__(self, "field_dependence_tags", normalized_dependence_tags)
+        object.__setattr__(
+            self,
+            "evidence_refs",
+            _ordered_unique_texts(self.evidence_refs, field_name="evidence_refs"),
+        )
+        if not self.evidence_refs:
+            raise ValueError("evidence_refs must be non-empty")
+        object.__setattr__(
+            self,
+            "charter_id",
+            _assign_or_verify_content_addressed_id(
+                value=self.charter_id,
+                field_name="charter_id",
+                prefix="agentic_de_task_charter",
+                payload=self.model_dump(mode="json", exclude={"charter_id"}),
+            ),
+        )
+        return self
+
+
+class AgenticDeTaskResidualPacket(BaseModel):
+    model_config = MODEL_CONFIG
+
+    schema: Literal[AGENTIC_DE_TASK_RESIDUAL_PACKET_SCHEMA] = (
+        AGENTIC_DE_TASK_RESIDUAL_PACKET_SCHEMA
+    )
+    residual_id: str | None = None
+    target_arc: str
+    target_path: str
+    evidence_only: Literal[True] = True
+    changes_live_behavior_by_default: Literal[False] = False
+    task_charter_ref: str
+    latest_live_turn_reintegration_ref_or_none: str | None = None
+    latest_continuity_reintegration_ref_or_none: str | None = None
+    current_frontier_summary: str
+    open_obligation_summary: str
+    blocker_summary: str
+    open_approval_refs: list[str]
+    owed_communication_posture_summary: str
+    residual_derivation_basis_summary: str
+    field_origin_tags: dict[str, LiveTurnFieldOriginTag]
+    field_dependence_tags: dict[str, list[str]]
+    root_origin_ids: list[str]
+    evidence_refs: list[str]
+
+    @model_validator(mode="after")
+    def _validate_packet(self) -> AgenticDeTaskResidualPacket:
+        _assert_present_text(self.target_arc, field_name="target_arc")
+        _assert_present_text(self.target_path, field_name="target_path")
+        _assert_present_text(self.task_charter_ref, field_name="task_charter_ref")
+        if self.latest_live_turn_reintegration_ref_or_none is not None:
+            _assert_present_text(
+                self.latest_live_turn_reintegration_ref_or_none,
+                field_name="latest_live_turn_reintegration_ref_or_none",
+            )
+        if self.latest_continuity_reintegration_ref_or_none is not None:
+            _assert_present_text(
+                self.latest_continuity_reintegration_ref_or_none,
+                field_name="latest_continuity_reintegration_ref_or_none",
+            )
+        required_fields = (
+            "current_frontier_summary",
+            "open_obligation_summary",
+            "blocker_summary",
+            "owed_communication_posture_summary",
+            "residual_derivation_basis_summary",
+        )
+        for field_name in required_fields:
+            _assert_present_text(getattr(self, field_name), field_name=field_name)
+            if field_name not in self.field_origin_tags:
+                raise ValueError(f"field_origin_tags missing required key {field_name}")
+            if field_name not in self.field_dependence_tags:
+                raise ValueError(f"field_dependence_tags missing required key {field_name}")
+        object.__setattr__(
+            self,
+            "open_approval_refs",
+            _ordered_unique_texts(self.open_approval_refs, field_name="open_approval_refs"),
+        )
+        normalized_dependence_tags: dict[str, list[str]] = {}
+        for key, values in self.field_dependence_tags.items():
+            normalized_dependence_tags[key] = _ordered_unique_texts(
+                values,
+                field_name=f"field_dependence_tags[{key}]",
+            )
+        object.__setattr__(self, "field_dependence_tags", normalized_dependence_tags)
+        object.__setattr__(
+            self,
+            "root_origin_ids",
+            _ordered_unique_texts(self.root_origin_ids, field_name="root_origin_ids"),
+        )
+        object.__setattr__(
+            self,
+            "evidence_refs",
+            _ordered_unique_texts(self.evidence_refs, field_name="evidence_refs"),
+        )
+        if not self.root_origin_ids:
+            raise ValueError("root_origin_ids must be non-empty")
+        if not self.evidence_refs:
+            raise ValueError("evidence_refs must be non-empty")
+        object.__setattr__(
+            self,
+            "residual_id",
+            _assign_or_verify_content_addressed_id(
+                value=self.residual_id,
+                field_name="residual_id",
+                prefix="agentic_de_task_residual",
+                payload=self.model_dump(mode="json", exclude={"residual_id"}),
+            ),
+        )
+        return self
+
+
+class AgenticDeLoopStateLedger(BaseModel):
+    model_config = MODEL_CONFIG
+
+    schema: Literal[AGENTIC_DE_LOOP_STATE_LEDGER_SCHEMA] = AGENTIC_DE_LOOP_STATE_LEDGER_SCHEMA
+    ledger_id: str | None = None
+    target_arc: str
+    target_path: str
+    evidence_only: Literal[True] = True
+    changes_live_behavior_by_default: Literal[False] = False
+    task_charter_ref: str
+    task_residual_ref: str
+    resident_session_ref: str
+    continuity_region_ref: str
+    latest_live_turn_reintegration_ref_or_none: str | None = None
+    latest_continuity_reintegration_ref_or_none: str | None = None
+    open_approval_refs: list[str]
+    loop_prefix_identity: str
+    field_origin_tags: dict[str, LiveTurnFieldOriginTag]
+    field_dependence_tags: dict[str, list[str]]
+    root_origin_ids: list[str]
+    evidence_refs: list[str]
+
+    @model_validator(mode="after")
+    def _validate_ledger(self) -> AgenticDeLoopStateLedger:
+        _assert_present_text(self.target_arc, field_name="target_arc")
+        _assert_present_text(self.target_path, field_name="target_path")
+        required_fields = (
+            "task_charter_ref",
+            "task_residual_ref",
+            "resident_session_ref",
+            "continuity_region_ref",
+            "loop_prefix_identity",
+        )
+        for field_name in required_fields:
+            _assert_present_text(getattr(self, field_name), field_name=field_name)
+        if self.latest_live_turn_reintegration_ref_or_none is not None:
+            _assert_present_text(
+                self.latest_live_turn_reintegration_ref_or_none,
+                field_name="latest_live_turn_reintegration_ref_or_none",
+            )
+        if self.latest_continuity_reintegration_ref_or_none is not None:
+            _assert_present_text(
+                self.latest_continuity_reintegration_ref_or_none,
+                field_name="latest_continuity_reintegration_ref_or_none",
+            )
+        required_tag_fields = (
+            "resident_session_ref",
+            "continuity_region_ref",
+            "loop_prefix_identity",
+        )
+        for field_name in required_tag_fields:
+            if field_name not in self.field_origin_tags:
+                raise ValueError(f"field_origin_tags missing required key {field_name}")
+            if field_name not in self.field_dependence_tags:
+                raise ValueError(f"field_dependence_tags missing required key {field_name}")
+        object.__setattr__(
+            self,
+            "open_approval_refs",
+            _ordered_unique_texts(self.open_approval_refs, field_name="open_approval_refs"),
+        )
+        normalized_dependence_tags: dict[str, list[str]] = {}
+        for key, values in self.field_dependence_tags.items():
+            normalized_dependence_tags[key] = _ordered_unique_texts(
+                values,
+                field_name=f"field_dependence_tags[{key}]",
+            )
+        object.__setattr__(self, "field_dependence_tags", normalized_dependence_tags)
+        object.__setattr__(
+            self,
+            "root_origin_ids",
+            _ordered_unique_texts(self.root_origin_ids, field_name="root_origin_ids"),
+        )
+        object.__setattr__(
+            self,
+            "evidence_refs",
+            _ordered_unique_texts(self.evidence_refs, field_name="evidence_refs"),
+        )
+        if not self.root_origin_ids:
+            raise ValueError("root_origin_ids must be non-empty")
+        if not self.evidence_refs:
+            raise ValueError("evidence_refs must be non-empty")
+        object.__setattr__(
+            self,
+            "ledger_id",
+            _assign_or_verify_content_addressed_id(
+                value=self.ledger_id,
+                field_name="ledger_id",
+                prefix="agentic_de_loop_state_ledger",
+                payload=self.model_dump(mode="json", exclude={"ledger_id"}),
+            ),
+        )
+        return self
+
+
+class AgenticDeContinuationDecisionRecord(BaseModel):
+    model_config = MODEL_CONFIG
+
+    schema: Literal[AGENTIC_DE_CONTINUATION_DECISION_RECORD_SCHEMA] = (
+        AGENTIC_DE_CONTINUATION_DECISION_RECORD_SCHEMA
+    )
+    decision_id: str | None = None
+    target_arc: str
+    target_path: str
+    evidence_only: Literal[True] = True
+    changes_live_behavior_by_default: Literal[False] = False
+    loop_state_ledger_ref: str
+    continuation_outcome: ContinuationOutcome
+    continuation_reason_codes: list[str]
+    frozen_policy_anchor_ref: str
+    evidence_basis_summary: str
+    selected_next_path_summary: str
+    field_origin_tags: dict[str, LiveTurnFieldOriginTag]
+    field_dependence_tags: dict[str, list[str]]
+    root_origin_ids: list[str]
+    evidence_refs: list[str]
+
+    @model_validator(mode="after")
+    def _validate_record(self) -> AgenticDeContinuationDecisionRecord:
+        _assert_present_text(self.target_arc, field_name="target_arc")
+        _assert_present_text(self.target_path, field_name="target_path")
+        required_fields = (
+            "loop_state_ledger_ref",
+            "continuation_outcome",
+            "frozen_policy_anchor_ref",
+            "evidence_basis_summary",
+            "selected_next_path_summary",
+        )
+        for field_name in required_fields:
+            _assert_present_text(getattr(self, field_name), field_name=field_name)
+        required_tag_fields = (
+            "continuation_outcome",
+            "frozen_policy_anchor_ref",
+            "evidence_basis_summary",
+            "selected_next_path_summary",
+        )
+        for field_name in required_tag_fields:
+            if field_name not in self.field_origin_tags:
+                raise ValueError(f"field_origin_tags missing required key {field_name}")
+            if field_name not in self.field_dependence_tags:
+                raise ValueError(f"field_dependence_tags missing required key {field_name}")
+        normalized_dependence_tags: dict[str, list[str]] = {}
+        for key, values in self.field_dependence_tags.items():
+            normalized_dependence_tags[key] = _ordered_unique_texts(
+                values,
+                field_name=f"field_dependence_tags[{key}]",
+            )
+        object.__setattr__(self, "field_dependence_tags", normalized_dependence_tags)
+        object.__setattr__(
+            self,
+            "continuation_reason_codes",
+            _ordered_unique_texts(
+                self.continuation_reason_codes,
+                field_name="continuation_reason_codes",
+            ),
+        )
+        object.__setattr__(
+            self,
+            "root_origin_ids",
+            _ordered_unique_texts(self.root_origin_ids, field_name="root_origin_ids"),
+        )
+        object.__setattr__(
+            self,
+            "evidence_refs",
+            _ordered_unique_texts(self.evidence_refs, field_name="evidence_refs"),
+        )
+        if not self.continuation_reason_codes:
+            raise ValueError("continuation_reason_codes must be non-empty")
+        if not self.root_origin_ids:
+            raise ValueError("root_origin_ids must be non-empty")
+        if not self.evidence_refs:
+            raise ValueError("evidence_refs must be non-empty")
+        object.__setattr__(
+            self,
+            "decision_id",
+            _assign_or_verify_content_addressed_id(
+                value=self.decision_id,
+                field_name="decision_id",
+                prefix="agentic_de_continuation_decision",
+                payload=self.model_dump(mode="json", exclude={"decision_id"}),
+            ),
+        )
+        return self
+
+
 def compute_agentic_de_domain_packet_id(payload: dict[str, object]) -> str:
     return _compute_id("agentic_de_domain_packet", payload)
 
@@ -3195,3 +3644,25 @@ def compute_agentic_de_workspace_continuity_hardening_register_id(
     payload: dict[str, object],
 ) -> str:
     return _compute_id("agentic_de_workspace_continuity_hardening_register", payload)
+
+
+def compute_agentic_de_seed_intent_record_id(payload: dict[str, object]) -> str:
+    return _compute_id("agentic_de_seed_intent", payload)
+
+
+def compute_agentic_de_task_charter_packet_id(payload: dict[str, object]) -> str:
+    return _compute_id("agentic_de_task_charter", payload)
+
+
+def compute_agentic_de_task_residual_packet_id(payload: dict[str, object]) -> str:
+    return _compute_id("agentic_de_task_residual", payload)
+
+
+def compute_agentic_de_loop_state_ledger_id(payload: dict[str, object]) -> str:
+    return _compute_id("agentic_de_loop_state_ledger", payload)
+
+
+def compute_agentic_de_continuation_decision_record_id(
+    payload: dict[str, object],
+) -> str:
+    return _compute_id("agentic_de_continuation_decision", payload)

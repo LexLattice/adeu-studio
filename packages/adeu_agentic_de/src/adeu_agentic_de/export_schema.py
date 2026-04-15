@@ -12,6 +12,7 @@ from .models import (
     AGENTIC_DE_ACTION_PROPOSAL_SCHEMA,
     AGENTIC_DE_ACTION_TICKET_SCHEMA,
     AGENTIC_DE_CONFORMANCE_REPORT_SCHEMA,
+    AGENTIC_DE_CONTINUATION_DECISION_RECORD_SCHEMA,
     AGENTIC_DE_DOMAIN_PACKET_SCHEMA,
     AGENTIC_DE_GOVERNANCE_CALIBRATION_REGISTER_SCHEMA,
     AGENTIC_DE_INTERACTION_CONTRACT_SCHEMA,
@@ -26,12 +27,16 @@ from .models import (
     AGENTIC_DE_LOCAL_EFFECT_HARDENING_REGISTER_SCHEMA,
     AGENTIC_DE_LOCAL_EFFECT_OBSERVATION_RECORD_SCHEMA,
     AGENTIC_DE_LOCAL_EFFECT_RESTORATION_RECORD_SCHEMA,
+    AGENTIC_DE_LOOP_STATE_LEDGER_SCHEMA,
     AGENTIC_DE_MEMBRANE_CHECKPOINT_SCHEMA,
     AGENTIC_DE_MIGRATION_DECISION_REGISTER_SCHEMA,
     AGENTIC_DE_MORPH_DIAGNOSTICS_SCHEMA,
     AGENTIC_DE_MORPH_IR_SCHEMA,
     AGENTIC_DE_RUNTIME_HARVEST_RECORD_SCHEMA,
     AGENTIC_DE_RUNTIME_STATE_SCHEMA,
+    AGENTIC_DE_SEED_INTENT_RECORD_SCHEMA,
+    AGENTIC_DE_TASK_CHARTER_PACKET_SCHEMA,
+    AGENTIC_DE_TASK_RESIDUAL_PACKET_SCHEMA,
     AGENTIC_DE_WORKSPACE_CONTINUITY_ADMISSION_RECORD_SCHEMA,
     AGENTIC_DE_WORKSPACE_CONTINUITY_HARDENING_REGISTER_SCHEMA,
     AGENTIC_DE_WORKSPACE_CONTINUITY_REGION_DECLARATION_SCHEMA,
@@ -43,6 +48,7 @@ from .models import (
     AgenticDeActionProposal,
     AgenticDeActionTicket,
     AgenticDeConformanceReport,
+    AgenticDeContinuationDecisionRecord,
     AgenticDeDomainPacket,
     AgenticDeGovernanceCalibrationRegister,
     AgenticDeInteractionContract,
@@ -57,12 +63,16 @@ from .models import (
     AgenticDeLocalEffectHardeningRegister,
     AgenticDeLocalEffectObservationRecord,
     AgenticDeLocalEffectRestorationRecord,
+    AgenticDeLoopStateLedger,
     AgenticDeMembraneCheckpoint,
     AgenticDeMigrationDecisionRegister,
     AgenticDeMorphDiagnostics,
     AgenticDeMorphIr,
     AgenticDeRuntimeHarvestRecord,
     AgenticDeRuntimeState,
+    AgenticDeSeedIntentRecord,
+    AgenticDeTaskCharterPacket,
+    AgenticDeTaskResidualPacket,
     AgenticDeWorkspaceContinuityAdmissionRecord,
     AgenticDeWorkspaceContinuityHardeningRegister,
     AgenticDeWorkspaceContinuityRegionDeclaration,
@@ -212,6 +222,56 @@ def main() -> None:
             / "schema"
             / "agentic_de_lane_drift_record.v1.json",
             root / "spec" / "agentic_de_lane_drift_record.schema.json",
+        ),
+        (
+            AgenticDeSeedIntentRecord,
+            AGENTIC_DE_SEED_INTENT_RECORD_SCHEMA,
+            root
+            / "packages"
+            / "adeu_agentic_de"
+            / "schema"
+            / "agentic_de_seed_intent_record.v1.json",
+            root / "spec" / "agentic_de_seed_intent_record.schema.json",
+        ),
+        (
+            AgenticDeTaskCharterPacket,
+            AGENTIC_DE_TASK_CHARTER_PACKET_SCHEMA,
+            root
+            / "packages"
+            / "adeu_agentic_de"
+            / "schema"
+            / "agentic_de_task_charter_packet.v1.json",
+            root / "spec" / "agentic_de_task_charter_packet.schema.json",
+        ),
+        (
+            AgenticDeTaskResidualPacket,
+            AGENTIC_DE_TASK_RESIDUAL_PACKET_SCHEMA,
+            root
+            / "packages"
+            / "adeu_agentic_de"
+            / "schema"
+            / "agentic_de_task_residual_packet.v1.json",
+            root / "spec" / "agentic_de_task_residual_packet.schema.json",
+        ),
+        (
+            AgenticDeLoopStateLedger,
+            AGENTIC_DE_LOOP_STATE_LEDGER_SCHEMA,
+            root
+            / "packages"
+            / "adeu_agentic_de"
+            / "schema"
+            / "agentic_de_loop_state_ledger.v1.json",
+            root / "spec" / "agentic_de_loop_state_ledger.schema.json",
+        ),
+        (
+            AgenticDeContinuationDecisionRecord,
+            AGENTIC_DE_CONTINUATION_DECISION_RECORD_SCHEMA,
+            root
+            / "packages"
+            / "adeu_agentic_de"
+            / "schema"
+            / "agentic_de_continuation_decision_record.v1.json",
+            root / "spec" / "agentic_de_continuation_decision_record.schema.json",
         ),
         (
             AgenticDeLiveTurnAdmissionRecord,
