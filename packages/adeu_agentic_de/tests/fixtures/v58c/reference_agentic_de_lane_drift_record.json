@@ -1,0 +1,40 @@
+{
+  "entries": [
+    {
+      "assumption_ref": "v58b_surface_reuse_default",
+      "note": "V58-C reuses the shipped V58-B live restoration handoff and reintegration surfaces by default.",
+      "status": "holds"
+    },
+    {
+      "assumption_ref": "hardening_target_create_new_only",
+      "note": "V58-C narrows the hardening target to the shipped observed-and-restored live harness-bound create_new exemplar only.",
+      "status": "amended"
+    },
+    {
+      "assumption_ref": "hardening_outputs_advisory_only",
+      "note": "V58-C emits one advisory-only and candidate-only live harness hardening register without mutating live behavior by default.",
+      "status": "amended"
+    },
+    {
+      "assumption_ref": "committed_lane_artifacts_outrank_narrative_docs",
+      "note": "V58-C derives hardening judgment from committed V56/V57/V58 lane artifacts before narrative interpretation.",
+      "status": "amended"
+    },
+    {
+      "assumption_ref": "hardening_recommendation_extensional_and_replayable",
+      "note": "V58-C keeps the recommendation function extensional and replayable: same selected evidence chain plus same frozen policy yields the same outcome.",
+      "status": "amended"
+    },
+    {
+      "assumption_ref": "lineage_root_non_independence_dedup_required",
+      "note": "V58-C keeps repeated observation/conformance/reintegration artifacts from the same bounded lineage non-independent for escalation support.",
+      "status": "amended"
+    }
+  ],
+  "entry_count": 6,
+  "prior_lane_ref": "docs/LOCKED_CONTINUATION_vNEXT_PLUS159.md",
+  "record_id": "agentic_de_lane_drift_c6b3395561f6",
+  "schema": "agentic_de_lane_drift_record@1",
+  "target_arc": "vNext+160",
+  "target_path": "V58-C"
+}
