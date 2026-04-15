@@ -97,7 +97,31 @@ The family should remain backend-first in `V58-A`:
     cannot look like independent current-turn restoration support
 - `V58-C`
   - add one advisory harness drift / hardening surface over the same exact bound path
+  - reuse the shipped `V58-A` admission / handoff / reintegration lineage by default
+  - reuse the shipped `V58-B` live restoration handoff / reintegration lineage by
+    default
+  - instantiate one bounded path-level advisory surface only:
+    - `agentic_de_live_harness_hardening_register@1`
   - keep outputs advisory-only
+  - keep the selected live path frozen exactly:
+    - `local_write`
+    - `create_new`
+    - designated root `artifacts/agentic_de/v57/local_effect/`
+    - target `runtime/reference_patch_candidate.diff`
+  - keep recommendation dependent on the shipped boundedness / reintegration verdicts,
+    not on artifact refs alone
+  - keep advisory recommendation extensional and replayable:
+    - same selected evidence chain plus same frozen policy yields same recommendation
+      outcome
+  - keep evidence basis distinct from recommendation outcome
+  - keep common lineage roots non-independent at the advisory layer:
+    - observation / conformance / reintegration artifacts from one bounded exemplar
+      lineage remain traceability inputs
+    - they do not become independent escalation support by repetition alone
+  - keep the selected path exemplar non-generalizing by default:
+    - not class-level `local_write` law
+    - not restoration-family law
+    - not replay-family law
   - keep any later widening or migration decision separate from live behavior by
     default
 

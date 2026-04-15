@@ -161,6 +161,15 @@ reintegration surfaces so that:
 - prior fixtures, prior closeout artifacts, and shaping inputs remain non-native support;
 - and echoed lineage cannot return as apparently fresh independent current-turn witness.
 
+For later advisory hardening slices in this family, the same discipline should remain
+extensional and replayable:
+
+- the same selected evidence chain plus the same frozen policy must yield the same
+  recommendation outcome;
+- and multiple artifacts rooted in the same observed/restored lineage must not count
+  as independent escalation support merely because they appear in different report
+  positions.
+
 ## 8. Pairwise Default
 
 The starter family may remain pairwise by default.
