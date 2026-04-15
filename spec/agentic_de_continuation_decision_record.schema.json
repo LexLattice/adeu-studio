@@ -1,0 +1,132 @@
+{
+  "additionalProperties": false,
+  "properties": {
+    "changes_live_behavior_by_default": {
+      "const": false,
+      "default": false,
+      "title": "Changes Live Behavior By Default",
+      "type": "boolean"
+    },
+    "continuation_outcome": {
+      "enum": [
+        "continue_to_governed_act",
+        "await_authority",
+        "emit_governed_communication",
+        "pause_blocked",
+        "stop_complete",
+        "escalate_for_review"
+      ],
+      "title": "Continuation Outcome",
+      "type": "string"
+    },
+    "continuation_reason_codes": {
+      "items": {
+        "type": "string"
+      },
+      "title": "Continuation Reason Codes",
+      "type": "array"
+    },
+    "decision_id": {
+      "anyOf": [
+        {
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Decision Id"
+    },
+    "evidence_basis_summary": {
+      "title": "Evidence Basis Summary",
+      "type": "string"
+    },
+    "evidence_only": {
+      "const": true,
+      "default": true,
+      "title": "Evidence Only",
+      "type": "boolean"
+    },
+    "evidence_refs": {
+      "items": {
+        "type": "string"
+      },
+      "title": "Evidence Refs",
+      "type": "array"
+    },
+    "field_dependence_tags": {
+      "additionalProperties": {
+        "items": {
+          "type": "string"
+        },
+        "type": "array"
+      },
+      "title": "Field Dependence Tags",
+      "type": "object"
+    },
+    "field_origin_tags": {
+      "additionalProperties": {
+        "enum": [
+          "current_turn_native",
+          "current_turn_derived",
+          "observability_only",
+          "prior_artifact",
+          "shaping_only"
+        ],
+        "type": "string"
+      },
+      "title": "Field Origin Tags",
+      "type": "object"
+    },
+    "frozen_policy_anchor_ref": {
+      "title": "Frozen Policy Anchor Ref",
+      "type": "string"
+    },
+    "loop_state_ledger_ref": {
+      "title": "Loop State Ledger Ref",
+      "type": "string"
+    },
+    "root_origin_ids": {
+      "items": {
+        "type": "string"
+      },
+      "title": "Root Origin Ids",
+      "type": "array"
+    },
+    "schema": {
+      "const": "agentic_de_continuation_decision_record@1",
+      "default": "agentic_de_continuation_decision_record@1",
+      "title": "Schema",
+      "type": "string"
+    },
+    "selected_next_path_summary": {
+      "title": "Selected Next Path Summary",
+      "type": "string"
+    },
+    "target_arc": {
+      "title": "Target Arc",
+      "type": "string"
+    },
+    "target_path": {
+      "title": "Target Path",
+      "type": "string"
+    }
+  },
+  "required": [
+    "target_arc",
+    "target_path",
+    "loop_state_ledger_ref",
+    "continuation_outcome",
+    "continuation_reason_codes",
+    "frozen_policy_anchor_ref",
+    "evidence_basis_summary",
+    "selected_next_path_summary",
+    "field_origin_tags",
+    "field_dependence_tags",
+    "root_origin_ids",
+    "evidence_refs"
+  ],
+  "title": "AgenticDeContinuationDecisionRecord",
+  "type": "object"
+}

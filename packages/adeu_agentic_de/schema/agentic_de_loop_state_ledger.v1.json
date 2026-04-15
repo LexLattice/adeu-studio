@@ -1,0 +1,148 @@
+{
+  "additionalProperties": false,
+  "properties": {
+    "changes_live_behavior_by_default": {
+      "const": false,
+      "default": false,
+      "title": "Changes Live Behavior By Default",
+      "type": "boolean"
+    },
+    "continuity_region_ref": {
+      "title": "Continuity Region Ref",
+      "type": "string"
+    },
+    "evidence_only": {
+      "const": true,
+      "default": true,
+      "title": "Evidence Only",
+      "type": "boolean"
+    },
+    "evidence_refs": {
+      "items": {
+        "type": "string"
+      },
+      "title": "Evidence Refs",
+      "type": "array"
+    },
+    "field_dependence_tags": {
+      "additionalProperties": {
+        "items": {
+          "type": "string"
+        },
+        "type": "array"
+      },
+      "title": "Field Dependence Tags",
+      "type": "object"
+    },
+    "field_origin_tags": {
+      "additionalProperties": {
+        "enum": [
+          "current_turn_native",
+          "current_turn_derived",
+          "observability_only",
+          "prior_artifact",
+          "shaping_only"
+        ],
+        "type": "string"
+      },
+      "title": "Field Origin Tags",
+      "type": "object"
+    },
+    "latest_continuity_reintegration_ref_or_none": {
+      "anyOf": [
+        {
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Latest Continuity Reintegration Ref Or None"
+    },
+    "latest_live_turn_reintegration_ref_or_none": {
+      "anyOf": [
+        {
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Latest Live Turn Reintegration Ref Or None"
+    },
+    "ledger_id": {
+      "anyOf": [
+        {
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Ledger Id"
+    },
+    "loop_prefix_identity": {
+      "title": "Loop Prefix Identity",
+      "type": "string"
+    },
+    "open_approval_refs": {
+      "items": {
+        "type": "string"
+      },
+      "title": "Open Approval Refs",
+      "type": "array"
+    },
+    "resident_session_ref": {
+      "title": "Resident Session Ref",
+      "type": "string"
+    },
+    "root_origin_ids": {
+      "items": {
+        "type": "string"
+      },
+      "title": "Root Origin Ids",
+      "type": "array"
+    },
+    "schema": {
+      "const": "agentic_de_loop_state_ledger@1",
+      "default": "agentic_de_loop_state_ledger@1",
+      "title": "Schema",
+      "type": "string"
+    },
+    "target_arc": {
+      "title": "Target Arc",
+      "type": "string"
+    },
+    "target_path": {
+      "title": "Target Path",
+      "type": "string"
+    },
+    "task_charter_ref": {
+      "title": "Task Charter Ref",
+      "type": "string"
+    },
+    "task_residual_ref": {
+      "title": "Task Residual Ref",
+      "type": "string"
+    }
+  },
+  "required": [
+    "target_arc",
+    "target_path",
+    "task_charter_ref",
+    "task_residual_ref",
+    "resident_session_ref",
+    "continuity_region_ref",
+    "open_approval_refs",
+    "loop_prefix_identity",
+    "field_origin_tags",
+    "field_dependence_tags",
+    "root_origin_ids",
+    "evidence_refs"
+  ],
+  "title": "AgenticDeLoopStateLedger",
+  "type": "object"
+}

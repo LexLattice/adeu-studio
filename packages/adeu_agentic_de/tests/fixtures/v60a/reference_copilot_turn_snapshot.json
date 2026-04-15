@@ -1,0 +1,15 @@
+{
+  "active_turn_id": "turn-v59a-continuity-1",
+  "cwd": ".",
+  "last_turn_id": "turn-v59a-continuity-1",
+  "profile_id": "default",
+  "profile_policy_hash": null,
+  "profile_version": "profile.v1",
+  "raw_jsonl_path": "artifacts/agent_harness/v164/runtime/evidence/local/copilot_raw.ndjson",
+  "selected_turn_id": "turn-v59a-continuity-1",
+  "session_id": "copilot-v59a-session-1",
+  "status": "running",
+  "turn_selection_mode": "runtime_active_turn",
+  "urm_events_path": "artifacts/agent_harness/v164/runtime/evidence/local/urm_events.ndjson",
+  "writes_allowed": true
+}

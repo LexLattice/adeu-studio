@@ -1,0 +1,47 @@
+{
+  "changes_live_behavior_by_default": false,
+  "declared_completion_test_summary": "emit deterministic charter, residual, ledger, and continuation decision over the exact shipped downstream path",
+  "declared_stop_condition_summary": "stop if continuation would widen communication law, ticket duration, replay scope, or the selected downstream path",
+  "evidence_only": true,
+  "evidence_refs": [
+    "v60a_seed_ingress::reference_patch_candidate_diff::starter_intent_1"
+  ],
+  "field_dependence_tags": {
+    "declared_completion_test_summary": [
+      "v60a_seed_ingress::reference_patch_candidate_diff::starter_intent_1"
+    ],
+    "declared_stop_condition_summary": [
+      "v60a_seed_ingress::reference_patch_candidate_diff::starter_intent_1"
+    ],
+    "seed_ingress_basis_summary": [
+      "v60a_seed_ingress::reference_patch_candidate_diff::starter_intent_1",
+      "docs/LOCKED_CONTINUATION_vNEXT_PLUS164.md#machine-checkable-contract"
+    ],
+    "seed_source_class": [],
+    "seed_source_ref_or_equivalent": [],
+    "selected_downstream_path_summary": [
+      "v60a_seed_ingress::reference_patch_candidate_diff::starter_intent_1"
+    ],
+    "structured_seed_intent_summary": [
+      "v60a_seed_ingress::reference_patch_candidate_diff::starter_intent_1"
+    ]
+  },
+  "field_origin_tags": {
+    "declared_completion_test_summary": "current_turn_native",
+    "declared_stop_condition_summary": "current_turn_native",
+    "seed_ingress_basis_summary": "current_turn_derived",
+    "seed_source_class": "current_turn_native",
+    "seed_source_ref_or_equivalent": "current_turn_native",
+    "selected_downstream_path_summary": "current_turn_native",
+    "structured_seed_intent_summary": "current_turn_native"
+  },
+  "schema": "agentic_de_seed_intent_record@1",
+  "seed_ingress_basis_summary": "typed starter seed artifact supplied under frozen V60-A policy; not raw transcript, chat memory, or connector traffic",
+  "seed_intent_id": "agentic_de_seed_intent_abb9aca449be",
+  "seed_source_class": "typed_seed_intent_record",
+  "seed_source_ref_or_equivalent": "v60a_seed_ingress::reference_patch_candidate_diff::starter_intent_1",
+  "selected_downstream_path_summary": "urm_copilot_session_path::local_write/create_new::artifacts/agentic_de/v59/workspace_continuity/runtime/reference_patch_candidate.diff",
+  "structured_seed_intent_summary": "compile one bounded continuation kernel over the exact shipped V59 continuity-bound local_write/create_new exemplar",
+  "target_arc": "vNext+164",
+  "target_path": "V60-A"
+}

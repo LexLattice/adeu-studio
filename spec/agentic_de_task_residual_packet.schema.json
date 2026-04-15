@@ -1,0 +1,153 @@
+{
+  "additionalProperties": false,
+  "properties": {
+    "blocker_summary": {
+      "title": "Blocker Summary",
+      "type": "string"
+    },
+    "changes_live_behavior_by_default": {
+      "const": false,
+      "default": false,
+      "title": "Changes Live Behavior By Default",
+      "type": "boolean"
+    },
+    "current_frontier_summary": {
+      "title": "Current Frontier Summary",
+      "type": "string"
+    },
+    "evidence_only": {
+      "const": true,
+      "default": true,
+      "title": "Evidence Only",
+      "type": "boolean"
+    },
+    "evidence_refs": {
+      "items": {
+        "type": "string"
+      },
+      "title": "Evidence Refs",
+      "type": "array"
+    },
+    "field_dependence_tags": {
+      "additionalProperties": {
+        "items": {
+          "type": "string"
+        },
+        "type": "array"
+      },
+      "title": "Field Dependence Tags",
+      "type": "object"
+    },
+    "field_origin_tags": {
+      "additionalProperties": {
+        "enum": [
+          "current_turn_native",
+          "current_turn_derived",
+          "observability_only",
+          "prior_artifact",
+          "shaping_only"
+        ],
+        "type": "string"
+      },
+      "title": "Field Origin Tags",
+      "type": "object"
+    },
+    "latest_continuity_reintegration_ref_or_none": {
+      "anyOf": [
+        {
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Latest Continuity Reintegration Ref Or None"
+    },
+    "latest_live_turn_reintegration_ref_or_none": {
+      "anyOf": [
+        {
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Latest Live Turn Reintegration Ref Or None"
+    },
+    "open_approval_refs": {
+      "items": {
+        "type": "string"
+      },
+      "title": "Open Approval Refs",
+      "type": "array"
+    },
+    "open_obligation_summary": {
+      "title": "Open Obligation Summary",
+      "type": "string"
+    },
+    "owed_communication_posture_summary": {
+      "title": "Owed Communication Posture Summary",
+      "type": "string"
+    },
+    "residual_derivation_basis_summary": {
+      "title": "Residual Derivation Basis Summary",
+      "type": "string"
+    },
+    "residual_id": {
+      "anyOf": [
+        {
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Residual Id"
+    },
+    "root_origin_ids": {
+      "items": {
+        "type": "string"
+      },
+      "title": "Root Origin Ids",
+      "type": "array"
+    },
+    "schema": {
+      "const": "agentic_de_task_residual_packet@1",
+      "default": "agentic_de_task_residual_packet@1",
+      "title": "Schema",
+      "type": "string"
+    },
+    "target_arc": {
+      "title": "Target Arc",
+      "type": "string"
+    },
+    "target_path": {
+      "title": "Target Path",
+      "type": "string"
+    },
+    "task_charter_ref": {
+      "title": "Task Charter Ref",
+      "type": "string"
+    }
+  },
+  "required": [
+    "target_arc",
+    "target_path",
+    "task_charter_ref",
+    "current_frontier_summary",
+    "open_obligation_summary",
+    "blocker_summary",
+    "open_approval_refs",
+    "owed_communication_posture_summary",
+    "residual_derivation_basis_summary",
+    "field_origin_tags",
+    "field_dependence_tags",
+    "root_origin_ids",
+    "evidence_refs"
+  ],
+  "title": "AgenticDeTaskResidualPacket",
+  "type": "object"
+}
