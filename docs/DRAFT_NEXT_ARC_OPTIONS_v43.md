@@ -58,6 +58,9 @@ Interpretive doctrine for this planning surface:
 - `V59-A` through `V59-C` are closed on `main` and remain the released declared
   continuity-region / continuity-safe restoration / advisory continuity-hardening
   ladder recorded in the `V59` planning branch.
+- `V60-A` is landed on `main` and remains the released typed seed-intent /
+  task-charter / derived-residual / loop-state-ledger / continuation-decision
+  starter over one exact shipped continuity-bound exemplar.
 - the repo already has materially real resident runtime and product surfaces:
   - URM resident Codex sessions and long-lived control plane
   - web copilot
@@ -128,6 +131,15 @@ So the repo still lacks the slice that would make one governed resident loop say
 - this exact continuation decision selected the next bounded posture; and
 - every new externally effective act still requires a fresh current-turn governed step
   rather than a stretched ticket.
+
+The repo also still lacks the next bounded fill over that starter lineage:
+
+- one refreshed residual packet after one latest reintegrated governed act;
+- one refreshed continuation decision over that updated residual posture;
+- one typed reproposal or escalation posture when the last act blocks, is rejected,
+  or requires explicit reshaping;
+- without reopening seed ingress, widening ticket duration, or minting `V61`
+  communication law.
 
 ## Relationship To `V48`, `V55`, `V56`, `V57`, `V58`, And `V59`
 
@@ -235,9 +247,9 @@ Ordering discipline for this branch:
 - Recommended family/slice mapping reference to draft next:
   - `docs/DRAFT_ADEU_RESIDENT_AGENT_CONTINUATION_AND_RESIDUAL_INTENT_V60_IMPLEMENTATION_MAPPING_v0.md`
 - Recommended next path for this branch:
-  - `V60-A`
+  - `V60-B`
 - Recommended next concrete arc for this branch if selected:
-  - `V60-A`
+  - `V60-B`
 
 Default path selection for this branch:
 
@@ -301,7 +313,15 @@ Default path selection for this branch:
   - keep communication packet law, office binding, connector admission, remote-operator
     surfaces, repo-bound writable-surface authority, replay widening, execute widening,
     and dispatch widening not selected in this slice
-  - if this family is selected, select `V60-A` as the next default candidate
+  - after `V60-A`, if this family is selected, select `V60-B` as the next default candidate:
+    - one residual refresh / reproposal / escalation seam over one latest
+      reintegrated `V60-A` loop path only
+    - preserve the shipped loop-state ledger as the canonical loop anchor
+    - require explicit latest reintegrated act selection with fail-closed ambiguity
+      handling
+    - no seed-ingress widening
+    - no communication-packet law
+    - no ticket-duration widening
 
 This family/path recommendation is branch-local to the `v43` planning surface.
 
@@ -314,8 +334,8 @@ The current recommended path ladder is:
 
 | Path | Theme | Primary output | Status |
 |---|---|---|---|
-| `V60-A` | continuation starter | one typed starter seed-intent record, one bounded task charter packet, one bounded task residual packet, one loop-state ledger, and one continuation decision record over one seed-intent-to-loop path bound to the shipped exact continuity-bound exemplar | recommended next path |
-| `V60-B` | continuation refresh / reproposal / escalation | one bounded residual refresh and next-posture update seam over reintegrated outcomes from the same loop path, including structured block / rejection / reproposal handling without ticket widening | anticipated later path |
+| `V60-A` | continuation starter | one typed starter seed-intent record, one bounded task charter packet, one bounded task residual packet, one loop-state ledger, and one continuation decision record over one seed-intent-to-loop path bound to the shipped exact continuity-bound exemplar | landed starter path |
+| `V60-B` | continuation refresh / reproposal / escalation | one bounded residual refresh packet and one refreshed continuation decision over one latest reintegrated `V60-A` loop path only, including typed block / rejection / reproposal posture without ticket widening | recommended next path |
 | `V60-C` | advisory continuation hardening / migration | one advisory path-level continuation hardening / migration surface over the same continuation lineage, without mutating live behavior by default | anticipated later path |
 
 These output names are planning-level candidate names, not lock-level schema
@@ -347,6 +367,10 @@ The clean next-family move after `V59` is:
 - promote `V60`, not more `V59`;
 - make `V60` own bounded task-law compilation and continuation identity over the
   already shipped governed runtime stack;
+- make `V60-B` the next selected fill now that `V60-A` has landed, so the repo can
+  refresh residual posture after one governed act without reopening seed ingress,
+  while preserving stable loop identity and explicit latest-act selection, and
+  without widening communication law;
 - keep `V61` prepared next to retrofit the existing communication surfaces, but not
   selected in this planning doc; and
 - keep repo widening and worker export explicitly later.

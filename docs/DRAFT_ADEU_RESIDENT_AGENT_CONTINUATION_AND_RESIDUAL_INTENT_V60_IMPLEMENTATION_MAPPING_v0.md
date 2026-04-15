@@ -52,8 +52,9 @@ Read together with:
 - likely family module split:
   - `continuation_kernel.py`
   - `continuation_decision.py`
-- likely family artifact output root:
+- likely family artifact output roots:
   - `artifacts/agent_harness/v164/`
+  - `artifacts/agent_harness/v165/`
 
 The family should remain backend-first in `V60-A`:
 
@@ -114,11 +115,31 @@ The family should remain backend-first in `V60-A`:
     operator surfaces, repo-bound writable authority, replay widening, execute
     widening, and dispatch widening not selected in this slice
 - `V60-B`
-  - add one bounded residual refresh / reproposal / escalation seam after
-    reintegration
+  - add one bounded residual refresh / reproposal / escalation seam after one latest
+    reintegrated governed act
   - reuse the shipped `V60-A` starter surfaces by default
-  - keep refresh dependent on explicit reintegration lineage
+  - instantiate:
+    - `agentic_de_task_residual_refresh_packet@1`
+    - `agentic_de_continuation_refresh_decision_record@1`
+  - preserve the shipped `V60-A` loop-state ledger as the canonical stable loop
+    identity anchor in this slice:
+    - `V60-B` refresh artifacts advance frontier over that same loop identity
+    - no loop-state refresh or replacement artifact is selected here
+  - keep refresh dependent on explicit prior continuation lineage plus one latest
+    reintegrated act lineage selected by explicit latest-act identity and
+    fail-closed selection basis
+  - keep refresh extensional and replayable:
+    - same shipped loop identity
+    - same latest reintegrated act identity
+    - same frozen policy basis
+    - same refreshed residual and same refreshed continuation posture
   - keep structured block / rejection / reproposal handling typed and replayable
+  - keep `reproposal_required` posture-only and non-chat-native:
+    - it records that the current charter / residual frontier may not lawfully
+      continue as-is
+    - it requires later structured ingress or governed communication to proceed
+    - it is not implicit charter amendment
+    - it is not new starter seed-ingress law
   - keep ticket duration single-step and fresh-step only
   - keep communication packet law still deferred to `V61`
 - `V60-C`
