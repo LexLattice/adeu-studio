@@ -130,6 +130,18 @@ V59A_TARGET_PATH = "V59-A"
 V59B_CHECKER_VERSION = "agentic_de_workspace_continuity_v59b"
 V59B_TARGET_ARC = "vNext+162"
 V59B_TARGET_PATH = "V59-B"
+V59B_SELECTED_RESTORATION_SCOPE = (
+    "bounded continuity-safe remove-create_new restore over the declared "
+    "continuity root and selected target only"
+)
+V59B_RESTORATION_EXEMPLAR = "compensating_restore_of_v57a_create_new_artifact_only"
+V59B_REPLAY_MODE = (
+    "bounded_recomputation_and_re_evaluation_of_the_restoration_event_against_"
+    "prior_observed_effect_lineage_only"
+)
+V59B_RESTORATION_ENTITLEMENT_MODE = (
+    "lineage_bound_evidence_bound_bounded_compensating_scope_derivation_only"
+)
 V59C_CHECKER_VERSION = "agentic_de_workspace_continuity_v59c"
 V59C_TARGET_ARC = "vNext+163"
 V59C_TARGET_PATH = "V59-C"
@@ -6168,6 +6180,12 @@ def _validate_v59b_restoration_time_continuation(
 
 def _validate_v59b_workspace_continuity_restoration_surfaces(
     *,
+    packet: AgenticDeDomainPacket,
+    proposal: AgenticDeActionProposal,
+    checkpoint: AgenticDeMembraneCheckpoint,
+    runtime_state: AgenticDeRuntimeState,
+    ticket: AgenticDeActionTicket,
+    harvest: AgenticDeRuntimeHarvestRecord,
     live_turn_admission: AgenticDeLiveTurnAdmissionRecord,
     live_turn_handoff: AgenticDeLiveTurnHandoffRecord,
     continuity_admission: AgenticDeWorkspaceContinuityAdmissionRecord,
@@ -6183,6 +6201,63 @@ def _validate_v59b_workspace_continuity_restoration_surfaces(
     ),
     target_relative_path: str,
 ) -> None:
+    if restoration.target_arc != V59B_TARGET_ARC or restoration.target_path != V59B_TARGET_PATH:
+        raise ValueError("V59-C requires the shipped V59-B restoration surface")
+    expected_continuity_root = DESIGNATED_WORKSPACE_CONTINUITY_ROOT.as_posix()
+    if restoration.designated_sandbox_root != expected_continuity_root:
+        raise ValueError(
+            "V59-B restoration designated_sandbox_root must preserve the shipped V59-B "
+            "continuity root before hardening evaluation is admitted"
+        )
+    if restoration.selected_live_action_class != "local_write":
+        raise ValueError("V59-B restoration must preserve the shipped local_write action class")
+    if restoration.selected_restoration_exemplar != V59B_RESTORATION_EXEMPLAR:
+        raise ValueError("V59-B restoration must preserve the shipped create_new exemplar")
+    if restoration.replay_mode != V59B_REPLAY_MODE:
+        raise ValueError("V59-B restoration must preserve the shipped bounded replay law")
+    if restoration.restoration_entitlement_mode != V59B_RESTORATION_ENTITLEMENT_MODE:
+        raise ValueError("V59-B restoration must preserve the shipped entitlement posture")
+    if restoration.packet_ref != packet.packet_id:
+        raise ValueError("V59-B restoration does not bind the shipped domain packet")
+    if restoration.action_proposal_ref != proposal.proposal_id:
+        raise ValueError("V59-B restoration does not bind the shipped action proposal")
+    if restoration.checkpoint_ref != checkpoint.checkpoint_id:
+        raise ValueError("V59-B restoration does not bind the shipped checkpoint")
+    if restoration.runtime_state_ref != runtime_state.state_id:
+        raise ValueError("V59-B restoration does not bind the shipped runtime state")
+    if restoration.ticket_ref != ticket.ticket_id:
+        raise ValueError("V59-B restoration does not bind the shipped action ticket")
+    if restoration.harvest_ref != harvest.harvest_id:
+        raise ValueError("V59-B restoration does not bind the shipped harvest")
+    if restoration.observation_ref != observation.observation_id:
+        raise ValueError("V59-B restoration does not bind the shipped observation")
+    if restoration.conformance_ref != conformance.report_id:
+        raise ValueError("V59-B restoration does not bind the shipped conformance")
+    if restoration.restoration_boundedness_verdict != "bounded":
+        raise ValueError("V59-C requires the shipped bounded V59-B restoration verdict")
+    if restoration.restoration_outcome != "restoration_effect_observed":
+        raise ValueError("V59-C requires the shipped restoration_effect_observed V59-B posture")
+    if len(restoration.restoration_observed_write_set) != 1:
+        raise ValueError("V59-C requires exactly one shipped V59-B restoration target")
+    restoration_entry = restoration.restoration_observed_write_set[0]
+    observed_entry = observation.observed_write_set[0]
+    if restoration_entry.relative_path != observed_entry.relative_path:
+        raise ValueError("V59-B restoration must preserve the shipped observed target path")
+    if restoration_entry.existed_before_restoration is not True:
+        raise ValueError(
+            "V59-C requires the shipped V59-B restoration lineage to record an existing "
+            "target before compensating removal"
+        )
+    if restoration_entry.bytes_removed != observed_entry.bytes_written:
+        raise ValueError(
+            "V59-C requires the shipped V59-B restoration lineage to preserve removed-bytes "
+            "equivalence with the observed exemplar"
+        )
+    if restoration_entry.removed_content_sha256 != observed_entry.content_sha256:
+        raise ValueError(
+            "V59-C requires the shipped V59-B restoration lineage to preserve removed-content "
+            "equivalence with the observed exemplar"
+        )
     if (
         continuity_restoration_handoff.target_arc != V59B_TARGET_ARC
         or continuity_restoration_handoff.target_path != V59B_TARGET_PATH
@@ -6236,10 +6311,8 @@ def _validate_v59b_workspace_continuity_restoration_surfaces(
         != "matched"
     ):
         raise ValueError("V59-C requires the shipped matched V59-B baseline posture")
-    if "bounded compensating scope derived" not in (
-        continuity_restoration_handoff.bounded_compensating_scope_derivation_summary
-    ):
-        raise ValueError("V59-B handoff must preserve explicit compensating scope derivation")
+    if continuity_restoration_handoff.selected_restoration_scope != V59B_SELECTED_RESTORATION_SCOPE:
+        raise ValueError("V59-B handoff must preserve the shipped bounded restoration scope")
     if continuity_restoration_reintegration.turn_admission_ref != live_turn_admission.admission_id:
         raise ValueError(
             "V59-B reintegration does not bind the shipped V59-A admission lineage"
@@ -6261,11 +6334,33 @@ def _validate_v59b_workspace_continuity_restoration_surfaces(
         is None
     ):
         raise ValueError("V59-C requires witness-bearing V59-B restoration reintegration")
-    if "repeated continuity and observability refs remain non-independent support" not in (
-        continuity_restoration_reintegration.root_origin_dedup_summary
+    expected_witness_basis_dependencies = [
+        live_turn_admission.admission_id,
+        continuity_restoration_handoff.handoff_id,
+        restoration.restoration_id,
+    ]
+    if (
+        continuity_restoration_reintegration.field_dependence_tags[
+            "continuity_restoration_reintegration_witness_basis_summary"
+        ]
+        != expected_witness_basis_dependencies
     ):
         raise ValueError(
-            "V59-B reintegration must preserve non-independent continuity observability posture"
+            "V59-B reintegration must preserve the shipped non-independent witness basis"
+        )
+    if (
+        continuity_restoration_reintegration.field_dependence_tags["six_lane_closeout_posture"]
+        != expected_witness_basis_dependencies
+    ):
+        raise ValueError(
+            "V59-B reintegration must preserve the shipped non-independent closeout basis"
+        )
+    if continuity_restoration_reintegration.field_dependence_tags["replay_law_proof_summary"] != [
+        continuity_reintegration.report_id,
+        restoration.restoration_id,
+    ]:
+        raise ValueError(
+            "V59-B reintegration must preserve the shipped bounded replay proof lineage"
         )
     if continuity_reintegration.occupancy_report_ref != occupancy.occupancy_report_id:
         raise ValueError("V59-A continuity reintegration must preserve the shipped occupancy")
@@ -6401,10 +6496,7 @@ def _build_v59b_workspace_continuity_restoration_handoff_record(
             "historical refs remain non-entitling by themselves"
         ),
         target_relative_path=target_relative_path,
-        selected_restoration_scope=(
-            "bounded continuity-safe remove-create_new restore over the declared "
-            "continuity root and selected target only"
-        ),
+        selected_restoration_scope=V59B_SELECTED_RESTORATION_SCOPE,
         field_origin_tags=field_origin_tags,
         field_dependence_tags=field_dependence_tags,
         root_origin_ids=root_origin_ids,
@@ -6543,9 +6635,8 @@ def _build_v59b_workspace_continuity_restoration_reintegration_report(
 def _derive_v59c_compensating_scope_match_verdict(
     handoff: AgenticDeWorkspaceContinuityRestorationHandoffRecord,
 ) -> str:
-    summary = handoff.bounded_compensating_scope_derivation_summary
-    if "bounded compensating scope derived" not in summary:
-        raise ValueError("V59-C requires explicit bounded compensating scope derivation")
+    if handoff.selected_restoration_scope != V59B_SELECTED_RESTORATION_SCOPE:
+        raise ValueError("V59-C requires the shipped bounded continuity-safe restoration scope")
     return "matched"
 
 
@@ -7190,6 +7281,12 @@ def run_agentic_de_workspace_continuity_v59c(
         target_relative_path=target_relative_path,
     )
     _validate_v59b_workspace_continuity_restoration_surfaces(
+        packet=packet,
+        proposal=proposal,
+        checkpoint=v56a_checkpoint,
+        runtime_state=v56b_runtime_state,
+        ticket=v56b_ticket,
+        harvest=v56c_harvest,
         live_turn_admission=v59a_live_turn_admission,
         live_turn_handoff=v59a_live_turn_handoff,
         continuity_admission=v59a_continuity_admission,

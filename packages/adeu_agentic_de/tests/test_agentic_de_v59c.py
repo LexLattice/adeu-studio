@@ -164,6 +164,66 @@ def test_invalid_v59b_evidence_fails_closed(tmp_path: Path) -> None:
         run_agentic_de_workspace_continuity_v59c(repo_root_path=temp_root)
 
 
+def test_non_v59b_restoration_surface_fails_closed(tmp_path: Path) -> None:
+    temp_root = _copy_v59c_input_tree(tmp_path)
+    restoration_path = (
+        temp_root
+        / "packages"
+        / "adeu_agentic_de"
+        / "tests"
+        / "fixtures"
+        / "v59b"
+        / "reference_agentic_de_local_effect_restoration_record.json"
+    )
+    payload = json.loads(restoration_path.read_text(encoding="utf-8"))
+    payload["target_arc"] = "vNext+999"
+    payload["restoration_id"] = None
+    restoration_path.write_text(json.dumps(payload, indent=2) + "\n", encoding="utf-8")
+
+    with pytest.raises(ValueError, match="shipped V59-B restoration surface"):
+        run_agentic_de_workspace_continuity_v59c(repo_root_path=temp_root)
+
+
+def test_v59c_requires_structured_v59b_restoration_scope(tmp_path: Path) -> None:
+    temp_root = _copy_v59c_input_tree(tmp_path)
+    handoff_path = (
+        temp_root
+        / "packages"
+        / "adeu_agentic_de"
+        / "tests"
+        / "fixtures"
+        / "v59b"
+        / "reference_agentic_de_workspace_continuity_restoration_handoff_record.json"
+    )
+    payload = json.loads(handoff_path.read_text(encoding="utf-8"))
+    payload["selected_restoration_scope"] = "custom scope summary"
+    payload["handoff_id"] = None
+    handoff_path.write_text(json.dumps(payload, indent=2) + "\n", encoding="utf-8")
+
+    with pytest.raises(ValueError, match="shipped bounded restoration scope"):
+        run_agentic_de_workspace_continuity_v59c(repo_root_path=temp_root)
+
+
+def test_v59c_rejects_broadened_v59b_reintegration_dependencies(tmp_path: Path) -> None:
+    temp_root = _copy_v59c_input_tree(tmp_path)
+    reintegration_path = (
+        temp_root
+        / "packages"
+        / "adeu_agentic_de"
+        / "tests"
+        / "fixtures"
+        / "v59b"
+        / "reference_agentic_de_workspace_continuity_restoration_reintegration_report.json"
+    )
+    payload = json.loads(reintegration_path.read_text(encoding="utf-8"))
+    payload["field_dependence_tags"]["six_lane_closeout_posture"].append("extra:ambient_ref")
+    payload["report_id"] = None
+    reintegration_path.write_text(json.dumps(payload, indent=2) + "\n", encoding="utf-8")
+
+    with pytest.raises(ValueError, match="non-independent closeout basis"):
+        run_agentic_de_workspace_continuity_v59c(repo_root_path=temp_root)
+
+
 def test_candidate_outcome_requires_later_lock_reason_code() -> None:
     payload = _load_json("reference_agentic_de_workspace_continuity_hardening_register.json")
     assert isinstance(payload, dict)
