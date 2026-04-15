@@ -46,6 +46,9 @@ AGENTIC_DE_LIVE_RESTORATION_HANDOFF_RECORD_SCHEMA = (
 AGENTIC_DE_LIVE_RESTORATION_REINTEGRATION_REPORT_SCHEMA = (
     "agentic_de_live_restoration_reintegration_report@1"
 )
+AGENTIC_DE_LIVE_HARNESS_HARDENING_REGISTER_SCHEMA = (
+    "agentic_de_live_harness_hardening_register@1"
+)
 
 ACTION_CLASS_VOCABULARY = ("inspect", "write", "execute", "dispatch")
 EXACT_ACTION_CLASS_VOCABULARY = (
@@ -138,6 +141,12 @@ LIVE_TURN_REINTEGRATION_STATUS_VOCABULARY = (
     "not_evaluable_yet",
 )
 LIVE_RESTORATION_CONTINUATION_VERDICT_VOCABULARY = ("continued",)
+LIVE_HARNESS_HARDENING_OUTCOME_VOCABULARY = (
+    "keep_warning_only",
+    "needs_more_evidence",
+    "candidate_for_later_harness_hardening",
+    "not_selected_for_escalation",
+)
 
 MODEL_CONFIG = ConfigDict(
     extra="forbid",
@@ -238,6 +247,12 @@ LiveTurnReintegrationStatus = Literal[
     "not_evaluable_yet",
 ]
 LiveRestorationContinuationVerdict = Literal["continued"]
+LiveHarnessHardeningOutcome = Literal[
+    "keep_warning_only",
+    "needs_more_evidence",
+    "candidate_for_later_harness_hardening",
+    "not_selected_for_escalation",
+]
 
 
 def _assert_present_text(value: str, *, field_name: str) -> str:
@@ -2064,6 +2079,153 @@ class AgenticDeLiveRestorationReintegrationReport(BaseModel):
         return self
 
 
+class AgenticDeLiveHarnessHardeningEntry(BaseModel):
+    model_config = MODEL_CONFIG
+
+    hardening_id: str | None = None
+    turn_admission_ref: str
+    turn_handoff_ref: str
+    turn_reintegration_ref: str
+    live_restoration_handoff_ref: str
+    restoration_ref: str
+    live_restoration_reintegration_ref: str
+    observation_ref: str
+    local_effect_conformance_ref: str
+    observation_boundedness_verdict: BoundednessVerdict
+    restoration_boundedness_verdict: BoundednessVerdict
+    turn_reintegration_status: LiveTurnReintegrationStatus
+    restoration_reintegration_status: LiveTurnReintegrationStatus
+    selected_hardening_target_surface: str
+    evidence_basis_summary: str
+    boundedness_reintegration_summary: str
+    recommendation_scope_requires_later_lock: Literal[True] = True
+    extensional_and_replayable_by_default: Literal[True] = True
+    lineage_root_dedup_applied: Literal[True] = True
+    root_origin_ids: list[str]
+    root_origin_dedup_summary: str
+    recommended_outcome: LiveHarnessHardeningOutcome
+    rationale: str
+    reason_codes: list[str]
+    evidence_refs: list[str]
+
+    @model_validator(mode="after")
+    def _validate_entry(self) -> AgenticDeLiveHarnessHardeningEntry:
+        required_fields = (
+            "turn_admission_ref",
+            "turn_handoff_ref",
+            "turn_reintegration_ref",
+            "live_restoration_handoff_ref",
+            "restoration_ref",
+            "live_restoration_reintegration_ref",
+            "observation_ref",
+            "local_effect_conformance_ref",
+            "selected_hardening_target_surface",
+            "evidence_basis_summary",
+            "boundedness_reintegration_summary",
+            "root_origin_dedup_summary",
+            "rationale",
+        )
+        for field_name in required_fields:
+            _assert_present_text(getattr(self, field_name), field_name=field_name)
+        object.__setattr__(
+            self,
+            "root_origin_ids",
+            _ordered_unique_texts(self.root_origin_ids, field_name="root_origin_ids"),
+        )
+        object.__setattr__(
+            self,
+            "reason_codes",
+            _ordered_unique_texts(self.reason_codes, field_name="reason_codes"),
+        )
+        object.__setattr__(
+            self,
+            "evidence_refs",
+            _ordered_unique_texts(self.evidence_refs, field_name="evidence_refs"),
+        )
+        if not self.root_origin_ids:
+            raise ValueError("root_origin_ids must be non-empty")
+        if self.recommended_outcome == "candidate_for_later_harness_hardening":
+            if self.observation_boundedness_verdict != "bounded":
+                raise ValueError(
+                    "candidate_for_later_harness_hardening requires bounded observation verdict"
+                )
+            if self.restoration_boundedness_verdict != "bounded":
+                raise ValueError(
+                    "candidate_for_later_harness_hardening requires bounded restoration verdict"
+                )
+            if self.turn_reintegration_status != "reintegrated":
+                raise ValueError(
+                    "candidate_for_later_harness_hardening requires reintegrated turn status"
+                )
+            if self.restoration_reintegration_status != "reintegrated":
+                raise ValueError(
+                    "candidate_for_later_harness_hardening requires reintegrated restoration status"
+                )
+            if "later_lock_required_for_scope" not in self.reason_codes:
+                raise ValueError(
+                    "candidate_for_later_harness_hardening requires later_lock_required_for_scope"
+                )
+        object.__setattr__(
+            self,
+            "hardening_id",
+            _assign_or_verify_content_addressed_id(
+                value=self.hardening_id,
+                field_name="hardening_id",
+                prefix="agentic_de_live_harness_hardening",
+                payload=self.model_dump(mode="json", exclude={"hardening_id"}),
+            ),
+        )
+        return self
+
+
+class AgenticDeLiveHarnessHardeningRegister(BaseModel):
+    model_config = MODEL_CONFIG
+
+    schema: Literal[AGENTIC_DE_LIVE_HARNESS_HARDENING_REGISTER_SCHEMA] = (
+        AGENTIC_DE_LIVE_HARNESS_HARDENING_REGISTER_SCHEMA
+    )
+    register_id: str | None = None
+    target_arc: str
+    target_path: str
+    advisory_only: Literal[True] = True
+    candidate_only: Literal[True] = True
+    path_level_only: Literal[True] = True
+    exemplar_evidence_non_generalizing_by_default: Literal[True] = True
+    changes_live_behavior_by_default: Literal[False] = False
+    committed_lane_artifacts_outrank_narrative_docs: Literal[True] = True
+    evidence_basis_distinct_from_recommendation: Literal[True] = True
+    recommendation_function_extensional_and_replayable: Literal[True] = True
+    lineage_root_non_independence_dedup_applied: Literal[True] = True
+    baseline_checker_version: str
+    entry_count: int
+    entries: list[AgenticDeLiveHarnessHardeningEntry]
+
+    @model_validator(mode="after")
+    def _validate_register(self) -> AgenticDeLiveHarnessHardeningRegister:
+        _assert_present_text(self.target_arc, field_name="target_arc")
+        _assert_present_text(self.target_path, field_name="target_path")
+        _assert_present_text(
+            self.baseline_checker_version,
+            field_name="baseline_checker_version",
+        )
+        if self.entry_count != len(self.entries):
+            raise ValueError("entry_count must equal len(entries)")
+        target_surfaces = [entry.selected_hardening_target_surface for entry in self.entries]
+        if len(set(target_surfaces)) != len(target_surfaces):
+            raise ValueError("selected_hardening_target_surface values must be unique")
+        object.__setattr__(
+            self,
+            "register_id",
+            _assign_or_verify_content_addressed_id(
+                value=self.register_id,
+                field_name="register_id",
+                prefix="agentic_de_live_harness_hardening_register",
+                payload=self.model_dump(mode="json", exclude={"register_id"}),
+            ),
+        )
+        return self
+
+
 def compute_agentic_de_domain_packet_id(payload: dict[str, object]) -> str:
     return _compute_id("agentic_de_domain_packet", payload)
 
@@ -2180,3 +2342,15 @@ def compute_agentic_de_live_restoration_reintegration_report_id(
     payload: dict[str, object],
 ) -> str:
     return _compute_id("agentic_de_live_restoration_reintegration_report", payload)
+
+
+def compute_agentic_de_live_harness_hardening_entry_id(
+    payload: dict[str, object],
+) -> str:
+    return _compute_id("agentic_de_live_harness_hardening", payload)
+
+
+def compute_agentic_de_live_harness_hardening_register_id(
+    payload: dict[str, object],
+) -> str:
+    return _compute_id("agentic_de_live_harness_hardening_register", payload)
