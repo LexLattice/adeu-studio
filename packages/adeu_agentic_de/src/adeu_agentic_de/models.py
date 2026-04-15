@@ -49,6 +49,18 @@ AGENTIC_DE_LIVE_RESTORATION_REINTEGRATION_REPORT_SCHEMA = (
 AGENTIC_DE_LIVE_HARNESS_HARDENING_REGISTER_SCHEMA = (
     "agentic_de_live_harness_hardening_register@1"
 )
+AGENTIC_DE_WORKSPACE_CONTINUITY_REGION_DECLARATION_SCHEMA = (
+    "agentic_de_workspace_continuity_region_declaration@1"
+)
+AGENTIC_DE_WORKSPACE_CONTINUITY_ADMISSION_RECORD_SCHEMA = (
+    "agentic_de_workspace_continuity_admission_record@1"
+)
+AGENTIC_DE_WORKSPACE_OCCUPANCY_REPORT_SCHEMA = (
+    "agentic_de_workspace_occupancy_report@1"
+)
+AGENTIC_DE_WORKSPACE_CONTINUITY_REINTEGRATION_REPORT_SCHEMA = (
+    "agentic_de_workspace_continuity_reintegration_report@1"
+)
 
 ACTION_CLASS_VOCABULARY = ("inspect", "write", "execute", "dispatch")
 EXACT_ACTION_CLASS_VOCABULARY = (
@@ -146,6 +158,22 @@ LIVE_HARNESS_HARDENING_OUTCOME_VOCABULARY = (
     "needs_more_evidence",
     "candidate_for_later_harness_hardening",
     "not_selected_for_escalation",
+)
+WORKSPACE_CONTINUITY_ADMISSION_VERDICT_VOCABULARY = (
+    "admitted",
+    "region_mismatch",
+    "rejected_inadmissible",
+    "stale_continuity_basis",
+    "unresolved_drift",
+    "withheld_by_policy",
+    "unknown",
+)
+WORKSPACE_OCCUPANCY_VERDICT_VOCABULARY = (
+    "unoccupied",
+    "occupied_prior_governed_exact",
+    "occupied_prior_governed_drifted",
+    "occupied_out_of_band",
+    "occupied_unknown",
 )
 
 MODEL_CONFIG = ConfigDict(
@@ -252,6 +280,22 @@ LiveHarnessHardeningOutcome = Literal[
     "needs_more_evidence",
     "candidate_for_later_harness_hardening",
     "not_selected_for_escalation",
+]
+WorkspaceContinuityAdmissionVerdict = Literal[
+    "admitted",
+    "region_mismatch",
+    "rejected_inadmissible",
+    "stale_continuity_basis",
+    "unresolved_drift",
+    "withheld_by_policy",
+    "unknown",
+]
+WorkspaceOccupancyVerdict = Literal[
+    "unoccupied",
+    "occupied_prior_governed_exact",
+    "occupied_prior_governed_drifted",
+    "occupied_out_of_band",
+    "occupied_unknown",
 ]
 
 
@@ -2226,6 +2270,353 @@ class AgenticDeLiveHarnessHardeningRegister(BaseModel):
         return self
 
 
+class AgenticDeWorkspaceContinuityRegionDeclaration(BaseModel):
+    model_config = MODEL_CONFIG
+
+    schema: Literal[AGENTIC_DE_WORKSPACE_CONTINUITY_REGION_DECLARATION_SCHEMA] = (
+        AGENTIC_DE_WORKSPACE_CONTINUITY_REGION_DECLARATION_SCHEMA
+    )
+    continuity_region_id: str | None = None
+    target_arc: str
+    target_path: str
+    evidence_only: Literal[True] = True
+    changes_live_behavior_by_default: Literal[False] = False
+    declared_continuity_root: str
+    target_identity_or_target_set: str
+    allowed_write_kind_subset: list[LocalWriteKind]
+    occupancy_policy: str
+    region_origin_tags: dict[str, LiveTurnFieldOriginTag]
+    evidence_refs: list[str]
+
+    @model_validator(mode="after")
+    def _validate_region(self) -> AgenticDeWorkspaceContinuityRegionDeclaration:
+        _assert_present_text(self.target_arc, field_name="target_arc")
+        _assert_present_text(self.target_path, field_name="target_path")
+        _assert_present_text(
+            self.declared_continuity_root,
+            field_name="declared_continuity_root",
+        )
+        _assert_present_text(
+            self.target_identity_or_target_set,
+            field_name="target_identity_or_target_set",
+        )
+        _assert_present_text(self.occupancy_policy, field_name="occupancy_policy")
+        if not self.allowed_write_kind_subset:
+            raise ValueError("allowed_write_kind_subset must be non-empty")
+        object.__setattr__(
+            self,
+            "allowed_write_kind_subset",
+            _ordered_unique_texts(
+                self.allowed_write_kind_subset,
+                field_name="allowed_write_kind_subset",
+            ),
+        )
+        required_tags = (
+            "declared_continuity_root",
+            "target_identity_or_target_set",
+            "allowed_write_kind_subset",
+            "occupancy_policy",
+        )
+        for field_name in required_tags:
+            if field_name not in self.region_origin_tags:
+                raise ValueError(f"region_origin_tags missing required key {field_name}")
+        object.__setattr__(
+            self,
+            "evidence_refs",
+            _ordered_unique_texts(self.evidence_refs, field_name="evidence_refs"),
+        )
+        object.__setattr__(
+            self,
+            "continuity_region_id",
+            _assign_or_verify_content_addressed_id(
+                value=self.continuity_region_id,
+                field_name="continuity_region_id",
+                prefix="agentic_de_workspace_continuity_region",
+                payload=self.model_dump(
+                    mode="json",
+                    exclude={"continuity_region_id"},
+                ),
+            ),
+        )
+        return self
+
+
+class AgenticDeWorkspaceContinuityAdmissionRecord(BaseModel):
+    model_config = MODEL_CONFIG
+
+    schema: Literal[AGENTIC_DE_WORKSPACE_CONTINUITY_ADMISSION_RECORD_SCHEMA] = (
+        AGENTIC_DE_WORKSPACE_CONTINUITY_ADMISSION_RECORD_SCHEMA
+    )
+    continuity_admission_id: str | None = None
+    target_arc: str
+    target_path: str
+    evidence_only: Literal[True] = True
+    changes_live_behavior_by_default: Literal[False] = False
+    live_turn_admission_ref: str
+    live_turn_handoff_ref: str
+    continuity_region_declaration_ref: str
+    continuity_verdict: WorkspaceContinuityAdmissionVerdict
+    continuity_reason_codes: list[str]
+    continuity_snapshot_summary: str
+    repo_root_path: str
+    cwd_path: str
+    continuity_root_identity: str
+    field_origin_tags: dict[str, LiveTurnFieldOriginTag]
+    field_dependence_tags: dict[str, list[str]]
+    evidence_refs: list[str]
+
+    @model_validator(mode="after")
+    def _validate_record(self) -> AgenticDeWorkspaceContinuityAdmissionRecord:
+        required_fields = (
+            "live_turn_admission_ref",
+            "live_turn_handoff_ref",
+            "continuity_region_declaration_ref",
+            "continuity_snapshot_summary",
+            "repo_root_path",
+            "cwd_path",
+            "continuity_root_identity",
+        )
+        _assert_present_text(self.target_arc, field_name="target_arc")
+        _assert_present_text(self.target_path, field_name="target_path")
+        for field_name in required_fields:
+            _assert_present_text(getattr(self, field_name), field_name=field_name)
+        required_tag_fields = (
+            "continuity_snapshot_summary",
+            "continuity_root_identity",
+        )
+        for field_name in required_tag_fields:
+            if field_name not in self.field_origin_tags:
+                raise ValueError(f"field_origin_tags missing required key {field_name}")
+            if field_name not in self.field_dependence_tags:
+                raise ValueError(f"field_dependence_tags missing required key {field_name}")
+        normalized_dependence_tags: dict[str, list[str]] = {}
+        for key, values in self.field_dependence_tags.items():
+            normalized_dependence_tags[key] = _ordered_unique_texts(
+                values,
+                field_name=f"field_dependence_tags[{key}]",
+            )
+        object.__setattr__(self, "field_dependence_tags", normalized_dependence_tags)
+        object.__setattr__(
+            self,
+            "continuity_reason_codes",
+            _ordered_unique_texts(
+                self.continuity_reason_codes,
+                field_name="continuity_reason_codes",
+            ),
+        )
+        object.__setattr__(
+            self,
+            "evidence_refs",
+            _ordered_unique_texts(self.evidence_refs, field_name="evidence_refs"),
+        )
+        if not self.continuity_reason_codes:
+            raise ValueError("continuity_reason_codes must be non-empty")
+        object.__setattr__(
+            self,
+            "continuity_admission_id",
+            _assign_or_verify_content_addressed_id(
+                value=self.continuity_admission_id,
+                field_name="continuity_admission_id",
+                prefix="agentic_de_workspace_continuity_admission",
+                payload=self.model_dump(
+                    mode="json",
+                    exclude={"continuity_admission_id"},
+                ),
+            ),
+        )
+        return self
+
+
+class AgenticDeWorkspaceOccupancyReport(BaseModel):
+    model_config = MODEL_CONFIG
+
+    schema: Literal[AGENTIC_DE_WORKSPACE_OCCUPANCY_REPORT_SCHEMA] = (
+        AGENTIC_DE_WORKSPACE_OCCUPANCY_REPORT_SCHEMA
+    )
+    occupancy_report_id: str | None = None
+    target_arc: str
+    target_path: str
+    evidence_only: Literal[True] = True
+    changes_live_behavior_by_default: Literal[False] = False
+    continuity_admission_ref: str
+    target_relative_path: str
+    occupancy_verdict: WorkspaceOccupancyVerdict
+    prior_governed_lineage_ref: str | None = None
+    drift_posture_summary: str
+    out_of_band_evidence_summary: str
+    occupancy_witness_basis_summary: str
+    field_origin_tags: dict[str, LiveTurnFieldOriginTag]
+    field_dependence_tags: dict[str, list[str]]
+    root_origin_ids: list[str]
+    evidence_refs: list[str]
+
+    @model_validator(mode="after")
+    def _validate_report(self) -> AgenticDeWorkspaceOccupancyReport:
+        required_fields = (
+            "continuity_admission_ref",
+            "target_relative_path",
+            "drift_posture_summary",
+            "out_of_band_evidence_summary",
+            "occupancy_witness_basis_summary",
+        )
+        _assert_present_text(self.target_arc, field_name="target_arc")
+        _assert_present_text(self.target_path, field_name="target_path")
+        for field_name in required_fields:
+            _assert_present_text(getattr(self, field_name), field_name=field_name)
+        if self.prior_governed_lineage_ref is not None:
+            _assert_present_text(
+                self.prior_governed_lineage_ref,
+                field_name="prior_governed_lineage_ref",
+            )
+        if self.occupancy_verdict.startswith("occupied_prior_governed_"):
+            if self.prior_governed_lineage_ref is None:
+                raise ValueError(
+                    "occupied_prior_governed_* verdicts require prior_governed_lineage_ref"
+                )
+        required_tag_fields = (
+            "drift_posture_summary",
+            "out_of_band_evidence_summary",
+            "occupancy_witness_basis_summary",
+        )
+        for field_name in required_tag_fields:
+            if field_name not in self.field_origin_tags:
+                raise ValueError(f"field_origin_tags missing required key {field_name}")
+            if field_name not in self.field_dependence_tags:
+                raise ValueError(f"field_dependence_tags missing required key {field_name}")
+        normalized_dependence_tags: dict[str, list[str]] = {}
+        for key, values in self.field_dependence_tags.items():
+            normalized_dependence_tags[key] = _ordered_unique_texts(
+                values,
+                field_name=f"field_dependence_tags[{key}]",
+            )
+        object.__setattr__(self, "field_dependence_tags", normalized_dependence_tags)
+        object.__setattr__(
+            self,
+            "root_origin_ids",
+            _ordered_unique_texts(self.root_origin_ids, field_name="root_origin_ids"),
+        )
+        object.__setattr__(
+            self,
+            "evidence_refs",
+            _ordered_unique_texts(self.evidence_refs, field_name="evidence_refs"),
+        )
+        object.__setattr__(
+            self,
+            "occupancy_report_id",
+            _assign_or_verify_content_addressed_id(
+                value=self.occupancy_report_id,
+                field_name="occupancy_report_id",
+                prefix="agentic_de_workspace_occupancy_report",
+                payload=self.model_dump(
+                    mode="json",
+                    exclude={"occupancy_report_id"},
+                ),
+            ),
+        )
+        return self
+
+
+class AgenticDeWorkspaceContinuityReintegrationReport(BaseModel):
+    model_config = MODEL_CONFIG
+
+    schema: Literal[AGENTIC_DE_WORKSPACE_CONTINUITY_REINTEGRATION_REPORT_SCHEMA] = (
+        AGENTIC_DE_WORKSPACE_CONTINUITY_REINTEGRATION_REPORT_SCHEMA
+    )
+    report_id: str | None = None
+    target_arc: str
+    target_path: str
+    evidence_only: Literal[True] = True
+    changes_live_behavior_by_default: Literal[False] = False
+    live_turn_reintegration_ref: str
+    continuity_admission_ref: str
+    occupancy_report_ref: str
+    observation_ref: str
+    local_effect_conformance_ref: str
+    observed_effect_summary: str
+    continuity_reintegration_status: LiveTurnReintegrationStatus
+    reason_codes: list[str]
+    continuity_witness_basis_summary: str
+    continuity_witness_certificate_ref_or_equivalent: str | None = None
+    continuity_region_state_summary_after_act: str
+    field_origin_tags: dict[str, LiveTurnFieldOriginTag]
+    field_dependence_tags: dict[str, list[str]]
+    root_origin_dedup_summary: str
+    evidence_refs: list[str]
+
+    @model_validator(mode="after")
+    def _validate_report(self) -> AgenticDeWorkspaceContinuityReintegrationReport:
+        required_fields = (
+            "live_turn_reintegration_ref",
+            "continuity_admission_ref",
+            "occupancy_report_ref",
+            "observation_ref",
+            "local_effect_conformance_ref",
+            "observed_effect_summary",
+            "continuity_witness_basis_summary",
+            "continuity_region_state_summary_after_act",
+            "root_origin_dedup_summary",
+        )
+        _assert_present_text(self.target_arc, field_name="target_arc")
+        _assert_present_text(self.target_path, field_name="target_path")
+        for field_name in required_fields:
+            _assert_present_text(getattr(self, field_name), field_name=field_name)
+        required_tag_fields = (
+            "observed_effect_summary",
+            "continuity_witness_basis_summary",
+            "continuity_region_state_summary_after_act",
+        )
+        for field_name in required_tag_fields:
+            if field_name not in self.field_origin_tags:
+                raise ValueError(f"field_origin_tags missing required key {field_name}")
+            if field_name not in self.field_dependence_tags:
+                raise ValueError(f"field_dependence_tags missing required key {field_name}")
+        normalized_dependence_tags: dict[str, list[str]] = {}
+        for key, values in self.field_dependence_tags.items():
+            normalized_dependence_tags[key] = _ordered_unique_texts(
+                values,
+                field_name=f"field_dependence_tags[{key}]",
+            )
+        object.__setattr__(self, "field_dependence_tags", normalized_dependence_tags)
+        object.__setattr__(
+            self,
+            "reason_codes",
+            _ordered_unique_texts(self.reason_codes, field_name="reason_codes"),
+        )
+        object.__setattr__(
+            self,
+            "evidence_refs",
+            _ordered_unique_texts(self.evidence_refs, field_name="evidence_refs"),
+        )
+        if not self.reason_codes:
+            raise ValueError("reason_codes must be non-empty")
+        if self.continuity_reintegration_status == "reintegrated":
+            if self.continuity_witness_certificate_ref_or_equivalent is None:
+                raise ValueError(
+                    "reintegrated status requires "
+                    "continuity_witness_certificate_ref_or_equivalent"
+                )
+            _assert_present_text(
+                self.continuity_witness_certificate_ref_or_equivalent,
+                field_name="continuity_witness_certificate_ref_or_equivalent",
+            )
+        elif self.continuity_witness_certificate_ref_or_equivalent is not None:
+            _assert_present_text(
+                self.continuity_witness_certificate_ref_or_equivalent,
+                field_name="continuity_witness_certificate_ref_or_equivalent",
+            )
+        object.__setattr__(
+            self,
+            "report_id",
+            _assign_or_verify_content_addressed_id(
+                value=self.report_id,
+                field_name="report_id",
+                prefix="agentic_de_workspace_continuity_reintegration_report",
+                payload=self.model_dump(mode="json", exclude={"report_id"}),
+            ),
+        )
+        return self
+
+
 def compute_agentic_de_domain_packet_id(payload: dict[str, object]) -> str:
     return _compute_id("agentic_de_domain_packet", payload)
 
@@ -2354,3 +2745,23 @@ def compute_agentic_de_live_harness_hardening_register_id(
     payload: dict[str, object],
 ) -> str:
     return _compute_id("agentic_de_live_harness_hardening_register", payload)
+
+
+def compute_agentic_de_workspace_continuity_region_id(payload: dict[str, object]) -> str:
+    return _compute_id("agentic_de_workspace_continuity_region", payload)
+
+
+def compute_agentic_de_workspace_continuity_admission_id(
+    payload: dict[str, object],
+) -> str:
+    return _compute_id("agentic_de_workspace_continuity_admission", payload)
+
+
+def compute_agentic_de_workspace_occupancy_report_id(payload: dict[str, object]) -> str:
+    return _compute_id("agentic_de_workspace_occupancy_report", payload)
+
+
+def compute_agentic_de_workspace_continuity_reintegration_report_id(
+    payload: dict[str, object],
+) -> str:
+    return _compute_id("agentic_de_workspace_continuity_reintegration_report", payload)

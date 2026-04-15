@@ -1,0 +1,58 @@
+{
+  "changes_live_behavior_by_default": false,
+  "continuity_admission_ref": "agentic_de_workspace_continuity_admission_3b72bff4a1b0",
+  "drift_posture_summary": "target absent inside declared continuity root; non-target occupants remain contextual only (0 non-target files)",
+  "evidence_only": true,
+  "evidence_refs": [
+    "agentic_de_workspace_continuity_admission_3b72bff4a1b0",
+    "artifacts/agentic_de/v59/workspace_continuity/_observer/reference_pre_state.json",
+    "packages/adeu_agentic_de/tests/fixtures/v56a/reference_agentic_de_domain_packet.json",
+    "packages/adeu_agentic_de/tests/fixtures/v56a/reference_agentic_de_morph_ir.json",
+    "packages/adeu_agentic_de/tests/fixtures/v56a/reference_agentic_de_interaction_contract.json",
+    "packages/adeu_agentic_de/tests/fixtures/v56a/reference_agentic_de_action_proposal.json",
+    "packages/adeu_agentic_de/tests/fixtures/v56a/reference_agentic_de_membrane_checkpoint.json",
+    "packages/adeu_agentic_de/tests/fixtures/v56a/reference_agentic_de_morph_diagnostics.json",
+    "packages/adeu_agentic_de/tests/fixtures/v56a/reference_agentic_de_conformance_report.json",
+    "packages/adeu_agentic_de/tests/fixtures/v56b/reference_agentic_de_action_class_taxonomy.json",
+    "packages/adeu_agentic_de/tests/fixtures/v56b/reference_agentic_de_runtime_state.json",
+    "packages/adeu_agentic_de/tests/fixtures/v56b/reference_agentic_de_action_ticket.json",
+    "packages/adeu_agentic_de/tests/fixtures/v56b/reference_agentic_de_lane_drift_record.json",
+    "packages/adeu_agentic_de/tests/fixtures/v56b/reference_agentic_de_morph_diagnostics.json",
+    "packages/adeu_agentic_de/tests/fixtures/v56b/reference_agentic_de_conformance_report.json",
+    "packages/adeu_agentic_de/tests/fixtures/v56c/reference_agentic_de_lane_drift_record.json",
+    "packages/adeu_agentic_de/tests/fixtures/v56c/reference_agentic_de_runtime_harvest_record.json",
+    "packages/adeu_agentic_de/tests/fixtures/v56c/reference_agentic_de_governance_calibration_register.json",
+    "packages/adeu_agentic_de/tests/fixtures/v56c/reference_agentic_de_migration_decision_register.json",
+    "packages/adeu_agentic_de/tests/fixtures/v59a/reference_agentic_de_lane_drift_record.json",
+    "artifacts/agent_harness/v160/evidence_inputs/v58c_live_harness_hardening_evidence_v160.json"
+  ],
+  "field_dependence_tags": {
+    "drift_posture_summary": [
+      "agentic_de_workspace_continuity_admission_3b72bff4a1b0"
+    ],
+    "occupancy_witness_basis_summary": [
+      "agentic_de_workspace_continuity_admission_3b72bff4a1b0"
+    ],
+    "out_of_band_evidence_summary": [
+      "agentic_de_workspace_continuity_admission_3b72bff4a1b0"
+    ]
+  },
+  "field_origin_tags": {
+    "drift_posture_summary": "current_turn_derived",
+    "occupancy_witness_basis_summary": "current_turn_derived",
+    "out_of_band_evidence_summary": "current_turn_derived"
+  },
+  "occupancy_report_id": "agentic_de_workspace_occupancy_report_7412f9d8203f",
+  "occupancy_verdict": "unoccupied",
+  "occupancy_witness_basis_summary": "declared continuity snapshot confirms target absence inside the selected target path",
+  "out_of_band_evidence_summary": "no out-of-band target occupancy detected",
+  "prior_governed_lineage_ref": null,
+  "root_origin_ids": [
+    "continuity_root:artifacts/agentic_de/v59/workspace_continuity",
+    "target:artifacts/agentic_de/v59/workspace_continuity/runtime/reference_patch_candidate.diff"
+  ],
+  "schema": "agentic_de_workspace_occupancy_report@1",
+  "target_arc": "vNext+161",
+  "target_path": "V59-A",
+  "target_relative_path": "runtime/reference_patch_candidate.diff"
+}

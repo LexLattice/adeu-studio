@@ -1,0 +1,75 @@
+{
+  "changes_live_behavior_by_default": false,
+  "evidence_only": true,
+  "evidence_refs": [
+    "agentic_de_live_turn_admission_77953b57cdbb",
+    "agentic_de_live_turn_handoff_32e5d242fa7b",
+    "agentic_de_local_effect_observation_be1062f37c36",
+    "agentic_de_local_effect_conformance_report_6294deaf2936",
+    "agentic_de_workspace_continuity_region_0bb0246a64a8",
+    "agentic_de_workspace_continuity_admission_3b72bff4a1b0",
+    "agentic_de_workspace_occupancy_report_7412f9d8203f",
+    "artifacts/agentic_de/v59/workspace_continuity/_observer/reference_governed_target_lineage.json",
+    "packages/adeu_agentic_de/tests/fixtures/v56a/reference_agentic_de_domain_packet.json",
+    "packages/adeu_agentic_de/tests/fixtures/v56a/reference_agentic_de_morph_ir.json",
+    "packages/adeu_agentic_de/tests/fixtures/v56a/reference_agentic_de_interaction_contract.json",
+    "packages/adeu_agentic_de/tests/fixtures/v56a/reference_agentic_de_action_proposal.json",
+    "packages/adeu_agentic_de/tests/fixtures/v56a/reference_agentic_de_membrane_checkpoint.json",
+    "packages/adeu_agentic_de/tests/fixtures/v56a/reference_agentic_de_morph_diagnostics.json",
+    "packages/adeu_agentic_de/tests/fixtures/v56a/reference_agentic_de_conformance_report.json",
+    "packages/adeu_agentic_de/tests/fixtures/v56b/reference_agentic_de_action_class_taxonomy.json",
+    "packages/adeu_agentic_de/tests/fixtures/v56b/reference_agentic_de_runtime_state.json",
+    "packages/adeu_agentic_de/tests/fixtures/v56b/reference_agentic_de_action_ticket.json",
+    "packages/adeu_agentic_de/tests/fixtures/v56b/reference_agentic_de_lane_drift_record.json",
+    "packages/adeu_agentic_de/tests/fixtures/v56b/reference_agentic_de_morph_diagnostics.json",
+    "packages/adeu_agentic_de/tests/fixtures/v56b/reference_agentic_de_conformance_report.json",
+    "packages/adeu_agentic_de/tests/fixtures/v56c/reference_agentic_de_lane_drift_record.json",
+    "packages/adeu_agentic_de/tests/fixtures/v56c/reference_agentic_de_runtime_harvest_record.json",
+    "packages/adeu_agentic_de/tests/fixtures/v56c/reference_agentic_de_governance_calibration_register.json",
+    "packages/adeu_agentic_de/tests/fixtures/v56c/reference_agentic_de_migration_decision_register.json",
+    "packages/adeu_agentic_de/tests/fixtures/v59a/reference_agentic_de_lane_drift_record.json",
+    "artifacts/agent_harness/v160/evidence_inputs/v58c_live_harness_hardening_evidence_v160.json"
+  ],
+  "field_dependence_tags": {
+    "observed_effect_summary": [
+      "agentic_de_local_effect_observation_be1062f37c36",
+      "agentic_de_local_effect_conformance_report_6294deaf2936"
+    ],
+    "reintegration_witness_basis_summary": [
+      "agentic_de_live_turn_admission_77953b57cdbb",
+      "agentic_de_live_turn_handoff_32e5d242fa7b",
+      "agentic_de_local_effect_observation_be1062f37c36",
+      "agentic_de_local_effect_conformance_report_6294deaf2936"
+    ],
+    "six_lane_closeout_posture": [
+      "agentic_de_live_turn_admission_77953b57cdbb",
+      "agentic_de_live_turn_handoff_32e5d242fa7b",
+      "agentic_de_local_effect_observation_be1062f37c36",
+      "agentic_de_local_effect_conformance_report_6294deaf2936"
+    ]
+  },
+  "field_origin_tags": {
+    "observed_effect_summary": "current_turn_derived",
+    "reintegration_witness_basis_summary": "current_turn_derived",
+    "six_lane_closeout_posture": "current_turn_derived"
+  },
+  "local_effect_conformance_ref": "agentic_de_local_effect_conformance_report_6294deaf2936",
+  "observation_ref": "agentic_de_local_effect_observation_be1062f37c36",
+  "observed_effect_summary": "observed bounded local write remained inside the declared continuity root and matched the continuity-entitled target",
+  "reason_codes": [
+    "current_turn_witness_declared",
+    "ticket_to_effect_handoff_bound",
+    "observed_effect_aligned"
+  ],
+  "reintegration_certificate_ref_or_equivalent": "v59a_live_reintegration::copilot-v59a-session-1::turn-v59a-continuity-1::agentic_de_local_effect_observation_be1062f37c36",
+  "reintegration_status": "reintegrated",
+  "reintegration_witness_basis_summary": "current-turn admission + ticket lineage + continuity-root pre/post state + observation/conformance chain",
+  "report_id": "agentic_de_live_turn_reintegration_report_66a5b16d34ea",
+  "root_origin_dedup_summary": "dedup roots=session:copilot-v59a-session-1,turn:turn-v59a-continuity-1,ticket:agentic_de_action_ticket_866f90c6f22a,observation:agentic_de_local_effect_observation_be1062f37c36,conformance:agentic_de_local_effect_conformance_report_6294deaf2936; observability refs remain non-independent support",
+  "schema": "agentic_de_live_turn_reintegration_report@1",
+  "six_lane_closeout_posture": "current_turn_admitted_then_ticket_handoff_bound_then_bounded_continuity_local_effect_observed_then_reintegrated_without_restoration",
+  "target_arc": "vNext+161",
+  "target_path": "V59-A",
+  "turn_admission_ref": "agentic_de_live_turn_admission_77953b57cdbb",
+  "turn_handoff_ref": "agentic_de_live_turn_handoff_32e5d242fa7b"
+}

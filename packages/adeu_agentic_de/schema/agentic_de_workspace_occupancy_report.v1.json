@@ -1,0 +1,140 @@
+{
+  "additionalProperties": false,
+  "properties": {
+    "changes_live_behavior_by_default": {
+      "const": false,
+      "default": false,
+      "title": "Changes Live Behavior By Default",
+      "type": "boolean"
+    },
+    "continuity_admission_ref": {
+      "title": "Continuity Admission Ref",
+      "type": "string"
+    },
+    "drift_posture_summary": {
+      "title": "Drift Posture Summary",
+      "type": "string"
+    },
+    "evidence_only": {
+      "const": true,
+      "default": true,
+      "title": "Evidence Only",
+      "type": "boolean"
+    },
+    "evidence_refs": {
+      "items": {
+        "type": "string"
+      },
+      "title": "Evidence Refs",
+      "type": "array"
+    },
+    "field_dependence_tags": {
+      "additionalProperties": {
+        "items": {
+          "type": "string"
+        },
+        "type": "array"
+      },
+      "title": "Field Dependence Tags",
+      "type": "object"
+    },
+    "field_origin_tags": {
+      "additionalProperties": {
+        "enum": [
+          "current_turn_native",
+          "current_turn_derived",
+          "observability_only",
+          "prior_artifact",
+          "shaping_only"
+        ],
+        "type": "string"
+      },
+      "title": "Field Origin Tags",
+      "type": "object"
+    },
+    "occupancy_report_id": {
+      "anyOf": [
+        {
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Occupancy Report Id"
+    },
+    "occupancy_verdict": {
+      "enum": [
+        "unoccupied",
+        "occupied_prior_governed_exact",
+        "occupied_prior_governed_drifted",
+        "occupied_out_of_band",
+        "occupied_unknown"
+      ],
+      "title": "Occupancy Verdict",
+      "type": "string"
+    },
+    "occupancy_witness_basis_summary": {
+      "title": "Occupancy Witness Basis Summary",
+      "type": "string"
+    },
+    "out_of_band_evidence_summary": {
+      "title": "Out Of Band Evidence Summary",
+      "type": "string"
+    },
+    "prior_governed_lineage_ref": {
+      "anyOf": [
+        {
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Prior Governed Lineage Ref"
+    },
+    "root_origin_ids": {
+      "items": {
+        "type": "string"
+      },
+      "title": "Root Origin Ids",
+      "type": "array"
+    },
+    "schema": {
+      "const": "agentic_de_workspace_occupancy_report@1",
+      "default": "agentic_de_workspace_occupancy_report@1",
+      "title": "Schema",
+      "type": "string"
+    },
+    "target_arc": {
+      "title": "Target Arc",
+      "type": "string"
+    },
+    "target_path": {
+      "title": "Target Path",
+      "type": "string"
+    },
+    "target_relative_path": {
+      "title": "Target Relative Path",
+      "type": "string"
+    }
+  },
+  "required": [
+    "target_arc",
+    "target_path",
+    "continuity_admission_ref",
+    "target_relative_path",
+    "occupancy_verdict",
+    "drift_posture_summary",
+    "out_of_band_evidence_summary",
+    "occupancy_witness_basis_summary",
+    "field_origin_tags",
+    "field_dependence_tags",
+    "root_origin_ids",
+    "evidence_refs"
+  ],
+  "title": "AgenticDeWorkspaceOccupancyReport",
+  "type": "object"
+}

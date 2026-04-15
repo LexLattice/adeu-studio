@@ -41,6 +41,10 @@ from .models import (
     AGENTIC_DE_MORPH_IR_SCHEMA,
     AGENTIC_DE_RUNTIME_HARVEST_RECORD_SCHEMA,
     AGENTIC_DE_RUNTIME_STATE_SCHEMA,
+    AGENTIC_DE_WORKSPACE_CONTINUITY_ADMISSION_RECORD_SCHEMA,
+    AGENTIC_DE_WORKSPACE_CONTINUITY_REGION_DECLARATION_SCHEMA,
+    AGENTIC_DE_WORKSPACE_CONTINUITY_REINTEGRATION_REPORT_SCHEMA,
+    AGENTIC_DE_WORKSPACE_OCCUPANCY_REPORT_SCHEMA,
     AgenticDeActionClassTaxonomy,
     AgenticDeActionClassTaxonomyEntry,
     AgenticDeActionProposal,
@@ -72,6 +76,19 @@ from .models import (
     AgenticDeMorphIr,
     AgenticDeRuntimeHarvestRecord,
     AgenticDeRuntimeState,
+    AgenticDeWorkspaceContinuityAdmissionRecord,
+    AgenticDeWorkspaceContinuityRegionDeclaration,
+    AgenticDeWorkspaceContinuityReintegrationReport,
+    AgenticDeWorkspaceOccupancyReport,
+)
+from .workspace_continuity import (
+    DEFAULT_WORKSPACE_CONTINUITY_PAYLOAD_TEXT,
+    DEFAULT_WORKSPACE_CONTINUITY_TARGET_RELATIVE_PATH,
+    DESIGNATED_WORKSPACE_CONTINUITY_ROOT,
+    classify_workspace_occupancy,
+    observe_workspace_continuity_create_new_effect,
+    snapshot_workspace_continuity_state,
+    write_workspace_governed_lineage_marker,
 )
 
 CHECKER_VERSION = "agentic_de_interaction_v56a"
@@ -98,6 +115,9 @@ V58B_TARGET_PATH = "V58-B"
 V58C_CHECKER_VERSION = "agentic_de_live_harness_v58c"
 V58C_TARGET_ARC = "vNext+160"
 V58C_TARGET_PATH = "V58-C"
+V59A_CHECKER_VERSION = "agentic_de_workspace_continuity_v59a"
+V59A_TARGET_ARC = "vNext+161"
+V59A_TARGET_PATH = "V59-A"
 
 
 def _default_fixture_path(variant: str, filename: str) -> Path:
@@ -267,6 +287,44 @@ DEFAULT_V58B_EVIDENCE_PATH = (
     / "evidence_inputs"
     / "v58b_live_restoration_state_evidence_v159.json"
 )
+DEFAULT_V59A_LANE_DRIFT_PATH = _default_fixture_path(
+    "v59a", "reference_agentic_de_lane_drift_record.json"
+)
+DEFAULT_V59A_CONTINUITY_REGION_DECLARATION_PATH = _default_fixture_path(
+    "v59a", "reference_agentic_de_workspace_continuity_region_declaration.json"
+)
+DEFAULT_V59A_CONTINUITY_ADMISSION_PATH = _default_fixture_path(
+    "v59a", "reference_agentic_de_workspace_continuity_admission_record.json"
+)
+DEFAULT_V59A_OCCUPANCY_REPORT_PATH = _default_fixture_path(
+    "v59a", "reference_agentic_de_workspace_occupancy_report.json"
+)
+DEFAULT_V59A_LIVE_TURN_ADMISSION_PATH = _default_fixture_path(
+    "v59a", "reference_agentic_de_live_turn_admission_record.json"
+)
+DEFAULT_V59A_LIVE_TURN_HANDOFF_PATH = _default_fixture_path(
+    "v59a", "reference_agentic_de_live_turn_handoff_record.json"
+)
+DEFAULT_V59A_OBSERVATION_PATH = _default_fixture_path(
+    "v59a", "reference_agentic_de_local_effect_observation_record.json"
+)
+DEFAULT_V59A_LOCAL_EFFECT_CONFORMANCE_PATH = _default_fixture_path(
+    "v59a", "reference_agentic_de_local_effect_conformance_report.json"
+)
+DEFAULT_V59A_LIVE_TURN_REINTEGRATION_PATH = _default_fixture_path(
+    "v59a", "reference_agentic_de_live_turn_reintegration_report.json"
+)
+DEFAULT_V59A_CONTINUITY_REINTEGRATION_PATH = _default_fixture_path(
+    "v59a", "reference_agentic_de_workspace_continuity_reintegration_report.json"
+)
+DEFAULT_V58C_EVIDENCE_PATH = (
+    repo_root(anchor=Path(__file__))
+    / "artifacts"
+    / "agent_harness"
+    / "v160"
+    / "evidence_inputs"
+    / "v58c_live_harness_hardening_evidence_v160.json"
+)
 
 EXPECTED_V56A_EVIDENCE_SCHEMA = "v56a_agentic_de_interaction_governance_starter_evidence@1"
 EXPECTED_V56B_EVIDENCE_SCHEMA = "v56b_bounded_live_gate_starter_evidence@1"
@@ -356,6 +414,16 @@ REQUIRED_V58C_DRIFT_ENTRY_STATUSES: dict[str, str] = {
     "hardening_recommendation_extensional_and_replayable": "amended",
     "lineage_root_non_independence_dedup_required": "amended",
 }
+EXPECTED_V58C_EVIDENCE_SCHEMA = "v58c_live_harness_hardening_evidence@1"
+EXPECTED_V59A_PRIOR_LANE_REF = "docs/LOCKED_CONTINUATION_vNEXT_PLUS160.md"
+REQUIRED_V59A_DRIFT_ENTRY_STATUSES: dict[str, str] = {
+    "v58_surface_reuse_default": "holds",
+    "continuity_admission_additional_gate": "amended",
+    "prior_workspace_state_context_not_authority": "amended",
+    "create_new_requires_unoccupied_target": "amended",
+    "non_target_occupants_contextual_only": "amended",
+    "positive_continuity_reintegration_requires_witness_basis": "amended",
+}
 
 
 def _read_json_object(path: Path) -> dict[str, object]:
@@ -444,6 +512,58 @@ def load_live_turn_reintegration_report(path: Path) -> AgenticDeLiveTurnReintegr
     if payload.schema != AGENTIC_DE_LIVE_TURN_REINTEGRATION_REPORT_SCHEMA:
         raise ValueError(
             "unexpected schema marker for live-turn reintegration report: "
+            f"{payload.schema}"
+        )
+    return payload
+
+
+def load_workspace_continuity_region_declaration(
+    path: Path,
+) -> AgenticDeWorkspaceContinuityRegionDeclaration:
+    payload = AgenticDeWorkspaceContinuityRegionDeclaration.model_validate(
+        _read_json_object(path)
+    )
+    if payload.schema != AGENTIC_DE_WORKSPACE_CONTINUITY_REGION_DECLARATION_SCHEMA:
+        raise ValueError(
+            "unexpected schema marker for workspace continuity region declaration: "
+            f"{payload.schema}"
+        )
+    return payload
+
+
+def load_workspace_continuity_admission_record(
+    path: Path,
+) -> AgenticDeWorkspaceContinuityAdmissionRecord:
+    payload = AgenticDeWorkspaceContinuityAdmissionRecord.model_validate(
+        _read_json_object(path)
+    )
+    if payload.schema != AGENTIC_DE_WORKSPACE_CONTINUITY_ADMISSION_RECORD_SCHEMA:
+        raise ValueError(
+            "unexpected schema marker for workspace continuity admission record: "
+            f"{payload.schema}"
+        )
+    return payload
+
+
+def load_workspace_occupancy_report(path: Path) -> AgenticDeWorkspaceOccupancyReport:
+    payload = AgenticDeWorkspaceOccupancyReport.model_validate(_read_json_object(path))
+    if payload.schema != AGENTIC_DE_WORKSPACE_OCCUPANCY_REPORT_SCHEMA:
+        raise ValueError(
+            "unexpected schema marker for workspace occupancy report: "
+            f"{payload.schema}"
+        )
+    return payload
+
+
+def load_workspace_continuity_reintegration_report(
+    path: Path,
+) -> AgenticDeWorkspaceContinuityReintegrationReport:
+    payload = AgenticDeWorkspaceContinuityReintegrationReport.model_validate(
+        _read_json_object(path)
+    )
+    if payload.schema != AGENTIC_DE_WORKSPACE_CONTINUITY_REINTEGRATION_REPORT_SCHEMA:
+        raise ValueError(
+            "unexpected schema marker for workspace continuity reintegration report: "
             f"{payload.schema}"
         )
     return payload
@@ -917,6 +1037,41 @@ def _validate_v58c_lane_drift_record(record: AgenticDeLaneDriftRecord) -> Agenti
     return record
 
 
+def _validate_v59a_lane_drift_record(record: AgenticDeLaneDriftRecord) -> AgenticDeLaneDriftRecord:
+    if record.target_arc != V59A_TARGET_ARC:
+        raise ValueError(
+            f"V59-A lane drift record must target {V59A_TARGET_ARC!r}, got {record.target_arc!r}"
+        )
+    if record.target_path != V59A_TARGET_PATH:
+        raise ValueError(
+            f"V59-A lane drift record must target {V59A_TARGET_PATH!r}, got {record.target_path!r}"
+        )
+    if record.prior_lane_ref != EXPECTED_V59A_PRIOR_LANE_REF:
+        raise ValueError(
+            "V59-A lane drift record must point at "
+            f"{EXPECTED_V59A_PRIOR_LANE_REF!r}, got {record.prior_lane_ref!r}"
+        )
+    actual_statuses = {entry.assumption_ref: entry.status for entry in record.entries}
+    missing_assumptions = sorted(set(REQUIRED_V59A_DRIFT_ENTRY_STATUSES) - set(actual_statuses))
+    mismatched_statuses = sorted(
+        assumption_ref
+        for assumption_ref, expected_status in REQUIRED_V59A_DRIFT_ENTRY_STATUSES.items()
+        if assumption_ref in actual_statuses
+        and actual_statuses[assumption_ref] != expected_status
+    )
+    if missing_assumptions or mismatched_statuses:
+        detail_parts: list[str] = []
+        if missing_assumptions:
+            detail_parts.append(f"missing={missing_assumptions}")
+        if mismatched_statuses:
+            detail_parts.append(f"status_mismatch={mismatched_statuses}")
+        raise ValueError(
+            "V59-A lane drift record does not satisfy the required handoff posture; "
+            + ", ".join(detail_parts)
+        )
+    return record
+
+
 def _validate_v56a_evidence_payload(payload: dict[str, object]) -> dict[str, object]:
     if payload.get("schema") != EXPECTED_V56A_EVIDENCE_SCHEMA:
         raise ValueError("V56-C requires the shipped V56-A starter evidence payload on main")
@@ -1138,6 +1293,31 @@ def _validate_v58b_evidence_payload(payload: dict[str, object]) -> dict[str, obj
             raise ValueError(f"V58-B evidence must preserve {field_name}")
     if payload.get("changes_live_behavior_by_default") is not False:
         raise ValueError("V58-B evidence must keep restoration outputs non-live by default")
+    return payload
+
+
+def _validate_v58c_evidence_payload(payload: dict[str, object]) -> dict[str, object]:
+    if payload.get("schema") != EXPECTED_V58C_EVIDENCE_SCHEMA:
+        raise ValueError("V59-A requires the shipped V58-C live harness evidence payload on main")
+    selected_shapes = payload.get("selected_record_shapes")
+    if not isinstance(selected_shapes, list) or (
+        "agentic_de_live_harness_hardening_register@1" not in selected_shapes
+    ):
+        raise ValueError("V58-C evidence must preserve the shipped live harness hardening surface")
+    if payload.get("selected_live_session_surface_for_v58c") != "urm_copilot_session_path_only":
+        raise ValueError("V58-C evidence must preserve the URM copilot session path only")
+    if payload.get("selected_live_action_class_for_v58c") != "local_write":
+        raise ValueError("V58-C evidence must preserve the local_write-only live class")
+    if payload.get("selected_local_write_kind_for_v58c") != "create_new":
+        raise ValueError("V58-C evidence must preserve the create_new-only live write kind")
+    if payload.get("recommendation_function_extensional_and_replayable") is not True:
+        raise ValueError(
+            "V58-C evidence must preserve extensional and replayable advisory hardening"
+        )
+    if payload.get("lineage_root_non_independence_dedup_required") is not True:
+        raise ValueError("V58-C evidence must preserve lineage-root non-independence dedup")
+    if payload.get("changes_live_behavior_by_default") is not False:
+        raise ValueError("V58-C evidence must preserve non-mutating live hardening posture")
     return payload
 
 
@@ -3424,6 +3604,516 @@ def _build_v58a_live_turn_reintegration_report(
     )
 
 
+def _build_v59a_live_turn_admission_record(
+    *,
+    repo_root_path: Path,
+    live_turn_snapshot: CopilotTurnSnapshot,
+    target_relative_path: str,
+    evidence_refs: list[str],
+) -> AgenticDeLiveTurnAdmissionRecord:
+    session_capability_snapshot = _session_capability_snapshot(live_turn_snapshot)
+    approval_posture_snapshot = _approval_posture_snapshot(live_turn_snapshot)
+    cwd_resolved = _resolve_snapshot_cwd_path(
+        repo_root_path=repo_root_path,
+        raw_value=live_turn_snapshot.cwd,
+        field_name="cwd",
+    )
+    cwd_path = _render_input_ref(repo_root_path=repo_root_path, path=cwd_resolved)
+    continuity_root = DESIGNATED_WORKSPACE_CONTINUITY_ROOT.as_posix()
+    selected_live_path_identity = (
+        "urm_copilot_session_path::local_write/create_new::"
+        f"{continuity_root}/{target_relative_path}"
+    )
+
+    if live_turn_snapshot.status not in {"starting", "running"}:
+        admission_verdict = "stale_or_expired"
+        admission_reason_codes = [
+            "session_not_live",
+            "current_turn_witness_not_admissible",
+        ]
+    elif cwd_resolved != repo_root_path.resolve():
+        admission_verdict = "rejected_inadmissible"
+        admission_reason_codes = [
+            "cwd_repo_root_mismatch",
+            "selected_live_path_not_admissible_for_current_turn",
+        ]
+    elif not live_turn_snapshot.writes_allowed:
+        admission_verdict = "withheld"
+        admission_reason_codes = [
+            "writes_allowed_not_enabled",
+            "outer_harness_capability_necessary_not_sufficient",
+        ]
+    else:
+        admission_verdict = "admitted"
+        admission_reason_codes = [
+            "current_turn_selected",
+            "writes_allowed_present_but_not_ticket_equivalent",
+            "approval_posture_observed_but_not_ticket_equivalent",
+        ]
+
+    observability_refs = _snapshot_observability_refs(
+        repo_root_path=repo_root_path,
+        live_turn_snapshot=live_turn_snapshot,
+    )
+    return AgenticDeLiveTurnAdmissionRecord(
+        target_arc=V59A_TARGET_ARC,
+        target_path=V59A_TARGET_PATH,
+        live_session_id=live_turn_snapshot.session_id,
+        live_turn_id=live_turn_snapshot.selected_turn_id,
+        session_status=live_turn_snapshot.status,
+        session_capability_snapshot=session_capability_snapshot,
+        approval_posture_snapshot=approval_posture_snapshot,
+        admission_verdict=admission_verdict,
+        admission_reason_codes=admission_reason_codes,
+        repo_root_path=".",
+        cwd_path=cwd_path,
+        designated_sandbox_root=continuity_root,
+        selected_live_path_identity=selected_live_path_identity,
+        observability_refs=observability_refs,
+        evidence_refs=[*observability_refs, *evidence_refs],
+    )
+
+
+def _build_v59a_live_turn_handoff_record(
+    *,
+    admission: AgenticDeLiveTurnAdmissionRecord,
+    domain_packet: AgenticDeDomainPacket,
+    proposal: AgenticDeActionProposal,
+    checkpoint: AgenticDeMembraneCheckpoint,
+    ticket: AgenticDeActionTicket,
+    target_relative_path: str,
+    evidence_refs: list[str],
+) -> AgenticDeLiveTurnHandoffRecord:
+    field_origin_tags = {
+        "turn_admission_ref": "current_turn_native",
+        "domain_packet_ref": "prior_artifact",
+        "action_proposal_ref": "prior_artifact",
+        "checkpoint_ref": "prior_artifact",
+        "action_ticket_ref": "prior_artifact",
+        "target_relative_path": "current_turn_derived",
+        "selected_effect_scope": "current_turn_derived",
+    }
+    field_dependence_tags = {
+        "turn_admission_ref": [],
+        "domain_packet_ref": [],
+        "action_proposal_ref": [],
+        "checkpoint_ref": [],
+        "action_ticket_ref": [],
+        "target_relative_path": [admission.selected_live_path_identity],
+        "selected_effect_scope": [
+            ticket.ticket_id,
+            proposal.proposal_id,
+            target_relative_path,
+        ],
+    }
+    root_origin_ids = [
+        f"session:{admission.live_session_id}",
+        f"turn:{admission.live_turn_id}",
+        f"ticket:{ticket.ticket_id}",
+        f"target:{target_relative_path}",
+    ]
+    return AgenticDeLiveTurnHandoffRecord(
+        target_arc=V59A_TARGET_ARC,
+        target_path=V59A_TARGET_PATH,
+        turn_admission_ref=admission.admission_id,
+        domain_packet_ref=domain_packet.packet_id,
+        action_proposal_ref=proposal.proposal_id,
+        checkpoint_ref=checkpoint.checkpoint_id,
+        action_ticket_ref=ticket.ticket_id,
+        target_relative_path=target_relative_path,
+        selected_effect_scope=(
+            "bounded local_write/create_new over the declared continuity root only"
+        ),
+        field_origin_tags=field_origin_tags,
+        field_dependence_tags=field_dependence_tags,
+        root_origin_ids=root_origin_ids,
+        evidence_refs=[admission.admission_id, *evidence_refs],
+    )
+
+
+def _build_v59a_local_effect_observation_record(
+    *,
+    packet: AgenticDeDomainPacket,
+    proposal: AgenticDeActionProposal,
+    checkpoint: AgenticDeMembraneCheckpoint,
+    runtime_state: AgenticDeRuntimeState,
+    ticket: AgenticDeActionTicket,
+    harvest: AgenticDeRuntimeHarvestRecord,
+    selected_local_write_kind: str,
+    declared_continuity_root: str,
+    pre_state_ref: str,
+    observed_write_set: list[object],
+    post_state_ref: str,
+    observed_effect: str,
+    observation_outcome: str,
+    boundedness_verdict: str,
+    boundedness_note: str,
+    evidence_refs: list[str],
+) -> AgenticDeLocalEffectObservationRecord:
+    return AgenticDeLocalEffectObservationRecord(
+        target_arc=V59A_TARGET_ARC,
+        target_path=V59A_TARGET_PATH,
+        selected_local_write_kind=selected_local_write_kind,
+        designated_sandbox_root=declared_continuity_root,
+        packet_ref=packet.packet_id,
+        action_proposal_ref=proposal.proposal_id,
+        checkpoint_ref=checkpoint.checkpoint_id,
+        runtime_state_ref=runtime_state.state_id,
+        ticket_ref=ticket.ticket_id,
+        harvest_ref=harvest.harvest_id,
+        pre_state_ref=pre_state_ref,
+        observed_write_set=observed_write_set,
+        post_state_ref=post_state_ref,
+        observed_effect=observed_effect,
+        observation_outcome=observation_outcome,
+        boundedness_verdict=boundedness_verdict,
+        boundedness_note=boundedness_note,
+        evidence_refs=evidence_refs,
+    )
+
+
+def _build_v59a_live_turn_reintegration_report(
+    *,
+    live_turn_snapshot: CopilotTurnSnapshot,
+    admission: AgenticDeLiveTurnAdmissionRecord,
+    handoff: AgenticDeLiveTurnHandoffRecord,
+    observation: AgenticDeLocalEffectObservationRecord,
+    conformance: AgenticDeLocalEffectConformanceReport,
+    evidence_refs: list[str],
+) -> AgenticDeLiveTurnReintegrationReport:
+    if (
+        observation.observation_outcome == "bounded_effect_observed"
+        and conformance.conformance_status == "effect_aligned"
+        and observation.boundedness_verdict == "bounded"
+    ):
+        reintegration_status = "reintegrated"
+        reason_codes = [
+            "current_turn_witness_declared",
+            "ticket_to_effect_handoff_bound",
+            "observed_effect_aligned",
+        ]
+        certificate_ref = (
+            "v59a_live_reintegration::"
+            f"{live_turn_snapshot.session_id}::"
+            f"{live_turn_snapshot.selected_turn_id}::"
+            f"{observation.observation_id}"
+        )
+        six_lane_closeout_posture = (
+            "current_turn_admitted_then_ticket_handoff_bound_then_"
+            "bounded_continuity_local_effect_observed_then_reintegrated_without_restoration"
+        )
+    elif observation.observation_outcome == "no_effect_observed":
+        reintegration_status = "residualized"
+        reason_codes = [
+            "no_current_turn_effect_observed",
+            "positive_reintegration_not_declared",
+        ]
+        certificate_ref = None
+        six_lane_closeout_posture = "current_turn_residualized_no_effect"
+    elif observation.observation_outcome == "boundedness_verdict_failed":
+        reintegration_status = "blocked"
+        reason_codes = [
+            "boundedness_verdict_failed",
+            "positive_reintegration_not_declared",
+        ]
+        certificate_ref = None
+        six_lane_closeout_posture = "current_turn_blocked_boundedness_failed"
+    else:
+        reintegration_status = "blocked"
+        reason_codes = [
+            "observed_effect_not_reintegrable",
+            "positive_reintegration_not_declared",
+        ]
+        certificate_ref = None
+        six_lane_closeout_posture = "current_turn_blocked_non_aligned_effect"
+
+    field_origin_tags = {
+        "observed_effect_summary": "current_turn_derived",
+        "reintegration_witness_basis_summary": "current_turn_derived",
+        "six_lane_closeout_posture": "current_turn_derived",
+    }
+    field_dependence_tags = {
+        "observed_effect_summary": [observation.observation_id, conformance.report_id],
+        "reintegration_witness_basis_summary": [
+            admission.admission_id,
+            handoff.handoff_id,
+            observation.observation_id,
+            conformance.report_id,
+        ],
+        "six_lane_closeout_posture": [
+            admission.admission_id,
+            handoff.handoff_id,
+            observation.observation_id,
+            conformance.report_id,
+        ],
+    }
+    root_origin_dedup_summary = (
+        "dedup roots="
+        f"session:{live_turn_snapshot.session_id},"
+        f"turn:{live_turn_snapshot.selected_turn_id},"
+        f"ticket:{handoff.action_ticket_ref},"
+        f"observation:{observation.observation_id},"
+        f"conformance:{conformance.report_id};"
+        " observability refs remain non-independent support"
+    )
+    return AgenticDeLiveTurnReintegrationReport(
+        target_arc=V59A_TARGET_ARC,
+        target_path=V59A_TARGET_PATH,
+        turn_admission_ref=admission.admission_id,
+        turn_handoff_ref=handoff.handoff_id,
+        observation_ref=observation.observation_id,
+        local_effect_conformance_ref=conformance.report_id,
+        observed_effect_summary=observation.observed_effect,
+        reintegration_status=reintegration_status,
+        reason_codes=reason_codes,
+        reintegration_witness_basis_summary=(
+            "current-turn admission + ticket lineage + continuity-root pre/post state + "
+            "observation/conformance chain"
+        ),
+        reintegration_certificate_ref_or_equivalent=certificate_ref,
+        field_origin_tags=field_origin_tags,
+        field_dependence_tags=field_dependence_tags,
+        root_origin_dedup_summary=root_origin_dedup_summary,
+        six_lane_closeout_posture=six_lane_closeout_posture,
+        evidence_refs=[
+            admission.admission_id,
+            handoff.handoff_id,
+            observation.observation_id,
+            conformance.report_id,
+            *evidence_refs,
+        ],
+    )
+
+
+def _build_v59a_workspace_continuity_region_declaration(
+    *,
+    evidence_refs: list[str],
+) -> AgenticDeWorkspaceContinuityRegionDeclaration:
+    return AgenticDeWorkspaceContinuityRegionDeclaration(
+        target_arc=V59A_TARGET_ARC,
+        target_path=V59A_TARGET_PATH,
+        declared_continuity_root=DESIGNATED_WORKSPACE_CONTINUITY_ROOT.as_posix(),
+        target_identity_or_target_set=str(DEFAULT_WORKSPACE_CONTINUITY_TARGET_RELATIVE_PATH),
+        allowed_write_kind_subset=["create_new"],
+        occupancy_policy="only_unoccupied_target_is_entitling_for_create_new_in_v59a",
+        region_origin_tags={
+            "declared_continuity_root": "current_turn_derived",
+            "target_identity_or_target_set": "current_turn_derived",
+            "allowed_write_kind_subset": "current_turn_derived",
+            "occupancy_policy": "current_turn_derived",
+        },
+        evidence_refs=evidence_refs,
+    )
+
+
+def _build_v59a_workspace_continuity_admission_record(
+    *,
+    repo_root_path: Path,
+    admission: AgenticDeLiveTurnAdmissionRecord,
+    handoff: AgenticDeLiveTurnHandoffRecord,
+    region: AgenticDeWorkspaceContinuityRegionDeclaration,
+    pre_state_summary: str,
+    evidence_refs: list[str],
+) -> AgenticDeWorkspaceContinuityAdmissionRecord:
+    if admission.admission_verdict == "admitted":
+        continuity_verdict = "admitted"
+        continuity_reason_codes = [
+            "current_turn_live_admission_preserved",
+            "continuity_region_declared",
+            "continuity_snapshot_replayed",
+        ]
+    elif admission.admission_verdict == "stale_or_expired":
+        continuity_verdict = "stale_continuity_basis"
+        continuity_reason_codes = [
+            "live_turn_not_currently_live",
+            "continuity_not_admitted",
+        ]
+    elif admission.admission_verdict == "withheld":
+        continuity_verdict = "withheld_by_policy"
+        continuity_reason_codes = [
+            "live_turn_writes_not_enabled",
+            "continuity_not_admitted",
+        ]
+    else:
+        continuity_verdict = "rejected_inadmissible"
+        continuity_reason_codes = [
+            "live_turn_not_admitted",
+            "continuity_not_admitted",
+        ]
+
+    field_origin_tags = {
+        "continuity_snapshot_summary": "current_turn_derived",
+        "continuity_root_identity": "current_turn_derived",
+    }
+    field_dependence_tags = {
+        "continuity_snapshot_summary": [
+            region.continuity_region_id,
+            admission.admission_id,
+        ],
+        "continuity_root_identity": [region.continuity_region_id],
+    }
+    return AgenticDeWorkspaceContinuityAdmissionRecord(
+        target_arc=V59A_TARGET_ARC,
+        target_path=V59A_TARGET_PATH,
+        live_turn_admission_ref=admission.admission_id,
+        live_turn_handoff_ref=handoff.handoff_id,
+        continuity_region_declaration_ref=region.continuity_region_id,
+        continuity_verdict=continuity_verdict,
+        continuity_reason_codes=continuity_reason_codes,
+        continuity_snapshot_summary=pre_state_summary,
+        repo_root_path=".",
+        cwd_path=admission.cwd_path,
+        continuity_root_identity=region.declared_continuity_root,
+        field_origin_tags=field_origin_tags,
+        field_dependence_tags=field_dependence_tags,
+        evidence_refs=[
+            admission.admission_id,
+            handoff.handoff_id,
+            region.continuity_region_id,
+            *evidence_refs,
+        ],
+    )
+
+
+def _build_v59a_workspace_occupancy_report(
+    *,
+    continuity_admission: AgenticDeWorkspaceContinuityAdmissionRecord,
+    target_relative_path: str,
+    occupancy_assessment: object,
+    evidence_refs: list[str],
+) -> AgenticDeWorkspaceOccupancyReport:
+    field_origin_tags = {
+        "drift_posture_summary": "current_turn_derived",
+        "out_of_band_evidence_summary": "current_turn_derived",
+        "occupancy_witness_basis_summary": "current_turn_derived",
+    }
+    field_dependence_tags = {
+        "drift_posture_summary": [continuity_admission.continuity_admission_id],
+        "out_of_band_evidence_summary": [continuity_admission.continuity_admission_id],
+        "occupancy_witness_basis_summary": [continuity_admission.continuity_admission_id],
+    }
+    assessment = occupancy_assessment
+    return AgenticDeWorkspaceOccupancyReport(
+        target_arc=V59A_TARGET_ARC,
+        target_path=V59A_TARGET_PATH,
+        continuity_admission_ref=continuity_admission.continuity_admission_id,
+        target_relative_path=target_relative_path,
+        occupancy_verdict=assessment.occupancy_verdict,
+        prior_governed_lineage_ref=assessment.prior_governed_lineage_ref,
+        drift_posture_summary=assessment.drift_posture_summary,
+        out_of_band_evidence_summary=assessment.out_of_band_evidence_summary,
+        occupancy_witness_basis_summary=assessment.occupancy_witness_basis_summary,
+        field_origin_tags=field_origin_tags,
+        field_dependence_tags=field_dependence_tags,
+        root_origin_ids=assessment.root_origin_ids,
+        evidence_refs=[continuity_admission.continuity_admission_id, *evidence_refs],
+    )
+
+
+def _build_v59a_workspace_continuity_reintegration_report(
+    *,
+    live_turn_snapshot: CopilotTurnSnapshot,
+    live_turn_reintegration: AgenticDeLiveTurnReintegrationReport,
+    continuity_admission: AgenticDeWorkspaceContinuityAdmissionRecord,
+    occupancy: AgenticDeWorkspaceOccupancyReport,
+    observation: AgenticDeLocalEffectObservationRecord,
+    conformance: AgenticDeLocalEffectConformanceReport,
+    continuity_region_state_summary_after_act: str,
+    evidence_refs: list[str],
+) -> AgenticDeWorkspaceContinuityReintegrationReport:
+    if (
+        live_turn_reintegration.reintegration_status == "reintegrated"
+        and continuity_admission.continuity_verdict == "admitted"
+        and occupancy.occupancy_verdict == "unoccupied"
+        and observation.observation_outcome == "bounded_effect_observed"
+        and conformance.conformance_status == "effect_aligned"
+    ):
+        reintegration_status = "reintegrated"
+        reason_codes = [
+            "current_turn_continuity_witness_declared",
+            "unoccupied_target_entitlement_bound",
+            "continuity_effect_aligned",
+        ]
+        certificate_ref = (
+            "v59a_continuity_reintegration::"
+            f"{live_turn_snapshot.session_id}::"
+            f"{live_turn_snapshot.selected_turn_id}::"
+            f"{observation.observation_id}"
+        )
+    elif observation.observation_outcome == "no_effect_observed":
+        reintegration_status = "residualized"
+        reason_codes = [
+            "no_current_turn_effect_observed",
+            "positive_continuity_reintegration_not_declared",
+        ]
+        certificate_ref = None
+    else:
+        reintegration_status = "blocked"
+        reason_codes = [
+            "continuity_not_reintegrable",
+            "positive_continuity_reintegration_not_declared",
+        ]
+        certificate_ref = None
+
+    field_origin_tags = {
+        "observed_effect_summary": "current_turn_derived",
+        "continuity_witness_basis_summary": "current_turn_derived",
+        "continuity_region_state_summary_after_act": "current_turn_derived",
+    }
+    field_dependence_tags = {
+        "observed_effect_summary": [observation.observation_id, conformance.report_id],
+        "continuity_witness_basis_summary": [
+            live_turn_reintegration.report_id,
+            continuity_admission.continuity_admission_id,
+            occupancy.occupancy_report_id,
+            observation.observation_id,
+            conformance.report_id,
+        ],
+        "continuity_region_state_summary_after_act": [
+            occupancy.occupancy_report_id,
+            observation.observation_id,
+        ],
+    }
+    root_origin_dedup_summary = (
+        "dedup roots="
+        f"session:{live_turn_snapshot.session_id},"
+        f"turn:{live_turn_snapshot.selected_turn_id},"
+        f"occupancy:{occupancy.occupancy_report_id},"
+        f"observation:{observation.observation_id},"
+        f"conformance:{conformance.report_id};"
+        " repeated observability and prior-artifact refs remain non-independent support"
+    )
+    return AgenticDeWorkspaceContinuityReintegrationReport(
+        target_arc=V59A_TARGET_ARC,
+        target_path=V59A_TARGET_PATH,
+        live_turn_reintegration_ref=live_turn_reintegration.report_id,
+        continuity_admission_ref=continuity_admission.continuity_admission_id,
+        occupancy_report_ref=occupancy.occupancy_report_id,
+        observation_ref=observation.observation_id,
+        local_effect_conformance_ref=conformance.report_id,
+        observed_effect_summary=observation.observed_effect,
+        continuity_reintegration_status=reintegration_status,
+        reason_codes=reason_codes,
+        continuity_witness_basis_summary=(
+            "current-turn live admission/handoff/reintegration + continuity admission + "
+            "occupancy witness + continuity-root pre/post state + observation/conformance chain"
+        ),
+        continuity_witness_certificate_ref_or_equivalent=certificate_ref,
+        continuity_region_state_summary_after_act=continuity_region_state_summary_after_act,
+        field_origin_tags=field_origin_tags,
+        field_dependence_tags=field_dependence_tags,
+        root_origin_dedup_summary=root_origin_dedup_summary,
+        evidence_refs=[
+            live_turn_reintegration.report_id,
+            continuity_admission.continuity_admission_id,
+            occupancy.occupancy_report_id,
+            observation.observation_id,
+            conformance.report_id,
+            *evidence_refs,
+        ],
+    )
+
+
 def run_agentic_de_live_harness_v58a(
     *,
     live_turn_snapshot: CopilotTurnSnapshot,
@@ -4710,6 +5400,302 @@ def run_agentic_de_live_harness_v58c(
     )
 
 
+def run_agentic_de_workspace_continuity_v59a(
+    *,
+    live_turn_snapshot: CopilotTurnSnapshot,
+    repo_root_path: Path | None = None,
+    domain_packet_path: Path = DEFAULT_DOMAIN_PACKET_PATH,
+    morph_ir_path: Path = DEFAULT_MORPH_IR_PATH,
+    interaction_contract_path: Path = DEFAULT_INTERACTION_CONTRACT_PATH,
+    action_proposal_path: Path = DEFAULT_ACTION_PROPOSAL_PATH,
+    v56a_checkpoint_path: Path = DEFAULT_V56A_CHECKPOINT_PATH,
+    v56a_diagnostics_path: Path = DEFAULT_V56A_DIAGNOSTICS_PATH,
+    v56a_conformance_path: Path = DEFAULT_V56A_CONFORMANCE_PATH,
+    v56b_lane_drift_path: Path = DEFAULT_V56B_LANE_DRIFT_PATH,
+    v56b_action_class_taxonomy_path: Path = DEFAULT_V56B_ACTION_CLASS_TAXONOMY_PATH,
+    v56b_runtime_state_path: Path = DEFAULT_V56B_RUNTIME_STATE_PATH,
+    v56b_action_ticket_path: Path = DEFAULT_V56B_TICKET_PATH,
+    v56b_diagnostics_path: Path = DEFAULT_V56B_DIAGNOSTICS_PATH,
+    v56b_conformance_path: Path = DEFAULT_V56B_CONFORMANCE_PATH,
+    v56c_lane_drift_path: Path = DEFAULT_V56C_LANE_DRIFT_PATH,
+    v56c_runtime_harvest_path: Path = DEFAULT_V56C_RUNTIME_HARVEST_PATH,
+    v56c_governance_calibration_path: Path = DEFAULT_V56C_GOVERNANCE_CALIBRATION_PATH,
+    v56c_migration_decision_path: Path = DEFAULT_V56C_MIGRATION_DECISION_PATH,
+    lane_drift_path: Path = DEFAULT_V59A_LANE_DRIFT_PATH,
+    v58c_evidence_path: Path = DEFAULT_V58C_EVIDENCE_PATH,
+    target_relative_path: str = str(DEFAULT_WORKSPACE_CONTINUITY_TARGET_RELATIVE_PATH),
+    payload_text: str = DEFAULT_WORKSPACE_CONTINUITY_PAYLOAD_TEXT,
+    expected_relative_paths: tuple[str, ...] | None = None,
+    expected_content_contains: str | None = (
+        "bounded persistent workspace continuity patch candidate"
+    ),
+) -> tuple[
+    AgenticDeWorkspaceContinuityRegionDeclaration,
+    AgenticDeWorkspaceContinuityAdmissionRecord,
+    AgenticDeWorkspaceOccupancyReport,
+    AgenticDeLiveTurnAdmissionRecord,
+    AgenticDeLiveTurnHandoffRecord,
+    AgenticDeLocalEffectObservationRecord,
+    AgenticDeLocalEffectConformanceReport,
+    AgenticDeLiveTurnReintegrationReport,
+    AgenticDeWorkspaceContinuityReintegrationReport,
+]:
+    if repo_root_path is None:
+        root = repo_root(anchor=Path(__file__)).resolve()
+    else:
+        root = repo_root_path.resolve()
+
+    domain_packet_path = _resolve_path(repo_root_path=root, path=domain_packet_path)
+    morph_ir_path = _resolve_path(repo_root_path=root, path=morph_ir_path)
+    interaction_contract_path = _resolve_path(repo_root_path=root, path=interaction_contract_path)
+    action_proposal_path = _resolve_path(repo_root_path=root, path=action_proposal_path)
+    v56a_checkpoint_path = _resolve_path(repo_root_path=root, path=v56a_checkpoint_path)
+    v56a_diagnostics_path = _resolve_path(repo_root_path=root, path=v56a_diagnostics_path)
+    v56a_conformance_path = _resolve_path(repo_root_path=root, path=v56a_conformance_path)
+    v56b_lane_drift_path = _resolve_path(repo_root_path=root, path=v56b_lane_drift_path)
+    v56b_action_class_taxonomy_path = _resolve_path(
+        repo_root_path=root,
+        path=v56b_action_class_taxonomy_path,
+    )
+    v56b_runtime_state_path = _resolve_path(repo_root_path=root, path=v56b_runtime_state_path)
+    v56b_action_ticket_path = _resolve_path(repo_root_path=root, path=v56b_action_ticket_path)
+    v56b_diagnostics_path = _resolve_path(repo_root_path=root, path=v56b_diagnostics_path)
+    v56b_conformance_path = _resolve_path(repo_root_path=root, path=v56b_conformance_path)
+    v56c_lane_drift_path = _resolve_path(repo_root_path=root, path=v56c_lane_drift_path)
+    v56c_runtime_harvest_path = _resolve_path(repo_root_path=root, path=v56c_runtime_harvest_path)
+    v56c_governance_calibration_path = _resolve_path(
+        repo_root_path=root,
+        path=v56c_governance_calibration_path,
+    )
+    v56c_migration_decision_path = _resolve_path(
+        repo_root_path=root,
+        path=v56c_migration_decision_path,
+    )
+    lane_drift_path = _resolve_path(repo_root_path=root, path=lane_drift_path)
+    v58c_evidence_path = _resolve_path(repo_root_path=root, path=v58c_evidence_path)
+
+    _validate_v59a_lane_drift_record(load_lane_drift_record(lane_drift_path))
+    _validate_v56b_lane_drift_record(load_lane_drift_record(v56b_lane_drift_path))
+    _validate_v56c_lane_drift_record(load_lane_drift_record(v56c_lane_drift_path))
+    _validate_v58c_evidence_payload(
+        _load_json_object(v58c_evidence_path, error_label="V58-C evidence")
+    )
+
+    packet = load_domain_packet(domain_packet_path)
+    morph_ir = load_morph_ir(morph_ir_path)
+    contract = load_interaction_contract(interaction_contract_path)
+    proposal = load_action_proposal(action_proposal_path)
+    v56a_checkpoint = load_membrane_checkpoint(v56a_checkpoint_path)
+    v56a_diagnostics = load_morph_diagnostics(v56a_diagnostics_path)
+    v56a_conformance = load_conformance_report(v56a_conformance_path)
+    v56b_taxonomy = load_action_class_taxonomy(v56b_action_class_taxonomy_path)
+    v56b_runtime_state = load_runtime_state(v56b_runtime_state_path)
+    v56b_ticket = load_action_ticket(v56b_action_ticket_path)
+    v56b_diagnostics = load_morph_diagnostics(v56b_diagnostics_path)
+    v56b_conformance = load_conformance_report(v56b_conformance_path)
+    v56c_harvest = load_runtime_harvest_record(v56c_runtime_harvest_path)
+    v56c_governance = load_governance_calibration_register(v56c_governance_calibration_path)
+    v56c_migration = load_migration_decision_register(v56c_migration_decision_path)
+
+    _validate_v56a_reference_surfaces(
+        domain_packet=packet,
+        morph_ir=morph_ir,
+        contract=contract,
+        proposal=proposal,
+        checkpoint=v56a_checkpoint,
+        diagnostics=v56a_diagnostics,
+        conformance=v56a_conformance,
+    )
+    _validate_v56b_reference_surfaces(
+        domain_packet=packet,
+        contract=contract,
+        proposal=proposal,
+        checkpoint=v56a_checkpoint,
+        taxonomy=v56b_taxonomy,
+        runtime_state=v56b_runtime_state,
+        ticket=v56b_ticket,
+        diagnostics=v56b_diagnostics,
+        conformance=v56b_conformance,
+    )
+    _validate_v57a_reference_surfaces(
+        packet=packet,
+        proposal=proposal,
+        checkpoint=v56a_checkpoint,
+        runtime_state=v56b_runtime_state,
+        ticket=v56b_ticket,
+        taxonomy=v56b_taxonomy,
+        harvest=v56c_harvest,
+        governance=v56c_governance,
+        migration=v56c_migration,
+    )
+
+    base_evidence_refs = [
+        _render_input_ref(repo_root_path=root, path=domain_packet_path),
+        _render_input_ref(repo_root_path=root, path=morph_ir_path),
+        _render_input_ref(repo_root_path=root, path=interaction_contract_path),
+        _render_input_ref(repo_root_path=root, path=action_proposal_path),
+        _render_input_ref(repo_root_path=root, path=v56a_checkpoint_path),
+        _render_input_ref(repo_root_path=root, path=v56a_diagnostics_path),
+        _render_input_ref(repo_root_path=root, path=v56a_conformance_path),
+        _render_input_ref(repo_root_path=root, path=v56b_action_class_taxonomy_path),
+        _render_input_ref(repo_root_path=root, path=v56b_runtime_state_path),
+        _render_input_ref(repo_root_path=root, path=v56b_action_ticket_path),
+        _render_input_ref(repo_root_path=root, path=v56b_lane_drift_path),
+        _render_input_ref(repo_root_path=root, path=v56b_diagnostics_path),
+        _render_input_ref(repo_root_path=root, path=v56b_conformance_path),
+        _render_input_ref(repo_root_path=root, path=v56c_lane_drift_path),
+        _render_input_ref(repo_root_path=root, path=v56c_runtime_harvest_path),
+        _render_input_ref(repo_root_path=root, path=v56c_governance_calibration_path),
+        _render_input_ref(repo_root_path=root, path=v56c_migration_decision_path),
+        _render_input_ref(repo_root_path=root, path=lane_drift_path),
+        _render_input_ref(repo_root_path=root, path=v58c_evidence_path),
+    ]
+    continuity_region = _build_v59a_workspace_continuity_region_declaration(
+        evidence_refs=base_evidence_refs
+    )
+    live_turn_admission = _build_v59a_live_turn_admission_record(
+        repo_root_path=root,
+        live_turn_snapshot=live_turn_snapshot,
+        target_relative_path=target_relative_path,
+        evidence_refs=[continuity_region.continuity_region_id, *base_evidence_refs],
+    )
+    if live_turn_admission.admission_verdict != "admitted":
+        raise ValueError("V59-A live-turn admission must resolve to admitted")
+    live_turn_handoff = _build_v59a_live_turn_handoff_record(
+        admission=live_turn_admission,
+        domain_packet=packet,
+        proposal=proposal,
+        checkpoint=v56a_checkpoint,
+        ticket=v56b_ticket,
+        target_relative_path=target_relative_path,
+        evidence_refs=[continuity_region.continuity_region_id, *base_evidence_refs],
+    )
+
+    pre_state = snapshot_workspace_continuity_state(
+        repo_root_path=root,
+        target_relative_path=target_relative_path,
+        snapshot_name="reference_pre_state.json",
+    )
+    pre_state_summary = (
+        f"target_present={'true' if pre_state.target_exists else 'false'};"
+        f"non_target_context_count={len(pre_state.non_target_context_paths)};"
+        f"marker_present={'true' if pre_state.marker_ref else 'false'}"
+    )
+    continuity_admission = _build_v59a_workspace_continuity_admission_record(
+        repo_root_path=root,
+        admission=live_turn_admission,
+        handoff=live_turn_handoff,
+        region=continuity_region,
+        pre_state_summary=pre_state_summary,
+        evidence_refs=[pre_state.snapshot_ref, *base_evidence_refs],
+    )
+    if continuity_admission.continuity_verdict != "admitted":
+        raise ValueError("V59-A continuity admission must resolve to admitted")
+
+    occupancy_assessment = classify_workspace_occupancy(state=pre_state)
+    occupancy_report = _build_v59a_workspace_occupancy_report(
+        continuity_admission=continuity_admission,
+        target_relative_path=target_relative_path,
+        occupancy_assessment=occupancy_assessment,
+        evidence_refs=[pre_state.snapshot_ref, *base_evidence_refs],
+    )
+    if occupancy_report.occupancy_verdict != "unoccupied":
+        raise ValueError("V59-A create_new continuity path requires unoccupied target")
+
+    observed_effect = observe_workspace_continuity_create_new_effect(
+        repo_root_path=root,
+        pre_state=pre_state,
+        target_relative_path=target_relative_path,
+        payload_text=payload_text,
+        expected_relative_paths=expected_relative_paths,
+        expected_content_contains=expected_content_contains,
+    )
+    observation_evidence_refs = [
+        continuity_region.continuity_region_id,
+        continuity_admission.continuity_admission_id,
+        occupancy_report.occupancy_report_id,
+        pre_state.snapshot_ref,
+        observed_effect.post_state_ref,
+        *base_evidence_refs,
+    ]
+    observation = _build_v59a_local_effect_observation_record(
+        packet=packet,
+        proposal=proposal,
+        checkpoint=v56a_checkpoint,
+        runtime_state=v56b_runtime_state,
+        ticket=v56b_ticket,
+        harvest=v56c_harvest,
+        selected_local_write_kind="create_new",
+        declared_continuity_root=observed_effect.declared_continuity_root,
+        pre_state_ref=observed_effect.pre_state_ref,
+        observed_write_set=observed_effect.observed_write_set,
+        post_state_ref=observed_effect.post_state_ref,
+        observed_effect=observed_effect.observed_effect,
+        observation_outcome=observed_effect.observation_outcome,
+        boundedness_verdict=observed_effect.boundedness_verdict,
+        boundedness_note=observed_effect.boundedness_note,
+        evidence_refs=observation_evidence_refs,
+    )
+    governed_marker_ref = write_workspace_governed_lineage_marker(
+        repo_root_path=root,
+        target_relative_path=target_relative_path,
+        governed_observation_ref=observation.observation_id,
+        target_content_sha256=observation.observed_write_set[0].content_sha256,
+    )
+    conformance = build_local_effect_conformance_report(
+        target_arc=V59A_TARGET_ARC,
+        target_path=V59A_TARGET_PATH,
+        packet=packet,
+        proposal=proposal,
+        checkpoint=v56a_checkpoint,
+        runtime_state=v56b_runtime_state,
+        ticket=v56b_ticket,
+        harvest=v56c_harvest,
+        observation=observation,
+        evidence_refs=[governed_marker_ref, *observation_evidence_refs],
+    )
+    live_turn_reintegration = _build_v59a_live_turn_reintegration_report(
+        live_turn_snapshot=live_turn_snapshot,
+        admission=live_turn_admission,
+        handoff=live_turn_handoff,
+        observation=observation,
+        conformance=conformance,
+        evidence_refs=[
+            continuity_region.continuity_region_id,
+            continuity_admission.continuity_admission_id,
+            occupancy_report.occupancy_report_id,
+            governed_marker_ref,
+            *base_evidence_refs,
+        ],
+    )
+    continuity_reintegration = _build_v59a_workspace_continuity_reintegration_report(
+        live_turn_snapshot=live_turn_snapshot,
+        live_turn_reintegration=live_turn_reintegration,
+        continuity_admission=continuity_admission,
+        occupancy=occupancy_report,
+        observation=observation,
+        conformance=conformance,
+        continuity_region_state_summary_after_act=observed_effect.post_state_summary,
+        evidence_refs=[
+            continuity_region.continuity_region_id,
+            governed_marker_ref,
+            observed_effect.post_state_ref,
+            *base_evidence_refs,
+        ],
+    )
+    return (
+        continuity_region,
+        continuity_admission,
+        occupancy_report,
+        live_turn_admission,
+        live_turn_handoff,
+        observation,
+        conformance,
+        live_turn_reintegration,
+        continuity_reintegration,
+    )
+
+
 def render_checkpoint_payload(checkpoint: AgenticDeMembraneCheckpoint) -> str:
     return json.dumps(checkpoint.model_dump(mode="json"), indent=2, sort_keys=True) + "\n"
 
@@ -4750,6 +5736,28 @@ def render_live_turn_handoff_payload(handoff: AgenticDeLiveTurnHandoffRecord) ->
 
 def render_live_turn_reintegration_payload(
     report: AgenticDeLiveTurnReintegrationReport,
+) -> str:
+    return json.dumps(report.model_dump(mode="json"), indent=2, sort_keys=True) + "\n"
+
+
+def render_workspace_continuity_region_declaration_payload(
+    region: AgenticDeWorkspaceContinuityRegionDeclaration,
+) -> str:
+    return json.dumps(region.model_dump(mode="json"), indent=2, sort_keys=True) + "\n"
+
+
+def render_workspace_continuity_admission_payload(
+    admission: AgenticDeWorkspaceContinuityAdmissionRecord,
+) -> str:
+    return json.dumps(admission.model_dump(mode="json"), indent=2, sort_keys=True) + "\n"
+
+
+def render_workspace_occupancy_payload(report: AgenticDeWorkspaceOccupancyReport) -> str:
+    return json.dumps(report.model_dump(mode="json"), indent=2, sort_keys=True) + "\n"
+
+
+def render_workspace_continuity_reintegration_payload(
+    report: AgenticDeWorkspaceContinuityReintegrationReport,
 ) -> str:
     return json.dumps(report.model_dump(mode="json"), indent=2, sort_keys=True) + "\n"
 
