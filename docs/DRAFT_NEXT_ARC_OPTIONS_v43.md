@@ -313,15 +313,25 @@ Default path selection for this branch:
   - keep communication packet law, office binding, connector admission, remote-operator
     surfaces, repo-bound writable-surface authority, replay widening, execute widening,
     and dispatch widening not selected in this slice
-  - after `V60-A`, if this family is selected, select `V60-B` as the next default candidate:
-    - one residual refresh / reproposal / escalation seam over one latest
-      reintegrated `V60-A` loop path only
-    - preserve the shipped loop-state ledger as the canonical loop anchor
-    - require explicit latest reintegrated act selection with fail-closed ambiguity
-      handling
-    - no seed-ingress widening
+  - after `V60-B`, if this family is selected, select `V60-C` as the next default candidate:
+    - one advisory continuation hardening / migration seam over the exact shipped
+      `V60-A` / `V60-B` lineage only
+    - keep evidence basis distinct from recommendation
+    - expose register provenance and lineage-root dedup explicitly:
+      - `field_origin_tags`
+      - `field_dependence_tags`
+      - `root_origin_dedup_summary`
+    - require extensional and replayable recommendation behavior under one explicit
+      frozen policy anchor
+    - keep outputs non-entitling and advisory-only
+    - keep candidate outcomes non-entitling and non-escalating by themselves
+    - keep the selected exemplar non-generalizing by default:
+      - not class-level continuation law
+      - not family-level migration law
+      - not communication law
+      - not broader autonomy claims
     - no communication-packet law
-    - no ticket-duration widening
+    - no repo-authority or ticket-duration widening
 
 This family/path recommendation is branch-local to the `v43` planning surface.
 
@@ -335,8 +345,8 @@ The current recommended path ladder is:
 | Path | Theme | Primary output | Status |
 |---|---|---|---|
 | `V60-A` | continuation starter | one typed starter seed-intent record, one bounded task charter packet, one bounded task residual packet, one loop-state ledger, and one continuation decision record over one seed-intent-to-loop path bound to the shipped exact continuity-bound exemplar | landed starter path |
-| `V60-B` | continuation refresh / reproposal / escalation | one bounded residual refresh packet and one refreshed continuation decision over one latest reintegrated `V60-A` loop path only, including typed block / rejection / reproposal posture without ticket widening | recommended next path |
-| `V60-C` | advisory continuation hardening / migration | one advisory path-level continuation hardening / migration surface over the same continuation lineage, without mutating live behavior by default | anticipated later path |
+| `V60-B` | continuation refresh / reproposal / escalation | one bounded residual refresh packet and one refreshed continuation decision over one latest reintegrated `V60-A` loop path only, including typed block / rejection / reproposal posture without ticket widening | landed step-2 path |
+| `V60-C` | advisory continuation hardening / migration | one advisory path-level continuation hardening / migration surface over the same continuation lineage, without mutating live behavior by default | recommended next path |
 
 These output names are planning-level candidate names, not lock-level schema
 commitments yet.
@@ -367,10 +377,13 @@ The clean next-family move after `V59` is:
 - promote `V60`, not more `V59`;
 - make `V60` own bounded task-law compilation and continuation identity over the
   already shipped governed runtime stack;
-- make `V60-B` the next selected fill now that `V60-A` has landed, so the repo can
-  refresh residual posture after one governed act without reopening seed ingress,
-  while preserving stable loop identity and explicit latest-act selection, and
-  without widening communication law;
+- after `V60-B`, if this family is selected, select `V60-C` as the next default
+  candidate, so the repo can
+  add one advisory continuation hardening / migration surface over the same shipped
+  `V60-A` / `V60-B` lineage, while keeping evidence basis distinct from
+  recommendation, keeping register provenance and lineage-root dedup explicit,
+  keeping outputs and candidate outcomes non-entitling, and without widening
+  communication law, ticket duration, repo authority, or live behavior by default;
 - keep `V61` prepared next to retrofit the existing communication surfaces, but not
   selected in this planning doc; and
 - keep repo widening and worker export explicitly later.

@@ -1,6 +1,7 @@
 # Draft ADEU Resident-Agent Continuation And Residual-Intent V60 Implementation Mapping v0
 
-Status: support-layer implementation mapping for `V60`.
+Status: support-layer implementation mapping for `V60` after `V60-B` closed on
+`main` and while `V60-C` is the next starter candidate.
 
 Authority layer: support only.
 
@@ -15,6 +16,7 @@ Read together with:
 - `docs/DRAFT_NEXT_ARC_OPTIONS_v43.md`
 - `docs/DRAFT_MULTI_ARC_ROADMAP_POST_V59_v0.md`
 - `docs/ARCHITECTURE_ADEU_RESIDENT_AGENT_CONTINUATION_AND_RESIDUAL_INTENT_FAMILY_v0.md`
+- `docs/DRAFT_ADEU_RESIDENT_AGENT_CONTINUATION_AND_RESIDUAL_INTENT_V60C_IMPLEMENTATION_MAPPING_v0.md`
 - `docs/DRAFT_EXTERNALIZED_REASONING_KERNEL_v0.md`
 - `docs/DRAFT_WCPGC_CORE_AND_STRICT_V0_v0.md`
 
@@ -147,6 +149,15 @@ The family should remain backend-first in `V60-A`:
     continuation lineage
   - keep outputs advisory-only and non-entitling
   - keep evidence basis distinct from recommendation
+  - keep register provenance and lineage-root dedup explicit:
+    - `field_origin_tags`
+    - `field_dependence_tags`
+    - `root_origin_dedup_summary`
+  - keep the selected exemplar non-generalizing by default:
+    - not class-level continuation law
+    - not family-level migration law
+    - not communication law
+    - not broader autonomy claims
   - keep any later widening or migration decision separate from live behavior by
     default
 
