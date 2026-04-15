@@ -1,0 +1,48 @@
+{
+  "schema": "v59b_workspace_continuity_restoration_evidence@1",
+  "evidence_input_path": "artifacts/agent_harness/v162/evidence_inputs/v59b_workspace_continuity_restoration_evidence_v162.json",
+  "contract_source": "docs/LOCKED_CONTINUATION_vNEXT_PLUS162.md#machine-checkable-contract",
+  "merged_pr": "#389",
+  "merge_commit": "d7fe8f1c8a6959f81a3da948cfab21d3d5f30a18",
+  "implementation_commit": "1016e08dd4987365035b952e564df96a70a6cec4",
+  "review_hardening_commit": "bb6268abad9d57c0c7700ed1263352504d37906e",
+  "implementation_packages": [
+    "adeu_agentic_de",
+    "urm_runtime"
+  ],
+  "selected_record_shapes": [
+    "agentic_de_local_effect_restoration_record@1",
+    "agentic_de_workspace_continuity_restoration_handoff_record@1",
+    "agentic_de_workspace_continuity_restoration_reintegration_report@1"
+  ],
+  "required_prior_lane_evidence_paths": [
+    "artifacts/agent_harness/v156/evidence_inputs/v57b_local_effect_restoration_evidence_v156.json",
+    "artifacts/agent_harness/v159/evidence_inputs/v58b_live_restoration_state_evidence_v159.json",
+    "artifacts/agent_harness/v161/evidence_inputs/v59a_workspace_continuity_starter_evidence_v161.json"
+  ],
+  "selected_live_session_surface_for_v59b": "urm_copilot_session_path_only",
+  "selected_live_action_class_for_v59b": "local_write",
+  "selected_local_write_kind_for_v59b": "create_new",
+  "selected_continuity_root_for_v59b": "artifacts/agentic_de/v59/workspace_continuity/",
+  "selected_target_relative_path": "runtime/reference_patch_candidate.diff",
+  "continuity_safe_restoration_is_new_live_act_not_ambient_authority": true,
+  "same_session_and_same_turn_restoration_continuation_required": true,
+  "restoration_time_resnapshot_required": true,
+  "restoration_time_continuation_verdict_typed_witness_bearing_replayable": true,
+  "historical_lineage_refs_lineage_only_not_entitlement": true,
+  "prior_governed_state_baseline_match_required": true,
+  "bounded_compensating_scope_match_required": true,
+  "positive_continuity_restoration_reintegration_requires_witness_basis_or_certificate_ref": true,
+  "replay_mode_bounded_to_exact_restoration_event_only": true,
+  "append_only_continuity_restoration_selected": false,
+  "overwrite_or_destructive_continuity_restoration_selected": false,
+  "replay_or_resume_widening_selected": false,
+  "execute_widening_selected": false,
+  "delegated_or_external_dispatch_selected": false,
+  "product_or_ui_authority_selected": false,
+  "governs_hidden_cognition": false,
+  "metric_key_continuity_assertion_path": "artifacts/agent_harness/v162/evidence_inputs/metric_key_continuity_assertion_v162.json",
+  "runtime_observability_comparison_path": "artifacts/agent_harness/v162/evidence_inputs/runtime_observability_comparison_v162.json",
+  "runtime_event_stream_path": "artifacts/agent_harness/v162/runtime/evidence/local/urm_events.ndjson",
+  "notes": "v162 evidence pins the bounded V59-B continuity-safe restoration slice on main: restoration remains a new live act over the shipped V59-A continuity lineage and shipped V57-B/V58-B restoration baseline, with explicit restoration-time freshness/resnapshot law, baseline/scope-match checks, and witness-bearing reintegration, without broader restoration/replay/execute/dispatch/product/hidden-cognition widening."
+}

@@ -1,0 +1,11 @@
+{
+  "schema": "runtime_observability_comparison@1",
+  "baseline_arc": "vNext+161",
+  "current_arc": "vNext+162",
+  "baseline_source": "artifacts/stop_gate/report_v161_closeout.md",
+  "current_source": "artifacts/stop_gate/report_v162_closeout.md",
+  "baseline_elapsed_ms": 77,
+  "current_elapsed_ms": 90,
+  "delta_ms": 13,
+  "notes": "v162 closeout keeps the frozen stop-gate schema family and exact metric keyset unchanged while shipping the bounded V59-B continuity-safe restoration starter on main: one continuity restoration handoff record and one continuity restoration reintegration report over the shipped V59-A continuity region/admission/occupancy lineage and V57-B/V58-B restoration baseline, with restoration treated as a new live act, restoration-time resnapshot required, and no append-only/destructive/replay-widening/execute/dispatch/product/hidden-cognition widening."
+}
