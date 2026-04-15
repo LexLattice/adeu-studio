@@ -33,6 +33,7 @@ from .models import (
     AGENTIC_DE_RUNTIME_HARVEST_RECORD_SCHEMA,
     AGENTIC_DE_RUNTIME_STATE_SCHEMA,
     AGENTIC_DE_WORKSPACE_CONTINUITY_ADMISSION_RECORD_SCHEMA,
+    AGENTIC_DE_WORKSPACE_CONTINUITY_HARDENING_REGISTER_SCHEMA,
     AGENTIC_DE_WORKSPACE_CONTINUITY_REGION_DECLARATION_SCHEMA,
     AGENTIC_DE_WORKSPACE_CONTINUITY_REINTEGRATION_REPORT_SCHEMA,
     AGENTIC_DE_WORKSPACE_CONTINUITY_RESTORATION_HANDOFF_RECORD_SCHEMA,
@@ -63,6 +64,7 @@ from .models import (
     AgenticDeRuntimeHarvestRecord,
     AgenticDeRuntimeState,
     AgenticDeWorkspaceContinuityAdmissionRecord,
+    AgenticDeWorkspaceContinuityHardeningRegister,
     AgenticDeWorkspaceContinuityRegionDeclaration,
     AgenticDeWorkspaceContinuityReintegrationReport,
     AgenticDeWorkspaceContinuityRestorationHandoffRecord,
@@ -408,6 +410,18 @@ def main() -> None:
             / "schema"
             / "agentic_de_live_harness_hardening_register.v1.json",
             root / "spec" / "agentic_de_live_harness_hardening_register.schema.json",
+        ),
+        (
+            AgenticDeWorkspaceContinuityHardeningRegister,
+            AGENTIC_DE_WORKSPACE_CONTINUITY_HARDENING_REGISTER_SCHEMA,
+            root
+            / "packages"
+            / "adeu_agentic_de"
+            / "schema"
+            / "agentic_de_workspace_continuity_hardening_register.v1.json",
+            root
+            / "spec"
+            / "agentic_de_workspace_continuity_hardening_register.schema.json",
         ),
     ]
 
