@@ -1,0 +1,35 @@
+{
+  "entries": [
+    {
+      "assumption_ref": "v60a_surface_reuse_default",
+      "note": "V60-B reuses the shipped V60-A starter continuation surfaces by default.",
+      "status": "holds"
+    },
+    {
+      "assumption_ref": "stable_loop_identity_preserved",
+      "note": "V60-B preserves the shipped V60-A loop-state ledger as the canonical loop anchor while refresh advances frontier over that same loop identity.",
+      "status": "amended"
+    },
+    {
+      "assumption_ref": "latest_reintegrated_act_selection_explicit_and_fail_closed",
+      "note": "V60-B admits exactly one explicit latest reintegrated act identity and blocks refresh when latest-act selection becomes ambiguous.",
+      "status": "amended"
+    },
+    {
+      "assumption_ref": "reproposal_required_posture_only",
+      "note": "V60-B keeps reproposal_required as typed posture only; it does not amend the charter or reopen seed ingress.",
+      "status": "amended"
+    },
+    {
+      "assumption_ref": "communication_law_still_deferred_to_v61",
+      "note": "emit_governed_communication remains posture only in V60-B and does not ship V61 packet law or office binding.",
+      "status": "amended"
+    }
+  ],
+  "entry_count": 5,
+  "prior_lane_ref": "docs/LOCKED_CONTINUATION_vNEXT_PLUS164.md",
+  "record_id": null,
+  "schema": "agentic_de_lane_drift_record@1",
+  "target_arc": "vNext+165",
+  "target_path": "V60-B"
+}

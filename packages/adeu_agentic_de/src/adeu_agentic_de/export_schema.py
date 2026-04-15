@@ -13,6 +13,7 @@ from .models import (
     AGENTIC_DE_ACTION_TICKET_SCHEMA,
     AGENTIC_DE_CONFORMANCE_REPORT_SCHEMA,
     AGENTIC_DE_CONTINUATION_DECISION_RECORD_SCHEMA,
+    AGENTIC_DE_CONTINUATION_REFRESH_DECISION_RECORD_SCHEMA,
     AGENTIC_DE_DOMAIN_PACKET_SCHEMA,
     AGENTIC_DE_GOVERNANCE_CALIBRATION_REGISTER_SCHEMA,
     AGENTIC_DE_INTERACTION_CONTRACT_SCHEMA,
@@ -37,6 +38,7 @@ from .models import (
     AGENTIC_DE_SEED_INTENT_RECORD_SCHEMA,
     AGENTIC_DE_TASK_CHARTER_PACKET_SCHEMA,
     AGENTIC_DE_TASK_RESIDUAL_PACKET_SCHEMA,
+    AGENTIC_DE_TASK_RESIDUAL_REFRESH_PACKET_SCHEMA,
     AGENTIC_DE_WORKSPACE_CONTINUITY_ADMISSION_RECORD_SCHEMA,
     AGENTIC_DE_WORKSPACE_CONTINUITY_HARDENING_REGISTER_SCHEMA,
     AGENTIC_DE_WORKSPACE_CONTINUITY_REGION_DECLARATION_SCHEMA,
@@ -49,6 +51,7 @@ from .models import (
     AgenticDeActionTicket,
     AgenticDeConformanceReport,
     AgenticDeContinuationDecisionRecord,
+    AgenticDeContinuationRefreshDecisionRecord,
     AgenticDeDomainPacket,
     AgenticDeGovernanceCalibrationRegister,
     AgenticDeInteractionContract,
@@ -73,6 +76,7 @@ from .models import (
     AgenticDeSeedIntentRecord,
     AgenticDeTaskCharterPacket,
     AgenticDeTaskResidualPacket,
+    AgenticDeTaskResidualRefreshPacket,
     AgenticDeWorkspaceContinuityAdmissionRecord,
     AgenticDeWorkspaceContinuityHardeningRegister,
     AgenticDeWorkspaceContinuityRegionDeclaration,
@@ -254,6 +258,16 @@ def main() -> None:
             root / "spec" / "agentic_de_task_residual_packet.schema.json",
         ),
         (
+            AgenticDeTaskResidualRefreshPacket,
+            AGENTIC_DE_TASK_RESIDUAL_REFRESH_PACKET_SCHEMA,
+            root
+            / "packages"
+            / "adeu_agentic_de"
+            / "schema"
+            / "agentic_de_task_residual_refresh_packet.v1.json",
+            root / "spec" / "agentic_de_task_residual_refresh_packet.schema.json",
+        ),
+        (
             AgenticDeLoopStateLedger,
             AGENTIC_DE_LOOP_STATE_LEDGER_SCHEMA,
             root
@@ -272,6 +286,16 @@ def main() -> None:
             / "schema"
             / "agentic_de_continuation_decision_record.v1.json",
             root / "spec" / "agentic_de_continuation_decision_record.schema.json",
+        ),
+        (
+            AgenticDeContinuationRefreshDecisionRecord,
+            AGENTIC_DE_CONTINUATION_REFRESH_DECISION_RECORD_SCHEMA,
+            root
+            / "packages"
+            / "adeu_agentic_de"
+            / "schema"
+            / "agentic_de_continuation_refresh_decision_record.v1.json",
+            root / "spec" / "agentic_de_continuation_refresh_decision_record.schema.json",
         ),
         (
             AgenticDeLiveTurnAdmissionRecord,

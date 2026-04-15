@@ -1,0 +1,181 @@
+{
+  "additionalProperties": false,
+  "properties": {
+    "changes_live_behavior_by_default": {
+      "const": false,
+      "default": false,
+      "title": "Changes Live Behavior By Default",
+      "type": "boolean"
+    },
+    "evidence_only": {
+      "const": true,
+      "default": true,
+      "title": "Evidence Only",
+      "type": "boolean"
+    },
+    "evidence_refs": {
+      "items": {
+        "type": "string"
+      },
+      "title": "Evidence Refs",
+      "type": "array"
+    },
+    "field_dependence_tags": {
+      "additionalProperties": {
+        "items": {
+          "type": "string"
+        },
+        "type": "array"
+      },
+      "title": "Field Dependence Tags",
+      "type": "object"
+    },
+    "field_origin_tags": {
+      "additionalProperties": {
+        "enum": [
+          "current_turn_native",
+          "current_turn_derived",
+          "observability_only",
+          "prior_artifact",
+          "shaping_only"
+        ],
+        "type": "string"
+      },
+      "title": "Field Origin Tags",
+      "type": "object"
+    },
+    "latest_continuity_reintegration_ref": {
+      "title": "Latest Continuity Reintegration Ref",
+      "type": "string"
+    },
+    "latest_continuity_restoration_reintegration_ref_or_none": {
+      "anyOf": [
+        {
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Latest Continuity Restoration Reintegration Ref Or None"
+    },
+    "latest_live_turn_reintegration_ref": {
+      "title": "Latest Live Turn Reintegration Ref",
+      "type": "string"
+    },
+    "latest_reintegrated_act_identity": {
+      "title": "Latest Reintegrated Act Identity",
+      "type": "string"
+    },
+    "latest_reintegrated_act_selection_basis_summary": {
+      "title": "Latest Reintegrated Act Selection Basis Summary",
+      "type": "string"
+    },
+    "prior_continuation_decision_ref": {
+      "title": "Prior Continuation Decision Ref",
+      "type": "string"
+    },
+    "prior_loop_identity_ref": {
+      "title": "Prior Loop Identity Ref",
+      "type": "string"
+    },
+    "prior_loop_state_ledger_ref": {
+      "title": "Prior Loop State Ledger Ref",
+      "type": "string"
+    },
+    "prior_task_charter_ref": {
+      "title": "Prior Task Charter Ref",
+      "type": "string"
+    },
+    "prior_task_residual_ref": {
+      "title": "Prior Task Residual Ref",
+      "type": "string"
+    },
+    "refresh_packet_id": {
+      "anyOf": [
+        {
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Refresh Packet Id"
+    },
+    "refreshed_blocker_summary": {
+      "title": "Refreshed Blocker Summary",
+      "type": "string"
+    },
+    "refreshed_frontier_summary": {
+      "title": "Refreshed Frontier Summary",
+      "type": "string"
+    },
+    "refreshed_open_approval_refs": {
+      "items": {
+        "type": "string"
+      },
+      "title": "Refreshed Open Approval Refs",
+      "type": "array"
+    },
+    "refreshed_open_obligation_summary": {
+      "title": "Refreshed Open Obligation Summary",
+      "type": "string"
+    },
+    "refreshed_owed_communication_posture_summary": {
+      "title": "Refreshed Owed Communication Posture Summary",
+      "type": "string"
+    },
+    "residual_refresh_basis_summary": {
+      "title": "Residual Refresh Basis Summary",
+      "type": "string"
+    },
+    "root_origin_ids": {
+      "items": {
+        "type": "string"
+      },
+      "title": "Root Origin Ids",
+      "type": "array"
+    },
+    "schema": {
+      "const": "agentic_de_task_residual_refresh_packet@1",
+      "default": "agentic_de_task_residual_refresh_packet@1",
+      "title": "Schema",
+      "type": "string"
+    },
+    "target_arc": {
+      "title": "Target Arc",
+      "type": "string"
+    },
+    "target_path": {
+      "title": "Target Path",
+      "type": "string"
+    }
+  },
+  "required": [
+    "target_arc",
+    "target_path",
+    "prior_task_charter_ref",
+    "prior_task_residual_ref",
+    "prior_loop_state_ledger_ref",
+    "prior_loop_identity_ref",
+    "prior_continuation_decision_ref",
+    "latest_reintegrated_act_identity",
+    "latest_reintegrated_act_selection_basis_summary",
+    "latest_live_turn_reintegration_ref",
+    "latest_continuity_reintegration_ref",
+    "refreshed_frontier_summary",
+    "refreshed_open_obligation_summary",
+    "refreshed_blocker_summary",
+    "refreshed_open_approval_refs",
+    "refreshed_owed_communication_posture_summary",
+    "residual_refresh_basis_summary",
+    "field_origin_tags",
+    "field_dependence_tags",
+    "root_origin_ids",
+    "evidence_refs"
+  ],
+  "title": "AgenticDeTaskResidualRefreshPacket",
+  "type": "object"
+}
