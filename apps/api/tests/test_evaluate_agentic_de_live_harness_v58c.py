@@ -149,7 +149,12 @@ def test_invalid_v58c_lane_drift_returns_clean_error(tmp_path: Path) -> None:
     payload["record_id"] = None
     lane_drift_path.write_text(json.dumps(payload, indent=2) + "\n", encoding="utf-8")
 
-    completed = _run_script("--repo-root", str(temp_root))
+    completed = _run_script(
+        "--repo-root",
+        str(temp_root),
+        "--v58c-lane-drift",
+        str(lane_drift_path),
+    )
 
     assert completed.returncode == 2
     assert completed.stdout == ""

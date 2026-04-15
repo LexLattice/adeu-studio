@@ -139,7 +139,10 @@ def test_missing_required_v58c_lane_drift_assumption_fails_closed(tmp_path: Path
     lane_drift_path.write_text(json.dumps(payload, indent=2) + "\n", encoding="utf-8")
 
     with pytest.raises(ValueError, match="V58-C lane drift record does not satisfy"):
-        run_agentic_de_live_harness_v58c(repo_root_path=temp_root)
+        run_agentic_de_live_harness_v58c(
+            repo_root_path=temp_root,
+            v58c_lane_drift_path=lane_drift_path,
+        )
 
 
 def test_invalid_v58b_evidence_fails_closed(tmp_path: Path) -> None:

@@ -139,7 +139,11 @@ def _parse_args(argv: list[str]) -> argparse.Namespace:
         type=Path,
         default=DEFAULT_V58B_LIVE_RESTORATION_REINTEGRATION_PATH,
     )
-    parser.add_argument("--lane-drift", type=Path, default=DEFAULT_V58C_LANE_DRIFT_PATH)
+    parser.add_argument(
+        "--v58c-lane-drift",
+        type=Path,
+        default=DEFAULT_V58C_LANE_DRIFT_PATH,
+    )
     parser.add_argument("--v56a-evidence", type=Path, default=DEFAULT_V56C_V56A_EVIDENCE_PATH)
     parser.add_argument("--v56b-evidence", type=Path, default=DEFAULT_V56C_V56B_EVIDENCE_PATH)
     parser.add_argument("--v56c-evidence", type=Path, default=DEFAULT_V57A_V56C_EVIDENCE_PATH)
@@ -193,7 +197,7 @@ def main(argv: list[str] | None = None) -> int:
             v58b_lane_drift_path=args.v58b_lane_drift,
             v58b_live_restoration_handoff_path=args.v58b_live_restoration_handoff,
             v58b_live_restoration_reintegration_path=args.v58b_live_restoration_reintegration,
-            lane_drift_path=args.lane_drift,
+            v58c_lane_drift_path=args.v58c_lane_drift,
             v56a_evidence_path=args.v56a_evidence,
             v56b_evidence_path=args.v56b_evidence,
             v56c_evidence_path=args.v56c_evidence,

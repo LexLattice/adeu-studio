@@ -4436,7 +4436,7 @@ def run_agentic_de_live_harness_v58c(
     v58b_live_restoration_reintegration_path: Path = (
         DEFAULT_V58B_LIVE_RESTORATION_REINTEGRATION_PATH
     ),
-    lane_drift_path: Path = DEFAULT_V58C_LANE_DRIFT_PATH,
+    v58c_lane_drift_path: Path = DEFAULT_V58C_LANE_DRIFT_PATH,
     v56a_evidence_path: Path = DEFAULT_V56C_V56A_EVIDENCE_PATH,
     v56b_evidence_path: Path = DEFAULT_V56C_V56B_EVIDENCE_PATH,
     v56c_evidence_path: Path = DEFAULT_V57A_V56C_EVIDENCE_PATH,
@@ -4498,7 +4498,7 @@ def run_agentic_de_live_harness_v58c(
         repo_root_path=root,
         path=v58b_live_restoration_reintegration_path,
     )
-    lane_drift_path = _resolve_path(repo_root_path=root, path=lane_drift_path)
+    v58c_lane_drift_path = _resolve_path(repo_root_path=root, path=v58c_lane_drift_path)
     v56a_evidence_path = _resolve_path(repo_root_path=root, path=v56a_evidence_path)
     v56b_evidence_path = _resolve_path(repo_root_path=root, path=v56b_evidence_path)
     v56c_evidence_path = _resolve_path(repo_root_path=root, path=v56c_evidence_path)
@@ -4508,7 +4508,7 @@ def run_agentic_de_live_harness_v58c(
     v58a_evidence_path = _resolve_path(repo_root_path=root, path=v58a_evidence_path)
     v58b_evidence_path = _resolve_path(repo_root_path=root, path=v58b_evidence_path)
 
-    _validate_v58c_lane_drift_record(load_lane_drift_record(lane_drift_path))
+    _validate_v58c_lane_drift_record(load_lane_drift_record(v58c_lane_drift_path))
     _validate_v58b_lane_drift_record(load_lane_drift_record(v58b_lane_drift_path))
     _validate_v58a_lane_drift_record(load_lane_drift_record(v58a_lane_drift_path))
     _validate_v57c_lane_drift_record(load_lane_drift_record(v57c_lane_drift_path))
@@ -4686,7 +4686,7 @@ def run_agentic_de_live_harness_v58c(
         _render_input_ref(repo_root_path=root, path=v58b_lane_drift_path),
         _render_input_ref(repo_root_path=root, path=v58b_live_restoration_handoff_path),
         _render_input_ref(repo_root_path=root, path=v58b_live_restoration_reintegration_path),
-        _render_input_ref(repo_root_path=root, path=lane_drift_path),
+        _render_input_ref(repo_root_path=root, path=v58c_lane_drift_path),
         _render_input_ref(repo_root_path=root, path=v56a_evidence_path),
         _render_input_ref(repo_root_path=root, path=v56b_evidence_path),
         _render_input_ref(repo_root_path=root, path=v56c_evidence_path),
