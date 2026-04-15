@@ -1,0 +1,178 @@
+{
+  "additionalProperties": false,
+  "properties": {
+    "action_ticket_ref": {
+      "title": "Action Ticket Ref",
+      "type": "string"
+    },
+    "bounded_compensating_scope_derivation_summary": {
+      "title": "Bounded Compensating Scope Derivation Summary",
+      "type": "string"
+    },
+    "changes_live_behavior_by_default": {
+      "const": false,
+      "default": false,
+      "title": "Changes Live Behavior By Default",
+      "type": "boolean"
+    },
+    "continuity_admission_ref": {
+      "title": "Continuity Admission Ref",
+      "type": "string"
+    },
+    "evidence_only": {
+      "const": true,
+      "default": true,
+      "title": "Evidence Only",
+      "type": "boolean"
+    },
+    "evidence_refs": {
+      "items": {
+        "type": "string"
+      },
+      "title": "Evidence Refs",
+      "type": "array"
+    },
+    "field_dependence_tags": {
+      "additionalProperties": {
+        "items": {
+          "type": "string"
+        },
+        "type": "array"
+      },
+      "title": "Field Dependence Tags",
+      "type": "object"
+    },
+    "field_origin_tags": {
+      "additionalProperties": {
+        "enum": [
+          "current_turn_native",
+          "current_turn_derived",
+          "observability_only",
+          "prior_artifact",
+          "shaping_only"
+        ],
+        "type": "string"
+      },
+      "title": "Field Origin Tags",
+      "type": "object"
+    },
+    "handoff_id": {
+      "anyOf": [
+        {
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Handoff Id"
+    },
+    "occupancy_report_ref": {
+      "title": "Occupancy Report Ref",
+      "type": "string"
+    },
+    "prior_continuity_reintegration_ref": {
+      "title": "Prior Continuity Reintegration Ref",
+      "type": "string"
+    },
+    "prior_governed_state_baseline_match_verdict": {
+      "const": "matched",
+      "title": "Prior Governed State Baseline Match Verdict",
+      "type": "string"
+    },
+    "prior_governed_state_baseline_summary": {
+      "title": "Prior Governed State Baseline Summary",
+      "type": "string"
+    },
+    "restoration_record_ref": {
+      "title": "Restoration Record Ref",
+      "type": "string"
+    },
+    "restoration_time_approval_posture_snapshot": {
+      "title": "Restoration Time Approval Posture Snapshot",
+      "type": "string"
+    },
+    "restoration_time_continuation_verdict": {
+      "const": "continued",
+      "title": "Restoration Time Continuation Verdict",
+      "type": "string"
+    },
+    "restoration_time_continuation_witness_basis_summary": {
+      "title": "Restoration Time Continuation Witness Basis Summary",
+      "type": "string"
+    },
+    "restoration_time_session_capability_snapshot": {
+      "title": "Restoration Time Session Capability Snapshot",
+      "type": "string"
+    },
+    "restoration_time_target_or_region_state_summary": {
+      "title": "Restoration Time Target Or Region State Summary",
+      "type": "string"
+    },
+    "root_origin_ids": {
+      "items": {
+        "type": "string"
+      },
+      "title": "Root Origin Ids",
+      "type": "array"
+    },
+    "schema": {
+      "const": "agentic_de_workspace_continuity_restoration_handoff_record@1",
+      "default": "agentic_de_workspace_continuity_restoration_handoff_record@1",
+      "title": "Schema",
+      "type": "string"
+    },
+    "selected_restoration_scope": {
+      "title": "Selected Restoration Scope",
+      "type": "string"
+    },
+    "target_arc": {
+      "title": "Target Arc",
+      "type": "string"
+    },
+    "target_path": {
+      "title": "Target Path",
+      "type": "string"
+    },
+    "target_relative_path": {
+      "title": "Target Relative Path",
+      "type": "string"
+    },
+    "turn_admission_ref": {
+      "title": "Turn Admission Ref",
+      "type": "string"
+    },
+    "turn_handoff_ref": {
+      "title": "Turn Handoff Ref",
+      "type": "string"
+    }
+  },
+  "required": [
+    "target_arc",
+    "target_path",
+    "turn_admission_ref",
+    "turn_handoff_ref",
+    "continuity_admission_ref",
+    "occupancy_report_ref",
+    "prior_continuity_reintegration_ref",
+    "restoration_time_session_capability_snapshot",
+    "restoration_time_approval_posture_snapshot",
+    "restoration_time_continuation_verdict",
+    "restoration_time_continuation_witness_basis_summary",
+    "restoration_record_ref",
+    "action_ticket_ref",
+    "prior_governed_state_baseline_summary",
+    "prior_governed_state_baseline_match_verdict",
+    "restoration_time_target_or_region_state_summary",
+    "bounded_compensating_scope_derivation_summary",
+    "target_relative_path",
+    "selected_restoration_scope",
+    "field_origin_tags",
+    "field_dependence_tags",
+    "root_origin_ids",
+    "evidence_refs"
+  ],
+  "title": "AgenticDeWorkspaceContinuityRestorationHandoffRecord",
+  "type": "object"
+}

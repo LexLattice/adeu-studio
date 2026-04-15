@@ -61,6 +61,12 @@ AGENTIC_DE_WORKSPACE_OCCUPANCY_REPORT_SCHEMA = (
 AGENTIC_DE_WORKSPACE_CONTINUITY_REINTEGRATION_REPORT_SCHEMA = (
     "agentic_de_workspace_continuity_reintegration_report@1"
 )
+AGENTIC_DE_WORKSPACE_CONTINUITY_RESTORATION_HANDOFF_RECORD_SCHEMA = (
+    "agentic_de_workspace_continuity_restoration_handoff_record@1"
+)
+AGENTIC_DE_WORKSPACE_CONTINUITY_RESTORATION_REINTEGRATION_REPORT_SCHEMA = (
+    "agentic_de_workspace_continuity_restoration_reintegration_report@1"
+)
 
 ACTION_CLASS_VOCABULARY = ("inspect", "write", "execute", "dispatch")
 EXACT_ACTION_CLASS_VOCABULARY = (
@@ -175,6 +181,7 @@ WORKSPACE_OCCUPANCY_VERDICT_VOCABULARY = (
     "occupied_out_of_band",
     "occupied_unknown",
 )
+WORKSPACE_CONTINUITY_BASELINE_MATCH_VERDICT_VOCABULARY = ("matched",)
 
 MODEL_CONFIG = ConfigDict(
     extra="forbid",
@@ -297,6 +304,7 @@ WorkspaceOccupancyVerdict = Literal[
     "occupied_out_of_band",
     "occupied_unknown",
 ]
+WorkspaceContinuityBaselineMatchVerdict = Literal["matched"]
 
 
 def _assert_present_text(value: str, *, field_name: str) -> str:
@@ -2617,6 +2625,207 @@ class AgenticDeWorkspaceContinuityReintegrationReport(BaseModel):
         return self
 
 
+class AgenticDeWorkspaceContinuityRestorationHandoffRecord(BaseModel):
+    model_config = MODEL_CONFIG
+
+    schema: Literal[AGENTIC_DE_WORKSPACE_CONTINUITY_RESTORATION_HANDOFF_RECORD_SCHEMA] = (
+        AGENTIC_DE_WORKSPACE_CONTINUITY_RESTORATION_HANDOFF_RECORD_SCHEMA
+    )
+    handoff_id: str | None = None
+    target_arc: str
+    target_path: str
+    evidence_only: Literal[True] = True
+    changes_live_behavior_by_default: Literal[False] = False
+    turn_admission_ref: str
+    turn_handoff_ref: str
+    continuity_admission_ref: str
+    occupancy_report_ref: str
+    prior_continuity_reintegration_ref: str
+    restoration_time_session_capability_snapshot: str
+    restoration_time_approval_posture_snapshot: str
+    restoration_time_continuation_verdict: LiveRestorationContinuationVerdict
+    restoration_time_continuation_witness_basis_summary: str
+    restoration_record_ref: str
+    action_ticket_ref: str
+    prior_governed_state_baseline_summary: str
+    prior_governed_state_baseline_match_verdict: WorkspaceContinuityBaselineMatchVerdict
+    restoration_time_target_or_region_state_summary: str
+    bounded_compensating_scope_derivation_summary: str
+    target_relative_path: str
+    selected_restoration_scope: str
+    field_origin_tags: dict[str, LiveTurnFieldOriginTag]
+    field_dependence_tags: dict[str, list[str]]
+    root_origin_ids: list[str]
+    evidence_refs: list[str]
+
+    @model_validator(mode="after")
+    def _validate_record(self) -> AgenticDeWorkspaceContinuityRestorationHandoffRecord:
+        required_fields = (
+            "turn_admission_ref",
+            "turn_handoff_ref",
+            "continuity_admission_ref",
+            "occupancy_report_ref",
+            "prior_continuity_reintegration_ref",
+            "restoration_time_session_capability_snapshot",
+            "restoration_time_approval_posture_snapshot",
+            "restoration_time_continuation_witness_basis_summary",
+            "restoration_record_ref",
+            "action_ticket_ref",
+            "prior_governed_state_baseline_summary",
+            "restoration_time_target_or_region_state_summary",
+            "bounded_compensating_scope_derivation_summary",
+            "target_relative_path",
+            "selected_restoration_scope",
+        )
+        _assert_present_text(self.target_arc, field_name="target_arc")
+        _assert_present_text(self.target_path, field_name="target_path")
+        for field_name in required_fields:
+            _assert_present_text(getattr(self, field_name), field_name=field_name)
+            if field_name not in self.field_origin_tags:
+                raise ValueError(f"field_origin_tags missing required key {field_name}")
+            if field_name not in self.field_dependence_tags:
+                raise ValueError(f"field_dependence_tags missing required key {field_name}")
+        required_tag_fields = (
+            "restoration_time_continuation_verdict",
+            "prior_governed_state_baseline_match_verdict",
+        )
+        for field_name in required_tag_fields:
+            if field_name not in self.field_origin_tags:
+                raise ValueError(f"field_origin_tags missing required key {field_name}")
+            if field_name not in self.field_dependence_tags:
+                raise ValueError(f"field_dependence_tags missing required key {field_name}")
+        normalized_dependence_tags: dict[str, list[str]] = {}
+        for key, values in self.field_dependence_tags.items():
+            normalized_dependence_tags[key] = _ordered_unique_texts(
+                values,
+                field_name=f"field_dependence_tags[{key}]",
+            )
+        object.__setattr__(self, "field_dependence_tags", normalized_dependence_tags)
+        object.__setattr__(
+            self,
+            "root_origin_ids",
+            _ordered_unique_texts(self.root_origin_ids, field_name="root_origin_ids"),
+        )
+        object.__setattr__(
+            self,
+            "evidence_refs",
+            _ordered_unique_texts(self.evidence_refs, field_name="evidence_refs"),
+        )
+        object.__setattr__(
+            self,
+            "handoff_id",
+            _assign_or_verify_content_addressed_id(
+                value=self.handoff_id,
+                field_name="handoff_id",
+                prefix="agentic_de_workspace_continuity_restoration_handoff",
+                payload=self.model_dump(mode="json", exclude={"handoff_id"}),
+            ),
+        )
+        return self
+
+
+class AgenticDeWorkspaceContinuityRestorationReintegrationReport(BaseModel):
+    model_config = MODEL_CONFIG
+
+    schema: Literal[AGENTIC_DE_WORKSPACE_CONTINUITY_RESTORATION_REINTEGRATION_REPORT_SCHEMA] = (
+        AGENTIC_DE_WORKSPACE_CONTINUITY_RESTORATION_REINTEGRATION_REPORT_SCHEMA
+    )
+    report_id: str | None = None
+    target_arc: str
+    target_path: str
+    evidence_only: Literal[True] = True
+    changes_live_behavior_by_default: Literal[False] = False
+    turn_admission_ref: str
+    workspace_continuity_restoration_handoff_ref: str
+    restoration_record_ref: str
+    restoration_effect_summary: str
+    continuity_restoration_reintegration_status: LiveTurnReintegrationStatus
+    reason_codes: list[str]
+    continuity_restoration_reintegration_witness_basis_summary: str
+    continuity_restoration_reintegration_certificate_ref_or_equivalent: str | None = None
+    replay_law_proof_summary: str
+    field_origin_tags: dict[str, LiveTurnFieldOriginTag]
+    field_dependence_tags: dict[str, list[str]]
+    root_origin_dedup_summary: str
+    six_lane_closeout_posture: str
+    evidence_refs: list[str]
+
+    @model_validator(mode="after")
+    def _validate_report(
+        self,
+    ) -> AgenticDeWorkspaceContinuityRestorationReintegrationReport:
+        required_fields = (
+            "turn_admission_ref",
+            "workspace_continuity_restoration_handoff_ref",
+            "restoration_record_ref",
+            "restoration_effect_summary",
+            "continuity_restoration_reintegration_witness_basis_summary",
+            "replay_law_proof_summary",
+            "root_origin_dedup_summary",
+            "six_lane_closeout_posture",
+        )
+        _assert_present_text(self.target_arc, field_name="target_arc")
+        _assert_present_text(self.target_path, field_name="target_path")
+        for field_name in required_fields:
+            _assert_present_text(getattr(self, field_name), field_name=field_name)
+        required_tag_fields = (
+            "restoration_effect_summary",
+            "continuity_restoration_reintegration_witness_basis_summary",
+            "replay_law_proof_summary",
+            "six_lane_closeout_posture",
+        )
+        for field_name in required_tag_fields:
+            if field_name not in self.field_origin_tags:
+                raise ValueError(f"field_origin_tags missing required key {field_name}")
+            if field_name not in self.field_dependence_tags:
+                raise ValueError(f"field_dependence_tags missing required key {field_name}")
+        normalized_dependence_tags: dict[str, list[str]] = {}
+        for key, values in self.field_dependence_tags.items():
+            normalized_dependence_tags[key] = _ordered_unique_texts(
+                values,
+                field_name=f"field_dependence_tags[{key}]",
+            )
+        object.__setattr__(self, "field_dependence_tags", normalized_dependence_tags)
+        object.__setattr__(
+            self,
+            "reason_codes",
+            _ordered_unique_texts(self.reason_codes, field_name="reason_codes"),
+        )
+        object.__setattr__(
+            self,
+            "evidence_refs",
+            _ordered_unique_texts(self.evidence_refs, field_name="evidence_refs"),
+        )
+        if not self.reason_codes:
+            raise ValueError("reason_codes must be non-empty")
+        if self.continuity_restoration_reintegration_status == "reintegrated":
+            if self.continuity_restoration_reintegration_certificate_ref_or_equivalent is None:
+                raise ValueError(
+                    "reintegrated status requires "
+                    "continuity_restoration_reintegration_certificate_ref_or_equivalent"
+                )
+            _assert_present_text(
+                self.continuity_restoration_reintegration_certificate_ref_or_equivalent,
+                field_name="continuity_restoration_reintegration_certificate_ref_or_equivalent",
+            )
+        elif self.continuity_restoration_reintegration_certificate_ref_or_equivalent is not None:
+            _assert_present_text(
+                self.continuity_restoration_reintegration_certificate_ref_or_equivalent,
+                field_name="continuity_restoration_reintegration_certificate_ref_or_equivalent",
+            )
+        object.__setattr__(
+            self,
+            "report_id",
+            _assign_or_verify_content_addressed_id(
+                value=self.report_id,
+                field_name="report_id",
+                prefix="agentic_de_workspace_continuity_restoration_reintegration_report",
+                payload=self.model_dump(mode="json", exclude={"report_id"}),
+            ),
+        )
+        return self
+
+
 def compute_agentic_de_domain_packet_id(payload: dict[str, object]) -> str:
     return _compute_id("agentic_de_domain_packet", payload)
 
@@ -2765,3 +2974,15 @@ def compute_agentic_de_workspace_continuity_reintegration_report_id(
     payload: dict[str, object],
 ) -> str:
     return _compute_id("agentic_de_workspace_continuity_reintegration_report", payload)
+
+
+def compute_agentic_de_workspace_continuity_restoration_handoff_record_id(
+    payload: dict[str, object],
+) -> str:
+    return _compute_id("agentic_de_workspace_continuity_restoration_handoff", payload)
+
+
+def compute_agentic_de_workspace_continuity_restoration_reintegration_report_id(
+    payload: dict[str, object],
+) -> str:
+    return _compute_id("agentic_de_workspace_continuity_restoration_reintegration_report", payload)
