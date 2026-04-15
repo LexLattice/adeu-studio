@@ -1,0 +1,11 @@
+{
+  "schema": "runtime_observability_comparison@1",
+  "baseline_arc": "vNext+159",
+  "current_arc": "vNext+160",
+  "baseline_source": "artifacts/stop_gate/report_v159_closeout.md",
+  "current_source": "artifacts/stop_gate/report_v160_closeout.md",
+  "baseline_elapsed_ms": 103,
+  "current_elapsed_ms": 87,
+  "delta_ms": -16,
+  "notes": "v160 closeout keeps the frozen stop-gate schema family and exact metric keyset unchanged while shipping the bounded V58-C live harness hardening decision slice on main: one advisory-only live harness hardening register was added over the shipped V58-A bind and V58-B restoration-state lineage, the recommendation function remains extensional and replayable for the same evidence chain and frozen policy, lineage-root repetition remains non-independent for escalation support, and no replay-widening/restoration-widening/class-widening/dispatch/execute/product/hidden-cognition authority was introduced."
+}
