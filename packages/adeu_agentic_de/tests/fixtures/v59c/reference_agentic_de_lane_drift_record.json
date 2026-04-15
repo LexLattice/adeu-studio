@@ -1,0 +1,40 @@
+{
+  "schema": "agentic_de_lane_drift_record@1",
+  "record_id": null,
+  "target_arc": "vNext+163",
+  "target_path": "V59-C",
+  "prior_lane_ref": "docs/LOCKED_CONTINUATION_vNEXT_PLUS162.md",
+  "entry_count": 6,
+  "entries": [
+    {
+      "assumption_ref": "v59a_v59b_surface_reuse_default",
+      "status": "holds",
+      "note": "V59-C reuses the shipped V59-A continuity region/admission/occupancy/reintegration surfaces and the shipped V59-B continuity-safe restoration handoff/restoration/reintegration surfaces by default."
+    },
+    {
+      "assumption_ref": "path_level_only_not_family_migration",
+      "status": "amended",
+      "note": "V59-C adds one advisory-only and candidate-only workspace continuity hardening register over the exact observed-and-restored continuity-bound create_new exemplar only; it does not become a family migration surface."
+    },
+    {
+      "assumption_ref": "hardening_recommendation_extensional_and_replayable",
+      "status": "amended",
+      "note": "V59-C requires the recommendation function to stay extensional and replayable: same selected evidence basis plus same frozen policy anchor yields the same advisory outcome."
+    },
+    {
+      "assumption_ref": "explicit_frozen_policy_anchor_required",
+      "status": "amended",
+      "note": "V59-C carries one explicit frozen policy anchor in the hardening register so replayability and advisory grounding are declared rather than ambient."
+    },
+    {
+      "assumption_ref": "restoration_freshness_and_baseline_verdicts_carried_forward",
+      "status": "amended",
+      "note": "V59-C carries forward the shipped V59-B restoration-time continuation verdict, prior governed-state baseline-match verdict, and bounded compensating-scope match posture explicitly at the advisory layer."
+    },
+    {
+      "assumption_ref": "lineage_root_non_independence_dedup_required",
+      "status": "amended",
+      "note": "V59-C keeps repeated continuity lineage roots non-independent for escalation support; traceability may increase without counting the same bounded lineage more than once."
+    }
+  ]
+}

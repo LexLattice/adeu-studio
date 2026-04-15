@@ -1,0 +1,346 @@
+{
+  "$defs": {
+    "AgenticDeWorkspaceContinuityHardeningEntry": {
+      "additionalProperties": false,
+      "properties": {
+        "bounded_compensating_scope_match_verdict": {
+          "const": "matched",
+          "title": "Bounded Compensating Scope Match Verdict",
+          "type": "string"
+        },
+        "continuity_admission_ref": {
+          "title": "Continuity Admission Ref",
+          "type": "string"
+        },
+        "continuity_reintegration_ref": {
+          "title": "Continuity Reintegration Ref",
+          "type": "string"
+        },
+        "continuity_reintegration_status": {
+          "enum": [
+            "reintegrated",
+            "blocked",
+            "residualized",
+            "not_evaluable_yet"
+          ],
+          "title": "Continuity Reintegration Status",
+          "type": "string"
+        },
+        "continuity_restoration_reintegration_status": {
+          "enum": [
+            "reintegrated",
+            "blocked",
+            "residualized",
+            "not_evaluable_yet"
+          ],
+          "title": "Continuity Restoration Reintegration Status",
+          "type": "string"
+        },
+        "evidence_basis_summary": {
+          "title": "Evidence Basis Summary",
+          "type": "string"
+        },
+        "evidence_refs": {
+          "items": {
+            "type": "string"
+          },
+          "title": "Evidence Refs",
+          "type": "array"
+        },
+        "extensional_and_replayable_by_default": {
+          "const": true,
+          "default": true,
+          "title": "Extensional And Replayable By Default",
+          "type": "boolean"
+        },
+        "frozen_policy_ref": {
+          "title": "Frozen Policy Ref",
+          "type": "string"
+        },
+        "hardening_id": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Hardening Id"
+        },
+        "lineage_root_dedup_applied": {
+          "const": true,
+          "default": true,
+          "title": "Lineage Root Dedup Applied",
+          "type": "boolean"
+        },
+        "local_effect_conformance_ref": {
+          "title": "Local Effect Conformance Ref",
+          "type": "string"
+        },
+        "observation_boundedness_verdict": {
+          "enum": [
+            "bounded",
+            "failed"
+          ],
+          "title": "Observation Boundedness Verdict",
+          "type": "string"
+        },
+        "observation_ref": {
+          "title": "Observation Ref",
+          "type": "string"
+        },
+        "occupancy_report_ref": {
+          "title": "Occupancy Report Ref",
+          "type": "string"
+        },
+        "occupancy_verdict": {
+          "enum": [
+            "unoccupied",
+            "occupied_prior_governed_exact",
+            "occupied_prior_governed_drifted",
+            "occupied_out_of_band",
+            "occupied_unknown"
+          ],
+          "title": "Occupancy Verdict",
+          "type": "string"
+        },
+        "prior_governed_state_baseline_match_verdict": {
+          "const": "matched",
+          "title": "Prior Governed State Baseline Match Verdict",
+          "type": "string"
+        },
+        "rationale": {
+          "title": "Rationale",
+          "type": "string"
+        },
+        "reason_codes": {
+          "items": {
+            "type": "string"
+          },
+          "title": "Reason Codes",
+          "type": "array"
+        },
+        "recommendation_scope_requires_later_lock": {
+          "const": true,
+          "default": true,
+          "title": "Recommendation Scope Requires Later Lock",
+          "type": "boolean"
+        },
+        "recommended_outcome": {
+          "enum": [
+            "keep_warning_only",
+            "needs_more_evidence",
+            "candidate_for_later_continuity_hardening",
+            "not_selected_for_escalation"
+          ],
+          "title": "Recommended Outcome",
+          "type": "string"
+        },
+        "restoration_boundedness_verdict": {
+          "enum": [
+            "bounded",
+            "failed"
+          ],
+          "title": "Restoration Boundedness Verdict",
+          "type": "string"
+        },
+        "restoration_ref": {
+          "title": "Restoration Ref",
+          "type": "string"
+        },
+        "restoration_time_continuation_verdict": {
+          "const": "continued",
+          "title": "Restoration Time Continuation Verdict",
+          "type": "string"
+        },
+        "root_origin_dedup_summary": {
+          "title": "Root Origin Dedup Summary",
+          "type": "string"
+        },
+        "root_origin_ids": {
+          "items": {
+            "type": "string"
+          },
+          "title": "Root Origin Ids",
+          "type": "array"
+        },
+        "selected_hardening_target_surface": {
+          "title": "Selected Hardening Target Surface",
+          "type": "string"
+        },
+        "turn_admission_ref": {
+          "title": "Turn Admission Ref",
+          "type": "string"
+        },
+        "turn_handoff_ref": {
+          "title": "Turn Handoff Ref",
+          "type": "string"
+        },
+        "turn_reintegration_ref": {
+          "title": "Turn Reintegration Ref",
+          "type": "string"
+        },
+        "verdict_basis_summary": {
+          "title": "Verdict Basis Summary",
+          "type": "string"
+        },
+        "workspace_continuity_restoration_handoff_ref": {
+          "title": "Workspace Continuity Restoration Handoff Ref",
+          "type": "string"
+        },
+        "workspace_continuity_restoration_reintegration_ref": {
+          "title": "Workspace Continuity Restoration Reintegration Ref",
+          "type": "string"
+        }
+      },
+      "required": [
+        "continuity_admission_ref",
+        "occupancy_report_ref",
+        "continuity_reintegration_ref",
+        "turn_admission_ref",
+        "turn_handoff_ref",
+        "turn_reintegration_ref",
+        "workspace_continuity_restoration_handoff_ref",
+        "restoration_ref",
+        "workspace_continuity_restoration_reintegration_ref",
+        "observation_ref",
+        "local_effect_conformance_ref",
+        "occupancy_verdict",
+        "continuity_reintegration_status",
+        "restoration_time_continuation_verdict",
+        "prior_governed_state_baseline_match_verdict",
+        "bounded_compensating_scope_match_verdict",
+        "observation_boundedness_verdict",
+        "restoration_boundedness_verdict",
+        "continuity_restoration_reintegration_status",
+        "selected_hardening_target_surface",
+        "frozen_policy_ref",
+        "evidence_basis_summary",
+        "verdict_basis_summary",
+        "root_origin_ids",
+        "root_origin_dedup_summary",
+        "recommended_outcome",
+        "rationale",
+        "reason_codes",
+        "evidence_refs"
+      ],
+      "title": "AgenticDeWorkspaceContinuityHardeningEntry",
+      "type": "object"
+    }
+  },
+  "additionalProperties": false,
+  "properties": {
+    "advisory_only": {
+      "const": true,
+      "default": true,
+      "title": "Advisory Only",
+      "type": "boolean"
+    },
+    "baseline_checker_version": {
+      "title": "Baseline Checker Version",
+      "type": "string"
+    },
+    "candidate_only": {
+      "const": true,
+      "default": true,
+      "title": "Candidate Only",
+      "type": "boolean"
+    },
+    "changes_live_behavior_by_default": {
+      "const": false,
+      "default": false,
+      "title": "Changes Live Behavior By Default",
+      "type": "boolean"
+    },
+    "committed_lane_artifacts_outrank_narrative_docs": {
+      "const": true,
+      "default": true,
+      "title": "Committed Lane Artifacts Outrank Narrative Docs",
+      "type": "boolean"
+    },
+    "entries": {
+      "items": {
+        "$ref": "#/$defs/AgenticDeWorkspaceContinuityHardeningEntry"
+      },
+      "title": "Entries",
+      "type": "array"
+    },
+    "entry_count": {
+      "title": "Entry Count",
+      "type": "integer"
+    },
+    "evidence_basis_distinct_from_recommendation": {
+      "const": true,
+      "default": true,
+      "title": "Evidence Basis Distinct From Recommendation",
+      "type": "boolean"
+    },
+    "exemplar_evidence_non_generalizing_by_default": {
+      "const": true,
+      "default": true,
+      "title": "Exemplar Evidence Non Generalizing By Default",
+      "type": "boolean"
+    },
+    "explicit_frozen_policy_anchor_required": {
+      "const": true,
+      "default": true,
+      "title": "Explicit Frozen Policy Anchor Required",
+      "type": "boolean"
+    },
+    "lineage_root_non_independence_dedup_applied": {
+      "const": true,
+      "default": true,
+      "title": "Lineage Root Non Independence Dedup Applied",
+      "type": "boolean"
+    },
+    "path_level_only": {
+      "const": true,
+      "default": true,
+      "title": "Path Level Only",
+      "type": "boolean"
+    },
+    "recommendation_function_extensional_and_replayable": {
+      "const": true,
+      "default": true,
+      "title": "Recommendation Function Extensional And Replayable",
+      "type": "boolean"
+    },
+    "register_id": {
+      "anyOf": [
+        {
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Register Id"
+    },
+    "schema": {
+      "const": "agentic_de_workspace_continuity_hardening_register@1",
+      "default": "agentic_de_workspace_continuity_hardening_register@1",
+      "title": "Schema",
+      "type": "string"
+    },
+    "target_arc": {
+      "title": "Target Arc",
+      "type": "string"
+    },
+    "target_path": {
+      "title": "Target Path",
+      "type": "string"
+    }
+  },
+  "required": [
+    "target_arc",
+    "target_path",
+    "baseline_checker_version",
+    "entry_count",
+    "entries"
+  ],
+  "title": "AgenticDeWorkspaceContinuityHardeningRegister",
+  "type": "object"
+}

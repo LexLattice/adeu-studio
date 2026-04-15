@@ -67,6 +67,9 @@ AGENTIC_DE_WORKSPACE_CONTINUITY_RESTORATION_HANDOFF_RECORD_SCHEMA = (
 AGENTIC_DE_WORKSPACE_CONTINUITY_RESTORATION_REINTEGRATION_REPORT_SCHEMA = (
     "agentic_de_workspace_continuity_restoration_reintegration_report@1"
 )
+AGENTIC_DE_WORKSPACE_CONTINUITY_HARDENING_REGISTER_SCHEMA = (
+    "agentic_de_workspace_continuity_hardening_register@1"
+)
 
 ACTION_CLASS_VOCABULARY = ("inspect", "write", "execute", "dispatch")
 EXACT_ACTION_CLASS_VOCABULARY = (
@@ -163,6 +166,12 @@ LIVE_HARNESS_HARDENING_OUTCOME_VOCABULARY = (
     "keep_warning_only",
     "needs_more_evidence",
     "candidate_for_later_harness_hardening",
+    "not_selected_for_escalation",
+)
+WORKSPACE_CONTINUITY_HARDENING_OUTCOME_VOCABULARY = (
+    "keep_warning_only",
+    "needs_more_evidence",
+    "candidate_for_later_continuity_hardening",
     "not_selected_for_escalation",
 )
 WORKSPACE_CONTINUITY_ADMISSION_VERDICT_VOCABULARY = (
@@ -286,6 +295,12 @@ LiveHarnessHardeningOutcome = Literal[
     "keep_warning_only",
     "needs_more_evidence",
     "candidate_for_later_harness_hardening",
+    "not_selected_for_escalation",
+]
+WorkspaceContinuityHardeningOutcome = Literal[
+    "keep_warning_only",
+    "needs_more_evidence",
+    "candidate_for_later_continuity_hardening",
     "not_selected_for_escalation",
 ]
 WorkspaceContinuityAdmissionVerdict = Literal[
@@ -2826,6 +2841,188 @@ class AgenticDeWorkspaceContinuityRestorationReintegrationReport(BaseModel):
         return self
 
 
+class AgenticDeWorkspaceContinuityHardeningEntry(BaseModel):
+    model_config = MODEL_CONFIG
+
+    hardening_id: str | None = None
+    continuity_admission_ref: str
+    occupancy_report_ref: str
+    continuity_reintegration_ref: str
+    turn_admission_ref: str
+    turn_handoff_ref: str
+    turn_reintegration_ref: str
+    workspace_continuity_restoration_handoff_ref: str
+    restoration_ref: str
+    workspace_continuity_restoration_reintegration_ref: str
+    observation_ref: str
+    local_effect_conformance_ref: str
+    occupancy_verdict: WorkspaceOccupancyVerdict
+    continuity_reintegration_status: LiveTurnReintegrationStatus
+    restoration_time_continuation_verdict: LiveRestorationContinuationVerdict
+    prior_governed_state_baseline_match_verdict: WorkspaceContinuityBaselineMatchVerdict
+    bounded_compensating_scope_match_verdict: WorkspaceContinuityBaselineMatchVerdict
+    observation_boundedness_verdict: BoundednessVerdict
+    restoration_boundedness_verdict: BoundednessVerdict
+    continuity_restoration_reintegration_status: LiveTurnReintegrationStatus
+    selected_hardening_target_surface: str
+    frozen_policy_ref: str
+    evidence_basis_summary: str
+    verdict_basis_summary: str
+    recommendation_scope_requires_later_lock: Literal[True] = True
+    extensional_and_replayable_by_default: Literal[True] = True
+    lineage_root_dedup_applied: Literal[True] = True
+    root_origin_ids: list[str]
+    root_origin_dedup_summary: str
+    recommended_outcome: WorkspaceContinuityHardeningOutcome
+    rationale: str
+    reason_codes: list[str]
+    evidence_refs: list[str]
+
+    @model_validator(mode="after")
+    def _validate_entry(self) -> AgenticDeWorkspaceContinuityHardeningEntry:
+        required_fields = (
+            "continuity_admission_ref",
+            "occupancy_report_ref",
+            "continuity_reintegration_ref",
+            "turn_admission_ref",
+            "turn_handoff_ref",
+            "turn_reintegration_ref",
+            "workspace_continuity_restoration_handoff_ref",
+            "restoration_ref",
+            "workspace_continuity_restoration_reintegration_ref",
+            "observation_ref",
+            "local_effect_conformance_ref",
+            "selected_hardening_target_surface",
+            "frozen_policy_ref",
+            "evidence_basis_summary",
+            "verdict_basis_summary",
+            "root_origin_dedup_summary",
+            "rationale",
+        )
+        for field_name in required_fields:
+            _assert_present_text(getattr(self, field_name), field_name=field_name)
+        object.__setattr__(
+            self,
+            "root_origin_ids",
+            _ordered_unique_texts(self.root_origin_ids, field_name="root_origin_ids"),
+        )
+        object.__setattr__(
+            self,
+            "reason_codes",
+            _ordered_unique_texts(self.reason_codes, field_name="reason_codes"),
+        )
+        object.__setattr__(
+            self,
+            "evidence_refs",
+            _ordered_unique_texts(self.evidence_refs, field_name="evidence_refs"),
+        )
+        if not self.root_origin_ids:
+            raise ValueError("root_origin_ids must be non-empty")
+        if self.recommended_outcome == "candidate_for_later_continuity_hardening":
+            if self.occupancy_verdict != "unoccupied":
+                raise ValueError(
+                    "candidate_for_later_continuity_hardening requires unoccupied occupancy verdict"
+                )
+            if self.continuity_reintegration_status != "reintegrated":
+                raise ValueError(
+                    "candidate_for_later_continuity_hardening requires "
+                    "reintegrated continuity status"
+                )
+            if self.restoration_time_continuation_verdict != "continued":
+                raise ValueError(
+                    "candidate_for_later_continuity_hardening requires continued "
+                    "restoration-time verdict"
+                )
+            if self.prior_governed_state_baseline_match_verdict != "matched":
+                raise ValueError(
+                    "candidate_for_later_continuity_hardening requires matched prior "
+                    "baseline verdict"
+                )
+            if self.bounded_compensating_scope_match_verdict != "matched":
+                raise ValueError(
+                    "candidate_for_later_continuity_hardening requires matched "
+                    "compensating scope verdict"
+                )
+            if self.observation_boundedness_verdict != "bounded":
+                raise ValueError(
+                    "candidate_for_later_continuity_hardening requires bounded observation verdict"
+                )
+            if self.restoration_boundedness_verdict != "bounded":
+                raise ValueError(
+                    "candidate_for_later_continuity_hardening requires bounded restoration verdict"
+                )
+            if self.continuity_restoration_reintegration_status != "reintegrated":
+                raise ValueError(
+                    "candidate_for_later_continuity_hardening requires reintegrated "
+                    "continuity restoration status"
+                )
+            if "later_lock_required_for_scope" not in self.reason_codes:
+                raise ValueError(
+                    "candidate_for_later_continuity_hardening requires "
+                    "later_lock_required_for_scope"
+                )
+        object.__setattr__(
+            self,
+            "hardening_id",
+            _assign_or_verify_content_addressed_id(
+                value=self.hardening_id,
+                field_name="hardening_id",
+                prefix="agentic_de_workspace_continuity_hardening",
+                payload=self.model_dump(mode="json", exclude={"hardening_id"}),
+            ),
+        )
+        return self
+
+
+class AgenticDeWorkspaceContinuityHardeningRegister(BaseModel):
+    model_config = MODEL_CONFIG
+
+    schema: Literal[AGENTIC_DE_WORKSPACE_CONTINUITY_HARDENING_REGISTER_SCHEMA] = (
+        AGENTIC_DE_WORKSPACE_CONTINUITY_HARDENING_REGISTER_SCHEMA
+    )
+    register_id: str | None = None
+    target_arc: str
+    target_path: str
+    advisory_only: Literal[True] = True
+    candidate_only: Literal[True] = True
+    path_level_only: Literal[True] = True
+    exemplar_evidence_non_generalizing_by_default: Literal[True] = True
+    changes_live_behavior_by_default: Literal[False] = False
+    committed_lane_artifacts_outrank_narrative_docs: Literal[True] = True
+    evidence_basis_distinct_from_recommendation: Literal[True] = True
+    recommendation_function_extensional_and_replayable: Literal[True] = True
+    explicit_frozen_policy_anchor_required: Literal[True] = True
+    lineage_root_non_independence_dedup_applied: Literal[True] = True
+    baseline_checker_version: str
+    entry_count: int
+    entries: list[AgenticDeWorkspaceContinuityHardeningEntry]
+
+    @model_validator(mode="after")
+    def _validate_register(self) -> AgenticDeWorkspaceContinuityHardeningRegister:
+        _assert_present_text(self.target_arc, field_name="target_arc")
+        _assert_present_text(self.target_path, field_name="target_path")
+        _assert_present_text(
+            self.baseline_checker_version,
+            field_name="baseline_checker_version",
+        )
+        if self.entry_count != len(self.entries):
+            raise ValueError("entry_count must equal len(entries)")
+        target_surfaces = [entry.selected_hardening_target_surface for entry in self.entries]
+        if len(set(target_surfaces)) != len(target_surfaces):
+            raise ValueError("selected_hardening_target_surface values must be unique")
+        object.__setattr__(
+            self,
+            "register_id",
+            _assign_or_verify_content_addressed_id(
+                value=self.register_id,
+                field_name="register_id",
+                prefix="agentic_de_workspace_continuity_hardening_register",
+                payload=self.model_dump(mode="json", exclude={"register_id"}),
+            ),
+        )
+        return self
+
+
 def compute_agentic_de_domain_packet_id(payload: dict[str, object]) -> str:
     return _compute_id("agentic_de_domain_packet", payload)
 
@@ -2986,3 +3183,15 @@ def compute_agentic_de_workspace_continuity_restoration_reintegration_report_id(
     payload: dict[str, object],
 ) -> str:
     return _compute_id("agentic_de_workspace_continuity_restoration_reintegration_report", payload)
+
+
+def compute_agentic_de_workspace_continuity_hardening_entry_id(
+    payload: dict[str, object],
+) -> str:
+    return _compute_id("agentic_de_workspace_continuity_hardening", payload)
+
+
+def compute_agentic_de_workspace_continuity_hardening_register_id(
+    payload: dict[str, object],
+) -> str:
+    return _compute_id("agentic_de_workspace_continuity_hardening_register", payload)
