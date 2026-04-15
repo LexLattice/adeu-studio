@@ -1,0 +1,104 @@
+{
+  "changes_live_behavior_by_default": false,
+  "evidence_basis_summary": "same shipped loop identity + same explicit latest reintegrated act + same frozen V60-B policy yields the same refresh outputs",
+  "evidence_only": true,
+  "evidence_refs": [
+    "packages/adeu_agentic_de/tests/fixtures/v56a/reference_agentic_de_domain_packet.json",
+    "packages/adeu_agentic_de/tests/fixtures/v56a/reference_agentic_de_morph_ir.json",
+    "packages/adeu_agentic_de/tests/fixtures/v56a/reference_agentic_de_interaction_contract.json",
+    "packages/adeu_agentic_de/tests/fixtures/v56a/reference_agentic_de_action_proposal.json",
+    "packages/adeu_agentic_de/tests/fixtures/v56a/reference_agentic_de_membrane_checkpoint.json",
+    "packages/adeu_agentic_de/tests/fixtures/v56a/reference_agentic_de_morph_diagnostics.json",
+    "packages/adeu_agentic_de/tests/fixtures/v56a/reference_agentic_de_conformance_report.json",
+    "packages/adeu_agentic_de/tests/fixtures/v56b/reference_agentic_de_action_class_taxonomy.json",
+    "packages/adeu_agentic_de/tests/fixtures/v56b/reference_agentic_de_runtime_state.json",
+    "packages/adeu_agentic_de/tests/fixtures/v56b/reference_agentic_de_action_ticket.json",
+    "packages/adeu_agentic_de/tests/fixtures/v56b/reference_agentic_de_lane_drift_record.json",
+    "packages/adeu_agentic_de/tests/fixtures/v56b/reference_agentic_de_morph_diagnostics.json",
+    "packages/adeu_agentic_de/tests/fixtures/v56b/reference_agentic_de_conformance_report.json",
+    "packages/adeu_agentic_de/tests/fixtures/v56c/reference_agentic_de_lane_drift_record.json",
+    "packages/adeu_agentic_de/tests/fixtures/v56c/reference_agentic_de_runtime_harvest_record.json",
+    "packages/adeu_agentic_de/tests/fixtures/v56c/reference_agentic_de_governance_calibration_register.json",
+    "packages/adeu_agentic_de/tests/fixtures/v56c/reference_agentic_de_migration_decision_register.json",
+    "packages/adeu_agentic_de/tests/fixtures/v59a/reference_agentic_de_lane_drift_record.json",
+    "packages/adeu_agentic_de/tests/fixtures/v59a/reference_agentic_de_workspace_continuity_region_declaration.json",
+    "packages/adeu_agentic_de/tests/fixtures/v59a/reference_agentic_de_workspace_continuity_admission_record.json",
+    "packages/adeu_agentic_de/tests/fixtures/v59a/reference_agentic_de_workspace_occupancy_report.json",
+    "packages/adeu_agentic_de/tests/fixtures/v59a/reference_agentic_de_live_turn_admission_record.json",
+    "packages/adeu_agentic_de/tests/fixtures/v59a/reference_agentic_de_live_turn_handoff_record.json",
+    "packages/adeu_agentic_de/tests/fixtures/v59a/reference_agentic_de_local_effect_observation_record.json",
+    "packages/adeu_agentic_de/tests/fixtures/v59a/reference_agentic_de_local_effect_conformance_report.json",
+    "packages/adeu_agentic_de/tests/fixtures/v59a/reference_agentic_de_live_turn_reintegration_report.json",
+    "packages/adeu_agentic_de/tests/fixtures/v59a/reference_agentic_de_workspace_continuity_reintegration_report.json",
+    "packages/adeu_agentic_de/tests/fixtures/v59b/reference_agentic_de_lane_drift_record.json",
+    "packages/adeu_agentic_de/tests/fixtures/v59b/reference_agentic_de_workspace_continuity_restoration_handoff_record.json",
+    "packages/adeu_agentic_de/tests/fixtures/v59b/reference_agentic_de_local_effect_restoration_record.json",
+    "packages/adeu_agentic_de/tests/fixtures/v59b/reference_agentic_de_workspace_continuity_restoration_reintegration_report.json",
+    "packages/adeu_agentic_de/tests/fixtures/v60a/reference_agentic_de_lane_drift_record.json",
+    "packages/adeu_agentic_de/tests/fixtures/v60a/reference_agentic_de_seed_intent_record.json",
+    "packages/adeu_agentic_de/tests/fixtures/v60a/reference_agentic_de_task_charter_packet.json",
+    "packages/adeu_agentic_de/tests/fixtures/v60a/reference_agentic_de_task_residual_packet.json",
+    "packages/adeu_agentic_de/tests/fixtures/v60a/reference_agentic_de_loop_state_ledger.json",
+    "packages/adeu_agentic_de/tests/fixtures/v60a/reference_agentic_de_continuation_decision_record.json",
+    "packages/adeu_agentic_de/tests/fixtures/v60b/reference_agentic_de_lane_drift_record.json",
+    "artifacts/agent_harness/v161/evidence_inputs/v59a_workspace_continuity_starter_evidence_v161.json",
+    "artifacts/agent_harness/v162/evidence_inputs/v59b_workspace_continuity_restoration_evidence_v162.json",
+    "artifacts/agent_harness/v164/evidence_inputs/v60a_continuation_starter_evidence_v164.json"
+  ],
+  "field_dependence_tags": {
+    "evidence_basis_summary": [
+      "agentic_de_task_residual_ab780d503f8c",
+      "agentic_de_loop_state_ledger_22492d7ad8a7",
+      "agentic_de_task_residual_refresh_b66f6e97d09b",
+      "latest_reintegrated_act::agentic_de_live_turn_reintegration_report_f131e6392e1e::agentic_de_workspace_continuity_reintegration_report_c8e2566a1646::agentic_de_workspace_continuity_restoration_reintegration_report_c2d2fcceb4b6",
+      "docs/LOCKED_CONTINUATION_vNEXT_PLUS165.md#machine-checkable-contract"
+    ],
+    "frozen_policy_anchor_ref": [],
+    "refresh_outcome": [
+      "agentic_de_loop_state_ledger_22492d7ad8a7",
+      "agentic_de_task_residual_refresh_b66f6e97d09b",
+      "latest_reintegrated_act::agentic_de_live_turn_reintegration_report_f131e6392e1e::agentic_de_workspace_continuity_reintegration_report_c8e2566a1646::agentic_de_workspace_continuity_restoration_reintegration_report_c2d2fcceb4b6",
+      "docs/LOCKED_CONTINUATION_vNEXT_PLUS165.md#machine-checkable-contract"
+    ],
+    "reproposal_basis_summary_or_none": [
+      "none_under_current_v60b_policy"
+    ],
+    "selected_next_path_summary_or_none": [
+      "agentic_de_task_residual_refresh_b66f6e97d09b",
+      "agentic_de_loop_state_ledger_22492d7ad8a7"
+    ]
+  },
+  "field_origin_tags": {
+    "evidence_basis_summary": "current_turn_derived",
+    "frozen_policy_anchor_ref": "shaping_only",
+    "refresh_outcome": "current_turn_derived",
+    "reproposal_basis_summary_or_none": "current_turn_derived",
+    "selected_next_path_summary_or_none": "current_turn_derived"
+  },
+  "frozen_policy_anchor_ref": "docs/LOCKED_CONTINUATION_vNEXT_PLUS165.md#machine-checkable-contract",
+  "latest_reintegrated_act_identity": "latest_reintegrated_act::agentic_de_live_turn_reintegration_report_f131e6392e1e::agentic_de_workspace_continuity_reintegration_report_c8e2566a1646::agentic_de_workspace_continuity_restoration_reintegration_report_c2d2fcceb4b6",
+  "prior_loop_state_ledger_ref": "agentic_de_loop_state_ledger_22492d7ad8a7",
+  "refresh_decision_id": "agentic_de_continuation_refresh_decision_067a308bcae4",
+  "refresh_outcome": "continue_to_governed_act",
+  "refresh_reason_codes": [
+    "stable_loop_identity_preserved",
+    "latest_reintegrated_act_selected_explicitly",
+    "refreshed_residual_replayable",
+    "exact_v59_downstream_path_preserved",
+    "single_step_local_ticket_duration_preserved",
+    "communication_law_still_deferred_to_v61"
+  ],
+  "refreshed_task_residual_ref": "agentic_de_task_residual_refresh_b66f6e97d09b",
+  "reproposal_basis_summary_or_none": null,
+  "root_origin_ids": [
+    "loop:agentic_de_loop_state_ledger_22492d7ad8a7",
+    "refresh:agentic_de_task_residual_refresh_b66f6e97d09b",
+    "latest_act:latest_reintegrated_act::agentic_de_live_turn_reintegration_report_f131e6392e1e::agentic_de_workspace_continuity_reintegration_report_c8e2566a1646::agentic_de_workspace_continuity_restoration_reintegration_report_c2d2fcceb4b6",
+    "policy:docs/LOCKED_CONTINUATION_vNEXT_PLUS165.md#machine-checkable-contract"
+  ],
+  "schema": "agentic_de_continuation_refresh_decision_record@1",
+  "selected_next_path_summary_or_none": "urm_copilot_session_path::local_write/create_new::artifacts/agentic_de/v59/workspace_continuity/runtime/reference_patch_candidate.diff",
+  "stable_loop_identity_ref": "agentic_de_loop_state_ledger_22492d7ad8a7",
+  "target_arc": "vNext+165",
+  "target_path": "V60-B"
+}

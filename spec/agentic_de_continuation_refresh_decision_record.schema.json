@@ -1,0 +1,167 @@
+{
+  "additionalProperties": false,
+  "properties": {
+    "changes_live_behavior_by_default": {
+      "const": false,
+      "default": false,
+      "title": "Changes Live Behavior By Default",
+      "type": "boolean"
+    },
+    "evidence_basis_summary": {
+      "title": "Evidence Basis Summary",
+      "type": "string"
+    },
+    "evidence_only": {
+      "const": true,
+      "default": true,
+      "title": "Evidence Only",
+      "type": "boolean"
+    },
+    "evidence_refs": {
+      "items": {
+        "type": "string"
+      },
+      "title": "Evidence Refs",
+      "type": "array"
+    },
+    "field_dependence_tags": {
+      "additionalProperties": {
+        "items": {
+          "type": "string"
+        },
+        "type": "array"
+      },
+      "title": "Field Dependence Tags",
+      "type": "object"
+    },
+    "field_origin_tags": {
+      "additionalProperties": {
+        "enum": [
+          "current_turn_native",
+          "current_turn_derived",
+          "observability_only",
+          "prior_artifact",
+          "shaping_only"
+        ],
+        "type": "string"
+      },
+      "title": "Field Origin Tags",
+      "type": "object"
+    },
+    "frozen_policy_anchor_ref": {
+      "title": "Frozen Policy Anchor Ref",
+      "type": "string"
+    },
+    "latest_reintegrated_act_identity": {
+      "title": "Latest Reintegrated Act Identity",
+      "type": "string"
+    },
+    "prior_loop_state_ledger_ref": {
+      "title": "Prior Loop State Ledger Ref",
+      "type": "string"
+    },
+    "refresh_decision_id": {
+      "anyOf": [
+        {
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Refresh Decision Id"
+    },
+    "refresh_outcome": {
+      "enum": [
+        "continue_to_governed_act",
+        "await_authority",
+        "emit_governed_communication",
+        "pause_blocked",
+        "stop_complete",
+        "reproposal_required",
+        "escalate_for_review"
+      ],
+      "title": "Refresh Outcome",
+      "type": "string"
+    },
+    "refresh_reason_codes": {
+      "items": {
+        "type": "string"
+      },
+      "title": "Refresh Reason Codes",
+      "type": "array"
+    },
+    "refreshed_task_residual_ref": {
+      "title": "Refreshed Task Residual Ref",
+      "type": "string"
+    },
+    "reproposal_basis_summary_or_none": {
+      "anyOf": [
+        {
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Reproposal Basis Summary Or None"
+    },
+    "root_origin_ids": {
+      "items": {
+        "type": "string"
+      },
+      "title": "Root Origin Ids",
+      "type": "array"
+    },
+    "schema": {
+      "const": "agentic_de_continuation_refresh_decision_record@1",
+      "default": "agentic_de_continuation_refresh_decision_record@1",
+      "title": "Schema",
+      "type": "string"
+    },
+    "selected_next_path_summary_or_none": {
+      "anyOf": [
+        {
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Selected Next Path Summary Or None"
+    },
+    "stable_loop_identity_ref": {
+      "title": "Stable Loop Identity Ref",
+      "type": "string"
+    },
+    "target_arc": {
+      "title": "Target Arc",
+      "type": "string"
+    },
+    "target_path": {
+      "title": "Target Path",
+      "type": "string"
+    }
+  },
+  "required": [
+    "target_arc",
+    "target_path",
+    "prior_loop_state_ledger_ref",
+    "stable_loop_identity_ref",
+    "refreshed_task_residual_ref",
+    "latest_reintegrated_act_identity",
+    "refresh_outcome",
+    "refresh_reason_codes",
+    "frozen_policy_anchor_ref",
+    "evidence_basis_summary",
+    "field_origin_tags",
+    "field_dependence_tags",
+    "root_origin_ids",
+    "evidence_refs"
+  ],
+  "title": "AgenticDeContinuationRefreshDecisionRecord",
+  "type": "object"
+}
