@@ -1,0 +1,74 @@
+{
+  "schema": "v60b_continuation_refresh_evidence@1",
+  "evidence_input_path": "artifacts/agent_harness/v165/evidence_inputs/v60b_continuation_refresh_evidence_v165.json",
+  "contract_source": "docs/LOCKED_CONTINUATION_vNEXT_PLUS165.md#machine-checkable-contract",
+  "merged_pr": "#392",
+  "merge_commit": "a1de8076b2f84b1f430e6d0c505b9a3e926898e8",
+  "implementation_commit": "3b866d7da088ff3782c45957e378f81f693399a7",
+  "review_hardening_commit": "f9885b7e259b16177bf72d507dc8b23614f67ac3",
+  "implementation_packages": [
+    "adeu_agentic_de"
+  ],
+  "selected_record_shapes": [
+    "agentic_de_task_residual_refresh_packet@1",
+    "agentic_de_continuation_refresh_decision_record@1"
+  ],
+  "required_prior_lane_evidence_paths": [
+    "artifacts/agent_harness/v164/evidence_inputs/v60a_continuation_starter_evidence_v164.json"
+  ],
+  "admitted_shaping_input_set_closed_for_v60b": true,
+  "prior_lane_handoff_record_required": true,
+  "prior_lane_handoff_record_schema": "agentic_de_lane_drift_record@1",
+  "surface_fork_requires_explicit_drift_amendment": true,
+  "agentic_de_pyproject_path": "packages/adeu_agentic_de/pyproject.toml",
+  "agentic_de_package_init_source_path": "packages/adeu_agentic_de/src/adeu_agentic_de/__init__.py",
+  "agentic_de_checker_source_path": "packages/adeu_agentic_de/src/adeu_agentic_de/checker.py",
+  "agentic_de_models_source_path": "packages/adeu_agentic_de/src/adeu_agentic_de/models.py",
+  "agentic_de_export_schema_source_path": "packages/adeu_agentic_de/src/adeu_agentic_de/export_schema.py",
+  "agentic_de_cli_source_path": "apps/api/scripts/run_agentic_de_continuation_v60b.py",
+  "agentic_de_task_residual_refresh_authoritative_schema_path": "packages/adeu_agentic_de/schema/agentic_de_task_residual_refresh_packet.v1.json",
+  "agentic_de_continuation_refresh_decision_authoritative_schema_path": "packages/adeu_agentic_de/schema/agentic_de_continuation_refresh_decision_record.v1.json",
+  "agentic_de_task_residual_refresh_mirror_schema_path": "spec/agentic_de_task_residual_refresh_packet.schema.json",
+  "agentic_de_continuation_refresh_decision_mirror_schema_path": "spec/agentic_de_continuation_refresh_decision_record.schema.json",
+  "reference_lane_drift_record_fixture_path": "packages/adeu_agentic_de/tests/fixtures/v60b/reference_agentic_de_lane_drift_record.json",
+  "reference_task_residual_refresh_fixture_path": "packages/adeu_agentic_de/tests/fixtures/v60b/reference_agentic_de_task_residual_refresh_packet.json",
+  "reference_continuation_refresh_decision_fixture_path": "packages/adeu_agentic_de/tests/fixtures/v60b/reference_agentic_de_continuation_refresh_decision_record.json",
+  "test_reference_paths": [
+    "packages/adeu_agentic_de/tests/test_agentic_de_v60b.py",
+    "packages/adeu_agentic_de/tests/test_agentic_de_export_schema.py",
+    "apps/api/tests/test_run_agentic_de_continuation_v60b.py"
+  ],
+  "targeted_local_checks": [
+    "focused_ruff_on_touched_v60b_package_cli_and_tests",
+    "focused_pytest_on_v60b_package_cli_and_export_schema_tests"
+  ],
+  "local_full_python_gate": "make check",
+  "stable_loop_identity_preserved": true,
+  "latest_reintegrated_act_selection_explicit_and_fail_closed": true,
+  "reproposal_required_posture_only_until_later_family": true,
+  "reproposal_required_not_implicit_charter_amendment_or_seed_ingress": true,
+  "emit_governed_communication_posture_only_until_v61": true,
+  "v56_ticket_duration_mode_preserved": "single_step_local",
+  "selected_live_session_surface_for_v60b": "urm_copilot_session_path_only",
+  "selected_downstream_action_class_for_v60b": "local_write",
+  "selected_downstream_write_kind_for_v60b": "create_new",
+  "selected_continuity_root_for_v60b": "artifacts/agentic_de/v59/workspace_continuity/",
+  "selected_target_relative_path": "runtime/reference_patch_candidate.diff",
+  "forbidden_v60b_outcomes_confirmed_absent": [
+    "raw_chat_task_law_now",
+    "ticket_duration_widening_now",
+    "communication_packet_law_now",
+    "office_binding_now",
+    "connector_admission_now",
+    "remote_operator_now",
+    "repo_widening_now",
+    "dispatch_now",
+    "stronger_execute_now"
+  ],
+  "changes_live_behavior_by_default": false,
+  "governs_hidden_cognition": false,
+  "metric_key_continuity_assertion_path": "artifacts/agent_harness/v165/evidence_inputs/metric_key_continuity_assertion_v165.json",
+  "runtime_observability_comparison_path": "artifacts/agent_harness/v165/evidence_inputs/runtime_observability_comparison_v165.json",
+  "runtime_event_stream_path": "artifacts/agent_harness/v165/runtime/evidence/local/urm_events.ndjson",
+  "notes": "v165 evidence pins the bounded V60-B continuation refresh seam on main: one residual refresh packet and one refreshed continuation decision record were added over the shipped V60-A continuation lineage, with the V60-A loop-state ledger retained as canonical stable loop anchor, one explicit latest reintegrated act identity required, reproposal kept typed and non-chat-native, emit_governed_communication kept posture-only until V61, and no ticket-duration/replay/execute/dispatch/product/hidden-cognition widening."
+}
