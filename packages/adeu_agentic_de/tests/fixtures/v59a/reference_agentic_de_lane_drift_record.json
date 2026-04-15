@@ -1,0 +1,40 @@
+{
+  "schema": "agentic_de_lane_drift_record@1",
+  "record_id": "agentic_de_lane_drift_c12e8993a290",
+  "target_arc": "vNext+161",
+  "target_path": "V59-A",
+  "prior_lane_ref": "docs/LOCKED_CONTINUATION_vNEXT_PLUS160.md",
+  "entry_count": 6,
+  "entries": [
+    {
+      "assumption_ref": "v58_surface_reuse_default",
+      "status": "holds",
+      "note": "V59-A reuses the shipped V58 live-turn bind and reintegration surfaces by default."
+    },
+    {
+      "assumption_ref": "continuity_admission_additional_gate",
+      "status": "amended",
+      "note": "V59-A adds one typed continuity admission gate over carried-forward workspace state without replacing V58 live admission."
+    },
+    {
+      "assumption_ref": "prior_workspace_state_context_not_authority",
+      "status": "amended",
+      "note": "Prior workspace state remains context at most and does not become standing authority or ambient admissibility."
+    },
+    {
+      "assumption_ref": "create_new_requires_unoccupied_target",
+      "status": "amended",
+      "note": "V59-A admits create_new only when the selected target is explicitly classified as unoccupied."
+    },
+    {
+      "assumption_ref": "non_target_occupants_contextual_only",
+      "status": "amended",
+      "note": "Non-target occupants inside the declared continuity root remain contextual only and do not mint target entitlement."
+    },
+    {
+      "assumption_ref": "positive_continuity_reintegration_requires_witness_basis",
+      "status": "amended",
+      "note": "Positive continuity reintegration requires declared current-turn witness plus witness basis or certificate reference."
+    }
+  ]
+}

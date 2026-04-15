@@ -1,0 +1,140 @@
+{
+  "additionalProperties": false,
+  "properties": {
+    "changes_live_behavior_by_default": {
+      "const": false,
+      "default": false,
+      "title": "Changes Live Behavior By Default",
+      "type": "boolean"
+    },
+    "continuity_admission_id": {
+      "anyOf": [
+        {
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Continuity Admission Id"
+    },
+    "continuity_reason_codes": {
+      "items": {
+        "type": "string"
+      },
+      "title": "Continuity Reason Codes",
+      "type": "array"
+    },
+    "continuity_region_declaration_ref": {
+      "title": "Continuity Region Declaration Ref",
+      "type": "string"
+    },
+    "continuity_root_identity": {
+      "title": "Continuity Root Identity",
+      "type": "string"
+    },
+    "continuity_snapshot_summary": {
+      "title": "Continuity Snapshot Summary",
+      "type": "string"
+    },
+    "continuity_verdict": {
+      "enum": [
+        "admitted",
+        "region_mismatch",
+        "rejected_inadmissible",
+        "stale_continuity_basis",
+        "unresolved_drift",
+        "withheld_by_policy",
+        "unknown"
+      ],
+      "title": "Continuity Verdict",
+      "type": "string"
+    },
+    "cwd_path": {
+      "title": "Cwd Path",
+      "type": "string"
+    },
+    "evidence_only": {
+      "const": true,
+      "default": true,
+      "title": "Evidence Only",
+      "type": "boolean"
+    },
+    "evidence_refs": {
+      "items": {
+        "type": "string"
+      },
+      "title": "Evidence Refs",
+      "type": "array"
+    },
+    "field_dependence_tags": {
+      "additionalProperties": {
+        "items": {
+          "type": "string"
+        },
+        "type": "array"
+      },
+      "title": "Field Dependence Tags",
+      "type": "object"
+    },
+    "field_origin_tags": {
+      "additionalProperties": {
+        "enum": [
+          "current_turn_native",
+          "current_turn_derived",
+          "observability_only",
+          "prior_artifact",
+          "shaping_only"
+        ],
+        "type": "string"
+      },
+      "title": "Field Origin Tags",
+      "type": "object"
+    },
+    "live_turn_admission_ref": {
+      "title": "Live Turn Admission Ref",
+      "type": "string"
+    },
+    "live_turn_handoff_ref": {
+      "title": "Live Turn Handoff Ref",
+      "type": "string"
+    },
+    "repo_root_path": {
+      "title": "Repo Root Path",
+      "type": "string"
+    },
+    "schema": {
+      "const": "agentic_de_workspace_continuity_admission_record@1",
+      "default": "agentic_de_workspace_continuity_admission_record@1",
+      "title": "Schema",
+      "type": "string"
+    },
+    "target_arc": {
+      "title": "Target Arc",
+      "type": "string"
+    },
+    "target_path": {
+      "title": "Target Path",
+      "type": "string"
+    }
+  },
+  "required": [
+    "target_arc",
+    "target_path",
+    "live_turn_admission_ref",
+    "live_turn_handoff_ref",
+    "continuity_region_declaration_ref",
+    "continuity_verdict",
+    "continuity_reason_codes",
+    "continuity_snapshot_summary",
+    "repo_root_path",
+    "cwd_path",
+    "continuity_root_identity",
+    "field_origin_tags",
+    "field_dependence_tags",
+    "evidence_refs"
+  ],
+  "title": "AgenticDeWorkspaceContinuityAdmissionRecord",
+  "type": "object"
+}

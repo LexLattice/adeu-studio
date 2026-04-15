@@ -28,6 +28,10 @@ from adeu_agentic_de import (
     AGENTIC_DE_MORPH_IR_SCHEMA,
     AGENTIC_DE_RUNTIME_HARVEST_RECORD_SCHEMA,
     AGENTIC_DE_RUNTIME_STATE_SCHEMA,
+    AGENTIC_DE_WORKSPACE_CONTINUITY_ADMISSION_RECORD_SCHEMA,
+    AGENTIC_DE_WORKSPACE_CONTINUITY_REGION_DECLARATION_SCHEMA,
+    AGENTIC_DE_WORKSPACE_CONTINUITY_REINTEGRATION_REPORT_SCHEMA,
+    AGENTIC_DE_WORKSPACE_OCCUPANCY_REPORT_SCHEMA,
 )
 from adeu_agentic_de.export_schema import _assert_no_absolute_path_material
 from adeu_agentic_de.export_schema import main as export_schema_main
@@ -128,6 +132,40 @@ def _schema_pairs() -> dict[str, tuple[Path, Path]]:
             / "schema"
             / "agentic_de_live_turn_reintegration_report.v1.json",
             root / "spec" / "agentic_de_live_turn_reintegration_report.schema.json",
+        ),
+        AGENTIC_DE_WORKSPACE_CONTINUITY_REGION_DECLARATION_SCHEMA: (
+            root
+            / "packages"
+            / "adeu_agentic_de"
+            / "schema"
+            / "agentic_de_workspace_continuity_region_declaration.v1.json",
+            root / "spec" / "agentic_de_workspace_continuity_region_declaration.schema.json",
+        ),
+        AGENTIC_DE_WORKSPACE_CONTINUITY_ADMISSION_RECORD_SCHEMA: (
+            root
+            / "packages"
+            / "adeu_agentic_de"
+            / "schema"
+            / "agentic_de_workspace_continuity_admission_record.v1.json",
+            root / "spec" / "agentic_de_workspace_continuity_admission_record.schema.json",
+        ),
+        AGENTIC_DE_WORKSPACE_OCCUPANCY_REPORT_SCHEMA: (
+            root
+            / "packages"
+            / "adeu_agentic_de"
+            / "schema"
+            / "agentic_de_workspace_occupancy_report.v1.json",
+            root / "spec" / "agentic_de_workspace_occupancy_report.schema.json",
+        ),
+        AGENTIC_DE_WORKSPACE_CONTINUITY_REINTEGRATION_REPORT_SCHEMA: (
+            root
+            / "packages"
+            / "adeu_agentic_de"
+            / "schema"
+            / "agentic_de_workspace_continuity_reintegration_report.v1.json",
+            root
+            / "spec"
+            / "agentic_de_workspace_continuity_reintegration_report.schema.json",
         ),
         AGENTIC_DE_LIVE_RESTORATION_HANDOFF_RECORD_SCHEMA: (
             root

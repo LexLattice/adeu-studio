@@ -1,0 +1,52 @@
+{
+  "admission_id": "agentic_de_live_turn_admission_77953b57cdbb",
+  "admission_reason_codes": [
+    "current_turn_selected",
+    "writes_allowed_present_but_not_ticket_equivalent",
+    "approval_posture_observed_but_not_ticket_equivalent"
+  ],
+  "admission_verdict": "admitted",
+  "approval_posture_snapshot": "writes_allowed_enabled",
+  "changes_live_behavior_by_default": false,
+  "cwd_path": ".",
+  "designated_sandbox_root": "artifacts/agentic_de/v59/workspace_continuity",
+  "evidence_only": true,
+  "evidence_refs": [
+    "artifacts/agent_harness/v161/runtime/evidence/local/copilot_raw.ndjson",
+    "artifacts/agent_harness/v161/runtime/evidence/local/urm_events.ndjson",
+    "agentic_de_workspace_continuity_region_0bb0246a64a8",
+    "packages/adeu_agentic_de/tests/fixtures/v56a/reference_agentic_de_domain_packet.json",
+    "packages/adeu_agentic_de/tests/fixtures/v56a/reference_agentic_de_morph_ir.json",
+    "packages/adeu_agentic_de/tests/fixtures/v56a/reference_agentic_de_interaction_contract.json",
+    "packages/adeu_agentic_de/tests/fixtures/v56a/reference_agentic_de_action_proposal.json",
+    "packages/adeu_agentic_de/tests/fixtures/v56a/reference_agentic_de_membrane_checkpoint.json",
+    "packages/adeu_agentic_de/tests/fixtures/v56a/reference_agentic_de_morph_diagnostics.json",
+    "packages/adeu_agentic_de/tests/fixtures/v56a/reference_agentic_de_conformance_report.json",
+    "packages/adeu_agentic_de/tests/fixtures/v56b/reference_agentic_de_action_class_taxonomy.json",
+    "packages/adeu_agentic_de/tests/fixtures/v56b/reference_agentic_de_runtime_state.json",
+    "packages/adeu_agentic_de/tests/fixtures/v56b/reference_agentic_de_action_ticket.json",
+    "packages/adeu_agentic_de/tests/fixtures/v56b/reference_agentic_de_lane_drift_record.json",
+    "packages/adeu_agentic_de/tests/fixtures/v56b/reference_agentic_de_morph_diagnostics.json",
+    "packages/adeu_agentic_de/tests/fixtures/v56b/reference_agentic_de_conformance_report.json",
+    "packages/adeu_agentic_de/tests/fixtures/v56c/reference_agentic_de_lane_drift_record.json",
+    "packages/adeu_agentic_de/tests/fixtures/v56c/reference_agentic_de_runtime_harvest_record.json",
+    "packages/adeu_agentic_de/tests/fixtures/v56c/reference_agentic_de_governance_calibration_register.json",
+    "packages/adeu_agentic_de/tests/fixtures/v56c/reference_agentic_de_migration_decision_register.json",
+    "packages/adeu_agentic_de/tests/fixtures/v59a/reference_agentic_de_lane_drift_record.json",
+    "artifacts/agent_harness/v160/evidence_inputs/v58c_live_harness_hardening_evidence_v160.json"
+  ],
+  "live_session_id": "copilot-v59a-session-1",
+  "live_session_surface": "urm_copilot_session_path",
+  "live_turn_id": "turn-v59a-continuity-1",
+  "observability_refs": [
+    "artifacts/agent_harness/v161/runtime/evidence/local/copilot_raw.ndjson",
+    "artifacts/agent_harness/v161/runtime/evidence/local/urm_events.ndjson"
+  ],
+  "repo_root_path": ".",
+  "schema": "agentic_de_live_turn_admission_record@1",
+  "selected_live_path_identity": "urm_copilot_session_path::local_write/create_new::artifacts/agentic_de/v59/workspace_continuity/runtime/reference_patch_candidate.diff",
+  "session_capability_snapshot": "status=running;writes_allowed=true;profile=default@profile.v1",
+  "session_status": "running",
+  "target_arc": "vNext+161",
+  "target_path": "V59-A"
+}

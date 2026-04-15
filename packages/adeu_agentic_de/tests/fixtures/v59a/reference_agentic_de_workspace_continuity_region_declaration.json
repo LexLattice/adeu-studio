@@ -1,0 +1,41 @@
+{
+  "allowed_write_kind_subset": [
+    "create_new"
+  ],
+  "changes_live_behavior_by_default": false,
+  "continuity_region_id": "agentic_de_workspace_continuity_region_0bb0246a64a8",
+  "declared_continuity_root": "artifacts/agentic_de/v59/workspace_continuity",
+  "evidence_only": true,
+  "evidence_refs": [
+    "packages/adeu_agentic_de/tests/fixtures/v56a/reference_agentic_de_domain_packet.json",
+    "packages/adeu_agentic_de/tests/fixtures/v56a/reference_agentic_de_morph_ir.json",
+    "packages/adeu_agentic_de/tests/fixtures/v56a/reference_agentic_de_interaction_contract.json",
+    "packages/adeu_agentic_de/tests/fixtures/v56a/reference_agentic_de_action_proposal.json",
+    "packages/adeu_agentic_de/tests/fixtures/v56a/reference_agentic_de_membrane_checkpoint.json",
+    "packages/adeu_agentic_de/tests/fixtures/v56a/reference_agentic_de_morph_diagnostics.json",
+    "packages/adeu_agentic_de/tests/fixtures/v56a/reference_agentic_de_conformance_report.json",
+    "packages/adeu_agentic_de/tests/fixtures/v56b/reference_agentic_de_action_class_taxonomy.json",
+    "packages/adeu_agentic_de/tests/fixtures/v56b/reference_agentic_de_runtime_state.json",
+    "packages/adeu_agentic_de/tests/fixtures/v56b/reference_agentic_de_action_ticket.json",
+    "packages/adeu_agentic_de/tests/fixtures/v56b/reference_agentic_de_lane_drift_record.json",
+    "packages/adeu_agentic_de/tests/fixtures/v56b/reference_agentic_de_morph_diagnostics.json",
+    "packages/adeu_agentic_de/tests/fixtures/v56b/reference_agentic_de_conformance_report.json",
+    "packages/adeu_agentic_de/tests/fixtures/v56c/reference_agentic_de_lane_drift_record.json",
+    "packages/adeu_agentic_de/tests/fixtures/v56c/reference_agentic_de_runtime_harvest_record.json",
+    "packages/adeu_agentic_de/tests/fixtures/v56c/reference_agentic_de_governance_calibration_register.json",
+    "packages/adeu_agentic_de/tests/fixtures/v56c/reference_agentic_de_migration_decision_register.json",
+    "packages/adeu_agentic_de/tests/fixtures/v59a/reference_agentic_de_lane_drift_record.json",
+    "artifacts/agent_harness/v160/evidence_inputs/v58c_live_harness_hardening_evidence_v160.json"
+  ],
+  "occupancy_policy": "only_unoccupied_target_is_entitling_for_create_new_in_v59a",
+  "region_origin_tags": {
+    "allowed_write_kind_subset": "current_turn_derived",
+    "declared_continuity_root": "current_turn_derived",
+    "occupancy_policy": "current_turn_derived",
+    "target_identity_or_target_set": "current_turn_derived"
+  },
+  "schema": "agentic_de_workspace_continuity_region_declaration@1",
+  "target_arc": "vNext+161",
+  "target_identity_or_target_set": "runtime/reference_patch_candidate.diff",
+  "target_path": "V59-A"
+}

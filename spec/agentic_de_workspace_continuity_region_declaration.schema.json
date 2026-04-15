@@ -1,0 +1,99 @@
+{
+  "additionalProperties": false,
+  "properties": {
+    "allowed_write_kind_subset": {
+      "items": {
+        "enum": [
+          "create_new",
+          "append_only"
+        ],
+        "type": "string"
+      },
+      "title": "Allowed Write Kind Subset",
+      "type": "array"
+    },
+    "changes_live_behavior_by_default": {
+      "const": false,
+      "default": false,
+      "title": "Changes Live Behavior By Default",
+      "type": "boolean"
+    },
+    "continuity_region_id": {
+      "anyOf": [
+        {
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Continuity Region Id"
+    },
+    "declared_continuity_root": {
+      "title": "Declared Continuity Root",
+      "type": "string"
+    },
+    "evidence_only": {
+      "const": true,
+      "default": true,
+      "title": "Evidence Only",
+      "type": "boolean"
+    },
+    "evidence_refs": {
+      "items": {
+        "type": "string"
+      },
+      "title": "Evidence Refs",
+      "type": "array"
+    },
+    "occupancy_policy": {
+      "title": "Occupancy Policy",
+      "type": "string"
+    },
+    "region_origin_tags": {
+      "additionalProperties": {
+        "enum": [
+          "current_turn_native",
+          "current_turn_derived",
+          "observability_only",
+          "prior_artifact",
+          "shaping_only"
+        ],
+        "type": "string"
+      },
+      "title": "Region Origin Tags",
+      "type": "object"
+    },
+    "schema": {
+      "const": "agentic_de_workspace_continuity_region_declaration@1",
+      "default": "agentic_de_workspace_continuity_region_declaration@1",
+      "title": "Schema",
+      "type": "string"
+    },
+    "target_arc": {
+      "title": "Target Arc",
+      "type": "string"
+    },
+    "target_identity_or_target_set": {
+      "title": "Target Identity Or Target Set",
+      "type": "string"
+    },
+    "target_path": {
+      "title": "Target Path",
+      "type": "string"
+    }
+  },
+  "required": [
+    "target_arc",
+    "target_path",
+    "declared_continuity_root",
+    "target_identity_or_target_set",
+    "allowed_write_kind_subset",
+    "occupancy_policy",
+    "region_origin_tags",
+    "evidence_refs"
+  ],
+  "title": "AgenticDeWorkspaceContinuityRegionDeclaration",
+  "type": "object"
+}

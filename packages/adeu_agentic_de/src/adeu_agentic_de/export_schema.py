@@ -32,6 +32,10 @@ from .models import (
     AGENTIC_DE_MORPH_IR_SCHEMA,
     AGENTIC_DE_RUNTIME_HARVEST_RECORD_SCHEMA,
     AGENTIC_DE_RUNTIME_STATE_SCHEMA,
+    AGENTIC_DE_WORKSPACE_CONTINUITY_ADMISSION_RECORD_SCHEMA,
+    AGENTIC_DE_WORKSPACE_CONTINUITY_REGION_DECLARATION_SCHEMA,
+    AGENTIC_DE_WORKSPACE_CONTINUITY_REINTEGRATION_REPORT_SCHEMA,
+    AGENTIC_DE_WORKSPACE_OCCUPANCY_REPORT_SCHEMA,
     AgenticDeActionClassTaxonomy,
     AgenticDeActionProposal,
     AgenticDeActionTicket,
@@ -56,6 +60,10 @@ from .models import (
     AgenticDeMorphIr,
     AgenticDeRuntimeHarvestRecord,
     AgenticDeRuntimeState,
+    AgenticDeWorkspaceContinuityAdmissionRecord,
+    AgenticDeWorkspaceContinuityRegionDeclaration,
+    AgenticDeWorkspaceContinuityReintegrationReport,
+    AgenticDeWorkspaceOccupancyReport,
 )
 
 _WINDOWS_ABSOLUTE_PATH_RE = re.compile(r"[A-Za-z]:\\")
@@ -228,6 +236,48 @@ def main() -> None:
             / "schema"
             / "agentic_de_live_turn_reintegration_report.v1.json",
             root / "spec" / "agentic_de_live_turn_reintegration_report.schema.json",
+        ),
+        (
+            AgenticDeWorkspaceContinuityRegionDeclaration,
+            AGENTIC_DE_WORKSPACE_CONTINUITY_REGION_DECLARATION_SCHEMA,
+            root
+            / "packages"
+            / "adeu_agentic_de"
+            / "schema"
+            / "agentic_de_workspace_continuity_region_declaration.v1.json",
+            root / "spec" / "agentic_de_workspace_continuity_region_declaration.schema.json",
+        ),
+        (
+            AgenticDeWorkspaceContinuityAdmissionRecord,
+            AGENTIC_DE_WORKSPACE_CONTINUITY_ADMISSION_RECORD_SCHEMA,
+            root
+            / "packages"
+            / "adeu_agentic_de"
+            / "schema"
+            / "agentic_de_workspace_continuity_admission_record.v1.json",
+            root / "spec" / "agentic_de_workspace_continuity_admission_record.schema.json",
+        ),
+        (
+            AgenticDeWorkspaceOccupancyReport,
+            AGENTIC_DE_WORKSPACE_OCCUPANCY_REPORT_SCHEMA,
+            root
+            / "packages"
+            / "adeu_agentic_de"
+            / "schema"
+            / "agentic_de_workspace_occupancy_report.v1.json",
+            root / "spec" / "agentic_de_workspace_occupancy_report.schema.json",
+        ),
+        (
+            AgenticDeWorkspaceContinuityReintegrationReport,
+            AGENTIC_DE_WORKSPACE_CONTINUITY_REINTEGRATION_REPORT_SCHEMA,
+            root
+            / "packages"
+            / "adeu_agentic_de"
+            / "schema"
+            / "agentic_de_workspace_continuity_reintegration_report.v1.json",
+            root
+            / "spec"
+            / "agentic_de_workspace_continuity_reintegration_report.schema.json",
         ),
         (
             AgenticDeLiveRestorationHandoffRecord,

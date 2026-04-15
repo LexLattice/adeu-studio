@@ -1,0 +1,159 @@
+{
+  "additionalProperties": false,
+  "properties": {
+    "changes_live_behavior_by_default": {
+      "const": false,
+      "default": false,
+      "title": "Changes Live Behavior By Default",
+      "type": "boolean"
+    },
+    "continuity_admission_ref": {
+      "title": "Continuity Admission Ref",
+      "type": "string"
+    },
+    "continuity_region_state_summary_after_act": {
+      "title": "Continuity Region State Summary After Act",
+      "type": "string"
+    },
+    "continuity_reintegration_status": {
+      "enum": [
+        "reintegrated",
+        "blocked",
+        "residualized",
+        "not_evaluable_yet"
+      ],
+      "title": "Continuity Reintegration Status",
+      "type": "string"
+    },
+    "continuity_witness_basis_summary": {
+      "title": "Continuity Witness Basis Summary",
+      "type": "string"
+    },
+    "continuity_witness_certificate_ref_or_equivalent": {
+      "anyOf": [
+        {
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Continuity Witness Certificate Ref Or Equivalent"
+    },
+    "evidence_only": {
+      "const": true,
+      "default": true,
+      "title": "Evidence Only",
+      "type": "boolean"
+    },
+    "evidence_refs": {
+      "items": {
+        "type": "string"
+      },
+      "title": "Evidence Refs",
+      "type": "array"
+    },
+    "field_dependence_tags": {
+      "additionalProperties": {
+        "items": {
+          "type": "string"
+        },
+        "type": "array"
+      },
+      "title": "Field Dependence Tags",
+      "type": "object"
+    },
+    "field_origin_tags": {
+      "additionalProperties": {
+        "enum": [
+          "current_turn_native",
+          "current_turn_derived",
+          "observability_only",
+          "prior_artifact",
+          "shaping_only"
+        ],
+        "type": "string"
+      },
+      "title": "Field Origin Tags",
+      "type": "object"
+    },
+    "live_turn_reintegration_ref": {
+      "title": "Live Turn Reintegration Ref",
+      "type": "string"
+    },
+    "local_effect_conformance_ref": {
+      "title": "Local Effect Conformance Ref",
+      "type": "string"
+    },
+    "observation_ref": {
+      "title": "Observation Ref",
+      "type": "string"
+    },
+    "observed_effect_summary": {
+      "title": "Observed Effect Summary",
+      "type": "string"
+    },
+    "occupancy_report_ref": {
+      "title": "Occupancy Report Ref",
+      "type": "string"
+    },
+    "reason_codes": {
+      "items": {
+        "type": "string"
+      },
+      "title": "Reason Codes",
+      "type": "array"
+    },
+    "report_id": {
+      "anyOf": [
+        {
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Report Id"
+    },
+    "root_origin_dedup_summary": {
+      "title": "Root Origin Dedup Summary",
+      "type": "string"
+    },
+    "schema": {
+      "const": "agentic_de_workspace_continuity_reintegration_report@1",
+      "default": "agentic_de_workspace_continuity_reintegration_report@1",
+      "title": "Schema",
+      "type": "string"
+    },
+    "target_arc": {
+      "title": "Target Arc",
+      "type": "string"
+    },
+    "target_path": {
+      "title": "Target Path",
+      "type": "string"
+    }
+  },
+  "required": [
+    "target_arc",
+    "target_path",
+    "live_turn_reintegration_ref",
+    "continuity_admission_ref",
+    "occupancy_report_ref",
+    "observation_ref",
+    "local_effect_conformance_ref",
+    "observed_effect_summary",
+    "continuity_reintegration_status",
+    "reason_codes",
+    "continuity_witness_basis_summary",
+    "continuity_region_state_summary_after_act",
+    "field_origin_tags",
+    "field_dependence_tags",
+    "root_origin_dedup_summary",
+    "evidence_refs"
+  ],
+  "title": "AgenticDeWorkspaceContinuityReintegrationReport",
+  "type": "object"
+}

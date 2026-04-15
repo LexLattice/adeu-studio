@@ -1,0 +1,68 @@
+{
+  "action_proposal_ref": "agentic_de_action_proposal_6fda60050fa6",
+  "action_ticket_ref": "agentic_de_action_ticket_866f90c6f22a",
+  "changes_live_behavior_by_default": false,
+  "checkpoint_ref": "agentic_de_membrane_checkpoint_90507134239a",
+  "domain_packet_ref": "agentic_de_domain_packet_4254046501b1",
+  "evidence_only": true,
+  "evidence_refs": [
+    "agentic_de_live_turn_admission_77953b57cdbb",
+    "agentic_de_workspace_continuity_region_0bb0246a64a8",
+    "packages/adeu_agentic_de/tests/fixtures/v56a/reference_agentic_de_domain_packet.json",
+    "packages/adeu_agentic_de/tests/fixtures/v56a/reference_agentic_de_morph_ir.json",
+    "packages/adeu_agentic_de/tests/fixtures/v56a/reference_agentic_de_interaction_contract.json",
+    "packages/adeu_agentic_de/tests/fixtures/v56a/reference_agentic_de_action_proposal.json",
+    "packages/adeu_agentic_de/tests/fixtures/v56a/reference_agentic_de_membrane_checkpoint.json",
+    "packages/adeu_agentic_de/tests/fixtures/v56a/reference_agentic_de_morph_diagnostics.json",
+    "packages/adeu_agentic_de/tests/fixtures/v56a/reference_agentic_de_conformance_report.json",
+    "packages/adeu_agentic_de/tests/fixtures/v56b/reference_agentic_de_action_class_taxonomy.json",
+    "packages/adeu_agentic_de/tests/fixtures/v56b/reference_agentic_de_runtime_state.json",
+    "packages/adeu_agentic_de/tests/fixtures/v56b/reference_agentic_de_action_ticket.json",
+    "packages/adeu_agentic_de/tests/fixtures/v56b/reference_agentic_de_lane_drift_record.json",
+    "packages/adeu_agentic_de/tests/fixtures/v56b/reference_agentic_de_morph_diagnostics.json",
+    "packages/adeu_agentic_de/tests/fixtures/v56b/reference_agentic_de_conformance_report.json",
+    "packages/adeu_agentic_de/tests/fixtures/v56c/reference_agentic_de_lane_drift_record.json",
+    "packages/adeu_agentic_de/tests/fixtures/v56c/reference_agentic_de_runtime_harvest_record.json",
+    "packages/adeu_agentic_de/tests/fixtures/v56c/reference_agentic_de_governance_calibration_register.json",
+    "packages/adeu_agentic_de/tests/fixtures/v56c/reference_agentic_de_migration_decision_register.json",
+    "packages/adeu_agentic_de/tests/fixtures/v59a/reference_agentic_de_lane_drift_record.json",
+    "artifacts/agent_harness/v160/evidence_inputs/v58c_live_harness_hardening_evidence_v160.json"
+  ],
+  "field_dependence_tags": {
+    "action_proposal_ref": [],
+    "action_ticket_ref": [],
+    "checkpoint_ref": [],
+    "domain_packet_ref": [],
+    "selected_effect_scope": [
+      "agentic_de_action_ticket_866f90c6f22a",
+      "agentic_de_action_proposal_6fda60050fa6",
+      "runtime/reference_patch_candidate.diff"
+    ],
+    "target_relative_path": [
+      "urm_copilot_session_path::local_write/create_new::artifacts/agentic_de/v59/workspace_continuity/runtime/reference_patch_candidate.diff"
+    ],
+    "turn_admission_ref": []
+  },
+  "field_origin_tags": {
+    "action_proposal_ref": "prior_artifact",
+    "action_ticket_ref": "prior_artifact",
+    "checkpoint_ref": "prior_artifact",
+    "domain_packet_ref": "prior_artifact",
+    "selected_effect_scope": "current_turn_derived",
+    "target_relative_path": "current_turn_derived",
+    "turn_admission_ref": "current_turn_native"
+  },
+  "handoff_id": "agentic_de_live_turn_handoff_32e5d242fa7b",
+  "root_origin_ids": [
+    "session:copilot-v59a-session-1",
+    "turn:turn-v59a-continuity-1",
+    "ticket:agentic_de_action_ticket_866f90c6f22a",
+    "target:runtime/reference_patch_candidate.diff"
+  ],
+  "schema": "agentic_de_live_turn_handoff_record@1",
+  "selected_effect_scope": "bounded local_write/create_new over the declared continuity root only",
+  "target_arc": "vNext+161",
+  "target_path": "V59-A",
+  "target_relative_path": "runtime/reference_patch_candidate.diff",
+  "turn_admission_ref": "agentic_de_live_turn_admission_77953b57cdbb"
+}
