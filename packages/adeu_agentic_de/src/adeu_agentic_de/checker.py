@@ -20,6 +20,7 @@ from .models import (
     AGENTIC_DE_ACTION_CLASS_TAXONOMY_SCHEMA,
     AGENTIC_DE_ACTION_PROPOSAL_SCHEMA,
     AGENTIC_DE_ACTION_TICKET_SCHEMA,
+    AGENTIC_DE_BRIDGE_OFFICE_BINDING_RECORD_SCHEMA,
     AGENTIC_DE_COMMUNICATION_EGRESS_PACKET_SCHEMA,
     AGENTIC_DE_COMMUNICATION_INGRESS_PACKET_SCHEMA,
     AGENTIC_DE_CONFORMANCE_REPORT_SCHEMA,
@@ -43,6 +44,7 @@ from .models import (
     AGENTIC_DE_LOCAL_EFFECT_RESTORATION_RECORD_SCHEMA,
     AGENTIC_DE_LOOP_STATE_LEDGER_SCHEMA,
     AGENTIC_DE_MEMBRANE_CHECKPOINT_SCHEMA,
+    AGENTIC_DE_MESSAGE_REWITNESS_GATE_RECORD_SCHEMA,
     AGENTIC_DE_MIGRATION_DECISION_REGISTER_SCHEMA,
     AGENTIC_DE_MORPH_DIAGNOSTICS_SCHEMA,
     AGENTIC_DE_MORPH_IR_SCHEMA,
@@ -64,6 +66,7 @@ from .models import (
     AgenticDeActionClassTaxonomyEntry,
     AgenticDeActionProposal,
     AgenticDeActionTicket,
+    AgenticDeBridgeOfficeBindingRecord,
     AgenticDeCommunicationEgressPacket,
     AgenticDeCommunicationIngressPacket,
     AgenticDeConformanceReport,
@@ -92,6 +95,7 @@ from .models import (
     AgenticDeLocalEffectRestorationRecord,
     AgenticDeLoopStateLedger,
     AgenticDeMembraneCheckpoint,
+    AgenticDeMessageRewitnessGateRecord,
     AgenticDeMigrationDecisionEntry,
     AgenticDeMigrationDecisionRegister,
     AgenticDeMorphDiagnosticFinding,
@@ -191,6 +195,10 @@ V61A_SELECTED_RUNTIME_METHOD = "copilot.user_message"
 V61A_SELECTED_SURFACE_CLASS = "resident_copilot_send_api"
 V61A_SELECTED_SOURCE_PRINCIPAL_CLASS = "human_operator"
 V61A_SELECTED_SPEAKER_CLASS = "resident_session_user_message"
+V61B_CHECKER_VERSION = "agentic_de_governed_communication_v61b"
+V61B_TARGET_ARC = "vNext+168"
+V61B_TARGET_PATH = "V61-B"
+V61B_FROZEN_POLICY_REF = "docs/LOCKED_CONTINUATION_vNEXT_PLUS168.md#machine-checkable-contract"
 
 
 def _default_fixture_path(variant: str, filename: str) -> Path:
@@ -457,6 +465,15 @@ DEFAULT_V61A_INGRESS_INTERPRETATION_PATH = _default_fixture_path(
 DEFAULT_V61A_COMMUNICATION_EGRESS_PATH = _default_fixture_path(
     "v61a", "reference_agentic_de_communication_egress_packet.json"
 )
+DEFAULT_V61B_LANE_DRIFT_PATH = _default_fixture_path(
+    "v61b", "reference_agentic_de_lane_drift_record.json"
+)
+DEFAULT_V61B_BRIDGE_OFFICE_BINDING_PATH = _default_fixture_path(
+    "v61b", "reference_agentic_de_bridge_office_binding_record.json"
+)
+DEFAULT_V61B_MESSAGE_REWITNESS_GATE_PATH = _default_fixture_path(
+    "v61b", "reference_agentic_de_message_rewitness_gate_record.json"
+)
 DEFAULT_V58C_EVIDENCE_PATH = (
     repo_root(anchor=Path(__file__))
     / "artifacts"
@@ -504,6 +521,14 @@ DEFAULT_V60B_EVIDENCE_PATH = (
     / "v165"
     / "evidence_inputs"
     / "v60b_continuation_refresh_evidence_v165.json"
+)
+DEFAULT_V61A_EVIDENCE_PATH = (
+    repo_root(anchor=Path(__file__))
+    / "artifacts"
+    / "agent_harness"
+    / "v167"
+    / "evidence_inputs"
+    / "v61a_governed_communication_evidence_v167.json"
 )
 
 EXPECTED_V56A_EVIDENCE_SCHEMA = "v56a_agentic_de_interaction_governance_starter_evidence@1"
@@ -664,6 +689,16 @@ REQUIRED_V61A_DRIFT_ENTRY_STATUSES: dict[str, str] = {
     "communication_egress_non_authorizing": "amended",
     "path_level_non_generalization_required": "amended",
 }
+EXPECTED_V61B_PRIOR_LANE_REF = "docs/LOCKED_CONTINUATION_vNEXT_PLUS167.md"
+REQUIRED_V61B_DRIFT_ENTRY_STATUSES: dict[str, str] = {
+    "v61a_surface_reuse_default": "holds",
+    "bridge_office_binding_explicit_and_replayable": "amended",
+    "rewitness_explicit_and_fail_closed": "amended",
+    "positive_rewitness_basis_required": "amended",
+    "rewitness_non_mutating_for_v60_state": "amended",
+    "path_level_non_generalization_required": "amended",
+}
+EXPECTED_V61A_EVIDENCE_SCHEMA = "v61a_governed_communication_evidence@1"
 
 
 def _read_json_object(path: Path) -> dict[str, object]:
@@ -938,6 +973,24 @@ def load_communication_egress_packet(path: Path) -> AgenticDeCommunicationEgress
     if payload.schema != AGENTIC_DE_COMMUNICATION_EGRESS_PACKET_SCHEMA:
         raise ValueError(
             f"unexpected schema marker for communication egress packet: {payload.schema}"
+        )
+    return payload
+
+
+def load_bridge_office_binding_record(path: Path) -> AgenticDeBridgeOfficeBindingRecord:
+    payload = AgenticDeBridgeOfficeBindingRecord.model_validate(_read_json_object(path))
+    if payload.schema != AGENTIC_DE_BRIDGE_OFFICE_BINDING_RECORD_SCHEMA:
+        raise ValueError(
+            f"unexpected schema marker for bridge-office binding record: {payload.schema}"
+        )
+    return payload
+
+
+def load_message_rewitness_gate_record(path: Path) -> AgenticDeMessageRewitnessGateRecord:
+    payload = AgenticDeMessageRewitnessGateRecord.model_validate(_read_json_object(path))
+    if payload.schema != AGENTIC_DE_MESSAGE_REWITNESS_GATE_RECORD_SCHEMA:
+        raise ValueError(
+            f"unexpected schema marker for message rewitness gate record: {payload.schema}"
         )
     return payload
 
@@ -1266,6 +1319,35 @@ def _assert_v61a_repo_local_input_path(
     except ValueError as exc:
         raise ValueError(
             f"{field_name} must remain within the repository root for V61-A communication"
+        ) from exc
+
+
+def _assert_v61b_repo_local_input_path(
+    *,
+    repo_root_path: Path,
+    candidate: Path,
+    field_name: str,
+) -> None:
+    if repo_root_path.exists() and repo_root_path.is_symlink():
+        raise ValueError("repository root may not be a symlink for V61-B communication")
+    try:
+        relative = candidate.relative_to(repo_root_path)
+    except ValueError:
+        relative = None
+    if relative is not None:
+        current = repo_root_path
+        for part in relative.parts:
+            current = current / part
+            if current.is_symlink():
+                raise ValueError(
+                    f"{field_name} may not traverse symlink components for V61-B communication"
+                )
+    candidate_resolved = candidate.resolve(strict=False)
+    try:
+        candidate_resolved.relative_to(repo_root_path.resolve())
+    except ValueError as exc:
+        raise ValueError(
+            f"{field_name} must remain within the repository root for V61-B communication"
         ) from exc
 
 
@@ -1752,6 +1834,40 @@ def _validate_v61a_lane_drift_record(record: AgenticDeLaneDriftRecord) -> Agenti
     return record
 
 
+def _validate_v61b_lane_drift_record(record: AgenticDeLaneDriftRecord) -> AgenticDeLaneDriftRecord:
+    if record.target_arc != V61B_TARGET_ARC:
+        raise ValueError(
+            f"V61-B lane drift record must target {V61B_TARGET_ARC!r}, got {record.target_arc!r}"
+        )
+    if record.target_path != V61B_TARGET_PATH:
+        raise ValueError(
+            f"V61-B lane drift record must target {V61B_TARGET_PATH!r}, got {record.target_path!r}"
+        )
+    if record.prior_lane_ref != EXPECTED_V61B_PRIOR_LANE_REF:
+        raise ValueError(
+            "V61-B lane drift record must point at "
+            f"{EXPECTED_V61B_PRIOR_LANE_REF!r}, got {record.prior_lane_ref!r}"
+        )
+    actual_statuses = {entry.assumption_ref: entry.status for entry in record.entries}
+    missing_assumptions = sorted(set(REQUIRED_V61B_DRIFT_ENTRY_STATUSES) - set(actual_statuses))
+    mismatched_statuses = sorted(
+        assumption_ref
+        for assumption_ref, expected_status in REQUIRED_V61B_DRIFT_ENTRY_STATUSES.items()
+        if assumption_ref in actual_statuses and actual_statuses[assumption_ref] != expected_status
+    )
+    if missing_assumptions or mismatched_statuses:
+        detail_parts: list[str] = []
+        if missing_assumptions:
+            detail_parts.append(f"missing={missing_assumptions}")
+        if mismatched_statuses:
+            detail_parts.append(f"status_mismatch={mismatched_statuses}")
+        raise ValueError(
+            "V61-B lane drift record does not satisfy the required handoff posture; "
+            + ", ".join(detail_parts)
+        )
+    return record
+
+
 def _validate_v56a_evidence_payload(payload: dict[str, object]) -> dict[str, object]:
     if payload.get("schema") != EXPECTED_V56A_EVIDENCE_SCHEMA:
         raise ValueError("V56-C requires the shipped V56-A starter evidence payload on main")
@@ -2176,6 +2292,45 @@ def _validate_v60b_evidence_payload(payload: dict[str, object]) -> dict[str, obj
         raise ValueError("V60-B evidence must preserve single_step_local ticket duration")
     if payload.get("changes_live_behavior_by_default") is not False:
         raise ValueError("V60-B evidence must preserve non-live refresh posture")
+    return payload
+
+
+def _validate_v61a_evidence_payload(payload: dict[str, object]) -> dict[str, object]:
+    if payload.get("schema") != EXPECTED_V61A_EVIDENCE_SCHEMA:
+        raise ValueError(
+            "V61-B requires the shipped V61-A governed communication evidence payload on main"
+        )
+    selected_shapes = payload.get("selected_record_shapes")
+    if not isinstance(selected_shapes, list) or {
+        "agentic_de_communication_ingress_packet@1",
+        "agentic_de_surface_authority_descriptor@1",
+        "agentic_de_ingress_interpretation_record@1",
+        "agentic_de_communication_egress_packet@1",
+    } - set(selected_shapes):
+        raise ValueError("V61-A evidence must preserve the shipped governed communication surfaces")
+    required_true_fields = (
+        "communication_ingress_must_be_typed_and_replayable",
+        "surface_authority_descriptor_must_be_typed_and_replayable",
+        "ingress_interpretation_must_be_typed_and_replayable",
+        "communication_egress_must_be_typed_and_replayable",
+        "charter_amendment_candidate_posture_only_in_v61a",
+        "egress_posture_only_in_v61a",
+        "egress_not_native_witness_by_default",
+        "path_level_non_generalization_required_for_v61a",
+    )
+    for field_name in required_true_fields:
+        if payload.get(field_name) is not True:
+            raise ValueError(f"V61-A evidence must preserve {field_name}")
+    if payload.get("selected_resident_send_surface_for_v61a") != "urm_copilot_send_path_only":
+        raise ValueError("V61-A evidence must preserve the resident send seam only")
+    if payload.get("selected_runtime_message_method_for_v61a") != (
+        f"{V61A_SELECTED_RUNTIME_METHOD}_only"
+    ):
+        raise ValueError("V61-A evidence must preserve copilot.user_message only")
+    if payload.get("bridge_office_binding_selected_for_v61a") is not False:
+        raise ValueError("V61-A evidence must preserve bridge-office deferral")
+    if payload.get("rewitness_message_promotion_selected_for_v61a") is not False:
+        raise ValueError("V61-A evidence must preserve rewitness deferral")
     return payload
 
 
@@ -10815,6 +10970,396 @@ def run_agentic_de_governed_communication_v61a(
     return ingress, descriptor, interpretation, egress
 
 
+def _validate_v61b_v61a_surfaces(
+    *,
+    task_charter: AgenticDeTaskCharterPacket,
+    loop_state_ledger: AgenticDeLoopStateLedger,
+    continuation_refresh_decision: AgenticDeContinuationRefreshDecisionRecord,
+    ingress: AgenticDeCommunicationIngressPacket,
+    descriptor: AgenticDeSurfaceAuthorityDescriptor,
+    interpretation: AgenticDeIngressInterpretationRecord,
+    egress: AgenticDeCommunicationEgressPacket,
+    target_relative_path: str,
+) -> None:
+    expected_path = _expected_v60a_selected_downstream_path_summary(target_relative_path)
+    if continuation_refresh_decision.selected_next_path_summary_or_none != expected_path:
+        raise ValueError("V61-B requires the shipped exact downstream V60 selected path")
+    if ingress.target_arc != V61A_TARGET_ARC or ingress.target_path != V61A_TARGET_PATH:
+        raise ValueError("V61-B requires the shipped V61-A communication ingress surface")
+    if descriptor.target_arc != V61A_TARGET_ARC or descriptor.target_path != V61A_TARGET_PATH:
+        raise ValueError("V61-B requires the shipped V61-A surface authority descriptor")
+    if (
+        interpretation.target_arc != V61A_TARGET_ARC
+        or interpretation.target_path != V61A_TARGET_PATH
+    ):
+        raise ValueError("V61-B requires the shipped V61-A ingress interpretation surface")
+    if egress.target_arc != V61A_TARGET_ARC or egress.target_path != V61A_TARGET_PATH:
+        raise ValueError("V61-B requires the shipped V61-A communication egress surface")
+    if ingress.selected_api_route_ref_or_equivalent != V61A_SELECTED_API_ROUTE:
+        raise ValueError("V61-B requires the shipped exact resident V61-A API route")
+    if ingress.selected_runtime_message_method != V61A_SELECTED_RUNTIME_METHOD:
+        raise ValueError("V61-B requires the shipped exact resident V61-A runtime method")
+    if ingress.surface_class != V61A_SELECTED_SURFACE_CLASS:
+        raise ValueError("V61-B requires the shipped exact resident V61-A surface class")
+    if descriptor.communication_ingress_ref != ingress.communication_ingress_id:
+        raise ValueError("V61-B descriptor must bind the shipped V61-A ingress packet")
+    if interpretation.communication_ingress_ref != ingress.communication_ingress_id:
+        raise ValueError("V61-B interpretation must bind the shipped V61-A ingress packet")
+    if (
+        interpretation.surface_authority_descriptor_ref
+        != descriptor.surface_authority_descriptor_id
+    ):
+        raise ValueError("V61-B interpretation must bind the shipped V61-A descriptor")
+    if interpretation.task_charter_ref != task_charter.charter_id:
+        raise ValueError("V61-B interpretation must bind the shipped V60 task charter")
+    if interpretation.loop_state_ledger_ref != loop_state_ledger.ledger_id:
+        raise ValueError("V61-B interpretation must bind the shipped V60 loop-state ledger")
+    if (
+        interpretation.latest_v60_continuation_basis_ref
+        != continuation_refresh_decision.refresh_decision_id
+    ):
+        raise ValueError("V61-B interpretation must bind the shipped V60-B refresh decision")
+    if egress.ingress_interpretation_ref != interpretation.ingress_interpretation_id:
+        raise ValueError("V61-B egress must bind the shipped V61-A interpretation")
+    if egress.task_charter_ref != task_charter.charter_id:
+        raise ValueError("V61-B egress must bind the shipped V60 task charter")
+    if (
+        egress.latest_v60_continuation_basis_ref
+        != continuation_refresh_decision.refresh_decision_id
+    ):
+        raise ValueError("V61-B egress must bind the shipped V60-B refresh decision")
+    if egress.selected_egress_surface_ref != V61A_SELECTED_API_ROUTE:
+        raise ValueError("V61-B requires the shipped exact resident V61-A egress seam")
+    if ingress.resident_session_ref != loop_state_ledger.resident_session_ref:
+        raise ValueError("V61-B requires the shipped V61-A resident session identity")
+
+
+def _select_v61b_bridge_office_posture(
+    *,
+    ingress: AgenticDeCommunicationIngressPacket,
+    egress: AgenticDeCommunicationEgressPacket,
+) -> str:
+    if (
+        ingress.selected_api_route_ref_or_equivalent != V61A_SELECTED_API_ROUTE
+        or egress.selected_egress_surface_ref != V61A_SELECTED_API_ROUTE
+    ):
+        return "resident_bridge_escalate_for_review"
+    return "resident_bridge_bound"
+
+
+def _select_v61b_rewitness_outcome(
+    *,
+    bridge_posture: str,
+    egress_posture: str,
+) -> str:
+    if bridge_posture != "resident_bridge_bound":
+        return "withheld_by_policy"
+    if egress_posture in {"status_update", "completion_report", "escalation_notice"}:
+        return "witness_candidate_promoted"
+    return "remain_communication_only"
+
+
+def _build_v61b_bridge_office_binding_record(
+    *,
+    task_charter: AgenticDeTaskCharterPacket,
+    continuation_refresh_decision: AgenticDeContinuationRefreshDecisionRecord,
+    ingress: AgenticDeCommunicationIngressPacket,
+    descriptor: AgenticDeSurfaceAuthorityDescriptor,
+    interpretation: AgenticDeIngressInterpretationRecord,
+    egress: AgenticDeCommunicationEgressPacket,
+    evidence_refs: list[str],
+) -> AgenticDeBridgeOfficeBindingRecord:
+    selected_bridge_office_posture = _select_v61b_bridge_office_posture(
+        ingress=ingress,
+        egress=egress,
+    )
+    field_origin_tags = {
+        "selected_bridge_office_posture": "current_turn_derived",
+        "latest_continuation_basis_selection_summary": "prior_artifact",
+        "frozen_policy_anchor_ref": "shaping_only",
+        "bridge_binding_basis_summary": "current_turn_derived",
+    }
+    field_dependence_tags = {
+        "selected_bridge_office_posture": [
+            ingress.communication_ingress_id,
+            descriptor.surface_authority_descriptor_id,
+            interpretation.ingress_interpretation_id,
+            egress.communication_egress_id,
+            continuation_refresh_decision.refresh_decision_id,
+            V61B_FROZEN_POLICY_REF,
+        ],
+        "latest_continuation_basis_selection_summary": [
+            continuation_refresh_decision.refresh_decision_id
+        ],
+        "frozen_policy_anchor_ref": [],
+        "bridge_binding_basis_summary": [
+            ingress.communication_ingress_id,
+            descriptor.surface_authority_descriptor_id,
+            interpretation.ingress_interpretation_id,
+            egress.communication_egress_id,
+            V61B_FROZEN_POLICY_REF,
+        ],
+    }
+    return AgenticDeBridgeOfficeBindingRecord(
+        target_arc=V61B_TARGET_ARC,
+        target_path=V61B_TARGET_PATH,
+        communication_ingress_ref=ingress.communication_ingress_id,
+        surface_authority_descriptor_ref=descriptor.surface_authority_descriptor_id,
+        ingress_interpretation_ref=interpretation.ingress_interpretation_id,
+        communication_egress_ref=egress.communication_egress_id,
+        task_charter_ref=task_charter.charter_id,
+        latest_continuation_basis_ref=continuation_refresh_decision.refresh_decision_id,
+        latest_continuation_basis_selection_summary=(
+            "latest shipped V60-B refresh decision remains the selected continuation basis "
+            "for explicit resident bridge-office binding over the exact V61-A seam"
+        ),
+        resident_session_ref=ingress.resident_session_ref,
+        source_principal_class=ingress.source_principal_class,
+        speaker_class=ingress.speaker_class,
+        surface_instance_or_session_identity=ingress.surface_instance_or_session_identity,
+        selected_bridge_office_posture=selected_bridge_office_posture,
+        bridge_reason_codes=[
+            f"bridge_posture_{selected_bridge_office_posture}",
+            "same_bridge_facts_same_policy_same_bridge_posture",
+        ],
+        frozen_policy_anchor_ref=V61B_FROZEN_POLICY_REF,
+        bridge_binding_basis_summary=(
+            "shipped V61-A communication lineage + shipped V60 continuation basis + frozen "
+            "V61-B policy anchor"
+        ),
+        field_origin_tags=field_origin_tags,
+        field_dependence_tags=field_dependence_tags,
+        root_origin_ids=[
+            *egress.root_origin_ids,
+            f"policy:{V61B_FROZEN_POLICY_REF}",
+        ],
+        evidence_refs=[
+            ingress.communication_ingress_id,
+            descriptor.surface_authority_descriptor_id,
+            interpretation.ingress_interpretation_id,
+            egress.communication_egress_id,
+            continuation_refresh_decision.refresh_decision_id,
+            *evidence_refs,
+        ],
+    )
+
+
+def _build_v61b_message_rewitness_gate_record(
+    *,
+    task_charter: AgenticDeTaskCharterPacket,
+    continuation_refresh_decision: AgenticDeContinuationRefreshDecisionRecord,
+    ingress: AgenticDeCommunicationIngressPacket,
+    interpretation: AgenticDeIngressInterpretationRecord,
+    egress: AgenticDeCommunicationEgressPacket,
+    bridge_binding: AgenticDeBridgeOfficeBindingRecord,
+    evidence_refs: list[str],
+) -> AgenticDeMessageRewitnessGateRecord:
+    rewitness_outcome = _select_v61b_rewitness_outcome(
+        bridge_posture=bridge_binding.selected_bridge_office_posture,
+        egress_posture=egress.selected_egress_posture,
+    )
+    witness_basis_ref_or_none = (
+        egress.communication_egress_id
+        if rewitness_outcome == "witness_candidate_promoted"
+        else None
+    )
+    field_origin_tags = {
+        "rewitness_outcome": "current_turn_derived",
+        "frozen_policy_anchor_ref": "shaping_only",
+        "rewitness_basis_summary": "current_turn_derived",
+        "root_origin_dedup_summary": "current_turn_derived",
+    }
+    field_dependence_tags = {
+        "rewitness_outcome": [
+            ingress.communication_ingress_id,
+            interpretation.ingress_interpretation_id,
+            egress.communication_egress_id,
+            bridge_binding.bridge_office_binding_id,
+            continuation_refresh_decision.refresh_decision_id,
+            V61B_FROZEN_POLICY_REF,
+        ],
+        "frozen_policy_anchor_ref": [],
+        "rewitness_basis_summary": [
+            ingress.communication_ingress_id,
+            interpretation.ingress_interpretation_id,
+            egress.communication_egress_id,
+            bridge_binding.bridge_office_binding_id,
+            V61B_FROZEN_POLICY_REF,
+        ],
+        "root_origin_dedup_summary": [
+            ingress.communication_ingress_id,
+            interpretation.ingress_interpretation_id,
+            egress.communication_egress_id,
+            bridge_binding.bridge_office_binding_id,
+        ],
+    }
+    reason_codes = [
+        f"rewitness_outcome_{rewitness_outcome}",
+        "positive_rewitness_requires_explicit_basis",
+        "rewitness_non_mutating_for_v60_state",
+    ]
+    return AgenticDeMessageRewitnessGateRecord(
+        target_arc=V61B_TARGET_ARC,
+        target_path=V61B_TARGET_PATH,
+        communication_ingress_ref=ingress.communication_ingress_id,
+        ingress_interpretation_ref=interpretation.ingress_interpretation_id,
+        communication_egress_ref=egress.communication_egress_id,
+        bridge_office_binding_ref=bridge_binding.bridge_office_binding_id,
+        task_charter_ref=task_charter.charter_id,
+        latest_continuation_basis_ref=continuation_refresh_decision.refresh_decision_id,
+        rewitness_outcome=rewitness_outcome,
+        rewitness_reason_codes=reason_codes,
+        frozen_policy_anchor_ref=V61B_FROZEN_POLICY_REF,
+        rewitness_basis_summary=(
+            "shipped V61-A communication lineage + explicit V61-B bridge binding + frozen "
+            "V61-B policy anchor"
+        ),
+        witness_basis_ref_or_none=witness_basis_ref_or_none,
+        certificate_ref_or_none=None,
+        field_origin_tags=field_origin_tags,
+        field_dependence_tags=field_dependence_tags,
+        root_origin_ids=[
+            *bridge_binding.root_origin_ids,
+            f"rewitness:{rewitness_outcome}",
+        ],
+        root_origin_dedup_summary=(
+            "communication ingress, interpretation, egress, and bridge-binding refs are "
+            "deduplicated by shared resident seam and continuation lineage roots"
+        ),
+        evidence_refs=[
+            ingress.communication_ingress_id,
+            interpretation.ingress_interpretation_id,
+            egress.communication_egress_id,
+            bridge_binding.bridge_office_binding_id,
+            continuation_refresh_decision.refresh_decision_id,
+            *evidence_refs,
+        ],
+    )
+
+
+def run_agentic_de_governed_communication_v61b(
+    *,
+    repo_root_path: Path | None = None,
+    v60a_task_charter_path: Path = DEFAULT_V60A_TASK_CHARTER_PATH,
+    v60a_loop_state_ledger_path: Path = DEFAULT_V60A_LOOP_STATE_LEDGER_PATH,
+    v60b_continuation_refresh_decision_path: Path = DEFAULT_V60B_CONTINUATION_REFRESH_DECISION_PATH,
+    v61a_communication_ingress_path: Path = DEFAULT_V61A_COMMUNICATION_INGRESS_PATH,
+    v61a_surface_authority_descriptor_path: Path = DEFAULT_V61A_SURFACE_AUTHORITY_DESCRIPTOR_PATH,
+    v61a_ingress_interpretation_path: Path = DEFAULT_V61A_INGRESS_INTERPRETATION_PATH,
+    v61a_communication_egress_path: Path = DEFAULT_V61A_COMMUNICATION_EGRESS_PATH,
+    lane_drift_path: Path = DEFAULT_V61B_LANE_DRIFT_PATH,
+    v61a_evidence_path: Path = DEFAULT_V61A_EVIDENCE_PATH,
+    target_relative_path: str = str(DEFAULT_WORKSPACE_CONTINUITY_TARGET_RELATIVE_PATH),
+) -> tuple[
+    AgenticDeBridgeOfficeBindingRecord,
+    AgenticDeMessageRewitnessGateRecord,
+]:
+    raw_root = repo_root(anchor=Path(__file__)) if repo_root_path is None else repo_root_path
+    if raw_root.exists() and raw_root.is_symlink():
+        raise ValueError("repository root may not be a symlink for V61-B communication")
+    root = raw_root.resolve()
+
+    path_args = {
+        "v60a_task_charter_path": v60a_task_charter_path,
+        "v60a_loop_state_ledger_path": v60a_loop_state_ledger_path,
+        "v60b_continuation_refresh_decision_path": v60b_continuation_refresh_decision_path,
+        "v61a_communication_ingress_path": v61a_communication_ingress_path,
+        "v61a_surface_authority_descriptor_path": v61a_surface_authority_descriptor_path,
+        "v61a_ingress_interpretation_path": v61a_ingress_interpretation_path,
+        "v61a_communication_egress_path": v61a_communication_egress_path,
+        "lane_drift_path": lane_drift_path,
+        "v61a_evidence_path": v61a_evidence_path,
+    }
+    resolved_paths: dict[str, Path] = {}
+    for field_name, path in path_args.items():
+        candidate = _resolve_path(repo_root_path=root, path=path)
+        _assert_v61b_repo_local_input_path(
+            repo_root_path=root,
+            candidate=candidate,
+            field_name=field_name,
+        )
+        resolved_paths[field_name] = candidate
+
+    _validate_v61b_lane_drift_record(load_lane_drift_record(resolved_paths["lane_drift_path"]))
+    _validate_v61a_evidence_payload(
+        _load_json_object(resolved_paths["v61a_evidence_path"], error_label="V61-A evidence")
+    )
+
+    v60a_task_charter = load_task_charter_packet(resolved_paths["v60a_task_charter_path"])
+    v60a_loop_state_ledger = load_loop_state_ledger(resolved_paths["v60a_loop_state_ledger_path"])
+    v60b_continuation_refresh_decision = load_continuation_refresh_decision_record(
+        resolved_paths["v60b_continuation_refresh_decision_path"]
+    )
+    v61a_ingress = load_communication_ingress_packet(
+        resolved_paths["v61a_communication_ingress_path"]
+    )
+    v61a_descriptor = load_surface_authority_descriptor(
+        resolved_paths["v61a_surface_authority_descriptor_path"]
+    )
+    v61a_interpretation = load_ingress_interpretation_record(
+        resolved_paths["v61a_ingress_interpretation_path"]
+    )
+    v61a_egress = load_communication_egress_packet(resolved_paths["v61a_communication_egress_path"])
+
+    _validate_v61b_v61a_surfaces(
+        task_charter=v60a_task_charter,
+        loop_state_ledger=v60a_loop_state_ledger,
+        continuation_refresh_decision=v60b_continuation_refresh_decision,
+        ingress=v61a_ingress,
+        descriptor=v61a_descriptor,
+        interpretation=v61a_interpretation,
+        egress=v61a_egress,
+        target_relative_path=target_relative_path,
+    )
+
+    evidence_refs = [
+        _render_input_ref(repo_root_path=root, path=resolved_paths["v60a_task_charter_path"]),
+        _render_input_ref(repo_root_path=root, path=resolved_paths["v60a_loop_state_ledger_path"]),
+        _render_input_ref(
+            repo_root_path=root,
+            path=resolved_paths["v60b_continuation_refresh_decision_path"],
+        ),
+        _render_input_ref(
+            repo_root_path=root,
+            path=resolved_paths["v61a_communication_ingress_path"],
+        ),
+        _render_input_ref(
+            repo_root_path=root,
+            path=resolved_paths["v61a_surface_authority_descriptor_path"],
+        ),
+        _render_input_ref(
+            repo_root_path=root,
+            path=resolved_paths["v61a_ingress_interpretation_path"],
+        ),
+        _render_input_ref(
+            repo_root_path=root,
+            path=resolved_paths["v61a_communication_egress_path"],
+        ),
+        _render_input_ref(repo_root_path=root, path=resolved_paths["lane_drift_path"]),
+        _render_input_ref(repo_root_path=root, path=resolved_paths["v61a_evidence_path"]),
+    ]
+
+    bridge_binding = _build_v61b_bridge_office_binding_record(
+        task_charter=v60a_task_charter,
+        continuation_refresh_decision=v60b_continuation_refresh_decision,
+        ingress=v61a_ingress,
+        descriptor=v61a_descriptor,
+        interpretation=v61a_interpretation,
+        egress=v61a_egress,
+        evidence_refs=evidence_refs,
+    )
+    rewitness_gate = _build_v61b_message_rewitness_gate_record(
+        task_charter=v60a_task_charter,
+        continuation_refresh_decision=v60b_continuation_refresh_decision,
+        ingress=v61a_ingress,
+        interpretation=v61a_interpretation,
+        egress=v61a_egress,
+        bridge_binding=bridge_binding,
+        evidence_refs=evidence_refs,
+    )
+    return bridge_binding, rewitness_gate
+
+
 def render_checkpoint_payload(checkpoint: AgenticDeMembraneCheckpoint) -> str:
     return json.dumps(checkpoint.model_dump(mode="json"), indent=2, sort_keys=True) + "\n"
 
@@ -10923,6 +11468,18 @@ def render_communication_egress_payload(
     packet: AgenticDeCommunicationEgressPacket,
 ) -> str:
     return json.dumps(packet.model_dump(mode="json"), indent=2, sort_keys=True) + "\n"
+
+
+def render_bridge_office_binding_payload(
+    record: AgenticDeBridgeOfficeBindingRecord,
+) -> str:
+    return json.dumps(record.model_dump(mode="json"), indent=2, sort_keys=True) + "\n"
+
+
+def render_message_rewitness_gate_payload(
+    record: AgenticDeMessageRewitnessGateRecord,
+) -> str:
+    return json.dumps(record.model_dump(mode="json"), indent=2, sort_keys=True) + "\n"
 
 
 def render_workspace_continuity_region_declaration_payload(

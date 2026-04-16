@@ -1,0 +1,177 @@
+{
+  "additionalProperties": false,
+  "properties": {
+    "bridge_binding_basis_summary": {
+      "title": "Bridge Binding Basis Summary",
+      "type": "string"
+    },
+    "bridge_office_binding_id": {
+      "anyOf": [
+        {
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Bridge Office Binding Id"
+    },
+    "bridge_reason_codes": {
+      "items": {
+        "type": "string"
+      },
+      "title": "Bridge Reason Codes",
+      "type": "array"
+    },
+    "changes_live_behavior_by_default": {
+      "const": false,
+      "default": false,
+      "title": "Changes Live Behavior By Default",
+      "type": "boolean"
+    },
+    "communication_egress_ref": {
+      "title": "Communication Egress Ref",
+      "type": "string"
+    },
+    "communication_ingress_ref": {
+      "title": "Communication Ingress Ref",
+      "type": "string"
+    },
+    "evidence_only": {
+      "const": true,
+      "default": true,
+      "title": "Evidence Only",
+      "type": "boolean"
+    },
+    "evidence_refs": {
+      "items": {
+        "type": "string"
+      },
+      "title": "Evidence Refs",
+      "type": "array"
+    },
+    "field_dependence_tags": {
+      "additionalProperties": {
+        "items": {
+          "type": "string"
+        },
+        "type": "array"
+      },
+      "title": "Field Dependence Tags",
+      "type": "object"
+    },
+    "field_origin_tags": {
+      "additionalProperties": {
+        "enum": [
+          "current_turn_native",
+          "current_turn_derived",
+          "observability_only",
+          "prior_artifact",
+          "shaping_only"
+        ],
+        "type": "string"
+      },
+      "title": "Field Origin Tags",
+      "type": "object"
+    },
+    "frozen_policy_anchor_ref": {
+      "title": "Frozen Policy Anchor Ref",
+      "type": "string"
+    },
+    "ingress_interpretation_ref": {
+      "title": "Ingress Interpretation Ref",
+      "type": "string"
+    },
+    "latest_continuation_basis_ref": {
+      "title": "Latest Continuation Basis Ref",
+      "type": "string"
+    },
+    "latest_continuation_basis_selection_summary": {
+      "title": "Latest Continuation Basis Selection Summary",
+      "type": "string"
+    },
+    "resident_session_ref": {
+      "title": "Resident Session Ref",
+      "type": "string"
+    },
+    "root_origin_ids": {
+      "items": {
+        "type": "string"
+      },
+      "title": "Root Origin Ids",
+      "type": "array"
+    },
+    "schema": {
+      "const": "agentic_de_bridge_office_binding_record@1",
+      "default": "agentic_de_bridge_office_binding_record@1",
+      "title": "Schema",
+      "type": "string"
+    },
+    "selected_bridge_office_posture": {
+      "enum": [
+        "resident_bridge_bound",
+        "resident_bridge_not_bound",
+        "resident_bridge_withheld_by_policy",
+        "resident_bridge_escalate_for_review"
+      ],
+      "title": "Selected Bridge Office Posture",
+      "type": "string"
+    },
+    "source_principal_class": {
+      "const": "human_operator",
+      "title": "Source Principal Class",
+      "type": "string"
+    },
+    "speaker_class": {
+      "const": "resident_session_user_message",
+      "title": "Speaker Class",
+      "type": "string"
+    },
+    "surface_authority_descriptor_ref": {
+      "title": "Surface Authority Descriptor Ref",
+      "type": "string"
+    },
+    "surface_instance_or_session_identity": {
+      "title": "Surface Instance Or Session Identity",
+      "type": "string"
+    },
+    "target_arc": {
+      "title": "Target Arc",
+      "type": "string"
+    },
+    "target_path": {
+      "title": "Target Path",
+      "type": "string"
+    },
+    "task_charter_ref": {
+      "title": "Task Charter Ref",
+      "type": "string"
+    }
+  },
+  "required": [
+    "target_arc",
+    "target_path",
+    "communication_ingress_ref",
+    "surface_authority_descriptor_ref",
+    "ingress_interpretation_ref",
+    "communication_egress_ref",
+    "task_charter_ref",
+    "latest_continuation_basis_ref",
+    "latest_continuation_basis_selection_summary",
+    "resident_session_ref",
+    "source_principal_class",
+    "speaker_class",
+    "surface_instance_or_session_identity",
+    "selected_bridge_office_posture",
+    "bridge_reason_codes",
+    "frozen_policy_anchor_ref",
+    "bridge_binding_basis_summary",
+    "field_origin_tags",
+    "field_dependence_tags",
+    "root_origin_ids",
+    "evidence_refs"
+  ],
+  "title": "AgenticDeBridgeOfficeBindingRecord",
+  "type": "object"
+}
