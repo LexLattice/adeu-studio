@@ -172,3 +172,21 @@ def test_send_request_session_mismatch_fails_closed(tmp_path: Path) -> None:
 
     with pytest.raises(ValueError, match="shipped V60 resident session"):
         run_agentic_de_governed_communication_v61a(repo_root_path=temp_root)
+
+
+def test_default_symlinked_repo_root_fails_closed(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    import adeu_agentic_de.checker as checker_module
+
+    temp_root, _fixture_root = _copy_v61a_input_tree(tmp_path / "repo")
+    symlink_root = tmp_path / "repo-link"
+    symlink_root.symlink_to(temp_root, target_is_directory=True)
+
+    monkeypatch.setattr(checker_module, "repo_root", lambda anchor: symlink_root)
+
+    with pytest.raises(
+        ValueError,
+        match="repository root may not be a symlink for V61-A communication",
+    ):
+        run_agentic_de_governed_communication_v61a()

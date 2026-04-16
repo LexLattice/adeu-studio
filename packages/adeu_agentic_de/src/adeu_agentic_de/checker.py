@@ -10630,37 +10630,36 @@ def run_agentic_de_governed_communication_v61a(
     AgenticDeIngressInterpretationRecord,
     AgenticDeCommunicationEgressPacket,
 ]:
-    if repo_root_path is None:
-        root = repo_root(anchor=Path(__file__)).resolve()
-    else:
-        if repo_root_path.exists() and repo_root_path.is_symlink():
-            raise ValueError("repository root may not be a symlink for V61-A communication")
-        root = repo_root_path.resolve()
+    raw_root = repo_root(anchor=Path(__file__)) if repo_root_path is None else repo_root_path
+    if raw_root.exists() and raw_root.is_symlink():
+        raise ValueError("repository root may not be a symlink for V61-A communication")
+    root = raw_root.resolve()
 
-    path_fields = (
-        "v59a_live_turn_reintegration_path",
-        "v59a_continuity_reintegration_path",
-        "v59b_continuity_restoration_reintegration_path",
-        "v60a_lane_drift_path",
-        "v60a_seed_intent_path",
-        "v60a_task_charter_path",
-        "v60a_task_residual_path",
-        "v60a_loop_state_ledger_path",
-        "v60a_continuation_decision_path",
-        "v60b_lane_drift_path",
-        "v60b_task_residual_refresh_path",
-        "v60b_continuation_refresh_decision_path",
-        "v60c_lane_drift_path",
-        "v60c_hardening_path",
-        "lane_drift_path",
-        "send_request_path",
-        "v60a_evidence_path",
-        "v60b_evidence_path",
-    )
-    locals_map = locals()
+    path_args = {
+        "v59a_live_turn_reintegration_path": v59a_live_turn_reintegration_path,
+        "v59a_continuity_reintegration_path": v59a_continuity_reintegration_path,
+        "v59b_continuity_restoration_reintegration_path": (
+            v59b_continuity_restoration_reintegration_path
+        ),
+        "v60a_lane_drift_path": v60a_lane_drift_path,
+        "v60a_seed_intent_path": v60a_seed_intent_path,
+        "v60a_task_charter_path": v60a_task_charter_path,
+        "v60a_task_residual_path": v60a_task_residual_path,
+        "v60a_loop_state_ledger_path": v60a_loop_state_ledger_path,
+        "v60a_continuation_decision_path": v60a_continuation_decision_path,
+        "v60b_lane_drift_path": v60b_lane_drift_path,
+        "v60b_task_residual_refresh_path": v60b_task_residual_refresh_path,
+        "v60b_continuation_refresh_decision_path": v60b_continuation_refresh_decision_path,
+        "v60c_lane_drift_path": v60c_lane_drift_path,
+        "v60c_hardening_path": v60c_hardening_path,
+        "lane_drift_path": lane_drift_path,
+        "send_request_path": send_request_path,
+        "v60a_evidence_path": v60a_evidence_path,
+        "v60b_evidence_path": v60b_evidence_path,
+    }
     resolved_paths: dict[str, Path] = {}
-    for field_name in path_fields:
-        candidate = _resolve_path(repo_root_path=root, path=locals_map[field_name])
+    for field_name, path in path_args.items():
+        candidate = _resolve_path(repo_root_path=root, path=path)
         _assert_v61a_repo_local_input_path(
             repo_root_path=root,
             candidate=candidate,
