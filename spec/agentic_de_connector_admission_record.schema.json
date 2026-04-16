@@ -1,0 +1,165 @@
+{
+  "additionalProperties": false,
+  "properties": {
+    "admission_verdict": {
+      "enum": [
+        "admitted",
+        "rejected",
+        "stale_basis",
+        "unknown_basis",
+        "withheld_by_policy"
+      ],
+      "title": "Admission Verdict",
+      "type": "string"
+    },
+    "capability_snapshot_ref": {
+      "title": "Capability Snapshot Ref",
+      "type": "string"
+    },
+    "changes_live_behavior_by_default": {
+      "const": false,
+      "default": false,
+      "title": "Changes Live Behavior By Default",
+      "type": "boolean"
+    },
+    "connector_admission_id": {
+      "anyOf": [
+        {
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Connector Admission Id"
+    },
+    "connector_exposure_basis_ref_or_summary": {
+      "title": "Connector Exposure Basis Ref Or Summary",
+      "type": "string"
+    },
+    "connector_identity_facts": {
+      "title": "Connector Identity Facts",
+      "type": "string"
+    },
+    "connector_provider_class": {
+      "const": "codex",
+      "title": "Connector Provider Class",
+      "type": "string"
+    },
+    "connector_route_basis_summary": {
+      "title": "Connector Route Basis Summary",
+      "type": "string"
+    },
+    "connector_snapshot_hash": {
+      "title": "Connector Snapshot Hash",
+      "type": "string"
+    },
+    "connector_snapshot_ref": {
+      "title": "Connector Snapshot Ref",
+      "type": "string"
+    },
+    "evidence_only": {
+      "const": true,
+      "default": true,
+      "title": "Evidence Only",
+      "type": "boolean"
+    },
+    "evidence_refs": {
+      "items": {
+        "type": "string"
+      },
+      "title": "Evidence Refs",
+      "type": "array"
+    },
+    "field_dependence_tags": {
+      "additionalProperties": {
+        "items": {
+          "type": "string"
+        },
+        "type": "array"
+      },
+      "title": "Field Dependence Tags",
+      "type": "object"
+    },
+    "field_origin_tags": {
+      "additionalProperties": {
+        "enum": [
+          "current_turn_native",
+          "current_turn_derived",
+          "observability_only",
+          "prior_artifact",
+          "shaping_only"
+        ],
+        "type": "string"
+      },
+      "title": "Field Origin Tags",
+      "type": "object"
+    },
+    "freshness_basis_summary": {
+      "title": "Freshness Basis Summary",
+      "type": "string"
+    },
+    "frozen_policy_anchor_ref": {
+      "title": "Frozen Policy Anchor Ref",
+      "type": "string"
+    },
+    "reason_codes": {
+      "items": {
+        "type": "string"
+      },
+      "title": "Reason Codes",
+      "type": "array"
+    },
+    "resident_session_ref": {
+      "title": "Resident Session Ref",
+      "type": "string"
+    },
+    "root_origin_dedup_summary": {
+      "title": "Root Origin Dedup Summary",
+      "type": "string"
+    },
+    "schema": {
+      "const": "agentic_de_connector_admission_record@1",
+      "default": "agentic_de_connector_admission_record@1",
+      "title": "Schema",
+      "type": "string"
+    },
+    "selected_connector_principal_class": {
+      "const": "external_assistant",
+      "title": "Selected Connector Principal Class",
+      "type": "string"
+    },
+    "target_arc": {
+      "title": "Target Arc",
+      "type": "string"
+    },
+    "target_path": {
+      "title": "Target Path",
+      "type": "string"
+    }
+  },
+  "required": [
+    "target_arc",
+    "target_path",
+    "resident_session_ref",
+    "connector_snapshot_ref",
+    "connector_snapshot_hash",
+    "capability_snapshot_ref",
+    "connector_provider_class",
+    "connector_identity_facts",
+    "connector_exposure_basis_ref_or_summary",
+    "connector_route_basis_summary",
+    "freshness_basis_summary",
+    "selected_connector_principal_class",
+    "frozen_policy_anchor_ref",
+    "admission_verdict",
+    "reason_codes",
+    "field_origin_tags",
+    "field_dependence_tags",
+    "root_origin_dedup_summary",
+    "evidence_refs"
+  ],
+  "title": "AgenticDeConnectorAdmissionRecord",
+  "type": "object"
+}

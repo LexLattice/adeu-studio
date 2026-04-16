@@ -1,0 +1,142 @@
+{
+  "additionalProperties": false,
+  "properties": {
+    "bridge_basis_summary": {
+      "title": "Bridge Basis Summary",
+      "type": "string"
+    },
+    "changes_live_behavior_by_default": {
+      "const": false,
+      "default": false,
+      "title": "Changes Live Behavior By Default",
+      "type": "boolean"
+    },
+    "connector_admission_ref": {
+      "title": "Connector Admission Ref",
+      "type": "string"
+    },
+    "consumed_communication_ingress_ref": {
+      "title": "Consumed Communication Ingress Ref",
+      "type": "string"
+    },
+    "consumed_ingress_interpretation_ref": {
+      "title": "Consumed Ingress Interpretation Ref",
+      "type": "string"
+    },
+    "consumed_surface_authority_descriptor_ref": {
+      "title": "Consumed Surface Authority Descriptor Ref",
+      "type": "string"
+    },
+    "evidence_only": {
+      "const": true,
+      "default": true,
+      "title": "Evidence Only",
+      "type": "boolean"
+    },
+    "evidence_refs": {
+      "items": {
+        "type": "string"
+      },
+      "title": "Evidence Refs",
+      "type": "array"
+    },
+    "external_assistant_payload_facts": {
+      "title": "External Assistant Payload Facts",
+      "type": "string"
+    },
+    "field_dependence_tags": {
+      "additionalProperties": {
+        "items": {
+          "type": "string"
+        },
+        "type": "array"
+      },
+      "title": "Field Dependence Tags",
+      "type": "object"
+    },
+    "field_origin_tags": {
+      "additionalProperties": {
+        "enum": [
+          "current_turn_native",
+          "current_turn_derived",
+          "observability_only",
+          "prior_artifact",
+          "shaping_only"
+        ],
+        "type": "string"
+      },
+      "title": "Field Origin Tags",
+      "type": "object"
+    },
+    "frozen_policy_anchor_ref": {
+      "title": "Frozen Policy Anchor Ref",
+      "type": "string"
+    },
+    "ingress_bridge_packet_id": {
+      "anyOf": [
+        {
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Ingress Bridge Packet Id"
+    },
+    "latest_continuation_basis_ref_or_equivalent": {
+      "title": "Latest Continuation Basis Ref Or Equivalent",
+      "type": "string"
+    },
+    "reason_codes": {
+      "items": {
+        "type": "string"
+      },
+      "title": "Reason Codes",
+      "type": "array"
+    },
+    "root_origin_dedup_summary": {
+      "title": "Root Origin Dedup Summary",
+      "type": "string"
+    },
+    "schema": {
+      "const": "agentic_de_external_assistant_ingress_bridge_packet@1",
+      "default": "agentic_de_external_assistant_ingress_bridge_packet@1",
+      "title": "Schema",
+      "type": "string"
+    },
+    "selected_connector_principal_class": {
+      "const": "external_assistant",
+      "title": "Selected Connector Principal Class",
+      "type": "string"
+    },
+    "target_arc": {
+      "title": "Target Arc",
+      "type": "string"
+    },
+    "target_path": {
+      "title": "Target Path",
+      "type": "string"
+    }
+  },
+  "required": [
+    "target_arc",
+    "target_path",
+    "connector_admission_ref",
+    "selected_connector_principal_class",
+    "external_assistant_payload_facts",
+    "consumed_communication_ingress_ref",
+    "consumed_surface_authority_descriptor_ref",
+    "consumed_ingress_interpretation_ref",
+    "latest_continuation_basis_ref_or_equivalent",
+    "frozen_policy_anchor_ref",
+    "bridge_basis_summary",
+    "reason_codes",
+    "field_origin_tags",
+    "field_dependence_tags",
+    "root_origin_dedup_summary",
+    "evidence_refs"
+  ],
+  "title": "AgenticDeExternalAssistantIngressBridgePacket",
+  "type": "object"
+}

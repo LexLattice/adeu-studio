@@ -1,0 +1,67 @@
+{
+  "bridge_basis_summary": "admitted connector path plus shipped V61-A ingress/descriptor/interpretation over the exact resident send seam, without V61-B bridge-office or rewitness consumption in V62-A",
+  "changes_live_behavior_by_default": false,
+  "connector_admission_ref": "agentic_de_connector_admission_0a3da35c99cd",
+  "consumed_communication_ingress_ref": "agentic_de_communication_ingress_fa2ead1a96a3",
+  "consumed_ingress_interpretation_ref": "agentic_de_ingress_interpretation_8a0ac37a6f71",
+  "consumed_surface_authority_descriptor_ref": "agentic_de_surface_authority_descriptor_f53e9d92836e",
+  "evidence_only": true,
+  "evidence_refs": [
+    "packages/adeu_agentic_de/tests/fixtures/v60a/reference_agentic_de_task_charter_packet.json",
+    "packages/adeu_agentic_de/tests/fixtures/v60a/reference_agentic_de_loop_state_ledger.json",
+    "packages/adeu_agentic_de/tests/fixtures/v60b/reference_agentic_de_continuation_refresh_decision_record.json",
+    "packages/adeu_agentic_de/tests/fixtures/v61a/reference_agentic_de_communication_ingress_packet.json",
+    "packages/adeu_agentic_de/tests/fixtures/v61a/reference_agentic_de_surface_authority_descriptor.json",
+    "packages/adeu_agentic_de/tests/fixtures/v61a/reference_agentic_de_ingress_interpretation_record.json",
+    "packages/adeu_agentic_de/tests/fixtures/v62a/reference_connector_snapshot_response.json",
+    "packages/adeu_agentic_de/tests/fixtures/v62a/reference_agentic_de_lane_drift_record.json",
+    "artifacts/agent_harness/v167/evidence_inputs/v61a_governed_communication_evidence_v167.json",
+    "artifacts/agent_harness/v168/evidence_inputs/v61b_bridge_office_rewitness_evidence_v168.json",
+    "artifacts/agent_harness/v169/evidence_inputs/v61c_governed_communication_hardening_evidence_v169.json"
+  ],
+  "external_assistant_payload_facts": "admitted external assistant ingress over connector snapshot 0123456789ab consumes shipped V61-A ingress/descriptor/interpretation only",
+  "field_dependence_tags": {
+    "bridge_basis_summary": [
+      "agentic_de_connector_admission_0a3da35c99cd",
+      "agentic_de_communication_ingress_fa2ead1a96a3",
+      "agentic_de_surface_authority_descriptor_f53e9d92836e",
+      "agentic_de_ingress_interpretation_8a0ac37a6f71",
+      "docs/LOCKED_CONTINUATION_vNEXT_PLUS170.md#machine-checkable-contract"
+    ],
+    "external_assistant_payload_facts": [
+      "agentic_de_connector_admission_0a3da35c99cd",
+      "agentic_de_ingress_interpretation_8a0ac37a6f71"
+    ],
+    "frozen_policy_anchor_ref": [
+      "docs/LOCKED_CONTINUATION_vNEXT_PLUS170.md#machine-checkable-contract"
+    ],
+    "latest_continuation_basis_ref_or_equivalent": [
+      "agentic_de_continuation_refresh_decision_067a308bcae4"
+    ],
+    "selected_connector_principal_class": [
+      "agentic_de_connector_admission_0a3da35c99cd"
+    ]
+  },
+  "field_origin_tags": {
+    "bridge_basis_summary": "current_turn_derived",
+    "external_assistant_payload_facts": "prior_artifact",
+    "frozen_policy_anchor_ref": "shaping_only",
+    "latest_continuation_basis_ref_or_equivalent": "prior_artifact",
+    "selected_connector_principal_class": "shaping_only"
+  },
+  "frozen_policy_anchor_ref": "docs/LOCKED_CONTINUATION_vNEXT_PLUS170.md#machine-checkable-contract",
+  "ingress_bridge_packet_id": "agentic_de_external_assistant_ingress_bridge_3463ca58759d",
+  "latest_continuation_basis_ref_or_equivalent": "agentic_de_continuation_refresh_decision_067a308bcae4",
+  "reason_codes": [
+    "admitted_connector_basis_consumed",
+    "v61a_communication_basis_consumed",
+    "external_assistant_principal_only",
+    "ingress_only_in_v62a",
+    "connector_transport_non_authorizing"
+  ],
+  "root_origin_dedup_summary": "connector admission and shipped V61-A lineage remain non-independent bridge basis; repeated lineage refs do not mint connector authority",
+  "schema": "agentic_de_external_assistant_ingress_bridge_packet@1",
+  "selected_connector_principal_class": "external_assistant",
+  "target_arc": "vNext+170",
+  "target_path": "V62-A"
+}

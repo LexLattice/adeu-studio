@@ -1,0 +1,40 @@
+{
+  "entries": [
+    {
+      "assumption_ref": "v61_surface_reuse_default",
+      "note": "V62-A reuses the shipped V61 communication surfaces by default.",
+      "status": "holds"
+    },
+    {
+      "assumption_ref": "exact_connector_snapshot_path_only",
+      "note": "V62-A is limited to the exact connector snapshot create/get seam only.",
+      "status": "amended"
+    },
+    {
+      "assumption_ref": "external_assistant_principal_only",
+      "note": "V62-A selects only the external_assistant connector principal and keeps human_via_connector deferred.",
+      "status": "amended"
+    },
+    {
+      "assumption_ref": "connector_admission_fail_closed_on_snapshot_exposure_freshness_basis",
+      "note": "V62-A requires explicit snapshot, exposure, and freshness basis for connector admission and fails closed if any of them drift.",
+      "status": "amended"
+    },
+    {
+      "assumption_ref": "ingress_bridge_consumes_v61a_basis_only",
+      "note": "V62-A keeps the ingress bridge dependent on shipped V61-A ingress/descriptor/interpretation only, without selecting V61-B bridge-office or rewitness as live ingress basis.",
+      "status": "amended"
+    },
+    {
+      "assumption_ref": "path_level_non_generalization_required",
+      "note": "V62-A keeps the selected connector path path-level and non-generalizing by default.",
+      "status": "amended"
+    }
+  ],
+  "entry_count": 6,
+  "prior_lane_ref": "docs/LOCKED_CONTINUATION_vNEXT_PLUS169.md",
+  "record_id": null,
+  "schema": "agentic_de_lane_drift_record@1",
+  "target_arc": "vNext+170",
+  "target_path": "V62-A"
+}

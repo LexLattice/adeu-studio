@@ -69,6 +69,10 @@ AGENTIC_DE_MESSAGE_REWITNESS_GATE_RECORD_SCHEMA = "agentic_de_message_rewitness_
 AGENTIC_DE_GOVERNED_COMMUNICATION_HARDENING_REGISTER_SCHEMA = (
     "agentic_de_governed_communication_hardening_register@1"
 )
+AGENTIC_DE_CONNECTOR_ADMISSION_RECORD_SCHEMA = "agentic_de_connector_admission_record@1"
+AGENTIC_DE_EXTERNAL_ASSISTANT_INGRESS_BRIDGE_PACKET_SCHEMA = (
+    "agentic_de_external_assistant_ingress_bridge_packet@1"
+)
 
 ACTION_CLASS_VOCABULARY = ("inspect", "write", "execute", "dispatch")
 EXACT_ACTION_CLASS_VOCABULARY = (
@@ -238,6 +242,15 @@ COMMUNICATION_EGRESS_POSTURE_VOCABULARY = (
     "escalation_notice",
     "completion_report",
     "advisory_only_message",
+)
+CONNECTOR_PROVIDER_CLASS_VOCABULARY = ("codex",)
+CONNECTOR_PRINCIPAL_CLASS_VOCABULARY = ("external_assistant",)
+CONNECTOR_ADMISSION_VERDICT_VOCABULARY = (
+    "admitted",
+    "rejected",
+    "stale_basis",
+    "unknown_basis",
+    "withheld_by_policy",
 )
 BRIDGE_OFFICE_POSTURE_VOCABULARY = (
     "resident_bridge_bound",
@@ -431,6 +444,15 @@ CommunicationEgressPosture = Literal[
     "escalation_notice",
     "completion_report",
     "advisory_only_message",
+]
+ConnectorProviderClass = Literal["codex"]
+ConnectorPrincipalClass = Literal["external_assistant"]
+ConnectorAdmissionVerdict = Literal[
+    "admitted",
+    "rejected",
+    "stale_basis",
+    "unknown_basis",
+    "withheld_by_policy",
 ]
 BridgeOfficePosture = Literal[
     "resident_bridge_bound",
@@ -4352,6 +4374,190 @@ class AgenticDeCommunicationEgressPacket(BaseModel):
         return self
 
 
+class AgenticDeConnectorAdmissionRecord(BaseModel):
+    model_config = MODEL_CONFIG
+
+    schema: Literal[AGENTIC_DE_CONNECTOR_ADMISSION_RECORD_SCHEMA] = (
+        AGENTIC_DE_CONNECTOR_ADMISSION_RECORD_SCHEMA
+    )
+    connector_admission_id: str | None = None
+    target_arc: str
+    target_path: str
+    evidence_only: Literal[True] = True
+    changes_live_behavior_by_default: Literal[False] = False
+    resident_session_ref: str
+    connector_snapshot_ref: str
+    connector_snapshot_hash: str
+    capability_snapshot_ref: str
+    connector_provider_class: ConnectorProviderClass
+    connector_identity_facts: str
+    connector_exposure_basis_ref_or_summary: str
+    connector_route_basis_summary: str
+    freshness_basis_summary: str
+    selected_connector_principal_class: ConnectorPrincipalClass
+    frozen_policy_anchor_ref: str
+    admission_verdict: ConnectorAdmissionVerdict
+    reason_codes: list[str]
+    field_origin_tags: dict[str, LiveTurnFieldOriginTag]
+    field_dependence_tags: dict[str, list[str]]
+    root_origin_dedup_summary: str
+    evidence_refs: list[str]
+
+    @model_validator(mode="after")
+    def _validate_record(self) -> AgenticDeConnectorAdmissionRecord:
+        _assert_present_text(self.target_arc, field_name="target_arc")
+        _assert_present_text(self.target_path, field_name="target_path")
+        required_fields = (
+            "resident_session_ref",
+            "connector_snapshot_ref",
+            "connector_snapshot_hash",
+            "capability_snapshot_ref",
+            "connector_identity_facts",
+            "connector_exposure_basis_ref_or_summary",
+            "connector_route_basis_summary",
+            "freshness_basis_summary",
+            "frozen_policy_anchor_ref",
+            "root_origin_dedup_summary",
+        )
+        for field_name in required_fields:
+            _assert_present_text(getattr(self, field_name), field_name=field_name)
+        object.__setattr__(
+            self,
+            "reason_codes",
+            _ordered_unique_texts(self.reason_codes, field_name="reason_codes"),
+        )
+        if not self.reason_codes:
+            raise ValueError("reason_codes must be non-empty")
+        required_tag_fields = (
+            "connector_provider_class",
+            "connector_identity_facts",
+            "connector_exposure_basis_ref_or_summary",
+            "freshness_basis_summary",
+            "selected_connector_principal_class",
+            "admission_verdict",
+            "frozen_policy_anchor_ref",
+        )
+        for field_name in required_tag_fields:
+            if field_name not in self.field_origin_tags:
+                raise ValueError(f"field_origin_tags missing required key {field_name}")
+            if field_name not in self.field_dependence_tags:
+                raise ValueError(f"field_dependence_tags missing required key {field_name}")
+        normalized_dependence_tags: dict[str, list[str]] = {}
+        for key, values in self.field_dependence_tags.items():
+            normalized_dependence_tags[key] = _ordered_unique_texts(
+                values,
+                field_name=f"field_dependence_tags[{key}]",
+            )
+        object.__setattr__(self, "field_dependence_tags", normalized_dependence_tags)
+        object.__setattr__(
+            self,
+            "evidence_refs",
+            _ordered_unique_texts(self.evidence_refs, field_name="evidence_refs"),
+        )
+        if not self.evidence_refs:
+            raise ValueError("evidence_refs must be non-empty")
+        object.__setattr__(
+            self,
+            "connector_admission_id",
+            _assign_or_verify_content_addressed_id(
+                value=self.connector_admission_id,
+                field_name="connector_admission_id",
+                prefix="agentic_de_connector_admission",
+                payload=self.model_dump(mode="json", exclude={"connector_admission_id"}),
+            ),
+        )
+        return self
+
+
+class AgenticDeExternalAssistantIngressBridgePacket(BaseModel):
+    model_config = MODEL_CONFIG
+
+    schema: Literal[AGENTIC_DE_EXTERNAL_ASSISTANT_INGRESS_BRIDGE_PACKET_SCHEMA] = (
+        AGENTIC_DE_EXTERNAL_ASSISTANT_INGRESS_BRIDGE_PACKET_SCHEMA
+    )
+    ingress_bridge_packet_id: str | None = None
+    target_arc: str
+    target_path: str
+    evidence_only: Literal[True] = True
+    changes_live_behavior_by_default: Literal[False] = False
+    connector_admission_ref: str
+    selected_connector_principal_class: ConnectorPrincipalClass
+    external_assistant_payload_facts: str
+    consumed_communication_ingress_ref: str
+    consumed_surface_authority_descriptor_ref: str
+    consumed_ingress_interpretation_ref: str
+    latest_continuation_basis_ref_or_equivalent: str
+    frozen_policy_anchor_ref: str
+    bridge_basis_summary: str
+    reason_codes: list[str]
+    field_origin_tags: dict[str, LiveTurnFieldOriginTag]
+    field_dependence_tags: dict[str, list[str]]
+    root_origin_dedup_summary: str
+    evidence_refs: list[str]
+
+    @model_validator(mode="after")
+    def _validate_record(self) -> AgenticDeExternalAssistantIngressBridgePacket:
+        _assert_present_text(self.target_arc, field_name="target_arc")
+        _assert_present_text(self.target_path, field_name="target_path")
+        required_fields = (
+            "connector_admission_ref",
+            "external_assistant_payload_facts",
+            "consumed_communication_ingress_ref",
+            "consumed_surface_authority_descriptor_ref",
+            "consumed_ingress_interpretation_ref",
+            "latest_continuation_basis_ref_or_equivalent",
+            "frozen_policy_anchor_ref",
+            "bridge_basis_summary",
+            "root_origin_dedup_summary",
+        )
+        for field_name in required_fields:
+            _assert_present_text(getattr(self, field_name), field_name=field_name)
+        object.__setattr__(
+            self,
+            "reason_codes",
+            _ordered_unique_texts(self.reason_codes, field_name="reason_codes"),
+        )
+        if not self.reason_codes:
+            raise ValueError("reason_codes must be non-empty")
+        required_tag_fields = (
+            "selected_connector_principal_class",
+            "external_assistant_payload_facts",
+            "latest_continuation_basis_ref_or_equivalent",
+            "frozen_policy_anchor_ref",
+            "bridge_basis_summary",
+        )
+        for field_name in required_tag_fields:
+            if field_name not in self.field_origin_tags:
+                raise ValueError(f"field_origin_tags missing required key {field_name}")
+            if field_name not in self.field_dependence_tags:
+                raise ValueError(f"field_dependence_tags missing required key {field_name}")
+        normalized_dependence_tags: dict[str, list[str]] = {}
+        for key, values in self.field_dependence_tags.items():
+            normalized_dependence_tags[key] = _ordered_unique_texts(
+                values,
+                field_name=f"field_dependence_tags[{key}]",
+            )
+        object.__setattr__(self, "field_dependence_tags", normalized_dependence_tags)
+        object.__setattr__(
+            self,
+            "evidence_refs",
+            _ordered_unique_texts(self.evidence_refs, field_name="evidence_refs"),
+        )
+        if not self.evidence_refs:
+            raise ValueError("evidence_refs must be non-empty")
+        object.__setattr__(
+            self,
+            "ingress_bridge_packet_id",
+            _assign_or_verify_content_addressed_id(
+                value=self.ingress_bridge_packet_id,
+                field_name="ingress_bridge_packet_id",
+                prefix="agentic_de_external_assistant_ingress_bridge",
+                payload=self.model_dump(mode="json", exclude={"ingress_bridge_packet_id"}),
+            ),
+        )
+        return self
+
+
 class AgenticDeBridgeOfficeBindingRecord(BaseModel):
     model_config = MODEL_CONFIG
 
@@ -4998,6 +5204,16 @@ def compute_agentic_de_bridge_office_binding_id(payload: dict[str, object]) -> s
 
 def compute_agentic_de_message_rewitness_gate_id(payload: dict[str, object]) -> str:
     return _compute_id("agentic_de_message_rewitness_gate", payload)
+
+
+def compute_agentic_de_connector_admission_id(payload: dict[str, object]) -> str:
+    return _compute_id("agentic_de_connector_admission", payload)
+
+
+def compute_agentic_de_external_assistant_ingress_bridge_packet_id(
+    payload: dict[str, object],
+) -> str:
+    return _compute_id("agentic_de_external_assistant_ingress_bridge", payload)
 
 
 def compute_agentic_de_governed_communication_hardening_entry_id(
