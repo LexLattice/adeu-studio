@@ -1,0 +1,45 @@
+{
+  "entries": [
+    {
+      "assumption_ref": "v61a_v61b_surface_reuse_default",
+      "note": "V61-C reuses the shipped V61-A communication surfaces and shipped V61-B bridge-office / rewitness surfaces by default.",
+      "status": "holds"
+    },
+    {
+      "assumption_ref": "hardening_recommendation_extensional_and_replayable",
+      "note": "V61-C keeps the advisory governed communication hardening recommendation function extensional and replayable over the exact shipped V61-A/V61-B lineage.",
+      "status": "amended"
+    },
+    {
+      "assumption_ref": "explicit_frozen_policy_anchor_required",
+      "note": "V61-C requires one explicit frozen-policy anchor for replayable advisory recommendation.",
+      "status": "amended"
+    },
+    {
+      "assumption_ref": "positive_rewitness_basis_carried_into_advisory_evidence",
+      "note": "V61-C carries the explicit positive rewitness basis or certificate posture directly into the advisory evidence basis instead of overreading outcome alone.",
+      "status": "amended"
+    },
+    {
+      "assumption_ref": "path_level_non_generalization_required",
+      "note": "V61-C keeps the selected governed communication exemplar path-level and non-generalizing by default.",
+      "status": "amended"
+    },
+    {
+      "assumption_ref": "candidate_outcomes_non_entitling_non_escalating_and_scope_bound",
+      "note": "V61-C keeps candidate outcomes non-entitling, non-escalating, and scope-unspecified without a later lock.",
+      "status": "amended"
+    },
+    {
+      "assumption_ref": "provenance_and_lineage_root_dedup_explicit",
+      "note": "V61-C makes provenance tags and lineage-root dedup explicit on the advisory hardening register itself.",
+      "status": "amended"
+    }
+  ],
+  "entry_count": 7,
+  "prior_lane_ref": "docs/LOCKED_CONTINUATION_vNEXT_PLUS168.md",
+  "record_id": null,
+  "schema": "agentic_de_lane_drift_record@1",
+  "target_arc": "vNext+169",
+  "target_path": "V61-C"
+}
