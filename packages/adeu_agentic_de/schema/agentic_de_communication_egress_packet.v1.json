@@ -1,0 +1,139 @@
+{
+  "additionalProperties": false,
+  "properties": {
+    "changes_live_behavior_by_default": {
+      "const": false,
+      "default": false,
+      "title": "Changes Live Behavior By Default",
+      "type": "boolean"
+    },
+    "communication_egress_id": {
+      "anyOf": [
+        {
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Communication Egress Id"
+    },
+    "egress_basis_summary": {
+      "title": "Egress Basis Summary",
+      "type": "string"
+    },
+    "egress_payload_summary": {
+      "title": "Egress Payload Summary",
+      "type": "string"
+    },
+    "evidence_only": {
+      "const": true,
+      "default": true,
+      "title": "Evidence Only",
+      "type": "boolean"
+    },
+    "evidence_refs": {
+      "items": {
+        "type": "string"
+      },
+      "title": "Evidence Refs",
+      "type": "array"
+    },
+    "field_dependence_tags": {
+      "additionalProperties": {
+        "items": {
+          "type": "string"
+        },
+        "type": "array"
+      },
+      "title": "Field Dependence Tags",
+      "type": "object"
+    },
+    "field_origin_tags": {
+      "additionalProperties": {
+        "enum": [
+          "current_turn_native",
+          "current_turn_derived",
+          "observability_only",
+          "prior_artifact",
+          "shaping_only"
+        ],
+        "type": "string"
+      },
+      "title": "Field Origin Tags",
+      "type": "object"
+    },
+    "frozen_policy_anchor_ref": {
+      "title": "Frozen Policy Anchor Ref",
+      "type": "string"
+    },
+    "ingress_interpretation_ref": {
+      "title": "Ingress Interpretation Ref",
+      "type": "string"
+    },
+    "latest_v60_continuation_basis_ref": {
+      "title": "Latest V60 Continuation Basis Ref",
+      "type": "string"
+    },
+    "root_origin_ids": {
+      "items": {
+        "type": "string"
+      },
+      "title": "Root Origin Ids",
+      "type": "array"
+    },
+    "schema": {
+      "const": "agentic_de_communication_egress_packet@1",
+      "default": "agentic_de_communication_egress_packet@1",
+      "title": "Schema",
+      "type": "string"
+    },
+    "selected_egress_posture": {
+      "enum": [
+        "status_update",
+        "clarification_question",
+        "authority_request",
+        "escalation_notice",
+        "completion_report",
+        "advisory_only_message"
+      ],
+      "title": "Selected Egress Posture",
+      "type": "string"
+    },
+    "selected_egress_surface_ref": {
+      "title": "Selected Egress Surface Ref",
+      "type": "string"
+    },
+    "target_arc": {
+      "title": "Target Arc",
+      "type": "string"
+    },
+    "target_path": {
+      "title": "Target Path",
+      "type": "string"
+    },
+    "task_charter_ref": {
+      "title": "Task Charter Ref",
+      "type": "string"
+    }
+  },
+  "required": [
+    "target_arc",
+    "target_path",
+    "ingress_interpretation_ref",
+    "task_charter_ref",
+    "latest_v60_continuation_basis_ref",
+    "selected_egress_posture",
+    "selected_egress_surface_ref",
+    "egress_payload_summary",
+    "frozen_policy_anchor_ref",
+    "egress_basis_summary",
+    "field_origin_tags",
+    "field_dependence_tags",
+    "root_origin_ids",
+    "evidence_refs"
+  ],
+  "title": "AgenticDeCommunicationEgressPacket",
+  "type": "object"
+}

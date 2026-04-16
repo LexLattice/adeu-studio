@@ -1,0 +1,50 @@
+{
+  "entries": [
+    {
+      "assumption_ref": "v60_surface_reuse_default",
+      "note": "V61-A reuses the shipped V60 continuation surfaces by default.",
+      "status": "holds"
+    },
+    {
+      "assumption_ref": "exact_urm_copilot_send_seam_only",
+      "note": "V61-A is limited to the exact resident /urm/copilot/send seam only.",
+      "status": "amended"
+    },
+    {
+      "assumption_ref": "principal_and_speaker_typing_explicit",
+      "note": "V61-A requires explicit source-principal and speaker typing on ingress.",
+      "status": "amended"
+    },
+    {
+      "assumption_ref": "surface_descriptor_not_message_interpretation",
+      "note": "V61-A keeps the surface-authority descriptor distinct from ingress interpretation.",
+      "status": "amended"
+    },
+    {
+      "assumption_ref": "charter_amendment_candidate_posture_only",
+      "note": "V61-A keeps charter_amendment_candidate posture-only and non-mutating.",
+      "status": "amended"
+    },
+    {
+      "assumption_ref": "bridge_office_and_rewitness_deferred",
+      "note": "V61-A defers bridge-office binding and rewitness to V61-B.",
+      "status": "amended"
+    },
+    {
+      "assumption_ref": "communication_egress_non_authorizing",
+      "note": "V61-A keeps governed egress posture-only, non-authorizing, and non-witnessing by default.",
+      "status": "amended"
+    },
+    {
+      "assumption_ref": "path_level_non_generalization_required",
+      "note": "V61-A keeps evidence from the selected resident send seam non-generalizing by default.",
+      "status": "amended"
+    }
+  ],
+  "entry_count": 8,
+  "prior_lane_ref": "docs/LOCKED_CONTINUATION_vNEXT_PLUS166.md",
+  "record_id": null,
+  "schema": "agentic_de_lane_drift_record@1",
+  "target_arc": "vNext+167",
+  "target_path": "V61-A"
+}

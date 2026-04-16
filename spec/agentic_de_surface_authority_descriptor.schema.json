@@ -1,0 +1,138 @@
+{
+  "additionalProperties": false,
+  "properties": {
+    "bounded_authority_posture_summary": {
+      "title": "Bounded Authority Posture Summary",
+      "type": "string"
+    },
+    "changes_live_behavior_by_default": {
+      "const": false,
+      "default": false,
+      "title": "Changes Live Behavior By Default",
+      "type": "boolean"
+    },
+    "communication_ingress_ref": {
+      "title": "Communication Ingress Ref",
+      "type": "string"
+    },
+    "descriptor_basis_summary": {
+      "title": "Descriptor Basis Summary",
+      "type": "string"
+    },
+    "evidence_only": {
+      "const": true,
+      "default": true,
+      "title": "Evidence Only",
+      "type": "boolean"
+    },
+    "evidence_refs": {
+      "items": {
+        "type": "string"
+      },
+      "title": "Evidence Refs",
+      "type": "array"
+    },
+    "field_dependence_tags": {
+      "additionalProperties": {
+        "items": {
+          "type": "string"
+        },
+        "type": "array"
+      },
+      "title": "Field Dependence Tags",
+      "type": "object"
+    },
+    "field_origin_tags": {
+      "additionalProperties": {
+        "enum": [
+          "current_turn_native",
+          "current_turn_derived",
+          "observability_only",
+          "prior_artifact",
+          "shaping_only"
+        ],
+        "type": "string"
+      },
+      "title": "Field Origin Tags",
+      "type": "object"
+    },
+    "frozen_policy_anchor_ref": {
+      "title": "Frozen Policy Anchor Ref",
+      "type": "string"
+    },
+    "root_origin_ids": {
+      "items": {
+        "type": "string"
+      },
+      "title": "Root Origin Ids",
+      "type": "array"
+    },
+    "schema": {
+      "const": "agentic_de_surface_authority_descriptor@1",
+      "default": "agentic_de_surface_authority_descriptor@1",
+      "title": "Schema",
+      "type": "string"
+    },
+    "surface_affordance_classes": {
+      "items": {
+        "enum": [
+          "communication",
+          "observability",
+          "advisory",
+          "authority_request",
+          "execution",
+          "witness_candidate"
+        ],
+        "type": "string"
+      },
+      "title": "Surface Affordance Classes",
+      "type": "array"
+    },
+    "surface_authority_descriptor_id": {
+      "anyOf": [
+        {
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Surface Authority Descriptor Id"
+    },
+    "surface_class": {
+      "const": "resident_copilot_send_api",
+      "title": "Surface Class",
+      "type": "string"
+    },
+    "surface_instance_or_session_identity": {
+      "title": "Surface Instance Or Session Identity",
+      "type": "string"
+    },
+    "target_arc": {
+      "title": "Target Arc",
+      "type": "string"
+    },
+    "target_path": {
+      "title": "Target Path",
+      "type": "string"
+    }
+  },
+  "required": [
+    "target_arc",
+    "target_path",
+    "communication_ingress_ref",
+    "surface_class",
+    "surface_instance_or_session_identity",
+    "surface_affordance_classes",
+    "bounded_authority_posture_summary",
+    "frozen_policy_anchor_ref",
+    "descriptor_basis_summary",
+    "field_origin_tags",
+    "field_dependence_tags",
+    "root_origin_ids",
+    "evidence_refs"
+  ],
+  "title": "AgenticDeSurfaceAuthorityDescriptor",
+  "type": "object"
+}

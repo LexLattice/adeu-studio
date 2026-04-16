@@ -1,0 +1,80 @@
+{
+  "changes_live_behavior_by_default": false,
+  "communication_ingress_id": "agentic_de_communication_ingress_fa2ead1a96a3",
+  "evidence_only": true,
+  "evidence_refs": [
+    "packages/adeu_agentic_de/tests/fixtures/v59a/reference_agentic_de_live_turn_reintegration_report.json",
+    "packages/adeu_agentic_de/tests/fixtures/v59a/reference_agentic_de_workspace_continuity_reintegration_report.json",
+    "packages/adeu_agentic_de/tests/fixtures/v59b/reference_agentic_de_workspace_continuity_restoration_reintegration_report.json",
+    "packages/adeu_agentic_de/tests/fixtures/v60a/reference_agentic_de_lane_drift_record.json",
+    "packages/adeu_agentic_de/tests/fixtures/v60a/reference_agentic_de_seed_intent_record.json",
+    "packages/adeu_agentic_de/tests/fixtures/v60a/reference_agentic_de_task_charter_packet.json",
+    "packages/adeu_agentic_de/tests/fixtures/v60a/reference_agentic_de_task_residual_packet.json",
+    "packages/adeu_agentic_de/tests/fixtures/v60a/reference_agentic_de_loop_state_ledger.json",
+    "packages/adeu_agentic_de/tests/fixtures/v60a/reference_agentic_de_continuation_decision_record.json",
+    "packages/adeu_agentic_de/tests/fixtures/v60b/reference_agentic_de_lane_drift_record.json",
+    "packages/adeu_agentic_de/tests/fixtures/v60b/reference_agentic_de_task_residual_refresh_packet.json",
+    "packages/adeu_agentic_de/tests/fixtures/v60b/reference_agentic_de_continuation_refresh_decision_record.json",
+    "packages/adeu_agentic_de/tests/fixtures/v60c/reference_agentic_de_lane_drift_record.json",
+    "packages/adeu_agentic_de/tests/fixtures/v60c/reference_agentic_de_continuation_hardening_register.json",
+    "packages/adeu_agentic_de/tests/fixtures/v61a/reference_agentic_de_lane_drift_record.json",
+    "packages/adeu_agentic_de/tests/fixtures/v61a/reference_copilot_session_send_request.json",
+    "artifacts/agent_harness/v164/evidence_inputs/v60a_continuation_starter_evidence_v164.json",
+    "artifacts/agent_harness/v165/evidence_inputs/v60b_continuation_refresh_evidence_v165.json"
+  ],
+  "field_dependence_tags": {
+    "ingress_basis_summary": [
+      "v61a-send-request-1",
+      "copilot-v59a-session-1",
+      "agentic_de_continuation_refresh_decision_067a308bcae4"
+    ],
+    "ingress_payload_summary": [
+      "v61a-send-request-1",
+      "copilot-v59a-session-1"
+    ],
+    "seed_or_continuation_basis_summary": [
+      "agentic_de_task_charter_4ba381fc318f",
+      "agentic_de_continuation_refresh_decision_067a308bcae4"
+    ],
+    "selected_runtime_message_method": [
+      "copilot.user_message"
+    ],
+    "source_principal_class": [],
+    "speaker_class": [],
+    "surface_class": [
+      "apps/api/src/adeu_api/urm_routes.py:/copilot/send"
+    ],
+    "surface_instance_or_session_identity": [
+      "copilot-v59a-session-1"
+    ]
+  },
+  "field_origin_tags": {
+    "ingress_basis_summary": "current_turn_derived",
+    "ingress_payload_summary": "current_turn_derived",
+    "seed_or_continuation_basis_summary": "prior_artifact",
+    "selected_runtime_message_method": "current_turn_native",
+    "source_principal_class": "current_turn_native",
+    "speaker_class": "current_turn_native",
+    "surface_class": "current_turn_derived",
+    "surface_instance_or_session_identity": "current_turn_native"
+  },
+  "ingress_basis_summary": "resident /urm/copilot/send seam + typed user message payload + shipped V60 continuation basis only",
+  "ingress_payload_summary": "copilot.user_message over resident send seam with 56 chars",
+  "resident_session_ref": "copilot-v59a-session-1",
+  "root_origin_ids": [
+    "session:copilot-v59a-session-1",
+    "request:v61a-send-request-1",
+    "charter:agentic_de_task_charter_4ba381fc318f",
+    "refresh:agentic_de_continuation_refresh_decision_067a308bcae4"
+  ],
+  "schema": "agentic_de_communication_ingress_packet@1",
+  "seed_or_continuation_basis_summary": "latest shipped V60 continuation basis remains the exact V60-B refresh decision over the continuity-bound create_new exemplar",
+  "selected_api_route_ref_or_equivalent": "apps/api/src/adeu_api/urm_routes.py:/copilot/send",
+  "selected_runtime_message_method": "copilot.user_message",
+  "source_principal_class": "human_operator",
+  "speaker_class": "resident_session_user_message",
+  "surface_class": "resident_copilot_send_api",
+  "surface_instance_or_session_identity": "copilot-v59a-session-1",
+  "target_arc": "vNext+167",
+  "target_path": "V61-A"
+}

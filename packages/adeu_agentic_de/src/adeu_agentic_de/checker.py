@@ -5,7 +5,7 @@ import json
 from pathlib import Path
 
 from adeu_ir.repo import repo_root
-from urm_runtime.models import CopilotTurnSnapshot
+from urm_runtime.models import CopilotSessionSendRequest, CopilotTurnSnapshot
 
 from .local_effect import (
     DEFAULT_LOCAL_EFFECT_PAYLOAD_SHA256,
@@ -20,12 +20,15 @@ from .models import (
     AGENTIC_DE_ACTION_CLASS_TAXONOMY_SCHEMA,
     AGENTIC_DE_ACTION_PROPOSAL_SCHEMA,
     AGENTIC_DE_ACTION_TICKET_SCHEMA,
+    AGENTIC_DE_COMMUNICATION_EGRESS_PACKET_SCHEMA,
+    AGENTIC_DE_COMMUNICATION_INGRESS_PACKET_SCHEMA,
     AGENTIC_DE_CONFORMANCE_REPORT_SCHEMA,
     AGENTIC_DE_CONTINUATION_DECISION_RECORD_SCHEMA,
     AGENTIC_DE_CONTINUATION_HARDENING_REGISTER_SCHEMA,
     AGENTIC_DE_CONTINUATION_REFRESH_DECISION_RECORD_SCHEMA,
     AGENTIC_DE_DOMAIN_PACKET_SCHEMA,
     AGENTIC_DE_GOVERNANCE_CALIBRATION_REGISTER_SCHEMA,
+    AGENTIC_DE_INGRESS_INTERPRETATION_RECORD_SCHEMA,
     AGENTIC_DE_INTERACTION_CONTRACT_SCHEMA,
     AGENTIC_DE_LANE_DRIFT_RECORD_SCHEMA,
     AGENTIC_DE_LIVE_HARNESS_HARDENING_REGISTER_SCHEMA,
@@ -46,6 +49,7 @@ from .models import (
     AGENTIC_DE_RUNTIME_HARVEST_RECORD_SCHEMA,
     AGENTIC_DE_RUNTIME_STATE_SCHEMA,
     AGENTIC_DE_SEED_INTENT_RECORD_SCHEMA,
+    AGENTIC_DE_SURFACE_AUTHORITY_DESCRIPTOR_SCHEMA,
     AGENTIC_DE_TASK_CHARTER_PACKET_SCHEMA,
     AGENTIC_DE_TASK_RESIDUAL_PACKET_SCHEMA,
     AGENTIC_DE_TASK_RESIDUAL_REFRESH_PACKET_SCHEMA,
@@ -60,6 +64,8 @@ from .models import (
     AgenticDeActionClassTaxonomyEntry,
     AgenticDeActionProposal,
     AgenticDeActionTicket,
+    AgenticDeCommunicationEgressPacket,
+    AgenticDeCommunicationIngressPacket,
     AgenticDeConformanceReport,
     AgenticDeContinuationDecisionRecord,
     AgenticDeContinuationHardeningEntry,
@@ -68,6 +74,7 @@ from .models import (
     AgenticDeDomainPacket,
     AgenticDeGovernanceCalibrationEntry,
     AgenticDeGovernanceCalibrationRegister,
+    AgenticDeIngressInterpretationRecord,
     AgenticDeInteractionContract,
     AgenticDeInteractionContractEntry,
     AgenticDeLaneDriftRecord,
@@ -93,6 +100,7 @@ from .models import (
     AgenticDeRuntimeHarvestRecord,
     AgenticDeRuntimeState,
     AgenticDeSeedIntentRecord,
+    AgenticDeSurfaceAuthorityDescriptor,
     AgenticDeTaskCharterPacket,
     AgenticDeTaskResidualPacket,
     AgenticDeTaskResidualRefreshPacket,
@@ -174,6 +182,15 @@ V60C_CHECKER_VERSION = "agentic_de_continuation_v60c"
 V60C_TARGET_ARC = "vNext+166"
 V60C_TARGET_PATH = "V60-C"
 V60C_FROZEN_POLICY_REF = "docs/LOCKED_CONTINUATION_vNEXT_PLUS166.md#machine-checkable-contract"
+V61A_CHECKER_VERSION = "agentic_de_governed_communication_v61a"
+V61A_TARGET_ARC = "vNext+167"
+V61A_TARGET_PATH = "V61-A"
+V61A_FROZEN_POLICY_REF = "docs/LOCKED_CONTINUATION_vNEXT_PLUS167.md#machine-checkable-contract"
+V61A_SELECTED_API_ROUTE = "apps/api/src/adeu_api/urm_routes.py:/copilot/send"
+V61A_SELECTED_RUNTIME_METHOD = "copilot.user_message"
+V61A_SELECTED_SURFACE_CLASS = "resident_copilot_send_api"
+V61A_SELECTED_SOURCE_PRINCIPAL_CLASS = "human_operator"
+V61A_SELECTED_SPEAKER_CLASS = "resident_session_user_message"
 
 
 def _default_fixture_path(variant: str, filename: str) -> Path:
@@ -210,9 +227,7 @@ DEFAULT_V56A_DIAGNOSTICS_PATH = _default_fixture_path(
 DEFAULT_V56A_CONFORMANCE_PATH = _default_fixture_path(
     "v56a", "reference_agentic_de_conformance_report.json"
 )
-DEFAULT_V56B_TICKET_PATH = _default_fixture_path(
-    "v56b", "reference_agentic_de_action_ticket.json"
-)
+DEFAULT_V56B_TICKET_PATH = _default_fixture_path("v56b", "reference_agentic_de_action_ticket.json")
 DEFAULT_V56B_DIAGNOSTICS_PATH = _default_fixture_path(
     "v56b", "reference_agentic_de_morph_diagnostics.json"
 )
@@ -424,6 +439,24 @@ DEFAULT_V60C_LANE_DRIFT_PATH = _default_fixture_path(
 DEFAULT_V60C_HARDENING_PATH = _default_fixture_path(
     "v60c", "reference_agentic_de_continuation_hardening_register.json"
 )
+DEFAULT_V61A_LANE_DRIFT_PATH = _default_fixture_path(
+    "v61a", "reference_agentic_de_lane_drift_record.json"
+)
+DEFAULT_V61A_SEND_REQUEST_PATH = _default_fixture_path(
+    "v61a", "reference_copilot_session_send_request.json"
+)
+DEFAULT_V61A_COMMUNICATION_INGRESS_PATH = _default_fixture_path(
+    "v61a", "reference_agentic_de_communication_ingress_packet.json"
+)
+DEFAULT_V61A_SURFACE_AUTHORITY_DESCRIPTOR_PATH = _default_fixture_path(
+    "v61a", "reference_agentic_de_surface_authority_descriptor.json"
+)
+DEFAULT_V61A_INGRESS_INTERPRETATION_PATH = _default_fixture_path(
+    "v61a", "reference_agentic_de_ingress_interpretation_record.json"
+)
+DEFAULT_V61A_COMMUNICATION_EGRESS_PATH = _default_fixture_path(
+    "v61a", "reference_agentic_de_communication_egress_packet.json"
+)
 DEFAULT_V58C_EVIDENCE_PATH = (
     repo_root(anchor=Path(__file__))
     / "artifacts"
@@ -620,6 +653,17 @@ REQUIRED_V60C_DRIFT_ENTRY_STATUSES: dict[str, str] = {
     "candidate_outcomes_non_entitling_and_non_escalating": "amended",
     "provenance_and_lineage_root_dedup_explicit": "amended",
 }
+EXPECTED_V61A_PRIOR_LANE_REF = "docs/LOCKED_CONTINUATION_vNEXT_PLUS166.md"
+REQUIRED_V61A_DRIFT_ENTRY_STATUSES: dict[str, str] = {
+    "v60_surface_reuse_default": "holds",
+    "exact_urm_copilot_send_seam_only": "amended",
+    "principal_and_speaker_typing_explicit": "amended",
+    "surface_descriptor_not_message_interpretation": "amended",
+    "charter_amendment_candidate_posture_only": "amended",
+    "bridge_office_and_rewitness_deferred": "amended",
+    "communication_egress_non_authorizing": "amended",
+    "path_level_non_generalization_required": "amended",
+}
 
 
 def _read_json_object(path: Path) -> dict[str, object]:
@@ -687,8 +731,7 @@ def load_live_turn_admission_record(path: Path) -> AgenticDeLiveTurnAdmissionRec
     payload = AgenticDeLiveTurnAdmissionRecord.model_validate(_read_json_object(path))
     if payload.schema != AGENTIC_DE_LIVE_TURN_ADMISSION_RECORD_SCHEMA:
         raise ValueError(
-            "unexpected schema marker for live-turn admission record: "
-            f"{payload.schema}"
+            f"unexpected schema marker for live-turn admission record: {payload.schema}"
         )
     return payload
 
@@ -696,10 +739,7 @@ def load_live_turn_admission_record(path: Path) -> AgenticDeLiveTurnAdmissionRec
 def load_live_turn_handoff_record(path: Path) -> AgenticDeLiveTurnHandoffRecord:
     payload = AgenticDeLiveTurnHandoffRecord.model_validate(_read_json_object(path))
     if payload.schema != AGENTIC_DE_LIVE_TURN_HANDOFF_RECORD_SCHEMA:
-        raise ValueError(
-            "unexpected schema marker for live-turn handoff record: "
-            f"{payload.schema}"
-        )
+        raise ValueError(f"unexpected schema marker for live-turn handoff record: {payload.schema}")
     return payload
 
 
@@ -707,8 +747,7 @@ def load_live_turn_reintegration_report(path: Path) -> AgenticDeLiveTurnReintegr
     payload = AgenticDeLiveTurnReintegrationReport.model_validate(_read_json_object(path))
     if payload.schema != AGENTIC_DE_LIVE_TURN_REINTEGRATION_REPORT_SCHEMA:
         raise ValueError(
-            "unexpected schema marker for live-turn reintegration report: "
-            f"{payload.schema}"
+            f"unexpected schema marker for live-turn reintegration report: {payload.schema}"
         )
     return payload
 
@@ -716,9 +755,7 @@ def load_live_turn_reintegration_report(path: Path) -> AgenticDeLiveTurnReintegr
 def load_workspace_continuity_region_declaration(
     path: Path,
 ) -> AgenticDeWorkspaceContinuityRegionDeclaration:
-    payload = AgenticDeWorkspaceContinuityRegionDeclaration.model_validate(
-        _read_json_object(path)
-    )
+    payload = AgenticDeWorkspaceContinuityRegionDeclaration.model_validate(_read_json_object(path))
     if payload.schema != AGENTIC_DE_WORKSPACE_CONTINUITY_REGION_DECLARATION_SCHEMA:
         raise ValueError(
             "unexpected schema marker for workspace continuity region declaration: "
@@ -730,13 +767,10 @@ def load_workspace_continuity_region_declaration(
 def load_workspace_continuity_admission_record(
     path: Path,
 ) -> AgenticDeWorkspaceContinuityAdmissionRecord:
-    payload = AgenticDeWorkspaceContinuityAdmissionRecord.model_validate(
-        _read_json_object(path)
-    )
+    payload = AgenticDeWorkspaceContinuityAdmissionRecord.model_validate(_read_json_object(path))
     if payload.schema != AGENTIC_DE_WORKSPACE_CONTINUITY_ADMISSION_RECORD_SCHEMA:
         raise ValueError(
-            "unexpected schema marker for workspace continuity admission record: "
-            f"{payload.schema}"
+            f"unexpected schema marker for workspace continuity admission record: {payload.schema}"
         )
     return payload
 
@@ -745,8 +779,7 @@ def load_workspace_occupancy_report(path: Path) -> AgenticDeWorkspaceOccupancyRe
     payload = AgenticDeWorkspaceOccupancyReport.model_validate(_read_json_object(path))
     if payload.schema != AGENTIC_DE_WORKSPACE_OCCUPANCY_REPORT_SCHEMA:
         raise ValueError(
-            "unexpected schema marker for workspace occupancy report: "
-            f"{payload.schema}"
+            f"unexpected schema marker for workspace occupancy report: {payload.schema}"
         )
     return payload
 
@@ -785,10 +818,7 @@ def load_workspace_continuity_restoration_reintegration_report(
     payload = AgenticDeWorkspaceContinuityRestorationReintegrationReport.model_validate(
         _read_json_object(path)
     )
-    if (
-        payload.schema
-        != AGENTIC_DE_WORKSPACE_CONTINUITY_RESTORATION_REINTEGRATION_REPORT_SCHEMA
-    ):
+    if payload.schema != AGENTIC_DE_WORKSPACE_CONTINUITY_RESTORATION_REINTEGRATION_REPORT_SCHEMA:
         raise ValueError(
             "unexpected schema marker for workspace continuity restoration reintegration "
             f"report: {payload.schema}"
@@ -799,9 +829,7 @@ def load_workspace_continuity_restoration_reintegration_report(
 def load_workspace_continuity_hardening_register(
     path: Path,
 ) -> AgenticDeWorkspaceContinuityHardeningRegister:
-    payload = AgenticDeWorkspaceContinuityHardeningRegister.model_validate(
-        _read_json_object(path)
-    )
+    payload = AgenticDeWorkspaceContinuityHardeningRegister.model_validate(_read_json_object(path))
     if payload.schema != AGENTIC_DE_WORKSPACE_CONTINUITY_HARDENING_REGISTER_SCHEMA:
         raise ValueError(
             "unexpected schema marker for workspace continuity hardening register: "
@@ -835,8 +863,7 @@ def load_task_residual_refresh_packet(path: Path) -> AgenticDeTaskResidualRefres
     payload = AgenticDeTaskResidualRefreshPacket.model_validate(_read_json_object(path))
     if payload.schema != AGENTIC_DE_TASK_RESIDUAL_REFRESH_PACKET_SCHEMA:
         raise ValueError(
-            "unexpected schema marker for task residual refresh packet: "
-            f"{payload.schema}"
+            f"unexpected schema marker for task residual refresh packet: {payload.schema}"
         )
     return payload
 
@@ -852,8 +879,7 @@ def load_continuation_decision_record(path: Path) -> AgenticDeContinuationDecisi
     payload = AgenticDeContinuationDecisionRecord.model_validate(_read_json_object(path))
     if payload.schema != AGENTIC_DE_CONTINUATION_DECISION_RECORD_SCHEMA:
         raise ValueError(
-            "unexpected schema marker for continuation decision record: "
-            f"{payload.schema}"
+            f"unexpected schema marker for continuation decision record: {payload.schema}"
         )
     return payload
 
@@ -864,8 +890,7 @@ def load_continuation_refresh_decision_record(
     payload = AgenticDeContinuationRefreshDecisionRecord.model_validate(_read_json_object(path))
     if payload.schema != AGENTIC_DE_CONTINUATION_REFRESH_DECISION_RECORD_SCHEMA:
         raise ValueError(
-            "unexpected schema marker for continuation refresh decision record: "
-            f"{payload.schema}"
+            f"unexpected schema marker for continuation refresh decision record: {payload.schema}"
         )
     return payload
 
@@ -876,18 +901,57 @@ def load_continuation_hardening_register(
     payload = AgenticDeContinuationHardeningRegister.model_validate(_read_json_object(path))
     if payload.schema != AGENTIC_DE_CONTINUATION_HARDENING_REGISTER_SCHEMA:
         raise ValueError(
-            "unexpected schema marker for continuation hardening register: "
-            f"{payload.schema}"
+            f"unexpected schema marker for continuation hardening register: {payload.schema}"
         )
     return payload
+
+
+def load_communication_ingress_packet(path: Path) -> AgenticDeCommunicationIngressPacket:
+    payload = AgenticDeCommunicationIngressPacket.model_validate(_read_json_object(path))
+    if payload.schema != AGENTIC_DE_COMMUNICATION_INGRESS_PACKET_SCHEMA:
+        raise ValueError(
+            f"unexpected schema marker for communication ingress packet: {payload.schema}"
+        )
+    return payload
+
+
+def load_surface_authority_descriptor(path: Path) -> AgenticDeSurfaceAuthorityDescriptor:
+    payload = AgenticDeSurfaceAuthorityDescriptor.model_validate(_read_json_object(path))
+    if payload.schema != AGENTIC_DE_SURFACE_AUTHORITY_DESCRIPTOR_SCHEMA:
+        raise ValueError(
+            f"unexpected schema marker for surface authority descriptor: {payload.schema}"
+        )
+    return payload
+
+
+def load_ingress_interpretation_record(path: Path) -> AgenticDeIngressInterpretationRecord:
+    payload = AgenticDeIngressInterpretationRecord.model_validate(_read_json_object(path))
+    if payload.schema != AGENTIC_DE_INGRESS_INTERPRETATION_RECORD_SCHEMA:
+        raise ValueError(
+            f"unexpected schema marker for ingress interpretation record: {payload.schema}"
+        )
+    return payload
+
+
+def load_communication_egress_packet(path: Path) -> AgenticDeCommunicationEgressPacket:
+    payload = AgenticDeCommunicationEgressPacket.model_validate(_read_json_object(path))
+    if payload.schema != AGENTIC_DE_COMMUNICATION_EGRESS_PACKET_SCHEMA:
+        raise ValueError(
+            f"unexpected schema marker for communication egress packet: {payload.schema}"
+        )
+    return payload
+
+
+def load_copilot_session_send_request(path: Path) -> CopilotSessionSendRequest:
+    payload = _load_json_object(path, error_label="copilot session send request")
+    return CopilotSessionSendRequest.model_validate(payload)
 
 
 def load_live_restoration_handoff_record(path: Path) -> AgenticDeLiveRestorationHandoffRecord:
     payload = AgenticDeLiveRestorationHandoffRecord.model_validate(_read_json_object(path))
     if payload.schema != AGENTIC_DE_LIVE_RESTORATION_HANDOFF_RECORD_SCHEMA:
         raise ValueError(
-            "unexpected schema marker for live restoration handoff record: "
-            f"{payload.schema}"
+            f"unexpected schema marker for live restoration handoff record: {payload.schema}"
         )
     return payload
 
@@ -895,13 +959,10 @@ def load_live_restoration_handoff_record(path: Path) -> AgenticDeLiveRestoration
 def load_live_restoration_reintegration_report(
     path: Path,
 ) -> AgenticDeLiveRestorationReintegrationReport:
-    payload = AgenticDeLiveRestorationReintegrationReport.model_validate(
-        _read_json_object(path)
-    )
+    payload = AgenticDeLiveRestorationReintegrationReport.model_validate(_read_json_object(path))
     if payload.schema != AGENTIC_DE_LIVE_RESTORATION_REINTEGRATION_REPORT_SCHEMA:
         raise ValueError(
-            "unexpected schema marker for live restoration reintegration report: "
-            f"{payload.schema}"
+            f"unexpected schema marker for live restoration reintegration report: {payload.schema}"
         )
     return payload
 
@@ -912,8 +973,7 @@ def load_live_harness_hardening_register(
     payload = AgenticDeLiveHarnessHardeningRegister.model_validate(_read_json_object(path))
     if payload.schema != AGENTIC_DE_LIVE_HARNESS_HARDENING_REGISTER_SCHEMA:
         raise ValueError(
-            "unexpected schema marker for live harness hardening register: "
-            f"{payload.schema}"
+            f"unexpected schema marker for live harness hardening register: {payload.schema}"
         )
     return payload
 
@@ -959,8 +1019,7 @@ def load_governance_calibration_register(
     payload = AgenticDeGovernanceCalibrationRegister.model_validate(_read_json_object(path))
     if payload.schema != AGENTIC_DE_GOVERNANCE_CALIBRATION_REGISTER_SCHEMA:
         raise ValueError(
-            "unexpected schema marker for governance calibration register: "
-            f"{payload.schema}"
+            f"unexpected schema marker for governance calibration register: {payload.schema}"
         )
     return payload
 
@@ -978,8 +1037,7 @@ def load_local_effect_observation_record(path: Path) -> AgenticDeLocalEffectObse
     payload = AgenticDeLocalEffectObservationRecord.model_validate(_read_json_object(path))
     if payload.schema != AGENTIC_DE_LOCAL_EFFECT_OBSERVATION_RECORD_SCHEMA:
         raise ValueError(
-            "unexpected schema marker for local-effect observation record: "
-            f"{payload.schema}"
+            f"unexpected schema marker for local-effect observation record: {payload.schema}"
         )
     return payload
 
@@ -988,8 +1046,7 @@ def load_local_effect_conformance_report(path: Path) -> AgenticDeLocalEffectConf
     payload = AgenticDeLocalEffectConformanceReport.model_validate(_read_json_object(path))
     if payload.schema != AGENTIC_DE_LOCAL_EFFECT_CONFORMANCE_REPORT_SCHEMA:
         raise ValueError(
-            "unexpected schema marker for local-effect conformance report: "
-            f"{payload.schema}"
+            f"unexpected schema marker for local-effect conformance report: {payload.schema}"
         )
     return payload
 
@@ -998,8 +1055,7 @@ def load_local_effect_restoration_record(path: Path) -> AgenticDeLocalEffectRest
     payload = AgenticDeLocalEffectRestorationRecord.model_validate(_read_json_object(path))
     if payload.schema != AGENTIC_DE_LOCAL_EFFECT_RESTORATION_RECORD_SCHEMA:
         raise ValueError(
-            "unexpected schema marker for local-effect restoration record: "
-            f"{payload.schema}"
+            f"unexpected schema marker for local-effect restoration record: {payload.schema}"
         )
     return payload
 
@@ -1008,8 +1064,7 @@ def load_local_effect_hardening_register(path: Path) -> AgenticDeLocalEffectHard
     payload = AgenticDeLocalEffectHardeningRegister.model_validate(_read_json_object(path))
     if payload.schema != AGENTIC_DE_LOCAL_EFFECT_HARDENING_REGISTER_SCHEMA:
         raise ValueError(
-            "unexpected schema marker for local-effect hardening register: "
-            f"{payload.schema}"
+            f"unexpected schema marker for local-effect hardening register: {payload.schema}"
         )
     return payload
 
@@ -1185,6 +1240,35 @@ def _assert_v60c_repo_local_input_path(
         ) from exc
 
 
+def _assert_v61a_repo_local_input_path(
+    *,
+    repo_root_path: Path,
+    candidate: Path,
+    field_name: str,
+) -> None:
+    if repo_root_path.exists() and repo_root_path.is_symlink():
+        raise ValueError("repository root may not be a symlink for V61-A communication")
+    try:
+        relative = candidate.relative_to(repo_root_path)
+    except ValueError:
+        relative = None
+    if relative is not None:
+        current = repo_root_path
+        for part in relative.parts:
+            current = current / part
+            if current.is_symlink():
+                raise ValueError(
+                    f"{field_name} may not traverse symlink components for V61-A communication"
+                )
+    candidate_resolved = candidate.resolve(strict=False)
+    try:
+        candidate_resolved.relative_to(repo_root_path.resolve())
+    except ValueError as exc:
+        raise ValueError(
+            f"{field_name} must remain within the repository root for V61-A communication"
+        ) from exc
+
+
 def _render_input_ref(*, repo_root_path: Path, path: Path) -> str:
     try:
         return str(path.relative_to(repo_root_path))
@@ -1279,8 +1363,7 @@ def _validate_v57b_lane_drift_record(record: AgenticDeLaneDriftRecord) -> Agenti
     mismatched_statuses = sorted(
         assumption_ref
         for assumption_ref, expected_status in REQUIRED_V57B_DRIFT_ENTRY_STATUSES.items()
-        if assumption_ref in actual_statuses
-        and actual_statuses[assumption_ref] != expected_status
+        if assumption_ref in actual_statuses and actual_statuses[assumption_ref] != expected_status
     )
     if missing_assumptions or mismatched_statuses:
         detail_parts: list[str] = []
@@ -1314,8 +1397,7 @@ def _validate_v57c_lane_drift_record(record: AgenticDeLaneDriftRecord) -> Agenti
     mismatched_statuses = sorted(
         assumption_ref
         for assumption_ref, expected_status in REQUIRED_V57C_DRIFT_ENTRY_STATUSES.items()
-        if assumption_ref in actual_statuses
-        and actual_statuses[assumption_ref] != expected_status
+        if assumption_ref in actual_statuses and actual_statuses[assumption_ref] != expected_status
     )
     if missing_assumptions or mismatched_statuses:
         detail_parts: list[str] = []
@@ -1349,8 +1431,7 @@ def _validate_v58a_lane_drift_record(record: AgenticDeLaneDriftRecord) -> Agenti
     mismatched_statuses = sorted(
         assumption_ref
         for assumption_ref, expected_status in REQUIRED_V58A_DRIFT_ENTRY_STATUSES.items()
-        if assumption_ref in actual_statuses
-        and actual_statuses[assumption_ref] != expected_status
+        if assumption_ref in actual_statuses and actual_statuses[assumption_ref] != expected_status
     )
     if missing_assumptions or mismatched_statuses:
         detail_parts: list[str] = []
@@ -1361,7 +1442,7 @@ def _validate_v58a_lane_drift_record(record: AgenticDeLaneDriftRecord) -> Agenti
         raise ValueError(
             "V58-A lane drift record does not satisfy the required handoff posture; "
             + ", ".join(detail_parts)
-    )
+        )
     return record
 
 
@@ -1384,8 +1465,7 @@ def _validate_v58b_lane_drift_record(record: AgenticDeLaneDriftRecord) -> Agenti
     mismatched_statuses = sorted(
         assumption_ref
         for assumption_ref, expected_status in REQUIRED_V58B_DRIFT_ENTRY_STATUSES.items()
-        if assumption_ref in actual_statuses
-        and actual_statuses[assumption_ref] != expected_status
+        if assumption_ref in actual_statuses and actual_statuses[assumption_ref] != expected_status
     )
     if missing_assumptions or mismatched_statuses:
         detail_parts: list[str] = []
@@ -1419,8 +1499,7 @@ def _validate_v58c_lane_drift_record(record: AgenticDeLaneDriftRecord) -> Agenti
     mismatched_statuses = sorted(
         assumption_ref
         for assumption_ref, expected_status in REQUIRED_V58C_DRIFT_ENTRY_STATUSES.items()
-        if assumption_ref in actual_statuses
-        and actual_statuses[assumption_ref] != expected_status
+        if assumption_ref in actual_statuses and actual_statuses[assumption_ref] != expected_status
     )
     if missing_assumptions or mismatched_statuses:
         detail_parts: list[str] = []
@@ -1454,8 +1533,7 @@ def _validate_v59a_lane_drift_record(record: AgenticDeLaneDriftRecord) -> Agenti
     mismatched_statuses = sorted(
         assumption_ref
         for assumption_ref, expected_status in REQUIRED_V59A_DRIFT_ENTRY_STATUSES.items()
-        if assumption_ref in actual_statuses
-        and actual_statuses[assumption_ref] != expected_status
+        if assumption_ref in actual_statuses and actual_statuses[assumption_ref] != expected_status
     )
     if missing_assumptions or mismatched_statuses:
         detail_parts: list[str] = []
@@ -1489,8 +1567,7 @@ def _validate_v59b_lane_drift_record(record: AgenticDeLaneDriftRecord) -> Agenti
     mismatched_statuses = sorted(
         assumption_ref
         for assumption_ref, expected_status in REQUIRED_V59B_DRIFT_ENTRY_STATUSES.items()
-        if assumption_ref in actual_statuses
-        and actual_statuses[assumption_ref] != expected_status
+        if assumption_ref in actual_statuses and actual_statuses[assumption_ref] != expected_status
     )
     if missing_assumptions or mismatched_statuses:
         detail_parts: list[str] = []
@@ -1524,8 +1601,7 @@ def _validate_v59c_lane_drift_record(record: AgenticDeLaneDriftRecord) -> Agenti
     mismatched_statuses = sorted(
         assumption_ref
         for assumption_ref, expected_status in REQUIRED_V59C_DRIFT_ENTRY_STATUSES.items()
-        if assumption_ref in actual_statuses
-        and actual_statuses[assumption_ref] != expected_status
+        if assumption_ref in actual_statuses and actual_statuses[assumption_ref] != expected_status
     )
     if missing_assumptions or mismatched_statuses:
         detail_parts: list[str] = []
@@ -1559,8 +1635,7 @@ def _validate_v60a_lane_drift_record(record: AgenticDeLaneDriftRecord) -> Agenti
     mismatched_statuses = sorted(
         assumption_ref
         for assumption_ref, expected_status in REQUIRED_V60A_DRIFT_ENTRY_STATUSES.items()
-        if assumption_ref in actual_statuses
-        and actual_statuses[assumption_ref] != expected_status
+        if assumption_ref in actual_statuses and actual_statuses[assumption_ref] != expected_status
     )
     if missing_assumptions or mismatched_statuses:
         detail_parts: list[str] = []
@@ -1594,8 +1669,7 @@ def _validate_v60b_lane_drift_record(record: AgenticDeLaneDriftRecord) -> Agenti
     mismatched_statuses = sorted(
         assumption_ref
         for assumption_ref, expected_status in REQUIRED_V60B_DRIFT_ENTRY_STATUSES.items()
-        if assumption_ref in actual_statuses
-        and actual_statuses[assumption_ref] != expected_status
+        if assumption_ref in actual_statuses and actual_statuses[assumption_ref] != expected_status
     )
     if missing_assumptions or mismatched_statuses:
         detail_parts: list[str] = []
@@ -1629,8 +1703,7 @@ def _validate_v60c_lane_drift_record(record: AgenticDeLaneDriftRecord) -> Agenti
     mismatched_statuses = sorted(
         assumption_ref
         for assumption_ref, expected_status in REQUIRED_V60C_DRIFT_ENTRY_STATUSES.items()
-        if assumption_ref in actual_statuses
-        and actual_statuses[assumption_ref] != expected_status
+        if assumption_ref in actual_statuses and actual_statuses[assumption_ref] != expected_status
     )
     if missing_assumptions or mismatched_statuses:
         detail_parts: list[str] = []
@@ -1640,6 +1713,40 @@ def _validate_v60c_lane_drift_record(record: AgenticDeLaneDriftRecord) -> Agenti
             detail_parts.append(f"status_mismatch={mismatched_statuses}")
         raise ValueError(
             "V60-C lane drift record does not satisfy the required handoff posture; "
+            + ", ".join(detail_parts)
+        )
+    return record
+
+
+def _validate_v61a_lane_drift_record(record: AgenticDeLaneDriftRecord) -> AgenticDeLaneDriftRecord:
+    if record.target_arc != V61A_TARGET_ARC:
+        raise ValueError(
+            f"V61-A lane drift record must target {V61A_TARGET_ARC!r}, got {record.target_arc!r}"
+        )
+    if record.target_path != V61A_TARGET_PATH:
+        raise ValueError(
+            f"V61-A lane drift record must target {V61A_TARGET_PATH!r}, got {record.target_path!r}"
+        )
+    if record.prior_lane_ref != EXPECTED_V61A_PRIOR_LANE_REF:
+        raise ValueError(
+            "V61-A lane drift record must point at "
+            f"{EXPECTED_V61A_PRIOR_LANE_REF!r}, got {record.prior_lane_ref!r}"
+        )
+    actual_statuses = {entry.assumption_ref: entry.status for entry in record.entries}
+    missing_assumptions = sorted(set(REQUIRED_V61A_DRIFT_ENTRY_STATUSES) - set(actual_statuses))
+    mismatched_statuses = sorted(
+        assumption_ref
+        for assumption_ref, expected_status in REQUIRED_V61A_DRIFT_ENTRY_STATUSES.items()
+        if assumption_ref in actual_statuses and actual_statuses[assumption_ref] != expected_status
+    )
+    if missing_assumptions or mismatched_statuses:
+        detail_parts: list[str] = []
+        if missing_assumptions:
+            detail_parts.append(f"missing={missing_assumptions}")
+        if mismatched_statuses:
+            detail_parts.append(f"status_mismatch={mismatched_statuses}")
+        raise ValueError(
+            "V61-A lane drift record does not satisfy the required handoff posture; "
             + ", ".join(detail_parts)
         )
     return record
@@ -1677,8 +1784,7 @@ def _validate_v56b_evidence_payload(payload: dict[str, object]) -> dict[str, obj
         raise ValueError("V56-B evidence must preserve accepted-necessary-but-not-sufficient law")
     if payload.get("ticket_visibility_in_consequence_chain_required") is not True:
         raise ValueError(
-            "V56-B evidence must preserve explicit ticket visibility in the "
-            "consequence chain"
+            "V56-B evidence must preserve explicit ticket visibility in the consequence chain"
         )
     if payload.get("delegated_or_external_dispatch_selected_for_v56b") is not False:
         raise ValueError("V56-B evidence must keep delegated/external dispatch deferred")
@@ -1766,9 +1872,7 @@ def _validate_v57b_evidence_payload(payload: dict[str, object]) -> dict[str, obj
         payload.get("restoration_record_may_not_nominate_policy_class_or_entitlement_changes")
         is not True
     ):
-        raise ValueError(
-            "V57-B evidence must preserve non-promoting restoration record semantics"
-        )
+        raise ValueError("V57-B evidence must preserve non-promoting restoration record semantics")
     return payload
 
 
@@ -1822,9 +1926,7 @@ def _validate_v58a_evidence_payload(payload: dict[str, object]) -> dict[str, obj
             "V58-A evidence must preserve outer-harness-necessary-but-not-sufficient law"
         )
     if payload.get("positive_reintegration_requires_witness_basis_or_certificate_ref") is not True:
-        raise ValueError(
-            "V58-A evidence must preserve witness-bearing positive reintegration"
-        )
+        raise ValueError("V58-A evidence must preserve witness-bearing positive reintegration")
     if payload.get("root_origin_dedup_required_for_current_turn_support") is not True:
         raise ValueError("V58-A evidence must preserve current-turn root-origin dedup")
     return payload
@@ -1998,9 +2100,7 @@ def _validate_v59c_evidence_payload(payload: dict[str, object]) -> dict[str, obj
 
 def _validate_v60a_evidence_payload(payload: dict[str, object]) -> dict[str, object]:
     if payload.get("schema") != EXPECTED_V60A_EVIDENCE_SCHEMA:
-        raise ValueError(
-            "V60-B requires the shipped V60-A continuation evidence payload on main"
-        )
+        raise ValueError("V60-B requires the shipped V60-A continuation evidence payload on main")
     selected_shapes = payload.get("selected_record_shapes")
     if not isinstance(selected_shapes, list) or {
         "agentic_de_seed_intent_record@1",
@@ -2474,9 +2574,7 @@ def _validate_v58b_live_restoration_surfaces(
         live_restoration_reintegration.target_arc != V58B_TARGET_ARC
         or live_restoration_reintegration.target_path != V58B_TARGET_PATH
     ):
-        raise ValueError(
-            "V58-C requires the shipped V58-B live restoration reintegration surface"
-        )
+        raise ValueError("V58-C requires the shipped V58-B live restoration reintegration surface")
     if live_restoration_handoff.evidence_only is not True:
         raise ValueError("V58-C requires the shipped evidence-only V58-B handoff posture")
     if live_restoration_handoff.changes_live_behavior_by_default:
@@ -2948,9 +3046,7 @@ def _build_v57c_local_effect_hardening_register(
     restoration: AgenticDeLocalEffectRestorationRecord,
     evidence_refs: list[str],
 ) -> AgenticDeLocalEffectHardeningRegister:
-    selected_target = (
-        "observed_and_restored_v57a_create_new_exemplar_only"
-    )
+    selected_target = "observed_and_restored_v57a_create_new_exemplar_only"
     entry = AgenticDeLocalEffectHardeningEntry(
         ticket_ref=ticket.ticket_id,
         action_proposal_ref=proposal.proposal_id,
@@ -4117,9 +4213,7 @@ def _session_capability_snapshot(live_turn_snapshot: CopilotTurnSnapshot) -> str
 
 def _approval_posture_snapshot(live_turn_snapshot: CopilotTurnSnapshot) -> str:
     return (
-        "writes_allowed_enabled"
-        if live_turn_snapshot.writes_allowed
-        else "writes_allowed_disabled"
+        "writes_allowed_enabled" if live_turn_snapshot.writes_allowed else "writes_allowed_disabled"
     )
 
 
@@ -5204,10 +5298,7 @@ def _validate_v58a_live_turn_surfaces(
         raise ValueError("V58-B requires the shipped V58-A admission surface")
     if handoff.target_arc != V58A_TARGET_ARC or handoff.target_path != V58A_TARGET_PATH:
         raise ValueError("V58-B requires the shipped V58-A handoff surface")
-    if (
-        reintegration.target_arc != V58A_TARGET_ARC
-        or reintegration.target_path != V58A_TARGET_PATH
-    ):
+    if reintegration.target_arc != V58A_TARGET_ARC or reintegration.target_path != V58A_TARGET_PATH:
         raise ValueError("V58-B requires the shipped V58-A reintegration surface")
     if admission.admission_verdict != "admitted":
         raise ValueError("V58-B requires one prior admitted V58-A live turn")
@@ -5271,9 +5362,7 @@ def _validate_v58b_restoration_time_continuation(
         field_name="cwd",
     )
     if cwd_resolved != repo_root_path.resolve():
-        raise ValueError(
-            "V58-B restoration-time cwd must resolve to the admitted repository root"
-        )
+        raise ValueError("V58-B restoration-time cwd must resolve to the admitted repository root")
     if live_turn_snapshot.status not in {"starting", "running"}:
         raise ValueError("V58-B restoration-time session must remain live for continuation")
     selected_live_path_identity = (
@@ -5586,9 +5675,7 @@ def run_agentic_de_live_harness_v58b(
     v58a_lane_drift_path = _resolve_path(repo_root_path=root, path=v58a_lane_drift_path)
     v58a_admission_path = _resolve_path(repo_root_path=root, path=v58a_admission_path)
     v58a_handoff_path = _resolve_path(repo_root_path=root, path=v58a_handoff_path)
-    v58a_reintegration_path = _resolve_path(
-        repo_root_path=root, path=v58a_reintegration_path
-    )
+    v58a_reintegration_path = _resolve_path(repo_root_path=root, path=v58a_reintegration_path)
     lane_drift_path = _resolve_path(repo_root_path=root, path=lane_drift_path)
     v56a_evidence_path = _resolve_path(repo_root_path=root, path=v56a_evidence_path)
     v56b_evidence_path = _resolve_path(repo_root_path=root, path=v56b_evidence_path)
@@ -5939,9 +6026,7 @@ def run_agentic_de_live_harness_v58c(
     v58a_lane_drift_path = _resolve_path(repo_root_path=root, path=v58a_lane_drift_path)
     v58a_admission_path = _resolve_path(repo_root_path=root, path=v58a_admission_path)
     v58a_handoff_path = _resolve_path(repo_root_path=root, path=v58a_handoff_path)
-    v58a_reintegration_path = _resolve_path(
-        repo_root_path=root, path=v58a_reintegration_path
-    )
+    v58a_reintegration_path = _resolve_path(repo_root_path=root, path=v58a_reintegration_path)
     v58b_lane_drift_path = _resolve_path(repo_root_path=root, path=v58b_lane_drift_path)
     v58b_live_restoration_handoff_path = _resolve_path(
         repo_root_path=root,
@@ -6575,10 +6660,7 @@ def _validate_v59a_workspace_continuity_surfaces(
         raise ValueError("V59-B requires one prior reintegrated V59-A live turn")
     if live_turn_reintegration.reintegration_certificate_ref_or_equivalent is None:
         raise ValueError("V59-B requires witness-bearing V59-A live reintegration")
-    if (
-        continuity_reintegration.live_turn_reintegration_ref
-        != live_turn_reintegration.report_id
-    ):
+    if continuity_reintegration.live_turn_reintegration_ref != live_turn_reintegration.report_id:
         raise ValueError(
             "V59-A continuity reintegration does not bind the provided live reintegration"
         )
@@ -6593,10 +6675,7 @@ def _validate_v59a_workspace_continuity_surfaces(
         raise ValueError("V59-A continuity reintegration does not bind the provided occupancy")
     if continuity_reintegration.observation_ref != observation.observation_id:
         raise ValueError("V59-A continuity reintegration does not bind the provided observation")
-    if (
-        continuity_reintegration.local_effect_conformance_ref
-        != conformance.report_id
-    ):
+    if continuity_reintegration.local_effect_conformance_ref != conformance.report_id:
         raise ValueError("V59-A continuity reintegration does not bind the provided conformance")
     if continuity_reintegration.continuity_reintegration_status != "reintegrated":
         raise ValueError("V59-B requires one prior reintegrated V59-A continuity report")
@@ -6636,9 +6715,7 @@ def _validate_v59b_restoration_time_continuation(
         field_name="cwd",
     )
     if cwd_resolved != repo_root_path.resolve():
-        raise ValueError(
-            "V59-B restoration-time cwd must resolve to the admitted repository root"
-        )
+        raise ValueError("V59-B restoration-time cwd must resolve to the admitted repository root")
     if live_turn_snapshot.status not in {"starting", "running"}:
         raise ValueError("V59-B restoration-time session must remain live for continuation")
     selected_live_path_identity = (
@@ -6747,17 +6824,13 @@ def _validate_v59b_workspace_continuity_restoration_surfaces(
         continuity_restoration_reintegration.target_arc != V59B_TARGET_ARC
         or continuity_restoration_reintegration.target_path != V59B_TARGET_PATH
     ):
-        raise ValueError(
-            "V59-C requires the shipped V59-B continuity restoration reintegration"
-        )
+        raise ValueError("V59-C requires the shipped V59-B continuity restoration reintegration")
     if continuity_restoration_handoff.evidence_only is not True:
         raise ValueError("V59-C requires the shipped evidence-only V59-B handoff posture")
     if continuity_restoration_handoff.changes_live_behavior_by_default:
         raise ValueError("V59-C requires the shipped non-live V59-B handoff posture")
     if continuity_restoration_reintegration.evidence_only is not True:
-        raise ValueError(
-            "V59-C requires the shipped evidence-only V59-B reintegration posture"
-        )
+        raise ValueError("V59-C requires the shipped evidence-only V59-B reintegration posture")
     if continuity_restoration_reintegration.changes_live_behavior_by_default:
         raise ValueError("V59-C requires the shipped non-live V59-B reintegration posture")
     if continuity_restoration_handoff.turn_admission_ref != live_turn_admission.admission_id:
@@ -6786,17 +6859,12 @@ def _validate_v59b_workspace_continuity_restoration_surfaces(
         raise ValueError("V59-B handoff does not preserve the shipped selected target")
     if continuity_restoration_handoff.restoration_time_continuation_verdict != "continued":
         raise ValueError("V59-C requires the shipped continued V59-B restoration posture")
-    if (
-        continuity_restoration_handoff.prior_governed_state_baseline_match_verdict
-        != "matched"
-    ):
+    if continuity_restoration_handoff.prior_governed_state_baseline_match_verdict != "matched":
         raise ValueError("V59-C requires the shipped matched V59-B baseline posture")
     if continuity_restoration_handoff.selected_restoration_scope != V59B_SELECTED_RESTORATION_SCOPE:
         raise ValueError("V59-B handoff must preserve the shipped bounded restoration scope")
     if continuity_restoration_reintegration.turn_admission_ref != live_turn_admission.admission_id:
-        raise ValueError(
-            "V59-B reintegration does not bind the shipped V59-A admission lineage"
-        )
+        raise ValueError("V59-B reintegration does not bind the shipped V59-A admission lineage")
     if (
         continuity_restoration_reintegration.workspace_continuity_restoration_handoff_ref
         != continuity_restoration_handoff.handoff_id
@@ -6964,9 +7032,7 @@ def _build_v59b_workspace_continuity_restoration_handoff_record(
         restoration_record_ref=restoration.restoration_id,
         action_ticket_ref=live_turn_handoff.action_ticket_ref,
         prior_governed_state_baseline_summary=prior_governed_state_baseline_summary,
-        prior_governed_state_baseline_match_verdict=(
-            prior_governed_state_baseline_match_verdict
-        ),
+        prior_governed_state_baseline_match_verdict=(prior_governed_state_baseline_match_verdict),
         restoration_time_target_or_region_state_summary=(
             restoration_time_target_or_region_state_summary
         ),
@@ -7036,9 +7102,7 @@ def _build_v59b_workspace_continuity_restoration_reintegration_report(
             "positive_continuity_restoration_reintegration_not_declared",
         ]
         certificate_ref = None
-        six_lane_closeout_posture = (
-            "current_turn_continuity_restoration_blocked_boundedness_failed"
-        )
+        six_lane_closeout_posture = "current_turn_continuity_restoration_blocked_boundedness_failed"
     else:
         reintegration_status = "blocked"
         reason_codes = [
@@ -7884,8 +7948,7 @@ def _validate_v60a_current_session_posture(
         )
     if current_approval_posture_snapshot != live_turn_admission.approval_posture_snapshot:
         raise ValueError(
-            "V60-A current approval posture snapshot must match the shipped V59-A "
-            "admission posture"
+            "V60-A current approval posture snapshot must match the shipped V59-A admission posture"
         )
     cwd_resolved = _resolve_snapshot_cwd_path(
         repo_root_path=repo_root_path,
@@ -7960,9 +8023,7 @@ def _validate_v60a_workspace_continuity_hardening_surface(
         entry.workspace_continuity_restoration_handoff_ref
         != continuity_restoration_handoff.handoff_id
     ):
-        raise ValueError(
-            "V59-C hardening does not bind the shipped continuity restoration handoff"
-        )
+        raise ValueError("V59-C hardening does not bind the shipped continuity restoration handoff")
     if entry.restoration_ref != restoration.restoration_id:
         raise ValueError("V59-C hardening does not bind the shipped restoration record")
     if (
@@ -8848,9 +8909,7 @@ def _validate_v60a_continuation_surfaces(
         loop_state_ledger.latest_live_turn_reintegration_ref_or_none
         != live_turn_reintegration.report_id
     ):
-        raise ValueError(
-            "V60-A loop-state ledger does not preserve the shipped latest live turn"
-        )
+        raise ValueError("V60-A loop-state ledger does not preserve the shipped latest live turn")
     if (
         loop_state_ledger.latest_continuity_reintegration_ref_or_none
         != continuity_reintegration.report_id
@@ -8912,11 +8971,11 @@ def _select_v60b_latest_reintegrated_act(
             "reintegrated"
         ):
             raise ValueError(
-            (
-                "V60-B latest continuity restoration reintegration must be reintegrated "
-                "when supplied"
+                (
+                    "V60-B latest continuity restoration reintegration must be reintegrated "
+                    "when supplied"
+                )
             )
-        )
         restoration_ref_or_none = continuity_restoration_reintegration.report_id
     latest_identity = (
         "latest_reintegrated_act::"
@@ -9392,9 +9451,7 @@ def run_agentic_de_continuation_v60b(
     v60a_task_charter = load_task_charter_packet(v60a_task_charter_path)
     v60a_task_residual = load_task_residual_packet(v60a_task_residual_path)
     v60a_loop_state_ledger = load_loop_state_ledger(v60a_loop_state_ledger_path)
-    v60a_continuation_decision = load_continuation_decision_record(
-        v60a_continuation_decision_path
-    )
+    v60a_continuation_decision = load_continuation_decision_record(v60a_continuation_decision_path)
 
     _validate_v56a_reference_surfaces(
         domain_packet=packet,
@@ -9589,9 +9646,7 @@ def _validate_v60b_refresh_surfaces(
         refreshed_continuation_decision.target_arc != V60B_TARGET_ARC
         or refreshed_continuation_decision.target_path != V60B_TARGET_PATH
     ):
-        raise ValueError(
-            "V60-C requires the shipped V60-B continuation refresh decision surface"
-        )
+        raise ValueError("V60-C requires the shipped V60-B continuation refresh decision surface")
     if refreshed_task_residual.prior_task_charter_ref != prior_task_charter.charter_id:
         raise ValueError("V60-B task residual refresh does not bind the shipped V60-A charter")
     if refreshed_task_residual.prior_task_residual_ref != prior_task_residual.residual_id:
@@ -9632,16 +9687,12 @@ def _validate_v60b_refresh_surfaces(
         refreshed_continuation_decision.prior_loop_state_ledger_ref
         != prior_loop_state_ledger.ledger_id
     ):
-        raise ValueError(
-            "V60-B continuation refresh decision does not bind the shipped V60-A loop"
-        )
+        raise ValueError("V60-B continuation refresh decision does not bind the shipped V60-A loop")
     if (
         refreshed_continuation_decision.stable_loop_identity_ref
         != prior_loop_state_ledger.ledger_id
     ):
-        raise ValueError(
-            "V60-B continuation refresh decision must preserve stable loop identity"
-        )
+        raise ValueError("V60-B continuation refresh decision must preserve stable loop identity")
     if (
         refreshed_continuation_decision.refreshed_task_residual_ref
         != refreshed_task_residual.refresh_packet_id
@@ -9687,10 +9738,9 @@ def _validate_v60b_refresh_surfaces(
             "V60-B continuation refresh decision must preserve the shipped selected-next-path "
             "dependence tags"
         )
-    if (
-        refreshed_continuation_decision.field_dependence_tags["reproposal_basis_summary_or_none"]
-        != ["none_under_current_v60b_policy"]
-    ):
+    if refreshed_continuation_decision.field_dependence_tags[
+        "reproposal_basis_summary_or_none"
+    ] != ["none_under_current_v60b_policy"]:
         raise ValueError(
             "V60-B continuation refresh decision must preserve the shipped reproposal "
             "absence dependence tags"
@@ -9793,8 +9843,7 @@ def _build_v60c_continuation_hardening_register(
             refreshed_continuation_decision.reproposal_basis_summary_or_none
         ),
         selected_hardening_target_surface=(
-            "shipped_v60a_v60b_continuation_lineage_over_continuity_bound_create_new_"
-            "exemplar_only"
+            "shipped_v60a_v60b_continuation_lineage_over_continuity_bound_create_new_exemplar_only"
         ),
         frozen_policy_ref=V60C_FROZEN_POLICY_REF,
         evidence_basis_summary=(
@@ -10161,19 +10210,13 @@ def run_agentic_de_continuation_v60c(
         _render_input_ref(repo_root_path=root, path=resolved_paths["v56b_diagnostics_path"]),
         _render_input_ref(repo_root_path=root, path=resolved_paths["v56b_conformance_path"]),
         _render_input_ref(repo_root_path=root, path=resolved_paths["v56c_lane_drift_path"]),
-        _render_input_ref(
-            repo_root_path=root, path=resolved_paths["v56c_runtime_harvest_path"]
-        ),
+        _render_input_ref(repo_root_path=root, path=resolved_paths["v56c_runtime_harvest_path"]),
         _render_input_ref(
             repo_root_path=root, path=resolved_paths["v56c_governance_calibration_path"]
         ),
-        _render_input_ref(
-            repo_root_path=root, path=resolved_paths["v56c_migration_decision_path"]
-        ),
+        _render_input_ref(repo_root_path=root, path=resolved_paths["v56c_migration_decision_path"]),
         _render_input_ref(repo_root_path=root, path=resolved_paths["v59a_lane_drift_path"]),
-        _render_input_ref(
-            repo_root_path=root, path=resolved_paths["v59a_continuity_region_path"]
-        ),
+        _render_input_ref(repo_root_path=root, path=resolved_paths["v59a_continuity_region_path"]),
         _render_input_ref(
             repo_root_path=root, path=resolved_paths["v59a_continuity_admission_path"]
         ),
@@ -10181,9 +10224,7 @@ def run_agentic_de_continuation_v60c(
         _render_input_ref(
             repo_root_path=root, path=resolved_paths["v59a_live_turn_admission_path"]
         ),
-        _render_input_ref(
-            repo_root_path=root, path=resolved_paths["v59a_live_turn_handoff_path"]
-        ),
+        _render_input_ref(repo_root_path=root, path=resolved_paths["v59a_live_turn_handoff_path"]),
         _render_input_ref(repo_root_path=root, path=resolved_paths["v59a_observation_path"]),
         _render_input_ref(
             repo_root_path=root, path=resolved_paths["v59a_local_effect_conformance_path"]
@@ -10208,9 +10249,7 @@ def run_agentic_de_continuation_v60c(
         _render_input_ref(repo_root_path=root, path=resolved_paths["v60a_seed_intent_path"]),
         _render_input_ref(repo_root_path=root, path=resolved_paths["v60a_task_charter_path"]),
         _render_input_ref(repo_root_path=root, path=resolved_paths["v60a_task_residual_path"]),
-        _render_input_ref(
-            repo_root_path=root, path=resolved_paths["v60a_loop_state_ledger_path"]
-        ),
+        _render_input_ref(repo_root_path=root, path=resolved_paths["v60a_loop_state_ledger_path"]),
         _render_input_ref(
             repo_root_path=root, path=resolved_paths["v60a_continuation_decision_path"]
         ),
@@ -10238,6 +10277,542 @@ def run_agentic_de_continuation_v60c(
         refreshed_continuation_decision=v60b_continuation_refresh_decision,
         evidence_refs=evidence_refs,
     )
+
+
+def _validate_v61a_send_request(
+    *,
+    request: CopilotSessionSendRequest,
+    expected_session_id: str,
+) -> str:
+    if request.provider != "codex":
+        raise ValueError("V61-A requires the codex provider on the selected send seam")
+    if request.session_id != expected_session_id:
+        raise ValueError("V61-A send request must bind the shipped V60 resident session")
+    message = request.message
+    method = message.get("method") if isinstance(message, dict) else None
+    if method != V61A_SELECTED_RUNTIME_METHOD:
+        raise ValueError("V61-A starter seam requires copilot.user_message only")
+    params = message.get("params") if isinstance(message, dict) else None
+    text = params.get("text") if isinstance(params, dict) else None
+    if not isinstance(text, str) or not text.strip():
+        raise ValueError("V61-A send request requires non-empty params.text")
+    return text.strip()
+
+
+def _validate_v61a_v60c_hardening_register(
+    register: AgenticDeContinuationHardeningRegister,
+    *,
+    continuation_decision: AgenticDeContinuationDecisionRecord,
+    continuation_refresh_decision: AgenticDeContinuationRefreshDecisionRecord,
+) -> None:
+    if register.target_arc != V60C_TARGET_ARC or register.target_path != V60C_TARGET_PATH:
+        raise ValueError("V61-A requires the shipped V60-C continuation hardening surface")
+    if register.baseline_checker_version != V60B_CHECKER_VERSION:
+        raise ValueError("V61-A requires the shipped V60-B baseline checker version")
+    if register.entry_count != 1:
+        raise ValueError("V61-A requires one shipped V60-C hardening entry only")
+    entry = register.entries[0]
+    if entry.continuation_decision_ref != continuation_decision.decision_id:
+        raise ValueError("V61-A requires the shipped V60-C starter continuation basis")
+    if entry.continuation_refresh_decision_ref != continuation_refresh_decision.refresh_decision_id:
+        raise ValueError("V61-A requires the shipped V60-C refresh continuation basis")
+    if entry.recommended_outcome != "candidate_for_later_continuation_hardening":
+        raise ValueError("V61-A requires the shipped non-live V60-C advisory posture")
+
+
+def _select_v61a_interpretation_posture(message_text: str) -> str:
+    normalized = message_text.lower()
+    if "charter" in normalized or "scope" in normalized or "change target" in normalized:
+        return "charter_amendment_candidate"
+    if "status" in normalized:
+        return "status_request"
+    if "authority" in normalized or "approve" in normalized:
+        return "authority_response"
+    if "clarify" in normalized or "?" in message_text:
+        return "clarification_response"
+    return "advisory_only_message"
+
+
+def _select_v61a_egress_posture(interpretation_posture: str) -> str:
+    if interpretation_posture == "status_request":
+        return "status_update"
+    if interpretation_posture == "authority_response":
+        return "authority_request"
+    if interpretation_posture == "clarification_response":
+        return "clarification_question"
+    if interpretation_posture == "charter_amendment_candidate":
+        return "advisory_only_message"
+    return "advisory_only_message"
+
+
+def _build_v61a_communication_ingress_packet(
+    *,
+    send_request: CopilotSessionSendRequest,
+    message_text: str,
+    task_charter: AgenticDeTaskCharterPacket,
+    refreshed_continuation_decision: AgenticDeContinuationRefreshDecisionRecord,
+    evidence_refs: list[str],
+) -> AgenticDeCommunicationIngressPacket:
+    field_origin_tags = {
+        "source_principal_class": "current_turn_native",
+        "speaker_class": "current_turn_native",
+        "surface_class": "current_turn_derived",
+        "surface_instance_or_session_identity": "current_turn_native",
+        "selected_runtime_message_method": "current_turn_native",
+        "ingress_payload_summary": "current_turn_derived",
+        "seed_or_continuation_basis_summary": "prior_artifact",
+        "ingress_basis_summary": "current_turn_derived",
+    }
+    field_dependence_tags = {
+        "source_principal_class": [],
+        "speaker_class": [],
+        "surface_class": [V61A_SELECTED_API_ROUTE],
+        "surface_instance_or_session_identity": [send_request.session_id],
+        "selected_runtime_message_method": [V61A_SELECTED_RUNTIME_METHOD],
+        "ingress_payload_summary": [send_request.client_request_id, send_request.session_id],
+        "seed_or_continuation_basis_summary": [
+            task_charter.charter_id,
+            refreshed_continuation_decision.refresh_decision_id,
+        ],
+        "ingress_basis_summary": [
+            send_request.client_request_id,
+            send_request.session_id,
+            refreshed_continuation_decision.refresh_decision_id,
+        ],
+    }
+    root_origin_ids = [
+        f"session:{send_request.session_id}",
+        f"request:{send_request.client_request_id}",
+        f"charter:{task_charter.charter_id}",
+        f"refresh:{refreshed_continuation_decision.refresh_decision_id}",
+    ]
+    return AgenticDeCommunicationIngressPacket(
+        target_arc=V61A_TARGET_ARC,
+        target_path=V61A_TARGET_PATH,
+        resident_session_ref=send_request.session_id,
+        source_principal_class=V61A_SELECTED_SOURCE_PRINCIPAL_CLASS,
+        speaker_class=V61A_SELECTED_SPEAKER_CLASS,
+        surface_class=V61A_SELECTED_SURFACE_CLASS,
+        surface_instance_or_session_identity=send_request.session_id,
+        selected_api_route_ref_or_equivalent=V61A_SELECTED_API_ROUTE,
+        selected_runtime_message_method=V61A_SELECTED_RUNTIME_METHOD,
+        ingress_payload_summary=(
+            f"copilot.user_message over resident send seam with {len(message_text)} chars"
+        ),
+        seed_or_continuation_basis_summary=(
+            "latest shipped V60 continuation basis remains the exact V60-B refresh decision "
+            "over the continuity-bound create_new exemplar"
+        ),
+        ingress_basis_summary=(
+            "resident /urm/copilot/send seam + typed user message payload + shipped V60 "
+            "continuation basis only"
+        ),
+        field_origin_tags=field_origin_tags,
+        field_dependence_tags=field_dependence_tags,
+        root_origin_ids=root_origin_ids,
+        evidence_refs=evidence_refs,
+    )
+
+
+def _build_v61a_surface_authority_descriptor(
+    *,
+    ingress: AgenticDeCommunicationIngressPacket,
+    evidence_refs: list[str],
+) -> AgenticDeSurfaceAuthorityDescriptor:
+    field_origin_tags = {
+        "surface_class": "current_turn_derived",
+        "surface_affordance_classes": "current_turn_derived",
+        "bounded_authority_posture_summary": "current_turn_derived",
+        "frozen_policy_anchor_ref": "shaping_only",
+        "descriptor_basis_summary": "current_turn_derived",
+    }
+    field_dependence_tags = {
+        "surface_class": [ingress.communication_ingress_id],
+        "surface_affordance_classes": [ingress.communication_ingress_id, V61A_FROZEN_POLICY_REF],
+        "bounded_authority_posture_summary": [
+            ingress.communication_ingress_id,
+            V61A_FROZEN_POLICY_REF,
+        ],
+        "frozen_policy_anchor_ref": [],
+        "descriptor_basis_summary": [ingress.communication_ingress_id, V61A_FROZEN_POLICY_REF],
+    }
+    return AgenticDeSurfaceAuthorityDescriptor(
+        target_arc=V61A_TARGET_ARC,
+        target_path=V61A_TARGET_PATH,
+        communication_ingress_ref=ingress.communication_ingress_id,
+        surface_class=V61A_SELECTED_SURFACE_CLASS,
+        surface_instance_or_session_identity=ingress.surface_instance_or_session_identity,
+        surface_affordance_classes=["communication", "advisory", "authority_request"],
+        bounded_authority_posture_summary=(
+            "resident send seam carries typed communication posture only; not bridge office, "
+            "not execute, not native witness"
+        ),
+        frozen_policy_anchor_ref=V61A_FROZEN_POLICY_REF,
+        descriptor_basis_summary=(
+            "same selected resident send seam facts plus same frozen V61-A policy yield the "
+            "same surface descriptor"
+        ),
+        field_origin_tags=field_origin_tags,
+        field_dependence_tags=field_dependence_tags,
+        root_origin_ids=[
+            *ingress.root_origin_ids,
+            f"policy:{V61A_FROZEN_POLICY_REF}",
+        ],
+        evidence_refs=[ingress.communication_ingress_id, *evidence_refs],
+    )
+
+
+def _build_v61a_ingress_interpretation_record(
+    *,
+    ingress: AgenticDeCommunicationIngressPacket,
+    descriptor: AgenticDeSurfaceAuthorityDescriptor,
+    task_charter: AgenticDeTaskCharterPacket,
+    loop_state_ledger: AgenticDeLoopStateLedger,
+    latest_v60_continuation_basis_ref: str,
+    interpretation_posture: str,
+    evidence_refs: list[str],
+) -> AgenticDeIngressInterpretationRecord:
+    field_origin_tags = {
+        "interpretation_posture": "current_turn_derived",
+        "latest_v60_continuation_basis_selection_summary": "prior_artifact",
+        "frozen_policy_anchor_ref": "shaping_only",
+        "interpretation_basis_summary": "current_turn_derived",
+    }
+    field_dependence_tags = {
+        "interpretation_posture": [
+            ingress.communication_ingress_id,
+            descriptor.surface_authority_descriptor_id,
+            latest_v60_continuation_basis_ref,
+            V61A_FROZEN_POLICY_REF,
+        ],
+        "latest_v60_continuation_basis_selection_summary": [latest_v60_continuation_basis_ref],
+        "frozen_policy_anchor_ref": [],
+        "interpretation_basis_summary": [
+            ingress.communication_ingress_id,
+            descriptor.surface_authority_descriptor_id,
+            task_charter.charter_id,
+            loop_state_ledger.ledger_id,
+            latest_v60_continuation_basis_ref,
+            V61A_FROZEN_POLICY_REF,
+        ],
+    }
+    reason_codes = [
+        f"interpreted_{interpretation_posture}",
+        "surface_descriptor_not_message_interpretation",
+        "charter_mutation_not_selected_in_v61a",
+    ]
+    return AgenticDeIngressInterpretationRecord(
+        target_arc=V61A_TARGET_ARC,
+        target_path=V61A_TARGET_PATH,
+        communication_ingress_ref=ingress.communication_ingress_id,
+        surface_authority_descriptor_ref=descriptor.surface_authority_descriptor_id,
+        task_charter_ref=task_charter.charter_id,
+        loop_state_ledger_ref=loop_state_ledger.ledger_id,
+        latest_v60_continuation_basis_ref=latest_v60_continuation_basis_ref,
+        latest_v60_continuation_basis_selection_summary=(
+            "latest shipped V60-B refresh decision selected as current continuation basis "
+            "because V60-B closed on main and preserves exact downstream path"
+        ),
+        frozen_policy_anchor_ref=V61A_FROZEN_POLICY_REF,
+        interpretation_posture=interpretation_posture,
+        interpretation_reason_codes=reason_codes,
+        interpretation_basis_summary=(
+            "typed ingress packet + surface descriptor + shipped V60 charter/loop/refresh "
+            "basis + frozen V61-A policy anchor"
+        ),
+        field_origin_tags=field_origin_tags,
+        field_dependence_tags=field_dependence_tags,
+        root_origin_ids=[
+            *descriptor.root_origin_ids,
+            f"basis:{latest_v60_continuation_basis_ref}",
+        ],
+        evidence_refs=[
+            ingress.communication_ingress_id,
+            descriptor.surface_authority_descriptor_id,
+            task_charter.charter_id,
+            loop_state_ledger.ledger_id,
+            latest_v60_continuation_basis_ref,
+            *evidence_refs,
+        ],
+    )
+
+
+def _build_v61a_communication_egress_packet(
+    *,
+    interpretation: AgenticDeIngressInterpretationRecord,
+    task_charter: AgenticDeTaskCharterPacket,
+    latest_v60_continuation_basis_ref: str,
+    egress_posture: str,
+    evidence_refs: list[str],
+) -> AgenticDeCommunicationEgressPacket:
+    field_origin_tags = {
+        "selected_egress_posture": "current_turn_derived",
+        "frozen_policy_anchor_ref": "shaping_only",
+        "egress_basis_summary": "current_turn_derived",
+        "egress_payload_summary": "current_turn_derived",
+    }
+    field_dependence_tags = {
+        "selected_egress_posture": [
+            interpretation.ingress_interpretation_id,
+            latest_v60_continuation_basis_ref,
+            V61A_FROZEN_POLICY_REF,
+        ],
+        "frozen_policy_anchor_ref": [],
+        "egress_basis_summary": [
+            interpretation.ingress_interpretation_id,
+            task_charter.charter_id,
+            latest_v60_continuation_basis_ref,
+            V61A_FROZEN_POLICY_REF,
+        ],
+        "egress_payload_summary": [
+            interpretation.ingress_interpretation_id,
+            latest_v60_continuation_basis_ref,
+        ],
+    }
+    return AgenticDeCommunicationEgressPacket(
+        target_arc=V61A_TARGET_ARC,
+        target_path=V61A_TARGET_PATH,
+        ingress_interpretation_ref=interpretation.ingress_interpretation_id,
+        task_charter_ref=task_charter.charter_id,
+        latest_v60_continuation_basis_ref=latest_v60_continuation_basis_ref,
+        selected_egress_posture=egress_posture,
+        selected_egress_surface_ref=V61A_SELECTED_API_ROUTE,
+        egress_payload_summary=(
+            f"typed governed communication egress over resident send seam as {egress_posture}"
+        ),
+        frozen_policy_anchor_ref=V61A_FROZEN_POLICY_REF,
+        egress_basis_summary=(
+            "typed ingress interpretation + latest shipped V60 continuation basis + frozen "
+            "V61-A policy anchor"
+        ),
+        field_origin_tags=field_origin_tags,
+        field_dependence_tags=field_dependence_tags,
+        root_origin_ids=[
+            *interpretation.root_origin_ids,
+            f"egress:{egress_posture}",
+        ],
+        evidence_refs=[
+            interpretation.ingress_interpretation_id,
+            task_charter.charter_id,
+            latest_v60_continuation_basis_ref,
+            *evidence_refs,
+        ],
+    )
+
+
+def run_agentic_de_governed_communication_v61a(
+    *,
+    repo_root_path: Path | None = None,
+    v59a_live_turn_reintegration_path: Path = DEFAULT_V59A_LIVE_TURN_REINTEGRATION_PATH,
+    v59a_continuity_reintegration_path: Path = DEFAULT_V59A_CONTINUITY_REINTEGRATION_PATH,
+    v59b_continuity_restoration_reintegration_path: Path = (
+        DEFAULT_V59B_CONTINUITY_RESTORATION_REINTEGRATION_PATH
+    ),
+    v60a_lane_drift_path: Path = DEFAULT_V60A_LANE_DRIFT_PATH,
+    v60a_seed_intent_path: Path = DEFAULT_V60A_SEED_INTENT_PATH,
+    v60a_task_charter_path: Path = DEFAULT_V60A_TASK_CHARTER_PATH,
+    v60a_task_residual_path: Path = DEFAULT_V60A_TASK_RESIDUAL_PATH,
+    v60a_loop_state_ledger_path: Path = DEFAULT_V60A_LOOP_STATE_LEDGER_PATH,
+    v60a_continuation_decision_path: Path = DEFAULT_V60A_CONTINUATION_DECISION_PATH,
+    v60b_lane_drift_path: Path = DEFAULT_V60B_LANE_DRIFT_PATH,
+    v60b_task_residual_refresh_path: Path = DEFAULT_V60B_TASK_RESIDUAL_REFRESH_PATH,
+    v60b_continuation_refresh_decision_path: Path = DEFAULT_V60B_CONTINUATION_REFRESH_DECISION_PATH,
+    v60c_lane_drift_path: Path = DEFAULT_V60C_LANE_DRIFT_PATH,
+    v60c_hardening_path: Path = DEFAULT_V60C_HARDENING_PATH,
+    lane_drift_path: Path = DEFAULT_V61A_LANE_DRIFT_PATH,
+    send_request_path: Path = DEFAULT_V61A_SEND_REQUEST_PATH,
+    v60a_evidence_path: Path = DEFAULT_V60A_EVIDENCE_PATH,
+    v60b_evidence_path: Path = DEFAULT_V60B_EVIDENCE_PATH,
+    target_relative_path: str = str(DEFAULT_WORKSPACE_CONTINUITY_TARGET_RELATIVE_PATH),
+) -> tuple[
+    AgenticDeCommunicationIngressPacket,
+    AgenticDeSurfaceAuthorityDescriptor,
+    AgenticDeIngressInterpretationRecord,
+    AgenticDeCommunicationEgressPacket,
+]:
+    raw_root = repo_root(anchor=Path(__file__)) if repo_root_path is None else repo_root_path
+    if raw_root.exists() and raw_root.is_symlink():
+        raise ValueError("repository root may not be a symlink for V61-A communication")
+    root = raw_root.resolve()
+
+    path_args = {
+        "v59a_live_turn_reintegration_path": v59a_live_turn_reintegration_path,
+        "v59a_continuity_reintegration_path": v59a_continuity_reintegration_path,
+        "v59b_continuity_restoration_reintegration_path": (
+            v59b_continuity_restoration_reintegration_path
+        ),
+        "v60a_lane_drift_path": v60a_lane_drift_path,
+        "v60a_seed_intent_path": v60a_seed_intent_path,
+        "v60a_task_charter_path": v60a_task_charter_path,
+        "v60a_task_residual_path": v60a_task_residual_path,
+        "v60a_loop_state_ledger_path": v60a_loop_state_ledger_path,
+        "v60a_continuation_decision_path": v60a_continuation_decision_path,
+        "v60b_lane_drift_path": v60b_lane_drift_path,
+        "v60b_task_residual_refresh_path": v60b_task_residual_refresh_path,
+        "v60b_continuation_refresh_decision_path": v60b_continuation_refresh_decision_path,
+        "v60c_lane_drift_path": v60c_lane_drift_path,
+        "v60c_hardening_path": v60c_hardening_path,
+        "lane_drift_path": lane_drift_path,
+        "send_request_path": send_request_path,
+        "v60a_evidence_path": v60a_evidence_path,
+        "v60b_evidence_path": v60b_evidence_path,
+    }
+    resolved_paths: dict[str, Path] = {}
+    for field_name, path in path_args.items():
+        candidate = _resolve_path(repo_root_path=root, path=path)
+        _assert_v61a_repo_local_input_path(
+            repo_root_path=root,
+            candidate=candidate,
+            field_name=field_name,
+        )
+        resolved_paths[field_name] = candidate
+
+    _validate_v61a_lane_drift_record(load_lane_drift_record(resolved_paths["lane_drift_path"]))
+    _validate_v60c_lane_drift_record(load_lane_drift_record(resolved_paths["v60c_lane_drift_path"]))
+    _validate_v60b_lane_drift_record(load_lane_drift_record(resolved_paths["v60b_lane_drift_path"]))
+    _validate_v60a_lane_drift_record(load_lane_drift_record(resolved_paths["v60a_lane_drift_path"]))
+    _validate_v60a_evidence_payload(
+        _load_json_object(resolved_paths["v60a_evidence_path"], error_label="V60-A evidence")
+    )
+    _validate_v60b_evidence_payload(
+        _load_json_object(resolved_paths["v60b_evidence_path"], error_label="V60-B evidence")
+    )
+
+    v59a_live_turn_reintegration = load_live_turn_reintegration_report(
+        resolved_paths["v59a_live_turn_reintegration_path"]
+    )
+    v59a_continuity_reintegration = load_workspace_continuity_reintegration_report(
+        resolved_paths["v59a_continuity_reintegration_path"]
+    )
+    v59b_continuity_restoration_reintegration = (
+        load_workspace_continuity_restoration_reintegration_report(
+            resolved_paths["v59b_continuity_restoration_reintegration_path"]
+        )
+    )
+    v60a_seed_intent = load_seed_intent_record(resolved_paths["v60a_seed_intent_path"])
+    v60a_task_charter = load_task_charter_packet(resolved_paths["v60a_task_charter_path"])
+    v60a_task_residual = load_task_residual_packet(resolved_paths["v60a_task_residual_path"])
+    v60a_loop_state_ledger = load_loop_state_ledger(resolved_paths["v60a_loop_state_ledger_path"])
+    v60a_continuation_decision = load_continuation_decision_record(
+        resolved_paths["v60a_continuation_decision_path"]
+    )
+    v60b_task_residual_refresh = load_task_residual_refresh_packet(
+        resolved_paths["v60b_task_residual_refresh_path"]
+    )
+    v60b_continuation_refresh_decision = load_continuation_refresh_decision_record(
+        resolved_paths["v60b_continuation_refresh_decision_path"]
+    )
+    v60c_hardening = load_continuation_hardening_register(resolved_paths["v60c_hardening_path"])
+    send_request = load_copilot_session_send_request(resolved_paths["send_request_path"])
+
+    _validate_v60a_continuation_surfaces(
+        seed_intent=v60a_seed_intent,
+        task_charter=v60a_task_charter,
+        task_residual=v60a_task_residual,
+        loop_state_ledger=v60a_loop_state_ledger,
+        continuation_decision=v60a_continuation_decision,
+        live_turn_reintegration=v59a_live_turn_reintegration,
+        continuity_reintegration=v59a_continuity_reintegration,
+        target_relative_path=target_relative_path,
+    )
+    _validate_v60b_refresh_surfaces(
+        prior_task_charter=v60a_task_charter,
+        prior_task_residual=v60a_task_residual,
+        prior_loop_state_ledger=v60a_loop_state_ledger,
+        prior_continuation_decision=v60a_continuation_decision,
+        refreshed_task_residual=v60b_task_residual_refresh,
+        refreshed_continuation_decision=v60b_continuation_refresh_decision,
+        latest_live_turn_reintegration=v59a_live_turn_reintegration,
+        latest_continuity_reintegration=v59a_continuity_reintegration,
+        latest_continuity_restoration_reintegration=v59b_continuity_restoration_reintegration,
+        target_relative_path=target_relative_path,
+    )
+    _validate_v61a_v60c_hardening_register(
+        v60c_hardening,
+        continuation_decision=v60a_continuation_decision,
+        continuation_refresh_decision=v60b_continuation_refresh_decision,
+    )
+    message_text = _validate_v61a_send_request(
+        request=send_request,
+        expected_session_id=v60a_loop_state_ledger.resident_session_ref,
+    )
+
+    expected_path = _expected_v60a_selected_downstream_path_summary(target_relative_path)
+    if v60b_continuation_refresh_decision.selected_next_path_summary_or_none != expected_path:
+        raise ValueError("V61-A requires the shipped exact downstream V60 selected path")
+
+    evidence_refs = [
+        _render_input_ref(
+            repo_root_path=root,
+            path=resolved_paths["v59a_live_turn_reintegration_path"],
+        ),
+        _render_input_ref(
+            repo_root_path=root,
+            path=resolved_paths["v59a_continuity_reintegration_path"],
+        ),
+        _render_input_ref(
+            repo_root_path=root,
+            path=resolved_paths["v59b_continuity_restoration_reintegration_path"],
+        ),
+        _render_input_ref(repo_root_path=root, path=resolved_paths["v60a_lane_drift_path"]),
+        _render_input_ref(repo_root_path=root, path=resolved_paths["v60a_seed_intent_path"]),
+        _render_input_ref(repo_root_path=root, path=resolved_paths["v60a_task_charter_path"]),
+        _render_input_ref(repo_root_path=root, path=resolved_paths["v60a_task_residual_path"]),
+        _render_input_ref(
+            repo_root_path=root,
+            path=resolved_paths["v60a_loop_state_ledger_path"],
+        ),
+        _render_input_ref(
+            repo_root_path=root,
+            path=resolved_paths["v60a_continuation_decision_path"],
+        ),
+        _render_input_ref(repo_root_path=root, path=resolved_paths["v60b_lane_drift_path"]),
+        _render_input_ref(
+            repo_root_path=root,
+            path=resolved_paths["v60b_task_residual_refresh_path"],
+        ),
+        _render_input_ref(
+            repo_root_path=root,
+            path=resolved_paths["v60b_continuation_refresh_decision_path"],
+        ),
+        _render_input_ref(repo_root_path=root, path=resolved_paths["v60c_lane_drift_path"]),
+        _render_input_ref(repo_root_path=root, path=resolved_paths["v60c_hardening_path"]),
+        _render_input_ref(repo_root_path=root, path=resolved_paths["lane_drift_path"]),
+        _render_input_ref(repo_root_path=root, path=resolved_paths["send_request_path"]),
+        _render_input_ref(repo_root_path=root, path=resolved_paths["v60a_evidence_path"]),
+        _render_input_ref(repo_root_path=root, path=resolved_paths["v60b_evidence_path"]),
+    ]
+
+    latest_v60_continuation_basis_ref = v60b_continuation_refresh_decision.refresh_decision_id
+    ingress = _build_v61a_communication_ingress_packet(
+        send_request=send_request,
+        message_text=message_text,
+        task_charter=v60a_task_charter,
+        refreshed_continuation_decision=v60b_continuation_refresh_decision,
+        evidence_refs=evidence_refs,
+    )
+    descriptor = _build_v61a_surface_authority_descriptor(
+        ingress=ingress,
+        evidence_refs=evidence_refs,
+    )
+    interpretation_posture = _select_v61a_interpretation_posture(message_text)
+    interpretation = _build_v61a_ingress_interpretation_record(
+        ingress=ingress,
+        descriptor=descriptor,
+        task_charter=v60a_task_charter,
+        loop_state_ledger=v60a_loop_state_ledger,
+        latest_v60_continuation_basis_ref=latest_v60_continuation_basis_ref,
+        interpretation_posture=interpretation_posture,
+        evidence_refs=evidence_refs,
+    )
+    egress = _build_v61a_communication_egress_packet(
+        interpretation=interpretation,
+        task_charter=v60a_task_charter,
+        latest_v60_continuation_basis_ref=latest_v60_continuation_basis_ref,
+        egress_posture=_select_v61a_egress_posture(interpretation_posture),
+        evidence_refs=evidence_refs,
+    )
+    return ingress, descriptor, interpretation, egress
 
 
 def render_checkpoint_payload(checkpoint: AgenticDeMembraneCheckpoint) -> str:
@@ -10300,16 +10875,12 @@ def render_task_residual_refresh_payload(
     task_residual_refresh: AgenticDeTaskResidualRefreshPacket,
 ) -> str:
     return (
-        json.dumps(task_residual_refresh.model_dump(mode="json"), indent=2, sort_keys=True)
-        + "\n"
+        json.dumps(task_residual_refresh.model_dump(mode="json"), indent=2, sort_keys=True) + "\n"
     )
 
 
 def render_loop_state_ledger_payload(loop_state_ledger: AgenticDeLoopStateLedger) -> str:
-    return (
-        json.dumps(loop_state_ledger.model_dump(mode="json"), indent=2, sort_keys=True)
-        + "\n"
-    )
+    return json.dumps(loop_state_ledger.model_dump(mode="json"), indent=2, sort_keys=True) + "\n"
 
 
 def render_continuation_decision_payload(
@@ -10328,6 +10899,30 @@ def render_continuation_hardening_payload(
     register: AgenticDeContinuationHardeningRegister,
 ) -> str:
     return json.dumps(register.model_dump(mode="json"), indent=2, sort_keys=True) + "\n"
+
+
+def render_communication_ingress_payload(
+    packet: AgenticDeCommunicationIngressPacket,
+) -> str:
+    return json.dumps(packet.model_dump(mode="json"), indent=2, sort_keys=True) + "\n"
+
+
+def render_surface_authority_descriptor_payload(
+    descriptor: AgenticDeSurfaceAuthorityDescriptor,
+) -> str:
+    return json.dumps(descriptor.model_dump(mode="json"), indent=2, sort_keys=True) + "\n"
+
+
+def render_ingress_interpretation_payload(
+    record: AgenticDeIngressInterpretationRecord,
+) -> str:
+    return json.dumps(record.model_dump(mode="json"), indent=2, sort_keys=True) + "\n"
+
+
+def render_communication_egress_payload(
+    packet: AgenticDeCommunicationEgressPacket,
+) -> str:
+    return json.dumps(packet.model_dump(mode="json"), indent=2, sort_keys=True) + "\n"
 
 
 def render_workspace_continuity_region_declaration_payload(

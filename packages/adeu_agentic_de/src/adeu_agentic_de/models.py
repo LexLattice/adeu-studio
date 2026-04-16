@@ -17,47 +17,27 @@ AGENTIC_DE_RUNTIME_STATE_SCHEMA = "agentic_de_runtime_state@1"
 AGENTIC_DE_ACTION_TICKET_SCHEMA = "agentic_de_action_ticket@1"
 AGENTIC_DE_LANE_DRIFT_RECORD_SCHEMA = "agentic_de_lane_drift_record@1"
 AGENTIC_DE_RUNTIME_HARVEST_RECORD_SCHEMA = "agentic_de_runtime_harvest_record@1"
-AGENTIC_DE_GOVERNANCE_CALIBRATION_REGISTER_SCHEMA = (
-    "agentic_de_governance_calibration_register@1"
-)
+AGENTIC_DE_GOVERNANCE_CALIBRATION_REGISTER_SCHEMA = "agentic_de_governance_calibration_register@1"
 AGENTIC_DE_MIGRATION_DECISION_REGISTER_SCHEMA = "agentic_de_migration_decision_register@1"
-AGENTIC_DE_LOCAL_EFFECT_OBSERVATION_RECORD_SCHEMA = (
-    "agentic_de_local_effect_observation_record@1"
-)
-AGENTIC_DE_LOCAL_EFFECT_CONFORMANCE_REPORT_SCHEMA = (
-    "agentic_de_local_effect_conformance_report@1"
-)
-AGENTIC_DE_LOCAL_EFFECT_RESTORATION_RECORD_SCHEMA = (
-    "agentic_de_local_effect_restoration_record@1"
-)
-AGENTIC_DE_LOCAL_EFFECT_HARDENING_REGISTER_SCHEMA = (
-    "agentic_de_local_effect_hardening_register@1"
-)
-AGENTIC_DE_LIVE_TURN_ADMISSION_RECORD_SCHEMA = (
-    "agentic_de_live_turn_admission_record@1"
-)
+AGENTIC_DE_LOCAL_EFFECT_OBSERVATION_RECORD_SCHEMA = "agentic_de_local_effect_observation_record@1"
+AGENTIC_DE_LOCAL_EFFECT_CONFORMANCE_REPORT_SCHEMA = "agentic_de_local_effect_conformance_report@1"
+AGENTIC_DE_LOCAL_EFFECT_RESTORATION_RECORD_SCHEMA = "agentic_de_local_effect_restoration_record@1"
+AGENTIC_DE_LOCAL_EFFECT_HARDENING_REGISTER_SCHEMA = "agentic_de_local_effect_hardening_register@1"
+AGENTIC_DE_LIVE_TURN_ADMISSION_RECORD_SCHEMA = "agentic_de_live_turn_admission_record@1"
 AGENTIC_DE_LIVE_TURN_HANDOFF_RECORD_SCHEMA = "agentic_de_live_turn_handoff_record@1"
-AGENTIC_DE_LIVE_TURN_REINTEGRATION_REPORT_SCHEMA = (
-    "agentic_de_live_turn_reintegration_report@1"
-)
-AGENTIC_DE_LIVE_RESTORATION_HANDOFF_RECORD_SCHEMA = (
-    "agentic_de_live_restoration_handoff_record@1"
-)
+AGENTIC_DE_LIVE_TURN_REINTEGRATION_REPORT_SCHEMA = "agentic_de_live_turn_reintegration_report@1"
+AGENTIC_DE_LIVE_RESTORATION_HANDOFF_RECORD_SCHEMA = "agentic_de_live_restoration_handoff_record@1"
 AGENTIC_DE_LIVE_RESTORATION_REINTEGRATION_REPORT_SCHEMA = (
     "agentic_de_live_restoration_reintegration_report@1"
 )
-AGENTIC_DE_LIVE_HARNESS_HARDENING_REGISTER_SCHEMA = (
-    "agentic_de_live_harness_hardening_register@1"
-)
+AGENTIC_DE_LIVE_HARNESS_HARDENING_REGISTER_SCHEMA = "agentic_de_live_harness_hardening_register@1"
 AGENTIC_DE_WORKSPACE_CONTINUITY_REGION_DECLARATION_SCHEMA = (
     "agentic_de_workspace_continuity_region_declaration@1"
 )
 AGENTIC_DE_WORKSPACE_CONTINUITY_ADMISSION_RECORD_SCHEMA = (
     "agentic_de_workspace_continuity_admission_record@1"
 )
-AGENTIC_DE_WORKSPACE_OCCUPANCY_REPORT_SCHEMA = (
-    "agentic_de_workspace_occupancy_report@1"
-)
+AGENTIC_DE_WORKSPACE_OCCUPANCY_REPORT_SCHEMA = "agentic_de_workspace_occupancy_report@1"
 AGENTIC_DE_WORKSPACE_CONTINUITY_REINTEGRATION_REPORT_SCHEMA = (
     "agentic_de_workspace_continuity_reintegration_report@1"
 )
@@ -73,19 +53,17 @@ AGENTIC_DE_WORKSPACE_CONTINUITY_HARDENING_REGISTER_SCHEMA = (
 AGENTIC_DE_SEED_INTENT_RECORD_SCHEMA = "agentic_de_seed_intent_record@1"
 AGENTIC_DE_TASK_CHARTER_PACKET_SCHEMA = "agentic_de_task_charter_packet@1"
 AGENTIC_DE_TASK_RESIDUAL_PACKET_SCHEMA = "agentic_de_task_residual_packet@1"
-AGENTIC_DE_TASK_RESIDUAL_REFRESH_PACKET_SCHEMA = (
-    "agentic_de_task_residual_refresh_packet@1"
-)
+AGENTIC_DE_TASK_RESIDUAL_REFRESH_PACKET_SCHEMA = "agentic_de_task_residual_refresh_packet@1"
 AGENTIC_DE_LOOP_STATE_LEDGER_SCHEMA = "agentic_de_loop_state_ledger@1"
-AGENTIC_DE_CONTINUATION_DECISION_RECORD_SCHEMA = (
-    "agentic_de_continuation_decision_record@1"
-)
+AGENTIC_DE_CONTINUATION_DECISION_RECORD_SCHEMA = "agentic_de_continuation_decision_record@1"
 AGENTIC_DE_CONTINUATION_REFRESH_DECISION_RECORD_SCHEMA = (
     "agentic_de_continuation_refresh_decision_record@1"
 )
-AGENTIC_DE_CONTINUATION_HARDENING_REGISTER_SCHEMA = (
-    "agentic_de_continuation_hardening_register@1"
-)
+AGENTIC_DE_CONTINUATION_HARDENING_REGISTER_SCHEMA = "agentic_de_continuation_hardening_register@1"
+AGENTIC_DE_COMMUNICATION_INGRESS_PACKET_SCHEMA = "agentic_de_communication_ingress_packet@1"
+AGENTIC_DE_SURFACE_AUTHORITY_DESCRIPTOR_SCHEMA = "agentic_de_surface_authority_descriptor@1"
+AGENTIC_DE_INGRESS_INTERPRETATION_RECORD_SCHEMA = "agentic_de_ingress_interpretation_record@1"
+AGENTIC_DE_COMMUNICATION_EGRESS_PACKET_SCHEMA = "agentic_de_communication_egress_packet@1"
 
 ACTION_CLASS_VOCABULARY = ("inspect", "write", "execute", "dispatch")
 EXACT_ACTION_CLASS_VOCABULARY = (
@@ -152,9 +130,7 @@ LOCAL_EFFECT_RESTORATION_OUTCOME_VOCABULARY = (
     "restoration_mismatched_effect_observed",
     "restoration_boundedness_verdict_failed",
 )
-LOCAL_EFFECT_RESTORATION_OPERATION_VOCABULARY = (
-    "compensating_remove_create_new_artifact",
-)
+LOCAL_EFFECT_RESTORATION_OPERATION_VOCABULARY = ("compensating_remove_create_new_artifact",)
 LIVE_TURN_ADMISSION_VERDICT_VOCABULARY = (
     "admitted",
     "absent_not_owed",
@@ -231,6 +207,32 @@ CONTINUATION_HARDENING_OUTCOME_VOCABULARY = (
     "candidate_for_later_continuation_hardening",
     "candidate_for_later_continuation_migration",
     "not_selected_for_escalation",
+)
+SOURCE_PRINCIPAL_CLASS_VOCABULARY = ("human_operator",)
+SPEAKER_CLASS_VOCABULARY = ("resident_session_user_message",)
+COMMUNICATION_SURFACE_CLASS_VOCABULARY = ("resident_copilot_send_api",)
+SURFACE_AFFORDANCE_CLASS_VOCABULARY = (
+    "communication",
+    "observability",
+    "advisory",
+    "authority_request",
+    "execution",
+    "witness_candidate",
+)
+COMMUNICATION_INTERPRETATION_POSTURE_VOCABULARY = (
+    "clarification_response",
+    "authority_response",
+    "status_request",
+    "charter_amendment_candidate",
+    "advisory_only_message",
+)
+COMMUNICATION_EGRESS_POSTURE_VOCABULARY = (
+    "status_update",
+    "clarification_question",
+    "authority_request",
+    "escalation_notice",
+    "completion_report",
+    "advisory_only_message",
 )
 
 MODEL_CONFIG = ConfigDict(
@@ -385,6 +387,32 @@ ContinuationHardeningOutcome = Literal[
     "candidate_for_later_continuation_hardening",
     "candidate_for_later_continuation_migration",
     "not_selected_for_escalation",
+]
+SourcePrincipalClass = Literal["human_operator"]
+SpeakerClass = Literal["resident_session_user_message"]
+CommunicationSurfaceClass = Literal["resident_copilot_send_api"]
+SurfaceAffordanceClass = Literal[
+    "communication",
+    "observability",
+    "advisory",
+    "authority_request",
+    "execution",
+    "witness_candidate",
+]
+CommunicationInterpretationPosture = Literal[
+    "clarification_response",
+    "authority_response",
+    "status_request",
+    "charter_amendment_candidate",
+    "advisory_only_message",
+]
+CommunicationEgressPosture = Literal[
+    "status_update",
+    "clarification_question",
+    "authority_request",
+    "escalation_notice",
+    "completion_report",
+    "advisory_only_message",
 ]
 
 
@@ -1578,18 +1606,14 @@ class AgenticDeLocalEffectRestorationRecord(BaseModel):
                     "restoration_out_of_scope_write_observed requires restoration observed writes"
                 )
             if self.restoration_boundedness_verdict != "failed":
-                raise ValueError(
-                    "restoration_out_of_scope_write_observed requires failed verdict"
-                )
+                raise ValueError("restoration_out_of_scope_write_observed requires failed verdict")
         elif self.restoration_outcome == "restoration_mismatched_effect_observed":
             if not self.restoration_observed_write_set:
                 raise ValueError(
                     "restoration_mismatched_effect_observed requires restoration observed writes"
                 )
             if self.restoration_boundedness_verdict != "bounded":
-                raise ValueError(
-                    "restoration_mismatched_effect_observed requires bounded verdict"
-                )
+                raise ValueError("restoration_mismatched_effect_observed requires bounded verdict")
         elif self.restoration_outcome == "restoration_boundedness_verdict_failed":
             if self.restoration_boundedness_verdict != "failed":
                 raise ValueError("restoration_boundedness_verdict_failed requires failed verdict")
@@ -2681,8 +2705,7 @@ class AgenticDeWorkspaceContinuityReintegrationReport(BaseModel):
         if self.continuity_reintegration_status == "reintegrated":
             if self.continuity_witness_certificate_ref_or_equivalent is None:
                 raise ValueError(
-                    "reintegrated status requires "
-                    "continuity_witness_certificate_ref_or_equivalent"
+                    "reintegrated status requires continuity_witness_certificate_ref_or_equivalent"
                 )
             _assert_present_text(
                 self.continuity_witness_certificate_ref_or_equivalent,
@@ -3092,9 +3115,7 @@ class AgenticDeWorkspaceContinuityHardeningRegister(BaseModel):
 class AgenticDeSeedIntentRecord(BaseModel):
     model_config = MODEL_CONFIG
 
-    schema: Literal[AGENTIC_DE_SEED_INTENT_RECORD_SCHEMA] = (
-        AGENTIC_DE_SEED_INTENT_RECORD_SCHEMA
-    )
+    schema: Literal[AGENTIC_DE_SEED_INTENT_RECORD_SCHEMA] = AGENTIC_DE_SEED_INTENT_RECORD_SCHEMA
     seed_intent_id: str | None = None
     target_arc: str
     target_path: str
@@ -3160,9 +3181,7 @@ class AgenticDeSeedIntentRecord(BaseModel):
 class AgenticDeTaskCharterPacket(BaseModel):
     model_config = MODEL_CONFIG
 
-    schema: Literal[AGENTIC_DE_TASK_CHARTER_PACKET_SCHEMA] = (
-        AGENTIC_DE_TASK_CHARTER_PACKET_SCHEMA
-    )
+    schema: Literal[AGENTIC_DE_TASK_CHARTER_PACKET_SCHEMA] = AGENTIC_DE_TASK_CHARTER_PACKET_SCHEMA
     charter_id: str | None = None
     target_arc: str
     target_path: str
@@ -3240,9 +3259,7 @@ class AgenticDeTaskCharterPacket(BaseModel):
 class AgenticDeTaskResidualPacket(BaseModel):
     model_config = MODEL_CONFIG
 
-    schema: Literal[AGENTIC_DE_TASK_RESIDUAL_PACKET_SCHEMA] = (
-        AGENTIC_DE_TASK_RESIDUAL_PACKET_SCHEMA
-    )
+    schema: Literal[AGENTIC_DE_TASK_RESIDUAL_PACKET_SCHEMA] = AGENTIC_DE_TASK_RESIDUAL_PACKET_SCHEMA
     residual_id: str | None = None
     target_arc: str
     target_path: str
@@ -3870,8 +3887,7 @@ class AgenticDeContinuationHardeningEntry(BaseModel):
         if self.recommended_outcome == "not_selected_for_escalation":
             if "negative_selection_on_current_evidence" not in self.reason_codes:
                 raise ValueError(
-                    "not_selected_for_escalation requires "
-                    "negative_selection_on_current_evidence"
+                    "not_selected_for_escalation requires negative_selection_on_current_evidence"
                 )
         object.__setattr__(
             self,
@@ -3930,6 +3946,369 @@ class AgenticDeContinuationHardeningRegister(BaseModel):
                 field_name="register_id",
                 prefix="agentic_de_continuation_hardening_register",
                 payload=self.model_dump(mode="json", exclude={"register_id"}),
+            ),
+        )
+        return self
+
+
+class AgenticDeCommunicationIngressPacket(BaseModel):
+    model_config = MODEL_CONFIG
+
+    schema: Literal[AGENTIC_DE_COMMUNICATION_INGRESS_PACKET_SCHEMA] = (
+        AGENTIC_DE_COMMUNICATION_INGRESS_PACKET_SCHEMA
+    )
+    communication_ingress_id: str | None = None
+    target_arc: str
+    target_path: str
+    evidence_only: Literal[True] = True
+    changes_live_behavior_by_default: Literal[False] = False
+    resident_session_ref: str
+    source_principal_class: SourcePrincipalClass
+    speaker_class: SpeakerClass
+    surface_class: CommunicationSurfaceClass
+    surface_instance_or_session_identity: str
+    selected_api_route_ref_or_equivalent: str
+    selected_runtime_message_method: str
+    ingress_payload_summary: str
+    seed_or_continuation_basis_summary: str
+    ingress_basis_summary: str
+    field_origin_tags: dict[str, LiveTurnFieldOriginTag]
+    field_dependence_tags: dict[str, list[str]]
+    root_origin_ids: list[str]
+    evidence_refs: list[str]
+
+    @model_validator(mode="after")
+    def _validate_record(self) -> AgenticDeCommunicationIngressPacket:
+        _assert_present_text(self.target_arc, field_name="target_arc")
+        _assert_present_text(self.target_path, field_name="target_path")
+        required_fields = (
+            "resident_session_ref",
+            "surface_instance_or_session_identity",
+            "selected_api_route_ref_or_equivalent",
+            "selected_runtime_message_method",
+            "ingress_payload_summary",
+            "seed_or_continuation_basis_summary",
+            "ingress_basis_summary",
+        )
+        for field_name in required_fields:
+            _assert_present_text(getattr(self, field_name), field_name=field_name)
+        required_tag_fields = (
+            "source_principal_class",
+            "speaker_class",
+            "surface_class",
+            "surface_instance_or_session_identity",
+            "selected_runtime_message_method",
+            "ingress_payload_summary",
+            "seed_or_continuation_basis_summary",
+            "ingress_basis_summary",
+        )
+        for field_name in required_tag_fields:
+            if field_name not in self.field_origin_tags:
+                raise ValueError(f"field_origin_tags missing required key {field_name}")
+            if field_name not in self.field_dependence_tags:
+                raise ValueError(f"field_dependence_tags missing required key {field_name}")
+        normalized_dependence_tags: dict[str, list[str]] = {}
+        for key, values in self.field_dependence_tags.items():
+            normalized_dependence_tags[key] = _ordered_unique_texts(
+                values,
+                field_name=f"field_dependence_tags[{key}]",
+            )
+        object.__setattr__(self, "field_dependence_tags", normalized_dependence_tags)
+        object.__setattr__(
+            self,
+            "root_origin_ids",
+            _ordered_unique_texts(self.root_origin_ids, field_name="root_origin_ids"),
+        )
+        object.__setattr__(
+            self,
+            "evidence_refs",
+            _ordered_unique_texts(self.evidence_refs, field_name="evidence_refs"),
+        )
+        if not self.root_origin_ids:
+            raise ValueError("root_origin_ids must be non-empty")
+        if not self.evidence_refs:
+            raise ValueError("evidence_refs must be non-empty")
+        object.__setattr__(
+            self,
+            "communication_ingress_id",
+            _assign_or_verify_content_addressed_id(
+                value=self.communication_ingress_id,
+                field_name="communication_ingress_id",
+                prefix="agentic_de_communication_ingress",
+                payload=self.model_dump(mode="json", exclude={"communication_ingress_id"}),
+            ),
+        )
+        return self
+
+
+class AgenticDeSurfaceAuthorityDescriptor(BaseModel):
+    model_config = MODEL_CONFIG
+
+    schema: Literal[AGENTIC_DE_SURFACE_AUTHORITY_DESCRIPTOR_SCHEMA] = (
+        AGENTIC_DE_SURFACE_AUTHORITY_DESCRIPTOR_SCHEMA
+    )
+    surface_authority_descriptor_id: str | None = None
+    target_arc: str
+    target_path: str
+    evidence_only: Literal[True] = True
+    changes_live_behavior_by_default: Literal[False] = False
+    communication_ingress_ref: str
+    surface_class: CommunicationSurfaceClass
+    surface_instance_or_session_identity: str
+    surface_affordance_classes: list[SurfaceAffordanceClass]
+    bounded_authority_posture_summary: str
+    frozen_policy_anchor_ref: str
+    descriptor_basis_summary: str
+    field_origin_tags: dict[str, LiveTurnFieldOriginTag]
+    field_dependence_tags: dict[str, list[str]]
+    root_origin_ids: list[str]
+    evidence_refs: list[str]
+
+    @model_validator(mode="after")
+    def _validate_record(self) -> AgenticDeSurfaceAuthorityDescriptor:
+        _assert_present_text(self.target_arc, field_name="target_arc")
+        _assert_present_text(self.target_path, field_name="target_path")
+        required_fields = (
+            "communication_ingress_ref",
+            "surface_instance_or_session_identity",
+            "bounded_authority_posture_summary",
+            "frozen_policy_anchor_ref",
+            "descriptor_basis_summary",
+        )
+        for field_name in required_fields:
+            _assert_present_text(getattr(self, field_name), field_name=field_name)
+        object.__setattr__(
+            self,
+            "surface_affordance_classes",
+            _ordered_unique_texts(
+                list(self.surface_affordance_classes),
+                field_name="surface_affordance_classes",
+            ),
+        )
+        if not self.surface_affordance_classes:
+            raise ValueError("surface_affordance_classes must be non-empty")
+        required_tag_fields = (
+            "surface_class",
+            "surface_affordance_classes",
+            "bounded_authority_posture_summary",
+            "frozen_policy_anchor_ref",
+            "descriptor_basis_summary",
+        )
+        for field_name in required_tag_fields:
+            if field_name not in self.field_origin_tags:
+                raise ValueError(f"field_origin_tags missing required key {field_name}")
+            if field_name not in self.field_dependence_tags:
+                raise ValueError(f"field_dependence_tags missing required key {field_name}")
+        normalized_dependence_tags: dict[str, list[str]] = {}
+        for key, values in self.field_dependence_tags.items():
+            normalized_dependence_tags[key] = _ordered_unique_texts(
+                values,
+                field_name=f"field_dependence_tags[{key}]",
+            )
+        object.__setattr__(self, "field_dependence_tags", normalized_dependence_tags)
+        object.__setattr__(
+            self,
+            "root_origin_ids",
+            _ordered_unique_texts(self.root_origin_ids, field_name="root_origin_ids"),
+        )
+        object.__setattr__(
+            self,
+            "evidence_refs",
+            _ordered_unique_texts(self.evidence_refs, field_name="evidence_refs"),
+        )
+        if not self.root_origin_ids:
+            raise ValueError("root_origin_ids must be non-empty")
+        if not self.evidence_refs:
+            raise ValueError("evidence_refs must be non-empty")
+        object.__setattr__(
+            self,
+            "surface_authority_descriptor_id",
+            _assign_or_verify_content_addressed_id(
+                value=self.surface_authority_descriptor_id,
+                field_name="surface_authority_descriptor_id",
+                prefix="agentic_de_surface_authority_descriptor",
+                payload=self.model_dump(mode="json", exclude={"surface_authority_descriptor_id"}),
+            ),
+        )
+        return self
+
+
+class AgenticDeIngressInterpretationRecord(BaseModel):
+    model_config = MODEL_CONFIG
+
+    schema: Literal[AGENTIC_DE_INGRESS_INTERPRETATION_RECORD_SCHEMA] = (
+        AGENTIC_DE_INGRESS_INTERPRETATION_RECORD_SCHEMA
+    )
+    ingress_interpretation_id: str | None = None
+    target_arc: str
+    target_path: str
+    evidence_only: Literal[True] = True
+    changes_live_behavior_by_default: Literal[False] = False
+    communication_ingress_ref: str
+    surface_authority_descriptor_ref: str
+    task_charter_ref: str
+    loop_state_ledger_ref: str
+    latest_v60_continuation_basis_ref: str
+    latest_v60_continuation_basis_selection_summary: str
+    frozen_policy_anchor_ref: str
+    interpretation_posture: CommunicationInterpretationPosture
+    interpretation_reason_codes: list[str]
+    interpretation_basis_summary: str
+    field_origin_tags: dict[str, LiveTurnFieldOriginTag]
+    field_dependence_tags: dict[str, list[str]]
+    root_origin_ids: list[str]
+    evidence_refs: list[str]
+
+    @model_validator(mode="after")
+    def _validate_record(self) -> AgenticDeIngressInterpretationRecord:
+        _assert_present_text(self.target_arc, field_name="target_arc")
+        _assert_present_text(self.target_path, field_name="target_path")
+        required_fields = (
+            "communication_ingress_ref",
+            "surface_authority_descriptor_ref",
+            "task_charter_ref",
+            "loop_state_ledger_ref",
+            "latest_v60_continuation_basis_ref",
+            "latest_v60_continuation_basis_selection_summary",
+            "frozen_policy_anchor_ref",
+            "interpretation_basis_summary",
+        )
+        for field_name in required_fields:
+            _assert_present_text(getattr(self, field_name), field_name=field_name)
+        object.__setattr__(
+            self,
+            "interpretation_reason_codes",
+            _ordered_unique_texts(
+                self.interpretation_reason_codes,
+                field_name="interpretation_reason_codes",
+            ),
+        )
+        if not self.interpretation_reason_codes:
+            raise ValueError("interpretation_reason_codes must be non-empty")
+        required_tag_fields = (
+            "interpretation_posture",
+            "latest_v60_continuation_basis_selection_summary",
+            "frozen_policy_anchor_ref",
+            "interpretation_basis_summary",
+        )
+        for field_name in required_tag_fields:
+            if field_name not in self.field_origin_tags:
+                raise ValueError(f"field_origin_tags missing required key {field_name}")
+            if field_name not in self.field_dependence_tags:
+                raise ValueError(f"field_dependence_tags missing required key {field_name}")
+        normalized_dependence_tags: dict[str, list[str]] = {}
+        for key, values in self.field_dependence_tags.items():
+            normalized_dependence_tags[key] = _ordered_unique_texts(
+                values,
+                field_name=f"field_dependence_tags[{key}]",
+            )
+        object.__setattr__(self, "field_dependence_tags", normalized_dependence_tags)
+        object.__setattr__(
+            self,
+            "root_origin_ids",
+            _ordered_unique_texts(self.root_origin_ids, field_name="root_origin_ids"),
+        )
+        object.__setattr__(
+            self,
+            "evidence_refs",
+            _ordered_unique_texts(self.evidence_refs, field_name="evidence_refs"),
+        )
+        if not self.root_origin_ids:
+            raise ValueError("root_origin_ids must be non-empty")
+        if not self.evidence_refs:
+            raise ValueError("evidence_refs must be non-empty")
+        object.__setattr__(
+            self,
+            "ingress_interpretation_id",
+            _assign_or_verify_content_addressed_id(
+                value=self.ingress_interpretation_id,
+                field_name="ingress_interpretation_id",
+                prefix="agentic_de_ingress_interpretation",
+                payload=self.model_dump(mode="json", exclude={"ingress_interpretation_id"}),
+            ),
+        )
+        return self
+
+
+class AgenticDeCommunicationEgressPacket(BaseModel):
+    model_config = MODEL_CONFIG
+
+    schema: Literal[AGENTIC_DE_COMMUNICATION_EGRESS_PACKET_SCHEMA] = (
+        AGENTIC_DE_COMMUNICATION_EGRESS_PACKET_SCHEMA
+    )
+    communication_egress_id: str | None = None
+    target_arc: str
+    target_path: str
+    evidence_only: Literal[True] = True
+    changes_live_behavior_by_default: Literal[False] = False
+    ingress_interpretation_ref: str
+    task_charter_ref: str
+    latest_v60_continuation_basis_ref: str
+    selected_egress_posture: CommunicationEgressPosture
+    selected_egress_surface_ref: str
+    egress_payload_summary: str
+    frozen_policy_anchor_ref: str
+    egress_basis_summary: str
+    field_origin_tags: dict[str, LiveTurnFieldOriginTag]
+    field_dependence_tags: dict[str, list[str]]
+    root_origin_ids: list[str]
+    evidence_refs: list[str]
+
+    @model_validator(mode="after")
+    def _validate_record(self) -> AgenticDeCommunicationEgressPacket:
+        _assert_present_text(self.target_arc, field_name="target_arc")
+        _assert_present_text(self.target_path, field_name="target_path")
+        required_fields = (
+            "ingress_interpretation_ref",
+            "task_charter_ref",
+            "latest_v60_continuation_basis_ref",
+            "selected_egress_surface_ref",
+            "egress_payload_summary",
+            "frozen_policy_anchor_ref",
+            "egress_basis_summary",
+        )
+        for field_name in required_fields:
+            _assert_present_text(getattr(self, field_name), field_name=field_name)
+        required_tag_fields = (
+            "selected_egress_posture",
+            "frozen_policy_anchor_ref",
+            "egress_basis_summary",
+            "egress_payload_summary",
+        )
+        for field_name in required_tag_fields:
+            if field_name not in self.field_origin_tags:
+                raise ValueError(f"field_origin_tags missing required key {field_name}")
+            if field_name not in self.field_dependence_tags:
+                raise ValueError(f"field_dependence_tags missing required key {field_name}")
+        normalized_dependence_tags: dict[str, list[str]] = {}
+        for key, values in self.field_dependence_tags.items():
+            normalized_dependence_tags[key] = _ordered_unique_texts(
+                values,
+                field_name=f"field_dependence_tags[{key}]",
+            )
+        object.__setattr__(self, "field_dependence_tags", normalized_dependence_tags)
+        object.__setattr__(
+            self,
+            "root_origin_ids",
+            _ordered_unique_texts(self.root_origin_ids, field_name="root_origin_ids"),
+        )
+        object.__setattr__(
+            self,
+            "evidence_refs",
+            _ordered_unique_texts(self.evidence_refs, field_name="evidence_refs"),
+        )
+        if not self.root_origin_ids:
+            raise ValueError("root_origin_ids must be non-empty")
+        if not self.evidence_refs:
+            raise ValueError("evidence_refs must be non-empty")
+        object.__setattr__(
+            self,
+            "communication_egress_id",
+            _assign_or_verify_content_addressed_id(
+                value=self.communication_egress_id,
+                field_name="communication_egress_id",
+                prefix="agentic_de_communication_egress",
+                payload=self.model_dump(mode="json", exclude={"communication_egress_id"}),
             ),
         )
         return self
@@ -4135,6 +4514,24 @@ def compute_agentic_de_continuation_hardening_entry_id(payload: dict[str, object
 
 def compute_agentic_de_continuation_hardening_register_id(payload: dict[str, object]) -> str:
     return _compute_id("agentic_de_continuation_hardening_register", payload)
+
+
+def compute_agentic_de_communication_ingress_id(payload: dict[str, object]) -> str:
+    return _compute_id("agentic_de_communication_ingress", payload)
+
+
+def compute_agentic_de_surface_authority_descriptor_id(
+    payload: dict[str, object],
+) -> str:
+    return _compute_id("agentic_de_surface_authority_descriptor", payload)
+
+
+def compute_agentic_de_ingress_interpretation_id(payload: dict[str, object]) -> str:
+    return _compute_id("agentic_de_ingress_interpretation", payload)
+
+
+def compute_agentic_de_communication_egress_id(payload: dict[str, object]) -> str:
+    return _compute_id("agentic_de_communication_egress", payload)
 
 
 def compute_agentic_de_continuation_decision_record_id(
