@@ -1,16 +1,15 @@
 # Draft Next Arc Options v43
 
-Status: planning draft after `docs/DRAFT_NEXT_ARC_OPTIONS_v42.md`, updated after the
-full `V59` family closed on `main` through `v163`, and after support-layer review
-clarified that the strongest remaining gap is continuation / residual-intent
-ownership rather than more continuity widening, repo-bound writable-surface widening,
-or immediate communication-surface product expansion.
+Status: planning record after `docs/DRAFT_NEXT_ARC_OPTIONS_v42.md`, first used to
+select the `V60` family after the full `V59` family closed on `main` through `v163`,
+and now updated after the full `V60` family closed on `main` through `v166`.
 
 Authority layer: planning.
 
 This draft does not automatically supersede the connected planning branches in
 `docs/DRAFT_NEXT_ARC_OPTIONS_v26.md` through `docs/DRAFT_NEXT_ARC_OPTIONS_v42.md`.
-Instead, it records one eighteenth connected candidate family:
+Instead, it records one eighteenth connected family branch that is now closed on
+`main`:
 
 how should ADEU add one bounded resident-agent continuation / residual-intent kernel
 so the shipped `V55` / `V56` / `V57` / `V58` / `V59` governed stack can convert seed
@@ -80,9 +79,9 @@ Interpretive doctrine for this planning surface:
   - future autonomous loop behavior should be built by chaining fresh governed
     single-step acts, not by stretching ticket duration
 
-## Gap
+## Historical Gap That Selected `V60`
 
-The repo no longer lacks:
+At the time this branch was selected, the repo no longer lacked:
 
 - one released packet / checkpoint / ticket family for resident-agent action law;
 - one released bounded local-effect observation / restoration / hardening family over
@@ -92,7 +91,7 @@ The repo no longer lacks:
 - one released persistent workspace continuity family over that integrated path; or
 - one materially real resident runtime and user-surface control plane.
 
-The repo still lacks:
+At the time this branch was selected, the repo still lacked:
 
 - one typed, non-chat-native starter seed-intent ingress artifact over the selected
   path, distinct from raw transcript semantics, connector traffic, or generic chat
@@ -214,7 +213,7 @@ Ordering discipline for this branch:
 - `V48` still governs delegated worker execution after any later lawful dispatch; and
 - `V51` may shape semantic reading, but does not own runtime authority here.
 
-## Recommended Family
+## Selected Family (Now Closed On `main`)
 
 - Family name: `V60`
 - Family theme: ADEU resident-agent continuation / residual-intent kernel
@@ -246,10 +245,12 @@ Ordering discipline for this branch:
   - `docs/ARCHITECTURE_ADEU_RESIDENT_AGENT_CONTINUATION_AND_RESIDUAL_INTENT_FAMILY_v0.md`
 - Recommended family/slice mapping reference to draft next:
   - `docs/DRAFT_ADEU_RESIDENT_AGENT_CONTINUATION_AND_RESIDUAL_INTENT_V60_IMPLEMENTATION_MAPPING_v0.md`
-- Recommended next path for this branch:
+- Selected path ladder for this branch:
+  - `V60-A`
   - `V60-B`
-- Recommended next concrete arc for this branch if selected:
-  - `V60-B`
+  - `V60-C`
+- Branch-local next path after closeout:
+  - none inside `V60`; branch is closed on `main`
 
 Default path selection for this branch:
 
@@ -313,7 +314,7 @@ Default path selection for this branch:
   - keep communication packet law, office binding, connector admission, remote-operator
     surfaces, repo-bound writable-surface authority, replay widening, execute widening,
     and dispatch widening not selected in this slice
-  - after `V60-B`, if this family is selected, select `V60-C` as the next default candidate:
+  - after `V60-B`, the branch selected `V60-C` as the bounded advisory closeout slice:
     - one advisory continuation hardening / migration seam over the exact shipped
       `V60-A` / `V60-B` lineage only
     - keep evidence basis distinct from recommendation
@@ -346,7 +347,7 @@ The current recommended path ladder is:
 |---|---|---|---|
 | `V60-A` | continuation starter | one typed starter seed-intent record, one bounded task charter packet, one bounded task residual packet, one loop-state ledger, and one continuation decision record over one seed-intent-to-loop path bound to the shipped exact continuity-bound exemplar | landed starter path |
 | `V60-B` | continuation refresh / reproposal / escalation | one bounded residual refresh packet and one refreshed continuation decision over one latest reintegrated `V60-A` loop path only, including typed block / rejection / reproposal posture without ticket widening | landed step-2 path |
-| `V60-C` | advisory continuation hardening / migration | one advisory path-level continuation hardening / migration surface over the same continuation lineage, without mutating live behavior by default | recommended next path |
+| `V60-C` | advisory continuation hardening / migration | one advisory path-level continuation hardening / migration surface over the same continuation lineage, without mutating live behavior by default | landed step-3 path |
 
 These output names are planning-level candidate names, not lock-level schema
 commitments yet.
@@ -372,18 +373,19 @@ Not selected as the next family in this planning branch:
 
 ## Current Recommendation
 
-The clean next-family move after `V59` is:
+The clean next-family move after `V59` was:
 
 - promote `V60`, not more `V59`;
 - make `V60` own bounded task-law compilation and continuation identity over the
   already shipped governed runtime stack;
-- after `V60-B`, if this family is selected, select `V60-C` as the next default
-  candidate, so the repo can
+- after `V60-B`, select `V60-C` as the bounded advisory closeout slice, so the repo
+  can
   add one advisory continuation hardening / migration surface over the same shipped
   `V60-A` / `V60-B` lineage, while keeping evidence basis distinct from
   recommendation, keeping register provenance and lineage-root dedup explicit,
   keeping outputs and candidate outcomes non-entitling, and without widening
   communication law, ticket duration, repo authority, or live behavior by default;
+- `V60` is now closed on `main` through `V60-A` / `V60-B` / `V60-C`;
 - keep `V61` prepared next to retrofit the existing communication surfaces, but not
   selected in this planning doc; and
 - keep repo widening and worker export explicitly later.

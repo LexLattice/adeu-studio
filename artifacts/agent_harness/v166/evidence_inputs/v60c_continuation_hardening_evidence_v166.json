@@ -1,0 +1,76 @@
+{
+  "schema": "v60c_continuation_hardening_evidence@1",
+  "evidence_input_path": "artifacts/agent_harness/v166/evidence_inputs/v60c_continuation_hardening_evidence_v166.json",
+  "contract_source": "docs/LOCKED_CONTINUATION_vNEXT_PLUS166.md#machine-checkable-contract",
+  "merged_pr": "#393",
+  "merge_commit": "f03e09918b4e353f5d1bf2de54c033595227468f",
+  "implementation_commit": "9b4b6a5ec166d68467a48e09841cb46160124420",
+  "review_hardening_commit": "bba847bde8c44072e8ad189ed0c4b3c922c63ea7",
+  "implementation_packages": [
+    "adeu_agentic_de"
+  ],
+  "selected_record_shapes": [
+    "agentic_de_continuation_hardening_register@1"
+  ],
+  "required_prior_lane_evidence_paths": [
+    "artifacts/agent_harness/v164/evidence_inputs/v60a_continuation_starter_evidence_v164.json",
+    "artifacts/agent_harness/v165/evidence_inputs/v60b_continuation_refresh_evidence_v165.json"
+  ],
+  "admitted_shaping_input_set_closed_for_v60c": true,
+  "prior_lane_handoff_record_required": true,
+  "prior_lane_handoff_record_schema": "agentic_de_lane_drift_record@1",
+  "surface_fork_requires_explicit_drift_amendment": true,
+  "agentic_de_pyproject_path": "packages/adeu_agentic_de/pyproject.toml",
+  "agentic_de_package_init_source_path": "packages/adeu_agentic_de/src/adeu_agentic_de/__init__.py",
+  "agentic_de_checker_source_path": "packages/adeu_agentic_de/src/adeu_agentic_de/checker.py",
+  "agentic_de_models_source_path": "packages/adeu_agentic_de/src/adeu_agentic_de/models.py",
+  "agentic_de_export_schema_source_path": "packages/adeu_agentic_de/src/adeu_agentic_de/export_schema.py",
+  "agentic_de_cli_source_path": "apps/api/scripts/evaluate_agentic_de_continuation_v60c.py",
+  "agentic_de_continuation_hardening_authoritative_schema_path": "packages/adeu_agentic_de/schema/agentic_de_continuation_hardening_register.v1.json",
+  "agentic_de_continuation_hardening_mirror_schema_path": "spec/agentic_de_continuation_hardening_register.schema.json",
+  "reference_lane_drift_record_fixture_path": "packages/adeu_agentic_de/tests/fixtures/v60c/reference_agentic_de_lane_drift_record.json",
+  "reference_continuation_hardening_register_fixture_path": "packages/adeu_agentic_de/tests/fixtures/v60c/reference_agentic_de_continuation_hardening_register.json",
+  "test_reference_paths": [
+    "packages/adeu_agentic_de/tests/test_agentic_de_v60c.py",
+    "packages/adeu_agentic_de/tests/test_agentic_de_export_schema.py",
+    "apps/api/tests/test_evaluate_agentic_de_continuation_v60c.py"
+  ],
+  "targeted_local_checks": [
+    "focused_ruff_on_touched_v60c_package_cli_and_tests",
+    "focused_pytest_on_v60c_package_cli_and_export_schema_tests"
+  ],
+  "local_full_python_gate": "make check",
+  "path_level_only": true,
+  "advisory_only": true,
+  "candidate_only": true,
+  "explicit_frozen_policy_anchor_required": true,
+  "recommendation_function_extensional_and_replayable": true,
+  "lineage_root_non_independence_dedup_applied": true,
+  "exact_shipped_v60b_reason_code_posture_required": true,
+  "selected_live_session_surface_for_v60c": "urm_copilot_session_path_only",
+  "selected_downstream_action_class_for_v60c": "local_write",
+  "selected_downstream_write_kind_for_v60c": "create_new",
+  "selected_continuity_root_for_v60c": "artifacts/agentic_de/v59/workspace_continuity/",
+  "selected_target_relative_path": "runtime/reference_patch_candidate.diff",
+  "forbidden_v60c_outcomes_confirmed_absent": [
+    "starter_seed_ingress_mutation_now",
+    "charter_mutation_now",
+    "residual_mutation_now",
+    "ticket_duration_widening_now",
+    "communication_packet_law_now",
+    "office_binding_now",
+    "connector_admission_now",
+    "remote_operator_now",
+    "repo_widening_now",
+    "replay_or_resume_widening_now",
+    "execute_widening_now",
+    "dispatch_now",
+    "advisory_to_live_promotion_now"
+  ],
+  "changes_live_behavior_by_default": false,
+  "governs_hidden_cognition": false,
+  "metric_key_continuity_assertion_path": "artifacts/agent_harness/v166/evidence_inputs/metric_key_continuity_assertion_v166.json",
+  "runtime_observability_comparison_path": "artifacts/agent_harness/v166/evidence_inputs/runtime_observability_comparison_v166.json",
+  "runtime_event_stream_path": "artifacts/agent_harness/v166/runtime/evidence/local/urm_events.ndjson",
+  "notes": "v166 evidence pins the bounded V60-C advisory continuation hardening seam on main: one path-level continuation hardening register over the shipped V60-A starter and V60-B refresh lineage only, with explicit frozen-policy anchoring, extensional and replayable recommendation semantics, explicit evidence-vs-recommendation separation, lineage-root non-independence dedup, exact shipped V60-B refresh posture validation including exact reason-code matching, and no communication/repo/replay/execute/dispatch/product/hidden-cognition widening."
+}
