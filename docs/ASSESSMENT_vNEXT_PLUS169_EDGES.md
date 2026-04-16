@@ -1,8 +1,8 @@
 # Assessment vNext+169 Edges
 
-Status: planning-edge assessment for `V61-C`.
+Status: post-closeout edge assessment for `V61-C` (April 17, 2026 UTC).
 
-Authority layer: planning.
+Authority layer: closeout evidence on `main`.
 
 ## Assessment-State Marker (Machine-Checkable)
 
@@ -10,8 +10,8 @@ Authority layer: planning.
 {
   "schema": "assessment_artifact_state@1",
   "artifact": "docs/ASSESSMENT_vNEXT_PLUS169_EDGES.md",
-  "phase": "pre_lock_assessment",
-  "authoritative": false,
+  "phase": "post_closeout_assessment",
+  "authoritative": true,
   "required_in_decision": true
 }
 ```
@@ -29,6 +29,9 @@ Authority layer: planning.
   - same selected evidence chain
   - same frozen policy anchor
   - same recommendation outcome
+- Closeout Evidence:
+  shipped hardening register/checker/tests preserve exact recommendation replay under
+  one frozen `V61-C` policy anchor.
 
 ### Edge 2: `V61-B` Positive Rewitness Could Be Over-Read As Native Witness
 
@@ -43,6 +46,9 @@ Authority layer: planning.
   - not reintegration closure
   - not act authority
   - explicit positive witness basis ref or certificate ref required when present
+- Closeout Evidence:
+  shipped hardening register fields and checker/tests carry positive rewitness basis
+  explicitly and fail closed if it is absent.
 
 ### Edge 3: One Successful Communication Lineage Could Be Over-Read As Family-Level Law
 
@@ -58,6 +64,8 @@ Authority layer: planning.
   - not bridge-office-family law
   - not rewitness-family law
   - not repo/execute authority law
+- Closeout Evidence:
+  shipped lock/checker/tests preserve path-level non-generalization explicitly.
 
 ### Edge 4: Artifact Refs Could Replace Communication Verdicts
 
@@ -71,6 +79,9 @@ Authority layer: planning.
   - selected rewitness outcome required
   - latest continuation basis required
   - latest continuation basis selection summary required
+- Closeout Evidence:
+  shipped `V61-C` validator requires the selected `V61-A` / `V61-B` facts, verdicts,
+  and continuation-basis selection before accepting the lineage.
 
 ### Edge 5: Lineage Repetition Could Be Counted More Than Once At The Advisory Layer
 
@@ -83,6 +94,9 @@ Authority layer: planning.
   - field-origin and dependence tags remain explicit
   - repeated lineage artifacts support traceability only
   - repeated lineage roots do not count as independent support
+- Closeout Evidence:
+  shipped register entries preserve field-origin tags, dependence tags, and root
+  dedup summaries in the canonical output.
 
 ### Edge 6: Advisory Communication Hardening Could Quietly Mutate Live Behavior
 
@@ -97,6 +111,9 @@ Authority layer: planning.
   - no rewitness mutation
   - candidate outcomes remain non-entitling and non-escalating by themselves
   - candidate scopes remain unspecified unless a later lock selects them explicitly
+- Closeout Evidence:
+  shipped register contract/checker/tests preserve advisory-only and candidate-only
+  posture with no live mutation.
 
 ### Edge 7: Connector, Remote, Repo, Execute, Or Dispatch Authority Could Reappear
 
@@ -111,6 +128,9 @@ Authority layer: planning.
   - no repo-authority widening
   - no execute widening
   - no dispatch widening
+- Closeout Evidence:
+  merged slice stayed confined to advisory communication hardening over the exact
+  resident seam only.
 
 ### Edge 8: Hidden-Cognition Or Proxy Metrics Could Reappear As Authority Basis
 
@@ -123,24 +143,43 @@ Authority layer: planning.
   - no hidden-cognition governance
   - no surrogate proxies
   - no derived internalist runtime features as authority basis
+- Closeout Evidence:
+  no hidden-cognition or proxy-governance surfaces were added in the merged diff.
+
+### Edge 9: Shipped `V61-B` Policy Anchors Could Drift While Still Looking Structurally Valid
+
+- Risk:
+  bridge-office binding or rewitness records could keep matching refs and verdicts
+  while drifting away from the shipped `V61-B` frozen policy anchor.
+- Response:
+  keep `V61-C` fail-closed on exact upstream policy anchors.
+  - bridge binding must preserve `V61B_FROZEN_POLICY_REF`
+  - rewitness gate must preserve `V61B_FROZEN_POLICY_REF`
+  - mismatched policy anchors fail closed
+- Closeout Evidence:
+  review hardening commit `1125dfab759f58f70da16e66a5f8457d9be788c7` added exact
+  `V61-B` policy-anchor checks and regression coverage.
 
 ## Current Judgment
 
-- `V61-C` is worth implementing next because `V61-A` and `V61-B` already closed one
-  exact governed communication starter and bridge/rewitness lineage on `main`, and
-  the next exact gap is one bounded advisory communication hardening surface over
-  that same lineage.
-- the next slice should remain properly bounded:
+- `V61-C` was the right third slice because `V61-A` and `V61-B` already closed one
+  exact governed communication starter plus bounded bridge-office/rewitness lineage,
+  and the next exact gap was one advisory communication hardening surface over that
+  same lineage.
+- the shipped result remained properly bounded:
   - exact-resident-seam-first
   - exact-communication-lineage-first
   - advisory-surface-first
   - extensional-and-replayable
   - explicit-policy-anchored
+  - explicit-positive-rewitness-basis-carry-through
+  - explicit-lineage-root-dedup
   - non-generalizing
   - non-connector
   - non-remote
   - non-repo-authorizing
   - non-executing
   - non-hidden-cognition-governing
-- if `V61-C` lands cleanly, the next move should be a new family selection rather
-  than widening `V61-C` authority in place.
+- `V61` is now fully closed on `main`.
+- the next move should be a new family selection rather than widening `V61-C`
+  authority in place.

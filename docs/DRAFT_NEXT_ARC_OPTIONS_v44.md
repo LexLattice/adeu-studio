@@ -1,18 +1,16 @@
 # Draft Next Arc Options v44
 
-Status: planning draft after `docs/DRAFT_NEXT_ARC_OPTIONS_v43.md`, updated after the
-full `V60` family closed on `main` through `v166`, and after the multi-arc roadmap
-and support-layer review clarified that the strongest remaining gap is governed
-communication membrane ownership rather than more `V60` widening, connector-specific
-transport work, remote-operator UX, or repo-bound writable-surface widening, and now
-updated again after `V61-A` landed on `main` through `v167`, and after `V61-B`
-landed on `main` through `v168`.
+Status: planning record after `docs/DRAFT_NEXT_ARC_OPTIONS_v43.md`, first used to
+select the `V61` family after the full `V60` family closed on `main` through
+`v166`, and now updated again after the full `V61` family closed on `main` through
+`v169`.
 
 Authority layer: planning.
 
 This draft does not automatically supersede the connected planning branches in
 `docs/DRAFT_NEXT_ARC_OPTIONS_v26.md` through `docs/DRAFT_NEXT_ARC_OPTIONS_v43.md`.
-Instead, it records one nineteenth connected candidate family:
+Instead, it records one nineteenth connected family branch that is now closed on
+`main`:
 
 how should ADEU retrofit the repo’s already-real communication surfaces so they emit
 and consume typed, provenance-bearing governed communication packets over the shipped
@@ -59,12 +57,12 @@ Interpretive doctrine for this planning surface:
 - `V60-A` through `V60-C` are closed on `main` and remain the released continuation /
   residual-intent starter / refresh / advisory hardening ladder recorded in
   `docs/DRAFT_NEXT_ARC_OPTIONS_v43.md`.
-- `V61-A` and `V61-B` are landed on `main` and now remain the released governed
-  communication starter plus bounded bridge-office / rewitness follow-on over the
-  exact resident `/urm/copilot/send` seam with `copilot.user_message` only, typed
-  ingress / descriptor / interpretation / egress packet surfaces, one explicit
-  bridge-office binding record, one explicit rewitness gate record, and no advisory
-  communication hardening yet.
+- `V61-A` through `V61-C` are closed on `main` and remain the released governed
+  communication starter / bounded bridge-office-and-rewitness follow-on / advisory
+  communication-hardening ladder over the exact resident `/urm/copilot/send` seam
+  with `copilot.user_message` only, typed ingress / descriptor / interpretation /
+  egress packet surfaces, one explicit bridge-office binding record, one explicit
+  rewitness gate record, and one advisory hardening register.
 - the repo already has materially real communication-capable runtime and user
   surfaces:
   - URM resident Codex sessions and control plane
@@ -78,14 +76,12 @@ Interpretive doctrine for this planning surface:
     latest reintegrated act lineage
   - one advisory continuation hardening register can assess that same lineage without
     mutating live behavior
-- the support-layer review now sharpens the next practical warning:
-  - the repo has governed communication packets and bounded bridge-office / rewitness
-    follow-on over one exact resident seam
-  - the repo does not yet have an advisory communication hardening surface over that
-    shipped lineage
-  - early seam evidence still must not generalize by default into connector,
-    remote-operator, or repo/execute authority law
-  - connector or remote surfaces should consume governed communication law later, not
+- the support-layer review is now borne out on `main`:
+  - the repo has governed communication packets, bounded bridge-office / rewitness
+    follow-on, and advisory communication hardening over one exact resident seam
+  - that closure still does not generalize by default into connector, remote-operator,
+    bridge-office-family, rewitness-family, or repo/execute authority law
+  - later connector or remote surfaces should consume governed communication law, not
     invent it first
 
 ## Gap
@@ -100,7 +96,7 @@ The repo no longer lacks:
 - one path-level advisory continuation hardening surface over the released
   continuation lineage.
 
-The repo still lacks:
+At the time this branch was selected, the repo still lacked:
 
 - one advisory communication hardening surface over the shipped `V61-A` / `V61-B`
   lineage only;
@@ -125,7 +121,7 @@ The repo still lacks:
   - execution authority
   - repo-bound writable authority
 
-So the repo still lacks the family that would let it say:
+So the repo still lacked the family that would let it say:
 
 - this exact inbound message entered through this exact surface class;
 - this exact interpretation was admitted as loop-relevant communication;
@@ -251,10 +247,10 @@ Ordering discipline for this branch:
 - Recommended family/slice mapping reference to draft next:
   - `docs/DRAFT_ADEU_RESIDENT_AGENT_GOVERNED_COMMUNICATION_MEMBRANE_V61_IMPLEMENTATION_MAPPING_v0.md`
 - Recommended next path for this branch:
-  - `V61-B`
+  - none inside `V61`
 - Recommended next concrete arc for this branch if selected:
-  - `V61-B`
-  - select `V61-B` as the next default candidate
+  - none
+  - this branch is closed on `main`
 
 Default path selection for this branch:
 
@@ -276,7 +272,7 @@ Default path selection for this branch:
     - `copilot.user_message` only
     - no bridge-office binding yet
     - no rewitness / message-promotion gate yet
-  - the next same-family bounded fill should be `V61-B`:
+  - `V61-B` is now the shipped bounded fill:
     - consume the shipped `V61-A` communication lineage only
     - add one resident bridge-office binding seam
     - add one rewitness / message-promotion gate
@@ -312,26 +308,15 @@ Default path selection for this branch:
     - keep connector-specific transport, remote operator UX, repo-bound writable
       authority, replay widening, execute widening, and dispatch widening not selected
       in this slice
-  - after `V61-B`, if this family is selected, select `V61-C` as the next default candidate:
+  - `V61-C` is now the shipped advisory close:
     - one advisory communication hardening surface over the exact shipped `V61-A` /
       `V61-B` lineage only
-    - keep outputs non-entitling and advisory-only
-    - carry explicit positive rewitness basis into the advisory evidence basis when
-      present:
-      - explicit witness basis ref or certificate ref
-      - not positive rewitness outcome alone
-    - keep latest continuation basis selection explicit and replayable:
-      - selected basis ref
-      - selected basis summary
-    - keep communication exemplar evidence non-generalizing by default
-    - not connector-family law
-    - not remote-operator law
-    - not bridge-office-family law
-    - not rewitness-family law
-    - not independent law for other communication surfaces beyond the same backend
-      seam
-    - not execution-authority conclusions
-    - keep candidate outcomes scope-unspecified until a later lock selects them
+    - outputs remain non-entitling and advisory-only
+    - explicit positive rewitness basis is carried into the advisory evidence basis
+      when present
+    - latest continuation basis selection remains explicit and replayable
+    - communication exemplar evidence remains non-generalizing by default
+    - candidate outcomes remain scope-unspecified until a later lock selects them
 
 This family/path recommendation is branch-local to the `v44` planning surface.
 
@@ -346,7 +331,7 @@ The current recommended path ladder is:
 |---|---|---|---|
 | `V61-A` | communication packet starter | one communication ingress packet, one ingress interpretation record, one communication egress packet, and one surface-authority descriptor over the existing repo communication surfaces only | closed on `main` |
 | `V61-B` | bridge office binding / rewitness / message-promotion gate | one explicit resident bridge-office binding seam and one rewitness / message-promotion gate over the same communication lineage only | closed on `main` |
-| `V61-C` | advisory communication hardening | one advisory path-level communication hardening surface over the same governed communication lineage, without mutating live behavior by default | recommended step-3 path |
+| `V61-C` | advisory communication hardening | one advisory path-level communication hardening surface over the same governed communication lineage, without mutating live behavior by default | closed on `main` |
 
 These output names are planning-level candidate names, not lock-level schema
 commitments yet.
@@ -370,15 +355,16 @@ Not selected as the next family in this planning branch:
 
 ## Current Recommendation
 
-The clean next-family move after `V60` is:
+`V61` is now fully closed on `main`.
 
-- promote `V61`, not more `V60`;
-- make `V61` own bounded governed communication packets, ingress interpretation,
-  surface classification, and later resident bridge-office law over the already
-  shipped governed runtime stack;
-- recognize `V61-A` as the landed membrane retrofit over the exact resident send
-  seam, not a product-surface expansion;
-- move next to `V61-B`, so explicit resident bridge-office binding and rewitness law
-  can be added without widening transport, remote UX, or repo authority;
-- keep `V62` and `V63` prepared as later sibling branches that consume `V61`;
-- and keep repo widening and worker export explicitly later.
+This planning record now says:
+
+- `V61` successfully owned bounded governed communication packets, ingress
+  interpretation, surface classification, explicit resident bridge-office binding,
+  rewitness gating, and advisory hardening over the exact resident send seam;
+- the shipped family remained path-level and non-generalizing by default;
+- no same-family next path remains inside `v44`;
+- `V62` and `V63` remain prepared as later communication-consuming sibling branches;
+- `V64` and `V65` remain later execution-widening branches in the roadmap; and
+- the next authoritative move should be a new family-selection draft, not more `V61`
+  widening in place.
