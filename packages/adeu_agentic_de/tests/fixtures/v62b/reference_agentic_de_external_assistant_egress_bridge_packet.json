@@ -1,0 +1,80 @@
+{
+  "bridge_basis_summary": "shipped V62-A connector admission + shipped V62-A ingress bridge + shipped V61-A communication egress + explicit V61-B bridge-office binding and positive rewitness basis over the same exact external_assistant connector path",
+  "changes_live_behavior_by_default": false,
+  "connector_admission_ref": "agentic_de_connector_admission_0a3da35c99cd",
+  "consumed_bridge_office_binding_ref_or_none": "agentic_de_bridge_office_binding_d5368f840530",
+  "consumed_communication_egress_ref": "agentic_de_communication_egress_a9c87d1c116e",
+  "consumed_message_rewitness_gate_ref_or_none": "agentic_de_message_rewitness_gate_0af2b5fdd16e",
+  "consumed_rewitness_basis_summary_or_none": "positive rewitness basis carried from shipped V61-B: witness_basis_ref_or_none=agentic_de_communication_egress_a9c87d1c116e; certificate_ref_or_none=none",
+  "egress_bridge_packet_id": "agentic_de_external_assistant_egress_bridge_fd041119ca90",
+  "evidence_only": true,
+  "evidence_refs": [
+    "agentic_de_connector_admission_0a3da35c99cd",
+    "agentic_de_external_assistant_ingress_bridge_3463ca58759d",
+    "agentic_de_communication_egress_a9c87d1c116e",
+    "agentic_de_bridge_office_binding_d5368f840530",
+    "agentic_de_message_rewitness_gate_0af2b5fdd16e",
+    "packages/adeu_agentic_de/tests/fixtures/v60b/reference_agentic_de_continuation_refresh_decision_record.json",
+    "packages/adeu_agentic_de/tests/fixtures/v61a/reference_agentic_de_communication_egress_packet.json",
+    "packages/adeu_agentic_de/tests/fixtures/v61b/reference_agentic_de_bridge_office_binding_record.json",
+    "packages/adeu_agentic_de/tests/fixtures/v61b/reference_agentic_de_message_rewitness_gate_record.json",
+    "packages/adeu_agentic_de/tests/fixtures/v62a/reference_agentic_de_connector_admission_record.json",
+    "packages/adeu_agentic_de/tests/fixtures/v62a/reference_agentic_de_external_assistant_ingress_bridge_packet.json",
+    "packages/adeu_agentic_de/tests/fixtures/v62b/reference_agentic_de_lane_drift_record.json",
+    "artifacts/agent_harness/v170/evidence_inputs/v62a_connector_admission_evidence_v170.json"
+  ],
+  "external_assistant_egress_payload_facts_or_summary": "external assistant egress over admitted connector snapshot 0123456789ab consumes shipped V61-A egress plus explicit V61-B bridge and rewitness basis",
+  "field_dependence_tags": {
+    "bridge_basis_summary": [
+      "agentic_de_connector_admission_0a3da35c99cd",
+      "agentic_de_external_assistant_ingress_bridge_3463ca58759d",
+      "agentic_de_communication_egress_a9c87d1c116e",
+      "agentic_de_bridge_office_binding_d5368f840530",
+      "agentic_de_message_rewitness_gate_0af2b5fdd16e",
+      "docs/LOCKED_CONTINUATION_vNEXT_PLUS171.md#machine-checkable-contract"
+    ],
+    "consumed_rewitness_basis_summary_or_none": [
+      "agentic_de_message_rewitness_gate_0af2b5fdd16e"
+    ],
+    "external_assistant_egress_payload_facts_or_summary": [
+      "agentic_de_connector_admission_0a3da35c99cd",
+      "agentic_de_communication_egress_a9c87d1c116e"
+    ],
+    "frozen_policy_anchor_ref": [
+      "docs/LOCKED_CONTINUATION_vNEXT_PLUS171.md#machine-checkable-contract"
+    ],
+    "latest_continuation_basis_selection_summary": [
+      "agentic_de_bridge_office_binding_d5368f840530"
+    ],
+    "selected_connector_principal_class": [
+      "agentic_de_connector_admission_0a3da35c99cd"
+    ]
+  },
+  "field_origin_tags": {
+    "bridge_basis_summary": "current_turn_derived",
+    "consumed_rewitness_basis_summary_or_none": "prior_artifact",
+    "external_assistant_egress_payload_facts_or_summary": "current_turn_derived",
+    "frozen_policy_anchor_ref": "shaping_only",
+    "latest_continuation_basis_selection_summary": "prior_artifact",
+    "selected_connector_principal_class": "shaping_only"
+  },
+  "frozen_policy_anchor_ref": "docs/LOCKED_CONTINUATION_vNEXT_PLUS171.md#machine-checkable-contract",
+  "ingress_bridge_packet_ref": "agentic_de_external_assistant_ingress_bridge_3463ca58759d",
+  "latest_continuation_basis_ref_or_equivalent": "agentic_de_continuation_refresh_decision_067a308bcae4",
+  "latest_continuation_basis_selection_summary": "latest shipped V60-B refresh decision remains the selected continuation basis for explicit resident bridge-office binding over the exact V61-A seam",
+  "reason_codes": [
+    "admitted_connector_basis_consumed",
+    "shipped_v62a_ingress_bridge_consumed",
+    "shipped_v61a_communication_egress_consumed",
+    "explicit_v61b_bridge_office_binding_consumed",
+    "explicit_positive_rewitness_basis_carried",
+    "external_assistant_principal_only",
+    "egress_only_in_v62b",
+    "connector_transport_non_authorizing"
+  ],
+  "root_origin_dedup_summary": "connector admission, shipped ingress bridge, shipped V61-A egress, and shipped V61-B bridge/rewitness lineage remain non-independent; repeated consumed refs do not mint outbound connector authority",
+  "schema": "agentic_de_external_assistant_egress_bridge_packet@1",
+  "selected_connector_principal_class": "external_assistant",
+  "target_arc": "vNext+171",
+  "target_path": "V62-B"
+}

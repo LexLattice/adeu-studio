@@ -1,0 +1,148 @@
+from __future__ import annotations
+
+import importlib.util
+import json
+import os
+import shutil
+import subprocess
+import sys
+from pathlib import Path
+
+from adeu_ir.repo import repo_root
+
+FIXTURE_DIRS = (
+    "packages/adeu_agentic_de/tests/fixtures/v60b",
+    "packages/adeu_agentic_de/tests/fixtures/v61a",
+    "packages/adeu_agentic_de/tests/fixtures/v61b",
+    "packages/adeu_agentic_de/tests/fixtures/v62a",
+    "packages/adeu_agentic_de/tests/fixtures/v62b",
+)
+
+EVIDENCE_FILES = (
+    "artifacts/agent_harness/v170/evidence_inputs/v62a_connector_admission_evidence_v170.json",
+)
+
+
+def _repo_root() -> Path:
+    return repo_root(anchor=Path(__file__))
+
+
+def _script_path() -> Path:
+    return (
+        _repo_root()
+        / "apps"
+        / "api"
+        / "scripts"
+        / "run_agentic_de_external_assistant_egress_bridge_v62b.py"
+    )
+
+
+def _pythonpath_env() -> dict[str, str]:
+    root = _repo_root()
+    env = os.environ.copy()
+    existing = env.get("PYTHONPATH")
+    paths = [
+        str(root / "apps" / "api" / "src"),
+        str(root / "packages" / "adeu_agentic_de" / "src"),
+        str(root / "packages" / "adeu_ir" / "src"),
+        str(root / "packages" / "urm_runtime" / "src"),
+    ]
+    if existing:
+        paths.append(existing)
+    env["PYTHONPATH"] = os.pathsep.join(paths)
+    env["TZ"] = "UTC"
+    env["LC_ALL"] = "C"
+    return env
+
+
+def _copy_v62b_input_tree(tmp_path: Path) -> tuple[Path, Path]:
+    repo_root_path = _repo_root()
+    for relative_dir in FIXTURE_DIRS:
+        shutil.copytree(
+            repo_root_path / relative_dir,
+            tmp_path / relative_dir,
+            dirs_exist_ok=True,
+        )
+    for relative_path in EVIDENCE_FILES:
+        source = repo_root_path / relative_path
+        target = tmp_path / relative_path
+        target.parent.mkdir(parents=True, exist_ok=True)
+        shutil.copyfile(source, target)
+    return (
+        tmp_path,
+        tmp_path / "packages" / "adeu_agentic_de" / "tests" / "fixtures" / "v62b",
+    )
+
+
+def _run_script(*args: str) -> subprocess.CompletedProcess[str]:
+    return subprocess.run(
+        [sys.executable, str(_script_path()), *args],
+        cwd=_repo_root(),
+        check=False,
+        capture_output=True,
+        text=True,
+        env=_pythonpath_env(),
+    )
+
+
+def _load_script_module():
+    spec = importlib.util.spec_from_file_location("run_v62b_script", _script_path())
+    assert spec is not None
+    assert spec.loader is not None
+    module = importlib.util.module_from_spec(spec)
+    spec.loader.exec_module(module)
+    return module
+
+
+def test_default_cli_emits_egress_bridge_packet(tmp_path: Path) -> None:
+    temp_root, _fixture_root = _copy_v62b_input_tree(tmp_path)
+
+    completed = _run_script("--repo-root", str(temp_root))
+
+    assert completed.returncode == 0, completed.stdout + completed.stderr
+    payload = json.loads(completed.stdout)
+    assert payload["schema"] == "agentic_de_external_assistant_egress_bridge_packet@1"
+    assert payload["selected_connector_principal_class"] == "external_assistant"
+    assert completed.stderr == ""
+
+
+def test_cli_can_write_v62b_output_file(tmp_path: Path) -> None:
+    temp_root, _fixture_root = _copy_v62b_input_tree(tmp_path / "repo")
+    output_path = tmp_path / "external_assistant_egress_bridge.json"
+
+    completed = _run_script(
+        "--repo-root",
+        str(temp_root),
+        "--external-assistant-egress-bridge-output",
+        str(output_path),
+    )
+
+    assert completed.returncode == 0, completed.stdout + completed.stderr
+    assert completed.stdout == ""
+    assert json.loads(output_path.read_text(encoding="utf-8"))["schema"] == (
+        "agentic_de_external_assistant_egress_bridge_packet@1"
+    )
+
+
+def test_output_path_defaults_to_none() -> None:
+    module = _load_script_module()
+
+    args = module._parse_args([])
+
+    assert args.external_assistant_egress_bridge_output is None
+
+
+def test_invalid_lane_drift_returns_clean_error(tmp_path: Path) -> None:
+    temp_root, fixture_root = _copy_v62b_input_tree(tmp_path / "repo")
+    lane_drift_path = fixture_root / "reference_agentic_de_lane_drift_record.json"
+    payload = json.loads(lane_drift_path.read_text(encoding="utf-8"))
+    payload["entries"] = payload["entries"][:-1]
+    payload["entry_count"] = len(payload["entries"])
+    payload["record_id"] = None
+    lane_drift_path.write_text(json.dumps(payload, indent=2) + "\n", encoding="utf-8")
+
+    completed = _run_script("--repo-root", str(temp_root))
+
+    assert completed.returncode == 2
+    assert completed.stdout == ""
+    assert completed.stderr.startswith("error: ")

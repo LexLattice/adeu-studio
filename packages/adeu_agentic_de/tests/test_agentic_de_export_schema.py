@@ -16,6 +16,7 @@ from adeu_agentic_de import (
     AGENTIC_DE_CONTINUATION_HARDENING_REGISTER_SCHEMA,
     AGENTIC_DE_CONTINUATION_REFRESH_DECISION_RECORD_SCHEMA,
     AGENTIC_DE_DOMAIN_PACKET_SCHEMA,
+    AGENTIC_DE_EXTERNAL_ASSISTANT_EGRESS_BRIDGE_PACKET_SCHEMA,
     AGENTIC_DE_EXTERNAL_ASSISTANT_INGRESS_BRIDGE_PACKET_SCHEMA,
     AGENTIC_DE_GOVERNANCE_CALIBRATION_REGISTER_SCHEMA,
     AGENTIC_DE_GOVERNED_COMMUNICATION_HARDENING_REGISTER_SCHEMA,
@@ -268,6 +269,16 @@ def _schema_pairs() -> dict[str, tuple[Path, Path]]:
             root
             / "spec"
             / "agentic_de_external_assistant_ingress_bridge_packet.schema.json",
+        ),
+        AGENTIC_DE_EXTERNAL_ASSISTANT_EGRESS_BRIDGE_PACKET_SCHEMA: (
+            root
+            / "packages"
+            / "adeu_agentic_de"
+            / "schema"
+            / "agentic_de_external_assistant_egress_bridge_packet.v1.json",
+            root
+            / "spec"
+            / "agentic_de_external_assistant_egress_bridge_packet.schema.json",
         ),
         AGENTIC_DE_LIVE_TURN_ADMISSION_RECORD_SCHEMA: (
             root
