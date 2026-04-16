@@ -7,6 +7,7 @@ from adeu_agentic_de import (
     AGENTIC_DE_ACTION_CLASS_TAXONOMY_SCHEMA,
     AGENTIC_DE_ACTION_PROPOSAL_SCHEMA,
     AGENTIC_DE_ACTION_TICKET_SCHEMA,
+    AGENTIC_DE_BRIDGE_OFFICE_BINDING_RECORD_SCHEMA,
     AGENTIC_DE_COMMUNICATION_EGRESS_PACKET_SCHEMA,
     AGENTIC_DE_COMMUNICATION_INGRESS_PACKET_SCHEMA,
     AGENTIC_DE_CONFORMANCE_REPORT_SCHEMA,
@@ -30,6 +31,7 @@ from adeu_agentic_de import (
     AGENTIC_DE_LOCAL_EFFECT_RESTORATION_RECORD_SCHEMA,
     AGENTIC_DE_LOOP_STATE_LEDGER_SCHEMA,
     AGENTIC_DE_MEMBRANE_CHECKPOINT_SCHEMA,
+    AGENTIC_DE_MESSAGE_REWITNESS_GATE_RECORD_SCHEMA,
     AGENTIC_DE_MIGRATION_DECISION_REGISTER_SCHEMA,
     AGENTIC_DE_MORPH_DIAGNOSTICS_SCHEMA,
     AGENTIC_DE_MORPH_IR_SCHEMA,
@@ -219,6 +221,22 @@ def _schema_pairs() -> dict[str, tuple[Path, Path]]:
             / "schema"
             / "agentic_de_communication_egress_packet.v1.json",
             root / "spec" / "agentic_de_communication_egress_packet.schema.json",
+        ),
+        AGENTIC_DE_BRIDGE_OFFICE_BINDING_RECORD_SCHEMA: (
+            root
+            / "packages"
+            / "adeu_agentic_de"
+            / "schema"
+            / "agentic_de_bridge_office_binding_record.v1.json",
+            root / "spec" / "agentic_de_bridge_office_binding_record.schema.json",
+        ),
+        AGENTIC_DE_MESSAGE_REWITNESS_GATE_RECORD_SCHEMA: (
+            root
+            / "packages"
+            / "adeu_agentic_de"
+            / "schema"
+            / "agentic_de_message_rewitness_gate_record.v1.json",
+            root / "spec" / "agentic_de_message_rewitness_gate_record.schema.json",
         ),
         AGENTIC_DE_LIVE_TURN_ADMISSION_RECORD_SCHEMA: (
             root

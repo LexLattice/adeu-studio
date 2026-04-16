@@ -1,0 +1,180 @@
+{
+  "additionalProperties": false,
+  "properties": {
+    "bridge_office_binding_ref": {
+      "title": "Bridge Office Binding Ref",
+      "type": "string"
+    },
+    "certificate_ref_or_none": {
+      "anyOf": [
+        {
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Certificate Ref Or None"
+    },
+    "changes_live_behavior_by_default": {
+      "const": false,
+      "default": false,
+      "title": "Changes Live Behavior By Default",
+      "type": "boolean"
+    },
+    "communication_egress_ref": {
+      "title": "Communication Egress Ref",
+      "type": "string"
+    },
+    "communication_ingress_ref": {
+      "title": "Communication Ingress Ref",
+      "type": "string"
+    },
+    "evidence_only": {
+      "const": true,
+      "default": true,
+      "title": "Evidence Only",
+      "type": "boolean"
+    },
+    "evidence_refs": {
+      "items": {
+        "type": "string"
+      },
+      "title": "Evidence Refs",
+      "type": "array"
+    },
+    "field_dependence_tags": {
+      "additionalProperties": {
+        "items": {
+          "type": "string"
+        },
+        "type": "array"
+      },
+      "title": "Field Dependence Tags",
+      "type": "object"
+    },
+    "field_origin_tags": {
+      "additionalProperties": {
+        "enum": [
+          "current_turn_native",
+          "current_turn_derived",
+          "observability_only",
+          "prior_artifact",
+          "shaping_only"
+        ],
+        "type": "string"
+      },
+      "title": "Field Origin Tags",
+      "type": "object"
+    },
+    "frozen_policy_anchor_ref": {
+      "title": "Frozen Policy Anchor Ref",
+      "type": "string"
+    },
+    "ingress_interpretation_ref": {
+      "title": "Ingress Interpretation Ref",
+      "type": "string"
+    },
+    "latest_continuation_basis_ref": {
+      "title": "Latest Continuation Basis Ref",
+      "type": "string"
+    },
+    "message_rewitness_gate_id": {
+      "anyOf": [
+        {
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Message Rewitness Gate Id"
+    },
+    "rewitness_basis_summary": {
+      "title": "Rewitness Basis Summary",
+      "type": "string"
+    },
+    "rewitness_outcome": {
+      "enum": [
+        "remain_communication_only",
+        "witness_candidate_promoted",
+        "withheld_by_policy",
+        "blocked_ambiguous_lineage",
+        "escalate_for_review"
+      ],
+      "title": "Rewitness Outcome",
+      "type": "string"
+    },
+    "rewitness_reason_codes": {
+      "items": {
+        "type": "string"
+      },
+      "title": "Rewitness Reason Codes",
+      "type": "array"
+    },
+    "root_origin_dedup_summary": {
+      "title": "Root Origin Dedup Summary",
+      "type": "string"
+    },
+    "root_origin_ids": {
+      "items": {
+        "type": "string"
+      },
+      "title": "Root Origin Ids",
+      "type": "array"
+    },
+    "schema": {
+      "const": "agentic_de_message_rewitness_gate_record@1",
+      "default": "agentic_de_message_rewitness_gate_record@1",
+      "title": "Schema",
+      "type": "string"
+    },
+    "target_arc": {
+      "title": "Target Arc",
+      "type": "string"
+    },
+    "target_path": {
+      "title": "Target Path",
+      "type": "string"
+    },
+    "task_charter_ref": {
+      "title": "Task Charter Ref",
+      "type": "string"
+    },
+    "witness_basis_ref_or_none": {
+      "anyOf": [
+        {
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Witness Basis Ref Or None"
+    }
+  },
+  "required": [
+    "target_arc",
+    "target_path",
+    "communication_ingress_ref",
+    "ingress_interpretation_ref",
+    "communication_egress_ref",
+    "bridge_office_binding_ref",
+    "task_charter_ref",
+    "latest_continuation_basis_ref",
+    "rewitness_outcome",
+    "rewitness_reason_codes",
+    "frozen_policy_anchor_ref",
+    "rewitness_basis_summary",
+    "field_origin_tags",
+    "field_dependence_tags",
+    "root_origin_ids",
+    "root_origin_dedup_summary",
+    "evidence_refs"
+  ],
+  "title": "AgenticDeMessageRewitnessGateRecord",
+  "type": "object"
+}

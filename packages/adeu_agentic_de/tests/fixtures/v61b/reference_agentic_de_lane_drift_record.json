@@ -1,0 +1,40 @@
+{
+  "entries": [
+    {
+      "assumption_ref": "v61a_surface_reuse_default",
+      "note": "V61-B reuses the shipped V61-A communication surfaces by default.",
+      "status": "holds"
+    },
+    {
+      "assumption_ref": "bridge_office_binding_explicit_and_replayable",
+      "note": "V61-B makes resident bridge-office binding explicit, typed, and replayable.",
+      "status": "amended"
+    },
+    {
+      "assumption_ref": "rewitness_explicit_and_fail_closed",
+      "note": "V61-B makes message rewitness explicit, typed, and fail-closed.",
+      "status": "amended"
+    },
+    {
+      "assumption_ref": "positive_rewitness_basis_required",
+      "note": "V61-B requires an explicit witness basis or certificate for positive rewitness.",
+      "status": "amended"
+    },
+    {
+      "assumption_ref": "rewitness_non_mutating_for_v60_state",
+      "note": "V61-B keeps rewitness posture non-mutating for charter, residual, loop-state, and continuation outputs.",
+      "status": "amended"
+    },
+    {
+      "assumption_ref": "path_level_non_generalization_required",
+      "note": "V61-B keeps evidence from the selected resident send seam non-generalizing by default.",
+      "status": "amended"
+    }
+  ],
+  "entry_count": 6,
+  "prior_lane_ref": "docs/LOCKED_CONTINUATION_vNEXT_PLUS167.md",
+  "record_id": null,
+  "schema": "agentic_de_lane_drift_record@1",
+  "target_arc": "vNext+168",
+  "target_path": "V61-B"
+}

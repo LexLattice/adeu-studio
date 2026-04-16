@@ -1,0 +1,82 @@
+{
+  "bridge_office_binding_ref": "agentic_de_bridge_office_binding_d5368f840530",
+  "certificate_ref_or_none": null,
+  "changes_live_behavior_by_default": false,
+  "communication_egress_ref": "agentic_de_communication_egress_a9c87d1c116e",
+  "communication_ingress_ref": "agentic_de_communication_ingress_fa2ead1a96a3",
+  "evidence_only": true,
+  "evidence_refs": [
+    "agentic_de_communication_ingress_fa2ead1a96a3",
+    "agentic_de_ingress_interpretation_8a0ac37a6f71",
+    "agentic_de_communication_egress_a9c87d1c116e",
+    "agentic_de_bridge_office_binding_d5368f840530",
+    "agentic_de_continuation_refresh_decision_067a308bcae4",
+    "packages/adeu_agentic_de/tests/fixtures/v60a/reference_agentic_de_task_charter_packet.json",
+    "packages/adeu_agentic_de/tests/fixtures/v60a/reference_agentic_de_loop_state_ledger.json",
+    "packages/adeu_agentic_de/tests/fixtures/v60b/reference_agentic_de_continuation_refresh_decision_record.json",
+    "packages/adeu_agentic_de/tests/fixtures/v61a/reference_agentic_de_communication_ingress_packet.json",
+    "packages/adeu_agentic_de/tests/fixtures/v61a/reference_agentic_de_surface_authority_descriptor.json",
+    "packages/adeu_agentic_de/tests/fixtures/v61a/reference_agentic_de_ingress_interpretation_record.json",
+    "packages/adeu_agentic_de/tests/fixtures/v61a/reference_agentic_de_communication_egress_packet.json",
+    "packages/adeu_agentic_de/tests/fixtures/v61b/reference_agentic_de_lane_drift_record.json",
+    "artifacts/agent_harness/v167/evidence_inputs/v61a_governed_communication_evidence_v167.json"
+  ],
+  "field_dependence_tags": {
+    "frozen_policy_anchor_ref": [],
+    "rewitness_basis_summary": [
+      "agentic_de_communication_ingress_fa2ead1a96a3",
+      "agentic_de_ingress_interpretation_8a0ac37a6f71",
+      "agentic_de_communication_egress_a9c87d1c116e",
+      "agentic_de_bridge_office_binding_d5368f840530",
+      "docs/LOCKED_CONTINUATION_vNEXT_PLUS168.md#machine-checkable-contract"
+    ],
+    "rewitness_outcome": [
+      "agentic_de_communication_ingress_fa2ead1a96a3",
+      "agentic_de_ingress_interpretation_8a0ac37a6f71",
+      "agentic_de_communication_egress_a9c87d1c116e",
+      "agentic_de_bridge_office_binding_d5368f840530",
+      "agentic_de_continuation_refresh_decision_067a308bcae4",
+      "docs/LOCKED_CONTINUATION_vNEXT_PLUS168.md#machine-checkable-contract"
+    ],
+    "root_origin_dedup_summary": [
+      "agentic_de_communication_ingress_fa2ead1a96a3",
+      "agentic_de_ingress_interpretation_8a0ac37a6f71",
+      "agentic_de_communication_egress_a9c87d1c116e",
+      "agentic_de_bridge_office_binding_d5368f840530"
+    ]
+  },
+  "field_origin_tags": {
+    "frozen_policy_anchor_ref": "shaping_only",
+    "rewitness_basis_summary": "current_turn_derived",
+    "rewitness_outcome": "current_turn_derived",
+    "root_origin_dedup_summary": "current_turn_derived"
+  },
+  "frozen_policy_anchor_ref": "docs/LOCKED_CONTINUATION_vNEXT_PLUS168.md#machine-checkable-contract",
+  "ingress_interpretation_ref": "agentic_de_ingress_interpretation_8a0ac37a6f71",
+  "latest_continuation_basis_ref": "agentic_de_continuation_refresh_decision_067a308bcae4",
+  "message_rewitness_gate_id": "agentic_de_message_rewitness_gate_0af2b5fdd16e",
+  "rewitness_basis_summary": "shipped V61-A communication lineage + explicit V61-B bridge binding + frozen V61-B policy anchor",
+  "rewitness_outcome": "witness_candidate_promoted",
+  "rewitness_reason_codes": [
+    "rewitness_outcome_witness_candidate_promoted",
+    "positive_rewitness_requires_explicit_basis",
+    "rewitness_non_mutating_for_v60_state"
+  ],
+  "root_origin_dedup_summary": "communication ingress, interpretation, egress, and bridge-binding refs are deduplicated by shared resident seam and continuation lineage roots",
+  "root_origin_ids": [
+    "session:copilot-v59a-session-1",
+    "request:v61a-send-request-1",
+    "charter:agentic_de_task_charter_4ba381fc318f",
+    "refresh:agentic_de_continuation_refresh_decision_067a308bcae4",
+    "policy:docs/LOCKED_CONTINUATION_vNEXT_PLUS167.md#machine-checkable-contract",
+    "basis:agentic_de_continuation_refresh_decision_067a308bcae4",
+    "egress:status_update",
+    "policy:docs/LOCKED_CONTINUATION_vNEXT_PLUS168.md#machine-checkable-contract",
+    "rewitness:witness_candidate_promoted"
+  ],
+  "schema": "agentic_de_message_rewitness_gate_record@1",
+  "target_arc": "vNext+168",
+  "target_path": "V61-B",
+  "task_charter_ref": "agentic_de_task_charter_4ba381fc318f",
+  "witness_basis_ref_or_none": "agentic_de_communication_egress_a9c87d1c116e"
+}

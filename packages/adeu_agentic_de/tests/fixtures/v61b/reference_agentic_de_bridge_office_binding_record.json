@@ -1,0 +1,79 @@
+{
+  "bridge_binding_basis_summary": "shipped V61-A communication lineage + shipped V60 continuation basis + frozen V61-B policy anchor",
+  "bridge_office_binding_id": "agentic_de_bridge_office_binding_d5368f840530",
+  "bridge_reason_codes": [
+    "bridge_posture_resident_bridge_bound",
+    "same_bridge_facts_same_policy_same_bridge_posture"
+  ],
+  "changes_live_behavior_by_default": false,
+  "communication_egress_ref": "agentic_de_communication_egress_a9c87d1c116e",
+  "communication_ingress_ref": "agentic_de_communication_ingress_fa2ead1a96a3",
+  "evidence_only": true,
+  "evidence_refs": [
+    "agentic_de_communication_ingress_fa2ead1a96a3",
+    "agentic_de_surface_authority_descriptor_f53e9d92836e",
+    "agentic_de_ingress_interpretation_8a0ac37a6f71",
+    "agentic_de_communication_egress_a9c87d1c116e",
+    "agentic_de_continuation_refresh_decision_067a308bcae4",
+    "packages/adeu_agentic_de/tests/fixtures/v60a/reference_agentic_de_task_charter_packet.json",
+    "packages/adeu_agentic_de/tests/fixtures/v60a/reference_agentic_de_loop_state_ledger.json",
+    "packages/adeu_agentic_de/tests/fixtures/v60b/reference_agentic_de_continuation_refresh_decision_record.json",
+    "packages/adeu_agentic_de/tests/fixtures/v61a/reference_agentic_de_communication_ingress_packet.json",
+    "packages/adeu_agentic_de/tests/fixtures/v61a/reference_agentic_de_surface_authority_descriptor.json",
+    "packages/adeu_agentic_de/tests/fixtures/v61a/reference_agentic_de_ingress_interpretation_record.json",
+    "packages/adeu_agentic_de/tests/fixtures/v61a/reference_agentic_de_communication_egress_packet.json",
+    "packages/adeu_agentic_de/tests/fixtures/v61b/reference_agentic_de_lane_drift_record.json",
+    "artifacts/agent_harness/v167/evidence_inputs/v61a_governed_communication_evidence_v167.json"
+  ],
+  "field_dependence_tags": {
+    "bridge_binding_basis_summary": [
+      "agentic_de_communication_ingress_fa2ead1a96a3",
+      "agentic_de_surface_authority_descriptor_f53e9d92836e",
+      "agentic_de_ingress_interpretation_8a0ac37a6f71",
+      "agentic_de_communication_egress_a9c87d1c116e",
+      "docs/LOCKED_CONTINUATION_vNEXT_PLUS168.md#machine-checkable-contract"
+    ],
+    "frozen_policy_anchor_ref": [],
+    "latest_continuation_basis_selection_summary": [
+      "agentic_de_continuation_refresh_decision_067a308bcae4"
+    ],
+    "selected_bridge_office_posture": [
+      "agentic_de_communication_ingress_fa2ead1a96a3",
+      "agentic_de_surface_authority_descriptor_f53e9d92836e",
+      "agentic_de_ingress_interpretation_8a0ac37a6f71",
+      "agentic_de_communication_egress_a9c87d1c116e",
+      "agentic_de_continuation_refresh_decision_067a308bcae4",
+      "docs/LOCKED_CONTINUATION_vNEXT_PLUS168.md#machine-checkable-contract"
+    ]
+  },
+  "field_origin_tags": {
+    "bridge_binding_basis_summary": "current_turn_derived",
+    "frozen_policy_anchor_ref": "shaping_only",
+    "latest_continuation_basis_selection_summary": "prior_artifact",
+    "selected_bridge_office_posture": "current_turn_derived"
+  },
+  "frozen_policy_anchor_ref": "docs/LOCKED_CONTINUATION_vNEXT_PLUS168.md#machine-checkable-contract",
+  "ingress_interpretation_ref": "agentic_de_ingress_interpretation_8a0ac37a6f71",
+  "latest_continuation_basis_ref": "agentic_de_continuation_refresh_decision_067a308bcae4",
+  "latest_continuation_basis_selection_summary": "latest shipped V60-B refresh decision remains the selected continuation basis for explicit resident bridge-office binding over the exact V61-A seam",
+  "resident_session_ref": "copilot-v59a-session-1",
+  "root_origin_ids": [
+    "session:copilot-v59a-session-1",
+    "request:v61a-send-request-1",
+    "charter:agentic_de_task_charter_4ba381fc318f",
+    "refresh:agentic_de_continuation_refresh_decision_067a308bcae4",
+    "policy:docs/LOCKED_CONTINUATION_vNEXT_PLUS167.md#machine-checkable-contract",
+    "basis:agentic_de_continuation_refresh_decision_067a308bcae4",
+    "egress:status_update",
+    "policy:docs/LOCKED_CONTINUATION_vNEXT_PLUS168.md#machine-checkable-contract"
+  ],
+  "schema": "agentic_de_bridge_office_binding_record@1",
+  "selected_bridge_office_posture": "resident_bridge_bound",
+  "source_principal_class": "human_operator",
+  "speaker_class": "resident_session_user_message",
+  "surface_authority_descriptor_ref": "agentic_de_surface_authority_descriptor_f53e9d92836e",
+  "surface_instance_or_session_identity": "copilot-v59a-session-1",
+  "target_arc": "vNext+168",
+  "target_path": "V61-B",
+  "task_charter_ref": "agentic_de_task_charter_4ba381fc318f"
+}
