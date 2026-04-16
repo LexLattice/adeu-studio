@@ -71,6 +71,7 @@ def test_v61c_output_remains_advisory_only_path_level_and_policy_anchored(
 
     assert register.target_arc == "vNext+169"
     assert register.target_path == "V61-C"
+    assert register.baseline_checker_version == "agentic_de_governed_communication_v61c"
     assert register.advisory_only is True
     assert register.candidate_only is True
     assert register.path_level_only is True
@@ -149,6 +150,20 @@ def test_positive_rewitness_basis_is_required_for_v61c(tmp_path: Path) -> None:
         ValueError,
         match="witness_basis_ref_or_none or certificate_ref_or_none",
     ):
+        run_agentic_de_governed_communication_v61c(repo_root_path=temp_root)
+
+
+def test_v61c_rejects_non_shipped_v61b_policy_anchor(tmp_path: Path) -> None:
+    temp_root, fixture_root = _copy_v61c_input_tree(tmp_path / "repo")
+    bridge_binding_path = (
+        fixture_root.parent / "v61b" / "reference_agentic_de_bridge_office_binding_record.json"
+    )
+    payload = json.loads(bridge_binding_path.read_text(encoding="utf-8"))
+    payload["frozen_policy_anchor_ref"] = "docs/LOCKED_CONTINUATION_vNEXT_PLUS999.md#other"
+    payload["bridge_office_binding_id"] = None
+    bridge_binding_path.write_text(json.dumps(payload, indent=2) + "\n", encoding="utf-8")
+
+    with pytest.raises(ValueError, match="bridge binding policy anchor"):
         run_agentic_de_governed_communication_v61c(repo_root_path=temp_root)
 
 

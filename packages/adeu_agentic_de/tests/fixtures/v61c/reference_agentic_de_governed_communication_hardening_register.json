@@ -1,6 +1,6 @@
 {
   "advisory_only": true,
-  "baseline_checker_version": "agentic_de_governed_communication_v61b",
+  "baseline_checker_version": "agentic_de_governed_communication_v61c",
   "candidate_only": true,
   "changes_live_behavior_by_default": false,
   "committed_lane_artifacts_outrank_narrative_docs": true,
@@ -137,8 +137,9 @@
   "lineage_root_non_independence_dedup_applied": true,
   "path_level_only": true,
   "recommendation_function_extensional_and_replayable": true,
-  "register_id": "agentic_de_governed_communication_hardening_register_f6536519481c",
+  "register_id": "agentic_de_governed_communication_hardening_register_18d68ddccf9f",
   "schema": "agentic_de_governed_communication_hardening_register@1",
   "target_arc": "vNext+169",
   "target_path": "V61-C"
 }
+

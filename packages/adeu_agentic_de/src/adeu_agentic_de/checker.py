@@ -11572,11 +11572,15 @@ def _validate_v61c_v61b_surfaces(
         or bridge_binding.target_path != V61B_TARGET_PATH
     ):
         raise ValueError("V61-C requires the shipped V61-B bridge-office binding surface")
+    if bridge_binding.frozen_policy_anchor_ref != V61B_FROZEN_POLICY_REF:
+        raise ValueError("V61-C requires the shipped V61-B bridge binding policy anchor")
     if (
         rewitness_gate.target_arc != V61B_TARGET_ARC
         or rewitness_gate.target_path != V61B_TARGET_PATH
     ):
         raise ValueError("V61-C requires the shipped V61-B message rewitness gate surface")
+    if rewitness_gate.frozen_policy_anchor_ref != V61B_FROZEN_POLICY_REF:
+        raise ValueError("V61-C requires the shipped V61-B rewitness policy anchor")
     if bridge_binding.communication_ingress_ref != ingress.communication_ingress_id:
         raise ValueError("V61-C bridge binding must bind the shipped V61-A ingress packet")
     if (
@@ -11767,7 +11771,7 @@ def _build_v61c_governed_communication_hardening_register(
     return AgenticDeGovernedCommunicationHardeningRegister(
         target_arc=V61C_TARGET_ARC,
         target_path=V61C_TARGET_PATH,
-        baseline_checker_version=V61B_CHECKER_VERSION,
+        baseline_checker_version=V61C_CHECKER_VERSION,
         entry_count=1,
         entries=[entry],
     )
