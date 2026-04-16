@@ -5,7 +5,8 @@ full `V60` family closed on `main` through `v166`, and after the multi-arc roadm
 and support-layer review clarified that the strongest remaining gap is governed
 communication membrane ownership rather than more `V60` widening, connector-specific
 transport work, remote-operator UX, or repo-bound writable-surface widening, and now
-updated again after `V61-A` landed on `main` through `v167`.
+updated again after `V61-A` landed on `main` through `v167`, and after `V61-B`
+landed on `main` through `v168`.
 
 Authority layer: planning.
 
@@ -58,10 +59,12 @@ Interpretive doctrine for this planning surface:
 - `V60-A` through `V60-C` are closed on `main` and remain the released continuation /
   residual-intent starter / refresh / advisory hardening ladder recorded in
   `docs/DRAFT_NEXT_ARC_OPTIONS_v43.md`.
-- `V61-A` is landed on `main` and remains the released governed communication starter
-  over the exact resident `/urm/copilot/send` seam with `copilot.user_message` only,
-  typed ingress / descriptor / interpretation / egress packet surfaces, and no
-  bridge-office binding or rewitness yet.
+- `V61-A` and `V61-B` are landed on `main` and now remain the released governed
+  communication starter plus bounded bridge-office / rewitness follow-on over the
+  exact resident `/urm/copilot/send` seam with `copilot.user_message` only, typed
+  ingress / descriptor / interpretation / egress packet surfaces, one explicit
+  bridge-office binding record, one explicit rewitness gate record, and no advisory
+  communication hardening yet.
 - the repo already has materially real communication-capable runtime and user
   surfaces:
   - URM resident Codex sessions and control plane
@@ -76,11 +79,12 @@ Interpretive doctrine for this planning surface:
   - one advisory continuation hardening register can assess that same lineage without
     mutating live behavior
 - the support-layer review now sharpens the next practical warning:
-  - the repo has communication-capable surfaces, but not yet governed communication
-    packets
-  - the repo has a resident Codex runtime, but not yet explicit bridge-office law
-  - the repo has transcript-bearing send surfaces, but not yet message-promotion /
-    rewitness discipline
+  - the repo has governed communication packets and bounded bridge-office / rewitness
+    follow-on over one exact resident seam
+  - the repo does not yet have an advisory communication hardening surface over that
+    shipped lineage
+  - early seam evidence still must not generalize by default into connector,
+    remote-operator, or repo/execute authority law
   - connector or remote surfaces should consume governed communication law later, not
     invent it first
 
@@ -98,39 +102,22 @@ The repo no longer lacks:
 
 The repo still lacks:
 
-- one typed communication ingress packet for already-real repo surfaces such as web
-  copilot, workbench, or resident session send paths;
-- one typed communication egress packet for resident bridge output over those same
-  surfaces;
-- one explicit principal / speaker typing basis on starter communication artifacts,
-  including:
-  - source principal class
-  - speaker class
-  - surface instance or session identity
-- one explicit surface-authority classification surface that distinguishes:
-  - communication
-  - observability
-  - advisory
-  - authority-request
-  - execution
-  - witness-candidate
-- one explicit ingress-interpretation record that rewrites raw message traffic into a
-  bounded interpreted posture such as:
-  - clarification response
-  - authority response
-  - status request
-  - charter-amendment candidate
-  - advisory-only message
-- one explicit rule that `charter-amendment candidate` remains communication posture
-  only in the starter slice:
-  - not charter mutation
-  - not residual mutation
-  - not continuation mutation
-  - not starter seed-ingress reopening
-- one explicit resident bridge-office binding that says when resident Codex acts as
-  bridge rather than merely as operational actor;
-- one explicit message-promotion / rewitness gate so raw transcript does not
-  silently become native witness; and
+- one advisory communication hardening surface over the shipped `V61-A` / `V61-B`
+  lineage only;
+- one explicit frozen-policy-anchored recommendation surface that can assess:
+  - same selected communication lineage
+  - same bridge-office posture
+  - same rewitness outcome
+  - same frozen policy
+  - same recommendation
+- one explicit rule that communication exemplar evidence remains non-generalizing by
+  default at the advisory layer:
+  - not connector-family law
+  - not remote-operator law
+  - not bridge-office-family law
+  - not rewitness-family law
+  - not independent law for other communication surfaces beyond the same backend seam
+  - not repo/execute authority law
 - one bounded family posture that keeps communication ownership distinct from:
   - continuation semantics already owned by `V60`
   - connector-specific transport
@@ -325,15 +312,26 @@ Default path selection for this branch:
     - keep connector-specific transport, remote operator UX, repo-bound writable
       authority, replay widening, execute widening, and dispatch widening not selected
       in this slice
-  - after `V61-B`, if this family is selected, select `V61-C` as the next default
-    candidate:
+  - after `V61-B`, if this family is selected, select `V61-C` as the next default candidate:
     - one advisory communication hardening surface over the exact shipped `V61-A` /
       `V61-B` lineage only
     - keep outputs non-entitling and advisory-only
+    - carry explicit positive rewitness basis into the advisory evidence basis when
+      present:
+      - explicit witness basis ref or certificate ref
+      - not positive rewitness outcome alone
+    - keep latest continuation basis selection explicit and replayable:
+      - selected basis ref
+      - selected basis summary
     - keep communication exemplar evidence non-generalizing by default
     - not connector-family law
     - not remote-operator law
+    - not bridge-office-family law
+    - not rewitness-family law
+    - not independent law for other communication surfaces beyond the same backend
+      seam
     - not execution-authority conclusions
+    - keep candidate outcomes scope-unspecified until a later lock selects them
 
 This family/path recommendation is branch-local to the `v44` planning surface.
 
@@ -347,7 +345,7 @@ The current recommended path ladder is:
 | Path | Theme | Primary output | Status |
 |---|---|---|---|
 | `V61-A` | communication packet starter | one communication ingress packet, one ingress interpretation record, one communication egress packet, and one surface-authority descriptor over the existing repo communication surfaces only | closed on `main` |
-| `V61-B` | bridge office binding / rewitness / message-promotion gate | one explicit resident bridge-office binding seam and one rewitness / message-promotion gate over the same communication lineage only | recommended step-2 path |
+| `V61-B` | bridge office binding / rewitness / message-promotion gate | one explicit resident bridge-office binding seam and one rewitness / message-promotion gate over the same communication lineage only | closed on `main` |
 | `V61-C` | advisory communication hardening | one advisory path-level communication hardening surface over the same governed communication lineage, without mutating live behavior by default | recommended step-3 path |
 
 These output names are planning-level candidate names, not lock-level schema

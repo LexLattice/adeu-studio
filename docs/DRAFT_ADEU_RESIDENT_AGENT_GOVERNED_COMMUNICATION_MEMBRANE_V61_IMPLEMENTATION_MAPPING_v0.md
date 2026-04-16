@@ -1,7 +1,7 @@
 # Draft ADEU Resident-Agent Governed Communication Membrane V61 Implementation Mapping v0
 
 Status: support-layer implementation mapping for `V61` after `V60` closed on
-`main`.
+`main`, now updated after `V61-B` landed on `main`.
 
 Authority layer: support only.
 
@@ -162,12 +162,30 @@ The family should remain backend-first in `V61-A`:
 - `V61-C`
   - add one advisory communication hardening surface over the same communication
     lineage
+  - candidate surface:
+    - `agentic_de_governed_communication_hardening_register@1`
   - keep outputs advisory-only and non-entitling
   - keep evidence basis distinct from recommendation
+  - keep the advisory result extensional and replayable:
+    - same selected communication lineage
+    - same selected bridge-office / rewitness verdicts
+    - same explicit positive rewitness basis or certificate posture when present
+    - same latest continuation basis selection summary
+    - same frozen policy
+    - same recommendation
   - keep communication exemplar evidence non-generalizing by default
     - not connector-family law
     - not remote-operator law
+    - not bridge-office-family law
+    - not rewitness-family law
     - not execution-authority conclusions
+  - carry rewitness positive basis directly in the advisory evidence basis:
+    - explicit `witness_basis_ref_or_none`
+    - explicit `certificate_ref_or_none`
+    - not positive rewitness outcome alone
+  - keep candidate outcomes scope-bounded until a later lock selects them:
+    - later communication-hardening scope remains unspecified by default
+    - later bridge-office / rewitness migration scope remains unspecified by default
   - keep any later office or transport widening separate from live behavior by
     default
 
@@ -237,6 +255,23 @@ Likely implementation surfaces for `V61-B`:
   - public export wiring
 - `apps/api/scripts/`
   - one thin follow-on script for `V61-B`
+- `packages/adeu_agentic_de/tests/`
+  - package and schema tests
+- `apps/api/tests/`
+  - thin CLI tests
+
+Likely implementation surfaces for `V61-C`:
+
+- `packages/adeu_agentic_de/src/adeu_agentic_de/models.py`
+  - advisory governed-communication hardening register model
+- `packages/adeu_agentic_de/src/adeu_agentic_de/checker.py`
+  - loader / renderer / validator / runner support for `V61-C`
+- `packages/adeu_agentic_de/src/adeu_agentic_de/export_schema.py`
+  - authoritative and mirrored schema export
+- `packages/adeu_agentic_de/src/adeu_agentic_de/__init__.py`
+  - public export wiring
+- `apps/api/scripts/`
+  - one thin evaluator script for `V61-C`
 - `packages/adeu_agentic_de/tests/`
   - package and schema tests
 - `apps/api/tests/`
