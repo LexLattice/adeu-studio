@@ -1,8 +1,8 @@
 # Assessment vNext+167 Edges
 
-Status: planning-edge assessment for `V61-A`.
+Status: post-closeout edge assessment for `V61-A` (April 16, 2026 UTC).
 
-Authority layer: planning.
+Authority layer: closeout evidence on `main`.
 
 ## Assessment-State Marker (Machine-Checkable)
 
@@ -10,8 +10,8 @@ Authority layer: planning.
 {
   "schema": "assessment_artifact_state@1",
   "artifact": "docs/ASSESSMENT_vNEXT_PLUS167_EDGES.md",
-  "phase": "pre_lock_assessment",
-  "authoritative": false,
+  "phase": "post_closeout_assessment",
+  "authoritative": true,
   "required_in_decision": true
 }
 ```
@@ -21,13 +21,16 @@ Authority layer: planning.
 ### Edge 1: `V61-A` Could Quietly Reopen `V60` Task-Law Compilation
 
 - Risk:
-  ingress interpretation could be over-read as if communication already recompiled
+  message interpretation could be over-read as if communication already recompiled
   charter or continuation law.
 - Response:
   keep `V61-A` strictly downstream of shipped `V60`.
   - interpretation consumes latest shipped `V60` basis
   - `charter_amendment_candidate` remains posture only
   - no charter/residual/continuation mutation here
+- Closeout Evidence:
+  shipped `V61-A` checker/tests preserve explicit `V60` basis selection and keep
+  `charter_amendment_candidate` posture-only.
 
 ### Edge 2: UI Send Access Could Masquerade As Bridge Office
 
@@ -39,6 +42,9 @@ Authority layer: planning.
   - runtime may emit governed egress
   - that is not explicit bridge-office behavior
   - office binding remains deferred to `V61-B`
+- Closeout Evidence:
+  merged `v167` diff ships no bridge-office binding surfaces and the decision bundle
+  preserves that deferral explicitly.
 
 ### Edge 3: Transcript Could Re-Enter As Native Witness
 
@@ -50,6 +56,9 @@ Authority layer: planning.
   - transcript remains observability only
   - no message-promotion gate here
   - rewitness remains deferred to `V61-B`
+- Closeout Evidence:
+  shipped egress semantics remain non-witnessing by default and no rewitness surfaces
+  landed in `v167`.
 
 ### Edge 4: Surface Classification Could Collapse Into Message Interpretation
 
@@ -62,6 +71,10 @@ Authority layer: planning.
     posture only
   - ingress interpretation alone decides message posture
   - both remain replayable
+- Closeout Evidence:
+  shipped `agentic_de_surface_authority_descriptor@1` and
+  `agentic_de_ingress_interpretation_record@1` remain separate typed surfaces with
+  replayable checker/tests.
 
 ### Edge 5: Starter Scope Could Drift Into Multiple Parallel Communication Seams
 
@@ -75,6 +88,9 @@ Authority layer: planning.
   - `copilot.user_message` only
   - web and workbench remain consumers of that same seam, not separate starter
     retrofits
+- Closeout Evidence:
+  shipped seam selection stayed fail-closed to the resident `/urm/copilot/send` path
+  and one runtime message method only.
 
 ### Edge 6: Communication Egress Could Be Over-Read As Act Authority
 
@@ -88,8 +104,26 @@ Authority layer: planning.
   - no act authority
   - no repo-write authority
   - no native witness by default
+- Closeout Evidence:
+  shipped egress contract/checker/tests keep communication outputs bounded to posture
+  only.
 
-### Edge 7: Connector Or Remote Surfaces Could Be Smuggled Into The Starter
+### Edge 7: Review Hardening Could Miss Default Repo-Root Symlink Cases
+
+- Risk:
+  the starter runner could reject explicit symlinked repo roots but still accept a
+  symlinked default-discovered root, weakening the fail-closed boundary.
+- Response:
+  keep root selection explicit and fail-closed before resolution.
+  - explicit repo root may not be a symlink
+  - default-discovered repo root may not be a symlink
+  - path-argument mapping remains explicit and auditable
+- Closeout Evidence:
+  review hardening commit `d1a1b0c054f9191fd99d166a98e78a6712940e18` tightened the
+  default root guard and replaced `locals()` path lookup with an explicit path map,
+  with regression coverage.
+
+### Edge 8: Connector Or Remote Surfaces Could Be Smuggled Into The Starter
 
 - Risk:
   because `V61` sits upstream of `V62` and `V63`, the starter slice could drift into
@@ -99,24 +133,16 @@ Authority layer: planning.
   - no connector-specific transport law
   - no remote-operator UX law
   - no product-surface expansion under cover of starter retrofit
-
-### Edge 8: Latest `V60` Continuation Basis Selection Could Become Ambiguous
-
-- Risk:
-  if ingress interpretation or egress derivation can choose among multiple continuation
-  artifacts loosely, the membrane becomes non-replayable.
-- Response:
-  keep latest-basis selection explicit and fail-closed.
-  - latest shipped `V60` continuation basis only
-  - explicit basis refs
-  - same ingress plus same basis plus same frozen policy must yield same outputs
+- Closeout Evidence:
+  shipped `v167` surfaces remain bounded to the resident send seam with no connector
+  or remote-specific transport/runtime law.
 
 ## Current Judgment
 
-- `V61-A` is worth implementing now because `V60` closed continuation / residual
-  identity, but the repo still lacks typed governed communication packets over the
+- `V61-A` was the right next slice because `V60` closed continuation / residual
+  identity, but the repo still lacked typed governed communication packets over the
   already-real resident send seam.
-- the starter should remain properly bounded:
+- the shipped result remained properly bounded:
   - exact-resident-send-seam-first
   - principal/speaker-typing-first
   - surface-descriptor-first
@@ -126,5 +152,6 @@ Authority layer: planning.
   - non-office-binding
   - non-rewitnessing
   - non-connector / non-remote / non-repo-authority widening
-- if `V61-A` lands cleanly, the next default same-family move should be `V61-B`,
-  not widening `V61-A` authority in place.
+- `V61-A` is now closed on `main` in the starter sense.
+- the next same-family move should be `V61-B`, not widening `V61-A` authority in
+  place.
