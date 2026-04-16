@@ -108,6 +108,22 @@ def test_min_acceptable_ts_fail_closed_on_stale_snapshot(tmp_path: Path) -> None
         )
 
 
+def test_malformed_connector_ids_fail_closed(tmp_path: Path) -> None:
+    temp_root, fixture_root = _copy_v62a_input_tree(tmp_path)
+    snapshot_path = fixture_root / "reference_connector_snapshot_response.json"
+    payload = _load_json(fixture_root, "reference_connector_snapshot_response.json")
+    assert isinstance(payload, dict)
+    assert isinstance(payload["exposed_connectors"], list)
+    payload["exposed_connectors"][0]["id"] = None
+    snapshot_path.write_text(json.dumps(payload, indent=2) + "\n", encoding="utf-8")
+
+    with pytest.raises(
+        ValueError,
+        match="snapshot\\.exposed_connectors\\[0\\] must carry one non-empty string id",
+    ):
+        run_agentic_de_connector_admission_v62a(repo_root_path=temp_root)
+
+
 def test_default_symlinked_repo_root_fails_closed(
     tmp_path: Path, monkeypatch: pytest.MonkeyPatch
 ) -> None:

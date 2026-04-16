@@ -12115,8 +12115,11 @@ def _validate_v62a_connector_snapshot(
     if not snapshot.exposed_connectors:
         raise ValueError("V62-A requires at least one exposed connector on the selected path")
     exposure_ids = [item.connector_id for item in snapshot.connector_exposure if item.exposed]
-    exposed_ids = [item.get("id") for item in snapshot.exposed_connectors if isinstance(item, dict)]
-    if sorted(exposure_ids) != sorted(exposed_ids):
+    exposed_ids = _extract_v62a_connector_ids(
+        items=snapshot.exposed_connectors,
+        field_name="snapshot.exposed_connectors",
+    )
+    if exposure_ids != exposed_ids:
         raise ValueError("V62-A connector snapshot must keep exposed connectors aligned")
     normalized_created_at = _normalize_timestamp(snapshot.created_at)
     normalized_min_ts = _normalize_timestamp(min_acceptable_ts)
@@ -12178,6 +12181,21 @@ def _validate_v62a_v61a_surfaces(
         raise ValueError("V62-A requires the shipped V61-A resident session identity")
 
 
+def _extract_v62a_connector_ids(
+    *, items: list[dict[str, object]], field_name: str
+) -> list[str]:
+    connector_ids: list[str] = []
+    for index, item in enumerate(items):
+        connector_id = item.get("id")
+        if not isinstance(connector_id, str) or not connector_id.strip():
+            raise ValueError(
+                f"{field_name}[{index}] must carry one non-empty string id "
+                "for V62-A connector admission"
+            )
+        connector_ids.append(connector_id)
+    return connector_ids
+
+
 def _build_v62a_connector_admission_record(
     *,
     loop_state_ledger: AgenticDeLoopStateLedger,
@@ -12186,14 +12204,15 @@ def _build_v62a_connector_admission_record(
     min_acceptable_ts: datetime | None,
     evidence_refs: list[str],
 ) -> AgenticDeConnectorAdmissionRecord:
-    exposed_ids = sorted(
-        item.get("id")
-        for item in snapshot.exposed_connectors
-        if isinstance(item, dict) and item.get("id")
+    exposed_ids = _extract_v62a_connector_ids(
+        items=snapshot.exposed_connectors,
+        field_name="snapshot.exposed_connectors",
     )
-    connector_ids = sorted(
-        item.get("id") for item in snapshot.connectors if isinstance(item, dict) and item.get("id")
+    connector_ids = _extract_v62a_connector_ids(
+        items=snapshot.connectors,
+        field_name="snapshot.connectors",
     )
+    exposure_ids = [item.connector_id for item in snapshot.connector_exposure]
     field_origin_tags = {
         "connector_provider_class": "prior_artifact",
         "connector_identity_facts": "prior_artifact",
@@ -12234,7 +12253,7 @@ def _build_v62a_connector_admission_record(
             "snapshot exposed connector ids="
             + ",".join(exposed_ids)
             + "; connector_exposure entries="
-            + ",".join(sorted(item.connector_id for item in snapshot.connector_exposure))
+            + ",".join(exposure_ids)
         ),
         connector_route_basis_summary=(
             "selected routes="
