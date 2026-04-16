@@ -83,6 +83,9 @@ AGENTIC_DE_CONTINUATION_DECISION_RECORD_SCHEMA = (
 AGENTIC_DE_CONTINUATION_REFRESH_DECISION_RECORD_SCHEMA = (
     "agentic_de_continuation_refresh_decision_record@1"
 )
+AGENTIC_DE_CONTINUATION_HARDENING_REGISTER_SCHEMA = (
+    "agentic_de_continuation_hardening_register@1"
+)
 
 ACTION_CLASS_VOCABULARY = ("inspect", "write", "execute", "dispatch")
 EXACT_ACTION_CLASS_VOCABULARY = (
@@ -221,6 +224,13 @@ CONTINUATION_REFRESH_OUTCOME_VOCABULARY = (
     "stop_complete",
     "reproposal_required",
     "escalate_for_review",
+)
+CONTINUATION_HARDENING_OUTCOME_VOCABULARY = (
+    "keep_warning_only",
+    "needs_more_evidence",
+    "candidate_for_later_continuation_hardening",
+    "candidate_for_later_continuation_migration",
+    "not_selected_for_escalation",
 )
 
 MODEL_CONFIG = ConfigDict(
@@ -368,6 +378,13 @@ ContinuationRefreshOutcome = Literal[
     "stop_complete",
     "reproposal_required",
     "escalate_for_review",
+]
+ContinuationHardeningOutcome = Literal[
+    "keep_warning_only",
+    "needs_more_evidence",
+    "candidate_for_later_continuation_hardening",
+    "candidate_for_later_continuation_migration",
+    "not_selected_for_escalation",
 ]
 
 
@@ -3712,6 +3729,212 @@ class AgenticDeContinuationRefreshDecisionRecord(BaseModel):
         return self
 
 
+class AgenticDeContinuationHardeningEntry(BaseModel):
+    model_config = MODEL_CONFIG
+
+    hardening_id: str | None = None
+    seed_intent_ref: str
+    task_charter_ref: str
+    task_residual_ref: str
+    loop_state_ledger_ref: str
+    continuation_decision_ref: str
+    task_residual_refresh_ref: str
+    continuation_refresh_decision_ref: str
+    starter_continuation_outcome: ContinuationOutcome
+    latest_reintegrated_act_identity: str
+    latest_reintegrated_act_selection_basis_summary: str
+    refresh_outcome: ContinuationRefreshOutcome
+    selected_next_path_summary_or_none: str | None = None
+    reproposal_basis_summary_or_none: str | None = None
+    selected_hardening_target_surface: str
+    frozen_policy_ref: str
+    evidence_basis_summary: str
+    verdict_basis_summary: str
+    recommendation_scope_requires_later_lock: Literal[True] = True
+    extensional_and_replayable_by_default: Literal[True] = True
+    lineage_root_dedup_applied: Literal[True] = True
+    field_origin_tags: dict[str, LiveTurnFieldOriginTag]
+    field_dependence_tags: dict[str, list[str]]
+    root_origin_ids: list[str]
+    root_origin_dedup_summary: str
+    recommended_outcome: ContinuationHardeningOutcome
+    rationale: str
+    reason_codes: list[str]
+    evidence_refs: list[str]
+
+    @model_validator(mode="after")
+    def _validate_entry(self) -> AgenticDeContinuationHardeningEntry:
+        required_fields = (
+            "seed_intent_ref",
+            "task_charter_ref",
+            "task_residual_ref",
+            "loop_state_ledger_ref",
+            "continuation_decision_ref",
+            "task_residual_refresh_ref",
+            "continuation_refresh_decision_ref",
+            "starter_continuation_outcome",
+            "latest_reintegrated_act_identity",
+            "latest_reintegrated_act_selection_basis_summary",
+            "refresh_outcome",
+            "selected_hardening_target_surface",
+            "frozen_policy_ref",
+            "evidence_basis_summary",
+            "verdict_basis_summary",
+            "root_origin_dedup_summary",
+            "rationale",
+        )
+        for field_name in required_fields:
+            _assert_present_text(getattr(self, field_name), field_name=field_name)
+        optional_text_fields = (
+            "selected_next_path_summary_or_none",
+            "reproposal_basis_summary_or_none",
+        )
+        for field_name in optional_text_fields:
+            value = getattr(self, field_name)
+            if value is not None:
+                _assert_present_text(value, field_name=field_name)
+        required_tag_fields = (
+            "starter_continuation_outcome",
+            "latest_reintegrated_act_selection_basis_summary",
+            "refresh_outcome",
+            "selected_next_path_summary_or_none",
+            "reproposal_basis_summary_or_none",
+            "frozen_policy_ref",
+            "evidence_basis_summary",
+            "verdict_basis_summary",
+            "recommended_outcome",
+        )
+        for field_name in required_tag_fields:
+            if field_name not in self.field_origin_tags:
+                raise ValueError(f"field_origin_tags missing required key {field_name}")
+            if field_name not in self.field_dependence_tags:
+                raise ValueError(f"field_dependence_tags missing required key {field_name}")
+        normalized_dependence_tags: dict[str, list[str]] = {}
+        for key, values in self.field_dependence_tags.items():
+            normalized_dependence_tags[key] = _ordered_unique_texts(
+                values,
+                field_name=f"field_dependence_tags[{key}]",
+            )
+        object.__setattr__(self, "field_dependence_tags", normalized_dependence_tags)
+        object.__setattr__(
+            self,
+            "root_origin_ids",
+            _ordered_unique_texts(self.root_origin_ids, field_name="root_origin_ids"),
+        )
+        object.__setattr__(
+            self,
+            "reason_codes",
+            _ordered_unique_texts(self.reason_codes, field_name="reason_codes"),
+        )
+        object.__setattr__(
+            self,
+            "evidence_refs",
+            _ordered_unique_texts(self.evidence_refs, field_name="evidence_refs"),
+        )
+        if not self.root_origin_ids:
+            raise ValueError("root_origin_ids must be non-empty")
+        if not self.reason_codes:
+            raise ValueError("reason_codes must be non-empty")
+        if not self.evidence_refs:
+            raise ValueError("evidence_refs must be non-empty")
+        candidate_outcomes = {
+            "candidate_for_later_continuation_hardening",
+            "candidate_for_later_continuation_migration",
+        }
+        if self.recommended_outcome in candidate_outcomes:
+            if "later_lock_required_for_scope" not in self.reason_codes:
+                raise ValueError(
+                    f"{self.recommended_outcome} requires later_lock_required_for_scope"
+                )
+        if self.recommended_outcome == "candidate_for_later_continuation_hardening":
+            if self.starter_continuation_outcome != "continue_to_governed_act":
+                raise ValueError(
+                    "candidate_for_later_continuation_hardening requires a shipped "
+                    "continue_to_governed_act starter posture"
+                )
+            if self.refresh_outcome != "continue_to_governed_act":
+                raise ValueError(
+                    "candidate_for_later_continuation_hardening requires a shipped "
+                    "continue_to_governed_act refresh posture"
+                )
+            if self.selected_next_path_summary_or_none is None:
+                raise ValueError(
+                    "candidate_for_later_continuation_hardening requires one exact "
+                    "selected_next_path_summary_or_none"
+                )
+            if self.reproposal_basis_summary_or_none is not None:
+                raise ValueError(
+                    "candidate_for_later_continuation_hardening requires "
+                    "reproposal_basis_summary_or_none to remain absent"
+                )
+        if self.recommended_outcome == "not_selected_for_escalation":
+            if "negative_selection_on_current_evidence" not in self.reason_codes:
+                raise ValueError(
+                    "not_selected_for_escalation requires "
+                    "negative_selection_on_current_evidence"
+                )
+        object.__setattr__(
+            self,
+            "hardening_id",
+            _assign_or_verify_content_addressed_id(
+                value=self.hardening_id,
+                field_name="hardening_id",
+                prefix="agentic_de_continuation_hardening",
+                payload=self.model_dump(mode="json", exclude={"hardening_id"}),
+            ),
+        )
+        return self
+
+
+class AgenticDeContinuationHardeningRegister(BaseModel):
+    model_config = MODEL_CONFIG
+
+    schema: Literal[AGENTIC_DE_CONTINUATION_HARDENING_REGISTER_SCHEMA] = (
+        AGENTIC_DE_CONTINUATION_HARDENING_REGISTER_SCHEMA
+    )
+    register_id: str | None = None
+    target_arc: str
+    target_path: str
+    advisory_only: Literal[True] = True
+    candidate_only: Literal[True] = True
+    path_level_only: Literal[True] = True
+    exemplar_evidence_non_generalizing_by_default: Literal[True] = True
+    changes_live_behavior_by_default: Literal[False] = False
+    committed_lane_artifacts_outrank_narrative_docs: Literal[True] = True
+    evidence_basis_distinct_from_recommendation: Literal[True] = True
+    recommendation_function_extensional_and_replayable: Literal[True] = True
+    explicit_frozen_policy_anchor_required: Literal[True] = True
+    lineage_root_non_independence_dedup_applied: Literal[True] = True
+    baseline_checker_version: str
+    entry_count: int
+    entries: list[AgenticDeContinuationHardeningEntry]
+
+    @model_validator(mode="after")
+    def _validate_register(self) -> AgenticDeContinuationHardeningRegister:
+        _assert_present_text(self.target_arc, field_name="target_arc")
+        _assert_present_text(self.target_path, field_name="target_path")
+        _assert_present_text(
+            self.baseline_checker_version,
+            field_name="baseline_checker_version",
+        )
+        if self.entry_count != len(self.entries):
+            raise ValueError("entry_count must equal len(entries)")
+        target_surfaces = [entry.selected_hardening_target_surface for entry in self.entries]
+        if len(set(target_surfaces)) != len(target_surfaces):
+            raise ValueError("selected_hardening_target_surface values must be unique")
+        object.__setattr__(
+            self,
+            "register_id",
+            _assign_or_verify_content_addressed_id(
+                value=self.register_id,
+                field_name="register_id",
+                prefix="agentic_de_continuation_hardening_register",
+                payload=self.model_dump(mode="json", exclude={"register_id"}),
+            ),
+        )
+        return self
+
+
 def compute_agentic_de_domain_packet_id(payload: dict[str, object]) -> str:
     return _compute_id("agentic_de_domain_packet", payload)
 
@@ -3904,6 +4127,14 @@ def compute_agentic_de_task_residual_refresh_packet_id(payload: dict[str, object
 
 def compute_agentic_de_loop_state_ledger_id(payload: dict[str, object]) -> str:
     return _compute_id("agentic_de_loop_state_ledger", payload)
+
+
+def compute_agentic_de_continuation_hardening_entry_id(payload: dict[str, object]) -> str:
+    return _compute_id("agentic_de_continuation_hardening", payload)
+
+
+def compute_agentic_de_continuation_hardening_register_id(payload: dict[str, object]) -> str:
+    return _compute_id("agentic_de_continuation_hardening_register", payload)
 
 
 def compute_agentic_de_continuation_decision_record_id(

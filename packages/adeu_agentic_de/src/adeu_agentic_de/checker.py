@@ -22,6 +22,7 @@ from .models import (
     AGENTIC_DE_ACTION_TICKET_SCHEMA,
     AGENTIC_DE_CONFORMANCE_REPORT_SCHEMA,
     AGENTIC_DE_CONTINUATION_DECISION_RECORD_SCHEMA,
+    AGENTIC_DE_CONTINUATION_HARDENING_REGISTER_SCHEMA,
     AGENTIC_DE_CONTINUATION_REFRESH_DECISION_RECORD_SCHEMA,
     AGENTIC_DE_DOMAIN_PACKET_SCHEMA,
     AGENTIC_DE_GOVERNANCE_CALIBRATION_REGISTER_SCHEMA,
@@ -61,6 +62,8 @@ from .models import (
     AgenticDeActionTicket,
     AgenticDeConformanceReport,
     AgenticDeContinuationDecisionRecord,
+    AgenticDeContinuationHardeningEntry,
+    AgenticDeContinuationHardeningRegister,
     AgenticDeContinuationRefreshDecisionRecord,
     AgenticDeDomainPacket,
     AgenticDeGovernanceCalibrationEntry,
@@ -167,6 +170,10 @@ V60B_CHECKER_VERSION = "agentic_de_continuation_v60b"
 V60B_TARGET_ARC = "vNext+165"
 V60B_TARGET_PATH = "V60-B"
 V60B_FROZEN_POLICY_REF = "docs/LOCKED_CONTINUATION_vNEXT_PLUS165.md#machine-checkable-contract"
+V60C_CHECKER_VERSION = "agentic_de_continuation_v60c"
+V60C_TARGET_ARC = "vNext+166"
+V60C_TARGET_PATH = "V60-C"
+V60C_FROZEN_POLICY_REF = "docs/LOCKED_CONTINUATION_vNEXT_PLUS166.md#machine-checkable-contract"
 
 
 def _default_fixture_path(variant: str, filename: str) -> Path:
@@ -411,6 +418,12 @@ DEFAULT_V60B_TASK_RESIDUAL_REFRESH_PATH = _default_fixture_path(
 DEFAULT_V60B_CONTINUATION_REFRESH_DECISION_PATH = _default_fixture_path(
     "v60b", "reference_agentic_de_continuation_refresh_decision_record.json"
 )
+DEFAULT_V60C_LANE_DRIFT_PATH = _default_fixture_path(
+    "v60c", "reference_agentic_de_lane_drift_record.json"
+)
+DEFAULT_V60C_HARDENING_PATH = _default_fixture_path(
+    "v60c", "reference_agentic_de_continuation_hardening_register.json"
+)
 DEFAULT_V58C_EVIDENCE_PATH = (
     repo_root(anchor=Path(__file__))
     / "artifacts"
@@ -450,6 +463,14 @@ DEFAULT_V60A_EVIDENCE_PATH = (
     / "v164"
     / "evidence_inputs"
     / "v60a_continuation_starter_evidence_v164.json"
+)
+DEFAULT_V60B_EVIDENCE_PATH = (
+    repo_root(anchor=Path(__file__))
+    / "artifacts"
+    / "agent_harness"
+    / "v165"
+    / "evidence_inputs"
+    / "v60b_continuation_refresh_evidence_v165.json"
 )
 
 EXPECTED_V56A_EVIDENCE_SCHEMA = "v56a_agentic_de_interaction_governance_starter_evidence@1"
@@ -588,6 +609,16 @@ REQUIRED_V60B_DRIFT_ENTRY_STATUSES: dict[str, str] = {
     "latest_reintegrated_act_selection_explicit_and_fail_closed": "amended",
     "reproposal_required_posture_only": "amended",
     "communication_law_still_deferred_to_v61": "amended",
+}
+EXPECTED_V60B_EVIDENCE_SCHEMA = "v60b_continuation_refresh_evidence@1"
+EXPECTED_V60C_PRIOR_LANE_REF = "docs/LOCKED_CONTINUATION_vNEXT_PLUS165.md"
+REQUIRED_V60C_DRIFT_ENTRY_STATUSES: dict[str, str] = {
+    "v60a_v60b_surface_reuse_default": "holds",
+    "hardening_recommendation_extensional_and_replayable": "amended",
+    "explicit_frozen_policy_anchor_required": "amended",
+    "path_level_non_generalization_required": "amended",
+    "candidate_outcomes_non_entitling_and_non_escalating": "amended",
+    "provenance_and_lineage_root_dedup_explicit": "amended",
 }
 
 
@@ -834,6 +865,18 @@ def load_continuation_refresh_decision_record(
     if payload.schema != AGENTIC_DE_CONTINUATION_REFRESH_DECISION_RECORD_SCHEMA:
         raise ValueError(
             "unexpected schema marker for continuation refresh decision record: "
+            f"{payload.schema}"
+        )
+    return payload
+
+
+def load_continuation_hardening_register(
+    path: Path,
+) -> AgenticDeContinuationHardeningRegister:
+    payload = AgenticDeContinuationHardeningRegister.model_validate(_read_json_object(path))
+    if payload.schema != AGENTIC_DE_CONTINUATION_HARDENING_REGISTER_SCHEMA:
+        raise ValueError(
+            "unexpected schema marker for continuation hardening register: "
             f"{payload.schema}"
         )
     return payload
@@ -1112,6 +1155,33 @@ def _assert_v60b_repo_local_input_path(
     except ValueError as exc:
         raise ValueError(
             f"{field_name} must remain within the repository root for V60-B continuation"
+        ) from exc
+
+
+def _assert_v60c_repo_local_input_path(
+    *,
+    repo_root_path: Path,
+    candidate: Path,
+    field_name: str,
+) -> None:
+    try:
+        relative = candidate.relative_to(repo_root_path)
+    except ValueError:
+        relative = None
+    if relative is not None:
+        current = repo_root_path
+        for part in relative.parts:
+            current = current / part
+            if current.is_symlink():
+                raise ValueError(
+                    f"{field_name} may not traverse symlink components for V60-C continuation"
+                )
+    candidate_resolved = candidate.resolve(strict=False)
+    try:
+        candidate_resolved.relative_to(repo_root_path)
+    except ValueError as exc:
+        raise ValueError(
+            f"{field_name} must remain within the repository root for V60-C continuation"
         ) from exc
 
 
@@ -1540,6 +1610,41 @@ def _validate_v60b_lane_drift_record(record: AgenticDeLaneDriftRecord) -> Agenti
     return record
 
 
+def _validate_v60c_lane_drift_record(record: AgenticDeLaneDriftRecord) -> AgenticDeLaneDriftRecord:
+    if record.target_arc != V60C_TARGET_ARC:
+        raise ValueError(
+            f"V60-C lane drift record must target {V60C_TARGET_ARC!r}, got {record.target_arc!r}"
+        )
+    if record.target_path != V60C_TARGET_PATH:
+        raise ValueError(
+            f"V60-C lane drift record must target {V60C_TARGET_PATH!r}, got {record.target_path!r}"
+        )
+    if record.prior_lane_ref != EXPECTED_V60C_PRIOR_LANE_REF:
+        raise ValueError(
+            "V60-C lane drift record must point at "
+            f"{EXPECTED_V60C_PRIOR_LANE_REF!r}, got {record.prior_lane_ref!r}"
+        )
+    actual_statuses = {entry.assumption_ref: entry.status for entry in record.entries}
+    missing_assumptions = sorted(set(REQUIRED_V60C_DRIFT_ENTRY_STATUSES) - set(actual_statuses))
+    mismatched_statuses = sorted(
+        assumption_ref
+        for assumption_ref, expected_status in REQUIRED_V60C_DRIFT_ENTRY_STATUSES.items()
+        if assumption_ref in actual_statuses
+        and actual_statuses[assumption_ref] != expected_status
+    )
+    if missing_assumptions or mismatched_statuses:
+        detail_parts: list[str] = []
+        if missing_assumptions:
+            detail_parts.append(f"missing={missing_assumptions}")
+        if mismatched_statuses:
+            detail_parts.append(f"status_mismatch={mismatched_statuses}")
+        raise ValueError(
+            "V60-C lane drift record does not satisfy the required handoff posture; "
+            + ", ".join(detail_parts)
+        )
+    return record
+
+
 def _validate_v56a_evidence_payload(payload: dict[str, object]) -> dict[str, object]:
     if payload.get("schema") != EXPECTED_V56A_EVIDENCE_SCHEMA:
         raise ValueError("V56-C requires the shipped V56-A starter evidence payload on main")
@@ -1932,6 +2037,45 @@ def _validate_v60a_evidence_payload(payload: dict[str, object]) -> dict[str, obj
         raise ValueError("V60-A evidence must preserve single_step_local ticket duration")
     if payload.get("changes_live_behavior_by_default") is not False:
         raise ValueError("V60-A evidence must preserve non-live continuation posture")
+    return payload
+
+
+def _validate_v60b_evidence_payload(payload: dict[str, object]) -> dict[str, object]:
+    if payload.get("schema") != EXPECTED_V60B_EVIDENCE_SCHEMA:
+        raise ValueError(
+            "V60-C requires the shipped V60-B continuation refresh evidence payload on main"
+        )
+    selected_shapes = payload.get("selected_record_shapes")
+    if not isinstance(selected_shapes, list) or {
+        "agentic_de_task_residual_refresh_packet@1",
+        "agentic_de_continuation_refresh_decision_record@1",
+    } - set(selected_shapes):
+        raise ValueError("V60-B evidence must preserve the shipped continuation refresh surfaces")
+    required_true_fields = (
+        "stable_loop_identity_preserved",
+        "latest_reintegrated_act_selection_explicit_and_fail_closed",
+        "reproposal_required_posture_only_until_later_family",
+        "reproposal_required_not_implicit_charter_amendment_or_seed_ingress",
+        "emit_governed_communication_posture_only_until_v61",
+        "admitted_shaping_input_set_closed_for_v60b",
+    )
+    for field_name in required_true_fields:
+        if payload.get(field_name) is not True:
+            raise ValueError(f"V60-B evidence must preserve {field_name}")
+    if payload.get("selected_live_session_surface_for_v60b") != "urm_copilot_session_path_only":
+        raise ValueError("V60-B evidence must preserve the URM copilot session path only")
+    if payload.get("selected_downstream_action_class_for_v60b") != "local_write":
+        raise ValueError("V60-B evidence must preserve the local_write-only downstream class")
+    if payload.get("selected_downstream_write_kind_for_v60b") != "create_new":
+        raise ValueError("V60-B evidence must preserve the create_new-only downstream write kind")
+    if payload.get("selected_continuity_root_for_v60b") != (
+        DESIGNATED_WORKSPACE_CONTINUITY_ROOT.as_posix() + "/"
+    ):
+        raise ValueError("V60-B evidence must preserve the selected continuity root")
+    if payload.get("v56_ticket_duration_mode_preserved") != "single_step_local":
+        raise ValueError("V60-B evidence must preserve single_step_local ticket duration")
+    if payload.get("changes_live_behavior_by_default") is not False:
+        raise ValueError("V60-B evidence must preserve non-live refresh posture")
     return payload
 
 
@@ -9420,6 +9564,682 @@ def run_agentic_de_continuation_v60b(
     return refreshed_task_residual, refreshed_continuation_decision
 
 
+def _validate_v60b_refresh_surfaces(
+    *,
+    prior_task_charter: AgenticDeTaskCharterPacket,
+    prior_task_residual: AgenticDeTaskResidualPacket,
+    prior_loop_state_ledger: AgenticDeLoopStateLedger,
+    prior_continuation_decision: AgenticDeContinuationDecisionRecord,
+    refreshed_task_residual: AgenticDeTaskResidualRefreshPacket,
+    refreshed_continuation_decision: AgenticDeContinuationRefreshDecisionRecord,
+    latest_live_turn_reintegration: AgenticDeLiveTurnReintegrationReport,
+    latest_continuity_reintegration: AgenticDeWorkspaceContinuityReintegrationReport,
+    latest_continuity_restoration_reintegration: (
+        AgenticDeWorkspaceContinuityRestorationReintegrationReport
+    ),
+    target_relative_path: str,
+) -> None:
+    expected_path_summary = _expected_v60a_selected_downstream_path_summary(target_relative_path)
+    if (
+        refreshed_task_residual.target_arc != V60B_TARGET_ARC
+        or refreshed_task_residual.target_path != V60B_TARGET_PATH
+    ):
+        raise ValueError("V60-C requires the shipped V60-B task residual refresh surface")
+    if (
+        refreshed_continuation_decision.target_arc != V60B_TARGET_ARC
+        or refreshed_continuation_decision.target_path != V60B_TARGET_PATH
+    ):
+        raise ValueError(
+            "V60-C requires the shipped V60-B continuation refresh decision surface"
+        )
+    if refreshed_task_residual.prior_task_charter_ref != prior_task_charter.charter_id:
+        raise ValueError("V60-B task residual refresh does not bind the shipped V60-A charter")
+    if refreshed_task_residual.prior_task_residual_ref != prior_task_residual.residual_id:
+        raise ValueError("V60-B task residual refresh does not bind the shipped V60-A residual")
+    if refreshed_task_residual.prior_loop_state_ledger_ref != prior_loop_state_ledger.ledger_id:
+        raise ValueError("V60-B task residual refresh does not bind the shipped V60-A loop")
+    if refreshed_task_residual.prior_loop_identity_ref != prior_loop_state_ledger.ledger_id:
+        raise ValueError("V60-B task residual refresh must preserve the stable loop identity")
+    if (
+        refreshed_task_residual.prior_continuation_decision_ref
+        != prior_continuation_decision.decision_id
+    ):
+        raise ValueError("V60-B task residual refresh does not bind the shipped V60-A decision")
+    if (
+        refreshed_task_residual.latest_live_turn_reintegration_ref
+        != latest_live_turn_reintegration.report_id
+    ):
+        raise ValueError(
+            "V60-B task residual refresh does not preserve the shipped latest live turn"
+        )
+    if (
+        refreshed_task_residual.latest_continuity_reintegration_ref
+        != latest_continuity_reintegration.report_id
+    ):
+        raise ValueError(
+            "V60-B task residual refresh does not preserve the shipped latest continuity "
+            "reintegration"
+        )
+    if (
+        refreshed_task_residual.latest_continuity_restoration_reintegration_ref_or_none
+        != latest_continuity_restoration_reintegration.report_id
+    ):
+        raise ValueError(
+            "V60-B task residual refresh does not preserve the shipped latest continuity "
+            "restoration reintegration"
+        )
+    if (
+        refreshed_continuation_decision.prior_loop_state_ledger_ref
+        != prior_loop_state_ledger.ledger_id
+    ):
+        raise ValueError(
+            "V60-B continuation refresh decision does not bind the shipped V60-A loop"
+        )
+    if (
+        refreshed_continuation_decision.stable_loop_identity_ref
+        != prior_loop_state_ledger.ledger_id
+    ):
+        raise ValueError(
+            "V60-B continuation refresh decision must preserve stable loop identity"
+        )
+    if (
+        refreshed_continuation_decision.refreshed_task_residual_ref
+        != refreshed_task_residual.refresh_packet_id
+    ):
+        raise ValueError(
+            "V60-B continuation refresh decision does not bind the shipped refresh packet"
+        )
+    if (
+        refreshed_continuation_decision.latest_reintegrated_act_identity
+        != refreshed_task_residual.latest_reintegrated_act_identity
+    ):
+        raise ValueError("V60-B continuation refresh decision must preserve latest-act identity")
+    if (
+        refreshed_continuation_decision.refresh_outcome != "continue_to_governed_act"
+        or refreshed_continuation_decision.selected_next_path_summary_or_none
+        != expected_path_summary
+        or refreshed_continuation_decision.reproposal_basis_summary_or_none is not None
+    ):
+        raise ValueError("V60-C requires the shipped exact V60-B continuing refresh posture")
+    if refreshed_continuation_decision.frozen_policy_anchor_ref != V60B_FROZEN_POLICY_REF:
+        raise ValueError("V60-C requires the shipped V60-B frozen policy anchor")
+    required_reason_codes = [
+        "stable_loop_identity_preserved",
+        "latest_reintegrated_act_selected_explicitly",
+        "refreshed_residual_replayable",
+        "exact_v59_downstream_path_preserved",
+        "single_step_local_ticket_duration_preserved",
+        "communication_law_still_deferred_to_v61",
+    ]
+    if refreshed_continuation_decision.refresh_reason_codes != required_reason_codes:
+        raise ValueError(
+            "V60-B continuation refresh decision does not preserve the shipped reason codes"
+        )
+    expected_selected_path_dependencies = [
+        refreshed_task_residual.refresh_packet_id,
+        prior_loop_state_ledger.ledger_id,
+    ]
+    if (
+        refreshed_continuation_decision.field_dependence_tags["selected_next_path_summary_or_none"]
+        != expected_selected_path_dependencies
+    ):
+        raise ValueError(
+            "V60-B continuation refresh decision must preserve the shipped selected-next-path "
+            "dependence tags"
+        )
+    if (
+        refreshed_continuation_decision.field_dependence_tags["reproposal_basis_summary_or_none"]
+        != ["none_under_current_v60b_policy"]
+    ):
+        raise ValueError(
+            "V60-B continuation refresh decision must preserve the shipped reproposal "
+            "absence dependence tags"
+        )
+
+
+def _build_v60c_continuation_hardening_register(
+    *,
+    seed_intent: AgenticDeSeedIntentRecord,
+    task_charter: AgenticDeTaskCharterPacket,
+    task_residual: AgenticDeTaskResidualPacket,
+    loop_state_ledger: AgenticDeLoopStateLedger,
+    continuation_decision: AgenticDeContinuationDecisionRecord,
+    refreshed_task_residual: AgenticDeTaskResidualRefreshPacket,
+    refreshed_continuation_decision: AgenticDeContinuationRefreshDecisionRecord,
+    evidence_refs: list[str],
+) -> AgenticDeContinuationHardeningRegister:
+    root_origin_ids = [
+        f"seed:{seed_intent.seed_intent_id}",
+        f"charter:{task_charter.charter_id}",
+        f"residual:{task_residual.residual_id}",
+        f"loop:{loop_state_ledger.ledger_id}",
+        f"starter_decision:{continuation_decision.decision_id}",
+        f"refresh:{refreshed_task_residual.refresh_packet_id}",
+        f"refresh_decision:{refreshed_continuation_decision.refresh_decision_id}",
+        f"latest_act:{refreshed_continuation_decision.latest_reintegrated_act_identity}",
+        f"policy:{V60C_FROZEN_POLICY_REF}",
+    ]
+    field_origin_tags = {
+        "starter_continuation_outcome": "prior_artifact",
+        "latest_reintegrated_act_selection_basis_summary": "prior_artifact",
+        "refresh_outcome": "prior_artifact",
+        "selected_next_path_summary_or_none": "prior_artifact",
+        "reproposal_basis_summary_or_none": "prior_artifact",
+        "frozen_policy_ref": "shaping_only",
+        "evidence_basis_summary": "current_turn_derived",
+        "verdict_basis_summary": "current_turn_derived",
+        "recommended_outcome": "current_turn_derived",
+    }
+    field_dependence_tags = {
+        "starter_continuation_outcome": [
+            continuation_decision.decision_id,
+            task_charter.charter_id,
+            loop_state_ledger.ledger_id,
+        ],
+        "latest_reintegrated_act_selection_basis_summary": [
+            refreshed_task_residual.refresh_packet_id,
+            refreshed_continuation_decision.refresh_decision_id,
+        ],
+        "refresh_outcome": [
+            refreshed_continuation_decision.refresh_decision_id,
+            refreshed_task_residual.refresh_packet_id,
+            V60B_FROZEN_POLICY_REF,
+        ],
+        "selected_next_path_summary_or_none": [
+            refreshed_task_residual.refresh_packet_id,
+            loop_state_ledger.ledger_id,
+        ],
+        "reproposal_basis_summary_or_none": ["none_under_current_v60c_policy"],
+        "frozen_policy_ref": [],
+        "evidence_basis_summary": [
+            seed_intent.seed_intent_id,
+            task_charter.charter_id,
+            task_residual.residual_id,
+            loop_state_ledger.ledger_id,
+            continuation_decision.decision_id,
+            refreshed_task_residual.refresh_packet_id,
+            refreshed_continuation_decision.refresh_decision_id,
+            V60C_FROZEN_POLICY_REF,
+        ],
+        "verdict_basis_summary": [
+            continuation_decision.decision_id,
+            refreshed_continuation_decision.refresh_decision_id,
+            *root_origin_ids,
+        ],
+        "recommended_outcome": [
+            continuation_decision.decision_id,
+            refreshed_continuation_decision.refresh_decision_id,
+            V60C_FROZEN_POLICY_REF,
+        ],
+    }
+    entry = AgenticDeContinuationHardeningEntry(
+        seed_intent_ref=seed_intent.seed_intent_id,
+        task_charter_ref=task_charter.charter_id,
+        task_residual_ref=task_residual.residual_id,
+        loop_state_ledger_ref=loop_state_ledger.ledger_id,
+        continuation_decision_ref=continuation_decision.decision_id,
+        task_residual_refresh_ref=refreshed_task_residual.refresh_packet_id,
+        continuation_refresh_decision_ref=refreshed_continuation_decision.refresh_decision_id,
+        starter_continuation_outcome=continuation_decision.continuation_outcome,
+        latest_reintegrated_act_identity=refreshed_task_residual.latest_reintegrated_act_identity,
+        latest_reintegrated_act_selection_basis_summary=(
+            refreshed_task_residual.latest_reintegrated_act_selection_basis_summary
+        ),
+        refresh_outcome=refreshed_continuation_decision.refresh_outcome,
+        selected_next_path_summary_or_none=(
+            refreshed_continuation_decision.selected_next_path_summary_or_none
+        ),
+        reproposal_basis_summary_or_none=(
+            refreshed_continuation_decision.reproposal_basis_summary_or_none
+        ),
+        selected_hardening_target_surface=(
+            "shipped_v60a_v60b_continuation_lineage_over_continuity_bound_create_new_"
+            "exemplar_only"
+        ),
+        frozen_policy_ref=V60C_FROZEN_POLICY_REF,
+        evidence_basis_summary=(
+            "shipped V60-A seed intent/charter/residual/loop/continuation decision plus "
+            "shipped V60-B residual refresh/continuation refresh over the same exact "
+            "continuity-bound create_new exemplar"
+        ),
+        verdict_basis_summary=(
+            "starter continuation remained continue_to_governed_act, one explicit latest "
+            "reintegrated act identity remained selected by shipped V60-B basis, refresh "
+            "continuation remained continue_to_governed_act, reproposal stayed absent, "
+            "the exact selected downstream path stayed preserved, and provenance/dedup "
+            "remained explicit under one frozen V60-C policy anchor"
+        ),
+        field_origin_tags=field_origin_tags,
+        field_dependence_tags=field_dependence_tags,
+        root_origin_ids=root_origin_ids,
+        root_origin_dedup_summary=(
+            "dedup roots="
+            + ",".join(root_origin_ids)
+            + "; repeated continuation-lineage artifacts remain non-independent advisory support"
+        ),
+        recommended_outcome="candidate_for_later_continuation_hardening",
+        rationale=(
+            "the exact shipped V60-A/V60-B continuation lineage now has typed seed "
+            "ingress, replayable charter compilation, derived non-authorizing residual "
+            "carriage, stable loop identity, explicit latest-act selection, and replayable "
+            "refresh posture under frozen policy, so it is a valid later path-level "
+            "continuation hardening candidate, but any broader continuation, migration, "
+            "communication, or autonomy scope still requires a later explicit lock"
+        ),
+        reason_codes=[
+            "starter_continue_to_governed_act",
+            "refresh_continue_to_governed_act",
+            "latest_reintegrated_act_selected_explicitly",
+            "exact_selected_downstream_path_preserved",
+            "path_level_only",
+            "extensional_replayable_policy",
+            "lineage_root_dedup_applied",
+            "candidate_non_entitling_and_non_escalating",
+            "later_lock_required_for_scope",
+            "no_live_mutation_in_v60c",
+            "non_generalizing_by_default",
+        ],
+        evidence_refs=evidence_refs,
+    )
+    return AgenticDeContinuationHardeningRegister(
+        target_arc=V60C_TARGET_ARC,
+        target_path=V60C_TARGET_PATH,
+        baseline_checker_version=V60B_CHECKER_VERSION,
+        entry_count=1,
+        entries=[entry],
+    )
+
+
+def run_agentic_de_continuation_v60c(
+    *,
+    repo_root_path: Path | None = None,
+    domain_packet_path: Path = DEFAULT_DOMAIN_PACKET_PATH,
+    morph_ir_path: Path = DEFAULT_MORPH_IR_PATH,
+    interaction_contract_path: Path = DEFAULT_INTERACTION_CONTRACT_PATH,
+    action_proposal_path: Path = DEFAULT_ACTION_PROPOSAL_PATH,
+    v56a_checkpoint_path: Path = DEFAULT_V56A_CHECKPOINT_PATH,
+    v56a_diagnostics_path: Path = DEFAULT_V56A_DIAGNOSTICS_PATH,
+    v56a_conformance_path: Path = DEFAULT_V56A_CONFORMANCE_PATH,
+    v56b_lane_drift_path: Path = DEFAULT_V56B_LANE_DRIFT_PATH,
+    v56b_action_class_taxonomy_path: Path = DEFAULT_V56B_ACTION_CLASS_TAXONOMY_PATH,
+    v56b_runtime_state_path: Path = DEFAULT_V56B_RUNTIME_STATE_PATH,
+    v56b_action_ticket_path: Path = DEFAULT_V56B_TICKET_PATH,
+    v56b_diagnostics_path: Path = DEFAULT_V56B_DIAGNOSTICS_PATH,
+    v56b_conformance_path: Path = DEFAULT_V56B_CONFORMANCE_PATH,
+    v56c_lane_drift_path: Path = DEFAULT_V56C_LANE_DRIFT_PATH,
+    v56c_runtime_harvest_path: Path = DEFAULT_V56C_RUNTIME_HARVEST_PATH,
+    v56c_governance_calibration_path: Path = DEFAULT_V56C_GOVERNANCE_CALIBRATION_PATH,
+    v56c_migration_decision_path: Path = DEFAULT_V56C_MIGRATION_DECISION_PATH,
+    v59a_lane_drift_path: Path = DEFAULT_V59A_LANE_DRIFT_PATH,
+    v59a_continuity_region_path: Path = DEFAULT_V59A_CONTINUITY_REGION_DECLARATION_PATH,
+    v59a_continuity_admission_path: Path = DEFAULT_V59A_CONTINUITY_ADMISSION_PATH,
+    v59a_occupancy_path: Path = DEFAULT_V59A_OCCUPANCY_REPORT_PATH,
+    v59a_live_turn_admission_path: Path = DEFAULT_V59A_LIVE_TURN_ADMISSION_PATH,
+    v59a_live_turn_handoff_path: Path = DEFAULT_V59A_LIVE_TURN_HANDOFF_PATH,
+    v59a_observation_path: Path = DEFAULT_V59A_OBSERVATION_PATH,
+    v59a_local_effect_conformance_path: Path = DEFAULT_V59A_LOCAL_EFFECT_CONFORMANCE_PATH,
+    v59a_live_turn_reintegration_path: Path = DEFAULT_V59A_LIVE_TURN_REINTEGRATION_PATH,
+    v59a_continuity_reintegration_path: Path = DEFAULT_V59A_CONTINUITY_REINTEGRATION_PATH,
+    v59b_lane_drift_path: Path = DEFAULT_V59B_LANE_DRIFT_PATH,
+    v59b_continuity_restoration_handoff_path: Path = (
+        DEFAULT_V59B_CONTINUITY_RESTORATION_HANDOFF_PATH
+    ),
+    v59b_restoration_path: Path = DEFAULT_V59B_RESTORATION_PATH,
+    v59b_continuity_restoration_reintegration_path: Path = (
+        DEFAULT_V59B_CONTINUITY_RESTORATION_REINTEGRATION_PATH
+    ),
+    v60a_lane_drift_path: Path = DEFAULT_V60A_LANE_DRIFT_PATH,
+    v60a_seed_intent_path: Path = DEFAULT_V60A_SEED_INTENT_PATH,
+    v60a_task_charter_path: Path = DEFAULT_V60A_TASK_CHARTER_PATH,
+    v60a_task_residual_path: Path = DEFAULT_V60A_TASK_RESIDUAL_PATH,
+    v60a_loop_state_ledger_path: Path = DEFAULT_V60A_LOOP_STATE_LEDGER_PATH,
+    v60a_continuation_decision_path: Path = DEFAULT_V60A_CONTINUATION_DECISION_PATH,
+    v60b_lane_drift_path: Path = DEFAULT_V60B_LANE_DRIFT_PATH,
+    v60b_task_residual_refresh_path: Path = DEFAULT_V60B_TASK_RESIDUAL_REFRESH_PATH,
+    v60b_continuation_refresh_decision_path: Path = (
+        DEFAULT_V60B_CONTINUATION_REFRESH_DECISION_PATH
+    ),
+    lane_drift_path: Path = DEFAULT_V60C_LANE_DRIFT_PATH,
+    v59a_evidence_path: Path = DEFAULT_V59A_EVIDENCE_PATH,
+    v59b_evidence_path: Path = DEFAULT_V59B_EVIDENCE_PATH,
+    v60a_evidence_path: Path = DEFAULT_V60A_EVIDENCE_PATH,
+    v60b_evidence_path: Path = DEFAULT_V60B_EVIDENCE_PATH,
+    target_relative_path: str = str(DEFAULT_WORKSPACE_CONTINUITY_TARGET_RELATIVE_PATH),
+) -> AgenticDeContinuationHardeningRegister:
+    root_raw = repo_root(anchor=Path(__file__)) if repo_root_path is None else repo_root_path
+    if root_raw.exists() and root_raw.is_symlink():
+        raise ValueError("repository root may not be a symlink for V60-C continuation")
+    root = root_raw.resolve()
+
+    path_fields = (
+        "domain_packet_path",
+        "morph_ir_path",
+        "interaction_contract_path",
+        "action_proposal_path",
+        "v56a_checkpoint_path",
+        "v56a_diagnostics_path",
+        "v56a_conformance_path",
+        "v56b_lane_drift_path",
+        "v56b_action_class_taxonomy_path",
+        "v56b_runtime_state_path",
+        "v56b_action_ticket_path",
+        "v56b_diagnostics_path",
+        "v56b_conformance_path",
+        "v56c_lane_drift_path",
+        "v56c_runtime_harvest_path",
+        "v56c_governance_calibration_path",
+        "v56c_migration_decision_path",
+        "v59a_lane_drift_path",
+        "v59a_continuity_region_path",
+        "v59a_continuity_admission_path",
+        "v59a_occupancy_path",
+        "v59a_live_turn_admission_path",
+        "v59a_live_turn_handoff_path",
+        "v59a_observation_path",
+        "v59a_local_effect_conformance_path",
+        "v59a_live_turn_reintegration_path",
+        "v59a_continuity_reintegration_path",
+        "v59b_lane_drift_path",
+        "v59b_continuity_restoration_handoff_path",
+        "v59b_restoration_path",
+        "v59b_continuity_restoration_reintegration_path",
+        "v60a_lane_drift_path",
+        "v60a_seed_intent_path",
+        "v60a_task_charter_path",
+        "v60a_task_residual_path",
+        "v60a_loop_state_ledger_path",
+        "v60a_continuation_decision_path",
+        "v60b_lane_drift_path",
+        "v60b_task_residual_refresh_path",
+        "v60b_continuation_refresh_decision_path",
+        "lane_drift_path",
+        "v59a_evidence_path",
+        "v59b_evidence_path",
+        "v60a_evidence_path",
+        "v60b_evidence_path",
+    )
+    locals_map = locals()
+    resolved_paths: dict[str, Path] = {}
+    for field_name in path_fields:
+        candidate = _resolve_path(repo_root_path=root, path=locals_map[field_name])
+        _assert_v60c_repo_local_input_path(
+            repo_root_path=root,
+            candidate=candidate,
+            field_name=field_name,
+        )
+        resolved_paths[field_name] = candidate
+
+    _validate_v60c_lane_drift_record(load_lane_drift_record(resolved_paths["lane_drift_path"]))
+    _validate_v60b_lane_drift_record(load_lane_drift_record(resolved_paths["v60b_lane_drift_path"]))
+    _validate_v60a_lane_drift_record(load_lane_drift_record(resolved_paths["v60a_lane_drift_path"]))
+    _validate_v59b_lane_drift_record(load_lane_drift_record(resolved_paths["v59b_lane_drift_path"]))
+    _validate_v59a_lane_drift_record(load_lane_drift_record(resolved_paths["v59a_lane_drift_path"]))
+    _validate_v56b_lane_drift_record(load_lane_drift_record(resolved_paths["v56b_lane_drift_path"]))
+    _validate_v56c_lane_drift_record(load_lane_drift_record(resolved_paths["v56c_lane_drift_path"]))
+    _validate_v59a_evidence_payload(
+        _load_json_object(resolved_paths["v59a_evidence_path"], error_label="V59-A evidence")
+    )
+    _validate_v59b_evidence_payload(
+        _load_json_object(resolved_paths["v59b_evidence_path"], error_label="V59-B evidence")
+    )
+    _validate_v60a_evidence_payload(
+        _load_json_object(resolved_paths["v60a_evidence_path"], error_label="V60-A evidence")
+    )
+    _validate_v60b_evidence_payload(
+        _load_json_object(resolved_paths["v60b_evidence_path"], error_label="V60-B evidence")
+    )
+
+    packet = load_domain_packet(resolved_paths["domain_packet_path"])
+    morph_ir = load_morph_ir(resolved_paths["morph_ir_path"])
+    contract = load_interaction_contract(resolved_paths["interaction_contract_path"])
+    proposal = load_action_proposal(resolved_paths["action_proposal_path"])
+    v56a_checkpoint = load_membrane_checkpoint(resolved_paths["v56a_checkpoint_path"])
+    v56a_diagnostics = load_morph_diagnostics(resolved_paths["v56a_diagnostics_path"])
+    v56a_conformance = load_conformance_report(resolved_paths["v56a_conformance_path"])
+    v56b_taxonomy = load_action_class_taxonomy(resolved_paths["v56b_action_class_taxonomy_path"])
+    v56b_runtime_state = load_runtime_state(resolved_paths["v56b_runtime_state_path"])
+    v56b_ticket = load_action_ticket(resolved_paths["v56b_action_ticket_path"])
+    v56b_diagnostics = load_morph_diagnostics(resolved_paths["v56b_diagnostics_path"])
+    v56b_conformance = load_conformance_report(resolved_paths["v56b_conformance_path"])
+    v56c_harvest = load_runtime_harvest_record(resolved_paths["v56c_runtime_harvest_path"])
+    v56c_governance = load_governance_calibration_register(
+        resolved_paths["v56c_governance_calibration_path"]
+    )
+    v56c_migration = load_migration_decision_register(
+        resolved_paths["v56c_migration_decision_path"]
+    )
+    v59a_continuity_region = load_workspace_continuity_region_declaration(
+        resolved_paths["v59a_continuity_region_path"]
+    )
+    v59a_continuity_admission = load_workspace_continuity_admission_record(
+        resolved_paths["v59a_continuity_admission_path"]
+    )
+    v59a_occupancy = load_workspace_occupancy_report(resolved_paths["v59a_occupancy_path"])
+    v59a_live_turn_admission = load_live_turn_admission_record(
+        resolved_paths["v59a_live_turn_admission_path"]
+    )
+    v59a_live_turn_handoff = load_live_turn_handoff_record(
+        resolved_paths["v59a_live_turn_handoff_path"]
+    )
+    v59a_observation = load_local_effect_observation_record(resolved_paths["v59a_observation_path"])
+    v59a_conformance = load_local_effect_conformance_report(
+        resolved_paths["v59a_local_effect_conformance_path"]
+    )
+    v59a_live_turn_reintegration = load_live_turn_reintegration_report(
+        resolved_paths["v59a_live_turn_reintegration_path"]
+    )
+    v59a_continuity_reintegration = load_workspace_continuity_reintegration_report(
+        resolved_paths["v59a_continuity_reintegration_path"]
+    )
+    v59b_continuity_restoration_handoff = load_workspace_continuity_restoration_handoff_record(
+        resolved_paths["v59b_continuity_restoration_handoff_path"]
+    )
+    v59b_restoration = load_local_effect_restoration_record(resolved_paths["v59b_restoration_path"])
+    v59b_continuity_restoration_reintegration = (
+        load_workspace_continuity_restoration_reintegration_report(
+            resolved_paths["v59b_continuity_restoration_reintegration_path"]
+        )
+    )
+    v60a_seed_intent = load_seed_intent_record(resolved_paths["v60a_seed_intent_path"])
+    v60a_task_charter = load_task_charter_packet(resolved_paths["v60a_task_charter_path"])
+    v60a_task_residual = load_task_residual_packet(resolved_paths["v60a_task_residual_path"])
+    v60a_loop_state_ledger = load_loop_state_ledger(resolved_paths["v60a_loop_state_ledger_path"])
+    v60a_continuation_decision = load_continuation_decision_record(
+        resolved_paths["v60a_continuation_decision_path"]
+    )
+    v60b_task_residual_refresh = load_task_residual_refresh_packet(
+        resolved_paths["v60b_task_residual_refresh_path"]
+    )
+    v60b_continuation_refresh_decision = load_continuation_refresh_decision_record(
+        resolved_paths["v60b_continuation_refresh_decision_path"]
+    )
+
+    _validate_v56a_reference_surfaces(
+        domain_packet=packet,
+        morph_ir=morph_ir,
+        contract=contract,
+        proposal=proposal,
+        checkpoint=v56a_checkpoint,
+        diagnostics=v56a_diagnostics,
+        conformance=v56a_conformance,
+    )
+    _validate_v56b_reference_surfaces(
+        domain_packet=packet,
+        contract=contract,
+        proposal=proposal,
+        checkpoint=v56a_checkpoint,
+        taxonomy=v56b_taxonomy,
+        runtime_state=v56b_runtime_state,
+        ticket=v56b_ticket,
+        diagnostics=v56b_diagnostics,
+        conformance=v56b_conformance,
+    )
+    _validate_v57a_reference_surfaces(
+        packet=packet,
+        proposal=proposal,
+        checkpoint=v56a_checkpoint,
+        runtime_state=v56b_runtime_state,
+        ticket=v56b_ticket,
+        taxonomy=v56b_taxonomy,
+        harvest=v56c_harvest,
+        governance=v56c_governance,
+        migration=v56c_migration,
+    )
+    _validate_v59a_workspace_continuity_surfaces(
+        packet=packet,
+        proposal=proposal,
+        checkpoint=v56a_checkpoint,
+        ticket=v56b_ticket,
+        continuity_region=v59a_continuity_region,
+        continuity_admission=v59a_continuity_admission,
+        occupancy=v59a_occupancy,
+        live_turn_admission=v59a_live_turn_admission,
+        live_turn_handoff=v59a_live_turn_handoff,
+        observation=v59a_observation,
+        conformance=v59a_conformance,
+        live_turn_reintegration=v59a_live_turn_reintegration,
+        continuity_reintegration=v59a_continuity_reintegration,
+        target_relative_path=target_relative_path,
+    )
+    _validate_v59b_workspace_continuity_restoration_surfaces(
+        packet=packet,
+        proposal=proposal,
+        checkpoint=v56a_checkpoint,
+        runtime_state=v56b_runtime_state,
+        ticket=v56b_ticket,
+        harvest=v56c_harvest,
+        live_turn_admission=v59a_live_turn_admission,
+        live_turn_handoff=v59a_live_turn_handoff,
+        continuity_admission=v59a_continuity_admission,
+        occupancy=v59a_occupancy,
+        observation=v59a_observation,
+        conformance=v59a_conformance,
+        live_turn_reintegration=v59a_live_turn_reintegration,
+        continuity_reintegration=v59a_continuity_reintegration,
+        restoration=v59b_restoration,
+        continuity_restoration_handoff=v59b_continuity_restoration_handoff,
+        continuity_restoration_reintegration=v59b_continuity_restoration_reintegration,
+        target_relative_path=target_relative_path,
+    )
+    _validate_v60a_continuation_surfaces(
+        seed_intent=v60a_seed_intent,
+        task_charter=v60a_task_charter,
+        task_residual=v60a_task_residual,
+        loop_state_ledger=v60a_loop_state_ledger,
+        continuation_decision=v60a_continuation_decision,
+        live_turn_reintegration=v59a_live_turn_reintegration,
+        continuity_reintegration=v59a_continuity_reintegration,
+        target_relative_path=target_relative_path,
+    )
+    _validate_v60b_refresh_surfaces(
+        prior_task_charter=v60a_task_charter,
+        prior_task_residual=v60a_task_residual,
+        prior_loop_state_ledger=v60a_loop_state_ledger,
+        prior_continuation_decision=v60a_continuation_decision,
+        refreshed_task_residual=v60b_task_residual_refresh,
+        refreshed_continuation_decision=v60b_continuation_refresh_decision,
+        latest_live_turn_reintegration=v59a_live_turn_reintegration,
+        latest_continuity_reintegration=v59a_continuity_reintegration,
+        latest_continuity_restoration_reintegration=v59b_continuity_restoration_reintegration,
+        target_relative_path=target_relative_path,
+    )
+
+    evidence_refs = [
+        _render_input_ref(repo_root_path=root, path=resolved_paths["domain_packet_path"]),
+        _render_input_ref(repo_root_path=root, path=resolved_paths["morph_ir_path"]),
+        _render_input_ref(repo_root_path=root, path=resolved_paths["interaction_contract_path"]),
+        _render_input_ref(repo_root_path=root, path=resolved_paths["action_proposal_path"]),
+        _render_input_ref(repo_root_path=root, path=resolved_paths["v56a_checkpoint_path"]),
+        _render_input_ref(repo_root_path=root, path=resolved_paths["v56a_diagnostics_path"]),
+        _render_input_ref(repo_root_path=root, path=resolved_paths["v56a_conformance_path"]),
+        _render_input_ref(
+            repo_root_path=root, path=resolved_paths["v56b_action_class_taxonomy_path"]
+        ),
+        _render_input_ref(repo_root_path=root, path=resolved_paths["v56b_runtime_state_path"]),
+        _render_input_ref(repo_root_path=root, path=resolved_paths["v56b_action_ticket_path"]),
+        _render_input_ref(repo_root_path=root, path=resolved_paths["v56b_lane_drift_path"]),
+        _render_input_ref(repo_root_path=root, path=resolved_paths["v56b_diagnostics_path"]),
+        _render_input_ref(repo_root_path=root, path=resolved_paths["v56b_conformance_path"]),
+        _render_input_ref(repo_root_path=root, path=resolved_paths["v56c_lane_drift_path"]),
+        _render_input_ref(
+            repo_root_path=root, path=resolved_paths["v56c_runtime_harvest_path"]
+        ),
+        _render_input_ref(
+            repo_root_path=root, path=resolved_paths["v56c_governance_calibration_path"]
+        ),
+        _render_input_ref(
+            repo_root_path=root, path=resolved_paths["v56c_migration_decision_path"]
+        ),
+        _render_input_ref(repo_root_path=root, path=resolved_paths["v59a_lane_drift_path"]),
+        _render_input_ref(
+            repo_root_path=root, path=resolved_paths["v59a_continuity_region_path"]
+        ),
+        _render_input_ref(
+            repo_root_path=root, path=resolved_paths["v59a_continuity_admission_path"]
+        ),
+        _render_input_ref(repo_root_path=root, path=resolved_paths["v59a_occupancy_path"]),
+        _render_input_ref(
+            repo_root_path=root, path=resolved_paths["v59a_live_turn_admission_path"]
+        ),
+        _render_input_ref(
+            repo_root_path=root, path=resolved_paths["v59a_live_turn_handoff_path"]
+        ),
+        _render_input_ref(repo_root_path=root, path=resolved_paths["v59a_observation_path"]),
+        _render_input_ref(
+            repo_root_path=root, path=resolved_paths["v59a_local_effect_conformance_path"]
+        ),
+        _render_input_ref(
+            repo_root_path=root, path=resolved_paths["v59a_live_turn_reintegration_path"]
+        ),
+        _render_input_ref(
+            repo_root_path=root, path=resolved_paths["v59a_continuity_reintegration_path"]
+        ),
+        _render_input_ref(repo_root_path=root, path=resolved_paths["v59b_lane_drift_path"]),
+        _render_input_ref(
+            repo_root_path=root,
+            path=resolved_paths["v59b_continuity_restoration_handoff_path"],
+        ),
+        _render_input_ref(repo_root_path=root, path=resolved_paths["v59b_restoration_path"]),
+        _render_input_ref(
+            repo_root_path=root,
+            path=resolved_paths["v59b_continuity_restoration_reintegration_path"],
+        ),
+        _render_input_ref(repo_root_path=root, path=resolved_paths["v60a_lane_drift_path"]),
+        _render_input_ref(repo_root_path=root, path=resolved_paths["v60a_seed_intent_path"]),
+        _render_input_ref(repo_root_path=root, path=resolved_paths["v60a_task_charter_path"]),
+        _render_input_ref(repo_root_path=root, path=resolved_paths["v60a_task_residual_path"]),
+        _render_input_ref(
+            repo_root_path=root, path=resolved_paths["v60a_loop_state_ledger_path"]
+        ),
+        _render_input_ref(
+            repo_root_path=root, path=resolved_paths["v60a_continuation_decision_path"]
+        ),
+        _render_input_ref(repo_root_path=root, path=resolved_paths["v60b_lane_drift_path"]),
+        _render_input_ref(
+            repo_root_path=root, path=resolved_paths["v60b_task_residual_refresh_path"]
+        ),
+        _render_input_ref(
+            repo_root_path=root,
+            path=resolved_paths["v60b_continuation_refresh_decision_path"],
+        ),
+        _render_input_ref(repo_root_path=root, path=resolved_paths["lane_drift_path"]),
+        _render_input_ref(repo_root_path=root, path=resolved_paths["v59a_evidence_path"]),
+        _render_input_ref(repo_root_path=root, path=resolved_paths["v59b_evidence_path"]),
+        _render_input_ref(repo_root_path=root, path=resolved_paths["v60a_evidence_path"]),
+        _render_input_ref(repo_root_path=root, path=resolved_paths["v60b_evidence_path"]),
+    ]
+    return _build_v60c_continuation_hardening_register(
+        seed_intent=v60a_seed_intent,
+        task_charter=v60a_task_charter,
+        task_residual=v60a_task_residual,
+        loop_state_ledger=v60a_loop_state_ledger,
+        continuation_decision=v60a_continuation_decision,
+        refreshed_task_residual=v60b_task_residual_refresh,
+        refreshed_continuation_decision=v60b_continuation_refresh_decision,
+        evidence_refs=evidence_refs,
+    )
+
+
 def render_checkpoint_payload(checkpoint: AgenticDeMembraneCheckpoint) -> str:
     return json.dumps(checkpoint.model_dump(mode="json"), indent=2, sort_keys=True) + "\n"
 
@@ -9502,6 +10322,12 @@ def render_continuation_refresh_decision_payload(
     decision: AgenticDeContinuationRefreshDecisionRecord,
 ) -> str:
     return json.dumps(decision.model_dump(mode="json"), indent=2, sort_keys=True) + "\n"
+
+
+def render_continuation_hardening_payload(
+    register: AgenticDeContinuationHardeningRegister,
+) -> str:
+    return json.dumps(register.model_dump(mode="json"), indent=2, sort_keys=True) + "\n"
 
 
 def render_workspace_continuity_region_declaration_payload(
