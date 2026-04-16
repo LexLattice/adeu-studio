@@ -1,8 +1,8 @@
 # Assessment vNext+168 Edges
 
-Status: planning-edge assessment for `V61-B`.
+Status: post-closeout edge assessment for `V61-B` (April 16, 2026 UTC).
 
-Authority layer: planning.
+Authority layer: closeout evidence on `main`.
 
 ## Assessment-State Marker (Machine-Checkable)
 
@@ -10,110 +10,124 @@ Authority layer: planning.
 {
   "schema": "assessment_artifact_state@1",
   "artifact": "docs/ASSESSMENT_vNEXT_PLUS168_EDGES.md",
-  "phase": "pre_lock_assessment",
-  "authoritative": false,
+  "phase": "post_closeout_assessment",
+  "authoritative": true,
   "required_in_decision": true
 }
 ```
 
 ## Open Edges
 
-### Edge 1: Communication Access Could Quietly Become Ambient Bridge Office
+### Edge 1: Communication Access Could Quietly Reappear As Ambient Bridge Office
 
 - Risk:
-  the resident runtime’s existing ability to emit on the selected seam could be
-  mistaken for explicit bridge-office binding.
+  runtime send capability over the selected seam could be over-read as if explicit
+  office binding were no longer required.
 - Response:
   keep bridge-office binding explicit and replayable.
   - same bridge facts
-  - same communication lineage
+  - same selected communication lineage
   - same frozen policy
-  - same office posture
-  - communication access alone is insufficient
+  - same bridge posture
+  - communication access alone remains insufficient
+- Closeout Evidence:
+  shipped `agentic_de_bridge_office_binding_record@1` plus checker/tests preserve
+  explicit non-equivalence and deterministic basis selection.
 
-### Edge 2: Rewitness Could Quietly Promote Transcript Into Native Witness
+### Edge 2: Positive Rewitness Could Drift Into Basis-Free Promotion
 
 - Risk:
-  once the rewitness gate exists, transcript or message traffic could be over-read as
-  native witness by default.
+  a positive rewitness outcome could be accepted without explicit witness basis or
+  certificate.
 - Response:
-  keep rewitness fail-closed and bounded.
-  - raw communication is not native witness by default
-  - raw transcript is not native witness by default
-  - positive rewitness is witness-candidate posture only
-  - native witness remains deferred beyond this slice
+  keep positive rewitness fail-closed on explicit basis.
+  - positive rewitness requires witness basis ref or certificate ref
+  - missing positive basis fails closed
+  - reason-codes remain explicit
+- Closeout Evidence:
+  shipped model validator/checker/tests enforce positive-basis requirements.
 
-### Edge 3: `V61-B` Could Quietly Reopen `V60` Continuation Law
+### Edge 3: Rewitness Could Quietly Reopen `V60` Continuation Mutation
 
 - Risk:
-  bridge-office or rewitness outputs could start acting like charter/residual/
-  continuation mutation rather than communication follow-on posture.
+  rewitness outputs could be treated as if they amended charter/residual/loop-state/
+  continuation decisions.
 - Response:
-  keep `V61-B` strictly downstream of shipped `V60`.
-  - consume latest shipped continuation basis
-  - do not mutate charter/residual/continuation state here
-  - do not reopen seed-ingress or continuation compilation here
+  keep rewitness non-mutating in this slice.
+  - no charter mutation
+  - no residual mutation
+  - no loop-state mutation
+  - no continuation-decision mutation
+- Closeout Evidence:
+  shipped reason-codes and tests preserve non-mutation posture explicitly.
 
-### Edge 4: Positive Rewitness Could Be Over-Read As Reintegration Closure
+### Edge 4: Positive Rewitness Could Be Over-Read As Native Witness Or Closure
 
 - Risk:
-  a positive rewitness outcome could be treated as if it already closed
-  reintegration/witness law rather than only marking one explicit candidate posture.
+  witness-candidate promotion could be treated as if native witness or reintegration
+  closure already landed.
 - Response:
   keep the postures distinct.
   - witness-candidate only
-  - not native witness
-  - not reintegration closure
-  - not act authority
+  - not native witness by itself
+  - not reintegration closure by itself
+  - not act authority or repo-write authority
+- Closeout Evidence:
+  shipped rewitness outcome contract and tests keep positive outcomes bounded.
 
-### Edge 5: The Same Resident Seam Could Drift Into Connector Or Remote Law
+### Edge 5: Selected Resident Seam Could Be Over-Generalized
 
 - Risk:
-  because `V61` sits upstream of `V62` and `V63`, the second slice could start
-  smuggling connector transport or remote/operator law under office binding language.
+  evidence from the selected `/urm/copilot/send` seam could be over-read into
+  connector-family, remote-operator, or broader communication-surface law.
 - Response:
-  keep later families deferred.
+  keep path-level non-generalization explicit.
   - same backend seam only
   - no connector transport trust here
-  - no remote/operator UX law here
-  - no product-surface expansion as authority
+  - no remote/operator law here
+  - no independent law for other communication surfaces here
+- Closeout Evidence:
+  lock/checker/tests keep non-generalization explicit and fail-closed.
 
-### Edge 6: Positive Rewitness Could Drift Into Repo Or Execute Authority
-
-- Risk:
-  once communication artifacts become more explicit, later readers could over-claim
-  repo-write or execute posture from bridge-bound outbound behavior.
-- Response:
-  keep `V61-B` communication-only in authority terms.
-  - no repo-write authority
-  - no act authority
-  - no execute widening
-  - no dispatch widening
-
-### Edge 7: Latest Communication Lineage Selection Could Become Interpretive
+### Edge 6: CLI Defaults Could Quietly Mutate Repo Fixtures
 
 - Risk:
-  if bridge-binding or rewitness can choose loosely among multiple communication
-  artifacts, the slice becomes non-replayable.
+  default output paths in the thin runner could mutate checked-in fixtures during
+  ordinary execution, obscuring evidence posture.
 - Response:
-  keep the latest communication lineage explicit and fail-closed.
-  - one selected `V61-A` lineage only
-  - explicit refs
-  - explicit basis summary
-  - ambiguity blocks follow-on binding and rewitness
+  keep output side effects explicit and opt-in.
+  - bridge-office output defaults to `None`
+  - runner writes only when explicit output paths are provided
+- Closeout Evidence:
+  review hardening commit `35e1a37a017addd9f6381296128f2c0c0244b6c4` and tests lock
+  this behavior.
+
+### Edge 7: Repo-Local Input Containment Could Drift
+
+- Risk:
+  redundant containment logic over resolved roots can become inconsistent with
+  symlink-traversal posture over time.
+- Response:
+  keep containment checks minimal and explicit over already-resolved roots.
+  - preserve traversal guards
+  - preserve within-root assertion
+  - avoid redundant resolution layers
+- Closeout Evidence:
+  review hardening commit `35e1a37a017addd9f6381296128f2c0c0244b6c4` tightened this
+  path posture.
 
 ## Current Judgment
 
-- `V61-B` is worth implementing now because `V61-A` established the governed
-  communication starter, but the repo still lacks explicit resident bridge-office
-  binding and explicit rewitness / message-promotion gate law.
-- the next slice should remain properly bounded:
+- `V61-B` was the right second slice because `V61-A` established typed governed
+  communication packets but deferred explicit bridge-office binding and rewitness.
+- the shipped result remained properly bounded:
   - exact-resident-seam-first
-  - explicit-office-binding-first
+  - explicit-bridge-binding-first
   - explicit-rewitness-first
-  - witness-candidate-only-positive-result
-  - no native-witness-by-default
-  - no continuation-mutation
-  - no connector / non-remote / non-repo-authority widening
-- if `V61-B` lands cleanly, the next default same-family move should be `V61-C`, not
-  widening office or transport authority in place.
+  - positive-basis-required-first
+  - witness-candidate-only positive posture
+  - non-mutating continuation posture
+  - non-generalization and non-authority widening posture
+- `V61-B` is now closed on `main` in the follow-on sense.
+- the next same-family move should be `V61-C`, not widening bridge or rewitness
+  authority in place.
