@@ -156,3 +156,28 @@ def test_v60c_rejects_broadened_selected_path_dependence_tags(tmp_path: Path) ->
 
     with pytest.raises(ValueError, match="selected-next-path dependence tags"):
         run_agentic_de_continuation_v60c(repo_root_path=temp_root)
+
+
+def test_v60c_rejects_extra_v60b_refresh_reason_codes(tmp_path: Path) -> None:
+    temp_root, fixture_root = _copy_v60c_input_tree(tmp_path / "repo")
+    refresh_decision_path = (
+        fixture_root.parent
+        / "v60b"
+        / "reference_agentic_de_continuation_refresh_decision_record.json"
+    )
+    payload = json.loads(refresh_decision_path.read_text(encoding="utf-8"))
+    payload["refresh_reason_codes"].append("extra:ambient_escalation_semantics")
+    payload["refresh_decision_id"] = None
+    refresh_decision_path.write_text(json.dumps(payload, indent=2) + "\n", encoding="utf-8")
+
+    with pytest.raises(ValueError, match="shipped reason codes"):
+        run_agentic_de_continuation_v60c(repo_root_path=temp_root)
+
+
+def test_v60c_rejects_symlinked_repo_root(tmp_path: Path) -> None:
+    temp_root, _fixture_root = _copy_v60c_input_tree(tmp_path / "repo")
+    symlink_root = tmp_path / "repo-link"
+    symlink_root.symlink_to(temp_root, target_is_directory=True)
+
+    with pytest.raises(ValueError, match="repository root may not be a symlink"):
+        run_agentic_de_continuation_v60c(repo_root_path=symlink_root)

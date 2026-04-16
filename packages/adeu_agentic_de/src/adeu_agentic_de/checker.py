@@ -1164,8 +1164,6 @@ def _assert_v60c_repo_local_input_path(
     candidate: Path,
     field_name: str,
 ) -> None:
-    if repo_root_path.exists() and repo_root_path.is_symlink():
-        raise ValueError("repository root may not be a symlink for V60-C continuation")
     try:
         relative = candidate.relative_to(repo_root_path)
     except ValueError:
@@ -1180,7 +1178,7 @@ def _assert_v60c_repo_local_input_path(
                 )
     candidate_resolved = candidate.resolve(strict=False)
     try:
-        candidate_resolved.relative_to(repo_root_path.resolve())
+        candidate_resolved.relative_to(repo_root_path)
     except ValueError as exc:
         raise ValueError(
             f"{field_name} must remain within the repository root for V60-C continuation"
@@ -9665,14 +9663,15 @@ def _validate_v60b_refresh_surfaces(
         raise ValueError("V60-C requires the shipped exact V60-B continuing refresh posture")
     if refreshed_continuation_decision.frozen_policy_anchor_ref != V60B_FROZEN_POLICY_REF:
         raise ValueError("V60-C requires the shipped V60-B frozen policy anchor")
-    required_reason_codes = {
+    required_reason_codes = [
         "stable_loop_identity_preserved",
         "latest_reintegrated_act_selected_explicitly",
+        "refreshed_residual_replayable",
         "exact_v59_downstream_path_preserved",
         "single_step_local_ticket_duration_preserved",
         "communication_law_still_deferred_to_v61",
-    }
-    if required_reason_codes - set(refreshed_continuation_decision.refresh_reason_codes):
+    ]
+    if refreshed_continuation_decision.refresh_reason_codes != required_reason_codes:
         raise ValueError(
             "V60-B continuation refresh decision does not preserve the shipped reason codes"
         )
@@ -9907,12 +9906,10 @@ def run_agentic_de_continuation_v60c(
     v60b_evidence_path: Path = DEFAULT_V60B_EVIDENCE_PATH,
     target_relative_path: str = str(DEFAULT_WORKSPACE_CONTINUITY_TARGET_RELATIVE_PATH),
 ) -> AgenticDeContinuationHardeningRegister:
-    if repo_root_path is None:
-        root = repo_root(anchor=Path(__file__)).resolve()
-    else:
-        if repo_root_path.exists() and repo_root_path.is_symlink():
-            raise ValueError("repository root may not be a symlink for V60-C continuation")
-        root = repo_root_path.resolve()
+    root_raw = repo_root(anchor=Path(__file__)) if repo_root_path is None else repo_root_path
+    if root_raw.exists() and root_raw.is_symlink():
+        raise ValueError("repository root may not be a symlink for V60-C continuation")
+    root = root_raw.resolve()
 
     path_fields = (
         "domain_packet_path",
