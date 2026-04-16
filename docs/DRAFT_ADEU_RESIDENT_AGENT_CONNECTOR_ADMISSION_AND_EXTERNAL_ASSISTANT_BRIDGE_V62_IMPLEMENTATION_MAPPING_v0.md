@@ -121,12 +121,18 @@ The family should remain backend-first in `V62-A`:
     - not repo-authority law
     - not execution-authority law
 - `V62-B`
+  - treat shipped `V62-A` as closed starter basis:
+    - consume the shipped admitted connector record
+    - consume the shipped external assistant ingress bridge packet
+    - do not reopen `V62-A` principal selection or admission law
   - add:
     - `agentic_de_external_assistant_egress_bridge_packet@1`
-    - one explicit bidirectional external assistant bridge follow-on over the same
-      admitted connector path
+    - one explicit egress-side external assistant bridge follow-on over the same
+      admitted connector path so the shipped `V62-A` ingress plus the new `V62-B`
+      egress surface define the bounded bidirectional bridge
   - keep provenance carry-through explicit and replayable:
     - same admitted connector record
+    - same shipped ingress bridge basis
     - same consumed `V61` communication lineage
     - same selected connector principal
     - same frozen policy
@@ -136,6 +142,12 @@ The family should remain backend-first in `V62-A`:
     - explicit ingress and egress basis carry-through
     - explicit snapshot / exposure provenance carry-through
     - explicit office / rewitness consumption where relevant
+    - direct consumed rewitness basis summary when positive
+    - explicit continuation-basis selection summary
+    - optional office / rewitness refs set to `none` mean not selected and not
+      consumed in that packet
+    - missing optional office / rewitness refs may not be inferred from prior
+      capability or connector availability
   - keep external assistant output bounded:
     - not native witness by itself
     - not task-law ingress by itself

@@ -221,49 +221,57 @@ Ordering discipline for this branch:
 - Recommended family/slice mapping reference to draft next:
   - `docs/DRAFT_ADEU_RESIDENT_AGENT_CONNECTOR_ADMISSION_AND_EXTERNAL_ASSISTANT_BRIDGE_V62_IMPLEMENTATION_MAPPING_v0.md`
 - Recommended next path for this branch:
-  - `V62-A`
+  - `V62-B`
 - Recommended next concrete arc for this branch if selected:
-  - `V62-A`
-  - select `V62-A` as the next default candidate
+  - `V62-B`
+  - select `V62-B` as the next default candidate
 
 Default path selection for this branch:
 
-- one bounded connector starter slice is recommended:
-  - reuse the shipped `V61-A`, `V61-B`, and `V61-C` communication / bridge /
-    advisory surfaces by default
-  - keep the starter bound to one already-real connector path only
+- one bounded connector follow-on slice is recommended:
+  - reuse the shipped `V62-A` admission and ingress bridge plus the shipped
+    `V61-A`, `V61-B`, and `V61-C` communication / bridge / advisory surfaces by
+    default
+  - keep the slice bound to the same already-real admitted connector path only
   - keep the selected connector principal posture explicit:
     - principal-typed connector path
-    - external-assistant principal selected in `V62-A`
+    - external-assistant principal still selected in `V62-B`
     - human-via-connector explicitly not selected yet
-  - add one connector admission record
-  - add one external assistant ingress bridge packet
-  - keep connector provenance explicit and replayable:
-    - same selected connector identity facts
-    - same selected snapshot / exposure facts
-    - same freshness basis
+  - add one external assistant egress bridge packet only
+  - keep connector provenance carry-through explicit and replayable:
+    - same admitted connector basis
+    - same selected connector principal
+    - same consumed `V61` communication egress basis
+    - same bridge-office / rewitness basis where selected
+    - same direct consumed rewitness basis summary where positive
+    - same continuation-basis selection summary
     - same frozen policy
-    - same connector admission posture
-  - make admission basis repo-native and fail-closed:
-    - exact connector snapshot ref or equivalent
-    - exact exposure mapping ref or equivalent
-    - explicit freshness basis summary
-    - missing or stale admission basis fails closed
-  - keep connector traffic non-sovereign:
-    - raw connector payload is not native witness
-    - raw connector payload is not charter compilation
-    - raw connector payload is not continuation mutation
-    - raw connector payload is not act authority
-  - keep the bridge dependent on shipped `V61` packets:
-    - connector ingress must consume governed communication law
-    - where office or rewitness posture matters, the bridge must consume shipped
-      `V61-B` office / rewitness surfaces explicitly
-    - no connector-native communication law here
-  - keep `V62-A` narrower than the later bridge follow-on:
-    - admit one connector path
-    - bridge one selected external-assistant ingress direction only
-    - do not yet claim full human-via-connector semantics
-    - do not yet claim richer bidirectional bridge carry-through
+    - same egress bridge packet
+  - make bridge basis repo-native and fail-closed:
+    - exact admitted connector ref
+    - exact shipped communication egress ref
+    - explicit bridge-office binding ref where selected
+    - explicit rewitness gate ref where selected
+    - direct consumed rewitness basis summary where positive
+    - explicit continuation-basis selection summary
+    - explicit bridge basis summary
+    - `none` on optional office / rewitness refs means not selected and not
+      consumed in that packet
+    - optional office / rewitness refs may not be inferred from prior emission
+      capability or connector availability
+    - missing or inconsistent connector / office / rewitness basis fails closed
+  - keep external assistant output non-sovereign:
+    - not native witness by itself
+    - not charter amendment
+    - not continuation mutation
+    - not bridge office by itself
+    - not repo-write authority
+    - not execute authority
+  - keep `V62-B` narrower than later connector hardening:
+    - one admitted connector path only
+    - join shipped `V62-A` ingress with one new external-assistant egress surface
+    - do not yet claim human-via-connector semantics
+    - do not yet claim connector advisory hardening
   - keep the slice exact:
     - one connector path only
     - no remote-operator UX
@@ -277,15 +285,6 @@ Default path selection for this branch:
     - not repo-authority law
     - not execution-authority law
     - not broad connector-family trust law beyond the selected path
-  - after `V62-A`, if this family is selected, the next same-family bounded fill
-    should be `V62-B`:
-    - add explicit outbound bridge over the same admitted connector path
-    - keep the same selected external-assistant principal only unless a later lock
-      says otherwise
-    - consume the same shipped `V61` communication lineage only
-    - carry explicit provenance and fail-closed bridge basis through both bridge
-      directions
-    - keep office / rewitness consumption explicit where selected
   - after `V62-B`, if this family is selected, the next same-family bounded fill
     should be `V62-C`:
     - one advisory connector hardening / provenance-drift surface over the same
@@ -303,8 +302,8 @@ The current recommended path ladder is:
 
 | Path | Theme | Primary output | Status |
 |---|---|---|---|
-| `V62-A` | connector admission starter | one connector admission record plus one bounded external assistant ingress / egress bridge starter over one already-real connector path only | recommended step-1 path |
-| `V62-B` | explicit external assistant bridge follow-on | one explicit ingress / egress bridge over the admitted connector path with provenance carry-through and fail-closed connector basis | prepared later same-family path |
+| `V62-A` | connector admission starter | one connector admission record plus one bounded external assistant ingress bridge starter over one already-real connector path only | closed on `main` |
+| `V62-B` | explicit external assistant bridge follow-on | one external-assistant egress bridge over the admitted connector path with explicit office / rewitness consumption where selected, provenance carry-through, and fail-closed connector basis | selected next path |
 | `V62-C` | advisory connector hardening / provenance drift | one advisory path-level connector hardening surface over the same admitted connector lineage | prepared later same-family path |
 
 These output names are planning-level candidate names, not lock-level schema
