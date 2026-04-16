@@ -139,11 +139,25 @@ The family should remain backend-first in `V61-A`:
     - `agentic_de_message_rewitness_gate_record@1`
   - keep office posture explicit and replayable:
     - same selected bridge facts
+    - same latest communication lineage
+    - same selected `V60` continuation basis
     - same frozen policy
     - same office posture
+    - missing or inconsistent bridge facts fail closed
   - keep message promotion fail-closed and explicit:
     - raw communication is not native witness by default
-    - rewitness remains required for later witness promotion
+    - rewitness remains required for any witness-candidate promotion
+    - positive rewitness remains witness-candidate posture only in `V61-B`
+    - positive rewitness requires explicit witness basis ref or certificate ref
+    - missing positive rewitness basis fails closed
+    - positive rewitness is not native witness, reintegration closure, or act
+      authority by itself
+    - positive rewitness does not mutate charter, residual, loop-state, or
+      continuation outputs in `V61-B`
+  - keep the same seam exact:
+    - same resident `/urm/copilot/send` seam only
+    - same `copilot.user_message` method only
+    - same downstream continuity-bound exemplar only
   - keep connector and remote-operator transport still deferred to later families
 - `V61-C`
   - add one advisory communication hardening surface over the same communication
@@ -210,6 +224,23 @@ Likely implementation surfaces for `V61-A`:
 
 The starter slice should prefer retrofitting existing communication seams over adding
 new product surfaces.
+
+Likely implementation surfaces for `V61-B`:
+
+- `packages/adeu_agentic_de/src/adeu_agentic_de/models.py`
+  - new bridge-office binding and rewitness gate models
+- `packages/adeu_agentic_de/src/adeu_agentic_de/checker.py`
+  - loader / renderer / validator / runner support for `V61-B`
+- `packages/adeu_agentic_de/src/adeu_agentic_de/export_schema.py`
+  - authoritative and mirrored schema export
+- `packages/adeu_agentic_de/src/adeu_agentic_de/__init__.py`
+  - public export wiring
+- `apps/api/scripts/`
+  - one thin follow-on script for `V61-B`
+- `packages/adeu_agentic_de/tests/`
+  - package and schema tests
+- `apps/api/tests/`
+  - thin CLI tests
 
 ## Do Not Import
 

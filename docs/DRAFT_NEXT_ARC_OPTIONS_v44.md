@@ -4,7 +4,8 @@ Status: planning draft after `docs/DRAFT_NEXT_ARC_OPTIONS_v43.md`, updated after
 full `V60` family closed on `main` through `v166`, and after the multi-arc roadmap
 and support-layer review clarified that the strongest remaining gap is governed
 communication membrane ownership rather than more `V60` widening, connector-specific
-transport work, remote-operator UX, or repo-bound writable-surface widening.
+transport work, remote-operator UX, or repo-bound writable-surface widening, and now
+updated again after `V61-A` landed on `main` through `v167`.
 
 Authority layer: planning.
 
@@ -57,6 +58,10 @@ Interpretive doctrine for this planning surface:
 - `V60-A` through `V60-C` are closed on `main` and remain the released continuation /
   residual-intent starter / refresh / advisory hardening ladder recorded in
   `docs/DRAFT_NEXT_ARC_OPTIONS_v43.md`.
+- `V61-A` is landed on `main` and remains the released governed communication starter
+  over the exact resident `/urm/copilot/send` seam with `copilot.user_message` only,
+  typed ingress / descriptor / interpretation / egress packet surfaces, and no
+  bridge-office binding or rewitness yet.
 - the repo already has materially real communication-capable runtime and user
   surfaces:
   - URM resident Codex sessions and control plane
@@ -259,10 +264,10 @@ Ordering discipline for this branch:
 - Recommended family/slice mapping reference to draft next:
   - `docs/DRAFT_ADEU_RESIDENT_AGENT_GOVERNED_COMMUNICATION_MEMBRANE_V61_IMPLEMENTATION_MAPPING_v0.md`
 - Recommended next path for this branch:
-  - `V61-A`
+  - `V61-B`
 - Recommended next concrete arc for this branch if selected:
-  - `V61-A`
-  - select `V61-A` as the next default candidate
+  - `V61-B`
+  - select `V61-B` as the next default candidate
 
 Default path selection for this branch:
 
@@ -275,60 +280,51 @@ Default path selection for this branch:
     - web copilot
     - GPT-5.4 desktop workbench
     - existing resident session send/message seams
-  - instantiate one bounded communication membrane starter only:
+  - `V61-A` is now the shipped starter:
     - one communication ingress packet
     - one ingress interpretation record
     - one communication egress packet
     - one surface-authority descriptor
-  - keep starter message ingress explicit and non-authorizing:
-    - not raw transcript truth
-    - not generic chat memory
-    - not native witness by default
-    - not act authority by default
-    - not charter mutation by itself
-  - keep surface classification explicit and replayable:
-    - same selected surface facts
-    - same frozen policy
-    - same surface authority class
-  - keep the surface-authority descriptor bounded to surface affordance / authority
-    posture only:
-    - not message interpretation by itself
-    - not charter or continuation mutation by itself
-  - keep ingress interpretation explicit and replayable:
-    - same selected ingress packet
-    - same frozen policy
-    - same interpretation posture
-  - keep interpreted `charter-amendment candidate` posture non-mutating in `V61-A`:
-    - communication posture tag only
-    - later family or later lane must decide any actual charter amendment law
-  - keep message-to-witness promotion out of the first slice:
-    - rewitness / message-promotion gate remains a later `V61-B` seam
-  - keep office posture bounded in the first slice:
-    - runtime may emit a governed communication egress packet over the resident
-      surface
-    - this is not yet explicit bridge-office behavior
-    - explicit office binding remains deferred to `V61-B`
-  - keep seam evidence non-generalizing by default:
-    - not connector-family law
-    - not remote-operator law
-    - not bridge-office law
-    - not rewitness / message-promotion law
-    - not independent law for other communication surfaces beyond the same backend
-      seam
-  - keep outbound communication bounded to posture only:
-    - status update
-    - clarification question
-    - authority request
-    - escalation notice
-    - completion report
-  - keep connector-specific transport, remote operator UX, repo-bound writable
-    authority, replay widening, execute widening, and dispatch widening not selected
-    in this slice
-  - after `V61-A`, if this family is selected, select `V61-B` as the next default
-    candidate:
-    - one resident bridge-office binding seam
-    - one rewitness / message-promotion gate
-    - one explicit office-bound outbound packet path
+    - exact resident `/urm/copilot/send` seam only
+    - `copilot.user_message` only
+    - no bridge-office binding yet
+    - no rewitness / message-promotion gate yet
+  - the next same-family bounded fill should be `V61-B`:
+    - consume the shipped `V61-A` communication lineage only
+    - add one resident bridge-office binding seam
+    - add one rewitness / message-promotion gate
+    - keep the same exact backend seam only
+    - keep the same exact continuation-bound downstream exemplar only
+    - keep office posture explicit and replayable:
+      - same selected bridge facts
+      - same latest communication lineage
+      - same frozen policy
+      - same office posture
+      - missing or inconsistent bridge facts must fail closed
+    - keep rewitness / message-promotion fail-closed and explicit:
+      - raw communication remains non-native witness by default
+      - positive rewitness remains typed and provenance-bearing
+      - rewitness may promote only to explicit witness-candidate posture here
+      - positive rewitness requires explicit witness basis ref or certificate ref
+      - missing positive basis must fail closed
+      - rewitness does not mutate charter, residual, loop-state, or continuation
+        outputs in this slice
+      - rewitness may not silently become native witness, act authority, or repo-write
+        authority
+    - keep office-bound outbound posture bounded:
+      - explicit bridge-authorized outbound packet path over the same selected seam
+      - no connector transport law
+      - no remote-operator law
+      - no product/UI expansion as authority
+    - keep seam evidence non-generalizing by default:
+      - not connector-family law
+      - not remote-operator law
+      - not independent law for other communication surfaces beyond the same backend
+        seam
+      - not repo-authority or execution-authority law
+    - keep connector-specific transport, remote operator UX, repo-bound writable
+      authority, replay widening, execute widening, and dispatch widening not selected
+      in this slice
   - after `V61-B`, if this family is selected, select `V61-C` as the next default
     candidate:
     - one advisory communication hardening surface over the exact shipped `V61-A` /
@@ -350,7 +346,7 @@ The current recommended path ladder is:
 
 | Path | Theme | Primary output | Status |
 |---|---|---|---|
-| `V61-A` | communication packet starter | one communication ingress packet, one ingress interpretation record, one communication egress packet, and one surface-authority descriptor over the existing repo communication surfaces only | recommended starter path |
+| `V61-A` | communication packet starter | one communication ingress packet, one ingress interpretation record, one communication egress packet, and one surface-authority descriptor over the existing repo communication surfaces only | closed on `main` |
 | `V61-B` | bridge office binding / rewitness / message-promotion gate | one explicit resident bridge-office binding seam and one rewitness / message-promotion gate over the same communication lineage only | recommended step-2 path |
 | `V61-C` | advisory communication hardening | one advisory path-level communication hardening surface over the same governed communication lineage, without mutating live behavior by default | recommended step-3 path |
 
@@ -382,9 +378,9 @@ The clean next-family move after `V60` is:
 - make `V61` own bounded governed communication packets, ingress interpretation,
   surface classification, and later resident bridge-office law over the already
   shipped governed runtime stack;
-- start with `V61-A`, so the repo can retrofit the already-real communication
-  surfaces before connector or remote-operator widening;
-- keep `V61-A` explicitly as a membrane retrofit over existing send / receive seams,
-  not a product-surface expansion;
+- recognize `V61-A` as the landed membrane retrofit over the exact resident send
+  seam, not a product-surface expansion;
+- move next to `V61-B`, so explicit resident bridge-office binding and rewitness law
+  can be added without widening transport, remote UX, or repo authority;
 - keep `V62` and `V63` prepared as later sibling branches that consume `V61`;
 - and keep repo widening and worker export explicitly later.
