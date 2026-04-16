@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import importlib.util
 import json
 import os
 import shutil
@@ -79,6 +80,15 @@ def _run_script(*args: str) -> subprocess.CompletedProcess[str]:
     )
 
 
+def _load_script_module():
+    spec = importlib.util.spec_from_file_location("run_v61b_script", _script_path())
+    assert spec is not None
+    assert spec.loader is not None
+    module = importlib.util.module_from_spec(spec)
+    spec.loader.exec_module(module)
+    return module
+
+
 def test_default_cli_emits_message_rewitness_gate(tmp_path: Path) -> None:
     temp_root, _fixture_root = _copy_v61b_input_tree(tmp_path)
 
@@ -89,6 +99,14 @@ def test_default_cli_emits_message_rewitness_gate(tmp_path: Path) -> None:
     assert payload["schema"] == "agentic_de_message_rewitness_gate_record@1"
     assert payload["rewitness_outcome"] == "witness_candidate_promoted"
     assert completed.stderr == ""
+
+
+def test_bridge_office_binding_output_defaults_to_none() -> None:
+    module = _load_script_module()
+
+    args = module._parse_args([])
+
+    assert args.bridge_office_binding_output is None
 
 
 def test_cli_can_write_both_v61b_outputs(tmp_path: Path) -> None:

@@ -23,7 +23,6 @@ from adeu_agentic_de import (  # noqa: E402
     DEFAULT_V61A_EVIDENCE_PATH,
     DEFAULT_V61A_INGRESS_INTERPRETATION_PATH,
     DEFAULT_V61A_SURFACE_AUTHORITY_DESCRIPTOR_PATH,
-    DEFAULT_V61B_BRIDGE_OFFICE_BINDING_PATH,
     DEFAULT_V61B_LANE_DRIFT_PATH,
     render_bridge_office_binding_payload,
     render_message_rewitness_gate_payload,
@@ -82,7 +81,7 @@ def _parse_args(argv: list[str]) -> argparse.Namespace:
     parser.add_argument(
         "--bridge-office-binding-output",
         type=Path,
-        default=DEFAULT_V61B_BRIDGE_OFFICE_BINDING_PATH,
+        default=None,
     )
     parser.add_argument("--message-rewitness-gate-output", type=Path, default=None)
     return parser.parse_args(argv)

@@ -1344,7 +1344,7 @@ def _assert_v61b_repo_local_input_path(
                 )
     candidate_resolved = candidate.resolve(strict=False)
     try:
-        candidate_resolved.relative_to(repo_root_path.resolve())
+        candidate_resolved.relative_to(repo_root_path)
     except ValueError as exc:
         raise ValueError(
             f"{field_name} must remain within the repository root for V61-B communication"
