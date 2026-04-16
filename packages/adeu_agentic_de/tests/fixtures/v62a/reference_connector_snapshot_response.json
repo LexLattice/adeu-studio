@@ -1,0 +1,45 @@
+{
+  "capability_snapshot_id": "capability-snapshot-v62a-1",
+  "connector_exposure": [
+    {
+      "connector_id": "alpha",
+      "deny_reason_code": null,
+      "exposed": true,
+      "matched_rule_id": "connector-exposure-rule-alpha",
+      "missing_capabilities": []
+    },
+    {
+      "connector_id": "zeta",
+      "deny_reason_code": null,
+      "exposed": true,
+      "matched_rule_id": "connector-exposure-rule-zeta",
+      "missing_capabilities": []
+    }
+  ],
+  "connector_snapshot_hash": "0123456789abcdef0123456789abcdef0123456789abcdef0123456789abcdef",
+  "connectors": [
+    {
+      "id": "alpha",
+      "name": "Alpha"
+    },
+    {
+      "id": "zeta",
+      "name": "Zeta"
+    }
+  ],
+  "created_at": "2026-04-17T00:00:00+00:00",
+  "exposed_connectors": [
+    {
+      "id": "alpha",
+      "name": "Alpha"
+    },
+    {
+      "id": "zeta",
+      "name": "Zeta"
+    }
+  ],
+  "idempotent_replay": false,
+  "provider": "codex",
+  "session_id": "copilot-v59a-session-1",
+  "snapshot_id": "connector-snapshot-v62a-1"
+}

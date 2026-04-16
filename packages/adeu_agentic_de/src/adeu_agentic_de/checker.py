@@ -2,10 +2,15 @@ from __future__ import annotations
 
 import hashlib
 import json
+from datetime import datetime, timezone
 from pathlib import Path
 
 from adeu_ir.repo import repo_root
-from urm_runtime.models import CopilotSessionSendRequest, CopilotTurnSnapshot
+from urm_runtime.models import (
+    ConnectorSnapshotResponse,
+    CopilotSessionSendRequest,
+    CopilotTurnSnapshot,
+)
 
 from .local_effect import (
     DEFAULT_LOCAL_EFFECT_PAYLOAD_SHA256,
@@ -24,10 +29,12 @@ from .models import (
     AGENTIC_DE_COMMUNICATION_EGRESS_PACKET_SCHEMA,
     AGENTIC_DE_COMMUNICATION_INGRESS_PACKET_SCHEMA,
     AGENTIC_DE_CONFORMANCE_REPORT_SCHEMA,
+    AGENTIC_DE_CONNECTOR_ADMISSION_RECORD_SCHEMA,
     AGENTIC_DE_CONTINUATION_DECISION_RECORD_SCHEMA,
     AGENTIC_DE_CONTINUATION_HARDENING_REGISTER_SCHEMA,
     AGENTIC_DE_CONTINUATION_REFRESH_DECISION_RECORD_SCHEMA,
     AGENTIC_DE_DOMAIN_PACKET_SCHEMA,
+    AGENTIC_DE_EXTERNAL_ASSISTANT_INGRESS_BRIDGE_PACKET_SCHEMA,
     AGENTIC_DE_GOVERNANCE_CALIBRATION_REGISTER_SCHEMA,
     AGENTIC_DE_GOVERNED_COMMUNICATION_HARDENING_REGISTER_SCHEMA,
     AGENTIC_DE_INGRESS_INTERPRETATION_RECORD_SCHEMA,
@@ -71,11 +78,13 @@ from .models import (
     AgenticDeCommunicationEgressPacket,
     AgenticDeCommunicationIngressPacket,
     AgenticDeConformanceReport,
+    AgenticDeConnectorAdmissionRecord,
     AgenticDeContinuationDecisionRecord,
     AgenticDeContinuationHardeningEntry,
     AgenticDeContinuationHardeningRegister,
     AgenticDeContinuationRefreshDecisionRecord,
     AgenticDeDomainPacket,
+    AgenticDeExternalAssistantIngressBridgePacket,
     AgenticDeGovernanceCalibrationEntry,
     AgenticDeGovernanceCalibrationRegister,
     AgenticDeGovernedCommunicationHardeningEntry,
@@ -206,6 +215,16 @@ V61C_CHECKER_VERSION = "agentic_de_governed_communication_v61c"
 V61C_TARGET_ARC = "vNext+169"
 V61C_TARGET_PATH = "V61-C"
 V61C_FROZEN_POLICY_REF = "docs/LOCKED_CONTINUATION_vNEXT_PLUS169.md#machine-checkable-contract"
+V62A_CHECKER_VERSION = "agentic_de_connector_admission_v62a"
+V62A_TARGET_ARC = "vNext+170"
+V62A_TARGET_PATH = "V62-A"
+V62A_FROZEN_POLICY_REF = "docs/LOCKED_CONTINUATION_vNEXT_PLUS170.md#machine-checkable-contract"
+V62A_SELECTED_CONNECTOR_CREATE_ROUTE = "apps/api/src/adeu_api/urm_routes.py:/connectors/snapshot"
+V62A_SELECTED_CONNECTOR_GET_ROUTE = (
+    "apps/api/src/adeu_api/urm_routes.py:/connectors/snapshot/{snapshot_id}"
+)
+V62A_SELECTED_CONNECTOR_PROVIDER = "codex"
+V62A_SELECTED_CONNECTOR_PRINCIPAL = "external_assistant"
 
 
 def _default_fixture_path(variant: str, filename: str) -> Path:
@@ -487,6 +506,18 @@ DEFAULT_V61C_LANE_DRIFT_PATH = _default_fixture_path(
 DEFAULT_V61C_HARDENING_PATH = _default_fixture_path(
     "v61c", "reference_agentic_de_governed_communication_hardening_register.json"
 )
+DEFAULT_V62A_LANE_DRIFT_PATH = _default_fixture_path(
+    "v62a", "reference_agentic_de_lane_drift_record.json"
+)
+DEFAULT_V62A_CONNECTOR_SNAPSHOT_PATH = _default_fixture_path(
+    "v62a", "reference_connector_snapshot_response.json"
+)
+DEFAULT_V62A_CONNECTOR_ADMISSION_PATH = _default_fixture_path(
+    "v62a", "reference_agentic_de_connector_admission_record.json"
+)
+DEFAULT_V62A_EXTERNAL_ASSISTANT_INGRESS_BRIDGE_PATH = _default_fixture_path(
+    "v62a", "reference_agentic_de_external_assistant_ingress_bridge_packet.json"
+)
 DEFAULT_V58C_EVIDENCE_PATH = (
     repo_root(anchor=Path(__file__))
     / "artifacts"
@@ -550,6 +581,14 @@ DEFAULT_V61B_EVIDENCE_PATH = (
     / "v168"
     / "evidence_inputs"
     / "v61b_bridge_office_rewitness_evidence_v168.json"
+)
+DEFAULT_V61C_EVIDENCE_PATH = (
+    repo_root(anchor=Path(__file__))
+    / "artifacts"
+    / "agent_harness"
+    / "v169"
+    / "evidence_inputs"
+    / "v61c_governed_communication_hardening_evidence_v169.json"
 )
 
 EXPECTED_V56A_EVIDENCE_SCHEMA = "v56a_agentic_de_interaction_governance_starter_evidence@1"
@@ -721,6 +760,7 @@ REQUIRED_V61B_DRIFT_ENTRY_STATUSES: dict[str, str] = {
 }
 EXPECTED_V61A_EVIDENCE_SCHEMA = "v61a_governed_communication_evidence@1"
 EXPECTED_V61B_EVIDENCE_SCHEMA = "v61b_bridge_office_rewitness_evidence@1"
+EXPECTED_V61C_EVIDENCE_SCHEMA = "v61c_governed_communication_hardening_evidence@1"
 EXPECTED_V61C_PRIOR_LANE_REF = "docs/LOCKED_CONTINUATION_vNEXT_PLUS168.md"
 REQUIRED_V61C_DRIFT_ENTRY_STATUSES: dict[str, str] = {
     "v61a_v61b_surface_reuse_default": "holds",
@@ -730,6 +770,15 @@ REQUIRED_V61C_DRIFT_ENTRY_STATUSES: dict[str, str] = {
     "path_level_non_generalization_required": "amended",
     "candidate_outcomes_non_entitling_non_escalating_and_scope_bound": "amended",
     "provenance_and_lineage_root_dedup_explicit": "amended",
+}
+EXPECTED_V62A_PRIOR_LANE_REF = "docs/LOCKED_CONTINUATION_vNEXT_PLUS169.md"
+REQUIRED_V62A_DRIFT_ENTRY_STATUSES: dict[str, str] = {
+    "v61_surface_reuse_default": "holds",
+    "exact_connector_snapshot_path_only": "amended",
+    "external_assistant_principal_only": "amended",
+    "connector_admission_fail_closed_on_snapshot_exposure_freshness_basis": "amended",
+    "ingress_bridge_consumes_v61a_basis_only": "amended",
+    "path_level_non_generalization_required": "amended",
 }
 
 
@@ -1036,6 +1085,33 @@ def load_governed_communication_hardening_register(
     if payload.schema != AGENTIC_DE_GOVERNED_COMMUNICATION_HARDENING_REGISTER_SCHEMA:
         raise ValueError(
             "unexpected schema marker for governed communication hardening register: "
+            f"{payload.schema}"
+        )
+    return payload
+
+
+def load_connector_snapshot_response(path: Path) -> ConnectorSnapshotResponse:
+    return ConnectorSnapshotResponse.model_validate(
+        _load_json_object(path, error_label="connector snapshot")
+    )
+
+
+def load_connector_admission_record(path: Path) -> AgenticDeConnectorAdmissionRecord:
+    payload = AgenticDeConnectorAdmissionRecord.model_validate(_read_json_object(path))
+    if payload.schema != AGENTIC_DE_CONNECTOR_ADMISSION_RECORD_SCHEMA:
+        raise ValueError(
+            f"unexpected schema marker for connector admission record: {payload.schema}"
+        )
+    return payload
+
+
+def load_external_assistant_ingress_bridge_packet(
+    path: Path,
+) -> AgenticDeExternalAssistantIngressBridgePacket:
+    payload = AgenticDeExternalAssistantIngressBridgePacket.model_validate(_read_json_object(path))
+    if payload.schema != AGENTIC_DE_EXTERNAL_ASSISTANT_INGRESS_BRIDGE_PACKET_SCHEMA:
+        raise ValueError(
+            "unexpected schema marker for external assistant ingress bridge packet: "
             f"{payload.schema}"
         )
     return payload
@@ -1423,6 +1499,36 @@ def _assert_v61c_repo_local_input_path(
     except ValueError as exc:
         raise ValueError(
             f"{field_name} must remain within the repository root for V61-C communication"
+        ) from exc
+
+
+def _assert_v62a_repo_local_input_path(
+    *,
+    repo_root_path: Path,
+    candidate: Path,
+    field_name: str,
+) -> None:
+    if repo_root_path.exists() and repo_root_path.is_symlink():
+        raise ValueError("repository root may not be a symlink for V62-A connector admission")
+    try:
+        relative = candidate.relative_to(repo_root_path)
+    except ValueError:
+        relative = None
+    if relative is not None:
+        current = repo_root_path
+        for part in relative.parts:
+            current = current / part
+            if current.is_symlink():
+                raise ValueError(
+                    f"{field_name} may not traverse symlink components "
+                    "for V62-A connector admission"
+                )
+    candidate_resolved = candidate.resolve(strict=False)
+    try:
+        candidate_resolved.relative_to(repo_root_path.resolve())
+    except ValueError as exc:
+        raise ValueError(
+            f"{field_name} must remain within the repository root for V62-A connector admission"
         ) from exc
 
 
@@ -1977,6 +2083,40 @@ def _validate_v61c_lane_drift_record(record: AgenticDeLaneDriftRecord) -> Agenti
     return record
 
 
+def _validate_v62a_lane_drift_record(record: AgenticDeLaneDriftRecord) -> AgenticDeLaneDriftRecord:
+    if record.target_arc != V62A_TARGET_ARC:
+        raise ValueError(
+            f"V62-A lane drift record must target {V62A_TARGET_ARC!r}, got {record.target_arc!r}"
+        )
+    if record.target_path != V62A_TARGET_PATH:
+        raise ValueError(
+            f"V62-A lane drift record must target {V62A_TARGET_PATH!r}, got {record.target_path!r}"
+        )
+    if record.prior_lane_ref != EXPECTED_V62A_PRIOR_LANE_REF:
+        raise ValueError(
+            "V62-A lane drift record must point at "
+            f"{EXPECTED_V62A_PRIOR_LANE_REF!r}, got {record.prior_lane_ref!r}"
+        )
+    actual_statuses = {entry.assumption_ref: entry.status for entry in record.entries}
+    missing_assumptions = sorted(set(REQUIRED_V62A_DRIFT_ENTRY_STATUSES) - set(actual_statuses))
+    mismatched_statuses = sorted(
+        assumption_ref
+        for assumption_ref, expected_status in REQUIRED_V62A_DRIFT_ENTRY_STATUSES.items()
+        if assumption_ref in actual_statuses and actual_statuses[assumption_ref] != expected_status
+    )
+    if missing_assumptions or mismatched_statuses:
+        detail_parts: list[str] = []
+        if missing_assumptions:
+            detail_parts.append(f"missing={missing_assumptions}")
+        if mismatched_statuses:
+            detail_parts.append(f"status_mismatch={mismatched_statuses}")
+        raise ValueError(
+            "V62-A lane drift record does not satisfy the required handoff posture; "
+            + ", ".join(detail_parts)
+        )
+    return record
+
+
 def _validate_v56a_evidence_payload(payload: dict[str, object]) -> dict[str, object]:
     if payload.get("schema") != EXPECTED_V56A_EVIDENCE_SCHEMA:
         raise ValueError("V56-C requires the shipped V56-A starter evidence payload on main")
@@ -2479,6 +2619,45 @@ def _validate_v61b_evidence_payload(payload: dict[str, object]) -> dict[str, obj
         raise ValueError("V61-B evidence must preserve the local_write-only downstream class")
     if payload.get("selected_downstream_write_kind_for_v61b") != "create_new":
         raise ValueError("V61-B evidence must preserve the create_new-only downstream write kind")
+    return payload
+
+
+def _validate_v61c_evidence_payload(payload: dict[str, object]) -> dict[str, object]:
+    if payload.get("schema") != EXPECTED_V61C_EVIDENCE_SCHEMA:
+        raise ValueError(
+            "V62-A requires the shipped V61-C governed communication hardening evidence "
+            "payload on main"
+        )
+    selected_shapes = payload.get("selected_record_shapes")
+    if not isinstance(selected_shapes, list) or (
+        "agentic_de_governed_communication_hardening_register@1" not in selected_shapes
+    ):
+        raise ValueError("V61-C evidence must preserve the shipped hardening register surface")
+    required_true_fields = (
+        "governed_communication_hardening_register_must_be_typed_and_replayable",
+        "recommendation_function_extensional_and_replayable",
+        "evidence_basis_distinct_from_recommendation",
+        "explicit_frozen_policy_anchor_required",
+        "lineage_root_non_independence_dedup_applied",
+        "positive_rewitness_basis_explicitly_carried_when_present",
+        "latest_continuation_basis_selection_explicit",
+        "path_level_non_generalization_required_for_v61c",
+        "advisory_only",
+        "candidate_only",
+    )
+    for field_name in required_true_fields:
+        if payload.get(field_name) is not True:
+            raise ValueError(f"V61-C evidence must preserve {field_name}")
+    if payload.get("changes_live_behavior_by_default") is not False:
+        raise ValueError("V61-C evidence must keep hardening outputs non-live by default")
+    if payload.get("selected_resident_send_surface_for_v61c") != "urm_copilot_send_path_only":
+        raise ValueError("V61-C evidence must preserve the resident send seam only")
+    if payload.get("selected_runtime_message_method_for_v61c") != (
+        f"{V61A_SELECTED_RUNTIME_METHOD}_only"
+    ):
+        raise ValueError("V61-C evidence must preserve copilot.user_message only")
+    if payload.get("connector_transport_law_selected_for_v61c") is not False:
+        raise ValueError("V61-C evidence must preserve connector transport deferral")
     return payload
 
 
@@ -11909,6 +12088,388 @@ def run_agentic_de_governed_communication_v61c(
     )
 
 
+def _normalize_timestamp(value: datetime | None) -> datetime | None:
+    if value is None:
+        return None
+    if value.tzinfo is None:
+        return value.replace(tzinfo=timezone.utc)
+    return value
+
+
+def _validate_v62a_connector_snapshot(
+    *,
+    snapshot: ConnectorSnapshotResponse,
+    expected_session_id: str,
+    min_acceptable_ts: datetime | None,
+) -> None:
+    if snapshot.provider != V62A_SELECTED_CONNECTOR_PROVIDER:
+        raise ValueError("V62-A requires the codex provider on the selected connector path")
+    if snapshot.session_id != expected_session_id:
+        raise ValueError("V62-A connector snapshot must bind the shipped V60 resident session")
+    if not snapshot.snapshot_id.strip():
+        raise ValueError("V62-A connector snapshot requires snapshot_id")
+    if not snapshot.capability_snapshot_id.strip():
+        raise ValueError("V62-A connector snapshot requires capability_snapshot_id")
+    if len(snapshot.connector_snapshot_hash) != 64:
+        raise ValueError("V62-A connector snapshot requires a sha256 connector_snapshot_hash")
+    if not snapshot.exposed_connectors:
+        raise ValueError("V62-A requires at least one exposed connector on the selected path")
+    exposure_ids = [item.connector_id for item in snapshot.connector_exposure if item.exposed]
+    exposed_ids = [item.get("id") for item in snapshot.exposed_connectors if isinstance(item, dict)]
+    if sorted(exposure_ids) != sorted(exposed_ids):
+        raise ValueError("V62-A connector snapshot must keep exposed connectors aligned")
+    normalized_created_at = _normalize_timestamp(snapshot.created_at)
+    normalized_min_ts = _normalize_timestamp(min_acceptable_ts)
+    if (
+        normalized_created_at is not None
+        and normalized_min_ts is not None
+        and normalized_created_at < normalized_min_ts
+    ):
+        raise ValueError("V62-A connector snapshot is older than min_acceptable_ts")
+
+
+def _validate_v62a_v61a_surfaces(
+    *,
+    task_charter: AgenticDeTaskCharterPacket,
+    loop_state_ledger: AgenticDeLoopStateLedger,
+    continuation_refresh_decision: AgenticDeContinuationRefreshDecisionRecord,
+    ingress: AgenticDeCommunicationIngressPacket,
+    descriptor: AgenticDeSurfaceAuthorityDescriptor,
+    interpretation: AgenticDeIngressInterpretationRecord,
+    target_relative_path: str,
+) -> None:
+    expected_path = _expected_v60a_selected_downstream_path_summary(target_relative_path)
+    if continuation_refresh_decision.selected_next_path_summary_or_none != expected_path:
+        raise ValueError("V62-A requires the shipped exact downstream V60 selected path")
+    if ingress.target_arc != V61A_TARGET_ARC or ingress.target_path != V61A_TARGET_PATH:
+        raise ValueError("V62-A requires the shipped V61-A communication ingress surface")
+    if descriptor.target_arc != V61A_TARGET_ARC or descriptor.target_path != V61A_TARGET_PATH:
+        raise ValueError("V62-A requires the shipped V61-A surface authority descriptor")
+    if (
+        interpretation.target_arc != V61A_TARGET_ARC
+        or interpretation.target_path != V61A_TARGET_PATH
+    ):
+        raise ValueError("V62-A requires the shipped V61-A ingress interpretation surface")
+    if ingress.selected_api_route_ref_or_equivalent != V61A_SELECTED_API_ROUTE:
+        raise ValueError("V62-A requires the shipped exact resident V61-A API route")
+    if ingress.selected_runtime_message_method != V61A_SELECTED_RUNTIME_METHOD:
+        raise ValueError("V62-A requires the shipped exact resident V61-A runtime method")
+    if ingress.surface_class != V61A_SELECTED_SURFACE_CLASS:
+        raise ValueError("V62-A requires the shipped exact resident V61-A surface class")
+    if descriptor.communication_ingress_ref != ingress.communication_ingress_id:
+        raise ValueError("V62-A descriptor must bind the shipped V61-A ingress packet")
+    if interpretation.communication_ingress_ref != ingress.communication_ingress_id:
+        raise ValueError("V62-A interpretation must bind the shipped V61-A ingress packet")
+    if (
+        interpretation.surface_authority_descriptor_ref
+        != descriptor.surface_authority_descriptor_id
+    ):
+        raise ValueError("V62-A interpretation must bind the shipped V61-A descriptor")
+    if interpretation.task_charter_ref != task_charter.charter_id:
+        raise ValueError("V62-A interpretation must bind the shipped V60 task charter")
+    if interpretation.loop_state_ledger_ref != loop_state_ledger.ledger_id:
+        raise ValueError("V62-A interpretation must bind the shipped V60 loop-state ledger")
+    if (
+        interpretation.latest_v60_continuation_basis_ref
+        != continuation_refresh_decision.refresh_decision_id
+    ):
+        raise ValueError("V62-A interpretation must bind the shipped V60-B refresh decision")
+    if ingress.resident_session_ref != loop_state_ledger.resident_session_ref:
+        raise ValueError("V62-A requires the shipped V61-A resident session identity")
+
+
+def _build_v62a_connector_admission_record(
+    *,
+    loop_state_ledger: AgenticDeLoopStateLedger,
+    snapshot: ConnectorSnapshotResponse,
+    snapshot_ref: str,
+    min_acceptable_ts: datetime | None,
+    evidence_refs: list[str],
+) -> AgenticDeConnectorAdmissionRecord:
+    exposed_ids = sorted(
+        item.get("id")
+        for item in snapshot.exposed_connectors
+        if isinstance(item, dict) and item.get("id")
+    )
+    connector_ids = sorted(
+        item.get("id") for item in snapshot.connectors if isinstance(item, dict) and item.get("id")
+    )
+    field_origin_tags = {
+        "connector_provider_class": "prior_artifact",
+        "connector_identity_facts": "prior_artifact",
+        "connector_exposure_basis_ref_or_summary": "prior_artifact",
+        "freshness_basis_summary": "current_turn_derived",
+        "selected_connector_principal_class": "shaping_only",
+        "admission_verdict": "current_turn_derived",
+        "frozen_policy_anchor_ref": "shaping_only",
+    }
+    field_dependence_tags = {
+        "connector_provider_class": [snapshot_ref],
+        "connector_identity_facts": [snapshot_ref],
+        "connector_exposure_basis_ref_or_summary": [snapshot_ref],
+        "freshness_basis_summary": [snapshot_ref],
+        "selected_connector_principal_class": [V62A_FROZEN_POLICY_REF],
+        "admission_verdict": [snapshot_ref, V62A_FROZEN_POLICY_REF],
+        "frozen_policy_anchor_ref": [V62A_FROZEN_POLICY_REF],
+    }
+    min_ts_summary = (
+        _normalize_timestamp(min_acceptable_ts).isoformat()
+        if _normalize_timestamp(min_acceptable_ts) is not None
+        else "not_provided"
+    )
+    return AgenticDeConnectorAdmissionRecord(
+        target_arc=V62A_TARGET_ARC,
+        target_path=V62A_TARGET_PATH,
+        resident_session_ref=loop_state_ledger.resident_session_ref,
+        connector_snapshot_ref=snapshot_ref,
+        connector_snapshot_hash=snapshot.connector_snapshot_hash,
+        capability_snapshot_ref=snapshot.capability_snapshot_id,
+        connector_provider_class=V62A_SELECTED_CONNECTOR_PROVIDER,
+        connector_identity_facts=(
+            "connector snapshot exposes connector ids="
+            + ",".join(connector_ids)
+            + " for one codex-backed admitted connector path"
+        ),
+        connector_exposure_basis_ref_or_summary=(
+            "snapshot exposed connector ids="
+            + ",".join(exposed_ids)
+            + "; connector_exposure entries="
+            + ",".join(sorted(item.connector_id for item in snapshot.connector_exposure))
+        ),
+        connector_route_basis_summary=(
+            "selected routes="
+            f"{V62A_SELECTED_CONNECTOR_CREATE_ROUTE},"
+            f"{V62A_SELECTED_CONNECTOR_GET_ROUTE}"
+        ),
+        freshness_basis_summary=(
+            "execution_mode=live; created_at="
+            + _normalize_timestamp(snapshot.created_at).isoformat()
+            + "; min_acceptable_ts="
+            + min_ts_summary
+        ),
+        selected_connector_principal_class=V62A_SELECTED_CONNECTOR_PRINCIPAL,
+        frozen_policy_anchor_ref=V62A_FROZEN_POLICY_REF,
+        admission_verdict="admitted",
+        reason_codes=[
+            "snapshot_basis_present",
+            "exposure_basis_present",
+            "freshness_basis_satisfied",
+            "external_assistant_principal_selected_only",
+            "connector_path_admitted",
+        ],
+        field_origin_tags=field_origin_tags,
+        field_dependence_tags=field_dependence_tags,
+        root_origin_dedup_summary=(
+            "connector snapshot basis and shaping refs remain non-independent; "
+            "no connector transport authority is inferred from repeated snapshot fields"
+        ),
+        evidence_refs=evidence_refs,
+    )
+
+
+def _build_v62a_external_assistant_ingress_bridge_packet(
+    *,
+    connector_admission: AgenticDeConnectorAdmissionRecord,
+    interpretation: AgenticDeIngressInterpretationRecord,
+    ingress: AgenticDeCommunicationIngressPacket,
+    descriptor: AgenticDeSurfaceAuthorityDescriptor,
+    evidence_refs: list[str],
+) -> AgenticDeExternalAssistantIngressBridgePacket:
+    field_origin_tags = {
+        "selected_connector_principal_class": "shaping_only",
+        "external_assistant_payload_facts": "prior_artifact",
+        "latest_continuation_basis_ref_or_equivalent": "prior_artifact",
+        "frozen_policy_anchor_ref": "shaping_only",
+        "bridge_basis_summary": "current_turn_derived",
+    }
+    field_dependence_tags = {
+        "selected_connector_principal_class": [connector_admission.connector_admission_id],
+        "external_assistant_payload_facts": [
+            connector_admission.connector_admission_id,
+            interpretation.ingress_interpretation_id,
+        ],
+        "latest_continuation_basis_ref_or_equivalent": [
+            interpretation.latest_v60_continuation_basis_ref
+        ],
+        "frozen_policy_anchor_ref": [V62A_FROZEN_POLICY_REF],
+        "bridge_basis_summary": [
+            connector_admission.connector_admission_id,
+            ingress.communication_ingress_id,
+            descriptor.surface_authority_descriptor_id,
+            interpretation.ingress_interpretation_id,
+            V62A_FROZEN_POLICY_REF,
+        ],
+    }
+    return AgenticDeExternalAssistantIngressBridgePacket(
+        target_arc=V62A_TARGET_ARC,
+        target_path=V62A_TARGET_PATH,
+        connector_admission_ref=connector_admission.connector_admission_id,
+        selected_connector_principal_class=V62A_SELECTED_CONNECTOR_PRINCIPAL,
+        external_assistant_payload_facts=(
+            "admitted external assistant ingress over connector snapshot "
+            + connector_admission.connector_snapshot_hash[:12]
+            + " consumes shipped V61-A ingress/descriptor/interpretation only"
+        ),
+        consumed_communication_ingress_ref=ingress.communication_ingress_id,
+        consumed_surface_authority_descriptor_ref=descriptor.surface_authority_descriptor_id,
+        consumed_ingress_interpretation_ref=interpretation.ingress_interpretation_id,
+        latest_continuation_basis_ref_or_equivalent=interpretation.latest_v60_continuation_basis_ref,
+        frozen_policy_anchor_ref=V62A_FROZEN_POLICY_REF,
+        bridge_basis_summary=(
+            "admitted connector path plus shipped V61-A ingress/descriptor/interpretation "
+            "over the exact resident send seam, without V61-B bridge-office or rewitness "
+            "consumption in V62-A"
+        ),
+        reason_codes=[
+            "admitted_connector_basis_consumed",
+            "v61a_communication_basis_consumed",
+            "external_assistant_principal_only",
+            "ingress_only_in_v62a",
+            "connector_transport_non_authorizing",
+        ],
+        field_origin_tags=field_origin_tags,
+        field_dependence_tags=field_dependence_tags,
+        root_origin_dedup_summary=(
+            "connector admission and shipped V61-A lineage remain non-independent bridge "
+            "basis; repeated lineage refs do not mint connector authority"
+        ),
+        evidence_refs=evidence_refs,
+    )
+
+
+def run_agentic_de_connector_admission_v62a(
+    *,
+    repo_root_path: Path | None = None,
+    v60a_task_charter_path: Path = DEFAULT_V60A_TASK_CHARTER_PATH,
+    v60a_loop_state_ledger_path: Path = DEFAULT_V60A_LOOP_STATE_LEDGER_PATH,
+    v60b_continuation_refresh_decision_path: Path = DEFAULT_V60B_CONTINUATION_REFRESH_DECISION_PATH,
+    v61a_communication_ingress_path: Path = DEFAULT_V61A_COMMUNICATION_INGRESS_PATH,
+    v61a_surface_authority_descriptor_path: Path = DEFAULT_V61A_SURFACE_AUTHORITY_DESCRIPTOR_PATH,
+    v61a_ingress_interpretation_path: Path = DEFAULT_V61A_INGRESS_INTERPRETATION_PATH,
+    connector_snapshot_path: Path = DEFAULT_V62A_CONNECTOR_SNAPSHOT_PATH,
+    lane_drift_path: Path = DEFAULT_V62A_LANE_DRIFT_PATH,
+    v61a_evidence_path: Path = DEFAULT_V61A_EVIDENCE_PATH,
+    v61b_evidence_path: Path = DEFAULT_V61B_EVIDENCE_PATH,
+    v61c_evidence_path: Path = DEFAULT_V61C_EVIDENCE_PATH,
+    target_relative_path: str = str(DEFAULT_WORKSPACE_CONTINUITY_TARGET_RELATIVE_PATH),
+    min_acceptable_ts: datetime | None = None,
+) -> tuple[AgenticDeConnectorAdmissionRecord, AgenticDeExternalAssistantIngressBridgePacket]:
+    raw_root = repo_root(anchor=Path(__file__)) if repo_root_path is None else repo_root_path
+    if raw_root.exists() and raw_root.is_symlink():
+        raise ValueError("repository root may not be a symlink for V62-A connector admission")
+    root = raw_root.resolve()
+
+    path_args = {
+        "v60a_task_charter_path": v60a_task_charter_path,
+        "v60a_loop_state_ledger_path": v60a_loop_state_ledger_path,
+        "v60b_continuation_refresh_decision_path": v60b_continuation_refresh_decision_path,
+        "v61a_communication_ingress_path": v61a_communication_ingress_path,
+        "v61a_surface_authority_descriptor_path": v61a_surface_authority_descriptor_path,
+        "v61a_ingress_interpretation_path": v61a_ingress_interpretation_path,
+        "connector_snapshot_path": connector_snapshot_path,
+        "lane_drift_path": lane_drift_path,
+        "v61a_evidence_path": v61a_evidence_path,
+        "v61b_evidence_path": v61b_evidence_path,
+        "v61c_evidence_path": v61c_evidence_path,
+    }
+    resolved_paths: dict[str, Path] = {}
+    for field_name, path in path_args.items():
+        candidate = _resolve_path(repo_root_path=root, path=path)
+        _assert_v62a_repo_local_input_path(
+            repo_root_path=root,
+            candidate=candidate,
+            field_name=field_name,
+        )
+        resolved_paths[field_name] = candidate
+
+    _validate_v62a_lane_drift_record(load_lane_drift_record(resolved_paths["lane_drift_path"]))
+    _validate_v61a_evidence_payload(
+        _load_json_object(resolved_paths["v61a_evidence_path"], error_label="V61-A evidence")
+    )
+    _validate_v61b_evidence_payload(
+        _load_json_object(resolved_paths["v61b_evidence_path"], error_label="V61-B evidence")
+    )
+    _validate_v61c_evidence_payload(
+        _load_json_object(resolved_paths["v61c_evidence_path"], error_label="V61-C evidence")
+    )
+
+    v60a_task_charter = load_task_charter_packet(resolved_paths["v60a_task_charter_path"])
+    v60a_loop_state_ledger = load_loop_state_ledger(resolved_paths["v60a_loop_state_ledger_path"])
+    v60b_continuation_refresh_decision = load_continuation_refresh_decision_record(
+        resolved_paths["v60b_continuation_refresh_decision_path"]
+    )
+    v61a_ingress = load_communication_ingress_packet(
+        resolved_paths["v61a_communication_ingress_path"]
+    )
+    v61a_descriptor = load_surface_authority_descriptor(
+        resolved_paths["v61a_surface_authority_descriptor_path"]
+    )
+    v61a_interpretation = load_ingress_interpretation_record(
+        resolved_paths["v61a_ingress_interpretation_path"]
+    )
+    connector_snapshot = load_connector_snapshot_response(resolved_paths["connector_snapshot_path"])
+
+    _validate_v62a_v61a_surfaces(
+        task_charter=v60a_task_charter,
+        loop_state_ledger=v60a_loop_state_ledger,
+        continuation_refresh_decision=v60b_continuation_refresh_decision,
+        ingress=v61a_ingress,
+        descriptor=v61a_descriptor,
+        interpretation=v61a_interpretation,
+        target_relative_path=target_relative_path,
+    )
+    _validate_v62a_connector_snapshot(
+        snapshot=connector_snapshot,
+        expected_session_id=v60a_loop_state_ledger.resident_session_ref,
+        min_acceptable_ts=min_acceptable_ts,
+    )
+
+    evidence_refs = [
+        _render_input_ref(repo_root_path=root, path=resolved_paths["v60a_task_charter_path"]),
+        _render_input_ref(repo_root_path=root, path=resolved_paths["v60a_loop_state_ledger_path"]),
+        _render_input_ref(
+            repo_root_path=root,
+            path=resolved_paths["v60b_continuation_refresh_decision_path"],
+        ),
+        _render_input_ref(
+            repo_root_path=root,
+            path=resolved_paths["v61a_communication_ingress_path"],
+        ),
+        _render_input_ref(
+            repo_root_path=root,
+            path=resolved_paths["v61a_surface_authority_descriptor_path"],
+        ),
+        _render_input_ref(
+            repo_root_path=root,
+            path=resolved_paths["v61a_ingress_interpretation_path"],
+        ),
+        _render_input_ref(repo_root_path=root, path=resolved_paths["connector_snapshot_path"]),
+        _render_input_ref(repo_root_path=root, path=resolved_paths["lane_drift_path"]),
+        _render_input_ref(repo_root_path=root, path=resolved_paths["v61a_evidence_path"]),
+        _render_input_ref(repo_root_path=root, path=resolved_paths["v61b_evidence_path"]),
+        _render_input_ref(repo_root_path=root, path=resolved_paths["v61c_evidence_path"]),
+    ]
+    connector_snapshot_ref = _render_input_ref(
+        repo_root_path=root,
+        path=resolved_paths["connector_snapshot_path"],
+    )
+    admission = _build_v62a_connector_admission_record(
+        loop_state_ledger=v60a_loop_state_ledger,
+        snapshot=connector_snapshot,
+        snapshot_ref=connector_snapshot_ref,
+        min_acceptable_ts=min_acceptable_ts,
+        evidence_refs=evidence_refs,
+    )
+    bridge_packet = _build_v62a_external_assistant_ingress_bridge_packet(
+        connector_admission=admission,
+        interpretation=v61a_interpretation,
+        ingress=v61a_ingress,
+        descriptor=v61a_descriptor,
+        evidence_refs=evidence_refs,
+    )
+    return admission, bridge_packet
+
+
 def render_checkpoint_payload(checkpoint: AgenticDeMembraneCheckpoint) -> str:
     return json.dumps(checkpoint.model_dump(mode="json"), indent=2, sort_keys=True) + "\n"
 
@@ -12029,6 +12590,16 @@ def render_message_rewitness_gate_payload(
     record: AgenticDeMessageRewitnessGateRecord,
 ) -> str:
     return json.dumps(record.model_dump(mode="json"), indent=2, sort_keys=True) + "\n"
+
+
+def render_connector_admission_payload(record: AgenticDeConnectorAdmissionRecord) -> str:
+    return json.dumps(record.model_dump(mode="json"), indent=2, sort_keys=True) + "\n"
+
+
+def render_external_assistant_ingress_bridge_payload(
+    packet: AgenticDeExternalAssistantIngressBridgePacket,
+) -> str:
+    return json.dumps(packet.model_dump(mode="json"), indent=2, sort_keys=True) + "\n"
 
 
 def render_governed_communication_hardening_payload(

@@ -1,0 +1,74 @@
+{
+  "admission_verdict": "admitted",
+  "capability_snapshot_ref": "capability-snapshot-v62a-1",
+  "changes_live_behavior_by_default": false,
+  "connector_admission_id": "agentic_de_connector_admission_0a3da35c99cd",
+  "connector_exposure_basis_ref_or_summary": "snapshot exposed connector ids=alpha,zeta; connector_exposure entries=alpha,zeta",
+  "connector_identity_facts": "connector snapshot exposes connector ids=alpha,zeta for one codex-backed admitted connector path",
+  "connector_provider_class": "codex",
+  "connector_route_basis_summary": "selected routes=apps/api/src/adeu_api/urm_routes.py:/connectors/snapshot,apps/api/src/adeu_api/urm_routes.py:/connectors/snapshot/{snapshot_id}",
+  "connector_snapshot_hash": "0123456789abcdef0123456789abcdef0123456789abcdef0123456789abcdef",
+  "connector_snapshot_ref": "packages/adeu_agentic_de/tests/fixtures/v62a/reference_connector_snapshot_response.json",
+  "evidence_only": true,
+  "evidence_refs": [
+    "packages/adeu_agentic_de/tests/fixtures/v60a/reference_agentic_de_task_charter_packet.json",
+    "packages/adeu_agentic_de/tests/fixtures/v60a/reference_agentic_de_loop_state_ledger.json",
+    "packages/adeu_agentic_de/tests/fixtures/v60b/reference_agentic_de_continuation_refresh_decision_record.json",
+    "packages/adeu_agentic_de/tests/fixtures/v61a/reference_agentic_de_communication_ingress_packet.json",
+    "packages/adeu_agentic_de/tests/fixtures/v61a/reference_agentic_de_surface_authority_descriptor.json",
+    "packages/adeu_agentic_de/tests/fixtures/v61a/reference_agentic_de_ingress_interpretation_record.json",
+    "packages/adeu_agentic_de/tests/fixtures/v62a/reference_connector_snapshot_response.json",
+    "packages/adeu_agentic_de/tests/fixtures/v62a/reference_agentic_de_lane_drift_record.json",
+    "artifacts/agent_harness/v167/evidence_inputs/v61a_governed_communication_evidence_v167.json",
+    "artifacts/agent_harness/v168/evidence_inputs/v61b_bridge_office_rewitness_evidence_v168.json",
+    "artifacts/agent_harness/v169/evidence_inputs/v61c_governed_communication_hardening_evidence_v169.json"
+  ],
+  "field_dependence_tags": {
+    "admission_verdict": [
+      "packages/adeu_agentic_de/tests/fixtures/v62a/reference_connector_snapshot_response.json",
+      "docs/LOCKED_CONTINUATION_vNEXT_PLUS170.md#machine-checkable-contract"
+    ],
+    "connector_exposure_basis_ref_or_summary": [
+      "packages/adeu_agentic_de/tests/fixtures/v62a/reference_connector_snapshot_response.json"
+    ],
+    "connector_identity_facts": [
+      "packages/adeu_agentic_de/tests/fixtures/v62a/reference_connector_snapshot_response.json"
+    ],
+    "connector_provider_class": [
+      "packages/adeu_agentic_de/tests/fixtures/v62a/reference_connector_snapshot_response.json"
+    ],
+    "freshness_basis_summary": [
+      "packages/adeu_agentic_de/tests/fixtures/v62a/reference_connector_snapshot_response.json"
+    ],
+    "frozen_policy_anchor_ref": [
+      "docs/LOCKED_CONTINUATION_vNEXT_PLUS170.md#machine-checkable-contract"
+    ],
+    "selected_connector_principal_class": [
+      "docs/LOCKED_CONTINUATION_vNEXT_PLUS170.md#machine-checkable-contract"
+    ]
+  },
+  "field_origin_tags": {
+    "admission_verdict": "current_turn_derived",
+    "connector_exposure_basis_ref_or_summary": "prior_artifact",
+    "connector_identity_facts": "prior_artifact",
+    "connector_provider_class": "prior_artifact",
+    "freshness_basis_summary": "current_turn_derived",
+    "frozen_policy_anchor_ref": "shaping_only",
+    "selected_connector_principal_class": "shaping_only"
+  },
+  "freshness_basis_summary": "execution_mode=live; created_at=2026-04-17T00:00:00+00:00; min_acceptable_ts=not_provided",
+  "frozen_policy_anchor_ref": "docs/LOCKED_CONTINUATION_vNEXT_PLUS170.md#machine-checkable-contract",
+  "reason_codes": [
+    "snapshot_basis_present",
+    "exposure_basis_present",
+    "freshness_basis_satisfied",
+    "external_assistant_principal_selected_only",
+    "connector_path_admitted"
+  ],
+  "resident_session_ref": "copilot-v59a-session-1",
+  "root_origin_dedup_summary": "connector snapshot basis and shaping refs remain non-independent; no connector transport authority is inferred from repeated snapshot fields",
+  "schema": "agentic_de_connector_admission_record@1",
+  "selected_connector_principal_class": "external_assistant",
+  "target_arc": "vNext+170",
+  "target_path": "V62-A"
+}
