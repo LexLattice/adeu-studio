@@ -1,0 +1,144 @@
+{
+  "additionalProperties": false,
+  "properties": {
+    "changes_live_behavior_by_default": {
+      "const": false,
+      "default": false,
+      "title": "Changes Live Behavior By Default",
+      "type": "boolean"
+    },
+    "communication_ingress_id": {
+      "anyOf": [
+        {
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Communication Ingress Id"
+    },
+    "evidence_only": {
+      "const": true,
+      "default": true,
+      "title": "Evidence Only",
+      "type": "boolean"
+    },
+    "evidence_refs": {
+      "items": {
+        "type": "string"
+      },
+      "title": "Evidence Refs",
+      "type": "array"
+    },
+    "field_dependence_tags": {
+      "additionalProperties": {
+        "items": {
+          "type": "string"
+        },
+        "type": "array"
+      },
+      "title": "Field Dependence Tags",
+      "type": "object"
+    },
+    "field_origin_tags": {
+      "additionalProperties": {
+        "enum": [
+          "current_turn_native",
+          "current_turn_derived",
+          "observability_only",
+          "prior_artifact",
+          "shaping_only"
+        ],
+        "type": "string"
+      },
+      "title": "Field Origin Tags",
+      "type": "object"
+    },
+    "ingress_basis_summary": {
+      "title": "Ingress Basis Summary",
+      "type": "string"
+    },
+    "ingress_payload_summary": {
+      "title": "Ingress Payload Summary",
+      "type": "string"
+    },
+    "resident_session_ref": {
+      "title": "Resident Session Ref",
+      "type": "string"
+    },
+    "root_origin_ids": {
+      "items": {
+        "type": "string"
+      },
+      "title": "Root Origin Ids",
+      "type": "array"
+    },
+    "schema": {
+      "const": "agentic_de_communication_ingress_packet@1",
+      "default": "agentic_de_communication_ingress_packet@1",
+      "title": "Schema",
+      "type": "string"
+    },
+    "seed_or_continuation_basis_summary": {
+      "title": "Seed Or Continuation Basis Summary",
+      "type": "string"
+    },
+    "selected_api_route_ref_or_equivalent": {
+      "title": "Selected Api Route Ref Or Equivalent",
+      "type": "string"
+    },
+    "selected_runtime_message_method": {
+      "title": "Selected Runtime Message Method",
+      "type": "string"
+    },
+    "source_principal_class": {
+      "const": "human_operator",
+      "title": "Source Principal Class",
+      "type": "string"
+    },
+    "speaker_class": {
+      "const": "resident_session_user_message",
+      "title": "Speaker Class",
+      "type": "string"
+    },
+    "surface_class": {
+      "const": "resident_copilot_send_api",
+      "title": "Surface Class",
+      "type": "string"
+    },
+    "surface_instance_or_session_identity": {
+      "title": "Surface Instance Or Session Identity",
+      "type": "string"
+    },
+    "target_arc": {
+      "title": "Target Arc",
+      "type": "string"
+    },
+    "target_path": {
+      "title": "Target Path",
+      "type": "string"
+    }
+  },
+  "required": [
+    "target_arc",
+    "target_path",
+    "resident_session_ref",
+    "source_principal_class",
+    "speaker_class",
+    "surface_class",
+    "surface_instance_or_session_identity",
+    "selected_api_route_ref_or_equivalent",
+    "selected_runtime_message_method",
+    "ingress_payload_summary",
+    "seed_or_continuation_basis_summary",
+    "ingress_basis_summary",
+    "field_origin_tags",
+    "field_dependence_tags",
+    "root_origin_ids",
+    "evidence_refs"
+  ],
+  "title": "AgenticDeCommunicationIngressPacket",
+  "type": "object"
+}

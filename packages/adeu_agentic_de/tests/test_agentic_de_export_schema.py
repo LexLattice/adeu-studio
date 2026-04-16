@@ -7,12 +7,15 @@ from adeu_agentic_de import (
     AGENTIC_DE_ACTION_CLASS_TAXONOMY_SCHEMA,
     AGENTIC_DE_ACTION_PROPOSAL_SCHEMA,
     AGENTIC_DE_ACTION_TICKET_SCHEMA,
+    AGENTIC_DE_COMMUNICATION_EGRESS_PACKET_SCHEMA,
+    AGENTIC_DE_COMMUNICATION_INGRESS_PACKET_SCHEMA,
     AGENTIC_DE_CONFORMANCE_REPORT_SCHEMA,
     AGENTIC_DE_CONTINUATION_DECISION_RECORD_SCHEMA,
     AGENTIC_DE_CONTINUATION_HARDENING_REGISTER_SCHEMA,
     AGENTIC_DE_CONTINUATION_REFRESH_DECISION_RECORD_SCHEMA,
     AGENTIC_DE_DOMAIN_PACKET_SCHEMA,
     AGENTIC_DE_GOVERNANCE_CALIBRATION_REGISTER_SCHEMA,
+    AGENTIC_DE_INGRESS_INTERPRETATION_RECORD_SCHEMA,
     AGENTIC_DE_INTERACTION_CONTRACT_SCHEMA,
     AGENTIC_DE_LANE_DRIFT_RECORD_SCHEMA,
     AGENTIC_DE_LIVE_HARNESS_HARDENING_REGISTER_SCHEMA,
@@ -33,6 +36,7 @@ from adeu_agentic_de import (
     AGENTIC_DE_RUNTIME_HARVEST_RECORD_SCHEMA,
     AGENTIC_DE_RUNTIME_STATE_SCHEMA,
     AGENTIC_DE_SEED_INTENT_RECORD_SCHEMA,
+    AGENTIC_DE_SURFACE_AUTHORITY_DESCRIPTOR_SCHEMA,
     AGENTIC_DE_TASK_CHARTER_PACKET_SCHEMA,
     AGENTIC_DE_TASK_RESIDUAL_PACKET_SCHEMA,
     AGENTIC_DE_TASK_RESIDUAL_REFRESH_PACKET_SCHEMA,
@@ -184,6 +188,38 @@ def _schema_pairs() -> dict[str, tuple[Path, Path]]:
             / "agentic_de_continuation_hardening_register.v1.json",
             root / "spec" / "agentic_de_continuation_hardening_register.schema.json",
         ),
+        AGENTIC_DE_COMMUNICATION_INGRESS_PACKET_SCHEMA: (
+            root
+            / "packages"
+            / "adeu_agentic_de"
+            / "schema"
+            / "agentic_de_communication_ingress_packet.v1.json",
+            root / "spec" / "agentic_de_communication_ingress_packet.schema.json",
+        ),
+        AGENTIC_DE_SURFACE_AUTHORITY_DESCRIPTOR_SCHEMA: (
+            root
+            / "packages"
+            / "adeu_agentic_de"
+            / "schema"
+            / "agentic_de_surface_authority_descriptor.v1.json",
+            root / "spec" / "agentic_de_surface_authority_descriptor.schema.json",
+        ),
+        AGENTIC_DE_INGRESS_INTERPRETATION_RECORD_SCHEMA: (
+            root
+            / "packages"
+            / "adeu_agentic_de"
+            / "schema"
+            / "agentic_de_ingress_interpretation_record.v1.json",
+            root / "spec" / "agentic_de_ingress_interpretation_record.schema.json",
+        ),
+        AGENTIC_DE_COMMUNICATION_EGRESS_PACKET_SCHEMA: (
+            root
+            / "packages"
+            / "adeu_agentic_de"
+            / "schema"
+            / "agentic_de_communication_egress_packet.v1.json",
+            root / "spec" / "agentic_de_communication_egress_packet.schema.json",
+        ),
         AGENTIC_DE_LIVE_TURN_ADMISSION_RECORD_SCHEMA: (
             root
             / "packages"
@@ -238,9 +274,7 @@ def _schema_pairs() -> dict[str, tuple[Path, Path]]:
             / "adeu_agentic_de"
             / "schema"
             / "agentic_de_workspace_continuity_reintegration_report.v1.json",
-            root
-            / "spec"
-            / "agentic_de_workspace_continuity_reintegration_report.schema.json",
+            root / "spec" / "agentic_de_workspace_continuity_reintegration_report.schema.json",
         ),
         AGENTIC_DE_WORKSPACE_CONTINUITY_RESTORATION_HANDOFF_RECORD_SCHEMA: (
             root
@@ -268,9 +302,7 @@ def _schema_pairs() -> dict[str, tuple[Path, Path]]:
             / "adeu_agentic_de"
             / "schema"
             / "agentic_de_workspace_continuity_hardening_register.v1.json",
-            root
-            / "spec"
-            / "agentic_de_workspace_continuity_hardening_register.schema.json",
+            root / "spec" / "agentic_de_workspace_continuity_hardening_register.schema.json",
         ),
         AGENTIC_DE_LIVE_RESTORATION_HANDOFF_RECORD_SCHEMA: (
             root

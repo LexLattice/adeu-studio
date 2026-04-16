@@ -1,0 +1,11 @@
+{
+  "client_request_id": "v61a-send-request-1",
+  "message": {
+    "method": "copilot.user_message",
+    "params": {
+      "text": "Status update needed for the current continuation basis."
+    }
+  },
+  "provider": "codex",
+  "session_id": "copilot-v59a-session-1"
+}

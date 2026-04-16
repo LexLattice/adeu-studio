@@ -1,0 +1,151 @@
+{
+  "additionalProperties": false,
+  "properties": {
+    "changes_live_behavior_by_default": {
+      "const": false,
+      "default": false,
+      "title": "Changes Live Behavior By Default",
+      "type": "boolean"
+    },
+    "communication_ingress_ref": {
+      "title": "Communication Ingress Ref",
+      "type": "string"
+    },
+    "evidence_only": {
+      "const": true,
+      "default": true,
+      "title": "Evidence Only",
+      "type": "boolean"
+    },
+    "evidence_refs": {
+      "items": {
+        "type": "string"
+      },
+      "title": "Evidence Refs",
+      "type": "array"
+    },
+    "field_dependence_tags": {
+      "additionalProperties": {
+        "items": {
+          "type": "string"
+        },
+        "type": "array"
+      },
+      "title": "Field Dependence Tags",
+      "type": "object"
+    },
+    "field_origin_tags": {
+      "additionalProperties": {
+        "enum": [
+          "current_turn_native",
+          "current_turn_derived",
+          "observability_only",
+          "prior_artifact",
+          "shaping_only"
+        ],
+        "type": "string"
+      },
+      "title": "Field Origin Tags",
+      "type": "object"
+    },
+    "frozen_policy_anchor_ref": {
+      "title": "Frozen Policy Anchor Ref",
+      "type": "string"
+    },
+    "ingress_interpretation_id": {
+      "anyOf": [
+        {
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Ingress Interpretation Id"
+    },
+    "interpretation_basis_summary": {
+      "title": "Interpretation Basis Summary",
+      "type": "string"
+    },
+    "interpretation_posture": {
+      "enum": [
+        "clarification_response",
+        "authority_response",
+        "status_request",
+        "charter_amendment_candidate",
+        "advisory_only_message"
+      ],
+      "title": "Interpretation Posture",
+      "type": "string"
+    },
+    "interpretation_reason_codes": {
+      "items": {
+        "type": "string"
+      },
+      "title": "Interpretation Reason Codes",
+      "type": "array"
+    },
+    "latest_v60_continuation_basis_ref": {
+      "title": "Latest V60 Continuation Basis Ref",
+      "type": "string"
+    },
+    "latest_v60_continuation_basis_selection_summary": {
+      "title": "Latest V60 Continuation Basis Selection Summary",
+      "type": "string"
+    },
+    "loop_state_ledger_ref": {
+      "title": "Loop State Ledger Ref",
+      "type": "string"
+    },
+    "root_origin_ids": {
+      "items": {
+        "type": "string"
+      },
+      "title": "Root Origin Ids",
+      "type": "array"
+    },
+    "schema": {
+      "const": "agentic_de_ingress_interpretation_record@1",
+      "default": "agentic_de_ingress_interpretation_record@1",
+      "title": "Schema",
+      "type": "string"
+    },
+    "surface_authority_descriptor_ref": {
+      "title": "Surface Authority Descriptor Ref",
+      "type": "string"
+    },
+    "target_arc": {
+      "title": "Target Arc",
+      "type": "string"
+    },
+    "target_path": {
+      "title": "Target Path",
+      "type": "string"
+    },
+    "task_charter_ref": {
+      "title": "Task Charter Ref",
+      "type": "string"
+    }
+  },
+  "required": [
+    "target_arc",
+    "target_path",
+    "communication_ingress_ref",
+    "surface_authority_descriptor_ref",
+    "task_charter_ref",
+    "loop_state_ledger_ref",
+    "latest_v60_continuation_basis_ref",
+    "latest_v60_continuation_basis_selection_summary",
+    "frozen_policy_anchor_ref",
+    "interpretation_posture",
+    "interpretation_reason_codes",
+    "interpretation_basis_summary",
+    "field_origin_tags",
+    "field_dependence_tags",
+    "root_origin_ids",
+    "evidence_refs"
+  ],
+  "title": "AgenticDeIngressInterpretationRecord",
+  "type": "object"
+}

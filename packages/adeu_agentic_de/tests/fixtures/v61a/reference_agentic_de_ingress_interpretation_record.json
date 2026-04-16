@@ -1,0 +1,81 @@
+{
+  "changes_live_behavior_by_default": false,
+  "communication_ingress_ref": "agentic_de_communication_ingress_fa2ead1a96a3",
+  "evidence_only": true,
+  "evidence_refs": [
+    "agentic_de_communication_ingress_fa2ead1a96a3",
+    "agentic_de_surface_authority_descriptor_f53e9d92836e",
+    "agentic_de_task_charter_4ba381fc318f",
+    "agentic_de_loop_state_ledger_22492d7ad8a7",
+    "agentic_de_continuation_refresh_decision_067a308bcae4",
+    "packages/adeu_agentic_de/tests/fixtures/v59a/reference_agentic_de_live_turn_reintegration_report.json",
+    "packages/adeu_agentic_de/tests/fixtures/v59a/reference_agentic_de_workspace_continuity_reintegration_report.json",
+    "packages/adeu_agentic_de/tests/fixtures/v59b/reference_agentic_de_workspace_continuity_restoration_reintegration_report.json",
+    "packages/adeu_agentic_de/tests/fixtures/v60a/reference_agentic_de_lane_drift_record.json",
+    "packages/adeu_agentic_de/tests/fixtures/v60a/reference_agentic_de_seed_intent_record.json",
+    "packages/adeu_agentic_de/tests/fixtures/v60a/reference_agentic_de_task_charter_packet.json",
+    "packages/adeu_agentic_de/tests/fixtures/v60a/reference_agentic_de_task_residual_packet.json",
+    "packages/adeu_agentic_de/tests/fixtures/v60a/reference_agentic_de_loop_state_ledger.json",
+    "packages/adeu_agentic_de/tests/fixtures/v60a/reference_agentic_de_continuation_decision_record.json",
+    "packages/adeu_agentic_de/tests/fixtures/v60b/reference_agentic_de_lane_drift_record.json",
+    "packages/adeu_agentic_de/tests/fixtures/v60b/reference_agentic_de_task_residual_refresh_packet.json",
+    "packages/adeu_agentic_de/tests/fixtures/v60b/reference_agentic_de_continuation_refresh_decision_record.json",
+    "packages/adeu_agentic_de/tests/fixtures/v60c/reference_agentic_de_lane_drift_record.json",
+    "packages/adeu_agentic_de/tests/fixtures/v60c/reference_agentic_de_continuation_hardening_register.json",
+    "packages/adeu_agentic_de/tests/fixtures/v61a/reference_agentic_de_lane_drift_record.json",
+    "packages/adeu_agentic_de/tests/fixtures/v61a/reference_copilot_session_send_request.json",
+    "artifacts/agent_harness/v164/evidence_inputs/v60a_continuation_starter_evidence_v164.json",
+    "artifacts/agent_harness/v165/evidence_inputs/v60b_continuation_refresh_evidence_v165.json"
+  ],
+  "field_dependence_tags": {
+    "frozen_policy_anchor_ref": [],
+    "interpretation_basis_summary": [
+      "agentic_de_communication_ingress_fa2ead1a96a3",
+      "agentic_de_surface_authority_descriptor_f53e9d92836e",
+      "agentic_de_task_charter_4ba381fc318f",
+      "agentic_de_loop_state_ledger_22492d7ad8a7",
+      "agentic_de_continuation_refresh_decision_067a308bcae4",
+      "docs/LOCKED_CONTINUATION_vNEXT_PLUS167.md#machine-checkable-contract"
+    ],
+    "interpretation_posture": [
+      "agentic_de_communication_ingress_fa2ead1a96a3",
+      "agentic_de_surface_authority_descriptor_f53e9d92836e",
+      "agentic_de_continuation_refresh_decision_067a308bcae4",
+      "docs/LOCKED_CONTINUATION_vNEXT_PLUS167.md#machine-checkable-contract"
+    ],
+    "latest_v60_continuation_basis_selection_summary": [
+      "agentic_de_continuation_refresh_decision_067a308bcae4"
+    ]
+  },
+  "field_origin_tags": {
+    "frozen_policy_anchor_ref": "shaping_only",
+    "interpretation_basis_summary": "current_turn_derived",
+    "interpretation_posture": "current_turn_derived",
+    "latest_v60_continuation_basis_selection_summary": "prior_artifact"
+  },
+  "frozen_policy_anchor_ref": "docs/LOCKED_CONTINUATION_vNEXT_PLUS167.md#machine-checkable-contract",
+  "ingress_interpretation_id": "agentic_de_ingress_interpretation_8a0ac37a6f71",
+  "interpretation_basis_summary": "typed ingress packet + surface descriptor + shipped V60 charter/loop/refresh basis + frozen V61-A policy anchor",
+  "interpretation_posture": "status_request",
+  "interpretation_reason_codes": [
+    "interpreted_status_request",
+    "surface_descriptor_not_message_interpretation",
+    "charter_mutation_not_selected_in_v61a"
+  ],
+  "latest_v60_continuation_basis_ref": "agentic_de_continuation_refresh_decision_067a308bcae4",
+  "latest_v60_continuation_basis_selection_summary": "latest shipped V60-B refresh decision selected as current continuation basis because V60-B closed on main and preserves exact downstream path",
+  "loop_state_ledger_ref": "agentic_de_loop_state_ledger_22492d7ad8a7",
+  "root_origin_ids": [
+    "session:copilot-v59a-session-1",
+    "request:v61a-send-request-1",
+    "charter:agentic_de_task_charter_4ba381fc318f",
+    "refresh:agentic_de_continuation_refresh_decision_067a308bcae4",
+    "policy:docs/LOCKED_CONTINUATION_vNEXT_PLUS167.md#machine-checkable-contract",
+    "basis:agentic_de_continuation_refresh_decision_067a308bcae4"
+  ],
+  "schema": "agentic_de_ingress_interpretation_record@1",
+  "surface_authority_descriptor_ref": "agentic_de_surface_authority_descriptor_f53e9d92836e",
+  "target_arc": "vNext+167",
+  "target_path": "V61-A",
+  "task_charter_ref": "agentic_de_task_charter_4ba381fc318f"
+}
