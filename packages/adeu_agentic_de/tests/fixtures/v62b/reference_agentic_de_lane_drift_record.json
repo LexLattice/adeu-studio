@@ -1,0 +1,40 @@
+{
+  "entries": [
+    {
+      "assumption_ref": "v62a_surface_reuse_default",
+      "note": "V62-B reuses the shipped V62-A admission and ingress bridge surfaces by default.",
+      "status": "holds"
+    },
+    {
+      "assumption_ref": "egress_bridge_only_follow_on",
+      "note": "V62-B adds only one explicit outbound external-assistant egress bridge packet.",
+      "status": "amended"
+    },
+    {
+      "assumption_ref": "external_assistant_principal_only",
+      "note": "V62-B preserves the external_assistant connector principal and keeps human_via_connector deferred.",
+      "status": "holds"
+    },
+    {
+      "assumption_ref": "explicit_v61b_basis_consumption_where_selected",
+      "note": "V62-B consumes shipped V61-B bridge-office and rewitness posture explicitly where selected.",
+      "status": "amended"
+    },
+    {
+      "assumption_ref": "direct_positive_rewitness_basis_summary_required",
+      "note": "V62-B carries direct positive rewitness basis summary rather than relying only on upstream refs.",
+      "status": "amended"
+    },
+    {
+      "assumption_ref": "path_level_non_generalization_required",
+      "note": "V62-B keeps the selected admitted connector path non-generalizing by default.",
+      "status": "amended"
+    }
+  ],
+  "entry_count": 6,
+  "prior_lane_ref": "docs/LOCKED_CONTINUATION_vNEXT_PLUS170.md",
+  "record_id": null,
+  "schema": "agentic_de_lane_drift_record@1",
+  "target_arc": "vNext+171",
+  "target_path": "V62-B"
+}

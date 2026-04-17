@@ -73,6 +73,9 @@ AGENTIC_DE_CONNECTOR_ADMISSION_RECORD_SCHEMA = "agentic_de_connector_admission_r
 AGENTIC_DE_EXTERNAL_ASSISTANT_INGRESS_BRIDGE_PACKET_SCHEMA = (
     "agentic_de_external_assistant_ingress_bridge_packet@1"
 )
+AGENTIC_DE_EXTERNAL_ASSISTANT_EGRESS_BRIDGE_PACKET_SCHEMA = (
+    "agentic_de_external_assistant_egress_bridge_packet@1"
+)
 
 ACTION_CLASS_VOCABULARY = ("inspect", "write", "execute", "dispatch")
 EXACT_ACTION_CLASS_VOCABULARY = (
@@ -4558,6 +4561,116 @@ class AgenticDeExternalAssistantIngressBridgePacket(BaseModel):
         return self
 
 
+class AgenticDeExternalAssistantEgressBridgePacket(BaseModel):
+    model_config = MODEL_CONFIG
+
+    schema: Literal[AGENTIC_DE_EXTERNAL_ASSISTANT_EGRESS_BRIDGE_PACKET_SCHEMA] = (
+        AGENTIC_DE_EXTERNAL_ASSISTANT_EGRESS_BRIDGE_PACKET_SCHEMA
+    )
+    egress_bridge_packet_id: str | None = None
+    target_arc: str
+    target_path: str
+    evidence_only: Literal[True] = True
+    changes_live_behavior_by_default: Literal[False] = False
+    connector_admission_ref: str
+    ingress_bridge_packet_ref: str
+    selected_connector_principal_class: ConnectorPrincipalClass
+    external_assistant_egress_payload_facts_or_summary: str
+    consumed_communication_egress_ref: str
+    consumed_bridge_office_binding_ref_or_none: str | None = None
+    consumed_message_rewitness_gate_ref_or_none: str | None = None
+    consumed_rewitness_basis_summary_or_none: str | None = None
+    latest_continuation_basis_ref_or_equivalent: str
+    latest_continuation_basis_selection_summary: str
+    frozen_policy_anchor_ref: str
+    bridge_basis_summary: str
+    reason_codes: list[str]
+    field_origin_tags: dict[str, LiveTurnFieldOriginTag]
+    field_dependence_tags: dict[str, list[str]]
+    root_origin_dedup_summary: str
+    evidence_refs: list[str]
+
+    @model_validator(mode="after")
+    def _validate_record(self) -> AgenticDeExternalAssistantEgressBridgePacket:
+        _assert_present_text(self.target_arc, field_name="target_arc")
+        _assert_present_text(self.target_path, field_name="target_path")
+        required_fields = (
+            "connector_admission_ref",
+            "ingress_bridge_packet_ref",
+            "external_assistant_egress_payload_facts_or_summary",
+            "consumed_communication_egress_ref",
+            "latest_continuation_basis_ref_or_equivalent",
+            "latest_continuation_basis_selection_summary",
+            "frozen_policy_anchor_ref",
+            "bridge_basis_summary",
+            "root_origin_dedup_summary",
+        )
+        for field_name in required_fields:
+            _assert_present_text(getattr(self, field_name), field_name=field_name)
+        optional_text_fields = (
+            "consumed_bridge_office_binding_ref_or_none",
+            "consumed_message_rewitness_gate_ref_or_none",
+            "consumed_rewitness_basis_summary_or_none",
+        )
+        for field_name in optional_text_fields:
+            value = getattr(self, field_name)
+            if value is not None:
+                _assert_present_text(value, field_name=field_name)
+        if (
+            self.consumed_rewitness_basis_summary_or_none is not None
+            and self.consumed_message_rewitness_gate_ref_or_none is None
+        ):
+            raise ValueError(
+                "consumed_rewitness_basis_summary_or_none requires "
+                "consumed_message_rewitness_gate_ref_or_none"
+            )
+        object.__setattr__(
+            self,
+            "reason_codes",
+            _ordered_unique_texts(self.reason_codes, field_name="reason_codes"),
+        )
+        if not self.reason_codes:
+            raise ValueError("reason_codes must be non-empty")
+        required_tag_fields = (
+            "selected_connector_principal_class",
+            "external_assistant_egress_payload_facts_or_summary",
+            "consumed_rewitness_basis_summary_or_none",
+            "latest_continuation_basis_selection_summary",
+            "frozen_policy_anchor_ref",
+            "bridge_basis_summary",
+        )
+        for field_name in required_tag_fields:
+            if field_name not in self.field_origin_tags:
+                raise ValueError(f"field_origin_tags missing required key {field_name}")
+            if field_name not in self.field_dependence_tags:
+                raise ValueError(f"field_dependence_tags missing required key {field_name}")
+        normalized_dependence_tags: dict[str, list[str]] = {}
+        for key, values in self.field_dependence_tags.items():
+            normalized_dependence_tags[key] = _ordered_unique_texts(
+                values,
+                field_name=f"field_dependence_tags[{key}]",
+            )
+        object.__setattr__(self, "field_dependence_tags", normalized_dependence_tags)
+        object.__setattr__(
+            self,
+            "evidence_refs",
+            _ordered_unique_texts(self.evidence_refs, field_name="evidence_refs"),
+        )
+        if not self.evidence_refs:
+            raise ValueError("evidence_refs must be non-empty")
+        object.__setattr__(
+            self,
+            "egress_bridge_packet_id",
+            _assign_or_verify_content_addressed_id(
+                value=self.egress_bridge_packet_id,
+                field_name="egress_bridge_packet_id",
+                prefix="agentic_de_external_assistant_egress_bridge",
+                payload=self.model_dump(mode="json", exclude={"egress_bridge_packet_id"}),
+            ),
+        )
+        return self
+
+
 class AgenticDeBridgeOfficeBindingRecord(BaseModel):
     model_config = MODEL_CONFIG
 
@@ -5214,6 +5327,12 @@ def compute_agentic_de_external_assistant_ingress_bridge_packet_id(
     payload: dict[str, object],
 ) -> str:
     return _compute_id("agentic_de_external_assistant_ingress_bridge", payload)
+
+
+def compute_agentic_de_external_assistant_egress_bridge_packet_id(
+    payload: dict[str, object],
+) -> str:
+    return _compute_id("agentic_de_external_assistant_egress_bridge", payload)
 
 
 def compute_agentic_de_governed_communication_hardening_entry_id(
