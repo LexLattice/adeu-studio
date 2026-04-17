@@ -116,3 +116,48 @@ def test_default_symlinked_repo_root_fails_closed(
         match="repository root may not be a symlink for V62-B external assistant bridge",
     ):
         run_agentic_de_external_assistant_egress_bridge_v62b()
+
+
+def test_lexically_outside_symlinked_input_path_fails_closed(tmp_path: Path) -> None:
+    temp_root, fixture_root = _copy_v62b_input_tree(tmp_path / "repo")
+    outside_root = tmp_path / "outside"
+    outside_root.mkdir()
+    aliased_packages = outside_root / "packages-link"
+    aliased_packages.symlink_to(temp_root / "packages", target_is_directory=True)
+    aliased_lane_drift = (
+        aliased_packages
+        / "adeu_agentic_de"
+        / "tests"
+        / "fixtures"
+        / "v62b"
+        / "reference_agentic_de_lane_drift_record.json"
+    )
+
+    with pytest.raises(
+        ValueError,
+        match="lane_drift_path must be lexically within the repository root",
+    ):
+        run_agentic_de_external_assistant_egress_bridge_v62b(
+            repo_root_path=temp_root,
+            lane_drift_path=aliased_lane_drift,
+        )
+
+
+def test_mismatched_v61a_egress_interpretation_fails_closed(tmp_path: Path) -> None:
+    temp_root, fixture_root = _copy_v62b_input_tree(tmp_path / "repo")
+    egress_path = (
+        fixture_root.parent / "v61a" / "reference_agentic_de_communication_egress_packet.json"
+    )
+    payload = _load_json(
+        fixture_root.parent / "v61a", "reference_agentic_de_communication_egress_packet.json"
+    )
+    assert isinstance(payload, dict)
+    payload["ingress_interpretation_ref"] = "agentic_de_ingress_interpretation_wrong"
+    payload["communication_egress_id"] = None
+    egress_path.write_text(json.dumps(payload, indent=2) + "\n", encoding="utf-8")
+
+    with pytest.raises(
+        ValueError,
+        match="V62-B communication egress must bind the shipped V62-A interpretation basis",
+    ):
+        run_agentic_de_external_assistant_egress_bridge_v62b(repo_root_path=temp_root)

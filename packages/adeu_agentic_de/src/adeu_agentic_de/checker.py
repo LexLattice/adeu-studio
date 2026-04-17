@@ -1586,20 +1586,22 @@ def _assert_v62b_repo_local_input_path(
         )
     try:
         relative = candidate.relative_to(repo_root_path)
-    except ValueError:
-        relative = None
-    if relative is not None:
-        current = repo_root_path
-        for part in relative.parts:
-            current = current / part
-            if current.is_symlink():
-                raise ValueError(
-                    f"{field_name} may not traverse symlink components "
-                    "for V62-B external assistant bridge"
-                )
+    except ValueError as exc:
+        raise ValueError(
+            f"{field_name} must be lexically within the repository root for V62-B "
+            "external assistant bridge"
+        ) from exc
+    current = repo_root_path
+    for part in relative.parts:
+        current = current / part
+        if current.is_symlink():
+            raise ValueError(
+                f"{field_name} may not traverse symlink components "
+                "for V62-B external assistant bridge"
+            )
     candidate_resolved = candidate.resolve(strict=False)
     try:
-        candidate_resolved.relative_to(repo_root_path.resolve())
+        candidate_resolved.relative_to(repo_root_path)
     except ValueError as exc:
         raise ValueError(
             f"{field_name} must remain within the repository root for V62-B external "
@@ -12688,6 +12690,13 @@ def _validate_v62b_consumed_surfaces(
         raise ValueError("V62-B requires the shipped V62-A ingress bridge principal selection")
     if communication_egress.selected_egress_surface_ref != V61A_SELECTED_API_ROUTE:
         raise ValueError("V62-B requires the shipped exact resident V61-A egress seam")
+    if (
+        communication_egress.ingress_interpretation_ref
+        != ingress_bridge.consumed_ingress_interpretation_ref
+    ):
+        raise ValueError(
+            "V62-B communication egress must bind the shipped V62-A interpretation basis"
+        )
     if (
         ingress_bridge.latest_continuation_basis_ref_or_equivalent
         != continuation_refresh_decision.refresh_decision_id
