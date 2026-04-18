@@ -1,0 +1,137 @@
+{
+  "additionalProperties": false,
+  "properties": {
+    "canonical_membership_basis_summary": {
+      "title": "Canonical Membership Basis Summary",
+      "type": "string"
+    },
+    "changes_live_behavior_by_default": {
+      "const": false,
+      "default": false,
+      "title": "Changes Live Behavior By Default",
+      "type": "boolean"
+    },
+    "consumed_continuity_refs": {
+      "items": {
+        "type": "string"
+      },
+      "title": "Consumed Continuity Refs",
+      "type": "array"
+    },
+    "evidence_only": {
+      "const": true,
+      "default": true,
+      "title": "Evidence Only",
+      "type": "boolean"
+    },
+    "evidence_refs": {
+      "items": {
+        "type": "string"
+      },
+      "title": "Evidence Refs",
+      "type": "array"
+    },
+    "explicit_exclusion_basis_summary_or_none": {
+      "anyOf": [
+        {
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Explicit Exclusion Basis Summary Or None"
+    },
+    "explicit_inclusion_basis_summary": {
+      "title": "Explicit Inclusion Basis Summary",
+      "type": "string"
+    },
+    "field_dependence_tags": {
+      "additionalProperties": {
+        "items": {
+          "type": "string"
+        },
+        "type": "array"
+      },
+      "title": "Field Dependence Tags",
+      "type": "object"
+    },
+    "field_origin_tags": {
+      "additionalProperties": {
+        "enum": [
+          "current_turn_native",
+          "current_turn_derived",
+          "observability_only",
+          "prior_artifact",
+          "shaping_only"
+        ],
+        "type": "string"
+      },
+      "title": "Field Origin Tags",
+      "type": "object"
+    },
+    "frozen_policy_anchor_ref": {
+      "title": "Frozen Policy Anchor Ref",
+      "type": "string"
+    },
+    "repo_writable_surface_descriptor_id": {
+      "anyOf": [
+        {
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Repo Writable Surface Descriptor Id"
+    },
+    "root_origin_dedup_summary": {
+      "title": "Root Origin Dedup Summary",
+      "type": "string"
+    },
+    "schema": {
+      "const": "agentic_de_repo_writable_surface_descriptor@1",
+      "default": "agentic_de_repo_writable_surface_descriptor@1",
+      "title": "Schema",
+      "type": "string"
+    },
+    "selected_surface_class": {
+      "enum": [
+        "declared_subtree",
+        "declared_file_set"
+      ],
+      "title": "Selected Surface Class",
+      "type": "string"
+    },
+    "selected_surface_identity_summary": {
+      "title": "Selected Surface Identity Summary",
+      "type": "string"
+    },
+    "target_arc": {
+      "title": "Target Arc",
+      "type": "string"
+    },
+    "target_path": {
+      "title": "Target Path",
+      "type": "string"
+    }
+  },
+  "required": [
+    "target_arc",
+    "target_path",
+    "selected_surface_identity_summary",
+    "selected_surface_class",
+    "canonical_membership_basis_summary",
+    "explicit_inclusion_basis_summary",
+    "consumed_continuity_refs",
+    "frozen_policy_anchor_ref",
+    "field_origin_tags",
+    "field_dependence_tags",
+    "root_origin_dedup_summary",
+    "evidence_refs"
+  ],
+  "title": "AgenticDeRepoWritableSurfaceDescriptor",
+  "type": "object"
+}

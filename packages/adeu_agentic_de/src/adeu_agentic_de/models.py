@@ -79,18 +79,19 @@ AGENTIC_DE_EXTERNAL_ASSISTANT_EGRESS_BRIDGE_PACKET_SCHEMA = (
 AGENTIC_DE_CONNECTOR_BRIDGE_HARDENING_REGISTER_SCHEMA = (
     "agentic_de_connector_bridge_hardening_register@1"
 )
-AGENTIC_DE_REMOTE_OPERATOR_SESSION_RECORD_SCHEMA = (
-    "agentic_de_remote_operator_session_record@1"
-)
+AGENTIC_DE_REMOTE_OPERATOR_SESSION_RECORD_SCHEMA = "agentic_de_remote_operator_session_record@1"
 AGENTIC_DE_REMOTE_OPERATOR_VIEW_PACKET_SCHEMA = "agentic_de_remote_operator_view_packet@1"
-AGENTIC_DE_REMOTE_OPERATOR_RESPONSE_RECORD_SCHEMA = (
-    "agentic_de_remote_operator_response_record@1"
-)
+AGENTIC_DE_REMOTE_OPERATOR_RESPONSE_RECORD_SCHEMA = "agentic_de_remote_operator_response_record@1"
 AGENTIC_DE_REMOTE_OPERATOR_CONTROL_BRIDGE_PACKET_SCHEMA = (
     "agentic_de_remote_operator_control_bridge_packet@1"
 )
 AGENTIC_DE_REMOTE_OPERATOR_HARDENING_REGISTER_SCHEMA = (
     "agentic_de_remote_operator_hardening_register@1"
+)
+AGENTIC_DE_REPO_WRITABLE_SURFACE_DESCRIPTOR_SCHEMA = "agentic_de_repo_writable_surface_descriptor@1"
+AGENTIC_DE_REPO_WRITE_LEASE_RECORD_SCHEMA = "agentic_de_repo_write_lease_record@1"
+AGENTIC_DE_REPO_WRITE_SURFACE_ADMISSION_RECORD_SCHEMA = (
+    "agentic_de_repo_write_surface_admission_record@1"
 )
 
 ACTION_CLASS_VOCABULARY = ("inspect", "write", "execute", "dispatch")
@@ -200,6 +201,21 @@ REMOTE_OPERATOR_HARDENING_OUTCOME_VOCABULARY = (
     "candidate_for_later_remote_operator_hardening",
     "candidate_for_later_remote_surface_migration",
     "not_selected_for_escalation",
+)
+REPO_WRITABLE_SURFACE_CLASS_VOCABULARY = ("declared_subtree", "declared_file_set")
+REPO_WRITE_LEASE_VERDICT_VOCABULARY = (
+    "admitted",
+    "rejected_surface_not_selected",
+    "rejected_target_not_in_surface",
+    "rejected_missing_basis",
+    "rejected_inconsistent_basis",
+)
+REPO_WRITE_SURFACE_ADMISSION_VERDICT_VOCABULARY = (
+    "admitted",
+    "rejected_target_not_in_surface",
+    "rejected_target_not_admissible",
+    "rejected_missing_basis",
+    "rejected_inconsistent_basis",
 )
 WORKSPACE_CONTINUITY_ADMISSION_VERDICT_VOCABULARY = (
     "admitted",
@@ -521,6 +537,21 @@ RemoteInterventionKind = Literal[
     "structured_answer",
     "clarification",
     "inspect_rich",
+]
+RepoWritableSurfaceClass = Literal["declared_subtree", "declared_file_set"]
+RepoWriteLeaseVerdict = Literal[
+    "admitted",
+    "rejected_surface_not_selected",
+    "rejected_target_not_in_surface",
+    "rejected_missing_basis",
+    "rejected_inconsistent_basis",
+]
+RepoWriteSurfaceAdmissionVerdict = Literal[
+    "admitted",
+    "rejected_target_not_in_surface",
+    "rejected_target_not_admissible",
+    "rejected_missing_basis",
+    "rejected_inconsistent_basis",
 ]
 BridgeOfficePosture = Literal[
     "resident_bridge_bound",
@@ -5319,6 +5350,285 @@ class AgenticDeRemoteOperatorHardeningRegister(BaseModel):
         return self
 
 
+class AgenticDeRepoWritableSurfaceDescriptor(BaseModel):
+    model_config = MODEL_CONFIG
+
+    schema: Literal[AGENTIC_DE_REPO_WRITABLE_SURFACE_DESCRIPTOR_SCHEMA] = (
+        AGENTIC_DE_REPO_WRITABLE_SURFACE_DESCRIPTOR_SCHEMA
+    )
+    repo_writable_surface_descriptor_id: str | None = None
+    target_arc: str
+    target_path: str
+    evidence_only: Literal[True] = True
+    changes_live_behavior_by_default: Literal[False] = False
+    selected_surface_identity_summary: str
+    selected_surface_class: RepoWritableSurfaceClass
+    canonical_membership_basis_summary: str
+    explicit_inclusion_basis_summary: str
+    explicit_exclusion_basis_summary_or_none: str | None = None
+    consumed_continuity_refs: list[str]
+    frozen_policy_anchor_ref: str
+    field_origin_tags: dict[str, LiveTurnFieldOriginTag]
+    field_dependence_tags: dict[str, list[str]]
+    root_origin_dedup_summary: str
+    evidence_refs: list[str]
+
+    @model_validator(mode="after")
+    def _validate_record(self) -> AgenticDeRepoWritableSurfaceDescriptor:
+        _assert_present_text(self.target_arc, field_name="target_arc")
+        _assert_present_text(self.target_path, field_name="target_path")
+        required_fields = (
+            "selected_surface_identity_summary",
+            "canonical_membership_basis_summary",
+            "explicit_inclusion_basis_summary",
+            "frozen_policy_anchor_ref",
+            "root_origin_dedup_summary",
+        )
+        for field_name in required_fields:
+            _assert_present_text(getattr(self, field_name), field_name=field_name)
+        if self.explicit_exclusion_basis_summary_or_none is not None:
+            _assert_present_text(
+                self.explicit_exclusion_basis_summary_or_none,
+                field_name="explicit_exclusion_basis_summary_or_none",
+            )
+        object.__setattr__(
+            self,
+            "consumed_continuity_refs",
+            _ordered_unique_texts(
+                self.consumed_continuity_refs,
+                field_name="consumed_continuity_refs",
+            ),
+        )
+        if not self.consumed_continuity_refs:
+            raise ValueError("consumed_continuity_refs must be non-empty")
+        required_tag_fields = (
+            "selected_surface_identity_summary",
+            "selected_surface_class",
+            "canonical_membership_basis_summary",
+            "explicit_inclusion_basis_summary",
+            "explicit_exclusion_basis_summary_or_none",
+            "consumed_continuity_refs",
+            "frozen_policy_anchor_ref",
+        )
+        for field_name in required_tag_fields:
+            if field_name not in self.field_origin_tags:
+                raise ValueError(f"field_origin_tags missing required key {field_name}")
+            if field_name not in self.field_dependence_tags:
+                raise ValueError(f"field_dependence_tags missing required key {field_name}")
+        normalized_dependence_tags: dict[str, list[str]] = {}
+        for key, values in self.field_dependence_tags.items():
+            normalized_dependence_tags[key] = _ordered_unique_texts(
+                values,
+                field_name=f"field_dependence_tags[{key}]",
+            )
+        object.__setattr__(self, "field_dependence_tags", normalized_dependence_tags)
+        object.__setattr__(
+            self,
+            "evidence_refs",
+            _ordered_unique_texts(self.evidence_refs, field_name="evidence_refs"),
+        )
+        if not self.evidence_refs:
+            raise ValueError("evidence_refs must be non-empty")
+        object.__setattr__(
+            self,
+            "repo_writable_surface_descriptor_id",
+            _assign_or_verify_content_addressed_id(
+                value=self.repo_writable_surface_descriptor_id,
+                field_name="repo_writable_surface_descriptor_id",
+                prefix="agentic_de_repo_writable_surface_descriptor",
+                payload=self.model_dump(
+                    mode="json",
+                    exclude={"repo_writable_surface_descriptor_id"},
+                ),
+            ),
+        )
+        return self
+
+
+class AgenticDeRepoWriteLeaseRecord(BaseModel):
+    model_config = MODEL_CONFIG
+
+    schema: Literal[AGENTIC_DE_REPO_WRITE_LEASE_RECORD_SCHEMA] = (
+        AGENTIC_DE_REPO_WRITE_LEASE_RECORD_SCHEMA
+    )
+    repo_write_lease_id: str | None = None
+    target_arc: str
+    target_path: str
+    evidence_only: Literal[True] = True
+    changes_live_behavior_by_default: Literal[False] = False
+    writable_surface_descriptor_ref: str
+    consumed_continuity_basis_summary: str
+    consumed_continuation_basis_summary: str
+    consumed_communication_basis_summary_or_none: str | None = None
+    preserved_write_semantics_summary: str
+    lease_verdict: RepoWriteLeaseVerdict
+    frozen_policy_anchor_ref: str
+    field_origin_tags: dict[str, LiveTurnFieldOriginTag]
+    field_dependence_tags: dict[str, list[str]]
+    root_origin_dedup_summary: str
+    reason_codes: list[str]
+    evidence_refs: list[str]
+
+    @model_validator(mode="after")
+    def _validate_record(self) -> AgenticDeRepoWriteLeaseRecord:
+        _assert_present_text(self.target_arc, field_name="target_arc")
+        _assert_present_text(self.target_path, field_name="target_path")
+        required_fields = (
+            "writable_surface_descriptor_ref",
+            "consumed_continuity_basis_summary",
+            "consumed_continuation_basis_summary",
+            "preserved_write_semantics_summary",
+            "frozen_policy_anchor_ref",
+            "root_origin_dedup_summary",
+        )
+        for field_name in required_fields:
+            _assert_present_text(getattr(self, field_name), field_name=field_name)
+        if self.consumed_communication_basis_summary_or_none is not None:
+            _assert_present_text(
+                self.consumed_communication_basis_summary_or_none,
+                field_name="consumed_communication_basis_summary_or_none",
+            )
+        required_tag_fields = (
+            "writable_surface_descriptor_ref",
+            "consumed_continuity_basis_summary",
+            "consumed_continuation_basis_summary",
+            "consumed_communication_basis_summary_or_none",
+            "preserved_write_semantics_summary",
+            "lease_verdict",
+            "frozen_policy_anchor_ref",
+        )
+        for field_name in required_tag_fields:
+            if field_name not in self.field_origin_tags:
+                raise ValueError(f"field_origin_tags missing required key {field_name}")
+            if field_name not in self.field_dependence_tags:
+                raise ValueError(f"field_dependence_tags missing required key {field_name}")
+        normalized_dependence_tags: dict[str, list[str]] = {}
+        for key, values in self.field_dependence_tags.items():
+            normalized_dependence_tags[key] = _ordered_unique_texts(
+                values,
+                field_name=f"field_dependence_tags[{key}]",
+            )
+        object.__setattr__(self, "field_dependence_tags", normalized_dependence_tags)
+        object.__setattr__(
+            self,
+            "reason_codes",
+            _ordered_unique_texts(self.reason_codes, field_name="reason_codes"),
+        )
+        object.__setattr__(
+            self,
+            "evidence_refs",
+            _ordered_unique_texts(self.evidence_refs, field_name="evidence_refs"),
+        )
+        if not self.reason_codes:
+            raise ValueError("reason_codes must be non-empty")
+        if not self.evidence_refs:
+            raise ValueError("evidence_refs must be non-empty")
+        object.__setattr__(
+            self,
+            "repo_write_lease_id",
+            _assign_or_verify_content_addressed_id(
+                value=self.repo_write_lease_id,
+                field_name="repo_write_lease_id",
+                prefix="agentic_de_repo_write_lease",
+                payload=self.model_dump(mode="json", exclude={"repo_write_lease_id"}),
+            ),
+        )
+        return self
+
+
+class AgenticDeRepoWriteSurfaceAdmissionRecord(BaseModel):
+    model_config = MODEL_CONFIG
+
+    schema: Literal[AGENTIC_DE_REPO_WRITE_SURFACE_ADMISSION_RECORD_SCHEMA] = (
+        AGENTIC_DE_REPO_WRITE_SURFACE_ADMISSION_RECORD_SCHEMA
+    )
+    repo_write_surface_admission_id: str | None = None
+    target_arc: str
+    target_path: str
+    evidence_only: Literal[True] = True
+    changes_live_behavior_by_default: Literal[False] = False
+    writable_surface_descriptor_ref: str
+    repo_write_lease_ref: str
+    selected_target_path_summary: str
+    target_membership_basis_summary: str
+    target_occupancy_or_admissibility_basis_summary: str
+    preserved_write_semantics_summary: str
+    admission_verdict: RepoWriteSurfaceAdmissionVerdict
+    frozen_policy_anchor_ref: str
+    field_origin_tags: dict[str, LiveTurnFieldOriginTag]
+    field_dependence_tags: dict[str, list[str]]
+    root_origin_dedup_summary: str
+    reason_codes: list[str]
+    evidence_refs: list[str]
+
+    @model_validator(mode="after")
+    def _validate_record(self) -> AgenticDeRepoWriteSurfaceAdmissionRecord:
+        _assert_present_text(self.target_arc, field_name="target_arc")
+        _assert_present_text(self.target_path, field_name="target_path")
+        required_fields = (
+            "writable_surface_descriptor_ref",
+            "repo_write_lease_ref",
+            "selected_target_path_summary",
+            "target_membership_basis_summary",
+            "target_occupancy_or_admissibility_basis_summary",
+            "preserved_write_semantics_summary",
+            "frozen_policy_anchor_ref",
+            "root_origin_dedup_summary",
+        )
+        for field_name in required_fields:
+            _assert_present_text(getattr(self, field_name), field_name=field_name)
+        required_tag_fields = (
+            "writable_surface_descriptor_ref",
+            "repo_write_lease_ref",
+            "selected_target_path_summary",
+            "target_membership_basis_summary",
+            "target_occupancy_or_admissibility_basis_summary",
+            "preserved_write_semantics_summary",
+            "admission_verdict",
+            "frozen_policy_anchor_ref",
+        )
+        for field_name in required_tag_fields:
+            if field_name not in self.field_origin_tags:
+                raise ValueError(f"field_origin_tags missing required key {field_name}")
+            if field_name not in self.field_dependence_tags:
+                raise ValueError(f"field_dependence_tags missing required key {field_name}")
+        normalized_dependence_tags: dict[str, list[str]] = {}
+        for key, values in self.field_dependence_tags.items():
+            normalized_dependence_tags[key] = _ordered_unique_texts(
+                values,
+                field_name=f"field_dependence_tags[{key}]",
+            )
+        object.__setattr__(self, "field_dependence_tags", normalized_dependence_tags)
+        object.__setattr__(
+            self,
+            "reason_codes",
+            _ordered_unique_texts(self.reason_codes, field_name="reason_codes"),
+        )
+        object.__setattr__(
+            self,
+            "evidence_refs",
+            _ordered_unique_texts(self.evidence_refs, field_name="evidence_refs"),
+        )
+        if not self.reason_codes:
+            raise ValueError("reason_codes must be non-empty")
+        if not self.evidence_refs:
+            raise ValueError("evidence_refs must be non-empty")
+        object.__setattr__(
+            self,
+            "repo_write_surface_admission_id",
+            _assign_or_verify_content_addressed_id(
+                value=self.repo_write_surface_admission_id,
+                field_name="repo_write_surface_admission_id",
+                prefix="agentic_de_repo_write_surface_admission",
+                payload=self.model_dump(
+                    mode="json",
+                    exclude={"repo_write_surface_admission_id"},
+                ),
+            ),
+        )
+        return self
+
+
 class AgenticDeBridgeOfficeBindingRecord(BaseModel):
     model_config = MODEL_CONFIG
 
@@ -6238,6 +6548,18 @@ def compute_agentic_de_remote_operator_hardening_register_id(
     payload: dict[str, object],
 ) -> str:
     return _compute_id("agentic_de_remote_operator_hardening_register", payload)
+
+
+def compute_agentic_de_repo_writable_surface_descriptor_id(payload: dict[str, object]) -> str:
+    return _compute_id("agentic_de_repo_writable_surface_descriptor", payload)
+
+
+def compute_agentic_de_repo_write_lease_id(payload: dict[str, object]) -> str:
+    return _compute_id("agentic_de_repo_write_lease", payload)
+
+
+def compute_agentic_de_repo_write_surface_admission_id(payload: dict[str, object]) -> str:
+    return _compute_id("agentic_de_repo_write_surface_admission", payload)
 
 
 def compute_agentic_de_external_assistant_ingress_bridge_packet_id(

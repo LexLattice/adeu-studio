@@ -1,0 +1,76 @@
+{
+  "canonical_membership_basis_summary": "canonical normalized target and selected surface remain lexically repo-contained, symlink-free from the repository root, and resolved within the declared continuity root before writable entitlement is admitted",
+  "changes_live_behavior_by_default": false,
+  "consumed_continuity_refs": [
+    "agentic_de_workspace_continuity_region_0bb0246a64a8",
+    "agentic_de_workspace_continuity_admission_3b72bff4a1b0",
+    "agentic_de_workspace_occupancy_report_7412f9d8203f",
+    "agentic_de_workspace_continuity_reintegration_report_c8e2566a1646"
+  ],
+  "evidence_only": true,
+  "evidence_refs": [
+    "packages/adeu_agentic_de/tests/fixtures/v59a/reference_agentic_de_workspace_continuity_region_declaration.json",
+    "packages/adeu_agentic_de/tests/fixtures/v59a/reference_agentic_de_workspace_continuity_admission_record.json",
+    "packages/adeu_agentic_de/tests/fixtures/v59a/reference_agentic_de_workspace_occupancy_report.json",
+    "packages/adeu_agentic_de/tests/fixtures/v59a/reference_agentic_de_workspace_continuity_reintegration_report.json",
+    "packages/adeu_agentic_de/tests/fixtures/v60a/reference_agentic_de_loop_state_ledger.json",
+    "packages/adeu_agentic_de/tests/fixtures/v60b/reference_agentic_de_continuation_refresh_decision_record.json",
+    "packages/adeu_agentic_de/tests/fixtures/v61a/reference_agentic_de_communication_ingress_packet.json",
+    "packages/adeu_agentic_de/tests/fixtures/v61a/reference_agentic_de_surface_authority_descriptor.json",
+    "packages/adeu_agentic_de/tests/fixtures/v61a/reference_agentic_de_ingress_interpretation_record.json",
+    "packages/adeu_agentic_de/tests/fixtures/v61a/reference_agentic_de_communication_egress_packet.json",
+    "packages/adeu_agentic_de/tests/fixtures/v64a/reference_agentic_de_lane_drift_record.json",
+    "artifacts/agent_harness/v163/evidence_inputs/v59c_workspace_continuity_hardening_evidence_v163.json",
+    "artifacts/agent_harness/v166/evidence_inputs/v60c_continuation_hardening_evidence_v166.json",
+    "artifacts/agent_harness/v169/evidence_inputs/v61c_governed_communication_hardening_evidence_v169.json"
+  ],
+  "explicit_exclusion_basis_summary_or_none": "exclude every path outside the declared subtree by default",
+  "explicit_inclusion_basis_summary": "include only canonical normalized descendants under artifacts/agentic_de/v59/workspace_continuity/runtime/",
+  "field_dependence_tags": {
+    "canonical_membership_basis_summary": [
+      "agentic_de_workspace_continuity_region_0bb0246a64a8",
+      "agentic_de_workspace_continuity_admission_3b72bff4a1b0",
+      "agentic_de_workspace_occupancy_report_7412f9d8203f",
+      "agentic_de_workspace_continuity_reintegration_report_c8e2566a1646"
+    ],
+    "consumed_continuity_refs": [
+      "agentic_de_workspace_continuity_region_0bb0246a64a8",
+      "agentic_de_workspace_continuity_admission_3b72bff4a1b0",
+      "agentic_de_workspace_occupancy_report_7412f9d8203f",
+      "agentic_de_workspace_continuity_reintegration_report_c8e2566a1646"
+    ],
+    "explicit_exclusion_basis_summary_or_none": [
+      "agentic_de_workspace_continuity_region_0bb0246a64a8"
+    ],
+    "explicit_inclusion_basis_summary": [
+      "agentic_de_workspace_continuity_region_0bb0246a64a8"
+    ],
+    "frozen_policy_anchor_ref": [
+      "docs/LOCKED_CONTINUATION_vNEXT_PLUS176.md#machine-checkable-contract"
+    ],
+    "selected_surface_class": [
+      "docs/LOCKED_CONTINUATION_vNEXT_PLUS176.md#machine-checkable-contract"
+    ],
+    "selected_surface_identity_summary": [
+      "agentic_de_workspace_continuity_region_0bb0246a64a8",
+      "agentic_de_workspace_occupancy_report_7412f9d8203f"
+    ]
+  },
+  "field_origin_tags": {
+    "canonical_membership_basis_summary": "current_turn_derived",
+    "consumed_continuity_refs": "prior_artifact",
+    "explicit_exclusion_basis_summary_or_none": "current_turn_derived",
+    "explicit_inclusion_basis_summary": "current_turn_derived",
+    "frozen_policy_anchor_ref": "shaping_only",
+    "selected_surface_class": "shaping_only",
+    "selected_surface_identity_summary": "current_turn_derived"
+  },
+  "frozen_policy_anchor_ref": "docs/LOCKED_CONTINUATION_vNEXT_PLUS176.md#machine-checkable-contract",
+  "repo_writable_surface_descriptor_id": "agentic_de_repo_writable_surface_descriptor_acabef417213",
+  "root_origin_dedup_summary": "shipped V59 continuity region, admission, occupancy, and reintegration lineage remain non-independent context for one selected writable surface only; repeated continuity evidence does not mint all-repo, shell, execute, dispatch, worker, or remote authority",
+  "schema": "agentic_de_repo_writable_surface_descriptor@1",
+  "selected_surface_class": "declared_subtree",
+  "selected_surface_identity_summary": "declared subtree artifacts/agentic_de/v59/workspace_continuity/runtime/",
+  "target_arc": "vNext+176",
+  "target_path": "V64-A"
+}
