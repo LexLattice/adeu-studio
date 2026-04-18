@@ -14326,9 +14326,24 @@ def _build_v63a_response_basis(
     continuation_refresh_decision: AgenticDeContinuationRefreshDecisionRecord,
     communication_egress: AgenticDeCommunicationEgressPacket,
 ) -> tuple[str, str, list[str]]:
+    return _build_v63a_response_basis_from_resident_session_ref(
+        selected_response_kind=selected_response_kind,
+        resident_session_ref=loop_state_ledger.resident_session_ref,
+        continuation_refresh_decision=continuation_refresh_decision,
+        communication_egress=communication_egress,
+    )
+
+
+def _build_v63a_response_basis_from_resident_session_ref(
+    *,
+    selected_response_kind: str,
+    resident_session_ref: str,
+    continuation_refresh_decision: AgenticDeContinuationRefreshDecisionRecord,
+    communication_egress: AgenticDeCommunicationEgressPacket,
+) -> tuple[str, str, list[str]]:
     if selected_response_kind == "acknowledge":
         return (
-            f"session:{loop_state_ledger.resident_session_ref}#notification_or_session_posture",
+            f"session:{resident_session_ref}#notification_or_session_posture",
             "acknowledge consumes shipped notification/session posture only and may not mutate "
             "continuation, communication, or authority state by itself",
             [
@@ -14338,7 +14353,7 @@ def _build_v63a_response_basis(
         )
     if selected_response_kind == "approve":
         return (
-            f"session:{loop_state_ledger.resident_session_ref}#approval_state_or_equivalent",
+            f"session:{resident_session_ref}#approval_state_or_equivalent",
             "approve consumes shipped URM approval/session posture over the selected resident "
             "session only",
             ["approve_consumes_shipped_urm_approval_session_law"],
@@ -14368,6 +14383,20 @@ def _build_v63a_response_basis(
             ["escalate_consumes_shipped_v60_v61_blocked_or_escalation_posture"],
         )
     raise ValueError(f"unsupported V63-A selected_response_kind: {selected_response_kind!r}")
+
+
+def _extract_resident_session_ref_from_remote_session_identity_facts(identity_facts: str) -> str:
+    prefix = "resident_session_ref="
+    if not identity_facts.startswith(prefix):
+        raise ValueError(
+            "V63-C remote session identity facts must preserve the shipped resident session ref"
+        )
+    resident_session_ref, separator, _rest = identity_facts[len(prefix) :].partition(";")
+    if separator != ";" or not resident_session_ref:
+        raise ValueError(
+            "V63-C remote session identity facts must preserve the shipped resident session ref"
+        )
+    return resident_session_ref
 
 
 def _build_v63a_remote_operator_response_record(
@@ -14934,6 +14963,30 @@ def _validate_v63c_consumed_surfaces(
         or communication_egress.target_path != V61A_TARGET_PATH
     ):
         raise ValueError("V63-C requires the shipped V61-A communication egress surface")
+    if ingress.selected_api_route_ref_or_equivalent != V61A_SELECTED_API_ROUTE:
+        raise ValueError("V63-C requires the shipped exact resident V61-A ingress seam")
+    if ingress.selected_runtime_message_method != V61A_SELECTED_RUNTIME_METHOD:
+        raise ValueError("V63-C requires the shipped exact resident V61-A runtime method")
+    if ingress.surface_class != V61A_SELECTED_SURFACE_CLASS:
+        raise ValueError("V63-C requires the shipped exact resident V61-A surface class")
+    if descriptor.communication_ingress_ref != ingress.communication_ingress_id:
+        raise ValueError("V63-C descriptor must bind the shipped V61-A ingress packet")
+    if interpretation.communication_ingress_ref != ingress.communication_ingress_id:
+        raise ValueError("V63-C interpretation must bind the shipped V61-A ingress packet")
+    if (
+        interpretation.surface_authority_descriptor_ref
+        != descriptor.surface_authority_descriptor_id
+    ):
+        raise ValueError("V63-C interpretation must bind the shipped V61-A descriptor")
+    if communication_egress.ingress_interpretation_ref != interpretation.ingress_interpretation_id:
+        raise ValueError("V63-C communication egress must bind the shipped V61-A interpretation")
+    if (
+        communication_egress.latest_v60_continuation_basis_ref
+        != continuation_refresh_decision.refresh_decision_id
+    ):
+        raise ValueError("V63-C communication egress must bind the shipped V60-B refresh decision")
+    if communication_egress.selected_egress_surface_ref != V61A_SELECTED_API_ROUTE:
+        raise ValueError("V63-C requires the shipped exact resident V61-A egress seam")
     if (
         session_record.target_arc != V63A_TARGET_ARC
         or session_record.target_path != V63A_TARGET_PATH
@@ -14969,6 +15022,9 @@ def _validate_v63c_consumed_surfaces(
     ]
     if view_packet.consumed_communication_refs != expected_view_refs:
         raise ValueError("V63-C remote view must preserve the shipped V61-A communication lineage")
+    resident_session_ref = _extract_resident_session_ref_from_remote_session_identity_facts(
+        session_record.remote_session_identity_facts
+    )
     if response_record is not None:
         if (
             response_record.target_arc != V63A_TARGET_ARC
@@ -14979,6 +15035,25 @@ def _validate_v63c_consumed_surfaces(
             raise ValueError("V63-C requires the shipped V63-A remote response policy anchor")
         if response_record.remote_operator_session_ref != session_record.remote_operator_session_id:
             raise ValueError("V63-C remote response must bind the shipped V63-A remote session")
+        expected_response_basis_ref, expected_response_basis_summary, _reason_codes = (
+            _build_v63a_response_basis_from_resident_session_ref(
+                selected_response_kind=response_record.selected_response_kind,
+                resident_session_ref=resident_session_ref,
+                continuation_refresh_decision=continuation_refresh_decision,
+                communication_egress=communication_egress,
+            )
+        )
+        if (
+            response_record.consumed_control_basis_ref_or_equivalent
+            != expected_response_basis_ref
+        ):
+            raise ValueError(
+                "V63-C remote response must preserve the shipped V63-A response control basis"
+            )
+        if response_record.response_basis_summary != expected_response_basis_summary:
+            raise ValueError(
+                "V63-C remote response must preserve the shipped V63-A response basis posture"
+            )
     if control_bridge_packet is not None:
         if (
             control_bridge_packet.target_arc != V63B_TARGET_ARC
@@ -14997,6 +15072,28 @@ def _validate_v63c_consumed_surfaces(
             != view_packet.remote_operator_view_id
         ):
             raise ValueError("V63-C control bridge must bind the shipped V63-A remote view")
+        expected_control_basis_ref, expected_intervention_basis_summary, _reason_codes = (
+            _build_v63b_control_basis(
+                selected_intervention_kind=control_bridge_packet.selected_intervention_kind,
+                continuation_refresh_decision=continuation_refresh_decision,
+                ingress=ingress,
+                interpretation=interpretation,
+            )
+        )
+        if (
+            control_bridge_packet.consumed_control_basis_ref_or_equivalent
+            != expected_control_basis_ref
+        ):
+            raise ValueError(
+                "V63-C control bridge must preserve the shipped V63-B control basis"
+            )
+        if (
+            control_bridge_packet.intervention_basis_summary
+            != expected_intervention_basis_summary
+        ):
+            raise ValueError(
+                "V63-C control bridge must preserve the shipped V63-B intervention posture"
+            )
 
 
 def _build_v63c_remote_operator_hardening_register(

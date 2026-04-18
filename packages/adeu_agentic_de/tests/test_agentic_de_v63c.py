@@ -184,6 +184,50 @@ def test_v63c_rejects_mismatched_v63a_response_session(tmp_path: Path) -> None:
         run_agentic_de_remote_operator_hardening_v63c(repo_root_path=temp_root)
 
 
+def test_v63c_rejects_non_shipped_v61a_ingress_seam(tmp_path: Path) -> None:
+    temp_root, fixture_root = _copy_v63c_input_tree(tmp_path / "repo")
+    ingress_path = (
+        fixture_root.parent / "v61a" / "reference_agentic_de_communication_ingress_packet.json"
+    )
+    payload = _load_json(
+        fixture_root.parent / "v61a", "reference_agentic_de_communication_ingress_packet.json"
+    )
+    assert isinstance(payload, dict)
+    payload["selected_api_route_ref_or_equivalent"] = (
+        "apps/api/src/adeu_api/urm_routes.py:/copilot/send_alt"
+    )
+    payload["communication_ingress_id"] = None
+    ingress_path.write_text(json.dumps(payload, indent=2) + "\n", encoding="utf-8")
+
+    with pytest.raises(
+        ValueError,
+        match="V63-C requires the shipped exact resident V61-A ingress seam",
+    ):
+        run_agentic_de_remote_operator_hardening_v63c(repo_root_path=temp_root)
+
+
+def test_v63c_rejects_mismatched_v63a_response_basis_semantics(tmp_path: Path) -> None:
+    temp_root, fixture_root = _copy_v63c_input_tree(tmp_path / "repo")
+    response_path = (
+        fixture_root.parent / "v63a" / "reference_agentic_de_remote_operator_response_record.json"
+    )
+    payload = _load_json(
+        fixture_root.parent / "v63a", "reference_agentic_de_remote_operator_response_record.json"
+    )
+    assert isinstance(payload, dict)
+    payload["consumed_control_basis_ref_or_equivalent"] = (
+        "session:wrong#notification_or_session_posture"
+    )
+    payload["remote_operator_response_id"] = None
+    response_path.write_text(json.dumps(payload, indent=2) + "\n", encoding="utf-8")
+
+    with pytest.raises(
+        ValueError,
+        match="V63-C remote response must preserve the shipped V63-A response control basis",
+    ):
+        run_agentic_de_remote_operator_hardening_v63c(repo_root_path=temp_root)
+
+
 def test_v63c_rejects_mismatched_v63b_control_bridge_view(tmp_path: Path) -> None:
     temp_root, fixture_root = _copy_v63c_input_tree(tmp_path / "repo")
     bridge_path = (
@@ -203,6 +247,29 @@ def test_v63c_rejects_mismatched_v63b_control_bridge_view(tmp_path: Path) -> Non
     with pytest.raises(
         ValueError,
         match="V63-C control bridge must bind the shipped V63-A remote view",
+    ):
+        run_agentic_de_remote_operator_hardening_v63c(repo_root_path=temp_root)
+
+
+def test_v63c_rejects_mismatched_v63b_control_bridge_basis_semantics(tmp_path: Path) -> None:
+    temp_root, fixture_root = _copy_v63c_input_tree(tmp_path / "repo")
+    bridge_path = (
+        fixture_root.parent
+        / "v63b"
+        / "reference_agentic_de_remote_operator_control_bridge_packet.json"
+    )
+    payload = _load_json(
+        fixture_root.parent / "v63b",
+        "reference_agentic_de_remote_operator_control_bridge_packet.json",
+    )
+    assert isinstance(payload, dict)
+    payload["intervention_basis_summary"] = "structured_answer over wrong basis"
+    payload["remote_operator_control_bridge_id"] = None
+    bridge_path.write_text(json.dumps(payload, indent=2) + "\n", encoding="utf-8")
+
+    with pytest.raises(
+        ValueError,
+        match="V63-C control bridge must preserve the shipped V63-B intervention posture",
     ):
         run_agentic_de_remote_operator_hardening_v63c(repo_root_path=temp_root)
 
