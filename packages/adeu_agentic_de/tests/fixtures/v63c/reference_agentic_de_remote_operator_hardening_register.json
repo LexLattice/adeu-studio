@@ -1,0 +1,143 @@
+{
+  "advisory_only": true,
+  "baseline_checker_version": "agentic_de_remote_operator_hardening_v63c",
+  "candidate_only": true,
+  "changes_live_behavior_by_default": false,
+  "committed_lane_artifacts_outrank_narrative_docs": true,
+  "entries": [
+    {
+      "evidence_basis_summary": "shipped V63-A admitted remote session and read-mostly remote view plus shipped V63-A starter response lineage plus shipped V63-B richer control-bridge lineage over the same exact shipped V60-B continuation basis and shipped V61-A communication lineage under one explicit frozen V63-C policy anchor",
+      "evidence_refs": [
+        "packages/adeu_agentic_de/tests/fixtures/v60b/reference_agentic_de_continuation_refresh_decision_record.json",
+        "packages/adeu_agentic_de/tests/fixtures/v61a/reference_agentic_de_communication_ingress_packet.json",
+        "packages/adeu_agentic_de/tests/fixtures/v61a/reference_agentic_de_surface_authority_descriptor.json",
+        "packages/adeu_agentic_de/tests/fixtures/v61a/reference_agentic_de_ingress_interpretation_record.json",
+        "packages/adeu_agentic_de/tests/fixtures/v61a/reference_agentic_de_communication_egress_packet.json",
+        "packages/adeu_agentic_de/tests/fixtures/v63a/reference_agentic_de_remote_operator_session_record.json",
+        "packages/adeu_agentic_de/tests/fixtures/v63a/reference_agentic_de_remote_operator_view_packet.json",
+        "packages/adeu_agentic_de/tests/fixtures/v63a/reference_agentic_de_remote_operator_response_record.json",
+        "packages/adeu_agentic_de/tests/fixtures/v63b/reference_agentic_de_remote_operator_control_bridge_packet.json",
+        "packages/adeu_agentic_de/tests/fixtures/v63c/reference_agentic_de_lane_drift_record.json",
+        "artifacts/agent_harness/v173/evidence_inputs/v63a_remote_operator_starter_evidence_v173.json",
+        "artifacts/agent_harness/v174/evidence_inputs/v63b_remote_operator_control_bridge_evidence_v174.json"
+      ],
+      "extensional_and_replayable_by_default": true,
+      "field_dependence_tags": {
+        "evidence_basis_summary": [
+          "agentic_de_remote_operator_session_e6df63a40fb4",
+          "agentic_de_remote_operator_view_8dc737242d52",
+          "agentic_de_continuation_refresh_decision_067a308bcae4",
+          "agentic_de_communication_egress_a9c87d1c116e",
+          "remote_session:agentic_de_remote_operator_session_e6df63a40fb4",
+          "remote_view:agentic_de_remote_operator_view_8dc737242d52",
+          "communication_egress:agentic_de_communication_egress_a9c87d1c116e",
+          "continuation:agentic_de_continuation_refresh_decision_067a308bcae4",
+          "policy:docs/LOCKED_CONTINUATION_vNEXT_PLUS175.md#machine-checkable-contract",
+          "remote_response:agentic_de_remote_operator_response_a1d30518740d",
+          "control_bridge:agentic_de_remote_operator_control_bridge_7ab75c95886b"
+        ],
+        "frozen_policy_ref": [],
+        "latest_continuation_basis_selection_summary": [
+          "agentic_de_continuation_refresh_decision_067a308bcae4",
+          "agentic_de_communication_egress_a9c87d1c116e"
+        ],
+        "recommended_outcome": [
+          "agentic_de_remote_operator_session_e6df63a40fb4",
+          "agentic_de_continuation_refresh_decision_067a308bcae4",
+          "docs/LOCKED_CONTINUATION_vNEXT_PLUS175.md#machine-checkable-contract"
+        ],
+        "remote_session_admission_verdict": [
+          "agentic_de_remote_operator_session_e6df63a40fb4"
+        ],
+        "selected_remote_principal_class": [
+          "agentic_de_remote_operator_session_e6df63a40fb4"
+        ],
+        "selected_remote_surface_class": [
+          "agentic_de_remote_operator_session_e6df63a40fb4"
+        ],
+        "selected_response_or_control_kind_summary_or_none": [
+          "agentic_de_remote_operator_response_a1d30518740d",
+          "agentic_de_remote_operator_control_bridge_7ab75c95886b"
+        ],
+        "verdict_basis_summary": [
+          "agentic_de_remote_operator_session_e6df63a40fb4",
+          "agentic_de_remote_operator_view_8dc737242d52",
+          "agentic_de_continuation_refresh_decision_067a308bcae4",
+          "remote_session:agentic_de_remote_operator_session_e6df63a40fb4",
+          "remote_view:agentic_de_remote_operator_view_8dc737242d52",
+          "communication_egress:agentic_de_communication_egress_a9c87d1c116e",
+          "continuation:agentic_de_continuation_refresh_decision_067a308bcae4",
+          "policy:docs/LOCKED_CONTINUATION_vNEXT_PLUS175.md#machine-checkable-contract",
+          "remote_response:agentic_de_remote_operator_response_a1d30518740d",
+          "control_bridge:agentic_de_remote_operator_control_bridge_7ab75c95886b"
+        ]
+      },
+      "field_origin_tags": {
+        "evidence_basis_summary": "current_turn_derived",
+        "frozen_policy_ref": "shaping_only",
+        "latest_continuation_basis_selection_summary": "current_turn_derived",
+        "recommended_outcome": "current_turn_derived",
+        "remote_session_admission_verdict": "prior_artifact",
+        "selected_remote_principal_class": "prior_artifact",
+        "selected_remote_surface_class": "prior_artifact",
+        "selected_response_or_control_kind_summary_or_none": "current_turn_derived",
+        "verdict_basis_summary": "current_turn_derived"
+      },
+      "frozen_policy_ref": "docs/LOCKED_CONTINUATION_vNEXT_PLUS175.md#machine-checkable-contract",
+      "hardening_id": "agentic_de_remote_operator_hardening_eb785740f752",
+      "latest_continuation_basis_ref_or_equivalent": "agentic_de_continuation_refresh_decision_067a308bcae4",
+      "latest_continuation_basis_selection_summary": "latest shipped V60-B refresh decision remains the selected continuation basis for the exact shipped remote operator lineage only",
+      "lineage_root_dedup_applied": true,
+      "rationale": "the exact shipped V63-A/V63-B remote lineage now carries admitted session, replayable read-mostly view, optional shipped response/control exemplar basis, and one frozen V63-C advisory policy anchor, so it is a valid later path-level remote hardening candidate without minting connector, broad remote-admin, repo, execute, or dispatch authority",
+      "reason_codes": [
+        "admitted_remote_session_consumed",
+        "shipped_v63a_view_consumed",
+        "optional_upstream_basis_posture_consistent",
+        "selected_kind_summary_explicit",
+        "committed_artifacts_outrank_narrative_docs",
+        "path_level_only",
+        "extensional_replayable_policy",
+        "lineage_root_dedup_applied",
+        "candidate_non_entitling_and_non_escalating",
+        "later_lock_required_for_scope",
+        "no_live_mutation_in_v63c",
+        "non_generalizing_by_default"
+      ],
+      "recommendation_scope_requires_later_lock": true,
+      "recommended_outcome": "candidate_for_later_remote_operator_hardening",
+      "remote_operator_control_bridge_ref_or_none": "agentic_de_remote_operator_control_bridge_7ab75c95886b",
+      "remote_operator_response_ref_or_none": "agentic_de_remote_operator_response_a1d30518740d",
+      "remote_operator_session_ref": "agentic_de_remote_operator_session_e6df63a40fb4",
+      "remote_operator_view_ref": "agentic_de_remote_operator_view_8dc737242d52",
+      "remote_session_admission_verdict": "admitted",
+      "root_origin_dedup_summary": "dedup roots=remote_session:agentic_de_remote_operator_session_e6df63a40fb4,remote_view:agentic_de_remote_operator_view_8dc737242d52,communication_egress:agentic_de_communication_egress_a9c87d1c116e,continuation:agentic_de_continuation_refresh_decision_067a308bcae4,policy:docs/LOCKED_CONTINUATION_vNEXT_PLUS175.md#machine-checkable-contract,remote_response:agentic_de_remote_operator_response_a1d30518740d,control_bridge:agentic_de_remote_operator_control_bridge_7ab75c95886b; repeated remote session, view, response, control, continuation, and policy lineage artifacts remain non-independent remote-hardening support",
+      "root_origin_ids": [
+        "remote_session:agentic_de_remote_operator_session_e6df63a40fb4",
+        "remote_view:agentic_de_remote_operator_view_8dc737242d52",
+        "communication_egress:agentic_de_communication_egress_a9c87d1c116e",
+        "continuation:agentic_de_continuation_refresh_decision_067a308bcae4",
+        "policy:docs/LOCKED_CONTINUATION_vNEXT_PLUS175.md#machine-checkable-contract",
+        "remote_response:agentic_de_remote_operator_response_a1d30518740d",
+        "control_bridge:agentic_de_remote_operator_control_bridge_7ab75c95886b"
+      ],
+      "selected_hardening_target_surface": "shipped_v63a_v63b_remote_operator_lineage_over_one_admitted_remote_operator_path_only",
+      "selected_remote_principal_class": "remote_operator",
+      "selected_remote_surface_class": "read_mostly_phone_safe_remote_operator_surface",
+      "selected_response_or_control_kind_summary_or_none": "response_kind=acknowledge; control_kind=structured_answer",
+      "verdict_basis_summary": "the exact admitted remote_operator path remained preserved, shipped V63-A session/view lineage stayed authoritative, optional shipped response/control basis remained posture-consistent where selected, and one frozen V63-C policy anchor preserved explicit provenance and non-independence dedup without minting live remote, connector, repo, execute, or dispatch authority"
+    }
+  ],
+  "entry_count": 1,
+  "evidence_basis_distinct_from_recommendation": true,
+  "exemplar_evidence_non_generalizing_by_default": true,
+  "explicit_frozen_policy_anchor_required": true,
+  "keep_warning_only_retains_current_advisory_posture_only": true,
+  "lineage_root_non_independence_dedup_applied": true,
+  "optional_upstream_basis_consistency_fails_closed": true,
+  "path_level_only": true,
+  "recommendation_function_extensional_and_replayable": true,
+  "register_id": "agentic_de_remote_operator_hardening_register_c57132991328",
+  "schema": "agentic_de_remote_operator_hardening_register@1",
+  "target_arc": "vNext+175",
+  "target_path": "V63-C"
+}
