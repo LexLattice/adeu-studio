@@ -1,0 +1,45 @@
+{
+  "schema": "agentic_de_lane_drift_record@1",
+  "record_id": null,
+  "target_arc": "vNext+173",
+  "target_path": "V63-A",
+  "prior_lane_ref": "docs/LOCKED_CONTINUATION_vNEXT_PLUS172.md",
+  "entry_count": 7,
+  "entries": [
+    {
+      "assumption_ref": "v60_v61_v62_surface_reuse_default",
+      "status": "holds",
+      "note": "V63-A reuses the shipped V60 continuation, shipped V61 communication, and shipped V62 sibling connector posture by default."
+    },
+    {
+      "assumption_ref": "remote_operator_principal_only",
+      "status": "amended",
+      "note": "V63-A selects only the remote_operator principal and keeps external_assistant and human_via_connector deferred."
+    },
+    {
+      "assumption_ref": "read_mostly_phone_safe_view_only",
+      "status": "amended",
+      "note": "V63-A admits one read-mostly phone-safe remote view only."
+    },
+    {
+      "assumption_ref": "bounded_response_set_only",
+      "status": "amended",
+      "note": "V63-A keeps the bounded response set limited to acknowledge, approve, continue, pause, and escalate only."
+    },
+    {
+      "assumption_ref": "selected_responses_consume_shipped_law",
+      "status": "amended",
+      "note": "V63-A responses consume shipped URM approval/session or shipped V60/V61 posture rather than inventing a new command ontology."
+    },
+    {
+      "assumption_ref": "v63b_richer_command_bridge_deferred",
+      "status": "amended",
+      "note": "Structured answers, clarifications, inspect-rich controls, and the richer remote command bridge remain deferred to V63-B."
+    },
+    {
+      "assumption_ref": "path_level_non_generalization_required",
+      "status": "amended",
+      "note": "The selected remote surface remains path-level and non-generalizing by default."
+    }
+  ]
+}

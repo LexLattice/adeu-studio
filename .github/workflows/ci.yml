@@ -267,11 +267,42 @@ jobs:
       - name: Install Lean toolchain
         run: |
           set -euo pipefail
-          curl https://raw.githubusercontent.com/leanprover/elan/master/elan-init.sh -sSf | sh -s -- -y
+          ELAN_VERSION="v4.1.2"
+          ELAN_ARCHIVE="elan-x86_64-unknown-linux-gnu.tar.gz"
+          attempt=1
+          max_attempts=3
+          until [ "$attempt" -gt "$max_attempts" ]; do
+            rm -rf "$HOME/.elan"
+            tmpdir="$(mktemp -d)"
+            if curl --retry 5 --retry-delay 2 --retry-all-errors -sSfL \
+              "https://github.com/leanprover/elan/releases/download/${ELAN_VERSION}/${ELAN_ARCHIVE}" \
+              -o "${tmpdir}/elan.tar.gz" \
+              && tar -xzf "${tmpdir}/elan.tar.gz" -C "${tmpdir}" \
+              && "${tmpdir}/elan-init" -y --default-toolchain none; then
+              rm -rf "${tmpdir}"
+              break
+            fi
+            rm -rf "${tmpdir}"
+            if [ "$attempt" -eq "$max_attempts" ]; then
+              exit 1
+            fi
+            sleep $((attempt * 10))
+            attempt=$((attempt + 1))
+          done
           export PATH="$HOME/.elan/bin:$PATH"
           echo "$HOME/.elan/bin" >> "$GITHUB_PATH"
           TOOLCHAIN="$(cat packages/adeu_lean/lean-toolchain)"
-          elan toolchain install "$TOOLCHAIN"
+          attempt=1
+          until [ "$attempt" -gt "$max_attempts" ]; do
+            if elan toolchain install "$TOOLCHAIN"; then
+              break
+            fi
+            if [ "$attempt" -eq "$max_attempts" ]; then
+              exit 1
+            fi
+            sleep $((attempt * 10))
+            attempt=$((attempt + 1))
+          done
           elan default "$TOOLCHAIN"
           lean --version
           lake --version

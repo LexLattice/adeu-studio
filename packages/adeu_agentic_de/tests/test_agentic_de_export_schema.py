@@ -40,6 +40,9 @@ from adeu_agentic_de import (
     AGENTIC_DE_MIGRATION_DECISION_REGISTER_SCHEMA,
     AGENTIC_DE_MORPH_DIAGNOSTICS_SCHEMA,
     AGENTIC_DE_MORPH_IR_SCHEMA,
+    AGENTIC_DE_REMOTE_OPERATOR_RESPONSE_RECORD_SCHEMA,
+    AGENTIC_DE_REMOTE_OPERATOR_SESSION_RECORD_SCHEMA,
+    AGENTIC_DE_REMOTE_OPERATOR_VIEW_PACKET_SCHEMA,
     AGENTIC_DE_RUNTIME_HARVEST_RECORD_SCHEMA,
     AGENTIC_DE_RUNTIME_STATE_SCHEMA,
     AGENTIC_DE_SEED_INTENT_RECORD_SCHEMA,
@@ -282,6 +285,30 @@ def _schema_pairs() -> dict[str, tuple[Path, Path]]:
             / "schema"
             / "agentic_de_connector_bridge_hardening_register.v1.json",
             root / "spec" / "agentic_de_connector_bridge_hardening_register.schema.json",
+        ),
+        AGENTIC_DE_REMOTE_OPERATOR_SESSION_RECORD_SCHEMA: (
+            root
+            / "packages"
+            / "adeu_agentic_de"
+            / "schema"
+            / "agentic_de_remote_operator_session_record.v1.json",
+            root / "spec" / "agentic_de_remote_operator_session_record.schema.json",
+        ),
+        AGENTIC_DE_REMOTE_OPERATOR_VIEW_PACKET_SCHEMA: (
+            root
+            / "packages"
+            / "adeu_agentic_de"
+            / "schema"
+            / "agentic_de_remote_operator_view_packet.v1.json",
+            root / "spec" / "agentic_de_remote_operator_view_packet.schema.json",
+        ),
+        AGENTIC_DE_REMOTE_OPERATOR_RESPONSE_RECORD_SCHEMA: (
+            root
+            / "packages"
+            / "adeu_agentic_de"
+            / "schema"
+            / "agentic_de_remote_operator_response_record.v1.json",
+            root / "spec" / "agentic_de_remote_operator_response_record.schema.json",
         ),
         AGENTIC_DE_LIVE_TURN_ADMISSION_RECORD_SCHEMA: (
             root

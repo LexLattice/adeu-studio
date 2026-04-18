@@ -1,0 +1,81 @@
+{
+  "ask_blocker_summary": "read-mostly remote operator view may acknowledge or issue one bounded response only; richer structured answers, clarifications, inspect-rich controls, and broader command bridge semantics remain deferred to V63-B",
+  "changes_live_behavior_by_default": false,
+  "consumed_communication_refs": [
+    "agentic_de_communication_ingress_fa2ead1a96a3",
+    "agentic_de_surface_authority_descriptor_f53e9d92836e",
+    "agentic_de_ingress_interpretation_8a0ac37a6f71",
+    "agentic_de_communication_egress_a9c87d1c116e"
+  ],
+  "consumed_loop_state_ref": "agentic_de_loop_state_ledger_22492d7ad8a7",
+  "evidence_only": true,
+  "evidence_reachability_summary": "reachable evidence covers shipped V60-B continuation refresh plus shipped V61-A ingress/descriptor/interpretation/egress lineage under one explicit V63-A policy anchor",
+  "evidence_refs": [
+    "packages/adeu_agentic_de/tests/fixtures/v60a/reference_agentic_de_loop_state_ledger.json",
+    "packages/adeu_agentic_de/tests/fixtures/v60b/reference_agentic_de_continuation_refresh_decision_record.json",
+    "packages/adeu_agentic_de/tests/fixtures/v61a/reference_agentic_de_communication_ingress_packet.json",
+    "packages/adeu_agentic_de/tests/fixtures/v61a/reference_agentic_de_surface_authority_descriptor.json",
+    "packages/adeu_agentic_de/tests/fixtures/v61a/reference_agentic_de_ingress_interpretation_record.json",
+    "packages/adeu_agentic_de/tests/fixtures/v61a/reference_agentic_de_communication_egress_packet.json",
+    "packages/adeu_agentic_de/tests/fixtures/v63a/reference_agentic_de_lane_drift_record.json",
+    "artifacts/agent_harness/v169/evidence_inputs/v61c_governed_communication_hardening_evidence_v169.json",
+    "artifacts/agent_harness/v172/evidence_inputs/v62c_connector_bridge_hardening_evidence_v172.json"
+  ],
+  "field_dependence_tags": {
+    "ask_blocker_summary": [
+      "agentic_de_continuation_refresh_decision_067a308bcae4",
+      "docs/LOCKED_CONTINUATION_vNEXT_PLUS173.md#machine-checkable-contract"
+    ],
+    "consumed_communication_refs": [
+      "agentic_de_communication_ingress_fa2ead1a96a3",
+      "agentic_de_surface_authority_descriptor_f53e9d92836e",
+      "agentic_de_ingress_interpretation_8a0ac37a6f71",
+      "agentic_de_communication_egress_a9c87d1c116e"
+    ],
+    "consumed_loop_state_ref": [
+      "agentic_de_loop_state_ledger_22492d7ad8a7"
+    ],
+    "evidence_reachability_summary": [
+      "agentic_de_continuation_refresh_decision_067a308bcae4",
+      "agentic_de_communication_ingress_fa2ead1a96a3",
+      "agentic_de_surface_authority_descriptor_f53e9d92836e",
+      "agentic_de_ingress_interpretation_8a0ac37a6f71",
+      "agentic_de_communication_egress_a9c87d1c116e",
+      "docs/LOCKED_CONTINUATION_vNEXT_PLUS173.md#machine-checkable-contract"
+    ],
+    "frozen_policy_anchor_ref": [
+      "docs/LOCKED_CONTINUATION_vNEXT_PLUS173.md#machine-checkable-contract"
+    ],
+    "remote_operator_session_ref": [
+      "agentic_de_remote_operator_session_e6df63a40fb4"
+    ],
+    "task_status_summary": [
+      "agentic_de_continuation_refresh_decision_067a308bcae4",
+      "agentic_de_communication_egress_a9c87d1c116e"
+    ]
+  },
+  "field_origin_tags": {
+    "ask_blocker_summary": "current_turn_derived",
+    "consumed_communication_refs": "prior_artifact",
+    "consumed_loop_state_ref": "prior_artifact",
+    "evidence_reachability_summary": "current_turn_derived",
+    "frozen_policy_anchor_ref": "shaping_only",
+    "remote_operator_session_ref": "prior_artifact",
+    "task_status_summary": "current_turn_derived"
+  },
+  "frozen_policy_anchor_ref": "docs/LOCKED_CONTINUATION_vNEXT_PLUS173.md#machine-checkable-contract",
+  "reason_codes": [
+    "admitted_remote_session_consumed",
+    "shipped_v60_refresh_basis_visible",
+    "shipped_v61_communication_basis_visible",
+    "read_mostly_view_only",
+    "path_level_non_generalization_required"
+  ],
+  "remote_operator_session_ref": "agentic_de_remote_operator_session_e6df63a40fb4",
+  "remote_operator_view_id": "agentic_de_remote_operator_view_8dc737242d52",
+  "root_origin_dedup_summary": "remote session, shipped continuation basis, and shipped communication lineage remain non-independent view basis; repeated refs do not mint remote control authority",
+  "schema": "agentic_de_remote_operator_view_packet@1",
+  "target_arc": "vNext+173",
+  "target_path": "V63-A",
+  "task_status_summary": "refresh_outcome=continue_to_governed_act; selected_next_path=urm_copilot_session_path::local_write/create_new::artifacts/agentic_de/v59/workspace_continuity/runtime/reference_patch_candidate.diff; selected_egress_posture=status_update"
+}

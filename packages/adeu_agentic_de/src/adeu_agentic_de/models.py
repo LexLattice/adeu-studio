@@ -79,6 +79,13 @@ AGENTIC_DE_EXTERNAL_ASSISTANT_EGRESS_BRIDGE_PACKET_SCHEMA = (
 AGENTIC_DE_CONNECTOR_BRIDGE_HARDENING_REGISTER_SCHEMA = (
     "agentic_de_connector_bridge_hardening_register@1"
 )
+AGENTIC_DE_REMOTE_OPERATOR_SESSION_RECORD_SCHEMA = (
+    "agentic_de_remote_operator_session_record@1"
+)
+AGENTIC_DE_REMOTE_OPERATOR_VIEW_PACKET_SCHEMA = "agentic_de_remote_operator_view_packet@1"
+AGENTIC_DE_REMOTE_OPERATOR_RESPONSE_RECORD_SCHEMA = (
+    "agentic_de_remote_operator_response_record@1"
+)
 
 ACTION_CLASS_VOCABULARY = ("inspect", "write", "execute", "dispatch")
 EXACT_ACTION_CLASS_VOCABULARY = (
@@ -257,6 +264,22 @@ CONNECTOR_ADMISSION_VERDICT_VOCABULARY = (
     "stale_basis",
     "unknown_basis",
     "withheld_by_policy",
+)
+REMOTE_OPERATOR_PRINCIPAL_CLASS_VOCABULARY = ("remote_operator",)
+REMOTE_OPERATOR_SURFACE_CLASS_VOCABULARY = ("read_mostly_phone_safe_remote_operator_surface",)
+REMOTE_SESSION_ADMISSION_VERDICT_VOCABULARY = (
+    "admitted",
+    "rejected_principal_not_selected",
+    "rejected_surface_not_admitted",
+    "rejected_missing_basis",
+    "rejected_inconsistent_basis",
+)
+REMOTE_RESPONSE_KIND_VOCABULARY = (
+    "acknowledge",
+    "approve",
+    "continue",
+    "pause",
+    "escalate",
 )
 BRIDGE_OFFICE_POSTURE_VOCABULARY = (
     "resident_bridge_bound",
@@ -459,6 +482,22 @@ ConnectorAdmissionVerdict = Literal[
     "stale_basis",
     "unknown_basis",
     "withheld_by_policy",
+]
+RemoteOperatorPrincipalClass = Literal["remote_operator"]
+RemoteOperatorSurfaceClass = Literal["read_mostly_phone_safe_remote_operator_surface"]
+RemoteSessionAdmissionVerdict = Literal[
+    "admitted",
+    "rejected_principal_not_selected",
+    "rejected_surface_not_admitted",
+    "rejected_missing_basis",
+    "rejected_inconsistent_basis",
+]
+RemoteResponseKind = Literal[
+    "acknowledge",
+    "approve",
+    "continue",
+    "pause",
+    "escalate",
 ]
 BridgeOfficePosture = Literal[
     "resident_bridge_bound",
@@ -4681,6 +4720,272 @@ class AgenticDeExternalAssistantEgressBridgePacket(BaseModel):
         return self
 
 
+class AgenticDeRemoteOperatorSessionRecord(BaseModel):
+    model_config = MODEL_CONFIG
+
+    schema: Literal[AGENTIC_DE_REMOTE_OPERATOR_SESSION_RECORD_SCHEMA] = (
+        AGENTIC_DE_REMOTE_OPERATOR_SESSION_RECORD_SCHEMA
+    )
+    remote_operator_session_id: str | None = None
+    target_arc: str
+    target_path: str
+    evidence_only: Literal[True] = True
+    changes_live_behavior_by_default: Literal[False] = False
+    remote_operator_principal_class: RemoteOperatorPrincipalClass
+    remote_surface_class: RemoteOperatorSurfaceClass
+    remote_session_identity_facts: str
+    remote_surface_identity_summary: str
+    consumed_loop_state_ref: str
+    consumed_communication_basis_summary: str
+    frozen_policy_anchor_ref: str
+    admission_verdict: RemoteSessionAdmissionVerdict
+    reason_codes: list[str]
+    field_origin_tags: dict[str, LiveTurnFieldOriginTag]
+    field_dependence_tags: dict[str, list[str]]
+    root_origin_dedup_summary: str
+    evidence_refs: list[str]
+
+    @model_validator(mode="after")
+    def _validate_record(self) -> AgenticDeRemoteOperatorSessionRecord:
+        _assert_present_text(self.target_arc, field_name="target_arc")
+        _assert_present_text(self.target_path, field_name="target_path")
+        required_fields = (
+            "remote_session_identity_facts",
+            "remote_surface_identity_summary",
+            "consumed_loop_state_ref",
+            "consumed_communication_basis_summary",
+            "frozen_policy_anchor_ref",
+            "root_origin_dedup_summary",
+        )
+        for field_name in required_fields:
+            _assert_present_text(getattr(self, field_name), field_name=field_name)
+        object.__setattr__(
+            self,
+            "reason_codes",
+            _ordered_unique_texts(self.reason_codes, field_name="reason_codes"),
+        )
+        if not self.reason_codes:
+            raise ValueError("reason_codes must be non-empty")
+        required_tag_fields = (
+            "remote_operator_principal_class",
+            "remote_surface_class",
+            "remote_session_identity_facts",
+            "remote_surface_identity_summary",
+            "consumed_loop_state_ref",
+            "consumed_communication_basis_summary",
+            "frozen_policy_anchor_ref",
+            "admission_verdict",
+        )
+        for field_name in required_tag_fields:
+            if field_name not in self.field_origin_tags:
+                raise ValueError(f"field_origin_tags missing required key {field_name}")
+            if field_name not in self.field_dependence_tags:
+                raise ValueError(f"field_dependence_tags missing required key {field_name}")
+        normalized_dependence_tags: dict[str, list[str]] = {}
+        for key, values in self.field_dependence_tags.items():
+            normalized_dependence_tags[key] = _ordered_unique_texts(
+                values,
+                field_name=f"field_dependence_tags[{key}]",
+            )
+        object.__setattr__(self, "field_dependence_tags", normalized_dependence_tags)
+        object.__setattr__(
+            self,
+            "evidence_refs",
+            _ordered_unique_texts(self.evidence_refs, field_name="evidence_refs"),
+        )
+        if not self.evidence_refs:
+            raise ValueError("evidence_refs must be non-empty")
+        object.__setattr__(
+            self,
+            "remote_operator_session_id",
+            _assign_or_verify_content_addressed_id(
+                value=self.remote_operator_session_id,
+                field_name="remote_operator_session_id",
+                prefix="agentic_de_remote_operator_session",
+                payload=self.model_dump(mode="json", exclude={"remote_operator_session_id"}),
+            ),
+        )
+        return self
+
+
+class AgenticDeRemoteOperatorViewPacket(BaseModel):
+    model_config = MODEL_CONFIG
+
+    schema: Literal[AGENTIC_DE_REMOTE_OPERATOR_VIEW_PACKET_SCHEMA] = (
+        AGENTIC_DE_REMOTE_OPERATOR_VIEW_PACKET_SCHEMA
+    )
+    remote_operator_view_id: str | None = None
+    target_arc: str
+    target_path: str
+    evidence_only: Literal[True] = True
+    changes_live_behavior_by_default: Literal[False] = False
+    remote_operator_session_ref: str
+    consumed_loop_state_ref: str
+    consumed_communication_refs: list[str]
+    task_status_summary: str
+    ask_blocker_summary: str
+    evidence_reachability_summary: str
+    frozen_policy_anchor_ref: str
+    reason_codes: list[str]
+    field_origin_tags: dict[str, LiveTurnFieldOriginTag]
+    field_dependence_tags: dict[str, list[str]]
+    root_origin_dedup_summary: str
+    evidence_refs: list[str]
+
+    @model_validator(mode="after")
+    def _validate_record(self) -> AgenticDeRemoteOperatorViewPacket:
+        _assert_present_text(self.target_arc, field_name="target_arc")
+        _assert_present_text(self.target_path, field_name="target_path")
+        required_fields = (
+            "remote_operator_session_ref",
+            "consumed_loop_state_ref",
+            "task_status_summary",
+            "ask_blocker_summary",
+            "evidence_reachability_summary",
+            "frozen_policy_anchor_ref",
+            "root_origin_dedup_summary",
+        )
+        for field_name in required_fields:
+            _assert_present_text(getattr(self, field_name), field_name=field_name)
+        object.__setattr__(
+            self,
+            "consumed_communication_refs",
+            _ordered_unique_texts(
+                self.consumed_communication_refs,
+                field_name="consumed_communication_refs",
+            ),
+        )
+        if not self.consumed_communication_refs:
+            raise ValueError("consumed_communication_refs must be non-empty")
+        object.__setattr__(
+            self,
+            "reason_codes",
+            _ordered_unique_texts(self.reason_codes, field_name="reason_codes"),
+        )
+        if not self.reason_codes:
+            raise ValueError("reason_codes must be non-empty")
+        required_tag_fields = (
+            "remote_operator_session_ref",
+            "consumed_loop_state_ref",
+            "consumed_communication_refs",
+            "task_status_summary",
+            "ask_blocker_summary",
+            "evidence_reachability_summary",
+            "frozen_policy_anchor_ref",
+        )
+        for field_name in required_tag_fields:
+            if field_name not in self.field_origin_tags:
+                raise ValueError(f"field_origin_tags missing required key {field_name}")
+            if field_name not in self.field_dependence_tags:
+                raise ValueError(f"field_dependence_tags missing required key {field_name}")
+        normalized_dependence_tags: dict[str, list[str]] = {}
+        for key, values in self.field_dependence_tags.items():
+            normalized_dependence_tags[key] = _ordered_unique_texts(
+                values,
+                field_name=f"field_dependence_tags[{key}]",
+            )
+        object.__setattr__(self, "field_dependence_tags", normalized_dependence_tags)
+        object.__setattr__(
+            self,
+            "evidence_refs",
+            _ordered_unique_texts(self.evidence_refs, field_name="evidence_refs"),
+        )
+        if not self.evidence_refs:
+            raise ValueError("evidence_refs must be non-empty")
+        object.__setattr__(
+            self,
+            "remote_operator_view_id",
+            _assign_or_verify_content_addressed_id(
+                value=self.remote_operator_view_id,
+                field_name="remote_operator_view_id",
+                prefix="agentic_de_remote_operator_view",
+                payload=self.model_dump(mode="json", exclude={"remote_operator_view_id"}),
+            ),
+        )
+        return self
+
+
+class AgenticDeRemoteOperatorResponseRecord(BaseModel):
+    model_config = MODEL_CONFIG
+
+    schema: Literal[AGENTIC_DE_REMOTE_OPERATOR_RESPONSE_RECORD_SCHEMA] = (
+        AGENTIC_DE_REMOTE_OPERATOR_RESPONSE_RECORD_SCHEMA
+    )
+    remote_operator_response_id: str | None = None
+    target_arc: str
+    target_path: str
+    evidence_only: Literal[True] = True
+    changes_live_behavior_by_default: Literal[False] = False
+    remote_operator_session_ref: str
+    selected_response_kind: RemoteResponseKind
+    consumed_control_basis_ref_or_equivalent: str
+    response_basis_summary: str
+    frozen_policy_anchor_ref: str
+    reason_codes: list[str]
+    field_origin_tags: dict[str, LiveTurnFieldOriginTag]
+    field_dependence_tags: dict[str, list[str]]
+    root_origin_dedup_summary: str
+    evidence_refs: list[str]
+
+    @model_validator(mode="after")
+    def _validate_record(self) -> AgenticDeRemoteOperatorResponseRecord:
+        _assert_present_text(self.target_arc, field_name="target_arc")
+        _assert_present_text(self.target_path, field_name="target_path")
+        required_fields = (
+            "remote_operator_session_ref",
+            "consumed_control_basis_ref_or_equivalent",
+            "response_basis_summary",
+            "frozen_policy_anchor_ref",
+            "root_origin_dedup_summary",
+        )
+        for field_name in required_fields:
+            _assert_present_text(getattr(self, field_name), field_name=field_name)
+        object.__setattr__(
+            self,
+            "reason_codes",
+            _ordered_unique_texts(self.reason_codes, field_name="reason_codes"),
+        )
+        if not self.reason_codes:
+            raise ValueError("reason_codes must be non-empty")
+        required_tag_fields = (
+            "remote_operator_session_ref",
+            "selected_response_kind",
+            "consumed_control_basis_ref_or_equivalent",
+            "response_basis_summary",
+            "frozen_policy_anchor_ref",
+        )
+        for field_name in required_tag_fields:
+            if field_name not in self.field_origin_tags:
+                raise ValueError(f"field_origin_tags missing required key {field_name}")
+            if field_name not in self.field_dependence_tags:
+                raise ValueError(f"field_dependence_tags missing required key {field_name}")
+        normalized_dependence_tags: dict[str, list[str]] = {}
+        for key, values in self.field_dependence_tags.items():
+            normalized_dependence_tags[key] = _ordered_unique_texts(
+                values,
+                field_name=f"field_dependence_tags[{key}]",
+            )
+        object.__setattr__(self, "field_dependence_tags", normalized_dependence_tags)
+        object.__setattr__(
+            self,
+            "evidence_refs",
+            _ordered_unique_texts(self.evidence_refs, field_name="evidence_refs"),
+        )
+        if not self.evidence_refs:
+            raise ValueError("evidence_refs must be non-empty")
+        object.__setattr__(
+            self,
+            "remote_operator_response_id",
+            _assign_or_verify_content_addressed_id(
+                value=self.remote_operator_response_id,
+                field_name="remote_operator_response_id",
+                prefix="agentic_de_remote_operator_response",
+                payload=self.model_dump(mode="json", exclude={"remote_operator_response_id"}),
+            ),
+        )
+        return self
+
+
 class AgenticDeBridgeOfficeBindingRecord(BaseModel):
     model_config = MODEL_CONFIG
 
@@ -5570,6 +5875,18 @@ def compute_agentic_de_message_rewitness_gate_id(payload: dict[str, object]) -> 
 
 def compute_agentic_de_connector_admission_id(payload: dict[str, object]) -> str:
     return _compute_id("agentic_de_connector_admission", payload)
+
+
+def compute_agentic_de_remote_operator_session_id(payload: dict[str, object]) -> str:
+    return _compute_id("agentic_de_remote_operator_session", payload)
+
+
+def compute_agentic_de_remote_operator_view_packet_id(payload: dict[str, object]) -> str:
+    return _compute_id("agentic_de_remote_operator_view", payload)
+
+
+def compute_agentic_de_remote_operator_response_record_id(payload: dict[str, object]) -> str:
+    return _compute_id("agentic_de_remote_operator_response", payload)
 
 
 def compute_agentic_de_external_assistant_ingress_bridge_packet_id(

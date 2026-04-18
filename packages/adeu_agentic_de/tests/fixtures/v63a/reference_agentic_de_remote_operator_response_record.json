@@ -1,0 +1,61 @@
+{
+  "changes_live_behavior_by_default": false,
+  "consumed_control_basis_ref_or_equivalent": "session:copilot-v59a-session-1#notification_or_session_posture",
+  "evidence_only": true,
+  "evidence_refs": [
+    "packages/adeu_agentic_de/tests/fixtures/v60a/reference_agentic_de_loop_state_ledger.json",
+    "packages/adeu_agentic_de/tests/fixtures/v60b/reference_agentic_de_continuation_refresh_decision_record.json",
+    "packages/adeu_agentic_de/tests/fixtures/v61a/reference_agentic_de_communication_ingress_packet.json",
+    "packages/adeu_agentic_de/tests/fixtures/v61a/reference_agentic_de_surface_authority_descriptor.json",
+    "packages/adeu_agentic_de/tests/fixtures/v61a/reference_agentic_de_ingress_interpretation_record.json",
+    "packages/adeu_agentic_de/tests/fixtures/v61a/reference_agentic_de_communication_egress_packet.json",
+    "packages/adeu_agentic_de/tests/fixtures/v63a/reference_agentic_de_lane_drift_record.json",
+    "artifacts/agent_harness/v169/evidence_inputs/v61c_governed_communication_hardening_evidence_v169.json",
+    "artifacts/agent_harness/v172/evidence_inputs/v62c_connector_bridge_hardening_evidence_v172.json"
+  ],
+  "field_dependence_tags": {
+    "consumed_control_basis_ref_or_equivalent": [
+      "agentic_de_remote_operator_session_e6df63a40fb4",
+      "session:copilot-v59a-session-1#notification_or_session_posture"
+    ],
+    "frozen_policy_anchor_ref": [
+      "docs/LOCKED_CONTINUATION_vNEXT_PLUS173.md#machine-checkable-contract"
+    ],
+    "remote_operator_session_ref": [
+      "agentic_de_remote_operator_session_e6df63a40fb4"
+    ],
+    "response_basis_summary": [
+      "agentic_de_remote_operator_session_e6df63a40fb4",
+      "session:copilot-v59a-session-1#notification_or_session_posture",
+      "docs/LOCKED_CONTINUATION_vNEXT_PLUS173.md#machine-checkable-contract"
+    ],
+    "selected_response_kind": [
+      "docs/LOCKED_CONTINUATION_vNEXT_PLUS173.md#machine-checkable-contract"
+    ]
+  },
+  "field_origin_tags": {
+    "consumed_control_basis_ref_or_equivalent": "current_turn_derived",
+    "frozen_policy_anchor_ref": "shaping_only",
+    "remote_operator_session_ref": "prior_artifact",
+    "response_basis_summary": "current_turn_derived",
+    "selected_response_kind": "shaping_only"
+  },
+  "frozen_policy_anchor_ref": "docs/LOCKED_CONTINUATION_vNEXT_PLUS173.md#machine-checkable-contract",
+  "reason_codes": [
+    "admitted_remote_session_consumed",
+    "selected_response_kind_explicit",
+    "control_basis_explicit",
+    "typed_replayable_response_only",
+    "remote_response_non_authorizing",
+    "acknowledge_notification_session_only",
+    "acknowledge_non_mutating"
+  ],
+  "remote_operator_response_id": "agentic_de_remote_operator_response_a1d30518740d",
+  "remote_operator_session_ref": "agentic_de_remote_operator_session_e6df63a40fb4",
+  "response_basis_summary": "acknowledge consumes shipped notification/session posture only and may not mutate continuation, communication, or authority state by itself",
+  "root_origin_dedup_summary": "remote session and consumed control basis remain non-independent response basis; repeated control refs do not mint repo, execute, or dispatch authority",
+  "schema": "agentic_de_remote_operator_response_record@1",
+  "selected_response_kind": "acknowledge",
+  "target_arc": "vNext+173",
+  "target_path": "V63-A"
+}
