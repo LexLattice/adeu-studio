@@ -40,7 +40,7 @@ body {
     linear-gradient(180deg, var(--shell-top) 0%, var(--shell-bottom) 100%);
   color: var(--ink);
   font-family: var(--body-font);
-  overflow: hidden;
+  overflow: auto;
 }
 
 button,
@@ -219,7 +219,9 @@ button:disabled {
 .conversationRegion,
 .artifactRegion {
   min-height: 0;
+  min-width: 0;
   display: grid;
+  overflow: hidden;
 }
 
 .workspaceRegion,
@@ -233,26 +235,32 @@ button:disabled {
 
 .laneStack {
   min-height: 0;
+  min-width: 0;
   padding: 14px;
   display: grid;
   gap: 12px;
   grid-template-rows: auto auto auto minmax(0, 1fr);
+  overflow: auto;
 }
 
 .conversationStack {
   min-height: 0;
+  min-width: 0;
   padding: 14px;
   display: grid;
   gap: 12px;
   grid-template-rows: auto minmax(0, 1fr) auto;
+  overflow: auto;
 }
 
 .artifactStack {
   min-height: 0;
+  min-width: 0;
   padding: 14px;
   display: grid;
   gap: 12px;
   grid-template-rows: auto auto minmax(0, 1fr);
+  overflow: auto;
 }
 
 .laneCard,

@@ -617,10 +617,10 @@ async function stopCopilotStream(sessionId: string): Promise<void> {
 async function createMainWindow(): Promise<void> {
   const iconPath = undefined;
   mainWindow = new BrowserWindow({
-    width: 1540,
-    height: 1040,
+    width: 1680,
+    height: 1120,
     minWidth: 1180,
-    minHeight: 760,
+    minHeight: 820,
     title: "GPT-5.4 Codex ADEU Desktop Workbench",
     icon: iconPath,
     backgroundColor: "#e7dfd3",

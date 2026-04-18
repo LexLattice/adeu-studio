@@ -221,10 +221,10 @@ Ordering discipline for this branch:
 - Recommended family/slice mapping reference to draft next:
   - `docs/DRAFT_ADEU_RESIDENT_AGENT_CONNECTOR_ADMISSION_AND_EXTERNAL_ASSISTANT_BRIDGE_V62_IMPLEMENTATION_MAPPING_v0.md`
 - Recommended next path for this branch:
-  - `V62-B`
+  - `V62-C`
 - Recommended next concrete arc for this branch if selected:
-  - `V62-B`
-  - select `V62-B` as the next default candidate
+  - `V62-C`
+  - select `V62-C` as the next default candidate
 
 Default path selection for this branch:
 
@@ -285,11 +285,36 @@ Default path selection for this branch:
     - not repo-authority law
     - not execution-authority law
     - not broad connector-family trust law beyond the selected path
-  - after `V62-B`, if this family is selected, the next same-family bounded fill
-    should be `V62-C`:
+  - after `V62-B`, the next same-family bounded fill is `V62-C`:
     - one advisory connector hardening / provenance-drift surface over the same
       admitted connector lineage only
     - keep outputs advisory-only and non-entitling
+    - keep evidence basis distinct from recommendation
+    - committed lane artifacts outrank narrative interpretation for advisory
+      derivation
+    - keep recommendation extensional and replayable:
+      - same admitted connector lineage
+      - same consumed shipped `V61` communication lineage
+      - same bridge-office / rewitness posture where selected
+      - same explicit provenance / exposure basis
+      - same frozen policy
+      - same recommendation outcome
+    - explicit frozen-policy anchor remains required for replayability
+    - keep positive rewitness carry-through fail-closed:
+      - no positive rewitness selected upstream means basis/certificate posture
+        stays `none`
+      - carried basis/certificate posture must match the selected upstream
+        rewitness posture
+      - inconsistent positive rewitness carry-through fails closed
+    - keep connector exemplar evidence non-generalizing by default:
+      - not broader connector-fleet trust law
+      - not human-via-connector law
+      - not remote-operator law
+      - not bridge-office-family or rewitness-family law
+      - not repo-authority or execute-authority law
+    - `keep_warning_only` retains current advisory posture only
+    - keep later connector migration scope unspecified unless a later lock
+      selects it explicitly
 
 This family/path recommendation is branch-local to the `v45` planning surface.
 
@@ -303,8 +328,8 @@ The current recommended path ladder is:
 | Path | Theme | Primary output | Status |
 |---|---|---|---|
 | `V62-A` | connector admission starter | one connector admission record plus one bounded external assistant ingress bridge starter over one already-real connector path only | closed on `main` |
-| `V62-B` | explicit external assistant bridge follow-on | one external-assistant egress bridge over the admitted connector path with explicit office / rewitness consumption where selected, provenance carry-through, and fail-closed connector basis | selected next path |
-| `V62-C` | advisory connector hardening / provenance drift | one advisory path-level connector hardening surface over the same admitted connector lineage | prepared later same-family path |
+| `V62-B` | explicit external assistant bridge follow-on | one external-assistant egress bridge over the admitted connector path with explicit office / rewitness consumption where selected, provenance carry-through, and fail-closed connector basis | closed on `main` |
+| `V62-C` | advisory connector hardening / provenance drift | one advisory path-level connector hardening surface over the same admitted connector lineage | selected next path |
 
 These output names are planning-level candidate names, not lock-level schema
 commitments yet.

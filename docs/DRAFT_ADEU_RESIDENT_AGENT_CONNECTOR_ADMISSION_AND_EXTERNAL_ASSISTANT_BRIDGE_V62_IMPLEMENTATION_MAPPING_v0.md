@@ -162,15 +162,41 @@ The family should remain backend-first in `V62-A`:
     - `agentic_de_connector_bridge_hardening_register@1`
   - keep outputs advisory-only and non-entitling
   - keep evidence basis distinct from recommendation
+  - committed lane artifacts outrank narrative interpretation when the advisory
+    register is derived
   - keep the advisory result extensional and replayable:
     - same admitted connector lineage
+    - same shipped ingress and egress bridge lineage
     - same consumed `V61` communication basis
+    - same bridge-office / rewitness posture where selected
+    - same explicit positive rewitness basis / certificate posture where relevant
     - same explicit provenance / exposure basis
+    - same latest continuation basis selection summary
     - same frozen policy
     - same recommendation
+  - explicit frozen-policy anchor remains required for replayability
+  - keep provenance and non-independence explicit at the advisory layer:
+    - `field_origin_tags`
+    - `field_dependence_tags`
+    - `root_origin_dedup_summary`
+  - keep positive rewitness carry-through fail-closed:
+    - no positive rewitness selected upstream means basis/certificate posture stays
+      `none`
+    - carried basis/certificate posture must match the selected upstream rewitness
+      posture
+    - inconsistent positive rewitness carry-through fails closed
+  - keep candidate outcomes bounded:
+    - `keep_warning_only` retains current advisory posture only
+    - non-entitling
+    - non-escalating by themselves
+    - later connector-hardening scope unspecified unless a later lock selects it
+    - later connector-migration scope unspecified unless a later lock selects it
   - keep connector exemplar evidence non-generalizing by default:
     - not remote-operator law
     - not broader connector fleet law
+    - not human-via-connector law
+    - not bridge-office-family law
+    - not rewitness-family law
     - not repo-authority conclusions
     - not execution-authority conclusions
   - keep later connector migration scope unspecified until a later lock selects it
