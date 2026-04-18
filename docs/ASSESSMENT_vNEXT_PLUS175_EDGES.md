@@ -1,8 +1,8 @@
 # Assessment vNext+175 Edges
 
-Status: pre-lock edge assessment for `V63-C`.
+Status: post-closeout edge assessment for `V63-C` (April 19, 2026 UTC).
 
-Authority layer: planning scaffold only.
+Authority layer: closeout evidence on `main`.
 
 ## Assessment-State Marker (Machine-Checkable)
 
@@ -10,8 +10,8 @@ Authority layer: planning scaffold only.
 {
   "schema": "assessment_artifact_state@1",
   "artifact": "docs/ASSESSMENT_vNEXT_PLUS175_EDGES.md",
-  "phase": "pre_lock_assessment",
-  "authoritative": false,
+  "phase": "post_closeout_assessment",
+  "authoritative": true,
   "required_in_decision": true
 }
 ```
@@ -28,6 +28,9 @@ Authority layer: planning scaffold only.
   - shipped `V63-A` session and view remain the only admitted remote basis
   - shipped `V63-A` starter-response lineage remains consumed-only
   - shipped `V63-B` control-bridge lineage remains consumed-only
+- Closeout Evidence:
+  shipped checker/tests enforce exact consumed `V63-A` session/view/response and
+  `V63-B` control-bridge lineage and fail closed on mismatch.
 
 ### Edge 2: Advisory Output Could Become A Soft Remote Sovereign
 
@@ -40,6 +43,9 @@ Authority layer: planning scaffold only.
   - advisory output is not response authority
   - advisory output is not control authority
   - advisory output is not bridge office
+- Closeout Evidence:
+  shipped checker/tests preserve advisory-only candidate outcomes and reject live
+  entitlement or mutation outcomes.
 
 ### Edge 3: Narrative Review Could Replace Committed Evidence Basis
 
@@ -51,8 +57,26 @@ Authority layer: planning scaffold only.
   - committed lane artifacts outrank narrative interpretation
   - explicit evidence basis remains separate from recommendation
   - same evidence chain plus same frozen policy yields the same recommendation
+- Closeout Evidence:
+  shipped checker/tests preserve committed-artifact precedence, explicit
+  evidence-vs-recommendation separation, and replayable frozen-policy anchoring.
 
-### Edge 4: One Remote Exemplar Could Be Over-Read As Broad Remote-Admin Law
+### Edge 4: Optional Upstream Response Or Control Basis Could Be Over-Read
+
+- Risk:
+  absent or mismatched optional upstream response/control refs could be treated as
+  if richer intervention evidence had been lawfully carried into the hardening
+  register.
+- Response:
+  keep optional upstream basis explicit and fail-closed.
+  - if both optional refs are `none`, no richer intervention overread
+  - if one is present, it must match selected principal/session/surface posture
+  - selected response/control kind summary stays explicit where present
+- Closeout Evidence:
+  shipped checker/tests reject missing, mismatched, or semantically inconsistent
+  optional response/control carry-through.
+
+### Edge 5: One Remote Exemplar Could Be Over-Read As Broad Remote-Admin Law
 
 - Risk:
   one shipped admitted remote path could be treated as if it proves broad remote
@@ -63,18 +87,9 @@ Authority layer: planning scaffold only.
   - not broad remote-admin law
   - not all-device or all-surface law
   - not connector law
-
-### Edge 5: Advisory Register Could Quietly Swallow Repo / Execute / Dispatch Law
-
-- Risk:
-  once remote hardening exists, later code or reviewers could over-read it as a
-  standing foothold for repo writes, execution, or dispatch.
-- Response:
-  keep the advisory seam remote-lineage-local only.
-  - not repo authority
-  - not execute authority
-  - not dispatch authority
-  - no advisory-to-live promotion
+- Closeout Evidence:
+  shipped lock/checker/tests preserve explicit path-level non-generalization and
+  fail-closed drift checks.
 
 ### Edge 6: Cross-Principal Or Connector Semantics Could Bleed Into `V63-C`
 
@@ -86,18 +101,24 @@ Authority layer: planning scaffold only.
   - `remote_operator` selected
   - `external_assistant` not selected here
   - `human_via_connector` not selected here
+- Closeout Evidence:
+  shipped checker/tests preserve `remote_operator`-only principal constraints for
+  `V63-C`.
 
-### Edge 7: Optional Upstream Response Or Control Basis Could Be Over-Read
+### Edge 7: Advisory Register Could Quietly Swallow Repo / Execute / Dispatch Law
 
 - Risk:
-  absent or mismatched optional upstream response/control refs could be treated as
-  if richer intervention evidence had been lawfully carried into the hardening
-  register.
+  once remote hardening exists, later code or reviewers could over-read it as a
+  standing foothold for repo writes, execution, or dispatch.
 - Response:
-  keep optional upstream basis explicit and fail-closed.
-  - if both optional refs are `none`, no richer intervention overread
-  - if one is present, it must match selected principal/session/surface posture
-  - selected response/control kind summary stays explicit where present
+  keep the advisory seam remote-lineage-local only.
+  - not repo authority
+  - not execute authority
+  - not dispatch authority
+  - no advisory-to-live promotion
+- Closeout Evidence:
+  shipped checker/tests preserve explicit no-live-mutation posture and reject
+  widened outcome classes.
 
 ### Edge 8: Response Or Control Lineage Could Count More Than Once
 
@@ -109,14 +130,17 @@ Authority layer: planning scaffold only.
   - field-origin tags remain required
   - dependence tags remain required
   - root dedup summaries remain required
+- Closeout Evidence:
+  shipped register/checker/tests preserve field-origin tags, dependence tags, and
+  root-origin dedup summaries.
 
 ## Current Judgment
 
-- `V63-C` is the right next slice because `V63-A` already closed admitted remote
+- `V63-C` was the right next slice because `V63-A` already closed admitted remote
   session / view / starter-response law and `V63-B` already closed richer typed
   intervention bridge law, while bounded advisory hardening over that same shipped
-  remote lineage is still missing.
-- the follow-on should stay properly bounded:
+  remote lineage was still missing.
+- the shipped result remained properly bounded:
   - one admitted remote path only
   - one selected principal only
   - one advisory remote hardening register only
@@ -126,5 +150,6 @@ Authority layer: planning scaffold only.
   - consumed shipped `V60` / `V61` basis
   - explicit committed-artifact precedence and frozen-policy replayability anchor
   - no connector, broad remote-admin, repo, execute, or dispatch widening
-- if `V63-C` lands cleanly, `V63` should then be treated as closed on `main`
-  rather than widened in place.
+- `V63-C` is now closed on `main`.
+- `V63` is now closed on `main`.
+- the next family move should be `V64`, not fresh widening inside `V63`.
