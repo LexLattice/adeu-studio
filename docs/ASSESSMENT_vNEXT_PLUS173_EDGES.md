@@ -1,8 +1,8 @@
 # Assessment vNext+173 Edges
 
-Status: pre-lock edge assessment for `V63-A`.
+Status: post-closeout edge assessment for `V63-A` (April 18, 2026 UTC).
 
-Authority layer: planning scaffold only.
+Authority layer: closeout evidence on `main`.
 
 ## Assessment-State Marker (Machine-Checkable)
 
@@ -10,123 +10,142 @@ Authority layer: planning scaffold only.
 {
   "schema": "assessment_artifact_state@1",
   "artifact": "docs/ASSESSMENT_vNEXT_PLUS173_EDGES.md",
-  "phase": "pre_lock_assessment",
-  "authoritative": false,
+  "phase": "post_closeout_assessment",
+  "authoritative": true,
   "required_in_decision": true
 }
 ```
 
 ## Open Edges
 
-### Edge 1: Remote Presence Could Quietly Become Standing Authority
+### Edge 1: Remote Presence Could Be Over-Read As Standing Authority
 
 - Risk:
-  one phone-accessible or remote-accessible surface could be over-read as if remote
-  reachability already grants office, authority, or standing permission.
+  one admitted phone-safe remote surface could be over-read as if reachability by
+  itself grants office, authority, or standing permission.
 - Response:
-  keep remote session admission explicit, typed, and fail-closed.
+  keep admission explicit, typed, and fail-closed.
   - presence is not permission
   - UI reachability is not admission
-  - admitted remote session identity stays explicit
+  - one admitted remote session identity remains explicit
+- Closeout Evidence:
+  shipped lock/checker/tests keep transport and presence non-authorizing while
+  requiring explicit `remote_operator` admission posture.
 
-### Edge 2: Bounded Responses Could Invent A New Command Ontology
-
-- Risk:
-  the starter slice could treat `approve`, `continue`, `pause`, or `escalate` as if
-  `V63-A` owns a new command language rather than consuming shipped law.
-  The response record could also mis-name its consumed basis in a way that squeezes
-  `acknowledge` or `escalate` into an approval/continuation-only slot.
-- Response:
-  keep starter responses downstream-consumption-only.
-  - response basis stays typed as one explicit control basis ref or equivalent
-    matched to the selected response kind
-  - `approve` consumes shipped URM approval/session law
-  - `continue` / `pause` consume shipped `V60` posture
-  - `escalate` consumes shipped `V60` / `V61` posture
-  - no new independent command ontology
-
-### Edge 3: “Message Ingress” Could Quietly Swallow `V63-B`
+### Edge 2: Bounded Responses Could Quietly Become A New Command Ontology
 
 - Risk:
-  the starter slice could blur into a half-built command bridge by allowing richer
-  message ingress than the bounded response set.
+  bounded responses (`approve`, `continue`, `pause`, `escalate`) could drift into a
+  new command language rather than consuming shipped law.
 - Response:
-  keep ingress in `V63-A` tiny and explicit.
-  - acknowledgement or explicit bounded responses only
-  - no structured answers or clarifications
+  keep response basis explicit and consumed.
+  - `approve` consumes shipped URM approval/session posture
+  - `continue` / `pause` consume shipped `V60` continuation posture
+  - `escalate` consumes shipped `V60`/`V61` blocked-or-escalation posture
+  - `acknowledge` remains notification/session posture only
+- Closeout Evidence:
+  shipped checker/tests enforce response-kind allowlist, explicit consumed control
+  basis, and fail-closed posture for unsupported kinds.
+
+### Edge 3: `escalate` Could Bypass Shipped Egress Posture Constraints
+
+- Risk:
+  `escalate` in `V63-A` could be emitted without the shipped `V61-A`
+  `escalation_notice` posture.
+- Response:
+  keep `escalate` fail-closed on shipped posture requirements.
+  - no shipped escalation posture, no `escalate`
+- Closeout Evidence:
+  review hardening commit plus shipped tests enforce and regress the
+  `escalation_notice` gating requirement.
+
+### Edge 4: Starter Ingress Could Quietly Swallow `V63-B`
+
+- Risk:
+  the starter slice could blur into richer bridge semantics (structured answers,
+  clarifications, inspect-rich controls).
+- Response:
+  keep ingress tiny and explicit in `V63-A`.
+  - acknowledge or bounded response kinds only
+  - no structured answers/clarifications
   - no inspect-rich controls
-  - richer command/control bridge deferred to `V63-B`
+  - richer bridge remains deferred to `V63-B`
+- Closeout Evidence:
+  shipped lock/checker/tests preserve exact bounded response-kind scope and
+  explicit `V63-B` deferral.
 
-### Edge 4: Remote Principal Could Blur With Connector Principals
+### Edge 5: Remote Principal Could Blur With Connector Principals
 
 - Risk:
-  the remote operator surface could drift into `external_assistant` or
-  `human_via_connector` semantics once multiple access surfaces coexist.
+  `remote_operator` semantics could drift into `external_assistant` or
+  `human_via_connector` semantics.
 - Response:
   keep principal typing explicit and singular in this slice.
   - `remote_operator` selected
-  - connector-carried principals not selected here
+  - connector-carried principals not selected
+- Closeout Evidence:
+  shipped checker/tests preserve explicit `remote_operator`-only constraints for
+  `V63-A`.
 
-### Edge 5: Remote Acknowledgement Could Be Over-Read As Witness Or Office
+### Edge 6: Remote Response Could Be Over-Read As Witness / Office / Connector Law
 
 - Risk:
-  one acknowledgement or bounded remote response could be treated as witness,
-  bridge-office promotion, or connector law.
+  one bounded remote response could be over-read as witness closure,
+  bridge-office mutation, or connector law.
 - Response:
   keep response artifacts transport-bounded and non-sovereign.
-  - `acknowledge` is notification/session posture only and may not mutate
-    continuation, communication, or authority state by itself
-  - not witness
-  - not bridge office
-  - not connector law
+  - remote response is not witness
+  - remote response is not bridge office
+  - remote response is not connector law
+- Closeout Evidence:
+  shipped lock/checker/tests preserve explicit non-equivalence constraints for
+  `V63-A` response artifacts.
 
-### Edge 6: One Remote Surface Could Be Over-Read As Broad Remote-Admin Law
-
-- Risk:
-  one admitted remote operator surface could be treated as broad remote-admin law or
-  all-device control law.
-- Response:
-  keep the starter path exact and non-generalizing by default.
-  - one selected remote surface only
-  - not broad remote-admin law
-  - not all-device or all-surface law
-
-### Edge 7: Remote Visibility Could Quietly Swallow Repo / Execute / Dispatch Law
+### Edge 7: One Remote Surface Could Be Over-Read As Repo / Execute / Dispatch Authority
 
 - Risk:
-  status and control visibility over a continuity-bound local-write exemplar could
-  be over-read as repo authority, execute authority, or dispatch authority.
+  visibility and bounded responses over a continuity-bound exemplar could be
+  over-read as repo-write, execute, or dispatch authority.
 - Response:
-  keep `V63-A` session/view/response only.
+  keep `V63-A` session/view/response only and non-generalizing.
   - not repo authority
   - not execute authority
   - not dispatch authority
-  - downstream exemplar remains consumed context only
+  - one selected remote surface only
+- Closeout Evidence:
+  shipped lock/checker/tests preserve path-level non-generalization and
+  non-authorizing posture.
 
-### Edge 8: Workbench Or UI Doctrine Could Become A Hidden Sovereign
+### Edge 8: Prior-Lane Basis Could Drift Behind Self-Consistent Local Artifacts
 
 - Risk:
-  because current workbench doctrine shapes the remote surface, UI convention could
-  quietly replace explicit policy or packet law.
+  a self-consistent `V63-A` artifact set could drift away from required prior-lane
+  evidence anchors (`V61-C`, `V62-C`) or shipped `V60`/`V61` lineage.
 - Response:
-  keep workbench doctrine shaping-only and subordinate to typed artifacts.
-  - explicit frozen policy required
-  - shipped lane artifacts and typed basis remain authoritative
-  - UI doctrine may shape but not mint authority
+  keep prior-lane and shipped lineage consumption explicit and fail-closed.
+  - required prior-lane evidence refs remain explicit
+  - shipped continuation/communication bases remain explicit
+  - mismatches fail closed
+- Closeout Evidence:
+  shipped checker/tests require explicit prior-lane evidence surfaces and shipped
+  basis consumption for `V63-A`.
 
 ## Current Judgment
 
-- `V63-A` is the right next slice because the repo already has shipped continuation,
-  governed communication, and connector families, but still lacks one bounded
-  remote operator session/view starter over that same governed core.
-- the follow-on should stay properly bounded:
+- `V63-A` was the right next slice because shipped continuation (`V60`), shipped
+  governed communication (`V61`), and shipped connector sibling law (`V62`) were
+  already in place, while one bounded remote-operator session/view/response starter
+  over that same governed core was still missing.
+- the shipped result remained properly bounded:
   - one admitted remote surface only
   - one selected `remote_operator` principal only
-  - one read-mostly view packet only
-  - one tiny bounded response set only
-  - shipped `V60` / `V61` lineage consumed intact
+  - one typed remote session record only
+  - one typed read-mostly view packet only
+  - one typed bounded response record only
+  - consumed shipped `V60`/`V61` lineage
+  - consumed prior-lane `V61-C`/`V62-C` evidence anchors
   - no connector mutation
-  - no richer command/control bridge yet
-  - no repo / execute / dispatch widening
-- the next move after this starter slice, if `V63-A` lands cleanly, should be
-  `V63-B` rather than widening `V63-A` in place.
+  - no richer `V63-B` command bridge yet
+  - no repo/execute/dispatch widening
+- `V63-A` is closed on `main`.
+- the next move should be `V63-B` rather than widening `V63-A` in place.
