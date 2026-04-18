@@ -89,6 +89,9 @@ AGENTIC_DE_REMOTE_OPERATOR_RESPONSE_RECORD_SCHEMA = (
 AGENTIC_DE_REMOTE_OPERATOR_CONTROL_BRIDGE_PACKET_SCHEMA = (
     "agentic_de_remote_operator_control_bridge_packet@1"
 )
+AGENTIC_DE_REMOTE_OPERATOR_HARDENING_REGISTER_SCHEMA = (
+    "agentic_de_remote_operator_hardening_register@1"
+)
 
 ACTION_CLASS_VOCABULARY = ("inspect", "write", "execute", "dispatch")
 EXACT_ACTION_CLASS_VOCABULARY = (
@@ -189,6 +192,13 @@ WORKSPACE_CONTINUITY_HARDENING_OUTCOME_VOCABULARY = (
     "keep_warning_only",
     "needs_more_evidence",
     "candidate_for_later_continuity_hardening",
+    "not_selected_for_escalation",
+)
+REMOTE_OPERATOR_HARDENING_OUTCOME_VOCABULARY = (
+    "keep_warning_only",
+    "needs_more_evidence",
+    "candidate_for_later_remote_operator_hardening",
+    "candidate_for_later_remote_surface_migration",
     "not_selected_for_escalation",
 )
 WORKSPACE_CONTINUITY_ADMISSION_VERDICT_VOCABULARY = (
@@ -537,6 +547,13 @@ ConnectorBridgeHardeningOutcome = Literal[
     "needs_more_evidence",
     "candidate_for_later_connector_hardening",
     "candidate_for_later_connector_migration",
+    "not_selected_for_escalation",
+]
+RemoteOperatorHardeningOutcome = Literal[
+    "keep_warning_only",
+    "needs_more_evidence",
+    "candidate_for_later_remote_operator_hardening",
+    "candidate_for_later_remote_surface_migration",
     "not_selected_for_escalation",
 ]
 
@@ -5086,6 +5103,222 @@ class AgenticDeRemoteOperatorControlBridgePacket(BaseModel):
         return self
 
 
+class AgenticDeRemoteOperatorHardeningEntry(BaseModel):
+    model_config = MODEL_CONFIG
+
+    hardening_id: str | None = None
+    remote_operator_session_ref: str
+    remote_operator_view_ref: str
+    remote_operator_response_ref_or_none: str | None = None
+    remote_operator_control_bridge_ref_or_none: str | None = None
+    selected_response_or_control_kind_summary_or_none: str | None = None
+    selected_remote_principal_class: RemoteOperatorPrincipalClass
+    remote_session_admission_verdict: RemoteSessionAdmissionVerdict
+    selected_remote_surface_class: RemoteOperatorSurfaceClass
+    latest_continuation_basis_ref_or_equivalent: str
+    latest_continuation_basis_selection_summary: str
+    selected_hardening_target_surface: str
+    frozen_policy_ref: str
+    evidence_basis_summary: str
+    verdict_basis_summary: str
+    recommendation_scope_requires_later_lock: Literal[True] = True
+    extensional_and_replayable_by_default: Literal[True] = True
+    lineage_root_dedup_applied: Literal[True] = True
+    field_origin_tags: dict[str, LiveTurnFieldOriginTag]
+    field_dependence_tags: dict[str, list[str]]
+    root_origin_ids: list[str]
+    root_origin_dedup_summary: str
+    recommended_outcome: RemoteOperatorHardeningOutcome
+    rationale: str
+    reason_codes: list[str]
+    evidence_refs: list[str]
+
+    @model_validator(mode="after")
+    def _validate_entry(self) -> AgenticDeRemoteOperatorHardeningEntry:
+        required_fields = (
+            "remote_operator_session_ref",
+            "remote_operator_view_ref",
+            "latest_continuation_basis_ref_or_equivalent",
+            "latest_continuation_basis_selection_summary",
+            "selected_hardening_target_surface",
+            "frozen_policy_ref",
+            "evidence_basis_summary",
+            "verdict_basis_summary",
+            "root_origin_dedup_summary",
+            "rationale",
+        )
+        for field_name in required_fields:
+            _assert_present_text(getattr(self, field_name), field_name=field_name)
+        optional_text_fields = (
+            "remote_operator_response_ref_or_none",
+            "remote_operator_control_bridge_ref_or_none",
+            "selected_response_or_control_kind_summary_or_none",
+        )
+        for field_name in optional_text_fields:
+            value = getattr(self, field_name)
+            if value is not None:
+                _assert_present_text(value, field_name=field_name)
+        required_tag_fields = (
+            "selected_remote_principal_class",
+            "remote_session_admission_verdict",
+            "selected_remote_surface_class",
+            "selected_response_or_control_kind_summary_or_none",
+            "latest_continuation_basis_selection_summary",
+            "frozen_policy_ref",
+            "evidence_basis_summary",
+            "verdict_basis_summary",
+            "recommended_outcome",
+        )
+        for field_name in required_tag_fields:
+            if field_name not in self.field_origin_tags:
+                raise ValueError(f"field_origin_tags missing required key {field_name}")
+            if field_name not in self.field_dependence_tags:
+                raise ValueError(f"field_dependence_tags missing required key {field_name}")
+        normalized_dependence_tags: dict[str, list[str]] = {}
+        for key, values in self.field_dependence_tags.items():
+            normalized_dependence_tags[key] = _ordered_unique_texts(
+                values,
+                field_name=f"field_dependence_tags[{key}]",
+            )
+        object.__setattr__(self, "field_dependence_tags", normalized_dependence_tags)
+        object.__setattr__(
+            self,
+            "root_origin_ids",
+            _ordered_unique_texts(self.root_origin_ids, field_name="root_origin_ids"),
+        )
+        object.__setattr__(
+            self,
+            "reason_codes",
+            _ordered_unique_texts(self.reason_codes, field_name="reason_codes"),
+        )
+        object.__setattr__(
+            self,
+            "evidence_refs",
+            _ordered_unique_texts(self.evidence_refs, field_name="evidence_refs"),
+        )
+        if not self.root_origin_ids:
+            raise ValueError("root_origin_ids must be non-empty")
+        if not self.reason_codes:
+            raise ValueError("reason_codes must be non-empty")
+        if not self.evidence_refs:
+            raise ValueError("evidence_refs must be non-empty")
+        has_optional_upstream_basis = bool(
+            self.remote_operator_response_ref_or_none
+            or self.remote_operator_control_bridge_ref_or_none
+        )
+        if has_optional_upstream_basis:
+            if self.selected_response_or_control_kind_summary_or_none is None:
+                raise ValueError(
+                    "selected_response_or_control_kind_summary_or_none is required when "
+                    "optional upstream response or control-bridge basis is present"
+                )
+            if self.remote_session_admission_verdict != "admitted":
+                raise ValueError(
+                    "optional upstream response or control-bridge basis requires "
+                    "remote_session_admission_verdict=admitted"
+                )
+        elif self.selected_response_or_control_kind_summary_or_none is not None:
+            raise ValueError(
+                "selected_response_or_control_kind_summary_or_none requires optional "
+                "upstream response or control-bridge basis"
+            )
+        candidate_outcomes = {
+            "candidate_for_later_remote_operator_hardening",
+            "candidate_for_later_remote_surface_migration",
+        }
+        if self.recommended_outcome in candidate_outcomes:
+            if "later_lock_required_for_scope" not in self.reason_codes:
+                raise ValueError(
+                    f"{self.recommended_outcome} requires later_lock_required_for_scope"
+                )
+        if self.recommended_outcome == "candidate_for_later_remote_operator_hardening":
+            if self.selected_remote_principal_class != "remote_operator":
+                raise ValueError(
+                    "candidate_for_later_remote_operator_hardening requires "
+                    "selected_remote_principal_class=remote_operator"
+                )
+            if self.remote_session_admission_verdict != "admitted":
+                raise ValueError(
+                    "candidate_for_later_remote_operator_hardening requires "
+                    "remote_session_admission_verdict=admitted"
+                )
+            if (
+                self.selected_remote_surface_class
+                != "read_mostly_phone_safe_remote_operator_surface"
+            ):
+                raise ValueError(
+                    "candidate_for_later_remote_operator_hardening requires "
+                    "read_mostly_phone_safe_remote_operator_surface"
+                )
+        if self.recommended_outcome == "not_selected_for_escalation":
+            if "negative_selection_on_current_evidence" not in self.reason_codes:
+                raise ValueError(
+                    "not_selected_for_escalation requires negative_selection_on_current_evidence"
+                )
+        object.__setattr__(
+            self,
+            "hardening_id",
+            _assign_or_verify_content_addressed_id(
+                value=self.hardening_id,
+                field_name="hardening_id",
+                prefix="agentic_de_remote_operator_hardening",
+                payload=self.model_dump(mode="json", exclude={"hardening_id"}),
+            ),
+        )
+        return self
+
+
+class AgenticDeRemoteOperatorHardeningRegister(BaseModel):
+    model_config = MODEL_CONFIG
+
+    schema: Literal[AGENTIC_DE_REMOTE_OPERATOR_HARDENING_REGISTER_SCHEMA] = (
+        AGENTIC_DE_REMOTE_OPERATOR_HARDENING_REGISTER_SCHEMA
+    )
+    register_id: str | None = None
+    target_arc: str
+    target_path: str
+    advisory_only: Literal[True] = True
+    candidate_only: Literal[True] = True
+    path_level_only: Literal[True] = True
+    exemplar_evidence_non_generalizing_by_default: Literal[True] = True
+    changes_live_behavior_by_default: Literal[False] = False
+    committed_lane_artifacts_outrank_narrative_docs: Literal[True] = True
+    evidence_basis_distinct_from_recommendation: Literal[True] = True
+    recommendation_function_extensional_and_replayable: Literal[True] = True
+    explicit_frozen_policy_anchor_required: Literal[True] = True
+    keep_warning_only_retains_current_advisory_posture_only: Literal[True] = True
+    lineage_root_non_independence_dedup_applied: Literal[True] = True
+    optional_upstream_basis_consistency_fails_closed: Literal[True] = True
+    baseline_checker_version: str
+    entry_count: int
+    entries: list[AgenticDeRemoteOperatorHardeningEntry]
+
+    @model_validator(mode="after")
+    def _validate_register(self) -> AgenticDeRemoteOperatorHardeningRegister:
+        _assert_present_text(self.target_arc, field_name="target_arc")
+        _assert_present_text(self.target_path, field_name="target_path")
+        _assert_present_text(
+            self.baseline_checker_version,
+            field_name="baseline_checker_version",
+        )
+        if self.entry_count != len(self.entries):
+            raise ValueError("entry_count must equal len(entries)")
+        target_surfaces = [entry.selected_hardening_target_surface for entry in self.entries]
+        if len(set(target_surfaces)) != len(target_surfaces):
+            raise ValueError("selected_hardening_target_surface values must be unique")
+        object.__setattr__(
+            self,
+            "register_id",
+            _assign_or_verify_content_addressed_id(
+                value=self.register_id,
+                field_name="register_id",
+                prefix="agentic_de_remote_operator_hardening_register",
+                payload=self.model_dump(mode="json", exclude={"register_id"}),
+            ),
+        )
+        return self
+
+
 class AgenticDeBridgeOfficeBindingRecord(BaseModel):
     model_config = MODEL_CONFIG
 
@@ -5993,6 +6226,18 @@ def compute_agentic_de_remote_operator_control_bridge_packet_id(
     payload: dict[str, object],
 ) -> str:
     return _compute_id("agentic_de_remote_operator_control_bridge", payload)
+
+
+def compute_agentic_de_remote_operator_hardening_entry_id(
+    payload: dict[str, object],
+) -> str:
+    return _compute_id("agentic_de_remote_operator_hardening", payload)
+
+
+def compute_agentic_de_remote_operator_hardening_register_id(
+    payload: dict[str, object],
+) -> str:
+    return _compute_id("agentic_de_remote_operator_hardening_register", payload)
 
 
 def compute_agentic_de_external_assistant_ingress_bridge_packet_id(

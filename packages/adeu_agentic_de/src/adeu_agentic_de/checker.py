@@ -59,6 +59,7 @@ from .models import (
     AGENTIC_DE_MORPH_DIAGNOSTICS_SCHEMA,
     AGENTIC_DE_MORPH_IR_SCHEMA,
     AGENTIC_DE_REMOTE_OPERATOR_CONTROL_BRIDGE_PACKET_SCHEMA,
+    AGENTIC_DE_REMOTE_OPERATOR_HARDENING_REGISTER_SCHEMA,
     AGENTIC_DE_REMOTE_OPERATOR_RESPONSE_RECORD_SCHEMA,
     AGENTIC_DE_REMOTE_OPERATOR_SESSION_RECORD_SCHEMA,
     AGENTIC_DE_REMOTE_OPERATOR_VIEW_PACKET_SCHEMA,
@@ -123,6 +124,8 @@ from .models import (
     AgenticDeMorphDiagnostics,
     AgenticDeMorphIr,
     AgenticDeRemoteOperatorControlBridgePacket,
+    AgenticDeRemoteOperatorHardeningEntry,
+    AgenticDeRemoteOperatorHardeningRegister,
     AgenticDeRemoteOperatorResponseRecord,
     AgenticDeRemoteOperatorSessionRecord,
     AgenticDeRemoteOperatorViewPacket,
@@ -256,6 +259,10 @@ V63B_CHECKER_VERSION = "agentic_de_remote_operator_control_bridge_v63b"
 V63B_TARGET_ARC = "vNext+174"
 V63B_TARGET_PATH = "V63-B"
 V63B_FROZEN_POLICY_REF = "docs/LOCKED_CONTINUATION_vNEXT_PLUS174.md#machine-checkable-contract"
+V63C_CHECKER_VERSION = "agentic_de_remote_operator_hardening_v63c"
+V63C_TARGET_ARC = "vNext+175"
+V63C_TARGET_PATH = "V63-C"
+V63C_FROZEN_POLICY_REF = "docs/LOCKED_CONTINUATION_vNEXT_PLUS175.md#machine-checkable-contract"
 
 
 def _default_fixture_path(variant: str, filename: str) -> Path:
@@ -579,6 +586,12 @@ DEFAULT_V63B_LANE_DRIFT_PATH = _default_fixture_path(
 DEFAULT_V63B_REMOTE_OPERATOR_CONTROL_BRIDGE_PATH = _default_fixture_path(
     "v63b", "reference_agentic_de_remote_operator_control_bridge_packet.json"
 )
+DEFAULT_V63C_LANE_DRIFT_PATH = _default_fixture_path(
+    "v63c", "reference_agentic_de_lane_drift_record.json"
+)
+DEFAULT_V63C_REMOTE_OPERATOR_HARDENING_PATH = _default_fixture_path(
+    "v63c", "reference_agentic_de_remote_operator_hardening_register.json"
+)
 DEFAULT_V58C_EVIDENCE_PATH = (
     repo_root(anchor=Path(__file__))
     / "artifacts"
@@ -682,6 +695,14 @@ DEFAULT_V63A_EVIDENCE_PATH = (
     / "v173"
     / "evidence_inputs"
     / "v63a_remote_operator_starter_evidence_v173.json"
+)
+DEFAULT_V63B_EVIDENCE_PATH = (
+    repo_root(anchor=Path(__file__))
+    / "artifacts"
+    / "agent_harness"
+    / "v174"
+    / "evidence_inputs"
+    / "v63b_remote_operator_control_bridge_evidence_v174.json"
 )
 
 EXPECTED_V56A_EVIDENCE_SCHEMA = "v56a_agentic_de_interaction_governance_starter_evidence@1"
@@ -913,6 +934,17 @@ REQUIRED_V63B_DRIFT_ENTRY_STATUSES: dict[str, str] = {
     "explicit_v63a_view_basis_required": "amended",
     "richer_intervention_non_mutating_by_itself": "amended",
     "all_device_or_surface_generalization_forbidden": "amended",
+    "path_level_non_generalization_required": "amended",
+}
+EXPECTED_V63B_EVIDENCE_SCHEMA = "v63b_remote_operator_control_bridge_evidence@1"
+EXPECTED_V63C_PRIOR_LANE_REF = "docs/LOCKED_CONTINUATION_vNEXT_PLUS174.md"
+REQUIRED_V63C_DRIFT_ENTRY_STATUSES: dict[str, str] = {
+    "v63a_v63b_surface_reuse_default": "holds",
+    "advisory_remote_hardening_only": "amended",
+    "committed_lane_artifacts_outrank_narrative_docs": "amended",
+    "explicit_frozen_policy_anchor_required": "amended",
+    "optional_response_control_basis_fail_closed": "amended",
+    "candidate_outcomes_non_entitling_non_escalating_and_scope_bound": "amended",
     "path_level_non_generalization_required": "amended",
 }
 
@@ -1270,6 +1302,17 @@ def load_remote_operator_control_bridge_packet(
     if payload.schema != AGENTIC_DE_REMOTE_OPERATOR_CONTROL_BRIDGE_PACKET_SCHEMA:
         raise ValueError(
             f"unexpected schema marker for remote operator control bridge packet: {payload.schema}"
+        )
+    return payload
+
+
+def load_remote_operator_hardening_register(
+    path: Path,
+) -> AgenticDeRemoteOperatorHardeningRegister:
+    payload = AgenticDeRemoteOperatorHardeningRegister.model_validate(_read_json_object(path))
+    if payload.schema != AGENTIC_DE_REMOTE_OPERATOR_HARDENING_REGISTER_SCHEMA:
+        raise ValueError(
+            f"unexpected schema marker for remote operator hardening register: {payload.schema}"
         )
     return payload
 
@@ -1856,6 +1899,37 @@ def _assert_v63b_repo_local_input_path(
         raise ValueError(
             f"{field_name} must remain within the repository root for V63-B remote operator "
             "control bridge"
+        ) from exc
+
+
+def _assert_v63c_repo_local_input_path(
+    *,
+    repo_root_path: Path,
+    candidate: Path,
+    field_name: str,
+) -> None:
+    if repo_root_path.exists() and repo_root_path.is_symlink():
+        raise ValueError("repository root may not be a symlink for V63-C remote hardening")
+    try:
+        relative = candidate.relative_to(repo_root_path)
+    except ValueError as exc:
+        raise ValueError(
+            f"{field_name} must be lexically within the repository root for V63-C "
+            "remote hardening"
+        ) from exc
+    current = repo_root_path
+    for part in relative.parts:
+        current = current / part
+        if current.is_symlink():
+            raise ValueError(
+                f"{field_name} may not traverse symlink components for V63-C remote hardening"
+            )
+    candidate_resolved = candidate.resolve(strict=False)
+    try:
+        candidate_resolved.relative_to(repo_root_path)
+    except ValueError as exc:
+        raise ValueError(
+            f"{field_name} must remain within the repository root for V63-C remote hardening"
         ) from exc
 
 
@@ -2580,6 +2654,40 @@ def _validate_v63b_lane_drift_record(record: AgenticDeLaneDriftRecord) -> Agenti
     return record
 
 
+def _validate_v63c_lane_drift_record(record: AgenticDeLaneDriftRecord) -> AgenticDeLaneDriftRecord:
+    if record.target_arc != V63C_TARGET_ARC:
+        raise ValueError(
+            f"V63-C lane drift record must target {V63C_TARGET_ARC!r}, got {record.target_arc!r}"
+        )
+    if record.target_path != V63C_TARGET_PATH:
+        raise ValueError(
+            f"V63-C lane drift record must target {V63C_TARGET_PATH!r}, got {record.target_path!r}"
+        )
+    if record.prior_lane_ref != EXPECTED_V63C_PRIOR_LANE_REF:
+        raise ValueError(
+            "V63-C lane drift record must point at "
+            f"{EXPECTED_V63C_PRIOR_LANE_REF!r}, got {record.prior_lane_ref!r}"
+        )
+    actual_statuses = {entry.assumption_ref: entry.status for entry in record.entries}
+    missing_assumptions = sorted(set(REQUIRED_V63C_DRIFT_ENTRY_STATUSES) - set(actual_statuses))
+    mismatched_statuses = sorted(
+        assumption_ref
+        for assumption_ref, expected_status in REQUIRED_V63C_DRIFT_ENTRY_STATUSES.items()
+        if assumption_ref in actual_statuses and actual_statuses[assumption_ref] != expected_status
+    )
+    if missing_assumptions or mismatched_statuses:
+        detail_parts: list[str] = []
+        if missing_assumptions:
+            detail_parts.append(f"missing={missing_assumptions}")
+        if mismatched_statuses:
+            detail_parts.append(f"status_mismatch={mismatched_statuses}")
+        raise ValueError(
+            "V63-C lane drift record does not satisfy the required handoff posture; "
+            + ", ".join(detail_parts)
+        )
+    return record
+
+
 def _validate_v56a_evidence_payload(payload: dict[str, object]) -> dict[str, object]:
     if payload.get("schema") != EXPECTED_V56A_EVIDENCE_SCHEMA:
         raise ValueError("V56-C requires the shipped V56-A starter evidence payload on main")
@@ -3264,6 +3372,55 @@ def _validate_v63a_evidence_payload(payload: dict[str, object]) -> dict[str, obj
         raise ValueError("V63-A evidence must preserve repo/execute deferral")
     if payload.get("dispatch_widening_selected_for_v63a") is not False:
         raise ValueError("V63-A evidence must preserve dispatch deferral")
+    return payload
+
+
+def _validate_v63b_evidence_payload(payload: dict[str, object]) -> dict[str, object]:
+    if payload.get("schema") != EXPECTED_V63B_EVIDENCE_SCHEMA:
+        raise ValueError(
+            "V63-C requires the shipped V63-B remote-operator control-bridge evidence "
+            "payload on main"
+        )
+    selected_shapes = payload.get("selected_record_shapes")
+    if not isinstance(selected_shapes, list) or {
+        "agentic_de_remote_operator_control_bridge_packet@1"
+    } - set(selected_shapes):
+        raise ValueError("V63-B evidence must preserve the shipped control-bridge shape")
+    required_true_fields = (
+        "bridge_packet_must_be_typed_and_replayable",
+        "same_admitted_remote_session_plus_same_selected_intervention_kind_plus_same_consumed_basis_plus_same_frozen_policy_yields_same_bridge_packet",
+        "structured_answer_consumes_explicit_shipped_context_only",
+        "clarification_consumes_explicit_shipped_context_only",
+        "inspect_rich_consumes_explicit_shipped_context_only",
+        "structured_answer_is_not_charter_or_residual_or_continuation_or_communication_mutation_by_itself",
+        "clarification_is_not_charter_or_residual_or_continuation_or_communication_mutation_by_itself",
+        "inspect_rich_is_not_charter_or_residual_or_continuation_or_communication_mutation_by_itself",
+        "richer_intervention_packet_is_not_bridge_office_or_act_authority_by_itself",
+        "consumed_shipped_v63a_view_basis_ref_explicit",
+        "path_level_non_generalization_required_for_v63b",
+        "selected_bridge_path_may_not_generalize_by_default_into_all_device_or_all_surface_law",
+    )
+    all_surface_non_generalization_field = (
+        "selected_bridge_path_may_not_generalize_by_default_into_all_device_or_all_surface_law"
+    )
+    for field_name in required_true_fields:
+        if payload.get(field_name) is not True:
+            if field_name == all_surface_non_generalization_field:
+                raise ValueError(
+                    "V63-B evidence must preserve all-device/all-surface non-generalization"
+                )
+            raise ValueError(f"V63-B evidence must preserve {field_name}")
+    if payload.get("selected_remote_operator_principal_for_v63b") != "remote_operator_only":
+        raise ValueError("V63-B evidence must preserve the remote_operator principal only")
+    if (
+        payload.get("selected_consumed_v63a_lineage_for_v63b")
+        != "shipped_v63a_session_and_view_lineage_only"
+    ):
+        raise ValueError("V63-B evidence must preserve the shipped V63-A lineage only")
+    if payload.get("repo_or_execute_authority_selected_for_v63b") is not False:
+        raise ValueError("V63-B evidence must preserve repo/execute deferral")
+    if payload.get("dispatch_widening_selected_for_v63b") is not False:
+        raise ValueError("V63-B evidence must preserve dispatch deferral")
     return payload
 
 
@@ -14742,6 +14899,477 @@ def run_agentic_de_remote_operator_control_bridge_v63b(
     )
 
 
+def _validate_v63c_consumed_surfaces(
+    *,
+    continuation_refresh_decision: AgenticDeContinuationRefreshDecisionRecord,
+    ingress: AgenticDeCommunicationIngressPacket,
+    descriptor: AgenticDeSurfaceAuthorityDescriptor,
+    interpretation: AgenticDeIngressInterpretationRecord,
+    communication_egress: AgenticDeCommunicationEgressPacket,
+    session_record: AgenticDeRemoteOperatorSessionRecord,
+    view_packet: AgenticDeRemoteOperatorViewPacket,
+    response_record: AgenticDeRemoteOperatorResponseRecord | None,
+    control_bridge_packet: AgenticDeRemoteOperatorControlBridgePacket | None,
+    target_relative_path: str,
+) -> None:
+    expected_path = _expected_v60a_selected_downstream_path_summary(target_relative_path)
+    if (
+        continuation_refresh_decision.target_arc != V60B_TARGET_ARC
+        or continuation_refresh_decision.target_path != V60B_TARGET_PATH
+    ):
+        raise ValueError("V63-C requires the shipped V60-B continuation refresh surface")
+    if continuation_refresh_decision.selected_next_path_summary_or_none != expected_path:
+        raise ValueError("V63-C requires the shipped exact downstream V60 selected path")
+    if ingress.target_arc != V61A_TARGET_ARC or ingress.target_path != V61A_TARGET_PATH:
+        raise ValueError("V63-C requires the shipped V61-A communication ingress surface")
+    if descriptor.target_arc != V61A_TARGET_ARC or descriptor.target_path != V61A_TARGET_PATH:
+        raise ValueError("V63-C requires the shipped V61-A surface authority descriptor")
+    if (
+        interpretation.target_arc != V61A_TARGET_ARC
+        or interpretation.target_path != V61A_TARGET_PATH
+    ):
+        raise ValueError("V63-C requires the shipped V61-A ingress interpretation surface")
+    if (
+        communication_egress.target_arc != V61A_TARGET_ARC
+        or communication_egress.target_path != V61A_TARGET_PATH
+    ):
+        raise ValueError("V63-C requires the shipped V61-A communication egress surface")
+    if (
+        session_record.target_arc != V63A_TARGET_ARC
+        or session_record.target_path != V63A_TARGET_PATH
+    ):
+        raise ValueError("V63-C requires the shipped V63-A remote operator session surface")
+    if view_packet.target_arc != V63A_TARGET_ARC or view_packet.target_path != V63A_TARGET_PATH:
+        raise ValueError("V63-C requires the shipped V63-A remote operator view surface")
+    if session_record.frozen_policy_anchor_ref != V63A_FROZEN_POLICY_REF:
+        raise ValueError("V63-C requires the shipped V63-A remote session policy anchor")
+    if view_packet.frozen_policy_anchor_ref != V63A_FROZEN_POLICY_REF:
+        raise ValueError("V63-C requires the shipped V63-A remote view policy anchor")
+    if continuation_refresh_decision.frozen_policy_anchor_ref != V60B_FROZEN_POLICY_REF:
+        raise ValueError("V63-C requires the shipped V60-B continuation policy anchor")
+    if descriptor.frozen_policy_anchor_ref != V61A_FROZEN_POLICY_REF:
+        raise ValueError("V63-C requires the shipped V61-A descriptor policy anchor")
+    if interpretation.frozen_policy_anchor_ref != V61A_FROZEN_POLICY_REF:
+        raise ValueError("V63-C requires the shipped V61-A interpretation policy anchor")
+    if communication_egress.frozen_policy_anchor_ref != V61A_FROZEN_POLICY_REF:
+        raise ValueError("V63-C requires the shipped V61-A egress policy anchor")
+    if session_record.remote_operator_principal_class != V63A_SELECTED_REMOTE_OPERATOR_PRINCIPAL:
+        raise ValueError("V63-C requires the shipped V63-A remote_operator principal only")
+    if session_record.remote_surface_class != V63A_SELECTED_REMOTE_SURFACE_CLASS:
+        raise ValueError("V63-C requires the shipped V63-A remote surface class only")
+    if session_record.admission_verdict != "admitted":
+        raise ValueError("V63-C requires the shipped admitted V63-A remote session verdict")
+    if view_packet.remote_operator_session_ref != session_record.remote_operator_session_id:
+        raise ValueError("V63-C remote view must bind the shipped V63-A remote session")
+    expected_view_refs = [
+        ingress.communication_ingress_id,
+        descriptor.surface_authority_descriptor_id,
+        interpretation.ingress_interpretation_id,
+        communication_egress.communication_egress_id,
+    ]
+    if view_packet.consumed_communication_refs != expected_view_refs:
+        raise ValueError("V63-C remote view must preserve the shipped V61-A communication lineage")
+    if response_record is not None:
+        if (
+            response_record.target_arc != V63A_TARGET_ARC
+            or response_record.target_path != V63A_TARGET_PATH
+        ):
+            raise ValueError("V63-C requires the shipped V63-A remote response surface")
+        if response_record.frozen_policy_anchor_ref != V63A_FROZEN_POLICY_REF:
+            raise ValueError("V63-C requires the shipped V63-A remote response policy anchor")
+        if response_record.remote_operator_session_ref != session_record.remote_operator_session_id:
+            raise ValueError("V63-C remote response must bind the shipped V63-A remote session")
+    if control_bridge_packet is not None:
+        if (
+            control_bridge_packet.target_arc != V63B_TARGET_ARC
+            or control_bridge_packet.target_path != V63B_TARGET_PATH
+        ):
+            raise ValueError("V63-C requires the shipped V63-B control bridge surface")
+        if control_bridge_packet.frozen_policy_anchor_ref != V63B_FROZEN_POLICY_REF:
+            raise ValueError("V63-C requires the shipped V63-B control bridge policy anchor")
+        if (
+            control_bridge_packet.remote_operator_session_ref
+            != session_record.remote_operator_session_id
+        ):
+            raise ValueError("V63-C control bridge must bind the shipped V63-A remote session")
+        if (
+            control_bridge_packet.consumed_remote_view_ref_or_equivalent
+            != view_packet.remote_operator_view_id
+        ):
+            raise ValueError("V63-C control bridge must bind the shipped V63-A remote view")
+
+
+def _build_v63c_remote_operator_hardening_register(
+    *,
+    continuation_refresh_decision: AgenticDeContinuationRefreshDecisionRecord,
+    communication_egress: AgenticDeCommunicationEgressPacket,
+    session_record: AgenticDeRemoteOperatorSessionRecord,
+    view_packet: AgenticDeRemoteOperatorViewPacket,
+    response_record: AgenticDeRemoteOperatorResponseRecord | None,
+    control_bridge_packet: AgenticDeRemoteOperatorControlBridgePacket | None,
+    evidence_refs: list[str],
+) -> AgenticDeRemoteOperatorHardeningRegister:
+    root_origin_ids = [
+        f"remote_session:{session_record.remote_operator_session_id}",
+        f"remote_view:{view_packet.remote_operator_view_id}",
+        f"communication_egress:{communication_egress.communication_egress_id}",
+        f"continuation:{continuation_refresh_decision.refresh_decision_id}",
+        f"policy:{V63C_FROZEN_POLICY_REF}",
+    ]
+    if response_record is not None:
+        root_origin_ids.append(f"remote_response:{response_record.remote_operator_response_id}")
+    if control_bridge_packet is not None:
+        root_origin_ids.append(
+            f"control_bridge:{control_bridge_packet.remote_operator_control_bridge_id}"
+        )
+    selected_kind_summary: str | None = None
+    selected_kind_parts: list[str] = []
+    if response_record is not None:
+        selected_kind_parts.append(f"response_kind={response_record.selected_response_kind}")
+    if control_bridge_packet is not None:
+        selected_kind_parts.append(
+            f"control_kind={control_bridge_packet.selected_intervention_kind}"
+        )
+    if selected_kind_parts:
+        selected_kind_summary = "; ".join(selected_kind_parts)
+    has_optional_upstream_basis = response_record is not None or control_bridge_packet is not None
+    recommended_outcome = (
+        "candidate_for_later_remote_operator_hardening"
+        if has_optional_upstream_basis
+        else "keep_warning_only"
+    )
+    evidence_basis_summary = (
+        "shipped V63-A admitted remote session and read-mostly remote view"
+        + (
+            " plus shipped V63-A starter response lineage"
+            if response_record is not None
+            else " without shipped starter-response lineage selected"
+        )
+        + (
+            " plus shipped V63-B richer control-bridge lineage"
+            if control_bridge_packet is not None
+            else " without shipped richer control-bridge lineage selected"
+        )
+        + (
+            " over the same exact shipped V60-B continuation basis and shipped V61-A "
+            "communication lineage under one explicit frozen V63-C policy anchor"
+        )
+    )
+    verdict_basis_summary = (
+        "the exact admitted remote_operator path remained preserved, shipped V63-A session/view "
+        "lineage stayed authoritative, optional shipped response/control basis remained posture-"
+        "consistent where selected, and one frozen V63-C policy anchor preserved explicit "
+        "provenance and non-independence dedup without minting live remote, connector, repo, "
+        "execute, or dispatch authority"
+    )
+    field_origin_tags = {
+        "selected_remote_principal_class": "prior_artifact",
+        "remote_session_admission_verdict": "prior_artifact",
+        "selected_remote_surface_class": "prior_artifact",
+        "selected_response_or_control_kind_summary_or_none": "current_turn_derived",
+        "latest_continuation_basis_selection_summary": "current_turn_derived",
+        "frozen_policy_ref": "shaping_only",
+        "evidence_basis_summary": "current_turn_derived",
+        "verdict_basis_summary": "current_turn_derived",
+        "recommended_outcome": "current_turn_derived",
+    }
+    field_dependence_tags = {
+        "selected_remote_principal_class": [session_record.remote_operator_session_id],
+        "remote_session_admission_verdict": [session_record.remote_operator_session_id],
+        "selected_remote_surface_class": [session_record.remote_operator_session_id],
+        "selected_response_or_control_kind_summary_or_none": [
+            ref
+            for ref in [
+                (
+                    response_record.remote_operator_response_id
+                    if response_record is not None
+                    else None
+                ),
+                (
+                    control_bridge_packet.remote_operator_control_bridge_id
+                    if control_bridge_packet is not None
+                    else None
+                ),
+            ]
+            if ref is not None
+        ],
+        "latest_continuation_basis_selection_summary": [
+            continuation_refresh_decision.refresh_decision_id,
+            communication_egress.communication_egress_id,
+        ],
+        "frozen_policy_ref": [],
+        "evidence_basis_summary": [
+            session_record.remote_operator_session_id,
+            view_packet.remote_operator_view_id,
+            continuation_refresh_decision.refresh_decision_id,
+            communication_egress.communication_egress_id,
+            *root_origin_ids,
+        ],
+        "verdict_basis_summary": [
+            session_record.remote_operator_session_id,
+            view_packet.remote_operator_view_id,
+            continuation_refresh_decision.refresh_decision_id,
+            *root_origin_ids,
+        ],
+        "recommended_outcome": [
+            session_record.remote_operator_session_id,
+            continuation_refresh_decision.refresh_decision_id,
+            V63C_FROZEN_POLICY_REF,
+        ],
+    }
+    entry = AgenticDeRemoteOperatorHardeningEntry(
+        remote_operator_session_ref=session_record.remote_operator_session_id,
+        remote_operator_view_ref=view_packet.remote_operator_view_id,
+        remote_operator_response_ref_or_none=(
+            response_record.remote_operator_response_id if response_record is not None else None
+        ),
+        remote_operator_control_bridge_ref_or_none=(
+            control_bridge_packet.remote_operator_control_bridge_id
+            if control_bridge_packet is not None
+            else None
+        ),
+        selected_response_or_control_kind_summary_or_none=selected_kind_summary,
+        selected_remote_principal_class=session_record.remote_operator_principal_class,
+        remote_session_admission_verdict=session_record.admission_verdict,
+        selected_remote_surface_class=session_record.remote_surface_class,
+        latest_continuation_basis_ref_or_equivalent=continuation_refresh_decision.refresh_decision_id,
+        latest_continuation_basis_selection_summary=(
+            "latest shipped V60-B refresh decision remains the selected continuation basis for "
+            "the exact shipped remote operator lineage only"
+        ),
+        selected_hardening_target_surface=(
+            "shipped_v63a_v63b_remote_operator_lineage_over_one_admitted_remote_operator_path_only"
+        ),
+        frozen_policy_ref=V63C_FROZEN_POLICY_REF,
+        evidence_basis_summary=evidence_basis_summary,
+        verdict_basis_summary=verdict_basis_summary,
+        field_origin_tags=field_origin_tags,
+        field_dependence_tags=field_dependence_tags,
+        root_origin_ids=root_origin_ids,
+        root_origin_dedup_summary=(
+            "dedup roots="
+            + ",".join(root_origin_ids)
+            + "; repeated remote session, view, response, control, continuation, and policy "
+            "lineage artifacts remain non-independent remote-hardening support"
+        ),
+        recommended_outcome=recommended_outcome,
+        rationale=(
+            "the exact shipped V63-A/V63-B remote lineage now carries admitted session, "
+            "replayable read-mostly view, optional shipped response/control exemplar basis, "
+            "and one frozen V63-C advisory policy anchor, so it is a valid later path-level "
+            "remote hardening candidate without minting connector, broad remote-admin, repo, "
+            "execute, or dispatch authority"
+            if has_optional_upstream_basis
+            else "without optional shipped response/control exemplar basis, V63-C keeps the "
+            "current advisory posture only and may not overread richer intervention evidence"
+        ),
+        reason_codes=(
+            [
+                "admitted_remote_session_consumed",
+                "shipped_v63a_view_consumed",
+                "optional_upstream_basis_posture_consistent",
+                "selected_kind_summary_explicit",
+                "committed_artifacts_outrank_narrative_docs",
+                "path_level_only",
+                "extensional_replayable_policy",
+                "lineage_root_dedup_applied",
+                "candidate_non_entitling_and_non_escalating",
+                "later_lock_required_for_scope",
+                "no_live_mutation_in_v63c",
+                "non_generalizing_by_default",
+            ]
+            if has_optional_upstream_basis
+            else [
+                "admitted_remote_session_consumed",
+                "shipped_v63a_view_consumed",
+                "optional_upstream_basis_absent_no_overread",
+                "committed_artifacts_outrank_narrative_docs",
+                "path_level_only",
+                "extensional_replayable_policy",
+                "lineage_root_dedup_applied",
+                "keep_warning_only_retains_current_advisory_posture_only",
+                "no_live_mutation_in_v63c",
+                "non_generalizing_by_default",
+            ]
+        ),
+        evidence_refs=evidence_refs,
+    )
+    return AgenticDeRemoteOperatorHardeningRegister(
+        target_arc=V63C_TARGET_ARC,
+        target_path=V63C_TARGET_PATH,
+        optional_upstream_basis_consistency_fails_closed=True,
+        baseline_checker_version=V63C_CHECKER_VERSION,
+        entry_count=1,
+        entries=[entry],
+    )
+
+
+def run_agentic_de_remote_operator_hardening_v63c(
+    *,
+    repo_root_path: Path | None = None,
+    v60b_continuation_refresh_decision_path: Path = DEFAULT_V60B_CONTINUATION_REFRESH_DECISION_PATH,
+    v61a_communication_ingress_path: Path = DEFAULT_V61A_COMMUNICATION_INGRESS_PATH,
+    v61a_surface_authority_descriptor_path: Path = DEFAULT_V61A_SURFACE_AUTHORITY_DESCRIPTOR_PATH,
+    v61a_ingress_interpretation_path: Path = DEFAULT_V61A_INGRESS_INTERPRETATION_PATH,
+    v61a_communication_egress_path: Path = DEFAULT_V61A_COMMUNICATION_EGRESS_PATH,
+    v63a_remote_operator_session_path: Path = DEFAULT_V63A_REMOTE_OPERATOR_SESSION_PATH,
+    v63a_remote_operator_view_path: Path = DEFAULT_V63A_REMOTE_OPERATOR_VIEW_PATH,
+    v63a_remote_operator_response_path: Path | None = DEFAULT_V63A_REMOTE_OPERATOR_RESPONSE_PATH,
+    v63b_remote_operator_control_bridge_path: Path
+    | None = DEFAULT_V63B_REMOTE_OPERATOR_CONTROL_BRIDGE_PATH,
+    lane_drift_path: Path = DEFAULT_V63C_LANE_DRIFT_PATH,
+    v63a_evidence_path: Path = DEFAULT_V63A_EVIDENCE_PATH,
+    v63b_evidence_path: Path = DEFAULT_V63B_EVIDENCE_PATH,
+    target_relative_path: str = str(DEFAULT_WORKSPACE_CONTINUITY_TARGET_RELATIVE_PATH),
+) -> AgenticDeRemoteOperatorHardeningRegister:
+    raw_root = repo_root(anchor=Path(__file__)) if repo_root_path is None else repo_root_path
+    if raw_root.exists() and raw_root.is_symlink():
+        raise ValueError("repository root may not be a symlink for V63-C remote hardening")
+    root = raw_root.resolve()
+
+    path_args: dict[str, Path | None] = {
+        "v60b_continuation_refresh_decision_path": v60b_continuation_refresh_decision_path,
+        "v61a_communication_ingress_path": v61a_communication_ingress_path,
+        "v61a_surface_authority_descriptor_path": v61a_surface_authority_descriptor_path,
+        "v61a_ingress_interpretation_path": v61a_ingress_interpretation_path,
+        "v61a_communication_egress_path": v61a_communication_egress_path,
+        "v63a_remote_operator_session_path": v63a_remote_operator_session_path,
+        "v63a_remote_operator_view_path": v63a_remote_operator_view_path,
+        "v63a_remote_operator_response_path": v63a_remote_operator_response_path,
+        "v63b_remote_operator_control_bridge_path": v63b_remote_operator_control_bridge_path,
+        "lane_drift_path": lane_drift_path,
+        "v63a_evidence_path": v63a_evidence_path,
+        "v63b_evidence_path": v63b_evidence_path,
+    }
+    resolved_paths: dict[str, Path] = {}
+    for field_name, path in path_args.items():
+        if path is None:
+            continue
+        candidate = _resolve_path(repo_root_path=root, path=path)
+        _assert_v63c_repo_local_input_path(
+            repo_root_path=root,
+            candidate=candidate,
+            field_name=field_name,
+        )
+        resolved_paths[field_name] = candidate
+
+    _validate_v63c_lane_drift_record(load_lane_drift_record(resolved_paths["lane_drift_path"]))
+    _validate_v63a_evidence_payload(
+        _load_json_object(resolved_paths["v63a_evidence_path"], error_label="V63-A evidence")
+    )
+    _validate_v63b_evidence_payload(
+        _load_json_object(resolved_paths["v63b_evidence_path"], error_label="V63-B evidence")
+    )
+
+    v60b_continuation_refresh_decision = load_continuation_refresh_decision_record(
+        resolved_paths["v60b_continuation_refresh_decision_path"]
+    )
+    v61a_ingress = load_communication_ingress_packet(
+        resolved_paths["v61a_communication_ingress_path"]
+    )
+    v61a_descriptor = load_surface_authority_descriptor(
+        resolved_paths["v61a_surface_authority_descriptor_path"]
+    )
+    v61a_interpretation = load_ingress_interpretation_record(
+        resolved_paths["v61a_ingress_interpretation_path"]
+    )
+    v61a_communication_egress = load_communication_egress_packet(
+        resolved_paths["v61a_communication_egress_path"]
+    )
+    v63a_session_record = load_remote_operator_session_record(
+        resolved_paths["v63a_remote_operator_session_path"]
+    )
+    v63a_view_packet = load_remote_operator_view_packet(
+        resolved_paths["v63a_remote_operator_view_path"]
+    )
+    v63a_response_record = (
+        load_remote_operator_response_record(resolved_paths["v63a_remote_operator_response_path"])
+        if "v63a_remote_operator_response_path" in resolved_paths
+        else None
+    )
+    v63b_control_bridge_packet = (
+        load_remote_operator_control_bridge_packet(
+            resolved_paths["v63b_remote_operator_control_bridge_path"]
+        )
+        if "v63b_remote_operator_control_bridge_path" in resolved_paths
+        else None
+    )
+
+    _validate_v63c_consumed_surfaces(
+        continuation_refresh_decision=v60b_continuation_refresh_decision,
+        ingress=v61a_ingress,
+        descriptor=v61a_descriptor,
+        interpretation=v61a_interpretation,
+        communication_egress=v61a_communication_egress,
+        session_record=v63a_session_record,
+        view_packet=v63a_view_packet,
+        response_record=v63a_response_record,
+        control_bridge_packet=v63b_control_bridge_packet,
+        target_relative_path=target_relative_path,
+    )
+
+    evidence_refs = [
+        _render_input_ref(
+            repo_root_path=root,
+            path=resolved_paths["v60b_continuation_refresh_decision_path"],
+        ),
+        _render_input_ref(
+            repo_root_path=root,
+            path=resolved_paths["v61a_communication_ingress_path"],
+        ),
+        _render_input_ref(
+            repo_root_path=root,
+            path=resolved_paths["v61a_surface_authority_descriptor_path"],
+        ),
+        _render_input_ref(
+            repo_root_path=root,
+            path=resolved_paths["v61a_ingress_interpretation_path"],
+        ),
+        _render_input_ref(
+            repo_root_path=root,
+            path=resolved_paths["v61a_communication_egress_path"],
+        ),
+        _render_input_ref(
+            repo_root_path=root,
+            path=resolved_paths["v63a_remote_operator_session_path"],
+        ),
+        _render_input_ref(
+            repo_root_path=root,
+            path=resolved_paths["v63a_remote_operator_view_path"],
+        ),
+    ]
+    if "v63a_remote_operator_response_path" in resolved_paths:
+        evidence_refs.append(
+            _render_input_ref(
+                repo_root_path=root,
+                path=resolved_paths["v63a_remote_operator_response_path"],
+            )
+        )
+    if "v63b_remote_operator_control_bridge_path" in resolved_paths:
+        evidence_refs.append(
+            _render_input_ref(
+                repo_root_path=root,
+                path=resolved_paths["v63b_remote_operator_control_bridge_path"],
+            )
+        )
+    evidence_refs.extend(
+        [
+            _render_input_ref(repo_root_path=root, path=resolved_paths["lane_drift_path"]),
+            _render_input_ref(repo_root_path=root, path=resolved_paths["v63a_evidence_path"]),
+            _render_input_ref(repo_root_path=root, path=resolved_paths["v63b_evidence_path"]),
+        ]
+    )
+    return _build_v63c_remote_operator_hardening_register(
+        continuation_refresh_decision=v60b_continuation_refresh_decision,
+        communication_egress=v61a_communication_egress,
+        session_record=v63a_session_record,
+        view_packet=v63a_view_packet,
+        response_record=v63a_response_record,
+        control_bridge_packet=v63b_control_bridge_packet,
+        evidence_refs=evidence_refs,
+    )
+
+
 def render_checkpoint_payload(checkpoint: AgenticDeMembraneCheckpoint) -> str:
     return json.dumps(checkpoint.model_dump(mode="json"), indent=2, sort_keys=True) + "\n"
 
@@ -14900,6 +15528,12 @@ def render_remote_operator_control_bridge_payload(
     packet: AgenticDeRemoteOperatorControlBridgePacket,
 ) -> str:
     return json.dumps(packet.model_dump(mode="json"), indent=2, sort_keys=True) + "\n"
+
+
+def render_remote_operator_hardening_payload(
+    register: AgenticDeRemoteOperatorHardeningRegister,
+) -> str:
+    return json.dumps(register.model_dump(mode="json"), indent=2, sort_keys=True) + "\n"
 
 
 def render_governed_communication_hardening_payload(

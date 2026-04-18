@@ -1,0 +1,45 @@
+{
+  "schema": "agentic_de_lane_drift_record@1",
+  "record_id": null,
+  "target_arc": "vNext+175",
+  "target_path": "V63-C",
+  "prior_lane_ref": "docs/LOCKED_CONTINUATION_vNEXT_PLUS174.md",
+  "entry_count": 7,
+  "entries": [
+    {
+      "assumption_ref": "v63a_v63b_surface_reuse_default",
+      "status": "holds",
+      "note": "V63-C reuses the shipped V63-A/V63-B remote lineage by default."
+    },
+    {
+      "assumption_ref": "advisory_remote_hardening_only",
+      "status": "amended",
+      "note": "V63-C introduces one advisory remote hardening register only."
+    },
+    {
+      "assumption_ref": "committed_lane_artifacts_outrank_narrative_docs",
+      "status": "amended",
+      "note": "Committed lane artifacts outrank narrative interpretation or review prose for V63-C evidence basis."
+    },
+    {
+      "assumption_ref": "explicit_frozen_policy_anchor_required",
+      "status": "amended",
+      "note": "V63-C replayability remains anchored by one explicit frozen policy ref."
+    },
+    {
+      "assumption_ref": "optional_response_control_basis_fail_closed",
+      "status": "amended",
+      "note": "Optional upstream response/control basis must stay posture-consistent or fail closed."
+    },
+    {
+      "assumption_ref": "candidate_outcomes_non_entitling_non_escalating_and_scope_bound",
+      "status": "amended",
+      "note": "Candidate outcomes remain advisory-only, non-entitling, non-escalating, and later-lock bound."
+    },
+    {
+      "assumption_ref": "path_level_non_generalization_required",
+      "status": "amended",
+      "note": "The selected remote hardening path remains path-level and non-generalizing by default."
+    }
+  ]
+}
