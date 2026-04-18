@@ -1,0 +1,40 @@
+{
+  "schema": "agentic_de_lane_drift_record@1",
+  "record_id": null,
+  "target_arc": "vNext+174",
+  "target_path": "V63-B",
+  "prior_lane_ref": "docs/LOCKED_CONTINUATION_vNEXT_PLUS173.md",
+  "entry_count": 6,
+  "entries": [
+    {
+      "assumption_ref": "v63a_surface_reuse_default",
+      "status": "holds",
+      "note": "V63-B reuses the shipped V63-A remote session and shipped V63-A remote view by default."
+    },
+    {
+      "assumption_ref": "richer_intervention_bridge_only",
+      "status": "amended",
+      "note": "V63-B introduces one richer typed remote intervention bridge only."
+    },
+    {
+      "assumption_ref": "explicit_v63a_view_basis_required",
+      "status": "amended",
+      "note": "V63-B requires the consumed shipped V63-A remote view basis to remain explicit in the bridge packet."
+    },
+    {
+      "assumption_ref": "richer_intervention_non_mutating_by_itself",
+      "status": "amended",
+      "note": "Structured_answer, clarification, and inspect_rich remain non-mutating by themselves."
+    },
+    {
+      "assumption_ref": "all_device_or_surface_generalization_forbidden",
+      "status": "amended",
+      "note": "The selected bridge path may not generalize into all-device or all-surface law by default."
+    },
+    {
+      "assumption_ref": "path_level_non_generalization_required",
+      "status": "amended",
+      "note": "The selected richer bridge path remains path-level and non-generalizing by default."
+    }
+  ]
+}
