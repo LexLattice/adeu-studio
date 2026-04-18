@@ -16199,10 +16199,13 @@ def run_agentic_de_repo_writable_surface_v64a(
     _validate_v61c_evidence_payload(
         _load_json_object(resolved_paths["v61c_evidence_path"], error_label="V61-C evidence")
     )
-    _assert_v64a_surface_and_target_canonical_membership(
-        repo_root_path=root,
-        target_relative_path=target_relative_path,
+    normalized_target_relative_path, _surface_path, _target_path, _surface_class = (
+        _assert_v64a_surface_and_target_canonical_membership(
+            repo_root_path=root,
+            target_relative_path=target_relative_path,
+        )
     )
+    canonical_target_relative_path = normalized_target_relative_path.as_posix()
     continuity_region = load_workspace_continuity_region_declaration(
         resolved_paths["v59a_continuity_region_declaration_path"]
     )
@@ -16240,7 +16243,7 @@ def run_agentic_de_repo_writable_surface_v64a(
         surface_authority_descriptor=v61_surface_descriptor,
         ingress_interpretation=ingress_interpretation,
         communication_egress=communication_egress,
-        target_relative_path=target_relative_path,
+        target_relative_path=canonical_target_relative_path,
     )
     evidence_refs = [
         _render_input_ref(
@@ -16279,7 +16282,7 @@ def run_agentic_de_repo_writable_surface_v64a(
         continuity_admission=continuity_admission,
         occupancy_report=occupancy_report,
         continuity_reintegration=continuity_reintegration,
-        target_relative_path=target_relative_path,
+        target_relative_path=canonical_target_relative_path,
         evidence_refs=evidence_refs,
     )
     lease = _build_v64a_repo_write_lease_record(
@@ -16300,7 +16303,7 @@ def run_agentic_de_repo_writable_surface_v64a(
         descriptor=descriptor,
         lease=lease,
         occupancy_report=occupancy_report,
-        target_relative_path=target_relative_path,
+        target_relative_path=canonical_target_relative_path,
         evidence_refs=evidence_refs,
     )
     return descriptor, lease, admission

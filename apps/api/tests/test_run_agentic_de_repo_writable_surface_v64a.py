@@ -142,6 +142,23 @@ def test_cli_can_write_all_v64a_outputs(tmp_path: Path) -> None:
     )
 
 
+def test_cli_accepts_equivalent_normalized_target_relative_path(tmp_path: Path) -> None:
+    temp_root, _fixture_root = _copy_v64a_input_tree(tmp_path / "repo")
+
+    completed = _run_script(
+        "--repo-root",
+        str(temp_root),
+        "--target-relative-path",
+        " runtime//reference_patch_candidate.diff ",
+    )
+
+    assert completed.returncode == 0, completed.stdout + completed.stderr
+    payload = json.loads(completed.stdout)
+    assert payload["selected_target_path_summary"].endswith(
+        "runtime/reference_patch_candidate.diff"
+    )
+
+
 def test_invalid_v64a_lane_drift_returns_clean_error(tmp_path: Path) -> None:
     temp_root, fixture_root = _copy_v64a_input_tree(tmp_path / "repo")
     lane_drift_path = fixture_root / "reference_agentic_de_lane_drift_record.json"

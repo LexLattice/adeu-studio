@@ -107,6 +107,19 @@ def test_v64a_replayable_for_same_inputs(tmp_path: Path) -> None:
     ]
 
 
+def test_v64a_normalizes_equivalent_target_relative_path_inputs(tmp_path: Path) -> None:
+    temp_root, _fixture_root = _copy_v64a_input_tree(tmp_path)
+
+    descriptor, lease, admission = run_agentic_de_repo_writable_surface_v64a(
+        repo_root_path=temp_root,
+        target_relative_path=" runtime//reference_patch_candidate.diff ",
+    )
+
+    assert descriptor.selected_surface_identity_summary.endswith("/runtime/")
+    assert lease.writable_surface_descriptor_ref == descriptor.repo_writable_surface_descriptor_id
+    assert admission.selected_target_path_summary.endswith("runtime/reference_patch_candidate.diff")
+
+
 def test_v64a_rejects_non_unoccupied_target_basis(tmp_path: Path) -> None:
     temp_root, fixture_root = _copy_v64a_input_tree(tmp_path / "repo")
     occupancy_path = (
