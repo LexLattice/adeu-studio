@@ -1,0 +1,69 @@
+{
+  "changes_live_behavior_by_default": false,
+  "consumed_control_basis_ref_or_equivalent": "agentic_de_ingress_interpretation_8a0ac37a6f71",
+  "consumed_remote_view_ref_or_equivalent": "agentic_de_remote_operator_view_8dc737242d52",
+  "evidence_only": true,
+  "evidence_refs": [
+    "packages/adeu_agentic_de/tests/fixtures/v60b/reference_agentic_de_continuation_refresh_decision_record.json",
+    "packages/adeu_agentic_de/tests/fixtures/v61a/reference_agentic_de_communication_ingress_packet.json",
+    "packages/adeu_agentic_de/tests/fixtures/v61a/reference_agentic_de_surface_authority_descriptor.json",
+    "packages/adeu_agentic_de/tests/fixtures/v61a/reference_agentic_de_ingress_interpretation_record.json",
+    "packages/adeu_agentic_de/tests/fixtures/v61a/reference_agentic_de_communication_egress_packet.json",
+    "packages/adeu_agentic_de/tests/fixtures/v63a/reference_agentic_de_remote_operator_session_record.json",
+    "packages/adeu_agentic_de/tests/fixtures/v63a/reference_agentic_de_remote_operator_view_packet.json",
+    "packages/adeu_agentic_de/tests/fixtures/v63b/reference_agentic_de_lane_drift_record.json",
+    "artifacts/agent_harness/v173/evidence_inputs/v63a_remote_operator_starter_evidence_v173.json"
+  ],
+  "field_dependence_tags": {
+    "consumed_control_basis_ref_or_equivalent": [
+      "agentic_de_remote_operator_session_e6df63a40fb4",
+      "agentic_de_remote_operator_view_8dc737242d52",
+      "agentic_de_ingress_interpretation_8a0ac37a6f71"
+    ],
+    "consumed_remote_view_ref_or_equivalent": [
+      "agentic_de_remote_operator_view_8dc737242d52"
+    ],
+    "frozen_policy_anchor_ref": [
+      "docs/LOCKED_CONTINUATION_vNEXT_PLUS174.md#machine-checkable-contract"
+    ],
+    "intervention_basis_summary": [
+      "agentic_de_remote_operator_session_e6df63a40fb4",
+      "agentic_de_remote_operator_view_8dc737242d52",
+      "agentic_de_ingress_interpretation_8a0ac37a6f71",
+      "docs/LOCKED_CONTINUATION_vNEXT_PLUS174.md#machine-checkable-contract"
+    ],
+    "remote_operator_session_ref": [
+      "agentic_de_remote_operator_session_e6df63a40fb4"
+    ],
+    "selected_intervention_kind": [
+      "docs/LOCKED_CONTINUATION_vNEXT_PLUS174.md#machine-checkable-contract"
+    ]
+  },
+  "field_origin_tags": {
+    "consumed_control_basis_ref_or_equivalent": "current_turn_derived",
+    "consumed_remote_view_ref_or_equivalent": "prior_artifact",
+    "frozen_policy_anchor_ref": "shaping_only",
+    "intervention_basis_summary": "current_turn_derived",
+    "remote_operator_session_ref": "prior_artifact",
+    "selected_intervention_kind": "shaping_only"
+  },
+  "frozen_policy_anchor_ref": "docs/LOCKED_CONTINUATION_vNEXT_PLUS174.md#machine-checkable-contract",
+  "intervention_basis_summary": "structured_answer consumes explicit shipped ask/authority-request context only and does not, by itself, mutate charter, residual, continuation, communication, bridge-office, or act-authority law",
+  "reason_codes": [
+    "admitted_remote_session_consumed",
+    "shipped_v63a_view_basis_consumed",
+    "selected_intervention_kind_explicit",
+    "control_basis_explicit",
+    "typed_replayable_bridge_only",
+    "richer_intervention_non_authorizing",
+    "structured_answer_explicit_shipped_context_only",
+    "richer_intervention_non_mutating"
+  ],
+  "remote_operator_control_bridge_id": "agentic_de_remote_operator_control_bridge_7ab75c95886b",
+  "remote_operator_session_ref": "agentic_de_remote_operator_session_e6df63a40fb4",
+  "root_origin_dedup_summary": "remote session, shipped V63-A view basis, and consumed control basis remain non-independent bridge basis; repeated refs do not mint charter, residual, continuation, communication, bridge-office, repo, execute, or dispatch authority",
+  "schema": "agentic_de_remote_operator_control_bridge_packet@1",
+  "selected_intervention_kind": "structured_answer",
+  "target_arc": "vNext+174",
+  "target_path": "V63-B"
+}
