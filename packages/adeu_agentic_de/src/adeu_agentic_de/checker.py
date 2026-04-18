@@ -30,6 +30,7 @@ from .models import (
     AGENTIC_DE_COMMUNICATION_INGRESS_PACKET_SCHEMA,
     AGENTIC_DE_CONFORMANCE_REPORT_SCHEMA,
     AGENTIC_DE_CONNECTOR_ADMISSION_RECORD_SCHEMA,
+    AGENTIC_DE_CONNECTOR_BRIDGE_HARDENING_REGISTER_SCHEMA,
     AGENTIC_DE_CONTINUATION_DECISION_RECORD_SCHEMA,
     AGENTIC_DE_CONTINUATION_HARDENING_REGISTER_SCHEMA,
     AGENTIC_DE_CONTINUATION_REFRESH_DECISION_RECORD_SCHEMA,
@@ -80,6 +81,8 @@ from .models import (
     AgenticDeCommunicationIngressPacket,
     AgenticDeConformanceReport,
     AgenticDeConnectorAdmissionRecord,
+    AgenticDeConnectorBridgeHardeningEntry,
+    AgenticDeConnectorBridgeHardeningRegister,
     AgenticDeContinuationDecisionRecord,
     AgenticDeContinuationHardeningEntry,
     AgenticDeContinuationHardeningRegister,
@@ -231,6 +234,10 @@ V62B_CHECKER_VERSION = "agentic_de_external_assistant_egress_bridge_v62b"
 V62B_TARGET_ARC = "vNext+171"
 V62B_TARGET_PATH = "V62-B"
 V62B_FROZEN_POLICY_REF = "docs/LOCKED_CONTINUATION_vNEXT_PLUS171.md#machine-checkable-contract"
+V62C_CHECKER_VERSION = "agentic_de_connector_bridge_hardening_v62c"
+V62C_TARGET_ARC = "vNext+172"
+V62C_TARGET_PATH = "V62-C"
+V62C_FROZEN_POLICY_REF = "docs/LOCKED_CONTINUATION_vNEXT_PLUS172.md#machine-checkable-contract"
 
 
 def _default_fixture_path(variant: str, filename: str) -> Path:
@@ -530,6 +537,12 @@ DEFAULT_V62B_LANE_DRIFT_PATH = _default_fixture_path(
 DEFAULT_V62B_EXTERNAL_ASSISTANT_EGRESS_BRIDGE_PATH = _default_fixture_path(
     "v62b", "reference_agentic_de_external_assistant_egress_bridge_packet.json"
 )
+DEFAULT_V62C_LANE_DRIFT_PATH = _default_fixture_path(
+    "v62c", "reference_agentic_de_lane_drift_record.json"
+)
+DEFAULT_V62C_CONNECTOR_BRIDGE_HARDENING_PATH = _default_fixture_path(
+    "v62c", "reference_agentic_de_connector_bridge_hardening_register.json"
+)
 DEFAULT_V58C_EVIDENCE_PATH = (
     repo_root(anchor=Path(__file__))
     / "artifacts"
@@ -609,6 +622,14 @@ DEFAULT_V62A_EVIDENCE_PATH = (
     / "v170"
     / "evidence_inputs"
     / "v62a_connector_admission_evidence_v170.json"
+)
+DEFAULT_V62B_EVIDENCE_PATH = (
+    repo_root(anchor=Path(__file__))
+    / "artifacts"
+    / "agent_harness"
+    / "v171"
+    / "evidence_inputs"
+    / "v62b_external_assistant_egress_bridge_evidence_v171.json"
 )
 
 EXPECTED_V56A_EVIDENCE_SCHEMA = "v56a_agentic_de_interaction_governance_starter_evidence@1"
@@ -808,6 +829,17 @@ REQUIRED_V62B_DRIFT_ENTRY_STATUSES: dict[str, str] = {
     "external_assistant_principal_only": "holds",
     "explicit_v61b_basis_consumption_where_selected": "amended",
     "direct_positive_rewitness_basis_summary_required": "amended",
+    "path_level_non_generalization_required": "amended",
+}
+EXPECTED_V62B_EVIDENCE_SCHEMA = "v62b_external_assistant_egress_bridge_evidence@1"
+EXPECTED_V62C_PRIOR_LANE_REF = "docs/LOCKED_CONTINUATION_vNEXT_PLUS171.md"
+REQUIRED_V62C_DRIFT_ENTRY_STATUSES: dict[str, str] = {
+    "v62a_v62b_surface_reuse_default": "holds",
+    "advisory_connector_hardening_only": "amended",
+    "committed_lane_artifacts_outrank_narrative_docs": "amended",
+    "explicit_frozen_policy_anchor_required": "amended",
+    "positive_rewitness_basis_carry_through_fail_closed": "amended",
+    "candidate_outcomes_non_entitling_non_escalating_and_scope_bound": "amended",
     "path_level_non_generalization_required": "amended",
 }
 
@@ -1116,6 +1148,17 @@ def load_governed_communication_hardening_register(
         raise ValueError(
             "unexpected schema marker for governed communication hardening register: "
             f"{payload.schema}"
+        )
+    return payload
+
+
+def load_connector_bridge_hardening_register(
+    path: Path,
+) -> AgenticDeConnectorBridgeHardeningRegister:
+    payload = AgenticDeConnectorBridgeHardeningRegister.model_validate(_read_json_object(path))
+    if payload.schema != AGENTIC_DE_CONNECTOR_BRIDGE_HARDENING_REGISTER_SCHEMA:
+        raise ValueError(
+            f"unexpected schema marker for connector bridge hardening register: {payload.schema}"
         )
     return payload
 
@@ -1581,9 +1624,7 @@ def _assert_v62b_repo_local_input_path(
     field_name: str,
 ) -> None:
     if repo_root_path.exists() and repo_root_path.is_symlink():
-        raise ValueError(
-            "repository root may not be a symlink for V62-B external assistant bridge"
-        )
+        raise ValueError("repository root may not be a symlink for V62-B external assistant bridge")
     try:
         relative = candidate.relative_to(repo_root_path)
     except ValueError as exc:
@@ -1606,6 +1647,37 @@ def _assert_v62b_repo_local_input_path(
         raise ValueError(
             f"{field_name} must remain within the repository root for V62-B external "
             "assistant bridge"
+        ) from exc
+
+
+def _assert_v62c_repo_local_input_path(
+    *,
+    repo_root_path: Path,
+    candidate: Path,
+    field_name: str,
+) -> None:
+    if repo_root_path.exists() and repo_root_path.is_symlink():
+        raise ValueError("repository root may not be a symlink for V62-C connector hardening")
+    try:
+        relative = candidate.relative_to(repo_root_path)
+    except ValueError as exc:
+        raise ValueError(
+            f"{field_name} must be lexically within the repository root for V62-C "
+            "connector hardening"
+        ) from exc
+    current = repo_root_path
+    for part in relative.parts:
+        current = current / part
+        if current.is_symlink():
+            raise ValueError(
+                f"{field_name} may not traverse symlink components for V62-C connector hardening"
+            )
+    candidate_resolved = candidate.resolve(strict=False)
+    try:
+        candidate_resolved.relative_to(repo_root_path)
+    except ValueError as exc:
+        raise ValueError(
+            f"{field_name} must remain within the repository root for V62-C connector hardening"
         ) from exc
 
 
@@ -2228,6 +2300,40 @@ def _validate_v62b_lane_drift_record(record: AgenticDeLaneDriftRecord) -> Agenti
     return record
 
 
+def _validate_v62c_lane_drift_record(record: AgenticDeLaneDriftRecord) -> AgenticDeLaneDriftRecord:
+    if record.target_arc != V62C_TARGET_ARC:
+        raise ValueError(
+            f"V62-C lane drift record must target {V62C_TARGET_ARC!r}, got {record.target_arc!r}"
+        )
+    if record.target_path != V62C_TARGET_PATH:
+        raise ValueError(
+            f"V62-C lane drift record must target {V62C_TARGET_PATH!r}, got {record.target_path!r}"
+        )
+    if record.prior_lane_ref != EXPECTED_V62C_PRIOR_LANE_REF:
+        raise ValueError(
+            "V62-C lane drift record must point at "
+            f"{EXPECTED_V62C_PRIOR_LANE_REF!r}, got {record.prior_lane_ref!r}"
+        )
+    actual_statuses = {entry.assumption_ref: entry.status for entry in record.entries}
+    missing_assumptions = sorted(set(REQUIRED_V62C_DRIFT_ENTRY_STATUSES) - set(actual_statuses))
+    mismatched_statuses = sorted(
+        assumption_ref
+        for assumption_ref, expected_status in REQUIRED_V62C_DRIFT_ENTRY_STATUSES.items()
+        if assumption_ref in actual_statuses and actual_statuses[assumption_ref] != expected_status
+    )
+    if missing_assumptions or mismatched_statuses:
+        detail_parts: list[str] = []
+        if missing_assumptions:
+            detail_parts.append(f"missing={missing_assumptions}")
+        if mismatched_statuses:
+            detail_parts.append(f"status_mismatch={mismatched_statuses}")
+        raise ValueError(
+            "V62-C lane drift record does not satisfy the required handoff posture; "
+            + ", ".join(detail_parts)
+        )
+    return record
+
+
 def _validate_v56a_evidence_payload(payload: dict[str, object]) -> dict[str, object]:
     if payload.get("schema") != EXPECTED_V56A_EVIDENCE_SCHEMA:
         raise ValueError("V56-C requires the shipped V56-A starter evidence payload on main")
@@ -2801,6 +2907,39 @@ def _validate_v62a_evidence_payload(payload: dict[str, object]) -> dict[str, obj
         raise ValueError("V62-A evidence must preserve egress-bridge deferral")
     if payload.get("human_via_connector_selected_for_v62a") is not False:
         raise ValueError("V62-A evidence must preserve human-via-connector deferral")
+    return payload
+
+
+def _validate_v62b_evidence_payload(payload: dict[str, object]) -> dict[str, object]:
+    if payload.get("schema") != EXPECTED_V62B_EVIDENCE_SCHEMA:
+        raise ValueError(
+            "V62-C requires the shipped V62-B external assistant egress bridge evidence "
+            "payload on main"
+        )
+    selected_shapes = payload.get("selected_record_shapes")
+    if not isinstance(selected_shapes, list) or {
+        "agentic_de_external_assistant_egress_bridge_packet@1"
+    } - set(selected_shapes):
+        raise ValueError("V62-B evidence must preserve the shipped egress bridge shape")
+    required_true_fields = (
+        "external_assistant_egress_bridge_must_be_typed_and_replayable",
+        "egress_bridge_consumes_shipped_v62a_basis",
+        "egress_bridge_consumes_shipped_v61a_egress_basis",
+        "egress_bridge_consumes_shipped_v61b_basis_where_selected",
+        "missing_positive_rewitness_basis_fails_closed_in_v62b",
+        "path_level_non_generalization_required_for_v62b",
+    )
+    for field_name in required_true_fields:
+        if payload.get(field_name) is not True:
+            raise ValueError(f"V62-B evidence must preserve {field_name}")
+    if payload.get("selected_connector_provider_for_v62_basis") != "codex_only":
+        raise ValueError("V62-B evidence must preserve the codex connector provider only")
+    if payload.get("selected_connector_principal_for_v62b") != "external_assistant_only":
+        raise ValueError("V62-B evidence must preserve the external_assistant principal only")
+    if payload.get("connector_hardening_selected_for_v62b") is not False:
+        raise ValueError("V62-B evidence must preserve connector-hardening deferral")
+    if payload.get("human_via_connector_selected_for_v62b") is not False:
+        raise ValueError("V62-B evidence must preserve human-via-connector deferral")
     return payload
 
 
@@ -11940,9 +12079,7 @@ def _validate_v61c_v61b_surfaces(
         raise ValueError("V61-C requires the shipped resident_bridge_bound V61-B posture")
     if rewitness_gate.rewitness_outcome != "witness_candidate_promoted":
         raise ValueError("V61-C requires the shipped witness_candidate_promoted V61-B posture")
-    if not (
-        rewitness_gate.witness_basis_ref_or_none or rewitness_gate.certificate_ref_or_none
-    ):
+    if not (rewitness_gate.witness_basis_ref_or_none or rewitness_gate.certificate_ref_or_none):
         raise ValueError(
             "V61-C requires the shipped V61-B rewitness record to carry explicit positive basis"
         )
@@ -12324,9 +12461,7 @@ def _validate_v62a_v61a_surfaces(
         raise ValueError("V62-A requires the shipped V61-A resident session identity")
 
 
-def _extract_v62a_connector_ids(
-    *, items: list[dict[str, object]], field_name: str
-) -> list[str]:
+def _extract_v62a_connector_ids(*, items: list[dict[str, object]], field_name: str) -> list[str]:
     connector_ids: list[str] = []
     for index, item in enumerate(items):
         connector_id = item.get("id")
@@ -12730,9 +12865,7 @@ def _validate_v62b_consumed_surfaces(
     ):
         raise ValueError("V62-B bridge binding must bind the shipped V60-B refresh decision")
     if bridge_binding.selected_bridge_office_posture != "resident_bridge_bound":
-        raise ValueError(
-            "V62-B requires resident_bridge_bound on the shipped V61-B bridge binding"
-        )
+        raise ValueError("V62-B requires resident_bridge_bound on the shipped V61-B bridge binding")
     if rewitness_gate.communication_egress_ref != communication_egress.communication_egress_id:
         raise ValueError("V62-B rewitness gate must bind the shipped V61-A egress packet")
     if (
@@ -12789,9 +12922,7 @@ def _build_v62b_external_assistant_egress_bridge_packet(
             communication_egress.communication_egress_id,
         ],
         "consumed_rewitness_basis_summary_or_none": [rewitness_gate.message_rewitness_gate_id],
-        "latest_continuation_basis_selection_summary": [
-            bridge_binding.bridge_office_binding_id
-        ],
+        "latest_continuation_basis_selection_summary": [bridge_binding.bridge_office_binding_id],
         "frozen_policy_anchor_ref": [V62B_FROZEN_POLICY_REF],
         "bridge_basis_summary": [
             connector_admission.connector_admission_id,
@@ -12874,9 +13005,7 @@ def run_agentic_de_external_assistant_egress_bridge_v62b(
 ) -> AgenticDeExternalAssistantEgressBridgePacket:
     raw_root = repo_root(anchor=Path(__file__)) if repo_root_path is None else repo_root_path
     if raw_root.exists() and raw_root.is_symlink():
-        raise ValueError(
-            "repository root may not be a symlink for V62-B external assistant bridge"
-        )
+        raise ValueError("repository root may not be a symlink for V62-B external assistant bridge")
     root = raw_root.resolve()
 
     path_args = {
@@ -12967,6 +13096,476 @@ def run_agentic_de_external_assistant_egress_bridge_v62b(
         communication_egress=v61a_communication_egress,
         bridge_binding=v61b_bridge_binding,
         rewitness_gate=v61b_rewitness_gate,
+        evidence_refs=evidence_refs,
+    )
+
+
+def _validate_v62c_consumed_surfaces(
+    *,
+    continuation_refresh_decision: AgenticDeContinuationRefreshDecisionRecord,
+    connector_admission: AgenticDeConnectorAdmissionRecord,
+    ingress_bridge: AgenticDeExternalAssistantIngressBridgePacket,
+    egress_bridge: AgenticDeExternalAssistantEgressBridgePacket,
+    communication_egress: AgenticDeCommunicationEgressPacket,
+    bridge_binding: AgenticDeBridgeOfficeBindingRecord,
+    rewitness_gate: AgenticDeMessageRewitnessGateRecord,
+    governed_hardening: AgenticDeGovernedCommunicationHardeningRegister,
+    target_relative_path: str,
+) -> None:
+    expected_path = _expected_v60a_selected_downstream_path_summary(target_relative_path)
+    if continuation_refresh_decision.selected_next_path_summary_or_none != expected_path:
+        raise ValueError("V62-C requires the shipped exact downstream V60 selected path")
+    if (
+        connector_admission.target_arc != V62A_TARGET_ARC
+        or connector_admission.target_path != V62A_TARGET_PATH
+    ):
+        raise ValueError("V62-C requires the shipped V62-A connector admission surface")
+    if (
+        ingress_bridge.target_arc != V62A_TARGET_ARC
+        or ingress_bridge.target_path != V62A_TARGET_PATH
+    ):
+        raise ValueError("V62-C requires the shipped V62-A ingress bridge surface")
+    if egress_bridge.target_arc != V62B_TARGET_ARC or egress_bridge.target_path != V62B_TARGET_PATH:
+        raise ValueError("V62-C requires the shipped V62-B egress bridge surface")
+    if (
+        communication_egress.target_arc != V61A_TARGET_ARC
+        or communication_egress.target_path != V61A_TARGET_PATH
+    ):
+        raise ValueError("V62-C requires the shipped V61-A communication egress surface")
+    if (
+        bridge_binding.target_arc != V61B_TARGET_ARC
+        or bridge_binding.target_path != V61B_TARGET_PATH
+    ):
+        raise ValueError("V62-C requires the shipped V61-B bridge binding surface")
+    if (
+        rewitness_gate.target_arc != V61B_TARGET_ARC
+        or rewitness_gate.target_path != V61B_TARGET_PATH
+    ):
+        raise ValueError("V62-C requires the shipped V61-B rewitness gate surface")
+    if (
+        governed_hardening.target_arc != V61C_TARGET_ARC
+        or governed_hardening.target_path != V61C_TARGET_PATH
+    ):
+        raise ValueError("V62-C requires the shipped V61-C governed hardening surface")
+    if connector_admission.frozen_policy_anchor_ref != V62A_FROZEN_POLICY_REF:
+        raise ValueError("V62-C requires the shipped V62-A connector admission policy anchor")
+    if ingress_bridge.frozen_policy_anchor_ref != V62A_FROZEN_POLICY_REF:
+        raise ValueError("V62-C requires the shipped V62-A ingress bridge policy anchor")
+    if egress_bridge.frozen_policy_anchor_ref != V62B_FROZEN_POLICY_REF:
+        raise ValueError("V62-C requires the shipped V62-B egress bridge policy anchor")
+    if bridge_binding.frozen_policy_anchor_ref != V61B_FROZEN_POLICY_REF:
+        raise ValueError("V62-C requires the shipped V61-B bridge binding policy anchor")
+    if rewitness_gate.frozen_policy_anchor_ref != V61B_FROZEN_POLICY_REF:
+        raise ValueError("V62-C requires the shipped V61-B rewitness gate policy anchor")
+    if governed_hardening.entry_count != 1 or len(governed_hardening.entries) != 1:
+        raise ValueError("V62-C requires the shipped V61-C single-entry advisory register")
+    if governed_hardening.explicit_frozen_policy_anchor_required is not True:
+        raise ValueError("V62-C requires the shipped V61-C explicit frozen-policy anchor")
+    if governed_hardening.committed_lane_artifacts_outrank_narrative_docs is not True:
+        raise ValueError("V62-C requires the shipped V61-C committed-artifact precedence")
+    governed_entry = governed_hardening.entries[0]
+    if governed_entry.frozen_policy_ref != V61C_FROZEN_POLICY_REF:
+        raise ValueError("V62-C requires the shipped V61-C advisory policy anchor")
+    if governed_entry.recommended_outcome != "candidate_for_later_communication_hardening":
+        raise ValueError(
+            "V62-C requires the shipped V61-C communication-hardening candidate posture"
+        )
+    if connector_admission.connector_provider_class != V62A_SELECTED_CONNECTOR_PROVIDER:
+        raise ValueError("V62-C requires the shipped V62-A codex connector provider")
+    if connector_admission.admission_verdict != "admitted":
+        raise ValueError("V62-C requires the shipped V62-A admitted connector verdict")
+    if connector_admission.selected_connector_principal_class != V62A_SELECTED_CONNECTOR_PRINCIPAL:
+        raise ValueError("V62-C requires the shipped V62-A external_assistant principal only")
+    if ingress_bridge.connector_admission_ref != connector_admission.connector_admission_id:
+        raise ValueError("V62-C ingress bridge must bind the shipped V62-A connector admission")
+    if egress_bridge.connector_admission_ref != connector_admission.connector_admission_id:
+        raise ValueError("V62-C egress bridge must bind the shipped V62-A connector admission")
+    if egress_bridge.ingress_bridge_packet_ref != ingress_bridge.ingress_bridge_packet_id:
+        raise ValueError("V62-C egress bridge must bind the shipped V62-A ingress bridge")
+    if (
+        egress_bridge.consumed_communication_egress_ref
+        != communication_egress.communication_egress_id
+    ):
+        raise ValueError("V62-C egress bridge must bind the shipped V61-A egress packet")
+    if (
+        egress_bridge.consumed_bridge_office_binding_ref_or_none
+        != bridge_binding.bridge_office_binding_id
+    ):
+        raise ValueError("V62-C egress bridge must bind the shipped V61-B bridge binding")
+    if (
+        egress_bridge.consumed_message_rewitness_gate_ref_or_none
+        != rewitness_gate.message_rewitness_gate_id
+    ):
+        raise ValueError("V62-C egress bridge must bind the shipped V61-B rewitness gate")
+    if (
+        egress_bridge.latest_continuation_basis_ref_or_equivalent
+        != continuation_refresh_decision.refresh_decision_id
+    ):
+        raise ValueError("V62-C requires the shipped V62-B continuation basis selection")
+    if (
+        egress_bridge.latest_continuation_basis_selection_summary
+        != bridge_binding.latest_continuation_basis_selection_summary
+    ):
+        raise ValueError("V62-C requires the shipped V62-B continuation selection summary")
+    if communication_egress.communication_egress_id != governed_entry.communication_egress_ref:
+        raise ValueError("V62-C requires the shipped V61-C egress lineage")
+    if bridge_binding.bridge_office_binding_id != governed_entry.bridge_office_binding_ref:
+        raise ValueError("V62-C requires the shipped V61-C bridge binding lineage")
+    if rewitness_gate.message_rewitness_gate_id != governed_entry.message_rewitness_gate_ref:
+        raise ValueError("V62-C requires the shipped V61-C rewitness lineage")
+    if (
+        ingress_bridge.consumed_ingress_interpretation_ref
+        != governed_entry.ingress_interpretation_ref
+    ):
+        raise ValueError("V62-C requires the shipped V61-C interpretation lineage")
+    if (
+        continuation_refresh_decision.refresh_decision_id
+        != governed_entry.latest_continuation_basis_ref
+    ):
+        raise ValueError("V62-C requires the shipped V61-C continuation basis")
+    if (
+        bridge_binding.latest_continuation_basis_selection_summary
+        != governed_entry.latest_continuation_basis_selection_summary
+    ):
+        raise ValueError("V62-C requires the shipped V61-C continuation selection summary")
+    if (
+        bridge_binding.selected_bridge_office_posture
+        != governed_entry.selected_bridge_office_posture
+    ):
+        raise ValueError("V62-C requires the shipped V61-C bridge-office posture")
+    if rewitness_gate.rewitness_outcome != governed_entry.rewitness_outcome:
+        raise ValueError("V62-C requires the shipped V61-C rewitness posture")
+    if (
+        rewitness_gate.witness_basis_ref_or_none
+        != governed_entry.positive_rewitness_witness_basis_ref_or_none
+    ):
+        raise ValueError(
+            "V62-C requires the shipped V61-C positive rewitness witness-basis carry-through"
+        )
+    if (
+        rewitness_gate.certificate_ref_or_none
+        != governed_entry.positive_rewitness_certificate_ref_or_none
+    ):
+        raise ValueError(
+            "V62-C requires the shipped V61-C positive rewitness certificate carry-through"
+        )
+
+
+def _build_v62c_connector_bridge_hardening_register(
+    *,
+    continuation_refresh_decision: AgenticDeContinuationRefreshDecisionRecord,
+    connector_admission: AgenticDeConnectorAdmissionRecord,
+    ingress_bridge: AgenticDeExternalAssistantIngressBridgePacket,
+    egress_bridge: AgenticDeExternalAssistantEgressBridgePacket,
+    communication_egress: AgenticDeCommunicationEgressPacket,
+    bridge_binding: AgenticDeBridgeOfficeBindingRecord,
+    rewitness_gate: AgenticDeMessageRewitnessGateRecord,
+    governed_hardening: AgenticDeGovernedCommunicationHardeningRegister,
+    evidence_refs: list[str],
+) -> AgenticDeConnectorBridgeHardeningRegister:
+    root_origin_ids = [
+        f"connector:{connector_admission.connector_admission_id}",
+        f"ingress_bridge:{ingress_bridge.ingress_bridge_packet_id}",
+        f"egress_bridge:{egress_bridge.egress_bridge_packet_id}",
+        f"communication_egress:{communication_egress.communication_egress_id}",
+        f"bridge:{bridge_binding.bridge_office_binding_id}",
+        f"rewitness:{rewitness_gate.message_rewitness_gate_id}",
+        f"communication_hardening:{governed_hardening.register_id}",
+        f"continuation:{continuation_refresh_decision.refresh_decision_id}",
+        f"policy:{V62C_FROZEN_POLICY_REF}",
+    ]
+    field_origin_tags = {
+        "connector_provider_class": "prior_artifact",
+        "selected_connector_principal_class": "prior_artifact",
+        "admission_verdict": "prior_artifact",
+        "latest_continuation_basis_selection_summary": "prior_artifact",
+        "selected_bridge_office_posture_or_none": "prior_artifact",
+        "selected_rewitness_outcome_or_none": "prior_artifact",
+        "positive_rewitness_witness_basis_ref_or_none": "prior_artifact",
+        "positive_rewitness_certificate_ref_or_none": "prior_artifact",
+        "frozen_policy_ref": "shaping_only",
+        "evidence_basis_summary": "current_turn_derived",
+        "verdict_basis_summary": "current_turn_derived",
+        "recommended_outcome": "current_turn_derived",
+    }
+    field_dependence_tags = {
+        "connector_provider_class": [connector_admission.connector_admission_id],
+        "selected_connector_principal_class": [connector_admission.connector_admission_id],
+        "admission_verdict": [connector_admission.connector_admission_id],
+        "latest_continuation_basis_selection_summary": [
+            egress_bridge.egress_bridge_packet_id,
+            bridge_binding.bridge_office_binding_id,
+            governed_hardening.register_id,
+        ],
+        "selected_bridge_office_posture_or_none": [
+            bridge_binding.bridge_office_binding_id,
+            governed_hardening.register_id,
+        ],
+        "selected_rewitness_outcome_or_none": [
+            rewitness_gate.message_rewitness_gate_id,
+            governed_hardening.register_id,
+        ],
+        "positive_rewitness_witness_basis_ref_or_none": [
+            rewitness_gate.message_rewitness_gate_id,
+            governed_hardening.register_id,
+        ],
+        "positive_rewitness_certificate_ref_or_none": [
+            rewitness_gate.message_rewitness_gate_id,
+            governed_hardening.register_id,
+        ],
+        "frozen_policy_ref": [],
+        "evidence_basis_summary": [
+            connector_admission.connector_admission_id,
+            ingress_bridge.ingress_bridge_packet_id,
+            egress_bridge.egress_bridge_packet_id,
+            communication_egress.communication_egress_id,
+            bridge_binding.bridge_office_binding_id,
+            rewitness_gate.message_rewitness_gate_id,
+            governed_hardening.register_id,
+            continuation_refresh_decision.refresh_decision_id,
+            V62C_FROZEN_POLICY_REF,
+        ],
+        "verdict_basis_summary": [
+            connector_admission.connector_admission_id,
+            egress_bridge.egress_bridge_packet_id,
+            governed_hardening.register_id,
+            continuation_refresh_decision.refresh_decision_id,
+            *root_origin_ids,
+        ],
+        "recommended_outcome": [
+            connector_admission.connector_admission_id,
+            egress_bridge.egress_bridge_packet_id,
+            governed_hardening.register_id,
+            V62C_FROZEN_POLICY_REF,
+        ],
+    }
+    entry = AgenticDeConnectorBridgeHardeningEntry(
+        connector_admission_ref=connector_admission.connector_admission_id,
+        ingress_bridge_packet_ref=ingress_bridge.ingress_bridge_packet_id,
+        egress_bridge_packet_ref=egress_bridge.egress_bridge_packet_id,
+        communication_egress_ref=communication_egress.communication_egress_id,
+        bridge_office_binding_ref_or_none=bridge_binding.bridge_office_binding_id,
+        message_rewitness_gate_ref_or_none=rewitness_gate.message_rewitness_gate_id,
+        selected_bridge_office_posture_or_none=bridge_binding.selected_bridge_office_posture,
+        selected_rewitness_outcome_or_none=rewitness_gate.rewitness_outcome,
+        positive_rewitness_witness_basis_ref_or_none=rewitness_gate.witness_basis_ref_or_none,
+        positive_rewitness_certificate_ref_or_none=rewitness_gate.certificate_ref_or_none,
+        governed_communication_hardening_ref=governed_hardening.register_id,
+        connector_provider_class=connector_admission.connector_provider_class,
+        selected_connector_principal_class=connector_admission.selected_connector_principal_class,
+        admission_verdict=connector_admission.admission_verdict,
+        latest_continuation_basis_ref_or_equivalent=(
+            continuation_refresh_decision.refresh_decision_id
+        ),
+        latest_continuation_basis_selection_summary=(
+            bridge_binding.latest_continuation_basis_selection_summary
+        ),
+        selected_hardening_target_surface=(
+            "shipped_v62a_v62b_external_assistant_connector_lineage_over_continuity_bound_"
+            "create_new_exemplar_only"
+        ),
+        frozen_policy_ref=V62C_FROZEN_POLICY_REF,
+        evidence_basis_summary=(
+            "shipped V62-A connector admission and ingress bridge plus shipped V62-B "
+            "external-assistant egress bridge, shipped V61-A communication egress, "
+            "shipped V61-B bridge-office binding and rewitness, and shipped V61-C "
+            "advisory hardening over the same exact continuity-bound create_new "
+            "exemplar with explicit positive rewitness basis carry-through"
+        ),
+        verdict_basis_summary=(
+            "the exact admitted codex connector path remained preserved, V62-B kept the "
+            "same outbound bridge lineage, V61-B posture remained resident_bridge_bound "
+            "and witness_candidate_promoted with explicit positive basis carry-through, "
+            "V61-C advisory hardening remained replayable over the same lineage, and one "
+            "frozen V62-C policy anchor preserved explicit provenance and non-independence "
+            "dedup without minting live connector authority"
+        ),
+        field_origin_tags=field_origin_tags,
+        field_dependence_tags=field_dependence_tags,
+        root_origin_ids=root_origin_ids,
+        root_origin_dedup_summary=(
+            "dedup roots="
+            + ",".join(root_origin_ids)
+            + "; repeated connector admission, bridge, rewitness, and advisory lineage "
+            "artifacts remain non-independent connector-hardening support"
+        ),
+        recommended_outcome="candidate_for_later_connector_hardening",
+        rationale=(
+            "the exact shipped V62-A/V62-B connector lineage now carries typed admission, "
+            "replayable ingress and egress bridge basis, explicit V61-B bridge-office and "
+            "positive rewitness posture, and a shipped V61-C advisory hardening register "
+            "over the same lineage, so it is a valid later path-level connector hardening "
+            "candidate, but any broader connector migration, fleet law, human-via-connector, "
+            "remote-operator, repo, execute, or dispatch scope still requires a later "
+            "explicit lock"
+        ),
+        reason_codes=[
+            "admitted_connector_basis_consumed",
+            "shipped_v62a_ingress_bridge_consumed",
+            "shipped_v62b_egress_bridge_consumed",
+            "shipped_v61a_communication_egress_consumed",
+            "explicit_v61b_bridge_office_binding_consumed",
+            "explicit_positive_rewitness_basis_carried",
+            "shipped_v61c_advisory_hardening_consumed",
+            "committed_artifacts_outrank_narrative_docs",
+            "path_level_only",
+            "extensional_replayable_policy",
+            "lineage_root_dedup_applied",
+            "candidate_non_entitling_and_non_escalating",
+            "later_lock_required_for_scope",
+            "no_live_mutation_in_v62c",
+            "non_generalizing_by_default",
+        ],
+        evidence_refs=evidence_refs,
+    )
+    return AgenticDeConnectorBridgeHardeningRegister(
+        target_arc=V62C_TARGET_ARC,
+        target_path=V62C_TARGET_PATH,
+        baseline_checker_version=V62C_CHECKER_VERSION,
+        entry_count=1,
+        entries=[entry],
+    )
+
+
+def run_agentic_de_connector_bridge_hardening_v62c(
+    *,
+    repo_root_path: Path | None = None,
+    v60b_continuation_refresh_decision_path: Path = DEFAULT_V60B_CONTINUATION_REFRESH_DECISION_PATH,
+    v61a_communication_egress_path: Path = DEFAULT_V61A_COMMUNICATION_EGRESS_PATH,
+    v61b_bridge_office_binding_path: Path = DEFAULT_V61B_BRIDGE_OFFICE_BINDING_PATH,
+    v61b_message_rewitness_gate_path: Path = DEFAULT_V61B_MESSAGE_REWITNESS_GATE_PATH,
+    v61c_governed_communication_hardening_path: Path = DEFAULT_V61C_HARDENING_PATH,
+    v62a_connector_admission_path: Path = DEFAULT_V62A_CONNECTOR_ADMISSION_PATH,
+    v62a_external_assistant_ingress_bridge_path: Path = (
+        DEFAULT_V62A_EXTERNAL_ASSISTANT_INGRESS_BRIDGE_PATH
+    ),
+    v62b_external_assistant_egress_bridge_path: Path = (
+        DEFAULT_V62B_EXTERNAL_ASSISTANT_EGRESS_BRIDGE_PATH
+    ),
+    lane_drift_path: Path = DEFAULT_V62C_LANE_DRIFT_PATH,
+    v62a_evidence_path: Path = DEFAULT_V62A_EVIDENCE_PATH,
+    v62b_evidence_path: Path = DEFAULT_V62B_EVIDENCE_PATH,
+    target_relative_path: str = str(DEFAULT_WORKSPACE_CONTINUITY_TARGET_RELATIVE_PATH),
+) -> AgenticDeConnectorBridgeHardeningRegister:
+    raw_root = repo_root(anchor=Path(__file__)) if repo_root_path is None else repo_root_path
+    if raw_root.exists() and raw_root.is_symlink():
+        raise ValueError("repository root may not be a symlink for V62-C connector hardening")
+    root = raw_root.resolve()
+
+    path_args = {
+        "v60b_continuation_refresh_decision_path": v60b_continuation_refresh_decision_path,
+        "v61a_communication_egress_path": v61a_communication_egress_path,
+        "v61b_bridge_office_binding_path": v61b_bridge_office_binding_path,
+        "v61b_message_rewitness_gate_path": v61b_message_rewitness_gate_path,
+        "v61c_governed_communication_hardening_path": v61c_governed_communication_hardening_path,
+        "v62a_connector_admission_path": v62a_connector_admission_path,
+        "v62a_external_assistant_ingress_bridge_path": v62a_external_assistant_ingress_bridge_path,
+        "v62b_external_assistant_egress_bridge_path": v62b_external_assistant_egress_bridge_path,
+        "lane_drift_path": lane_drift_path,
+        "v62a_evidence_path": v62a_evidence_path,
+        "v62b_evidence_path": v62b_evidence_path,
+    }
+    resolved_paths: dict[str, Path] = {}
+    for field_name, path in path_args.items():
+        candidate = _resolve_path(repo_root_path=root, path=path)
+        _assert_v62c_repo_local_input_path(
+            repo_root_path=root,
+            candidate=candidate,
+            field_name=field_name,
+        )
+        resolved_paths[field_name] = candidate
+
+    _validate_v62c_lane_drift_record(load_lane_drift_record(resolved_paths["lane_drift_path"]))
+    _validate_v62a_evidence_payload(
+        _load_json_object(resolved_paths["v62a_evidence_path"], error_label="V62-A evidence")
+    )
+    _validate_v62b_evidence_payload(
+        _load_json_object(resolved_paths["v62b_evidence_path"], error_label="V62-B evidence")
+    )
+
+    v60b_continuation_refresh_decision = load_continuation_refresh_decision_record(
+        resolved_paths["v60b_continuation_refresh_decision_path"]
+    )
+    v61a_communication_egress = load_communication_egress_packet(
+        resolved_paths["v61a_communication_egress_path"]
+    )
+    v61b_bridge_binding = load_bridge_office_binding_record(
+        resolved_paths["v61b_bridge_office_binding_path"]
+    )
+    v61b_rewitness_gate = load_message_rewitness_gate_record(
+        resolved_paths["v61b_message_rewitness_gate_path"]
+    )
+    v61c_governed_hardening = load_governed_communication_hardening_register(
+        resolved_paths["v61c_governed_communication_hardening_path"]
+    )
+    v62a_connector_admission = load_connector_admission_record(
+        resolved_paths["v62a_connector_admission_path"]
+    )
+    v62a_ingress_bridge = load_external_assistant_ingress_bridge_packet(
+        resolved_paths["v62a_external_assistant_ingress_bridge_path"]
+    )
+    v62b_egress_bridge = load_external_assistant_egress_bridge_packet(
+        resolved_paths["v62b_external_assistant_egress_bridge_path"]
+    )
+
+    _validate_v62c_consumed_surfaces(
+        continuation_refresh_decision=v60b_continuation_refresh_decision,
+        connector_admission=v62a_connector_admission,
+        ingress_bridge=v62a_ingress_bridge,
+        egress_bridge=v62b_egress_bridge,
+        communication_egress=v61a_communication_egress,
+        bridge_binding=v61b_bridge_binding,
+        rewitness_gate=v61b_rewitness_gate,
+        governed_hardening=v61c_governed_hardening,
+        target_relative_path=target_relative_path,
+    )
+
+    evidence_refs = [
+        _render_input_ref(
+            repo_root_path=root,
+            path=resolved_paths["v60b_continuation_refresh_decision_path"],
+        ),
+        _render_input_ref(
+            repo_root_path=root,
+            path=resolved_paths["v61a_communication_egress_path"],
+        ),
+        _render_input_ref(
+            repo_root_path=root,
+            path=resolved_paths["v61b_bridge_office_binding_path"],
+        ),
+        _render_input_ref(
+            repo_root_path=root,
+            path=resolved_paths["v61b_message_rewitness_gate_path"],
+        ),
+        _render_input_ref(
+            repo_root_path=root,
+            path=resolved_paths["v61c_governed_communication_hardening_path"],
+        ),
+        _render_input_ref(
+            repo_root_path=root,
+            path=resolved_paths["v62a_connector_admission_path"],
+        ),
+        _render_input_ref(
+            repo_root_path=root,
+            path=resolved_paths["v62a_external_assistant_ingress_bridge_path"],
+        ),
+        _render_input_ref(
+            repo_root_path=root,
+            path=resolved_paths["v62b_external_assistant_egress_bridge_path"],
+        ),
+        _render_input_ref(repo_root_path=root, path=resolved_paths["lane_drift_path"]),
+        _render_input_ref(repo_root_path=root, path=resolved_paths["v62a_evidence_path"]),
+        _render_input_ref(repo_root_path=root, path=resolved_paths["v62b_evidence_path"]),
+    ]
+    return _build_v62c_connector_bridge_hardening_register(
+        continuation_refresh_decision=v60b_continuation_refresh_decision,
+        connector_admission=v62a_connector_admission,
+        ingress_bridge=v62a_ingress_bridge,
+        egress_bridge=v62b_egress_bridge,
+        communication_egress=v61a_communication_egress,
+        bridge_binding=v61b_bridge_binding,
+        rewitness_gate=v61b_rewitness_gate,
+        governed_hardening=v61c_governed_hardening,
         evidence_refs=evidence_refs,
     )
 
@@ -13111,6 +13710,12 @@ def render_external_assistant_egress_bridge_payload(
 
 def render_governed_communication_hardening_payload(
     register: AgenticDeGovernedCommunicationHardeningRegister,
+) -> str:
+    return json.dumps(register.model_dump(mode="json"), indent=2, sort_keys=True) + "\n"
+
+
+def render_connector_bridge_hardening_payload(
+    register: AgenticDeConnectorBridgeHardeningRegister,
 ) -> str:
     return json.dumps(register.model_dump(mode="json"), indent=2, sort_keys=True) + "\n"
 

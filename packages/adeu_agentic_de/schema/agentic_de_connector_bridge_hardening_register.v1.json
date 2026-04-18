@@ -1,0 +1,404 @@
+{
+  "$defs": {
+    "AgenticDeConnectorBridgeHardeningEntry": {
+      "additionalProperties": false,
+      "properties": {
+        "admission_verdict": {
+          "enum": [
+            "admitted",
+            "rejected",
+            "stale_basis",
+            "unknown_basis",
+            "withheld_by_policy"
+          ],
+          "title": "Admission Verdict",
+          "type": "string"
+        },
+        "bridge_office_binding_ref_or_none": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Bridge Office Binding Ref Or None"
+        },
+        "communication_egress_ref": {
+          "title": "Communication Egress Ref",
+          "type": "string"
+        },
+        "connector_admission_ref": {
+          "title": "Connector Admission Ref",
+          "type": "string"
+        },
+        "connector_provider_class": {
+          "const": "codex",
+          "title": "Connector Provider Class",
+          "type": "string"
+        },
+        "egress_bridge_packet_ref": {
+          "title": "Egress Bridge Packet Ref",
+          "type": "string"
+        },
+        "evidence_basis_summary": {
+          "title": "Evidence Basis Summary",
+          "type": "string"
+        },
+        "evidence_refs": {
+          "items": {
+            "type": "string"
+          },
+          "title": "Evidence Refs",
+          "type": "array"
+        },
+        "extensional_and_replayable_by_default": {
+          "const": true,
+          "default": true,
+          "title": "Extensional And Replayable By Default",
+          "type": "boolean"
+        },
+        "field_dependence_tags": {
+          "additionalProperties": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array"
+          },
+          "title": "Field Dependence Tags",
+          "type": "object"
+        },
+        "field_origin_tags": {
+          "additionalProperties": {
+            "enum": [
+              "current_turn_native",
+              "current_turn_derived",
+              "observability_only",
+              "prior_artifact",
+              "shaping_only"
+            ],
+            "type": "string"
+          },
+          "title": "Field Origin Tags",
+          "type": "object"
+        },
+        "frozen_policy_ref": {
+          "title": "Frozen Policy Ref",
+          "type": "string"
+        },
+        "governed_communication_hardening_ref": {
+          "title": "Governed Communication Hardening Ref",
+          "type": "string"
+        },
+        "hardening_id": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Hardening Id"
+        },
+        "ingress_bridge_packet_ref": {
+          "title": "Ingress Bridge Packet Ref",
+          "type": "string"
+        },
+        "latest_continuation_basis_ref_or_equivalent": {
+          "title": "Latest Continuation Basis Ref Or Equivalent",
+          "type": "string"
+        },
+        "latest_continuation_basis_selection_summary": {
+          "title": "Latest Continuation Basis Selection Summary",
+          "type": "string"
+        },
+        "lineage_root_dedup_applied": {
+          "const": true,
+          "default": true,
+          "title": "Lineage Root Dedup Applied",
+          "type": "boolean"
+        },
+        "message_rewitness_gate_ref_or_none": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Message Rewitness Gate Ref Or None"
+        },
+        "positive_rewitness_certificate_ref_or_none": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Positive Rewitness Certificate Ref Or None"
+        },
+        "positive_rewitness_witness_basis_ref_or_none": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Positive Rewitness Witness Basis Ref Or None"
+        },
+        "rationale": {
+          "title": "Rationale",
+          "type": "string"
+        },
+        "reason_codes": {
+          "items": {
+            "type": "string"
+          },
+          "title": "Reason Codes",
+          "type": "array"
+        },
+        "recommendation_scope_requires_later_lock": {
+          "const": true,
+          "default": true,
+          "title": "Recommendation Scope Requires Later Lock",
+          "type": "boolean"
+        },
+        "recommended_outcome": {
+          "enum": [
+            "keep_warning_only",
+            "needs_more_evidence",
+            "candidate_for_later_connector_hardening",
+            "candidate_for_later_connector_migration",
+            "not_selected_for_escalation"
+          ],
+          "title": "Recommended Outcome",
+          "type": "string"
+        },
+        "root_origin_dedup_summary": {
+          "title": "Root Origin Dedup Summary",
+          "type": "string"
+        },
+        "root_origin_ids": {
+          "items": {
+            "type": "string"
+          },
+          "title": "Root Origin Ids",
+          "type": "array"
+        },
+        "selected_bridge_office_posture_or_none": {
+          "anyOf": [
+            {
+              "enum": [
+                "resident_bridge_bound",
+                "resident_bridge_not_bound",
+                "resident_bridge_withheld_by_policy",
+                "resident_bridge_escalate_for_review"
+              ],
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Selected Bridge Office Posture Or None"
+        },
+        "selected_connector_principal_class": {
+          "const": "external_assistant",
+          "title": "Selected Connector Principal Class",
+          "type": "string"
+        },
+        "selected_hardening_target_surface": {
+          "title": "Selected Hardening Target Surface",
+          "type": "string"
+        },
+        "selected_rewitness_outcome_or_none": {
+          "anyOf": [
+            {
+              "enum": [
+                "remain_communication_only",
+                "witness_candidate_promoted",
+                "withheld_by_policy",
+                "blocked_ambiguous_lineage",
+                "escalate_for_review"
+              ],
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Selected Rewitness Outcome Or None"
+        },
+        "verdict_basis_summary": {
+          "title": "Verdict Basis Summary",
+          "type": "string"
+        }
+      },
+      "required": [
+        "connector_admission_ref",
+        "ingress_bridge_packet_ref",
+        "egress_bridge_packet_ref",
+        "communication_egress_ref",
+        "governed_communication_hardening_ref",
+        "connector_provider_class",
+        "selected_connector_principal_class",
+        "admission_verdict",
+        "latest_continuation_basis_ref_or_equivalent",
+        "latest_continuation_basis_selection_summary",
+        "selected_hardening_target_surface",
+        "frozen_policy_ref",
+        "evidence_basis_summary",
+        "verdict_basis_summary",
+        "field_origin_tags",
+        "field_dependence_tags",
+        "root_origin_ids",
+        "root_origin_dedup_summary",
+        "recommended_outcome",
+        "rationale",
+        "reason_codes",
+        "evidence_refs"
+      ],
+      "title": "AgenticDeConnectorBridgeHardeningEntry",
+      "type": "object"
+    }
+  },
+  "additionalProperties": false,
+  "properties": {
+    "advisory_only": {
+      "const": true,
+      "default": true,
+      "title": "Advisory Only",
+      "type": "boolean"
+    },
+    "baseline_checker_version": {
+      "title": "Baseline Checker Version",
+      "type": "string"
+    },
+    "candidate_only": {
+      "const": true,
+      "default": true,
+      "title": "Candidate Only",
+      "type": "boolean"
+    },
+    "changes_live_behavior_by_default": {
+      "const": false,
+      "default": false,
+      "title": "Changes Live Behavior By Default",
+      "type": "boolean"
+    },
+    "committed_lane_artifacts_outrank_narrative_docs": {
+      "const": true,
+      "default": true,
+      "title": "Committed Lane Artifacts Outrank Narrative Docs",
+      "type": "boolean"
+    },
+    "entries": {
+      "items": {
+        "$ref": "#/$defs/AgenticDeConnectorBridgeHardeningEntry"
+      },
+      "title": "Entries",
+      "type": "array"
+    },
+    "entry_count": {
+      "title": "Entry Count",
+      "type": "integer"
+    },
+    "evidence_basis_distinct_from_recommendation": {
+      "const": true,
+      "default": true,
+      "title": "Evidence Basis Distinct From Recommendation",
+      "type": "boolean"
+    },
+    "exemplar_evidence_non_generalizing_by_default": {
+      "const": true,
+      "default": true,
+      "title": "Exemplar Evidence Non Generalizing By Default",
+      "type": "boolean"
+    },
+    "explicit_frozen_policy_anchor_required": {
+      "const": true,
+      "default": true,
+      "title": "Explicit Frozen Policy Anchor Required",
+      "type": "boolean"
+    },
+    "keep_warning_only_retains_current_advisory_posture_only": {
+      "const": true,
+      "default": true,
+      "title": "Keep Warning Only Retains Current Advisory Posture Only",
+      "type": "boolean"
+    },
+    "lineage_root_non_independence_dedup_applied": {
+      "const": true,
+      "default": true,
+      "title": "Lineage Root Non Independence Dedup Applied",
+      "type": "boolean"
+    },
+    "path_level_only": {
+      "const": true,
+      "default": true,
+      "title": "Path Level Only",
+      "type": "boolean"
+    },
+    "positive_rewitness_carry_through_fails_closed": {
+      "const": true,
+      "default": true,
+      "title": "Positive Rewitness Carry Through Fails Closed",
+      "type": "boolean"
+    },
+    "recommendation_function_extensional_and_replayable": {
+      "const": true,
+      "default": true,
+      "title": "Recommendation Function Extensional And Replayable",
+      "type": "boolean"
+    },
+    "register_id": {
+      "anyOf": [
+        {
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Register Id"
+    },
+    "schema": {
+      "const": "agentic_de_connector_bridge_hardening_register@1",
+      "default": "agentic_de_connector_bridge_hardening_register@1",
+      "title": "Schema",
+      "type": "string"
+    },
+    "target_arc": {
+      "title": "Target Arc",
+      "type": "string"
+    },
+    "target_path": {
+      "title": "Target Path",
+      "type": "string"
+    }
+  },
+  "required": [
+    "target_arc",
+    "target_path",
+    "baseline_checker_version",
+    "entry_count",
+    "entries"
+  ],
+  "title": "AgenticDeConnectorBridgeHardeningRegister",
+  "type": "object"
+}

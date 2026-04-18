@@ -1,0 +1,171 @@
+{
+  "advisory_only": true,
+  "baseline_checker_version": "agentic_de_connector_bridge_hardening_v62c",
+  "candidate_only": true,
+  "changes_live_behavior_by_default": false,
+  "committed_lane_artifacts_outrank_narrative_docs": true,
+  "entries": [
+    {
+      "admission_verdict": "admitted",
+      "bridge_office_binding_ref_or_none": "agentic_de_bridge_office_binding_d5368f840530",
+      "communication_egress_ref": "agentic_de_communication_egress_a9c87d1c116e",
+      "connector_admission_ref": "agentic_de_connector_admission_0a3da35c99cd",
+      "connector_provider_class": "codex",
+      "egress_bridge_packet_ref": "agentic_de_external_assistant_egress_bridge_fd041119ca90",
+      "evidence_basis_summary": "shipped V62-A connector admission and ingress bridge plus shipped V62-B external-assistant egress bridge, shipped V61-A communication egress, shipped V61-B bridge-office binding and rewitness, and shipped V61-C advisory hardening over the same exact continuity-bound create_new exemplar with explicit positive rewitness basis carry-through",
+      "evidence_refs": [
+        "packages/adeu_agentic_de/tests/fixtures/v60b/reference_agentic_de_continuation_refresh_decision_record.json",
+        "packages/adeu_agentic_de/tests/fixtures/v61a/reference_agentic_de_communication_egress_packet.json",
+        "packages/adeu_agentic_de/tests/fixtures/v61b/reference_agentic_de_bridge_office_binding_record.json",
+        "packages/adeu_agentic_de/tests/fixtures/v61b/reference_agentic_de_message_rewitness_gate_record.json",
+        "packages/adeu_agentic_de/tests/fixtures/v61c/reference_agentic_de_governed_communication_hardening_register.json",
+        "packages/adeu_agentic_de/tests/fixtures/v62a/reference_agentic_de_connector_admission_record.json",
+        "packages/adeu_agentic_de/tests/fixtures/v62a/reference_agentic_de_external_assistant_ingress_bridge_packet.json",
+        "packages/adeu_agentic_de/tests/fixtures/v62b/reference_agentic_de_external_assistant_egress_bridge_packet.json",
+        "packages/adeu_agentic_de/tests/fixtures/v62c/reference_agentic_de_lane_drift_record.json",
+        "artifacts/agent_harness/v170/evidence_inputs/v62a_connector_admission_evidence_v170.json",
+        "artifacts/agent_harness/v171/evidence_inputs/v62b_external_assistant_egress_bridge_evidence_v171.json"
+      ],
+      "extensional_and_replayable_by_default": true,
+      "field_dependence_tags": {
+        "admission_verdict": [
+          "agentic_de_connector_admission_0a3da35c99cd"
+        ],
+        "connector_provider_class": [
+          "agentic_de_connector_admission_0a3da35c99cd"
+        ],
+        "evidence_basis_summary": [
+          "agentic_de_connector_admission_0a3da35c99cd",
+          "agentic_de_external_assistant_ingress_bridge_3463ca58759d",
+          "agentic_de_external_assistant_egress_bridge_fd041119ca90",
+          "agentic_de_communication_egress_a9c87d1c116e",
+          "agentic_de_bridge_office_binding_d5368f840530",
+          "agentic_de_message_rewitness_gate_0af2b5fdd16e",
+          "agentic_de_governed_communication_hardening_register_18d68ddccf9f",
+          "agentic_de_continuation_refresh_decision_067a308bcae4",
+          "docs/LOCKED_CONTINUATION_vNEXT_PLUS172.md#machine-checkable-contract"
+        ],
+        "frozen_policy_ref": [],
+        "latest_continuation_basis_selection_summary": [
+          "agentic_de_external_assistant_egress_bridge_fd041119ca90",
+          "agentic_de_bridge_office_binding_d5368f840530",
+          "agentic_de_governed_communication_hardening_register_18d68ddccf9f"
+        ],
+        "positive_rewitness_certificate_ref_or_none": [
+          "agentic_de_message_rewitness_gate_0af2b5fdd16e",
+          "agentic_de_governed_communication_hardening_register_18d68ddccf9f"
+        ],
+        "positive_rewitness_witness_basis_ref_or_none": [
+          "agentic_de_message_rewitness_gate_0af2b5fdd16e",
+          "agentic_de_governed_communication_hardening_register_18d68ddccf9f"
+        ],
+        "recommended_outcome": [
+          "agentic_de_connector_admission_0a3da35c99cd",
+          "agentic_de_external_assistant_egress_bridge_fd041119ca90",
+          "agentic_de_governed_communication_hardening_register_18d68ddccf9f",
+          "docs/LOCKED_CONTINUATION_vNEXT_PLUS172.md#machine-checkable-contract"
+        ],
+        "selected_bridge_office_posture_or_none": [
+          "agentic_de_bridge_office_binding_d5368f840530",
+          "agentic_de_governed_communication_hardening_register_18d68ddccf9f"
+        ],
+        "selected_connector_principal_class": [
+          "agentic_de_connector_admission_0a3da35c99cd"
+        ],
+        "selected_rewitness_outcome_or_none": [
+          "agentic_de_message_rewitness_gate_0af2b5fdd16e",
+          "agentic_de_governed_communication_hardening_register_18d68ddccf9f"
+        ],
+        "verdict_basis_summary": [
+          "agentic_de_connector_admission_0a3da35c99cd",
+          "agentic_de_external_assistant_egress_bridge_fd041119ca90",
+          "agentic_de_governed_communication_hardening_register_18d68ddccf9f",
+          "agentic_de_continuation_refresh_decision_067a308bcae4",
+          "connector:agentic_de_connector_admission_0a3da35c99cd",
+          "ingress_bridge:agentic_de_external_assistant_ingress_bridge_3463ca58759d",
+          "egress_bridge:agentic_de_external_assistant_egress_bridge_fd041119ca90",
+          "communication_egress:agentic_de_communication_egress_a9c87d1c116e",
+          "bridge:agentic_de_bridge_office_binding_d5368f840530",
+          "rewitness:agentic_de_message_rewitness_gate_0af2b5fdd16e",
+          "communication_hardening:agentic_de_governed_communication_hardening_register_18d68ddccf9f",
+          "continuation:agentic_de_continuation_refresh_decision_067a308bcae4",
+          "policy:docs/LOCKED_CONTINUATION_vNEXT_PLUS172.md#machine-checkable-contract"
+        ]
+      },
+      "field_origin_tags": {
+        "admission_verdict": "prior_artifact",
+        "connector_provider_class": "prior_artifact",
+        "evidence_basis_summary": "current_turn_derived",
+        "frozen_policy_ref": "shaping_only",
+        "latest_continuation_basis_selection_summary": "prior_artifact",
+        "positive_rewitness_certificate_ref_or_none": "prior_artifact",
+        "positive_rewitness_witness_basis_ref_or_none": "prior_artifact",
+        "recommended_outcome": "current_turn_derived",
+        "selected_bridge_office_posture_or_none": "prior_artifact",
+        "selected_connector_principal_class": "prior_artifact",
+        "selected_rewitness_outcome_or_none": "prior_artifact",
+        "verdict_basis_summary": "current_turn_derived"
+      },
+      "frozen_policy_ref": "docs/LOCKED_CONTINUATION_vNEXT_PLUS172.md#machine-checkable-contract",
+      "governed_communication_hardening_ref": "agentic_de_governed_communication_hardening_register_18d68ddccf9f",
+      "hardening_id": "agentic_de_connector_bridge_hardening_f980882ed71f",
+      "ingress_bridge_packet_ref": "agentic_de_external_assistant_ingress_bridge_3463ca58759d",
+      "latest_continuation_basis_ref_or_equivalent": "agentic_de_continuation_refresh_decision_067a308bcae4",
+      "latest_continuation_basis_selection_summary": "latest shipped V60-B refresh decision remains the selected continuation basis for explicit resident bridge-office binding over the exact V61-A seam",
+      "lineage_root_dedup_applied": true,
+      "message_rewitness_gate_ref_or_none": "agentic_de_message_rewitness_gate_0af2b5fdd16e",
+      "positive_rewitness_certificate_ref_or_none": null,
+      "positive_rewitness_witness_basis_ref_or_none": "agentic_de_communication_egress_a9c87d1c116e",
+      "rationale": "the exact shipped V62-A/V62-B connector lineage now carries typed admission, replayable ingress and egress bridge basis, explicit V61-B bridge-office and positive rewitness posture, and a shipped V61-C advisory hardening register over the same lineage, so it is a valid later path-level connector hardening candidate, but any broader connector migration, fleet law, human-via-connector, remote-operator, repo, execute, or dispatch scope still requires a later explicit lock",
+      "reason_codes": [
+        "admitted_connector_basis_consumed",
+        "shipped_v62a_ingress_bridge_consumed",
+        "shipped_v62b_egress_bridge_consumed",
+        "shipped_v61a_communication_egress_consumed",
+        "explicit_v61b_bridge_office_binding_consumed",
+        "explicit_positive_rewitness_basis_carried",
+        "shipped_v61c_advisory_hardening_consumed",
+        "committed_artifacts_outrank_narrative_docs",
+        "path_level_only",
+        "extensional_replayable_policy",
+        "lineage_root_dedup_applied",
+        "candidate_non_entitling_and_non_escalating",
+        "later_lock_required_for_scope",
+        "no_live_mutation_in_v62c",
+        "non_generalizing_by_default"
+      ],
+      "recommendation_scope_requires_later_lock": true,
+      "recommended_outcome": "candidate_for_later_connector_hardening",
+      "root_origin_dedup_summary": "dedup roots=connector:agentic_de_connector_admission_0a3da35c99cd,ingress_bridge:agentic_de_external_assistant_ingress_bridge_3463ca58759d,egress_bridge:agentic_de_external_assistant_egress_bridge_fd041119ca90,communication_egress:agentic_de_communication_egress_a9c87d1c116e,bridge:agentic_de_bridge_office_binding_d5368f840530,rewitness:agentic_de_message_rewitness_gate_0af2b5fdd16e,communication_hardening:agentic_de_governed_communication_hardening_register_18d68ddccf9f,continuation:agentic_de_continuation_refresh_decision_067a308bcae4,policy:docs/LOCKED_CONTINUATION_vNEXT_PLUS172.md#machine-checkable-contract; repeated connector admission, bridge, rewitness, and advisory lineage artifacts remain non-independent connector-hardening support",
+      "root_origin_ids": [
+        "connector:agentic_de_connector_admission_0a3da35c99cd",
+        "ingress_bridge:agentic_de_external_assistant_ingress_bridge_3463ca58759d",
+        "egress_bridge:agentic_de_external_assistant_egress_bridge_fd041119ca90",
+        "communication_egress:agentic_de_communication_egress_a9c87d1c116e",
+        "bridge:agentic_de_bridge_office_binding_d5368f840530",
+        "rewitness:agentic_de_message_rewitness_gate_0af2b5fdd16e",
+        "communication_hardening:agentic_de_governed_communication_hardening_register_18d68ddccf9f",
+        "continuation:agentic_de_continuation_refresh_decision_067a308bcae4",
+        "policy:docs/LOCKED_CONTINUATION_vNEXT_PLUS172.md#machine-checkable-contract"
+      ],
+      "selected_bridge_office_posture_or_none": "resident_bridge_bound",
+      "selected_connector_principal_class": "external_assistant",
+      "selected_hardening_target_surface": "shipped_v62a_v62b_external_assistant_connector_lineage_over_continuity_bound_create_new_exemplar_only",
+      "selected_rewitness_outcome_or_none": "witness_candidate_promoted",
+      "verdict_basis_summary": "the exact admitted codex connector path remained preserved, V62-B kept the same outbound bridge lineage, V61-B posture remained resident_bridge_bound and witness_candidate_promoted with explicit positive basis carry-through, V61-C advisory hardening remained replayable over the same lineage, and one frozen V62-C policy anchor preserved explicit provenance and non-independence dedup without minting live connector authority"
+    }
+  ],
+  "entry_count": 1,
+  "evidence_basis_distinct_from_recommendation": true,
+  "exemplar_evidence_non_generalizing_by_default": true,
+  "explicit_frozen_policy_anchor_required": true,
+  "keep_warning_only_retains_current_advisory_posture_only": true,
+  "lineage_root_non_independence_dedup_applied": true,
+  "path_level_only": true,
+  "positive_rewitness_carry_through_fails_closed": true,
+  "recommendation_function_extensional_and_replayable": true,
+  "register_id": "agentic_de_connector_bridge_hardening_register_00508a5a44f7",
+  "schema": "agentic_de_connector_bridge_hardening_register@1",
+  "target_arc": "vNext+172",
+  "target_path": "V62-C"
+}
