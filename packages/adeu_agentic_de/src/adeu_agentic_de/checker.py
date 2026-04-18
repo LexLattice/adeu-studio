@@ -13178,6 +13178,13 @@ def _validate_v62c_consumed_surfaces(
         raise ValueError("V62-C requires the shipped V62-A external_assistant principal only")
     if ingress_bridge.connector_admission_ref != connector_admission.connector_admission_id:
         raise ValueError("V62-C ingress bridge must bind the shipped V62-A connector admission")
+    if (
+        ingress_bridge.latest_continuation_basis_ref_or_equivalent
+        != continuation_refresh_decision.refresh_decision_id
+    ):
+        raise ValueError("V62-C requires the shipped V62-A ingress bridge continuation basis")
+    if communication_egress.selected_egress_surface_ref != V61A_SELECTED_API_ROUTE:
+        raise ValueError("V62-C requires the shipped exact resident V61-A egress seam")
     if egress_bridge.connector_admission_ref != connector_admission.connector_admission_id:
         raise ValueError("V62-C egress bridge must bind the shipped V62-A connector admission")
     if egress_bridge.ingress_bridge_packet_ref != ingress_bridge.ingress_bridge_packet_id:

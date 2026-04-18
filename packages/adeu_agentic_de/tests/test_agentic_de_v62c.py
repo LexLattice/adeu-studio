@@ -198,6 +198,52 @@ def test_v62c_rejects_mismatched_v62b_rewitness_lineage(tmp_path: Path) -> None:
         run_agentic_de_connector_bridge_hardening_v62c(repo_root_path=temp_root)
 
 
+def test_v62c_rejects_non_shipped_v61a_egress_seam(tmp_path: Path) -> None:
+    temp_root, fixture_root = _copy_v62c_input_tree(tmp_path / "repo")
+    communication_egress_path = (
+        fixture_root.parent / "v61a" / "reference_agentic_de_communication_egress_packet.json"
+    )
+    payload = _load_json(
+        fixture_root.parent / "v61a",
+        "reference_agentic_de_communication_egress_packet.json",
+    )
+    assert isinstance(payload, dict)
+    payload["selected_egress_surface_ref"] = "apps/api/src/adeu_api/urm_routes.py:/copilot/send_alt"
+    payload["communication_egress_id"] = None
+    communication_egress_path.write_text(json.dumps(payload, indent=2) + "\n", encoding="utf-8")
+
+    with pytest.raises(
+        ValueError,
+        match="V62-C requires the shipped exact resident V61-A egress seam",
+    ):
+        run_agentic_de_connector_bridge_hardening_v62c(repo_root_path=temp_root)
+
+
+def test_v62c_rejects_non_shipped_v62a_ingress_bridge_continuation_basis(tmp_path: Path) -> None:
+    temp_root, fixture_root = _copy_v62c_input_tree(tmp_path / "repo")
+    ingress_path = (
+        fixture_root.parent
+        / "v62a"
+        / "reference_agentic_de_external_assistant_ingress_bridge_packet.json"
+    )
+    payload = _load_json(
+        fixture_root.parent / "v62a",
+        "reference_agentic_de_external_assistant_ingress_bridge_packet.json",
+    )
+    assert isinstance(payload, dict)
+    payload["latest_continuation_basis_ref_or_equivalent"] = (
+        "agentic_de_continuation_refresh_decision_wrong"
+    )
+    payload["ingress_bridge_packet_id"] = None
+    ingress_path.write_text(json.dumps(payload, indent=2) + "\n", encoding="utf-8")
+
+    with pytest.raises(
+        ValueError,
+        match="V62-C requires the shipped V62-A ingress bridge continuation basis",
+    ):
+        run_agentic_de_connector_bridge_hardening_v62c(repo_root_path=temp_root)
+
+
 def test_v62c_rejects_symlinked_repo_root(tmp_path: Path) -> None:
     temp_root, _fixture_root = _copy_v62c_input_tree(tmp_path / "repo")
     symlink_root = tmp_path / "repo-link"
