@@ -1,0 +1,45 @@
+{
+  "entries": [
+    {
+      "assumption_ref": "v62a_v62b_surface_reuse_default",
+      "note": "V62-C reuses the shipped V62-A admission/ingress and shipped V62-B egress surfaces by default.",
+      "status": "holds"
+    },
+    {
+      "assumption_ref": "advisory_connector_hardening_only",
+      "note": "V62-C adds only one advisory connector hardening register over the exact admitted connector lineage.",
+      "status": "amended"
+    },
+    {
+      "assumption_ref": "committed_lane_artifacts_outrank_narrative_docs",
+      "note": "V62-C derives advisory evidence from committed lane artifacts before narrative interpretation or review prose.",
+      "status": "amended"
+    },
+    {
+      "assumption_ref": "explicit_frozen_policy_anchor_required",
+      "note": "V62-C keeps one explicit frozen policy anchor as part of replayable advisory derivation.",
+      "status": "amended"
+    },
+    {
+      "assumption_ref": "positive_rewitness_basis_carry_through_fail_closed",
+      "note": "V62-C carries positive rewitness basis or certificate posture only when it matches the selected upstream rewitness posture and fails closed otherwise.",
+      "status": "amended"
+    },
+    {
+      "assumption_ref": "candidate_outcomes_non_entitling_non_escalating_and_scope_bound",
+      "note": "V62-C keeps advisory outcomes non-entitling, non-escalating, and later-lock bound.",
+      "status": "amended"
+    },
+    {
+      "assumption_ref": "path_level_non_generalization_required",
+      "note": "V62-C keeps the selected connector lineage path-level and non-generalizing by default.",
+      "status": "amended"
+    }
+  ],
+  "entry_count": 7,
+  "prior_lane_ref": "docs/LOCKED_CONTINUATION_vNEXT_PLUS171.md",
+  "record_id": null,
+  "schema": "agentic_de_lane_drift_record@1",
+  "target_arc": "vNext+172",
+  "target_path": "V62-C"
+}

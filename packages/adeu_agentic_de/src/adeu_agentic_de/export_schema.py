@@ -16,6 +16,7 @@ from .models import (
     AGENTIC_DE_COMMUNICATION_INGRESS_PACKET_SCHEMA,
     AGENTIC_DE_CONFORMANCE_REPORT_SCHEMA,
     AGENTIC_DE_CONNECTOR_ADMISSION_RECORD_SCHEMA,
+    AGENTIC_DE_CONNECTOR_BRIDGE_HARDENING_REGISTER_SCHEMA,
     AGENTIC_DE_CONTINUATION_DECISION_RECORD_SCHEMA,
     AGENTIC_DE_CONTINUATION_HARDENING_REGISTER_SCHEMA,
     AGENTIC_DE_CONTINUATION_REFRESH_DECISION_RECORD_SCHEMA,
@@ -65,6 +66,7 @@ from .models import (
     AgenticDeCommunicationIngressPacket,
     AgenticDeConformanceReport,
     AgenticDeConnectorAdmissionRecord,
+    AgenticDeConnectorBridgeHardeningRegister,
     AgenticDeContinuationDecisionRecord,
     AgenticDeContinuationHardeningRegister,
     AgenticDeContinuationRefreshDecisionRecord,
@@ -397,9 +399,7 @@ def main() -> None:
             / "adeu_agentic_de"
             / "schema"
             / "agentic_de_governed_communication_hardening_register.v1.json",
-            root
-            / "spec"
-            / "agentic_de_governed_communication_hardening_register.schema.json",
+            root / "spec" / "agentic_de_governed_communication_hardening_register.schema.json",
         ),
         (
             AgenticDeConnectorAdmissionRecord,
@@ -419,9 +419,7 @@ def main() -> None:
             / "adeu_agentic_de"
             / "schema"
             / "agentic_de_external_assistant_ingress_bridge_packet.v1.json",
-            root
-            / "spec"
-            / "agentic_de_external_assistant_ingress_bridge_packet.schema.json",
+            root / "spec" / "agentic_de_external_assistant_ingress_bridge_packet.schema.json",
         ),
         (
             AgenticDeExternalAssistantEgressBridgePacket,
@@ -431,9 +429,17 @@ def main() -> None:
             / "adeu_agentic_de"
             / "schema"
             / "agentic_de_external_assistant_egress_bridge_packet.v1.json",
+            root / "spec" / "agentic_de_external_assistant_egress_bridge_packet.schema.json",
+        ),
+        (
+            AgenticDeConnectorBridgeHardeningRegister,
+            AGENTIC_DE_CONNECTOR_BRIDGE_HARDENING_REGISTER_SCHEMA,
             root
-            / "spec"
-            / "agentic_de_external_assistant_egress_bridge_packet.schema.json",
+            / "packages"
+            / "adeu_agentic_de"
+            / "schema"
+            / "agentic_de_connector_bridge_hardening_register.v1.json",
+            root / "spec" / "agentic_de_connector_bridge_hardening_register.schema.json",
         ),
         (
             AgenticDeLiveTurnAdmissionRecord,
