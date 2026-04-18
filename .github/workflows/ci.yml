@@ -267,11 +267,34 @@ jobs:
       - name: Install Lean toolchain
         run: |
           set -euo pipefail
-          curl https://raw.githubusercontent.com/leanprover/elan/master/elan-init.sh -sSf | sh -s -- -y
+          attempt=1
+          max_attempts=3
+          until [ "$attempt" -gt "$max_attempts" ]; do
+            rm -rf "$HOME/.elan"
+            if curl --retry 5 --retry-delay 2 --retry-all-errors \
+              https://raw.githubusercontent.com/leanprover/elan/master/elan-init.sh -sSf | sh -s -- -y; then
+              break
+            fi
+            if [ "$attempt" -eq "$max_attempts" ]; then
+              exit 1
+            fi
+            sleep $((attempt * 10))
+            attempt=$((attempt + 1))
+          done
           export PATH="$HOME/.elan/bin:$PATH"
           echo "$HOME/.elan/bin" >> "$GITHUB_PATH"
           TOOLCHAIN="$(cat packages/adeu_lean/lean-toolchain)"
-          elan toolchain install "$TOOLCHAIN"
+          attempt=1
+          until [ "$attempt" -gt "$max_attempts" ]; do
+            if elan toolchain install "$TOOLCHAIN"; then
+              break
+            fi
+            if [ "$attempt" -eq "$max_attempts" ]; then
+              exit 1
+            fi
+            sleep $((attempt * 10))
+            attempt=$((attempt + 1))
+          done
           elan default "$TOOLCHAIN"
           lean --version
           lake --version
