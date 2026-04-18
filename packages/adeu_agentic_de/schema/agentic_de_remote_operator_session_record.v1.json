@@ -1,0 +1,145 @@
+{
+  "additionalProperties": false,
+  "properties": {
+    "admission_verdict": {
+      "enum": [
+        "admitted",
+        "rejected_principal_not_selected",
+        "rejected_surface_not_admitted",
+        "rejected_missing_basis",
+        "rejected_inconsistent_basis"
+      ],
+      "title": "Admission Verdict",
+      "type": "string"
+    },
+    "changes_live_behavior_by_default": {
+      "const": false,
+      "default": false,
+      "title": "Changes Live Behavior By Default",
+      "type": "boolean"
+    },
+    "consumed_communication_basis_summary": {
+      "title": "Consumed Communication Basis Summary",
+      "type": "string"
+    },
+    "consumed_loop_state_ref": {
+      "title": "Consumed Loop State Ref",
+      "type": "string"
+    },
+    "evidence_only": {
+      "const": true,
+      "default": true,
+      "title": "Evidence Only",
+      "type": "boolean"
+    },
+    "evidence_refs": {
+      "items": {
+        "type": "string"
+      },
+      "title": "Evidence Refs",
+      "type": "array"
+    },
+    "field_dependence_tags": {
+      "additionalProperties": {
+        "items": {
+          "type": "string"
+        },
+        "type": "array"
+      },
+      "title": "Field Dependence Tags",
+      "type": "object"
+    },
+    "field_origin_tags": {
+      "additionalProperties": {
+        "enum": [
+          "current_turn_native",
+          "current_turn_derived",
+          "observability_only",
+          "prior_artifact",
+          "shaping_only"
+        ],
+        "type": "string"
+      },
+      "title": "Field Origin Tags",
+      "type": "object"
+    },
+    "frozen_policy_anchor_ref": {
+      "title": "Frozen Policy Anchor Ref",
+      "type": "string"
+    },
+    "reason_codes": {
+      "items": {
+        "type": "string"
+      },
+      "title": "Reason Codes",
+      "type": "array"
+    },
+    "remote_operator_principal_class": {
+      "const": "remote_operator",
+      "title": "Remote Operator Principal Class",
+      "type": "string"
+    },
+    "remote_operator_session_id": {
+      "anyOf": [
+        {
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Remote Operator Session Id"
+    },
+    "remote_session_identity_facts": {
+      "title": "Remote Session Identity Facts",
+      "type": "string"
+    },
+    "remote_surface_class": {
+      "const": "read_mostly_phone_safe_remote_operator_surface",
+      "title": "Remote Surface Class",
+      "type": "string"
+    },
+    "remote_surface_identity_summary": {
+      "title": "Remote Surface Identity Summary",
+      "type": "string"
+    },
+    "root_origin_dedup_summary": {
+      "title": "Root Origin Dedup Summary",
+      "type": "string"
+    },
+    "schema": {
+      "const": "agentic_de_remote_operator_session_record@1",
+      "default": "agentic_de_remote_operator_session_record@1",
+      "title": "Schema",
+      "type": "string"
+    },
+    "target_arc": {
+      "title": "Target Arc",
+      "type": "string"
+    },
+    "target_path": {
+      "title": "Target Path",
+      "type": "string"
+    }
+  },
+  "required": [
+    "target_arc",
+    "target_path",
+    "remote_operator_principal_class",
+    "remote_surface_class",
+    "remote_session_identity_facts",
+    "remote_surface_identity_summary",
+    "consumed_loop_state_ref",
+    "consumed_communication_basis_summary",
+    "frozen_policy_anchor_ref",
+    "admission_verdict",
+    "reason_codes",
+    "field_origin_tags",
+    "field_dependence_tags",
+    "root_origin_dedup_summary",
+    "evidence_refs"
+  ],
+  "title": "AgenticDeRemoteOperatorSessionRecord",
+  "type": "object"
+}

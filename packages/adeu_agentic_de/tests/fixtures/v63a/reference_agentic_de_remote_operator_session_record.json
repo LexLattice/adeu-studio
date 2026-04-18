@@ -1,0 +1,85 @@
+{
+  "admission_verdict": "admitted",
+  "changes_live_behavior_by_default": false,
+  "consumed_communication_basis_summary": "shipped V61-A ingress/descriptor/interpretation/egress over the exact resident send seam only",
+  "consumed_loop_state_ref": "agentic_de_loop_state_ledger_22492d7ad8a7",
+  "evidence_only": true,
+  "evidence_refs": [
+    "packages/adeu_agentic_de/tests/fixtures/v60a/reference_agentic_de_loop_state_ledger.json",
+    "packages/adeu_agentic_de/tests/fixtures/v60b/reference_agentic_de_continuation_refresh_decision_record.json",
+    "packages/adeu_agentic_de/tests/fixtures/v61a/reference_agentic_de_communication_ingress_packet.json",
+    "packages/adeu_agentic_de/tests/fixtures/v61a/reference_agentic_de_surface_authority_descriptor.json",
+    "packages/adeu_agentic_de/tests/fixtures/v61a/reference_agentic_de_ingress_interpretation_record.json",
+    "packages/adeu_agentic_de/tests/fixtures/v61a/reference_agentic_de_communication_egress_packet.json",
+    "packages/adeu_agentic_de/tests/fixtures/v63a/reference_agentic_de_lane_drift_record.json",
+    "artifacts/agent_harness/v169/evidence_inputs/v61c_governed_communication_hardening_evidence_v169.json",
+    "artifacts/agent_harness/v172/evidence_inputs/v62c_connector_bridge_hardening_evidence_v172.json"
+  ],
+  "field_dependence_tags": {
+    "admission_verdict": [
+      "agentic_de_loop_state_ledger_22492d7ad8a7",
+      "agentic_de_communication_ingress_fa2ead1a96a3",
+      "agentic_de_surface_authority_descriptor_f53e9d92836e",
+      "agentic_de_ingress_interpretation_8a0ac37a6f71",
+      "agentic_de_communication_egress_a9c87d1c116e",
+      "docs/LOCKED_CONTINUATION_vNEXT_PLUS173.md#machine-checkable-contract"
+    ],
+    "consumed_communication_basis_summary": [
+      "agentic_de_communication_ingress_fa2ead1a96a3",
+      "agentic_de_surface_authority_descriptor_f53e9d92836e",
+      "agentic_de_ingress_interpretation_8a0ac37a6f71",
+      "agentic_de_communication_egress_a9c87d1c116e"
+    ],
+    "consumed_loop_state_ref": [
+      "agentic_de_loop_state_ledger_22492d7ad8a7"
+    ],
+    "frozen_policy_anchor_ref": [
+      "docs/LOCKED_CONTINUATION_vNEXT_PLUS173.md#machine-checkable-contract"
+    ],
+    "remote_operator_principal_class": [
+      "docs/LOCKED_CONTINUATION_vNEXT_PLUS173.md#machine-checkable-contract"
+    ],
+    "remote_session_identity_facts": [
+      "agentic_de_loop_state_ledger_22492d7ad8a7",
+      "agentic_de_surface_authority_descriptor_f53e9d92836e"
+    ],
+    "remote_surface_class": [
+      "docs/LOCKED_CONTINUATION_vNEXT_PLUS173.md#machine-checkable-contract"
+    ],
+    "remote_surface_identity_summary": [
+      "agentic_de_communication_ingress_fa2ead1a96a3",
+      "agentic_de_surface_authority_descriptor_f53e9d92836e",
+      "agentic_de_ingress_interpretation_8a0ac37a6f71",
+      "agentic_de_communication_egress_a9c87d1c116e",
+      "docs/LOCKED_CONTINUATION_vNEXT_PLUS173.md#machine-checkable-contract"
+    ]
+  },
+  "field_origin_tags": {
+    "admission_verdict": "current_turn_derived",
+    "consumed_communication_basis_summary": "current_turn_derived",
+    "consumed_loop_state_ref": "prior_artifact",
+    "frozen_policy_anchor_ref": "shaping_only",
+    "remote_operator_principal_class": "shaping_only",
+    "remote_session_identity_facts": "current_turn_derived",
+    "remote_surface_class": "shaping_only",
+    "remote_surface_identity_summary": "current_turn_derived"
+  },
+  "frozen_policy_anchor_ref": "docs/LOCKED_CONTINUATION_vNEXT_PLUS173.md#machine-checkable-contract",
+  "reason_codes": [
+    "remote_operator_principal_selected_only",
+    "one_admitted_remote_surface_only",
+    "shipped_v60_loop_state_consumed",
+    "shipped_v61_communication_basis_consumed",
+    "remote_transport_non_authorizing",
+    "session_admitted"
+  ],
+  "remote_operator_principal_class": "remote_operator",
+  "remote_operator_session_id": "agentic_de_remote_operator_session_e6df63a40fb4",
+  "remote_session_identity_facts": "resident_session_ref=copilot-v59a-session-1; one admitted remote_operator session derived over the same exact resident session identity only",
+  "remote_surface_class": "read_mostly_phone_safe_remote_operator_surface",
+  "remote_surface_identity_summary": "one read-mostly phone-safe remote operator surface over the shipped resident send/session lineage only",
+  "root_origin_dedup_summary": "resident session identity, shipped V60 loop-state lineage, and shipped V61 communication lineage remain non-independent remote-session basis; repeated surface facts do not mint operator authority",
+  "schema": "agentic_de_remote_operator_session_record@1",
+  "target_arc": "vNext+173",
+  "target_path": "V63-A"
+}

@@ -58,6 +58,9 @@ from .models import (
     AGENTIC_DE_MIGRATION_DECISION_REGISTER_SCHEMA,
     AGENTIC_DE_MORPH_DIAGNOSTICS_SCHEMA,
     AGENTIC_DE_MORPH_IR_SCHEMA,
+    AGENTIC_DE_REMOTE_OPERATOR_RESPONSE_RECORD_SCHEMA,
+    AGENTIC_DE_REMOTE_OPERATOR_SESSION_RECORD_SCHEMA,
+    AGENTIC_DE_REMOTE_OPERATOR_VIEW_PACKET_SCHEMA,
     AGENTIC_DE_RUNTIME_HARVEST_RECORD_SCHEMA,
     AGENTIC_DE_RUNTIME_STATE_SCHEMA,
     AGENTIC_DE_SEED_INTENT_RECORD_SCHEMA,
@@ -118,6 +121,9 @@ from .models import (
     AgenticDeMorphDiagnosticFinding,
     AgenticDeMorphDiagnostics,
     AgenticDeMorphIr,
+    AgenticDeRemoteOperatorResponseRecord,
+    AgenticDeRemoteOperatorSessionRecord,
+    AgenticDeRemoteOperatorViewPacket,
     AgenticDeRuntimeHarvestRecord,
     AgenticDeRuntimeState,
     AgenticDeSeedIntentRecord,
@@ -238,6 +244,12 @@ V62C_CHECKER_VERSION = "agentic_de_connector_bridge_hardening_v62c"
 V62C_TARGET_ARC = "vNext+172"
 V62C_TARGET_PATH = "V62-C"
 V62C_FROZEN_POLICY_REF = "docs/LOCKED_CONTINUATION_vNEXT_PLUS172.md#machine-checkable-contract"
+V63A_CHECKER_VERSION = "agentic_de_remote_operator_starter_v63a"
+V63A_TARGET_ARC = "vNext+173"
+V63A_TARGET_PATH = "V63-A"
+V63A_FROZEN_POLICY_REF = "docs/LOCKED_CONTINUATION_vNEXT_PLUS173.md#machine-checkable-contract"
+V63A_SELECTED_REMOTE_OPERATOR_PRINCIPAL = "remote_operator"
+V63A_SELECTED_REMOTE_SURFACE_CLASS = "read_mostly_phone_safe_remote_operator_surface"
 
 
 def _default_fixture_path(variant: str, filename: str) -> Path:
@@ -543,6 +555,18 @@ DEFAULT_V62C_LANE_DRIFT_PATH = _default_fixture_path(
 DEFAULT_V62C_CONNECTOR_BRIDGE_HARDENING_PATH = _default_fixture_path(
     "v62c", "reference_agentic_de_connector_bridge_hardening_register.json"
 )
+DEFAULT_V63A_LANE_DRIFT_PATH = _default_fixture_path(
+    "v63a", "reference_agentic_de_lane_drift_record.json"
+)
+DEFAULT_V63A_REMOTE_OPERATOR_SESSION_PATH = _default_fixture_path(
+    "v63a", "reference_agentic_de_remote_operator_session_record.json"
+)
+DEFAULT_V63A_REMOTE_OPERATOR_VIEW_PATH = _default_fixture_path(
+    "v63a", "reference_agentic_de_remote_operator_view_packet.json"
+)
+DEFAULT_V63A_REMOTE_OPERATOR_RESPONSE_PATH = _default_fixture_path(
+    "v63a", "reference_agentic_de_remote_operator_response_record.json"
+)
 DEFAULT_V58C_EVIDENCE_PATH = (
     repo_root(anchor=Path(__file__))
     / "artifacts"
@@ -630,6 +654,14 @@ DEFAULT_V62B_EVIDENCE_PATH = (
     / "v171"
     / "evidence_inputs"
     / "v62b_external_assistant_egress_bridge_evidence_v171.json"
+)
+DEFAULT_V62C_EVIDENCE_PATH = (
+    repo_root(anchor=Path(__file__))
+    / "artifacts"
+    / "agent_harness"
+    / "v172"
+    / "evidence_inputs"
+    / "v62c_connector_bridge_hardening_evidence_v172.json"
 )
 
 EXPECTED_V56A_EVIDENCE_SCHEMA = "v56a_agentic_de_interaction_governance_starter_evidence@1"
@@ -840,6 +872,17 @@ REQUIRED_V62C_DRIFT_ENTRY_STATUSES: dict[str, str] = {
     "explicit_frozen_policy_anchor_required": "amended",
     "positive_rewitness_basis_carry_through_fail_closed": "amended",
     "candidate_outcomes_non_entitling_non_escalating_and_scope_bound": "amended",
+    "path_level_non_generalization_required": "amended",
+}
+EXPECTED_V62C_EVIDENCE_SCHEMA = "v62c_connector_bridge_hardening_evidence@1"
+EXPECTED_V63A_PRIOR_LANE_REF = "docs/LOCKED_CONTINUATION_vNEXT_PLUS172.md"
+REQUIRED_V63A_DRIFT_ENTRY_STATUSES: dict[str, str] = {
+    "v60_v61_v62_surface_reuse_default": "holds",
+    "remote_operator_principal_only": "amended",
+    "read_mostly_phone_safe_view_only": "amended",
+    "bounded_response_set_only": "amended",
+    "selected_responses_consume_shipped_law": "amended",
+    "v63b_richer_command_bridge_deferred": "amended",
     "path_level_non_generalization_required": "amended",
 }
 
@@ -1159,6 +1202,33 @@ def load_connector_bridge_hardening_register(
     if payload.schema != AGENTIC_DE_CONNECTOR_BRIDGE_HARDENING_REGISTER_SCHEMA:
         raise ValueError(
             f"unexpected schema marker for connector bridge hardening register: {payload.schema}"
+        )
+    return payload
+
+
+def load_remote_operator_session_record(path: Path) -> AgenticDeRemoteOperatorSessionRecord:
+    payload = AgenticDeRemoteOperatorSessionRecord.model_validate(_read_json_object(path))
+    if payload.schema != AGENTIC_DE_REMOTE_OPERATOR_SESSION_RECORD_SCHEMA:
+        raise ValueError(
+            f"unexpected schema marker for remote operator session record: {payload.schema}"
+        )
+    return payload
+
+
+def load_remote_operator_view_packet(path: Path) -> AgenticDeRemoteOperatorViewPacket:
+    payload = AgenticDeRemoteOperatorViewPacket.model_validate(_read_json_object(path))
+    if payload.schema != AGENTIC_DE_REMOTE_OPERATOR_VIEW_PACKET_SCHEMA:
+        raise ValueError(
+            f"unexpected schema marker for remote operator view packet: {payload.schema}"
+        )
+    return payload
+
+
+def load_remote_operator_response_record(path: Path) -> AgenticDeRemoteOperatorResponseRecord:
+    payload = AgenticDeRemoteOperatorResponseRecord.model_validate(_read_json_object(path))
+    if payload.schema != AGENTIC_DE_REMOTE_OPERATOR_RESPONSE_RECORD_SCHEMA:
+        raise ValueError(
+            f"unexpected schema marker for remote operator response record: {payload.schema}"
         )
     return payload
 
@@ -1678,6 +1748,39 @@ def _assert_v62c_repo_local_input_path(
     except ValueError as exc:
         raise ValueError(
             f"{field_name} must remain within the repository root for V62-C connector hardening"
+        ) from exc
+
+
+def _assert_v63a_repo_local_input_path(
+    *,
+    repo_root_path: Path,
+    candidate: Path,
+    field_name: str,
+) -> None:
+    if repo_root_path.exists() and repo_root_path.is_symlink():
+        raise ValueError("repository root may not be a symlink for V63-A remote operator starter")
+    try:
+        relative = candidate.relative_to(repo_root_path)
+    except ValueError as exc:
+        raise ValueError(
+            f"{field_name} must be lexically within the repository root for V63-A "
+            "remote operator starter"
+        ) from exc
+    current = repo_root_path
+    for part in relative.parts:
+        current = current / part
+        if current.is_symlink():
+            raise ValueError(
+                f"{field_name} may not traverse symlink components for V63-A remote operator "
+                "starter"
+            )
+    candidate_resolved = candidate.resolve(strict=False)
+    try:
+        candidate_resolved.relative_to(repo_root_path)
+    except ValueError as exc:
+        raise ValueError(
+            f"{field_name} must remain within the repository root for V63-A remote operator "
+            "starter"
         ) from exc
 
 
@@ -2334,6 +2437,40 @@ def _validate_v62c_lane_drift_record(record: AgenticDeLaneDriftRecord) -> Agenti
     return record
 
 
+def _validate_v63a_lane_drift_record(record: AgenticDeLaneDriftRecord) -> AgenticDeLaneDriftRecord:
+    if record.target_arc != V63A_TARGET_ARC:
+        raise ValueError(
+            f"V63-A lane drift record must target {V63A_TARGET_ARC!r}, got {record.target_arc!r}"
+        )
+    if record.target_path != V63A_TARGET_PATH:
+        raise ValueError(
+            f"V63-A lane drift record must target {V63A_TARGET_PATH!r}, got {record.target_path!r}"
+        )
+    if record.prior_lane_ref != EXPECTED_V63A_PRIOR_LANE_REF:
+        raise ValueError(
+            "V63-A lane drift record must point at "
+            f"{EXPECTED_V63A_PRIOR_LANE_REF!r}, got {record.prior_lane_ref!r}"
+        )
+    actual_statuses = {entry.assumption_ref: entry.status for entry in record.entries}
+    missing_assumptions = sorted(set(REQUIRED_V63A_DRIFT_ENTRY_STATUSES) - set(actual_statuses))
+    mismatched_statuses = sorted(
+        assumption_ref
+        for assumption_ref, expected_status in REQUIRED_V63A_DRIFT_ENTRY_STATUSES.items()
+        if assumption_ref in actual_statuses and actual_statuses[assumption_ref] != expected_status
+    )
+    if missing_assumptions or mismatched_statuses:
+        detail_parts: list[str] = []
+        if missing_assumptions:
+            detail_parts.append(f"missing={missing_assumptions}")
+        if mismatched_statuses:
+            detail_parts.append(f"status_mismatch={mismatched_statuses}")
+        raise ValueError(
+            "V63-A lane drift record does not satisfy the required handoff posture; "
+            + ", ".join(detail_parts)
+        )
+    return record
+
+
 def _validate_v56a_evidence_payload(payload: dict[str, object]) -> dict[str, object]:
     if payload.get("schema") != EXPECTED_V56A_EVIDENCE_SCHEMA:
         raise ValueError("V56-C requires the shipped V56-A starter evidence payload on main")
@@ -2940,6 +3077,47 @@ def _validate_v62b_evidence_payload(payload: dict[str, object]) -> dict[str, obj
         raise ValueError("V62-B evidence must preserve connector-hardening deferral")
     if payload.get("human_via_connector_selected_for_v62b") is not False:
         raise ValueError("V62-B evidence must preserve human-via-connector deferral")
+    return payload
+
+
+def _validate_v62c_evidence_payload(payload: dict[str, object]) -> dict[str, object]:
+    if payload.get("schema") != EXPECTED_V62C_EVIDENCE_SCHEMA:
+        raise ValueError(
+            "V63-A requires the shipped V62-C connector bridge hardening evidence payload "
+            "on main"
+        )
+    selected_shapes = payload.get("selected_record_shapes")
+    if not isinstance(selected_shapes, list) or {
+        "agentic_de_connector_bridge_hardening_register@1"
+    } - set(selected_shapes):
+        raise ValueError("V62-C evidence must preserve the shipped connector hardening shape")
+    required_true_fields = (
+        "connector_bridge_hardening_register_must_be_typed_and_replayable",
+        "hardening_register_consumes_shipped_v62a_basis",
+        "hardening_register_consumes_shipped_v62b_basis",
+        "hardening_register_consumes_shipped_v61a_v61b_v61c_basis",
+        "candidate_outcomes_non_entitling_and_non_escalating_by_themselves",
+        "committed_lane_artifacts_outrank_narrative_docs_for_v62c",
+        "explicit_frozen_policy_anchor_required_for_replayability",
+        "path_level_non_generalization_required_for_v62c",
+    )
+    for field_name in required_true_fields:
+        if payload.get(field_name) is not True:
+            raise ValueError(f"V62-C evidence must preserve {field_name}")
+    if payload.get("selected_connector_provider_for_v62c_basis") != "codex_only":
+        raise ValueError("V62-C evidence must preserve the codex connector provider only")
+    if payload.get("selected_connector_principal_for_v62c") != "external_assistant_only":
+        raise ValueError("V62-C evidence must preserve the external_assistant principal only")
+    if payload.get("selected_recommended_outcome_for_v62c") != (
+        "candidate_for_later_connector_hardening"
+    ):
+        raise ValueError("V62-C evidence must preserve the advisory connector-hardening outcome")
+    if payload.get("remote_operator_law_selected_for_v62c") is not False:
+        raise ValueError("V62-C evidence must preserve remote-operator deferral")
+    if payload.get("repo_or_execute_authority_selected_for_v62c") is not False:
+        raise ValueError("V62-C evidence must preserve repo/execute deferral")
+    if payload.get("dispatch_widening_selected_for_v62c") is not False:
+        raise ValueError("V62-C evidence must preserve dispatch deferral")
     return payload
 
 
@@ -13577,6 +13755,517 @@ def run_agentic_de_connector_bridge_hardening_v62c(
     )
 
 
+def _validate_v63a_consumed_surfaces(
+    *,
+    loop_state_ledger: AgenticDeLoopStateLedger,
+    continuation_refresh_decision: AgenticDeContinuationRefreshDecisionRecord,
+    ingress: AgenticDeCommunicationIngressPacket,
+    descriptor: AgenticDeSurfaceAuthorityDescriptor,
+    interpretation: AgenticDeIngressInterpretationRecord,
+    communication_egress: AgenticDeCommunicationEgressPacket,
+    target_relative_path: str,
+) -> None:
+    expected_path = _expected_v60a_selected_downstream_path_summary(target_relative_path)
+    if (
+        loop_state_ledger.target_arc != V60A_TARGET_ARC
+        or loop_state_ledger.target_path != V60A_TARGET_PATH
+    ):
+        raise ValueError("V63-A requires the shipped V60-A loop-state ledger surface")
+    if (
+        continuation_refresh_decision.target_arc != V60B_TARGET_ARC
+        or continuation_refresh_decision.target_path != V60B_TARGET_PATH
+    ):
+        raise ValueError("V63-A requires the shipped V60-B continuation refresh surface")
+    if (
+        continuation_refresh_decision.selected_next_path_summary_or_none != expected_path
+    ):
+        raise ValueError("V63-A requires the shipped exact downstream V60 selected path")
+    if ingress.target_arc != V61A_TARGET_ARC or ingress.target_path != V61A_TARGET_PATH:
+        raise ValueError("V63-A requires the shipped V61-A communication ingress surface")
+    if descriptor.target_arc != V61A_TARGET_ARC or descriptor.target_path != V61A_TARGET_PATH:
+        raise ValueError("V63-A requires the shipped V61-A surface authority descriptor")
+    if (
+        interpretation.target_arc != V61A_TARGET_ARC
+        or interpretation.target_path != V61A_TARGET_PATH
+    ):
+        raise ValueError("V63-A requires the shipped V61-A ingress interpretation surface")
+    if (
+        communication_egress.target_arc != V61A_TARGET_ARC
+        or communication_egress.target_path != V61A_TARGET_PATH
+    ):
+        raise ValueError("V63-A requires the shipped V61-A communication egress surface")
+    if ingress.selected_api_route_ref_or_equivalent != V61A_SELECTED_API_ROUTE:
+        raise ValueError("V63-A requires the shipped exact resident V61-A ingress seam")
+    if ingress.selected_runtime_message_method != V61A_SELECTED_RUNTIME_METHOD:
+        raise ValueError("V63-A requires the shipped exact resident V61-A runtime method")
+    if ingress.surface_class != V61A_SELECTED_SURFACE_CLASS:
+        raise ValueError("V63-A requires the shipped exact resident V61-A surface class")
+    if descriptor.communication_ingress_ref != ingress.communication_ingress_id:
+        raise ValueError("V63-A descriptor must bind the shipped V61-A ingress packet")
+    if interpretation.communication_ingress_ref != ingress.communication_ingress_id:
+        raise ValueError("V63-A interpretation must bind the shipped V61-A ingress packet")
+    if (
+        interpretation.surface_authority_descriptor_ref
+        != descriptor.surface_authority_descriptor_id
+    ):
+        raise ValueError("V63-A interpretation must bind the shipped V61-A descriptor")
+    if interpretation.loop_state_ledger_ref != loop_state_ledger.ledger_id:
+        raise ValueError("V63-A interpretation must bind the shipped V60-A loop-state ledger")
+    if (
+        interpretation.latest_v60_continuation_basis_ref
+        != continuation_refresh_decision.refresh_decision_id
+    ):
+        raise ValueError("V63-A interpretation must bind the shipped V60-B refresh decision")
+    if communication_egress.ingress_interpretation_ref != interpretation.ingress_interpretation_id:
+        raise ValueError("V63-A communication egress must bind the shipped V61-A interpretation")
+    if (
+        communication_egress.latest_v60_continuation_basis_ref
+        != continuation_refresh_decision.refresh_decision_id
+    ):
+        raise ValueError("V63-A communication egress must bind the shipped V60-B refresh decision")
+    if communication_egress.selected_egress_surface_ref != V61A_SELECTED_API_ROUTE:
+        raise ValueError("V63-A requires the shipped exact resident V61-A egress seam")
+    if ingress.resident_session_ref != loop_state_ledger.resident_session_ref:
+        raise ValueError("V63-A requires the shipped V61-A resident session identity")
+    if descriptor.surface_instance_or_session_identity != loop_state_ledger.resident_session_ref:
+        raise ValueError("V63-A descriptor must preserve the shipped resident session identity")
+    if continuation_refresh_decision.frozen_policy_anchor_ref != V60B_FROZEN_POLICY_REF:
+        raise ValueError("V63-A requires the shipped V60-B continuation policy anchor")
+    if descriptor.frozen_policy_anchor_ref != V61A_FROZEN_POLICY_REF:
+        raise ValueError("V63-A requires the shipped V61-A descriptor policy anchor")
+    if interpretation.frozen_policy_anchor_ref != V61A_FROZEN_POLICY_REF:
+        raise ValueError("V63-A requires the shipped V61-A interpretation policy anchor")
+    if communication_egress.frozen_policy_anchor_ref != V61A_FROZEN_POLICY_REF:
+        raise ValueError("V63-A requires the shipped V61-A egress policy anchor")
+
+
+def _build_v63a_remote_operator_session_record(
+    *,
+    loop_state_ledger: AgenticDeLoopStateLedger,
+    ingress: AgenticDeCommunicationIngressPacket,
+    descriptor: AgenticDeSurfaceAuthorityDescriptor,
+    interpretation: AgenticDeIngressInterpretationRecord,
+    communication_egress: AgenticDeCommunicationEgressPacket,
+    evidence_refs: list[str],
+) -> AgenticDeRemoteOperatorSessionRecord:
+    field_origin_tags = {
+        "remote_operator_principal_class": "shaping_only",
+        "remote_surface_class": "shaping_only",
+        "remote_session_identity_facts": "current_turn_derived",
+        "remote_surface_identity_summary": "current_turn_derived",
+        "consumed_loop_state_ref": "prior_artifact",
+        "consumed_communication_basis_summary": "current_turn_derived",
+        "frozen_policy_anchor_ref": "shaping_only",
+        "admission_verdict": "current_turn_derived",
+    }
+    field_dependence_tags = {
+        "remote_operator_principal_class": [V63A_FROZEN_POLICY_REF],
+        "remote_surface_class": [V63A_FROZEN_POLICY_REF],
+        "remote_session_identity_facts": [
+            loop_state_ledger.ledger_id,
+            descriptor.surface_authority_descriptor_id,
+        ],
+        "remote_surface_identity_summary": [
+            ingress.communication_ingress_id,
+            descriptor.surface_authority_descriptor_id,
+            interpretation.ingress_interpretation_id,
+            communication_egress.communication_egress_id,
+            V63A_FROZEN_POLICY_REF,
+        ],
+        "consumed_loop_state_ref": [loop_state_ledger.ledger_id],
+        "consumed_communication_basis_summary": [
+            ingress.communication_ingress_id,
+            descriptor.surface_authority_descriptor_id,
+            interpretation.ingress_interpretation_id,
+            communication_egress.communication_egress_id,
+        ],
+        "frozen_policy_anchor_ref": [V63A_FROZEN_POLICY_REF],
+        "admission_verdict": [
+            loop_state_ledger.ledger_id,
+            ingress.communication_ingress_id,
+            descriptor.surface_authority_descriptor_id,
+            interpretation.ingress_interpretation_id,
+            communication_egress.communication_egress_id,
+            V63A_FROZEN_POLICY_REF,
+        ],
+    }
+    return AgenticDeRemoteOperatorSessionRecord(
+        target_arc=V63A_TARGET_ARC,
+        target_path=V63A_TARGET_PATH,
+        remote_operator_principal_class=V63A_SELECTED_REMOTE_OPERATOR_PRINCIPAL,
+        remote_surface_class=V63A_SELECTED_REMOTE_SURFACE_CLASS,
+        remote_session_identity_facts=(
+            "resident_session_ref="
+            + loop_state_ledger.resident_session_ref
+            + "; one admitted remote_operator session derived over the same exact resident "
+            "session identity only"
+        ),
+        remote_surface_identity_summary=(
+            "one read-mostly phone-safe remote operator surface over the shipped resident "
+            "send/session lineage only"
+        ),
+        consumed_loop_state_ref=loop_state_ledger.ledger_id,
+        consumed_communication_basis_summary=(
+            "shipped V61-A ingress/descriptor/interpretation/egress over the exact resident "
+            "send seam only"
+        ),
+        frozen_policy_anchor_ref=V63A_FROZEN_POLICY_REF,
+        admission_verdict="admitted",
+        reason_codes=[
+            "remote_operator_principal_selected_only",
+            "one_admitted_remote_surface_only",
+            "shipped_v60_loop_state_consumed",
+            "shipped_v61_communication_basis_consumed",
+            "remote_transport_non_authorizing",
+            "session_admitted",
+        ],
+        field_origin_tags=field_origin_tags,
+        field_dependence_tags=field_dependence_tags,
+        root_origin_dedup_summary=(
+            "resident session identity, shipped V60 loop-state lineage, and shipped V61 "
+            "communication lineage remain non-independent remote-session basis; repeated "
+            "surface facts do not mint operator authority"
+        ),
+        evidence_refs=evidence_refs,
+    )
+
+
+def _build_v63a_remote_operator_view_packet(
+    *,
+    session_record: AgenticDeRemoteOperatorSessionRecord,
+    loop_state_ledger: AgenticDeLoopStateLedger,
+    continuation_refresh_decision: AgenticDeContinuationRefreshDecisionRecord,
+    ingress: AgenticDeCommunicationIngressPacket,
+    descriptor: AgenticDeSurfaceAuthorityDescriptor,
+    interpretation: AgenticDeIngressInterpretationRecord,
+    communication_egress: AgenticDeCommunicationEgressPacket,
+    evidence_refs: list[str],
+) -> AgenticDeRemoteOperatorViewPacket:
+    consumed_communication_refs = [
+        ingress.communication_ingress_id,
+        descriptor.surface_authority_descriptor_id,
+        interpretation.ingress_interpretation_id,
+        communication_egress.communication_egress_id,
+    ]
+    field_origin_tags = {
+        "remote_operator_session_ref": "prior_artifact",
+        "consumed_loop_state_ref": "prior_artifact",
+        "consumed_communication_refs": "prior_artifact",
+        "task_status_summary": "current_turn_derived",
+        "ask_blocker_summary": "current_turn_derived",
+        "evidence_reachability_summary": "current_turn_derived",
+        "frozen_policy_anchor_ref": "shaping_only",
+    }
+    field_dependence_tags = {
+        "remote_operator_session_ref": [session_record.remote_operator_session_id],
+        "consumed_loop_state_ref": [loop_state_ledger.ledger_id],
+        "consumed_communication_refs": consumed_communication_refs,
+        "task_status_summary": [
+            continuation_refresh_decision.refresh_decision_id,
+            communication_egress.communication_egress_id,
+        ],
+        "ask_blocker_summary": [
+            continuation_refresh_decision.refresh_decision_id,
+            V63A_FROZEN_POLICY_REF,
+        ],
+        "evidence_reachability_summary": [
+            continuation_refresh_decision.refresh_decision_id,
+            *consumed_communication_refs,
+            V63A_FROZEN_POLICY_REF,
+        ],
+        "frozen_policy_anchor_ref": [V63A_FROZEN_POLICY_REF],
+    }
+    return AgenticDeRemoteOperatorViewPacket(
+        target_arc=V63A_TARGET_ARC,
+        target_path=V63A_TARGET_PATH,
+        remote_operator_session_ref=session_record.remote_operator_session_id,
+        consumed_loop_state_ref=loop_state_ledger.ledger_id,
+        consumed_communication_refs=consumed_communication_refs,
+        task_status_summary=(
+            "refresh_outcome="
+            + continuation_refresh_decision.refresh_outcome
+            + "; selected_next_path="
+            + (
+                continuation_refresh_decision.selected_next_path_summary_or_none
+                or "none"
+            )
+            + "; selected_egress_posture="
+            + communication_egress.selected_egress_posture
+        ),
+        ask_blocker_summary=(
+            "read-mostly remote operator view may acknowledge or issue one bounded response "
+            "only; richer structured answers, clarifications, inspect-rich controls, and "
+            "broader command bridge semantics remain deferred to V63-B"
+        ),
+        evidence_reachability_summary=(
+            "reachable evidence covers shipped V60-B continuation refresh plus shipped V61-A "
+            "ingress/descriptor/interpretation/egress lineage under one explicit V63-A policy "
+            "anchor"
+        ),
+        frozen_policy_anchor_ref=V63A_FROZEN_POLICY_REF,
+        reason_codes=[
+            "admitted_remote_session_consumed",
+            "shipped_v60_refresh_basis_visible",
+            "shipped_v61_communication_basis_visible",
+            "read_mostly_view_only",
+            "path_level_non_generalization_required",
+        ],
+        field_origin_tags=field_origin_tags,
+        field_dependence_tags=field_dependence_tags,
+        root_origin_dedup_summary=(
+            "remote session, shipped continuation basis, and shipped communication lineage "
+            "remain non-independent view basis; repeated refs do not mint remote control "
+            "authority"
+        ),
+        evidence_refs=evidence_refs,
+    )
+
+
+def _build_v63a_response_basis(
+    *,
+    selected_response_kind: str,
+    loop_state_ledger: AgenticDeLoopStateLedger,
+    continuation_refresh_decision: AgenticDeContinuationRefreshDecisionRecord,
+    communication_egress: AgenticDeCommunicationEgressPacket,
+) -> tuple[str, str, list[str]]:
+    if selected_response_kind == "acknowledge":
+        return (
+            f"session:{loop_state_ledger.resident_session_ref}#notification_or_session_posture",
+            "acknowledge consumes shipped notification/session posture only and may not mutate "
+            "continuation, communication, or authority state by itself",
+            [
+                "acknowledge_notification_session_only",
+                "acknowledge_non_mutating",
+            ],
+        )
+    if selected_response_kind == "approve":
+        return (
+            f"session:{loop_state_ledger.resident_session_ref}#approval_state_or_equivalent",
+            "approve consumes shipped URM approval/session posture over the selected resident "
+            "session only",
+            ["approve_consumes_shipped_urm_approval_session_law"],
+        )
+    if selected_response_kind == "continue":
+        return (
+            continuation_refresh_decision.refresh_decision_id,
+            "continue consumes shipped V60 continuation posture over the selected refresh basis "
+            "only",
+            ["continue_consumes_shipped_v60_continuation_posture"],
+        )
+    if selected_response_kind == "pause":
+        return (
+            continuation_refresh_decision.refresh_decision_id,
+            "pause consumes shipped V60 continuation posture over the selected refresh basis "
+            "only",
+            ["pause_consumes_shipped_v60_continuation_posture"],
+        )
+    if selected_response_kind == "escalate":
+        return (
+            communication_egress.communication_egress_id,
+            "escalate consumes shipped V60/V61 blocked-or-escalation posture over the selected "
+            "governed communication basis only",
+            ["escalate_consumes_shipped_v60_v61_blocked_or_escalation_posture"],
+        )
+    raise ValueError(f"unsupported V63-A selected_response_kind: {selected_response_kind!r}")
+
+
+def _build_v63a_remote_operator_response_record(
+    *,
+    session_record: AgenticDeRemoteOperatorSessionRecord,
+    loop_state_ledger: AgenticDeLoopStateLedger,
+    continuation_refresh_decision: AgenticDeContinuationRefreshDecisionRecord,
+    communication_egress: AgenticDeCommunicationEgressPacket,
+    selected_response_kind: str,
+    evidence_refs: list[str],
+) -> AgenticDeRemoteOperatorResponseRecord:
+    control_basis_ref, response_basis_summary, kind_reason_codes = _build_v63a_response_basis(
+        selected_response_kind=selected_response_kind,
+        loop_state_ledger=loop_state_ledger,
+        continuation_refresh_decision=continuation_refresh_decision,
+        communication_egress=communication_egress,
+    )
+    field_origin_tags = {
+        "remote_operator_session_ref": "prior_artifact",
+        "selected_response_kind": "shaping_only",
+        "consumed_control_basis_ref_or_equivalent": "current_turn_derived",
+        "response_basis_summary": "current_turn_derived",
+        "frozen_policy_anchor_ref": "shaping_only",
+    }
+    field_dependence_tags = {
+        "remote_operator_session_ref": [session_record.remote_operator_session_id],
+        "selected_response_kind": [V63A_FROZEN_POLICY_REF],
+        "consumed_control_basis_ref_or_equivalent": [
+            session_record.remote_operator_session_id,
+            control_basis_ref,
+        ],
+        "response_basis_summary": [
+            session_record.remote_operator_session_id,
+            control_basis_ref,
+            V63A_FROZEN_POLICY_REF,
+        ],
+        "frozen_policy_anchor_ref": [V63A_FROZEN_POLICY_REF],
+    }
+    return AgenticDeRemoteOperatorResponseRecord(
+        target_arc=V63A_TARGET_ARC,
+        target_path=V63A_TARGET_PATH,
+        remote_operator_session_ref=session_record.remote_operator_session_id,
+        selected_response_kind=selected_response_kind,
+        consumed_control_basis_ref_or_equivalent=control_basis_ref,
+        response_basis_summary=response_basis_summary,
+        frozen_policy_anchor_ref=V63A_FROZEN_POLICY_REF,
+        reason_codes=[
+            "admitted_remote_session_consumed",
+            "selected_response_kind_explicit",
+            "control_basis_explicit",
+            "typed_replayable_response_only",
+            "remote_response_non_authorizing",
+            *kind_reason_codes,
+        ],
+        field_origin_tags=field_origin_tags,
+        field_dependence_tags=field_dependence_tags,
+        root_origin_dedup_summary=(
+            "remote session and consumed control basis remain non-independent response basis; "
+            "repeated control refs do not mint repo, execute, or dispatch authority"
+        ),
+        evidence_refs=evidence_refs,
+    )
+
+
+def run_agentic_de_remote_operator_starter_v63a(
+    *,
+    repo_root_path: Path | None = None,
+    v60a_loop_state_ledger_path: Path = DEFAULT_V60A_LOOP_STATE_LEDGER_PATH,
+    v60b_continuation_refresh_decision_path: Path = DEFAULT_V60B_CONTINUATION_REFRESH_DECISION_PATH,
+    v61a_communication_ingress_path: Path = DEFAULT_V61A_COMMUNICATION_INGRESS_PATH,
+    v61a_surface_authority_descriptor_path: Path = DEFAULT_V61A_SURFACE_AUTHORITY_DESCRIPTOR_PATH,
+    v61a_ingress_interpretation_path: Path = DEFAULT_V61A_INGRESS_INTERPRETATION_PATH,
+    v61a_communication_egress_path: Path = DEFAULT_V61A_COMMUNICATION_EGRESS_PATH,
+    lane_drift_path: Path = DEFAULT_V63A_LANE_DRIFT_PATH,
+    v61c_evidence_path: Path = DEFAULT_V61C_EVIDENCE_PATH,
+    v62c_evidence_path: Path = DEFAULT_V62C_EVIDENCE_PATH,
+    target_relative_path: str = str(DEFAULT_WORKSPACE_CONTINUITY_TARGET_RELATIVE_PATH),
+    selected_response_kind: str = "acknowledge",
+) -> tuple[
+    AgenticDeRemoteOperatorSessionRecord,
+    AgenticDeRemoteOperatorViewPacket,
+    AgenticDeRemoteOperatorResponseRecord,
+]:
+    raw_root = repo_root(anchor=Path(__file__)) if repo_root_path is None else repo_root_path
+    if raw_root.exists() and raw_root.is_symlink():
+        raise ValueError("repository root may not be a symlink for V63-A remote operator starter")
+    root = raw_root.resolve()
+
+    path_args = {
+        "v60a_loop_state_ledger_path": v60a_loop_state_ledger_path,
+        "v60b_continuation_refresh_decision_path": v60b_continuation_refresh_decision_path,
+        "v61a_communication_ingress_path": v61a_communication_ingress_path,
+        "v61a_surface_authority_descriptor_path": v61a_surface_authority_descriptor_path,
+        "v61a_ingress_interpretation_path": v61a_ingress_interpretation_path,
+        "v61a_communication_egress_path": v61a_communication_egress_path,
+        "lane_drift_path": lane_drift_path,
+        "v61c_evidence_path": v61c_evidence_path,
+        "v62c_evidence_path": v62c_evidence_path,
+    }
+    resolved_paths: dict[str, Path] = {}
+    for field_name, path in path_args.items():
+        candidate = _resolve_path(repo_root_path=root, path=path)
+        _assert_v63a_repo_local_input_path(
+            repo_root_path=root,
+            candidate=candidate,
+            field_name=field_name,
+        )
+        resolved_paths[field_name] = candidate
+
+    _validate_v63a_lane_drift_record(load_lane_drift_record(resolved_paths["lane_drift_path"]))
+    _validate_v61c_evidence_payload(
+        _load_json_object(resolved_paths["v61c_evidence_path"], error_label="V61-C evidence")
+    )
+    _validate_v62c_evidence_payload(
+        _load_json_object(resolved_paths["v62c_evidence_path"], error_label="V62-C evidence")
+    )
+
+    v60a_loop_state_ledger = load_loop_state_ledger(resolved_paths["v60a_loop_state_ledger_path"])
+    v60b_continuation_refresh_decision = load_continuation_refresh_decision_record(
+        resolved_paths["v60b_continuation_refresh_decision_path"]
+    )
+    v61a_ingress = load_communication_ingress_packet(
+        resolved_paths["v61a_communication_ingress_path"]
+    )
+    v61a_descriptor = load_surface_authority_descriptor(
+        resolved_paths["v61a_surface_authority_descriptor_path"]
+    )
+    v61a_interpretation = load_ingress_interpretation_record(
+        resolved_paths["v61a_ingress_interpretation_path"]
+    )
+    v61a_communication_egress = load_communication_egress_packet(
+        resolved_paths["v61a_communication_egress_path"]
+    )
+
+    _validate_v63a_consumed_surfaces(
+        loop_state_ledger=v60a_loop_state_ledger,
+        continuation_refresh_decision=v60b_continuation_refresh_decision,
+        ingress=v61a_ingress,
+        descriptor=v61a_descriptor,
+        interpretation=v61a_interpretation,
+        communication_egress=v61a_communication_egress,
+        target_relative_path=target_relative_path,
+    )
+
+    evidence_refs = [
+        _render_input_ref(repo_root_path=root, path=resolved_paths["v60a_loop_state_ledger_path"]),
+        _render_input_ref(
+            repo_root_path=root,
+            path=resolved_paths["v60b_continuation_refresh_decision_path"],
+        ),
+        _render_input_ref(
+            repo_root_path=root,
+            path=resolved_paths["v61a_communication_ingress_path"],
+        ),
+        _render_input_ref(
+            repo_root_path=root,
+            path=resolved_paths["v61a_surface_authority_descriptor_path"],
+        ),
+        _render_input_ref(
+            repo_root_path=root,
+            path=resolved_paths["v61a_ingress_interpretation_path"],
+        ),
+        _render_input_ref(
+            repo_root_path=root,
+            path=resolved_paths["v61a_communication_egress_path"],
+        ),
+        _render_input_ref(repo_root_path=root, path=resolved_paths["lane_drift_path"]),
+        _render_input_ref(repo_root_path=root, path=resolved_paths["v61c_evidence_path"]),
+        _render_input_ref(repo_root_path=root, path=resolved_paths["v62c_evidence_path"]),
+    ]
+    session_record = _build_v63a_remote_operator_session_record(
+        loop_state_ledger=v60a_loop_state_ledger,
+        ingress=v61a_ingress,
+        descriptor=v61a_descriptor,
+        interpretation=v61a_interpretation,
+        communication_egress=v61a_communication_egress,
+        evidence_refs=evidence_refs,
+    )
+    view_packet = _build_v63a_remote_operator_view_packet(
+        session_record=session_record,
+        loop_state_ledger=v60a_loop_state_ledger,
+        continuation_refresh_decision=v60b_continuation_refresh_decision,
+        ingress=v61a_ingress,
+        descriptor=v61a_descriptor,
+        interpretation=v61a_interpretation,
+        communication_egress=v61a_communication_egress,
+        evidence_refs=evidence_refs,
+    )
+    response_record = _build_v63a_remote_operator_response_record(
+        session_record=session_record,
+        loop_state_ledger=v60a_loop_state_ledger,
+        continuation_refresh_decision=v60b_continuation_refresh_decision,
+        communication_egress=v61a_communication_egress,
+        selected_response_kind=selected_response_kind,
+        evidence_refs=evidence_refs,
+    )
+    return session_record, view_packet, response_record
+
+
 def render_checkpoint_payload(checkpoint: AgenticDeMembraneCheckpoint) -> str:
     return json.dumps(checkpoint.model_dump(mode="json"), indent=2, sort_keys=True) + "\n"
 
@@ -13713,6 +14402,22 @@ def render_external_assistant_egress_bridge_payload(
     packet: AgenticDeExternalAssistantEgressBridgePacket,
 ) -> str:
     return json.dumps(packet.model_dump(mode="json"), indent=2, sort_keys=True) + "\n"
+
+
+def render_remote_operator_session_payload(
+    record: AgenticDeRemoteOperatorSessionRecord,
+) -> str:
+    return json.dumps(record.model_dump(mode="json"), indent=2, sort_keys=True) + "\n"
+
+
+def render_remote_operator_view_payload(packet: AgenticDeRemoteOperatorViewPacket) -> str:
+    return json.dumps(packet.model_dump(mode="json"), indent=2, sort_keys=True) + "\n"
+
+
+def render_remote_operator_response_payload(
+    record: AgenticDeRemoteOperatorResponseRecord,
+) -> str:
+    return json.dumps(record.model_dump(mode="json"), indent=2, sort_keys=True) + "\n"
 
 
 def render_governed_communication_hardening_payload(
