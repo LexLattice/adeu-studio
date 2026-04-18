@@ -1,8 +1,8 @@
 # Assessment vNext+172 Edges
 
-Status: pre-lock edge assessment for `V62-C`.
+Status: post-closeout edge assessment for `V62-C` (April 18, 2026 UTC).
 
-Authority layer: planning scaffold only.
+Authority layer: closeout evidence on `main`.
 
 ## Assessment-State Marker (Machine-Checkable)
 
@@ -10,8 +10,8 @@ Authority layer: planning scaffold only.
 {
   "schema": "assessment_artifact_state@1",
   "artifact": "docs/ASSESSMENT_vNEXT_PLUS172_EDGES.md",
-  "phase": "pre_lock_assessment",
-  "authoritative": false,
+  "phase": "post_closeout_assessment",
+  "authoritative": true,
   "required_in_decision": true
 }
 ```
@@ -28,6 +28,8 @@ Authority layer: planning scaffold only.
   - shipped `V62-A` connector admission remains the only admitted basis
   - `V62-C` adds one advisory register only
   - no new connector admission record
+- Closeout Evidence:
+  shipped checker/tests preserve exact consumed `V62-A` admission-only lineage.
 
 ### Edge 2: Advisory Output Could Be Over-Read As Bridge Or Office Authority
 
@@ -40,6 +42,9 @@ Authority layer: planning scaffold only.
   - advisory output is not bridge office
   - advisory output is not rewitness
   - advisory output is not human-via-connector selection
+- Closeout Evidence:
+  shipped lock/checker/tests preserve explicit non-equivalence constraints for
+  `V62-C`.
 
 ### Edge 3: Positive Rewitness Could Be Over-Read Without Concrete Basis
 
@@ -51,19 +56,9 @@ Authority layer: planning scaffold only.
   - witness basis ref or certificate posture when relevant
   - explicit basis carried in the evidence basis
   - missing or inconsistent basis fails closed
-
-### Edge 3A: Positive Rewitness Basis Carry-Through Could Drift From Upstream Posture
-
-- Risk:
-  the advisory evidence basis could carry positive rewitness basis or certificate
-  fields that do not actually match the selected upstream rewitness posture.
-- Response:
-  keep rewitness-basis carry-through posture-consistent and fail-closed.
-  - no positive rewitness selected upstream means basis/certificate posture stays
-    `none`
-  - carried basis/certificate posture must match the selected upstream rewitness
-    posture
-  - inconsistent carry-through fails closed
+- Closeout Evidence:
+  shipped checker/tests require explicit positive rewitness basis posture and
+  reject inconsistent carry-through.
 
 ### Edge 4: Candidate Labels Could Become Soft Authorization
 
@@ -75,6 +70,9 @@ Authority layer: planning scaffold only.
   - non-entitling
   - non-escalating by themselves
   - later scope unspecified unless a later lock selects it
+- Closeout Evidence:
+  shipped register/tests keep `candidate_for_later_connector_hardening`
+  later-lock-dependent and advisory-only.
 
 ### Edge 5: One Successful Connector Lineage Could Be Over-Read As Fleet-Level Law
 
@@ -88,6 +86,8 @@ Authority layer: planning scaffold only.
   - not human-via-connector law
   - not remote-operator law
   - not bridge-office-family or rewitness-family law
+- Closeout Evidence:
+  shipped contract/checker/tests keep explicit path-level non-generalization.
 
 ### Edge 6: Advisory Register Could Quietly Swallow Repo / Execute / Dispatch Law
 
@@ -100,19 +100,27 @@ Authority layer: planning scaffold only.
   - not execute authority
   - not dispatch authority
   - not product authority
+- Closeout Evidence:
+  shipped `V62-C` register remains advisory-only and candidate-only with no live
+  authority widening.
 
-### Edge 7: Artifact Refs Could Replace Shipped Verdicts
+### Edge 7: Consumed Shipped Lineage Could Drift Behind Self-Consistent Artifact Refs
 
 - Risk:
-  `V62-C` could technically consume the right artifacts while ignoring the actual
-  connector, communication, office, and rewitness verdicts that make the path
-  lawful.
+  `V62-C` could technically consume self-consistent artifacts while drifting away
+  from the shipped resident `V61-A` seam or the shipped `V62-A` ingress
+  continuation basis.
 - Response:
-  keep hardening dependent on shipped facts and verdicts, not refs alone.
-  - admission verdict required
-  - selected principal required
-  - latest continuation basis and selection summary required
-  - relevant communication and rewitness posture required
+  keep hardening dependent on shipped facts and exact consumed lineage, not refs
+  alone.
+  - shipped resident `V61-A` egress seam required
+  - shipped `V62-A` ingress continuation basis required
+  - shipped `V62-B` egress continuation basis required
+  - mismatches fail closed
+- Closeout Evidence:
+  review hardening commit added explicit checker enforcement and regressions for
+  non-shipped `V61-A` egress seam and non-shipped `V62-A` ingress continuation
+  basis.
 
 ### Edge 8: Connector Hardening Could Quietly Mutate Live Behavior
 
@@ -125,24 +133,29 @@ Authority layer: planning scaffold only.
   - no human-via-connector selection
   - no advisory-to-live promotion
   - `keep_warning_only` retains current advisory posture only
+- Closeout Evidence:
+  merged slice includes only one new
+  `agentic_de_connector_bridge_hardening_register@1` surface and one thin
+  advisory runner.
 
 ## Current Judgment
 
-- `V62-C` is the right next slice because `V62-A` and `V62-B` already closed one
-  exact admitted connector path plus bounded inbound/outbound bridge lineage, and
-  the next missing bounded step is one advisory connector hardening /
-  provenance-drift surface over that same lineage.
-- the follow-on should stay properly bounded:
-  - same admitted connector path only
-  - same selected principal only
-  - shipped `V62-A` and `V62-B` lineage consumed intact
+- `V62-C` was the right third slice because `V62-A` already closed admitted
+  connector path plus ingress law and `V62-B` already closed outbound bridge
+  posture, while bounded advisory connector hardening over that same shipped
+  lineage was still missing.
+- the shipped result remained properly bounded:
+  - one admitted connector path only
+  - one selected principal only
   - one advisory connector hardening register only
-  - explicit evidence-vs-recommendation separation
-  - explicit positive rewitness basis posture where relevant
-  - explicit continuation-basis selection summary
-  - no human-via-connector law
-  - no broader connector-fleet trust
-  - no remote-operator law
-  - no repo, execute, or dispatch widening
-- the next move after this advisory slice, if `V62-C` lands cleanly, should be a
-  new family selection rather than more `V62` authority widening in place.
+  - consumed shipped `V62-A` admission/ingress lineage
+  - consumed shipped `V62-B` egress lineage
+  - consumed shipped `V61-A` egress plus shipped `V61-B` office/rewitness and
+    shipped `V61-C` advisory lineage
+  - explicit committed-artifact precedence and frozen-policy replayability anchor
+  - explicit positive rewitness posture carry-through and fail-closed checks
+  - no connector admission, human-via-connector, connector migration, remote,
+    repo, execute, or dispatch widening
+- `V62-C` is closed on `main`.
+- the next move should be a new family selection rather than widening `V62-C` in
+  place.
