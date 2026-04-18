@@ -210,6 +210,21 @@ def test_v63a_rejects_unsupported_response_kind(tmp_path: Path) -> None:
         )
 
 
+def test_v63a_rejects_escalate_without_shipped_escalation_egress_posture(
+    tmp_path: Path,
+) -> None:
+    temp_root, _fixture_root = _copy_v63a_input_tree(tmp_path / "repo")
+
+    with pytest.raises(
+        ValueError,
+        match="V63-A escalate requires shipped V61-A escalation_notice egress posture",
+    ):
+        run_agentic_de_remote_operator_starter_v63a(
+            repo_root_path=temp_root,
+            selected_response_kind="escalate",
+        )
+
+
 def test_v63a_rejects_symlinked_repo_root(tmp_path: Path) -> None:
     temp_root, _fixture_root = _copy_v63a_input_tree(tmp_path / "repo")
     symlink_root = tmp_path / "repo-link"

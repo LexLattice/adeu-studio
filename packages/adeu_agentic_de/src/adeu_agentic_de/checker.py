@@ -14060,6 +14060,10 @@ def _build_v63a_response_basis(
             ["pause_consumes_shipped_v60_continuation_posture"],
         )
     if selected_response_kind == "escalate":
+        if communication_egress.selected_egress_posture != "escalation_notice":
+            raise ValueError(
+                "V63-A escalate requires shipped V61-A escalation_notice egress posture"
+            )
         return (
             communication_egress.communication_egress_id,
             "escalate consumes shipped V60/V61 blocked-or-escalation posture over the selected "
