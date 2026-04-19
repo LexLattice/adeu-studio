@@ -105,6 +105,9 @@ AGENTIC_DE_REPO_WRITABLE_SURFACE_HARDENING_REGISTER_SCHEMA = (
 AGENTIC_DE_DELEGATED_WORKER_EXPORT_PACKET_SCHEMA = (
     "agentic_de_delegated_worker_export_packet@1"
 )
+AGENTIC_DE_DELEGATED_WORKER_RECONCILIATION_REPORT_SCHEMA = (
+    "agentic_de_delegated_worker_reconciliation_report@1"
+)
 
 ACTION_CLASS_VOCABULARY = ("inspect", "write", "execute", "dispatch")
 EXACT_ACTION_CLASS_VOCABULARY = (
@@ -234,6 +237,12 @@ DELEGATED_WORKER_EXPORT_VERDICT_VOCABULARY = (
     "rejected_missing_local_basis",
     "rejected_out_of_scope_export",
     "rejected_missing_worker_basis",
+    "rejected_inconsistent_basis",
+)
+DELEGATED_WORKER_RECONCILIATION_STATUS_VOCABULARY = (
+    "reconciled_to_export_lineage",
+    "rejected_missing_export_basis",
+    "rejected_missing_worker_result_basis",
     "rejected_inconsistent_basis",
 )
 WORKSPACE_CONTINUITY_ADMISSION_VERDICT_VOCABULARY = (
@@ -588,6 +597,12 @@ DelegatedWorkerExportVerdict = Literal[
     "rejected_missing_local_basis",
     "rejected_out_of_scope_export",
     "rejected_missing_worker_basis",
+    "rejected_inconsistent_basis",
+]
+DelegatedWorkerReconciliationStatus = Literal[
+    "reconciled_to_export_lineage",
+    "rejected_missing_export_basis",
+    "rejected_missing_worker_result_basis",
     "rejected_inconsistent_basis",
 ]
 BridgeOfficePosture = Literal[
@@ -6190,6 +6205,121 @@ class AgenticDeRepoWritableSurfaceHardeningRegister(BaseModel):
         return self
 
 
+class AgenticDeDelegatedWorkerReconciliationReport(BaseModel):
+    model_config = MODEL_CONFIG
+
+    schema: Literal[AGENTIC_DE_DELEGATED_WORKER_RECONCILIATION_REPORT_SCHEMA] = (
+        AGENTIC_DE_DELEGATED_WORKER_RECONCILIATION_REPORT_SCHEMA
+    )
+    delegated_worker_reconciliation_report_id: str | None = None
+    target_arc: str
+    target_path: str
+    evidence_only: Literal[True] = True
+    changes_live_behavior_by_default: Literal[False] = False
+    delegated_worker_export_packet_ref: str
+    worker_result_or_conformance_basis_ref_or_equivalent: str
+    selected_worker_result_or_conformance_kind_summary: str
+    worker_carrier_basis_ref_or_equivalent: str
+    selected_worker_topology_basis_ref_or_equivalent: str
+    selected_export_scope_summary: str
+    exported_work_membership_basis_summary: str
+    selected_target_or_patch_or_artifact_summary: str
+    reconciliation_basis_summary: str
+    consumed_continuation_basis_summary: str
+    consumed_communication_basis_summary_or_none: str | None = None
+    preserved_write_semantics_summary: str
+    reconciliation_status: DelegatedWorkerReconciliationStatus
+    frozen_policy_anchor_ref: str
+    field_origin_tags: dict[str, LiveTurnFieldOriginTag]
+    field_dependence_tags: dict[str, list[str]]
+    root_origin_dedup_summary: str
+    reason_codes: list[str]
+    evidence_refs: list[str]
+
+    @model_validator(mode="after")
+    def _validate_report(self) -> AgenticDeDelegatedWorkerReconciliationReport:
+        _assert_present_text(self.target_arc, field_name="target_arc")
+        _assert_present_text(self.target_path, field_name="target_path")
+        required_fields = (
+            "delegated_worker_export_packet_ref",
+            "worker_result_or_conformance_basis_ref_or_equivalent",
+            "selected_worker_result_or_conformance_kind_summary",
+            "worker_carrier_basis_ref_or_equivalent",
+            "selected_worker_topology_basis_ref_or_equivalent",
+            "selected_export_scope_summary",
+            "exported_work_membership_basis_summary",
+            "selected_target_or_patch_or_artifact_summary",
+            "reconciliation_basis_summary",
+            "consumed_continuation_basis_summary",
+            "preserved_write_semantics_summary",
+            "frozen_policy_anchor_ref",
+            "root_origin_dedup_summary",
+        )
+        for field_name in required_fields:
+            _assert_present_text(getattr(self, field_name), field_name=field_name)
+        if self.consumed_communication_basis_summary_or_none is not None:
+            _assert_present_text(
+                self.consumed_communication_basis_summary_or_none,
+                field_name="consumed_communication_basis_summary_or_none",
+            )
+        required_tag_fields = (
+            "delegated_worker_export_packet_ref",
+            "worker_result_or_conformance_basis_ref_or_equivalent",
+            "selected_worker_result_or_conformance_kind_summary",
+            "worker_carrier_basis_ref_or_equivalent",
+            "selected_worker_topology_basis_ref_or_equivalent",
+            "selected_export_scope_summary",
+            "exported_work_membership_basis_summary",
+            "selected_target_or_patch_or_artifact_summary",
+            "reconciliation_basis_summary",
+            "consumed_continuation_basis_summary",
+            "consumed_communication_basis_summary_or_none",
+            "preserved_write_semantics_summary",
+            "reconciliation_status",
+            "frozen_policy_anchor_ref",
+        )
+        for field_name in required_tag_fields:
+            if field_name not in self.field_origin_tags:
+                raise ValueError(f"field_origin_tags missing required key {field_name}")
+            if field_name not in self.field_dependence_tags:
+                raise ValueError(f"field_dependence_tags missing required key {field_name}")
+        normalized_dependence_tags: dict[str, list[str]] = {}
+        for key, values in self.field_dependence_tags.items():
+            normalized_dependence_tags[key] = _ordered_unique_texts(
+                values,
+                field_name=f"field_dependence_tags[{key}]",
+            )
+        object.__setattr__(self, "field_dependence_tags", normalized_dependence_tags)
+        object.__setattr__(
+            self,
+            "reason_codes",
+            _ordered_unique_texts(self.reason_codes, field_name="reason_codes"),
+        )
+        object.__setattr__(
+            self,
+            "evidence_refs",
+            _ordered_unique_texts(self.evidence_refs, field_name="evidence_refs"),
+        )
+        if not self.reason_codes:
+            raise ValueError("reason_codes must be non-empty")
+        if not self.evidence_refs:
+            raise ValueError("evidence_refs must be non-empty")
+        object.__setattr__(
+            self,
+            "delegated_worker_reconciliation_report_id",
+            _assign_or_verify_content_addressed_id(
+                value=self.delegated_worker_reconciliation_report_id,
+                field_name="delegated_worker_reconciliation_report_id",
+                prefix="agentic_de_delegated_worker_reconciliation_report",
+                payload=self.model_dump(
+                    mode="json",
+                    exclude={"delegated_worker_reconciliation_report_id"},
+                ),
+            ),
+        )
+        return self
+
+
 class AgenticDeBridgeOfficeBindingRecord(BaseModel):
     model_config = MODEL_CONFIG
 
@@ -7135,6 +7265,12 @@ def compute_agentic_de_repo_write_reintegration_report_id(
 
 def compute_agentic_de_delegated_worker_export_packet_id(payload: dict[str, object]) -> str:
     return _compute_id("agentic_de_delegated_worker_export_packet", payload)
+
+
+def compute_agentic_de_delegated_worker_reconciliation_report_id(
+    payload: dict[str, object],
+) -> str:
+    return _compute_id("agentic_de_delegated_worker_reconciliation_report", payload)
 
 
 def compute_agentic_de_repo_writable_surface_hardening_entry_id(

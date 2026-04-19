@@ -1,0 +1,116 @@
+{
+  "changes_live_behavior_by_default": false,
+  "consumed_communication_basis_summary_or_none": "shipped V61-A communication egress lineage may contextualize reconciliation posture only; it does not mint fresh local, export, or worker authority",
+  "consumed_continuation_basis_summary": "shipped V60-B refresh decision remains the selected continuation basis for the same delegated export lineage only",
+  "delegated_worker_export_packet_ref": "agentic_de_delegated_worker_export_packet_6599e6ab5ea7",
+  "delegated_worker_reconciliation_report_id": "agentic_de_delegated_worker_reconciliation_report_232196204aa3",
+  "evidence_only": true,
+  "evidence_refs": [
+    "agentic_de_delegated_worker_export_packet_6599e6ab5ea7",
+    "worker_boundary_conformance_report:v48e_reference_child",
+    "worker_delegation_topology:987c9d2691f6c0bf032b3965d338b57247b2370021c7ea6d8ee9d875ceceec4a",
+    "agentic_de_continuation_refresh_decision_067a308bcae4",
+    "agentic_de_communication_egress_a9c87d1c116e",
+    "packages/adeu_agentic_de/tests/fixtures/v60b/reference_agentic_de_continuation_refresh_decision_record.json",
+    "packages/adeu_agentic_de/tests/fixtures/v61a/reference_agentic_de_communication_egress_packet.json",
+    "packages/adeu_agentic_de/tests/fixtures/v65a/reference_agentic_de_delegated_worker_export_packet.json",
+    "packages/adeu_agent_harness/tests/fixtures/v48e/reference_child/worker_boundary_conformance_report.json",
+    "packages/adeu_agent_harness/tests/fixtures/v48e/reference_worker_delegation_topology.json",
+    "packages/adeu_agentic_de/tests/fixtures/v65b/reference_agentic_de_lane_drift_record.json",
+    "artifacts/agent_harness/v179/evidence_inputs/v65a_delegated_worker_export_starter_evidence_v179.json",
+    "artifacts/agent_harness/v115/evidence_inputs/v48d_worker_boundary_conformance_evidence_v115.json",
+    "artifacts/agent_harness/v116/evidence_inputs/v48e_worker_delegation_topology_evidence_v116.json"
+  ],
+  "exported_work_membership_basis_summary": "exported-work membership reuses the shipped V64-A canonical target-membership and admitted target basis plus shipped V64-C shaping-only drift guard context; no extra local paths may be laundered into worker-side scope",
+  "field_dependence_tags": {
+    "consumed_communication_basis_summary_or_none": [
+      "agentic_de_communication_egress_a9c87d1c116e"
+    ],
+    "consumed_continuation_basis_summary": [
+      "agentic_de_continuation_refresh_decision_067a308bcae4"
+    ],
+    "delegated_worker_export_packet_ref": [
+      "agentic_de_delegated_worker_export_packet_6599e6ab5ea7"
+    ],
+    "exported_work_membership_basis_summary": [
+      "agentic_de_delegated_worker_export_packet_6599e6ab5ea7"
+    ],
+    "frozen_policy_anchor_ref": [
+      "docs/LOCKED_CONTINUATION_vNEXT_PLUS180.md#machine-checkable-contract"
+    ],
+    "preserved_write_semantics_summary": [
+      "agentic_de_delegated_worker_export_packet_6599e6ab5ea7"
+    ],
+    "reconciliation_basis_summary": [
+      "agentic_de_delegated_worker_export_packet_6599e6ab5ea7",
+      "worker_boundary_conformance_report:v48e_reference_child",
+      "worker_delegation_topology:987c9d2691f6c0bf032b3965d338b57247b2370021c7ea6d8ee9d875ceceec4a",
+      "agentic_de_continuation_refresh_decision_067a308bcae4",
+      "agentic_de_communication_egress_a9c87d1c116e",
+      "docs/LOCKED_CONTINUATION_vNEXT_PLUS180.md#machine-checkable-contract"
+    ],
+    "reconciliation_status": [
+      "agentic_de_delegated_worker_export_packet_6599e6ab5ea7",
+      "worker_boundary_conformance_report:v48e_reference_child"
+    ],
+    "selected_export_scope_summary": [
+      "agentic_de_delegated_worker_export_packet_6599e6ab5ea7"
+    ],
+    "selected_target_or_patch_or_artifact_summary": [
+      "agentic_de_delegated_worker_export_packet_6599e6ab5ea7"
+    ],
+    "selected_worker_result_or_conformance_kind_summary": [
+      "worker_boundary_conformance_report:v48e_reference_child"
+    ],
+    "selected_worker_topology_basis_ref_or_equivalent": [
+      "worker_delegation_topology:987c9d2691f6c0bf032b3965d338b57247b2370021c7ea6d8ee9d875ceceec4a"
+    ],
+    "worker_carrier_basis_ref_or_equivalent": [
+      "artifacts/agent_harness/v48e/reference_child/compiled_policy_taskpack_binding.json"
+    ],
+    "worker_result_or_conformance_basis_ref_or_equivalent": [
+      "worker_boundary_conformance_report:v48e_reference_child"
+    ]
+  },
+  "field_origin_tags": {
+    "consumed_communication_basis_summary_or_none": "current_turn_derived",
+    "consumed_continuation_basis_summary": "current_turn_derived",
+    "delegated_worker_export_packet_ref": "prior_artifact",
+    "exported_work_membership_basis_summary": "prior_artifact",
+    "frozen_policy_anchor_ref": "shaping_only",
+    "preserved_write_semantics_summary": "prior_artifact",
+    "reconciliation_basis_summary": "current_turn_derived",
+    "reconciliation_status": "current_turn_derived",
+    "selected_export_scope_summary": "prior_artifact",
+    "selected_target_or_patch_or_artifact_summary": "prior_artifact",
+    "selected_worker_result_or_conformance_kind_summary": "current_turn_derived",
+    "selected_worker_topology_basis_ref_or_equivalent": "prior_artifact",
+    "worker_carrier_basis_ref_or_equivalent": "prior_artifact",
+    "worker_result_or_conformance_basis_ref_or_equivalent": "prior_artifact"
+  },
+  "frozen_policy_anchor_ref": "docs/LOCKED_CONTINUATION_vNEXT_PLUS180.md#machine-checkable-contract",
+  "preserved_write_semantics_summary": "preserve V64-A local_write/create_new entitlement semantics only; V64-B adds one typed compensating restore over the shipped create_new effect and does not widen append, overwrite, rename, or delete authority",
+  "reason_codes": [
+    "shipped_v65a_export_lineage_consumed",
+    "released_v48d_worker_result_basis_consumed",
+    "released_v48e_worker_topology_basis_consumed",
+    "same_exported_scope_only",
+    "same_worker_carrier_and_topology_only",
+    "preserved_local_write_create_new_only",
+    "typed_replayable_reconciliation_only",
+    "reconciliation_not_fresh_local_export_or_worker_authority",
+    "no_all_repo_shell_execute_dispatch_multi_worker_connector_or_remote_authority"
+  ],
+  "reconciliation_basis_summary": "one shipped V65-A delegated export packet reconciled one released worker boundary conformance lineage back to the same exported scope, the same selected worker carrier and topology, and the same shipped V60-B and V61-A basis under one frozen V65-B policy anchor",
+  "reconciliation_status": "reconciled_to_export_lineage",
+  "root_origin_dedup_summary": "dedup roots=export:agentic_de_delegated_worker_export_packet_6599e6ab5ea7,worker_result:worker_boundary_conformance_report:v48e_reference_child,worker_topology:worker_delegation_topology:987c9d2691f6c0bf032b3965d338b57247b2370021c7ea6d8ee9d875ceceec4a,continuation:agentic_de_continuation_refresh_decision_067a308bcae4,communication_egress:agentic_de_communication_egress_a9c87d1c116e,policy:docs/LOCKED_CONTINUATION_vNEXT_PLUS180.md#machine-checkable-contract; shipped delegated export, released worker result, released worker topology, continuation, communication, and policy artifacts remain non-independent reconciliation support rather than fresh authority",
+  "schema": "agentic_de_delegated_worker_reconciliation_report@1",
+  "selected_export_scope_summary": "one shipped V64-A selected writable surface over the same exact admitted target only is exportable here under one released V48-E worker carrier lineage and one selected worker topology only",
+  "selected_target_or_patch_or_artifact_summary": "artifacts/agentic_de/v59/workspace_continuity/runtime/reference_patch_candidate.diff",
+  "selected_worker_result_or_conformance_kind_summary": "worker_result_or_conformance_kind=boundary_conformance_report; overall_judgment=conformant",
+  "selected_worker_topology_basis_ref_or_equivalent": "worker_delegation_topology:987c9d2691f6c0bf032b3965d338b57247b2370021c7ea6d8ee9d875ceceec4a",
+  "target_arc": "vNext+180",
+  "target_path": "V65-B",
+  "worker_carrier_basis_ref_or_equivalent": "artifacts/agent_harness/v48e/reference_child/compiled_policy_taskpack_binding.json",
+  "worker_result_or_conformance_basis_ref_or_equivalent": "worker_boundary_conformance_report:v48e_reference_child"
+}

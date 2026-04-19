@@ -5,6 +5,10 @@ import json
 from datetime import datetime, timezone
 from pathlib import Path
 
+from adeu_agent_harness.worker_boundary_conformance import (
+    WORKER_BOUNDARY_CONFORMANCE_REPORT_SCHEMA,
+    WorkerBoundaryConformanceReport,
+)
 from adeu_agent_harness.worker_delegation_topology import (
     WORKER_DELEGATION_TOPOLOGY_SCHEMA,
     WorkerDelegationTopology,
@@ -39,6 +43,7 @@ from .models import (
     AGENTIC_DE_CONTINUATION_HARDENING_REGISTER_SCHEMA,
     AGENTIC_DE_CONTINUATION_REFRESH_DECISION_RECORD_SCHEMA,
     AGENTIC_DE_DELEGATED_WORKER_EXPORT_PACKET_SCHEMA,
+    AGENTIC_DE_DELEGATED_WORKER_RECONCILIATION_REPORT_SCHEMA,
     AGENTIC_DE_DOMAIN_PACKET_SCHEMA,
     AGENTIC_DE_EXTERNAL_ASSISTANT_EGRESS_BRIDGE_PACKET_SCHEMA,
     AGENTIC_DE_EXTERNAL_ASSISTANT_INGRESS_BRIDGE_PACKET_SCHEMA,
@@ -104,6 +109,7 @@ from .models import (
     AgenticDeContinuationHardeningRegister,
     AgenticDeContinuationRefreshDecisionRecord,
     AgenticDeDelegatedWorkerExportPacket,
+    AgenticDeDelegatedWorkerReconciliationReport,
     AgenticDeDomainPacket,
     AgenticDeExternalAssistantEgressBridgePacket,
     AgenticDeExternalAssistantIngressBridgePacket,
@@ -301,6 +307,10 @@ V65A_CHECKER_VERSION = "agentic_de_delegated_worker_export_v65a"
 V65A_TARGET_ARC = "vNext+179"
 V65A_TARGET_PATH = "V65-A"
 V65A_FROZEN_POLICY_REF = "docs/LOCKED_CONTINUATION_vNEXT_PLUS179.md#machine-checkable-contract"
+V65B_CHECKER_VERSION = "agentic_de_delegated_worker_reconciliation_v65b"
+V65B_TARGET_ARC = "vNext+180"
+V65B_TARGET_PATH = "V65-B"
+V65B_FROZEN_POLICY_REF = "docs/LOCKED_CONTINUATION_vNEXT_PLUS180.md#machine-checkable-contract"
 
 
 def _default_fixture_path(variant: str, filename: str) -> Path:
@@ -663,6 +673,22 @@ DEFAULT_V65A_LANE_DRIFT_PATH = _default_fixture_path(
 DEFAULT_V65A_DELEGATED_WORKER_EXPORT_PATH = _default_fixture_path(
     "v65a", "reference_agentic_de_delegated_worker_export_packet.json"
 )
+DEFAULT_V65B_LANE_DRIFT_PATH = _default_fixture_path(
+    "v65b", "reference_agentic_de_lane_drift_record.json"
+)
+DEFAULT_V65B_DELEGATED_WORKER_RECONCILIATION_PATH = _default_fixture_path(
+    "v65b", "reference_agentic_de_delegated_worker_reconciliation_report.json"
+)
+DEFAULT_V65B_WORKER_BOUNDARY_CONFORMANCE_PATH = (
+    repo_root(anchor=Path(__file__))
+    / "packages"
+    / "adeu_agent_harness"
+    / "tests"
+    / "fixtures"
+    / "v48e"
+    / "reference_child"
+    / "worker_boundary_conformance_report.json"
+)
 DEFAULT_V48E_WORKER_DELEGATION_TOPOLOGY_PATH = (
     repo_root(anchor=Path(__file__))
     / "packages"
@@ -807,6 +833,22 @@ DEFAULT_V64C_EVIDENCE_PATH = (
     / "v178"
     / "evidence_inputs"
     / "v64c_repo_writable_surface_hardening_evidence_v178.json"
+)
+DEFAULT_V65A_EVIDENCE_PATH = (
+    repo_root(anchor=Path(__file__))
+    / "artifacts"
+    / "agent_harness"
+    / "v179"
+    / "evidence_inputs"
+    / "v65a_delegated_worker_export_starter_evidence_v179.json"
+)
+DEFAULT_V48D_EVIDENCE_PATH = (
+    repo_root(anchor=Path(__file__))
+    / "artifacts"
+    / "agent_harness"
+    / "v115"
+    / "evidence_inputs"
+    / "v48d_worker_boundary_conformance_evidence_v115.json"
 )
 DEFAULT_V48E_EVIDENCE_PATH = (
     repo_root(anchor=Path(__file__))
@@ -1101,6 +1143,8 @@ REQUIRED_V64C_DRIFT_ENTRY_STATUSES: dict[str, str] = {
     "path_level_non_generalization_required": "amended",
 }
 EXPECTED_V64C_EVIDENCE_SCHEMA = "v64c_repo_writable_surface_hardening_evidence@1"
+EXPECTED_V65A_EVIDENCE_SCHEMA = "v65a_delegated_worker_export_starter_evidence@1"
+EXPECTED_V48D_EVIDENCE_SCHEMA = "v48d_worker_boundary_conformance_evidence@1"
 EXPECTED_V48E_EVIDENCE_SCHEMA = "v48e_worker_delegation_topology_evidence@1"
 EXPECTED_V65A_PRIOR_LANE_REF = "docs/LOCKED_CONTINUATION_vNEXT_PLUS178.md"
 REQUIRED_V65A_DRIFT_ENTRY_STATUSES: dict[str, str] = {
@@ -1110,6 +1154,16 @@ REQUIRED_V65A_DRIFT_ENTRY_STATUSES: dict[str, str] = {
     "explicit_worker_carrier_and_single_topology_basis_required": "amended",
     "explicit_v60_v61_replayability_inputs_required": "amended",
     "preserved_local_write_create_new_semantics_only": "amended",
+    "broader_dispatch_execute_multi_worker_connector_remote_authority_deferred": "amended",
+}
+EXPECTED_V65B_PRIOR_LANE_REF = "docs/LOCKED_CONTINUATION_vNEXT_PLUS179.md"
+REQUIRED_V65B_DRIFT_ENTRY_STATUSES: dict[str, str] = {
+    "v65a_export_reuse_default": "holds",
+    "same_exported_scope_and_topology_reuse_default": "holds",
+    "released_worker_result_or_conformance_basis_must_be_explicit": "amended",
+    "worker_result_basis_must_match_carrier_topology_and_exported_scope": "amended",
+    "preserved_local_write_create_new_semantics_only": "amended",
+    "reconciliation_not_fresh_local_or_export_or_topology_selection": "amended",
     "broader_dispatch_execute_multi_worker_connector_remote_authority_deferred": "amended",
 }
 
@@ -1547,6 +1601,31 @@ def load_delegated_worker_export_packet(path: Path) -> AgenticDeDelegatedWorkerE
     if payload.schema != AGENTIC_DE_DELEGATED_WORKER_EXPORT_PACKET_SCHEMA:
         raise ValueError(
             f"unexpected schema marker for delegated worker export packet: {payload.schema}"
+        )
+    return payload
+
+
+def load_delegated_worker_reconciliation_report(
+    path: Path,
+) -> AgenticDeDelegatedWorkerReconciliationReport:
+    payload = AgenticDeDelegatedWorkerReconciliationReport.model_validate(
+        _load_json_object(path, error_label="delegated worker reconciliation report")
+    )
+    if payload.schema != AGENTIC_DE_DELEGATED_WORKER_RECONCILIATION_REPORT_SCHEMA:
+        raise ValueError(
+            "unexpected schema marker for delegated worker reconciliation report: "
+            f"{payload.schema}"
+        )
+    return payload
+
+
+def load_worker_boundary_conformance_report(path: Path) -> WorkerBoundaryConformanceReport:
+    payload = WorkerBoundaryConformanceReport.model_validate(
+        _load_json_object(path, error_label="worker boundary conformance report")
+    )
+    if payload.schema != WORKER_BOUNDARY_CONFORMANCE_REPORT_SCHEMA:
+        raise ValueError(
+            f"unexpected schema marker for worker boundary conformance report: {payload.schema}"
         )
     return payload
 
@@ -2304,6 +2383,41 @@ def _assert_v65a_repo_local_input_path(
         raise ValueError(
             f"{field_name} must remain within the repository root for V65-A delegated worker "
             "export"
+        ) from exc
+
+
+def _assert_v65b_repo_local_input_path(
+    *,
+    repo_root_path: Path,
+    candidate: Path,
+    field_name: str,
+) -> None:
+    if repo_root_path.exists() and repo_root_path.is_symlink():
+        raise ValueError(
+            "repository root may not be a symlink for V65-B delegated worker reconciliation"
+        )
+    try:
+        relative = candidate.relative_to(repo_root_path)
+    except ValueError as exc:
+        raise ValueError(
+            f"{field_name} must be lexically within the repository root for V65-B delegated "
+            "worker reconciliation"
+        ) from exc
+    current = repo_root_path
+    for part in relative.parts:
+        current = current / part
+        if current.is_symlink():
+            raise ValueError(
+                f"{field_name} may not traverse symlink components for V65-B delegated worker "
+                "reconciliation"
+            )
+    candidate_resolved = candidate.resolve(strict=False)
+    try:
+        candidate_resolved.relative_to(repo_root_path)
+    except ValueError as exc:
+        raise ValueError(
+            f"{field_name} must remain within the repository root for V65-B delegated worker "
+            "reconciliation"
         ) from exc
 
 
@@ -3193,6 +3307,40 @@ def _validate_v65a_lane_drift_record(record: AgenticDeLaneDriftRecord) -> Agenti
             detail_parts.append(f"status_mismatch={mismatched_statuses}")
         raise ValueError(
             "V65-A lane drift record does not satisfy the required handoff posture; "
+            + ", ".join(detail_parts)
+        )
+    return record
+
+
+def _validate_v65b_lane_drift_record(record: AgenticDeLaneDriftRecord) -> AgenticDeLaneDriftRecord:
+    if record.target_arc != V65B_TARGET_ARC:
+        raise ValueError(
+            f"V65-B lane drift record must target {V65B_TARGET_ARC!r}, got {record.target_arc!r}"
+        )
+    if record.target_path != V65B_TARGET_PATH:
+        raise ValueError(
+            f"V65-B lane drift record must target {V65B_TARGET_PATH!r}, got {record.target_path!r}"
+        )
+    if record.prior_lane_ref != EXPECTED_V65B_PRIOR_LANE_REF:
+        raise ValueError(
+            "V65-B lane drift record must point at "
+            f"{EXPECTED_V65B_PRIOR_LANE_REF!r}, got {record.prior_lane_ref!r}"
+        )
+    actual_statuses = {entry.assumption_ref: entry.status for entry in record.entries}
+    missing_assumptions = sorted(set(REQUIRED_V65B_DRIFT_ENTRY_STATUSES) - set(actual_statuses))
+    mismatched_statuses = sorted(
+        assumption_ref
+        for assumption_ref, expected_status in REQUIRED_V65B_DRIFT_ENTRY_STATUSES.items()
+        if assumption_ref in actual_statuses and actual_statuses[assumption_ref] != expected_status
+    )
+    if missing_assumptions or mismatched_statuses:
+        detail_parts: list[str] = []
+        if missing_assumptions:
+            detail_parts.append(f"missing={missing_assumptions}")
+        if mismatched_statuses:
+            detail_parts.append(f"status_mismatch={mismatched_statuses}")
+        raise ValueError(
+            "V65-B lane drift record does not satisfy the required handoff posture; "
             + ", ".join(detail_parts)
         )
     return record
@@ -4167,6 +4315,57 @@ def _validate_v48e_evidence_payload_for_v65a(payload: dict[str, object]) -> dict
         "reference_worker_delegation_topology_incomplete_lineage.json"
     ):
         raise ValueError("V48-E evidence must preserve the released incomplete topology fixture")
+    return payload
+
+
+def _validate_v65a_evidence_payload_for_v65b(payload: dict[str, object]) -> dict[str, object]:
+    if payload.get("schema") != EXPECTED_V65A_EVIDENCE_SCHEMA:
+        raise ValueError(
+            "V65-B requires the shipped V65-A delegated worker export evidence payload on main"
+        )
+    selected_shapes = payload.get("selected_record_shapes")
+    if not isinstance(selected_shapes, list):
+        raise ValueError("V65-A evidence must preserve the shipped export shape")
+    if any(not isinstance(shape, str) for shape in selected_shapes):
+        raise ValueError("V65-A evidence selected_record_shapes must be a list of strings")
+    if "agentic_de_delegated_worker_export_packet@1" not in selected_shapes:
+        raise ValueError("V65-A evidence must preserve the shipped export shape")
+    required_true_fields = (
+        "delegated_export_packet_must_be_typed_and_replayable",
+        "canonical_exported_work_membership_required_for_v65a",
+        "exact_target_or_patch_or_artifact_summary_required_for_v65a",
+        "mutation_semantics_preserved_from_shipped_v64_subset_in_v65a",
+        "export_bridge_only_in_v65a",
+        "delegated_export_packet_is_not_reconciliation_by_itself_in_v65a",
+        "delegated_export_packet_does_not_carry_worker_result_semantics_yet_in_v65a",
+    )
+    for field_name in required_true_fields:
+        if payload.get(field_name) is not True:
+            raise ValueError(f"V65-A evidence must preserve {field_name}")
+    if payload.get("selected_consumed_v60_lineage_for_v65a") != (
+        "shipped_v60_continuation_lineage_only"
+    ):
+        raise ValueError("V65-A evidence must preserve shipped V60 continuation lineage only")
+    if payload.get("selected_consumed_v61_lineage_for_v65a") != (
+        "shipped_v61_governed_communication_lineage_only"
+    ):
+        raise ValueError("V65-A evidence must preserve shipped V61 communication lineage only")
+    return payload
+
+
+def _validate_v48d_evidence_payload_for_v65b(payload: dict[str, object]) -> dict[str, object]:
+    if payload.get("schema") != EXPECTED_V48D_EVIDENCE_SCHEMA:
+        raise ValueError(
+            "V65-B requires the released V48-D worker boundary conformance evidence payload "
+            "on main"
+        )
+    if payload.get("accepted_conformant_fixture_path") != (
+        "packages/adeu_agent_harness/tests/fixtures/v48d/reference_worker_boundary_conformance_report.json"
+    ):
+        raise ValueError(
+            "V48-D evidence must preserve the released conformant worker boundary "
+            "conformance fixture"
+        )
     return payload
 
 
@@ -18398,6 +18597,372 @@ def run_agentic_de_delegated_worker_export_v65a(
     )
 
 
+def _validate_v65b_consumed_surfaces(
+    *,
+    continuation_refresh_decision: AgenticDeContinuationRefreshDecisionRecord,
+    communication_egress: AgenticDeCommunicationEgressPacket,
+    export_packet: AgenticDeDelegatedWorkerExportPacket,
+    worker_conformance: WorkerBoundaryConformanceReport,
+    worker_topology: WorkerDelegationTopology,
+    released_worker_topology: WorkerDelegationTopology,
+    target_relative_path: str,
+) -> None:
+    expected_target_summary = (
+        f"{DESIGNATED_WORKSPACE_CONTINUITY_ROOT.as_posix()}/{target_relative_path}"
+    )
+    if export_packet.target_arc != V65A_TARGET_ARC or export_packet.target_path != V65A_TARGET_PATH:
+        raise ValueError("V65-B requires the shipped V65-A delegated worker export surface")
+    if export_packet.frozen_policy_anchor_ref != V65A_FROZEN_POLICY_REF:
+        raise ValueError("V65-B requires the shipped V65-A export policy anchor")
+    if export_packet.export_verdict != "admitted_for_export":
+        raise ValueError("V65-B requires the shipped admitted V65-A export verdict")
+    if export_packet.selected_target_or_patch_or_artifact_summary != expected_target_summary:
+        raise ValueError("V65-B requires the shipped exact V65-A exported target summary")
+    if "local_write/create_new" not in export_packet.preserved_write_semantics_summary:
+        raise ValueError("V65-B requires the shipped preserved local_write/create_new posture")
+    if (
+        continuation_refresh_decision.target_arc != V60B_TARGET_ARC
+        or continuation_refresh_decision.target_path != V60B_TARGET_PATH
+    ):
+        raise ValueError("V65-B requires the shipped V60-B continuation refresh surface")
+    if continuation_refresh_decision.frozen_policy_anchor_ref != V60B_FROZEN_POLICY_REF:
+        raise ValueError("V65-B requires the shipped V60-B continuation policy anchor")
+    if (
+        communication_egress.target_arc != V61A_TARGET_ARC
+        or communication_egress.target_path != V61A_TARGET_PATH
+    ):
+        raise ValueError("V65-B requires the shipped V61-A communication egress surface")
+    if communication_egress.frozen_policy_anchor_ref != V61A_FROZEN_POLICY_REF:
+        raise ValueError("V65-B requires the shipped V61-A egress policy anchor")
+    if communication_egress.selected_egress_surface_ref != V61A_SELECTED_API_ROUTE:
+        raise ValueError("V65-B requires the shipped exact resident V61-A egress seam")
+    if (
+        export_packet.worker_carrier_basis_ref_or_equivalent
+        != worker_topology.child_compiled_binding_ref
+    ):
+        raise ValueError("V65-B export packet must preserve the released child worker carrier")
+    if (
+        export_packet.selected_worker_topology_basis_ref_or_equivalent
+        != worker_topology.worker_delegation_topology_id
+    ):
+        raise ValueError("V65-B export packet must preserve the released selected worker topology")
+    if worker_topology.schema != WORKER_DELEGATION_TOPOLOGY_SCHEMA:
+        raise ValueError("V65-B requires the released V48-E worker delegation topology schema")
+    exact_v48e_lineage_fields = (
+        "worker_delegation_topology_id",
+        "delegation_edge_id",
+        "repo_ref",
+        "snapshot_id",
+        "snapshot_sha256",
+        "parent_compiled_binding_ref",
+        "child_compiled_binding_ref",
+        "parent_worker_boundary_conformance_report_ref",
+        "child_worker_boundary_conformance_report_ref",
+    )
+    for field_name in exact_v48e_lineage_fields:
+        if getattr(worker_topology, field_name) != getattr(released_worker_topology, field_name):
+            raise ValueError(f"V65-B requires the released exact V48-E {field_name}")
+    if worker_conformance.schema != WORKER_BOUNDARY_CONFORMANCE_REPORT_SCHEMA:
+        raise ValueError("V65-B requires the released V48-D worker boundary conformance schema")
+    if worker_conformance.overall_judgment != "conformant":
+        raise ValueError("V65-B requires a conformant released worker result basis")
+    if worker_conformance.supporting_diagnostic_ids:
+        raise ValueError("V65-B requires a diagnostic-clean released worker result basis")
+    if worker_conformance.compiled_binding_ref != worker_topology.child_compiled_binding_ref:
+        raise ValueError("V65-B worker result basis must match the selected worker carrier")
+    if (
+        worker_conformance.compiled_binding_ref
+        != export_packet.worker_carrier_basis_ref_or_equivalent
+    ):
+        raise ValueError("V65-B worker result basis must match the shipped V65-A worker carrier")
+    if worker_conformance.repo_ref != worker_topology.repo_ref:
+        raise ValueError("V65-B worker result basis must match the selected worker topology repo")
+    if worker_conformance.snapshot_id != worker_topology.snapshot_id:
+        raise ValueError(
+            "V65-B worker result basis must match the selected worker topology snapshot"
+        )
+    if worker_conformance.snapshot_sha256 != worker_topology.snapshot_sha256:
+        raise ValueError(
+            "V65-B worker result basis must match the selected worker topology snapshot hash"
+        )
+    if worker_conformance.worker_subject_ref != worker_topology.child_worker_subject_ref:
+        raise ValueError("V65-B worker result basis must match the selected worker subject")
+    if worker_conformance.worker_subject_kind != worker_topology.child_worker_subject_kind:
+        raise ValueError("V65-B worker result basis must match the selected worker subject kind")
+    if worker_conformance.worker_scope_posture != "single_worker_only":
+        raise ValueError("V65-B requires the released single-worker result posture")
+
+
+def _build_v65b_delegated_worker_reconciliation_report(
+    *,
+    continuation_refresh_decision: AgenticDeContinuationRefreshDecisionRecord,
+    communication_egress: AgenticDeCommunicationEgressPacket,
+    export_packet: AgenticDeDelegatedWorkerExportPacket,
+    worker_conformance: WorkerBoundaryConformanceReport,
+    worker_topology: WorkerDelegationTopology,
+    evidence_refs: list[str],
+) -> AgenticDeDelegatedWorkerReconciliationReport:
+    root_origin_ids = [
+        f"export:{export_packet.delegated_worker_export_packet_id}",
+        f"worker_result:{worker_conformance.worker_boundary_conformance_report_id}",
+        f"worker_topology:{worker_topology.worker_delegation_topology_id}",
+        f"continuation:{continuation_refresh_decision.refresh_decision_id}",
+        f"communication_egress:{communication_egress.communication_egress_id}",
+        f"policy:{V65B_FROZEN_POLICY_REF}",
+    ]
+    field_origin_tags = {
+        "delegated_worker_export_packet_ref": "prior_artifact",
+        "worker_result_or_conformance_basis_ref_or_equivalent": "prior_artifact",
+        "selected_worker_result_or_conformance_kind_summary": "current_turn_derived",
+        "worker_carrier_basis_ref_or_equivalent": "prior_artifact",
+        "selected_worker_topology_basis_ref_or_equivalent": "prior_artifact",
+        "selected_export_scope_summary": "prior_artifact",
+        "exported_work_membership_basis_summary": "prior_artifact",
+        "selected_target_or_patch_or_artifact_summary": "prior_artifact",
+        "reconciliation_basis_summary": "current_turn_derived",
+        "consumed_continuation_basis_summary": "current_turn_derived",
+        "consumed_communication_basis_summary_or_none": "current_turn_derived",
+        "preserved_write_semantics_summary": "prior_artifact",
+        "reconciliation_status": "current_turn_derived",
+        "frozen_policy_anchor_ref": "shaping_only",
+    }
+    field_dependence_tags = {
+        "delegated_worker_export_packet_ref": [export_packet.delegated_worker_export_packet_id],
+        "worker_result_or_conformance_basis_ref_or_equivalent": [
+            worker_conformance.worker_boundary_conformance_report_id
+        ],
+        "selected_worker_result_or_conformance_kind_summary": [
+            worker_conformance.worker_boundary_conformance_report_id
+        ],
+        "worker_carrier_basis_ref_or_equivalent": [worker_topology.child_compiled_binding_ref],
+        "selected_worker_topology_basis_ref_or_equivalent": [
+            worker_topology.worker_delegation_topology_id
+        ],
+        "selected_export_scope_summary": [export_packet.delegated_worker_export_packet_id],
+        "exported_work_membership_basis_summary": [export_packet.delegated_worker_export_packet_id],
+        "selected_target_or_patch_or_artifact_summary": [
+            export_packet.delegated_worker_export_packet_id
+        ],
+        "reconciliation_basis_summary": [
+            export_packet.delegated_worker_export_packet_id,
+            worker_conformance.worker_boundary_conformance_report_id,
+            worker_topology.worker_delegation_topology_id,
+            continuation_refresh_decision.refresh_decision_id,
+            communication_egress.communication_egress_id,
+            V65B_FROZEN_POLICY_REF,
+        ],
+        "consumed_continuation_basis_summary": [continuation_refresh_decision.refresh_decision_id],
+        "consumed_communication_basis_summary_or_none": [
+            communication_egress.communication_egress_id
+        ],
+        "preserved_write_semantics_summary": [export_packet.delegated_worker_export_packet_id],
+        "reconciliation_status": [
+            export_packet.delegated_worker_export_packet_id,
+            worker_conformance.worker_boundary_conformance_report_id,
+        ],
+        "frozen_policy_anchor_ref": [V65B_FROZEN_POLICY_REF],
+    }
+    return AgenticDeDelegatedWorkerReconciliationReport(
+        target_arc=V65B_TARGET_ARC,
+        target_path=V65B_TARGET_PATH,
+        delegated_worker_export_packet_ref=export_packet.delegated_worker_export_packet_id,
+        worker_result_or_conformance_basis_ref_or_equivalent=(
+            worker_conformance.worker_boundary_conformance_report_id
+        ),
+        selected_worker_result_or_conformance_kind_summary=(
+            "worker_result_or_conformance_kind=boundary_conformance_report; "
+            f"overall_judgment={worker_conformance.overall_judgment}"
+        ),
+        worker_carrier_basis_ref_or_equivalent=export_packet.worker_carrier_basis_ref_or_equivalent,
+        selected_worker_topology_basis_ref_or_equivalent=(
+            export_packet.selected_worker_topology_basis_ref_or_equivalent
+        ),
+        selected_export_scope_summary=export_packet.selected_export_scope_summary,
+        exported_work_membership_basis_summary=export_packet.exported_work_membership_basis_summary,
+        selected_target_or_patch_or_artifact_summary=(
+            export_packet.selected_target_or_patch_or_artifact_summary
+        ),
+        reconciliation_basis_summary=(
+            "one shipped V65-A delegated export packet reconciled one released worker boundary "
+            "conformance lineage back to the same exported scope, the same selected worker "
+            "carrier and topology, and the same shipped V60-B and V61-A basis under one frozen "
+            "V65-B policy anchor"
+        ),
+        consumed_continuation_basis_summary=(
+            "shipped V60-B refresh decision remains the selected continuation basis for the same "
+            "delegated export lineage only"
+        ),
+        consumed_communication_basis_summary_or_none=(
+            "shipped V61-A communication egress lineage may contextualize reconciliation posture "
+            "only; it does not mint fresh local, export, or worker authority"
+        ),
+        preserved_write_semantics_summary=export_packet.preserved_write_semantics_summary,
+        reconciliation_status="reconciled_to_export_lineage",
+        frozen_policy_anchor_ref=V65B_FROZEN_POLICY_REF,
+        field_origin_tags=field_origin_tags,
+        field_dependence_tags=field_dependence_tags,
+        root_origin_dedup_summary=(
+            "dedup roots="
+            + ",".join(root_origin_ids)
+            + "; shipped delegated export, released worker result, released worker topology, "
+            "continuation, communication, and policy artifacts remain non-independent "
+            "reconciliation support rather than fresh authority"
+        ),
+        reason_codes=[
+            "shipped_v65a_export_lineage_consumed",
+            "released_v48d_worker_result_basis_consumed",
+            "released_v48e_worker_topology_basis_consumed",
+            "same_exported_scope_only",
+            "same_worker_carrier_and_topology_only",
+            "preserved_local_write_create_new_only",
+            "typed_replayable_reconciliation_only",
+            "reconciliation_not_fresh_local_export_or_worker_authority",
+            "no_all_repo_shell_execute_dispatch_multi_worker_connector_or_remote_authority",
+        ],
+        evidence_refs=[
+            export_packet.delegated_worker_export_packet_id,
+            worker_conformance.worker_boundary_conformance_report_id,
+            worker_topology.worker_delegation_topology_id,
+            continuation_refresh_decision.refresh_decision_id,
+            communication_egress.communication_egress_id,
+            *evidence_refs,
+        ],
+    )
+
+
+def run_agentic_de_delegated_worker_reconciliation_v65b(
+    *,
+    repo_root_path: Path | None = None,
+    v60b_continuation_refresh_decision_path: Path = DEFAULT_V60B_CONTINUATION_REFRESH_DECISION_PATH,
+    v61a_communication_egress_path: Path = DEFAULT_V61A_COMMUNICATION_EGRESS_PATH,
+    v65a_delegated_worker_export_path: Path = DEFAULT_V65A_DELEGATED_WORKER_EXPORT_PATH,
+    worker_boundary_conformance_path: Path = DEFAULT_V65B_WORKER_BOUNDARY_CONFORMANCE_PATH,
+    v48e_worker_delegation_topology_path: Path = DEFAULT_V48E_WORKER_DELEGATION_TOPOLOGY_PATH,
+    lane_drift_path: Path = DEFAULT_V65B_LANE_DRIFT_PATH,
+    v65a_evidence_path: Path = DEFAULT_V65A_EVIDENCE_PATH,
+    v48d_evidence_path: Path = DEFAULT_V48D_EVIDENCE_PATH,
+    v48e_evidence_path: Path = DEFAULT_V48E_EVIDENCE_PATH,
+    target_relative_path: str = str(DEFAULT_WORKSPACE_CONTINUITY_TARGET_RELATIVE_PATH),
+) -> AgenticDeDelegatedWorkerReconciliationReport:
+    raw_root = repo_root(anchor=Path(__file__)) if repo_root_path is None else repo_root_path
+    if not raw_root.exists():
+        raise FileNotFoundError(f"repository root not found: {raw_root}")
+    if raw_root.is_symlink():
+        raise ValueError(
+            "repository root may not be a symlink for V65-B delegated worker reconciliation"
+        )
+    root = raw_root.resolve()
+    path_args = {
+        "v60b_continuation_refresh_decision_path": v60b_continuation_refresh_decision_path,
+        "v61a_communication_egress_path": v61a_communication_egress_path,
+        "v65a_delegated_worker_export_path": v65a_delegated_worker_export_path,
+        "worker_boundary_conformance_path": worker_boundary_conformance_path,
+        "v48e_worker_delegation_topology_path": v48e_worker_delegation_topology_path,
+        "lane_drift_path": lane_drift_path,
+        "v65a_evidence_path": v65a_evidence_path,
+        "v48d_evidence_path": v48d_evidence_path,
+        "v48e_evidence_path": v48e_evidence_path,
+    }
+    resolved_paths: dict[str, Path] = {}
+    for field_name, path in path_args.items():
+        candidate = _resolve_path(repo_root_path=root, path=path)
+        _assert_v65b_repo_local_input_path(
+            repo_root_path=root,
+            candidate=candidate,
+            field_name=field_name,
+        )
+        resolved_paths[field_name] = candidate
+    _validate_v65b_lane_drift_record(load_lane_drift_record(resolved_paths["lane_drift_path"]))
+    _validate_v65a_evidence_payload_for_v65b(
+        _load_json_object(resolved_paths["v65a_evidence_path"], error_label="V65-A evidence")
+    )
+    _validate_v48d_evidence_payload_for_v65b(
+        _load_json_object(resolved_paths["v48d_evidence_path"], error_label="V48-D evidence")
+    )
+    _validate_v48e_evidence_payload_for_v65a(
+        _load_json_object(resolved_paths["v48e_evidence_path"], error_label="V48-E evidence")
+    )
+    normalized_target_relative_path, _surface_path, _target_path, _surface_class = (
+        _assert_v64a_surface_and_target_canonical_membership(
+            repo_root_path=root,
+            target_relative_path=target_relative_path,
+        )
+    )
+    canonical_target_relative_path = normalized_target_relative_path.as_posix()
+    continuation_refresh_decision = load_continuation_refresh_decision_record(
+        resolved_paths["v60b_continuation_refresh_decision_path"]
+    )
+    communication_egress = load_communication_egress_packet(
+        resolved_paths["v61a_communication_egress_path"]
+    )
+    export_packet = load_delegated_worker_export_packet(
+        resolved_paths["v65a_delegated_worker_export_path"]
+    )
+    worker_conformance = load_worker_boundary_conformance_report(
+        resolved_paths["worker_boundary_conformance_path"]
+    )
+    worker_topology = load_worker_delegation_topology(
+        resolved_paths["v48e_worker_delegation_topology_path"]
+    )
+    released_worker_topology = load_worker_delegation_topology(
+        DEFAULT_V48E_WORKER_DELEGATION_TOPOLOGY_PATH
+    )
+    worker_conformance_input_ref = _render_input_ref(
+        repo_root_path=root, path=resolved_paths["worker_boundary_conformance_path"]
+    )
+    expected_worker_conformance_input_ref = _render_input_ref(
+        repo_root_path=root,
+        path=_resolve_path(
+            repo_root_path=root,
+            path=DEFAULT_V65B_WORKER_BOUNDARY_CONFORMANCE_PATH,
+        ),
+    )
+    if worker_conformance_input_ref != expected_worker_conformance_input_ref:
+        raise ValueError(
+            "V65-B worker result basis must use the current selected released-worker input path"
+        )
+    _validate_v65b_consumed_surfaces(
+        continuation_refresh_decision=continuation_refresh_decision,
+        communication_egress=communication_egress,
+        export_packet=export_packet,
+        worker_conformance=worker_conformance,
+        worker_topology=worker_topology,
+        released_worker_topology=released_worker_topology,
+        target_relative_path=canonical_target_relative_path,
+    )
+    evidence_refs = [
+        _render_input_ref(
+            repo_root_path=root,
+            path=resolved_paths["v60b_continuation_refresh_decision_path"],
+        ),
+        _render_input_ref(
+            repo_root_path=root,
+            path=resolved_paths["v61a_communication_egress_path"],
+        ),
+        _render_input_ref(
+            repo_root_path=root,
+            path=resolved_paths["v65a_delegated_worker_export_path"],
+        ),
+        worker_conformance_input_ref,
+        _render_input_ref(
+            repo_root_path=root,
+            path=resolved_paths["v48e_worker_delegation_topology_path"],
+        ),
+        _render_input_ref(repo_root_path=root, path=resolved_paths["lane_drift_path"]),
+        _render_input_ref(repo_root_path=root, path=resolved_paths["v65a_evidence_path"]),
+        _render_input_ref(repo_root_path=root, path=resolved_paths["v48d_evidence_path"]),
+        _render_input_ref(repo_root_path=root, path=resolved_paths["v48e_evidence_path"]),
+    ]
+    return _build_v65b_delegated_worker_reconciliation_report(
+        continuation_refresh_decision=continuation_refresh_decision,
+        communication_egress=communication_egress,
+        export_packet=export_packet,
+        worker_conformance=worker_conformance,
+        worker_topology=worker_topology,
+        evidence_refs=evidence_refs,
+    )
+
+
 def render_checkpoint_payload(checkpoint: AgenticDeMembraneCheckpoint) -> str:
     return json.dumps(checkpoint.model_dump(mode="json"), indent=2, sort_keys=True) + "\n"
 
@@ -18602,6 +19167,12 @@ def render_delegated_worker_export_payload(
     packet: AgenticDeDelegatedWorkerExportPacket,
 ) -> str:
     return json.dumps(packet.model_dump(mode="json"), indent=2, sort_keys=True) + "\n"
+
+
+def render_delegated_worker_reconciliation_payload(
+    report: AgenticDeDelegatedWorkerReconciliationReport,
+) -> str:
+    return json.dumps(report.model_dump(mode="json"), indent=2, sort_keys=True) + "\n"
 
 
 def render_governed_communication_hardening_payload(

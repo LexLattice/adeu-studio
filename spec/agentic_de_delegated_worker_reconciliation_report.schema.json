@@ -1,0 +1,179 @@
+{
+  "additionalProperties": false,
+  "properties": {
+    "changes_live_behavior_by_default": {
+      "const": false,
+      "default": false,
+      "title": "Changes Live Behavior By Default",
+      "type": "boolean"
+    },
+    "consumed_communication_basis_summary_or_none": {
+      "anyOf": [
+        {
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Consumed Communication Basis Summary Or None"
+    },
+    "consumed_continuation_basis_summary": {
+      "title": "Consumed Continuation Basis Summary",
+      "type": "string"
+    },
+    "delegated_worker_export_packet_ref": {
+      "title": "Delegated Worker Export Packet Ref",
+      "type": "string"
+    },
+    "delegated_worker_reconciliation_report_id": {
+      "anyOf": [
+        {
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Delegated Worker Reconciliation Report Id"
+    },
+    "evidence_only": {
+      "const": true,
+      "default": true,
+      "title": "Evidence Only",
+      "type": "boolean"
+    },
+    "evidence_refs": {
+      "items": {
+        "type": "string"
+      },
+      "title": "Evidence Refs",
+      "type": "array"
+    },
+    "exported_work_membership_basis_summary": {
+      "title": "Exported Work Membership Basis Summary",
+      "type": "string"
+    },
+    "field_dependence_tags": {
+      "additionalProperties": {
+        "items": {
+          "type": "string"
+        },
+        "type": "array"
+      },
+      "title": "Field Dependence Tags",
+      "type": "object"
+    },
+    "field_origin_tags": {
+      "additionalProperties": {
+        "enum": [
+          "current_turn_native",
+          "current_turn_derived",
+          "observability_only",
+          "prior_artifact",
+          "shaping_only"
+        ],
+        "type": "string"
+      },
+      "title": "Field Origin Tags",
+      "type": "object"
+    },
+    "frozen_policy_anchor_ref": {
+      "title": "Frozen Policy Anchor Ref",
+      "type": "string"
+    },
+    "preserved_write_semantics_summary": {
+      "title": "Preserved Write Semantics Summary",
+      "type": "string"
+    },
+    "reason_codes": {
+      "items": {
+        "type": "string"
+      },
+      "title": "Reason Codes",
+      "type": "array"
+    },
+    "reconciliation_basis_summary": {
+      "title": "Reconciliation Basis Summary",
+      "type": "string"
+    },
+    "reconciliation_status": {
+      "enum": [
+        "reconciled_to_export_lineage",
+        "rejected_missing_export_basis",
+        "rejected_missing_worker_result_basis",
+        "rejected_inconsistent_basis"
+      ],
+      "title": "Reconciliation Status",
+      "type": "string"
+    },
+    "root_origin_dedup_summary": {
+      "title": "Root Origin Dedup Summary",
+      "type": "string"
+    },
+    "schema": {
+      "const": "agentic_de_delegated_worker_reconciliation_report@1",
+      "default": "agentic_de_delegated_worker_reconciliation_report@1",
+      "title": "Schema",
+      "type": "string"
+    },
+    "selected_export_scope_summary": {
+      "title": "Selected Export Scope Summary",
+      "type": "string"
+    },
+    "selected_target_or_patch_or_artifact_summary": {
+      "title": "Selected Target Or Patch Or Artifact Summary",
+      "type": "string"
+    },
+    "selected_worker_result_or_conformance_kind_summary": {
+      "title": "Selected Worker Result Or Conformance Kind Summary",
+      "type": "string"
+    },
+    "selected_worker_topology_basis_ref_or_equivalent": {
+      "title": "Selected Worker Topology Basis Ref Or Equivalent",
+      "type": "string"
+    },
+    "target_arc": {
+      "title": "Target Arc",
+      "type": "string"
+    },
+    "target_path": {
+      "title": "Target Path",
+      "type": "string"
+    },
+    "worker_carrier_basis_ref_or_equivalent": {
+      "title": "Worker Carrier Basis Ref Or Equivalent",
+      "type": "string"
+    },
+    "worker_result_or_conformance_basis_ref_or_equivalent": {
+      "title": "Worker Result Or Conformance Basis Ref Or Equivalent",
+      "type": "string"
+    }
+  },
+  "required": [
+    "target_arc",
+    "target_path",
+    "delegated_worker_export_packet_ref",
+    "worker_result_or_conformance_basis_ref_or_equivalent",
+    "selected_worker_result_or_conformance_kind_summary",
+    "worker_carrier_basis_ref_or_equivalent",
+    "selected_worker_topology_basis_ref_or_equivalent",
+    "selected_export_scope_summary",
+    "exported_work_membership_basis_summary",
+    "selected_target_or_patch_or_artifact_summary",
+    "reconciliation_basis_summary",
+    "consumed_continuation_basis_summary",
+    "preserved_write_semantics_summary",
+    "reconciliation_status",
+    "frozen_policy_anchor_ref",
+    "field_origin_tags",
+    "field_dependence_tags",
+    "root_origin_dedup_summary",
+    "reason_codes",
+    "evidence_refs"
+  ],
+  "title": "AgenticDeDelegatedWorkerReconciliationReport",
+  "type": "object"
+}
