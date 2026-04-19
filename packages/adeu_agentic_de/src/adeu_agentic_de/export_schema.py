@@ -49,6 +49,9 @@ from .models import (
     AGENTIC_DE_REMOTE_OPERATOR_RESPONSE_RECORD_SCHEMA,
     AGENTIC_DE_REMOTE_OPERATOR_SESSION_RECORD_SCHEMA,
     AGENTIC_DE_REMOTE_OPERATOR_VIEW_PACKET_SCHEMA,
+    AGENTIC_DE_REPO_WRITABLE_SURFACE_DESCRIPTOR_SCHEMA,
+    AGENTIC_DE_REPO_WRITE_LEASE_RECORD_SCHEMA,
+    AGENTIC_DE_REPO_WRITE_SURFACE_ADMISSION_RECORD_SCHEMA,
     AGENTIC_DE_RUNTIME_HARVEST_RECORD_SCHEMA,
     AGENTIC_DE_RUNTIME_STATE_SCHEMA,
     AGENTIC_DE_SEED_INTENT_RECORD_SCHEMA,
@@ -104,6 +107,9 @@ from .models import (
     AgenticDeRemoteOperatorResponseRecord,
     AgenticDeRemoteOperatorSessionRecord,
     AgenticDeRemoteOperatorViewPacket,
+    AgenticDeRepoWritableSurfaceDescriptor,
+    AgenticDeRepoWriteLeaseRecord,
+    AgenticDeRepoWriteSurfaceAdmissionRecord,
     AgenticDeRuntimeHarvestRecord,
     AgenticDeRuntimeState,
     AgenticDeSeedIntentRecord,
@@ -500,6 +506,36 @@ def main() -> None:
             / "schema"
             / "agentic_de_remote_operator_hardening_register.v1.json",
             root / "spec" / "agentic_de_remote_operator_hardening_register.schema.json",
+        ),
+        (
+            AgenticDeRepoWritableSurfaceDescriptor,
+            AGENTIC_DE_REPO_WRITABLE_SURFACE_DESCRIPTOR_SCHEMA,
+            root
+            / "packages"
+            / "adeu_agentic_de"
+            / "schema"
+            / "agentic_de_repo_writable_surface_descriptor.v1.json",
+            root / "spec" / "agentic_de_repo_writable_surface_descriptor.schema.json",
+        ),
+        (
+            AgenticDeRepoWriteLeaseRecord,
+            AGENTIC_DE_REPO_WRITE_LEASE_RECORD_SCHEMA,
+            root
+            / "packages"
+            / "adeu_agentic_de"
+            / "schema"
+            / "agentic_de_repo_write_lease_record.v1.json",
+            root / "spec" / "agentic_de_repo_write_lease_record.schema.json",
+        ),
+        (
+            AgenticDeRepoWriteSurfaceAdmissionRecord,
+            AGENTIC_DE_REPO_WRITE_SURFACE_ADMISSION_RECORD_SCHEMA,
+            root
+            / "packages"
+            / "adeu_agentic_de"
+            / "schema"
+            / "agentic_de_repo_write_surface_admission_record.v1.json",
+            root / "spec" / "agentic_de_repo_write_surface_admission_record.schema.json",
         ),
         (
             AgenticDeLiveTurnAdmissionRecord,

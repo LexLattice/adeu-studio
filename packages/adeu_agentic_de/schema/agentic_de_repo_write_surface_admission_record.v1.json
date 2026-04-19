@@ -1,0 +1,143 @@
+{
+  "additionalProperties": false,
+  "properties": {
+    "admission_verdict": {
+      "enum": [
+        "admitted",
+        "rejected_target_not_in_surface",
+        "rejected_target_not_admissible",
+        "rejected_missing_basis",
+        "rejected_inconsistent_basis"
+      ],
+      "title": "Admission Verdict",
+      "type": "string"
+    },
+    "changes_live_behavior_by_default": {
+      "const": false,
+      "default": false,
+      "title": "Changes Live Behavior By Default",
+      "type": "boolean"
+    },
+    "evidence_only": {
+      "const": true,
+      "default": true,
+      "title": "Evidence Only",
+      "type": "boolean"
+    },
+    "evidence_refs": {
+      "items": {
+        "type": "string"
+      },
+      "title": "Evidence Refs",
+      "type": "array"
+    },
+    "field_dependence_tags": {
+      "additionalProperties": {
+        "items": {
+          "type": "string"
+        },
+        "type": "array"
+      },
+      "title": "Field Dependence Tags",
+      "type": "object"
+    },
+    "field_origin_tags": {
+      "additionalProperties": {
+        "enum": [
+          "current_turn_native",
+          "current_turn_derived",
+          "observability_only",
+          "prior_artifact",
+          "shaping_only"
+        ],
+        "type": "string"
+      },
+      "title": "Field Origin Tags",
+      "type": "object"
+    },
+    "frozen_policy_anchor_ref": {
+      "title": "Frozen Policy Anchor Ref",
+      "type": "string"
+    },
+    "preserved_write_semantics_summary": {
+      "title": "Preserved Write Semantics Summary",
+      "type": "string"
+    },
+    "reason_codes": {
+      "items": {
+        "type": "string"
+      },
+      "title": "Reason Codes",
+      "type": "array"
+    },
+    "repo_write_lease_ref": {
+      "title": "Repo Write Lease Ref",
+      "type": "string"
+    },
+    "repo_write_surface_admission_id": {
+      "anyOf": [
+        {
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Repo Write Surface Admission Id"
+    },
+    "root_origin_dedup_summary": {
+      "title": "Root Origin Dedup Summary",
+      "type": "string"
+    },
+    "schema": {
+      "const": "agentic_de_repo_write_surface_admission_record@1",
+      "default": "agentic_de_repo_write_surface_admission_record@1",
+      "title": "Schema",
+      "type": "string"
+    },
+    "selected_target_path_summary": {
+      "title": "Selected Target Path Summary",
+      "type": "string"
+    },
+    "target_arc": {
+      "title": "Target Arc",
+      "type": "string"
+    },
+    "target_membership_basis_summary": {
+      "title": "Target Membership Basis Summary",
+      "type": "string"
+    },
+    "target_occupancy_or_admissibility_basis_summary": {
+      "title": "Target Occupancy Or Admissibility Basis Summary",
+      "type": "string"
+    },
+    "target_path": {
+      "title": "Target Path",
+      "type": "string"
+    },
+    "writable_surface_descriptor_ref": {
+      "title": "Writable Surface Descriptor Ref",
+      "type": "string"
+    }
+  },
+  "required": [
+    "target_arc",
+    "target_path",
+    "writable_surface_descriptor_ref",
+    "repo_write_lease_ref",
+    "selected_target_path_summary",
+    "target_membership_basis_summary",
+    "target_occupancy_or_admissibility_basis_summary",
+    "preserved_write_semantics_summary",
+    "admission_verdict",
+    "frozen_policy_anchor_ref",
+    "field_origin_tags",
+    "field_dependence_tags",
+    "root_origin_dedup_summary",
+    "reason_codes",
+    "evidence_refs"
+  ],
+  "title": "AgenticDeRepoWriteSurfaceAdmissionRecord",
+  "type": "object"
+}

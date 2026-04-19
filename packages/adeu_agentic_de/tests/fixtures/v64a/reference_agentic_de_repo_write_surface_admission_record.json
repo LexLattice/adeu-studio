@@ -1,0 +1,81 @@
+{
+  "admission_verdict": "admitted",
+  "changes_live_behavior_by_default": false,
+  "evidence_only": true,
+  "evidence_refs": [
+    "packages/adeu_agentic_de/tests/fixtures/v59a/reference_agentic_de_workspace_continuity_region_declaration.json",
+    "packages/adeu_agentic_de/tests/fixtures/v59a/reference_agentic_de_workspace_continuity_admission_record.json",
+    "packages/adeu_agentic_de/tests/fixtures/v59a/reference_agentic_de_workspace_occupancy_report.json",
+    "packages/adeu_agentic_de/tests/fixtures/v59a/reference_agentic_de_workspace_continuity_reintegration_report.json",
+    "packages/adeu_agentic_de/tests/fixtures/v60a/reference_agentic_de_loop_state_ledger.json",
+    "packages/adeu_agentic_de/tests/fixtures/v60b/reference_agentic_de_continuation_refresh_decision_record.json",
+    "packages/adeu_agentic_de/tests/fixtures/v61a/reference_agentic_de_communication_ingress_packet.json",
+    "packages/adeu_agentic_de/tests/fixtures/v61a/reference_agentic_de_surface_authority_descriptor.json",
+    "packages/adeu_agentic_de/tests/fixtures/v61a/reference_agentic_de_ingress_interpretation_record.json",
+    "packages/adeu_agentic_de/tests/fixtures/v61a/reference_agentic_de_communication_egress_packet.json",
+    "packages/adeu_agentic_de/tests/fixtures/v64a/reference_agentic_de_lane_drift_record.json",
+    "artifacts/agent_harness/v163/evidence_inputs/v59c_workspace_continuity_hardening_evidence_v163.json",
+    "artifacts/agent_harness/v166/evidence_inputs/v60c_continuation_hardening_evidence_v166.json",
+    "artifacts/agent_harness/v169/evidence_inputs/v61c_governed_communication_hardening_evidence_v169.json"
+  ],
+  "field_dependence_tags": {
+    "admission_verdict": [
+      "agentic_de_repo_writable_surface_descriptor_acabef417213",
+      "agentic_de_repo_write_lease_674b58da9f7d",
+      "agentic_de_workspace_occupancy_report_7412f9d8203f"
+    ],
+    "frozen_policy_anchor_ref": [
+      "docs/LOCKED_CONTINUATION_vNEXT_PLUS176.md#machine-checkable-contract"
+    ],
+    "preserved_write_semantics_summary": [
+      "docs/LOCKED_CONTINUATION_vNEXT_PLUS176.md#machine-checkable-contract"
+    ],
+    "repo_write_lease_ref": [
+      "agentic_de_repo_write_lease_674b58da9f7d"
+    ],
+    "selected_target_path_summary": [
+      "agentic_de_repo_writable_surface_descriptor_acabef417213"
+    ],
+    "target_membership_basis_summary": [
+      "agentic_de_repo_writable_surface_descriptor_acabef417213",
+      "agentic_de_repo_write_lease_674b58da9f7d"
+    ],
+    "target_occupancy_or_admissibility_basis_summary": [
+      "agentic_de_workspace_occupancy_report_7412f9d8203f",
+      "agentic_de_repo_write_lease_674b58da9f7d"
+    ],
+    "writable_surface_descriptor_ref": [
+      "agentic_de_repo_writable_surface_descriptor_acabef417213"
+    ]
+  },
+  "field_origin_tags": {
+    "admission_verdict": "current_turn_derived",
+    "frozen_policy_anchor_ref": "shaping_only",
+    "preserved_write_semantics_summary": "shaping_only",
+    "repo_write_lease_ref": "prior_artifact",
+    "selected_target_path_summary": "current_turn_derived",
+    "target_membership_basis_summary": "current_turn_derived",
+    "target_occupancy_or_admissibility_basis_summary": "current_turn_derived",
+    "writable_surface_descriptor_ref": "prior_artifact"
+  },
+  "frozen_policy_anchor_ref": "docs/LOCKED_CONTINUATION_vNEXT_PLUS176.md#machine-checkable-contract",
+  "preserved_write_semantics_summary": "preserve local_write/create_new only; broader write-mutation semantics remain deferred beyond V64-A",
+  "reason_codes": [
+    "target_membership_explicit",
+    "target_occupancy_required",
+    "lease_not_blanket_entitlement",
+    "preserved_local_write_create_new_only",
+    "typed_replayable_target_admission_only",
+    "no_shell_execute_dispatch_worker_or_all_repo_authority"
+  ],
+  "repo_write_lease_ref": "agentic_de_repo_write_lease_674b58da9f7d",
+  "repo_write_surface_admission_id": "agentic_de_repo_write_surface_admission_f154153a40ef",
+  "root_origin_dedup_summary": "selected target membership, shipped occupancy, and bounded lease remain non-independent admission basis for one exact in-surface create_new path only",
+  "schema": "agentic_de_repo_write_surface_admission_record@1",
+  "selected_target_path_summary": "artifacts/agentic_de/v59/workspace_continuity/runtime/reference_patch_candidate.diff",
+  "target_arc": "vNext+176",
+  "target_membership_basis_summary": "the selected target remains canonically normalized and inside the one declared writable surface; surface widening does not remove exact target-membership checks",
+  "target_occupancy_or_admissibility_basis_summary": "shipped V59 occupancy remains unoccupied for the selected target, so one create_new admission is lawful under the bounded lease; the lease alone is not blanket entitlement for every path in the selected surface",
+  "target_path": "V64-A",
+  "writable_surface_descriptor_ref": "agentic_de_repo_writable_surface_descriptor_acabef417213"
+}

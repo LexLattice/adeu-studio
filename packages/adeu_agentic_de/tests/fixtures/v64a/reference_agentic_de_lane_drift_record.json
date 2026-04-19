@@ -1,0 +1,45 @@
+{
+  "schema": "agentic_de_lane_drift_record@1",
+  "record_id": null,
+  "target_arc": "vNext+176",
+  "target_path": "V64-A",
+  "prior_lane_ref": "docs/LOCKED_CONTINUATION_vNEXT_PLUS175.md",
+  "entry_count": 7,
+  "entries": [
+    {
+      "assumption_ref": "v59_v60_v61_surface_reuse_default",
+      "status": "holds",
+      "note": "V64-A reuses the shipped V59 continuity, V60 continuation, and V61 governed communication lineage by default."
+    },
+    {
+      "assumption_ref": "surface_widening_only_before_mutation_semantics_widening",
+      "status": "amended",
+      "note": "V64-A widens one writable surface only and preserves the shipped local_write/create_new mutation subset."
+    },
+    {
+      "assumption_ref": "continuity_region_not_writable_entitlement",
+      "status": "amended",
+      "note": "Continuity region and continuity admission remain persistence/context law, not writable entitlement."
+    },
+    {
+      "assumption_ref": "communication_lineage_not_writable_entitlement",
+      "status": "amended",
+      "note": "Governed communication lineage may contextualize repo write posture but is not the writable lease."
+    },
+    {
+      "assumption_ref": "canonical_membership_and_fail_closed_path_law_required",
+      "status": "amended",
+      "note": "Selected surface membership and target membership remain canonical, normalized, repo-contained, and fail closed on symlink or alias surprises."
+    },
+    {
+      "assumption_ref": "per_target_admissibility_required_inside_selected_surface",
+      "status": "amended",
+      "note": "The lease alone is not blanket entitlement; V64-A still requires exact target occupancy/admissibility inside the selected surface."
+    },
+    {
+      "assumption_ref": "broader_repo_execute_dispatch_worker_authority_deferred",
+      "status": "amended",
+      "note": "All-repo authority, shell or execute authority, dispatch widening, and delegated worker authority remain deferred beyond V64-A."
+    }
+  ]
+}

@@ -1,0 +1,83 @@
+{
+  "changes_live_behavior_by_default": false,
+  "consumed_communication_basis_summary_or_none": "shipped V61-A ingress, descriptor, interpretation, and egress lineage may contextualize write posture and provenance only; governed communication is not the lease or writable authority by itself",
+  "consumed_continuation_basis_summary": "shipped V60-A loop identity plus shipped V60-B selected downstream local_write/create_new posture remain required continuation basis for the bounded repo-surface lease",
+  "consumed_continuity_basis_summary": "shipped V59 continuity region, admitted continuity posture, exact target occupancy, and reintegrated continuity witness remain context and admissibility basis only; continuity state is not writable entitlement by itself",
+  "evidence_only": true,
+  "evidence_refs": [
+    "packages/adeu_agentic_de/tests/fixtures/v59a/reference_agentic_de_workspace_continuity_region_declaration.json",
+    "packages/adeu_agentic_de/tests/fixtures/v59a/reference_agentic_de_workspace_continuity_admission_record.json",
+    "packages/adeu_agentic_de/tests/fixtures/v59a/reference_agentic_de_workspace_occupancy_report.json",
+    "packages/adeu_agentic_de/tests/fixtures/v59a/reference_agentic_de_workspace_continuity_reintegration_report.json",
+    "packages/adeu_agentic_de/tests/fixtures/v60a/reference_agentic_de_loop_state_ledger.json",
+    "packages/adeu_agentic_de/tests/fixtures/v60b/reference_agentic_de_continuation_refresh_decision_record.json",
+    "packages/adeu_agentic_de/tests/fixtures/v61a/reference_agentic_de_communication_ingress_packet.json",
+    "packages/adeu_agentic_de/tests/fixtures/v61a/reference_agentic_de_surface_authority_descriptor.json",
+    "packages/adeu_agentic_de/tests/fixtures/v61a/reference_agentic_de_ingress_interpretation_record.json",
+    "packages/adeu_agentic_de/tests/fixtures/v61a/reference_agentic_de_communication_egress_packet.json",
+    "packages/adeu_agentic_de/tests/fixtures/v64a/reference_agentic_de_lane_drift_record.json",
+    "artifacts/agent_harness/v163/evidence_inputs/v59c_workspace_continuity_hardening_evidence_v163.json",
+    "artifacts/agent_harness/v166/evidence_inputs/v60c_continuation_hardening_evidence_v166.json",
+    "artifacts/agent_harness/v169/evidence_inputs/v61c_governed_communication_hardening_evidence_v169.json"
+  ],
+  "field_dependence_tags": {
+    "consumed_communication_basis_summary_or_none": [
+      "agentic_de_communication_ingress_fa2ead1a96a3",
+      "agentic_de_surface_authority_descriptor_f53e9d92836e",
+      "agentic_de_ingress_interpretation_8a0ac37a6f71",
+      "agentic_de_communication_egress_a9c87d1c116e"
+    ],
+    "consumed_continuation_basis_summary": [
+      "agentic_de_loop_state_ledger_22492d7ad8a7",
+      "agentic_de_continuation_refresh_decision_067a308bcae4"
+    ],
+    "consumed_continuity_basis_summary": [
+      "agentic_de_workspace_continuity_region_0bb0246a64a8",
+      "agentic_de_workspace_continuity_admission_3b72bff4a1b0",
+      "agentic_de_workspace_occupancy_report_7412f9d8203f",
+      "agentic_de_workspace_continuity_reintegration_report_c8e2566a1646"
+    ],
+    "frozen_policy_anchor_ref": [
+      "docs/LOCKED_CONTINUATION_vNEXT_PLUS176.md#machine-checkable-contract"
+    ],
+    "lease_verdict": [
+      "agentic_de_repo_writable_surface_descriptor_acabef417213",
+      "agentic_de_continuation_refresh_decision_067a308bcae4",
+      "docs/LOCKED_CONTINUATION_vNEXT_PLUS176.md#machine-checkable-contract"
+    ],
+    "preserved_write_semantics_summary": [
+      "docs/LOCKED_CONTINUATION_vNEXT_PLUS176.md#machine-checkable-contract"
+    ],
+    "writable_surface_descriptor_ref": [
+      "agentic_de_repo_writable_surface_descriptor_acabef417213"
+    ]
+  },
+  "field_origin_tags": {
+    "consumed_communication_basis_summary_or_none": "current_turn_derived",
+    "consumed_continuation_basis_summary": "current_turn_derived",
+    "consumed_continuity_basis_summary": "current_turn_derived",
+    "frozen_policy_anchor_ref": "shaping_only",
+    "lease_verdict": "current_turn_derived",
+    "preserved_write_semantics_summary": "shaping_only",
+    "writable_surface_descriptor_ref": "prior_artifact"
+  },
+  "frozen_policy_anchor_ref": "docs/LOCKED_CONTINUATION_vNEXT_PLUS176.md#machine-checkable-contract",
+  "lease_verdict": "admitted",
+  "preserved_write_semantics_summary": "preserve local_write/create_new only; do not widen append, overwrite, rename, or delete semantics in V64-A",
+  "reason_codes": [
+    "selected_writable_surface_explicit",
+    "continuity_context_not_entitlement",
+    "continuation_basis_required",
+    "communication_context_not_entitlement",
+    "surface_widening_only",
+    "preserved_local_write_create_new_only",
+    "typed_replayable_write_lease_only",
+    "no_all_repo_or_execute_dispatch_worker_authority"
+  ],
+  "repo_write_lease_id": "agentic_de_repo_write_lease_674b58da9f7d",
+  "root_origin_dedup_summary": "selected writable-surface descriptor plus shipped V59/V60/V61 lineage remain non-independent lease basis; repeated continuity, continuation, or communication refs do not become ambient repo authority",
+  "schema": "agentic_de_repo_write_lease_record@1",
+  "target_arc": "vNext+176",
+  "target_path": "V64-A",
+  "writable_surface_descriptor_ref": "agentic_de_repo_writable_surface_descriptor_acabef417213"
+}
