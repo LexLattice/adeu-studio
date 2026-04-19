@@ -1541,7 +1541,9 @@ def load_repo_writable_surface_hardening_register(
 
 
 def load_delegated_worker_export_packet(path: Path) -> AgenticDeDelegatedWorkerExportPacket:
-    payload = AgenticDeDelegatedWorkerExportPacket.model_validate(_read_json_object(path))
+    payload = AgenticDeDelegatedWorkerExportPacket.model_validate(
+        _load_json_object(path, error_label="delegated worker export packet")
+    )
     if payload.schema != AGENTIC_DE_DELEGATED_WORKER_EXPORT_PACKET_SCHEMA:
         raise ValueError(
             f"unexpected schema marker for delegated worker export packet: {payload.schema}"
@@ -17888,6 +17890,7 @@ def _validate_v65a_consumed_surfaces(
     admission: AgenticDeRepoWriteSurfaceAdmissionRecord,
     hardening_register: AgenticDeRepoWritableSurfaceHardeningRegister,
     worker_topology: WorkerDelegationTopology,
+    released_worker_topology: WorkerDelegationTopology,
     target_relative_path: str,
 ) -> None:
     expected_path = _expected_v60a_selected_downstream_path_summary(target_relative_path)
@@ -18053,6 +18056,26 @@ def _validate_v65a_consumed_surfaces(
         raise ValueError("V65-A requires the released supervisor_to_worker V48-E edge")
     if worker_topology.supporting_diagnostic_families:
         raise ValueError("V65-A requires the released diagnostic-clean V48-E worker topology")
+    exact_v48e_lineage_fields = (
+        ("worker_delegation_topology_id", "released exact V48-E topology lineage"),
+        ("delegation_edge_id", "released exact V48-E delegation edge lineage"),
+        ("repo_ref", "released exact V48-E repository lineage"),
+        ("snapshot_id", "released exact V48-E snapshot lineage"),
+        ("snapshot_sha256", "released exact V48-E snapshot hash"),
+        ("parent_compiled_binding_ref", "released exact V48-E parent compiled binding"),
+        ("child_compiled_binding_ref", "released exact V48-E child compiled binding"),
+        (
+            "parent_worker_boundary_conformance_report_ref",
+            "released exact V48-E parent boundary conformance lineage",
+        ),
+        (
+            "child_worker_boundary_conformance_report_ref",
+            "released exact V48-E child boundary conformance lineage",
+        ),
+    )
+    for field_name, description in exact_v48e_lineage_fields:
+        if getattr(worker_topology, field_name) != getattr(released_worker_topology, field_name):
+            raise ValueError(f"V65-A requires the {description}")
 
 
 def _build_v65a_delegated_worker_export_packet(
@@ -18302,6 +18325,9 @@ def run_agentic_de_delegated_worker_export_v65a(
     worker_topology = load_worker_delegation_topology(
         resolved_paths["v48e_worker_delegation_topology_path"]
     )
+    released_worker_topology = load_worker_delegation_topology(
+        DEFAULT_V48E_WORKER_DELEGATION_TOPOLOGY_PATH
+    )
 
     _validate_v65a_consumed_surfaces(
         continuation_refresh_decision=continuation_refresh_decision,
@@ -18314,6 +18340,7 @@ def run_agentic_de_delegated_worker_export_v65a(
         admission=admission,
         hardening_register=hardening_register,
         worker_topology=worker_topology,
+        released_worker_topology=released_worker_topology,
         target_relative_path=canonical_target_relative_path,
     )
 

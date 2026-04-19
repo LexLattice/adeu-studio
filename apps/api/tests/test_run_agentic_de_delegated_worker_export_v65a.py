@@ -174,3 +174,28 @@ def test_invalid_worker_topology_returns_clean_error(tmp_path: Path) -> None:
     assert completed.returncode == 2
     assert completed.stdout == ""
     assert completed.stderr.startswith("error: ")
+
+
+def test_worker_topology_lineage_mismatch_returns_clean_error(tmp_path: Path) -> None:
+    temp_root, _fixture_root = _copy_v65a_input_tree(tmp_path / "repo")
+    topology_path = (
+        temp_root
+        / "packages"
+        / "adeu_agent_harness"
+        / "tests"
+        / "fixtures"
+        / "v48e"
+        / "reference_worker_delegation_topology.json"
+    )
+    payload = json.loads(topology_path.read_text(encoding="utf-8"))
+    payload["child_worker_boundary_conformance_report_ref"] = (
+        "artifacts/agent_harness/v48e/mutated_child_boundary.json"
+    )
+    payload["semantic_hash"] = "mutated-lineage"
+    topology_path.write_text(json.dumps(payload, indent=2) + "\n", encoding="utf-8")
+
+    completed = _run_script("--repo-root", str(temp_root))
+
+    assert completed.returncode == 2
+    assert completed.stdout == ""
+    assert completed.stderr.startswith("error: ")

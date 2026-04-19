@@ -1,12 +1,14 @@
 import warnings
 
+_warning_filters_len = len(warnings.filters)
 warnings.filterwarnings(
     "ignore",
     message=r'Field name "schema" in ".*" shadows an attribute in parent "BaseModel"',
     category=UserWarning,
 )
 
-from .checker import (  # noqa: E402
+try:
+    from .checker import (  # noqa: E402
     CHECKER_VERSION,
     DEFAULT_ACTION_PROPOSAL_PATH,
     DEFAULT_DOMAIN_PACKET_PATH,
@@ -309,9 +311,9 @@ from .checker import (  # noqa: E402
     run_agentic_de_workspace_continuity_v59a,
     run_agentic_de_workspace_continuity_v59b,
     run_agentic_de_workspace_continuity_v59c,
-)
-from .export_schema import main as export_schema_main  # noqa: E402
-from .models import (  # noqa: E402
+    )
+    from .export_schema import main as export_schema_main  # noqa: E402
+    from .models import (  # noqa: E402
     ACTION_CLASS_VOCABULARY,
     AGENTIC_DE_ACTION_CLASS_TAXONOMY_SCHEMA,
     AGENTIC_DE_ACTION_PROPOSAL_SCHEMA,
@@ -568,7 +570,9 @@ from .models import (  # noqa: E402
     compute_agentic_de_workspace_continuity_restoration_handoff_record_id,
     compute_agentic_de_workspace_continuity_restoration_reintegration_report_id,
     compute_agentic_de_workspace_occupancy_report_id,
-)
+    )
+finally:
+    del warnings.filters[_warning_filters_len:]
 
 __all__ = [
     "ACTION_CLASS_VOCABULARY",

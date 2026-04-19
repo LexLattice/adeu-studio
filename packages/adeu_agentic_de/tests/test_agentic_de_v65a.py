@@ -130,6 +130,26 @@ def test_v65a_rejects_non_completed_worker_topology(tmp_path: Path) -> None:
         run_agentic_de_delegated_worker_export_v65a(repo_root_path=temp_root)
 
 
+def test_v65a_rejects_topology_lineage_mismatch(tmp_path: Path) -> None:
+    temp_root, _fixture_root = _copy_v65a_input_tree(tmp_path / "repo")
+    topology_path = (
+        temp_root
+        / "packages"
+        / "adeu_agent_harness"
+        / "tests"
+        / "fixtures"
+        / "v48e"
+        / "reference_worker_delegation_topology.json"
+    )
+    payload = json.loads(topology_path.read_text(encoding="utf-8"))
+    payload["child_compiled_binding_ref"] = "artifacts/agent_harness/v48e/mutated_child.json"
+    payload["semantic_hash"] = "mutated-lineage"
+    topology_path.write_text(json.dumps(payload, indent=2) + "\n", encoding="utf-8")
+
+    with pytest.raises(ValueError, match="released exact V48-E child compiled binding"):
+        run_agentic_de_delegated_worker_export_v65a(repo_root_path=temp_root)
+
+
 def test_lexically_outside_symlinked_input_path_fails_closed(tmp_path: Path) -> None:
     temp_root, _fixture_root = _copy_v65a_input_tree(tmp_path / "repo")
     outside_root = tmp_path / "outside"
