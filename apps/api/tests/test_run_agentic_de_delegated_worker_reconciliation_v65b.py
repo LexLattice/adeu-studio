@@ -173,3 +173,39 @@ def test_invalid_worker_result_basis_returns_clean_error(tmp_path: Path) -> None
     assert completed.returncode == 2
     assert completed.stdout == ""
     assert completed.stderr.startswith("error: ")
+
+
+def test_alternate_worker_result_input_path_returns_clean_error(tmp_path: Path) -> None:
+    temp_root, _fixture_root = _copy_v65b_input_tree(tmp_path / "repo")
+    original_path = (
+        temp_root
+        / "packages"
+        / "adeu_agent_harness"
+        / "tests"
+        / "fixtures"
+        / "v48e"
+        / "reference_child"
+        / "worker_boundary_conformance_report.json"
+    )
+    alternate_path = (
+        temp_root
+        / "packages"
+        / "adeu_agent_harness"
+        / "tests"
+        / "fixtures"
+        / "v48e"
+        / "reference_child"
+        / "worker_boundary_conformance_report_copy.json"
+    )
+    shutil.copyfile(original_path, alternate_path)
+
+    completed = _run_script(
+        "--repo-root",
+        str(temp_root),
+        "--worker-boundary-conformance",
+        str(alternate_path),
+    )
+
+    assert completed.returncode == 2
+    assert completed.stdout == ""
+    assert completed.stderr.startswith("error: ")

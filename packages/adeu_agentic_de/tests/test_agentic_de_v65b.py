@@ -127,6 +127,40 @@ def test_v65b_rejects_worker_result_basis_mismatch(tmp_path: Path) -> None:
         run_agentic_de_delegated_worker_reconciliation_v65b(repo_root_path=temp_root)
 
 
+def test_v65b_rejects_alternate_worker_result_input_path(tmp_path: Path) -> None:
+    temp_root, _fixture_root = _copy_v65b_input_tree(tmp_path / "repo")
+    original_path = (
+        temp_root
+        / "packages"
+        / "adeu_agent_harness"
+        / "tests"
+        / "fixtures"
+        / "v48e"
+        / "reference_child"
+        / "worker_boundary_conformance_report.json"
+    )
+    alternate_path = (
+        temp_root
+        / "packages"
+        / "adeu_agent_harness"
+        / "tests"
+        / "fixtures"
+        / "v48e"
+        / "reference_child"
+        / "worker_boundary_conformance_report_copy.json"
+    )
+    shutil.copyfile(original_path, alternate_path)
+
+    with pytest.raises(
+        ValueError,
+        match="current selected released-worker input path",
+    ):
+        run_agentic_de_delegated_worker_reconciliation_v65b(
+            repo_root_path=temp_root,
+            worker_boundary_conformance_path=alternate_path,
+        )
+
+
 def test_lexically_outside_symlinked_input_path_fails_closed(tmp_path: Path) -> None:
     temp_root, _fixture_root = _copy_v65b_input_tree(tmp_path / "repo")
     outside_root = tmp_path / "outside"

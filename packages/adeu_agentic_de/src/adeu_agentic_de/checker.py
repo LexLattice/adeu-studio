@@ -18606,7 +18606,6 @@ def _validate_v65b_consumed_surfaces(
     worker_topology: WorkerDelegationTopology,
     released_worker_topology: WorkerDelegationTopology,
     target_relative_path: str,
-    worker_conformance_input_ref: str,
 ) -> None:
     expected_target_summary = (
         f"{DESIGNATED_WORKSPACE_CONTINUITY_ROOT.as_posix()}/{target_relative_path}"
@@ -18911,6 +18910,17 @@ def run_agentic_de_delegated_worker_reconciliation_v65b(
     worker_conformance_input_ref = _render_input_ref(
         repo_root_path=root, path=resolved_paths["worker_boundary_conformance_path"]
     )
+    expected_worker_conformance_input_ref = _render_input_ref(
+        repo_root_path=root,
+        path=_resolve_path(
+            repo_root_path=root,
+            path=DEFAULT_V65B_WORKER_BOUNDARY_CONFORMANCE_PATH,
+        ),
+    )
+    if worker_conformance_input_ref != expected_worker_conformance_input_ref:
+        raise ValueError(
+            "V65-B worker result basis must use the current selected released-worker input path"
+        )
     _validate_v65b_consumed_surfaces(
         continuation_refresh_decision=continuation_refresh_decision,
         communication_egress=communication_egress,
@@ -18919,7 +18929,6 @@ def run_agentic_de_delegated_worker_reconciliation_v65b(
         worker_topology=worker_topology,
         released_worker_topology=released_worker_topology,
         target_relative_path=canonical_target_relative_path,
-        worker_conformance_input_ref=worker_conformance_input_ref,
     )
     evidence_refs = [
         _render_input_ref(
