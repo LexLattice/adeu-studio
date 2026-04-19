@@ -1,19 +1,18 @@
 # Draft Next Arc Options v49
 
-Status: planning draft after `docs/DRAFT_NEXT_ARC_OPTIONS_v48.md`, now that the
-full `V63` family closed on `main` through `v175`.
+Status: planning draft after `docs/DRAFT_NEXT_ARC_OPTIONS_v48.md`, now that
+`V64-A` has landed on `main` through `v176`.
 
 Authority layer: planning.
 
 This draft does not automatically supersede the connected planning branches in
 `docs/DRAFT_NEXT_ARC_OPTIONS_v43.md` through `docs/DRAFT_NEXT_ARC_OPTIONS_v48.md`.
-Instead, it records the next connected candidate family:
+Instead, it records the current connected planning branch for the `V64` family:
 
-how should ADEU widen from one exact shipped continuity-backed write exemplar into
-one bounded repo-bound writable-surface authority family without letting continuity
-state, remote reachability, communication access, or prior successful writes become
-ambient repo authority, shell authority, execute authority, or delegated worker
-authority?
+how should ADEU continue from the shipped `V64-A` writable-surface starter into
+the next bounded `V64` follow-on without letting writable-surface restoration,
+reintegration, or prior successful writes become ambient repo authority, shell
+authority, execute authority, or delegated worker authority?
 
 This is a planning document only. It is not a lock doc and does not authorize
 runtime behavior, schema release, or implementation by itself.
@@ -46,6 +45,15 @@ Interpretive doctrine for this planning surface:
   operator session / richer control bridge / advisory remote hardening ladder
   recorded in `docs/DRAFT_NEXT_ARC_OPTIONS_v46.md` through
   `docs/DRAFT_NEXT_ARC_OPTIONS_v48.md`.
+- `V64-A` is closed on `main` and now remains the released writable-surface
+  starter slice under this same selector:
+  - one typed writable-surface descriptor only
+  - one bounded repo write lease only
+  - one exact repo-surface admission posture only
+  - one selected writable surface only
+  - preserved `local_write` / `create_new` semantics only
+  - no append / overwrite / rename / delete widening
+  - no shell / execute / dispatch / worker / all-repo authority
 - the multi-arc roadmap already positions the remaining execution-widening branch as:
   - `V64`: repo-bound writable-surface authority
   - `V65`: delegated export / worker reconciliation under `V48`
@@ -67,31 +75,24 @@ The repo no longer lacks:
 
 The repo still lacks:
 
-- one first-class family for repo-bound writable-surface authority itself;
-- one explicit writable-surface descriptor over a selected subtree or file-set;
-- one explicit bounded repo write lease that can say what part of the repo is in
-  scope for writes at all;
-- one explicit law that widening writable surface scope is not the same thing as
-  widening mutation semantics;
-- one explicit law for consuming continuity, continuation, and communication basis
-  before a repo write is treated as in-bounds;
-- one explicit distinction between:
-  - repo-surface authority
-  - shell / execute authority
-  - dispatch / delegation authority
-  - remote-control transport;
-- one explicit bounded widening beyond the single exact shipped exemplar path
-  without jumping straight to broad repo authority.
+- one typed restoration / reintegration seam over the shipped exact `V64-A`
+  writable-surface descriptor / lease / admission lineage;
+- one explicit place to restore or reintegrate one already admitted in-surface
+  target without minting fresh writable entitlement;
+- one explicit replayable restoration basis over shipped `V64-A`, `V59`, `V60`,
+  and `V61` lineage rather than reviewer discretion or transcript convenience;
+- one explicit law that restoration over the shipped writable surface is not the
+  same thing as reopening surface selection or lease issuance;
+- one explicit bounded next step after `V64-A` without jumping straight to broad
+  repo authority, wider mutation semantics, or delegated worker export.
 
-So the repo still lacks the family that would let it say:
+So the repo still lacks the next same-family fill that would let it say:
 
-- this exact subtree or file-set is the selected writable work surface here;
-- this exact write lease is the only writable authority in scope here;
-- this exact writable-surface widening preserves the currently selected narrow
-  write semantics rather than widening mutation kinds at the same time;
-- this exact repo write proposal consumes shipped continuity, continuation, and
-  communication basis rather than prior success or transcript convenience; and
-- repo-bound writable authority remains local, typed, and fail-closed without
+- this exact shipped writable-surface lineage is the only restoration basis here;
+- this exact admitted target remains the only restoration target here;
+- this exact restoration posture consumes shipped continuity, continuation, and
+  communication basis rather than minting fresh repo entitlement; and
+- writable-surface reintegration remains local, typed, and fail-closed without
   silently becoming shell execution, worker export, or broad repo-admin law.
 
 ## Relationship To `V59`, `V60`, `V61`, `V63`, And `V65`
@@ -115,30 +116,26 @@ So the repo still lacks the family that would let it say:
 - how should remote operator surfaces inspect and respond over shipped `V60` / `V61`
   lineage without becoming sovereign authority?
 
-This new family would ask:
+This current same-family continuation asks:
 
-- how should one bounded repo work surface be declared writable at all?
-- how should one selected subtree or file-set write lease consume shipped `V59`
-  continuity basis, shipped `V60` continuation basis, and shipped `V61`
-  communication basis where relevant?
-- how should writable-surface scope remain distinct from write-mutation semantics
-  so the starter slice does not widen two authority axes at once?
-- how should repo writes remain typed, provenance-bearing, and fail-closed instead
-  of becoming standing repo-admin authority?
-- how should one repo-bound write surface remain distinct from:
-  - remote operator control law already closed in `V63`
-  - communication law already closed in `V61`
+- how should one repo-write restoration record consume the shipped `V64-A`
+  descriptor / lease / admission lineage?
+- how should one reintegration report remain replayable and fail closed on
+  missing or inconsistent writable-surface basis?
+- how should restoration remain distinct from:
+  - fresh writable-surface selection already closed in `V64-A`
+  - fresh lease issuance already closed in `V64-A`
+  - advisory writable-surface hardening deferred to `V64-C`
   - delegated worker export and reconciliation reserved for `V65`
   - shell / terminal / execute authority not selected here?
 
-So this family may constrain:
+So this family branch may now constrain:
 
-- selected subtree/file-set writable-surface descriptors;
-- bounded repo write leases;
-- compatibility with `V59` continuity regions beyond one exact file;
-- bounded local repo-surface write proposals and write-conformance over that
-  selected surface;
-- later restoration / hardening over that same selected writable surface.
+- one `V64-A` to `V64-B` lane handoff record;
+- one repo-write restoration record over the same selected writable surface;
+- one repo-write reintegration report over that same restoration lineage;
+- one exact admitted target path only under that same selected writable surface;
+- later advisory writable-surface hardening over that same selected lineage.
 
 But it may not mint:
 
@@ -147,7 +144,7 @@ But it may not mint:
 - new remote-control law already owned by `V63`;
 - connector law already owned by `V62`;
 - widened mutation semantics beyond the currently selected narrow local-write
-  subset in the starter slice;
+  subset already closed in `V64-A`;
 - delegated worker export or reconciliation already reserved for `V65`;
 - broad shell / terminal / execute authority;
 - dispatch widening;
@@ -182,71 +179,82 @@ Ordering discipline for this branch:
   - consume shipped `V59` / `V60` / `V61` basis explicitly
   - keep execute / dispatch / worker export deferred
 
-## Recommended First Slice
+## Recommended Next Slice
 
 - family remains: `V64`
-- next concrete slice: `V64-A`
+- next concrete slice: `V64-B`
 - recommended selector outcome:
-  - keep `V63` closed on `main`
-  - select `V64-A` as the next default candidate
+  - keep `V64-A` closed on `main` as shipped writable-surface starter basis
+  - select `V64-B` as the next default candidate
 
-Default first-slice posture:
+Default next-slice posture:
 
-- consume one shipped `V59` continuity root / region posture only
-- consume shipped `V60` continuation basis intact
-- consume shipped `V61` communication basis where write intent or approval lineage
-  is relevant
-- widen writable surface scope only:
-  - preserve the currently selected narrow local-write semantics
-  - do not simultaneously introduce append / overwrite / rename / delete widening
-    as part of `V64-A`
-- add one typed writable-surface starter only:
-  - selected subtree or file-set descriptor
-  - bounded repo write lease
-  - one typed repo-surface write proposal / admission posture only
-- keep the selected write surface exact:
-  - one declared subtree or file-set only
-  - no all-repo authority
-  - no path laundering through implicit descendants outside the declared surface
-  - canonical normalized path membership only
-  - fail-closed handling for symlink, alias, or indirection surprises
-  - explicit inclusion / exclusion basis for subtree or file-set membership
+- consume the shipped `V64-A` writable-surface descriptor
+- consume the shipped `V64-A` repo write lease
+- consume the shipped `V64-A` repo write surface admission record
+- consume shipped `V59` continuity lineage intact
+- consume shipped `V60` continuation lineage intact
+- consume shipped `V61` communication lineage where restoration basis or
+  explanation is relevant
+- add typed restoration outputs only:
+  - `agentic_de_repo_write_restoration_record@1`
+  - `agentic_de_repo_write_reintegration_report@1`
+- keep restoration bounded to the already admitted path:
+  - same selected writable surface only
+  - same exact admitted target only
+  - no fresh surface selection in `V64-B`
+  - no fresh lease issuance in `V64-B`
 - keep entitlement boundaries explicit:
-  - continuity region is persistence / context law, not writable entitlement law
-  - writable-surface descriptor and lease are entitlement law, not continuity law
-  - communication lineage may contextualize or justify write posture, but is not
-    itself the writable lease or repo-surface authority
-- keep per-target admission explicit inside the widened surface:
-  - the lease alone is not sufficient entitlement for every path in the surface
-  - typed per-target occupancy / admissibility law remains required
+  - shipped `V64-A` descriptor / lease / admission remain the only restoration
+    entitlement basis
+  - continuity lineage may contextualize restoration posture, but is not fresh
+    writable entitlement
+  - communication lineage may contextualize restoration posture, but is not the
+    lease or restoration authority by itself
+- keep mutation semantics preserved from `V64-A`:
+  - same narrow `local_write` / `create_new` posture only
+  - do not widen append / overwrite / rename / delete semantics in `V64-B`
 - keep authority bounded and non-equivalent:
-  - repo-surface write lease is not shell authority
-  - repo-surface write lease is not execute authority
-  - repo-surface write lease is not dispatch authority
-  - repo-surface write lease is not delegated worker authority
-  - repo-surface write lease is not remote operator law
+  - restoration is not all-repo authority
+  - restoration is not shell authority
+  - restoration is not execute authority
+  - restoration is not dispatch authority
+  - restoration is not delegated worker authority
+  - restoration is not remote operator law
 - keep the slice fail-closed:
-  - missing or inconsistent continuity / continuation / communication basis fails
-    closed
-  - writes outside the declared surface fail closed
-  - ambiguous surface expansion fails closed
+  - missing or inconsistent `V64-A` / `V59` / `V60` / `V61` basis fails closed
+  - restoration may not overread non-admitted or out-of-surface targets
+  - ambiguous restoration expansion fails closed
 - keep later widening deferred:
-  - broader repo authority deferred to later `V64` slices
+  - advisory writable-surface hardening deferred to `V64-C`
   - worker export / reconciliation deferred to `V65`
+
+## Suggested `V64` Path Ladder
+
+The current recommended path ladder is:
+
+| Path | Theme | Primary output | Status |
+|---|---|---|---|
+| `V64-A` | writable-surface starter | one typed writable-surface descriptor plus one bounded repo write lease and one exact repo-surface admission posture over one selected writable surface only | closed on `main` |
+| `V64-B` | writable-surface restoration / reintegration | one typed repo-write restoration record plus one reintegration report over the shipped `V64-A` descriptor / lease / admission lineage and same exact admitted target only | selected next path |
+| `V64-C` | advisory writable-surface hardening | one advisory hardening surface over the same selected writable-surface lineage | prepared later |
+
+These output names are planning-level candidate names, not lock-level schema
+commitments yet.
 
 ## Recommended Bundle
 
-- next selector doc:
+- current selector doc:
   - `docs/DRAFT_NEXT_ARC_OPTIONS_v49.md`
 - next family architecture doc:
   - likely `docs/ARCHITECTURE_ADEU_REPO_BOUND_WRITABLE_SURFACE_AUTHORITY_FAMILY_v0.md`
 - next family support mapping:
   - likely `docs/DRAFT_ADEU_REPO_BOUND_WRITABLE_SURFACE_AUTHORITY_V64_IMPLEMENTATION_MAPPING_v0.md`
 - next slice support mapping:
-  - likely `docs/DRAFT_ADEU_REPO_BOUND_WRITABLE_SURFACE_AUTHORITY_V64A_IMPLEMENTATION_MAPPING_v0.md`
+  - likely `docs/DRAFT_ADEU_REPO_BOUND_WRITABLE_SURFACE_AUTHORITY_V64B_IMPLEMENTATION_MAPPING_v0.md`
 - next lock:
-  - likely `docs/LOCKED_CONTINUATION_vNEXT_PLUS176.md`
+  - likely `docs/LOCKED_CONTINUATION_vNEXT_PLUS177.md`
 - next decision scaffold:
-  - likely `docs/DRAFT_STOP_GATE_DECISION_vNEXT_PLUS176.md`
+  - likely `docs/DRAFT_STOP_GATE_DECISION_vNEXT_PLUS177.md`
 - next edge scaffold:
-  - likely `docs/ASSESSMENT_vNEXT_PLUS176_EDGES.md`
+  - likely `docs/ASSESSMENT_vNEXT_PLUS177_EDGES.md`

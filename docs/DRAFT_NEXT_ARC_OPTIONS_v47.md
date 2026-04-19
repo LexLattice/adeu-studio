@@ -132,6 +132,19 @@ Default next-slice posture:
   - not execute authority
   - not dispatch authority
 
+## Suggested `V63` Path Ladder
+
+The current recommended path ladder is:
+
+| Path | Theme | Primary output | Status |
+|---|---|---|---|
+| `V63-A` | remote operator session starter | one bounded remote operator session surface plus one read-mostly phone-safe status / ask / evidence view with bounded acknowledgement / approval / continue / pause / escalate responses only | closed on `main` |
+| `V63-B` | governed command/control bridge | one typed governed remote command/control bridge over the admitted remote operator session posture for richer typed commands, structured answers, clarifications, and inspect-rich control | selected next path |
+| `V63-C` | advisory remote-operator hardening | one advisory hardening surface over the same remote operator lineage | prepared later |
+
+These output names are planning-level candidate names, not lock-level schema
+commitments yet.
+
 ## Recommended Bundle
 
 - next selector doc:
