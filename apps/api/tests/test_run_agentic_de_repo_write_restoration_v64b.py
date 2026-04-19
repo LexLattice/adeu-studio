@@ -211,3 +211,27 @@ def test_invalid_v64b_lane_drift_returns_clean_error(tmp_path: Path) -> None:
     assert completed.returncode == 2
     assert completed.stdout == ""
     assert completed.stderr.startswith("error: ")
+
+
+def test_invalid_v64a_selected_record_shapes_returns_clean_error(tmp_path: Path) -> None:
+    temp_root, _fixture_root = _copy_v64b_input_tree(tmp_path / "repo")
+    evidence_path = (
+        temp_root
+        / "artifacts"
+        / "agent_harness"
+        / "v176"
+        / "evidence_inputs"
+        / "v64a_repo_writable_surface_starter_evidence_v176.json"
+    )
+    payload = json.loads(evidence_path.read_text(encoding="utf-8"))
+    payload["selected_record_shapes"] = [
+        "agentic_de_repo_writable_surface_descriptor@1",
+        {"unexpected": "object"},
+    ]
+    evidence_path.write_text(json.dumps(payload, indent=2) + "\n", encoding="utf-8")
+
+    completed = _run_script("--repo-root", str(temp_root))
+
+    assert completed.returncode == 2
+    assert completed.stdout == ""
+    assert completed.stderr.startswith("error: ")

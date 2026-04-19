@@ -159,6 +159,7 @@ from .workspace_continuity import (
     DEFAULT_WORKSPACE_CONTINUITY_PAYLOAD_TEXT,
     DEFAULT_WORKSPACE_CONTINUITY_TARGET_RELATIVE_PATH,
     DESIGNATED_WORKSPACE_CONTINUITY_ROOT,
+    ObservedWorkspaceContinuityRestorationEffect,
     WorkspaceOccupancyAssessment,
     classify_workspace_occupancy,
     observe_workspace_continuity_create_new_effect,
@@ -3717,7 +3718,11 @@ def _validate_v64a_evidence_payload(payload: dict[str, object]) -> dict[str, obj
             "V64-B requires the shipped V64-A repo writable-surface evidence payload on main"
         )
     selected_shapes = payload.get("selected_record_shapes")
-    if not isinstance(selected_shapes, list) or {
+    if not isinstance(selected_shapes, list):
+        raise ValueError("V64-A evidence must preserve the shipped writable-surface shapes")
+    if any(not isinstance(shape, str) for shape in selected_shapes):
+        raise ValueError("V64-A evidence selected_record_shapes must be a list of strings")
+    if {
         "agentic_de_repo_writable_surface_descriptor@1",
         "agentic_de_repo_write_lease_record@1",
         "agentic_de_repo_write_surface_admission_record@1",
@@ -16588,7 +16593,7 @@ def _build_v64b_repo_write_restoration_record(
     admission: AgenticDeRepoWriteSurfaceAdmissionRecord,
     observation: AgenticDeLocalEffectObservationRecord,
     conformance: AgenticDeLocalEffectConformanceReport,
-    restoration_effect,
+    restoration_effect: ObservedWorkspaceContinuityRestorationEffect,
     evidence_refs: list[str],
 ) -> AgenticDeRepoWriteRestorationRecord:
     restoration_status = (
