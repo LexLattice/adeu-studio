@@ -1,8 +1,8 @@
 # Assessment vNext+180 Edges
 
-Status: pre-lock edge assessment for `V65-B`.
+Status: post-closeout edge assessment for `V65-B` (April 19, 2026 UTC).
 
-Authority layer: planning scaffold only.
+Authority layer: closeout evidence on `main`.
 
 ## Assessment-State Marker (Machine-Checkable)
 
@@ -10,8 +10,8 @@ Authority layer: planning scaffold only.
 {
   "schema": "assessment_artifact_state@1",
   "artifact": "docs/ASSESSMENT_vNEXT_PLUS180_EDGES.md",
-  "phase": "pre_lock_assessment",
-  "authoritative": false,
+  "phase": "post_closeout_assessment",
+  "authoritative": true,
   "required_in_decision": true
 }
 ```
@@ -27,6 +27,9 @@ Authority layer: planning scaffold only.
   keep `V65-A` authoritative.
   - shipped `V65-A` export packet remains the only reconciliation basis
   - reconciliation is not fresh export admission by itself
+- Closeout Evidence:
+  shipped checker/tests enforce `V65-A` export packet lineage consumption and
+  reject non-`V65-A` delegated export basis for reconciliation.
 
 ### Edge 2: Reconciliation Could Quietly Reopen `V48` Worker-Law Ownership
 
@@ -41,6 +44,9 @@ Authority layer: planning scaffold only.
   - reconciliation is not worker execution law by itself
   - released worker result/conformance basis remains surfaced explicitly as a
     current selected released-worker input
+- Closeout Evidence:
+  shipped checker/tests enforce released `V48-D` boundary conformance plus
+  released `V48-E` worker topology lineage consumption and reject lineage drift.
 
 ### Edge 2A: Worker Result Basis Could Drift Away From Carrier / Topology / Export Scope
 
@@ -54,6 +60,9 @@ Authority layer: planning scaffold only.
   - worker result or conformance basis must match selected topology basis
   - worker result or conformance basis must match exported scope
   - selected worker result or conformance kind remains explicit
+- Closeout Evidence:
+  shipped checker/tests fail closed on carrier, topology, snapshot, subject, or
+  exported-scope mismatches and reject alternate released-worker input paths.
 
 ### Edge 3: `V65-B` Could Drift Beyond The Same Exported Scope
 
@@ -66,6 +75,9 @@ Authority layer: planning scaffold only.
   - same exact exported target / patch / artifact summary only
   - same exported-work membership basis only
   - non-exported or out-of-scope paths fail closed
+- Closeout Evidence:
+  shipped report/checker/tests preserve exact target/patch/artifact summary and
+  explicit exported-work membership basis with fail-closed mismatch behavior.
 
 ### Edge 4: Worker Result Carry-Through Could Be Overread As Dispatch Or Execute Authority
 
@@ -78,6 +90,9 @@ Authority layer: planning scaffold only.
   - not shell authority
   - not execute authority
   - not multi-worker orchestration authority
+- Closeout Evidence:
+  shipped report reason-codes and checker/tests preserve explicit non-equivalence
+  to dispatch, shell, execute, and multi-worker authority.
 
 ### Edge 5: Reconciliation Could Backdoor Broader Mutation Semantics
 
@@ -88,6 +103,9 @@ Authority layer: planning scaffold only.
   preserve the shipped `V64` narrow mutation subset.
   - `local_write/create_new` remains the only preserved posture here
   - broader write semantics may not be inferred from worker-result form
+- Closeout Evidence:
+  shipped report/checker/tests preserve explicit `local_write/create_new`
+  carry-through and reject write-semantics widening.
 
 ### Edge 6: One Reconciled Exemplar Could Become Broad Repo Or Multi-Worker Sovereignty
 
@@ -101,6 +119,9 @@ Authority layer: planning scaffold only.
   - one worker carrier lineage only
   - one selected topology lineage only
   - no fan-out or multi-worker expansion by implication
+- Closeout Evidence:
+  shipped report/checker/tests preserve one selected carrier/topology path and
+  explicit no-fanout/no-multi-worker posture.
 
 ### Edge 7: Communication, Connector, Or Remote Lineage Could Drift Into Reconciliation Entitlement
 
@@ -113,22 +134,24 @@ Authority layer: planning scaffold only.
   - connector posture remains sibling trust law only
   - remote posture remains sibling transport/control law only
   - none become reconciliation entitlement by themselves
+- Closeout Evidence:
+  shipped report/checker/tests preserve communication as consumed context only
+  and preserve non-equivalence to connector/remote entitlement.
 
 ## Current Judgment
 
-- `V65-B` is the right next slice because `V65-A` already closed the bounded
-  export bridge on `main`, while the repo still lacks a typed reconciliation seam
-  over that same exported lineage.
-- the follow-on should stay properly bounded:
-  - one shipped `V65-A` export lineage only
-  - one released worker result or conformance lineage only
-  - explicit current selected released-worker basis rather than hidden inferred basis
-  - one worker carrier lineage only
-  - one selected worker topology lineage only
-  - one delegated worker reconciliation report only
-  - explicit `V60` / `V61` basis consumption
-  - explicit worker-result and local-lineage carry-through
+- `V65-B` was the right next slice because `V65-A` already closed the bounded
+  delegated export seam on `main`, while the repo lacked a typed reconciliation
+  surface over that same exported lineage.
+- the shipped result remained properly bounded:
+  - one shipped `V65-A` delegated export lineage only
+  - one released `V48-D` worker result lineage only
+  - one released `V48-E` worker topology lineage only
+  - one delegated worker reconciliation report surface only
+  - explicit `V60-B` / `V61-A` consumed lineage context
+  - explicit worker-result and exported-scope consistency checks
   - explicit preserved `V64` narrow write semantics
   - no dispatch / shell / execute / multi-worker widening
-- if `V65-B` lands cleanly, later work should move to `V65-C` advisory
-  hardening, not widen dispatch or execution inside the reconciliation slice.
+- `V65-B` is now closed on `main`.
+- the next family move should be `V65-C` advisory hardening, not widening inside
+  `V65-B`.

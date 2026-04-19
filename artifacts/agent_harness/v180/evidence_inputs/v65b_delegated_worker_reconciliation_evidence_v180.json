@@ -1,0 +1,80 @@
+{
+  "schema": "v65b_delegated_worker_reconciliation_evidence@1",
+  "evidence_input_path": "artifacts/agent_harness/v180/evidence_inputs/v65b_delegated_worker_reconciliation_evidence_v180.json",
+  "contract_source": "docs/LOCKED_CONTINUATION_vNEXT_PLUS180.md#machine-checkable-contract",
+  "merged_pr": "#407",
+  "merge_commit": "6a5358597aabe5787e242db895be53914f8694ae",
+  "implementation_commit": "713289e3eba4bf5a1b3b895d454216b3479c370d",
+  "review_hardening_commit": "362323754c0fa7b2e932f16b2a6efea1c524615f",
+  "implementation_packages": [
+    "adeu_agentic_de",
+    "adeu_agent_harness",
+    "urm_runtime"
+  ],
+  "selected_record_shapes": [
+    "agentic_de_delegated_worker_export_packet@1",
+    "agentic_de_delegated_worker_reconciliation_report@1"
+  ],
+  "required_prior_lane_evidence_paths": [
+    "artifacts/agent_harness/v179/evidence_inputs/v65a_delegated_worker_export_starter_evidence_v179.json"
+  ],
+  "required_current_selected_released_worker_basis_surfaces": [
+    "artifacts/agent_harness/v115/evidence_inputs/v48d_worker_boundary_conformance_evidence_v115.json",
+    "artifacts/agent_harness/v116/evidence_inputs/v48e_worker_delegation_topology_evidence_v116.json"
+  ],
+  "prior_lane_handoff_record_required": true,
+  "prior_lane_handoff_record_schema": "agentic_de_lane_drift_record@1",
+  "agentic_de_pyproject_path": "packages/adeu_agentic_de/pyproject.toml",
+  "agent_harness_pyproject_path": "packages/adeu_agent_harness/pyproject.toml",
+  "agentic_de_package_init_source_path": "packages/adeu_agentic_de/src/adeu_agentic_de/__init__.py",
+  "agentic_de_checker_source_path": "packages/adeu_agentic_de/src/adeu_agentic_de/checker.py",
+  "agentic_de_models_source_path": "packages/adeu_agentic_de/src/adeu_agentic_de/models.py",
+  "agentic_de_export_schema_source_path": "packages/adeu_agentic_de/src/adeu_agentic_de/export_schema.py",
+  "agentic_de_cli_source_path": "apps/api/scripts/run_agentic_de_delegated_worker_reconciliation_v65b.py",
+  "agentic_de_delegated_worker_reconciliation_authoritative_schema_path": "packages/adeu_agentic_de/schema/agentic_de_delegated_worker_reconciliation_report.v1.json",
+  "agentic_de_delegated_worker_reconciliation_mirror_schema_path": "spec/agentic_de_delegated_worker_reconciliation_report.schema.json",
+  "reference_lane_drift_record_fixture_path": "packages/adeu_agentic_de/tests/fixtures/v65b/reference_agentic_de_lane_drift_record.json",
+  "reference_delegated_worker_export_fixture_path": "packages/adeu_agentic_de/tests/fixtures/v65a/reference_agentic_de_delegated_worker_export_packet.json",
+  "reference_worker_result_fixture_path": "packages/adeu_agent_harness/tests/fixtures/v48e/reference_child/worker_boundary_conformance_report.json",
+  "reference_worker_topology_fixture_path": "packages/adeu_agent_harness/tests/fixtures/v48e/reference_worker_delegation_topology.json",
+  "reference_continuation_fixture_path": "packages/adeu_agentic_de/tests/fixtures/v60b/reference_agentic_de_continuation_refresh_decision_record.json",
+  "reference_communication_fixture_path": "packages/adeu_agentic_de/tests/fixtures/v61a/reference_agentic_de_communication_egress_packet.json",
+  "reference_delegated_worker_reconciliation_fixture_path": "packages/adeu_agentic_de/tests/fixtures/v65b/reference_agentic_de_delegated_worker_reconciliation_report.json",
+  "test_reference_paths": [
+    "packages/adeu_agentic_de/tests/test_agentic_de_v65b.py",
+    "packages/adeu_agentic_de/tests/test_agentic_de_export_schema.py",
+    "apps/api/tests/test_run_agentic_de_delegated_worker_reconciliation_v65b.py"
+  ],
+  "selected_consumed_v65a_lineage_for_v65b": "shipped_v65a_export_lineage_only",
+  "selected_carried_v64_lineage_for_v65b": "same_shipped_v64_local_writable_lineage_only_via_v65a",
+  "selected_worker_result_or_conformance_lineage_for_v65b": "one_released_worker_result_or_conformance_lineage_only",
+  "selected_worker_result_or_conformance_input_is_current_selected_released_worker_input_not_prior_lane_evidence_surface_for_v65b": true,
+  "selected_consumed_v60_lineage_for_v65b": "shipped_v60_continuation_lineage_only",
+  "selected_consumed_v61_lineage_for_v65b": "shipped_v61_governed_communication_lineage_only",
+  "same_exported_scope_only_for_v65b": true,
+  "same_worker_carrier_and_topology_only_for_v65b": true,
+  "delegated_worker_reconciliation_report_must_be_typed_and_replayable": true,
+  "reconciliation_outputs_fail_closed_on_missing_or_inconsistent_basis": true,
+  "worker_result_or_conformance_basis_must_match_worker_carrier_topology_and_exported_scope_for_v65b": true,
+  "mutation_semantics_preserved_from_v65a_in_v65b": true,
+  "selected_downstream_action_class_for_v65b": "local_write",
+  "selected_downstream_write_kind_for_v65b": "create_new",
+  "forbidden_write_semantic_widening_in_v65b": [
+    "append",
+    "overwrite",
+    "rename",
+    "delete"
+  ],
+  "selected_execute_authority_for_v65b": false,
+  "selected_shell_authority_for_v65b": false,
+  "selected_dispatch_authority_for_v65b": false,
+  "selected_multi_worker_authority_for_v65b": false,
+  "selected_all_repo_authority_for_v65b": false,
+  "selected_connector_law_for_v65b": false,
+  "selected_remote_operator_law_for_v65b": false,
+  "metric_key_continuity_assertion_path": "artifacts/agent_harness/v180/evidence_inputs/metric_key_continuity_assertion_v180.json",
+  "runtime_observability_comparison_path": "artifacts/agent_harness/v180/evidence_inputs/runtime_observability_comparison_v180.json",
+  "runtime_event_stream_path": "artifacts/agent_harness/v180/runtime/evidence/local/urm_events.ndjson",
+  "local_full_python_gate": "make check",
+  "notes": "v180 evidence pins the bounded V65-B delegated worker reconciliation seam on main: one typed, replayable reconciliation report over the shipped V65-A delegated export lineage plus one released worker result and one released worker topology lineage, explicit worker-result and exported-scope consistency checks, explicit consumed V60-B and V61-A lineage context, explicit committed-artifact precedence and frozen-policy replayability anchor, preserved local_write/create_new semantics, and no dispatch/shell/execute/multi-worker/all-repo/connector/remote widening."
+}
