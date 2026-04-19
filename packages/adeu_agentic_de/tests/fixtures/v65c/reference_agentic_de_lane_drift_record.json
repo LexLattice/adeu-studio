@@ -1,0 +1,55 @@
+{
+  "schema": "agentic_de_lane_drift_record@1",
+  "record_id": null,
+  "target_arc": "vNext+181",
+  "target_path": "V65-C",
+  "prior_lane_ref": "docs/LOCKED_CONTINUATION_vNEXT_PLUS180.md",
+  "entry_count": 9,
+  "entries": [
+    {
+      "assumption_ref": "v65a_v65b_delegated_lineage_reuse_default",
+      "status": "holds",
+      "note": "V65-C reuses the shipped V65-A delegated export packet and shipped V65-B reconciliation report by default."
+    },
+    {
+      "assumption_ref": "advisory_delegated_worker_hardening_only",
+      "status": "amended",
+      "note": "V65-C adds only one advisory delegated-worker hardening register and does not mint export or reconciliation authority."
+    },
+    {
+      "assumption_ref": "committed_lane_artifacts_outrank_narrative_docs",
+      "status": "amended",
+      "note": "Committed shipped artifacts remain the authoritative evidence basis over review prose in V65-C."
+    },
+    {
+      "assumption_ref": "explicit_frozen_policy_anchor_required",
+      "status": "amended",
+      "note": "V65-C keeps one explicit frozen-policy anchor for replayable delegated-worker hardening."
+    },
+    {
+      "assumption_ref": "optional_reconciliation_local_basis_fail_closed",
+      "status": "amended",
+      "note": "If reconciliation-local basis is absent, worker-result-local evidence may not be overread; if present, it must remain consistent or fail closed."
+    },
+    {
+      "assumption_ref": "selected_released_worker_lineage_non_generalizing",
+      "status": "amended",
+      "note": "One selected released worker carrier/topology/result lineage remains path-local only and does not generalize into broader V48 worker-law or alternate carrier/topology selection."
+    },
+    {
+      "assumption_ref": "v64c_shaping_context_only_not_entitlement",
+      "status": "amended",
+      "note": "Shipped V64-C writable-surface hardening evidence remains shaping or drift-guard context only, not delegated export or reconciliation entitlement."
+    },
+    {
+      "assumption_ref": "candidate_outcomes_non_entitling_non_escalating_and_scope_bound",
+      "status": "amended",
+      "note": "Allowed V65-C candidate outcomes remain non-entitling, non-escalating, and scope-bound to later locked follow-ons."
+    },
+    {
+      "assumption_ref": "path_level_non_generalization_required",
+      "status": "amended",
+      "note": "The selected delegated path remains exact and non-generalizing by default into all-repo, shell, execute, dispatch, multi-worker, connector, or remote law."
+    }
+  ]
+}

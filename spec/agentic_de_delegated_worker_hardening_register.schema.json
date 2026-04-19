@@ -1,0 +1,348 @@
+{
+  "$defs": {
+    "AgenticDeDelegatedWorkerHardeningEntry": {
+      "additionalProperties": false,
+      "properties": {
+        "consumed_communication_basis_summary_or_none": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Consumed Communication Basis Summary Or None"
+        },
+        "consumed_continuation_basis_summary": {
+          "title": "Consumed Continuation Basis Summary",
+          "type": "string"
+        },
+        "delegated_worker_export_packet_ref": {
+          "title": "Delegated Worker Export Packet Ref",
+          "type": "string"
+        },
+        "delegated_worker_reconciliation_report_ref_or_none": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Delegated Worker Reconciliation Report Ref Or None"
+        },
+        "evidence_basis_summary": {
+          "title": "Evidence Basis Summary",
+          "type": "string"
+        },
+        "evidence_refs": {
+          "items": {
+            "type": "string"
+          },
+          "title": "Evidence Refs",
+          "type": "array"
+        },
+        "exported_work_membership_basis_summary": {
+          "title": "Exported Work Membership Basis Summary",
+          "type": "string"
+        },
+        "extensional_and_replayable_by_default": {
+          "const": true,
+          "default": true,
+          "title": "Extensional And Replayable By Default",
+          "type": "boolean"
+        },
+        "field_dependence_tags": {
+          "additionalProperties": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array"
+          },
+          "title": "Field Dependence Tags",
+          "type": "object"
+        },
+        "field_origin_tags": {
+          "additionalProperties": {
+            "enum": [
+              "current_turn_native",
+              "current_turn_derived",
+              "observability_only",
+              "prior_artifact",
+              "shaping_only"
+            ],
+            "type": "string"
+          },
+          "title": "Field Origin Tags",
+          "type": "object"
+        },
+        "frozen_policy_ref": {
+          "title": "Frozen Policy Ref",
+          "type": "string"
+        },
+        "hardening_id": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Hardening Id"
+        },
+        "lineage_root_dedup_applied": {
+          "const": true,
+          "default": true,
+          "title": "Lineage Root Dedup Applied",
+          "type": "boolean"
+        },
+        "preserved_write_semantics_summary": {
+          "title": "Preserved Write Semantics Summary",
+          "type": "string"
+        },
+        "rationale": {
+          "title": "Rationale",
+          "type": "string"
+        },
+        "reason_codes": {
+          "items": {
+            "type": "string"
+          },
+          "title": "Reason Codes",
+          "type": "array"
+        },
+        "recommendation_scope_requires_later_lock": {
+          "const": true,
+          "default": true,
+          "title": "Recommendation Scope Requires Later Lock",
+          "type": "boolean"
+        },
+        "recommended_outcome": {
+          "enum": [
+            "keep_warning_only",
+            "needs_more_evidence",
+            "candidate_for_later_delegated_worker_hardening",
+            "candidate_for_later_delegation_migration",
+            "not_selected_for_escalation"
+          ],
+          "title": "Recommended Outcome",
+          "type": "string"
+        },
+        "root_origin_dedup_summary": {
+          "title": "Root Origin Dedup Summary",
+          "type": "string"
+        },
+        "root_origin_ids": {
+          "items": {
+            "type": "string"
+          },
+          "title": "Root Origin Ids",
+          "type": "array"
+        },
+        "selected_export_scope_summary": {
+          "title": "Selected Export Scope Summary",
+          "type": "string"
+        },
+        "selected_hardening_target_surface": {
+          "title": "Selected Hardening Target Surface",
+          "type": "string"
+        },
+        "selected_target_or_patch_or_artifact_summary": {
+          "title": "Selected Target Or Patch Or Artifact Summary",
+          "type": "string"
+        },
+        "selected_worker_result_or_conformance_kind_summary_or_none": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Selected Worker Result Or Conformance Kind Summary Or None"
+        },
+        "selected_worker_topology_basis_ref_or_equivalent": {
+          "title": "Selected Worker Topology Basis Ref Or Equivalent",
+          "type": "string"
+        },
+        "verdict_basis_summary": {
+          "title": "Verdict Basis Summary",
+          "type": "string"
+        },
+        "worker_carrier_basis_ref_or_equivalent": {
+          "title": "Worker Carrier Basis Ref Or Equivalent",
+          "type": "string"
+        },
+        "worker_result_or_conformance_basis_ref_or_equivalent_or_none": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Worker Result Or Conformance Basis Ref Or Equivalent Or None"
+        }
+      },
+      "required": [
+        "delegated_worker_export_packet_ref",
+        "worker_carrier_basis_ref_or_equivalent",
+        "selected_worker_topology_basis_ref_or_equivalent",
+        "selected_export_scope_summary",
+        "exported_work_membership_basis_summary",
+        "selected_target_or_patch_or_artifact_summary",
+        "preserved_write_semantics_summary",
+        "consumed_continuation_basis_summary",
+        "selected_hardening_target_surface",
+        "frozen_policy_ref",
+        "evidence_basis_summary",
+        "verdict_basis_summary",
+        "field_origin_tags",
+        "field_dependence_tags",
+        "root_origin_ids",
+        "root_origin_dedup_summary",
+        "recommended_outcome",
+        "rationale",
+        "reason_codes",
+        "evidence_refs"
+      ],
+      "title": "AgenticDeDelegatedWorkerHardeningEntry",
+      "type": "object"
+    }
+  },
+  "additionalProperties": false,
+  "properties": {
+    "advisory_only": {
+      "const": true,
+      "default": true,
+      "title": "Advisory Only",
+      "type": "boolean"
+    },
+    "baseline_checker_version": {
+      "title": "Baseline Checker Version",
+      "type": "string"
+    },
+    "candidate_only": {
+      "const": true,
+      "default": true,
+      "title": "Candidate Only",
+      "type": "boolean"
+    },
+    "changes_live_behavior_by_default": {
+      "const": false,
+      "default": false,
+      "title": "Changes Live Behavior By Default",
+      "type": "boolean"
+    },
+    "committed_lane_artifacts_outrank_narrative_docs": {
+      "const": true,
+      "default": true,
+      "title": "Committed Lane Artifacts Outrank Narrative Docs",
+      "type": "boolean"
+    },
+    "entries": {
+      "items": {
+        "$ref": "#/$defs/AgenticDeDelegatedWorkerHardeningEntry"
+      },
+      "title": "Entries",
+      "type": "array"
+    },
+    "entry_count": {
+      "title": "Entry Count",
+      "type": "integer"
+    },
+    "evidence_basis_distinct_from_recommendation": {
+      "const": true,
+      "default": true,
+      "title": "Evidence Basis Distinct From Recommendation",
+      "type": "boolean"
+    },
+    "exemplar_evidence_non_generalizing_by_default": {
+      "const": true,
+      "default": true,
+      "title": "Exemplar Evidence Non Generalizing By Default",
+      "type": "boolean"
+    },
+    "explicit_frozen_policy_anchor_required": {
+      "const": true,
+      "default": true,
+      "title": "Explicit Frozen Policy Anchor Required",
+      "type": "boolean"
+    },
+    "keep_warning_only_retains_current_advisory_posture_only": {
+      "const": true,
+      "default": true,
+      "title": "Keep Warning Only Retains Current Advisory Posture Only",
+      "type": "boolean"
+    },
+    "lineage_root_non_independence_dedup_applied": {
+      "const": true,
+      "default": true,
+      "title": "Lineage Root Non Independence Dedup Applied",
+      "type": "boolean"
+    },
+    "optional_upstream_basis_consistency_fails_closed": {
+      "const": true,
+      "default": true,
+      "title": "Optional Upstream Basis Consistency Fails Closed",
+      "type": "boolean"
+    },
+    "path_level_only": {
+      "const": true,
+      "default": true,
+      "title": "Path Level Only",
+      "type": "boolean"
+    },
+    "recommendation_function_extensional_and_replayable": {
+      "const": true,
+      "default": true,
+      "title": "Recommendation Function Extensional And Replayable",
+      "type": "boolean"
+    },
+    "register_id": {
+      "anyOf": [
+        {
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Register Id"
+    },
+    "schema": {
+      "const": "agentic_de_delegated_worker_hardening_register@1",
+      "default": "agentic_de_delegated_worker_hardening_register@1",
+      "title": "Schema",
+      "type": "string"
+    },
+    "target_arc": {
+      "title": "Target Arc",
+      "type": "string"
+    },
+    "target_path": {
+      "title": "Target Path",
+      "type": "string"
+    }
+  },
+  "required": [
+    "target_arc",
+    "target_path",
+    "baseline_checker_version",
+    "entry_count",
+    "entries"
+  ],
+  "title": "AgenticDeDelegatedWorkerHardeningRegister",
+  "type": "object"
+}

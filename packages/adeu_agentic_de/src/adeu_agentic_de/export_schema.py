@@ -21,6 +21,7 @@ from .models import (
     AGENTIC_DE_CONTINUATION_HARDENING_REGISTER_SCHEMA,
     AGENTIC_DE_CONTINUATION_REFRESH_DECISION_RECORD_SCHEMA,
     AGENTIC_DE_DELEGATED_WORKER_EXPORT_PACKET_SCHEMA,
+    AGENTIC_DE_DELEGATED_WORKER_HARDENING_REGISTER_SCHEMA,
     AGENTIC_DE_DELEGATED_WORKER_RECONCILIATION_REPORT_SCHEMA,
     AGENTIC_DE_DOMAIN_PACKET_SCHEMA,
     AGENTIC_DE_EXTERNAL_ASSISTANT_EGRESS_BRIDGE_PACKET_SCHEMA,
@@ -84,6 +85,7 @@ from .models import (
     AgenticDeContinuationHardeningRegister,
     AgenticDeContinuationRefreshDecisionRecord,
     AgenticDeDelegatedWorkerExportPacket,
+    AgenticDeDelegatedWorkerHardeningRegister,
     AgenticDeDelegatedWorkerReconciliationReport,
     AgenticDeDomainPacket,
     AgenticDeExternalAssistantEgressBridgePacket,
@@ -596,6 +598,16 @@ def main() -> None:
             / "schema"
             / "agentic_de_delegated_worker_reconciliation_report.v1.json",
             root / "spec" / "agentic_de_delegated_worker_reconciliation_report.schema.json",
+        ),
+        (
+            AgenticDeDelegatedWorkerHardeningRegister,
+            AGENTIC_DE_DELEGATED_WORKER_HARDENING_REGISTER_SCHEMA,
+            root
+            / "packages"
+            / "adeu_agentic_de"
+            / "schema"
+            / "agentic_de_delegated_worker_hardening_register.v1.json",
+            root / "spec" / "agentic_de_delegated_worker_hardening_register.schema.json",
         ),
         (
             AgenticDeLiveTurnAdmissionRecord,
