@@ -1,0 +1,348 @@
+{
+  "$defs": {
+    "AgenticDeRepoWritableSurfaceHardeningEntry": {
+      "additionalProperties": false,
+      "properties": {
+        "evidence_basis_summary": {
+          "title": "Evidence Basis Summary",
+          "type": "string"
+        },
+        "evidence_refs": {
+          "items": {
+            "type": "string"
+          },
+          "title": "Evidence Refs",
+          "type": "array"
+        },
+        "extensional_and_replayable_by_default": {
+          "const": true,
+          "default": true,
+          "title": "Extensional And Replayable By Default",
+          "type": "boolean"
+        },
+        "field_dependence_tags": {
+          "additionalProperties": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array"
+          },
+          "title": "Field Dependence Tags",
+          "type": "object"
+        },
+        "field_origin_tags": {
+          "additionalProperties": {
+            "enum": [
+              "current_turn_native",
+              "current_turn_derived",
+              "observability_only",
+              "prior_artifact",
+              "shaping_only"
+            ],
+            "type": "string"
+          },
+          "title": "Field Origin Tags",
+          "type": "object"
+        },
+        "frozen_policy_ref": {
+          "title": "Frozen Policy Ref",
+          "type": "string"
+        },
+        "hardening_id": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Hardening Id"
+        },
+        "latest_continuation_basis_ref_or_equivalent": {
+          "title": "Latest Continuation Basis Ref Or Equivalent",
+          "type": "string"
+        },
+        "latest_continuation_basis_selection_summary": {
+          "title": "Latest Continuation Basis Selection Summary",
+          "type": "string"
+        },
+        "lineage_root_dedup_applied": {
+          "const": true,
+          "default": true,
+          "title": "Lineage Root Dedup Applied",
+          "type": "boolean"
+        },
+        "preserved_write_semantics_summary": {
+          "title": "Preserved Write Semantics Summary",
+          "type": "string"
+        },
+        "rationale": {
+          "title": "Rationale",
+          "type": "string"
+        },
+        "reason_codes": {
+          "items": {
+            "type": "string"
+          },
+          "title": "Reason Codes",
+          "type": "array"
+        },
+        "recommendation_scope_requires_later_lock": {
+          "const": true,
+          "default": true,
+          "title": "Recommendation Scope Requires Later Lock",
+          "type": "boolean"
+        },
+        "recommended_outcome": {
+          "enum": [
+            "keep_warning_only",
+            "needs_more_evidence",
+            "candidate_for_later_writable_surface_hardening",
+            "candidate_for_later_writable_surface_migration",
+            "not_selected_for_escalation"
+          ],
+          "title": "Recommended Outcome",
+          "type": "string"
+        },
+        "repo_writable_surface_descriptor_ref": {
+          "title": "Repo Writable Surface Descriptor Ref",
+          "type": "string"
+        },
+        "repo_write_lease_ref": {
+          "title": "Repo Write Lease Ref",
+          "type": "string"
+        },
+        "repo_write_reintegration_ref_or_none": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Repo Write Reintegration Ref Or None"
+        },
+        "repo_write_restoration_ref_or_none": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Repo Write Restoration Ref Or None"
+        },
+        "repo_write_surface_admission_ref": {
+          "title": "Repo Write Surface Admission Ref",
+          "type": "string"
+        },
+        "root_origin_dedup_summary": {
+          "title": "Root Origin Dedup Summary",
+          "type": "string"
+        },
+        "root_origin_ids": {
+          "items": {
+            "type": "string"
+          },
+          "title": "Root Origin Ids",
+          "type": "array"
+        },
+        "selected_hardening_target_surface": {
+          "title": "Selected Hardening Target Surface",
+          "type": "string"
+        },
+        "selected_target_path_summary": {
+          "title": "Selected Target Path Summary",
+          "type": "string"
+        },
+        "selected_writable_surface_identity_summary": {
+          "title": "Selected Writable Surface Identity Summary",
+          "type": "string"
+        },
+        "selected_write_effect_or_restoration_kind_summary_or_none": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Selected Write Effect Or Restoration Kind Summary Or None"
+        },
+        "target_admission_verdict": {
+          "enum": [
+            "admitted",
+            "rejected_target_not_in_surface",
+            "rejected_target_not_admissible",
+            "rejected_missing_basis",
+            "rejected_inconsistent_basis"
+          ],
+          "title": "Target Admission Verdict",
+          "type": "string"
+        },
+        "verdict_basis_summary": {
+          "title": "Verdict Basis Summary",
+          "type": "string"
+        }
+      },
+      "required": [
+        "repo_writable_surface_descriptor_ref",
+        "repo_write_lease_ref",
+        "repo_write_surface_admission_ref",
+        "preserved_write_semantics_summary",
+        "selected_writable_surface_identity_summary",
+        "selected_target_path_summary",
+        "target_admission_verdict",
+        "latest_continuation_basis_ref_or_equivalent",
+        "latest_continuation_basis_selection_summary",
+        "selected_hardening_target_surface",
+        "frozen_policy_ref",
+        "evidence_basis_summary",
+        "verdict_basis_summary",
+        "field_origin_tags",
+        "field_dependence_tags",
+        "root_origin_ids",
+        "root_origin_dedup_summary",
+        "recommended_outcome",
+        "rationale",
+        "reason_codes",
+        "evidence_refs"
+      ],
+      "title": "AgenticDeRepoWritableSurfaceHardeningEntry",
+      "type": "object"
+    }
+  },
+  "additionalProperties": false,
+  "properties": {
+    "advisory_only": {
+      "const": true,
+      "default": true,
+      "title": "Advisory Only",
+      "type": "boolean"
+    },
+    "baseline_checker_version": {
+      "title": "Baseline Checker Version",
+      "type": "string"
+    },
+    "candidate_only": {
+      "const": true,
+      "default": true,
+      "title": "Candidate Only",
+      "type": "boolean"
+    },
+    "changes_live_behavior_by_default": {
+      "const": false,
+      "default": false,
+      "title": "Changes Live Behavior By Default",
+      "type": "boolean"
+    },
+    "committed_lane_artifacts_outrank_narrative_docs": {
+      "const": true,
+      "default": true,
+      "title": "Committed Lane Artifacts Outrank Narrative Docs",
+      "type": "boolean"
+    },
+    "entries": {
+      "items": {
+        "$ref": "#/$defs/AgenticDeRepoWritableSurfaceHardeningEntry"
+      },
+      "title": "Entries",
+      "type": "array"
+    },
+    "entry_count": {
+      "title": "Entry Count",
+      "type": "integer"
+    },
+    "evidence_basis_distinct_from_recommendation": {
+      "const": true,
+      "default": true,
+      "title": "Evidence Basis Distinct From Recommendation",
+      "type": "boolean"
+    },
+    "exemplar_evidence_non_generalizing_by_default": {
+      "const": true,
+      "default": true,
+      "title": "Exemplar Evidence Non Generalizing By Default",
+      "type": "boolean"
+    },
+    "explicit_frozen_policy_anchor_required": {
+      "const": true,
+      "default": true,
+      "title": "Explicit Frozen Policy Anchor Required",
+      "type": "boolean"
+    },
+    "keep_warning_only_retains_current_advisory_posture_only": {
+      "const": true,
+      "default": true,
+      "title": "Keep Warning Only Retains Current Advisory Posture Only",
+      "type": "boolean"
+    },
+    "lineage_root_non_independence_dedup_applied": {
+      "const": true,
+      "default": true,
+      "title": "Lineage Root Non Independence Dedup Applied",
+      "type": "boolean"
+    },
+    "optional_upstream_basis_consistency_fails_closed": {
+      "const": true,
+      "default": true,
+      "title": "Optional Upstream Basis Consistency Fails Closed",
+      "type": "boolean"
+    },
+    "path_level_only": {
+      "const": true,
+      "default": true,
+      "title": "Path Level Only",
+      "type": "boolean"
+    },
+    "recommendation_function_extensional_and_replayable": {
+      "const": true,
+      "default": true,
+      "title": "Recommendation Function Extensional And Replayable",
+      "type": "boolean"
+    },
+    "register_id": {
+      "anyOf": [
+        {
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Register Id"
+    },
+    "schema": {
+      "const": "agentic_de_repo_writable_surface_hardening_register@1",
+      "default": "agentic_de_repo_writable_surface_hardening_register@1",
+      "title": "Schema",
+      "type": "string"
+    },
+    "target_arc": {
+      "title": "Target Arc",
+      "type": "string"
+    },
+    "target_path": {
+      "title": "Target Path",
+      "type": "string"
+    }
+  },
+  "required": [
+    "target_arc",
+    "target_path",
+    "baseline_checker_version",
+    "entry_count",
+    "entries"
+  ],
+  "title": "AgenticDeRepoWritableSurfaceHardeningRegister",
+  "type": "object"
+}

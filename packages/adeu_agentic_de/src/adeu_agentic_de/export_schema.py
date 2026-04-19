@@ -50,6 +50,7 @@ from .models import (
     AGENTIC_DE_REMOTE_OPERATOR_SESSION_RECORD_SCHEMA,
     AGENTIC_DE_REMOTE_OPERATOR_VIEW_PACKET_SCHEMA,
     AGENTIC_DE_REPO_WRITABLE_SURFACE_DESCRIPTOR_SCHEMA,
+    AGENTIC_DE_REPO_WRITABLE_SURFACE_HARDENING_REGISTER_SCHEMA,
     AGENTIC_DE_REPO_WRITE_LEASE_RECORD_SCHEMA,
     AGENTIC_DE_REPO_WRITE_REINTEGRATION_REPORT_SCHEMA,
     AGENTIC_DE_REPO_WRITE_RESTORATION_RECORD_SCHEMA,
@@ -110,6 +111,7 @@ from .models import (
     AgenticDeRemoteOperatorSessionRecord,
     AgenticDeRemoteOperatorViewPacket,
     AgenticDeRepoWritableSurfaceDescriptor,
+    AgenticDeRepoWritableSurfaceHardeningRegister,
     AgenticDeRepoWriteLeaseRecord,
     AgenticDeRepoWriteReintegrationReport,
     AgenticDeRepoWriteRestorationRecord,
@@ -520,6 +522,16 @@ def main() -> None:
             / "schema"
             / "agentic_de_repo_writable_surface_descriptor.v1.json",
             root / "spec" / "agentic_de_repo_writable_surface_descriptor.schema.json",
+        ),
+        (
+            AgenticDeRepoWritableSurfaceHardeningRegister,
+            AGENTIC_DE_REPO_WRITABLE_SURFACE_HARDENING_REGISTER_SCHEMA,
+            root
+            / "packages"
+            / "adeu_agentic_de"
+            / "schema"
+            / "agentic_de_repo_writable_surface_hardening_register.v1.json",
+            root / "spec" / "agentic_de_repo_writable_surface_hardening_register.schema.json",
         ),
         (
             AgenticDeRepoWriteLeaseRecord,
