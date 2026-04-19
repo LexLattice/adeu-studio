@@ -17514,7 +17514,9 @@ def run_agentic_de_repo_writable_surface_hardening_v64c(
     target_relative_path: str = str(DEFAULT_WORKSPACE_CONTINUITY_TARGET_RELATIVE_PATH),
 ) -> AgenticDeRepoWritableSurfaceHardeningRegister:
     raw_root = repo_root(anchor=Path(__file__)) if repo_root_path is None else repo_root_path
-    if raw_root.exists() and raw_root.is_symlink():
+    if not raw_root.exists():
+        raise FileNotFoundError(f"repository root not found: {raw_root}")
+    if raw_root.is_symlink():
         raise ValueError(
             "repository root may not be a symlink for V64-C repo writable surface hardening"
         )

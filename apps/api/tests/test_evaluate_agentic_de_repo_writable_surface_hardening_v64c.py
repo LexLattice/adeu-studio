@@ -151,6 +151,14 @@ def test_invalid_v64c_lane_drift_returns_clean_error(tmp_path: Path) -> None:
     assert completed.stderr.startswith("error: ")
 
 
+def test_missing_repo_root_returns_clean_error(tmp_path: Path) -> None:
+    completed = _run_script("--repo-root", str(tmp_path / "missing-root"))
+
+    assert completed.returncode == 2
+    assert completed.stdout == ""
+    assert completed.stderr.startswith("error: repository root not found:")
+
+
 def test_invalid_v64b_selected_record_shapes_returns_clean_error(tmp_path: Path) -> None:
     temp_root, _fixture_root = _copy_v64c_input_tree(tmp_path / "repo")
     evidence_path = (

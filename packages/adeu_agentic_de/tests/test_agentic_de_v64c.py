@@ -109,6 +109,13 @@ def test_v64c_recommendation_is_replayable_for_same_inputs(tmp_path: Path) -> No
     assert first.model_dump(mode="json") == second.model_dump(mode="json")
 
 
+def test_missing_repo_root_path_fails_closed(tmp_path: Path) -> None:
+    missing_root = tmp_path / "missing-root"
+
+    with pytest.raises(FileNotFoundError, match="repository root not found"):
+        run_agentic_de_repo_writable_surface_hardening_v64c(repo_root_path=missing_root)
+
+
 def test_missing_required_v64c_lane_drift_assumption_fails_closed(tmp_path: Path) -> None:
     temp_root, fixture_root = _copy_v64c_input_tree(tmp_path / "repo")
     lane_drift_path = fixture_root / "reference_agentic_de_lane_drift_record.json"
