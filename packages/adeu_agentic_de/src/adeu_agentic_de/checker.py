@@ -64,6 +64,7 @@ from .models import (
     AGENTIC_DE_REMOTE_OPERATOR_SESSION_RECORD_SCHEMA,
     AGENTIC_DE_REMOTE_OPERATOR_VIEW_PACKET_SCHEMA,
     AGENTIC_DE_REPO_WRITABLE_SURFACE_DESCRIPTOR_SCHEMA,
+    AGENTIC_DE_REPO_WRITABLE_SURFACE_HARDENING_REGISTER_SCHEMA,
     AGENTIC_DE_REPO_WRITE_LEASE_RECORD_SCHEMA,
     AGENTIC_DE_REPO_WRITE_REINTEGRATION_REPORT_SCHEMA,
     AGENTIC_DE_REPO_WRITE_RESTORATION_RECORD_SCHEMA,
@@ -135,6 +136,8 @@ from .models import (
     AgenticDeRemoteOperatorSessionRecord,
     AgenticDeRemoteOperatorViewPacket,
     AgenticDeRepoWritableSurfaceDescriptor,
+    AgenticDeRepoWritableSurfaceHardeningEntry,
+    AgenticDeRepoWritableSurfaceHardeningRegister,
     AgenticDeRepoWriteLeaseRecord,
     AgenticDeRepoWriteReintegrationReport,
     AgenticDeRepoWriteRestorationRecord,
@@ -284,6 +287,10 @@ V64B_CHECKER_VERSION = "agentic_de_repo_write_restoration_v64b"
 V64B_TARGET_ARC = "vNext+177"
 V64B_TARGET_PATH = "V64-B"
 V64B_FROZEN_POLICY_REF = "docs/LOCKED_CONTINUATION_vNEXT_PLUS177.md#machine-checkable-contract"
+V64C_CHECKER_VERSION = "agentic_de_repo_writable_surface_hardening_v64c"
+V64C_TARGET_ARC = "vNext+178"
+V64C_TARGET_PATH = "V64-C"
+V64C_FROZEN_POLICY_REF = "docs/LOCKED_CONTINUATION_vNEXT_PLUS178.md#machine-checkable-contract"
 
 
 def _default_fixture_path(variant: str, filename: str) -> Path:
@@ -634,6 +641,12 @@ DEFAULT_V64B_REPO_WRITE_RESTORATION_PATH = _default_fixture_path(
 DEFAULT_V64B_REPO_WRITE_REINTEGRATION_PATH = _default_fixture_path(
     "v64b", "reference_agentic_de_repo_write_reintegration_report.json"
 )
+DEFAULT_V64C_LANE_DRIFT_PATH = _default_fixture_path(
+    "v64c", "reference_agentic_de_lane_drift_record.json"
+)
+DEFAULT_V64C_REPO_WRITABLE_SURFACE_HARDENING_PATH = _default_fixture_path(
+    "v64c", "reference_agentic_de_repo_writable_surface_hardening_register.json"
+)
 DEFAULT_V58C_EVIDENCE_PATH = (
     repo_root(anchor=Path(__file__))
     / "artifacts"
@@ -753,6 +766,14 @@ DEFAULT_V64A_EVIDENCE_PATH = (
     / "v176"
     / "evidence_inputs"
     / "v64a_repo_writable_surface_starter_evidence_v176.json"
+)
+DEFAULT_V64B_EVIDENCE_PATH = (
+    repo_root(anchor=Path(__file__))
+    / "artifacts"
+    / "agent_harness"
+    / "v177"
+    / "evidence_inputs"
+    / "v64b_repo_write_restoration_evidence_v177.json"
 )
 DEFAULT_V60C_EVIDENCE_PATH = (
     repo_root(anchor=Path(__file__))
@@ -1017,6 +1038,7 @@ REQUIRED_V64A_DRIFT_ENTRY_STATUSES: dict[str, str] = {
     "per_target_admissibility_required_inside_selected_surface": "amended",
     "broader_repo_execute_dispatch_worker_authority_deferred": "amended",
 }
+EXPECTED_V64B_EVIDENCE_SCHEMA = "v64b_repo_write_restoration_evidence@1"
 EXPECTED_V64B_PRIOR_LANE_REF = "docs/LOCKED_CONTINUATION_vNEXT_PLUS176.md"
 REQUIRED_V64B_DRIFT_ENTRY_STATUSES: dict[str, str] = {
     "v64a_surface_reuse_default": "holds",
@@ -1026,6 +1048,16 @@ REQUIRED_V64B_DRIFT_ENTRY_STATUSES: dict[str, str] = {
     "target_membership_and_target_occupancy_carry_through_required": "amended",
     "preserved_local_write_create_new_semantics_only": "amended",
     "broader_repo_execute_dispatch_worker_authority_deferred": "amended",
+}
+EXPECTED_V64C_PRIOR_LANE_REF = "docs/LOCKED_CONTINUATION_vNEXT_PLUS177.md"
+REQUIRED_V64C_DRIFT_ENTRY_STATUSES: dict[str, str] = {
+    "v64a_v64b_surface_reuse_default": "holds",
+    "advisory_writable_surface_hardening_only": "amended",
+    "committed_lane_artifacts_outrank_narrative_docs": "amended",
+    "explicit_frozen_policy_anchor_required": "amended",
+    "optional_restoration_reintegration_basis_fail_closed": "amended",
+    "candidate_outcomes_non_entitling_non_escalating_and_scope_bound": "amended",
+    "path_level_non_generalization_required": "amended",
 }
 
 
@@ -1438,6 +1470,18 @@ def load_repo_write_reintegration_report(path: Path) -> AgenticDeRepoWriteReinte
     if payload.schema != AGENTIC_DE_REPO_WRITE_REINTEGRATION_REPORT_SCHEMA:
         raise ValueError(
             "unexpected schema marker for repo write reintegration report: "
+            f"{payload.schema}"
+        )
+    return payload
+
+
+def load_repo_writable_surface_hardening_register(
+    path: Path,
+) -> AgenticDeRepoWritableSurfaceHardeningRegister:
+    payload = AgenticDeRepoWritableSurfaceHardeningRegister.model_validate(_read_json_object(path))
+    if payload.schema != AGENTIC_DE_REPO_WRITABLE_SURFACE_HARDENING_REGISTER_SCHEMA:
+        raise ValueError(
+            "unexpected schema marker for repo writable surface hardening register: "
             f"{payload.schema}"
         )
     return payload
@@ -2115,6 +2159,41 @@ def _assert_v64b_repo_local_input_path(
     except ValueError as exc:
         raise ValueError(
             f"{field_name} must remain within the repository root for V64-B repo restoration"
+        ) from exc
+
+
+def _assert_v64c_repo_local_input_path(
+    *,
+    repo_root_path: Path,
+    candidate: Path,
+    field_name: str,
+) -> None:
+    if repo_root_path.exists() and repo_root_path.is_symlink():
+        raise ValueError(
+            "repository root may not be a symlink for V64-C repo writable surface hardening"
+        )
+    try:
+        relative = candidate.relative_to(repo_root_path)
+    except ValueError as exc:
+        raise ValueError(
+            f"{field_name} must be lexically within the repository root for V64-C repo "
+            "writable surface hardening"
+        ) from exc
+    current = repo_root_path
+    for part in relative.parts:
+        current = current / part
+        if current.is_symlink():
+            raise ValueError(
+                f"{field_name} may not traverse symlink components for V64-C repo writable "
+                "surface hardening"
+            )
+    candidate_resolved = candidate.resolve(strict=False)
+    try:
+        candidate_resolved.relative_to(repo_root_path)
+    except ValueError as exc:
+        raise ValueError(
+            f"{field_name} must remain within the repository root for V64-C repo writable "
+            "surface hardening"
         ) from exc
 
 
@@ -2936,6 +3015,40 @@ def _validate_v64b_lane_drift_record(record: AgenticDeLaneDriftRecord) -> Agenti
             detail_parts.append(f"status_mismatch={mismatched_statuses}")
         raise ValueError(
             "V64-B lane drift record does not satisfy the required handoff posture; "
+            + ", ".join(detail_parts)
+        )
+    return record
+
+
+def _validate_v64c_lane_drift_record(record: AgenticDeLaneDriftRecord) -> AgenticDeLaneDriftRecord:
+    if record.target_arc != V64C_TARGET_ARC:
+        raise ValueError(
+            f"V64-C lane drift record must target {V64C_TARGET_ARC!r}, got {record.target_arc!r}"
+        )
+    if record.target_path != V64C_TARGET_PATH:
+        raise ValueError(
+            f"V64-C lane drift record must target {V64C_TARGET_PATH!r}, got {record.target_path!r}"
+        )
+    if record.prior_lane_ref != EXPECTED_V64C_PRIOR_LANE_REF:
+        raise ValueError(
+            "V64-C lane drift record must point at "
+            f"{EXPECTED_V64C_PRIOR_LANE_REF!r}, got {record.prior_lane_ref!r}"
+        )
+    actual_statuses = {entry.assumption_ref: entry.status for entry in record.entries}
+    missing_assumptions = sorted(set(REQUIRED_V64C_DRIFT_ENTRY_STATUSES) - set(actual_statuses))
+    mismatched_statuses = sorted(
+        assumption_ref
+        for assumption_ref, expected_status in REQUIRED_V64C_DRIFT_ENTRY_STATUSES.items()
+        if assumption_ref in actual_statuses and actual_statuses[assumption_ref] != expected_status
+    )
+    if missing_assumptions or mismatched_statuses:
+        detail_parts: list[str] = []
+        if missing_assumptions:
+            detail_parts.append(f"missing={missing_assumptions}")
+        if mismatched_statuses:
+            detail_parts.append(f"status_mismatch={mismatched_statuses}")
+        raise ValueError(
+            "V64-C lane drift record does not satisfy the required handoff posture; "
             + ", ".join(detail_parts)
         )
     return record
@@ -3773,6 +3886,87 @@ def _validate_v64a_evidence_payload(payload: dict[str, object]) -> dict[str, obj
         raise ValueError("V64-A evidence must preserve dispatch deferral")
     if payload.get("selected_delegated_worker_authority_for_v64a") is not False:
         raise ValueError("V64-A evidence must preserve delegated-worker deferral")
+    return payload
+
+
+def _validate_v64b_evidence_payload(payload: dict[str, object]) -> dict[str, object]:
+    if payload.get("schema") != EXPECTED_V64B_EVIDENCE_SCHEMA:
+        raise ValueError(
+            "V64-C requires the shipped V64-B repo write restoration evidence payload on main"
+        )
+    selected_shapes = payload.get("selected_record_shapes")
+    if not isinstance(selected_shapes, list):
+        raise ValueError("V64-B evidence must preserve the shipped restoration shapes")
+    if any(not isinstance(shape, str) for shape in selected_shapes):
+        raise ValueError("V64-B evidence selected_record_shapes must be a list of strings")
+    if {
+        "agentic_de_repo_write_restoration_record@1",
+        "agentic_de_repo_write_reintegration_report@1",
+    } - set(selected_shapes):
+        raise ValueError("V64-B evidence must preserve the shipped restoration shapes")
+    required_true_fields = (
+        "repo_write_restoration_record_must_be_typed_and_replayable",
+        "repo_write_reintegration_report_must_be_typed_and_replayable",
+        "same_shipped_v64a_basis_plus_same_exact_target_plus_same_consumed_basis_plus_same_frozen_policy_yields_same_restoration_and_reintegration_outputs",
+        "restoration_outputs_fail_closed_on_missing_or_inconsistent_basis",
+        "restoration_may_not_overread_non_admitted_or_out_of_surface_targets",
+        "target_membership_and_target_occupancy_or_admissibility_carry_through_must_remain_explicit_for_v64b",
+        "restoration_is_not_fresh_surface_selection_or_fresh_lease_issuance_by_itself",
+        "restoration_is_not_fresh_target_admission_by_itself",
+        "mutation_semantics_preserved_from_v64a_in_v64b",
+    )
+    for field_name in required_true_fields:
+        if payload.get(field_name) is not True:
+            raise ValueError(f"V64-B evidence must preserve {field_name}")
+    if (
+        payload.get("selected_consumed_v64a_lineage_for_v64b")
+        != "shipped_v64a_descriptor_lease_and_admission_lineage_only"
+    ):
+        raise ValueError("V64-B evidence must preserve the shipped V64-A lineage only")
+    if (
+        payload.get("selected_concrete_write_effect_lineage_for_v64b")
+        != "shipped_exact_observed_and_admitted_write_effect_lineage_only"
+    ):
+        raise ValueError("V64-B evidence must preserve the shipped exact write-effect lineage")
+    if (
+        payload.get("selected_consumed_v59_lineage_for_v64b")
+        != "shipped_v59_continuity_lineage_only"
+    ):
+        raise ValueError("V64-B evidence must preserve shipped V59 continuity lineage only")
+    if (
+        payload.get("selected_consumed_v60_lineage_for_v64b")
+        != "shipped_v60_continuation_lineage_only"
+    ):
+        raise ValueError("V64-B evidence must preserve shipped V60 continuation lineage only")
+    if (
+        payload.get("selected_consumed_v61_lineage_for_v64b")
+        != "shipped_v61_governed_communication_lineage_only"
+    ):
+        raise ValueError("V64-B evidence must preserve shipped V61 communication lineage only")
+    if payload.get("same_selected_writable_surface_only_for_v64b") is not True:
+        raise ValueError("V64-B evidence must preserve same selected writable surface only")
+    if payload.get("same_exact_admitted_target_only_for_v64b") is not True:
+        raise ValueError("V64-B evidence must preserve same exact admitted target only")
+    if payload.get("fresh_surface_selection_selected_for_v64b") is not False:
+        raise ValueError("V64-B evidence must preserve fresh surface-selection deferral")
+    if payload.get("fresh_lease_issuance_selected_for_v64b") is not False:
+        raise ValueError("V64-B evidence must preserve fresh lease-issuance deferral")
+    if payload.get("broader_per_surface_target_authority_selected_for_v64b") is not False:
+        raise ValueError("V64-B evidence must preserve broader target-authority deferral")
+    if payload.get("selected_all_repo_authority_for_v64b") is not False:
+        raise ValueError("V64-B evidence must preserve all-repo deferral")
+    if payload.get("selected_shell_authority_for_v64b") is not False:
+        raise ValueError("V64-B evidence must preserve shell deferral")
+    if payload.get("selected_execute_authority_for_v64b") is not False:
+        raise ValueError("V64-B evidence must preserve execute deferral")
+    if payload.get("selected_dispatch_authority_for_v64b") is not False:
+        raise ValueError("V64-B evidence must preserve dispatch deferral")
+    if payload.get("selected_delegated_worker_authority_for_v64b") is not False:
+        raise ValueError("V64-B evidence must preserve delegated-worker deferral")
+    if payload.get("selected_connector_law_for_v64b") is not False:
+        raise ValueError("V64-B evidence must preserve connector deferral")
+    if payload.get("selected_remote_operator_law_for_v64b") is not False:
+        raise ValueError("V64-B evidence must preserve remote-operator deferral")
     return payload
 
 
@@ -16885,6 +17079,603 @@ def run_agentic_de_repo_write_restoration_v64b(
     return restoration, reintegration
 
 
+def _validate_v64c_consumed_surfaces(
+    *,
+    continuation_refresh_decision: AgenticDeContinuationRefreshDecisionRecord,
+    communication_ingress: AgenticDeCommunicationIngressPacket,
+    surface_authority_descriptor: AgenticDeSurfaceAuthorityDescriptor,
+    ingress_interpretation: AgenticDeIngressInterpretationRecord,
+    communication_egress: AgenticDeCommunicationEgressPacket,
+    descriptor: AgenticDeRepoWritableSurfaceDescriptor,
+    lease: AgenticDeRepoWriteLeaseRecord,
+    admission: AgenticDeRepoWriteSurfaceAdmissionRecord,
+    restoration: AgenticDeRepoWriteRestorationRecord | None,
+    reintegration: AgenticDeRepoWriteReintegrationReport | None,
+    target_relative_path: str,
+) -> None:
+    expected_path = _expected_v60a_selected_downstream_path_summary(target_relative_path)
+    expected_target_summary = (
+        f"{DESIGNATED_WORKSPACE_CONTINUITY_ROOT.as_posix()}/{target_relative_path}"
+    )
+    (
+        expected_surface_class,
+        _surface_relative,
+        expected_surface_identity_summary,
+        _inclusion_summary,
+        _exclusion_summary,
+    ) = _derive_v64a_surface_selection(target_relative_path=target_relative_path)
+
+    if (
+        continuation_refresh_decision.target_arc != V60B_TARGET_ARC
+        or continuation_refresh_decision.target_path != V60B_TARGET_PATH
+    ):
+        raise ValueError("V64-C requires the shipped V60-B continuation refresh surface")
+    if continuation_refresh_decision.frozen_policy_anchor_ref != V60B_FROZEN_POLICY_REF:
+        raise ValueError("V64-C requires the shipped V60-B continuation policy anchor")
+    if continuation_refresh_decision.selected_next_path_summary_or_none != expected_path:
+        raise ValueError("V64-C requires the shipped exact V60 selected downstream path")
+    if (
+        communication_ingress.target_arc != V61A_TARGET_ARC
+        or communication_ingress.target_path != V61A_TARGET_PATH
+    ):
+        raise ValueError("V64-C requires the shipped V61-A communication ingress surface")
+    if (
+        surface_authority_descriptor.target_arc != V61A_TARGET_ARC
+        or surface_authority_descriptor.target_path != V61A_TARGET_PATH
+    ):
+        raise ValueError("V64-C requires the shipped V61-A surface authority descriptor")
+    if (
+        ingress_interpretation.target_arc != V61A_TARGET_ARC
+        or ingress_interpretation.target_path != V61A_TARGET_PATH
+    ):
+        raise ValueError("V64-C requires the shipped V61-A ingress interpretation surface")
+    if (
+        communication_egress.target_arc != V61A_TARGET_ARC
+        or communication_egress.target_path != V61A_TARGET_PATH
+    ):
+        raise ValueError("V64-C requires the shipped V61-A communication egress surface")
+    if communication_ingress.selected_api_route_ref_or_equivalent != V61A_SELECTED_API_ROUTE:
+        raise ValueError("V64-C requires the shipped exact resident V61-A ingress seam")
+    if communication_ingress.selected_runtime_message_method != V61A_SELECTED_RUNTIME_METHOD:
+        raise ValueError("V64-C requires the shipped exact resident V61-A runtime method")
+    if communication_ingress.surface_class != V61A_SELECTED_SURFACE_CLASS:
+        raise ValueError("V64-C requires the shipped exact resident V61-A surface class")
+    if (
+        surface_authority_descriptor.communication_ingress_ref
+        != communication_ingress.communication_ingress_id
+    ):
+        raise ValueError("V64-C surface descriptor must bind the shipped V61-A ingress packet")
+    if (
+        ingress_interpretation.communication_ingress_ref
+        != communication_ingress.communication_ingress_id
+    ):
+        raise ValueError("V64-C ingress interpretation must bind the shipped V61-A ingress packet")
+    if (
+        ingress_interpretation.surface_authority_descriptor_ref
+        != surface_authority_descriptor.surface_authority_descriptor_id
+    ):
+        raise ValueError("V64-C ingress interpretation must bind the shipped V61-A descriptor")
+    if (
+        ingress_interpretation.latest_v60_continuation_basis_ref
+        != continuation_refresh_decision.refresh_decision_id
+    ):
+        raise ValueError(
+            "V64-C ingress interpretation must preserve the shipped V60-B continuation basis"
+        )
+    if (
+        communication_egress.ingress_interpretation_ref
+        != ingress_interpretation.ingress_interpretation_id
+    ):
+        raise ValueError("V64-C communication egress must bind the shipped V61-A interpretation")
+    if (
+        communication_egress.latest_v60_continuation_basis_ref
+        != continuation_refresh_decision.refresh_decision_id
+    ):
+        raise ValueError(
+            "V64-C communication egress must preserve the shipped V60-B continuation basis"
+        )
+    if communication_egress.selected_egress_surface_ref != V61A_SELECTED_API_ROUTE:
+        raise ValueError("V64-C requires the shipped exact resident V61-A egress seam")
+    if surface_authority_descriptor.frozen_policy_anchor_ref != V61A_FROZEN_POLICY_REF:
+        raise ValueError("V64-C requires the shipped V61-A descriptor policy anchor")
+    if ingress_interpretation.frozen_policy_anchor_ref != V61A_FROZEN_POLICY_REF:
+        raise ValueError("V64-C requires the shipped V61-A interpretation policy anchor")
+    if communication_egress.frozen_policy_anchor_ref != V61A_FROZEN_POLICY_REF:
+        raise ValueError("V64-C requires the shipped V61-A egress policy anchor")
+
+    if descriptor.target_arc != V64A_TARGET_ARC or descriptor.target_path != V64A_TARGET_PATH:
+        raise ValueError("V64-C requires the shipped V64-A writable-surface descriptor")
+    if lease.target_arc != V64A_TARGET_ARC or lease.target_path != V64A_TARGET_PATH:
+        raise ValueError("V64-C requires the shipped V64-A repo write lease")
+    if admission.target_arc != V64A_TARGET_ARC or admission.target_path != V64A_TARGET_PATH:
+        raise ValueError("V64-C requires the shipped V64-A repo write surface admission")
+    if descriptor.frozen_policy_anchor_ref != V64A_FROZEN_POLICY_REF:
+        raise ValueError("V64-C requires the shipped V64-A descriptor policy anchor")
+    if lease.frozen_policy_anchor_ref != V64A_FROZEN_POLICY_REF:
+        raise ValueError("V64-C requires the shipped V64-A lease policy anchor")
+    if admission.frozen_policy_anchor_ref != V64A_FROZEN_POLICY_REF:
+        raise ValueError("V64-C requires the shipped V64-A admission policy anchor")
+    if descriptor.selected_surface_class != expected_surface_class:
+        raise ValueError("V64-C requires the shipped V64-A selected surface class")
+    if descriptor.selected_surface_identity_summary != expected_surface_identity_summary:
+        raise ValueError("V64-C requires the shipped V64-A selected writable surface only")
+    if lease.writable_surface_descriptor_ref != descriptor.repo_writable_surface_descriptor_id:
+        raise ValueError("V64-C lease must bind the shipped V64-A writable-surface descriptor")
+    if admission.writable_surface_descriptor_ref != descriptor.repo_writable_surface_descriptor_id:
+        raise ValueError("V64-C admission must bind the shipped V64-A writable-surface descriptor")
+    if admission.repo_write_lease_ref != lease.repo_write_lease_id:
+        raise ValueError("V64-C admission must bind the shipped V64-A repo write lease")
+    if lease.lease_verdict != "admitted":
+        raise ValueError("V64-C requires the shipped admitted V64-A repo write lease")
+    if admission.admission_verdict != "admitted":
+        raise ValueError("V64-C requires the shipped admitted V64-A target admission")
+    if admission.selected_target_path_summary != expected_target_summary:
+        raise ValueError("V64-C requires the shipped exact V64-A admitted target path")
+    if reintegration is not None and restoration is None:
+        raise ValueError("V64-C reintegration basis requires the shipped V64-B restoration record")
+
+    if restoration is not None:
+        if restoration.target_arc != V64B_TARGET_ARC or restoration.target_path != V64B_TARGET_PATH:
+            raise ValueError("V64-C requires the shipped V64-B repo write restoration surface")
+        if restoration.frozen_policy_anchor_ref != V64B_FROZEN_POLICY_REF:
+            raise ValueError("V64-C requires the shipped V64-B restoration policy anchor")
+        if (
+            restoration.writable_surface_descriptor_ref
+            != descriptor.repo_writable_surface_descriptor_id
+        ):
+            raise ValueError("V64-C restoration must bind the shipped V64-A descriptor")
+        if restoration.repo_write_lease_ref != lease.repo_write_lease_id:
+            raise ValueError("V64-C restoration must bind the shipped V64-A repo write lease")
+        if (
+            restoration.repo_write_surface_admission_ref
+            != admission.repo_write_surface_admission_id
+        ):
+            raise ValueError("V64-C restoration must bind the shipped V64-A target admission")
+        if restoration.selected_target_path_summary != admission.selected_target_path_summary:
+            raise ValueError("V64-C restoration must preserve the shipped exact admitted target")
+        if (
+            restoration.preserved_write_semantics_summary
+            != "preserve V64-A local_write/create_new entitlement semantics only; V64-B adds one "
+            "typed compensating restore over the shipped create_new effect and does not widen "
+            "append, overwrite, rename, or delete authority"
+        ):
+            raise ValueError(
+                "V64-C restoration must preserve the shipped V64-B write-semantics posture"
+            )
+        if restoration.restoration_status not in {
+            "restored",
+            "rejected_target_not_restorable",
+            "rejected_missing_basis",
+            "rejected_inconsistent_basis",
+        }:
+            raise ValueError("V64-C restoration must preserve the shipped V64-B status family")
+
+    if reintegration is not None:
+        if (
+            reintegration.target_arc != V64B_TARGET_ARC
+            or reintegration.target_path != V64B_TARGET_PATH
+        ):
+            raise ValueError("V64-C requires the shipped V64-B repo write reintegration surface")
+        if reintegration.frozen_policy_anchor_ref != V64B_FROZEN_POLICY_REF:
+            raise ValueError("V64-C requires the shipped V64-B reintegration policy anchor")
+        if reintegration.repo_write_restoration_ref != restoration.repo_write_restoration_id:
+            raise ValueError(
+                "V64-C reintegration must bind the same shipped V64-B restoration chain"
+            )
+        if reintegration.reintegration_status not in {
+            "reintegrated",
+            "rejected_missing_basis",
+            "rejected_inconsistent_basis",
+        }:
+            raise ValueError("V64-C reintegration must preserve the shipped V64-B status family")
+
+
+def _build_v64c_repo_writable_surface_hardening_register(
+    *,
+    continuation_refresh_decision: AgenticDeContinuationRefreshDecisionRecord,
+    communication_egress: AgenticDeCommunicationEgressPacket,
+    descriptor: AgenticDeRepoWritableSurfaceDescriptor,
+    lease: AgenticDeRepoWriteLeaseRecord,
+    admission: AgenticDeRepoWriteSurfaceAdmissionRecord,
+    restoration: AgenticDeRepoWriteRestorationRecord | None,
+    reintegration: AgenticDeRepoWriteReintegrationReport | None,
+    evidence_refs: list[str],
+) -> AgenticDeRepoWritableSurfaceHardeningRegister:
+    root_origin_ids = [
+        f"descriptor:{descriptor.repo_writable_surface_descriptor_id}",
+        f"lease:{lease.repo_write_lease_id}",
+        f"admission:{admission.repo_write_surface_admission_id}",
+        f"communication_egress:{communication_egress.communication_egress_id}",
+        f"continuation:{continuation_refresh_decision.refresh_decision_id}",
+        f"policy:{V64C_FROZEN_POLICY_REF}",
+    ]
+    if restoration is not None:
+        root_origin_ids.append(f"restoration:{restoration.repo_write_restoration_id}")
+    if reintegration is not None:
+        root_origin_ids.append(f"reintegration:{reintegration.repo_write_reintegration_report_id}")
+
+    selected_kind_summary: str | None = None
+    selected_kind_parts: list[str] = []
+    if restoration is not None:
+        selected_kind_parts.append(f"restoration_status={restoration.restoration_status}")
+    if reintegration is not None:
+        selected_kind_parts.append(f"reintegration_status={reintegration.reintegration_status}")
+    if restoration is not None:
+        selected_kind_parts.insert(0, "write_kind=create_new")
+    if selected_kind_parts:
+        selected_kind_summary = "; ".join(selected_kind_parts)
+
+    has_optional_upstream_basis = restoration is not None or reintegration is not None
+    recommended_outcome: str = (
+        "candidate_for_later_writable_surface_hardening"
+        if has_optional_upstream_basis
+        else "keep_warning_only"
+    )
+    evidence_basis_summary = (
+        "shipped V64-A selected writable-surface descriptor, admitted repo write lease, and "
+        "exact target admission"
+        + (
+            " plus shipped V64-B restoration-local lineage"
+            if restoration is not None
+            else " without shipped V64-B restoration-local lineage selected"
+        )
+        + (
+            " plus shipped V64-B reintegration lineage"
+            if reintegration is not None
+            else " without shipped V64-B reintegration lineage selected"
+        )
+        + (
+            " over the same exact shipped V60-B continuation basis and shipped V61-A "
+            "communication lineage under one explicit frozen V64-C policy anchor"
+        )
+    )
+    verdict_basis_summary = (
+        "the same exact admitted writable surface and target remained preserved, optional "
+        "restoration and reintegration refs stayed posture-consistent where selected, preserved "
+        "local_write/create_new semantics stayed explicit, and one frozen V64-C policy anchor "
+        "kept provenance and non-independence dedup explicit without minting live writable, "
+        "repo-admin, shell, execute, dispatch, worker, connector, or remote authority"
+    )
+    field_origin_tags = {
+        "selected_writable_surface_identity_summary": "prior_artifact",
+        "selected_target_path_summary": "prior_artifact",
+        "target_admission_verdict": "prior_artifact",
+        "selected_write_effect_or_restoration_kind_summary_or_none": "current_turn_derived",
+        "preserved_write_semantics_summary": "prior_artifact",
+        "latest_continuation_basis_selection_summary": "current_turn_derived",
+        "frozen_policy_ref": "shaping_only",
+        "evidence_basis_summary": "current_turn_derived",
+        "verdict_basis_summary": "current_turn_derived",
+        "recommended_outcome": "current_turn_derived",
+    }
+    field_dependence_tags = {
+        "selected_writable_surface_identity_summary": [
+            descriptor.repo_writable_surface_descriptor_id,
+        ],
+        "selected_target_path_summary": [admission.repo_write_surface_admission_id],
+        "target_admission_verdict": [admission.repo_write_surface_admission_id],
+        "selected_write_effect_or_restoration_kind_summary_or_none": [
+            ref
+            for ref in [
+                restoration.repo_write_restoration_id if restoration is not None else None,
+                (
+                    reintegration.repo_write_reintegration_report_id
+                    if reintegration is not None
+                    else None
+                ),
+            ]
+            if ref is not None
+        ],
+        "preserved_write_semantics_summary": [
+            (
+                restoration.repo_write_restoration_id
+                if restoration is not None
+                else lease.repo_write_lease_id
+            )
+        ],
+        "latest_continuation_basis_selection_summary": [
+            continuation_refresh_decision.refresh_decision_id,
+            communication_egress.communication_egress_id,
+        ],
+        "frozen_policy_ref": [],
+        "evidence_basis_summary": [
+            descriptor.repo_writable_surface_descriptor_id,
+            lease.repo_write_lease_id,
+            admission.repo_write_surface_admission_id,
+            continuation_refresh_decision.refresh_decision_id,
+            communication_egress.communication_egress_id,
+            *root_origin_ids,
+        ],
+        "verdict_basis_summary": [
+            descriptor.repo_writable_surface_descriptor_id,
+            admission.repo_write_surface_admission_id,
+            continuation_refresh_decision.refresh_decision_id,
+            *root_origin_ids,
+        ],
+        "recommended_outcome": [
+            descriptor.repo_writable_surface_descriptor_id,
+            admission.repo_write_surface_admission_id,
+            continuation_refresh_decision.refresh_decision_id,
+            V64C_FROZEN_POLICY_REF,
+        ],
+    }
+    entry = AgenticDeRepoWritableSurfaceHardeningEntry(
+        repo_writable_surface_descriptor_ref=descriptor.repo_writable_surface_descriptor_id,
+        repo_write_lease_ref=lease.repo_write_lease_id,
+        repo_write_surface_admission_ref=admission.repo_write_surface_admission_id,
+        repo_write_restoration_ref_or_none=(
+            restoration.repo_write_restoration_id if restoration is not None else None
+        ),
+        repo_write_reintegration_ref_or_none=(
+            reintegration.repo_write_reintegration_report_id if reintegration is not None else None
+        ),
+        selected_write_effect_or_restoration_kind_summary_or_none=selected_kind_summary,
+        preserved_write_semantics_summary=(
+            restoration.preserved_write_semantics_summary
+            if restoration is not None
+            else lease.preserved_write_semantics_summary
+        ),
+        selected_writable_surface_identity_summary=descriptor.selected_surface_identity_summary,
+        selected_target_path_summary=admission.selected_target_path_summary,
+        target_admission_verdict=admission.admission_verdict,
+        latest_continuation_basis_ref_or_equivalent=continuation_refresh_decision.refresh_decision_id,
+        latest_continuation_basis_selection_summary=(
+            "latest shipped V60-B refresh decision remains the selected continuation basis for "
+            "the exact shipped writable-surface lineage only"
+        ),
+        selected_hardening_target_surface=(
+            "shipped_v64a_v64b_writable_surface_lineage_over_one_exact_admitted_repo_path_only"
+        ),
+        frozen_policy_ref=V64C_FROZEN_POLICY_REF,
+        evidence_basis_summary=evidence_basis_summary,
+        verdict_basis_summary=verdict_basis_summary,
+        field_origin_tags=field_origin_tags,
+        field_dependence_tags=field_dependence_tags,
+        root_origin_ids=root_origin_ids,
+        root_origin_dedup_summary=(
+            "dedup roots="
+            + ",".join(root_origin_ids)
+            + "; repeated writable-surface descriptor, lease, admission, restoration, "
+            "reintegration, continuation, communication, and policy artifacts remain "
+            "non-independent writable-surface hardening support"
+        ),
+        recommended_outcome=recommended_outcome,
+        rationale=(
+            "the exact shipped V64-A/V64-B writable-surface lineage now carries admitted "
+            "surface and target posture, optional shipped restoration-local basis, preserved "
+            "local_write/create_new semantics, and one frozen V64-C advisory policy anchor, "
+            "so it is a valid later path-level writable-surface hardening candidate without "
+            "minting live surface selection, lease issuance, target admission, restoration, "
+            "repo-admin, shell, execute, dispatch, worker, connector, or remote authority"
+            if has_optional_upstream_basis
+            else "without optional shipped restoration or reintegration exemplar basis, V64-C "
+            "keeps the current advisory posture only and may not overread restoration-local "
+            "evidence"
+        ),
+        reason_codes=(
+            [
+                "admitted_writable_surface_lineage_consumed",
+                "optional_upstream_basis_posture_consistent",
+                "preserved_local_write_create_new_only",
+                "selected_kind_summary_explicit",
+                "committed_artifacts_outrank_narrative_docs",
+                "path_level_only",
+                "extensional_replayable_policy",
+                "lineage_root_dedup_applied",
+                "candidate_non_entitling_and_non_escalating",
+                "later_lock_required_for_scope",
+                "no_live_mutation_in_v64c",
+                "non_generalizing_by_default",
+            ]
+            if has_optional_upstream_basis
+            else [
+                "admitted_writable_surface_lineage_consumed",
+                "optional_upstream_basis_absent_no_overread",
+                "preserved_local_write_create_new_only",
+                "committed_artifacts_outrank_narrative_docs",
+                "path_level_only",
+                "extensional_replayable_policy",
+                "lineage_root_dedup_applied",
+                "keep_warning_only_retains_current_advisory_posture_only",
+                "no_live_mutation_in_v64c",
+                "non_generalizing_by_default",
+            ]
+        ),
+        evidence_refs=evidence_refs,
+    )
+    return AgenticDeRepoWritableSurfaceHardeningRegister(
+        target_arc=V64C_TARGET_ARC,
+        target_path=V64C_TARGET_PATH,
+        optional_upstream_basis_consistency_fails_closed=True,
+        baseline_checker_version=V64C_CHECKER_VERSION,
+        entry_count=1,
+        entries=[entry],
+    )
+
+
+def run_agentic_de_repo_writable_surface_hardening_v64c(
+    *,
+    repo_root_path: Path | None = None,
+    v60b_continuation_refresh_decision_path: Path = DEFAULT_V60B_CONTINUATION_REFRESH_DECISION_PATH,
+    v61a_communication_ingress_path: Path = DEFAULT_V61A_COMMUNICATION_INGRESS_PATH,
+    v61a_surface_authority_descriptor_path: Path = DEFAULT_V61A_SURFACE_AUTHORITY_DESCRIPTOR_PATH,
+    v61a_ingress_interpretation_path: Path = DEFAULT_V61A_INGRESS_INTERPRETATION_PATH,
+    v61a_communication_egress_path: Path = DEFAULT_V61A_COMMUNICATION_EGRESS_PATH,
+    v64a_repo_writable_surface_descriptor_path: Path = (
+        DEFAULT_V64A_REPO_WRITABLE_SURFACE_DESCRIPTOR_PATH
+    ),
+    v64a_repo_write_lease_path: Path = DEFAULT_V64A_REPO_WRITE_LEASE_PATH,
+    v64a_repo_write_surface_admission_path: Path = DEFAULT_V64A_REPO_WRITE_SURFACE_ADMISSION_PATH,
+    v64b_repo_write_restoration_path: Path | None = DEFAULT_V64B_REPO_WRITE_RESTORATION_PATH,
+    v64b_repo_write_reintegration_path: Path | None = DEFAULT_V64B_REPO_WRITE_REINTEGRATION_PATH,
+    lane_drift_path: Path = DEFAULT_V64C_LANE_DRIFT_PATH,
+    v64a_evidence_path: Path = DEFAULT_V64A_EVIDENCE_PATH,
+    v64b_evidence_path: Path = DEFAULT_V64B_EVIDENCE_PATH,
+    target_relative_path: str = str(DEFAULT_WORKSPACE_CONTINUITY_TARGET_RELATIVE_PATH),
+) -> AgenticDeRepoWritableSurfaceHardeningRegister:
+    raw_root = repo_root(anchor=Path(__file__)) if repo_root_path is None else repo_root_path
+    if raw_root.exists() and raw_root.is_symlink():
+        raise ValueError(
+            "repository root may not be a symlink for V64-C repo writable surface hardening"
+        )
+    root = raw_root.resolve()
+
+    path_args: dict[str, Path | None] = {
+        "v60b_continuation_refresh_decision_path": v60b_continuation_refresh_decision_path,
+        "v61a_communication_ingress_path": v61a_communication_ingress_path,
+        "v61a_surface_authority_descriptor_path": v61a_surface_authority_descriptor_path,
+        "v61a_ingress_interpretation_path": v61a_ingress_interpretation_path,
+        "v61a_communication_egress_path": v61a_communication_egress_path,
+        "v64a_repo_writable_surface_descriptor_path": v64a_repo_writable_surface_descriptor_path,
+        "v64a_repo_write_lease_path": v64a_repo_write_lease_path,
+        "v64a_repo_write_surface_admission_path": v64a_repo_write_surface_admission_path,
+        "v64b_repo_write_restoration_path": v64b_repo_write_restoration_path,
+        "v64b_repo_write_reintegration_path": v64b_repo_write_reintegration_path,
+        "lane_drift_path": lane_drift_path,
+        "v64a_evidence_path": v64a_evidence_path,
+        "v64b_evidence_path": v64b_evidence_path,
+    }
+    resolved_paths: dict[str, Path] = {}
+    for field_name, path in path_args.items():
+        if path is None:
+            continue
+        candidate = _resolve_path(repo_root_path=root, path=path)
+        _assert_v64c_repo_local_input_path(
+            repo_root_path=root,
+            candidate=candidate,
+            field_name=field_name,
+        )
+        resolved_paths[field_name] = candidate
+
+    _validate_v64c_lane_drift_record(load_lane_drift_record(resolved_paths["lane_drift_path"]))
+    _validate_v64a_evidence_payload(
+        _load_json_object(resolved_paths["v64a_evidence_path"], error_label="V64-A evidence")
+    )
+    _validate_v64b_evidence_payload(
+        _load_json_object(resolved_paths["v64b_evidence_path"], error_label="V64-B evidence")
+    )
+
+    normalized_target_relative_path, _surface_path, _target_path, _surface_class = (
+        _assert_v64a_surface_and_target_canonical_membership(
+            repo_root_path=root,
+            target_relative_path=target_relative_path,
+        )
+    )
+    canonical_target_relative_path = normalized_target_relative_path.as_posix()
+
+    continuation_refresh_decision = load_continuation_refresh_decision_record(
+        resolved_paths["v60b_continuation_refresh_decision_path"]
+    )
+    communication_ingress = load_communication_ingress_packet(
+        resolved_paths["v61a_communication_ingress_path"]
+    )
+    surface_authority_descriptor = load_surface_authority_descriptor(
+        resolved_paths["v61a_surface_authority_descriptor_path"]
+    )
+    ingress_interpretation = load_ingress_interpretation_record(
+        resolved_paths["v61a_ingress_interpretation_path"]
+    )
+    communication_egress = load_communication_egress_packet(
+        resolved_paths["v61a_communication_egress_path"]
+    )
+    descriptor = load_repo_writable_surface_descriptor(
+        resolved_paths["v64a_repo_writable_surface_descriptor_path"]
+    )
+    lease = load_repo_write_lease_record(resolved_paths["v64a_repo_write_lease_path"])
+    admission = load_repo_write_surface_admission_record(
+        resolved_paths["v64a_repo_write_surface_admission_path"]
+    )
+    restoration = (
+        load_repo_write_restoration_record(resolved_paths["v64b_repo_write_restoration_path"])
+        if "v64b_repo_write_restoration_path" in resolved_paths
+        else None
+    )
+    reintegration = (
+        load_repo_write_reintegration_report(
+            resolved_paths["v64b_repo_write_reintegration_path"]
+        )
+        if "v64b_repo_write_reintegration_path" in resolved_paths
+        else None
+    )
+
+    _validate_v64c_consumed_surfaces(
+        continuation_refresh_decision=continuation_refresh_decision,
+        communication_ingress=communication_ingress,
+        surface_authority_descriptor=surface_authority_descriptor,
+        ingress_interpretation=ingress_interpretation,
+        communication_egress=communication_egress,
+        descriptor=descriptor,
+        lease=lease,
+        admission=admission,
+        restoration=restoration,
+        reintegration=reintegration,
+        target_relative_path=canonical_target_relative_path,
+    )
+
+    evidence_refs = [
+        _render_input_ref(
+            repo_root_path=root,
+            path=resolved_paths["v60b_continuation_refresh_decision_path"],
+        ),
+        _render_input_ref(
+            repo_root_path=root,
+            path=resolved_paths["v61a_communication_ingress_path"],
+        ),
+        _render_input_ref(
+            repo_root_path=root,
+            path=resolved_paths["v61a_surface_authority_descriptor_path"],
+        ),
+        _render_input_ref(
+            repo_root_path=root,
+            path=resolved_paths["v61a_ingress_interpretation_path"],
+        ),
+        _render_input_ref(
+            repo_root_path=root,
+            path=resolved_paths["v61a_communication_egress_path"],
+        ),
+        _render_input_ref(
+            repo_root_path=root,
+            path=resolved_paths["v64a_repo_writable_surface_descriptor_path"],
+        ),
+        _render_input_ref(repo_root_path=root, path=resolved_paths["v64a_repo_write_lease_path"]),
+        _render_input_ref(
+            repo_root_path=root,
+            path=resolved_paths["v64a_repo_write_surface_admission_path"],
+        ),
+    ]
+    if "v64b_repo_write_restoration_path" in resolved_paths:
+        evidence_refs.append(
+            _render_input_ref(
+                repo_root_path=root,
+                path=resolved_paths["v64b_repo_write_restoration_path"],
+            )
+        )
+    if "v64b_repo_write_reintegration_path" in resolved_paths:
+        evidence_refs.append(
+            _render_input_ref(
+                repo_root_path=root,
+                path=resolved_paths["v64b_repo_write_reintegration_path"],
+            )
+        )
+    evidence_refs.extend(
+        [
+            _render_input_ref(repo_root_path=root, path=resolved_paths["lane_drift_path"]),
+            _render_input_ref(repo_root_path=root, path=resolved_paths["v64a_evidence_path"]),
+            _render_input_ref(repo_root_path=root, path=resolved_paths["v64b_evidence_path"]),
+        ]
+    )
+    return _build_v64c_repo_writable_surface_hardening_register(
+        continuation_refresh_decision=continuation_refresh_decision,
+        communication_egress=communication_egress,
+        descriptor=descriptor,
+        lease=lease,
+        admission=admission,
+        restoration=restoration,
+        reintegration=reintegration,
+        evidence_refs=evidence_refs,
+    )
+
+
 def render_checkpoint_payload(checkpoint: AgenticDeMembraneCheckpoint) -> str:
     return json.dumps(checkpoint.model_dump(mode="json"), indent=2, sort_keys=True) + "\n"
 
@@ -17077,6 +17868,12 @@ def render_repo_write_reintegration_payload(
     report: AgenticDeRepoWriteReintegrationReport,
 ) -> str:
     return json.dumps(report.model_dump(mode="json"), indent=2, sort_keys=True) + "\n"
+
+
+def render_repo_writable_surface_hardening_payload(
+    register: AgenticDeRepoWritableSurfaceHardeningRegister,
+) -> str:
+    return json.dumps(register.model_dump(mode="json"), indent=2, sort_keys=True) + "\n"
 
 
 def render_governed_communication_hardening_payload(

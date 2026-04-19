@@ -1,0 +1,45 @@
+{
+  "schema": "agentic_de_lane_drift_record@1",
+  "record_id": null,
+  "target_arc": "vNext+178",
+  "target_path": "V64-C",
+  "prior_lane_ref": "docs/LOCKED_CONTINUATION_vNEXT_PLUS177.md",
+  "entry_count": 7,
+  "entries": [
+    {
+      "assumption_ref": "v64a_v64b_surface_reuse_default",
+      "status": "holds",
+      "note": "V64-C reuses the shipped V64-A writable-surface descriptor, repo write lease, exact target admission, and shipped V64-B restoration chain by default."
+    },
+    {
+      "assumption_ref": "advisory_writable_surface_hardening_only",
+      "status": "amended",
+      "note": "V64-C adds one advisory writable-surface hardening register only and does not become fresh surface selection, lease issuance, target admission, restoration, or live repo authority."
+    },
+    {
+      "assumption_ref": "committed_lane_artifacts_outrank_narrative_docs",
+      "status": "amended",
+      "note": "Committed V64-A and V64-B artifacts outrank narrative interpretation when the V64-C advisory register derives its evidence basis."
+    },
+    {
+      "assumption_ref": "explicit_frozen_policy_anchor_required",
+      "status": "amended",
+      "note": "V64-C keeps one explicit frozen policy anchor for replayable advisory derivation."
+    },
+    {
+      "assumption_ref": "optional_restoration_reintegration_basis_fail_closed",
+      "status": "amended",
+      "note": "Optional restoration and reintegration carry-through remain explicit, posture-consistent, and fail closed on absent or mismatched basis."
+    },
+    {
+      "assumption_ref": "candidate_outcomes_non_entitling_non_escalating_and_scope_bound",
+      "status": "amended",
+      "note": "V64-C candidate outcomes remain advisory only, non-entitling, non-escalating, and still require a later lock for scope."
+    },
+    {
+      "assumption_ref": "path_level_non_generalization_required",
+      "status": "amended",
+      "note": "The selected writable-surface path remains exact and non-generalizing by default into broader repo, shell, execute, dispatch, worker, connector, or remote law."
+    }
+  ]
+}
