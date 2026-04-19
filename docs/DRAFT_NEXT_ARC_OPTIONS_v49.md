@@ -1,7 +1,7 @@
 # Draft Next Arc Options v49
 
 Status: planning draft after `docs/DRAFT_NEXT_ARC_OPTIONS_v48.md`, now that
-`V64-A` has landed on `main` through `v176`.
+`V64-A` and `V64-B` have landed on `main` through `v176` and `v177`.
 
 Authority layer: planning.
 
@@ -9,10 +9,11 @@ This draft does not automatically supersede the connected planning branches in
 `docs/DRAFT_NEXT_ARC_OPTIONS_v43.md` through `docs/DRAFT_NEXT_ARC_OPTIONS_v48.md`.
 Instead, it records the current connected planning branch for the `V64` family:
 
-how should ADEU continue from the shipped `V64-A` writable-surface starter into
-the next bounded `V64` follow-on without letting writable-surface restoration,
-reintegration, or prior successful writes become ambient repo authority, shell
-authority, execute authority, or delegated worker authority?
+how should ADEU continue from the shipped `V64-A` writable-surface starter and
+shipped `V64-B` restoration / reintegration seam into the next bounded `V64`
+follow-on without letting writable-surface advisory review, restoration
+lineage, reintegration lineage, or prior successful writes become ambient repo
+authority, shell authority, execute authority, or delegated worker authority?
 
 This is a planning document only. It is not a lock doc and does not authorize
 runtime behavior, schema release, or implementation by itself.
@@ -54,6 +55,16 @@ Interpretive doctrine for this planning surface:
   - preserved `local_write` / `create_new` semantics only
   - no append / overwrite / rename / delete widening
   - no shell / execute / dispatch / worker / all-repo authority
+- `V64-B` is closed on `main` and now remains the released writable-surface
+  restoration / reintegration slice under this same selector:
+  - one typed repo-write restoration record only
+  - one typed repo-write reintegration report only
+  - same selected writable surface only
+  - same exact admitted target only
+  - same concrete write-effect lineage only
+  - no fresh surface selection / lease issuance / target admission
+  - no broader mutation-semantics widening
+  - no shell / execute / dispatch / worker / all-repo authority
 - the multi-arc roadmap already positions the remaining execution-widening branch as:
   - `V64`: repo-bound writable-surface authority
   - `V65`: delegated export / worker reconciliation under `V48`
@@ -75,25 +86,31 @@ The repo no longer lacks:
 
 The repo still lacks:
 
-- one typed restoration / reintegration seam over the shipped exact `V64-A`
-  writable-surface descriptor / lease / admission lineage;
-- one explicit place to restore or reintegrate one already admitted in-surface
-  target without minting fresh writable entitlement;
-- one explicit replayable restoration basis over shipped `V64-A`, `V59`, `V60`,
-  and `V61` lineage rather than reviewer discretion or transcript convenience;
-- one explicit law that restoration over the shipped writable surface is not the
-  same thing as reopening surface selection or lease issuance;
-- one explicit bounded next step after `V64-A` without jumping straight to broad
+- one typed advisory hardening seam over the shipped exact `V64-A` / `V64-B`
+  writable-surface lineage;
+- one explicit place to evaluate writable-surface provenance drift,
+  restoration-local risk, and replayability posture without minting fresh
+  writable entitlement;
+- one explicit replayable advisory basis over shipped `V64-A`, `V64-B`, `V59`,
+  `V60`, and `V61` lineage rather than reviewer discretion or transcript
+  convenience;
+- one explicit law that advisory writable-surface hardening is not the same
+  thing as reopening surface selection, lease issuance, target admission, or
+  live repo-write authority; and
+- one explicit bounded next step after `V64-B` without jumping straight to broad
   repo authority, wider mutation semantics, or delegated worker export.
 
 So the repo still lacks the next same-family fill that would let it say:
 
-- this exact shipped writable-surface lineage is the only restoration basis here;
-- this exact admitted target remains the only restoration target here;
-- this exact restoration posture consumes shipped continuity, continuation, and
-  communication basis rather than minting fresh repo entitlement; and
-- writable-surface reintegration remains local, typed, and fail-closed without
-  silently becoming shell execution, worker export, or broad repo-admin law.
+- this exact shipped writable-surface lineage is the only hardening basis here;
+- this exact selected writable surface and exact admitted target remain the only
+  exemplar path here;
+- this exact advisory posture consumes shipped continuity, continuation,
+  communication, restoration, and reintegration basis rather than minting fresh
+  repo entitlement; and
+- writable-surface hardening remains local, typed, replayable, and fail-closed
+  without silently becoming shell execution, worker export, or broad repo-admin
+  law.
 
 ## Relationship To `V59`, `V60`, `V61`, `V63`, And `V65`
 
@@ -118,14 +135,16 @@ So the repo still lacks the next same-family fill that would let it say:
 
 This current same-family continuation asks:
 
-- how should one repo-write restoration record consume the shipped `V64-A`
-  descriptor / lease / admission lineage?
-- how should one reintegration report remain replayable and fail closed on
+- how should one advisory hardening register consume the shipped `V64-A`
+  descriptor / lease / admission lineage plus the shipped `V64-B` restoration /
+  reintegration lineage?
+- how should one advisory recommendation remain replayable and fail closed on
   missing or inconsistent writable-surface basis?
-- how should restoration remain distinct from:
+- how should advisory hardening remain distinct from:
   - fresh writable-surface selection already closed in `V64-A`
   - fresh lease issuance already closed in `V64-A`
-  - advisory writable-surface hardening deferred to `V64-C`
+  - fresh target admission already closed in `V64-A`
+  - live restoration and reintegration already closed in `V64-B`
   - delegated worker export and reconciliation reserved for `V65`
   - shell / terminal / execute authority not selected here?
 
@@ -182,51 +201,65 @@ Ordering discipline for this branch:
 ## Recommended Next Slice
 
 - family remains: `V64`
-- next concrete slice: `V64-B`
+- next concrete slice: `V64-C`
 - recommended selector outcome:
-  - keep `V64-A` closed on `main` as shipped writable-surface starter basis
-  - select `V64-B` as the next default candidate
+  - keep `V64-A` and `V64-B` closed on `main` as shipped writable-surface basis
+  - select `V64-C` as the next default candidate
 
 Default next-slice posture:
 
 - consume the shipped `V64-A` writable-surface descriptor
 - consume the shipped `V64-A` repo write lease
 - consume the shipped `V64-A` repo write surface admission record
+- consume the shipped `V64-B` repo-write restoration record where relevant
+- consume the shipped `V64-B` repo-write reintegration report where relevant
 - consume shipped `V59` continuity lineage intact
 - consume shipped `V60` continuation lineage intact
-- consume shipped `V61` communication lineage where restoration basis or
+- consume shipped `V61` communication lineage where hardening basis or
   explanation is relevant
-- add typed restoration outputs only:
-  - `agentic_de_repo_write_restoration_record@1`
-  - `agentic_de_repo_write_reintegration_report@1`
-- keep restoration bounded to the already admitted path:
+- add one typed advisory output only:
+  - `agentic_de_repo_writable_surface_hardening_register@1`
+- keep hardening bounded to the already admitted path:
   - same selected writable surface only
   - same exact admitted target only
-  - no fresh surface selection in `V64-B`
-  - no fresh lease issuance in `V64-B`
+  - no fresh surface selection in `V64-C`
+  - no fresh lease issuance in `V64-C`
+  - no fresh target admission in `V64-C`
 - keep entitlement boundaries explicit:
-  - shipped `V64-A` descriptor / lease / admission remain the only restoration
+  - shipped `V64-A` descriptor / lease / admission remain the only writable
     entitlement basis
-  - continuity lineage may contextualize restoration posture, but is not fresh
+  - shipped `V64-B` restoration / reintegration remain advisory evidence basis,
+    not fresh entitlement
+  - continuity lineage may contextualize hardening posture, but is not fresh
     writable entitlement
-  - communication lineage may contextualize restoration posture, but is not the
-    lease or restoration authority by itself
-- keep mutation semantics preserved from `V64-A`:
-  - same narrow `local_write` / `create_new` posture only
-  - do not widen append / overwrite / rename / delete semantics in `V64-B`
+  - communication lineage may contextualize hardening posture, but is not the
+    lease or authority by itself
+- keep advisory posture explicit:
+  - evidence basis remains distinct from recommendation
+  - committed lane artifacts outrank narrative interpretation when the advisory
+    register derives its basis
+  - explicit frozen-policy anchor remains required for replayability
+  - same shipped basis plus same frozen policy yields the same recommendation
+  - preserved write-semantics summary remains explicit in the evidence basis
 - keep authority bounded and non-equivalent:
-  - restoration is not all-repo authority
-  - restoration is not shell authority
-  - restoration is not execute authority
-  - restoration is not dispatch authority
-  - restoration is not delegated worker authority
-  - restoration is not remote operator law
+  - advisory hardening is not all-repo authority
+  - advisory hardening is not shell authority
+  - advisory hardening is not execute authority
+  - advisory hardening is not dispatch authority
+  - advisory hardening is not delegated worker authority
+  - advisory hardening is not connector law
+  - advisory hardening is not remote operator law
 - keep the slice fail-closed:
-  - missing or inconsistent `V64-A` / `V59` / `V60` / `V61` basis fails closed
-  - restoration may not overread non-admitted or out-of-surface targets
-  - ambiguous restoration expansion fails closed
+  - missing or inconsistent `V64-A` / `V64-B` / `V59` / `V60` / `V61` basis
+    fails closed
+  - advisory hardening may not overread non-admitted or out-of-surface targets
+  - restoration ref may appear without reintegration ref only for
+    restoration-local evidence
+  - reintegration ref may not appear without restoration ref
+  - co-present restoration/reintegration refs must remain one shipped chain
+  - optional restoration / reintegration basis must remain posture-consistent
+  - ambiguous advisory expansion fails closed
 - keep later widening deferred:
-  - advisory writable-surface hardening deferred to `V64-C`
   - worker export / reconciliation deferred to `V65`
 
 ## Suggested `V64` Path Ladder
@@ -236,8 +269,8 @@ The current recommended path ladder is:
 | Path | Theme | Primary output | Status |
 |---|---|---|---|
 | `V64-A` | writable-surface starter | one typed writable-surface descriptor plus one bounded repo write lease and one exact repo-surface admission posture over one selected writable surface only | closed on `main` |
-| `V64-B` | writable-surface restoration / reintegration | one typed repo-write restoration record plus one reintegration report over the shipped `V64-A` descriptor / lease / admission lineage and same exact admitted target only | selected next path |
-| `V64-C` | advisory writable-surface hardening | one advisory hardening surface over the same selected writable-surface lineage | prepared later |
+| `V64-B` | writable-surface restoration / reintegration | one typed repo-write restoration record plus one reintegration report over the shipped `V64-A` descriptor / lease / admission lineage and same exact admitted target only | closed on `main` |
+| `V64-C` | advisory writable-surface hardening | one advisory hardening surface over the same selected writable-surface and restoration lineage | selected next path |
 
 These output names are planning-level candidate names, not lock-level schema
 commitments yet.
@@ -251,10 +284,10 @@ commitments yet.
 - next family support mapping:
   - likely `docs/DRAFT_ADEU_REPO_BOUND_WRITABLE_SURFACE_AUTHORITY_V64_IMPLEMENTATION_MAPPING_v0.md`
 - next slice support mapping:
-  - likely `docs/DRAFT_ADEU_REPO_BOUND_WRITABLE_SURFACE_AUTHORITY_V64B_IMPLEMENTATION_MAPPING_v0.md`
+  - likely `docs/DRAFT_ADEU_REPO_BOUND_WRITABLE_SURFACE_AUTHORITY_V64C_IMPLEMENTATION_MAPPING_v0.md`
 - next lock:
-  - likely `docs/LOCKED_CONTINUATION_vNEXT_PLUS177.md`
+  - likely `docs/LOCKED_CONTINUATION_vNEXT_PLUS178.md`
 - next decision scaffold:
-  - likely `docs/DRAFT_STOP_GATE_DECISION_vNEXT_PLUS177.md`
+  - likely `docs/DRAFT_STOP_GATE_DECISION_vNEXT_PLUS178.md`
 - next edge scaffold:
-  - likely `docs/ASSESSMENT_vNEXT_PLUS177_EDGES.md`
+  - likely `docs/ASSESSMENT_vNEXT_PLUS178_EDGES.md`
