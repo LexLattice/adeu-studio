@@ -1,0 +1,45 @@
+{
+  "schema": "agentic_de_lane_drift_record@1",
+  "record_id": null,
+  "target_arc": "vNext+180",
+  "target_path": "V65-B",
+  "prior_lane_ref": "docs/LOCKED_CONTINUATION_vNEXT_PLUS179.md",
+  "entry_count": 7,
+  "entries": [
+    {
+      "assumption_ref": "v65a_export_reuse_default",
+      "status": "holds",
+      "note": "V65-B reuses the shipped V65-A delegated worker export packet by default."
+    },
+    {
+      "assumption_ref": "same_exported_scope_and_topology_reuse_default",
+      "status": "holds",
+      "note": "V65-B remains on the same exported local scope and the same selected worker topology by default."
+    },
+    {
+      "assumption_ref": "released_worker_result_or_conformance_basis_must_be_explicit",
+      "status": "amended",
+      "note": "V65-B surfaces one explicit released worker result or conformance input rather than overreading worker law from summaries."
+    },
+    {
+      "assumption_ref": "worker_result_basis_must_match_carrier_topology_and_exported_scope",
+      "status": "amended",
+      "note": "The worker result or conformance basis must stay consistent with the selected worker carrier, selected topology, and exported scope or fail closed."
+    },
+    {
+      "assumption_ref": "preserved_local_write_create_new_semantics_only",
+      "status": "amended",
+      "note": "V65-B preserves the shipped local_write/create_new semantics envelope and does not widen append, overwrite, rename, or delete semantics."
+    },
+    {
+      "assumption_ref": "reconciliation_not_fresh_local_or_export_or_topology_selection",
+      "status": "amended",
+      "note": "Reconciliation is not fresh local writable entitlement, fresh delegated export admission, or fresh worker-topology selection by itself."
+    },
+    {
+      "assumption_ref": "broader_dispatch_execute_multi_worker_connector_remote_authority_deferred",
+      "status": "amended",
+      "note": "Dispatch, execute, multi-worker, connector, and remote-operator authority remain deferred beyond V65-B."
+    }
+  ]
+}
