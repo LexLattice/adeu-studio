@@ -1,8 +1,8 @@
 # Assessment vNext+177 Edges
 
-Status: pre-lock edge assessment for `V64-B`.
+Status: post-closeout edge assessment for `V64-B` (April 19, 2026 UTC).
 
-Authority layer: planning scaffold only.
+Authority layer: closeout evidence on `main`.
 
 ## Assessment-State Marker (Machine-Checkable)
 
@@ -10,8 +10,8 @@ Authority layer: planning scaffold only.
 {
   "schema": "assessment_artifact_state@1",
   "artifact": "docs/ASSESSMENT_vNEXT_PLUS177_EDGES.md",
-  "phase": "pre_lock_assessment",
-  "authoritative": false,
+  "phase": "post_closeout_assessment",
+  "authoritative": true,
   "required_in_decision": true
 }
 ```
@@ -21,64 +21,79 @@ Authority layer: planning scaffold only.
 ### Edge 1: Restoration Could Reopen Surface Selection Or Lease Issuance
 
 - Risk:
-  a follow-on restoration slice could quietly behave like fresh surface-selection
-  or fresh lease-issuance law instead of consuming shipped `V64-A` basis.
+  a restoration follow-on could quietly behave like fresh surface-selection or
+  fresh lease-issuance law instead of consuming shipped `V64-A` basis.
 - Response:
-  keep restoration downstream of shipped `V64-A`.
+  keep `V64-B` downstream of shipped `V64-A`.
   - same selected writable surface only
   - same shipped lease only
   - restoration is not fresh entitlement by itself
+- Closeout Evidence:
+  shipped checker/tests enforce exact shipped `V64-A` descriptor/lease/admission
+  lineage and reject non-`V64-A` basis.
 
 ### Edge 2: Restoration Could Drift Beyond The Exact Admitted Target
 
 - Risk:
-  once a writable surface exists, restoration could start acting over other
-  in-surface paths or even outside the selected surface.
+  restoration could start acting over other in-surface paths or out-of-surface
+  paths once a writable surface exists.
 - Response:
   keep restoration exact and fail-closed.
   - same exact admitted target only
   - target membership basis remains explicit
-  - target occupancy / admissibility basis remains explicit
+  - target occupancy/admissibility basis remains explicit
   - non-admitted or out-of-surface targets fail closed
   - no blanket standing restoration authority
+- Closeout Evidence:
+  shipped checker/tests enforce exact shipped admitted target carry-through and
+  reject target mismatch.
 
 ### Edge 3: Restoration Could Behave Like Fresh Target Admission
 
 - Risk:
-  a follow-on restoration seam could quietly re-admit a target rather than
-  consume the shipped `V64-A` target-admission and concrete write-effect basis.
+  `V64-B` could quietly re-admit a target rather than consume shipped `V64-A`
+  target-admission and shipped `V59-A` write-effect lineage.
 - Response:
-  keep restoration downstream of shipped effect and target-admission law.
+  keep restoration downstream of shipped effect/admission law.
   - restoration is not fresh target admission by itself
-  - shipped write-effect lineage remains explicit
-  - missing or inconsistent target carry-through fails closed
+  - shipped observed/conformance effect lineage remains explicit
+  - missing or inconsistent basis fails closed
+- Closeout Evidence:
+  shipped checker/tests enforce exact shipped `V59-A` observed/conformance
+  lineage and explicit non-fresh-admission posture in restoration summaries.
 
-### Edge 4: `V64-B` Could Widen Mutation Semantics Indirectly
+### Edge 4: Restoration Input Paths Could Launder Authority Through Alias Or Symlink
 
 - Risk:
-  a restoration seam could smuggle append / overwrite / rename / delete semantics
-  under the label of reintegration.
+  lexically outside paths or symlink-root indirection could make out-of-scope
+  inputs appear repo-local.
 - Response:
-  preserve the shipped `V64-A` write posture only.
-  - same narrow `local_write` / `create_new` posture only
-  - broader mutation semantics stay deferred
+  keep input-path posture canonical and fail-closed.
+  - V64-B inputs must remain lexically inside repo root
+  - symlink repo root is rejected
+  - lexical alias paths fail closed
+- Closeout Evidence:
+  shipped checker/tests enforce lexical repo-local path checks and symlink-root
+  rejection for `V64-B`.
 
-### Edge 5: Continuity Or Communication Basis Could Drift Into Fresh Repo Entitlement
+### Edge 5: `V64-B` Could Widen Mutation Semantics Indirectly
 
 - Risk:
-  restoration review could overread shipped `V59` or `V61` lineage as if they
-  minted fresh repo authority.
+  reintegration could smuggle `append`/`overwrite`/`rename`/`delete` semantics
+  under a restoration label.
 - Response:
-  keep consumed basis contextual and bounded.
-  - continuity remains continuity law
-  - communication remains communication law
-  - neither becomes fresh writable entitlement here
+  preserve shipped `V64-A` write posture only.
+  - same narrow `local_write/create_new` posture only
+  - broader mutation semantics remain deferred
+- Closeout Evidence:
+  shipped restoration summaries and checker/tests preserve
+  `local_write/create_new` posture and explicit no-widening law.
 
-### Edge 6: Reintegration Could Become Broad Repo-Admin Law
+### Edge 6: Reintegration Could Be Over-Read As Broad Repo-Admin Law
 
 - Risk:
-  a reintegration report could be interpreted as approval for all-repo or
-  multi-target authority rather than one bounded restoration lineage.
+  one reintegration report could be interpreted as all-repo or multi-target
+  standing authority.
 - Response:
   keep reintegration path-local and lineage-local only.
   - not all-repo authority
@@ -86,22 +101,26 @@ Authority layer: planning scaffold only.
   - not execute authority
   - not dispatch authority
   - not delegated worker authority
+  - not connector or remote-operator law
+- Closeout Evidence:
+  shipped checker/tests and record summaries preserve explicit
+  non-generalization/non-equivalence posture.
 
 ## Current Judgment
 
-- `V64-B` is the right next slice because `V64-A` already closed the first-class
-  writable-surface descriptor / lease / admission seam on `main`, while the repo
-  still lacks a typed restoration / reintegration path over that same shipped
-  lineage.
-- the follow-on should stay properly bounded:
-  - one shipped `V64-A` surface lineage only
+- `V64-B` was the right next slice because `V64-A` already closed first-class
+  writable-surface descriptor/lease/admission law on `main`, while the repo still
+  lacked a typed restoration/reintegration seam over that same shipped lineage.
+- the shipped result remained properly bounded:
+  - one shipped `V64-A` writable-surface lineage only
   - one exact admitted target only
-  - one restoration record only
-  - one reintegration report only
-  - explicit `V59` / `V60` / `V61` basis consumption
-  - no fresh surface selection or fresh lease issuance
+  - one typed restoration record only
+  - one typed reintegration report only
+  - explicit shipped `V59-A` write-effect observation/conformance consumption
+  - explicit shipped `V60`/`V61` lineage consumption
+  - no fresh surface selection, lease issuance, or target admission
   - no mutation-semantics widening
-  - no all-repo / shell / execute / dispatch / worker widening
-- if `V64-B` lands cleanly, later `V64` work should handle advisory writable-
-  surface hardening in `V64-C` rather than broadening restoration authority in
-  place.
+  - no all-repo/shell/execute/dispatch/worker/connector/remote widening
+- `V64-B` is now closed on `main`.
+- the next same-family move should be `V64-C` hardening, not broader restoration
+  authority in place.
