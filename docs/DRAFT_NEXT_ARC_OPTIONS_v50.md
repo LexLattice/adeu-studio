@@ -1,8 +1,8 @@
 # Draft Next Arc Options v50
 
 Status: planning draft after `docs/DRAFT_NEXT_ARC_OPTIONS_v49.md`, now that
-`V64-A` through `V64-C` have landed on `main` and `V65-A` has merged on
-`main`.
+`V64-A` through `V64-C` have landed on `main` and `V65-A` through `V65-B`
+have merged on `main`.
 
 Authority layer: planning.
 
@@ -76,6 +76,18 @@ Interpretive doctrine for this planning surface:
   - one selected worker topology lineage only
   - preserved `local_write` / `create_new` semantics only
   - no reconciliation yet
+  - no dispatch / execute / shell / multi-worker widening
+- `V65-B` is now merged on `main` as the shipped delegated worker
+  reconciliation slice over the same shipped export lineage:
+  - one typed delegated worker reconciliation report only
+  - one shipped `V65-A` export packet only
+  - one released worker result or conformance lineage only
+  - one released worker carrier lineage only
+  - one selected worker topology lineage only
+  - same exported local scope only
+  - preserved `local_write` / `create_new` semantics only
+  - no fresh local entitlement, export admission, or topology selection
+  - no advisory hardening yet
   - no dispatch / execute / shell / multi-worker widening
 - the multi-arc roadmap already positions the remaining execution-widening branch as:
   - `V64`: repo-bound writable-surface authority
@@ -217,83 +229,78 @@ Ordering discipline for this branch:
 ## Recommended Next Slice
 
 - family remains: `V65`
-- next concrete slice: `V65-B`
+- next concrete slice: `V65-C`
 - recommended selector outcome:
   - keep `V64` closed on `main` as shipped local writable authority basis
   - keep released `V48` worker substrate closed on `main` as consumed worker-law basis
   - keep `V65-A` closed on `main` as the shipped export-starter basis
-  - select `V65-B` as the next default candidate
+  - keep `V65-B` closed on `main` as the shipped reconciliation basis
+  - select `V65-C` as the next default candidate
 
 Default next-slice posture:
 
 - consume the shipped `V65-A` delegated worker export packet as the only export
   bridge basis
+- consume the shipped `V65-B` delegated worker reconciliation report as the
+  only reconciliation basis where worker-result-local posture is selected
 - consume the same shipped `V64` local writable lineage only through the carried
-  `V65-A` export basis rather than reopening local entitlement directly
-- consume released `V48` worker result / conformance lineage only where
-  reconciliation depends on actual delegated-worker outcome posture
-  - surface that released worker result/conformance basis explicitly as a
-    current selected released-worker input
-- consume shipped `V60` continuation lineage intact
-- consume shipped `V61` communication lineage intact where reconciliation
-  justification, result carry-through, or answer routing is relevant
-- add one typed worker reconciliation surface only:
-  - `agentic_de_delegated_worker_reconciliation_report@1`
-- keep `V65-B` reconciliation-only:
-  - no fresh delegated export admission is initiated here
-  - no worker execution semantics are redefined here
-  - no advisory hardening is selected here
-  - one released worker carrier lineage only
-  - one selected worker topology lineage only
-  - one worker result or conformance lineage only
-  - no implicit fan-out
-  - no alternative topology selection
-  - no later worker-set expansion by implication
-- keep reconciliation bounded to the already exported path:
+  `V65-A` / `V65-B` basis rather than reopening local entitlement directly
+- consume the same released `V48` worker carrier / topology / result posture
+  only where advisory delegated-worker hardening depends on actual released
+  worker-lineage posture
+  - one selected released worker lineage here does not generalize by default
+    into broader `V48` worker-law or alternate carrier / topology selection
+- consume shipped `V60` continuation lineage intact where relevant
+- consume shipped `V61` communication lineage intact where relevant
+- add one advisory hardening surface only:
+  - `agentic_de_delegated_worker_hardening_register@1`
+- keep `V65-C` advisory-only and candidate-only:
+  - no fresh delegated export admission
+  - no fresh reconciliation authority
+  - no worker execution redefinition
+  - no dispatch selection
+  - no shell / execute selection
+  - no multi-worker widening
+- keep advisory evidence bounded to the already shipped delegated path:
   - same selected writable surface only
   - same exact exported target / patch / artifact summary only
   - same exported-work membership basis only
-  - no fresh local surface selection in `V65-B`
-  - no fresh local lease issuance in `V65-B`
-  - no fresh local target admission in `V65-B`
-  - no fresh delegated export admission in `V65-B`
-  - no fresh worker topology widening in `V65-B`
-- keep worker-result carry-through explicit:
-  - worker result or conformance basis remains first-class
-  - selected worker result or conformance kind remains first-class
-  - reconciliation basis summary remains first-class
-  - local lineage carry-through remains first-class
-  - worker result or conformance basis must match the selected worker carrier
-    basis, selected topology basis, and exported scope
-  - no extra local paths may be laundered into reconciliation scope
-  - canonical local-scope membership remains required
-- keep family-boundary law explicit:
-  - shipped `V64` remains the only local writable entitlement basis
-  - released `V48` remains the only worker-law carrier basis
-  - shipped `V65-A` remains the only export bridge basis
-  - local writable admission is not delegated export or reconciliation authority by itself
-  - released `V48` compiled/envelope/topology posture is not reconciliation authority by itself
-  - communication lineage may contextualize reconciliation posture, but is not
-    reconciliation authority by itself
+  - same worker carrier lineage only
+  - same selected worker topology lineage only
+  - same worker result or conformance lineage only where selected
+- keep evidence-vs-recommendation separation explicit:
+  - committed lane artifacts outrank narrative interpretation or review prose
+  - evidence basis remains distinct from recommendation outcome
+  - explicit frozen-policy anchoring remains required for replayability
+  - same selected evidence basis plus same frozen policy yields the same
+    advisory output
+- keep optional upstream reconciliation-local carry-through fail-closed:
+  - if reconciliation-local basis is absent, `V65-C` may not overread worker-result-local evidence
+  - if reconciliation-local basis is present, it must remain consistent with the
+    shipped export lineage, worker carrier, topology, exported scope, and preserved write posture
+  - inconsistent optional upstream basis fails closed
+- keep `V64-C` advisory writable-surface evidence shaping-only here:
+  - shaping / drift-guard context only
+  - not delegated export entitlement
+  - not delegated reconciliation entitlement
 - keep authority bounded and non-equivalent:
-  - delegated worker reconciliation is not all-repo authority
-  - delegated worker reconciliation is not shell authority
-  - delegated worker reconciliation is not execute authority
-  - delegated worker reconciliation is not dispatch authority
-  - delegated worker reconciliation is not multi-worker orchestration authority
-  - delegated worker reconciliation is not connector law
-  - delegated worker reconciliation is not remote operator law
-- keep the slice fail-closed:
-  - missing or inconsistent `V65-A` / `V48` / `V60` / `V61` basis fails closed
-  - no reconciliation overread outside the shipped exported local scope
-  - no worker-result or conformance laundering outside the selected exported path
-  - shipped `V64` narrow mutation semantics remain preserved through reconciliation
-  - reconciliation may not backdoor `append` / `overwrite` / `rename` / `delete`
-  - reconciliation may not backdoor a richer worker-side action family
-  - ambiguous reconciliation or hardening widening fails closed
+  - delegated-worker hardening output is not export admission by itself
+  - delegated-worker hardening output is not reconciliation authority by itself
+  - delegated-worker hardening output is not all-repo authority
+  - delegated-worker hardening output is not shell authority
+  - delegated-worker hardening output is not execute authority
+  - delegated-worker hardening output is not dispatch authority
+  - delegated-worker hardening output is not multi-worker authority
+  - delegated-worker hardening output is not connector law
+  - delegated-worker hardening output is not remote operator law
+- keep candidate outcomes non-entitling:
+  - `keep_warning_only`
+  - `needs_more_evidence`
+  - `candidate_for_later_delegated_worker_hardening`
+  - `candidate_for_later_delegation_migration`
+  - `not_selected_for_escalation`
 - keep later widening deferred:
-  - advisory delegation hardening deferred to `V65-C`
-  - dispatch / execute / multi-worker orchestration remain later
+  - dispatch / execute / multi-worker orchestration remain later than `V65`
 
 ## Suggested `V65` Path Ladder
 
@@ -302,8 +309,8 @@ The current recommended path ladder is:
 | Path | Theme | Primary output | Status |
 |---|---|---|---|
 | `V65-A` | delegated export starter | `agentic_de_delegated_worker_export_packet@1` over one shipped `V64` local writable-surface lineage into one released `V48` worker carrier lineage only | closed on `main` |
-| `V65-B` | worker reconciliation | `agentic_de_delegated_worker_reconciliation_report@1` over the same shipped exported delegated lineage only | selected next path |
-| `V65-C` | advisory delegation hardening | `agentic_de_delegated_worker_hardening_register@1` over the same export / reconciliation lineage only | prepared later |
+| `V65-B` | worker reconciliation | `agentic_de_delegated_worker_reconciliation_report@1` over the same shipped exported delegated lineage only | closed on `main` |
+| `V65-C` | advisory delegation hardening | `agentic_de_delegated_worker_hardening_register@1` over the same export / reconciliation lineage only | selected next path |
 
 These output names are planning-level candidate names, not lock-level schema
 commitments yet.
@@ -317,10 +324,10 @@ commitments yet.
 - next family support mapping:
   - likely `docs/DRAFT_ADEU_DELEGATED_EXPORT_AND_WORKER_RECONCILIATION_V65_IMPLEMENTATION_MAPPING_v0.md`
 - next slice support mapping:
-  - likely `docs/DRAFT_ADEU_DELEGATED_EXPORT_AND_WORKER_RECONCILIATION_V65B_IMPLEMENTATION_MAPPING_v0.md`
+  - likely `docs/DRAFT_ADEU_DELEGATED_EXPORT_AND_WORKER_RECONCILIATION_V65C_IMPLEMENTATION_MAPPING_v0.md`
 - next lock:
-  - likely `docs/LOCKED_CONTINUATION_vNEXT_PLUS180.md`
+  - likely `docs/LOCKED_CONTINUATION_vNEXT_PLUS181.md`
 - next decision scaffold:
-  - likely `docs/DRAFT_STOP_GATE_DECISION_vNEXT_PLUS180.md`
+  - likely `docs/DRAFT_STOP_GATE_DECISION_vNEXT_PLUS181.md`
 - next edge scaffold:
-  - likely `docs/ASSESSMENT_vNEXT_PLUS180_EDGES.md`
+  - likely `docs/ASSESSMENT_vNEXT_PLUS181_EDGES.md`
