@@ -1,0 +1,45 @@
+{
+  "schema": "agentic_de_lane_drift_record@1",
+  "record_id": null,
+  "target_arc": "vNext+177",
+  "target_path": "V64-B",
+  "prior_lane_ref": "docs/LOCKED_CONTINUATION_vNEXT_PLUS176.md",
+  "entry_count": 7,
+  "entries": [
+    {
+      "assumption_ref": "v64a_surface_reuse_default",
+      "status": "holds",
+      "note": "V64-B reuses the shipped V64-A writable-surface descriptor, repo write lease, and exact target admission by default."
+    },
+    {
+      "assumption_ref": "same_exact_admitted_target_reuse_default",
+      "status": "holds",
+      "note": "V64-B remains on the same exact admitted target path as shipped V64-A."
+    },
+    {
+      "assumption_ref": "restoration_not_fresh_surface_or_lease_or_target_admission",
+      "status": "amended",
+      "note": "V64-B restoration is not fresh writable-surface selection, fresh lease issuance, or fresh target admission by itself."
+    },
+    {
+      "assumption_ref": "concrete_write_effect_lineage_must_remain_explicit",
+      "status": "amended",
+      "note": "V64-B carries the shipped concrete write-effect observation and conformance lineage explicitly rather than overreading writable entitlement alone."
+    },
+    {
+      "assumption_ref": "target_membership_and_target_occupancy_carry_through_required",
+      "status": "amended",
+      "note": "The same exact target-membership and occupancy or admissibility carry-through from V64-A remain explicit and fail closed in V64-B."
+    },
+    {
+      "assumption_ref": "preserved_local_write_create_new_semantics_only",
+      "status": "amended",
+      "note": "V64-B preserves the V64-A local_write/create_new semantics envelope and adds only one typed compensating restoration seam."
+    },
+    {
+      "assumption_ref": "broader_repo_execute_dispatch_worker_authority_deferred",
+      "status": "amended",
+      "note": "All-repo authority, shell or execute authority, dispatch widening, and delegated worker authority remain deferred beyond V64-B."
+    }
+  ]
+}

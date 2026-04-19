@@ -1,0 +1,55 @@
+{
+  "changes_live_behavior_by_default": false,
+  "evidence_only": true,
+  "evidence_refs": [
+    "agentic_de_repo_write_restoration_504231109978",
+    "agentic_de_local_effect_observation_be1062f37c36",
+    "agentic_de_local_effect_conformance_report_287f87d5addc",
+    "packages/adeu_agentic_de/tests/fixtures/v59a/reference_agentic_de_local_effect_observation_record.json",
+    "packages/adeu_agentic_de/tests/fixtures/v59a/reference_agentic_de_local_effect_conformance_report.json",
+    "packages/adeu_agentic_de/tests/fixtures/v64a/reference_agentic_de_repo_writable_surface_descriptor.json",
+    "packages/adeu_agentic_de/tests/fixtures/v64a/reference_agentic_de_repo_write_lease_record.json",
+    "packages/adeu_agentic_de/tests/fixtures/v64a/reference_agentic_de_repo_write_surface_admission_record.json",
+    "packages/adeu_agentic_de/tests/fixtures/v64b/reference_agentic_de_lane_drift_record.json",
+    "artifacts/agent_harness/v176/evidence_inputs/v64a_repo_writable_surface_starter_evidence_v176.json"
+  ],
+  "field_dependence_tags": {
+    "frozen_policy_anchor_ref": [
+      "docs/LOCKED_CONTINUATION_vNEXT_PLUS177.md#machine-checkable-contract"
+    ],
+    "reintegration_basis_summary": [
+      "agentic_de_repo_write_restoration_504231109978",
+      "agentic_de_local_effect_observation_be1062f37c36",
+      "agentic_de_local_effect_conformance_report_287f87d5addc",
+      "docs/LOCKED_CONTINUATION_vNEXT_PLUS177.md#machine-checkable-contract"
+    ],
+    "reintegration_status": [
+      "agentic_de_repo_write_restoration_504231109978",
+      "agentic_de_local_effect_conformance_report_287f87d5addc"
+    ],
+    "repo_write_restoration_ref": [
+      "agentic_de_repo_write_restoration_504231109978"
+    ]
+  },
+  "field_origin_tags": {
+    "frozen_policy_anchor_ref": "shaping_only",
+    "reintegration_basis_summary": "current_turn_derived",
+    "reintegration_status": "current_turn_derived",
+    "repo_write_restoration_ref": "prior_artifact"
+  },
+  "frozen_policy_anchor_ref": "docs/LOCKED_CONTINUATION_vNEXT_PLUS177.md#machine-checkable-contract",
+  "reason_codes": [
+    "typed_replayable_reintegration_only",
+    "same_exact_target_restoration_lineage_consumed",
+    "no_fresh_surface_or_lease_or_target_admission",
+    "no_all_repo_execute_dispatch_worker_or_remote_connector_authority"
+  ],
+  "reintegration_basis_summary": "the shipped exact create_new write-effect lineage remained explicit and the V64-B restoration record replayed one bounded compensating restore over the same exact admitted target under one frozen V64-B policy anchor",
+  "reintegration_status": "reintegrated",
+  "repo_write_reintegration_report_id": "agentic_de_repo_write_reintegration_report_1174b80d6437",
+  "repo_write_restoration_ref": "agentic_de_repo_write_restoration_504231109978",
+  "root_origin_dedup_summary": "restoration record plus shipped V59-A write-effect lineage remain non-independent repo-write reintegration basis; reintegration does not widen writable authority",
+  "schema": "agentic_de_repo_write_reintegration_report@1",
+  "target_arc": "vNext+177",
+  "target_path": "V64-B"
+}
