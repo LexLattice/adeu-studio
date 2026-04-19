@@ -1,0 +1,121 @@
+{
+  "additionalProperties": false,
+  "properties": {
+    "changes_live_behavior_by_default": {
+      "const": false,
+      "default": false,
+      "title": "Changes Live Behavior By Default",
+      "type": "boolean"
+    },
+    "evidence_only": {
+      "const": true,
+      "default": true,
+      "title": "Evidence Only",
+      "type": "boolean"
+    },
+    "evidence_refs": {
+      "items": {
+        "type": "string"
+      },
+      "title": "Evidence Refs",
+      "type": "array"
+    },
+    "field_dependence_tags": {
+      "additionalProperties": {
+        "items": {
+          "type": "string"
+        },
+        "type": "array"
+      },
+      "title": "Field Dependence Tags",
+      "type": "object"
+    },
+    "field_origin_tags": {
+      "additionalProperties": {
+        "enum": [
+          "current_turn_native",
+          "current_turn_derived",
+          "observability_only",
+          "prior_artifact",
+          "shaping_only"
+        ],
+        "type": "string"
+      },
+      "title": "Field Origin Tags",
+      "type": "object"
+    },
+    "frozen_policy_anchor_ref": {
+      "title": "Frozen Policy Anchor Ref",
+      "type": "string"
+    },
+    "reason_codes": {
+      "items": {
+        "type": "string"
+      },
+      "title": "Reason Codes",
+      "type": "array"
+    },
+    "reintegration_basis_summary": {
+      "title": "Reintegration Basis Summary",
+      "type": "string"
+    },
+    "reintegration_status": {
+      "enum": [
+        "reintegrated",
+        "rejected_missing_basis",
+        "rejected_inconsistent_basis"
+      ],
+      "title": "Reintegration Status",
+      "type": "string"
+    },
+    "repo_write_reintegration_report_id": {
+      "anyOf": [
+        {
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Repo Write Reintegration Report Id"
+    },
+    "repo_write_restoration_ref": {
+      "title": "Repo Write Restoration Ref",
+      "type": "string"
+    },
+    "root_origin_dedup_summary": {
+      "title": "Root Origin Dedup Summary",
+      "type": "string"
+    },
+    "schema": {
+      "const": "agentic_de_repo_write_reintegration_report@1",
+      "default": "agentic_de_repo_write_reintegration_report@1",
+      "title": "Schema",
+      "type": "string"
+    },
+    "target_arc": {
+      "title": "Target Arc",
+      "type": "string"
+    },
+    "target_path": {
+      "title": "Target Path",
+      "type": "string"
+    }
+  },
+  "required": [
+    "target_arc",
+    "target_path",
+    "repo_write_restoration_ref",
+    "reintegration_basis_summary",
+    "reintegration_status",
+    "frozen_policy_anchor_ref",
+    "field_origin_tags",
+    "field_dependence_tags",
+    "root_origin_dedup_summary",
+    "reason_codes",
+    "evidence_refs"
+  ],
+  "title": "AgenticDeRepoWriteReintegrationReport",
+  "type": "object"
+}

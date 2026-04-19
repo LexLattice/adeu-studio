@@ -47,6 +47,8 @@ from adeu_agentic_de import (
     AGENTIC_DE_REMOTE_OPERATOR_VIEW_PACKET_SCHEMA,
     AGENTIC_DE_REPO_WRITABLE_SURFACE_DESCRIPTOR_SCHEMA,
     AGENTIC_DE_REPO_WRITE_LEASE_RECORD_SCHEMA,
+    AGENTIC_DE_REPO_WRITE_REINTEGRATION_REPORT_SCHEMA,
+    AGENTIC_DE_REPO_WRITE_RESTORATION_RECORD_SCHEMA,
     AGENTIC_DE_REPO_WRITE_SURFACE_ADMISSION_RECORD_SCHEMA,
     AGENTIC_DE_RUNTIME_HARVEST_RECORD_SCHEMA,
     AGENTIC_DE_RUNTIME_STATE_SCHEMA,
@@ -354,6 +356,22 @@ def _schema_pairs() -> dict[str, tuple[Path, Path]]:
             / "schema"
             / "agentic_de_repo_write_surface_admission_record.v1.json",
             root / "spec" / "agentic_de_repo_write_surface_admission_record.schema.json",
+        ),
+        AGENTIC_DE_REPO_WRITE_RESTORATION_RECORD_SCHEMA: (
+            root
+            / "packages"
+            / "adeu_agentic_de"
+            / "schema"
+            / "agentic_de_repo_write_restoration_record.v1.json",
+            root / "spec" / "agentic_de_repo_write_restoration_record.schema.json",
+        ),
+        AGENTIC_DE_REPO_WRITE_REINTEGRATION_REPORT_SCHEMA: (
+            root
+            / "packages"
+            / "adeu_agentic_de"
+            / "schema"
+            / "agentic_de_repo_write_reintegration_report.v1.json",
+            root / "spec" / "agentic_de_repo_write_reintegration_report.schema.json",
         ),
         AGENTIC_DE_LIVE_TURN_ADMISSION_RECORD_SCHEMA: (
             root

@@ -93,6 +93,12 @@ AGENTIC_DE_REPO_WRITE_LEASE_RECORD_SCHEMA = "agentic_de_repo_write_lease_record@
 AGENTIC_DE_REPO_WRITE_SURFACE_ADMISSION_RECORD_SCHEMA = (
     "agentic_de_repo_write_surface_admission_record@1"
 )
+AGENTIC_DE_REPO_WRITE_RESTORATION_RECORD_SCHEMA = (
+    "agentic_de_repo_write_restoration_record@1"
+)
+AGENTIC_DE_REPO_WRITE_REINTEGRATION_REPORT_SCHEMA = (
+    "agentic_de_repo_write_reintegration_report@1"
+)
 
 ACTION_CLASS_VOCABULARY = ("inspect", "write", "execute", "dispatch")
 EXACT_ACTION_CLASS_VOCABULARY = (
@@ -550,6 +556,17 @@ RepoWriteSurfaceAdmissionVerdict = Literal[
     "admitted",
     "rejected_target_not_in_surface",
     "rejected_target_not_admissible",
+    "rejected_missing_basis",
+    "rejected_inconsistent_basis",
+]
+RepoWriteRestorationStatus = Literal[
+    "restored",
+    "rejected_target_not_restorable",
+    "rejected_missing_basis",
+    "rejected_inconsistent_basis",
+]
+RepoWriteReintegrationStatus = Literal[
+    "reintegrated",
     "rejected_missing_basis",
     "rejected_inconsistent_basis",
 ]
@@ -5629,6 +5646,189 @@ class AgenticDeRepoWriteSurfaceAdmissionRecord(BaseModel):
         return self
 
 
+class AgenticDeRepoWriteRestorationRecord(BaseModel):
+    model_config = MODEL_CONFIG
+
+    schema: Literal[AGENTIC_DE_REPO_WRITE_RESTORATION_RECORD_SCHEMA] = (
+        AGENTIC_DE_REPO_WRITE_RESTORATION_RECORD_SCHEMA
+    )
+    repo_write_restoration_id: str | None = None
+    target_arc: str
+    target_path: str
+    evidence_only: Literal[True] = True
+    changes_live_behavior_by_default: Literal[False] = False
+    writable_surface_descriptor_ref: str
+    repo_write_lease_ref: str
+    repo_write_surface_admission_ref: str
+    consumed_write_effect_basis_ref_or_equivalent: str
+    selected_target_path_summary: str
+    target_membership_basis_summary: str
+    target_occupancy_or_admissibility_basis_summary: str
+    restoration_basis_summary: str
+    preserved_write_semantics_summary: str
+    restoration_status: RepoWriteRestorationStatus
+    frozen_policy_anchor_ref: str
+    field_origin_tags: dict[str, LiveTurnFieldOriginTag]
+    field_dependence_tags: dict[str, list[str]]
+    root_origin_dedup_summary: str
+    reason_codes: list[str]
+    evidence_refs: list[str]
+
+    @model_validator(mode="after")
+    def _validate_record(self) -> AgenticDeRepoWriteRestorationRecord:
+        _assert_present_text(self.target_arc, field_name="target_arc")
+        _assert_present_text(self.target_path, field_name="target_path")
+        required_fields = (
+            "writable_surface_descriptor_ref",
+            "repo_write_lease_ref",
+            "repo_write_surface_admission_ref",
+            "consumed_write_effect_basis_ref_or_equivalent",
+            "selected_target_path_summary",
+            "target_membership_basis_summary",
+            "target_occupancy_or_admissibility_basis_summary",
+            "restoration_basis_summary",
+            "preserved_write_semantics_summary",
+            "frozen_policy_anchor_ref",
+            "root_origin_dedup_summary",
+        )
+        for field_name in required_fields:
+            _assert_present_text(getattr(self, field_name), field_name=field_name)
+        required_tag_fields = (
+            "writable_surface_descriptor_ref",
+            "repo_write_lease_ref",
+            "repo_write_surface_admission_ref",
+            "consumed_write_effect_basis_ref_or_equivalent",
+            "selected_target_path_summary",
+            "target_membership_basis_summary",
+            "target_occupancy_or_admissibility_basis_summary",
+            "restoration_basis_summary",
+            "preserved_write_semantics_summary",
+            "restoration_status",
+            "frozen_policy_anchor_ref",
+        )
+        for field_name in required_tag_fields:
+            if field_name not in self.field_origin_tags:
+                raise ValueError(f"field_origin_tags missing required key {field_name}")
+            if field_name not in self.field_dependence_tags:
+                raise ValueError(f"field_dependence_tags missing required key {field_name}")
+        normalized_dependence_tags: dict[str, list[str]] = {}
+        for key, values in self.field_dependence_tags.items():
+            normalized_dependence_tags[key] = _ordered_unique_texts(
+                values,
+                field_name=f"field_dependence_tags[{key}]",
+            )
+        object.__setattr__(self, "field_dependence_tags", normalized_dependence_tags)
+        object.__setattr__(
+            self,
+            "reason_codes",
+            _ordered_unique_texts(self.reason_codes, field_name="reason_codes"),
+        )
+        object.__setattr__(
+            self,
+            "evidence_refs",
+            _ordered_unique_texts(self.evidence_refs, field_name="evidence_refs"),
+        )
+        if not self.reason_codes:
+            raise ValueError("reason_codes must be non-empty")
+        if not self.evidence_refs:
+            raise ValueError("evidence_refs must be non-empty")
+        object.__setattr__(
+            self,
+            "repo_write_restoration_id",
+            _assign_or_verify_content_addressed_id(
+                value=self.repo_write_restoration_id,
+                field_name="repo_write_restoration_id",
+                prefix="agentic_de_repo_write_restoration",
+                payload=self.model_dump(
+                    mode="json",
+                    exclude={"repo_write_restoration_id"},
+                ),
+            ),
+        )
+        return self
+
+
+class AgenticDeRepoWriteReintegrationReport(BaseModel):
+    model_config = MODEL_CONFIG
+
+    schema: Literal[AGENTIC_DE_REPO_WRITE_REINTEGRATION_REPORT_SCHEMA] = (
+        AGENTIC_DE_REPO_WRITE_REINTEGRATION_REPORT_SCHEMA
+    )
+    repo_write_reintegration_report_id: str | None = None
+    target_arc: str
+    target_path: str
+    evidence_only: Literal[True] = True
+    changes_live_behavior_by_default: Literal[False] = False
+    repo_write_restoration_ref: str
+    reintegration_basis_summary: str
+    reintegration_status: RepoWriteReintegrationStatus
+    frozen_policy_anchor_ref: str
+    field_origin_tags: dict[str, LiveTurnFieldOriginTag]
+    field_dependence_tags: dict[str, list[str]]
+    root_origin_dedup_summary: str
+    reason_codes: list[str]
+    evidence_refs: list[str]
+
+    @model_validator(mode="after")
+    def _validate_report(self) -> AgenticDeRepoWriteReintegrationReport:
+        _assert_present_text(self.target_arc, field_name="target_arc")
+        _assert_present_text(self.target_path, field_name="target_path")
+        required_fields = (
+            "repo_write_restoration_ref",
+            "reintegration_basis_summary",
+            "frozen_policy_anchor_ref",
+            "root_origin_dedup_summary",
+        )
+        for field_name in required_fields:
+            _assert_present_text(getattr(self, field_name), field_name=field_name)
+        required_tag_fields = (
+            "repo_write_restoration_ref",
+            "reintegration_basis_summary",
+            "reintegration_status",
+            "frozen_policy_anchor_ref",
+        )
+        for field_name in required_tag_fields:
+            if field_name not in self.field_origin_tags:
+                raise ValueError(f"field_origin_tags missing required key {field_name}")
+            if field_name not in self.field_dependence_tags:
+                raise ValueError(f"field_dependence_tags missing required key {field_name}")
+        normalized_dependence_tags: dict[str, list[str]] = {}
+        for key, values in self.field_dependence_tags.items():
+            normalized_dependence_tags[key] = _ordered_unique_texts(
+                values,
+                field_name=f"field_dependence_tags[{key}]",
+            )
+        object.__setattr__(self, "field_dependence_tags", normalized_dependence_tags)
+        object.__setattr__(
+            self,
+            "reason_codes",
+            _ordered_unique_texts(self.reason_codes, field_name="reason_codes"),
+        )
+        object.__setattr__(
+            self,
+            "evidence_refs",
+            _ordered_unique_texts(self.evidence_refs, field_name="evidence_refs"),
+        )
+        if not self.reason_codes:
+            raise ValueError("reason_codes must be non-empty")
+        if not self.evidence_refs:
+            raise ValueError("evidence_refs must be non-empty")
+        object.__setattr__(
+            self,
+            "repo_write_reintegration_report_id",
+            _assign_or_verify_content_addressed_id(
+                value=self.repo_write_reintegration_report_id,
+                field_name="repo_write_reintegration_report_id",
+                prefix="agentic_de_repo_write_reintegration_report",
+                payload=self.model_dump(
+                    mode="json",
+                    exclude={"repo_write_reintegration_report_id"},
+                ),
+            ),
+        )
+        return self
+
+
 class AgenticDeBridgeOfficeBindingRecord(BaseModel):
     model_config = MODEL_CONFIG
 
@@ -6560,6 +6760,16 @@ def compute_agentic_de_repo_write_lease_id(payload: dict[str, object]) -> str:
 
 def compute_agentic_de_repo_write_surface_admission_id(payload: dict[str, object]) -> str:
     return _compute_id("agentic_de_repo_write_surface_admission", payload)
+
+
+def compute_agentic_de_repo_write_restoration_id(payload: dict[str, object]) -> str:
+    return _compute_id("agentic_de_repo_write_restoration", payload)
+
+
+def compute_agentic_de_repo_write_reintegration_report_id(
+    payload: dict[str, object],
+) -> str:
+    return _compute_id("agentic_de_repo_write_reintegration_report", payload)
 
 
 def compute_agentic_de_external_assistant_ingress_bridge_packet_id(

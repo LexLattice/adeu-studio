@@ -1,0 +1,104 @@
+{
+  "changes_live_behavior_by_default": false,
+  "consumed_write_effect_basis_ref_or_equivalent": "agentic_de_local_effect_conformance_report_287f87d5addc",
+  "evidence_only": true,
+  "evidence_refs": [
+    "agentic_de_repo_writable_surface_descriptor_acabef417213",
+    "agentic_de_repo_write_lease_674b58da9f7d",
+    "agentic_de_repo_write_surface_admission_f154153a40ef",
+    "agentic_de_local_effect_observation_be1062f37c36",
+    "agentic_de_local_effect_conformance_report_287f87d5addc",
+    "artifacts/agentic_de/v59/workspace_continuity/_observer/reference_restoration_pre_state.json",
+    "artifacts/agentic_de/v59/workspace_continuity/_observer/reference_restoration_post_state.json",
+    "packages/adeu_agentic_de/tests/fixtures/v59a/reference_agentic_de_local_effect_observation_record.json",
+    "packages/adeu_agentic_de/tests/fixtures/v59a/reference_agentic_de_local_effect_conformance_report.json",
+    "packages/adeu_agentic_de/tests/fixtures/v64a/reference_agentic_de_repo_writable_surface_descriptor.json",
+    "packages/adeu_agentic_de/tests/fixtures/v64a/reference_agentic_de_repo_write_lease_record.json",
+    "packages/adeu_agentic_de/tests/fixtures/v64a/reference_agentic_de_repo_write_surface_admission_record.json",
+    "packages/adeu_agentic_de/tests/fixtures/v64b/reference_agentic_de_lane_drift_record.json",
+    "artifacts/agent_harness/v176/evidence_inputs/v64a_repo_writable_surface_starter_evidence_v176.json"
+  ],
+  "field_dependence_tags": {
+    "consumed_write_effect_basis_ref_or_equivalent": [
+      "agentic_de_local_effect_conformance_report_287f87d5addc"
+    ],
+    "frozen_policy_anchor_ref": [
+      "docs/LOCKED_CONTINUATION_vNEXT_PLUS177.md#machine-checkable-contract"
+    ],
+    "preserved_write_semantics_summary": [
+      "docs/LOCKED_CONTINUATION_vNEXT_PLUS177.md#machine-checkable-contract"
+    ],
+    "repo_write_lease_ref": [
+      "agentic_de_repo_write_lease_674b58da9f7d"
+    ],
+    "repo_write_surface_admission_ref": [
+      "agentic_de_repo_write_surface_admission_f154153a40ef"
+    ],
+    "restoration_basis_summary": [
+      "agentic_de_repo_writable_surface_descriptor_acabef417213",
+      "agentic_de_repo_write_lease_674b58da9f7d",
+      "agentic_de_repo_write_surface_admission_f154153a40ef",
+      "agentic_de_local_effect_observation_be1062f37c36",
+      "agentic_de_local_effect_conformance_report_287f87d5addc",
+      "docs/LOCKED_CONTINUATION_vNEXT_PLUS177.md#machine-checkable-contract"
+    ],
+    "restoration_status": [
+      "agentic_de_repo_write_surface_admission_f154153a40ef",
+      "agentic_de_local_effect_conformance_report_287f87d5addc",
+      "artifacts/agentic_de/v59/workspace_continuity/_observer/reference_restoration_pre_state.json",
+      "artifacts/agentic_de/v59/workspace_continuity/_observer/reference_restoration_post_state.json"
+    ],
+    "selected_target_path_summary": [
+      "agentic_de_repo_write_surface_admission_f154153a40ef"
+    ],
+    "target_membership_basis_summary": [
+      "agentic_de_repo_writable_surface_descriptor_acabef417213",
+      "agentic_de_repo_write_surface_admission_f154153a40ef"
+    ],
+    "target_occupancy_or_admissibility_basis_summary": [
+      "agentic_de_repo_write_surface_admission_f154153a40ef",
+      "agentic_de_local_effect_observation_be1062f37c36"
+    ],
+    "writable_surface_descriptor_ref": [
+      "agentic_de_repo_writable_surface_descriptor_acabef417213"
+    ]
+  },
+  "field_origin_tags": {
+    "consumed_write_effect_basis_ref_or_equivalent": "prior_artifact",
+    "frozen_policy_anchor_ref": "shaping_only",
+    "preserved_write_semantics_summary": "shaping_only",
+    "repo_write_lease_ref": "prior_artifact",
+    "repo_write_surface_admission_ref": "prior_artifact",
+    "restoration_basis_summary": "current_turn_derived",
+    "restoration_status": "current_turn_derived",
+    "selected_target_path_summary": "prior_artifact",
+    "target_membership_basis_summary": "current_turn_derived",
+    "target_occupancy_or_admissibility_basis_summary": "current_turn_derived",
+    "writable_surface_descriptor_ref": "prior_artifact"
+  },
+  "frozen_policy_anchor_ref": "docs/LOCKED_CONTINUATION_vNEXT_PLUS177.md#machine-checkable-contract",
+  "preserved_write_semantics_summary": "preserve V64-A local_write/create_new entitlement semantics only; V64-B adds one typed compensating restore over the shipped create_new effect and does not widen append, overwrite, rename, or delete authority",
+  "reason_codes": [
+    "shipped_v64a_writable_surface_basis_consumed",
+    "shipped_v59a_write_effect_lineage_consumed",
+    "same_selected_surface_only",
+    "same_exact_admitted_target_only",
+    "restoration_not_fresh_surface_or_lease_or_target_admission",
+    "preserved_local_write_create_new_only",
+    "typed_replayable_restoration_only",
+    "no_all_repo_execute_dispatch_worker_or_remote_connector_authority"
+  ],
+  "repo_write_lease_ref": "agentic_de_repo_write_lease_674b58da9f7d",
+  "repo_write_restoration_id": "agentic_de_repo_write_restoration_504231109978",
+  "repo_write_surface_admission_ref": "agentic_de_repo_write_surface_admission_f154153a40ef",
+  "restoration_basis_summary": "shipped V64-A writable-surface descriptor, admitted repo write lease, and exact target admission plus shipped V59-A observed and effect-aligned create_new write lineage; restoration replays one bounded compensating remove over the same exact admitted target only",
+  "restoration_status": "restored",
+  "root_origin_dedup_summary": "shipped V64-A descriptor, lease, and admission plus shipped V59-A write-effect observation and conformance remain non-independent restoration basis for one exact target only; repeated refs do not mint fresh surface, lease, target, all-repo, execute, dispatch, worker, connector, or remote-operator authority",
+  "schema": "agentic_de_repo_write_restoration_record@1",
+  "selected_target_path_summary": "artifacts/agentic_de/v59/workspace_continuity/runtime/reference_patch_candidate.diff",
+  "target_arc": "vNext+177",
+  "target_membership_basis_summary": "restoration reuses the shipped V64-A exact target-membership law; the same canonically normalized admitted target remains the only restorable target",
+  "target_occupancy_or_admissibility_basis_summary": "restoration reuses the shipped V64-A occupancy/admissibility carry-through and the shipped V59-A observed create_new effect lineage; restoration does not become fresh target admission by itself",
+  "target_path": "V64-B",
+  "writable_surface_descriptor_ref": "agentic_de_repo_writable_surface_descriptor_acabef417213"
+}
