@@ -5,6 +5,10 @@ import json
 from datetime import datetime, timezone
 from pathlib import Path
 
+from adeu_agent_harness.worker_delegation_topology import (
+    WORKER_DELEGATION_TOPOLOGY_SCHEMA,
+    WorkerDelegationTopology,
+)
 from adeu_ir.repo import repo_root
 from urm_runtime.models import (
     ConnectorSnapshotResponse,
@@ -34,6 +38,7 @@ from .models import (
     AGENTIC_DE_CONTINUATION_DECISION_RECORD_SCHEMA,
     AGENTIC_DE_CONTINUATION_HARDENING_REGISTER_SCHEMA,
     AGENTIC_DE_CONTINUATION_REFRESH_DECISION_RECORD_SCHEMA,
+    AGENTIC_DE_DELEGATED_WORKER_EXPORT_PACKET_SCHEMA,
     AGENTIC_DE_DOMAIN_PACKET_SCHEMA,
     AGENTIC_DE_EXTERNAL_ASSISTANT_EGRESS_BRIDGE_PACKET_SCHEMA,
     AGENTIC_DE_EXTERNAL_ASSISTANT_INGRESS_BRIDGE_PACKET_SCHEMA,
@@ -98,6 +103,7 @@ from .models import (
     AgenticDeContinuationHardeningEntry,
     AgenticDeContinuationHardeningRegister,
     AgenticDeContinuationRefreshDecisionRecord,
+    AgenticDeDelegatedWorkerExportPacket,
     AgenticDeDomainPacket,
     AgenticDeExternalAssistantEgressBridgePacket,
     AgenticDeExternalAssistantIngressBridgePacket,
@@ -291,6 +297,10 @@ V64C_CHECKER_VERSION = "agentic_de_repo_writable_surface_hardening_v64c"
 V64C_TARGET_ARC = "vNext+178"
 V64C_TARGET_PATH = "V64-C"
 V64C_FROZEN_POLICY_REF = "docs/LOCKED_CONTINUATION_vNEXT_PLUS178.md#machine-checkable-contract"
+V65A_CHECKER_VERSION = "agentic_de_delegated_worker_export_v65a"
+V65A_TARGET_ARC = "vNext+179"
+V65A_TARGET_PATH = "V65-A"
+V65A_FROZEN_POLICY_REF = "docs/LOCKED_CONTINUATION_vNEXT_PLUS179.md#machine-checkable-contract"
 
 
 def _default_fixture_path(variant: str, filename: str) -> Path:
@@ -647,6 +657,21 @@ DEFAULT_V64C_LANE_DRIFT_PATH = _default_fixture_path(
 DEFAULT_V64C_REPO_WRITABLE_SURFACE_HARDENING_PATH = _default_fixture_path(
     "v64c", "reference_agentic_de_repo_writable_surface_hardening_register.json"
 )
+DEFAULT_V65A_LANE_DRIFT_PATH = _default_fixture_path(
+    "v65a", "reference_agentic_de_lane_drift_record.json"
+)
+DEFAULT_V65A_DELEGATED_WORKER_EXPORT_PATH = _default_fixture_path(
+    "v65a", "reference_agentic_de_delegated_worker_export_packet.json"
+)
+DEFAULT_V48E_WORKER_DELEGATION_TOPOLOGY_PATH = (
+    repo_root(anchor=Path(__file__))
+    / "packages"
+    / "adeu_agent_harness"
+    / "tests"
+    / "fixtures"
+    / "v48e"
+    / "reference_worker_delegation_topology.json"
+)
 DEFAULT_V58C_EVIDENCE_PATH = (
     repo_root(anchor=Path(__file__))
     / "artifacts"
@@ -774,6 +799,22 @@ DEFAULT_V64B_EVIDENCE_PATH = (
     / "v177"
     / "evidence_inputs"
     / "v64b_repo_write_restoration_evidence_v177.json"
+)
+DEFAULT_V64C_EVIDENCE_PATH = (
+    repo_root(anchor=Path(__file__))
+    / "artifacts"
+    / "agent_harness"
+    / "v178"
+    / "evidence_inputs"
+    / "v64c_repo_writable_surface_hardening_evidence_v178.json"
+)
+DEFAULT_V48E_EVIDENCE_PATH = (
+    repo_root(anchor=Path(__file__))
+    / "artifacts"
+    / "agent_harness"
+    / "v116"
+    / "evidence_inputs"
+    / "v48e_worker_delegation_topology_evidence_v116.json"
 )
 DEFAULT_V60C_EVIDENCE_PATH = (
     repo_root(anchor=Path(__file__))
@@ -1058,6 +1099,18 @@ REQUIRED_V64C_DRIFT_ENTRY_STATUSES: dict[str, str] = {
     "optional_restoration_reintegration_basis_fail_closed": "amended",
     "candidate_outcomes_non_entitling_non_escalating_and_scope_bound": "amended",
     "path_level_non_generalization_required": "amended",
+}
+EXPECTED_V64C_EVIDENCE_SCHEMA = "v64c_repo_writable_surface_hardening_evidence@1"
+EXPECTED_V48E_EVIDENCE_SCHEMA = "v48e_worker_delegation_topology_evidence@1"
+EXPECTED_V65A_PRIOR_LANE_REF = "docs/LOCKED_CONTINUATION_vNEXT_PLUS178.md"
+REQUIRED_V65A_DRIFT_ENTRY_STATUSES: dict[str, str] = {
+    "v64_v48_surface_reuse_default": "holds",
+    "export_bridge_only_before_reconciliation_or_dispatch_widening": "amended",
+    "v64c_advisory_hardening_context_only_not_export_entitlement": "amended",
+    "explicit_worker_carrier_and_single_topology_basis_required": "amended",
+    "explicit_v60_v61_replayability_inputs_required": "amended",
+    "preserved_local_write_create_new_semantics_only": "amended",
+    "broader_dispatch_execute_multi_worker_connector_remote_authority_deferred": "amended",
 }
 
 
@@ -1483,6 +1536,28 @@ def load_repo_writable_surface_hardening_register(
         raise ValueError(
             "unexpected schema marker for repo writable surface hardening register: "
             f"{payload.schema}"
+        )
+    return payload
+
+
+def load_delegated_worker_export_packet(path: Path) -> AgenticDeDelegatedWorkerExportPacket:
+    payload = AgenticDeDelegatedWorkerExportPacket.model_validate(
+        _load_json_object(path, error_label="delegated worker export packet")
+    )
+    if payload.schema != AGENTIC_DE_DELEGATED_WORKER_EXPORT_PACKET_SCHEMA:
+        raise ValueError(
+            f"unexpected schema marker for delegated worker export packet: {payload.schema}"
+        )
+    return payload
+
+
+def load_worker_delegation_topology(path: Path) -> WorkerDelegationTopology:
+    payload = WorkerDelegationTopology.model_validate(
+        _load_json_object(path, error_label="worker delegation topology")
+    )
+    if payload.schema != WORKER_DELEGATION_TOPOLOGY_SCHEMA:
+        raise ValueError(
+            f"unexpected schema marker for worker delegation topology: {payload.schema}"
         )
     return payload
 
@@ -2194,6 +2269,41 @@ def _assert_v64c_repo_local_input_path(
         raise ValueError(
             f"{field_name} must remain within the repository root for V64-C repo writable "
             "surface hardening"
+        ) from exc
+
+
+def _assert_v65a_repo_local_input_path(
+    *,
+    repo_root_path: Path,
+    candidate: Path,
+    field_name: str,
+) -> None:
+    if repo_root_path.exists() and repo_root_path.is_symlink():
+        raise ValueError(
+            "repository root may not be a symlink for V65-A delegated worker export"
+        )
+    try:
+        relative = candidate.relative_to(repo_root_path)
+    except ValueError as exc:
+        raise ValueError(
+            f"{field_name} must be lexically within the repository root for V65-A delegated "
+            "worker export"
+        ) from exc
+    current = repo_root_path
+    for part in relative.parts:
+        current = current / part
+        if current.is_symlink():
+            raise ValueError(
+                f"{field_name} may not traverse symlink components for V65-A delegated worker "
+                "export"
+            )
+    candidate_resolved = candidate.resolve(strict=False)
+    try:
+        candidate_resolved.relative_to(repo_root_path)
+    except ValueError as exc:
+        raise ValueError(
+            f"{field_name} must remain within the repository root for V65-A delegated worker "
+            "export"
         ) from exc
 
 
@@ -3049,6 +3159,40 @@ def _validate_v64c_lane_drift_record(record: AgenticDeLaneDriftRecord) -> Agenti
             detail_parts.append(f"status_mismatch={mismatched_statuses}")
         raise ValueError(
             "V64-C lane drift record does not satisfy the required handoff posture; "
+            + ", ".join(detail_parts)
+        )
+    return record
+
+
+def _validate_v65a_lane_drift_record(record: AgenticDeLaneDriftRecord) -> AgenticDeLaneDriftRecord:
+    if record.target_arc != V65A_TARGET_ARC:
+        raise ValueError(
+            f"V65-A lane drift record must target {V65A_TARGET_ARC!r}, got {record.target_arc!r}"
+        )
+    if record.target_path != V65A_TARGET_PATH:
+        raise ValueError(
+            f"V65-A lane drift record must target {V65A_TARGET_PATH!r}, got {record.target_path!r}"
+        )
+    if record.prior_lane_ref != EXPECTED_V65A_PRIOR_LANE_REF:
+        raise ValueError(
+            "V65-A lane drift record must point at "
+            f"{EXPECTED_V65A_PRIOR_LANE_REF!r}, got {record.prior_lane_ref!r}"
+        )
+    actual_statuses = {entry.assumption_ref: entry.status for entry in record.entries}
+    missing_assumptions = sorted(set(REQUIRED_V65A_DRIFT_ENTRY_STATUSES) - set(actual_statuses))
+    mismatched_statuses = sorted(
+        assumption_ref
+        for assumption_ref, expected_status in REQUIRED_V65A_DRIFT_ENTRY_STATUSES.items()
+        if assumption_ref in actual_statuses and actual_statuses[assumption_ref] != expected_status
+    )
+    if missing_assumptions or mismatched_statuses:
+        detail_parts: list[str] = []
+        if missing_assumptions:
+            detail_parts.append(f"missing={missing_assumptions}")
+        if mismatched_statuses:
+            detail_parts.append(f"status_mismatch={mismatched_statuses}")
+        raise ValueError(
+            "V65-A lane drift record does not satisfy the required handoff posture; "
             + ", ".join(detail_parts)
         )
     return record
@@ -3967,6 +4111,62 @@ def _validate_v64b_evidence_payload(payload: dict[str, object]) -> dict[str, obj
         raise ValueError("V64-B evidence must preserve connector deferral")
     if payload.get("selected_remote_operator_law_for_v64b") is not False:
         raise ValueError("V64-B evidence must preserve remote-operator deferral")
+    return payload
+
+
+def _validate_v64c_evidence_payload_for_v65a(payload: dict[str, object]) -> dict[str, object]:
+    if payload.get("schema") != EXPECTED_V64C_EVIDENCE_SCHEMA:
+        raise ValueError(
+            "V65-A requires the shipped V64-C repo writable-surface hardening evidence payload "
+            "on main"
+        )
+    selected_shapes = payload.get("selected_record_shapes")
+    if not isinstance(selected_shapes, list):
+        raise ValueError("V64-C evidence must preserve the shipped hardening shape")
+    if any(not isinstance(shape, str) for shape in selected_shapes):
+        raise ValueError("V64-C evidence selected_record_shapes must be a list of strings")
+    if "agentic_de_repo_writable_surface_hardening_register@1" not in selected_shapes:
+        raise ValueError("V64-C evidence must preserve the shipped hardening shape")
+    required_true_fields = (
+        "advisory_only",
+        "candidate_only",
+        "committed_lane_artifacts_outrank_narrative_docs_for_v64c",
+        "evidence_basis_distinct_from_recommendation_required_in_v64c",
+        "explicit_frozen_policy_anchor_required_for_replayability",
+        "writable_surface_hardening_recommendation_must_be_extensional_and_replayable",
+        "lineage_root_non_independence_dedup_required_in_v64c",
+        "preserved_write_semantics_summary_required_in_v64c",
+    )
+    for field_name in required_true_fields:
+        if payload.get(field_name) is not True:
+            raise ValueError(f"V64-C evidence must preserve {field_name}")
+    if payload.get("changes_live_behavior_by_default") is not False:
+        raise ValueError("V64-C evidence must preserve changes_live_behavior_by_default=false")
+    if payload.get("delegated_worker_authority_selected_for_v64c") is not False:
+        raise ValueError("V64-C evidence must preserve delegated-worker deferral")
+    return payload
+
+
+def _validate_v48e_evidence_payload_for_v65a(payload: dict[str, object]) -> dict[str, object]:
+    if payload.get("schema") != EXPECTED_V48E_EVIDENCE_SCHEMA:
+        raise ValueError(
+            "V65-A requires the released V48-E worker delegation topology evidence payload "
+            "on main"
+        )
+    if payload.get("accepted_completed_fixture_path") != (
+        "packages/adeu_agent_harness/tests/fixtures/v48e/reference_worker_delegation_topology.json"
+    ):
+        raise ValueError("V48-E evidence must preserve the released completed topology fixture")
+    if payload.get("typed_rejected_fixture_path") != (
+        "packages/adeu_agent_harness/tests/fixtures/v48e/"
+        "reference_worker_delegation_topology_rejected_compiled_boundary_mismatch.json"
+    ):
+        raise ValueError("V48-E evidence must preserve the released rejected topology fixture")
+    if payload.get("typed_incomplete_lineage_fixture_path") != (
+        "packages/adeu_agent_harness/tests/fixtures/v48e/"
+        "reference_worker_delegation_topology_incomplete_lineage.json"
+    ):
+        raise ValueError("V48-E evidence must preserve the released incomplete topology fixture")
     return payload
 
 
@@ -17678,6 +17878,526 @@ def run_agentic_de_repo_writable_surface_hardening_v64c(
     )
 
 
+def _validate_v65a_consumed_surfaces(
+    *,
+    continuation_refresh_decision: AgenticDeContinuationRefreshDecisionRecord,
+    communication_ingress: AgenticDeCommunicationIngressPacket,
+    surface_authority_descriptor: AgenticDeSurfaceAuthorityDescriptor,
+    ingress_interpretation: AgenticDeIngressInterpretationRecord,
+    communication_egress: AgenticDeCommunicationEgressPacket,
+    descriptor: AgenticDeRepoWritableSurfaceDescriptor,
+    lease: AgenticDeRepoWriteLeaseRecord,
+    admission: AgenticDeRepoWriteSurfaceAdmissionRecord,
+    hardening_register: AgenticDeRepoWritableSurfaceHardeningRegister,
+    worker_topology: WorkerDelegationTopology,
+    released_worker_topology: WorkerDelegationTopology,
+    target_relative_path: str,
+) -> None:
+    expected_path = _expected_v60a_selected_downstream_path_summary(target_relative_path)
+    expected_target_summary = (
+        f"{DESIGNATED_WORKSPACE_CONTINUITY_ROOT.as_posix()}/{target_relative_path}"
+    )
+    (
+        expected_surface_class,
+        _surface_relative,
+        expected_surface_identity_summary,
+        _inclusion_summary,
+        _exclusion_summary,
+    ) = _derive_v64a_surface_selection(target_relative_path=target_relative_path)
+
+    if (
+        continuation_refresh_decision.target_arc != V60B_TARGET_ARC
+        or continuation_refresh_decision.target_path != V60B_TARGET_PATH
+    ):
+        raise ValueError("V65-A requires the shipped V60-B continuation refresh surface")
+    if continuation_refresh_decision.frozen_policy_anchor_ref != V60B_FROZEN_POLICY_REF:
+        raise ValueError("V65-A requires the shipped V60-B continuation policy anchor")
+    if continuation_refresh_decision.selected_next_path_summary_or_none != expected_path:
+        raise ValueError("V65-A requires the shipped exact V60 selected downstream path")
+
+    if (
+        communication_ingress.target_arc != V61A_TARGET_ARC
+        or communication_ingress.target_path != V61A_TARGET_PATH
+    ):
+        raise ValueError("V65-A requires the shipped V61-A communication ingress surface")
+    if (
+        surface_authority_descriptor.target_arc != V61A_TARGET_ARC
+        or surface_authority_descriptor.target_path != V61A_TARGET_PATH
+    ):
+        raise ValueError("V65-A requires the shipped V61-A surface authority descriptor")
+    if (
+        ingress_interpretation.target_arc != V61A_TARGET_ARC
+        or ingress_interpretation.target_path != V61A_TARGET_PATH
+    ):
+        raise ValueError("V65-A requires the shipped V61-A ingress interpretation surface")
+    if (
+        communication_egress.target_arc != V61A_TARGET_ARC
+        or communication_egress.target_path != V61A_TARGET_PATH
+    ):
+        raise ValueError("V65-A requires the shipped V61-A communication egress surface")
+    if communication_ingress.selected_api_route_ref_or_equivalent != V61A_SELECTED_API_ROUTE:
+        raise ValueError("V65-A requires the shipped exact resident V61-A ingress seam")
+    if communication_ingress.selected_runtime_message_method != V61A_SELECTED_RUNTIME_METHOD:
+        raise ValueError("V65-A requires the shipped exact resident V61-A runtime method")
+    if communication_ingress.surface_class != V61A_SELECTED_SURFACE_CLASS:
+        raise ValueError("V65-A requires the shipped exact resident V61-A surface class")
+    if (
+        surface_authority_descriptor.communication_ingress_ref
+        != communication_ingress.communication_ingress_id
+    ):
+        raise ValueError("V65-A surface descriptor must bind the shipped V61-A ingress packet")
+    if (
+        ingress_interpretation.communication_ingress_ref
+        != communication_ingress.communication_ingress_id
+    ):
+        raise ValueError("V65-A ingress interpretation must bind the shipped V61-A ingress packet")
+    if (
+        ingress_interpretation.surface_authority_descriptor_ref
+        != surface_authority_descriptor.surface_authority_descriptor_id
+    ):
+        raise ValueError("V65-A ingress interpretation must bind the shipped V61-A descriptor")
+    if (
+        ingress_interpretation.latest_v60_continuation_basis_ref
+        != continuation_refresh_decision.refresh_decision_id
+    ):
+        raise ValueError(
+            "V65-A ingress interpretation must preserve the shipped V60-B continuation basis"
+        )
+    if (
+        communication_egress.ingress_interpretation_ref
+        != ingress_interpretation.ingress_interpretation_id
+    ):
+        raise ValueError("V65-A communication egress must bind the shipped V61-A interpretation")
+    if (
+        communication_egress.latest_v60_continuation_basis_ref
+        != continuation_refresh_decision.refresh_decision_id
+    ):
+        raise ValueError(
+            "V65-A communication egress must preserve the shipped V60-B continuation basis"
+        )
+    if communication_egress.selected_egress_surface_ref != V61A_SELECTED_API_ROUTE:
+        raise ValueError("V65-A requires the shipped exact resident V61-A egress seam")
+
+    if descriptor.target_arc != V64A_TARGET_ARC or descriptor.target_path != V64A_TARGET_PATH:
+        raise ValueError("V65-A requires the shipped V64-A writable-surface descriptor")
+    if lease.target_arc != V64A_TARGET_ARC or lease.target_path != V64A_TARGET_PATH:
+        raise ValueError("V65-A requires the shipped V64-A repo write lease")
+    if admission.target_arc != V64A_TARGET_ARC or admission.target_path != V64A_TARGET_PATH:
+        raise ValueError("V65-A requires the shipped V64-A repo write surface admission")
+    if descriptor.selected_surface_class != expected_surface_class:
+        raise ValueError("V65-A requires the shipped V64-A selected surface class")
+    if descriptor.selected_surface_identity_summary != expected_surface_identity_summary:
+        raise ValueError("V65-A requires the shipped V64-A selected writable surface only")
+    if lease.writable_surface_descriptor_ref != descriptor.repo_writable_surface_descriptor_id:
+        raise ValueError("V65-A lease must bind the shipped V64-A writable-surface descriptor")
+    if admission.writable_surface_descriptor_ref != descriptor.repo_writable_surface_descriptor_id:
+        raise ValueError("V65-A admission must bind the shipped V64-A writable-surface descriptor")
+    if admission.repo_write_lease_ref != lease.repo_write_lease_id:
+        raise ValueError("V65-A admission must bind the shipped V64-A repo write lease")
+    if lease.lease_verdict != "admitted":
+        raise ValueError("V65-A requires the shipped admitted V64-A repo write lease")
+    if admission.admission_verdict != "admitted":
+        raise ValueError("V65-A requires the shipped admitted V64-A target admission")
+    if admission.selected_target_path_summary != expected_target_summary:
+        raise ValueError("V65-A requires the shipped exact V64-A admitted target path")
+
+    if (
+        hardening_register.target_arc != V64C_TARGET_ARC
+        or hardening_register.target_path != V64C_TARGET_PATH
+    ):
+        raise ValueError("V65-A requires the shipped V64-C hardening register")
+    if (
+        hardening_register.advisory_only is not True
+        or hardening_register.candidate_only is not True
+    ):
+        raise ValueError("V65-A requires the shipped advisory-only V64-C posture")
+    if hardening_register.changes_live_behavior_by_default is not False:
+        raise ValueError("V65-A requires the shipped non-live-mutating V64-C posture")
+    if len(hardening_register.entries) != 1:
+        raise ValueError("V65-A requires exactly one shipped V64-C hardening entry")
+    hardening_entry = hardening_register.entries[0]
+    if (
+        hardening_entry.repo_writable_surface_descriptor_ref
+        != descriptor.repo_writable_surface_descriptor_id
+    ):
+        raise ValueError("V65-A V64-C hardening entry must bind the shipped V64-A descriptor")
+    if hardening_entry.repo_write_lease_ref != lease.repo_write_lease_id:
+        raise ValueError("V65-A V64-C hardening entry must bind the shipped V64-A lease")
+    if (
+        hardening_entry.repo_write_surface_admission_ref
+        != admission.repo_write_surface_admission_id
+    ):
+        raise ValueError("V65-A V64-C hardening entry must bind the shipped V64-A admission")
+    if (
+        hardening_entry.latest_continuation_basis_ref_or_equivalent
+        != continuation_refresh_decision.refresh_decision_id
+    ):
+        raise ValueError("V65-A V64-C hardening entry must preserve the shipped V60-B basis")
+    if hardening_entry.selected_target_path_summary != admission.selected_target_path_summary:
+        raise ValueError("V65-A V64-C hardening entry must preserve the shipped exact target")
+    if hardening_entry.target_admission_verdict != "admitted":
+        raise ValueError("V65-A requires the shipped admitted V64-C target posture")
+    if "local_write/create_new" not in hardening_entry.preserved_write_semantics_summary:
+        raise ValueError("V65-A requires the shipped preserved local_write/create_new posture")
+
+    if worker_topology.schema != WORKER_DELEGATION_TOPOLOGY_SCHEMA:
+        raise ValueError("V65-A requires the released V48-E worker delegation topology schema")
+    if worker_topology.handoff_result != "completed":
+        raise ValueError("V65-A requires the released completed V48-E worker topology")
+    if worker_topology.topology_scope_posture != "one_parent_one_child_one_edge_only":
+        raise ValueError("V65-A requires the released single-edge V48-E worker topology")
+    if worker_topology.authority_relation_posture != "same_compiled_boundary_no_widening":
+        raise ValueError("V65-A requires the released no-widening V48-E authority relation")
+    if worker_topology.parent_role_kind != "supervisor":
+        raise ValueError("V65-A requires the released supervisor role in V48-E topology")
+    if worker_topology.child_role_kind != "worker":
+        raise ValueError("V65-A requires the released worker role in V48-E topology")
+    if worker_topology.delegation_edge_kind != "supervisor_to_worker":
+        raise ValueError("V65-A requires the released supervisor_to_worker V48-E edge")
+    if worker_topology.supporting_diagnostic_families:
+        raise ValueError("V65-A requires the released diagnostic-clean V48-E worker topology")
+    exact_v48e_lineage_fields = (
+        ("worker_delegation_topology_id", "released exact V48-E topology lineage"),
+        ("delegation_edge_id", "released exact V48-E delegation edge lineage"),
+        ("repo_ref", "released exact V48-E repository lineage"),
+        ("snapshot_id", "released exact V48-E snapshot lineage"),
+        ("snapshot_sha256", "released exact V48-E snapshot hash"),
+        ("parent_compiled_binding_ref", "released exact V48-E parent compiled binding"),
+        ("child_compiled_binding_ref", "released exact V48-E child compiled binding"),
+        (
+            "parent_worker_boundary_conformance_report_ref",
+            "released exact V48-E parent boundary conformance lineage",
+        ),
+        (
+            "child_worker_boundary_conformance_report_ref",
+            "released exact V48-E child boundary conformance lineage",
+        ),
+    )
+    for field_name, description in exact_v48e_lineage_fields:
+        if getattr(worker_topology, field_name) != getattr(released_worker_topology, field_name):
+            raise ValueError(f"V65-A requires the {description}")
+
+
+def _build_v65a_delegated_worker_export_packet(
+    *,
+    continuation_refresh_decision: AgenticDeContinuationRefreshDecisionRecord,
+    communication_egress: AgenticDeCommunicationEgressPacket,
+    descriptor: AgenticDeRepoWritableSurfaceDescriptor,
+    lease: AgenticDeRepoWriteLeaseRecord,
+    admission: AgenticDeRepoWriteSurfaceAdmissionRecord,
+    hardening_register: AgenticDeRepoWritableSurfaceHardeningRegister,
+    worker_topology: WorkerDelegationTopology,
+    evidence_refs: list[str],
+) -> AgenticDeDelegatedWorkerExportPacket:
+    hardening_entry = hardening_register.entries[0]
+    root_origin_ids = [
+        f"descriptor:{descriptor.repo_writable_surface_descriptor_id}",
+        f"lease:{lease.repo_write_lease_id}",
+        f"admission:{admission.repo_write_surface_admission_id}",
+        f"hardening:{hardening_register.register_id}",
+        f"continuation:{continuation_refresh_decision.refresh_decision_id}",
+        f"communication_egress:{communication_egress.communication_egress_id}",
+        f"worker_topology:{worker_topology.worker_delegation_topology_id}",
+        f"policy:{V65A_FROZEN_POLICY_REF}",
+    ]
+    field_origin_tags = {
+        "selected_export_scope_summary": "current_turn_derived",
+        "exported_work_membership_basis_summary": "current_turn_derived",
+        "selected_target_or_patch_or_artifact_summary": "prior_artifact",
+        "repo_writable_surface_descriptor_ref": "prior_artifact",
+        "repo_write_lease_ref": "prior_artifact",
+        "repo_write_surface_admission_ref": "prior_artifact",
+        "worker_carrier_basis_ref_or_equivalent": "prior_artifact",
+        "selected_worker_topology_basis_ref_or_equivalent": "prior_artifact",
+        "worker_carrier_lineage_summary": "current_turn_derived",
+        "selected_worker_topology_summary": "current_turn_derived",
+        "consumed_continuation_basis_summary": "current_turn_derived",
+        "consumed_communication_basis_summary_or_none": "current_turn_derived",
+        "preserved_write_semantics_summary": "prior_artifact",
+        "export_verdict": "current_turn_derived",
+        "frozen_policy_anchor_ref": "shaping_only",
+    }
+    field_dependence_tags = {
+        "selected_export_scope_summary": [
+            descriptor.repo_writable_surface_descriptor_id,
+            admission.repo_write_surface_admission_id,
+            worker_topology.worker_delegation_topology_id,
+        ],
+        "exported_work_membership_basis_summary": [
+            descriptor.repo_writable_surface_descriptor_id,
+            admission.repo_write_surface_admission_id,
+            hardening_register.register_id,
+        ],
+        "selected_target_or_patch_or_artifact_summary": [admission.repo_write_surface_admission_id],
+        "repo_writable_surface_descriptor_ref": [descriptor.repo_writable_surface_descriptor_id],
+        "repo_write_lease_ref": [lease.repo_write_lease_id],
+        "repo_write_surface_admission_ref": [admission.repo_write_surface_admission_id],
+        "worker_carrier_basis_ref_or_equivalent": [worker_topology.child_compiled_binding_ref],
+        "selected_worker_topology_basis_ref_or_equivalent": [
+            worker_topology.worker_delegation_topology_id
+        ],
+        "worker_carrier_lineage_summary": [
+            worker_topology.child_compiled_binding_ref,
+            worker_topology.child_worker_boundary_conformance_report_ref,
+            worker_topology.worker_delegation_topology_id,
+        ],
+        "selected_worker_topology_summary": [worker_topology.worker_delegation_topology_id],
+        "consumed_continuation_basis_summary": [continuation_refresh_decision.refresh_decision_id],
+        "consumed_communication_basis_summary_or_none": [
+            communication_egress.communication_egress_id
+        ],
+        "preserved_write_semantics_summary": [hardening_entry.hardening_id],
+        "export_verdict": [
+            descriptor.repo_writable_surface_descriptor_id,
+            admission.repo_write_surface_admission_id,
+            worker_topology.worker_delegation_topology_id,
+            V65A_FROZEN_POLICY_REF,
+        ],
+        "frozen_policy_anchor_ref": [V65A_FROZEN_POLICY_REF],
+    }
+    return AgenticDeDelegatedWorkerExportPacket(
+        target_arc=V65A_TARGET_ARC,
+        target_path=V65A_TARGET_PATH,
+        selected_export_scope_summary=(
+            "one shipped V64-A selected writable surface over the same exact admitted "
+            "target only is exportable here under one released V48-E worker carrier "
+            "lineage and one selected worker topology only"
+        ),
+        exported_work_membership_basis_summary=(
+            "exported-work membership reuses the shipped V64-A canonical target-membership "
+            "and admitted target basis plus shipped V64-C shaping-only drift guard context; "
+            "no extra local paths may be laundered into worker-side scope"
+        ),
+        selected_target_or_patch_or_artifact_summary=admission.selected_target_path_summary,
+        repo_writable_surface_descriptor_ref=descriptor.repo_writable_surface_descriptor_id,
+        repo_write_lease_ref=lease.repo_write_lease_id,
+        repo_write_surface_admission_ref=admission.repo_write_surface_admission_id,
+        worker_carrier_basis_ref_or_equivalent=worker_topology.child_compiled_binding_ref,
+        selected_worker_topology_basis_ref_or_equivalent=(
+            worker_topology.worker_delegation_topology_id
+        ),
+        worker_carrier_lineage_summary=(
+            "released V48-E child compiled binding and child worker-boundary conformance "
+            "remain the only admitted worker-carrier lineage here"
+        ),
+        selected_worker_topology_summary=(
+            "released V48-E completed supervisor_to_worker topology remains the only "
+            "selected worker topology here with no fan-out or alternate topology widening"
+        ),
+        consumed_continuation_basis_summary=(
+            "shipped V60-B refresh decision remains the selected continuation basis for the "
+            "same exact exported local target only"
+        ),
+        consumed_communication_basis_summary_or_none=(
+            "shipped V61-A communication egress lineage may contextualize export posture and "
+            "answer routing only; it does not mint export authority"
+        ),
+        preserved_write_semantics_summary=hardening_entry.preserved_write_semantics_summary,
+        export_verdict="admitted_for_export",
+        frozen_policy_anchor_ref=V65A_FROZEN_POLICY_REF,
+        field_origin_tags=field_origin_tags,
+        field_dependence_tags=field_dependence_tags,
+        root_origin_dedup_summary=(
+            "dedup roots="
+            + ",".join(root_origin_ids)
+            + "; repeated writable-surface, hardening, continuation, communication, worker "
+            "topology, and policy artifacts remain non-independent delegated export support"
+        ),
+        reason_codes=[
+            "shipped_v64a_local_writable_basis_consumed",
+            "shipped_v64c_hardening_context_consumed_as_shaping_only",
+            "released_v48e_worker_topology_basis_consumed",
+            "single_worker_carrier_only",
+            "single_selected_worker_topology_only",
+            "preserved_local_write_create_new_only",
+            "typed_replayable_export_only",
+            "delegated_export_not_reconciliation_or_dispatch_or_execute",
+            "no_all_repo_multi_worker_connector_or_remote_authority",
+        ],
+        evidence_refs=[
+            descriptor.repo_writable_surface_descriptor_id,
+            lease.repo_write_lease_id,
+            admission.repo_write_surface_admission_id,
+            hardening_register.register_id,
+            worker_topology.worker_delegation_topology_id,
+            continuation_refresh_decision.refresh_decision_id,
+            communication_egress.communication_egress_id,
+            *evidence_refs,
+        ],
+    )
+
+
+def run_agentic_de_delegated_worker_export_v65a(
+    *,
+    repo_root_path: Path | None = None,
+    v60b_continuation_refresh_decision_path: Path = DEFAULT_V60B_CONTINUATION_REFRESH_DECISION_PATH,
+    v61a_communication_ingress_path: Path = DEFAULT_V61A_COMMUNICATION_INGRESS_PATH,
+    v61a_surface_authority_descriptor_path: Path = DEFAULT_V61A_SURFACE_AUTHORITY_DESCRIPTOR_PATH,
+    v61a_ingress_interpretation_path: Path = DEFAULT_V61A_INGRESS_INTERPRETATION_PATH,
+    v61a_communication_egress_path: Path = DEFAULT_V61A_COMMUNICATION_EGRESS_PATH,
+    v64a_repo_writable_surface_descriptor_path: Path = (
+        DEFAULT_V64A_REPO_WRITABLE_SURFACE_DESCRIPTOR_PATH
+    ),
+    v64a_repo_write_lease_path: Path = DEFAULT_V64A_REPO_WRITE_LEASE_PATH,
+    v64a_repo_write_surface_admission_path: Path = DEFAULT_V64A_REPO_WRITE_SURFACE_ADMISSION_PATH,
+    v64c_repo_writable_surface_hardening_path: Path = (
+        DEFAULT_V64C_REPO_WRITABLE_SURFACE_HARDENING_PATH
+    ),
+    v48e_worker_delegation_topology_path: Path = DEFAULT_V48E_WORKER_DELEGATION_TOPOLOGY_PATH,
+    lane_drift_path: Path = DEFAULT_V65A_LANE_DRIFT_PATH,
+    v64c_evidence_path: Path = DEFAULT_V64C_EVIDENCE_PATH,
+    v48e_evidence_path: Path = DEFAULT_V48E_EVIDENCE_PATH,
+    target_relative_path: str = str(DEFAULT_WORKSPACE_CONTINUITY_TARGET_RELATIVE_PATH),
+) -> AgenticDeDelegatedWorkerExportPacket:
+    raw_root = repo_root(anchor=Path(__file__)) if repo_root_path is None else repo_root_path
+    if not raw_root.exists():
+        raise FileNotFoundError(f"repository root not found: {raw_root}")
+    if raw_root.is_symlink():
+        raise ValueError("repository root may not be a symlink for V65-A delegated worker export")
+    root = raw_root.resolve()
+
+    path_args = {
+        "v60b_continuation_refresh_decision_path": v60b_continuation_refresh_decision_path,
+        "v61a_communication_ingress_path": v61a_communication_ingress_path,
+        "v61a_surface_authority_descriptor_path": v61a_surface_authority_descriptor_path,
+        "v61a_ingress_interpretation_path": v61a_ingress_interpretation_path,
+        "v61a_communication_egress_path": v61a_communication_egress_path,
+        "v64a_repo_writable_surface_descriptor_path": v64a_repo_writable_surface_descriptor_path,
+        "v64a_repo_write_lease_path": v64a_repo_write_lease_path,
+        "v64a_repo_write_surface_admission_path": v64a_repo_write_surface_admission_path,
+        "v64c_repo_writable_surface_hardening_path": v64c_repo_writable_surface_hardening_path,
+        "v48e_worker_delegation_topology_path": v48e_worker_delegation_topology_path,
+        "lane_drift_path": lane_drift_path,
+        "v64c_evidence_path": v64c_evidence_path,
+        "v48e_evidence_path": v48e_evidence_path,
+    }
+    resolved_paths: dict[str, Path] = {}
+    for field_name, path in path_args.items():
+        candidate = _resolve_path(repo_root_path=root, path=path)
+        _assert_v65a_repo_local_input_path(
+            repo_root_path=root,
+            candidate=candidate,
+            field_name=field_name,
+        )
+        resolved_paths[field_name] = candidate
+
+    _validate_v65a_lane_drift_record(load_lane_drift_record(resolved_paths["lane_drift_path"]))
+    _validate_v64c_evidence_payload_for_v65a(
+        _load_json_object(resolved_paths["v64c_evidence_path"], error_label="V64-C evidence")
+    )
+    _validate_v48e_evidence_payload_for_v65a(
+        _load_json_object(resolved_paths["v48e_evidence_path"], error_label="V48-E evidence")
+    )
+
+    normalized_target_relative_path, _surface_path, _target_path, _surface_class = (
+        _assert_v64a_surface_and_target_canonical_membership(
+            repo_root_path=root,
+            target_relative_path=target_relative_path,
+        )
+    )
+    canonical_target_relative_path = normalized_target_relative_path.as_posix()
+
+    continuation_refresh_decision = load_continuation_refresh_decision_record(
+        resolved_paths["v60b_continuation_refresh_decision_path"]
+    )
+    communication_ingress = load_communication_ingress_packet(
+        resolved_paths["v61a_communication_ingress_path"]
+    )
+    surface_authority_descriptor = load_surface_authority_descriptor(
+        resolved_paths["v61a_surface_authority_descriptor_path"]
+    )
+    ingress_interpretation = load_ingress_interpretation_record(
+        resolved_paths["v61a_ingress_interpretation_path"]
+    )
+    communication_egress = load_communication_egress_packet(
+        resolved_paths["v61a_communication_egress_path"]
+    )
+    descriptor = load_repo_writable_surface_descriptor(
+        resolved_paths["v64a_repo_writable_surface_descriptor_path"]
+    )
+    lease = load_repo_write_lease_record(resolved_paths["v64a_repo_write_lease_path"])
+    admission = load_repo_write_surface_admission_record(
+        resolved_paths["v64a_repo_write_surface_admission_path"]
+    )
+    hardening_register = load_repo_writable_surface_hardening_register(
+        resolved_paths["v64c_repo_writable_surface_hardening_path"]
+    )
+    worker_topology = load_worker_delegation_topology(
+        resolved_paths["v48e_worker_delegation_topology_path"]
+    )
+    released_worker_topology = load_worker_delegation_topology(
+        DEFAULT_V48E_WORKER_DELEGATION_TOPOLOGY_PATH
+    )
+
+    _validate_v65a_consumed_surfaces(
+        continuation_refresh_decision=continuation_refresh_decision,
+        communication_ingress=communication_ingress,
+        surface_authority_descriptor=surface_authority_descriptor,
+        ingress_interpretation=ingress_interpretation,
+        communication_egress=communication_egress,
+        descriptor=descriptor,
+        lease=lease,
+        admission=admission,
+        hardening_register=hardening_register,
+        worker_topology=worker_topology,
+        released_worker_topology=released_worker_topology,
+        target_relative_path=canonical_target_relative_path,
+    )
+
+    evidence_refs = [
+        _render_input_ref(
+            repo_root_path=root,
+            path=resolved_paths["v60b_continuation_refresh_decision_path"],
+        ),
+        _render_input_ref(
+            repo_root_path=root,
+            path=resolved_paths["v61a_communication_ingress_path"],
+        ),
+        _render_input_ref(
+            repo_root_path=root,
+            path=resolved_paths["v61a_surface_authority_descriptor_path"],
+        ),
+        _render_input_ref(
+            repo_root_path=root,
+            path=resolved_paths["v61a_ingress_interpretation_path"],
+        ),
+        _render_input_ref(
+            repo_root_path=root,
+            path=resolved_paths["v61a_communication_egress_path"],
+        ),
+        _render_input_ref(
+            repo_root_path=root,
+            path=resolved_paths["v64a_repo_writable_surface_descriptor_path"],
+        ),
+        _render_input_ref(repo_root_path=root, path=resolved_paths["v64a_repo_write_lease_path"]),
+        _render_input_ref(
+            repo_root_path=root,
+            path=resolved_paths["v64a_repo_write_surface_admission_path"],
+        ),
+        _render_input_ref(
+            repo_root_path=root,
+            path=resolved_paths["v64c_repo_writable_surface_hardening_path"],
+        ),
+        _render_input_ref(
+            repo_root_path=root,
+            path=resolved_paths["v48e_worker_delegation_topology_path"],
+        ),
+        _render_input_ref(repo_root_path=root, path=resolved_paths["lane_drift_path"]),
+        _render_input_ref(repo_root_path=root, path=resolved_paths["v64c_evidence_path"]),
+        _render_input_ref(repo_root_path=root, path=resolved_paths["v48e_evidence_path"]),
+    ]
+    return _build_v65a_delegated_worker_export_packet(
+        continuation_refresh_decision=continuation_refresh_decision,
+        communication_egress=communication_egress,
+        descriptor=descriptor,
+        lease=lease,
+        admission=admission,
+        hardening_register=hardening_register,
+        worker_topology=worker_topology,
+        evidence_refs=evidence_refs,
+    )
+
+
 def render_checkpoint_payload(checkpoint: AgenticDeMembraneCheckpoint) -> str:
     return json.dumps(checkpoint.model_dump(mode="json"), indent=2, sort_keys=True) + "\n"
 
@@ -17876,6 +18596,12 @@ def render_repo_writable_surface_hardening_payload(
     register: AgenticDeRepoWritableSurfaceHardeningRegister,
 ) -> str:
     return json.dumps(register.model_dump(mode="json"), indent=2, sort_keys=True) + "\n"
+
+
+def render_delegated_worker_export_payload(
+    packet: AgenticDeDelegatedWorkerExportPacket,
+) -> str:
+    return json.dumps(packet.model_dump(mode="json"), indent=2, sort_keys=True) + "\n"
 
 
 def render_governed_communication_hardening_payload(

@@ -1,0 +1,45 @@
+{
+  "schema": "agentic_de_lane_drift_record@1",
+  "record_id": null,
+  "target_arc": "vNext+179",
+  "target_path": "V65-A",
+  "prior_lane_ref": "docs/LOCKED_CONTINUATION_vNEXT_PLUS178.md",
+  "entry_count": 7,
+  "entries": [
+    {
+      "assumption_ref": "v64_v48_surface_reuse_default",
+      "status": "holds",
+      "note": "V65-A reuses the shipped V64 local writable lineage and the released V48-E worker topology lineage by default."
+    },
+    {
+      "assumption_ref": "export_bridge_only_before_reconciliation_or_dispatch_widening",
+      "status": "amended",
+      "note": "V65-A instantiates one delegated export packet only and still defers reconciliation, dispatch widening, and broader worker execution semantics."
+    },
+    {
+      "assumption_ref": "v64c_advisory_hardening_context_only_not_export_entitlement",
+      "status": "amended",
+      "note": "Shipped V64-C advisory hardening remains shaping-only drift-guard context and does not become export entitlement in V65-A."
+    },
+    {
+      "assumption_ref": "explicit_worker_carrier_and_single_topology_basis_required",
+      "status": "amended",
+      "note": "V65-A requires one explicit released worker carrier basis and one explicit selected worker topology basis with no fan-out or alternate topology widening."
+    },
+    {
+      "assumption_ref": "explicit_v60_v61_replayability_inputs_required",
+      "status": "amended",
+      "note": "The delegated export packet remains replayable only when the same shipped V60 continuation basis and the same shipped V61 communication basis where relevant are preserved."
+    },
+    {
+      "assumption_ref": "preserved_local_write_create_new_semantics_only",
+      "status": "amended",
+      "note": "V65-A preserves the shipped local_write/create_new mutation subset and does not backdoor append, overwrite, rename, or delete semantics through worker form."
+    },
+    {
+      "assumption_ref": "broader_dispatch_execute_multi_worker_connector_remote_authority_deferred",
+      "status": "amended",
+      "note": "Dispatch, execute, multi-worker, connector, and remote-operator authority remain deferred beyond V65-A."
+    }
+  ]
+}

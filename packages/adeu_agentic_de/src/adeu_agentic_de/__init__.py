@@ -1,9 +1,21 @@
-from .checker import (
+import warnings
+
+_warning_filters_len = len(warnings.filters)
+warnings.filterwarnings(
+    "ignore",
+    message=r'Field name "schema" in ".*" shadows an attribute in parent "BaseModel"',
+    category=UserWarning,
+)
+
+try:
+    from .checker import (  # noqa: E402
     CHECKER_VERSION,
     DEFAULT_ACTION_PROPOSAL_PATH,
     DEFAULT_DOMAIN_PACKET_PATH,
     DEFAULT_INTERACTION_CONTRACT_PATH,
     DEFAULT_MORPH_IR_PATH,
+    DEFAULT_V48E_EVIDENCE_PATH,
+    DEFAULT_V48E_WORKER_DELEGATION_TOPOLOGY_PATH,
     DEFAULT_V56A_CHECKPOINT_PATH,
     DEFAULT_V56A_CONFORMANCE_PATH,
     DEFAULT_V56A_DIAGNOSTICS_PATH,
@@ -119,8 +131,11 @@ from .checker import (
     DEFAULT_V64B_LANE_DRIFT_PATH,
     DEFAULT_V64B_REPO_WRITE_REINTEGRATION_PATH,
     DEFAULT_V64B_REPO_WRITE_RESTORATION_PATH,
+    DEFAULT_V64C_EVIDENCE_PATH,
     DEFAULT_V64C_LANE_DRIFT_PATH,
     DEFAULT_V64C_REPO_WRITABLE_SURFACE_HARDENING_PATH,
+    DEFAULT_V65A_DELEGATED_WORKER_EXPORT_PATH,
+    DEFAULT_V65A_LANE_DRIFT_PATH,
     V56A_CHECKER_VERSION,
     V56B_CHECKER_VERSION,
     V56C_CHECKER_VERSION,
@@ -148,6 +163,7 @@ from .checker import (
     V64A_CHECKER_VERSION,
     V64B_CHECKER_VERSION,
     V64C_CHECKER_VERSION,
+    V65A_CHECKER_VERSION,
     load_action_class_taxonomy,
     load_action_proposal,
     load_action_ticket,
@@ -161,6 +177,7 @@ from .checker import (
     load_continuation_decision_record,
     load_continuation_hardening_register,
     load_continuation_refresh_decision_record,
+    load_delegated_worker_export_packet,
     load_domain_packet,
     load_external_assistant_egress_bridge_packet,
     load_external_assistant_ingress_bridge_packet,
@@ -221,6 +238,7 @@ from .checker import (
     render_continuation_decision_payload,
     render_continuation_hardening_payload,
     render_continuation_refresh_decision_payload,
+    render_delegated_worker_export_payload,
     render_diagnostics_payload,
     render_external_assistant_egress_bridge_payload,
     render_external_assistant_ingress_bridge_payload,
@@ -270,6 +288,7 @@ from .checker import (
     run_agentic_de_continuation_v60a,
     run_agentic_de_continuation_v60b,
     run_agentic_de_continuation_v60c,
+    run_agentic_de_delegated_worker_export_v65a,
     run_agentic_de_external_assistant_egress_bridge_v62b,
     run_agentic_de_governed_communication_v61a,
     run_agentic_de_governed_communication_v61b,
@@ -292,9 +311,9 @@ from .checker import (
     run_agentic_de_workspace_continuity_v59a,
     run_agentic_de_workspace_continuity_v59b,
     run_agentic_de_workspace_continuity_v59c,
-)
-from .export_schema import main as export_schema_main
-from .models import (
+    )
+    from .export_schema import main as export_schema_main  # noqa: E402
+    from .models import (  # noqa: E402
     ACTION_CLASS_VOCABULARY,
     AGENTIC_DE_ACTION_CLASS_TAXONOMY_SCHEMA,
     AGENTIC_DE_ACTION_PROPOSAL_SCHEMA,
@@ -308,6 +327,7 @@ from .models import (
     AGENTIC_DE_CONTINUATION_DECISION_RECORD_SCHEMA,
     AGENTIC_DE_CONTINUATION_HARDENING_REGISTER_SCHEMA,
     AGENTIC_DE_CONTINUATION_REFRESH_DECISION_RECORD_SCHEMA,
+    AGENTIC_DE_DELEGATED_WORKER_EXPORT_PACKET_SCHEMA,
     AGENTIC_DE_DOMAIN_PACKET_SCHEMA,
     AGENTIC_DE_EXTERNAL_ASSISTANT_EGRESS_BRIDGE_PACKET_SCHEMA,
     AGENTIC_DE_EXTERNAL_ASSISTANT_INGRESS_BRIDGE_PACKET_SCHEMA,
@@ -370,6 +390,7 @@ from .models import (
     CONNECTOR_PROVIDER_CLASS_VOCABULARY,
     CONTINUATION_HARDENING_OUTCOME_VOCABULARY,
     CONTINUATION_OUTCOME_VOCABULARY,
+    DELEGATED_WORKER_EXPORT_VERDICT_VOCABULARY,
     DRIFT_STATUS_VOCABULARY,
     EXACT_ACTION_CLASS_VOCABULARY,
     GOVERNANCE_DECISION_OUTCOME_VOCABULARY,
@@ -414,6 +435,7 @@ from .models import (
     AgenticDeContinuationHardeningEntry,
     AgenticDeContinuationHardeningRegister,
     AgenticDeContinuationRefreshDecisionRecord,
+    AgenticDeDelegatedWorkerExportPacket,
     AgenticDeDomainPacket,
     AgenticDeExternalAssistantEgressBridgePacket,
     AgenticDeExternalAssistantIngressBridgePacket,
@@ -490,6 +512,7 @@ from .models import (
     compute_agentic_de_continuation_hardening_entry_id,
     compute_agentic_de_continuation_hardening_register_id,
     compute_agentic_de_continuation_refresh_decision_record_id,
+    compute_agentic_de_delegated_worker_export_packet_id,
     compute_agentic_de_domain_packet_id,
     compute_agentic_de_external_assistant_egress_bridge_packet_id,
     compute_agentic_de_external_assistant_ingress_bridge_packet_id,
@@ -547,7 +570,9 @@ from .models import (
     compute_agentic_de_workspace_continuity_restoration_handoff_record_id,
     compute_agentic_de_workspace_continuity_restoration_reintegration_report_id,
     compute_agentic_de_workspace_occupancy_report_id,
-)
+    )
+finally:
+    del warnings.filters[_warning_filters_len:]
 
 __all__ = [
     "ACTION_CLASS_VOCABULARY",
@@ -563,6 +588,7 @@ __all__ = [
     "AGENTIC_DE_CONTINUATION_DECISION_RECORD_SCHEMA",
     "AGENTIC_DE_CONTINUATION_REFRESH_DECISION_RECORD_SCHEMA",
     "AGENTIC_DE_CONFORMANCE_REPORT_SCHEMA",
+    "AGENTIC_DE_DELEGATED_WORKER_EXPORT_PACKET_SCHEMA",
     "AGENTIC_DE_DOMAIN_PACKET_SCHEMA",
     "AGENTIC_DE_EXTERNAL_ASSISTANT_EGRESS_BRIDGE_PACKET_SCHEMA",
     "AGENTIC_DE_EXTERNAL_ASSISTANT_INGRESS_BRIDGE_PACKET_SCHEMA",
@@ -620,6 +646,7 @@ __all__ = [
     "CHECKPOINT_STATUS_VOCABULARY",
     "CONTINUATION_HARDENING_OUTCOME_VOCABULARY",
     "CONTINUATION_OUTCOME_VOCABULARY",
+    "DELEGATED_WORKER_EXPORT_VERDICT_VOCABULARY",
     "COMMUNICATION_EGRESS_POSTURE_VOCABULARY",
     "COMMUNICATION_INTERPRETATION_POSTURE_VOCABULARY",
     "COMMUNICATION_SURFACE_CLASS_VOCABULARY",
@@ -741,8 +768,13 @@ __all__ = [
     "DEFAULT_V64B_LANE_DRIFT_PATH",
     "DEFAULT_V64B_REPO_WRITE_REINTEGRATION_PATH",
     "DEFAULT_V64B_REPO_WRITE_RESTORATION_PATH",
+    "DEFAULT_V64C_EVIDENCE_PATH",
     "DEFAULT_V64C_LANE_DRIFT_PATH",
     "DEFAULT_V64C_REPO_WRITABLE_SURFACE_HARDENING_PATH",
+    "DEFAULT_V48E_EVIDENCE_PATH",
+    "DEFAULT_V48E_WORKER_DELEGATION_TOPOLOGY_PATH",
+    "DEFAULT_V65A_DELEGATED_WORKER_EXPORT_PATH",
+    "DEFAULT_V65A_LANE_DRIFT_PATH",
     "DRIFT_STATUS_VOCABULARY",
     "EXACT_ACTION_CLASS_VOCABULARY",
     "DEFAULT_ACTION_PROPOSAL_PATH",
@@ -790,6 +822,7 @@ __all__ = [
     "AgenticDeContinuationHardeningRegister",
     "AgenticDeContinuationDecisionRecord",
     "AgenticDeContinuationRefreshDecisionRecord",
+    "AgenticDeDelegatedWorkerExportPacket",
     "AgenticDeConformanceReport",
     "AgenticDeDomainPacket",
     "AgenticDeExternalAssistantEgressBridgePacket",
@@ -880,6 +913,7 @@ __all__ = [
     "V64A_CHECKER_VERSION",
     "V64B_CHECKER_VERSION",
     "V64C_CHECKER_VERSION",
+    "V65A_CHECKER_VERSION",
     "compute_agentic_de_action_class_taxonomy_id",
     "compute_agentic_de_action_proposal_id",
     "compute_agentic_de_action_ticket_id",
@@ -894,6 +928,7 @@ __all__ = [
     "compute_agentic_de_continuation_decision_record_id",
     "compute_agentic_de_continuation_refresh_decision_record_id",
     "compute_agentic_de_conformance_report_id",
+    "compute_agentic_de_delegated_worker_export_packet_id",
     "compute_agentic_de_domain_packet_id",
     "compute_agentic_de_external_assistant_egress_bridge_packet_id",
     "compute_agentic_de_external_assistant_ingress_bridge_packet_id",
@@ -965,6 +1000,7 @@ __all__ = [
     "load_continuation_decision_record",
     "load_continuation_refresh_decision_record",
     "load_conformance_report",
+    "load_delegated_worker_export_packet",
     "load_domain_packet",
     "load_external_assistant_egress_bridge_packet",
     "load_governance_calibration_register",
@@ -1023,6 +1059,7 @@ __all__ = [
     "render_continuation_hardening_payload",
     "render_continuation_decision_payload",
     "render_continuation_refresh_decision_payload",
+    "render_delegated_worker_export_payload",
     "render_local_effect_conformance_payload",
     "render_local_effect_observation_payload",
     "render_local_effect_restoration_payload",
@@ -1087,6 +1124,7 @@ __all__ = [
     "run_agentic_de_remote_operator_starter_v63a",
     "run_agentic_de_remote_operator_control_bridge_v63b",
     "run_agentic_de_remote_operator_hardening_v63c",
+    "run_agentic_de_delegated_worker_export_v65a",
     "run_agentic_de_repo_writable_surface_hardening_v64c",
     "run_agentic_de_repo_write_restoration_v64b",
     "run_agentic_de_repo_writable_surface_v64a",
