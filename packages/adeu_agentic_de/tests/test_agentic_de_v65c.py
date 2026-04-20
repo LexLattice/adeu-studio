@@ -11,6 +11,7 @@ from adeu_ir.repo import repo_root
 FIXTURE_ROOT = Path(__file__).parent / "fixtures" / "v65c"
 
 FIXTURE_DIRS = (
+    "packages/adeu_agent_harness/tests/fixtures/v48e",
     "packages/adeu_agentic_de/tests/fixtures/v60b",
     "packages/adeu_agentic_de/tests/fixtures/v61a",
     "packages/adeu_agentic_de/tests/fixtures/v65a",
@@ -190,6 +191,25 @@ def test_v65c_rejects_mismatched_v65b_export_binding(tmp_path: Path) -> None:
     with pytest.raises(
         ValueError,
         match="V65-C reconciliation must bind the shipped V65-A export packet",
+    ):
+        run_agentic_de_delegated_worker_hardening_v65c(repo_root_path=temp_root)
+
+
+def test_v65c_rejects_mismatched_v65b_worker_result_basis(tmp_path: Path) -> None:
+    temp_root, fixture_root = _copy_v65c_input_tree(tmp_path / "repo")
+    report_name = "reference_agentic_de_delegated_worker_reconciliation_report.json"
+    report_path = fixture_root.parent / "v65b" / report_name
+    payload = _load_json(fixture_root.parent / "v65b", report_name)
+    assert isinstance(payload, dict)
+    payload["worker_result_or_conformance_basis_ref_or_equivalent"] = (
+        "worker_boundary_conformance_report:forged"
+    )
+    payload["delegated_worker_reconciliation_report_id"] = None
+    report_path.write_text(json.dumps(payload, indent=2) + "\n", encoding="utf-8")
+
+    with pytest.raises(
+        ValueError,
+        match="V65-C requires the shipped V65-B worker result basis carry-through",
     ):
         run_agentic_de_delegated_worker_hardening_v65c(repo_root_path=temp_root)
 

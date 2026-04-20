@@ -4504,6 +4504,13 @@ def _validate_v65a_evidence_payload_for_v65c(payload: dict[str, object]) -> dict
 
 
 def _validate_v65b_evidence_payload_for_v65c(payload: dict[str, object]) -> dict[str, object]:
+    repo_root_path = repo_root(anchor=Path(__file__))
+    expected_worker_result_fixture_path = str(
+        DEFAULT_V65B_WORKER_BOUNDARY_CONFORMANCE_PATH.relative_to(repo_root_path)
+    )
+    expected_worker_topology_fixture_path = str(
+        DEFAULT_V48E_WORKER_DELEGATION_TOPOLOGY_PATH.relative_to(repo_root_path)
+    )
     if payload.get("schema") != EXPECTED_V65B_EVIDENCE_SCHEMA:
         raise ValueError(
             "V65-C requires the shipped V65-B delegated worker reconciliation evidence payload "
@@ -4527,6 +4534,18 @@ def _validate_v65b_evidence_payload_for_v65c(payload: dict[str, object]) -> dict
     for field_name in required_true_fields:
         if payload.get(field_name) is not True:
             raise ValueError(f"V65-B evidence must preserve {field_name}")
+    if (
+        payload.get("reference_worker_result_fixture_path")
+        != expected_worker_result_fixture_path
+    ):
+        raise ValueError("V65-B evidence must preserve the selected released worker result input")
+    if (
+        payload.get("reference_worker_topology_fixture_path")
+        != expected_worker_topology_fixture_path
+    ):
+        raise ValueError(
+            "V65-B evidence must preserve the selected released worker topology input"
+        )
     if payload.get("selected_dispatch_authority_for_v65b") is not False:
         raise ValueError("V65-B evidence must preserve dispatch deferral")
     if payload.get("selected_execute_authority_for_v65b") is not False:
@@ -19138,6 +19157,8 @@ def _validate_v65c_consumed_surfaces(
     communication_egress: AgenticDeCommunicationEgressPacket,
     export_packet: AgenticDeDelegatedWorkerExportPacket,
     reconciliation_report: AgenticDeDelegatedWorkerReconciliationReport | None,
+    worker_conformance: WorkerBoundaryConformanceReport | None,
+    worker_topology: WorkerDelegationTopology | None,
     target_relative_path: str,
 ) -> None:
     expected_path = _expected_v60a_selected_downstream_path_summary(target_relative_path)
@@ -19174,6 +19195,10 @@ def _validate_v65c_consumed_surfaces(
         raise ValueError("V65-C requires the shipped preserved local_write/create_new posture")
     if reconciliation_report is None:
         return
+    if worker_conformance is None or worker_topology is None:
+        raise ValueError(
+            "V65-C requires the selected released worker basis when reconciliation is present"
+        )
     if (
         reconciliation_report.target_arc != V65B_TARGET_ARC
         or reconciliation_report.target_path != V65B_TARGET_PATH
@@ -19223,6 +19248,32 @@ def _validate_v65c_consumed_surfaces(
         != export_packet.preserved_write_semantics_summary
     ):
         raise ValueError("V65-C requires the shipped V65-B preserved write semantics carry-through")
+    if (
+        reconciliation_report.worker_result_or_conformance_basis_ref_or_equivalent
+        != worker_conformance.worker_boundary_conformance_report_id
+    ):
+        raise ValueError("V65-C requires the shipped V65-B worker result basis carry-through")
+    expected_worker_kind_summary = (
+        "worker_result_or_conformance_kind=boundary_conformance_report; "
+        f"overall_judgment={worker_conformance.overall_judgment}"
+    )
+    if (
+        reconciliation_report.selected_worker_result_or_conformance_kind_summary
+        != expected_worker_kind_summary
+    ):
+        raise ValueError("V65-C requires the shipped V65-B worker result kind summary")
+    if (
+        reconciliation_report.worker_carrier_basis_ref_or_equivalent
+        != worker_conformance.compiled_binding_ref
+    ):
+        raise ValueError("V65-C worker result basis must match the shipped worker carrier")
+    if worker_conformance.compiled_binding_ref != worker_topology.child_compiled_binding_ref:
+        raise ValueError("V65-C worker result basis must match the selected worker topology")
+    if (
+        reconciliation_report.selected_worker_topology_basis_ref_or_equivalent
+        != worker_topology.worker_delegation_topology_id
+    ):
+        raise ValueError("V65-C requires the shipped V65-B worker topology basis carry-through")
     if "boundary_conformance_report" not in (
         reconciliation_report.selected_worker_result_or_conformance_kind_summary
     ):
@@ -19530,7 +19581,7 @@ def run_agentic_de_delegated_worker_hardening_v65c(
     _validate_v65a_evidence_payload_for_v65c(
         _load_json_object(resolved_paths["v65a_evidence_path"], error_label="V65-A evidence")
     )
-    _validate_v65b_evidence_payload_for_v65c(
+    v65b_evidence_payload = _validate_v65b_evidence_payload_for_v65c(
         _load_json_object(resolved_paths["v65b_evidence_path"], error_label="V65-B evidence")
     )
     normalized_target_relative_path, _surface_path, _target_path, _surface_class = (
@@ -19556,11 +19607,36 @@ def run_agentic_de_delegated_worker_hardening_v65c(
         if "v65b_delegated_worker_reconciliation_path" in resolved_paths
         else None
     )
+    worker_conformance = None
+    worker_topology = None
+    if reconciliation_report is not None:
+        worker_conformance_path = _resolve_path(
+            repo_root_path=root,
+            path=Path(str(v65b_evidence_payload["reference_worker_result_fixture_path"])),
+        )
+        _assert_v65c_repo_local_input_path(
+            repo_root_path=root,
+            candidate=worker_conformance_path,
+            field_name="reference_worker_result_fixture_path",
+        )
+        worker_topology_path = _resolve_path(
+            repo_root_path=root,
+            path=Path(str(v65b_evidence_payload["reference_worker_topology_fixture_path"])),
+        )
+        _assert_v65c_repo_local_input_path(
+            repo_root_path=root,
+            candidate=worker_topology_path,
+            field_name="reference_worker_topology_fixture_path",
+        )
+        worker_conformance = load_worker_boundary_conformance_report(worker_conformance_path)
+        worker_topology = load_worker_delegation_topology(worker_topology_path)
     _validate_v65c_consumed_surfaces(
         continuation_refresh_decision=continuation_refresh_decision,
         communication_egress=communication_egress,
         export_packet=export_packet,
         reconciliation_report=reconciliation_report,
+        worker_conformance=worker_conformance,
+        worker_topology=worker_topology,
         target_relative_path=canonical_target_relative_path,
     )
     evidence_refs = [

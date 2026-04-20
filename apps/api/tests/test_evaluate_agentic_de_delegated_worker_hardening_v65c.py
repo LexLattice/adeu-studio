@@ -11,6 +11,7 @@ from pathlib import Path
 from adeu_ir.repo import repo_root
 
 FIXTURE_DIRS = (
+    "packages/adeu_agent_harness/tests/fixtures/v48e",
     "packages/adeu_agentic_de/tests/fixtures/v60b",
     "packages/adeu_agentic_de/tests/fixtures/v61a",
     "packages/adeu_agentic_de/tests/fixtures/v65a",
@@ -133,6 +134,20 @@ def test_cli_can_write_v65c_hardening_output(tmp_path: Path) -> None:
     assert json.loads(hardening_path.read_text(encoding="utf-8"))["schema"] == (
         "agentic_de_delegated_worker_hardening_register@1"
     )
+
+
+def test_cli_can_omit_optional_v65b_reconciliation(tmp_path: Path) -> None:
+    temp_root, _fixture_root = _copy_v65c_input_tree(tmp_path / "repo")
+
+    completed = _run_script(
+        "--repo-root",
+        str(temp_root),
+        "--without-v65b-reconciliation",
+    )
+
+    assert completed.returncode == 0, completed.stdout + completed.stderr
+    payload = json.loads(completed.stdout)
+    assert payload["entries"][0]["recommended_outcome"] == "keep_warning_only"
 
 
 def test_invalid_v65c_lane_drift_returns_clean_error(tmp_path: Path) -> None:

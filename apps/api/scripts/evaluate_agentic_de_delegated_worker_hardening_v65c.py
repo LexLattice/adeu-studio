@@ -65,6 +65,11 @@ def _parse_args(argv: list[str]) -> argparse.Namespace:
         type=Path,
         default=DEFAULT_V65B_DELEGATED_WORKER_RECONCILIATION_PATH,
     )
+    parser.add_argument(
+        "--without-v65b-reconciliation",
+        action="store_true",
+        help="Evaluate V65-C without a shipped V65-B reconciliation input and keep warning only.",
+    )
     parser.add_argument("--v65c-lane-drift", type=Path, default=DEFAULT_V65C_LANE_DRIFT_PATH)
     parser.add_argument("--v65a-evidence", type=Path, default=DEFAULT_V65A_EVIDENCE_PATH)
     parser.add_argument("--v65b-evidence", type=Path, default=_default_v65b_evidence_path())
@@ -83,13 +88,16 @@ def _write_text(path: Path, payload: str) -> None:
 
 def main(argv: list[str] | None = None) -> int:
     args = _parse_args(sys.argv[1:] if argv is None else argv)
+    reconciliation_path = (
+        None if args.without_v65b_reconciliation else args.v65b_delegated_worker_reconciliation
+    )
     try:
         register = run_agentic_de_delegated_worker_hardening_v65c(
             repo_root_path=args.repo_root,
             v60b_continuation_refresh_decision_path=args.v60b_continuation_refresh_decision,
             v61a_communication_egress_path=args.v61a_communication_egress,
             v65a_delegated_worker_export_path=args.v65a_delegated_worker_export,
-            v65b_delegated_worker_reconciliation_path=args.v65b_delegated_worker_reconciliation,
+            v65b_delegated_worker_reconciliation_path=reconciliation_path,
             lane_drift_path=args.v65c_lane_drift,
             v65a_evidence_path=args.v65a_evidence,
             v65b_evidence_path=args.v65b_evidence,
