@@ -1,0 +1,159 @@
+{
+  "advisory_only": true,
+  "baseline_checker_version": "agentic_de_delegated_worker_hardening_v65c",
+  "candidate_only": true,
+  "changes_live_behavior_by_default": false,
+  "committed_lane_artifacts_outrank_narrative_docs": true,
+  "entries": [
+    {
+      "consumed_communication_basis_summary_or_none": "shipped V61-A communication egress lineage may contextualize delegated-worker hardening posture only; it does not mint local, export, reconciliation, or worker authority",
+      "consumed_continuation_basis_summary": "shipped V60-B refresh decision remains the selected continuation basis for the same delegated export and optional reconciliation lineage only",
+      "delegated_worker_export_packet_ref": "agentic_de_delegated_worker_export_packet_6599e6ab5ea7",
+      "delegated_worker_reconciliation_report_ref_or_none": "agentic_de_delegated_worker_reconciliation_report_232196204aa3",
+      "evidence_basis_summary": "shipped V65-A delegated export lineage plus shipped V65-B reconciliation-local worker lineage over the same shipped V60-B continuation basis and shipped V61-A communication lineage under one explicit frozen V65-C policy anchor; shipped V64-C advisory writable-surface evidence remains shaping-only drift guard context through carried delegated lineage rather than delegated entitlement",
+      "evidence_refs": [
+        "packages/adeu_agentic_de/tests/fixtures/v60b/reference_agentic_de_continuation_refresh_decision_record.json",
+        "packages/adeu_agentic_de/tests/fixtures/v61a/reference_agentic_de_communication_egress_packet.json",
+        "packages/adeu_agentic_de/tests/fixtures/v65a/reference_agentic_de_delegated_worker_export_packet.json",
+        "packages/adeu_agentic_de/tests/fixtures/v65b/reference_agentic_de_delegated_worker_reconciliation_report.json",
+        "packages/adeu_agentic_de/tests/fixtures/v65c/reference_agentic_de_lane_drift_record.json",
+        "artifacts/agent_harness/v179/evidence_inputs/v65a_delegated_worker_export_starter_evidence_v179.json",
+        "artifacts/agent_harness/v180/evidence_inputs/v65b_delegated_worker_reconciliation_evidence_v180.json"
+      ],
+      "exported_work_membership_basis_summary": "exported-work membership reuses the shipped V64-A canonical target-membership and admitted target basis plus shipped V64-C shaping-only drift guard context; no extra local paths may be laundered into worker-side scope",
+      "extensional_and_replayable_by_default": true,
+      "field_dependence_tags": {
+        "consumed_communication_basis_summary_or_none": [
+          "agentic_de_communication_egress_a9c87d1c116e"
+        ],
+        "consumed_continuation_basis_summary": [
+          "agentic_de_continuation_refresh_decision_067a308bcae4"
+        ],
+        "evidence_basis_summary": [
+          "agentic_de_delegated_worker_export_packet_6599e6ab5ea7",
+          "artifacts/agent_harness/v48e/reference_child/compiled_policy_taskpack_binding.json",
+          "worker_delegation_topology:987c9d2691f6c0bf032b3965d338b57247b2370021c7ea6d8ee9d875ceceec4a",
+          "agentic_de_continuation_refresh_decision_067a308bcae4",
+          "agentic_de_communication_egress_a9c87d1c116e",
+          "agentic_de_delegated_worker_reconciliation_report_232196204aa3",
+          "worker_boundary_conformance_report:v48e_reference_child",
+          "docs/LOCKED_CONTINUATION_vNEXT_PLUS181.md#machine-checkable-contract"
+        ],
+        "exported_work_membership_basis_summary": [
+          "agentic_de_delegated_worker_export_packet_6599e6ab5ea7"
+        ],
+        "frozen_policy_ref": [
+          "docs/LOCKED_CONTINUATION_vNEXT_PLUS181.md#machine-checkable-contract"
+        ],
+        "preserved_write_semantics_summary": [
+          "agentic_de_delegated_worker_export_packet_6599e6ab5ea7"
+        ],
+        "recommended_outcome": [
+          "agentic_de_delegated_worker_export_packet_6599e6ab5ea7",
+          "artifacts/agent_harness/v48e/reference_child/compiled_policy_taskpack_binding.json",
+          "worker_delegation_topology:987c9d2691f6c0bf032b3965d338b57247b2370021c7ea6d8ee9d875ceceec4a",
+          "agentic_de_continuation_refresh_decision_067a308bcae4",
+          "docs/LOCKED_CONTINUATION_vNEXT_PLUS181.md#machine-checkable-contract"
+        ],
+        "selected_export_scope_summary": [
+          "agentic_de_delegated_worker_export_packet_6599e6ab5ea7"
+        ],
+        "selected_target_or_patch_or_artifact_summary": [
+          "agentic_de_delegated_worker_export_packet_6599e6ab5ea7"
+        ],
+        "selected_worker_result_or_conformance_kind_summary_or_none": [
+          "worker_boundary_conformance_report:v48e_reference_child"
+        ],
+        "selected_worker_topology_basis_ref_or_equivalent": [
+          "worker_delegation_topology:987c9d2691f6c0bf032b3965d338b57247b2370021c7ea6d8ee9d875ceceec4a"
+        ],
+        "verdict_basis_summary": [
+          "agentic_de_delegated_worker_export_packet_6599e6ab5ea7",
+          "artifacts/agent_harness/v48e/reference_child/compiled_policy_taskpack_binding.json",
+          "worker_delegation_topology:987c9d2691f6c0bf032b3965d338b57247b2370021c7ea6d8ee9d875ceceec4a",
+          "agentic_de_continuation_refresh_decision_067a308bcae4",
+          "agentic_de_delegated_worker_reconciliation_report_232196204aa3",
+          "docs/LOCKED_CONTINUATION_vNEXT_PLUS181.md#machine-checkable-contract"
+        ],
+        "worker_carrier_basis_ref_or_equivalent": [
+          "artifacts/agent_harness/v48e/reference_child/compiled_policy_taskpack_binding.json"
+        ],
+        "worker_result_or_conformance_basis_ref_or_equivalent_or_none": [
+          "worker_boundary_conformance_report:v48e_reference_child"
+        ]
+      },
+      "field_origin_tags": {
+        "consumed_communication_basis_summary_or_none": "current_turn_derived",
+        "consumed_continuation_basis_summary": "current_turn_derived",
+        "evidence_basis_summary": "current_turn_derived",
+        "exported_work_membership_basis_summary": "prior_artifact",
+        "frozen_policy_ref": "shaping_only",
+        "preserved_write_semantics_summary": "prior_artifact",
+        "recommended_outcome": "current_turn_derived",
+        "selected_export_scope_summary": "prior_artifact",
+        "selected_target_or_patch_or_artifact_summary": "prior_artifact",
+        "selected_worker_result_or_conformance_kind_summary_or_none": "prior_artifact",
+        "selected_worker_topology_basis_ref_or_equivalent": "prior_artifact",
+        "verdict_basis_summary": "current_turn_derived",
+        "worker_carrier_basis_ref_or_equivalent": "prior_artifact",
+        "worker_result_or_conformance_basis_ref_or_equivalent_or_none": "prior_artifact"
+      },
+      "frozen_policy_ref": "docs/LOCKED_CONTINUATION_vNEXT_PLUS181.md#machine-checkable-contract",
+      "hardening_id": "agentic_de_delegated_worker_hardening_4d50a747095b",
+      "lineage_root_dedup_applied": true,
+      "preserved_write_semantics_summary": "preserve V64-A local_write/create_new entitlement semantics only; V64-B adds one typed compensating restore over the shipped create_new effect and does not widen append, overwrite, rename, or delete authority",
+      "rationale": "the exact shipped V65-A/V65-B delegated lineage now carries one explicit reconciliation-local worker basis, the same exported scope, the same selected worker carrier and topology, preserved local_write/create_new semantics, and one frozen V65-C advisory policy anchor, so it is a valid later delegated-worker hardening candidate without minting local writable entitlement, delegated export admission, delegated reconciliation authority, broader V48 worker-law ownership, shell, execute, dispatch, multi-worker, connector, or remote authority",
+      "reason_codes": [
+        "shipped_v65a_export_lineage_consumed",
+        "shipped_v65b_reconciliation_lineage_consumed",
+        "optional_reconciliation_local_basis_posture_consistent",
+        "selected_worker_result_kind_summary_explicit",
+        "preserved_local_write_create_new_only",
+        "committed_artifacts_outrank_narrative_docs",
+        "path_level_only",
+        "extensional_replayable_policy",
+        "lineage_root_dedup_applied",
+        "candidate_non_entitling_and_non_escalating",
+        "later_lock_required_for_scope",
+        "v64c_shaping_context_only_not_entitlement",
+        "selected_released_worker_lineage_non_generalizing",
+        "no_live_mutation_in_v65c",
+        "non_generalizing_by_default"
+      ],
+      "recommendation_scope_requires_later_lock": true,
+      "recommended_outcome": "candidate_for_later_delegated_worker_hardening",
+      "root_origin_dedup_summary": "dedup roots=export:agentic_de_delegated_worker_export_packet_6599e6ab5ea7,worker_carrier:artifacts/agent_harness/v48e/reference_child/compiled_policy_taskpack_binding.json,worker_topology:worker_delegation_topology:987c9d2691f6c0bf032b3965d338b57247b2370021c7ea6d8ee9d875ceceec4a,continuation:agentic_de_continuation_refresh_decision_067a308bcae4,communication_egress:agentic_de_communication_egress_a9c87d1c116e,policy:docs/LOCKED_CONTINUATION_vNEXT_PLUS181.md#machine-checkable-contract,reconciliation:agentic_de_delegated_worker_reconciliation_report_232196204aa3,worker_result:worker_boundary_conformance_report:v48e_reference_child; shipped delegated export, optional reconciliation-local worker basis, continuation, communication, and policy artifacts remain non-independent delegated-worker hardening support rather than fresh authority",
+      "root_origin_ids": [
+        "export:agentic_de_delegated_worker_export_packet_6599e6ab5ea7",
+        "worker_carrier:artifacts/agent_harness/v48e/reference_child/compiled_policy_taskpack_binding.json",
+        "worker_topology:worker_delegation_topology:987c9d2691f6c0bf032b3965d338b57247b2370021c7ea6d8ee9d875ceceec4a",
+        "continuation:agentic_de_continuation_refresh_decision_067a308bcae4",
+        "communication_egress:agentic_de_communication_egress_a9c87d1c116e",
+        "policy:docs/LOCKED_CONTINUATION_vNEXT_PLUS181.md#machine-checkable-contract",
+        "reconciliation:agentic_de_delegated_worker_reconciliation_report_232196204aa3",
+        "worker_result:worker_boundary_conformance_report:v48e_reference_child"
+      ],
+      "selected_export_scope_summary": "one shipped V64-A selected writable surface over the same exact admitted target only is exportable here under one released V48-E worker carrier lineage and one selected worker topology only",
+      "selected_hardening_target_surface": "shipped_v65a_v65b_delegated_lineage_over_one_exact_exported_scope_only",
+      "selected_target_or_patch_or_artifact_summary": "artifacts/agentic_de/v59/workspace_continuity/runtime/reference_patch_candidate.diff",
+      "selected_worker_result_or_conformance_kind_summary_or_none": "worker_result_or_conformance_kind=boundary_conformance_report; overall_judgment=conformant",
+      "selected_worker_topology_basis_ref_or_equivalent": "worker_delegation_topology:987c9d2691f6c0bf032b3965d338b57247b2370021c7ea6d8ee9d875ceceec4a",
+      "verdict_basis_summary": "the same shipped delegated export scope, worker carrier, selected topology, and preserved local_write/create_new posture remained preserved, optional reconciliation-local worker basis stayed explicit and consistent, one selected released worker lineage remains path-local and non-generalizing by default, and no result mints local writable entitlement, delegated export admission, delegated reconciliation authority, broader V48 worker-law ownership, shell, execute, dispatch, multi-worker, connector, or remote authority",
+      "worker_carrier_basis_ref_or_equivalent": "artifacts/agent_harness/v48e/reference_child/compiled_policy_taskpack_binding.json",
+      "worker_result_or_conformance_basis_ref_or_equivalent_or_none": "worker_boundary_conformance_report:v48e_reference_child"
+    }
+  ],
+  "entry_count": 1,
+  "evidence_basis_distinct_from_recommendation": true,
+  "exemplar_evidence_non_generalizing_by_default": true,
+  "explicit_frozen_policy_anchor_required": true,
+  "keep_warning_only_retains_current_advisory_posture_only": true,
+  "lineage_root_non_independence_dedup_applied": true,
+  "optional_upstream_basis_consistency_fails_closed": true,
+  "path_level_only": true,
+  "recommendation_function_extensional_and_replayable": true,
+  "register_id": "agentic_de_delegated_worker_hardening_register_56b175b10efd",
+  "schema": "agentic_de_delegated_worker_hardening_register@1",
+  "target_arc": "vNext+181",
+  "target_path": "V65-C"
+}
