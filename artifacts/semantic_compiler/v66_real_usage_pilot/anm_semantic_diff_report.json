@@ -1,0 +1,587 @@
+{
+  "schema_id": "anm_semantic_diff_report@1",
+  "diff_report_id": "diff:v66-live-pilot",
+  "consumed_source_set_manifest_ref": "anm_source_set_manifest:manifest:v66-live-pilot",
+  "consumed_source_set_manifest_hash": "f3e237525b773707f3f2afb23295f2b762344e63e0fdf24069bd0ac910cfe2ca",
+  "consumed_doc_class_policy_ref": "anm_doc_class_policy:policy:v66-live-pilot",
+  "consumed_doc_class_policy_hash": "48b99164a157702b18df4c1b1c04a481b493cab1789acf25b1d4eb4a5475a996",
+  "consumed_authority_profile_set_ref_or_hash": "sha256:42bd4177be4abd0b81c088437688048967ab80700d9b68bf620a1a946e7b1658",
+  "baseline_kind": "none_initial_report",
+  "baseline_artifact_ref_or_none": null,
+  "baseline_artifact_hash_or_none": null,
+  "current_artifact_ref": "anm_v66b_bundle:476fb626b2bfd0ef5da02103a270c9104e0cdceb74c4a531fc753ed50b4a1718",
+  "current_artifact_hash": "476fb626b2bfd0ef5da02103a270c9104e0cdceb74c4a531fc753ed50b4a1718",
+  "change_rows": [
+    {
+      "source_doc_ref": "class_policy:architecture",
+      "baseline_profile_ref_or_none": null,
+      "current_profile_ref": "anm_doc_class_policy:architecture",
+      "change_kind": "initial",
+      "surface_kind": "doc_class_policy",
+      "path_or_axis": "policy_rows.architecture",
+      "baseline_value_or_none": null,
+      "current_value_or_none": {
+        "doc_class": "architecture",
+        "allowed_authority_layers": [
+          "architecture"
+        ],
+        "allowed_source_postures": [
+          "companion_anm",
+          "legacy_markdown",
+          "standalone_anm"
+        ],
+        "allowed_authority_blocks": [
+          "D@1",
+          "adeu.doc_profile@1"
+        ],
+        "allowed_outputs": [
+          "anm_doc_authority_profile@1",
+          "d1_normalized_ir@1"
+        ],
+        "forbidden_outputs": [
+          "policy_obligation_ledger@1"
+        ],
+        "hard_gates": [
+          "reject_overpromotion",
+          "reject_supersession_without_transition_law"
+        ],
+        "warning_gates": [
+          "warn_profile_inferred_from_manifest"
+        ]
+      },
+      "authority_effect_kind": "no_authority_minted",
+      "authority_effect_summary_or_none": null
+    },
+    {
+      "source_doc_ref": "class_policy:lock",
+      "baseline_profile_ref_or_none": null,
+      "current_profile_ref": "anm_doc_class_policy:lock",
+      "change_kind": "initial",
+      "surface_kind": "doc_class_policy",
+      "path_or_axis": "policy_rows.lock",
+      "baseline_value_or_none": null,
+      "current_value_or_none": {
+        "doc_class": "lock",
+        "allowed_authority_layers": [
+          "lock"
+        ],
+        "allowed_source_postures": [
+          "companion_anm",
+          "legacy_markdown",
+          "standalone_anm"
+        ],
+        "allowed_authority_blocks": [
+          "D@1",
+          "adeu.doc_profile@1"
+        ],
+        "allowed_outputs": [
+          "anm_doc_authority_profile@1",
+          "checker_fact_bundle@1",
+          "d1_normalized_ir@1",
+          "policy_evaluation_result_set@1",
+          "policy_obligation_ledger@1",
+          "predicate_contracts_bootstrap@1"
+        ],
+        "forbidden_outputs": [],
+        "hard_gates": [
+          "reject_overpromotion",
+          "reject_supersession_without_transition_law"
+        ],
+        "warning_gates": [
+          "warn_profile_inferred_from_manifest"
+        ]
+      },
+      "authority_effect_kind": "no_authority_minted",
+      "authority_effect_summary_or_none": null
+    },
+    {
+      "source_doc_ref": "class_policy:non_governance",
+      "baseline_profile_ref_or_none": null,
+      "current_profile_ref": "anm_doc_class_policy:non_governance",
+      "change_kind": "initial",
+      "surface_kind": "doc_class_policy",
+      "path_or_axis": "policy_rows.non_governance",
+      "baseline_value_or_none": null,
+      "current_value_or_none": {
+        "doc_class": "non_governance",
+        "allowed_authority_layers": [
+          "none"
+        ],
+        "allowed_source_postures": [
+          "generated_projection",
+          "legacy_markdown"
+        ],
+        "allowed_authority_blocks": [],
+        "allowed_outputs": [],
+        "forbidden_outputs": [
+          "checker_fact_bundle@1",
+          "d1_normalized_ir@1",
+          "policy_evaluation_result_set@1",
+          "policy_obligation_ledger@1",
+          "predicate_contracts_bootstrap@1"
+        ],
+        "hard_gates": [
+          "reject_overpromotion"
+        ],
+        "warning_gates": [
+          "warn_unknown_requires_registration"
+        ]
+      },
+      "authority_effect_kind": "no_authority_minted",
+      "authority_effect_summary_or_none": null
+    },
+    {
+      "source_doc_ref": "class_policy:planning",
+      "baseline_profile_ref_or_none": null,
+      "current_profile_ref": "anm_doc_class_policy:planning",
+      "change_kind": "initial",
+      "surface_kind": "doc_class_policy",
+      "path_or_axis": "policy_rows.planning",
+      "baseline_value_or_none": null,
+      "current_value_or_none": {
+        "doc_class": "planning",
+        "allowed_authority_layers": [
+          "planning"
+        ],
+        "allowed_source_postures": [
+          "companion_anm",
+          "legacy_markdown",
+          "standalone_anm"
+        ],
+        "allowed_authority_blocks": [
+          "D@1",
+          "adeu.doc_profile@1"
+        ],
+        "allowed_outputs": [
+          "anm_doc_authority_profile@1",
+          "d1_normalized_ir@1"
+        ],
+        "forbidden_outputs": [
+          "policy_obligation_ledger@1"
+        ],
+        "hard_gates": [
+          "reject_overpromotion",
+          "reject_supersession_without_transition_law"
+        ],
+        "warning_gates": [
+          "warn_profile_inferred_from_manifest"
+        ]
+      },
+      "authority_effect_kind": "no_authority_minted",
+      "authority_effect_summary_or_none": null
+    },
+    {
+      "source_doc_ref": "class_policy:support",
+      "baseline_profile_ref_or_none": null,
+      "current_profile_ref": "anm_doc_class_policy:support",
+      "change_kind": "initial",
+      "surface_kind": "doc_class_policy",
+      "path_or_axis": "policy_rows.support",
+      "baseline_value_or_none": null,
+      "current_value_or_none": {
+        "doc_class": "support",
+        "allowed_authority_layers": [
+          "support"
+        ],
+        "allowed_source_postures": [
+          "companion_anm",
+          "legacy_markdown",
+          "standalone_anm"
+        ],
+        "allowed_authority_blocks": [
+          "D@1",
+          "adeu.doc_profile@1"
+        ],
+        "allowed_outputs": [
+          "anm_doc_authority_profile@1"
+        ],
+        "forbidden_outputs": [
+          "policy_obligation_ledger@1"
+        ],
+        "hard_gates": [
+          "reject_overpromotion",
+          "reject_unregistered_companion"
+        ],
+        "warning_gates": [
+          "warn_profile_inferred_from_manifest",
+          "warn_unknown_requires_registration"
+        ]
+      },
+      "authority_effect_kind": "no_authority_minted",
+      "authority_effect_summary_or_none": null
+    },
+    {
+      "source_doc_ref": "docs/ARCHITECTURE_ADEU_ANM_NATIVE_DOCUMENTATION_PRACTICE_FAMILY_v0.md",
+      "baseline_profile_ref_or_none": null,
+      "current_profile_ref": "anm_doc_authority_profile:adeu.architecture.v66_family",
+      "change_kind": "initial",
+      "surface_kind": "doc_authority_profile",
+      "path_or_axis": "authority_profiles.docs/ARCHITECTURE_ADEU_ANM_NATIVE_DOCUMENTATION_PRACTICE_FAMILY_v0.md",
+      "baseline_value_or_none": null,
+      "current_value_or_none": {
+        "schema_id": "anm_doc_authority_profile@1",
+        "doc_id": "adeu.architecture.v66_family",
+        "doc_ref": "docs/ARCHITECTURE_ADEU_ANM_NATIVE_DOCUMENTATION_PRACTICE_FAMILY_v0.md",
+        "doc_class": "architecture",
+        "authority_layer": "architecture",
+        "source_posture": "legacy_markdown",
+        "lifecycle_status": "draft",
+        "allowed_authority_blocks": [
+          "D@1",
+          "adeu.doc_profile@1"
+        ],
+        "allowed_outputs": [
+          "anm_doc_authority_profile@1",
+          "d1_normalized_ir@1"
+        ],
+        "forbidden_outputs": [
+          "policy_obligation_ledger@1"
+        ],
+        "current_markdown_authority_relation": "current_markdown_controlling",
+        "allowed_consumers": [
+          "semantic_compiler",
+          "semantic_source"
+        ],
+        "requires_transition_law_for_supersession": true
+      },
+      "authority_effect_kind": "no_authority_minted",
+      "authority_effect_summary_or_none": null
+    },
+    {
+      "source_doc_ref": "docs/ARCHITECTURE_ADEU_ANM_NATIVE_DOCUMENTATION_PRACTICE_FAMILY_v0.md",
+      "baseline_profile_ref_or_none": null,
+      "current_profile_ref": "anm_doc_authority_profile:adeu.architecture.v66_family",
+      "change_kind": "initial",
+      "surface_kind": "source_set_entry",
+      "path_or_axis": "source_entries.docs/ARCHITECTURE_ADEU_ANM_NATIVE_DOCUMENTATION_PRACTICE_FAMILY_v0.md",
+      "baseline_value_or_none": null,
+      "current_value_or_none": {
+        "doc_ref": "docs/ARCHITECTURE_ADEU_ANM_NATIVE_DOCUMENTATION_PRACTICE_FAMILY_v0.md",
+        "doc_id_or_none": "adeu.architecture.v66_family",
+        "doc_class": "architecture",
+        "authority_layer": "architecture",
+        "source_posture": "legacy_markdown",
+        "lifecycle_status": "draft",
+        "classification_status": "classified",
+        "content_hash": "70dfe0854c1884b343be893a9e264f60b1c9abc54c44581ebb0587b1bc05a3a0",
+        "profile_ref_or_none": "anm_doc_authority_profile:adeu.architecture.v66_family"
+      },
+      "authority_effect_kind": "no_authority_minted",
+      "authority_effect_summary_or_none": null
+    },
+    {
+      "source_doc_ref": "docs/DRAFT_NEXT_ARC_OPTIONS_v51.md",
+      "baseline_profile_ref_or_none": null,
+      "current_profile_ref": "anm_doc_authority_profile:adeu.planning.v51",
+      "change_kind": "initial",
+      "surface_kind": "doc_authority_profile",
+      "path_or_axis": "authority_profiles.docs/DRAFT_NEXT_ARC_OPTIONS_v51.md",
+      "baseline_value_or_none": null,
+      "current_value_or_none": {
+        "schema_id": "anm_doc_authority_profile@1",
+        "doc_id": "adeu.planning.v51",
+        "doc_ref": "docs/DRAFT_NEXT_ARC_OPTIONS_v51.md",
+        "doc_class": "planning",
+        "authority_layer": "planning",
+        "source_posture": "legacy_markdown",
+        "lifecycle_status": "draft",
+        "allowed_authority_blocks": [
+          "D@1",
+          "adeu.doc_profile@1"
+        ],
+        "allowed_outputs": [
+          "anm_doc_authority_profile@1",
+          "d1_normalized_ir@1"
+        ],
+        "forbidden_outputs": [
+          "policy_obligation_ledger@1"
+        ],
+        "current_markdown_authority_relation": "current_markdown_controlling",
+        "allowed_consumers": [
+          "semantic_compiler",
+          "semantic_source"
+        ],
+        "requires_transition_law_for_supersession": true
+      },
+      "authority_effect_kind": "no_authority_minted",
+      "authority_effect_summary_or_none": null
+    },
+    {
+      "source_doc_ref": "docs/DRAFT_NEXT_ARC_OPTIONS_v51.md",
+      "baseline_profile_ref_or_none": null,
+      "current_profile_ref": "anm_doc_authority_profile:adeu.planning.v51",
+      "change_kind": "initial",
+      "surface_kind": "source_set_entry",
+      "path_or_axis": "source_entries.docs/DRAFT_NEXT_ARC_OPTIONS_v51.md",
+      "baseline_value_or_none": null,
+      "current_value_or_none": {
+        "doc_ref": "docs/DRAFT_NEXT_ARC_OPTIONS_v51.md",
+        "doc_id_or_none": "adeu.planning.v51",
+        "doc_class": "planning",
+        "authority_layer": "planning",
+        "source_posture": "legacy_markdown",
+        "lifecycle_status": "draft",
+        "classification_status": "classified",
+        "content_hash": "6c99432b2486653e0c29e27969444d144d96ac1147c717ad6d6398dbf32ce245",
+        "profile_ref_or_none": "anm_doc_authority_profile:adeu.planning.v51"
+      },
+      "authority_effect_kind": "no_authority_minted",
+      "authority_effect_summary_or_none": null
+    },
+    {
+      "source_doc_ref": "docs/LOCKED_CONTINUATION_vNEXT_PLUS184.md",
+      "baseline_profile_ref_or_none": null,
+      "current_profile_ref": "anm_doc_authority_profile:adeu.lock.vnext_plus184",
+      "change_kind": "initial",
+      "surface_kind": "doc_authority_profile",
+      "path_or_axis": "authority_profiles.docs/LOCKED_CONTINUATION_vNEXT_PLUS184.md",
+      "baseline_value_or_none": null,
+      "current_value_or_none": {
+        "schema_id": "anm_doc_authority_profile@1",
+        "doc_id": "adeu.lock.vnext_plus184",
+        "doc_ref": "docs/LOCKED_CONTINUATION_vNEXT_PLUS184.md",
+        "doc_class": "lock",
+        "authority_layer": "lock",
+        "source_posture": "legacy_markdown",
+        "lifecycle_status": "living",
+        "allowed_authority_blocks": [
+          "D@1",
+          "adeu.doc_profile@1"
+        ],
+        "allowed_outputs": [
+          "anm_doc_authority_profile@1",
+          "checker_fact_bundle@1",
+          "d1_normalized_ir@1",
+          "policy_evaluation_result_set@1",
+          "policy_obligation_ledger@1",
+          "predicate_contracts_bootstrap@1"
+        ],
+        "forbidden_outputs": [],
+        "current_markdown_authority_relation": "current_markdown_controlling",
+        "allowed_consumers": [
+          "policy_evaluator",
+          "semantic_compiler",
+          "semantic_source"
+        ],
+        "requires_transition_law_for_supersession": true
+      },
+      "authority_effect_kind": "no_authority_minted",
+      "authority_effect_summary_or_none": null
+    },
+    {
+      "source_doc_ref": "docs/LOCKED_CONTINUATION_vNEXT_PLUS184.md",
+      "baseline_profile_ref_or_none": null,
+      "current_profile_ref": "anm_doc_authority_profile:adeu.lock.vnext_plus184",
+      "change_kind": "initial",
+      "surface_kind": "migration_binding",
+      "path_or_axis": "binding_rows.binding:v184-overlay",
+      "baseline_value_or_none": null,
+      "current_value_or_none": {
+        "binding_id": "binding:v184-overlay",
+        "host_doc_ref": "docs/LOCKED_CONTINUATION_vNEXT_PLUS184.md",
+        "companion_doc_ref_or_none": "docs/overlays/LOCKED_CONTINUATION_vNEXT_PLUS184.anm.adeu.md",
+        "host_profile_ref": "anm_doc_authority_profile:adeu.lock.vnext_plus184",
+        "companion_profile_ref_or_none": "anm_doc_authority_profile:adeu.lock.v184.overlay",
+        "binding_posture": "registered_non_overriding_companion",
+        "current_markdown_authority_relation": "current_markdown_controlling",
+        "supersession_claim_status": "none",
+        "generated_reader_projection_refs": [
+          "anm_reader_projection_manifest:projection:v66-live-pilot#docs/generated/anm_reader/LOCKED_CONTINUATION_vNEXT_PLUS184.reader.md"
+        ],
+        "semantic_diff_ref_or_none": "anm_semantic_diff_report:diff:v66-live-pilot"
+      },
+      "authority_effect_kind": "no_authority_minted",
+      "authority_effect_summary_or_none": null
+    },
+    {
+      "source_doc_ref": "docs/LOCKED_CONTINUATION_vNEXT_PLUS184.md",
+      "baseline_profile_ref_or_none": null,
+      "current_profile_ref": "anm_doc_authority_profile:adeu.lock.vnext_plus184",
+      "change_kind": "initial",
+      "surface_kind": "reader_projection_manifest",
+      "path_or_axis": "projection_rows.docs/generated/anm_reader/LOCKED_CONTINUATION_vNEXT_PLUS184.reader.md",
+      "baseline_value_or_none": null,
+      "current_value_or_none": {
+        "projection_doc_ref": "docs/generated/anm_reader/LOCKED_CONTINUATION_vNEXT_PLUS184.reader.md",
+        "source_doc_ref": "docs/LOCKED_CONTINUATION_vNEXT_PLUS184.md",
+        "source_profile_ref": "anm_doc_authority_profile:adeu.lock.vnext_plus184",
+        "projection_required": true,
+        "projection_requirement_source": "explicit_projection_manifest",
+        "projection_status": "current",
+        "projection_authority_posture": "non_authoritative_generated_view",
+        "source_content_hash": "cbfde1bdae3919fded858c23c9c3aae997813f6193ab46f7fe07ad9726d557a0",
+        "projection_content_hash_or_none": "058082cd35c8a31af1d1e5f39bdca3a32c38779bde01812602e67fa5662285ff",
+        "drift_status": "in_sync"
+      },
+      "authority_effect_kind": "no_authority_minted",
+      "authority_effect_summary_or_none": null
+    },
+    {
+      "source_doc_ref": "docs/LOCKED_CONTINUATION_vNEXT_PLUS184.md",
+      "baseline_profile_ref_or_none": null,
+      "current_profile_ref": "anm_doc_authority_profile:adeu.lock.vnext_plus184",
+      "change_kind": "initial",
+      "surface_kind": "source_set_entry",
+      "path_or_axis": "source_entries.docs/LOCKED_CONTINUATION_vNEXT_PLUS184.md",
+      "baseline_value_or_none": null,
+      "current_value_or_none": {
+        "doc_ref": "docs/LOCKED_CONTINUATION_vNEXT_PLUS184.md",
+        "doc_id_or_none": "adeu.lock.vnext_plus184",
+        "doc_class": "lock",
+        "authority_layer": "lock",
+        "source_posture": "legacy_markdown",
+        "lifecycle_status": "living",
+        "classification_status": "classified",
+        "content_hash": "cbfde1bdae3919fded858c23c9c3aae997813f6193ab46f7fe07ad9726d557a0",
+        "profile_ref_or_none": "anm_doc_authority_profile:adeu.lock.vnext_plus184",
+        "companion_registration_status_or_none": "registered_host_document"
+      },
+      "authority_effect_kind": "no_authority_minted",
+      "authority_effect_summary_or_none": null
+    },
+    {
+      "source_doc_ref": "docs/overlays/LOCKED_CONTINUATION_vNEXT_PLUS184.anm.adeu.md",
+      "baseline_profile_ref_or_none": null,
+      "current_profile_ref": "anm_doc_authority_profile:adeu.lock.v184.overlay",
+      "change_kind": "initial",
+      "surface_kind": "doc_authority_profile",
+      "path_or_axis": "authority_profiles.docs/overlays/LOCKED_CONTINUATION_vNEXT_PLUS184.anm.adeu.md",
+      "baseline_value_or_none": null,
+      "current_value_or_none": {
+        "schema_id": "anm_doc_authority_profile@1",
+        "doc_id": "adeu.lock.v184.overlay",
+        "doc_ref": "docs/overlays/LOCKED_CONTINUATION_vNEXT_PLUS184.anm.adeu.md",
+        "doc_class": "lock",
+        "authority_layer": "lock",
+        "source_posture": "companion_anm",
+        "lifecycle_status": "living",
+        "allowed_authority_blocks": [
+          "D@1",
+          "adeu.doc_profile@1"
+        ],
+        "allowed_outputs": [
+          "anm_doc_authority_profile@1",
+          "checker_fact_bundle@1",
+          "d1_normalized_ir@1",
+          "policy_evaluation_result_set@1",
+          "policy_obligation_ledger@1",
+          "predicate_contracts_bootstrap@1"
+        ],
+        "forbidden_outputs": [],
+        "current_markdown_authority_relation": "current_markdown_controlling",
+        "allowed_consumers": [
+          "policy_evaluator",
+          "semantic_compiler",
+          "semantic_source"
+        ],
+        "requires_transition_law_for_supersession": true
+      },
+      "authority_effect_kind": "no_authority_minted",
+      "authority_effect_summary_or_none": null
+    },
+    {
+      "source_doc_ref": "docs/overlays/LOCKED_CONTINUATION_vNEXT_PLUS184.anm.adeu.md",
+      "baseline_profile_ref_or_none": null,
+      "current_profile_ref": "anm_doc_authority_profile:adeu.lock.v184.overlay",
+      "change_kind": "initial",
+      "surface_kind": "source_set_entry",
+      "path_or_axis": "source_entries.docs/overlays/LOCKED_CONTINUATION_vNEXT_PLUS184.anm.adeu.md",
+      "baseline_value_or_none": null,
+      "current_value_or_none": {
+        "doc_ref": "docs/overlays/LOCKED_CONTINUATION_vNEXT_PLUS184.anm.adeu.md",
+        "doc_id_or_none": "adeu.lock.v184.overlay",
+        "doc_class": "lock",
+        "authority_layer": "lock",
+        "source_posture": "companion_anm",
+        "lifecycle_status": "living",
+        "classification_status": "classified",
+        "content_hash": "7eef6163806c1d3ace450a4ca55b144c3534104d3098f4f4b3b4a8cf8b52e65a",
+        "profile_ref_or_none": "anm_doc_authority_profile:adeu.lock.v184.overlay",
+        "host_doc_ref_or_none": "docs/LOCKED_CONTINUATION_vNEXT_PLUS184.md",
+        "companion_registration_status_or_none": "registered_companion_overlay"
+      },
+      "authority_effect_kind": "no_authority_minted",
+      "authority_effect_summary_or_none": null
+    },
+    {
+      "source_doc_ref": "docs/support/anm.adeu.md",
+      "baseline_profile_ref_or_none": null,
+      "current_profile_ref": "anm_doc_authority_profile:adeu.support.anm_native_practice",
+      "change_kind": "initial",
+      "surface_kind": "doc_authority_profile",
+      "path_or_axis": "authority_profiles.docs/support/anm.adeu.md",
+      "baseline_value_or_none": null,
+      "current_value_or_none": {
+        "schema_id": "anm_doc_authority_profile@1",
+        "doc_id": "adeu.support.anm_native_practice",
+        "doc_ref": "docs/support/anm.adeu.md",
+        "doc_class": "support",
+        "authority_layer": "support",
+        "source_posture": "standalone_anm",
+        "lifecycle_status": "living",
+        "allowed_authority_blocks": [
+          "adeu.doc_profile@1"
+        ],
+        "allowed_outputs": [
+          "anm_doc_authority_profile@1"
+        ],
+        "forbidden_outputs": [
+          "policy_obligation_ledger@1"
+        ],
+        "current_markdown_authority_relation": "later_lock_required_for_supersession",
+        "allowed_consumers": [
+          "semantic_compiler",
+          "semantic_source"
+        ],
+        "requires_transition_law_for_supersession": true
+      },
+      "authority_effect_kind": "no_authority_minted",
+      "authority_effect_summary_or_none": null
+    },
+    {
+      "source_doc_ref": "docs/support/anm.adeu.md",
+      "baseline_profile_ref_or_none": null,
+      "current_profile_ref": "anm_doc_authority_profile:adeu.support.anm_native_practice",
+      "change_kind": "initial",
+      "surface_kind": "reader_projection_manifest",
+      "path_or_axis": "projection_rows.docs/generated/anm_reader/anm.reader.md",
+      "baseline_value_or_none": null,
+      "current_value_or_none": {
+        "projection_doc_ref": "docs/generated/anm_reader/anm.reader.md",
+        "source_doc_ref": "docs/support/anm.adeu.md",
+        "source_profile_ref": "anm_doc_authority_profile:adeu.support.anm_native_practice",
+        "projection_required": true,
+        "projection_requirement_source": "explicit_projection_manifest",
+        "projection_status": "stale",
+        "projection_authority_posture": "non_authoritative_generated_view",
+        "source_content_hash": "e3fd1547ea3e9944c86c8adafed6c1ff4e06d4ed3d52f02715b11085e73fe9e8",
+        "projection_content_hash_or_none": "49ba0614ac8d4b8c54dccd34afbabf6941ca6d19acc544026bce525f226e1b09",
+        "drift_status": "source_changed_projection_stale"
+      },
+      "authority_effect_kind": "no_authority_minted",
+      "authority_effect_summary_or_none": null
+    },
+    {
+      "source_doc_ref": "docs/support/anm.adeu.md",
+      "baseline_profile_ref_or_none": null,
+      "current_profile_ref": "anm_doc_authority_profile:adeu.support.anm_native_practice",
+      "change_kind": "initial",
+      "surface_kind": "source_set_entry",
+      "path_or_axis": "source_entries.docs/support/anm.adeu.md",
+      "baseline_value_or_none": null,
+      "current_value_or_none": {
+        "doc_ref": "docs/support/anm.adeu.md",
+        "doc_id_or_none": "adeu.support.anm_native_practice",
+        "doc_class": "support",
+        "authority_layer": "support",
+        "source_posture": "standalone_anm",
+        "lifecycle_status": "living",
+        "classification_status": "classified",
+        "content_hash": "e3fd1547ea3e9944c86c8adafed6c1ff4e06d4ed3d52f02715b11085e73fe9e8",
+        "profile_ref_or_none": "anm_doc_authority_profile:adeu.support.anm_native_practice"
+      },
+      "authority_effect_kind": "no_authority_minted",
+      "authority_effect_summary_or_none": null
+    }
+  ]
+}

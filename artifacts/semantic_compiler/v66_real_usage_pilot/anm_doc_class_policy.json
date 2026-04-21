@@ -1,0 +1,149 @@
+{
+  "schema_id": "anm_doc_class_policy@1",
+  "policy_id": "policy:v66-live-pilot",
+  "policy_rows": [
+    {
+      "doc_class": "architecture",
+      "allowed_authority_layers": [
+        "architecture"
+      ],
+      "allowed_source_postures": [
+        "companion_anm",
+        "legacy_markdown",
+        "standalone_anm"
+      ],
+      "allowed_authority_blocks": [
+        "D@1",
+        "adeu.doc_profile@1"
+      ],
+      "allowed_outputs": [
+        "anm_doc_authority_profile@1",
+        "d1_normalized_ir@1"
+      ],
+      "forbidden_outputs": [
+        "policy_obligation_ledger@1"
+      ],
+      "hard_gates": [
+        "reject_overpromotion",
+        "reject_supersession_without_transition_law"
+      ],
+      "warning_gates": [
+        "warn_profile_inferred_from_manifest"
+      ]
+    },
+    {
+      "doc_class": "lock",
+      "allowed_authority_layers": [
+        "lock"
+      ],
+      "allowed_source_postures": [
+        "companion_anm",
+        "legacy_markdown",
+        "standalone_anm"
+      ],
+      "allowed_authority_blocks": [
+        "D@1",
+        "adeu.doc_profile@1"
+      ],
+      "allowed_outputs": [
+        "anm_doc_authority_profile@1",
+        "checker_fact_bundle@1",
+        "d1_normalized_ir@1",
+        "policy_evaluation_result_set@1",
+        "policy_obligation_ledger@1",
+        "predicate_contracts_bootstrap@1"
+      ],
+      "forbidden_outputs": [],
+      "hard_gates": [
+        "reject_overpromotion",
+        "reject_supersession_without_transition_law"
+      ],
+      "warning_gates": [
+        "warn_profile_inferred_from_manifest"
+      ]
+    },
+    {
+      "doc_class": "non_governance",
+      "allowed_authority_layers": [
+        "none"
+      ],
+      "allowed_source_postures": [
+        "generated_projection",
+        "legacy_markdown"
+      ],
+      "allowed_authority_blocks": [],
+      "allowed_outputs": [],
+      "forbidden_outputs": [
+        "checker_fact_bundle@1",
+        "d1_normalized_ir@1",
+        "policy_evaluation_result_set@1",
+        "policy_obligation_ledger@1",
+        "predicate_contracts_bootstrap@1"
+      ],
+      "hard_gates": [
+        "reject_overpromotion"
+      ],
+      "warning_gates": [
+        "warn_unknown_requires_registration"
+      ]
+    },
+    {
+      "doc_class": "planning",
+      "allowed_authority_layers": [
+        "planning"
+      ],
+      "allowed_source_postures": [
+        "companion_anm",
+        "legacy_markdown",
+        "standalone_anm"
+      ],
+      "allowed_authority_blocks": [
+        "D@1",
+        "adeu.doc_profile@1"
+      ],
+      "allowed_outputs": [
+        "anm_doc_authority_profile@1",
+        "d1_normalized_ir@1"
+      ],
+      "forbidden_outputs": [
+        "policy_obligation_ledger@1"
+      ],
+      "hard_gates": [
+        "reject_overpromotion",
+        "reject_supersession_without_transition_law"
+      ],
+      "warning_gates": [
+        "warn_profile_inferred_from_manifest"
+      ]
+    },
+    {
+      "doc_class": "support",
+      "allowed_authority_layers": [
+        "support"
+      ],
+      "allowed_source_postures": [
+        "companion_anm",
+        "legacy_markdown",
+        "standalone_anm"
+      ],
+      "allowed_authority_blocks": [
+        "D@1",
+        "adeu.doc_profile@1"
+      ],
+      "allowed_outputs": [
+        "anm_doc_authority_profile@1"
+      ],
+      "forbidden_outputs": [
+        "policy_obligation_ledger@1"
+      ],
+      "hard_gates": [
+        "reject_overpromotion",
+        "reject_unregistered_companion"
+      ],
+      "warning_gates": [
+        "warn_profile_inferred_from_manifest",
+        "warn_unknown_requires_registration"
+      ]
+    }
+  ]
+}

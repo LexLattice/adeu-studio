@@ -1,0 +1,35 @@
+{
+  "schema_id": "anm_reader_projection_manifest@1",
+  "projection_manifest_id": "projection:v66-live-pilot",
+  "consumed_source_set_manifest_ref": "anm_source_set_manifest:manifest:v66-live-pilot",
+  "consumed_source_set_manifest_hash": "f3e237525b773707f3f2afb23295f2b762344e63e0fdf24069bd0ac910cfe2ca",
+  "consumed_doc_class_policy_ref": "anm_doc_class_policy:policy:v66-live-pilot",
+  "consumed_doc_class_policy_hash": "48b99164a157702b18df4c1b1c04a481b493cab1789acf25b1d4eb4a5475a996",
+  "consumed_authority_profile_set_ref_or_hash": "sha256:42bd4177be4abd0b81c088437688048967ab80700d9b68bf620a1a946e7b1658",
+  "projection_rows": [
+    {
+      "projection_doc_ref": "docs/generated/anm_reader/LOCKED_CONTINUATION_vNEXT_PLUS184.reader.md",
+      "source_doc_ref": "docs/LOCKED_CONTINUATION_vNEXT_PLUS184.md",
+      "source_profile_ref": "anm_doc_authority_profile:adeu.lock.vnext_plus184",
+      "projection_required": true,
+      "projection_requirement_source": "explicit_projection_manifest",
+      "projection_status": "current",
+      "projection_authority_posture": "non_authoritative_generated_view",
+      "source_content_hash": "cbfde1bdae3919fded858c23c9c3aae997813f6193ab46f7fe07ad9726d557a0",
+      "projection_content_hash_or_none": "058082cd35c8a31af1d1e5f39bdca3a32c38779bde01812602e67fa5662285ff",
+      "drift_status": "in_sync"
+    },
+    {
+      "projection_doc_ref": "docs/generated/anm_reader/anm.reader.md",
+      "source_doc_ref": "docs/support/anm.adeu.md",
+      "source_profile_ref": "anm_doc_authority_profile:adeu.support.anm_native_practice",
+      "projection_required": true,
+      "projection_requirement_source": "explicit_projection_manifest",
+      "projection_status": "stale",
+      "projection_authority_posture": "non_authoritative_generated_view",
+      "source_content_hash": "e3fd1547ea3e9944c86c8adafed6c1ff4e06d4ed3d52f02715b11085e73fe9e8",
+      "projection_content_hash_or_none": "49ba0614ac8d4b8c54dccd34afbabf6941ca6d19acc544026bce525f226e1b09",
+      "drift_status": "source_changed_projection_stale"
+    }
+  ]
+}

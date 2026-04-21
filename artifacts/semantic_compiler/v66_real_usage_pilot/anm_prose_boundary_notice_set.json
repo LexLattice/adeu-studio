@@ -1,0 +1,55 @@
+{
+  "schema_id": "anm_prose_boundary_notice_set@1",
+  "notice_set_id": "notice:v66-live-pilot",
+  "report_status": "valid",
+  "consumed_lineage": {
+    "consumed_v66a_source_set_manifest_ref": "anm_source_set_manifest:manifest:v66-live-pilot",
+    "consumed_v66a_source_set_manifest_hash": "f3e237525b773707f3f2afb23295f2b762344e63e0fdf24069bd0ac910cfe2ca",
+    "consumed_v66a_authority_profile_set_ref_or_hash": "sha256:42bd4177be4abd0b81c088437688048967ab80700d9b68bf620a1a946e7b1658",
+    "consumed_v66a_doc_class_policy_ref": "anm_doc_class_policy:policy:v66-live-pilot",
+    "consumed_v66a_doc_class_policy_hash": "48b99164a157702b18df4c1b1c04a481b493cab1789acf25b1d4eb4a5475a996",
+    "consumed_v66b_migration_binding_profile_ref": "anm_migration_binding_profile:migration:v66-live-pilot",
+    "consumed_v66b_migration_binding_profile_hash": "697444b672273a2b047608cd759c25504a76afb3352f7ade453cc3abd1ddecc7",
+    "consumed_v66b_reader_projection_manifest_ref_or_none": "anm_reader_projection_manifest:projection:v66-live-pilot",
+    "consumed_v66b_reader_projection_manifest_hash_or_none": "adb6b01b2c04189fac73272ec581dc02d2b0224a709a25f4a90476db0bcf7b2a",
+    "consumed_v66b_semantic_diff_report_ref_or_none": "anm_semantic_diff_report:diff:v66-live-pilot",
+    "consumed_v66b_semantic_diff_report_hash_or_none": "15b6d804b912b844824cd2e092d65abb4d51c16af65acea97c79e57c10d70894"
+  },
+  "policy_anchor": {
+    "policy_anchor_ref": "anm_v66c_policy_anchor:starter",
+    "policy_anchor_hash": "f6fd52993ac2d0cb88b8ea62289efb10268b70ac244e4afa26d371233d51619b",
+    "policy_anchor_schema_id": "anm_v66c_frozen_policy_anchor@1",
+    "advisory_outcome_reducer_ref": "anm_v66c_advisory_outcome_reducer:starter",
+    "advisory_outcome_reducer_hash": "19a67592b9688428b4b1d25aab4073087d74679a58fd9f470749b2422434a7af",
+    "notice_detection_policy_ref": "anm_v66c_notice_detection_policy:starter",
+    "notice_detection_policy_hash": "de46b8099ae0477053b86913f8974748c285ff02636dc0a558bf40ff1b626008"
+  },
+  "notice_rows": [
+    {
+      "notice_id": "notice:normative_tone:sample:plain-prose",
+      "notice_kind": "normative_tone_without_compiled_authority_block",
+      "severity": "warning",
+      "source_doc_ref": "docs/support/anm.adeu.md",
+      "subject_ref": "sample:plain-prose",
+      "evidence_refs": [
+        "sample:plain-prose"
+      ],
+      "compiled_authority_block_ref_or_none": null,
+      "advisory_effect": "registration_review_needed",
+      "authority_effect": "current_markdown_remains_controlling"
+    },
+    {
+      "notice_id": "notice:projection_stale:docs/generated/anm_reader/anm.reader.md",
+      "notice_kind": "projection_staleness_visible",
+      "severity": "warning",
+      "source_doc_ref": "docs/support/anm.adeu.md",
+      "subject_ref": "projection:docs/generated/anm_reader/anm.reader.md",
+      "evidence_refs": [
+        "projection:docs/generated/anm_reader/anm.reader.md"
+      ],
+      "compiled_authority_block_ref_or_none": null,
+      "advisory_effect": "projection_refresh_needed",
+      "authority_effect": "current_markdown_remains_controlling"
+    }
+  ]
+}

@@ -1,0 +1,26 @@
+{
+  "schema_id": "anm_migration_binding_profile@1",
+  "migration_binding_profile_id": "migration:v66-live-pilot",
+  "consumed_source_set_manifest_ref": "anm_source_set_manifest:manifest:v66-live-pilot",
+  "consumed_source_set_manifest_hash": "f3e237525b773707f3f2afb23295f2b762344e63e0fdf24069bd0ac910cfe2ca",
+  "consumed_doc_class_policy_ref": "anm_doc_class_policy:policy:v66-live-pilot",
+  "consumed_doc_class_policy_hash": "48b99164a157702b18df4c1b1c04a481b493cab1789acf25b1d4eb4a5475a996",
+  "consumed_authority_profile_set_ref_or_hash": "sha256:42bd4177be4abd0b81c088437688048967ab80700d9b68bf620a1a946e7b1658",
+  "binding_rows": [
+    {
+      "binding_id": "binding:v184-overlay",
+      "host_doc_ref": "docs/LOCKED_CONTINUATION_vNEXT_PLUS184.md",
+      "companion_doc_ref_or_none": "docs/overlays/LOCKED_CONTINUATION_vNEXT_PLUS184.anm.adeu.md",
+      "host_profile_ref": "anm_doc_authority_profile:adeu.lock.vnext_plus184",
+      "companion_profile_ref_or_none": "anm_doc_authority_profile:adeu.lock.v184.overlay",
+      "binding_posture": "registered_non_overriding_companion",
+      "current_markdown_authority_relation": "current_markdown_controlling",
+      "supersession_claim_status": "none",
+      "explicit_transition_law_ref_or_none": null,
+      "generated_reader_projection_refs": [
+        "anm_reader_projection_manifest:projection:v66-live-pilot#docs/generated/anm_reader/LOCKED_CONTINUATION_vNEXT_PLUS184.reader.md"
+      ],
+      "semantic_diff_ref_or_none": "anm_semantic_diff_report:diff:v66-live-pilot"
+    }
+  ]
+}

@@ -1,0 +1,136 @@
+[
+  {
+    "schema_id": "anm_doc_authority_profile@1",
+    "doc_id": "adeu.architecture.v66_family",
+    "doc_ref": "docs/ARCHITECTURE_ADEU_ANM_NATIVE_DOCUMENTATION_PRACTICE_FAMILY_v0.md",
+    "doc_class": "architecture",
+    "authority_layer": "architecture",
+    "source_posture": "legacy_markdown",
+    "lifecycle_status": "draft",
+    "allowed_authority_blocks": [
+      "D@1",
+      "adeu.doc_profile@1"
+    ],
+    "allowed_outputs": [
+      "anm_doc_authority_profile@1",
+      "d1_normalized_ir@1"
+    ],
+    "forbidden_outputs": [
+      "policy_obligation_ledger@1"
+    ],
+    "current_markdown_authority_relation": "current_markdown_controlling",
+    "allowed_consumers": [
+      "semantic_compiler",
+      "semantic_source"
+    ],
+    "requires_transition_law_for_supersession": true
+  },
+  {
+    "schema_id": "anm_doc_authority_profile@1",
+    "doc_id": "adeu.planning.v51",
+    "doc_ref": "docs/DRAFT_NEXT_ARC_OPTIONS_v51.md",
+    "doc_class": "planning",
+    "authority_layer": "planning",
+    "source_posture": "legacy_markdown",
+    "lifecycle_status": "draft",
+    "allowed_authority_blocks": [
+      "D@1",
+      "adeu.doc_profile@1"
+    ],
+    "allowed_outputs": [
+      "anm_doc_authority_profile@1",
+      "d1_normalized_ir@1"
+    ],
+    "forbidden_outputs": [
+      "policy_obligation_ledger@1"
+    ],
+    "current_markdown_authority_relation": "current_markdown_controlling",
+    "allowed_consumers": [
+      "semantic_compiler",
+      "semantic_source"
+    ],
+    "requires_transition_law_for_supersession": true
+  },
+  {
+    "schema_id": "anm_doc_authority_profile@1",
+    "doc_id": "adeu.lock.vnext_plus184",
+    "doc_ref": "docs/LOCKED_CONTINUATION_vNEXT_PLUS184.md",
+    "doc_class": "lock",
+    "authority_layer": "lock",
+    "source_posture": "legacy_markdown",
+    "lifecycle_status": "living",
+    "allowed_authority_blocks": [
+      "D@1",
+      "adeu.doc_profile@1"
+    ],
+    "allowed_outputs": [
+      "anm_doc_authority_profile@1",
+      "checker_fact_bundle@1",
+      "d1_normalized_ir@1",
+      "policy_evaluation_result_set@1",
+      "policy_obligation_ledger@1",
+      "predicate_contracts_bootstrap@1"
+    ],
+    "forbidden_outputs": [],
+    "current_markdown_authority_relation": "current_markdown_controlling",
+    "allowed_consumers": [
+      "policy_evaluator",
+      "semantic_compiler",
+      "semantic_source"
+    ],
+    "requires_transition_law_for_supersession": true
+  },
+  {
+    "schema_id": "anm_doc_authority_profile@1",
+    "doc_id": "adeu.lock.v184.overlay",
+    "doc_ref": "docs/overlays/LOCKED_CONTINUATION_vNEXT_PLUS184.anm.adeu.md",
+    "doc_class": "lock",
+    "authority_layer": "lock",
+    "source_posture": "companion_anm",
+    "lifecycle_status": "living",
+    "allowed_authority_blocks": [
+      "D@1",
+      "adeu.doc_profile@1"
+    ],
+    "allowed_outputs": [
+      "anm_doc_authority_profile@1",
+      "checker_fact_bundle@1",
+      "d1_normalized_ir@1",
+      "policy_evaluation_result_set@1",
+      "policy_obligation_ledger@1",
+      "predicate_contracts_bootstrap@1"
+    ],
+    "forbidden_outputs": [],
+    "current_markdown_authority_relation": "current_markdown_controlling",
+    "allowed_consumers": [
+      "policy_evaluator",
+      "semantic_compiler",
+      "semantic_source"
+    ],
+    "requires_transition_law_for_supersession": true
+  },
+  {
+    "schema_id": "anm_doc_authority_profile@1",
+    "doc_id": "adeu.support.anm_native_practice",
+    "doc_ref": "docs/support/anm.adeu.md",
+    "doc_class": "support",
+    "authority_layer": "support",
+    "source_posture": "standalone_anm",
+    "lifecycle_status": "living",
+    "allowed_authority_blocks": [
+      "adeu.doc_profile@1"
+    ],
+    "allowed_outputs": [
+      "anm_doc_authority_profile@1"
+    ],
+    "forbidden_outputs": [
+      "policy_obligation_ledger@1"
+    ],
+    "current_markdown_authority_relation": "later_lock_required_for_supersession",
+    "allowed_consumers": [
+      "semantic_compiler",
+      "semantic_source"
+    ],
+    "requires_transition_law_for_supersession": true
+  }
+]

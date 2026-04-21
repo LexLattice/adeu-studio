@@ -1,0 +1,76 @@
+{
+  "schema_id": "anm_source_set_manifest@1",
+  "manifest_id": "manifest:v66-live-pilot",
+  "source_entries": [
+    {
+      "doc_ref": "docs/ARCHITECTURE_ADEU_ANM_NATIVE_DOCUMENTATION_PRACTICE_FAMILY_v0.md",
+      "doc_id_or_none": "adeu.architecture.v66_family",
+      "doc_class": "architecture",
+      "authority_layer": "architecture",
+      "source_posture": "legacy_markdown",
+      "lifecycle_status": "draft",
+      "classification_status": "classified",
+      "content_hash": "70dfe0854c1884b343be893a9e264f60b1c9abc54c44581ebb0587b1bc05a3a0",
+      "profile_ref_or_none": "anm_doc_authority_profile:adeu.architecture.v66_family",
+      "host_doc_ref_or_none": null,
+      "companion_registration_status_or_none": null,
+      "generated_from_ref_or_none": null
+    },
+    {
+      "doc_ref": "docs/DRAFT_NEXT_ARC_OPTIONS_v51.md",
+      "doc_id_or_none": "adeu.planning.v51",
+      "doc_class": "planning",
+      "authority_layer": "planning",
+      "source_posture": "legacy_markdown",
+      "lifecycle_status": "draft",
+      "classification_status": "classified",
+      "content_hash": "6c99432b2486653e0c29e27969444d144d96ac1147c717ad6d6398dbf32ce245",
+      "profile_ref_or_none": "anm_doc_authority_profile:adeu.planning.v51",
+      "host_doc_ref_or_none": null,
+      "companion_registration_status_or_none": null,
+      "generated_from_ref_or_none": null
+    },
+    {
+      "doc_ref": "docs/LOCKED_CONTINUATION_vNEXT_PLUS184.md",
+      "doc_id_or_none": "adeu.lock.vnext_plus184",
+      "doc_class": "lock",
+      "authority_layer": "lock",
+      "source_posture": "legacy_markdown",
+      "lifecycle_status": "living",
+      "classification_status": "classified",
+      "content_hash": "cbfde1bdae3919fded858c23c9c3aae997813f6193ab46f7fe07ad9726d557a0",
+      "profile_ref_or_none": "anm_doc_authority_profile:adeu.lock.vnext_plus184",
+      "host_doc_ref_or_none": null,
+      "companion_registration_status_or_none": "registered_host_document",
+      "generated_from_ref_or_none": null
+    },
+    {
+      "doc_ref": "docs/overlays/LOCKED_CONTINUATION_vNEXT_PLUS184.anm.adeu.md",
+      "doc_id_or_none": "adeu.lock.v184.overlay",
+      "doc_class": "lock",
+      "authority_layer": "lock",
+      "source_posture": "companion_anm",
+      "lifecycle_status": "living",
+      "classification_status": "classified",
+      "content_hash": "7eef6163806c1d3ace450a4ca55b144c3534104d3098f4f4b3b4a8cf8b52e65a",
+      "profile_ref_or_none": "anm_doc_authority_profile:adeu.lock.v184.overlay",
+      "host_doc_ref_or_none": "docs/LOCKED_CONTINUATION_vNEXT_PLUS184.md",
+      "companion_registration_status_or_none": "registered_companion_overlay",
+      "generated_from_ref_or_none": null
+    },
+    {
+      "doc_ref": "docs/support/anm.adeu.md",
+      "doc_id_or_none": "adeu.support.anm_native_practice",
+      "doc_class": "support",
+      "authority_layer": "support",
+      "source_posture": "standalone_anm",
+      "lifecycle_status": "living",
+      "classification_status": "classified",
+      "content_hash": "e3fd1547ea3e9944c86c8adafed6c1ff4e06d4ed3d52f02715b11085e73fe9e8",
+      "profile_ref_or_none": "anm_doc_authority_profile:adeu.support.anm_native_practice",
+      "host_doc_ref_or_none": null,
+      "companion_registration_status_or_none": null,
+      "generated_from_ref_or_none": null
+    }
+  ]
+}
