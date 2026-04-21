@@ -222,6 +222,23 @@ Ordering discipline for this branch:
   - keep current markdown authority explicit on `main`
   - select `V66-A` as the next default candidate
 
+Current next-slice posture:
+
+- `V66-A` implementation is merged on `main` and the family now has the starter
+  source-set / authority-profile / class-policy basis on the default branch
+- the next concrete slice should therefore stay inside the same family and widen
+  only the deferred migration / reader-projection seam
+- that widening should keep the new outputs mechanically distinct from the
+  shipped `V66-A` basis:
+  - consume shipped source-set / authority-profile / class-policy artifacts
+  - emit migration-binding / reader-projection / semantic-diff artifacts only
+- generated reader projections should stay non-authoritative and excluded from
+  governed ANM source by construction
+- semantic diff should stay explicit-baseline and bounded to `V66`
+  documentation-governance surfaces only
+- transition-law posture should stay lock-bound and fail-closed
+- select `V66-B` as the next default candidate
+
 Default next-slice posture:
 
 - consume the shipped `V47` substrate intact:
@@ -278,8 +295,8 @@ The current recommended path ladder is:
 
 | Path | Theme | Primary output | Status |
 |---|---|---|---|
-| `V66-A` | source discovery / class policy starter | `anm_source_set_manifest@1`, `anm_doc_authority_profile@1`, and `anm_doc_class_policy@1` over one governed repo ANM source set only | selected next path |
-| `V66-B` | migration / reader projection | `anm_migration_binding_profile@1`, `anm_reader_projection_manifest@1`, and `anm_semantic_diff_report@1` over the same governed source set only | prepared later |
+| `V66-A` | source discovery / class policy starter | `anm_source_set_manifest@1`, `anm_doc_authority_profile@1`, and `anm_doc_class_policy@1` over one governed repo ANM source set only | merged on `main`; closeout in progress |
+| `V66-B` | migration / reader projection | `anm_migration_binding_profile@1`, `anm_reader_projection_manifest@1`, and `anm_semantic_diff_report@1` over the same governed source set only | selected next path |
 | `V66-C` | advisory adoption hardening | `anm_compile_report@1`, `anm_prose_boundary_notice_set@1`, and related adoption hardening outputs over the same governed source set only | prepared later |
 
 These output names are planning-level candidate names, not lock-level schema
