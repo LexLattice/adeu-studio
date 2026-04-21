@@ -1,3 +1,9 @@
+from .anm_adoption import (
+    V66CAdoptionHardeningResult,
+    build_v66c_compile_report,
+    build_v66c_prose_boundary_notice_set,
+    check_v66c_anm_adoption_hardening,
+)
 from .anm_inventory import (
     V66AInventoryResult,
     build_v66a_doc_class_policy,
@@ -20,13 +26,17 @@ from .compile import (
 __all__ = [
     "V66AInventoryResult",
     "V66BMigrationResult",
+    "V66CAdoptionHardeningResult",
     "build_v66a_doc_class_policy",
     "build_v66b_migration_binding_profile",
     "build_v66b_reader_projection_manifest",
     "build_v66b_semantic_diff_report",
+    "build_v66c_compile_report",
+    "build_v66c_prose_boundary_notice_set",
     "inventory_v66a_anm_source_set",
     "check_v66a_anm_source_set",
     "check_v66b_anm_migration_projection",
+    "check_v66c_anm_adoption_hardening",
     "SEMANTIC_COMPILER_DIAGNOSTICS_SCHEMA",
     "SEMANTIC_COMPILER_PASS_MANIFEST_SCHEMA",
     "compile_semantic_compiler",

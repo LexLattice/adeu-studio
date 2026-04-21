@@ -7,11 +7,13 @@ from pathlib import Path
 from adeu_commitments_ir import (
     ADEU_COMMITMENTS_IR_SCHEMA,
     ANM_BENCHMARK_POLICY_CONSUMER_BINDING_PROFILE_SCHEMA,
+    ANM_COMPILE_REPORT_SCHEMA,
     ANM_DOC_AUTHORITY_PROFILE_SCHEMA,
     ANM_DOC_CLASS_POLICY_SCHEMA,
     ANM_MARKDOWN_COEXISTENCE_PROFILE_SCHEMA,
     ANM_MIGRATION_BINDING_PROFILE_SCHEMA,
     ANM_POLICY_CONSUMER_BINDING_PROFILE_SCHEMA,
+    ANM_PROSE_BOUNDARY_NOTICE_SET_SCHEMA,
     ANM_READER_PROJECTION_MANIFEST_SCHEMA,
     ANM_SELECTOR_PREDICATE_OWNERSHIP_PROFILE_SCHEMA,
     ANM_SEMANTIC_DIFF_REPORT_SCHEMA,
@@ -133,6 +135,11 @@ def _schema_pairs() -> list[tuple[str, Path, Path]]:
             root / "spec" / "anm_doc_class_policy.schema.json",
         ),
         (
+            ANM_COMPILE_REPORT_SCHEMA,
+            root / "packages" / "adeu_commitments_ir" / "schema" / "anm_compile_report.v1.json",
+            root / "spec" / "anm_compile_report.schema.json",
+        ),
+        (
             ANM_MIGRATION_BINDING_PROFILE_SCHEMA,
             root
             / "packages"
@@ -149,6 +156,15 @@ def _schema_pairs() -> list[tuple[str, Path, Path]]:
             / "schema"
             / "anm_reader_projection_manifest.v1.json",
             root / "spec" / "anm_reader_projection_manifest.schema.json",
+        ),
+        (
+            ANM_PROSE_BOUNDARY_NOTICE_SET_SCHEMA,
+            root
+            / "packages"
+            / "adeu_commitments_ir"
+            / "schema"
+            / "anm_prose_boundary_notice_set.v1.json",
+            root / "spec" / "anm_prose_boundary_notice_set.schema.json",
         ),
         (
             ANM_SEMANTIC_DIFF_REPORT_SCHEMA,
@@ -255,8 +271,16 @@ def test_exported_schema_has_stable_contract_markers() -> None:
         == ANM_DOC_CLASS_POLICY_SCHEMA
     )
     assert (
+        schema_payloads[ANM_COMPILE_REPORT_SCHEMA]["properties"]["schema_id"]["const"]
+        == ANM_COMPILE_REPORT_SCHEMA
+    )
+    assert (
         schema_payloads[ANM_MIGRATION_BINDING_PROFILE_SCHEMA]["properties"]["schema_id"]["const"]
         == ANM_MIGRATION_BINDING_PROFILE_SCHEMA
+    )
+    assert (
+        schema_payloads[ANM_PROSE_BOUNDARY_NOTICE_SET_SCHEMA]["properties"]["schema_id"]["const"]
+        == ANM_PROSE_BOUNDARY_NOTICE_SET_SCHEMA
     )
     assert (
         schema_payloads[ANM_READER_PROJECTION_MANIFEST_SCHEMA]["properties"]["schema_id"]["const"]

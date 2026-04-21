@@ -1,0 +1,294 @@
+{
+  "$defs": {
+    "AnmProseBoundaryNoticeRow": {
+      "additionalProperties": false,
+      "properties": {
+        "advisory_effect": {
+          "enum": [
+            "none",
+            "review_visibility_only",
+            "registration_review_needed",
+            "projection_refresh_needed",
+            "transition_law_review_needed",
+            "markdown_transition_candidate"
+          ],
+          "title": "Advisory Effect",
+          "type": "string"
+        },
+        "authority_effect": {
+          "enum": [
+            "no_authority_minted",
+            "current_markdown_remains_controlling",
+            "invalid_authority_claim_rejected"
+          ],
+          "title": "Authority Effect",
+          "type": "string"
+        },
+        "compiled_authority_block_ref_or_none": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Compiled Authority Block Ref Or None"
+        },
+        "evidence_refs": {
+          "items": {
+            "type": "string"
+          },
+          "title": "Evidence Refs",
+          "type": "array",
+          "uniqueItems": true
+        },
+        "notice_id": {
+          "minLength": 1,
+          "title": "Notice Id",
+          "type": "string"
+        },
+        "notice_kind": {
+          "enum": [
+            "normative_tone_without_compiled_authority_block",
+            "projection_staleness_visible",
+            "generated_projection_authority_overread_risk",
+            "transition_law_scope_ambiguity",
+            "class_policy_overpromotion_risk"
+          ],
+          "title": "Notice Kind",
+          "type": "string"
+        },
+        "severity": {
+          "enum": [
+            "info",
+            "warning",
+            "error"
+          ],
+          "title": "Severity",
+          "type": "string"
+        },
+        "source_doc_ref": {
+          "minLength": 1,
+          "title": "Source Doc Ref",
+          "type": "string"
+        },
+        "subject_ref": {
+          "minLength": 1,
+          "title": "Subject Ref",
+          "type": "string"
+        }
+      },
+      "required": [
+        "notice_id",
+        "notice_kind",
+        "severity",
+        "source_doc_ref",
+        "subject_ref",
+        "advisory_effect",
+        "authority_effect"
+      ],
+      "title": "AnmProseBoundaryNoticeRow",
+      "type": "object"
+    },
+    "AnmV66CConsumedLineage": {
+      "additionalProperties": false,
+      "properties": {
+        "consumed_v66a_authority_profile_set_ref_or_hash": {
+          "minLength": 1,
+          "title": "Consumed V66A Authority Profile Set Ref Or Hash",
+          "type": "string"
+        },
+        "consumed_v66a_doc_class_policy_hash": {
+          "minLength": 1,
+          "title": "Consumed V66A Doc Class Policy Hash",
+          "type": "string"
+        },
+        "consumed_v66a_doc_class_policy_ref": {
+          "minLength": 1,
+          "title": "Consumed V66A Doc Class Policy Ref",
+          "type": "string"
+        },
+        "consumed_v66a_source_set_manifest_hash": {
+          "minLength": 1,
+          "title": "Consumed V66A Source Set Manifest Hash",
+          "type": "string"
+        },
+        "consumed_v66a_source_set_manifest_ref": {
+          "minLength": 1,
+          "title": "Consumed V66A Source Set Manifest Ref",
+          "type": "string"
+        },
+        "consumed_v66b_migration_binding_profile_hash": {
+          "minLength": 1,
+          "title": "Consumed V66B Migration Binding Profile Hash",
+          "type": "string"
+        },
+        "consumed_v66b_migration_binding_profile_ref": {
+          "minLength": 1,
+          "title": "Consumed V66B Migration Binding Profile Ref",
+          "type": "string"
+        },
+        "consumed_v66b_reader_projection_manifest_hash_or_none": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Consumed V66B Reader Projection Manifest Hash Or None"
+        },
+        "consumed_v66b_reader_projection_manifest_ref_or_none": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Consumed V66B Reader Projection Manifest Ref Or None"
+        },
+        "consumed_v66b_semantic_diff_report_hash_or_none": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Consumed V66B Semantic Diff Report Hash Or None"
+        },
+        "consumed_v66b_semantic_diff_report_ref_or_none": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Consumed V66B Semantic Diff Report Ref Or None"
+        }
+      },
+      "required": [
+        "consumed_v66a_source_set_manifest_ref",
+        "consumed_v66a_source_set_manifest_hash",
+        "consumed_v66a_authority_profile_set_ref_or_hash",
+        "consumed_v66a_doc_class_policy_ref",
+        "consumed_v66a_doc_class_policy_hash",
+        "consumed_v66b_migration_binding_profile_ref",
+        "consumed_v66b_migration_binding_profile_hash"
+      ],
+      "title": "AnmV66CConsumedLineage",
+      "type": "object"
+    },
+    "AnmV66CPolicyAnchor": {
+      "additionalProperties": false,
+      "properties": {
+        "advisory_outcome_reducer_hash": {
+          "minLength": 1,
+          "title": "Advisory Outcome Reducer Hash",
+          "type": "string"
+        },
+        "advisory_outcome_reducer_ref": {
+          "minLength": 1,
+          "title": "Advisory Outcome Reducer Ref",
+          "type": "string"
+        },
+        "notice_detection_policy_hash": {
+          "minLength": 1,
+          "title": "Notice Detection Policy Hash",
+          "type": "string"
+        },
+        "notice_detection_policy_ref": {
+          "minLength": 1,
+          "title": "Notice Detection Policy Ref",
+          "type": "string"
+        },
+        "policy_anchor_hash": {
+          "minLength": 1,
+          "title": "Policy Anchor Hash",
+          "type": "string"
+        },
+        "policy_anchor_ref": {
+          "minLength": 1,
+          "title": "Policy Anchor Ref",
+          "type": "string"
+        },
+        "policy_anchor_schema_id": {
+          "minLength": 1,
+          "title": "Policy Anchor Schema Id",
+          "type": "string"
+        }
+      },
+      "required": [
+        "policy_anchor_ref",
+        "policy_anchor_hash",
+        "policy_anchor_schema_id",
+        "advisory_outcome_reducer_ref",
+        "advisory_outcome_reducer_hash",
+        "notice_detection_policy_ref",
+        "notice_detection_policy_hash"
+      ],
+      "title": "AnmV66CPolicyAnchor",
+      "type": "object"
+    }
+  },
+  "additionalProperties": false,
+  "properties": {
+    "consumed_lineage": {
+      "$ref": "#/$defs/AnmV66CConsumedLineage"
+    },
+    "notice_rows": {
+      "items": {
+        "$ref": "#/$defs/AnmProseBoundaryNoticeRow"
+      },
+      "title": "Notice Rows",
+      "type": "array"
+    },
+    "notice_set_id": {
+      "minLength": 1,
+      "title": "Notice Set Id",
+      "type": "string"
+    },
+    "policy_anchor": {
+      "$ref": "#/$defs/AnmV66CPolicyAnchor"
+    },
+    "report_status": {
+      "enum": [
+        "valid",
+        "invalid_missing_prior_basis",
+        "invalid_prior_basis_hash_mismatch",
+        "invalid_policy_anchor",
+        "invalid_unsupported_schema",
+        "invalid_notice_evidence",
+        "invalid_authority_claim_rejected"
+      ],
+      "title": "Report Status",
+      "type": "string"
+    },
+    "schema_id": {
+      "const": "anm_prose_boundary_notice_set@1",
+      "default": "anm_prose_boundary_notice_set@1",
+      "title": "Schema Id",
+      "type": "string"
+    }
+  },
+  "required": [
+    "notice_set_id",
+    "report_status",
+    "consumed_lineage",
+    "policy_anchor"
+  ],
+  "title": "AnmProseBoundaryNoticeSet",
+  "type": "object"
+}
