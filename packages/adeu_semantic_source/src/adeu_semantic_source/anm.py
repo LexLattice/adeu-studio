@@ -9,15 +9,21 @@ from typing import Any
 
 from adeu_commitments_ir import (
     AnmAdoptionBoundaryRow,
+    AnmAuthorityLayer,
     AnmBenchmarkPolicyConsumerBindingProfile,
     AnmBenchmarkPolicyConsumerRow,
     AnmCoexistenceSourceRow,
+    AnmDocAuthorityProfile,
+    AnmDocClass,
+    AnmDocSourcePosture,
+    AnmLifecycleStatus,
     AnmMarkdownCoexistenceProfile,
     AnmPolicyConsumerBindingProfile,
     AnmPolicyConsumerRow,
     AnmSelectorPredicateOwnershipProfile,
     CheckerFactBundle,
     ClauseScopeBlockerResultRow,
+    CurrentMarkdownAuthorityRelation,
     D1Clause,
     D1NormalizedIR,
     D1Qualifier,
@@ -40,6 +46,7 @@ from adeu_ir.repo import repo_root
 from pydantic import ValidationError
 
 _D1_BLOCK_HEADER_RE = re.compile(r"^:::D@1(?:\s+id=(?P<block_id>[A-Za-z0-9_.-]+))\s*$")
+_DOC_PROFILE_HEADER_RE = re.compile(r"^:::adeu\.doc_profile@1\s*$")
 _CLAUSE_RE = re.compile(r"^@(?P<label>[A-Za-z0-9_.-]+)\s+(?P<modal>MUST|MUST_NOT)\s+(?P<rest>.+)$")
 _PREDICATE_CALL_RE = re.compile(
     r"^(?P<name>[A-Za-z_][A-Za-z0-9_]*)\((?P<args>.*)\)$"
@@ -60,12 +67,121 @@ class _ParsedBlock:
     clause_lines: list[str]
 
 
+@dataclass(frozen=True)
+class _ParsedDocProfileBlock:
+    payload: dict[str, Any]
+
+
 def _normalize_text(text: str) -> str:
     return text.replace("\r\n", "\n").replace("\r", "\n")
 
 
 def _sha256_text(text: str) -> str:
     return sha256(text.encode("utf-8")).hexdigest()
+
+
+def _strip_non_authoritative_context(source_text: str) -> str:
+    filtered_lines: list[str] = []
+    inside_fence = False
+    for line in _normalize_text(source_text).split("\n"):
+        stripped = line.strip()
+        if stripped.startswith("```"):
+            inside_fence = not inside_fence
+            filtered_lines.append("")
+            continue
+        if inside_fence or stripped.startswith(">"):
+            filtered_lines.append("")
+            continue
+        filtered_lines.append(line)
+    return "\n".join(filtered_lines)
+
+
+def _parse_simple_mapping_lines(lines: list[str], *, field_name: str) -> dict[str, Any]:
+    result: dict[str, Any] = {}
+    current_list_key: str | None = None
+    for raw_line in lines:
+        stripped = raw_line.strip()
+        if not stripped:
+            continue
+        if stripped.startswith("#"):
+            continue
+        if stripped.startswith("- "):
+            if current_list_key is None:
+                raise AnmCompileError(f"{field_name} contains a list item without a key")
+            list_value = result[current_list_key]
+            if not isinstance(list_value, list):
+                raise AnmCompileError(f"{field_name}.{current_list_key} must be a list")
+            list_value.append(_json_scalar_from_text(stripped[2:].strip()))
+            continue
+        if ":" not in stripped:
+            raise AnmCompileError(f"{field_name} contains an unsupported line: {stripped}")
+        key, raw_value = stripped.split(":", 1)
+        key = _require_non_empty_text(key, field_name=f"{field_name}.key")
+        if key in result:
+            raise AnmCompileError(f"{field_name} contains duplicate key {key}")
+        value_text = raw_value.strip()
+        if not value_text:
+            result[key] = []
+            current_list_key = key
+            continue
+        result[key] = _json_scalar_from_text(value_text)
+        current_list_key = None
+    return result
+
+
+def _extract_front_matter(source_text: str) -> dict[str, Any]:
+    lines = _normalize_text(source_text).split("\n")
+    if not lines or lines[0].strip() != "---":
+        return {}
+    try:
+        closing_index = lines[1:].index("---") + 1
+    except ValueError:
+        raise AnmCompileError("front matter fence was not closed")
+    return _parse_simple_mapping_lines(lines[1:closing_index], field_name="front_matter")
+
+
+def _extract_doc_profile_blocks(source_text: str) -> list[_ParsedDocProfileBlock]:
+    filtered_lines = _strip_non_authoritative_context(source_text).split("\n")
+    blocks: list[_ParsedDocProfileBlock] = []
+    inside_profile = False
+    current_lines: list[str] = []
+    for line in filtered_lines:
+        stripped = line.strip()
+        if _DOC_PROFILE_HEADER_RE.match(stripped):
+            if inside_profile:
+                raise AnmCompileError("nested adeu.doc_profile@1 blocks are forbidden")
+            inside_profile = True
+            current_lines = []
+            continue
+        if not inside_profile:
+            continue
+        if stripped == ":::":
+            blocks.append(
+                _ParsedDocProfileBlock(
+                    payload=_parse_simple_mapping_lines(
+                        current_lines,
+                        field_name="adeu.doc_profile@1",
+                    )
+                )
+            )
+            inside_profile = False
+            current_lines = []
+            continue
+        current_lines.append(line)
+    if inside_profile:
+        raise AnmCompileError("adeu.doc_profile@1 block was not closed")
+    return blocks
+
+
+def _has_recognized_d1_blocks(source_text: str) -> bool:
+    filtered_text = _strip_non_authoritative_context(source_text)
+    if ":::D@1" not in filtered_text:
+        return False
+    try:
+        _extract_blocks(filtered_text)
+    except AnmCompileError:
+        return False
+    return True
 
 
 def _require_non_empty_text(value: Any, *, field_name: str) -> str:
@@ -305,6 +421,127 @@ def _extract_blocks(source_text: str) -> list[_ParsedBlock]:
 def _infer_source_posture(*, source_ref: str, source_text: str) -> str:
     _extract_blocks(source_text)
     return "standalone_anm" if source_ref.endswith(".adeu.md") else "companion_anm"
+
+
+def inspect_v66a_source(*, source_text: str) -> dict[str, Any]:
+    front_matter = _extract_front_matter(source_text)
+    doc_profile_blocks = _extract_doc_profile_blocks(source_text)
+    if len(doc_profile_blocks) > 1:
+        raise AnmCompileError("multiple adeu.doc_profile@1 blocks are forbidden in V66-A")
+    explicit_profile = doc_profile_blocks[0].payload if doc_profile_blocks else None
+    return {
+        "front_matter": front_matter,
+        "explicit_profile": explicit_profile,
+        "has_recognized_d1_blocks": _has_recognized_d1_blocks(source_text),
+    }
+
+
+def _require_sorted_unique_non_empty_strings(
+    values: list[Any],
+    *,
+    field_name: str,
+) -> list[str]:
+    if not isinstance(values, list):
+        raise AnmCompileError(f"{field_name} must be a list")
+    normalized = [
+        _require_non_empty_text(value, field_name=f"{field_name}[{index}]")
+        for index, value in enumerate(values)
+    ]
+    if normalized != sorted(set(normalized)):
+        raise AnmCompileError(f"{field_name} must be sorted and unique")
+    return normalized
+
+
+def build_v66a_doc_authority_profile(
+    *,
+    source_text: str,
+    source_doc_ref: str,
+    doc_id: str,
+    doc_class: AnmDocClass,
+    authority_layer: AnmAuthorityLayer,
+    source_posture: AnmDocSourcePosture,
+    lifecycle_status: AnmLifecycleStatus,
+    allowed_authority_blocks: list[str],
+    allowed_outputs: list[str],
+    forbidden_outputs: list[str],
+    current_markdown_authority_relation: CurrentMarkdownAuthorityRelation,
+    allowed_consumers: list[str],
+    requires_transition_law_for_supersession: bool,
+) -> AnmDocAuthorityProfile:
+    source_doc_ref = _require_non_empty_text(source_doc_ref, field_name="source_doc_ref")
+    doc_id = _require_non_empty_text(doc_id, field_name="doc_id")
+    inspected = inspect_v66a_source(source_text=source_text)
+    explicit_profile = inspected["explicit_profile"]
+
+    explicit_doc_id = None
+    if explicit_profile is not None:
+        explicit_schema = _require_non_empty_text(
+            str(_require_mapping_value(explicit_profile, "schema", field_name="explicit_profile")),
+            field_name="explicit_profile.schema",
+        )
+        if explicit_schema != "anm_doc_authority_profile@1":
+            raise AnmCompileError(
+                "explicit adeu.doc_profile@1 blocks must use schema anm_doc_authority_profile@1"
+            )
+        explicit_doc_id = _require_non_empty_text(
+            str(_require_mapping_value(explicit_profile, "doc_id", field_name="explicit_profile")),
+            field_name="explicit_profile.doc_id",
+        )
+        if explicit_doc_id != doc_id:
+            raise AnmCompileError("explicit profile doc_id must match selected V66-A doc_id")
+        for field_name, selected_value in (
+            ("doc_class", doc_class),
+            ("authority_layer", authority_layer),
+            ("source_posture", source_posture),
+        ):
+            explicit_value = _require_non_empty_text(
+                str(
+                    _require_mapping_value(
+                        explicit_profile,
+                        field_name,
+                        field_name="explicit_profile",
+                    )
+                ),
+                field_name=f"explicit_profile.{field_name}",
+            )
+            if explicit_value != selected_value:
+                raise AnmCompileError(
+                    f"explicit profile {field_name} must match selected {field_name}"
+                )
+
+    allowed_authority_blocks = _require_sorted_unique_non_empty_strings(
+        allowed_authority_blocks,
+        field_name="allowed_authority_blocks",
+    )
+    allowed_outputs = _require_sorted_unique_non_empty_strings(
+        allowed_outputs,
+        field_name="allowed_outputs",
+    )
+    forbidden_outputs = _require_sorted_unique_non_empty_strings(
+        forbidden_outputs,
+        field_name="forbidden_outputs",
+    )
+    allowed_consumers = _require_sorted_unique_non_empty_strings(
+        allowed_consumers,
+        field_name="allowed_consumers",
+    )
+    if set(allowed_outputs) & set(forbidden_outputs):
+        raise AnmCompileError("allowed_outputs and forbidden_outputs must not overlap")
+
+    return AnmDocAuthorityProfile(
+        doc_id=doc_id,
+        doc_ref=source_doc_ref,
+        doc_class=doc_class,
+        authority_layer=authority_layer,
+        source_posture=source_posture,
+        lifecycle_status=lifecycle_status,
+        allowed_authority_blocks=allowed_authority_blocks,
+        allowed_outputs=allowed_outputs,
+        forbidden_outputs=forbidden_outputs,
+        current_markdown_authority_relation=current_markdown_authority_relation,
+        allowed_consumers=allowed_consumers,
+        requires_transition_law_for_supersession=requires_transition_law_for_supersession,
+    )
 
 
 def build_v47c_coexistence_profile(
@@ -2138,6 +2375,8 @@ def build_v47a_reference_chain(
 
 __all__ = [
     "AnmCompileError",
+    "inspect_v66a_source",
+    "build_v66a_doc_authority_profile",
     "compile_authoritative_normative_markdown",
     "default_bootstrap_predicate_contracts",
     "evaluate_authoritative_normative_markdown",

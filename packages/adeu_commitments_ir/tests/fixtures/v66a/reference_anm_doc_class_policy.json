@@ -1,0 +1,35 @@
+{
+  "policy_id": "policy:v66a-reference",
+  "policy_rows": [
+    {
+      "allowed_authority_blocks": [
+        "D@1",
+        "adeu.doc_profile@1"
+      ],
+      "allowed_authority_layers": [
+        "planning"
+      ],
+      "allowed_outputs": [
+        "anm_doc_authority_profile@1",
+        "d1_normalized_ir@1"
+      ],
+      "allowed_source_postures": [
+        "companion_anm",
+        "legacy_markdown",
+        "standalone_anm"
+      ],
+      "doc_class": "planning",
+      "forbidden_outputs": [
+        "policy_obligation_ledger@1"
+      ],
+      "hard_gates": [
+        "reject_overpromotion",
+        "reject_supersession_without_transition_law"
+      ],
+      "warning_gates": [
+        "warn_profile_inferred_from_manifest"
+      ]
+    }
+  ],
+  "schema_id": "anm_doc_class_policy@1"
+}

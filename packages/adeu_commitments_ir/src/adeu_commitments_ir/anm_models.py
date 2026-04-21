@@ -18,6 +18,9 @@ ANM_POLICY_CONSUMER_BINDING_PROFILE_SCHEMA = "anm_policy_consumer_binding_profil
 ANM_BENCHMARK_POLICY_CONSUMER_BINDING_PROFILE_SCHEMA = (
     "anm_benchmark_policy_consumer_binding_profile@1"
 )
+ANM_SOURCE_SET_MANIFEST_SCHEMA = "anm_source_set_manifest@1"
+ANM_DOC_AUTHORITY_PROFILE_SCHEMA = "anm_doc_authority_profile@1"
+ANM_DOC_CLASS_POLICY_SCHEMA = "anm_doc_class_policy@1"
 
 D1SchemaVersion = Literal["d1_normalized_ir@1"]
 PredicateContractsBootstrapSchemaVersion = Literal["predicate_contracts_bootstrap@1"]
@@ -34,6 +37,9 @@ AnmPolicyConsumerBindingProfileSchemaVersion = Literal[
 AnmBenchmarkPolicyConsumerBindingProfileSchemaVersion = Literal[
     "anm_benchmark_policy_consumer_binding_profile@1"
 ]
+AnmSourceSetManifestSchemaVersion = Literal["anm_source_set_manifest@1"]
+AnmDocAuthorityProfileSchemaVersion = Literal["anm_doc_authority_profile@1"]
+AnmDocClassPolicySchemaVersion = Literal["anm_doc_class_policy@1"]
 
 SelectorKind = Literal["bootstrap_string_selector"]
 SelectorZeroMatchPolicy = Literal["allow_empty_with_notice"]
@@ -160,6 +166,48 @@ AllowedBenchmarkConsumerAction = Literal[
     "emit_benchmark_conformance_annotation",
     "record_fail_closed_benchmark_consumer_block",
     "attach_traceable_benchmark_policy_binding",
+]
+AnmDocClass = Literal["lock", "architecture", "planning", "support", "non_governance"]
+AnmAuthorityLayer = Literal["lock", "architecture", "planning", "support", "none"]
+AnmDocSourcePosture = Literal[
+    "legacy_markdown",
+    "standalone_anm",
+    "companion_anm",
+    "generated_projection",
+]
+AnmLifecycleStatus = Literal["living", "historical", "superseded", "draft", "generated"]
+AnmClassificationStatus = Literal[
+    "classified",
+    "unknown_requires_registration",
+    "excluded_non_governance",
+]
+CompanionRegistrationStatus = Literal[
+    "registered_host_document",
+    "registered_companion_overlay",
+]
+AnmAuthorityBlockKind = Literal["D@1", "adeu.doc_profile@1"]
+AnmProfileOutputKind = Literal[
+    "anm_doc_authority_profile@1",
+    "d1_normalized_ir@1",
+    "predicate_contracts_bootstrap@1",
+    "checker_fact_bundle@1",
+    "policy_evaluation_result_set@1",
+    "policy_obligation_ledger@1",
+]
+AnmAllowedConsumer = Literal[
+    "reader_projection",
+    "semantic_source",
+    "semantic_compiler",
+    "policy_evaluator",
+]
+AnmHardGate = Literal[
+    "reject_overpromotion",
+    "reject_unregistered_companion",
+    "reject_supersession_without_transition_law",
+]
+AnmWarningGate = Literal[
+    "warn_unknown_requires_registration",
+    "warn_profile_inferred_from_manifest",
 ]
 
 
@@ -1373,6 +1421,215 @@ class AnmBenchmarkPolicyConsumerBindingProfile(BaseModel):
         return self
 
 
+class AnmSourceSetEntry(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+
+    doc_ref: str = Field(min_length=1)
+    doc_id_or_none: str | None = None
+    doc_class: AnmDocClass
+    authority_layer: AnmAuthorityLayer
+    source_posture: AnmDocSourcePosture
+    lifecycle_status: AnmLifecycleStatus
+    classification_status: AnmClassificationStatus
+    content_hash: str = Field(min_length=1)
+    profile_ref_or_none: str | None = None
+    host_doc_ref_or_none: str | None = None
+    companion_registration_status_or_none: CompanionRegistrationStatus | None = None
+    generated_from_ref_or_none: str | None = None
+
+    @model_validator(mode="after")
+    def _validate_contract(self) -> "AnmSourceSetEntry":
+        self.doc_ref = _require_non_empty(self.doc_ref, field_name="doc_ref")
+        self.content_hash = _require_non_empty(self.content_hash, field_name="content_hash")
+        for field_name in (
+            "doc_id_or_none",
+            "profile_ref_or_none",
+            "host_doc_ref_or_none",
+            "generated_from_ref_or_none",
+        ):
+            value = getattr(self, field_name)
+            if value is not None:
+                setattr(self, field_name, _require_non_empty(value, field_name=field_name))
+        if self.doc_ref != self.doc_ref.replace("\\", "/"):
+            raise ValueError("doc_ref must use POSIX separators")
+        if self.source_posture == "companion_anm":
+            if self.companion_registration_status_or_none != "registered_companion_overlay":
+                raise ValueError(
+                    "companion_anm entries require companion_registration_status_or_none = "
+                    "registered_companion_overlay"
+                )
+            if self.host_doc_ref_or_none is None:
+                raise ValueError("companion_anm entries require host_doc_ref_or_none")
+        elif self.companion_registration_status_or_none == "registered_companion_overlay":
+            raise ValueError(
+                "registered_companion_overlay is only valid for companion_anm entries"
+            )
+        if (
+            self.generated_from_ref_or_none is not None
+            and self.source_posture != "generated_projection"
+        ):
+            raise ValueError(
+                "generated_from_ref_or_none is only valid for generated_projection entries"
+            )
+        if (
+            self.generated_from_ref_or_none is None
+            and self.source_posture == "generated_projection"
+        ):
+            raise ValueError("generated_projection entries require generated_from_ref_or_none")
+        if (
+            self.classification_status == "excluded_non_governance"
+            and self.doc_class != "non_governance"
+        ):
+            raise ValueError(
+                "excluded_non_governance classification requires doc_class = non_governance"
+            )
+        if self.doc_class == "non_governance" and self.authority_layer != "none":
+            raise ValueError("non_governance entries require authority_layer = none")
+        if self.host_doc_ref_or_none == self.doc_ref:
+            raise ValueError("host_doc_ref_or_none must not equal doc_ref")
+        return self
+
+
+class AnmSourceSetManifest(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+
+    schema_id: AnmSourceSetManifestSchemaVersion = ANM_SOURCE_SET_MANIFEST_SCHEMA
+    manifest_id: str = Field(min_length=1)
+    source_entries: list[AnmSourceSetEntry] = Field(default_factory=list)
+
+    @model_validator(mode="after")
+    def _validate_contract(self) -> "AnmSourceSetManifest":
+        self.manifest_id = _require_non_empty(self.manifest_id, field_name="manifest_id")
+        doc_refs = [item.doc_ref for item in self.source_entries]
+        _require_sorted_unique(doc_refs, field_name="source_entries.doc_ref")
+        return self
+
+
+class AnmDocAuthorityProfile(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+
+    schema_id: AnmDocAuthorityProfileSchemaVersion = ANM_DOC_AUTHORITY_PROFILE_SCHEMA
+    doc_id: str = Field(min_length=1)
+    doc_ref: str = Field(min_length=1)
+    doc_class: AnmDocClass
+    authority_layer: AnmAuthorityLayer
+    source_posture: AnmDocSourcePosture
+    lifecycle_status: AnmLifecycleStatus
+    allowed_authority_blocks: list[AnmAuthorityBlockKind] = Field(
+        default_factory=list,
+        json_schema_extra={"uniqueItems": True},
+    )
+    allowed_outputs: list[AnmProfileOutputKind] = Field(
+        default_factory=list,
+        json_schema_extra={"uniqueItems": True},
+    )
+    forbidden_outputs: list[AnmProfileOutputKind] = Field(
+        default_factory=list,
+        json_schema_extra={"uniqueItems": True},
+    )
+    current_markdown_authority_relation: CurrentMarkdownAuthorityRelation
+    allowed_consumers: list[AnmAllowedConsumer] = Field(
+        default_factory=list,
+        json_schema_extra={"uniqueItems": True},
+    )
+    requires_transition_law_for_supersession: bool
+
+    @model_validator(mode="after")
+    def _validate_contract(self) -> "AnmDocAuthorityProfile":
+        self.doc_id = _require_non_empty(self.doc_id, field_name="doc_id")
+        self.doc_ref = _require_non_empty(self.doc_ref, field_name="doc_ref")
+        if self.doc_ref != self.doc_ref.replace("\\", "/"):
+            raise ValueError("doc_ref must use POSIX separators")
+        for field_name in (
+            "allowed_authority_blocks",
+            "allowed_outputs",
+            "forbidden_outputs",
+            "allowed_consumers",
+        ):
+            _require_sorted_unique(list(getattr(self, field_name)), field_name=field_name)
+        if set(self.allowed_outputs) & set(self.forbidden_outputs):
+            raise ValueError("allowed_outputs and forbidden_outputs must not overlap")
+        if self.doc_class == "non_governance":
+            raise ValueError("non_governance docs may not emit authority profiles")
+        if self.authority_layer == "none":
+            raise ValueError("authority_layer = none is forbidden for authority profiles")
+        return self
+
+
+class AnmDocClassPolicyRow(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+
+    doc_class: AnmDocClass
+    allowed_authority_layers: list[AnmAuthorityLayer] = Field(
+        default_factory=list,
+        json_schema_extra={"uniqueItems": True},
+    )
+    allowed_source_postures: list[AnmDocSourcePosture] = Field(
+        default_factory=list,
+        json_schema_extra={"uniqueItems": True},
+    )
+    allowed_authority_blocks: list[AnmAuthorityBlockKind] = Field(
+        default_factory=list,
+        json_schema_extra={"uniqueItems": True},
+    )
+    allowed_outputs: list[AnmProfileOutputKind] = Field(
+        default_factory=list,
+        json_schema_extra={"uniqueItems": True},
+    )
+    forbidden_outputs: list[AnmProfileOutputKind] = Field(
+        default_factory=list,
+        json_schema_extra={"uniqueItems": True},
+    )
+    hard_gates: list[AnmHardGate] = Field(
+        default_factory=list,
+        json_schema_extra={"uniqueItems": True},
+    )
+    warning_gates: list[AnmWarningGate] = Field(
+        default_factory=list,
+        json_schema_extra={"uniqueItems": True},
+    )
+
+    @model_validator(mode="after")
+    def _validate_contract(self) -> "AnmDocClassPolicyRow":
+        for field_name in (
+            "allowed_authority_layers",
+            "allowed_source_postures",
+            "allowed_authority_blocks",
+            "allowed_outputs",
+            "forbidden_outputs",
+            "hard_gates",
+            "warning_gates",
+        ):
+            _require_sorted_unique(list(getattr(self, field_name)), field_name=field_name)
+        if set(self.allowed_outputs) & set(self.forbidden_outputs):
+            raise ValueError("allowed_outputs and forbidden_outputs must not overlap")
+        if self.doc_class == "non_governance":
+            if self.allowed_authority_layers != ["none"]:
+                raise ValueError(
+                    "non_governance class policy must only allow authority_layer = none"
+                )
+            if self.allowed_authority_blocks or self.allowed_outputs:
+                raise ValueError(
+                    "non_governance class policy may not allow authority blocks or outputs"
+                )
+        return self
+
+
+class AnmDocClassPolicy(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+
+    schema_id: AnmDocClassPolicySchemaVersion = ANM_DOC_CLASS_POLICY_SCHEMA
+    policy_id: str = Field(min_length=1)
+    policy_rows: list[AnmDocClassPolicyRow] = Field(default_factory=list)
+
+    @model_validator(mode="after")
+    def _validate_contract(self) -> "AnmDocClassPolicy":
+        self.policy_id = _require_non_empty(self.policy_id, field_name="policy_id")
+        doc_classes = [item.doc_class for item in self.policy_rows]
+        _require_sorted_unique(doc_classes, field_name="policy_rows.doc_class")
+        return self
+
+
 def canonicalize_d1_normalized_ir_payload(
     payload: D1NormalizedIR | dict[str, Any],
 ) -> dict[str, Any]:
@@ -1472,6 +1729,39 @@ def canonicalize_anm_benchmark_policy_consumer_binding_profile_payload(
     return normalized.model_dump(mode="json", by_alias=True, exclude_none=True)
 
 
+def canonicalize_anm_source_set_manifest_payload(
+    payload: AnmSourceSetManifest | dict[str, Any],
+) -> dict[str, Any]:
+    normalized = (
+        payload
+        if isinstance(payload, AnmSourceSetManifest)
+        else AnmSourceSetManifest.model_validate(payload)
+    )
+    return normalized.model_dump(mode="json", by_alias=True, exclude_none=True)
+
+
+def canonicalize_anm_doc_authority_profile_payload(
+    payload: AnmDocAuthorityProfile | dict[str, Any],
+) -> dict[str, Any]:
+    normalized = (
+        payload
+        if isinstance(payload, AnmDocAuthorityProfile)
+        else AnmDocAuthorityProfile.model_validate(payload)
+    )
+    return normalized.model_dump(mode="json", by_alias=True, exclude_none=True)
+
+
+def canonicalize_anm_doc_class_policy_payload(
+    payload: AnmDocClassPolicy | dict[str, Any],
+) -> dict[str, Any]:
+    normalized = (
+        payload
+        if isinstance(payload, AnmDocClassPolicy)
+        else AnmDocClassPolicy.model_validate(payload)
+    )
+    return normalized.model_dump(mode="json", by_alias=True, exclude_none=True)
+
+
 __all__ = [
     "D1_NORMALIZED_IR_SCHEMA",
     "PREDICATE_CONTRACTS_BOOTSTRAP_SCHEMA",
@@ -1482,6 +1772,9 @@ __all__ = [
     "ANM_SELECTOR_PREDICATE_OWNERSHIP_PROFILE_SCHEMA",
     "ANM_POLICY_CONSUMER_BINDING_PROFILE_SCHEMA",
     "ANM_BENCHMARK_POLICY_CONSUMER_BINDING_PROFILE_SCHEMA",
+    "ANM_SOURCE_SET_MANIFEST_SCHEMA",
+    "ANM_DOC_AUTHORITY_PROFILE_SCHEMA",
+    "ANM_DOC_CLASS_POLICY_SCHEMA",
     "D1NormalizedIR",
     "D1Clause",
     "D1Qualifier",
@@ -1526,11 +1819,19 @@ __all__ = [
     "AllowedBenchmarkConsumerAction",
     "AnmBenchmarkPolicyConsumerRow",
     "AnmBenchmarkPolicyConsumerBindingProfile",
+    "AnmSourceSetEntry",
+    "AnmSourceSetManifest",
+    "AnmDocAuthorityProfile",
+    "AnmDocClassPolicyRow",
+    "AnmDocClassPolicy",
     "stable_payload_hash",
     "canonicalize_anm_markdown_coexistence_profile_payload",
     "canonicalize_anm_selector_predicate_ownership_profile_payload",
     "canonicalize_anm_policy_consumer_binding_profile_payload",
     "canonicalize_anm_benchmark_policy_consumer_binding_profile_payload",
+    "canonicalize_anm_source_set_manifest_payload",
+    "canonicalize_anm_doc_authority_profile_payload",
+    "canonicalize_anm_doc_class_policy_payload",
     "canonicalize_d1_normalized_ir_payload",
     "canonicalize_predicate_contracts_bootstrap_payload",
     "canonicalize_checker_fact_bundle_payload",
@@ -1542,4 +1843,15 @@ __all__ = [
     "PredicateOwnershipOwnerLayer",
     "OwnershipCompatibilityPosture",
     "BootstrapRetirementPosture",
+    "AnmDocClass",
+    "AnmAuthorityLayer",
+    "AnmDocSourcePosture",
+    "AnmLifecycleStatus",
+    "AnmClassificationStatus",
+    "CompanionRegistrationStatus",
+    "AnmAuthorityBlockKind",
+    "AnmProfileOutputKind",
+    "AnmAllowedConsumer",
+    "AnmHardGate",
+    "AnmWarningGate",
 ]

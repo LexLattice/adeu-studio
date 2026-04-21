@@ -9,9 +9,12 @@ from adeu_ir.repo import repo_root
 
 from .anm_models import (
     AnmBenchmarkPolicyConsumerBindingProfile,
+    AnmDocAuthorityProfile,
+    AnmDocClassPolicy,
     AnmMarkdownCoexistenceProfile,
     AnmPolicyConsumerBindingProfile,
     AnmSelectorPredicateOwnershipProfile,
+    AnmSourceSetManifest,
     CheckerFactBundle,
     D1NormalizedIR,
     PolicyEvaluationResultSet,
@@ -150,6 +153,33 @@ def main() -> None:
             / "schema"
             / "anm_benchmark_policy_consumer_binding_profile.v1.json",
             root / "spec" / "anm_benchmark_policy_consumer_binding_profile.schema.json",
+        ),
+        (
+            AnmSourceSetManifest,
+            root
+            / "packages"
+            / "adeu_commitments_ir"
+            / "schema"
+            / "anm_source_set_manifest.v1.json",
+            root / "spec" / "anm_source_set_manifest.schema.json",
+        ),
+        (
+            AnmDocAuthorityProfile,
+            root
+            / "packages"
+            / "adeu_commitments_ir"
+            / "schema"
+            / "anm_doc_authority_profile.v1.json",
+            root / "spec" / "anm_doc_authority_profile.schema.json",
+        ),
+        (
+            AnmDocClassPolicy,
+            root
+            / "packages"
+            / "adeu_commitments_ir"
+            / "schema"
+            / "anm_doc_class_policy.v1.json",
+            root / "spec" / "anm_doc_class_policy.schema.json",
         ),
     ]
 

@@ -7,9 +7,12 @@ from pathlib import Path
 from adeu_commitments_ir import (
     ADEU_COMMITMENTS_IR_SCHEMA,
     ANM_BENCHMARK_POLICY_CONSUMER_BINDING_PROFILE_SCHEMA,
+    ANM_DOC_AUTHORITY_PROFILE_SCHEMA,
+    ANM_DOC_CLASS_POLICY_SCHEMA,
     ANM_MARKDOWN_COEXISTENCE_PROFILE_SCHEMA,
     ANM_POLICY_CONSUMER_BINDING_PROFILE_SCHEMA,
     ANM_SELECTOR_PREDICATE_OWNERSHIP_PROFILE_SCHEMA,
+    ANM_SOURCE_SET_MANIFEST_SCHEMA,
     CHECKER_FACT_BUNDLE_SCHEMA,
     D1_NORMALIZED_IR_SCHEMA,
     POLICY_EVALUATION_RESULT_SET_SCHEMA,
@@ -102,6 +105,29 @@ def _schema_pairs() -> list[tuple[str, Path, Path]]:
             / "schema"
             / "anm_benchmark_policy_consumer_binding_profile.v1.json",
             root / "spec" / "anm_benchmark_policy_consumer_binding_profile.schema.json",
+        ),
+        (
+            ANM_SOURCE_SET_MANIFEST_SCHEMA,
+            root
+            / "packages"
+            / "adeu_commitments_ir"
+            / "schema"
+            / "anm_source_set_manifest.v1.json",
+            root / "spec" / "anm_source_set_manifest.schema.json",
+        ),
+        (
+            ANM_DOC_AUTHORITY_PROFILE_SCHEMA,
+            root
+            / "packages"
+            / "adeu_commitments_ir"
+            / "schema"
+            / "anm_doc_authority_profile.v1.json",
+            root / "spec" / "anm_doc_authority_profile.schema.json",
+        ),
+        (
+            ANM_DOC_CLASS_POLICY_SCHEMA,
+            root / "packages" / "adeu_commitments_ir" / "schema" / "anm_doc_class_policy.v1.json",
+            root / "spec" / "anm_doc_class_policy.schema.json",
         ),
     ]
 
@@ -196,6 +222,18 @@ def test_exported_schema_has_stable_contract_markers() -> None:
         ]["const"]
         == ANM_BENCHMARK_POLICY_CONSUMER_BINDING_PROFILE_SCHEMA
     )
+    assert (
+        schema_payloads[ANM_SOURCE_SET_MANIFEST_SCHEMA]["properties"]["schema_id"]["const"]
+        == ANM_SOURCE_SET_MANIFEST_SCHEMA
+    )
+    assert (
+        schema_payloads[ANM_DOC_AUTHORITY_PROFILE_SCHEMA]["properties"]["schema_id"]["const"]
+        == ANM_DOC_AUTHORITY_PROFILE_SCHEMA
+    )
+    assert (
+        schema_payloads[ANM_DOC_CLASS_POLICY_SCHEMA]["properties"]["schema_id"]["const"]
+        == ANM_DOC_CLASS_POLICY_SCHEMA
+    )
     checker_fact_row_defs = schema_payloads[CHECKER_FACT_BUNDLE_SCHEMA]["$defs"]
     value_type_fact = checker_fact_row_defs["ValueTypeObservationFact"]
     assert value_type_fact["properties"]["fact_type"]["const"] == "value_type_observation"
@@ -257,6 +295,23 @@ def test_exported_schema_has_stable_contract_markers() -> None:
         "predicate_owner_layer"
     ]["enum"]
     assert predicate_owner_layer == ["bootstrap", "e_owned"]
+    manifest_defs = schema_payloads[ANM_SOURCE_SET_MANIFEST_SCHEMA]["$defs"]
+    assert manifest_defs["AnmSourceSetEntry"]["properties"]["source_posture"]["enum"] == [
+        "legacy_markdown",
+        "standalone_anm",
+        "companion_anm",
+        "generated_projection",
+    ]
+    assert (
+        schema_payloads[ANM_DOC_AUTHORITY_PROFILE_SCHEMA]["properties"]["allowed_outputs"][
+            "uniqueItems"
+        ]
+        is True
+    )
+    class_policy_defs = schema_payloads[ANM_DOC_CLASS_POLICY_SCHEMA]["$defs"]
+    assert class_policy_defs["AnmDocClassPolicyRow"]["properties"]["hard_gates"][
+        "uniqueItems"
+    ] is True
     compatibility_posture = ownership_defs["OwnershipCompatibilityRule"]["properties"][
         "compatibility_posture"
     ]["enum"]

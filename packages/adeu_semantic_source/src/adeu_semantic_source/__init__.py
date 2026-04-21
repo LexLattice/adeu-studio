@@ -5,9 +5,11 @@ from .anm import (
     build_v47d_selector_predicate_ownership_profile,
     build_v47e_policy_consumer_binding_profile,
     build_v47f_benchmark_policy_consumer_binding_profile,
+    build_v66a_doc_authority_profile,
     compile_authoritative_normative_markdown,
     default_bootstrap_predicate_contracts,
     evaluate_authoritative_normative_markdown,
+    inspect_v66a_source,
     project_policy_obligation_ledger,
 )
 from .compile import (
@@ -29,6 +31,8 @@ __all__ = [
     "build_v47d_selector_predicate_ownership_profile",
     "build_v47e_policy_consumer_binding_profile",
     "build_v47f_benchmark_policy_consumer_binding_profile",
+    "inspect_v66a_source",
+    "build_v66a_doc_authority_profile",
     "SEMANTIC_SOURCE_COLLECTION_SCHEMA",
     "SEMANTIC_SOURCE_DIAGNOSTICS_SCHEMA",
     "CompileResult",

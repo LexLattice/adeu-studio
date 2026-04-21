@@ -1,0 +1,34 @@
+{
+  "schema_id": "anm_source_set_manifest@1",
+  "manifest_id": "manifest:v66a-reference",
+  "source_entries": [
+    {
+      "authority_layer": "lock",
+      "classification_status": "classified",
+      "companion_registration_status_or_none": "registered_host_document",
+      "content_hash": "1111111111111111111111111111111111111111111111111111111111111111",
+      "doc_class": "lock",
+      "doc_id_or_none": "adeu.lock.vnext_plus182",
+      "doc_ref": "docs/LOCKED_CONTINUATION_vNEXT_PLUS182.md",
+      "generated_from_ref_or_none": null,
+      "host_doc_ref_or_none": null,
+      "lifecycle_status": "living",
+      "profile_ref_or_none": "anm_doc_authority_profile:adeu.lock.vnext_plus182",
+      "source_posture": "legacy_markdown"
+    },
+    {
+      "authority_layer": "lock",
+      "classification_status": "classified",
+      "companion_registration_status_or_none": "registered_companion_overlay",
+      "content_hash": "2222222222222222222222222222222222222222222222222222222222222222",
+      "doc_class": "lock",
+      "doc_id_or_none": "adeu.lock.vnext_plus182.overlay",
+      "doc_ref": "docs/overlays/LOCKED_CONTINUATION_vNEXT_PLUS182.anm.adeu.md",
+      "generated_from_ref_or_none": null,
+      "host_doc_ref_or_none": "docs/LOCKED_CONTINUATION_vNEXT_PLUS182.md",
+      "lifecycle_status": "living",
+      "profile_ref_or_none": "anm_doc_authority_profile:adeu.lock.vnext_plus182.overlay",
+      "source_posture": "companion_anm"
+    }
+  ]
+}

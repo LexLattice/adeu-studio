@@ -1,0 +1,172 @@
+{
+  "$defs": {
+    "AnmSourceSetEntry": {
+      "additionalProperties": false,
+      "properties": {
+        "authority_layer": {
+          "enum": [
+            "lock",
+            "architecture",
+            "planning",
+            "support",
+            "none"
+          ],
+          "title": "Authority Layer",
+          "type": "string"
+        },
+        "classification_status": {
+          "enum": [
+            "classified",
+            "unknown_requires_registration",
+            "excluded_non_governance"
+          ],
+          "title": "Classification Status",
+          "type": "string"
+        },
+        "companion_registration_status_or_none": {
+          "anyOf": [
+            {
+              "enum": [
+                "registered_host_document",
+                "registered_companion_overlay"
+              ],
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Companion Registration Status Or None"
+        },
+        "content_hash": {
+          "minLength": 1,
+          "title": "Content Hash",
+          "type": "string"
+        },
+        "doc_class": {
+          "enum": [
+            "lock",
+            "architecture",
+            "planning",
+            "support",
+            "non_governance"
+          ],
+          "title": "Doc Class",
+          "type": "string"
+        },
+        "doc_id_or_none": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Doc Id Or None"
+        },
+        "doc_ref": {
+          "minLength": 1,
+          "title": "Doc Ref",
+          "type": "string"
+        },
+        "generated_from_ref_or_none": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Generated From Ref Or None"
+        },
+        "host_doc_ref_or_none": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Host Doc Ref Or None"
+        },
+        "lifecycle_status": {
+          "enum": [
+            "living",
+            "historical",
+            "superseded",
+            "draft",
+            "generated"
+          ],
+          "title": "Lifecycle Status",
+          "type": "string"
+        },
+        "profile_ref_or_none": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Profile Ref Or None"
+        },
+        "source_posture": {
+          "enum": [
+            "legacy_markdown",
+            "standalone_anm",
+            "companion_anm",
+            "generated_projection"
+          ],
+          "title": "Source Posture",
+          "type": "string"
+        }
+      },
+      "required": [
+        "doc_ref",
+        "doc_class",
+        "authority_layer",
+        "source_posture",
+        "lifecycle_status",
+        "classification_status",
+        "content_hash"
+      ],
+      "title": "AnmSourceSetEntry",
+      "type": "object"
+    }
+  },
+  "additionalProperties": false,
+  "properties": {
+    "manifest_id": {
+      "minLength": 1,
+      "title": "Manifest Id",
+      "type": "string"
+    },
+    "schema_id": {
+      "const": "anm_source_set_manifest@1",
+      "default": "anm_source_set_manifest@1",
+      "title": "Schema Id",
+      "type": "string"
+    },
+    "source_entries": {
+      "items": {
+        "$ref": "#/$defs/AnmSourceSetEntry"
+      },
+      "title": "Source Entries",
+      "type": "array"
+    }
+  },
+  "required": [
+    "manifest_id"
+  ],
+  "title": "AnmSourceSetManifest",
+  "type": "object"
+}

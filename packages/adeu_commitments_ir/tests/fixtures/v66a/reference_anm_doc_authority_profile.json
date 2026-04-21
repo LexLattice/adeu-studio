@@ -1,0 +1,29 @@
+{
+  "allowed_authority_blocks": [
+    "D@1",
+    "adeu.doc_profile@1"
+  ],
+  "allowed_consumers": [
+    "policy_evaluator",
+    "semantic_compiler",
+    "semantic_source"
+  ],
+  "allowed_outputs": [
+    "anm_doc_authority_profile@1",
+    "checker_fact_bundle@1",
+    "d1_normalized_ir@1",
+    "policy_evaluation_result_set@1",
+    "policy_obligation_ledger@1",
+    "predicate_contracts_bootstrap@1"
+  ],
+  "authority_layer": "lock",
+  "current_markdown_authority_relation": "current_markdown_controlling",
+  "doc_class": "lock",
+  "doc_id": "adeu.lock.vnext_plus182",
+  "doc_ref": "docs/LOCKED_CONTINUATION_vNEXT_PLUS182.md",
+  "forbidden_outputs": [],
+  "lifecycle_status": "living",
+  "requires_transition_law_for_supersession": true,
+  "schema_id": "anm_doc_authority_profile@1",
+  "source_posture": "legacy_markdown"
+}
