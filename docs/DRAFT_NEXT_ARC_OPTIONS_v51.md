@@ -216,28 +216,34 @@ Ordering discipline for this branch:
 ## Recommended Next Slice
 
 - family remains: `V66`
-- next concrete slice: `V66-A`
+- next concrete slice: `V66-C`
 - recommended selector outcome:
   - keep `V47` closed on `main` as the ANM compiler and evaluation substrate
   - keep current markdown authority explicit on `main`
-  - select `V66-A` as the next default candidate
+  - select `V66-C` as the next default candidate
 
 Current next-slice posture:
 
-- `V66-A` implementation is merged on `main` and the family now has the starter
-  source-set / authority-profile / class-policy basis on the default branch
+- `V66-A` is closed on `main` and `V66-B` is closed on `main`
+- the family now has:
+  - shipped source-set / authority-profile / class-policy basis
+  - shipped migration-binding / reader-projection / semantic-diff basis
 - the next concrete slice should therefore stay inside the same family and widen
-  only the deferred migration / reader-projection seam
+  only the deferred advisory adoption-hardening seam
 - that widening should keep the new outputs mechanically distinct from the
-  shipped `V66-A` basis:
+  shipped `V66-A` and `V66-B` basis:
   - consume shipped source-set / authority-profile / class-policy artifacts
-  - emit migration-binding / reader-projection / semantic-diff artifacts only
-- generated reader projections should stay non-authoritative and excluded from
-  governed ANM source by construction
-- semantic diff should stay explicit-baseline and bounded to `V66`
-  documentation-governance surfaces only
-- transition-law posture should stay lock-bound and fail-closed
-- select `V66-B` as the next default candidate
+  - consume shipped migration-binding / reader-projection / semantic-diff
+    artifacts
+  - emit advisory compile-report / prose-boundary outputs only
+  - carry exact consumed-basis refs and hashes in emitted advisory artifacts
+- generated reader projections should stay non-authoritative, excluded from
+  governed ANM source by construction, and shaping-input only here
+- semantic diff should stay explicit-baseline, bounded to `V66`
+  documentation-governance surfaces only, and shaping-input only here
+- prose-boundary notices should stay evidence-bound and non-entitling
+- markdown supersession posture should stay transition-law-gated and fail-closed
+- select `V66-C` as the next default candidate
 
 Default next-slice posture:
 
@@ -247,46 +253,41 @@ Default next-slice posture:
   - predicate contracts remain unchanged
   - fact bundles / result sets / ledgers remain unchanged
   - coexistence doctrine remains consumed, not reopened
-- add one repo-scale source-discovery and class-policy starter only:
-  - `anm_source_set_manifest@1`
-  - `anm_doc_authority_profile@1`
-  - `anm_doc_class_policy@1`
-- keep `V66-A` bounded to inventory and policy posture:
-  - detect `.adeu.md` sources
-  - detect registered companions
-  - distinguish:
-    - `doc_class`
-    - `authority_layer`
-    - `source_posture`
-    - `lifecycle_status`
-    - `classification_status`
-  - classify the governed ANM source set separately from the broader discovered
-    doc inventory
-  - reject unregistered companions
-  - reject supersession claims without explicit lock-level transition law
-- keep `V66-A` companion posture minimal and bounded:
-  - `V66-A` may carry minimal host / companion registration fields inside
-    `anm_source_set_manifest@1` and `anm_doc_authority_profile@1`
-  - `V66-A` does not emit the full `anm_migration_binding_profile@1`
-  - `V66-B` later widens the registered companion relation into the full migration
-    binding profile
-- keep the starter slice fail-closed:
-  - malformed authority profile fails closed
-  - contradictory doc-class posture fails closed
-  - contradictory host / companion linkage fails closed
-  - unknown governance-bearing doc classification remains explicit rather than
-    defaulting silently
+- consume the shipped `V66-A` and `V66-B` family basis intact:
+  - one shipped governed source set only
+  - one shipped authority-profile set only
+  - one shipped doc-class policy only
+  - one shipped migration-binding profile only
+  - one shipped reader-projection manifest only where selected
+  - one shipped semantic-diff report only where selected
+- keep `V66-C` bounded to advisory adoption hardening only:
+  - `anm_compile_report@1`
+  - `anm_prose_boundary_notice_set@1`
+  - explicit consumed-lineage refs and hashes
+  - explicit frozen policy anchor
+  - explicit `report_status` separate from advisory outcome
+  - no fresh source-set discovery contract
+  - no fresh migration-binding contract
+  - no fresh reader-projection contract
+  - no fresh semantic-diff baseline contract
+- keep the advisory slice fail-closed:
+  - missing shipped basis remains explicit and fail-closed
+  - ambiguous prose-boundary carry-through remains explicit and fail-closed
+  - overread of generated projection or semantic diff into authority remains
+    fail-closed
+  - advisory output may not overread support prose into compiled policy
 - keep authority boundaries explicit:
-  - source discovery is not supersession law
-  - document authority profile is not implementation authority by itself
-  - class policy is not runtime behavior by itself
+  - compile report is not supersession law
+  - prose-boundary notice is not compiled policy by itself
+  - generated projection is not source authority by itself
+  - semantic diff is not authority by itself
   - support-layer ANM awareness is not lock promotion
+  - advisory adoption hardening is not source-of-truth transition by itself
 - keep later widening deferred:
-  - generated reader projections deferred to `V66-B`
-  - semantic diff reports deferred to `V66-B`
-  - migration binding profile deferred to `V66-B`
-  - prose-boundary notices, selector-resolution bundles, and advisory adoption
-    hardening deferred to `V66-C`
+  - any explicit markdown-to-ANM transition law beyond shipped lock refs remains
+    deferred
+  - any repo-wide migration policy remains deferred
+  - any broader selector-resolution or authoring-refactor lane remains deferred
   - no new `D@1` language widening selected here
 
 ## Suggested `V66` Path Ladder
@@ -295,9 +296,9 @@ The current recommended path ladder is:
 
 | Path | Theme | Primary output | Status |
 |---|---|---|---|
-| `V66-A` | source discovery / class policy starter | `anm_source_set_manifest@1`, `anm_doc_authority_profile@1`, and `anm_doc_class_policy@1` over one governed repo ANM source set only | merged on `main`; closeout in progress |
-| `V66-B` | migration / reader projection | `anm_migration_binding_profile@1`, `anm_reader_projection_manifest@1`, and `anm_semantic_diff_report@1` over the same governed source set only | selected next path |
-| `V66-C` | advisory adoption hardening | `anm_compile_report@1`, `anm_prose_boundary_notice_set@1`, and related adoption hardening outputs over the same governed source set only | prepared later |
+| `V66-A` | source discovery / class policy starter | `anm_source_set_manifest@1`, `anm_doc_authority_profile@1`, and `anm_doc_class_policy@1` over one governed repo ANM source set only | closed on `main` |
+| `V66-B` | migration / reader projection | `anm_migration_binding_profile@1`, `anm_reader_projection_manifest@1`, and `anm_semantic_diff_report@1` over the same governed source set only | closed on `main` |
+| `V66-C` | advisory adoption hardening | `anm_compile_report@1`, `anm_prose_boundary_notice_set@1`, and related adoption hardening outputs over the same governed source set only | selected next path |
 
 These output names are planning-level candidate names, not lock-level schema
 commitments yet.
