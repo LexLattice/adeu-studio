@@ -21,6 +21,9 @@ ANM_BENCHMARK_POLICY_CONSUMER_BINDING_PROFILE_SCHEMA = (
 ANM_SOURCE_SET_MANIFEST_SCHEMA = "anm_source_set_manifest@1"
 ANM_DOC_AUTHORITY_PROFILE_SCHEMA = "anm_doc_authority_profile@1"
 ANM_DOC_CLASS_POLICY_SCHEMA = "anm_doc_class_policy@1"
+ANM_MIGRATION_BINDING_PROFILE_SCHEMA = "anm_migration_binding_profile@1"
+ANM_READER_PROJECTION_MANIFEST_SCHEMA = "anm_reader_projection_manifest@1"
+ANM_SEMANTIC_DIFF_REPORT_SCHEMA = "anm_semantic_diff_report@1"
 
 D1SchemaVersion = Literal["d1_normalized_ir@1"]
 PredicateContractsBootstrapSchemaVersion = Literal["predicate_contracts_bootstrap@1"]
@@ -31,15 +34,16 @@ AnmMarkdownCoexistenceProfileSchemaVersion = Literal["anm_markdown_coexistence_p
 AnmSelectorPredicateOwnershipProfileSchemaVersion = Literal[
     "anm_selector_predicate_ownership_profile@1"
 ]
-AnmPolicyConsumerBindingProfileSchemaVersion = Literal[
-    "anm_policy_consumer_binding_profile@1"
-]
+AnmPolicyConsumerBindingProfileSchemaVersion = Literal["anm_policy_consumer_binding_profile@1"]
 AnmBenchmarkPolicyConsumerBindingProfileSchemaVersion = Literal[
     "anm_benchmark_policy_consumer_binding_profile@1"
 ]
 AnmSourceSetManifestSchemaVersion = Literal["anm_source_set_manifest@1"]
 AnmDocAuthorityProfileSchemaVersion = Literal["anm_doc_authority_profile@1"]
 AnmDocClassPolicySchemaVersion = Literal["anm_doc_class_policy@1"]
+AnmMigrationBindingProfileSchemaVersion = Literal["anm_migration_binding_profile@1"]
+AnmReaderProjectionManifestSchemaVersion = Literal["anm_reader_projection_manifest@1"]
+AnmSemanticDiffReportSchemaVersion = Literal["anm_semantic_diff_report@1"]
 
 SelectorKind = Literal["bootstrap_string_selector"]
 SelectorZeroMatchPolicy = Literal["allow_empty_with_notice"]
@@ -208,6 +212,58 @@ AnmHardGate = Literal[
 AnmWarningGate = Literal[
     "warn_unknown_requires_registration",
     "warn_profile_inferred_from_manifest",
+]
+V66BBindingPosture = Literal[
+    "invalid_or_contradictory",
+    "registered_non_overriding_companion",
+    "standalone_no_companion",
+]
+V66BCurrentMarkdownAuthorityRelation = Literal[
+    "anm_standalone_source_of_truth",
+    "current_markdown_controlling",
+    "generated_projection_non_authoritative",
+    "not_applicable",
+]
+V66BSupersessionClaimStatus = Literal[
+    "claimed_with_explicit_transition_law",
+    "claimed_without_transition_law_rejected",
+    "none",
+]
+V66BProjectionStatus = Literal["current", "invalid", "missing", "not_required", "stale"]
+V66BProjectionAuthorityPosture = Literal[
+    "invalid_claims_authority",
+    "non_authoritative_generated_view",
+]
+V66BDriftStatus = Literal[
+    "hash_unavailable",
+    "in_sync",
+    "not_required",
+    "projection_missing",
+    "source_changed_projection_stale",
+]
+V66BProjectionRequirementSource = Literal[
+    "doc_authority_profile",
+    "doc_class_policy",
+    "explicit_projection_manifest",
+    "not_required",
+]
+V66BDiffBaselineKind = Literal[
+    "explicit_fixture_baseline",
+    "none_initial_report",
+    "prior_committed_artifact",
+]
+V66BChangeKind = Literal["added", "changed", "initial", "removed", "unchanged"]
+V66BSurfaceKind = Literal[
+    "doc_authority_profile",
+    "doc_class_policy",
+    "migration_binding",
+    "reader_projection_manifest",
+    "source_set_entry",
+]
+V66BAuthorityEffectKind = Literal[
+    "invalid_authority_claim_rejected",
+    "no_authority_minted",
+    "review_visibility_only",
 ]
 
 
@@ -784,8 +840,7 @@ class AnmCoexistenceSourceRow(BaseModel):
         if self.allowed_constrain_actions != sorted(set(self.allowed_constrain_actions)):
             raise ValueError("allowed_constrain_actions must be sorted and unique")
         expects_later_lock = (
-            self.current_markdown_authority_relation
-            == "later_lock_required_for_supersession"
+            self.current_markdown_authority_relation == "later_lock_required_for_supersession"
         )
         if self.requires_later_lock_for_supersession != expects_later_lock:
             raise ValueError(
@@ -807,9 +862,7 @@ class AnmCoexistenceSourceRow(BaseModel):
                     "companion_anm rows must declare explicit companion_embedding_posture"
                 )
             if self.current_markdown_authority_relation == "current_markdown_controlling":
-                raise ValueError(
-                    "companion_anm rows may not declare current_markdown_controlling"
-                )
+                raise ValueError("companion_anm rows may not declare current_markdown_controlling")
         return self
 
 
@@ -979,8 +1032,7 @@ class SelectorOwnershipRow(BaseModel):
                 )
             if self.selector_owner_layer != "o_owned":
                 raise ValueError(
-                    "imported_o_owned_selector_handle rows require "
-                    "selector_owner_layer = o_owned"
+                    "imported_o_owned_selector_handle rows require selector_owner_layer = o_owned"
                 )
         return self
 
@@ -1025,34 +1077,28 @@ class PredicateOwnershipRow(BaseModel):
         if self.predicate_ref_kind == "bootstrap_predicate_contract":
             if self.bootstrap_predicate_contract_ref is None:
                 raise ValueError(
-                    "bootstrap_predicate_contract rows require "
-                    "bootstrap_predicate_contract_ref"
+                    "bootstrap_predicate_contract rows require bootstrap_predicate_contract_ref"
                 )
             if self.imported_predicate_registry_ref is not None:
                 raise ValueError(
-                    "bootstrap_predicate_contract rows may not set "
-                    "imported_predicate_registry_ref"
+                    "bootstrap_predicate_contract rows may not set imported_predicate_registry_ref"
                 )
             if self.imported_predicate_identity is not None:
                 raise ValueError(
-                    "bootstrap_predicate_contract rows may not set "
-                    "imported_predicate_identity"
+                    "bootstrap_predicate_contract rows may not set imported_predicate_identity"
                 )
             if self.imported_predicate_version is not None:
                 raise ValueError(
-                    "bootstrap_predicate_contract rows may not set "
-                    "imported_predicate_version"
+                    "bootstrap_predicate_contract rows may not set imported_predicate_version"
                 )
             if self.predicate_owner_layer != "bootstrap":
                 raise ValueError(
-                    "bootstrap_predicate_contract rows require "
-                    "predicate_owner_layer = bootstrap"
+                    "bootstrap_predicate_contract rows require predicate_owner_layer = bootstrap"
                 )
         else:
             if self.imported_predicate_registry_ref is None:
                 raise ValueError(
-                    "imported_e_owned_predicate_ref rows require "
-                    "imported_predicate_registry_ref"
+                    "imported_e_owned_predicate_ref rows require imported_predicate_registry_ref"
                 )
             if self.imported_predicate_identity is None or self.imported_predicate_version is None:
                 raise ValueError(
@@ -1066,8 +1112,7 @@ class PredicateOwnershipRow(BaseModel):
                 )
             if self.predicate_owner_layer != "e_owned":
                 raise ValueError(
-                    "imported_e_owned_predicate_ref rows require "
-                    "predicate_owner_layer = e_owned"
+                    "imported_e_owned_predicate_ref rows require predicate_owner_layer = e_owned"
                 )
         return self
 
@@ -1093,10 +1138,7 @@ class OwnershipCompatibilityRule(BaseModel):
                 "forbidden compatibility rows require compatibility_posture = "
                 "mixed_ownership_forbidden"
             )
-        if (
-            self.combination_allowed
-            and self.compatibility_posture == "mixed_ownership_forbidden"
-        ):
+        if self.combination_allowed and self.compatibility_posture == "mixed_ownership_forbidden":
             raise ValueError(
                 "allowed compatibility rows may not use compatibility_posture = "
                 "mixed_ownership_forbidden"
@@ -1147,13 +1189,11 @@ class AnmSelectorPredicateOwnershipProfile(BaseModel):
         _require_sorted_unique(predicate_refs, field_name="predicate_rows.predicate_ref")
 
         compatibility_pairs = [
-            (item.selector_ref_kind, item.predicate_ref_kind)
-            for item in self.compatibility_rules
+            (item.selector_ref_kind, item.predicate_ref_kind) for item in self.compatibility_rules
         ]
         if compatibility_pairs != sorted(compatibility_pairs):
             raise ValueError(
-                "compatibility_rules must be sorted by "
-                "(selector_ref_kind, predicate_ref_kind)"
+                "compatibility_rules must be sorted by (selector_ref_kind, predicate_ref_kind)"
             )
         if len(compatibility_pairs) != len(set(compatibility_pairs)):
             raise ValueError("compatibility_rules must not contain duplicate combinations")
@@ -1367,8 +1407,7 @@ class AnmBenchmarkPolicyConsumerRow(BaseModel):
         if self.current_benchmark_consumer_authority_relation == "constrain_only_non_executive":
             if self.later_lock_required_actions:
                 raise ValueError(
-                    "constrain_only_non_executive rows must not declare "
-                    "later_lock_required_actions"
+                    "constrain_only_non_executive rows must not declare later_lock_required_actions"
                 )
         else:
             if not self.later_lock_required_actions:
@@ -1461,9 +1500,7 @@ class AnmSourceSetEntry(BaseModel):
             if self.host_doc_ref_or_none is None:
                 raise ValueError("companion_anm entries require host_doc_ref_or_none")
         elif self.companion_registration_status_or_none == "registered_companion_overlay":
-            raise ValueError(
-                "registered_companion_overlay is only valid for companion_anm entries"
-            )
+            raise ValueError("registered_companion_overlay is only valid for companion_anm entries")
         if (
             self.generated_from_ref_or_none is not None
             and self.source_posture != "generated_projection"
@@ -1630,13 +1667,313 @@ class AnmDocClassPolicy(BaseModel):
         return self
 
 
+class AnmMigrationBindingRow(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+
+    binding_id: str = Field(min_length=1)
+    host_doc_ref: str = Field(min_length=1)
+    companion_doc_ref_or_none: str | None = None
+    host_profile_ref: str = Field(min_length=1)
+    companion_profile_ref_or_none: str | None = None
+    binding_posture: V66BBindingPosture
+    current_markdown_authority_relation: V66BCurrentMarkdownAuthorityRelation
+    supersession_claim_status: V66BSupersessionClaimStatus
+    explicit_transition_law_ref_or_none: str | None = None
+    generated_reader_projection_refs: list[str] = Field(
+        default_factory=list,
+        json_schema_extra={"uniqueItems": True},
+    )
+    semantic_diff_ref_or_none: str | None = None
+
+    @model_validator(mode="after")
+    def _validate_contract(self) -> "AnmMigrationBindingRow":
+        self.binding_id = _require_non_empty(self.binding_id, field_name="binding_id")
+        self.host_doc_ref = _require_non_empty(self.host_doc_ref, field_name="host_doc_ref")
+        self.host_profile_ref = _require_non_empty(
+            self.host_profile_ref, field_name="host_profile_ref"
+        )
+        if self.companion_doc_ref_or_none is not None:
+            self.companion_doc_ref_or_none = _require_non_empty(
+                self.companion_doc_ref_or_none,
+                field_name="companion_doc_ref_or_none",
+            )
+        if self.companion_profile_ref_or_none is not None:
+            self.companion_profile_ref_or_none = _require_non_empty(
+                self.companion_profile_ref_or_none,
+                field_name="companion_profile_ref_or_none",
+            )
+        if self.explicit_transition_law_ref_or_none is not None:
+            self.explicit_transition_law_ref_or_none = _require_non_empty(
+                self.explicit_transition_law_ref_or_none,
+                field_name="explicit_transition_law_ref_or_none",
+            )
+        if self.semantic_diff_ref_or_none is not None:
+            self.semantic_diff_ref_or_none = _require_non_empty(
+                self.semantic_diff_ref_or_none,
+                field_name="semantic_diff_ref_or_none",
+            )
+        _require_sorted_unique(
+            list(self.generated_reader_projection_refs),
+            field_name="generated_reader_projection_refs",
+        )
+        if self.host_doc_ref == self.companion_doc_ref_or_none:
+            raise ValueError("host_doc_ref must not equal companion_doc_ref_or_none")
+        if self.binding_posture == "registered_non_overriding_companion":
+            if self.companion_doc_ref_or_none is None or self.companion_profile_ref_or_none is None:
+                raise ValueError(
+                    "registered_non_overriding_companion requires companion doc and profile refs"
+                )
+        if self.binding_posture == "standalone_no_companion":
+            if (
+                self.companion_doc_ref_or_none is not None
+                or self.companion_profile_ref_or_none is not None
+            ):
+                raise ValueError("standalone_no_companion forbids companion doc and profile refs")
+        if self.supersession_claim_status == "claimed_with_explicit_transition_law":
+            if self.explicit_transition_law_ref_or_none is None:
+                raise ValueError(
+                    "claimed_with_explicit_transition_law requires "
+                    "explicit_transition_law_ref_or_none"
+                )
+        elif self.explicit_transition_law_ref_or_none is not None:
+            raise ValueError(
+                "explicit_transition_law_ref_or_none requires claimed_with_explicit_transition_law"
+            )
+        return self
+
+
+class AnmMigrationBindingProfile(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+
+    schema_id: AnmMigrationBindingProfileSchemaVersion = ANM_MIGRATION_BINDING_PROFILE_SCHEMA
+    migration_binding_profile_id: str = Field(min_length=1)
+    consumed_source_set_manifest_ref: str = Field(min_length=1)
+    consumed_source_set_manifest_hash: str = Field(min_length=1)
+    consumed_doc_class_policy_ref: str = Field(min_length=1)
+    consumed_doc_class_policy_hash: str = Field(min_length=1)
+    consumed_authority_profile_set_ref_or_hash: str = Field(min_length=1)
+    binding_rows: list[AnmMigrationBindingRow] = Field(default_factory=list)
+
+    @model_validator(mode="after")
+    def _validate_contract(self) -> "AnmMigrationBindingProfile":
+        for field_name in (
+            "migration_binding_profile_id",
+            "consumed_source_set_manifest_ref",
+            "consumed_source_set_manifest_hash",
+            "consumed_doc_class_policy_ref",
+            "consumed_doc_class_policy_hash",
+            "consumed_authority_profile_set_ref_or_hash",
+        ):
+            setattr(
+                self,
+                field_name,
+                _require_non_empty(getattr(self, field_name), field_name=field_name),
+            )
+        binding_ids = [item.binding_id for item in self.binding_rows]
+        _require_sorted_unique(binding_ids, field_name="binding_rows.binding_id")
+        return self
+
+
+class AnmReaderProjectionRow(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+
+    projection_doc_ref: str = Field(min_length=1)
+    source_doc_ref: str = Field(min_length=1)
+    source_profile_ref: str = Field(min_length=1)
+    projection_required: bool
+    projection_requirement_source: V66BProjectionRequirementSource
+    projection_status: V66BProjectionStatus
+    projection_authority_posture: V66BProjectionAuthorityPosture
+    source_content_hash: str = Field(min_length=1)
+    projection_content_hash_or_none: str | None = None
+    drift_status: V66BDriftStatus
+
+    @model_validator(mode="after")
+    def _validate_contract(self) -> "AnmReaderProjectionRow":
+        for field_name in (
+            "projection_doc_ref",
+            "source_doc_ref",
+            "source_profile_ref",
+            "source_content_hash",
+        ):
+            setattr(
+                self,
+                field_name,
+                _require_non_empty(getattr(self, field_name), field_name=field_name),
+            )
+        if self.projection_content_hash_or_none is not None:
+            self.projection_content_hash_or_none = _require_non_empty(
+                self.projection_content_hash_or_none,
+                field_name="projection_content_hash_or_none",
+            )
+        if self.projection_doc_ref == self.source_doc_ref:
+            raise ValueError("projection_doc_ref must not equal source_doc_ref")
+        if self.projection_required and self.projection_requirement_source == "not_required":
+            raise ValueError(
+                "projection_required=true forbids projection_requirement_source=not_required"
+            )
+        if not self.projection_required and self.projection_requirement_source != "not_required":
+            raise ValueError(
+                "projection_required=false requires projection_requirement_source=not_required"
+            )
+        if self.projection_status == "current" and self.projection_content_hash_or_none is None:
+            raise ValueError("projection_status=current requires projection_content_hash_or_none")
+        if self.projection_status == "not_required" and self.projection_required:
+            raise ValueError("projection_status=not_required requires projection_required=false")
+        if self.drift_status == "not_required" and self.projection_required:
+            raise ValueError("drift_status=not_required requires projection_required=false")
+        return self
+
+
+class AnmReaderProjectionManifest(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+
+    schema_id: AnmReaderProjectionManifestSchemaVersion = ANM_READER_PROJECTION_MANIFEST_SCHEMA
+    projection_manifest_id: str = Field(min_length=1)
+    consumed_source_set_manifest_ref: str = Field(min_length=1)
+    consumed_source_set_manifest_hash: str = Field(min_length=1)
+    consumed_doc_class_policy_ref: str = Field(min_length=1)
+    consumed_doc_class_policy_hash: str = Field(min_length=1)
+    consumed_authority_profile_set_ref_or_hash: str = Field(min_length=1)
+    projection_rows: list[AnmReaderProjectionRow] = Field(default_factory=list)
+
+    @model_validator(mode="after")
+    def _validate_contract(self) -> "AnmReaderProjectionManifest":
+        for field_name in (
+            "projection_manifest_id",
+            "consumed_source_set_manifest_ref",
+            "consumed_source_set_manifest_hash",
+            "consumed_doc_class_policy_ref",
+            "consumed_doc_class_policy_hash",
+            "consumed_authority_profile_set_ref_or_hash",
+        ):
+            setattr(
+                self,
+                field_name,
+                _require_non_empty(getattr(self, field_name), field_name=field_name),
+            )
+        projection_doc_refs = [item.projection_doc_ref for item in self.projection_rows]
+        _require_sorted_unique(projection_doc_refs, field_name="projection_rows.projection_doc_ref")
+        return self
+
+
+class AnmSemanticDiffChangeRow(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+
+    source_doc_ref: str = Field(min_length=1)
+    baseline_profile_ref_or_none: str | None = None
+    current_profile_ref: str = Field(min_length=1)
+    change_kind: V66BChangeKind
+    surface_kind: V66BSurfaceKind
+    path_or_axis: str = Field(min_length=1)
+    baseline_value_or_none: Any = None
+    current_value_or_none: Any = None
+    authority_effect_kind: V66BAuthorityEffectKind
+    authority_effect_summary_or_none: str | None = None
+
+    @model_validator(mode="after")
+    def _validate_contract(self) -> "AnmSemanticDiffChangeRow":
+        self.source_doc_ref = _require_non_empty(self.source_doc_ref, field_name="source_doc_ref")
+        self.current_profile_ref = _require_non_empty(
+            self.current_profile_ref, field_name="current_profile_ref"
+        )
+        self.path_or_axis = _require_non_empty(self.path_or_axis, field_name="path_or_axis")
+        if self.baseline_profile_ref_or_none is not None:
+            self.baseline_profile_ref_or_none = _require_non_empty(
+                self.baseline_profile_ref_or_none,
+                field_name="baseline_profile_ref_or_none",
+            )
+        if self.authority_effect_summary_or_none is not None:
+            self.authority_effect_summary_or_none = _require_non_empty(
+                self.authority_effect_summary_or_none,
+                field_name="authority_effect_summary_or_none",
+            )
+        return self
+
+
+class AnmSemanticDiffReport(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+
+    schema_id: AnmSemanticDiffReportSchemaVersion = ANM_SEMANTIC_DIFF_REPORT_SCHEMA
+    diff_report_id: str = Field(min_length=1)
+    consumed_source_set_manifest_ref: str = Field(min_length=1)
+    consumed_source_set_manifest_hash: str = Field(min_length=1)
+    consumed_doc_class_policy_ref: str = Field(min_length=1)
+    consumed_doc_class_policy_hash: str = Field(min_length=1)
+    consumed_authority_profile_set_ref_or_hash: str = Field(min_length=1)
+    baseline_kind: V66BDiffBaselineKind
+    baseline_artifact_ref_or_none: str | None = None
+    baseline_artifact_hash_or_none: str | None = None
+    current_artifact_ref: str = Field(min_length=1)
+    current_artifact_hash: str = Field(min_length=1)
+    change_rows: list[AnmSemanticDiffChangeRow] = Field(default_factory=list)
+
+    @model_validator(mode="after")
+    def _validate_contract(self) -> "AnmSemanticDiffReport":
+        for field_name in (
+            "diff_report_id",
+            "consumed_source_set_manifest_ref",
+            "consumed_source_set_manifest_hash",
+            "consumed_doc_class_policy_ref",
+            "consumed_doc_class_policy_hash",
+            "consumed_authority_profile_set_ref_or_hash",
+            "current_artifact_ref",
+            "current_artifact_hash",
+        ):
+            setattr(
+                self,
+                field_name,
+                _require_non_empty(getattr(self, field_name), field_name=field_name),
+            )
+        if self.baseline_artifact_ref_or_none is not None:
+            self.baseline_artifact_ref_or_none = _require_non_empty(
+                self.baseline_artifact_ref_or_none,
+                field_name="baseline_artifact_ref_or_none",
+            )
+        if self.baseline_artifact_hash_or_none is not None:
+            self.baseline_artifact_hash_or_none = _require_non_empty(
+                self.baseline_artifact_hash_or_none,
+                field_name="baseline_artifact_hash_or_none",
+            )
+        if self.baseline_kind == "none_initial_report":
+            if (
+                self.baseline_artifact_ref_or_none is not None
+                or self.baseline_artifact_hash_or_none is not None
+            ):
+                raise ValueError(
+                    "none_initial_report forbids baseline_artifact_ref_or_none "
+                    "and baseline_artifact_hash_or_none"
+                )
+        elif (
+            self.baseline_artifact_ref_or_none is None
+            or self.baseline_artifact_hash_or_none is None
+        ):
+            raise ValueError(
+                "explicit baseline kinds require baseline_artifact_ref_or_none "
+                "and baseline_artifact_hash_or_none"
+            )
+        change_identity = [
+            (
+                item.source_doc_ref,
+                item.surface_kind,
+                item.path_or_axis,
+            )
+            for item in self.change_rows
+        ]
+        if change_identity != sorted(change_identity):
+            raise ValueError(
+                "change_rows must be sorted by (source_doc_ref, surface_kind, path_or_axis)"
+            )
+        if len(change_identity) != len(set(change_identity)):
+            raise ValueError("change_rows must not contain duplicate diff identities")
+        return self
+
+
 def canonicalize_d1_normalized_ir_payload(
     payload: D1NormalizedIR | dict[str, Any],
 ) -> dict[str, Any]:
     normalized = (
-        payload
-        if isinstance(payload, D1NormalizedIR)
-        else D1NormalizedIR.model_validate(payload)
+        payload if isinstance(payload, D1NormalizedIR) else D1NormalizedIR.model_validate(payload)
     )
     return normalized.model_dump(mode="json", by_alias=True, exclude_none=True)
 
@@ -1762,6 +2099,39 @@ def canonicalize_anm_doc_class_policy_payload(
     return normalized.model_dump(mode="json", by_alias=True, exclude_none=True)
 
 
+def canonicalize_anm_migration_binding_profile_payload(
+    payload: AnmMigrationBindingProfile | dict[str, Any],
+) -> dict[str, Any]:
+    normalized = (
+        payload
+        if isinstance(payload, AnmMigrationBindingProfile)
+        else AnmMigrationBindingProfile.model_validate(payload)
+    )
+    return normalized.model_dump(mode="json", by_alias=True, exclude_none=True)
+
+
+def canonicalize_anm_reader_projection_manifest_payload(
+    payload: AnmReaderProjectionManifest | dict[str, Any],
+) -> dict[str, Any]:
+    normalized = (
+        payload
+        if isinstance(payload, AnmReaderProjectionManifest)
+        else AnmReaderProjectionManifest.model_validate(payload)
+    )
+    return normalized.model_dump(mode="json", by_alias=True, exclude_none=True)
+
+
+def canonicalize_anm_semantic_diff_report_payload(
+    payload: AnmSemanticDiffReport | dict[str, Any],
+) -> dict[str, Any]:
+    normalized = (
+        payload
+        if isinstance(payload, AnmSemanticDiffReport)
+        else AnmSemanticDiffReport.model_validate(payload)
+    )
+    return normalized.model_dump(mode="json", by_alias=True, exclude_none=True)
+
+
 __all__ = [
     "D1_NORMALIZED_IR_SCHEMA",
     "PREDICATE_CONTRACTS_BOOTSTRAP_SCHEMA",
@@ -1775,6 +2145,9 @@ __all__ = [
     "ANM_SOURCE_SET_MANIFEST_SCHEMA",
     "ANM_DOC_AUTHORITY_PROFILE_SCHEMA",
     "ANM_DOC_CLASS_POLICY_SCHEMA",
+    "ANM_MIGRATION_BINDING_PROFILE_SCHEMA",
+    "ANM_READER_PROJECTION_MANIFEST_SCHEMA",
+    "ANM_SEMANTIC_DIFF_REPORT_SCHEMA",
     "D1NormalizedIR",
     "D1Clause",
     "D1Qualifier",
@@ -1824,6 +2197,12 @@ __all__ = [
     "AnmDocAuthorityProfile",
     "AnmDocClassPolicyRow",
     "AnmDocClassPolicy",
+    "AnmMigrationBindingRow",
+    "AnmMigrationBindingProfile",
+    "AnmReaderProjectionRow",
+    "AnmReaderProjectionManifest",
+    "AnmSemanticDiffChangeRow",
+    "AnmSemanticDiffReport",
     "stable_payload_hash",
     "canonicalize_anm_markdown_coexistence_profile_payload",
     "canonicalize_anm_selector_predicate_ownership_profile_payload",
@@ -1832,6 +2211,9 @@ __all__ = [
     "canonicalize_anm_source_set_manifest_payload",
     "canonicalize_anm_doc_authority_profile_payload",
     "canonicalize_anm_doc_class_policy_payload",
+    "canonicalize_anm_migration_binding_profile_payload",
+    "canonicalize_anm_reader_projection_manifest_payload",
+    "canonicalize_anm_semantic_diff_report_payload",
     "canonicalize_d1_normalized_ir_payload",
     "canonicalize_predicate_contracts_bootstrap_payload",
     "canonicalize_checker_fact_bundle_payload",

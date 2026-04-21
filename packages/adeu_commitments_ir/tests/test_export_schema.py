@@ -10,8 +10,11 @@ from adeu_commitments_ir import (
     ANM_DOC_AUTHORITY_PROFILE_SCHEMA,
     ANM_DOC_CLASS_POLICY_SCHEMA,
     ANM_MARKDOWN_COEXISTENCE_PROFILE_SCHEMA,
+    ANM_MIGRATION_BINDING_PROFILE_SCHEMA,
     ANM_POLICY_CONSUMER_BINDING_PROFILE_SCHEMA,
+    ANM_READER_PROJECTION_MANIFEST_SCHEMA,
     ANM_SELECTOR_PREDICATE_OWNERSHIP_PROFILE_SCHEMA,
+    ANM_SEMANTIC_DIFF_REPORT_SCHEMA,
     ANM_SOURCE_SET_MANIFEST_SCHEMA,
     CHECKER_FACT_BUNDLE_SCHEMA,
     D1_NORMALIZED_IR_SCHEMA,
@@ -129,6 +132,33 @@ def _schema_pairs() -> list[tuple[str, Path, Path]]:
             root / "packages" / "adeu_commitments_ir" / "schema" / "anm_doc_class_policy.v1.json",
             root / "spec" / "anm_doc_class_policy.schema.json",
         ),
+        (
+            ANM_MIGRATION_BINDING_PROFILE_SCHEMA,
+            root
+            / "packages"
+            / "adeu_commitments_ir"
+            / "schema"
+            / "anm_migration_binding_profile.v1.json",
+            root / "spec" / "anm_migration_binding_profile.schema.json",
+        ),
+        (
+            ANM_READER_PROJECTION_MANIFEST_SCHEMA,
+            root
+            / "packages"
+            / "adeu_commitments_ir"
+            / "schema"
+            / "anm_reader_projection_manifest.v1.json",
+            root / "spec" / "anm_reader_projection_manifest.schema.json",
+        ),
+        (
+            ANM_SEMANTIC_DIFF_REPORT_SCHEMA,
+            root
+            / "packages"
+            / "adeu_commitments_ir"
+            / "schema"
+            / "anm_semantic_diff_report.v1.json",
+            root / "spec" / "anm_semantic_diff_report.schema.json",
+        ),
     ]
 
 
@@ -138,16 +168,8 @@ def test_authoritative_and_mirror_schema_are_byte_identical() -> None:
 
 
 def test_schema_export_rerun_is_clean_and_deterministic() -> None:
-    before = {
-        authoritative: authoritative.read_bytes()
-        for _, authoritative, _ in _schema_pairs()
-    }
-    before.update(
-        {
-            mirror: mirror.read_bytes()
-            for _, _, mirror in _schema_pairs()
-        }
-    )
+    before = {authoritative: authoritative.read_bytes() for _, authoritative, _ in _schema_pairs()}
+    before.update({mirror: mirror.read_bytes() for _, _, mirror in _schema_pairs()})
 
     export_schema_main()
     after_first = {path: path.read_bytes() for path in before}
@@ -205,15 +227,13 @@ def test_exported_schema_has_stable_contract_markers() -> None:
         == ANM_MARKDOWN_COEXISTENCE_PROFILE_SCHEMA
     )
     assert (
-        schema_payloads[ANM_SELECTOR_PREDICATE_OWNERSHIP_PROFILE_SCHEMA]["properties"][
-            "schema"
-        ]["const"]
+        schema_payloads[ANM_SELECTOR_PREDICATE_OWNERSHIP_PROFILE_SCHEMA]["properties"]["schema"][
+            "const"
+        ]
         == ANM_SELECTOR_PREDICATE_OWNERSHIP_PROFILE_SCHEMA
     )
     assert (
-        schema_payloads[ANM_POLICY_CONSUMER_BINDING_PROFILE_SCHEMA]["properties"]["schema"][
-            "const"
-        ]
+        schema_payloads[ANM_POLICY_CONSUMER_BINDING_PROFILE_SCHEMA]["properties"]["schema"]["const"]
         == ANM_POLICY_CONSUMER_BINDING_PROFILE_SCHEMA
     )
     assert (
@@ -233,6 +253,18 @@ def test_exported_schema_has_stable_contract_markers() -> None:
     assert (
         schema_payloads[ANM_DOC_CLASS_POLICY_SCHEMA]["properties"]["schema_id"]["const"]
         == ANM_DOC_CLASS_POLICY_SCHEMA
+    )
+    assert (
+        schema_payloads[ANM_MIGRATION_BINDING_PROFILE_SCHEMA]["properties"]["schema_id"]["const"]
+        == ANM_MIGRATION_BINDING_PROFILE_SCHEMA
+    )
+    assert (
+        schema_payloads[ANM_READER_PROJECTION_MANIFEST_SCHEMA]["properties"]["schema_id"]["const"]
+        == ANM_READER_PROJECTION_MANIFEST_SCHEMA
+    )
+    assert (
+        schema_payloads[ANM_SEMANTIC_DIFF_REPORT_SCHEMA]["properties"]["schema_id"]["const"]
+        == ANM_SEMANTIC_DIFF_REPORT_SCHEMA
     )
     checker_fact_row_defs = schema_payloads[CHECKER_FACT_BUNDLE_SCHEMA]["$defs"]
     value_type_fact = checker_fact_row_defs["ValueTypeObservationFact"]
@@ -267,9 +299,9 @@ def test_exported_schema_has_stable_contract_markers() -> None:
         is True
     )
     assert (
-        coexistence_defs["AnmCoexistenceSourceRow"]["properties"][
-            "allowed_constrain_actions"
-        ]["uniqueItems"]
+        coexistence_defs["AnmCoexistenceSourceRow"]["properties"]["allowed_constrain_actions"][
+            "uniqueItems"
+        ]
         is True
     )
     for field_name in (
@@ -277,9 +309,10 @@ def test_exported_schema_has_stable_contract_markers() -> None:
         "later_lock_required_actions",
         "forbidden_actions",
     ):
-        assert coexistence_defs["AnmAdoptionBoundaryRow"]["properties"][field_name][
-            "uniqueItems"
-        ] is True
+        assert (
+            coexistence_defs["AnmAdoptionBoundaryRow"]["properties"][field_name]["uniqueItems"]
+            is True
+        )
     ownership_defs = schema_payloads[ANM_SELECTOR_PREDICATE_OWNERSHIP_PROFILE_SCHEMA]["$defs"]
     assert (
         schema_payloads[ANM_SELECTOR_PREDICATE_OWNERSHIP_PROFILE_SCHEMA]["properties"][
@@ -309,9 +342,31 @@ def test_exported_schema_has_stable_contract_markers() -> None:
         is True
     )
     class_policy_defs = schema_payloads[ANM_DOC_CLASS_POLICY_SCHEMA]["$defs"]
-    assert class_policy_defs["AnmDocClassPolicyRow"]["properties"]["hard_gates"][
-        "uniqueItems"
-    ] is True
+    assert (
+        class_policy_defs["AnmDocClassPolicyRow"]["properties"]["hard_gates"]["uniqueItems"] is True
+    )
+    migration_defs = schema_payloads[ANM_MIGRATION_BINDING_PROFILE_SCHEMA]["$defs"]
+    assert migration_defs["AnmMigrationBindingRow"]["properties"]["binding_posture"]["enum"] == [
+        "invalid_or_contradictory",
+        "registered_non_overriding_companion",
+        "standalone_no_companion",
+    ]
+    projection_defs = schema_payloads[ANM_READER_PROJECTION_MANIFEST_SCHEMA]["$defs"]
+    assert projection_defs["AnmReaderProjectionRow"]["properties"]["projection_status"]["enum"] == [
+        "current",
+        "invalid",
+        "missing",
+        "not_required",
+        "stale",
+    ]
+    diff_defs = schema_payloads[ANM_SEMANTIC_DIFF_REPORT_SCHEMA]["$defs"]
+    assert diff_defs["AnmSemanticDiffChangeRow"]["properties"]["surface_kind"]["enum"] == [
+        "doc_authority_profile",
+        "doc_class_policy",
+        "migration_binding",
+        "reader_projection_manifest",
+        "source_set_entry",
+    ]
     compatibility_posture = ownership_defs["OwnershipCompatibilityRule"]["properties"][
         "compatibility_posture"
     ]["enum"]
@@ -335,9 +390,9 @@ def test_exported_schema_has_stable_contract_markers() -> None:
         "released_v45_descriptive_artifact_world",
         "released_runtime_event_artifact_world",
     ]
-    consumer_ref_kind = consumer_defs["AnmPolicyConsumerRow"]["properties"][
-        "consumer_ref_kind"
-    ]["enum"]
+    consumer_ref_kind = consumer_defs["AnmPolicyConsumerRow"]["properties"]["consumer_ref_kind"][
+        "enum"
+    ]
     assert consumer_ref_kind == [
         "released_v45_artifact_ref",
         "released_runtime_event_stream_ref",
@@ -356,12 +411,10 @@ def test_exported_schema_has_stable_contract_markers() -> None:
         "later_lock_required_actions",
         "forbidden_actions",
     ):
-        assert consumer_defs["AnmPolicyConsumerRow"]["properties"][field_name][
-            "uniqueItems"
-        ] is True
-    benchmark_defs = schema_payloads[
-        ANM_BENCHMARK_POLICY_CONSUMER_BINDING_PROFILE_SCHEMA
-    ]["$defs"]
+        assert (
+            consumer_defs["AnmPolicyConsumerRow"]["properties"][field_name]["uniqueItems"] is True
+        )
+    benchmark_defs = schema_payloads[ANM_BENCHMARK_POLICY_CONSUMER_BINDING_PROFILE_SCHEMA]["$defs"]
     assert (
         schema_payloads[ANM_BENCHMARK_POLICY_CONSUMER_BINDING_PROFILE_SCHEMA]["properties"][
             "released_stack_refs"
@@ -400,9 +453,10 @@ def test_exported_schema_has_stable_contract_markers() -> None:
         "later_lock_required_actions",
         "forbidden_actions",
     ):
-        assert benchmark_defs["AnmBenchmarkPolicyConsumerRow"]["properties"][field_name][
-            "uniqueItems"
-        ] is True
+        assert (
+            benchmark_defs["AnmBenchmarkPolicyConsumerRow"]["properties"][field_name]["uniqueItems"]
+            is True
+        )
 
 
 def test_exported_schema_has_no_absolute_path_material() -> None:
