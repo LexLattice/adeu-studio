@@ -24,6 +24,8 @@ ANM_DOC_CLASS_POLICY_SCHEMA = "anm_doc_class_policy@1"
 ANM_MIGRATION_BINDING_PROFILE_SCHEMA = "anm_migration_binding_profile@1"
 ANM_READER_PROJECTION_MANIFEST_SCHEMA = "anm_reader_projection_manifest@1"
 ANM_SEMANTIC_DIFF_REPORT_SCHEMA = "anm_semantic_diff_report@1"
+ANM_COMPILE_REPORT_SCHEMA = "anm_compile_report@1"
+ANM_PROSE_BOUNDARY_NOTICE_SET_SCHEMA = "anm_prose_boundary_notice_set@1"
 
 D1SchemaVersion = Literal["d1_normalized_ir@1"]
 PredicateContractsBootstrapSchemaVersion = Literal["predicate_contracts_bootstrap@1"]
@@ -44,6 +46,8 @@ AnmDocClassPolicySchemaVersion = Literal["anm_doc_class_policy@1"]
 AnmMigrationBindingProfileSchemaVersion = Literal["anm_migration_binding_profile@1"]
 AnmReaderProjectionManifestSchemaVersion = Literal["anm_reader_projection_manifest@1"]
 AnmSemanticDiffReportSchemaVersion = Literal["anm_semantic_diff_report@1"]
+AnmCompileReportSchemaVersion = Literal["anm_compile_report@1"]
+AnmProseBoundaryNoticeSetSchemaVersion = Literal["anm_prose_boundary_notice_set@1"]
 
 SelectorKind = Literal["bootstrap_string_selector"]
 SelectorZeroMatchPolicy = Literal["allow_empty_with_notice"]
@@ -264,6 +268,64 @@ V66BAuthorityEffectKind = Literal[
     "invalid_authority_claim_rejected",
     "no_authority_minted",
     "review_visibility_only",
+]
+V66CReportStatus = Literal[
+    "valid",
+    "invalid_missing_prior_basis",
+    "invalid_prior_basis_hash_mismatch",
+    "invalid_policy_anchor",
+    "invalid_unsupported_schema",
+    "invalid_notice_evidence",
+    "invalid_authority_claim_rejected",
+]
+V66CRecommendedAdoptionPosture = Literal[
+    "current_guardrails_sufficient",
+    "needs_more_registration",
+    "needs_projection_refresh",
+    "needs_transition_law_review",
+    "candidate_for_later_markdown_transition_review",
+]
+V66CDiagnosticKind = Literal[
+    "prior_basis_missing",
+    "prior_basis_hash_mismatch",
+    "policy_anchor_invalid",
+    "notice_evidence_invalid",
+    "generated_projection_authority_overread_risk",
+    "projection_staleness_visible",
+    "transition_law_scope_ambiguity",
+    "class_policy_overpromotion_risk",
+    "normative_tone_without_compiled_authority_block",
+]
+V66CNoticeKind = Literal[
+    "normative_tone_without_compiled_authority_block",
+    "projection_staleness_visible",
+    "generated_projection_authority_overread_risk",
+    "transition_law_scope_ambiguity",
+    "class_policy_overpromotion_risk",
+]
+V66CSeverity = Literal["info", "warning", "error"]
+V66CSourceSurface = Literal[
+    "v66a_source_set_manifest",
+    "v66a_doc_authority_profile",
+    "v66a_doc_class_policy",
+    "v66b_migration_binding_profile",
+    "v66b_reader_projection_manifest",
+    "v66b_semantic_diff_report",
+    "selected_prose_boundary_sample",
+    "frozen_policy_anchor",
+]
+V66CAdvisoryEffect = Literal[
+    "none",
+    "review_visibility_only",
+    "registration_review_needed",
+    "projection_refresh_needed",
+    "transition_law_review_needed",
+    "markdown_transition_candidate",
+]
+V66CAuthorityEffect = Literal[
+    "no_authority_minted",
+    "current_markdown_remains_controlling",
+    "invalid_authority_claim_rejected",
 ]
 
 
@@ -1969,6 +2031,226 @@ class AnmSemanticDiffReport(BaseModel):
         return self
 
 
+class AnmV66CConsumedLineage(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+
+    consumed_v66a_source_set_manifest_ref: str = Field(min_length=1)
+    consumed_v66a_source_set_manifest_hash: str = Field(min_length=1)
+    consumed_v66a_authority_profile_set_ref_or_hash: str = Field(min_length=1)
+    consumed_v66a_doc_class_policy_ref: str = Field(min_length=1)
+    consumed_v66a_doc_class_policy_hash: str = Field(min_length=1)
+    consumed_v66b_migration_binding_profile_ref: str = Field(min_length=1)
+    consumed_v66b_migration_binding_profile_hash: str = Field(min_length=1)
+    consumed_v66b_reader_projection_manifest_ref_or_none: str | None = None
+    consumed_v66b_reader_projection_manifest_hash_or_none: str | None = None
+    consumed_v66b_semantic_diff_report_ref_or_none: str | None = None
+    consumed_v66b_semantic_diff_report_hash_or_none: str | None = None
+
+    @model_validator(mode="after")
+    def _validate_contract(self) -> "AnmV66CConsumedLineage":
+        for field_name in (
+            "consumed_v66a_source_set_manifest_ref",
+            "consumed_v66a_source_set_manifest_hash",
+            "consumed_v66a_authority_profile_set_ref_or_hash",
+            "consumed_v66a_doc_class_policy_ref",
+            "consumed_v66a_doc_class_policy_hash",
+            "consumed_v66b_migration_binding_profile_ref",
+            "consumed_v66b_migration_binding_profile_hash",
+        ):
+            setattr(
+                self,
+                field_name,
+                _require_non_empty(getattr(self, field_name), field_name=field_name),
+            )
+        optional_pairs = (
+            (
+                "consumed_v66b_reader_projection_manifest_ref_or_none",
+                "consumed_v66b_reader_projection_manifest_hash_or_none",
+            ),
+            (
+                "consumed_v66b_semantic_diff_report_ref_or_none",
+                "consumed_v66b_semantic_diff_report_hash_or_none",
+            ),
+        )
+        for ref_field, hash_field in optional_pairs:
+            ref_value = getattr(self, ref_field)
+            hash_value = getattr(self, hash_field)
+            if ref_value is None and hash_value is None:
+                continue
+            if ref_value is None or hash_value is None:
+                raise ValueError(
+                    f"{ref_field} and {hash_field} must be both present or both absent"
+                )
+            setattr(self, ref_field, _require_non_empty(ref_value, field_name=ref_field))
+            setattr(self, hash_field, _require_non_empty(hash_value, field_name=hash_field))
+        return self
+
+
+class AnmV66CPolicyAnchor(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+
+    policy_anchor_ref: str = Field(min_length=1)
+    policy_anchor_hash: str = Field(min_length=1)
+    policy_anchor_schema_id: str = Field(min_length=1)
+    advisory_outcome_reducer_ref: str = Field(min_length=1)
+    advisory_outcome_reducer_hash: str = Field(min_length=1)
+    notice_detection_policy_ref: str = Field(min_length=1)
+    notice_detection_policy_hash: str = Field(min_length=1)
+
+    @model_validator(mode="after")
+    def _validate_contract(self) -> "AnmV66CPolicyAnchor":
+        for field_name in (
+            "policy_anchor_ref",
+            "policy_anchor_hash",
+            "policy_anchor_schema_id",
+            "advisory_outcome_reducer_ref",
+            "advisory_outcome_reducer_hash",
+            "notice_detection_policy_ref",
+            "notice_detection_policy_hash",
+        ):
+            setattr(
+                self,
+                field_name,
+                _require_non_empty(getattr(self, field_name), field_name=field_name),
+            )
+        return self
+
+
+class AnmCompileDiagnosticRow(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+
+    diagnostic_id: str = Field(min_length=1)
+    diagnostic_kind: V66CDiagnosticKind
+    severity: V66CSeverity
+    source_surface: V66CSourceSurface
+    subject_ref: str = Field(min_length=1)
+    evidence_refs: list[str] = Field(
+        default_factory=list,
+        json_schema_extra={"uniqueItems": True},
+    )
+    advisory_effect: V66CAdvisoryEffect
+    authority_effect: V66CAuthorityEffect
+
+    @model_validator(mode="after")
+    def _validate_contract(self) -> "AnmCompileDiagnosticRow":
+        self.diagnostic_id = _require_non_empty(self.diagnostic_id, field_name="diagnostic_id")
+        self.subject_ref = _require_non_empty(self.subject_ref, field_name="subject_ref")
+        _require_sorted_unique(list(self.evidence_refs), field_name="evidence_refs")
+        return self
+
+
+class AnmCompileAdvisoryResult(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+
+    recommended_adoption_posture_or_none: V66CRecommendedAdoptionPosture | None = None
+    reason_codes: list[str] = Field(
+        default_factory=list,
+        json_schema_extra={"uniqueItems": True},
+    )
+    reducer_policy_ref: str = Field(min_length=1)
+    reducer_policy_hash: str = Field(min_length=1)
+
+    @model_validator(mode="after")
+    def _validate_contract(self) -> "AnmCompileAdvisoryResult":
+        self.reducer_policy_ref = _require_non_empty(
+            self.reducer_policy_ref,
+            field_name="reducer_policy_ref",
+        )
+        self.reducer_policy_hash = _require_non_empty(
+            self.reducer_policy_hash,
+            field_name="reducer_policy_hash",
+        )
+        _require_sorted_unique(list(self.reason_codes), field_name="reason_codes")
+        return self
+
+
+class AnmCompileReport(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+
+    schema_id: AnmCompileReportSchemaVersion = ANM_COMPILE_REPORT_SCHEMA
+    compile_report_id: str = Field(min_length=1)
+    report_status: V66CReportStatus
+    consumed_lineage: AnmV66CConsumedLineage
+    policy_anchor: AnmV66CPolicyAnchor
+    diagnostic_rows: list[AnmCompileDiagnosticRow] = Field(default_factory=list)
+    advisory_result: AnmCompileAdvisoryResult
+
+    @model_validator(mode="after")
+    def _validate_contract(self) -> "AnmCompileReport":
+        self.compile_report_id = _require_non_empty(
+            self.compile_report_id,
+            field_name="compile_report_id",
+        )
+        diagnostic_ids = [item.diagnostic_id for item in self.diagnostic_rows]
+        _require_sorted_unique(diagnostic_ids, field_name="diagnostic_rows.diagnostic_id")
+        has_recommendation = self.advisory_result.recommended_adoption_posture_or_none is not None
+        if self.report_status == "valid" and not has_recommendation:
+            raise ValueError(
+                "valid compile reports require recommended_adoption_posture_or_none"
+            )
+        if self.report_status != "valid" and has_recommendation:
+            raise ValueError(
+                "recommended_adoption_posture_or_none is only valid when report_status = valid"
+            )
+        return self
+
+
+class AnmProseBoundaryNoticeRow(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+
+    notice_id: str = Field(min_length=1)
+    notice_kind: V66CNoticeKind
+    severity: V66CSeverity
+    source_doc_ref: str = Field(min_length=1)
+    subject_ref: str = Field(min_length=1)
+    evidence_refs: list[str] = Field(
+        default_factory=list,
+        json_schema_extra={"uniqueItems": True},
+    )
+    compiled_authority_block_ref_or_none: str | None = None
+    advisory_effect: V66CAdvisoryEffect
+    authority_effect: V66CAuthorityEffect
+
+    @model_validator(mode="after")
+    def _validate_contract(self) -> "AnmProseBoundaryNoticeRow":
+        self.notice_id = _require_non_empty(self.notice_id, field_name="notice_id")
+        self.source_doc_ref = _require_non_empty(self.source_doc_ref, field_name="source_doc_ref")
+        self.subject_ref = _require_non_empty(self.subject_ref, field_name="subject_ref")
+        if self.compiled_authority_block_ref_or_none is not None:
+            self.compiled_authority_block_ref_or_none = _require_non_empty(
+                self.compiled_authority_block_ref_or_none,
+                field_name="compiled_authority_block_ref_or_none",
+            )
+        _require_sorted_unique(list(self.evidence_refs), field_name="evidence_refs")
+        if (
+            self.notice_kind == "normative_tone_without_compiled_authority_block"
+            and self.compiled_authority_block_ref_or_none is not None
+        ):
+            raise ValueError(
+                "normative_tone_without_compiled_authority_block forbids "
+                "compiled_authority_block_ref_or_none"
+            )
+        return self
+
+
+class AnmProseBoundaryNoticeSet(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+
+    schema_id: AnmProseBoundaryNoticeSetSchemaVersion = ANM_PROSE_BOUNDARY_NOTICE_SET_SCHEMA
+    notice_set_id: str = Field(min_length=1)
+    report_status: V66CReportStatus
+    consumed_lineage: AnmV66CConsumedLineage
+    policy_anchor: AnmV66CPolicyAnchor
+    notice_rows: list[AnmProseBoundaryNoticeRow] = Field(default_factory=list)
+
+    @model_validator(mode="after")
+    def _validate_contract(self) -> "AnmProseBoundaryNoticeSet":
+        self.notice_set_id = _require_non_empty(self.notice_set_id, field_name="notice_set_id")
+        notice_ids = [item.notice_id for item in self.notice_rows]
+        _require_sorted_unique(notice_ids, field_name="notice_rows.notice_id")
+        return self
+
+
 def canonicalize_d1_normalized_ir_payload(
     payload: D1NormalizedIR | dict[str, Any],
 ) -> dict[str, Any]:
@@ -2132,6 +2414,28 @@ def canonicalize_anm_semantic_diff_report_payload(
     return normalized.model_dump(mode="json", by_alias=True, exclude_none=True)
 
 
+def canonicalize_anm_compile_report_payload(
+    payload: AnmCompileReport | dict[str, Any],
+) -> dict[str, Any]:
+    normalized = (
+        payload
+        if isinstance(payload, AnmCompileReport)
+        else AnmCompileReport.model_validate(payload)
+    )
+    return normalized.model_dump(mode="json", by_alias=True, exclude_none=True)
+
+
+def canonicalize_anm_prose_boundary_notice_set_payload(
+    payload: AnmProseBoundaryNoticeSet | dict[str, Any],
+) -> dict[str, Any]:
+    normalized = (
+        payload
+        if isinstance(payload, AnmProseBoundaryNoticeSet)
+        else AnmProseBoundaryNoticeSet.model_validate(payload)
+    )
+    return normalized.model_dump(mode="json", by_alias=True, exclude_none=True)
+
+
 __all__ = [
     "D1_NORMALIZED_IR_SCHEMA",
     "PREDICATE_CONTRACTS_BOOTSTRAP_SCHEMA",
@@ -2148,6 +2452,8 @@ __all__ = [
     "ANM_MIGRATION_BINDING_PROFILE_SCHEMA",
     "ANM_READER_PROJECTION_MANIFEST_SCHEMA",
     "ANM_SEMANTIC_DIFF_REPORT_SCHEMA",
+    "ANM_COMPILE_REPORT_SCHEMA",
+    "ANM_PROSE_BOUNDARY_NOTICE_SET_SCHEMA",
     "D1NormalizedIR",
     "D1Clause",
     "D1Qualifier",
@@ -2203,6 +2509,13 @@ __all__ = [
     "AnmReaderProjectionManifest",
     "AnmSemanticDiffChangeRow",
     "AnmSemanticDiffReport",
+    "AnmV66CConsumedLineage",
+    "AnmV66CPolicyAnchor",
+    "AnmCompileDiagnosticRow",
+    "AnmCompileAdvisoryResult",
+    "AnmCompileReport",
+    "AnmProseBoundaryNoticeRow",
+    "AnmProseBoundaryNoticeSet",
     "stable_payload_hash",
     "canonicalize_anm_markdown_coexistence_profile_payload",
     "canonicalize_anm_selector_predicate_ownership_profile_payload",
@@ -2214,6 +2527,8 @@ __all__ = [
     "canonicalize_anm_migration_binding_profile_payload",
     "canonicalize_anm_reader_projection_manifest_payload",
     "canonicalize_anm_semantic_diff_report_payload",
+    "canonicalize_anm_compile_report_payload",
+    "canonicalize_anm_prose_boundary_notice_set_payload",
     "canonicalize_d1_normalized_ir_payload",
     "canonicalize_predicate_contracts_bootstrap_payload",
     "canonicalize_checker_fact_bundle_payload",
@@ -2236,4 +2551,12 @@ __all__ = [
     "AnmAllowedConsumer",
     "AnmHardGate",
     "AnmWarningGate",
+    "V66CReportStatus",
+    "V66CRecommendedAdoptionPosture",
+    "V66CDiagnosticKind",
+    "V66CNoticeKind",
+    "V66CSeverity",
+    "V66CSourceSurface",
+    "V66CAdvisoryEffect",
+    "V66CAuthorityEffect",
 ]

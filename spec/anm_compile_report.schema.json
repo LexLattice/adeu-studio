@@ -1,0 +1,347 @@
+{
+  "$defs": {
+    "AnmCompileAdvisoryResult": {
+      "additionalProperties": false,
+      "properties": {
+        "reason_codes": {
+          "items": {
+            "type": "string"
+          },
+          "title": "Reason Codes",
+          "type": "array",
+          "uniqueItems": true
+        },
+        "recommended_adoption_posture_or_none": {
+          "anyOf": [
+            {
+              "enum": [
+                "current_guardrails_sufficient",
+                "needs_more_registration",
+                "needs_projection_refresh",
+                "needs_transition_law_review",
+                "candidate_for_later_markdown_transition_review"
+              ],
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Recommended Adoption Posture Or None"
+        },
+        "reducer_policy_hash": {
+          "minLength": 1,
+          "title": "Reducer Policy Hash",
+          "type": "string"
+        },
+        "reducer_policy_ref": {
+          "minLength": 1,
+          "title": "Reducer Policy Ref",
+          "type": "string"
+        }
+      },
+      "required": [
+        "reducer_policy_ref",
+        "reducer_policy_hash"
+      ],
+      "title": "AnmCompileAdvisoryResult",
+      "type": "object"
+    },
+    "AnmCompileDiagnosticRow": {
+      "additionalProperties": false,
+      "properties": {
+        "advisory_effect": {
+          "enum": [
+            "none",
+            "review_visibility_only",
+            "registration_review_needed",
+            "projection_refresh_needed",
+            "transition_law_review_needed",
+            "markdown_transition_candidate"
+          ],
+          "title": "Advisory Effect",
+          "type": "string"
+        },
+        "authority_effect": {
+          "enum": [
+            "no_authority_minted",
+            "current_markdown_remains_controlling",
+            "invalid_authority_claim_rejected"
+          ],
+          "title": "Authority Effect",
+          "type": "string"
+        },
+        "diagnostic_id": {
+          "minLength": 1,
+          "title": "Diagnostic Id",
+          "type": "string"
+        },
+        "diagnostic_kind": {
+          "enum": [
+            "prior_basis_missing",
+            "prior_basis_hash_mismatch",
+            "policy_anchor_invalid",
+            "notice_evidence_invalid",
+            "generated_projection_authority_overread_risk",
+            "projection_staleness_visible",
+            "transition_law_scope_ambiguity",
+            "class_policy_overpromotion_risk",
+            "normative_tone_without_compiled_authority_block"
+          ],
+          "title": "Diagnostic Kind",
+          "type": "string"
+        },
+        "evidence_refs": {
+          "items": {
+            "type": "string"
+          },
+          "title": "Evidence Refs",
+          "type": "array",
+          "uniqueItems": true
+        },
+        "severity": {
+          "enum": [
+            "info",
+            "warning",
+            "error"
+          ],
+          "title": "Severity",
+          "type": "string"
+        },
+        "source_surface": {
+          "enum": [
+            "v66a_source_set_manifest",
+            "v66a_doc_authority_profile",
+            "v66a_doc_class_policy",
+            "v66b_migration_binding_profile",
+            "v66b_reader_projection_manifest",
+            "v66b_semantic_diff_report",
+            "selected_prose_boundary_sample",
+            "frozen_policy_anchor"
+          ],
+          "title": "Source Surface",
+          "type": "string"
+        },
+        "subject_ref": {
+          "minLength": 1,
+          "title": "Subject Ref",
+          "type": "string"
+        }
+      },
+      "required": [
+        "diagnostic_id",
+        "diagnostic_kind",
+        "severity",
+        "source_surface",
+        "subject_ref",
+        "advisory_effect",
+        "authority_effect"
+      ],
+      "title": "AnmCompileDiagnosticRow",
+      "type": "object"
+    },
+    "AnmV66CConsumedLineage": {
+      "additionalProperties": false,
+      "properties": {
+        "consumed_v66a_authority_profile_set_ref_or_hash": {
+          "minLength": 1,
+          "title": "Consumed V66A Authority Profile Set Ref Or Hash",
+          "type": "string"
+        },
+        "consumed_v66a_doc_class_policy_hash": {
+          "minLength": 1,
+          "title": "Consumed V66A Doc Class Policy Hash",
+          "type": "string"
+        },
+        "consumed_v66a_doc_class_policy_ref": {
+          "minLength": 1,
+          "title": "Consumed V66A Doc Class Policy Ref",
+          "type": "string"
+        },
+        "consumed_v66a_source_set_manifest_hash": {
+          "minLength": 1,
+          "title": "Consumed V66A Source Set Manifest Hash",
+          "type": "string"
+        },
+        "consumed_v66a_source_set_manifest_ref": {
+          "minLength": 1,
+          "title": "Consumed V66A Source Set Manifest Ref",
+          "type": "string"
+        },
+        "consumed_v66b_migration_binding_profile_hash": {
+          "minLength": 1,
+          "title": "Consumed V66B Migration Binding Profile Hash",
+          "type": "string"
+        },
+        "consumed_v66b_migration_binding_profile_ref": {
+          "minLength": 1,
+          "title": "Consumed V66B Migration Binding Profile Ref",
+          "type": "string"
+        },
+        "consumed_v66b_reader_projection_manifest_hash_or_none": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Consumed V66B Reader Projection Manifest Hash Or None"
+        },
+        "consumed_v66b_reader_projection_manifest_ref_or_none": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Consumed V66B Reader Projection Manifest Ref Or None"
+        },
+        "consumed_v66b_semantic_diff_report_hash_or_none": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Consumed V66B Semantic Diff Report Hash Or None"
+        },
+        "consumed_v66b_semantic_diff_report_ref_or_none": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Consumed V66B Semantic Diff Report Ref Or None"
+        }
+      },
+      "required": [
+        "consumed_v66a_source_set_manifest_ref",
+        "consumed_v66a_source_set_manifest_hash",
+        "consumed_v66a_authority_profile_set_ref_or_hash",
+        "consumed_v66a_doc_class_policy_ref",
+        "consumed_v66a_doc_class_policy_hash",
+        "consumed_v66b_migration_binding_profile_ref",
+        "consumed_v66b_migration_binding_profile_hash"
+      ],
+      "title": "AnmV66CConsumedLineage",
+      "type": "object"
+    },
+    "AnmV66CPolicyAnchor": {
+      "additionalProperties": false,
+      "properties": {
+        "advisory_outcome_reducer_hash": {
+          "minLength": 1,
+          "title": "Advisory Outcome Reducer Hash",
+          "type": "string"
+        },
+        "advisory_outcome_reducer_ref": {
+          "minLength": 1,
+          "title": "Advisory Outcome Reducer Ref",
+          "type": "string"
+        },
+        "notice_detection_policy_hash": {
+          "minLength": 1,
+          "title": "Notice Detection Policy Hash",
+          "type": "string"
+        },
+        "notice_detection_policy_ref": {
+          "minLength": 1,
+          "title": "Notice Detection Policy Ref",
+          "type": "string"
+        },
+        "policy_anchor_hash": {
+          "minLength": 1,
+          "title": "Policy Anchor Hash",
+          "type": "string"
+        },
+        "policy_anchor_ref": {
+          "minLength": 1,
+          "title": "Policy Anchor Ref",
+          "type": "string"
+        },
+        "policy_anchor_schema_id": {
+          "minLength": 1,
+          "title": "Policy Anchor Schema Id",
+          "type": "string"
+        }
+      },
+      "required": [
+        "policy_anchor_ref",
+        "policy_anchor_hash",
+        "policy_anchor_schema_id",
+        "advisory_outcome_reducer_ref",
+        "advisory_outcome_reducer_hash",
+        "notice_detection_policy_ref",
+        "notice_detection_policy_hash"
+      ],
+      "title": "AnmV66CPolicyAnchor",
+      "type": "object"
+    }
+  },
+  "additionalProperties": false,
+  "properties": {
+    "advisory_result": {
+      "$ref": "#/$defs/AnmCompileAdvisoryResult"
+    },
+    "compile_report_id": {
+      "minLength": 1,
+      "title": "Compile Report Id",
+      "type": "string"
+    },
+    "consumed_lineage": {
+      "$ref": "#/$defs/AnmV66CConsumedLineage"
+    },
+    "diagnostic_rows": {
+      "items": {
+        "$ref": "#/$defs/AnmCompileDiagnosticRow"
+      },
+      "title": "Diagnostic Rows",
+      "type": "array"
+    },
+    "policy_anchor": {
+      "$ref": "#/$defs/AnmV66CPolicyAnchor"
+    },
+    "report_status": {
+      "enum": [
+        "valid",
+        "invalid_missing_prior_basis",
+        "invalid_prior_basis_hash_mismatch",
+        "invalid_policy_anchor",
+        "invalid_unsupported_schema",
+        "invalid_notice_evidence",
+        "invalid_authority_claim_rejected"
+      ],
+      "title": "Report Status",
+      "type": "string"
+    },
+    "schema_id": {
+      "const": "anm_compile_report@1",
+      "default": "anm_compile_report@1",
+      "title": "Schema Id",
+      "type": "string"
+    }
+  },
+  "required": [
+    "compile_report_id",
+    "report_status",
+    "consumed_lineage",
+    "policy_anchor",
+    "advisory_result"
+  ],
+  "title": "AnmCompileReport",
+  "type": "object"
+}

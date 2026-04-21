@@ -9,11 +9,13 @@ from adeu_ir.repo import repo_root
 
 from .anm_models import (
     AnmBenchmarkPolicyConsumerBindingProfile,
+    AnmCompileReport,
     AnmDocAuthorityProfile,
     AnmDocClassPolicy,
     AnmMarkdownCoexistenceProfile,
     AnmMigrationBindingProfile,
     AnmPolicyConsumerBindingProfile,
+    AnmProseBoundaryNoticeSet,
     AnmReaderProjectionManifest,
     AnmSelectorPredicateOwnershipProfile,
     AnmSemanticDiffReport,
@@ -181,6 +183,11 @@ def main() -> None:
             root / "spec" / "anm_doc_class_policy.schema.json",
         ),
         (
+            AnmCompileReport,
+            root / "packages" / "adeu_commitments_ir" / "schema" / "anm_compile_report.v1.json",
+            root / "spec" / "anm_compile_report.schema.json",
+        ),
+        (
             AnmMigrationBindingProfile,
             root
             / "packages"
@@ -197,6 +204,15 @@ def main() -> None:
             / "schema"
             / "anm_reader_projection_manifest.v1.json",
             root / "spec" / "anm_reader_projection_manifest.schema.json",
+        ),
+        (
+            AnmProseBoundaryNoticeSet,
+            root
+            / "packages"
+            / "adeu_commitments_ir"
+            / "schema"
+            / "anm_prose_boundary_notice_set.v1.json",
+            root / "spec" / "anm_prose_boundary_notice_set.schema.json",
         ),
         (
             AnmSemanticDiffReport,

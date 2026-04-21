@@ -1,0 +1,42 @@
+{
+  "consumed_lineage": {
+    "consumed_v66a_authority_profile_set_ref_or_hash": "sha256:2222222222222222222222222222222222222222222222222222222222222222",
+    "consumed_v66a_doc_class_policy_hash": "3333333333333333333333333333333333333333333333333333333333333333",
+    "consumed_v66a_doc_class_policy_ref": "anm_doc_class_policy:policy:v66a-reference",
+    "consumed_v66a_source_set_manifest_hash": "1111111111111111111111111111111111111111111111111111111111111111",
+    "consumed_v66a_source_set_manifest_ref": "anm_source_set_manifest:manifest:v66a-reference",
+    "consumed_v66b_migration_binding_profile_hash": "4444444444444444444444444444444444444444444444444444444444444444",
+    "consumed_v66b_migration_binding_profile_ref": "anm_migration_binding_profile:migration:v66b-reference",
+    "consumed_v66b_reader_projection_manifest_hash_or_none": "5555555555555555555555555555555555555555555555555555555555555555",
+    "consumed_v66b_reader_projection_manifest_ref_or_none": "anm_reader_projection_manifest:projection:v66b-reference",
+    "consumed_v66b_semantic_diff_report_hash_or_none": "6666666666666666666666666666666666666666666666666666666666666666",
+    "consumed_v66b_semantic_diff_report_ref_or_none": "anm_semantic_diff_report:diff:v66b-reference"
+  },
+  "notice_rows": [
+    {
+      "advisory_effect": "registration_review_needed",
+      "authority_effect": "current_markdown_remains_controlling",
+      "compiled_authority_block_ref_or_none": null,
+      "evidence_refs": [
+        "sample-1"
+      ],
+      "notice_id": "notice:normative_tone:sample-1",
+      "notice_kind": "normative_tone_without_compiled_authority_block",
+      "severity": "warning",
+      "source_doc_ref": "docs/DRAFT_EXAMPLE.md",
+      "subject_ref": "sample-1"
+    }
+  ],
+  "notice_set_id": "notice:v66c-reference",
+  "policy_anchor": {
+    "advisory_outcome_reducer_hash": "bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb",
+    "advisory_outcome_reducer_ref": "anm_v66c_advisory_outcome_reducer:reference",
+    "notice_detection_policy_hash": "cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc",
+    "notice_detection_policy_ref": "anm_v66c_notice_detection_policy:reference",
+    "policy_anchor_hash": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+    "policy_anchor_ref": "anm_v66c_policy_anchor:reference",
+    "policy_anchor_schema_id": "anm_v66c_frozen_policy_anchor@1"
+  },
+  "report_status": "valid",
+  "schema_id": "anm_prose_boundary_notice_set@1"
+}
