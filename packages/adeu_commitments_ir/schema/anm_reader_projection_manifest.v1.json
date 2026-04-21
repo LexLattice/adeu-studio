@@ -1,0 +1,154 @@
+{
+  "$defs": {
+    "AnmReaderProjectionRow": {
+      "additionalProperties": false,
+      "properties": {
+        "drift_status": {
+          "enum": [
+            "hash_unavailable",
+            "in_sync",
+            "not_required",
+            "projection_missing",
+            "source_changed_projection_stale"
+          ],
+          "title": "Drift Status",
+          "type": "string"
+        },
+        "projection_authority_posture": {
+          "enum": [
+            "invalid_claims_authority",
+            "non_authoritative_generated_view"
+          ],
+          "title": "Projection Authority Posture",
+          "type": "string"
+        },
+        "projection_content_hash_or_none": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Projection Content Hash Or None"
+        },
+        "projection_doc_ref": {
+          "minLength": 1,
+          "title": "Projection Doc Ref",
+          "type": "string"
+        },
+        "projection_required": {
+          "title": "Projection Required",
+          "type": "boolean"
+        },
+        "projection_requirement_source": {
+          "enum": [
+            "doc_authority_profile",
+            "doc_class_policy",
+            "explicit_projection_manifest",
+            "not_required"
+          ],
+          "title": "Projection Requirement Source",
+          "type": "string"
+        },
+        "projection_status": {
+          "enum": [
+            "current",
+            "invalid",
+            "missing",
+            "not_required",
+            "stale"
+          ],
+          "title": "Projection Status",
+          "type": "string"
+        },
+        "source_content_hash": {
+          "minLength": 1,
+          "title": "Source Content Hash",
+          "type": "string"
+        },
+        "source_doc_ref": {
+          "minLength": 1,
+          "title": "Source Doc Ref",
+          "type": "string"
+        },
+        "source_profile_ref": {
+          "minLength": 1,
+          "title": "Source Profile Ref",
+          "type": "string"
+        }
+      },
+      "required": [
+        "projection_doc_ref",
+        "source_doc_ref",
+        "source_profile_ref",
+        "projection_required",
+        "projection_requirement_source",
+        "projection_status",
+        "projection_authority_posture",
+        "source_content_hash",
+        "drift_status"
+      ],
+      "title": "AnmReaderProjectionRow",
+      "type": "object"
+    }
+  },
+  "additionalProperties": false,
+  "properties": {
+    "consumed_authority_profile_set_ref_or_hash": {
+      "minLength": 1,
+      "title": "Consumed Authority Profile Set Ref Or Hash",
+      "type": "string"
+    },
+    "consumed_doc_class_policy_hash": {
+      "minLength": 1,
+      "title": "Consumed Doc Class Policy Hash",
+      "type": "string"
+    },
+    "consumed_doc_class_policy_ref": {
+      "minLength": 1,
+      "title": "Consumed Doc Class Policy Ref",
+      "type": "string"
+    },
+    "consumed_source_set_manifest_hash": {
+      "minLength": 1,
+      "title": "Consumed Source Set Manifest Hash",
+      "type": "string"
+    },
+    "consumed_source_set_manifest_ref": {
+      "minLength": 1,
+      "title": "Consumed Source Set Manifest Ref",
+      "type": "string"
+    },
+    "projection_manifest_id": {
+      "minLength": 1,
+      "title": "Projection Manifest Id",
+      "type": "string"
+    },
+    "projection_rows": {
+      "items": {
+        "$ref": "#/$defs/AnmReaderProjectionRow"
+      },
+      "title": "Projection Rows",
+      "type": "array"
+    },
+    "schema_id": {
+      "const": "anm_reader_projection_manifest@1",
+      "default": "anm_reader_projection_manifest@1",
+      "title": "Schema Id",
+      "type": "string"
+    }
+  },
+  "required": [
+    "projection_manifest_id",
+    "consumed_source_set_manifest_ref",
+    "consumed_source_set_manifest_hash",
+    "consumed_doc_class_policy_ref",
+    "consumed_doc_class_policy_hash",
+    "consumed_authority_profile_set_ref_or_hash"
+  ],
+  "title": "AnmReaderProjectionManifest",
+  "type": "object"
+}

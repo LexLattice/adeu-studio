@@ -1,0 +1,174 @@
+{
+  "$defs": {
+    "AnmMigrationBindingRow": {
+      "additionalProperties": false,
+      "properties": {
+        "binding_id": {
+          "minLength": 1,
+          "title": "Binding Id",
+          "type": "string"
+        },
+        "binding_posture": {
+          "enum": [
+            "invalid_or_contradictory",
+            "registered_non_overriding_companion",
+            "standalone_no_companion"
+          ],
+          "title": "Binding Posture",
+          "type": "string"
+        },
+        "companion_doc_ref_or_none": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Companion Doc Ref Or None"
+        },
+        "companion_profile_ref_or_none": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Companion Profile Ref Or None"
+        },
+        "current_markdown_authority_relation": {
+          "enum": [
+            "anm_standalone_source_of_truth",
+            "current_markdown_controlling",
+            "generated_projection_non_authoritative",
+            "not_applicable"
+          ],
+          "title": "Current Markdown Authority Relation",
+          "type": "string"
+        },
+        "explicit_transition_law_ref_or_none": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Explicit Transition Law Ref Or None"
+        },
+        "generated_reader_projection_refs_or_none": {
+          "items": {
+            "type": "string"
+          },
+          "title": "Generated Reader Projection Refs Or None",
+          "type": "array",
+          "uniqueItems": true
+        },
+        "host_doc_ref": {
+          "minLength": 1,
+          "title": "Host Doc Ref",
+          "type": "string"
+        },
+        "host_profile_ref": {
+          "minLength": 1,
+          "title": "Host Profile Ref",
+          "type": "string"
+        },
+        "semantic_diff_ref_or_none": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Semantic Diff Ref Or None"
+        },
+        "supersession_claim_status": {
+          "enum": [
+            "claimed_with_explicit_transition_law",
+            "claimed_without_transition_law_rejected",
+            "none"
+          ],
+          "title": "Supersession Claim Status",
+          "type": "string"
+        }
+      },
+      "required": [
+        "binding_id",
+        "host_doc_ref",
+        "host_profile_ref",
+        "binding_posture",
+        "current_markdown_authority_relation",
+        "supersession_claim_status"
+      ],
+      "title": "AnmMigrationBindingRow",
+      "type": "object"
+    }
+  },
+  "additionalProperties": false,
+  "properties": {
+    "binding_rows": {
+      "items": {
+        "$ref": "#/$defs/AnmMigrationBindingRow"
+      },
+      "title": "Binding Rows",
+      "type": "array"
+    },
+    "consumed_authority_profile_set_ref_or_hash": {
+      "minLength": 1,
+      "title": "Consumed Authority Profile Set Ref Or Hash",
+      "type": "string"
+    },
+    "consumed_doc_class_policy_hash": {
+      "minLength": 1,
+      "title": "Consumed Doc Class Policy Hash",
+      "type": "string"
+    },
+    "consumed_doc_class_policy_ref": {
+      "minLength": 1,
+      "title": "Consumed Doc Class Policy Ref",
+      "type": "string"
+    },
+    "consumed_source_set_manifest_hash": {
+      "minLength": 1,
+      "title": "Consumed Source Set Manifest Hash",
+      "type": "string"
+    },
+    "consumed_source_set_manifest_ref": {
+      "minLength": 1,
+      "title": "Consumed Source Set Manifest Ref",
+      "type": "string"
+    },
+    "migration_binding_profile_id": {
+      "minLength": 1,
+      "title": "Migration Binding Profile Id",
+      "type": "string"
+    },
+    "schema_id": {
+      "const": "anm_migration_binding_profile@1",
+      "default": "anm_migration_binding_profile@1",
+      "title": "Schema Id",
+      "type": "string"
+    }
+  },
+  "required": [
+    "migration_binding_profile_id",
+    "consumed_source_set_manifest_ref",
+    "consumed_source_set_manifest_hash",
+    "consumed_doc_class_policy_ref",
+    "consumed_doc_class_policy_hash",
+    "consumed_authority_profile_set_ref_or_hash"
+  ],
+  "title": "AnmMigrationBindingProfile",
+  "type": "object"
+}

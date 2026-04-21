@@ -12,8 +12,11 @@ from .anm_models import (
     AnmDocAuthorityProfile,
     AnmDocClassPolicy,
     AnmMarkdownCoexistenceProfile,
+    AnmMigrationBindingProfile,
     AnmPolicyConsumerBindingProfile,
+    AnmReaderProjectionManifest,
     AnmSelectorPredicateOwnershipProfile,
+    AnmSemanticDiffReport,
     AnmSourceSetManifest,
     CheckerFactBundle,
     D1NormalizedIR,
@@ -174,12 +177,35 @@ def main() -> None:
         ),
         (
             AnmDocClassPolicy,
+            root / "packages" / "adeu_commitments_ir" / "schema" / "anm_doc_class_policy.v1.json",
+            root / "spec" / "anm_doc_class_policy.schema.json",
+        ),
+        (
+            AnmMigrationBindingProfile,
             root
             / "packages"
             / "adeu_commitments_ir"
             / "schema"
-            / "anm_doc_class_policy.v1.json",
-            root / "spec" / "anm_doc_class_policy.schema.json",
+            / "anm_migration_binding_profile.v1.json",
+            root / "spec" / "anm_migration_binding_profile.schema.json",
+        ),
+        (
+            AnmReaderProjectionManifest,
+            root
+            / "packages"
+            / "adeu_commitments_ir"
+            / "schema"
+            / "anm_reader_projection_manifest.v1.json",
+            root / "spec" / "anm_reader_projection_manifest.schema.json",
+        ),
+        (
+            AnmSemanticDiffReport,
+            root
+            / "packages"
+            / "adeu_commitments_ir"
+            / "schema"
+            / "anm_semantic_diff_report.v1.json",
+            root / "spec" / "anm_semantic_diff_report.schema.json",
         ),
     ]
 

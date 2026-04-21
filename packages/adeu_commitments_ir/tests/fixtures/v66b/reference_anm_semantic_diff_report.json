@@ -1,0 +1,31 @@
+{
+  "baseline_artifact_hash_or_none": null,
+  "baseline_artifact_ref_or_none": null,
+  "baseline_kind": "none_initial_report",
+  "change_rows": [
+    {
+      "authority_effect_kind": "no_authority_minted",
+      "authority_effect_summary_or_none": null,
+      "baseline_profile_ref_or_none": null,
+      "baseline_value_or_none": null,
+      "change_kind": "initial",
+      "current_profile_ref": "anm_doc_authority_profile:adeu.lock.vnext_plus182",
+      "current_value_or_none": {
+        "binding_id": "binding:lock182-overlay",
+        "binding_posture": "registered_non_overriding_companion"
+      },
+      "path_or_axis": "binding_rows.binding:lock182-overlay",
+      "source_doc_ref": "docs/LOCKED_CONTINUATION_vNEXT_PLUS182.md",
+      "surface_kind": "migration_binding"
+    }
+  ],
+  "consumed_authority_profile_set_ref_or_hash": "sha256:3333333333333333333333333333333333333333333333333333333333333333",
+  "consumed_doc_class_policy_hash": "2222222222222222222222222222222222222222222222222222222222222222",
+  "consumed_doc_class_policy_ref": "anm_doc_class_policy:policy:v66a-reference",
+  "consumed_source_set_manifest_hash": "1111111111111111111111111111111111111111111111111111111111111111",
+  "consumed_source_set_manifest_ref": "anm_source_set_manifest:manifest:v66a-reference",
+  "current_artifact_hash": "5555555555555555555555555555555555555555555555555555555555555555",
+  "current_artifact_ref": "anm_v66b_bundle:5555555555555555555555555555555555555555555555555555555555555555",
+  "diff_report_id": "diff:v66b-reference",
+  "schema_id": "anm_semantic_diff_report@1"
+}

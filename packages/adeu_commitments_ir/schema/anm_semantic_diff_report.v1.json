@@ -1,0 +1,199 @@
+{
+  "$defs": {
+    "AnmSemanticDiffChangeRow": {
+      "additionalProperties": false,
+      "properties": {
+        "authority_effect_kind": {
+          "enum": [
+            "invalid_authority_claim_rejected",
+            "no_authority_minted",
+            "review_visibility_only"
+          ],
+          "title": "Authority Effect Kind",
+          "type": "string"
+        },
+        "authority_effect_summary_or_none": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Authority Effect Summary Or None"
+        },
+        "baseline_profile_ref_or_none": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Baseline Profile Ref Or None"
+        },
+        "baseline_value_or_none": {
+          "default": null,
+          "title": "Baseline Value Or None"
+        },
+        "change_kind": {
+          "enum": [
+            "added",
+            "changed",
+            "initial",
+            "removed",
+            "unchanged"
+          ],
+          "title": "Change Kind",
+          "type": "string"
+        },
+        "current_profile_ref": {
+          "minLength": 1,
+          "title": "Current Profile Ref",
+          "type": "string"
+        },
+        "current_value_or_none": {
+          "default": null,
+          "title": "Current Value Or None"
+        },
+        "path_or_axis": {
+          "minLength": 1,
+          "title": "Path Or Axis",
+          "type": "string"
+        },
+        "source_doc_ref": {
+          "minLength": 1,
+          "title": "Source Doc Ref",
+          "type": "string"
+        },
+        "surface_kind": {
+          "enum": [
+            "doc_authority_profile",
+            "doc_class_policy",
+            "migration_binding",
+            "reader_projection_manifest",
+            "source_set_entry"
+          ],
+          "title": "Surface Kind",
+          "type": "string"
+        }
+      },
+      "required": [
+        "source_doc_ref",
+        "current_profile_ref",
+        "change_kind",
+        "surface_kind",
+        "path_or_axis",
+        "authority_effect_kind"
+      ],
+      "title": "AnmSemanticDiffChangeRow",
+      "type": "object"
+    }
+  },
+  "additionalProperties": false,
+  "properties": {
+    "baseline_artifact_hash_or_none": {
+      "anyOf": [
+        {
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Baseline Artifact Hash Or None"
+    },
+    "baseline_artifact_ref_or_none": {
+      "anyOf": [
+        {
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Baseline Artifact Ref Or None"
+    },
+    "baseline_kind": {
+      "enum": [
+        "explicit_fixture_baseline",
+        "none_initial_report",
+        "prior_committed_artifact"
+      ],
+      "title": "Baseline Kind",
+      "type": "string"
+    },
+    "change_rows": {
+      "items": {
+        "$ref": "#/$defs/AnmSemanticDiffChangeRow"
+      },
+      "title": "Change Rows",
+      "type": "array"
+    },
+    "consumed_authority_profile_set_ref_or_hash": {
+      "minLength": 1,
+      "title": "Consumed Authority Profile Set Ref Or Hash",
+      "type": "string"
+    },
+    "consumed_doc_class_policy_hash": {
+      "minLength": 1,
+      "title": "Consumed Doc Class Policy Hash",
+      "type": "string"
+    },
+    "consumed_doc_class_policy_ref": {
+      "minLength": 1,
+      "title": "Consumed Doc Class Policy Ref",
+      "type": "string"
+    },
+    "consumed_source_set_manifest_hash": {
+      "minLength": 1,
+      "title": "Consumed Source Set Manifest Hash",
+      "type": "string"
+    },
+    "consumed_source_set_manifest_ref": {
+      "minLength": 1,
+      "title": "Consumed Source Set Manifest Ref",
+      "type": "string"
+    },
+    "current_artifact_hash": {
+      "minLength": 1,
+      "title": "Current Artifact Hash",
+      "type": "string"
+    },
+    "current_artifact_ref": {
+      "minLength": 1,
+      "title": "Current Artifact Ref",
+      "type": "string"
+    },
+    "diff_report_id": {
+      "minLength": 1,
+      "title": "Diff Report Id",
+      "type": "string"
+    },
+    "schema_id": {
+      "const": "anm_semantic_diff_report@1",
+      "default": "anm_semantic_diff_report@1",
+      "title": "Schema Id",
+      "type": "string"
+    }
+  },
+  "required": [
+    "diff_report_id",
+    "consumed_source_set_manifest_ref",
+    "consumed_source_set_manifest_hash",
+    "consumed_doc_class_policy_ref",
+    "consumed_doc_class_policy_hash",
+    "consumed_authority_profile_set_ref_or_hash",
+    "baseline_kind",
+    "current_artifact_ref",
+    "current_artifact_hash"
+  ],
+  "title": "AnmSemanticDiffReport",
+  "type": "object"
+}

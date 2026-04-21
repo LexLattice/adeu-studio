@@ -1,0 +1,23 @@
+{
+  "consumed_authority_profile_set_ref_or_hash": "sha256:3333333333333333333333333333333333333333333333333333333333333333",
+  "consumed_doc_class_policy_hash": "2222222222222222222222222222222222222222222222222222222222222222",
+  "consumed_doc_class_policy_ref": "anm_doc_class_policy:policy:v66a-reference",
+  "consumed_source_set_manifest_hash": "1111111111111111111111111111111111111111111111111111111111111111",
+  "consumed_source_set_manifest_ref": "anm_source_set_manifest:manifest:v66a-reference",
+  "projection_manifest_id": "projection:v66b-reference",
+  "projection_rows": [
+    {
+      "drift_status": "in_sync",
+      "projection_authority_posture": "non_authoritative_generated_view",
+      "projection_content_hash_or_none": "4444444444444444444444444444444444444444444444444444444444444444",
+      "projection_doc_ref": "docs/generated/anm_reader/LOCKED_CONTINUATION_vNEXT_PLUS182.reader.md",
+      "projection_required": true,
+      "projection_requirement_source": "explicit_projection_manifest",
+      "projection_status": "current",
+      "source_content_hash": "1111111111111111111111111111111111111111111111111111111111111111",
+      "source_doc_ref": "docs/LOCKED_CONTINUATION_vNEXT_PLUS182.md",
+      "source_profile_ref": "anm_doc_authority_profile:adeu.lock.vnext_plus182"
+    }
+  ],
+  "schema_id": "anm_reader_projection_manifest@1"
+}
