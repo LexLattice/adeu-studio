@@ -82,14 +82,33 @@ def _sha256_text(text: str) -> str:
 
 def _strip_non_authoritative_context(source_text: str) -> str:
     filtered_lines: list[str] = []
-    inside_fence = False
+    active_fence_marker: str | None = None
+    inside_html_comment = False
     for line in _normalize_text(source_text).split("\n"):
         stripped = line.strip()
-        if stripped.startswith("```"):
-            inside_fence = not inside_fence
+        if stripped.startswith("<!--"):
+            inside_html_comment = True
             filtered_lines.append("")
             continue
-        if inside_fence or stripped.startswith(">"):
+        if stripped.endswith("-->"):
+            filtered_lines.append("")
+            inside_html_comment = False
+            continue
+        if stripped.startswith(("```", "~~~")):
+            fence_marker = stripped[:3]
+            if active_fence_marker is None:
+                active_fence_marker = fence_marker
+            elif active_fence_marker == fence_marker:
+                active_fence_marker = None
+            filtered_lines.append("")
+            continue
+        if (
+            active_fence_marker is not None
+            or inside_html_comment
+            or stripped.startswith(">")
+            or line.startswith("    ")
+            or line.startswith("\t")
+        ):
             filtered_lines.append("")
             continue
         filtered_lines.append(line)
@@ -467,10 +486,11 @@ def build_v66a_doc_authority_profile(
     current_markdown_authority_relation: CurrentMarkdownAuthorityRelation,
     allowed_consumers: list[str],
     requires_transition_law_for_supersession: bool,
+    inspected_source: dict[str, Any] | None = None,
 ) -> AnmDocAuthorityProfile:
     source_doc_ref = _require_non_empty_text(source_doc_ref, field_name="source_doc_ref")
     doc_id = _require_non_empty_text(doc_id, field_name="doc_id")
-    inspected = inspect_v66a_source(source_text=source_text)
+    inspected = inspected_source or inspect_v66a_source(source_text=source_text)
     explicit_profile = inspected["explicit_profile"]
 
     explicit_doc_id = None

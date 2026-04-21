@@ -24,6 +24,7 @@ from adeu_semantic_source import (
 )
 
 _IGNORED_PARTS = {".git", ".venv", "node_modules", "__pycache__"}
+_MAX_DOC_BYTES = 1_000_000
 
 
 @dataclass(frozen=True)
@@ -46,6 +47,55 @@ def _should_ignore(path: Path, *, repo_root_path: Path) -> bool:
 
 def _doc_ref(path: Path, *, repo_root_path: Path) -> str:
     return path.relative_to(repo_root_path).as_posix()
+
+
+def _validate_doc_path(*, path: Path, repo_root_path: Path, docs_dir: Path) -> Path:
+    current = repo_root_path
+    for part in path.relative_to(repo_root_path).parts:
+        current = current / part
+        if current.is_symlink():
+            raise AnmCompileError(f"discovered doc path {path} contains a symlinked component")
+    resolved = path.resolve()
+    if resolved != repo_root_path and repo_root_path not in resolved.parents:
+        raise AnmCompileError(f"discovered doc path {path} escapes the repo root")
+    if resolved != docs_dir and docs_dir not in resolved.parents:
+        raise AnmCompileError(f"discovered doc path {path} escapes the docs root")
+    return resolved
+
+
+def _read_bounded_doc_bytes(path: Path) -> bytes:
+    if path.stat().st_size > _MAX_DOC_BYTES:
+        raise AnmCompileError(
+            f"discovered doc path {path} exceeds the V66-A bounded read limit"
+        )
+    return path.read_bytes()
+
+
+def _require_registered_agreement(
+    *,
+    doc_ref: str,
+    explicit_profile: dict[str, Any],
+    registered_entry: dict[str, Any] | None,
+) -> None:
+    if not explicit_profile or registered_entry is None:
+        return
+    field_pairs = (
+        ("doc_class", "doc_class"),
+        ("authority_layer", "authority_layer"),
+        ("lifecycle_status", "lifecycle_status"),
+        ("source_posture", "source_posture"),
+        ("doc_id", "doc_id_or_none"),
+    )
+    for explicit_field, registered_field in field_pairs:
+        explicit_value = explicit_profile.get(explicit_field)
+        registered_value = registered_entry.get(registered_field)
+        if explicit_value is None or registered_value is None:
+            continue
+        if explicit_value != registered_value:
+            raise AnmCompileError(
+                f"contradictory profile sources for {doc_ref}: "
+                f"{explicit_field} disagrees with registered manifest entry"
+            )
 
 
 def _default_doc_id(doc_ref: str) -> str:
@@ -288,6 +338,7 @@ def inventory_v66a_anm_source_set(
         if path.is_file() and path.suffix == ".md" and not _should_ignore(path, repo_root_path=root)
     )
     discovered_doc_inventory = [_doc_ref(path, repo_root_path=root) for path in discovered_paths]
+    discovered_doc_inventory_set = set(discovered_doc_inventory)
 
     manifest_entries: list[AnmSourceSetEntry] = []
     authority_profiles: list[AnmDocAuthorityProfile] = []
@@ -297,9 +348,16 @@ def inventory_v66a_anm_source_set(
 
     for path in discovered_paths:
         doc_ref = _doc_ref(path, repo_root_path=root)
-        source_text = path.read_text(encoding="utf-8")
+        validated_path = _validate_doc_path(path=path, repo_root_path=root, docs_dir=docs_dir)
+        raw_bytes = _read_bounded_doc_bytes(validated_path)
+        source_text = raw_bytes.decode("utf-8")
         inspected = inspect_v66a_source(source_text=source_text)
         registered_entry = registered_index.get(doc_ref)
+        _require_registered_agreement(
+            doc_ref=doc_ref,
+            explicit_profile=inspected["explicit_profile"] or {},
+            registered_entry=registered_entry,
+        )
         source_posture = _infer_source_posture(
             doc_ref=doc_ref,
             inspected=inspected,
@@ -345,7 +403,7 @@ def inventory_v66a_anm_source_set(
         doc_id = explicit_profile.get("doc_id") or (
             registered_entry.get("doc_id_or_none") if registered_entry else None
         )
-        content_hash = sha256(path.read_bytes()).hexdigest()
+        content_hash = sha256(raw_bytes).hexdigest()
         companion_registration_status = (
             registered_entry.get("companion_registration_status_or_none")
             if registered_entry
@@ -363,7 +421,7 @@ def inventory_v66a_anm_source_set(
                 raise AnmCompileError(
                     f"registered companion overlay {doc_ref} is missing host_doc_ref"
                 )
-            if host_doc_ref not in discovered_doc_inventory:
+            if host_doc_ref not in discovered_doc_inventory_set:
                 raise AnmCompileError(
                     "host or companion linkage for "
                     f"{doc_ref} references unresolved host {host_doc_ref}"
@@ -417,6 +475,7 @@ def inventory_v66a_anm_source_set(
                         profile_defaults["requires_transition_law_for_supersession"],
                     )
                 ),
+                inspected_source=inspected,
             )
             row = policy_rows[doc_class]
             if profile.authority_layer not in row.allowed_authority_layers:
