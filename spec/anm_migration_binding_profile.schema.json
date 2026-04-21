@@ -63,11 +63,11 @@
           "default": null,
           "title": "Explicit Transition Law Ref Or None"
         },
-        "generated_reader_projection_refs_or_none": {
+        "generated_reader_projection_refs": {
           "items": {
             "type": "string"
           },
-          "title": "Generated Reader Projection Refs Or None",
+          "title": "Generated Reader Projection Refs",
           "type": "array",
           "uniqueItems": true
         },

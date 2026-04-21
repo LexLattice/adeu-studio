@@ -294,3 +294,121 @@ Updated content.
         row.surface_kind == "reader_projection_manifest" and row.change_kind == "changed"
         for row in changed.semantic_diff_report.change_rows
     )
+
+
+def test_v66b_rejects_companion_binding_for_wrong_host(tmp_path: Path) -> None:
+    root = tmp_path
+    v66a_result = _build_v66a_basis(root)
+    manifest = v66a_result.manifest.model_copy(deep=True)
+    for entry in manifest.source_entries:
+        if entry.doc_ref == "docs/overlays/LOCKED_CONTINUATION_vNEXT_PLUS182.anm.adeu.md":
+            entry.host_doc_ref_or_none = "docs/SOME_OTHER_LOCK.md"
+            break
+    profile_refs = _profile_ref_by_doc_ref(v66a_result)
+
+    with pytest.raises(AnmCompileError, match="companion host mismatch"):
+        check_v66b_anm_migration_projection(
+            repo_root_path=root,
+            manifest=manifest,
+            authority_profiles=v66a_result.authority_profiles,
+            class_policy=v66a_result.class_policy,
+            binding_rows=[
+                {
+                    "binding_id": "binding:lock182-overlay",
+                    "host_doc_ref": "docs/LOCKED_CONTINUATION_vNEXT_PLUS182.md",
+                    "companion_doc_ref_or_none": (
+                        "docs/overlays/LOCKED_CONTINUATION_vNEXT_PLUS182.anm.adeu.md"
+                    ),
+                    "host_profile_ref": profile_refs["docs/LOCKED_CONTINUATION_vNEXT_PLUS182.md"],
+                    "companion_profile_ref_or_none": profile_refs[
+                        "docs/overlays/LOCKED_CONTINUATION_vNEXT_PLUS182.anm.adeu.md"
+                    ],
+                    "binding_posture": "registered_non_overriding_companion",
+                    "current_markdown_authority_relation": "current_markdown_controlling",
+                    "supersession_claim_status": "none",
+                }
+            ],
+            projection_rows=[],
+        )
+
+
+def test_v66b_prior_committed_baseline_does_not_repeat_removed_rows(tmp_path: Path) -> None:
+    root = tmp_path
+    v66a_result = _build_v66a_basis(root)
+    projection_path = (
+        root / "docs" / "generated" / "anm_reader" / "LOCKED_CONTINUATION_vNEXT_PLUS182.reader.md"
+    )
+    _write(
+        projection_path,
+        """
+# Reader View
+
+Non-authoritative generated view.
+""".strip(),
+    )
+    profile_refs = _profile_ref_by_doc_ref(v66a_result)
+
+    initial = check_v66b_anm_migration_projection(
+        repo_root_path=root,
+        manifest=v66a_result.manifest,
+        authority_profiles=v66a_result.authority_profiles,
+        class_policy=v66a_result.class_policy,
+        binding_rows=[
+            {
+                "binding_id": "binding:lock182-overlay",
+                "host_doc_ref": "docs/LOCKED_CONTINUATION_vNEXT_PLUS182.md",
+                "companion_doc_ref_or_none": (
+                    "docs/overlays/LOCKED_CONTINUATION_vNEXT_PLUS182.anm.adeu.md"
+                ),
+                "host_profile_ref": profile_refs["docs/LOCKED_CONTINUATION_vNEXT_PLUS182.md"],
+                "companion_profile_ref_or_none": profile_refs[
+                    "docs/overlays/LOCKED_CONTINUATION_vNEXT_PLUS182.anm.adeu.md"
+                ],
+                "binding_posture": "registered_non_overriding_companion",
+                "current_markdown_authority_relation": "current_markdown_controlling",
+                "supersession_claim_status": "none",
+            }
+        ],
+        projection_rows=[
+            {
+                "projection_doc_ref": (
+                    "docs/generated/anm_reader/LOCKED_CONTINUATION_vNEXT_PLUS182.reader.md"
+                ),
+                "source_doc_ref": "docs/LOCKED_CONTINUATION_vNEXT_PLUS182.md",
+                "source_profile_ref": profile_refs["docs/LOCKED_CONTINUATION_vNEXT_PLUS182.md"],
+                "projection_required": True,
+                "projection_requirement_source": "explicit_projection_manifest",
+                "projection_status": "current",
+                "projection_authority_posture": "non_authoritative_generated_view",
+                "drift_status": "in_sync",
+            }
+        ],
+    )
+
+    removed = check_v66b_anm_migration_projection(
+        repo_root_path=root,
+        manifest=v66a_result.manifest,
+        authority_profiles=v66a_result.authority_profiles,
+        class_policy=v66a_result.class_policy,
+        binding_rows=[],
+        projection_rows=[],
+        baseline_kind="prior_committed_artifact",
+        baseline_report=initial.semantic_diff_report,
+    )
+
+    stable = check_v66b_anm_migration_projection(
+        repo_root_path=root,
+        manifest=v66a_result.manifest,
+        authority_profiles=v66a_result.authority_profiles,
+        class_policy=v66a_result.class_policy,
+        binding_rows=[],
+        projection_rows=[],
+        baseline_kind="prior_committed_artifact",
+        baseline_report=removed.semantic_diff_report,
+    )
+
+    assert not any(
+        row.change_kind == "removed"
+        and row.surface_kind in {"migration_binding", "reader_projection_manifest"}
+        for row in stable.semantic_diff_report.change_rows
+    )

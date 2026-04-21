@@ -1679,7 +1679,7 @@ class AnmMigrationBindingRow(BaseModel):
     current_markdown_authority_relation: V66BCurrentMarkdownAuthorityRelation
     supersession_claim_status: V66BSupersessionClaimStatus
     explicit_transition_law_ref_or_none: str | None = None
-    generated_reader_projection_refs_or_none: list[str] = Field(
+    generated_reader_projection_refs: list[str] = Field(
         default_factory=list,
         json_schema_extra={"uniqueItems": True},
     )
@@ -1713,8 +1713,8 @@ class AnmMigrationBindingRow(BaseModel):
                 field_name="semantic_diff_ref_or_none",
             )
         _require_sorted_unique(
-            list(self.generated_reader_projection_refs_or_none),
-            field_name="generated_reader_projection_refs_or_none",
+            list(self.generated_reader_projection_refs),
+            field_name="generated_reader_projection_refs",
         )
         if self.host_doc_ref == self.companion_doc_ref_or_none:
             raise ValueError("host_doc_ref must not equal companion_doc_ref_or_none")
@@ -1957,14 +1957,12 @@ class AnmSemanticDiffReport(BaseModel):
                 item.source_doc_ref,
                 item.surface_kind,
                 item.path_or_axis,
-                item.change_kind,
             )
             for item in self.change_rows
         ]
         if change_identity != sorted(change_identity):
             raise ValueError(
-                "change_rows must be sorted by "
-                "(source_doc_ref, surface_kind, path_or_axis, change_kind)"
+                "change_rows must be sorted by (source_doc_ref, surface_kind, path_or_axis)"
             )
         if len(change_identity) != len(set(change_identity)):
             raise ValueError("change_rows must not contain duplicate diff identities")

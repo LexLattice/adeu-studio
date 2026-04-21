@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import re
 from dataclasses import dataclass
 from hashlib import sha256
 from pathlib import Path
@@ -113,6 +114,11 @@ def _manifest_index(manifest: AnmSourceSetManifest) -> dict[str, Any]:
     return index
 
 
+def _contains_doc_ref_token(text: str, doc_ref: str) -> bool:
+    pattern = re.compile(rf"(?<![A-Za-z0-9_./-]){re.escape(doc_ref)}(?![A-Za-z0-9_./-])")
+    return pattern.search(text) is not None
+
+
 def _resolve_transition_law(
     *,
     repo_root_path: Path,
@@ -131,9 +137,9 @@ def _resolve_transition_law(
     if not resolved.exists():
         raise AnmCompileError(f"transition law ref is unresolved: {transition_law_ref}")
     text = resolved.read_text(encoding="utf-8")
-    if host_doc_ref not in text:
+    if not _contains_doc_ref_token(text, host_doc_ref):
         raise AnmCompileError("transition law ref must match host doc ref")
-    if companion_doc_ref is not None and companion_doc_ref not in text:
+    if companion_doc_ref is not None and not _contains_doc_ref_token(text, companion_doc_ref):
         raise AnmCompileError("transition law ref must match companion doc ref")
     if "supersession" not in text.lower():
         raise AnmCompileError("transition law ref must name supersession scope explicitly")
@@ -291,10 +297,15 @@ def build_v66b_migration_binding_profile(
                 raise AnmCompileError(
                     f"binding companion {companion_doc_ref} is outside the shipped V66-A source set"
                 )
+            companion_entry = manifest_index[companion_doc_ref]
             expected_companion_profile = manifest_index[companion_doc_ref].profile_ref_or_none
             if row_payload.get("companion_profile_ref_or_none") != expected_companion_profile:
                 raise AnmCompileError(
                     f"binding companion_profile_ref mismatch for {companion_doc_ref}"
+                )
+            if companion_entry.host_doc_ref_or_none != host_doc_ref:
+                raise AnmCompileError(
+                    f"binding companion host mismatch for {companion_doc_ref}"
                 )
         if row_payload.get("supersession_claim_status") == "claimed_with_explicit_transition_law":
             _resolve_transition_law(
@@ -308,9 +319,9 @@ def build_v66b_migration_binding_profile(
             raise AnmCompileError(
                 "explicit_transition_law_ref_or_none requires claimed_with_explicit_transition_law"
             )
-        row_payload.setdefault("generated_reader_projection_refs_or_none", [])
-        if not row_payload["generated_reader_projection_refs_or_none"]:
-            row_payload["generated_reader_projection_refs_or_none"] = list(
+        row_payload.setdefault("generated_reader_projection_refs", [])
+        if not row_payload["generated_reader_projection_refs"]:
+            row_payload["generated_reader_projection_refs"] = list(
                 (projection_refs_by_source_doc_ref or {}).get(host_doc_ref, [])
             )
         row_payload.setdefault("semantic_diff_ref_or_none", planned_diff_ref)
@@ -461,11 +472,11 @@ def build_v66b_semantic_diff_report(
         baseline_hash = baseline_model.current_artifact_hash
         baseline_index = {
             (row.source_doc_ref, row.surface_kind, row.path_or_axis): {
-                "baseline_profile_ref_or_none": row.baseline_profile_ref_or_none,
-                "current_profile_ref": row.current_profile_ref,
+                "profile_ref": row.current_profile_ref,
                 "value": row.current_value_or_none,
             }
             for row in baseline_model.change_rows
+            if row.current_value_or_none is not None
         }
 
     current_index = {
@@ -507,12 +518,12 @@ def build_v66b_semantic_diff_report(
             AnmSemanticDiffChangeRow(
                 source_doc_ref=source_doc_ref,
                 baseline_profile_ref_or_none=(
-                    baseline["baseline_profile_ref_or_none"] if baseline is not None else None
+                    baseline["profile_ref"] if baseline is not None else None
                 ),
                 current_profile_ref=(
                     current["current_profile_ref"]
                     if current is not None
-                    else baseline["current_profile_ref"]
+                    else baseline["profile_ref"]
                 ),
                 change_kind=change_kind,
                 surface_kind=surface_kind,
@@ -524,14 +535,6 @@ def build_v66b_semantic_diff_report(
             )
         )
 
-    diff_rows.sort(
-        key=lambda item: (
-            item.source_doc_ref,
-            item.surface_kind,
-            item.path_or_axis,
-            item.change_kind,
-        )
-    )
     return AnmSemanticDiffReport(
         diff_report_id=diff_report_id,
         consumed_source_set_manifest_ref=_manifest_ref(manifest_model),
