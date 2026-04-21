@@ -1,0 +1,147 @@
+{
+  "additionalProperties": false,
+  "properties": {
+    "allowed_authority_blocks": {
+      "items": {
+        "enum": [
+          "D@1",
+          "adeu.doc_profile@1"
+        ],
+        "type": "string"
+      },
+      "title": "Allowed Authority Blocks",
+      "type": "array",
+      "uniqueItems": true
+    },
+    "allowed_consumers": {
+      "items": {
+        "enum": [
+          "reader_projection",
+          "semantic_source",
+          "semantic_compiler",
+          "policy_evaluator"
+        ],
+        "type": "string"
+      },
+      "title": "Allowed Consumers",
+      "type": "array",
+      "uniqueItems": true
+    },
+    "allowed_outputs": {
+      "items": {
+        "enum": [
+          "anm_doc_authority_profile@1",
+          "d1_normalized_ir@1",
+          "predicate_contracts_bootstrap@1",
+          "checker_fact_bundle@1",
+          "policy_evaluation_result_set@1",
+          "policy_obligation_ledger@1"
+        ],
+        "type": "string"
+      },
+      "title": "Allowed Outputs",
+      "type": "array",
+      "uniqueItems": true
+    },
+    "authority_layer": {
+      "enum": [
+        "lock",
+        "architecture",
+        "planning",
+        "support",
+        "none"
+      ],
+      "title": "Authority Layer",
+      "type": "string"
+    },
+    "current_markdown_authority_relation": {
+      "enum": [
+        "current_markdown_controlling",
+        "coexisting_non_override",
+        "later_lock_required_for_supersession"
+      ],
+      "title": "Current Markdown Authority Relation",
+      "type": "string"
+    },
+    "doc_class": {
+      "enum": [
+        "lock",
+        "architecture",
+        "planning",
+        "support",
+        "non_governance"
+      ],
+      "title": "Doc Class",
+      "type": "string"
+    },
+    "doc_id": {
+      "minLength": 1,
+      "title": "Doc Id",
+      "type": "string"
+    },
+    "doc_ref": {
+      "minLength": 1,
+      "title": "Doc Ref",
+      "type": "string"
+    },
+    "forbidden_outputs": {
+      "items": {
+        "enum": [
+          "anm_doc_authority_profile@1",
+          "d1_normalized_ir@1",
+          "predicate_contracts_bootstrap@1",
+          "checker_fact_bundle@1",
+          "policy_evaluation_result_set@1",
+          "policy_obligation_ledger@1"
+        ],
+        "type": "string"
+      },
+      "title": "Forbidden Outputs",
+      "type": "array",
+      "uniqueItems": true
+    },
+    "lifecycle_status": {
+      "enum": [
+        "living",
+        "historical",
+        "superseded",
+        "draft",
+        "generated"
+      ],
+      "title": "Lifecycle Status",
+      "type": "string"
+    },
+    "requires_transition_law_for_supersession": {
+      "title": "Requires Transition Law For Supersession",
+      "type": "boolean"
+    },
+    "schema_id": {
+      "const": "anm_doc_authority_profile@1",
+      "default": "anm_doc_authority_profile@1",
+      "title": "Schema Id",
+      "type": "string"
+    },
+    "source_posture": {
+      "enum": [
+        "legacy_markdown",
+        "standalone_anm",
+        "companion_anm",
+        "generated_projection"
+      ],
+      "title": "Source Posture",
+      "type": "string"
+    }
+  },
+  "required": [
+    "doc_id",
+    "doc_ref",
+    "doc_class",
+    "authority_layer",
+    "source_posture",
+    "lifecycle_status",
+    "current_markdown_authority_relation",
+    "requires_transition_law_for_supersession"
+  ],
+  "title": "AnmDocAuthorityProfile",
+  "type": "object"
+}

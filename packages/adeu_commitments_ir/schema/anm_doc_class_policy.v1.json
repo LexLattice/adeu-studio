@@ -1,0 +1,149 @@
+{
+  "$defs": {
+    "AnmDocClassPolicyRow": {
+      "additionalProperties": false,
+      "properties": {
+        "allowed_authority_blocks": {
+          "items": {
+            "enum": [
+              "D@1",
+              "adeu.doc_profile@1"
+            ],
+            "type": "string"
+          },
+          "title": "Allowed Authority Blocks",
+          "type": "array",
+          "uniqueItems": true
+        },
+        "allowed_authority_layers": {
+          "items": {
+            "enum": [
+              "lock",
+              "architecture",
+              "planning",
+              "support",
+              "none"
+            ],
+            "type": "string"
+          },
+          "title": "Allowed Authority Layers",
+          "type": "array",
+          "uniqueItems": true
+        },
+        "allowed_outputs": {
+          "items": {
+            "enum": [
+              "anm_doc_authority_profile@1",
+              "d1_normalized_ir@1",
+              "predicate_contracts_bootstrap@1",
+              "checker_fact_bundle@1",
+              "policy_evaluation_result_set@1",
+              "policy_obligation_ledger@1"
+            ],
+            "type": "string"
+          },
+          "title": "Allowed Outputs",
+          "type": "array",
+          "uniqueItems": true
+        },
+        "allowed_source_postures": {
+          "items": {
+            "enum": [
+              "legacy_markdown",
+              "standalone_anm",
+              "companion_anm",
+              "generated_projection"
+            ],
+            "type": "string"
+          },
+          "title": "Allowed Source Postures",
+          "type": "array",
+          "uniqueItems": true
+        },
+        "doc_class": {
+          "enum": [
+            "lock",
+            "architecture",
+            "planning",
+            "support",
+            "non_governance"
+          ],
+          "title": "Doc Class",
+          "type": "string"
+        },
+        "forbidden_outputs": {
+          "items": {
+            "enum": [
+              "anm_doc_authority_profile@1",
+              "d1_normalized_ir@1",
+              "predicate_contracts_bootstrap@1",
+              "checker_fact_bundle@1",
+              "policy_evaluation_result_set@1",
+              "policy_obligation_ledger@1"
+            ],
+            "type": "string"
+          },
+          "title": "Forbidden Outputs",
+          "type": "array",
+          "uniqueItems": true
+        },
+        "hard_gates": {
+          "items": {
+            "enum": [
+              "reject_overpromotion",
+              "reject_unregistered_companion",
+              "reject_supersession_without_transition_law"
+            ],
+            "type": "string"
+          },
+          "title": "Hard Gates",
+          "type": "array",
+          "uniqueItems": true
+        },
+        "warning_gates": {
+          "items": {
+            "enum": [
+              "warn_unknown_requires_registration",
+              "warn_profile_inferred_from_manifest"
+            ],
+            "type": "string"
+          },
+          "title": "Warning Gates",
+          "type": "array",
+          "uniqueItems": true
+        }
+      },
+      "required": [
+        "doc_class"
+      ],
+      "title": "AnmDocClassPolicyRow",
+      "type": "object"
+    }
+  },
+  "additionalProperties": false,
+  "properties": {
+    "policy_id": {
+      "minLength": 1,
+      "title": "Policy Id",
+      "type": "string"
+    },
+    "policy_rows": {
+      "items": {
+        "$ref": "#/$defs/AnmDocClassPolicyRow"
+      },
+      "title": "Policy Rows",
+      "type": "array"
+    },
+    "schema_id": {
+      "const": "anm_doc_class_policy@1",
+      "default": "anm_doc_class_policy@1",
+      "title": "Schema Id",
+      "type": "string"
+    }
+  },
+  "required": [
+    "policy_id"
+  ],
+  "title": "AnmDocClassPolicy",
+  "type": "object"
+}
