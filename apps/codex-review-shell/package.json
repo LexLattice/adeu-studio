@@ -1,0 +1,18 @@
+{
+  "name": "codex-review-shell",
+  "private": true,
+  "version": "0.3.0",
+  "description": "Three-plane ADEU workspace shell with Windows host / WSL backend attachment",
+  "license": "Apache-2.0",
+  "main": "src/main.js",
+  "scripts": {
+    "start": "npm run dev",
+    "dev": "node ./scripts/run-electron.mjs .",
+    "smoke": "env CODEX_REVIEW_SHELL_SMOKE_EXIT_MS=1500 xvfb-run -a node ./scripts/run-electron.mjs .",
+    "check:syntax": "node --check src/main.js && node --check src/preload.js && node --check src/main/workspace-backend.js && node --check src/backend/wsl-agent.js && node --check src/renderer/app.js && node --check src/renderer/codex-surface.js && node --check scripts/run-electron.mjs && node --check scripts/smoke-agent.mjs",
+    "agent:smoke": "node ./scripts/smoke-agent.mjs"
+  },
+  "dependencies": {
+    "electron": "^41.2.0"
+  }
+}

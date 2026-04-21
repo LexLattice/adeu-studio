@@ -1,0 +1,268 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta
+      http-equiv="Content-Security-Policy"
+      content="default-src 'self'; script-src 'self'; style-src 'self' 'unsafe-inline'; img-src 'self' data:; connect-src 'self'"
+    />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>ADEU Three-Plane Workspace</title>
+    <link rel="stylesheet" href="./styles.css" />
+  </head>
+  <body>
+    <div class="app-shell" id="appShell">
+      <section class="surface-plane codex-plane" aria-label="Codex work companion plane">
+        <div class="surface-bar">
+          <div>
+            <p class="eyebrow">Left plane</p>
+            <h2>Codex work companion</h2>
+          </div>
+          <span id="codexStatus" class="status-dot">idle</span>
+        </div>
+        <div class="surface-slot" id="codexSlot">
+          <div class="slot-placeholder">
+            <p class="eyebrow">Surface slot</p>
+            <strong>Codex chat surface loading…</strong>
+          </div>
+        </div>
+      </section>
+
+      <div class="splitter left-splitter" id="leftSplitter" title="Drag to resize Codex/control planes"></div>
+
+      <main class="control-plane" aria-label="ADEU control plane">
+        <header class="control-header">
+          <div class="brand-block">
+            <div class="brand-mark">A</div>
+            <div>
+              <p class="eyebrow">Middle plane</p>
+              <h1>ADEU control plane</h1>
+            </div>
+          </div>
+          <div class="control-status">
+            <span class="pill">shell-owned binding</span>
+            <span id="lastEvent" class="muted truncate">Ready.</span>
+          </div>
+        </header>
+
+        <section class="selected-card">
+          <p class="eyebrow">Selected project</p>
+          <h2 id="selectedProjectName">Loading…</h2>
+          <p id="repoPath" class="mono muted truncate">—</p>
+          <p id="workspacePath" class="mono muted truncate">—</p>
+          <p id="bindingStatus" class="pill subtle">—</p>
+          <p id="backendStatus" class="pill subtle">backend detached</p>
+        </section>
+
+        <section class="control-grid compact-actions">
+          <button class="primary" id="addProjectButton" type="button">New project</button>
+          <button class="ghost" id="editProjectButton" type="button">Edit binding</button>
+        </section>
+
+        <section class="control-card projects-card">
+          <div class="section-heading">
+            <div>
+              <p class="eyebrow">Project tree</p>
+              <h3>Workspace bindings</h3>
+            </div>
+            <span id="projectCount" class="counter">0</span>
+          </div>
+          <div class="project-list" id="projectList"></div>
+        </section>
+
+        <section class="control-card relay-card">
+          <div class="section-heading">
+            <div>
+              <p class="eyebrow">Relay controls</p>
+              <h3>Manual loop accelerators</h3>
+            </div>
+          </div>
+          <div class="button-grid">
+            <button class="ghost" id="copyPromptButton" type="button">Copy review prompt</button>
+            <button class="ghost" id="copyHeaderButton" type="button">Copy return header</button>
+            <button class="ghost" id="reloadCodexButton" type="button">Reload Codex</button>
+            <button class="ghost" id="reloadChatButton" type="button">Reload ChatGPT</button>
+            <button class="ghost" id="forceDarkButton" type="button">Force ChatGPT dark</button>
+            <button class="ghost" id="chatSettingsButton" type="button">ChatGPT settings</button>
+            <button class="ghost span-2" id="externalChatButton" type="button">Open ChatGPT externally</button>
+          </div>
+        </section>
+
+        <section class="control-card flow-card">
+          <div class="section-heading">
+            <div>
+              <p class="eyebrow">FlowProfile</p>
+              <h3>Structured loop metadata</h3>
+            </div>
+          </div>
+          <dl class="flow-list">
+            <div>
+              <dt>Prompt template</dt>
+              <dd id="promptTemplatePreview">—</dd>
+            </div>
+            <div>
+              <dt>Watched rules</dt>
+              <dd id="watchedRulesPreview" class="mono">—</dd>
+            </div>
+            <div>
+              <dt>Return header</dt>
+              <dd id="returnHeaderPreview" class="mono">—</dd>
+            </div>
+          </dl>
+        </section>
+
+        <section class="control-card work-card">
+          <div class="section-heading">
+            <div>
+              <p class="eyebrow">Work tree</p>
+              <h3>Repo files + preview</h3>
+            </div>
+            <button class="ghost small" id="refreshWorkTreeButton" type="button">Refresh</button>
+          </div>
+          <div class="work-tool">
+            <div class="work-tree" id="workTree" role="tree" aria-label="Project work tree">
+              <div class="empty-state">Select a project to load its workspace tree.</div>
+            </div>
+            <div class="file-preview">
+              <div class="preview-header">
+                <span id="previewPath" class="mono truncate">No file selected</span>
+                <span id="previewMeta" class="muted">—</span>
+              </div>
+              <pre id="filePreview"><code>Select a text/code file from the work tree.</code></pre>
+            </div>
+          </div>
+        </section>
+
+        <footer class="config-footer">
+          <p class="label">Config</p>
+          <p id="configPath" class="mono muted truncate">Loading…</p>
+        </footer>
+      </main>
+
+      <div class="splitter right-splitter" id="rightSplitter" title="Drag to resize control/ChatGPT planes"></div>
+
+      <section class="surface-plane chatgpt-plane" aria-label="ChatGPT review companion plane">
+        <div class="surface-bar">
+          <div>
+            <p class="eyebrow">Right plane</p>
+            <h2>ChatGPT review/world-model</h2>
+          </div>
+          <span id="chatgptStatus" class="status-dot">idle</span>
+        </div>
+        <div class="surface-slot" id="chatgptSlot">
+          <div class="slot-placeholder">
+            <p class="eyebrow">Surface slot</p>
+            <strong>ChatGPT thread loading…</strong>
+          </div>
+        </div>
+      </section>
+    </div>
+
+    <section class="drawer" id="projectDrawer" aria-hidden="true">
+      <form id="projectForm" class="drawer-card">
+        <div class="drawer-header">
+          <div>
+            <p class="eyebrow">Project binding editor</p>
+            <h2 id="drawerTitle">Edit project</h2>
+          </div>
+          <button class="ghost icon" id="closeDrawerButton" type="button">×</button>
+        </div>
+
+        <input type="hidden" id="projectIdInput" />
+
+        <label>
+          Project name
+          <input id="projectNameInput" required autocomplete="off" />
+        </label>
+
+        <div class="form-grid">
+          <label>
+            Workspace kind
+            <select id="workspaceKindInput">
+              <option value="local">Local host path</option>
+              <option value="wsl">WSL workspace</option>
+            </select>
+          </label>
+          <label>
+            Workspace label <span class="muted">optional</span>
+            <input id="workspaceLabelInput" autocomplete="off" placeholder="Ubuntu ADEU workspace" />
+          </label>
+        </div>
+
+        <label data-workspace-kind="local">
+          Local repo / workspace path
+          <div class="input-row">
+            <input id="repoPathInput" autocomplete="off" />
+            <button class="ghost" id="chooseRepoButton" type="button">Choose…</button>
+          </div>
+        </label>
+
+        <div class="form-grid" data-workspace-kind="wsl">
+          <label>
+            WSL distro <span class="muted">blank = default</span>
+            <input id="wslDistroInput" autocomplete="off" placeholder="Ubuntu" />
+          </label>
+          <label>
+            Canonical Linux path
+            <input id="wslLinuxPathInput" autocomplete="off" placeholder="/home/me/adeu-studio" />
+          </label>
+        </div>
+
+        <div class="form-grid">
+          <label>
+            Codex mode
+            <select id="codexModeInput">
+              <option value="local">Local controlled Codex-style chat</option>
+              <option value="url">Embedded URL</option>
+              <option value="command">Command / manual target</option>
+            </select>
+          </label>
+          <label>
+            Codex label
+            <input id="codexLabelInput" autocomplete="off" />
+          </label>
+        </div>
+
+        <label>
+          Codex target
+          <input id="codexTargetInput" autocomplete="off" placeholder="codex://local-workspace or http://localhost:3000" />
+        </label>
+
+        <label>
+          ChatGPT review thread URL
+          <input id="chatgptUrlInput" autocomplete="off" placeholder="https://chatgpt.com/c/..." />
+        </label>
+
+        <label class="checkbox-row">
+          <input id="reduceChromeInput" type="checkbox" />
+          <span>Apply best-effort ChatGPT chrome reduction CSS</span>
+        </label>
+
+        <label>
+          Review prompt template
+          <textarea id="reviewPromptInput" rows="5"></textarea>
+        </label>
+
+        <div class="form-grid">
+          <label>
+            Watched file patterns <span class="muted">comma-separated</span>
+            <input id="watchedPatternsInput" autocomplete="off" />
+          </label>
+          <label>
+            Return header
+            <input id="returnHeaderInput" autocomplete="off" />
+          </label>
+        </div>
+
+        <div class="drawer-actions">
+          <button class="danger" id="deleteProjectButton" type="button">Delete</button>
+          <span class="spacer"></span>
+          <button class="ghost" id="cancelProjectButton" type="button">Cancel</button>
+          <button class="primary" type="submit">Save binding</button>
+        </div>
+      </form>
+    </section>
+
+    <script src="./app.js"></script>
+  </body>
+</html>

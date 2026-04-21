@@ -1,0 +1,61 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta
+      http-equiv="Content-Security-Policy"
+      content="default-src 'self'; script-src 'self'; style-src 'self' 'unsafe-inline'; img-src 'self' data:"
+    />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Codex Work Companion</title>
+    <link rel="stylesheet" href="./codex-surface.css" />
+  </head>
+  <body>
+    <main class="codex-chat-shell">
+      <header class="chat-header">
+        <div>
+          <p class="eyebrow">Codex plane</p>
+          <h1 id="projectName">Codex work companion</h1>
+          <p id="repoPath" class="repo mono">—</p>
+        </div>
+        <div class="header-actions">
+          <button id="copyPromptButton" type="button">Copy review prompt</button>
+          <button id="copyHeaderButton" type="button">Copy return header</button>
+        </div>
+      </header>
+
+      <section class="transcript" id="transcript" aria-label="Codex transcript"></section>
+
+      <footer class="composer-shell">
+        <div class="control-row">
+          <label>
+            Model
+            <select id="modelSelect">
+              <option>Codex default</option>
+              <option>Codex fast</option>
+              <option>Codex deep</option>
+            </select>
+          </label>
+          <label>
+            Reasoning
+            <select id="reasoningSelect">
+              <option>Auto</option>
+              <option>Low latency</option>
+              <option>High rigor</option>
+            </select>
+          </label>
+          <span id="bindingLabel" class="binding-label mono">local</span>
+        </div>
+        <form id="composerForm" class="composer">
+          <textarea
+            id="composerInput"
+            rows="3"
+            placeholder="Paste GPT feedback or tell Codex what to do next…"
+          ></textarea>
+          <button type="submit">Queue note</button>
+        </form>
+      </footer>
+    </main>
+    <script src="./codex-surface.js"></script>
+  </body>
+</html>
