@@ -2,7 +2,10 @@ from __future__ import annotations
 
 from pathlib import Path
 
+import adeu_semantic_compiler.anm_adoption as anm_adoption
 from adeu_semantic_compiler import (
+    build_v66c_compile_report,
+    build_v66c_prose_boundary_notice_set,
     check_v66a_anm_source_set,
     check_v66b_anm_migration_projection,
     check_v66c_anm_adoption_hardening,
@@ -255,6 +258,48 @@ def test_v66c_invalidates_hash_mismatch_against_shipped_v66a_basis(tmp_path: Pat
 
     assert result.compile_report.report_status == "invalid_prior_basis_hash_mismatch"
     assert result.compile_report.advisory_result.recommended_adoption_posture_or_none is None
+
+
+def test_v66c_compile_report_uses_recomputed_invalid_status_reason_code(tmp_path: Path) -> None:
+    root = tmp_path
+    v66a_result, v66b_result = _build_v66b_basis(root)
+    notice_set, diagnostics = build_v66c_prose_boundary_notice_set(
+        manifest=v66a_result.manifest,
+        authority_profiles=v66a_result.authority_profiles,
+        class_policy=v66a_result.class_policy,
+        migration_binding_profile=v66b_result.migration_binding_profile,
+        reader_projection_manifest=v66b_result.reader_projection_manifest,
+        semantic_diff_report=v66b_result.semantic_diff_report,
+    )
+    notice_payload = notice_set.model_dump(mode="json")
+    notice_payload["consumed_lineage"]["consumed_v66b_migration_binding_profile_hash"] = "deadbeef"
+
+    report = build_v66c_compile_report(
+        manifest=v66a_result.manifest,
+        authority_profiles=v66a_result.authority_profiles,
+        class_policy=v66a_result.class_policy,
+        migration_binding_profile=v66b_result.migration_binding_profile,
+        reader_projection_manifest=v66b_result.reader_projection_manifest,
+        semantic_diff_report=v66b_result.semantic_diff_report,
+        prose_boundary_notice_set=notice_payload,
+        structural_diagnostics=diagnostics,
+    )
+
+    assert report.report_status == "invalid_prior_basis_hash_mismatch"
+    assert report.advisory_result.reason_codes == ["ANM_V66C_INVALID_PRIOR_BASIS"]
+    assert report.advisory_result.recommended_adoption_posture_or_none is None
+
+
+def test_v66c_policy_anchor_fallback_returns_diagnostic(monkeypatch) -> None:
+    def _raise_policy_error():
+        raise ValueError("broken policy anchor")
+
+    monkeypatch.setattr(anm_adoption, "_policy_anchor", _raise_policy_error)
+
+    fallback, diagnostics = anm_adoption._build_policy_anchor_or_diagnostic()
+
+    assert fallback.policy_anchor_ref == "anm_v66c_policy_anchor:starter"
+    assert diagnostics[0].diagnostic_kind == "policy_anchor_invalid"
 
 
 def test_v66c_emits_transition_review_candidate_only_with_explicit_transition_law(

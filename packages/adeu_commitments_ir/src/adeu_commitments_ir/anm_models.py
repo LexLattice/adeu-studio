@@ -2135,7 +2135,7 @@ class AnmCompileDiagnosticRow(BaseModel):
     def _validate_contract(self) -> "AnmCompileDiagnosticRow":
         self.diagnostic_id = _require_non_empty(self.diagnostic_id, field_name="diagnostic_id")
         self.subject_ref = _require_non_empty(self.subject_ref, field_name="subject_ref")
-        _require_sorted_unique(list(self.evidence_refs), field_name="evidence_refs")
+        _require_sorted_unique(self.evidence_refs, field_name="evidence_refs")
         return self
 
 
@@ -2221,7 +2221,7 @@ class AnmProseBoundaryNoticeRow(BaseModel):
                 self.compiled_authority_block_ref_or_none,
                 field_name="compiled_authority_block_ref_or_none",
             )
-        _require_sorted_unique(list(self.evidence_refs), field_name="evidence_refs")
+        _require_sorted_unique(self.evidence_refs, field_name="evidence_refs")
         if (
             self.notice_kind == "normative_tone_without_compiled_authority_block"
             and self.compiled_authority_block_ref_or_none is not None

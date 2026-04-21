@@ -265,22 +265,21 @@ def _require_basis_alignment(
             or profile_policy_hash != policy_hash
             or profile_profiles_ref != expected_profile_ref
         ):
+            source_surface = (
+                "v66b_migration_binding_profile"
+                if hasattr(profile, "migration_binding_profile_id")
+                else (
+                    "v66b_reader_projection_manifest"
+                    if hasattr(profile, "projection_manifest_id")
+                    else "v66b_semantic_diff_report"
+                )
+            )
             diagnostics.append(
                 AnmCompileDiagnosticRow(
                     diagnostic_id=f"diag:prior_basis_hash_mismatch:{subject_ref}",
                     diagnostic_kind="prior_basis_hash_mismatch",
                     severity="error",
-                    source_surface={
-                        "migration_binding_profile_id": "v66b_migration_binding_profile",
-                        "projection_manifest_id": "v66b_reader_projection_manifest",
-                        "diff_report_id": "v66b_semantic_diff_report",
-                    }[
-                        "migration_binding_profile_id"
-                        if hasattr(profile, "migration_binding_profile_id")
-                        else "projection_manifest_id"
-                        if hasattr(profile, "projection_manifest_id")
-                        else "diff_report_id"
-                    ],
+                    source_surface=source_surface,
                     subject_ref=str(subject_ref),
                     evidence_refs=sorted(
                         {
@@ -352,7 +351,7 @@ def _build_policy_anchor_or_diagnostic() -> tuple[
     try:
         return _policy_anchor(), []
     except ValueError:
-        fallback = AnmV66CPolicyAnchor(
+        fallback = AnmV66CPolicyAnchor.model_construct(
             policy_anchor_ref=_POLICY_ANCHOR_REF,
             policy_anchor_hash=stable_payload_hash(_POLICY_ANCHOR_PAYLOAD),
             policy_anchor_schema_id=_FROZEN_POLICY_ANCHOR_SCHEMA_ID,
@@ -787,7 +786,7 @@ def build_v66c_compile_report(
             "invalid_notice_evidence": _REASON_INVALID_NOTICE_EVIDENCE,
             "invalid_authority_claim_rejected": _REASON_INVALID_AUTHORITY_CLAIM,
             "invalid_unsupported_schema": _REASON_INVALID_PRIOR_BASIS,
-        }[notice_set.report_status]
+        }[report_status]
         advisory_result = AnmCompileAdvisoryResult(
             recommended_adoption_posture_or_none=None,
             reason_codes=[reason_code],
