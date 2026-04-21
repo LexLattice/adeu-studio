@@ -1,0 +1,123 @@
+{
+  "schema": "v66a_anm_source_set_starter_evidence@1",
+  "evidence_input_path": "artifacts/agent_harness/v182/evidence_inputs/v66a_anm_source_set_starter_evidence_v182.json",
+  "contract_source": "docs/LOCKED_CONTINUATION_vNEXT_PLUS182.md#machine-checkable-contract",
+  "merged_pr": "#409",
+  "merge_commit": "f5a19288fe44e5b8e17901442e3ca4e5098bd3dd",
+  "implementation_commit": "877281c2f813e27c845aa1454a4f0dfde3cc8f55",
+  "review_hardening_commit": "54a95224d675e508ee8a623b27ee1b267b373ada",
+  "implementation_packages": [
+    "adeu_semantic_source",
+    "adeu_commitments_ir",
+    "adeu_semantic_compiler"
+  ],
+  "selected_record_shapes": [
+    "anm_source_set_manifest@1",
+    "anm_doc_authority_profile@1",
+    "anm_doc_class_policy@1"
+  ],
+  "required_prior_lane_evidence_surfaces": [
+    "artifacts/agent_harness/v106/evidence_inputs/v47a_authoritative_normative_markdown_substrate_evidence_v106.json",
+    "artifacts/agent_harness/v107/evidence_inputs/v47b_authoritative_normative_markdown_hardening_evidence_v107.json",
+    "artifacts/agent_harness/v108/evidence_inputs/v47c_authoritative_normative_markdown_coexistence_evidence_v108.json",
+    "artifacts/agent_harness/v109/evidence_inputs/v47d_authoritative_normative_markdown_selector_predicate_ownership_transition_evidence_v109.json",
+    "artifacts/agent_harness/v110/evidence_inputs/v47e_authoritative_normative_markdown_downstream_policy_consumer_evidence_v110.json",
+    "artifacts/agent_harness/v111/evidence_inputs/v47f_authoritative_normative_markdown_benchmark_policy_consumer_evidence_v111.json"
+  ],
+  "selected_consumed_v47_lineage_for_v66a": "released_v47a_through_v47f_anm_substrate_only",
+  "selected_governed_source_set_boundary_for_v66a": "one_governed_anm_source_set_only",
+  "selected_doc_axis_split_for_v66a": [
+    "doc_class",
+    "authority_layer",
+    "source_posture",
+    "lifecycle_status",
+    "classification_status"
+  ],
+  "required_schema_ids_for_v66a": [
+    "anm_source_set_manifest@1",
+    "anm_doc_authority_profile@1",
+    "anm_doc_class_policy@1"
+  ],
+  "required_doc_class_values_for_v66a": [
+    "lock",
+    "architecture",
+    "planning",
+    "support",
+    "non_governance"
+  ],
+  "required_authority_layer_values_for_v66a": [
+    "lock",
+    "architecture",
+    "planning",
+    "support",
+    "none"
+  ],
+  "required_source_posture_values_for_v66a": [
+    "legacy_markdown",
+    "standalone_anm",
+    "companion_anm",
+    "generated_projection"
+  ],
+  "required_lifecycle_status_values_for_v66a": [
+    "living",
+    "historical",
+    "superseded",
+    "draft",
+    "generated"
+  ],
+  "required_classification_status_values_for_v66a": [
+    "classified",
+    "unknown_requires_registration",
+    "excluded_non_governance"
+  ],
+  "semantic_source_package_init_source_path": "packages/adeu_semantic_source/src/adeu_semantic_source/__init__.py",
+  "semantic_source_v66a_source_path": "packages/adeu_semantic_source/src/adeu_semantic_source/anm.py",
+  "semantic_compiler_package_init_source_path": "packages/adeu_semantic_compiler/src/adeu_semantic_compiler/__init__.py",
+  "semantic_compiler_v66a_inventory_source_path": "packages/adeu_semantic_compiler/src/adeu_semantic_compiler/anm_inventory.py",
+  "commitments_ir_package_init_source_path": "packages/adeu_commitments_ir/src/adeu_commitments_ir/__init__.py",
+  "commitments_ir_v66a_models_source_path": "packages/adeu_commitments_ir/src/adeu_commitments_ir/anm_models.py",
+  "commitments_ir_export_schema_source_path": "packages/adeu_commitments_ir/src/adeu_commitments_ir/export_schema.py",
+  "anm_source_set_manifest_authoritative_schema_path": "packages/adeu_commitments_ir/schema/anm_source_set_manifest.v1.json",
+  "anm_doc_authority_profile_authoritative_schema_path": "packages/adeu_commitments_ir/schema/anm_doc_authority_profile.v1.json",
+  "anm_doc_class_policy_authoritative_schema_path": "packages/adeu_commitments_ir/schema/anm_doc_class_policy.v1.json",
+  "anm_source_set_manifest_mirror_schema_path": "spec/anm_source_set_manifest.schema.json",
+  "anm_doc_authority_profile_mirror_schema_path": "spec/anm_doc_authority_profile.schema.json",
+  "anm_doc_class_policy_mirror_schema_path": "spec/anm_doc_class_policy.schema.json",
+  "reference_source_set_fixture_path": "packages/adeu_commitments_ir/tests/fixtures/v66a/reference_anm_source_set_manifest.json",
+  "reference_doc_authority_profile_fixture_path": "packages/adeu_commitments_ir/tests/fixtures/v66a/reference_anm_doc_authority_profile.json",
+  "reference_doc_class_policy_fixture_path": "packages/adeu_commitments_ir/tests/fixtures/v66a/reference_anm_doc_class_policy.json",
+  "test_reference_paths": [
+    "packages/adeu_semantic_source/tests/test_anm_v66a.py",
+    "packages/adeu_semantic_compiler/tests/test_anm_inventory_v66a.py",
+    "packages/adeu_commitments_ir/tests/test_anm_v66a_models.py",
+    "packages/adeu_commitments_ir/tests/test_export_schema.py"
+  ],
+  "same_discovered_doc_inventory_plus_same_governed_source_set_inclusion_rules_plus_same_frozen_policy_yields_same_v66a_outputs": true,
+  "selected_discovered_doc_inventory_distinct_from_governed_anm_source_set_for_v66a": true,
+  "doc_authority_profile_source_precedence_for_v66a": [
+    "explicit_profile_block",
+    "registered_manifest_entry",
+    "deterministic_compiler_classification_for_mechanical_fields_only"
+  ],
+  "front_matter_may_assist_discovery_but_may_not_override_profile_block_or_registered_manifest_entry_for_v66a": true,
+  "recognized_anm_authority_block_must_be_compiler_recognized_not_example_or_quoted_text_for_v66a": true,
+  "unregistered_companion_posture_fails_closed_for_v66a": true,
+  "contradictory_host_or_companion_linkage_fails_closed_for_v66a": true,
+  "supersession_claim_without_explicit_transition_law_fails_closed_for_v66a": true,
+  "plain_historical_or_support_markdown_not_hard_gated_merely_by_existence_for_v66a": true,
+  "support_layer_anm_awareness_not_lock_promotion_for_v66a": true,
+  "selected_full_migration_binding_profile_for_v66a": false,
+  "selected_generated_reader_projection_for_v66a": false,
+  "selected_semantic_diff_report_for_v66a": false,
+  "selected_stable_compile_report_artifact_for_v66a": false,
+  "selected_repo_wide_markdown_rename_for_v66a": false,
+  "selected_markdown_supersession_without_explicit_transition_law_for_v66a": false,
+  "selected_v47_language_widening_for_v66a": false,
+  "selected_new_selector_or_predicate_ownership_doctrine_for_v66a": false,
+  "changes_runtime_behavior_by_default": false,
+  "local_full_python_gate": "make check",
+  "metric_key_continuity_assertion_path": "artifacts/agent_harness/v182/evidence_inputs/metric_key_continuity_assertion_v182.json",
+  "runtime_observability_comparison_path": "artifacts/agent_harness/v182/evidence_inputs/runtime_observability_comparison_v182.json",
+  "runtime_event_stream_path": "artifacts/agent_harness/v182/runtime/evidence/local/urm_events.ndjson",
+  "notes": "v182 evidence pins the bounded V66-A closeout seam on main: one typed governed ANM source-set manifest, one typed doc authority profile surface, one typed doc-class policy surface, explicit discovered-vs-governed source-set separation, explicit non-collapsed classification axes, fail-closed companion registration and supersession-transition posture, deterministic authoritative-plus-mirror schema export and reference fixtures, and no V47 language widening, generated reader projection, semantic diff report, full migration binding profile, stable compile-report artifact, or runtime authority widening."
+}
