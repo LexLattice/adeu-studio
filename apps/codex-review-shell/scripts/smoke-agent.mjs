@@ -50,6 +50,8 @@ function send(id, method, params = {}) {
 send("hello", "hello");
 send("tree", "listTree", { relPath: "src" });
 send("readme", "readFile", { relPath: "README.md" });
+send("matches", "listMatchingFiles", { patterns: ["README.md", "src/**/*.js"], ignoredRelPaths: [] });
+send("resolve", "resolvePath", { relPath: "README.md" });
 child.stdin.end();
 
 const timeout = setTimeout(() => {
@@ -60,7 +62,7 @@ const timeout = setTimeout(() => {
 await once(child, "exit");
 clearTimeout(timeout);
 
-for (const required of ["hello", "tree", "readme"]) {
+for (const required of ["hello", "tree", "readme", "matches", "resolve"]) {
   const response = responses.get(required);
   if (!response || response.error) {
     failed = true;
@@ -71,6 +73,12 @@ for (const required of ["hello", "tree", "readme"]) {
 if (!events.some((event) => event.event === "ready")) {
   failed = true;
   console.error("Agent did not emit ready event.");
+}
+
+const matches = responses.get("matches")?.result?.entries || [];
+if (!matches.some((entry) => entry.relPath === "README.md")) {
+  failed = true;
+  console.error("Matching-file smoke did not find README.md through the backend.");
 }
 
 if (failed) process.exit(1);

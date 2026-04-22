@@ -1,9 +1,9 @@
-# ADEU Three-Plane Workspace v1.1
+# Codex Review Shell v1.2
 
-Electron desktop shell for a single-window coding/review loop with an explicit Windows-host / WSL-workspace backend split.
+Electron desktop shell for a single-window dual-partner coding/review loop with an explicit Windows-host / WSL-workspace backend split.
 
 - **Left plane:** Codex work companion chat surface.
-- **Middle plane:** ADEU control plane, not a chat.
+- **Middle plane:** workflow control plane, not a chat.
 - **Right plane:** ChatGPT review/world-model thread surface.
 
 The shell remains the source of truth for project bindings. Each project stores:
@@ -11,10 +11,10 @@ The shell remains the source of truth for project bindings. Each project stores:
 - project name
 - typed workspace binding
 - Codex target/binding
-- ChatGPT review thread URL/binding
-- FlowProfile metadata: review prompt, watched file patterns, return header
+- project-bound ChatGPT thread deck
+- FlowProfile metadata: prompt templates, watched file patterns, return header
 
-## v1.1 additions
+## v1.2 additions
 
 - Explicit `workspace.kind` in project config: `local` or `wsl`.
 - WSL-native workspace config fields: distro + canonical Linux path.
@@ -22,9 +22,20 @@ The shell remains the source of truth for project bindings. Each project stores:
 - WSL backend agent at `src/backend/wsl-agent.js`.
 - Newline-delimited JSON protocol over stdio.
 - Work tree and file preview now route through the workspace backend.
-- Command execution and watcher scaffolding are present in the backend protocol.
+- Command execution scaffold, watched artifact scanning, and watcher scaffolding are present in the backend protocol.
 - Existing three-plane geometry and maximize/restore reflow fix are preserved.
 - Existing ChatGPT embedding/chrome reduction behavior is preserved.
+
+
+## v1.2 workflow additions
+
+- Project-bound ChatGPT thread deck instead of one hard-coded review URL.
+- Thread roles: review, brainstorming, architecture, research, debugging, planning, custom.
+- Add/edit/remove/archive thread bindings per project.
+- Primary review thread and last-active thread tracking.
+- Role-aware prompt templates with placeholder interpolation.
+- Manual/copy-assisted handoff queue.
+- Watched artifact scan through the workspace backend with preview/stage/ignore actions.
 
 ## Architecture summary
 
@@ -64,7 +75,19 @@ Example WSL project:
       "reviewThreadUrl": "https://chatgpt.com/",
       "reduceChrome": true
     }
-  }
+  },
+  "chatThreads": [
+    {
+      "id": "thread_review_primary",
+      "role": "review",
+      "title": "Primary review",
+      "url": "https://chatgpt.com/c/...",
+      "isPrimary": true,
+      "pinned": true,
+      "archived": false
+    }
+  ],
+  "activeChatThreadId": "thread_review_primary"
 }
 ```
 
@@ -106,10 +129,10 @@ Syntax check:
 npm run check:syntax
 ```
 
-Agent smoke path for the local backend protocol:
+Full bounded validation path:
 
 ```bash
-npm run agent:smoke
+npm run validate
 ```
 
 Headless Electron smoke remains available on Linux environments that have `xvfb-run`:
@@ -122,4 +145,4 @@ npm run smoke
 
 ChatGPT is embedded as the real web thread surface. There is no assumed official consumer ChatGPT API for sending messages to an existing thread or uploading files. Chrome reduction, dark-mode forcing, and settings access are best-effort browser-surface behavior.
 
-For the detailed architecture/support note, see [`WSL_HOST_ARCHITECTURE.md`](./WSL_HOST_ARCHITECTURE.md).
+For the WSL architecture note, see [`WSL_HOST_ARCHITECTURE.md`](./WSL_HOST_ARCHITECTURE.md). For the v1.2 product-boundary/workflow pass, see [`DUAL_PARTNER_WORKFLOW_SHELL_v1.2.md`](./DUAL_PARTNER_WORKFLOW_SHELL_v1.2.md).

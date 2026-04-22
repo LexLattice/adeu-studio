@@ -7,16 +7,16 @@
       content="default-src 'self'; script-src 'self'; style-src 'self' 'unsafe-inline'; img-src 'self' data:; connect-src 'self'"
     />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>ADEU Three-Plane Workspace</title>
+    <title>Codex Review Shell</title>
     <link rel="stylesheet" href="./styles.css" />
   </head>
   <body>
     <div class="app-shell" id="appShell">
-      <section class="surface-plane codex-plane" aria-label="Codex work companion plane">
+      <section class="surface-plane codex-plane" aria-label="Codex implementation companion plane">
         <div class="surface-bar">
           <div>
             <p class="eyebrow">Left plane</p>
-            <h2>Codex work companion</h2>
+            <h2>Codex implementation companion</h2>
           </div>
           <span id="codexStatus" class="status-dot">idle</span>
         </div>
@@ -30,17 +30,17 @@
 
       <div class="splitter left-splitter" id="leftSplitter" title="Drag to resize Codex/control planes"></div>
 
-      <main class="control-plane" aria-label="ADEU control plane">
+      <main class="control-plane" aria-label="Dual-partner workflow control plane">
         <header class="control-header">
           <div class="brand-block">
             <div class="brand-mark">A</div>
             <div>
               <p class="eyebrow">Middle plane</p>
-              <h1>ADEU control plane</h1>
+              <h1>Workflow control plane</h1>
             </div>
           </div>
           <div class="control-status">
-            <span class="pill">shell-owned binding</span>
+            <span class="pill">dual-partner binding</span>
             <span id="lastEvent" class="muted truncate">Ready.</span>
           </div>
         </header>
@@ -50,13 +50,16 @@
           <h2 id="selectedProjectName">Loading…</h2>
           <p id="repoPath" class="mono muted truncate">—</p>
           <p id="workspacePath" class="mono muted truncate">—</p>
-          <p id="bindingStatus" class="pill subtle">—</p>
-          <p id="backendStatus" class="pill subtle">backend detached</p>
+          <div class="status-row">
+            <p id="bindingStatus" class="pill subtle">—</p>
+            <p id="backendStatus" class="pill subtle">backend detached</p>
+          </div>
+          <p id="activeThreadStatus" class="pill">No active ChatGPT thread</p>
         </section>
 
         <section class="control-grid compact-actions">
           <button class="primary" id="addProjectButton" type="button">New project</button>
-          <button class="ghost" id="editProjectButton" type="button">Edit binding</button>
+          <button class="ghost" id="editProjectButton" type="button">Edit project</button>
         </section>
 
         <section class="control-card projects-card">
@@ -70,15 +73,47 @@
           <div class="project-list" id="projectList"></div>
         </section>
 
+        <section class="control-card thread-card">
+          <div class="section-heading">
+            <div>
+              <p class="eyebrow">ChatGPT thread deck</p>
+              <h3>Project-bound deliberation threads</h3>
+            </div>
+            <div class="heading-actions">
+              <span id="threadCount" class="counter">0</span>
+              <button class="ghost small" id="addThreadButton" type="button">Add</button>
+            </div>
+          </div>
+          <div class="thread-deck" id="threadDeck"></div>
+        </section>
+
+        <section class="control-card prompt-card">
+          <div class="section-heading">
+            <div>
+              <p class="eyebrow">Role-aware prompt</p>
+              <h3 id="promptRoleLabel">Active thread prompt</h3>
+            </div>
+            <button class="ghost small" id="copyPromptButton" type="button">Copy prompt</button>
+          </div>
+          <pre id="activePromptPreview" class="prompt-preview">—</pre>
+        </section>
+
         <section class="control-card relay-card">
           <div class="section-heading">
             <div>
               <p class="eyebrow">Relay controls</p>
-              <h3>Manual loop accelerators</h3>
+              <h3>Manual handoff accelerators</h3>
             </div>
           </div>
+          <label class="compact-label">
+            Handoff target thread
+            <select id="handoffTargetThreadSelect"></select>
+          </label>
           <div class="button-grid">
-            <button class="ghost" id="copyPromptButton" type="button">Copy review prompt</button>
+            <button class="primary" id="stageSelectedFileButton" type="button">Stage selected file</button>
+            <button class="ghost" id="stageTextReviewButton" type="button">Stage text review</button>
+            <button class="ghost" id="stageArchitectureQuestionButton" type="button">Stage architecture question</button>
+            <button class="ghost" id="stageResearchQuestionButton" type="button">Stage research question</button>
             <button class="ghost" id="copyHeaderButton" type="button">Copy return header</button>
             <button class="ghost" id="reloadCodexButton" type="button">Reload Codex</button>
             <button class="ghost" id="reloadChatButton" type="button">Reload ChatGPT</button>
@@ -88,18 +123,39 @@
           </div>
         </section>
 
+        <section class="control-card handoff-card">
+          <div class="section-heading">
+            <div>
+              <p class="eyebrow">Handoff queue</p>
+              <h3>Visible workflow spine</h3>
+            </div>
+            <span id="handoffCount" class="counter">0</span>
+          </div>
+          <div class="handoff-list" id="handoffQueue"></div>
+        </section>
+
+        <section class="control-card watched-card">
+          <div class="section-heading">
+            <div>
+              <p class="eyebrow">Watched artifacts</p>
+              <h3>Review files from workspace backend</h3>
+            </div>
+            <div class="heading-actions">
+              <span id="watchedCount" class="counter">0</span>
+              <button class="ghost small" id="refreshWatchedButton" type="button">Scan</button>
+            </div>
+          </div>
+          <div class="artifact-list" id="watchedArtifactList"></div>
+        </section>
+
         <section class="control-card flow-card">
           <div class="section-heading">
             <div>
               <p class="eyebrow">FlowProfile</p>
-              <h3>Structured loop metadata</h3>
+              <h3>Loop metadata</h3>
             </div>
           </div>
           <dl class="flow-list">
-            <div>
-              <dt>Prompt template</dt>
-              <dd id="promptTemplatePreview">—</dd>
-            </div>
             <div>
               <dt>Watched rules</dt>
               <dd id="watchedRulesPreview" class="mono">—</dd>
@@ -117,7 +173,10 @@
               <p class="eyebrow">Work tree</p>
               <h3>Repo files + preview</h3>
             </div>
-            <button class="ghost small" id="refreshWorkTreeButton" type="button">Refresh</button>
+            <div class="heading-actions">
+              <button class="ghost small" id="stagePreviewButton" type="button">Stage preview</button>
+              <button class="ghost small" id="refreshWorkTreeButton" type="button">Refresh</button>
+            </div>
           </div>
           <div class="work-tool">
             <div class="work-tree" id="workTree" role="tree" aria-label="Project work tree">
@@ -141,7 +200,7 @@
 
       <div class="splitter right-splitter" id="rightSplitter" title="Drag to resize control/ChatGPT planes"></div>
 
-      <section class="surface-plane chatgpt-plane" aria-label="ChatGPT review companion plane">
+      <section class="surface-plane chatgpt-plane" aria-label="ChatGPT deliberation and review companion plane">
         <div class="surface-bar">
           <div>
             <p class="eyebrow">Right plane</p>
@@ -229,7 +288,7 @@
         </label>
 
         <label>
-          ChatGPT review thread URL
+          Primary ChatGPT review thread URL <span class="muted">also managed in thread deck</span>
           <input id="chatgptUrlInput" autocomplete="off" placeholder="https://chatgpt.com/c/..." />
         </label>
 
@@ -240,7 +299,22 @@
 
         <label>
           Review prompt template
-          <textarea id="reviewPromptInput" rows="5"></textarea>
+          <textarea id="reviewPromptInput" rows="4"></textarea>
+        </label>
+
+        <label>
+          Architecture prompt template
+          <textarea id="architecturePromptInput" rows="3"></textarea>
+        </label>
+
+        <label>
+          Brainstorming prompt template
+          <textarea id="brainstormingPromptInput" rows="3"></textarea>
+        </label>
+
+        <label>
+          Research prompt template
+          <textarea id="researchPromptInput" rows="3"></textarea>
         </label>
 
         <div class="form-grid">
@@ -258,7 +332,72 @@
           <button class="danger" id="deleteProjectButton" type="button">Delete</button>
           <span class="spacer"></span>
           <button class="ghost" id="cancelProjectButton" type="button">Cancel</button>
-          <button class="primary" type="submit">Save binding</button>
+          <button class="primary" type="submit">Save project</button>
+        </div>
+      </form>
+    </section>
+
+    <section class="drawer" id="threadDrawer" aria-hidden="true">
+      <form id="threadForm" class="drawer-card thread-drawer-card">
+        <div class="drawer-header">
+          <div>
+            <p class="eyebrow">ChatGPT thread binding</p>
+            <h2 id="threadDrawerTitle">Edit thread</h2>
+          </div>
+          <button class="ghost icon" id="closeThreadDrawerButton" type="button">×</button>
+        </div>
+
+        <input type="hidden" id="threadIdInput" />
+
+        <div class="form-grid">
+          <label>
+            Role
+            <select id="threadRoleInput">
+              <option value="review">Review</option>
+              <option value="brainstorming">Brainstorming</option>
+              <option value="architecture">Architecture</option>
+              <option value="research">Research</option>
+              <option value="debugging">Debugging</option>
+              <option value="planning">Planning</option>
+              <option value="custom">Custom</option>
+            </select>
+          </label>
+          <label>
+            Title
+            <input id="threadTitleInput" required autocomplete="off" />
+          </label>
+        </div>
+
+        <label>
+          ChatGPT thread URL
+          <input id="threadUrlInput" required autocomplete="off" placeholder="https://chatgpt.com/c/..." />
+        </label>
+
+        <label>
+          Notes
+          <textarea id="threadNotesInput" rows="4" placeholder="What belongs in this thread? What should not go here?"></textarea>
+        </label>
+
+        <div class="checkbox-grid">
+          <label class="checkbox-row">
+            <input id="threadPrimaryInput" type="checkbox" />
+            <span>Primary review thread</span>
+          </label>
+          <label class="checkbox-row">
+            <input id="threadPinnedInput" type="checkbox" />
+            <span>Pinned in deck</span>
+          </label>
+          <label class="checkbox-row">
+            <input id="threadArchivedInput" type="checkbox" />
+            <span>Archived</span>
+          </label>
+        </div>
+
+        <div class="drawer-actions">
+          <button class="danger" id="deleteThreadButton" type="button">Remove</button>
+          <span class="spacer"></span>
+          <button class="ghost" id="cancelThreadButton" type="button">Cancel</button>
+          <button class="primary" type="submit">Save thread</button>
         </div>
       </form>
     </section>

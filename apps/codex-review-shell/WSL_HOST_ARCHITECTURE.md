@@ -1,6 +1,6 @@
-# ADEU Three-Plane Workspace v1.1 — Windows Host / WSL Workspace Backend
+# Codex Review Shell v1.2 — Windows Host / WSL Workspace Backend
 
-This version keeps the v1 three-plane product model and adds the first serious host/backend split for a long-term Remote-WSL style workflow.
+This version keeps the three-plane dual-partner workflow model and the Windows-host / WSL-workspace backend split for a long-term Remote-WSL style workflow.
 
 ## Version intent
 
@@ -17,14 +17,14 @@ The workspace is no longer assumed to be a Windows-path mirror. A project can no
 ## Plane model retained
 
 - **Left plane:** Codex work companion / chat surface. It still uses the local Codex-style fallback unless the project binds a real Codex URL.
-- **Middle plane:** ADEU control plane. It owns project selection, bindings, FlowProfile fields, relay controls, work tree, file preview, and backend status.
+- **Middle plane:** workflow control plane. It owns project selection, thread deck, bindings, FlowProfile fields, handoff queue, watched artifacts, work tree, file preview, and backend status.
 - **Right plane:** real embedded ChatGPT thread surface. This remains browser-embedded ChatGPT; no consumer ChatGPT API is invented.
 
 The maximize/restore geometry fix from v1 is preserved: the shell renderer still remeasures live DOM surface slots, and the Electron main process still sends reflow pings on resize/maximize/restore/focus.
 
 ## Project config shape
 
-Config is still stored in Electron user data as `workspace-config.json`. The config version is now `3`.
+Config is still stored in Electron user data as `workspace-config.json`. The config version is now `4`.
 
 Each project keeps the existing binding fields and gains explicit workspace typing:
 
@@ -50,6 +50,18 @@ Each project keeps the existing binding fields and gains explicit workspace typi
       "reduceChrome": true
     }
   },
+  "chatThreads": [
+    {
+      "id": "thread_review_primary",
+      "role": "review",
+      "title": "Primary review",
+      "url": "https://chatgpt.com/c/...",
+      "isPrimary": true,
+      "pinned": true,
+      "archived": false
+    }
+  ],
+  "activeChatThreadId": "thread_review_primary",
   "flowProfile": {
     "reviewPromptTemplate": "...",
     "watchedFilePatterns": ["**/*REVIEW*.md"],
@@ -114,6 +126,7 @@ The resident workspace backend owns:
 - file preview reads
 - binary detection and preview truncation
 - command execution scaffold for future Codex-side actions
+- watched-pattern scans for review artifacts
 - watcher capability scaffold/status
 
 The middle control plane no longer reads the repo tree directly from a host path. Its current work tree and file preview IPC calls route through the backend session.
@@ -157,7 +170,7 @@ The app will start/attach the backend via `wsl.exe` and the work tree / preview 
 ## Current limitations
 
 - The backend is a per-session child process, not yet a named long-lived daemon reused across host restarts.
-- Watchers are scaffolded but not yet active subscriptions.
+- Watched artifact scanning is implemented as an explicit backend scan; continuous live watcher subscriptions are still deferred.
 - Command execution exists as a backend method but is not yet exposed as a full Codex relay UI.
 - WSL attach currently depends on `wsl.exe --cd`, `bash`, `wslpath`, and `node` inside the distro.
 - The right ChatGPT pane remains a browser surface with best-effort chrome/dark-mode behavior; there is no official consumer-thread control API assumed.
@@ -165,7 +178,7 @@ The app will start/attach the backend via `wsl.exe` and the work tree / preview 
 
 ## Next steps
 
-1. Add a watched-artifact queue from the WSL backend.
+1. Promote watched-artifact scanning into live subscriptions.
 2. Add one-click review packet staging for selected markdown files.
 3. Add safe command profiles for Codex-side actions.
 4. Promote watcher events into the control-plane status/relay area.

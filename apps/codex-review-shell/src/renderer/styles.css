@@ -708,3 +708,160 @@ body.dragging {
     grid-column: auto;
   }
 }
+
+.status-row,
+.heading-actions {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  flex-wrap: wrap;
+}
+
+.thread-deck,
+.handoff-list,
+.artifact-list {
+  display: grid;
+  gap: 8px;
+}
+
+.thread-item,
+.handoff-item,
+.artifact-item {
+  display: grid;
+  gap: 8px;
+  padding: 9px;
+  border: 1px solid var(--border);
+  border-radius: 13px;
+  background: rgba(5, 7, 11, 0.42);
+}
+
+.thread-item.active {
+  border-color: rgba(141, 180, 255, 0.42);
+  background: linear-gradient(135deg, rgba(141, 180, 255, 0.13), rgba(111, 224, 255, 0.045));
+}
+
+.thread-item.archived,
+.handoff-item.status-dismissed,
+.handoff-item.status-pasted-back {
+  opacity: 0.58;
+}
+
+.thread-main {
+  width: 100%;
+  min-height: auto;
+  display: grid;
+  gap: 5px;
+  padding: 0;
+  border: 0;
+  border-radius: 0;
+  text-align: left;
+  background: transparent;
+}
+
+.thread-main:hover {
+  background: transparent;
+}
+
+.thread-topline,
+.handoff-summary,
+.artifact-summary {
+  min-width: 0;
+  display: grid;
+  gap: 5px;
+}
+
+.thread-topline {
+  grid-template-columns: auto minmax(0, 1fr);
+  align-items: center;
+}
+
+.role-badge {
+  display: inline-flex;
+  align-items: center;
+  width: fit-content;
+  max-width: 100%;
+  min-height: 20px;
+  padding: 0 7px;
+  border: 1px solid rgba(141, 180, 255, 0.2);
+  border-radius: 999px;
+  background: rgba(141, 180, 255, 0.075);
+  color: var(--accent-strong);
+  font-size: 10px;
+  font-weight: 800;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+
+.thread-meta,
+.thread-notes,
+.handoff-meta,
+.artifact-meta {
+  color: var(--muted);
+  font-size: 11px;
+  line-height: 1.4;
+}
+
+.thread-actions,
+.handoff-actions,
+.artifact-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+
+.prompt-preview,
+.handoff-prompt-preview {
+  max-height: 160px;
+  margin: 0;
+  padding: 10px;
+  overflow: auto;
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  background: rgba(5, 7, 11, 0.54);
+  color: #dce6f7;
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+  font-family: var(--mono);
+  font-size: 11px;
+  line-height: 1.5;
+}
+
+.handoff-prompt-preview {
+  max-height: 80px;
+  padding: 8px;
+  color: var(--muted);
+}
+
+.compact-label {
+  margin-bottom: 8px;
+}
+
+.checkbox-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 10px;
+}
+
+.thread-drawer-card {
+  width: min(680px, 96vw);
+}
+
+.handoff-item.status-staged .role-badge,
+.handoff-item.status-copied .role-badge,
+.handoff-item.status-opened-thread .role-badge {
+  color: var(--warning);
+  border-color: rgba(255, 212, 122, 0.26);
+  background: rgba(255, 212, 122, 0.07);
+}
+
+.handoff-item.status-pasted-back .role-badge {
+  color: var(--success);
+  border-color: rgba(114, 228, 167, 0.26);
+  background: rgba(114, 228, 167, 0.07);
+}
+
+@media (max-width: 1280px) {
+  .checkbox-grid {
+    grid-template-columns: 1fr;
+  }
+}

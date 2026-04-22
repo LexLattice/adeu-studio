@@ -15,7 +15,7 @@ const { pathToFileURL } = require("node:url");
 const crypto = require("node:crypto");
 const { WorkspaceBackendManager, workspaceLabel, workspaceRoot } = require("./main/workspace-backend");
 
-const APP_TITLE = "ADEU Three-Plane Workspace";
+const APP_TITLE = "Codex Review Shell";
 const CONFIG_FILE_NAME = "workspace-config.json";
 const CODEX_PARTITION = "persist:codex-review-shell-codex";
 const CHATGPT_PARTITION = "persist:codex-review-shell-chatgpt";
@@ -57,7 +57,7 @@ function configPath() {
 function defaultConfig() {
   const defaultProjectId = "project_adeu_studio";
   return {
-    version: 3,
+    version: 4,
     selectedProjectId: defaultProjectId,
     ui: {
       leftRatio: 0.34,
@@ -84,12 +84,27 @@ function defaultConfig() {
             reduceChrome: true,
           },
         },
+        chatThreads: [
+          defaultChatThread({
+            id: "thread_review_primary",
+            role: "review",
+            title: "Primary review",
+            url: "https://chatgpt.com/",
+            isPrimary: true,
+            pinned: true,
+            notes: "Main project-bound ChatGPT review thread.",
+          }),
+        ],
+        activeChatThreadId: "thread_review_primary",
+        promptTemplates: defaultPromptTemplates(),
         flowProfile: {
-          reviewPromptTemplate:
-            "Review the attached/selected Codex artifact for correctness, risks, missing checks, and concrete next actions. Return concise feedback I can paste back into Codex.",
+          reviewPromptTemplate: defaultPromptTemplateText("review"),
           watchedFilePatterns: ["**/*REVIEW*.md", "**/*review*.md", "artifacts/**/*.md"],
           returnHeader: "GPT feedback",
+          handoffMode: "assisted",
         },
+        handoffs: [],
+        ignoredWatchedArtifactPaths: [],
         createdAt: nowIso(),
         updatedAt: nowIso(),
       },
@@ -103,6 +118,213 @@ function isPlainObject(value) {
 
 function normalizeString(value, fallback = "") {
   return typeof value === "string" && value.trim() ? value.trim() : fallback;
+}
+
+
+const CHAT_THREAD_ROLES = new Set(["review", "brainstorming", "architecture", "research", "debugging", "planning", "custom"]);
+const PROMPT_TEMPLATE_ROLES = ["review", "architecture", "brainstorming", "research", "debugging", "planning", "custom"];
+const HANDOFF_KINDS = new Set(["file-review", "text-review", "architecture-question", "research-question"]);
+const HANDOFF_STATUSES = new Set([
+  "staged",
+  "copied",
+  "opened-thread",
+  "submitted-manually",
+  "response-pending",
+  "response-captured",
+  "pasted-back",
+  "dismissed",
+]);
+
+function defaultPromptTemplateText(role) {
+  const templates = {
+    review:
+      "Review {{file.relPath}} for project {{project.name}}. Focus on correctness, risks, missing checks, and concrete next actions. Return concise feedback under the header {{returnHeader}}.\n\nSelected file contents:\n{{file.contents}}",
+    architecture:
+      "For project {{project.name}}, evaluate this architecture question in the {{thread.role}} thread. Identify tradeoffs, risks, invariants, and a recommended next move.\n\nContext/file: {{file.relPath}}\n{{file.contents}}",
+    brainstorming:
+      "Brainstorm options for project {{project.name}} without collapsing into implementation yet. Reframe the problem, list promising directions, and call out unknowns.\n\nContext/file: {{file.relPath}}\n{{file.contents}}",
+    research:
+      "Research/synthesize the question for project {{project.name}}. Separate confirmed facts, assumptions, risks, and follow-up checks.\n\nContext/file: {{file.relPath}}\n{{file.contents}}",
+    debugging:
+      "Help debug project {{project.name}}. Triage symptoms, likely causes, evidence to collect, and next actions.\n\nContext/file: {{file.relPath}}\n{{file.contents}}",
+    planning:
+      "Plan the next implementation steps for project {{project.name}}. Keep Codex as the implementation partner and return an actionable sequence.\n\nContext/file: {{file.relPath}}\n{{file.contents}}",
+    custom:
+      "Use the {{thread.role}} ChatGPT thread for project {{project.name}}.\n\nContext/file: {{file.relPath}}\n{{file.contents}}",
+  };
+  return templates[role] || templates.custom;
+}
+
+function defaultPromptTemplates() {
+  const result = {};
+  for (const role of PROMPT_TEMPLATE_ROLES) {
+    result[role] = {
+      id: `template_${role}`,
+      role,
+      title: `${role[0].toUpperCase()}${role.slice(1)} prompt`,
+      text: defaultPromptTemplateText(role),
+      updatedAt: nowIso(),
+    };
+  }
+  return result;
+}
+
+function normalizeRole(value, fallback = "custom") {
+  const candidate = normalizeString(value, fallback).toLowerCase();
+  return CHAT_THREAD_ROLES.has(candidate) ? candidate : fallback;
+}
+
+function safeChatgptUrl(value, fallback = "https://chatgpt.com/") {
+  try {
+    const parsed = new URL(normalizeString(value, fallback));
+    if (parsed.protocol !== "https:") return fallback;
+    return parsed.toString();
+  } catch {
+    return fallback;
+  }
+}
+
+function defaultChatThread(overrides = {}) {
+  const now = nowIso();
+  const role = normalizeRole(overrides.role, "review");
+  return {
+    id: normalizeString(overrides.id, newId("thread")),
+    role,
+    title: normalizeString(overrides.title, role === "review" ? "Primary review" : `${role[0].toUpperCase()}${role.slice(1)} thread`),
+    url: safeChatgptUrl(overrides.url, "https://chatgpt.com/"),
+    notes: normalizeString(overrides.notes, ""),
+    isPrimary: Boolean(overrides.isPrimary),
+    pinned: Boolean(overrides.pinned),
+    archived: Boolean(overrides.archived),
+    createdAt: normalizeString(overrides.createdAt, now),
+    updatedAt: normalizeString(overrides.updatedAt, now),
+    lastOpenedAt: normalizeString(overrides.lastOpenedAt, ""),
+  };
+}
+
+function normalizeChatThreads(rawProject, rawChatgpt) {
+  const rawThreads = Array.isArray(rawProject.chatThreads) ? rawProject.chatThreads : [];
+  const threads = [];
+  const ids = new Set();
+
+  for (const item of rawThreads) {
+    if (!isPlainObject(item)) continue;
+    const role = normalizeRole(item.role, "custom");
+    const thread = defaultChatThread({ ...item, role, url: item.url });
+    if (!normalizeString(thread.url, "")) continue;
+    if (ids.has(thread.id)) thread.id = newId("thread");
+    ids.add(thread.id);
+    threads.push(thread);
+  }
+
+  if (!threads.length) {
+    const legacyUrl = safeChatgptUrl(rawChatgpt?.reviewThreadUrl, "https://chatgpt.com/");
+    threads.push(
+      defaultChatThread({
+        id: "thread_review_primary",
+        role: "review",
+        title: "Primary review",
+        url: legacyUrl,
+        isPrimary: true,
+        pinned: true,
+        notes: "Migrated from the legacy single ChatGPT review URL.",
+      }),
+    );
+  }
+
+  let primaryReviewId = "";
+  for (const thread of threads) {
+    if (thread.role !== "review") thread.isPrimary = false;
+    if (thread.role === "review" && thread.isPrimary && !thread.archived && !primaryReviewId) {
+      primaryReviewId = thread.id;
+    } else if (thread.role === "review" && thread.isPrimary) {
+      thread.isPrimary = false;
+    }
+  }
+
+  if (!primaryReviewId) {
+    const candidate = threads.find((thread) => thread.role === "review" && !thread.archived) || threads.find((thread) => thread.role === "review");
+    if (candidate) {
+      candidate.isPrimary = true;
+      primaryReviewId = candidate.id;
+    } else {
+      const legacyUrl = safeChatgptUrl(rawChatgpt?.reviewThreadUrl, "https://chatgpt.com/");
+      const thread = defaultChatThread({ role: "review", title: "Primary review", url: legacyUrl, isPrimary: true, pinned: true });
+      threads.unshift(thread);
+      primaryReviewId = thread.id;
+    }
+  }
+
+  return threads;
+}
+
+function primaryReviewThread(project) {
+  return (
+    project?.chatThreads?.find((thread) => thread.role === "review" && thread.isPrimary && !thread.archived) ||
+    project?.chatThreads?.find((thread) => thread.role === "review" && thread.isPrimary) ||
+    project?.chatThreads?.find((thread) => thread.role === "review" && !thread.archived) ||
+    project?.chatThreads?.find((thread) => thread.role === "review") ||
+    project?.chatThreads?.find((thread) => !thread.archived) ||
+    project?.chatThreads?.[0]
+  );
+}
+
+function activeChatThread(project) {
+  if (!project) return null;
+  const threads = Array.isArray(project.chatThreads) ? project.chatThreads : [];
+  return (
+    threads.find((thread) => thread.id === project.activeChatThreadId && !thread.archived) ||
+    threads.find((thread) => thread.id === project.lastActiveThreadId && !thread.archived) ||
+    primaryReviewThread(project) ||
+    null
+  );
+}
+
+function normalizePromptTemplates(rawTemplates, rawFlow) {
+  const defaults = defaultPromptTemplates();
+  const result = { ...defaults };
+  const source = Array.isArray(rawTemplates)
+    ? Object.fromEntries(rawTemplates.filter(isPlainObject).map((template) => [normalizeRole(template.role, "custom"), template]))
+    : isPlainObject(rawTemplates)
+      ? rawTemplates
+      : {};
+
+  for (const role of PROMPT_TEMPLATE_ROLES) {
+    const raw = isPlainObject(source[role]) ? source[role] : {};
+    const fallbackText = role === "review" ? rawFlow?.reviewPromptTemplate || defaults.review.text : defaults[role].text;
+    result[role] = {
+      id: normalizeString(raw.id, `template_${role}`),
+      role,
+      title: normalizeString(raw.title, defaults[role].title),
+      text: normalizeString(raw.text, fallbackText),
+      updatedAt: normalizeString(raw.updatedAt, nowIso()),
+    };
+  }
+  return result;
+}
+
+function normalizeHandoffs(rawHandoffs, projectId, threadIds) {
+  if (!Array.isArray(rawHandoffs)) return [];
+  const now = nowIso();
+  return rawHandoffs
+    .filter(isPlainObject)
+    .map((raw) => {
+      const targetThreadId = threadIds.has(raw.targetThreadId) ? raw.targetThreadId : "";
+      return {
+        id: normalizeString(raw.id, newId("handoff")),
+        projectId,
+        source: ["codex", "workspace", "human"].includes(raw.source) ? raw.source : "human",
+        targetThreadId,
+        kind: HANDOFF_KINDS.has(raw.kind) ? raw.kind : "text-review",
+        fileRelPath: normalizeString(raw.fileRelPath, ""),
+        title: normalizeString(raw.title, "Untitled handoff"),
+        promptText: normalizeString(raw.promptText, ""),
+        status: HANDOFF_STATUSES.has(raw.status) ? raw.status : "staged",
+        createdAt: normalizeString(raw.createdAt, now),
+        updatedAt: normalizeString(raw.updatedAt, now),
+      };
+    })
+    .filter((item) => item.targetThreadId && item.promptText);
 }
 
 function parseWslUncPath(value) {
@@ -210,6 +432,17 @@ function normalizeProject(input, index = 0) {
   const legacyRepoPath = normalizeString(raw.repoPath, repoRoot);
   const workspace = normalizeWorkspaceConfig(raw.workspace, legacyRepoPath);
   const repoPath = workspaceToRepoPath(workspace, legacyRepoPath);
+  const chatThreads = normalizeChatThreads(raw, rawChatgpt);
+  const threadIds = new Set(chatThreads.map((thread) => thread.id));
+  const activeThreadCandidate = normalizeString(raw.activeChatThreadId, normalizeString(raw.lastActiveThreadId, ""));
+  const activeThreadId = threadIds.has(activeThreadCandidate) && !chatThreads.find((thread) => thread.id === activeThreadCandidate)?.archived
+    ? activeThreadCandidate
+    : primaryReviewThread({ chatThreads })?.id || chatThreads[0]?.id;
+  const primaryReview = primaryReviewThread({ chatThreads });
+  const promptTemplates = normalizePromptTemplates(raw.promptTemplates, rawFlow);
+  const ignoredWatchedArtifactPaths = Array.isArray(raw.ignoredWatchedArtifactPaths)
+    ? raw.ignoredWatchedArtifactPaths.filter((item) => typeof item === "string" && item.trim()).map((item) => item.trim())
+    : [];
 
   return {
     id,
@@ -223,15 +456,22 @@ function normalizeProject(input, index = 0) {
         label: normalizeString(rawCodex.label, codexMode === "local" ? "Local Codex lane" : "Codex target"),
       },
       chatgpt: {
-        reviewThreadUrl: normalizeString(rawChatgpt.reviewThreadUrl, "https://chatgpt.com/"),
+        reviewThreadUrl: safeChatgptUrl(primaryReview?.url || rawChatgpt.reviewThreadUrl, "https://chatgpt.com/"),
         reduceChrome: rawChatgpt.reduceChrome !== false,
       },
     },
+    chatThreads,
+    activeChatThreadId: activeThreadId,
+    lastActiveThreadId: normalizeString(raw.lastActiveThreadId, activeThreadId),
+    promptTemplates,
     flowProfile: {
-      reviewPromptTemplate: normalizeString(rawFlow.reviewPromptTemplate, fallback.flowProfile.reviewPromptTemplate),
+      reviewPromptTemplate: normalizeString(rawFlow.reviewPromptTemplate, promptTemplates.review.text),
       watchedFilePatterns: patterns.length ? patterns : fallback.flowProfile.watchedFilePatterns,
       returnHeader: normalizeString(rawFlow.returnHeader, fallback.flowProfile.returnHeader),
+      handoffMode: normalizeString(rawFlow.handoffMode, "assisted"),
     },
+    handoffs: normalizeHandoffs(raw.handoffs, id, threadIds),
+    ignoredWatchedArtifactPaths,
     createdAt: normalizeString(raw.createdAt, now),
     updatedAt: normalizeString(raw.updatedAt, now),
   };
@@ -260,7 +500,7 @@ function normalizeConfig(input) {
     : dedupedProjects[0].id;
 
   return {
-    version: 3,
+    version: 4,
     selectedProjectId,
     ui: migrateUi(raw.ui),
     projects: dedupedProjects,
@@ -413,6 +653,9 @@ function encodeProjectForLocalSurface(project) {
       workspace: project.workspace,
       codex: project.surfaceBinding.codex,
       chatgpt: project.surfaceBinding.chatgpt,
+      chatThreads: project.chatThreads,
+      activeChatThreadId: project.activeChatThreadId,
+      promptTemplates: project.promptTemplates,
       flowProfile: project.flowProfile,
     },
     shell: {
@@ -437,9 +680,12 @@ async function loadCodexSurface(project) {
   await codexView.webContents.loadURL(localUrl);
 }
 
-async function loadChatgptSurface(project) {
+async function loadChatgptSurface(project, threadId = "") {
   if (!chatgptView || chatgptView.webContents.isDestroyed()) return;
-  const target = safeLoadableUrl(project.surfaceBinding.chatgpt.reviewThreadUrl, "chatgpt") || "https://chatgpt.com/";
+  const thread = threadId
+    ? project.chatThreads?.find((item) => item.id === threadId) || activeChatThread(project)
+    : activeChatThread(project);
+  const target = safeLoadableUrl(thread?.url || project.surfaceBinding.chatgpt.reviewThreadUrl, "chatgpt") || "https://chatgpt.com/";
   await chatgptView.webContents.loadURL(target);
 }
 
@@ -694,6 +940,37 @@ async function readProjectFile(projectId, relPath) {
     workspace: project.workspace,
     workspaceLabel: workspaceLabel(project, repoRoot),
   };
+}
+
+
+async function listWatchedArtifacts(projectId) {
+  const project = await getProjectById(projectId);
+  const patterns = project.flowProfile?.watchedFilePatterns || [];
+  const ignoredRelPaths = project.ignoredWatchedArtifactPaths || [];
+  const result = await requestWorkspace(project, "listMatchingFiles", { patterns, ignoredRelPaths }, 30_000);
+  return {
+    ...result,
+    workspace: project.workspace,
+    workspaceLabel: workspaceLabel(project, repoRoot),
+  };
+}
+
+async function revealProjectFile(projectId, relPath) {
+  const project = await getProjectById(projectId);
+  const result = await requestWorkspace(project, "resolvePath", { relPath }, 10_000);
+  if (project.workspace?.kind === "local" && result.absolutePath) {
+    shell.showItemInFolder(result.absolutePath);
+    return { ...result, opened: true, method: "local-show-item" };
+  }
+  if (project.workspace?.kind === "wsl" && process.platform === "win32") {
+    const distro = project.workspace.distro || "Ubuntu";
+    const linuxPath = `${project.workspace.linuxPath.replace(/\/$/, "")}/${String(relPath || "").replace(/^\/+/, "")}`;
+    const unc = `\\\\wsl$\\${distro}${linuxPath.split("/").join("\\")}`;
+    shell.showItemInFolder(unc);
+    return { ...result, opened: true, method: "wsl-unc-fallback", uncPath: unc };
+  }
+  await clipboard.writeText(result.absolutePath || relPath || "");
+  return { ...result, opened: false, method: "copied-path" };
 }
 
 async function runWorkspaceCommand(projectId, commandPayload) {
@@ -981,6 +1258,40 @@ ipcMain.handle("worktree:list", async (_event, payload) => {
 
 ipcMain.handle("worktree:read-file", async (_event, payload) => {
   return readProjectFile(payload?.projectId, payload?.relPath);
+});
+
+
+ipcMain.handle("worktree:list-watched", async (_event, payload) => {
+  return listWatchedArtifacts(payload?.projectId);
+});
+
+ipcMain.handle("worktree:reveal-file", async (_event, payload) => {
+  return revealProjectFile(payload?.projectId, payload?.relPath);
+});
+
+ipcMain.handle("chatgpt:select-thread", async (_event, payload) => {
+  const config = await loadConfig();
+  const projectId = normalizeString(payload?.projectId, config.selectedProjectId);
+  const threadId = normalizeString(payload?.threadId, "");
+  const projects = config.projects.map((project) => {
+    if (project.id !== projectId) return project;
+    const exists = project.chatThreads?.some((thread) => thread.id === threadId && !thread.archived);
+    if (!exists) return project;
+    const now = nowIso();
+    const chatThreads = project.chatThreads.map((thread) =>
+      thread.id === threadId ? { ...thread, lastOpenedAt: now, updatedAt: now } : thread,
+    );
+    return { ...project, chatThreads, activeChatThreadId: threadId, lastActiveThreadId: threadId, updatedAt: now };
+  });
+  const saved = await saveConfig({ ...config, selectedProjectId: projectId, projects });
+  const project = saved.projects.find((item) => item.id === projectId) || getSelectedProject(saved);
+  const thread = project?.chatThreads?.find((item) => item.id === project.activeChatThreadId) || activeChatThread(project);
+  if (project && thread) {
+    currentProject = project;
+    await loadChatgptSurface(project, thread.id);
+    scheduleLayoutPing("chatgpt-thread-selected");
+  }
+  return { config: saved, project, thread };
 });
 
 ipcMain.handle("workspace:attach", async (_event, payload) => {

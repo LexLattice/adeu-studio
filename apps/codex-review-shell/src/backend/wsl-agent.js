@@ -22,6 +22,8 @@ const PREVIEW_LIMIT_BYTES = 384 * 1024;
 const DIRECTORY_ENTRY_LIMIT = 500;
 const COMMAND_OUTPUT_LIMIT_BYTES = 256 * 1024;
 const DEFAULT_COMMAND_TIMEOUT_MS = 30_000;
+const MATCH_SCAN_LIMIT = 240;
+const MATCH_WALK_LIMIT = 8000;
 
 const SKIPPED_DIR_NAMES = new Set([
   ".git",
@@ -191,6 +193,127 @@ async function readFilePreview(params = {}) {
   };
 }
 
+
+function escapeRegex(value) {
+  return String(value).replace(/[|\\{}()[\]^$+?.]/g, "\\$&");
+}
+
+function globToRegex(pattern) {
+  const normalized = String(pattern || "").replace(/\\/g, "/").trim();
+  if (!normalized) return null;
+  let output = "^";
+  for (let index = 0; index < normalized.length; index += 1) {
+    const char = normalized[index];
+    const next = normalized[index + 1];
+    if (char === "*" && next === "*") {
+      const after = normalized[index + 2];
+      if (after === "/") {
+        output += "(?:.*/)?";
+        index += 2;
+      } else {
+        output += ".*";
+        index += 1;
+      }
+    } else if (char === "*") {
+      output += "[^/]*";
+    } else if (char === "?") {
+      output += "[^/]";
+    } else {
+      output += escapeRegex(char);
+    }
+  }
+  output += "$";
+  return new RegExp(output, "i");
+}
+
+function matchesAnyPattern(relPath, regexes) {
+  const normalized = String(relPath || "").replace(/\\/g, "/");
+  return regexes.some((regex) => regex.test(normalized));
+}
+
+async function listMatchingFiles(params = {}) {
+  const patterns = Array.isArray(params.patterns) ? params.patterns.filter((item) => typeof item === "string" && item.trim()) : [];
+  const ignored = new Set(
+    (Array.isArray(params.ignoredRelPaths) ? params.ignoredRelPaths : [])
+      .filter((item) => typeof item === "string" && item.trim())
+      .map((item) => item.replace(/\\/g, "/")),
+  );
+  const regexes = patterns.map(globToRegex).filter(Boolean);
+  if (!regexes.length) {
+    return { root, patterns, entries: [], skipped: 0, scanned: 0, limit: MATCH_SCAN_LIMIT, source: workspaceKind };
+  }
+
+  const entries = [];
+  let skipped = 0;
+  let scanned = 0;
+
+  async function walk(relDir) {
+    if (scanned >= MATCH_WALK_LIMIT || entries.length >= MATCH_SCAN_LIMIT) return;
+    const { fullPath, displayRel } = resolveWithinRoot(relDir);
+    let dirents;
+    try {
+      dirents = await fs.readdir(fullPath, { withFileTypes: true });
+    } catch {
+      skipped += 1;
+      return;
+    }
+
+    for (const dirent of dirents) {
+      if (scanned >= MATCH_WALK_LIMIT || entries.length >= MATCH_SCAN_LIMIT) return;
+      const type = direntType(dirent);
+      if (type === "dir" && SKIPPED_DIR_NAMES.has(dirent.name)) {
+        skipped += 1;
+        continue;
+      }
+      const childRel = displayRel ? `${displayRel}/${dirent.name}` : dirent.name;
+      scanned += 1;
+      if (type === "dir") {
+        await walk(childRel);
+      } else if (type === "file" && !ignored.has(childRel) && matchesAnyPattern(childRel, regexes)) {
+        try {
+          const stat = await fs.lstat(path.join(root, childRel.split("/").join(path.sep)));
+          entries.push({
+            name: dirent.name,
+            relPath: childRel,
+            type: "file",
+            size: stat.size,
+            mtimeMs: stat.mtimeMs,
+            mtime: stat.mtime.toISOString(),
+          });
+        } catch {
+          skipped += 1;
+        }
+      }
+    }
+  }
+
+  await walk("");
+  entries.sort((a, b) => b.mtimeMs - a.mtimeMs || a.relPath.localeCompare(b.relPath));
+  return {
+    root,
+    patterns,
+    entries,
+    skipped,
+    scanned,
+    limit: MATCH_SCAN_LIMIT,
+    walkLimit: MATCH_WALK_LIMIT,
+    source: workspaceKind,
+  };
+}
+
+async function resolvePathPreview(params = {}) {
+  const { fullPath, displayRel } = resolveWithinRoot(params.relPath || "");
+  const stat = await fs.lstat(fullPath);
+  return {
+    relPath: displayRel,
+    absolutePath: fullPath,
+    isFile: stat.isFile(),
+    isDirectory: stat.isDirectory(),
+    size: stat.size,
+    source: workspaceKind,
+  };
+}
+
 function appendLimited(chunks, chunk, limitBytes) {
   const buffer = Buffer.isBuffer(chunk) ? chunk : Buffer.from(String(chunk));
   let current = chunks.reduce((sum, item) => sum + item.length, 0);
@@ -291,12 +414,16 @@ async function handleRequest(method, params = {}) {
         listTree: true,
         readFilePreview: true,
         runCommand: true,
+        listMatchingFiles: true,
+        resolvePath: true,
         watchScaffold: true,
       },
     };
   }
   if (method === "listTree") return listTree(params);
   if (method === "readFile") return readFilePreview(params);
+  if (method === "listMatchingFiles") return listMatchingFiles(params);
+  if (method === "resolvePath") return resolvePathPreview(params);
   if (method === "runCommand") return runCommand(params);
   if (method === "watchStatus") return watchStatus(params);
   throw new Error(`Unknown workspace-agent method: ${method}`);

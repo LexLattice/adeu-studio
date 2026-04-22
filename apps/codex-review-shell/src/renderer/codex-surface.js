@@ -59,7 +59,7 @@ if (project) {
   );
   addMessage(
     "assistant",
-    `Workspace bound.\n\nWorkspace: ${workspace}\nRepo display: ${project.repoPath}\nCodex target: ${project.codex?.target ?? "local"}\n\nThis v1 local lane is a lightweight Codex-style chat surface. Point the Codex binding at a local app-server URL when you want to replace it with a real Codex surface.`,
+    `Workspace bound.\n\nWorkspace: ${workspace}\nRepo display: ${project.repoPath}\nCodex target: ${project.codex?.target ?? "local"}\n\nThis local lane is a lightweight Codex-compatible work chat surface. Point the Codex binding at a local app-server URL when you want to replace it with a real Codex surface.`,
   );
 
   document.getElementById("copyPromptButton").addEventListener("click", () => {

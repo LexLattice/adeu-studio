@@ -12,9 +12,12 @@ contextBridge.exposeInMainWorld("workspaceShell", {
   copyText: (text) => ipcRenderer.invoke("clipboard:write-text", text),
   listWorkTree: (projectId, relPath) => ipcRenderer.invoke("worktree:list", { projectId, relPath }),
   readProjectFile: (projectId, relPath) => ipcRenderer.invoke("worktree:read-file", { projectId, relPath }),
+  listWatchedArtifacts: (projectId) => ipcRenderer.invoke("worktree:list-watched", { projectId }),
+  revealProjectFile: (projectId, relPath) => ipcRenderer.invoke("worktree:reveal-file", { projectId, relPath }),
   attachWorkspace: (projectId) => ipcRenderer.invoke("workspace:attach", { projectId }),
   workspaceStatus: (projectId) => ipcRenderer.invoke("workspace:status", { projectId }),
   runWorkspaceCommand: (projectId, command) => ipcRenderer.invoke("workspace:run-command", { projectId, command }),
+  selectChatThread: (projectId, threadId) => ipcRenderer.invoke("chatgpt:select-thread", { projectId, threadId }),
   openChatgptSettings: () => ipcRenderer.invoke("chatgpt:open-settings"),
   forceChatgptDark: () => ipcRenderer.invoke("chatgpt:force-dark"),
   onSurfaceEvent: (callback) => {
