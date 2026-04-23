@@ -161,39 +161,16 @@ But it may not mint:
 - family remains: `V67`
 - `V67-A` starter language and validator backbone is now shipped on `main`
 - `V67-B` bounded adjudication engine is now shipped on `main`
-- next concrete slice: `V67-C`
+- `V67-C` advisory runtime bridge is now shipped on `main`
 - recommended selector outcome:
   - keep the current UX governance substrate closed on `main`
   - keep the shipped `V67-A` artifact family stable on `main`
   - keep the shipped `V67-B` bounded adjudication posture stable on `main`
-  - select `V67-C` as the next default candidate
-  - keep `V67-C` bounded to advisory runtime / conformance hardening only.
-
-`V67-C` should:
-
-- consume the shipped ergonomic adjudication lineage intact:
-  - `ux_ergonomic_adjudication_request@1`
-  - `ux_ergonomic_adjudication_result@1`
-- consume the released UX governance realized-surface evidence basis where
-  available:
-  - `ux_morph_diagnostics@1`
-  - `ux_conformance_report@1`
-- add only one bounded advisory bridge pair:
-  - `ux_ergonomic_runtime_measurement_evidence@1`
-  - `ux_ergonomic_runtime_bridge_report@1`
-- compare realized evidence only against shipped adjudication expectations and
-  explicit measurement obligations
-- keep bridge validity in advisory-bridge-status-only posture and keep
-  ergonomic outcome separate from prior `overall_judgment`
-- emit only bounded advisory drift / incompleteness / basis-mismatch posture
-  over the selected runtime bridge artifacts
-- stay out of:
-  - generic layout solving
-  - runtime adaptive morph switching
-  - screenshot-first authority
-  - mutation of released UX diagnostics / conformance law
-  - sovereign runtime personalization
-  - direct runtime layout authority.
+  - mark `V67` closed on `main`
+  - keep the shipped `V67-C` advisory runtime-bridge posture stable on `main`
+  - do not select another slice inside `V67`
+  - require any follow-on to begin from a new planning decision outside this
+    now-closed family.
 
 ## Suggested `V67` Path Ladder
 
@@ -216,7 +193,8 @@ But it may not mint:
     and one non-entitling advisory bridge report
   - keep advisory bridge statuses separate from ergonomic judgment and released
     UX conformance posture
-  - still no sovereign runtime personalization engine by default.
+  - still no sovereign runtime personalization engine by default
+  - now shipped on `main`.
 
 ## Why `V67` And Not Another ANM Or Standalone-App Branch
 
@@ -235,6 +213,7 @@ It is the next missing sibling extension of Morphic UX governance:
 Validation note for this planning-only family draft:
 
 - use `git diff --check` for the doc edits
-- do not treat this planning draft as a starter-bundle lock pack by itself
-- even with the sharpened selector outcome, `V67-C` remains planning-only until a
-  starter lock or implementation lock is drafted.
+- this family planning bundle has now been satisfied by shipped `V67-A`,
+  `V67-B`, and `V67-C` slices on `main`
+- do not treat this record as authority to widen the closed `V67` family;
+  any follow-on should begin from a new planning decision.

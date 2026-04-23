@@ -1,11 +1,14 @@
 # Architecture ADEU UX Ergonomic Instantiation Adjudication Family v0
 
-Status: planning / decomposition draft.
+Status: architecture / decomposition record; `V67` is complete on `main`.
 
 Authority layer: architecture / decomposition.
 
 This note does not authorize implementation by itself. It records the intended
 family shape for `V67` downstream of the released Morphic UX governance stack.
+The planned `V67-A` / `V67-B` / `V67-C` ladder is now shipped on `main`; any
+follow-on should begin from a new planning decision rather than more widening
+inside this closed family.
 
 ## 1. Family Thesis
 

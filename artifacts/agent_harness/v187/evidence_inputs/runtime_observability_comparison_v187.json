@@ -1,0 +1,11 @@
+{
+  "schema": "runtime_observability_comparison@1",
+  "baseline_arc": "vNext+186",
+  "current_arc": "vNext+187",
+  "baseline_source": "artifacts/stop_gate/report_v186_closeout.md",
+  "current_source": "artifacts/stop_gate/report_v187_closeout.md",
+  "baseline_elapsed_ms": 74,
+  "current_elapsed_ms": 74,
+  "delta_ms": 0,
+  "notes": "v187 closeout keeps the frozen stop-gate schema family and exact metric keyset unchanged while shipping the bounded V67-C ergonomic runtime bridge seam on main: typed runtime measurement evidence, typed advisory bridge report, exact adjudication-lineage refs and hashes, fail-closed request/result/source-bundle binding checks, advisory-only bridge statuses, stable runtime mismatch families, and no mutation of released UX diagnostics or conformance artifacts."
+}

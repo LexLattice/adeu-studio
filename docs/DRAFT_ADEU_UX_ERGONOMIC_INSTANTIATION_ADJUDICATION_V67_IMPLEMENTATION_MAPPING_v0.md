@@ -1,12 +1,15 @@
 # Draft ADEU UX Ergonomic Instantiation Adjudication V67 Implementation Mapping v0
 
-Status: support / implementation mapping draft.
+Status: support / implementation mapping record; `V67` is complete on `main`.
 
 Authority layer: support.
 
 This note does not authorize implementation by itself. It maps the planned `V67`
 family into likely package, schema, validator, and fixture work so the family is
 concrete before a starter lock is drafted.
+That planned `V67-A` / `V67-B` / `V67-C` ladder is now shipped on `main`; the
+mapping remains as family record and should not be read as authority to widen
+the closed family.
 
 ## 1. Family Intent
 

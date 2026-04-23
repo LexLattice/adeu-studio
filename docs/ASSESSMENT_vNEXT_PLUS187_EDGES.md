@@ -1,8 +1,8 @@
 # Assessment vNext+187 Edges
 
-Status: planning-edge assessment for `V67-C`.
+Status: post-closeout edge assessment for `V67-C` (April 23, 2026 UTC).
 
-Authority layer: planning / starter assessment.
+Authority layer: closeout evidence on `main`.
 
 ## Assessment-State Marker (Machine-Checkable)
 
@@ -10,21 +10,26 @@ Authority layer: planning / starter assessment.
 {
   "schema": "assessment_artifact_state@1",
   "artifact": "docs/ASSESSMENT_vNEXT_PLUS187_EDGES.md",
-  "phase": "pre_lock_assessment",
-  "authoritative": false,
+  "phase": "post_closeout_assessment",
+  "authoritative": true,
   "required_in_decision": true
 }
 ```
 
 ## Open Edges
 
-### Edge 1: Bridge Status Could Collapse Into Ergonomic Or Conformance Judgment
+### Edge 1: Advisory Bridge Status Could Collapse Into Prior Judgment Channels
 
 - Risk:
-  advisory bridge validity or drift posture could be flattened into prior
-  ergonomic `overall_judgment` or into released UX conformance judgment.
+  advisory bridge validity or drift posture could be overread as ergonomic
+  `overall_judgment` or as released UX conformance posture.
 - Response:
-  keep bridge statuses bounded and separate.
+  keep bridge status bounded and non-sovereign.
+  - advisory bridge status is not ergonomic `overall_judgment`
+  - advisory bridge status is not UX conformance by itself
+- Closeout Evidence:
+  shipped bridge report and tests preserve advisory-only statuses and keep
+  adjudication judgment and released conformance untouched.
 
 ### Edge 2: Runtime Evidence Could Quietly Become Layout Authority
 
@@ -32,64 +37,94 @@ Authority layer: planning / starter assessment.
   realized runtime measurements or drift rows could be overread as permission to
   adapt or mutate layout directly.
 - Response:
-  keep `V67-C` advisory-only and forbid direct runtime layout authority here.
+  keep `V67-C` advisory-only and non-entitling.
+  - runtime bridge output is comparison/reporting only
+  - runtime bridge output does not authorize runtime mutation
+- Closeout Evidence:
+  merged slice ships typed evidence + typed bridge report only and adds no
+  control-loop or mutation surface.
 
-### Edge 3: Missing Required Runtime Evidence Could Disappear Into Clean Output
+### Edge 3: Source-Bundle Drift Could Quietly Corrupt Comparisons
+
+- Risk:
+  runtime evidence could compare against the wrong adjudication request,
+  adjudication result, visibility contract, candidate table, or case envelope.
+- Response:
+  preserve exact request/result/source-bundle binding and fail closed on drift.
+  - request/result IDs must match
+  - request-bound source refs must match loaded bundle identities
+  - source refs and hashes must stay exact
+- Closeout Evidence:
+  shipped evaluator/tests reject request-binding mismatch and hash/source-bundle
+  mismatch as `invalid_basis_mismatch`.
+
+### Edge 4: Optional Source Duplication Could Quietly Overwrite State
+
+- Risk:
+  duplicate optional artifacts such as diagnostics or conformance inputs could
+  silently override earlier bundle state.
+- Response:
+  reject repeated source schemas across the full bridge source bundle.
+- Closeout Evidence:
+  shipped loader/tests now fail closed on duplicate schema repetition for both
+  required and optional sources.
+
+### Edge 5: Missing Required Runtime Evidence Could Disappear Into Clean Output
 
 - Risk:
   a bridge report could report clean posture while required runtime measurement
-  obligations were never satisfied.
+  obligations were not actually satisfied.
 - Response:
-  keep missing required runtime evidence explicit with stable mismatch families
-  and advisory-incomplete status.
+  keep missing required runtime evidence explicit and status-bearing.
+  - missing required obligation rows force advisory-incomplete posture
+  - required evidence not observed remains a stable mismatch family
+- Closeout Evidence:
+  shipped mismatch families and tests preserve explicit incompleteness handling
+  for missing obligations and missing required evidence visibility.
 
-### Edge 4: Runtime Provenance Could Be Too Weak For The Claimed Comparison
+### Edge 6: Runtime Provenance Could Be Too Weak For The Claimed Comparison
 
 - Risk:
-  planning declarations, screenshot-only material, or inadmissible runtime rows
+  planning declarations, screenshot-only material, or other inadmissible rows
   could be mistaken for lawful realized-measurement evidence.
 - Response:
-  keep provenance and admissibility explicit and fail closed on invalid runtime
-  evidence shape.
+  keep provenance and admissibility explicit and machine-readable.
+  - inadmissible provenance is surfaced
+  - invalid runtime evidence shape does not become clean output
+- Closeout Evidence:
+  shipped bridge logic preserves provenance mismatch families and invalid-shape
+  fail-closed posture.
 
-### Edge 5: The Bridge Could Quietly Reopen Released UX Diagnostics
-
-- Risk:
-  convenience wiring could add ergonomic drift families directly into
-  `ux_morph_diagnostics@1` or `ux_conformance_report@1`.
-- Response:
-  keep `V67-C` on its own bounded runtime bridge artifacts and leave released UX
-  governance artifacts unchanged.
-
-### Edge 6: Drift Families Could Become Unstable Narrative Strings
+### Edge 7: `V67-C` Could Quietly Reopen Released UX Diagnostics
 
 - Risk:
-  runtime mismatch rows could drift into prose-only output and lose replayable
-  mismatch semantics.
+  ergonomic runtime drift could be written into `ux_morph_diagnostics@1` or
+  `ux_conformance_report@1` rather than staying in its own advisory bridge lane.
 - Response:
-  freeze stable runtime mismatch families and keep them machine-readable.
-
-### Edge 7: Runtime Candidate Realization Could Drift From Shipped Adjudication
-
-- Risk:
-  realized runtime evidence could target a different candidate profile or source
-  basis than the adjudication result it claims to compare against.
-- Response:
-  preserve exact request/result/evidence lineage and fail closed on basis
-  mismatch.
+  keep `V67-C` on its own bounded bridge artifacts.
+  - released UX diagnostics remain released UX diagnostics
+  - released UX conformance remains released UX conformance
+- Closeout Evidence:
+  merged implementation leaves those released artifacts unchanged and emits only
+  `ux_ergonomic_runtime_bridge_report@1`.
 
 ## Current Judgment
 
-- `V67-C` is the right active next slice because `V67-A` and `V67-B` now ship on
-  `main` and the missing remaining family seam is bounded runtime / conformance
-  hardening over that shipped adjudication lineage
-- the slice should stay deliberately finite:
+- `V67-C` was the right closing slice because `V67-A` already closed the
+  ergonomic language/validator seam on `main`, `V67-B` already closed the
+  bounded adjudication seam on `main`, and the only remaining bounded family
+  seam was replayable comparison between realized runtime evidence and shipped
+  adjudication expectations.
+- the shipped slice remained deliberately finite:
   - typed runtime measurement evidence
   - typed advisory bridge report
-  - exact lineage checks
-  - stable drift / incompleteness mismatch families
+  - exact lineage and binding checks
+  - stable mismatch families
   - advisory-only bridge statuses
-- `V67-C` should not attempt adaptive runtime control, direct layout mutation,
-  or mutation of released UX diagnostics / conformance artifacts
-- if `v187` ships cleanly, the `V67` family should be in position for one final
-  full-family closeout on `main`.
+- `V67-C` shipped without adaptive runtime control, direct runtime layout
+  mutation, screenshot-led authority, or mutation of released UX diagnostics /
+  conformance artifacts.
+- `V67-C` is now closed on `main`.
+- `V67` is now closed on `main`.
+- the current ergonomic instantiation adjudication family ladder is now complete
+  on `main`.

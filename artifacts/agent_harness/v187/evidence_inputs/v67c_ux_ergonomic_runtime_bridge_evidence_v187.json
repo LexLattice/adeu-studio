@@ -1,0 +1,27 @@
+{
+  "schema": "v67c_ux_ergonomic_runtime_bridge_evidence@1",
+  "evidence_input_path": "artifacts/agent_harness/v187/evidence_inputs/v67c_ux_ergonomic_runtime_bridge_evidence_v187.json",
+  "contract_source": "docs/LOCKED_CONTINUATION_vNEXT_PLUS187.md#machine-checkable-contract",
+  "merged_pr": "#414",
+  "merge_commit": "2dc53e5d2eecf3ccf96f5ef5e8a8e7239450f175",
+  "starter_bundle_commit": "3d4b1d2c65eece1da035790c8de58c649d30f761",
+  "implementation_commit": "edd92d5a6b2d2470a242dc1ea9975e063747d10e",
+  "review_hardening_commit": "2218104d53ebae68e085bafd6c792282682531b1",
+  "implementation_packages": [
+    "adeu_core_ir"
+  ],
+  "runtime_bridge_engine_source_path": "packages/adeu_core_ir/src/adeu_core_ir/ux_ergonomic_runtime_bridge.py",
+  "package_export_surface_path": "packages/adeu_core_ir/src/adeu_core_ir/__init__.py",
+  "measurement_evidence_fixture_path": "apps/api/fixtures/ux_ergonomics/vnext_plus187/ux_ergonomic_runtime_measurement_evidence_artifact_inspector_maximized_reference.json",
+  "computed_bridge_report_fixture_path": "apps/api/fixtures/ux_ergonomics/vnext_plus187/ux_ergonomic_runtime_bridge_report_artifact_inspector_maximized_computed_reference.json",
+  "test_reference_path": "packages/adeu_core_ir/tests/test_ux_ergonomic_runtime_bridge.py",
+  "consumed_v67a_basis_fixture_root": "apps/api/fixtures/ux_ergonomics/vnext_plus185",
+  "consumed_v67b_basis_fixture_root": "apps/api/fixtures/ux_ergonomics/vnext_plus186",
+  "consumed_ux_governance_fixture_roots": [
+    "apps/api/fixtures/ux_governance/vnext_plus64"
+  ],
+  "metric_key_continuity_assertion_path": "artifacts/agent_harness/v187/evidence_inputs/metric_key_continuity_assertion_v187.json",
+  "runtime_observability_comparison_path": "artifacts/agent_harness/v187/evidence_inputs/runtime_observability_comparison_v187.json",
+  "runtime_event_stream_path": "artifacts/agent_harness/v187/runtime/evidence/local/urm_events.ndjson",
+  "notes": "v187 evidence pins the released V67-C seam on main: one repo-owned adeu_core_ir package only, typed runtime measurement evidence plus typed advisory bridge report, exact adjudication/request/result source binding checks, stable advisory bridge statuses and mismatch families, duplicate source-schema fail-closed posture, and no mutation of released UX diagnostics, conformance law, or runtime layout authority."
+}
