@@ -45,6 +45,36 @@ def test_v67a_reject_case_envelope_visual_angle_requires_admissible_chain() -> N
         UXErgonomicCaseEnvelope.model_validate(payload)
 
 
+def test_v67a_reject_case_envelope_physical_size_requires_admissible_dpr() -> None:
+    payload = copy.deepcopy(
+        _load_json("ux_ergonomic_case_envelope_artifact_inspector_desktop_maximized_reference.json")
+    )
+    payload["device_pixel_ratio_or_none"] = {
+        "admissibility": "none",
+        "numeric_value": 2.0,
+        "provenance_state": "verified_device_inventory",
+        "source_kind": "device_inventory",
+        "unit": "ratio",
+    }
+    payload["physical_screen_ppi_or_none"] = {
+        "admissibility": "physical_size_admissible",
+        "numeric_value": 110.0,
+        "provenance_state": "verified_device_inventory",
+        "source_kind": "device_inventory",
+        "unit": "ppi",
+    }
+    payload["physical_size_reasoning_required"] = True
+
+    with pytest.raises(
+        ValidationError,
+        match=(
+            "physical_size_reasoning_required must not be true when "
+            "physical-size chain is inadmissible"
+        ),
+    ):
+        UXErgonomicCaseEnvelope.model_validate(payload)
+
+
 def test_v67a_result_validity_is_separate_from_ergonomic_judgment() -> None:
     result = UXErgonomicAdjudicationResult.model_validate(
         _load_json(

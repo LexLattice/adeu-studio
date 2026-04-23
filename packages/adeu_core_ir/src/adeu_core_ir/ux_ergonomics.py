@@ -326,12 +326,44 @@ def _sha256_canonical_json(value: object) -> str:
     return hashlib.sha256(_canonical_json(value).encode("utf-8")).hexdigest()
 
 
-def _load_repo_relative_json_artifact(*, ref: str, field_name: str) -> object:
+def _resolve_repo_relative_artifact_path(
+    *,
+    ref: str,
+    field_name: str,
+    repository_root: Path | None = None,
+) -> Path:
     _assert_repo_relative_artifact_ref(ref, field_name=field_name)
-    root = repo_root(anchor=Path(__file__))
-    resolved = root / ref.split("#", 1)[0]
+    root = repository_root or repo_root(anchor=Path(__file__))
+    root_resolved = root.resolve()
+    relative_path = Path(ref.split("#", 1)[0])
+    candidate = root / relative_path
+    current = root
+    for part in relative_path.parts:
+        current = current / part
+        if current.is_symlink():
+            raise ValueError(f"{field_name} must not resolve through symlinked path components")
+    try:
+        resolved = candidate.resolve(strict=True)
+    except FileNotFoundError:
+        raise ValueError(f"{field_name} must resolve to an existing repo file")
+    if not resolved.is_relative_to(root_resolved):
+        raise ValueError(f"{field_name} must remain within the repository root")
     if not resolved.is_file():
         raise ValueError(f"{field_name} must resolve to an existing repo file")
+    return resolved
+
+
+def _load_repo_relative_json_artifact(
+    *,
+    ref: str,
+    field_name: str,
+    repository_root: Path | None = None,
+) -> object:
+    resolved = _resolve_repo_relative_artifact_path(
+        ref=ref,
+        field_name=field_name,
+        repository_root=repository_root,
+    )
     try:
         return json.loads(resolved.read_text(encoding="utf-8"))
     except json.JSONDecodeError as exc:
@@ -365,17 +397,22 @@ def _assert_source_refs_and_hashes_align(
 
 
 def _assert_source_artifact_hashes_match_actual(
-    rows: list["UXErgonomicSourceArtifactHash"], *, field_name: str
+    rows: list["UXErgonomicSourceArtifactHash"],
+    *,
+    field_name: str,
+    repository_root: Path | None = None,
 ) -> None:
     for index, row in enumerate(rows):
         payload = _load_repo_relative_json_artifact(
             ref=row.artifact_ref,
             field_name=f"{field_name}[{index}].artifact_ref",
+            repository_root=repository_root,
         )
         expected_hash = _sha256_canonical_json(payload)
         if row.artifact_hash != expected_hash:
             raise ValueError(
-                f"{field_name} must match actual canonical source artifact payload hashes"
+                f"{field_name} must match actual canonical source artifact payload hashes "
+                f"for artifact_ref {row.artifact_ref}"
             )
 
 
@@ -1212,15 +1249,22 @@ def assert_ux_case_envelope_admissibility_consistent(
                 "preferred_text_min_css_px_or_none must use declared_user_profile provenance"
             )
 
+    device_pixel_ratio = case_envelope.device_pixel_ratio_or_none
+    physical_screen_ppi = case_envelope.physical_screen_ppi_or_none
+    viewing_distance_mm = case_envelope.viewing_distance_mm_or_none
     physical_chain_available = (
-        case_envelope.device_pixel_ratio_or_none is not None
-        and case_envelope.physical_screen_ppi_or_none is not None
-        and case_envelope.physical_screen_ppi_or_none.admissibility == "physical_size_admissible"
+        device_pixel_ratio is not None
+        and device_pixel_ratio.unit == "ratio"
+        and device_pixel_ratio.admissibility == "physical_size_admissible"
+        and physical_screen_ppi is not None
+        and physical_screen_ppi.unit == "ppi"
+        and physical_screen_ppi.admissibility == "physical_size_admissible"
     )
     visual_chain_available = (
         physical_chain_available
-        and case_envelope.viewing_distance_mm_or_none is not None
-        and case_envelope.viewing_distance_mm_or_none.admissibility == "visual_angle_admissible"
+        and viewing_distance_mm is not None
+        and viewing_distance_mm.unit == "mm"
+        and viewing_distance_mm.admissibility == "visual_angle_admissible"
     )
     if case_envelope.physical_size_reasoning_required and not physical_chain_available:
         raise ValueError(
@@ -1244,6 +1288,7 @@ def assert_ux_ergonomic_bundle_source_binding_consistent(
     request: UXErgonomicAdjudicationRequest,
     result: UXErgonomicAdjudicationResult | None = None,
 ) -> None:
+    repository_root = repo_root(anchor=Path(__file__))
     if (
         visibility_contract.reference_surface_family
         != candidate_projection_table.reference_surface_family
@@ -1300,14 +1345,7 @@ def assert_ux_ergonomic_bundle_source_binding_consistent(
     _assert_source_artifact_hashes_match_actual(
         visibility_contract.source_artifact_hashes,
         field_name="visibility_contract.source_artifact_hashes",
-    )
-    _assert_source_artifact_hashes_match_actual(
-        candidate_projection_table.source_artifact_hashes,
-        field_name="candidate_projection_table.source_artifact_hashes",
-    )
-    _assert_source_artifact_hashes_match_actual(
-        request.source_artifact_hashes,
-        field_name="request.source_artifact_hashes",
+        repository_root=repository_root,
     )
     if result is not None:
         if result.request_ref != request.request_id:
@@ -1316,10 +1354,6 @@ def assert_ux_ergonomic_bundle_source_binding_consistent(
             raise ValueError("result must reuse starter source_artifact_refs")
         if result.source_artifact_hashes != expected_hash_rows:
             raise ValueError("result must reuse starter source_artifact_hashes")
-        _assert_source_artifact_hashes_match_actual(
-            result.source_artifact_hashes,
-            field_name="result.source_artifact_hashes",
-        )
 
 
 def assert_ux_adjudication_result_consistent_with_request(

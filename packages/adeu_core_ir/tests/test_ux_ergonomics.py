@@ -1,6 +1,8 @@
 from __future__ import annotations
 
+import copy
 import json
+import re
 from pathlib import Path
 
 import pytest
@@ -194,6 +196,115 @@ def test_v67a_reference_fixtures_round_trip_without_drift() -> None:
     assert canonicalize_ux_ergonomic_adjudication_result_payload(
         _load_json(result_path)
     ) == _load_json(result_path)
+
+
+def test_v67a_source_hash_mismatch_reports_artifact_ref() -> None:
+    fixtures_root = _fixtures_root()
+    governance61 = _ux_governance_root("vnext_plus61")
+    governance62 = _ux_governance_root("vnext_plus62")
+    bad_hash = "0" * 64
+    rule_authority_stack = UXErgonomicRuleAuthorityStack.model_validate(
+        _load_json(
+            fixtures_root
+            / "ux_ergonomic_rule_authority_stack_artifact_inspector_reference.json"
+        )
+    )
+    registry = UXComponentErgonomicRegistry.model_validate(
+        _load_json(
+            fixtures_root
+            / "ux_component_ergonomic_registry_artifact_inspector_reference.json"
+        )
+    )
+    visibility_payload = copy.deepcopy(
+        _load_json(
+            fixtures_root
+            / "ux_component_visibility_contract_artifact_inspector_reference.json"
+        )
+    )
+    bad_ref = visibility_payload["source_artifact_hashes"][0]["artifact_ref"]  # type: ignore[index]
+    visibility_payload["source_artifact_hashes"][0]["artifact_hash"] = bad_hash  # type: ignore[index]
+    visibility_contract = UXComponentVisibilityContract.model_validate(visibility_payload)
+    candidate_payload = copy.deepcopy(
+        _load_json(
+            fixtures_root
+            / "ux_ergonomic_candidate_projection_profile_table_artifact_inspector_reference.json"
+        )
+    )
+    candidate_payload["source_artifact_hashes"][0]["artifact_hash"] = bad_hash  # type: ignore[index]
+    candidate_projection_table = UXErgonomicCandidateProjectionProfileTable.model_validate(
+        candidate_payload
+    )
+    case_envelope = UXErgonomicCaseEnvelope.model_validate(
+        _load_json(
+            fixtures_root
+            / "ux_ergonomic_case_envelope_artifact_inspector_desktop_maximized_reference.json"
+        )
+    )
+    request_payload = copy.deepcopy(
+        _load_json(
+            fixtures_root
+            / (
+                "ux_ergonomic_adjudication_request_"
+                "artifact_inspector_desktop_maximized_reference.json"
+            )
+        )
+    )
+    request_payload["source_artifact_hashes"][0]["artifact_hash"] = bad_hash  # type: ignore[index]
+    request = UXErgonomicAdjudicationRequest.model_validate(request_payload)
+    result_payload = copy.deepcopy(
+        _load_json(
+            fixtures_root
+            / "ux_ergonomic_adjudication_result_artifact_inspector_desktop_maximized_reference.json"
+        )
+    )
+    result_payload["source_artifact_hashes"][0]["artifact_hash"] = bad_hash  # type: ignore[index]
+    result = UXErgonomicAdjudicationResult.model_validate(result_payload)
+
+    approved_profile_table = V36AFirstFamilyApprovedProfileTable.model_validate(
+        _load_json(governance61 / "v36a_first_family_approved_profile_table.json")
+    )
+    same_context_glossary = V36ASameContextReachabilityGlossary.model_validate(
+        _load_json(governance61 / "v36a_same_context_reachability_glossary.json")
+    )
+    surface_projection = UXSurfaceProjection.model_validate(
+        _load_json(
+            governance62 / "ux_surface_projection_artifact_inspector_reference.json"
+        )
+    )
+    interaction_contract = UXInteractionContract.model_validate(
+        _load_json(
+            governance62 / "ux_interaction_contract_artifact_inspector_reference.json"
+        )
+    )
+
+    assert_ux_ergonomic_candidate_projection_table_bound_to_approved_profiles(
+        candidate_projection_table=candidate_projection_table,
+        approved_profile_table=approved_profile_table,
+    )
+    assert_ux_ergonomic_candidate_projection_table_bound_to_surface_projection(
+        candidate_projection_table=candidate_projection_table,
+        surface_projection=surface_projection,
+        interaction_contract=interaction_contract,
+        same_context_glossary=same_context_glossary,
+    )
+    assert_ux_visibility_contract_complete_for_projection(
+        visibility_contract=visibility_contract,
+        surface_projection=surface_projection,
+    )
+
+    with pytest.raises(
+        ValueError,
+        match=rf"artifact_ref {re.escape(bad_ref)}",
+    ):
+        assert_ux_ergonomic_bundle_source_binding_consistent(
+            rule_authority_stack=rule_authority_stack,
+            registry=registry,
+            visibility_contract=visibility_contract,
+            candidate_projection_table=candidate_projection_table,
+            case_envelope=case_envelope,
+            request=request,
+            result=result,
+        )
 
 
 def test_v67a_reject_rule_authority_stack_platform_preset_requires_repo_adoption() -> None:
