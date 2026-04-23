@@ -1,8 +1,8 @@
 # Assessment vNext+185 Edges
 
-Status: planning-edge assessment for `V67-A`.
+Status: post-closeout edge assessment for `V67-A` (April 23, 2026 UTC).
 
-Authority layer: planning / starter assessment.
+Authority layer: closeout evidence on `main`.
 
 ## Assessment-State Marker (Machine-Checkable)
 
@@ -10,99 +10,125 @@ Authority layer: planning / starter assessment.
 {
   "schema": "assessment_artifact_state@1",
   "artifact": "docs/ASSESSMENT_vNEXT_PLUS185_EDGES.md",
-  "phase": "pre_lock_assessment",
-  "authoritative": false,
+  "phase": "post_closeout_assessment",
+  "authoritative": true,
   "required_in_decision": true
 }
 ```
 
 ## Open Edges
 
-### Edge 1: Rule Authority Could Quietly Collapse Into Hidden Ergonomic Law
+### Edge 1: The Starter Artifact Language Could Be Overread As A Hidden Solver
 
 - Risk:
-  platform presets, external floors, user preferences, and utility heuristics
-  could drift into one flat rule bag and silently overrule higher-order
-  constitutional or repo-local ergonomic law.
+  shipping a typed adjudication-result surface in `V67-A` could be overread as if
+  the repo had already shipped bounded candidate evaluation.
 - Response:
-  keep the rule-authority stack explicit, typed, and precedence-checked.
+  keep `V67-A` result fixtures schema/validator-only and non-engine-computed.
+  - no bounded adjudication engine in `V67-A`
+  - no feasibility computation by implication
+- Closeout Evidence:
+  shipped models/tests remain starter language plus validation posture only and
+  defer bounded computation to `V67-B`.
 
-### Edge 2: The Registry Could Drift From Frozen Ergonomic Vocabulary Into Widget Taxonomy
+### Edge 2: Ergonomic Classes Could Drift Into Free Widget Vocabulary
 
 - Risk:
-  ergonomic classes could become free-form widget labels or route-local names
-  instead of a frozen starter ergonomic vocabulary.
+  ergonomic registry rows could become route-local widget labels instead of the
+  frozen artifact-inspector starter vocabulary.
 - Response:
-  freeze the exact starter class set and reject unknown or improvised class ids.
+  keep the starter class set exact and reject unknown class drift.
+  - exact finite class ids only
+  - no ad hoc widget taxonomy
+- Closeout Evidence:
+  shipped registry models/tests preserve the selected finite class vocabulary and
+  reject unknown class ids.
 
-### Edge 3: Candidate Profiles Could Smuggle In New Semantic Surface Law
+### Edge 3: Candidate Rows Could Quietly Mint New UX Semantics
 
 - Risk:
   finite candidate rows could be overread as permission to mint new regions,
-  lanes, action clusters, or reveal semantics outside the released UX-governance
-  basis.
+  lanes, action clusters, or same-context reveal terms outside the released UX
+  governance basis.
 - Response:
-  require exact binding to released projection refs, approved profiles, and
-  same-context glossary terms only.
+  keep candidate rows strictly bound to released projection refs, approved
+  profiles, and glossary terms only.
+  - no new semantic lanes or regions by candidate row
+  - no new same-context vocabulary by candidate row
+- Closeout Evidence:
+  shipped candidate-table validation/tests preserve exact released projection and
+  glossary binding and reject unknown refs or reveal terms.
 
-### Edge 4: Source-Lineage Weakness Could Make Starter Fixtures Non-Replayable
+### Edge 4: Source Lineage Could Quietly Weaken Replayability
 
 - Risk:
-  starter fixtures could claim lineage in prose while omitting exact source refs
-  and hashes, leaving the family replay-weak from the first slice.
+  starter fixtures could talk about lineage in prose while omitting exact
+  repo-relative refs and hashes, making future adjudication replay-weak.
 - Response:
-  require repo-relative sorted `artifact_ref` / `artifact_hash` rows and exact
-  binding to released UX-governance fixtures.
+  keep lineage rows exact, sorted, and replayable.
+  - repo-relative `artifact_ref` only
+  - exact `artifact_hash` rows only
+  - actual-canonical-payload mismatch fails closed
+- Closeout Evidence:
+  shipped bundle-validation/tests preserve exact source refs and hashes and now
+  report concrete failing `artifact_ref` values on mismatch.
 
-### Edge 5: Measurement Admissibility Could Overclaim Physical Or Visual Certainty
+### Edge 5: Physical Or Visual Claims Could Overstate Measurement Certainty
 
 - Risk:
   DPR-only or otherwise incomplete chains could be mistaken for admissible
   physical-size or visual-angle reasoning.
 - Response:
-  keep admissibility derivation explicit and fail-closed for dependent physical /
-  visual claims.
+  keep admissibility derivation explicit and fail closed for dependent claims.
+  - DPR presence alone is not physical-size admissibility
+  - visual-angle admissibility remains dependent on the full required chain
+- Closeout Evidence:
+  shipped admissibility checks/tests reject present-but-inadmissible DPR chains
+  and preserve fail-closed physical / visual reasoning posture.
 
-### Edge 6: Result Fixtures Could Quietly Become A Hidden Solver
-
-- Risk:
-  the presence of a typed adjudication-result schema in `V67-A` could be used to
-  smuggle in bounded candidate evaluation before `V67-B` is selected.
-- Response:
-  keep `V67-A` result fixtures schema/validator-only and explicitly
-  non-engine-computed.
-
-### Edge 7: Optional Later Evidence Could Leak Into Starter Requirements
+### Edge 6: Platform Or Preference Layers Could Quietly Become Hard Law
 
 - Risk:
-  released diagnostics / conformance artifacts could accidentally become required
-  starter inputs, making `V67-A` dependent on later or orthogonal evidence lanes.
+  platform presets or user preferences could silently weaken higher-order hard
+  floors or become constitutional law by convenience.
 - Response:
-  keep required `A/B` consumed basis distinct from optional later-`C` evidence
-  basis.
+  keep authority-stack precedence explicit and fail closed.
+  - platform presets are not hard law unless repo-adopted
+  - user preference may raise but may not lower hard floors
+- Closeout Evidence:
+  shipped rule-authority checks/reject fixtures preserve exact precedence and
+  non-lowering posture.
 
-### Edge 8: Family-Preplanned `B/C` Docs Could Be Overread As Active Lock Authority
+### Edge 7: Canonical Helper Drift Could Escape The Frozen Discovery Guard
 
 - Risk:
-  because the family now preplans `A/B/C`, downstream slice specs could be
-  mistaken for active lock authority before their slice is activated.
+  adding new canonical JSON helpers in `V67-A` could silently drift the frozen
+  conformance-entrypoint set and break downstream reproducibility checks.
 - Response:
-  keep `v185` lock authority scoped to `V67-A` only and preserve `V67-B` /
-  `V67-C` as implementation-adjacent planning docs until later activation.
+  keep canonical-helper discovery explicit and update the frozen allowlist when
+  new helper entrypoints are intentionally introduced.
+  - new canonical helper entrypoints require explicit allowlist update
+  - drift remains fail-closed under the existing conformance test
+- Closeout Evidence:
+  shipped follow-up hardening updated the frozen canonical-entrypoint allowlist
+  and restored deterministic conformance parity under CI.
 
 ## Current Judgment
 
-- `V67-A` is the right active first slice because the family still lacks the
-  ergonomic artifact language itself.
-- the current lock should stay deliberately boring:
-  - schemas
-  - enums
-  - canonicalizers
-  - local validators
-  - bundle validators
-  - reference fixtures
-  - reject fixtures
-- `V67-A` should not attempt bounded candidate evaluation, runtime measurement
-  evidence, or advisory bridge output yet.
-- if `v185` ships cleanly, `V67-B` can then compute over the same bounded starter
-  language rather than reopening family doctrine.
+- `V67-A` was the right first shipped slice because the family first needed the
+  ergonomic artifact language itself before any bounded computation.
+- the shipped result remained properly bounded:
+  - same existing repo-owned implementation package (`adeu_core_ir`) only
+  - seven starter ergonomic artifact-language surfaces only
+  - deterministic authoritative and mirror schema exports
+  - exact finite ergonomic class and candidate profile vocabularies
+  - glossary-bound same-context validation
+  - exact source-lineage replayability
+  - fail-closed preset / preference / admissibility posture
+  - scalar-score export prohibition
+  - no bounded adjudication engine
+  - no runtime measurement evidence artifact
+  - no runtime bridge report
+- `V67-A` is now closed on `main`.
+- `V67` remains active on `main`; the bounded adjudication-engine seam is the next
+  selected follow-on under `V67-B`.

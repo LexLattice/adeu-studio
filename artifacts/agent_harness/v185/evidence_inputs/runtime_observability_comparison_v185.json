@@ -1,0 +1,11 @@
+{
+  "schema": "runtime_observability_comparison@1",
+  "baseline_arc": "vNext+184",
+  "current_arc": "vNext+185",
+  "baseline_source": "artifacts/stop_gate/report_v184_closeout.md",
+  "current_source": "artifacts/stop_gate/report_v185_closeout.md",
+  "baseline_elapsed_ms": 80,
+  "current_elapsed_ms": 74,
+  "delta_ms": -6,
+  "notes": "v185 closeout keeps the frozen stop-gate schema family and exact metric keyset unchanged while shipping the bounded V67-A ergonomic artifact-language starter seam on main: seven typed starter artifacts, deterministic authoritative-plus-mirror schema exports, exact finite ergonomic class and candidate profile vocabularies, glossary-bound same-context validation, fail-closed preset/preference/admissibility posture, scalar-score export prohibition, and no bounded adjudication computation, runtime measurement evidence artifact, runtime bridge output, or V67-B/V67-C scope promotion."
+}

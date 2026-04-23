@@ -1,0 +1,10 @@
+{
+  "schema": "v67a_ux_ergonomic_language_starter_evidence@1",
+  "evidence_input_path": "artifacts/agent_harness/v185/evidence_inputs/v67a_ux_ergonomic_language_starter_evidence_v185.json",
+  "contract_source": "docs/LOCKED_CONTINUATION_vNEXT_PLUS185.md#machine-checkable-contract",
+  "merged_pr": "#412",
+  "merge_commit": "ee55bc73cc5684ec855e3623e9efe1753b5dc970",
+  "implementation_commit": "88931b250431529bb0a546ac05d325e564752fe3",
+  "review_hardening_commit": "147ee4843fd0dcec8c7c42c9140adc8f99601ad6",
+  "conformance_allowlist_commit": "6f3d9de8da0734f290d94233402caf6cfabb6fd3"
+}
