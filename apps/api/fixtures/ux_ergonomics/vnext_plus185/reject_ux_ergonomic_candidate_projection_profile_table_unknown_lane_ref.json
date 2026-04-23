@@ -1,0 +1,521 @@
+{
+  "candidate_profile_table_id": "reject_candidate_unknown_lane_ref",
+  "candidate_rows": [
+    {
+      "action_targeting_claims": [
+        {
+          "action_ref": "open-commit-review",
+          "gate_visible_before_action": true,
+          "min_target_size_css_px": 48
+        },
+        {
+          "action_ref": "run-advisory-action",
+          "gate_visible_before_action": true,
+          "min_target_size_css_px": 44
+        },
+        {
+          "action_ref": "submit-commit-request",
+          "gate_visible_before_action": true,
+          "min_target_size_css_px": 48
+        }
+      ],
+      "approved_profile_id": "artifact_inspector_reference",
+      "candidate_profile_id": "artifact_inspector_maximized_split_reference",
+      "component_visibility_claims": [
+        {
+          "collapse_policy": "may_buffer_same_context",
+          "component_ref": "action_cluster:advisory-actions",
+          "reveal_transition_or_none": "bounded_workbench_state_reveal",
+          "visibility_state": "same_context_reachable"
+        },
+        {
+          "collapse_policy": "never_collapse",
+          "component_ref": "action_cluster:commit-actions",
+          "visibility_state": "continuously_visible"
+        },
+        {
+          "collapse_policy": "may_buffer_same_context",
+          "component_ref": "action_cluster:comparison-actions",
+          "reveal_transition_or_none": "bounded_workbench_focus_shift",
+          "visibility_state": "same_context_reachable"
+        },
+        {
+          "collapse_policy": "never_collapse",
+          "component_ref": "lane:action-lane",
+          "visibility_state": "continuously_visible"
+        },
+        {
+          "collapse_policy": "may_stack_same_context",
+          "component_ref": "lane:diagnostics-lane",
+          "reveal_transition_or_none": "bounded_workbench_state_reveal",
+          "visibility_state": "same_context_reachable"
+        },
+        {
+          "collapse_policy": "never_collapse",
+          "component_ref": "lane:evidence-lane",
+          "visibility_state": "continuously_visible"
+        },
+        {
+          "collapse_policy": "may_buffer_same_context",
+          "component_ref": "lane:navigation-lane",
+          "reveal_transition_or_none": "bounded_workbench_position_shift",
+          "visibility_state": "same_context_reachable"
+        },
+        {
+          "collapse_policy": "may_stack_same_context",
+          "component_ref": "lane:source-lane",
+          "reveal_transition_or_none": "bounded_workbench_focus_shift",
+          "visibility_state": "same_context_reachable"
+        },
+        {
+          "collapse_policy": "never_collapse",
+          "component_ref": "lane:status-lane",
+          "visibility_state": "continuously_visible"
+        },
+        {
+          "collapse_policy": "never_collapse",
+          "component_ref": "lane:trust-boundary-lane",
+          "visibility_state": "continuously_visible"
+        },
+        {
+          "collapse_policy": "never_collapse",
+          "component_ref": "lane:work-context-lane",
+          "visibility_state": "continuously_visible"
+        }
+      ],
+      "free_aesthetic_variables_declared": [
+        "accent_weight",
+        "divider_density",
+        "panel_width_distribution"
+      ],
+      "projection_shape": {
+        "action_cluster_refs": [
+          "advisory-actions",
+          "commit-actions",
+          "comparison-actions"
+        ],
+        "lane_refs": [
+          "action-lane",
+          "diagnostics-lane",
+          "evidence-lane",
+          "navigation-lane",
+          "source-lane",
+          "status-lane",
+          "trust-boundary-lane",
+          "work-context-lane",
+          "z-unknown-lane"
+        ],
+        "region_refs": [
+          "action-region",
+          "evidence-region",
+          "navigation-region",
+          "primary-work-region",
+          "status-region"
+        ],
+        "same_context_reveal_terms": [
+          "bounded_workbench_focus_shift",
+          "bounded_workbench_position_shift",
+          "bounded_workbench_state_reveal"
+        ]
+      },
+      "target_envelope": "maximized_split_reference"
+    },
+    {
+      "action_targeting_claims": [
+        {
+          "action_ref": "open-commit-review",
+          "gate_visible_before_action": true,
+          "min_target_size_css_px": 48
+        },
+        {
+          "action_ref": "run-advisory-action",
+          "gate_visible_before_action": true,
+          "min_target_size_css_px": 44
+        },
+        {
+          "action_ref": "submit-commit-request",
+          "gate_visible_before_action": true,
+          "min_target_size_css_px": 48
+        }
+      ],
+      "approved_profile_id": "artifact_inspector_reference",
+      "candidate_profile_id": "artifact_inspector_half_screen_split_reference",
+      "component_visibility_claims": [
+        {
+          "collapse_policy": "may_buffer_same_context",
+          "component_ref": "action_cluster:advisory-actions",
+          "reveal_transition_or_none": "bounded_workbench_state_reveal",
+          "visibility_state": "same_context_reachable"
+        },
+        {
+          "collapse_policy": "never_collapse",
+          "component_ref": "action_cluster:commit-actions",
+          "visibility_state": "continuously_visible"
+        },
+        {
+          "collapse_policy": "may_buffer_same_context",
+          "component_ref": "action_cluster:comparison-actions",
+          "reveal_transition_or_none": "bounded_workbench_focus_shift",
+          "visibility_state": "same_context_reachable"
+        },
+        {
+          "collapse_policy": "never_collapse",
+          "component_ref": "lane:action-lane",
+          "visibility_state": "continuously_visible"
+        },
+        {
+          "collapse_policy": "may_stack_same_context",
+          "component_ref": "lane:diagnostics-lane",
+          "reveal_transition_or_none": "bounded_workbench_state_reveal",
+          "visibility_state": "same_context_reachable"
+        },
+        {
+          "collapse_policy": "never_collapse",
+          "component_ref": "lane:evidence-lane",
+          "visibility_state": "continuously_visible"
+        },
+        {
+          "collapse_policy": "may_buffer_same_context",
+          "component_ref": "lane:navigation-lane",
+          "reveal_transition_or_none": "bounded_workbench_position_shift",
+          "visibility_state": "same_context_reachable"
+        },
+        {
+          "collapse_policy": "may_stack_same_context",
+          "component_ref": "lane:source-lane",
+          "reveal_transition_or_none": "bounded_workbench_focus_shift",
+          "visibility_state": "same_context_reachable"
+        },
+        {
+          "collapse_policy": "never_collapse",
+          "component_ref": "lane:status-lane",
+          "visibility_state": "continuously_visible"
+        },
+        {
+          "collapse_policy": "never_collapse",
+          "component_ref": "lane:trust-boundary-lane",
+          "visibility_state": "continuously_visible"
+        },
+        {
+          "collapse_policy": "never_collapse",
+          "component_ref": "lane:work-context-lane",
+          "visibility_state": "continuously_visible"
+        }
+      ],
+      "free_aesthetic_variables_declared": [
+        "accent_weight",
+        "gutter_spacing",
+        "panel_width_distribution"
+      ],
+      "projection_shape": {
+        "action_cluster_refs": [
+          "advisory-actions",
+          "commit-actions",
+          "comparison-actions"
+        ],
+        "lane_refs": [
+          "action-lane",
+          "diagnostics-lane",
+          "evidence-lane",
+          "navigation-lane",
+          "source-lane",
+          "status-lane",
+          "trust-boundary-lane",
+          "work-context-lane"
+        ],
+        "region_refs": [
+          "action-region",
+          "evidence-region",
+          "navigation-region",
+          "primary-work-region",
+          "status-region"
+        ],
+        "same_context_reveal_terms": [
+          "bounded_workbench_focus_shift",
+          "bounded_workbench_position_shift",
+          "bounded_workbench_state_reveal"
+        ]
+      },
+      "target_envelope": "half_screen_split_reference"
+    },
+    {
+      "action_targeting_claims": [
+        {
+          "action_ref": "open-commit-review",
+          "gate_visible_before_action": true,
+          "min_target_size_css_px": 44
+        },
+        {
+          "action_ref": "run-advisory-action",
+          "gate_visible_before_action": true,
+          "min_target_size_css_px": 44
+        },
+        {
+          "action_ref": "submit-commit-request",
+          "gate_visible_before_action": true,
+          "min_target_size_css_px": 44
+        }
+      ],
+      "approved_profile_id": "artifact_inspector_alternate",
+      "candidate_profile_id": "artifact_inspector_narrow_stacked_same_context",
+      "component_visibility_claims": [
+        {
+          "collapse_policy": "may_buffer_same_context",
+          "component_ref": "action_cluster:advisory-actions",
+          "reveal_transition_or_none": "bounded_workbench_state_reveal",
+          "visibility_state": "same_context_reachable"
+        },
+        {
+          "collapse_policy": "never_collapse",
+          "component_ref": "action_cluster:commit-actions",
+          "visibility_state": "continuously_visible"
+        },
+        {
+          "collapse_policy": "may_buffer_same_context",
+          "component_ref": "action_cluster:comparison-actions",
+          "reveal_transition_or_none": "bounded_workbench_focus_shift",
+          "visibility_state": "same_context_reachable"
+        },
+        {
+          "collapse_policy": "never_collapse",
+          "component_ref": "lane:action-lane",
+          "visibility_state": "continuously_visible"
+        },
+        {
+          "collapse_policy": "may_stack_same_context",
+          "component_ref": "lane:diagnostics-lane",
+          "reveal_transition_or_none": "bounded_workbench_state_reveal",
+          "visibility_state": "same_context_reachable"
+        },
+        {
+          "collapse_policy": "never_collapse",
+          "component_ref": "lane:evidence-lane",
+          "visibility_state": "continuously_visible"
+        },
+        {
+          "collapse_policy": "may_buffer_same_context",
+          "component_ref": "lane:navigation-lane",
+          "reveal_transition_or_none": "bounded_workbench_position_shift",
+          "visibility_state": "same_context_reachable"
+        },
+        {
+          "collapse_policy": "may_stack_same_context",
+          "component_ref": "lane:source-lane",
+          "reveal_transition_or_none": "bounded_workbench_focus_shift",
+          "visibility_state": "same_context_reachable"
+        },
+        {
+          "collapse_policy": "never_collapse",
+          "component_ref": "lane:status-lane",
+          "visibility_state": "continuously_visible"
+        },
+        {
+          "collapse_policy": "never_collapse",
+          "component_ref": "lane:trust-boundary-lane",
+          "visibility_state": "continuously_visible"
+        },
+        {
+          "collapse_policy": "never_collapse",
+          "component_ref": "lane:work-context-lane",
+          "visibility_state": "continuously_visible"
+        }
+      ],
+      "free_aesthetic_variables_declared": [
+        "control_density",
+        "gutter_spacing",
+        "stack_priority"
+      ],
+      "projection_shape": {
+        "action_cluster_refs": [
+          "advisory-actions",
+          "commit-actions",
+          "comparison-actions"
+        ],
+        "lane_refs": [
+          "action-lane",
+          "diagnostics-lane",
+          "evidence-lane",
+          "navigation-lane",
+          "source-lane",
+          "status-lane",
+          "trust-boundary-lane",
+          "work-context-lane"
+        ],
+        "region_refs": [
+          "action-region",
+          "evidence-region",
+          "navigation-region",
+          "primary-work-region",
+          "status-region"
+        ],
+        "same_context_reveal_terms": [
+          "bounded_workbench_focus_shift",
+          "bounded_workbench_position_shift",
+          "bounded_workbench_state_reveal"
+        ]
+      },
+      "target_envelope": "narrow_stacked_same_context"
+    },
+    {
+      "action_targeting_claims": [
+        {
+          "action_ref": "open-commit-review",
+          "gate_visible_before_action": true,
+          "min_target_size_css_px": 44
+        },
+        {
+          "action_ref": "run-advisory-action",
+          "gate_visible_before_action": true,
+          "min_target_size_css_px": 40
+        },
+        {
+          "action_ref": "submit-commit-request",
+          "gate_visible_before_action": true,
+          "min_target_size_css_px": 44
+        }
+      ],
+      "approved_profile_id": "artifact_inspector_alternate",
+      "candidate_profile_id": "artifact_inspector_quarter_screen_inspector_safe_buffered",
+      "component_visibility_claims": [
+        {
+          "collapse_policy": "may_buffer_same_context",
+          "component_ref": "action_cluster:advisory-actions",
+          "reveal_transition_or_none": "bounded_workbench_state_reveal",
+          "visibility_state": "same_context_reachable"
+        },
+        {
+          "collapse_policy": "never_collapse",
+          "component_ref": "action_cluster:commit-actions",
+          "visibility_state": "continuously_visible"
+        },
+        {
+          "collapse_policy": "may_buffer_same_context",
+          "component_ref": "action_cluster:comparison-actions",
+          "reveal_transition_or_none": "bounded_workbench_focus_shift",
+          "visibility_state": "same_context_reachable"
+        },
+        {
+          "collapse_policy": "never_collapse",
+          "component_ref": "lane:action-lane",
+          "visibility_state": "continuously_visible"
+        },
+        {
+          "collapse_policy": "may_stack_same_context",
+          "component_ref": "lane:diagnostics-lane",
+          "reveal_transition_or_none": "bounded_workbench_state_reveal",
+          "visibility_state": "same_context_reachable"
+        },
+        {
+          "collapse_policy": "never_collapse",
+          "component_ref": "lane:evidence-lane",
+          "visibility_state": "continuously_visible"
+        },
+        {
+          "collapse_policy": "may_buffer_same_context",
+          "component_ref": "lane:navigation-lane",
+          "reveal_transition_or_none": "bounded_workbench_position_shift",
+          "visibility_state": "same_context_reachable"
+        },
+        {
+          "collapse_policy": "may_stack_same_context",
+          "component_ref": "lane:source-lane",
+          "reveal_transition_or_none": "bounded_workbench_focus_shift",
+          "visibility_state": "same_context_reachable"
+        },
+        {
+          "collapse_policy": "never_collapse",
+          "component_ref": "lane:status-lane",
+          "visibility_state": "continuously_visible"
+        },
+        {
+          "collapse_policy": "never_collapse",
+          "component_ref": "lane:trust-boundary-lane",
+          "visibility_state": "continuously_visible"
+        },
+        {
+          "collapse_policy": "may_stack_same_context",
+          "component_ref": "lane:work-context-lane",
+          "reveal_transition_or_none": "bounded_workbench_focus_shift",
+          "visibility_state": "same_context_reachable"
+        }
+      ],
+      "free_aesthetic_variables_declared": [
+        "control_density",
+        "safe_buffering",
+        "stack_priority"
+      ],
+      "projection_shape": {
+        "action_cluster_refs": [
+          "advisory-actions",
+          "commit-actions",
+          "comparison-actions"
+        ],
+        "lane_refs": [
+          "action-lane",
+          "diagnostics-lane",
+          "evidence-lane",
+          "navigation-lane",
+          "source-lane",
+          "status-lane",
+          "trust-boundary-lane",
+          "work-context-lane"
+        ],
+        "region_refs": [
+          "action-region",
+          "evidence-region",
+          "navigation-region",
+          "primary-work-region",
+          "status-region"
+        ],
+        "same_context_reveal_terms": [
+          "bounded_workbench_focus_shift",
+          "bounded_workbench_position_shift",
+          "bounded_workbench_state_reveal"
+        ]
+      },
+      "target_envelope": "quarter_screen_inspector_safe_buffered"
+    }
+  ],
+  "reference_instance_id": "artifact_inspector_reference_main",
+  "reference_surface_family": "artifact_inspector_advisory_workbench",
+  "schema": "ux_ergonomic_candidate_projection_profile_table@1",
+  "source_artifact_hashes": [
+    {
+      "artifact_hash": "43b84c9a8c0c21c20e5bf6a4cf30b5ff3c30931fe0c80836d5fa8c16c734c7c5",
+      "artifact_ref": "apps/api/fixtures/ux_governance/vnext_plus61/ux_domain_packet_artifact_inspector_reference.json"
+    },
+    {
+      "artifact_hash": "75f16d7b61dbe53ac6b3bdc8955627464a4c872b5c52e8c740bdc5a2f28bc5c7",
+      "artifact_ref": "apps/api/fixtures/ux_governance/vnext_plus61/ux_morph_ir_artifact_inspector_reference.json"
+    },
+    {
+      "artifact_hash": "346d697a8bcff710ee75e7cc0cf2ee2acd01ae7bc2741254edc489115ad32be5",
+      "artifact_ref": "apps/api/fixtures/ux_governance/vnext_plus61/v36a_first_family_approved_profile_table.json"
+    },
+    {
+      "artifact_hash": "aec556f390ba3a2c4829618c6da6d862c28bd0de56ba13b32c75a138e268ad7e",
+      "artifact_ref": "apps/api/fixtures/ux_governance/vnext_plus61/v36a_same_context_reachability_glossary.json"
+    },
+    {
+      "artifact_hash": "fade45e977d7d0fbc35610f46ed162598f20b8e8ffe3441332891cad1fd88363",
+      "artifact_ref": "apps/api/fixtures/ux_governance/vnext_plus62/ux_interaction_contract_artifact_inspector_reference.json"
+    },
+    {
+      "artifact_hash": "3c8956ffc7fa9f3a70fcc5acbccec14455628286ecf50a59401b166996591cd9",
+      "artifact_ref": "apps/api/fixtures/ux_governance/vnext_plus62/ux_surface_projection_artifact_inspector_reference.json"
+    },
+    {
+      "artifact_hash": "8f78ac676a4cefb33c798b866faa8b4775d4ca569c3cb199ab262e4800b8d77c",
+      "artifact_ref": "apps/api/fixtures/ux_governance/vnext_plus65/ux_surface_compiler_variant_manifest_artifact_inspector.json"
+    }
+  ],
+  "source_artifact_refs": [
+    "apps/api/fixtures/ux_governance/vnext_plus61/ux_domain_packet_artifact_inspector_reference.json",
+    "apps/api/fixtures/ux_governance/vnext_plus61/ux_morph_ir_artifact_inspector_reference.json",
+    "apps/api/fixtures/ux_governance/vnext_plus61/v36a_first_family_approved_profile_table.json",
+    "apps/api/fixtures/ux_governance/vnext_plus61/v36a_same_context_reachability_glossary.json",
+    "apps/api/fixtures/ux_governance/vnext_plus62/ux_interaction_contract_artifact_inspector_reference.json",
+    "apps/api/fixtures/ux_governance/vnext_plus62/ux_surface_projection_artifact_inspector_reference.json",
+    "apps/api/fixtures/ux_governance/vnext_plus65/ux_surface_compiler_variant_manifest_artifact_inspector.json"
+  ]
+}

@@ -1,0 +1,46 @@
+{
+  "available_surface_css_geometry": {
+    "admissibility": "planning_declared_css_geometry",
+    "height_css_px": 958,
+    "provenance_state": "declared_case",
+    "source_kind": "declared_fixture",
+    "width_css_px": 1512
+  },
+  "case_envelope_id": "artifact_inspector_desktop_maximized_case",
+  "input_mode": "mouse_fine",
+  "physical_size_reasoning_required": false,
+  "preferred_target_min_css_px_or_none": {
+    "admissibility": "planning_declared_css_geometry",
+    "numeric_value": 48.0,
+    "provenance_state": "declared_user_profile",
+    "source_kind": "user_profile",
+    "unit": "css_px"
+  },
+  "preferred_text_min_css_px_or_none": {
+    "admissibility": "planning_declared_css_geometry",
+    "numeric_value": 14.0,
+    "provenance_state": "declared_user_profile",
+    "source_kind": "user_profile",
+    "unit": "css_px"
+  },
+  "reference_instance_id": "artifact_inspector_reference_main",
+  "reference_surface_family": "artifact_inspector_advisory_workbench",
+  "schema": "ux_ergonomic_case_envelope@1",
+  "task_posture": "inspect_evidence_before_commit",
+  "viewport_css_geometry": {
+    "admissibility": "planning_declared_css_geometry",
+    "height_css_px": 1117,
+    "provenance_state": "declared_case",
+    "source_kind": "declared_fixture",
+    "width_css_px": 1728
+  },
+  "visual_angle_reasoning_required": false,
+  "window_occupancy_mode": "maximized_split_reference",
+  "zoom_scale_or_none": {
+    "admissibility": "none",
+    "numeric_value": 1.0,
+    "provenance_state": "declared_case",
+    "source_kind": "declared_fixture",
+    "unit": "ratio"
+  }
+}

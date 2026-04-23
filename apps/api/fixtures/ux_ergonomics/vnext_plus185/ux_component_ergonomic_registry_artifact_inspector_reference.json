@@ -1,0 +1,235 @@
+{
+  "class_rows": [
+    {
+      "allowed_collapse_policies": [
+        "may_buffer_same_context",
+        "may_progressively_disclose_same_context",
+        "never_collapse"
+      ],
+      "allowed_source_semantic_kinds": [
+        "action_lane"
+      ],
+      "applies_to_surface_units": [
+        "lane"
+      ],
+      "class_id": "erg_action_lane_container",
+      "default_readability_requirement": "not_required",
+      "default_targetability_requirement": "not_required",
+      "default_visibility_requirement": "continuously_visible",
+      "rule_bindings": [
+        "b1_repo_commit_target_floor",
+        "d3_platform_touch_target_floor"
+      ],
+      "taxonomy_status": "starter_frozen"
+    },
+    {
+      "allowed_collapse_policies": [
+        "may_stack_same_context",
+        "never_collapse"
+      ],
+      "allowed_source_semantic_kinds": [
+        "work_context_lane"
+      ],
+      "applies_to_surface_units": [
+        "lane"
+      ],
+      "class_id": "erg_work_context_lane",
+      "default_readability_requirement": "required",
+      "default_targetability_requirement": "not_required",
+      "default_visibility_requirement": "continuously_visible",
+      "rule_bindings": [
+        "c2_external_text_floor"
+      ],
+      "taxonomy_status": "starter_frozen"
+    },
+    {
+      "allowed_collapse_policies": [
+        "may_stack_same_context",
+        "never_collapse"
+      ],
+      "allowed_source_semantic_kinds": [
+        "source_lane"
+      ],
+      "applies_to_surface_units": [
+        "lane"
+      ],
+      "class_id": "erg_source_text_lane",
+      "default_readability_requirement": "required",
+      "default_targetability_requirement": "not_required",
+      "default_visibility_requirement": "same_context_reachable",
+      "rule_bindings": [
+        "c2_external_text_floor"
+      ],
+      "taxonomy_status": "starter_frozen"
+    },
+    {
+      "allowed_collapse_policies": [
+        "never_collapse"
+      ],
+      "allowed_source_semantic_kinds": [
+        "evidence_lane"
+      ],
+      "applies_to_surface_units": [
+        "lane"
+      ],
+      "class_id": "erg_evidence_lane",
+      "default_readability_requirement": "required",
+      "default_targetability_requirement": "not_required",
+      "default_visibility_requirement": "continuously_visible",
+      "rule_bindings": [
+        "a0_constitutional_evidence_visibility",
+        "c2_external_text_floor"
+      ],
+      "taxonomy_status": "starter_frozen"
+    },
+    {
+      "allowed_collapse_policies": [
+        "may_stack_same_context",
+        "never_collapse"
+      ],
+      "allowed_source_semantic_kinds": [
+        "diagnostics_lane"
+      ],
+      "applies_to_surface_units": [
+        "lane"
+      ],
+      "class_id": "erg_diagnostics_lane",
+      "default_readability_requirement": "required",
+      "default_targetability_requirement": "not_required",
+      "default_visibility_requirement": "same_context_reachable",
+      "rule_bindings": [
+        "c2_external_text_floor"
+      ],
+      "taxonomy_status": "starter_frozen"
+    },
+    {
+      "allowed_collapse_policies": [
+        "never_collapse"
+      ],
+      "allowed_source_semantic_kinds": [
+        "status_lane"
+      ],
+      "applies_to_surface_units": [
+        "lane"
+      ],
+      "class_id": "erg_status_surface",
+      "default_readability_requirement": "required",
+      "default_targetability_requirement": "not_required",
+      "default_visibility_requirement": "continuously_visible",
+      "rule_bindings": [
+        "a0_constitutional_evidence_visibility",
+        "c2_external_text_floor",
+        "f5_heuristic_status_salience"
+      ],
+      "taxonomy_status": "starter_frozen"
+    },
+    {
+      "allowed_collapse_policies": [
+        "never_collapse"
+      ],
+      "allowed_source_semantic_kinds": [
+        "trust_boundary_lane"
+      ],
+      "applies_to_surface_units": [
+        "lane"
+      ],
+      "class_id": "erg_trust_boundary_surface",
+      "default_readability_requirement": "required",
+      "default_targetability_requirement": "not_required",
+      "default_visibility_requirement": "continuously_visible",
+      "rule_bindings": [
+        "a0_constitutional_evidence_visibility",
+        "f5_heuristic_status_salience"
+      ],
+      "taxonomy_status": "starter_frozen"
+    },
+    {
+      "allowed_collapse_policies": [
+        "may_buffer_same_context",
+        "may_stack_same_context",
+        "never_collapse"
+      ],
+      "allowed_source_semantic_kinds": [
+        "navigation_lane"
+      ],
+      "applies_to_surface_units": [
+        "lane"
+      ],
+      "class_id": "erg_navigation_lane",
+      "default_readability_requirement": "not_required",
+      "default_targetability_requirement": "not_required",
+      "default_visibility_requirement": "same_context_reachable",
+      "rule_bindings": [
+        "f5_heuristic_status_salience"
+      ],
+      "taxonomy_status": "starter_frozen"
+    },
+    {
+      "allowed_collapse_policies": [
+        "may_buffer_same_context",
+        "never_collapse"
+      ],
+      "allowed_source_semantic_kinds": [
+        "advisory_action_cluster"
+      ],
+      "applies_to_surface_units": [
+        "action_cluster"
+      ],
+      "class_id": "erg_advisory_action_cluster",
+      "default_readability_requirement": "not_required",
+      "default_targetability_requirement": "required",
+      "default_visibility_requirement": "continuously_visible",
+      "rule_bindings": [
+        "d3_platform_touch_target_floor",
+        "e4_user_preferred_target_floor"
+      ],
+      "taxonomy_status": "starter_frozen"
+    },
+    {
+      "allowed_collapse_policies": [
+        "may_buffer_same_context",
+        "never_collapse"
+      ],
+      "allowed_source_semantic_kinds": [
+        "comparison_action_cluster"
+      ],
+      "applies_to_surface_units": [
+        "action_cluster"
+      ],
+      "class_id": "erg_comparison_action_cluster",
+      "default_readability_requirement": "not_required",
+      "default_targetability_requirement": "required",
+      "default_visibility_requirement": "same_context_reachable",
+      "rule_bindings": [
+        "d3_platform_touch_target_floor",
+        "e4_user_preferred_target_floor"
+      ],
+      "taxonomy_status": "starter_frozen"
+    },
+    {
+      "allowed_collapse_policies": [
+        "never_collapse"
+      ],
+      "allowed_source_semantic_kinds": [
+        "commit_action_cluster"
+      ],
+      "applies_to_surface_units": [
+        "action_cluster"
+      ],
+      "class_id": "erg_commit_gate_action_cluster",
+      "default_readability_requirement": "not_required",
+      "default_targetability_requirement": "required",
+      "default_visibility_requirement": "continuously_visible",
+      "rule_bindings": [
+        "a0_constitutional_evidence_visibility",
+        "b1_repo_commit_target_floor",
+        "d3_platform_touch_target_floor",
+        "e4_user_preferred_target_floor"
+      ],
+      "taxonomy_status": "starter_frozen"
+    }
+  ],
+  "registry_id": "artifact_inspector_v67a_registry",
+  "registry_version": "v67a_starter",
+  "schema": "ux_component_ergonomic_registry@1"
+}

@@ -1,0 +1,219 @@
+{
+  "$defs": {
+    "UXErgonomicRuleConstraint": {
+      "additionalProperties": false,
+      "properties": {
+        "metric": {
+          "minLength": 1,
+          "title": "Metric",
+          "type": "string"
+        },
+        "minimum_or_none": {
+          "anyOf": [
+            {
+              "minimum": 0,
+              "type": "number"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Minimum Or None"
+        },
+        "unit_or_none": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Unit Or None"
+        }
+      },
+      "required": [
+        "metric"
+      ],
+      "title": "UXErgonomicRuleConstraint",
+      "type": "object"
+    },
+    "UXErgonomicRuleEntry": {
+      "additionalProperties": false,
+      "properties": {
+        "adopted_by_repo_policy": {
+          "default": false,
+          "title": "Adopted By Repo Policy",
+          "type": "boolean"
+        },
+        "applies_to_component_classes": {
+          "items": {
+            "enum": [
+              "erg_action_lane_container",
+              "erg_work_context_lane",
+              "erg_source_text_lane",
+              "erg_evidence_lane",
+              "erg_diagnostics_lane",
+              "erg_status_surface",
+              "erg_trust_boundary_surface",
+              "erg_navigation_lane",
+              "erg_advisory_action_cluster",
+              "erg_comparison_action_cluster",
+              "erg_commit_gate_action_cluster"
+            ],
+            "type": "string"
+          },
+          "minItems": 1,
+          "title": "Applies To Component Classes",
+          "type": "array"
+        },
+        "applies_to_input_modes": {
+          "items": {
+            "enum": [
+              "mouse_fine",
+              "touch_coarse",
+              "hybrid",
+              "pen"
+            ],
+            "type": "string"
+          },
+          "minItems": 1,
+          "title": "Applies To Input Modes",
+          "type": "array"
+        },
+        "authority_layer": {
+          "enum": [
+            "constitutional_surface_invariant",
+            "repo_local_policy",
+            "external_standard_floor",
+            "platform_preset",
+            "user_declared_preference",
+            "heuristic_utility"
+          ],
+          "title": "Authority Layer",
+          "type": "string"
+        },
+        "constraint": {
+          "$ref": "#/$defs/UXErgonomicRuleConstraint"
+        },
+        "force": {
+          "enum": [
+            "hard_block",
+            "hard_floor",
+            "advisory_ranking"
+          ],
+          "title": "Force",
+          "type": "string"
+        },
+        "override_policy": {
+          "$ref": "#/$defs/UXErgonomicRuleOverridePolicy"
+        },
+        "provenance_state": {
+          "enum": [
+            "measured_runtime",
+            "declared_case",
+            "declared_user_profile",
+            "verified_device_inventory",
+            "inferred_heuristic",
+            "unknown"
+          ],
+          "title": "Provenance State",
+          "type": "string"
+        },
+        "rule_id": {
+          "minLength": 1,
+          "title": "Rule Id",
+          "type": "string"
+        },
+        "source_kind": {
+          "minLength": 1,
+          "title": "Source Kind",
+          "type": "string"
+        },
+        "source_ref": {
+          "minLength": 1,
+          "title": "Source Ref",
+          "type": "string"
+        }
+      },
+      "required": [
+        "rule_id",
+        "authority_layer",
+        "force",
+        "source_kind",
+        "source_ref",
+        "applies_to_component_classes",
+        "applies_to_input_modes",
+        "constraint",
+        "override_policy",
+        "provenance_state"
+      ],
+      "title": "UXErgonomicRuleEntry",
+      "type": "object"
+    },
+    "UXErgonomicRuleOverridePolicy": {
+      "additionalProperties": false,
+      "properties": {
+        "may_lower": {
+          "title": "May Lower",
+          "type": "boolean"
+        },
+        "may_override_constitutional_invariant": {
+          "title": "May Override Constitutional Invariant",
+          "type": "boolean"
+        },
+        "may_override_external_standard_floor": {
+          "title": "May Override External Standard Floor",
+          "type": "boolean"
+        },
+        "may_override_repo_local_policy": {
+          "title": "May Override Repo Local Policy",
+          "type": "boolean"
+        },
+        "may_raise": {
+          "title": "May Raise",
+          "type": "boolean"
+        }
+      },
+      "required": [
+        "may_raise",
+        "may_lower",
+        "may_override_constitutional_invariant",
+        "may_override_repo_local_policy",
+        "may_override_external_standard_floor"
+      ],
+      "title": "UXErgonomicRuleOverridePolicy",
+      "type": "object"
+    }
+  },
+  "additionalProperties": false,
+  "properties": {
+    "rule_stack_id": {
+      "minLength": 1,
+      "title": "Rule Stack Id",
+      "type": "string"
+    },
+    "rules": {
+      "items": {
+        "$ref": "#/$defs/UXErgonomicRuleEntry"
+      },
+      "minItems": 1,
+      "title": "Rules",
+      "type": "array"
+    },
+    "schema": {
+      "const": "ux_ergonomic_rule_authority_stack@1",
+      "default": "ux_ergonomic_rule_authority_stack@1",
+      "title": "Schema",
+      "type": "string"
+    }
+  },
+  "required": [
+    "rule_stack_id",
+    "rules"
+  ],
+  "title": "UXErgonomicRuleAuthorityStack",
+  "type": "object"
+}

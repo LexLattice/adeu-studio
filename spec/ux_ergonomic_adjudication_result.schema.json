@@ -1,0 +1,326 @@
+{
+  "$defs": {
+    "UXErgonomicAmbiguityRow": {
+      "additionalProperties": false,
+      "properties": {
+        "affected_candidate_ids": {
+          "items": {
+            "enum": [
+              "artifact_inspector_maximized_split_reference",
+              "artifact_inspector_half_screen_split_reference",
+              "artifact_inspector_narrow_stacked_same_context",
+              "artifact_inspector_quarter_screen_inspector_safe_buffered"
+            ],
+            "type": "string"
+          },
+          "minItems": 1,
+          "title": "Affected Candidate Ids",
+          "type": "array"
+        },
+        "ambiguity_id": {
+          "minLength": 1,
+          "title": "Ambiguity Id",
+          "type": "string"
+        },
+        "ambiguity_kind": {
+          "minLength": 1,
+          "title": "Ambiguity Kind",
+          "type": "string"
+        },
+        "reason_codes": {
+          "items": {
+            "type": "string"
+          },
+          "minItems": 1,
+          "title": "Reason Codes",
+          "type": "array"
+        },
+        "severity": {
+          "enum": [
+            "advisory",
+            "warning"
+          ],
+          "title": "Severity",
+          "type": "string"
+        }
+      },
+      "required": [
+        "ambiguity_id",
+        "ambiguity_kind",
+        "affected_candidate_ids",
+        "severity",
+        "reason_codes"
+      ],
+      "title": "UXErgonomicAmbiguityRow",
+      "type": "object"
+    },
+    "UXErgonomicBlockedCandidateRow": {
+      "additionalProperties": false,
+      "properties": {
+        "authority_layers_triggered": {
+          "items": {
+            "enum": [
+              "constitutional_surface_invariant",
+              "repo_local_policy",
+              "external_standard_floor",
+              "platform_preset",
+              "user_declared_preference",
+              "heuristic_utility"
+            ],
+            "type": "string"
+          },
+          "minItems": 1,
+          "title": "Authority Layers Triggered",
+          "type": "array"
+        },
+        "blocking_reason_codes": {
+          "items": {
+            "type": "string"
+          },
+          "minItems": 1,
+          "title": "Blocking Reason Codes",
+          "type": "array"
+        },
+        "candidate_profile_id": {
+          "enum": [
+            "artifact_inspector_maximized_split_reference",
+            "artifact_inspector_half_screen_split_reference",
+            "artifact_inspector_narrow_stacked_same_context",
+            "artifact_inspector_quarter_screen_inspector_safe_buffered"
+          ],
+          "title": "Candidate Profile Id",
+          "type": "string"
+        }
+      },
+      "required": [
+        "candidate_profile_id",
+        "blocking_reason_codes",
+        "authority_layers_triggered"
+      ],
+      "title": "UXErgonomicBlockedCandidateRow",
+      "type": "object"
+    },
+    "UXErgonomicFeasibleCandidateRow": {
+      "additionalProperties": false,
+      "properties": {
+        "candidate_profile_id": {
+          "enum": [
+            "artifact_inspector_maximized_split_reference",
+            "artifact_inspector_half_screen_split_reference",
+            "artifact_inspector_narrow_stacked_same_context",
+            "artifact_inspector_quarter_screen_inspector_safe_buffered"
+          ],
+          "title": "Candidate Profile Id",
+          "type": "string"
+        },
+        "preference_tier": {
+          "enum": [
+            "blocked",
+            "discouraged",
+            "marginal",
+            "acceptable",
+            "preferred"
+          ],
+          "title": "Preference Tier",
+          "type": "string"
+        },
+        "residual_ambiguity_or_none": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Residual Ambiguity Or None"
+        },
+        "supporting_reason_codes": {
+          "items": {
+            "type": "string"
+          },
+          "minItems": 1,
+          "title": "Supporting Reason Codes",
+          "type": "array"
+        }
+      },
+      "required": [
+        "candidate_profile_id",
+        "preference_tier",
+        "supporting_reason_codes"
+      ],
+      "title": "UXErgonomicFeasibleCandidateRow",
+      "type": "object"
+    },
+    "UXErgonomicMeasurementObligationRow": {
+      "additionalProperties": false,
+      "properties": {
+        "candidate_profile_id": {
+          "enum": [
+            "artifact_inspector_maximized_split_reference",
+            "artifact_inspector_half_screen_split_reference",
+            "artifact_inspector_narrow_stacked_same_context",
+            "artifact_inspector_quarter_screen_inspector_safe_buffered"
+          ],
+          "title": "Candidate Profile Id",
+          "type": "string"
+        },
+        "measurement_kind": {
+          "enum": [
+            "runtime_targetability_measurement",
+            "runtime_text_measurement",
+            "runtime_visibility_measurement"
+          ],
+          "title": "Measurement Kind",
+          "type": "string"
+        },
+        "obligation_id": {
+          "minLength": 1,
+          "title": "Obligation Id",
+          "type": "string"
+        },
+        "reason_codes": {
+          "items": {
+            "type": "string"
+          },
+          "minItems": 1,
+          "title": "Reason Codes",
+          "type": "array"
+        },
+        "required_for": {
+          "enum": [
+            "pass",
+            "needs_review"
+          ],
+          "title": "Required For",
+          "type": "string"
+        }
+      },
+      "required": [
+        "obligation_id",
+        "candidate_profile_id",
+        "measurement_kind",
+        "required_for",
+        "reason_codes"
+      ],
+      "title": "UXErgonomicMeasurementObligationRow",
+      "type": "object"
+    },
+    "UXErgonomicSourceArtifactHash": {
+      "additionalProperties": false,
+      "properties": {
+        "artifact_hash": {
+          "pattern": "^[0-9a-f]{64}$",
+          "title": "Artifact Hash",
+          "type": "string"
+        },
+        "artifact_ref": {
+          "minLength": 1,
+          "title": "Artifact Ref",
+          "type": "string"
+        }
+      },
+      "required": [
+        "artifact_ref",
+        "artifact_hash"
+      ],
+      "title": "UXErgonomicSourceArtifactHash",
+      "type": "object"
+    }
+  },
+  "additionalProperties": false,
+  "properties": {
+    "ambiguity_rows": {
+      "items": {
+        "$ref": "#/$defs/UXErgonomicAmbiguityRow"
+      },
+      "title": "Ambiguity Rows",
+      "type": "array"
+    },
+    "blocked_candidate_rows": {
+      "items": {
+        "$ref": "#/$defs/UXErgonomicBlockedCandidateRow"
+      },
+      "title": "Blocked Candidate Rows",
+      "type": "array"
+    },
+    "feasible_candidate_rows": {
+      "items": {
+        "$ref": "#/$defs/UXErgonomicFeasibleCandidateRow"
+      },
+      "title": "Feasible Candidate Rows",
+      "type": "array"
+    },
+    "measurement_obligation_rows": {
+      "items": {
+        "$ref": "#/$defs/UXErgonomicMeasurementObligationRow"
+      },
+      "title": "Measurement Obligation Rows",
+      "type": "array"
+    },
+    "overall_judgment": {
+      "enum": [
+        "pass",
+        "needs_review",
+        "fail"
+      ],
+      "title": "Overall Judgment",
+      "type": "string"
+    },
+    "report_status": {
+      "enum": [
+        "valid",
+        "invalid_request_basis_mismatch",
+        "invalid_candidate_table_basis_mismatch",
+        "invalid_visibility_contract_basis_mismatch",
+        "invalid_case_envelope_admissibility",
+        "invalid_unknown_candidate_ref"
+      ],
+      "title": "Report Status",
+      "type": "string"
+    },
+    "request_ref": {
+      "minLength": 1,
+      "title": "Request Ref",
+      "type": "string"
+    },
+    "result_id": {
+      "minLength": 1,
+      "title": "Result Id",
+      "type": "string"
+    },
+    "schema": {
+      "const": "ux_ergonomic_adjudication_result@1",
+      "default": "ux_ergonomic_adjudication_result@1",
+      "title": "Schema",
+      "type": "string"
+    },
+    "source_artifact_hashes": {
+      "items": {
+        "$ref": "#/$defs/UXErgonomicSourceArtifactHash"
+      },
+      "minItems": 1,
+      "title": "Source Artifact Hashes",
+      "type": "array"
+    },
+    "source_artifact_refs": {
+      "items": {
+        "type": "string"
+      },
+      "minItems": 1,
+      "title": "Source Artifact Refs",
+      "type": "array"
+    }
+  },
+  "required": [
+    "result_id",
+    "request_ref",
+    "source_artifact_refs",
+    "source_artifact_hashes",
+    "report_status",
+    "overall_judgment"
+  ],
+  "title": "UXErgonomicAdjudicationResult",
+  "type": "object"
+}
