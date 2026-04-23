@@ -12,7 +12,7 @@
       "checkpoint_class": "deterministic_pass",
       "checkpoint_id": "v40c_v79_checkpoint_09d77bf5ba1009fe",
       "final_adjudication": "resolved_pass",
-      "replay_identity_hash": "1b8d243ed2566ebab51baefd29a6120634cedb233d9f9bf023db86c26840351a",
+      "replay_identity_hash": "0d74991d76c05d85774e7c027dfd64ac1e1b1ca602837593c9955da5c90d1217",
       "resolution_route": "deterministic_only"
     }
   ],
@@ -21,7 +21,7 @@
   "hybrid_policy_hashes": [
     {
       "path": "AGENTS.md",
-      "sha256": "a2a77ee9926608c0b4bb2da83437b6c095de20afd5ed85b5058c9dee1fb49348"
+      "sha256": "7ae489901a56af48fa800555e152a20df952f61662f17d91c4b56c6cba26fff9"
     },
     {
       "path": "docs/ARCHITECTURE_ADEU_ARCHITECTURE_IR_v0.md",
@@ -38,5 +38,5 @@
   ],
   "schema": "adeu_architecture_checkpoint_trace@1",
   "semantic_hash": "10ed0209a14fb08e66457771237185c186946bc1e24c4e1fcfd3d39f60716a3f",
-  "trace_id": "v40c_v79_trace_552bff9a9a1dd325"
+  "trace_id": "v40c_v79_trace_a0ccd00304dd486a"
 }

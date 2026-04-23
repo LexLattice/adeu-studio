@@ -1,0 +1,50 @@
+{
+  "candidate_profile_table_ref": "artifact_inspector_v67a_candidate_table",
+  "case_envelope_ref": "artifact_inspector_desktop_maximized_case",
+  "reference_instance_id": "artifact_inspector_reference_main",
+  "reference_surface_family": "artifact_inspector_advisory_workbench",
+  "registry_ref": "artifact_inspector_v67a_registry",
+  "request_id": "artifact_inspector_desktop_maximized_request",
+  "rule_stack_ref": "artifact_inspector_v67a_rule_stack",
+  "schema": "ux_ergonomic_adjudication_request@1",
+  "source_artifact_hashes": [
+    {
+      "artifact_hash": "43b84c9a8c0c21c20e5bf6a4cf30b5ff3c30931fe0c80836d5fa8c16c734c7c5",
+      "artifact_ref": "apps/api/fixtures/ux_governance/vnext_plus61/ux_domain_packet_artifact_inspector_reference.json"
+    },
+    {
+      "artifact_hash": "75f16d7b61dbe53ac6b3bdc8955627464a4c872b5c52e8c740bdc5a2f28bc5c7",
+      "artifact_ref": "apps/api/fixtures/ux_governance/vnext_plus61/ux_morph_ir_artifact_inspector_reference.json"
+    },
+    {
+      "artifact_hash": "346d697a8bcff710ee75e7cc0cf2ee2acd01ae7bc2741254edc489115ad32be5",
+      "artifact_ref": "apps/api/fixtures/ux_governance/vnext_plus61/v36a_first_family_approved_profile_table.json"
+    },
+    {
+      "artifact_hash": "aec556f390ba3a2c4829618c6da6d862c28bd0de56ba13b32c75a138e268ad7e",
+      "artifact_ref": "apps/api/fixtures/ux_governance/vnext_plus61/v36a_same_context_reachability_glossary.json"
+    },
+    {
+      "artifact_hash": "fade45e977d7d0fbc35610f46ed162598f20b8e8ffe3441332891cad1fd88363",
+      "artifact_ref": "apps/api/fixtures/ux_governance/vnext_plus62/ux_interaction_contract_artifact_inspector_reference.json"
+    },
+    {
+      "artifact_hash": "3c8956ffc7fa9f3a70fcc5acbccec14455628286ecf50a59401b166996591cd9",
+      "artifact_ref": "apps/api/fixtures/ux_governance/vnext_plus62/ux_surface_projection_artifact_inspector_reference.json"
+    },
+    {
+      "artifact_hash": "8f78ac676a4cefb33c798b866faa8b4775d4ca569c3cb199ab262e4800b8d77c",
+      "artifact_ref": "apps/api/fixtures/ux_governance/vnext_plus65/ux_surface_compiler_variant_manifest_artifact_inspector.json"
+    }
+  ],
+  "source_artifact_refs": [
+    "apps/api/fixtures/ux_governance/vnext_plus61/ux_domain_packet_artifact_inspector_reference.json",
+    "apps/api/fixtures/ux_governance/vnext_plus61/ux_morph_ir_artifact_inspector_reference.json",
+    "apps/api/fixtures/ux_governance/vnext_plus61/v36a_first_family_approved_profile_table.json",
+    "apps/api/fixtures/ux_governance/vnext_plus61/v36a_same_context_reachability_glossary.json",
+    "apps/api/fixtures/ux_governance/vnext_plus62/ux_interaction_contract_artifact_inspector_reference.json",
+    "apps/api/fixtures/ux_governance/vnext_plus62/ux_surface_projection_artifact_inspector_reference.json",
+    "apps/api/fixtures/ux_governance/vnext_plus65/ux_surface_compiler_variant_manifest_artifact_inspector.json"
+  ],
+  "visibility_contract_ref": "artifact_inspector_v67a_visibility_contract"
+}

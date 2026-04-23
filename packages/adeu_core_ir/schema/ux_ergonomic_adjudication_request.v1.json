@@ -1,0 +1,104 @@
+{
+  "$defs": {
+    "UXErgonomicSourceArtifactHash": {
+      "additionalProperties": false,
+      "properties": {
+        "artifact_hash": {
+          "pattern": "^[0-9a-f]{64}$",
+          "title": "Artifact Hash",
+          "type": "string"
+        },
+        "artifact_ref": {
+          "minLength": 1,
+          "title": "Artifact Ref",
+          "type": "string"
+        }
+      },
+      "required": [
+        "artifact_ref",
+        "artifact_hash"
+      ],
+      "title": "UXErgonomicSourceArtifactHash",
+      "type": "object"
+    }
+  },
+  "additionalProperties": false,
+  "properties": {
+    "candidate_profile_table_ref": {
+      "minLength": 1,
+      "title": "Candidate Profile Table Ref",
+      "type": "string"
+    },
+    "case_envelope_ref": {
+      "minLength": 1,
+      "title": "Case Envelope Ref",
+      "type": "string"
+    },
+    "reference_instance_id": {
+      "minLength": 1,
+      "title": "Reference Instance Id",
+      "type": "string"
+    },
+    "reference_surface_family": {
+      "const": "artifact_inspector_advisory_workbench",
+      "default": "artifact_inspector_advisory_workbench",
+      "title": "Reference Surface Family",
+      "type": "string"
+    },
+    "registry_ref": {
+      "minLength": 1,
+      "title": "Registry Ref",
+      "type": "string"
+    },
+    "request_id": {
+      "minLength": 1,
+      "title": "Request Id",
+      "type": "string"
+    },
+    "rule_stack_ref": {
+      "minLength": 1,
+      "title": "Rule Stack Ref",
+      "type": "string"
+    },
+    "schema": {
+      "const": "ux_ergonomic_adjudication_request@1",
+      "default": "ux_ergonomic_adjudication_request@1",
+      "title": "Schema",
+      "type": "string"
+    },
+    "source_artifact_hashes": {
+      "items": {
+        "$ref": "#/$defs/UXErgonomicSourceArtifactHash"
+      },
+      "minItems": 1,
+      "title": "Source Artifact Hashes",
+      "type": "array"
+    },
+    "source_artifact_refs": {
+      "items": {
+        "type": "string"
+      },
+      "minItems": 1,
+      "title": "Source Artifact Refs",
+      "type": "array"
+    },
+    "visibility_contract_ref": {
+      "minLength": 1,
+      "title": "Visibility Contract Ref",
+      "type": "string"
+    }
+  },
+  "required": [
+    "request_id",
+    "reference_instance_id",
+    "source_artifact_refs",
+    "source_artifact_hashes",
+    "rule_stack_ref",
+    "registry_ref",
+    "visibility_contract_ref",
+    "candidate_profile_table_ref",
+    "case_envelope_ref"
+  ],
+  "title": "UXErgonomicAdjudicationRequest",
+  "type": "object"
+}

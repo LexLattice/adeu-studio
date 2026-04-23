@@ -1,0 +1,158 @@
+{
+  "$defs": {
+    "UXComponentErgonomicClassRow": {
+      "additionalProperties": false,
+      "properties": {
+        "allowed_collapse_policies": {
+          "items": {
+            "enum": [
+              "never_collapse",
+              "may_stack_same_context",
+              "may_buffer_same_context",
+              "may_progressively_disclose_same_context"
+            ],
+            "type": "string"
+          },
+          "minItems": 1,
+          "title": "Allowed Collapse Policies",
+          "type": "array"
+        },
+        "allowed_source_semantic_kinds": {
+          "items": {
+            "enum": [
+              "action_lane",
+              "work_context_lane",
+              "source_lane",
+              "evidence_lane",
+              "diagnostics_lane",
+              "status_lane",
+              "trust_boundary_lane",
+              "navigation_lane",
+              "advisory_action_cluster",
+              "comparison_action_cluster",
+              "commit_action_cluster"
+            ],
+            "type": "string"
+          },
+          "minItems": 1,
+          "title": "Allowed Source Semantic Kinds",
+          "type": "array"
+        },
+        "applies_to_surface_units": {
+          "items": {
+            "enum": [
+              "lane",
+              "action_cluster"
+            ],
+            "type": "string"
+          },
+          "minItems": 1,
+          "title": "Applies To Surface Units",
+          "type": "array"
+        },
+        "class_id": {
+          "enum": [
+            "erg_action_lane_container",
+            "erg_work_context_lane",
+            "erg_source_text_lane",
+            "erg_evidence_lane",
+            "erg_diagnostics_lane",
+            "erg_status_surface",
+            "erg_trust_boundary_surface",
+            "erg_navigation_lane",
+            "erg_advisory_action_cluster",
+            "erg_comparison_action_cluster",
+            "erg_commit_gate_action_cluster"
+          ],
+          "title": "Class Id",
+          "type": "string"
+        },
+        "default_readability_requirement": {
+          "enum": [
+            "required",
+            "not_required"
+          ],
+          "title": "Default Readability Requirement",
+          "type": "string"
+        },
+        "default_targetability_requirement": {
+          "enum": [
+            "required",
+            "not_required"
+          ],
+          "title": "Default Targetability Requirement",
+          "type": "string"
+        },
+        "default_visibility_requirement": {
+          "enum": [
+            "continuously_visible",
+            "same_context_reachable",
+            "gated_and_visible"
+          ],
+          "title": "Default Visibility Requirement",
+          "type": "string"
+        },
+        "rule_bindings": {
+          "items": {
+            "type": "string"
+          },
+          "minItems": 1,
+          "title": "Rule Bindings",
+          "type": "array"
+        },
+        "taxonomy_status": {
+          "const": "starter_frozen",
+          "default": "starter_frozen",
+          "title": "Taxonomy Status",
+          "type": "string"
+        }
+      },
+      "required": [
+        "class_id",
+        "applies_to_surface_units",
+        "allowed_source_semantic_kinds",
+        "default_visibility_requirement",
+        "default_targetability_requirement",
+        "default_readability_requirement",
+        "allowed_collapse_policies",
+        "rule_bindings"
+      ],
+      "title": "UXComponentErgonomicClassRow",
+      "type": "object"
+    }
+  },
+  "additionalProperties": false,
+  "properties": {
+    "class_rows": {
+      "items": {
+        "$ref": "#/$defs/UXComponentErgonomicClassRow"
+      },
+      "minItems": 1,
+      "title": "Class Rows",
+      "type": "array"
+    },
+    "registry_id": {
+      "minLength": 1,
+      "title": "Registry Id",
+      "type": "string"
+    },
+    "registry_version": {
+      "minLength": 1,
+      "title": "Registry Version",
+      "type": "string"
+    },
+    "schema": {
+      "const": "ux_component_ergonomic_registry@1",
+      "default": "ux_component_ergonomic_registry@1",
+      "title": "Schema",
+      "type": "string"
+    }
+  },
+  "required": [
+    "registry_id",
+    "registry_version",
+    "class_rows"
+  ],
+  "title": "UXComponentErgonomicRegistry",
+  "type": "object"
+}

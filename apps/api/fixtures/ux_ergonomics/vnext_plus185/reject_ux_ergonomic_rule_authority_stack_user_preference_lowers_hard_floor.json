@@ -1,0 +1,196 @@
+{
+  "rule_stack_id": "reject_user_preference_lowers_hard_floor",
+  "rules": [
+    {
+      "adopted_by_repo_policy": false,
+      "applies_to_component_classes": [
+        "erg_commit_gate_action_cluster",
+        "erg_evidence_lane",
+        "erg_status_surface",
+        "erg_trust_boundary_surface"
+      ],
+      "applies_to_input_modes": [
+        "hybrid",
+        "mouse_fine",
+        "pen",
+        "touch_coarse"
+      ],
+      "authority_layer": "constitutional_surface_invariant",
+      "constraint": {
+        "metric": "required_evidence_visibility_before_commit",
+        "minimum_or_none": 1.0,
+        "unit_or_none": "boolean"
+      },
+      "force": "hard_block",
+      "override_policy": {
+        "may_lower": false,
+        "may_override_constitutional_invariant": false,
+        "may_override_external_standard_floor": false,
+        "may_override_repo_local_policy": false,
+        "may_raise": false
+      },
+      "provenance_state": "declared_case",
+      "rule_id": "a0_constitutional_evidence_visibility",
+      "source_kind": "released_ux_governance_lock",
+      "source_ref": "docs/LOCKED_CONTINUATION_vNEXT_PLUS65.md#v36e_surface_compiler_export_contract"
+    },
+    {
+      "adopted_by_repo_policy": false,
+      "applies_to_component_classes": [
+        "erg_commit_gate_action_cluster"
+      ],
+      "applies_to_input_modes": [
+        "hybrid",
+        "mouse_fine",
+        "pen",
+        "touch_coarse"
+      ],
+      "authority_layer": "repo_local_policy",
+      "constraint": {
+        "metric": "min_target_size_css_px",
+        "minimum_or_none": 44.0,
+        "unit_or_none": "css_px"
+      },
+      "force": "hard_floor",
+      "override_policy": {
+        "may_lower": false,
+        "may_override_constitutional_invariant": false,
+        "may_override_external_standard_floor": true,
+        "may_override_repo_local_policy": false,
+        "may_raise": true
+      },
+      "provenance_state": "declared_case",
+      "rule_id": "b1_repo_commit_target_floor",
+      "source_kind": "starter_lock",
+      "source_ref": "docs/LOCKED_CONTINUATION_vNEXT_PLUS185.md#required_deliverables_exit_conditions"
+    },
+    {
+      "adopted_by_repo_policy": false,
+      "applies_to_component_classes": [
+        "erg_diagnostics_lane",
+        "erg_evidence_lane",
+        "erg_source_text_lane",
+        "erg_status_surface",
+        "erg_work_context_lane"
+      ],
+      "applies_to_input_modes": [
+        "hybrid",
+        "mouse_fine",
+        "pen",
+        "touch_coarse"
+      ],
+      "authority_layer": "external_standard_floor",
+      "constraint": {
+        "metric": "min_text_size_css_px",
+        "minimum_or_none": 14.0,
+        "unit_or_none": "css_px"
+      },
+      "force": "hard_floor",
+      "override_policy": {
+        "may_lower": false,
+        "may_override_constitutional_invariant": false,
+        "may_override_external_standard_floor": false,
+        "may_override_repo_local_policy": false,
+        "may_raise": true
+      },
+      "provenance_state": "declared_case",
+      "rule_id": "c2_external_text_floor",
+      "source_kind": "external_standard",
+      "source_ref": "docs/DRAFT_ADEU_UX_ERGONOMIC_INSTANTIATION_ADJUDICATION_V67A_IMPLEMENTATION_MAPPING_v0.md#starter-field-direction"
+    },
+    {
+      "adopted_by_repo_policy": true,
+      "applies_to_component_classes": [
+        "erg_action_lane_container",
+        "erg_advisory_action_cluster",
+        "erg_commit_gate_action_cluster",
+        "erg_comparison_action_cluster"
+      ],
+      "applies_to_input_modes": [
+        "touch_coarse"
+      ],
+      "authority_layer": "platform_preset",
+      "constraint": {
+        "metric": "min_target_size_css_px",
+        "minimum_or_none": 44.0,
+        "unit_or_none": "css_px"
+      },
+      "force": "hard_floor",
+      "override_policy": {
+        "may_lower": false,
+        "may_override_constitutional_invariant": false,
+        "may_override_external_standard_floor": false,
+        "may_override_repo_local_policy": false,
+        "may_raise": true
+      },
+      "provenance_state": "verified_device_inventory",
+      "rule_id": "d3_platform_touch_target_floor",
+      "source_kind": "repo_adopted_platform_preset",
+      "source_ref": "docs/DRAFT_ADEU_UX_ERGONOMIC_INSTANTIATION_ADJUDICATION_V67_IMPLEMENTATION_MAPPING_v0.md#platform-preset-posture"
+    },
+    {
+      "adopted_by_repo_policy": false,
+      "applies_to_component_classes": [
+        "erg_advisory_action_cluster",
+        "erg_commit_gate_action_cluster",
+        "erg_comparison_action_cluster"
+      ],
+      "applies_to_input_modes": [
+        "hybrid",
+        "mouse_fine",
+        "pen",
+        "touch_coarse"
+      ],
+      "authority_layer": "user_declared_preference",
+      "constraint": {
+        "metric": "min_target_size_css_px",
+        "minimum_or_none": 48.0,
+        "unit_or_none": "css_px"
+      },
+      "force": "hard_floor",
+      "override_policy": {
+        "may_lower": true,
+        "may_override_constitutional_invariant": false,
+        "may_override_external_standard_floor": false,
+        "may_override_repo_local_policy": false,
+        "may_raise": true
+      },
+      "provenance_state": "declared_user_profile",
+      "rule_id": "e4_user_preferred_target_floor",
+      "source_kind": "declared_user_profile",
+      "source_ref": "apps/api/fixtures/ux_ergonomics/vnext_plus185/ux_ergonomic_case_envelope_artifact_inspector_desktop_maximized_reference.json#preferred_target_min_css_px_or_none"
+    },
+    {
+      "adopted_by_repo_policy": false,
+      "applies_to_component_classes": [
+        "erg_status_surface",
+        "erg_trust_boundary_surface"
+      ],
+      "applies_to_input_modes": [
+        "hybrid",
+        "mouse_fine",
+        "pen",
+        "touch_coarse"
+      ],
+      "authority_layer": "heuristic_utility",
+      "constraint": {
+        "metric": "status_and_trust_salience_rank",
+        "minimum_or_none": 1.0,
+        "unit_or_none": "ordinal"
+      },
+      "force": "advisory_ranking",
+      "override_policy": {
+        "may_lower": false,
+        "may_override_constitutional_invariant": false,
+        "may_override_external_standard_floor": false,
+        "may_override_repo_local_policy": false,
+        "may_raise": false
+      },
+      "provenance_state": "inferred_heuristic",
+      "rule_id": "f5_heuristic_status_salience",
+      "source_kind": "ergonomic_heuristic",
+      "source_ref": "docs/ARCHITECTURE_ADEU_UX_ERGONOMIC_INSTANTIATION_ADJUDICATION_FAMILY_v0.md#family-surfaces"
+    }
+  ],
+  "schema": "ux_ergonomic_rule_authority_stack@1"
+}

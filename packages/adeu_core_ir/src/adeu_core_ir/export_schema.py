@@ -55,6 +55,15 @@ from .synthetic_pressure_mismatch_observation import (
     SyntheticPressureMismatchObservationPacket,
 )
 from .trust_invariant_packet import AdeuTrustInvariantPacket
+from .ux_ergonomics import (
+    UXComponentErgonomicRegistry,
+    UXComponentVisibilityContract,
+    UXErgonomicAdjudicationRequest,
+    UXErgonomicAdjudicationResult,
+    UXErgonomicCandidateProjectionProfileTable,
+    UXErgonomicCaseEnvelope,
+    UXErgonomicRuleAuthorityStack,
+)
 from .ux_governance import (
     UXConformanceReport,
     UXDomainPacket,
@@ -153,6 +162,25 @@ def main() -> None:
         by_alias=True
     )
     same_context_glossary_schema = V36ASameContextReachabilityGlossary.model_json_schema(
+        by_alias=True
+    )
+    ux_ergonomic_rule_authority_stack_schema = UXErgonomicRuleAuthorityStack.model_json_schema(
+        by_alias=True
+    )
+    ux_component_ergonomic_registry_schema = UXComponentErgonomicRegistry.model_json_schema(
+        by_alias=True
+    )
+    ux_component_visibility_contract_schema = UXComponentVisibilityContract.model_json_schema(
+        by_alias=True
+    )
+    ux_ergonomic_candidate_projection_profile_table_schema = (
+        UXErgonomicCandidateProjectionProfileTable.model_json_schema(by_alias=True)
+    )
+    ux_ergonomic_case_envelope_schema = UXErgonomicCaseEnvelope.model_json_schema(by_alias=True)
+    ux_ergonomic_adjudication_request_schema = UXErgonomicAdjudicationRequest.model_json_schema(
+        by_alias=True
+    )
+    ux_ergonomic_adjudication_result_schema = UXErgonomicAdjudicationResult.model_json_schema(
         by_alias=True
     )
     meta_testing_intent_packet_schema = MetaTestingIntentPacket.model_json_schema(by_alias=True)
@@ -513,6 +541,90 @@ def main() -> None:
         same_context_glossary_schema,
     )
 
+    ux_ergonomic_rule_authority_stack_authoritative_path = (
+        root
+        / "packages"
+        / "adeu_core_ir"
+        / "schema"
+        / "ux_ergonomic_rule_authority_stack.v1.json"
+    )
+    _write_schema(
+        ux_ergonomic_rule_authority_stack_authoritative_path,
+        ux_ergonomic_rule_authority_stack_schema,
+    )
+
+    ux_component_ergonomic_registry_authoritative_path = (
+        root
+        / "packages"
+        / "adeu_core_ir"
+        / "schema"
+        / "ux_component_ergonomic_registry.v1.json"
+    )
+    _write_schema(
+        ux_component_ergonomic_registry_authoritative_path,
+        ux_component_ergonomic_registry_schema,
+    )
+
+    ux_component_visibility_contract_authoritative_path = (
+        root
+        / "packages"
+        / "adeu_core_ir"
+        / "schema"
+        / "ux_component_visibility_contract.v1.json"
+    )
+    _write_schema(
+        ux_component_visibility_contract_authoritative_path,
+        ux_component_visibility_contract_schema,
+    )
+
+    ux_ergonomic_candidate_projection_profile_table_authoritative_path = (
+        root
+        / "packages"
+        / "adeu_core_ir"
+        / "schema"
+        / "ux_ergonomic_candidate_projection_profile_table.v1.json"
+    )
+    _write_schema(
+        ux_ergonomic_candidate_projection_profile_table_authoritative_path,
+        ux_ergonomic_candidate_projection_profile_table_schema,
+    )
+
+    ux_ergonomic_case_envelope_authoritative_path = (
+        root
+        / "packages"
+        / "adeu_core_ir"
+        / "schema"
+        / "ux_ergonomic_case_envelope.v1.json"
+    )
+    _write_schema(
+        ux_ergonomic_case_envelope_authoritative_path,
+        ux_ergonomic_case_envelope_schema,
+    )
+
+    ux_ergonomic_adjudication_request_authoritative_path = (
+        root
+        / "packages"
+        / "adeu_core_ir"
+        / "schema"
+        / "ux_ergonomic_adjudication_request.v1.json"
+    )
+    _write_schema(
+        ux_ergonomic_adjudication_request_authoritative_path,
+        ux_ergonomic_adjudication_request_schema,
+    )
+
+    ux_ergonomic_adjudication_result_authoritative_path = (
+        root
+        / "packages"
+        / "adeu_core_ir"
+        / "schema"
+        / "ux_ergonomic_adjudication_result.v1.json"
+    )
+    _write_schema(
+        ux_ergonomic_adjudication_result_authoritative_path,
+        ux_ergonomic_adjudication_result_schema,
+    )
+
     meta_testing_intent_packet_authoritative_path = (
         root / "packages" / "adeu_core_ir" / "schema" / "meta_testing_intent_packet.v1.json"
     )
@@ -817,6 +929,62 @@ def main() -> None:
     _write_schema(
         same_context_glossary_mirror_path,
         same_context_glossary_schema,
+    )
+
+    ux_ergonomic_rule_authority_stack_mirror_path = (
+        root / "spec" / "ux_ergonomic_rule_authority_stack.schema.json"
+    )
+    _write_schema(
+        ux_ergonomic_rule_authority_stack_mirror_path,
+        ux_ergonomic_rule_authority_stack_schema,
+    )
+
+    ux_component_ergonomic_registry_mirror_path = (
+        root / "spec" / "ux_component_ergonomic_registry.schema.json"
+    )
+    _write_schema(
+        ux_component_ergonomic_registry_mirror_path,
+        ux_component_ergonomic_registry_schema,
+    )
+
+    ux_component_visibility_contract_mirror_path = (
+        root / "spec" / "ux_component_visibility_contract.schema.json"
+    )
+    _write_schema(
+        ux_component_visibility_contract_mirror_path,
+        ux_component_visibility_contract_schema,
+    )
+
+    ux_ergonomic_candidate_projection_profile_table_mirror_path = (
+        root / "spec" / "ux_ergonomic_candidate_projection_profile_table.schema.json"
+    )
+    _write_schema(
+        ux_ergonomic_candidate_projection_profile_table_mirror_path,
+        ux_ergonomic_candidate_projection_profile_table_schema,
+    )
+
+    ux_ergonomic_case_envelope_mirror_path = (
+        root / "spec" / "ux_ergonomic_case_envelope.schema.json"
+    )
+    _write_schema(
+        ux_ergonomic_case_envelope_mirror_path,
+        ux_ergonomic_case_envelope_schema,
+    )
+
+    ux_ergonomic_adjudication_request_mirror_path = (
+        root / "spec" / "ux_ergonomic_adjudication_request.schema.json"
+    )
+    _write_schema(
+        ux_ergonomic_adjudication_request_mirror_path,
+        ux_ergonomic_adjudication_request_schema,
+    )
+
+    ux_ergonomic_adjudication_result_mirror_path = (
+        root / "spec" / "ux_ergonomic_adjudication_result.schema.json"
+    )
+    _write_schema(
+        ux_ergonomic_adjudication_result_mirror_path,
+        ux_ergonomic_adjudication_result_schema,
     )
 
     meta_testing_intent_packet_mirror_path = (

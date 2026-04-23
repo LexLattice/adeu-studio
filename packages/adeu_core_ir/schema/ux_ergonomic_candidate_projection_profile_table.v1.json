@@ -1,0 +1,283 @@
+{
+  "$defs": {
+    "UXErgonomicActionTargetingClaim": {
+      "additionalProperties": false,
+      "properties": {
+        "action_ref": {
+          "minLength": 1,
+          "title": "Action Ref",
+          "type": "string"
+        },
+        "gate_visible_before_action": {
+          "title": "Gate Visible Before Action",
+          "type": "boolean"
+        },
+        "min_target_size_css_px": {
+          "minimum": 1,
+          "title": "Min Target Size Css Px",
+          "type": "integer"
+        }
+      },
+      "required": [
+        "action_ref",
+        "min_target_size_css_px",
+        "gate_visible_before_action"
+      ],
+      "title": "UXErgonomicActionTargetingClaim",
+      "type": "object"
+    },
+    "UXErgonomicCandidateProjectionProfileRow": {
+      "additionalProperties": false,
+      "properties": {
+        "action_targeting_claims": {
+          "items": {
+            "$ref": "#/$defs/UXErgonomicActionTargetingClaim"
+          },
+          "minItems": 1,
+          "title": "Action Targeting Claims",
+          "type": "array"
+        },
+        "approved_profile_id": {
+          "enum": [
+            "artifact_inspector_alternate",
+            "artifact_inspector_reference"
+          ],
+          "title": "Approved Profile Id",
+          "type": "string"
+        },
+        "candidate_profile_id": {
+          "enum": [
+            "artifact_inspector_maximized_split_reference",
+            "artifact_inspector_half_screen_split_reference",
+            "artifact_inspector_narrow_stacked_same_context",
+            "artifact_inspector_quarter_screen_inspector_safe_buffered"
+          ],
+          "title": "Candidate Profile Id",
+          "type": "string"
+        },
+        "component_visibility_claims": {
+          "items": {
+            "$ref": "#/$defs/UXErgonomicCandidateVisibilityClaim"
+          },
+          "minItems": 1,
+          "title": "Component Visibility Claims",
+          "type": "array"
+        },
+        "free_aesthetic_variables_declared": {
+          "items": {
+            "type": "string"
+          },
+          "minItems": 1,
+          "title": "Free Aesthetic Variables Declared",
+          "type": "array"
+        },
+        "projection_shape": {
+          "$ref": "#/$defs/UXErgonomicCandidateProjectionShape"
+        },
+        "target_envelope": {
+          "enum": [
+            "maximized_split_reference",
+            "half_screen_split_reference",
+            "narrow_stacked_same_context",
+            "quarter_screen_inspector_safe_buffered"
+          ],
+          "title": "Target Envelope",
+          "type": "string"
+        }
+      },
+      "required": [
+        "candidate_profile_id",
+        "approved_profile_id",
+        "target_envelope",
+        "projection_shape",
+        "component_visibility_claims",
+        "action_targeting_claims",
+        "free_aesthetic_variables_declared"
+      ],
+      "title": "UXErgonomicCandidateProjectionProfileRow",
+      "type": "object"
+    },
+    "UXErgonomicCandidateProjectionShape": {
+      "additionalProperties": false,
+      "properties": {
+        "action_cluster_refs": {
+          "items": {
+            "type": "string"
+          },
+          "minItems": 1,
+          "title": "Action Cluster Refs",
+          "type": "array"
+        },
+        "lane_refs": {
+          "items": {
+            "type": "string"
+          },
+          "minItems": 1,
+          "title": "Lane Refs",
+          "type": "array"
+        },
+        "region_refs": {
+          "items": {
+            "type": "string"
+          },
+          "minItems": 1,
+          "title": "Region Refs",
+          "type": "array"
+        },
+        "same_context_reveal_terms": {
+          "items": {
+            "enum": [
+              "bounded_workbench_focus_shift",
+              "bounded_workbench_position_shift",
+              "bounded_workbench_state_reveal"
+            ],
+            "type": "string"
+          },
+          "minItems": 1,
+          "title": "Same Context Reveal Terms",
+          "type": "array"
+        }
+      },
+      "required": [
+        "region_refs",
+        "lane_refs",
+        "action_cluster_refs",
+        "same_context_reveal_terms"
+      ],
+      "title": "UXErgonomicCandidateProjectionShape",
+      "type": "object"
+    },
+    "UXErgonomicCandidateVisibilityClaim": {
+      "additionalProperties": false,
+      "properties": {
+        "collapse_policy": {
+          "enum": [
+            "never_collapse",
+            "may_stack_same_context",
+            "may_buffer_same_context",
+            "may_progressively_disclose_same_context"
+          ],
+          "title": "Collapse Policy",
+          "type": "string"
+        },
+        "component_ref": {
+          "minLength": 1,
+          "title": "Component Ref",
+          "type": "string"
+        },
+        "reveal_transition_or_none": {
+          "anyOf": [
+            {
+              "enum": [
+                "bounded_workbench_focus_shift",
+                "bounded_workbench_position_shift",
+                "bounded_workbench_state_reveal"
+              ],
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Reveal Transition Or None"
+        },
+        "visibility_state": {
+          "enum": [
+            "continuously_visible",
+            "same_context_reachable",
+            "gated_and_visible"
+          ],
+          "title": "Visibility State",
+          "type": "string"
+        }
+      },
+      "required": [
+        "component_ref",
+        "visibility_state",
+        "collapse_policy"
+      ],
+      "title": "UXErgonomicCandidateVisibilityClaim",
+      "type": "object"
+    },
+    "UXErgonomicSourceArtifactHash": {
+      "additionalProperties": false,
+      "properties": {
+        "artifact_hash": {
+          "pattern": "^[0-9a-f]{64}$",
+          "title": "Artifact Hash",
+          "type": "string"
+        },
+        "artifact_ref": {
+          "minLength": 1,
+          "title": "Artifact Ref",
+          "type": "string"
+        }
+      },
+      "required": [
+        "artifact_ref",
+        "artifact_hash"
+      ],
+      "title": "UXErgonomicSourceArtifactHash",
+      "type": "object"
+    }
+  },
+  "additionalProperties": false,
+  "properties": {
+    "candidate_profile_table_id": {
+      "minLength": 1,
+      "title": "Candidate Profile Table Id",
+      "type": "string"
+    },
+    "candidate_rows": {
+      "items": {
+        "$ref": "#/$defs/UXErgonomicCandidateProjectionProfileRow"
+      },
+      "minItems": 1,
+      "title": "Candidate Rows",
+      "type": "array"
+    },
+    "reference_instance_id": {
+      "minLength": 1,
+      "title": "Reference Instance Id",
+      "type": "string"
+    },
+    "reference_surface_family": {
+      "const": "artifact_inspector_advisory_workbench",
+      "default": "artifact_inspector_advisory_workbench",
+      "title": "Reference Surface Family",
+      "type": "string"
+    },
+    "schema": {
+      "const": "ux_ergonomic_candidate_projection_profile_table@1",
+      "default": "ux_ergonomic_candidate_projection_profile_table@1",
+      "title": "Schema",
+      "type": "string"
+    },
+    "source_artifact_hashes": {
+      "items": {
+        "$ref": "#/$defs/UXErgonomicSourceArtifactHash"
+      },
+      "minItems": 1,
+      "title": "Source Artifact Hashes",
+      "type": "array"
+    },
+    "source_artifact_refs": {
+      "items": {
+        "type": "string"
+      },
+      "minItems": 1,
+      "title": "Source Artifact Refs",
+      "type": "array"
+    }
+  },
+  "required": [
+    "candidate_profile_table_id",
+    "reference_instance_id",
+    "source_artifact_refs",
+    "source_artifact_hashes",
+    "candidate_rows"
+  ],
+  "title": "UXErgonomicCandidateProjectionProfileTable",
+  "type": "object"
+}

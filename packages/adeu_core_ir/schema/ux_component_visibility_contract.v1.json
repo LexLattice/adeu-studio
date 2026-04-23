@@ -1,0 +1,177 @@
+{
+  "$defs": {
+    "UXComponentVisibilityContractRow": {
+      "additionalProperties": false,
+      "properties": {
+        "collapse_policy": {
+          "enum": [
+            "never_collapse",
+            "may_stack_same_context",
+            "may_buffer_same_context",
+            "may_progressively_disclose_same_context"
+          ],
+          "title": "Collapse Policy",
+          "type": "string"
+        },
+        "component_ref": {
+          "minLength": 1,
+          "title": "Component Ref",
+          "type": "string"
+        },
+        "continuous_visibility_required": {
+          "title": "Continuous Visibility Required",
+          "type": "boolean"
+        },
+        "ergonomic_class_id": {
+          "enum": [
+            "erg_action_lane_container",
+            "erg_work_context_lane",
+            "erg_source_text_lane",
+            "erg_evidence_lane",
+            "erg_diagnostics_lane",
+            "erg_status_surface",
+            "erg_trust_boundary_surface",
+            "erg_navigation_lane",
+            "erg_advisory_action_cluster",
+            "erg_comparison_action_cluster",
+            "erg_commit_gate_action_cluster"
+          ],
+          "title": "Ergonomic Class Id",
+          "type": "string"
+        },
+        "reveal_transition_or_none": {
+          "anyOf": [
+            {
+              "enum": [
+                "bounded_workbench_focus_shift",
+                "bounded_workbench_position_shift",
+                "bounded_workbench_state_reveal"
+              ],
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Reveal Transition Or None"
+        },
+        "semantic_kind": {
+          "enum": [
+            "action_lane",
+            "work_context_lane",
+            "source_lane",
+            "evidence_lane",
+            "diagnostics_lane",
+            "status_lane",
+            "trust_boundary_lane",
+            "navigation_lane",
+            "advisory_action_cluster",
+            "comparison_action_cluster",
+            "commit_action_cluster"
+          ],
+          "title": "Semantic Kind",
+          "type": "string"
+        },
+        "visibility_state": {
+          "enum": [
+            "continuously_visible",
+            "same_context_reachable",
+            "gated_and_visible"
+          ],
+          "title": "Visibility State",
+          "type": "string"
+        }
+      },
+      "required": [
+        "component_ref",
+        "semantic_kind",
+        "ergonomic_class_id",
+        "visibility_state",
+        "collapse_policy",
+        "continuous_visibility_required"
+      ],
+      "title": "UXComponentVisibilityContractRow",
+      "type": "object"
+    },
+    "UXErgonomicSourceArtifactHash": {
+      "additionalProperties": false,
+      "properties": {
+        "artifact_hash": {
+          "pattern": "^[0-9a-f]{64}$",
+          "title": "Artifact Hash",
+          "type": "string"
+        },
+        "artifact_ref": {
+          "minLength": 1,
+          "title": "Artifact Ref",
+          "type": "string"
+        }
+      },
+      "required": [
+        "artifact_ref",
+        "artifact_hash"
+      ],
+      "title": "UXErgonomicSourceArtifactHash",
+      "type": "object"
+    }
+  },
+  "additionalProperties": false,
+  "properties": {
+    "component_rows": {
+      "items": {
+        "$ref": "#/$defs/UXComponentVisibilityContractRow"
+      },
+      "minItems": 1,
+      "title": "Component Rows",
+      "type": "array"
+    },
+    "contract_id": {
+      "minLength": 1,
+      "title": "Contract Id",
+      "type": "string"
+    },
+    "reference_instance_id": {
+      "minLength": 1,
+      "title": "Reference Instance Id",
+      "type": "string"
+    },
+    "reference_surface_family": {
+      "const": "artifact_inspector_advisory_workbench",
+      "default": "artifact_inspector_advisory_workbench",
+      "title": "Reference Surface Family",
+      "type": "string"
+    },
+    "schema": {
+      "const": "ux_component_visibility_contract@1",
+      "default": "ux_component_visibility_contract@1",
+      "title": "Schema",
+      "type": "string"
+    },
+    "source_artifact_hashes": {
+      "items": {
+        "$ref": "#/$defs/UXErgonomicSourceArtifactHash"
+      },
+      "minItems": 1,
+      "title": "Source Artifact Hashes",
+      "type": "array"
+    },
+    "source_artifact_refs": {
+      "items": {
+        "type": "string"
+      },
+      "minItems": 1,
+      "title": "Source Artifact Refs",
+      "type": "array"
+    }
+  },
+  "required": [
+    "contract_id",
+    "reference_instance_id",
+    "source_artifact_refs",
+    "source_artifact_hashes",
+    "component_rows"
+  ],
+  "title": "UXComponentVisibilityContract",
+  "type": "object"
+}

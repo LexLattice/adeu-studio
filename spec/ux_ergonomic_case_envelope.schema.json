@@ -1,0 +1,298 @@
+{
+  "$defs": {
+    "UXErgonomicNumericMeasurement": {
+      "additionalProperties": false,
+      "properties": {
+        "admissibility": {
+          "enum": [
+            "none",
+            "css_geometry_admissible",
+            "planning_declared_css_geometry",
+            "physical_size_admissible",
+            "visual_angle_admissible",
+            "runtime_conformance_admissible"
+          ],
+          "title": "Admissibility",
+          "type": "string"
+        },
+        "numeric_value": {
+          "minimum": 0,
+          "title": "Numeric Value",
+          "type": "number"
+        },
+        "provenance_state": {
+          "enum": [
+            "measured_runtime",
+            "declared_case",
+            "declared_user_profile",
+            "verified_device_inventory",
+            "inferred_heuristic",
+            "unknown"
+          ],
+          "title": "Provenance State",
+          "type": "string"
+        },
+        "source_kind": {
+          "enum": [
+            "playwright_replay",
+            "declared_fixture",
+            "device_inventory",
+            "user_profile",
+            "heuristic_inference"
+          ],
+          "title": "Source Kind",
+          "type": "string"
+        },
+        "source_ref_or_none": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Source Ref Or None"
+        },
+        "unit": {
+          "enum": [
+            "css_px",
+            "ratio",
+            "ppi",
+            "mm"
+          ],
+          "title": "Unit",
+          "type": "string"
+        }
+      },
+      "required": [
+        "numeric_value",
+        "unit",
+        "provenance_state",
+        "admissibility",
+        "source_kind"
+      ],
+      "title": "UXErgonomicNumericMeasurement",
+      "type": "object"
+    },
+    "UXErgonomicRectMeasurement": {
+      "additionalProperties": false,
+      "properties": {
+        "admissibility": {
+          "enum": [
+            "none",
+            "css_geometry_admissible",
+            "planning_declared_css_geometry",
+            "physical_size_admissible",
+            "visual_angle_admissible",
+            "runtime_conformance_admissible"
+          ],
+          "title": "Admissibility",
+          "type": "string"
+        },
+        "height_css_px": {
+          "minimum": 1,
+          "title": "Height Css Px",
+          "type": "integer"
+        },
+        "provenance_state": {
+          "enum": [
+            "measured_runtime",
+            "declared_case",
+            "declared_user_profile",
+            "verified_device_inventory",
+            "inferred_heuristic",
+            "unknown"
+          ],
+          "title": "Provenance State",
+          "type": "string"
+        },
+        "source_kind": {
+          "enum": [
+            "playwright_replay",
+            "declared_fixture",
+            "device_inventory",
+            "user_profile",
+            "heuristic_inference"
+          ],
+          "title": "Source Kind",
+          "type": "string"
+        },
+        "source_ref_or_none": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Source Ref Or None"
+        },
+        "width_css_px": {
+          "minimum": 1,
+          "title": "Width Css Px",
+          "type": "integer"
+        }
+      },
+      "required": [
+        "width_css_px",
+        "height_css_px",
+        "provenance_state",
+        "admissibility",
+        "source_kind"
+      ],
+      "title": "UXErgonomicRectMeasurement",
+      "type": "object"
+    }
+  },
+  "additionalProperties": false,
+  "properties": {
+    "available_surface_css_geometry": {
+      "$ref": "#/$defs/UXErgonomicRectMeasurement"
+    },
+    "case_envelope_id": {
+      "minLength": 1,
+      "title": "Case Envelope Id",
+      "type": "string"
+    },
+    "device_pixel_ratio_or_none": {
+      "anyOf": [
+        {
+          "$ref": "#/$defs/UXErgonomicNumericMeasurement"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null
+    },
+    "input_mode": {
+      "enum": [
+        "mouse_fine",
+        "touch_coarse",
+        "hybrid",
+        "pen"
+      ],
+      "title": "Input Mode",
+      "type": "string"
+    },
+    "physical_screen_ppi_or_none": {
+      "anyOf": [
+        {
+          "$ref": "#/$defs/UXErgonomicNumericMeasurement"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null
+    },
+    "physical_size_reasoning_required": {
+      "default": false,
+      "title": "Physical Size Reasoning Required",
+      "type": "boolean"
+    },
+    "preferred_target_min_css_px_or_none": {
+      "anyOf": [
+        {
+          "$ref": "#/$defs/UXErgonomicNumericMeasurement"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null
+    },
+    "preferred_text_min_css_px_or_none": {
+      "anyOf": [
+        {
+          "$ref": "#/$defs/UXErgonomicNumericMeasurement"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null
+    },
+    "reference_instance_id": {
+      "minLength": 1,
+      "title": "Reference Instance Id",
+      "type": "string"
+    },
+    "reference_surface_family": {
+      "const": "artifact_inspector_advisory_workbench",
+      "default": "artifact_inspector_advisory_workbench",
+      "title": "Reference Surface Family",
+      "type": "string"
+    },
+    "schema": {
+      "const": "ux_ergonomic_case_envelope@1",
+      "default": "ux_ergonomic_case_envelope@1",
+      "title": "Schema",
+      "type": "string"
+    },
+    "task_posture": {
+      "enum": [
+        "compare_candidate_variant",
+        "inspect_evidence_before_commit",
+        "source_review"
+      ],
+      "title": "Task Posture",
+      "type": "string"
+    },
+    "viewing_distance_mm_or_none": {
+      "anyOf": [
+        {
+          "$ref": "#/$defs/UXErgonomicNumericMeasurement"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null
+    },
+    "viewport_css_geometry": {
+      "$ref": "#/$defs/UXErgonomicRectMeasurement"
+    },
+    "visual_angle_reasoning_required": {
+      "default": false,
+      "title": "Visual Angle Reasoning Required",
+      "type": "boolean"
+    },
+    "window_occupancy_mode": {
+      "enum": [
+        "maximized_split_reference",
+        "half_screen_split_reference",
+        "narrow_stacked_same_context",
+        "quarter_screen_inspector_safe_buffered"
+      ],
+      "title": "Window Occupancy Mode",
+      "type": "string"
+    },
+    "zoom_scale_or_none": {
+      "anyOf": [
+        {
+          "$ref": "#/$defs/UXErgonomicNumericMeasurement"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null
+    }
+  },
+  "required": [
+    "case_envelope_id",
+    "reference_instance_id",
+    "window_occupancy_mode",
+    "input_mode",
+    "task_posture",
+    "viewport_css_geometry",
+    "available_surface_css_geometry"
+  ],
+  "title": "UXErgonomicCaseEnvelope",
+  "type": "object"
+}
