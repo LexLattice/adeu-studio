@@ -69,8 +69,11 @@
 - Keep two contribution lanes distinct:
   - `Internal ADEU lane`: repo-owned work, core architectural changes, schema changes,
     workflow changes, and orchestrated experiments. Default expectation is the
-    repo-native ADEU flow: pre-docs or explicit intent capture, implementation,
-    verification, and post-doc or closeout alignment where applicable.
+    repo-native ADEU flow: family-level pre-docs or explicit intent capture,
+    separate slice implementation PRs, verification, lean slice-alignment after each
+    merge, and full family closeout where applicable. The older slice-serial
+    workflow remains available as fallback for exploratory or unstable families;
+    see `docs/DRAFT_PRACTICAL_HARNESS_FLOW_v0.md`.
   - `External single-PR lane`: outside contributions or imported Codex-produced diffs
     that did not originate inside the repo harness. These may arrive without the full
     ADEU arc bundle, but they do not replace the internal lane or set precedent by
