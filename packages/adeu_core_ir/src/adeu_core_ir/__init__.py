@@ -416,6 +416,13 @@ from .trust_invariant_packet import (
     build_trust_invariant_proof_id,
     canonicalize_trust_invariant_packet_payload,
 )
+from .ux_ergonomic_adjudication import (
+    canonicalize_computed_ux_ergonomic_adjudication_result_payload,
+    derive_ux_ergonomic_measurement_admissibility,
+    derive_ux_ergonomic_overall_judgment,
+    evaluate_ux_ergonomic_adjudication_request,
+    evaluate_ux_ergonomic_candidate_row,
+)
 from .ux_ergonomics import (
     FROZEN_V67A_CANDIDATE_PROFILE_IDS,
     FROZEN_V67A_CLASS_IDS,
@@ -1123,6 +1130,11 @@ __all__ = [
     "canonicalize_ux_ergonomic_case_envelope_payload",
     "canonicalize_ux_ergonomic_adjudication_request_payload",
     "canonicalize_ux_ergonomic_adjudication_result_payload",
+    "evaluate_ux_ergonomic_adjudication_request",
+    "evaluate_ux_ergonomic_candidate_row",
+    "derive_ux_ergonomic_measurement_admissibility",
+    "derive_ux_ergonomic_overall_judgment",
+    "canonicalize_computed_ux_ergonomic_adjudication_result_payload",
     "assert_ux_ergonomic_candidate_projection_table_bound_to_approved_profiles",
     "assert_ux_ergonomic_candidate_projection_table_bound_to_surface_projection",
     "assert_ux_visibility_contract_complete_for_projection",
