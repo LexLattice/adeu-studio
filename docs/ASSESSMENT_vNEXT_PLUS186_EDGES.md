@@ -1,8 +1,8 @@
 # Assessment vNext+186 Edges
 
-Status: planning-edge assessment for `V67-B`.
+Status: post-closeout edge assessment for `V67-B` (April 23, 2026 UTC).
 
-Authority layer: planning / starter assessment.
+Authority layer: closeout evidence on `main`.
 
 ## Assessment-State Marker (Machine-Checkable)
 
@@ -10,90 +10,97 @@ Authority layer: planning / starter assessment.
 {
   "schema": "assessment_artifact_state@1",
   "artifact": "docs/ASSESSMENT_vNEXT_PLUS186_EDGES.md",
-  "phase": "pre_lock_assessment",
-  "authoritative": false,
+  "phase": "post_closeout_assessment",
+  "authoritative": true,
   "required_in_decision": true
 }
 ```
 
 ## Open Edges
 
-### Edge 1: Utility Ranking Could Quietly Reopen Hard-Law Decisions
+### Edge 1: Hard-Block Decisions Could Be Reopened By Ranking Posture
 
 - Risk:
-  advisory ranking could be used to rescue candidates that were already blocked
-  by hard visibility, trust-boundary, commit-gate, or floor violations.
+  feasible-tier ranking could quietly reclassify candidates already blocked by
+  trust boundary, commit gate, or hard-floor violations.
 - Response:
-  keep the evaluation order explicit and require blocked candidates to remain
-  blocked regardless of utility posture.
+  keep blocked-vs-feasible separation strict and irreversible inside one
+  adjudication pass.
+- Closeout Evidence:
+  shipped `V67-B` helper and tests preserve blocked-first evaluation and do not
+  allow blocked candidates to become feasible via tier ranking.
 
-### Edge 2: `report_status` Could Collapse Into Ergonomic Outcome
+### Edge 2: Structural Validity Could Collapse Into Ergonomic Judgment
 
 - Risk:
-  artifact validity, basis mismatch, and ergonomic failure could be flattened
-  into one status field, obscuring whether a case failed structurally or
-  ergonomically.
+  structural basis mismatch and ergonomic outcome could collapse into one mixed
+  status channel.
 - Response:
   keep `report_status` artifact-validity-only and `overall_judgment`
   ergonomic-outcome-only.
+- Closeout Evidence:
+  shipped invalid-result paths return structural `report_status` variants with
+  `overall_judgment = fail`, while valid paths still compute ergonomic outcome.
 
-### Edge 3: Feasible-Candidate Ties Could Smuggle In Hidden Weights
+### Edge 3: Feasible-Tier Ties Could Smuggle Hidden Weighting
 
 - Risk:
-  tied top-tier candidates could be broken by untracked heuristic weights or
-  prose-driven preferences.
+  unresolved top-tier candidates could be broken by untracked heuristic weights
+  instead of explicit review posture.
 - Response:
   keep deterministic ladder semantics explicit and surface unresolved top-tier
   ties as `needs_review`.
+- Closeout Evidence:
+  shipped tie handling emits deterministic `top_tier_candidate_tie` ambiguity
+  and keeps the result in `needs_review`.
 
-### Edge 4: Physical Or Visual Inadmissibility Could Over-Block CSS Cases
+### Edge 4: Physical/Visual Inadmissibility Could Over-Block CSS-Only Cases
 
 - Risk:
-  incomplete physical / visual chains could invalidate cases that only depend on
-  lawful CSS geometry floors.
+  incomplete physical or visual measurement chains could block cases that only
+  depend on admissible CSS geometry.
 - Response:
   block only dependent computations and keep CSS-only adjudication available when
   the dependent physical / visual reasoning is not required.
+- Closeout Evidence:
+  shipped logic/tests keep CSS-only adjudication valid and record review posture
+  where runtime or physical confirmation is informative but not required.
 
-### Edge 5: Computed Results Could Drift From Shipped `V67-A` Lineage
+### Edge 5: Computed Output Lineage Could Drift From Shipped `V67-A` Basis
 
 - Risk:
-  the engine could recompute over a candidate table, visibility contract, or
-  request that is not exactly bound to the shipped source refs and hashes.
+  computed outputs could stop carrying exact replayable consumed refs/hashes from
+  the shipped governance and ergonomic inputs.
 - Response:
   preserve exact replayable lineage checks in computed outputs and fail closed on
   basis mismatch.
+- Closeout Evidence:
+  shipped computed fixture retains exact `source_artifact_refs` and
+  `source_artifact_hashes`; mismatch paths fail closed with structural invalidity.
 
-### Edge 6: `V67-B` Could Quietly Mint A New Artifact Family
-
-- Risk:
-  implementation convenience could widen the slice into new schema ids or ad hoc
-  result packets instead of using the shipped `ux_ergonomic_adjudication_result@1`
-  surface.
-- Response:
-  keep `V67-B` on the existing result schema and defer new typed runtime bridge
-  artifacts to `V67-C` only.
-
-### Edge 7: Reason Codes Could Drift Into Unstable Narrative Strings
+### Edge 6: `V67-B` Could Quietly Widen Into `V67-C` Runtime Surfaces
 
 - Risk:
-  blocked, review, or supporting posture could be emitted as prose fragments
-  rather than a bounded starter reason family, making the slice non-replayable.
+  implementation convenience could widen into runtime measurement evidence
+  artifacts or runtime bridge reporting while landing `V67-B`.
 - Response:
-  freeze stable blocking, review, and supporting reason-code families in the
-  slice lock and tests.
+  keep `V67-B` on shipped adjudication result surfaces only and defer runtime
+  measurement evidence + bridge artifacts to `V67-C`.
+- Closeout Evidence:
+  merged implementation contains bounded adjudication helper, fixture, and tests
+  only; no new runtime-evidence or runtime-bridge schema artifacts landed.
 
 ## Current Judgment
 
-- `V67-B` is the right active next slice because the ergonomic language now ships
-  on `main` and the missing next step is bounded computation over that shipped
-  language
-- the slice should stay deliberately finite:
+- `V67-B` was the right shipped next slice because `V67-A` language was already
+  closed and the missing seam was bounded deterministic computation over that
+  shipped basis.
+- the shipped slice remained deliberately finite:
   - deterministic adjudication helpers
   - shipped-source lineage checks
   - blocked / feasible / ambiguity / obligation rows
   - ordinal tiers only
-- `V67-B` should not attempt runtime bridge output, runtime evidence harvesting,
-  or generic layout solving
-- if `v186` ships cleanly, `V67-C` can later compare realized measurement
-  evidence against adjudicated expectations without reopening `V67-B` law.
+- `V67-B` shipped without runtime bridge output, runtime evidence harvesting, or
+  generic layout-solver authority.
+- `V67-B` is now closed on `main`; `V67-C` remains the deferred lane for runtime
+  evidence comparison against adjudication expectations.

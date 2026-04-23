@@ -21,7 +21,8 @@ semantics, inferring layout law from screenshots, or collapsing heuristics into 
 measurement precision?
 
 This is a planning document only. It is not a lock doc and does not authorize
-runtime behavior, schema release, adjudication output, or implementation by itself.
+runtime behavior, schema release, adjudication output, advisory bridge output,
+or implementation by itself.
 
 Interpretive doctrine for this planning surface:
 
@@ -159,44 +160,40 @@ But it may not mint:
 
 - family remains: `V67`
 - `V67-A` starter language and validator backbone is now shipped on `main`
-- next concrete slice: `V67-B`
+- `V67-B` bounded adjudication engine is now shipped on `main`
+- next concrete slice: `V67-C`
 - recommended selector outcome:
   - keep the current UX governance substrate closed on `main`
   - keep the shipped `V67-A` artifact family stable on `main`
-  - select `V67-B` as the next default candidate
-  - keep `V67-B` bounded to finite-candidate adjudication only.
+  - keep the shipped `V67-B` bounded adjudication posture stable on `main`
+  - select `V67-C` as the next default candidate
+  - keep `V67-C` bounded to advisory runtime / conformance hardening only.
 
-`V67-B` should:
+`V67-C` should:
 
-- consume the shipped `V67-A` artifact language intact:
-  - `ux_ergonomic_rule_authority_stack@1`
-  - `ux_component_ergonomic_registry@1`
-  - `ux_component_visibility_contract@1`
-  - `ux_ergonomic_candidate_projection_profile_table@1`
-  - `ux_ergonomic_case_envelope@1`
+- consume the shipped ergonomic adjudication lineage intact:
   - `ux_ergonomic_adjudication_request@1`
   - `ux_ergonomic_adjudication_result@1`
-- consume the released UX governance basis intact:
-  - `ux_domain_packet@1`
-  - `ux_morph_ir@1`
-  - `v36a_first_family_approved_profile_table@1`
-  - `v36a_same_context_reachability_glossary@1`
-  - `ux_surface_projection@1`
-  - `ux_interaction_contract@1`
-  - `ux_surface_compiler_variant_manifest@1`
-- compute only over finite repo-native candidate rows already declared in the
-  shipped candidate table
-- keep artifact validity in `report_status` and ergonomic case outcome in
-  `overall_judgment`
-- emit only bounded blocked / feasible / ambiguity / measurement-obligation
-  result posture over the shipped result schema
+- consume the released UX governance realized-surface evidence basis where
+  available:
+  - `ux_morph_diagnostics@1`
+  - `ux_conformance_report@1`
+- add only one bounded advisory bridge pair:
+  - `ux_ergonomic_runtime_measurement_evidence@1`
+  - `ux_ergonomic_runtime_bridge_report@1`
+- compare realized evidence only against shipped adjudication expectations and
+  explicit measurement obligations
+- keep bridge validity in advisory-bridge-status-only posture and keep
+  ergonomic outcome separate from prior `overall_judgment`
+- emit only bounded advisory drift / incompleteness / basis-mismatch posture
+  over the selected runtime bridge artifacts
 - stay out of:
   - generic layout solving
   - runtime adaptive morph switching
   - screenshot-first authority
-  - scalar ergonomic scores
-  - new runtime bridge artifacts
-  - mutation of released UX diagnostics / conformance law.
+  - mutation of released UX diagnostics / conformance law
+  - sovereign runtime personalization
+  - direct runtime layout authority.
 
 ## Suggested `V67` Path Ladder
 
@@ -215,8 +212,10 @@ But it may not mint:
     `overall_judgment`
   - no general layout solver
 - `V67-C`: advisory runtime / conformance hardening
-  - bridge adjudication outputs to typed realized-measurement evidence and one
-    non-entitling advisory bridge report
+  - bridge shipped adjudication outputs to typed realized-measurement evidence
+    and one non-entitling advisory bridge report
+  - keep advisory bridge statuses separate from ergonomic judgment and released
+    UX conformance posture
   - still no sovereign runtime personalization engine by default.
 
 ## Why `V67` And Not Another ANM Or Standalone-App Branch
@@ -237,5 +236,5 @@ Validation note for this planning-only family draft:
 
 - use `git diff --check` for the doc edits
 - do not treat this planning draft as a starter-bundle lock pack by itself
-- even with the sharpened selector outcome, `V67-B` remains planning-only until a
+- even with the sharpened selector outcome, `V67-C` remains planning-only until a
   starter lock or implementation lock is drafted.

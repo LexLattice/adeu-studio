@@ -1,0 +1,26 @@
+{
+  "schema": "v67b_ux_ergonomic_adjudication_evidence@1",
+  "evidence_input_path": "artifacts/agent_harness/v186/evidence_inputs/v67b_ux_ergonomic_adjudication_evidence_v186.json",
+  "contract_source": "docs/LOCKED_CONTINUATION_vNEXT_PLUS186.md#machine-checkable-contract",
+  "merged_pr": "#413",
+  "merge_commit": "2873324c18f45b431cf13802522441bdb1f3e4f4",
+  "starter_bundle_commit": "86fa7ef05dcbee6a42ac088c0392ee39f21585d8",
+  "implementation_commit": "aed6f577769e4ccac4c3c0e0dcc5b155569fc9ba",
+  "review_hardening_commit": "03c5fd7a1eb68d8aa11b92430824e754d63e7b1b",
+  "implementation_packages": [
+    "adeu_core_ir"
+  ],
+  "adjudication_engine_source_path": "packages/adeu_core_ir/src/adeu_core_ir/ux_ergonomic_adjudication.py",
+  "package_export_surface_path": "packages/adeu_core_ir/src/adeu_core_ir/__init__.py",
+  "computed_reference_fixture_path": "apps/api/fixtures/ux_ergonomics/vnext_plus186/ux_ergonomic_adjudication_result_artifact_inspector_desktop_maximized_computed_reference.json",
+  "test_reference_path": "packages/adeu_core_ir/tests/test_ux_ergonomic_adjudication.py",
+  "consumed_v67a_basis_fixture_root": "apps/api/fixtures/ux_ergonomics/vnext_plus185",
+  "consumed_ux_governance_fixture_roots": [
+    "apps/api/fixtures/ux_governance/vnext_plus61",
+    "apps/api/fixtures/ux_governance/vnext_plus62"
+  ],
+  "metric_key_continuity_assertion_path": "artifacts/agent_harness/v186/evidence_inputs/metric_key_continuity_assertion_v186.json",
+  "runtime_observability_comparison_path": "artifacts/agent_harness/v186/evidence_inputs/runtime_observability_comparison_v186.json",
+  "runtime_event_stream_path": "artifacts/agent_harness/v186/runtime/evidence/local/urm_events.ndjson",
+  "notes": "v186 evidence pins the released V67-B seam on main: one repo-owned adeu_core_ir package only, deterministic bounded adjudication over shipped V67-A language, blocked-before-feasible law, explicit ordinal feasible tiers plus ambiguity/obligation rows, exact source-lineage carry-through, and no runtime evidence artifact or runtime bridge report promotion."
+}

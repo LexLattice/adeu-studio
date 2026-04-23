@@ -1,0 +1,11 @@
+{
+  "schema": "runtime_observability_comparison@1",
+  "baseline_arc": "vNext+185",
+  "current_arc": "vNext+186",
+  "baseline_source": "artifacts/stop_gate/report_v185_closeout.md",
+  "current_source": "artifacts/stop_gate/report_v186_closeout.md",
+  "baseline_elapsed_ms": 74,
+  "current_elapsed_ms": 74,
+  "delta_ms": 0,
+  "notes": "v186 closeout keeps the frozen stop-gate schema family and exact metric keyset unchanged while shipping the bounded V67-B ergonomic adjudication engine seam on main: deterministic finite-candidate evaluation over shipped V67-A language, hard-block-first semantics, max-plus-upward hard-floor composition, ordinal feasible tiers only, explicit ambiguity and measurement-obligation rows, exact source lineage carry-through, and no runtime measurement evidence artifact or runtime bridge report scope promotion."
+}

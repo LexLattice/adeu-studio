@@ -1,8 +1,8 @@
 # Draft ADEU UX Ergonomic Instantiation Adjudication V67C Implementation Mapping v0
 
 Status: support note for the planned `V67-C` advisory runtime / conformance
-hardening pass after the bounded `V67-B` adjudication engine is expected to ship
-on `main`.
+hardening pass now that the bounded `V67-B` adjudication engine is shipped on
+`main`.
 
 Authority layer: support only.
 
@@ -23,7 +23,7 @@ Read together with:
 ## Carry Forward Nearly As-Is
 
 - the shipped `V67-A` ergonomic language and validators
-- the shipped `V67-B` bounded adjudication behavior
+- the shipped `V67-B` bounded adjudication behavior and reason-family posture
 - the released UX governance diagnostics / conformance family:
   - `ux_morph_diagnostics@1`
   - `ux_conformance_report@1`
@@ -69,8 +69,8 @@ Expected consumed basis:
 
 - shipped `ux_ergonomic_adjudication_request@1`
 - shipped computed `ux_ergonomic_adjudication_result@1`
-- released `ux_morph_diagnostics@1`
-- released `ux_conformance_report@1`
+- released `ux_morph_diagnostics@1` where present
+- released `ux_conformance_report@1` where present
 - runtime or replay measurement evidence only where explicitly available.
 
 Expected bridge duties:
@@ -142,6 +142,16 @@ Recommended advisory bridge statuses:
 - `advisory_incomplete_missing_evidence`
 - `invalid_basis_mismatch`
 - `invalid_runtime_evidence_shape`
+
+Exact planned schema files:
+
+- `packages/adeu_core_ir/schema/ux_ergonomic_runtime_measurement_evidence.v1.json`
+- `packages/adeu_core_ir/schema/ux_ergonomic_runtime_bridge_report.v1.json`
+
+Mirror schema files:
+
+- `spec/ux_ergonomic_runtime_measurement_evidence.schema.json`
+- `spec/ux_ergonomic_runtime_bridge_report.schema.json`
 
 ## Do Not Import
 
