@@ -118,6 +118,8 @@ def derive_ux_ergonomic_measurement_admissibility(
         and case_envelope.available_surface_css_geometry.admissibility in _ALLOWED_CSS_ADMISSIBILITY
     )
     runtime_geometry_measured = (
+        case_envelope.viewport_css_geometry.admissibility == "css_geometry_admissible"
+        and
         case_envelope.available_surface_css_geometry.admissibility == "css_geometry_admissible"
     )
     device_pixel_ratio = case_envelope.device_pixel_ratio_or_none
@@ -125,13 +127,16 @@ def derive_ux_ergonomic_measurement_admissibility(
     viewing_distance_mm = case_envelope.viewing_distance_mm_or_none
     physical_size_available = (
         device_pixel_ratio is not None
+        and device_pixel_ratio.unit == "ratio"
         and device_pixel_ratio.admissibility == "physical_size_admissible"
         and physical_screen_ppi is not None
+        and physical_screen_ppi.unit == "ppi"
         and physical_screen_ppi.admissibility == "physical_size_admissible"
     )
     visual_angle_available = (
         physical_size_available
         and viewing_distance_mm is not None
+        and viewing_distance_mm.unit == "mm"
         and viewing_distance_mm.admissibility == "visual_angle_admissible"
     )
     return _MeasurementAdmissibility(
@@ -217,12 +222,10 @@ def evaluate_ux_ergonomic_candidate_row(
     *,
     candidate: UXErgonomicCandidateProjectionProfileRow,
     rule_authority_stack: UXErgonomicRuleAuthorityStack,
-    registry: UXComponentErgonomicRegistry,
     visibility_contract: UXComponentVisibilityContract,
     case_envelope: UXErgonomicCaseEnvelope,
     measurement_admissibility: _MeasurementAdmissibility,
 ) -> _CandidateEvaluation:
-    del registry
     visibility_by_ref, action_by_ref = _candidate_rows_by_ref(candidate=candidate)
     evaluation = _CandidateEvaluation(candidate_profile_id=candidate.candidate_profile_id)
 
@@ -331,11 +334,7 @@ def evaluate_ux_ergonomic_candidate_row(
     )
     evaluation.preference_tier = _tier_from_distance(distance)
 
-    if (
-        case_envelope.available_surface_css_geometry.admissibility
-        == "planning_declared_css_geometry"
-        and distance > 0
-    ):
+    if not measurement_admissibility.runtime_geometry_measured:
         evaluation.review_reason_codes.add("erg_review_declared_geometry_not_runtime_measured")
         evaluation.measurement_obligation_rows.append(
             UXErgonomicMeasurementObligationRow.model_validate(
@@ -348,7 +347,7 @@ def evaluate_ux_ergonomic_candidate_row(
                 }
             )
         )
-        if evaluation.preference_tier in {"marginal", "discouraged"}:
+        if distance > 0 and evaluation.preference_tier in {"marginal", "discouraged"}:
             evaluation.measurement_obligation_rows.append(
                 UXErgonomicMeasurementObligationRow.model_validate(
                     {
@@ -453,7 +452,6 @@ def evaluate_ux_ergonomic_adjudication_request(
         evaluate_ux_ergonomic_candidate_row(
             candidate=candidate,
             rule_authority_stack=rule_authority_stack,
-            registry=registry,
             visibility_contract=visibility_contract,
             case_envelope=case_envelope,
             measurement_admissibility=measurement_admissibility,
@@ -560,7 +558,28 @@ def evaluate_ux_ergonomic_adjudication_request(
 
 
 def canonicalize_computed_ux_ergonomic_adjudication_result_payload(
-    **kwargs: object,
+    *,
+    rule_authority_stack: UXErgonomicRuleAuthorityStack,
+    registry: UXComponentErgonomicRegistry,
+    visibility_contract: UXComponentVisibilityContract,
+    candidate_projection_table: UXErgonomicCandidateProjectionProfileTable,
+    case_envelope: UXErgonomicCaseEnvelope,
+    request: UXErgonomicAdjudicationRequest,
+    approved_profile_table: V36AFirstFamilyApprovedProfileTable,
+    same_context_glossary: V36ASameContextReachabilityGlossary,
+    surface_projection: UXSurfaceProjection,
+    interaction_contract: UXInteractionContract,
 ) -> dict[str, object]:
-    result = evaluate_ux_ergonomic_adjudication_request(**kwargs)
+    result = evaluate_ux_ergonomic_adjudication_request(
+        rule_authority_stack=rule_authority_stack,
+        registry=registry,
+        visibility_contract=visibility_contract,
+        candidate_projection_table=candidate_projection_table,
+        case_envelope=case_envelope,
+        request=request,
+        approved_profile_table=approved_profile_table,
+        same_context_glossary=same_context_glossary,
+        surface_projection=surface_projection,
+        interaction_contract=interaction_contract,
+    )
     return result.model_dump(mode="json", exclude_none=True)

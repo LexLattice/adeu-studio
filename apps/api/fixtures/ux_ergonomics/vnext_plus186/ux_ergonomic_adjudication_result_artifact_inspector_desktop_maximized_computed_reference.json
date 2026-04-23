@@ -10,6 +10,17 @@
         "erg_review_declared_geometry_not_runtime_measured"
       ],
       "severity": "warning"
+    },
+    {
+      "affected_candidate_ids": [
+        "artifact_inspector_maximized_split_reference"
+      ],
+      "ambiguity_id": "artifact_inspector_maximized_split_reference_review",
+      "ambiguity_kind": "runtime_confirmation_pending",
+      "reason_codes": [
+        "erg_review_declared_geometry_not_runtime_measured"
+      ],
+      "severity": "warning"
     }
   ],
   "blocked_candidate_rows": [
@@ -63,6 +74,15 @@
       "candidate_profile_id": "artifact_inspector_half_screen_split_reference",
       "measurement_kind": "runtime_targetability_measurement",
       "obligation_id": "artifact_inspector_half_screen_split_reference_targetability_measurement",
+      "reason_codes": [
+        "erg_review_declared_geometry_not_runtime_measured"
+      ],
+      "required_for": "needs_review"
+    },
+    {
+      "candidate_profile_id": "artifact_inspector_maximized_split_reference",
+      "measurement_kind": "runtime_targetability_measurement",
+      "obligation_id": "artifact_inspector_maximized_split_reference_targetability_measurement",
       "reason_codes": [
         "erg_review_declared_geometry_not_runtime_measured"
       ],

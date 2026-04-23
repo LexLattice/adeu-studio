@@ -211,6 +211,53 @@ def test_v67b_css_only_case_does_not_over_block_on_missing_physical_chain() -> N
     assert isinstance(result, UXErgonomicAdjudicationResult)
 
 
+def test_v67b_invalid_units_do_not_count_as_physical_size_admissible() -> None:
+    inputs = _load_reference_inputs()
+    case_envelope = inputs["case_envelope"].model_copy(deep=True)
+    case_envelope.device_pixel_ratio_or_none = copy.deepcopy(case_envelope.zoom_scale_or_none)
+    assert case_envelope.device_pixel_ratio_or_none is not None
+    case_envelope.device_pixel_ratio_or_none.admissibility = "physical_size_admissible"
+    case_envelope.device_pixel_ratio_or_none.numeric_value = 2.0
+    case_envelope.device_pixel_ratio_or_none.unit = "mm"
+    case_envelope.physical_screen_ppi_or_none = copy.deepcopy(
+        case_envelope.preferred_text_min_css_px_or_none
+    )
+    assert case_envelope.physical_screen_ppi_or_none is not None
+    case_envelope.physical_screen_ppi_or_none.admissibility = "physical_size_admissible"
+    case_envelope.physical_screen_ppi_or_none.numeric_value = 110.0
+    case_envelope.physical_screen_ppi_or_none.unit = "ratio"
+    inputs["case_envelope"] = case_envelope
+
+    result = evaluate_ux_ergonomic_adjudication_request(**inputs)
+
+    assert result.report_status == "valid"
+    ambiguity_reasons = {
+        reason
+        for row in result.ambiguity_rows
+        for reason in row.reason_codes
+    }
+    assert "erg_review_physical_size_inadmissible_but_not_required" in ambiguity_reasons
+
+
+def test_v67b_declared_viewport_geometry_keeps_result_in_review() -> None:
+    inputs = _load_reference_inputs()
+    case_envelope = inputs["case_envelope"].model_copy(deep=True)
+    case_envelope.viewport_css_geometry.admissibility = "planning_declared_css_geometry"
+    case_envelope.available_surface_css_geometry.admissibility = "css_geometry_admissible"
+    inputs["case_envelope"] = case_envelope
+
+    result = evaluate_ux_ergonomic_adjudication_request(**inputs)
+
+    assert result.report_status == "valid"
+    assert result.overall_judgment == "needs_review"
+    half_screen = next(
+        row
+        for row in result.measurement_obligation_rows
+        if row.candidate_profile_id == "artifact_inspector_half_screen_split_reference"
+    )
+    assert half_screen.reason_codes == ["erg_review_declared_geometry_not_runtime_measured"]
+
+
 def test_v67b_case_envelope_admissibility_failure_stays_structural() -> None:
     inputs = _load_reference_inputs()
     case_envelope = inputs["case_envelope"].model_copy(deep=True)
