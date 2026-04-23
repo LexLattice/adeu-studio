@@ -1,0 +1,282 @@
+{
+  "$defs": {
+    "UXErgonomicMeasuredBoundingBoxCssPx": {
+      "additionalProperties": false,
+      "properties": {
+        "height": {
+          "minimum": 1,
+          "title": "Height",
+          "type": "integer"
+        },
+        "width": {
+          "minimum": 1,
+          "title": "Width",
+          "type": "integer"
+        },
+        "x": {
+          "minimum": 0,
+          "title": "X",
+          "type": "integer"
+        },
+        "y": {
+          "minimum": 0,
+          "title": "Y",
+          "type": "integer"
+        }
+      },
+      "required": [
+        "x",
+        "y",
+        "width",
+        "height"
+      ],
+      "title": "UXErgonomicMeasuredBoundingBoxCssPx",
+      "type": "object"
+    },
+    "UXErgonomicRuntimeBridgeSourceArtifactHash": {
+      "additionalProperties": false,
+      "properties": {
+        "artifact_hash": {
+          "pattern": "^[0-9a-f]{64}$",
+          "title": "Artifact Hash",
+          "type": "string"
+        },
+        "artifact_ref": {
+          "minLength": 1,
+          "title": "Artifact Ref",
+          "type": "string"
+        }
+      },
+      "required": [
+        "artifact_ref",
+        "artifact_hash"
+      ],
+      "title": "UXErgonomicRuntimeBridgeSourceArtifactHash",
+      "type": "object"
+    },
+    "UXErgonomicRuntimeMeasurementRow": {
+      "additionalProperties": false,
+      "properties": {
+        "candidate_profile_id": {
+          "enum": [
+            "artifact_inspector_maximized_split_reference",
+            "artifact_inspector_half_screen_split_reference",
+            "artifact_inspector_narrow_stacked_same_context",
+            "artifact_inspector_quarter_screen_inspector_safe_buffered"
+          ],
+          "title": "Candidate Profile Id",
+          "type": "string"
+        },
+        "component_ref": {
+          "minLength": 1,
+          "title": "Component Ref",
+          "type": "string"
+        },
+        "computed_font_size_css_px_or_none": {
+          "anyOf": [
+            {
+              "minimum": 1,
+              "type": "integer"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Computed Font Size Css Px Or None"
+        },
+        "computed_line_height_css_px_or_none": {
+          "anyOf": [
+            {
+              "minimum": 1,
+              "type": "integer"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Computed Line Height Css Px Or None"
+        },
+        "measured_bounding_box_css_px": {
+          "$ref": "#/$defs/UXErgonomicMeasuredBoundingBoxCssPx"
+        },
+        "observed_reveal_transition_or_none": {
+          "anyOf": [
+            {
+              "enum": [
+                "bounded_workbench_focus_shift",
+                "bounded_workbench_position_shift",
+                "bounded_workbench_state_reveal"
+              ],
+              "type": "string"
+            },
+            {
+              "const": "unexpected_route_transition",
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Observed Reveal Transition Or None"
+        },
+        "observed_visibility_state": {
+          "enum": [
+            "continuously_visible",
+            "same_context_reachable",
+            "gated_and_visible",
+            "not_observed"
+          ],
+          "title": "Observed Visibility State",
+          "type": "string"
+        },
+        "provenance_state": {
+          "enum": [
+            "measured_runtime",
+            "declared_case",
+            "declared_user_profile",
+            "verified_device_inventory",
+            "inferred_heuristic",
+            "unknown"
+          ],
+          "title": "Provenance State",
+          "type": "string"
+        },
+        "source_kind": {
+          "enum": [
+            "playwright_replay",
+            "declared_fixture",
+            "device_inventory",
+            "user_profile",
+            "heuristic_inference"
+          ],
+          "title": "Source Kind",
+          "type": "string"
+        },
+        "source_ref": {
+          "minLength": 1,
+          "title": "Source Ref",
+          "type": "string"
+        }
+      },
+      "required": [
+        "component_ref",
+        "candidate_profile_id",
+        "measured_bounding_box_css_px",
+        "observed_visibility_state",
+        "provenance_state",
+        "source_kind",
+        "source_ref"
+      ],
+      "title": "UXErgonomicRuntimeMeasurementRow",
+      "type": "object"
+    }
+  },
+  "additionalProperties": false,
+  "properties": {
+    "adjudication_result_ref": {
+      "minLength": 1,
+      "title": "Adjudication Result Ref",
+      "type": "string"
+    },
+    "candidate_profile_id": {
+      "enum": [
+        "artifact_inspector_maximized_split_reference",
+        "artifact_inspector_half_screen_split_reference",
+        "artifact_inspector_narrow_stacked_same_context",
+        "artifact_inspector_quarter_screen_inspector_safe_buffered"
+      ],
+      "title": "Candidate Profile Id",
+      "type": "string"
+    },
+    "evidence_id": {
+      "minLength": 1,
+      "title": "Evidence Id",
+      "type": "string"
+    },
+    "measurement_rows": {
+      "items": {
+        "$ref": "#/$defs/UXErgonomicRuntimeMeasurementRow"
+      },
+      "minItems": 1,
+      "title": "Measurement Rows",
+      "type": "array"
+    },
+    "reference_instance_id": {
+      "minLength": 1,
+      "title": "Reference Instance Id",
+      "type": "string"
+    },
+    "reference_surface_family": {
+      "const": "artifact_inspector_advisory_workbench",
+      "default": "artifact_inspector_advisory_workbench",
+      "title": "Reference Surface Family",
+      "type": "string"
+    },
+    "request_ref": {
+      "minLength": 1,
+      "title": "Request Ref",
+      "type": "string"
+    },
+    "schema": {
+      "const": "ux_ergonomic_runtime_measurement_evidence@1",
+      "default": "ux_ergonomic_runtime_measurement_evidence@1",
+      "title": "Schema",
+      "type": "string"
+    },
+    "source_artifact_hashes": {
+      "items": {
+        "$ref": "#/$defs/UXErgonomicRuntimeBridgeSourceArtifactHash"
+      },
+      "minItems": 1,
+      "title": "Source Artifact Hashes",
+      "type": "array"
+    },
+    "source_artifact_refs": {
+      "items": {
+        "type": "string"
+      },
+      "minItems": 1,
+      "title": "Source Artifact Refs",
+      "type": "array"
+    },
+    "ux_conformance_report_ref_or_none": {
+      "anyOf": [
+        {
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Ux Conformance Report Ref Or None"
+    },
+    "ux_morph_diagnostics_ref_or_none": {
+      "anyOf": [
+        {
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Ux Morph Diagnostics Ref Or None"
+    }
+  },
+  "required": [
+    "evidence_id",
+    "reference_instance_id",
+    "candidate_profile_id",
+    "request_ref",
+    "adjudication_result_ref",
+    "source_artifact_refs",
+    "source_artifact_hashes",
+    "measurement_rows"
+  ],
+  "title": "UXErgonomicRuntimeMeasurementEvidence",
+  "type": "object"
+}

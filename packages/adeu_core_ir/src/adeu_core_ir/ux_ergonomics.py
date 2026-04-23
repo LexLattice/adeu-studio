@@ -30,6 +30,10 @@ UXErgonomicCandidateProjectionProfileTableSchemaVersion = Literal[
 UXErgonomicCaseEnvelopeSchemaVersion = Literal["ux_ergonomic_case_envelope@1"]
 UXErgonomicAdjudicationRequestSchemaVersion = Literal["ux_ergonomic_adjudication_request@1"]
 UXErgonomicAdjudicationResultSchemaVersion = Literal["ux_ergonomic_adjudication_result@1"]
+UXErgonomicRuntimeMeasurementEvidenceSchemaVersion = Literal[
+    "ux_ergonomic_runtime_measurement_evidence@1"
+]
+UXErgonomicRuntimeBridgeReportSchemaVersion = Literal["ux_ergonomic_runtime_bridge_report@1"]
 
 UXErgonomicAuthorityLayer = Literal[
     "constitutional_surface_invariant",
@@ -132,6 +136,15 @@ UXErgonomicMeasurementSourceKind = Literal[
     "heuristic_inference",
 ]
 UXErgonomicMeasurementUnit = Literal["css_px", "ratio", "ppi", "mm"]
+UXErgonomicObservedVisibilityState = Literal[
+    "continuously_visible",
+    "same_context_reachable",
+    "gated_and_visible",
+    "not_observed",
+]
+UXErgonomicObservedRevealTransition = SameContextReachableTerm | Literal[
+    "unexpected_route_transition"
+]
 UXErgonomicCandidateProfileId = Literal[
     "artifact_inspector_maximized_split_reference",
     "artifact_inspector_half_screen_split_reference",
@@ -146,6 +159,28 @@ UXErgonomicMeasurementObligationKind = Literal[
 ]
 UXErgonomicObligationSeverity = Literal["pass", "needs_review"]
 UXErgonomicAmbiguitySeverity = Literal["advisory", "warning"]
+UXErgonomicRuntimeBridgeStatus = Literal[
+    "advisory_clean",
+    "advisory_drift_detected",
+    "advisory_incomplete_missing_evidence",
+    "invalid_basis_mismatch",
+    "invalid_runtime_evidence_shape",
+]
+UXErgonomicRuntimeMismatchFamily = Literal[
+    "runtime_source_hash_mismatch",
+    "runtime_missing_measurement_for_required_obligation",
+    "runtime_measurement_provenance_inadmissible",
+    "runtime_candidate_profile_not_realized",
+    "runtime_targetability_below_adjudicated_floor",
+    "runtime_text_floor_below_adjudicated_floor",
+    "runtime_visibility_drift_from_adjudicated_claim",
+    "runtime_same_context_reveal_drift",
+    "runtime_required_evidence_not_observed",
+    "runtime_trust_boundary_not_observed",
+    "runtime_commit_gate_not_observed_or_not_targetable",
+    "runtime_unexpected_route_transition",
+    "runtime_unknown_component_ref",
+]
 
 UX_ERGONOMIC_RULE_AUTHORITY_STACK_SCHEMA = "ux_ergonomic_rule_authority_stack@1"
 UX_COMPONENT_ERGONOMIC_REGISTRY_SCHEMA = "ux_component_ergonomic_registry@1"
@@ -156,9 +191,17 @@ UX_ERGONOMIC_CANDIDATE_PROJECTION_PROFILE_TABLE_SCHEMA = (
 UX_ERGONOMIC_CASE_ENVELOPE_SCHEMA = "ux_ergonomic_case_envelope@1"
 UX_ERGONOMIC_ADJUDICATION_REQUEST_SCHEMA = "ux_ergonomic_adjudication_request@1"
 UX_ERGONOMIC_ADJUDICATION_RESULT_SCHEMA = "ux_ergonomic_adjudication_result@1"
+UX_ERGONOMIC_RUNTIME_MEASUREMENT_EVIDENCE_SCHEMA = (
+    "ux_ergonomic_runtime_measurement_evidence@1"
+)
+UX_ERGONOMIC_RUNTIME_BRIDGE_REPORT_SCHEMA = "ux_ergonomic_runtime_bridge_report@1"
 
 FROZEN_V67A_ALLOWED_SOURCE_ARTIFACT_REF_PREFIXES: tuple[str, ...] = (
     "apps/api/fixtures/ux_governance/",
+)
+FROZEN_V67C_ALLOWED_SOURCE_ARTIFACT_REF_PREFIXES: tuple[str, ...] = (
+    "apps/api/fixtures/ux_governance/",
+    "apps/api/fixtures/ux_ergonomics/",
 )
 FROZEN_V67A_CLASS_IDS: tuple[UXErgonomicClassId, ...] = (
     "erg_action_lane_container",
@@ -315,6 +358,16 @@ def _assert_v67a_source_artifact_ref(ref: str, *, field_name: str) -> None:
     ):
         raise ValueError(
             f"{field_name} must resolve to the frozen v67a released ux governance source stack"
+        )
+
+
+def _assert_v67c_source_artifact_ref(ref: str, *, field_name: str) -> None:
+    _assert_repo_relative_artifact_ref(ref, field_name=field_name)
+    if not any(
+        ref.startswith(prefix) for prefix in FROZEN_V67C_ALLOWED_SOURCE_ARTIFACT_REF_PREFIXES
+    ):
+        raise ValueError(
+            f"{field_name} must resolve to the frozen v67c ergonomic/governance source stack"
         )
 
 
@@ -1031,6 +1084,197 @@ class UXErgonomicAdjudicationResult(BaseModel):
         return self
 
 
+class UXErgonomicRuntimeBridgeSourceArtifactHash(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+
+    artifact_ref: str = Field(min_length=1)
+    artifact_hash: str = Field(pattern=r"^[0-9a-f]{64}$")
+
+    @model_validator(mode="after")
+    def _validate_contract(self) -> "UXErgonomicRuntimeBridgeSourceArtifactHash":
+        _assert_v67c_source_artifact_ref(
+            self.artifact_ref,
+            field_name="runtime_bridge_source_artifact_hashes.artifact_ref",
+        )
+        return self
+
+
+class UXErgonomicMeasuredBoundingBoxCssPx(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+
+    x: int = Field(ge=0)
+    y: int = Field(ge=0)
+    width: int = Field(ge=1)
+    height: int = Field(ge=1)
+
+
+class UXErgonomicRuntimeMeasurementRow(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+
+    component_ref: str = Field(min_length=1)
+    candidate_profile_id: UXErgonomicCandidateProfileId
+    measured_bounding_box_css_px: UXErgonomicMeasuredBoundingBoxCssPx
+    computed_font_size_css_px_or_none: int | None = Field(default=None, ge=1)
+    computed_line_height_css_px_or_none: int | None = Field(default=None, ge=1)
+    observed_visibility_state: UXErgonomicObservedVisibilityState
+    observed_reveal_transition_or_none: UXErgonomicObservedRevealTransition | None = None
+    provenance_state: UXErgonomicProvenanceState
+    source_kind: UXErgonomicMeasurementSourceKind
+    source_ref: str = Field(min_length=1)
+
+    @model_validator(mode="after")
+    def _validate_contract(self) -> "UXErgonomicRuntimeMeasurementRow":
+        _parse_component_ref(
+            self.component_ref,
+            field_name=f"measurement_rows[{self.component_ref}].component_ref",
+        )
+        _assert_repo_relative_artifact_ref(
+            self.source_ref,
+            field_name=f"measurement_rows[{self.component_ref}].source_ref",
+        )
+        if (
+            self.observed_visibility_state == "same_context_reachable"
+            and self.observed_reveal_transition_or_none is None
+        ):
+            raise ValueError(
+                f"measurement_rows[{self.component_ref}] must carry "
+                "observed_reveal_transition_or_none when observed_visibility_state is "
+                "same_context_reachable"
+            )
+        if (
+            self.observed_reveal_transition_or_none is not None
+            and self.observed_visibility_state != "same_context_reachable"
+            and self.observed_reveal_transition_or_none != "unexpected_route_transition"
+        ):
+            raise ValueError(
+                f"measurement_rows[{self.component_ref}] may carry a same-context reveal "
+                "transition only when observed_visibility_state is same_context_reachable"
+            )
+        return self
+
+
+class UXErgonomicRuntimeMeasurementEvidence(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+
+    schema: UXErgonomicRuntimeMeasurementEvidenceSchemaVersion = (
+        UX_ERGONOMIC_RUNTIME_MEASUREMENT_EVIDENCE_SCHEMA
+    )
+    evidence_id: str = Field(min_length=1)
+    reference_surface_family: UXReferenceSurfaceFamily = V36A_REFERENCE_SURFACE_FAMILY
+    reference_instance_id: str = Field(min_length=1)
+    candidate_profile_id: UXErgonomicCandidateProfileId
+    request_ref: str = Field(min_length=1)
+    adjudication_result_ref: str = Field(min_length=1)
+    ux_morph_diagnostics_ref_or_none: str | None = None
+    ux_conformance_report_ref_or_none: str | None = None
+    source_artifact_refs: list[str] = Field(min_length=1)
+    source_artifact_hashes: list[UXErgonomicRuntimeBridgeSourceArtifactHash] = Field(min_length=1)
+    measurement_rows: list[UXErgonomicRuntimeMeasurementRow] = Field(min_length=1)
+
+    @model_validator(mode="after")
+    def _validate_contract(self) -> "UXErgonomicRuntimeMeasurementEvidence":
+        _assert_source_refs_and_hashes_align(
+            source_artifact_refs=self.source_artifact_refs,
+            source_artifact_hashes=self.source_artifact_hashes,
+            field_name="ux_ergonomic_runtime_measurement_evidence",
+        )
+        measurement_component_refs = [row.component_ref for row in self.measurement_rows]
+        _assert_sorted_distinct(
+            measurement_component_refs,
+            field_name="measurement_rows.component_ref",
+        )
+        if any(
+            row.candidate_profile_id != self.candidate_profile_id
+            for row in self.measurement_rows
+        ):
+            raise ValueError(
+                "measurement_rows candidate_profile_id must match the top-level "
+                "candidate_profile_id"
+            )
+        if self.ux_morph_diagnostics_ref_or_none is not None:
+            _assert_v67c_source_artifact_ref(
+                self.ux_morph_diagnostics_ref_or_none,
+                field_name="ux_morph_diagnostics_ref_or_none",
+            )
+        if self.ux_conformance_report_ref_or_none is not None:
+            _assert_v67c_source_artifact_ref(
+                self.ux_conformance_report_ref_or_none,
+                field_name="ux_conformance_report_ref_or_none",
+            )
+        return self
+
+
+class UXErgonomicRuntimeMismatchRow(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+
+    mismatch_id: str = Field(min_length=1)
+    mismatch_family: UXErgonomicRuntimeMismatchFamily
+    candidate_profile_id_or_none: UXErgonomicCandidateProfileId | None = None
+    component_ref_or_none: str | None = None
+    obligation_id_or_none: str | None = None
+    source_ref_or_none: str | None = None
+
+    @model_validator(mode="after")
+    def _validate_contract(self) -> "UXErgonomicRuntimeMismatchRow":
+        if self.component_ref_or_none is not None:
+            _parse_component_ref(
+                self.component_ref_or_none,
+                field_name=f"mismatch_rows[{self.mismatch_id}].component_ref_or_none",
+            )
+        if self.source_ref_or_none is not None:
+            _assert_repo_relative_artifact_ref(
+                self.source_ref_or_none,
+                field_name=f"mismatch_rows[{self.mismatch_id}].source_ref_or_none",
+            )
+        return self
+
+
+class UXErgonomicRuntimeBridgeReport(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+
+    schema: UXErgonomicRuntimeBridgeReportSchemaVersion = UX_ERGONOMIC_RUNTIME_BRIDGE_REPORT_SCHEMA
+    bridge_report_id: str = Field(min_length=1)
+    reference_surface_family: UXReferenceSurfaceFamily = V36A_REFERENCE_SURFACE_FAMILY
+    reference_instance_id: str = Field(min_length=1)
+    request_ref: str = Field(min_length=1)
+    adjudication_result_ref: str = Field(min_length=1)
+    runtime_measurement_evidence_ref: str = Field(min_length=1)
+    ux_morph_diagnostics_ref_or_none: str | None = None
+    ux_conformance_report_ref_or_none: str | None = None
+    source_artifact_refs: list[str] = Field(min_length=1)
+    source_artifact_hashes: list[UXErgonomicRuntimeBridgeSourceArtifactHash] = Field(min_length=1)
+    bridge_status: UXErgonomicRuntimeBridgeStatus
+    mismatch_rows: list[UXErgonomicRuntimeMismatchRow] = Field(default_factory=list)
+
+    @model_validator(mode="after")
+    def _validate_contract(self) -> "UXErgonomicRuntimeBridgeReport":
+        _assert_source_refs_and_hashes_align(
+            source_artifact_refs=self.source_artifact_refs,
+            source_artifact_hashes=self.source_artifact_hashes,
+            field_name="ux_ergonomic_runtime_bridge_report",
+        )
+        mismatch_ids = [row.mismatch_id for row in self.mismatch_rows]
+        _assert_sorted_distinct(
+            mismatch_ids,
+            field_name="mismatch_rows.mismatch_id",
+        )
+        if self.bridge_status == "advisory_clean" and self.mismatch_rows:
+            raise ValueError("advisory_clean bridge reports must not carry mismatch_rows")
+        if self.bridge_status != "advisory_clean" and not self.mismatch_rows:
+            raise ValueError("non-clean bridge reports must carry mismatch_rows")
+        if self.ux_morph_diagnostics_ref_or_none is not None:
+            _assert_v67c_source_artifact_ref(
+                self.ux_morph_diagnostics_ref_or_none,
+                field_name="ux_morph_diagnostics_ref_or_none",
+            )
+        if self.ux_conformance_report_ref_or_none is not None:
+            _assert_v67c_source_artifact_ref(
+                self.ux_conformance_report_ref_or_none,
+                field_name="ux_conformance_report_ref_or_none",
+            )
+        return self
+
+
 def canonicalize_ux_ergonomic_rule_authority_stack_payload(
     payload: dict[str, Any],
 ) -> dict[str, Any]:
@@ -1073,6 +1317,20 @@ def canonicalize_ux_ergonomic_adjudication_result_payload(
     payload: dict[str, Any],
 ) -> dict[str, Any]:
     model = UXErgonomicAdjudicationResult.model_validate(deepcopy(payload))
+    return model.model_dump(mode="json", exclude_none=True)
+
+
+def canonicalize_ux_ergonomic_runtime_measurement_evidence_payload(
+    payload: dict[str, Any],
+) -> dict[str, Any]:
+    model = UXErgonomicRuntimeMeasurementEvidence.model_validate(deepcopy(payload))
+    return model.model_dump(mode="json", exclude_none=True)
+
+
+def canonicalize_ux_ergonomic_runtime_bridge_report_payload(
+    payload: dict[str, Any],
+) -> dict[str, Any]:
+    model = UXErgonomicRuntimeBridgeReport.model_validate(deepcopy(payload))
     return model.model_dump(mode="json", exclude_none=True)
 
 
