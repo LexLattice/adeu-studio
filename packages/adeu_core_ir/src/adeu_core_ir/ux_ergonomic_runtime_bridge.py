@@ -115,7 +115,7 @@ def _load_runtime_bridge_source_bundle(
     conformance_ref: str | None = None
     conformance: UXConformanceReport | None = None
 
-    seen_required_schemas: set[str] = set()
+    seen_source_schemas: set[str] = set()
     for index, ref in enumerate(runtime_measurement_evidence.source_artifact_refs):
         payload = _load_repo_relative_json_artifact(
             ref=ref,
@@ -123,33 +123,29 @@ def _load_runtime_bridge_source_bundle(
         )
         if not isinstance(payload, dict) or "schema" not in payload:
             raise ValueError(
-                "runtime bridge source artifacts must be typed canonical json payloads"
+                f"runtime bridge source artifact {ref!r} must be a typed canonical json payload"
             )
         schema = payload["schema"]
-        if schema in seen_required_schemas and schema in _REQUIRED_SOURCE_SCHEMAS:
+        if schema in seen_source_schemas:
             raise ValueError(f"runtime bridge source bundle must not repeat schema {schema!r}")
+        seen_source_schemas.add(schema)
         if schema == UX_COMPONENT_VISIBILITY_CONTRACT_SCHEMA:
             visibility_contract_ref = ref
             visibility_contract = UXComponentVisibilityContract.model_validate(payload)
-            seen_required_schemas.add(schema)
         elif schema == UX_ERGONOMIC_CANDIDATE_PROJECTION_PROFILE_TABLE_SCHEMA:
             candidate_projection_table_ref = ref
             candidate_projection_table = UXErgonomicCandidateProjectionProfileTable.model_validate(
                 payload
             )
-            seen_required_schemas.add(schema)
         elif schema == UX_ERGONOMIC_CASE_ENVELOPE_SCHEMA:
             case_envelope_ref = ref
             case_envelope = UXErgonomicCaseEnvelope.model_validate(payload)
-            seen_required_schemas.add(schema)
         elif schema == UX_ERGONOMIC_ADJUDICATION_REQUEST_SCHEMA:
             request_ref = ref
             request = UXErgonomicAdjudicationRequest.model_validate(payload)
-            seen_required_schemas.add(schema)
         elif schema == UX_ERGONOMIC_ADJUDICATION_RESULT_SCHEMA:
             adjudication_result_ref = ref
             adjudication_result = UXErgonomicAdjudicationResult.model_validate(payload)
-            seen_required_schemas.add(schema)
         elif schema == UX_MORPH_DIAGNOSTICS_SCHEMA:
             diagnostics_ref = ref
             diagnostics = UXMorphDiagnostics.model_validate(payload)
@@ -157,7 +153,7 @@ def _load_runtime_bridge_source_bundle(
             conformance_ref = ref
             conformance = UXConformanceReport.model_validate(payload)
 
-    missing = _REQUIRED_SOURCE_SCHEMAS - seen_required_schemas
+    missing = _REQUIRED_SOURCE_SCHEMAS - seen_source_schemas
     if missing:
         raise ValueError(
             f"runtime bridge source bundle is missing required schemas: {sorted(missing)!r}"
@@ -285,6 +281,54 @@ def evaluate_ux_ergonomic_runtime_bridge(
                     "candidate_profile_id_or_none": (
                         runtime_measurement_evidence.candidate_profile_id
                     ),
+                }
+            ],
+        )
+    if request.visibility_contract_ref != bundle.visibility_contract.contract_id:
+        return _invalid_bridge_report(
+            runtime_measurement_evidence=runtime_measurement_evidence,
+            bridge_status="invalid_basis_mismatch",
+            mismatch_rows=[
+                {
+                    "mismatch_id": "runtime_source_hash_mismatch",
+                    "mismatch_family": "runtime_source_hash_mismatch",
+                    "candidate_profile_id_or_none": (
+                        runtime_measurement_evidence.candidate_profile_id
+                    ),
+                    "source_ref_or_none": bundle.visibility_contract_ref,
+                }
+            ],
+        )
+    if (
+        request.candidate_profile_table_ref
+        != bundle.candidate_projection_table.candidate_profile_table_id
+    ):
+        return _invalid_bridge_report(
+            runtime_measurement_evidence=runtime_measurement_evidence,
+            bridge_status="invalid_basis_mismatch",
+            mismatch_rows=[
+                {
+                    "mismatch_id": "runtime_source_hash_mismatch",
+                    "mismatch_family": "runtime_source_hash_mismatch",
+                    "candidate_profile_id_or_none": (
+                        runtime_measurement_evidence.candidate_profile_id
+                    ),
+                    "source_ref_or_none": bundle.candidate_projection_table_ref,
+                }
+            ],
+        )
+    if request.case_envelope_ref != bundle.case_envelope.case_envelope_id:
+        return _invalid_bridge_report(
+            runtime_measurement_evidence=runtime_measurement_evidence,
+            bridge_status="invalid_basis_mismatch",
+            mismatch_rows=[
+                {
+                    "mismatch_id": "runtime_source_hash_mismatch",
+                    "mismatch_family": "runtime_source_hash_mismatch",
+                    "candidate_profile_id_or_none": (
+                        runtime_measurement_evidence.candidate_profile_id
+                    ),
+                    "source_ref_or_none": bundle.case_envelope_ref,
                 }
             ],
         )
