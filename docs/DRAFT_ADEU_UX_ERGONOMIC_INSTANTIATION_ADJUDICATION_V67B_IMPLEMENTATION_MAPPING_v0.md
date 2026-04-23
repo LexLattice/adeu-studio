@@ -1,8 +1,7 @@
 # Draft ADEU UX Ergonomic Instantiation Adjudication V67B Implementation Mapping v0
 
 Status: support note for the planned `V67-B` bounded adjudication implementation
-pass after the `V67-A` schema-and-validator backbone is expected to ship on
-`main`.
+pass now that the `V67-A` schema-and-validator backbone is shipped on `main`.
 
 Authority layer: support only.
 

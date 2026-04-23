@@ -158,15 +158,17 @@ But it may not mint:
 ## Recommended Next Slice
 
 - family remains: `V67`
-- next concrete slice: `V67-A`
+- `V67-A` starter language and validator backbone is now shipped on `main`
+- next concrete slice: `V67-B`
 - recommended selector outcome:
-  - keep the current UX governance substrate closed on `main`;
-  - select `V67-A` as the next default candidate;
-  - keep the first slice schema-and-validator only.
+  - keep the current UX governance substrate closed on `main`
+  - keep the shipped `V67-A` artifact family stable on `main`
+  - select `V67-B` as the next default candidate
+  - keep `V67-B` bounded to finite-candidate adjudication only.
 
-`V67-A` should:
+`V67-B` should:
 
-- add:
+- consume the shipped `V67-A` artifact language intact:
   - `ux_ergonomic_rule_authority_stack@1`
   - `ux_component_ergonomic_registry@1`
   - `ux_component_visibility_contract@1`
@@ -174,7 +176,7 @@ But it may not mint:
   - `ux_ergonomic_case_envelope@1`
   - `ux_ergonomic_adjudication_request@1`
   - `ux_ergonomic_adjudication_result@1`
-- consume the existing UX governance stack intact:
+- consume the released UX governance basis intact:
   - `ux_domain_packet@1`
   - `ux_morph_ir@1`
   - `v36a_first_family_approved_profile_table@1`
@@ -182,22 +184,19 @@ But it may not mint:
   - `ux_surface_projection@1`
   - `ux_interaction_contract@1`
   - `ux_surface_compiler_variant_manifest@1`
-- admit candidate projection profiles only when they are finite repo-native
-  profiles bound to the released UX governance basis, the same-context glossary,
-  and the frozen ergonomic registry;
-- harden:
-  - authority-stack precedence
-  - frozen ergonomic taxonomy
-  - finite candidate-profile posture
-  - measurement provenance and admissibility
-  - non-scalar adjudication preference tiers
-  - exact source-artifact refs and hashes for starter reference fixtures
+- compute only over finite repo-native candidate rows already declared in the
+  shipped candidate table
+- keep artifact validity in `report_status` and ergonomic case outcome in
+  `overall_judgment`
+- emit only bounded blocked / feasible / ambiguity / measurement-obligation
+  result posture over the shipped result schema
 - stay out of:
-  - free-form layout solving
-  - runtime adaptive personalization
-  - cross-family UX semantic widening
-  - screenshot-only adjudication
-  - generic design-assistant behavior.
+  - generic layout solving
+  - runtime adaptive morph switching
+  - screenshot-first authority
+  - scalar ergonomic scores
+  - new runtime bridge artifacts
+  - mutation of released UX diagnostics / conformance law.
 
 ## Suggested `V67` Path Ladder
 
@@ -236,7 +235,7 @@ It is the next missing sibling extension of Morphic UX governance:
 
 Validation note for this planning-only family draft:
 
-- use `git diff --check` for the doc edits;
-- do not treat this planning draft as a starter-bundle lock pack yet.
-- even with the sharpened selector outcome, `V67-A` remains planning-only until a
+- use `git diff --check` for the doc edits
+- do not treat this planning draft as a starter-bundle lock pack by itself
+- even with the sharpened selector outcome, `V67-B` remains planning-only until a
   starter lock or implementation lock is drafted.
