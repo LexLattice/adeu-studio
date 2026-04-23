@@ -12,6 +12,8 @@ from adeu_core_ir import (
     UX_ERGONOMIC_CANDIDATE_PROJECTION_PROFILE_TABLE_SCHEMA,
     UX_ERGONOMIC_CASE_ENVELOPE_SCHEMA,
     UX_ERGONOMIC_RULE_AUTHORITY_STACK_SCHEMA,
+    UX_ERGONOMIC_RUNTIME_BRIDGE_REPORT_SCHEMA,
+    UX_ERGONOMIC_RUNTIME_MEASUREMENT_EVIDENCE_SCHEMA,
 )
 from adeu_core_ir.export_schema import main as export_schema_main
 from adeu_ir.repo import repo_root
@@ -74,6 +76,22 @@ def _schema_paths() -> list[tuple[Path, Path]]:
             / "ux_ergonomic_adjudication_result.v1.json",
             root / "spec" / "ux_ergonomic_adjudication_result.schema.json",
         ),
+        (
+            root
+            / "packages"
+            / "adeu_core_ir"
+            / "schema"
+            / "ux_ergonomic_runtime_measurement_evidence.v1.json",
+            root / "spec" / "ux_ergonomic_runtime_measurement_evidence.schema.json",
+        ),
+        (
+            root
+            / "packages"
+            / "adeu_core_ir"
+            / "schema"
+            / "ux_ergonomic_runtime_bridge_report.v1.json",
+            root / "spec" / "ux_ergonomic_runtime_bridge_report.schema.json",
+        ),
     ]
 
 
@@ -114,6 +132,10 @@ def test_v67a_exported_schema_files_have_stable_contract_markers() -> None:
         "ux_ergonomic_case_envelope.v1.json": UX_ERGONOMIC_CASE_ENVELOPE_SCHEMA,
         "ux_ergonomic_adjudication_request.v1.json": UX_ERGONOMIC_ADJUDICATION_REQUEST_SCHEMA,
         "ux_ergonomic_adjudication_result.v1.json": UX_ERGONOMIC_ADJUDICATION_RESULT_SCHEMA,
+        "ux_ergonomic_runtime_measurement_evidence.v1.json": (
+            UX_ERGONOMIC_RUNTIME_MEASUREMENT_EVIDENCE_SCHEMA
+        ),
+        "ux_ergonomic_runtime_bridge_report.v1.json": UX_ERGONOMIC_RUNTIME_BRIDGE_REPORT_SCHEMA,
     }
 
     for authoritative, _mirror in _schema_paths():

@@ -1,0 +1,224 @@
+{
+  "$defs": {
+    "UXErgonomicRuntimeBridgeSourceArtifactHash": {
+      "additionalProperties": false,
+      "properties": {
+        "artifact_hash": {
+          "pattern": "^[0-9a-f]{64}$",
+          "title": "Artifact Hash",
+          "type": "string"
+        },
+        "artifact_ref": {
+          "minLength": 1,
+          "title": "Artifact Ref",
+          "type": "string"
+        }
+      },
+      "required": [
+        "artifact_ref",
+        "artifact_hash"
+      ],
+      "title": "UXErgonomicRuntimeBridgeSourceArtifactHash",
+      "type": "object"
+    },
+    "UXErgonomicRuntimeMismatchRow": {
+      "additionalProperties": false,
+      "properties": {
+        "candidate_profile_id_or_none": {
+          "anyOf": [
+            {
+              "enum": [
+                "artifact_inspector_maximized_split_reference",
+                "artifact_inspector_half_screen_split_reference",
+                "artifact_inspector_narrow_stacked_same_context",
+                "artifact_inspector_quarter_screen_inspector_safe_buffered"
+              ],
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Candidate Profile Id Or None"
+        },
+        "component_ref_or_none": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Component Ref Or None"
+        },
+        "mismatch_family": {
+          "enum": [
+            "runtime_source_hash_mismatch",
+            "runtime_missing_measurement_for_required_obligation",
+            "runtime_measurement_provenance_inadmissible",
+            "runtime_candidate_profile_not_realized",
+            "runtime_targetability_below_adjudicated_floor",
+            "runtime_text_floor_below_adjudicated_floor",
+            "runtime_visibility_drift_from_adjudicated_claim",
+            "runtime_same_context_reveal_drift",
+            "runtime_required_evidence_not_observed",
+            "runtime_trust_boundary_not_observed",
+            "runtime_commit_gate_not_observed_or_not_targetable",
+            "runtime_unexpected_route_transition",
+            "runtime_unknown_component_ref"
+          ],
+          "title": "Mismatch Family",
+          "type": "string"
+        },
+        "mismatch_id": {
+          "minLength": 1,
+          "title": "Mismatch Id",
+          "type": "string"
+        },
+        "obligation_id_or_none": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Obligation Id Or None"
+        },
+        "source_ref_or_none": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Source Ref Or None"
+        }
+      },
+      "required": [
+        "mismatch_id",
+        "mismatch_family"
+      ],
+      "title": "UXErgonomicRuntimeMismatchRow",
+      "type": "object"
+    }
+  },
+  "additionalProperties": false,
+  "properties": {
+    "adjudication_result_ref": {
+      "minLength": 1,
+      "title": "Adjudication Result Ref",
+      "type": "string"
+    },
+    "bridge_report_id": {
+      "minLength": 1,
+      "title": "Bridge Report Id",
+      "type": "string"
+    },
+    "bridge_status": {
+      "enum": [
+        "advisory_clean",
+        "advisory_drift_detected",
+        "advisory_incomplete_missing_evidence",
+        "invalid_basis_mismatch",
+        "invalid_runtime_evidence_shape"
+      ],
+      "title": "Bridge Status",
+      "type": "string"
+    },
+    "mismatch_rows": {
+      "items": {
+        "$ref": "#/$defs/UXErgonomicRuntimeMismatchRow"
+      },
+      "title": "Mismatch Rows",
+      "type": "array"
+    },
+    "reference_instance_id": {
+      "minLength": 1,
+      "title": "Reference Instance Id",
+      "type": "string"
+    },
+    "reference_surface_family": {
+      "const": "artifact_inspector_advisory_workbench",
+      "default": "artifact_inspector_advisory_workbench",
+      "title": "Reference Surface Family",
+      "type": "string"
+    },
+    "request_ref": {
+      "minLength": 1,
+      "title": "Request Ref",
+      "type": "string"
+    },
+    "runtime_measurement_evidence_ref": {
+      "minLength": 1,
+      "title": "Runtime Measurement Evidence Ref",
+      "type": "string"
+    },
+    "schema": {
+      "const": "ux_ergonomic_runtime_bridge_report@1",
+      "default": "ux_ergonomic_runtime_bridge_report@1",
+      "title": "Schema",
+      "type": "string"
+    },
+    "source_artifact_hashes": {
+      "items": {
+        "$ref": "#/$defs/UXErgonomicRuntimeBridgeSourceArtifactHash"
+      },
+      "minItems": 1,
+      "title": "Source Artifact Hashes",
+      "type": "array"
+    },
+    "source_artifact_refs": {
+      "items": {
+        "type": "string"
+      },
+      "minItems": 1,
+      "title": "Source Artifact Refs",
+      "type": "array"
+    },
+    "ux_conformance_report_ref_or_none": {
+      "anyOf": [
+        {
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Ux Conformance Report Ref Or None"
+    },
+    "ux_morph_diagnostics_ref_or_none": {
+      "anyOf": [
+        {
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Ux Morph Diagnostics Ref Or None"
+    }
+  },
+  "required": [
+    "bridge_report_id",
+    "reference_instance_id",
+    "request_ref",
+    "adjudication_result_ref",
+    "runtime_measurement_evidence_ref",
+    "source_artifact_refs",
+    "source_artifact_hashes",
+    "bridge_status"
+  ],
+  "title": "UXErgonomicRuntimeBridgeReport",
+  "type": "object"
+}

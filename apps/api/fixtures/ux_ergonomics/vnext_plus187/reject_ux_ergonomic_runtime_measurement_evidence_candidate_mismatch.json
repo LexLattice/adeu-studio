@@ -1,0 +1,215 @@
+{
+  "adjudication_result_ref": "artifact_inspector_desktop_maximized_request_computed_v67b",
+  "candidate_profile_id": "artifact_inspector_maximized_split_reference",
+  "evidence_id": "artifact_inspector_maximized_runtime_measurement_evidence",
+  "measurement_rows": [
+    {
+      "candidate_profile_id": "artifact_inspector_half_screen_split_reference",
+      "component_ref": "action_cluster:advisory-actions",
+      "measured_bounding_box_css_px": {
+        "height": 40,
+        "width": 168,
+        "x": 1340,
+        "y": 82
+      },
+      "observed_reveal_transition_or_none": "bounded_workbench_state_reveal",
+      "observed_visibility_state": "same_context_reachable",
+      "provenance_state": "measured_runtime",
+      "source_kind": "playwright_replay",
+      "source_ref": "artifacts/agent_harness/v186/runtime/evidence/local/urm_events.ndjson"
+    },
+    {
+      "candidate_profile_id": "artifact_inspector_maximized_split_reference",
+      "component_ref": "action_cluster:commit-actions",
+      "measured_bounding_box_css_px": {
+        "height": 52,
+        "width": 52,
+        "x": 1490,
+        "y": 82
+      },
+      "observed_visibility_state": "continuously_visible",
+      "provenance_state": "measured_runtime",
+      "source_kind": "playwright_replay",
+      "source_ref": "artifacts/agent_harness/v186/runtime/evidence/local/urm_events.ndjson"
+    },
+    {
+      "candidate_profile_id": "artifact_inspector_maximized_split_reference",
+      "component_ref": "action_cluster:comparison-actions",
+      "measured_bounding_box_css_px": {
+        "height": 40,
+        "width": 160,
+        "x": 1160,
+        "y": 82
+      },
+      "observed_reveal_transition_or_none": "bounded_workbench_focus_shift",
+      "observed_visibility_state": "same_context_reachable",
+      "provenance_state": "measured_runtime",
+      "source_kind": "playwright_replay",
+      "source_ref": "artifacts/agent_harness/v186/runtime/evidence/local/urm_events.ndjson"
+    },
+    {
+      "candidate_profile_id": "artifact_inspector_maximized_split_reference",
+      "component_ref": "lane:action-lane",
+      "measured_bounding_box_css_px": {
+        "height": 72,
+        "width": 520,
+        "x": 1040,
+        "y": 72
+      },
+      "observed_visibility_state": "continuously_visible",
+      "provenance_state": "measured_runtime",
+      "source_kind": "playwright_replay",
+      "source_ref": "artifacts/agent_harness/v186/runtime/evidence/local/urm_events.ndjson"
+    },
+    {
+      "candidate_profile_id": "artifact_inspector_maximized_split_reference",
+      "component_ref": "lane:diagnostics-lane",
+      "measured_bounding_box_css_px": {
+        "height": 180,
+        "width": 320,
+        "x": 1210,
+        "y": 816
+      },
+      "observed_reveal_transition_or_none": "bounded_workbench_state_reveal",
+      "observed_visibility_state": "same_context_reachable",
+      "provenance_state": "measured_runtime",
+      "source_kind": "playwright_replay",
+      "source_ref": "artifacts/agent_harness/v186/runtime/evidence/local/urm_events.ndjson"
+    },
+    {
+      "candidate_profile_id": "artifact_inspector_maximized_split_reference",
+      "component_ref": "lane:evidence-lane",
+      "computed_font_size_css_px_or_none": 15,
+      "computed_line_height_css_px_or_none": 22,
+      "measured_bounding_box_css_px": {
+        "height": 552,
+        "width": 526,
+        "x": 1034,
+        "y": 148
+      },
+      "observed_visibility_state": "continuously_visible",
+      "provenance_state": "measured_runtime",
+      "source_kind": "playwright_replay",
+      "source_ref": "artifacts/agent_harness/v186/runtime/evidence/local/urm_events.ndjson"
+    },
+    {
+      "candidate_profile_id": "artifact_inspector_maximized_split_reference",
+      "component_ref": "lane:navigation-lane",
+      "measured_bounding_box_css_px": {
+        "height": 920,
+        "width": 280,
+        "x": 24,
+        "y": 72
+      },
+      "observed_reveal_transition_or_none": "bounded_workbench_position_shift",
+      "observed_visibility_state": "same_context_reachable",
+      "provenance_state": "measured_runtime",
+      "source_kind": "playwright_replay",
+      "source_ref": "artifacts/agent_harness/v186/runtime/evidence/local/urm_events.ndjson"
+    },
+    {
+      "candidate_profile_id": "artifact_inspector_maximized_split_reference",
+      "component_ref": "lane:source-lane",
+      "computed_font_size_css_px_or_none": 15,
+      "computed_line_height_css_px_or_none": 22,
+      "measured_bounding_box_css_px": {
+        "height": 760,
+        "width": 696,
+        "x": 320,
+        "y": 148
+      },
+      "observed_reveal_transition_or_none": "bounded_workbench_focus_shift",
+      "observed_visibility_state": "same_context_reachable",
+      "provenance_state": "measured_runtime",
+      "source_kind": "playwright_replay",
+      "source_ref": "artifacts/agent_harness/v186/runtime/evidence/local/urm_events.ndjson"
+    },
+    {
+      "candidate_profile_id": "artifact_inspector_maximized_split_reference",
+      "component_ref": "lane:status-lane",
+      "measured_bounding_box_css_px": {
+        "height": 60,
+        "width": 696,
+        "x": 320,
+        "y": 920
+      },
+      "observed_visibility_state": "continuously_visible",
+      "provenance_state": "measured_runtime",
+      "source_kind": "playwright_replay",
+      "source_ref": "artifacts/agent_harness/v186/runtime/evidence/local/urm_events.ndjson"
+    },
+    {
+      "candidate_profile_id": "artifact_inspector_maximized_split_reference",
+      "component_ref": "lane:trust-boundary-lane",
+      "measured_bounding_box_css_px": {
+        "height": 44,
+        "width": 696,
+        "x": 320,
+        "y": 988
+      },
+      "observed_visibility_state": "continuously_visible",
+      "provenance_state": "measured_runtime",
+      "source_kind": "playwright_replay",
+      "source_ref": "artifacts/agent_harness/v186/runtime/evidence/local/urm_events.ndjson"
+    },
+    {
+      "candidate_profile_id": "artifact_inspector_maximized_split_reference",
+      "component_ref": "lane:work-context-lane",
+      "measured_bounding_box_css_px": {
+        "height": 60,
+        "width": 696,
+        "x": 320,
+        "y": 72
+      },
+      "observed_visibility_state": "continuously_visible",
+      "provenance_state": "measured_runtime",
+      "source_kind": "playwright_replay",
+      "source_ref": "artifacts/agent_harness/v186/runtime/evidence/local/urm_events.ndjson"
+    }
+  ],
+  "reference_instance_id": "artifact_inspector_reference_main",
+  "reference_surface_family": "artifact_inspector_advisory_workbench",
+  "request_ref": "artifact_inspector_desktop_maximized_request",
+  "schema": "ux_ergonomic_runtime_measurement_evidence@1",
+  "source_artifact_hashes": [
+    {
+      "artifact_hash": "b7bc5b94997357335935118684304c6ad898fbce9a8da16974591928ffa43463",
+      "artifact_ref": "apps/api/fixtures/ux_ergonomics/vnext_plus185/ux_component_visibility_contract_artifact_inspector_reference.json"
+    },
+    {
+      "artifact_hash": "eef8db7c4492e175812da5acccb509b94f21812e92841a244c725f677bb3d4f6",
+      "artifact_ref": "apps/api/fixtures/ux_ergonomics/vnext_plus185/ux_ergonomic_adjudication_request_artifact_inspector_desktop_maximized_reference.json"
+    },
+    {
+      "artifact_hash": "ff7e5c5ac6e42f3657449a703764b83ee2b6a174e54257f9efd8f6c37f9a568c",
+      "artifact_ref": "apps/api/fixtures/ux_ergonomics/vnext_plus185/ux_ergonomic_candidate_projection_profile_table_artifact_inspector_reference.json"
+    },
+    {
+      "artifact_hash": "e3e3f2f2e01a8f0db012640c632ce3e8ecdf347d63958a5456719e411c306cce",
+      "artifact_ref": "apps/api/fixtures/ux_ergonomics/vnext_plus185/ux_ergonomic_case_envelope_artifact_inspector_desktop_maximized_reference.json"
+    },
+    {
+      "artifact_hash": "12b0ff4e78ac5167066bd0a41a0db8afcf0a08dbedf4b82c77a7132f233d0b8b",
+      "artifact_ref": "apps/api/fixtures/ux_ergonomics/vnext_plus186/ux_ergonomic_adjudication_result_artifact_inspector_desktop_maximized_computed_reference.json"
+    },
+    {
+      "artifact_hash": "cbf74b856ba47fde8a8b2ac8875274eadeb6608798848e56b956d1324df56454",
+      "artifact_ref": "apps/api/fixtures/ux_governance/vnext_plus64/ux_conformance_report_artifact_inspector_reference.json"
+    },
+    {
+      "artifact_hash": "07ec27a917b8d3d3ea897550ccb334fcfd516bdf639c0a83448cbf633061cff8",
+      "artifact_ref": "apps/api/fixtures/ux_governance/vnext_plus64/ux_morph_diagnostics_artifact_inspector_reference.json"
+    }
+  ],
+  "source_artifact_refs": [
+    "apps/api/fixtures/ux_ergonomics/vnext_plus185/ux_component_visibility_contract_artifact_inspector_reference.json",
+    "apps/api/fixtures/ux_ergonomics/vnext_plus185/ux_ergonomic_adjudication_request_artifact_inspector_desktop_maximized_reference.json",
+    "apps/api/fixtures/ux_ergonomics/vnext_plus185/ux_ergonomic_candidate_projection_profile_table_artifact_inspector_reference.json",
+    "apps/api/fixtures/ux_ergonomics/vnext_plus185/ux_ergonomic_case_envelope_artifact_inspector_desktop_maximized_reference.json",
+    "apps/api/fixtures/ux_ergonomics/vnext_plus186/ux_ergonomic_adjudication_result_artifact_inspector_desktop_maximized_computed_reference.json",
+    "apps/api/fixtures/ux_governance/vnext_plus64/ux_conformance_report_artifact_inspector_reference.json",
+    "apps/api/fixtures/ux_governance/vnext_plus64/ux_morph_diagnostics_artifact_inspector_reference.json"
+  ],
+  "ux_conformance_report_ref_or_none": "apps/api/fixtures/ux_governance/vnext_plus64/ux_conformance_report_artifact_inspector_reference.json",
+  "ux_morph_diagnostics_ref_or_none": "apps/api/fixtures/ux_governance/vnext_plus64/ux_morph_diagnostics_artifact_inspector_reference.json"
+}

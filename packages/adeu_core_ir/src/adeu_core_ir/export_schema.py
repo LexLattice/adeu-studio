@@ -63,6 +63,8 @@ from .ux_ergonomics import (
     UXErgonomicCandidateProjectionProfileTable,
     UXErgonomicCaseEnvelope,
     UXErgonomicRuleAuthorityStack,
+    UXErgonomicRuntimeBridgeReport,
+    UXErgonomicRuntimeMeasurementEvidence,
 )
 from .ux_governance import (
     UXConformanceReport,
@@ -181,6 +183,12 @@ def main() -> None:
         by_alias=True
     )
     ux_ergonomic_adjudication_result_schema = UXErgonomicAdjudicationResult.model_json_schema(
+        by_alias=True
+    )
+    ux_ergonomic_runtime_measurement_evidence_schema = (
+        UXErgonomicRuntimeMeasurementEvidence.model_json_schema(by_alias=True)
+    )
+    ux_ergonomic_runtime_bridge_report_schema = UXErgonomicRuntimeBridgeReport.model_json_schema(
         by_alias=True
     )
     meta_testing_intent_packet_schema = MetaTestingIntentPacket.model_json_schema(by_alias=True)
@@ -625,6 +633,30 @@ def main() -> None:
         ux_ergonomic_adjudication_result_schema,
     )
 
+    ux_ergonomic_runtime_measurement_evidence_authoritative_path = (
+        root
+        / "packages"
+        / "adeu_core_ir"
+        / "schema"
+        / "ux_ergonomic_runtime_measurement_evidence.v1.json"
+    )
+    _write_schema(
+        ux_ergonomic_runtime_measurement_evidence_authoritative_path,
+        ux_ergonomic_runtime_measurement_evidence_schema,
+    )
+
+    ux_ergonomic_runtime_bridge_report_authoritative_path = (
+        root
+        / "packages"
+        / "adeu_core_ir"
+        / "schema"
+        / "ux_ergonomic_runtime_bridge_report.v1.json"
+    )
+    _write_schema(
+        ux_ergonomic_runtime_bridge_report_authoritative_path,
+        ux_ergonomic_runtime_bridge_report_schema,
+    )
+
     meta_testing_intent_packet_authoritative_path = (
         root / "packages" / "adeu_core_ir" / "schema" / "meta_testing_intent_packet.v1.json"
     )
@@ -985,6 +1017,22 @@ def main() -> None:
     _write_schema(
         ux_ergonomic_adjudication_result_mirror_path,
         ux_ergonomic_adjudication_result_schema,
+    )
+
+    ux_ergonomic_runtime_measurement_evidence_mirror_path = (
+        root / "spec" / "ux_ergonomic_runtime_measurement_evidence.schema.json"
+    )
+    _write_schema(
+        ux_ergonomic_runtime_measurement_evidence_mirror_path,
+        ux_ergonomic_runtime_measurement_evidence_schema,
+    )
+
+    ux_ergonomic_runtime_bridge_report_mirror_path = (
+        root / "spec" / "ux_ergonomic_runtime_bridge_report.schema.json"
+    )
+    _write_schema(
+        ux_ergonomic_runtime_bridge_report_mirror_path,
+        ux_ergonomic_runtime_bridge_report_schema,
     )
 
     meta_testing_intent_packet_mirror_path = (

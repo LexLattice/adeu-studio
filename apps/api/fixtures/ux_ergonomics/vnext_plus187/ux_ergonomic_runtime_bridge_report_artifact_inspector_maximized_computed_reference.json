@@ -1,0 +1,52 @@
+{
+  "adjudication_result_ref": "artifact_inspector_desktop_maximized_request_computed_v67b",
+  "bridge_report_id": "artifact_inspector_maximized_runtime_measurement_evidence_computed_v67c",
+  "bridge_status": "advisory_clean",
+  "mismatch_rows": [],
+  "reference_instance_id": "artifact_inspector_reference_main",
+  "reference_surface_family": "artifact_inspector_advisory_workbench",
+  "request_ref": "artifact_inspector_desktop_maximized_request",
+  "runtime_measurement_evidence_ref": "artifact_inspector_maximized_runtime_measurement_evidence",
+  "schema": "ux_ergonomic_runtime_bridge_report@1",
+  "source_artifact_hashes": [
+    {
+      "artifact_hash": "b7bc5b94997357335935118684304c6ad898fbce9a8da16974591928ffa43463",
+      "artifact_ref": "apps/api/fixtures/ux_ergonomics/vnext_plus185/ux_component_visibility_contract_artifact_inspector_reference.json"
+    },
+    {
+      "artifact_hash": "eef8db7c4492e175812da5acccb509b94f21812e92841a244c725f677bb3d4f6",
+      "artifact_ref": "apps/api/fixtures/ux_ergonomics/vnext_plus185/ux_ergonomic_adjudication_request_artifact_inspector_desktop_maximized_reference.json"
+    },
+    {
+      "artifact_hash": "ff7e5c5ac6e42f3657449a703764b83ee2b6a174e54257f9efd8f6c37f9a568c",
+      "artifact_ref": "apps/api/fixtures/ux_ergonomics/vnext_plus185/ux_ergonomic_candidate_projection_profile_table_artifact_inspector_reference.json"
+    },
+    {
+      "artifact_hash": "e3e3f2f2e01a8f0db012640c632ce3e8ecdf347d63958a5456719e411c306cce",
+      "artifact_ref": "apps/api/fixtures/ux_ergonomics/vnext_plus185/ux_ergonomic_case_envelope_artifact_inspector_desktop_maximized_reference.json"
+    },
+    {
+      "artifact_hash": "12b0ff4e78ac5167066bd0a41a0db8afcf0a08dbedf4b82c77a7132f233d0b8b",
+      "artifact_ref": "apps/api/fixtures/ux_ergonomics/vnext_plus186/ux_ergonomic_adjudication_result_artifact_inspector_desktop_maximized_computed_reference.json"
+    },
+    {
+      "artifact_hash": "cbf74b856ba47fde8a8b2ac8875274eadeb6608798848e56b956d1324df56454",
+      "artifact_ref": "apps/api/fixtures/ux_governance/vnext_plus64/ux_conformance_report_artifact_inspector_reference.json"
+    },
+    {
+      "artifact_hash": "07ec27a917b8d3d3ea897550ccb334fcfd516bdf639c0a83448cbf633061cff8",
+      "artifact_ref": "apps/api/fixtures/ux_governance/vnext_plus64/ux_morph_diagnostics_artifact_inspector_reference.json"
+    }
+  ],
+  "source_artifact_refs": [
+    "apps/api/fixtures/ux_ergonomics/vnext_plus185/ux_component_visibility_contract_artifact_inspector_reference.json",
+    "apps/api/fixtures/ux_ergonomics/vnext_plus185/ux_ergonomic_adjudication_request_artifact_inspector_desktop_maximized_reference.json",
+    "apps/api/fixtures/ux_ergonomics/vnext_plus185/ux_ergonomic_candidate_projection_profile_table_artifact_inspector_reference.json",
+    "apps/api/fixtures/ux_ergonomics/vnext_plus185/ux_ergonomic_case_envelope_artifact_inspector_desktop_maximized_reference.json",
+    "apps/api/fixtures/ux_ergonomics/vnext_plus186/ux_ergonomic_adjudication_result_artifact_inspector_desktop_maximized_computed_reference.json",
+    "apps/api/fixtures/ux_governance/vnext_plus64/ux_conformance_report_artifact_inspector_reference.json",
+    "apps/api/fixtures/ux_governance/vnext_plus64/ux_morph_diagnostics_artifact_inspector_reference.json"
+  ],
+  "ux_conformance_report_ref_or_none": "apps/api/fixtures/ux_governance/vnext_plus64/ux_conformance_report_artifact_inspector_reference.json",
+  "ux_morph_diagnostics_ref_or_none": "apps/api/fixtures/ux_governance/vnext_plus64/ux_morph_diagnostics_artifact_inspector_reference.json"
+}
