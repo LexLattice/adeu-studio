@@ -69,7 +69,8 @@
 - Keep two contribution lanes distinct:
   - `Internal ADEU lane`: repo-owned work, core architectural changes, schema changes,
     workflow changes, and orchestrated experiments. Default expectation is the
-    repo-native ADEU flow: family-level pre-docs or explicit intent capture,
+    repo-native ADEU flow: family arc docs first, review 1 over the family arc,
+    full `A/B/C` slice-spec drafting, review 2 over the slice-spec bundle,
     separate slice implementation PRs, verification, lean slice-alignment after each
     merge, and full family closeout where applicable. The older slice-serial
     workflow remains available as fallback for exploratory or unstable families;

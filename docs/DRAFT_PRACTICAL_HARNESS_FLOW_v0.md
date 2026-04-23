@@ -23,8 +23,10 @@ policy changes by itself.
 The active repo-native default is now:
 
 ```text
-draft the whole family bundle up front
--> get one external review pass over the family bundle
+draft family arc docs
+-> review 1 over family arc docs
+-> draft A / B / C slice specs
+-> review 2 over the slice-spec bundle
 -> implement A / B / C as separate PRs
 -> do lean slice closeout after each merged PR
 -> do one full family closeout after the last merged slice
@@ -60,35 +62,37 @@ That fallback exists so the repo is not forced into premature pseudo-certainty.
 
 Before implementing the first slice of a newly selected family:
 
+- draft the selector / planning doc first;
 - draft the family architecture / decomposition docs first;
 - draft the family-level implementation mapping first;
-- draft the selector / planning doc first;
+- run review 1 over that family arc bundle before slice-spec drafting;
 - draft all planned slice-spec docs for the family early, even if only the first
   slice will be lock-authoritative immediately;
+- run review 2 over the `A/B/C` slice-spec bundle before starter-lock activation;
 - keep future-slice specs at `planning`, `architecture / decomposition`, or
   `support` authority until their turn arrives;
 - do not silently treat drafted later-slice specs as lock authority;
-- run one external review pass over the family bundle rather than re-running a full
-  architecture review independently for each slice.
+- do not silently collapse review 1 and review 2 unless the family is unusually
+  small or obvious.
 
 This up-front family drafting exists to:
 
 - force cross-slice coherence before code starts to drift the sequence;
 - expose missing dependencies early rather than discovering them mid-family;
 - reduce repeated selector churn and repeated family restatement for each slice;
-- let one external review pass catch cross-slice drift, naming instability, and
-  consumed-basis mismatches early.
+- let review 1 catch family-boundary and naming drift early;
+- let review 2 catch cross-slice consumed-basis, ownership, and ladder drift
+  before any slice lock is activated.
 
 ## Active Default Cycle
 
-### 1. Draft the full family planning bundle on `main`
+### 1. Draft the family arc bundle on `main`
 
 Draft:
 
 - the family selector / next-arc options doc;
 - the family architecture / decomposition doc;
 - the family-wide implementation mapping;
-- the planned slice specs for `A`, `B`, and `C`;
 - any support-layer review companions that help shape the family.
 
 Required doctrine hygiene during this phase:
@@ -108,23 +112,53 @@ Required doctrine hygiene during this phase:
 - if the family depends on "X may constrain Y but may not mint Y", enumerate the
   lawful constrain actions explicitly rather than leaving the boundary implicit.
 
-### 2. Run one family-level external review pass
+### 2. Run review 1 over the family arc bundle
 
-Before implementation starts:
+Before slice-spec drafting starts:
 
-- run the external review cycle over the full family bundle;
-- integrate the worthwhile cross-slice fixes once at the family level;
-- only after that treat the family bundle as the current planning backbone.
+- run the external review cycle over the selector, family architecture, and
+  family implementation mapping;
+- integrate the worthwhile family-boundary fixes once at the family level;
+- only after that treat the family arc docs as the current planning backbone.
 
 The main purpose of this phase is to settle:
 
 - family naming;
 - consumed basis;
 - package ownership;
+- slice-ladder intent;
+- boundary with adjacent families.
+
+### 3. Draft the slice-spec bundle for `A`, `B`, and `C`
+
+Draft:
+
+- the planned slice spec for `A`;
+- the planned slice spec for `B`;
+- the planned slice spec for `C`;
+- any support-layer review companions that help shape cross-slice coherence.
+
+Important posture:
+
+- these slice specs are implementation-adjacent planning docs, not lock authority;
+- only the active slice will later receive lock / continuation authority;
+- later-slice specs remain revisable if earlier implementation teaches something
+  material.
+
+### 4. Run review 2 over the slice-spec bundle
+
+Before starter-lock activation:
+
+- run the external review cycle over the `A/B/C` slice-spec bundle;
+- integrate the worthwhile cross-slice fixes while the family is still pre-code;
+- freeze the family planning bundle as the current implementation-adjacent ladder.
+
+The main purpose of this phase is to settle:
+
 - slice ladder boundaries;
 - artifact ownership across `A`, `B`, and `C`.
 
-### 3. Activate the next slice with the minimum lock authority needed
+### 5. Activate the next slice with the minimum lock authority needed
 
 For the slice currently being implemented:
 
@@ -136,18 +170,18 @@ For the slice currently being implemented:
 
 The important rule is:
 
-- the whole family is preplanned up front;
+- the family arc and slice-spec bundle are preplanned up front;
 - only the current slice becomes lock-authoritative.
 
-### 4. Implement the slice as a separate PR
+### 6. Implement the slice as a separate PR
 
 - each slice still starts from a fresh branch;
 - implementation happens in a dedicated slice PR;
 - PR boundaries follow the family decomposition and the active slice lock;
 - `A`, `B`, and `C` remain separate PRs even when the family was preplanned
-  together.
+  together and externally reviewed together.
 
-### 5. Wait for inline bot review signals, then assess
+### 7. Wait for inline bot review signals, then assess
 
 Active bot reviewers for implementation PRs remain:
 
@@ -169,7 +203,7 @@ If review findings are worth addressing:
 - ideally do the assessment and fixes in the same focused turn;
 - commit the follow-up directly to that PR branch.
 
-### 6. Run lean slice closeout on `main`
+### 8. Run lean slice closeout on `main`
 
 Once the slice PR is merged:
 
@@ -196,7 +230,7 @@ Its purpose is:
 
 It is not the final family closeout.
 
-### 7. Repeat for the next slice
+### 9. Repeat for the next slice
 
 - activate the next slice with the minimum lock-authoritative update needed;
 - implement on a fresh PR branch;
@@ -205,7 +239,7 @@ It is not the final family closeout.
 - run lean slice closeout / drift update;
 - continue until the last planned slice is merged.
 
-### 8. Run full family closeout after the last slice
+### 10. Run full family closeout after the last slice
 
 After the final slice PR merges:
 
@@ -224,27 +258,31 @@ The family closeout is the place for:
 
 ```mermaid
 flowchart TD
-    A["Draft full family bundle on main"] --> B["One family-level external review pass"]
-    B --> C["Integrate family shaping fixes"]
-    C --> D["Activate slice A with minimal lock update"]
-    D --> E["Implement slice A on fresh PR branch"]
-    E --> F["Bot review and follow-up fixes"]
-    F --> G["Merge slice A"]
-    G --> H["Lean slice A closeout + downstream drift update"]
-    H --> I["Activate slice B"]
-    I --> J["Implement / review / merge slice B"]
-    J --> K["Lean slice B closeout + downstream drift update"]
-    K --> L["Activate slice C"]
-    L --> M["Implement / review / merge slice C"]
-    M --> N["Lean slice C closeout"]
-    N --> O["Run full family closeout on main"]
+    A["Draft family arc bundle on main"] --> B["Review 1 over family arc docs"]
+    B --> C["Integrate family-boundary fixes"]
+    C --> D["Draft A / B / C slice-spec bundle"]
+    D --> E["Review 2 over slice-spec bundle"]
+    E --> F["Integrate cross-slice ladder fixes"]
+    F --> G["Activate slice A with minimal lock update"]
+    G --> H["Implement slice A on fresh PR branch"]
+    H --> I["Bot review and follow-up fixes"]
+    I --> J["Merge slice A"]
+    J --> K["Lean slice A closeout + downstream drift update"]
+    K --> L["Activate slice B"]
+    L --> M["Implement / review / merge slice B"]
+    M --> N["Lean slice B closeout + downstream drift update"]
+    N --> O["Activate slice C"]
+    O --> P["Implement / review / merge slice C"]
+    P --> Q["Lean slice C closeout"]
+    Q --> R["Run full family closeout on main"]
 ```
 
 ## Why This Default Is Better For Stable Families
 
 - docs still stay ahead of code rather than rationalizing it after the fact;
 - the family shape becomes coherent before slice implementation drifts it;
-- one external review pass can catch cross-slice problems early;
+- review 1 can catch family-boundary problems early;
+- review 2 can catch cross-slice problems before slice locks start to ship;
 - slice PRs remain small and reviewable;
 - per-slice continuity is preserved without doing a full family closeout three
   times;
@@ -275,6 +313,8 @@ It is simply no longer the default when the family shape is already clear.
 
 Before any slice PR starts, confirm:
 
+- review 1 and review 2 have both completed, unless a deliberate exception was
+  made for an unusually small family;
 - the family bundle agrees on scope, exclusions, and acceptance;
 - the active slice lock agrees with the family bundle on consumed / emitted scope;
 - the PR split is frozen for the active slice;
