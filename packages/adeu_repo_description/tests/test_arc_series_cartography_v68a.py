@@ -9,8 +9,10 @@ import pytest
 from adeu_ir.repo import repo_root
 from adeu_repo_description import (
     REPO_ARC_SERIES_CARTOGRAPHY_SCHEMA,
+    RepoArcMappingToolApplicabilityReport,
     RepoArcSeriesCartography,
     compute_repo_arc_series_cartography_id,
+    materialize_repo_arc_series_cartography_payload,
 )
 from jsonschema import Draft202012Validator
 from pydantic import ValidationError
@@ -75,6 +77,93 @@ def test_v188_exported_schema_accepts_reference_fixture() -> None:
     _schema_validator("repo_arc_series_cartography.v1.json").validate(
         _load_v188("repo_arc_series_cartography_v188_reference.json")
     )
+
+
+def test_v188_allows_same_tool_for_distinct_applicability_claims() -> None:
+    payload = _load_v188("repo_arc_series_cartography_v188_reference.json")
+    payload["cartography_id"] = "placeholder"
+    payload["tool_applicability_rows"].append(
+        {
+            "applicability_posture": "applicable_with_warnings",
+            "limitation_note": (
+                "The same start-check tool is scoped here to family-level selection evidence."
+            ),
+            "observed_result_ref": "evidence:v188_start_gate",
+            "target_claim_id": "family:V68",
+            "target_namespace_kind": "family_id",
+            "tool_id": "tool:arc-start-check:ARC=188",
+        }
+    )
+    payload["tool_applicability_rows"] = sorted(
+        payload["tool_applicability_rows"],
+        key=lambda row: (row["tool_id"], row["target_claim_id"], row["target_namespace_kind"]),
+    )
+    payload.pop("cartography_id")
+
+    validated = RepoArcSeriesCartography.model_validate(
+        materialize_repo_arc_series_cartography_payload(payload)
+    )
+
+    assert [
+        row.target_claim_id
+        for row in validated.tool_applicability_rows
+        if row.tool_id == "tool:arc-start-check:ARC=188"
+    ] == ["evidence:v188_start_gate", "family:V68"]
+
+
+def test_v188_rejects_duplicate_tool_applicability_claim_key() -> None:
+    payload = _load_v188("repo_arc_series_cartography_v188_reference.json")
+    payload["tool_applicability_rows"].append(deepcopy(payload["tool_applicability_rows"][-1]))
+
+    with pytest.raises(ValidationError, match="composite tool applicability keys"):
+        RepoArcSeriesCartography.model_validate(payload)
+
+
+def test_v188_tool_report_rejects_duplicate_tool_applicability_claim_key() -> None:
+    payload = _load_v188("repo_arc_series_cartography_v188_reference.json")
+
+    with pytest.raises(ValidationError, match="composite tool applicability keys"):
+        RepoArcMappingToolApplicabilityReport.model_validate(
+            {
+                "cartography_id": payload["cartography_id"],
+                "schema": "repo_arc_mapping_tool_applicability_report@1",
+                "snapshot_id": payload["snapshot_id"],
+                "tool_applicability_report_id": "tool-report:duplicate-key",
+                "tool_applicability_rows": [
+                    payload["tool_applicability_rows"][-1],
+                    deepcopy(payload["tool_applicability_rows"][-1]),
+                ],
+            }
+        )
+
+
+def test_v188_global_scope_check_does_not_reject_non_global_limitations() -> None:
+    payload = _load_v188("repo_arc_series_cartography_v188_reference.json")
+    payload["tool_applicability_rows"][-1]["limitation_note"] = (
+        "Non-global support applies to the V68-A starter bundle only."
+    )
+    payload.pop("cartography_id")
+
+    RepoArcSeriesCartography.model_validate(
+        materialize_repo_arc_series_cartography_payload(payload)
+    )
+
+
+def test_v188_rejects_any_non_connected_v43_branch_when_external_contest_seam_tracked() -> None:
+    payload = _load_v188("repo_arc_series_cartography_v188_reference.json")
+    payload["branch_rows"].append(
+        {
+            "branch_family_id": "family:V43",
+            "branch_posture": "review_required_branch",
+            "branch_ref": "branch:V43-review-required",
+            "selection_condition": "Review required if contest branch pressure changes.",
+            "source_refs": ["docs/DRAFT_ARC_SERIES_MULTI_LAYER_MAPPING_v2.md"],
+        }
+    )
+    payload["branch_rows"] = sorted(payload["branch_rows"], key=lambda row: row["branch_ref"])
+
+    with pytest.raises(ValidationError, match="external contest future seams"):
+        RepoArcSeriesCartography.model_validate(payload)
 
 
 @pytest.mark.parametrize(

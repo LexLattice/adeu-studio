@@ -124,6 +124,7 @@ CoordinatePosture = Literal[
 
 _ABSOLUTE_PATH_RE = re.compile(r"^(?:/|[A-Za-z]:[\\/])")
 _GLOB_TOKEN_RE = re.compile(r"[*?\[]")
+_GLOBAL_SCOPE_CLAIM_RE = re.compile(r"(?<![-\w])globally?\b", re.IGNORECASE)
 _FORBIDDEN_AUTHORITY_VERB_RE = re.compile(
     r"\b(authorizes?|adopts?|admits?|ratifies?|implements?|releases?|dispatches?|commits?|merges?)\b",
     re.IGNORECASE,
@@ -161,6 +162,22 @@ def _sorted_unique_by_ref[T](rows: list[T], *, attr: str, field_name: str) -> li
         raise ValueError(f"{field_name} {attr} values must be unique")
     if refs != sorted(refs):
         raise ValueError(f"{field_name} must be sorted lexicographically by {attr}")
+    return rows
+
+
+def _tool_applicability_key(row: Any) -> tuple[str, str, str]:
+    return (row.tool_id, row.target_claim_id, row.target_namespace_kind)
+
+
+def _sorted_unique_tool_applicability_rows[T](rows: list[T], *, field_name: str) -> list[T]:
+    keys = [_tool_applicability_key(row) for row in rows]
+    if len(set(keys)) != len(keys):
+        raise ValueError(f"{field_name} composite tool applicability keys must be unique")
+    if keys != sorted(keys):
+        raise ValueError(
+            f"{field_name} must be sorted lexicographically by "
+            "tool_id, target_claim_id, and target_namespace_kind"
+        )
     return rows
 
 
@@ -469,7 +486,8 @@ def _validate_cartography_bundle(
     coordinate_plan_rows: list[RepoRecursiveCoordinatePlanRow],
     tracked_future_seams: list[str] | None = None,
 ) -> None:
-    known_sources = _source_ref_set(source_rows)
+    source_rows_by_ref = {row.source_ref: row for row in source_rows}
+    known_sources = set(source_rows_by_ref)
     namespace_kind_by_ref = _namespace_kind_by_ref(namespace_rows)
     evidence_refs = {row.evidence_ref for row in evidence_surface_rows}
     coordinate_targets = (
@@ -510,21 +528,20 @@ def _validate_cartography_bundle(
         for row in namespace_rows
         if row.namespace_kind == "family_id"
     }
-    branch_labels = {
-        family_labels_by_ref.get(row.branch_family_id, row.branch_family_id): row
-        for row in branch_rows
-    }
+    branch_rows_by_family_label: dict[str, list[RepoBranchPostureRow]] = {}
     for row in branch_rows:
         if namespace_kind_by_ref.get(row.branch_family_id) != "family_id":
             raise ValueError("branch_family_id must reference a family_id namespace row")
         _require_source_refs(
             row.source_refs, known_source_refs=known_sources, field_name="branch source_refs"
         )
+        family_label = family_labels_by_ref.get(row.branch_family_id, row.branch_family_id)
+        branch_rows_by_family_label.setdefault(family_label, []).append(row)
 
     for row in support_lineage_rows:
-        if row.source_ref not in known_sources:
+        source_row = source_rows_by_ref.get(row.source_ref)
+        if source_row is None:
             raise ValueError("support lineage source_ref must reference a source row")
-        source_row = next(source for source in source_rows if source.source_ref == row.source_ref)
         if row.source_status != source_row.source_status:
             raise ValueError("support lineage source_status must match the source row")
 
@@ -538,7 +555,7 @@ def _validate_cartography_bundle(
             raise ValueError("tool observed_result_ref must reference an evidence row")
         if (
             row.applicability_posture == "applicable_and_supporting"
-            and "global" in row.limitation_note.lower()
+            and _GLOBAL_SCOPE_CLAIM_RE.search(row.limitation_note)
         ):
             raise ValueError("tool applicability cannot claim global scope in limitation_note")
 
@@ -552,8 +569,10 @@ def _validate_cartography_bundle(
     if tracked_future_seams and any(
         "external_contest_participation" in seam for seam in tracked_future_seams
     ):
-        v43_branch = branch_labels.get("V43")
-        if v43_branch is None or v43_branch.branch_posture != "connected_conditional_branch":
+        v43_branches = branch_rows_by_family_label.get("V43", [])
+        if not v43_branches or any(
+            row.branch_posture != "connected_conditional_branch" for row in v43_branches
+        ):
             raise ValueError(
                 "external contest future seams require V43 connected conditional branch posture"
             )
@@ -637,8 +656,8 @@ class RepoArcSeriesCartography(_CartographyBase):
         object.__setattr__(
             self,
             "tool_applicability_rows",
-            _sorted_unique_by_ref(
-                self.tool_applicability_rows, attr="tool_id", field_name="tool_applicability_rows"
+            _sorted_unique_tool_applicability_rows(
+                self.tool_applicability_rows, field_name="tool_applicability_rows"
             ),
         )
         object.__setattr__(
@@ -856,8 +875,8 @@ class RepoArcMappingToolApplicabilityReport(_CartographyBase):
         object.__setattr__(
             self,
             "tool_applicability_rows",
-            _sorted_unique_by_ref(
-                self.tool_applicability_rows, attr="tool_id", field_name="tool_applicability_rows"
+            _sorted_unique_tool_applicability_rows(
+                self.tool_applicability_rows, field_name="tool_applicability_rows"
             ),
         )
         return self
