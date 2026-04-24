@@ -1,0 +1,100 @@
+{
+  "$defs": {
+    "RepoFamilyClosureRow": {
+      "additionalProperties": false,
+      "properties": {
+        "closeout_evidence_refs": {
+          "items": {
+            "type": "string"
+          },
+          "title": "Closeout Evidence Refs",
+          "type": "array"
+        },
+        "closure_posture": {
+          "enum": [
+            "closed_on_main",
+            "open_in_progress",
+            "planned_not_started",
+            "deferred_to_later_family",
+            "superseded_by_alternate_surface",
+            "not_selected_yet",
+            "unknown_needs_review"
+          ],
+          "title": "Closure Posture",
+          "type": "string"
+        },
+        "family_id": {
+          "title": "Family Id",
+          "type": "string"
+        },
+        "family_ref": {
+          "title": "Family Ref",
+          "type": "string"
+        },
+        "family_slice_id": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Family Slice Id"
+        },
+        "selected_by_refs": {
+          "items": {
+            "type": "string"
+          },
+          "title": "Selected By Refs",
+          "type": "array"
+        }
+      },
+      "required": [
+        "family_ref",
+        "family_id",
+        "closure_posture"
+      ],
+      "title": "RepoFamilyClosureRow",
+      "type": "object"
+    }
+  },
+  "additionalProperties": false,
+  "properties": {
+    "cartography_id": {
+      "title": "Cartography Id",
+      "type": "string"
+    },
+    "closure_register_id": {
+      "title": "Closure Register Id",
+      "type": "string"
+    },
+    "family_rows": {
+      "items": {
+        "$ref": "#/$defs/RepoFamilyClosureRow"
+      },
+      "minItems": 1,
+      "title": "Family Rows",
+      "type": "array"
+    },
+    "schema": {
+      "const": "repo_family_closure_register@1",
+      "default": "repo_family_closure_register@1",
+      "title": "Schema",
+      "type": "string"
+    },
+    "snapshot_id": {
+      "title": "Snapshot Id",
+      "type": "string"
+    }
+  },
+  "required": [
+    "closure_register_id",
+    "cartography_id",
+    "snapshot_id",
+    "family_rows"
+  ],
+  "title": "RepoFamilyClosureRegister",
+  "type": "object"
+}

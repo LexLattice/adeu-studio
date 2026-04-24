@@ -1,0 +1,79 @@
+{
+  "$defs": {
+    "RepoRecursiveCoordinatePlanRow": {
+      "additionalProperties": false,
+      "properties": {
+        "coordinate_posture": {
+          "enum": [
+            "coordinate_emitted",
+            "coordinate_absent_deliberate",
+            "coordinate_absent_tool_not_applicable",
+            "coordinate_absent_missing_source",
+            "coordinate_absent_review_required"
+          ],
+          "title": "Coordinate Posture",
+          "type": "string"
+        },
+        "coordinate_ref": {
+          "title": "Coordinate Ref",
+          "type": "string"
+        },
+        "non_authority_guardrail": {
+          "title": "Non Authority Guardrail",
+          "type": "string"
+        },
+        "target_refs": {
+          "items": {
+            "type": "string"
+          },
+          "title": "Target Refs",
+          "type": "array"
+        }
+      },
+      "required": [
+        "coordinate_ref",
+        "coordinate_posture",
+        "non_authority_guardrail"
+      ],
+      "title": "RepoRecursiveCoordinatePlanRow",
+      "type": "object"
+    }
+  },
+  "additionalProperties": false,
+  "properties": {
+    "cartography_id": {
+      "title": "Cartography Id",
+      "type": "string"
+    },
+    "coordinate_emission_plan_id": {
+      "title": "Coordinate Emission Plan Id",
+      "type": "string"
+    },
+    "coordinate_plan_rows": {
+      "items": {
+        "$ref": "#/$defs/RepoRecursiveCoordinatePlanRow"
+      },
+      "minItems": 1,
+      "title": "Coordinate Plan Rows",
+      "type": "array"
+    },
+    "schema": {
+      "const": "repo_recursive_coordinate_emission_plan@1",
+      "default": "repo_recursive_coordinate_emission_plan@1",
+      "title": "Schema",
+      "type": "string"
+    },
+    "snapshot_id": {
+      "title": "Snapshot Id",
+      "type": "string"
+    }
+  },
+  "required": [
+    "coordinate_emission_plan_id",
+    "cartography_id",
+    "snapshot_id",
+    "coordinate_plan_rows"
+  ],
+  "title": "RepoRecursiveCoordinateEmissionPlan",
+  "type": "object"
+}

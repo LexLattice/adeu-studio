@@ -1,0 +1,190 @@
+{
+  "$defs": {
+    "RepoArcCartographySourceRow": {
+      "additionalProperties": false,
+      "properties": {
+        "authority_layer": {
+          "enum": [
+            "lock",
+            "architecture",
+            "planning",
+            "support",
+            "schema",
+            "fixture"
+          ],
+          "title": "Authority Layer",
+          "type": "string"
+        },
+        "integration_note": {
+          "title": "Integration Note",
+          "type": "string"
+        },
+        "source_kind": {
+          "enum": [
+            "planning_doc",
+            "lock_doc",
+            "decision_doc",
+            "assessment_doc",
+            "architecture_doc",
+            "support_doc",
+            "review_input",
+            "schema_file",
+            "fixture_file",
+            "evidence_artifact",
+            "generated_view"
+          ],
+          "title": "Source Kind",
+          "type": "string"
+        },
+        "source_presence_posture": {
+          "enum": [
+            "present",
+            "missing_expected_support_artifact",
+            "not_uploaded_in_review_snapshot",
+            "generated_later",
+            "external_unavailable"
+          ],
+          "title": "Source Presence Posture",
+          "type": "string"
+        },
+        "source_ref": {
+          "title": "Source Ref",
+          "type": "string"
+        },
+        "source_status": {
+          "enum": [
+            "integrated_shaping_source",
+            "available_but_not_integrated",
+            "review_pending_input",
+            "rejected_or_superseded_source"
+          ],
+          "title": "Source Status",
+          "type": "string"
+        }
+      },
+      "required": [
+        "source_ref",
+        "source_kind",
+        "authority_layer",
+        "source_status",
+        "source_presence_posture",
+        "integration_note"
+      ],
+      "title": "RepoArcCartographySourceRow",
+      "type": "object"
+    },
+    "RepoArcNamespaceRow": {
+      "additionalProperties": false,
+      "properties": {
+        "canonical_label": {
+          "title": "Canonical Label",
+          "type": "string"
+        },
+        "equivalence_posture": {
+          "enum": [
+            "self_identity_only",
+            "related_not_equivalent",
+            "unknown_needs_review"
+          ],
+          "title": "Equivalence Posture",
+          "type": "string"
+        },
+        "namespace_kind": {
+          "enum": [
+            "selector_version",
+            "family_id",
+            "family_slice_id",
+            "implementation_arc_id",
+            "closeout_arc_id",
+            "evidence_arc_id",
+            "branch_local_execution_target",
+            "planning_doc_ref",
+            "lock_doc_ref",
+            "decision_doc_ref",
+            "assessment_doc_ref",
+            "architecture_doc_ref",
+            "support_doc_ref",
+            "schema_id",
+            "fixture_dir_ref",
+            "evidence_input_ref",
+            "stop_gate_ref"
+          ],
+          "title": "Namespace Kind",
+          "type": "string"
+        },
+        "namespace_ref": {
+          "title": "Namespace Ref",
+          "type": "string"
+        },
+        "source_refs": {
+          "items": {
+            "type": "string"
+          },
+          "minItems": 1,
+          "title": "Source Refs",
+          "type": "array"
+        }
+      },
+      "required": [
+        "namespace_ref",
+        "namespace_kind",
+        "canonical_label",
+        "source_refs",
+        "equivalence_posture"
+      ],
+      "title": "RepoArcNamespaceRow",
+      "type": "object"
+    }
+  },
+  "additionalProperties": false,
+  "properties": {
+    "cartography_id": {
+      "title": "Cartography Id",
+      "type": "string"
+    },
+    "coverage_horizon": {
+      "title": "Coverage Horizon",
+      "type": "string"
+    },
+    "namespace_map_id": {
+      "title": "Namespace Map Id",
+      "type": "string"
+    },
+    "namespace_rows": {
+      "items": {
+        "$ref": "#/$defs/RepoArcNamespaceRow"
+      },
+      "minItems": 1,
+      "title": "Namespace Rows",
+      "type": "array"
+    },
+    "schema": {
+      "const": "repo_arc_namespace_map@1",
+      "default": "repo_arc_namespace_map@1",
+      "title": "Schema",
+      "type": "string"
+    },
+    "snapshot_id": {
+      "title": "Snapshot Id",
+      "type": "string"
+    },
+    "source_rows": {
+      "items": {
+        "$ref": "#/$defs/RepoArcCartographySourceRow"
+      },
+      "minItems": 1,
+      "title": "Source Rows",
+      "type": "array"
+    }
+  },
+  "required": [
+    "namespace_map_id",
+    "cartography_id",
+    "snapshot_id",
+    "coverage_horizon",
+    "source_rows",
+    "namespace_rows"
+  ],
+  "title": "RepoArcNamespaceMap",
+  "type": "object"
+}

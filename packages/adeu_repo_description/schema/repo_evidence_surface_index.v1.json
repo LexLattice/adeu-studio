@@ -1,0 +1,101 @@
+{
+  "$defs": {
+    "RepoEvidenceSurfaceRow": {
+      "additionalProperties": false,
+      "properties": {
+        "claim_horizon": {
+          "enum": [
+            "descriptive_support",
+            "planning_candidate",
+            "architecture_decomposition",
+            "lock_authorized",
+            "closeout_evidence",
+            "released_schema_or_runtime",
+            "future_deferred",
+            "review_pending"
+          ],
+          "title": "Claim Horizon",
+          "type": "string"
+        },
+        "evidence_kind": {
+          "enum": [
+            "planning_selection",
+            "lock_contract",
+            "stop_gate_decision",
+            "edge_assessment",
+            "support_mapping",
+            "review_capture",
+            "schema_export",
+            "fixture",
+            "tool_run",
+            "closeout_artifact"
+          ],
+          "title": "Evidence Kind",
+          "type": "string"
+        },
+        "evidence_ref": {
+          "title": "Evidence Ref",
+          "type": "string"
+        },
+        "limitation_note": {
+          "title": "Limitation Note",
+          "type": "string"
+        },
+        "source_refs": {
+          "items": {
+            "type": "string"
+          },
+          "minItems": 1,
+          "title": "Source Refs",
+          "type": "array"
+        }
+      },
+      "required": [
+        "evidence_ref",
+        "evidence_kind",
+        "claim_horizon",
+        "source_refs",
+        "limitation_note"
+      ],
+      "title": "RepoEvidenceSurfaceRow",
+      "type": "object"
+    }
+  },
+  "additionalProperties": false,
+  "properties": {
+    "cartography_id": {
+      "title": "Cartography Id",
+      "type": "string"
+    },
+    "evidence_surface_index_id": {
+      "title": "Evidence Surface Index Id",
+      "type": "string"
+    },
+    "evidence_surface_rows": {
+      "items": {
+        "$ref": "#/$defs/RepoEvidenceSurfaceRow"
+      },
+      "minItems": 1,
+      "title": "Evidence Surface Rows",
+      "type": "array"
+    },
+    "schema": {
+      "const": "repo_evidence_surface_index@1",
+      "default": "repo_evidence_surface_index@1",
+      "title": "Schema",
+      "type": "string"
+    },
+    "snapshot_id": {
+      "title": "Snapshot Id",
+      "type": "string"
+    }
+  },
+  "required": [
+    "evidence_surface_index_id",
+    "cartography_id",
+    "snapshot_id",
+    "evidence_surface_rows"
+  ],
+  "title": "RepoEvidenceSurfaceIndex",
+  "type": "object"
+}

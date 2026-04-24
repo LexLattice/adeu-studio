@@ -1,0 +1,87 @@
+{
+  "$defs": {
+    "RepoBranchPostureRow": {
+      "additionalProperties": false,
+      "properties": {
+        "branch_family_id": {
+          "title": "Branch Family Id",
+          "type": "string"
+        },
+        "branch_posture": {
+          "enum": [
+            "connected_conditional_branch",
+            "deferred_branch",
+            "selected_branch",
+            "superseded_branch",
+            "not_selected_branch",
+            "review_required_branch"
+          ],
+          "title": "Branch Posture",
+          "type": "string"
+        },
+        "branch_ref": {
+          "title": "Branch Ref",
+          "type": "string"
+        },
+        "selection_condition": {
+          "title": "Selection Condition",
+          "type": "string"
+        },
+        "source_refs": {
+          "items": {
+            "type": "string"
+          },
+          "minItems": 1,
+          "title": "Source Refs",
+          "type": "array"
+        }
+      },
+      "required": [
+        "branch_ref",
+        "branch_family_id",
+        "branch_posture",
+        "selection_condition",
+        "source_refs"
+      ],
+      "title": "RepoBranchPostureRow",
+      "type": "object"
+    }
+  },
+  "additionalProperties": false,
+  "properties": {
+    "branch_posture_register_id": {
+      "title": "Branch Posture Register Id",
+      "type": "string"
+    },
+    "branch_rows": {
+      "items": {
+        "$ref": "#/$defs/RepoBranchPostureRow"
+      },
+      "minItems": 1,
+      "title": "Branch Rows",
+      "type": "array"
+    },
+    "cartography_id": {
+      "title": "Cartography Id",
+      "type": "string"
+    },
+    "schema": {
+      "const": "repo_branch_posture_register@1",
+      "default": "repo_branch_posture_register@1",
+      "title": "Schema",
+      "type": "string"
+    },
+    "snapshot_id": {
+      "title": "Snapshot Id",
+      "type": "string"
+    }
+  },
+  "required": [
+    "branch_posture_register_id",
+    "cartography_id",
+    "snapshot_id",
+    "branch_rows"
+  ],
+  "title": "RepoBranchPostureRegister",
+  "type": "object"
+}

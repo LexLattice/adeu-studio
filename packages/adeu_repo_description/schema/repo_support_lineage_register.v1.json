@@ -1,0 +1,89 @@
+{
+  "$defs": {
+    "RepoSupportLineageRow": {
+      "additionalProperties": false,
+      "properties": {
+        "authority_layer": {
+          "enum": [
+            "lock",
+            "architecture",
+            "planning",
+            "support",
+            "schema",
+            "fixture"
+          ],
+          "title": "Authority Layer",
+          "type": "string"
+        },
+        "lineage_note": {
+          "title": "Lineage Note",
+          "type": "string"
+        },
+        "source_ref": {
+          "title": "Source Ref",
+          "type": "string"
+        },
+        "source_status": {
+          "enum": [
+            "integrated_shaping_source",
+            "available_but_not_integrated",
+            "review_pending_input",
+            "rejected_or_superseded_source"
+          ],
+          "title": "Source Status",
+          "type": "string"
+        },
+        "support_ref": {
+          "title": "Support Ref",
+          "type": "string"
+        }
+      },
+      "required": [
+        "support_ref",
+        "source_ref",
+        "source_status",
+        "authority_layer",
+        "lineage_note"
+      ],
+      "title": "RepoSupportLineageRow",
+      "type": "object"
+    }
+  },
+  "additionalProperties": false,
+  "properties": {
+    "cartography_id": {
+      "title": "Cartography Id",
+      "type": "string"
+    },
+    "schema": {
+      "const": "repo_support_lineage_register@1",
+      "default": "repo_support_lineage_register@1",
+      "title": "Schema",
+      "type": "string"
+    },
+    "snapshot_id": {
+      "title": "Snapshot Id",
+      "type": "string"
+    },
+    "support_lineage_register_id": {
+      "title": "Support Lineage Register Id",
+      "type": "string"
+    },
+    "support_lineage_rows": {
+      "items": {
+        "$ref": "#/$defs/RepoSupportLineageRow"
+      },
+      "minItems": 1,
+      "title": "Support Lineage Rows",
+      "type": "array"
+    }
+  },
+  "required": [
+    "support_lineage_register_id",
+    "cartography_id",
+    "snapshot_id",
+    "support_lineage_rows"
+  ],
+  "title": "RepoSupportLineageRegister",
+  "type": "object"
+}

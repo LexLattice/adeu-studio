@@ -8,11 +8,19 @@ from adeu_ir.repo import repo_root
 from adeu_repo_description import (
     REPO_ARC_DEPENDENCY_REGISTER_SCHEMA,
     REPO_ARC_DEPENDENCY_REGISTER_V1_SCHEMA,
+    REPO_ARC_MAPPING_TOOL_APPLICABILITY_REPORT_SCHEMA,
+    REPO_ARC_NAMESPACE_MAP_SCHEMA,
+    REPO_ARC_SERIES_CARTOGRAPHY_SCHEMA,
+    REPO_BRANCH_POSTURE_REGISTER_SCHEMA,
     REPO_DEPENDENCY_GRAPH_SCHEMA,
     REPO_DESCRIPTIVE_NORMATIVE_BINDING_FRAME_SCHEMA,
     REPO_ENTITY_CATALOG_SCHEMA,
+    REPO_EVIDENCE_SURFACE_INDEX_SCHEMA,
+    REPO_FAMILY_CLOSURE_REGISTER_SCHEMA,
     REPO_OPTIMIZATION_REGISTER_SCHEMA,
+    REPO_RECURSIVE_COORDINATE_EMISSION_PLAN_SCHEMA,
     REPO_SCHEMA_FAMILY_REGISTRY_SCHEMA,
+    REPO_SUPPORT_LINEAGE_REGISTER_SCHEMA,
     REPO_SYMBOL_CATALOG_SCHEMA,
     REPO_TEST_INTENT_MATRIX_SCHEMA,
 )
@@ -79,6 +87,70 @@ def _schema_pairs() -> dict[str, tuple[Path, Path]]:
             / "schema"
             / "repo_optimization_register.v1.json",
             root / "spec" / "repo_optimization_register.schema.json",
+        ),
+        REPO_ARC_SERIES_CARTOGRAPHY_SCHEMA: (
+            root
+            / "packages"
+            / "adeu_repo_description"
+            / "schema"
+            / "repo_arc_series_cartography.v1.json",
+            root / "spec" / "repo_arc_series_cartography.schema.json",
+        ),
+        REPO_ARC_NAMESPACE_MAP_SCHEMA: (
+            root
+            / "packages"
+            / "adeu_repo_description"
+            / "schema"
+            / "repo_arc_namespace_map.v1.json",
+            root / "spec" / "repo_arc_namespace_map.schema.json",
+        ),
+        REPO_FAMILY_CLOSURE_REGISTER_SCHEMA: (
+            root
+            / "packages"
+            / "adeu_repo_description"
+            / "schema"
+            / "repo_family_closure_register.v1.json",
+            root / "spec" / "repo_family_closure_register.schema.json",
+        ),
+        REPO_BRANCH_POSTURE_REGISTER_SCHEMA: (
+            root
+            / "packages"
+            / "adeu_repo_description"
+            / "schema"
+            / "repo_branch_posture_register.v1.json",
+            root / "spec" / "repo_branch_posture_register.schema.json",
+        ),
+        REPO_SUPPORT_LINEAGE_REGISTER_SCHEMA: (
+            root
+            / "packages"
+            / "adeu_repo_description"
+            / "schema"
+            / "repo_support_lineage_register.v1.json",
+            root / "spec" / "repo_support_lineage_register.schema.json",
+        ),
+        REPO_EVIDENCE_SURFACE_INDEX_SCHEMA: (
+            root
+            / "packages"
+            / "adeu_repo_description"
+            / "schema"
+            / "repo_evidence_surface_index.v1.json",
+            root / "spec" / "repo_evidence_surface_index.schema.json",
+        ),
+        REPO_ARC_MAPPING_TOOL_APPLICABILITY_REPORT_SCHEMA: (
+            root
+            / "packages"
+            / "adeu_repo_description"
+            / "schema"
+            / "repo_arc_mapping_tool_applicability_report.v1.json",
+            root / "spec" / "repo_arc_mapping_tool_applicability_report.schema.json",
+        ),
+        REPO_RECURSIVE_COORDINATE_EMISSION_PLAN_SCHEMA: (
+            root
+            / "packages"
+            / "adeu_repo_description"
+            / "schema"
+            / "repo_recursive_coordinate_emission_plan.v1.json",
+            root / "spec" / "repo_recursive_coordinate_emission_plan.schema.json",
         ),
     }
 
