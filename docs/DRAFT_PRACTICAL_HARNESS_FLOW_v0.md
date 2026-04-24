@@ -27,7 +27,8 @@ draft family arc docs
 -> review 1 over family arc docs
 -> draft A / B / C slice specs
 -> review 2 over the slice-spec bundle
--> implement A / B / C as separate PRs
+-> for each slice, activate a canonical starter bundle
+-> implement that slice as a separate PR
 -> do lean slice closeout after each merged PR
 -> do one full family closeout after the last merged slice
 ```
@@ -69,9 +70,14 @@ Before implementing the first slice of a newly selected family:
 - draft all planned slice-spec docs for the family early, even if only the first
   slice will be lock-authoritative immediately;
 - run review 2 over the `A/B/C` slice-spec bundle before starter-lock activation;
+- if the family boundary and slice ladder are already stable, review 1 and review 2
+  may be packaged as one joint external review bundle, but the reviewed artifacts
+  must still distinguish family docs from slice specs;
 - keep future-slice specs at `planning`, `architecture / decomposition`, or
   `support` authority until their turn arrives;
 - do not silently treat drafted later-slice specs as lock authority;
+- do not request extra external review between slices unless implementation drift
+  materially changes the already reviewed slice ladder;
 - do not silently collapse review 1 and review 2 unless the family is unusually
   small or obvious.
 
@@ -142,6 +148,10 @@ Important posture:
 
 - these slice specs are implementation-adjacent planning docs, not lock authority;
 - only the active slice will later receive lock / continuation authority;
+- the expected active-slice starter bundle is:
+  - `LOCKED_CONTINUATION_vNEXT_PLUS<n>.md`
+  - `DRAFT_STOP_GATE_DECISION_vNEXT_PLUS<n>.md`
+  - `ASSESSMENT_vNEXT_PLUS<n>_EDGES.md`
 - later-slice specs remain revisable if earlier implementation teaches something
   material.
 
@@ -152,6 +162,9 @@ Before starter-lock activation:
 - run the external review cycle over the `A/B/C` slice-spec bundle;
 - integrate the worthwhile cross-slice fixes while the family is still pre-code;
 - freeze the family planning bundle as the current implementation-adjacent ladder.
+- after this review is integrated, do not seek another external review for each
+  slice by default; use the already reviewed slice specs unless lean closeout shows
+  material drift.
 
 The main purpose of this phase is to settle:
 
@@ -165,6 +178,8 @@ For the slice currently being implemented:
 - draft or refresh the controlling slice lock / continuation doc;
 - draft or refresh any slice-local stop-gate / assessment docs needed for that
   slice;
+- run the docs-only starter gate for docs/artifacts-only starter bundles, normally:
+  - `make arc-start-check ARC=<n>`
 - keep the rest of the family planning bundle intact unless real drift requires an
   update.
 
@@ -218,6 +233,8 @@ Once the slice PR is merged:
   - `superseded`
   - `not_selected_anymore`
 - revise downstream slice docs only when drift is material.
+- do not run the full family closeout at this point unless the slice is the final
+  planned slice.
 
 This is intentionally lean.
 
@@ -233,6 +250,8 @@ It is not the final family closeout.
 ### 9. Repeat for the next slice
 
 - activate the next slice with the minimum lock-authoritative update needed;
+- mint that slice's canonical starter bundle with its own lock, stop-gate decision,
+  and edge assessment;
 - implement on a fresh PR branch;
 - run normal bot review;
 - merge;
@@ -263,15 +282,15 @@ flowchart TD
     C --> D["Draft A / B / C slice-spec bundle"]
     D --> E["Review 2 over slice-spec bundle"]
     E --> F["Integrate cross-slice ladder fixes"]
-    F --> G["Activate slice A with minimal lock update"]
+    F --> G["Activate slice A canonical starter bundle"]
     G --> H["Implement slice A on fresh PR branch"]
     H --> I["Bot review and follow-up fixes"]
     I --> J["Merge slice A"]
     J --> K["Lean slice A closeout + downstream drift update"]
-    K --> L["Activate slice B"]
+    K --> L["Activate slice B canonical starter bundle"]
     L --> M["Implement / review / merge slice B"]
     M --> N["Lean slice B closeout + downstream drift update"]
-    N --> O["Activate slice C"]
+    N --> O["Activate slice C canonical starter bundle"]
     O --> P["Implement / review / merge slice C"]
     P --> Q["Lean slice C closeout"]
     Q --> R["Run full family closeout on main"]
@@ -314,7 +333,8 @@ It is simply no longer the default when the family shape is already clear.
 Before any slice PR starts, confirm:
 
 - review 1 and review 2 have both completed, unless a deliberate exception was
-  made for an unusually small family;
+  made for an unusually small family or they were intentionally packaged as one
+  joint external review bundle;
 - the family bundle agrees on scope, exclusions, and acceptance;
 - the active slice lock agrees with the family bundle on consumed / emitted scope;
 - the PR split is frozen for the active slice;
@@ -391,8 +411,10 @@ This prevents overclaiming completion when only a partial layer has landed.
 The active repo-native default is now:
 
 - plan the whole family up front;
-- review the family once up front;
+- draft all expected slice implementation specs up front;
+- review the family and slice ladder before code;
 - implement slices as separate PRs;
+- mint a canonical starter bundle only for the active slice;
 - keep per-slice closeout lean;
 - close the whole family once at the end.
 

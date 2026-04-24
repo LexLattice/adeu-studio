@@ -71,10 +71,15 @@
     workflow changes, and orchestrated experiments. Default expectation is the
     repo-native ADEU flow: family arc docs first, review 1 over the family arc,
     full `A/B/C` slice-spec drafting, review 2 over the slice-spec bundle,
-    separate slice implementation PRs, verification, lean slice-alignment after each
-    merge, and full family closeout where applicable. The older slice-serial
-    workflow remains available as fallback for exploratory or unstable families;
-    see `docs/DRAFT_PRACTICAL_HARNESS_FLOW_v0.md`.
+    then per active slice a canonical starter bundle (`LOCKED_CONTINUATION`,
+    stop-gate decision, edge assessment), separate slice implementation PR,
+    verification, lean slice-alignment after merge, and one full family closeout
+    after the final slice. When the family and slice ladder are stable, review 1
+    and review 2 may be packaged as one joint external review bundle; after that,
+    do not seek extra external review per slice unless material drift changes the
+    reviewed ladder. The older slice-serial workflow remains available as fallback
+    for exploratory or unstable families; see
+    `docs/DRAFT_PRACTICAL_HARNESS_FLOW_v0.md`.
   - `External single-PR lane`: outside contributions or imported Codex-produced diffs
     that did not originate inside the repo harness. These may arrive without the full
     ADEU arc bundle, but they do not replace the internal lane or set precedent by

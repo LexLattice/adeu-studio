@@ -24,10 +24,48 @@ Support lineage now lives under `docs/support/arc_series_mapping/`:
 - `odeu_conceptual_diff_report.schema.json`
 - `DRAFT_ARC_SERIES_REASONING_RECURSION_LOOP_v0.md`
 - `DRAFT_ADEU_TYPED_ADJUDICATION_PRODUCT_WEDGE_v0.md`
+- `REVIEW_GPTPRO_ARC_SERIES_MAPPING_V68_PLANNING_v0.md`
+- `REVIEW_GPTPRO_ARC_SERIES_CARTOGRAPHY_ABC_SPECS_v0.md`
+
+Follow-on review integration note:
+
+- follow-on GPTPro feedback was pasted after the first `V68` starter bundle draft
+  and is now preserved as
+  `docs/support/arc_series_mapping/REVIEW_GPTPRO_ARC_SERIES_MAPPING_V68_PLANNING_v0.md`;
+- a second GPTPro review over the `V68-A/B/C` specs is preserved as
+  `docs/support/arc_series_mapping/REVIEW_GPTPRO_ARC_SERIES_CARTOGRAPHY_ABC_SPECS_v0.md`;
+- the reviews are integrated as support-layer shaping evidence, not as authority;
+- their main framing correction is adopted here:
+  - `V68` is the only immediate drafting target;
+  - `V69` through `V75` are a sequenced lifecycle hypothesis that `V68` must
+    cartograph, not pre-authorized follow-on locks.
+- their concrete `V68-A/B/C` patch set is adopted in the starter draft family:
+  - `repo_*` schema names are used for repo ARC series cartography;
+  - namespace kinds are kept tight, with source kind and authority layer carried
+    by source-row fields;
+  - closure posture and branch posture are separate row concerns;
+  - derivation manifest, gap scan, and tool-run evidence surfaces are selected for
+    the later `V68-B/C` specs rather than left optional.
 
 Horizon-sensitive terms such as `bounded`, `closed`, `complete`, `deferred`,
 `forbidden`, and `missing` follow `docs/DRAFT_INTENT_HORIZON_GLOSSARY_v0.md`.
 Planning-boundary claims here are scope guards, not lock-level prohibitions.
+
+## Current Repo Frontier
+
+Current frontier checked by GPTPro against repo zip snapshot
+`6eb7a9c9538de672d9102714a0fc6e3b9b050afd`:
+
+- latest locked continuation: `vNEXT_PLUS187`
+- latest closed family slice: `V67-C`
+- `V67` family posture: closed on `main`
+- latest next-arc selector at reviewed snapshot: `DRAFT_NEXT_ARC_OPTIONS_v52.md`
+- no `DRAFT_NEXT_ARC_OPTIONS_v53.md` was present in that snapshot
+- next planning obligation: select / draft `V68` outside closed `V67`
+
+This document now treats `DRAFT_NEXT_ARC_OPTIONS_v53.md` and
+the draft `LOCKED_CONTINUATION_vNEXT_PLUS188.md` starter trio as the canonical
+response to that frontier once the pre-start gate accepts them.
 
 ## Integrated Thesis
 
@@ -47,7 +85,9 @@ They differed on what the rest of the missing set is optimizing for:
 
 The integrated reading is that both are right at different layers. The future map must
 preserve the recursive lifecycle while explicitly absorbing the operational seams that
-the high drafts exposed.
+the high drafts exposed. The GPTPro review narrows the immediate drafting posture:
+only `V68` is selected for canonical drafting now; `V69` through `V75` remain mapped
+as later hypotheses until their own planning and locks exist.
 
 ## Observed Recursion
 
@@ -189,12 +229,14 @@ Negative laws that remain controlling:
 ## Future Family Map
 
 The integrated core missing set remains `V68` through `V75`, with operational seams
-from the high drafts absorbed as required slices or review questions. `V43` is tracked
-as a connected conditional branch, not silently dropped.
+from the high drafts absorbed as required slices or review questions. Only `V68` is
+the immediate drafting target. `V69` through `V75` are a sequenced lifecycle
+hypothesis that `V68` must cartograph. `V43` is tracked as a connected conditional
+branch, not silently dropped.
 
 | Proposed family | Integrated role | Required absorbed seams | Primary output targets | Boundary |
 |---|---|---|---|---|
-| `V68` | whole-series cartography, namespace map, closure registry, branch posture, tool-applicability, coordinate posture | selector/family/implementation/evidence namespace joins; V45-C compatibility lesson; current V67-C evidence spine; conceptual-diff lineage | `arc_series_cartography@1`, `adeu_arc_namespace_map@1`, `family_closure_register@1`, `branch_posture_register@1`, `arc_mapping_tool_applicability_report@1`, `recursive_coordinate_emission_plan@1` | descriptive support/planning graph only, no scheduling or runtime authority |
+| `V68` | whole-series cartography, namespace disambiguation, closure registry, branch posture, support lineage, evidence indexing, tool-applicability, coordinate posture | selector/family/slice/implementation/closeout/evidence namespace joins; V45-C compatibility lesson; current V67-C evidence spine; conceptual-diff lineage; GPTPro frontier review | `repo_arc_series_cartography@1`, `repo_arc_namespace_map@1`, `repo_family_closure_register@1`, `repo_branch_posture_register@1`, `repo_support_lineage_register@1`, `repo_evidence_surface_index@1`, `repo_arc_mapping_tool_applicability_report@1`, `repo_recursive_coordinate_emission_plan@1` | descriptive support/planning graph only, no scheduling or runtime authority |
 | `V69` | recursive candidate intake plus semantic ingress / operator binding / O/E/D/U mapping | external candidates, internally generated conceptual candidates, raw turn-to-typed-operator boundary, source provenance | `recursive_candidate_advancement_record@1`, `operator_ingress_binding@1`, `recursive_odeu_mapping@1`, `candidate_source_provenance_packet@1` | admit and map only, no adoption, execution, commit, or hidden operator invention |
 | `V70` | evidence, quality, tool-result, and adversarial-review classification | tool applicability judgments, structural reasoning/benchmark evidence, constitutional advisory posture, independent critic records, arbiter-input framing | `recursive_integration_classification@1`, `recursive_quality_threshold_report@1`, `tool_result_applicability_judgment@1`, `adversarial_review_packet@1`, `integration_risk_register@1` | evaluates and classifies, but cannot ratify or release |
 | `V71` | ratification, amendment scope, and human-internal authority kernel | human role as internal loop component, support-vs-lock boundary, warning-only-vs-gating distinction, settlement over review conflicts | `recursive_ratification_request@1`, `recursive_ratification_record@1`, `amendment_scope_boundary@1`, `human_role_authority_profile@1`, `arbiter_settlement_record@1` | decision/ratification only, no implementation by itself |
@@ -293,6 +335,26 @@ Minimality at this support horizon:
 6. Is `typed_adjudication_case_view@1` only a `V74` product projection, or should the
    audit artifact bundle be drafted earlier as part of `V70` evidence classification?
 
+## Integrated Review Answers
+
+GPTPro's review answers are accepted as support-layer shaping guidance:
+
+1. Keep commit / release authority in `V72` for now, but make it a named high-risk
+   sub-slice rather than a buried field. Split it only if `V72` cannot keep
+   contained integration / rollback distinct from merge / release truth.
+2. Split adversarial review across `V70` and `V71`: `V70` owns adversarial review as
+   evidence / classification input; `V71` owns settlement / ratification over
+   conflicting reviews. Execution widening remains `V75`.
+3. Let `V69` own operator ingress only as typed admission / binding of a human turn
+   into an O/E/D/U candidate record. Split it if it becomes a live turn compiler,
+   standing operator profile, or runtime permission surface.
+4. Keep `V43` connected-conditional until external-world contest / host participation
+   becomes selected planning pressure.
+5. Keep `odeu_conceptual_diff_report@1` support-layer during `V68`; `V69` may later
+   admit it as a candidate for released schema work.
+6. Split typed adjudication: machine-readable audit / report artifacts belong earlier,
+   mainly `V70`; the operator-facing case view belongs in `V74`.
+
 ## Machine-Checkable Seed
 
 ```json
@@ -310,8 +372,19 @@ Minimality at this support horizon:
     "docs/support/arc_series_mapping/DRAFT_ARC_SERIES_ODEU_CONCEPTUAL_DIFF_v0.md",
     "docs/support/arc_series_mapping/DRAFT_ARC_SERIES_ODEU_CONCEPTUAL_DIFF_v0.report.json",
     "docs/support/arc_series_mapping/DRAFT_ARC_SERIES_REASONING_RECURSION_LOOP_v0.md",
-    "docs/support/arc_series_mapping/DRAFT_ADEU_TYPED_ADJUDICATION_PRODUCT_WEDGE_v0.md"
+    "docs/support/arc_series_mapping/DRAFT_ADEU_TYPED_ADJUDICATION_PRODUCT_WEDGE_v0.md",
+    "docs/support/arc_series_mapping/REVIEW_GPTPRO_ARC_SERIES_MAPPING_V68_PLANNING_v0.md",
+    "docs/support/arc_series_mapping/REVIEW_GPTPRO_ARC_SERIES_CARTOGRAPHY_ABC_SPECS_v0.md"
   ],
+  "current_repo_frontier": {
+    "review_snapshot_commit": "6eb7a9c9538de672d9102714a0fc6e3b9b050afd",
+    "latest_locked_continuation_at_review": "vNEXT_PLUS187",
+    "latest_closed_family_slice_at_review": "V67-C",
+    "v67_family_posture_at_review": "closed_on_main",
+    "latest_next_arc_selector_at_review": "DRAFT_NEXT_ARC_OPTIONS_v52.md",
+    "v53_present_at_review": false,
+    "next_planning_obligation": "select_and_draft_v68_outside_closed_v67"
+  },
   "observed_recursive_signal": {
     "name": "self_evidencing_workflow_type_emergence",
     "claim": "the workflow produced evidence that future instances of the same workflow class need typed admission, evaluation, and outcome review",
@@ -326,6 +399,18 @@ Minimality at this support horizon:
     "V73_outcome_review_self_improvement_ledger_and_tool_fitness_drift",
     "V74_self_improvement_operator_projection",
     "V75_governed_dispatch_execute_and_multi_worker_widening"
+  ],
+  "immediate_drafting_target": "V68_only",
+  "later_lifecycle_posture": "V69_through_V75_are_sequenced_hypothesis_not_pre_authorized_locks",
+  "v68_starter_surface_candidates": [
+    "repo_arc_series_cartography@1",
+    "repo_arc_namespace_map@1",
+    "repo_family_closure_register@1",
+    "repo_branch_posture_register@1",
+    "repo_support_lineage_register@1",
+    "repo_evidence_surface_index@1",
+    "repo_arc_mapping_tool_applicability_report@1",
+    "repo_recursive_coordinate_emission_plan@1"
   ],
   "connected_conditional_branches": [
     {
