@@ -1,0 +1,498 @@
+{
+  "schema": "odeu_conceptual_diff_report@1",
+  "report_id": "odeu_conceptual_diff:arc_series_mapping_model_variant:v0",
+  "authority_layer": "support",
+  "anchor_surfaces": [
+    {
+      "ref": "spec/explain_diff.schema.json",
+      "schema_or_family": "explain_diff@1",
+      "role": "concept_diff_wrapper"
+    },
+    {
+      "ref": "spec/adeu_cross_subject_comparison_report.schema.json",
+      "schema_or_family": "adeu_cross_subject_comparison_report@1",
+      "role": "two_subject_comparison"
+    },
+    {
+      "ref": "spec/adeu_structural_reasoning_differential.schema.json",
+      "schema_or_family": "adeu_structural_reasoning_differential@1",
+      "role": "reasoning_differential"
+    },
+    {
+      "ref": "spec/anm_semantic_diff_report.schema.json",
+      "schema_or_family": "anm_semantic_diff_report@1",
+      "role": "semantic_authority_diff"
+    },
+    {
+      "ref": "spec/odeu_conceptual_diff_report.schema.json",
+      "schema_or_family": "odeu_conceptual_diff_report@1",
+      "role": "local_support_schema"
+    }
+  ],
+  "comparison_scope": {
+    "scope_id": "arc_series_mapping_prompt_pair_model_variant",
+    "scope_summary": "Conceptual diff between xhigh and high variants of the ARC-series map and its empirical hardening pass.",
+    "prompt_refs": [
+      "prompt_1_arc_series_mapping",
+      "prompt_2_epistemic_loop_hardening"
+    ],
+    "comparison_posture": "support_layer_conceptual_diff"
+  },
+  "subjects": [
+    {
+      "subject_id": "xhigh_v0",
+      "doc_ref": "docs/DRAFT_ARC_SERIES_MULTI_LAYER_MAPPING_v0.md",
+      "model_context": "gpt-5.5 xhigh",
+      "prompt_ref": "prompt_1_arc_series_mapping",
+      "role": "baseline_xhigh"
+    },
+    {
+      "subject_id": "high_v0",
+      "doc_ref": "docs/DRAFT_ARC_SERIES_MULTILAYER_MAPPING_v0_ALT.md",
+      "model_context": "gpt-5.5 high",
+      "prompt_ref": "prompt_1_arc_series_mapping",
+      "role": "alternate_high"
+    },
+    {
+      "subject_id": "xhigh_v1",
+      "doc_ref": "docs/DRAFT_ARC_SERIES_MULTI_LAYER_MAPPING_v1.md",
+      "model_context": "gpt-5.5 xhigh",
+      "prompt_ref": "prompt_2_epistemic_loop_hardening",
+      "role": "successor_xhigh"
+    },
+    {
+      "subject_id": "high_v1",
+      "doc_ref": "docs/DRAFT_ARC_SERIES_MULTILAYER_MAPPING_v1_ALT.md",
+      "model_context": "gpt-5.5 high",
+      "prompt_ref": "prompt_2_epistemic_loop_hardening",
+      "role": "successor_high"
+    }
+  ],
+  "prompt_fit": [
+    {
+      "prompt_id": "prompt_1_arc_series_mapping",
+      "prompt_summary": "Create a consistent multi-layered but unitary ARC-series map and identify the optimal missing arcs with a proof sketch.",
+      "subject_refs": [
+        "xhigh_v0",
+        "high_v0"
+      ],
+      "fit_judgment": "mixed_strong",
+      "summary": "Both answer the prompt. The xhigh variant fits the recursive self-improvement policy spine more completely; the high variant fits the immediate repo-harness and workflow-seam reading more concretely.",
+      "strengths": [
+        "both treat the series as a unitary layered harness",
+        "both make V68 cartography the first next step",
+        "both avoid treating support prose as lock authority"
+      ],
+      "weaknesses": [
+        "xhigh_v0 underweights semantic ingress, commit/release authority, and adversarial review as immediate operational seams",
+        "high_v0 underweights explicit ratification, rollback, outcome review, operator projection, and machine-checkable seed structure"
+      ]
+    },
+    {
+      "prompt_id": "prompt_2_epistemic_loop_hardening",
+      "prompt_summary": "Design and run an epistemic loop using existing repo reasoning tools, then harden the original map with empirical successes and failures.",
+      "subject_refs": [
+        "xhigh_v1",
+        "high_v1"
+      ],
+      "fit_judgment": "mixed_strong",
+      "summary": "Both run a real tool-mediated hardening pass. The xhigh variant formalizes tool applicability and schema seams better; the high variant records broader current-horizon command evidence better.",
+      "strengths": [
+        "both use repo-native scripts and tests rather than only prose",
+        "both identify V45-C dependency-register limits as evidence for V68",
+        "both keep V68 as the next concrete family"
+      ],
+      "weaknesses": [
+        "xhigh_v1 records a namespace-mismatched ARC=67 check rather than the current V67-C implementation arc check",
+        "high_v1 lacks a machine-readable diff or mapping seed and keeps the six-family set without separately preserving ratification/outcome/operator-projection cuts"
+      ]
+    }
+  ],
+  "odeu_axes": [
+    {
+      "axis": "ontology",
+      "shared": [
+        "the ARC series is a layered harness rather than a flat backlog",
+        "V68 cartography is missing and should come next",
+        "V45-C is useful precedent but not whole-series cartography",
+        "V67 is a meaningful current closure horizon"
+      ],
+      "xhigh_emphasis": [
+        "recursive self-improvement candidate lifecycle",
+        "family namespaces and evidence namespaces",
+        "ratification, outcome review, operator projection, and execution widening as distinct objects"
+      ],
+      "high_emphasis": [
+        "whole repo family map including V31 and early vNext baseline",
+        "semantic ingress / operator binding",
+        "commit, merge, release authority",
+        "multi-agent adversarial review",
+        "V43 as an unclosed general contest branch"
+      ],
+      "tensions": [
+        "xhigh decomposes by recursive governance cuts; high decomposes by near-term workflow authority shortcuts",
+        "xhigh treats V43 as deferred; high treats V43 as part of the minimal missing set"
+      ],
+      "recommended_synthesis": "Represent recursive governance cuts and operational shortcut blockers as two layers in the next map rather than forcing a six-versus-eight family decision too early."
+    },
+    {
+      "axis": "epistemics",
+      "shared": [
+        "tool results constrain but do not globally prove conceptual completeness",
+        "test selection is local and approximate",
+        "closeout lints are strong within their declared surface",
+        "the V45-C live derivation failure is important negative evidence"
+      ],
+      "xhigh_emphasis": [
+        "tool-applicability classification",
+        "recursive-coordinate absence",
+        "constitutional coherence checkers as advisory and seed-bound",
+        "semantic-source zero-block result"
+      ],
+      "high_emphasis": [
+        "current V67-C closeout lint using arc 187",
+        "stop-gate deterministic environment failure and rerun",
+        "V45-A direct fixture comparison",
+        "V67 ergonomic adjudication tests"
+      ],
+      "tensions": [
+        "xhigh is stronger on epistemic typing of evidence; high is stronger on concrete current-horizon command breadth",
+        "xhigh embeds JSON results; high provides more readable command transcripts"
+      ],
+      "recommended_synthesis": "Use xhigh's tool-applicability schema and high's broader current-horizon command set in a v2 empirical appendix."
+    },
+    {
+      "axis": "deontics",
+      "shared": [
+        "support docs do not authorize runtime or lock-level changes",
+        "planning text cannot become release truth without evidence",
+        "local writes and worker outputs do not mint authority by themselves",
+        "tool success cannot widen scope beyond the tool's declared contract"
+      ],
+      "xhigh_emphasis": [
+        "human-internal ratification",
+        "advisory versus gating constitutional checks",
+        "decision projection must not mint authority",
+        "execution widening must wait for recursive gates"
+      ],
+      "high_emphasis": [
+        "raw utterance is not task law",
+        "local mutation is not commit or release authority",
+        "multi-agent output is not native truth without settlement",
+        "host text is not self-authorizing contest law"
+      ],
+      "tensions": [
+        "xhigh makes ratification explicit but leaves commit/release authority less foregrounded",
+        "high makes commit/release explicit but folds ratification and outcome review into a broader experiment ledger"
+      ],
+      "recommended_synthesis": "The next map should make commit/release authority an explicit slice or family while retaining separate ratification, rollback, and outcome-review cuts."
+    },
+    {
+      "axis": "utility",
+      "shared": [
+        "both variants are useful inputs for V68 planning",
+        "both improve over ad hoc prose by naming seams and boundaries",
+        "both converge on a descriptive non-authorizing next step"
+      ],
+      "xhigh_emphasis": [
+        "better long-horizon recursive self-improvement governance",
+        "better machine-checkable seed",
+        "better schema-seam preparation"
+      ],
+      "high_emphasis": [
+        "better immediate maintainer workflow relevance",
+        "better concise negative laws",
+        "better evidence for current V67-C closeout and ergonomic tests"
+      ],
+      "tensions": [
+        "xhigh is more complete but can feel abstract",
+        "high is more actionable but can compress distinct recursive-policy gates"
+      ],
+      "recommended_synthesis": "Use high as the pragmatic V68 starter-plan skeleton and xhigh as the recursive governance correctness envelope."
+    }
+  ],
+  "shared_claims": [
+    {
+      "claim_id": "shared_non_authorizing_support_posture",
+      "summary": "All four docs treat themselves as support-layer maps rather than lock or implementation authority.",
+      "support_refs": [
+        "docs/DRAFT_ARC_SERIES_MULTI_LAYER_MAPPING_v0.md",
+        "docs/DRAFT_ARC_SERIES_MULTILAYER_MAPPING_v0_ALT.md",
+        "docs/DRAFT_ARC_SERIES_MULTI_LAYER_MAPPING_v1.md",
+        "docs/DRAFT_ARC_SERIES_MULTILAYER_MAPPING_v1_ALT.md"
+      ]
+    },
+    {
+      "claim_id": "shared_unitary_harness_reading",
+      "summary": "Both model variants read the ARC sequence as one layered philosophy-engineering harness.",
+      "support_refs": [
+        "docs/DRAFT_ARC_SERIES_MULTI_LAYER_MAPPING_v0.md",
+        "docs/DRAFT_ARC_SERIES_MULTILAYER_MAPPING_v0_ALT.md"
+      ]
+    },
+    {
+      "claim_id": "shared_v68_next",
+      "summary": "Both variants converge on V68 as the next concrete family for current arc-series cartography.",
+      "support_refs": [
+        "docs/DRAFT_ARC_SERIES_MULTI_LAYER_MAPPING_v1.md",
+        "docs/DRAFT_ARC_SERIES_MULTILAYER_MAPPING_v1_ALT.md"
+      ]
+    },
+    {
+      "claim_id": "shared_v45c_limit",
+      "summary": "Both empirical passes treat V45-C as useful precedent but insufficient for current whole-series cartography.",
+      "support_refs": [
+        "docs/DRAFT_ARC_SERIES_MULTI_LAYER_MAPPING_v1.md",
+        "docs/DRAFT_ARC_SERIES_MULTILAYER_MAPPING_v1_ALT.md"
+      ]
+    },
+    {
+      "claim_id": "shared_tool_scope_law",
+      "summary": "Both empirical passes reject clean tool exits as global conceptual proof.",
+      "support_refs": [
+        "docs/DRAFT_ARC_SERIES_MULTI_LAYER_MAPPING_v1.md",
+        "docs/DRAFT_ARC_SERIES_MULTILAYER_MAPPING_v1_ALT.md"
+      ]
+    }
+  ],
+  "divergences": [
+    {
+      "diff_id": "diff_missing_set_shape",
+      "prompt_id": "prompt_1_arc_series_mapping",
+      "axis": "ontology",
+      "divergence_kind": "different_missing_set",
+      "xhigh_claim": "The minimal recursive self-improvement seam set is V68 through V75: cartography, candidate intake, classification, ratification, contained integration, outcome review, operator projection, and execution widening.",
+      "high_claim": "The minimal missing set is V68, V69, V70, V71, V72, and V43: cartography, semantic ingress, commit/release authority, experiment ledger, adversarial review, and general contest participation.",
+      "consequence": "The two variants optimize for different notions of minimality: policy-loop completeness versus immediate authority shortcuts.",
+      "synthesis_judgment": "Do not simply union or choose one. First classify high's operational seams as slice obligations or separate families inside the xhigh recursive lifecycle."
+    },
+    {
+      "diff_id": "diff_semantic_ingress",
+      "prompt_id": "prompt_1_arc_series_mapping",
+      "axis": "deontics",
+      "divergence_kind": "different_decomposition",
+      "xhigh_claim": "V69 is recursive candidate advancement intake and O/E/D/U mapping.",
+      "high_claim": "V69 is semantic ingress / operator binding / turn compiler.",
+      "consequence": "xhigh protects candidate provenance; high protects the live turn boundary where user utterance could become task law.",
+      "synthesis_judgment": "V69 should likely combine both: recursive candidate intake plus closed-world operator ingress and O/E/D/U binding."
+    },
+    {
+      "diff_id": "diff_commit_release",
+      "prompt_id": "prompt_1_arc_series_mapping",
+      "axis": "deontics",
+      "divergence_kind": "different_authority_boundary",
+      "xhigh_claim": "Contained integration, rollback, and later dispatch widening cover implementation movement but do not foreground git commit, PR, merge, or release authority.",
+      "high_claim": "Commit, merge, and release authority is a separate missing family because V64/V65 do not promote writes into released truth.",
+      "consequence": "The high variant exposes a concrete authority gap that xhigh under-specifies.",
+      "synthesis_judgment": "Promote commit/release authority into the next synthesis, either as a V72 sublane or as a distinct family if it cannot be owned by contained integration."
+    },
+    {
+      "diff_id": "diff_ratification_outcome",
+      "prompt_id": "prompt_1_arc_series_mapping",
+      "axis": "deontics",
+      "divergence_kind": "granularity_delta",
+      "xhigh_claim": "Ratification, integration/rollback, outcome review, and operator projection are separate family-level cuts.",
+      "high_claim": "Experiment ledger and adversarial settlement carry much of the adoption logic.",
+      "consequence": "The high variant is more compact but risks collapsing decision, execution, review, and projection boundaries.",
+      "synthesis_judgment": "Keep these cuts explicit even if later planning chooses to pack some as slices."
+    },
+    {
+      "diff_id": "diff_v43",
+      "prompt_id": "prompt_1_arc_series_mapping",
+      "axis": "ontology",
+      "divergence_kind": "different_missing_set",
+      "xhigh_claim": "V43 is a meaningful connected branch but deferred outside the minimal recursive self-improvement seam set.",
+      "high_claim": "V43 is part of the minimal missing set because V42 is ARC-specific and does not generalize host-world law.",
+      "consequence": "The variants disagree about whether external-world generalization is prerequisite or adjacent.",
+      "synthesis_judgment": "Treat V43 as connected-but-conditional unless the next planning horizon selects external contest/task intake as the immediate pressure."
+    },
+    {
+      "diff_id": "diff_machine_readability",
+      "prompt_id": "prompt_1_arc_series_mapping",
+      "axis": "epistemics",
+      "divergence_kind": "schema_presence_delta",
+      "xhigh_claim": "The map includes a machine-checkable seed.",
+      "high_claim": "The map is human-readable and structured but has no embedded JSON seed.",
+      "consequence": "xhigh is easier to validate and carry into schema work; high is easier to read as prose.",
+      "synthesis_judgment": "Future versions should keep a machine-readable seed while borrowing high's clearer dependency cone and negative laws."
+    },
+    {
+      "diff_id": "diff_empirical_arc_number",
+      "prompt_id": "prompt_2_epistemic_loop_hardening",
+      "axis": "epistemics",
+      "divergence_kind": "different_evidence_basis",
+      "xhigh_claim": "ARC=67 closeout check passed but was namespace-limited and did not validate family V67.",
+      "high_claim": "Arc bundle lint was run against arc 187 for the current V67-C horizon and passed.",
+      "consequence": "xhigh correctly identified a namespace hazard; high selected the more relevant current implementation arc.",
+      "synthesis_judgment": "V2 should include both: namespace hazard as a finding and arc 187 as the correct current closeout evidence."
+    },
+    {
+      "diff_id": "diff_empirical_breadth",
+      "prompt_id": "prompt_2_epistemic_loop_hardening",
+      "axis": "epistemics",
+      "divergence_kind": "different_evidence_basis",
+      "xhigh_claim": "Stress run foregrounded recursive coordinates, semantic-source zero blocks, constitutional advisory posture, and tool-result applicability.",
+      "high_claim": "Stress run foregrounded stop-gate environment fail-closed behavior, V45-A fixture equality, V45-C derivation failure, and V67 ergonomic test coverage.",
+      "consequence": "Each variant sees evidence the other mostly lacks.",
+      "synthesis_judgment": "The empirical record should be merged, with every command classified by real output surface and authority effect."
+    },
+    {
+      "diff_id": "diff_schema_hardening",
+      "prompt_id": "prompt_2_epistemic_loop_hardening",
+      "axis": "epistemics",
+      "divergence_kind": "schema_presence_delta",
+      "xhigh_claim": "V1 adds schema seams and an embedded JSON seed with tool-result records.",
+      "high_claim": "V1 proposes a future arc_series_cartography@1 schema but does not emit a current report schema.",
+      "consequence": "xhigh better satisfies the schema/hardening aspect of the prompt.",
+      "synthesis_judgment": "Keep xhigh's immediate schema/report posture and import high's proposed cartography checks."
+    },
+    {
+      "diff_id": "diff_next_action",
+      "prompt_id": "prompt_2_epistemic_loop_hardening",
+      "axis": "utility",
+      "divergence_kind": "different_next_action",
+      "xhigh_claim": "The hardened missing set remains eight families with sharper V68/V70/V73 obligations.",
+      "high_claim": "The next concrete family should remain V68 with a starter arc_series_cartography@1 experiment.",
+      "consequence": "xhigh keeps the full policy horizon visible; high gives the clearer next engineering move.",
+      "synthesis_judgment": "Use high's V68 starter experiment as the next action, governed by xhigh's broader recursive lifecycle map."
+    }
+  ],
+  "variant_assessments": [
+    {
+      "subject_ref": "xhigh_v0",
+      "pros": [
+        "strongest recursive self-improvement policy coverage",
+        "explicit O/E/D/U candidate mapping, ratification, rollback, outcome review, operator projection, and execution widening",
+        "includes a machine-checkable seed"
+      ],
+      "cons": [
+        "less concrete about semantic ingress from live user turns",
+        "less concrete about git commit, PR, merge, and release authority",
+        "treats V43 as outside the minimal set without deeply arguing external-world intake"
+      ],
+      "best_use": "Use as the correctness envelope for recursive policy completeness."
+    },
+    {
+      "subject_ref": "high_v0",
+      "pros": [
+        "clearer whole-series family map including V31 and early vNext baseline",
+        "stronger immediate operational seams: semantic ingress, commit/release, experiment ledger, adversarial review",
+        "good negative laws and dependency cone"
+      ],
+      "cons": [
+        "no machine-readable seed",
+        "six-family minimality compresses distinct ratification, rollback, outcome review, and operator projection cuts",
+        "V43 inclusion is plausible but not clearly necessary for recursive self-improvement absent external-world pressure"
+      ],
+      "best_use": "Use as the pragmatic workflow-seam and dependency-cone source for a v2 synthesis."
+    },
+    {
+      "subject_ref": "xhigh_v1",
+      "pros": [
+        "best formal tool-applicability and schema posture",
+        "captures coordinate absence, constitutional advisory limits, semantic-source zero-block evidence, and API-shape correction",
+        "machine-readable tool-result record exists"
+      ],
+      "cons": [
+        "initial ARC=67 closeout run was a useful namespace lesson but not the current V67-C check",
+        "less empirical coverage of stop-gate metrics, V45-A fixture equality, and V67 ergonomic tests",
+        "still under-foregrounds commit/release authority"
+      ],
+      "best_use": "Use as the empirical schema and authority-effect layer for conceptual diff and future V68 planning."
+    },
+    {
+      "subject_ref": "high_v1",
+      "pros": [
+        "strongest readable empirical command log",
+        "uses current V67-C arc 187 closeout evidence",
+        "adds stop-gate deterministic environment failure, V45-A direct fixture comparison, and V67 test evidence"
+      ],
+      "cons": [
+        "no current machine-readable report",
+        "keeps the six-family set without preserving separate ratification/outcome/operator-projection cuts",
+        "less explicit about recursive-coordinate and constitutional-advisory surfaces"
+      ],
+      "best_use": "Use as the empirical command appendix and V68 starter-plan source."
+    }
+  ],
+  "synthesis_recommendations": [
+    {
+      "recommendation_id": "rec_v68_next",
+      "summary": "Make V68 the next concrete family, but define it as cartography plus namespace, evidence, branch posture, tool applicability, and coordinate posture.",
+      "imports_from_xhigh": [
+        "namespace disambiguation",
+        "tool-applicability report",
+        "recursive-coordinate emission plan"
+      ],
+      "imports_from_high": [
+        "whole-series family map",
+        "dependency cone",
+        "V68 starter experiment checks"
+      ],
+      "target_surface": "future V68 planning draft",
+      "reason": "Both variants converge on V68, and their differences are complementary."
+    },
+    {
+      "recommendation_id": "rec_v69_merge",
+      "summary": "Merge recursive candidate intake with semantic ingress/operator binding in the next synthesis.",
+      "imports_from_xhigh": [
+        "recursive_candidate_advancement_record@1",
+        "recursive_odeu_mapping@1"
+      ],
+      "imports_from_high": [
+        "semantic ingress",
+        "turn compiler",
+        "typed operator instance"
+      ],
+      "target_surface": "future V69 planning candidate",
+      "reason": "Candidate provenance and live operator binding are two halves of the same admission boundary."
+    },
+    {
+      "recommendation_id": "rec_commit_release",
+      "summary": "Add explicit commit, PR, merge, and release authority handling to the recursive lifecycle map.",
+      "imports_from_xhigh": [
+        "contained integration and rollback harness",
+        "governed dispatch boundary"
+      ],
+      "imports_from_high": [
+        "commit/merge/release authority family"
+      ],
+      "target_surface": "V72 slice or separate family decision",
+      "reason": "The high variant exposes a concrete authority seam not explicit enough in xhigh."
+    },
+    {
+      "recommendation_id": "rec_adversarial_review",
+      "summary": "Keep adversarial/multi-agent review as an explicit adoption-relevant phase, but decide later whether it is its own family or a V70/V71/V72 slice.",
+      "imports_from_xhigh": [
+        "evidence classification",
+        "ratification boundary",
+        "operator projection"
+      ],
+      "imports_from_high": [
+        "multi-agent review",
+        "arbiter settlement",
+        "no child-agent output as native truth"
+      ],
+      "target_surface": "future recursive experiment/adoption plan",
+      "reason": "Review settlement affects recursive adoption but may not require an independent family if the lifecycle families own it cleanly."
+    },
+    {
+      "recommendation_id": "rec_v43_conditional",
+      "summary": "Track V43 as connected-but-conditional rather than silently dropping or automatically including it.",
+      "imports_from_xhigh": [
+        "deferred_to_later_family classification"
+      ],
+      "imports_from_high": [
+        "host-world law and general contest participation argument"
+      ],
+      "target_surface": "future V68 branch posture registry",
+      "reason": "V43 is real and unreleased, but its minimality depends on whether external-world intake is selected as immediate pressure."
+    }
+  ],
+  "open_questions": [
+    "Should commit/merge/release authority be a separate family, or can V72 own it without collapsing rollback and release-truth boundaries?",
+    "Should multi-agent adversarial review be family-level, or a required evidence phase inside V70/V71?",
+    "Does V69 become too broad if it owns both recursive candidate intake and live operator turn compilation?",
+    "At what horizon does V43 become prerequisite rather than connected deferred branch?"
+  ]
+}

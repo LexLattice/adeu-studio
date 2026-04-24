@@ -1,0 +1,477 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://lexlattice.local/spec/odeu_conceptual_diff_report.schema.json",
+  "title": "odeu_conceptual_diff_report@1",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schema",
+    "report_id",
+    "authority_layer",
+    "anchor_surfaces",
+    "comparison_scope",
+    "subjects",
+    "prompt_fit",
+    "odeu_axes",
+    "shared_claims",
+    "divergences",
+    "variant_assessments",
+    "synthesis_recommendations",
+    "open_questions"
+  ],
+  "properties": {
+    "schema": {
+      "const": "odeu_conceptual_diff_report@1"
+    },
+    "report_id": {
+      "type": "string",
+      "minLength": 1
+    },
+    "authority_layer": {
+      "type": "string",
+      "enum": [
+        "support",
+        "planning",
+        "architecture",
+        "lock"
+      ]
+    },
+    "anchor_surfaces": {
+      "type": "array",
+      "minItems": 1,
+      "items": {
+        "$ref": "#/$defs/anchor_surface"
+      }
+    },
+    "comparison_scope": {
+      "$ref": "#/$defs/comparison_scope"
+    },
+    "subjects": {
+      "type": "array",
+      "minItems": 2,
+      "items": {
+        "$ref": "#/$defs/subject"
+      }
+    },
+    "prompt_fit": {
+      "type": "array",
+      "minItems": 1,
+      "items": {
+        "$ref": "#/$defs/prompt_fit"
+      }
+    },
+    "odeu_axes": {
+      "type": "array",
+      "minItems": 4,
+      "items": {
+        "$ref": "#/$defs/odeu_axis_diff"
+      }
+    },
+    "shared_claims": {
+      "type": "array",
+      "items": {
+        "$ref": "#/$defs/shared_claim"
+      }
+    },
+    "divergences": {
+      "type": "array",
+      "items": {
+        "$ref": "#/$defs/divergence"
+      }
+    },
+    "variant_assessments": {
+      "type": "array",
+      "items": {
+        "$ref": "#/$defs/variant_assessment"
+      }
+    },
+    "synthesis_recommendations": {
+      "type": "array",
+      "items": {
+        "$ref": "#/$defs/synthesis_recommendation"
+      }
+    },
+    "open_questions": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    }
+  },
+  "$defs": {
+    "anchor_surface": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "ref",
+        "schema_or_family",
+        "role"
+      ],
+      "properties": {
+        "ref": {
+          "type": "string",
+          "minLength": 1
+        },
+        "schema_or_family": {
+          "type": "string",
+          "minLength": 1
+        },
+        "role": {
+          "type": "string",
+          "enum": [
+            "concept_diff_wrapper",
+            "two_subject_comparison",
+            "reasoning_differential",
+            "semantic_authority_diff",
+            "odeu_lane_source",
+            "local_support_schema"
+          ]
+        }
+      }
+    },
+    "comparison_scope": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "scope_id",
+        "scope_summary",
+        "prompt_refs",
+        "comparison_posture"
+      ],
+      "properties": {
+        "scope_id": {
+          "type": "string",
+          "minLength": 1
+        },
+        "scope_summary": {
+          "type": "string",
+          "minLength": 1
+        },
+        "prompt_refs": {
+          "type": "array",
+          "minItems": 1,
+          "items": {
+            "type": "string",
+            "minLength": 1
+          }
+        },
+        "comparison_posture": {
+          "type": "string",
+          "enum": [
+            "support_layer_conceptual_diff",
+            "planning_candidate_comparison",
+            "architecture_alignment_review",
+            "lock_level_delta_review"
+          ]
+        }
+      }
+    },
+    "subject": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "subject_id",
+        "doc_ref",
+        "model_context",
+        "prompt_ref",
+        "role"
+      ],
+      "properties": {
+        "subject_id": {
+          "type": "string",
+          "minLength": 1
+        },
+        "doc_ref": {
+          "type": "string",
+          "minLength": 1
+        },
+        "model_context": {
+          "type": "string",
+          "minLength": 1
+        },
+        "prompt_ref": {
+          "type": "string",
+          "minLength": 1
+        },
+        "role": {
+          "type": "string",
+          "enum": [
+            "baseline_xhigh",
+            "alternate_high",
+            "successor_xhigh",
+            "successor_high",
+            "other"
+          ]
+        }
+      }
+    },
+    "prompt_fit": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "prompt_id",
+        "prompt_summary",
+        "subject_refs",
+        "fit_judgment",
+        "summary",
+        "strengths",
+        "weaknesses"
+      ],
+      "properties": {
+        "prompt_id": {
+          "type": "string",
+          "minLength": 1
+        },
+        "prompt_summary": {
+          "type": "string",
+          "minLength": 1
+        },
+        "subject_refs": {
+          "type": "array",
+          "minItems": 1,
+          "items": {
+            "type": "string",
+            "minLength": 1
+          }
+        },
+        "fit_judgment": {
+          "type": "string",
+          "enum": [
+            "strong",
+            "mixed_strong",
+            "partial",
+            "weak"
+          ]
+        },
+        "summary": {
+          "type": "string",
+          "minLength": 1
+        },
+        "strengths": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "weaknesses": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        }
+      }
+    },
+    "odeu_axis_diff": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "axis",
+        "shared",
+        "xhigh_emphasis",
+        "high_emphasis",
+        "tensions",
+        "recommended_synthesis"
+      ],
+      "properties": {
+        "axis": {
+          "type": "string",
+          "enum": [
+            "ontology",
+            "epistemics",
+            "deontics",
+            "utility"
+          ]
+        },
+        "shared": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "xhigh_emphasis": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "high_emphasis": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "tensions": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "recommended_synthesis": {
+          "type": "string",
+          "minLength": 1
+        }
+      }
+    },
+    "shared_claim": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "claim_id",
+        "summary",
+        "support_refs"
+      ],
+      "properties": {
+        "claim_id": {
+          "type": "string",
+          "minLength": 1
+        },
+        "summary": {
+          "type": "string",
+          "minLength": 1
+        },
+        "support_refs": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        }
+      }
+    },
+    "divergence": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "diff_id",
+        "prompt_id",
+        "axis",
+        "divergence_kind",
+        "xhigh_claim",
+        "high_claim",
+        "consequence",
+        "synthesis_judgment"
+      ],
+      "properties": {
+        "diff_id": {
+          "type": "string",
+          "minLength": 1
+        },
+        "prompt_id": {
+          "type": "string",
+          "minLength": 1
+        },
+        "axis": {
+          "type": "string",
+          "enum": [
+            "ontology",
+            "epistemics",
+            "deontics",
+            "utility",
+            "cross_axis"
+          ]
+        },
+        "divergence_kind": {
+          "type": "string",
+          "enum": [
+            "different_decomposition",
+            "different_missing_set",
+            "different_evidence_basis",
+            "different_authority_boundary",
+            "different_next_action",
+            "schema_presence_delta",
+            "granularity_delta"
+          ]
+        },
+        "xhigh_claim": {
+          "type": "string",
+          "minLength": 1
+        },
+        "high_claim": {
+          "type": "string",
+          "minLength": 1
+        },
+        "consequence": {
+          "type": "string",
+          "minLength": 1
+        },
+        "synthesis_judgment": {
+          "type": "string",
+          "minLength": 1
+        }
+      }
+    },
+    "variant_assessment": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "subject_ref",
+        "pros",
+        "cons",
+        "best_use"
+      ],
+      "properties": {
+        "subject_ref": {
+          "type": "string",
+          "minLength": 1
+        },
+        "pros": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "cons": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "best_use": {
+          "type": "string",
+          "minLength": 1
+        }
+      }
+    },
+    "synthesis_recommendation": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "recommendation_id",
+        "summary",
+        "imports_from_xhigh",
+        "imports_from_high",
+        "target_surface",
+        "reason"
+      ],
+      "properties": {
+        "recommendation_id": {
+          "type": "string",
+          "minLength": 1
+        },
+        "summary": {
+          "type": "string",
+          "minLength": 1
+        },
+        "imports_from_xhigh": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "imports_from_high": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "target_surface": {
+          "type": "string",
+          "minLength": 1
+        },
+        "reason": {
+          "type": "string",
+          "minLength": 1
+        }
+      }
+    }
+  }
+}
