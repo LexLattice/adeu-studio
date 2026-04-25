@@ -1,0 +1,138 @@
+{
+  "cartography_id": "repo_arc_series_cartography_v68c_tool_run_seed",
+  "coordinate_plan_rows": [
+    {
+      "coordinate_posture": "coordinate_absent_deliberate",
+      "coordinate_ref": "coordinate:V68-C-deliberate-absence",
+      "non_authority_guardrail": "Records deliberate coordinate absence only; later coordinate emission needs its own selected lock surface.",
+      "target_refs": []
+    }
+  ],
+  "coordinate_posture": "coordinate_absent_deliberate",
+  "coverage_horizon": "V68-C starter tool-run evidence and coordinate posture seed",
+  "expected_tool_invocation_refs": [
+    "tool-run:arc-closeout-check:ARC=67",
+    "tool-run:coordinate-emission-probe",
+    "tool-run:make-check:v68b",
+    "tool-run:recursive-coordinate-lint:not-run"
+  ],
+  "gap_resolution_rows": [
+    {
+      "gap_id": "gap:coordinate_posture_absent:V68-B",
+      "limitation_note": "Coordinate absence remains deliberate until V68-C closeout.",
+      "resolution_posture": "open_carried_forward",
+      "source_tool_invocation_refs": [
+        "tool-run:coordinate-emission-probe",
+        "tool-run:recursive-coordinate-lint:not-run"
+      ]
+    },
+    {
+      "gap_id": "gap:review_required_ambiguous_derivation:historical_fullness",
+      "limitation_note": "Historical fullness remains review-required for family closeout.",
+      "resolution_posture": "open_carried_forward",
+      "source_tool_invocation_refs": [
+        "tool-run:make-check:v68b"
+      ]
+    },
+    {
+      "gap_id": "gap:tool_applicability_unassessed:V68-C",
+      "limitation_note": "V68-C tool applicability is represented as scoped evidence rows.",
+      "resolution_posture": "lawfully_resolved",
+      "source_tool_invocation_refs": [
+        "tool-run:arc-closeout-check:ARC=67",
+        "tool-run:coordinate-emission-probe",
+        "tool-run:make-check:v68b",
+        "tool-run:recursive-coordinate-lint:not-run"
+      ]
+    }
+  ],
+  "known_cartography_refs": [
+    "coordinate:V68-C",
+    "family:V68",
+    "family:V68-C",
+    "implementation_arc:vNext+67",
+    "slice:V68-B"
+  ],
+  "limitation_note": "Descriptive V68-C tool-run evidence only; later action requires separate planning.",
+  "schema": "repo_arc_cartography_tool_run_evidence@1",
+  "snapshot_id": "vNext+190-prestart-on-main",
+  "tool_run_evidence_id": "repo_arc_cartography_tool_run_evidence_07609194b70ee3bef18c610d",
+  "tool_run_rows": [
+    {
+      "applicability_posture": "applicable_and_supporting",
+      "claim_horizon": "descriptive_support",
+      "command": [
+        "make",
+        "arc-closeout-check",
+        "ARC=67"
+      ],
+      "cwd_posture": "repo_root",
+      "exit_status": 0,
+      "limitation_note": "ARC=67 checks the implementation arc namespace only; it is not evidence for family V67.",
+      "observed_output_ref": "artifacts/stop_gate/metrics_v189_closeout.json",
+      "recommended_followup": "Keep family and implementation arc namespaces separate.",
+      "target_claim_id": "family:V67",
+      "target_namespace_kind": "family_id",
+      "tool_id": "tool:arc-closeout-check",
+      "tool_invocation_ref": "tool-run:arc-closeout-check:ARC=67"
+    },
+    {
+      "applicability_posture": "failed_or_inconclusive",
+      "claim_horizon": "review_pending",
+      "command": [
+        "make",
+        "recursive-coordinate-lint",
+        "ARC=190"
+      ],
+      "cwd_posture": "repo_root",
+      "exit_status": 1,
+      "limitation_note": "No released recursive-coordinate lint exists for V68-C yet.",
+      "observed_output_ref": "apps/api/fixtures/repo_description/vnext_plus189/repo_arc_cartography_gap_scan_report_v189_reference.json",
+      "recommended_followup": "Carry deliberate coordinate absence into the V68-C output.",
+      "target_claim_id": "coordinate:V68-C",
+      "target_namespace_kind": "evidence_arc_id",
+      "tool_id": "tool:recursive-coordinate-lint",
+      "tool_invocation_ref": "tool-run:coordinate-emission-probe"
+    },
+    {
+      "applicability_posture": "applicable_and_supporting",
+      "claim_horizon": "closeout_evidence",
+      "command": [
+        "make",
+        "check"
+      ],
+      "cwd_posture": "repo_root",
+      "exit_status": 0,
+      "limitation_note": "Supports the bounded V68-B implementation slice only.",
+      "observed_output_ref": "artifacts/agent_harness/v189/evidence_inputs/v68b_arc_series_cartography_derivation_evidence_v189.json",
+      "recommended_followup": "Use V68-B as released basis for V68-C hardening.",
+      "target_claim_id": "slice:V68-B",
+      "target_namespace_kind": "family_slice_id",
+      "tool_id": "tool:make-check",
+      "tool_invocation_ref": "tool-run:make-check:v68b"
+    },
+    {
+      "applicability_posture": "not_run",
+      "claim_horizon": "review_pending",
+      "command": [
+        "make",
+        "recursive-coordinate-lint",
+        "ARC=190"
+      ],
+      "cwd_posture": "not_run_no_cwd",
+      "exit_status": null,
+      "limitation_note": "No released V68-C recursive-coordinate lint entrypoint is available.",
+      "observed_output_ref": null,
+      "recommended_followup": "Represent coordinate absence deliberately.",
+      "target_claim_id": "coordinate:V68-C",
+      "target_namespace_kind": "evidence_arc_id",
+      "tool_id": "tool:recursive-coordinate-lint",
+      "tool_invocation_ref": "tool-run:recursive-coordinate-lint:not-run"
+    }
+  ],
+  "v68b_gap_refs": [
+    "gap:coordinate_posture_absent:V68-B",
+    "gap:review_required_ambiguous_derivation:historical_fullness",
+    "gap:tool_applicability_unassessed:V68-C"
+  ]
+}

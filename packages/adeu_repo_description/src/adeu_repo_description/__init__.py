@@ -39,6 +39,13 @@ from .arc_series_cartography_derivation import (
     derive_v68b_repo_arc_cartography_derivation_manifest,
     derive_v68b_repo_arc_cartography_gap_scan_report,
 )
+from .arc_series_cartography_tools import (
+    REPO_ARC_CARTOGRAPHY_TOOL_RUN_EVIDENCE_SCHEMA,
+    RepoArcCartographyGapResolutionRow,
+    RepoArcCartographyToolRunEvidence,
+    RepoArcCartographyToolRunRow,
+    derive_v68c_repo_arc_cartography_tool_run_evidence,
+)
 from .export_schema import main as export_schema_main
 from .extract import (
     default_v45a_source_paths,
@@ -172,6 +179,7 @@ __all__ = [
     "REPO_ARC_DEPENDENCY_REGISTER_V1_SCHEMA",
     "REPO_ARC_CARTOGRAPHY_DERIVATION_MANIFEST_SCHEMA",
     "REPO_ARC_CARTOGRAPHY_GAP_SCAN_REPORT_SCHEMA",
+    "REPO_ARC_CARTOGRAPHY_TOOL_RUN_EVIDENCE_SCHEMA",
     "REPO_ARC_MAPPING_TOOL_APPLICABILITY_REPORT_SCHEMA",
     "REPO_ARC_NAMESPACE_MAP_SCHEMA",
     "REPO_ARC_SERIES_CARTOGRAPHY_SCHEMA",
@@ -207,6 +215,9 @@ __all__ = [
     "RepoArcCartographyGapRow",
     "RepoArcCartographyGapScanReport",
     "RepoArcCartographyObservedInputRow",
+    "RepoArcCartographyGapResolutionRow",
+    "RepoArcCartographyToolRunEvidence",
+    "RepoArcCartographyToolRunRow",
     "RepoArcDependencyEdge",
     "RepoArcDependencyRegister",
     "RepoArcDependencyRegisterEntry",
@@ -292,6 +303,7 @@ __all__ = [
     "derive_v68b_repo_arc_cartography_derivation_bundle",
     "derive_v68b_repo_arc_cartography_derivation_manifest",
     "derive_v68b_repo_arc_cartography_gap_scan_report",
+    "derive_v68c_repo_arc_cartography_tool_run_evidence",
     "derive_v45a_repo_description_bundle",
     "derive_v45a_repo_entity_catalog",
     "derive_v45a_repo_schema_family_registry",
