@@ -12,12 +12,15 @@ from adeu_repo_description import (
     REPO_ARC_NAMESPACE_MAP_SCHEMA,
     REPO_ARC_SERIES_CARTOGRAPHY_SCHEMA,
     REPO_BRANCH_POSTURE_REGISTER_SCHEMA,
+    REPO_CANDIDATE_NON_ADOPTION_GUARDRAIL_SCHEMA,
+    REPO_CANDIDATE_SOURCE_REGISTER_SCHEMA,
     REPO_DEPENDENCY_GRAPH_SCHEMA,
     REPO_DESCRIPTIVE_NORMATIVE_BINDING_FRAME_SCHEMA,
     REPO_ENTITY_CATALOG_SCHEMA,
     REPO_EVIDENCE_SURFACE_INDEX_SCHEMA,
     REPO_FAMILY_CLOSURE_REGISTER_SCHEMA,
     REPO_OPTIMIZATION_REGISTER_SCHEMA,
+    REPO_RECURSIVE_CANDIDATE_INTAKE_RECORD_SCHEMA,
     REPO_RECURSIVE_COORDINATE_EMISSION_PLAN_SCHEMA,
     REPO_SCHEMA_FAMILY_REGISTRY_SCHEMA,
     REPO_SUPPORT_LINEAGE_REGISTER_SCHEMA,
@@ -151,6 +154,30 @@ def _schema_pairs() -> dict[str, tuple[Path, Path]]:
             / "schema"
             / "repo_recursive_coordinate_emission_plan.v1.json",
             root / "spec" / "repo_recursive_coordinate_emission_plan.schema.json",
+        ),
+        REPO_RECURSIVE_CANDIDATE_INTAKE_RECORD_SCHEMA: (
+            root
+            / "packages"
+            / "adeu_repo_description"
+            / "schema"
+            / "repo_recursive_candidate_intake_record.v1.json",
+            root / "spec" / "repo_recursive_candidate_intake_record.schema.json",
+        ),
+        REPO_CANDIDATE_SOURCE_REGISTER_SCHEMA: (
+            root
+            / "packages"
+            / "adeu_repo_description"
+            / "schema"
+            / "repo_candidate_source_register.v1.json",
+            root / "spec" / "repo_candidate_source_register.schema.json",
+        ),
+        REPO_CANDIDATE_NON_ADOPTION_GUARDRAIL_SCHEMA: (
+            root
+            / "packages"
+            / "adeu_repo_description"
+            / "schema"
+            / "repo_candidate_non_adoption_guardrail.v1.json",
+            root / "spec" / "repo_candidate_non_adoption_guardrail.schema.json",
         ),
     }
 

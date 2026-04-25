@@ -1,0 +1,252 @@
+{
+  "candidate_rows": [
+    {
+      "candidate_label": "V68 substrate evidence for V69 candidate intake",
+      "candidate_ref": "candidate:evidence:V68_substrate_for_V69",
+      "equivalence_posture": "self_identity_only",
+      "intake_note": "V68 closeout is tracked as substrate evidence only.",
+      "intake_posture": "intake_candidate",
+      "odeu_lanes": [
+        "deontic",
+        "epistemic"
+      ],
+      "origin_class": "repo_observation",
+      "primary_odeu_lane": "epistemic",
+      "source_refs": [
+        "docs/DRAFT_ADEU_ARC_SERIES_CARTOGRAPHY_V68_FAMILY_CLOSEOUT_v0.md"
+      ]
+    },
+    {
+      "candidate_label": "ODEU conceptual diff report support candidate",
+      "candidate_ref": "candidate:internal:odeu_conceptual_diff_report@1",
+      "equivalence_posture": "self_identity_only",
+      "intake_note": "Conceptual diff report is tracked as support input only.",
+      "intake_posture": "intake_candidate",
+      "odeu_lanes": [
+        "deontic",
+        "epistemic"
+      ],
+      "origin_class": "internal_reasoning_residue",
+      "primary_odeu_lane": "epistemic",
+      "source_refs": [
+        "docs/support/arc_series_mapping/DRAFT_ARC_SERIES_ODEU_CONCEPTUAL_DIFF_v0.report.json"
+      ]
+    },
+    {
+      "candidate_label": "ODEU conceptual diff schema support candidate",
+      "candidate_ref": "candidate:internal:odeu_conceptual_diff_schema_support",
+      "equivalence_posture": "self_identity_only",
+      "intake_note": "Support schema is tracked for later schema review only.",
+      "intake_posture": "intake_candidate",
+      "odeu_lanes": [
+        "deontic",
+        "epistemic"
+      ],
+      "origin_class": "support_doc",
+      "primary_odeu_lane": "deontic",
+      "source_refs": [
+        "docs/support/arc_series_mapping/odeu_conceptual_diff_report.schema.json"
+      ]
+    },
+    {
+      "candidate_label": "Self-evidencing workflow type emergence candidate",
+      "candidate_ref": "candidate:internal:self_evidencing_workflow_type_emergence",
+      "equivalence_posture": "self_identity_only",
+      "intake_note": "Workflow residue is tracked as a future-family candidate pressure only.",
+      "intake_posture": "intake_candidate",
+      "odeu_lanes": [
+        "deontic",
+        "epistemic",
+        "ontological"
+      ],
+      "origin_class": "internal_reasoning_residue",
+      "primary_odeu_lane": "epistemic",
+      "source_refs": [
+        "docs/support/arc_series_mapping/DRAFT_ARC_SERIES_REASONING_RECURSION_LOOP_v0.md"
+      ]
+    },
+    {
+      "candidate_label": "Typed adjudication product wedge candidate",
+      "candidate_ref": "candidate:internal:typed_adjudication_product_wedge",
+      "equivalence_posture": "self_identity_only",
+      "intake_note": "Product wedge is tracked as projection pressure only.",
+      "intake_posture": "intake_candidate",
+      "odeu_lanes": [
+        "deontic",
+        "epistemic",
+        "utility"
+      ],
+      "origin_class": "internal_reasoning_residue",
+      "primary_odeu_lane": "utility",
+      "source_refs": [
+        "docs/support/arc_series_mapping/DRAFT_ADEU_TYPED_ADJUDICATION_PRODUCT_WEDGE_v0.md"
+      ]
+    },
+    {
+      "candidate_label": "V69 candidate intake family planning pressure",
+      "candidate_ref": "candidate:planning:V69_candidate_intake_family",
+      "equivalence_posture": "self_identity_only",
+      "intake_note": "V69 family pressure is tracked as planning input only.",
+      "intake_posture": "intake_candidate",
+      "odeu_lanes": [
+        "deontic",
+        "utility"
+      ],
+      "origin_class": "planning_pressure",
+      "primary_odeu_lane": "deontic",
+      "source_refs": [
+        "docs/DRAFT_NEXT_ARC_OPTIONS_v56.md"
+      ]
+    }
+  ],
+  "coverage_horizon": "post-V68 V69-A starter candidate intake seed from V69 preflight dogfood report",
+  "intake_id": "repo_recursive_candidate_intake_c12b7750c6b5b49094760cd4",
+  "non_adoption_summary": "All candidates are tracking entries only; stronger roles require later review.",
+  "role_guardrail_rows": [
+    {
+      "admissible_roles": [
+        "evidence_review_request",
+        "support_input"
+      ],
+      "candidate_ref": "candidate:evidence:V68_substrate_for_V69",
+      "eventual_family_hint": "none",
+      "forbidden_roles": [
+        "implementation_task",
+        "lock_authority",
+        "ratified_decision"
+      ],
+      "non_adoption_guardrail": "Tracking only; stronger roles require later review evidence.",
+      "required_next_review_surface": "v70_evidence_classification"
+    },
+    {
+      "admissible_roles": [
+        "review_input",
+        "support_input"
+      ],
+      "candidate_ref": "candidate:internal:odeu_conceptual_diff_report@1",
+      "eventual_family_hint": "none",
+      "forbidden_roles": [
+        "lock_authority",
+        "ratified_decision",
+        "released_schema",
+        "self_validation"
+      ],
+      "non_adoption_guardrail": "Tracking only; released schema status requires a later lock.",
+      "required_next_review_surface": "v70_evidence_classification"
+    },
+    {
+      "admissible_roles": [
+        "schema_candidate",
+        "support_input"
+      ],
+      "candidate_ref": "candidate:internal:odeu_conceptual_diff_schema_support",
+      "eventual_family_hint": "none",
+      "forbidden_roles": [
+        "lock_authority",
+        "ratified_decision",
+        "released_schema"
+      ],
+      "non_adoption_guardrail": "Tracking only; schema status requires later review and lock evidence.",
+      "required_next_review_surface": "v70_evidence_classification"
+    },
+    {
+      "admissible_roles": [
+        "evidence_review_request",
+        "future_family_candidate"
+      ],
+      "candidate_ref": "candidate:internal:self_evidencing_workflow_type_emergence",
+      "eventual_family_hint": "v73_outcome_review",
+      "forbidden_roles": [
+        "implementation_task",
+        "lock_authority",
+        "ratified_decision",
+        "self_validation"
+      ],
+      "non_adoption_guardrail": "Tracking only; self-evidencing is not self-validation.",
+      "required_next_review_surface": "v70_evidence_classification"
+    },
+    {
+      "admissible_roles": [
+        "product_projection_candidate",
+        "support_input"
+      ],
+      "candidate_ref": "candidate:internal:typed_adjudication_product_wedge",
+      "eventual_family_hint": "v74_operator_projection_review",
+      "forbidden_roles": [
+        "lock_authority",
+        "product_authorization",
+        "ratified_decision"
+      ],
+      "non_adoption_guardrail": "Tracking only; product permission requires a later family.",
+      "required_next_review_surface": "future_family_review"
+    },
+    {
+      "admissible_roles": [
+        "future_family_candidate",
+        "planning_pressure"
+      ],
+      "candidate_ref": "candidate:planning:V69_candidate_intake_family",
+      "eventual_family_hint": "none",
+      "forbidden_roles": [
+        "implementation_task",
+        "lock_authority",
+        "ratified_decision"
+      ],
+      "non_adoption_guardrail": "Tracking only; implementation requires a lock.",
+      "required_next_review_surface": "future_family_review"
+    }
+  ],
+  "schema": "repo_recursive_candidate_intake_record@1",
+  "snapshot_id": "vNext+191-pre-implementation",
+  "source_rows": [
+    {
+      "authority_layer": "closeout_evidence",
+      "integration_note": "Closed V68 cartography family evidence used as substrate input only.",
+      "source_kind": "closeout_doc",
+      "source_presence_posture": "present",
+      "source_ref": "docs/DRAFT_ADEU_ARC_SERIES_CARTOGRAPHY_V68_FAMILY_CLOSEOUT_v0.md",
+      "source_status": "integrated_shaping_source"
+    },
+    {
+      "authority_layer": "planning",
+      "integration_note": "Post V68 planning pressure for V69 candidate intake.",
+      "source_kind": "planning_doc",
+      "source_presence_posture": "present",
+      "source_ref": "docs/DRAFT_NEXT_ARC_OPTIONS_v56.md",
+      "source_status": "integrated_shaping_source"
+    },
+    {
+      "authority_layer": "schema",
+      "integration_note": "Product wedge support input tracked as candidate pressure only.",
+      "source_kind": "support_doc",
+      "source_presence_posture": "present",
+      "source_ref": "docs/support/arc_series_mapping/DRAFT_ADEU_TYPED_ADJUDICATION_PRODUCT_WEDGE_v0.md",
+      "source_status": "integrated_shaping_source"
+    },
+    {
+      "authority_layer": "support",
+      "integration_note": "Conceptual diff report support input tracked for later review.",
+      "source_kind": "support_doc",
+      "source_presence_posture": "present",
+      "source_ref": "docs/support/arc_series_mapping/DRAFT_ARC_SERIES_ODEU_CONCEPTUAL_DIFF_v0.report.json",
+      "source_status": "integrated_shaping_source"
+    },
+    {
+      "authority_layer": "support",
+      "integration_note": "Reasoning recursion support input tracked as internal residue.",
+      "source_kind": "support_doc",
+      "source_presence_posture": "present",
+      "source_ref": "docs/support/arc_series_mapping/DRAFT_ARC_SERIES_REASONING_RECURSION_LOOP_v0.md",
+      "source_status": "integrated_shaping_source"
+    },
+    {
+      "authority_layer": "schema",
+      "integration_note": "Support schema file tracked as a schema candidate input only.",
+      "source_kind": "schema_file",
+      "source_presence_posture": "present",
+      "source_ref": "docs/support/arc_series_mapping/odeu_conceptual_diff_report.schema.json",
+      "source_status": "integrated_shaping_source"
+    }
+  ],
+  "source_set_id": "source-set:v191-v69a-starter"
+}

@@ -1,0 +1,124 @@
+{
+  "$defs": {
+    "RepoCandidateRoleGuardrailRow": {
+      "additionalProperties": false,
+      "properties": {
+        "admissible_roles": {
+          "items": {
+            "enum": [
+              "support_input",
+              "schema_candidate",
+              "planning_pressure",
+              "review_input",
+              "evidence_review_request",
+              "future_family_candidate",
+              "product_projection_candidate",
+              "operator_ingress_binding"
+            ],
+            "type": "string"
+          },
+          "minItems": 1,
+          "title": "Admissible Roles",
+          "type": "array"
+        },
+        "candidate_ref": {
+          "title": "Candidate Ref",
+          "type": "string"
+        },
+        "eventual_family_hint": {
+          "enum": [
+            "v71_ratification",
+            "v72_integration_review",
+            "v73_outcome_review",
+            "v74_operator_projection_review",
+            "v75_dispatch_review",
+            "v43_external_contest_branch",
+            "none"
+          ],
+          "title": "Eventual Family Hint",
+          "type": "string"
+        },
+        "forbidden_roles": {
+          "items": {
+            "enum": [
+              "lock_authority",
+              "released_schema",
+              "ratified_decision",
+              "implementation_task",
+              "commit_release_authority",
+              "product_authorization",
+              "dispatch_authority",
+              "self_validation",
+              "transcript_truth"
+            ],
+            "type": "string"
+          },
+          "minItems": 1,
+          "title": "Forbidden Roles",
+          "type": "array"
+        },
+        "non_adoption_guardrail": {
+          "title": "Non Adoption Guardrail",
+          "type": "string"
+        },
+        "required_next_review_surface": {
+          "enum": [
+            "v70_evidence_classification",
+            "v70_adversarial_review",
+            "future_family_review",
+            "none_yet_deferred"
+          ],
+          "title": "Required Next Review Surface",
+          "type": "string"
+        }
+      },
+      "required": [
+        "candidate_ref",
+        "admissible_roles",
+        "forbidden_roles",
+        "required_next_review_surface",
+        "eventual_family_hint",
+        "non_adoption_guardrail"
+      ],
+      "title": "RepoCandidateRoleGuardrailRow",
+      "type": "object"
+    }
+  },
+  "additionalProperties": false,
+  "properties": {
+    "guardrail_register_id": {
+      "title": "Guardrail Register Id",
+      "type": "string"
+    },
+    "intake_id": {
+      "title": "Intake Id",
+      "type": "string"
+    },
+    "role_guardrail_rows": {
+      "items": {
+        "$ref": "#/$defs/RepoCandidateRoleGuardrailRow"
+      },
+      "minItems": 1,
+      "title": "Role Guardrail Rows",
+      "type": "array"
+    },
+    "schema": {
+      "const": "repo_candidate_non_adoption_guardrail@1",
+      "default": "repo_candidate_non_adoption_guardrail@1",
+      "title": "Schema",
+      "type": "string"
+    },
+    "snapshot_id": {
+      "title": "Snapshot Id",
+      "type": "string"
+    }
+  },
+  "required": [
+    "guardrail_register_id",
+    "intake_id",
+    "snapshot_id",
+    "role_guardrail_rows"
+  ],
+  "title": "RepoCandidateNonAdoptionGuardrail",
+  "type": "object"
+}
