@@ -1,0 +1,51 @@
+{
+  "ambiguous_derivations_not_silently_settled": true,
+  "ci_checks": [
+    "python",
+    "web",
+    "lean-formal"
+  ],
+  "contract_source": "docs/LOCKED_CONTINUATION_vNEXT_PLUS189.md#machine-checkable-contract",
+  "coordinate_absence_explicit": true,
+  "coordinate_emitted_absence_contradiction_rejected": true,
+  "derivation_manifest_authoritative_schema_path": "packages/adeu_repo_description/schema/repo_arc_cartography_derivation_manifest.v1.json",
+  "derivation_manifest_mirror_schema_path": "spec/repo_arc_cartography_derivation_manifest.schema.json",
+  "derived_rows_have_derivation_posture": true,
+  "evidence_input_path": "artifacts/agent_harness/v189/evidence_inputs/v68b_arc_series_cartography_derivation_evidence_v189.json",
+  "future_v69_to_v75_not_authorized": true,
+  "gap_scan_report_authoritative_schema_path": "packages/adeu_repo_description/schema/repo_arc_cartography_gap_scan_report.v1.json",
+  "gap_scan_report_mirror_schema_path": "spec/repo_arc_cartography_gap_scan_report.schema.json",
+  "globs_not_promoted_to_sources": true,
+  "implementation_commit": "9efc0a8db82ab560bf0e243f10400ad85468c2ff",
+  "implementation_packages": [
+    "adeu_repo_description"
+  ],
+  "local_full_python_gate": "make check",
+  "merge_commit": "bba2a3d9d82f5db486f4bd04a497363736e8ffe2",
+  "merged_pr": "#416",
+  "metric_key_continuity_assertion_path": "artifacts/agent_harness/v189/evidence_inputs/metric_key_continuity_assertion_v189.json",
+  "missing_expected_sources_fail_closed": true,
+  "notes": "v189 evidence pins the bounded V68-B closeout seam on main: deterministic derivation manifest and gap-scan report support surfaces over the V68-A cartography backbone, concrete observed inputs rather than globs, fail-closed expected source refs, explicit derivation and gap postures, V43 branch residue, coordinate absence visibility, and no recursive candidate intake, ratification, product projection, commit/release authority, or dispatch widening.",
+  "package_export_surface_path": "packages/adeu_repo_description/src/adeu_repo_description/__init__.py",
+  "reference_derivation_manifest_fixture_path": "apps/api/fixtures/repo_description/vnext_plus189/repo_arc_cartography_derivation_manifest_v189_reference.json",
+  "reference_gap_scan_fixture_path": "apps/api/fixtures/repo_description/vnext_plus189/repo_arc_cartography_gap_scan_report_v189_reference.json",
+  "review_hardening_commit": "0bc9282570a4fa357491c05933d47476aada63bc",
+  "runtime_event_stream_path": "artifacts/agent_harness/v189/runtime/evidence/local/urm_events.ndjson",
+  "runtime_observability_comparison_path": "artifacts/agent_harness/v189/evidence_inputs/runtime_observability_comparison_v189.json",
+  "schema": "v68b_arc_series_cartography_derivation_evidence@1",
+  "schema_export_source_path": "packages/adeu_repo_description/src/adeu_repo_description/export_schema.py",
+  "selected_candidate_intake_for_v68b": false,
+  "selected_conceptual_diff_schema_adoption_for_v68b": false,
+  "selected_derivation_source_path": "packages/adeu_repo_description/src/adeu_repo_description/arc_series_cartography_derivation.py",
+  "selected_dispatch_or_execution_widening_for_v68b": false,
+  "selected_product_workbench_for_v68b": false,
+  "selected_ratification_or_release_authority_for_v68b": false,
+  "selected_record_shapes": [
+    "repo_arc_cartography_derivation_manifest@1",
+    "repo_arc_cartography_gap_scan_report@1"
+  ],
+  "starter_bundle_commit": "527d9bf4473b743c0a6cebbee9db1f58295d47a7",
+  "support_prose_cannot_close_family": true,
+  "test_reference_path": "packages/adeu_repo_description/tests/test_arc_series_cartography_v68b.py",
+  "v43_connected_conditional_branch_carried_forward": true
+}
