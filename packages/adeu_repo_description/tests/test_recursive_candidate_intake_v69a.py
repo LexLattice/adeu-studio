@@ -146,6 +146,43 @@ def test_v191_eventual_family_hint_is_not_downstream_selection() -> None:
     assert "product_authorization" in product_guardrail["forbidden_roles"]
 
 
+def test_v191_note_checks_reject_past_tense_authority_language() -> None:
+    payload = _load_v191("repo_recursive_candidate_intake_v191_reference.json")
+    product_guardrail = next(
+        row
+        for row in payload["role_guardrail_rows"]
+        if row["candidate_ref"] == "candidate:internal:typed_adjudication_product_wedge"
+    )
+    product_guardrail["non_adoption_guardrail"] = "This product candidate was selected by intake."
+
+    with pytest.raises(ValidationError, match="adoption, selection, or release authority"):
+        RepoRecursiveCandidateIntakeRecord.model_validate(payload)
+
+
+def test_v191_note_checks_allow_descriptive_release_candidate_language() -> None:
+    payload = _load_v191("repo_recursive_candidate_intake_v191_reference.json")
+    schema_guardrail = next(
+        row
+        for row in payload["role_guardrail_rows"]
+        if row["candidate_ref"] == "candidate:internal:odeu_conceptual_diff_schema_support"
+    )
+    schema_guardrail["non_adoption_guardrail"] = (
+        "Tracking only; release candidate wording remains descriptive."
+    )
+    payload.pop("intake_id")
+
+    validated = materialize_repo_recursive_candidate_intake_payload(payload)
+    validated_guardrail = next(
+        row
+        for row in validated["role_guardrail_rows"]
+        if row["candidate_ref"] == "candidate:internal:odeu_conceptual_diff_schema_support"
+    )
+
+    assert validated_guardrail["non_adoption_guardrail"] == (
+        "Tracking only; release candidate wording remains descriptive."
+    )
+
+
 @pytest.mark.parametrize(
     ("fixture_name", "match"),
     [

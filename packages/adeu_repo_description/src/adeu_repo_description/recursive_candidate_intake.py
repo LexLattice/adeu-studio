@@ -1,7 +1,6 @@
 from __future__ import annotations
 
 import re
-from copy import deepcopy
 from typing import Any, Literal
 
 from pydantic import Field, model_validator
@@ -117,7 +116,12 @@ EventualFamilyHint = Literal[
 ]
 
 _FORBIDDEN_INTAKE_AUTHORITY_RE = re.compile(
-    r"\b(authorizes?|adopts?|ratifies?|implements?|releases?|dispatches?|commits?|merges?|selects?)\b",
+    r"\b(?:authorizes?|authorized|adopts?|adopted|ratifies?|ratified|implements?|implemented|"
+    r"dispatches?|dispatched|commits?|committed|merges?|merged)\b"
+    r"|\b(?:is|are|was|were|be|been|being|gets?|got|has\s+been|have\s+been)\s+"
+    r"(?:authorized|adopted|ratified|implemented|released|dispatched|committed|merged|selected)\b"
+    r"|\b(?:selects?|selected|releases?|released)\b(?=\s+"
+    r"(?:the|this|that|v\d+|product|arc|family|lock|release|implementation|decision))",
     re.IGNORECASE,
 )
 _FORBIDDEN_EVIDENCE_VERDICT_RE = re.compile(
@@ -377,6 +381,23 @@ def _validate_candidate_intake_bundle(
             raise ValueError("operator_turn candidates require operator or transcript source rows")
 
 
+def _candidate_intake_identity_payload_from_record(
+    record: RepoRecursiveCandidateIntakeRecord,
+) -> dict[str, Any]:
+    return {
+        "schema": record.schema,
+        "snapshot_id": record.snapshot_id,
+        "source_set_id": record.source_set_id,
+        "coverage_horizon": record.coverage_horizon,
+        "source_rows": [row.model_dump(mode="json") for row in record.source_rows],
+        "candidate_rows": [row.model_dump(mode="json") for row in record.candidate_rows],
+        "role_guardrail_rows": [
+            row.model_dump(mode="json") for row in record.role_guardrail_rows
+        ],
+        "non_adoption_summary": record.non_adoption_summary,
+    }
+
+
 class RepoRecursiveCandidateIntakeRecord(_CartographyBase):
     schema: Literal["repo_recursive_candidate_intake_record@1"] = (
         REPO_RECURSIVE_CANDIDATE_INTAKE_RECORD_SCHEMA
@@ -435,7 +456,9 @@ class RepoRecursiveCandidateIntakeRecord(_CartographyBase):
             candidate_rows=self.candidate_rows,
             role_guardrail_rows=self.role_guardrail_rows,
         )
-        expected_id = compute_repo_recursive_candidate_intake_id(self.model_dump(mode="json"))
+        expected_id = compute_repo_recursive_candidate_intake_id(
+            _candidate_intake_identity_payload_from_record(self)
+        )
         if self.intake_id != expected_id:
             raise ValueError("intake_id must match canonical full payload hash identity")
         return self
@@ -500,7 +523,7 @@ class RepoCandidateNonAdoptionGuardrail(_CartographyBase):
 
 
 def compute_repo_recursive_candidate_intake_id(payload_without_id: dict[str, Any]) -> str:
-    canonical_payload = deepcopy(payload_without_id)
+    canonical_payload = payload_without_id.copy()
     canonical_payload.setdefault("schema", REPO_RECURSIVE_CANDIDATE_INTAKE_RECORD_SCHEMA)
     canonical_payload.pop("intake_id", None)
     digest = sha256_canonical_json(canonical_payload)
@@ -510,7 +533,7 @@ def compute_repo_recursive_candidate_intake_id(payload_without_id: dict[str, Any
 def materialize_repo_recursive_candidate_intake_payload(
     payload_without_intake_id: dict[str, Any],
 ) -> dict[str, Any]:
-    payload = deepcopy(payload_without_intake_id)
+    payload = payload_without_intake_id.copy()
     payload.setdefault("schema", REPO_RECURSIVE_CANDIDATE_INTAKE_RECORD_SCHEMA)
     payload["intake_id"] = compute_repo_recursive_candidate_intake_id(payload)
     return RepoRecursiveCandidateIntakeRecord.model_validate(payload).model_dump(mode="json")
