@@ -1,0 +1,105 @@
+{
+  "candidate_inputs": [
+    {
+      "admissible_v69_role": "candidate_intake_input",
+      "candidate_ref": "candidate:internal:odeu_conceptual_diff_report@1",
+      "non_admissible_role": "released_schema_or_lock_authority",
+      "odeu_lane": "E/D",
+      "source_authority_layer": "support",
+      "source_ref": "docs/support/arc_series_mapping/DRAFT_ARC_SERIES_ODEU_CONCEPTUAL_DIFF_v0.report.json"
+    },
+    {
+      "admissible_v69_role": "schema_candidate_input",
+      "candidate_ref": "candidate:internal:odeu_conceptual_diff_schema_support",
+      "non_admissible_role": "released_schema_without_lock",
+      "odeu_lane": "E/D",
+      "source_authority_layer": "support",
+      "source_ref": "docs/support/arc_series_mapping/odeu_conceptual_diff_report.schema.json"
+    },
+    {
+      "admissible_v69_role": "candidate_intake_input",
+      "candidate_ref": "candidate:internal:typed_adjudication_product_wedge",
+      "non_admissible_role": "product_authorization_or_v74_selection",
+      "odeu_lane": "U/D",
+      "source_authority_layer": "support",
+      "source_ref": "docs/support/arc_series_mapping/DRAFT_ADEU_TYPED_ADJUDICATION_PRODUCT_WEDGE_v0.md"
+    },
+    {
+      "admissible_v69_role": "internal_candidate_origin_evidence",
+      "candidate_ref": "candidate:internal:self_evidencing_workflow_type_emergence",
+      "non_admissible_role": "self_validation_or_adoption_authority",
+      "odeu_lane": "O/E/D",
+      "source_authority_layer": "support",
+      "source_ref": "docs/support/arc_series_mapping/DRAFT_ARC_SERIES_REASONING_RECURSION_LOOP_v0.md"
+    },
+    {
+      "admissible_v69_role": "planning_pressure",
+      "candidate_ref": "candidate:planning:V69_candidate_intake_family",
+      "non_admissible_role": "implementation_lock",
+      "odeu_lane": "D/U",
+      "source_authority_layer": "planning",
+      "source_ref": "docs/DRAFT_NEXT_ARC_OPTIONS_v56.md"
+    },
+    {
+      "admissible_v69_role": "substrate_evidence",
+      "candidate_ref": "candidate:evidence:V68_substrate_for_V69",
+      "non_admissible_role": "future_family_authority",
+      "odeu_lane": "E/D",
+      "source_authority_layer": "closeout_evidence",
+      "source_ref": "docs/DRAFT_ADEU_ARC_SERIES_CARTOGRAPHY_V68_FAMILY_CLOSEOUT_v0.md"
+    }
+  ],
+  "schema": "v69_preflight_dogfood_result@0",
+  "summary": {
+    "all_checks_passed": true,
+    "candidate_input_count": 6,
+    "recommended_next": "draft V69 planning/starter only after preserving support/planning/closeout authority boundaries",
+    "validation_check_count": 8
+  },
+  "v68_validation_checks": [
+    {
+      "check": "V68-A reference cartography validates",
+      "path": "apps/api/fixtures/repo_description/vnext_plus188/repo_arc_series_cartography_v188_reference.json",
+      "result": "pass"
+    },
+    {
+      "check": "V68-B derivation manifest validates",
+      "path": "apps/api/fixtures/repo_description/vnext_plus189/repo_arc_cartography_derivation_manifest_v189_reference.json",
+      "result": "pass"
+    },
+    {
+      "check": "V68-B gap scan validates",
+      "path": "apps/api/fixtures/repo_description/vnext_plus189/repo_arc_cartography_gap_scan_report_v189_reference.json",
+      "result": "pass"
+    },
+    {
+      "check": "V68-C tool-run evidence validates",
+      "path": "apps/api/fixtures/repo_description/vnext_plus190/repo_arc_cartography_tool_run_evidence_v190_reference.json",
+      "result": "pass"
+    },
+    {
+      "check": "V68-A rejects coordinate authorization of V69",
+      "observed_rejection": "candidate",
+      "path": "apps/api/fixtures/repo_description/vnext_plus188/repo_arc_series_cartography_v188_reject_coordinate_authorizes_v69.json",
+      "result": "pass"
+    },
+    {
+      "check": "V68-B rejects V69 lock authorization",
+      "observed_rejection": "V69 through V75",
+      "path": "apps/api/fixtures/repo_description/vnext_plus189/repo_arc_cartography_derivation_manifest_v189_reject_v69_authorized_lock.json",
+      "result": "pass"
+    },
+    {
+      "check": "V68-C rejects coordinate authorization of V69",
+      "observed_rejection": "future V-family targets",
+      "path": "apps/api/fixtures/repo_description/vnext_plus190/repo_arc_cartography_tool_run_evidence_v190_reject_coordinate_authorizes_v69.json",
+      "result": "pass"
+    },
+    {
+      "check": "V68-C rejects future-family target beyond V75",
+      "observed_rejection": "future V-family targets beyond V68",
+      "path": "synthetic:tool_evidence_coordinate_target_family_V76",
+      "result": "pass"
+    }
+  ]
+}
