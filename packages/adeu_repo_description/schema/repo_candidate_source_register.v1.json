@@ -1,0 +1,118 @@
+{
+  "$defs": {
+    "RepoCandidateSourceRow": {
+      "additionalProperties": false,
+      "properties": {
+        "authority_layer": {
+          "enum": [
+            "lock",
+            "architecture",
+            "planning",
+            "support",
+            "schema",
+            "fixture",
+            "closeout_evidence"
+          ],
+          "title": "Authority Layer",
+          "type": "string"
+        },
+        "integration_note": {
+          "title": "Integration Note",
+          "type": "string"
+        },
+        "source_kind": {
+          "enum": [
+            "planning_doc",
+            "architecture_doc",
+            "support_doc",
+            "review_input",
+            "closeout_doc",
+            "evidence_artifact",
+            "schema_file",
+            "fixture_file",
+            "operator_turn",
+            "transcript_artifact",
+            "model_output",
+            "repo_observation",
+            "external_artifact"
+          ],
+          "title": "Source Kind",
+          "type": "string"
+        },
+        "source_presence_posture": {
+          "enum": [
+            "present",
+            "missing_expected_support_artifact",
+            "not_uploaded_in_review_snapshot",
+            "generated_later",
+            "external_unavailable",
+            "operator_turn_not_committed"
+          ],
+          "title": "Source Presence Posture",
+          "type": "string"
+        },
+        "source_ref": {
+          "title": "Source Ref",
+          "type": "string"
+        },
+        "source_status": {
+          "enum": [
+            "integrated_shaping_source",
+            "available_but_not_integrated",
+            "review_pending_input",
+            "rejected_or_superseded_source"
+          ],
+          "title": "Source Status",
+          "type": "string"
+        }
+      },
+      "required": [
+        "source_ref",
+        "source_kind",
+        "authority_layer",
+        "source_status",
+        "source_presence_posture",
+        "integration_note"
+      ],
+      "title": "RepoCandidateSourceRow",
+      "type": "object"
+    }
+  },
+  "additionalProperties": false,
+  "properties": {
+    "intake_id": {
+      "title": "Intake Id",
+      "type": "string"
+    },
+    "schema": {
+      "const": "repo_candidate_source_register@1",
+      "default": "repo_candidate_source_register@1",
+      "title": "Schema",
+      "type": "string"
+    },
+    "snapshot_id": {
+      "title": "Snapshot Id",
+      "type": "string"
+    },
+    "source_register_id": {
+      "title": "Source Register Id",
+      "type": "string"
+    },
+    "source_rows": {
+      "items": {
+        "$ref": "#/$defs/RepoCandidateSourceRow"
+      },
+      "minItems": 1,
+      "title": "Source Rows",
+      "type": "array"
+    }
+  },
+  "required": [
+    "source_register_id",
+    "intake_id",
+    "snapshot_id",
+    "source_rows"
+  ],
+  "title": "RepoCandidateSourceRegister",
+  "type": "object"
+}

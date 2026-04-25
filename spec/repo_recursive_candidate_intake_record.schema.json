@@ -1,0 +1,329 @@
+{
+  "$defs": {
+    "RepoCandidateIntakeRow": {
+      "additionalProperties": false,
+      "properties": {
+        "candidate_label": {
+          "title": "Candidate Label",
+          "type": "string"
+        },
+        "candidate_ref": {
+          "title": "Candidate Ref",
+          "type": "string"
+        },
+        "equivalence_posture": {
+          "enum": [
+            "self_identity_only",
+            "equivalent_to_existing_candidate",
+            "related_not_equivalent",
+            "unknown_needs_review"
+          ],
+          "title": "Equivalence Posture",
+          "type": "string"
+        },
+        "intake_note": {
+          "title": "Intake Note",
+          "type": "string"
+        },
+        "intake_posture": {
+          "enum": [
+            "intake_candidate",
+            "intake_duplicate",
+            "intake_rejected_out_of_scope",
+            "intake_deferred_to_later_family",
+            "intake_requires_v70_review",
+            "intake_superseded",
+            "intake_unknown_needs_review"
+          ],
+          "title": "Intake Posture",
+          "type": "string"
+        },
+        "odeu_lanes": {
+          "items": {
+            "enum": [
+              "ontological",
+              "deontic",
+              "epistemic",
+              "utility"
+            ],
+            "type": "string"
+          },
+          "minItems": 1,
+          "title": "Odeu Lanes",
+          "type": "array"
+        },
+        "origin_class": {
+          "enum": [
+            "internal_reasoning_residue",
+            "external_artifact",
+            "operator_turn",
+            "model_output",
+            "support_doc",
+            "review_feedback",
+            "repo_observation",
+            "planning_pressure"
+          ],
+          "title": "Origin Class",
+          "type": "string"
+        },
+        "primary_odeu_lane": {
+          "enum": [
+            "ontological",
+            "deontic",
+            "epistemic",
+            "utility",
+            "mixed"
+          ],
+          "title": "Primary Odeu Lane",
+          "type": "string"
+        },
+        "source_refs": {
+          "items": {
+            "type": "string"
+          },
+          "minItems": 1,
+          "title": "Source Refs",
+          "type": "array"
+        }
+      },
+      "required": [
+        "candidate_ref",
+        "candidate_label",
+        "origin_class",
+        "intake_posture",
+        "primary_odeu_lane",
+        "odeu_lanes",
+        "source_refs",
+        "equivalence_posture",
+        "intake_note"
+      ],
+      "title": "RepoCandidateIntakeRow",
+      "type": "object"
+    },
+    "RepoCandidateRoleGuardrailRow": {
+      "additionalProperties": false,
+      "properties": {
+        "admissible_roles": {
+          "items": {
+            "enum": [
+              "support_input",
+              "schema_candidate",
+              "planning_pressure",
+              "review_input",
+              "evidence_review_request",
+              "future_family_candidate",
+              "product_projection_candidate",
+              "operator_ingress_binding"
+            ],
+            "type": "string"
+          },
+          "minItems": 1,
+          "title": "Admissible Roles",
+          "type": "array"
+        },
+        "candidate_ref": {
+          "title": "Candidate Ref",
+          "type": "string"
+        },
+        "eventual_family_hint": {
+          "enum": [
+            "v71_ratification",
+            "v72_integration_review",
+            "v73_outcome_review",
+            "v74_operator_projection_review",
+            "v75_dispatch_review",
+            "v43_external_contest_branch",
+            "none"
+          ],
+          "title": "Eventual Family Hint",
+          "type": "string"
+        },
+        "forbidden_roles": {
+          "items": {
+            "enum": [
+              "lock_authority",
+              "released_schema",
+              "ratified_decision",
+              "implementation_task",
+              "commit_release_authority",
+              "product_authorization",
+              "dispatch_authority",
+              "self_validation",
+              "transcript_truth"
+            ],
+            "type": "string"
+          },
+          "minItems": 1,
+          "title": "Forbidden Roles",
+          "type": "array"
+        },
+        "non_adoption_guardrail": {
+          "title": "Non Adoption Guardrail",
+          "type": "string"
+        },
+        "required_next_review_surface": {
+          "enum": [
+            "v70_evidence_classification",
+            "v70_adversarial_review",
+            "future_family_review",
+            "none_yet_deferred"
+          ],
+          "title": "Required Next Review Surface",
+          "type": "string"
+        }
+      },
+      "required": [
+        "candidate_ref",
+        "admissible_roles",
+        "forbidden_roles",
+        "required_next_review_surface",
+        "eventual_family_hint",
+        "non_adoption_guardrail"
+      ],
+      "title": "RepoCandidateRoleGuardrailRow",
+      "type": "object"
+    },
+    "RepoCandidateSourceRow": {
+      "additionalProperties": false,
+      "properties": {
+        "authority_layer": {
+          "enum": [
+            "lock",
+            "architecture",
+            "planning",
+            "support",
+            "schema",
+            "fixture",
+            "closeout_evidence"
+          ],
+          "title": "Authority Layer",
+          "type": "string"
+        },
+        "integration_note": {
+          "title": "Integration Note",
+          "type": "string"
+        },
+        "source_kind": {
+          "enum": [
+            "planning_doc",
+            "architecture_doc",
+            "support_doc",
+            "review_input",
+            "closeout_doc",
+            "evidence_artifact",
+            "schema_file",
+            "fixture_file",
+            "operator_turn",
+            "transcript_artifact",
+            "model_output",
+            "repo_observation",
+            "external_artifact"
+          ],
+          "title": "Source Kind",
+          "type": "string"
+        },
+        "source_presence_posture": {
+          "enum": [
+            "present",
+            "missing_expected_support_artifact",
+            "not_uploaded_in_review_snapshot",
+            "generated_later",
+            "external_unavailable",
+            "operator_turn_not_committed"
+          ],
+          "title": "Source Presence Posture",
+          "type": "string"
+        },
+        "source_ref": {
+          "title": "Source Ref",
+          "type": "string"
+        },
+        "source_status": {
+          "enum": [
+            "integrated_shaping_source",
+            "available_but_not_integrated",
+            "review_pending_input",
+            "rejected_or_superseded_source"
+          ],
+          "title": "Source Status",
+          "type": "string"
+        }
+      },
+      "required": [
+        "source_ref",
+        "source_kind",
+        "authority_layer",
+        "source_status",
+        "source_presence_posture",
+        "integration_note"
+      ],
+      "title": "RepoCandidateSourceRow",
+      "type": "object"
+    }
+  },
+  "additionalProperties": false,
+  "properties": {
+    "candidate_rows": {
+      "items": {
+        "$ref": "#/$defs/RepoCandidateIntakeRow"
+      },
+      "minItems": 1,
+      "title": "Candidate Rows",
+      "type": "array"
+    },
+    "coverage_horizon": {
+      "title": "Coverage Horizon",
+      "type": "string"
+    },
+    "intake_id": {
+      "title": "Intake Id",
+      "type": "string"
+    },
+    "non_adoption_summary": {
+      "title": "Non Adoption Summary",
+      "type": "string"
+    },
+    "role_guardrail_rows": {
+      "items": {
+        "$ref": "#/$defs/RepoCandidateRoleGuardrailRow"
+      },
+      "minItems": 1,
+      "title": "Role Guardrail Rows",
+      "type": "array"
+    },
+    "schema": {
+      "const": "repo_recursive_candidate_intake_record@1",
+      "default": "repo_recursive_candidate_intake_record@1",
+      "title": "Schema",
+      "type": "string"
+    },
+    "snapshot_id": {
+      "title": "Snapshot Id",
+      "type": "string"
+    },
+    "source_rows": {
+      "items": {
+        "$ref": "#/$defs/RepoCandidateSourceRow"
+      },
+      "minItems": 1,
+      "title": "Source Rows",
+      "type": "array"
+    },
+    "source_set_id": {
+      "title": "Source Set Id",
+      "type": "string"
+    }
+  },
+  "required": [
+    "intake_id",
+    "snapshot_id",
+    "source_set_id",
+    "coverage_horizon",
+    "source_rows",
+    "candidate_rows",
+    "role_guardrail_rows",
+    "non_adoption_summary"
+  ],
+  "title": "RepoRecursiveCandidateIntakeRecord",
+  "type": "object"
+}

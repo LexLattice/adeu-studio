@@ -33,6 +33,11 @@ from .models import (
     RepoSymbolCatalog,
     RepoTestIntentMatrix,
 )
+from .recursive_candidate_intake import (
+    RepoCandidateNonAdoptionGuardrail,
+    RepoCandidateSourceRegister,
+    RepoRecursiveCandidateIntakeRecord,
+)
 
 _WINDOWS_ABSOLUTE_PATH_RE = re.compile(r"[A-Za-z]:\\")
 
@@ -107,13 +112,20 @@ def main() -> None:
     coordinate_emission_plan_schema = RepoRecursiveCoordinateEmissionPlan.model_json_schema(
         by_alias=True
     )
-    cartography_derivation_manifest_schema = (
-        RepoArcCartographyDerivationManifest.model_json_schema(by_alias=True)
+    cartography_derivation_manifest_schema = RepoArcCartographyDerivationManifest.model_json_schema(
+        by_alias=True
     )
     cartography_gap_scan_report_schema = RepoArcCartographyGapScanReport.model_json_schema(
         by_alias=True
     )
     cartography_tool_run_evidence_schema = RepoArcCartographyToolRunEvidence.model_json_schema(
+        by_alias=True
+    )
+    recursive_candidate_intake_schema = RepoRecursiveCandidateIntakeRecord.model_json_schema(
+        by_alias=True
+    )
+    candidate_source_register_schema = RepoCandidateSourceRegister.model_json_schema(by_alias=True)
+    candidate_non_adoption_guardrail_schema = RepoCandidateNonAdoptionGuardrail.model_json_schema(
         by_alias=True
     )
 
@@ -137,6 +149,9 @@ def main() -> None:
     _assert_no_absolute_path_material(cartography_derivation_manifest_schema, repo_root_path=root)
     _assert_no_absolute_path_material(cartography_gap_scan_report_schema, repo_root_path=root)
     _assert_no_absolute_path_material(cartography_tool_run_evidence_schema, repo_root_path=root)
+    _assert_no_absolute_path_material(recursive_candidate_intake_schema, repo_root_path=root)
+    _assert_no_absolute_path_material(candidate_source_register_schema, repo_root_path=root)
+    _assert_no_absolute_path_material(candidate_non_adoption_guardrail_schema, repo_root_path=root)
 
     _write_schema(
         root
@@ -353,6 +368,42 @@ def main() -> None:
     _write_schema(
         root / "spec" / "repo_arc_cartography_tool_run_evidence.schema.json",
         cartography_tool_run_evidence_schema,
+    )
+    _write_schema(
+        root
+        / "packages"
+        / "adeu_repo_description"
+        / "schema"
+        / "repo_recursive_candidate_intake_record.v1.json",
+        recursive_candidate_intake_schema,
+    )
+    _write_schema(
+        root / "spec" / "repo_recursive_candidate_intake_record.schema.json",
+        recursive_candidate_intake_schema,
+    )
+    _write_schema(
+        root
+        / "packages"
+        / "adeu_repo_description"
+        / "schema"
+        / "repo_candidate_source_register.v1.json",
+        candidate_source_register_schema,
+    )
+    _write_schema(
+        root / "spec" / "repo_candidate_source_register.schema.json",
+        candidate_source_register_schema,
+    )
+    _write_schema(
+        root
+        / "packages"
+        / "adeu_repo_description"
+        / "schema"
+        / "repo_candidate_non_adoption_guardrail.v1.json",
+        candidate_non_adoption_guardrail_schema,
+    )
+    _write_schema(
+        root / "spec" / "repo_candidate_non_adoption_guardrail.schema.json",
+        candidate_non_adoption_guardrail_schema,
     )
 
 
