@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import json
+from copy import deepcopy
 from pathlib import Path
 from typing import Any
 
@@ -87,7 +88,7 @@ def test_v190_derivation_helper_matches_reference_fixture() -> None:
         ),
         (
             "repo_arc_cartography_tool_run_evidence_v190_reject_coordinate_authorizes_v69.json",
-            "V69 through V75",
+            "future V-family targets beyond V68",
         ),
         (
             "repo_arc_cartography_tool_run_evidence_v190_reject_failed_tool_omitted.json",
@@ -112,3 +113,30 @@ def test_v190_rejects_invalid_tool_run_evidence_fixtures(
 ) -> None:
     with pytest.raises(ValidationError, match=match):
         RepoArcCartographyToolRunEvidence.model_validate(_load_v190(fixture_name))
+
+
+def test_v190_rejects_future_family_target_beyond_original_v69_to_v75_range() -> None:
+    payload = deepcopy(_load_v190("repo_arc_cartography_tool_run_evidence_v190_reference.json"))
+    payload["coordinate_plan_rows"][0]["target_refs"] = ["family:V76"]
+
+    with pytest.raises(ValidationError, match="future V-family targets beyond V68"):
+        RepoArcCartographyToolRunEvidence.model_validate(payload)
+
+
+def test_v190_rejects_emitted_coordinate_row_under_absent_top_level_posture() -> None:
+    payload = deepcopy(_load_v190("repo_arc_cartography_tool_run_evidence_v190_reference.json"))
+    payload["coordinate_plan_rows"][0]["coordinate_posture"] = "coordinate_emitted"
+    payload["coordinate_plan_rows"][0]["target_refs"] = ["family:V68"]
+
+    with pytest.raises(ValidationError, match="cannot include coordinate emitted rows"):
+        RepoArcCartographyToolRunEvidence.model_validate(payload)
+
+
+def test_v190_arc67_family_guard_does_not_match_v670_substring() -> None:
+    payload = deepcopy(_load_v190("repo_arc_cartography_tool_run_evidence_v190_reference.json"))
+    payload["tool_run_rows"][0]["target_claim_id"] = "family:V670"
+    payload["tool_run_rows"][0]["target_namespace_kind"] = "family_id"
+
+    validated = RepoArcCartographyToolRunEvidence.model_validate(payload)
+
+    assert validated.tool_run_rows[0].target_claim_id == "family:V670"

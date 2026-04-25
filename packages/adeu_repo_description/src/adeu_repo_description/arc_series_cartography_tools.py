@@ -34,7 +34,10 @@ GapResolutionPosture = Literal[
 ]
 
 _GLOBAL_PROOF_RE = re.compile(r"(?<![-\w])global(?:ly)?\b", re.IGNORECASE)
-_V69_FUTURE_RE = re.compile(r"(^|[:/])V(?:69|70|71|72|73|74|75)(?:$|[^0-9])")
+_FUTURE_V_FAMILY_RE = re.compile(
+    r"(^|[:/])V(?:69|[7-9][0-9]|[1-9][0-9]{2,})(?:$|[^0-9])"
+)
+_V67_FAMILY_RE = re.compile(r"(^|[:/])V67(?:$|[^0-9])")
 
 
 def _contains_arc_argument(command: list[str], arc: str) -> bool:
@@ -42,11 +45,14 @@ def _contains_arc_argument(command: list[str], arc: str) -> bool:
 
 
 def _is_v67_family_target(*, target_claim_id: str, target_namespace_kind: NamespaceKind) -> bool:
-    return target_namespace_kind in {"family_id", "family_slice_id"} and "V67" in target_claim_id
+    return (
+        target_namespace_kind in {"family_id", "family_slice_id"}
+        and _V67_FAMILY_RE.search(target_claim_id) is not None
+    )
 
 
 def _is_future_lifecycle_target(value: str) -> bool:
-    return _V69_FUTURE_RE.search(value) is not None
+    return _FUTURE_V_FAMILY_RE.search(value) is not None
 
 
 class RepoArcCartographyToolRunRow(_CartographyBase):
@@ -280,8 +286,15 @@ class RepoArcCartographyToolRunEvidence(_CartographyBase):
                     )
                 if not row.target_refs:
                     raise ValueError("emitted coordinate rows require target_refs")
-        elif not self.coordinate_plan_rows:
-            raise ValueError("coordinate absence must be represented by coordinate plan rows")
+        else:
+            if not self.coordinate_plan_rows:
+                raise ValueError("coordinate absence must be represented by coordinate plan rows")
+            for row in self.coordinate_plan_rows:
+                if row.coordinate_posture == "coordinate_emitted":
+                    raise ValueError(
+                        f"{self.coordinate_posture} posture cannot include "
+                        "coordinate emitted rows"
+                    )
 
         known_refs = set(self.known_cartography_refs) | tool_refs | set(self.v68b_gap_refs)
         for row in self.coordinate_plan_rows:
@@ -292,7 +305,8 @@ class RepoArcCartographyToolRunEvidence(_CartographyBase):
             )
             if future_targets:
                 raise ValueError(
-                    f"coordinate rows cannot authorize V69 through V75: {future_targets}"
+                    "coordinate rows cannot authorize future V-family targets beyond V68: "
+                    f"{future_targets}"
                 )
             unknown_targets = sorted(set(row.target_refs) - known_refs)
             if unknown_targets:
