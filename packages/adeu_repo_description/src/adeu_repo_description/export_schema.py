@@ -21,6 +21,7 @@ from .arc_series_cartography_derivation import (
     RepoArcCartographyDerivationManifest,
     RepoArcCartographyGapScanReport,
 )
+from .arc_series_cartography_tools import RepoArcCartographyToolRunEvidence
 from .models import (
     RepoArcDependencyRegister,
     RepoArcDependencyRegisterV1,
@@ -112,6 +113,9 @@ def main() -> None:
     cartography_gap_scan_report_schema = RepoArcCartographyGapScanReport.model_json_schema(
         by_alias=True
     )
+    cartography_tool_run_evidence_schema = RepoArcCartographyToolRunEvidence.model_json_schema(
+        by_alias=True
+    )
 
     _assert_no_absolute_path_material(dependency_register_v1_schema, repo_root_path=root)
     _assert_no_absolute_path_material(dependency_register_schema, repo_root_path=root)
@@ -132,6 +136,7 @@ def main() -> None:
     _assert_no_absolute_path_material(coordinate_emission_plan_schema, repo_root_path=root)
     _assert_no_absolute_path_material(cartography_derivation_manifest_schema, repo_root_path=root)
     _assert_no_absolute_path_material(cartography_gap_scan_report_schema, repo_root_path=root)
+    _assert_no_absolute_path_material(cartography_tool_run_evidence_schema, repo_root_path=root)
 
     _write_schema(
         root
@@ -336,6 +341,18 @@ def main() -> None:
     _write_schema(
         root / "spec" / "repo_arc_cartography_gap_scan_report.schema.json",
         cartography_gap_scan_report_schema,
+    )
+    _write_schema(
+        root
+        / "packages"
+        / "adeu_repo_description"
+        / "schema"
+        / "repo_arc_cartography_tool_run_evidence.v1.json",
+        cartography_tool_run_evidence_schema,
+    )
+    _write_schema(
+        root / "spec" / "repo_arc_cartography_tool_run_evidence.schema.json",
+        cartography_tool_run_evidence_schema,
     )
 
 

@@ -1,0 +1,309 @@
+{
+  "$defs": {
+    "RepoArcCartographyGapResolutionRow": {
+      "additionalProperties": false,
+      "properties": {
+        "gap_id": {
+          "title": "Gap Id",
+          "type": "string"
+        },
+        "limitation_note": {
+          "title": "Limitation Note",
+          "type": "string"
+        },
+        "resolution_posture": {
+          "enum": [
+            "open_carried_forward",
+            "lawfully_resolved",
+            "deferred_to_family_closeout"
+          ],
+          "title": "Resolution Posture",
+          "type": "string"
+        },
+        "source_tool_invocation_refs": {
+          "items": {
+            "type": "string"
+          },
+          "title": "Source Tool Invocation Refs",
+          "type": "array"
+        }
+      },
+      "required": [
+        "gap_id",
+        "resolution_posture",
+        "limitation_note"
+      ],
+      "title": "RepoArcCartographyGapResolutionRow",
+      "type": "object"
+    },
+    "RepoArcCartographyToolRunRow": {
+      "additionalProperties": false,
+      "properties": {
+        "applicability_posture": {
+          "enum": [
+            "applicable_and_supporting",
+            "applicable_with_warnings",
+            "namespace_limited",
+            "not_applicable_to_claim",
+            "failed_or_inconclusive",
+            "not_run"
+          ],
+          "title": "Applicability Posture",
+          "type": "string"
+        },
+        "claim_horizon": {
+          "enum": [
+            "descriptive_support",
+            "planning_candidate",
+            "architecture_decomposition",
+            "lock_authorized",
+            "closeout_evidence",
+            "released_schema_or_runtime",
+            "future_deferred",
+            "review_pending"
+          ],
+          "title": "Claim Horizon",
+          "type": "string"
+        },
+        "command": {
+          "items": {
+            "type": "string"
+          },
+          "minItems": 1,
+          "title": "Command",
+          "type": "array"
+        },
+        "cwd_posture": {
+          "enum": [
+            "repo_root",
+            "repo_subdir",
+            "not_run_no_cwd"
+          ],
+          "title": "Cwd Posture",
+          "type": "string"
+        },
+        "exit_status": {
+          "anyOf": [
+            {
+              "type": "integer"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Exit Status"
+        },
+        "limitation_note": {
+          "title": "Limitation Note",
+          "type": "string"
+        },
+        "observed_output_ref": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Observed Output Ref"
+        },
+        "recommended_followup": {
+          "title": "Recommended Followup",
+          "type": "string"
+        },
+        "target_claim_id": {
+          "title": "Target Claim Id",
+          "type": "string"
+        },
+        "target_namespace_kind": {
+          "enum": [
+            "selector_version",
+            "family_id",
+            "family_slice_id",
+            "implementation_arc_id",
+            "closeout_arc_id",
+            "evidence_arc_id",
+            "branch_local_execution_target",
+            "planning_doc_ref",
+            "lock_doc_ref",
+            "decision_doc_ref",
+            "assessment_doc_ref",
+            "architecture_doc_ref",
+            "support_doc_ref",
+            "schema_id",
+            "fixture_dir_ref",
+            "evidence_input_ref",
+            "stop_gate_ref"
+          ],
+          "title": "Target Namespace Kind",
+          "type": "string"
+        },
+        "tool_id": {
+          "title": "Tool Id",
+          "type": "string"
+        },
+        "tool_invocation_ref": {
+          "title": "Tool Invocation Ref",
+          "type": "string"
+        }
+      },
+      "required": [
+        "tool_invocation_ref",
+        "tool_id",
+        "command",
+        "cwd_posture",
+        "target_claim_id",
+        "target_namespace_kind",
+        "claim_horizon",
+        "applicability_posture",
+        "limitation_note",
+        "recommended_followup"
+      ],
+      "title": "RepoArcCartographyToolRunRow",
+      "type": "object"
+    },
+    "RepoRecursiveCoordinatePlanRow": {
+      "additionalProperties": false,
+      "properties": {
+        "coordinate_posture": {
+          "enum": [
+            "coordinate_emitted",
+            "coordinate_absent_deliberate",
+            "coordinate_absent_tool_not_applicable",
+            "coordinate_absent_missing_source",
+            "coordinate_absent_review_required"
+          ],
+          "title": "Coordinate Posture",
+          "type": "string"
+        },
+        "coordinate_ref": {
+          "title": "Coordinate Ref",
+          "type": "string"
+        },
+        "non_authority_guardrail": {
+          "title": "Non Authority Guardrail",
+          "type": "string"
+        },
+        "target_refs": {
+          "items": {
+            "type": "string"
+          },
+          "title": "Target Refs",
+          "type": "array"
+        }
+      },
+      "required": [
+        "coordinate_ref",
+        "coordinate_posture",
+        "non_authority_guardrail"
+      ],
+      "title": "RepoRecursiveCoordinatePlanRow",
+      "type": "object"
+    }
+  },
+  "additionalProperties": false,
+  "properties": {
+    "cartography_id": {
+      "title": "Cartography Id",
+      "type": "string"
+    },
+    "coordinate_plan_rows": {
+      "items": {
+        "$ref": "#/$defs/RepoRecursiveCoordinatePlanRow"
+      },
+      "title": "Coordinate Plan Rows",
+      "type": "array"
+    },
+    "coordinate_posture": {
+      "enum": [
+        "coordinate_emitted",
+        "coordinate_absent_deliberate",
+        "coordinate_absent_tool_not_applicable",
+        "coordinate_absent_missing_source",
+        "coordinate_absent_review_required"
+      ],
+      "title": "Coordinate Posture",
+      "type": "string"
+    },
+    "coverage_horizon": {
+      "title": "Coverage Horizon",
+      "type": "string"
+    },
+    "expected_tool_invocation_refs": {
+      "items": {
+        "type": "string"
+      },
+      "minItems": 1,
+      "title": "Expected Tool Invocation Refs",
+      "type": "array"
+    },
+    "gap_resolution_rows": {
+      "items": {
+        "$ref": "#/$defs/RepoArcCartographyGapResolutionRow"
+      },
+      "minItems": 1,
+      "title": "Gap Resolution Rows",
+      "type": "array"
+    },
+    "known_cartography_refs": {
+      "items": {
+        "type": "string"
+      },
+      "minItems": 1,
+      "title": "Known Cartography Refs",
+      "type": "array"
+    },
+    "limitation_note": {
+      "title": "Limitation Note",
+      "type": "string"
+    },
+    "schema": {
+      "const": "repo_arc_cartography_tool_run_evidence@1",
+      "default": "repo_arc_cartography_tool_run_evidence@1",
+      "title": "Schema",
+      "type": "string"
+    },
+    "snapshot_id": {
+      "title": "Snapshot Id",
+      "type": "string"
+    },
+    "tool_run_evidence_id": {
+      "title": "Tool Run Evidence Id",
+      "type": "string"
+    },
+    "tool_run_rows": {
+      "items": {
+        "$ref": "#/$defs/RepoArcCartographyToolRunRow"
+      },
+      "minItems": 1,
+      "title": "Tool Run Rows",
+      "type": "array"
+    },
+    "v68b_gap_refs": {
+      "items": {
+        "type": "string"
+      },
+      "minItems": 1,
+      "title": "V68B Gap Refs",
+      "type": "array"
+    }
+  },
+  "required": [
+    "tool_run_evidence_id",
+    "cartography_id",
+    "snapshot_id",
+    "coverage_horizon",
+    "expected_tool_invocation_refs",
+    "known_cartography_refs",
+    "v68b_gap_refs",
+    "coordinate_posture",
+    "tool_run_rows",
+    "gap_resolution_rows",
+    "limitation_note"
+  ],
+  "title": "RepoArcCartographyToolRunEvidence",
+  "type": "object"
+}
