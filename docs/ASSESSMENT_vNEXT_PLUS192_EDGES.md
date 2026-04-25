@@ -1,8 +1,8 @@
 # Assessment vNext+192 Edges
 
-Status: pre-lock edge assessment for `V69-B` (April 25, 2026 UTC).
+Status: post-closeout edge assessment for `V69-B` (April 25, 2026 UTC).
 
-Authority layer: planning / pre-lock assessment.
+Authority layer: closeout evidence on `main` only.
 
 ## Assessment-State Marker (Machine-Checkable)
 
@@ -10,99 +10,93 @@ Authority layer: planning / pre-lock assessment.
 {
   "schema": "assessment_artifact_state@1",
   "artifact": "docs/ASSESSMENT_vNEXT_PLUS192_EDGES.md",
-  "phase": "pre_lock_assessment",
-  "authoritative": false,
+  "phase": "post_closeout_assessment",
+  "authoritative": true,
   "required_in_decision": true
 }
 ```
 
-## Open Edges
+## Closed Edges
 
 ### Edge 1: Globs Could Become Evidence
 
-- Risk:
-  a scanned pattern such as `docs/support/arc_series_mapping/**` could be treated
-  as a source row or proof of candidate provenance.
-- Response:
-  `V69-B` must allow globs only as discovery instructions. Only concrete observed
-  source refs may become source or derivation evidence.
+- Closeout result:
+  `pass`
+- Evidence:
+  `V69-B` treats globs as scanned discovery patterns only. Source rows and
+  derivation rows bind to concrete observed source refs, and the reject fixture
+  for glob-as-source promotion fails closed.
 
 ### Edge 2: Derivation Could Silently Repair Missing Sources
 
-- Risk:
-  deterministic derivation could fill missing refs, missing support docs, or stale
-  source posture without preserving the gap.
-- Response:
-  missing, stale, unavailable, or ambiguous source pressure must become gap rows,
-  not repaired success rows.
+- Closeout result:
+  `pass`
+- Evidence:
+  derivation rows reject unknown observed sources, missing integrated source
+  posture fails closed, and malformed source pressure is represented as gap rows
+  rather than repaired success rows.
 
 ### Edge 3: Duplicate Candidates Could Be Collapsed Without Witness
 
-- Risk:
-  derivation could deduplicate candidates by label or intuition without an
-  equivalence posture.
-- Response:
-  duplicate candidates require explicit duplicate-group or equivalence records, or
-  a blocking `duplicate_without_equivalence` gap.
+- Closeout result:
+  `pass`
+- Evidence:
+  suppressed duplicate candidates require duplicate-group/equivalence evidence.
+  The reject fixture for duplicate suppression without equivalence fails closed.
 
 ### Edge 4: Support Input Could Become Lock Authority
 
-- Risk:
-  derivation could copy support/review prose into candidate rows and accidentally
-  upgrade it into lock, release, ratification, or implementation authority.
-- Response:
-  derivation rows and gap rows must preserve source authority layer and reject any
-  support-to-lock upgrade.
+- Closeout result:
+  `pass`
+- Evidence:
+  derivation rows preserve source authority layer and reject support-only sources
+  upgraded to lock authority.
 
 ### Edge 5: V70 Evidence Classification Could Leak In
 
-- Risk:
-  gap scanning could say whether a candidate is true, proven, good, or adversarially
-  settled.
-- Response:
-  `V69-B` may recommend `V70` review surfaces, but cannot perform or embed
-  evidence verdicts.
+- Closeout result:
+  `pass`
+- Evidence:
+  `V69-B` may recommend a next review surface but cannot embed evidence verdict
+  language. The embedded `V70` classification reject fixture fails closed.
 
 ### Edge 6: V68 Cartography Could Be Bypassed
 
-- Risk:
-  candidate derivation could consume source artifacts that are absent or stale in
-  the shipped `V68` cartography/source-status layer without recording the mismatch.
-- Response:
-  concrete candidate sources absent or stale in consumed `V68` cartography must
-  produce `v68_cartography_source_unmapped` gaps.
+- Closeout result:
+  `pass`
+- Evidence:
+  the reference gap scan records expected post-`V68` unmapped candidate source
+  pressure with `v68_cartography_source_unmapped`, and omission is rejected.
 
 ### Edge 7: Gap Scan Could Become Adoption Priority
 
-- Risk:
-  severity or recommended next surface could be overread as adoption, priority, or
-  implementation scheduling.
-- Response:
-  gap severity is diagnostic only. It cannot select downstream family locks,
-  implementation tasks, product authorization, commit/release authority, or
-  dispatch.
+- Closeout result:
+  `pass`
+- Evidence:
+  gap severity remains diagnostic only. Candidate overclaims must be blocking
+  gaps and do not become selection, adoption, implementation, product, release,
+  or dispatch authority.
 
 ### Edge 8: V69-B Could Begin V69-C
 
-- Risk:
-  derivation might expand into operator-turn binding, transcript handling,
-  recursive residue reports, or pre-`V70` handoff behavior.
-- Response:
-  `V69-B` ships only derivation-manifest and gap-scan surfaces. Operator ingress,
-  recursive residue, and pre-`V70` handoff remain deferred to `V69-C`.
+- Closeout result:
+  `pass`
+- Evidence:
+  `v192` shipped only derivation-manifest and gap-scan surfaces. Operator
+  ingress, recursive workflow residue, and pre-`V70` handoff remain deferred to
+  `V69-C`.
+
+## Residual Risk
+
+- `V69-B` is not whole-repo candidate discovery. Its reference derivation is
+  bounded to committed V69 seed sources and the released `V69-A` fixture.
+- `V69-B` makes candidate pressure reproducible and gap-visible. It does not
+  decide whether any candidate is true, useful, adopted, ratified, or
+  implementation-ready.
 
 ## Current Judgment
 
-- `V69-B` is the right second slice because `V69-A` made candidate intake
-  representable, while reproducible candidate derivation and gap scanning remain
-  unshipped.
-- The slice is finite:
-  - two starter schema surfaces;
-  - derivation accountability over concrete observed sources;
-  - explicit gap rows for missing, stale, ambiguous, duplicate, and overclaiming
-    pressure;
-  - reject fixtures for source-glob promotion, support-to-lock upgrades, duplicate
-    collapse, and embedded `V70` verdicts.
-- `V69-C` remains a drafted support spec only until its own future starter lock
-  selects it.
-- `V70` through `V75` and `V43` remain unselected by this starter bundle.
+- `V69-B` is closed on `main` as the deterministic derivation/gap-scan slice.
+- `V69-C` remains the next reviewed support spec and must receive its own starter
+  bundle before implementation.
+- `V70` through `V75` and `V43` remain unselected by this closeout.

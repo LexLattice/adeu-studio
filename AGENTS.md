@@ -20,6 +20,14 @@
 - `make check-full` preserves the old full local gate: lint + full pytest + closeout consistency lint + semantic compiler closeout lint + generated instruction policy doc check.
 - If you intentionally run a narrower subset instead of `make check`, state what was skipped.
 
+## Pull Request Creation
+
+- Default PR state is non-draft / ready for review.
+- In this repo, "full PR" means a normal ready-for-review PR, not a GitHub draft PR.
+- Never create a draft PR unless the user explicitly says "draft PR".
+- Before running `gh pr create`, verify the command does not include `--draft` unless
+  draft was explicitly requested.
+
 ## Docs-Only Arc Bundles
 
 - For docs-only arc starting-bundle work, use `make arc-start-check ARC=<n>`.
