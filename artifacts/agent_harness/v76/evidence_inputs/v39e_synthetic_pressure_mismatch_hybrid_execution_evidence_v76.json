@@ -48,7 +48,7 @@
   "policy_sources": [
     {
       "path": "AGENTS.md",
-      "sha256": "0837d6eb36c612297e23d0e3f4e6ae032c4263b0864265a5ca5ae4ab2567e909"
+      "sha256": "5b5ebd3f68f63fc066c12d383e21b0aa3d76cd005bacbae0119c98654f6e2cb4"
     },
     {
       "path": "docs/DRAFT_SYNTHETIC_PRESSURE_MISMATCH_DRIFT_v0.md",

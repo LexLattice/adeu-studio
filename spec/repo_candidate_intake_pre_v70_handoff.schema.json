@@ -1,0 +1,141 @@
+{
+  "$defs": {
+    "RepoCandidateIntakePreV70HandoffRow": {
+      "additionalProperties": false,
+      "properties": {
+        "adversarial_review_needed": {
+          "title": "Adversarial Review Needed",
+          "type": "boolean"
+        },
+        "candidate_origin_class": {
+          "enum": [
+            "internal_reasoning_residue",
+            "external_artifact",
+            "operator_turn",
+            "model_output",
+            "support_doc",
+            "review_feedback",
+            "repo_observation",
+            "planning_pressure"
+          ],
+          "title": "Candidate Origin Class",
+          "type": "string"
+        },
+        "candidate_ref": {
+          "title": "Candidate Ref",
+          "type": "string"
+        },
+        "eventual_family_hint": {
+          "enum": [
+            "v71_ratification",
+            "v72_integration_review",
+            "v73_outcome_review",
+            "v74_operator_projection_review",
+            "v75_dispatch_review",
+            "v43_external_contest_branch",
+            "none"
+          ],
+          "title": "Eventual Family Hint",
+          "type": "string"
+        },
+        "evidence_needed": {
+          "items": {
+            "type": "string"
+          },
+          "title": "Evidence Needed",
+          "type": "array"
+        },
+        "handoff_reason": {
+          "title": "Handoff Reason",
+          "type": "string"
+        },
+        "handoff_ref": {
+          "title": "Handoff Ref",
+          "type": "string"
+        },
+        "handoff_target": {
+          "enum": [
+            "v70_evidence_classification",
+            "v70_adversarial_review",
+            "future_family_review",
+            "deferred_no_review_selected"
+          ],
+          "title": "Handoff Target",
+          "type": "string"
+        },
+        "non_authority_guardrail": {
+          "title": "Non Authority Guardrail",
+          "type": "string"
+        }
+      },
+      "required": [
+        "handoff_ref",
+        "candidate_ref",
+        "candidate_origin_class",
+        "handoff_target",
+        "eventual_family_hint",
+        "handoff_reason",
+        "adversarial_review_needed",
+        "non_authority_guardrail"
+      ],
+      "title": "RepoCandidateIntakePreV70HandoffRow",
+      "type": "object"
+    }
+  },
+  "additionalProperties": false,
+  "properties": {
+    "candidate_refs": {
+      "items": {
+        "type": "string"
+      },
+      "minItems": 1,
+      "title": "Candidate Refs",
+      "type": "array"
+    },
+    "derivation_manifest_id": {
+      "title": "Derivation Manifest Id",
+      "type": "string"
+    },
+    "handoff_register_id": {
+      "title": "Handoff Register Id",
+      "type": "string"
+    },
+    "handoff_rows": {
+      "items": {
+        "$ref": "#/$defs/RepoCandidateIntakePreV70HandoffRow"
+      },
+      "minItems": 1,
+      "title": "Handoff Rows",
+      "type": "array"
+    },
+    "intake_id": {
+      "title": "Intake Id",
+      "type": "string"
+    },
+    "limitation_note": {
+      "title": "Limitation Note",
+      "type": "string"
+    },
+    "schema": {
+      "const": "repo_candidate_intake_pre_v70_handoff@1",
+      "default": "repo_candidate_intake_pre_v70_handoff@1",
+      "title": "Schema",
+      "type": "string"
+    },
+    "snapshot_id": {
+      "title": "Snapshot Id",
+      "type": "string"
+    }
+  },
+  "required": [
+    "handoff_register_id",
+    "intake_id",
+    "derivation_manifest_id",
+    "snapshot_id",
+    "candidate_refs",
+    "handoff_rows",
+    "limitation_note"
+  ],
+  "title": "RepoCandidateIntakePreV70Handoff",
+  "type": "object"
+}

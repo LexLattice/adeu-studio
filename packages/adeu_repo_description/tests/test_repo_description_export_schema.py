@@ -14,6 +14,7 @@ from adeu_repo_description import (
     REPO_BRANCH_POSTURE_REGISTER_SCHEMA,
     REPO_CANDIDATE_INTAKE_DERIVATION_MANIFEST_SCHEMA,
     REPO_CANDIDATE_INTAKE_GAP_SCAN_SCHEMA,
+    REPO_CANDIDATE_INTAKE_PRE_V70_HANDOFF_SCHEMA,
     REPO_CANDIDATE_NON_ADOPTION_GUARDRAIL_SCHEMA,
     REPO_CANDIDATE_SOURCE_REGISTER_SCHEMA,
     REPO_DEPENDENCY_GRAPH_SCHEMA,
@@ -21,9 +22,11 @@ from adeu_repo_description import (
     REPO_ENTITY_CATALOG_SCHEMA,
     REPO_EVIDENCE_SURFACE_INDEX_SCHEMA,
     REPO_FAMILY_CLOSURE_REGISTER_SCHEMA,
+    REPO_OPERATOR_INGRESS_CANDIDATE_BINDING_SCHEMA,
     REPO_OPTIMIZATION_REGISTER_SCHEMA,
     REPO_RECURSIVE_CANDIDATE_INTAKE_RECORD_SCHEMA,
     REPO_RECURSIVE_COORDINATE_EMISSION_PLAN_SCHEMA,
+    REPO_RECURSIVE_WORKFLOW_RESIDUE_INTAKE_REPORT_SCHEMA,
     REPO_SCHEMA_FAMILY_REGISTRY_SCHEMA,
     REPO_SUPPORT_LINEAGE_REGISTER_SCHEMA,
     REPO_SYMBOL_CATALOG_SCHEMA,
@@ -196,6 +199,30 @@ def _schema_pairs() -> dict[str, tuple[Path, Path]]:
             / "schema"
             / "repo_candidate_intake_gap_scan.v1.json",
             root / "spec" / "repo_candidate_intake_gap_scan.schema.json",
+        ),
+        REPO_OPERATOR_INGRESS_CANDIDATE_BINDING_SCHEMA: (
+            root
+            / "packages"
+            / "adeu_repo_description"
+            / "schema"
+            / "repo_operator_ingress_candidate_binding.v1.json",
+            root / "spec" / "repo_operator_ingress_candidate_binding.schema.json",
+        ),
+        REPO_RECURSIVE_WORKFLOW_RESIDUE_INTAKE_REPORT_SCHEMA: (
+            root
+            / "packages"
+            / "adeu_repo_description"
+            / "schema"
+            / "repo_recursive_workflow_residue_intake_report.v1.json",
+            root / "spec" / "repo_recursive_workflow_residue_intake_report.schema.json",
+        ),
+        REPO_CANDIDATE_INTAKE_PRE_V70_HANDOFF_SCHEMA: (
+            root
+            / "packages"
+            / "adeu_repo_description"
+            / "schema"
+            / "repo_candidate_intake_pre_v70_handoff.v1.json",
+            root / "spec" / "repo_candidate_intake_pre_v70_handoff.schema.json",
         ),
     }
 
