@@ -1,0 +1,197 @@
+{
+  "cartography_id": "repo_arc_series_cartography_v68b_current_derivation_seed",
+  "coverage_horizon": "V68-B starter derivation over V68-A closeout and v189 pre-start bundle only",
+  "derivation_manifest_id": "repo_arc_cartography_derivation_manifest_66b9c68218afc5fda3488223",
+  "derived_row_records": [
+    {
+      "claim_horizon": "closeout_evidence",
+      "derivation_posture": "derived",
+      "derived_ref": "derived:branch:V43-connected-conditional",
+      "derived_row_kind": "branch_row",
+      "limitation_note": "V43 remains represented as the connected conditional branch carried by V68-A.",
+      "source_refs": [
+        "apps/api/fixtures/repo_description/vnext_plus188/repo_arc_series_cartography_v188_reference.json",
+        "docs/ASSESSMENT_vNEXT_PLUS188_EDGES.md",
+        "docs/DRAFT_STOP_GATE_DECISION_vNEXT_PLUS188.md"
+      ],
+      "target_namespace_kind": "family_id",
+      "target_ref": "family:V43"
+    },
+    {
+      "claim_horizon": "closeout_evidence",
+      "derivation_posture": "derived",
+      "derived_ref": "derived:closeout:V68-A",
+      "derived_row_kind": "family_row",
+      "limitation_note": "V68-A closure is derived from post-closeout evidence on main.",
+      "source_refs": [
+        "artifacts/agent_harness/v188/evidence_inputs/v68a_arc_series_cartography_evidence_v188.json",
+        "docs/ASSESSMENT_vNEXT_PLUS188_EDGES.md",
+        "docs/DRAFT_STOP_GATE_DECISION_vNEXT_PLUS188.md"
+      ],
+      "target_namespace_kind": "family_slice_id",
+      "target_ref": "family:V68-A"
+    },
+    {
+      "claim_horizon": "review_pending",
+      "derivation_posture": "review_required",
+      "derived_ref": "derived:coordinate_absence:V68-B",
+      "derived_row_kind": "coordinate_plan_row",
+      "limitation_note": "Coordinate emission remains absent until V68-C hardening.",
+      "source_refs": [
+        "docs/ASSESSMENT_vNEXT_PLUS189_EDGES.md"
+      ],
+      "target_namespace_kind": "evidence_arc_id",
+      "target_ref": "coordinate:V68-B"
+    },
+    {
+      "claim_horizon": "planning_candidate",
+      "derivation_posture": "manual_seeded",
+      "derived_ref": "derived:family:V68-B",
+      "derived_row_kind": "family_row",
+      "limitation_note": "V68-B is selected as a starter candidate but not yet closed.",
+      "source_refs": [
+        "docs/DRAFT_NEXT_ARC_OPTIONS_v54.md",
+        "docs/LOCKED_CONTINUATION_vNEXT_PLUS189.md"
+      ],
+      "target_namespace_kind": "family_slice_id",
+      "target_ref": "family:V68-B"
+    }
+  ],
+  "limitation_note": "Descriptive derivation support only; later action requires separate planning and lock.",
+  "observed_input_rows": [
+    {
+      "content_presence": "present",
+      "limitation_note": "Observed as a concrete V68-B derivation input.",
+      "observed_for_patterns": [
+        "apps/api/fixtures/repo_description/vnext_plus188/repo_arc_series_cartography_v188_reference.json"
+      ],
+      "source_kind": "fixture_file",
+      "source_ref": "apps/api/fixtures/repo_description/vnext_plus188/repo_arc_series_cartography_v188_reference.json"
+    },
+    {
+      "content_presence": "present",
+      "limitation_note": "Observed as a concrete V68-B derivation input.",
+      "observed_for_patterns": [
+        "artifacts/agent_harness/v188/evidence_inputs/v68a_arc_series_cartography_evidence_v188.json"
+      ],
+      "source_kind": "evidence_artifact",
+      "source_ref": "artifacts/agent_harness/v188/evidence_inputs/v68a_arc_series_cartography_evidence_v188.json"
+    },
+    {
+      "content_presence": "present",
+      "limitation_note": "Observed as a concrete V68-B derivation input.",
+      "observed_for_patterns": [
+        "docs/ARCHITECTURE_ADEU_ARC_SERIES_CARTOGRAPHY_FAMILY_v0.md"
+      ],
+      "source_kind": "architecture_doc",
+      "source_ref": "docs/ARCHITECTURE_ADEU_ARC_SERIES_CARTOGRAPHY_FAMILY_v0.md"
+    },
+    {
+      "content_presence": "present",
+      "limitation_note": "Observed as a concrete V68-B derivation input.",
+      "observed_for_patterns": [
+        "docs/ASSESSMENT_vNEXT_PLUS188_EDGES.md"
+      ],
+      "source_kind": "assessment_doc",
+      "source_ref": "docs/ASSESSMENT_vNEXT_PLUS188_EDGES.md"
+    },
+    {
+      "content_presence": "present",
+      "limitation_note": "Observed as a concrete V68-B derivation input.",
+      "observed_for_patterns": [
+        "docs/ASSESSMENT_vNEXT_PLUS189_EDGES.md"
+      ],
+      "source_kind": "assessment_doc",
+      "source_ref": "docs/ASSESSMENT_vNEXT_PLUS189_EDGES.md"
+    },
+    {
+      "content_presence": "present",
+      "limitation_note": "Observed as a concrete V68-B derivation input.",
+      "observed_for_patterns": [
+        "docs/DRAFT_ADEU_ARC_SERIES_CARTOGRAPHY_V68B_IMPLEMENTATION_MAPPING_v0.md"
+      ],
+      "source_kind": "generated_view",
+      "source_ref": "docs/DRAFT_ADEU_ARC_SERIES_CARTOGRAPHY_V68B_IMPLEMENTATION_MAPPING_v0.md"
+    },
+    {
+      "content_presence": "present",
+      "limitation_note": "Observed as a concrete V68-B derivation input.",
+      "observed_for_patterns": [
+        "docs/DRAFT_NEXT_ARC_OPTIONS_v54.md"
+      ],
+      "source_kind": "planning_doc",
+      "source_ref": "docs/DRAFT_NEXT_ARC_OPTIONS_v54.md"
+    },
+    {
+      "content_presence": "present",
+      "limitation_note": "Observed as a concrete V68-B derivation input.",
+      "observed_for_patterns": [
+        "docs/DRAFT_STOP_GATE_DECISION_vNEXT_PLUS188.md"
+      ],
+      "source_kind": "decision_doc",
+      "source_ref": "docs/DRAFT_STOP_GATE_DECISION_vNEXT_PLUS188.md"
+    },
+    {
+      "content_presence": "present",
+      "limitation_note": "Observed as a concrete V68-B derivation input.",
+      "observed_for_patterns": [
+        "docs/DRAFT_STOP_GATE_DECISION_vNEXT_PLUS189.md"
+      ],
+      "source_kind": "decision_doc",
+      "source_ref": "docs/DRAFT_STOP_GATE_DECISION_vNEXT_PLUS189.md"
+    },
+    {
+      "content_presence": "present",
+      "limitation_note": "Observed as a concrete V68-B derivation input.",
+      "observed_for_patterns": [
+        "docs/LOCKED_CONTINUATION_vNEXT_PLUS188.md"
+      ],
+      "source_kind": "lock_doc",
+      "source_ref": "docs/LOCKED_CONTINUATION_vNEXT_PLUS188.md"
+    },
+    {
+      "content_presence": "present",
+      "limitation_note": "Observed as a concrete V68-B derivation input.",
+      "observed_for_patterns": [
+        "docs/LOCKED_CONTINUATION_vNEXT_PLUS189.md"
+      ],
+      "source_kind": "lock_doc",
+      "source_ref": "docs/LOCKED_CONTINUATION_vNEXT_PLUS189.md"
+    },
+    {
+      "content_presence": "present",
+      "limitation_note": "Observed as a concrete V68-B derivation input.",
+      "observed_for_patterns": [
+        "packages/adeu_repo_description/schema/repo_arc_series_cartography.v1.json"
+      ],
+      "source_kind": "schema_file",
+      "source_ref": "packages/adeu_repo_description/schema/repo_arc_series_cartography.v1.json"
+    },
+    {
+      "content_presence": "present",
+      "limitation_note": "Observed as a concrete V68-B derivation input.",
+      "observed_for_patterns": [
+        "spec/repo_arc_series_cartography.schema.json"
+      ],
+      "source_kind": "schema_file",
+      "source_ref": "spec/repo_arc_series_cartography.schema.json"
+    }
+  ],
+  "scanned_source_patterns": [
+    "apps/api/fixtures/repo_description/vnext_plus188/repo_arc_series_cartography_v188_reference.json",
+    "artifacts/agent_harness/v188/evidence_inputs/v68a_arc_series_cartography_evidence_v188.json",
+    "docs/ARCHITECTURE_ADEU_ARC_SERIES_CARTOGRAPHY_FAMILY_v0.md",
+    "docs/ASSESSMENT_vNEXT_PLUS188_EDGES.md",
+    "docs/ASSESSMENT_vNEXT_PLUS189_EDGES.md",
+    "docs/DRAFT_ADEU_ARC_SERIES_CARTOGRAPHY_V68B_IMPLEMENTATION_MAPPING_v0.md",
+    "docs/DRAFT_NEXT_ARC_OPTIONS_v54.md",
+    "docs/DRAFT_STOP_GATE_DECISION_vNEXT_PLUS188.md",
+    "docs/DRAFT_STOP_GATE_DECISION_vNEXT_PLUS189.md",
+    "docs/LOCKED_CONTINUATION_vNEXT_PLUS188.md",
+    "docs/LOCKED_CONTINUATION_vNEXT_PLUS189.md",
+    "packages/adeu_repo_description/schema/repo_arc_series_cartography.v1.json",
+    "spec/repo_arc_series_cartography.schema.json"
+  ],
+  "schema": "repo_arc_cartography_derivation_manifest@1",
+  "snapshot_id": "vNext+189-prestart-on-main"
+}

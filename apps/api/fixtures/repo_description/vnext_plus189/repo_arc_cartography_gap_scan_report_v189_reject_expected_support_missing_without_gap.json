@@ -1,0 +1,53 @@
+{
+  "cartography_id": "repo_arc_series_cartography_v68b_current_derivation_seed",
+  "coordinate_posture": "coordinate_absent_deliberate",
+  "derivation_manifest_id": "repo_arc_cartography_derivation_manifest_66b9c68218afc5fda3488223",
+  "expected_missing_support_refs": [
+    "docs/support/arc_series_mapping/MISSING_REVIEW.md"
+  ],
+  "gap_rows": [
+    {
+      "claim_horizon": "review_pending",
+      "gap_family": "coordinate_posture_absent",
+      "gap_id": "gap:coordinate_posture_absent:V68-B",
+      "limitation_note": "V68-B may expose absence but does not emit recursive coordinates.",
+      "recommended_next_action": "Record coordinate absence until V68-C selects an emission posture.",
+      "severity": "needs_review",
+      "source_refs": [
+        "docs/ASSESSMENT_vNEXT_PLUS189_EDGES.md"
+      ],
+      "target_namespace_kind": "evidence_arc_id",
+      "target_ref": "coordinate:V68-B"
+    },
+    {
+      "claim_horizon": "descriptive_support",
+      "gap_family": "review_required_ambiguous_derivation",
+      "gap_id": "gap:review_required_ambiguous_derivation:historical_fullness",
+      "limitation_note": "Truthful partial coverage is preferred over fake whole-history completeness.",
+      "recommended_next_action": "Keep the first derived map partial until additional historical rows are reviewed.",
+      "severity": "needs_review",
+      "source_refs": [
+        "docs/DRAFT_NEXT_ARC_OPTIONS_v54.md"
+      ],
+      "target_namespace_kind": "evidence_arc_id",
+      "target_ref": "coverage:full_arc_history"
+    },
+    {
+      "claim_horizon": "future_deferred",
+      "gap_family": "tool_applicability_unassessed",
+      "gap_id": "gap:tool_applicability_unassessed:V68-C",
+      "limitation_note": "V68-B describes this gap but does not run the V68-C tool evidence lane.",
+      "recommended_next_action": "Carry tool applicability hardening forward as a V68-C review item.",
+      "severity": "advisory",
+      "source_refs": [
+        "docs/DRAFT_ADEU_ARC_SERIES_CARTOGRAPHY_V68B_IMPLEMENTATION_MAPPING_v0.md"
+      ],
+      "target_namespace_kind": "family_slice_id",
+      "target_ref": "family:V68-C"
+    }
+  ],
+  "gap_scan_report_id": "repo_arc_cartography_gap_scan_report_4d8a329e71e924bb5f254e0e",
+  "limitation_note": "Descriptive gap scan only; gap rows do not carry scheduling or delivery authority.",
+  "schema": "repo_arc_cartography_gap_scan_report@1",
+  "snapshot_id": "vNext+189-prestart-on-main"
+}

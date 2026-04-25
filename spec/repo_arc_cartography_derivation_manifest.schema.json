@@ -1,0 +1,221 @@
+{
+  "$defs": {
+    "RepoArcCartographyDerivedRowRecord": {
+      "additionalProperties": false,
+      "properties": {
+        "claim_horizon": {
+          "enum": [
+            "descriptive_support",
+            "planning_candidate",
+            "architecture_decomposition",
+            "lock_authorized",
+            "closeout_evidence",
+            "released_schema_or_runtime",
+            "future_deferred",
+            "review_pending"
+          ],
+          "title": "Claim Horizon",
+          "type": "string"
+        },
+        "derivation_posture": {
+          "enum": [
+            "derived",
+            "manual_seeded",
+            "review_required",
+            "not_observed",
+            "ambiguous"
+          ],
+          "title": "Derivation Posture",
+          "type": "string"
+        },
+        "derived_ref": {
+          "title": "Derived Ref",
+          "type": "string"
+        },
+        "derived_row_kind": {
+          "enum": [
+            "source_row",
+            "namespace_row",
+            "family_row",
+            "branch_row",
+            "support_lineage_row",
+            "evidence_surface_row",
+            "tool_applicability_row",
+            "coordinate_plan_row",
+            "gap_row"
+          ],
+          "title": "Derived Row Kind",
+          "type": "string"
+        },
+        "limitation_note": {
+          "title": "Limitation Note",
+          "type": "string"
+        },
+        "source_refs": {
+          "items": {
+            "type": "string"
+          },
+          "title": "Source Refs",
+          "type": "array"
+        },
+        "target_namespace_kind": {
+          "enum": [
+            "selector_version",
+            "family_id",
+            "family_slice_id",
+            "implementation_arc_id",
+            "closeout_arc_id",
+            "evidence_arc_id",
+            "branch_local_execution_target",
+            "planning_doc_ref",
+            "lock_doc_ref",
+            "decision_doc_ref",
+            "assessment_doc_ref",
+            "architecture_doc_ref",
+            "support_doc_ref",
+            "schema_id",
+            "fixture_dir_ref",
+            "evidence_input_ref",
+            "stop_gate_ref"
+          ],
+          "title": "Target Namespace Kind",
+          "type": "string"
+        },
+        "target_ref": {
+          "title": "Target Ref",
+          "type": "string"
+        }
+      },
+      "required": [
+        "derived_ref",
+        "derived_row_kind",
+        "target_ref",
+        "target_namespace_kind",
+        "derivation_posture",
+        "claim_horizon",
+        "limitation_note"
+      ],
+      "title": "RepoArcCartographyDerivedRowRecord",
+      "type": "object"
+    },
+    "RepoArcCartographyObservedInputRow": {
+      "additionalProperties": false,
+      "properties": {
+        "content_presence": {
+          "enum": [
+            "present",
+            "missing_expected",
+            "stale_reference"
+          ],
+          "title": "Content Presence",
+          "type": "string"
+        },
+        "limitation_note": {
+          "title": "Limitation Note",
+          "type": "string"
+        },
+        "observed_for_patterns": {
+          "items": {
+            "type": "string"
+          },
+          "minItems": 1,
+          "title": "Observed For Patterns",
+          "type": "array"
+        },
+        "source_kind": {
+          "enum": [
+            "planning_doc",
+            "lock_doc",
+            "decision_doc",
+            "assessment_doc",
+            "architecture_doc",
+            "support_doc",
+            "review_input",
+            "schema_file",
+            "fixture_file",
+            "evidence_artifact",
+            "generated_view"
+          ],
+          "title": "Source Kind",
+          "type": "string"
+        },
+        "source_ref": {
+          "title": "Source Ref",
+          "type": "string"
+        }
+      },
+      "required": [
+        "source_ref",
+        "source_kind",
+        "observed_for_patterns",
+        "content_presence",
+        "limitation_note"
+      ],
+      "title": "RepoArcCartographyObservedInputRow",
+      "type": "object"
+    }
+  },
+  "additionalProperties": false,
+  "properties": {
+    "cartography_id": {
+      "title": "Cartography Id",
+      "type": "string"
+    },
+    "coverage_horizon": {
+      "title": "Coverage Horizon",
+      "type": "string"
+    },
+    "derivation_manifest_id": {
+      "title": "Derivation Manifest Id",
+      "type": "string"
+    },
+    "derived_row_records": {
+      "items": {
+        "$ref": "#/$defs/RepoArcCartographyDerivedRowRecord"
+      },
+      "title": "Derived Row Records",
+      "type": "array"
+    },
+    "limitation_note": {
+      "title": "Limitation Note",
+      "type": "string"
+    },
+    "observed_input_rows": {
+      "items": {
+        "$ref": "#/$defs/RepoArcCartographyObservedInputRow"
+      },
+      "minItems": 1,
+      "title": "Observed Input Rows",
+      "type": "array"
+    },
+    "scanned_source_patterns": {
+      "items": {
+        "type": "string"
+      },
+      "minItems": 1,
+      "title": "Scanned Source Patterns",
+      "type": "array"
+    },
+    "schema": {
+      "const": "repo_arc_cartography_derivation_manifest@1",
+      "default": "repo_arc_cartography_derivation_manifest@1",
+      "title": "Schema",
+      "type": "string"
+    },
+    "snapshot_id": {
+      "title": "Snapshot Id",
+      "type": "string"
+    }
+  },
+  "required": [
+    "derivation_manifest_id",
+    "cartography_id",
+    "snapshot_id",
+    "coverage_horizon",
+    "scanned_source_patterns",
+    "observed_input_rows",
+    "limitation_note"
+  ],
+  "title": "RepoArcCartographyDerivationManifest",
+  "type": "object"
+}

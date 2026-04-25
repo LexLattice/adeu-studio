@@ -1,0 +1,176 @@
+{
+  "$defs": {
+    "RepoArcCartographyGapRow": {
+      "additionalProperties": false,
+      "properties": {
+        "claim_horizon": {
+          "enum": [
+            "descriptive_support",
+            "planning_candidate",
+            "architecture_decomposition",
+            "lock_authorized",
+            "closeout_evidence",
+            "released_schema_or_runtime",
+            "future_deferred",
+            "review_pending"
+          ],
+          "title": "Claim Horizon",
+          "type": "string"
+        },
+        "gap_family": {
+          "enum": [
+            "namespace_kind_ambiguous",
+            "family_closure_posture_missing",
+            "slice_closure_posture_missing",
+            "source_status_missing",
+            "support_lineage_missing",
+            "evidence_surface_unindexed",
+            "branch_posture_missing",
+            "tool_applicability_unassessed",
+            "coordinate_posture_absent",
+            "expected_support_artifact_missing",
+            "source_ref_missing",
+            "source_ref_stale",
+            "authority_layer_mismatch",
+            "review_required_ambiguous_derivation"
+          ],
+          "title": "Gap Family",
+          "type": "string"
+        },
+        "gap_id": {
+          "title": "Gap Id",
+          "type": "string"
+        },
+        "limitation_note": {
+          "title": "Limitation Note",
+          "type": "string"
+        },
+        "recommended_next_action": {
+          "title": "Recommended Next Action",
+          "type": "string"
+        },
+        "severity": {
+          "enum": [
+            "blocking_for_cartography",
+            "needs_review",
+            "advisory"
+          ],
+          "title": "Severity",
+          "type": "string"
+        },
+        "source_refs": {
+          "items": {
+            "type": "string"
+          },
+          "title": "Source Refs",
+          "type": "array"
+        },
+        "target_namespace_kind": {
+          "enum": [
+            "selector_version",
+            "family_id",
+            "family_slice_id",
+            "implementation_arc_id",
+            "closeout_arc_id",
+            "evidence_arc_id",
+            "branch_local_execution_target",
+            "planning_doc_ref",
+            "lock_doc_ref",
+            "decision_doc_ref",
+            "assessment_doc_ref",
+            "architecture_doc_ref",
+            "support_doc_ref",
+            "schema_id",
+            "fixture_dir_ref",
+            "evidence_input_ref",
+            "stop_gate_ref"
+          ],
+          "title": "Target Namespace Kind",
+          "type": "string"
+        },
+        "target_ref": {
+          "title": "Target Ref",
+          "type": "string"
+        }
+      },
+      "required": [
+        "gap_id",
+        "gap_family",
+        "target_ref",
+        "target_namespace_kind",
+        "severity",
+        "claim_horizon",
+        "recommended_next_action",
+        "limitation_note"
+      ],
+      "title": "RepoArcCartographyGapRow",
+      "type": "object"
+    }
+  },
+  "additionalProperties": false,
+  "properties": {
+    "cartography_id": {
+      "title": "Cartography Id",
+      "type": "string"
+    },
+    "coordinate_posture": {
+      "enum": [
+        "coordinate_emitted",
+        "coordinate_absent_deliberate",
+        "coordinate_absent_tool_not_applicable",
+        "coordinate_absent_missing_source",
+        "coordinate_absent_review_required"
+      ],
+      "title": "Coordinate Posture",
+      "type": "string"
+    },
+    "derivation_manifest_id": {
+      "title": "Derivation Manifest Id",
+      "type": "string"
+    },
+    "expected_missing_support_refs": {
+      "items": {
+        "type": "string"
+      },
+      "title": "Expected Missing Support Refs",
+      "type": "array"
+    },
+    "gap_rows": {
+      "items": {
+        "$ref": "#/$defs/RepoArcCartographyGapRow"
+      },
+      "minItems": 1,
+      "title": "Gap Rows",
+      "type": "array"
+    },
+    "gap_scan_report_id": {
+      "title": "Gap Scan Report Id",
+      "type": "string"
+    },
+    "limitation_note": {
+      "title": "Limitation Note",
+      "type": "string"
+    },
+    "schema": {
+      "const": "repo_arc_cartography_gap_scan_report@1",
+      "default": "repo_arc_cartography_gap_scan_report@1",
+      "title": "Schema",
+      "type": "string"
+    },
+    "snapshot_id": {
+      "title": "Snapshot Id",
+      "type": "string"
+    }
+  },
+  "required": [
+    "gap_scan_report_id",
+    "derivation_manifest_id",
+    "cartography_id",
+    "snapshot_id",
+    "coordinate_posture",
+    "gap_rows",
+    "limitation_note"
+  ],
+  "title": "RepoArcCartographyGapScanReport",
+  "type": "object"
+}
