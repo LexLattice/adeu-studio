@@ -1,6 +1,6 @@
 # Draft ADEU ARC Series Cartography V68C Implementation Mapping v0
 
-Status: support note for the planned `V68-C` implementation pass.
+Status: support note for the now-closed `V68-C` implementation pass.
 
 Authority layer: support only.
 

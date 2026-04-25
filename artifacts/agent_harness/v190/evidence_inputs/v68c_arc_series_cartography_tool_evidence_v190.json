@@ -1,0 +1,56 @@
+{
+  "arc67_not_family_v67_proof": true,
+  "ci_checks": [
+    "python",
+    "web",
+    "lean-formal"
+  ],
+  "contract_source": "docs/LOCKED_CONTINUATION_vNEXT_PLUS190.md#machine-checkable-contract",
+  "coordinate_absence_explicit": true,
+  "coordinate_emitted_absence_contradiction_rejected": true,
+  "coordinate_posture": "coordinate_absent_deliberate",
+  "coordinate_rows_do_not_admit_conceptual_diff": true,
+  "coordinate_rows_do_not_authorize_future_families": true,
+  "evidence_input_path": "artifacts/agent_harness/v190/evidence_inputs/v68c_arc_series_cartography_tool_evidence_v190.json",
+  "failed_and_not_run_tools_explicit": true,
+  "future_v_family_targets_not_authorized": true,
+  "gap_resolution_postures": {
+    "gap:coordinate_posture_absent:V68-B": "open_carried_forward",
+    "gap:review_required_ambiguous_derivation:historical_fullness": "open_carried_forward",
+    "gap:tool_applicability_unassessed:V68-C": "lawfully_resolved"
+  },
+  "implementation_commit": "b40bfcecd2a7191f1c8a0995035b58f40b3a8e93",
+  "implementation_packages": [
+    "adeu_repo_description"
+  ],
+  "local_full_python_gate": "make check",
+  "merge_commit": "1162d896d1489339c86ba72989c8717a51aa3675",
+  "merged_at": "2026-04-25T02:06:49Z",
+  "merged_pr": "#417",
+  "metric_key_continuity_assertion_path": "artifacts/agent_harness/v190/evidence_inputs/metric_key_continuity_assertion_v190.json",
+  "notes": "v190 evidence pins the bounded V68-C closeout seam on main: tool-run evidence records applicable, namespace-limited, failed, and not-run rows; coordinate absence is deliberate; unresolved V68-B historical/fullness gaps remain open-carried-forward; and V68-C does not authorize V69 or any later recursive lifecycle family.",
+  "package_export_surface_path": "packages/adeu_repo_description/src/adeu_repo_description/__init__.py",
+  "review_hardening_commit": "f02f1e857ebeb8675c203d3cde77176e9f7a3da4",
+  "runtime_event_stream_path": "artifacts/agent_harness/v190/runtime/evidence/local/urm_events.ndjson",
+  "runtime_observability_comparison_path": "artifacts/agent_harness/v190/evidence_inputs/runtime_observability_comparison_v190.json",
+  "schema": "v68c_arc_series_cartography_tool_evidence@1",
+  "schema_export_source_path": "packages/adeu_repo_description/src/adeu_repo_description/export_schema.py",
+  "selected_candidate_intake_for_v68c": false,
+  "selected_conceptual_diff_schema_adoption_for_v68c": false,
+  "selected_dispatch_or_execution_widening_for_v68c": false,
+  "selected_product_workbench_for_v68c": false,
+  "selected_ratification_or_release_authority_for_v68c": false,
+  "selected_record_shapes": [
+    "repo_arc_cartography_tool_run_evidence@1"
+  ],
+  "selected_tool_evidence_source_path": "packages/adeu_repo_description/src/adeu_repo_description/arc_series_cartography_tools.py",
+  "starter_bundle_commit": "083fef6d80f885e2c8cd42e0907b1f0753cd386e",
+  "support_docs_cannot_become_closeout_evidence_through_tools": true,
+  "test_reference_path": "packages/adeu_repo_description/tests/test_arc_series_cartography_v68c.py",
+  "tool_run_evidence_authoritative_schema_path": "packages/adeu_repo_description/schema/repo_arc_cartography_tool_run_evidence.v1.json",
+  "tool_run_evidence_id": "repo_arc_cartography_tool_run_evidence_07609194b70ee3bef18c610d",
+  "tool_run_evidence_mirror_schema_path": "spec/repo_arc_cartography_tool_run_evidence.schema.json",
+  "tool_run_evidence_reference_fixture_path": "apps/api/fixtures/repo_description/vnext_plus190/repo_arc_cartography_tool_run_evidence_v190_reference.json",
+  "tool_success_not_global_proof": true,
+  "v68b_gaps_not_silently_dropped": true
+}

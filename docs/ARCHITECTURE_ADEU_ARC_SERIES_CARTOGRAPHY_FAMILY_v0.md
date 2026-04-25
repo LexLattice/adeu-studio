@@ -1,6 +1,7 @@
 # Architecture ADEU ARC Series Cartography Family v0
 
-Status: architecture / decomposition record for planned `V68`.
+Status: architecture / decomposition record for `V68`, closed on `main` after
+`vNext+190`.
 
 Authority layer: architecture / decomposition.
 
@@ -313,3 +314,18 @@ Does not own future-family execution.
 - branch posture is not selection;
 - product projection is not product authorization;
 - recursive-coordinate emission is not recursive candidate admission.
+
+## 11. Closeout Status
+
+`V68` is closed on `main` after the `V68-A`, `V68-B`, and `V68-C` slice ladder:
+
+- `V68-A` / `vNext+188`: schema/model/validator and reference/reject fixtures;
+- `V68-B` / `vNext+189`: deterministic derivation manifest and gap-scan report;
+- `V68-C` / `vNext+190`: tool-run evidence, tool-applicability hardening, and
+  coordinate-posture support.
+
+The closing family record is
+`docs/DRAFT_ADEU_ARC_SERIES_CARTOGRAPHY_V68_FAMILY_CLOSEOUT_v0.md`.
+
+This status update is architectural/decomposition evidence only. It does not
+authorize `V69` or any later lifecycle family.

@@ -1,0 +1,63 @@
+{
+  "architecture_doc_path": "docs/ARCHITECTURE_ADEU_ARC_SERIES_CARTOGRAPHY_FAMILY_v0.md",
+  "closed_by_arc": "vNext+190",
+  "closed_by_merge_commit": "1162d896d1489339c86ba72989c8717a51aa3675",
+  "connected_conditional_branches": [
+    "V43"
+  ],
+  "deferred_future_families": [
+    "V69",
+    "V70",
+    "V71",
+    "V72",
+    "V73",
+    "V74",
+    "V75"
+  ],
+  "family": "V68",
+  "family_closeout_doc_path": "docs/DRAFT_ADEU_ARC_SERIES_CARTOGRAPHY_V68_FAMILY_CLOSEOUT_v0.md",
+  "family_status": "closed_on_main",
+  "instantiated_surfaces": [
+    "repo_arc_series_cartography@1",
+    "repo_arc_namespace_map@1",
+    "repo_family_closure_register@1",
+    "repo_branch_posture_register@1",
+    "repo_support_lineage_register@1",
+    "repo_evidence_surface_index@1",
+    "repo_arc_mapping_tool_applicability_report@1",
+    "repo_recursive_coordinate_emission_plan@1",
+    "repo_arc_cartography_derivation_manifest@1",
+    "repo_arc_cartography_gap_scan_report@1",
+    "repo_arc_cartography_tool_run_evidence@1"
+  ],
+  "next_selector_doc_path": "docs/DRAFT_NEXT_ARC_OPTIONS_v56.md",
+  "non_authority_guardrail": "V68 closure records cartography-family completion only; it does not authorize V69 candidate intake, V70 review classification, V71 ratification, V72 integration, V73 outcome review, V74 product projection, or V75 dispatch widening.",
+  "notes": "V68 is closed as a descriptive repo ARC series cartography family after A/B/C alignment. Remaining lifecycle families are mapped hypotheses for later planning and lock surfaces, not implementation authority from this closeout.",
+  "schema": "v68_family_closeout_alignment@1",
+  "slice_closeouts": [
+    {
+      "arc": "vNext+188",
+      "assessment_doc_path": "docs/ASSESSMENT_vNEXT_PLUS188_EDGES.md",
+      "decision_doc_path": "docs/DRAFT_STOP_GATE_DECISION_vNEXT_PLUS188.md",
+      "evidence_input_path": "artifacts/agent_harness/v188/evidence_inputs/v68a_arc_series_cartography_evidence_v188.json",
+      "slice": "V68-A",
+      "status": "closed_on_main"
+    },
+    {
+      "arc": "vNext+189",
+      "assessment_doc_path": "docs/ASSESSMENT_vNEXT_PLUS189_EDGES.md",
+      "decision_doc_path": "docs/DRAFT_STOP_GATE_DECISION_vNEXT_PLUS189.md",
+      "evidence_input_path": "artifacts/agent_harness/v189/evidence_inputs/v68b_arc_series_cartography_derivation_evidence_v189.json",
+      "slice": "V68-B",
+      "status": "closed_on_main"
+    },
+    {
+      "arc": "vNext+190",
+      "assessment_doc_path": "docs/ASSESSMENT_vNEXT_PLUS190_EDGES.md",
+      "decision_doc_path": "docs/DRAFT_STOP_GATE_DECISION_vNEXT_PLUS190.md",
+      "evidence_input_path": "artifacts/agent_harness/v190/evidence_inputs/v68c_arc_series_cartography_tool_evidence_v190.json",
+      "slice": "V68-C",
+      "status": "closed_on_main"
+    }
+  ]
+}
