@@ -17,6 +17,10 @@ from .arc_series_cartography import (
     RepoRecursiveCoordinateEmissionPlan,
     RepoSupportLineageRegister,
 )
+from .arc_series_cartography_derivation import (
+    RepoArcCartographyDerivationManifest,
+    RepoArcCartographyGapScanReport,
+)
 from .models import (
     RepoArcDependencyRegister,
     RepoArcDependencyRegisterV1,
@@ -102,6 +106,12 @@ def main() -> None:
     coordinate_emission_plan_schema = RepoRecursiveCoordinateEmissionPlan.model_json_schema(
         by_alias=True
     )
+    cartography_derivation_manifest_schema = (
+        RepoArcCartographyDerivationManifest.model_json_schema(by_alias=True)
+    )
+    cartography_gap_scan_report_schema = RepoArcCartographyGapScanReport.model_json_schema(
+        by_alias=True
+    )
 
     _assert_no_absolute_path_material(dependency_register_v1_schema, repo_root_path=root)
     _assert_no_absolute_path_material(dependency_register_schema, repo_root_path=root)
@@ -120,6 +130,8 @@ def main() -> None:
     _assert_no_absolute_path_material(evidence_surface_index_schema, repo_root_path=root)
     _assert_no_absolute_path_material(tool_applicability_report_schema, repo_root_path=root)
     _assert_no_absolute_path_material(coordinate_emission_plan_schema, repo_root_path=root)
+    _assert_no_absolute_path_material(cartography_derivation_manifest_schema, repo_root_path=root)
+    _assert_no_absolute_path_material(cartography_gap_scan_report_schema, repo_root_path=root)
 
     _write_schema(
         root
@@ -300,6 +312,30 @@ def main() -> None:
     _write_schema(
         root / "spec" / "repo_recursive_coordinate_emission_plan.schema.json",
         coordinate_emission_plan_schema,
+    )
+    _write_schema(
+        root
+        / "packages"
+        / "adeu_repo_description"
+        / "schema"
+        / "repo_arc_cartography_derivation_manifest.v1.json",
+        cartography_derivation_manifest_schema,
+    )
+    _write_schema(
+        root / "spec" / "repo_arc_cartography_derivation_manifest.schema.json",
+        cartography_derivation_manifest_schema,
+    )
+    _write_schema(
+        root
+        / "packages"
+        / "adeu_repo_description"
+        / "schema"
+        / "repo_arc_cartography_gap_scan_report.v1.json",
+        cartography_gap_scan_report_schema,
+    )
+    _write_schema(
+        root / "spec" / "repo_arc_cartography_gap_scan_report.schema.json",
+        cartography_gap_scan_report_schema,
     )
 
 
