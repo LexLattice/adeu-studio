@@ -16,6 +16,7 @@ from adeu_repo_description import (
     derive_v69c_repo_candidate_intake_handoff_bundle,
 )
 from jsonschema import Draft202012Validator
+from jsonschema.exceptions import ValidationError as JsonSchemaValidationError
 from pydantic import ValidationError
 
 
@@ -99,6 +100,15 @@ def test_v193_exported_schemas_accept_reference_fixtures() -> None:
     _schema_validator("repo_candidate_intake_pre_v70_handoff.v1.json").validate(
         _load_v193("repo_candidate_intake_pre_v70_handoff_v193_reference.json")
     )
+
+
+def test_v193_exported_handoff_schema_rejects_direct_later_family_target() -> None:
+    validator = _schema_validator("repo_candidate_intake_pre_v70_handoff.v1.json")
+
+    with pytest.raises(JsonSchemaValidationError, match="is not one of"):
+        validator.validate(
+            _load_v193("repo_candidate_intake_v193_reject_direct_later_family_handoff.json")
+        )
 
 
 def test_v193_derivation_helper_matches_reference_fixtures() -> None:
@@ -188,11 +198,11 @@ def test_v193_rejects_invalid_residue_report_fixtures(fixture_name: str, match: 
         ),
         (
             "repo_candidate_intake_v193_reject_direct_later_family_handoff.json",
-            "handoff target",
+            "Input should be",
         ),
         (
             "repo_candidate_intake_v193_reject_product_wedge_selects_v74.json",
-            "handoff target",
+            "Input should be",
         ),
     ],
 )

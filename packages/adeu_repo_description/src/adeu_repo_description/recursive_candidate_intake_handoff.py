@@ -233,10 +233,11 @@ class RepoOperatorIngressCandidateBinding(_CartographyBase):
         )
         known_candidates = _candidate_ref_set(self.candidate_refs)
         source_rows_by_ref = {row.source_ref: row for row in self.source_rows}
+        known_source_refs = set(source_rows_by_ref)
         for row in self.binding_rows:
             if row.candidate_ref not in known_candidates:
                 raise ValueError("operator binding candidate_ref must reference known candidates")
-            missing_sources = sorted(set(row.source_refs) - set(source_rows_by_ref))
+            missing_sources = sorted(set(row.source_refs) - known_source_refs)
             if missing_sources:
                 raise ValueError(
                     "operator binding source_refs must reference source register rows: "
@@ -380,7 +381,7 @@ class RepoCandidateIntakePreV70HandoffRow(_CartographyBase):
     handoff_ref: str
     candidate_ref: str
     candidate_origin_class: CandidateOriginClass
-    handoff_target: str
+    handoff_target: PreV70HandoffTarget
     eventual_family_hint: EventualFamilyHint
     handoff_reason: str
     evidence_needed: list[str] = Field(default_factory=list)
@@ -428,14 +429,6 @@ class RepoCandidateIntakePreV70HandoffRow(_CartographyBase):
                 field_name="non_authority_guardrail",
             ),
         )
-        allowed_targets: set[str] = {
-            "v70_evidence_classification",
-            "v70_adversarial_review",
-            "future_family_review",
-            "deferred_no_review_selected",
-        }
-        if self.handoff_target not in allowed_targets:
-            raise ValueError("handoff target must not jump directly to later families")
         if self.handoff_target == "v70_evidence_classification" and not self.evidence_needed:
             raise ValueError("v70_evidence_classification handoff requires evidence_needed")
         if self.candidate_origin_class == "model_output" and not self.adversarial_review_needed:

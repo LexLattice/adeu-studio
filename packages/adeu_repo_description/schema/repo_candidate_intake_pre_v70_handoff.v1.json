@@ -54,6 +54,12 @@
           "type": "string"
         },
         "handoff_target": {
+          "enum": [
+            "v70_evidence_classification",
+            "v70_adversarial_review",
+            "future_family_review",
+            "deferred_no_review_selected"
+          ],
           "title": "Handoff Target",
           "type": "string"
         },

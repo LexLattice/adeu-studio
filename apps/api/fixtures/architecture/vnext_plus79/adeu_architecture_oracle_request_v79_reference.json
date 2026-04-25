@@ -14,7 +14,7 @@
   "policy_source_hashes": [
     {
       "path": "AGENTS.md",
-      "sha256": "0837d6eb36c612297e23d0e3f4e6ae032c4263b0864265a5ca5ae4ab2567e909"
+      "sha256": "5b5ebd3f68f63fc066c12d383e21b0aa3d76cd005bacbae0119c98654f6e2cb4"
     },
     {
       "path": "docs/ARCHITECTURE_ADEU_ARCHITECTURE_IR_v0.md",
@@ -44,7 +44,7 @@
     "policy_source_hashes": [
       {
         "path": "AGENTS.md",
-        "sha256": "0837d6eb36c612297e23d0e3f4e6ae032c4263b0864265a5ca5ae4ab2567e909"
+        "sha256": "5b5ebd3f68f63fc066c12d383e21b0aa3d76cd005bacbae0119c98654f6e2cb4"
       },
       {
         "path": "docs/ARCHITECTURE_ADEU_ARCHITECTURE_IR_v0.md",
@@ -63,7 +63,7 @@
     "reasoning_effort": "high",
     "semantic_hash": "ad8898738f3ac53a822aadc2d2f8905374bd7a68ba49584ff0acf2c464594e6a"
   },
-  "request_id": "v40c_v79_oracle_request_070f4e83b5bd51de",
+  "request_id": "v40c_v79_oracle_request_e2112455a85ce7cd",
   "schema": "adeu_architecture_oracle_request@1",
   "semantic_hash": "ad8898738f3ac53a822aadc2d2f8905374bd7a68ba49584ff0acf2c464594e6a"
 }
