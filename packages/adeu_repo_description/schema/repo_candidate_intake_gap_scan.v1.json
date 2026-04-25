@@ -1,0 +1,153 @@
+{
+  "$defs": {
+    "RepoCandidateIntakeGapRow": {
+      "additionalProperties": false,
+      "properties": {
+        "gap_kind": {
+          "enum": [
+            "expected_support_artifact_missing",
+            "source_ref_missing",
+            "source_presence_mismatch",
+            "authority_layer_ambiguous",
+            "origin_class_ambiguous",
+            "odeu_lane_ambiguous",
+            "v68_cartography_source_unmapped",
+            "duplicate_without_equivalence",
+            "candidate_without_guardrail",
+            "candidate_overclaims_authority",
+            "required_next_review_missing",
+            "stale_candidate_source",
+            "derivation_rule_inconclusive"
+          ],
+          "title": "Gap Kind",
+          "type": "string"
+        },
+        "gap_ref": {
+          "title": "Gap Ref",
+          "type": "string"
+        },
+        "limitation_note": {
+          "title": "Limitation Note",
+          "type": "string"
+        },
+        "recommended_next_surface": {
+          "enum": [
+            "v70_evidence_classification",
+            "v70_adversarial_review",
+            "future_family_review",
+            "none_yet_deferred"
+          ],
+          "title": "Recommended Next Surface",
+          "type": "string"
+        },
+        "severity": {
+          "enum": [
+            "info",
+            "warning",
+            "blocking"
+          ],
+          "title": "Severity",
+          "type": "string"
+        },
+        "source_refs": {
+          "items": {
+            "type": "string"
+          },
+          "title": "Source Refs",
+          "type": "array"
+        },
+        "target_candidate_ref": {
+          "title": "Target Candidate Ref",
+          "type": "string"
+        }
+      },
+      "required": [
+        "gap_ref",
+        "gap_kind",
+        "target_candidate_ref",
+        "severity",
+        "recommended_next_surface",
+        "limitation_note"
+      ],
+      "title": "RepoCandidateIntakeGapRow",
+      "type": "object"
+    }
+  },
+  "additionalProperties": false,
+  "properties": {
+    "derivation_manifest_id": {
+      "title": "Derivation Manifest Id",
+      "type": "string"
+    },
+    "expected_missing_support_refs": {
+      "items": {
+        "type": "string"
+      },
+      "title": "Expected Missing Support Refs",
+      "type": "array"
+    },
+    "expected_overclaim_candidate_refs": {
+      "items": {
+        "type": "string"
+      },
+      "title": "Expected Overclaim Candidate Refs",
+      "type": "array"
+    },
+    "expected_v68_unmapped_source_refs": {
+      "items": {
+        "type": "string"
+      },
+      "title": "Expected V68 Unmapped Source Refs",
+      "type": "array"
+    },
+    "gap_rows": {
+      "items": {
+        "$ref": "#/$defs/RepoCandidateIntakeGapRow"
+      },
+      "minItems": 1,
+      "title": "Gap Rows",
+      "type": "array"
+    },
+    "gap_scan_id": {
+      "title": "Gap Scan Id",
+      "type": "string"
+    },
+    "intake_id": {
+      "title": "Intake Id",
+      "type": "string"
+    },
+    "limitation_note": {
+      "title": "Limitation Note",
+      "type": "string"
+    },
+    "observed_source_refs": {
+      "items": {
+        "type": "string"
+      },
+      "minItems": 1,
+      "title": "Observed Source Refs",
+      "type": "array"
+    },
+    "schema": {
+      "const": "repo_candidate_intake_gap_scan@1",
+      "default": "repo_candidate_intake_gap_scan@1",
+      "title": "Schema",
+      "type": "string"
+    },
+    "snapshot_id": {
+      "title": "Snapshot Id",
+      "type": "string"
+    }
+  },
+  "required": [
+    "gap_scan_id",
+    "derivation_manifest_id",
+    "intake_id",
+    "snapshot_id",
+    "observed_source_refs",
+    "gap_rows",
+    "limitation_note"
+  ],
+  "title": "RepoCandidateIntakeGapScan",
+  "type": "object"
+}
