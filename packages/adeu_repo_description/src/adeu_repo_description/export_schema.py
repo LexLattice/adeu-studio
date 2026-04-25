@@ -42,6 +42,11 @@ from .recursive_candidate_intake_derivation import (
     RepoCandidateIntakeDerivationManifest,
     RepoCandidateIntakeGapScan,
 )
+from .recursive_candidate_intake_handoff import (
+    RepoCandidateIntakePreV70Handoff,
+    RepoOperatorIngressCandidateBinding,
+    RepoRecursiveWorkflowResidueIntakeReport,
+)
 
 _WINDOWS_ABSOLUTE_PATH_RE = re.compile(r"[A-Za-z]:\\")
 
@@ -136,6 +141,15 @@ def main() -> None:
         RepoCandidateIntakeDerivationManifest.model_json_schema(by_alias=True)
     )
     candidate_intake_gap_scan_schema = RepoCandidateIntakeGapScan.model_json_schema(by_alias=True)
+    operator_ingress_candidate_binding_schema = (
+        RepoOperatorIngressCandidateBinding.model_json_schema(by_alias=True)
+    )
+    recursive_workflow_residue_intake_report_schema = (
+        RepoRecursiveWorkflowResidueIntakeReport.model_json_schema(by_alias=True)
+    )
+    candidate_intake_pre_v70_handoff_schema = (
+        RepoCandidateIntakePreV70Handoff.model_json_schema(by_alias=True)
+    )
 
     _assert_no_absolute_path_material(dependency_register_v1_schema, repo_root_path=root)
     _assert_no_absolute_path_material(dependency_register_schema, repo_root_path=root)
@@ -164,6 +178,13 @@ def main() -> None:
         candidate_intake_derivation_manifest_schema, repo_root_path=root
     )
     _assert_no_absolute_path_material(candidate_intake_gap_scan_schema, repo_root_path=root)
+    _assert_no_absolute_path_material(
+        operator_ingress_candidate_binding_schema, repo_root_path=root
+    )
+    _assert_no_absolute_path_material(
+        recursive_workflow_residue_intake_report_schema, repo_root_path=root
+    )
+    _assert_no_absolute_path_material(candidate_intake_pre_v70_handoff_schema, repo_root_path=root)
 
     _write_schema(
         root
@@ -440,6 +461,42 @@ def main() -> None:
     _write_schema(
         root / "spec" / "repo_candidate_intake_gap_scan.schema.json",
         candidate_intake_gap_scan_schema,
+    )
+    _write_schema(
+        root
+        / "packages"
+        / "adeu_repo_description"
+        / "schema"
+        / "repo_operator_ingress_candidate_binding.v1.json",
+        operator_ingress_candidate_binding_schema,
+    )
+    _write_schema(
+        root / "spec" / "repo_operator_ingress_candidate_binding.schema.json",
+        operator_ingress_candidate_binding_schema,
+    )
+    _write_schema(
+        root
+        / "packages"
+        / "adeu_repo_description"
+        / "schema"
+        / "repo_recursive_workflow_residue_intake_report.v1.json",
+        recursive_workflow_residue_intake_report_schema,
+    )
+    _write_schema(
+        root / "spec" / "repo_recursive_workflow_residue_intake_report.schema.json",
+        recursive_workflow_residue_intake_report_schema,
+    )
+    _write_schema(
+        root
+        / "packages"
+        / "adeu_repo_description"
+        / "schema"
+        / "repo_candidate_intake_pre_v70_handoff.v1.json",
+        candidate_intake_pre_v70_handoff_schema,
+    )
+    _write_schema(
+        root / "spec" / "repo_candidate_intake_pre_v70_handoff.schema.json",
+        candidate_intake_pre_v70_handoff_schema,
     )
 
 

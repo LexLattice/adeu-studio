@@ -1,0 +1,154 @@
+{
+  "$defs": {
+    "RepoRecursiveWorkflowResidueRow": {
+      "additionalProperties": false,
+      "properties": {
+        "emergent_candidate_refs": {
+          "items": {
+            "type": "string"
+          },
+          "minItems": 1,
+          "title": "Emergent Candidate Refs",
+          "type": "array"
+        },
+        "eventual_family_hint": {
+          "enum": [
+            "v71_ratification",
+            "v72_integration_review",
+            "v73_outcome_review",
+            "v74_operator_projection_review",
+            "v75_dispatch_review",
+            "v43_external_contest_branch",
+            "none"
+          ],
+          "title": "Eventual Family Hint",
+          "type": "string"
+        },
+        "limitation_note": {
+          "title": "Limitation Note",
+          "type": "string"
+        },
+        "non_self_validation_guardrail": {
+          "title": "Non Self Validation Guardrail",
+          "type": "string"
+        },
+        "required_next_review_surface": {
+          "enum": [
+            "v70_evidence_classification",
+            "v70_adversarial_review",
+            "future_family_review",
+            "none_yet_deferred"
+          ],
+          "title": "Required Next Review Surface",
+          "type": "string"
+        },
+        "residue_kind": {
+          "enum": [
+            "self_evidencing_workflow_type_emergence",
+            "support_schema_created_by_prior_reasoning",
+            "operator_cognition_changed_by_artifact",
+            "model_output_comparison_candidate",
+            "product_projection_candidate",
+            "tool_applicability_pressure"
+          ],
+          "title": "Residue Kind",
+          "type": "string"
+        },
+        "residue_ref": {
+          "title": "Residue Ref",
+          "type": "string"
+        },
+        "self_evidencing_claim": {
+          "title": "Self Evidencing Claim",
+          "type": "string"
+        },
+        "workflow_source_refs": {
+          "items": {
+            "type": "string"
+          },
+          "minItems": 1,
+          "title": "Workflow Source Refs",
+          "type": "array"
+        }
+      },
+      "required": [
+        "residue_ref",
+        "workflow_source_refs",
+        "emergent_candidate_refs",
+        "residue_kind",
+        "self_evidencing_claim",
+        "non_self_validation_guardrail",
+        "required_next_review_surface",
+        "eventual_family_hint",
+        "limitation_note"
+      ],
+      "title": "RepoRecursiveWorkflowResidueRow",
+      "type": "object"
+    }
+  },
+  "additionalProperties": false,
+  "properties": {
+    "candidate_refs": {
+      "items": {
+        "type": "string"
+      },
+      "minItems": 1,
+      "title": "Candidate Refs",
+      "type": "array"
+    },
+    "derivation_manifest_id": {
+      "title": "Derivation Manifest Id",
+      "type": "string"
+    },
+    "intake_id": {
+      "title": "Intake Id",
+      "type": "string"
+    },
+    "limitation_note": {
+      "title": "Limitation Note",
+      "type": "string"
+    },
+    "residue_report_id": {
+      "title": "Residue Report Id",
+      "type": "string"
+    },
+    "residue_rows": {
+      "items": {
+        "$ref": "#/$defs/RepoRecursiveWorkflowResidueRow"
+      },
+      "minItems": 1,
+      "title": "Residue Rows",
+      "type": "array"
+    },
+    "schema": {
+      "const": "repo_recursive_workflow_residue_intake_report@1",
+      "default": "repo_recursive_workflow_residue_intake_report@1",
+      "title": "Schema",
+      "type": "string"
+    },
+    "snapshot_id": {
+      "title": "Snapshot Id",
+      "type": "string"
+    },
+    "workflow_source_refs": {
+      "items": {
+        "type": "string"
+      },
+      "minItems": 1,
+      "title": "Workflow Source Refs",
+      "type": "array"
+    }
+  },
+  "required": [
+    "residue_report_id",
+    "intake_id",
+    "derivation_manifest_id",
+    "snapshot_id",
+    "candidate_refs",
+    "workflow_source_refs",
+    "residue_rows",
+    "limitation_note"
+  ],
+  "title": "RepoRecursiveWorkflowResidueIntakeReport",
+  "type": "object"
+}
