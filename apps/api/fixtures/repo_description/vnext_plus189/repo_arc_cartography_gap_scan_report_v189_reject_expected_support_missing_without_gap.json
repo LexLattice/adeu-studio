@@ -1,9 +1,9 @@
 {
   "cartography_id": "repo_arc_series_cartography_v68b_current_derivation_seed",
   "coordinate_posture": "coordinate_absent_deliberate",
-  "derivation_manifest_id": "repo_arc_cartography_derivation_manifest_415a6909cb3526ad58ece3d8",
+  "derivation_manifest_id": "repo_arc_cartography_derivation_manifest_66b9c68218afc5fda3488223",
   "expected_missing_support_refs": [
-    "docs/support/arc_series_mapping/MISSING_EXPECTED_REVIEW.md"
+    "docs/support/arc_series_mapping/MISSING_REVIEW.md"
   ],
   "gap_rows": [
     {
@@ -46,7 +46,7 @@
       "target_ref": "family:V68-C"
     }
   ],
-  "gap_scan_report_id": "repo_arc_cartography_gap_scan_report_be3cf24593c171b0ee9fdec5",
+  "gap_scan_report_id": "repo_arc_cartography_gap_scan_report_4d8a329e71e924bb5f254e0e",
   "limitation_note": "Descriptive gap scan only; gap rows do not carry scheduling or delivery authority.",
   "schema": "repo_arc_cartography_gap_scan_report@1",
   "snapshot_id": "vNext+189-prestart-on-main"

@@ -12,6 +12,7 @@ from adeu_repo_description import (
     RepoArcCartographyDerivationManifest,
     RepoArcCartographyGapScanReport,
     derive_v68b_repo_arc_cartography_derivation_bundle,
+    derive_v68b_repo_arc_cartography_derivation_manifest,
 )
 from jsonschema import Draft202012Validator
 from pydantic import ValidationError
@@ -87,6 +88,22 @@ def test_v189_derivation_helper_matches_reference_fixtures() -> None:
     )
 
 
+def test_v189_derivation_helper_fails_on_missing_expected_source_file() -> None:
+    with pytest.raises(ValueError, match="expected V68-B source file is missing"):
+        derive_v68b_repo_arc_cartography_derivation_manifest(
+            repo_root=_repo_root(),
+            source_patterns=("docs/DOES_NOT_EXIST_FOR_V68B.md",),
+        )
+
+
+def test_v189_derivation_helper_fails_on_missing_required_source_ref() -> None:
+    with pytest.raises(ValueError, match="expected V68-B derivation source_refs"):
+        derive_v68b_repo_arc_cartography_derivation_manifest(
+            repo_root=_repo_root(),
+            source_patterns=("docs/DRAFT_NEXT_ARC_OPTIONS_v54.md",),
+        )
+
+
 @pytest.mark.parametrize(
     ("fixture_name", "match"),
     [
@@ -118,6 +135,10 @@ def test_v189_derivation_helper_matches_reference_fixtures() -> None:
             "repo_arc_cartography_derivation_manifest_v189_reject_family_v67_collapsed_with_global_vnext67.json",
             "global implementation arc refs",
         ),
+        (
+            "repo_arc_cartography_derivation_manifest_v189_reject_lock_authorized_without_source_refs.json",
+            "settled derivation claim horizons",
+        ),
     ],
 )
 def test_v189_rejects_invalid_derivation_manifest_fixtures(
@@ -137,6 +158,10 @@ def test_v189_rejects_invalid_derivation_manifest_fixtures(
         (
             "repo_arc_cartography_gap_scan_report_v189_reject_coordinate_absence_omitted.json",
             "coordinate absence",
+        ),
+        (
+            "repo_arc_cartography_gap_scan_report_v189_reject_coordinate_emitted_with_absence_gap.json",
+            "coordinate emitted posture",
         ),
     ],
 )

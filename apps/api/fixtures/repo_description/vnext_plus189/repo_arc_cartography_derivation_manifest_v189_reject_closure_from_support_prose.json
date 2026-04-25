@@ -1,8 +1,34 @@
 {
   "cartography_id": "repo_arc_series_cartography_v68b_current_derivation_seed",
   "coverage_horizon": "V68-B starter derivation over V68-A closeout and v189 pre-start bundle only",
-  "derivation_manifest_id": "repo_arc_cartography_derivation_manifest_415a6909cb3526ad58ece3d8",
+  "derivation_manifest_id": "repo_arc_cartography_derivation_manifest_66b9c68218afc5fda3488223",
   "derived_row_records": [
+    {
+      "claim_horizon": "closeout_evidence",
+      "derivation_posture": "derived",
+      "derived_ref": "derived:bad-closure-from-support-prose",
+      "derived_row_kind": "family_row",
+      "limitation_note": "Bad row infers closure from support prose alone.",
+      "source_refs": [
+        "docs/support/arc_series_mapping/REVIEW_SYNTHETIC.md"
+      ],
+      "target_namespace_kind": "family_slice_id",
+      "target_ref": "family:V68-B"
+    },
+    {
+      "claim_horizon": "closeout_evidence",
+      "derivation_posture": "derived",
+      "derived_ref": "derived:branch:V43-connected-conditional",
+      "derived_row_kind": "branch_row",
+      "limitation_note": "V43 remains represented as the connected conditional branch carried by V68-A.",
+      "source_refs": [
+        "apps/api/fixtures/repo_description/vnext_plus188/repo_arc_series_cartography_v188_reference.json",
+        "docs/ASSESSMENT_vNEXT_PLUS188_EDGES.md",
+        "docs/DRAFT_STOP_GATE_DECISION_vNEXT_PLUS188.md"
+      ],
+      "target_namespace_kind": "family_id",
+      "target_ref": "family:V43"
+    },
     {
       "claim_horizon": "closeout_evidence",
       "derivation_posture": "derived",
@@ -16,18 +42,6 @@
       ],
       "target_namespace_kind": "family_slice_id",
       "target_ref": "family:V68-A"
-    },
-    {
-      "claim_horizon": "closeout_evidence",
-      "derivation_posture": "derived",
-      "derived_ref": "derived:closure:from-support-prose",
-      "derived_row_kind": "family_row",
-      "limitation_note": "Reject closure from support prose.",
-      "source_refs": [
-        "docs/support/arc_series_mapping/REVIEW_GPTPRO_ARC_SERIES_CARTOGRAPHY_ABC_SPECS_v0.md"
-      ],
-      "target_namespace_kind": "family_slice_id",
-      "target_ref": "family:V68-B"
     },
     {
       "claim_horizon": "review_pending",
@@ -158,12 +172,12 @@
     },
     {
       "content_presence": "present",
-      "limitation_note": "Observed support review for reject fixture.",
+      "limitation_note": "Synthetic support row for reject fixture validation.",
       "observed_for_patterns": [
-        "docs/support/arc_series_mapping/REVIEW_GPTPRO_ARC_SERIES_CARTOGRAPHY_ABC_SPECS_v0.md"
+        "docs/support/arc_series_mapping/REVIEW_SYNTHETIC.md"
       ],
-      "source_kind": "review_input",
-      "source_ref": "docs/support/arc_series_mapping/REVIEW_GPTPRO_ARC_SERIES_CARTOGRAPHY_ABC_SPECS_v0.md"
+      "source_kind": "support_doc",
+      "source_ref": "docs/support/arc_series_mapping/REVIEW_SYNTHETIC.md"
     },
     {
       "content_presence": "present",

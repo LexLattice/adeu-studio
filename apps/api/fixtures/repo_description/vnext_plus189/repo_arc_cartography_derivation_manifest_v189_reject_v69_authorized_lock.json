@@ -1,8 +1,34 @@
 {
   "cartography_id": "repo_arc_series_cartography_v68b_current_derivation_seed",
   "coverage_horizon": "V68-B starter derivation over V68-A closeout and v189 pre-start bundle only",
-  "derivation_manifest_id": "repo_arc_cartography_derivation_manifest_415a6909cb3526ad58ece3d8",
+  "derivation_manifest_id": "repo_arc_cartography_derivation_manifest_66b9c68218afc5fda3488223",
   "derived_row_records": [
+    {
+      "claim_horizon": "lock_authorized",
+      "derivation_posture": "manual_seeded",
+      "derived_ref": "derived:bad-v69-authorized-lock",
+      "derived_row_kind": "family_row",
+      "limitation_note": "Bad row treats V69 as already lock-authorized.",
+      "source_refs": [
+        "docs/LOCKED_CONTINUATION_vNEXT_PLUS189.md"
+      ],
+      "target_namespace_kind": "family_id",
+      "target_ref": "family:V69"
+    },
+    {
+      "claim_horizon": "closeout_evidence",
+      "derivation_posture": "derived",
+      "derived_ref": "derived:branch:V43-connected-conditional",
+      "derived_row_kind": "branch_row",
+      "limitation_note": "V43 remains represented as the connected conditional branch carried by V68-A.",
+      "source_refs": [
+        "apps/api/fixtures/repo_description/vnext_plus188/repo_arc_series_cartography_v188_reference.json",
+        "docs/ASSESSMENT_vNEXT_PLUS188_EDGES.md",
+        "docs/DRAFT_STOP_GATE_DECISION_vNEXT_PLUS188.md"
+      ],
+      "target_namespace_kind": "family_id",
+      "target_ref": "family:V43"
+    },
     {
       "claim_horizon": "closeout_evidence",
       "derivation_posture": "derived",
@@ -41,18 +67,6 @@
       ],
       "target_namespace_kind": "family_slice_id",
       "target_ref": "family:V68-B"
-    },
-    {
-      "claim_horizon": "lock_authorized",
-      "derivation_posture": "derived",
-      "derived_ref": "derived:lock:V69",
-      "derived_row_kind": "family_row",
-      "limitation_note": "Reject future lifecycle lock promotion.",
-      "source_refs": [
-        "docs/LOCKED_CONTINUATION_vNEXT_PLUS189.md"
-      ],
-      "target_namespace_kind": "family_id",
-      "target_ref": "family:V69"
     }
   ],
   "limitation_note": "Descriptive derivation support only; later action requires separate planning and lock.",

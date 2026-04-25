@@ -6,12 +6,10 @@
     {
       "claim_horizon": "lock_authorized",
       "derivation_posture": "manual_seeded",
-      "derived_ref": "derived:bad-support-lock-evidence",
+      "derived_ref": "derived:bad-lock-authorized-without-source-refs",
       "derived_row_kind": "family_row",
-      "limitation_note": "Bad row treats support prose as lock evidence.",
-      "source_refs": [
-        "docs/support/arc_series_mapping/REVIEW_SYNTHETIC.md"
-      ],
+      "limitation_note": "Bad row carries settled lock authority without provenance.",
+      "source_refs": [],
       "target_namespace_kind": "family_id",
       "target_ref": "family:V68"
     },
@@ -169,15 +167,6 @@
       ],
       "source_kind": "lock_doc",
       "source_ref": "docs/LOCKED_CONTINUATION_vNEXT_PLUS189.md"
-    },
-    {
-      "content_presence": "present",
-      "limitation_note": "Synthetic support row for reject fixture validation.",
-      "observed_for_patterns": [
-        "docs/support/arc_series_mapping/REVIEW_SYNTHETIC.md"
-      ],
-      "source_kind": "support_doc",
-      "source_ref": "docs/support/arc_series_mapping/REVIEW_SYNTHETIC.md"
     },
     {
       "content_presence": "present",

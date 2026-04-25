@@ -164,6 +164,12 @@ class RepoArcCartographyDerivedRowRecord(_CartographyBase):
             _repo_ref(ref, field_name="derived source_refs")
         if self.derivation_posture == "derived" and not self.source_refs:
             raise ValueError("derived rows require at least one concrete source_ref")
+        if self.claim_horizon in {
+            "lock_authorized",
+            "closeout_evidence",
+            "released_schema_or_runtime",
+        } and not self.source_refs:
+            raise ValueError("settled derivation claim horizons require concrete source_refs")
         if self.derivation_posture in {"ambiguous", "review_required"} and self.claim_horizon in {
             "lock_authorized",
             "closeout_evidence",
@@ -297,6 +303,12 @@ class RepoArcCartographyGapRow(_CartographyBase):
         )
         for ref in self.source_refs:
             _repo_ref(ref, field_name="gap source_refs")
+        if self.claim_horizon in {
+            "lock_authorized",
+            "closeout_evidence",
+            "released_schema_or_runtime",
+        } and not self.source_refs:
+            raise ValueError("settled gap claim horizons require concrete source_refs")
         if self.claim_horizon == "lock_authorized" and _source_refs_are_support_only(
             self.source_refs
         ):
@@ -382,6 +394,10 @@ class RepoArcCartographyGapScanReport(_CartographyBase):
             row.gap_family == "coordinate_posture_absent" for row in self.gap_rows
         ):
             raise ValueError("coordinate absence must be explicit in gap rows")
+        if self.coordinate_posture == "coordinate_emitted" and any(
+            row.gap_family == "coordinate_posture_absent" for row in self.gap_rows
+        ):
+            raise ValueError("coordinate emitted posture cannot include coordinate absence gaps")
         return self
 
 
@@ -434,6 +450,8 @@ def _observe_source_patterns(
     for pattern in source_patterns:
         _repo_pattern(pattern, field_name="source_patterns")
         matches = sorted(path for path in root.glob(pattern) if path.is_file())
+        if not matches and not _GLOB_TOKEN_RE.search(pattern):
+            raise ValueError(f"expected V68-B source file is missing: {pattern}")
         for path in matches:
             source_ref = path.relative_to(root).as_posix()
             seen.setdefault(source_ref, set()).add(pattern)
@@ -477,7 +495,10 @@ def derive_v68b_repo_arc_cartography_derivation_manifest(
         raise ValueError("V68-B derivation manifest requires at least one observed input")
 
     def refs(*items: str) -> list[str]:
-        return sorted(item for item in items if item in observed_refs)
+        missing = sorted(item for item in items if item not in observed_refs)
+        if missing:
+            raise ValueError(f"expected V68-B derivation source_refs are missing: {missing}")
+        return list(items)
 
     derived_rows = [
         RepoArcCartographyDerivedRowRecord(
@@ -501,9 +522,9 @@ def derive_v68b_repo_arc_cartography_derivation_manifest(
             derivation_posture="derived",
             claim_horizon="closeout_evidence",
             source_refs=refs(
-                "docs/DRAFT_STOP_GATE_DECISION_vNEXT_PLUS188.md",
-                "docs/ASSESSMENT_vNEXT_PLUS188_EDGES.md",
                 "artifacts/agent_harness/v188/evidence_inputs/v68a_arc_series_cartography_evidence_v188.json",
+                "docs/ASSESSMENT_vNEXT_PLUS188_EDGES.md",
+                "docs/DRAFT_STOP_GATE_DECISION_vNEXT_PLUS188.md",
             ),
             limitation_note="V68-A closure is derived from post-closeout evidence on main.",
         ),
@@ -562,7 +583,10 @@ def derive_v68b_repo_arc_cartography_gap_scan_report(
     observed_refs = {row.source_ref for row in manifest.observed_input_rows}
 
     def refs(*items: str) -> list[str]:
-        return sorted(item for item in items if item in observed_refs)
+        missing = sorted(item for item in items if item not in observed_refs)
+        if missing:
+            raise ValueError(f"expected V68-B gap-scan source_refs are missing: {missing}")
+        return list(items)
 
     gap_rows = [
         RepoArcCartographyGapRow(

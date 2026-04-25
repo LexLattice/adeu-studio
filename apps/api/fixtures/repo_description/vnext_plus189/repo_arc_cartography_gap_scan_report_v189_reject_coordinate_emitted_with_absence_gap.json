@@ -1,9 +1,22 @@
 {
   "cartography_id": "repo_arc_series_cartography_v68b_current_derivation_seed",
-  "coordinate_posture": "coordinate_absent_deliberate",
+  "coordinate_posture": "coordinate_emitted",
   "derivation_manifest_id": "repo_arc_cartography_derivation_manifest_66b9c68218afc5fda3488223",
   "expected_missing_support_refs": [],
   "gap_rows": [
+    {
+      "claim_horizon": "review_pending",
+      "gap_family": "coordinate_posture_absent",
+      "gap_id": "gap:coordinate_posture_absent:V68-B",
+      "limitation_note": "V68-B may expose absence but does not emit recursive coordinates.",
+      "recommended_next_action": "Record coordinate absence until V68-C selects an emission posture.",
+      "severity": "needs_review",
+      "source_refs": [
+        "docs/ASSESSMENT_vNEXT_PLUS189_EDGES.md"
+      ],
+      "target_namespace_kind": "evidence_arc_id",
+      "target_ref": "coordinate:V68-B"
+    },
     {
       "claim_horizon": "descriptive_support",
       "gap_family": "review_required_ambiguous_derivation",
