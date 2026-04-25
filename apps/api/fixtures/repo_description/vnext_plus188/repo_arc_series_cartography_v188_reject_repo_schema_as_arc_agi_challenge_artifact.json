@@ -1,0 +1,498 @@
+{
+  "branch_rows": [
+    {
+      "branch_family_id": "family:V43",
+      "branch_posture": "connected_conditional_branch",
+      "branch_ref": "branch:V43-external-contest",
+      "selection_condition": "Select only if external-world contest or host participation becomes immediate planning pressure.",
+      "source_refs": [
+        "docs/DRAFT_ARC_SERIES_MULTI_LAYER_MAPPING_v2.md"
+      ]
+    },
+    {
+      "branch_family_id": "family:V68",
+      "branch_posture": "selected_branch",
+      "branch_ref": "branch:arc/v68-r1",
+      "selection_condition": "Selected starter implementation target for V68-A.",
+      "source_refs": [
+        "docs/LOCKED_CONTINUATION_vNEXT_PLUS188.md"
+      ]
+    }
+  ],
+  "cartography_id": "repo_arc_series_cartography_cf377cc627e6b1c5f661cc84",
+  "cartography_scope": "Descriptive ARC series map; later action requires separate planning and lock.",
+  "coordinate_plan_rows": [
+    {
+      "coordinate_posture": "coordinate_absent_deliberate",
+      "coordinate_ref": "coordinate:v68-default-absence",
+      "non_authority_guardrail": "Descriptive coordinate posture only; later-family action requires separate lock.",
+      "target_refs": [
+        "family:V68"
+      ]
+    }
+  ],
+  "coverage_horizon": "post-V67 seed; V68 planned, V68-A selected, V69-V75 deferred hypotheses",
+  "evidence_surface_rows": [
+    {
+      "claim_horizon": "descriptive_support",
+      "evidence_kind": "review_capture",
+      "evidence_ref": "evidence:gptpro_abc_review",
+      "limitation_note": "Support review shapes V68-A/B/C but does not act as lock authority.",
+      "source_refs": [
+        "docs/support/arc_series_mapping/REVIEW_GPTPRO_ARC_SERIES_CARTOGRAPHY_ABC_SPECS_v0.md"
+      ]
+    },
+    {
+      "claim_horizon": "descriptive_support",
+      "evidence_kind": "review_capture",
+      "evidence_ref": "evidence:gptpro_planning_review",
+      "limitation_note": "Support review narrows V68 as the only immediate drafting target.",
+      "source_refs": [
+        "docs/support/arc_series_mapping/REVIEW_GPTPRO_ARC_SERIES_MAPPING_V68_PLANNING_v0.md"
+      ]
+    },
+    {
+      "claim_horizon": "closeout_evidence",
+      "evidence_kind": "closeout_artifact",
+      "evidence_ref": "evidence:v187_closeout_posture",
+      "limitation_note": "Records V67 closed posture as support horizon, not new closeout proof.",
+      "source_refs": [
+        "docs/DRAFT_ARC_SERIES_MULTI_LAYER_MAPPING_v2.md"
+      ]
+    },
+    {
+      "claim_horizon": "lock_authorized",
+      "evidence_kind": "lock_contract",
+      "evidence_ref": "evidence:v188_lock_contract",
+      "limitation_note": "Authorizes only the bounded V68-A starter slice.",
+      "source_refs": [
+        "docs/LOCKED_CONTINUATION_vNEXT_PLUS188.md"
+      ]
+    },
+    {
+      "claim_horizon": "planning_candidate",
+      "evidence_kind": "tool_run",
+      "evidence_ref": "evidence:v188_start_gate",
+      "limitation_note": "Starter-bundle lint posture only; implementation and closeout remain separate.",
+      "source_refs": [
+        "docs/DRAFT_STOP_GATE_DECISION_vNEXT_PLUS188.md"
+      ]
+    }
+  ],
+  "family_rows": [
+    {
+      "closeout_evidence_refs": [],
+      "closure_posture": "not_selected_yet",
+      "family_id": "family:V43",
+      "family_ref": "family:V43",
+      "family_slice_id": null,
+      "selected_by_refs": [
+        "docs/DRAFT_ARC_SERIES_MULTI_LAYER_MAPPING_v2.md"
+      ]
+    },
+    {
+      "closeout_evidence_refs": [
+        "evidence:v187_closeout_posture"
+      ],
+      "closure_posture": "closed_on_main",
+      "family_id": "family:V67",
+      "family_ref": "family:V67",
+      "family_slice_id": "slice:V67-C",
+      "selected_by_refs": [
+        "docs/DRAFT_ARC_SERIES_MULTI_LAYER_MAPPING_v2.md"
+      ]
+    },
+    {
+      "closeout_evidence_refs": [],
+      "closure_posture": "planned_not_started",
+      "family_id": "family:V68",
+      "family_ref": "family:V68",
+      "family_slice_id": null,
+      "selected_by_refs": [
+        "docs/DRAFT_NEXT_ARC_OPTIONS_v53.md"
+      ]
+    },
+    {
+      "closeout_evidence_refs": [],
+      "closure_posture": "planned_not_started",
+      "family_id": "family:V68",
+      "family_ref": "family:V68-A",
+      "family_slice_id": "slice:V68-A",
+      "selected_by_refs": [
+        "docs/DRAFT_NEXT_ARC_OPTIONS_v53.md",
+        "docs/LOCKED_CONTINUATION_vNEXT_PLUS188.md"
+      ]
+    },
+    {
+      "closeout_evidence_refs": [],
+      "closure_posture": "deferred_to_later_family",
+      "family_id": "family:V69",
+      "family_ref": "family:V69",
+      "family_slice_id": null,
+      "selected_by_refs": [
+        "docs/DRAFT_ARC_SERIES_MULTI_LAYER_MAPPING_v2.md"
+      ]
+    },
+    {
+      "closeout_evidence_refs": [],
+      "closure_posture": "deferred_to_later_family",
+      "family_id": "family:V70",
+      "family_ref": "family:V70",
+      "family_slice_id": null,
+      "selected_by_refs": [
+        "docs/DRAFT_ARC_SERIES_MULTI_LAYER_MAPPING_v2.md"
+      ]
+    },
+    {
+      "closeout_evidence_refs": [],
+      "closure_posture": "deferred_to_later_family",
+      "family_id": "family:V71",
+      "family_ref": "family:V71",
+      "family_slice_id": null,
+      "selected_by_refs": [
+        "docs/DRAFT_ARC_SERIES_MULTI_LAYER_MAPPING_v2.md"
+      ]
+    },
+    {
+      "closeout_evidence_refs": [],
+      "closure_posture": "deferred_to_later_family",
+      "family_id": "family:V72",
+      "family_ref": "family:V72",
+      "family_slice_id": null,
+      "selected_by_refs": [
+        "docs/DRAFT_ARC_SERIES_MULTI_LAYER_MAPPING_v2.md"
+      ]
+    },
+    {
+      "closeout_evidence_refs": [],
+      "closure_posture": "deferred_to_later_family",
+      "family_id": "family:V73",
+      "family_ref": "family:V73",
+      "family_slice_id": null,
+      "selected_by_refs": [
+        "docs/DRAFT_ARC_SERIES_MULTI_LAYER_MAPPING_v2.md"
+      ]
+    },
+    {
+      "closeout_evidence_refs": [],
+      "closure_posture": "deferred_to_later_family",
+      "family_id": "family:V74",
+      "family_ref": "family:V74",
+      "family_slice_id": null,
+      "selected_by_refs": [
+        "docs/DRAFT_ARC_SERIES_MULTI_LAYER_MAPPING_v2.md"
+      ]
+    },
+    {
+      "closeout_evidence_refs": [],
+      "closure_posture": "deferred_to_later_family",
+      "family_id": "family:V75",
+      "family_ref": "family:V75",
+      "family_slice_id": null,
+      "selected_by_refs": [
+        "docs/DRAFT_ARC_SERIES_MULTI_LAYER_MAPPING_v2.md"
+      ]
+    }
+  ],
+  "namespace_rows": [
+    {
+      "canonical_label": "docs/ARCHITECTURE_ADEU_ARC_SERIES_CARTOGRAPHY_FAMILY_v0.md",
+      "equivalence_posture": "self_identity_only",
+      "namespace_kind": "architecture_doc_ref",
+      "namespace_ref": "architecture:docs/ARCHITECTURE_ADEU_ARC_SERIES_CARTOGRAPHY_FAMILY_v0.md",
+      "source_refs": [
+        "docs/ARCHITECTURE_ADEU_ARC_SERIES_CARTOGRAPHY_FAMILY_v0.md"
+      ]
+    },
+    {
+      "canonical_label": "docs/ASSESSMENT_vNEXT_PLUS188_EDGES.md",
+      "equivalence_posture": "self_identity_only",
+      "namespace_kind": "assessment_doc_ref",
+      "namespace_ref": "assessment:docs/ASSESSMENT_vNEXT_PLUS188_EDGES.md",
+      "source_refs": [
+        "docs/ASSESSMENT_vNEXT_PLUS188_EDGES.md"
+      ]
+    },
+    {
+      "canonical_label": "arc/v68-r1",
+      "equivalence_posture": "self_identity_only",
+      "namespace_kind": "branch_local_execution_target",
+      "namespace_ref": "branch:arc/v68-r1",
+      "source_refs": [
+        "docs/LOCKED_CONTINUATION_vNEXT_PLUS188.md"
+      ]
+    },
+    {
+      "canonical_label": "vNext+187",
+      "equivalence_posture": "self_identity_only",
+      "namespace_kind": "closeout_arc_id",
+      "namespace_ref": "closeout:vNext+187",
+      "source_refs": [
+        "docs/DRAFT_ARC_SERIES_MULTI_LAYER_MAPPING_v2.md"
+      ]
+    },
+    {
+      "canonical_label": "V43",
+      "equivalence_posture": "self_identity_only",
+      "namespace_kind": "family_id",
+      "namespace_ref": "family:V43",
+      "source_refs": [
+        "docs/DRAFT_ARC_SERIES_MULTI_LAYER_MAPPING_v2.md"
+      ]
+    },
+    {
+      "canonical_label": "V67",
+      "equivalence_posture": "self_identity_only",
+      "namespace_kind": "family_id",
+      "namespace_ref": "family:V67",
+      "source_refs": [
+        "docs/DRAFT_ARC_SERIES_MULTI_LAYER_MAPPING_v2.md"
+      ]
+    },
+    {
+      "canonical_label": "V68",
+      "equivalence_posture": "self_identity_only",
+      "namespace_kind": "family_id",
+      "namespace_ref": "family:V68",
+      "source_refs": [
+        "docs/DRAFT_NEXT_ARC_OPTIONS_v53.md"
+      ]
+    },
+    {
+      "canonical_label": "V69",
+      "equivalence_posture": "self_identity_only",
+      "namespace_kind": "family_id",
+      "namespace_ref": "family:V69",
+      "source_refs": [
+        "docs/DRAFT_ARC_SERIES_MULTI_LAYER_MAPPING_v2.md"
+      ]
+    },
+    {
+      "canonical_label": "V70",
+      "equivalence_posture": "self_identity_only",
+      "namespace_kind": "family_id",
+      "namespace_ref": "family:V70",
+      "source_refs": [
+        "docs/DRAFT_ARC_SERIES_MULTI_LAYER_MAPPING_v2.md"
+      ]
+    },
+    {
+      "canonical_label": "V71",
+      "equivalence_posture": "self_identity_only",
+      "namespace_kind": "family_id",
+      "namespace_ref": "family:V71",
+      "source_refs": [
+        "docs/DRAFT_ARC_SERIES_MULTI_LAYER_MAPPING_v2.md"
+      ]
+    },
+    {
+      "canonical_label": "V72",
+      "equivalence_posture": "self_identity_only",
+      "namespace_kind": "family_id",
+      "namespace_ref": "family:V72",
+      "source_refs": [
+        "docs/DRAFT_ARC_SERIES_MULTI_LAYER_MAPPING_v2.md"
+      ]
+    },
+    {
+      "canonical_label": "V73",
+      "equivalence_posture": "self_identity_only",
+      "namespace_kind": "family_id",
+      "namespace_ref": "family:V73",
+      "source_refs": [
+        "docs/DRAFT_ARC_SERIES_MULTI_LAYER_MAPPING_v2.md"
+      ]
+    },
+    {
+      "canonical_label": "V74",
+      "equivalence_posture": "self_identity_only",
+      "namespace_kind": "family_id",
+      "namespace_ref": "family:V74",
+      "source_refs": [
+        "docs/DRAFT_ARC_SERIES_MULTI_LAYER_MAPPING_v2.md"
+      ]
+    },
+    {
+      "canonical_label": "V75",
+      "equivalence_posture": "self_identity_only",
+      "namespace_kind": "family_id",
+      "namespace_ref": "family:V75",
+      "source_refs": [
+        "docs/DRAFT_ARC_SERIES_MULTI_LAYER_MAPPING_v2.md"
+      ]
+    },
+    {
+      "canonical_label": "docs/LOCKED_CONTINUATION_vNEXT_PLUS188.md",
+      "equivalence_posture": "self_identity_only",
+      "namespace_kind": "lock_doc_ref",
+      "namespace_ref": "lock:docs/LOCKED_CONTINUATION_vNEXT_PLUS188.md",
+      "source_refs": [
+        "docs/LOCKED_CONTINUATION_vNEXT_PLUS188.md"
+      ]
+    },
+    {
+      "canonical_label": "docs/DRAFT_NEXT_ARC_OPTIONS_v53.md",
+      "equivalence_posture": "self_identity_only",
+      "namespace_kind": "planning_doc_ref",
+      "namespace_ref": "planning:docs/DRAFT_NEXT_ARC_OPTIONS_v53.md",
+      "source_refs": [
+        "docs/DRAFT_NEXT_ARC_OPTIONS_v53.md"
+      ]
+    },
+    {
+      "canonical_label": "repo_arc_series_cartography@1",
+      "equivalence_posture": "self_identity_only",
+      "namespace_kind": "arc_agi_challenge_artifact",
+      "namespace_ref": "schema:repo_arc_series_cartography@1",
+      "source_refs": [
+        "docs/LOCKED_CONTINUATION_vNEXT_PLUS188.md"
+      ]
+    },
+    {
+      "canonical_label": "V67-C",
+      "equivalence_posture": "self_identity_only",
+      "namespace_kind": "family_slice_id",
+      "namespace_ref": "slice:V67-C",
+      "source_refs": [
+        "docs/DRAFT_ARC_SERIES_MULTI_LAYER_MAPPING_v2.md"
+      ]
+    },
+    {
+      "canonical_label": "V68-A",
+      "equivalence_posture": "self_identity_only",
+      "namespace_kind": "family_slice_id",
+      "namespace_ref": "slice:V68-A",
+      "source_refs": [
+        "docs/LOCKED_CONTINUATION_vNEXT_PLUS188.md"
+      ]
+    },
+    {
+      "canonical_label": "docs/DRAFT_STOP_GATE_DECISION_vNEXT_PLUS188.md",
+      "equivalence_posture": "self_identity_only",
+      "namespace_kind": "stop_gate_ref",
+      "namespace_ref": "stop_gate:docs/DRAFT_STOP_GATE_DECISION_vNEXT_PLUS188.md",
+      "source_refs": [
+        "docs/DRAFT_STOP_GATE_DECISION_vNEXT_PLUS188.md"
+      ]
+    }
+  ],
+  "schema": "repo_arc_series_cartography@1",
+  "snapshot_id": "repo_snapshot_post_v67_v68a_seed",
+  "source_rows": [
+    {
+      "authority_layer": "architecture",
+      "integration_note": "Defines the V68 family architecture and row vocabulary.",
+      "source_kind": "architecture_doc",
+      "source_presence_posture": "present",
+      "source_ref": "docs/ARCHITECTURE_ADEU_ARC_SERIES_CARTOGRAPHY_FAMILY_v0.md",
+      "source_status": "integrated_shaping_source"
+    },
+    {
+      "authority_layer": "planning",
+      "integration_note": "Records pre-lock edge risks for the V68-A starter.",
+      "source_kind": "assessment_doc",
+      "source_presence_posture": "present",
+      "source_ref": "docs/ASSESSMENT_vNEXT_PLUS188_EDGES.md",
+      "source_status": "integrated_shaping_source"
+    },
+    {
+      "authority_layer": "support",
+      "integration_note": "Support-layer root map for the ARC series and V68 selection.",
+      "source_kind": "support_doc",
+      "source_presence_posture": "present",
+      "source_ref": "docs/DRAFT_ARC_SERIES_MULTI_LAYER_MAPPING_v2.md",
+      "source_status": "integrated_shaping_source"
+    },
+    {
+      "authority_layer": "planning",
+      "integration_note": "Planning selector that makes V68-A the next starter slice.",
+      "source_kind": "planning_doc",
+      "source_presence_posture": "present",
+      "source_ref": "docs/DRAFT_NEXT_ARC_OPTIONS_v53.md",
+      "source_status": "integrated_shaping_source"
+    },
+    {
+      "authority_layer": "planning",
+      "integration_note": "Pre-start gate for the V68-A starter bundle.",
+      "source_kind": "decision_doc",
+      "source_presence_posture": "present",
+      "source_ref": "docs/DRAFT_STOP_GATE_DECISION_vNEXT_PLUS188.md",
+      "source_status": "integrated_shaping_source"
+    },
+    {
+      "authority_layer": "lock",
+      "integration_note": "Starter lock for the bounded V68-A implementation slice.",
+      "source_kind": "lock_doc",
+      "source_presence_posture": "present",
+      "source_ref": "docs/LOCKED_CONTINUATION_vNEXT_PLUS188.md",
+      "source_status": "integrated_shaping_source"
+    },
+    {
+      "authority_layer": "support",
+      "integration_note": "Captured GPTPro review over the early V68-A/B/C slice specs.",
+      "source_kind": "review_input",
+      "source_presence_posture": "present",
+      "source_ref": "docs/support/arc_series_mapping/REVIEW_GPTPRO_ARC_SERIES_CARTOGRAPHY_ABC_SPECS_v0.md",
+      "source_status": "integrated_shaping_source"
+    },
+    {
+      "authority_layer": "support",
+      "integration_note": "Captured GPTPro review over the V68 planning map.",
+      "source_kind": "review_input",
+      "source_presence_posture": "present",
+      "source_ref": "docs/support/arc_series_mapping/REVIEW_GPTPRO_ARC_SERIES_MAPPING_V68_PLANNING_v0.md",
+      "source_status": "integrated_shaping_source"
+    }
+  ],
+  "support_lineage_rows": [
+    {
+      "authority_layer": "support",
+      "lineage_note": "Second GPTPro review captured as shaping evidence, not authority.",
+      "source_ref": "docs/support/arc_series_mapping/REVIEW_GPTPRO_ARC_SERIES_CARTOGRAPHY_ABC_SPECS_v0.md",
+      "source_status": "integrated_shaping_source",
+      "support_ref": "support:abc-gptpro-review"
+    },
+    {
+      "authority_layer": "support",
+      "lineage_note": "Root support map for V68 planning.",
+      "source_ref": "docs/DRAFT_ARC_SERIES_MULTI_LAYER_MAPPING_v2.md",
+      "source_status": "integrated_shaping_source",
+      "support_ref": "support:arc-series-map-v2"
+    },
+    {
+      "authority_layer": "support",
+      "lineage_note": "First GPTPro review captured as shaping evidence, not authority.",
+      "source_ref": "docs/support/arc_series_mapping/REVIEW_GPTPRO_ARC_SERIES_MAPPING_V68_PLANNING_v0.md",
+      "source_status": "integrated_shaping_source",
+      "support_ref": "support:planning-gptpro-review"
+    }
+  ],
+  "tool_applicability_rows": [
+    {
+      "applicability_posture": "namespace_limited",
+      "limitation_note": "Applies to the explicit ARC argument namespace; not proof about family V67 by itself.",
+      "observed_result_ref": "evidence:v187_closeout_posture",
+      "target_claim_id": "family:V67",
+      "target_namespace_kind": "closeout_arc_id",
+      "tool_id": "tool:arc-closeout-check:ARC=67"
+    },
+    {
+      "applicability_posture": "applicable_and_supporting",
+      "limitation_note": "Applies to the V68-A starter bundle only.",
+      "observed_result_ref": "evidence:v188_start_gate",
+      "target_claim_id": "evidence:v188_start_gate",
+      "target_namespace_kind": "stop_gate_ref",
+      "tool_id": "tool:arc-start-check:ARC=188"
+    }
+  ],
+  "tracked_future_seams": [
+    "V43_external_contest_participation",
+    "V69_recursive_candidate_intake",
+    "V70_evidence_classification",
+    "V71_ratification",
+    "V72_contained_integration",
+    "V73_outcome_review",
+    "V74_operator_projection",
+    "V75_dispatch_widening"
+  ]
+}

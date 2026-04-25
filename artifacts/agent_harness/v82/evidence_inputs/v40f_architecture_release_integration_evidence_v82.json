@@ -21,7 +21,7 @@
     "ux_morph_ir@1",
     "web_human_review_workbench_routes"
   ],
-  "family_evidence_hash": "fa7c73aff2e91f7de8531358c732935d94171ac2fafe3fc1c83ab9311789d4f7",
+  "family_evidence_hash": "c5151e8eb80598a690b506f8a16e28f8fdc11c32568a90336d668f859f09d8cf",
   "family_label": "V40",
   "family_release_surface_refs": [
     "apps/api/fixtures/architecture/vnext_plus77/adeu_architecture_boundary_graph_v77_reference.json",
@@ -195,16 +195,16 @@
     "V40-C": {
       "closeout_doc_hash": "d2fdf261a59164b97ae3db4f54e1cc489e1576940360522019e7802fb6bd4784",
       "closeout_doc_ref": "docs/DRAFT_STOP_GATE_DECISION_vNEXT_PLUS79.md",
-      "evidence_hash": "d75485ad25b2c8ec769897be0215c433d81c5fa10eed2afbb2d09675885718b0",
+      "evidence_hash": "e1572e53f2387f7cb0449275a90b499550fc0b84872a1e75eea1a47606c55365",
       "evidence_ref": "artifacts/agent_harness/v79/evidence_inputs/v40c_architecture_hybrid_evidence_v79.json",
       "path_label": "V40-C",
       "release_surface_hashes": {
-        "apps/api/fixtures/architecture/vnext_plus79/adeu_architecture_checkpoint_trace_v79_deterministic_pass_reference.json": "eab2a2163317b6a4a945193863ddec3ec91c02a60ab8347ef0415404ff0c00bc",
-        "apps/api/fixtures/architecture/vnext_plus79/adeu_architecture_checkpoint_trace_v79_human_needed_reference.json": "c18e42a17155c5f785cd5d211e4a4c535434b2045c95084b0d7dd01f2990b6f7",
-        "apps/api/fixtures/architecture/vnext_plus79/adeu_architecture_checkpoint_trace_v79_oracle_reference.json": "34781c61c6d000979b8d191d23ef8a3c49b88d7b675d0ced3395c32d74cc2e55",
-        "apps/api/fixtures/architecture/vnext_plus79/adeu_architecture_ir_delta_v79_reference.json": "a18217974c943ab167f22f83c4bee89686a648a2958842e19b249955d269148d",
-        "apps/api/fixtures/architecture/vnext_plus79/adeu_architecture_oracle_request_v79_reference.json": "eee804b0b18ef63aecd192b1021dd1e76498135a8a52523fff9a69119b6c61d7",
-        "apps/api/fixtures/architecture/vnext_plus79/adeu_architecture_oracle_resolution_v79_reference.json": "669151a9b3658a08b426bc7fa3db45b3cbdf649bf3ab5f8faf4f08f7f542074e",
+        "apps/api/fixtures/architecture/vnext_plus79/adeu_architecture_checkpoint_trace_v79_deterministic_pass_reference.json": "bfc5b08740690395ebc997907a2f1f63f2f3aaa7b331f11e60f9f5ffe0f168da",
+        "apps/api/fixtures/architecture/vnext_plus79/adeu_architecture_checkpoint_trace_v79_human_needed_reference.json": "33be2536430ab1436334e85ec920d7372f037319dc7503f81fe92e41c995eb54",
+        "apps/api/fixtures/architecture/vnext_plus79/adeu_architecture_checkpoint_trace_v79_oracle_reference.json": "35db2ed39412b5b870f65d3666457d1f128d40cc407b026d7a803aac08271f59",
+        "apps/api/fixtures/architecture/vnext_plus79/adeu_architecture_ir_delta_v79_reference.json": "dff89a8652c0206fae690e3f421b1abd274a0cd84ef373f6d25e2cd0243cc756",
+        "apps/api/fixtures/architecture/vnext_plus79/adeu_architecture_oracle_request_v79_reference.json": "e362f837ca6f8cd2e47980612c186532a9283058f75837fe253b6c59165fbdda",
+        "apps/api/fixtures/architecture/vnext_plus79/adeu_architecture_oracle_resolution_v79_reference.json": "60bacb277ee405c5f3681a708f2c3ef4ab3b1db83f076ca68570840f293b3d9e",
         "packages/adeu_architecture_compiler/schema/adeu_architecture_checkpoint_trace.v1.json": "3bcdce4c45208af6ddc62704ef057422d5f43445e7f51a2cb242ba2680aa49e2",
         "packages/adeu_architecture_compiler/schema/adeu_architecture_ir_delta.v1.json": "e9c4170c9d3fa5f3c3fb16794debbd32e20c9e55b54a363b77ee4b6f220c6303",
         "packages/adeu_architecture_compiler/schema/adeu_architecture_oracle_request.v1.json": "b6e5bf05364491ecceb8e09e191516662383ebf11502d624c3c8836183beedc2",

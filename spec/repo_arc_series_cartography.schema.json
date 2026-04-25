@@ -1,0 +1,567 @@
+{
+  "$defs": {
+    "RepoArcCartographySourceRow": {
+      "additionalProperties": false,
+      "properties": {
+        "authority_layer": {
+          "enum": [
+            "lock",
+            "architecture",
+            "planning",
+            "support",
+            "schema",
+            "fixture"
+          ],
+          "title": "Authority Layer",
+          "type": "string"
+        },
+        "integration_note": {
+          "title": "Integration Note",
+          "type": "string"
+        },
+        "source_kind": {
+          "enum": [
+            "planning_doc",
+            "lock_doc",
+            "decision_doc",
+            "assessment_doc",
+            "architecture_doc",
+            "support_doc",
+            "review_input",
+            "schema_file",
+            "fixture_file",
+            "evidence_artifact",
+            "generated_view"
+          ],
+          "title": "Source Kind",
+          "type": "string"
+        },
+        "source_presence_posture": {
+          "enum": [
+            "present",
+            "missing_expected_support_artifact",
+            "not_uploaded_in_review_snapshot",
+            "generated_later",
+            "external_unavailable"
+          ],
+          "title": "Source Presence Posture",
+          "type": "string"
+        },
+        "source_ref": {
+          "title": "Source Ref",
+          "type": "string"
+        },
+        "source_status": {
+          "enum": [
+            "integrated_shaping_source",
+            "available_but_not_integrated",
+            "review_pending_input",
+            "rejected_or_superseded_source"
+          ],
+          "title": "Source Status",
+          "type": "string"
+        }
+      },
+      "required": [
+        "source_ref",
+        "source_kind",
+        "authority_layer",
+        "source_status",
+        "source_presence_posture",
+        "integration_note"
+      ],
+      "title": "RepoArcCartographySourceRow",
+      "type": "object"
+    },
+    "RepoArcNamespaceRow": {
+      "additionalProperties": false,
+      "properties": {
+        "canonical_label": {
+          "title": "Canonical Label",
+          "type": "string"
+        },
+        "equivalence_posture": {
+          "enum": [
+            "self_identity_only",
+            "related_not_equivalent",
+            "unknown_needs_review"
+          ],
+          "title": "Equivalence Posture",
+          "type": "string"
+        },
+        "namespace_kind": {
+          "enum": [
+            "selector_version",
+            "family_id",
+            "family_slice_id",
+            "implementation_arc_id",
+            "closeout_arc_id",
+            "evidence_arc_id",
+            "branch_local_execution_target",
+            "planning_doc_ref",
+            "lock_doc_ref",
+            "decision_doc_ref",
+            "assessment_doc_ref",
+            "architecture_doc_ref",
+            "support_doc_ref",
+            "schema_id",
+            "fixture_dir_ref",
+            "evidence_input_ref",
+            "stop_gate_ref"
+          ],
+          "title": "Namespace Kind",
+          "type": "string"
+        },
+        "namespace_ref": {
+          "title": "Namespace Ref",
+          "type": "string"
+        },
+        "source_refs": {
+          "items": {
+            "type": "string"
+          },
+          "minItems": 1,
+          "title": "Source Refs",
+          "type": "array"
+        }
+      },
+      "required": [
+        "namespace_ref",
+        "namespace_kind",
+        "canonical_label",
+        "source_refs",
+        "equivalence_posture"
+      ],
+      "title": "RepoArcNamespaceRow",
+      "type": "object"
+    },
+    "RepoBranchPostureRow": {
+      "additionalProperties": false,
+      "properties": {
+        "branch_family_id": {
+          "title": "Branch Family Id",
+          "type": "string"
+        },
+        "branch_posture": {
+          "enum": [
+            "connected_conditional_branch",
+            "deferred_branch",
+            "selected_branch",
+            "superseded_branch",
+            "not_selected_branch",
+            "review_required_branch"
+          ],
+          "title": "Branch Posture",
+          "type": "string"
+        },
+        "branch_ref": {
+          "title": "Branch Ref",
+          "type": "string"
+        },
+        "selection_condition": {
+          "title": "Selection Condition",
+          "type": "string"
+        },
+        "source_refs": {
+          "items": {
+            "type": "string"
+          },
+          "minItems": 1,
+          "title": "Source Refs",
+          "type": "array"
+        }
+      },
+      "required": [
+        "branch_ref",
+        "branch_family_id",
+        "branch_posture",
+        "selection_condition",
+        "source_refs"
+      ],
+      "title": "RepoBranchPostureRow",
+      "type": "object"
+    },
+    "RepoEvidenceSurfaceRow": {
+      "additionalProperties": false,
+      "properties": {
+        "claim_horizon": {
+          "enum": [
+            "descriptive_support",
+            "planning_candidate",
+            "architecture_decomposition",
+            "lock_authorized",
+            "closeout_evidence",
+            "released_schema_or_runtime",
+            "future_deferred",
+            "review_pending"
+          ],
+          "title": "Claim Horizon",
+          "type": "string"
+        },
+        "evidence_kind": {
+          "enum": [
+            "planning_selection",
+            "lock_contract",
+            "stop_gate_decision",
+            "edge_assessment",
+            "support_mapping",
+            "review_capture",
+            "schema_export",
+            "fixture",
+            "tool_run",
+            "closeout_artifact"
+          ],
+          "title": "Evidence Kind",
+          "type": "string"
+        },
+        "evidence_ref": {
+          "title": "Evidence Ref",
+          "type": "string"
+        },
+        "limitation_note": {
+          "title": "Limitation Note",
+          "type": "string"
+        },
+        "source_refs": {
+          "items": {
+            "type": "string"
+          },
+          "minItems": 1,
+          "title": "Source Refs",
+          "type": "array"
+        }
+      },
+      "required": [
+        "evidence_ref",
+        "evidence_kind",
+        "claim_horizon",
+        "source_refs",
+        "limitation_note"
+      ],
+      "title": "RepoEvidenceSurfaceRow",
+      "type": "object"
+    },
+    "RepoFamilyClosureRow": {
+      "additionalProperties": false,
+      "properties": {
+        "closeout_evidence_refs": {
+          "items": {
+            "type": "string"
+          },
+          "title": "Closeout Evidence Refs",
+          "type": "array"
+        },
+        "closure_posture": {
+          "enum": [
+            "closed_on_main",
+            "open_in_progress",
+            "planned_not_started",
+            "deferred_to_later_family",
+            "superseded_by_alternate_surface",
+            "not_selected_yet",
+            "unknown_needs_review"
+          ],
+          "title": "Closure Posture",
+          "type": "string"
+        },
+        "family_id": {
+          "title": "Family Id",
+          "type": "string"
+        },
+        "family_ref": {
+          "title": "Family Ref",
+          "type": "string"
+        },
+        "family_slice_id": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Family Slice Id"
+        },
+        "selected_by_refs": {
+          "items": {
+            "type": "string"
+          },
+          "title": "Selected By Refs",
+          "type": "array"
+        }
+      },
+      "required": [
+        "family_ref",
+        "family_id",
+        "closure_posture"
+      ],
+      "title": "RepoFamilyClosureRow",
+      "type": "object"
+    },
+    "RepoRecursiveCoordinatePlanRow": {
+      "additionalProperties": false,
+      "properties": {
+        "coordinate_posture": {
+          "enum": [
+            "coordinate_emitted",
+            "coordinate_absent_deliberate",
+            "coordinate_absent_tool_not_applicable",
+            "coordinate_absent_missing_source",
+            "coordinate_absent_review_required"
+          ],
+          "title": "Coordinate Posture",
+          "type": "string"
+        },
+        "coordinate_ref": {
+          "title": "Coordinate Ref",
+          "type": "string"
+        },
+        "non_authority_guardrail": {
+          "title": "Non Authority Guardrail",
+          "type": "string"
+        },
+        "target_refs": {
+          "items": {
+            "type": "string"
+          },
+          "title": "Target Refs",
+          "type": "array"
+        }
+      },
+      "required": [
+        "coordinate_ref",
+        "coordinate_posture",
+        "non_authority_guardrail"
+      ],
+      "title": "RepoRecursiveCoordinatePlanRow",
+      "type": "object"
+    },
+    "RepoSupportLineageRow": {
+      "additionalProperties": false,
+      "properties": {
+        "authority_layer": {
+          "enum": [
+            "lock",
+            "architecture",
+            "planning",
+            "support",
+            "schema",
+            "fixture"
+          ],
+          "title": "Authority Layer",
+          "type": "string"
+        },
+        "lineage_note": {
+          "title": "Lineage Note",
+          "type": "string"
+        },
+        "source_ref": {
+          "title": "Source Ref",
+          "type": "string"
+        },
+        "source_status": {
+          "enum": [
+            "integrated_shaping_source",
+            "available_but_not_integrated",
+            "review_pending_input",
+            "rejected_or_superseded_source"
+          ],
+          "title": "Source Status",
+          "type": "string"
+        },
+        "support_ref": {
+          "title": "Support Ref",
+          "type": "string"
+        }
+      },
+      "required": [
+        "support_ref",
+        "source_ref",
+        "source_status",
+        "authority_layer",
+        "lineage_note"
+      ],
+      "title": "RepoSupportLineageRow",
+      "type": "object"
+    },
+    "RepoToolApplicabilityRow": {
+      "additionalProperties": false,
+      "properties": {
+        "applicability_posture": {
+          "enum": [
+            "applicable_and_supporting",
+            "applicable_with_warnings",
+            "namespace_limited",
+            "not_applicable_to_claim",
+            "failed_or_inconclusive",
+            "not_run"
+          ],
+          "title": "Applicability Posture",
+          "type": "string"
+        },
+        "limitation_note": {
+          "title": "Limitation Note",
+          "type": "string"
+        },
+        "observed_result_ref": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Observed Result Ref"
+        },
+        "target_claim_id": {
+          "title": "Target Claim Id",
+          "type": "string"
+        },
+        "target_namespace_kind": {
+          "enum": [
+            "selector_version",
+            "family_id",
+            "family_slice_id",
+            "implementation_arc_id",
+            "closeout_arc_id",
+            "evidence_arc_id",
+            "branch_local_execution_target",
+            "planning_doc_ref",
+            "lock_doc_ref",
+            "decision_doc_ref",
+            "assessment_doc_ref",
+            "architecture_doc_ref",
+            "support_doc_ref",
+            "schema_id",
+            "fixture_dir_ref",
+            "evidence_input_ref",
+            "stop_gate_ref"
+          ],
+          "title": "Target Namespace Kind",
+          "type": "string"
+        },
+        "tool_id": {
+          "title": "Tool Id",
+          "type": "string"
+        }
+      },
+      "required": [
+        "tool_id",
+        "target_claim_id",
+        "target_namespace_kind",
+        "applicability_posture",
+        "limitation_note"
+      ],
+      "title": "RepoToolApplicabilityRow",
+      "type": "object"
+    }
+  },
+  "additionalProperties": false,
+  "properties": {
+    "branch_rows": {
+      "items": {
+        "$ref": "#/$defs/RepoBranchPostureRow"
+      },
+      "title": "Branch Rows",
+      "type": "array"
+    },
+    "cartography_id": {
+      "title": "Cartography Id",
+      "type": "string"
+    },
+    "cartography_scope": {
+      "title": "Cartography Scope",
+      "type": "string"
+    },
+    "coordinate_plan_rows": {
+      "items": {
+        "$ref": "#/$defs/RepoRecursiveCoordinatePlanRow"
+      },
+      "title": "Coordinate Plan Rows",
+      "type": "array"
+    },
+    "coverage_horizon": {
+      "title": "Coverage Horizon",
+      "type": "string"
+    },
+    "evidence_surface_rows": {
+      "items": {
+        "$ref": "#/$defs/RepoEvidenceSurfaceRow"
+      },
+      "minItems": 1,
+      "title": "Evidence Surface Rows",
+      "type": "array"
+    },
+    "family_rows": {
+      "items": {
+        "$ref": "#/$defs/RepoFamilyClosureRow"
+      },
+      "minItems": 1,
+      "title": "Family Rows",
+      "type": "array"
+    },
+    "namespace_rows": {
+      "items": {
+        "$ref": "#/$defs/RepoArcNamespaceRow"
+      },
+      "minItems": 1,
+      "title": "Namespace Rows",
+      "type": "array"
+    },
+    "schema": {
+      "const": "repo_arc_series_cartography@1",
+      "default": "repo_arc_series_cartography@1",
+      "title": "Schema",
+      "type": "string"
+    },
+    "snapshot_id": {
+      "title": "Snapshot Id",
+      "type": "string"
+    },
+    "source_rows": {
+      "items": {
+        "$ref": "#/$defs/RepoArcCartographySourceRow"
+      },
+      "minItems": 1,
+      "title": "Source Rows",
+      "type": "array"
+    },
+    "support_lineage_rows": {
+      "items": {
+        "$ref": "#/$defs/RepoSupportLineageRow"
+      },
+      "title": "Support Lineage Rows",
+      "type": "array"
+    },
+    "tool_applicability_rows": {
+      "items": {
+        "$ref": "#/$defs/RepoToolApplicabilityRow"
+      },
+      "title": "Tool Applicability Rows",
+      "type": "array"
+    },
+    "tracked_future_seams": {
+      "items": {
+        "type": "string"
+      },
+      "title": "Tracked Future Seams",
+      "type": "array"
+    }
+  },
+  "required": [
+    "cartography_id",
+    "snapshot_id",
+    "coverage_horizon",
+    "cartography_scope",
+    "source_rows",
+    "namespace_rows",
+    "family_rows",
+    "evidence_surface_rows"
+  ],
+  "title": "RepoArcSeriesCartography",
+  "type": "object"
+}

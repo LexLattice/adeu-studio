@@ -1,0 +1,114 @@
+{
+  "$defs": {
+    "RepoToolApplicabilityRow": {
+      "additionalProperties": false,
+      "properties": {
+        "applicability_posture": {
+          "enum": [
+            "applicable_and_supporting",
+            "applicable_with_warnings",
+            "namespace_limited",
+            "not_applicable_to_claim",
+            "failed_or_inconclusive",
+            "not_run"
+          ],
+          "title": "Applicability Posture",
+          "type": "string"
+        },
+        "limitation_note": {
+          "title": "Limitation Note",
+          "type": "string"
+        },
+        "observed_result_ref": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Observed Result Ref"
+        },
+        "target_claim_id": {
+          "title": "Target Claim Id",
+          "type": "string"
+        },
+        "target_namespace_kind": {
+          "enum": [
+            "selector_version",
+            "family_id",
+            "family_slice_id",
+            "implementation_arc_id",
+            "closeout_arc_id",
+            "evidence_arc_id",
+            "branch_local_execution_target",
+            "planning_doc_ref",
+            "lock_doc_ref",
+            "decision_doc_ref",
+            "assessment_doc_ref",
+            "architecture_doc_ref",
+            "support_doc_ref",
+            "schema_id",
+            "fixture_dir_ref",
+            "evidence_input_ref",
+            "stop_gate_ref"
+          ],
+          "title": "Target Namespace Kind",
+          "type": "string"
+        },
+        "tool_id": {
+          "title": "Tool Id",
+          "type": "string"
+        }
+      },
+      "required": [
+        "tool_id",
+        "target_claim_id",
+        "target_namespace_kind",
+        "applicability_posture",
+        "limitation_note"
+      ],
+      "title": "RepoToolApplicabilityRow",
+      "type": "object"
+    }
+  },
+  "additionalProperties": false,
+  "properties": {
+    "cartography_id": {
+      "title": "Cartography Id",
+      "type": "string"
+    },
+    "schema": {
+      "const": "repo_arc_mapping_tool_applicability_report@1",
+      "default": "repo_arc_mapping_tool_applicability_report@1",
+      "title": "Schema",
+      "type": "string"
+    },
+    "snapshot_id": {
+      "title": "Snapshot Id",
+      "type": "string"
+    },
+    "tool_applicability_report_id": {
+      "title": "Tool Applicability Report Id",
+      "type": "string"
+    },
+    "tool_applicability_rows": {
+      "items": {
+        "$ref": "#/$defs/RepoToolApplicabilityRow"
+      },
+      "minItems": 1,
+      "title": "Tool Applicability Rows",
+      "type": "array"
+    }
+  },
+  "required": [
+    "tool_applicability_report_id",
+    "cartography_id",
+    "snapshot_id",
+    "tool_applicability_rows"
+  ],
+  "title": "RepoArcMappingToolApplicabilityReport",
+  "type": "object"
+}

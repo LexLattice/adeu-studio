@@ -7,6 +7,16 @@ from typing import Any
 
 from adeu_ir.repo import repo_root
 
+from .arc_series_cartography import (
+    RepoArcMappingToolApplicabilityReport,
+    RepoArcNamespaceMap,
+    RepoArcSeriesCartography,
+    RepoBranchPostureRegister,
+    RepoEvidenceSurfaceIndex,
+    RepoFamilyClosureRegister,
+    RepoRecursiveCoordinateEmissionPlan,
+    RepoSupportLineageRegister,
+)
 from .models import (
     RepoArcDependencyRegister,
     RepoArcDependencyRegisterV1,
@@ -80,6 +90,18 @@ def main() -> None:
     registry_schema = RepoSchemaFamilyRegistry.model_json_schema(by_alias=True)
     catalog_schema = RepoEntityCatalog.model_json_schema(by_alias=True)
     symbol_catalog_schema = RepoSymbolCatalog.model_json_schema(by_alias=True)
+    arc_series_cartography_schema = RepoArcSeriesCartography.model_json_schema(by_alias=True)
+    arc_namespace_map_schema = RepoArcNamespaceMap.model_json_schema(by_alias=True)
+    family_closure_register_schema = RepoFamilyClosureRegister.model_json_schema(by_alias=True)
+    branch_posture_register_schema = RepoBranchPostureRegister.model_json_schema(by_alias=True)
+    support_lineage_register_schema = RepoSupportLineageRegister.model_json_schema(by_alias=True)
+    evidence_surface_index_schema = RepoEvidenceSurfaceIndex.model_json_schema(by_alias=True)
+    tool_applicability_report_schema = RepoArcMappingToolApplicabilityReport.model_json_schema(
+        by_alias=True
+    )
+    coordinate_emission_plan_schema = RepoRecursiveCoordinateEmissionPlan.model_json_schema(
+        by_alias=True
+    )
 
     _assert_no_absolute_path_material(dependency_register_v1_schema, repo_root_path=root)
     _assert_no_absolute_path_material(dependency_register_schema, repo_root_path=root)
@@ -90,6 +112,14 @@ def main() -> None:
     _assert_no_absolute_path_material(registry_schema, repo_root_path=root)
     _assert_no_absolute_path_material(catalog_schema, repo_root_path=root)
     _assert_no_absolute_path_material(symbol_catalog_schema, repo_root_path=root)
+    _assert_no_absolute_path_material(arc_series_cartography_schema, repo_root_path=root)
+    _assert_no_absolute_path_material(arc_namespace_map_schema, repo_root_path=root)
+    _assert_no_absolute_path_material(family_closure_register_schema, repo_root_path=root)
+    _assert_no_absolute_path_material(branch_posture_register_schema, repo_root_path=root)
+    _assert_no_absolute_path_material(support_lineage_register_schema, repo_root_path=root)
+    _assert_no_absolute_path_material(evidence_surface_index_schema, repo_root_path=root)
+    _assert_no_absolute_path_material(tool_applicability_report_schema, repo_root_path=root)
+    _assert_no_absolute_path_material(coordinate_emission_plan_schema, repo_root_path=root)
 
     _write_schema(
         root
@@ -178,6 +208,98 @@ def main() -> None:
     _write_schema(
         root / "spec" / "repo_symbol_catalog.schema.json",
         symbol_catalog_schema,
+    )
+    _write_schema(
+        root
+        / "packages"
+        / "adeu_repo_description"
+        / "schema"
+        / "repo_arc_series_cartography.v1.json",
+        arc_series_cartography_schema,
+    )
+    _write_schema(
+        root / "spec" / "repo_arc_series_cartography.schema.json",
+        arc_series_cartography_schema,
+    )
+    _write_schema(
+        root / "packages" / "adeu_repo_description" / "schema" / "repo_arc_namespace_map.v1.json",
+        arc_namespace_map_schema,
+    )
+    _write_schema(
+        root / "spec" / "repo_arc_namespace_map.schema.json",
+        arc_namespace_map_schema,
+    )
+    _write_schema(
+        root
+        / "packages"
+        / "adeu_repo_description"
+        / "schema"
+        / "repo_family_closure_register.v1.json",
+        family_closure_register_schema,
+    )
+    _write_schema(
+        root / "spec" / "repo_family_closure_register.schema.json",
+        family_closure_register_schema,
+    )
+    _write_schema(
+        root
+        / "packages"
+        / "adeu_repo_description"
+        / "schema"
+        / "repo_branch_posture_register.v1.json",
+        branch_posture_register_schema,
+    )
+    _write_schema(
+        root / "spec" / "repo_branch_posture_register.schema.json",
+        branch_posture_register_schema,
+    )
+    _write_schema(
+        root
+        / "packages"
+        / "adeu_repo_description"
+        / "schema"
+        / "repo_support_lineage_register.v1.json",
+        support_lineage_register_schema,
+    )
+    _write_schema(
+        root / "spec" / "repo_support_lineage_register.schema.json",
+        support_lineage_register_schema,
+    )
+    _write_schema(
+        root
+        / "packages"
+        / "adeu_repo_description"
+        / "schema"
+        / "repo_evidence_surface_index.v1.json",
+        evidence_surface_index_schema,
+    )
+    _write_schema(
+        root / "spec" / "repo_evidence_surface_index.schema.json",
+        evidence_surface_index_schema,
+    )
+    _write_schema(
+        root
+        / "packages"
+        / "adeu_repo_description"
+        / "schema"
+        / "repo_arc_mapping_tool_applicability_report.v1.json",
+        tool_applicability_report_schema,
+    )
+    _write_schema(
+        root / "spec" / "repo_arc_mapping_tool_applicability_report.schema.json",
+        tool_applicability_report_schema,
+    )
+    _write_schema(
+        root
+        / "packages"
+        / "adeu_repo_description"
+        / "schema"
+        / "repo_recursive_coordinate_emission_plan.v1.json",
+        coordinate_emission_plan_schema,
+    )
+    _write_schema(
+        root / "spec" / "repo_recursive_coordinate_emission_plan.schema.json",
+        coordinate_emission_plan_schema,
     )
 
 
