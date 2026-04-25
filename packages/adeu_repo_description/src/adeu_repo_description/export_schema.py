@@ -38,6 +38,10 @@ from .recursive_candidate_intake import (
     RepoCandidateSourceRegister,
     RepoRecursiveCandidateIntakeRecord,
 )
+from .recursive_candidate_intake_derivation import (
+    RepoCandidateIntakeDerivationManifest,
+    RepoCandidateIntakeGapScan,
+)
 
 _WINDOWS_ABSOLUTE_PATH_RE = re.compile(r"[A-Za-z]:\\")
 
@@ -128,6 +132,10 @@ def main() -> None:
     candidate_non_adoption_guardrail_schema = RepoCandidateNonAdoptionGuardrail.model_json_schema(
         by_alias=True
     )
+    candidate_intake_derivation_manifest_schema = (
+        RepoCandidateIntakeDerivationManifest.model_json_schema(by_alias=True)
+    )
+    candidate_intake_gap_scan_schema = RepoCandidateIntakeGapScan.model_json_schema(by_alias=True)
 
     _assert_no_absolute_path_material(dependency_register_v1_schema, repo_root_path=root)
     _assert_no_absolute_path_material(dependency_register_schema, repo_root_path=root)
@@ -152,6 +160,10 @@ def main() -> None:
     _assert_no_absolute_path_material(recursive_candidate_intake_schema, repo_root_path=root)
     _assert_no_absolute_path_material(candidate_source_register_schema, repo_root_path=root)
     _assert_no_absolute_path_material(candidate_non_adoption_guardrail_schema, repo_root_path=root)
+    _assert_no_absolute_path_material(
+        candidate_intake_derivation_manifest_schema, repo_root_path=root
+    )
+    _assert_no_absolute_path_material(candidate_intake_gap_scan_schema, repo_root_path=root)
 
     _write_schema(
         root
@@ -404,6 +416,30 @@ def main() -> None:
     _write_schema(
         root / "spec" / "repo_candidate_non_adoption_guardrail.schema.json",
         candidate_non_adoption_guardrail_schema,
+    )
+    _write_schema(
+        root
+        / "packages"
+        / "adeu_repo_description"
+        / "schema"
+        / "repo_candidate_intake_derivation_manifest.v1.json",
+        candidate_intake_derivation_manifest_schema,
+    )
+    _write_schema(
+        root / "spec" / "repo_candidate_intake_derivation_manifest.schema.json",
+        candidate_intake_derivation_manifest_schema,
+    )
+    _write_schema(
+        root
+        / "packages"
+        / "adeu_repo_description"
+        / "schema"
+        / "repo_candidate_intake_gap_scan.v1.json",
+        candidate_intake_gap_scan_schema,
+    )
+    _write_schema(
+        root / "spec" / "repo_candidate_intake_gap_scan.schema.json",
+        candidate_intake_gap_scan_schema,
     )
 
 

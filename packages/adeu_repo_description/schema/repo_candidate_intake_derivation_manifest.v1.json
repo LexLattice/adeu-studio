@@ -1,0 +1,288 @@
+{
+  "$defs": {
+    "RepoCandidateDerivationRow": {
+      "additionalProperties": false,
+      "properties": {
+        "candidate_ref": {
+          "title": "Candidate Ref",
+          "type": "string"
+        },
+        "derivation_posture": {
+          "enum": [
+            "derived",
+            "manual_seeded",
+            "suppressed_duplicate",
+            "suppressed_out_of_scope",
+            "review_required"
+          ],
+          "title": "Derivation Posture",
+          "type": "string"
+        },
+        "derivation_ref": {
+          "title": "Derivation Ref",
+          "type": "string"
+        },
+        "derivation_rule_ref": {
+          "title": "Derivation Rule Ref",
+          "type": "string"
+        },
+        "derived_authority_layer": {
+          "enum": [
+            "lock",
+            "architecture",
+            "planning",
+            "support",
+            "schema",
+            "fixture",
+            "closeout_evidence"
+          ],
+          "title": "Derived Authority Layer",
+          "type": "string"
+        },
+        "limitation_note": {
+          "title": "Limitation Note",
+          "type": "string"
+        },
+        "source_refs": {
+          "items": {
+            "type": "string"
+          },
+          "minItems": 1,
+          "title": "Source Refs",
+          "type": "array"
+        }
+      },
+      "required": [
+        "derivation_ref",
+        "candidate_ref",
+        "derivation_posture",
+        "derived_authority_layer",
+        "derivation_rule_ref",
+        "source_refs",
+        "limitation_note"
+      ],
+      "title": "RepoCandidateDerivationRow",
+      "type": "object"
+    },
+    "RepoCandidateDuplicateGroup": {
+      "additionalProperties": false,
+      "properties": {
+        "candidate_refs": {
+          "items": {
+            "type": "string"
+          },
+          "minItems": 2,
+          "title": "Candidate Refs",
+          "type": "array"
+        },
+        "duplicate_group_ref": {
+          "title": "Duplicate Group Ref",
+          "type": "string"
+        },
+        "equivalence_posture": {
+          "enum": [
+            "equivalent_to_existing_candidate",
+            "review_required"
+          ],
+          "title": "Equivalence Posture",
+          "type": "string"
+        },
+        "limitation_note": {
+          "title": "Limitation Note",
+          "type": "string"
+        },
+        "source_refs": {
+          "items": {
+            "type": "string"
+          },
+          "title": "Source Refs",
+          "type": "array"
+        }
+      },
+      "required": [
+        "duplicate_group_ref",
+        "candidate_refs",
+        "equivalence_posture",
+        "limitation_note"
+      ],
+      "title": "RepoCandidateDuplicateGroup",
+      "type": "object"
+    },
+    "RepoCandidateIntakeObservedSourceRow": {
+      "additionalProperties": false,
+      "properties": {
+        "authority_layer": {
+          "enum": [
+            "lock",
+            "architecture",
+            "planning",
+            "support",
+            "schema",
+            "fixture",
+            "closeout_evidence"
+          ],
+          "title": "Authority Layer",
+          "type": "string"
+        },
+        "limitation_note": {
+          "title": "Limitation Note",
+          "type": "string"
+        },
+        "observed_for_patterns": {
+          "items": {
+            "type": "string"
+          },
+          "minItems": 1,
+          "title": "Observed For Patterns",
+          "type": "array"
+        },
+        "source_kind": {
+          "enum": [
+            "planning_doc",
+            "architecture_doc",
+            "support_doc",
+            "review_input",
+            "closeout_doc",
+            "evidence_artifact",
+            "schema_file",
+            "fixture_file",
+            "operator_turn",
+            "transcript_artifact",
+            "model_output",
+            "repo_observation",
+            "external_artifact"
+          ],
+          "title": "Source Kind",
+          "type": "string"
+        },
+        "source_presence_posture": {
+          "enum": [
+            "present",
+            "missing_expected_support_artifact",
+            "not_uploaded_in_review_snapshot",
+            "generated_later",
+            "external_unavailable",
+            "operator_turn_not_committed"
+          ],
+          "title": "Source Presence Posture",
+          "type": "string"
+        },
+        "source_ref": {
+          "title": "Source Ref",
+          "type": "string"
+        },
+        "source_status": {
+          "enum": [
+            "integrated_shaping_source",
+            "available_but_not_integrated",
+            "review_pending_input",
+            "rejected_or_superseded_source"
+          ],
+          "title": "Source Status",
+          "type": "string"
+        }
+      },
+      "required": [
+        "source_ref",
+        "source_kind",
+        "authority_layer",
+        "source_status",
+        "source_presence_posture",
+        "observed_for_patterns",
+        "limitation_note"
+      ],
+      "title": "RepoCandidateIntakeObservedSourceRow",
+      "type": "object"
+    }
+  },
+  "additionalProperties": false,
+  "properties": {
+    "candidate_refs_emitted": {
+      "items": {
+        "type": "string"
+      },
+      "title": "Candidate Refs Emitted",
+      "type": "array"
+    },
+    "candidate_refs_suppressed": {
+      "items": {
+        "type": "string"
+      },
+      "title": "Candidate Refs Suppressed",
+      "type": "array"
+    },
+    "coverage_horizon": {
+      "title": "Coverage Horizon",
+      "type": "string"
+    },
+    "derivation_limitations": {
+      "items": {
+        "type": "string"
+      },
+      "minItems": 1,
+      "title": "Derivation Limitations",
+      "type": "array"
+    },
+    "derivation_manifest_id": {
+      "title": "Derivation Manifest Id",
+      "type": "string"
+    },
+    "derivation_rows": {
+      "items": {
+        "$ref": "#/$defs/RepoCandidateDerivationRow"
+      },
+      "minItems": 1,
+      "title": "Derivation Rows",
+      "type": "array"
+    },
+    "duplicate_groups": {
+      "items": {
+        "$ref": "#/$defs/RepoCandidateDuplicateGroup"
+      },
+      "title": "Duplicate Groups",
+      "type": "array"
+    },
+    "intake_id": {
+      "title": "Intake Id",
+      "type": "string"
+    },
+    "observed_source_rows": {
+      "items": {
+        "$ref": "#/$defs/RepoCandidateIntakeObservedSourceRow"
+      },
+      "minItems": 1,
+      "title": "Observed Source Rows",
+      "type": "array"
+    },
+    "schema": {
+      "const": "repo_candidate_intake_derivation_manifest@1",
+      "default": "repo_candidate_intake_derivation_manifest@1",
+      "title": "Schema",
+      "type": "string"
+    },
+    "snapshot_id": {
+      "title": "Snapshot Id",
+      "type": "string"
+    },
+    "source_globs_scanned": {
+      "items": {
+        "type": "string"
+      },
+      "minItems": 1,
+      "title": "Source Globs Scanned",
+      "type": "array"
+    }
+  },
+  "required": [
+    "derivation_manifest_id",
+    "intake_id",
+    "snapshot_id",
+    "coverage_horizon",
+    "source_globs_scanned",
+    "observed_source_rows",
+    "derivation_rows",
+    "derivation_limitations"
+  ],
+  "title": "RepoCandidateIntakeDerivationManifest",
+  "type": "object"
+}
