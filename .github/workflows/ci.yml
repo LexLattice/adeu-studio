@@ -28,7 +28,7 @@ jobs:
             RANGE_SPEC="$(git merge-base "${BASE_REF}" HEAD)..HEAD"
           else
             BEFORE_SHA="${GITHUB_EVENT_BEFORE}"
-            if [[ -n "${BEFORE_SHA}" && "${BEFORE_SHA}" != "0000000000000000000000000000000000000000" ]]; then
+            if [[ -n "${BEFORE_SHA}" && "${BEFORE_SHA}" != "0000000000000000000000000000000000000000" ]] && git cat-file -e "${BEFORE_SHA}^{commit}" 2>/dev/null; then
               RANGE_SPEC="${BEFORE_SHA}..HEAD"
             elif git rev-parse HEAD^ >/dev/null 2>&1; then
               RANGE_SPEC="HEAD^..HEAD"
