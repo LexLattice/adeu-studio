@@ -29,12 +29,15 @@ from adeu_repo_description import (
     REPO_CANDIDATE_REVIEW_GAP_SCAN_SCHEMA,
     REPO_CANDIDATE_SOURCE_REGISTER_SCHEMA,
     REPO_CONTAINED_INTEGRATION_CANDIDATE_PLAN_SCHEMA,
+    REPO_CONTAINED_INTEGRATION_TRIAL_RECORD_SCHEMA,
     REPO_DEPENDENCY_GRAPH_SCHEMA,
     REPO_DESCRIPTIVE_NORMATIVE_BINDING_FRAME_SCHEMA,
     REPO_ENTITY_CATALOG_SCHEMA,
     REPO_EVIDENCE_SURFACE_INDEX_SCHEMA,
     REPO_FAMILY_CLOSURE_REGISTER_SCHEMA,
+    REPO_INTEGRATION_EFFECT_SURFACE_REGISTER_SCHEMA,
     REPO_INTEGRATION_NON_RELEASE_GUARDRAIL_SCHEMA,
+    REPO_INTEGRATION_ROLLBACK_READINESS_SCHEMA,
     REPO_INTEGRATION_TARGET_BOUNDARY_SCHEMA,
     REPO_OPERATOR_INGRESS_CANDIDATE_BINDING_SCHEMA,
     REPO_OPTIMIZATION_REGISTER_SCHEMA,
@@ -403,6 +406,30 @@ def _schema_pairs() -> dict[str, tuple[Path, Path]]:
             / "schema"
             / "repo_integration_non_release_guardrail.v1.json",
             root / "spec" / "repo_integration_non_release_guardrail.schema.json",
+        ),
+        REPO_CONTAINED_INTEGRATION_TRIAL_RECORD_SCHEMA: (
+            root
+            / "packages"
+            / "adeu_repo_description"
+            / "schema"
+            / "repo_contained_integration_trial_record.v1.json",
+            root / "spec" / "repo_contained_integration_trial_record.schema.json",
+        ),
+        REPO_INTEGRATION_EFFECT_SURFACE_REGISTER_SCHEMA: (
+            root
+            / "packages"
+            / "adeu_repo_description"
+            / "schema"
+            / "repo_integration_effect_surface_register.v1.json",
+            root / "spec" / "repo_integration_effect_surface_register.schema.json",
+        ),
+        REPO_INTEGRATION_ROLLBACK_READINESS_SCHEMA: (
+            root
+            / "packages"
+            / "adeu_repo_description"
+            / "schema"
+            / "repo_integration_rollback_readiness.v1.json",
+            root / "spec" / "repo_integration_rollback_readiness.schema.json",
         ),
     }
 

@@ -1,0 +1,92 @@
+{
+  "containment_plan_id": "repo_contained_integration_candidate_plan_1fc878ea98ac029ec2305113",
+  "non_authority_summary": "Trial records are review-only: no accepted repository truth, no commit, no merge, no release, no product authorization, no runtime permission, no dispatch authority, and no V73 outcome review.",
+  "non_release_guardrail_id": "repo_integration_non_release_guardrail_9caca5e812947f9fb5288918",
+  "review_id": "review:v72b:contained-trial-review",
+  "schema": "repo_contained_integration_trial_record@1",
+  "snapshot_id": "vNext+200-prestart-on-main",
+  "source_set_id": "source-set:v70a:released-v69c-handoff",
+  "target_boundary_id": "repo_integration_target_boundary_dffe6e4b3dbee9f1a7fc99c6",
+  "trial_record_id": "repo_contained_integration_trial_record_ae85e47c69f8720d6130dfa6",
+  "trial_rows": [
+    {
+      "active_lock_refs": [],
+      "candidate_ref": "candidate:internal:odeu_conceptual_diff_report@1",
+      "carried_forward_effect_gap_refs": [
+        "gap:v70b:odeu-diff:missing-counterevidence"
+      ],
+      "effect_gap_refs": [
+        "gap:v70b:odeu-diff:missing-counterevidence"
+      ],
+      "limitation_note": "Dissent and evidence gap keep the trial blocked.",
+      "non_release_guardrail_refs": [
+        "guardrail:v72a:odeu-diff:no-integration"
+      ],
+      "observed_effect_refs": [],
+      "plan_refs": [
+        "plan:v72a:odeu-diff:blocked-by-dissent"
+      ],
+      "rollback_readiness_refs": [],
+      "target_boundary_refs": [],
+      "trial_diff_posture": "no_diff_recorded",
+      "trial_evidence_refs": [],
+      "trial_posture": "trial_blocked",
+      "trial_ref": "trial:v72b:odeu-diff:blocked"
+    },
+    {
+      "active_lock_refs": [],
+      "candidate_ref": "candidate:internal:typed_adjudication_product_wedge",
+      "carried_forward_effect_gap_refs": [
+        "gap:v70b:product-wedge:v74-boundary"
+      ],
+      "effect_gap_refs": [
+        "gap:v70b:product-wedge:v74-boundary"
+      ],
+      "limitation_note": "Product pressure remains future-family only.",
+      "non_release_guardrail_refs": [
+        "guardrail:v72a:product-wedge:future-family"
+      ],
+      "observed_effect_refs": [],
+      "plan_refs": [
+        "plan:v72a:product-wedge:future-family"
+      ],
+      "rollback_readiness_refs": [],
+      "target_boundary_refs": [],
+      "trial_diff_posture": "no_diff_recorded",
+      "trial_evidence_refs": [],
+      "trial_posture": "trial_blocked",
+      "trial_ref": "trial:v72b:product-wedge:blocked"
+    },
+    {
+      "active_lock_refs": [
+        "docs/LOCKED_CONTINUATION_vNEXT_PLUS201.md"
+      ],
+      "candidate_ref": "candidate:internal:self_evidencing_workflow_type_emergence",
+      "carried_forward_effect_gap_refs": [],
+      "effect_gap_refs": [],
+      "limitation_note": "Trial row claims release authority.",
+      "non_release_guardrail_refs": [
+        "guardrail:v72a:self-evidencing:no-release"
+      ],
+      "observed_effect_refs": [
+        "effect:v72b:self-evidencing:schema-surface"
+      ],
+      "plan_refs": [
+        "plan:v72a:self-evidencing:schema-containment"
+      ],
+      "rollback_readiness_refs": [
+        "rollback:v72b:self-evidencing:plan-present"
+      ],
+      "target_boundary_refs": [
+        "target:v72a:self-evidencing:schema-surface"
+      ],
+      "trial_diff_posture": "diff_accepted_for_review_only",
+      "trial_evidence_refs": [
+        "apps/api/fixtures/repo_description/vnext_plus201/repo_contained_integration_trial_record_v201_reference.json",
+        "packages/adeu_repo_description/tests/test_contained_integration_review_v72b.py"
+      ],
+      "trial_posture": "trial_ready_for_outcome_review",
+      "trial_ref": "trial:v72b:self-evidencing:dry-run"
+    }
+  ]
+}

@@ -49,7 +49,10 @@ from .candidate_review_summary import (
 )
 from .contained_integration_review import (
     RepoContainedIntegrationCandidatePlan,
+    RepoContainedIntegrationTrialRecord,
+    RepoIntegrationEffectSurfaceRegister,
     RepoIntegrationNonReleaseGuardrail,
+    RepoIntegrationRollbackReadiness,
     RepoIntegrationTargetBoundary,
 )
 from .models import (
@@ -234,6 +237,15 @@ def main() -> None:
     integration_non_release_guardrail_schema = RepoIntegrationNonReleaseGuardrail.model_json_schema(
         by_alias=True
     )
+    contained_integration_trial_record_schema = (
+        RepoContainedIntegrationTrialRecord.model_json_schema(by_alias=True)
+    )
+    integration_effect_surface_register_schema = (
+        RepoIntegrationEffectSurfaceRegister.model_json_schema(by_alias=True)
+    )
+    integration_rollback_readiness_schema = RepoIntegrationRollbackReadiness.model_json_schema(
+        by_alias=True
+    )
 
     _assert_no_absolute_path_material(dependency_register_v1_schema, repo_root_path=root)
     _assert_no_absolute_path_material(dependency_register_schema, repo_root_path=root)
@@ -309,6 +321,15 @@ def main() -> None:
     )
     _assert_no_absolute_path_material(integration_target_boundary_schema, repo_root_path=root)
     _assert_no_absolute_path_material(integration_non_release_guardrail_schema, repo_root_path=root)
+    _assert_no_absolute_path_material(
+        contained_integration_trial_record_schema,
+        repo_root_path=root,
+    )
+    _assert_no_absolute_path_material(
+        integration_effect_surface_register_schema,
+        repo_root_path=root,
+    )
+    _assert_no_absolute_path_material(integration_rollback_readiness_schema, repo_root_path=root)
 
     _write_schema(
         root
@@ -861,6 +882,42 @@ def main() -> None:
     _write_schema(
         root / "spec" / "repo_integration_non_release_guardrail.schema.json",
         integration_non_release_guardrail_schema,
+    )
+    _write_schema(
+        root
+        / "packages"
+        / "adeu_repo_description"
+        / "schema"
+        / "repo_contained_integration_trial_record.v1.json",
+        contained_integration_trial_record_schema,
+    )
+    _write_schema(
+        root / "spec" / "repo_contained_integration_trial_record.schema.json",
+        contained_integration_trial_record_schema,
+    )
+    _write_schema(
+        root
+        / "packages"
+        / "adeu_repo_description"
+        / "schema"
+        / "repo_integration_effect_surface_register.v1.json",
+        integration_effect_surface_register_schema,
+    )
+    _write_schema(
+        root / "spec" / "repo_integration_effect_surface_register.schema.json",
+        integration_effect_surface_register_schema,
+    )
+    _write_schema(
+        root
+        / "packages"
+        / "adeu_repo_description"
+        / "schema"
+        / "repo_integration_rollback_readiness.v1.json",
+        integration_rollback_readiness_schema,
+    )
+    _write_schema(
+        root / "spec" / "repo_integration_rollback_readiness.schema.json",
+        integration_rollback_readiness_schema,
     )
 
 

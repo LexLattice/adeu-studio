@@ -1,0 +1,184 @@
+{
+  "$defs": {
+    "RepoContainedIntegrationTrialRow": {
+      "additionalProperties": false,
+      "properties": {
+        "active_lock_refs": {
+          "items": {
+            "type": "string"
+          },
+          "title": "Active Lock Refs",
+          "type": "array"
+        },
+        "candidate_ref": {
+          "title": "Candidate Ref",
+          "type": "string"
+        },
+        "carried_forward_effect_gap_refs": {
+          "items": {
+            "type": "string"
+          },
+          "title": "Carried Forward Effect Gap Refs",
+          "type": "array"
+        },
+        "effect_gap_refs": {
+          "items": {
+            "type": "string"
+          },
+          "title": "Effect Gap Refs",
+          "type": "array"
+        },
+        "limitation_note": {
+          "title": "Limitation Note",
+          "type": "string"
+        },
+        "non_release_guardrail_refs": {
+          "items": {
+            "type": "string"
+          },
+          "minItems": 1,
+          "title": "Non Release Guardrail Refs",
+          "type": "array"
+        },
+        "observed_effect_refs": {
+          "items": {
+            "type": "string"
+          },
+          "title": "Observed Effect Refs",
+          "type": "array"
+        },
+        "plan_refs": {
+          "items": {
+            "type": "string"
+          },
+          "minItems": 1,
+          "title": "Plan Refs",
+          "type": "array"
+        },
+        "rollback_readiness_refs": {
+          "items": {
+            "type": "string"
+          },
+          "title": "Rollback Readiness Refs",
+          "type": "array"
+        },
+        "target_boundary_refs": {
+          "items": {
+            "type": "string"
+          },
+          "title": "Target Boundary Refs",
+          "type": "array"
+        },
+        "trial_diff_posture": {
+          "enum": [
+            "no_diff_recorded",
+            "proposed_diff_recorded",
+            "local_diff_observed",
+            "diff_reverted",
+            "diff_accepted_for_review_only",
+            "diff_rejected",
+            "diff_requires_later_authority"
+          ],
+          "title": "Trial Diff Posture",
+          "type": "string"
+        },
+        "trial_evidence_refs": {
+          "items": {
+            "type": "string"
+          },
+          "title": "Trial Evidence Refs",
+          "type": "array"
+        },
+        "trial_posture": {
+          "enum": [
+            "planned_not_executed",
+            "dry_run_recorded",
+            "local_trial_recorded",
+            "trial_blocked",
+            "trial_reverted",
+            "trial_ready_for_outcome_review"
+          ],
+          "title": "Trial Posture",
+          "type": "string"
+        },
+        "trial_ref": {
+          "title": "Trial Ref",
+          "type": "string"
+        }
+      },
+      "required": [
+        "trial_ref",
+        "candidate_ref",
+        "plan_refs",
+        "trial_posture",
+        "trial_diff_posture",
+        "non_release_guardrail_refs",
+        "limitation_note"
+      ],
+      "title": "RepoContainedIntegrationTrialRow",
+      "type": "object"
+    }
+  },
+  "additionalProperties": false,
+  "properties": {
+    "containment_plan_id": {
+      "title": "Containment Plan Id",
+      "type": "string"
+    },
+    "non_authority_summary": {
+      "title": "Non Authority Summary",
+      "type": "string"
+    },
+    "non_release_guardrail_id": {
+      "title": "Non Release Guardrail Id",
+      "type": "string"
+    },
+    "review_id": {
+      "title": "Review Id",
+      "type": "string"
+    },
+    "schema": {
+      "const": "repo_contained_integration_trial_record@1",
+      "default": "repo_contained_integration_trial_record@1",
+      "title": "Schema",
+      "type": "string"
+    },
+    "snapshot_id": {
+      "title": "Snapshot Id",
+      "type": "string"
+    },
+    "source_set_id": {
+      "title": "Source Set Id",
+      "type": "string"
+    },
+    "target_boundary_id": {
+      "title": "Target Boundary Id",
+      "type": "string"
+    },
+    "trial_record_id": {
+      "title": "Trial Record Id",
+      "type": "string"
+    },
+    "trial_rows": {
+      "items": {
+        "$ref": "#/$defs/RepoContainedIntegrationTrialRow"
+      },
+      "minItems": 1,
+      "title": "Trial Rows",
+      "type": "array"
+    }
+  },
+  "required": [
+    "trial_record_id",
+    "review_id",
+    "snapshot_id",
+    "source_set_id",
+    "containment_plan_id",
+    "target_boundary_id",
+    "non_release_guardrail_id",
+    "trial_rows",
+    "non_authority_summary"
+  ],
+  "title": "RepoContainedIntegrationTrialRecord",
+  "type": "object"
+}

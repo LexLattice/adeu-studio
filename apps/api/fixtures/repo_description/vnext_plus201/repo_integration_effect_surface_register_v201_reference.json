@@ -1,0 +1,34 @@
+{
+  "effect_rows": [
+    {
+      "candidate_ref": "candidate:internal:self_evidencing_workflow_type_emergence",
+      "carried_forward_gap_refs": [],
+      "effect_gap_refs": [],
+      "effect_posture": "effect_observed",
+      "effect_ref": "effect:v72b:self-evidencing:schema-surface",
+      "effect_surface_kind": "schema_effect",
+      "limitation_note": "Schema effect is observed for review-only trial records.",
+      "observed_artifact_refs": [
+        "packages/adeu_repo_description/schema/repo_contained_integration_trial_record.v1.json",
+        "packages/adeu_repo_description/schema/repo_integration_effect_surface_register.v1.json",
+        "packages/adeu_repo_description/schema/repo_integration_rollback_readiness.v1.json"
+      ],
+      "target_boundary_refs": [
+        "target:v72a:self-evidencing:schema-surface"
+      ],
+      "test_refs": [
+        "packages/adeu_repo_description/tests/test_contained_integration_review_v72b.py"
+      ],
+      "trial_refs": [
+        "trial:v72b:self-evidencing:dry-run"
+      ]
+    }
+  ],
+  "effect_surface_register_id": "repo_integration_effect_surface_register_62f1efe5fcf8008ea68edc54",
+  "non_authority_summary": "Trial records are review-only: no accepted repository truth, no commit, no merge, no release, no product authorization, no runtime permission, no dispatch authority, and no V73 outcome review.",
+  "review_id": "review:v72b:contained-trial-review",
+  "schema": "repo_integration_effect_surface_register@1",
+  "snapshot_id": "vNext+200-prestart-on-main",
+  "source_set_id": "source-set:v70a:released-v69c-handoff",
+  "trial_record_id": "repo_contained_integration_trial_record_ae85e47c69f8720d6130dfa6"
+}
