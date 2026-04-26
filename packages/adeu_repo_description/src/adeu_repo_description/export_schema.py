@@ -23,8 +23,11 @@ from .arc_series_cartography_derivation import (
 )
 from .arc_series_cartography_tools import RepoArcCartographyToolRunEvidence
 from .candidate_ratification_review import (
+    RepoCandidateRatificationFamilyCloseoutAlignment,
     RepoCandidateRatificationRecord,
     RepoCandidateRatificationRequest,
+    RepoPostRatificationHandoff,
+    RepoRatificationAmendmentScopeBoundary,
     RepoRatificationAuthorityProfile,
     RepoRatificationDissentRegister,
     RepoRatificationRequestScopeBoundary,
@@ -210,6 +213,13 @@ def main() -> None:
     ratification_dissent_register_schema = RepoRatificationDissentRegister.model_json_schema(
         by_alias=True
     )
+    ratification_amendment_scope_boundary_schema = (
+        RepoRatificationAmendmentScopeBoundary.model_json_schema(by_alias=True)
+    )
+    post_ratification_handoff_schema = RepoPostRatificationHandoff.model_json_schema(by_alias=True)
+    candidate_ratification_family_closeout_alignment_schema = (
+        RepoCandidateRatificationFamilyCloseoutAlignment.model_json_schema(by_alias=True)
+    )
 
     _assert_no_absolute_path_material(dependency_register_v1_schema, repo_root_path=root)
     _assert_no_absolute_path_material(dependency_register_schema, repo_root_path=root)
@@ -273,6 +283,13 @@ def main() -> None:
     _assert_no_absolute_path_material(candidate_ratification_record_schema, repo_root_path=root)
     _assert_no_absolute_path_material(review_settlement_record_schema, repo_root_path=root)
     _assert_no_absolute_path_material(ratification_dissent_register_schema, repo_root_path=root)
+    _assert_no_absolute_path_material(
+        ratification_amendment_scope_boundary_schema, repo_root_path=root
+    )
+    _assert_no_absolute_path_material(post_ratification_handoff_schema, repo_root_path=root)
+    _assert_no_absolute_path_material(
+        candidate_ratification_family_closeout_alignment_schema, repo_root_path=root
+    )
 
     _write_schema(
         root
@@ -753,6 +770,42 @@ def main() -> None:
     _write_schema(
         root / "spec" / "repo_ratification_dissent_register.schema.json",
         ratification_dissent_register_schema,
+    )
+    _write_schema(
+        root
+        / "packages"
+        / "adeu_repo_description"
+        / "schema"
+        / "repo_ratification_amendment_scope_boundary.v1.json",
+        ratification_amendment_scope_boundary_schema,
+    )
+    _write_schema(
+        root / "spec" / "repo_ratification_amendment_scope_boundary.schema.json",
+        ratification_amendment_scope_boundary_schema,
+    )
+    _write_schema(
+        root
+        / "packages"
+        / "adeu_repo_description"
+        / "schema"
+        / "repo_post_ratification_handoff.v1.json",
+        post_ratification_handoff_schema,
+    )
+    _write_schema(
+        root / "spec" / "repo_post_ratification_handoff.schema.json",
+        post_ratification_handoff_schema,
+    )
+    _write_schema(
+        root
+        / "packages"
+        / "adeu_repo_description"
+        / "schema"
+        / "repo_candidate_ratification_family_closeout_alignment.v1.json",
+        candidate_ratification_family_closeout_alignment_schema,
+    )
+    _write_schema(
+        root / "spec" / "repo_candidate_ratification_family_closeout_alignment.schema.json",
+        candidate_ratification_family_closeout_alignment_schema,
     )
 
 

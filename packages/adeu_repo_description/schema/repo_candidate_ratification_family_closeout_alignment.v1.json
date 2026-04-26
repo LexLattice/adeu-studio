@@ -1,0 +1,142 @@
+{
+  "$defs": {
+    "RepoCandidateRatificationFamilyCloseoutRow": {
+      "additionalProperties": false,
+      "properties": {
+        "amendment_scope_refs": {
+          "items": {
+            "type": "string"
+          },
+          "minItems": 1,
+          "title": "Amendment Scope Refs",
+          "type": "array"
+        },
+        "candidate_ref": {
+          "title": "Candidate Ref",
+          "type": "string"
+        },
+        "closeout_posture": {
+          "enum": [
+            "ratified_for_later_review",
+            "deferred_with_dissent",
+            "future_family_routed",
+            "rejected_out_of_scope"
+          ],
+          "title": "Closeout Posture",
+          "type": "string"
+        },
+        "handoff_refs": {
+          "items": {
+            "type": "string"
+          },
+          "minItems": 1,
+          "title": "Handoff Refs",
+          "type": "array"
+        },
+        "limitation_note": {
+          "title": "Limitation Note",
+          "type": "string"
+        },
+        "ratification_refs": {
+          "items": {
+            "type": "string"
+          },
+          "minItems": 1,
+          "title": "Ratification Refs",
+          "type": "array"
+        }
+      },
+      "required": [
+        "candidate_ref",
+        "ratification_refs",
+        "amendment_scope_refs",
+        "handoff_refs",
+        "closeout_posture",
+        "limitation_note"
+      ],
+      "title": "RepoCandidateRatificationFamilyCloseoutRow",
+      "type": "object"
+    }
+  },
+  "additionalProperties": false,
+  "properties": {
+    "candidate_rows": {
+      "items": {
+        "$ref": "#/$defs/RepoCandidateRatificationFamilyCloseoutRow"
+      },
+      "minItems": 1,
+      "title": "Candidate Rows",
+      "type": "array"
+    },
+    "closed_slices": {
+      "items": {
+        "type": "string"
+      },
+      "minItems": 1,
+      "title": "Closed Slices",
+      "type": "array"
+    },
+    "consumed_record_shapes": {
+      "items": {
+        "type": "string"
+      },
+      "minItems": 1,
+      "title": "Consumed Record Shapes",
+      "type": "array"
+    },
+    "emitted_record_shapes": {
+      "items": {
+        "type": "string"
+      },
+      "minItems": 1,
+      "title": "Emitted Record Shapes",
+      "type": "array"
+    },
+    "family_closeout_alignment_id": {
+      "title": "Family Closeout Alignment Id",
+      "type": "string"
+    },
+    "family_id": {
+      "title": "Family Id",
+      "type": "string"
+    },
+    "future_family_refs": {
+      "items": {
+        "type": "string"
+      },
+      "title": "Future Family Refs",
+      "type": "array"
+    },
+    "non_authority_guardrail": {
+      "title": "Non Authority Guardrail",
+      "type": "string"
+    },
+    "schema": {
+      "const": "repo_candidate_ratification_family_closeout_alignment@1",
+      "default": "repo_candidate_ratification_family_closeout_alignment@1",
+      "title": "Schema",
+      "type": "string"
+    },
+    "snapshot_id": {
+      "title": "Snapshot Id",
+      "type": "string"
+    },
+    "source_set_id": {
+      "title": "Source Set Id",
+      "type": "string"
+    }
+  },
+  "required": [
+    "family_closeout_alignment_id",
+    "family_id",
+    "snapshot_id",
+    "source_set_id",
+    "closed_slices",
+    "consumed_record_shapes",
+    "emitted_record_shapes",
+    "candidate_rows",
+    "non_authority_guardrail"
+  ],
+  "title": "RepoCandidateRatificationFamilyCloseoutAlignment",
+  "type": "object"
+}

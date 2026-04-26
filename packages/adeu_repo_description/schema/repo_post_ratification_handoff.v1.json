@@ -1,0 +1,150 @@
+{
+  "$defs": {
+    "RepoPostRatificationHandoffRow": {
+      "additionalProperties": false,
+      "properties": {
+        "amendment_scope_refs": {
+          "items": {
+            "type": "string"
+          },
+          "minItems": 1,
+          "title": "Amendment Scope Refs",
+          "type": "array"
+        },
+        "candidate_ref": {
+          "title": "Candidate Ref",
+          "type": "string"
+        },
+        "carried_forward_dissent_refs": {
+          "items": {
+            "type": "string"
+          },
+          "title": "Carried Forward Dissent Refs",
+          "type": "array"
+        },
+        "carried_forward_gap_refs": {
+          "items": {
+            "type": "string"
+          },
+          "title": "Carried Forward Gap Refs",
+          "type": "array"
+        },
+        "handoff_posture": {
+          "enum": [
+            "ready_for_v72_review",
+            "blocked_by_scope_boundary",
+            "blocked_by_dissent",
+            "blocked_by_evidence_gap",
+            "deferred_to_future_family",
+            "rejected_out_of_scope"
+          ],
+          "title": "Handoff Posture",
+          "type": "string"
+        },
+        "handoff_ref": {
+          "title": "Handoff Ref",
+          "type": "string"
+        },
+        "handoff_target": {
+          "enum": [
+            "v72_contained_integration_review",
+            "future_family_review",
+            "deferred_no_selection"
+          ],
+          "title": "Handoff Target",
+          "type": "string"
+        },
+        "non_integration_guardrail": {
+          "title": "Non Integration Guardrail",
+          "type": "string"
+        },
+        "ratification_refs": {
+          "items": {
+            "type": "string"
+          },
+          "minItems": 1,
+          "title": "Ratification Refs",
+          "type": "array"
+        },
+        "required_next_surface": {
+          "enum": [
+            "v72_candidate_containment_planning",
+            "future_family_candidate_review",
+            "deferred_no_selection"
+          ],
+          "title": "Required Next Surface",
+          "type": "string"
+        }
+      },
+      "required": [
+        "handoff_ref",
+        "candidate_ref",
+        "ratification_refs",
+        "amendment_scope_refs",
+        "handoff_target",
+        "handoff_posture",
+        "required_next_surface",
+        "non_integration_guardrail"
+      ],
+      "title": "RepoPostRatificationHandoffRow",
+      "type": "object"
+    }
+  },
+  "additionalProperties": false,
+  "properties": {
+    "amendment_scope_boundary_id": {
+      "title": "Amendment Scope Boundary Id",
+      "type": "string"
+    },
+    "handoff_rows": {
+      "items": {
+        "$ref": "#/$defs/RepoPostRatificationHandoffRow"
+      },
+      "minItems": 1,
+      "title": "Handoff Rows",
+      "type": "array"
+    },
+    "non_integration_summary": {
+      "title": "Non Integration Summary",
+      "type": "string"
+    },
+    "post_ratification_handoff_id": {
+      "title": "Post Ratification Handoff Id",
+      "type": "string"
+    },
+    "ratification_record_id": {
+      "title": "Ratification Record Id",
+      "type": "string"
+    },
+    "review_id": {
+      "title": "Review Id",
+      "type": "string"
+    },
+    "schema": {
+      "const": "repo_post_ratification_handoff@1",
+      "default": "repo_post_ratification_handoff@1",
+      "title": "Schema",
+      "type": "string"
+    },
+    "snapshot_id": {
+      "title": "Snapshot Id",
+      "type": "string"
+    },
+    "source_set_id": {
+      "title": "Source Set Id",
+      "type": "string"
+    }
+  },
+  "required": [
+    "post_ratification_handoff_id",
+    "review_id",
+    "snapshot_id",
+    "source_set_id",
+    "ratification_record_id",
+    "amendment_scope_boundary_id",
+    "handoff_rows",
+    "non_integration_summary"
+  ],
+  "title": "RepoPostRatificationHandoff",
+  "type": "object"
+}

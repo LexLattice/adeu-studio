@@ -1,0 +1,74 @@
+{
+  "candidate_rows": [
+    {
+      "amendment_scope_refs": [
+        "amendment:v71c:odeu-diff:blocked-by-dissent"
+      ],
+      "candidate_ref": "candidate:internal:odeu_conceptual_diff_report@1",
+      "closeout_posture": "deferred_with_dissent",
+      "handoff_refs": [
+        "handoff:v71c:odeu-diff:blocked-by-dissent"
+      ],
+      "limitation_note": "Deferred with dissent and counterevidence gap carried forward.",
+      "ratification_refs": [
+        "ratification:v71b:odeu-diff:deferred-with-dissent"
+      ]
+    },
+    {
+      "amendment_scope_refs": [
+        "amendment:v71c:self-evidencing:schema-review"
+      ],
+      "candidate_ref": "candidate:internal:self_evidencing_workflow_type_emergence",
+      "closeout_posture": "ratified_for_later_review",
+      "handoff_refs": [
+        "handoff:v71c:self-evidencing:v72-review"
+      ],
+      "limitation_note": "Ratified only for later bounded review, not implementation.",
+      "ratification_refs": [
+        "ratification:v71b:self-evidencing:source-bound-validity"
+      ]
+    },
+    {
+      "amendment_scope_refs": [
+        "amendment:v71c:product-wedge:future-family"
+      ],
+      "candidate_ref": "candidate:internal:typed_adjudication_product_wedge",
+      "closeout_posture": "future_family_routed",
+      "handoff_refs": [
+        "handoff:v71c:product-wedge:future-family"
+      ],
+      "limitation_note": "Product pressure remains future-family routed.",
+      "ratification_refs": [
+        "ratification:v71b:product-wedge:future-family"
+      ]
+    }
+  ],
+  "closed_slices": [
+    "V71-A",
+    "V71-B",
+    "V71-C"
+  ],
+  "consumed_record_shapes": [
+    "repo_candidate_ratification_record@1",
+    "repo_ratification_dissent_register@1",
+    "repo_review_settlement_record@1"
+  ],
+  "emitted_record_shapes": [
+    "repo_candidate_ratification_family_closeout_alignment@1",
+    "repo_post_ratification_handoff@1",
+    "repo_ratification_amendment_scope_boundary@1",
+    "repo_release_authority@1"
+  ],
+  "family_closeout_alignment_id": "repo_candidate_ratification_family_closeout_alignment_f122674f872033314a2d8e23",
+  "family_id": "V71",
+  "future_family_refs": [
+    "V72",
+    "V73",
+    "V74",
+    "V75"
+  ],
+  "non_authority_guardrail": "No implementation, no integration, no release, no product authorization, and no dispatch authority.",
+  "schema": "repo_candidate_ratification_family_closeout_alignment@1",
+  "snapshot_id": "vNext+199-prestart-on-main",
+  "source_set_id": "source-set:v70a:released-v69c-handoff"
+}
