@@ -134,6 +134,42 @@ def test_v195_derivation_helper_matches_reference_fixtures() -> None:
 
 
 @pytest.mark.parametrize(
+    ("fixture_name", "model_type", "id_key"),
+    [
+        (
+            "repo_candidate_adversarial_review_matrix_v195_reference.json",
+            RepoCandidateAdversarialReviewMatrix,
+            "review_matrix_id",
+        ),
+        (
+            "repo_candidate_review_conflict_register_v195_reference.json",
+            RepoCandidateReviewConflictRegister,
+            "conflict_register_id",
+        ),
+        (
+            "repo_candidate_review_gap_scan_v195_reference.json",
+            RepoCandidateReviewGapScan,
+            "gap_scan_id",
+        ),
+    ],
+)
+def test_v195_rejects_stale_top_level_hash_identity(
+    fixture_name: str,
+    model_type: type[
+        RepoCandidateAdversarialReviewMatrix
+        | RepoCandidateReviewConflictRegister
+        | RepoCandidateReviewGapScan
+    ],
+    id_key: str,
+) -> None:
+    payload = _load_v195(fixture_name)
+    payload[id_key] = "stale-id"
+
+    with pytest.raises(ValidationError, match="hash identity"):
+        model_type.model_validate(payload)
+
+
+@pytest.mark.parametrize(
     ("fixture_name", "match"),
     [
         (
@@ -202,6 +238,9 @@ def test_v195_bundle_rejects_invalid_matrix_coverage(
 ) -> None:
     matrix = RepoCandidateAdversarialReviewMatrix.model_validate(_load_v195(matrix_fixture))
     _reference_matrix, conflict_register, gap_scan = _v70b_reference_bundle()
+    conflict_register = conflict_register.model_copy(
+        update={"review_matrix_id": matrix.review_matrix_id}
+    )
 
     with pytest.raises(ValueError, match=match):
         validate_v70b_candidate_review_bundle(
@@ -211,6 +250,85 @@ def test_v195_bundle_rejects_invalid_matrix_coverage(
             conflict_register=conflict_register,
             gap_scan=gap_scan,
         )
+
+
+def test_v195_bundle_rejects_cross_surface_review_identity_mismatch() -> None:
+    matrix, conflict_register, gap_scan = _v70b_reference_bundle()
+    stale_conflict_register = conflict_register.model_copy(
+        update={"review_id": "review:v70b:stale"}
+    )
+
+    with pytest.raises(ValueError, match="review_id must match"):
+        validate_v70b_candidate_review_bundle(
+            source_index=_v70a_source_index(),
+            classification_record=_v70a_classification(),
+            adversarial_review_matrix=matrix,
+            conflict_register=stale_conflict_register,
+            gap_scan=gap_scan,
+        )
+
+
+def test_v195_bundle_rejects_cross_surface_snapshot_mismatch() -> None:
+    matrix, conflict_register, gap_scan = _v70b_reference_bundle()
+    stale_gap_scan = gap_scan.model_copy(update={"snapshot_id": "vNext+195-stale"})
+
+    with pytest.raises(ValueError, match="snapshot_id must match"):
+        validate_v70b_candidate_review_bundle(
+            source_index=_v70a_source_index(),
+            classification_record=_v70a_classification(),
+            adversarial_review_matrix=matrix,
+            conflict_register=conflict_register,
+            gap_scan=stale_gap_scan,
+        )
+
+
+def test_v195_bundle_rejects_classification_record_id_mismatch() -> None:
+    matrix, conflict_register, gap_scan = _v70b_reference_bundle()
+    stale_matrix = matrix.model_copy(update={"classification_record_id": "classification:stale"})
+
+    with pytest.raises(ValueError, match="classification_record_id must match"):
+        validate_v70b_candidate_review_bundle(
+            source_index=_v70a_source_index(),
+            classification_record=_v70a_classification(),
+            adversarial_review_matrix=stale_matrix,
+            conflict_register=conflict_register,
+            gap_scan=gap_scan,
+        )
+
+
+def test_v195_bundle_rejects_unknown_relation_claim_ref() -> None:
+    matrix, conflict_register, gap_scan = _v70b_reference_bundle()
+    bad_relation = conflict_register.relation_rows[0].model_copy(
+        update={"claim_refs": ["claim:v70a:missing"]}
+    )
+    bad_register = conflict_register.model_copy(update={"relation_rows": [bad_relation]})
+
+    with pytest.raises(ValueError, match="known V70-A claims"):
+        validate_v70b_candidate_review_bundle(
+            source_index=_v70a_source_index(),
+            classification_record=_v70a_classification(),
+            adversarial_review_matrix=matrix,
+            conflict_register=bad_register,
+            gap_scan=gap_scan,
+        )
+
+
+def test_v195_bundle_rejects_relation_claim_candidate_mismatch() -> None:
+    matrix, conflict_register, gap_scan = _v70b_reference_bundle()
+    bad_relation = conflict_register.relation_rows[0].model_copy(
+        update={"claim_refs": ["claim:v70a:product-wedge:authority-boundary"]}
+    )
+    bad_register = conflict_register.model_copy(update={"relation_rows": [bad_relation]})
+
+    with pytest.raises(ValueError, match="candidate_ref must match referenced V70-A claims"):
+        validate_v70b_candidate_review_bundle(
+            source_index=_v70a_source_index(),
+            classification_record=_v70a_classification(),
+            adversarial_review_matrix=matrix,
+            conflict_register=bad_register,
+            gap_scan=gap_scan,
+        )
+
 
 @pytest.mark.parametrize(
     ("gap_fixture", "match"),

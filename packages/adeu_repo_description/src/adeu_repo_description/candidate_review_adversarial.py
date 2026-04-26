@@ -206,6 +206,14 @@ class RepoCandidateAdversarialReviewMatrix(_CartographyBase):
                     "adversarial review rows must reference known classification_refs: "
                     f"{missing_refs}"
                 )
+        expected_id = _surface_id(
+            "repo_candidate_adversarial_review_matrix",
+            REPO_CANDIDATE_ADVERSARIAL_REVIEW_MATRIX_SCHEMA,
+            self.model_dump(mode="json"),
+            "review_matrix_id",
+        )
+        if self.review_matrix_id != expected_id:
+            raise ValueError("review_matrix_id must match canonical full payload hash identity")
         return self
 
 
@@ -319,6 +327,14 @@ class RepoCandidateReviewConflictRegister(_CartographyBase):
             missing_refs = sorted(set(row.review_refs) - known_review_refs)
             if missing_refs:
                 raise ValueError(f"relation rows must reference known review_refs: {missing_refs}")
+        expected_id = _surface_id(
+            "repo_candidate_review_conflict_register",
+            REPO_CANDIDATE_REVIEW_CONFLICT_REGISTER_SCHEMA,
+            self.model_dump(mode="json"),
+            "conflict_register_id",
+        )
+        if self.conflict_register_id != expected_id:
+            raise ValueError("conflict_register_id must match canonical full payload hash identity")
         return self
 
 
@@ -419,6 +435,14 @@ class RepoCandidateReviewGapScan(_CartographyBase):
                 raise ValueError(
                     f"gap rows must reference known classification_refs: {missing_refs}"
                 )
+        expected_id = _surface_id(
+            "repo_candidate_review_gap_scan",
+            REPO_CANDIDATE_REVIEW_GAP_SCAN_SCHEMA,
+            self.model_dump(mode="json"),
+            "gap_scan_id",
+        )
+        if self.gap_scan_id != expected_id:
+            raise ValueError("gap_scan_id must match canonical full payload hash identity")
         return self
 
 
@@ -432,6 +456,21 @@ def validate_v70b_candidate_review_bundle(
 ) -> None:
     if classification_record.snapshot_id != source_index.snapshot_id:
         raise ValueError("V70-A source and classification snapshot_id must match")
+    if conflict_register.review_id != adversarial_review_matrix.review_id:
+        raise ValueError("V70-B review_id must match across review artifacts")
+    if gap_scan.review_id != adversarial_review_matrix.review_id:
+        raise ValueError("V70-B review_id must match across review artifacts")
+    if conflict_register.snapshot_id != adversarial_review_matrix.snapshot_id:
+        raise ValueError("V70-B snapshot_id must match across review artifacts")
+    if gap_scan.snapshot_id != adversarial_review_matrix.snapshot_id:
+        raise ValueError("V70-B snapshot_id must match across review artifacts")
+    if (
+        adversarial_review_matrix.classification_record_id
+        != classification_record.classification_record_id
+    ):
+        raise ValueError("adversarial review matrix classification_record_id must match V70-A")
+    if gap_scan.classification_record_id != classification_record.classification_record_id:
+        raise ValueError("gap scan classification_record_id must match V70-A")
     if adversarial_review_matrix.source_set_id != classification_record.source_set_id:
         raise ValueError("adversarial review matrix source_set_id must match V70-A")
     if conflict_register.source_set_id != adversarial_review_matrix.source_set_id:
@@ -493,8 +532,24 @@ def validate_v70b_candidate_review_bundle(
             raise ValueError("model-output comparison review requires opposing or negative control")
 
     review_refs = {row.review_ref for row in adversarial_review_matrix.adversarial_review_rows}
+    review_rows = {row.review_ref: row for row in adversarial_review_matrix.adversarial_review_rows}
     if set(conflict_register.review_refs) != review_refs:
         raise ValueError("conflict register review_refs must match adversarial review rows")
+    for relation in conflict_register.relation_rows:
+        missing_claim_refs = sorted(set(relation.claim_refs) - set(claim_rows))
+        if missing_claim_refs:
+            raise ValueError(
+                f"relation rows must reference known V70-A claims: {missing_claim_refs}"
+            )
+        for claim_ref in relation.claim_refs:
+            if claim_rows[claim_ref].candidate_ref != relation.candidate_ref:
+                raise ValueError("relation row candidate_ref must match referenced V70-A claims")
+        for review_ref in relation.review_refs:
+            review_row = review_rows[review_ref]
+            if review_row.candidate_ref != relation.candidate_ref:
+                raise ValueError("relation row candidate_ref must match referenced review rows")
+            if review_row.claim_ref not in relation.claim_refs:
+                raise ValueError("relation row claim_refs must cover referenced review rows")
 
     gap_kinds = {row.gap_kind for row in gap_scan.gap_rows}
     if "single_source_overclaim" not in gap_kinds:
@@ -513,6 +568,11 @@ def validate_v70b_candidate_review_bundle(
         for row in gap_scan.gap_rows
     ):
         raise ValueError("product wedge review requires explicit V74 boundary gap")
+    for gap in gap_scan.gap_rows:
+        for classification_ref in gap.classification_refs:
+            classification = classification_rows[classification_ref]
+            if classification.candidate_ref != gap.candidate_ref:
+                raise ValueError("gap row candidate_ref must match referenced classifications")
 
 
 def derive_v70b_repo_candidate_adversarial_review_matrix(
@@ -633,7 +693,7 @@ def derive_v70b_repo_candidate_review_conflict_register(
         "review_matrix_id": matrix.review_matrix_id,
         "review_refs": [row.review_ref for row in matrix.adversarial_review_rows],
         "relation_rows": [
-            row.model_dump(mode="json", exclude_none=True)
+            row.model_dump(mode="json")
             for row in sorted(rows, key=lambda row: row.relation_ref)
         ],
         "non_settlement_summary": "V70-B relation rows expose posture without settlement.",

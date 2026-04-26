@@ -63,7 +63,7 @@
   ],
   "non_settlement_summary": "V70-B adversarial review rows are classification support only.",
   "review_id": "review:v70b:adversarial-review-gap-scan",
-  "review_matrix_id": "repo_candidate_adversarial_review_matrix_f4dda2ab2975908def8b1361",
+  "review_matrix_id": "repo_candidate_adversarial_review_matrix_91cb4cebc3e005c70a6df69c",
   "schema": "repo_candidate_adversarial_review_matrix@1",
   "snapshot_id": "vNext+195-prestart-on-main",
   "source_set_id": "source-set:v70a:released-v69c-handoff"
