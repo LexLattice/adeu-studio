@@ -1,0 +1,70 @@
+{
+  "containment_plan_id": "repo_contained_integration_candidate_plan_1fc878ea98ac029ec2305113",
+  "guardrail_rows": [
+    {
+      "candidate_ref": "candidate:internal:odeu_conceptual_diff_report@1",
+      "forbidden_downstream_roles": [
+        "commit_release_authority",
+        "dispatch_authority",
+        "external_contest_authority",
+        "implementation_task",
+        "merge_authority",
+        "product_authorization",
+        "released_truth",
+        "runtime_permission"
+      ],
+      "guardrail_ref": "guardrail:v72a:odeu-diff:no-integration",
+      "limitation_note": "Blocked candidate remains outside contained integration.",
+      "non_release_posture": "no_commit_or_release_authority",
+      "plan_refs": [
+        "plan:v72a:odeu-diff:blocked-by-dissent"
+      ],
+      "required_later_authority": "Later authority is required before any downstream action."
+    },
+    {
+      "candidate_ref": "candidate:internal:typed_adjudication_product_wedge",
+      "forbidden_downstream_roles": [
+        "commit_release_authority",
+        "dispatch_authority",
+        "external_contest_authority",
+        "implementation_task",
+        "merge_authority",
+        "product_authorization",
+        "released_truth",
+        "runtime_permission"
+      ],
+      "guardrail_ref": "guardrail:v72a:product-wedge:future-family",
+      "limitation_note": "Product pressure remains outside contained integration.",
+      "non_release_posture": "no_product_authorization",
+      "plan_refs": [
+        "plan:v72a:product-wedge:future-family"
+      ],
+      "required_later_authority": "Future-family review is required before product work."
+    },
+    {
+      "candidate_ref": "candidate:internal:self_evidencing_workflow_type_emergence",
+      "forbidden_downstream_roles": [
+        "commit_release_authority",
+        "dispatch_authority",
+        "external_contest_authority",
+        "implementation_task",
+        "merge_authority",
+        "product_authorization",
+        "runtime_permission"
+      ],
+      "guardrail_ref": "guardrail:v72a:self-evidencing:no-release",
+      "limitation_note": "Schema containment planning does not grant downstream action.",
+      "non_release_posture": "no_commit_or_release_authority",
+      "plan_refs": [
+        "plan:v72a:self-evidencing:schema-containment"
+      ],
+      "required_later_authority": "V72-B and later maintainer review are required first."
+    }
+  ],
+  "non_release_guardrail_id": "repo_integration_non_release_guardrail_9caca5e812947f9fb5288918",
+  "non_release_summary": "No commit, no merge, no release, no released truth, no product authorization, no runtime permission, no dispatch authority, and no external contest authority.",
+  "review_id": "review:v72a:contained-integration-planning",
+  "schema": "repo_integration_non_release_guardrail@1",
+  "snapshot_id": "vNext+200-prestart-on-main",
+  "source_set_id": "source-set:v70a:released-v69c-handoff"
+}

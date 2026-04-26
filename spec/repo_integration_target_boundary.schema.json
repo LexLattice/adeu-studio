@@ -1,0 +1,179 @@
+{
+  "$defs": {
+    "RepoIntegrationTargetBoundaryRow": {
+      "additionalProperties": false,
+      "properties": {
+        "allowed_change_kinds": {
+          "items": {
+            "enum": [
+              "docs_support_update",
+              "schema_shape_update",
+              "model_validator_update",
+              "fixture_reference_update",
+              "test_coverage_update",
+              "workflow_record_update",
+              "runtime_behavior_change",
+              "commit_or_release_action",
+              "product_surface_change",
+              "dispatch_or_runtime_permission",
+              "external_contest_action"
+            ],
+            "type": "string"
+          },
+          "title": "Allowed Change Kinds",
+          "type": "array"
+        },
+        "candidate_ref": {
+          "title": "Candidate Ref",
+          "type": "string"
+        },
+        "forbidden_change_kinds": {
+          "items": {
+            "enum": [
+              "docs_support_update",
+              "schema_shape_update",
+              "model_validator_update",
+              "fixture_reference_update",
+              "test_coverage_update",
+              "workflow_record_update",
+              "runtime_behavior_change",
+              "commit_or_release_action",
+              "product_surface_change",
+              "dispatch_or_runtime_permission",
+              "external_contest_action"
+            ],
+            "type": "string"
+          },
+          "minItems": 1,
+          "title": "Forbidden Change Kinds",
+          "type": "array"
+        },
+        "limitation_note": {
+          "title": "Limitation Note",
+          "type": "string"
+        },
+        "source_refs": {
+          "items": {
+            "type": "string"
+          },
+          "minItems": 1,
+          "title": "Source Refs",
+          "type": "array"
+        },
+        "target_boundary_kind": {
+          "enum": [
+            "docs_support_surface",
+            "schema_surface",
+            "validator_surface",
+            "fixture_surface",
+            "test_surface",
+            "workflow_surface",
+            "package_surface",
+            "no_target_boundary"
+          ],
+          "title": "Target Boundary Kind",
+          "type": "string"
+        },
+        "target_boundary_ref": {
+          "title": "Target Boundary Ref",
+          "type": "string"
+        },
+        "target_posture": {
+          "enum": [
+            "single_surface_bounded",
+            "multi_surface_bounded",
+            "target_requires_review",
+            "target_blocked",
+            "target_absent"
+          ],
+          "title": "Target Posture",
+          "type": "string"
+        },
+        "target_refs": {
+          "items": {
+            "type": "string"
+          },
+          "title": "Target Refs",
+          "type": "array"
+        },
+        "target_resolution_kind": {
+          "enum": [
+            "concrete_file_ref",
+            "concrete_schema_ref",
+            "concrete_fixture_ref",
+            "concrete_test_ref",
+            "concrete_doc_ref",
+            "bounded_package_surface_with_child_refs",
+            "no_target_boundary"
+          ],
+          "title": "Target Resolution Kind",
+          "type": "string"
+        }
+      },
+      "required": [
+        "target_boundary_ref",
+        "candidate_ref",
+        "target_boundary_kind",
+        "target_resolution_kind",
+        "target_posture",
+        "forbidden_change_kinds",
+        "source_refs",
+        "limitation_note"
+      ],
+      "title": "RepoIntegrationTargetBoundaryRow",
+      "type": "object"
+    }
+  },
+  "additionalProperties": false,
+  "properties": {
+    "containment_plan_id": {
+      "title": "Containment Plan Id",
+      "type": "string"
+    },
+    "non_trial_summary": {
+      "title": "Non Trial Summary",
+      "type": "string"
+    },
+    "review_id": {
+      "title": "Review Id",
+      "type": "string"
+    },
+    "schema": {
+      "const": "repo_integration_target_boundary@1",
+      "default": "repo_integration_target_boundary@1",
+      "title": "Schema",
+      "type": "string"
+    },
+    "snapshot_id": {
+      "title": "Snapshot Id",
+      "type": "string"
+    },
+    "source_set_id": {
+      "title": "Source Set Id",
+      "type": "string"
+    },
+    "target_boundary_id": {
+      "title": "Target Boundary Id",
+      "type": "string"
+    },
+    "target_boundary_rows": {
+      "items": {
+        "$ref": "#/$defs/RepoIntegrationTargetBoundaryRow"
+      },
+      "minItems": 1,
+      "title": "Target Boundary Rows",
+      "type": "array"
+    }
+  },
+  "required": [
+    "target_boundary_id",
+    "review_id",
+    "snapshot_id",
+    "source_set_id",
+    "containment_plan_id",
+    "target_boundary_rows",
+    "non_trial_summary"
+  ],
+  "title": "RepoIntegrationTargetBoundary",
+  "type": "object"
+}
