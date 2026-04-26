@@ -32,6 +32,10 @@ from .candidate_review_classification import (
     RepoCandidateEvidenceSourceIndex,
     RepoCandidateReviewBoundaryGuardrail,
 )
+from .candidate_review_summary import (
+    RepoCandidatePreRatificationHandoff,
+    RepoCandidateReviewClassificationSummary,
+)
 from .models import (
     RepoArcDependencyRegister,
     RepoArcDependencyRegisterV1,
@@ -157,8 +161,8 @@ def main() -> None:
     recursive_workflow_residue_intake_report_schema = (
         RepoRecursiveWorkflowResidueIntakeReport.model_json_schema(by_alias=True)
     )
-    candidate_intake_pre_v70_handoff_schema = (
-        RepoCandidateIntakePreV70Handoff.model_json_schema(by_alias=True)
+    candidate_intake_pre_v70_handoff_schema = RepoCandidateIntakePreV70Handoff.model_json_schema(
+        by_alias=True
     )
     candidate_evidence_classification_record_schema = (
         RepoCandidateEvidenceClassificationRecord.model_json_schema(by_alias=True)
@@ -175,8 +179,12 @@ def main() -> None:
     candidate_review_conflict_register_schema = (
         RepoCandidateReviewConflictRegister.model_json_schema(by_alias=True)
     )
-    candidate_review_gap_scan_schema = RepoCandidateReviewGapScan.model_json_schema(
-        by_alias=True
+    candidate_review_gap_scan_schema = RepoCandidateReviewGapScan.model_json_schema(by_alias=True)
+    candidate_review_classification_summary_schema = (
+        RepoCandidateReviewClassificationSummary.model_json_schema(by_alias=True)
+    )
+    candidate_pre_ratification_handoff_schema = (
+        RepoCandidatePreRatificationHandoff.model_json_schema(by_alias=True)
     )
 
     _assert_no_absolute_path_material(dependency_register_v1_schema, repo_root_path=root)
@@ -227,6 +235,12 @@ def main() -> None:
         candidate_review_conflict_register_schema, repo_root_path=root
     )
     _assert_no_absolute_path_material(candidate_review_gap_scan_schema, repo_root_path=root)
+    _assert_no_absolute_path_material(
+        candidate_review_classification_summary_schema, repo_root_path=root
+    )
+    _assert_no_absolute_path_material(
+        candidate_pre_ratification_handoff_schema, repo_root_path=root
+    )
 
     _write_schema(
         root
@@ -611,6 +625,30 @@ def main() -> None:
     _write_schema(
         root / "spec" / "repo_candidate_review_gap_scan.schema.json",
         candidate_review_gap_scan_schema,
+    )
+    _write_schema(
+        root
+        / "packages"
+        / "adeu_repo_description"
+        / "schema"
+        / "repo_candidate_review_classification_summary.v1.json",
+        candidate_review_classification_summary_schema,
+    )
+    _write_schema(
+        root / "spec" / "repo_candidate_review_classification_summary.schema.json",
+        candidate_review_classification_summary_schema,
+    )
+    _write_schema(
+        root
+        / "packages"
+        / "adeu_repo_description"
+        / "schema"
+        / "repo_candidate_pre_ratification_handoff.v1.json",
+        candidate_pre_ratification_handoff_schema,
+    )
+    _write_schema(
+        root / "spec" / "repo_candidate_pre_ratification_handoff.schema.json",
+        candidate_pre_ratification_handoff_schema,
     )
 
 

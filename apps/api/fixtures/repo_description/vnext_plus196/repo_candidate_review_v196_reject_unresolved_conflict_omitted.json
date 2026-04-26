@@ -1,0 +1,94 @@
+{
+  "adversarial_review_refs": [
+    "review-row:v70b:odeu-diff:negative-control",
+    "review-row:v70b:product-wedge:authority-boundary",
+    "review-row:v70b:self-evidencing:supporting"
+  ],
+  "classification_record_id": "repo_candidate_evidence_classification_record_71d46cbf02b0d901bf200b8b",
+  "classification_refs": [
+    "classification:v70a:odeu-diff:requires-adversarial-review",
+    "classification:v70a:product-wedge:authority-boundary",
+    "classification:v70a:self-evidencing:source-bound"
+  ],
+  "conflict_refs": [
+    "relation:v70b:odeu-diff:model-output-divergence",
+    "relation:v70b:product-wedge:authority-boundary",
+    "relation:v70b:self-evidencing:complementarity"
+  ],
+  "conflict_register_id": "repo_candidate_review_conflict_register_9ad61bd3c724a564f6e98839",
+  "gap_refs": [
+    "gap:v70b:odeu-diff:missing-counterevidence",
+    "gap:v70b:product-wedge:single-source-overclaim",
+    "gap:v70b:product-wedge:v74-boundary",
+    "gap:v70b:self-evidencing:carry-forward-review"
+  ],
+  "gap_scan_id": "repo_candidate_review_gap_scan_915f1f041d31d2a892e626cb",
+  "non_ratification_summary": "V70-C summary rows request later review only.",
+  "review_id": "review:v70c:summary-pre-ratification-handoff",
+  "review_matrix_id": "repo_candidate_adversarial_review_matrix_f4dda2ab2975908def8b1361",
+  "schema": "repo_candidate_review_classification_summary@1",
+  "snapshot_id": "vNext+196-prestart-on-main",
+  "source_set_id": "source-set:v70a:released-v69c-handoff",
+  "summary_register_id": "repo_candidate_review_classification_summary_465a9b3424a9fdc8ff56ea10",
+  "summary_rows": [
+    {
+      "adversarial_review_refs": [
+        "review-row:v70b:odeu-diff:negative-control"
+      ],
+      "candidate_ref": "candidate:internal:odeu_conceptual_diff_report@1",
+      "classification_refs": [
+        "classification:v70a:odeu-diff:requires-adversarial-review"
+      ],
+      "conflict_refs": [],
+      "gap_refs": [
+        "gap:v70b:odeu-diff:missing-counterevidence"
+      ],
+      "handoff_readiness": "blocked_by_conflict",
+      "limitation_note": "Model-output divergence remains blocked by counterevidence needs.",
+      "non_authority_guardrail": "Carry forward for later review only; not a decision.",
+      "summary_posture": "classified_blocked_by_conflict",
+      "summary_ref": "summary:v70c:odeu-diff:blocking-review"
+    },
+    {
+      "adversarial_review_refs": [
+        "review-row:v70b:product-wedge:authority-boundary"
+      ],
+      "candidate_ref": "candidate:internal:typed_adjudication_product_wedge",
+      "classification_refs": [
+        "classification:v70a:product-wedge:authority-boundary"
+      ],
+      "conflict_refs": [
+        "relation:v70b:product-wedge:authority-boundary"
+      ],
+      "gap_refs": [
+        "gap:v70b:product-wedge:single-source-overclaim",
+        "gap:v70b:product-wedge:v74-boundary"
+      ],
+      "handoff_readiness": "deferred_to_future_family",
+      "limitation_note": "Product pressure remains deferred to later boundary review.",
+      "non_authority_guardrail": "Carry forward for future review only; not a decision.",
+      "summary_posture": "classified_deferred_to_future_family",
+      "summary_ref": "summary:v70c:product-wedge:future-family"
+    },
+    {
+      "adversarial_review_refs": [
+        "review-row:v70b:self-evidencing:supporting"
+      ],
+      "candidate_ref": "candidate:internal:self_evidencing_workflow_type_emergence",
+      "classification_refs": [
+        "classification:v70a:self-evidencing:source-bound"
+      ],
+      "conflict_refs": [
+        "relation:v70b:self-evidencing:complementarity"
+      ],
+      "gap_refs": [
+        "gap:v70b:self-evidencing:carry-forward-review"
+      ],
+      "handoff_readiness": "ready_for_later_review",
+      "limitation_note": "Source-bound workflow residue is ready for later review.",
+      "non_authority_guardrail": "Carry forward for later review only; not a decision.",
+      "summary_posture": "classified_ready_for_later_review",
+      "summary_ref": "summary:v70c:self-evidencing:ready-review"
+    }
+  ]
+}
