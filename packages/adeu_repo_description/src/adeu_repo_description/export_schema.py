@@ -22,6 +22,11 @@ from .arc_series_cartography_derivation import (
     RepoArcCartographyGapScanReport,
 )
 from .arc_series_cartography_tools import RepoArcCartographyToolRunEvidence
+from .candidate_review_adversarial import (
+    RepoCandidateAdversarialReviewMatrix,
+    RepoCandidateReviewConflictRegister,
+    RepoCandidateReviewGapScan,
+)
 from .candidate_review_classification import (
     RepoCandidateEvidenceClassificationRecord,
     RepoCandidateEvidenceSourceIndex,
@@ -164,6 +169,15 @@ def main() -> None:
     candidate_review_boundary_guardrail_schema = (
         RepoCandidateReviewBoundaryGuardrail.model_json_schema(by_alias=True)
     )
+    candidate_adversarial_review_matrix_schema = (
+        RepoCandidateAdversarialReviewMatrix.model_json_schema(by_alias=True)
+    )
+    candidate_review_conflict_register_schema = (
+        RepoCandidateReviewConflictRegister.model_json_schema(by_alias=True)
+    )
+    candidate_review_gap_scan_schema = RepoCandidateReviewGapScan.model_json_schema(
+        by_alias=True
+    )
 
     _assert_no_absolute_path_material(dependency_register_v1_schema, repo_root_path=root)
     _assert_no_absolute_path_material(dependency_register_schema, repo_root_path=root)
@@ -206,6 +220,13 @@ def main() -> None:
     _assert_no_absolute_path_material(
         candidate_review_boundary_guardrail_schema, repo_root_path=root
     )
+    _assert_no_absolute_path_material(
+        candidate_adversarial_review_matrix_schema, repo_root_path=root
+    )
+    _assert_no_absolute_path_material(
+        candidate_review_conflict_register_schema, repo_root_path=root
+    )
+    _assert_no_absolute_path_material(candidate_review_gap_scan_schema, repo_root_path=root)
 
     _write_schema(
         root
@@ -554,6 +575,42 @@ def main() -> None:
     _write_schema(
         root / "spec" / "repo_candidate_review_boundary_guardrail.schema.json",
         candidate_review_boundary_guardrail_schema,
+    )
+    _write_schema(
+        root
+        / "packages"
+        / "adeu_repo_description"
+        / "schema"
+        / "repo_candidate_adversarial_review_matrix.v1.json",
+        candidate_adversarial_review_matrix_schema,
+    )
+    _write_schema(
+        root / "spec" / "repo_candidate_adversarial_review_matrix.schema.json",
+        candidate_adversarial_review_matrix_schema,
+    )
+    _write_schema(
+        root
+        / "packages"
+        / "adeu_repo_description"
+        / "schema"
+        / "repo_candidate_review_conflict_register.v1.json",
+        candidate_review_conflict_register_schema,
+    )
+    _write_schema(
+        root / "spec" / "repo_candidate_review_conflict_register.schema.json",
+        candidate_review_conflict_register_schema,
+    )
+    _write_schema(
+        root
+        / "packages"
+        / "adeu_repo_description"
+        / "schema"
+        / "repo_candidate_review_gap_scan.v1.json",
+        candidate_review_gap_scan_schema,
+    )
+    _write_schema(
+        root / "spec" / "repo_candidate_review_gap_scan.schema.json",
+        candidate_review_gap_scan_schema,
     )
 
 

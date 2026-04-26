@@ -1,0 +1,144 @@
+{
+  "$defs": {
+    "RepoCandidateReviewGapRow": {
+      "additionalProperties": false,
+      "properties": {
+        "candidate_ref": {
+          "title": "Candidate Ref",
+          "type": "string"
+        },
+        "classification_refs": {
+          "items": {
+            "type": "string"
+          },
+          "minItems": 1,
+          "title": "Classification Refs",
+          "type": "array"
+        },
+        "gap_kind": {
+          "enum": [
+            "missing_adversarial_review",
+            "missing_counterevidence",
+            "single_source_overclaim",
+            "stale_or_missing_source",
+            "authority_boundary_unclassified",
+            "model_output_without_negative_control",
+            "product_wedge_without_v74_boundary",
+            "v69_handoff_unclassified",
+            "v70a_claim_unreviewed_by_adversarial_matrix"
+          ],
+          "title": "Gap Kind",
+          "type": "string"
+        },
+        "gap_ref": {
+          "title": "Gap Ref",
+          "type": "string"
+        },
+        "limitation_note": {
+          "title": "Limitation Note",
+          "type": "string"
+        },
+        "recommended_next_surface": {
+          "enum": [
+            "v70_adversarial_review",
+            "v70c_classification_summary",
+            "future_family_review",
+            "none_deferred"
+          ],
+          "title": "Recommended Next Surface",
+          "type": "string"
+        },
+        "severity": {
+          "enum": [
+            "info",
+            "warning",
+            "blocking"
+          ],
+          "title": "Severity",
+          "type": "string"
+        },
+        "source_refs": {
+          "items": {
+            "type": "string"
+          },
+          "minItems": 1,
+          "title": "Source Refs",
+          "type": "array"
+        }
+      },
+      "required": [
+        "gap_ref",
+        "candidate_ref",
+        "classification_refs",
+        "gap_kind",
+        "source_refs",
+        "severity",
+        "recommended_next_surface",
+        "limitation_note"
+      ],
+      "title": "RepoCandidateReviewGapRow",
+      "type": "object"
+    }
+  },
+  "additionalProperties": false,
+  "properties": {
+    "classification_record_id": {
+      "title": "Classification Record Id",
+      "type": "string"
+    },
+    "classification_refs": {
+      "items": {
+        "type": "string"
+      },
+      "minItems": 1,
+      "title": "Classification Refs",
+      "type": "array"
+    },
+    "gap_rows": {
+      "items": {
+        "$ref": "#/$defs/RepoCandidateReviewGapRow"
+      },
+      "minItems": 1,
+      "title": "Gap Rows",
+      "type": "array"
+    },
+    "gap_scan_id": {
+      "title": "Gap Scan Id",
+      "type": "string"
+    },
+    "non_settlement_summary": {
+      "title": "Non Settlement Summary",
+      "type": "string"
+    },
+    "review_id": {
+      "title": "Review Id",
+      "type": "string"
+    },
+    "schema": {
+      "const": "repo_candidate_review_gap_scan@1",
+      "default": "repo_candidate_review_gap_scan@1",
+      "title": "Schema",
+      "type": "string"
+    },
+    "snapshot_id": {
+      "title": "Snapshot Id",
+      "type": "string"
+    },
+    "source_set_id": {
+      "title": "Source Set Id",
+      "type": "string"
+    }
+  },
+  "required": [
+    "gap_scan_id",
+    "review_id",
+    "snapshot_id",
+    "source_set_id",
+    "classification_record_id",
+    "classification_refs",
+    "gap_rows",
+    "non_settlement_summary"
+  ],
+  "title": "RepoCandidateReviewGapScan",
+  "type": "object"
+}

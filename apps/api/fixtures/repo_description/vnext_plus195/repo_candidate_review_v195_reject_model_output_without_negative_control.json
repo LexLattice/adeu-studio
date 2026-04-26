@@ -1,0 +1,70 @@
+{
+  "adversarial_review_rows": [
+    {
+      "adversarial_review_posture": "required_present",
+      "candidate_ref": "candidate:internal:odeu_conceptual_diff_report@1",
+      "claim_ref": "claim:v70a:odeu-diff:adversarial-review-need",
+      "classification_refs": [
+        "classification:v70a:odeu-diff:requires-adversarial-review"
+      ],
+      "odeu_lanes": [
+        "epistemic"
+      ],
+      "review_limitation_note": "Negative-control review is recorded as classification support only.",
+      "review_perspective": "supporting_review",
+      "review_ref": "review-row:v70b:odeu-diff:negative-control",
+      "review_source_refs": [
+        "evidence-source:v70a:v69c-handoff-fixture"
+      ]
+    },
+    {
+      "adversarial_review_posture": "deferred_to_future_family_review",
+      "candidate_ref": "candidate:internal:typed_adjudication_product_wedge",
+      "claim_ref": "claim:v70a:product-wedge:authority-boundary",
+      "classification_refs": [
+        "classification:v70a:product-wedge:authority-boundary"
+      ],
+      "odeu_lanes": [
+        "deontic",
+        "utility"
+      ],
+      "review_limitation_note": "Product pressure remains bounded review material only.",
+      "review_perspective": "authority_boundary_review",
+      "review_ref": "review-row:v70b:product-wedge:authority-boundary",
+      "review_source_refs": [
+        "evidence-source:v70a:gptpro-review"
+      ]
+    },
+    {
+      "adversarial_review_posture": "not_required_for_this_claim",
+      "candidate_ref": "candidate:internal:self_evidencing_workflow_type_emergence",
+      "claim_ref": "claim:v70a:self-evidencing:source-bound",
+      "classification_refs": [
+        "classification:v70a:self-evidencing:source-bound"
+      ],
+      "odeu_lanes": [
+        "deontic",
+        "epistemic",
+        "ontological"
+      ],
+      "review_limitation_note": "Supporting review records source binding only.",
+      "review_perspective": "supporting_review",
+      "review_ref": "review-row:v70b:self-evidencing:supporting",
+      "review_source_refs": [
+        "evidence-source:v70a:v69-closeout"
+      ]
+    }
+  ],
+  "classification_record_id": "repo_candidate_evidence_classification_record_71d46cbf02b0d901bf200b8b",
+  "classification_refs": [
+    "classification:v70a:odeu-diff:requires-adversarial-review",
+    "classification:v70a:product-wedge:authority-boundary",
+    "classification:v70a:self-evidencing:source-bound"
+  ],
+  "non_settlement_summary": "V70-B adversarial review rows are classification support only.",
+  "review_id": "review:v70b:adversarial-review-gap-scan",
+  "review_matrix_id": "repo_candidate_adversarial_review_matrix_f4dda2ab2975908def8b1361",
+  "schema": "repo_candidate_adversarial_review_matrix@1",
+  "snapshot_id": "vNext+195-prestart-on-main",
+  "source_set_id": "source-set:v70a:released-v69c-handoff"
+}

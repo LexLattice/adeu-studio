@@ -1,0 +1,175 @@
+{
+  "$defs": {
+    "RepoCandidateReviewRelationRow": {
+      "additionalProperties": false,
+      "properties": {
+        "blocking_for_handoff": {
+          "title": "Blocking For Handoff",
+          "type": "boolean"
+        },
+        "candidate_ref": {
+          "title": "Candidate Ref",
+          "type": "string"
+        },
+        "claim_refs": {
+          "items": {
+            "type": "string"
+          },
+          "minItems": 1,
+          "title": "Claim Refs",
+          "type": "array"
+        },
+        "conflict_kind": {
+          "anyOf": [
+            {
+              "enum": [
+                "evidence_conflict",
+                "authority_boundary_conflict",
+                "source_integrity_conflict",
+                "model_output_divergence",
+                "utility_tradeoff_conflict",
+                "operator_pressure_conflict",
+                "tool_applicability_conflict"
+              ],
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Conflict Kind"
+        },
+        "conflict_posture": {
+          "anyOf": [
+            {
+              "enum": [
+                "blocking_for_v71",
+                "non_blocking_but_carry_forward",
+                "requires_more_evidence",
+                "requires_human_review",
+                "deferred_to_future_family"
+              ],
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Conflict Posture"
+        },
+        "limitation_note": {
+          "title": "Limitation Note",
+          "type": "string"
+        },
+        "relation_ref": {
+          "title": "Relation Ref",
+          "type": "string"
+        },
+        "required_resolution_surface": {
+          "enum": [
+            "v70_adversarial_review",
+            "v70c_classification_summary",
+            "future_family_review",
+            "none_deferred"
+          ],
+          "title": "Required Resolution Surface",
+          "type": "string"
+        },
+        "review_refs": {
+          "items": {
+            "type": "string"
+          },
+          "minItems": 1,
+          "title": "Review Refs",
+          "type": "array"
+        },
+        "review_relation_kind": {
+          "enum": [
+            "conflict",
+            "complementarity",
+            "orthogonal",
+            "duplicate",
+            "unclear_relation"
+          ],
+          "title": "Review Relation Kind",
+          "type": "string"
+        }
+      },
+      "required": [
+        "relation_ref",
+        "candidate_ref",
+        "claim_refs",
+        "review_refs",
+        "review_relation_kind",
+        "blocking_for_handoff",
+        "required_resolution_surface",
+        "limitation_note"
+      ],
+      "title": "RepoCandidateReviewRelationRow",
+      "type": "object"
+    }
+  },
+  "additionalProperties": false,
+  "properties": {
+    "conflict_register_id": {
+      "title": "Conflict Register Id",
+      "type": "string"
+    },
+    "non_settlement_summary": {
+      "title": "Non Settlement Summary",
+      "type": "string"
+    },
+    "relation_rows": {
+      "items": {
+        "$ref": "#/$defs/RepoCandidateReviewRelationRow"
+      },
+      "minItems": 1,
+      "title": "Relation Rows",
+      "type": "array"
+    },
+    "review_id": {
+      "title": "Review Id",
+      "type": "string"
+    },
+    "review_matrix_id": {
+      "title": "Review Matrix Id",
+      "type": "string"
+    },
+    "review_refs": {
+      "items": {
+        "type": "string"
+      },
+      "minItems": 1,
+      "title": "Review Refs",
+      "type": "array"
+    },
+    "schema": {
+      "const": "repo_candidate_review_conflict_register@1",
+      "default": "repo_candidate_review_conflict_register@1",
+      "title": "Schema",
+      "type": "string"
+    },
+    "snapshot_id": {
+      "title": "Snapshot Id",
+      "type": "string"
+    },
+    "source_set_id": {
+      "title": "Source Set Id",
+      "type": "string"
+    }
+  },
+  "required": [
+    "conflict_register_id",
+    "review_id",
+    "snapshot_id",
+    "source_set_id",
+    "review_matrix_id",
+    "review_refs",
+    "relation_rows",
+    "non_settlement_summary"
+  ],
+  "title": "RepoCandidateReviewConflictRegister",
+  "type": "object"
+}

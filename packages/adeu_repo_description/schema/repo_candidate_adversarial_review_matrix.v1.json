@@ -1,0 +1,155 @@
+{
+  "$defs": {
+    "RepoCandidateAdversarialReviewRow": {
+      "additionalProperties": false,
+      "properties": {
+        "adversarial_review_posture": {
+          "enum": [
+            "not_required_for_this_claim",
+            "required_not_started",
+            "required_present",
+            "required_inconclusive",
+            "conflict_detected",
+            "blocked_missing_counterevidence",
+            "deferred_to_future_family_review"
+          ],
+          "title": "Adversarial Review Posture",
+          "type": "string"
+        },
+        "candidate_ref": {
+          "title": "Candidate Ref",
+          "type": "string"
+        },
+        "claim_ref": {
+          "title": "Claim Ref",
+          "type": "string"
+        },
+        "classification_refs": {
+          "items": {
+            "type": "string"
+          },
+          "minItems": 1,
+          "title": "Classification Refs",
+          "type": "array"
+        },
+        "odeu_lanes": {
+          "items": {
+            "enum": [
+              "ontological",
+              "deontic",
+              "epistemic",
+              "utility"
+            ],
+            "type": "string"
+          },
+          "minItems": 1,
+          "title": "Odeu Lanes",
+          "type": "array"
+        },
+        "review_limitation_note": {
+          "title": "Review Limitation Note",
+          "type": "string"
+        },
+        "review_perspective": {
+          "enum": [
+            "supporting_review",
+            "opposing_review",
+            "authority_boundary_review",
+            "negative_control_review",
+            "model_output_comparison_review",
+            "operator_pressure_review",
+            "tool_applicability_review"
+          ],
+          "title": "Review Perspective",
+          "type": "string"
+        },
+        "review_ref": {
+          "title": "Review Ref",
+          "type": "string"
+        },
+        "review_source_refs": {
+          "items": {
+            "type": "string"
+          },
+          "minItems": 1,
+          "title": "Review Source Refs",
+          "type": "array"
+        }
+      },
+      "required": [
+        "review_ref",
+        "candidate_ref",
+        "claim_ref",
+        "classification_refs",
+        "review_perspective",
+        "review_source_refs",
+        "odeu_lanes",
+        "adversarial_review_posture",
+        "review_limitation_note"
+      ],
+      "title": "RepoCandidateAdversarialReviewRow",
+      "type": "object"
+    }
+  },
+  "additionalProperties": false,
+  "properties": {
+    "adversarial_review_rows": {
+      "items": {
+        "$ref": "#/$defs/RepoCandidateAdversarialReviewRow"
+      },
+      "minItems": 1,
+      "title": "Adversarial Review Rows",
+      "type": "array"
+    },
+    "classification_record_id": {
+      "title": "Classification Record Id",
+      "type": "string"
+    },
+    "classification_refs": {
+      "items": {
+        "type": "string"
+      },
+      "minItems": 1,
+      "title": "Classification Refs",
+      "type": "array"
+    },
+    "non_settlement_summary": {
+      "title": "Non Settlement Summary",
+      "type": "string"
+    },
+    "review_id": {
+      "title": "Review Id",
+      "type": "string"
+    },
+    "review_matrix_id": {
+      "title": "Review Matrix Id",
+      "type": "string"
+    },
+    "schema": {
+      "const": "repo_candidate_adversarial_review_matrix@1",
+      "default": "repo_candidate_adversarial_review_matrix@1",
+      "title": "Schema",
+      "type": "string"
+    },
+    "snapshot_id": {
+      "title": "Snapshot Id",
+      "type": "string"
+    },
+    "source_set_id": {
+      "title": "Source Set Id",
+      "type": "string"
+    }
+  },
+  "required": [
+    "review_matrix_id",
+    "review_id",
+    "snapshot_id",
+    "source_set_id",
+    "classification_record_id",
+    "classification_refs",
+    "adversarial_review_rows",
+    "non_settlement_summary"
+  ],
+  "title": "RepoCandidateAdversarialReviewMatrix",
+  "type": "object"
+}
