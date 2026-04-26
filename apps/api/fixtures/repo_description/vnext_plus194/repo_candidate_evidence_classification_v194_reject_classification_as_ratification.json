@@ -1,0 +1,118 @@
+{
+  "candidate_input_refs": [
+    "candidate:evidence:V68_substrate_for_V69",
+    "candidate:internal:odeu_conceptual_diff_report@1",
+    "candidate:internal:odeu_conceptual_diff_schema_support",
+    "candidate:internal:self_evidencing_workflow_type_emergence",
+    "candidate:internal:typed_adjudication_product_wedge",
+    "candidate:planning:V69_candidate_intake_family"
+  ],
+  "claim_classification_rows": [
+    {
+      "adversarial_review_posture": "required_not_started",
+      "candidate_ref": "candidate:internal:odeu_conceptual_diff_report@1",
+      "claim_horizon": "adversarial_review_need",
+      "claim_ref": "claim:v70a:odeu-diff:adversarial-review-need",
+      "classification_note": "This is a ratified decision.",
+      "classification_ref": "classification:v70a:odeu-diff:requires-adversarial-review",
+      "evidence_classification": "requires_adversarial_review",
+      "evidence_source_refs": [
+        "evidence-source:v70a:v69c-handoff-fixture"
+      ],
+      "odeu_lanes": [
+        "epistemic"
+      ]
+    },
+    {
+      "adversarial_review_posture": "deferred_to_future_family_review",
+      "candidate_ref": "candidate:internal:typed_adjudication_product_wedge",
+      "claim_horizon": "authority_boundary",
+      "claim_ref": "claim:v70a:product-wedge:authority-boundary",
+      "classification_note": "Classification preserves product non-permission.",
+      "classification_ref": "classification:v70a:product-wedge:authority-boundary",
+      "evidence_classification": "authority_boundary_blocked",
+      "evidence_source_refs": [
+        "evidence-source:v70a:gptpro-review"
+      ],
+      "odeu_lanes": [
+        "deontic",
+        "utility"
+      ]
+    },
+    {
+      "adversarial_review_posture": "not_required_for_this_claim",
+      "candidate_ref": "candidate:internal:self_evidencing_workflow_type_emergence",
+      "claim_horizon": "source_existence",
+      "claim_ref": "claim:v70a:self-evidencing:source-bound",
+      "classification_note": "Classification records source binding only.",
+      "classification_ref": "classification:v70a:self-evidencing:source-bound",
+      "evidence_classification": "source_bound_for_review",
+      "evidence_source_refs": [
+        "evidence-source:v70a:v69-closeout"
+      ],
+      "odeu_lanes": [
+        "deontic",
+        "epistemic",
+        "ontological"
+      ]
+    }
+  ],
+  "claim_rows": [
+    {
+      "candidate_origin_class": "model_output",
+      "candidate_ref": "candidate:internal:odeu_conceptual_diff_report@1",
+      "claim_horizon": "adversarial_review_need",
+      "claim_label": "Model-output comparison requires adversarial review.",
+      "claim_ref": "claim:v70a:odeu-diff:adversarial-review-need",
+      "claim_source_refs": [
+        "apps/api/fixtures/repo_description/vnext_plus193/repo_candidate_intake_pre_v70_handoff_v193_reference.json"
+      ],
+      "limitation_note": "Claim is review pressure only.",
+      "odeu_lanes": [
+        "epistemic"
+      ]
+    },
+    {
+      "candidate_origin_class": "internal_reasoning_residue",
+      "candidate_ref": "candidate:internal:typed_adjudication_product_wedge",
+      "claim_horizon": "authority_boundary",
+      "claim_label": "Product wedge requires authority-boundary review.",
+      "claim_ref": "claim:v70a:product-wedge:authority-boundary",
+      "claim_source_refs": [
+        "docs/support/arc_series_mapping/REVIEW_GPTPRO_CANDIDATE_REVIEW_CLASSIFICATION_V70_PLANNING_v0.md"
+      ],
+      "limitation_note": "Product pressure is not product permission.",
+      "odeu_lanes": [
+        "deontic",
+        "utility"
+      ]
+    },
+    {
+      "candidate_origin_class": "internal_reasoning_residue",
+      "candidate_ref": "candidate:internal:self_evidencing_workflow_type_emergence",
+      "claim_horizon": "source_existence",
+      "claim_label": "Self-evidencing workflow pressure is source-bound for review.",
+      "claim_ref": "claim:v70a:self-evidencing:source-bound",
+      "claim_source_refs": [
+        "docs/DRAFT_ADEU_RECURSIVE_CANDIDATE_INTAKE_V69_FAMILY_CLOSEOUT_v0.md"
+      ],
+      "limitation_note": "Source binding does not validate the workflow type.",
+      "odeu_lanes": [
+        "deontic",
+        "epistemic",
+        "ontological"
+      ]
+    }
+  ],
+  "classification_record_id": "repo_candidate_evidence_classification_record_71d46cbf02b0d901bf200b8b",
+  "evidence_source_refs": [
+    "evidence-source:v70a:gptpro-review",
+    "evidence-source:v70a:v69-closeout",
+    "evidence-source:v70a:v69c-handoff-fixture"
+  ],
+  "non_ratification_summary": "V70-A classification rows are review support only.",
+  "review_id": "review:v70a:candidate-evidence-classification",
+  "schema": "repo_candidate_evidence_classification_record@1",
+  "snapshot_id": "vNext+194-prestart-on-main",
+  "source_set_id": "source-set:v70a:released-v69c-handoff"
+}

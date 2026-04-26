@@ -1,0 +1,259 @@
+{
+  "$defs": {
+    "RepoCandidateClaimClassificationRow": {
+      "additionalProperties": false,
+      "properties": {
+        "adversarial_review_posture": {
+          "enum": [
+            "not_required_for_this_claim",
+            "required_not_started",
+            "required_present",
+            "required_inconclusive",
+            "conflict_detected",
+            "blocked_missing_counterevidence",
+            "deferred_to_future_family_review"
+          ],
+          "title": "Adversarial Review Posture",
+          "type": "string"
+        },
+        "candidate_ref": {
+          "title": "Candidate Ref",
+          "type": "string"
+        },
+        "claim_horizon": {
+          "enum": [
+            "source_existence",
+            "candidate_well_formedness",
+            "evidence_support",
+            "authority_boundary",
+            "adversarial_review_need",
+            "conflict_presence",
+            "pre_ratification_readiness",
+            "utility_projection"
+          ],
+          "title": "Claim Horizon",
+          "type": "string"
+        },
+        "claim_ref": {
+          "title": "Claim Ref",
+          "type": "string"
+        },
+        "classification_note": {
+          "title": "Classification Note",
+          "type": "string"
+        },
+        "classification_ref": {
+          "title": "Classification Ref",
+          "type": "string"
+        },
+        "evidence_classification": {
+          "enum": [
+            "source_bound_for_review",
+            "supports_review_claim",
+            "contradicts_review_claim",
+            "insufficient_evidence",
+            "not_evidence_for_claim",
+            "requires_adversarial_review",
+            "authority_boundary_blocked",
+            "tool_applicability_unknown",
+            "source_missing_or_stale"
+          ],
+          "title": "Evidence Classification",
+          "type": "string"
+        },
+        "evidence_source_refs": {
+          "items": {
+            "type": "string"
+          },
+          "minItems": 1,
+          "title": "Evidence Source Refs",
+          "type": "array"
+        },
+        "odeu_lanes": {
+          "items": {
+            "enum": [
+              "ontological",
+              "deontic",
+              "epistemic",
+              "utility"
+            ],
+            "type": "string"
+          },
+          "minItems": 1,
+          "title": "Odeu Lanes",
+          "type": "array"
+        }
+      },
+      "required": [
+        "classification_ref",
+        "candidate_ref",
+        "claim_ref",
+        "odeu_lanes",
+        "claim_horizon",
+        "evidence_classification",
+        "evidence_source_refs",
+        "adversarial_review_posture",
+        "classification_note"
+      ],
+      "title": "RepoCandidateClaimClassificationRow",
+      "type": "object"
+    },
+    "RepoCandidateClaimRow": {
+      "additionalProperties": false,
+      "properties": {
+        "candidate_origin_class": {
+          "enum": [
+            "internal_reasoning_residue",
+            "external_artifact",
+            "operator_turn",
+            "model_output",
+            "support_doc",
+            "review_feedback",
+            "repo_observation",
+            "planning_pressure"
+          ],
+          "title": "Candidate Origin Class",
+          "type": "string"
+        },
+        "candidate_ref": {
+          "title": "Candidate Ref",
+          "type": "string"
+        },
+        "claim_horizon": {
+          "enum": [
+            "source_existence",
+            "candidate_well_formedness",
+            "evidence_support",
+            "authority_boundary",
+            "adversarial_review_need",
+            "conflict_presence",
+            "pre_ratification_readiness",
+            "utility_projection"
+          ],
+          "title": "Claim Horizon",
+          "type": "string"
+        },
+        "claim_label": {
+          "title": "Claim Label",
+          "type": "string"
+        },
+        "claim_ref": {
+          "title": "Claim Ref",
+          "type": "string"
+        },
+        "claim_source_refs": {
+          "items": {
+            "type": "string"
+          },
+          "minItems": 1,
+          "title": "Claim Source Refs",
+          "type": "array"
+        },
+        "limitation_note": {
+          "title": "Limitation Note",
+          "type": "string"
+        },
+        "odeu_lanes": {
+          "items": {
+            "enum": [
+              "ontological",
+              "deontic",
+              "epistemic",
+              "utility"
+            ],
+            "type": "string"
+          },
+          "minItems": 1,
+          "title": "Odeu Lanes",
+          "type": "array"
+        }
+      },
+      "required": [
+        "claim_ref",
+        "candidate_ref",
+        "candidate_origin_class",
+        "claim_horizon",
+        "odeu_lanes",
+        "claim_label",
+        "claim_source_refs",
+        "limitation_note"
+      ],
+      "title": "RepoCandidateClaimRow",
+      "type": "object"
+    }
+  },
+  "additionalProperties": false,
+  "properties": {
+    "candidate_input_refs": {
+      "items": {
+        "type": "string"
+      },
+      "minItems": 1,
+      "title": "Candidate Input Refs",
+      "type": "array"
+    },
+    "claim_classification_rows": {
+      "items": {
+        "$ref": "#/$defs/RepoCandidateClaimClassificationRow"
+      },
+      "minItems": 1,
+      "title": "Claim Classification Rows",
+      "type": "array"
+    },
+    "claim_rows": {
+      "items": {
+        "$ref": "#/$defs/RepoCandidateClaimRow"
+      },
+      "minItems": 1,
+      "title": "Claim Rows",
+      "type": "array"
+    },
+    "classification_record_id": {
+      "title": "Classification Record Id",
+      "type": "string"
+    },
+    "evidence_source_refs": {
+      "items": {
+        "type": "string"
+      },
+      "minItems": 1,
+      "title": "Evidence Source Refs",
+      "type": "array"
+    },
+    "non_ratification_summary": {
+      "title": "Non Ratification Summary",
+      "type": "string"
+    },
+    "review_id": {
+      "title": "Review Id",
+      "type": "string"
+    },
+    "schema": {
+      "const": "repo_candidate_evidence_classification_record@1",
+      "default": "repo_candidate_evidence_classification_record@1",
+      "title": "Schema",
+      "type": "string"
+    },
+    "snapshot_id": {
+      "title": "Snapshot Id",
+      "type": "string"
+    },
+    "source_set_id": {
+      "title": "Source Set Id",
+      "type": "string"
+    }
+  },
+  "required": [
+    "classification_record_id",
+    "review_id",
+    "snapshot_id",
+    "source_set_id",
+    "candidate_input_refs",
+    "evidence_source_refs",
+    "claim_rows",
+    "claim_classification_rows",
+    "non_ratification_summary"
+  ],
+  "title": "RepoCandidateEvidenceClassificationRecord",
+  "type": "object"
+}

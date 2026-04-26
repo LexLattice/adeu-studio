@@ -1,0 +1,156 @@
+{
+  "$defs": {
+    "RepoCandidateEvidenceSourceRow": {
+      "additionalProperties": false,
+      "properties": {
+        "authority_layer": {
+          "enum": [
+            "lock",
+            "architecture",
+            "planning",
+            "support",
+            "schema",
+            "fixture",
+            "closeout_evidence"
+          ],
+          "title": "Authority Layer",
+          "type": "string"
+        },
+        "candidate_ref": {
+          "title": "Candidate Ref",
+          "type": "string"
+        },
+        "claim_horizon": {
+          "enum": [
+            "source_existence",
+            "candidate_well_formedness",
+            "evidence_support",
+            "authority_boundary",
+            "adversarial_review_need",
+            "conflict_presence",
+            "pre_ratification_readiness",
+            "utility_projection"
+          ],
+          "title": "Claim Horizon",
+          "type": "string"
+        },
+        "evidence_kind": {
+          "enum": [
+            "candidate_handoff_fixture",
+            "closeout_evidence",
+            "support_dogfood",
+            "support_review",
+            "schema_file",
+            "fixture_file",
+            "limitation_or_absence_note"
+          ],
+          "title": "Evidence Kind",
+          "type": "string"
+        },
+        "evidence_source_ref": {
+          "title": "Evidence Source Ref",
+          "type": "string"
+        },
+        "limitation_note": {
+          "title": "Limitation Note",
+          "type": "string"
+        },
+        "source_kind": {
+          "enum": [
+            "planning_doc",
+            "architecture_doc",
+            "support_doc",
+            "review_input",
+            "closeout_doc",
+            "evidence_artifact",
+            "schema_file",
+            "fixture_file",
+            "operator_turn",
+            "transcript_artifact",
+            "model_output",
+            "repo_observation",
+            "external_artifact"
+          ],
+          "title": "Source Kind",
+          "type": "string"
+        },
+        "source_presence_posture": {
+          "enum": [
+            "present",
+            "missing_expected_support_artifact",
+            "not_uploaded_in_review_snapshot",
+            "generated_later",
+            "external_unavailable",
+            "operator_turn_not_committed"
+          ],
+          "title": "Source Presence Posture",
+          "type": "string"
+        },
+        "source_ref": {
+          "title": "Source Ref",
+          "type": "string"
+        }
+      },
+      "required": [
+        "evidence_source_ref",
+        "candidate_ref",
+        "source_ref",
+        "source_kind",
+        "authority_layer",
+        "source_presence_posture",
+        "evidence_kind",
+        "claim_horizon",
+        "limitation_note"
+      ],
+      "title": "RepoCandidateEvidenceSourceRow",
+      "type": "object"
+    }
+  },
+  "additionalProperties": false,
+  "properties": {
+    "evidence_source_rows": {
+      "items": {
+        "$ref": "#/$defs/RepoCandidateEvidenceSourceRow"
+      },
+      "minItems": 1,
+      "title": "Evidence Source Rows",
+      "type": "array"
+    },
+    "limitation_note": {
+      "title": "Limitation Note",
+      "type": "string"
+    },
+    "review_id": {
+      "title": "Review Id",
+      "type": "string"
+    },
+    "schema": {
+      "const": "repo_candidate_evidence_source_index@1",
+      "default": "repo_candidate_evidence_source_index@1",
+      "title": "Schema",
+      "type": "string"
+    },
+    "snapshot_id": {
+      "title": "Snapshot Id",
+      "type": "string"
+    },
+    "source_index_id": {
+      "title": "Source Index Id",
+      "type": "string"
+    },
+    "source_set_id": {
+      "title": "Source Set Id",
+      "type": "string"
+    }
+  },
+  "required": [
+    "source_index_id",
+    "review_id",
+    "snapshot_id",
+    "source_set_id",
+    "evidence_source_rows",
+    "limitation_note"
+  ],
+  "title": "RepoCandidateEvidenceSourceIndex",
+  "type": "object"
+}

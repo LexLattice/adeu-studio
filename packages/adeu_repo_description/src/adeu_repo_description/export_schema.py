@@ -22,6 +22,11 @@ from .arc_series_cartography_derivation import (
     RepoArcCartographyGapScanReport,
 )
 from .arc_series_cartography_tools import RepoArcCartographyToolRunEvidence
+from .candidate_review_classification import (
+    RepoCandidateEvidenceClassificationRecord,
+    RepoCandidateEvidenceSourceIndex,
+    RepoCandidateReviewBoundaryGuardrail,
+)
 from .models import (
     RepoArcDependencyRegister,
     RepoArcDependencyRegisterV1,
@@ -150,6 +155,15 @@ def main() -> None:
     candidate_intake_pre_v70_handoff_schema = (
         RepoCandidateIntakePreV70Handoff.model_json_schema(by_alias=True)
     )
+    candidate_evidence_classification_record_schema = (
+        RepoCandidateEvidenceClassificationRecord.model_json_schema(by_alias=True)
+    )
+    candidate_evidence_source_index_schema = RepoCandidateEvidenceSourceIndex.model_json_schema(
+        by_alias=True
+    )
+    candidate_review_boundary_guardrail_schema = (
+        RepoCandidateReviewBoundaryGuardrail.model_json_schema(by_alias=True)
+    )
 
     _assert_no_absolute_path_material(dependency_register_v1_schema, repo_root_path=root)
     _assert_no_absolute_path_material(dependency_register_schema, repo_root_path=root)
@@ -185,6 +199,13 @@ def main() -> None:
         recursive_workflow_residue_intake_report_schema, repo_root_path=root
     )
     _assert_no_absolute_path_material(candidate_intake_pre_v70_handoff_schema, repo_root_path=root)
+    _assert_no_absolute_path_material(
+        candidate_evidence_classification_record_schema, repo_root_path=root
+    )
+    _assert_no_absolute_path_material(candidate_evidence_source_index_schema, repo_root_path=root)
+    _assert_no_absolute_path_material(
+        candidate_review_boundary_guardrail_schema, repo_root_path=root
+    )
 
     _write_schema(
         root
@@ -497,6 +518,42 @@ def main() -> None:
     _write_schema(
         root / "spec" / "repo_candidate_intake_pre_v70_handoff.schema.json",
         candidate_intake_pre_v70_handoff_schema,
+    )
+    _write_schema(
+        root
+        / "packages"
+        / "adeu_repo_description"
+        / "schema"
+        / "repo_candidate_evidence_classification_record.v1.json",
+        candidate_evidence_classification_record_schema,
+    )
+    _write_schema(
+        root / "spec" / "repo_candidate_evidence_classification_record.schema.json",
+        candidate_evidence_classification_record_schema,
+    )
+    _write_schema(
+        root
+        / "packages"
+        / "adeu_repo_description"
+        / "schema"
+        / "repo_candidate_evidence_source_index.v1.json",
+        candidate_evidence_source_index_schema,
+    )
+    _write_schema(
+        root / "spec" / "repo_candidate_evidence_source_index.schema.json",
+        candidate_evidence_source_index_schema,
+    )
+    _write_schema(
+        root
+        / "packages"
+        / "adeu_repo_description"
+        / "schema"
+        / "repo_candidate_review_boundary_guardrail.v1.json",
+        candidate_review_boundary_guardrail_schema,
+    )
+    _write_schema(
+        root / "spec" / "repo_candidate_review_boundary_guardrail.schema.json",
+        candidate_review_boundary_guardrail_schema,
     )
 
 

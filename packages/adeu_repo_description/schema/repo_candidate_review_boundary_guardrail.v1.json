@@ -1,0 +1,130 @@
+{
+  "$defs": {
+    "RepoCandidateReviewBoundaryGuardrailRow": {
+      "additionalProperties": false,
+      "properties": {
+        "allowed_next_review_surfaces": {
+          "items": {
+            "enum": [
+              "v70_adversarial_review",
+              "future_family_review",
+              "deferred_no_selection"
+            ],
+            "type": "string"
+          },
+          "minItems": 1,
+          "title": "Allowed Next Review Surfaces",
+          "type": "array"
+        },
+        "candidate_ref": {
+          "title": "Candidate Ref",
+          "type": "string"
+        },
+        "classification_refs": {
+          "items": {
+            "type": "string"
+          },
+          "minItems": 1,
+          "title": "Classification Refs",
+          "type": "array"
+        },
+        "forbidden_review_roles": {
+          "items": {
+            "enum": [
+              "truth_verdict",
+              "ratified_decision",
+              "candidate_adoption",
+              "implementation_task",
+              "commit_release_authority",
+              "product_authorization",
+              "dispatch_authority",
+              "self_validation"
+            ],
+            "type": "string"
+          },
+          "minItems": 1,
+          "title": "Forbidden Review Roles",
+          "type": "array"
+        },
+        "guardrail_ref": {
+          "title": "Guardrail Ref",
+          "type": "string"
+        },
+        "non_ratification_guardrail": {
+          "title": "Non Ratification Guardrail",
+          "type": "string"
+        }
+      },
+      "required": [
+        "guardrail_ref",
+        "candidate_ref",
+        "classification_refs",
+        "forbidden_review_roles",
+        "allowed_next_review_surfaces",
+        "non_ratification_guardrail"
+      ],
+      "title": "RepoCandidateReviewBoundaryGuardrailRow",
+      "type": "object"
+    }
+  },
+  "additionalProperties": false,
+  "properties": {
+    "boundary_guardrail_id": {
+      "title": "Boundary Guardrail Id",
+      "type": "string"
+    },
+    "boundary_guardrail_rows": {
+      "items": {
+        "$ref": "#/$defs/RepoCandidateReviewBoundaryGuardrailRow"
+      },
+      "minItems": 1,
+      "title": "Boundary Guardrail Rows",
+      "type": "array"
+    },
+    "candidate_input_refs": {
+      "items": {
+        "type": "string"
+      },
+      "minItems": 1,
+      "title": "Candidate Input Refs",
+      "type": "array"
+    },
+    "classification_refs": {
+      "items": {
+        "type": "string"
+      },
+      "minItems": 1,
+      "title": "Classification Refs",
+      "type": "array"
+    },
+    "non_ratification_summary": {
+      "title": "Non Ratification Summary",
+      "type": "string"
+    },
+    "review_id": {
+      "title": "Review Id",
+      "type": "string"
+    },
+    "schema": {
+      "const": "repo_candidate_review_boundary_guardrail@1",
+      "default": "repo_candidate_review_boundary_guardrail@1",
+      "title": "Schema",
+      "type": "string"
+    },
+    "snapshot_id": {
+      "title": "Snapshot Id",
+      "type": "string"
+    }
+  },
+  "required": [
+    "boundary_guardrail_id",
+    "review_id",
+    "snapshot_id",
+    "candidate_input_refs",
+    "classification_refs",
+    "boundary_guardrail_rows",
+    "non_ratification_summary"
+  ],
+  "title": "RepoCandidateReviewBoundaryGuardrail",
+  "type": "object"
+}
