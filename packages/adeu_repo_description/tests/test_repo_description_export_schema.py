@@ -20,6 +20,7 @@ from adeu_repo_description import (
     REPO_CANDIDATE_INTAKE_PRE_V70_HANDOFF_SCHEMA,
     REPO_CANDIDATE_NON_ADOPTION_GUARDRAIL_SCHEMA,
     REPO_CANDIDATE_PRE_RATIFICATION_HANDOFF_SCHEMA,
+    REPO_CANDIDATE_RATIFICATION_RECORD_SCHEMA,
     REPO_CANDIDATE_RATIFICATION_REQUEST_SCHEMA,
     REPO_CANDIDATE_REVIEW_BOUNDARY_GUARDRAIL_SCHEMA,
     REPO_CANDIDATE_REVIEW_CLASSIFICATION_SUMMARY_SCHEMA,
@@ -34,10 +35,12 @@ from adeu_repo_description import (
     REPO_OPERATOR_INGRESS_CANDIDATE_BINDING_SCHEMA,
     REPO_OPTIMIZATION_REGISTER_SCHEMA,
     REPO_RATIFICATION_AUTHORITY_PROFILE_SCHEMA,
+    REPO_RATIFICATION_DISSENT_REGISTER_SCHEMA,
     REPO_RATIFICATION_REQUEST_SCOPE_BOUNDARY_SCHEMA,
     REPO_RECURSIVE_CANDIDATE_INTAKE_RECORD_SCHEMA,
     REPO_RECURSIVE_COORDINATE_EMISSION_PLAN_SCHEMA,
     REPO_RECURSIVE_WORKFLOW_RESIDUE_INTAKE_REPORT_SCHEMA,
+    REPO_REVIEW_SETTLEMENT_RECORD_SCHEMA,
     REPO_SCHEMA_FAMILY_REGISTRY_SCHEMA,
     REPO_SUPPORT_LINEAGE_REGISTER_SCHEMA,
     REPO_SYMBOL_CATALOG_SCHEMA,
@@ -322,6 +325,30 @@ def _schema_pairs() -> dict[str, tuple[Path, Path]]:
             / "schema"
             / "repo_ratification_request_scope_boundary.v1.json",
             root / "spec" / "repo_ratification_request_scope_boundary.schema.json",
+        ),
+        REPO_CANDIDATE_RATIFICATION_RECORD_SCHEMA: (
+            root
+            / "packages"
+            / "adeu_repo_description"
+            / "schema"
+            / "repo_candidate_ratification_record.v1.json",
+            root / "spec" / "repo_candidate_ratification_record.schema.json",
+        ),
+        REPO_REVIEW_SETTLEMENT_RECORD_SCHEMA: (
+            root
+            / "packages"
+            / "adeu_repo_description"
+            / "schema"
+            / "repo_review_settlement_record.v1.json",
+            root / "spec" / "repo_review_settlement_record.schema.json",
+        ),
+        REPO_RATIFICATION_DISSENT_REGISTER_SCHEMA: (
+            root
+            / "packages"
+            / "adeu_repo_description"
+            / "schema"
+            / "repo_ratification_dissent_register.v1.json",
+            root / "spec" / "repo_ratification_dissent_register.schema.json",
         ),
     }
 

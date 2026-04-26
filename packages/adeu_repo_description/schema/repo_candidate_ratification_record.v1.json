@@ -1,0 +1,179 @@
+{
+  "$defs": {
+    "RepoCandidateRatificationRecordRow": {
+      "additionalProperties": false,
+      "properties": {
+        "allowed_next_review_surface": {
+          "enum": [
+            "v72_contained_integration_review",
+            "future_family_review",
+            "deferred_no_selection"
+          ],
+          "title": "Allowed Next Review Surface",
+          "type": "string"
+        },
+        "amendment_scope_refs": {
+          "items": {
+            "type": "string"
+          },
+          "maxItems": 0,
+          "title": "Amendment Scope Refs",
+          "type": "array"
+        },
+        "candidate_ref": {
+          "title": "Candidate Ref",
+          "type": "string"
+        },
+        "decision_posture": {
+          "enum": [
+            "ratified",
+            "rejected",
+            "deferred",
+            "out_of_scope"
+          ],
+          "title": "Decision Posture",
+          "type": "string"
+        },
+        "dissent_refs": {
+          "items": {
+            "type": "string"
+          },
+          "title": "Dissent Refs",
+          "type": "array"
+        },
+        "limitation_note": {
+          "title": "Limitation Note",
+          "type": "string"
+        },
+        "non_integration_guardrail": {
+          "title": "Non Integration Guardrail",
+          "type": "string"
+        },
+        "ratification_horizon": {
+          "enum": [
+            "source_bound_candidate_validity",
+            "review_conflict_settlement",
+            "authority_boundary_acceptance",
+            "future_family_routing",
+            "integration_review_readiness",
+            "utility_projection_acceptance"
+          ],
+          "title": "Ratification Horizon",
+          "type": "string"
+        },
+        "ratification_ref": {
+          "title": "Ratification Ref",
+          "type": "string"
+        },
+        "ratifying_authority_profile_refs": {
+          "items": {
+            "type": "string"
+          },
+          "minItems": 1,
+          "title": "Ratifying Authority Profile Refs",
+          "type": "array"
+        },
+        "request_refs": {
+          "items": {
+            "type": "string"
+          },
+          "minItems": 1,
+          "title": "Request Refs",
+          "type": "array"
+        },
+        "settlement_refs": {
+          "items": {
+            "type": "string"
+          },
+          "title": "Settlement Refs",
+          "type": "array"
+        }
+      },
+      "required": [
+        "ratification_ref",
+        "candidate_ref",
+        "request_refs",
+        "decision_posture",
+        "ratification_horizon",
+        "allowed_next_review_surface",
+        "ratifying_authority_profile_refs",
+        "non_integration_guardrail",
+        "limitation_note"
+      ],
+      "title": "RepoCandidateRatificationRecordRow",
+      "type": "object"
+    }
+  },
+  "additionalProperties": false,
+  "properties": {
+    "authority_profile_id": {
+      "title": "Authority Profile Id",
+      "type": "string"
+    },
+    "dissent_register_id": {
+      "title": "Dissent Register Id",
+      "type": "string"
+    },
+    "non_integration_summary": {
+      "title": "Non Integration Summary",
+      "type": "string"
+    },
+    "ratification_record_id": {
+      "title": "Ratification Record Id",
+      "type": "string"
+    },
+    "ratification_request_id": {
+      "title": "Ratification Request Id",
+      "type": "string"
+    },
+    "ratification_rows": {
+      "items": {
+        "$ref": "#/$defs/RepoCandidateRatificationRecordRow"
+      },
+      "minItems": 1,
+      "title": "Ratification Rows",
+      "type": "array"
+    },
+    "request_scope_boundary_id": {
+      "title": "Request Scope Boundary Id",
+      "type": "string"
+    },
+    "review_id": {
+      "title": "Review Id",
+      "type": "string"
+    },
+    "schema": {
+      "const": "repo_candidate_ratification_record@1",
+      "default": "repo_candidate_ratification_record@1",
+      "title": "Schema",
+      "type": "string"
+    },
+    "settlement_register_id": {
+      "title": "Settlement Register Id",
+      "type": "string"
+    },
+    "snapshot_id": {
+      "title": "Snapshot Id",
+      "type": "string"
+    },
+    "source_set_id": {
+      "title": "Source Set Id",
+      "type": "string"
+    }
+  },
+  "required": [
+    "ratification_record_id",
+    "review_id",
+    "snapshot_id",
+    "source_set_id",
+    "ratification_request_id",
+    "authority_profile_id",
+    "request_scope_boundary_id",
+    "settlement_register_id",
+    "dissent_register_id",
+    "ratification_rows",
+    "non_integration_summary"
+  ],
+  "title": "RepoCandidateRatificationRecord",
+  "type": "object"
+}

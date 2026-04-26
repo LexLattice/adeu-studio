@@ -1,0 +1,71 @@
+{
+  "dissent_preservation_summary": "Dissent is preserved or explicitly searched within horizon.",
+  "dissent_register_id": "repo_ratification_dissent_register_ef24610016ec6603be2b457d",
+  "dissent_rows": [
+    {
+      "candidate_ref": "candidate:internal:odeu_conceptual_diff_report@1",
+      "carry_forward_required": true,
+      "dissent_posture": "minority_review_preserved",
+      "dissent_ref": "dissent:v71b:odeu-diff:minority-preserved",
+      "dissent_search_posture": "dissent_present",
+      "dissent_source_refs": [
+        "gap:v70b:odeu-diff:missing-counterevidence"
+      ],
+      "dissent_summary": "Counterevidence gap remains preserved for later review.",
+      "limitation_note": "Dissent preservation does not grant downstream work.",
+      "request_refs": [
+        "request:v71a:odeu-diff:settlement-required"
+      ],
+      "settlement_refs": [
+        "settlement:v71b:odeu-diff:partial-with-dissent"
+      ]
+    },
+    {
+      "candidate_ref": "candidate:internal:typed_adjudication_product_wedge",
+      "carry_forward_required": false,
+      "dissent_posture": "not_applicable",
+      "dissent_ref": "dissent:v71b:product-wedge:not-applicable",
+      "dissent_search_posture": "not_applicable",
+      "dissent_source_refs": [
+        "gap:v70b:product-wedge:v74-boundary"
+      ],
+      "dissent_summary": "Future-family product boundary review is not settled here.",
+      "limitation_note": "Future-family routing is not product selection.",
+      "request_refs": [
+        "request:v71a:product-wedge:future-family"
+      ],
+      "settlement_refs": [
+        "settlement:v71b:product-wedge:future-family"
+      ]
+    },
+    {
+      "candidate_ref": "candidate:internal:self_evidencing_workflow_type_emergence",
+      "carry_forward_required": false,
+      "dissent_posture": "no_dissent_recorded",
+      "dissent_ref": "dissent:v71b:self-evidencing:none-found",
+      "dissent_search_posture": "searched_none_found",
+      "dissent_source_refs": [
+        "relation:v70b:self-evidencing:complementarity"
+      ],
+      "dissent_summary": "No dissent found within the released review relation horizon.",
+      "limitation_note": "Absence is bounded to the searched V70/V71 review horizon.",
+      "request_refs": [
+        "request:v71a:self-evidencing:eligible"
+      ],
+      "settlement_refs": [
+        "settlement:v71b:self-evidencing:complementary"
+      ]
+    }
+  ],
+  "ratification_request_id": "repo_candidate_ratification_request_6db75b7e7d468c47b967dbaa",
+  "request_refs": [
+    "request:v71a:odeu-diff:settlement-required",
+    "request:v71a:product-wedge:future-family",
+    "request:v71a:self-evidencing:eligible"
+  ],
+  "review_id": "review:v71b:ratification-settlement",
+  "schema": "repo_ratification_dissent_register@1",
+  "settlement_register_id": "repo_review_settlement_record_54e26065a590722173bd102e",
+  "snapshot_id": "vNext+198-prestart-on-main",
+  "source_set_id": "source-set:v70a:released-v69c-handoff"
+}

@@ -1,0 +1,153 @@
+{
+  "$defs": {
+    "RepoRatificationDissentRow": {
+      "additionalProperties": false,
+      "properties": {
+        "candidate_ref": {
+          "title": "Candidate Ref",
+          "type": "string"
+        },
+        "carry_forward_required": {
+          "title": "Carry Forward Required",
+          "type": "boolean"
+        },
+        "dissent_posture": {
+          "enum": [
+            "no_dissent_recorded",
+            "dissent_carried_forward",
+            "minority_review_preserved",
+            "unresolved_blocker",
+            "not_applicable"
+          ],
+          "title": "Dissent Posture",
+          "type": "string"
+        },
+        "dissent_ref": {
+          "title": "Dissent Ref",
+          "type": "string"
+        },
+        "dissent_search_posture": {
+          "enum": [
+            "searched_none_found",
+            "not_searched",
+            "not_applicable",
+            "dissent_present",
+            "unknown"
+          ],
+          "title": "Dissent Search Posture",
+          "type": "string"
+        },
+        "dissent_source_refs": {
+          "items": {
+            "type": "string"
+          },
+          "minItems": 1,
+          "title": "Dissent Source Refs",
+          "type": "array"
+        },
+        "dissent_summary": {
+          "title": "Dissent Summary",
+          "type": "string"
+        },
+        "limitation_note": {
+          "title": "Limitation Note",
+          "type": "string"
+        },
+        "request_refs": {
+          "items": {
+            "type": "string"
+          },
+          "minItems": 1,
+          "title": "Request Refs",
+          "type": "array"
+        },
+        "settlement_refs": {
+          "items": {
+            "type": "string"
+          },
+          "title": "Settlement Refs",
+          "type": "array"
+        }
+      },
+      "required": [
+        "dissent_ref",
+        "candidate_ref",
+        "request_refs",
+        "dissent_source_refs",
+        "dissent_posture",
+        "dissent_search_posture",
+        "dissent_summary",
+        "carry_forward_required",
+        "limitation_note"
+      ],
+      "title": "RepoRatificationDissentRow",
+      "type": "object"
+    }
+  },
+  "additionalProperties": false,
+  "properties": {
+    "dissent_preservation_summary": {
+      "title": "Dissent Preservation Summary",
+      "type": "string"
+    },
+    "dissent_register_id": {
+      "title": "Dissent Register Id",
+      "type": "string"
+    },
+    "dissent_rows": {
+      "items": {
+        "$ref": "#/$defs/RepoRatificationDissentRow"
+      },
+      "minItems": 1,
+      "title": "Dissent Rows",
+      "type": "array"
+    },
+    "ratification_request_id": {
+      "title": "Ratification Request Id",
+      "type": "string"
+    },
+    "request_refs": {
+      "items": {
+        "type": "string"
+      },
+      "minItems": 1,
+      "title": "Request Refs",
+      "type": "array"
+    },
+    "review_id": {
+      "title": "Review Id",
+      "type": "string"
+    },
+    "schema": {
+      "const": "repo_ratification_dissent_register@1",
+      "default": "repo_ratification_dissent_register@1",
+      "title": "Schema",
+      "type": "string"
+    },
+    "settlement_register_id": {
+      "title": "Settlement Register Id",
+      "type": "string"
+    },
+    "snapshot_id": {
+      "title": "Snapshot Id",
+      "type": "string"
+    },
+    "source_set_id": {
+      "title": "Source Set Id",
+      "type": "string"
+    }
+  },
+  "required": [
+    "dissent_register_id",
+    "review_id",
+    "snapshot_id",
+    "source_set_id",
+    "ratification_request_id",
+    "settlement_register_id",
+    "request_refs",
+    "dissent_rows",
+    "dissent_preservation_summary"
+  ],
+  "title": "RepoRatificationDissentRegister",
+  "type": "object"
+}
