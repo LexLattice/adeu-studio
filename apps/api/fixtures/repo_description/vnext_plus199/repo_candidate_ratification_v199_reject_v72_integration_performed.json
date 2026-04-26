@@ -50,7 +50,7 @@
       "handoff_posture": "ready_for_v72_review",
       "handoff_ref": "handoff:v71c:self-evidencing:v72-review",
       "handoff_target": "v72_contained_integration_review",
-      "non_integration_guardrail": "No implementation, integration performed, no release, no product authorization, and no dispatch authority.",
+      "non_integration_guardrail": "No implementation, no integration, integration performed, no release, no product authorization, and no dispatch authority.",
       "ratification_refs": [
         "ratification:v71b:self-evidencing:source-bound-validity"
       ],

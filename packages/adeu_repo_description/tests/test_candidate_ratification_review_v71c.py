@@ -201,6 +201,16 @@ def test_v199_rejects_invalid_surface_fixtures(
         model_type.model_validate(_load_fixture("vnext_plus199", fixture_name))
 
 
+def test_v199_guardrails_must_explicitly_forbid_integration() -> None:
+    payload = _load_fixture("vnext_plus199", "repo_post_ratification_handoff_v199_reference.json")
+    payload["non_integration_summary"] = (
+        "No implementation, no release, no product authorization, and no dispatch authority."
+    )
+
+    with pytest.raises(ValidationError, match="must state no integration"):
+        RepoPostRatificationHandoff.model_validate(payload)
+
+
 @pytest.mark.parametrize(
     ("fixture_name", "match"),
     [
@@ -227,4 +237,82 @@ def test_v199_bundle_rejects_cross_surface_errors(fixture_name: str, match: str)
             amendment_scope_boundary=_v71c_amendment_scope(),
             post_ratification_handoff=handoff,
             family_closeout_alignment=_v71c_closeout(),
+        )
+
+
+def test_v199_bundle_rejects_unknown_dissent_refs() -> None:
+    ratification = _v71b_ratification()
+    ratification = ratification.model_copy(
+        update={
+            "ratification_rows": [
+                row.model_copy(update={"dissent_refs": ["dissent:v71b:missing"]})
+                if row.ratification_ref == "ratification:v71b:self-evidencing:source-bound-validity"
+                else row
+                for row in ratification.ratification_rows
+            ]
+        }
+    )
+
+    with pytest.raises(ValueError, match="unknown dissent"):
+        validate_v71c_candidate_ratification_closeout_bundle(
+            ratification_record=ratification,
+            settlement_record=_v71b_settlement(),
+            dissent_register=_v71b_dissent(),
+            amendment_scope_boundary=_v71c_amendment_scope(),
+            post_ratification_handoff=_v71c_handoff(),
+            family_closeout_alignment=_v71c_closeout(),
+        )
+
+
+def test_v199_bundle_rejects_unknown_settlement_refs() -> None:
+    ratification = _v71b_ratification()
+    ratification = ratification.model_copy(
+        update={
+            "ratification_rows": [
+                row.model_copy(update={"settlement_refs": ["settlement:v71b:missing"]})
+                if row.ratification_ref == "ratification:v71b:self-evidencing:source-bound-validity"
+                else row
+                for row in ratification.ratification_rows
+            ]
+        }
+    )
+
+    with pytest.raises(ValueError, match="unknown settlement"):
+        validate_v71c_candidate_ratification_closeout_bundle(
+            ratification_record=ratification,
+            settlement_record=_v71b_settlement(),
+            dissent_register=_v71b_dissent(),
+            amendment_scope_boundary=_v71c_amendment_scope(),
+            post_ratification_handoff=_v71c_handoff(),
+            family_closeout_alignment=_v71c_closeout(),
+        )
+
+
+def test_v199_bundle_rejects_closeout_candidate_reference_mismatch() -> None:
+    closeout = _v71c_closeout()
+    closeout = closeout.model_copy(
+        update={
+            "candidate_rows": [
+                row.model_copy(
+                    update={
+                        "ratification_refs": [
+                            "ratification:v71b:self-evidencing:source-bound-validity"
+                        ]
+                    }
+                )
+                if row.candidate_ref == "candidate:internal:typed_adjudication_product_wedge"
+                else row
+                for row in closeout.candidate_rows
+            ]
+        }
+    )
+
+    with pytest.raises(ValueError, match="candidate_ref must match ratification"):
+        validate_v71c_candidate_ratification_closeout_bundle(
+            ratification_record=_v71b_ratification(),
+            settlement_record=_v71b_settlement(),
+            dissent_register=_v71b_dissent(),
+            amendment_scope_boundary=_v71c_amendment_scope(),
+            post_ratification_handoff=_v71c_handoff(),
+            family_closeout_alignment=closeout,
         )

@@ -269,7 +269,7 @@ def _v71c_note(value: str, *, field_name: str) -> str:
 def _v71c_non_authority_guardrail(value: str, *, field_name: str) -> str:
     normalized = _non_empty(value, field_name=field_name)
     lowered = normalized.lower()
-    required = ("no implementation", "no release", "no product", "no dispatch")
+    required = ("no implementation", "no integration", "no release", "no product", "no dispatch")
     missing = [phrase for phrase in required if phrase not in lowered]
     if missing:
         raise ValueError(f"{field_name} must state {', '.join(missing)}")
@@ -2633,19 +2633,19 @@ def validate_v71c_candidate_ratification_closeout_bundle(
                 and handoff.handoff_target == "v72_contained_integration_review"
             ):
                 raise ValueError("product wedge cannot be routed to V72")
+            for ref in ratification.dissent_refs:
+                if ref not in dissent_rows:
+                    raise ValueError(f"ratification references unknown dissent: {ref}")
             required_dissent_refs = sorted(
                 ref
                 for ref in ratification.dissent_refs
-                if ref in dissent_rows
-                and (
-                    dissent_rows[ref].carry_forward_required
-                    or dissent_rows[ref].dissent_posture
-                    in {
-                        "dissent_carried_forward",
-                        "minority_review_preserved",
-                        "unresolved_blocker",
-                    }
-                )
+                if dissent_rows[ref].carry_forward_required
+                or dissent_rows[ref].dissent_posture
+                in {
+                    "dissent_carried_forward",
+                    "minority_review_preserved",
+                    "unresolved_blocker",
+                }
             )
             missing_dissent = sorted(
                 set(required_dissent_refs) - set(handoff.carried_forward_dissent_refs)
@@ -2656,7 +2656,9 @@ def validate_v71c_candidate_ratification_closeout_bundle(
             for settlement_ref in ratification.settlement_refs:
                 settlement = settlement_rows.get(settlement_ref)
                 if settlement is None:
-                    continue
+                    raise ValueError(
+                        f"ratification references unknown settlement: {settlement_ref}"
+                    )
                 if settlement.settlement_posture in {
                     "partially_settled_with_dissent",
                     "blocked_by_unresolved_conflict",
@@ -2685,23 +2687,35 @@ def validate_v71c_candidate_ratification_closeout_bundle(
         raise ValueError("family closeout alignment must cover every V71 ratification candidate")
     for row in family_closeout_alignment.candidate_rows:
         for ratification_ref in row.ratification_refs:
-            if ratification_ref not in ratification_rows:
+            ratification = ratification_rows.get(ratification_ref)
+            if ratification is None:
                 raise ValueError("family closeout rows must reference known ratification rows")
+            if ratification.candidate_ref != row.candidate_ref:
+                raise ValueError("family closeout candidate_ref must match ratification")
         for amendment_scope_ref in row.amendment_scope_refs:
-            if amendment_scope_ref not in amendment_rows:
+            amendment = amendment_rows.get(amendment_scope_ref)
+            if amendment is None:
                 raise ValueError("family closeout rows must reference known amendment scopes")
+            if amendment.candidate_ref != row.candidate_ref:
+                raise ValueError("family closeout candidate_ref must match amendment scope")
         for handoff_ref in row.handoff_refs:
-            if handoff_ref not in handoff_rows:
+            handoff = handoff_rows.get(handoff_ref)
+            if handoff is None:
                 raise ValueError("family closeout rows must reference known handoff rows")
+            if handoff.candidate_ref != row.candidate_ref:
+                raise ValueError("family closeout candidate_ref must match handoff")
 
 
 def derive_v71c_repo_ratification_amendment_scope_boundary(
     *,
     repo_root: Path,
+    ratification_record: RepoCandidateRatificationRecord | None = None,
+    settlement_record: RepoReviewSettlementRecord | None = None,
+    dissent_register: RepoRatificationDissentRegister | None = None,
 ) -> RepoRatificationAmendmentScopeBoundary:
-    ratification = _v71c_load_ratification(repo_root)
-    settlement = _v71c_load_settlement(repo_root)
-    dissent = _v71c_load_dissent(repo_root)
+    ratification = ratification_record or _v71c_load_ratification(repo_root)
+    settlement = settlement_record or _v71c_load_settlement(repo_root)
+    dissent = dissent_register or _v71c_load_dissent(repo_root)
     rows = [
         RepoRatificationAmendmentScopeBoundaryRow(
             amendment_scope_ref="amendment:v71c:odeu-diff:blocked-by-dissent",
@@ -2763,9 +2777,17 @@ def derive_v71c_repo_ratification_amendment_scope_boundary(
 def derive_v71c_repo_post_ratification_handoff(
     *,
     repo_root: Path,
+    ratification_record: RepoCandidateRatificationRecord | None = None,
+    amendment_scope_boundary: RepoRatificationAmendmentScopeBoundary | None = None,
 ) -> RepoPostRatificationHandoff:
-    ratification = _v71c_load_ratification(repo_root)
-    amendment_scope = derive_v71c_repo_ratification_amendment_scope_boundary(repo_root=repo_root)
+    ratification = ratification_record or _v71c_load_ratification(repo_root)
+    amendment_scope = (
+        amendment_scope_boundary
+        or derive_v71c_repo_ratification_amendment_scope_boundary(
+            repo_root=repo_root,
+            ratification_record=ratification,
+        )
+    )
     rows = [
         RepoPostRatificationHandoffRow(
             handoff_ref="handoff:v71c:odeu-diff:blocked-by-dissent",
@@ -2833,9 +2855,17 @@ def derive_v71c_repo_post_ratification_handoff(
 def derive_v71c_repo_candidate_ratification_family_closeout_alignment(
     *,
     repo_root: Path,
+    ratification_record: RepoCandidateRatificationRecord | None = None,
+    amendment_scope_boundary: RepoRatificationAmendmentScopeBoundary | None = None,
 ) -> RepoCandidateRatificationFamilyCloseoutAlignment:
-    ratification = _v71c_load_ratification(repo_root)
-    amendment_scope = derive_v71c_repo_ratification_amendment_scope_boundary(repo_root=repo_root)
+    ratification = ratification_record or _v71c_load_ratification(repo_root)
+    amendment_scope = (
+        amendment_scope_boundary
+        or derive_v71c_repo_ratification_amendment_scope_boundary(
+            repo_root=repo_root,
+            ratification_record=ratification,
+        )
+    )
     rows = [
         RepoCandidateRatificationFamilyCloseoutRow(
             candidate_ref="candidate:internal:odeu_conceptual_diff_report@1",
@@ -2911,10 +2941,21 @@ def derive_v71c_repo_candidate_ratification_closeout_bundle(
     ratification = _v71c_load_ratification(repo_root)
     settlement = _v71c_load_settlement(repo_root)
     dissent = _v71c_load_dissent(repo_root)
-    amendment_scope = derive_v71c_repo_ratification_amendment_scope_boundary(repo_root=repo_root)
-    handoff = derive_v71c_repo_post_ratification_handoff(repo_root=repo_root)
+    amendment_scope = derive_v71c_repo_ratification_amendment_scope_boundary(
+        repo_root=repo_root,
+        ratification_record=ratification,
+        settlement_record=settlement,
+        dissent_register=dissent,
+    )
+    handoff = derive_v71c_repo_post_ratification_handoff(
+        repo_root=repo_root,
+        ratification_record=ratification,
+        amendment_scope_boundary=amendment_scope,
+    )
     closeout = derive_v71c_repo_candidate_ratification_family_closeout_alignment(
-        repo_root=repo_root
+        repo_root=repo_root,
+        ratification_record=ratification,
+        amendment_scope_boundary=amendment_scope,
     )
     validate_v71c_candidate_ratification_closeout_bundle(
         ratification_record=ratification,
