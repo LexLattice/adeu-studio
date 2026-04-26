@@ -1,8 +1,9 @@
 # Assessment vNext+196 Edges
 
-Status: pre-lock edge assessment for `V70-C` (April 26, 2026 UTC).
+Status: post-closeout edge assessment for `V70-C` and `V70` family closeout
+(April 26, 2026 UTC).
 
-Authority layer: pre-lock assessment only.
+Authority layer: closeout evidence on `main` only.
 
 ## Assessment-State Marker (Machine-Checkable)
 
@@ -10,8 +11,8 @@ Authority layer: pre-lock assessment only.
 {
   "schema": "assessment_artifact_state@1",
   "artifact": "docs/ASSESSMENT_vNEXT_PLUS196_EDGES.md",
-  "phase": "pre_lock_assessment",
-  "authoritative": false,
+  "phase": "post_closeout_assessment",
+  "authoritative": true,
   "required_in_decision": true
 }
 ```
@@ -20,77 +21,106 @@ Authority layer: pre-lock assessment only.
 
 ### Edge 1: Summary Could Become Ratification
 
-- Risk:
-  summary rows could be overread as truth or candidate adoption.
-- Required containment:
-  summary rows may classify readiness for later review only; they cannot
-  ratify, adopt, integrate, release, authorize product work, or dispatch.
+- Closeout posture:
+  contained.
+- Evidence:
+  summary rows classify later-review posture only; ratification, adoption, and
+  family-closeout-as-adoption language are rejected.
 
 ### Edge 2: Handoff Could Perform V71 Work
 
-- Risk:
-  `v71_ratification_review` handoff targets could be treated as ratification.
-- Required containment:
-  handoff rows may request later `V71` review only and must carry explicit
-  non-ratification guardrails.
+- Closeout posture:
+  contained.
+- Evidence:
+  pre-ratification handoff rows may request later review, but
+  handoff-as-ratification fixtures fail closed.
 
 ### Edge 3: Unresolved Conflicts Could Be Hidden
 
-- Risk:
-  summary rows could omit blocking conflict rows from `V70-B`.
-- Required containment:
-  unresolved blocking conflict refs must be preserved in summary and handoff
-  rows.
+- Closeout posture:
+  contained.
+- Evidence:
+  summaries and handoffs preserve known `V70-B` conflict/relation blockers, and
+  unresolved-conflict omission is rejected.
 
 ### Edge 4: Evidence Gaps Could Be Hidden
 
-- Risk:
-  summary rows could claim readiness while omitting review gaps.
-- Required containment:
-  unresolved gap refs must be preserved, and ready posture must be rejected when
-  blocking gaps remain.
+- Closeout posture:
+  contained by review hardening.
+- Evidence:
+  summary gap refs must exactly match the candidate gap set, and unresolved-gap
+  omission is rejected.
 
-### Edge 5: Product Wedge Could Become Product Authorization
+### Edge 5: Handoff Blockers Could Float Or Drift
 
-- Risk:
-  product-pressure candidates could be summarized into product selection.
-- Required containment:
-  product wedge rows remain future-family review pressure only; product
-  authorization is rejected.
+- Closeout posture:
+  contained by review hardening.
+- Evidence:
+  handoff blocker refs must exactly match known candidate blockers; unknown
+  blocker refs are rejected.
 
-### Edge 6: Relation Rows Could Be Reinterpreted
+### Edge 6: Ready Posture Could Carry Blockers
 
-- Risk:
-  `V70-C` could treat `V70-B` complementarity as conflict or conflict as
-  settled.
-- Required containment:
-  summary rows must preserve relation kind and unresolved posture from released
-  `V70-B` rows.
+- Closeout posture:
+  contained.
+- Evidence:
+  ready handoffs with unresolved blockers are rejected.
 
-### Edge 7: Later Families Could Be Selected Prematurely
+### Edge 7: Product Wedge Could Become Product Authorization
 
-- Risk:
-  summary or handoff rows could select `V72`, `V74`, `V75`, implementation, or
-  release work.
-- Required containment:
-  `V70-C` may request or defer later review only; downstream family selection
-  remains outside this slice.
+- Closeout posture:
+  contained.
+- Evidence:
+  product authorization and product-wedge-to-`V71` fixtures fail closed.
 
-### Edge 8: Family Closeout Could Overclaim V70
+### Edge 8: Relation Rows Could Be Reinterpreted
 
-- Risk:
-  final `V70` closeout could claim candidate truth instead of review
-  classification machinery.
-- Required containment:
-  family closeout must say `V70` produced review-classification and handoff
-  substrate only; ratification remains deferred to `V71`.
+- Closeout posture:
+  contained.
+- Evidence:
+  summary rows consume the released `V70-B` relation/gap substrate and do not
+  settle, erase, or reclassify conflict/complementarity rows.
 
-## Pre-Lock Judgment
+### Edge 9: Later Families Could Be Selected Prematurely
 
-- `V70-C` is an appropriate bounded third slice after closed `V70-A` and
-  `V70-B`.
-- The slice should be implemented only as schema/model/validator/export and
-  reference/reject fixture work in `adeu_repo_description`.
-- The implementation must keep summary and handoff separate from ratification,
-  integration, product authorization, release authority, runtime permission,
-  and dispatch.
+- Closeout posture:
+  contained.
+- Evidence:
+  `V72` integration selection is rejected, and no `V71`, `V72`, `V74`, `V75`,
+  runtime-permission, release, or dispatch surface shipped in `V70-C`.
+
+### Edge 10: Top-Level Artifact IDs Could Become Stale
+
+- Closeout posture:
+  contained.
+- Evidence:
+  stale summary and stale handoff hash fixtures fail closed.
+
+### Edge 11: Family Closeout Could Overclaim V70
+
+- Closeout posture:
+  contained.
+- Evidence:
+  `V70` family closeout is recorded as candidate review-classification,
+  adversarial-review, gap-scan, summary, and pre-ratification handoff substrate
+  only; it does not claim candidate truth or adoption.
+
+## Residual Edges
+
+- `V71` remains the first planned family that may perform ratification review.
+- `V70` summary and handoff rows are pre-ratification substrate; later families
+  must not treat them as settlement, adoption, implementation priority, product
+  selection, release authority, runtime permission, or dispatch authority.
+- The initial `V70` fixtures remain seeded from the current `V69` candidate
+  substrate; broader candidate coverage is a later-family or later-slice
+  pressure, not a hidden `V70` claim.
+
+## Post-Closeout Judgment
+
+- `V70-C` is closed on `main` as a bounded candidate review classification
+  summary and pre-ratification handoff starter slice.
+- `V70` is closed on `main` as a candidate review-classification family.
+- The family preserved the intended authority boundary: evidence
+  classification, adversarial review, conflict/complementarity tracking, gap
+  scanning, summary, and handoff are not adoption, ratification, integration,
+  product authorization, release authority, runtime permission, or dispatch.
