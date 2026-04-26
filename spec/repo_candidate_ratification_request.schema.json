@@ -1,0 +1,294 @@
+{
+  "$defs": {
+    "RepoCandidateRatificationRequestRow": {
+      "additionalProperties": false,
+      "properties": {
+        "authority_profile_refs": {
+          "items": {
+            "type": "string"
+          },
+          "minItems": 1,
+          "title": "Authority Profile Refs",
+          "type": "array"
+        },
+        "candidate_ref": {
+          "title": "Candidate Ref",
+          "type": "string"
+        },
+        "handoff_refs": {
+          "items": {
+            "type": "string"
+          },
+          "maxItems": 1,
+          "minItems": 1,
+          "title": "Handoff Refs",
+          "type": "array"
+        },
+        "limitation_note": {
+          "title": "Limitation Note",
+          "type": "string"
+        },
+        "odeu_lanes": {
+          "items": {
+            "enum": [
+              "ontological",
+              "deontic",
+              "epistemic",
+              "utility"
+            ],
+            "type": "string"
+          },
+          "minItems": 1,
+          "title": "Odeu Lanes",
+          "type": "array"
+        },
+        "ratification_source_refs": {
+          "items": {
+            "type": "string"
+          },
+          "minItems": 1,
+          "title": "Ratification Source Refs",
+          "type": "array"
+        },
+        "request_posture": {
+          "enum": [
+            "eligible_for_ratification_review",
+            "requires_settlement_before_ratification",
+            "deferred_to_future_family",
+            "rejected_out_of_scope"
+          ],
+          "title": "Request Posture",
+          "type": "string"
+        },
+        "request_ref": {
+          "title": "Request Ref",
+          "type": "string"
+        },
+        "request_scope_boundary_refs": {
+          "items": {
+            "type": "string"
+          },
+          "minItems": 1,
+          "title": "Request Scope Boundary Refs",
+          "type": "array"
+        },
+        "requested_ratification_horizon": {
+          "enum": [
+            "source_bound_candidate_validity",
+            "review_conflict_settlement",
+            "authority_boundary_acceptance",
+            "future_family_routing",
+            "integration_review_readiness",
+            "utility_projection_acceptance"
+          ],
+          "title": "Requested Ratification Horizon",
+          "type": "string"
+        },
+        "review_signal_posture": {
+          "enum": [
+            "warning_only",
+            "gating_blocker",
+            "settlement_required",
+            "evidence_required",
+            "human_review_required",
+            "future_family_only"
+          ],
+          "title": "Review Signal Posture",
+          "type": "string"
+        },
+        "source_handoff_refs": {
+          "items": {
+            "type": "string"
+          },
+          "maxItems": 1,
+          "minItems": 1,
+          "title": "Source Handoff Refs",
+          "type": "array"
+        },
+        "summary_refs": {
+          "items": {
+            "type": "string"
+          },
+          "maxItems": 1,
+          "minItems": 1,
+          "title": "Summary Refs",
+          "type": "array"
+        }
+      },
+      "required": [
+        "request_ref",
+        "candidate_ref",
+        "ratification_source_refs",
+        "summary_refs",
+        "handoff_refs",
+        "source_handoff_refs",
+        "requested_ratification_horizon",
+        "request_posture",
+        "review_signal_posture",
+        "odeu_lanes",
+        "authority_profile_refs",
+        "request_scope_boundary_refs",
+        "limitation_note"
+      ],
+      "title": "RepoCandidateRatificationRequestRow",
+      "type": "object"
+    },
+    "RepoRatificationSourceRow": {
+      "additionalProperties": false,
+      "properties": {
+        "authority_layer": {
+          "enum": [
+            "lock",
+            "architecture",
+            "planning",
+            "support",
+            "schema",
+            "fixture",
+            "closeout_evidence"
+          ],
+          "title": "Authority Layer",
+          "type": "string"
+        },
+        "limitation_note": {
+          "title": "Limitation Note",
+          "type": "string"
+        },
+        "source_horizon": {
+          "title": "Source Horizon",
+          "type": "string"
+        },
+        "source_kind": {
+          "enum": [
+            "planning_doc",
+            "architecture_doc",
+            "support_doc",
+            "review_input",
+            "closeout_doc",
+            "evidence_artifact",
+            "schema_file",
+            "fixture_file",
+            "operator_turn",
+            "transcript_artifact",
+            "model_output",
+            "repo_observation",
+            "external_artifact"
+          ],
+          "title": "Source Kind",
+          "type": "string"
+        },
+        "source_presence_posture": {
+          "enum": [
+            "present",
+            "missing_expected_support_artifact",
+            "not_uploaded_in_review_snapshot",
+            "generated_later",
+            "external_unavailable",
+            "operator_turn_not_committed"
+          ],
+          "title": "Source Presence Posture",
+          "type": "string"
+        },
+        "source_ref": {
+          "title": "Source Ref",
+          "type": "string"
+        },
+        "source_status": {
+          "enum": [
+            "integrated_shaping_source",
+            "available_but_not_integrated",
+            "review_pending_input",
+            "rejected_or_superseded_source"
+          ],
+          "title": "Source Status",
+          "type": "string"
+        }
+      },
+      "required": [
+        "source_ref",
+        "source_kind",
+        "authority_layer",
+        "source_status",
+        "source_presence_posture",
+        "source_horizon",
+        "limitation_note"
+      ],
+      "title": "RepoRatificationSourceRow",
+      "type": "object"
+    }
+  },
+  "additionalProperties": false,
+  "properties": {
+    "candidate_input_refs": {
+      "items": {
+        "type": "string"
+      },
+      "minItems": 1,
+      "title": "Candidate Input Refs",
+      "type": "array"
+    },
+    "handoff_register_id": {
+      "title": "Handoff Register Id",
+      "type": "string"
+    },
+    "non_ratification_summary": {
+      "title": "Non Ratification Summary",
+      "type": "string"
+    },
+    "ratification_request_id": {
+      "title": "Ratification Request Id",
+      "type": "string"
+    },
+    "ratification_source_rows": {
+      "items": {
+        "$ref": "#/$defs/RepoRatificationSourceRow"
+      },
+      "minItems": 1,
+      "title": "Ratification Source Rows",
+      "type": "array"
+    },
+    "request_rows": {
+      "items": {
+        "$ref": "#/$defs/RepoCandidateRatificationRequestRow"
+      },
+      "minItems": 1,
+      "title": "Request Rows",
+      "type": "array"
+    },
+    "review_id": {
+      "title": "Review Id",
+      "type": "string"
+    },
+    "schema": {
+      "const": "repo_candidate_ratification_request@1",
+      "default": "repo_candidate_ratification_request@1",
+      "title": "Schema",
+      "type": "string"
+    },
+    "snapshot_id": {
+      "title": "Snapshot Id",
+      "type": "string"
+    },
+    "source_set_id": {
+      "title": "Source Set Id",
+      "type": "string"
+    },
+    "summary_register_id": {
+      "title": "Summary Register Id",
+      "type": "string"
+    }
+  },
+  "required": [
+    "ratification_request_id",
+    "review_id",
+    "snapshot_id",
+    "source_set_id",
+    "summary_register_id",
+    "handoff_register_id",
+    "ratification_source_rows",
+    "candidate_input_refs",
+    "request_rows",
+    "non_ratification_summary"
+  ],
+  "title": "RepoCandidateRatificationRequest",
+  "type": "object"
+}

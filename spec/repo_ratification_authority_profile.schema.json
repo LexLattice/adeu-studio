@@ -1,0 +1,179 @@
+{
+  "$defs": {
+    "RepoRatificationAuthorityProfileRow": {
+      "additionalProperties": false,
+      "properties": {
+        "allowed_ratification_horizons": {
+          "items": {
+            "enum": [
+              "source_bound_candidate_validity",
+              "review_conflict_settlement",
+              "authority_boundary_acceptance",
+              "future_family_routing",
+              "integration_review_readiness",
+              "utility_projection_acceptance"
+            ],
+            "type": "string"
+          },
+          "title": "Allowed Ratification Horizons",
+          "type": "array"
+        },
+        "authority_actor_kind": {
+          "enum": [
+            "human_operator",
+            "maintainer",
+            "model_reviewer",
+            "tool_validator",
+            "external_reviewer"
+          ],
+          "title": "Authority Actor Kind",
+          "type": "string"
+        },
+        "authority_actor_ref": {
+          "title": "Authority Actor Ref",
+          "type": "string"
+        },
+        "authority_grant_source_kind": {
+          "enum": [
+            "repo_lock",
+            "closeout_decision",
+            "maintainer_record",
+            "policy_doc",
+            "support_doc",
+            "transcript",
+            "tool_output"
+          ],
+          "title": "Authority Grant Source Kind",
+          "type": "string"
+        },
+        "authority_posture": {
+          "enum": [
+            "ratification_authority",
+            "settlement_authority",
+            "review_only",
+            "advisory_only",
+            "tool_evidence_only",
+            "not_authorized"
+          ],
+          "title": "Authority Posture",
+          "type": "string"
+        },
+        "authority_profile_ref": {
+          "title": "Authority Profile Ref",
+          "type": "string"
+        },
+        "authority_source_refs": {
+          "items": {
+            "type": "string"
+          },
+          "minItems": 1,
+          "title": "Authority Source Refs",
+          "type": "array"
+        },
+        "binding_layer": {
+          "enum": [
+            "lock",
+            "architecture",
+            "planning",
+            "support",
+            "schema",
+            "fixture",
+            "closeout_evidence"
+          ],
+          "title": "Binding Layer",
+          "type": "string"
+        },
+        "forbidden_downstream_roles": {
+          "items": {
+            "enum": [
+              "implementation_task",
+              "contained_integration",
+              "commit_release_authority",
+              "product_authorization",
+              "runtime_permission",
+              "dispatch_authority",
+              "external_contest_authority"
+            ],
+            "type": "string"
+          },
+          "minItems": 1,
+          "title": "Forbidden Downstream Roles",
+          "type": "array"
+        },
+        "limitation_note": {
+          "title": "Limitation Note",
+          "type": "string"
+        }
+      },
+      "required": [
+        "authority_profile_ref",
+        "authority_actor_ref",
+        "authority_actor_kind",
+        "authority_grant_source_kind",
+        "authority_source_refs",
+        "authority_posture",
+        "binding_layer",
+        "forbidden_downstream_roles",
+        "limitation_note"
+      ],
+      "title": "RepoRatificationAuthorityProfileRow",
+      "type": "object"
+    }
+  },
+  "additionalProperties": false,
+  "properties": {
+    "authority_profile_id": {
+      "title": "Authority Profile Id",
+      "type": "string"
+    },
+    "authority_profile_rows": {
+      "items": {
+        "$ref": "#/$defs/RepoRatificationAuthorityProfileRow"
+      },
+      "minItems": 1,
+      "title": "Authority Profile Rows",
+      "type": "array"
+    },
+    "non_authority_summary": {
+      "title": "Non Authority Summary",
+      "type": "string"
+    },
+    "ratification_source_refs": {
+      "items": {
+        "type": "string"
+      },
+      "minItems": 1,
+      "title": "Ratification Source Refs",
+      "type": "array"
+    },
+    "review_id": {
+      "title": "Review Id",
+      "type": "string"
+    },
+    "schema": {
+      "const": "repo_ratification_authority_profile@1",
+      "default": "repo_ratification_authority_profile@1",
+      "title": "Schema",
+      "type": "string"
+    },
+    "snapshot_id": {
+      "title": "Snapshot Id",
+      "type": "string"
+    },
+    "source_set_id": {
+      "title": "Source Set Id",
+      "type": "string"
+    }
+  },
+  "required": [
+    "authority_profile_id",
+    "review_id",
+    "snapshot_id",
+    "source_set_id",
+    "ratification_source_refs",
+    "authority_profile_rows",
+    "non_authority_summary"
+  ],
+  "title": "RepoRatificationAuthorityProfile",
+  "type": "object"
+}

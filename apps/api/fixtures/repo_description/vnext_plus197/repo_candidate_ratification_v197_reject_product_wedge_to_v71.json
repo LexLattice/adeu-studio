@@ -1,0 +1,143 @@
+{
+  "candidate_input_refs": [
+    "candidate:internal:odeu_conceptual_diff_report@1",
+    "candidate:internal:self_evidencing_workflow_type_emergence",
+    "candidate:internal:typed_adjudication_product_wedge"
+  ],
+  "handoff_register_id": "repo_candidate_pre_ratification_handoff_ac99acdf3dd7515dabf92e20",
+  "non_ratification_summary": "V71-A creates review requests only.",
+  "ratification_request_id": "repo_candidate_ratification_request_5199e9785faadc7425dff2f8",
+  "ratification_source_rows": [
+    {
+      "authority_layer": "fixture",
+      "limitation_note": "Fixture is consumed as review input only.",
+      "source_horizon": "V70-C pre-ratification handoff fixture.",
+      "source_kind": "fixture_file",
+      "source_presence_posture": "present",
+      "source_ref": "apps/api/fixtures/repo_description/vnext_plus196/repo_candidate_pre_ratification_handoff_v196_reference.json",
+      "source_status": "integrated_shaping_source"
+    },
+    {
+      "authority_layer": "fixture",
+      "limitation_note": "Fixture is consumed as review input only.",
+      "source_horizon": "V70-C review summary fixture.",
+      "source_kind": "fixture_file",
+      "source_presence_posture": "present",
+      "source_ref": "apps/api/fixtures/repo_description/vnext_plus196/repo_candidate_review_classification_summary_v196_reference.json",
+      "source_status": "integrated_shaping_source"
+    },
+    {
+      "authority_layer": "lock",
+      "limitation_note": "Lock binds only request-shape work for V71-A.",
+      "source_horizon": "V71-A starter lock scope.",
+      "source_kind": "evidence_artifact",
+      "source_presence_posture": "present",
+      "source_ref": "docs/LOCKED_CONTINUATION_vNEXT_PLUS197.md",
+      "source_status": "integrated_shaping_source"
+    }
+  ],
+  "request_rows": [
+    {
+      "authority_profile_refs": [
+        "authority:v71a:maintainer:ratification-review"
+      ],
+      "candidate_ref": "candidate:internal:odeu_conceptual_diff_report@1",
+      "handoff_refs": [
+        "handoff:v70c:odeu-diff:blocking-review"
+      ],
+      "limitation_note": "Blocked model-output comparison requests settlement review only.",
+      "odeu_lanes": [
+        "deontic",
+        "epistemic",
+        "ontological"
+      ],
+      "ratification_source_refs": [
+        "apps/api/fixtures/repo_description/vnext_plus196/repo_candidate_pre_ratification_handoff_v196_reference.json",
+        "apps/api/fixtures/repo_description/vnext_plus196/repo_candidate_review_classification_summary_v196_reference.json"
+      ],
+      "request_posture": "requires_settlement_before_ratification",
+      "request_ref": "request:v71a:odeu-diff:settlement-required",
+      "request_scope_boundary_refs": [
+        "scope:v71a:odeu-diff:settlement-request"
+      ],
+      "requested_ratification_horizon": "review_conflict_settlement",
+      "review_signal_posture": "settlement_required",
+      "source_handoff_refs": [
+        "handoff:v70c:odeu-diff:blocking-review"
+      ],
+      "summary_refs": [
+        "summary:v70c:odeu-diff:blocking-review"
+      ]
+    },
+    {
+      "authority_profile_refs": [
+        "authority:v71a:support-reviewer:advisory-only"
+      ],
+      "candidate_ref": "candidate:internal:typed_adjudication_product_wedge",
+      "handoff_refs": [
+        "handoff:v70c:product-wedge:future-family"
+      ],
+      "limitation_note": "Product pressure remains future-family review only.",
+      "odeu_lanes": [
+        "deontic",
+        "epistemic",
+        "ontological",
+        "utility"
+      ],
+      "ratification_source_refs": [
+        "apps/api/fixtures/repo_description/vnext_plus196/repo_candidate_pre_ratification_handoff_v196_reference.json",
+        "apps/api/fixtures/repo_description/vnext_plus196/repo_candidate_review_classification_summary_v196_reference.json"
+      ],
+      "request_posture": "eligible_for_ratification_review",
+      "request_ref": "request:v71a:product-wedge:future-family",
+      "request_scope_boundary_refs": [
+        "scope:v71a:product-wedge:future-family"
+      ],
+      "requested_ratification_horizon": "source_bound_candidate_validity",
+      "review_signal_posture": "human_review_required",
+      "source_handoff_refs": [
+        "handoff:v70c:product-wedge:future-family"
+      ],
+      "summary_refs": [
+        "summary:v70c:product-wedge:future-family"
+      ]
+    },
+    {
+      "authority_profile_refs": [
+        "authority:v71a:maintainer:ratification-review"
+      ],
+      "candidate_ref": "candidate:internal:self_evidencing_workflow_type_emergence",
+      "handoff_refs": [
+        "handoff:v70c:self-evidencing:ready-review"
+      ],
+      "limitation_note": "Ready workflow-residue request still requires human review.",
+      "odeu_lanes": [
+        "deontic",
+        "epistemic",
+        "ontological"
+      ],
+      "ratification_source_refs": [
+        "apps/api/fixtures/repo_description/vnext_plus196/repo_candidate_pre_ratification_handoff_v196_reference.json",
+        "apps/api/fixtures/repo_description/vnext_plus196/repo_candidate_review_classification_summary_v196_reference.json"
+      ],
+      "request_posture": "eligible_for_ratification_review",
+      "request_ref": "request:v71a:self-evidencing:eligible",
+      "request_scope_boundary_refs": [
+        "scope:v71a:self-evidencing:ratification-request"
+      ],
+      "requested_ratification_horizon": "source_bound_candidate_validity",
+      "review_signal_posture": "human_review_required",
+      "source_handoff_refs": [
+        "handoff:v70c:self-evidencing:ready-review"
+      ],
+      "summary_refs": [
+        "summary:v70c:self-evidencing:ready-review"
+      ]
+    }
+  ],
+  "review_id": "review:v71a:ratification-request-intake",
+  "schema": "repo_candidate_ratification_request@1",
+  "snapshot_id": "vNext+197-prestart-on-main",
+  "source_set_id": "source-set:v70a:released-v69c-handoff",
+  "summary_register_id": "repo_candidate_review_classification_summary_63f96c1ed12f144d17c5f5b5"
+}

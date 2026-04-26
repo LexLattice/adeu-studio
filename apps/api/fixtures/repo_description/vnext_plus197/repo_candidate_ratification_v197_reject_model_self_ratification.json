@@ -1,0 +1,60 @@
+{
+  "authority_profile_id": "repo_ratification_authority_profile_e48c43929dc1f185bccd9802",
+  "authority_profile_rows": [
+    {
+      "allowed_ratification_horizons": [
+        "review_conflict_settlement",
+        "source_bound_candidate_validity"
+      ],
+      "authority_actor_kind": "model_reviewer",
+      "authority_actor_ref": "actor:maintainer:repo-review",
+      "authority_grant_source_kind": "repo_lock",
+      "authority_posture": "ratification_authority",
+      "authority_profile_ref": "authority:v71a:maintainer:ratification-review",
+      "authority_source_refs": [
+        "docs/LOCKED_CONTINUATION_vNEXT_PLUS197.md"
+      ],
+      "binding_layer": "lock",
+      "forbidden_downstream_roles": [
+        "commit_release_authority",
+        "contained_integration",
+        "dispatch_authority",
+        "implementation_task",
+        "product_authorization",
+        "runtime_permission"
+      ],
+      "limitation_note": "Maintainer profile may review the selected horizons only."
+    },
+    {
+      "allowed_ratification_horizons": [],
+      "authority_actor_kind": "external_reviewer",
+      "authority_actor_ref": "actor:support:gptpro-review",
+      "authority_grant_source_kind": "support_doc",
+      "authority_posture": "advisory_only",
+      "authority_profile_ref": "authority:v71a:support-reviewer:advisory-only",
+      "authority_source_refs": [
+        "docs/LOCKED_CONTINUATION_vNEXT_PLUS197.md"
+      ],
+      "binding_layer": "support",
+      "forbidden_downstream_roles": [
+        "commit_release_authority",
+        "contained_integration",
+        "dispatch_authority",
+        "implementation_task",
+        "product_authorization",
+        "runtime_permission"
+      ],
+      "limitation_note": "Support review may shape future-family routing only."
+    }
+  ],
+  "non_authority_summary": "V71-A authority profiles bound review role only.",
+  "ratification_source_refs": [
+    "apps/api/fixtures/repo_description/vnext_plus196/repo_candidate_pre_ratification_handoff_v196_reference.json",
+    "apps/api/fixtures/repo_description/vnext_plus196/repo_candidate_review_classification_summary_v196_reference.json",
+    "docs/LOCKED_CONTINUATION_vNEXT_PLUS197.md"
+  ],
+  "review_id": "review:v71a:ratification-request-intake",
+  "schema": "repo_ratification_authority_profile@1",
+  "snapshot_id": "vNext+197-prestart-on-main",
+  "source_set_id": "source-set:v70a:released-v69c-handoff"
+}
