@@ -125,6 +125,10 @@ Post-`V70-A` continuation posture: after `vNext+194` closes on `main`, select `V
 That selection remains inside the already selected `V70` family and does not
 create a new next-arc-options selector version.
 
+Post-`V70-B` continuation posture: after `vNext+195` closes on `main`, select `V70-C` as the next default candidate for the next canonical starter bundle.
+That selection remains inside the already selected `V70` family and does not
+create a new next-arc-options selector version.
+
 ## Non-Selection
 
 This selector handoff does not select:
