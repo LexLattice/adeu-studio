@@ -315,6 +315,8 @@ class RepoContainedIntegrationCandidatePlanRow(_CartographyBase):
                 raise ValueError("eligible containment plans require a later trial requirement")
             if self.blocker_refs:
                 raise ValueError("eligible containment plans cannot carry blocker refs")
+        if not self.guardrail_refs:
+            raise ValueError("containment plans require guardrail refs")
         if self.containment_plan_posture == "blocked_by_dissent":
             if not self.blocker_refs and "dissent" not in self.limitation_note.lower():
                 raise ValueError("blocked plans must identify blocker refs or blocker note")
@@ -713,13 +715,20 @@ def validate_v72a_contained_integration_review_bundle(
         != contained_integration_candidate_plan.containment_plan_id
     ):
         raise ValueError("guardrail must reference containment plan id")
-    if (
+    if not (
         integration_target_boundary.source_set_id
-        != contained_integration_candidate_plan.source_set_id
-        or integration_non_release_guardrail.source_set_id
-        != contained_integration_candidate_plan.source_set_id
+        == contained_integration_candidate_plan.source_set_id
+        == integration_non_release_guardrail.source_set_id
+        and integration_target_boundary.review_id
+        == contained_integration_candidate_plan.review_id
+        == integration_non_release_guardrail.review_id
+        and integration_target_boundary.snapshot_id
+        == contained_integration_candidate_plan.snapshot_id
+        == integration_non_release_guardrail.snapshot_id
     ):
-        raise ValueError("V72-A source_set_id must match across surfaces")
+        raise ValueError(
+            "V72-A review_id, snapshot_id, and source_set_id must match across surfaces"
+        )
 
     handoff_rows = {row.handoff_ref: row for row in post_ratification_handoff.handoff_rows}
     amendment_rows = {
@@ -743,9 +752,17 @@ def validate_v72a_contained_integration_review_bundle(
             )
 
     seen_handoffs: set[str] = set()
+    seen_targets: set[str] = set()
+    seen_guardrails: set[str] = set()
     for plan in contained_integration_candidate_plan.plan_rows:
         if plan.candidate_ref not in closeout_rows:
             raise ValueError("containment plans must reference V71-C family closeout candidates")
+        if plan.target_boundary_refs != sorted(plan.target_boundary_refs):
+            raise ValueError("target_boundary_refs must be lexicographically sorted")
+        if plan.guardrail_refs != sorted(plan.guardrail_refs):
+            raise ValueError("guardrail_refs must be lexicographically sorted")
+        if not plan.guardrail_refs:
+            raise ValueError("containment plans require guardrail refs")
         missing_targets = sorted(set(plan.target_boundary_refs) - set(target_rows))
         if missing_targets:
             raise ValueError(f"plan rows must reference known target boundaries: {missing_targets}")
@@ -788,6 +805,7 @@ def validate_v72a_contained_integration_review_bundle(
             if amendment.candidate_ref != plan.candidate_ref:
                 raise ValueError("plan candidate_ref must match amendment scope candidate")
         for target_ref in plan.target_boundary_refs:
+            seen_targets.add(target_ref)
             target = target_rows[target_ref]
             if target.candidate_ref != plan.candidate_ref:
                 raise ValueError("target boundary candidate_ref must match plan candidate_ref")
@@ -802,6 +820,7 @@ def validate_v72a_contained_integration_review_bundle(
             ):
                 raise ValueError("eligible containment plans require concrete target boundary")
         for guardrail_ref in plan.guardrail_refs:
+            seen_guardrails.add(guardrail_ref)
             guardrail = guardrail_rows[guardrail_ref]
             if guardrail.candidate_ref != plan.candidate_ref:
                 raise ValueError("guardrail candidate_ref must match plan candidate_ref")
@@ -811,6 +830,12 @@ def validate_v72a_contained_integration_review_bundle(
     missing_handoffs = sorted(set(handoff_rows) - seen_handoffs)
     if missing_handoffs:
         raise ValueError(f"containment plans must cover every V71-C handoff: {missing_handoffs}")
+    orphan_targets = sorted(set(target_rows) - seen_targets)
+    if orphan_targets:
+        raise ValueError(f"target boundary rows must be referenced by plan rows: {orphan_targets}")
+    orphan_guardrails = sorted(set(guardrail_rows) - seen_guardrails)
+    if orphan_guardrails:
+        raise ValueError(f"guardrail rows must be referenced by plan rows: {orphan_guardrails}")
 
 
 def _integration_source_rows() -> list[RepoIntegrationSourceRow]:

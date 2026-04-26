@@ -271,3 +271,81 @@ def test_v200_bundle_rejects_cross_surface_errors(
             integration_target_boundary=target_boundary,
             integration_non_release_guardrail=guardrail,
         )
+
+
+def _validate_reference_bundle_with(
+    *,
+    plan: RepoContainedIntegrationCandidatePlan | None = None,
+    target_boundary: RepoIntegrationTargetBoundary | None = None,
+    guardrail: RepoIntegrationNonReleaseGuardrail | None = None,
+) -> None:
+    validate_v72a_contained_integration_review_bundle(
+        amendment_scope_boundary=_v71c_amendment_scope(),
+        post_ratification_handoff=_v71c_handoff(),
+        family_closeout_alignment=_v71c_closeout(),
+        contained_integration_candidate_plan=plan or _v72a_plan(),
+        integration_target_boundary=target_boundary or _v72a_target_boundary(),
+        integration_non_release_guardrail=guardrail or _v72a_guardrail(),
+    )
+
+
+def test_v200_bundle_rejects_metadata_mismatch_across_surfaces() -> None:
+    target_boundary = _v72a_target_boundary().model_copy(update={"review_id": "review:mismatch"})
+
+    with pytest.raises(ValueError, match="review_id, snapshot_id, and source_set_id"):
+        _validate_reference_bundle_with(target_boundary=target_boundary)
+
+
+def test_v200_bundle_rejects_plan_without_guardrail_refs() -> None:
+    plan = _v72a_plan()
+    rows = list(plan.plan_rows)
+    rows[0] = rows[0].model_copy(update={"guardrail_refs": []})
+    plan = plan.model_copy(update={"plan_rows": rows})
+
+    with pytest.raises(ValueError, match="guardrail refs"):
+        _validate_reference_bundle_with(plan=plan)
+
+
+def test_v200_bundle_rejects_unsorted_plan_refs() -> None:
+    plan = _v72a_plan()
+    rows = list(plan.plan_rows)
+    rows[2] = rows[2].model_copy(
+        update={
+            "target_boundary_refs": [
+                "target:v72a:self-evidencing:schema-surface",
+                "target:v72a:odeu-diff:no-target",
+            ],
+            "guardrail_refs": [
+                "guardrail:v72a:self-evidencing:no-release",
+                "guardrail:v72a:odeu-diff:no-integration",
+            ],
+        }
+    )
+    plan = plan.model_copy(update={"plan_rows": rows})
+
+    with pytest.raises(ValueError, match="target_boundary_refs must be lexicographically sorted"):
+        _validate_reference_bundle_with(plan=plan)
+
+
+def test_v200_bundle_rejects_orphan_target_and_guardrail_rows() -> None:
+    target_boundary = _v72a_target_boundary()
+    orphan_target = target_boundary.target_boundary_rows[0].model_copy(
+        update={"target_boundary_ref": "target:v72a:orphan:no-target"}
+    )
+    target_boundary = target_boundary.model_copy(
+        update={"target_boundary_rows": [*target_boundary.target_boundary_rows, orphan_target]}
+    )
+
+    with pytest.raises(ValueError, match="target boundary rows must be referenced"):
+        _validate_reference_bundle_with(target_boundary=target_boundary)
+
+    guardrail = _v72a_guardrail()
+    orphan_guardrail = guardrail.guardrail_rows[0].model_copy(
+        update={"guardrail_ref": "guardrail:v72a:orphan:no-release"}
+    )
+    guardrail = guardrail.model_copy(
+        update={"guardrail_rows": [*guardrail.guardrail_rows, orphan_guardrail]}
+    )
+
+    with pytest.raises(ValueError, match="guardrail rows must be referenced"):
+        _validate_reference_bundle_with(guardrail=guardrail)
