@@ -1,0 +1,56 @@
+{
+  "cartography_gap_families": [
+    "coordinate_posture_absent",
+    "review_required_ambiguous_derivation",
+    "tool_applicability_unassessed"
+  ],
+  "cartography_source_count": 13,
+  "candidate_gap_kinds": [
+    "derivation_rule_inconclusive",
+    "v68_cartography_source_unmapped"
+  ],
+  "candidate_source_count": 21,
+  "checks": {
+    "v68_cartography_has_sources": true,
+    "v68_tool_evidence_keeps_failed_or_not_run_visible": true,
+    "v69_candidate_has_sources": true,
+    "v69_handoff_targets_pre_v70_or_future_review_only": true,
+    "v69_later_family_only_as_hint": true,
+    "v69_operator_binding_sources_known": true,
+    "v69_records_v68_unmapped_gap": true,
+    "v69_residue_contains_self_evidencing_case": true,
+    "v69_unmapped_gap_is_non_authorizing": true,
+    "v69_unmapped_gap_source_is_concrete": true
+  },
+  "eventual_family_hints": [
+    "none",
+    "v73_outcome_review",
+    "v74_operator_projection_review"
+  ],
+  "handoff_targets": [
+    "future_family_review",
+    "v70_adversarial_review",
+    "v70_evidence_classification"
+  ],
+  "operator_binding_rows": 1,
+  "residue_kinds": [
+    "model_output_comparison_candidate",
+    "operator_cognition_changed_by_artifact",
+    "product_projection_candidate",
+    "self_evidencing_workflow_type_emergence",
+    "support_schema_created_by_prior_reasoning",
+    "tool_applicability_pressure"
+  ],
+  "schema": "v68_v69_combined_dogfood_test@1",
+  "status": "passed",
+  "tool_applicability_postures": [
+    "applicable_and_supporting",
+    "failed_or_inconclusive",
+    "namespace_limited",
+    "not_run"
+  ],
+  "v68_unmapped_gap_refs": [
+    "gap:v68_cartography_source_unmapped:V69_PREFLIGHT_DOGFOOD_TEST_v0"
+  ]
+}
+

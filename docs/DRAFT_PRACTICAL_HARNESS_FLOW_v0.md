@@ -63,7 +63,12 @@ That fallback exists so the repo is not forced into premature pseudo-certainty.
 
 Before implementing the first slice of a newly selected family:
 
-- draft the selector / planning doc first;
+- draft the family selector / planning doc first;
+- mint at most one `DRAFT_NEXT_ARC_OPTIONS_v*` selector for the family under the
+  default workflow;
+- use `vNext+<n>` starter / implementation / closeout bundles for sub-lanes
+  inside that selected family instead of minting new next-arc-options docs for
+  `B`, `C`, or later slices;
 - draft the family architecture / decomposition docs first;
 - draft the family-level implementation mapping first;
 - run review 1 over that family arc bundle before slice-spec drafting;
@@ -85,7 +90,7 @@ This up-front family drafting exists to:
 
 - force cross-slice coherence before code starts to drift the sequence;
 - expose missing dependencies early rather than discovering them mid-family;
-- reduce repeated selector churn and repeated family restatement for each slice;
+- prevent repeated selector churn and repeated family restatement for each slice;
 - let review 1 catch family-boundary and naming drift early;
 - let review 2 catch cross-slice consumed-basis, ownership, and ladder drift
   before any slice lock is activated.
@@ -100,6 +105,15 @@ Draft:
 - the family architecture / decomposition doc;
 - the family-wide implementation mapping;
 - any support-layer review companions that help shape the family.
+
+Selector-versioning rule:
+
+- the next-arc options doc is family-level;
+- the expected next `DRAFT_NEXT_ARC_OPTIONS_v*` after a family selector is the
+  next family selector after full family closeout, not the next slice selector;
+- slice activation uses `LOCKED_CONTINUATION_vNEXT_PLUS<n>.md`,
+  `DRAFT_STOP_GATE_DECISION_vNEXT_PLUS<n>.md`, and
+  `ASSESSMENT_vNEXT_PLUS<n>_EDGES.md`.
 
 Required doctrine hygiene during this phase:
 
