@@ -1,0 +1,43 @@
+{
+  "evidence_source_rows": [
+    {
+      "authority_layer": "support",
+      "candidate_ref": "candidate:internal:typed_adjudication_product_wedge",
+      "claim_horizon": "authority_boundary",
+      "evidence_kind": "support_review",
+      "evidence_source_ref": "evidence-source:v70a:gptpro-review",
+      "limitation_note": "Support review source is review material only.",
+      "source_kind": "review_input",
+      "source_presence_posture": "present",
+      "source_ref": "docs/support/**/*.md"
+    },
+    {
+      "authority_layer": "closeout_evidence",
+      "candidate_ref": "candidate:internal:self_evidencing_workflow_type_emergence",
+      "claim_horizon": "source_existence",
+      "evidence_kind": "closeout_evidence",
+      "evidence_source_ref": "evidence-source:v70a:v69-closeout",
+      "limitation_note": "Closeout source supports review binding only.",
+      "source_kind": "closeout_doc",
+      "source_presence_posture": "present",
+      "source_ref": "docs/DRAFT_ADEU_RECURSIVE_CANDIDATE_INTAKE_V69_FAMILY_CLOSEOUT_v0.md"
+    },
+    {
+      "authority_layer": "fixture",
+      "candidate_ref": "candidate:internal:odeu_conceptual_diff_report@1",
+      "claim_horizon": "adversarial_review_need",
+      "evidence_kind": "candidate_handoff_fixture",
+      "evidence_source_ref": "evidence-source:v70a:v69c-handoff-fixture",
+      "limitation_note": "Fixture source binds review need without settling it.",
+      "source_kind": "fixture_file",
+      "source_presence_posture": "present",
+      "source_ref": "apps/api/fixtures/repo_description/vnext_plus193/repo_candidate_intake_pre_v70_handoff_v193_reference.json"
+    }
+  ],
+  "limitation_note": "V70-A source index is review classification support only.",
+  "review_id": "review:v70a:candidate-evidence-classification",
+  "schema": "repo_candidate_evidence_source_index@1",
+  "snapshot_id": "vNext+194-prestart-on-main",
+  "source_index_id": "repo_candidate_evidence_source_index_e49f07b8e439f0dacad323a6",
+  "source_set_id": "source-set:v70a:released-v69c-handoff"
+}

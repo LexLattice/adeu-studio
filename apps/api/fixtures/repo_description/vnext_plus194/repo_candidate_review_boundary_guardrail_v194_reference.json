@@ -1,0 +1,87 @@
+{
+  "boundary_guardrail_id": "repo_candidate_review_boundary_guardrail_f887b9911ee541449630235b",
+  "boundary_guardrail_rows": [
+    {
+      "allowed_next_review_surfaces": [
+        "v70_adversarial_review"
+      ],
+      "candidate_ref": "candidate:internal:odeu_conceptual_diff_report@1",
+      "classification_refs": [
+        "classification:v70a:odeu-diff:requires-adversarial-review"
+      ],
+      "forbidden_review_roles": [
+        "candidate_adoption",
+        "commit_release_authority",
+        "dispatch_authority",
+        "implementation_task",
+        "product_authorization",
+        "ratified_decision",
+        "self_validation",
+        "truth_verdict"
+      ],
+      "guardrail_ref": "guardrail:v70a:odeu-diff",
+      "non_ratification_guardrail": "Review classification carries no settlement power."
+    },
+    {
+      "allowed_next_review_surfaces": [
+        "future_family_review"
+      ],
+      "candidate_ref": "candidate:internal:typed_adjudication_product_wedge",
+      "classification_refs": [
+        "classification:v70a:product-wedge:authority-boundary"
+      ],
+      "forbidden_review_roles": [
+        "candidate_adoption",
+        "commit_release_authority",
+        "dispatch_authority",
+        "implementation_task",
+        "product_authorization",
+        "ratified_decision",
+        "self_validation",
+        "truth_verdict"
+      ],
+      "guardrail_ref": "guardrail:v70a:product-wedge",
+      "non_ratification_guardrail": "Product pressure remains review material only."
+    },
+    {
+      "allowed_next_review_surfaces": [
+        "future_family_review",
+        "v70_adversarial_review"
+      ],
+      "candidate_ref": "candidate:internal:self_evidencing_workflow_type_emergence",
+      "classification_refs": [
+        "classification:v70a:self-evidencing:source-bound"
+      ],
+      "forbidden_review_roles": [
+        "candidate_adoption",
+        "commit_release_authority",
+        "dispatch_authority",
+        "implementation_task",
+        "product_authorization",
+        "ratified_decision",
+        "self_validation",
+        "truth_verdict"
+      ],
+      "guardrail_ref": "guardrail:v70a:self-evidencing",
+      "non_ratification_guardrail": "Source-bound review remains non-ratifying."
+    }
+  ],
+  "candidate_input_refs": [
+    "candidate:evidence:V68_substrate_for_V69",
+    "candidate:internal:odeu_conceptual_diff_report@1",
+    "candidate:internal:odeu_conceptual_diff_schema_support",
+    "candidate:internal:self_evidencing_workflow_type_emergence",
+    "candidate:internal:typed_adjudication_product_wedge",
+    "candidate:planning:V69_candidate_intake_family"
+  ],
+  "classification_refs": [
+    "classification:v70a:odeu-diff:requires-adversarial-review",
+    "classification:v70a:product-wedge:authority-boundary",
+    "classification:v70a:self-evidencing:source-bound"
+  ],
+  "non_ratification_summary": "Boundary guardrails prevent review classification overreach.",
+  "review_id": "review:v70a:candidate-evidence-classification",
+  "schema": "repo_candidate_review_boundary_guardrail@1",
+  "snapshot_id": "vNext+194-prestart-on-main",
+  "source_set_id": "source-set:v70a:released-v69c-handoff"
+}
