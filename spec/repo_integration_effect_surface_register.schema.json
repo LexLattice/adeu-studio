@@ -1,0 +1,152 @@
+{
+  "$defs": {
+    "RepoIntegrationEffectSurfaceRow": {
+      "additionalProperties": false,
+      "properties": {
+        "candidate_ref": {
+          "title": "Candidate Ref",
+          "type": "string"
+        },
+        "carried_forward_gap_refs": {
+          "items": {
+            "type": "string"
+          },
+          "title": "Carried Forward Gap Refs",
+          "type": "array"
+        },
+        "effect_gap_refs": {
+          "items": {
+            "type": "string"
+          },
+          "title": "Effect Gap Refs",
+          "type": "array"
+        },
+        "effect_posture": {
+          "enum": [
+            "no_effect_observed",
+            "effect_expected_not_checked",
+            "effect_observed",
+            "effect_blocked",
+            "effect_reverted",
+            "effect_requires_later_review"
+          ],
+          "title": "Effect Posture",
+          "type": "string"
+        },
+        "effect_ref": {
+          "title": "Effect Ref",
+          "type": "string"
+        },
+        "effect_surface_kind": {
+          "enum": [
+            "docs_effect",
+            "schema_effect",
+            "validator_effect",
+            "fixture_effect",
+            "test_effect",
+            "workflow_effect",
+            "package_effect",
+            "unknown_effect"
+          ],
+          "title": "Effect Surface Kind",
+          "type": "string"
+        },
+        "limitation_note": {
+          "title": "Limitation Note",
+          "type": "string"
+        },
+        "observed_artifact_refs": {
+          "items": {
+            "type": "string"
+          },
+          "title": "Observed Artifact Refs",
+          "type": "array"
+        },
+        "target_boundary_refs": {
+          "items": {
+            "type": "string"
+          },
+          "title": "Target Boundary Refs",
+          "type": "array"
+        },
+        "test_refs": {
+          "items": {
+            "type": "string"
+          },
+          "title": "Test Refs",
+          "type": "array"
+        },
+        "trial_refs": {
+          "items": {
+            "type": "string"
+          },
+          "minItems": 1,
+          "title": "Trial Refs",
+          "type": "array"
+        }
+      },
+      "required": [
+        "effect_ref",
+        "candidate_ref",
+        "trial_refs",
+        "effect_surface_kind",
+        "effect_posture",
+        "limitation_note"
+      ],
+      "title": "RepoIntegrationEffectSurfaceRow",
+      "type": "object"
+    }
+  },
+  "additionalProperties": false,
+  "properties": {
+    "effect_rows": {
+      "items": {
+        "$ref": "#/$defs/RepoIntegrationEffectSurfaceRow"
+      },
+      "minItems": 1,
+      "title": "Effect Rows",
+      "type": "array"
+    },
+    "effect_surface_register_id": {
+      "title": "Effect Surface Register Id",
+      "type": "string"
+    },
+    "non_authority_summary": {
+      "title": "Non Authority Summary",
+      "type": "string"
+    },
+    "review_id": {
+      "title": "Review Id",
+      "type": "string"
+    },
+    "schema": {
+      "const": "repo_integration_effect_surface_register@1",
+      "default": "repo_integration_effect_surface_register@1",
+      "title": "Schema",
+      "type": "string"
+    },
+    "snapshot_id": {
+      "title": "Snapshot Id",
+      "type": "string"
+    },
+    "source_set_id": {
+      "title": "Source Set Id",
+      "type": "string"
+    },
+    "trial_record_id": {
+      "title": "Trial Record Id",
+      "type": "string"
+    }
+  },
+  "required": [
+    "effect_surface_register_id",
+    "review_id",
+    "snapshot_id",
+    "source_set_id",
+    "trial_record_id",
+    "effect_rows",
+    "non_authority_summary"
+  ],
+  "title": "RepoIntegrationEffectSurfaceRegister",
+  "type": "object"
+}

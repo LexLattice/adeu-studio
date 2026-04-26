@@ -29,6 +29,9 @@ from .recursive_candidate_intake import (
 REPO_CONTAINED_INTEGRATION_CANDIDATE_PLAN_SCHEMA = "repo_contained_integration_candidate_plan@1"
 REPO_INTEGRATION_TARGET_BOUNDARY_SCHEMA = "repo_integration_target_boundary@1"
 REPO_INTEGRATION_NON_RELEASE_GUARDRAIL_SCHEMA = "repo_integration_non_release_guardrail@1"
+REPO_CONTAINED_INTEGRATION_TRIAL_RECORD_SCHEMA = "repo_contained_integration_trial_record@1"
+REPO_INTEGRATION_EFFECT_SURFACE_REGISTER_SCHEMA = "repo_integration_effect_surface_register@1"
+REPO_INTEGRATION_ROLLBACK_READINESS_SCHEMA = "repo_integration_rollback_readiness@1"
 
 ContainmentPlanPosture = Literal[
     "eligible_for_containment_planning",
@@ -102,6 +105,49 @@ IntegrationNonReleasePosture = Literal[
     "no_dispatch_authority",
     "no_external_contest_authority",
 ]
+ContainedIntegrationTrialPosture = Literal[
+    "planned_not_executed",
+    "dry_run_recorded",
+    "local_trial_recorded",
+    "trial_blocked",
+    "trial_reverted",
+    "trial_ready_for_outcome_review",
+]
+ContainedIntegrationTrialDiffPosture = Literal[
+    "no_diff_recorded",
+    "proposed_diff_recorded",
+    "local_diff_observed",
+    "diff_reverted",
+    "diff_accepted_for_review_only",
+    "diff_rejected",
+    "diff_requires_later_authority",
+]
+IntegrationEffectSurfaceKind = Literal[
+    "docs_effect",
+    "schema_effect",
+    "validator_effect",
+    "fixture_effect",
+    "test_effect",
+    "workflow_effect",
+    "package_effect",
+    "unknown_effect",
+]
+IntegrationEffectPosture = Literal[
+    "no_effect_observed",
+    "effect_expected_not_checked",
+    "effect_observed",
+    "effect_blocked",
+    "effect_reverted",
+    "effect_requires_later_review",
+]
+IntegrationRollbackPosture = Literal[
+    "rollback_not_required_for_docs_only",
+    "rollback_plan_required",
+    "rollback_plan_present",
+    "rollback_verified",
+    "rollback_blocked",
+    "rollback_not_applicable",
+]
 
 _V71C_AMENDMENT_SCOPE_FIXTURE = (
     "apps/api/fixtures/repo_description/vnext_plus199/"
@@ -150,6 +196,26 @@ _V72A_NON_RELEASE_SUMMARY = (
     "No commit, no merge, no release, no released truth, no product authorization, "
     "no runtime permission, no dispatch authority, and no external contest authority."
 )
+_V72B_FORBIDDEN_AUTHORITY_TERMS = (
+    "commit authority",
+    "commit authorized",
+    "merge authority",
+    "merge authorized",
+    "release authority",
+    "release authorized",
+    "released truth",
+    "product authorization",
+    "runtime permission",
+    "dispatch authority",
+    "external contest authority",
+    "outcome judgment",
+    "outcome review complete",
+)
+_V72B_NON_AUTHORITY_SUMMARY = (
+    "Trial records are review-only: no accepted repository truth, no commit, "
+    "no merge, no release, no product authorization, no runtime permission, "
+    "no dispatch authority, and no V73 outcome review."
+)
 
 
 def _v72a_note(value: str, *, field_name: str) -> str:
@@ -189,6 +255,35 @@ def _v72a_non_release_summary(value: str, *, field_name: str) -> str:
         raise ValueError(f"{field_name} must state {', '.join(missing)}")
     if "release authorized" in lowered or "merge authorized" in lowered:
         raise ValueError(f"{field_name} may not authorize release or merge")
+    return normalized
+
+
+def _v72b_note(value: str, *, field_name: str) -> str:
+    normalized = _non_empty(value, field_name=field_name)
+    lowered = normalized.lower()
+    if any(term in lowered for term in _V72B_FORBIDDEN_AUTHORITY_TERMS):
+        raise ValueError(f"{field_name} may not carry downstream authority")
+    return normalized
+
+
+def _v72b_non_authority_summary(value: str, *, field_name: str) -> str:
+    normalized = _non_empty(value, field_name=field_name)
+    lowered = normalized.lower()
+    required = (
+        "no accepted repository truth",
+        "no commit",
+        "no merge",
+        "no release",
+        "no product",
+        "no runtime",
+        "no dispatch",
+        "no v73 outcome review",
+    )
+    missing = [phrase for phrase in required if phrase not in lowered]
+    if missing:
+        raise ValueError(f"{field_name} must state {', '.join(missing)}")
+    if any(term in lowered for term in ("commit authorized", "release authorized")):
+        raise ValueError(f"{field_name} may not authorize downstream action")
     return normalized
 
 
@@ -1185,3 +1280,781 @@ def derive_v72a_repo_contained_integration_review_bundle(
         integration_non_release_guardrail=guardrail,
     )
     return amendment_scope, handoff, closeout, plan, target_boundary, guardrail
+
+
+class RepoContainedIntegrationTrialRow(_CartographyBase):
+    trial_ref: str
+    candidate_ref: str
+    plan_refs: list[str] = Field(min_length=1)
+    target_boundary_refs: list[str] = Field(default_factory=list)
+    trial_posture: ContainedIntegrationTrialPosture
+    trial_diff_posture: ContainedIntegrationTrialDiffPosture
+    active_lock_refs: list[str] = Field(default_factory=list)
+    trial_evidence_refs: list[str] = Field(default_factory=list)
+    observed_effect_refs: list[str] = Field(default_factory=list)
+    rollback_readiness_refs: list[str] = Field(default_factory=list)
+    non_release_guardrail_refs: list[str] = Field(min_length=1)
+    effect_gap_refs: list[str] = Field(default_factory=list)
+    carried_forward_effect_gap_refs: list[str] = Field(default_factory=list)
+    limitation_note: str
+
+    @model_validator(mode="after")
+    def _validate_trial_row(self) -> RepoContainedIntegrationTrialRow:
+        object.__setattr__(self, "trial_ref", _non_empty(self.trial_ref, field_name="trial_ref"))
+        object.__setattr__(
+            self,
+            "candidate_ref",
+            _non_empty(self.candidate_ref, field_name="candidate_ref"),
+        )
+        for field_name in (
+            "plan_refs",
+            "target_boundary_refs",
+            "active_lock_refs",
+            "trial_evidence_refs",
+            "observed_effect_refs",
+            "rollback_readiness_refs",
+            "non_release_guardrail_refs",
+            "effect_gap_refs",
+            "carried_forward_effect_gap_refs",
+        ):
+            values = getattr(self, field_name)
+            object.__setattr__(self, field_name, _sorted_unique(values, field_name=field_name))
+        object.__setattr__(
+            self,
+            "limitation_note",
+            _v72b_note(self.limitation_note, field_name="limitation_note"),
+        )
+        if self.trial_posture in {
+            "dry_run_recorded",
+            "local_trial_recorded",
+            "trial_ready_for_outcome_review",
+        }:
+            missing = [
+                field_name
+                for field_name in (
+                    "active_lock_refs",
+                    "target_boundary_refs",
+                    "trial_evidence_refs",
+                    "non_release_guardrail_refs",
+                )
+                if not getattr(self, field_name)
+            ]
+            if missing:
+                raise ValueError(f"recorded trial rows require {missing}")
+        if self.trial_posture == "local_trial_recorded" and self.trial_diff_posture in {
+            "no_diff_recorded",
+            "diff_requires_later_authority",
+        }:
+            raise ValueError(
+                "local trial rows require observed, proposed, accepted, reverted, "
+                "or rejected diff posture"
+            )
+        if self.trial_posture == "trial_ready_for_outcome_review":
+            if not self.rollback_readiness_refs:
+                raise ValueError("trial-ready rows require rollback readiness refs")
+            if not self.observed_effect_refs:
+                raise ValueError("trial-ready rows require observed effect refs")
+            missing_gap_carry = sorted(
+                set(self.effect_gap_refs) - set(self.carried_forward_effect_gap_refs)
+            )
+            if missing_gap_carry:
+                raise ValueError(
+                    f"trial-ready rows must carry forward effect gaps: {missing_gap_carry}"
+                )
+        if self.trial_diff_posture == "diff_accepted_for_review_only":
+            lowered = self.limitation_note.lower()
+            if "review-only" not in lowered and "review only" not in lowered:
+                raise ValueError("review-only diff acceptance must be explicit")
+        return self
+
+
+class RepoContainedIntegrationTrialRecord(_CartographyBase):
+    schema: Literal["repo_contained_integration_trial_record@1"] = (
+        REPO_CONTAINED_INTEGRATION_TRIAL_RECORD_SCHEMA
+    )
+    trial_record_id: str
+    review_id: str
+    snapshot_id: str
+    source_set_id: str
+    containment_plan_id: str
+    target_boundary_id: str
+    non_release_guardrail_id: str
+    trial_rows: list[RepoContainedIntegrationTrialRow] = Field(min_length=1)
+    non_authority_summary: str
+
+    @model_validator(mode="after")
+    def _validate_trial_record(self) -> RepoContainedIntegrationTrialRecord:
+        for field_name in (
+            "trial_record_id",
+            "review_id",
+            "snapshot_id",
+            "source_set_id",
+            "containment_plan_id",
+            "target_boundary_id",
+            "non_release_guardrail_id",
+        ):
+            object.__setattr__(
+                self,
+                field_name,
+                _non_empty(getattr(self, field_name), field_name=field_name),
+            )
+        object.__setattr__(
+            self,
+            "trial_rows",
+            _sorted_unique_by_ref(self.trial_rows, attr="trial_ref", field_name="trial_rows"),
+        )
+        object.__setattr__(
+            self,
+            "non_authority_summary",
+            _v72b_non_authority_summary(
+                self.non_authority_summary,
+                field_name="non_authority_summary",
+            ),
+        )
+        expected_id = _surface_id(
+            "repo_contained_integration_trial_record",
+            REPO_CONTAINED_INTEGRATION_TRIAL_RECORD_SCHEMA,
+            self.model_dump(mode="json"),
+            "trial_record_id",
+        )
+        if self.trial_record_id != expected_id:
+            raise ValueError("trial_record_id must match canonical full payload hash identity")
+        return self
+
+
+class RepoIntegrationEffectSurfaceRow(_CartographyBase):
+    effect_ref: str
+    candidate_ref: str
+    trial_refs: list[str] = Field(min_length=1)
+    target_boundary_refs: list[str] = Field(default_factory=list)
+    effect_surface_kind: IntegrationEffectSurfaceKind
+    effect_posture: IntegrationEffectPosture
+    observed_artifact_refs: list[str] = Field(default_factory=list)
+    test_refs: list[str] = Field(default_factory=list)
+    effect_gap_refs: list[str] = Field(default_factory=list)
+    carried_forward_gap_refs: list[str] = Field(default_factory=list)
+    limitation_note: str
+
+    @model_validator(mode="after")
+    def _validate_effect_row(self) -> RepoIntegrationEffectSurfaceRow:
+        object.__setattr__(self, "effect_ref", _non_empty(self.effect_ref, field_name="effect_ref"))
+        object.__setattr__(
+            self,
+            "candidate_ref",
+            _non_empty(self.candidate_ref, field_name="candidate_ref"),
+        )
+        for field_name in (
+            "trial_refs",
+            "target_boundary_refs",
+            "effect_gap_refs",
+            "carried_forward_gap_refs",
+        ):
+            values = getattr(self, field_name)
+            object.__setattr__(self, field_name, _sorted_unique(values, field_name=field_name))
+        for field_name in ("observed_artifact_refs", "test_refs"):
+            values = sorted(
+                _repo_ref(value, field_name=field_name) for value in getattr(self, field_name)
+            )
+            if len(set(values)) != len(values):
+                raise ValueError(f"{field_name} values must be unique")
+            object.__setattr__(self, field_name, values)
+        object.__setattr__(
+            self,
+            "limitation_note",
+            _v72b_note(self.limitation_note, field_name="limitation_note"),
+        )
+        if self.effect_posture == "effect_observed" and not (
+            self.observed_artifact_refs or self.test_refs
+        ):
+            raise ValueError("observed effects require observed artifact or test refs")
+        if self.effect_posture in {"effect_blocked", "effect_requires_later_review"} and not (
+            self.effect_gap_refs or "gap" in self.limitation_note.lower()
+        ):
+            raise ValueError("blocked or later-review effects require gap refs or gap note")
+        return self
+
+
+class RepoIntegrationEffectSurfaceRegister(_CartographyBase):
+    schema: Literal["repo_integration_effect_surface_register@1"] = (
+        REPO_INTEGRATION_EFFECT_SURFACE_REGISTER_SCHEMA
+    )
+    effect_surface_register_id: str
+    review_id: str
+    snapshot_id: str
+    source_set_id: str
+    trial_record_id: str
+    effect_rows: list[RepoIntegrationEffectSurfaceRow] = Field(min_length=1)
+    non_authority_summary: str
+
+    @model_validator(mode="after")
+    def _validate_effect_register(self) -> RepoIntegrationEffectSurfaceRegister:
+        for field_name in (
+            "effect_surface_register_id",
+            "review_id",
+            "snapshot_id",
+            "source_set_id",
+            "trial_record_id",
+        ):
+            object.__setattr__(
+                self,
+                field_name,
+                _non_empty(getattr(self, field_name), field_name=field_name),
+            )
+        object.__setattr__(
+            self,
+            "effect_rows",
+            _sorted_unique_by_ref(self.effect_rows, attr="effect_ref", field_name="effect_rows"),
+        )
+        object.__setattr__(
+            self,
+            "non_authority_summary",
+            _v72b_non_authority_summary(
+                self.non_authority_summary,
+                field_name="non_authority_summary",
+            ),
+        )
+        expected_id = _surface_id(
+            "repo_integration_effect_surface_register",
+            REPO_INTEGRATION_EFFECT_SURFACE_REGISTER_SCHEMA,
+            self.model_dump(mode="json"),
+            "effect_surface_register_id",
+        )
+        if self.effect_surface_register_id != expected_id:
+            raise ValueError(
+                "effect_surface_register_id must match canonical full payload hash identity"
+            )
+        return self
+
+
+class RepoIntegrationRollbackReadinessRow(_CartographyBase):
+    rollback_ref: str
+    candidate_ref: str
+    trial_refs: list[str] = Field(min_length=1)
+    effect_refs: list[str] = Field(default_factory=list)
+    rollback_posture: IntegrationRollbackPosture
+    rollback_evidence_refs: list[str] = Field(default_factory=list)
+    required_before_next_surface: bool
+    limitation_note: str
+
+    @model_validator(mode="after")
+    def _validate_rollback_row(self) -> RepoIntegrationRollbackReadinessRow:
+        object.__setattr__(
+            self,
+            "rollback_ref",
+            _non_empty(self.rollback_ref, field_name="rollback_ref"),
+        )
+        object.__setattr__(
+            self,
+            "candidate_ref",
+            _non_empty(self.candidate_ref, field_name="candidate_ref"),
+        )
+        for field_name in ("trial_refs", "effect_refs"):
+            values = getattr(self, field_name)
+            object.__setattr__(self, field_name, _sorted_unique(values, field_name=field_name))
+        values = sorted(
+            _repo_ref(value, field_name="rollback_evidence_refs")
+            for value in self.rollback_evidence_refs
+        )
+        if len(set(values)) != len(values):
+            raise ValueError("rollback_evidence_refs values must be unique")
+        object.__setattr__(self, "rollback_evidence_refs", values)
+        object.__setattr__(
+            self,
+            "limitation_note",
+            _v72b_note(self.limitation_note, field_name="limitation_note"),
+        )
+        if self.rollback_posture == "rollback_verified" and not self.rollback_evidence_refs:
+            raise ValueError("rollback verified rows require rollback evidence refs")
+        if self.rollback_posture in {"rollback_plan_required", "rollback_blocked"} and not (
+            self.required_before_next_surface
+        ):
+            raise ValueError("required or blocked rollback must be required before next surface")
+        return self
+
+
+class RepoIntegrationRollbackReadiness(_CartographyBase):
+    schema: Literal["repo_integration_rollback_readiness@1"] = (
+        REPO_INTEGRATION_ROLLBACK_READINESS_SCHEMA
+    )
+    rollback_readiness_id: str
+    review_id: str
+    snapshot_id: str
+    source_set_id: str
+    trial_record_id: str
+    effect_surface_register_id: str
+    rollback_rows: list[RepoIntegrationRollbackReadinessRow] = Field(min_length=1)
+    non_authority_summary: str
+
+    @model_validator(mode="after")
+    def _validate_rollback_readiness(self) -> RepoIntegrationRollbackReadiness:
+        for field_name in (
+            "rollback_readiness_id",
+            "review_id",
+            "snapshot_id",
+            "source_set_id",
+            "trial_record_id",
+            "effect_surface_register_id",
+        ):
+            object.__setattr__(
+                self,
+                field_name,
+                _non_empty(getattr(self, field_name), field_name=field_name),
+            )
+        object.__setattr__(
+            self,
+            "rollback_rows",
+            _sorted_unique_by_ref(
+                self.rollback_rows,
+                attr="rollback_ref",
+                field_name="rollback_rows",
+            ),
+        )
+        object.__setattr__(
+            self,
+            "non_authority_summary",
+            _v72b_non_authority_summary(
+                self.non_authority_summary,
+                field_name="non_authority_summary",
+            ),
+        )
+        expected_id = _surface_id(
+            "repo_integration_rollback_readiness",
+            REPO_INTEGRATION_ROLLBACK_READINESS_SCHEMA,
+            self.model_dump(mode="json"),
+            "rollback_readiness_id",
+        )
+        if self.rollback_readiness_id != expected_id:
+            raise ValueError(
+                "rollback_readiness_id must match canonical full payload hash identity"
+            )
+        return self
+
+
+def validate_v72b_contained_integration_trial_bundle(
+    *,
+    contained_integration_candidate_plan: RepoContainedIntegrationCandidatePlan,
+    integration_target_boundary: RepoIntegrationTargetBoundary,
+    integration_non_release_guardrail: RepoIntegrationNonReleaseGuardrail,
+    contained_integration_trial_record: RepoContainedIntegrationTrialRecord,
+    integration_effect_surface_register: RepoIntegrationEffectSurfaceRegister,
+    integration_rollback_readiness: RepoIntegrationRollbackReadiness,
+) -> None:
+    if (
+        contained_integration_trial_record.containment_plan_id
+        != contained_integration_candidate_plan.containment_plan_id
+    ):
+        raise ValueError("trial record must reference V72-A containment plan")
+    if (
+        contained_integration_trial_record.target_boundary_id
+        != integration_target_boundary.target_boundary_id
+    ):
+        raise ValueError("trial record must reference V72-A target boundary")
+    if (
+        contained_integration_trial_record.non_release_guardrail_id
+        != integration_non_release_guardrail.non_release_guardrail_id
+    ):
+        raise ValueError("trial record must reference V72-A non-release guardrail")
+    if (
+        integration_effect_surface_register.trial_record_id
+        != contained_integration_trial_record.trial_record_id
+    ):
+        raise ValueError("effect surface register must reference trial record")
+    if (
+        integration_rollback_readiness.trial_record_id
+        != contained_integration_trial_record.trial_record_id
+    ):
+        raise ValueError("rollback readiness must reference trial record")
+    if (
+        integration_rollback_readiness.effect_surface_register_id
+        != integration_effect_surface_register.effect_surface_register_id
+    ):
+        raise ValueError("rollback readiness must reference effect surface register")
+    if not (
+        contained_integration_trial_record.source_set_id
+        == contained_integration_candidate_plan.source_set_id
+        == integration_target_boundary.source_set_id
+        == integration_non_release_guardrail.source_set_id
+        == integration_effect_surface_register.source_set_id
+        == integration_rollback_readiness.source_set_id
+        and contained_integration_trial_record.snapshot_id
+        == contained_integration_candidate_plan.snapshot_id
+        == integration_target_boundary.snapshot_id
+        == integration_non_release_guardrail.snapshot_id
+        == integration_effect_surface_register.snapshot_id
+        == integration_rollback_readiness.snapshot_id
+    ):
+        raise ValueError("V72-B source_set_id and snapshot_id must match across surfaces")
+
+    plan_rows = {row.plan_ref: row for row in contained_integration_candidate_plan.plan_rows}
+    target_rows = {
+        row.target_boundary_ref: row for row in integration_target_boundary.target_boundary_rows
+    }
+    guardrail_rows = {
+        row.guardrail_ref: row for row in integration_non_release_guardrail.guardrail_rows
+    }
+    trial_rows = {row.trial_ref: row for row in contained_integration_trial_record.trial_rows}
+    effect_rows = {row.effect_ref: row for row in integration_effect_surface_register.effect_rows}
+    rollback_rows = {row.rollback_ref: row for row in integration_rollback_readiness.rollback_rows}
+
+    for trial in contained_integration_trial_record.trial_rows:
+        for plan_ref in trial.plan_refs:
+            plan = plan_rows.get(plan_ref)
+            if plan is None:
+                raise ValueError("trial rows must reference known V72-A plan rows")
+            if plan.candidate_ref != trial.candidate_ref:
+                raise ValueError("trial candidate_ref must match referenced plan rows")
+            if (
+                trial.trial_posture
+                in {"dry_run_recorded", "local_trial_recorded", "trial_ready_for_outcome_review"}
+                and plan.containment_plan_posture != "eligible_for_containment_planning"
+            ):
+                raise ValueError("recorded or ready trials require eligible V72-A plans")
+            if (
+                plan.candidate_ref == "candidate:internal:typed_adjudication_product_wedge"
+                and trial.trial_posture
+                not in {"planned_not_executed", "trial_blocked", "trial_reverted"}
+            ):
+                raise ValueError("product wedge cannot enter V72-B trial work")
+        for target_ref in trial.target_boundary_refs:
+            target = target_rows.get(target_ref)
+            if target is None:
+                raise ValueError("trial rows must reference known target boundaries")
+            if target.candidate_ref != trial.candidate_ref:
+                raise ValueError("trial candidate_ref must match target boundary candidate")
+            if (
+                trial.trial_posture
+                in {"dry_run_recorded", "local_trial_recorded", "trial_ready_for_outcome_review"}
+                and target.target_boundary_kind == "no_target_boundary"
+            ):
+                raise ValueError("recorded or ready trials require concrete target boundaries")
+        for guardrail_ref in trial.non_release_guardrail_refs:
+            guardrail = guardrail_rows.get(guardrail_ref)
+            if guardrail is None:
+                raise ValueError("trial rows must reference known non-release guardrails")
+            if guardrail.candidate_ref != trial.candidate_ref:
+                raise ValueError("trial candidate_ref must match guardrail candidate")
+            if not set(trial.plan_refs).issubset(set(guardrail.plan_refs)):
+                raise ValueError("trial plan_refs must be covered by guardrail plan_refs")
+        for effect_ref in trial.observed_effect_refs:
+            effect = effect_rows.get(effect_ref)
+            if effect is None:
+                raise ValueError("trial rows must reference known observed effect rows")
+            if effect.candidate_ref != trial.candidate_ref:
+                raise ValueError("trial candidate_ref must match observed effect candidate")
+            if trial.trial_ref not in effect.trial_refs:
+                raise ValueError("observed effect rows must reference the trial row")
+        for rollback_ref in trial.rollback_readiness_refs:
+            rollback = rollback_rows.get(rollback_ref)
+            if rollback is None:
+                raise ValueError("trial rows must reference known rollback readiness rows")
+            if rollback.candidate_ref != trial.candidate_ref:
+                raise ValueError("trial candidate_ref must match rollback candidate")
+            if trial.trial_ref not in rollback.trial_refs:
+                raise ValueError("rollback readiness rows must reference the trial row")
+            if (
+                trial.trial_posture == "trial_ready_for_outcome_review"
+                and rollback.rollback_posture == "rollback_blocked"
+            ):
+                raise ValueError("trial-ready rows cannot carry blocked rollback")
+        if trial.trial_posture == "trial_ready_for_outcome_review":
+            blocking_effects = [
+                effect_ref
+                for effect_ref in trial.observed_effect_refs
+                if effect_rows[effect_ref].effect_posture
+                in {"effect_blocked", "effect_requires_later_review"}
+                and not set(effect_rows[effect_ref].effect_gap_refs).issubset(
+                    set(effect_rows[effect_ref].carried_forward_gap_refs)
+                )
+            ]
+            if blocking_effects:
+                raise ValueError(
+                    f"trial-ready rows must carry effect gaps forward: {blocking_effects}"
+                )
+
+    for effect in integration_effect_surface_register.effect_rows:
+        for trial_ref in effect.trial_refs:
+            trial = trial_rows.get(trial_ref)
+            if trial is None:
+                raise ValueError("effect rows must reference known trial rows")
+            if trial.candidate_ref != effect.candidate_ref:
+                raise ValueError("effect candidate_ref must match trial candidate")
+        for target_ref in effect.target_boundary_refs:
+            target = target_rows.get(target_ref)
+            if target is None:
+                raise ValueError("effect rows must reference known target boundaries")
+            if target.candidate_ref != effect.candidate_ref:
+                raise ValueError("effect candidate_ref must match target boundary candidate")
+
+    for rollback in integration_rollback_readiness.rollback_rows:
+        for trial_ref in rollback.trial_refs:
+            trial = trial_rows.get(trial_ref)
+            if trial is None:
+                raise ValueError("rollback rows must reference known trial rows")
+            if trial.candidate_ref != rollback.candidate_ref:
+                raise ValueError("rollback candidate_ref must match trial candidate")
+        for effect_ref in rollback.effect_refs:
+            effect = effect_rows.get(effect_ref)
+            if effect is None:
+                raise ValueError("rollback rows must reference known effect rows")
+            if effect.candidate_ref != rollback.candidate_ref:
+                raise ValueError("rollback candidate_ref must match effect candidate")
+
+
+def _load_v72a_plan(repo_root: Path) -> RepoContainedIntegrationCandidatePlan:
+    return RepoContainedIntegrationCandidatePlan.model_validate(
+        _load_json(
+            repo_root,
+            "apps/api/fixtures/repo_description/vnext_plus200/"
+            "repo_contained_integration_candidate_plan_v200_reference.json",
+        )
+    )
+
+
+def _load_v72a_target_boundary(repo_root: Path) -> RepoIntegrationTargetBoundary:
+    return RepoIntegrationTargetBoundary.model_validate(
+        _load_json(
+            repo_root,
+            "apps/api/fixtures/repo_description/vnext_plus200/"
+            "repo_integration_target_boundary_v200_reference.json",
+        )
+    )
+
+
+def _load_v72a_guardrail(repo_root: Path) -> RepoIntegrationNonReleaseGuardrail:
+    return RepoIntegrationNonReleaseGuardrail.model_validate(
+        _load_json(
+            repo_root,
+            "apps/api/fixtures/repo_description/vnext_plus200/"
+            "repo_integration_non_release_guardrail_v200_reference.json",
+        )
+    )
+
+
+def derive_v72b_repo_contained_integration_trial_record(
+    *,
+    repo_root: Path,
+    contained_integration_candidate_plan: RepoContainedIntegrationCandidatePlan | None = None,
+    integration_target_boundary: RepoIntegrationTargetBoundary | None = None,
+    integration_non_release_guardrail: RepoIntegrationNonReleaseGuardrail | None = None,
+) -> RepoContainedIntegrationTrialRecord:
+    plan = contained_integration_candidate_plan or _load_v72a_plan(repo_root)
+    target = integration_target_boundary or _load_v72a_target_boundary(repo_root)
+    guardrail = integration_non_release_guardrail or _load_v72a_guardrail(repo_root)
+    rows = [
+        RepoContainedIntegrationTrialRow(
+            trial_ref="trial:v72b:odeu-diff:blocked",
+            candidate_ref="candidate:internal:odeu_conceptual_diff_report@1",
+            plan_refs=["plan:v72a:odeu-diff:blocked-by-dissent"],
+            target_boundary_refs=[],
+            trial_posture="trial_blocked",
+            trial_diff_posture="no_diff_recorded",
+            active_lock_refs=[],
+            trial_evidence_refs=[],
+            observed_effect_refs=[],
+            rollback_readiness_refs=[],
+            non_release_guardrail_refs=["guardrail:v72a:odeu-diff:no-integration"],
+            effect_gap_refs=["gap:v70b:odeu-diff:missing-counterevidence"],
+            carried_forward_effect_gap_refs=["gap:v70b:odeu-diff:missing-counterevidence"],
+            limitation_note="Dissent and evidence gap keep the trial blocked.",
+        ),
+        RepoContainedIntegrationTrialRow(
+            trial_ref="trial:v72b:product-wedge:blocked",
+            candidate_ref="candidate:internal:typed_adjudication_product_wedge",
+            plan_refs=["plan:v72a:product-wedge:future-family"],
+            target_boundary_refs=[],
+            trial_posture="trial_blocked",
+            trial_diff_posture="no_diff_recorded",
+            active_lock_refs=[],
+            trial_evidence_refs=[],
+            observed_effect_refs=[],
+            rollback_readiness_refs=[],
+            non_release_guardrail_refs=["guardrail:v72a:product-wedge:future-family"],
+            effect_gap_refs=["gap:v70b:product-wedge:v74-boundary"],
+            carried_forward_effect_gap_refs=["gap:v70b:product-wedge:v74-boundary"],
+            limitation_note="Product pressure remains future-family only.",
+        ),
+        RepoContainedIntegrationTrialRow(
+            trial_ref="trial:v72b:self-evidencing:dry-run",
+            candidate_ref="candidate:internal:self_evidencing_workflow_type_emergence",
+            plan_refs=["plan:v72a:self-evidencing:schema-containment"],
+            target_boundary_refs=["target:v72a:self-evidencing:schema-surface"],
+            trial_posture="trial_ready_for_outcome_review",
+            trial_diff_posture="diff_accepted_for_review_only",
+            active_lock_refs=["docs/LOCKED_CONTINUATION_vNEXT_PLUS201.md"],
+            trial_evidence_refs=[
+                "apps/api/fixtures/repo_description/vnext_plus201/repo_contained_integration_trial_record_v201_reference.json",
+                "packages/adeu_repo_description/tests/test_contained_integration_review_v72b.py",
+            ],
+            observed_effect_refs=["effect:v72b:self-evidencing:schema-surface"],
+            rollback_readiness_refs=["rollback:v72b:self-evidencing:plan-present"],
+            non_release_guardrail_refs=["guardrail:v72a:self-evidencing:no-release"],
+            effect_gap_refs=[],
+            carried_forward_effect_gap_refs=[],
+            limitation_note=(
+                "Diff is accepted for review-only handoff; no downstream authority is granted."
+            ),
+        ),
+    ]
+    payload = {
+        "schema": REPO_CONTAINED_INTEGRATION_TRIAL_RECORD_SCHEMA,
+        "review_id": "review:v72b:contained-trial-review",
+        "snapshot_id": plan.snapshot_id,
+        "source_set_id": plan.source_set_id,
+        "containment_plan_id": plan.containment_plan_id,
+        "target_boundary_id": target.target_boundary_id,
+        "non_release_guardrail_id": guardrail.non_release_guardrail_id,
+        "trial_rows": [
+            row.model_dump(mode="json") for row in sorted(rows, key=lambda row: row.trial_ref)
+        ],
+        "non_authority_summary": _V72B_NON_AUTHORITY_SUMMARY,
+    }
+    payload["trial_record_id"] = _surface_id(
+        "repo_contained_integration_trial_record",
+        REPO_CONTAINED_INTEGRATION_TRIAL_RECORD_SCHEMA,
+        payload,
+        "trial_record_id",
+    )
+    return RepoContainedIntegrationTrialRecord.model_validate(payload)
+
+
+def derive_v72b_repo_integration_effect_surface_register(
+    *,
+    repo_root: Path,
+    contained_integration_trial_record: RepoContainedIntegrationTrialRecord | None = None,
+) -> RepoIntegrationEffectSurfaceRegister:
+    trial = (
+        contained_integration_trial_record
+        or derive_v72b_repo_contained_integration_trial_record(repo_root=repo_root)
+    )
+    rows = [
+        RepoIntegrationEffectSurfaceRow(
+            effect_ref="effect:v72b:self-evidencing:schema-surface",
+            candidate_ref="candidate:internal:self_evidencing_workflow_type_emergence",
+            trial_refs=["trial:v72b:self-evidencing:dry-run"],
+            target_boundary_refs=["target:v72a:self-evidencing:schema-surface"],
+            effect_surface_kind="schema_effect",
+            effect_posture="effect_observed",
+            observed_artifact_refs=[
+                "packages/adeu_repo_description/schema/repo_contained_integration_trial_record.v1.json",
+                "packages/adeu_repo_description/schema/repo_integration_effect_surface_register.v1.json",
+                "packages/adeu_repo_description/schema/repo_integration_rollback_readiness.v1.json",
+            ],
+            test_refs=[
+                "packages/adeu_repo_description/tests/test_contained_integration_review_v72b.py"
+            ],
+            effect_gap_refs=[],
+            carried_forward_gap_refs=[],
+            limitation_note="Schema effect is observed for review-only trial records.",
+        )
+    ]
+    payload = {
+        "schema": REPO_INTEGRATION_EFFECT_SURFACE_REGISTER_SCHEMA,
+        "review_id": trial.review_id,
+        "snapshot_id": trial.snapshot_id,
+        "source_set_id": trial.source_set_id,
+        "trial_record_id": trial.trial_record_id,
+        "effect_rows": [
+            row.model_dump(mode="json") for row in sorted(rows, key=lambda row: row.effect_ref)
+        ],
+        "non_authority_summary": _V72B_NON_AUTHORITY_SUMMARY,
+    }
+    payload["effect_surface_register_id"] = _surface_id(
+        "repo_integration_effect_surface_register",
+        REPO_INTEGRATION_EFFECT_SURFACE_REGISTER_SCHEMA,
+        payload,
+        "effect_surface_register_id",
+    )
+    return RepoIntegrationEffectSurfaceRegister.model_validate(payload)
+
+
+def derive_v72b_repo_integration_rollback_readiness(
+    *,
+    repo_root: Path,
+    contained_integration_trial_record: RepoContainedIntegrationTrialRecord | None = None,
+    integration_effect_surface_register: RepoIntegrationEffectSurfaceRegister | None = None,
+) -> RepoIntegrationRollbackReadiness:
+    trial = (
+        contained_integration_trial_record
+        or derive_v72b_repo_contained_integration_trial_record(repo_root=repo_root)
+    )
+    effect = (
+        integration_effect_surface_register
+        or derive_v72b_repo_integration_effect_surface_register(
+            repo_root=repo_root,
+            contained_integration_trial_record=trial,
+        )
+    )
+    rows = [
+        RepoIntegrationRollbackReadinessRow(
+            rollback_ref="rollback:v72b:self-evidencing:plan-present",
+            candidate_ref="candidate:internal:self_evidencing_workflow_type_emergence",
+            trial_refs=["trial:v72b:self-evidencing:dry-run"],
+            effect_refs=["effect:v72b:self-evidencing:schema-surface"],
+            rollback_posture="rollback_plan_present",
+            rollback_evidence_refs=[
+                "docs/LOCKED_CONTINUATION_vNEXT_PLUS201.md",
+                "packages/adeu_repo_description/tests/test_contained_integration_review_v72b.py",
+            ],
+            required_before_next_surface=True,
+            limitation_note="Rollback plan is present for review-only trial posture.",
+        )
+    ]
+    payload = {
+        "schema": REPO_INTEGRATION_ROLLBACK_READINESS_SCHEMA,
+        "review_id": trial.review_id,
+        "snapshot_id": trial.snapshot_id,
+        "source_set_id": trial.source_set_id,
+        "trial_record_id": trial.trial_record_id,
+        "effect_surface_register_id": effect.effect_surface_register_id,
+        "rollback_rows": [
+            row.model_dump(mode="json") for row in sorted(rows, key=lambda row: row.rollback_ref)
+        ],
+        "non_authority_summary": _V72B_NON_AUTHORITY_SUMMARY,
+    }
+    payload["rollback_readiness_id"] = _surface_id(
+        "repo_integration_rollback_readiness",
+        REPO_INTEGRATION_ROLLBACK_READINESS_SCHEMA,
+        payload,
+        "rollback_readiness_id",
+    )
+    return RepoIntegrationRollbackReadiness.model_validate(payload)
+
+
+def derive_v72b_repo_contained_integration_trial_bundle(
+    *,
+    repo_root: Path,
+) -> tuple[
+    RepoContainedIntegrationCandidatePlan,
+    RepoIntegrationTargetBoundary,
+    RepoIntegrationNonReleaseGuardrail,
+    RepoContainedIntegrationTrialRecord,
+    RepoIntegrationEffectSurfaceRegister,
+    RepoIntegrationRollbackReadiness,
+]:
+    plan = _load_v72a_plan(repo_root)
+    target = _load_v72a_target_boundary(repo_root)
+    guardrail = _load_v72a_guardrail(repo_root)
+    trial = derive_v72b_repo_contained_integration_trial_record(
+        repo_root=repo_root,
+        contained_integration_candidate_plan=plan,
+        integration_target_boundary=target,
+        integration_non_release_guardrail=guardrail,
+    )
+    effect = derive_v72b_repo_integration_effect_surface_register(
+        repo_root=repo_root,
+        contained_integration_trial_record=trial,
+    )
+    rollback = derive_v72b_repo_integration_rollback_readiness(
+        repo_root=repo_root,
+        contained_integration_trial_record=trial,
+        integration_effect_surface_register=effect,
+    )
+    validate_v72b_contained_integration_trial_bundle(
+        contained_integration_candidate_plan=plan,
+        integration_target_boundary=target,
+        integration_non_release_guardrail=guardrail,
+        contained_integration_trial_record=trial,
+        integration_effect_surface_register=effect,
+        integration_rollback_readiness=rollback,
+    )
+    return plan, target, guardrail, trial, effect, rollback

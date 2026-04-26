@@ -1,0 +1,126 @@
+{
+  "$defs": {
+    "RepoIntegrationRollbackReadinessRow": {
+      "additionalProperties": false,
+      "properties": {
+        "candidate_ref": {
+          "title": "Candidate Ref",
+          "type": "string"
+        },
+        "effect_refs": {
+          "items": {
+            "type": "string"
+          },
+          "title": "Effect Refs",
+          "type": "array"
+        },
+        "limitation_note": {
+          "title": "Limitation Note",
+          "type": "string"
+        },
+        "required_before_next_surface": {
+          "title": "Required Before Next Surface",
+          "type": "boolean"
+        },
+        "rollback_evidence_refs": {
+          "items": {
+            "type": "string"
+          },
+          "title": "Rollback Evidence Refs",
+          "type": "array"
+        },
+        "rollback_posture": {
+          "enum": [
+            "rollback_not_required_for_docs_only",
+            "rollback_plan_required",
+            "rollback_plan_present",
+            "rollback_verified",
+            "rollback_blocked",
+            "rollback_not_applicable"
+          ],
+          "title": "Rollback Posture",
+          "type": "string"
+        },
+        "rollback_ref": {
+          "title": "Rollback Ref",
+          "type": "string"
+        },
+        "trial_refs": {
+          "items": {
+            "type": "string"
+          },
+          "minItems": 1,
+          "title": "Trial Refs",
+          "type": "array"
+        }
+      },
+      "required": [
+        "rollback_ref",
+        "candidate_ref",
+        "trial_refs",
+        "rollback_posture",
+        "required_before_next_surface",
+        "limitation_note"
+      ],
+      "title": "RepoIntegrationRollbackReadinessRow",
+      "type": "object"
+    }
+  },
+  "additionalProperties": false,
+  "properties": {
+    "effect_surface_register_id": {
+      "title": "Effect Surface Register Id",
+      "type": "string"
+    },
+    "non_authority_summary": {
+      "title": "Non Authority Summary",
+      "type": "string"
+    },
+    "review_id": {
+      "title": "Review Id",
+      "type": "string"
+    },
+    "rollback_readiness_id": {
+      "title": "Rollback Readiness Id",
+      "type": "string"
+    },
+    "rollback_rows": {
+      "items": {
+        "$ref": "#/$defs/RepoIntegrationRollbackReadinessRow"
+      },
+      "minItems": 1,
+      "title": "Rollback Rows",
+      "type": "array"
+    },
+    "schema": {
+      "const": "repo_integration_rollback_readiness@1",
+      "default": "repo_integration_rollback_readiness@1",
+      "title": "Schema",
+      "type": "string"
+    },
+    "snapshot_id": {
+      "title": "Snapshot Id",
+      "type": "string"
+    },
+    "source_set_id": {
+      "title": "Source Set Id",
+      "type": "string"
+    },
+    "trial_record_id": {
+      "title": "Trial Record Id",
+      "type": "string"
+    }
+  },
+  "required": [
+    "rollback_readiness_id",
+    "review_id",
+    "snapshot_id",
+    "source_set_id",
+    "trial_record_id",
+    "effect_surface_register_id",
+    "rollback_rows",
+    "non_authority_summary"
+  ],
+  "title": "RepoIntegrationRollbackReadiness",
+  "type": "object"
+}
