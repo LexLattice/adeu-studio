@@ -1,8 +1,8 @@
 # Assessment vNext+198 Edges
 
-Status: pre-lock edge assessment for `V71-B` (April 26, 2026 UTC).
+Status: post-closeout edge assessment for `V71-B` (April 26, 2026 UTC).
 
-Authority layer: pre-lock assessment only.
+Authority layer: closeout evidence on `main` only.
 
 ## Assessment-State Marker (Machine-Checkable)
 
@@ -10,8 +10,8 @@ Authority layer: pre-lock assessment only.
 {
   "schema": "assessment_artifact_state@1",
   "artifact": "docs/ASSESSMENT_vNEXT_PLUS198_EDGES.md",
-  "phase": "pre_lock_assessment",
-  "authoritative": false,
+  "phase": "post_closeout_assessment",
+  "authoritative": true,
   "required_in_decision": true
 }
 ```
@@ -20,100 +20,110 @@ Authority layer: pre-lock assessment only.
 
 ### Edge 1: Ratification Record Could Become Implementation Authority
 
-- Risk:
-  ratification records could be overread as permission to edit, integrate,
-  merge, release, productize, run, or dispatch work.
-- Required containment:
-  `V71-B` may emit ratification / rejection / deferral, settlement, and dissent
-  rows only; implementation and integration remain deferred to later locks.
+- Closeout posture:
+  contained.
+- Evidence:
+  ratification records carry decision posture, horizon, and allowed next review
+  surface only; non-integration guardrails reject implementation, merge,
+  release, product, runtime, dispatch, and external contest authority.
 
 ### Edge 2: V71-A Requests Could Be Recreated In Parallel
 
-- Risk:
-  `V71-B` could mint its own request universe rather than consuming released
-  `V71-A` rows.
-- Required containment:
-  ratification, settlement, and dissent rows must reference known `V71-A`
-  request rows.
+- Closeout posture:
+  contained.
+- Evidence:
+  V71-B validators require settlement, dissent, and ratification rows to
+  resolve against released `V71-A` request rows.
 
 ### Edge 3: Authority Profile Horizon Could Be Ignored
 
-- Risk:
-  an authority profile could be used to ratify a horizon it was not allowed to
-  ratify.
-- Required containment:
-  every ratifying authority profile must include the exact ratification horizon
-  carried by the ratification record.
+- Closeout posture:
+  contained.
+- Evidence:
+  ratified rows require every referenced ratification-authorized profile to
+  allow the exact ratification horizon used by the row.
 
 ### Edge 4: Outcome And Routing Could Collapse
 
-- Risk:
-  `ratified_for_v72` style wording could make ratification look like direct
-  `V72` selection or implementation authorization.
-- Required containment:
+- Closeout posture:
+  contained.
+- Evidence:
   `decision_posture`, `ratification_horizon`, and
-  `allowed_next_review_surface` stay separate.
+  `allowed_next_review_surface` remain separate fields; `V71-B` cannot turn
+  those fields into implementation or release authority.
 
 ### Edge 5: Blocked Requests Could Be Ratified Without Settlement
 
-- Risk:
-  `requires_settlement_before_ratification` requests could be ratified without
-  a settlement row.
-- Required containment:
-  blocked requests require settlement records or explicit deferral /
-  carry-forward posture.
+- Closeout posture:
+  contained.
+- Evidence:
+  blocked requests require a settlement row covering the exact request ref
+  before they can be ratified.
 
 ### Edge 6: Conflict And Complementarity Could Collapse
 
-- Risk:
-  complementary review relation could be treated as conflict, or conflict could
-  be silently treated as settled.
-- Required containment:
-  relation kind remains first-class and unresolved blocking conflict cannot be
-  treated as settled by default.
+- Closeout posture:
+  contained.
+- Evidence:
+  review relation kind remains first-class; complementarity is represented
+  without forcing a blocking conflict posture, and unresolved blocking conflict
+  cannot be treated as settled by default.
 
 ### Edge 7: Evidence Gaps Could Be Hidden
 
-- Risk:
-  unresolved gaps could be ratified away rather than carried forward.
-- Required containment:
-  unresolved blocking gaps require deferral, carry-forward, or review-required
-  posture.
+- Closeout posture:
+  contained.
+- Evidence:
+  unresolved conflict, gap, evidence, human-review, and future-family
+  settlement postures block ratification or require deferral / carry-forward.
 
 ### Edge 8: Dissent Could Be Dropped
 
-- Risk:
-  partial settlement or unresolved blockers could omit dissent rows, or
-  `no_dissent_recorded` could be used as proof of absence without search
-  coverage.
-- Required containment:
-  dissent rows are required for partial / unresolved settlement postures, and
-  `no_dissent_recorded` requires `searched_none_found` before it can mean no
-  dissent was found.
+- Closeout posture:
+  contained.
+- Evidence:
+  partial and unresolved settlement postures preserve dissent refs, and
+  ratification rows must carry the dissent refs named by linked settlements.
+  `no_dissent_recorded` requires `searched_none_found`.
 
 ### Edge 9: Product Wedge Could Be Ratified For Integration
 
-- Risk:
-  product-facing pressure could be ratified for `V72` integration review before
-  the `V74` product/operator boundary exists.
-- Required containment:
+- Closeout posture:
+  contained.
+- Evidence:
   product wedge candidates remain future-family routed and cannot be ratified
-  for integration review in `V71-B`.
+  for `V72` contained integration review by `V71-B`.
 
 ### Edge 10: V71-B Could Begin V71-C
 
-- Risk:
-  settlement and ratification records could start defining amendment scope or
-  post-ratification handoff.
-- Required containment:
-  amendment-scope boundary and post-ratification handoff surfaces remain
-  deferred to `V71-C`.
+- Closeout posture:
+  contained.
+- Evidence:
+  no amendment-scope boundary, post-ratification handoff, or family closeout
+  alignment surface shipped in `v198`.
 
-## Pre-Lock Judgment
+### Edge 11: V71-A Scope Boundary Could Be Ignored
 
-- `V71-B` is an appropriate bounded second slice after closed `V71-A`.
-- The slice should be implemented only as schema/model/validator/export and
-  reference/reject fixture work in `adeu_repo_description`.
-- The implementation must keep ratification records, settlement records, and
-  dissent registers separate from amendment scope, contained integration,
-  product authorization, release authority, runtime permission, and dispatch.
+- Closeout posture:
+  contained.
+- Evidence:
+  V71-B bundle validation checks `repo_ratification_request_scope_boundary@1`
+  rows before routing ratification outcomes to later review surfaces.
+
+## Residual Edges
+
+- `V71-C` must translate ratified, deferred, rejected, and future-family-routed
+  V71-B outcomes into amendment scope and post-ratification handoff without
+  performing integration.
+- `V71-C` must preserve carried-forward dissent and evidence gaps.
+- `V71-C` must close the `V71` family without selecting `V72`, product,
+  release, runtime, or dispatch authority.
+
+## Post-Closeout Judgment
+
+- `V71-B` is closed on `main` as a bounded settlement, ratification-record, and
+  dissent-preservation starter slice.
+- The slice preserved the intended authority boundary: ratification records
+  are not implementation tickets, release decisions, product authorization,
+  runtime permission, or dispatch authority.
+- `V71` remains open for `V71-C`.
