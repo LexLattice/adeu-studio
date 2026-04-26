@@ -220,3 +220,52 @@ def test_v194_bundle_rejects_missing_boundary_guardrail() -> None:
             classification_record=classification,
             boundary_guardrail=missing_boundary,
         )
+
+
+def test_v194_bundle_rejects_cross_candidate_evidence_source_ref() -> None:
+    source_index, classification, boundary = _reference_bundle()
+    payload = classification.model_dump(mode="json")
+    payload["claim_classification_rows"][0]["evidence_source_refs"] = [
+        "evidence-source:v70a:gptpro-review"
+    ]
+    mismatched_classification = RepoCandidateEvidenceClassificationRecord.model_validate(payload)
+
+    with pytest.raises(ValueError, match="classified candidate"):
+        validate_v70a_review_classification_bundle(
+            source_index=source_index,
+            classification_record=mismatched_classification,
+            boundary_guardrail=boundary,
+        )
+
+
+@pytest.mark.parametrize(
+    ("surface_name", "field_name", "match"),
+    [
+        ("classification", "snapshot_id", "classification record snapshot_id"),
+        ("boundary", "snapshot_id", "boundary guardrail snapshot_id"),
+        ("classification", "source_set_id", "classification record source_set_id"),
+        ("boundary", "source_set_id", "boundary guardrail source_set_id"),
+    ],
+)
+def test_v194_bundle_rejects_mixed_snapshot_or_source_set_ids(
+    surface_name: str, field_name: str, match: str
+) -> None:
+    source_index, classification, boundary = _reference_bundle()
+    classification_payload = classification.model_dump(mode="json")
+    boundary_payload = boundary.model_dump(mode="json")
+    target_payload = (
+        classification_payload if surface_name == "classification" else boundary_payload
+    )
+    target_payload[field_name] = f"drifted:{field_name}"
+
+    drifted_classification = RepoCandidateEvidenceClassificationRecord.model_validate(
+        classification_payload
+    )
+    drifted_boundary = RepoCandidateReviewBoundaryGuardrail.model_validate(boundary_payload)
+
+    with pytest.raises(ValueError, match=match):
+        validate_v70a_review_classification_bundle(
+            source_index=source_index,
+            classification_record=drifted_classification,
+            boundary_guardrail=drifted_boundary,
+        )

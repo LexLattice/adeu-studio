@@ -82,5 +82,6 @@
   "non_ratification_summary": "Boundary guardrails prevent review classification overreach.",
   "review_id": "review:v70a:candidate-evidence-classification",
   "schema": "repo_candidate_review_boundary_guardrail@1",
-  "snapshot_id": "vNext+194-prestart-on-main"
+  "snapshot_id": "vNext+194-prestart-on-main",
+  "source_set_id": "source-set:v70a:released-v69c-handoff"
 }

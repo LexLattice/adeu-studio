@@ -120,6 +120,12 @@ def _load_json(repo_root: Path, relative_path: str) -> dict[str, Any]:
     return json.loads((repo_root / relative_path).read_text(encoding="utf-8"))
 
 
+def _require_existing_source(repo_root: Path, relative_path: str) -> None:
+    source_path = repo_root / relative_path
+    if not source_path.is_file():
+        raise FileNotFoundError(f"review source must exist: {relative_path}")
+
+
 def _known_candidate_refs(handoff_payload: dict[str, Any]) -> list[str]:
     return sorted(str(ref) for ref in handoff_payload["candidate_refs"])
 
@@ -460,6 +466,7 @@ class RepoCandidateReviewBoundaryGuardrail(_CartographyBase):
     boundary_guardrail_id: str
     review_id: str
     snapshot_id: str
+    source_set_id: str
     candidate_input_refs: list[str] = Field(min_length=1)
     classification_refs: list[str] = Field(min_length=1)
     boundary_guardrail_rows: list[RepoCandidateReviewBoundaryGuardrailRow] = Field(min_length=1)
@@ -477,6 +484,11 @@ class RepoCandidateReviewBoundaryGuardrail(_CartographyBase):
             self,
             "snapshot_id",
             _non_empty(self.snapshot_id, field_name="snapshot_id"),
+        )
+        object.__setattr__(
+            self,
+            "source_set_id",
+            _non_empty(self.source_set_id, field_name="source_set_id"),
         )
         object.__setattr__(
             self,
@@ -526,6 +538,14 @@ def validate_v70a_review_classification_bundle(
         raise ValueError("source index and classification record review_id must match")
     if source_index.review_id != boundary_guardrail.review_id:
         raise ValueError("source index and boundary guardrail review_id must match")
+    if source_index.snapshot_id != classification_record.snapshot_id:
+        raise ValueError("source index and classification record snapshot_id must match")
+    if source_index.snapshot_id != boundary_guardrail.snapshot_id:
+        raise ValueError("source index and boundary guardrail snapshot_id must match")
+    if source_index.source_set_id != classification_record.source_set_id:
+        raise ValueError("source index and classification record source_set_id must match")
+    if source_index.source_set_id != boundary_guardrail.source_set_id:
+        raise ValueError("source index and boundary guardrail source_set_id must match")
     evidence_source_rows_by_ref = {
         row.evidence_source_ref: row for row in source_index.evidence_source_rows
     }
@@ -538,6 +558,16 @@ def validate_v70a_review_classification_bundle(
         raise ValueError("boundary guardrail classification_refs must match classifications")
     for row in classification_record.claim_classification_rows:
         referenced_sources = [evidence_source_rows_by_ref[ref] for ref in row.evidence_source_refs]
+        wrong_candidate_sources = sorted(
+            source.evidence_source_ref
+            for source in referenced_sources
+            if source.candidate_ref != row.candidate_ref
+        )
+        if wrong_candidate_sources:
+            raise ValueError(
+                "classification evidence_source_refs must belong to the classified candidate: "
+                f"{wrong_candidate_sources}"
+            )
         if row.evidence_classification == "supports_review_claim" and not referenced_sources:
             raise ValueError("supports_review_claim requires evidence source refs")
         if row.evidence_classification == "source_missing_or_stale" and not any(
@@ -584,7 +614,6 @@ def derive_v70a_repo_candidate_evidence_source_index(
     *,
     repo_root: Path,
 ) -> RepoCandidateEvidenceSourceIndex:
-    _load_json(repo_root, _DEFAULT_HANDOFF_FIXTURE)
     rows = [
         RepoCandidateEvidenceSourceRow(
             evidence_source_ref="evidence-source:v70a:gptpro-review",
@@ -626,6 +655,9 @@ def derive_v70a_repo_candidate_evidence_source_index(
             limitation_note="Fixture source binds review need without settling it.",
         ),
     ]
+    for row in rows:
+        if row.source_presence_posture == "present":
+            _require_existing_source(repo_root, row.source_ref)
     payload = {
         "schema": REPO_CANDIDATE_EVIDENCE_SOURCE_INDEX_SCHEMA,
         "review_id": "review:v70a:candidate-evidence-classification",
@@ -807,6 +839,7 @@ def derive_v70a_repo_candidate_review_boundary_guardrail(
         "schema": REPO_CANDIDATE_REVIEW_BOUNDARY_GUARDRAIL_SCHEMA,
         "review_id": "review:v70a:candidate-evidence-classification",
         "snapshot_id": "vNext+194-prestart-on-main",
+        "source_set_id": "source-set:v70a:released-v69c-handoff",
         "candidate_input_refs": candidate_refs,
         "classification_refs": classification_refs,
         "boundary_guardrail_rows": [

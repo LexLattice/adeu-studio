@@ -114,12 +114,17 @@
     "snapshot_id": {
       "title": "Snapshot Id",
       "type": "string"
+    },
+    "source_set_id": {
+      "title": "Source Set Id",
+      "type": "string"
     }
   },
   "required": [
     "boundary_guardrail_id",
     "review_id",
     "snapshot_id",
+    "source_set_id",
     "candidate_input_refs",
     "classification_refs",
     "boundary_guardrail_rows",

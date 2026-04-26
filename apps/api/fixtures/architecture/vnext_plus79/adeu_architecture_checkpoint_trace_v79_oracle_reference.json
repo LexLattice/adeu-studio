@@ -14,7 +14,7 @@
       "final_adjudication": "resolved_pass",
       "oracle_request_ref": "apps/api/fixtures/architecture/vnext_plus79/adeu_architecture_oracle_request_v79_reference.json",
       "oracle_resolution_ref": "apps/api/fixtures/architecture/vnext_plus79/adeu_architecture_oracle_resolution_v79_reference.json",
-      "replay_identity_hash": "b07ad1eae2a2594bf9730a6df55b268de7c118712746a56e30ed8a9f6bd6207c",
+      "replay_identity_hash": "5073d4baa83106edcaa4c76e13e7d88ec26dc50a44750d740b81a9e867a5a34a",
       "resolution_route": "oracle_assisted"
     }
   ],
@@ -23,7 +23,7 @@
   "hybrid_policy_hashes": [
     {
       "path": "AGENTS.md",
-      "sha256": "5b5ebd3f68f63fc066c12d383e21b0aa3d76cd005bacbae0119c98654f6e2cb4"
+      "sha256": "77ea133286b3e9e0defaac6abd68d07a526d97011e270b619d5caf7a76fcfe1d"
     },
     {
       "path": "docs/ARCHITECTURE_ADEU_ARCHITECTURE_IR_v0.md",
@@ -40,5 +40,5 @@
   ],
   "schema": "adeu_architecture_checkpoint_trace@1",
   "semantic_hash": "ad8898738f3ac53a822aadc2d2f8905374bd7a68ba49584ff0acf2c464594e6a",
-  "trace_id": "v40c_v79_trace_cbd4e70a0977c5fc"
+  "trace_id": "v40c_v79_trace_dfb07f66d2d2269b"
 }

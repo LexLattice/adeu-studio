@@ -21,7 +21,7 @@
   "human_trace_fixture_path": "apps/api/fixtures/synthetic_pressure_mismatch/vnext_plus76/synthetic_pressure_mismatch_checkpoint_trace_v76_human.json",
   "implementation_source_hash": "f04acd7e79171309f718348ad393693d6b1297bf68364fac83d58dbafa363099",
   "implementation_source_path": "packages/adeu_core_ir/src/adeu_core_ir/synthetic_pressure_mismatch_hybrid_execution.py",
-  "invalid_replay_resolution_fixture_hash": "9a2ccf44139124bd8f6c4cc1d4dc45dd8e0767bee5b7d9af0fe8a4eafa282ce5",
+  "invalid_replay_resolution_fixture_hash": "361e75aa9d03686dce9c87c3f96dfcef3f79eb7135c07e9da08396677c362ea3",
   "invalid_replay_resolution_fixture_path": "apps/api/fixtures/synthetic_pressure_mismatch/vnext_plus76/synthetic_pressure_mismatch_oracle_resolution_v76_invalid_replay_identity.json",
   "local_hybrid_fixture_boundary_preserved": true,
   "local_hybrid_human_fixture_hash": "dfecda2a85b07d526be5d18871b86ace7250755c685a4a5d41018ef8fbcdc375",
@@ -30,25 +30,25 @@
   "local_hybrid_oracle_fixture_path": "apps/api/fixtures/synthetic_pressure_mismatch/vnext_plus76/local_hybrid_fixture_v76_narrative_comment.json",
   "notes": "v76 evidence pins the released hybrid checkpoint/oracle schemas, deterministic and local-hybrid trace fixtures, oracle request/resolution fixtures, replay-identity fail-closed coverage, and the bounded V39-E anti-authorship / anti-score / advisory-only contract on main.",
   "oracle_output_advisory_only": true,
-  "oracle_request_fixture_hash": "4a7e7c1b6180a4156600fd8d104e609d8fb9a4f4ef3e2402292d2dbed276fbee",
+  "oracle_request_fixture_hash": "3c8624d5f9992b64a3552eeba0035d7ad893dab3719d72eaf5109bca2fd18c23",
   "oracle_request_fixture_path": "apps/api/fixtures/synthetic_pressure_mismatch/vnext_plus76/synthetic_pressure_mismatch_oracle_request_v76_reference.json",
   "oracle_request_schema_reference_hash": "ad5854664de5056e25f979c940c6e3ab04457ca8b5afb25d334e7552f92278e6",
   "oracle_request_schema_reference_mirror_hash": "ad5854664de5056e25f979c940c6e3ab04457ca8b5afb25d334e7552f92278e6",
   "oracle_request_schema_reference_mirror_path": "spec/synthetic_pressure_mismatch_oracle_request.schema.json",
   "oracle_request_schema_reference_path": "packages/adeu_core_ir/schema/synthetic_pressure_mismatch_oracle_request.v1.json",
-  "oracle_resolution_fixture_hash": "a4b1587b2444482563d5d50c648b6d879317746bc90a67464fa956cd3bb4315a",
+  "oracle_resolution_fixture_hash": "0c3db4da8a3b4048bb3356a126cd52824d421ee03fe5fa7d895a199ca901cc77",
   "oracle_resolution_fixture_path": "apps/api/fixtures/synthetic_pressure_mismatch/vnext_plus76/synthetic_pressure_mismatch_oracle_resolution_v76_reference.json",
   "oracle_resolution_schema_reference_hash": "18385a399f55e0f31198e416d97a25a18b9f549b15c334192c827c6b421a5e2f",
   "oracle_resolution_schema_reference_mirror_hash": "18385a399f55e0f31198e416d97a25a18b9f549b15c334192c827c6b421a5e2f",
   "oracle_resolution_schema_reference_mirror_path": "spec/synthetic_pressure_mismatch_oracle_resolution.schema.json",
   "oracle_resolution_schema_reference_path": "packages/adeu_core_ir/schema/synthetic_pressure_mismatch_oracle_resolution.v1.json",
-  "oracle_trace_fixture_hash": "0364a5e7138f572f2a64ebeed65cf4144e946a6b0d6725102076ec0f848a6ed4",
+  "oracle_trace_fixture_hash": "5f31abd7616087602cf9e630c71769ee2e8511e64cf260a96dbb7839eabaf744",
   "oracle_trace_fixture_path": "apps/api/fixtures/synthetic_pressure_mismatch/vnext_plus76/synthetic_pressure_mismatch_checkpoint_trace_v76_oracle.json",
   "policy_source_set_exact_verified": true,
   "policy_sources": [
     {
       "path": "AGENTS.md",
-      "sha256": "5b5ebd3f68f63fc066c12d383e21b0aa3d76cd005bacbae0119c98654f6e2cb4"
+      "sha256": "77ea133286b3e9e0defaac6abd68d07a526d97011e270b619d5caf7a76fcfe1d"
     },
     {
       "path": "docs/DRAFT_SYNTHETIC_PRESSURE_MISMATCH_DRIFT_v0.md",

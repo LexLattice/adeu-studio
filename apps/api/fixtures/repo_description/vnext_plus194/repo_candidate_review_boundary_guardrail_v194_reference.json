@@ -1,5 +1,5 @@
 {
-  "boundary_guardrail_id": "repo_candidate_review_boundary_guardrail_09428ff8cfac909e146479df",
+  "boundary_guardrail_id": "repo_candidate_review_boundary_guardrail_f887b9911ee541449630235b",
   "boundary_guardrail_rows": [
     {
       "allowed_next_review_surfaces": [
@@ -82,5 +82,6 @@
   "non_ratification_summary": "Boundary guardrails prevent review classification overreach.",
   "review_id": "review:v70a:candidate-evidence-classification",
   "schema": "repo_candidate_review_boundary_guardrail@1",
-  "snapshot_id": "vNext+194-prestart-on-main"
+  "snapshot_id": "vNext+194-prestart-on-main",
+  "source_set_id": "source-set:v70a:released-v69c-handoff"
 }
