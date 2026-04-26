@@ -217,7 +217,7 @@ def test_v196_rejects_invalid_surface_fixtures(
     [
         (
             "repo_candidate_review_v196_reject_unresolved_conflict_omitted.json",
-            "blocking conflict refs",
+            "summary conflict_refs",
         ),
     ],
 )
@@ -246,11 +246,15 @@ def test_v196_bundle_rejects_invalid_summary_preservation(summary_fixture: str, 
     [
         (
             "repo_candidate_review_v196_reject_unresolved_gap_omitted.json",
-            "unresolved gap refs",
+            "unresolved_gap_refs",
         ),
         (
             "repo_candidate_review_v196_reject_product_wedge_to_v71.json",
             "product wedge handoff",
+        ),
+        (
+            "repo_candidate_review_v196_reject_unknown_handoff_blocker_ref.json",
+            "blocking_conflict_refs",
         ),
     ],
 )

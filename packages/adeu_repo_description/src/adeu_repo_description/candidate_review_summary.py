@@ -460,7 +460,9 @@ def validate_v70c_candidate_review_summary_bundle(
                 conflict_ref
             )
     blocking_gaps_by_candidate: dict[str, set[str]] = {}
+    gaps_by_candidate: dict[str, set[str]] = {}
     for gap_ref, gap in gap_rows.items():
+        gaps_by_candidate.setdefault(gap.candidate_ref, set()).add(gap_ref)
         if gap.severity == "blocking":
             blocking_gaps_by_candidate.setdefault(gap.candidate_ref, set()).add(gap_ref)
 
@@ -479,23 +481,18 @@ def validate_v70c_candidate_review_summary_bundle(
         for gap_ref in summary.gap_refs:
             if gap_rows[gap_ref].candidate_ref != summary.candidate_ref:
                 raise ValueError("summary candidate_ref must match referenced gap rows")
-        missing_conflicts = sorted(
-            blocking_conflicts_by_candidate.get(summary.candidate_ref, set())
-            - set(summary.conflict_refs)
-        )
-        if missing_conflicts:
-            raise ValueError(f"summary must preserve blocking conflict refs: {missing_conflicts}")
-        missing_relations = sorted(
-            relation_refs_by_candidate.get(summary.candidate_ref, set())
-            - set(summary.conflict_refs)
-        )
-        if missing_relations:
-            raise ValueError(f"summary must preserve V70-B relation refs: {missing_relations}")
-        missing_gaps = sorted(
-            blocking_gaps_by_candidate.get(summary.candidate_ref, set()) - set(summary.gap_refs)
-        )
-        if missing_gaps:
-            raise ValueError(f"summary must preserve unresolved gap refs: {missing_gaps}")
+        expected_relations = sorted(relation_refs_by_candidate.get(summary.candidate_ref, set()))
+        if summary.conflict_refs != expected_relations:
+            raise ValueError(
+                "summary conflict_refs must exactly match and be lexicographically sorted: "
+                f"{expected_relations}"
+            )
+        expected_gaps = sorted(gaps_by_candidate.get(summary.candidate_ref, set()))
+        if summary.gap_refs != expected_gaps:
+            raise ValueError(
+                "summary gap_refs must exactly match and be lexicographically sorted: "
+                f"{expected_gaps}"
+            )
         has_blockers = bool(
             blocking_conflicts_by_candidate.get(summary.candidate_ref)
             or blocking_gaps_by_candidate.get(summary.candidate_ref)
@@ -533,14 +530,20 @@ def validate_v70c_candidate_review_summary_bundle(
             raise ValueError(
                 f"handoff adversarial_review_refs must come from summary: {missing_reviews}"
             )
-        expected_blocking_conflicts = blocking_conflicts_by_candidate.get(
-            handoff.candidate_ref, set()
+        expected_blocking_conflicts = sorted(
+            blocking_conflicts_by_candidate.get(handoff.candidate_ref, set())
         )
-        if not expected_blocking_conflicts.issubset(set(handoff.blocking_conflict_refs)):
-            raise ValueError("handoff must preserve blocking conflict refs")
-        expected_blocking_gaps = blocking_gaps_by_candidate.get(handoff.candidate_ref, set())
-        if not expected_blocking_gaps.issubset(set(handoff.unresolved_gap_refs)):
-            raise ValueError("handoff must preserve unresolved gap refs")
+        if handoff.blocking_conflict_refs != expected_blocking_conflicts:
+            raise ValueError(
+                "handoff blocking_conflict_refs must exactly match and be lexicographically sorted"
+            )
+        expected_blocking_gaps = sorted(
+            blocking_gaps_by_candidate.get(handoff.candidate_ref, set())
+        )
+        if handoff.unresolved_gap_refs != expected_blocking_gaps:
+            raise ValueError(
+                "handoff unresolved_gap_refs must exactly match and be lexicographically sorted"
+            )
         has_blockers = bool(handoff.blocking_conflict_refs or handoff.unresolved_gap_refs)
         if has_blockers and handoff.handoff_posture == "ready_for_v71_review":
             raise ValueError("handoff cannot be ready with blockers")
