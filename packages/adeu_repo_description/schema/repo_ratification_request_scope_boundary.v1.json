@@ -1,0 +1,151 @@
+{
+  "$defs": {
+    "RepoRatificationRequestScopeBoundaryRow": {
+      "additionalProperties": false,
+      "properties": {
+        "allowed_next_review_surfaces": {
+          "items": {
+            "enum": [
+              "v71b_ratification_review",
+              "v71b_settlement_review",
+              "future_family_review",
+              "deferred_no_selection"
+            ],
+            "type": "string"
+          },
+          "minItems": 1,
+          "title": "Allowed Next Review Surfaces",
+          "type": "array"
+        },
+        "allowed_ratification_actions": {
+          "items": {
+            "enum": [
+              "request_ratification_review",
+              "request_settlement_review",
+              "defer_to_future_family",
+              "reject_out_of_scope"
+            ],
+            "type": "string"
+          },
+          "minItems": 1,
+          "title": "Allowed Ratification Actions",
+          "type": "array"
+        },
+        "candidate_ref": {
+          "title": "Candidate Ref",
+          "type": "string"
+        },
+        "forbidden_downstream_roles": {
+          "items": {
+            "enum": [
+              "implementation_task",
+              "contained_integration",
+              "commit_release_authority",
+              "product_authorization",
+              "runtime_permission",
+              "dispatch_authority",
+              "external_contest_authority"
+            ],
+            "type": "string"
+          },
+          "minItems": 1,
+          "title": "Forbidden Downstream Roles",
+          "type": "array"
+        },
+        "non_implementation_guardrail": {
+          "title": "Non Implementation Guardrail",
+          "type": "string"
+        },
+        "ratification_source_refs": {
+          "items": {
+            "type": "string"
+          },
+          "minItems": 1,
+          "title": "Ratification Source Refs",
+          "type": "array"
+        },
+        "request_refs": {
+          "items": {
+            "type": "string"
+          },
+          "minItems": 1,
+          "title": "Request Refs",
+          "type": "array"
+        },
+        "request_scope_boundary_ref": {
+          "title": "Request Scope Boundary Ref",
+          "type": "string"
+        }
+      },
+      "required": [
+        "request_scope_boundary_ref",
+        "candidate_ref",
+        "ratification_source_refs",
+        "request_refs",
+        "allowed_ratification_actions",
+        "forbidden_downstream_roles",
+        "allowed_next_review_surfaces",
+        "non_implementation_guardrail"
+      ],
+      "title": "RepoRatificationRequestScopeBoundaryRow",
+      "type": "object"
+    }
+  },
+  "additionalProperties": false,
+  "properties": {
+    "authority_profile_id": {
+      "title": "Authority Profile Id",
+      "type": "string"
+    },
+    "non_implementation_summary": {
+      "title": "Non Implementation Summary",
+      "type": "string"
+    },
+    "ratification_request_id": {
+      "title": "Ratification Request Id",
+      "type": "string"
+    },
+    "request_scope_boundary_id": {
+      "title": "Request Scope Boundary Id",
+      "type": "string"
+    },
+    "request_scope_boundary_rows": {
+      "items": {
+        "$ref": "#/$defs/RepoRatificationRequestScopeBoundaryRow"
+      },
+      "minItems": 1,
+      "title": "Request Scope Boundary Rows",
+      "type": "array"
+    },
+    "review_id": {
+      "title": "Review Id",
+      "type": "string"
+    },
+    "schema": {
+      "const": "repo_ratification_request_scope_boundary@1",
+      "default": "repo_ratification_request_scope_boundary@1",
+      "title": "Schema",
+      "type": "string"
+    },
+    "snapshot_id": {
+      "title": "Snapshot Id",
+      "type": "string"
+    },
+    "source_set_id": {
+      "title": "Source Set Id",
+      "type": "string"
+    }
+  },
+  "required": [
+    "request_scope_boundary_id",
+    "review_id",
+    "snapshot_id",
+    "source_set_id",
+    "ratification_request_id",
+    "authority_profile_id",
+    "request_scope_boundary_rows",
+    "non_implementation_summary"
+  ],
+  "title": "RepoRatificationRequestScopeBoundary",
+  "type": "object"
+}

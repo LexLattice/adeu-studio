@@ -1,0 +1,90 @@
+{
+  "authority_profile_id": "repo_ratification_authority_profile_e48c43929dc1f185bccd9802",
+  "non_implementation_summary": "V71-A records no implementation and no release authority.",
+  "ratification_request_id": "repo_candidate_ratification_request_6db75b7e7d468c47b967dbaa",
+  "request_scope_boundary_id": "repo_ratification_request_scope_boundary_66e66b8d9ed05299ad4a757e",
+  "request_scope_boundary_rows": [
+    {
+      "allowed_next_review_surfaces": [
+        "v71b_settlement_review"
+      ],
+      "allowed_ratification_actions": [
+        "request_settlement_review"
+      ],
+      "candidate_ref": "candidate:internal:odeu_conceptual_diff_report@1",
+      "forbidden_downstream_roles": [
+        "commit_release_authority",
+        "contained_integration",
+        "dispatch_authority",
+        "implementation_task",
+        "product_authorization",
+        "runtime_permission"
+      ],
+      "non_implementation_guardrail": "No implementation and no release authority is granted.",
+      "ratification_source_refs": [
+        "apps/api/fixtures/repo_description/vnext_plus196/repo_candidate_pre_ratification_handoff_v196_reference.json",
+        "apps/api/fixtures/repo_description/vnext_plus196/repo_candidate_review_classification_summary_v196_reference.json"
+      ],
+      "request_refs": [
+        "request:v71a:unknown"
+      ],
+      "request_scope_boundary_ref": "scope:v71a:odeu-diff:settlement-request"
+    },
+    {
+      "allowed_next_review_surfaces": [
+        "future_family_review"
+      ],
+      "allowed_ratification_actions": [
+        "defer_to_future_family"
+      ],
+      "candidate_ref": "candidate:internal:typed_adjudication_product_wedge",
+      "forbidden_downstream_roles": [
+        "commit_release_authority",
+        "contained_integration",
+        "dispatch_authority",
+        "implementation_task",
+        "product_authorization",
+        "runtime_permission"
+      ],
+      "non_implementation_guardrail": "No implementation and no release authority is granted.",
+      "ratification_source_refs": [
+        "apps/api/fixtures/repo_description/vnext_plus196/repo_candidate_pre_ratification_handoff_v196_reference.json",
+        "apps/api/fixtures/repo_description/vnext_plus196/repo_candidate_review_classification_summary_v196_reference.json"
+      ],
+      "request_refs": [
+        "request:v71a:product-wedge:future-family"
+      ],
+      "request_scope_boundary_ref": "scope:v71a:product-wedge:future-family"
+    },
+    {
+      "allowed_next_review_surfaces": [
+        "v71b_ratification_review"
+      ],
+      "allowed_ratification_actions": [
+        "request_ratification_review"
+      ],
+      "candidate_ref": "candidate:internal:self_evidencing_workflow_type_emergence",
+      "forbidden_downstream_roles": [
+        "commit_release_authority",
+        "contained_integration",
+        "dispatch_authority",
+        "implementation_task",
+        "product_authorization",
+        "runtime_permission"
+      ],
+      "non_implementation_guardrail": "No implementation and no release authority is granted.",
+      "ratification_source_refs": [
+        "apps/api/fixtures/repo_description/vnext_plus196/repo_candidate_pre_ratification_handoff_v196_reference.json",
+        "apps/api/fixtures/repo_description/vnext_plus196/repo_candidate_review_classification_summary_v196_reference.json"
+      ],
+      "request_refs": [
+        "request:v71a:self-evidencing:eligible"
+      ],
+      "request_scope_boundary_ref": "scope:v71a:self-evidencing:ratification-request"
+    }
+  ],
+  "review_id": "review:v71a:ratification-request-intake",
+  "schema": "repo_ratification_request_scope_boundary@1",
+  "snapshot_id": "vNext+197-prestart-on-main",
+  "source_set_id": "source-set:v70a:released-v69c-handoff"
+}

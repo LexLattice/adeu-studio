@@ -22,6 +22,11 @@ from .arc_series_cartography_derivation import (
     RepoArcCartographyGapScanReport,
 )
 from .arc_series_cartography_tools import RepoArcCartographyToolRunEvidence
+from .candidate_ratification_review import (
+    RepoCandidateRatificationRequest,
+    RepoRatificationAuthorityProfile,
+    RepoRatificationRequestScopeBoundary,
+)
 from .candidate_review_adversarial import (
     RepoCandidateAdversarialReviewMatrix,
     RepoCandidateReviewConflictRegister,
@@ -186,6 +191,15 @@ def main() -> None:
     candidate_pre_ratification_handoff_schema = (
         RepoCandidatePreRatificationHandoff.model_json_schema(by_alias=True)
     )
+    candidate_ratification_request_schema = RepoCandidateRatificationRequest.model_json_schema(
+        by_alias=True
+    )
+    ratification_authority_profile_schema = RepoRatificationAuthorityProfile.model_json_schema(
+        by_alias=True
+    )
+    ratification_request_scope_boundary_schema = (
+        RepoRatificationRequestScopeBoundary.model_json_schema(by_alias=True)
+    )
 
     _assert_no_absolute_path_material(dependency_register_v1_schema, repo_root_path=root)
     _assert_no_absolute_path_material(dependency_register_schema, repo_root_path=root)
@@ -240,6 +254,11 @@ def main() -> None:
     )
     _assert_no_absolute_path_material(
         candidate_pre_ratification_handoff_schema, repo_root_path=root
+    )
+    _assert_no_absolute_path_material(candidate_ratification_request_schema, repo_root_path=root)
+    _assert_no_absolute_path_material(ratification_authority_profile_schema, repo_root_path=root)
+    _assert_no_absolute_path_material(
+        ratification_request_scope_boundary_schema, repo_root_path=root
     )
 
     _write_schema(
@@ -649,6 +668,42 @@ def main() -> None:
     _write_schema(
         root / "spec" / "repo_candidate_pre_ratification_handoff.schema.json",
         candidate_pre_ratification_handoff_schema,
+    )
+    _write_schema(
+        root
+        / "packages"
+        / "adeu_repo_description"
+        / "schema"
+        / "repo_candidate_ratification_request.v1.json",
+        candidate_ratification_request_schema,
+    )
+    _write_schema(
+        root / "spec" / "repo_candidate_ratification_request.schema.json",
+        candidate_ratification_request_schema,
+    )
+    _write_schema(
+        root
+        / "packages"
+        / "adeu_repo_description"
+        / "schema"
+        / "repo_ratification_authority_profile.v1.json",
+        ratification_authority_profile_schema,
+    )
+    _write_schema(
+        root / "spec" / "repo_ratification_authority_profile.schema.json",
+        ratification_authority_profile_schema,
+    )
+    _write_schema(
+        root
+        / "packages"
+        / "adeu_repo_description"
+        / "schema"
+        / "repo_ratification_request_scope_boundary.v1.json",
+        ratification_request_scope_boundary_schema,
+    )
+    _write_schema(
+        root / "spec" / "repo_ratification_request_scope_boundary.schema.json",
+        ratification_request_scope_boundary_schema,
     )
 
 

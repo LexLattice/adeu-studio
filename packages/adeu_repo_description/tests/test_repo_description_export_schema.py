@@ -20,6 +20,7 @@ from adeu_repo_description import (
     REPO_CANDIDATE_INTAKE_PRE_V70_HANDOFF_SCHEMA,
     REPO_CANDIDATE_NON_ADOPTION_GUARDRAIL_SCHEMA,
     REPO_CANDIDATE_PRE_RATIFICATION_HANDOFF_SCHEMA,
+    REPO_CANDIDATE_RATIFICATION_REQUEST_SCHEMA,
     REPO_CANDIDATE_REVIEW_BOUNDARY_GUARDRAIL_SCHEMA,
     REPO_CANDIDATE_REVIEW_CLASSIFICATION_SUMMARY_SCHEMA,
     REPO_CANDIDATE_REVIEW_CONFLICT_REGISTER_SCHEMA,
@@ -32,6 +33,8 @@ from adeu_repo_description import (
     REPO_FAMILY_CLOSURE_REGISTER_SCHEMA,
     REPO_OPERATOR_INGRESS_CANDIDATE_BINDING_SCHEMA,
     REPO_OPTIMIZATION_REGISTER_SCHEMA,
+    REPO_RATIFICATION_AUTHORITY_PROFILE_SCHEMA,
+    REPO_RATIFICATION_REQUEST_SCOPE_BOUNDARY_SCHEMA,
     REPO_RECURSIVE_CANDIDATE_INTAKE_RECORD_SCHEMA,
     REPO_RECURSIVE_COORDINATE_EMISSION_PLAN_SCHEMA,
     REPO_RECURSIVE_WORKFLOW_RESIDUE_INTAKE_REPORT_SCHEMA,
@@ -295,6 +298,30 @@ def _schema_pairs() -> dict[str, tuple[Path, Path]]:
             / "schema"
             / "repo_candidate_pre_ratification_handoff.v1.json",
             root / "spec" / "repo_candidate_pre_ratification_handoff.schema.json",
+        ),
+        REPO_CANDIDATE_RATIFICATION_REQUEST_SCHEMA: (
+            root
+            / "packages"
+            / "adeu_repo_description"
+            / "schema"
+            / "repo_candidate_ratification_request.v1.json",
+            root / "spec" / "repo_candidate_ratification_request.schema.json",
+        ),
+        REPO_RATIFICATION_AUTHORITY_PROFILE_SCHEMA: (
+            root
+            / "packages"
+            / "adeu_repo_description"
+            / "schema"
+            / "repo_ratification_authority_profile.v1.json",
+            root / "spec" / "repo_ratification_authority_profile.schema.json",
+        ),
+        REPO_RATIFICATION_REQUEST_SCOPE_BOUNDARY_SCHEMA: (
+            root
+            / "packages"
+            / "adeu_repo_description"
+            / "schema"
+            / "repo_ratification_request_scope_boundary.v1.json",
+            root / "spec" / "repo_ratification_request_scope_boundary.schema.json",
         ),
     }
 
