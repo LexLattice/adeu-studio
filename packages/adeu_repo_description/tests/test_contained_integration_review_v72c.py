@@ -104,11 +104,12 @@ def _validate_reference_bundle_with(
     authority: RepoCommitReleaseAuthorityPosture | None = None,
     handoff: RepoPostIntegrationOutcomeReviewHandoff | None = None,
     closeout: RepoContainedIntegrationFamilyCloseoutAlignment | None = None,
+    effect: RepoIntegrationEffectSurfaceRegister | None = None,
     rollback: RepoIntegrationRollbackReadiness | None = None,
 ) -> None:
     validate_v72c_contained_integration_closeout_bundle(
         contained_integration_trial_record=_v72b_trial(),
-        integration_effect_surface_register=_v72b_effect(),
+        integration_effect_surface_register=effect or _v72b_effect(),
         integration_rollback_readiness=rollback or _v72b_rollback(),
         commit_release_authority_posture=authority or _v72c_authority(),
         post_integration_outcome_review_handoff=handoff or _v72c_handoff(),
@@ -258,3 +259,47 @@ def test_v202_bundle_rejects_ready_handoff_with_blocked_rollback() -> None:
 
     with pytest.raises(ValueError, match="blocked rollback"):
         _validate_reference_bundle_with(rollback=rollback)
+
+
+def test_v202_rejects_nonautomatic_authority_language_in_notes() -> None:
+    payload = _load_fixture(
+        "vnext_plus202",
+        "repo_post_integration_outcome_review_handoff_v202_reference.json",
+    )
+    payload["handoff_rows"][0]["limitation_note"] = "This row grants merge authority."
+
+    with pytest.raises(ValidationError, match="downstream authority"):
+        RepoPostIntegrationOutcomeReviewHandoff.model_validate(payload)
+
+
+def test_v202_bundle_rejects_effect_register_from_different_trial_record() -> None:
+    effect = _v72b_effect().model_copy(update={"trial_record_id": "trial-record:mismatch"})
+
+    with pytest.raises(ValueError, match="selected V72-B trial record"):
+        _validate_reference_bundle_with(effect=effect)
+
+
+def test_v202_bundle_rejects_rollback_readiness_from_different_effect_register() -> None:
+    rollback = _v72b_rollback().model_copy(
+        update={"effect_surface_register_id": "effect-register:mismatch"}
+    )
+
+    with pytest.raises(ValueError, match="selected V72-B trial/effect chain"):
+        _validate_reference_bundle_with(rollback=rollback)
+
+
+def test_v202_bundle_rejects_effect_gap_not_carried_by_handoff() -> None:
+    effect = _v72b_effect()
+    rows = list(effect.effect_rows)
+    rows[0] = rows[0].model_copy(
+        update={
+            "effect_posture": "effect_requires_later_review",
+            "effect_gap_refs": ["gap:v72b:self-evidencing:unresolved"],
+            "carried_forward_gap_refs": ["gap:v72b:self-evidencing:unresolved"],
+            "limitation_note": "Effect gap requires later review.",
+        }
+    )
+    effect = effect.model_copy(update={"effect_rows": rows})
+
+    with pytest.raises(ValueError, match="omit effect gaps"):
+        _validate_reference_bundle_with(effect=effect)

@@ -278,10 +278,20 @@ _V72C_FORBIDDEN_AUTHORITY_TERMS = (
     "automatic pr",
     "automatic merge",
     "automatic release",
+    "commit authority",
+    "commit authorized",
+    "merge authority",
+    "merge authorized",
+    "release authority",
+    "release authorized",
     "released truth claimed",
+    "product authorization",
     "product authorized",
+    "runtime permission",
     "runtime authorized",
+    "dispatch authority",
     "dispatch authorized",
+    "external contest authority",
     "external contest authorized",
     "outcome review complete",
     "v73 complete",
@@ -2591,6 +2601,18 @@ def validate_v72c_contained_integration_closeout_bundle(
     ):
         raise ValueError("authority posture must reference V72-B rollback readiness")
     if (
+        integration_effect_surface_register.trial_record_id
+        != contained_integration_trial_record.trial_record_id
+    ):
+        raise ValueError("effect surface register must reference the selected V72-B trial record")
+    if (
+        integration_rollback_readiness.trial_record_id
+        != contained_integration_trial_record.trial_record_id
+        or integration_rollback_readiness.effect_surface_register_id
+        != integration_effect_surface_register.effect_surface_register_id
+    ):
+        raise ValueError("rollback readiness must reference the selected V72-B trial/effect chain")
+    if (
         post_integration_outcome_review_handoff.authority_posture_id
         != commit_release_authority_posture.authority_posture_id
     ):
@@ -2698,7 +2720,7 @@ def validate_v72c_contained_integration_closeout_bundle(
                 for effect_ref in handoff.effect_refs
                 if effect_rows[effect_ref].effect_gap_refs
                 and not set(effect_rows[effect_ref].effect_gap_refs).issubset(
-                    set(effect_rows[effect_ref].carried_forward_gap_refs)
+                    set(handoff.carried_forward_gap_refs)
                 )
             ]
             if unresolved_effects:
