@@ -1,0 +1,150 @@
+{
+  "$defs": {
+    "RepoCandidatePreRatificationHandoffRow": {
+      "additionalProperties": false,
+      "properties": {
+        "adversarial_review_refs": {
+          "items": {
+            "type": "string"
+          },
+          "title": "Adversarial Review Refs",
+          "type": "array"
+        },
+        "blocking_conflict_refs": {
+          "items": {
+            "type": "string"
+          },
+          "title": "Blocking Conflict Refs",
+          "type": "array"
+        },
+        "candidate_ref": {
+          "title": "Candidate Ref",
+          "type": "string"
+        },
+        "classification_refs": {
+          "items": {
+            "type": "string"
+          },
+          "minItems": 1,
+          "title": "Classification Refs",
+          "type": "array"
+        },
+        "handoff_posture": {
+          "enum": [
+            "ready_for_v71_review",
+            "request_settlement_not_ratification",
+            "blocked_by_conflict",
+            "blocked_by_evidence_gap",
+            "blocked_by_authority_boundary",
+            "deferred_to_future_family",
+            "rejected_out_of_scope"
+          ],
+          "title": "Handoff Posture",
+          "type": "string"
+        },
+        "handoff_ref": {
+          "title": "Handoff Ref",
+          "type": "string"
+        },
+        "handoff_target": {
+          "enum": [
+            "v71_ratification_review",
+            "future_family_review",
+            "deferred_no_selection"
+          ],
+          "title": "Handoff Target",
+          "type": "string"
+        },
+        "non_authority_guardrail": {
+          "title": "Non Authority Guardrail",
+          "type": "string"
+        },
+        "required_resolution_surface": {
+          "enum": [
+            "v70c_classification_summary",
+            "v71_ratification_review",
+            "future_family_review",
+            "deferred_no_selection"
+          ],
+          "title": "Required Resolution Surface",
+          "type": "string"
+        },
+        "summary_ref": {
+          "title": "Summary Ref",
+          "type": "string"
+        },
+        "unresolved_gap_refs": {
+          "items": {
+            "type": "string"
+          },
+          "title": "Unresolved Gap Refs",
+          "type": "array"
+        }
+      },
+      "required": [
+        "handoff_ref",
+        "summary_ref",
+        "candidate_ref",
+        "handoff_target",
+        "handoff_posture",
+        "classification_refs",
+        "required_resolution_surface",
+        "non_authority_guardrail"
+      ],
+      "title": "RepoCandidatePreRatificationHandoffRow",
+      "type": "object"
+    }
+  },
+  "additionalProperties": false,
+  "properties": {
+    "handoff_register_id": {
+      "title": "Handoff Register Id",
+      "type": "string"
+    },
+    "handoff_rows": {
+      "items": {
+        "$ref": "#/$defs/RepoCandidatePreRatificationHandoffRow"
+      },
+      "minItems": 1,
+      "title": "Handoff Rows",
+      "type": "array"
+    },
+    "non_ratification_summary": {
+      "title": "Non Ratification Summary",
+      "type": "string"
+    },
+    "review_id": {
+      "title": "Review Id",
+      "type": "string"
+    },
+    "schema": {
+      "const": "repo_candidate_pre_ratification_handoff@1",
+      "default": "repo_candidate_pre_ratification_handoff@1",
+      "title": "Schema",
+      "type": "string"
+    },
+    "snapshot_id": {
+      "title": "Snapshot Id",
+      "type": "string"
+    },
+    "source_set_id": {
+      "title": "Source Set Id",
+      "type": "string"
+    },
+    "summary_register_id": {
+      "title": "Summary Register Id",
+      "type": "string"
+    }
+  },
+  "required": [
+    "handoff_register_id",
+    "review_id",
+    "snapshot_id",
+    "source_set_id",
+    "summary_register_id",
+    "handoff_rows",
+    "non_ratification_summary"
+  ],
+  "title": "RepoCandidatePreRatificationHandoff",
+  "type": "object"
+}

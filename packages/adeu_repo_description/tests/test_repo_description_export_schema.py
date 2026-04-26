@@ -19,7 +19,9 @@ from adeu_repo_description import (
     REPO_CANDIDATE_INTAKE_GAP_SCAN_SCHEMA,
     REPO_CANDIDATE_INTAKE_PRE_V70_HANDOFF_SCHEMA,
     REPO_CANDIDATE_NON_ADOPTION_GUARDRAIL_SCHEMA,
+    REPO_CANDIDATE_PRE_RATIFICATION_HANDOFF_SCHEMA,
     REPO_CANDIDATE_REVIEW_BOUNDARY_GUARDRAIL_SCHEMA,
+    REPO_CANDIDATE_REVIEW_CLASSIFICATION_SUMMARY_SCHEMA,
     REPO_CANDIDATE_REVIEW_CONFLICT_REGISTER_SCHEMA,
     REPO_CANDIDATE_REVIEW_GAP_SCAN_SCHEMA,
     REPO_CANDIDATE_SOURCE_REGISTER_SCHEMA,
@@ -277,6 +279,22 @@ def _schema_pairs() -> dict[str, tuple[Path, Path]]:
             / "schema"
             / "repo_candidate_review_gap_scan.v1.json",
             root / "spec" / "repo_candidate_review_gap_scan.schema.json",
+        ),
+        REPO_CANDIDATE_REVIEW_CLASSIFICATION_SUMMARY_SCHEMA: (
+            root
+            / "packages"
+            / "adeu_repo_description"
+            / "schema"
+            / "repo_candidate_review_classification_summary.v1.json",
+            root / "spec" / "repo_candidate_review_classification_summary.schema.json",
+        ),
+        REPO_CANDIDATE_PRE_RATIFICATION_HANDOFF_SCHEMA: (
+            root
+            / "packages"
+            / "adeu_repo_description"
+            / "schema"
+            / "repo_candidate_pre_ratification_handoff.v1.json",
+            root / "spec" / "repo_candidate_pre_ratification_handoff.schema.json",
         ),
     }
 

@@ -1,0 +1,70 @@
+{
+  "handoff_register_id": "repo_candidate_pre_ratification_handoff_ac99acdf3dd7515dabf92e20",
+  "handoff_rows": [
+    {
+      "adversarial_review_refs": [
+        "review-row:v70b:odeu-diff:negative-control"
+      ],
+      "blocking_conflict_refs": [
+        "relation:v70b:odeu-diff:model-output-divergence"
+      ],
+      "candidate_ref": "candidate:internal:odeu_conceptual_diff_report@1",
+      "classification_refs": [
+        "classification:v70a:odeu-diff:requires-adversarial-review"
+      ],
+      "handoff_posture": "blocked_by_conflict",
+      "handoff_ref": "handoff:v70c:odeu-diff:blocking-review",
+      "handoff_target": "v71_ratification_review",
+      "non_authority_guardrail": "Request later review only; not a decision.",
+      "required_resolution_surface": "v71_ratification_review",
+      "summary_ref": "summary:v70c:odeu-diff:blocking-review",
+      "unresolved_gap_refs": [
+        "gap:v70b:odeu-diff:missing-counterevidence"
+      ]
+    },
+    {
+      "adversarial_review_refs": [
+        "review-row:v70b:product-wedge:authority-boundary"
+      ],
+      "blocking_conflict_refs": [
+        "relation:v70b:product-wedge:authority-boundary"
+      ],
+      "candidate_ref": "candidate:internal:typed_adjudication_product_wedge",
+      "classification_refs": [
+        "classification:v70a:product-wedge:authority-boundary"
+      ],
+      "handoff_posture": "deferred_to_future_family",
+      "handoff_ref": "handoff:v70c:product-wedge:future-family",
+      "handoff_target": "future_family_review",
+      "non_authority_guardrail": "Request future review only; not a decision.",
+      "required_resolution_surface": "future_family_review",
+      "summary_ref": "summary:v70c:product-wedge:future-family",
+      "unresolved_gap_refs": [
+        "gap:v70b:product-wedge:v74-boundary"
+      ]
+    },
+    {
+      "adversarial_review_refs": [
+        "review-row:v70b:self-evidencing:supporting"
+      ],
+      "blocking_conflict_refs": [],
+      "candidate_ref": "candidate:internal:self_evidencing_workflow_type_emergence",
+      "classification_refs": [
+        "classification:v70a:self-evidencing:source-bound"
+      ],
+      "handoff_posture": "ready_for_v71_review",
+      "handoff_ref": "handoff:v70c:self-evidencing:ready-review",
+      "handoff_target": "v71_ratification_review",
+      "non_authority_guardrail": "Request later review only; not a decision.",
+      "required_resolution_surface": "v71_ratification_review",
+      "summary_ref": "summary:v70c:self-evidencing:ready-review",
+      "unresolved_gap_refs": []
+    }
+  ],
+  "non_ratification_summary": "V70-C handoff rows request later review only.",
+  "review_id": "review:v70c:summary-pre-ratification-handoff",
+  "schema": "repo_candidate_pre_ratification_handoff@1",
+  "snapshot_id": "vNext+196-prestart-on-main",
+  "source_set_id": "source-set:v70a:released-v69c-handoff",
+  "summary_register_id": "repo_candidate_review_classification_summary_63f96c1ed12f144d17c5f5b5"
+}

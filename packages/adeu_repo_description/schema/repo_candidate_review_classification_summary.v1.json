@@ -1,0 +1,188 @@
+{
+  "$defs": {
+    "RepoCandidateReviewClassificationSummaryRow": {
+      "additionalProperties": false,
+      "properties": {
+        "adversarial_review_refs": {
+          "items": {
+            "type": "string"
+          },
+          "title": "Adversarial Review Refs",
+          "type": "array"
+        },
+        "candidate_ref": {
+          "title": "Candidate Ref",
+          "type": "string"
+        },
+        "classification_refs": {
+          "items": {
+            "type": "string"
+          },
+          "minItems": 1,
+          "title": "Classification Refs",
+          "type": "array"
+        },
+        "conflict_refs": {
+          "items": {
+            "type": "string"
+          },
+          "title": "Conflict Refs",
+          "type": "array"
+        },
+        "gap_refs": {
+          "items": {
+            "type": "string"
+          },
+          "title": "Gap Refs",
+          "type": "array"
+        },
+        "handoff_readiness": {
+          "enum": [
+            "ready_for_later_review",
+            "blocked_by_conflict",
+            "blocked_by_evidence_gap",
+            "blocked_by_authority_boundary",
+            "deferred_to_future_family",
+            "rejected_out_of_scope"
+          ],
+          "title": "Handoff Readiness",
+          "type": "string"
+        },
+        "limitation_note": {
+          "title": "Limitation Note",
+          "type": "string"
+        },
+        "non_authority_guardrail": {
+          "title": "Non Authority Guardrail",
+          "type": "string"
+        },
+        "summary_posture": {
+          "enum": [
+            "classified_ready_for_later_review",
+            "classified_needs_more_evidence",
+            "classified_blocked_by_conflict",
+            "classified_blocked_by_authority_boundary",
+            "classified_deferred_to_future_family",
+            "classified_rejected_out_of_scope"
+          ],
+          "title": "Summary Posture",
+          "type": "string"
+        },
+        "summary_ref": {
+          "title": "Summary Ref",
+          "type": "string"
+        }
+      },
+      "required": [
+        "summary_ref",
+        "candidate_ref",
+        "classification_refs",
+        "summary_posture",
+        "handoff_readiness",
+        "non_authority_guardrail",
+        "limitation_note"
+      ],
+      "title": "RepoCandidateReviewClassificationSummaryRow",
+      "type": "object"
+    }
+  },
+  "additionalProperties": false,
+  "properties": {
+    "adversarial_review_refs": {
+      "items": {
+        "type": "string"
+      },
+      "minItems": 1,
+      "title": "Adversarial Review Refs",
+      "type": "array"
+    },
+    "classification_record_id": {
+      "title": "Classification Record Id",
+      "type": "string"
+    },
+    "classification_refs": {
+      "items": {
+        "type": "string"
+      },
+      "minItems": 1,
+      "title": "Classification Refs",
+      "type": "array"
+    },
+    "conflict_refs": {
+      "items": {
+        "type": "string"
+      },
+      "title": "Conflict Refs",
+      "type": "array"
+    },
+    "conflict_register_id": {
+      "title": "Conflict Register Id",
+      "type": "string"
+    },
+    "gap_refs": {
+      "items": {
+        "type": "string"
+      },
+      "title": "Gap Refs",
+      "type": "array"
+    },
+    "gap_scan_id": {
+      "title": "Gap Scan Id",
+      "type": "string"
+    },
+    "non_ratification_summary": {
+      "title": "Non Ratification Summary",
+      "type": "string"
+    },
+    "review_id": {
+      "title": "Review Id",
+      "type": "string"
+    },
+    "review_matrix_id": {
+      "title": "Review Matrix Id",
+      "type": "string"
+    },
+    "schema": {
+      "const": "repo_candidate_review_classification_summary@1",
+      "default": "repo_candidate_review_classification_summary@1",
+      "title": "Schema",
+      "type": "string"
+    },
+    "snapshot_id": {
+      "title": "Snapshot Id",
+      "type": "string"
+    },
+    "source_set_id": {
+      "title": "Source Set Id",
+      "type": "string"
+    },
+    "summary_register_id": {
+      "title": "Summary Register Id",
+      "type": "string"
+    },
+    "summary_rows": {
+      "items": {
+        "$ref": "#/$defs/RepoCandidateReviewClassificationSummaryRow"
+      },
+      "minItems": 1,
+      "title": "Summary Rows",
+      "type": "array"
+    }
+  },
+  "required": [
+    "summary_register_id",
+    "review_id",
+    "snapshot_id",
+    "source_set_id",
+    "classification_record_id",
+    "review_matrix_id",
+    "conflict_register_id",
+    "gap_scan_id",
+    "classification_refs",
+    "adversarial_review_refs",
+    "summary_rows",
+    "non_ratification_summary"
+  ],
+  "title": "RepoCandidateReviewClassificationSummary",
+  "type": "object"
+}
