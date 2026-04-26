@@ -1,0 +1,39 @@
+{
+  "authority_posture_id": "repo_commit_release_authority_posture_36a35b16cf267f29d308a194",
+  "effect_surface_register_id": "repo_integration_effect_surface_register_62f1efe5fcf8008ea68edc54",
+  "handoff_rows": [
+    {
+      "authority_posture_refs": [
+        "authority:v72c:self-evidencing:maintainer-required"
+      ],
+      "candidate_ref": "candidate:internal:self_evidencing_workflow_type_emergence",
+      "carried_forward_dissent_refs": [],
+      "carried_forward_gap_refs": [
+        "gap:v72b:self-evidencing:unresolved"
+      ],
+      "effect_refs": [
+        "effect:v72b:self-evidencing:schema-surface"
+      ],
+      "handoff_posture": "ready_for_v73_review",
+      "handoff_ref": "handoff:v72c:self-evidencing:v73-review",
+      "handoff_target": "v73_outcome_review",
+      "limitation_note": "Ready only for later V73 outcome review over the recorded trial.",
+      "non_release_guardrail": "No downstream action before V73 outcome review and later authority.",
+      "required_next_surface": "v73_contained_integration_outcome_review_entry",
+      "rollback_refs": [
+        "rollback:v72b:self-evidencing:plan-present"
+      ],
+      "trial_refs": [
+        "trial:v72b:self-evidencing:dry-run"
+      ]
+    }
+  ],
+  "non_authority_summary": "Authority posture and handoff records are review-only: no automatic commit, no PR update, no merge, no release, no released truth, no product authorization, no runtime permission, no dispatch authority, and no V73 outcome review.",
+  "post_integration_handoff_id": "repo_post_integration_outcome_review_handoff_25b05bb3154fb4fd1dab3bf4",
+  "review_id": "review:v72c:integration-authority-boundary",
+  "rollback_readiness_id": "repo_integration_rollback_readiness_ecfc89d64b091077928e3c76",
+  "schema": "repo_post_integration_outcome_review_handoff@1",
+  "snapshot_id": "vNext+200-prestart-on-main",
+  "source_set_id": "source-set:v70a:released-v69c-handoff",
+  "trial_record_id": "repo_contained_integration_trial_record_ae85e47c69f8720d6130dfa6"
+}

@@ -1,0 +1,41 @@
+{
+  "authority_posture_id": "repo_commit_release_authority_posture_36a35b16cf267f29d308a194",
+  "authority_posture_rows": [
+    {
+      "authority_posture_ref": "authority:v72c:self-evidencing:maintainer-required",
+      "candidate_ref": "candidate:internal:self_evidencing_workflow_type_emergence",
+      "commit_intent_posture": "commit_intent_requires_maintainer",
+      "forbidden_automatic_actions": [
+        "automatic_commit",
+        "automatic_dispatch",
+        "automatic_external_contest_action",
+        "automatic_pr_update",
+        "automatic_product_authorization",
+        "automatic_release",
+        "automatic_runtime_permission"
+      ],
+      "limitation_note": "Maintainer and later-lock review are required before downstream action.",
+      "merge_posture": "no_merge_authority",
+      "pr_posture": "no_pr_update_authority",
+      "release_posture": "release_requires_later_lock",
+      "released_truth_posture": "released_truth_not_claimed",
+      "required_human_authority_refs": [
+        "authority-profile:v71:maintainer-review",
+        "docs/LOCKED_CONTINUATION_vNEXT_PLUS202.md"
+      ],
+      "rollback_refs": [
+        "rollback:v72b:self-evidencing:plan-present"
+      ],
+      "trial_refs": [
+        "trial:v72b:self-evidencing:dry-run"
+      ]
+    }
+  ],
+  "non_authority_summary": "Authority posture and handoff records are review-only: no automatic commit, no PR update, no merge, no release, no released truth, no product authorization, no runtime permission, no dispatch authority, and no V73 outcome review.",
+  "review_id": "review:v72c:integration-authority-boundary",
+  "rollback_readiness_id": "repo_integration_rollback_readiness_ecfc89d64b091077928e3c76",
+  "schema": "repo_commit_release_authority_posture@1",
+  "snapshot_id": "vNext+200-prestart-on-main",
+  "source_set_id": "source-set:v70a:released-v69c-handoff",
+  "trial_record_id": "repo_contained_integration_trial_record_ae85e47c69f8720d6130dfa6"
+}

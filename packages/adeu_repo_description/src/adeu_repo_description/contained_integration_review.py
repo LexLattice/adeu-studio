@@ -32,6 +32,13 @@ REPO_INTEGRATION_NON_RELEASE_GUARDRAIL_SCHEMA = "repo_integration_non_release_gu
 REPO_CONTAINED_INTEGRATION_TRIAL_RECORD_SCHEMA = "repo_contained_integration_trial_record@1"
 REPO_INTEGRATION_EFFECT_SURFACE_REGISTER_SCHEMA = "repo_integration_effect_surface_register@1"
 REPO_INTEGRATION_ROLLBACK_READINESS_SCHEMA = "repo_integration_rollback_readiness@1"
+REPO_COMMIT_RELEASE_AUTHORITY_POSTURE_SCHEMA = "repo_commit_release_authority_posture@1"
+REPO_POST_INTEGRATION_OUTCOME_REVIEW_HANDOFF_SCHEMA = (
+    "repo_post_integration_outcome_review_handoff@1"
+)
+REPO_CONTAINED_INTEGRATION_FAMILY_CLOSEOUT_ALIGNMENT_SCHEMA = (
+    "repo_contained_integration_family_closeout_alignment@1"
+)
 
 ContainmentPlanPosture = Literal[
     "eligible_for_containment_planning",
@@ -148,6 +155,56 @@ IntegrationRollbackPosture = Literal[
     "rollback_blocked",
     "rollback_not_applicable",
 ]
+CommitIntentPosture = Literal[
+    "no_commit_intent",
+    "commit_intent_requires_maintainer",
+    "commit_intent_not_selected",
+]
+PullRequestPosture = Literal[
+    "no_pr_update_authority",
+    "pr_update_requires_maintainer",
+    "pr_update_not_selected",
+]
+MergePosture = Literal[
+    "no_merge_authority",
+    "merge_requires_maintainer",
+    "merge_not_selected",
+]
+ReleasePosture = Literal[
+    "no_release_authority",
+    "release_requires_later_lock",
+    "release_not_selected",
+]
+ReleasedTruthPosture = Literal["released_truth_not_claimed"]
+ForbiddenAutomaticAction = Literal[
+    "automatic_commit",
+    "automatic_pr_update",
+    "automatic_merge",
+    "automatic_release",
+    "automatic_product_authorization",
+    "automatic_runtime_permission",
+    "automatic_dispatch",
+    "automatic_external_contest_action",
+]
+PostIntegrationHandoffTarget = Literal[
+    "v73_outcome_review",
+    "future_family_review",
+    "deferred_no_selection",
+]
+PostIntegrationHandoffPosture = Literal[
+    "ready_for_v73_review",
+    "blocked_by_rollback",
+    "blocked_by_effect_gap",
+    "blocked_by_authority_boundary",
+    "deferred_to_future_family",
+    "rejected_out_of_scope",
+]
+ContainedIntegrationFamilyCloseoutPosture = Literal[
+    "v72_family_closed_for_review_handoff",
+    "blocked_by_unresolved_authority_boundary",
+    "blocked_by_unresolved_effect_gap",
+    "future_family_only",
+]
 
 _V71C_AMENDMENT_SCOPE_FIXTURE = (
     "apps/api/fixtures/repo_description/vnext_plus199/"
@@ -215,6 +272,49 @@ _V72B_NON_AUTHORITY_SUMMARY = (
     "Trial records are review-only: no accepted repository truth, no commit, "
     "no merge, no release, no product authorization, no runtime permission, "
     "no dispatch authority, and no V73 outcome review."
+)
+_V72C_FORBIDDEN_AUTHORITY_TERMS = (
+    "automatic commit",
+    "automatic pr",
+    "automatic merge",
+    "automatic release",
+    "commit authority",
+    "commit authorized",
+    "merge authority",
+    "merge authorized",
+    "release authority",
+    "release authorized",
+    "released truth claimed",
+    "product authorization",
+    "product authorized",
+    "runtime permission",
+    "runtime authorized",
+    "dispatch authority",
+    "dispatch authorized",
+    "external contest authority",
+    "external contest authorized",
+    "outcome review complete",
+    "v73 complete",
+)
+_V72C_REQUIRED_FORBIDDEN_ACTIONS: set[ForbiddenAutomaticAction] = {
+    "automatic_commit",
+    "automatic_pr_update",
+    "automatic_merge",
+    "automatic_release",
+    "automatic_product_authorization",
+    "automatic_runtime_permission",
+    "automatic_dispatch",
+    "automatic_external_contest_action",
+}
+_V72C_NON_AUTHORITY_SUMMARY = (
+    "Authority posture and handoff records are review-only: no automatic commit, "
+    "no PR update, no merge, no release, no released truth, no product authorization, "
+    "no runtime permission, no dispatch authority, and no V73 outcome review."
+)
+_V72C_FAMILY_CLOSEOUT_SUMMARY = (
+    "V72 family closeout records containment review only: no automatic commit, "
+    "no PR update, no merge, no release, no released truth, no product authorization, "
+    "no runtime permission, no dispatch authority, and no V73 outcome review."
 )
 
 
@@ -284,6 +384,49 @@ def _v72b_non_authority_summary(value: str, *, field_name: str) -> str:
         raise ValueError(f"{field_name} must state {', '.join(missing)}")
     if any(term in lowered for term in ("commit authorized", "release authorized")):
         raise ValueError(f"{field_name} may not authorize downstream action")
+    return normalized
+
+
+def _v72c_note(value: str, *, field_name: str) -> str:
+    normalized = _non_empty(value, field_name=field_name)
+    lowered = normalized.lower()
+    if any(term in lowered for term in _V72C_FORBIDDEN_AUTHORITY_TERMS):
+        raise ValueError(f"{field_name} may not carry downstream authority")
+    return normalized
+
+
+def _v72c_non_authority_summary(value: str, *, field_name: str) -> str:
+    normalized = _non_empty(value, field_name=field_name)
+    lowered = normalized.lower()
+    required = (
+        "no automatic commit",
+        "no pr update",
+        "no merge",
+        "no release",
+        "no released truth",
+        "no product",
+        "no runtime",
+        "no dispatch",
+        "no v73 outcome review",
+    )
+    missing = [phrase for phrase in required if phrase not in lowered]
+    if missing:
+        raise ValueError(f"{field_name} must state {', '.join(missing)}")
+    if any(term in lowered for term in ("merge authorized", "release authorized")):
+        raise ValueError(f"{field_name} may not authorize downstream action")
+    return normalized
+
+
+def _v72c_authority_ref(value: str, *, field_name: str) -> str:
+    normalized = _non_empty(value, field_name=field_name)
+    if " " in normalized:
+        raise ValueError(f"{field_name} must be a concrete ref, not prose")
+    if (
+        ":" not in normalized
+        and not normalized.endswith(".md")
+        and not normalized.endswith(".json")
+    ):
+        raise ValueError(f"{field_name} must include a namespace or concrete artifact ref")
     return normalized
 
 
@@ -2063,3 +2206,819 @@ def derive_v72b_repo_contained_integration_trial_bundle(
         integration_rollback_readiness=rollback,
     )
     return plan, target, guardrail, trial, effect, rollback
+
+
+class RepoCommitReleaseAuthorityPostureRow(_CartographyBase):
+    authority_posture_ref: str
+    candidate_ref: str
+    trial_refs: list[str] = Field(min_length=1)
+    rollback_refs: list[str] = Field(min_length=1)
+    commit_intent_posture: CommitIntentPosture
+    pr_posture: PullRequestPosture
+    merge_posture: MergePosture
+    release_posture: ReleasePosture
+    released_truth_posture: ReleasedTruthPosture
+    required_human_authority_refs: list[str] = Field(default_factory=list)
+    forbidden_automatic_actions: list[ForbiddenAutomaticAction] = Field(min_length=1)
+    limitation_note: str
+
+    @model_validator(mode="after")
+    def _validate_authority_row(self) -> RepoCommitReleaseAuthorityPostureRow:
+        object.__setattr__(
+            self,
+            "authority_posture_ref",
+            _non_empty(self.authority_posture_ref, field_name="authority_posture_ref"),
+        )
+        object.__setattr__(
+            self,
+            "candidate_ref",
+            _non_empty(self.candidate_ref, field_name="candidate_ref"),
+        )
+        for field_name in ("trial_refs", "rollback_refs"):
+            object.__setattr__(
+                self,
+                field_name,
+                _sorted_unique(getattr(self, field_name), field_name=field_name),
+            )
+        human_refs = sorted(
+            _v72c_authority_ref(value, field_name="required_human_authority_refs")
+            for value in self.required_human_authority_refs
+        )
+        if len(set(human_refs)) != len(human_refs):
+            raise ValueError("required_human_authority_refs values must be unique")
+        object.__setattr__(self, "required_human_authority_refs", human_refs)
+        object.__setattr__(
+            self,
+            "forbidden_automatic_actions",
+            _sorted_unique(
+                self.forbidden_automatic_actions,
+                field_name="forbidden_automatic_actions",
+            ),
+        )
+        object.__setattr__(
+            self,
+            "limitation_note",
+            _v72c_note(self.limitation_note, field_name="limitation_note"),
+        )
+        missing_actions = sorted(
+            _V72C_REQUIRED_FORBIDDEN_ACTIONS - set(self.forbidden_automatic_actions)
+        )
+        if missing_actions:
+            raise ValueError(f"authority rows must forbid automatic actions: {missing_actions}")
+        if self.released_truth_posture != "released_truth_not_claimed":
+            raise ValueError("V72-C authority posture cannot claim released truth")
+        if (
+            self.commit_intent_posture == "commit_intent_requires_maintainer"
+            or self.pr_posture == "pr_update_requires_maintainer"
+            or self.merge_posture == "merge_requires_maintainer"
+            or self.release_posture == "release_requires_later_lock"
+        ) and not self.required_human_authority_refs:
+            raise ValueError("maintainer or later-lock postures require human authority refs")
+        return self
+
+
+class RepoCommitReleaseAuthorityPosture(_CartographyBase):
+    schema: Literal["repo_commit_release_authority_posture@1"] = (
+        REPO_COMMIT_RELEASE_AUTHORITY_POSTURE_SCHEMA
+    )
+    authority_posture_id: str
+    review_id: str
+    snapshot_id: str
+    source_set_id: str
+    trial_record_id: str
+    rollback_readiness_id: str
+    authority_posture_rows: list[RepoCommitReleaseAuthorityPostureRow] = Field(min_length=1)
+    non_authority_summary: str
+
+    @model_validator(mode="after")
+    def _validate_authority_posture(self) -> RepoCommitReleaseAuthorityPosture:
+        for field_name in (
+            "authority_posture_id",
+            "review_id",
+            "snapshot_id",
+            "source_set_id",
+            "trial_record_id",
+            "rollback_readiness_id",
+        ):
+            object.__setattr__(
+                self,
+                field_name,
+                _non_empty(getattr(self, field_name), field_name=field_name),
+            )
+        object.__setattr__(
+            self,
+            "authority_posture_rows",
+            _sorted_unique_by_ref(
+                self.authority_posture_rows,
+                attr="authority_posture_ref",
+                field_name="authority_posture_rows",
+            ),
+        )
+        object.__setattr__(
+            self,
+            "non_authority_summary",
+            _v72c_non_authority_summary(
+                self.non_authority_summary,
+                field_name="non_authority_summary",
+            ),
+        )
+        expected_id = _surface_id(
+            "repo_commit_release_authority_posture",
+            REPO_COMMIT_RELEASE_AUTHORITY_POSTURE_SCHEMA,
+            self.model_dump(mode="json"),
+            "authority_posture_id",
+        )
+        if self.authority_posture_id != expected_id:
+            raise ValueError("authority_posture_id must match canonical full payload hash identity")
+        return self
+
+
+class RepoPostIntegrationOutcomeReviewHandoffRow(_CartographyBase):
+    handoff_ref: str
+    candidate_ref: str
+    trial_refs: list[str] = Field(min_length=1)
+    effect_refs: list[str] = Field(default_factory=list)
+    rollback_refs: list[str] = Field(min_length=1)
+    authority_posture_refs: list[str] = Field(min_length=1)
+    handoff_target: PostIntegrationHandoffTarget
+    handoff_posture: PostIntegrationHandoffPosture
+    required_next_surface: str
+    carried_forward_gap_refs: list[str] = Field(default_factory=list)
+    carried_forward_dissent_refs: list[str] = Field(default_factory=list)
+    non_release_guardrail: str
+    limitation_note: str
+
+    @model_validator(mode="after")
+    def _validate_handoff_row(self) -> RepoPostIntegrationOutcomeReviewHandoffRow:
+        object.__setattr__(
+            self, "handoff_ref", _non_empty(self.handoff_ref, field_name="handoff_ref")
+        )
+        object.__setattr__(
+            self,
+            "candidate_ref",
+            _non_empty(self.candidate_ref, field_name="candidate_ref"),
+        )
+        for field_name in (
+            "trial_refs",
+            "effect_refs",
+            "rollback_refs",
+            "authority_posture_refs",
+            "carried_forward_gap_refs",
+            "carried_forward_dissent_refs",
+        ):
+            object.__setattr__(
+                self,
+                field_name,
+                _sorted_unique(getattr(self, field_name), field_name=field_name),
+            )
+        object.__setattr__(
+            self,
+            "required_next_surface",
+            _non_empty(self.required_next_surface, field_name="required_next_surface"),
+        )
+        object.__setattr__(
+            self,
+            "non_release_guardrail",
+            _v72c_note(self.non_release_guardrail, field_name="non_release_guardrail"),
+        )
+        object.__setattr__(
+            self,
+            "limitation_note",
+            _v72c_note(self.limitation_note, field_name="limitation_note"),
+        )
+        if self.handoff_posture == "ready_for_v73_review":
+            if self.handoff_target != "v73_outcome_review":
+                raise ValueError("ready handoffs must target V73 outcome review")
+            if not self.effect_refs:
+                raise ValueError("ready V73 handoffs require effect refs")
+            if self.carried_forward_gap_refs:
+                raise ValueError("ready V73 handoffs cannot carry unresolved effect gaps")
+        if self.handoff_posture == "blocked_by_effect_gap" and not (
+            self.carried_forward_gap_refs or "gap" in self.limitation_note.lower()
+        ):
+            raise ValueError("effect-gap-blocked handoffs must identify carried gaps")
+        if self.handoff_posture == "blocked_by_rollback" and "rollback" not in (
+            self.limitation_note.lower() + " " + self.non_release_guardrail.lower()
+        ):
+            raise ValueError("rollback-blocked handoffs must identify rollback boundary")
+        if (
+            self.candidate_ref == "candidate:internal:typed_adjudication_product_wedge"
+            and self.handoff_posture == "ready_for_v73_review"
+        ):
+            raise ValueError("product wedge cannot be ready for post-integration outcome review")
+        return self
+
+
+class RepoPostIntegrationOutcomeReviewHandoff(_CartographyBase):
+    schema: Literal["repo_post_integration_outcome_review_handoff@1"] = (
+        REPO_POST_INTEGRATION_OUTCOME_REVIEW_HANDOFF_SCHEMA
+    )
+    post_integration_handoff_id: str
+    review_id: str
+    snapshot_id: str
+    source_set_id: str
+    authority_posture_id: str
+    trial_record_id: str
+    effect_surface_register_id: str
+    rollback_readiness_id: str
+    handoff_rows: list[RepoPostIntegrationOutcomeReviewHandoffRow] = Field(min_length=1)
+    non_authority_summary: str
+
+    @model_validator(mode="after")
+    def _validate_handoff(self) -> RepoPostIntegrationOutcomeReviewHandoff:
+        for field_name in (
+            "post_integration_handoff_id",
+            "review_id",
+            "snapshot_id",
+            "source_set_id",
+            "authority_posture_id",
+            "trial_record_id",
+            "effect_surface_register_id",
+            "rollback_readiness_id",
+        ):
+            object.__setattr__(
+                self,
+                field_name,
+                _non_empty(getattr(self, field_name), field_name=field_name),
+            )
+        object.__setattr__(
+            self,
+            "handoff_rows",
+            _sorted_unique_by_ref(self.handoff_rows, attr="handoff_ref", field_name="handoff_rows"),
+        )
+        object.__setattr__(
+            self,
+            "non_authority_summary",
+            _v72c_non_authority_summary(
+                self.non_authority_summary,
+                field_name="non_authority_summary",
+            ),
+        )
+        expected_id = _surface_id(
+            "repo_post_integration_outcome_review_handoff",
+            REPO_POST_INTEGRATION_OUTCOME_REVIEW_HANDOFF_SCHEMA,
+            self.model_dump(mode="json"),
+            "post_integration_handoff_id",
+        )
+        if self.post_integration_handoff_id != expected_id:
+            raise ValueError(
+                "post_integration_handoff_id must match canonical full payload hash identity"
+            )
+        return self
+
+
+class RepoContainedIntegrationFamilyCloseoutAlignmentRow(_CartographyBase):
+    alignment_ref: str
+    family_ref: Literal["V72"]
+    closed_slices: list[str] = Field(min_length=1)
+    closed_surface_refs: list[str] = Field(min_length=1)
+    candidate_refs: list[str] = Field(min_length=1)
+    blocked_candidate_refs: list[str] = Field(default_factory=list)
+    trial_refs: list[str] = Field(min_length=1)
+    rollback_refs: list[str] = Field(min_length=1)
+    authority_posture_refs: list[str] = Field(min_length=1)
+    handoff_refs: list[str] = Field(min_length=1)
+    future_family_refs: list[str] = Field(default_factory=list)
+    closeout_posture: ContainedIntegrationFamilyCloseoutPosture
+    non_authority_guardrails: list[str] = Field(min_length=1)
+    limitation_note: str
+
+    @model_validator(mode="after")
+    def _validate_alignment_row(self) -> RepoContainedIntegrationFamilyCloseoutAlignmentRow:
+        object.__setattr__(
+            self,
+            "alignment_ref",
+            _non_empty(self.alignment_ref, field_name="alignment_ref"),
+        )
+        for field_name in (
+            "closed_slices",
+            "closed_surface_refs",
+            "candidate_refs",
+            "blocked_candidate_refs",
+            "trial_refs",
+            "rollback_refs",
+            "authority_posture_refs",
+            "handoff_refs",
+            "future_family_refs",
+            "non_authority_guardrails",
+        ):
+            object.__setattr__(
+                self,
+                field_name,
+                _sorted_unique(getattr(self, field_name), field_name=field_name),
+            )
+        object.__setattr__(
+            self,
+            "limitation_note",
+            _v72c_note(self.limitation_note, field_name="limitation_note"),
+        )
+        if set(self.closed_slices) != {"V72-A", "V72-B", "V72-C"}:
+            raise ValueError("V72 closeout alignment must cover V72-A, V72-B, and V72-C")
+        if self.closeout_posture == "v72_family_closed_for_review_handoff" and not any(
+            ref.startswith("handoff:v72c:") for ref in self.handoff_refs
+        ):
+            raise ValueError("closed V72 closeout rows require V72-C handoff refs")
+        return self
+
+
+class RepoContainedIntegrationFamilyCloseoutAlignment(_CartographyBase):
+    schema: Literal["repo_contained_integration_family_closeout_alignment@1"] = (
+        REPO_CONTAINED_INTEGRATION_FAMILY_CLOSEOUT_ALIGNMENT_SCHEMA
+    )
+    family_closeout_alignment_id: str
+    review_id: str
+    snapshot_id: str
+    source_set_id: str
+    authority_posture_id: str
+    post_integration_handoff_id: str
+    alignment_rows: list[RepoContainedIntegrationFamilyCloseoutAlignmentRow] = Field(min_length=1)
+    non_authority_summary: str
+
+    @model_validator(mode="after")
+    def _validate_closeout_alignment(self) -> RepoContainedIntegrationFamilyCloseoutAlignment:
+        for field_name in (
+            "family_closeout_alignment_id",
+            "review_id",
+            "snapshot_id",
+            "source_set_id",
+            "authority_posture_id",
+            "post_integration_handoff_id",
+        ):
+            object.__setattr__(
+                self,
+                field_name,
+                _non_empty(getattr(self, field_name), field_name=field_name),
+            )
+        object.__setattr__(
+            self,
+            "alignment_rows",
+            _sorted_unique_by_ref(
+                self.alignment_rows,
+                attr="alignment_ref",
+                field_name="alignment_rows",
+            ),
+        )
+        object.__setattr__(
+            self,
+            "non_authority_summary",
+            _v72c_non_authority_summary(
+                self.non_authority_summary,
+                field_name="non_authority_summary",
+            ),
+        )
+        expected_id = _surface_id(
+            "repo_contained_integration_family_closeout_alignment",
+            REPO_CONTAINED_INTEGRATION_FAMILY_CLOSEOUT_ALIGNMENT_SCHEMA,
+            self.model_dump(mode="json"),
+            "family_closeout_alignment_id",
+        )
+        if self.family_closeout_alignment_id != expected_id:
+            raise ValueError(
+                "family_closeout_alignment_id must match canonical full payload hash identity"
+            )
+        return self
+
+
+def validate_v72c_contained_integration_closeout_bundle(
+    *,
+    contained_integration_trial_record: RepoContainedIntegrationTrialRecord,
+    integration_effect_surface_register: RepoIntegrationEffectSurfaceRegister,
+    integration_rollback_readiness: RepoIntegrationRollbackReadiness,
+    commit_release_authority_posture: RepoCommitReleaseAuthorityPosture,
+    post_integration_outcome_review_handoff: RepoPostIntegrationOutcomeReviewHandoff,
+    contained_integration_family_closeout_alignment: (
+        RepoContainedIntegrationFamilyCloseoutAlignment
+    ),
+) -> None:
+    if (
+        commit_release_authority_posture.trial_record_id
+        != contained_integration_trial_record.trial_record_id
+    ):
+        raise ValueError("authority posture must reference V72-B trial record")
+    if (
+        commit_release_authority_posture.rollback_readiness_id
+        != integration_rollback_readiness.rollback_readiness_id
+    ):
+        raise ValueError("authority posture must reference V72-B rollback readiness")
+    if (
+        integration_effect_surface_register.trial_record_id
+        != contained_integration_trial_record.trial_record_id
+    ):
+        raise ValueError("effect surface register must reference the selected V72-B trial record")
+    if (
+        integration_rollback_readiness.trial_record_id
+        != contained_integration_trial_record.trial_record_id
+        or integration_rollback_readiness.effect_surface_register_id
+        != integration_effect_surface_register.effect_surface_register_id
+    ):
+        raise ValueError("rollback readiness must reference the selected V72-B trial/effect chain")
+    if (
+        post_integration_outcome_review_handoff.authority_posture_id
+        != commit_release_authority_posture.authority_posture_id
+    ):
+        raise ValueError("post-integration handoff must reference authority posture")
+    if (
+        post_integration_outcome_review_handoff.trial_record_id
+        != contained_integration_trial_record.trial_record_id
+        or post_integration_outcome_review_handoff.effect_surface_register_id
+        != integration_effect_surface_register.effect_surface_register_id
+        or post_integration_outcome_review_handoff.rollback_readiness_id
+        != integration_rollback_readiness.rollback_readiness_id
+    ):
+        raise ValueError("post-integration handoff must reference V72-B trial/effect/rollback")
+    if (
+        contained_integration_family_closeout_alignment.authority_posture_id
+        != commit_release_authority_posture.authority_posture_id
+        or contained_integration_family_closeout_alignment.post_integration_handoff_id
+        != post_integration_outcome_review_handoff.post_integration_handoff_id
+    ):
+        raise ValueError("family closeout alignment must reference V72-C surfaces")
+    if not (
+        commit_release_authority_posture.review_id
+        == post_integration_outcome_review_handoff.review_id
+        == contained_integration_family_closeout_alignment.review_id
+    ):
+        raise ValueError("V72-C review_id must match across authority/handoff/closeout")
+    if not (
+        commit_release_authority_posture.source_set_id
+        == contained_integration_trial_record.source_set_id
+        == integration_effect_surface_register.source_set_id
+        == integration_rollback_readiness.source_set_id
+        == post_integration_outcome_review_handoff.source_set_id
+        == contained_integration_family_closeout_alignment.source_set_id
+        and commit_release_authority_posture.snapshot_id
+        == contained_integration_trial_record.snapshot_id
+        == integration_effect_surface_register.snapshot_id
+        == integration_rollback_readiness.snapshot_id
+        == post_integration_outcome_review_handoff.snapshot_id
+        == contained_integration_family_closeout_alignment.snapshot_id
+    ):
+        raise ValueError("V72-C source_set_id and snapshot_id must match across surfaces")
+
+    trial_rows = {row.trial_ref: row for row in contained_integration_trial_record.trial_rows}
+    effect_rows = {row.effect_ref: row for row in integration_effect_surface_register.effect_rows}
+    rollback_rows = {row.rollback_ref: row for row in integration_rollback_readiness.rollback_rows}
+    authority_rows = {
+        row.authority_posture_ref: row
+        for row in commit_release_authority_posture.authority_posture_rows
+    }
+    handoff_rows = {
+        row.handoff_ref: row for row in post_integration_outcome_review_handoff.handoff_rows
+    }
+
+    for authority in commit_release_authority_posture.authority_posture_rows:
+        for trial_ref in authority.trial_refs:
+            trial = trial_rows.get(trial_ref)
+            if trial is None:
+                raise ValueError("authority posture rows must reference known trial rows")
+            if trial.candidate_ref != authority.candidate_ref:
+                raise ValueError("authority candidate_ref must match trial candidate")
+        for rollback_ref in authority.rollback_refs:
+            rollback = rollback_rows.get(rollback_ref)
+            if rollback is None:
+                raise ValueError("authority posture rows must reference known rollback rows")
+            if rollback.candidate_ref != authority.candidate_ref:
+                raise ValueError("authority candidate_ref must match rollback candidate")
+
+    for handoff in post_integration_outcome_review_handoff.handoff_rows:
+        for authority_ref in handoff.authority_posture_refs:
+            authority = authority_rows.get(authority_ref)
+            if authority is None:
+                raise ValueError("handoff rows must reference known authority posture rows")
+            if authority.candidate_ref != handoff.candidate_ref:
+                raise ValueError("handoff candidate_ref must match authority candidate")
+        for trial_ref in handoff.trial_refs:
+            trial = trial_rows.get(trial_ref)
+            if trial is None:
+                raise ValueError("handoff rows must reference known trial rows")
+            if trial.candidate_ref != handoff.candidate_ref:
+                raise ValueError("handoff candidate_ref must match trial candidate")
+            if handoff.handoff_posture == "ready_for_v73_review" and (
+                trial.trial_posture != "trial_ready_for_outcome_review"
+            ):
+                raise ValueError("ready V73 handoffs require trial-ready V72-B rows")
+        for effect_ref in handoff.effect_refs:
+            effect = effect_rows.get(effect_ref)
+            if effect is None:
+                raise ValueError("handoff rows must reference known effect rows")
+            if effect.candidate_ref != handoff.candidate_ref:
+                raise ValueError("handoff candidate_ref must match effect candidate")
+        for rollback_ref in handoff.rollback_refs:
+            rollback = rollback_rows.get(rollback_ref)
+            if rollback is None:
+                raise ValueError("handoff rows must reference known rollback rows")
+            if rollback.candidate_ref != handoff.candidate_ref:
+                raise ValueError("handoff candidate_ref must match rollback candidate")
+            if (
+                handoff.handoff_posture == "ready_for_v73_review"
+                and rollback.rollback_posture == "rollback_blocked"
+            ):
+                raise ValueError("ready V73 handoffs cannot carry blocked rollback")
+        if handoff.handoff_posture == "ready_for_v73_review":
+            unresolved_effects = [
+                effect_ref
+                for effect_ref in handoff.effect_refs
+                if effect_rows[effect_ref].effect_gap_refs
+                and not set(effect_rows[effect_ref].effect_gap_refs).issubset(
+                    set(handoff.carried_forward_gap_refs)
+                )
+            ]
+            if unresolved_effects:
+                raise ValueError(
+                    f"ready V73 handoffs cannot omit effect gaps: {unresolved_effects}"
+                )
+
+    for alignment in contained_integration_family_closeout_alignment.alignment_rows:
+        missing_trials = sorted(set(alignment.trial_refs) - set(trial_rows))
+        if missing_trials:
+            raise ValueError(f"closeout alignment references unknown trial rows: {missing_trials}")
+        missing_rollbacks = sorted(set(alignment.rollback_refs) - set(rollback_rows))
+        if missing_rollbacks:
+            raise ValueError(
+                f"closeout alignment references unknown rollback rows: {missing_rollbacks}"
+            )
+        missing_authorities = sorted(set(alignment.authority_posture_refs) - set(authority_rows))
+        if missing_authorities:
+            raise ValueError(
+                "closeout alignment references unknown authority posture rows: "
+                f"{missing_authorities}"
+            )
+        missing_handoffs = sorted(set(alignment.handoff_refs) - set(handoff_rows))
+        if missing_handoffs:
+            raise ValueError(
+                f"closeout alignment references unknown handoff rows: {missing_handoffs}"
+            )
+
+
+def _load_v72b_trial_record(repo_root: Path) -> RepoContainedIntegrationTrialRecord:
+    return RepoContainedIntegrationTrialRecord.model_validate(
+        _load_json(
+            repo_root,
+            "apps/api/fixtures/repo_description/vnext_plus201/"
+            "repo_contained_integration_trial_record_v201_reference.json",
+        )
+    )
+
+
+def _load_v72b_effect_surface(repo_root: Path) -> RepoIntegrationEffectSurfaceRegister:
+    return RepoIntegrationEffectSurfaceRegister.model_validate(
+        _load_json(
+            repo_root,
+            "apps/api/fixtures/repo_description/vnext_plus201/"
+            "repo_integration_effect_surface_register_v201_reference.json",
+        )
+    )
+
+
+def _load_v72b_rollback_readiness(repo_root: Path) -> RepoIntegrationRollbackReadiness:
+    return RepoIntegrationRollbackReadiness.model_validate(
+        _load_json(
+            repo_root,
+            "apps/api/fixtures/repo_description/vnext_plus201/"
+            "repo_integration_rollback_readiness_v201_reference.json",
+        )
+    )
+
+
+def derive_v72c_repo_commit_release_authority_posture(
+    *,
+    repo_root: Path,
+    contained_integration_trial_record: RepoContainedIntegrationTrialRecord | None = None,
+    integration_rollback_readiness: RepoIntegrationRollbackReadiness | None = None,
+) -> RepoCommitReleaseAuthorityPosture:
+    trial = contained_integration_trial_record or _load_v72b_trial_record(repo_root)
+    rollback = integration_rollback_readiness or _load_v72b_rollback_readiness(repo_root)
+    rows = [
+        RepoCommitReleaseAuthorityPostureRow(
+            authority_posture_ref="authority:v72c:self-evidencing:maintainer-required",
+            candidate_ref="candidate:internal:self_evidencing_workflow_type_emergence",
+            trial_refs=["trial:v72b:self-evidencing:dry-run"],
+            rollback_refs=["rollback:v72b:self-evidencing:plan-present"],
+            commit_intent_posture="commit_intent_requires_maintainer",
+            pr_posture="no_pr_update_authority",
+            merge_posture="no_merge_authority",
+            release_posture="release_requires_later_lock",
+            released_truth_posture="released_truth_not_claimed",
+            required_human_authority_refs=[
+                "authority-profile:v71:maintainer-review",
+                "docs/LOCKED_CONTINUATION_vNEXT_PLUS202.md",
+            ],
+            forbidden_automatic_actions=sorted(_V72C_REQUIRED_FORBIDDEN_ACTIONS),
+            limitation_note=(
+                "Maintainer and later-lock review are required before downstream action."
+            ),
+        )
+    ]
+    payload = {
+        "schema": REPO_COMMIT_RELEASE_AUTHORITY_POSTURE_SCHEMA,
+        "review_id": "review:v72c:integration-authority-boundary",
+        "snapshot_id": trial.snapshot_id,
+        "source_set_id": trial.source_set_id,
+        "trial_record_id": trial.trial_record_id,
+        "rollback_readiness_id": rollback.rollback_readiness_id,
+        "authority_posture_rows": [
+            row.model_dump(mode="json")
+            for row in sorted(rows, key=lambda row: row.authority_posture_ref)
+        ],
+        "non_authority_summary": _V72C_NON_AUTHORITY_SUMMARY,
+    }
+    payload["authority_posture_id"] = _surface_id(
+        "repo_commit_release_authority_posture",
+        REPO_COMMIT_RELEASE_AUTHORITY_POSTURE_SCHEMA,
+        payload,
+        "authority_posture_id",
+    )
+    return RepoCommitReleaseAuthorityPosture.model_validate(payload)
+
+
+def derive_v72c_repo_post_integration_outcome_review_handoff(
+    *,
+    repo_root: Path,
+    contained_integration_trial_record: RepoContainedIntegrationTrialRecord | None = None,
+    integration_effect_surface_register: RepoIntegrationEffectSurfaceRegister | None = None,
+    integration_rollback_readiness: RepoIntegrationRollbackReadiness | None = None,
+    commit_release_authority_posture: RepoCommitReleaseAuthorityPosture | None = None,
+) -> RepoPostIntegrationOutcomeReviewHandoff:
+    trial = contained_integration_trial_record or _load_v72b_trial_record(repo_root)
+    effect = integration_effect_surface_register or _load_v72b_effect_surface(repo_root)
+    rollback = integration_rollback_readiness or _load_v72b_rollback_readiness(repo_root)
+    authority = (
+        commit_release_authority_posture
+        or derive_v72c_repo_commit_release_authority_posture(
+            repo_root=repo_root,
+            contained_integration_trial_record=trial,
+            integration_rollback_readiness=rollback,
+        )
+    )
+    rows = [
+        RepoPostIntegrationOutcomeReviewHandoffRow(
+            handoff_ref="handoff:v72c:self-evidencing:v73-review",
+            candidate_ref="candidate:internal:self_evidencing_workflow_type_emergence",
+            trial_refs=["trial:v72b:self-evidencing:dry-run"],
+            effect_refs=["effect:v72b:self-evidencing:schema-surface"],
+            rollback_refs=["rollback:v72b:self-evidencing:plan-present"],
+            authority_posture_refs=["authority:v72c:self-evidencing:maintainer-required"],
+            handoff_target="v73_outcome_review",
+            handoff_posture="ready_for_v73_review",
+            required_next_surface="v73_contained_integration_outcome_review_entry",
+            carried_forward_gap_refs=[],
+            carried_forward_dissent_refs=[],
+            non_release_guardrail=(
+                "No downstream action before V73 outcome review and later authority."
+            ),
+            limitation_note="Ready only for later V73 outcome review over the recorded trial.",
+        )
+    ]
+    payload = {
+        "schema": REPO_POST_INTEGRATION_OUTCOME_REVIEW_HANDOFF_SCHEMA,
+        "review_id": authority.review_id,
+        "snapshot_id": trial.snapshot_id,
+        "source_set_id": trial.source_set_id,
+        "authority_posture_id": authority.authority_posture_id,
+        "trial_record_id": trial.trial_record_id,
+        "effect_surface_register_id": effect.effect_surface_register_id,
+        "rollback_readiness_id": rollback.rollback_readiness_id,
+        "handoff_rows": [
+            row.model_dump(mode="json") for row in sorted(rows, key=lambda row: row.handoff_ref)
+        ],
+        "non_authority_summary": _V72C_NON_AUTHORITY_SUMMARY,
+    }
+    payload["post_integration_handoff_id"] = _surface_id(
+        "repo_post_integration_outcome_review_handoff",
+        REPO_POST_INTEGRATION_OUTCOME_REVIEW_HANDOFF_SCHEMA,
+        payload,
+        "post_integration_handoff_id",
+    )
+    return RepoPostIntegrationOutcomeReviewHandoff.model_validate(payload)
+
+
+def derive_v72c_repo_contained_integration_family_closeout_alignment(
+    *,
+    repo_root: Path,
+    commit_release_authority_posture: RepoCommitReleaseAuthorityPosture | None = None,
+    post_integration_outcome_review_handoff: RepoPostIntegrationOutcomeReviewHandoff | None = None,
+) -> RepoContainedIntegrationFamilyCloseoutAlignment:
+    authority = (
+        commit_release_authority_posture
+        or derive_v72c_repo_commit_release_authority_posture(repo_root=repo_root)
+    )
+    handoff = (
+        post_integration_outcome_review_handoff
+        or derive_v72c_repo_post_integration_outcome_review_handoff(
+            repo_root=repo_root,
+            commit_release_authority_posture=authority,
+        )
+    )
+    rows = [
+        RepoContainedIntegrationFamilyCloseoutAlignmentRow(
+            alignment_ref="alignment:v72c:family-closeout:review-handoff",
+            family_ref="V72",
+            closed_slices=["V72-A", "V72-B", "V72-C"],
+            closed_surface_refs=sorted(
+                [
+                    REPO_COMMIT_RELEASE_AUTHORITY_POSTURE_SCHEMA,
+                    REPO_CONTAINED_INTEGRATION_CANDIDATE_PLAN_SCHEMA,
+                    REPO_CONTAINED_INTEGRATION_TRIAL_RECORD_SCHEMA,
+                    REPO_INTEGRATION_EFFECT_SURFACE_REGISTER_SCHEMA,
+                    REPO_INTEGRATION_NON_RELEASE_GUARDRAIL_SCHEMA,
+                    REPO_INTEGRATION_ROLLBACK_READINESS_SCHEMA,
+                    REPO_INTEGRATION_TARGET_BOUNDARY_SCHEMA,
+                    REPO_POST_INTEGRATION_OUTCOME_REVIEW_HANDOFF_SCHEMA,
+                ]
+            ),
+            candidate_refs=[
+                "candidate:internal:odeu_conceptual_diff_report@1",
+                "candidate:internal:self_evidencing_workflow_type_emergence",
+                "candidate:internal:typed_adjudication_product_wedge",
+            ],
+            blocked_candidate_refs=[
+                "candidate:internal:odeu_conceptual_diff_report@1",
+                "candidate:internal:typed_adjudication_product_wedge",
+            ],
+            trial_refs=[
+                "trial:v72b:odeu-diff:blocked",
+                "trial:v72b:product-wedge:blocked",
+                "trial:v72b:self-evidencing:dry-run",
+            ],
+            rollback_refs=["rollback:v72b:self-evidencing:plan-present"],
+            authority_posture_refs=["authority:v72c:self-evidencing:maintainer-required"],
+            handoff_refs=["handoff:v72c:self-evidencing:v73-review"],
+            future_family_refs=["V73", "V74"],
+            closeout_posture="v72_family_closed_for_review_handoff",
+            non_authority_guardrails=sorted(
+                [
+                    "no_automatic_commit",
+                    "no_dispatch_authority",
+                    "no_merge",
+                    "no_product_authorization",
+                    "no_pr_update",
+                    "no_release",
+                    "no_runtime_permission",
+                ]
+            ),
+            limitation_note=(
+                "V72 closes containment review and hands eligible evidence to V73 only."
+            ),
+        )
+    ]
+    payload = {
+        "schema": REPO_CONTAINED_INTEGRATION_FAMILY_CLOSEOUT_ALIGNMENT_SCHEMA,
+        "review_id": authority.review_id,
+        "snapshot_id": authority.snapshot_id,
+        "source_set_id": authority.source_set_id,
+        "authority_posture_id": authority.authority_posture_id,
+        "post_integration_handoff_id": handoff.post_integration_handoff_id,
+        "alignment_rows": [
+            row.model_dump(mode="json") for row in sorted(rows, key=lambda row: row.alignment_ref)
+        ],
+        "non_authority_summary": _V72C_FAMILY_CLOSEOUT_SUMMARY,
+    }
+    payload["family_closeout_alignment_id"] = _surface_id(
+        "repo_contained_integration_family_closeout_alignment",
+        REPO_CONTAINED_INTEGRATION_FAMILY_CLOSEOUT_ALIGNMENT_SCHEMA,
+        payload,
+        "family_closeout_alignment_id",
+    )
+    return RepoContainedIntegrationFamilyCloseoutAlignment.model_validate(payload)
+
+
+def derive_v72c_repo_contained_integration_closeout_bundle(
+    *,
+    repo_root: Path,
+) -> tuple[
+    RepoContainedIntegrationTrialRecord,
+    RepoIntegrationEffectSurfaceRegister,
+    RepoIntegrationRollbackReadiness,
+    RepoCommitReleaseAuthorityPosture,
+    RepoPostIntegrationOutcomeReviewHandoff,
+    RepoContainedIntegrationFamilyCloseoutAlignment,
+]:
+    trial = _load_v72b_trial_record(repo_root)
+    effect = _load_v72b_effect_surface(repo_root)
+    rollback = _load_v72b_rollback_readiness(repo_root)
+    authority = derive_v72c_repo_commit_release_authority_posture(
+        repo_root=repo_root,
+        contained_integration_trial_record=trial,
+        integration_rollback_readiness=rollback,
+    )
+    handoff = derive_v72c_repo_post_integration_outcome_review_handoff(
+        repo_root=repo_root,
+        contained_integration_trial_record=trial,
+        integration_effect_surface_register=effect,
+        integration_rollback_readiness=rollback,
+        commit_release_authority_posture=authority,
+    )
+    closeout = derive_v72c_repo_contained_integration_family_closeout_alignment(
+        repo_root=repo_root,
+        commit_release_authority_posture=authority,
+        post_integration_outcome_review_handoff=handoff,
+    )
+    validate_v72c_contained_integration_closeout_bundle(
+        contained_integration_trial_record=trial,
+        integration_effect_surface_register=effect,
+        integration_rollback_readiness=rollback,
+        commit_release_authority_posture=authority,
+        post_integration_outcome_review_handoff=handoff,
+        contained_integration_family_closeout_alignment=closeout,
+    )
+    return trial, effect, rollback, authority, handoff, closeout

@@ -1,0 +1,176 @@
+{
+  "$defs": {
+    "RepoPostIntegrationOutcomeReviewHandoffRow": {
+      "additionalProperties": false,
+      "properties": {
+        "authority_posture_refs": {
+          "items": {
+            "type": "string"
+          },
+          "minItems": 1,
+          "title": "Authority Posture Refs",
+          "type": "array"
+        },
+        "candidate_ref": {
+          "title": "Candidate Ref",
+          "type": "string"
+        },
+        "carried_forward_dissent_refs": {
+          "items": {
+            "type": "string"
+          },
+          "title": "Carried Forward Dissent Refs",
+          "type": "array"
+        },
+        "carried_forward_gap_refs": {
+          "items": {
+            "type": "string"
+          },
+          "title": "Carried Forward Gap Refs",
+          "type": "array"
+        },
+        "effect_refs": {
+          "items": {
+            "type": "string"
+          },
+          "title": "Effect Refs",
+          "type": "array"
+        },
+        "handoff_posture": {
+          "enum": [
+            "ready_for_v73_review",
+            "blocked_by_rollback",
+            "blocked_by_effect_gap",
+            "blocked_by_authority_boundary",
+            "deferred_to_future_family",
+            "rejected_out_of_scope"
+          ],
+          "title": "Handoff Posture",
+          "type": "string"
+        },
+        "handoff_ref": {
+          "title": "Handoff Ref",
+          "type": "string"
+        },
+        "handoff_target": {
+          "enum": [
+            "v73_outcome_review",
+            "future_family_review",
+            "deferred_no_selection"
+          ],
+          "title": "Handoff Target",
+          "type": "string"
+        },
+        "limitation_note": {
+          "title": "Limitation Note",
+          "type": "string"
+        },
+        "non_release_guardrail": {
+          "title": "Non Release Guardrail",
+          "type": "string"
+        },
+        "required_next_surface": {
+          "title": "Required Next Surface",
+          "type": "string"
+        },
+        "rollback_refs": {
+          "items": {
+            "type": "string"
+          },
+          "minItems": 1,
+          "title": "Rollback Refs",
+          "type": "array"
+        },
+        "trial_refs": {
+          "items": {
+            "type": "string"
+          },
+          "minItems": 1,
+          "title": "Trial Refs",
+          "type": "array"
+        }
+      },
+      "required": [
+        "handoff_ref",
+        "candidate_ref",
+        "trial_refs",
+        "rollback_refs",
+        "authority_posture_refs",
+        "handoff_target",
+        "handoff_posture",
+        "required_next_surface",
+        "non_release_guardrail",
+        "limitation_note"
+      ],
+      "title": "RepoPostIntegrationOutcomeReviewHandoffRow",
+      "type": "object"
+    }
+  },
+  "additionalProperties": false,
+  "properties": {
+    "authority_posture_id": {
+      "title": "Authority Posture Id",
+      "type": "string"
+    },
+    "effect_surface_register_id": {
+      "title": "Effect Surface Register Id",
+      "type": "string"
+    },
+    "handoff_rows": {
+      "items": {
+        "$ref": "#/$defs/RepoPostIntegrationOutcomeReviewHandoffRow"
+      },
+      "minItems": 1,
+      "title": "Handoff Rows",
+      "type": "array"
+    },
+    "non_authority_summary": {
+      "title": "Non Authority Summary",
+      "type": "string"
+    },
+    "post_integration_handoff_id": {
+      "title": "Post Integration Handoff Id",
+      "type": "string"
+    },
+    "review_id": {
+      "title": "Review Id",
+      "type": "string"
+    },
+    "rollback_readiness_id": {
+      "title": "Rollback Readiness Id",
+      "type": "string"
+    },
+    "schema": {
+      "const": "repo_post_integration_outcome_review_handoff@1",
+      "default": "repo_post_integration_outcome_review_handoff@1",
+      "title": "Schema",
+      "type": "string"
+    },
+    "snapshot_id": {
+      "title": "Snapshot Id",
+      "type": "string"
+    },
+    "source_set_id": {
+      "title": "Source Set Id",
+      "type": "string"
+    },
+    "trial_record_id": {
+      "title": "Trial Record Id",
+      "type": "string"
+    }
+  },
+  "required": [
+    "post_integration_handoff_id",
+    "review_id",
+    "snapshot_id",
+    "source_set_id",
+    "authority_posture_id",
+    "trial_record_id",
+    "effect_surface_register_id",
+    "rollback_readiness_id",
+    "handoff_rows",
+    "non_authority_summary"
+  ],
+  "title": "RepoPostIntegrationOutcomeReviewHandoff",
+  "type": "object"
+}

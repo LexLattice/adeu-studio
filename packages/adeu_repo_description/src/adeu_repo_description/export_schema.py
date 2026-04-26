@@ -48,12 +48,15 @@ from .candidate_review_summary import (
     RepoCandidateReviewClassificationSummary,
 )
 from .contained_integration_review import (
+    RepoCommitReleaseAuthorityPosture,
     RepoContainedIntegrationCandidatePlan,
+    RepoContainedIntegrationFamilyCloseoutAlignment,
     RepoContainedIntegrationTrialRecord,
     RepoIntegrationEffectSurfaceRegister,
     RepoIntegrationNonReleaseGuardrail,
     RepoIntegrationRollbackReadiness,
     RepoIntegrationTargetBoundary,
+    RepoPostIntegrationOutcomeReviewHandoff,
 )
 from .models import (
     RepoArcDependencyRegister,
@@ -246,6 +249,15 @@ def main() -> None:
     integration_rollback_readiness_schema = RepoIntegrationRollbackReadiness.model_json_schema(
         by_alias=True
     )
+    commit_release_authority_posture_schema = RepoCommitReleaseAuthorityPosture.model_json_schema(
+        by_alias=True
+    )
+    post_integration_outcome_review_handoff_schema = (
+        RepoPostIntegrationOutcomeReviewHandoff.model_json_schema(by_alias=True)
+    )
+    contained_integration_family_closeout_alignment_schema = (
+        RepoContainedIntegrationFamilyCloseoutAlignment.model_json_schema(by_alias=True)
+    )
 
     _assert_no_absolute_path_material(dependency_register_v1_schema, repo_root_path=root)
     _assert_no_absolute_path_material(dependency_register_schema, repo_root_path=root)
@@ -330,6 +342,18 @@ def main() -> None:
         repo_root_path=root,
     )
     _assert_no_absolute_path_material(integration_rollback_readiness_schema, repo_root_path=root)
+    _assert_no_absolute_path_material(
+        commit_release_authority_posture_schema,
+        repo_root_path=root,
+    )
+    _assert_no_absolute_path_material(
+        post_integration_outcome_review_handoff_schema,
+        repo_root_path=root,
+    )
+    _assert_no_absolute_path_material(
+        contained_integration_family_closeout_alignment_schema,
+        repo_root_path=root,
+    )
 
     _write_schema(
         root
@@ -918,6 +942,42 @@ def main() -> None:
     _write_schema(
         root / "spec" / "repo_integration_rollback_readiness.schema.json",
         integration_rollback_readiness_schema,
+    )
+    _write_schema(
+        root
+        / "packages"
+        / "adeu_repo_description"
+        / "schema"
+        / "repo_commit_release_authority_posture.v1.json",
+        commit_release_authority_posture_schema,
+    )
+    _write_schema(
+        root / "spec" / "repo_commit_release_authority_posture.schema.json",
+        commit_release_authority_posture_schema,
+    )
+    _write_schema(
+        root
+        / "packages"
+        / "adeu_repo_description"
+        / "schema"
+        / "repo_post_integration_outcome_review_handoff.v1.json",
+        post_integration_outcome_review_handoff_schema,
+    )
+    _write_schema(
+        root / "spec" / "repo_post_integration_outcome_review_handoff.schema.json",
+        post_integration_outcome_review_handoff_schema,
+    )
+    _write_schema(
+        root
+        / "packages"
+        / "adeu_repo_description"
+        / "schema"
+        / "repo_contained_integration_family_closeout_alignment.v1.json",
+        contained_integration_family_closeout_alignment_schema,
+    )
+    _write_schema(
+        root / "spec" / "repo_contained_integration_family_closeout_alignment.schema.json",
+        contained_integration_family_closeout_alignment_schema,
     )
 
 
