@@ -1335,7 +1335,6 @@ class RepoContainedIntegrationTrialRow(_CartographyBase):
                     "active_lock_refs",
                     "target_boundary_refs",
                     "trial_evidence_refs",
-                    "non_release_guardrail_refs",
                 )
                 if not getattr(self, field_name)
             ]
@@ -1669,6 +1668,12 @@ def validate_v72b_contained_integration_trial_bundle(
         != integration_effect_surface_register.effect_surface_register_id
     ):
         raise ValueError("rollback readiness must reference effect surface register")
+    if not (
+        contained_integration_trial_record.review_id
+        == integration_effect_surface_register.review_id
+        == integration_rollback_readiness.review_id
+    ):
+        raise ValueError("V72-B review_id must match across trial/effect/rollback surfaces")
     if not (
         contained_integration_trial_record.source_set_id
         == contained_integration_candidate_plan.source_set_id

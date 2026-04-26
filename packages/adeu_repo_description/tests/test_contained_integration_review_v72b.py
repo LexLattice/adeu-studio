@@ -229,6 +229,13 @@ def test_v201_bundle_rejects_candidate_mismatch() -> None:
         _validate_reference_bundle_with(trial=trial)
 
 
+def test_v201_bundle_rejects_review_id_mismatch() -> None:
+    effect = _v72b_effect().model_copy(update={"review_id": "review:v72b:mismatched"})
+
+    with pytest.raises(ValueError, match="V72-B review_id must match"):
+        _validate_reference_bundle_with(effect=effect)
+
+
 def test_v201_bundle_rejects_ready_with_blocked_rollback() -> None:
     rollback = _v72b_rollback()
     rows = list(rollback.rollback_rows)
