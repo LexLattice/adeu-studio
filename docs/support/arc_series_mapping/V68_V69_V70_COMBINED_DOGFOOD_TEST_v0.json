@@ -1,0 +1,41 @@
+{
+  "assertions": [
+    "family_closeout_artifacts_exist",
+    "deferred_future_family_boundaries_preserved",
+    "v69_handoff_candidates_equal_v70a_reviewed_candidates",
+    "v70b_refs_are_known_v70a_claims_and_classifications",
+    "v70c_preserves_v70b_review_relation_gap_refs_exactly",
+    "handoffs_remain_non_authorizing",
+    "ready_handoff_has_no_blockers",
+    "product_wedge_remains_future_family_review"
+  ],
+  "closeout_checks": {
+    "vNext+190": true,
+    "vNext+193": true,
+    "vNext+196": true
+  },
+  "families_checked": [
+    "V68",
+    "V69",
+    "V70"
+  ],
+  "handoff_candidate_count": 3,
+  "pytest_result": {
+    "focused_repo_description_tests_passed": true,
+    "passed_count": 167,
+    "warning_count": 57
+  },
+  "result": "pass",
+  "reviewed_candidate_count": 3,
+  "schema": "v68_v69_v70_combined_dogfood_test@1",
+  "summary_candidate_count": 3,
+  "terminal_closeout_arcs": [
+    "vNext+190",
+    "vNext+193",
+    "vNext+196"
+  ],
+  "v70b_gap_count": 4,
+  "v70b_relation_count": 3,
+  "v70b_review_count": 3
+}
+
