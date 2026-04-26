@@ -1,0 +1,72 @@
+{
+  "classification_record_id": "repo_candidate_evidence_classification_record_71d46cbf02b0d901bf200b8b",
+  "classification_refs": [
+    "classification:v70a:odeu-diff:requires-adversarial-review",
+    "classification:v70a:product-wedge:authority-boundary",
+    "classification:v70a:self-evidencing:source-bound"
+  ],
+  "gap_rows": [
+    {
+      "candidate_ref": "candidate:internal:odeu_conceptual_diff_report@1",
+      "classification_refs": [
+        "classification:v70a:odeu-diff:requires-adversarial-review"
+      ],
+      "gap_kind": "missing_counterevidence",
+      "gap_ref": "gap:v70b:odeu-diff:missing-counterevidence",
+      "limitation_note": "Counterevidence remains needed before summary.",
+      "recommended_next_surface": "v70_adversarial_review",
+      "severity": "blocking",
+      "source_refs": [
+        "evidence-source:v70a:v69c-handoff-fixture"
+      ]
+    },
+    {
+      "candidate_ref": "candidate:internal:typed_adjudication_product_wedge",
+      "classification_refs": [
+        "classification:v70a:product-wedge:authority-boundary"
+      ],
+      "gap_kind": "single_source_overclaim",
+      "gap_ref": "gap:v70b:product-wedge:single-source-overclaim",
+      "limitation_note": "Product wedge currently rests on one review source.",
+      "recommended_next_surface": "future_family_review",
+      "severity": "warning",
+      "source_refs": [
+        "evidence-source:v70a:gptpro-review"
+      ]
+    },
+    {
+      "candidate_ref": "candidate:internal:typed_adjudication_product_wedge",
+      "classification_refs": [
+        "classification:v70a:product-wedge:authority-boundary"
+      ],
+      "gap_kind": "product_wedge_without_v74_boundary",
+      "gap_ref": "gap:v70b:product-wedge:v74-boundary",
+      "limitation_note": "Product projection requires a later boundary review.",
+      "recommended_next_surface": "future_family_review",
+      "severity": "blocking",
+      "source_refs": [
+        "evidence-source:v70a:gptpro-review"
+      ]
+    },
+    {
+      "candidate_ref": "candidate:internal:self_evidencing_workflow_type_emergence",
+      "classification_refs": [
+        "classification:v70a:self-evidencing:source-bound"
+      ],
+      "gap_kind": "authority_boundary_unclassified",
+      "gap_ref": "gap:v70b:self-evidencing:carry-forward-review",
+      "limitation_note": "Carry-forward boundary note remains for summary.",
+      "recommended_next_surface": "v70c_classification_summary",
+      "severity": "info",
+      "source_refs": [
+        "evidence-source:v70a:v69-closeout"
+      ]
+    }
+  ],
+  "gap_scan_id": "repo_candidate_review_gap_scan_915f1f041d31d2a892e626cb",
+  "non_settlement_summary": "V70-B gap rows recommend review surfaces only.",
+  "review_id": "review:v70b:adversarial-review-gap-scan",
+  "schema": "repo_candidate_review_gap_scan@1",
+  "snapshot_id": "vNext+195-prestart-on-main",
+  "source_set_id": "source-set:v70a:released-v69c-handoff"
+}

@@ -1,0 +1,64 @@
+{
+  "conflict_register_id": "repo_candidate_review_conflict_register_594140987f9a1e67a43ccde7",
+  "non_settlement_summary": "V70-B relation rows expose posture without settlement.",
+  "relation_rows": [
+    {
+      "blocking_for_handoff": true,
+      "candidate_ref": "candidate:internal:odeu_conceptual_diff_report@1",
+      "claim_refs": [
+        "claim:v70a:odeu-diff:adversarial-review-need"
+      ],
+      "conflict_kind": "model_output_divergence",
+      "conflict_posture": "resolved_by_v70b",
+      "limitation_note": "Divergence remains open review pressure.",
+      "relation_ref": "relation:v70b:odeu-diff:model-output-divergence",
+      "required_resolution_surface": "v70c_classification_summary",
+      "review_refs": [
+        "review-row:v70b:odeu-diff:negative-control"
+      ],
+      "review_relation_kind": "conflict"
+    },
+    {
+      "blocking_for_handoff": true,
+      "candidate_ref": "candidate:internal:typed_adjudication_product_wedge",
+      "claim_refs": [
+        "claim:v70a:product-wedge:authority-boundary"
+      ],
+      "conflict_kind": "authority_boundary_conflict",
+      "conflict_posture": "deferred_to_future_family",
+      "limitation_note": "Product boundary pressure stays deferred to future review.",
+      "relation_ref": "relation:v70b:product-wedge:authority-boundary",
+      "required_resolution_surface": "future_family_review",
+      "review_refs": [
+        "review-row:v70b:product-wedge:authority-boundary"
+      ],
+      "review_relation_kind": "conflict"
+    },
+    {
+      "blocking_for_handoff": false,
+      "candidate_ref": "candidate:internal:self_evidencing_workflow_type_emergence",
+      "claim_refs": [
+        "claim:v70a:self-evidencing:source-bound"
+      ],
+      "conflict_kind": null,
+      "conflict_posture": null,
+      "limitation_note": "Complementary source-binding review carries forward.",
+      "relation_ref": "relation:v70b:self-evidencing:complementarity",
+      "required_resolution_surface": "v70c_classification_summary",
+      "review_refs": [
+        "review-row:v70b:self-evidencing:supporting"
+      ],
+      "review_relation_kind": "complementarity"
+    }
+  ],
+  "review_id": "review:v70b:adversarial-review-gap-scan",
+  "review_matrix_id": "repo_candidate_adversarial_review_matrix_f4dda2ab2975908def8b1361",
+  "review_refs": [
+    "review-row:v70b:odeu-diff:negative-control",
+    "review-row:v70b:product-wedge:authority-boundary",
+    "review-row:v70b:self-evidencing:supporting"
+  ],
+  "schema": "repo_candidate_review_conflict_register@1",
+  "snapshot_id": "vNext+195-prestart-on-main",
+  "source_set_id": "source-set:v70a:released-v69c-handoff"
+}
