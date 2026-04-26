@@ -1,8 +1,8 @@
 # Assessment vNext+200 Edges
 
-Status: pre-lock edge assessment for `V72-A` (April 27, 2026 UTC).
+Status: post-closeout edge assessment for `V72-A` (April 27, 2026 UTC).
 
-Authority layer: planning / pre-lock assessment.
+Authority layer: closeout evidence on `main` only.
 
 ## Assessment-State Marker (Machine-Checkable)
 
@@ -10,118 +10,113 @@ Authority layer: planning / pre-lock assessment.
 {
   "schema": "assessment_artifact_state@1",
   "artifact": "docs/ASSESSMENT_vNEXT_PLUS200_EDGES.md",
-  "phase": "pre_lock_assessment",
-  "authoritative": false,
-  "authoritative_scope": "v200_pre_lock_edge_assessment_only",
+  "phase": "post_closeout_assessment",
+  "authoritative": true,
   "required_in_decision": true
 }
 ```
 
 ## Edge Review
 
-### Edge 1: Active Slice Implementation Could Be Confused With Candidate Trial Work
+### Edge 1: Containment Plan Could Become Trial Authority
 
-- Risk:
-  implementing `V72-A` schemas, validators, tests, and fixtures could be
-  confused with executing a contained integration trial for a ratified
-  candidate.
-- Pre-lock containment:
-  the lock explicitly permits only the active slice implementation work and
-  forbids candidate trial execution, local writes as accepted truth, accepted
-  diffs, commit, merge, release, product, runtime, and dispatch action.
+- Closeout posture:
+  contained.
+- Evidence:
+  `V72-A` records later trial requirements only; trial execution, dry-run
+  results, local writes, accepted diffs, rollback verification, and outcome
+  review are not emitted by the shipped surfaces.
 
-### Edge 2: Containment Plan Could Become Trial Execution
+### Edge 2: V71-C Handoff Could Be Recreated In Parallel
 
-- Risk:
-  a containment plan could be overread as a dry run, local trial, rollback
-  verification, accepted diff, or implementation result.
-- Pre-lock containment:
-  `V72-A` uses `required_trial_posture` only as a later-trial requirement and
-  cannot use `V72-B` actual trial posture values.
+- Closeout posture:
+  contained.
+- Evidence:
+  plan rows resolve against released `V71-C` amendment-scope, post-ratification
+  handoff, and family closeout alignment fixtures.
 
-### Edge 3: Non-Ready `V71-C` Handoffs Could Be Promoted
+### Edge 3: Non-Ready Handoff Could Become Eligible
 
-- Risk:
-  deferred, rejected, out-of-scope, dissent-bearing, or future-family-only
-  `V71-C` rows could become eligible contained integration plans.
-- Pre-lock containment:
-  only released `V71-C` rows with `handoff_posture = ready_for_v72_review` may
-  become `eligible_for_containment_planning`.
+- Closeout posture:
+  contained.
+- Evidence:
+  bundle validators reject non-ready handoffs promoted to
+  `eligible_for_containment_planning`.
 
-### Edge 4: Product Wedge Could Bypass `V74`
+### Edge 4: Product Pressure Could Enter Contained Integration
 
-- Risk:
-  typed-adjudication product pressure could be routed into contained integration
-  instead of future-family / product projection review.
-- Pre-lock containment:
-  product wedge candidates remain future-family routed and are mandatory reject
-  coverage for `V72-A`.
+- Closeout posture:
+  contained.
+- Evidence:
+  typed-adjudication product wedge rows remain future-family only and cannot be
+  routed to contained integration by `V72-A`.
 
-### Edge 5: Deferred Conceptual-Diff Dissent Could Be Lost
+### Edge 5: Target Boundary Could Become A Glob Or Broad Package Claim
 
-- Risk:
-  the conceptual-diff candidate deferred with dissent and evidence gaps could
-  be treated as ready for integration planning.
-- Pre-lock containment:
-  dissent-bearing and gap-bearing rows must remain blocked unless a later lock
-  selects settlement or review work; `V72-A` must reject them as ready plans.
+- Closeout posture:
+  contained.
+- Evidence:
+  target refs are concrete repo refs; glob refs are rejected, and package
+  surfaces require bounded child refs.
 
-### Edge 6: Source Rows Could Collapse Into Prose Memory
+### Edge 6: Guardrail Coverage Could Be Partial
 
-- Risk:
-  containment plans could be reconstructed from prose memory, model preference,
-  operator vibe, or uncommitted transcript.
-- Pre-lock containment:
-  `integration_source_rows` are embedded in the plan surface, and
-  target-boundary / guardrail `source_refs` must resolve through concrete
-  source rows or explicit absence rows.
+- Closeout posture:
+  contained.
+- Evidence:
+  every plan row requires guardrail refs, and bundle validation rejects orphan
+  guardrail rows that are not referenced by any plan.
 
-### Edge 7: Target Boundary Could Become Unbounded
+### Edge 7: Target Rows Could Go Stale Silently
 
-- Risk:
-  broad package names or globs could masquerade as bounded integration targets.
-- Pre-lock containment:
-  target refs must be concrete, globs are not target evidence, and
-  `package_surface` requires
-  `target_resolution_kind = bounded_package_surface_with_child_refs` plus
-  concrete child refs or an explicit limitation note.
+- Closeout posture:
+  contained.
+- Evidence:
+  bundle validation rejects orphan target-boundary rows and enforces candidate
+  alignment between plan rows and target rows.
 
-### Edge 8: Rollback Requirement Could Become Rollback Verification
+### Edge 8: Cross-Surface Metadata Could Drift
 
-- Risk:
-  a `V72-A` rollback requirement could be overread as verified rollback
-  readiness.
-- Pre-lock containment:
-  eligible plans require a rollback requirement, but rollback verification is
-  deferred to later `V72-B` evidence.
+- Closeout posture:
+  contained.
+- Evidence:
+  `review_id`, `snapshot_id`, and `source_set_id` must match across the plan,
+  target-boundary, and guardrail surfaces.
 
-### Edge 9: Guardrail Could Permit Release Or Downstream Authority
+### Edge 9: Rollback Requirement Could Be Overread As Verification
 
-- Risk:
-  non-release guardrails could omit forbidden downstream roles or allow release,
-  product, runtime, dispatch, or external contest authority.
-- Pre-lock containment:
-  guardrails require non-empty forbidden downstream roles and must reject commit,
-  merge, release, released truth, product, runtime, dispatch, and external
-  contest authority.
+- Closeout posture:
+  contained.
+- Evidence:
+  eligible plans require rollback requirements, but no rollback readiness or
+  verification surface shipped in `V72-A`.
 
-### Edge 10: `V72-B`, `V72-C`, Or `V73` Could Leak Into `V72-A`
+### Edge 10: V72-A Could Begin V72-B Or V72-C
 
-- Risk:
-  starter implementation could accidentally add trial records, effect-surface
-  rows, rollback readiness, commit / release posture, family closeout alignment,
-  or outcome review.
-- Pre-lock containment:
-  `V72-A` selects only the three starter surfaces and explicitly defers all
-  trial, rollback-verification, commit / release, family closeout, and outcome
-  review surfaces.
+- Closeout posture:
+  contained.
+- Evidence:
+  no trial record, effect-surface register, rollback readiness, trial-diff
+  posture, commit / PR / merge / release posture, or post-integration handoff
+  surface shipped in `v200`.
 
-## Pre-Lock Judgment
+## Residual Edges
 
-- `V72-A` is bounded enough to become the `vNext+200` starter slice.
-- The implementation should stay in `adeu_repo_description` and ship only
-  contained integration planning, target-boundary, and non-release guardrail
-  models, schemas, validators, exports, and fixtures.
-- No contained trial, local write, accepted diff, release posture, product
-  projection, runtime permission, dispatch widening, or outcome review is
-  selected by this starter assessment.
+- `V72-B` must distinguish planned trial requirements from actual dry-run or
+  local-trial records.
+- `V72-B` must distinguish proposed/local diffs from diffs accepted for review
+  only and from any commit or release authority.
+- `V72-B` must record effect surfaces and rollback readiness without performing
+  `V73` outcome review.
+- `V72-C` must later record commit / PR / merge / release posture boundaries
+  without performing those actions.
+
+## Post-Closeout Judgment
+
+- `V72-A` is closed on `main` as a bounded contained integration planning,
+  target-boundary, and non-release-guardrail starter slice.
+- The slice preserved the intended authority boundary: contained planning is
+  not trial execution, accepted diff, commit / merge / release posture,
+  product authorization, runtime permission, dispatch authority, or outcome
+  review.
+- `V72` remains open for `V72-B`.

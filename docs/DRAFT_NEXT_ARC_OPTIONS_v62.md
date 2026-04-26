@@ -131,8 +131,7 @@ Later `V72` surfaces should remain support-layer until their own starter locks:
 - `repo_post_integration_outcome_review_handoff@1`
 - `repo_contained_integration_family_closeout_alignment@1`
 
-Post-`V72-A` continuation posture: after `vNext+200` closes on `main`, select
-`V72-B` as the next default candidate for the next canonical starter bundle.
+Post-`V72-A` continuation posture: after `vNext+200` closes on `main`, select `V72-B` as the next default candidate for the next canonical starter bundle.
 That selection remains inside the already selected `V72` family and does not
 create a new next-arc-options selector version.
 
