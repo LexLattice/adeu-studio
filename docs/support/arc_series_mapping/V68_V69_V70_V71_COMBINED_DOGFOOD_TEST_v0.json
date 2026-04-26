@@ -1,0 +1,69 @@
+{
+  "assertions": [
+    "family_closeout_artifacts_exist",
+    "deferred_future_family_boundaries_preserved",
+    "v69_to_v70_to_v71_candidate_set_preserved",
+    "v70c_ready_handoff_becomes_v71a_eligible_request",
+    "v71b_ratification_does_not_authorize_implementation",
+    "v71c_handoff_does_not_perform_v72",
+    "product_wedge_remains_future_family_review",
+    "conceptual_diff_remains_deferred_with_dissent",
+    "self_evidencing_ready_only_for_later_v72_review",
+    "carried_forward_gap_refs_are_known_v70b_gaps"
+  ],
+  "candidate_count": 3,
+  "candidate_set_preserved_across_surfaces": true,
+  "closeout_checks": {
+    "vNext+190": true,
+    "vNext+193": true,
+    "vNext+196": true,
+    "vNext+199": true
+  },
+  "families_checked": [
+    "V68",
+    "V69",
+    "V70",
+    "V71"
+  ],
+  "initial_probe_finding": {
+    "finding": "V68 and V69 family alignment artifacts use older closeout vocabulary without future_family_authority, while V70 and V71 include explicit future_family_authority fields.",
+    "posture": "support_harness_schema_drift_note",
+    "result": "not_family_failure"
+  },
+  "postures": {
+    "odeu_conceptual_diff": {
+      "v70c": "blocked_by_conflict",
+      "v71b": "deferred",
+      "v71c": "deferred_with_dissent"
+    },
+    "self_evidencing_workflow_type_emergence": {
+      "v70c": "ready_for_v71_review",
+      "v71b": "ratified",
+      "v71c": "ready_for_v72_review"
+    },
+    "typed_adjudication_product_wedge": {
+      "v70c": "future_family_review",
+      "v71b": "future_family_review",
+      "v71c": "future_family_routed"
+    }
+  },
+  "pytest_result": {
+    "focused_repo_description_tests_passed": true,
+    "passed_count": 213,
+    "warning_count": 66
+  },
+  "result": "pass",
+  "schema": "v68_v69_v70_v71_combined_dogfood_test@1",
+  "terminal_closeout_arcs": [
+    "vNext+190",
+    "vNext+193",
+    "vNext+196",
+    "vNext+199"
+  ],
+  "v70b_gap_count": 4,
+  "v70b_relation_count": 3,
+  "v70b_review_count": 3,
+  "v71a_request_count": 3,
+  "v71b_ratification_count": 3,
+  "v71c_handoff_count": 3
+}
