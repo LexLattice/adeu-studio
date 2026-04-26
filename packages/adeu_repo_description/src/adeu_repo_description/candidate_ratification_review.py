@@ -29,6 +29,9 @@ from .recursive_candidate_intake import (
 REPO_CANDIDATE_RATIFICATION_REQUEST_SCHEMA = "repo_candidate_ratification_request@1"
 REPO_RATIFICATION_AUTHORITY_PROFILE_SCHEMA = "repo_ratification_authority_profile@1"
 REPO_RATIFICATION_REQUEST_SCOPE_BOUNDARY_SCHEMA = "repo_ratification_request_scope_boundary@1"
+REPO_CANDIDATE_RATIFICATION_RECORD_SCHEMA = "repo_candidate_ratification_record@1"
+REPO_REVIEW_SETTLEMENT_RECORD_SCHEMA = "repo_review_settlement_record@1"
+REPO_RATIFICATION_DISSENT_REGISTER_SCHEMA = "repo_ratification_dissent_register@1"
 
 RatificationRequestPosture = Literal[
     "eligible_for_ratification_review",
@@ -97,6 +100,42 @@ AllowedNextReviewSurface = Literal[
     "future_family_review",
     "deferred_no_selection",
 ]
+RatificationDecisionPosture = Literal["ratified", "rejected", "deferred", "out_of_scope"]
+V71BAllowedNextReviewSurface = Literal[
+    "v72_contained_integration_review",
+    "future_family_review",
+    "deferred_no_selection",
+]
+ReviewRelationKind = Literal[
+    "conflict",
+    "complementarity",
+    "orthogonal",
+    "duplicate",
+    "unclear_relation",
+]
+SettlementPosture = Literal[
+    "settled_for_candidate_horizon",
+    "partially_settled_with_dissent",
+    "blocked_by_unresolved_conflict",
+    "blocked_by_unresolved_gap",
+    "requires_more_evidence",
+    "requires_human_review",
+    "future_family_only",
+]
+DissentPosture = Literal[
+    "no_dissent_recorded",
+    "dissent_carried_forward",
+    "minority_review_preserved",
+    "unresolved_blocker",
+    "not_applicable",
+]
+DissentSearchPosture = Literal[
+    "searched_none_found",
+    "not_searched",
+    "not_applicable",
+    "dissent_present",
+    "unknown",
+]
 
 _V70C_SUMMARY_FIXTURE = (
     "apps/api/fixtures/repo_description/vnext_plus196/"
@@ -119,6 +158,16 @@ _FORBIDDEN_V71A_AUTHORITY_TERMS = (
     "runtime permission",
     "dispatch authority",
 )
+_FORBIDDEN_V71B_DOWNSTREAM_TERMS = (
+    "implementation ticket",
+    "merge permission",
+    "merge authority",
+    "release authority",
+    "product authorization",
+    "runtime permission",
+    "dispatch authority",
+    "external contest authority",
+)
 _DOWNSTREAM_FORBIDDEN_SET: set[ForbiddenDownstreamRole] = {
     "implementation_task",
     "contained_integration",
@@ -127,6 +176,9 @@ _DOWNSTREAM_FORBIDDEN_SET: set[ForbiddenDownstreamRole] = {
     "runtime_permission",
     "dispatch_authority",
 }
+_V71B_NON_INTEGRATION_GUARDRAIL = (
+    "No implementation, no release, no product authorization, and no dispatch authority."
+)
 
 
 def _v71a_note(value: str, *, field_name: str) -> str:
@@ -134,6 +186,24 @@ def _v71a_note(value: str, *, field_name: str) -> str:
     lowered = normalized.lower()
     if any(term in lowered for term in _FORBIDDEN_V71A_AUTHORITY_TERMS):
         raise ValueError(f"{field_name} may not carry downstream or final ratification authority")
+    return normalized
+
+
+def _v71b_note(value: str, *, field_name: str) -> str:
+    normalized = _non_empty(value, field_name=field_name)
+    lowered = normalized.lower()
+    if any(term in lowered for term in _FORBIDDEN_V71B_DOWNSTREAM_TERMS):
+        raise ValueError(f"{field_name} may not carry downstream authority")
+    return normalized
+
+
+def _non_integration_guardrail(value: str, *, field_name: str) -> str:
+    normalized = _non_empty(value, field_name=field_name)
+    lowered = normalized.lower()
+    required = ("no implementation", "no release", "no product", "no dispatch")
+    missing = [phrase for phrase in required if phrase not in lowered]
+    if missing:
+        raise ValueError(f"{field_name} must state {', '.join(missing)}")
     return normalized
 
 
@@ -1026,3 +1096,929 @@ def derive_v71a_repo_candidate_ratification_review_bundle(
         request_scope_boundary=scope_boundary,
     )
     return summary, handoff, request, authority_profile, scope_boundary
+
+
+class RepoCandidateRatificationRecordRow(_CartographyBase):
+    ratification_ref: str
+    candidate_ref: str
+    request_refs: list[str] = Field(min_length=1)
+    settlement_refs: list[str] = Field(default_factory=list)
+    decision_posture: RatificationDecisionPosture
+    ratification_horizon: RatificationHorizon
+    allowed_next_review_surface: V71BAllowedNextReviewSurface
+    ratifying_authority_profile_refs: list[str] = Field(min_length=1)
+    dissent_refs: list[str] = Field(default_factory=list)
+    amendment_scope_refs: list[str] = Field(default_factory=list, max_length=0)
+    non_integration_guardrail: str
+    limitation_note: str
+
+    @model_validator(mode="after")
+    def _validate_ratification_row(self) -> RepoCandidateRatificationRecordRow:
+        object.__setattr__(
+            self,
+            "ratification_ref",
+            _non_empty(self.ratification_ref, field_name="ratification_ref"),
+        )
+        object.__setattr__(
+            self,
+            "candidate_ref",
+            _non_empty(self.candidate_ref, field_name="candidate_ref"),
+        )
+        object.__setattr__(
+            self, "request_refs", _sorted_unique(self.request_refs, field_name="request_refs")
+        )
+        object.__setattr__(
+            self,
+            "settlement_refs",
+            _sorted_unique(self.settlement_refs, field_name="settlement_refs"),
+        )
+        object.__setattr__(
+            self,
+            "ratifying_authority_profile_refs",
+            _sorted_unique(
+                self.ratifying_authority_profile_refs,
+                field_name="ratifying_authority_profile_refs",
+            ),
+        )
+        object.__setattr__(
+            self, "dissent_refs", _sorted_unique(self.dissent_refs, field_name="dissent_refs")
+        )
+        object.__setattr__(
+            self,
+            "amendment_scope_refs",
+            _sorted_unique(self.amendment_scope_refs, field_name="amendment_scope_refs"),
+        )
+        object.__setattr__(
+            self,
+            "non_integration_guardrail",
+            _non_integration_guardrail(
+                self.non_integration_guardrail, field_name="non_integration_guardrail"
+            ),
+        )
+        object.__setattr__(
+            self,
+            "limitation_note",
+            _v71b_note(self.limitation_note, field_name="limitation_note"),
+        )
+        if self.amendment_scope_refs:
+            raise ValueError("V71-B cannot emit amendment_scope_refs")
+        if self.decision_posture in {"rejected", "out_of_scope"} and (
+            self.allowed_next_review_surface == "v72_contained_integration_review"
+        ):
+            raise ValueError("rejected or out-of-scope rows cannot route to V72 review")
+        if (
+            self.candidate_ref == "candidate:internal:typed_adjudication_product_wedge"
+            and self.allowed_next_review_surface == "v72_contained_integration_review"
+        ):
+            raise ValueError("product wedge cannot be ratified for integration review")
+        return self
+
+
+class RepoCandidateRatificationRecord(_CartographyBase):
+    schema: Literal["repo_candidate_ratification_record@1"] = (
+        REPO_CANDIDATE_RATIFICATION_RECORD_SCHEMA
+    )
+    ratification_record_id: str
+    review_id: str
+    snapshot_id: str
+    source_set_id: str
+    ratification_request_id: str
+    authority_profile_id: str
+    request_scope_boundary_id: str
+    settlement_register_id: str
+    dissent_register_id: str
+    ratification_rows: list[RepoCandidateRatificationRecordRow] = Field(min_length=1)
+    non_integration_summary: str
+
+    @model_validator(mode="after")
+    def _validate_ratification_record(self) -> RepoCandidateRatificationRecord:
+        object.__setattr__(
+            self,
+            "ratification_record_id",
+            _non_empty(self.ratification_record_id, field_name="ratification_record_id"),
+        )
+        object.__setattr__(self, "review_id", _non_empty(self.review_id, field_name="review_id"))
+        object.__setattr__(
+            self, "snapshot_id", _non_empty(self.snapshot_id, field_name="snapshot_id")
+        )
+        object.__setattr__(
+            self, "source_set_id", _non_empty(self.source_set_id, field_name="source_set_id")
+        )
+        object.__setattr__(
+            self,
+            "ratification_request_id",
+            _non_empty(self.ratification_request_id, field_name="ratification_request_id"),
+        )
+        object.__setattr__(
+            self,
+            "authority_profile_id",
+            _non_empty(self.authority_profile_id, field_name="authority_profile_id"),
+        )
+        object.__setattr__(
+            self,
+            "request_scope_boundary_id",
+            _non_empty(self.request_scope_boundary_id, field_name="request_scope_boundary_id"),
+        )
+        object.__setattr__(
+            self,
+            "settlement_register_id",
+            _non_empty(self.settlement_register_id, field_name="settlement_register_id"),
+        )
+        object.__setattr__(
+            self,
+            "dissent_register_id",
+            _non_empty(self.dissent_register_id, field_name="dissent_register_id"),
+        )
+        object.__setattr__(
+            self,
+            "ratification_rows",
+            _sorted_unique_by_ref(
+                self.ratification_rows,
+                attr="ratification_ref",
+                field_name="ratification_rows",
+            ),
+        )
+        object.__setattr__(
+            self,
+            "non_integration_summary",
+            _non_integration_guardrail(
+                self.non_integration_summary, field_name="non_integration_summary"
+            ),
+        )
+        expected_id = _surface_id(
+            "repo_candidate_ratification_record",
+            REPO_CANDIDATE_RATIFICATION_RECORD_SCHEMA,
+            self.model_dump(mode="json"),
+            "ratification_record_id",
+        )
+        if self.ratification_record_id != expected_id:
+            raise ValueError(
+                "ratification_record_id must match canonical full payload hash identity"
+            )
+        return self
+
+
+class RepoReviewSettlementRow(_CartographyBase):
+    settlement_ref: str
+    candidate_ref: str
+    request_refs: list[str] = Field(min_length=1)
+    source_relation_refs: list[str] = Field(default_factory=list)
+    relation_kind: ReviewRelationKind
+    source_gap_refs: list[str] = Field(default_factory=list)
+    settlement_posture: SettlementPosture
+    review_signal_posture: ReviewSignalPosture
+    settlement_authority_profile_refs: list[str] = Field(min_length=1)
+    dissent_refs: list[str] = Field(default_factory=list)
+    carried_forward_refs: list[str] = Field(default_factory=list)
+    limitation_note: str
+
+    @model_validator(mode="after")
+    def _validate_settlement_row(self) -> RepoReviewSettlementRow:
+        object.__setattr__(
+            self, "settlement_ref", _non_empty(self.settlement_ref, field_name="settlement_ref")
+        )
+        object.__setattr__(
+            self,
+            "candidate_ref",
+            _non_empty(self.candidate_ref, field_name="candidate_ref"),
+        )
+        object.__setattr__(
+            self, "request_refs", _sorted_unique(self.request_refs, field_name="request_refs")
+        )
+        object.__setattr__(
+            self,
+            "source_relation_refs",
+            _sorted_unique(self.source_relation_refs, field_name="source_relation_refs"),
+        )
+        object.__setattr__(
+            self,
+            "source_gap_refs",
+            _sorted_unique(self.source_gap_refs, field_name="source_gap_refs"),
+        )
+        object.__setattr__(
+            self,
+            "settlement_authority_profile_refs",
+            _sorted_unique(
+                self.settlement_authority_profile_refs,
+                field_name="settlement_authority_profile_refs",
+            ),
+        )
+        object.__setattr__(
+            self, "dissent_refs", _sorted_unique(self.dissent_refs, field_name="dissent_refs")
+        )
+        object.__setattr__(
+            self,
+            "carried_forward_refs",
+            _sorted_unique(self.carried_forward_refs, field_name="carried_forward_refs"),
+        )
+        object.__setattr__(
+            self,
+            "limitation_note",
+            _v71b_note(self.limitation_note, field_name="limitation_note"),
+        )
+        if self.relation_kind == "conflict" and not self.source_relation_refs:
+            raise ValueError("conflict settlement rows require source_relation_refs")
+        if self.relation_kind != "conflict" and (
+            self.settlement_posture == "blocked_by_unresolved_conflict"
+        ):
+            raise ValueError("non-conflict settlement rows cannot be blocked by conflict")
+        if self.relation_kind == "complementarity" and (
+            self.review_signal_posture == "gating_blocker"
+        ):
+            raise ValueError("complementarity rows cannot carry gating blocker posture")
+        if (
+            self.settlement_posture
+            in {"partially_settled_with_dissent", "blocked_by_unresolved_conflict"}
+            and not self.dissent_refs
+        ):
+            raise ValueError("partial or unresolved settlement rows must preserve dissent_refs")
+        if self.settlement_posture == "blocked_by_unresolved_gap" and not self.source_gap_refs:
+            raise ValueError("gap-blocked settlement rows require source_gap_refs")
+        if (
+            self.settlement_posture
+            in {"blocked_by_unresolved_gap", "requires_more_evidence", "future_family_only"}
+            and not self.carried_forward_refs
+        ):
+            raise ValueError("unresolved gap or future-family settlements require carry-forward")
+        return self
+
+
+class RepoReviewSettlementRecord(_CartographyBase):
+    schema: Literal["repo_review_settlement_record@1"] = REPO_REVIEW_SETTLEMENT_RECORD_SCHEMA
+    settlement_register_id: str
+    review_id: str
+    snapshot_id: str
+    source_set_id: str
+    ratification_request_id: str
+    authority_profile_id: str
+    request_refs: list[str] = Field(min_length=1)
+    settlement_rows: list[RepoReviewSettlementRow] = Field(min_length=1)
+    non_integration_summary: str
+
+    @model_validator(mode="after")
+    def _validate_settlement_record(self) -> RepoReviewSettlementRecord:
+        object.__setattr__(
+            self,
+            "settlement_register_id",
+            _non_empty(self.settlement_register_id, field_name="settlement_register_id"),
+        )
+        object.__setattr__(self, "review_id", _non_empty(self.review_id, field_name="review_id"))
+        object.__setattr__(
+            self, "snapshot_id", _non_empty(self.snapshot_id, field_name="snapshot_id")
+        )
+        object.__setattr__(
+            self, "source_set_id", _non_empty(self.source_set_id, field_name="source_set_id")
+        )
+        object.__setattr__(
+            self,
+            "ratification_request_id",
+            _non_empty(self.ratification_request_id, field_name="ratification_request_id"),
+        )
+        object.__setattr__(
+            self,
+            "authority_profile_id",
+            _non_empty(self.authority_profile_id, field_name="authority_profile_id"),
+        )
+        object.__setattr__(
+            self, "request_refs", _sorted_unique(self.request_refs, field_name="request_refs")
+        )
+        object.__setattr__(
+            self,
+            "settlement_rows",
+            _sorted_unique_by_ref(
+                self.settlement_rows, attr="settlement_ref", field_name="settlement_rows"
+            ),
+        )
+        object.__setattr__(
+            self,
+            "non_integration_summary",
+            _non_integration_guardrail(
+                self.non_integration_summary, field_name="non_integration_summary"
+            ),
+        )
+        known_request_refs = set(self.request_refs)
+        covered_request_refs: set[str] = set()
+        for row in self.settlement_rows:
+            missing = sorted(set(row.request_refs) - known_request_refs)
+            if missing:
+                raise ValueError(f"settlement rows must reference known request_refs: {missing}")
+            covered_request_refs.update(row.request_refs)
+        uncovered_request_refs = sorted(known_request_refs - covered_request_refs)
+        if uncovered_request_refs:
+            raise ValueError(
+                f"settlement rows must cover every declared request_ref: {uncovered_request_refs}"
+            )
+        expected_id = _surface_id(
+            "repo_review_settlement_record",
+            REPO_REVIEW_SETTLEMENT_RECORD_SCHEMA,
+            self.model_dump(mode="json"),
+            "settlement_register_id",
+        )
+        if self.settlement_register_id != expected_id:
+            raise ValueError(
+                "settlement_register_id must match canonical full payload hash identity"
+            )
+        return self
+
+
+class RepoRatificationDissentRow(_CartographyBase):
+    dissent_ref: str
+    candidate_ref: str
+    request_refs: list[str] = Field(min_length=1)
+    settlement_refs: list[str] = Field(default_factory=list)
+    dissent_source_refs: list[str] = Field(min_length=1)
+    dissent_posture: DissentPosture
+    dissent_search_posture: DissentSearchPosture
+    dissent_summary: str
+    carry_forward_required: bool
+    limitation_note: str
+
+    @model_validator(mode="after")
+    def _validate_dissent_row(self) -> RepoRatificationDissentRow:
+        object.__setattr__(
+            self, "dissent_ref", _non_empty(self.dissent_ref, field_name="dissent_ref")
+        )
+        object.__setattr__(
+            self,
+            "candidate_ref",
+            _non_empty(self.candidate_ref, field_name="candidate_ref"),
+        )
+        object.__setattr__(
+            self, "request_refs", _sorted_unique(self.request_refs, field_name="request_refs")
+        )
+        object.__setattr__(
+            self,
+            "settlement_refs",
+            _sorted_unique(self.settlement_refs, field_name="settlement_refs"),
+        )
+        object.__setattr__(
+            self,
+            "dissent_source_refs",
+            _sorted_unique(self.dissent_source_refs, field_name="dissent_source_refs"),
+        )
+        object.__setattr__(
+            self,
+            "dissent_summary",
+            _v71b_note(self.dissent_summary, field_name="dissent_summary"),
+        )
+        object.__setattr__(
+            self,
+            "limitation_note",
+            _v71b_note(self.limitation_note, field_name="limitation_note"),
+        )
+        if (
+            self.dissent_posture == "no_dissent_recorded"
+            and self.dissent_search_posture != "searched_none_found"
+        ):
+            raise ValueError("no_dissent_recorded requires searched_none_found")
+        if self.dissent_posture == "no_dissent_recorded" and self.carry_forward_required:
+            raise ValueError("no_dissent_recorded cannot require carry-forward")
+        if self.dissent_posture in {
+            "dissent_carried_forward",
+            "minority_review_preserved",
+            "unresolved_blocker",
+        }:
+            if self.dissent_search_posture != "dissent_present":
+                raise ValueError("dissent-preserving rows require dissent_present search posture")
+            if not self.carry_forward_required:
+                raise ValueError("dissent-preserving rows require carry_forward_required")
+        return self
+
+
+class RepoRatificationDissentRegister(_CartographyBase):
+    schema: Literal["repo_ratification_dissent_register@1"] = (
+        REPO_RATIFICATION_DISSENT_REGISTER_SCHEMA
+    )
+    dissent_register_id: str
+    review_id: str
+    snapshot_id: str
+    source_set_id: str
+    ratification_request_id: str
+    settlement_register_id: str
+    request_refs: list[str] = Field(min_length=1)
+    dissent_rows: list[RepoRatificationDissentRow] = Field(min_length=1)
+    dissent_preservation_summary: str
+
+    @model_validator(mode="after")
+    def _validate_dissent_register(self) -> RepoRatificationDissentRegister:
+        object.__setattr__(
+            self,
+            "dissent_register_id",
+            _non_empty(self.dissent_register_id, field_name="dissent_register_id"),
+        )
+        object.__setattr__(self, "review_id", _non_empty(self.review_id, field_name="review_id"))
+        object.__setattr__(
+            self, "snapshot_id", _non_empty(self.snapshot_id, field_name="snapshot_id")
+        )
+        object.__setattr__(
+            self, "source_set_id", _non_empty(self.source_set_id, field_name="source_set_id")
+        )
+        object.__setattr__(
+            self,
+            "ratification_request_id",
+            _non_empty(self.ratification_request_id, field_name="ratification_request_id"),
+        )
+        object.__setattr__(
+            self,
+            "settlement_register_id",
+            _non_empty(self.settlement_register_id, field_name="settlement_register_id"),
+        )
+        object.__setattr__(
+            self, "request_refs", _sorted_unique(self.request_refs, field_name="request_refs")
+        )
+        object.__setattr__(
+            self,
+            "dissent_rows",
+            _sorted_unique_by_ref(self.dissent_rows, attr="dissent_ref", field_name="dissent_rows"),
+        )
+        object.__setattr__(
+            self,
+            "dissent_preservation_summary",
+            _v71b_note(
+                self.dissent_preservation_summary, field_name="dissent_preservation_summary"
+            ),
+        )
+        known_request_refs = set(self.request_refs)
+        for row in self.dissent_rows:
+            missing = sorted(set(row.request_refs) - known_request_refs)
+            if missing:
+                raise ValueError(f"dissent rows must reference known request_refs: {missing}")
+        expected_id = _surface_id(
+            "repo_ratification_dissent_register",
+            REPO_RATIFICATION_DISSENT_REGISTER_SCHEMA,
+            self.model_dump(mode="json"),
+            "dissent_register_id",
+        )
+        if self.dissent_register_id != expected_id:
+            raise ValueError("dissent_register_id must match canonical full payload hash identity")
+        return self
+
+
+_V71A_REQUEST_FIXTURE = (
+    "apps/api/fixtures/repo_description/vnext_plus197/"
+    "repo_candidate_ratification_request_v197_reference.json"
+)
+_V71A_AUTHORITY_FIXTURE = (
+    "apps/api/fixtures/repo_description/vnext_plus197/"
+    "repo_ratification_authority_profile_v197_reference.json"
+)
+_V71A_SCOPE_FIXTURE = (
+    "apps/api/fixtures/repo_description/vnext_plus197/"
+    "repo_ratification_request_scope_boundary_v197_reference.json"
+)
+
+
+def validate_v71b_candidate_ratification_review_bundle(
+    *,
+    ratification_request: RepoCandidateRatificationRequest,
+    authority_profile: RepoRatificationAuthorityProfile,
+    request_scope_boundary: RepoRatificationRequestScopeBoundary,
+    settlement_record: RepoReviewSettlementRecord,
+    dissent_register: RepoRatificationDissentRegister,
+    ratification_record: RepoCandidateRatificationRecord,
+) -> None:
+    if authority_profile.review_id != ratification_request.review_id:
+        raise ValueError("authority profile review_id must match ratification request")
+    if request_scope_boundary.review_id != ratification_request.review_id:
+        raise ValueError("request scope boundary review_id must match ratification request")
+    if dissent_register.review_id != settlement_record.review_id:
+        raise ValueError("dissent register review_id must match settlement record")
+    if ratification_record.review_id != settlement_record.review_id:
+        raise ValueError("ratification record review_id must match settlement record")
+    if settlement_record.source_set_id != ratification_request.source_set_id:
+        raise ValueError("settlement record source_set_id must match ratification request")
+    if dissent_register.source_set_id != settlement_record.source_set_id:
+        raise ValueError("dissent register source_set_id must match settlement record")
+    if ratification_record.source_set_id != settlement_record.source_set_id:
+        raise ValueError("ratification record source_set_id must match settlement record")
+    if settlement_record.ratification_request_id != ratification_request.ratification_request_id:
+        raise ValueError("settlement record must reference V71-A ratification request")
+    if dissent_register.ratification_request_id != ratification_request.ratification_request_id:
+        raise ValueError("dissent register must reference V71-A ratification request")
+    if ratification_record.ratification_request_id != ratification_request.ratification_request_id:
+        raise ValueError("ratification record must reference V71-A ratification request")
+    if settlement_record.authority_profile_id != authority_profile.authority_profile_id:
+        raise ValueError("settlement record must reference V71-A authority profile register")
+    if ratification_record.authority_profile_id != authority_profile.authority_profile_id:
+        raise ValueError("ratification record must reference V71-A authority profile register")
+    if (
+        ratification_record.request_scope_boundary_id
+        != request_scope_boundary.request_scope_boundary_id
+    ):
+        raise ValueError("ratification record must reference V71-A request scope boundary")
+    if dissent_register.settlement_register_id != settlement_record.settlement_register_id:
+        raise ValueError("dissent register must reference settlement register")
+    if ratification_record.settlement_register_id != settlement_record.settlement_register_id:
+        raise ValueError("ratification record must reference settlement register")
+    if ratification_record.dissent_register_id != dissent_register.dissent_register_id:
+        raise ValueError("ratification record must reference dissent register")
+
+    request_rows = {row.request_ref: row for row in ratification_request.request_rows}
+    authority_rows = {
+        row.authority_profile_ref: row for row in authority_profile.authority_profile_rows
+    }
+    scope_rows_by_request: dict[str, RepoRatificationRequestScopeBoundaryRow] = {}
+    for scope_row in request_scope_boundary.request_scope_boundary_rows:
+        for request_ref in scope_row.request_refs:
+            if request_ref in scope_rows_by_request:
+                raise ValueError("request scope boundary rows must cover each request once")
+            scope_rows_by_request[request_ref] = scope_row
+    settlement_rows = {row.settlement_ref: row for row in settlement_record.settlement_rows}
+    dissent_rows = {row.dissent_ref: row for row in dissent_register.dissent_rows}
+    known_request_refs = set(request_rows)
+    if set(scope_rows_by_request) != known_request_refs:
+        raise ValueError("request scope boundary rows must match V71-A requests")
+    if set(settlement_record.request_refs) != known_request_refs:
+        raise ValueError("settlement record request_refs must match V71-A requests")
+    if set(dissent_register.request_refs) != known_request_refs:
+        raise ValueError("dissent register request_refs must match V71-A requests")
+
+    for settlement in settlement_record.settlement_rows:
+        for request_ref in settlement.request_refs:
+            request = request_rows[request_ref]
+            if settlement.candidate_ref != request.candidate_ref:
+                raise ValueError("settlement candidate_ref must match request")
+        for profile_ref in settlement.settlement_authority_profile_refs:
+            profile = authority_rows.get(profile_ref)
+            if profile is None:
+                raise ValueError("settlement rows must reference known authority profiles")
+            if profile.authority_posture not in {"ratification_authority", "settlement_authority"}:
+                raise ValueError("settlement rows require settlement-capable authority profile")
+        for dissent_ref in settlement.dissent_refs:
+            if dissent_ref not in dissent_rows:
+                raise ValueError("settlement rows must reference known dissent rows")
+
+    for dissent in dissent_register.dissent_rows:
+        for request_ref in dissent.request_refs:
+            request = request_rows[request_ref]
+            if dissent.candidate_ref != request.candidate_ref:
+                raise ValueError("dissent candidate_ref must match request")
+        for settlement_ref in dissent.settlement_refs:
+            if settlement_ref not in settlement_rows:
+                raise ValueError("dissent rows must reference known settlement rows")
+
+    seen_ratification_requests: set[str] = set()
+    for ratification in ratification_record.ratification_rows:
+        missing_requests = sorted(set(ratification.request_refs) - known_request_refs)
+        if missing_requests:
+            raise ValueError(
+                f"ratification rows must reference known request_refs: {missing_requests}"
+            )
+        for request_ref in ratification.request_refs:
+            if request_ref in seen_ratification_requests:
+                raise ValueError("ratification rows must cover each request at most once")
+            seen_ratification_requests.add(request_ref)
+            request = request_rows[request_ref]
+            if ratification.candidate_ref != request.candidate_ref:
+                raise ValueError("ratification candidate_ref must match request")
+            scope_row = scope_rows_by_request[request_ref]
+            if ratification.candidate_ref != scope_row.candidate_ref:
+                raise ValueError("ratification candidate_ref must match scope boundary")
+            scope_surfaces = set(scope_row.allowed_next_review_surfaces)
+            if (
+                ratification.allowed_next_review_surface == "v72_contained_integration_review"
+                and "v71b_ratification_review" not in scope_surfaces
+            ):
+                raise ValueError("ratification next surface exceeds V71-A scope boundary")
+            if (
+                ratification.allowed_next_review_surface == "future_family_review"
+                and "future_family_review" not in scope_surfaces
+            ):
+                raise ValueError("ratification future-family routing exceeds V71-A scope boundary")
+            if (
+                request.request_posture == "requires_settlement_before_ratification"
+                and ratification.decision_posture == "ratified"
+                and not any(
+                    settlement_ref in settlement_rows
+                    and request_ref in settlement_rows[settlement_ref].request_refs
+                    for settlement_ref in ratification.settlement_refs
+                )
+            ):
+                raise ValueError(
+                    f"blocked request {request_ref} cannot be ratified without covering settlement"
+                )
+            if request.request_posture == "deferred_to_future_family" and (
+                ratification.decision_posture == "ratified"
+                or ratification.allowed_next_review_surface == "v72_contained_integration_review"
+            ):
+                raise ValueError("future-family requests cannot be ratified for integration")
+            for profile_ref in ratification.ratifying_authority_profile_refs:
+                profile = authority_rows.get(profile_ref)
+                if profile is None:
+                    raise ValueError("ratification rows must reference known authority profiles")
+                if ratification.decision_posture != "ratified":
+                    continue
+                if profile.authority_posture != "ratification_authority":
+                    raise ValueError("ratification requires ratification-authorized profile")
+                if ratification.ratification_horizon not in profile.allowed_ratification_horizons:
+                    raise ValueError(
+                        "ratification horizon must be allowed by every authority profile"
+                    )
+        for settlement_ref in ratification.settlement_refs:
+            settlement = settlement_rows.get(settlement_ref)
+            if settlement is None:
+                raise ValueError("ratification rows must reference known settlement rows")
+            if settlement.candidate_ref != ratification.candidate_ref:
+                raise ValueError("ratification candidate_ref must match settlement")
+            if (
+                settlement.settlement_posture
+                in {
+                    "blocked_by_unresolved_conflict",
+                    "blocked_by_unresolved_gap",
+                    "requires_more_evidence",
+                    "requires_human_review",
+                    "future_family_only",
+                }
+                and ratification.decision_posture == "ratified"
+            ):
+                raise ValueError("unresolved settlement blockers cannot be ratified")
+            missing_dissent = sorted(set(settlement.dissent_refs) - set(ratification.dissent_refs))
+            if missing_dissent:
+                raise ValueError(
+                    f"ratification row must preserve dissent from settlement "
+                    f"{settlement_ref}: {missing_dissent}"
+                )
+        for dissent_ref in ratification.dissent_refs:
+            dissent = dissent_rows.get(dissent_ref)
+            if dissent is None:
+                raise ValueError("ratification rows must reference known dissent rows")
+            if dissent.candidate_ref != ratification.candidate_ref:
+                raise ValueError("ratification candidate_ref must match dissent")
+            if dissent.dissent_posture == "unresolved_blocker" and (
+                ratification.decision_posture == "ratified"
+            ):
+                raise ValueError("unresolved dissent blockers cannot be ratified")
+    if seen_ratification_requests != known_request_refs:
+        missing = sorted(known_request_refs - seen_ratification_requests)
+        raise ValueError(f"ratification rows must cover every V71-A request: {missing}")
+
+
+def derive_v71b_repo_review_settlement_record(
+    *,
+    repo_root: Path,
+) -> RepoReviewSettlementRecord:
+    request = RepoCandidateRatificationRequest.model_validate(
+        _load_json(repo_root, _V71A_REQUEST_FIXTURE)
+    )
+    authority_profile = RepoRatificationAuthorityProfile.model_validate(
+        _load_json(repo_root, _V71A_AUTHORITY_FIXTURE)
+    )
+    rows = [
+        RepoReviewSettlementRow(
+            settlement_ref="settlement:v71b:odeu-diff:partial-with-dissent",
+            candidate_ref="candidate:internal:odeu_conceptual_diff_report@1",
+            request_refs=["request:v71a:odeu-diff:settlement-required"],
+            source_relation_refs=["relation:v70b:odeu-diff:model-output-divergence"],
+            relation_kind="conflict",
+            source_gap_refs=["gap:v70b:odeu-diff:missing-counterevidence"],
+            settlement_posture="partially_settled_with_dissent",
+            review_signal_posture="settlement_required",
+            settlement_authority_profile_refs=["authority:v71a:maintainer:ratification-review"],
+            dissent_refs=["dissent:v71b:odeu-diff:minority-preserved"],
+            carried_forward_refs=["gap:v70b:odeu-diff:missing-counterevidence"],
+            limitation_note=(
+                "Settlement preserves the model-output review dissent for later review."
+            ),
+        ),
+        RepoReviewSettlementRow(
+            settlement_ref="settlement:v71b:product-wedge:future-family",
+            candidate_ref="candidate:internal:typed_adjudication_product_wedge",
+            request_refs=["request:v71a:product-wedge:future-family"],
+            source_relation_refs=["relation:v70b:product-wedge:authority-boundary"],
+            relation_kind="conflict",
+            source_gap_refs=[
+                "gap:v70b:product-wedge:single-source-overclaim",
+                "gap:v70b:product-wedge:v74-boundary",
+            ],
+            settlement_posture="future_family_only",
+            review_signal_posture="future_family_only",
+            settlement_authority_profile_refs=["authority:v71a:maintainer:ratification-review"],
+            dissent_refs=[],
+            carried_forward_refs=["gap:v70b:product-wedge:v74-boundary"],
+            limitation_note="Product pressure remains routed to future-family review.",
+        ),
+        RepoReviewSettlementRow(
+            settlement_ref="settlement:v71b:self-evidencing:complementary",
+            candidate_ref="candidate:internal:self_evidencing_workflow_type_emergence",
+            request_refs=["request:v71a:self-evidencing:eligible"],
+            source_relation_refs=["relation:v70b:self-evidencing:complementarity"],
+            relation_kind="complementarity",
+            source_gap_refs=[],
+            settlement_posture="settled_for_candidate_horizon",
+            review_signal_posture="warning_only",
+            settlement_authority_profile_refs=["authority:v71a:maintainer:ratification-review"],
+            dissent_refs=["dissent:v71b:self-evidencing:none-found"],
+            carried_forward_refs=[],
+            limitation_note=(
+                "Complementary source-binding review is settled for candidate validity."
+            ),
+        ),
+    ]
+    payload = {
+        "schema": REPO_REVIEW_SETTLEMENT_RECORD_SCHEMA,
+        "review_id": "review:v71b:ratification-settlement",
+        "snapshot_id": "vNext+198-prestart-on-main",
+        "source_set_id": request.source_set_id,
+        "ratification_request_id": request.ratification_request_id,
+        "authority_profile_id": authority_profile.authority_profile_id,
+        "request_refs": [row.request_ref for row in request.request_rows],
+        "settlement_rows": [
+            row.model_dump(mode="json") for row in sorted(rows, key=lambda row: row.settlement_ref)
+        ],
+        "non_integration_summary": _V71B_NON_INTEGRATION_GUARDRAIL,
+    }
+    payload["settlement_register_id"] = _surface_id(
+        "repo_review_settlement_record",
+        REPO_REVIEW_SETTLEMENT_RECORD_SCHEMA,
+        payload,
+        "settlement_register_id",
+    )
+    return RepoReviewSettlementRecord.model_validate(payload)
+
+
+def derive_v71b_repo_ratification_dissent_register(
+    *,
+    repo_root: Path,
+) -> RepoRatificationDissentRegister:
+    request = RepoCandidateRatificationRequest.model_validate(
+        _load_json(repo_root, _V71A_REQUEST_FIXTURE)
+    )
+    settlement = derive_v71b_repo_review_settlement_record(repo_root=repo_root)
+    rows = [
+        RepoRatificationDissentRow(
+            dissent_ref="dissent:v71b:odeu-diff:minority-preserved",
+            candidate_ref="candidate:internal:odeu_conceptual_diff_report@1",
+            request_refs=["request:v71a:odeu-diff:settlement-required"],
+            settlement_refs=["settlement:v71b:odeu-diff:partial-with-dissent"],
+            dissent_source_refs=["gap:v70b:odeu-diff:missing-counterevidence"],
+            dissent_posture="minority_review_preserved",
+            dissent_search_posture="dissent_present",
+            dissent_summary="Counterevidence gap remains preserved for later review.",
+            carry_forward_required=True,
+            limitation_note="Dissent preservation does not grant downstream work.",
+        ),
+        RepoRatificationDissentRow(
+            dissent_ref="dissent:v71b:product-wedge:not-applicable",
+            candidate_ref="candidate:internal:typed_adjudication_product_wedge",
+            request_refs=["request:v71a:product-wedge:future-family"],
+            settlement_refs=["settlement:v71b:product-wedge:future-family"],
+            dissent_source_refs=["gap:v70b:product-wedge:v74-boundary"],
+            dissent_posture="not_applicable",
+            dissent_search_posture="not_applicable",
+            dissent_summary="Future-family product boundary review is not settled here.",
+            carry_forward_required=False,
+            limitation_note="Future-family routing is not product selection.",
+        ),
+        RepoRatificationDissentRow(
+            dissent_ref="dissent:v71b:self-evidencing:none-found",
+            candidate_ref="candidate:internal:self_evidencing_workflow_type_emergence",
+            request_refs=["request:v71a:self-evidencing:eligible"],
+            settlement_refs=["settlement:v71b:self-evidencing:complementary"],
+            dissent_source_refs=["relation:v70b:self-evidencing:complementarity"],
+            dissent_posture="no_dissent_recorded",
+            dissent_search_posture="searched_none_found",
+            dissent_summary="No dissent found within the released review relation horizon.",
+            carry_forward_required=False,
+            limitation_note="Absence is bounded to the searched V70/V71 review horizon.",
+        ),
+    ]
+    payload = {
+        "schema": REPO_RATIFICATION_DISSENT_REGISTER_SCHEMA,
+        "review_id": settlement.review_id,
+        "snapshot_id": settlement.snapshot_id,
+        "source_set_id": settlement.source_set_id,
+        "ratification_request_id": request.ratification_request_id,
+        "settlement_register_id": settlement.settlement_register_id,
+        "request_refs": [row.request_ref for row in request.request_rows],
+        "dissent_rows": [
+            row.model_dump(mode="json") for row in sorted(rows, key=lambda row: row.dissent_ref)
+        ],
+        "dissent_preservation_summary": (
+            "Dissent is preserved or explicitly searched within horizon."
+        ),
+    }
+    payload["dissent_register_id"] = _surface_id(
+        "repo_ratification_dissent_register",
+        REPO_RATIFICATION_DISSENT_REGISTER_SCHEMA,
+        payload,
+        "dissent_register_id",
+    )
+    return RepoRatificationDissentRegister.model_validate(payload)
+
+
+def derive_v71b_repo_candidate_ratification_record(
+    *,
+    repo_root: Path,
+) -> RepoCandidateRatificationRecord:
+    request = RepoCandidateRatificationRequest.model_validate(
+        _load_json(repo_root, _V71A_REQUEST_FIXTURE)
+    )
+    authority_profile = RepoRatificationAuthorityProfile.model_validate(
+        _load_json(repo_root, _V71A_AUTHORITY_FIXTURE)
+    )
+    scope_boundary = RepoRatificationRequestScopeBoundary.model_validate(
+        _load_json(repo_root, _V71A_SCOPE_FIXTURE)
+    )
+    settlement = derive_v71b_repo_review_settlement_record(repo_root=repo_root)
+    dissent = derive_v71b_repo_ratification_dissent_register(repo_root=repo_root)
+    rows = [
+        RepoCandidateRatificationRecordRow(
+            ratification_ref="ratification:v71b:odeu-diff:deferred-with-dissent",
+            candidate_ref="candidate:internal:odeu_conceptual_diff_report@1",
+            request_refs=["request:v71a:odeu-diff:settlement-required"],
+            settlement_refs=["settlement:v71b:odeu-diff:partial-with-dissent"],
+            decision_posture="deferred",
+            ratification_horizon="review_conflict_settlement",
+            allowed_next_review_surface="deferred_no_selection",
+            ratifying_authority_profile_refs=["authority:v71a:maintainer:ratification-review"],
+            dissent_refs=["dissent:v71b:odeu-diff:minority-preserved"],
+            amendment_scope_refs=[],
+            non_integration_guardrail=_V71B_NON_INTEGRATION_GUARDRAIL,
+            limitation_note="Partial settlement defers the candidate while preserving dissent.",
+        ),
+        RepoCandidateRatificationRecordRow(
+            ratification_ref="ratification:v71b:product-wedge:future-family",
+            candidate_ref="candidate:internal:typed_adjudication_product_wedge",
+            request_refs=["request:v71a:product-wedge:future-family"],
+            settlement_refs=["settlement:v71b:product-wedge:future-family"],
+            decision_posture="deferred",
+            ratification_horizon="future_family_routing",
+            allowed_next_review_surface="future_family_review",
+            ratifying_authority_profile_refs=["authority:v71a:maintainer:ratification-review"],
+            dissent_refs=["dissent:v71b:product-wedge:not-applicable"],
+            amendment_scope_refs=[],
+            non_integration_guardrail=_V71B_NON_INTEGRATION_GUARDRAIL,
+            limitation_note="Product wedge remains future-family routed.",
+        ),
+        RepoCandidateRatificationRecordRow(
+            ratification_ref="ratification:v71b:self-evidencing:source-bound-validity",
+            candidate_ref="candidate:internal:self_evidencing_workflow_type_emergence",
+            request_refs=["request:v71a:self-evidencing:eligible"],
+            settlement_refs=["settlement:v71b:self-evidencing:complementary"],
+            decision_posture="ratified",
+            ratification_horizon="source_bound_candidate_validity",
+            allowed_next_review_surface="v72_contained_integration_review",
+            ratifying_authority_profile_refs=["authority:v71a:maintainer:ratification-review"],
+            dissent_refs=["dissent:v71b:self-evidencing:none-found"],
+            amendment_scope_refs=[],
+            non_integration_guardrail=_V71B_NON_INTEGRATION_GUARDRAIL,
+            limitation_note="Ratified only for source-bound candidate validity review horizon.",
+        ),
+    ]
+    payload = {
+        "schema": REPO_CANDIDATE_RATIFICATION_RECORD_SCHEMA,
+        "review_id": settlement.review_id,
+        "snapshot_id": settlement.snapshot_id,
+        "source_set_id": settlement.source_set_id,
+        "ratification_request_id": request.ratification_request_id,
+        "authority_profile_id": authority_profile.authority_profile_id,
+        "request_scope_boundary_id": scope_boundary.request_scope_boundary_id,
+        "settlement_register_id": settlement.settlement_register_id,
+        "dissent_register_id": dissent.dissent_register_id,
+        "ratification_rows": [
+            row.model_dump(mode="json")
+            for row in sorted(rows, key=lambda row: row.ratification_ref)
+        ],
+        "non_integration_summary": _V71B_NON_INTEGRATION_GUARDRAIL,
+    }
+    payload["ratification_record_id"] = _surface_id(
+        "repo_candidate_ratification_record",
+        REPO_CANDIDATE_RATIFICATION_RECORD_SCHEMA,
+        payload,
+        "ratification_record_id",
+    )
+    return RepoCandidateRatificationRecord.model_validate(payload)
+
+
+def derive_v71b_repo_candidate_ratification_review_bundle(
+    *,
+    repo_root: Path,
+) -> tuple[
+    RepoCandidateRatificationRequest,
+    RepoRatificationAuthorityProfile,
+    RepoRatificationRequestScopeBoundary,
+    RepoReviewSettlementRecord,
+    RepoRatificationDissentRegister,
+    RepoCandidateRatificationRecord,
+]:
+    request = RepoCandidateRatificationRequest.model_validate(
+        _load_json(repo_root, _V71A_REQUEST_FIXTURE)
+    )
+    authority_profile = RepoRatificationAuthorityProfile.model_validate(
+        _load_json(repo_root, _V71A_AUTHORITY_FIXTURE)
+    )
+    scope_boundary = RepoRatificationRequestScopeBoundary.model_validate(
+        _load_json(repo_root, _V71A_SCOPE_FIXTURE)
+    )
+    settlement = derive_v71b_repo_review_settlement_record(repo_root=repo_root)
+    dissent = derive_v71b_repo_ratification_dissent_register(repo_root=repo_root)
+    ratification = derive_v71b_repo_candidate_ratification_record(repo_root=repo_root)
+    validate_v71b_candidate_ratification_review_bundle(
+        ratification_request=request,
+        authority_profile=authority_profile,
+        request_scope_boundary=scope_boundary,
+        settlement_record=settlement,
+        dissent_register=dissent,
+        ratification_record=ratification,
+    )
+    return request, authority_profile, scope_boundary, settlement, dissent, ratification

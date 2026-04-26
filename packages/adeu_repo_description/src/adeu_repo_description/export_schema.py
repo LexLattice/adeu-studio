@@ -23,9 +23,12 @@ from .arc_series_cartography_derivation import (
 )
 from .arc_series_cartography_tools import RepoArcCartographyToolRunEvidence
 from .candidate_ratification_review import (
+    RepoCandidateRatificationRecord,
     RepoCandidateRatificationRequest,
     RepoRatificationAuthorityProfile,
+    RepoRatificationDissentRegister,
     RepoRatificationRequestScopeBoundary,
+    RepoReviewSettlementRecord,
 )
 from .candidate_review_adversarial import (
     RepoCandidateAdversarialReviewMatrix,
@@ -200,6 +203,13 @@ def main() -> None:
     ratification_request_scope_boundary_schema = (
         RepoRatificationRequestScopeBoundary.model_json_schema(by_alias=True)
     )
+    candidate_ratification_record_schema = RepoCandidateRatificationRecord.model_json_schema(
+        by_alias=True
+    )
+    review_settlement_record_schema = RepoReviewSettlementRecord.model_json_schema(by_alias=True)
+    ratification_dissent_register_schema = RepoRatificationDissentRegister.model_json_schema(
+        by_alias=True
+    )
 
     _assert_no_absolute_path_material(dependency_register_v1_schema, repo_root_path=root)
     _assert_no_absolute_path_material(dependency_register_schema, repo_root_path=root)
@@ -260,6 +270,9 @@ def main() -> None:
     _assert_no_absolute_path_material(
         ratification_request_scope_boundary_schema, repo_root_path=root
     )
+    _assert_no_absolute_path_material(candidate_ratification_record_schema, repo_root_path=root)
+    _assert_no_absolute_path_material(review_settlement_record_schema, repo_root_path=root)
+    _assert_no_absolute_path_material(ratification_dissent_register_schema, repo_root_path=root)
 
     _write_schema(
         root
@@ -704,6 +717,42 @@ def main() -> None:
     _write_schema(
         root / "spec" / "repo_ratification_request_scope_boundary.schema.json",
         ratification_request_scope_boundary_schema,
+    )
+    _write_schema(
+        root
+        / "packages"
+        / "adeu_repo_description"
+        / "schema"
+        / "repo_candidate_ratification_record.v1.json",
+        candidate_ratification_record_schema,
+    )
+    _write_schema(
+        root / "spec" / "repo_candidate_ratification_record.schema.json",
+        candidate_ratification_record_schema,
+    )
+    _write_schema(
+        root
+        / "packages"
+        / "adeu_repo_description"
+        / "schema"
+        / "repo_review_settlement_record.v1.json",
+        review_settlement_record_schema,
+    )
+    _write_schema(
+        root / "spec" / "repo_review_settlement_record.schema.json",
+        review_settlement_record_schema,
+    )
+    _write_schema(
+        root
+        / "packages"
+        / "adeu_repo_description"
+        / "schema"
+        / "repo_ratification_dissent_register.v1.json",
+        ratification_dissent_register_schema,
+    )
+    _write_schema(
+        root / "spec" / "repo_ratification_dissent_register.schema.json",
+        ratification_dissent_register_schema,
     )
 
 

@@ -1,0 +1,81 @@
+{
+  "authority_profile_id": "repo_ratification_authority_profile_e48c43929dc1f185bccd9802",
+  "dissent_register_id": "repo_ratification_dissent_register_ef24610016ec6603be2b457d",
+  "non_integration_summary": "No implementation, no release, no product authorization, and no dispatch authority.",
+  "ratification_record_id": "repo_candidate_ratification_record_6937b2c5e33174fabb0e3dfa",
+  "ratification_request_id": "repo_candidate_ratification_request_6db75b7e7d468c47b967dbaa",
+  "ratification_rows": [
+    {
+      "allowed_next_review_surface": "deferred_no_selection",
+      "amendment_scope_refs": [],
+      "candidate_ref": "candidate:internal:odeu_conceptual_diff_report@1",
+      "decision_posture": "deferred",
+      "dissent_refs": [
+        "dissent:v71b:odeu-diff:minority-preserved"
+      ],
+      "limitation_note": "Partial settlement defers the candidate while preserving dissent.",
+      "non_integration_guardrail": "No implementation, no release, no product authorization, and no dispatch authority.",
+      "ratification_horizon": "review_conflict_settlement",
+      "ratification_ref": "ratification:v71b:odeu-diff:deferred-with-dissent",
+      "ratifying_authority_profile_refs": [
+        "authority:v71a:maintainer:ratification-review"
+      ],
+      "request_refs": [
+        "request:v71a:odeu-diff:settlement-required"
+      ],
+      "settlement_refs": [
+        "settlement:v71b:odeu-diff:partial-with-dissent"
+      ]
+    },
+    {
+      "allowed_next_review_surface": "future_family_review",
+      "amendment_scope_refs": [],
+      "candidate_ref": "candidate:internal:typed_adjudication_product_wedge",
+      "decision_posture": "deferred",
+      "dissent_refs": [
+        "dissent:v71b:product-wedge:not-applicable"
+      ],
+      "limitation_note": "Product wedge remains future-family routed.",
+      "non_integration_guardrail": "No implementation, no release, no product authorization, and no dispatch authority.",
+      "ratification_horizon": "future_family_routing",
+      "ratification_ref": "ratification:v71b:product-wedge:future-family",
+      "ratifying_authority_profile_refs": [
+        "authority:v71a:maintainer:ratification-review"
+      ],
+      "request_refs": [
+        "request:v71a:product-wedge:future-family"
+      ],
+      "settlement_refs": [
+        "settlement:v71b:product-wedge:future-family"
+      ]
+    },
+    {
+      "allowed_next_review_surface": "v72_contained_integration_review",
+      "amendment_scope_refs": [],
+      "candidate_ref": "candidate:internal:self_evidencing_workflow_type_emergence",
+      "decision_posture": "ratified",
+      "dissent_refs": [
+        "dissent:v71b:self-evidencing:none-found"
+      ],
+      "limitation_note": "Ratified only for source-bound candidate validity review horizon.",
+      "non_integration_guardrail": "No implementation, no release, no product authorization, and no dispatch authority.",
+      "ratification_horizon": "source_bound_candidate_validity",
+      "ratification_ref": "ratification:v71b:self-evidencing:source-bound-validity",
+      "ratifying_authority_profile_refs": [
+        "authority:v71a:maintainer:ratification-review"
+      ],
+      "request_refs": [
+        "request:v71a:self-evidencing:eligible"
+      ],
+      "settlement_refs": [
+        "settlement:v71b:self-evidencing:complementary"
+      ]
+    }
+  ],
+  "request_scope_boundary_id": "repo_ratification_request_scope_boundary_d1c5b6685ba2a615e926e2bc",
+  "review_id": "review:v71b:ratification-settlement",
+  "schema": "repo_candidate_ratification_record@1",
+  "settlement_register_id": "repo_review_settlement_record_54e26065a590722173bd102e",
+  "snapshot_id": "vNext+198-prestart-on-main",
+  "source_set_id": "source-set:v70a:released-v69c-handoff"
+}

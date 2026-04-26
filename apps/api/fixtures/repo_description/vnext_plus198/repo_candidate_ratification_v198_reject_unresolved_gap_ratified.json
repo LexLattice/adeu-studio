@@ -1,0 +1,90 @@
+{
+  "authority_profile_id": "repo_ratification_authority_profile_e48c43929dc1f185bccd9802",
+  "non_integration_summary": "No implementation, no release, no product authorization, and no dispatch authority.",
+  "ratification_request_id": "repo_candidate_ratification_request_6db75b7e7d468c47b967dbaa",
+  "request_refs": [
+    "request:v71a:odeu-diff:settlement-required",
+    "request:v71a:product-wedge:future-family",
+    "request:v71a:self-evidencing:eligible"
+  ],
+  "review_id": "review:v71b:ratification-settlement",
+  "schema": "repo_review_settlement_record@1",
+  "settlement_register_id": "repo_review_settlement_record_2e44eebead3668f484276083",
+  "settlement_rows": [
+    {
+      "candidate_ref": "candidate:internal:odeu_conceptual_diff_report@1",
+      "carried_forward_refs": [
+        "gap:v70b:odeu-diff:missing-counterevidence"
+      ],
+      "dissent_refs": [
+        "dissent:v71b:odeu-diff:minority-preserved"
+      ],
+      "limitation_note": "Settlement preserves the model-output review dissent for later review.",
+      "relation_kind": "conflict",
+      "request_refs": [
+        "request:v71a:odeu-diff:settlement-required"
+      ],
+      "review_signal_posture": "evidence_required",
+      "settlement_authority_profile_refs": [
+        "authority:v71a:maintainer:ratification-review"
+      ],
+      "settlement_posture": "blocked_by_unresolved_gap",
+      "settlement_ref": "settlement:v71b:odeu-diff:partial-with-dissent",
+      "source_gap_refs": [
+        "gap:v70b:odeu-diff:missing-counterevidence"
+      ],
+      "source_relation_refs": [
+        "relation:v70b:odeu-diff:model-output-divergence"
+      ]
+    },
+    {
+      "candidate_ref": "candidate:internal:typed_adjudication_product_wedge",
+      "carried_forward_refs": [
+        "gap:v70b:product-wedge:v74-boundary"
+      ],
+      "dissent_refs": [],
+      "limitation_note": "Product pressure remains routed to future-family review.",
+      "relation_kind": "conflict",
+      "request_refs": [
+        "request:v71a:product-wedge:future-family"
+      ],
+      "review_signal_posture": "future_family_only",
+      "settlement_authority_profile_refs": [
+        "authority:v71a:maintainer:ratification-review"
+      ],
+      "settlement_posture": "future_family_only",
+      "settlement_ref": "settlement:v71b:product-wedge:future-family",
+      "source_gap_refs": [
+        "gap:v70b:product-wedge:single-source-overclaim",
+        "gap:v70b:product-wedge:v74-boundary"
+      ],
+      "source_relation_refs": [
+        "relation:v70b:product-wedge:authority-boundary"
+      ]
+    },
+    {
+      "candidate_ref": "candidate:internal:self_evidencing_workflow_type_emergence",
+      "carried_forward_refs": [],
+      "dissent_refs": [
+        "dissent:v71b:self-evidencing:none-found"
+      ],
+      "limitation_note": "Complementary source-binding review is settled for candidate validity.",
+      "relation_kind": "complementarity",
+      "request_refs": [
+        "request:v71a:self-evidencing:eligible"
+      ],
+      "review_signal_posture": "warning_only",
+      "settlement_authority_profile_refs": [
+        "authority:v71a:maintainer:ratification-review"
+      ],
+      "settlement_posture": "settled_for_candidate_horizon",
+      "settlement_ref": "settlement:v71b:self-evidencing:complementary",
+      "source_gap_refs": [],
+      "source_relation_refs": [
+        "relation:v70b:self-evidencing:complementarity"
+      ]
+    }
+  ],
+  "snapshot_id": "vNext+198-prestart-on-main",
+  "source_set_id": "source-set:v70a:released-v69c-handoff"
+}

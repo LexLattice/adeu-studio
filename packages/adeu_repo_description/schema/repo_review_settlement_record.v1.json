@@ -1,0 +1,179 @@
+{
+  "$defs": {
+    "RepoReviewSettlementRow": {
+      "additionalProperties": false,
+      "properties": {
+        "candidate_ref": {
+          "title": "Candidate Ref",
+          "type": "string"
+        },
+        "carried_forward_refs": {
+          "items": {
+            "type": "string"
+          },
+          "title": "Carried Forward Refs",
+          "type": "array"
+        },
+        "dissent_refs": {
+          "items": {
+            "type": "string"
+          },
+          "title": "Dissent Refs",
+          "type": "array"
+        },
+        "limitation_note": {
+          "title": "Limitation Note",
+          "type": "string"
+        },
+        "relation_kind": {
+          "enum": [
+            "conflict",
+            "complementarity",
+            "orthogonal",
+            "duplicate",
+            "unclear_relation"
+          ],
+          "title": "Relation Kind",
+          "type": "string"
+        },
+        "request_refs": {
+          "items": {
+            "type": "string"
+          },
+          "minItems": 1,
+          "title": "Request Refs",
+          "type": "array"
+        },
+        "review_signal_posture": {
+          "enum": [
+            "warning_only",
+            "gating_blocker",
+            "settlement_required",
+            "evidence_required",
+            "human_review_required",
+            "future_family_only"
+          ],
+          "title": "Review Signal Posture",
+          "type": "string"
+        },
+        "settlement_authority_profile_refs": {
+          "items": {
+            "type": "string"
+          },
+          "minItems": 1,
+          "title": "Settlement Authority Profile Refs",
+          "type": "array"
+        },
+        "settlement_posture": {
+          "enum": [
+            "settled_for_candidate_horizon",
+            "partially_settled_with_dissent",
+            "blocked_by_unresolved_conflict",
+            "blocked_by_unresolved_gap",
+            "requires_more_evidence",
+            "requires_human_review",
+            "future_family_only"
+          ],
+          "title": "Settlement Posture",
+          "type": "string"
+        },
+        "settlement_ref": {
+          "title": "Settlement Ref",
+          "type": "string"
+        },
+        "source_gap_refs": {
+          "items": {
+            "type": "string"
+          },
+          "title": "Source Gap Refs",
+          "type": "array"
+        },
+        "source_relation_refs": {
+          "items": {
+            "type": "string"
+          },
+          "title": "Source Relation Refs",
+          "type": "array"
+        }
+      },
+      "required": [
+        "settlement_ref",
+        "candidate_ref",
+        "request_refs",
+        "relation_kind",
+        "settlement_posture",
+        "review_signal_posture",
+        "settlement_authority_profile_refs",
+        "limitation_note"
+      ],
+      "title": "RepoReviewSettlementRow",
+      "type": "object"
+    }
+  },
+  "additionalProperties": false,
+  "properties": {
+    "authority_profile_id": {
+      "title": "Authority Profile Id",
+      "type": "string"
+    },
+    "non_integration_summary": {
+      "title": "Non Integration Summary",
+      "type": "string"
+    },
+    "ratification_request_id": {
+      "title": "Ratification Request Id",
+      "type": "string"
+    },
+    "request_refs": {
+      "items": {
+        "type": "string"
+      },
+      "minItems": 1,
+      "title": "Request Refs",
+      "type": "array"
+    },
+    "review_id": {
+      "title": "Review Id",
+      "type": "string"
+    },
+    "schema": {
+      "const": "repo_review_settlement_record@1",
+      "default": "repo_review_settlement_record@1",
+      "title": "Schema",
+      "type": "string"
+    },
+    "settlement_register_id": {
+      "title": "Settlement Register Id",
+      "type": "string"
+    },
+    "settlement_rows": {
+      "items": {
+        "$ref": "#/$defs/RepoReviewSettlementRow"
+      },
+      "minItems": 1,
+      "title": "Settlement Rows",
+      "type": "array"
+    },
+    "snapshot_id": {
+      "title": "Snapshot Id",
+      "type": "string"
+    },
+    "source_set_id": {
+      "title": "Source Set Id",
+      "type": "string"
+    }
+  },
+  "required": [
+    "settlement_register_id",
+    "review_id",
+    "snapshot_id",
+    "source_set_id",
+    "ratification_request_id",
+    "authority_profile_id",
+    "request_refs",
+    "settlement_rows",
+    "non_integration_summary"
+  ],
+  "title": "RepoReviewSettlementRecord",
+  "type": "object"
+}
