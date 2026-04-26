@@ -181,6 +181,106 @@ def test_v198_rejects_invalid_surface_fixtures(
         model_type.model_validate(_load_fixture("vnext_plus198", fixture_name))
 
 
+def test_v198_rejects_settlement_register_with_uncovered_declared_request() -> None:
+    payload = _load_fixture(
+        "vnext_plus198",
+        "repo_review_settlement_record_v198_reference.json",
+    )
+    payload["settlement_rows"] = [
+        row
+        for row in payload["settlement_rows"]
+        if row["settlement_ref"] != "settlement:v71b:product-wedge:future-family"
+    ]
+
+    with pytest.raises(ValidationError, match="cover every declared request_ref"):
+        RepoReviewSettlementRecord.model_validate(payload)
+
+
+def test_v198_rejects_blocked_request_without_covering_settlement() -> None:
+    ratification_rows = [
+        row.model_copy(
+            update={
+                "decision_posture": "ratified",
+                "settlement_refs": ["settlement:v71b:self-evidencing:complementary"],
+            }
+        )
+        if row.ratification_ref == "ratification:v71b:odeu-diff:deferred-with-dissent"
+        else row
+        for row in _v71b_ratification().ratification_rows
+    ]
+    ratification = _v71b_ratification().model_copy(update={"ratification_rows": ratification_rows})
+
+    with pytest.raises(ValueError, match="covering settlement"):
+        validate_v71b_candidate_ratification_review_bundle(
+            ratification_request=_v71a_request(),
+            authority_profile=_v71a_authority_profile(),
+            request_scope_boundary=_v71a_scope_boundary(),
+            settlement_record=_v71b_settlement(),
+            dissent_register=_v71b_dissent(),
+            ratification_record=ratification,
+        )
+
+
+def test_v198_rejects_v71a_scope_boundary_violation() -> None:
+    ratification_rows = [
+        row.model_copy(update={"allowed_next_review_surface": "v72_contained_integration_review"})
+        if row.ratification_ref == "ratification:v71b:odeu-diff:deferred-with-dissent"
+        else row
+        for row in _v71b_ratification().ratification_rows
+    ]
+    ratification = _v71b_ratification().model_copy(update={"ratification_rows": ratification_rows})
+
+    with pytest.raises(ValueError, match="exceeds V71-A scope boundary"):
+        validate_v71b_candidate_ratification_review_bundle(
+            ratification_request=_v71a_request(),
+            authority_profile=_v71a_authority_profile(),
+            request_scope_boundary=_v71a_scope_boundary(),
+            settlement_record=_v71b_settlement(),
+            dissent_register=_v71b_dissent(),
+            ratification_record=ratification,
+        )
+
+
+def test_v198_rejects_ratification_over_human_review_settlement_blocker() -> None:
+    settlement_rows = [
+        row.model_copy(update={"settlement_posture": "requires_human_review"})
+        if row.settlement_ref == "settlement:v71b:self-evidencing:complementary"
+        else row
+        for row in _v71b_settlement().settlement_rows
+    ]
+    settlement = _v71b_settlement().model_copy(update={"settlement_rows": settlement_rows})
+
+    with pytest.raises(ValueError, match="unresolved settlement blockers"):
+        validate_v71b_candidate_ratification_review_bundle(
+            ratification_request=_v71a_request(),
+            authority_profile=_v71a_authority_profile(),
+            request_scope_boundary=_v71a_scope_boundary(),
+            settlement_record=settlement,
+            dissent_register=_v71b_dissent(),
+            ratification_record=_v71b_ratification(),
+        )
+
+
+def test_v198_rejects_ratification_that_drops_settlement_dissent_refs() -> None:
+    ratification_rows = [
+        row.model_copy(update={"dissent_refs": []})
+        if row.ratification_ref == "ratification:v71b:odeu-diff:deferred-with-dissent"
+        else row
+        for row in _v71b_ratification().ratification_rows
+    ]
+    ratification = _v71b_ratification().model_copy(update={"ratification_rows": ratification_rows})
+
+    with pytest.raises(ValueError, match="preserve dissent from settlement"):
+        validate_v71b_candidate_ratification_review_bundle(
+            ratification_request=_v71a_request(),
+            authority_profile=_v71a_authority_profile(),
+            request_scope_boundary=_v71a_scope_boundary(),
+            settlement_record=_v71b_settlement(),
+            dissent_register=_v71b_dissent(),
+            ratification_record=ratification,
+        )
+
+
 @pytest.mark.parametrize(
     ("fixture_name", "match"),
     [
@@ -194,7 +294,7 @@ def test_v198_rejects_invalid_surface_fixtures(
         ),
         (
             "repo_candidate_ratification_v198_reject_blocked_without_settlement.json",
-            "blocked request cannot be ratified without settlement",
+            "covering settlement",
         ),
         (
             "repo_candidate_ratification_v198_reject_unresolved_gap_ratified.json",

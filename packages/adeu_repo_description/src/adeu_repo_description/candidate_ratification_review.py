@@ -1397,10 +1397,17 @@ class RepoReviewSettlementRecord(_CartographyBase):
             ),
         )
         known_request_refs = set(self.request_refs)
+        covered_request_refs: set[str] = set()
         for row in self.settlement_rows:
             missing = sorted(set(row.request_refs) - known_request_refs)
             if missing:
                 raise ValueError(f"settlement rows must reference known request_refs: {missing}")
+            covered_request_refs.update(row.request_refs)
+        uncovered_request_refs = sorted(known_request_refs - covered_request_refs)
+        if uncovered_request_refs:
+            raise ValueError(
+                f"settlement rows must cover every declared request_ref: {uncovered_request_refs}"
+            )
         expected_id = _surface_id(
             "repo_review_settlement_record",
             REPO_REVIEW_SETTLEMENT_RECORD_SCHEMA,
@@ -1610,9 +1617,17 @@ def validate_v71b_candidate_ratification_review_bundle(
     authority_rows = {
         row.authority_profile_ref: row for row in authority_profile.authority_profile_rows
     }
+    scope_rows_by_request: dict[str, RepoRatificationRequestScopeBoundaryRow] = {}
+    for scope_row in request_scope_boundary.request_scope_boundary_rows:
+        for request_ref in scope_row.request_refs:
+            if request_ref in scope_rows_by_request:
+                raise ValueError("request scope boundary rows must cover each request once")
+            scope_rows_by_request[request_ref] = scope_row
     settlement_rows = {row.settlement_ref: row for row in settlement_record.settlement_rows}
     dissent_rows = {row.dissent_ref: row for row in dissent_register.dissent_rows}
     known_request_refs = set(request_rows)
+    if set(scope_rows_by_request) != known_request_refs:
+        raise ValueError("request scope boundary rows must match V71-A requests")
     if set(settlement_record.request_refs) != known_request_refs:
         raise ValueError("settlement record request_refs must match V71-A requests")
     if set(dissent_register.request_refs) != known_request_refs:
@@ -1632,12 +1647,6 @@ def validate_v71b_candidate_ratification_review_bundle(
         for dissent_ref in settlement.dissent_refs:
             if dissent_ref not in dissent_rows:
                 raise ValueError("settlement rows must reference known dissent rows")
-        if (
-            settlement.settlement_posture
-            in {"partially_settled_with_dissent", "blocked_by_unresolved_conflict"}
-            and not settlement.dissent_refs
-        ):
-            raise ValueError("partial or unresolved settlement must preserve dissent")
 
     for dissent in dissent_register.dissent_rows:
         for request_ref in dissent.request_refs:
@@ -1662,12 +1671,32 @@ def validate_v71b_candidate_ratification_review_bundle(
             request = request_rows[request_ref]
             if ratification.candidate_ref != request.candidate_ref:
                 raise ValueError("ratification candidate_ref must match request")
+            scope_row = scope_rows_by_request[request_ref]
+            if ratification.candidate_ref != scope_row.candidate_ref:
+                raise ValueError("ratification candidate_ref must match scope boundary")
+            scope_surfaces = set(scope_row.allowed_next_review_surfaces)
+            if (
+                ratification.allowed_next_review_surface == "v72_contained_integration_review"
+                and "v71b_ratification_review" not in scope_surfaces
+            ):
+                raise ValueError("ratification next surface exceeds V71-A scope boundary")
+            if (
+                ratification.allowed_next_review_surface == "future_family_review"
+                and "future_family_review" not in scope_surfaces
+            ):
+                raise ValueError("ratification future-family routing exceeds V71-A scope boundary")
             if (
                 request.request_posture == "requires_settlement_before_ratification"
                 and ratification.decision_posture == "ratified"
-                and not ratification.settlement_refs
+                and not any(
+                    settlement_ref in settlement_rows
+                    and request_ref in settlement_rows[settlement_ref].request_refs
+                    for settlement_ref in ratification.settlement_refs
+                )
             ):
-                raise ValueError("blocked request cannot be ratified without settlement")
+                raise ValueError(
+                    f"blocked request {request_ref} cannot be ratified without covering settlement"
+                )
             if request.request_posture == "deferred_to_future_family" and (
                 ratification.decision_posture == "ratified"
                 or ratification.allowed_next_review_surface == "v72_contained_integration_review"
@@ -1697,10 +1726,18 @@ def validate_v71b_candidate_ratification_review_bundle(
                     "blocked_by_unresolved_conflict",
                     "blocked_by_unresolved_gap",
                     "requires_more_evidence",
+                    "requires_human_review",
+                    "future_family_only",
                 }
                 and ratification.decision_posture == "ratified"
             ):
                 raise ValueError("unresolved settlement blockers cannot be ratified")
+            missing_dissent = sorted(set(settlement.dissent_refs) - set(ratification.dissent_refs))
+            if missing_dissent:
+                raise ValueError(
+                    f"ratification row must preserve dissent from settlement "
+                    f"{settlement_ref}: {missing_dissent}"
+                )
         for dissent_ref in ratification.dissent_refs:
             dissent = dissent_rows.get(dissent_ref)
             if dissent is None:
