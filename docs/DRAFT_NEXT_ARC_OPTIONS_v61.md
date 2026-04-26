@@ -124,15 +124,13 @@ Later `V71` surfaces should remain support-layer until their own starter locks:
 - `repo_ratification_amendment_scope_boundary@1`
 - `repo_post_ratification_handoff@1`
 
-Post-`V71-A` continuation posture: after `vNext+197` closes on `main`, select
-`V71-B` as the next default candidate for the next canonical starter bundle.
+Post-`V71-A` continuation posture: after `vNext+197` closes on `main`, select `V71-B` as the next default candidate for the next canonical starter bundle.
 That selection remains inside the already selected `V71` family and does not
 create a new next-arc-options selector version.
 
-Post-`V71-B` continuation posture: after the `V71-B` slice closes on `main`,
-select `V71-C` as the next default candidate for the next canonical starter
-bundle. That selection remains inside the already selected `V71` family and
-does not create a new next-arc-options selector version.
+Post-`V71-B` continuation posture: after the `V71-B` slice closes on `main`, select `V71-C` as the next default candidate for the next canonical starter bundle.
+That selection remains inside the already selected `V71` family and does not
+create a new next-arc-options selector version.
 
 ## Non-Selection
 

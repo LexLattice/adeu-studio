@@ -1,8 +1,8 @@
 # Assessment vNext+197 Edges
 
-Status: pre-lock edge assessment for `V71-A` (April 26, 2026 UTC).
+Status: post-closeout edge assessment for `V71-A` (April 26, 2026 UTC).
 
-Authority layer: pre-lock assessment only.
+Authority layer: closeout evidence on `main` only.
 
 ## Assessment-State Marker (Machine-Checkable)
 
@@ -10,8 +10,8 @@ Authority layer: pre-lock assessment only.
 {
   "schema": "assessment_artifact_state@1",
   "artifact": "docs/ASSESSMENT_vNEXT_PLUS197_EDGES.md",
-  "phase": "pre_lock_assessment",
-  "authoritative": false,
+  "phase": "post_closeout_assessment",
+  "authoritative": true,
   "required_in_decision": true
 }
 ```
@@ -20,100 +20,111 @@ Authority layer: pre-lock assessment only.
 
 ### Edge 1: Ratification Request Could Become Ratification
 
-- Risk:
-  request rows could be overread as final ratification, rejection, or adoption.
-- Required containment:
-  `V71-A` may emit request, authority profile, and request-scope boundary rows
-  only; final ratification outcomes belong to `V71-B`.
+- Closeout posture:
+  contained.
+- Evidence:
+  `V71-A` shipped request, authority profile, and request-scope boundary rows
+  only; final ratification / rejection / adoption rows are rejected and remain
+  deferred to `V71-B`.
 
 ### Edge 2: Source Rows Could Collapse Into Prose Memory
 
-- Risk:
-  ratification requests could be reconstructed from planning prose, model
-  preference, operator vibe, or uncommitted transcript.
-- Required containment:
-  every request, authority profile, and request-scope boundary must resolve
-  through concrete ratification source rows or explicit absence rows.
+- Closeout posture:
+  contained.
+- Evidence:
+  ratification request rows require explicit source refs, and source-free
+  request fixtures fail closed.
 
 ### Edge 3: Authority Actor Could Be Confused With Authority Source
 
-- Risk:
-  `repo_lock`, support docs, tools, or transcripts could be treated as actors.
-- Required containment:
-  actor kind and authority grant source kind stay separate; non-human /
-  non-maintainer sources default to review-only, advisory-only, evidence-only,
-  or not-authorized posture unless explicitly granted.
+- Closeout posture:
+  contained.
+- Evidence:
+  authority profile rows separate actor kind from authority grant source kind;
+  `repo_lock` is represented as a grant source kind, not an actor kind.
 
 ### Edge 4: Model, Tool, Support, Or Transcript Could Self-Ratify
 
-- Risk:
-  model output, tool success, support docs, or transcript content could be
-  laundered into ratification authority.
-- Required containment:
-  reject self-ratification, tool-pass-as-ratification, support-doc-as-authority,
-  and transcript-as-truth / transcript-as-authority fixtures.
+- Closeout posture:
+  contained.
+- Evidence:
+  model self-ratification, tool-pass-as-ratification, and support-doc-as-
+  ratification-authority reject fixtures passed.
 
 ### Edge 5: Blocked Handoff Could Be Marked Eligible
 
-- Risk:
-  `blocked_by_conflict` or gap-bearing `V70-C` handoffs could become eligible
-  ratification requests without settlement requirement.
-- Required containment:
-  blocked handoffs map to `requires_settlement_before_ratification` and carry a
-  `settlement_required`, `evidence_required`, or `gating_blocker` review signal.
+- Closeout posture:
+  contained.
+- Evidence:
+  blocked `V70-C` handoff rows cannot become eligible ratification requests
+  without settlement requirement.
 
 ### Edge 6: Product Wedge Could Enter V71 Ratification
 
-- Risk:
-  product-facing pressure could be routed into `V71` ratification review and
-  then overread as future product or integration permission.
-- Required containment:
-  product wedge / future-family handoff rows remain future-family deferrals and
-  cannot become `V71` ratification requests.
+- Closeout posture:
+  contained.
+- Evidence:
+  product wedge rows remain future-family deferrals; product-wedge-to-`V71`
+  reject fixture passed.
 
 ### Edge 7: Request Scope Could Become Amendment Scope
 
-- Risk:
-  starter request-scope boundaries could be treated as `V71-C` amendment scope.
-- Required containment:
-  `repo_ratification_request_scope_boundary@1` bounds what a request may ask
-  for only; amendment scope remains deferred to `V71-C`.
+- Closeout posture:
+  contained.
+- Evidence:
+  `repo_ratification_request_scope_boundary@1` bounds only what a request may
+  ask for. No `V71-C` amendment-scope or post-ratification handoff surface
+  shipped.
 
 ### Edge 8: Warning Signals Could Become Blockers Or Settlement
 
-- Risk:
-  warning-only review signals, gating blockers, settlement requirements, and
-  evidence requirements could collapse into one generic review status.
-- Required containment:
-  `review_signal_posture` remains first-class and must not be silently repaired.
+- Closeout posture:
+  contained for `V71-A`.
+- Evidence:
+  request rows preserve review signal posture; settlement remains deferred to
+  `V71-B`.
 
 ### Edge 9: V71-A Could Begin V71-B Or V71-C
 
-- Risk:
-  starter implementation could include ratification records, settlement records,
-  dissent registers, amendment scope, or post-ratification handoff.
-- Required containment:
-  `V71-A` ships only request, authority profile, request-scope, schema,
-  validator, export, and fixture work.
+- Closeout posture:
+  contained.
+- Evidence:
+  no ratification record, settlement record, dissent register, amendment scope,
+  or post-ratification handoff was emitted in `v197`.
 
 ### Edge 10: V72 Or Later Authority Could Leak In
 
-- Risk:
-  request rows or scope rows could select implementation, contained integration,
-  product projection, release authority, runtime permission, dispatch, or
-  external contest participation.
-- Required containment:
-  downstream roles are forbidden in request-scope boundaries; later-family
-  review remains deferred until its own lock.
+- Closeout posture:
+  contained.
+- Evidence:
+  request-scope boundaries forbid implementation, contained integration,
+  commit/release authority, product authorization, runtime permission, dispatch,
+  and external contest authority.
 
-## Pre-Lock Judgment
+### Edge 11: CI Workflow Repair Could Be Overread As V71 Scope
 
-- `V71-A` is an appropriate bounded first slice after closed `V68`, `V69`, and
-  `V70`.
-- The slice should be implemented only as schema/model/validator/export and
-  reference/reject fixture work in `adeu_repo_description`.
-- The implementation must keep ratification requests, authority profiles, and
-  request-scope boundaries separate from final ratification, settlement,
-  amendment scope, contained integration, product authorization, release
-  authority, runtime permission, and dispatch.
+- Closeout posture:
+  contained as implementation-support repair.
+- Evidence:
+  the CI push-range hardening commit repaired workflow execution for amended
+  PR updates; it did not add or alter V71 schema authority, ratification
+  semantics, or downstream workflow authority.
 
+## Residual Edges
+
+- `V71-B` must settle or preserve conflict/gap/dissent posture without turning
+  ratification records into implementation tickets.
+- Ratification authority profiles must be checked against the exact horizon
+  they are used to ratify.
+- `V71-C` remains the first planned slice that may define amendment scope and
+  post-ratification handoff, still without integration authority.
+
+## Post-Closeout Judgment
+
+- `V71-A` is closed on `main` as a bounded candidate ratification request,
+  authority-profile, and request-scope starter slice.
+- The slice preserved the intended authority boundary: ratification requests
+  and authority profiles are not final ratification, settlement, adoption,
+  integration, product authorization, release authority, runtime permission, or
+  dispatch.
+- `V71` remains open for `V71-B`.
