@@ -1,0 +1,183 @@
+{
+  "$defs": {
+    "RepoContainedIntegrationFamilyCloseoutAlignmentRow": {
+      "additionalProperties": false,
+      "properties": {
+        "alignment_ref": {
+          "title": "Alignment Ref",
+          "type": "string"
+        },
+        "authority_posture_refs": {
+          "items": {
+            "type": "string"
+          },
+          "minItems": 1,
+          "title": "Authority Posture Refs",
+          "type": "array"
+        },
+        "blocked_candidate_refs": {
+          "items": {
+            "type": "string"
+          },
+          "title": "Blocked Candidate Refs",
+          "type": "array"
+        },
+        "candidate_refs": {
+          "items": {
+            "type": "string"
+          },
+          "minItems": 1,
+          "title": "Candidate Refs",
+          "type": "array"
+        },
+        "closed_slices": {
+          "items": {
+            "type": "string"
+          },
+          "minItems": 1,
+          "title": "Closed Slices",
+          "type": "array"
+        },
+        "closed_surface_refs": {
+          "items": {
+            "type": "string"
+          },
+          "minItems": 1,
+          "title": "Closed Surface Refs",
+          "type": "array"
+        },
+        "closeout_posture": {
+          "enum": [
+            "v72_family_closed_for_review_handoff",
+            "blocked_by_unresolved_authority_boundary",
+            "blocked_by_unresolved_effect_gap",
+            "future_family_only"
+          ],
+          "title": "Closeout Posture",
+          "type": "string"
+        },
+        "family_ref": {
+          "const": "V72",
+          "title": "Family Ref",
+          "type": "string"
+        },
+        "future_family_refs": {
+          "items": {
+            "type": "string"
+          },
+          "title": "Future Family Refs",
+          "type": "array"
+        },
+        "handoff_refs": {
+          "items": {
+            "type": "string"
+          },
+          "minItems": 1,
+          "title": "Handoff Refs",
+          "type": "array"
+        },
+        "limitation_note": {
+          "title": "Limitation Note",
+          "type": "string"
+        },
+        "non_authority_guardrails": {
+          "items": {
+            "type": "string"
+          },
+          "minItems": 1,
+          "title": "Non Authority Guardrails",
+          "type": "array"
+        },
+        "rollback_refs": {
+          "items": {
+            "type": "string"
+          },
+          "minItems": 1,
+          "title": "Rollback Refs",
+          "type": "array"
+        },
+        "trial_refs": {
+          "items": {
+            "type": "string"
+          },
+          "minItems": 1,
+          "title": "Trial Refs",
+          "type": "array"
+        }
+      },
+      "required": [
+        "alignment_ref",
+        "family_ref",
+        "closed_slices",
+        "closed_surface_refs",
+        "candidate_refs",
+        "trial_refs",
+        "rollback_refs",
+        "authority_posture_refs",
+        "handoff_refs",
+        "closeout_posture",
+        "non_authority_guardrails",
+        "limitation_note"
+      ],
+      "title": "RepoContainedIntegrationFamilyCloseoutAlignmentRow",
+      "type": "object"
+    }
+  },
+  "additionalProperties": false,
+  "properties": {
+    "alignment_rows": {
+      "items": {
+        "$ref": "#/$defs/RepoContainedIntegrationFamilyCloseoutAlignmentRow"
+      },
+      "minItems": 1,
+      "title": "Alignment Rows",
+      "type": "array"
+    },
+    "authority_posture_id": {
+      "title": "Authority Posture Id",
+      "type": "string"
+    },
+    "family_closeout_alignment_id": {
+      "title": "Family Closeout Alignment Id",
+      "type": "string"
+    },
+    "non_authority_summary": {
+      "title": "Non Authority Summary",
+      "type": "string"
+    },
+    "post_integration_handoff_id": {
+      "title": "Post Integration Handoff Id",
+      "type": "string"
+    },
+    "review_id": {
+      "title": "Review Id",
+      "type": "string"
+    },
+    "schema": {
+      "const": "repo_contained_integration_family_closeout_alignment@1",
+      "default": "repo_contained_integration_family_closeout_alignment@1",
+      "title": "Schema",
+      "type": "string"
+    },
+    "snapshot_id": {
+      "title": "Snapshot Id",
+      "type": "string"
+    },
+    "source_set_id": {
+      "title": "Source Set Id",
+      "type": "string"
+    }
+  },
+  "required": [
+    "family_closeout_alignment_id",
+    "review_id",
+    "snapshot_id",
+    "source_set_id",
+    "authority_posture_id",
+    "post_integration_handoff_id",
+    "alignment_rows",
+    "non_authority_summary"
+  ],
+  "title": "RepoContainedIntegrationFamilyCloseoutAlignment",
+  "type": "object"
+}

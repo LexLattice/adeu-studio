@@ -1,0 +1,69 @@
+{
+  "alignment_rows": [
+    {
+      "alignment_ref": "alignment:v72c:family-closeout:review-handoff",
+      "authority_posture_refs": [
+        "authority:v72c:self-evidencing:maintainer-required"
+      ],
+      "blocked_candidate_refs": [
+        "candidate:internal:odeu_conceptual_diff_report@1",
+        "candidate:internal:typed_adjudication_product_wedge"
+      ],
+      "candidate_refs": [
+        "candidate:internal:odeu_conceptual_diff_report@1",
+        "candidate:internal:self_evidencing_workflow_type_emergence",
+        "candidate:internal:typed_adjudication_product_wedge"
+      ],
+      "closed_slices": [
+        "V72-A",
+        "V72-B",
+        "V72-C"
+      ],
+      "closed_surface_refs": [
+        "repo_commit_release_authority_posture@1",
+        "repo_contained_integration_candidate_plan@1",
+        "repo_contained_integration_trial_record@1",
+        "repo_integration_effect_surface_register@1",
+        "repo_integration_non_release_guardrail@1",
+        "repo_integration_rollback_readiness@1",
+        "repo_integration_target_boundary@1",
+        "repo_post_integration_outcome_review_handoff@1"
+      ],
+      "closeout_posture": "v72_family_closed_for_review_handoff",
+      "family_ref": "V72",
+      "future_family_refs": [
+        "V73",
+        "V74"
+      ],
+      "handoff_refs": [
+        "handoff:v72c:self-evidencing:v73-review"
+      ],
+      "limitation_note": "V72 closes containment review and hands eligible evidence to V73 only.",
+      "non_authority_guardrails": [
+        "no_automatic_commit",
+        "no_dispatch_authority",
+        "no_merge",
+        "no_pr_update",
+        "no_product_authorization",
+        "no_release",
+        "no_runtime_permission"
+      ],
+      "rollback_refs": [
+        "rollback:v72b:self-evidencing:plan-present"
+      ],
+      "trial_refs": [
+        "trial:v72b:odeu-diff:blocked",
+        "trial:v72b:product-wedge:blocked",
+        "trial:v72b:self-evidencing:dry-run"
+      ]
+    }
+  ],
+  "authority_posture_id": "repo_commit_release_authority_posture_36a35b16cf267f29d308a194",
+  "family_closeout_alignment_id": "repo_contained_integration_family_closeout_alignment_a059348c9c42be6eca723d23",
+  "non_authority_summary": "V72 family closeout records containment review only: no automatic commit, no PR update, no merge, no release, no released truth, no product authorization, no runtime permission, no dispatch authority, and no V73 outcome review.",
+  "post_integration_handoff_id": "repo_post_integration_outcome_review_handoff_25b05bb3154fb4fd1dab3bf4",
+  "review_id": "review:v72c:integration-authority-boundary",
+  "schema": "repo_contained_integration_family_closeout_alignment@1",
+  "snapshot_id": "vNext+200-prestart-on-main",
+  "source_set_id": "source-set:v70a:released-v69c-handoff"
+}

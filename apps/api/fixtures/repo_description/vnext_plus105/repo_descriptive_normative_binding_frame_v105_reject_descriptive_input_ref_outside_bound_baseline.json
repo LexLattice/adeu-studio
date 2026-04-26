@@ -1,29 +1,6 @@
 {
   "binding_entries": [
     {
-      "allowed_use_summary": "Policy consumers may use symbol topology as one input when evaluating whether later governance artifacts need narrower scope boundaries.",
-      "authority_source_kind": "separate_decision_required",
-      "binding_posture": "adjudication_required",
-      "consumer_class": "policy_consumer",
-      "derivation_method": "cross_artifact_join",
-      "derivation_posture": "derived_deterministically",
-      "descriptive_input_kind": "repo_symbol_catalog",
-      "descriptive_input_ref": "repo_symbol_catalog_d8239af57fa1242d682b01fa",
-      "entry_id": "binding_entry_0d18fe0732ab606119df28d9",
-      "forbidden_use_summary": "May not convert code-shape visibility into automatic authority or direct repo changes.",
-      "promotion_law_posture": "adjudication_required_before_normative_use",
-      "source_artifact_refs": [
-        "docs/ASSESSMENT_vNEXT_PLUS105_EDGES.md",
-        "docs/LOCKED_CONTINUATION_vNEXT_PLUS105.md"
-      ],
-      "supporting_evidence_refs": [
-        "evidence:bound:v45b:symbol_catalog",
-        "evidence:contract:v45f:v105",
-        "evidence:source:docs/ASSESSMENT_vNEXT_PLUS105_EDGES.md:binding",
-        "evidence:source:docs/LOCKED_CONTINUATION_vNEXT_PLUS105.md:binding"
-      ]
-    },
-    {
       "allowed_use_summary": "Adjudication consumers may use test-intent visibility as supporting context when checking whether a later decision claim is actually defended.",
       "authority_source_kind": "separate_decision_required",
       "binding_posture": "adjudication_required",
@@ -31,8 +8,8 @@
       "derivation_method": "cross_artifact_join",
       "derivation_posture": "derived_deterministically",
       "descriptive_input_kind": "repo_test_intent_matrix",
-      "descriptive_input_ref": "repo_test_intent_matrix_fc7a9259bc978283f2816283",
-      "entry_id": "binding_entry_3834e7ef428b18cdaf97c137",
+      "descriptive_input_ref": "repo_test_intent_matrix_f62355acb0f0e1b4b95a36dd",
+      "entry_id": "binding_entry_6f928035c662b97b4ecdd10f",
       "forbidden_use_summary": "May not be overread as direct release gating, merge approval, or settlement.",
       "promotion_law_posture": "adjudication_required_before_normative_use",
       "source_artifact_refs": [
@@ -43,6 +20,29 @@
         "evidence:bound:v45d:test_intent_matrix",
         "evidence:contract:v45f:v105",
         "evidence:source:docs/ASSESSMENT_vNEXT_PLUS105_EDGES.md:binding",
+        "evidence:source:docs/LOCKED_CONTINUATION_vNEXT_PLUS105.md:binding"
+      ]
+    },
+    {
+      "allowed_use_summary": "Policy consumers may use optimization diagnostics to decide whether a later lock should narrow or reject a proposed amendment path.",
+      "authority_source_kind": "separate_lock_required",
+      "binding_posture": "separate_normative_authority_required",
+      "consumer_class": "policy_consumer",
+      "derivation_method": "policy_binding_rule",
+      "derivation_posture": "derived_deterministically",
+      "descriptive_input_kind": "repo_optimization_register",
+      "descriptive_input_ref": "repo_optimization_register_5730ec804c42abafd090f8e1",
+      "entry_id": "binding_entry_98b6f1c84d63fc89b8831f3f",
+      "forbidden_use_summary": "May not convert diagnostics into amendment entitlement, scheduling priority, or execution approval.",
+      "promotion_law_posture": "settled_authority_required_before_execution",
+      "source_artifact_refs": [
+        "docs/DRAFT_STOP_GATE_DECISION_vNEXT_PLUS105.md",
+        "docs/LOCKED_CONTINUATION_vNEXT_PLUS105.md"
+      ],
+      "supporting_evidence_refs": [
+        "evidence:bound:v45e:optimization_register",
+        "evidence:contract:v45f:v105",
+        "evidence:source:docs/DRAFT_STOP_GATE_DECISION_vNEXT_PLUS105.md:binding",
         "evidence:source:docs/LOCKED_CONTINUATION_vNEXT_PLUS105.md:binding"
       ]
     },
@@ -71,6 +71,32 @@
       ]
     },
     {
+      "allowed_use_summary": "Recursive-governance consumers may use dependency structure only as an eligibility input inside a stronger separately settled normative frame.",
+      "authority_source_kind": "separate_normative_artifact_required",
+      "binding_posture": "separate_normative_authority_required",
+      "consumer_class": "recursive_governance_consumer",
+      "derivation_method": "cross_artifact_join",
+      "derivation_posture": "derived_deterministically",
+      "descriptive_input_kind": "repo_dependency_graph",
+      "descriptive_input_ref": "repo_dependency_graph_bf1de0410a7759356eb4d6b3",
+      "entry_id": "binding_entry_a321e5e6ba1716c1d4708104",
+      "forbidden_use_summary": "May not authorize recursive execution, auto-mutation, or scheduler control by itself.",
+      "promotion_law_posture": "settled_authority_required_before_execution",
+      "source_artifact_refs": [
+        "docs/ASSESSMENT_vNEXT_PLUS105_EDGES.md",
+        "docs/DRAFT_STOP_GATE_DECISION_vNEXT_PLUS105.md",
+        "docs/LOCKED_CONTINUATION_vNEXT_PLUS105.md"
+      ],
+      "supporting_evidence_refs": [
+        "evidence:bound:v45b:dependency_graph",
+        "evidence:bound:v45c:arc_dependency_register",
+        "evidence:contract:v45f:v105",
+        "evidence:source:docs/ASSESSMENT_vNEXT_PLUS105_EDGES.md:binding",
+        "evidence:source:docs/DRAFT_STOP_GATE_DECISION_vNEXT_PLUS105.md:binding",
+        "evidence:source:docs/LOCKED_CONTINUATION_vNEXT_PLUS105.md:binding"
+      ]
+    },
+    {
       "allowed_use_summary": "Adjudication consumers may use schema-family structure to determine whether a later decision surface needs explicit policy review.",
       "authority_source_kind": "separate_decision_required",
       "binding_posture": "eligibility_signal_only",
@@ -95,63 +121,37 @@
       ]
     },
     {
-      "allowed_use_summary": "Policy consumers may use optimization diagnostics to decide whether a later lock should narrow or reject a proposed amendment path.",
-      "authority_source_kind": "separate_lock_required",
-      "binding_posture": "separate_normative_authority_required",
+      "allowed_use_summary": "Policy consumers may use symbol topology as one input when evaluating whether later governance artifacts need narrower scope boundaries.",
+      "authority_source_kind": "separate_decision_required",
+      "binding_posture": "adjudication_required",
       "consumer_class": "policy_consumer",
-      "derivation_method": "policy_binding_rule",
-      "derivation_posture": "derived_deterministically",
-      "descriptive_input_kind": "repo_optimization_register",
-      "descriptive_input_ref": "repo_optimization_register_aef371d16cb01662122818a1",
-      "entry_id": "binding_entry_c7f46740cf6a85d827dd5d9d",
-      "forbidden_use_summary": "May not convert diagnostics into amendment entitlement, scheduling priority, or execution approval.",
-      "promotion_law_posture": "settled_authority_required_before_execution",
-      "source_artifact_refs": [
-        "docs/DRAFT_STOP_GATE_DECISION_vNEXT_PLUS105.md",
-        "docs/LOCKED_CONTINUATION_vNEXT_PLUS105.md"
-      ],
-      "supporting_evidence_refs": [
-        "evidence:bound:v45e:optimization_register",
-        "evidence:contract:v45f:v105",
-        "evidence:source:docs/DRAFT_STOP_GATE_DECISION_vNEXT_PLUS105.md:binding",
-        "evidence:source:docs/LOCKED_CONTINUATION_vNEXT_PLUS105.md:binding"
-      ]
-    },
-    {
-      "allowed_use_summary": "Recursive-governance consumers may use dependency structure only as an eligibility input inside a stronger separately settled normative frame.",
-      "authority_source_kind": "separate_normative_artifact_required",
-      "binding_posture": "separate_normative_authority_required",
-      "consumer_class": "recursive_governance_consumer",
       "derivation_method": "cross_artifact_join",
       "derivation_posture": "derived_deterministically",
-      "descriptive_input_kind": "repo_dependency_graph",
-      "descriptive_input_ref": "repo_dependency_graph_d07b5dd01a9aba4e916f46df",
-      "entry_id": "binding_entry_d5ddf9faf9837542d7af92fb",
-      "forbidden_use_summary": "May not authorize recursive execution, auto-mutation, or scheduler control by itself.",
-      "promotion_law_posture": "settled_authority_required_before_execution",
+      "descriptive_input_kind": "repo_symbol_catalog",
+      "descriptive_input_ref": "repo_symbol_catalog_af8be6b0a0ddf78bce234e52",
+      "entry_id": "binding_entry_cdfa8b391d749d3596fcbfd0",
+      "forbidden_use_summary": "May not convert code-shape visibility into automatic authority or direct repo changes.",
+      "promotion_law_posture": "adjudication_required_before_normative_use",
       "source_artifact_refs": [
         "docs/ASSESSMENT_vNEXT_PLUS105_EDGES.md",
-        "docs/DRAFT_STOP_GATE_DECISION_vNEXT_PLUS105.md",
         "docs/LOCKED_CONTINUATION_vNEXT_PLUS105.md"
       ],
       "supporting_evidence_refs": [
-        "evidence:bound:v45b:dependency_graph",
-        "evidence:bound:v45c:arc_dependency_register",
+        "evidence:bound:v45b:symbol_catalog",
         "evidence:contract:v45f:v105",
         "evidence:source:docs/ASSESSMENT_vNEXT_PLUS105_EDGES.md:binding",
-        "evidence:source:docs/DRAFT_STOP_GATE_DECISION_vNEXT_PLUS105.md:binding",
         "evidence:source:docs/LOCKED_CONTINUATION_vNEXT_PLUS105.md:binding"
       ]
     }
   ],
   "binding_scope": "v45f-bounded-descriptive-to-normative-binding-frame-over-released-v45-baseline",
   "bound_arc_dependency_register_ref": "repo_arc_dependency_register_8ce8eed2f900d2b0b9e3efa8",
-  "bound_dependency_graph_ref": "repo_dependency_graph_d07b5dd01a9aba4e916f46df",
+  "bound_dependency_graph_ref": "repo_dependency_graph_bf1de0410a7759356eb4d6b3",
   "bound_entity_catalog_ref": "repo_entity_catalog_4f3bea1652190f3266973fef",
-  "bound_optimization_register_ref": "repo_optimization_register_aef371d16cb01662122818a1",
+  "bound_optimization_register_ref": "repo_optimization_register_5730ec804c42abafd090f8e1",
   "bound_schema_family_registry_ref": "repo_schema_family_registry_0295d9730ab7a2c940d7b56d",
-  "bound_symbol_catalog_ref": "repo_symbol_catalog_d8239af57fa1242d682b01fa",
-  "bound_test_intent_matrix_ref": "repo_test_intent_matrix_fc7a9259bc978283f2816283",
+  "bound_symbol_catalog_ref": "repo_symbol_catalog_af8be6b0a0ddf78bce234e52",
+  "bound_test_intent_matrix_ref": "repo_test_intent_matrix_f62355acb0f0e1b4b95a36dd",
   "evidence_refs": [
     {
       "evidence_kind": "observed_anchor_tuple_evidence",
@@ -216,9 +216,9 @@
   ],
   "extraction_method": "policy_binding_rule",
   "extraction_posture": "derived_deterministically",
-  "repo_descriptive_normative_binding_frame_id": "repo_descriptive_normative_binding_frame_94950ee5065467f4d5bf88b0",
-  "repo_snapshot_hash": "64982b35679adcc4d054082ed34253fdd3160bb5accfcf9cc8cf8da8085885b9",
-  "repo_snapshot_id": "repo_snapshot_64982b35679adcc4d054082e",
+  "repo_descriptive_normative_binding_frame_id": "repo_descriptive_normative_binding_frame_f79d7dd74939e3a7c40aefad",
+  "repo_snapshot_hash": "9fc4078beda32a40019f5c2c916bb6b78e92795dc6308d8ce797cd10fc7afc34",
+  "repo_snapshot_id": "repo_snapshot_9fc4078beda32a40019f5c2c",
   "schema": "repo_descriptive_normative_binding_frame@1",
   "snapshot_validity_posture": "snapshot_bound_current",
   "source_set": [

@@ -1,0 +1,175 @@
+{
+  "$defs": {
+    "RepoCommitReleaseAuthorityPostureRow": {
+      "additionalProperties": false,
+      "properties": {
+        "authority_posture_ref": {
+          "title": "Authority Posture Ref",
+          "type": "string"
+        },
+        "candidate_ref": {
+          "title": "Candidate Ref",
+          "type": "string"
+        },
+        "commit_intent_posture": {
+          "enum": [
+            "no_commit_intent",
+            "commit_intent_requires_maintainer",
+            "commit_intent_not_selected"
+          ],
+          "title": "Commit Intent Posture",
+          "type": "string"
+        },
+        "forbidden_automatic_actions": {
+          "items": {
+            "enum": [
+              "automatic_commit",
+              "automatic_pr_update",
+              "automatic_merge",
+              "automatic_release",
+              "automatic_product_authorization",
+              "automatic_runtime_permission",
+              "automatic_dispatch",
+              "automatic_external_contest_action"
+            ],
+            "type": "string"
+          },
+          "minItems": 1,
+          "title": "Forbidden Automatic Actions",
+          "type": "array"
+        },
+        "limitation_note": {
+          "title": "Limitation Note",
+          "type": "string"
+        },
+        "merge_posture": {
+          "enum": [
+            "no_merge_authority",
+            "merge_requires_maintainer",
+            "merge_not_selected"
+          ],
+          "title": "Merge Posture",
+          "type": "string"
+        },
+        "pr_posture": {
+          "enum": [
+            "no_pr_update_authority",
+            "pr_update_requires_maintainer",
+            "pr_update_not_selected"
+          ],
+          "title": "Pr Posture",
+          "type": "string"
+        },
+        "release_posture": {
+          "enum": [
+            "no_release_authority",
+            "release_requires_later_lock",
+            "release_not_selected"
+          ],
+          "title": "Release Posture",
+          "type": "string"
+        },
+        "released_truth_posture": {
+          "const": "released_truth_not_claimed",
+          "title": "Released Truth Posture",
+          "type": "string"
+        },
+        "required_human_authority_refs": {
+          "items": {
+            "type": "string"
+          },
+          "title": "Required Human Authority Refs",
+          "type": "array"
+        },
+        "rollback_refs": {
+          "items": {
+            "type": "string"
+          },
+          "minItems": 1,
+          "title": "Rollback Refs",
+          "type": "array"
+        },
+        "trial_refs": {
+          "items": {
+            "type": "string"
+          },
+          "minItems": 1,
+          "title": "Trial Refs",
+          "type": "array"
+        }
+      },
+      "required": [
+        "authority_posture_ref",
+        "candidate_ref",
+        "trial_refs",
+        "rollback_refs",
+        "commit_intent_posture",
+        "pr_posture",
+        "merge_posture",
+        "release_posture",
+        "released_truth_posture",
+        "forbidden_automatic_actions",
+        "limitation_note"
+      ],
+      "title": "RepoCommitReleaseAuthorityPostureRow",
+      "type": "object"
+    }
+  },
+  "additionalProperties": false,
+  "properties": {
+    "authority_posture_id": {
+      "title": "Authority Posture Id",
+      "type": "string"
+    },
+    "authority_posture_rows": {
+      "items": {
+        "$ref": "#/$defs/RepoCommitReleaseAuthorityPostureRow"
+      },
+      "minItems": 1,
+      "title": "Authority Posture Rows",
+      "type": "array"
+    },
+    "non_authority_summary": {
+      "title": "Non Authority Summary",
+      "type": "string"
+    },
+    "review_id": {
+      "title": "Review Id",
+      "type": "string"
+    },
+    "rollback_readiness_id": {
+      "title": "Rollback Readiness Id",
+      "type": "string"
+    },
+    "schema": {
+      "const": "repo_commit_release_authority_posture@1",
+      "default": "repo_commit_release_authority_posture@1",
+      "title": "Schema",
+      "type": "string"
+    },
+    "snapshot_id": {
+      "title": "Snapshot Id",
+      "type": "string"
+    },
+    "source_set_id": {
+      "title": "Source Set Id",
+      "type": "string"
+    },
+    "trial_record_id": {
+      "title": "Trial Record Id",
+      "type": "string"
+    }
+  },
+  "required": [
+    "authority_posture_id",
+    "review_id",
+    "snapshot_id",
+    "source_set_id",
+    "trial_record_id",
+    "rollback_readiness_id",
+    "authority_posture_rows",
+    "non_authority_summary"
+  ],
+  "title": "RepoCommitReleaseAuthorityPosture",
+  "type": "object"
+}

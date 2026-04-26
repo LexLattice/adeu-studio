@@ -28,7 +28,9 @@ from adeu_repo_description import (
     REPO_CANDIDATE_REVIEW_CONFLICT_REGISTER_SCHEMA,
     REPO_CANDIDATE_REVIEW_GAP_SCAN_SCHEMA,
     REPO_CANDIDATE_SOURCE_REGISTER_SCHEMA,
+    REPO_COMMIT_RELEASE_AUTHORITY_POSTURE_SCHEMA,
     REPO_CONTAINED_INTEGRATION_CANDIDATE_PLAN_SCHEMA,
+    REPO_CONTAINED_INTEGRATION_FAMILY_CLOSEOUT_ALIGNMENT_SCHEMA,
     REPO_CONTAINED_INTEGRATION_TRIAL_RECORD_SCHEMA,
     REPO_DEPENDENCY_GRAPH_SCHEMA,
     REPO_DESCRIPTIVE_NORMATIVE_BINDING_FRAME_SCHEMA,
@@ -41,6 +43,7 @@ from adeu_repo_description import (
     REPO_INTEGRATION_TARGET_BOUNDARY_SCHEMA,
     REPO_OPERATOR_INGRESS_CANDIDATE_BINDING_SCHEMA,
     REPO_OPTIMIZATION_REGISTER_SCHEMA,
+    REPO_POST_INTEGRATION_OUTCOME_REVIEW_HANDOFF_SCHEMA,
     REPO_POST_RATIFICATION_HANDOFF_SCHEMA,
     REPO_RATIFICATION_AMENDMENT_SCOPE_BOUNDARY_SCHEMA,
     REPO_RATIFICATION_AUTHORITY_PROFILE_SCHEMA,
@@ -430,6 +433,30 @@ def _schema_pairs() -> dict[str, tuple[Path, Path]]:
             / "schema"
             / "repo_integration_rollback_readiness.v1.json",
             root / "spec" / "repo_integration_rollback_readiness.schema.json",
+        ),
+        REPO_COMMIT_RELEASE_AUTHORITY_POSTURE_SCHEMA: (
+            root
+            / "packages"
+            / "adeu_repo_description"
+            / "schema"
+            / "repo_commit_release_authority_posture.v1.json",
+            root / "spec" / "repo_commit_release_authority_posture.schema.json",
+        ),
+        REPO_POST_INTEGRATION_OUTCOME_REVIEW_HANDOFF_SCHEMA: (
+            root
+            / "packages"
+            / "adeu_repo_description"
+            / "schema"
+            / "repo_post_integration_outcome_review_handoff.v1.json",
+            root / "spec" / "repo_post_integration_outcome_review_handoff.schema.json",
+        ),
+        REPO_CONTAINED_INTEGRATION_FAMILY_CLOSEOUT_ALIGNMENT_SCHEMA: (
+            root
+            / "packages"
+            / "adeu_repo_description"
+            / "schema"
+            / "repo_contained_integration_family_closeout_alignment.v1.json",
+            root / "spec" / "repo_contained_integration_family_closeout_alignment.schema.json",
         ),
     }
 
