@@ -1,0 +1,86 @@
+{
+  "amendment_scope_boundary_id": "repo_ratification_amendment_scope_boundary_d521603315edd7a348f0bc04",
+  "amendment_scope_rows": [
+    {
+      "allowed_amendment_scope": "no_amendment_scope",
+      "allowed_next_review_surfaces": [
+        "deferred_no_selection"
+      ],
+      "amendment_scope_ref": "amendment:v71c:odeu-diff:blocked-by-dissent",
+      "candidate_ref": "candidate:internal:odeu_conceptual_diff_report@1",
+      "forbidden_downstream_roles": [
+        "commit_release_authority",
+        "contained_integration",
+        "dispatch_authority",
+        "external_contest_authority",
+        "implementation_task",
+        "product_authorization",
+        "runtime_permission"
+      ],
+      "non_release_guardrail": "No implementation, no integration, no release, no product authorization, and no dispatch authority.",
+      "ratification_refs": [],
+      "scope_limitation_note": "Dissent and evidence gaps block amendment scope here.",
+      "settlement_refs": [
+        "settlement:v71b:odeu-diff:partial-with-dissent"
+      ]
+    },
+    {
+      "allowed_amendment_scope": "future_family_only",
+      "allowed_next_review_surfaces": [
+        "future_family_review"
+      ],
+      "amendment_scope_ref": "amendment:v71c:product-wedge:future-family",
+      "candidate_ref": "candidate:internal:typed_adjudication_product_wedge",
+      "forbidden_downstream_roles": [
+        "commit_release_authority",
+        "contained_integration",
+        "dispatch_authority",
+        "external_contest_authority",
+        "implementation_task",
+        "product_authorization",
+        "runtime_permission"
+      ],
+      "non_release_guardrail": "No implementation, no integration, no release, no product authorization, and no dispatch authority.",
+      "ratification_refs": [
+        "ratification:v71b:product-wedge:future-family"
+      ],
+      "scope_limitation_note": "Product pressure remains future-family only.",
+      "settlement_refs": [
+        "settlement:v71b:product-wedge:future-family"
+      ]
+    },
+    {
+      "allowed_amendment_scope": "schema_review_candidate",
+      "allowed_next_review_surfaces": [
+        "v72_contained_integration_review"
+      ],
+      "amendment_scope_ref": "amendment:v71c:self-evidencing:schema-review",
+      "candidate_ref": "candidate:internal:self_evidencing_workflow_type_emergence",
+      "forbidden_downstream_roles": [
+        "commit_release_authority",
+        "contained_integration",
+        "dispatch_authority",
+        "external_contest_authority",
+        "implementation_task",
+        "product_authorization",
+        "runtime_permission"
+      ],
+      "non_release_guardrail": "No implementation, no integration, no release, no product authorization, and no dispatch authority.",
+      "ratification_refs": [
+        "ratification:v71b:self-evidencing:source-bound-validity"
+      ],
+      "scope_limitation_note": "Later review may consider schema containment only.",
+      "settlement_refs": [
+        "settlement:v71b:self-evidencing:complementary"
+      ]
+    }
+  ],
+  "dissent_register_id": "repo_ratification_dissent_register_ef24610016ec6603be2b457d",
+  "non_authority_summary": "No implementation, no integration, no release, no product authorization, and no dispatch authority.",
+  "ratification_record_id": "repo_candidate_ratification_record_6937b2c5e33174fabb0e3dfa",
+  "review_id": "review:v71c:amendment-scope-handoff",
+  "schema": "repo_ratification_amendment_scope_boundary@1",
+  "settlement_register_id": "repo_review_settlement_record_54e26065a590722173bd102e",
+  "snapshot_id": "vNext+199-prestart-on-main",
+  "source_set_id": "source-set:v70a:released-v69c-handoff"
+}

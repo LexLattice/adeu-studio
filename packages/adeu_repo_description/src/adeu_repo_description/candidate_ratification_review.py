@@ -32,6 +32,11 @@ REPO_RATIFICATION_REQUEST_SCOPE_BOUNDARY_SCHEMA = "repo_ratification_request_sco
 REPO_CANDIDATE_RATIFICATION_RECORD_SCHEMA = "repo_candidate_ratification_record@1"
 REPO_REVIEW_SETTLEMENT_RECORD_SCHEMA = "repo_review_settlement_record@1"
 REPO_RATIFICATION_DISSENT_REGISTER_SCHEMA = "repo_ratification_dissent_register@1"
+REPO_RATIFICATION_AMENDMENT_SCOPE_BOUNDARY_SCHEMA = "repo_ratification_amendment_scope_boundary@1"
+REPO_POST_RATIFICATION_HANDOFF_SCHEMA = "repo_post_ratification_handoff@1"
+REPO_CANDIDATE_RATIFICATION_FAMILY_CLOSEOUT_ALIGNMENT_SCHEMA = (
+    "repo_candidate_ratification_family_closeout_alignment@1"
+)
 
 RatificationRequestPosture = Literal[
     "eligible_for_ratification_review",
@@ -136,6 +141,39 @@ DissentSearchPosture = Literal[
     "dissent_present",
     "unknown",
 ]
+AllowedAmendmentScope = Literal[
+    "docs_or_support_only",
+    "schema_review_candidate",
+    "validator_review_candidate",
+    "fixture_review_candidate",
+    "workflow_review_candidate",
+    "future_family_only",
+    "no_amendment_scope",
+]
+V71CAllowedNextReviewSurface = Literal[
+    "v72_contained_integration_review",
+    "future_family_review",
+    "deferred_no_selection",
+]
+PostRatificationHandoffPosture = Literal[
+    "ready_for_v72_review",
+    "blocked_by_scope_boundary",
+    "blocked_by_dissent",
+    "blocked_by_evidence_gap",
+    "deferred_to_future_family",
+    "rejected_out_of_scope",
+]
+RequiredNextSurface = Literal[
+    "v72_candidate_containment_planning",
+    "future_family_candidate_review",
+    "deferred_no_selection",
+]
+FamilyCandidateCloseoutPosture = Literal[
+    "ratified_for_later_review",
+    "deferred_with_dissent",
+    "future_family_routed",
+    "rejected_out_of_scope",
+]
 
 _V70C_SUMMARY_FIXTURE = (
     "apps/api/fixtures/repo_description/vnext_plus196/"
@@ -179,6 +217,19 @@ _DOWNSTREAM_FORBIDDEN_SET: set[ForbiddenDownstreamRole] = {
 _V71B_NON_INTEGRATION_GUARDRAIL = (
     "No implementation, no release, no product authorization, and no dispatch authority."
 )
+_V71C_NON_AUTHORITY_GUARDRAIL = (
+    "No implementation, no integration, no release, no product authorization, "
+    "and no dispatch authority."
+)
+_V71C_FORBIDDEN_SET: set[ForbiddenDownstreamRole] = {
+    "implementation_task",
+    "contained_integration",
+    "commit_release_authority",
+    "product_authorization",
+    "runtime_permission",
+    "dispatch_authority",
+    "external_contest_authority",
+}
 
 
 def _v71a_note(value: str, *, field_name: str) -> str:
@@ -204,6 +255,26 @@ def _non_integration_guardrail(value: str, *, field_name: str) -> str:
     missing = [phrase for phrase in required if phrase not in lowered]
     if missing:
         raise ValueError(f"{field_name} must state {', '.join(missing)}")
+    return normalized
+
+
+def _v71c_note(value: str, *, field_name: str) -> str:
+    normalized = _non_empty(value, field_name=field_name)
+    lowered = normalized.lower()
+    if any(term in lowered for term in _FORBIDDEN_V71B_DOWNSTREAM_TERMS):
+        raise ValueError(f"{field_name} may not carry downstream authority")
+    return normalized
+
+
+def _v71c_non_authority_guardrail(value: str, *, field_name: str) -> str:
+    normalized = _non_empty(value, field_name=field_name)
+    lowered = normalized.lower()
+    required = ("no implementation", "no release", "no product", "no dispatch")
+    missing = [phrase for phrase in required if phrase not in lowered]
+    if missing:
+        raise ValueError(f"{field_name} must state {', '.join(missing)}")
+    if "integration performed" in lowered or "release authorized" in lowered:
+        raise ValueError(f"{field_name} may not perform integration or release")
     return normalized
 
 
@@ -2022,3 +2093,835 @@ def derive_v71b_repo_candidate_ratification_review_bundle(
         ratification_record=ratification,
     )
     return request, authority_profile, scope_boundary, settlement, dissent, ratification
+
+
+class RepoRatificationAmendmentScopeBoundaryRow(_CartographyBase):
+    amendment_scope_ref: str
+    candidate_ref: str
+    ratification_refs: list[str] = Field(min_length=1)
+    settlement_refs: list[str] = Field(default_factory=list)
+    allowed_amendment_scope: AllowedAmendmentScope
+    forbidden_downstream_roles: list[ForbiddenDownstreamRole] = Field(min_length=1)
+    allowed_next_review_surfaces: list[V71CAllowedNextReviewSurface] = Field(min_length=1)
+    scope_limitation_note: str
+    non_release_guardrail: str
+
+    @model_validator(mode="after")
+    def _validate_amendment_scope_row(self) -> RepoRatificationAmendmentScopeBoundaryRow:
+        object.__setattr__(
+            self,
+            "amendment_scope_ref",
+            _non_empty(self.amendment_scope_ref, field_name="amendment_scope_ref"),
+        )
+        object.__setattr__(
+            self,
+            "candidate_ref",
+            _non_empty(self.candidate_ref, field_name="candidate_ref"),
+        )
+        object.__setattr__(
+            self,
+            "ratification_refs",
+            _sorted_unique(self.ratification_refs, field_name="ratification_refs"),
+        )
+        object.__setattr__(
+            self,
+            "settlement_refs",
+            _sorted_unique(self.settlement_refs, field_name="settlement_refs"),
+        )
+        object.__setattr__(
+            self,
+            "forbidden_downstream_roles",
+            _sorted_unique(
+                self.forbidden_downstream_roles, field_name="forbidden_downstream_roles"
+            ),
+        )
+        object.__setattr__(
+            self,
+            "allowed_next_review_surfaces",
+            _sorted_unique(
+                self.allowed_next_review_surfaces, field_name="allowed_next_review_surfaces"
+            ),
+        )
+        object.__setattr__(
+            self,
+            "scope_limitation_note",
+            _v71c_note(self.scope_limitation_note, field_name="scope_limitation_note"),
+        )
+        object.__setattr__(
+            self,
+            "non_release_guardrail",
+            _v71c_non_authority_guardrail(
+                self.non_release_guardrail, field_name="non_release_guardrail"
+            ),
+        )
+        missing_forbidden = sorted(_V71C_FORBIDDEN_SET - set(self.forbidden_downstream_roles))
+        if missing_forbidden:
+            raise ValueError(f"amendment scope must forbid downstream roles: {missing_forbidden}")
+        if (
+            self.candidate_ref == "candidate:internal:typed_adjudication_product_wedge"
+            and "v72_contained_integration_review" in self.allowed_next_review_surfaces
+        ):
+            raise ValueError("product wedge cannot be routed to V72")
+        if (
+            self.allowed_amendment_scope in {"future_family_only", "no_amendment_scope"}
+            and "v72_contained_integration_review" in self.allowed_next_review_surfaces
+        ):
+            raise ValueError("future-only or no-amendment scope cannot route to V72")
+        return self
+
+
+class RepoRatificationAmendmentScopeBoundary(_CartographyBase):
+    schema: Literal["repo_ratification_amendment_scope_boundary@1"] = (
+        REPO_RATIFICATION_AMENDMENT_SCOPE_BOUNDARY_SCHEMA
+    )
+    amendment_scope_boundary_id: str
+    review_id: str
+    snapshot_id: str
+    source_set_id: str
+    ratification_record_id: str
+    settlement_register_id: str
+    dissent_register_id: str
+    amendment_scope_rows: list[RepoRatificationAmendmentScopeBoundaryRow] = Field(min_length=1)
+    non_authority_summary: str
+
+    @model_validator(mode="after")
+    def _validate_amendment_scope_boundary(self) -> RepoRatificationAmendmentScopeBoundary:
+        object.__setattr__(
+            self,
+            "amendment_scope_boundary_id",
+            _non_empty(
+                self.amendment_scope_boundary_id,
+                field_name="amendment_scope_boundary_id",
+            ),
+        )
+        object.__setattr__(self, "review_id", _non_empty(self.review_id, field_name="review_id"))
+        object.__setattr__(
+            self, "snapshot_id", _non_empty(self.snapshot_id, field_name="snapshot_id")
+        )
+        object.__setattr__(
+            self, "source_set_id", _non_empty(self.source_set_id, field_name="source_set_id")
+        )
+        object.__setattr__(
+            self,
+            "ratification_record_id",
+            _non_empty(self.ratification_record_id, field_name="ratification_record_id"),
+        )
+        object.__setattr__(
+            self,
+            "settlement_register_id",
+            _non_empty(self.settlement_register_id, field_name="settlement_register_id"),
+        )
+        object.__setattr__(
+            self,
+            "dissent_register_id",
+            _non_empty(self.dissent_register_id, field_name="dissent_register_id"),
+        )
+        object.__setattr__(
+            self,
+            "amendment_scope_rows",
+            _sorted_unique_by_ref(
+                self.amendment_scope_rows,
+                attr="amendment_scope_ref",
+                field_name="amendment_scope_rows",
+            ),
+        )
+        object.__setattr__(
+            self,
+            "non_authority_summary",
+            _v71c_non_authority_guardrail(
+                self.non_authority_summary, field_name="non_authority_summary"
+            ),
+        )
+        expected_id = _surface_id(
+            "repo_ratification_amendment_scope_boundary",
+            REPO_RATIFICATION_AMENDMENT_SCOPE_BOUNDARY_SCHEMA,
+            self.model_dump(mode="json"),
+            "amendment_scope_boundary_id",
+        )
+        if self.amendment_scope_boundary_id != expected_id:
+            raise ValueError(
+                "amendment_scope_boundary_id must match canonical full payload hash identity"
+            )
+        return self
+
+
+class RepoPostRatificationHandoffRow(_CartographyBase):
+    handoff_ref: str
+    candidate_ref: str
+    ratification_refs: list[str] = Field(min_length=1)
+    amendment_scope_refs: list[str] = Field(min_length=1)
+    handoff_target: V71CAllowedNextReviewSurface
+    handoff_posture: PostRatificationHandoffPosture
+    required_next_surface: RequiredNextSurface
+    carried_forward_dissent_refs: list[str] = Field(default_factory=list)
+    carried_forward_gap_refs: list[str] = Field(default_factory=list)
+    non_integration_guardrail: str
+
+    @model_validator(mode="after")
+    def _validate_handoff_row(self) -> RepoPostRatificationHandoffRow:
+        object.__setattr__(
+            self, "handoff_ref", _non_empty(self.handoff_ref, field_name="handoff_ref")
+        )
+        object.__setattr__(
+            self,
+            "candidate_ref",
+            _non_empty(self.candidate_ref, field_name="candidate_ref"),
+        )
+        object.__setattr__(
+            self,
+            "ratification_refs",
+            _sorted_unique(self.ratification_refs, field_name="ratification_refs"),
+        )
+        object.__setattr__(
+            self,
+            "amendment_scope_refs",
+            _sorted_unique(self.amendment_scope_refs, field_name="amendment_scope_refs"),
+        )
+        object.__setattr__(
+            self,
+            "carried_forward_dissent_refs",
+            _sorted_unique(
+                self.carried_forward_dissent_refs, field_name="carried_forward_dissent_refs"
+            ),
+        )
+        object.__setattr__(
+            self,
+            "carried_forward_gap_refs",
+            _sorted_unique(self.carried_forward_gap_refs, field_name="carried_forward_gap_refs"),
+        )
+        object.__setattr__(
+            self,
+            "non_integration_guardrail",
+            _v71c_non_authority_guardrail(
+                self.non_integration_guardrail, field_name="non_integration_guardrail"
+            ),
+        )
+        expected_required_surface = {
+            "v72_contained_integration_review": "v72_candidate_containment_planning",
+            "future_family_review": "future_family_candidate_review",
+            "deferred_no_selection": "deferred_no_selection",
+        }[self.handoff_target]
+        if self.required_next_surface != expected_required_surface:
+            raise ValueError("required_next_surface must be narrower than handoff_target")
+        if (
+            self.candidate_ref == "candidate:internal:typed_adjudication_product_wedge"
+            and self.handoff_target == "v72_contained_integration_review"
+        ):
+            raise ValueError("product wedge cannot be routed to V72")
+        if (
+            self.handoff_target == "v72_contained_integration_review"
+            and self.handoff_posture != "ready_for_v72_review"
+        ):
+            raise ValueError("V72 handoff requires ready_for_v72_review posture")
+        if (
+            self.handoff_posture == "ready_for_v72_review"
+            and self.handoff_target != "v72_contained_integration_review"
+        ):
+            raise ValueError("ready_for_v72_review requires V72 handoff target")
+        if self.handoff_posture == "ready_for_v72_review" and (
+            self.carried_forward_dissent_refs or self.carried_forward_gap_refs
+        ):
+            raise ValueError("ready_for_v72_review cannot carry blocking dissent or gaps")
+        return self
+
+
+class RepoPostRatificationHandoff(_CartographyBase):
+    schema: Literal["repo_post_ratification_handoff@1"] = REPO_POST_RATIFICATION_HANDOFF_SCHEMA
+    post_ratification_handoff_id: str
+    review_id: str
+    snapshot_id: str
+    source_set_id: str
+    ratification_record_id: str
+    amendment_scope_boundary_id: str
+    handoff_rows: list[RepoPostRatificationHandoffRow] = Field(min_length=1)
+    non_integration_summary: str
+
+    @model_validator(mode="after")
+    def _validate_handoff(self) -> RepoPostRatificationHandoff:
+        object.__setattr__(
+            self,
+            "post_ratification_handoff_id",
+            _non_empty(
+                self.post_ratification_handoff_id,
+                field_name="post_ratification_handoff_id",
+            ),
+        )
+        object.__setattr__(self, "review_id", _non_empty(self.review_id, field_name="review_id"))
+        object.__setattr__(
+            self, "snapshot_id", _non_empty(self.snapshot_id, field_name="snapshot_id")
+        )
+        object.__setattr__(
+            self, "source_set_id", _non_empty(self.source_set_id, field_name="source_set_id")
+        )
+        object.__setattr__(
+            self,
+            "ratification_record_id",
+            _non_empty(self.ratification_record_id, field_name="ratification_record_id"),
+        )
+        object.__setattr__(
+            self,
+            "amendment_scope_boundary_id",
+            _non_empty(
+                self.amendment_scope_boundary_id,
+                field_name="amendment_scope_boundary_id",
+            ),
+        )
+        object.__setattr__(
+            self,
+            "handoff_rows",
+            _sorted_unique_by_ref(
+                self.handoff_rows,
+                attr="handoff_ref",
+                field_name="handoff_rows",
+            ),
+        )
+        object.__setattr__(
+            self,
+            "non_integration_summary",
+            _v71c_non_authority_guardrail(
+                self.non_integration_summary, field_name="non_integration_summary"
+            ),
+        )
+        expected_id = _surface_id(
+            "repo_post_ratification_handoff",
+            REPO_POST_RATIFICATION_HANDOFF_SCHEMA,
+            self.model_dump(mode="json"),
+            "post_ratification_handoff_id",
+        )
+        if self.post_ratification_handoff_id != expected_id:
+            raise ValueError(
+                "post_ratification_handoff_id must match canonical full payload hash identity"
+            )
+        return self
+
+
+class RepoCandidateRatificationFamilyCloseoutRow(_CartographyBase):
+    candidate_ref: str
+    ratification_refs: list[str] = Field(min_length=1)
+    amendment_scope_refs: list[str] = Field(min_length=1)
+    handoff_refs: list[str] = Field(min_length=1)
+    closeout_posture: FamilyCandidateCloseoutPosture
+    limitation_note: str
+
+    @model_validator(mode="after")
+    def _validate_family_closeout_row(self) -> RepoCandidateRatificationFamilyCloseoutRow:
+        object.__setattr__(
+            self,
+            "candidate_ref",
+            _non_empty(self.candidate_ref, field_name="candidate_ref"),
+        )
+        object.__setattr__(
+            self,
+            "ratification_refs",
+            _sorted_unique(self.ratification_refs, field_name="ratification_refs"),
+        )
+        object.__setattr__(
+            self,
+            "amendment_scope_refs",
+            _sorted_unique(self.amendment_scope_refs, field_name="amendment_scope_refs"),
+        )
+        object.__setattr__(
+            self,
+            "handoff_refs",
+            _sorted_unique(self.handoff_refs, field_name="handoff_refs"),
+        )
+        object.__setattr__(
+            self,
+            "limitation_note",
+            _v71c_note(self.limitation_note, field_name="limitation_note"),
+        )
+        return self
+
+
+class RepoCandidateRatificationFamilyCloseoutAlignment(_CartographyBase):
+    schema: Literal["repo_candidate_ratification_family_closeout_alignment@1"] = (
+        REPO_CANDIDATE_RATIFICATION_FAMILY_CLOSEOUT_ALIGNMENT_SCHEMA
+    )
+    family_closeout_alignment_id: str
+    family_id: str
+    snapshot_id: str
+    source_set_id: str
+    closed_slices: list[str] = Field(min_length=1)
+    consumed_record_shapes: list[str] = Field(min_length=1)
+    emitted_record_shapes: list[str] = Field(min_length=1)
+    candidate_rows: list[RepoCandidateRatificationFamilyCloseoutRow] = Field(min_length=1)
+    future_family_refs: list[str] = Field(default_factory=list)
+    non_authority_guardrail: str
+
+    @model_validator(mode="after")
+    def _validate_family_closeout_alignment(
+        self,
+    ) -> RepoCandidateRatificationFamilyCloseoutAlignment:
+        object.__setattr__(
+            self,
+            "family_closeout_alignment_id",
+            _non_empty(
+                self.family_closeout_alignment_id,
+                field_name="family_closeout_alignment_id",
+            ),
+        )
+        object.__setattr__(self, "family_id", _non_empty(self.family_id, field_name="family_id"))
+        object.__setattr__(
+            self, "snapshot_id", _non_empty(self.snapshot_id, field_name="snapshot_id")
+        )
+        object.__setattr__(
+            self, "source_set_id", _non_empty(self.source_set_id, field_name="source_set_id")
+        )
+        object.__setattr__(
+            self, "closed_slices", _sorted_unique(self.closed_slices, field_name="closed_slices")
+        )
+        object.__setattr__(
+            self,
+            "consumed_record_shapes",
+            _sorted_unique(self.consumed_record_shapes, field_name="consumed_record_shapes"),
+        )
+        object.__setattr__(
+            self,
+            "emitted_record_shapes",
+            _sorted_unique(self.emitted_record_shapes, field_name="emitted_record_shapes"),
+        )
+        object.__setattr__(
+            self,
+            "candidate_rows",
+            _sorted_unique_by_ref(
+                self.candidate_rows,
+                attr="candidate_ref",
+                field_name="candidate_rows",
+            ),
+        )
+        object.__setattr__(
+            self,
+            "future_family_refs",
+            _sorted_unique(self.future_family_refs, field_name="future_family_refs"),
+        )
+        object.__setattr__(
+            self,
+            "non_authority_guardrail",
+            _v71c_non_authority_guardrail(
+                self.non_authority_guardrail, field_name="non_authority_guardrail"
+            ),
+        )
+        if self.closed_slices != ["V71-A", "V71-B", "V71-C"]:
+            raise ValueError("family closeout alignment must close V71-A, V71-B, and V71-C")
+        for forbidden_shape in (
+            "repo_contained_integration_record@1",
+            "repo_product_authorization@1",
+            "repo_release_authority@1",
+        ):
+            if forbidden_shape in self.emitted_record_shapes:
+                raise ValueError("family closeout alignment may not emit downstream authority")
+        expected_id = _surface_id(
+            "repo_candidate_ratification_family_closeout_alignment",
+            REPO_CANDIDATE_RATIFICATION_FAMILY_CLOSEOUT_ALIGNMENT_SCHEMA,
+            self.model_dump(mode="json"),
+            "family_closeout_alignment_id",
+        )
+        if self.family_closeout_alignment_id != expected_id:
+            raise ValueError(
+                "family_closeout_alignment_id must match canonical full payload hash identity"
+            )
+        return self
+
+
+_V71B_RATIFICATION_FIXTURE = (
+    "apps/api/fixtures/repo_description/vnext_plus198/"
+    "repo_candidate_ratification_record_v198_reference.json"
+)
+_V71B_SETTLEMENT_FIXTURE = (
+    "apps/api/fixtures/repo_description/vnext_plus198/"
+    "repo_review_settlement_record_v198_reference.json"
+)
+_V71B_DISSENT_FIXTURE = (
+    "apps/api/fixtures/repo_description/vnext_plus198/"
+    "repo_ratification_dissent_register_v198_reference.json"
+)
+
+
+def _v71c_load_ratification(repo_root: Path) -> RepoCandidateRatificationRecord:
+    return RepoCandidateRatificationRecord.model_validate(
+        _load_json(repo_root, _V71B_RATIFICATION_FIXTURE)
+    )
+
+
+def _v71c_load_settlement(repo_root: Path) -> RepoReviewSettlementRecord:
+    return RepoReviewSettlementRecord.model_validate(
+        _load_json(repo_root, _V71B_SETTLEMENT_FIXTURE)
+    )
+
+
+def _v71c_load_dissent(repo_root: Path) -> RepoRatificationDissentRegister:
+    return RepoRatificationDissentRegister.model_validate(
+        _load_json(repo_root, _V71B_DISSENT_FIXTURE)
+    )
+
+
+def validate_v71c_candidate_ratification_closeout_bundle(
+    *,
+    ratification_record: RepoCandidateRatificationRecord,
+    settlement_record: RepoReviewSettlementRecord,
+    dissent_register: RepoRatificationDissentRegister,
+    amendment_scope_boundary: RepoRatificationAmendmentScopeBoundary,
+    post_ratification_handoff: RepoPostRatificationHandoff,
+    family_closeout_alignment: RepoCandidateRatificationFamilyCloseoutAlignment,
+) -> None:
+    if (
+        amendment_scope_boundary.ratification_record_id
+        != ratification_record.ratification_record_id
+    ):
+        raise ValueError("amendment scope must reference V71-B ratification record")
+    if amendment_scope_boundary.settlement_register_id != settlement_record.settlement_register_id:
+        raise ValueError("amendment scope must reference V71-B settlement record")
+    if amendment_scope_boundary.dissent_register_id != dissent_register.dissent_register_id:
+        raise ValueError("amendment scope must reference V71-B dissent register")
+    if (
+        post_ratification_handoff.ratification_record_id
+        != ratification_record.ratification_record_id
+    ):
+        raise ValueError("post-ratification handoff must reference V71-B ratification record")
+    if (
+        post_ratification_handoff.amendment_scope_boundary_id
+        != amendment_scope_boundary.amendment_scope_boundary_id
+    ):
+        raise ValueError("post-ratification handoff must reference amendment scope boundary")
+    if amendment_scope_boundary.source_set_id != ratification_record.source_set_id:
+        raise ValueError("amendment scope source_set_id must match ratification record")
+    if post_ratification_handoff.source_set_id != ratification_record.source_set_id:
+        raise ValueError("handoff source_set_id must match ratification record")
+    if family_closeout_alignment.source_set_id != ratification_record.source_set_id:
+        raise ValueError("family closeout source_set_id must match ratification record")
+
+    ratification_rows = {row.ratification_ref: row for row in ratification_record.ratification_rows}
+    settlement_rows = {row.settlement_ref: row for row in settlement_record.settlement_rows}
+    dissent_rows = {row.dissent_ref: row for row in dissent_register.dissent_rows}
+    amendment_rows = {
+        row.amendment_scope_ref: row for row in amendment_scope_boundary.amendment_scope_rows
+    }
+    handoff_rows = {row.handoff_ref: row for row in post_ratification_handoff.handoff_rows}
+
+    for scope_row in amendment_scope_boundary.amendment_scope_rows:
+        for ratification_ref in scope_row.ratification_refs:
+            ratification = ratification_rows.get(ratification_ref)
+            if ratification is None:
+                raise ValueError("amendment scope rows must reference known ratification rows")
+            if scope_row.candidate_ref != ratification.candidate_ref:
+                raise ValueError("amendment scope candidate_ref must match ratification")
+            if ratification.decision_posture != "ratified" and (
+                "v72_contained_integration_review" in scope_row.allowed_next_review_surfaces
+            ):
+                raise ValueError("rejected or deferred candidates cannot be routed to V72")
+        for settlement_ref in scope_row.settlement_refs:
+            settlement = settlement_rows.get(settlement_ref)
+            if settlement is None:
+                raise ValueError("amendment scope rows must reference known settlement rows")
+            if settlement.candidate_ref != scope_row.candidate_ref:
+                raise ValueError("amendment scope candidate_ref must match settlement")
+
+    for handoff in post_ratification_handoff.handoff_rows:
+        for ratification_ref in handoff.ratification_refs:
+            ratification = ratification_rows.get(ratification_ref)
+            if ratification is None:
+                raise ValueError("handoff rows must reference known ratification rows")
+            if handoff.candidate_ref != ratification.candidate_ref:
+                raise ValueError("handoff candidate_ref must match ratification")
+            if ratification.decision_posture != "ratified" and (
+                handoff.handoff_target == "v72_contained_integration_review"
+                or handoff.handoff_posture == "ready_for_v72_review"
+            ):
+                raise ValueError("rejected or deferred candidates cannot be routed to V72")
+            if (
+                ratification.candidate_ref == "candidate:internal:typed_adjudication_product_wedge"
+                and handoff.handoff_target == "v72_contained_integration_review"
+            ):
+                raise ValueError("product wedge cannot be routed to V72")
+            required_dissent_refs = sorted(
+                ref
+                for ref in ratification.dissent_refs
+                if ref in dissent_rows
+                and (
+                    dissent_rows[ref].carry_forward_required
+                    or dissent_rows[ref].dissent_posture
+                    in {
+                        "dissent_carried_forward",
+                        "minority_review_preserved",
+                        "unresolved_blocker",
+                    }
+                )
+            )
+            missing_dissent = sorted(
+                set(required_dissent_refs) - set(handoff.carried_forward_dissent_refs)
+            )
+            if missing_dissent:
+                raise ValueError(f"handoff must carry forward dissent refs: {missing_dissent}")
+            required_gap_refs: set[str] = set()
+            for settlement_ref in ratification.settlement_refs:
+                settlement = settlement_rows.get(settlement_ref)
+                if settlement is None:
+                    continue
+                if settlement.settlement_posture in {
+                    "partially_settled_with_dissent",
+                    "blocked_by_unresolved_conflict",
+                    "blocked_by_unresolved_gap",
+                    "requires_more_evidence",
+                    "requires_human_review",
+                    "future_family_only",
+                }:
+                    required_gap_refs.update(settlement.carried_forward_refs)
+                    required_gap_refs.update(settlement.source_gap_refs)
+            missing_gaps = sorted(required_gap_refs - set(handoff.carried_forward_gap_refs))
+            if missing_gaps:
+                raise ValueError(f"handoff must carry forward evidence gap refs: {missing_gaps}")
+        for amendment_scope_ref in handoff.amendment_scope_refs:
+            amendment = amendment_rows.get(amendment_scope_ref)
+            if amendment is None:
+                raise ValueError("handoff rows must reference known amendment scope rows")
+            if amendment.candidate_ref != handoff.candidate_ref:
+                raise ValueError("handoff candidate_ref must match amendment scope")
+
+    candidate_refs = {row.candidate_ref for row in ratification_record.ratification_rows}
+    closeout_candidate_refs = {
+        row.candidate_ref for row in family_closeout_alignment.candidate_rows
+    }
+    if closeout_candidate_refs != candidate_refs:
+        raise ValueError("family closeout alignment must cover every V71 ratification candidate")
+    for row in family_closeout_alignment.candidate_rows:
+        for ratification_ref in row.ratification_refs:
+            if ratification_ref not in ratification_rows:
+                raise ValueError("family closeout rows must reference known ratification rows")
+        for amendment_scope_ref in row.amendment_scope_refs:
+            if amendment_scope_ref not in amendment_rows:
+                raise ValueError("family closeout rows must reference known amendment scopes")
+        for handoff_ref in row.handoff_refs:
+            if handoff_ref not in handoff_rows:
+                raise ValueError("family closeout rows must reference known handoff rows")
+
+
+def derive_v71c_repo_ratification_amendment_scope_boundary(
+    *,
+    repo_root: Path,
+) -> RepoRatificationAmendmentScopeBoundary:
+    ratification = _v71c_load_ratification(repo_root)
+    settlement = _v71c_load_settlement(repo_root)
+    dissent = _v71c_load_dissent(repo_root)
+    rows = [
+        RepoRatificationAmendmentScopeBoundaryRow(
+            amendment_scope_ref="amendment:v71c:odeu-diff:blocked-by-dissent",
+            candidate_ref="candidate:internal:odeu_conceptual_diff_report@1",
+            ratification_refs=["ratification:v71b:odeu-diff:deferred-with-dissent"],
+            settlement_refs=["settlement:v71b:odeu-diff:partial-with-dissent"],
+            allowed_amendment_scope="no_amendment_scope",
+            forbidden_downstream_roles=sorted(_V71C_FORBIDDEN_SET),
+            allowed_next_review_surfaces=["deferred_no_selection"],
+            scope_limitation_note="Dissent and evidence gaps block amendment scope here.",
+            non_release_guardrail=_V71C_NON_AUTHORITY_GUARDRAIL,
+        ),
+        RepoRatificationAmendmentScopeBoundaryRow(
+            amendment_scope_ref="amendment:v71c:product-wedge:future-family",
+            candidate_ref="candidate:internal:typed_adjudication_product_wedge",
+            ratification_refs=["ratification:v71b:product-wedge:future-family"],
+            settlement_refs=["settlement:v71b:product-wedge:future-family"],
+            allowed_amendment_scope="future_family_only",
+            forbidden_downstream_roles=sorted(_V71C_FORBIDDEN_SET),
+            allowed_next_review_surfaces=["future_family_review"],
+            scope_limitation_note="Product pressure remains future-family only.",
+            non_release_guardrail=_V71C_NON_AUTHORITY_GUARDRAIL,
+        ),
+        RepoRatificationAmendmentScopeBoundaryRow(
+            amendment_scope_ref="amendment:v71c:self-evidencing:schema-review",
+            candidate_ref="candidate:internal:self_evidencing_workflow_type_emergence",
+            ratification_refs=["ratification:v71b:self-evidencing:source-bound-validity"],
+            settlement_refs=["settlement:v71b:self-evidencing:complementary"],
+            allowed_amendment_scope="schema_review_candidate",
+            forbidden_downstream_roles=sorted(_V71C_FORBIDDEN_SET),
+            allowed_next_review_surfaces=["v72_contained_integration_review"],
+            scope_limitation_note="Later review may consider schema containment only.",
+            non_release_guardrail=_V71C_NON_AUTHORITY_GUARDRAIL,
+        ),
+    ]
+    payload = {
+        "schema": REPO_RATIFICATION_AMENDMENT_SCOPE_BOUNDARY_SCHEMA,
+        "review_id": "review:v71c:amendment-scope-handoff",
+        "snapshot_id": "vNext+199-prestart-on-main",
+        "source_set_id": ratification.source_set_id,
+        "ratification_record_id": ratification.ratification_record_id,
+        "settlement_register_id": settlement.settlement_register_id,
+        "dissent_register_id": dissent.dissent_register_id,
+        "amendment_scope_rows": [
+            row.model_dump(mode="json")
+            for row in sorted(rows, key=lambda row: row.amendment_scope_ref)
+        ],
+        "non_authority_summary": _V71C_NON_AUTHORITY_GUARDRAIL,
+    }
+    payload["amendment_scope_boundary_id"] = _surface_id(
+        "repo_ratification_amendment_scope_boundary",
+        REPO_RATIFICATION_AMENDMENT_SCOPE_BOUNDARY_SCHEMA,
+        payload,
+        "amendment_scope_boundary_id",
+    )
+    return RepoRatificationAmendmentScopeBoundary.model_validate(payload)
+
+
+def derive_v71c_repo_post_ratification_handoff(
+    *,
+    repo_root: Path,
+) -> RepoPostRatificationHandoff:
+    ratification = _v71c_load_ratification(repo_root)
+    amendment_scope = derive_v71c_repo_ratification_amendment_scope_boundary(repo_root=repo_root)
+    rows = [
+        RepoPostRatificationHandoffRow(
+            handoff_ref="handoff:v71c:odeu-diff:blocked-by-dissent",
+            candidate_ref="candidate:internal:odeu_conceptual_diff_report@1",
+            ratification_refs=["ratification:v71b:odeu-diff:deferred-with-dissent"],
+            amendment_scope_refs=["amendment:v71c:odeu-diff:blocked-by-dissent"],
+            handoff_target="deferred_no_selection",
+            handoff_posture="blocked_by_dissent",
+            required_next_surface="deferred_no_selection",
+            carried_forward_dissent_refs=["dissent:v71b:odeu-diff:minority-preserved"],
+            carried_forward_gap_refs=[
+                "gap:v70b:odeu-diff:missing-counterevidence",
+            ],
+            non_integration_guardrail=_V71C_NON_AUTHORITY_GUARDRAIL,
+        ),
+        RepoPostRatificationHandoffRow(
+            handoff_ref="handoff:v71c:product-wedge:future-family",
+            candidate_ref="candidate:internal:typed_adjudication_product_wedge",
+            ratification_refs=["ratification:v71b:product-wedge:future-family"],
+            amendment_scope_refs=["amendment:v71c:product-wedge:future-family"],
+            handoff_target="future_family_review",
+            handoff_posture="deferred_to_future_family",
+            required_next_surface="future_family_candidate_review",
+            carried_forward_dissent_refs=[],
+            carried_forward_gap_refs=[
+                "gap:v70b:product-wedge:single-source-overclaim",
+                "gap:v70b:product-wedge:v74-boundary",
+            ],
+            non_integration_guardrail=_V71C_NON_AUTHORITY_GUARDRAIL,
+        ),
+        RepoPostRatificationHandoffRow(
+            handoff_ref="handoff:v71c:self-evidencing:v72-review",
+            candidate_ref="candidate:internal:self_evidencing_workflow_type_emergence",
+            ratification_refs=["ratification:v71b:self-evidencing:source-bound-validity"],
+            amendment_scope_refs=["amendment:v71c:self-evidencing:schema-review"],
+            handoff_target="v72_contained_integration_review",
+            handoff_posture="ready_for_v72_review",
+            required_next_surface="v72_candidate_containment_planning",
+            carried_forward_dissent_refs=[],
+            carried_forward_gap_refs=[],
+            non_integration_guardrail=_V71C_NON_AUTHORITY_GUARDRAIL,
+        ),
+    ]
+    payload = {
+        "schema": REPO_POST_RATIFICATION_HANDOFF_SCHEMA,
+        "review_id": amendment_scope.review_id,
+        "snapshot_id": amendment_scope.snapshot_id,
+        "source_set_id": ratification.source_set_id,
+        "ratification_record_id": ratification.ratification_record_id,
+        "amendment_scope_boundary_id": amendment_scope.amendment_scope_boundary_id,
+        "handoff_rows": [
+            row.model_dump(mode="json") for row in sorted(rows, key=lambda row: row.handoff_ref)
+        ],
+        "non_integration_summary": _V71C_NON_AUTHORITY_GUARDRAIL,
+    }
+    payload["post_ratification_handoff_id"] = _surface_id(
+        "repo_post_ratification_handoff",
+        REPO_POST_RATIFICATION_HANDOFF_SCHEMA,
+        payload,
+        "post_ratification_handoff_id",
+    )
+    return RepoPostRatificationHandoff.model_validate(payload)
+
+
+def derive_v71c_repo_candidate_ratification_family_closeout_alignment(
+    *,
+    repo_root: Path,
+) -> RepoCandidateRatificationFamilyCloseoutAlignment:
+    ratification = _v71c_load_ratification(repo_root)
+    amendment_scope = derive_v71c_repo_ratification_amendment_scope_boundary(repo_root=repo_root)
+    rows = [
+        RepoCandidateRatificationFamilyCloseoutRow(
+            candidate_ref="candidate:internal:odeu_conceptual_diff_report@1",
+            ratification_refs=["ratification:v71b:odeu-diff:deferred-with-dissent"],
+            amendment_scope_refs=["amendment:v71c:odeu-diff:blocked-by-dissent"],
+            handoff_refs=["handoff:v71c:odeu-diff:blocked-by-dissent"],
+            closeout_posture="deferred_with_dissent",
+            limitation_note="Deferred with dissent and counterevidence gap carried forward.",
+        ),
+        RepoCandidateRatificationFamilyCloseoutRow(
+            candidate_ref="candidate:internal:typed_adjudication_product_wedge",
+            ratification_refs=["ratification:v71b:product-wedge:future-family"],
+            amendment_scope_refs=["amendment:v71c:product-wedge:future-family"],
+            handoff_refs=["handoff:v71c:product-wedge:future-family"],
+            closeout_posture="future_family_routed",
+            limitation_note="Product pressure remains future-family routed.",
+        ),
+        RepoCandidateRatificationFamilyCloseoutRow(
+            candidate_ref="candidate:internal:self_evidencing_workflow_type_emergence",
+            ratification_refs=["ratification:v71b:self-evidencing:source-bound-validity"],
+            amendment_scope_refs=["amendment:v71c:self-evidencing:schema-review"],
+            handoff_refs=["handoff:v71c:self-evidencing:v72-review"],
+            closeout_posture="ratified_for_later_review",
+            limitation_note="Ratified only for later bounded review, not implementation.",
+        ),
+    ]
+    payload = {
+        "schema": REPO_CANDIDATE_RATIFICATION_FAMILY_CLOSEOUT_ALIGNMENT_SCHEMA,
+        "family_id": "V71",
+        "snapshot_id": amendment_scope.snapshot_id,
+        "source_set_id": ratification.source_set_id,
+        "closed_slices": ["V71-A", "V71-B", "V71-C"],
+        "consumed_record_shapes": sorted(
+            [
+                REPO_CANDIDATE_RATIFICATION_RECORD_SCHEMA,
+                REPO_REVIEW_SETTLEMENT_RECORD_SCHEMA,
+                REPO_RATIFICATION_DISSENT_REGISTER_SCHEMA,
+            ]
+        ),
+        "emitted_record_shapes": sorted(
+            [
+                REPO_CANDIDATE_RATIFICATION_FAMILY_CLOSEOUT_ALIGNMENT_SCHEMA,
+                REPO_POST_RATIFICATION_HANDOFF_SCHEMA,
+                REPO_RATIFICATION_AMENDMENT_SCOPE_BOUNDARY_SCHEMA,
+            ]
+        ),
+        "candidate_rows": [
+            row.model_dump(mode="json") for row in sorted(rows, key=lambda row: row.candidate_ref)
+        ],
+        "future_family_refs": ["V72", "V73", "V74", "V75"],
+        "non_authority_guardrail": _V71C_NON_AUTHORITY_GUARDRAIL,
+    }
+    payload["family_closeout_alignment_id"] = _surface_id(
+        "repo_candidate_ratification_family_closeout_alignment",
+        REPO_CANDIDATE_RATIFICATION_FAMILY_CLOSEOUT_ALIGNMENT_SCHEMA,
+        payload,
+        "family_closeout_alignment_id",
+    )
+    return RepoCandidateRatificationFamilyCloseoutAlignment.model_validate(payload)
+
+
+def derive_v71c_repo_candidate_ratification_closeout_bundle(
+    *,
+    repo_root: Path,
+) -> tuple[
+    RepoCandidateRatificationRecord,
+    RepoReviewSettlementRecord,
+    RepoRatificationDissentRegister,
+    RepoRatificationAmendmentScopeBoundary,
+    RepoPostRatificationHandoff,
+    RepoCandidateRatificationFamilyCloseoutAlignment,
+]:
+    ratification = _v71c_load_ratification(repo_root)
+    settlement = _v71c_load_settlement(repo_root)
+    dissent = _v71c_load_dissent(repo_root)
+    amendment_scope = derive_v71c_repo_ratification_amendment_scope_boundary(repo_root=repo_root)
+    handoff = derive_v71c_repo_post_ratification_handoff(repo_root=repo_root)
+    closeout = derive_v71c_repo_candidate_ratification_family_closeout_alignment(
+        repo_root=repo_root
+    )
+    validate_v71c_candidate_ratification_closeout_bundle(
+        ratification_record=ratification,
+        settlement_record=settlement,
+        dissent_register=dissent,
+        amendment_scope_boundary=amendment_scope,
+        post_ratification_handoff=handoff,
+        family_closeout_alignment=closeout,
+    )
+    return ratification, settlement, dissent, amendment_scope, handoff, closeout

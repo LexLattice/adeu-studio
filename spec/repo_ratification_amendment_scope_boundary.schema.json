@@ -1,0 +1,157 @@
+{
+  "$defs": {
+    "RepoRatificationAmendmentScopeBoundaryRow": {
+      "additionalProperties": false,
+      "properties": {
+        "allowed_amendment_scope": {
+          "enum": [
+            "docs_or_support_only",
+            "schema_review_candidate",
+            "validator_review_candidate",
+            "fixture_review_candidate",
+            "workflow_review_candidate",
+            "future_family_only",
+            "no_amendment_scope"
+          ],
+          "title": "Allowed Amendment Scope",
+          "type": "string"
+        },
+        "allowed_next_review_surfaces": {
+          "items": {
+            "enum": [
+              "v72_contained_integration_review",
+              "future_family_review",
+              "deferred_no_selection"
+            ],
+            "type": "string"
+          },
+          "minItems": 1,
+          "title": "Allowed Next Review Surfaces",
+          "type": "array"
+        },
+        "amendment_scope_ref": {
+          "title": "Amendment Scope Ref",
+          "type": "string"
+        },
+        "candidate_ref": {
+          "title": "Candidate Ref",
+          "type": "string"
+        },
+        "forbidden_downstream_roles": {
+          "items": {
+            "enum": [
+              "implementation_task",
+              "contained_integration",
+              "commit_release_authority",
+              "product_authorization",
+              "runtime_permission",
+              "dispatch_authority",
+              "external_contest_authority"
+            ],
+            "type": "string"
+          },
+          "minItems": 1,
+          "title": "Forbidden Downstream Roles",
+          "type": "array"
+        },
+        "non_release_guardrail": {
+          "title": "Non Release Guardrail",
+          "type": "string"
+        },
+        "ratification_refs": {
+          "items": {
+            "type": "string"
+          },
+          "minItems": 1,
+          "title": "Ratification Refs",
+          "type": "array"
+        },
+        "scope_limitation_note": {
+          "title": "Scope Limitation Note",
+          "type": "string"
+        },
+        "settlement_refs": {
+          "items": {
+            "type": "string"
+          },
+          "title": "Settlement Refs",
+          "type": "array"
+        }
+      },
+      "required": [
+        "amendment_scope_ref",
+        "candidate_ref",
+        "ratification_refs",
+        "allowed_amendment_scope",
+        "forbidden_downstream_roles",
+        "allowed_next_review_surfaces",
+        "scope_limitation_note",
+        "non_release_guardrail"
+      ],
+      "title": "RepoRatificationAmendmentScopeBoundaryRow",
+      "type": "object"
+    }
+  },
+  "additionalProperties": false,
+  "properties": {
+    "amendment_scope_boundary_id": {
+      "title": "Amendment Scope Boundary Id",
+      "type": "string"
+    },
+    "amendment_scope_rows": {
+      "items": {
+        "$ref": "#/$defs/RepoRatificationAmendmentScopeBoundaryRow"
+      },
+      "minItems": 1,
+      "title": "Amendment Scope Rows",
+      "type": "array"
+    },
+    "dissent_register_id": {
+      "title": "Dissent Register Id",
+      "type": "string"
+    },
+    "non_authority_summary": {
+      "title": "Non Authority Summary",
+      "type": "string"
+    },
+    "ratification_record_id": {
+      "title": "Ratification Record Id",
+      "type": "string"
+    },
+    "review_id": {
+      "title": "Review Id",
+      "type": "string"
+    },
+    "schema": {
+      "const": "repo_ratification_amendment_scope_boundary@1",
+      "default": "repo_ratification_amendment_scope_boundary@1",
+      "title": "Schema",
+      "type": "string"
+    },
+    "settlement_register_id": {
+      "title": "Settlement Register Id",
+      "type": "string"
+    },
+    "snapshot_id": {
+      "title": "Snapshot Id",
+      "type": "string"
+    },
+    "source_set_id": {
+      "title": "Source Set Id",
+      "type": "string"
+    }
+  },
+  "required": [
+    "amendment_scope_boundary_id",
+    "review_id",
+    "snapshot_id",
+    "source_set_id",
+    "ratification_record_id",
+    "settlement_register_id",
+    "dissent_register_id",
+    "amendment_scope_rows",
+    "non_authority_summary"
+  ],
+  "title": "RepoRatificationAmendmentScopeBoundary",
+  "type": "object"
+}

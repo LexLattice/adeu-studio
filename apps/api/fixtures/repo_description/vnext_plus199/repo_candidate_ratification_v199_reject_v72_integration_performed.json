@@ -1,0 +1,67 @@
+{
+  "amendment_scope_boundary_id": "repo_ratification_amendment_scope_boundary_d521603315edd7a348f0bc04",
+  "handoff_rows": [
+    {
+      "amendment_scope_refs": [
+        "amendment:v71c:odeu-diff:blocked-by-dissent"
+      ],
+      "candidate_ref": "candidate:internal:odeu_conceptual_diff_report@1",
+      "carried_forward_dissent_refs": [
+        "dissent:v71b:odeu-diff:minority-preserved"
+      ],
+      "carried_forward_gap_refs": [
+        "gap:v70b:odeu-diff:missing-counterevidence"
+      ],
+      "handoff_posture": "blocked_by_dissent",
+      "handoff_ref": "handoff:v71c:odeu-diff:blocked-by-dissent",
+      "handoff_target": "deferred_no_selection",
+      "non_integration_guardrail": "No implementation, no integration, no release, no product authorization, and no dispatch authority.",
+      "ratification_refs": [
+        "ratification:v71b:odeu-diff:deferred-with-dissent"
+      ],
+      "required_next_surface": "deferred_no_selection"
+    },
+    {
+      "amendment_scope_refs": [
+        "amendment:v71c:product-wedge:future-family"
+      ],
+      "candidate_ref": "candidate:internal:typed_adjudication_product_wedge",
+      "carried_forward_dissent_refs": [],
+      "carried_forward_gap_refs": [
+        "gap:v70b:product-wedge:single-source-overclaim",
+        "gap:v70b:product-wedge:v74-boundary"
+      ],
+      "handoff_posture": "deferred_to_future_family",
+      "handoff_ref": "handoff:v71c:product-wedge:future-family",
+      "handoff_target": "future_family_review",
+      "non_integration_guardrail": "No implementation, no integration, no release, no product authorization, and no dispatch authority.",
+      "ratification_refs": [
+        "ratification:v71b:product-wedge:future-family"
+      ],
+      "required_next_surface": "future_family_candidate_review"
+    },
+    {
+      "amendment_scope_refs": [
+        "amendment:v71c:self-evidencing:schema-review"
+      ],
+      "candidate_ref": "candidate:internal:self_evidencing_workflow_type_emergence",
+      "carried_forward_dissent_refs": [],
+      "carried_forward_gap_refs": [],
+      "handoff_posture": "ready_for_v72_review",
+      "handoff_ref": "handoff:v71c:self-evidencing:v72-review",
+      "handoff_target": "v72_contained_integration_review",
+      "non_integration_guardrail": "No implementation, integration performed, no release, no product authorization, and no dispatch authority.",
+      "ratification_refs": [
+        "ratification:v71b:self-evidencing:source-bound-validity"
+      ],
+      "required_next_surface": "v72_candidate_containment_planning"
+    }
+  ],
+  "non_integration_summary": "No implementation, no integration, no release, no product authorization, and no dispatch authority.",
+  "post_ratification_handoff_id": "repo_post_ratification_handoff_2602a56694fe6b97302fbc88",
+  "ratification_record_id": "repo_candidate_ratification_record_6937b2c5e33174fabb0e3dfa",
+  "review_id": "review:v71c:amendment-scope-handoff",
+  "schema": "repo_post_ratification_handoff@1",
+  "snapshot_id": "vNext+199-prestart-on-main",
+  "source_set_id": "source-set:v70a:released-v69c-handoff"
+}

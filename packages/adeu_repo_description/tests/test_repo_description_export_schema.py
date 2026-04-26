@@ -20,6 +20,7 @@ from adeu_repo_description import (
     REPO_CANDIDATE_INTAKE_PRE_V70_HANDOFF_SCHEMA,
     REPO_CANDIDATE_NON_ADOPTION_GUARDRAIL_SCHEMA,
     REPO_CANDIDATE_PRE_RATIFICATION_HANDOFF_SCHEMA,
+    REPO_CANDIDATE_RATIFICATION_FAMILY_CLOSEOUT_ALIGNMENT_SCHEMA,
     REPO_CANDIDATE_RATIFICATION_RECORD_SCHEMA,
     REPO_CANDIDATE_RATIFICATION_REQUEST_SCHEMA,
     REPO_CANDIDATE_REVIEW_BOUNDARY_GUARDRAIL_SCHEMA,
@@ -34,6 +35,8 @@ from adeu_repo_description import (
     REPO_FAMILY_CLOSURE_REGISTER_SCHEMA,
     REPO_OPERATOR_INGRESS_CANDIDATE_BINDING_SCHEMA,
     REPO_OPTIMIZATION_REGISTER_SCHEMA,
+    REPO_POST_RATIFICATION_HANDOFF_SCHEMA,
+    REPO_RATIFICATION_AMENDMENT_SCOPE_BOUNDARY_SCHEMA,
     REPO_RATIFICATION_AUTHORITY_PROFILE_SCHEMA,
     REPO_RATIFICATION_DISSENT_REGISTER_SCHEMA,
     REPO_RATIFICATION_REQUEST_SCOPE_BOUNDARY_SCHEMA,
@@ -349,6 +352,30 @@ def _schema_pairs() -> dict[str, tuple[Path, Path]]:
             / "schema"
             / "repo_ratification_dissent_register.v1.json",
             root / "spec" / "repo_ratification_dissent_register.schema.json",
+        ),
+        REPO_RATIFICATION_AMENDMENT_SCOPE_BOUNDARY_SCHEMA: (
+            root
+            / "packages"
+            / "adeu_repo_description"
+            / "schema"
+            / "repo_ratification_amendment_scope_boundary.v1.json",
+            root / "spec" / "repo_ratification_amendment_scope_boundary.schema.json",
+        ),
+        REPO_POST_RATIFICATION_HANDOFF_SCHEMA: (
+            root
+            / "packages"
+            / "adeu_repo_description"
+            / "schema"
+            / "repo_post_ratification_handoff.v1.json",
+            root / "spec" / "repo_post_ratification_handoff.schema.json",
+        ),
+        REPO_CANDIDATE_RATIFICATION_FAMILY_CLOSEOUT_ALIGNMENT_SCHEMA: (
+            root
+            / "packages"
+            / "adeu_repo_description"
+            / "schema"
+            / "repo_candidate_ratification_family_closeout_alignment.v1.json",
+            root / "spec" / "repo_candidate_ratification_family_closeout_alignment.schema.json",
         ),
     }
 
