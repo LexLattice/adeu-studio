@@ -1,0 +1,287 @@
+{
+  "$defs": {
+    "RepoContainedIntegrationCandidatePlanRow": {
+      "additionalProperties": false,
+      "properties": {
+        "amendment_scope_refs": {
+          "items": {
+            "type": "string"
+          },
+          "title": "Amendment Scope Refs",
+          "type": "array"
+        },
+        "blocker_refs": {
+          "items": {
+            "type": "string"
+          },
+          "title": "Blocker Refs",
+          "type": "array"
+        },
+        "candidate_ref": {
+          "title": "Candidate Ref",
+          "type": "string"
+        },
+        "containment_plan_posture": {
+          "enum": [
+            "eligible_for_containment_planning",
+            "blocked_by_dissent",
+            "blocked_by_evidence_gap",
+            "blocked_by_scope_boundary",
+            "future_family_only",
+            "rejected_out_of_scope"
+          ],
+          "title": "Containment Plan Posture",
+          "type": "string"
+        },
+        "guardrail_refs": {
+          "items": {
+            "type": "string"
+          },
+          "title": "Guardrail Refs",
+          "type": "array"
+        },
+        "integration_source_refs": {
+          "items": {
+            "type": "string"
+          },
+          "minItems": 1,
+          "title": "Integration Source Refs",
+          "type": "array"
+        },
+        "limitation_note": {
+          "title": "Limitation Note",
+          "type": "string"
+        },
+        "odeu_lanes": {
+          "items": {
+            "enum": [
+              "ontological",
+              "deontic",
+              "epistemic",
+              "utility"
+            ],
+            "type": "string"
+          },
+          "minItems": 1,
+          "title": "Odeu Lanes",
+          "type": "array"
+        },
+        "plan_ref": {
+          "title": "Plan Ref",
+          "type": "string"
+        },
+        "ratification_refs": {
+          "items": {
+            "type": "string"
+          },
+          "title": "Ratification Refs",
+          "type": "array"
+        },
+        "required_trial_posture": {
+          "enum": [
+            "no_trial_selected_in_v72a",
+            "dry_run_required_later",
+            "local_trial_required_later",
+            "trial_blocked_until_source_gap_resolved",
+            "trial_blocked_until_dissent_resolved",
+            "future_family_trial_only"
+          ],
+          "title": "Required Trial Posture",
+          "type": "string"
+        },
+        "rollback_requirement": {
+          "title": "Rollback Requirement",
+          "type": "string"
+        },
+        "source_handoff_refs": {
+          "items": {
+            "type": "string"
+          },
+          "title": "Source Handoff Refs",
+          "type": "array"
+        },
+        "target_boundary_refs": {
+          "items": {
+            "type": "string"
+          },
+          "title": "Target Boundary Refs",
+          "type": "array"
+        }
+      },
+      "required": [
+        "plan_ref",
+        "candidate_ref",
+        "integration_source_refs",
+        "containment_plan_posture",
+        "required_trial_posture",
+        "rollback_requirement",
+        "odeu_lanes",
+        "limitation_note"
+      ],
+      "title": "RepoContainedIntegrationCandidatePlanRow",
+      "type": "object"
+    },
+    "RepoIntegrationSourceRow": {
+      "additionalProperties": false,
+      "properties": {
+        "authority_layer": {
+          "enum": [
+            "lock",
+            "architecture",
+            "planning",
+            "support",
+            "schema",
+            "fixture",
+            "closeout_evidence"
+          ],
+          "title": "Authority Layer",
+          "type": "string"
+        },
+        "limitation_note": {
+          "title": "Limitation Note",
+          "type": "string"
+        },
+        "source_horizon": {
+          "title": "Source Horizon",
+          "type": "string"
+        },
+        "source_kind": {
+          "enum": [
+            "planning_doc",
+            "architecture_doc",
+            "support_doc",
+            "review_input",
+            "closeout_doc",
+            "evidence_artifact",
+            "schema_file",
+            "fixture_file",
+            "operator_turn",
+            "transcript_artifact",
+            "model_output",
+            "repo_observation",
+            "external_artifact"
+          ],
+          "title": "Source Kind",
+          "type": "string"
+        },
+        "source_presence_posture": {
+          "enum": [
+            "present",
+            "missing_expected_support_artifact",
+            "not_uploaded_in_review_snapshot",
+            "generated_later",
+            "external_unavailable",
+            "operator_turn_not_committed"
+          ],
+          "title": "Source Presence Posture",
+          "type": "string"
+        },
+        "source_ref": {
+          "title": "Source Ref",
+          "type": "string"
+        },
+        "source_status": {
+          "enum": [
+            "integrated_shaping_source",
+            "available_but_not_integrated",
+            "review_pending_input",
+            "rejected_or_superseded_source"
+          ],
+          "title": "Source Status",
+          "type": "string"
+        }
+      },
+      "required": [
+        "source_ref",
+        "source_kind",
+        "authority_layer",
+        "source_status",
+        "source_presence_posture",
+        "source_horizon",
+        "limitation_note"
+      ],
+      "title": "RepoIntegrationSourceRow",
+      "type": "object"
+    }
+  },
+  "additionalProperties": false,
+  "properties": {
+    "amendment_scope_boundary_id": {
+      "title": "Amendment Scope Boundary Id",
+      "type": "string"
+    },
+    "candidate_input_refs": {
+      "items": {
+        "type": "string"
+      },
+      "minItems": 1,
+      "title": "Candidate Input Refs",
+      "type": "array"
+    },
+    "containment_plan_id": {
+      "title": "Containment Plan Id",
+      "type": "string"
+    },
+    "family_closeout_alignment_id": {
+      "title": "Family Closeout Alignment Id",
+      "type": "string"
+    },
+    "integration_source_rows": {
+      "items": {
+        "$ref": "#/$defs/RepoIntegrationSourceRow"
+      },
+      "minItems": 1,
+      "title": "Integration Source Rows",
+      "type": "array"
+    },
+    "non_trial_summary": {
+      "title": "Non Trial Summary",
+      "type": "string"
+    },
+    "plan_rows": {
+      "items": {
+        "$ref": "#/$defs/RepoContainedIntegrationCandidatePlanRow"
+      },
+      "minItems": 1,
+      "title": "Plan Rows",
+      "type": "array"
+    },
+    "review_id": {
+      "title": "Review Id",
+      "type": "string"
+    },
+    "schema": {
+      "const": "repo_contained_integration_candidate_plan@1",
+      "default": "repo_contained_integration_candidate_plan@1",
+      "title": "Schema",
+      "type": "string"
+    },
+    "snapshot_id": {
+      "title": "Snapshot Id",
+      "type": "string"
+    },
+    "source_set_id": {
+      "title": "Source Set Id",
+      "type": "string"
+    },
+    "upstream_handoff_register_id": {
+      "title": "Upstream Handoff Register Id",
+      "type": "string"
+    }
+  },
+  "required": [
+    "containment_plan_id",
+    "review_id",
+    "snapshot_id",
+    "source_set_id",
+    "upstream_handoff_register_id",
+    "amendment_scope_boundary_id",
+    "family_closeout_alignment_id",
+    "integration_source_rows",
+    "candidate_input_refs",
+    "plan_rows",
+    "non_trial_summary"
+  ],
+  "title": "RepoContainedIntegrationCandidatePlan",
+  "type": "object"
+}

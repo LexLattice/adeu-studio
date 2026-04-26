@@ -1,0 +1,192 @@
+{
+  "amendment_scope_boundary_id": "repo_ratification_amendment_scope_boundary_d521603315edd7a348f0bc04",
+  "candidate_input_refs": [
+    "candidate:internal:odeu_conceptual_diff_report@1",
+    "candidate:internal:self_evidencing_workflow_type_emergence",
+    "candidate:internal:typed_adjudication_product_wedge"
+  ],
+  "containment_plan_id": "repo_contained_integration_candidate_plan_1fc878ea98ac029ec2305113",
+  "family_closeout_alignment_id": "repo_candidate_ratification_family_closeout_alignment_f122674f872033314a2d8e23",
+  "integration_source_rows": [
+    {
+      "authority_layer": "fixture",
+      "limitation_note": "Fixture is consumed as source-bound V72-A input only.",
+      "source_horizon": "V71-C family closeout alignment fixture.",
+      "source_kind": "fixture_file",
+      "source_presence_posture": "present",
+      "source_ref": "apps/api/fixtures/repo_description/vnext_plus199/repo_candidate_ratification_family_closeout_alignment_v199_reference.json",
+      "source_status": "integrated_shaping_source"
+    },
+    {
+      "authority_layer": "fixture",
+      "limitation_note": "Fixture is consumed as source-bound V72-A input only.",
+      "source_horizon": "V71-C post-ratification handoff fixture.",
+      "source_kind": "fixture_file",
+      "source_presence_posture": "present",
+      "source_ref": "apps/api/fixtures/repo_description/vnext_plus199/repo_post_ratification_handoff_v199_reference.json",
+      "source_status": "integrated_shaping_source"
+    },
+    {
+      "authority_layer": "fixture",
+      "limitation_note": "Fixture is consumed as source-bound V72-A input only.",
+      "source_horizon": "V71-C amendment-scope fixture.",
+      "source_kind": "fixture_file",
+      "source_presence_posture": "present",
+      "source_ref": "apps/api/fixtures/repo_description/vnext_plus199/repo_ratification_amendment_scope_boundary_v199_reference.json",
+      "source_status": "integrated_shaping_source"
+    },
+    {
+      "authority_layer": "closeout_evidence",
+      "limitation_note": "Closeout evidence is consumed without granting V72 execution.",
+      "source_horizon": "V71 family closeout alignment evidence.",
+      "source_kind": "evidence_artifact",
+      "source_presence_posture": "present",
+      "source_ref": "artifacts/agent_harness/v199/evidence_inputs/v71_family_closeout_alignment_v199.json",
+      "source_status": "integrated_shaping_source"
+    },
+    {
+      "authority_layer": "closeout_evidence",
+      "limitation_note": "Closeout evidence is consumed without granting V72 execution.",
+      "source_horizon": "V71-C candidate ratification closeout evidence.",
+      "source_kind": "evidence_artifact",
+      "source_presence_posture": "present",
+      "source_ref": "artifacts/agent_harness/v199/evidence_inputs/v71c_candidate_ratification_closeout_evidence_v199.json",
+      "source_status": "integrated_shaping_source"
+    },
+    {
+      "authority_layer": "support",
+      "limitation_note": "Support result shapes V72-A without lock authority.",
+      "source_horizon": "Combined V68-V71 dogfood support result.",
+      "source_kind": "support_doc",
+      "source_presence_posture": "present",
+      "source_ref": "docs/support/arc_series_mapping/V68_V69_V70_V71_COMBINED_DOGFOOD_TEST_v0.json",
+      "source_status": "integrated_shaping_source"
+    }
+  ],
+  "non_trial_summary": "No trial execution, no accepted diff, no commit, no release, no product authorization, no runtime permission, and no dispatch authority.",
+  "plan_rows": [
+    {
+      "amendment_scope_refs": [
+        "amendment:v71c:odeu-diff:blocked-by-dissent"
+      ],
+      "blocker_refs": [
+        "dissent:v71b:odeu-diff:minority-preserved",
+        "gap:v70b:odeu-diff:missing-counterevidence"
+      ],
+      "candidate_ref": "candidate:internal:odeu_conceptual_diff_report@1",
+      "containment_plan_posture": "blocked_by_dissent",
+      "guardrail_refs": [
+        "guardrail:v72a:odeu-diff:no-integration"
+      ],
+      "integration_source_refs": [
+        "apps/api/fixtures/repo_description/vnext_plus199/repo_candidate_ratification_family_closeout_alignment_v199_reference.json",
+        "apps/api/fixtures/repo_description/vnext_plus199/repo_post_ratification_handoff_v199_reference.json",
+        "apps/api/fixtures/repo_description/vnext_plus199/repo_ratification_amendment_scope_boundary_v199_reference.json",
+        "artifacts/agent_harness/v199/evidence_inputs/v71_family_closeout_alignment_v199.json",
+        "artifacts/agent_harness/v199/evidence_inputs/v71c_candidate_ratification_closeout_evidence_v199.json",
+        "docs/support/arc_series_mapping/V68_V69_V70_V71_COMBINED_DOGFOOD_TEST_v0.json"
+      ],
+      "limitation_note": "Dissent and evidence gap block containment planning.",
+      "odeu_lanes": [
+        "deontic",
+        "epistemic",
+        "ontological"
+      ],
+      "plan_ref": "plan:v72a:odeu-diff:blocked-by-dissent",
+      "ratification_refs": [
+        "ratification:v71b:odeu-diff:deferred-with-dissent"
+      ],
+      "required_trial_posture": "trial_blocked_until_dissent_resolved",
+      "rollback_requirement": "No trial selected while dissent remains unresolved.",
+      "source_handoff_refs": [
+        "handoff:v71c:odeu-diff:blocked-by-dissent"
+      ],
+      "target_boundary_refs": [
+        "target:v72a:odeu-diff:no-target"
+      ]
+    },
+    {
+      "amendment_scope_refs": [
+        "amendment:v71c:product-wedge:future-family"
+      ],
+      "blocker_refs": [
+        "gap:v70b:product-wedge:single-source-overclaim",
+        "gap:v70b:product-wedge:v74-boundary"
+      ],
+      "candidate_ref": "candidate:internal:typed_adjudication_product_wedge",
+      "containment_plan_posture": "future_family_only",
+      "guardrail_refs": [
+        "guardrail:v72a:product-wedge:future-family"
+      ],
+      "integration_source_refs": [
+        "apps/api/fixtures/repo_description/vnext_plus199/repo_candidate_ratification_family_closeout_alignment_v199_reference.json",
+        "apps/api/fixtures/repo_description/vnext_plus199/repo_post_ratification_handoff_v199_reference.json",
+        "apps/api/fixtures/repo_description/vnext_plus199/repo_ratification_amendment_scope_boundary_v199_reference.json",
+        "artifacts/agent_harness/v199/evidence_inputs/v71_family_closeout_alignment_v199.json",
+        "artifacts/agent_harness/v199/evidence_inputs/v71c_candidate_ratification_closeout_evidence_v199.json",
+        "docs/support/arc_series_mapping/V68_V69_V70_V71_COMBINED_DOGFOOD_TEST_v0.json"
+      ],
+      "limitation_note": "Product pressure remains future-family only.",
+      "odeu_lanes": [
+        "deontic",
+        "epistemic",
+        "ontological",
+        "utility"
+      ],
+      "plan_ref": "plan:v72a:product-wedge:future-family",
+      "ratification_refs": [
+        "ratification:v71b:product-wedge:future-family"
+      ],
+      "required_trial_posture": "future_family_trial_only",
+      "rollback_requirement": "No V72-A trial selected for future-family product pressure.",
+      "source_handoff_refs": [
+        "handoff:v71c:product-wedge:future-family"
+      ],
+      "target_boundary_refs": [
+        "target:v72a:product-wedge:no-target"
+      ]
+    },
+    {
+      "amendment_scope_refs": [
+        "amendment:v71c:self-evidencing:schema-review"
+      ],
+      "blocker_refs": [],
+      "candidate_ref": "candidate:internal:self_evidencing_workflow_type_emergence",
+      "containment_plan_posture": "eligible_for_containment_planning",
+      "guardrail_refs": [
+        "guardrail:v72a:self-evidencing:no-release"
+      ],
+      "integration_source_refs": [
+        "apps/api/fixtures/repo_description/vnext_plus199/repo_candidate_ratification_family_closeout_alignment_v199_reference.json",
+        "apps/api/fixtures/repo_description/vnext_plus199/repo_post_ratification_handoff_v199_reference.json",
+        "apps/api/fixtures/repo_description/vnext_plus199/repo_ratification_amendment_scope_boundary_v199_reference.json",
+        "artifacts/agent_harness/v199/evidence_inputs/v71_family_closeout_alignment_v199.json",
+        "artifacts/agent_harness/v199/evidence_inputs/v71c_candidate_ratification_closeout_evidence_v199.json",
+        "docs/support/arc_series_mapping/V68_V69_V70_V71_COMBINED_DOGFOOD_TEST_v0.json"
+      ],
+      "limitation_note": "Eligible only for later schema containment review.",
+      "odeu_lanes": [
+        "deontic",
+        "epistemic",
+        "ontological"
+      ],
+      "plan_ref": "plan:v72a:self-evidencing:schema-containment",
+      "ratification_refs": [
+        "ratification:v71b:self-evidencing:source-bound-validity"
+      ],
+      "required_trial_posture": "dry_run_required_later",
+      "rollback_requirement": "Later dry-run review must preserve explicit rollback path.",
+      "source_handoff_refs": [
+        "handoff:v71c:self-evidencing:v72-review"
+      ],
+      "target_boundary_refs": [
+        "target:v72a:self-evidencing:schema-surface"
+      ]
+    }
+  ],
+  "review_id": "review:v72a:contained-integration-planning",
+  "schema": "repo_contained_integration_candidate_plan@1",
+  "snapshot_id": "vNext+200-prestart-on-main",
+  "source_set_id": "source-set:v70a:released-v69c-handoff",
+  "upstream_handoff_register_id": "repo_post_ratification_handoff_2602a56694fe6b97302fbc88"
+}

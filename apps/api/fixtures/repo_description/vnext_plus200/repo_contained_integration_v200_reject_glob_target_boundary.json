@@ -1,0 +1,79 @@
+{
+  "containment_plan_id": "repo_contained_integration_candidate_plan_1fc878ea98ac029ec2305113",
+  "non_trial_summary": "No trial execution, no accepted diff, no commit, no release, no product authorization, no runtime permission, and no dispatch authority.",
+  "review_id": "review:v72a:contained-integration-planning",
+  "schema": "repo_integration_target_boundary@1",
+  "snapshot_id": "vNext+200-prestart-on-main",
+  "source_set_id": "source-set:v70a:released-v69c-handoff",
+  "target_boundary_id": "repo_integration_target_boundary_dffe6e4b3dbee9f1a7fc99c6",
+  "target_boundary_rows": [
+    {
+      "allowed_change_kinds": [],
+      "candidate_ref": "candidate:internal:odeu_conceptual_diff_report@1",
+      "forbidden_change_kinds": [
+        "commit_or_release_action",
+        "dispatch_or_runtime_permission",
+        "external_contest_action",
+        "product_surface_change",
+        "runtime_behavior_change"
+      ],
+      "limitation_note": "Dissent-blocked candidate has no V72-A target boundary.",
+      "source_refs": [
+        "apps/api/fixtures/repo_description/vnext_plus199/repo_post_ratification_handoff_v199_reference.json",
+        "apps/api/fixtures/repo_description/vnext_plus199/repo_ratification_amendment_scope_boundary_v199_reference.json"
+      ],
+      "target_boundary_kind": "no_target_boundary",
+      "target_boundary_ref": "target:v72a:odeu-diff:no-target",
+      "target_posture": "target_absent",
+      "target_refs": [],
+      "target_resolution_kind": "no_target_boundary"
+    },
+    {
+      "allowed_change_kinds": [],
+      "candidate_ref": "candidate:internal:typed_adjudication_product_wedge",
+      "forbidden_change_kinds": [
+        "commit_or_release_action",
+        "dispatch_or_runtime_permission",
+        "external_contest_action",
+        "product_surface_change",
+        "runtime_behavior_change"
+      ],
+      "limitation_note": "Product pressure has no V72-A target boundary.",
+      "source_refs": [
+        "apps/api/fixtures/repo_description/vnext_plus199/repo_post_ratification_handoff_v199_reference.json",
+        "apps/api/fixtures/repo_description/vnext_plus199/repo_ratification_amendment_scope_boundary_v199_reference.json"
+      ],
+      "target_boundary_kind": "no_target_boundary",
+      "target_boundary_ref": "target:v72a:product-wedge:no-target",
+      "target_posture": "target_absent",
+      "target_refs": [],
+      "target_resolution_kind": "no_target_boundary"
+    },
+    {
+      "allowed_change_kinds": [
+        "schema_shape_update",
+        "test_coverage_update"
+      ],
+      "candidate_ref": "candidate:internal:self_evidencing_workflow_type_emergence",
+      "forbidden_change_kinds": [
+        "commit_or_release_action",
+        "dispatch_or_runtime_permission",
+        "external_contest_action",
+        "product_surface_change",
+        "runtime_behavior_change"
+      ],
+      "limitation_note": "Later review may consider only bounded schema surfaces.",
+      "source_refs": [
+        "apps/api/fixtures/repo_description/vnext_plus199/repo_post_ratification_handoff_v199_reference.json",
+        "apps/api/fixtures/repo_description/vnext_plus199/repo_ratification_amendment_scope_boundary_v199_reference.json"
+      ],
+      "target_boundary_kind": "schema_surface",
+      "target_boundary_ref": "target:v72a:self-evidencing:schema-surface",
+      "target_posture": "multi_surface_bounded",
+      "target_refs": [
+        "packages/adeu_repo_description/schema/*.json"
+      ],
+      "target_resolution_kind": "concrete_schema_ref"
+    }
+  ]
+}

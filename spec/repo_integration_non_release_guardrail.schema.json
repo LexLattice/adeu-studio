@@ -1,0 +1,125 @@
+{
+  "$defs": {
+    "RepoIntegrationNonReleaseGuardrailRow": {
+      "additionalProperties": false,
+      "properties": {
+        "candidate_ref": {
+          "title": "Candidate Ref",
+          "type": "string"
+        },
+        "forbidden_downstream_roles": {
+          "items": {
+            "enum": [
+              "implementation_task",
+              "commit_release_authority",
+              "merge_authority",
+              "released_truth",
+              "product_authorization",
+              "runtime_permission",
+              "dispatch_authority",
+              "external_contest_authority"
+            ],
+            "type": "string"
+          },
+          "minItems": 1,
+          "title": "Forbidden Downstream Roles",
+          "type": "array"
+        },
+        "guardrail_ref": {
+          "title": "Guardrail Ref",
+          "type": "string"
+        },
+        "limitation_note": {
+          "title": "Limitation Note",
+          "type": "string"
+        },
+        "non_release_posture": {
+          "enum": [
+            "no_commit_or_release_authority",
+            "no_product_authorization",
+            "no_runtime_permission",
+            "no_dispatch_authority",
+            "no_external_contest_authority"
+          ],
+          "title": "Non Release Posture",
+          "type": "string"
+        },
+        "plan_refs": {
+          "items": {
+            "type": "string"
+          },
+          "minItems": 1,
+          "title": "Plan Refs",
+          "type": "array"
+        },
+        "required_later_authority": {
+          "title": "Required Later Authority",
+          "type": "string"
+        }
+      },
+      "required": [
+        "guardrail_ref",
+        "candidate_ref",
+        "plan_refs",
+        "forbidden_downstream_roles",
+        "non_release_posture",
+        "required_later_authority",
+        "limitation_note"
+      ],
+      "title": "RepoIntegrationNonReleaseGuardrailRow",
+      "type": "object"
+    }
+  },
+  "additionalProperties": false,
+  "properties": {
+    "containment_plan_id": {
+      "title": "Containment Plan Id",
+      "type": "string"
+    },
+    "guardrail_rows": {
+      "items": {
+        "$ref": "#/$defs/RepoIntegrationNonReleaseGuardrailRow"
+      },
+      "minItems": 1,
+      "title": "Guardrail Rows",
+      "type": "array"
+    },
+    "non_release_guardrail_id": {
+      "title": "Non Release Guardrail Id",
+      "type": "string"
+    },
+    "non_release_summary": {
+      "title": "Non Release Summary",
+      "type": "string"
+    },
+    "review_id": {
+      "title": "Review Id",
+      "type": "string"
+    },
+    "schema": {
+      "const": "repo_integration_non_release_guardrail@1",
+      "default": "repo_integration_non_release_guardrail@1",
+      "title": "Schema",
+      "type": "string"
+    },
+    "snapshot_id": {
+      "title": "Snapshot Id",
+      "type": "string"
+    },
+    "source_set_id": {
+      "title": "Source Set Id",
+      "type": "string"
+    }
+  },
+  "required": [
+    "non_release_guardrail_id",
+    "review_id",
+    "snapshot_id",
+    "source_set_id",
+    "containment_plan_id",
+    "guardrail_rows",
+    "non_release_summary"
+  ],
+  "title": "RepoIntegrationNonReleaseGuardrail",
+  "type": "object"
+}

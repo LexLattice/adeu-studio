@@ -28,11 +28,14 @@ from adeu_repo_description import (
     REPO_CANDIDATE_REVIEW_CONFLICT_REGISTER_SCHEMA,
     REPO_CANDIDATE_REVIEW_GAP_SCAN_SCHEMA,
     REPO_CANDIDATE_SOURCE_REGISTER_SCHEMA,
+    REPO_CONTAINED_INTEGRATION_CANDIDATE_PLAN_SCHEMA,
     REPO_DEPENDENCY_GRAPH_SCHEMA,
     REPO_DESCRIPTIVE_NORMATIVE_BINDING_FRAME_SCHEMA,
     REPO_ENTITY_CATALOG_SCHEMA,
     REPO_EVIDENCE_SURFACE_INDEX_SCHEMA,
     REPO_FAMILY_CLOSURE_REGISTER_SCHEMA,
+    REPO_INTEGRATION_NON_RELEASE_GUARDRAIL_SCHEMA,
+    REPO_INTEGRATION_TARGET_BOUNDARY_SCHEMA,
     REPO_OPERATOR_INGRESS_CANDIDATE_BINDING_SCHEMA,
     REPO_OPTIMIZATION_REGISTER_SCHEMA,
     REPO_POST_RATIFICATION_HANDOFF_SCHEMA,
@@ -376,6 +379,30 @@ def _schema_pairs() -> dict[str, tuple[Path, Path]]:
             / "schema"
             / "repo_candidate_ratification_family_closeout_alignment.v1.json",
             root / "spec" / "repo_candidate_ratification_family_closeout_alignment.schema.json",
+        ),
+        REPO_CONTAINED_INTEGRATION_CANDIDATE_PLAN_SCHEMA: (
+            root
+            / "packages"
+            / "adeu_repo_description"
+            / "schema"
+            / "repo_contained_integration_candidate_plan.v1.json",
+            root / "spec" / "repo_contained_integration_candidate_plan.schema.json",
+        ),
+        REPO_INTEGRATION_TARGET_BOUNDARY_SCHEMA: (
+            root
+            / "packages"
+            / "adeu_repo_description"
+            / "schema"
+            / "repo_integration_target_boundary.v1.json",
+            root / "spec" / "repo_integration_target_boundary.schema.json",
+        ),
+        REPO_INTEGRATION_NON_RELEASE_GUARDRAIL_SCHEMA: (
+            root
+            / "packages"
+            / "adeu_repo_description"
+            / "schema"
+            / "repo_integration_non_release_guardrail.v1.json",
+            root / "spec" / "repo_integration_non_release_guardrail.schema.json",
         ),
     }
 
