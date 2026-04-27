@@ -141,8 +141,7 @@ Later `V73` surfaces should remain support-layer until their own starter locks:
 - `repo_outcome_promotion_demotion_recommendation@1`
 - `repo_outcome_review_family_closeout_alignment@1`
 
-Post-`V73-A` continuation posture: after `vNext+203` closes on `main`, select
-`V73-B` as the next default candidate for the next canonical starter bundle.
+Post-`V73-A` continuation posture: after `vNext+203` closes on `main`, select `V73-B` as the next default candidate for the next canonical starter bundle.
 That selection remains inside the already selected `V73` family and does not
 create a new next-arc-options selector version.
 
