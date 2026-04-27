@@ -1,0 +1,267 @@
+{
+  "$defs": {
+    "RepoOutcomeEvidenceSourceRow": {
+      "additionalProperties": false,
+      "properties": {
+        "authority_layer": {
+          "enum": [
+            "lock",
+            "architecture",
+            "planning",
+            "support",
+            "schema",
+            "fixture",
+            "closeout_evidence"
+          ],
+          "title": "Authority Layer",
+          "type": "string"
+        },
+        "candidate_ref": {
+          "title": "Candidate Ref",
+          "type": "string"
+        },
+        "evidence_role": {
+          "enum": [
+            "primary_outcome_evidence",
+            "auxiliary_trial_context",
+            "auxiliary_effect_context",
+            "auxiliary_rollback_context",
+            "authority_boundary_context",
+            "absence_marker"
+          ],
+          "title": "Evidence Role",
+          "type": "string"
+        },
+        "horizon_refs": {
+          "items": {
+            "type": "string"
+          },
+          "minItems": 1,
+          "title": "Horizon Refs",
+          "type": "array"
+        },
+        "limitation_note": {
+          "title": "Limitation Note",
+          "type": "string"
+        },
+        "outcome_evidence_kind": {
+          "enum": [
+            "baseline_evidence",
+            "intervention_evidence",
+            "evaluation_evidence",
+            "trial_evidence",
+            "effect_evidence",
+            "rollback_evidence",
+            "authority_posture_evidence",
+            "dogfood_evidence",
+            "operator_cognition_evidence",
+            "tool_run_evidence",
+            "absence_evidence"
+          ],
+          "title": "Outcome Evidence Kind",
+          "type": "string"
+        },
+        "source_kind": {
+          "enum": [
+            "planning_doc",
+            "architecture_doc",
+            "support_doc",
+            "review_input",
+            "closeout_doc",
+            "evidence_artifact",
+            "schema_file",
+            "fixture_file",
+            "operator_turn",
+            "transcript_artifact",
+            "model_output",
+            "repo_observation",
+            "external_artifact"
+          ],
+          "title": "Source Kind",
+          "type": "string"
+        },
+        "source_presence_posture": {
+          "enum": [
+            "present",
+            "missing_expected_support_artifact",
+            "not_uploaded_in_review_snapshot",
+            "generated_later",
+            "external_unavailable",
+            "operator_turn_not_committed"
+          ],
+          "title": "Source Presence Posture",
+          "type": "string"
+        },
+        "source_ref": {
+          "title": "Source Ref",
+          "type": "string"
+        },
+        "source_status": {
+          "enum": [
+            "integrated_shaping_source",
+            "available_but_not_integrated",
+            "review_pending_input",
+            "rejected_or_superseded_source"
+          ],
+          "title": "Source Status",
+          "type": "string"
+        }
+      },
+      "required": [
+        "source_ref",
+        "candidate_ref",
+        "source_kind",
+        "authority_layer",
+        "source_status",
+        "source_presence_posture",
+        "outcome_evidence_kind",
+        "horizon_refs",
+        "evidence_role",
+        "limitation_note"
+      ],
+      "title": "RepoOutcomeEvidenceSourceRow",
+      "type": "object"
+    },
+    "RepoOutcomeHorizonRow": {
+      "additionalProperties": false,
+      "properties": {
+        "candidate_ref": {
+          "title": "Candidate Ref",
+          "type": "string"
+        },
+        "coverage_posture": {
+          "enum": [
+            "covered",
+            "partially_covered",
+            "missing_expected_source",
+            "not_applicable",
+            "future_family_only"
+          ],
+          "title": "Coverage Posture",
+          "type": "string"
+        },
+        "covered_surface_refs": {
+          "items": {
+            "type": "string"
+          },
+          "title": "Covered Surface Refs",
+          "type": "array"
+        },
+        "horizon_kind": {
+          "enum": [
+            "baseline",
+            "intervention",
+            "evaluation"
+          ],
+          "title": "Horizon Kind",
+          "type": "string"
+        },
+        "horizon_ref": {
+          "title": "Horizon Ref",
+          "type": "string"
+        },
+        "limitation_note": {
+          "title": "Limitation Note",
+          "type": "string"
+        },
+        "source_refs": {
+          "items": {
+            "type": "string"
+          },
+          "title": "Source Refs",
+          "type": "array"
+        }
+      },
+      "required": [
+        "horizon_ref",
+        "candidate_ref",
+        "horizon_kind",
+        "coverage_posture",
+        "limitation_note"
+      ],
+      "title": "RepoOutcomeHorizonRow",
+      "type": "object"
+    }
+  },
+  "additionalProperties": false,
+  "properties": {
+    "authority_posture_id": {
+      "title": "Authority Posture Id",
+      "type": "string"
+    },
+    "effect_surface_register_id": {
+      "title": "Effect Surface Register Id",
+      "type": "string"
+    },
+    "evidence_source_index_id": {
+      "title": "Evidence Source Index Id",
+      "type": "string"
+    },
+    "non_judgment_summary": {
+      "title": "Non Judgment Summary",
+      "type": "string"
+    },
+    "outcome_horizon_rows": {
+      "items": {
+        "$ref": "#/$defs/RepoOutcomeHorizonRow"
+      },
+      "minItems": 1,
+      "title": "Outcome Horizon Rows",
+      "type": "array"
+    },
+    "post_integration_handoff_id": {
+      "title": "Post Integration Handoff Id",
+      "type": "string"
+    },
+    "review_id": {
+      "title": "Review Id",
+      "type": "string"
+    },
+    "rollback_readiness_id": {
+      "title": "Rollback Readiness Id",
+      "type": "string"
+    },
+    "schema": {
+      "const": "repo_outcome_evidence_source_index@1",
+      "default": "repo_outcome_evidence_source_index@1",
+      "title": "Schema",
+      "type": "string"
+    },
+    "snapshot_id": {
+      "title": "Snapshot Id",
+      "type": "string"
+    },
+    "source_rows": {
+      "items": {
+        "$ref": "#/$defs/RepoOutcomeEvidenceSourceRow"
+      },
+      "minItems": 1,
+      "title": "Source Rows",
+      "type": "array"
+    },
+    "source_set_id": {
+      "title": "Source Set Id",
+      "type": "string"
+    },
+    "trial_record_id": {
+      "title": "Trial Record Id",
+      "type": "string"
+    }
+  },
+  "required": [
+    "evidence_source_index_id",
+    "review_id",
+    "snapshot_id",
+    "source_set_id",
+    "post_integration_handoff_id",
+    "trial_record_id",
+    "effect_surface_register_id",
+    "rollback_readiness_id",
+    "authority_posture_id",
+    "source_rows",
+    "outcome_horizon_rows",
+    "non_judgment_summary"
+  ],
+  "title": "RepoOutcomeEvidenceSourceIndex",
+  "type": "object"
+}

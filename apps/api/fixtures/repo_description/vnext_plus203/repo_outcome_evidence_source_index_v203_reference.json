@@ -1,0 +1,149 @@
+{
+  "authority_posture_id": "repo_commit_release_authority_posture_36a35b16cf267f29d308a194",
+  "effect_surface_register_id": "repo_integration_effect_surface_register_62f1efe5fcf8008ea68edc54",
+  "evidence_source_index_id": "repo_outcome_evidence_source_index_adf598e5ee206ff5ea96ac1c",
+  "non_judgment_summary": "Outcome review entry is review-only: no benefit judgment, no harm judgment, no regression verdict, no tool-fitness verdict, no promotion, no demotion, no adoption, no release, no product authorization, no runtime permission, and no dispatch authority.",
+  "outcome_horizon_rows": [
+    {
+      "candidate_ref": "candidate:internal:self_evidencing_workflow_type_emergence",
+      "coverage_posture": "covered",
+      "covered_surface_refs": [
+        "docs/support/arc_series_mapping/V68_V69_V70_V71_V72_COMBINED_DOGFOOD_TEST_v0.json"
+      ],
+      "horizon_kind": "baseline",
+      "horizon_ref": "horizon:v73a:self-evidencing:baseline",
+      "limitation_note": "Baseline is the pre-V73 combined dogfood context.",
+      "source_refs": [
+        "docs/support/arc_series_mapping/V68_V69_V70_V71_V72_COMBINED_DOGFOOD_TEST_v0.json"
+      ]
+    },
+    {
+      "candidate_ref": "candidate:internal:self_evidencing_workflow_type_emergence",
+      "coverage_posture": "partially_covered",
+      "covered_surface_refs": [
+        "apps/api/fixtures/repo_description/vnext_plus201/repo_integration_effect_surface_register_v201_reference.json",
+        "apps/api/fixtures/repo_description/vnext_plus201/repo_integration_rollback_readiness_v201_reference.json",
+        "apps/api/fixtures/repo_description/vnext_plus202/repo_commit_release_authority_posture_v202_reference.json",
+        "docs/support/arc_series_mapping/V68_V69_V70_V71_V72_COMBINED_DOGFOOD_TEST_v0.json"
+      ],
+      "horizon_kind": "evaluation",
+      "horizon_ref": "horizon:v73a:self-evidencing:evaluation",
+      "limitation_note": "Evaluation horizon is entry-only and does not judge the outcome.",
+      "source_refs": [
+        "apps/api/fixtures/repo_description/vnext_plus201/repo_integration_effect_surface_register_v201_reference.json",
+        "apps/api/fixtures/repo_description/vnext_plus201/repo_integration_rollback_readiness_v201_reference.json",
+        "apps/api/fixtures/repo_description/vnext_plus202/repo_commit_release_authority_posture_v202_reference.json",
+        "docs/support/arc_series_mapping/V68_V69_V70_V71_V72_COMBINED_DOGFOOD_TEST_v0.json"
+      ]
+    },
+    {
+      "candidate_ref": "candidate:internal:self_evidencing_workflow_type_emergence",
+      "coverage_posture": "covered",
+      "covered_surface_refs": [
+        "apps/api/fixtures/repo_description/vnext_plus201/repo_contained_integration_trial_record_v201_reference.json",
+        "apps/api/fixtures/repo_description/vnext_plus202/repo_post_integration_outcome_review_handoff_v202_reference.json"
+      ],
+      "horizon_kind": "intervention",
+      "horizon_ref": "horizon:v73a:self-evidencing:intervention",
+      "limitation_note": "Intervention horizon covers the contained trial and V73 handoff.",
+      "source_refs": [
+        "apps/api/fixtures/repo_description/vnext_plus201/repo_contained_integration_trial_record_v201_reference.json",
+        "apps/api/fixtures/repo_description/vnext_plus202/repo_post_integration_outcome_review_handoff_v202_reference.json"
+      ]
+    }
+  ],
+  "post_integration_handoff_id": "repo_post_integration_outcome_review_handoff_25b05bb3154fb4fd1dab3bf4",
+  "review_id": "review:v73a:outcome-entry",
+  "rollback_readiness_id": "repo_integration_rollback_readiness_ecfc89d64b091077928e3c76",
+  "schema": "repo_outcome_evidence_source_index@1",
+  "snapshot_id": "vNext+200-prestart-on-main",
+  "source_rows": [
+    {
+      "authority_layer": "fixture",
+      "candidate_ref": "candidate:internal:self_evidencing_workflow_type_emergence",
+      "evidence_role": "auxiliary_trial_context",
+      "horizon_refs": [
+        "horizon:v73a:self-evidencing:intervention"
+      ],
+      "limitation_note": "Trial record is context for later outcome review only.",
+      "outcome_evidence_kind": "trial_evidence",
+      "source_kind": "fixture_file",
+      "source_presence_posture": "present",
+      "source_ref": "apps/api/fixtures/repo_description/vnext_plus201/repo_contained_integration_trial_record_v201_reference.json",
+      "source_status": "integrated_shaping_source"
+    },
+    {
+      "authority_layer": "fixture",
+      "candidate_ref": "candidate:internal:self_evidencing_workflow_type_emergence",
+      "evidence_role": "auxiliary_effect_context",
+      "horizon_refs": [
+        "horizon:v73a:self-evidencing:evaluation"
+      ],
+      "limitation_note": "Effect record is context and does not judge outcome.",
+      "outcome_evidence_kind": "effect_evidence",
+      "source_kind": "fixture_file",
+      "source_presence_posture": "present",
+      "source_ref": "apps/api/fixtures/repo_description/vnext_plus201/repo_integration_effect_surface_register_v201_reference.json",
+      "source_status": "integrated_shaping_source"
+    },
+    {
+      "authority_layer": "fixture",
+      "candidate_ref": "candidate:internal:self_evidencing_workflow_type_emergence",
+      "evidence_role": "auxiliary_rollback_context",
+      "horizon_refs": [
+        "horizon:v73a:self-evidencing:evaluation"
+      ],
+      "limitation_note": "Rollback readiness is context and not an outcome verdict.",
+      "outcome_evidence_kind": "rollback_evidence",
+      "source_kind": "fixture_file",
+      "source_presence_posture": "present",
+      "source_ref": "apps/api/fixtures/repo_description/vnext_plus201/repo_integration_rollback_readiness_v201_reference.json",
+      "source_status": "integrated_shaping_source"
+    },
+    {
+      "authority_layer": "fixture",
+      "candidate_ref": "candidate:internal:self_evidencing_workflow_type_emergence",
+      "evidence_role": "authority_boundary_context",
+      "horizon_refs": [
+        "horizon:v73a:self-evidencing:evaluation"
+      ],
+      "limitation_note": "Authority posture is boundary context for later review.",
+      "outcome_evidence_kind": "authority_posture_evidence",
+      "source_kind": "fixture_file",
+      "source_presence_posture": "present",
+      "source_ref": "apps/api/fixtures/repo_description/vnext_plus202/repo_commit_release_authority_posture_v202_reference.json",
+      "source_status": "integrated_shaping_source"
+    },
+    {
+      "authority_layer": "fixture",
+      "candidate_ref": "candidate:internal:self_evidencing_workflow_type_emergence",
+      "evidence_role": "primary_outcome_evidence",
+      "horizon_refs": [
+        "horizon:v73a:self-evidencing:intervention"
+      ],
+      "limitation_note": "Handoff identifies the bounded later outcome-review entry.",
+      "outcome_evidence_kind": "intervention_evidence",
+      "source_kind": "fixture_file",
+      "source_presence_posture": "present",
+      "source_ref": "apps/api/fixtures/repo_description/vnext_plus202/repo_post_integration_outcome_review_handoff_v202_reference.json",
+      "source_status": "integrated_shaping_source"
+    },
+    {
+      "authority_layer": "support",
+      "candidate_ref": "candidate:internal:self_evidencing_workflow_type_emergence",
+      "evidence_role": "primary_outcome_evidence",
+      "horizon_refs": [
+        "horizon:v73a:self-evidencing:baseline",
+        "horizon:v73a:self-evidencing:evaluation"
+      ],
+      "limitation_note": "Dogfood source frames baseline and evaluation context only.",
+      "outcome_evidence_kind": "dogfood_evidence",
+      "source_kind": "support_doc",
+      "source_presence_posture": "present",
+      "source_ref": "docs/support/arc_series_mapping/V68_V69_V70_V71_V72_COMBINED_DOGFOOD_TEST_v0.json",
+      "source_status": "integrated_shaping_source"
+    }
+  ],
+  "source_set_id": "source-set:v70a:released-v69c-handoff",
+  "trial_record_id": "repo_contained_integration_trial_record_ae85e47c69f8720d6130dfa6"
+}

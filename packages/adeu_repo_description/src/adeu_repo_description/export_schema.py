@@ -22,6 +22,11 @@ from .arc_series_cartography_derivation import (
     RepoArcCartographyGapScanReport,
 )
 from .arc_series_cartography_tools import RepoArcCartographyToolRunEvidence
+from .candidate_outcome_review import (
+    RepoCandidateOutcomeReviewEntry,
+    RepoOutcomeEvidenceSourceIndex,
+    RepoOutcomeReviewBoundaryGuardrail,
+)
 from .candidate_ratification_review import (
     RepoCandidateRatificationFamilyCloseoutAlignment,
     RepoCandidateRatificationRecord,
@@ -258,6 +263,15 @@ def main() -> None:
     contained_integration_family_closeout_alignment_schema = (
         RepoContainedIntegrationFamilyCloseoutAlignment.model_json_schema(by_alias=True)
     )
+    candidate_outcome_review_entry_schema = RepoCandidateOutcomeReviewEntry.model_json_schema(
+        by_alias=True
+    )
+    outcome_evidence_source_index_schema = RepoOutcomeEvidenceSourceIndex.model_json_schema(
+        by_alias=True
+    )
+    outcome_review_boundary_guardrail_schema = (
+        RepoOutcomeReviewBoundaryGuardrail.model_json_schema(by_alias=True)
+    )
 
     _assert_no_absolute_path_material(dependency_register_v1_schema, repo_root_path=root)
     _assert_no_absolute_path_material(dependency_register_schema, repo_root_path=root)
@@ -354,6 +368,9 @@ def main() -> None:
         contained_integration_family_closeout_alignment_schema,
         repo_root_path=root,
     )
+    _assert_no_absolute_path_material(candidate_outcome_review_entry_schema, repo_root_path=root)
+    _assert_no_absolute_path_material(outcome_evidence_source_index_schema, repo_root_path=root)
+    _assert_no_absolute_path_material(outcome_review_boundary_guardrail_schema, repo_root_path=root)
 
     _write_schema(
         root
@@ -978,6 +995,42 @@ def main() -> None:
     _write_schema(
         root / "spec" / "repo_contained_integration_family_closeout_alignment.schema.json",
         contained_integration_family_closeout_alignment_schema,
+    )
+    _write_schema(
+        root
+        / "packages"
+        / "adeu_repo_description"
+        / "schema"
+        / "repo_candidate_outcome_review_entry.v1.json",
+        candidate_outcome_review_entry_schema,
+    )
+    _write_schema(
+        root / "spec" / "repo_candidate_outcome_review_entry.schema.json",
+        candidate_outcome_review_entry_schema,
+    )
+    _write_schema(
+        root
+        / "packages"
+        / "adeu_repo_description"
+        / "schema"
+        / "repo_outcome_evidence_source_index.v1.json",
+        outcome_evidence_source_index_schema,
+    )
+    _write_schema(
+        root / "spec" / "repo_outcome_evidence_source_index.schema.json",
+        outcome_evidence_source_index_schema,
+    )
+    _write_schema(
+        root
+        / "packages"
+        / "adeu_repo_description"
+        / "schema"
+        / "repo_outcome_review_boundary_guardrail.v1.json",
+        outcome_review_boundary_guardrail_schema,
+    )
+    _write_schema(
+        root / "spec" / "repo_outcome_review_boundary_guardrail.schema.json",
+        outcome_review_boundary_guardrail_schema,
     )
 
 

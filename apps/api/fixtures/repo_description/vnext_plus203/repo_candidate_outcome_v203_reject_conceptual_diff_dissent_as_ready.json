@@ -1,0 +1,56 @@
+{
+  "entry_rows": [
+    {
+      "authority_posture_refs": [
+        "authority:v72c:self-evidencing:maintainer-required"
+      ],
+      "baseline_horizon_ref": "horizon:v73a:self-evidencing:baseline",
+      "blocking_authority_boundary_refs": [],
+      "blocking_effect_gap_refs": [],
+      "blocking_rollback_gap_refs": [],
+      "blocking_trial_gap_refs": [],
+      "candidate_ref": "candidate:internal:odeu_conceptual_diff_report@1",
+      "effect_refs": [
+        "effect:v72b:self-evidencing:schema-surface"
+      ],
+      "entry_posture": "eligible_for_outcome_review",
+      "entry_ref": "entry:v73a:self-evidencing:outcome-review",
+      "evaluation_horizon_ref": "horizon:v73a:self-evidencing:evaluation",
+      "guardrail_refs": [
+        "guardrail:v73a:self-evidencing:no-authority"
+      ],
+      "intervention_horizon_ref": "horizon:v73a:self-evidencing:intervention",
+      "limitation_note": "Entry opens bounded V73 review without judging outcome.",
+      "odeu_lanes": [
+        "deontic",
+        "epistemic",
+        "utility"
+      ],
+      "outcome_source_refs": [
+        "apps/api/fixtures/repo_description/vnext_plus201/repo_contained_integration_trial_record_v201_reference.json",
+        "apps/api/fixtures/repo_description/vnext_plus201/repo_integration_effect_surface_register_v201_reference.json",
+        "apps/api/fixtures/repo_description/vnext_plus201/repo_integration_rollback_readiness_v201_reference.json",
+        "apps/api/fixtures/repo_description/vnext_plus202/repo_commit_release_authority_posture_v202_reference.json",
+        "apps/api/fixtures/repo_description/vnext_plus202/repo_post_integration_outcome_review_handoff_v202_reference.json",
+        "docs/support/arc_series_mapping/V68_V69_V70_V71_V72_COMBINED_DOGFOOD_TEST_v0.json"
+      ],
+      "rollback_refs": [
+        "rollback:v72b:self-evidencing:plan-present"
+      ],
+      "source_handoff_refs": [
+        "handoff:v72c:self-evidencing:v73-review"
+      ],
+      "trial_refs": [
+        "trial:v72b:self-evidencing:dry-run"
+      ]
+    }
+  ],
+  "evidence_source_index_id": "repo_outcome_evidence_source_index_adf598e5ee206ff5ea96ac1c",
+  "non_judgment_summary": "Outcome review entry is review-only: no benefit judgment, no harm judgment, no regression verdict, no tool-fitness verdict, no promotion, no demotion, no adoption, no release, no product authorization, no runtime permission, and no dispatch authority.",
+  "outcome_review_entry_id": "repo_candidate_outcome_review_entry_79313b4707dffd5036e40704",
+  "post_integration_handoff_id": "repo_post_integration_outcome_review_handoff_25b05bb3154fb4fd1dab3bf4",
+  "review_id": "review:v73a:outcome-entry",
+  "schema": "repo_candidate_outcome_review_entry@1",
+  "snapshot_id": "vNext+200-prestart-on-main",
+  "source_set_id": "source-set:v70a:released-v69c-handoff"
+}

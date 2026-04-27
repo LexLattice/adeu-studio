@@ -19,6 +19,7 @@ from adeu_repo_description import (
     REPO_CANDIDATE_INTAKE_GAP_SCAN_SCHEMA,
     REPO_CANDIDATE_INTAKE_PRE_V70_HANDOFF_SCHEMA,
     REPO_CANDIDATE_NON_ADOPTION_GUARDRAIL_SCHEMA,
+    REPO_CANDIDATE_OUTCOME_REVIEW_ENTRY_SCHEMA,
     REPO_CANDIDATE_PRE_RATIFICATION_HANDOFF_SCHEMA,
     REPO_CANDIDATE_RATIFICATION_FAMILY_CLOSEOUT_ALIGNMENT_SCHEMA,
     REPO_CANDIDATE_RATIFICATION_RECORD_SCHEMA,
@@ -43,6 +44,8 @@ from adeu_repo_description import (
     REPO_INTEGRATION_TARGET_BOUNDARY_SCHEMA,
     REPO_OPERATOR_INGRESS_CANDIDATE_BINDING_SCHEMA,
     REPO_OPTIMIZATION_REGISTER_SCHEMA,
+    REPO_OUTCOME_EVIDENCE_SOURCE_INDEX_SCHEMA,
+    REPO_OUTCOME_REVIEW_BOUNDARY_GUARDRAIL_SCHEMA,
     REPO_POST_INTEGRATION_OUTCOME_REVIEW_HANDOFF_SCHEMA,
     REPO_POST_RATIFICATION_HANDOFF_SCHEMA,
     REPO_RATIFICATION_AMENDMENT_SCOPE_BOUNDARY_SCHEMA,
@@ -457,6 +460,30 @@ def _schema_pairs() -> dict[str, tuple[Path, Path]]:
             / "schema"
             / "repo_contained_integration_family_closeout_alignment.v1.json",
             root / "spec" / "repo_contained_integration_family_closeout_alignment.schema.json",
+        ),
+        REPO_CANDIDATE_OUTCOME_REVIEW_ENTRY_SCHEMA: (
+            root
+            / "packages"
+            / "adeu_repo_description"
+            / "schema"
+            / "repo_candidate_outcome_review_entry.v1.json",
+            root / "spec" / "repo_candidate_outcome_review_entry.schema.json",
+        ),
+        REPO_OUTCOME_EVIDENCE_SOURCE_INDEX_SCHEMA: (
+            root
+            / "packages"
+            / "adeu_repo_description"
+            / "schema"
+            / "repo_outcome_evidence_source_index.v1.json",
+            root / "spec" / "repo_outcome_evidence_source_index.schema.json",
+        ),
+        REPO_OUTCOME_REVIEW_BOUNDARY_GUARDRAIL_SCHEMA: (
+            root
+            / "packages"
+            / "adeu_repo_description"
+            / "schema"
+            / "repo_outcome_review_boundary_guardrail.v1.json",
+            root / "spec" / "repo_outcome_review_boundary_guardrail.schema.json",
         ),
     }
 

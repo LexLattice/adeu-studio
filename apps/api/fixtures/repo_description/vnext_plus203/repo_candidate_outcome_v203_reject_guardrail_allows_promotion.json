@@ -1,0 +1,42 @@
+{
+  "boundary_guardrail_id": "repo_outcome_review_boundary_guardrail_87a60a5caa651c319ee97698",
+  "boundary_summary": "Boundary guardrails forbid promotion, demotion, adoption, commit, merge, release, released truth, product authorization, runtime permission, dispatch authority, and external contest authority.",
+  "guardrail_rows": [
+    {
+      "boundary_posture": [
+        "no_demotion_authority",
+        "no_dispatch_authority",
+        "no_external_contest_authority",
+        "no_product_authorization",
+        "no_promotion_authority",
+        "no_release_authority",
+        "no_runtime_permission"
+      ],
+      "candidate_ref": "candidate:internal:self_evidencing_workflow_type_emergence",
+      "entry_refs": [
+        "entry:v73a:self-evidencing:outcome-review"
+      ],
+      "forbidden_downstream_roles": [
+        "adoption_authority",
+        "commit_release_authority",
+        "demotion_authority",
+        "dispatch_authority",
+        "external_contest_authority",
+        "merge_authority",
+        "product_authorization",
+        "released_truth",
+        "runtime_permission"
+      ],
+      "guardrail_ref": "guardrail:v73a:self-evidencing:no-authority",
+      "limitation_note": "Guardrail preserves entry-only review without downstream authority.",
+      "required_later_authority": [
+        "none_selected_here"
+      ]
+    }
+  ],
+  "outcome_review_entry_id": "repo_candidate_outcome_review_entry_79313b4707dffd5036e40704",
+  "review_id": "review:v73a:outcome-entry",
+  "schema": "repo_outcome_review_boundary_guardrail@1",
+  "snapshot_id": "vNext+200-prestart-on-main",
+  "source_set_id": "source-set:v70a:released-v69c-handoff"
+}

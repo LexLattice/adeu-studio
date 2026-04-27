@@ -1,0 +1,146 @@
+{
+  "$defs": {
+    "RepoOutcomeReviewBoundaryGuardrailRow": {
+      "additionalProperties": false,
+      "properties": {
+        "boundary_posture": {
+          "items": {
+            "enum": [
+              "no_promotion_authority",
+              "no_demotion_authority",
+              "no_release_authority",
+              "no_product_authorization",
+              "no_runtime_permission",
+              "no_dispatch_authority",
+              "no_external_contest_authority"
+            ],
+            "type": "string"
+          },
+          "minItems": 1,
+          "title": "Boundary Posture",
+          "type": "array"
+        },
+        "candidate_ref": {
+          "title": "Candidate Ref",
+          "type": "string"
+        },
+        "entry_refs": {
+          "items": {
+            "type": "string"
+          },
+          "minItems": 1,
+          "title": "Entry Refs",
+          "type": "array"
+        },
+        "forbidden_downstream_roles": {
+          "items": {
+            "enum": [
+              "promotion_authority",
+              "demotion_authority",
+              "adoption_authority",
+              "commit_release_authority",
+              "merge_authority",
+              "released_truth",
+              "product_authorization",
+              "runtime_permission",
+              "dispatch_authority",
+              "external_contest_authority"
+            ],
+            "type": "string"
+          },
+          "minItems": 1,
+          "title": "Forbidden Downstream Roles",
+          "type": "array"
+        },
+        "guardrail_ref": {
+          "title": "Guardrail Ref",
+          "type": "string"
+        },
+        "limitation_note": {
+          "title": "Limitation Note",
+          "type": "string"
+        },
+        "required_later_authority": {
+          "items": {
+            "enum": [
+              "human_ratification_required",
+              "maintainer_release_authority_required",
+              "product_authority_required",
+              "runtime_authority_required",
+              "dispatch_authority_required",
+              "external_contest_authority_required",
+              "none_selected_here"
+            ],
+            "type": "string"
+          },
+          "minItems": 1,
+          "title": "Required Later Authority",
+          "type": "array"
+        }
+      },
+      "required": [
+        "guardrail_ref",
+        "candidate_ref",
+        "entry_refs",
+        "forbidden_downstream_roles",
+        "boundary_posture",
+        "required_later_authority",
+        "limitation_note"
+      ],
+      "title": "RepoOutcomeReviewBoundaryGuardrailRow",
+      "type": "object"
+    }
+  },
+  "additionalProperties": false,
+  "properties": {
+    "boundary_guardrail_id": {
+      "title": "Boundary Guardrail Id",
+      "type": "string"
+    },
+    "boundary_summary": {
+      "title": "Boundary Summary",
+      "type": "string"
+    },
+    "guardrail_rows": {
+      "items": {
+        "$ref": "#/$defs/RepoOutcomeReviewBoundaryGuardrailRow"
+      },
+      "minItems": 1,
+      "title": "Guardrail Rows",
+      "type": "array"
+    },
+    "outcome_review_entry_id": {
+      "title": "Outcome Review Entry Id",
+      "type": "string"
+    },
+    "review_id": {
+      "title": "Review Id",
+      "type": "string"
+    },
+    "schema": {
+      "const": "repo_outcome_review_boundary_guardrail@1",
+      "default": "repo_outcome_review_boundary_guardrail@1",
+      "title": "Schema",
+      "type": "string"
+    },
+    "snapshot_id": {
+      "title": "Snapshot Id",
+      "type": "string"
+    },
+    "source_set_id": {
+      "title": "Source Set Id",
+      "type": "string"
+    }
+  },
+  "required": [
+    "boundary_guardrail_id",
+    "review_id",
+    "snapshot_id",
+    "source_set_id",
+    "outcome_review_entry_id",
+    "guardrail_rows",
+    "boundary_summary"
+  ],
+  "title": "RepoOutcomeReviewBoundaryGuardrail",
+  "type": "object"
+}
