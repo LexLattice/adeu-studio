@@ -1,0 +1,206 @@
+{
+  "$defs": {
+    "RepoCandidateOutcomeReviewEntryRow": {
+      "additionalProperties": false,
+      "properties": {
+        "authority_posture_refs": {
+          "items": {
+            "type": "string"
+          },
+          "title": "Authority Posture Refs",
+          "type": "array"
+        },
+        "baseline_horizon_ref": {
+          "title": "Baseline Horizon Ref",
+          "type": "string"
+        },
+        "blocking_authority_boundary_refs": {
+          "items": {
+            "type": "string"
+          },
+          "title": "Blocking Authority Boundary Refs",
+          "type": "array"
+        },
+        "blocking_effect_gap_refs": {
+          "items": {
+            "type": "string"
+          },
+          "title": "Blocking Effect Gap Refs",
+          "type": "array"
+        },
+        "blocking_rollback_gap_refs": {
+          "items": {
+            "type": "string"
+          },
+          "title": "Blocking Rollback Gap Refs",
+          "type": "array"
+        },
+        "blocking_trial_gap_refs": {
+          "items": {
+            "type": "string"
+          },
+          "title": "Blocking Trial Gap Refs",
+          "type": "array"
+        },
+        "candidate_ref": {
+          "title": "Candidate Ref",
+          "type": "string"
+        },
+        "effect_refs": {
+          "items": {
+            "type": "string"
+          },
+          "title": "Effect Refs",
+          "type": "array"
+        },
+        "entry_posture": {
+          "enum": [
+            "eligible_for_outcome_review",
+            "blocked_by_missing_trial_evidence",
+            "blocked_by_rollback_gap",
+            "blocked_by_effect_gap",
+            "blocked_by_authority_boundary",
+            "future_family_only",
+            "rejected_out_of_scope"
+          ],
+          "title": "Entry Posture",
+          "type": "string"
+        },
+        "entry_ref": {
+          "title": "Entry Ref",
+          "type": "string"
+        },
+        "evaluation_horizon_ref": {
+          "title": "Evaluation Horizon Ref",
+          "type": "string"
+        },
+        "guardrail_refs": {
+          "items": {
+            "type": "string"
+          },
+          "title": "Guardrail Refs",
+          "type": "array"
+        },
+        "intervention_horizon_ref": {
+          "title": "Intervention Horizon Ref",
+          "type": "string"
+        },
+        "limitation_note": {
+          "title": "Limitation Note",
+          "type": "string"
+        },
+        "odeu_lanes": {
+          "items": {
+            "enum": [
+              "ontological",
+              "deontic",
+              "epistemic",
+              "utility"
+            ],
+            "type": "string"
+          },
+          "minItems": 1,
+          "title": "Odeu Lanes",
+          "type": "array"
+        },
+        "outcome_source_refs": {
+          "items": {
+            "type": "string"
+          },
+          "title": "Outcome Source Refs",
+          "type": "array"
+        },
+        "rollback_refs": {
+          "items": {
+            "type": "string"
+          },
+          "title": "Rollback Refs",
+          "type": "array"
+        },
+        "source_handoff_refs": {
+          "items": {
+            "type": "string"
+          },
+          "title": "Source Handoff Refs",
+          "type": "array"
+        },
+        "trial_refs": {
+          "items": {
+            "type": "string"
+          },
+          "title": "Trial Refs",
+          "type": "array"
+        }
+      },
+      "required": [
+        "entry_ref",
+        "candidate_ref",
+        "baseline_horizon_ref",
+        "intervention_horizon_ref",
+        "evaluation_horizon_ref",
+        "entry_posture",
+        "odeu_lanes",
+        "limitation_note"
+      ],
+      "title": "RepoCandidateOutcomeReviewEntryRow",
+      "type": "object"
+    }
+  },
+  "additionalProperties": false,
+  "properties": {
+    "entry_rows": {
+      "items": {
+        "$ref": "#/$defs/RepoCandidateOutcomeReviewEntryRow"
+      },
+      "minItems": 1,
+      "title": "Entry Rows",
+      "type": "array"
+    },
+    "evidence_source_index_id": {
+      "title": "Evidence Source Index Id",
+      "type": "string"
+    },
+    "non_judgment_summary": {
+      "title": "Non Judgment Summary",
+      "type": "string"
+    },
+    "outcome_review_entry_id": {
+      "title": "Outcome Review Entry Id",
+      "type": "string"
+    },
+    "post_integration_handoff_id": {
+      "title": "Post Integration Handoff Id",
+      "type": "string"
+    },
+    "review_id": {
+      "title": "Review Id",
+      "type": "string"
+    },
+    "schema": {
+      "const": "repo_candidate_outcome_review_entry@1",
+      "default": "repo_candidate_outcome_review_entry@1",
+      "title": "Schema",
+      "type": "string"
+    },
+    "snapshot_id": {
+      "title": "Snapshot Id",
+      "type": "string"
+    },
+    "source_set_id": {
+      "title": "Source Set Id",
+      "type": "string"
+    }
+  },
+  "required": [
+    "outcome_review_entry_id",
+    "review_id",
+    "snapshot_id",
+    "source_set_id",
+    "post_integration_handoff_id",
+    "evidence_source_index_id",
+    "entry_rows",
+    "non_judgment_summary"
+  ],
+  "title": "RepoCandidateOutcomeReviewEntry",
+  "type": "object"
+}
