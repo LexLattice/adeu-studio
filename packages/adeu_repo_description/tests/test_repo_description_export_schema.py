@@ -19,6 +19,7 @@ from adeu_repo_description import (
     REPO_CANDIDATE_INTAKE_GAP_SCAN_SCHEMA,
     REPO_CANDIDATE_INTAKE_PRE_V70_HANDOFF_SCHEMA,
     REPO_CANDIDATE_NON_ADOPTION_GUARDRAIL_SCHEMA,
+    REPO_CANDIDATE_OUTCOME_OBSERVATION_RECORD_SCHEMA,
     REPO_CANDIDATE_OUTCOME_REVIEW_ENTRY_SCHEMA,
     REPO_CANDIDATE_PRE_RATIFICATION_HANDOFF_SCHEMA,
     REPO_CANDIDATE_RATIFICATION_FAMILY_CLOSEOUT_ALIGNMENT_SCHEMA,
@@ -45,6 +46,7 @@ from adeu_repo_description import (
     REPO_OPERATOR_INGRESS_CANDIDATE_BINDING_SCHEMA,
     REPO_OPTIMIZATION_REGISTER_SCHEMA,
     REPO_OUTCOME_EVIDENCE_SOURCE_INDEX_SCHEMA,
+    REPO_OUTCOME_REGRESSION_REGISTER_SCHEMA,
     REPO_OUTCOME_REVIEW_BOUNDARY_GUARDRAIL_SCHEMA,
     REPO_POST_INTEGRATION_OUTCOME_REVIEW_HANDOFF_SCHEMA,
     REPO_POST_RATIFICATION_HANDOFF_SCHEMA,
@@ -60,6 +62,7 @@ from adeu_repo_description import (
     REPO_SUPPORT_LINEAGE_REGISTER_SCHEMA,
     REPO_SYMBOL_CATALOG_SCHEMA,
     REPO_TEST_INTENT_MATRIX_SCHEMA,
+    REPO_TOOL_FITNESS_DRIFT_REGISTER_SCHEMA,
 )
 from adeu_repo_description.export_schema import main as export_schema_main
 
@@ -484,6 +487,30 @@ def _schema_pairs() -> dict[str, tuple[Path, Path]]:
             / "schema"
             / "repo_outcome_review_boundary_guardrail.v1.json",
             root / "spec" / "repo_outcome_review_boundary_guardrail.schema.json",
+        ),
+        REPO_CANDIDATE_OUTCOME_OBSERVATION_RECORD_SCHEMA: (
+            root
+            / "packages"
+            / "adeu_repo_description"
+            / "schema"
+            / "repo_candidate_outcome_observation_record.v1.json",
+            root / "spec" / "repo_candidate_outcome_observation_record.schema.json",
+        ),
+        REPO_OUTCOME_REGRESSION_REGISTER_SCHEMA: (
+            root
+            / "packages"
+            / "adeu_repo_description"
+            / "schema"
+            / "repo_outcome_regression_register.v1.json",
+            root / "spec" / "repo_outcome_regression_register.schema.json",
+        ),
+        REPO_TOOL_FITNESS_DRIFT_REGISTER_SCHEMA: (
+            root
+            / "packages"
+            / "adeu_repo_description"
+            / "schema"
+            / "repo_tool_fitness_drift_register.v1.json",
+            root / "spec" / "repo_tool_fitness_drift_register.schema.json",
         ),
     }
 

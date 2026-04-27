@@ -23,9 +23,12 @@ from .arc_series_cartography_derivation import (
 )
 from .arc_series_cartography_tools import RepoArcCartographyToolRunEvidence
 from .candidate_outcome_review import (
+    RepoCandidateOutcomeObservationRecord,
     RepoCandidateOutcomeReviewEntry,
     RepoOutcomeEvidenceSourceIndex,
+    RepoOutcomeRegressionRegister,
     RepoOutcomeReviewBoundaryGuardrail,
+    RepoToolFitnessDriftRegister,
 )
 from .candidate_ratification_review import (
     RepoCandidateRatificationFamilyCloseoutAlignment,
@@ -269,8 +272,17 @@ def main() -> None:
     outcome_evidence_source_index_schema = RepoOutcomeEvidenceSourceIndex.model_json_schema(
         by_alias=True
     )
-    outcome_review_boundary_guardrail_schema = (
-        RepoOutcomeReviewBoundaryGuardrail.model_json_schema(by_alias=True)
+    outcome_review_boundary_guardrail_schema = RepoOutcomeReviewBoundaryGuardrail.model_json_schema(
+        by_alias=True
+    )
+    candidate_outcome_observation_record_schema = (
+        RepoCandidateOutcomeObservationRecord.model_json_schema(by_alias=True)
+    )
+    outcome_regression_register_schema = RepoOutcomeRegressionRegister.model_json_schema(
+        by_alias=True
+    )
+    tool_fitness_drift_register_schema = RepoToolFitnessDriftRegister.model_json_schema(
+        by_alias=True
     )
 
     _assert_no_absolute_path_material(dependency_register_v1_schema, repo_root_path=root)
@@ -371,6 +383,12 @@ def main() -> None:
     _assert_no_absolute_path_material(candidate_outcome_review_entry_schema, repo_root_path=root)
     _assert_no_absolute_path_material(outcome_evidence_source_index_schema, repo_root_path=root)
     _assert_no_absolute_path_material(outcome_review_boundary_guardrail_schema, repo_root_path=root)
+    _assert_no_absolute_path_material(
+        candidate_outcome_observation_record_schema,
+        repo_root_path=root,
+    )
+    _assert_no_absolute_path_material(outcome_regression_register_schema, repo_root_path=root)
+    _assert_no_absolute_path_material(tool_fitness_drift_register_schema, repo_root_path=root)
 
     _write_schema(
         root
@@ -1031,6 +1049,42 @@ def main() -> None:
     _write_schema(
         root / "spec" / "repo_outcome_review_boundary_guardrail.schema.json",
         outcome_review_boundary_guardrail_schema,
+    )
+    _write_schema(
+        root
+        / "packages"
+        / "adeu_repo_description"
+        / "schema"
+        / "repo_candidate_outcome_observation_record.v1.json",
+        candidate_outcome_observation_record_schema,
+    )
+    _write_schema(
+        root / "spec" / "repo_candidate_outcome_observation_record.schema.json",
+        candidate_outcome_observation_record_schema,
+    )
+    _write_schema(
+        root
+        / "packages"
+        / "adeu_repo_description"
+        / "schema"
+        / "repo_outcome_regression_register.v1.json",
+        outcome_regression_register_schema,
+    )
+    _write_schema(
+        root / "spec" / "repo_outcome_regression_register.schema.json",
+        outcome_regression_register_schema,
+    )
+    _write_schema(
+        root
+        / "packages"
+        / "adeu_repo_description"
+        / "schema"
+        / "repo_tool_fitness_drift_register.v1.json",
+        tool_fitness_drift_register_schema,
+    )
+    _write_schema(
+        root / "spec" / "repo_tool_fitness_drift_register.schema.json",
+        tool_fitness_drift_register_schema,
     )
 
 

@@ -8,8 +8,8 @@
       "derivation_method": "cross_artifact_join",
       "derivation_posture": "derived_deterministically",
       "descriptive_input_kind": "repo_dependency_graph",
-      "descriptive_input_ref": "repo_dependency_graph_507cc34bcd8364196200bd5b",
-      "entry_id": "binding_entry_4ba64c15850780f3b8be4d10",
+      "descriptive_input_ref": "repo_dependency_graph_0991c8b25dcc6425e8ddb760",
+      "entry_id": "binding_entry_55ad26e7c6ed33c03f4af474",
       "forbidden_use_summary": "May not authorize recursive execution, auto-mutation, or scheduler control by itself.",
       "promotion_law_posture": "settled_authority_required_before_execution",
       "source_artifact_refs": [
@@ -27,25 +27,25 @@
       ]
     },
     {
-      "allowed_use_summary": "Policy consumers may use optimization diagnostics to decide whether a later lock should narrow or reject a proposed amendment path.",
-      "authority_source_kind": "separate_lock_required",
-      "binding_posture": "separate_normative_authority_required",
-      "consumer_class": "policy_consumer",
-      "derivation_method": "policy_binding_rule",
+      "allowed_use_summary": "Adjudication consumers may use test-intent visibility as supporting context when checking whether a later decision claim is actually defended.",
+      "authority_source_kind": "separate_decision_required",
+      "binding_posture": "adjudication_required",
+      "consumer_class": "adjudication_consumer",
+      "derivation_method": "cross_artifact_join",
       "derivation_posture": "derived_deterministically",
-      "descriptive_input_kind": "repo_optimization_register",
-      "descriptive_input_ref": "repo_optimization_register_52444559699eff7c103414bd",
-      "entry_id": "binding_entry_9a097d61fbcf80ee9d3fb210",
-      "forbidden_use_summary": "May not convert diagnostics into amendment entitlement, scheduling priority, or execution approval.",
-      "promotion_law_posture": "settled_authority_required_before_execution",
+      "descriptive_input_kind": "repo_test_intent_matrix",
+      "descriptive_input_ref": "repo_test_intent_matrix_f97ec6b5d23a05e5a142240a",
+      "entry_id": "binding_entry_707e7080f7f21301ef23a57b",
+      "forbidden_use_summary": "May not be overread as direct release gating, merge approval, or settlement.",
+      "promotion_law_posture": "adjudication_required_before_normative_use",
       "source_artifact_refs": [
-        "docs/DRAFT_STOP_GATE_DECISION_vNEXT_PLUS105.md",
+        "docs/ASSESSMENT_vNEXT_PLUS105_EDGES.md",
         "docs/LOCKED_CONTINUATION_vNEXT_PLUS105.md"
       ],
       "supporting_evidence_refs": [
-        "evidence:bound:v45e:optimization_register",
+        "evidence:bound:v45d:test_intent_matrix",
         "evidence:contract:v45f:v105",
-        "evidence:source:docs/DRAFT_STOP_GATE_DECISION_vNEXT_PLUS105.md:binding",
+        "evidence:source:docs/ASSESSMENT_vNEXT_PLUS105_EDGES.md:binding",
         "evidence:source:docs/LOCKED_CONTINUATION_vNEXT_PLUS105.md:binding"
       ]
     },
@@ -57,8 +57,8 @@
       "derivation_method": "cross_artifact_join",
       "derivation_posture": "derived_deterministically",
       "descriptive_input_kind": "repo_symbol_catalog",
-      "descriptive_input_ref": "repo_symbol_catalog_efc1a7ee25d81dbf966621ce",
-      "entry_id": "binding_entry_a0ff801143d4f663dd739841",
+      "descriptive_input_ref": "repo_symbol_catalog_fb8b169a7d464486e8ff7819",
+      "entry_id": "binding_entry_8c21f5292b5bfdde5058754c",
       "forbidden_use_summary": "May not convert code-shape visibility into automatic authority or direct repo changes.",
       "promotion_law_posture": "adjudication_required_before_normative_use",
       "source_artifact_refs": [
@@ -69,6 +69,29 @@
         "evidence:bound:v45b:symbol_catalog",
         "evidence:contract:v45f:v105",
         "evidence:source:docs/ASSESSMENT_vNEXT_PLUS105_EDGES.md:binding",
+        "evidence:source:docs/LOCKED_CONTINUATION_vNEXT_PLUS105.md:binding"
+      ]
+    },
+    {
+      "allowed_use_summary": "Policy consumers may use optimization diagnostics to decide whether a later lock should narrow or reject a proposed amendment path.",
+      "authority_source_kind": "separate_lock_required",
+      "binding_posture": "separate_normative_authority_required",
+      "consumer_class": "policy_consumer",
+      "derivation_method": "policy_binding_rule",
+      "derivation_posture": "derived_deterministically",
+      "descriptive_input_kind": "repo_optimization_register",
+      "descriptive_input_ref": "repo_optimization_register_9e4ef6df2508b69bb10a6ab2",
+      "entry_id": "binding_entry_9b2e932a7480b41a86c95548",
+      "forbidden_use_summary": "May not convert diagnostics into amendment entitlement, scheduling priority, or execution approval.",
+      "promotion_law_posture": "settled_authority_required_before_execution",
+      "source_artifact_refs": [
+        "docs/DRAFT_STOP_GATE_DECISION_vNEXT_PLUS105.md",
+        "docs/LOCKED_CONTINUATION_vNEXT_PLUS105.md"
+      ],
+      "supporting_evidence_refs": [
+        "evidence:bound:v45e:optimization_register",
+        "evidence:contract:v45f:v105",
+        "evidence:source:docs/DRAFT_STOP_GATE_DECISION_vNEXT_PLUS105.md:binding",
         "evidence:source:docs/LOCKED_CONTINUATION_vNEXT_PLUS105.md:binding"
       ]
     },
@@ -104,8 +127,8 @@
       "derivation_method": "policy_binding_rule",
       "derivation_posture": "derived_deterministically",
       "descriptive_input_kind": "repo_schema_family_registry",
-      "descriptive_input_ref": "repo_schema_family_registry_outside_bound_baseline",
-      "entry_id": "binding_entry_bae85c5adcdcacfce19f8f6c",
+      "descriptive_input_ref": "repo_dependency_graph_outside_bound_baseline",
+      "entry_id": "binding_entry_cb4ab7cf5639471edae202d9",
       "forbidden_use_summary": "May not be treated as settled normative authority or direct execution approval.",
       "promotion_law_posture": "adjudication_required_before_normative_use",
       "source_artifact_refs": [
@@ -119,39 +142,16 @@
         "evidence:source:docs/DRAFT_V45_REPO_SELF_DESCRIPTION_DECOMPOSITION_v0.md:binding",
         "evidence:source:docs/LOCKED_CONTINUATION_vNEXT_PLUS105.md:binding"
       ]
-    },
-    {
-      "allowed_use_summary": "Adjudication consumers may use test-intent visibility as supporting context when checking whether a later decision claim is actually defended.",
-      "authority_source_kind": "separate_decision_required",
-      "binding_posture": "adjudication_required",
-      "consumer_class": "adjudication_consumer",
-      "derivation_method": "cross_artifact_join",
-      "derivation_posture": "derived_deterministically",
-      "descriptive_input_kind": "repo_test_intent_matrix",
-      "descriptive_input_ref": "repo_test_intent_matrix_0e652d78c9dbde3ae86ef407",
-      "entry_id": "binding_entry_c63d93d0642f40b3ecefb10d",
-      "forbidden_use_summary": "May not be overread as direct release gating, merge approval, or settlement.",
-      "promotion_law_posture": "adjudication_required_before_normative_use",
-      "source_artifact_refs": [
-        "docs/ASSESSMENT_vNEXT_PLUS105_EDGES.md",
-        "docs/LOCKED_CONTINUATION_vNEXT_PLUS105.md"
-      ],
-      "supporting_evidence_refs": [
-        "evidence:bound:v45d:test_intent_matrix",
-        "evidence:contract:v45f:v105",
-        "evidence:source:docs/ASSESSMENT_vNEXT_PLUS105_EDGES.md:binding",
-        "evidence:source:docs/LOCKED_CONTINUATION_vNEXT_PLUS105.md:binding"
-      ]
     }
   ],
   "binding_scope": "v45f-bounded-descriptive-to-normative-binding-frame-over-released-v45-baseline",
   "bound_arc_dependency_register_ref": "repo_arc_dependency_register_8ce8eed2f900d2b0b9e3efa8",
-  "bound_dependency_graph_ref": "repo_dependency_graph_507cc34bcd8364196200bd5b",
+  "bound_dependency_graph_ref": "repo_dependency_graph_0991c8b25dcc6425e8ddb760",
   "bound_entity_catalog_ref": "repo_entity_catalog_4f3bea1652190f3266973fef",
-  "bound_optimization_register_ref": "repo_optimization_register_52444559699eff7c103414bd",
+  "bound_optimization_register_ref": "repo_optimization_register_9e4ef6df2508b69bb10a6ab2",
   "bound_schema_family_registry_ref": "repo_schema_family_registry_0295d9730ab7a2c940d7b56d",
-  "bound_symbol_catalog_ref": "repo_symbol_catalog_efc1a7ee25d81dbf966621ce",
-  "bound_test_intent_matrix_ref": "repo_test_intent_matrix_0e652d78c9dbde3ae86ef407",
+  "bound_symbol_catalog_ref": "repo_symbol_catalog_fb8b169a7d464486e8ff7819",
+  "bound_test_intent_matrix_ref": "repo_test_intent_matrix_f97ec6b5d23a05e5a142240a",
   "evidence_refs": [
     {
       "evidence_kind": "observed_anchor_tuple_evidence",
@@ -216,9 +216,9 @@
   ],
   "extraction_method": "policy_binding_rule",
   "extraction_posture": "derived_deterministically",
-  "repo_descriptive_normative_binding_frame_id": "repo_descriptive_normative_binding_frame_42cbac6cfe712dbf7c63b564",
-  "repo_snapshot_hash": "488abe487e01e4d14f158e8822e1f0c93493b29a33220dc990af7b428943544f",
-  "repo_snapshot_id": "repo_snapshot_488abe487e01e4d14f158e88",
+  "repo_descriptive_normative_binding_frame_id": "repo_descriptive_normative_binding_frame_6017c88ca8738b7cbda52686",
+  "repo_snapshot_hash": "536057af379c6b28ac6e1da287fed1b2f73ed50eb7340185ec83598d2a6c2589",
+  "repo_snapshot_id": "repo_snapshot_536057af379c6b28ac6e1da2",
   "schema": "repo_descriptive_normative_binding_frame@1",
   "snapshot_validity_posture": "snapshot_bound_current",
   "source_set": [

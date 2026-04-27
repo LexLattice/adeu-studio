@@ -1,0 +1,28 @@
+{
+  "non_implementation_summary": "Regression rows are review evidence only: no implementation priority, no promotion, no demotion, no adoption, no release, no product authorization, no runtime permission, and no dispatch authority.",
+  "outcome_observation_record_id": "repo_candidate_outcome_observation_record_f1fc14cac4d4ef0876450a4b",
+  "outcome_regression_register_id": "repo_outcome_regression_register_3f05a92d6cabdd304deb3b87",
+  "regression_rows": [
+    {
+      "blocking_for_recommendation": false,
+      "candidate_ref": "candidate:internal:self_evidencing_workflow_type_emergence",
+      "checked_evaluation_refs": [
+        "horizon:v73a:self-evidencing:evaluation"
+      ],
+      "limitation_note": "Regression row creates implementation priority for the next slice.",
+      "negative_control_refs": [
+        "negative-control:v73b:schema-export-deterministic"
+      ],
+      "observation_refs": [
+        "observation:v73b:self-evidencing:bounded-benefit"
+      ],
+      "regression_posture": "no_regression_observed",
+      "regression_ref": "regression:v73b:self-evidencing:no-schema-regression",
+      "regression_surface_kind": "schema_regression"
+    }
+  ],
+  "review_id": "review:v73a:outcome-entry",
+  "schema": "repo_outcome_regression_register@1",
+  "snapshot_id": "vNext+200-prestart-on-main",
+  "source_set_id": "source-set:v70a:released-v69c-handoff"
+}

@@ -1,0 +1,50 @@
+{
+  "boundary_guardrail_id": "repo_outcome_review_boundary_guardrail_87a60a5caa651c319ee97698",
+  "evidence_source_index_id": "repo_outcome_evidence_source_index_adf598e5ee206ff5ea96ac1c",
+  "non_authority_summary": "Outcome observation is bounded evidence for later review only: no promotion, no demotion, no adoption, no release, no product authorization, no runtime permission, no dispatch authority, and no external contest authority.",
+  "observation_rows": [
+    {
+      "baseline_refs": [
+        "horizon:v73a:self-evidencing:baseline"
+      ],
+      "candidate_ref": "candidate:internal:self_evidencing_workflow_type_emergence",
+      "carried_forward_gap_refs": [],
+      "confidence_posture": "moderate_with_limitations",
+      "entry_refs": [
+        "entry:v73a:self-evidencing:outcome-review"
+      ],
+      "evaluation_refs": [
+        "horizon:v73a:self-evidencing:evaluation"
+      ],
+      "intervention_refs": [
+        "horizon:v73a:self-evidencing:intervention"
+      ],
+      "limitation_note": "Observation is promotion recommended for immediate adoption.",
+      "non_promotion_guardrail_refs": [
+        "guardrail:v73a:self-evidencing:no-authority"
+      ],
+      "observation_ref": "observation:v73b:self-evidencing:bounded-benefit",
+      "outcome_observation_posture": "benefit_observed",
+      "outcome_source_refs": [
+        "apps/api/fixtures/repo_description/vnext_plus201/repo_contained_integration_trial_record_v201_reference.json",
+        "apps/api/fixtures/repo_description/vnext_plus201/repo_integration_effect_surface_register_v201_reference.json",
+        "apps/api/fixtures/repo_description/vnext_plus201/repo_integration_rollback_readiness_v201_reference.json",
+        "apps/api/fixtures/repo_description/vnext_plus202/repo_commit_release_authority_posture_v202_reference.json",
+        "apps/api/fixtures/repo_description/vnext_plus202/repo_post_integration_outcome_review_handoff_v202_reference.json",
+        "docs/support/arc_series_mapping/V68_V69_V70_V71_V72_COMBINED_DOGFOOD_TEST_v0.json"
+      ],
+      "regression_refs": [
+        "regression:v73b:self-evidencing:no-schema-regression"
+      ],
+      "tool_fitness_refs": [
+        "tool-fitness:v73b:arc-closeout-check:target-bound"
+      ]
+    }
+  ],
+  "outcome_observation_record_id": "repo_candidate_outcome_observation_record_f1fc14cac4d4ef0876450a4b",
+  "outcome_review_entry_id": "repo_candidate_outcome_review_entry_79313b4707dffd5036e40704",
+  "review_id": "review:v73a:outcome-entry",
+  "schema": "repo_candidate_outcome_observation_record@1",
+  "snapshot_id": "vNext+200-prestart-on-main",
+  "source_set_id": "source-set:v70a:released-v69c-handoff"
+}
