@@ -319,6 +319,69 @@ def test_v203_bundle_rejects_metadata_mismatch_across_surfaces() -> None:
         _validate_reference_bundle_with(entry=entry)
 
 
+def test_v203_bundle_rejects_source_index_upstream_id_mismatch() -> None:
+    source_index = _v73a_source_index().model_copy(update={"trial_record_id": "trial:mismatch"})
+
+    with pytest.raises(ValueError, match="outcome source index must reference V72-B trial record"):
+        _validate_reference_bundle_with(source_index=source_index)
+
+
+def test_v203_bundle_rejects_omitted_v72c_handoff_rows() -> None:
+    handoff = _v72c_handoff()
+    extra_row = handoff.handoff_rows[0].model_copy(
+        update={
+            "handoff_ref": "handoff:v72c:extra:v73-review",
+            "candidate_ref": "candidate:internal:extra_ready_candidate",
+        }
+    )
+    handoff = handoff.model_copy(update={"handoff_rows": [*handoff.handoff_rows, extra_row]})
+
+    with pytest.raises(ValueError, match="every V72-C handoff row must be represented"):
+        _validate_reference_bundle_with(handoff=handoff)
+
+
+def test_v203_entry_model_requires_typed_blocker_refs_for_blocked_postures() -> None:
+    payload = _load_fixture(
+        "vnext_plus203",
+        "repo_candidate_outcome_review_entry_v203_reference.json",
+    )
+    payload["entry_rows"][0]["entry_posture"] = "blocked_by_rollback_gap"
+    payload["entry_rows"][0]["limitation_note"] = "Blocked pending typed rollback-gap refs."
+
+    with pytest.raises(ValidationError, match="blocked_by_rollback_gap requires"):
+        RepoCandidateOutcomeReviewEntry.model_validate(payload)
+
+
+def test_v203_bundle_rejects_unrepresented_handoff_gap_refs() -> None:
+    handoff = _v72c_handoff()
+    gap_row = handoff.handoff_rows[0].model_copy(
+        update={
+            "handoff_posture": "blocked_by_effect_gap",
+            "carried_forward_gap_refs": ["gap:v72c:effect-not-carried"],
+        }
+    )
+    handoff = handoff.model_copy(update={"handoff_rows": [gap_row]})
+    entry_row = _v73a_entry().entry_rows[0].model_copy(
+        update={
+            "entry_posture": "blocked_by_effect_gap",
+            "blocking_effect_gap_refs": ["gap:v73a:some-other-effect-gap"],
+        }
+    )
+    entry = _v73a_entry().model_copy(update={"entry_rows": [entry_row]})
+
+    with pytest.raises(ValueError, match="carried-forward gap refs"):
+        _validate_reference_bundle_with(entry=entry, handoff=handoff)
+
+
+def test_v203_bundle_rejects_outcome_sources_that_do_not_match_horizon_union() -> None:
+    row = _v73a_entry().entry_rows[0]
+    entry_row = row.model_copy(update={"outcome_source_refs": row.outcome_source_refs[1:]})
+    entry = _v73a_entry().model_copy(update={"entry_rows": [entry_row]})
+
+    with pytest.raises(ValueError, match="outcome_source_refs must equal"):
+        _validate_reference_bundle_with(entry=entry)
+
+
 def test_v203_bundle_rejects_orphan_guardrail_rows() -> None:
     guardrail = _v73a_guardrail()
     orphan = guardrail.guardrail_rows[0].model_copy(

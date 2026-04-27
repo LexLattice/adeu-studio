@@ -505,15 +505,25 @@ class RepoCandidateOutcomeReviewEntryRow(_CartographyBase):
                 "candidate:internal:typed_adjudication_product_wedge",
             }:
                 raise ValueError("blocked or product candidates cannot be outcome-ready in V73-A")
-        if self.entry_posture.startswith("blocked_by_"):
-            blockers = (
-                self.blocking_trial_gap_refs
-                + self.blocking_effect_gap_refs
-                + self.blocking_rollback_gap_refs
-                + self.blocking_authority_boundary_refs
-            )
-            if not blockers and "blocked" not in self.limitation_note.lower():
-                raise ValueError("blocked outcome-review entries require blocker refs")
+        required_blocker_fields = {
+            "blocked_by_missing_trial_evidence": (
+                "blocking_trial_gap_refs",
+                self.blocking_trial_gap_refs,
+            ),
+            "blocked_by_effect_gap": ("blocking_effect_gap_refs", self.blocking_effect_gap_refs),
+            "blocked_by_rollback_gap": (
+                "blocking_rollback_gap_refs",
+                self.blocking_rollback_gap_refs,
+            ),
+            "blocked_by_authority_boundary": (
+                "blocking_authority_boundary_refs",
+                self.blocking_authority_boundary_refs,
+            ),
+        }
+        if self.entry_posture in required_blocker_fields:
+            field_name, values = required_blocker_fields[self.entry_posture]
+            if not values:
+                raise ValueError(f"{self.entry_posture} requires {field_name}")
         if self.entry_posture == "future_family_only" and (
             self.trial_refs or self.effect_refs or self.rollback_refs
         ):
@@ -1025,6 +1035,26 @@ def validate_v73a_candidate_outcome_review_bundle(
     ):
         raise ValueError("outcome source index must reference V72-C handoff")
     if (
+        outcome_evidence_source_index.trial_record_id
+        != contained_integration_trial_record.trial_record_id
+    ):
+        raise ValueError("outcome source index must reference V72-B trial record")
+    if (
+        outcome_evidence_source_index.effect_surface_register_id
+        != integration_effect_surface_register.effect_surface_register_id
+    ):
+        raise ValueError("outcome source index must reference V72-B effect surface register")
+    if (
+        outcome_evidence_source_index.rollback_readiness_id
+        != integration_rollback_readiness.rollback_readiness_id
+    ):
+        raise ValueError("outcome source index must reference V72-B rollback readiness")
+    if (
+        outcome_evidence_source_index.authority_posture_id
+        != commit_release_authority_posture.authority_posture_id
+    ):
+        raise ValueError("outcome source index must reference commit/release authority posture")
+    if (
         candidate_outcome_review_entry.post_integration_handoff_id
         != post_integration_outcome_review_handoff.post_integration_handoff_id
     ):
@@ -1072,12 +1102,14 @@ def validate_v73a_candidate_outcome_review_bundle(
         row.guardrail_ref: row for row in outcome_review_boundary_guardrail.guardrail_rows
     }
 
+    represented_handoff_refs: set[str] = set()
     seen_guardrails: set[str] = set()
     for entry in candidate_outcome_review_entry.entry_rows:
         for handoff_ref in entry.source_handoff_refs:
             handoff = handoff_rows.get(handoff_ref)
             if handoff is None:
                 raise ValueError("entry rows must reference known V72-C handoff rows")
+            represented_handoff_refs.add(handoff_ref)
             if handoff.candidate_ref != entry.candidate_ref:
                 raise ValueError("entry candidate_ref must match V72-C handoff candidate")
             if (
@@ -1091,11 +1123,27 @@ def validate_v73a_candidate_outcome_review_bundle(
             ):
                 raise ValueError("non-ready V72-C handoffs cannot become eligible")
             if handoff.carried_forward_gap_refs and entry.entry_posture not in {
+                "blocked_by_missing_trial_evidence",
                 "blocked_by_effect_gap",
+                "blocked_by_rollback_gap",
                 "blocked_by_authority_boundary",
                 "future_family_only",
             }:
                 raise ValueError("gap-bearing V72-C handoffs must remain blocked or future-family")
+            entry_blocker_refs = set(
+                entry.blocking_trial_gap_refs
+                + entry.blocking_effect_gap_refs
+                + entry.blocking_rollback_gap_refs
+                + entry.blocking_authority_boundary_refs
+            )
+            missing_handoff_gap_refs = sorted(
+                set(handoff.carried_forward_gap_refs) - entry_blocker_refs
+            )
+            if missing_handoff_gap_refs:
+                raise ValueError(
+                    "V72-C carried-forward gap refs must be represented by entry blocker refs: "
+                    f"{missing_handoff_gap_refs}"
+                )
             if handoff.carried_forward_dissent_refs and entry.entry_posture != "future_family_only":
                 raise ValueError("dissent-bearing V72-C handoffs must remain future-family")
         for trial_ref in entry.trial_refs:
@@ -1142,6 +1190,7 @@ def validate_v73a_candidate_outcome_review_bundle(
             entry.intervention_horizon_ref: "intervention",
             entry.evaluation_horizon_ref: "evaluation",
         }
+        expected_outcome_source_refs: set[str] = set()
         for horizon_ref, horizon_kind in expected_horizon_kinds.items():
             horizon = horizon_rows.get(horizon_ref)
             if horizon is None:
@@ -1152,6 +1201,11 @@ def validate_v73a_candidate_outcome_review_bundle(
                 raise ValueError(
                     "entry horizon refs must match baseline/intervention/evaluation kinds"
                 )
+            expected_outcome_source_refs.update(horizon.source_refs)
+        if set(entry.outcome_source_refs) != expected_outcome_source_refs:
+            raise ValueError(
+                "entry outcome_source_refs must equal the union of referenced horizon sources"
+            )
         for guardrail_ref in entry.guardrail_refs:
             guardrail = guardrail_rows.get(guardrail_ref)
             if guardrail is None:
@@ -1165,6 +1219,12 @@ def validate_v73a_candidate_outcome_review_bundle(
     orphan_guardrails = sorted(set(guardrail_rows) - seen_guardrails)
     if orphan_guardrails:
         raise ValueError(f"guardrail rows must be referenced by entries: {orphan_guardrails}")
+    omitted_handoff_refs = sorted(set(handoff_rows) - represented_handoff_refs)
+    if omitted_handoff_refs:
+        raise ValueError(
+            "every V72-C handoff row must be represented by an outcome entry: "
+            f"{omitted_handoff_refs}"
+        )
 
 
 def derive_v73a_repo_candidate_outcome_review_bundle(
