@@ -1,0 +1,90 @@
+{
+  "assertions": [
+    "family_closeout_artifacts_exist_through_v72",
+    "candidate_set_preserved_from_v69c_through_v72b",
+    "v72c_narrows_to_eligible_self_evidencing_candidate_only",
+    "conceptual_diff_remains_blocked_by_dissent_and_trial_blocked",
+    "product_wedge_remains_future_family_only_and_trial_blocked",
+    "v72c_authority_posture_does_not_claim_release_truth",
+    "v72c_handoff_requests_v73_without_performing_outcome_review",
+    "v72_family_closeout_preserves_future_family_boundaries",
+    "v70_gap_and_relation_refs_are_preserved_into_v70c",
+    "v72b_trial_effect_rollback_chain_feeds_v72c_authority_and_handoff"
+  ],
+  "candidate_count_preserved_through_v72b": 3,
+  "candidate_set_preserved_through_v72b": true,
+  "carry_forward_finding": {
+    "finding": "V68 and V69 family alignment artifacts still use older closeout vocabulary without explicit future_family_authority, while V70 through V72 include explicit future_family_authority fields.",
+    "posture": "support_harness_schema_drift_note",
+    "result": "not_family_failure"
+  },
+  "families_checked": [
+    "V68",
+    "V69",
+    "V70",
+    "V71",
+    "V72"
+  ],
+  "family_closeout_schemas": {
+    "v68_closeout": "v68_family_closeout_alignment@1",
+    "v69_closeout": "v69_family_closeout_alignment@1",
+    "v70_closeout": "v70_family_closeout_alignment@1",
+    "v71_closeout": "v71_family_closeout_alignment@1",
+    "v72_closeout": "v72_family_closeout_alignment@1"
+  },
+  "initial_probe_finding": {
+    "finding": "First local continuity attempts used stale row-key and forbidden-action assumptions for shipped V70/V72 fixture names; adjusted probe to the actual released schemas.",
+    "posture": "support_harness_schema_drift_note",
+    "result": "not_family_failure"
+  },
+  "postures": {
+    "odeu_conceptual_diff": {
+      "v70c": "blocked_by_conflict",
+      "v71c": "blocked_by_dissent",
+      "v72a": "blocked_by_dissent",
+      "v72b": "trial_blocked"
+    },
+    "self_evidencing_workflow_type_emergence": {
+      "v70c": "ready_for_v71_review",
+      "v71c": "ready_for_v72_review",
+      "v72a": "eligible_for_containment_planning",
+      "v72b": "trial_ready_for_outcome_review",
+      "v72c": "ready_for_v73_review"
+    },
+    "typed_adjudication_product_wedge": {
+      "v70c": "deferred_to_future_family",
+      "v71c": "deferred_to_future_family",
+      "v72a": "future_family_only",
+      "v72b": "trial_blocked"
+    }
+  },
+  "pytest_result": {
+    "focused_repo_description_tests_passed": true,
+    "passed_count": 262,
+    "warning_count": 75
+  },
+  "result": "pass",
+  "schema": "v68_v69_v70_v71_v72_combined_dogfood_test@1",
+  "terminal_closeout_arcs": [
+    "vNext+190",
+    "vNext+193",
+    "vNext+196",
+    "vNext+199",
+    "vNext+202"
+  ],
+  "terminal_closeout_checks_passed": true,
+  "v70b_gap_count": 4,
+  "v70b_relation_count": 3,
+  "v70b_review_count": 3,
+  "v71a_request_count": 3,
+  "v71b_ratification_count": 3,
+  "v71c_handoff_count": 3,
+  "v72a_plan_count": 3,
+  "v72b_trial_count": 3,
+  "v72c_authority_row_count": 1,
+  "v72c_handoff_count": 1,
+  "v72c_selected_candidate_count": 1,
+  "v72c_selected_candidates": [
+    "candidate:internal:self_evidencing_workflow_type_emergence"
+  ]
+}
