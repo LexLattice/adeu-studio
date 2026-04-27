@@ -1,0 +1,183 @@
+{
+  "$defs": {
+    "RepoCandidateOutcomeObservationRow": {
+      "additionalProperties": false,
+      "properties": {
+        "baseline_refs": {
+          "items": {
+            "type": "string"
+          },
+          "title": "Baseline Refs",
+          "type": "array"
+        },
+        "candidate_ref": {
+          "title": "Candidate Ref",
+          "type": "string"
+        },
+        "carried_forward_gap_refs": {
+          "items": {
+            "type": "string"
+          },
+          "title": "Carried Forward Gap Refs",
+          "type": "array"
+        },
+        "confidence_posture": {
+          "enum": [
+            "high_with_bounded_evidence",
+            "moderate_with_limitations",
+            "low_or_inconclusive",
+            "blocked_by_missing_baseline",
+            "blocked_by_missing_evaluation",
+            "blocked_by_unchecked_regression",
+            "not_applicable"
+          ],
+          "title": "Confidence Posture",
+          "type": "string"
+        },
+        "entry_refs": {
+          "items": {
+            "type": "string"
+          },
+          "minItems": 1,
+          "title": "Entry Refs",
+          "type": "array"
+        },
+        "evaluation_refs": {
+          "items": {
+            "type": "string"
+          },
+          "title": "Evaluation Refs",
+          "type": "array"
+        },
+        "intervention_refs": {
+          "items": {
+            "type": "string"
+          },
+          "title": "Intervention Refs",
+          "type": "array"
+        },
+        "limitation_note": {
+          "title": "Limitation Note",
+          "type": "string"
+        },
+        "non_promotion_guardrail_refs": {
+          "items": {
+            "type": "string"
+          },
+          "title": "Non Promotion Guardrail Refs",
+          "type": "array"
+        },
+        "observation_ref": {
+          "title": "Observation Ref",
+          "type": "string"
+        },
+        "outcome_observation_posture": {
+          "enum": [
+            "benefit_observed",
+            "harm_observed",
+            "neutral_or_no_material_change",
+            "mixed_outcome_observed",
+            "inconclusive_outcome",
+            "outcome_blocked_by_missing_evidence",
+            "outcome_deferred_to_future_family"
+          ],
+          "title": "Outcome Observation Posture",
+          "type": "string"
+        },
+        "outcome_source_refs": {
+          "items": {
+            "type": "string"
+          },
+          "title": "Outcome Source Refs",
+          "type": "array"
+        },
+        "regression_refs": {
+          "items": {
+            "type": "string"
+          },
+          "title": "Regression Refs",
+          "type": "array"
+        },
+        "tool_fitness_refs": {
+          "items": {
+            "type": "string"
+          },
+          "title": "Tool Fitness Refs",
+          "type": "array"
+        }
+      },
+      "required": [
+        "observation_ref",
+        "candidate_ref",
+        "entry_refs",
+        "outcome_observation_posture",
+        "confidence_posture",
+        "limitation_note"
+      ],
+      "title": "RepoCandidateOutcomeObservationRow",
+      "type": "object"
+    }
+  },
+  "additionalProperties": false,
+  "properties": {
+    "boundary_guardrail_id": {
+      "title": "Boundary Guardrail Id",
+      "type": "string"
+    },
+    "evidence_source_index_id": {
+      "title": "Evidence Source Index Id",
+      "type": "string"
+    },
+    "non_authority_summary": {
+      "title": "Non Authority Summary",
+      "type": "string"
+    },
+    "observation_rows": {
+      "items": {
+        "$ref": "#/$defs/RepoCandidateOutcomeObservationRow"
+      },
+      "minItems": 1,
+      "title": "Observation Rows",
+      "type": "array"
+    },
+    "outcome_observation_record_id": {
+      "title": "Outcome Observation Record Id",
+      "type": "string"
+    },
+    "outcome_review_entry_id": {
+      "title": "Outcome Review Entry Id",
+      "type": "string"
+    },
+    "review_id": {
+      "title": "Review Id",
+      "type": "string"
+    },
+    "schema": {
+      "const": "repo_candidate_outcome_observation_record@1",
+      "default": "repo_candidate_outcome_observation_record@1",
+      "title": "Schema",
+      "type": "string"
+    },
+    "snapshot_id": {
+      "title": "Snapshot Id",
+      "type": "string"
+    },
+    "source_set_id": {
+      "title": "Source Set Id",
+      "type": "string"
+    }
+  },
+  "required": [
+    "outcome_observation_record_id",
+    "review_id",
+    "snapshot_id",
+    "source_set_id",
+    "outcome_review_entry_id",
+    "evidence_source_index_id",
+    "boundary_guardrail_id",
+    "observation_rows",
+    "non_authority_summary"
+  ],
+  "title": "RepoCandidateOutcomeObservationRecord",
+  "type": "object"
+}

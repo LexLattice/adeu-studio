@@ -1,0 +1,32 @@
+{
+  "outcome_observation_record_id": "repo_candidate_outcome_observation_record_f1fc14cac4d4ef0876450a4b",
+  "review_id": "review:v73a:outcome-entry",
+  "schema": "repo_tool_fitness_drift_register@1",
+  "snapshot_id": "vNext+200-prestart-on-main",
+  "source_set_id": "source-set:v70a:released-v69c-handoff",
+  "target_bound_summary": "Tool-fitness drift is target-bound evidence only: no global tool applicability, no global deprecation, no promotion, no adoption, no release, no product authorization, no runtime permission, and no dispatch authority.",
+  "tool_fitness_drift_register_id": "repo_tool_fitness_drift_register_41fcbdba88f528393b42c58c",
+  "tool_fitness_rows": [
+    {
+      "candidate_ref": "candidate:internal:self_evidencing_workflow_type_emergence",
+      "limitation_note": "Tool fit is confirmed only for the v203 closeout-doc artifact target.",
+      "observation_refs": [
+        "observation:v73b:self-evidencing:bounded-benefit"
+      ],
+      "observed_result_refs": [],
+      "prior_applicability_refs": [
+        "tool-applicability:v68c:arc-closeout-check:closeout-docs"
+      ],
+      "target_namespace_kind": "closeout_arc_id",
+      "tool_fitness_posture": "tool_fit_confirmed",
+      "tool_fitness_ref": "tool-fitness:v73b:arc-closeout-check:target-bound",
+      "tool_id": "make arc-closeout-check",
+      "tool_target_claim_refs": [
+        "claim:v73b:v203-closeout-doc-artifacts"
+      ],
+      "tool_target_horizon_refs": [
+        "horizon:v73a:self-evidencing:evaluation"
+      ]
+    }
+  ]
+}

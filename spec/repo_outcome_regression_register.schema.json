@@ -1,0 +1,136 @@
+{
+  "$defs": {
+    "RepoOutcomeRegressionRow": {
+      "additionalProperties": false,
+      "properties": {
+        "blocking_for_recommendation": {
+          "title": "Blocking For Recommendation",
+          "type": "boolean"
+        },
+        "candidate_ref": {
+          "title": "Candidate Ref",
+          "type": "string"
+        },
+        "checked_evaluation_refs": {
+          "items": {
+            "type": "string"
+          },
+          "title": "Checked Evaluation Refs",
+          "type": "array"
+        },
+        "limitation_note": {
+          "title": "Limitation Note",
+          "type": "string"
+        },
+        "negative_control_refs": {
+          "items": {
+            "type": "string"
+          },
+          "title": "Negative Control Refs",
+          "type": "array"
+        },
+        "observation_refs": {
+          "items": {
+            "type": "string"
+          },
+          "minItems": 1,
+          "title": "Observation Refs",
+          "type": "array"
+        },
+        "regression_posture": {
+          "enum": [
+            "no_regression_observed",
+            "regression_observed",
+            "regression_risk_detected",
+            "regression_unknown",
+            "regression_not_applicable"
+          ],
+          "title": "Regression Posture",
+          "type": "string"
+        },
+        "regression_ref": {
+          "title": "Regression Ref",
+          "type": "string"
+        },
+        "regression_surface_kind": {
+          "enum": [
+            "docs_regression",
+            "schema_regression",
+            "validator_regression",
+            "fixture_regression",
+            "test_regression",
+            "workflow_regression",
+            "tool_applicability_regression",
+            "operator_cognition_regression",
+            "unknown_or_unchecked_surface"
+          ],
+          "title": "Regression Surface Kind",
+          "type": "string"
+        }
+      },
+      "required": [
+        "regression_ref",
+        "candidate_ref",
+        "observation_refs",
+        "regression_posture",
+        "regression_surface_kind",
+        "blocking_for_recommendation",
+        "limitation_note"
+      ],
+      "title": "RepoOutcomeRegressionRow",
+      "type": "object"
+    }
+  },
+  "additionalProperties": false,
+  "properties": {
+    "non_implementation_summary": {
+      "title": "Non Implementation Summary",
+      "type": "string"
+    },
+    "outcome_observation_record_id": {
+      "title": "Outcome Observation Record Id",
+      "type": "string"
+    },
+    "outcome_regression_register_id": {
+      "title": "Outcome Regression Register Id",
+      "type": "string"
+    },
+    "regression_rows": {
+      "items": {
+        "$ref": "#/$defs/RepoOutcomeRegressionRow"
+      },
+      "minItems": 1,
+      "title": "Regression Rows",
+      "type": "array"
+    },
+    "review_id": {
+      "title": "Review Id",
+      "type": "string"
+    },
+    "schema": {
+      "const": "repo_outcome_regression_register@1",
+      "default": "repo_outcome_regression_register@1",
+      "title": "Schema",
+      "type": "string"
+    },
+    "snapshot_id": {
+      "title": "Snapshot Id",
+      "type": "string"
+    },
+    "source_set_id": {
+      "title": "Source Set Id",
+      "type": "string"
+    }
+  },
+  "required": [
+    "outcome_regression_register_id",
+    "review_id",
+    "snapshot_id",
+    "source_set_id",
+    "outcome_observation_record_id",
+    "regression_rows",
+    "non_implementation_summary"
+  ],
+  "title": "RepoOutcomeRegressionRegister",
+  "type": "object"
+}

@@ -1,0 +1,159 @@
+{
+  "$defs": {
+    "RepoToolFitnessDriftRow": {
+      "additionalProperties": false,
+      "properties": {
+        "candidate_ref": {
+          "title": "Candidate Ref",
+          "type": "string"
+        },
+        "limitation_note": {
+          "title": "Limitation Note",
+          "type": "string"
+        },
+        "observation_refs": {
+          "items": {
+            "type": "string"
+          },
+          "minItems": 1,
+          "title": "Observation Refs",
+          "type": "array"
+        },
+        "observed_result_refs": {
+          "items": {
+            "type": "string"
+          },
+          "title": "Observed Result Refs",
+          "type": "array"
+        },
+        "prior_applicability_refs": {
+          "items": {
+            "type": "string"
+          },
+          "title": "Prior Applicability Refs",
+          "type": "array"
+        },
+        "target_namespace_kind": {
+          "enum": [
+            "selector_version",
+            "family_id",
+            "family_slice_id",
+            "implementation_arc_id",
+            "closeout_arc_id",
+            "evidence_arc_id",
+            "branch_local_execution_target",
+            "planning_doc_ref",
+            "lock_doc_ref",
+            "decision_doc_ref",
+            "assessment_doc_ref",
+            "architecture_doc_ref",
+            "support_doc_ref",
+            "schema_id",
+            "fixture_dir_ref",
+            "evidence_input_ref",
+            "stop_gate_ref"
+          ],
+          "title": "Target Namespace Kind",
+          "type": "string"
+        },
+        "tool_fitness_posture": {
+          "enum": [
+            "tool_fit_confirmed",
+            "tool_fit_limited",
+            "tool_fit_stale",
+            "tool_fit_misleading",
+            "tool_fit_unchecked",
+            "tool_fit_not_applicable"
+          ],
+          "title": "Tool Fitness Posture",
+          "type": "string"
+        },
+        "tool_fitness_ref": {
+          "title": "Tool Fitness Ref",
+          "type": "string"
+        },
+        "tool_id": {
+          "title": "Tool Id",
+          "type": "string"
+        },
+        "tool_target_claim_refs": {
+          "items": {
+            "type": "string"
+          },
+          "title": "Tool Target Claim Refs",
+          "type": "array"
+        },
+        "tool_target_horizon_refs": {
+          "items": {
+            "type": "string"
+          },
+          "title": "Tool Target Horizon Refs",
+          "type": "array"
+        }
+      },
+      "required": [
+        "tool_fitness_ref",
+        "candidate_ref",
+        "observation_refs",
+        "tool_id",
+        "target_namespace_kind",
+        "tool_fitness_posture",
+        "limitation_note"
+      ],
+      "title": "RepoToolFitnessDriftRow",
+      "type": "object"
+    }
+  },
+  "additionalProperties": false,
+  "properties": {
+    "outcome_observation_record_id": {
+      "title": "Outcome Observation Record Id",
+      "type": "string"
+    },
+    "review_id": {
+      "title": "Review Id",
+      "type": "string"
+    },
+    "schema": {
+      "const": "repo_tool_fitness_drift_register@1",
+      "default": "repo_tool_fitness_drift_register@1",
+      "title": "Schema",
+      "type": "string"
+    },
+    "snapshot_id": {
+      "title": "Snapshot Id",
+      "type": "string"
+    },
+    "source_set_id": {
+      "title": "Source Set Id",
+      "type": "string"
+    },
+    "target_bound_summary": {
+      "title": "Target Bound Summary",
+      "type": "string"
+    },
+    "tool_fitness_drift_register_id": {
+      "title": "Tool Fitness Drift Register Id",
+      "type": "string"
+    },
+    "tool_fitness_rows": {
+      "items": {
+        "$ref": "#/$defs/RepoToolFitnessDriftRow"
+      },
+      "minItems": 1,
+      "title": "Tool Fitness Rows",
+      "type": "array"
+    }
+  },
+  "required": [
+    "tool_fitness_drift_register_id",
+    "review_id",
+    "snapshot_id",
+    "source_set_id",
+    "outcome_observation_record_id",
+    "tool_fitness_rows",
+    "target_bound_summary"
+  ],
+  "title": "RepoToolFitnessDriftRegister",
+  "type": "object"
+}
