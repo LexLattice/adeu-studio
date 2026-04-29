@@ -441,11 +441,7 @@ class RepoOperatorProjectionCaseViewRow(_CartographyBase):
                 "ready_for_human_review requires explicit later authority and review horizon"
             )
         if self.projection_case_kind == "product_pressure_case":
-            if self.projection_posture not in {"future_family_only", "rejected_out_of_scope"} and (
-                self.visible_authority_state != "product_authority_missing"
-            ):
-                raise ValueError("product-pressure cases require missing product authority")
-            if self.projection_posture == "future_family_only" and (
+            if self.projection_posture != "rejected_out_of_scope" and (
                 self.visible_authority_state != "product_authority_missing"
             ):
                 raise ValueError("product-pressure cases require missing product authority")
