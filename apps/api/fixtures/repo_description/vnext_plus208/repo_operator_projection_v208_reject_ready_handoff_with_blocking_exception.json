@@ -1,0 +1,57 @@
+{
+  "decision_visibility_contract_id": "repo_decision_visibility_contract_6ebf065340c94163f319e10a",
+  "handoff_boundary_summary": "Post-projection handoff requests later review only: no dispatch, no runtime permission, no product authorization, and no release authority.",
+  "handoff_rows": [
+    {
+      "candidate_refs": [
+        "candidate:internal:typed_adjudication_product_wedge"
+      ],
+      "carried_exception_refs": [
+        "blocker:v74a:product-wedge:product-authority-gap"
+      ],
+      "handoff_posture": "ready_for_later_review",
+      "handoff_ref": "handoff:v74c:product-wedge:future-product-review",
+      "handoff_target": "future_product_review",
+      "limitation_note": "Product-pressure handoff stays blocked by authority boundary with no product authority, no runtime permission, and no dispatch.",
+      "non_dispatch_guardrail": "This handoff is a request for later review only with no dispatch.",
+      "required_later_authority": [
+        "product_authority_required"
+      ],
+      "visibility_contract_refs": [
+        "visibility-contract:v74c:product-wedge:authority-gap"
+      ],
+      "workbench_projection_refs": [
+        "workbench:v74c:product-wedge:authority-gap"
+      ]
+    },
+    {
+      "candidate_refs": [
+        "candidate:internal:self_evidencing_workflow_type_emergence"
+      ],
+      "carried_exception_refs": [
+        "exception:v74b:comparison-axis:operator-legibility-unchecked"
+      ],
+      "handoff_posture": "ready_for_later_review",
+      "handoff_ref": "handoff:v74c:self-evidencing:v75-review-request",
+      "handoff_target": "v75_dispatch_review",
+      "limitation_note": "V75 handoff is later-review request only with no runtime permission and no dispatch.",
+      "non_dispatch_guardrail": "This handoff is a request for later review only with no dispatch.",
+      "required_later_authority": [
+        "dispatch_authority_required",
+        "human_ratification_required"
+      ],
+      "visibility_contract_refs": [
+        "visibility-contract:v74c:self-evidencing:operator-review"
+      ],
+      "workbench_projection_refs": [
+        "workbench:v74c:self-evidencing:operator-review"
+      ]
+    }
+  ],
+  "post_projection_handoff_id": "repo_post_projection_handoff_8173d624f0c73a41e6563690",
+  "ratification_review_workbench_projection_id": "repo_ratification_review_workbench_projection_aa002ba6d814945f291edb9b",
+  "review_id": "review:v74b:typed-adjudication-projection",
+  "schema": "repo_post_projection_handoff@1",
+  "snapshot_id": "vNext+207-prestart-on-main",
+  "source_set_id": "source-set:v74a:released-v73c-projection"
+}

@@ -1,0 +1,46 @@
+{
+  "closed_by_arc": "vNext+208",
+  "closed_slice_ladder": [
+    "V74-A",
+    "V74-B",
+    "V74-C"
+  ],
+  "consumed_source_families": [
+    "V68",
+    "V69",
+    "V70",
+    "V71",
+    "V72",
+    "V73"
+  ],
+  "family": "V74",
+  "future_family_authority": [
+    "V75 dispatch review remains future-family authority",
+    "product authorization remains future-family or maintainer authority",
+    "release authority remains maintainer or release-lock authority"
+  ],
+  "limitation_note": "Family closeout says release authorized and dispatch authorized.",
+  "operator_projection_authority_boundary": "V74 closes as operator projection only: no product authorization, no release authority, no runtime permission, and no dispatch authority.",
+  "operator_projection_family_closeout_alignment_id": "repo_operator_projection_family_closeout_alignment_b7860911193ddf0fcd3229e3",
+  "schema": "repo_operator_projection_family_closeout_alignment@1",
+  "shipped_record_shapes": [
+    "repo_decision_visibility_contract@1",
+    "repo_model_output_comparison_projection@1",
+    "repo_operator_projection_case_view@1",
+    "repo_operator_projection_family_closeout_alignment@1",
+    "repo_operator_projection_non_authority_guardrail@1",
+    "repo_operator_projection_source_index@1",
+    "repo_post_projection_handoff@1",
+    "repo_projection_exception_visibility_register@1",
+    "repo_ratification_review_workbench_projection@1",
+    "repo_typed_adjudication_case_view@1"
+  ],
+  "unselected_future_surfaces": [
+    "V75 dispatch execution",
+    "external contest participation",
+    "live product UI",
+    "operator command execution",
+    "product authorization",
+    "runtime permission"
+  ]
+}

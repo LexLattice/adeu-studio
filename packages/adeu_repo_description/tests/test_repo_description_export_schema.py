@@ -34,6 +34,7 @@ from adeu_repo_description import (
     REPO_CONTAINED_INTEGRATION_CANDIDATE_PLAN_SCHEMA,
     REPO_CONTAINED_INTEGRATION_FAMILY_CLOSEOUT_ALIGNMENT_SCHEMA,
     REPO_CONTAINED_INTEGRATION_TRIAL_RECORD_SCHEMA,
+    REPO_DECISION_VISIBILITY_CONTRACT_SCHEMA,
     REPO_DEPENDENCY_GRAPH_SCHEMA,
     REPO_DESCRIPTIVE_NORMATIVE_BINDING_FRAME_SCHEMA,
     REPO_ENTITY_CATALOG_SCHEMA,
@@ -46,6 +47,7 @@ from adeu_repo_description import (
     REPO_MODEL_OUTPUT_COMPARISON_PROJECTION_SCHEMA,
     REPO_OPERATOR_INGRESS_CANDIDATE_BINDING_SCHEMA,
     REPO_OPERATOR_PROJECTION_CASE_VIEW_SCHEMA,
+    REPO_OPERATOR_PROJECTION_FAMILY_CLOSEOUT_ALIGNMENT_SCHEMA,
     REPO_OPERATOR_PROJECTION_NON_AUTHORITY_GUARDRAIL_SCHEMA,
     REPO_OPERATOR_PROJECTION_SOURCE_INDEX_SCHEMA,
     REPO_OPTIMIZATION_REGISTER_SCHEMA,
@@ -53,12 +55,14 @@ from adeu_repo_description import (
     REPO_OUTCOME_REGRESSION_REGISTER_SCHEMA,
     REPO_OUTCOME_REVIEW_BOUNDARY_GUARDRAIL_SCHEMA,
     REPO_POST_INTEGRATION_OUTCOME_REVIEW_HANDOFF_SCHEMA,
+    REPO_POST_PROJECTION_HANDOFF_SCHEMA,
     REPO_POST_RATIFICATION_HANDOFF_SCHEMA,
     REPO_PROJECTION_EXCEPTION_VISIBILITY_REGISTER_SCHEMA,
     REPO_RATIFICATION_AMENDMENT_SCOPE_BOUNDARY_SCHEMA,
     REPO_RATIFICATION_AUTHORITY_PROFILE_SCHEMA,
     REPO_RATIFICATION_DISSENT_REGISTER_SCHEMA,
     REPO_RATIFICATION_REQUEST_SCOPE_BOUNDARY_SCHEMA,
+    REPO_RATIFICATION_REVIEW_WORKBENCH_PROJECTION_SCHEMA,
     REPO_RECURSIVE_CANDIDATE_INTAKE_RECORD_SCHEMA,
     REPO_RECURSIVE_COORDINATE_EMISSION_PLAN_SCHEMA,
     REPO_RECURSIVE_WORKFLOW_RESIDUE_INTAKE_REPORT_SCHEMA,
@@ -565,6 +569,38 @@ def _schema_pairs() -> dict[str, tuple[Path, Path]]:
             / "schema"
             / "repo_projection_exception_visibility_register.v1.json",
             root / "spec" / "repo_projection_exception_visibility_register.schema.json",
+        ),
+        REPO_DECISION_VISIBILITY_CONTRACT_SCHEMA: (
+            root
+            / "packages"
+            / "adeu_repo_description"
+            / "schema"
+            / "repo_decision_visibility_contract.v1.json",
+            root / "spec" / "repo_decision_visibility_contract.schema.json",
+        ),
+        REPO_RATIFICATION_REVIEW_WORKBENCH_PROJECTION_SCHEMA: (
+            root
+            / "packages"
+            / "adeu_repo_description"
+            / "schema"
+            / "repo_ratification_review_workbench_projection.v1.json",
+            root / "spec" / "repo_ratification_review_workbench_projection.schema.json",
+        ),
+        REPO_POST_PROJECTION_HANDOFF_SCHEMA: (
+            root
+            / "packages"
+            / "adeu_repo_description"
+            / "schema"
+            / "repo_post_projection_handoff.v1.json",
+            root / "spec" / "repo_post_projection_handoff.schema.json",
+        ),
+        REPO_OPERATOR_PROJECTION_FAMILY_CLOSEOUT_ALIGNMENT_SCHEMA: (
+            root
+            / "packages"
+            / "adeu_repo_description"
+            / "schema"
+            / "repo_operator_projection_family_closeout_alignment.v1.json",
+            root / "spec" / "repo_operator_projection_family_closeout_alignment.schema.json",
         ),
     }
 

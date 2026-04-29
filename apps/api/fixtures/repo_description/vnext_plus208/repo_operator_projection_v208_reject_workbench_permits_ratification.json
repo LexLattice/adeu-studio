@@ -1,0 +1,129 @@
+{
+  "decision_visibility_contract_id": "repo_decision_visibility_contract_6ebf065340c94163f319e10a",
+  "ratification_review_workbench_projection_id": "repo_ratification_review_workbench_projection_aa002ba6d814945f291edb9b",
+  "review_id": "review:v74b:typed-adjudication-projection",
+  "schema": "repo_ratification_review_workbench_projection@1",
+  "snapshot_id": "vNext+207-prestart-on-main",
+  "source_set_id": "source-set:v74a:released-v73c-projection",
+  "workbench_boundary_summary": "Ratification-review workbench projection is review visibility only: no ratification, no product authorization, no release authority, no runtime permission, and no dispatch.",
+  "workbench_projection_rows": [
+    {
+      "candidate_refs": [
+        "candidate:internal:typed_adjudication_product_wedge"
+      ],
+      "case_view_refs": [
+        "case-view:v74a:product-wedge:future-family"
+      ],
+      "exception_refs": [
+        "blocker:v74a:product-wedge:product-authority-gap"
+      ],
+      "forbidden_operator_action_postures": [
+        "adopt_now",
+        "authorize_product_now",
+        "commit_now",
+        "dispatch_now",
+        "enter_external_contest_now",
+        "grant_runtime_permission_now",
+        "implement_now",
+        "merge_now",
+        "ratify_now",
+        "release_now"
+      ],
+      "limitation_note": "Product-pressure workbench projection is blocked by authority boundary with no product authority, no release authority, no runtime permission, and no dispatch.",
+      "permitted_operator_action_postures": [
+        "annotate_source_gap_only",
+        "inspect_only",
+        "ratify_now",
+        "request_later_review_only"
+      ],
+      "ratification_refs": [],
+      "recommendation_refs": [],
+      "required_later_authority": [
+        "product_authority_required"
+      ],
+      "required_later_authority_rows": [
+        {
+          "authority_kind": "product_authority_required",
+          "authority_requirement_ref": "authority:v74c:product-wedge:product-review",
+          "authority_source_refs": [
+            "docs/LOCKED_CONTINUATION_vNEXT_PLUS208.md",
+            "docs/support/arc_series_mapping/DRAFT_ADEU_TYPED_ADJUDICATION_PRODUCT_WEDGE_v0.md"
+          ],
+          "limitation_note": "Product authority remains required before any later product review.",
+          "required_before_action": "before_product_review",
+          "source_presence_posture": "present"
+        }
+      ],
+      "visibility_contract_refs": [
+        "visibility-contract:v74c:product-wedge:authority-gap"
+      ],
+      "workbench_projection_posture": "blocked_by_authority_boundary",
+      "workbench_projection_ref": "workbench:v74c:product-wedge:authority-gap"
+    },
+    {
+      "candidate_refs": [
+        "candidate:internal:self_evidencing_workflow_type_emergence"
+      ],
+      "case_view_refs": [
+        "case-view:v74a:self-evidencing:operator-projection"
+      ],
+      "exception_refs": [
+        "exception:v74b:comparison-axis:operator-legibility-unchecked"
+      ],
+      "forbidden_operator_action_postures": [
+        "adopt_now",
+        "authorize_product_now",
+        "commit_now",
+        "dispatch_now",
+        "enter_external_contest_now",
+        "grant_runtime_permission_now",
+        "implement_now",
+        "merge_now",
+        "ratify_now",
+        "release_now"
+      ],
+      "limitation_note": "Ratification-review workbench projection is review visibility only with no ratification, no product authority, no release authority, no runtime permission, and no dispatch.",
+      "permitted_operator_action_postures": [
+        "annotate_source_gap_only",
+        "export_support_report_only",
+        "inspect_only",
+        "request_later_review_only"
+      ],
+      "ratification_refs": [],
+      "recommendation_refs": [
+        "recommendation:v73c:self-evidencing:promote-for-later-review"
+      ],
+      "required_later_authority": [
+        "dispatch_authority_required",
+        "human_ratification_required"
+      ],
+      "required_later_authority_rows": [
+        {
+          "authority_kind": "dispatch_authority_required",
+          "authority_requirement_ref": "authority:v74c:self-evidencing:dispatch-review",
+          "authority_source_refs": [
+            "docs/LOCKED_CONTINUATION_vNEXT_PLUS208.md"
+          ],
+          "limitation_note": "Dispatch authority remains required before any later dispatch review.",
+          "required_before_action": "before_dispatch_review",
+          "source_presence_posture": "present"
+        },
+        {
+          "authority_kind": "human_ratification_required",
+          "authority_requirement_ref": "authority:v74c:self-evidencing:human-ratification",
+          "authority_source_refs": [
+            "docs/LOCKED_CONTINUATION_vNEXT_PLUS208.md"
+          ],
+          "limitation_note": "Human ratification remains required before later review action.",
+          "required_before_action": "before_ratification_review",
+          "source_presence_posture": "present"
+        }
+      ],
+      "visibility_contract_refs": [
+        "visibility-contract:v74c:self-evidencing:operator-review"
+      ],
+      "workbench_projection_posture": "projection_ready_for_operator_review",
+      "workbench_projection_ref": "workbench:v74c:self-evidencing:operator-review"
+    }
+  ]
+}
