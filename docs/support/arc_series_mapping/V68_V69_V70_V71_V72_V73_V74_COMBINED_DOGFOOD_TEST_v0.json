@@ -1,0 +1,110 @@
+{
+  "assertions": [
+    "family_closeout_artifacts_exist_through_v74",
+    "candidate_set_preserved_from_v69c_through_v72b",
+    "v73_chain_matches_v72c_ready_handoff_candidate",
+    "v74a_projects_v73c_self_evidencing_candidate_and_product_wedge",
+    "v74b_typed_cases_reference_v74a_case_views",
+    "v74c_contracts_reference_v74b_typed_cases_and_exceptions",
+    "v74c_workbench_references_visibility_contracts",
+    "v74c_handoff_references_contracts_and_workbench_projections",
+    "v75_handoff_is_review_only_with_dispatch_authority_requirement",
+    "product_wedge_remains_blocked_by_authority_boundary",
+    "no_v74_surface_claims_product_release_runtime_dispatch_ratification_model_selection_benchmark_truth_or_self_approval_authority"
+  ],
+  "candidate_count_preserved_through_v72b": 3,
+  "candidate_set_preserved_through_v72b": true,
+  "carry_forward_findings": [
+    {
+      "finding": "V68 and V69 family alignment artifacts still use older closeout vocabulary without explicit future_family_authority, while V70 through V74 include explicit future_family_authority fields in their family-alignment artifacts.",
+      "posture": "support_harness_schema_drift_note",
+      "result": "not_family_failure"
+    },
+    {
+      "finding": "V74 adds operator projection legibility but intentionally does not resolve product-authority or comparison-axis exceptions; those remain visible carried-forward pressure for later families.",
+      "posture": "intended_visibility_without_resolution",
+      "result": "not_family_failure"
+    }
+  ],
+  "failures": [],
+  "families_checked": [
+    "V68",
+    "V69",
+    "V70",
+    "V71",
+    "V72",
+    "V73",
+    "V74"
+  ],
+  "family_closeout_schemas": {
+    "V68": "v68_family_closeout_alignment@1",
+    "V69": "v69_family_closeout_alignment@1",
+    "V70": "v70_family_closeout_alignment@1",
+    "V71": "v71_family_closeout_alignment@1",
+    "V72": "v72_family_closeout_alignment@1",
+    "V73": "v73_family_closeout_alignment@1",
+    "V74": "v74_family_closeout_alignment@1"
+  },
+  "initial_probe_finding": {
+    "finding": "First local V68-V74 continuity attempt used candidate_refs against the V72-C handoff row, while the released V72-C shape uses candidate_ref singular. Adjusted probe to released fixture shape.",
+    "posture": "support_harness_schema_drift_note",
+    "result": "not_family_failure"
+  },
+  "postures": {
+    "self_evidencing_workflow_type_emergence": {
+      "v73c_recommendation": "recommend_promote_for_later_review",
+      "v74a_projection": "eligible_for_operator_projection",
+      "v74b_comparison": "blocked_by_unresolved_conflict",
+      "v74b_typed_case": "projection_ready",
+      "v74c_contract": "visibility_contract_ready",
+      "v74c_handoff_posture": "ready_for_later_review",
+      "v74c_handoff_target": "v75_dispatch_review",
+      "v74c_visible_decision_state": "recommended_more_evidence",
+      "v74c_workbench": "projection_ready_for_operator_review"
+    },
+    "typed_adjudication_product_wedge": {
+      "v74a_projection": "future_family_only",
+      "v74b_typed_case": "blocked_by_unresolved_exception",
+      "v74c_contract": "blocked_by_authority_boundary",
+      "v74c_handoff_posture": "blocked_by_authority_boundary",
+      "v74c_handoff_target": "future_product_review",
+      "v74c_visible_decision_state": "blocked_pending_authority",
+      "v74c_workbench": "blocked_by_authority_boundary"
+    }
+  },
+  "pytest_result": {
+    "focused_repo_description_tests_passed": true,
+    "passed_count": 365,
+    "warning_count": 85
+  },
+  "result": "pass",
+  "schema": "v68_v69_v70_v71_v72_v73_v74_combined_dogfood_test@1",
+  "terminal_closeout_arcs": [
+    "vNext+190",
+    "vNext+193",
+    "vNext+196",
+    "vNext+199",
+    "vNext+202",
+    "vNext+205",
+    "vNext+208"
+  ],
+  "terminal_closeout_checks_passed": true,
+  "v72c_selected_candidate_count": 1,
+  "v72c_selected_candidates": [
+    "candidate:internal:self_evidencing_workflow_type_emergence"
+  ],
+  "v73_candidate_chain_matches_v72c_ready_handoff": true,
+  "v74_family_closeout_fixture_schema": "repo_operator_projection_family_closeout_alignment@1",
+  "v74a_candidates": [
+    "candidate:internal:self_evidencing_workflow_type_emergence",
+    "candidate:internal:typed_adjudication_product_wedge"
+  ],
+  "v74a_case_view_count": 2,
+  "v74b_comparison_projection_count": 1,
+  "v74b_exception_count": 2,
+  "v74b_typed_case_count": 2,
+  "v74c_handoff_count": 2,
+  "v74c_v75_review_handoff_count": 1,
+  "v74c_visibility_contract_count": 2,
+  "v74c_workbench_projection_count": 2
+}
