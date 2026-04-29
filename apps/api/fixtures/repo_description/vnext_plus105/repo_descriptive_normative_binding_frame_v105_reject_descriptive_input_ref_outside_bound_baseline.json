@@ -25,27 +25,24 @@
       ]
     },
     {
-      "allowed_use_summary": "Recursive-governance consumers may use dependency structure only as an eligibility input inside a stronger separately settled normative frame.",
-      "authority_source_kind": "separate_normative_artifact_required",
+      "allowed_use_summary": "Policy consumers may use optimization diagnostics to decide whether a later lock should narrow or reject a proposed amendment path.",
+      "authority_source_kind": "separate_lock_required",
       "binding_posture": "separate_normative_authority_required",
-      "consumer_class": "recursive_governance_consumer",
-      "derivation_method": "cross_artifact_join",
+      "consumer_class": "policy_consumer",
+      "derivation_method": "policy_binding_rule",
       "derivation_posture": "derived_deterministically",
-      "descriptive_input_kind": "repo_dependency_graph",
-      "descriptive_input_ref": "repo_dependency_graph_50b756a5ae60139e3895f890",
-      "entry_id": "binding_entry_16886fcf9acb5cc59a6a3e36",
-      "forbidden_use_summary": "May not authorize recursive execution, auto-mutation, or scheduler control by itself.",
+      "descriptive_input_kind": "repo_optimization_register",
+      "descriptive_input_ref": "repo_optimization_register_d6e08447b7778f601d80bde2",
+      "entry_id": "binding_entry_11386d546be9fee46b456a6d",
+      "forbidden_use_summary": "May not convert diagnostics into amendment entitlement, scheduling priority, or execution approval.",
       "promotion_law_posture": "settled_authority_required_before_execution",
       "source_artifact_refs": [
-        "docs/ASSESSMENT_vNEXT_PLUS105_EDGES.md",
         "docs/DRAFT_STOP_GATE_DECISION_vNEXT_PLUS105.md",
         "docs/LOCKED_CONTINUATION_vNEXT_PLUS105.md"
       ],
       "supporting_evidence_refs": [
-        "evidence:bound:v45b:dependency_graph",
-        "evidence:bound:v45c:arc_dependency_register",
+        "evidence:bound:v45e:optimization_register",
         "evidence:contract:v45f:v105",
-        "evidence:source:docs/ASSESSMENT_vNEXT_PLUS105_EDGES.md:binding",
         "evidence:source:docs/DRAFT_STOP_GATE_DECISION_vNEXT_PLUS105.md:binding",
         "evidence:source:docs/LOCKED_CONTINUATION_vNEXT_PLUS105.md:binding"
       ]
@@ -81,8 +78,8 @@
       "derivation_method": "cross_artifact_join",
       "derivation_posture": "derived_deterministically",
       "descriptive_input_kind": "repo_test_intent_matrix",
-      "descriptive_input_ref": "repo_test_intent_matrix_81eb4e563d469e76d0815114",
-      "entry_id": "binding_entry_57586debe482f545b6d9d8cb",
+      "descriptive_input_ref": "repo_test_intent_matrix_7f2f9b7d916b28ba1d94493c",
+      "entry_id": "binding_entry_88a4d9ba02a12859a1bd1074",
       "forbidden_use_summary": "May not be overread as direct release gating, merge approval, or settlement.",
       "promotion_law_posture": "adjudication_required_before_normative_use",
       "source_artifact_refs": [
@@ -93,29 +90,6 @@
         "evidence:bound:v45d:test_intent_matrix",
         "evidence:contract:v45f:v105",
         "evidence:source:docs/ASSESSMENT_vNEXT_PLUS105_EDGES.md:binding",
-        "evidence:source:docs/LOCKED_CONTINUATION_vNEXT_PLUS105.md:binding"
-      ]
-    },
-    {
-      "allowed_use_summary": "Policy consumers may use optimization diagnostics to decide whether a later lock should narrow or reject a proposed amendment path.",
-      "authority_source_kind": "separate_lock_required",
-      "binding_posture": "separate_normative_authority_required",
-      "consumer_class": "policy_consumer",
-      "derivation_method": "policy_binding_rule",
-      "derivation_posture": "derived_deterministically",
-      "descriptive_input_kind": "repo_optimization_register",
-      "descriptive_input_ref": "repo_optimization_register_23586d49102522894d66ffc6",
-      "entry_id": "binding_entry_a1d5b6c50ec6f07754ec7c99",
-      "forbidden_use_summary": "May not convert diagnostics into amendment entitlement, scheduling priority, or execution approval.",
-      "promotion_law_posture": "settled_authority_required_before_execution",
-      "source_artifact_refs": [
-        "docs/DRAFT_STOP_GATE_DECISION_vNEXT_PLUS105.md",
-        "docs/LOCKED_CONTINUATION_vNEXT_PLUS105.md"
-      ],
-      "supporting_evidence_refs": [
-        "evidence:bound:v45e:optimization_register",
-        "evidence:contract:v45f:v105",
-        "evidence:source:docs/DRAFT_STOP_GATE_DECISION_vNEXT_PLUS105.md:binding",
         "evidence:source:docs/LOCKED_CONTINUATION_vNEXT_PLUS105.md:binding"
       ]
     },
@@ -142,16 +116,42 @@
         "evidence:source:docs/DRAFT_NEXT_ARC_OPTIONS_v28.md:binding",
         "evidence:source:docs/LOCKED_CONTINUATION_vNEXT_PLUS105.md:binding"
       ]
+    },
+    {
+      "allowed_use_summary": "Recursive-governance consumers may use dependency structure only as an eligibility input inside a stronger separately settled normative frame.",
+      "authority_source_kind": "separate_normative_artifact_required",
+      "binding_posture": "separate_normative_authority_required",
+      "consumer_class": "recursive_governance_consumer",
+      "derivation_method": "cross_artifact_join",
+      "derivation_posture": "derived_deterministically",
+      "descriptive_input_kind": "repo_dependency_graph",
+      "descriptive_input_ref": "repo_dependency_graph_a80fb4062892a50fba6b4dbe",
+      "entry_id": "binding_entry_c4a870e623626350c3e9daae",
+      "forbidden_use_summary": "May not authorize recursive execution, auto-mutation, or scheduler control by itself.",
+      "promotion_law_posture": "settled_authority_required_before_execution",
+      "source_artifact_refs": [
+        "docs/ASSESSMENT_vNEXT_PLUS105_EDGES.md",
+        "docs/DRAFT_STOP_GATE_DECISION_vNEXT_PLUS105.md",
+        "docs/LOCKED_CONTINUATION_vNEXT_PLUS105.md"
+      ],
+      "supporting_evidence_refs": [
+        "evidence:bound:v45b:dependency_graph",
+        "evidence:bound:v45c:arc_dependency_register",
+        "evidence:contract:v45f:v105",
+        "evidence:source:docs/ASSESSMENT_vNEXT_PLUS105_EDGES.md:binding",
+        "evidence:source:docs/DRAFT_STOP_GATE_DECISION_vNEXT_PLUS105.md:binding",
+        "evidence:source:docs/LOCKED_CONTINUATION_vNEXT_PLUS105.md:binding"
+      ]
     }
   ],
   "binding_scope": "v45f-bounded-descriptive-to-normative-binding-frame-over-released-v45-baseline",
   "bound_arc_dependency_register_ref": "repo_arc_dependency_register_8ce8eed2f900d2b0b9e3efa8",
-  "bound_dependency_graph_ref": "repo_dependency_graph_50b756a5ae60139e3895f890",
+  "bound_dependency_graph_ref": "repo_dependency_graph_a80fb4062892a50fba6b4dbe",
   "bound_entity_catalog_ref": "repo_entity_catalog_4f3bea1652190f3266973fef",
-  "bound_optimization_register_ref": "repo_optimization_register_23586d49102522894d66ffc6",
+  "bound_optimization_register_ref": "repo_optimization_register_d6e08447b7778f601d80bde2",
   "bound_schema_family_registry_ref": "repo_schema_family_registry_0295d9730ab7a2c940d7b56d",
-  "bound_symbol_catalog_ref": "repo_symbol_catalog_4df5fa97c99e0722950c1177",
-  "bound_test_intent_matrix_ref": "repo_test_intent_matrix_81eb4e563d469e76d0815114",
+  "bound_symbol_catalog_ref": "repo_symbol_catalog_234094781d64fe6fd1bcf83b",
+  "bound_test_intent_matrix_ref": "repo_test_intent_matrix_7f2f9b7d916b28ba1d94493c",
   "evidence_refs": [
     {
       "evidence_kind": "observed_anchor_tuple_evidence",
@@ -216,9 +216,9 @@
   ],
   "extraction_method": "policy_binding_rule",
   "extraction_posture": "derived_deterministically",
-  "repo_descriptive_normative_binding_frame_id": "repo_descriptive_normative_binding_frame_9c631e562aef60884a7f76bf",
-  "repo_snapshot_hash": "fac5f3c7af8cbe40802a5be8b17c1742324d0b181e0568484115f74fd8aa1e37",
-  "repo_snapshot_id": "repo_snapshot_fac5f3c7af8cbe40802a5be8",
+  "repo_descriptive_normative_binding_frame_id": "repo_descriptive_normative_binding_frame_c64582dc21814a2e8c6cd3ef",
+  "repo_snapshot_hash": "a322f3b1f04473c12483c8de725e3d98979629dc880d7c0e4eee86b0b1f1f43f",
+  "repo_snapshot_id": "repo_snapshot_a322f3b1f04473c12483c8de",
   "schema": "repo_descriptive_normative_binding_frame@1",
   "snapshot_validity_posture": "snapshot_bound_current",
   "source_set": [

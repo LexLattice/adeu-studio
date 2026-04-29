@@ -1,0 +1,61 @@
+{
+  "guardrail_rows": [
+    {
+      "candidate_refs": [
+        "candidate:internal:typed_adjudication_product_wedge"
+      ],
+      "case_view_refs": [
+        "case-view:v74a:product-wedge:future-family"
+      ],
+      "forbidden_projection_authorities": [
+        "adoption_authority",
+        "commit_release_authority",
+        "dispatch_authority",
+        "external_contest_authority",
+        "implementation_authority",
+        "merge_authority",
+        "product_authorization",
+        "ratification_authority",
+        "released_truth",
+        "runtime_permission"
+      ],
+      "guardrail_ref": "guardrail:v74a:product-wedge:no-product-authority",
+      "limitation_note": "Product pressure may request later review only.",
+      "non_authority_statement": "This case view is projection only: no ratification, no adoption, no product authorization, no release authority, no runtime permission, no dispatch authority, and no external contest authority.",
+      "operator_action_posture": "request_later_review_only",
+      "required_later_authority": "product_authority_required"
+    },
+    {
+      "candidate_refs": [
+        "candidate:internal:self_evidencing_workflow_type_emergence"
+      ],
+      "case_view_refs": [
+        "case-view:v74a:self-evidencing:operator-projection"
+      ],
+      "forbidden_projection_authorities": [
+        "adoption_authority",
+        "commit_release_authority",
+        "dispatch_authority",
+        "external_contest_authority",
+        "implementation_authority",
+        "merge_authority",
+        "product_authorization",
+        "ratification_authority",
+        "released_truth",
+        "runtime_permission"
+      ],
+      "guardrail_ref": "guardrail:v74a:self-evidencing:no-authority",
+      "limitation_note": "Self-evidencing case is visible for human review only.",
+      "non_authority_statement": "This case view is projection only: no ratification, no adoption, no product authorization, no release authority, no runtime permission, no dispatch authority, and no external contest authority.",
+      "operator_action_posture": "inspect_only",
+      "required_later_authority": "human_ratification_required"
+    }
+  ],
+  "non_authority_summary": "Every case view remains projection only: no ratification, no adoption, no product authorization, no release authority, no runtime permission, no dispatch authority, and no external contest authority.",
+  "operator_projection_case_view_id": "repo_operator_projection_case_view_ede72a38ad769c9142e33026",
+  "operator_projection_non_authority_guardrail_id": "repo_operator_projection_non_authority_guardrail_c258a8c8c4d778965d37ddf0",
+  "review_id": "review:v74a:operator-projection",
+  "schema": "repo_operator_projection_non_authority_guardrail@1",
+  "snapshot_id": "vNext+206-prestart-on-main",
+  "source_set_id": "source-set:v74a:released-v73c-projection"
+}

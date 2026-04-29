@@ -1,0 +1,94 @@
+{
+  "case_view_rows": [
+    {
+      "candidate_ref": "candidate:internal:typed_adjudication_product_wedge",
+      "case_view_ref": "case-view:v74a:product-wedge:future-family",
+      "exception_refs": [
+        "blocker:v74a:product-wedge:product-authority-gap"
+      ],
+      "family_closeout_refs": [],
+      "guardrail_refs": [
+        "guardrail:v74a:product-wedge:no-product-authority"
+      ],
+      "ledger_refs": [],
+      "limitation_note": "Product pressure is product authorized by this projection.",
+      "odeu_lanes": [
+        "deontic",
+        "epistemic",
+        "utility"
+      ],
+      "operator_signal_refs": [],
+      "projection_case_kind": "product_pressure_case",
+      "projection_horizon": "later_product_review_request",
+      "projection_posture": "future_family_only",
+      "recommendation_refs": [],
+      "source_refs": [
+        "docs/support/arc_series_mapping/DRAFT_ADEU_TYPED_ADJUDICATION_PRODUCT_WEDGE_v0.md"
+      ],
+      "visible_authority_state": "product_authority_missing",
+      "visible_blocker_rows": [
+        {
+          "blocker_kind": "product_authority_gap",
+          "blocker_ref": "blocker:v74a:product-wedge:product-authority-gap",
+          "blocking_posture": "blocking",
+          "candidate_ref": "candidate:internal:typed_adjudication_product_wedge",
+          "case_view_refs": [
+            "case-view:v74a:product-wedge:future-family"
+          ],
+          "limitation_note": "Product-pressure visibility carries product authority gap only.",
+          "required_next_surface": "future_product_review",
+          "source_refs": [
+            "docs/support/arc_series_mapping/DRAFT_ADEU_TYPED_ADJUDICATION_PRODUCT_WEDGE_v0.md"
+          ],
+          "visible_decision_state": "blocked_pending_authority"
+        }
+      ],
+      "visible_decision_state": "blocked_pending_authority"
+    },
+    {
+      "candidate_ref": "candidate:internal:self_evidencing_workflow_type_emergence",
+      "case_view_ref": "case-view:v74a:self-evidencing:operator-projection",
+      "exception_refs": [],
+      "family_closeout_refs": [
+        "V73"
+      ],
+      "guardrail_refs": [
+        "guardrail:v74a:self-evidencing:no-authority"
+      ],
+      "ledger_refs": [
+        "ledger:v73c:self-evidencing:positive-review-signal"
+      ],
+      "limitation_note": "Case view is visibility for human review only with no ratification, no product authority, no release authority, no runtime permission, and no dispatch.",
+      "odeu_lanes": [
+        "deontic",
+        "epistemic",
+        "utility"
+      ],
+      "operator_signal_refs": [
+        "operator-signal:v73c:self-evidencing:workflow-type-emergence"
+      ],
+      "projection_case_kind": "self_improvement_outcome_case",
+      "projection_horizon": "human_review_visibility",
+      "projection_posture": "eligible_for_operator_projection",
+      "recommendation_refs": [
+        "recommendation:v73c:self-evidencing:promote-for-later-review"
+      ],
+      "source_refs": [
+        "apps/api/fixtures/repo_description/vnext_plus205/repo_operator_cognition_outcome_signal_v205_reference.json",
+        "apps/api/fixtures/repo_description/vnext_plus205/repo_outcome_promotion_demotion_recommendation_v205_reference.json",
+        "apps/api/fixtures/repo_description/vnext_plus205/repo_self_improvement_outcome_ledger_v205_reference.json",
+        "docs/support/arc_series_mapping/V68_V69_V70_V71_V72_V73_COMBINED_DOGFOOD_TEST_v0.json"
+      ],
+      "visible_authority_state": "ratification_required",
+      "visible_blocker_rows": [],
+      "visible_decision_state": "ready_for_human_review"
+    }
+  ],
+  "operator_projection_case_view_id": "repo_operator_projection_case_view_ede72a38ad769c9142e33026",
+  "operator_projection_source_index_id": "repo_operator_projection_source_index_c2d01649e94f6fdd20bd1ff5",
+  "projection_boundary_summary": "Operator projection is visibility only: no ratification, no product authorization, no release authority, no runtime permission, and no dispatch authority.",
+  "review_id": "review:v74a:operator-projection",
+  "schema": "repo_operator_projection_case_view@1",
+  "snapshot_id": "vNext+206-prestart-on-main",
+  "source_set_id": "source-set:v74a:released-v73c-projection"
+}

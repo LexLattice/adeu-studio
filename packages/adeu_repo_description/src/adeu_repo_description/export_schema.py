@@ -81,6 +81,11 @@ from .models import (
     RepoSymbolCatalog,
     RepoTestIntentMatrix,
 )
+from .operator_projection import (
+    RepoOperatorProjectionCaseView,
+    RepoOperatorProjectionNonAuthorityGuardrail,
+    RepoOperatorProjectionSourceIndex,
+)
 from .recursive_candidate_intake import (
     RepoCandidateNonAdoptionGuardrail,
     RepoCandidateSourceRegister,
@@ -300,6 +305,15 @@ def main() -> None:
     outcome_review_family_closeout_alignment_schema = (
         RepoOutcomeReviewFamilyCloseoutAlignment.model_json_schema(by_alias=True)
     )
+    operator_projection_case_view_schema = RepoOperatorProjectionCaseView.model_json_schema(
+        by_alias=True
+    )
+    operator_projection_source_index_schema = RepoOperatorProjectionSourceIndex.model_json_schema(
+        by_alias=True
+    )
+    operator_projection_non_authority_guardrail_schema = (
+        RepoOperatorProjectionNonAuthorityGuardrail.model_json_schema(by_alias=True)
+    )
 
     _assert_no_absolute_path_material(dependency_register_v1_schema, repo_root_path=root)
     _assert_no_absolute_path_material(dependency_register_schema, repo_root_path=root)
@@ -413,6 +427,12 @@ def main() -> None:
     )
     _assert_no_absolute_path_material(
         outcome_review_family_closeout_alignment_schema,
+        repo_root_path=root,
+    )
+    _assert_no_absolute_path_material(operator_projection_case_view_schema, repo_root_path=root)
+    _assert_no_absolute_path_material(operator_projection_source_index_schema, repo_root_path=root)
+    _assert_no_absolute_path_material(
+        operator_projection_non_authority_guardrail_schema,
         repo_root_path=root,
     )
 
@@ -1159,6 +1179,42 @@ def main() -> None:
     _write_schema(
         root / "spec" / "repo_outcome_review_family_closeout_alignment.schema.json",
         outcome_review_family_closeout_alignment_schema,
+    )
+    _write_schema(
+        root
+        / "packages"
+        / "adeu_repo_description"
+        / "schema"
+        / "repo_operator_projection_case_view.v1.json",
+        operator_projection_case_view_schema,
+    )
+    _write_schema(
+        root / "spec" / "repo_operator_projection_case_view.schema.json",
+        operator_projection_case_view_schema,
+    )
+    _write_schema(
+        root
+        / "packages"
+        / "adeu_repo_description"
+        / "schema"
+        / "repo_operator_projection_source_index.v1.json",
+        operator_projection_source_index_schema,
+    )
+    _write_schema(
+        root / "spec" / "repo_operator_projection_source_index.schema.json",
+        operator_projection_source_index_schema,
+    )
+    _write_schema(
+        root
+        / "packages"
+        / "adeu_repo_description"
+        / "schema"
+        / "repo_operator_projection_non_authority_guardrail.v1.json",
+        operator_projection_non_authority_guardrail_schema,
+    )
+    _write_schema(
+        root / "spec" / "repo_operator_projection_non_authority_guardrail.schema.json",
+        operator_projection_non_authority_guardrail_schema,
     )
 
 

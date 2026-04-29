@@ -1,0 +1,146 @@
+{
+  "$defs": {
+    "RepoOperatorProjectionNonAuthorityGuardrailRow": {
+      "additionalProperties": false,
+      "properties": {
+        "candidate_refs": {
+          "items": {
+            "type": "string"
+          },
+          "minItems": 1,
+          "title": "Candidate Refs",
+          "type": "array"
+        },
+        "case_view_refs": {
+          "items": {
+            "type": "string"
+          },
+          "minItems": 1,
+          "title": "Case View Refs",
+          "type": "array"
+        },
+        "forbidden_projection_authorities": {
+          "items": {
+            "enum": [
+              "ratification_authority",
+              "adoption_authority",
+              "implementation_authority",
+              "commit_release_authority",
+              "merge_authority",
+              "released_truth",
+              "product_authorization",
+              "runtime_permission",
+              "dispatch_authority",
+              "external_contest_authority"
+            ],
+            "type": "string"
+          },
+          "minItems": 1,
+          "title": "Forbidden Projection Authorities",
+          "type": "array"
+        },
+        "guardrail_ref": {
+          "title": "Guardrail Ref",
+          "type": "string"
+        },
+        "limitation_note": {
+          "title": "Limitation Note",
+          "type": "string"
+        },
+        "non_authority_statement": {
+          "title": "Non Authority Statement",
+          "type": "string"
+        },
+        "operator_action_posture": {
+          "enum": [
+            "inspect_only",
+            "acknowledge_only",
+            "request_later_review_only",
+            "annotate_source_gap_only",
+            "export_support_report_only",
+            "no_operator_action_selected"
+          ],
+          "title": "Operator Action Posture",
+          "type": "string"
+        },
+        "required_later_authority": {
+          "enum": [
+            "human_ratification_required",
+            "maintainer_release_authority_required",
+            "product_authority_required",
+            "runtime_authority_required",
+            "dispatch_authority_required",
+            "external_contest_authority_required",
+            "none_selected_here"
+          ],
+          "title": "Required Later Authority",
+          "type": "string"
+        }
+      },
+      "required": [
+        "guardrail_ref",
+        "case_view_refs",
+        "candidate_refs",
+        "forbidden_projection_authorities",
+        "required_later_authority",
+        "operator_action_posture",
+        "non_authority_statement",
+        "limitation_note"
+      ],
+      "title": "RepoOperatorProjectionNonAuthorityGuardrailRow",
+      "type": "object"
+    }
+  },
+  "additionalProperties": false,
+  "properties": {
+    "guardrail_rows": {
+      "items": {
+        "$ref": "#/$defs/RepoOperatorProjectionNonAuthorityGuardrailRow"
+      },
+      "minItems": 1,
+      "title": "Guardrail Rows",
+      "type": "array"
+    },
+    "non_authority_summary": {
+      "title": "Non Authority Summary",
+      "type": "string"
+    },
+    "operator_projection_case_view_id": {
+      "title": "Operator Projection Case View Id",
+      "type": "string"
+    },
+    "operator_projection_non_authority_guardrail_id": {
+      "title": "Operator Projection Non Authority Guardrail Id",
+      "type": "string"
+    },
+    "review_id": {
+      "title": "Review Id",
+      "type": "string"
+    },
+    "schema": {
+      "const": "repo_operator_projection_non_authority_guardrail@1",
+      "default": "repo_operator_projection_non_authority_guardrail@1",
+      "title": "Schema",
+      "type": "string"
+    },
+    "snapshot_id": {
+      "title": "Snapshot Id",
+      "type": "string"
+    },
+    "source_set_id": {
+      "title": "Source Set Id",
+      "type": "string"
+    }
+  },
+  "required": [
+    "operator_projection_non_authority_guardrail_id",
+    "review_id",
+    "snapshot_id",
+    "source_set_id",
+    "operator_projection_case_view_id",
+    "guardrail_rows",
+    "non_authority_summary"
+  ],
+  "title": "RepoOperatorProjectionNonAuthorityGuardrail",
+  "type": "object"
+}

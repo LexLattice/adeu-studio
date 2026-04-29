@@ -1,0 +1,323 @@
+{
+  "$defs": {
+    "RepoOperatorProjectionCaseViewRow": {
+      "additionalProperties": false,
+      "properties": {
+        "candidate_ref": {
+          "title": "Candidate Ref",
+          "type": "string"
+        },
+        "case_view_ref": {
+          "title": "Case View Ref",
+          "type": "string"
+        },
+        "exception_refs": {
+          "items": {
+            "type": "string"
+          },
+          "title": "Exception Refs",
+          "type": "array"
+        },
+        "family_closeout_refs": {
+          "items": {
+            "type": "string"
+          },
+          "title": "Family Closeout Refs",
+          "type": "array"
+        },
+        "guardrail_refs": {
+          "items": {
+            "type": "string"
+          },
+          "minItems": 1,
+          "title": "Guardrail Refs",
+          "type": "array"
+        },
+        "ledger_refs": {
+          "items": {
+            "type": "string"
+          },
+          "title": "Ledger Refs",
+          "type": "array"
+        },
+        "limitation_note": {
+          "title": "Limitation Note",
+          "type": "string"
+        },
+        "odeu_lanes": {
+          "items": {
+            "enum": [
+              "ontological",
+              "deontic",
+              "epistemic",
+              "utility"
+            ],
+            "type": "string"
+          },
+          "minItems": 1,
+          "title": "Odeu Lanes",
+          "type": "array"
+        },
+        "operator_signal_refs": {
+          "items": {
+            "type": "string"
+          },
+          "title": "Operator Signal Refs",
+          "type": "array"
+        },
+        "projection_case_kind": {
+          "enum": [
+            "self_improvement_outcome_case",
+            "candidate_decision_case",
+            "operator_cognition_signal_case",
+            "typed_adjudication_case",
+            "model_output_comparison_case",
+            "product_pressure_case",
+            "future_family_case"
+          ],
+          "title": "Projection Case Kind",
+          "type": "string"
+        },
+        "projection_horizon": {
+          "enum": [
+            "human_review_visibility",
+            "later_ratification_review_request",
+            "later_product_review_request",
+            "later_dispatch_review_request",
+            "future_family_visibility_only"
+          ],
+          "title": "Projection Horizon",
+          "type": "string"
+        },
+        "projection_posture": {
+          "enum": [
+            "eligible_for_operator_projection",
+            "blocked_by_missing_source",
+            "blocked_by_unresolved_regression",
+            "blocked_by_unresolved_dissent",
+            "blocked_by_authority_boundary",
+            "future_family_only",
+            "rejected_out_of_scope"
+          ],
+          "title": "Projection Posture",
+          "type": "string"
+        },
+        "recommendation_refs": {
+          "items": {
+            "type": "string"
+          },
+          "title": "Recommendation Refs",
+          "type": "array"
+        },
+        "source_refs": {
+          "items": {
+            "type": "string"
+          },
+          "minItems": 1,
+          "title": "Source Refs",
+          "type": "array"
+        },
+        "visible_authority_state": {
+          "enum": [
+            "no_authority_granted",
+            "ratification_required",
+            "product_authority_missing",
+            "runtime_authority_missing",
+            "dispatch_authority_missing",
+            "release_authority_missing"
+          ],
+          "title": "Visible Authority State",
+          "type": "string"
+        },
+        "visible_blocker_rows": {
+          "items": {
+            "$ref": "#/$defs/RepoProjectionVisibleBlockerRow"
+          },
+          "title": "Visible Blocker Rows",
+          "type": "array"
+        },
+        "visible_decision_state": {
+          "enum": [
+            "ready_for_human_review",
+            "blocked_pending_evidence",
+            "blocked_pending_authority",
+            "blocked_pending_dissent_resolution",
+            "recommended_for_later_review",
+            "recommended_more_evidence",
+            "deferred_to_future_family",
+            "rejected_out_of_scope"
+          ],
+          "title": "Visible Decision State",
+          "type": "string"
+        }
+      },
+      "required": [
+        "case_view_ref",
+        "candidate_ref",
+        "projection_case_kind",
+        "projection_posture",
+        "visible_decision_state",
+        "projection_horizon",
+        "visible_authority_state",
+        "source_refs",
+        "odeu_lanes",
+        "guardrail_refs",
+        "limitation_note"
+      ],
+      "title": "RepoOperatorProjectionCaseViewRow",
+      "type": "object"
+    },
+    "RepoProjectionVisibleBlockerRow": {
+      "additionalProperties": false,
+      "properties": {
+        "blocker_kind": {
+          "enum": [
+            "source_gap",
+            "unresolved_regression",
+            "unresolved_dissent",
+            "authority_boundary_gap",
+            "product_authority_gap",
+            "runtime_authority_gap",
+            "dispatch_authority_gap",
+            "release_authority_gap",
+            "model_output_provenance_gap",
+            "comparison_axis_gap"
+          ],
+          "title": "Blocker Kind",
+          "type": "string"
+        },
+        "blocker_ref": {
+          "title": "Blocker Ref",
+          "type": "string"
+        },
+        "blocking_posture": {
+          "enum": [
+            "blocking",
+            "warning_only",
+            "carried_forward",
+            "not_applicable",
+            "unknown_needs_review"
+          ],
+          "title": "Blocking Posture",
+          "type": "string"
+        },
+        "candidate_ref": {
+          "title": "Candidate Ref",
+          "type": "string"
+        },
+        "case_view_refs": {
+          "items": {
+            "type": "string"
+          },
+          "minItems": 1,
+          "title": "Case View Refs",
+          "type": "array"
+        },
+        "limitation_note": {
+          "title": "Limitation Note",
+          "type": "string"
+        },
+        "required_next_surface": {
+          "enum": [
+            "v74b_exception_visibility",
+            "v74c_visibility_contract",
+            "v75_dispatch_review",
+            "future_product_review",
+            "future_ratification_or_policy_review",
+            "future_family_review",
+            "deferred_no_selection"
+          ],
+          "title": "Required Next Surface",
+          "type": "string"
+        },
+        "source_refs": {
+          "items": {
+            "type": "string"
+          },
+          "minItems": 1,
+          "title": "Source Refs",
+          "type": "array"
+        },
+        "visible_decision_state": {
+          "enum": [
+            "ready_for_human_review",
+            "blocked_pending_evidence",
+            "blocked_pending_authority",
+            "blocked_pending_dissent_resolution",
+            "recommended_for_later_review",
+            "recommended_more_evidence",
+            "deferred_to_future_family",
+            "rejected_out_of_scope"
+          ],
+          "title": "Visible Decision State",
+          "type": "string"
+        }
+      },
+      "required": [
+        "blocker_ref",
+        "candidate_ref",
+        "case_view_refs",
+        "blocker_kind",
+        "source_refs",
+        "blocking_posture",
+        "visible_decision_state",
+        "required_next_surface",
+        "limitation_note"
+      ],
+      "title": "RepoProjectionVisibleBlockerRow",
+      "type": "object"
+    }
+  },
+  "additionalProperties": false,
+  "properties": {
+    "case_view_rows": {
+      "items": {
+        "$ref": "#/$defs/RepoOperatorProjectionCaseViewRow"
+      },
+      "minItems": 1,
+      "title": "Case View Rows",
+      "type": "array"
+    },
+    "operator_projection_case_view_id": {
+      "title": "Operator Projection Case View Id",
+      "type": "string"
+    },
+    "operator_projection_source_index_id": {
+      "title": "Operator Projection Source Index Id",
+      "type": "string"
+    },
+    "projection_boundary_summary": {
+      "title": "Projection Boundary Summary",
+      "type": "string"
+    },
+    "review_id": {
+      "title": "Review Id",
+      "type": "string"
+    },
+    "schema": {
+      "const": "repo_operator_projection_case_view@1",
+      "default": "repo_operator_projection_case_view@1",
+      "title": "Schema",
+      "type": "string"
+    },
+    "snapshot_id": {
+      "title": "Snapshot Id",
+      "type": "string"
+    },
+    "source_set_id": {
+      "title": "Source Set Id",
+      "type": "string"
+    }
+  },
+  "required": [
+    "operator_projection_case_view_id",
+    "review_id",
+    "snapshot_id",
+    "source_set_id",
+    "operator_projection_source_index_id",
+    "case_view_rows",
+    "projection_boundary_summary"
+  ],
+  "title": "RepoOperatorProjectionCaseView",
+  "type": "object"
+}
