@@ -32,6 +32,11 @@ REPO_OPERATOR_PROJECTION_SOURCE_INDEX_SCHEMA = "repo_operator_projection_source_
 REPO_OPERATOR_PROJECTION_NON_AUTHORITY_GUARDRAIL_SCHEMA = (
     "repo_operator_projection_non_authority_guardrail@1"
 )
+REPO_TYPED_ADJUDICATION_CASE_VIEW_SCHEMA = "repo_typed_adjudication_case_view@1"
+REPO_MODEL_OUTPUT_COMPARISON_PROJECTION_SCHEMA = "repo_model_output_comparison_projection@1"
+REPO_PROJECTION_EXCEPTION_VISIBILITY_REGISTER_SCHEMA = (
+    "repo_projection_exception_visibility_register@1"
+)
 
 ProjectionCaseKind = Literal[
     "self_improvement_outcome_case",
@@ -150,6 +155,64 @@ ProjectionRequiredLaterAuthority = Literal[
     "external_contest_authority_required",
     "none_selected_here",
 ]
+TypedAdjudicationCasePosture = Literal[
+    "projection_ready",
+    "blocked_by_missing_conceptual_diff_source",
+    "blocked_by_missing_review_source",
+    "blocked_by_unresolved_exception",
+    "future_family_only",
+    "rejected_out_of_scope",
+]
+ComparisonAxisKind = Literal[
+    "source_binding",
+    "authority_boundary_preservation",
+    "odeu_lane_separation",
+    "evidence_classification_fit",
+    "ratification_boundary_fit",
+    "implementation_safety",
+    "utility_next_slice_fit",
+    "conceptual_completeness",
+    "operator_legibility",
+]
+ObservedDifferencePosture = Literal[
+    "variant_a_stronger_on_axis",
+    "variant_b_stronger_on_axis",
+    "variants_complementary_on_axis",
+    "variants_conflict_on_axis",
+    "no_material_difference_observed",
+    "axis_unchecked",
+    "axis_blocked_by_missing_source",
+]
+ComparisonConfidencePosture = Literal[
+    "high_with_bounded_evidence",
+    "moderate_with_limitations",
+    "low_or_inconclusive",
+    "blocked_by_missing_source",
+    "not_applicable",
+]
+ComparisonProjectionPosture = Literal[
+    "projection_ready",
+    "blocked_by_missing_prompt_source",
+    "blocked_by_missing_model_output_source",
+    "blocked_by_missing_adjudicator_schema",
+    "blocked_by_unresolved_conflict",
+    "future_family_only",
+    "rejected_out_of_scope",
+]
+ProjectionExceptionKind = Literal[
+    "source_missing",
+    "source_stale",
+    "authority_boundary_blocker",
+    "unresolved_dissent",
+    "unresolved_regression",
+    "review_conflict",
+    "evidence_gap",
+    "product_authority_missing",
+    "runtime_authority_missing",
+    "dispatch_authority_missing",
+    "comparison_axis_unchecked",
+    "model_output_provenance_gap",
+]
 
 _V73C_LEDGER_FIXTURE = (
     "apps/api/fixtures/repo_description/vnext_plus205/"
@@ -175,11 +238,16 @@ _V73_FAMILY_CLOSEOUT_ALIGNMENT = (
     "artifacts/agent_harness/v205/evidence_inputs/v73_family_closeout_alignment_v205.json"
 )
 _V68_V73_DOGFOOD = (
-    "docs/support/arc_series_mapping/"
-    "V68_V69_V70_V71_V72_V73_COMBINED_DOGFOOD_TEST_v0.json"
+    "docs/support/arc_series_mapping/V68_V69_V70_V71_V72_V73_COMBINED_DOGFOOD_TEST_v0.json"
 )
 _PRODUCT_WEDGE_SUPPORT = (
     "docs/support/arc_series_mapping/DRAFT_ADEU_TYPED_ADJUDICATION_PRODUCT_WEDGE_v0.md"
+)
+_CONCEPTUAL_DIFF_SUPPORT = (
+    "docs/support/arc_series_mapping/DRAFT_ARC_SERIES_ODEU_CONCEPTUAL_DIFF_v0.report.json"
+)
+_CONCEPTUAL_DIFF_SCHEMA_SUPPORT = (
+    "docs/support/arc_series_mapping/odeu_conceptual_diff_report.schema.json"
 )
 
 _REQUIRED_FORBIDDEN_PROJECTION_AUTHORITIES = {
@@ -214,13 +282,22 @@ _FORBIDDEN_AUTHORITY_PHRASES = (
     "self-approved",
     "self approval",
 )
+_FORBIDDEN_V74B_AUTHORITY_PHRASES = _FORBIDDEN_AUTHORITY_PHRASES + (
+    "released schema",
+    "schema released",
+    "ratified decision",
+    "new ratification",
+    "outcome verdict",
+    "exception resolved",
+    "resolved exception",
+)
 
 
 def _v74a_note(value: str, *, field_name: str) -> str:
     normalized = _non_empty(value, field_name=field_name)
     lowered = normalized.lower()
     for phrase in _FORBIDDEN_AUTHORITY_PHRASES:
-        if phrase in lowered and f"no {phrase}" not in lowered:
+        if phrase in lowered and f"no {phrase}" not in lowered and f"not {phrase}" not in lowered:
             raise ValueError(f"{field_name} may not carry projection authority")
     if "case view is source truth" in lowered:
         raise ValueError(f"{field_name} may not treat case view as source truth")
@@ -561,8 +638,7 @@ class RepoOperatorProjectionNonAuthorityGuardrailRow(_CartographyBase):
             self, "limitation_note", _v74a_note(self.limitation_note, field_name="limitation_note")
         )
         missing = sorted(
-            _REQUIRED_FORBIDDEN_PROJECTION_AUTHORITIES
-            - set(self.forbidden_projection_authorities)
+            _REQUIRED_FORBIDDEN_PROJECTION_AUTHORITIES - set(self.forbidden_projection_authorities)
         )
         if missing:
             raise ValueError(f"guardrails must forbid projection authorities: {missing}")
@@ -634,6 +710,467 @@ class RepoOperatorProjectionNonAuthorityGuardrail(_CartographyBase):
             raise ValueError(
                 "operator_projection_non_authority_guardrail_id must match canonical full "
                 "payload hash identity"
+            )
+        return self
+
+
+def _v74b_note(value: str, *, field_name: str) -> str:
+    normalized = _v74a_note(value, field_name=field_name)
+    lowered = normalized.lower()
+    for phrase in _FORBIDDEN_V74B_AUTHORITY_PHRASES:
+        if phrase in lowered and f"no {phrase}" not in lowered and f"not {phrase}" not in lowered:
+            raise ValueError(f"{field_name} may not carry typed projection authority")
+    return normalized
+
+
+def _v74b_required_summary(value: str, *, field_name: str, required: tuple[str, ...]) -> str:
+    normalized = _v74b_note(value, field_name=field_name)
+    lowered = normalized.lower()
+    missing = [phrase for phrase in required if phrase not in lowered]
+    if missing:
+        raise ValueError(f"{field_name} must state {', '.join(missing)}")
+    return normalized
+
+
+class RepoTypedAdjudicationCaseViewRow(_CartographyBase):
+    typed_case_ref: str
+    source_case_view_refs: list[str] = Field(min_length=1)
+    candidate_refs: list[str] = Field(min_length=1)
+    conceptual_diff_refs: list[str] = Field(default_factory=list)
+    review_classification_refs: list[str] = Field(default_factory=list)
+    ratification_refs: list[str] = Field(default_factory=list)
+    outcome_recommendation_refs: list[str] = Field(default_factory=list)
+    comparison_projection_refs: list[str] = Field(default_factory=list)
+    exception_refs: list[str] = Field(default_factory=list)
+    typed_case_posture: TypedAdjudicationCasePosture
+    odeu_lanes: list[OdeuLane] = Field(min_length=1)
+    guardrail_refs: list[str] = Field(min_length=1)
+    limitation_note: str
+
+    @model_validator(mode="after")
+    def _validate_typed_case_row(self) -> RepoTypedAdjudicationCaseViewRow:
+        object.__setattr__(
+            self, "typed_case_ref", _non_empty(self.typed_case_ref, field_name="typed_case_ref")
+        )
+        for field_name in (
+            "source_case_view_refs",
+            "candidate_refs",
+            "conceptual_diff_refs",
+            "review_classification_refs",
+            "ratification_refs",
+            "outcome_recommendation_refs",
+            "comparison_projection_refs",
+            "exception_refs",
+            "odeu_lanes",
+            "guardrail_refs",
+        ):
+            object.__setattr__(
+                self,
+                field_name,
+                _sorted_unique(getattr(self, field_name), field_name=field_name),
+            )
+        object.__setattr__(
+            self, "limitation_note", _v74b_note(self.limitation_note, field_name="limitation_note")
+        )
+        if self.typed_case_posture == "projection_ready" and not self.conceptual_diff_refs:
+            raise ValueError("projection-ready typed cases require conceptual_diff_refs")
+        if self.typed_case_posture == "blocked_by_unresolved_exception" and not self.exception_refs:
+            raise ValueError("exception-blocked typed cases require exception_refs")
+        if any(
+            "odeu_conceptual_diff_report.schema.json" in ref for ref in self.conceptual_diff_refs
+        ):
+            raise ValueError("conceptual-diff schema support cannot be treated as released schema")
+        if self.typed_case_posture == "projection_ready" and self.exception_refs:
+            raise ValueError("projection-ready typed cases cannot carry unresolved exceptions")
+        return self
+
+
+class RepoTypedAdjudicationCaseView(_CartographyBase):
+    schema: Literal["repo_typed_adjudication_case_view@1"] = (
+        REPO_TYPED_ADJUDICATION_CASE_VIEW_SCHEMA
+    )
+    typed_adjudication_case_view_id: str
+    review_id: str
+    snapshot_id: str
+    source_set_id: str
+    operator_projection_case_view_id: str
+    typed_case_rows: list[RepoTypedAdjudicationCaseViewRow] = Field(min_length=1)
+    typed_case_boundary_summary: str
+
+    @model_validator(mode="after")
+    def _validate_typed_case_view(self) -> RepoTypedAdjudicationCaseView:
+        for field_name in (
+            "typed_adjudication_case_view_id",
+            "review_id",
+            "snapshot_id",
+            "source_set_id",
+            "operator_projection_case_view_id",
+        ):
+            object.__setattr__(
+                self, field_name, _non_empty(getattr(self, field_name), field_name=field_name)
+            )
+        object.__setattr__(
+            self,
+            "typed_case_rows",
+            _sorted_unique_by_ref(
+                self.typed_case_rows, attr="typed_case_ref", field_name="typed_case_rows"
+            ),
+        )
+        object.__setattr__(
+            self,
+            "typed_case_boundary_summary",
+            _v74b_required_summary(
+                self.typed_case_boundary_summary,
+                field_name="typed_case_boundary_summary",
+                required=(
+                    "projection only",
+                    "no ratification",
+                    "no adoption",
+                    "no product",
+                    "no release",
+                    "no runtime",
+                    "no dispatch",
+                ),
+            ),
+        )
+        expected_id = _surface_id(
+            "repo_typed_adjudication_case_view",
+            REPO_TYPED_ADJUDICATION_CASE_VIEW_SCHEMA,
+            self.model_dump(mode="json"),
+            "typed_adjudication_case_view_id",
+        )
+        if self.typed_adjudication_case_view_id != expected_id:
+            raise ValueError(
+                "typed_adjudication_case_view_id must match canonical full payload hash identity"
+            )
+        return self
+
+
+class RepoModelOutputSourceRow(_CartographyBase):
+    model_output_ref: str
+    prompt_source_ref: str
+    model_identity_ref: str
+    output_capture_ref: str
+    run_context_ref: str
+    source_presence_posture: CandidateSourcePresencePosture
+    limitation_note: str
+
+    @model_validator(mode="after")
+    def _validate_model_output_source_row(self) -> RepoModelOutputSourceRow:
+        for field_name in (
+            "model_output_ref",
+            "prompt_source_ref",
+            "model_identity_ref",
+            "output_capture_ref",
+            "run_context_ref",
+        ):
+            object.__setattr__(
+                self, field_name, _non_empty(getattr(self, field_name), field_name=field_name)
+            )
+        object.__setattr__(
+            self, "limitation_note", _v74b_note(self.limitation_note, field_name="limitation_note")
+        )
+        if self.source_presence_posture != "present":
+            raise ValueError("model-output comparison provenance must be explicitly present")
+        return self
+
+
+class RepoComparisonAxisRow(_CartographyBase):
+    axis_ref: str
+    axis_kind: ComparisonAxisKind
+    bounded_claim_horizon: str
+    axis_source_refs: list[str] = Field(min_length=1)
+    observed_difference_posture: ObservedDifferencePosture
+    contradiction_refs: list[str] = Field(default_factory=list)
+    complementarity_refs: list[str] = Field(default_factory=list)
+    exception_refs: list[str] = Field(default_factory=list)
+    confidence_posture: ComparisonConfidencePosture
+    non_benchmark_guardrail: str
+    limitation_note: str
+
+    @model_validator(mode="after")
+    def _validate_comparison_axis_row(self) -> RepoComparisonAxisRow:
+        object.__setattr__(self, "axis_ref", _non_empty(self.axis_ref, field_name="axis_ref"))
+        object.__setattr__(
+            self,
+            "bounded_claim_horizon",
+            _v74b_note(self.bounded_claim_horizon, field_name="bounded_claim_horizon"),
+        )
+        for field_name in (
+            "axis_source_refs",
+            "contradiction_refs",
+            "complementarity_refs",
+            "exception_refs",
+        ):
+            object.__setattr__(
+                self,
+                field_name,
+                _sorted_unique(getattr(self, field_name), field_name=field_name),
+            )
+        object.__setattr__(
+            self,
+            "non_benchmark_guardrail",
+            _v74b_required_summary(
+                self.non_benchmark_guardrail,
+                field_name="non_benchmark_guardrail",
+                required=("bounded", "not benchmark truth", "no model selection"),
+            ),
+        )
+        object.__setattr__(
+            self, "limitation_note", _v74b_note(self.limitation_note, field_name="limitation_note")
+        )
+        if self.observed_difference_posture == "axis_blocked_by_missing_source" and (
+            not self.exception_refs
+        ):
+            raise ValueError("source-blocked comparison axes require exception_refs")
+        return self
+
+
+class RepoModelOutputComparisonProjectionRow(_CartographyBase):
+    comparison_projection_ref: str
+    typed_case_ref: str
+    prompt_source_refs: list[str] = Field(min_length=1)
+    model_output_refs: list[str] = Field(min_length=1)
+    model_output_source_rows: list[RepoModelOutputSourceRow] = Field(min_length=1)
+    adjudicator_schema_refs: list[str] = Field(min_length=1)
+    comparison_axis_rows: list[RepoComparisonAxisRow] = Field(min_length=1)
+    contradiction_refs: list[str] = Field(default_factory=list)
+    complementarity_refs: list[str] = Field(default_factory=list)
+    exception_refs: list[str] = Field(default_factory=list)
+    comparison_projection_posture: ComparisonProjectionPosture
+    non_benchmark_guardrail: str
+    limitation_note: str
+
+    @model_validator(mode="after")
+    def _validate_comparison_projection_row(self) -> RepoModelOutputComparisonProjectionRow:
+        for field_name in ("comparison_projection_ref", "typed_case_ref"):
+            object.__setattr__(
+                self, field_name, _non_empty(getattr(self, field_name), field_name=field_name)
+            )
+        for field_name in (
+            "prompt_source_refs",
+            "model_output_refs",
+            "adjudicator_schema_refs",
+            "contradiction_refs",
+            "complementarity_refs",
+            "exception_refs",
+        ):
+            object.__setattr__(
+                self,
+                field_name,
+                _sorted_unique(getattr(self, field_name), field_name=field_name),
+            )
+        object.__setattr__(
+            self,
+            "model_output_source_rows",
+            _sorted_unique_by_ref(
+                self.model_output_source_rows,
+                attr="model_output_ref",
+                field_name="model_output_source_rows",
+            ),
+        )
+        object.__setattr__(
+            self,
+            "comparison_axis_rows",
+            _sorted_unique_by_ref(
+                self.comparison_axis_rows, attr="axis_ref", field_name="comparison_axis_rows"
+            ),
+        )
+        object.__setattr__(
+            self,
+            "non_benchmark_guardrail",
+            _v74b_required_summary(
+                self.non_benchmark_guardrail,
+                field_name="non_benchmark_guardrail",
+                required=("bounded", "not benchmark truth", "no model selection"),
+            ),
+        )
+        object.__setattr__(
+            self, "limitation_note", _v74b_note(self.limitation_note, field_name="limitation_note")
+        )
+        model_output_source_refs = {row.model_output_ref for row in self.model_output_source_rows}
+        missing_model_sources = sorted(set(self.model_output_refs) - model_output_source_refs)
+        if missing_model_sources:
+            raise ValueError(
+                "comparison projections require model-output provenance rows: "
+                f"{missing_model_sources}"
+            )
+        for row in self.model_output_source_rows:
+            if row.prompt_source_ref not in self.prompt_source_refs:
+                raise ValueError("model-output provenance rows must use known prompt_source_refs")
+        if self.comparison_projection_posture == "projection_ready" and self.exception_refs:
+            raise ValueError("projection-ready comparison rows cannot carry unresolved exceptions")
+        if any(
+            axis.observed_difference_posture == "axis_unchecked"
+            for axis in self.comparison_axis_rows
+        ):
+            if self.comparison_projection_posture == "projection_ready":
+                raise ValueError("projection-ready comparison rows cannot include unchecked axes")
+        return self
+
+
+class RepoModelOutputComparisonProjection(_CartographyBase):
+    schema: Literal["repo_model_output_comparison_projection@1"] = (
+        REPO_MODEL_OUTPUT_COMPARISON_PROJECTION_SCHEMA
+    )
+    model_output_comparison_projection_id: str
+    review_id: str
+    snapshot_id: str
+    source_set_id: str
+    typed_adjudication_case_view_id: str
+    comparison_projection_rows: list[RepoModelOutputComparisonProjectionRow] = Field(min_length=1)
+    comparison_boundary_summary: str
+
+    @model_validator(mode="after")
+    def _validate_comparison_projection(self) -> RepoModelOutputComparisonProjection:
+        for field_name in (
+            "model_output_comparison_projection_id",
+            "review_id",
+            "snapshot_id",
+            "source_set_id",
+            "typed_adjudication_case_view_id",
+        ):
+            object.__setattr__(
+                self, field_name, _non_empty(getattr(self, field_name), field_name=field_name)
+            )
+        object.__setattr__(
+            self,
+            "comparison_projection_rows",
+            _sorted_unique_by_ref(
+                self.comparison_projection_rows,
+                attr="comparison_projection_ref",
+                field_name="comparison_projection_rows",
+            ),
+        )
+        object.__setattr__(
+            self,
+            "comparison_boundary_summary",
+            _v74b_required_summary(
+                self.comparison_boundary_summary,
+                field_name="comparison_boundary_summary",
+                required=("bounded", "not benchmark truth", "no model selection", "no dispatch"),
+            ),
+        )
+        expected_id = _surface_id(
+            "repo_model_output_comparison_projection",
+            REPO_MODEL_OUTPUT_COMPARISON_PROJECTION_SCHEMA,
+            self.model_dump(mode="json"),
+            "model_output_comparison_projection_id",
+        )
+        if self.model_output_comparison_projection_id != expected_id:
+            raise ValueError(
+                "model_output_comparison_projection_id must match canonical full payload hash "
+                "identity"
+            )
+        return self
+
+
+class RepoProjectionExceptionVisibilityRow(_CartographyBase):
+    exception_ref: str
+    case_view_refs: list[str] = Field(default_factory=list)
+    typed_case_refs: list[str] = Field(default_factory=list)
+    comparison_projection_refs: list[str] = Field(default_factory=list)
+    candidate_refs: list[str] = Field(min_length=1)
+    exception_kind: ProjectionExceptionKind
+    source_refs: list[str] = Field(min_length=1)
+    visible_decision_state: VisibleDecisionState
+    blocking_posture: VisibleBlockerPosture
+    required_next_surface: ProjectionRequiredNextSurface
+    limitation_note: str
+
+    @model_validator(mode="after")
+    def _validate_exception_visibility_row(self) -> RepoProjectionExceptionVisibilityRow:
+        object.__setattr__(
+            self, "exception_ref", _non_empty(self.exception_ref, field_name="exception_ref")
+        )
+        for field_name in (
+            "case_view_refs",
+            "typed_case_refs",
+            "comparison_projection_refs",
+            "candidate_refs",
+            "source_refs",
+        ):
+            object.__setattr__(
+                self,
+                field_name,
+                _sorted_unique(getattr(self, field_name), field_name=field_name),
+            )
+        if not (self.case_view_refs or self.typed_case_refs or self.comparison_projection_refs):
+            raise ValueError("exception rows must reference a case, typed case, or comparison row")
+        object.__setattr__(
+            self, "limitation_note", _v74b_note(self.limitation_note, field_name="limitation_note")
+        )
+        if self.blocking_posture == "blocking" and self.visible_decision_state not in {
+            "blocked_pending_evidence",
+            "blocked_pending_authority",
+            "blocked_pending_dissent_resolution",
+            "deferred_to_future_family",
+        }:
+            raise ValueError("blocking exception rows must use a blocked visible state")
+        if self.exception_kind == "product_authority_missing" and (
+            self.required_next_surface != "future_product_review"
+        ):
+            raise ValueError("product authority exceptions require future_product_review")
+        lowered_note = self.limitation_note.lower()
+        if "resolved" in lowered_note and "not resolved" not in lowered_note:
+            raise ValueError("V74-B exception rows cannot mark exceptions resolved")
+        return self
+
+
+class RepoProjectionExceptionVisibilityRegister(_CartographyBase):
+    schema: Literal["repo_projection_exception_visibility_register@1"] = (
+        REPO_PROJECTION_EXCEPTION_VISIBILITY_REGISTER_SCHEMA
+    )
+    projection_exception_visibility_register_id: str
+    review_id: str
+    snapshot_id: str
+    source_set_id: str
+    operator_projection_case_view_id: str
+    typed_adjudication_case_view_id: str
+    model_output_comparison_projection_id: str
+    exception_rows: list[RepoProjectionExceptionVisibilityRow] = Field(min_length=1)
+    exception_visibility_summary: str
+
+    @model_validator(mode="after")
+    def _validate_exception_visibility_register(self) -> RepoProjectionExceptionVisibilityRegister:
+        for field_name in (
+            "projection_exception_visibility_register_id",
+            "review_id",
+            "snapshot_id",
+            "source_set_id",
+            "operator_projection_case_view_id",
+            "typed_adjudication_case_view_id",
+            "model_output_comparison_projection_id",
+        ):
+            object.__setattr__(
+                self, field_name, _non_empty(getattr(self, field_name), field_name=field_name)
+            )
+        object.__setattr__(
+            self,
+            "exception_rows",
+            _sorted_unique_by_ref(
+                self.exception_rows, attr="exception_ref", field_name="exception_rows"
+            ),
+        )
+        object.__setattr__(
+            self,
+            "exception_visibility_summary",
+            _v74b_required_summary(
+                self.exception_visibility_summary,
+                field_name="exception_visibility_summary",
+                required=("visible", "not resolved", "no product", "no release", "no dispatch"),
+            ),
+        )
+        expected_id = _surface_id(
+            "repo_projection_exception_visibility_register",
+            REPO_PROJECTION_EXCEPTION_VISIBILITY_REGISTER_SCHEMA,
+            self.model_dump(mode="json"),
+            "projection_exception_visibility_register_id",
+        )
+        if self.projection_exception_visibility_register_id != expected_id:
+            raise ValueError(
+                "projection_exception_visibility_register_id must match canonical full payload "
+                "hash identity"
             )
         return self
 
@@ -972,8 +1509,7 @@ def validate_v74a_operator_projection_bundle(
         row.family_ref: row for row in outcome_review_family_closeout_alignment.alignment_rows
     }
     guardrail_rows = {
-        row.guardrail_ref: row
-        for row in operator_projection_non_authority_guardrail.guardrail_rows
+        row.guardrail_ref: row for row in operator_projection_non_authority_guardrail.guardrail_rows
     }
     case_rows = {row.case_view_ref: row for row in operator_projection_case_view.case_view_rows}
 
@@ -1084,4 +1620,462 @@ def derive_v74a_operator_projection_bundle(
         source_index,
         case_view,
         guardrail,
+    )
+
+
+def derive_v74b_repo_typed_adjudication_case_view(
+    *,
+    repo_root: Path,
+    operator_projection_case_view: RepoOperatorProjectionCaseView | None = None,
+) -> RepoTypedAdjudicationCaseView:
+    case_view = operator_projection_case_view or derive_v74a_repo_operator_projection_case_view(
+        repo_root=repo_root
+    )
+    rows = [
+        RepoTypedAdjudicationCaseViewRow(
+            typed_case_ref="typed-case:v74b:product-wedge:authority-gap",
+            source_case_view_refs=["case-view:v74a:product-wedge:future-family"],
+            candidate_refs=["candidate:internal:typed_adjudication_product_wedge"],
+            conceptual_diff_refs=[_PRODUCT_WEDGE_SUPPORT],
+            review_classification_refs=["review-classification:v70:product-wedge:future-family"],
+            ratification_refs=[],
+            outcome_recommendation_refs=[],
+            comparison_projection_refs=[],
+            exception_refs=["blocker:v74a:product-wedge:product-authority-gap"],
+            typed_case_posture="blocked_by_unresolved_exception",
+            odeu_lanes=["deontic", "epistemic", "utility"],
+            guardrail_refs=["guardrail:v74a:product-wedge:no-product-authority"],
+            limitation_note=(
+                "Product wedge typed case is projection only: no ratification, no adoption, "
+                "no product authority, no release authority, no runtime permission, and no "
+                "dispatch."
+            ),
+        ),
+        RepoTypedAdjudicationCaseViewRow(
+            typed_case_ref="typed-case:v74b:self-evidencing:conceptual-diff",
+            source_case_view_refs=["case-view:v74a:self-evidencing:operator-projection"],
+            candidate_refs=["candidate:internal:self_evidencing_workflow_type_emergence"],
+            conceptual_diff_refs=[_CONCEPTUAL_DIFF_SUPPORT],
+            review_classification_refs=["review-classification:v70:self-evidencing:bounded"],
+            ratification_refs=["ratification:v71:self-evidencing:later-review-only"],
+            outcome_recommendation_refs=[
+                "recommendation:v73c:self-evidencing:promote-for-later-review"
+            ],
+            comparison_projection_refs=[
+                "comparison-projection:v74b:self-evidencing:model-output-comparison"
+            ],
+            exception_refs=[],
+            typed_case_posture="projection_ready",
+            odeu_lanes=["deontic", "epistemic", "utility"],
+            guardrail_refs=["guardrail:v74a:self-evidencing:no-authority"],
+            limitation_note=(
+                "Self-evidencing typed case is projection only: no ratification, no adoption, "
+                "no product authority, no release authority, no runtime permission, and no "
+                "dispatch."
+            ),
+        ),
+    ]
+    payload = {
+        "schema": REPO_TYPED_ADJUDICATION_CASE_VIEW_SCHEMA,
+        "review_id": "review:v74b:typed-adjudication-projection",
+        "snapshot_id": "vNext+207-prestart-on-main",
+        "source_set_id": case_view.source_set_id,
+        "operator_projection_case_view_id": case_view.operator_projection_case_view_id,
+        "typed_case_rows": [
+            row.model_dump(mode="json") for row in sorted(rows, key=lambda row: row.typed_case_ref)
+        ],
+        "typed_case_boundary_summary": (
+            "Typed adjudication case view is projection only: no ratification, no adoption, "
+            "no product authorization, no release authority, no runtime permission, and no "
+            "dispatch authority."
+        ),
+    }
+    payload["typed_adjudication_case_view_id"] = _surface_id(
+        "repo_typed_adjudication_case_view",
+        REPO_TYPED_ADJUDICATION_CASE_VIEW_SCHEMA,
+        payload,
+        "typed_adjudication_case_view_id",
+    )
+    return RepoTypedAdjudicationCaseView.model_validate(payload)
+
+
+def derive_v74b_repo_model_output_comparison_projection(
+    *,
+    repo_root: Path,
+    typed_adjudication_case_view: RepoTypedAdjudicationCaseView | None = None,
+) -> RepoModelOutputComparisonProjection:
+    typed_case_view = typed_adjudication_case_view or derive_v74b_repo_typed_adjudication_case_view(
+        repo_root=repo_root
+    )
+    rows = [
+        RepoModelOutputComparisonProjectionRow(
+            comparison_projection_ref=(
+                "comparison-projection:v74b:self-evidencing:model-output-comparison"
+            ),
+            typed_case_ref="typed-case:v74b:self-evidencing:conceptual-diff",
+            prompt_source_refs=[_V68_V73_DOGFOOD],
+            model_output_refs=[
+                "model-output:v74b:gpt-5.5-high:conceptual-diff",
+                "model-output:v74b:gpt-5.5-xhigh:conceptual-diff",
+            ],
+            model_output_source_rows=[
+                RepoModelOutputSourceRow(
+                    model_output_ref="model-output:v74b:gpt-5.5-high:conceptual-diff",
+                    prompt_source_ref=_V68_V73_DOGFOOD,
+                    model_identity_ref="model:gpt-5.5-high",
+                    output_capture_ref=_CONCEPTUAL_DIFF_SUPPORT,
+                    run_context_ref="run-context:v74b:fixed-prompt-fixed-repo-substrate",
+                    source_presence_posture="present",
+                    limitation_note=("Model output provenance is bounded comparison context only."),
+                ),
+                RepoModelOutputSourceRow(
+                    model_output_ref="model-output:v74b:gpt-5.5-xhigh:conceptual-diff",
+                    prompt_source_ref=_V68_V73_DOGFOOD,
+                    model_identity_ref="model:gpt-5.5-xhigh",
+                    output_capture_ref=_CONCEPTUAL_DIFF_SUPPORT,
+                    run_context_ref="run-context:v74b:fixed-prompt-fixed-repo-substrate",
+                    source_presence_posture="present",
+                    limitation_note=("Model output provenance is bounded comparison context only."),
+                ),
+            ],
+            adjudicator_schema_refs=[_CONCEPTUAL_DIFF_SCHEMA_SUPPORT],
+            comparison_axis_rows=[
+                RepoComparisonAxisRow(
+                    axis_ref="axis:v74b:self-evidencing:authority-boundary",
+                    axis_kind="authority_boundary_preservation",
+                    bounded_claim_horizon=(
+                        "Bounded to the V74-B typed projection source rows and the fixed "
+                        "conceptual-diff support artifacts."
+                    ),
+                    axis_source_refs=[_CONCEPTUAL_DIFF_SUPPORT, _V68_V73_DOGFOOD],
+                    observed_difference_posture="variants_complementary_on_axis",
+                    contradiction_refs=[],
+                    complementarity_refs=["complementarity:v74b:high-operational-xhigh-envelope"],
+                    exception_refs=[],
+                    confidence_posture="moderate_with_limitations",
+                    non_benchmark_guardrail=(
+                        "This axis is bounded comparison only, not benchmark truth and no model "
+                        "selection."
+                    ),
+                    limitation_note=(
+                        "Authority-boundary difference is visible for operator review only."
+                    ),
+                ),
+                RepoComparisonAxisRow(
+                    axis_ref="axis:v74b:self-evidencing:operator-legibility",
+                    axis_kind="operator_legibility",
+                    bounded_claim_horizon=(
+                        "Bounded to operator legibility of the existing V68-V73 dogfood and "
+                        "conceptual-diff support artifacts."
+                    ),
+                    axis_source_refs=[_CONCEPTUAL_DIFF_SUPPORT],
+                    observed_difference_posture="axis_unchecked",
+                    contradiction_refs=[],
+                    complementarity_refs=[],
+                    exception_refs=["exception:v74b:comparison-axis:operator-legibility-unchecked"],
+                    confidence_posture="low_or_inconclusive",
+                    non_benchmark_guardrail=(
+                        "This unchecked axis is bounded comparison only, not benchmark truth "
+                        "and no model selection."
+                    ),
+                    limitation_note="Operator legibility needs later visibility-contract review.",
+                ),
+            ],
+            contradiction_refs=[],
+            complementarity_refs=["complementarity:v74b:high-operational-xhigh-envelope"],
+            exception_refs=["exception:v74b:comparison-axis:operator-legibility-unchecked"],
+            comparison_projection_posture="blocked_by_unresolved_conflict",
+            non_benchmark_guardrail=(
+                "The model-output comparison is bounded to fixed sources, not benchmark truth "
+                "and no model selection."
+            ),
+            limitation_note=(
+                "Comparison projection is visible for later review only with no ratification, "
+                "no product authority, no release authority, no runtime permission, and no "
+                "dispatch."
+            ),
+        )
+    ]
+    payload = {
+        "schema": REPO_MODEL_OUTPUT_COMPARISON_PROJECTION_SCHEMA,
+        "review_id": typed_case_view.review_id,
+        "snapshot_id": typed_case_view.snapshot_id,
+        "source_set_id": typed_case_view.source_set_id,
+        "typed_adjudication_case_view_id": typed_case_view.typed_adjudication_case_view_id,
+        "comparison_projection_rows": [
+            row.model_dump(mode="json")
+            for row in sorted(rows, key=lambda row: row.comparison_projection_ref)
+        ],
+        "comparison_boundary_summary": (
+            "Model-output comparison projection is bounded, not benchmark truth, no model "
+            "selection, and no dispatch authority."
+        ),
+    }
+    payload["model_output_comparison_projection_id"] = _surface_id(
+        "repo_model_output_comparison_projection",
+        REPO_MODEL_OUTPUT_COMPARISON_PROJECTION_SCHEMA,
+        payload,
+        "model_output_comparison_projection_id",
+    )
+    return RepoModelOutputComparisonProjection.model_validate(payload)
+
+
+def derive_v74b_repo_projection_exception_visibility_register(
+    *,
+    repo_root: Path,
+    operator_projection_case_view: RepoOperatorProjectionCaseView | None = None,
+    typed_adjudication_case_view: RepoTypedAdjudicationCaseView | None = None,
+    model_output_comparison_projection: RepoModelOutputComparisonProjection | None = None,
+) -> RepoProjectionExceptionVisibilityRegister:
+    case_view = operator_projection_case_view or derive_v74a_repo_operator_projection_case_view(
+        repo_root=repo_root
+    )
+    typed_case_view = typed_adjudication_case_view or derive_v74b_repo_typed_adjudication_case_view(
+        repo_root=repo_root,
+        operator_projection_case_view=case_view,
+    )
+    comparison_projection = (
+        model_output_comparison_projection
+        or derive_v74b_repo_model_output_comparison_projection(
+            repo_root=repo_root,
+            typed_adjudication_case_view=typed_case_view,
+        )
+    )
+    rows = [
+        RepoProjectionExceptionVisibilityRow(
+            exception_ref="exception:v74b:comparison-axis:operator-legibility-unchecked",
+            case_view_refs=["case-view:v74a:self-evidencing:operator-projection"],
+            typed_case_refs=["typed-case:v74b:self-evidencing:conceptual-diff"],
+            comparison_projection_refs=[
+                "comparison-projection:v74b:self-evidencing:model-output-comparison"
+            ],
+            candidate_refs=["candidate:internal:self_evidencing_workflow_type_emergence"],
+            exception_kind="comparison_axis_unchecked",
+            source_refs=[_CONCEPTUAL_DIFF_SUPPORT],
+            visible_decision_state="recommended_more_evidence",
+            blocking_posture="warning_only",
+            required_next_surface="v74c_visibility_contract",
+            limitation_note=("Operator-legibility axis remains visible and not resolved by V74-B."),
+        ),
+        RepoProjectionExceptionVisibilityRow(
+            exception_ref="blocker:v74a:product-wedge:product-authority-gap",
+            case_view_refs=["case-view:v74a:product-wedge:future-family"],
+            typed_case_refs=["typed-case:v74b:product-wedge:authority-gap"],
+            comparison_projection_refs=[],
+            candidate_refs=["candidate:internal:typed_adjudication_product_wedge"],
+            exception_kind="product_authority_missing",
+            source_refs=[_PRODUCT_WEDGE_SUPPORT],
+            visible_decision_state="blocked_pending_authority",
+            blocking_posture="blocking",
+            required_next_surface="future_product_review",
+            limitation_note=("Product authority gap remains visible and not resolved by V74-B."),
+        ),
+    ]
+    payload = {
+        "schema": REPO_PROJECTION_EXCEPTION_VISIBILITY_REGISTER_SCHEMA,
+        "review_id": typed_case_view.review_id,
+        "snapshot_id": typed_case_view.snapshot_id,
+        "source_set_id": typed_case_view.source_set_id,
+        "operator_projection_case_view_id": case_view.operator_projection_case_view_id,
+        "typed_adjudication_case_view_id": typed_case_view.typed_adjudication_case_view_id,
+        "model_output_comparison_projection_id": (
+            comparison_projection.model_output_comparison_projection_id
+        ),
+        "exception_rows": [
+            row.model_dump(mode="json") for row in sorted(rows, key=lambda row: row.exception_ref)
+        ],
+        "exception_visibility_summary": (
+            "Exceptions remain visible and not resolved by V74-B: no product authorization, "
+            "no release authority, and no dispatch authority."
+        ),
+    }
+    payload["projection_exception_visibility_register_id"] = _surface_id(
+        "repo_projection_exception_visibility_register",
+        REPO_PROJECTION_EXCEPTION_VISIBILITY_REGISTER_SCHEMA,
+        payload,
+        "projection_exception_visibility_register_id",
+    )
+    return RepoProjectionExceptionVisibilityRegister.model_validate(payload)
+
+
+def validate_v74b_operator_projection_bundle(
+    *,
+    operator_projection_source_index: RepoOperatorProjectionSourceIndex,
+    operator_projection_case_view: RepoOperatorProjectionCaseView,
+    operator_projection_non_authority_guardrail: RepoOperatorProjectionNonAuthorityGuardrail,
+    typed_adjudication_case_view: RepoTypedAdjudicationCaseView,
+    model_output_comparison_projection: RepoModelOutputComparisonProjection,
+    projection_exception_visibility_register: RepoProjectionExceptionVisibilityRegister,
+) -> None:
+    if (
+        typed_adjudication_case_view.operator_projection_case_view_id
+        != operator_projection_case_view.operator_projection_case_view_id
+    ):
+        raise ValueError("typed adjudication cases must reference released V74-A case view")
+    if (
+        model_output_comparison_projection.typed_adjudication_case_view_id
+        != typed_adjudication_case_view.typed_adjudication_case_view_id
+    ):
+        raise ValueError("comparison projection must reference typed adjudication case view")
+    if (
+        projection_exception_visibility_register.operator_projection_case_view_id
+        != operator_projection_case_view.operator_projection_case_view_id
+        or projection_exception_visibility_register.typed_adjudication_case_view_id
+        != typed_adjudication_case_view.typed_adjudication_case_view_id
+        or projection_exception_visibility_register.model_output_comparison_projection_id
+        != model_output_comparison_projection.model_output_comparison_projection_id
+    ):
+        raise ValueError("exception visibility register must reference V74-B surfaces")
+    if not (
+        typed_adjudication_case_view.review_id
+        == model_output_comparison_projection.review_id
+        == projection_exception_visibility_register.review_id
+        and typed_adjudication_case_view.snapshot_id
+        == model_output_comparison_projection.snapshot_id
+        == projection_exception_visibility_register.snapshot_id
+        and typed_adjudication_case_view.source_set_id
+        == model_output_comparison_projection.source_set_id
+        == projection_exception_visibility_register.source_set_id
+    ):
+        raise ValueError("V74-B review_id, snapshot_id, and source_set_id must match")
+
+    known_source_refs = {row.source_ref for row in operator_projection_source_index.source_rows} | {
+        _CONCEPTUAL_DIFF_SUPPORT,
+        _CONCEPTUAL_DIFF_SCHEMA_SUPPORT,
+    }
+    case_rows = {row.case_view_ref: row for row in operator_projection_case_view.case_view_rows}
+    guardrail_rows = {
+        row.guardrail_ref: row for row in operator_projection_non_authority_guardrail.guardrail_rows
+    }
+    typed_case_rows = {
+        row.typed_case_ref: row for row in typed_adjudication_case_view.typed_case_rows
+    }
+    comparison_rows = {
+        row.comparison_projection_ref: row
+        for row in model_output_comparison_projection.comparison_projection_rows
+    }
+    exception_rows = {
+        row.exception_ref: row for row in projection_exception_visibility_register.exception_rows
+    }
+
+    for typed_case in typed_adjudication_case_view.typed_case_rows:
+        for case_ref in typed_case.source_case_view_refs:
+            case = case_rows.get(case_ref)
+            if case is None:
+                raise ValueError("typed adjudication cases must reference known V74-A case views")
+            if not set(typed_case.candidate_refs) <= {case.candidate_ref}:
+                raise ValueError("typed case candidate refs must match source case candidates")
+        for guardrail_ref in typed_case.guardrail_refs:
+            if guardrail_ref not in guardrail_rows:
+                raise ValueError("typed cases must reference known V74-A guardrails")
+        for exception_ref in typed_case.exception_refs:
+            if exception_ref not in exception_rows:
+                raise ValueError("typed case exception refs must be visible exception rows")
+        for comparison_ref in typed_case.comparison_projection_refs:
+            if comparison_ref not in comparison_rows:
+                raise ValueError("typed case comparison refs must reference comparison rows")
+        if "candidate:internal:typed_adjudication_product_wedge" in typed_case.candidate_refs:
+            if not any(
+                exception_rows[exception_ref].exception_kind == "product_authority_missing"
+                for exception_ref in typed_case.exception_refs
+                if exception_ref in exception_rows
+            ):
+                raise ValueError("product wedge typed cases require product authority exception")
+
+    for comparison in model_output_comparison_projection.comparison_projection_rows:
+        typed_case = typed_case_rows.get(comparison.typed_case_ref)
+        if typed_case is None:
+            raise ValueError("comparison projection must reference known typed cases")
+        for source_ref in comparison.prompt_source_refs + comparison.adjudicator_schema_refs:
+            if source_ref not in known_source_refs:
+                raise ValueError("comparison projection source refs must be known")
+        for axis in comparison.comparison_axis_rows:
+            missing_axis_sources = sorted(set(axis.axis_source_refs) - known_source_refs)
+            if missing_axis_sources:
+                raise ValueError(
+                    f"comparison axis source refs must be known: {missing_axis_sources}"
+                )
+            for exception_ref in axis.exception_refs:
+                if exception_ref not in exception_rows:
+                    raise ValueError("comparison axis exception refs must be visible")
+        for exception_ref in comparison.exception_refs:
+            if exception_ref not in exception_rows:
+                raise ValueError("comparison exception refs must be visible")
+        if any(
+            "global" in axis.bounded_claim_horizon.lower()
+            for axis in comparison.comparison_axis_rows
+        ):
+            raise ValueError("comparison axes must not claim global model ranking")
+
+    for exception in projection_exception_visibility_register.exception_rows:
+        missing_exception_sources = sorted(set(exception.source_refs) - known_source_refs)
+        if missing_exception_sources:
+            raise ValueError(
+                f"exception visibility source refs must be known: {missing_exception_sources}"
+            )
+        for case_ref in exception.case_view_refs:
+            if case_ref not in case_rows:
+                raise ValueError("exception case refs must reference known V74-A cases")
+        for typed_case_ref in exception.typed_case_refs:
+            if typed_case_ref not in typed_case_rows:
+                raise ValueError("exception typed case refs must reference known typed cases")
+        for comparison_ref in exception.comparison_projection_refs:
+            if comparison_ref not in comparison_rows:
+                raise ValueError("exception comparison refs must reference known comparisons")
+
+    v74a_exception_refs = {
+        exception_ref
+        for case in operator_projection_case_view.case_view_rows
+        for exception_ref in case.exception_refs
+    }
+    missing_v74a_exceptions = sorted(v74a_exception_refs - set(exception_rows))
+    if missing_v74a_exceptions:
+        raise ValueError(
+            f"known V74-A exceptions must remain visible in V74-B: {missing_v74a_exceptions}"
+        )
+
+
+def derive_v74b_operator_projection_bundle(
+    *,
+    repo_root: Path,
+) -> tuple[
+    RepoOperatorProjectionSourceIndex,
+    RepoOperatorProjectionCaseView,
+    RepoOperatorProjectionNonAuthorityGuardrail,
+    RepoTypedAdjudicationCaseView,
+    RepoModelOutputComparisonProjection,
+    RepoProjectionExceptionVisibilityRegister,
+]:
+    *_, source_index, case_view, guardrail = derive_v74a_operator_projection_bundle(
+        repo_root=repo_root
+    )
+    typed_case = derive_v74b_repo_typed_adjudication_case_view(
+        repo_root=repo_root,
+        operator_projection_case_view=case_view,
+    )
+    comparison_projection = derive_v74b_repo_model_output_comparison_projection(
+        repo_root=repo_root,
+        typed_adjudication_case_view=typed_case,
+    )
+    exception_register = derive_v74b_repo_projection_exception_visibility_register(
+        repo_root=repo_root,
+        operator_projection_case_view=case_view,
+        typed_adjudication_case_view=typed_case,
+        model_output_comparison_projection=comparison_projection,
+    )
+    validate_v74b_operator_projection_bundle(
+        operator_projection_source_index=source_index,
+        operator_projection_case_view=case_view,
+        operator_projection_non_authority_guardrail=guardrail,
+        typed_adjudication_case_view=typed_case,
+        model_output_comparison_projection=comparison_projection,
+        projection_exception_visibility_register=exception_register,
+    )
+    return (
+        source_index,
+        case_view,
+        guardrail,
+        typed_case,
+        comparison_projection,
+        exception_register,
     )
