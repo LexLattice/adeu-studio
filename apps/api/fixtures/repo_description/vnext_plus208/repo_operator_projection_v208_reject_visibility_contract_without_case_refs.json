@@ -1,0 +1,134 @@
+{
+  "decision_visibility_contract_id": "repo_decision_visibility_contract_6ebf065340c94163f319e10a",
+  "decision_visibility_summary": "Decision visibility contract is visibility only: no ratification, no product authorization, no release authority, no runtime permission, and no dispatch.",
+  "operator_projection_case_view_id": "repo_operator_projection_case_view_ede72a38ad769c9142e33026",
+  "projection_exception_visibility_register_id": "repo_projection_exception_visibility_register_bdcbdcd41bb740cdeceeb851",
+  "review_id": "review:v74b:typed-adjudication-projection",
+  "schema": "repo_decision_visibility_contract@1",
+  "snapshot_id": "vNext+207-prestart-on-main",
+  "source_set_id": "source-set:v74a:released-v73c-projection",
+  "typed_adjudication_case_view_id": "repo_typed_adjudication_case_view_e3c25e5d947e1ed831291f1e",
+  "visibility_contract_rows": [
+    {
+      "case_view_refs": [],
+      "contract_posture": "blocked_by_authority_boundary",
+      "exception_refs": [
+        "blocker:v74a:product-wedge:product-authority-gap"
+      ],
+      "limitation_note": "Product-pressure visibility is blocked by product authority gap with no product authority, no release authority, no runtime permission, and no dispatch.",
+      "non_derivable_authority_kinds": [
+        "dispatch_authority",
+        "product_selection",
+        "release_truth",
+        "runtime_permission"
+      ],
+      "operator_action_postures": [
+        "inspect_only",
+        "request_later_review_only"
+      ],
+      "required_later_authority": [
+        "product_authority_required"
+      ],
+      "required_later_authority_rows": [
+        {
+          "authority_kind": "product_authority_required",
+          "authority_requirement_ref": "authority:v74c:product-wedge:product-review",
+          "authority_source_refs": [
+            "docs/LOCKED_CONTINUATION_vNEXT_PLUS208.md",
+            "docs/support/arc_series_mapping/DRAFT_ADEU_TYPED_ADJUDICATION_PRODUCT_WEDGE_v0.md"
+          ],
+          "limitation_note": "Product authority remains required before any later product review.",
+          "required_before_action": "before_product_review",
+          "source_presence_posture": "present"
+        }
+      ],
+      "typed_case_refs": [
+        "typed-case:v74b:product-wedge:authority-gap"
+      ],
+      "visibility_contract_ref": "visibility-contract:v74c:product-wedge:authority-gap",
+      "visibility_obligation_kinds": [
+        "no_hidden_authority_boundary",
+        "no_hidden_dissent",
+        "no_hidden_product_authority_gap",
+        "no_hidden_regression",
+        "no_hidden_runtime_or_dispatch_gap",
+        "no_hidden_source_status"
+      ],
+      "visible_decision_state": "blocked_pending_authority",
+      "visible_exception_refs": [
+        "blocker:v74a:product-wedge:product-authority-gap"
+      ],
+      "visible_source_refs": [
+        "artifacts/agent_harness/v207/evidence_inputs/v74b_operator_projection_evidence_v207.json",
+        "docs/support/arc_series_mapping/DRAFT_ADEU_TYPED_ADJUDICATION_PRODUCT_WEDGE_v0.md"
+      ]
+    },
+    {
+      "case_view_refs": [
+        "case-view:v74a:self-evidencing:operator-projection"
+      ],
+      "contract_posture": "visibility_contract_ready",
+      "exception_refs": [
+        "exception:v74b:comparison-axis:operator-legibility-unchecked"
+      ],
+      "limitation_note": "Decision visibility contract is visibility only for later review with no ratification, no product authority, no release authority, no runtime permission, and no dispatch.",
+      "non_derivable_authority_kinds": [
+        "dispatch_authority",
+        "product_selection",
+        "release_truth",
+        "runtime_permission"
+      ],
+      "operator_action_postures": [
+        "inspect_only",
+        "request_later_review_only"
+      ],
+      "required_later_authority": [
+        "dispatch_authority_required",
+        "human_ratification_required"
+      ],
+      "required_later_authority_rows": [
+        {
+          "authority_kind": "dispatch_authority_required",
+          "authority_requirement_ref": "authority:v74c:self-evidencing:dispatch-review",
+          "authority_source_refs": [
+            "docs/LOCKED_CONTINUATION_vNEXT_PLUS208.md"
+          ],
+          "limitation_note": "Dispatch authority remains required before any later dispatch review.",
+          "required_before_action": "before_dispatch_review",
+          "source_presence_posture": "present"
+        },
+        {
+          "authority_kind": "human_ratification_required",
+          "authority_requirement_ref": "authority:v74c:self-evidencing:human-ratification",
+          "authority_source_refs": [
+            "docs/LOCKED_CONTINUATION_vNEXT_PLUS208.md"
+          ],
+          "limitation_note": "Human ratification remains required before later review action.",
+          "required_before_action": "before_ratification_review",
+          "source_presence_posture": "present"
+        }
+      ],
+      "typed_case_refs": [
+        "typed-case:v74b:self-evidencing:conceptual-diff"
+      ],
+      "visibility_contract_ref": "visibility-contract:v74c:self-evidencing:operator-review",
+      "visibility_obligation_kinds": [
+        "no_hidden_authority_boundary",
+        "no_hidden_dissent",
+        "no_hidden_product_authority_gap",
+        "no_hidden_regression",
+        "no_hidden_runtime_or_dispatch_gap",
+        "no_hidden_source_status"
+      ],
+      "visible_decision_state": "recommended_more_evidence",
+      "visible_exception_refs": [
+        "exception:v74b:comparison-axis:operator-legibility-unchecked"
+      ],
+      "visible_source_refs": [
+        "artifacts/agent_harness/v206/evidence_inputs/v74a_operator_projection_evidence_v206.json",
+        "artifacts/agent_harness/v207/evidence_inputs/v74b_operator_projection_evidence_v207.json",
+        "docs/support/arc_series_mapping/DRAFT_ARC_SERIES_ODEU_CONCEPTUAL_DIFF_v0.report.json"
+      ]
+    }
+  ]
+}

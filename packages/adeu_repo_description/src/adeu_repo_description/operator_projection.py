@@ -38,6 +38,14 @@ REPO_MODEL_OUTPUT_COMPARISON_PROJECTION_SCHEMA = "repo_model_output_comparison_p
 REPO_PROJECTION_EXCEPTION_VISIBILITY_REGISTER_SCHEMA = (
     "repo_projection_exception_visibility_register@1"
 )
+REPO_DECISION_VISIBILITY_CONTRACT_SCHEMA = "repo_decision_visibility_contract@1"
+REPO_RATIFICATION_REVIEW_WORKBENCH_PROJECTION_SCHEMA = (
+    "repo_ratification_review_workbench_projection@1"
+)
+REPO_POST_PROJECTION_HANDOFF_SCHEMA = "repo_post_projection_handoff@1"
+REPO_OPERATOR_PROJECTION_FAMILY_CLOSEOUT_ALIGNMENT_SCHEMA = (
+    "repo_operator_projection_family_closeout_alignment@1"
+)
 
 ProjectionCaseKind = Literal[
     "self_improvement_outcome_case",
@@ -156,6 +164,70 @@ ProjectionRequiredLaterAuthority = Literal[
     "external_contest_authority_required",
     "none_selected_here",
 ]
+VisibilityObligationKind = Literal[
+    "no_hidden_source_status",
+    "no_hidden_authority_boundary",
+    "no_hidden_regression",
+    "no_hidden_dissent",
+    "no_hidden_product_authority_gap",
+    "no_hidden_runtime_or_dispatch_gap",
+]
+NonDerivableAuthorityKind = Literal[
+    "release_truth",
+    "product_selection",
+    "runtime_permission",
+    "dispatch_authority",
+]
+DecisionVisibilityContractPosture = Literal[
+    "visibility_contract_ready",
+    "blocked_by_missing_case_view",
+    "blocked_by_hidden_required_exception",
+    "blocked_by_authority_boundary",
+    "future_family_only",
+    "rejected_out_of_scope",
+]
+RequiredBeforeAction = Literal[
+    "before_ratification_review",
+    "before_product_review",
+    "before_runtime_review",
+    "before_dispatch_review",
+    "before_release_review",
+    "not_selected_here",
+]
+ForbiddenOperatorActionPosture = Literal[
+    "ratify_now",
+    "adopt_now",
+    "implement_now",
+    "commit_now",
+    "merge_now",
+    "release_now",
+    "authorize_product_now",
+    "grant_runtime_permission_now",
+    "dispatch_now",
+    "enter_external_contest_now",
+]
+WorkbenchProjectionPosture = Literal[
+    "projection_ready_for_operator_review",
+    "blocked_by_missing_visibility_contract",
+    "blocked_by_unresolved_exception",
+    "blocked_by_authority_boundary",
+    "future_family_only",
+    "rejected_out_of_scope",
+]
+PostProjectionHandoffTarget = Literal[
+    "v75_dispatch_review",
+    "future_product_review",
+    "future_ratification_or_policy_review",
+    "future_family_review",
+    "deferred_no_selection",
+]
+PostProjectionHandoffPosture = Literal[
+    "ready_for_later_review",
+    "blocked_by_unresolved_exception",
+    "blocked_by_authority_boundary",
+    "deferred_to_future_family",
+    "rejected_out_of_scope",
+]
 TypedAdjudicationCasePosture = Literal[
     "projection_ready",
     "blocked_by_missing_conceptual_diff_source",
@@ -250,6 +322,15 @@ _CONCEPTUAL_DIFF_SUPPORT = (
 _CONCEPTUAL_DIFF_SCHEMA_SUPPORT = (
     "docs/support/arc_series_mapping/odeu_conceptual_diff_report.schema.json"
 )
+_V74A_CLOSEOUT_EVIDENCE = (
+    "artifacts/agent_harness/v206/evidence_inputs/v74a_operator_projection_evidence_v206.json"
+)
+_V74B_CLOSEOUT_EVIDENCE = (
+    "artifacts/agent_harness/v207/evidence_inputs/v74b_operator_projection_evidence_v207.json"
+)
+_V74A_LOCK = "docs/LOCKED_CONTINUATION_vNEXT_PLUS206.md"
+_V74B_LOCK = "docs/LOCKED_CONTINUATION_vNEXT_PLUS207.md"
+_V74C_LOCK = "docs/LOCKED_CONTINUATION_vNEXT_PLUS208.md"
 
 _REQUIRED_FORBIDDEN_PROJECTION_AUTHORITIES = {
     "ratification_authority",
@@ -292,6 +373,48 @@ _FORBIDDEN_V74B_AUTHORITY_PHRASES = _FORBIDDEN_AUTHORITY_PHRASES + (
     "exception resolved",
     "resolved exception",
 )
+_FORBIDDEN_V74C_AUTHORITY_PHRASES = _FORBIDDEN_V74B_AUTHORITY_PHRASES + (
+    "ratify now",
+    "adopt now",
+    "implement now",
+    "commit now",
+    "merge now",
+    "release now",
+    "authorize product now",
+    "grant runtime permission now",
+    "dispatch now",
+    "enter external contest now",
+    "product selected",
+    "product-selected",
+    "dispatch performed",
+    "dispatch ready",
+)
+_REQUIRED_VISIBILITY_OBLIGATIONS = {
+    "no_hidden_source_status",
+    "no_hidden_authority_boundary",
+    "no_hidden_regression",
+    "no_hidden_dissent",
+    "no_hidden_product_authority_gap",
+    "no_hidden_runtime_or_dispatch_gap",
+}
+_REQUIRED_NON_DERIVABLE_AUTHORITIES = {
+    "release_truth",
+    "product_selection",
+    "runtime_permission",
+    "dispatch_authority",
+}
+_REQUIRED_FORBIDDEN_OPERATOR_ACTIONS = {
+    "ratify_now",
+    "adopt_now",
+    "implement_now",
+    "commit_now",
+    "merge_now",
+    "release_now",
+    "authorize_product_now",
+    "grant_runtime_permission_now",
+    "dispatch_now",
+    "enter_external_contest_now",
+}
 
 
 def _has_unnegated_phrase(value: str, phrase: str) -> bool:
@@ -746,6 +869,23 @@ def _v74b_required_summary(value: str, *, field_name: str, required: tuple[str, 
     return normalized
 
 
+def _v74c_note(value: str, *, field_name: str) -> str:
+    normalized = _v74b_note(value, field_name=field_name)
+    for phrase in _FORBIDDEN_V74C_AUTHORITY_PHRASES:
+        if _has_unnegated_phrase(normalized, phrase):
+            raise ValueError(f"{field_name} may not carry workbench or handoff authority")
+    return normalized
+
+
+def _v74c_required_summary(value: str, *, field_name: str, required: tuple[str, ...]) -> str:
+    normalized = _v74c_note(value, field_name=field_name)
+    lowered = normalized.lower()
+    missing = [phrase for phrase in required if phrase not in lowered]
+    if missing:
+        raise ValueError(f"{field_name} must state {', '.join(missing)}")
+    return normalized
+
+
 class RepoTypedAdjudicationCaseViewRow(_CartographyBase):
     typed_case_ref: str
     source_case_view_refs: list[str] = Field(min_length=1)
@@ -1184,6 +1324,550 @@ class RepoProjectionExceptionVisibilityRegister(_CartographyBase):
             raise ValueError(
                 "projection_exception_visibility_register_id must match canonical full payload "
                 "hash identity"
+            )
+        return self
+
+
+class RepoProjectionLaterAuthorityRequirementRow(_CartographyBase):
+    authority_requirement_ref: str
+    authority_kind: ProjectionRequiredLaterAuthority
+    authority_source_refs: list[str] = Field(min_length=1)
+    source_presence_posture: CandidateSourcePresencePosture
+    required_before_action: RequiredBeforeAction
+    limitation_note: str
+
+    @model_validator(mode="after")
+    def _validate_later_authority_requirement(
+        self,
+    ) -> RepoProjectionLaterAuthorityRequirementRow:
+        object.__setattr__(
+            self,
+            "authority_requirement_ref",
+            _non_empty(self.authority_requirement_ref, field_name="authority_requirement_ref"),
+        )
+        object.__setattr__(
+            self,
+            "authority_source_refs",
+            _sorted_unique(self.authority_source_refs, field_name="authority_source_refs"),
+        )
+        object.__setattr__(
+            self, "limitation_note", _v74c_note(self.limitation_note, field_name="limitation_note")
+        )
+        if self.authority_kind == "none_selected_here":
+            raise ValueError("later-authority requirement rows cannot use none_selected_here")
+        if (
+            self.source_presence_posture == "present"
+            and not self.authority_source_refs
+        ):
+            raise ValueError("present authority requirements require source refs")
+        if (
+            self.authority_kind == "dispatch_authority_required"
+            and self.required_before_action != "before_dispatch_review"
+        ):
+            raise ValueError(
+                "dispatch authority requirements must be required before dispatch review"
+            )
+        if (
+            self.authority_kind == "product_authority_required"
+            and self.required_before_action != "before_product_review"
+        ):
+            raise ValueError(
+                "product authority requirements must be required before product review"
+            )
+        return self
+
+
+class RepoDecisionVisibilityContractRow(_CartographyBase):
+    visibility_contract_ref: str
+    case_view_refs: list[str] = Field(min_length=1)
+    typed_case_refs: list[str] = Field(min_length=1)
+    exception_refs: list[str] = Field(default_factory=list)
+    visible_decision_state: VisibleDecisionState
+    visible_source_refs: list[str] = Field(min_length=1)
+    visible_exception_refs: list[str] = Field(default_factory=list)
+    visibility_obligation_kinds: list[VisibilityObligationKind] = Field(min_length=1)
+    non_derivable_authority_kinds: list[NonDerivableAuthorityKind] = Field(min_length=1)
+    operator_action_postures: list[OperatorActionPosture] = Field(min_length=1)
+    required_later_authority: list[ProjectionRequiredLaterAuthority] = Field(min_length=1)
+    required_later_authority_rows: list[RepoProjectionLaterAuthorityRequirementRow] = Field(
+        min_length=1
+    )
+    contract_posture: DecisionVisibilityContractPosture
+    limitation_note: str
+
+    @model_validator(mode="after")
+    def _validate_decision_visibility_contract_row(self) -> RepoDecisionVisibilityContractRow:
+        object.__setattr__(
+            self,
+            "visibility_contract_ref",
+            _non_empty(self.visibility_contract_ref, field_name="visibility_contract_ref"),
+        )
+        for field_name in (
+            "case_view_refs",
+            "typed_case_refs",
+            "exception_refs",
+            "visible_source_refs",
+            "visible_exception_refs",
+            "visibility_obligation_kinds",
+            "non_derivable_authority_kinds",
+            "operator_action_postures",
+            "required_later_authority",
+        ):
+            object.__setattr__(
+                self,
+                field_name,
+                _sorted_unique(getattr(self, field_name), field_name=field_name),
+            )
+        object.__setattr__(
+            self,
+            "required_later_authority_rows",
+            _sorted_unique_by_ref(
+                self.required_later_authority_rows,
+                attr="authority_requirement_ref",
+                field_name="required_later_authority_rows",
+            ),
+        )
+        object.__setattr__(
+            self, "limitation_note", _v74c_note(self.limitation_note, field_name="limitation_note")
+        )
+        missing_obligations = sorted(
+            _REQUIRED_VISIBILITY_OBLIGATIONS - set(self.visibility_obligation_kinds)
+        )
+        if missing_obligations:
+            raise ValueError(f"visibility obligations must remain visible: {missing_obligations}")
+        missing_non_derivable = sorted(
+            _REQUIRED_NON_DERIVABLE_AUTHORITIES - set(self.non_derivable_authority_kinds)
+        )
+        if missing_non_derivable:
+            raise ValueError(
+                f"non-derivable authority kinds must remain separate: {missing_non_derivable}"
+            )
+        if set(self.exception_refs) - set(self.visible_exception_refs):
+            raise ValueError("contract exception_refs must remain visible_exception_refs")
+        authority_kinds = {row.authority_kind for row in self.required_later_authority_rows}
+        missing_authority_rows = sorted(set(self.required_later_authority) - authority_kinds)
+        if missing_authority_rows:
+            raise ValueError(
+                f"required later authority must resolve through rows: {missing_authority_rows}"
+            )
+        extra_authority_rows = sorted(authority_kinds - set(self.required_later_authority))
+        if extra_authority_rows:
+            raise ValueError(
+                f"required later authority rows must be listed: {extra_authority_rows}"
+            )
+        if self.visible_decision_state == "blocked_pending_authority" and not self.exception_refs:
+            raise ValueError("authority-blocked visibility contracts require exception refs")
+        if self.contract_posture == "visibility_contract_ready" and (
+            self.visible_decision_state in {
+                "blocked_pending_authority",
+                "blocked_pending_evidence",
+                "blocked_pending_dissent_resolution",
+            }
+        ):
+            raise ValueError("ready visibility contracts cannot carry blocked decision states")
+        return self
+
+
+class RepoDecisionVisibilityContract(_CartographyBase):
+    schema: Literal["repo_decision_visibility_contract@1"] = (
+        REPO_DECISION_VISIBILITY_CONTRACT_SCHEMA
+    )
+    decision_visibility_contract_id: str
+    review_id: str
+    snapshot_id: str
+    source_set_id: str
+    operator_projection_case_view_id: str
+    typed_adjudication_case_view_id: str
+    projection_exception_visibility_register_id: str
+    visibility_contract_rows: list[RepoDecisionVisibilityContractRow] = Field(min_length=1)
+    decision_visibility_summary: str
+
+    @model_validator(mode="after")
+    def _validate_decision_visibility_contract(self) -> RepoDecisionVisibilityContract:
+        for field_name in (
+            "decision_visibility_contract_id",
+            "review_id",
+            "snapshot_id",
+            "source_set_id",
+            "operator_projection_case_view_id",
+            "typed_adjudication_case_view_id",
+            "projection_exception_visibility_register_id",
+        ):
+            object.__setattr__(
+                self, field_name, _non_empty(getattr(self, field_name), field_name=field_name)
+            )
+        object.__setattr__(
+            self,
+            "visibility_contract_rows",
+            _sorted_unique_by_ref(
+                self.visibility_contract_rows,
+                attr="visibility_contract_ref",
+                field_name="visibility_contract_rows",
+            ),
+        )
+        object.__setattr__(
+            self,
+            "decision_visibility_summary",
+            _v74c_required_summary(
+                self.decision_visibility_summary,
+                field_name="decision_visibility_summary",
+                required=(
+                    "visibility only",
+                    "no ratification",
+                    "no product",
+                    "no release",
+                    "no runtime",
+                    "no dispatch",
+                ),
+            ),
+        )
+        expected_id = _surface_id(
+            "repo_decision_visibility_contract",
+            REPO_DECISION_VISIBILITY_CONTRACT_SCHEMA,
+            self.model_dump(mode="json"),
+            "decision_visibility_contract_id",
+        )
+        if self.decision_visibility_contract_id != expected_id:
+            raise ValueError(
+                "decision_visibility_contract_id must match canonical full payload hash identity"
+            )
+        return self
+
+
+class RepoRatificationReviewWorkbenchProjectionRow(_CartographyBase):
+    workbench_projection_ref: str
+    visibility_contract_refs: list[str] = Field(min_length=1)
+    case_view_refs: list[str] = Field(min_length=1)
+    candidate_refs: list[str] = Field(min_length=1)
+    ratification_refs: list[str] = Field(default_factory=list)
+    recommendation_refs: list[str] = Field(default_factory=list)
+    exception_refs: list[str] = Field(default_factory=list)
+    permitted_operator_action_postures: list[OperatorActionPosture] = Field(min_length=1)
+    forbidden_operator_action_postures: list[ForbiddenOperatorActionPosture] = Field(min_length=1)
+    required_later_authority: list[ProjectionRequiredLaterAuthority] = Field(min_length=1)
+    required_later_authority_rows: list[RepoProjectionLaterAuthorityRequirementRow] = Field(
+        min_length=1
+    )
+    workbench_projection_posture: WorkbenchProjectionPosture
+    limitation_note: str
+
+    @model_validator(mode="after")
+    def _validate_workbench_projection_row(self) -> RepoRatificationReviewWorkbenchProjectionRow:
+        object.__setattr__(
+            self,
+            "workbench_projection_ref",
+            _non_empty(self.workbench_projection_ref, field_name="workbench_projection_ref"),
+        )
+        for field_name in (
+            "visibility_contract_refs",
+            "case_view_refs",
+            "candidate_refs",
+            "ratification_refs",
+            "recommendation_refs",
+            "exception_refs",
+            "permitted_operator_action_postures",
+            "forbidden_operator_action_postures",
+            "required_later_authority",
+        ):
+            object.__setattr__(
+                self,
+                field_name,
+                _sorted_unique(getattr(self, field_name), field_name=field_name),
+            )
+        object.__setattr__(
+            self,
+            "required_later_authority_rows",
+            _sorted_unique_by_ref(
+                self.required_later_authority_rows,
+                attr="authority_requirement_ref",
+                field_name="required_later_authority_rows",
+            ),
+        )
+        object.__setattr__(
+            self, "limitation_note", _v74c_note(self.limitation_note, field_name="limitation_note")
+        )
+        missing_forbidden = sorted(
+            _REQUIRED_FORBIDDEN_OPERATOR_ACTIONS - set(self.forbidden_operator_action_postures)
+        )
+        if missing_forbidden:
+            raise ValueError(
+                f"workbench projection must forbid operator actions: {missing_forbidden}"
+            )
+        authority_kinds = {row.authority_kind for row in self.required_later_authority_rows}
+        missing_authority_rows = sorted(set(self.required_later_authority) - authority_kinds)
+        if missing_authority_rows:
+            raise ValueError(
+                f"workbench required authority must resolve through rows: {missing_authority_rows}"
+            )
+        extra_authority_rows = sorted(authority_kinds - set(self.required_later_authority))
+        if extra_authority_rows:
+            raise ValueError(
+                f"workbench required authority rows must be listed: {extra_authority_rows}"
+            )
+        if (
+            self.workbench_projection_posture == "projection_ready_for_operator_review"
+            and "request_later_review_only" not in self.permitted_operator_action_postures
+        ):
+            raise ValueError("ready workbench projections must permit later-review requests only")
+        if (
+            self.workbench_projection_posture == "blocked_by_unresolved_exception"
+            and not self.exception_refs
+        ):
+            raise ValueError("exception-blocked workbench projections require exception refs")
+        return self
+
+
+class RepoRatificationReviewWorkbenchProjection(_CartographyBase):
+    schema: Literal["repo_ratification_review_workbench_projection@1"] = (
+        REPO_RATIFICATION_REVIEW_WORKBENCH_PROJECTION_SCHEMA
+    )
+    ratification_review_workbench_projection_id: str
+    review_id: str
+    snapshot_id: str
+    source_set_id: str
+    decision_visibility_contract_id: str
+    workbench_projection_rows: list[RepoRatificationReviewWorkbenchProjectionRow] = Field(
+        min_length=1
+    )
+    workbench_boundary_summary: str
+
+    @model_validator(mode="after")
+    def _validate_workbench_projection(self) -> RepoRatificationReviewWorkbenchProjection:
+        for field_name in (
+            "ratification_review_workbench_projection_id",
+            "review_id",
+            "snapshot_id",
+            "source_set_id",
+            "decision_visibility_contract_id",
+        ):
+            object.__setattr__(
+                self, field_name, _non_empty(getattr(self, field_name), field_name=field_name)
+            )
+        object.__setattr__(
+            self,
+            "workbench_projection_rows",
+            _sorted_unique_by_ref(
+                self.workbench_projection_rows,
+                attr="workbench_projection_ref",
+                field_name="workbench_projection_rows",
+            ),
+        )
+        object.__setattr__(
+            self,
+            "workbench_boundary_summary",
+            _v74c_required_summary(
+                self.workbench_boundary_summary,
+                field_name="workbench_boundary_summary",
+                required=(
+                    "review visibility only",
+                    "no ratification",
+                    "no product",
+                    "no release",
+                    "no runtime",
+                    "no dispatch",
+                ),
+            ),
+        )
+        expected_id = _surface_id(
+            "repo_ratification_review_workbench_projection",
+            REPO_RATIFICATION_REVIEW_WORKBENCH_PROJECTION_SCHEMA,
+            self.model_dump(mode="json"),
+            "ratification_review_workbench_projection_id",
+        )
+        if self.ratification_review_workbench_projection_id != expected_id:
+            raise ValueError(
+                "ratification_review_workbench_projection_id must match canonical full payload "
+                "hash identity"
+            )
+        return self
+
+
+class RepoPostProjectionHandoffRow(_CartographyBase):
+    handoff_ref: str
+    visibility_contract_refs: list[str] = Field(min_length=1)
+    workbench_projection_refs: list[str] = Field(min_length=1)
+    candidate_refs: list[str] = Field(min_length=1)
+    handoff_target: PostProjectionHandoffTarget
+    handoff_posture: PostProjectionHandoffPosture
+    carried_exception_refs: list[str] = Field(default_factory=list)
+    required_later_authority: list[ProjectionRequiredLaterAuthority] = Field(min_length=1)
+    non_dispatch_guardrail: str
+    limitation_note: str
+
+    @model_validator(mode="after")
+    def _validate_post_projection_handoff_row(self) -> RepoPostProjectionHandoffRow:
+        object.__setattr__(
+            self, "handoff_ref", _non_empty(self.handoff_ref, field_name="handoff_ref")
+        )
+        for field_name in (
+            "visibility_contract_refs",
+            "workbench_projection_refs",
+            "candidate_refs",
+            "carried_exception_refs",
+            "required_later_authority",
+        ):
+            object.__setattr__(
+                self,
+                field_name,
+                _sorted_unique(getattr(self, field_name), field_name=field_name),
+            )
+        object.__setattr__(
+            self,
+            "non_dispatch_guardrail",
+            _v74c_required_summary(
+                self.non_dispatch_guardrail,
+                field_name="non_dispatch_guardrail",
+                required=("request", "later review", "no dispatch"),
+            ),
+        )
+        object.__setattr__(
+            self, "limitation_note", _v74c_note(self.limitation_note, field_name="limitation_note")
+        )
+        if self.handoff_target == "v75_dispatch_review":
+            if "dispatch_authority_required" not in self.required_later_authority:
+                raise ValueError("V75 handoff rows require dispatch authority requirement")
+            if not self.non_dispatch_guardrail:
+                raise ValueError("V75 handoff rows require non-dispatch guardrail")
+        if self.handoff_target == "future_product_review" and (
+            "product_authority_required" not in self.required_later_authority
+        ):
+            raise ValueError("future product handoff rows require product authority")
+        return self
+
+
+class RepoPostProjectionHandoff(_CartographyBase):
+    schema: Literal["repo_post_projection_handoff@1"] = REPO_POST_PROJECTION_HANDOFF_SCHEMA
+    post_projection_handoff_id: str
+    review_id: str
+    snapshot_id: str
+    source_set_id: str
+    decision_visibility_contract_id: str
+    ratification_review_workbench_projection_id: str
+    handoff_rows: list[RepoPostProjectionHandoffRow] = Field(min_length=1)
+    handoff_boundary_summary: str
+
+    @model_validator(mode="after")
+    def _validate_post_projection_handoff(self) -> RepoPostProjectionHandoff:
+        for field_name in (
+            "post_projection_handoff_id",
+            "review_id",
+            "snapshot_id",
+            "source_set_id",
+            "decision_visibility_contract_id",
+            "ratification_review_workbench_projection_id",
+        ):
+            object.__setattr__(
+                self, field_name, _non_empty(getattr(self, field_name), field_name=field_name)
+            )
+        object.__setattr__(
+            self,
+            "handoff_rows",
+            _sorted_unique_by_ref(self.handoff_rows, attr="handoff_ref", field_name="handoff_rows"),
+        )
+        object.__setattr__(
+            self,
+            "handoff_boundary_summary",
+            _v74c_required_summary(
+                self.handoff_boundary_summary,
+                field_name="handoff_boundary_summary",
+                required=("later review", "no dispatch", "no runtime", "no product", "no release"),
+            ),
+        )
+        expected_id = _surface_id(
+            "repo_post_projection_handoff",
+            REPO_POST_PROJECTION_HANDOFF_SCHEMA,
+            self.model_dump(mode="json"),
+            "post_projection_handoff_id",
+        )
+        if self.post_projection_handoff_id != expected_id:
+            raise ValueError(
+                "post_projection_handoff_id must match canonical full payload hash identity"
+            )
+        return self
+
+
+class RepoOperatorProjectionFamilyCloseoutAlignment(_CartographyBase):
+    schema: Literal["repo_operator_projection_family_closeout_alignment@1"] = (
+        REPO_OPERATOR_PROJECTION_FAMILY_CLOSEOUT_ALIGNMENT_SCHEMA
+    )
+    operator_projection_family_closeout_alignment_id: str
+    family: Literal["V74"]
+    closed_by_arc: Literal["vNext+208"]
+    closed_slice_ladder: list[Literal["V74-A", "V74-B", "V74-C"]] = Field(min_length=3)
+    shipped_record_shapes: list[str] = Field(min_length=1)
+    consumed_source_families: list[str] = Field(min_length=1)
+    future_family_authority: list[str] = Field(min_length=1)
+    unselected_future_surfaces: list[str] = Field(min_length=1)
+    operator_projection_authority_boundary: str
+    limitation_note: str
+
+    @model_validator(mode="after")
+    def _validate_family_closeout_alignment(self) -> RepoOperatorProjectionFamilyCloseoutAlignment:
+        object.__setattr__(
+            self,
+            "closed_slice_ladder",
+            _sorted_unique(self.closed_slice_ladder, field_name="closed_slice_ladder"),
+        )
+        for field_name in (
+            "shipped_record_shapes",
+            "consumed_source_families",
+            "future_family_authority",
+            "unselected_future_surfaces",
+        ):
+            object.__setattr__(
+                self,
+                field_name,
+                _sorted_unique(getattr(self, field_name), field_name=field_name),
+            )
+        if set(self.closed_slice_ladder) != {"V74-A", "V74-B", "V74-C"}:
+            raise ValueError("V74 family closeout must list V74-A, V74-B, and V74-C")
+        missing_shapes = sorted(
+            {
+                REPO_OPERATOR_PROJECTION_CASE_VIEW_SCHEMA,
+                REPO_OPERATOR_PROJECTION_SOURCE_INDEX_SCHEMA,
+                REPO_OPERATOR_PROJECTION_NON_AUTHORITY_GUARDRAIL_SCHEMA,
+                REPO_TYPED_ADJUDICATION_CASE_VIEW_SCHEMA,
+                REPO_MODEL_OUTPUT_COMPARISON_PROJECTION_SCHEMA,
+                REPO_PROJECTION_EXCEPTION_VISIBILITY_REGISTER_SCHEMA,
+                REPO_DECISION_VISIBILITY_CONTRACT_SCHEMA,
+                REPO_RATIFICATION_REVIEW_WORKBENCH_PROJECTION_SCHEMA,
+                REPO_POST_PROJECTION_HANDOFF_SCHEMA,
+                REPO_OPERATOR_PROJECTION_FAMILY_CLOSEOUT_ALIGNMENT_SCHEMA,
+            }
+            - set(self.shipped_record_shapes)
+        )
+        if missing_shapes:
+            raise ValueError(
+                f"V74 family closeout must list shipped record shapes: {missing_shapes}"
+            )
+        object.__setattr__(
+            self,
+            "operator_projection_authority_boundary",
+            _v74c_required_summary(
+                self.operator_projection_authority_boundary,
+                field_name="operator_projection_authority_boundary",
+                required=(
+                    "operator projection only",
+                    "no product",
+                    "no release",
+                    "no runtime",
+                    "no dispatch",
+                ),
+            ),
+        )
+        object.__setattr__(
+            self, "limitation_note", _v74c_note(self.limitation_note, field_name="limitation_note")
+        )
+        expected_id = _surface_id(
+            "repo_operator_projection_family_closeout_alignment",
+            REPO_OPERATOR_PROJECTION_FAMILY_CLOSEOUT_ALIGNMENT_SCHEMA,
+            self.model_dump(mode="json"),
+            "operator_projection_family_closeout_alignment_id",
+        )
+        if self.operator_projection_family_closeout_alignment_id != expected_id:
+            raise ValueError(
+                "operator_projection_family_closeout_alignment_id must match canonical full "
+                "payload hash identity"
             )
         return self
 
@@ -2091,4 +2775,581 @@ def derive_v74b_operator_projection_bundle(
         typed_case,
         comparison_projection,
         exception_register,
+    )
+
+
+def _human_ratification_requirement() -> RepoProjectionLaterAuthorityRequirementRow:
+    return RepoProjectionLaterAuthorityRequirementRow(
+        authority_requirement_ref="authority:v74c:self-evidencing:human-ratification",
+        authority_kind="human_ratification_required",
+        authority_source_refs=[_V74C_LOCK],
+        source_presence_posture="present",
+        required_before_action="before_ratification_review",
+        limitation_note="Human ratification remains required before later review action.",
+    )
+
+
+def _dispatch_authority_requirement() -> RepoProjectionLaterAuthorityRequirementRow:
+    return RepoProjectionLaterAuthorityRequirementRow(
+        authority_requirement_ref="authority:v74c:self-evidencing:dispatch-review",
+        authority_kind="dispatch_authority_required",
+        authority_source_refs=[_V74C_LOCK],
+        source_presence_posture="present",
+        required_before_action="before_dispatch_review",
+        limitation_note="Dispatch authority remains required before any later dispatch review.",
+    )
+
+
+def _product_authority_requirement() -> RepoProjectionLaterAuthorityRequirementRow:
+    return RepoProjectionLaterAuthorityRequirementRow(
+        authority_requirement_ref="authority:v74c:product-wedge:product-review",
+        authority_kind="product_authority_required",
+        authority_source_refs=[_V74C_LOCK, _PRODUCT_WEDGE_SUPPORT],
+        source_presence_posture="present",
+        required_before_action="before_product_review",
+        limitation_note="Product authority remains required before any later product review.",
+    )
+
+
+def derive_v74c_repo_decision_visibility_contract(
+    *,
+    repo_root: Path,
+    operator_projection_case_view: RepoOperatorProjectionCaseView | None = None,
+    typed_adjudication_case_view: RepoTypedAdjudicationCaseView | None = None,
+    projection_exception_visibility_register: (
+        RepoProjectionExceptionVisibilityRegister | None
+    ) = None,
+) -> RepoDecisionVisibilityContract:
+    del repo_root
+    if (
+        operator_projection_case_view is None
+        or typed_adjudication_case_view is None
+        or projection_exception_visibility_register is None
+    ):
+        raise ValueError("V74-C decision contract derivation requires released V74-A/B inputs")
+    rows = [
+        RepoDecisionVisibilityContractRow(
+            visibility_contract_ref="visibility-contract:v74c:self-evidencing:operator-review",
+            case_view_refs=["case-view:v74a:self-evidencing:operator-projection"],
+            typed_case_refs=["typed-case:v74b:self-evidencing:conceptual-diff"],
+            exception_refs=["exception:v74b:comparison-axis:operator-legibility-unchecked"],
+            visible_decision_state="recommended_more_evidence",
+            visible_source_refs=sorted(
+                [
+                    _CONCEPTUAL_DIFF_SUPPORT,
+                    _V74A_CLOSEOUT_EVIDENCE,
+                    _V74B_CLOSEOUT_EVIDENCE,
+                ]
+            ),
+            visible_exception_refs=["exception:v74b:comparison-axis:operator-legibility-unchecked"],
+            visibility_obligation_kinds=sorted(_REQUIRED_VISIBILITY_OBLIGATIONS),
+            non_derivable_authority_kinds=sorted(_REQUIRED_NON_DERIVABLE_AUTHORITIES),
+            operator_action_postures=["inspect_only", "request_later_review_only"],
+            required_later_authority=[
+                "dispatch_authority_required",
+                "human_ratification_required",
+            ],
+            required_later_authority_rows=[
+                _dispatch_authority_requirement(),
+                _human_ratification_requirement(),
+            ],
+            contract_posture="visibility_contract_ready",
+            limitation_note=(
+                "Decision visibility contract is visibility only for later review with "
+                "no ratification, no product authority, no release authority, no runtime "
+                "permission, and no dispatch."
+            ),
+        ),
+        RepoDecisionVisibilityContractRow(
+            visibility_contract_ref="visibility-contract:v74c:product-wedge:authority-gap",
+            case_view_refs=["case-view:v74a:product-wedge:future-family"],
+            typed_case_refs=["typed-case:v74b:product-wedge:authority-gap"],
+            exception_refs=["blocker:v74a:product-wedge:product-authority-gap"],
+            visible_decision_state="blocked_pending_authority",
+            visible_source_refs=sorted([_PRODUCT_WEDGE_SUPPORT, _V74B_CLOSEOUT_EVIDENCE]),
+            visible_exception_refs=["blocker:v74a:product-wedge:product-authority-gap"],
+            visibility_obligation_kinds=sorted(_REQUIRED_VISIBILITY_OBLIGATIONS),
+            non_derivable_authority_kinds=sorted(_REQUIRED_NON_DERIVABLE_AUTHORITIES),
+            operator_action_postures=["inspect_only", "request_later_review_only"],
+            required_later_authority=["product_authority_required"],
+            required_later_authority_rows=[_product_authority_requirement()],
+            contract_posture="blocked_by_authority_boundary",
+            limitation_note=(
+                "Product-pressure visibility is blocked by product authority gap with "
+                "no product authority, no release authority, no runtime permission, and no "
+                "dispatch."
+            ),
+        ),
+    ]
+    payload = {
+        "schema": REPO_DECISION_VISIBILITY_CONTRACT_SCHEMA,
+        "review_id": typed_adjudication_case_view.review_id,
+        "snapshot_id": typed_adjudication_case_view.snapshot_id,
+        "source_set_id": typed_adjudication_case_view.source_set_id,
+        "operator_projection_case_view_id": (
+            operator_projection_case_view.operator_projection_case_view_id
+        ),
+        "typed_adjudication_case_view_id": (
+            typed_adjudication_case_view.typed_adjudication_case_view_id
+        ),
+        "projection_exception_visibility_register_id": (
+            projection_exception_visibility_register.projection_exception_visibility_register_id
+        ),
+        "visibility_contract_rows": [
+            row.model_dump(mode="json")
+            for row in sorted(rows, key=lambda row: row.visibility_contract_ref)
+        ],
+        "decision_visibility_summary": (
+            "Decision visibility contract is visibility only: no ratification, no product "
+            "authorization, no release authority, no runtime permission, and no dispatch."
+        ),
+    }
+    payload["decision_visibility_contract_id"] = _surface_id(
+        "repo_decision_visibility_contract",
+        REPO_DECISION_VISIBILITY_CONTRACT_SCHEMA,
+        payload,
+        "decision_visibility_contract_id",
+    )
+    return RepoDecisionVisibilityContract.model_validate(payload)
+
+
+def derive_v74c_repo_ratification_review_workbench_projection(
+    *,
+    repo_root: Path,
+    decision_visibility_contract: RepoDecisionVisibilityContract | None = None,
+) -> RepoRatificationReviewWorkbenchProjection:
+    del repo_root
+    if decision_visibility_contract is None:
+        raise ValueError("V74-C workbench derivation requires decision visibility contract")
+    rows = [
+        RepoRatificationReviewWorkbenchProjectionRow(
+            workbench_projection_ref="workbench:v74c:self-evidencing:operator-review",
+            visibility_contract_refs=[
+                "visibility-contract:v74c:self-evidencing:operator-review"
+            ],
+            case_view_refs=["case-view:v74a:self-evidencing:operator-projection"],
+            candidate_refs=["candidate:internal:self_evidencing_workflow_type_emergence"],
+            ratification_refs=[],
+            recommendation_refs=["recommendation:v73c:self-evidencing:promote-for-later-review"],
+            exception_refs=["exception:v74b:comparison-axis:operator-legibility-unchecked"],
+            permitted_operator_action_postures=[
+                "annotate_source_gap_only",
+                "export_support_report_only",
+                "inspect_only",
+                "request_later_review_only",
+            ],
+            forbidden_operator_action_postures=sorted(_REQUIRED_FORBIDDEN_OPERATOR_ACTIONS),
+            required_later_authority=[
+                "dispatch_authority_required",
+                "human_ratification_required",
+            ],
+            required_later_authority_rows=[
+                _dispatch_authority_requirement(),
+                _human_ratification_requirement(),
+            ],
+            workbench_projection_posture="projection_ready_for_operator_review",
+            limitation_note=(
+                "Ratification-review workbench projection is review visibility only with "
+                "no ratification, no product authority, no release authority, no runtime "
+                "permission, and no dispatch."
+            ),
+        ),
+        RepoRatificationReviewWorkbenchProjectionRow(
+            workbench_projection_ref="workbench:v74c:product-wedge:authority-gap",
+            visibility_contract_refs=["visibility-contract:v74c:product-wedge:authority-gap"],
+            case_view_refs=["case-view:v74a:product-wedge:future-family"],
+            candidate_refs=["candidate:internal:typed_adjudication_product_wedge"],
+            ratification_refs=[],
+            recommendation_refs=[],
+            exception_refs=["blocker:v74a:product-wedge:product-authority-gap"],
+            permitted_operator_action_postures=[
+                "annotate_source_gap_only",
+                "inspect_only",
+                "request_later_review_only",
+            ],
+            forbidden_operator_action_postures=sorted(_REQUIRED_FORBIDDEN_OPERATOR_ACTIONS),
+            required_later_authority=["product_authority_required"],
+            required_later_authority_rows=[_product_authority_requirement()],
+            workbench_projection_posture="blocked_by_authority_boundary",
+            limitation_note=(
+                "Product-pressure workbench projection is blocked by authority boundary with "
+                "no product authority, no release authority, no runtime permission, and no "
+                "dispatch."
+            ),
+        ),
+    ]
+    payload = {
+        "schema": REPO_RATIFICATION_REVIEW_WORKBENCH_PROJECTION_SCHEMA,
+        "review_id": decision_visibility_contract.review_id,
+        "snapshot_id": decision_visibility_contract.snapshot_id,
+        "source_set_id": decision_visibility_contract.source_set_id,
+        "decision_visibility_contract_id": (
+            decision_visibility_contract.decision_visibility_contract_id
+        ),
+        "workbench_projection_rows": [
+            row.model_dump(mode="json")
+            for row in sorted(rows, key=lambda row: row.workbench_projection_ref)
+        ],
+        "workbench_boundary_summary": (
+            "Ratification-review workbench projection is review visibility only: no "
+            "ratification, no product authorization, no release authority, no runtime "
+            "permission, and no dispatch."
+        ),
+    }
+    payload["ratification_review_workbench_projection_id"] = _surface_id(
+        "repo_ratification_review_workbench_projection",
+        REPO_RATIFICATION_REVIEW_WORKBENCH_PROJECTION_SCHEMA,
+        payload,
+        "ratification_review_workbench_projection_id",
+    )
+    return RepoRatificationReviewWorkbenchProjection.model_validate(payload)
+
+
+def derive_v74c_repo_post_projection_handoff(
+    *,
+    repo_root: Path,
+    decision_visibility_contract: RepoDecisionVisibilityContract | None = None,
+    ratification_review_workbench_projection: (
+        RepoRatificationReviewWorkbenchProjection | None
+    ) = None,
+) -> RepoPostProjectionHandoff:
+    del repo_root
+    if decision_visibility_contract is None or ratification_review_workbench_projection is None:
+        raise ValueError("V74-C handoff derivation requires contract and workbench projection")
+    rows = [
+        RepoPostProjectionHandoffRow(
+            handoff_ref="handoff:v74c:self-evidencing:v75-review-request",
+            visibility_contract_refs=[
+                "visibility-contract:v74c:self-evidencing:operator-review"
+            ],
+            workbench_projection_refs=["workbench:v74c:self-evidencing:operator-review"],
+            candidate_refs=["candidate:internal:self_evidencing_workflow_type_emergence"],
+            handoff_target="v75_dispatch_review",
+            handoff_posture="ready_for_later_review",
+            carried_exception_refs=[
+                "exception:v74b:comparison-axis:operator-legibility-unchecked"
+            ],
+            required_later_authority=[
+                "dispatch_authority_required",
+                "human_ratification_required",
+            ],
+            non_dispatch_guardrail=(
+                "This handoff is a request for later review only with no dispatch."
+            ),
+            limitation_note=(
+                "V75 handoff is later-review request only with no runtime permission and no "
+                "dispatch."
+            ),
+        ),
+        RepoPostProjectionHandoffRow(
+            handoff_ref="handoff:v74c:product-wedge:future-product-review",
+            visibility_contract_refs=["visibility-contract:v74c:product-wedge:authority-gap"],
+            workbench_projection_refs=["workbench:v74c:product-wedge:authority-gap"],
+            candidate_refs=["candidate:internal:typed_adjudication_product_wedge"],
+            handoff_target="future_product_review",
+            handoff_posture="blocked_by_authority_boundary",
+            carried_exception_refs=["blocker:v74a:product-wedge:product-authority-gap"],
+            required_later_authority=["product_authority_required"],
+            non_dispatch_guardrail=(
+                "This handoff is a request for later review only with no dispatch."
+            ),
+            limitation_note=(
+                "Product-pressure handoff stays blocked by authority boundary with no product "
+                "authority, no runtime permission, and no dispatch."
+            ),
+        ),
+    ]
+    payload = {
+        "schema": REPO_POST_PROJECTION_HANDOFF_SCHEMA,
+        "review_id": decision_visibility_contract.review_id,
+        "snapshot_id": decision_visibility_contract.snapshot_id,
+        "source_set_id": decision_visibility_contract.source_set_id,
+        "decision_visibility_contract_id": (
+            decision_visibility_contract.decision_visibility_contract_id
+        ),
+        "ratification_review_workbench_projection_id": (
+            ratification_review_workbench_projection.ratification_review_workbench_projection_id
+        ),
+        "handoff_rows": [
+            row.model_dump(mode="json") for row in sorted(rows, key=lambda row: row.handoff_ref)
+        ],
+        "handoff_boundary_summary": (
+            "Post-projection handoff requests later review only: no dispatch, no runtime "
+            "permission, no product authorization, and no release authority."
+        ),
+    }
+    payload["post_projection_handoff_id"] = _surface_id(
+        "repo_post_projection_handoff",
+        REPO_POST_PROJECTION_HANDOFF_SCHEMA,
+        payload,
+        "post_projection_handoff_id",
+    )
+    return RepoPostProjectionHandoff.model_validate(payload)
+
+
+def derive_v74c_repo_operator_projection_family_closeout_alignment(
+    *,
+    repo_root: Path,
+) -> RepoOperatorProjectionFamilyCloseoutAlignment:
+    del repo_root
+    payload = {
+        "schema": REPO_OPERATOR_PROJECTION_FAMILY_CLOSEOUT_ALIGNMENT_SCHEMA,
+        "family": "V74",
+        "closed_by_arc": "vNext+208",
+        "closed_slice_ladder": ["V74-A", "V74-B", "V74-C"],
+        "shipped_record_shapes": sorted(
+            [
+                REPO_OPERATOR_PROJECTION_CASE_VIEW_SCHEMA,
+                REPO_OPERATOR_PROJECTION_SOURCE_INDEX_SCHEMA,
+                REPO_OPERATOR_PROJECTION_NON_AUTHORITY_GUARDRAIL_SCHEMA,
+                REPO_TYPED_ADJUDICATION_CASE_VIEW_SCHEMA,
+                REPO_MODEL_OUTPUT_COMPARISON_PROJECTION_SCHEMA,
+                REPO_PROJECTION_EXCEPTION_VISIBILITY_REGISTER_SCHEMA,
+                REPO_DECISION_VISIBILITY_CONTRACT_SCHEMA,
+                REPO_RATIFICATION_REVIEW_WORKBENCH_PROJECTION_SCHEMA,
+                REPO_POST_PROJECTION_HANDOFF_SCHEMA,
+                REPO_OPERATOR_PROJECTION_FAMILY_CLOSEOUT_ALIGNMENT_SCHEMA,
+            ]
+        ),
+        "consumed_source_families": ["V68", "V69", "V70", "V71", "V72", "V73"],
+        "future_family_authority": [
+            "V75 dispatch review remains future-family authority",
+            "product authorization remains future-family or maintainer authority",
+            "release authority remains maintainer or release-lock authority",
+        ],
+        "unselected_future_surfaces": sorted(
+            [
+                "external contest participation",
+                "live product UI",
+                "operator command execution",
+                "product authorization",
+                "runtime permission",
+                "V75 dispatch execution",
+            ]
+        ),
+        "operator_projection_authority_boundary": (
+            "V74 closes as operator projection only: no product authorization, no release "
+            "authority, no runtime permission, and no dispatch authority."
+        ),
+        "limitation_note": (
+            "Family closeout alignment closes projection visibility only and grants no downstream "
+            "authority."
+        ),
+    }
+    payload["operator_projection_family_closeout_alignment_id"] = _surface_id(
+        "repo_operator_projection_family_closeout_alignment",
+        REPO_OPERATOR_PROJECTION_FAMILY_CLOSEOUT_ALIGNMENT_SCHEMA,
+        payload,
+        "operator_projection_family_closeout_alignment_id",
+    )
+    return RepoOperatorProjectionFamilyCloseoutAlignment.model_validate(payload)
+
+
+def validate_v74c_operator_projection_bundle(
+    *,
+    operator_projection_source_index: RepoOperatorProjectionSourceIndex,
+    operator_projection_case_view: RepoOperatorProjectionCaseView,
+    typed_adjudication_case_view: RepoTypedAdjudicationCaseView,
+    projection_exception_visibility_register: RepoProjectionExceptionVisibilityRegister,
+    decision_visibility_contract: RepoDecisionVisibilityContract,
+    ratification_review_workbench_projection: RepoRatificationReviewWorkbenchProjection,
+    post_projection_handoff: RepoPostProjectionHandoff,
+    operator_projection_family_closeout_alignment: RepoOperatorProjectionFamilyCloseoutAlignment,
+) -> None:
+    if (
+        decision_visibility_contract.operator_projection_case_view_id
+        != operator_projection_case_view.operator_projection_case_view_id
+        or decision_visibility_contract.typed_adjudication_case_view_id
+        != typed_adjudication_case_view.typed_adjudication_case_view_id
+        or decision_visibility_contract.projection_exception_visibility_register_id
+        != projection_exception_visibility_register.projection_exception_visibility_register_id
+    ):
+        raise ValueError("decision visibility contract must reference released V74-A/B surfaces")
+    if (
+        ratification_review_workbench_projection.decision_visibility_contract_id
+        != decision_visibility_contract.decision_visibility_contract_id
+    ):
+        raise ValueError("workbench projection must reference decision visibility contract")
+    if (
+        post_projection_handoff.decision_visibility_contract_id
+        != decision_visibility_contract.decision_visibility_contract_id
+        or post_projection_handoff.ratification_review_workbench_projection_id
+        != ratification_review_workbench_projection.ratification_review_workbench_projection_id
+    ):
+        raise ValueError("post-projection handoff must reference V74-C contract and workbench")
+    if not (
+        decision_visibility_contract.review_id
+        == ratification_review_workbench_projection.review_id
+        == post_projection_handoff.review_id
+        and decision_visibility_contract.snapshot_id
+        == ratification_review_workbench_projection.snapshot_id
+        == post_projection_handoff.snapshot_id
+        and decision_visibility_contract.source_set_id
+        == ratification_review_workbench_projection.source_set_id
+        == post_projection_handoff.source_set_id
+    ):
+        raise ValueError("V74-C review_id, snapshot_id, and source_set_id must match")
+
+    known_source_refs = {row.source_ref for row in operator_projection_source_index.source_rows} | {
+        _CONCEPTUAL_DIFF_SUPPORT,
+        _CONCEPTUAL_DIFF_SCHEMA_SUPPORT,
+        _V74A_CLOSEOUT_EVIDENCE,
+        _V74B_CLOSEOUT_EVIDENCE,
+        _V74A_LOCK,
+        _V74B_LOCK,
+        _V74C_LOCK,
+    }
+    case_rows = {row.case_view_ref: row for row in operator_projection_case_view.case_view_rows}
+    typed_case_rows = {
+        row.typed_case_ref: row for row in typed_adjudication_case_view.typed_case_rows
+    }
+    exception_rows = {
+        row.exception_ref: row for row in projection_exception_visibility_register.exception_rows
+    }
+    contract_rows = {
+        row.visibility_contract_ref: row
+        for row in decision_visibility_contract.visibility_contract_rows
+    }
+    workbench_rows = {
+        row.workbench_projection_ref: row
+        for row in ratification_review_workbench_projection.workbench_projection_rows
+    }
+
+    for contract in decision_visibility_contract.visibility_contract_rows:
+        for case_ref in contract.case_view_refs:
+            if case_ref not in case_rows:
+                raise ValueError("visibility contracts must reference known V74-A case refs")
+        for typed_case_ref in contract.typed_case_refs:
+            if typed_case_ref not in typed_case_rows:
+                raise ValueError("visibility contracts must reference known V74-B typed cases")
+        for exception_ref in contract.exception_refs:
+            if exception_ref not in exception_rows:
+                raise ValueError("visibility contracts must reference known V74-B exceptions")
+        missing_sources = sorted(set(contract.visible_source_refs) - known_source_refs)
+        if missing_sources:
+            raise ValueError(f"visibility contract source refs must be known: {missing_sources}")
+        for authority_row in contract.required_later_authority_rows:
+            missing_authority_sources = sorted(
+                set(authority_row.authority_source_refs) - known_source_refs
+            )
+            if missing_authority_sources:
+                raise ValueError(
+                    f"authority requirement source refs must be known: {missing_authority_sources}"
+                )
+        if "candidate:internal:typed_adjudication_product_wedge" in {
+            case_rows[case_ref].candidate_ref
+            for case_ref in contract.case_view_refs
+            if case_ref in case_rows
+        } and "product_authority_required" not in contract.required_later_authority:
+            raise ValueError("product-pressure contracts require product authority")
+
+    for workbench in ratification_review_workbench_projection.workbench_projection_rows:
+        for contract_ref in workbench.visibility_contract_refs:
+            if contract_ref not in contract_rows:
+                raise ValueError("workbench projections must reference visibility contracts")
+        for case_ref in workbench.case_view_refs:
+            if case_ref not in case_rows:
+                raise ValueError("workbench projections must reference known case views")
+        for exception_ref in workbench.exception_refs:
+            if exception_ref not in exception_rows:
+                raise ValueError("workbench exception refs must be known")
+        for authority_row in workbench.required_later_authority_rows:
+            missing_authority_sources = sorted(
+                set(authority_row.authority_source_refs) - known_source_refs
+            )
+            if missing_authority_sources:
+                raise ValueError(
+                    f"workbench authority source refs must be known: {missing_authority_sources}"
+                )
+
+    for handoff in post_projection_handoff.handoff_rows:
+        for contract_ref in handoff.visibility_contract_refs:
+            if contract_ref not in contract_rows:
+                raise ValueError("post-projection handoff must reference visibility contracts")
+        for workbench_ref in handoff.workbench_projection_refs:
+            if workbench_ref not in workbench_rows:
+                raise ValueError("post-projection handoff must reference workbench projections")
+        for exception_ref in handoff.carried_exception_refs:
+            exception = exception_rows.get(exception_ref)
+            if exception is None:
+                raise ValueError("handoff carried exceptions must be known")
+            if (
+                exception.blocking_posture == "blocking"
+                and handoff.handoff_posture == "ready_for_later_review"
+            ):
+                raise ValueError("handoff with blocking carried exceptions cannot be ready")
+        if handoff.handoff_target == "v75_dispatch_review" and (
+            "dispatch_authority_required" not in handoff.required_later_authority
+        ):
+            raise ValueError("V75 handoff requires dispatch authority")
+
+    if (
+        REPO_OPERATOR_PROJECTION_FAMILY_CLOSEOUT_ALIGNMENT_SCHEMA
+        not in operator_projection_family_closeout_alignment.shipped_record_shapes
+    ):
+        raise ValueError("family closeout must include its own alignment surface")
+
+
+def derive_v74c_operator_projection_bundle(
+    *,
+    repo_root: Path,
+) -> tuple[
+    RepoOperatorProjectionSourceIndex,
+    RepoOperatorProjectionCaseView,
+    RepoOperatorProjectionNonAuthorityGuardrail,
+    RepoTypedAdjudicationCaseView,
+    RepoModelOutputComparisonProjection,
+    RepoProjectionExceptionVisibilityRegister,
+    RepoDecisionVisibilityContract,
+    RepoRatificationReviewWorkbenchProjection,
+    RepoPostProjectionHandoff,
+    RepoOperatorProjectionFamilyCloseoutAlignment,
+]:
+    (
+        source_index,
+        case_view,
+        guardrail,
+        typed_case,
+        comparison_projection,
+        exception_register,
+    ) = derive_v74b_operator_projection_bundle(repo_root=repo_root)
+    decision_contract = derive_v74c_repo_decision_visibility_contract(
+        repo_root=repo_root,
+        operator_projection_case_view=case_view,
+        typed_adjudication_case_view=typed_case,
+        projection_exception_visibility_register=exception_register,
+    )
+    workbench_projection = derive_v74c_repo_ratification_review_workbench_projection(
+        repo_root=repo_root,
+        decision_visibility_contract=decision_contract,
+    )
+    handoff = derive_v74c_repo_post_projection_handoff(
+        repo_root=repo_root,
+        decision_visibility_contract=decision_contract,
+        ratification_review_workbench_projection=workbench_projection,
+    )
+    family_closeout = derive_v74c_repo_operator_projection_family_closeout_alignment(
+        repo_root=repo_root
+    )
+    validate_v74c_operator_projection_bundle(
+        operator_projection_source_index=source_index,
+        operator_projection_case_view=case_view,
+        typed_adjudication_case_view=typed_case,
+        projection_exception_visibility_register=exception_register,
+        decision_visibility_contract=decision_contract,
+        ratification_review_workbench_projection=workbench_projection,
+        post_projection_handoff=handoff,
+        operator_projection_family_closeout_alignment=family_closeout,
+    )
+    return (
+        source_index,
+        case_view,
+        guardrail,
+        typed_case,
+        comparison_projection,
+        exception_register,
+        decision_contract,
+        workbench_projection,
+        handoff,
+        family_closeout,
     )

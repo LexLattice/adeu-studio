@@ -1,0 +1,298 @@
+{
+  "$defs": {
+    "RepoDecisionVisibilityContractRow": {
+      "additionalProperties": false,
+      "properties": {
+        "case_view_refs": {
+          "items": {
+            "type": "string"
+          },
+          "minItems": 1,
+          "title": "Case View Refs",
+          "type": "array"
+        },
+        "contract_posture": {
+          "enum": [
+            "visibility_contract_ready",
+            "blocked_by_missing_case_view",
+            "blocked_by_hidden_required_exception",
+            "blocked_by_authority_boundary",
+            "future_family_only",
+            "rejected_out_of_scope"
+          ],
+          "title": "Contract Posture",
+          "type": "string"
+        },
+        "exception_refs": {
+          "items": {
+            "type": "string"
+          },
+          "title": "Exception Refs",
+          "type": "array"
+        },
+        "limitation_note": {
+          "title": "Limitation Note",
+          "type": "string"
+        },
+        "non_derivable_authority_kinds": {
+          "items": {
+            "enum": [
+              "release_truth",
+              "product_selection",
+              "runtime_permission",
+              "dispatch_authority"
+            ],
+            "type": "string"
+          },
+          "minItems": 1,
+          "title": "Non Derivable Authority Kinds",
+          "type": "array"
+        },
+        "operator_action_postures": {
+          "items": {
+            "enum": [
+              "inspect_only",
+              "acknowledge_only",
+              "request_later_review_only",
+              "annotate_source_gap_only",
+              "export_support_report_only",
+              "no_operator_action_selected"
+            ],
+            "type": "string"
+          },
+          "minItems": 1,
+          "title": "Operator Action Postures",
+          "type": "array"
+        },
+        "required_later_authority": {
+          "items": {
+            "enum": [
+              "human_ratification_required",
+              "maintainer_release_authority_required",
+              "product_authority_required",
+              "runtime_authority_required",
+              "dispatch_authority_required",
+              "external_contest_authority_required",
+              "none_selected_here"
+            ],
+            "type": "string"
+          },
+          "minItems": 1,
+          "title": "Required Later Authority",
+          "type": "array"
+        },
+        "required_later_authority_rows": {
+          "items": {
+            "$ref": "#/$defs/RepoProjectionLaterAuthorityRequirementRow"
+          },
+          "minItems": 1,
+          "title": "Required Later Authority Rows",
+          "type": "array"
+        },
+        "typed_case_refs": {
+          "items": {
+            "type": "string"
+          },
+          "minItems": 1,
+          "title": "Typed Case Refs",
+          "type": "array"
+        },
+        "visibility_contract_ref": {
+          "title": "Visibility Contract Ref",
+          "type": "string"
+        },
+        "visibility_obligation_kinds": {
+          "items": {
+            "enum": [
+              "no_hidden_source_status",
+              "no_hidden_authority_boundary",
+              "no_hidden_regression",
+              "no_hidden_dissent",
+              "no_hidden_product_authority_gap",
+              "no_hidden_runtime_or_dispatch_gap"
+            ],
+            "type": "string"
+          },
+          "minItems": 1,
+          "title": "Visibility Obligation Kinds",
+          "type": "array"
+        },
+        "visible_decision_state": {
+          "enum": [
+            "ready_for_human_review",
+            "blocked_pending_evidence",
+            "blocked_pending_authority",
+            "blocked_pending_dissent_resolution",
+            "recommended_for_later_review",
+            "recommended_more_evidence",
+            "deferred_to_future_family",
+            "rejected_out_of_scope"
+          ],
+          "title": "Visible Decision State",
+          "type": "string"
+        },
+        "visible_exception_refs": {
+          "items": {
+            "type": "string"
+          },
+          "title": "Visible Exception Refs",
+          "type": "array"
+        },
+        "visible_source_refs": {
+          "items": {
+            "type": "string"
+          },
+          "minItems": 1,
+          "title": "Visible Source Refs",
+          "type": "array"
+        }
+      },
+      "required": [
+        "visibility_contract_ref",
+        "case_view_refs",
+        "typed_case_refs",
+        "visible_decision_state",
+        "visible_source_refs",
+        "visibility_obligation_kinds",
+        "non_derivable_authority_kinds",
+        "operator_action_postures",
+        "required_later_authority",
+        "required_later_authority_rows",
+        "contract_posture",
+        "limitation_note"
+      ],
+      "title": "RepoDecisionVisibilityContractRow",
+      "type": "object"
+    },
+    "RepoProjectionLaterAuthorityRequirementRow": {
+      "additionalProperties": false,
+      "properties": {
+        "authority_kind": {
+          "enum": [
+            "human_ratification_required",
+            "maintainer_release_authority_required",
+            "product_authority_required",
+            "runtime_authority_required",
+            "dispatch_authority_required",
+            "external_contest_authority_required",
+            "none_selected_here"
+          ],
+          "title": "Authority Kind",
+          "type": "string"
+        },
+        "authority_requirement_ref": {
+          "title": "Authority Requirement Ref",
+          "type": "string"
+        },
+        "authority_source_refs": {
+          "items": {
+            "type": "string"
+          },
+          "minItems": 1,
+          "title": "Authority Source Refs",
+          "type": "array"
+        },
+        "limitation_note": {
+          "title": "Limitation Note",
+          "type": "string"
+        },
+        "required_before_action": {
+          "enum": [
+            "before_ratification_review",
+            "before_product_review",
+            "before_runtime_review",
+            "before_dispatch_review",
+            "before_release_review",
+            "not_selected_here"
+          ],
+          "title": "Required Before Action",
+          "type": "string"
+        },
+        "source_presence_posture": {
+          "enum": [
+            "present",
+            "missing_expected_support_artifact",
+            "not_uploaded_in_review_snapshot",
+            "generated_later",
+            "external_unavailable",
+            "operator_turn_not_committed"
+          ],
+          "title": "Source Presence Posture",
+          "type": "string"
+        }
+      },
+      "required": [
+        "authority_requirement_ref",
+        "authority_kind",
+        "authority_source_refs",
+        "source_presence_posture",
+        "required_before_action",
+        "limitation_note"
+      ],
+      "title": "RepoProjectionLaterAuthorityRequirementRow",
+      "type": "object"
+    }
+  },
+  "additionalProperties": false,
+  "properties": {
+    "decision_visibility_contract_id": {
+      "title": "Decision Visibility Contract Id",
+      "type": "string"
+    },
+    "decision_visibility_summary": {
+      "title": "Decision Visibility Summary",
+      "type": "string"
+    },
+    "operator_projection_case_view_id": {
+      "title": "Operator Projection Case View Id",
+      "type": "string"
+    },
+    "projection_exception_visibility_register_id": {
+      "title": "Projection Exception Visibility Register Id",
+      "type": "string"
+    },
+    "review_id": {
+      "title": "Review Id",
+      "type": "string"
+    },
+    "schema": {
+      "const": "repo_decision_visibility_contract@1",
+      "default": "repo_decision_visibility_contract@1",
+      "title": "Schema",
+      "type": "string"
+    },
+    "snapshot_id": {
+      "title": "Snapshot Id",
+      "type": "string"
+    },
+    "source_set_id": {
+      "title": "Source Set Id",
+      "type": "string"
+    },
+    "typed_adjudication_case_view_id": {
+      "title": "Typed Adjudication Case View Id",
+      "type": "string"
+    },
+    "visibility_contract_rows": {
+      "items": {
+        "$ref": "#/$defs/RepoDecisionVisibilityContractRow"
+      },
+      "minItems": 1,
+      "title": "Visibility Contract Rows",
+      "type": "array"
+    }
+  },
+  "required": [
+    "decision_visibility_contract_id",
+    "review_id",
+    "snapshot_id",
+    "source_set_id",
+    "operator_projection_case_view_id",
+    "typed_adjudication_case_view_id",
+    "projection_exception_visibility_register_id",
+    "visibility_contract_rows",
+    "decision_visibility_summary"
+  ],
+  "title": "RepoDecisionVisibilityContract",
+  "type": "object"
+}

@@ -82,11 +82,15 @@ from .models import (
     RepoTestIntentMatrix,
 )
 from .operator_projection import (
+    RepoDecisionVisibilityContract,
     RepoModelOutputComparisonProjection,
     RepoOperatorProjectionCaseView,
+    RepoOperatorProjectionFamilyCloseoutAlignment,
     RepoOperatorProjectionNonAuthorityGuardrail,
     RepoOperatorProjectionSourceIndex,
+    RepoPostProjectionHandoff,
     RepoProjectionExceptionVisibilityRegister,
+    RepoRatificationReviewWorkbenchProjection,
     RepoTypedAdjudicationCaseView,
 )
 from .recursive_candidate_intake import (
@@ -326,6 +330,16 @@ def main() -> None:
     projection_exception_visibility_register_schema = (
         RepoProjectionExceptionVisibilityRegister.model_json_schema(by_alias=True)
     )
+    decision_visibility_contract_schema = RepoDecisionVisibilityContract.model_json_schema(
+        by_alias=True
+    )
+    ratification_review_workbench_projection_schema = (
+        RepoRatificationReviewWorkbenchProjection.model_json_schema(by_alias=True)
+    )
+    post_projection_handoff_schema = RepoPostProjectionHandoff.model_json_schema(by_alias=True)
+    operator_projection_family_closeout_alignment_schema = (
+        RepoOperatorProjectionFamilyCloseoutAlignment.model_json_schema(by_alias=True)
+    )
 
     _assert_no_absolute_path_material(dependency_register_v1_schema, repo_root_path=root)
     _assert_no_absolute_path_material(dependency_register_schema, repo_root_path=root)
@@ -454,6 +468,16 @@ def main() -> None:
     )
     _assert_no_absolute_path_material(
         projection_exception_visibility_register_schema,
+        repo_root_path=root,
+    )
+    _assert_no_absolute_path_material(decision_visibility_contract_schema, repo_root_path=root)
+    _assert_no_absolute_path_material(
+        ratification_review_workbench_projection_schema,
+        repo_root_path=root,
+    )
+    _assert_no_absolute_path_material(post_projection_handoff_schema, repo_root_path=root)
+    _assert_no_absolute_path_material(
+        operator_projection_family_closeout_alignment_schema,
         repo_root_path=root,
     )
 
@@ -1272,6 +1296,54 @@ def main() -> None:
     _write_schema(
         root / "spec" / "repo_projection_exception_visibility_register.schema.json",
         projection_exception_visibility_register_schema,
+    )
+    _write_schema(
+        root
+        / "packages"
+        / "adeu_repo_description"
+        / "schema"
+        / "repo_decision_visibility_contract.v1.json",
+        decision_visibility_contract_schema,
+    )
+    _write_schema(
+        root / "spec" / "repo_decision_visibility_contract.schema.json",
+        decision_visibility_contract_schema,
+    )
+    _write_schema(
+        root
+        / "packages"
+        / "adeu_repo_description"
+        / "schema"
+        / "repo_ratification_review_workbench_projection.v1.json",
+        ratification_review_workbench_projection_schema,
+    )
+    _write_schema(
+        root / "spec" / "repo_ratification_review_workbench_projection.schema.json",
+        ratification_review_workbench_projection_schema,
+    )
+    _write_schema(
+        root
+        / "packages"
+        / "adeu_repo_description"
+        / "schema"
+        / "repo_post_projection_handoff.v1.json",
+        post_projection_handoff_schema,
+    )
+    _write_schema(
+        root / "spec" / "repo_post_projection_handoff.schema.json",
+        post_projection_handoff_schema,
+    )
+    _write_schema(
+        root
+        / "packages"
+        / "adeu_repo_description"
+        / "schema"
+        / "repo_operator_projection_family_closeout_alignment.v1.json",
+        operator_projection_family_closeout_alignment_schema,
+    )
+    _write_schema(
+        root / "spec" / "repo_operator_projection_family_closeout_alignment.schema.json",
+        operator_projection_family_closeout_alignment_schema,
     )
 
 

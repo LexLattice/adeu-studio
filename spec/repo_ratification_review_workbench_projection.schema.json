@@ -1,0 +1,269 @@
+{
+  "$defs": {
+    "RepoProjectionLaterAuthorityRequirementRow": {
+      "additionalProperties": false,
+      "properties": {
+        "authority_kind": {
+          "enum": [
+            "human_ratification_required",
+            "maintainer_release_authority_required",
+            "product_authority_required",
+            "runtime_authority_required",
+            "dispatch_authority_required",
+            "external_contest_authority_required",
+            "none_selected_here"
+          ],
+          "title": "Authority Kind",
+          "type": "string"
+        },
+        "authority_requirement_ref": {
+          "title": "Authority Requirement Ref",
+          "type": "string"
+        },
+        "authority_source_refs": {
+          "items": {
+            "type": "string"
+          },
+          "minItems": 1,
+          "title": "Authority Source Refs",
+          "type": "array"
+        },
+        "limitation_note": {
+          "title": "Limitation Note",
+          "type": "string"
+        },
+        "required_before_action": {
+          "enum": [
+            "before_ratification_review",
+            "before_product_review",
+            "before_runtime_review",
+            "before_dispatch_review",
+            "before_release_review",
+            "not_selected_here"
+          ],
+          "title": "Required Before Action",
+          "type": "string"
+        },
+        "source_presence_posture": {
+          "enum": [
+            "present",
+            "missing_expected_support_artifact",
+            "not_uploaded_in_review_snapshot",
+            "generated_later",
+            "external_unavailable",
+            "operator_turn_not_committed"
+          ],
+          "title": "Source Presence Posture",
+          "type": "string"
+        }
+      },
+      "required": [
+        "authority_requirement_ref",
+        "authority_kind",
+        "authority_source_refs",
+        "source_presence_posture",
+        "required_before_action",
+        "limitation_note"
+      ],
+      "title": "RepoProjectionLaterAuthorityRequirementRow",
+      "type": "object"
+    },
+    "RepoRatificationReviewWorkbenchProjectionRow": {
+      "additionalProperties": false,
+      "properties": {
+        "candidate_refs": {
+          "items": {
+            "type": "string"
+          },
+          "minItems": 1,
+          "title": "Candidate Refs",
+          "type": "array"
+        },
+        "case_view_refs": {
+          "items": {
+            "type": "string"
+          },
+          "minItems": 1,
+          "title": "Case View Refs",
+          "type": "array"
+        },
+        "exception_refs": {
+          "items": {
+            "type": "string"
+          },
+          "title": "Exception Refs",
+          "type": "array"
+        },
+        "forbidden_operator_action_postures": {
+          "items": {
+            "enum": [
+              "ratify_now",
+              "adopt_now",
+              "implement_now",
+              "commit_now",
+              "merge_now",
+              "release_now",
+              "authorize_product_now",
+              "grant_runtime_permission_now",
+              "dispatch_now",
+              "enter_external_contest_now"
+            ],
+            "type": "string"
+          },
+          "minItems": 1,
+          "title": "Forbidden Operator Action Postures",
+          "type": "array"
+        },
+        "limitation_note": {
+          "title": "Limitation Note",
+          "type": "string"
+        },
+        "permitted_operator_action_postures": {
+          "items": {
+            "enum": [
+              "inspect_only",
+              "acknowledge_only",
+              "request_later_review_only",
+              "annotate_source_gap_only",
+              "export_support_report_only",
+              "no_operator_action_selected"
+            ],
+            "type": "string"
+          },
+          "minItems": 1,
+          "title": "Permitted Operator Action Postures",
+          "type": "array"
+        },
+        "ratification_refs": {
+          "items": {
+            "type": "string"
+          },
+          "title": "Ratification Refs",
+          "type": "array"
+        },
+        "recommendation_refs": {
+          "items": {
+            "type": "string"
+          },
+          "title": "Recommendation Refs",
+          "type": "array"
+        },
+        "required_later_authority": {
+          "items": {
+            "enum": [
+              "human_ratification_required",
+              "maintainer_release_authority_required",
+              "product_authority_required",
+              "runtime_authority_required",
+              "dispatch_authority_required",
+              "external_contest_authority_required",
+              "none_selected_here"
+            ],
+            "type": "string"
+          },
+          "minItems": 1,
+          "title": "Required Later Authority",
+          "type": "array"
+        },
+        "required_later_authority_rows": {
+          "items": {
+            "$ref": "#/$defs/RepoProjectionLaterAuthorityRequirementRow"
+          },
+          "minItems": 1,
+          "title": "Required Later Authority Rows",
+          "type": "array"
+        },
+        "visibility_contract_refs": {
+          "items": {
+            "type": "string"
+          },
+          "minItems": 1,
+          "title": "Visibility Contract Refs",
+          "type": "array"
+        },
+        "workbench_projection_posture": {
+          "enum": [
+            "projection_ready_for_operator_review",
+            "blocked_by_missing_visibility_contract",
+            "blocked_by_unresolved_exception",
+            "blocked_by_authority_boundary",
+            "future_family_only",
+            "rejected_out_of_scope"
+          ],
+          "title": "Workbench Projection Posture",
+          "type": "string"
+        },
+        "workbench_projection_ref": {
+          "title": "Workbench Projection Ref",
+          "type": "string"
+        }
+      },
+      "required": [
+        "workbench_projection_ref",
+        "visibility_contract_refs",
+        "case_view_refs",
+        "candidate_refs",
+        "permitted_operator_action_postures",
+        "forbidden_operator_action_postures",
+        "required_later_authority",
+        "required_later_authority_rows",
+        "workbench_projection_posture",
+        "limitation_note"
+      ],
+      "title": "RepoRatificationReviewWorkbenchProjectionRow",
+      "type": "object"
+    }
+  },
+  "additionalProperties": false,
+  "properties": {
+    "decision_visibility_contract_id": {
+      "title": "Decision Visibility Contract Id",
+      "type": "string"
+    },
+    "ratification_review_workbench_projection_id": {
+      "title": "Ratification Review Workbench Projection Id",
+      "type": "string"
+    },
+    "review_id": {
+      "title": "Review Id",
+      "type": "string"
+    },
+    "schema": {
+      "const": "repo_ratification_review_workbench_projection@1",
+      "default": "repo_ratification_review_workbench_projection@1",
+      "title": "Schema",
+      "type": "string"
+    },
+    "snapshot_id": {
+      "title": "Snapshot Id",
+      "type": "string"
+    },
+    "source_set_id": {
+      "title": "Source Set Id",
+      "type": "string"
+    },
+    "workbench_boundary_summary": {
+      "title": "Workbench Boundary Summary",
+      "type": "string"
+    },
+    "workbench_projection_rows": {
+      "items": {
+        "$ref": "#/$defs/RepoRatificationReviewWorkbenchProjectionRow"
+      },
+      "minItems": 1,
+      "title": "Workbench Projection Rows",
+      "type": "array"
+    }
+  },
+  "required": [
+    "ratification_review_workbench_projection_id",
+    "review_id",
+    "snapshot_id",
+    "source_set_id",
+    "decision_visibility_contract_id",
+    "workbench_projection_rows",
+    "workbench_boundary_summary"
+  ],
+  "title": "RepoRatificationReviewWorkbenchProjection",
+  "type": "object"
+}

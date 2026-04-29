@@ -1,0 +1,92 @@
+{
+  "additionalProperties": false,
+  "properties": {
+    "closed_by_arc": {
+      "const": "vNext+208",
+      "title": "Closed By Arc",
+      "type": "string"
+    },
+    "closed_slice_ladder": {
+      "items": {
+        "enum": [
+          "V74-A",
+          "V74-B",
+          "V74-C"
+        ],
+        "type": "string"
+      },
+      "minItems": 3,
+      "title": "Closed Slice Ladder",
+      "type": "array"
+    },
+    "consumed_source_families": {
+      "items": {
+        "type": "string"
+      },
+      "minItems": 1,
+      "title": "Consumed Source Families",
+      "type": "array"
+    },
+    "family": {
+      "const": "V74",
+      "title": "Family",
+      "type": "string"
+    },
+    "future_family_authority": {
+      "items": {
+        "type": "string"
+      },
+      "minItems": 1,
+      "title": "Future Family Authority",
+      "type": "array"
+    },
+    "limitation_note": {
+      "title": "Limitation Note",
+      "type": "string"
+    },
+    "operator_projection_authority_boundary": {
+      "title": "Operator Projection Authority Boundary",
+      "type": "string"
+    },
+    "operator_projection_family_closeout_alignment_id": {
+      "title": "Operator Projection Family Closeout Alignment Id",
+      "type": "string"
+    },
+    "schema": {
+      "const": "repo_operator_projection_family_closeout_alignment@1",
+      "default": "repo_operator_projection_family_closeout_alignment@1",
+      "title": "Schema",
+      "type": "string"
+    },
+    "shipped_record_shapes": {
+      "items": {
+        "type": "string"
+      },
+      "minItems": 1,
+      "title": "Shipped Record Shapes",
+      "type": "array"
+    },
+    "unselected_future_surfaces": {
+      "items": {
+        "type": "string"
+      },
+      "minItems": 1,
+      "title": "Unselected Future Surfaces",
+      "type": "array"
+    }
+  },
+  "required": [
+    "operator_projection_family_closeout_alignment_id",
+    "family",
+    "closed_by_arc",
+    "closed_slice_ladder",
+    "shipped_record_shapes",
+    "consumed_source_families",
+    "future_family_authority",
+    "unselected_future_surfaces",
+    "operator_projection_authority_boundary",
+    "limitation_note"
+  ],
+  "title": "RepoOperatorProjectionFamilyCloseoutAlignment",
+  "type": "object"
+}
