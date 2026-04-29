@@ -1,0 +1,26 @@
+{
+  "non_authority_summary": "Operator-cognition outcome signal is evidence for later review only: no transcript truth, no lock authority, no release authority, no product authority, no runtime permission, and no dispatch authority.",
+  "operator_cognition_outcome_signal_id": "repo_operator_cognition_outcome_signal_f0f5e8f604128b8ce0758c4c",
+  "operator_signal_rows": [
+    {
+      "candidate_ref": "candidate:internal:self_evidencing_workflow_type_emergence",
+      "limitation_note": "Operator cognition signal is evidence for later review only and stays bounded.",
+      "non_authority_guardrail": "This operator turn is transcript truth and lock authority for V73-C.",
+      "operator_signal_ref": "operator-signal:v73c:self-evidencing:workflow-type-emergence",
+      "signal_kind": "workflow_exposed_missing_type",
+      "signal_posture": "signal_recorded_for_review",
+      "source_refs": [
+        "docs/DRAFT_ADEU_CANDIDATE_OUTCOME_REVIEW_V73C_IMPLEMENTATION_MAPPING_v0.md",
+        "docs/DRAFT_STOP_GATE_DECISION_vNEXT_PLUS204.md"
+      ],
+      "workflow_residue_refs": [
+        "residue:self-evidencing-workflow-type-emergence"
+      ]
+    }
+  ],
+  "outcome_observation_record_id": "repo_candidate_outcome_observation_record_f1fc14cac4d4ef0876450a4b",
+  "review_id": "review:v73a:outcome-entry",
+  "schema": "repo_operator_cognition_outcome_signal@1",
+  "snapshot_id": "vNext+200-prestart-on-main",
+  "source_set_id": "source-set:v70a:released-v69c-handoff"
+}

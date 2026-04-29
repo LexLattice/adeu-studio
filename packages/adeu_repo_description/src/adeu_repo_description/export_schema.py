@@ -25,9 +25,13 @@ from .arc_series_cartography_tools import RepoArcCartographyToolRunEvidence
 from .candidate_outcome_review import (
     RepoCandidateOutcomeObservationRecord,
     RepoCandidateOutcomeReviewEntry,
+    RepoOperatorCognitionOutcomeSignal,
     RepoOutcomeEvidenceSourceIndex,
+    RepoOutcomePromotionDemotionRecommendation,
     RepoOutcomeRegressionRegister,
     RepoOutcomeReviewBoundaryGuardrail,
+    RepoOutcomeReviewFamilyCloseoutAlignment,
+    RepoSelfImprovementOutcomeLedger,
     RepoToolFitnessDriftRegister,
 )
 from .candidate_ratification_review import (
@@ -284,6 +288,18 @@ def main() -> None:
     tool_fitness_drift_register_schema = RepoToolFitnessDriftRegister.model_json_schema(
         by_alias=True
     )
+    self_improvement_outcome_ledger_schema = (
+        RepoSelfImprovementOutcomeLedger.model_json_schema(by_alias=True)
+    )
+    operator_cognition_outcome_signal_schema = (
+        RepoOperatorCognitionOutcomeSignal.model_json_schema(by_alias=True)
+    )
+    outcome_promotion_demotion_recommendation_schema = (
+        RepoOutcomePromotionDemotionRecommendation.model_json_schema(by_alias=True)
+    )
+    outcome_review_family_closeout_alignment_schema = (
+        RepoOutcomeReviewFamilyCloseoutAlignment.model_json_schema(by_alias=True)
+    )
 
     _assert_no_absolute_path_material(dependency_register_v1_schema, repo_root_path=root)
     _assert_no_absolute_path_material(dependency_register_schema, repo_root_path=root)
@@ -389,6 +405,16 @@ def main() -> None:
     )
     _assert_no_absolute_path_material(outcome_regression_register_schema, repo_root_path=root)
     _assert_no_absolute_path_material(tool_fitness_drift_register_schema, repo_root_path=root)
+    _assert_no_absolute_path_material(self_improvement_outcome_ledger_schema, repo_root_path=root)
+    _assert_no_absolute_path_material(operator_cognition_outcome_signal_schema, repo_root_path=root)
+    _assert_no_absolute_path_material(
+        outcome_promotion_demotion_recommendation_schema,
+        repo_root_path=root,
+    )
+    _assert_no_absolute_path_material(
+        outcome_review_family_closeout_alignment_schema,
+        repo_root_path=root,
+    )
 
     _write_schema(
         root
@@ -1085,6 +1111,54 @@ def main() -> None:
     _write_schema(
         root / "spec" / "repo_tool_fitness_drift_register.schema.json",
         tool_fitness_drift_register_schema,
+    )
+    _write_schema(
+        root
+        / "packages"
+        / "adeu_repo_description"
+        / "schema"
+        / "repo_self_improvement_outcome_ledger.v1.json",
+        self_improvement_outcome_ledger_schema,
+    )
+    _write_schema(
+        root / "spec" / "repo_self_improvement_outcome_ledger.schema.json",
+        self_improvement_outcome_ledger_schema,
+    )
+    _write_schema(
+        root
+        / "packages"
+        / "adeu_repo_description"
+        / "schema"
+        / "repo_operator_cognition_outcome_signal.v1.json",
+        operator_cognition_outcome_signal_schema,
+    )
+    _write_schema(
+        root / "spec" / "repo_operator_cognition_outcome_signal.schema.json",
+        operator_cognition_outcome_signal_schema,
+    )
+    _write_schema(
+        root
+        / "packages"
+        / "adeu_repo_description"
+        / "schema"
+        / "repo_outcome_promotion_demotion_recommendation.v1.json",
+        outcome_promotion_demotion_recommendation_schema,
+    )
+    _write_schema(
+        root / "spec" / "repo_outcome_promotion_demotion_recommendation.schema.json",
+        outcome_promotion_demotion_recommendation_schema,
+    )
+    _write_schema(
+        root
+        / "packages"
+        / "adeu_repo_description"
+        / "schema"
+        / "repo_outcome_review_family_closeout_alignment.v1.json",
+        outcome_review_family_closeout_alignment_schema,
+    )
+    _write_schema(
+        root / "spec" / "repo_outcome_review_family_closeout_alignment.schema.json",
+        outcome_review_family_closeout_alignment_schema,
     )
 
 

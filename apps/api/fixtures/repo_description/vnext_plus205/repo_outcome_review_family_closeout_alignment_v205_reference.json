@@ -1,0 +1,54 @@
+{
+  "alignment_rows": [
+    {
+      "closed_slice_refs": [
+        "V73-A",
+        "V73-B",
+        "V73-C"
+      ],
+      "closeout_alignment_posture": "family_closed_review_machinery_only",
+      "emitted_surface_refs": [
+        "repo_candidate_outcome_observation_record@1",
+        "repo_candidate_outcome_review_entry@1",
+        "repo_operator_cognition_outcome_signal@1",
+        "repo_outcome_evidence_source_index@1",
+        "repo_outcome_promotion_demotion_recommendation@1",
+        "repo_outcome_regression_register@1",
+        "repo_outcome_review_boundary_guardrail@1",
+        "repo_outcome_review_family_closeout_alignment@1",
+        "repo_self_improvement_outcome_ledger@1",
+        "repo_tool_fitness_drift_register@1"
+      ],
+      "family_ref": "V73",
+      "future_family_refs": [
+        "V43",
+        "V74",
+        "V75"
+      ],
+      "ledger_refs": [
+        "ledger:v73c:self-evidencing:positive-review-signal"
+      ],
+      "limitation_note": "Family closeout records review machinery closure only.",
+      "non_authority_guardrail_refs": [
+        "guardrail:v73c:family-closeout:no-authority"
+      ],
+      "operator_signal_refs": [
+        "operator-signal:v73c:self-evidencing:workflow-type-emergence"
+      ],
+      "recommendation_refs": [
+        "recommendation:v73c:self-evidencing:promote-for-later-review"
+      ],
+      "reviewed_candidate_refs": [
+        "candidate:internal:self_evidencing_workflow_type_emergence"
+      ]
+    }
+  ],
+  "family_closeout_boundary_summary": "V73 family closeout alignment closes review machinery only: no self-approval, no adoption, no release, no product authorization, no runtime permission, no dispatch authority, and no external contest authority.",
+  "outcome_promotion_demotion_recommendation_id": "repo_outcome_promotion_demotion_recommendation_2fb04a55483c23828aded406",
+  "outcome_review_family_closeout_alignment_id": "repo_outcome_review_family_closeout_alignment_fe8592ba588bfecad771bf4c",
+  "review_id": "review:v73a:outcome-entry",
+  "schema": "repo_outcome_review_family_closeout_alignment@1",
+  "self_improvement_outcome_ledger_id": "repo_self_improvement_outcome_ledger_f2249a5a0b33523adba7155a",
+  "snapshot_id": "vNext+200-prestart-on-main",
+  "source_set_id": "source-set:v70a:released-v69c-handoff"
+}

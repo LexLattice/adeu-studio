@@ -36,6 +36,14 @@ REPO_OUTCOME_REVIEW_BOUNDARY_GUARDRAIL_SCHEMA = "repo_outcome_review_boundary_gu
 REPO_CANDIDATE_OUTCOME_OBSERVATION_RECORD_SCHEMA = "repo_candidate_outcome_observation_record@1"
 REPO_OUTCOME_REGRESSION_REGISTER_SCHEMA = "repo_outcome_regression_register@1"
 REPO_TOOL_FITNESS_DRIFT_REGISTER_SCHEMA = "repo_tool_fitness_drift_register@1"
+REPO_SELF_IMPROVEMENT_OUTCOME_LEDGER_SCHEMA = "repo_self_improvement_outcome_ledger@1"
+REPO_OPERATOR_COGNITION_OUTCOME_SIGNAL_SCHEMA = "repo_operator_cognition_outcome_signal@1"
+REPO_OUTCOME_PROMOTION_DEMOTION_RECOMMENDATION_SCHEMA = (
+    "repo_outcome_promotion_demotion_recommendation@1"
+)
+REPO_OUTCOME_REVIEW_FAMILY_CLOSEOUT_ALIGNMENT_SCHEMA = (
+    "repo_outcome_review_family_closeout_alignment@1"
+)
 
 OutcomeReviewEntryPosture = Literal[
     "eligible_for_outcome_review",
@@ -149,6 +157,56 @@ ToolFitnessPosture = Literal[
     "tool_fit_unchecked",
     "tool_fit_not_applicable",
 ]
+OutcomeLedgerPosture = Literal[
+    "positive_signal_recorded",
+    "negative_signal_recorded",
+    "mixed_signal_recorded",
+    "inconclusive_signal_recorded",
+    "deferred_signal_recorded",
+    "out_of_scope_signal_recorded",
+]
+OperatorCognitionSignalKind = Literal[
+    "operator_conceptual_state_changed",
+    "workflow_generated_new_task",
+    "workflow_exposed_missing_type",
+    "reviewer_decision_pressure_changed",
+    "no_operator_signal_recorded",
+]
+OperatorCognitionSignalPosture = Literal[
+    "signal_recorded_for_review",
+    "signal_requires_later_projection",
+    "signal_inconclusive",
+    "signal_not_authority",
+    "signal_not_applicable",
+]
+OutcomeRecommendationPosture = Literal[
+    "recommend_promote_for_later_review",
+    "recommend_demote_or_revert_for_later_review",
+    "recommend_repeat_trial",
+    "recommend_more_evidence",
+    "recommend_future_family_review",
+    "recommend_no_action",
+    "recommend_reject_out_of_scope",
+]
+OutcomeRecommendationNextSurface = Literal[
+    "v74_operator_projection_review",
+    "v72_repeat_trial_review",
+    "future_ratification_or_policy_review",
+    "future_family_review",
+    "deferred_no_selection",
+]
+OutcomeRecommendationLaterAuthority = Literal[
+    "human_ratification_required",
+    "maintainer_release_authority_required",
+    "product_authority_required",
+    "dispatch_authority_required",
+    "none_for_no_action",
+]
+OutcomeFamilyCloseoutPosture = Literal[
+    "family_closed_review_machinery_only",
+    "family_closeout_deferred_by_gap",
+    "family_closeout_blocked",
+]
 
 _V72B_TRIAL_FIXTURE = (
     "apps/api/fixtures/repo_description/vnext_plus201/"
@@ -185,6 +243,18 @@ _V73A_ENTRY_FIXTURE = (
 _V73A_GUARDRAIL_FIXTURE = (
     "apps/api/fixtures/repo_description/vnext_plus203/"
     "repo_outcome_review_boundary_guardrail_v203_reference.json"
+)
+_V73B_OBSERVATION_FIXTURE = (
+    "apps/api/fixtures/repo_description/vnext_plus204/"
+    "repo_candidate_outcome_observation_record_v204_reference.json"
+)
+_V73B_REGRESSION_FIXTURE = (
+    "apps/api/fixtures/repo_description/vnext_plus204/"
+    "repo_outcome_regression_register_v204_reference.json"
+)
+_V73B_TOOL_FITNESS_FIXTURE = (
+    "apps/api/fixtures/repo_description/vnext_plus204/"
+    "repo_tool_fitness_drift_register_v204_reference.json"
 )
 
 _V73A_FORBIDDEN_OUTCOME_TERMS = (
@@ -267,6 +337,52 @@ _V73B_TOOL_TARGET_BOUND_SUMMARY = (
     "applicability, no global deprecation, no promotion, no adoption, no release, "
     "no product authorization, no runtime permission, and no dispatch authority."
 )
+_V73C_FORBIDDEN_AUTHORITY_TERMS = (
+    "adopted",
+    "adoption authorized",
+    "release authorized",
+    "released truth",
+    "product authorized",
+    "product work authorized",
+    "runtime authorized",
+    "dispatch authorized",
+    "dispatch selected",
+    "external contest authorized",
+    "automatic revert",
+    "multi-worker execution",
+)
+_V73C_LEDGER_SUMMARY = (
+    "Self-improvement outcome ledger is review memory only: no self-approval, "
+    "no adoption, no release, no product authorization, no runtime permission, "
+    "no dispatch authority, and no external contest authority."
+)
+_V73C_OPERATOR_NON_AUTHORITY_SUMMARY = (
+    "Operator-cognition outcome signal is evidence for later review only: "
+    "no transcript truth, no lock authority, no release authority, no product "
+    "authority, no runtime permission, and no dispatch authority."
+)
+_V73C_RECOMMENDATION_BOUNDARY_SUMMARY = (
+    "Outcome recommendation separates posture, next review surface, and later "
+    "authority: no adoption, no release, no automatic revert, no product work, "
+    "no runtime permission, no dispatch selection, and no self-approval."
+)
+_V73C_FAMILY_CLOSEOUT_SUMMARY = (
+    "V73 family closeout alignment closes review machinery only: no self-approval, "
+    "no adoption, no release, no product authorization, no runtime permission, "
+    "no dispatch authority, and no external contest authority."
+)
+_V73_SURFACE_SET = {
+    REPO_CANDIDATE_OUTCOME_REVIEW_ENTRY_SCHEMA,
+    REPO_OUTCOME_EVIDENCE_SOURCE_INDEX_SCHEMA,
+    REPO_OUTCOME_REVIEW_BOUNDARY_GUARDRAIL_SCHEMA,
+    REPO_CANDIDATE_OUTCOME_OBSERVATION_RECORD_SCHEMA,
+    REPO_OUTCOME_REGRESSION_REGISTER_SCHEMA,
+    REPO_TOOL_FITNESS_DRIFT_REGISTER_SCHEMA,
+    REPO_SELF_IMPROVEMENT_OUTCOME_LEDGER_SCHEMA,
+    REPO_OPERATOR_COGNITION_OUTCOME_SIGNAL_SCHEMA,
+    REPO_OUTCOME_PROMOTION_DEMOTION_RECOMMENDATION_SCHEMA,
+    REPO_OUTCOME_REVIEW_FAMILY_CLOSEOUT_ALIGNMENT_SCHEMA,
+}
 
 
 def _v73a_note(value: str, *, field_name: str) -> str:
@@ -348,6 +464,36 @@ def _v73b_required_summary(value: str, *, field_name: str, required: tuple[str, 
         raise ValueError(f"{field_name} may not authorize downstream action or global policy")
     if "global deprecation" in lowered and "no global deprecation" not in lowered:
         raise ValueError(f"{field_name} may not authorize downstream action or global policy")
+    return normalized
+
+
+def _v73c_note(value: str, *, field_name: str) -> str:
+    normalized = _non_empty(value, field_name=field_name)
+    lowered = normalized.lower()
+    forbidden_terms = [
+        term
+        for term in _V73C_FORBIDDEN_AUTHORITY_TERMS
+        if not (term == "automatic revert" and "no automatic revert" in lowered)
+    ]
+    if any(term in lowered for term in forbidden_terms):
+        raise ValueError(f"{field_name} may not carry downstream authority or self-approval")
+    if "self approval" in lowered and "no self approval" not in lowered:
+        raise ValueError(f"{field_name} may not carry downstream authority or self-approval")
+    if "self-approval" in lowered and "no self-approval" not in lowered:
+        raise ValueError(f"{field_name} may not carry downstream authority or self-approval")
+    if "transcript truth" in lowered and "no transcript truth" not in lowered:
+        raise ValueError(f"{field_name} may not treat transcript as truth")
+    if "lock authority" in lowered and "no lock authority" not in lowered:
+        raise ValueError(f"{field_name} may not carry lock authority")
+    return normalized
+
+
+def _v73c_required_summary(value: str, *, field_name: str, required: tuple[str, ...]) -> str:
+    normalized = _v73c_note(value, field_name=field_name)
+    lowered = normalized.lower()
+    missing = [phrase for phrase in required if phrase not in lowered]
+    if missing:
+        raise ValueError(f"{field_name} must state {', '.join(missing)}")
     return normalized
 
 
@@ -1177,6 +1323,500 @@ class RepoToolFitnessDriftRegister(_CartographyBase):
         return self
 
 
+class RepoSelfImprovementOutcomeLedgerRow(_CartographyBase):
+    ledger_ref: str
+    candidate_ref: str
+    entry_refs: list[str] = Field(min_length=1)
+    observation_refs: list[str] = Field(min_length=1)
+    regression_refs: list[str] = Field(default_factory=list)
+    tool_fitness_refs: list[str] = Field(default_factory=list)
+    operator_cognition_signal_refs: list[str] = Field(default_factory=list)
+    outcome_ledger_posture: OutcomeLedgerPosture
+    carried_forward_gap_refs: list[str] = Field(default_factory=list)
+    limitation_note: str
+
+    @model_validator(mode="after")
+    def _validate_ledger_row(self) -> RepoSelfImprovementOutcomeLedgerRow:
+        object.__setattr__(
+            self, "ledger_ref", _non_empty(self.ledger_ref, field_name="ledger_ref")
+        )
+        object.__setattr__(
+            self, "candidate_ref", _non_empty(self.candidate_ref, field_name="candidate_ref")
+        )
+        for field_name in (
+            "entry_refs",
+            "observation_refs",
+            "regression_refs",
+            "tool_fitness_refs",
+            "operator_cognition_signal_refs",
+            "carried_forward_gap_refs",
+        ):
+            object.__setattr__(
+                self,
+                field_name,
+                _sorted_unique(getattr(self, field_name), field_name=field_name),
+            )
+        object.__setattr__(
+            self,
+            "limitation_note",
+            _v73c_note(self.limitation_note, field_name="limitation_note"),
+        )
+        if self.outcome_ledger_posture == "positive_signal_recorded" and not (
+            self.regression_refs and self.tool_fitness_refs
+        ):
+            raise ValueError("positive ledger signals require regression and tool-fitness refs")
+        if self.outcome_ledger_posture == "out_of_scope_signal_recorded" and (
+            self.regression_refs or self.tool_fitness_refs
+        ):
+            raise ValueError("out-of-scope ledger signals cannot carry evaluation refs")
+        return self
+
+
+class RepoSelfImprovementOutcomeLedger(_CartographyBase):
+    schema: Literal["repo_self_improvement_outcome_ledger@1"] = (
+        REPO_SELF_IMPROVEMENT_OUTCOME_LEDGER_SCHEMA
+    )
+    self_improvement_outcome_ledger_id: str
+    review_id: str
+    snapshot_id: str
+    source_set_id: str
+    outcome_observation_record_id: str
+    outcome_regression_register_id: str
+    tool_fitness_drift_register_id: str
+    ledger_rows: list[RepoSelfImprovementOutcomeLedgerRow] = Field(min_length=1)
+    non_self_approval_summary: str
+
+    @model_validator(mode="after")
+    def _validate_ledger(self) -> RepoSelfImprovementOutcomeLedger:
+        for field_name in (
+            "self_improvement_outcome_ledger_id",
+            "review_id",
+            "snapshot_id",
+            "source_set_id",
+            "outcome_observation_record_id",
+            "outcome_regression_register_id",
+            "tool_fitness_drift_register_id",
+        ):
+            object.__setattr__(
+                self, field_name, _non_empty(getattr(self, field_name), field_name=field_name)
+            )
+        object.__setattr__(
+            self,
+            "ledger_rows",
+            _sorted_unique_by_ref(self.ledger_rows, attr="ledger_ref", field_name="ledger_rows"),
+        )
+        object.__setattr__(
+            self,
+            "non_self_approval_summary",
+            _v73c_required_summary(
+                self.non_self_approval_summary,
+                field_name="non_self_approval_summary",
+                required=(
+                    "review memory",
+                    "no self-approval",
+                    "no adoption",
+                    "no release",
+                    "no product",
+                    "no runtime",
+                    "no dispatch",
+                    "no external contest",
+                ),
+            ),
+        )
+        expected_id = _surface_id(
+            "repo_self_improvement_outcome_ledger",
+            REPO_SELF_IMPROVEMENT_OUTCOME_LEDGER_SCHEMA,
+            self.model_dump(mode="json"),
+            "self_improvement_outcome_ledger_id",
+        )
+        if self.self_improvement_outcome_ledger_id != expected_id:
+            raise ValueError(
+                "self_improvement_outcome_ledger_id must match canonical full payload hash identity"
+            )
+        return self
+
+
+class RepoOperatorCognitionOutcomeSignalRow(_CartographyBase):
+    operator_signal_ref: str
+    candidate_ref: str
+    source_refs: list[str] = Field(min_length=1)
+    signal_kind: OperatorCognitionSignalKind
+    signal_posture: OperatorCognitionSignalPosture
+    workflow_residue_refs: list[str] = Field(default_factory=list)
+    non_authority_guardrail: str
+    limitation_note: str
+
+    @model_validator(mode="after")
+    def _validate_operator_signal_row(self) -> RepoOperatorCognitionOutcomeSignalRow:
+        object.__setattr__(
+            self,
+            "operator_signal_ref",
+            _non_empty(self.operator_signal_ref, field_name="operator_signal_ref"),
+        )
+        object.__setattr__(
+            self, "candidate_ref", _non_empty(self.candidate_ref, field_name="candidate_ref")
+        )
+        object.__setattr__(
+            self, "source_refs", _sorted_unique(self.source_refs, field_name="source_refs")
+        )
+        object.__setattr__(
+            self,
+            "workflow_residue_refs",
+            _sorted_unique(self.workflow_residue_refs, field_name="workflow_residue_refs"),
+        )
+        object.__setattr__(
+            self,
+            "non_authority_guardrail",
+            _v73c_required_summary(
+                self.non_authority_guardrail,
+                field_name="non_authority_guardrail",
+                required=(
+                    "no transcript truth",
+                    "no lock authority",
+                    "no release",
+                    "no product",
+                    "no runtime",
+                    "no dispatch",
+                ),
+            ),
+        )
+        object.__setattr__(
+            self,
+            "limitation_note",
+            _v73c_note(self.limitation_note, field_name="limitation_note"),
+        )
+        if self.signal_kind == "no_operator_signal_recorded" and (
+            self.signal_posture != "signal_not_applicable"
+        ):
+            raise ValueError("no operator signal rows require signal_not_applicable posture")
+        if self.signal_kind != "no_operator_signal_recorded" and (
+            self.signal_posture == "signal_not_applicable"
+        ):
+            raise ValueError("recorded operator signal rows cannot be signal_not_applicable")
+        return self
+
+
+class RepoOperatorCognitionOutcomeSignal(_CartographyBase):
+    schema: Literal["repo_operator_cognition_outcome_signal@1"] = (
+        REPO_OPERATOR_COGNITION_OUTCOME_SIGNAL_SCHEMA
+    )
+    operator_cognition_outcome_signal_id: str
+    review_id: str
+    snapshot_id: str
+    source_set_id: str
+    outcome_observation_record_id: str
+    operator_signal_rows: list[RepoOperatorCognitionOutcomeSignalRow] = Field(min_length=1)
+    non_authority_summary: str
+
+    @model_validator(mode="after")
+    def _validate_operator_signal(self) -> RepoOperatorCognitionOutcomeSignal:
+        for field_name in (
+            "operator_cognition_outcome_signal_id",
+            "review_id",
+            "snapshot_id",
+            "source_set_id",
+            "outcome_observation_record_id",
+        ):
+            object.__setattr__(
+                self, field_name, _non_empty(getattr(self, field_name), field_name=field_name)
+            )
+        object.__setattr__(
+            self,
+            "operator_signal_rows",
+            _sorted_unique_by_ref(
+                self.operator_signal_rows,
+                attr="operator_signal_ref",
+                field_name="operator_signal_rows",
+            ),
+        )
+        object.__setattr__(
+            self,
+            "non_authority_summary",
+            _v73c_required_summary(
+                self.non_authority_summary,
+                field_name="non_authority_summary",
+                required=(
+                    "later review",
+                    "no transcript truth",
+                    "no lock authority",
+                    "no release",
+                    "no product",
+                    "no runtime",
+                    "no dispatch",
+                ),
+            ),
+        )
+        expected_id = _surface_id(
+            "repo_operator_cognition_outcome_signal",
+            REPO_OPERATOR_COGNITION_OUTCOME_SIGNAL_SCHEMA,
+            self.model_dump(mode="json"),
+            "operator_cognition_outcome_signal_id",
+        )
+        if self.operator_cognition_outcome_signal_id != expected_id:
+            raise ValueError(
+                "operator_cognition_outcome_signal_id must match canonical full payload "
+                "hash identity"
+            )
+        return self
+
+
+class RepoOutcomePromotionDemotionRecommendationRow(_CartographyBase):
+    recommendation_ref: str
+    candidate_ref: str
+    ledger_refs: list[str] = Field(min_length=1)
+    observation_refs: list[str] = Field(default_factory=list)
+    regression_refs: list[str] = Field(default_factory=list)
+    tool_fitness_refs: list[str] = Field(default_factory=list)
+    operator_signal_refs: list[str] = Field(default_factory=list)
+    recommendation_posture: OutcomeRecommendationPosture
+    required_next_surface: OutcomeRecommendationNextSurface
+    required_later_authority: OutcomeRecommendationLaterAuthority
+    forbidden_downstream_roles: list[OutcomeForbiddenDownstreamRole] = Field(min_length=1)
+    limitation_note: str
+
+    @model_validator(mode="after")
+    def _validate_recommendation_row(self) -> RepoOutcomePromotionDemotionRecommendationRow:
+        object.__setattr__(
+            self,
+            "recommendation_ref",
+            _non_empty(self.recommendation_ref, field_name="recommendation_ref"),
+        )
+        object.__setattr__(
+            self, "candidate_ref", _non_empty(self.candidate_ref, field_name="candidate_ref")
+        )
+        for field_name in (
+            "ledger_refs",
+            "observation_refs",
+            "regression_refs",
+            "tool_fitness_refs",
+            "operator_signal_refs",
+            "forbidden_downstream_roles",
+        ):
+            object.__setattr__(
+                self,
+                field_name,
+                _sorted_unique(getattr(self, field_name), field_name=field_name),
+            )
+        object.__setattr__(
+            self,
+            "limitation_note",
+            _v73c_note(self.limitation_note, field_name="limitation_note"),
+        )
+        missing_roles = sorted(_V73A_FORBIDDEN_ROLE_SET - set(self.forbidden_downstream_roles))
+        if missing_roles:
+            raise ValueError(f"recommendations must forbid downstream roles: {missing_roles}")
+        if (
+            self.recommendation_posture == "recommend_promote_for_later_review"
+            and self.required_later_authority == "none_for_no_action"
+        ):
+            raise ValueError("promotion recommendations require later authority posture")
+        if (
+            self.recommendation_posture == "recommend_demote_or_revert_for_later_review"
+            and self.required_later_authority == "none_for_no_action"
+        ):
+            raise ValueError("demotion recommendations require later authority posture")
+        if (
+            self.recommendation_posture == "recommend_no_action"
+            and self.required_later_authority != "none_for_no_action"
+        ):
+            raise ValueError("no-action recommendations require none_for_no_action authority")
+        if (
+            self.required_later_authority == "product_authority_required"
+            and self.required_next_surface != "v74_operator_projection_review"
+        ):
+            raise ValueError("product recommendations require V74 review")
+        return self
+
+
+class RepoOutcomePromotionDemotionRecommendation(_CartographyBase):
+    schema: Literal["repo_outcome_promotion_demotion_recommendation@1"] = (
+        REPO_OUTCOME_PROMOTION_DEMOTION_RECOMMENDATION_SCHEMA
+    )
+    outcome_promotion_demotion_recommendation_id: str
+    review_id: str
+    snapshot_id: str
+    source_set_id: str
+    self_improvement_outcome_ledger_id: str
+    operator_cognition_outcome_signal_id: str
+    recommendation_rows: list[RepoOutcomePromotionDemotionRecommendationRow] = Field(min_length=1)
+    recommendation_boundary_summary: str
+
+    @model_validator(mode="after")
+    def _validate_recommendation(self) -> RepoOutcomePromotionDemotionRecommendation:
+        for field_name in (
+            "outcome_promotion_demotion_recommendation_id",
+            "review_id",
+            "snapshot_id",
+            "source_set_id",
+            "self_improvement_outcome_ledger_id",
+            "operator_cognition_outcome_signal_id",
+        ):
+            object.__setattr__(
+                self, field_name, _non_empty(getattr(self, field_name), field_name=field_name)
+            )
+        object.__setattr__(
+            self,
+            "recommendation_rows",
+            _sorted_unique_by_ref(
+                self.recommendation_rows,
+                attr="recommendation_ref",
+                field_name="recommendation_rows",
+            ),
+        )
+        object.__setattr__(
+            self,
+            "recommendation_boundary_summary",
+            _v73c_required_summary(
+                self.recommendation_boundary_summary,
+                field_name="recommendation_boundary_summary",
+                required=(
+                    "separates posture",
+                    "next review surface",
+                    "later authority",
+                    "no adoption",
+                    "no release",
+                    "no automatic revert",
+                    "no product work",
+                    "no runtime",
+                    "no dispatch selection",
+                    "no self-approval",
+                ),
+            ),
+        )
+        expected_id = _surface_id(
+            "repo_outcome_promotion_demotion_recommendation",
+            REPO_OUTCOME_PROMOTION_DEMOTION_RECOMMENDATION_SCHEMA,
+            self.model_dump(mode="json"),
+            "outcome_promotion_demotion_recommendation_id",
+        )
+        if self.outcome_promotion_demotion_recommendation_id != expected_id:
+            raise ValueError(
+                "outcome_promotion_demotion_recommendation_id must match canonical full "
+                "payload hash identity"
+            )
+        return self
+
+
+class RepoOutcomeReviewFamilyCloseoutAlignmentRow(_CartographyBase):
+    family_ref: str
+    closed_slice_refs: list[str] = Field(min_length=1)
+    emitted_surface_refs: list[str] = Field(min_length=1)
+    reviewed_candidate_refs: list[str] = Field(min_length=1)
+    ledger_refs: list[str] = Field(min_length=1)
+    operator_signal_refs: list[str] = Field(default_factory=list)
+    recommendation_refs: list[str] = Field(min_length=1)
+    non_authority_guardrail_refs: list[str] = Field(min_length=1)
+    future_family_refs: list[str] = Field(default_factory=list)
+    closeout_alignment_posture: OutcomeFamilyCloseoutPosture
+    limitation_note: str
+
+    @model_validator(mode="after")
+    def _validate_family_alignment_row(self) -> RepoOutcomeReviewFamilyCloseoutAlignmentRow:
+        object.__setattr__(
+            self, "family_ref", _non_empty(self.family_ref, field_name="family_ref")
+        )
+        for field_name in (
+            "closed_slice_refs",
+            "emitted_surface_refs",
+            "reviewed_candidate_refs",
+            "ledger_refs",
+            "operator_signal_refs",
+            "recommendation_refs",
+            "non_authority_guardrail_refs",
+            "future_family_refs",
+        ):
+            object.__setattr__(
+                self,
+                field_name,
+                _sorted_unique(getattr(self, field_name), field_name=field_name),
+            )
+        object.__setattr__(
+            self,
+            "limitation_note",
+            _v73c_note(self.limitation_note, field_name="limitation_note"),
+        )
+        missing_slices = sorted({"V73-A", "V73-B", "V73-C"} - set(self.closed_slice_refs))
+        if missing_slices:
+            raise ValueError(f"V73 closeout alignment must list closed slices: {missing_slices}")
+        missing_surfaces = sorted(_V73_SURFACE_SET - set(self.emitted_surface_refs))
+        if missing_surfaces:
+            raise ValueError(
+                f"V73 closeout alignment must list emitted surfaces: {missing_surfaces}"
+            )
+        if self.closeout_alignment_posture == "family_closed_review_machinery_only" and (
+            "V74" not in self.future_family_refs
+        ):
+            raise ValueError("V73 closeout alignment must carry V74 as a future family ref")
+        return self
+
+
+class RepoOutcomeReviewFamilyCloseoutAlignment(_CartographyBase):
+    schema: Literal["repo_outcome_review_family_closeout_alignment@1"] = (
+        REPO_OUTCOME_REVIEW_FAMILY_CLOSEOUT_ALIGNMENT_SCHEMA
+    )
+    outcome_review_family_closeout_alignment_id: str
+    review_id: str
+    snapshot_id: str
+    source_set_id: str
+    self_improvement_outcome_ledger_id: str
+    outcome_promotion_demotion_recommendation_id: str
+    alignment_rows: list[RepoOutcomeReviewFamilyCloseoutAlignmentRow] = Field(min_length=1)
+    family_closeout_boundary_summary: str
+
+    @model_validator(mode="after")
+    def _validate_family_alignment(self) -> RepoOutcomeReviewFamilyCloseoutAlignment:
+        for field_name in (
+            "outcome_review_family_closeout_alignment_id",
+            "review_id",
+            "snapshot_id",
+            "source_set_id",
+            "self_improvement_outcome_ledger_id",
+            "outcome_promotion_demotion_recommendation_id",
+        ):
+            object.__setattr__(
+                self, field_name, _non_empty(getattr(self, field_name), field_name=field_name)
+            )
+        object.__setattr__(
+            self,
+            "alignment_rows",
+            _sorted_unique_by_ref(
+                self.alignment_rows,
+                attr="family_ref",
+                field_name="alignment_rows",
+            ),
+        )
+        object.__setattr__(
+            self,
+            "family_closeout_boundary_summary",
+            _v73c_required_summary(
+                self.family_closeout_boundary_summary,
+                field_name="family_closeout_boundary_summary",
+                required=(
+                    "review machinery",
+                    "no self-approval",
+                    "no adoption",
+                    "no release",
+                    "no product",
+                    "no runtime",
+                    "no dispatch",
+                    "no external contest",
+                ),
+            ),
+        )
+        expected_id = _surface_id(
+            "repo_outcome_review_family_closeout_alignment",
+            REPO_OUTCOME_REVIEW_FAMILY_CLOSEOUT_ALIGNMENT_SCHEMA,
+            self.model_dump(mode="json"),
+            "outcome_review_family_closeout_alignment_id",
+        )
+        if self.outcome_review_family_closeout_alignment_id != expected_id:
+            raise ValueError(
+                "outcome_review_family_closeout_alignment_id must match canonical full payload "
+                "hash identity"
+            )
+        return self
+
+
 def _load_v72b_trial_record(repo_root: Path) -> RepoContainedIntegrationTrialRecord:
     return RepoContainedIntegrationTrialRecord.model_validate(
         _load_json(repo_root, _V72B_TRIAL_FIXTURE)
@@ -1228,6 +1868,24 @@ def _load_v73a_entry(repo_root: Path) -> RepoCandidateOutcomeReviewEntry:
 def _load_v73a_guardrail(repo_root: Path) -> RepoOutcomeReviewBoundaryGuardrail:
     return RepoOutcomeReviewBoundaryGuardrail.model_validate(
         _load_json(repo_root, _V73A_GUARDRAIL_FIXTURE)
+    )
+
+
+def _load_v73b_observation(repo_root: Path) -> RepoCandidateOutcomeObservationRecord:
+    return RepoCandidateOutcomeObservationRecord.model_validate(
+        _load_json(repo_root, _V73B_OBSERVATION_FIXTURE)
+    )
+
+
+def _load_v73b_regression(repo_root: Path) -> RepoOutcomeRegressionRegister:
+    return RepoOutcomeRegressionRegister.model_validate(
+        _load_json(repo_root, _V73B_REGRESSION_FIXTURE)
+    )
+
+
+def _load_v73b_tool_fitness(repo_root: Path) -> RepoToolFitnessDriftRegister:
+    return RepoToolFitnessDriftRegister.model_validate(
+        _load_json(repo_root, _V73B_TOOL_FITNESS_FIXTURE)
     )
 
 
@@ -2124,3 +2782,443 @@ def derive_v73b_repo_candidate_outcome_review_bundle(
         tool_fitness_drift_register=tool_fitness,
     )
     return source_index, entry, guardrail, observation, regression, tool_fitness
+
+
+def derive_v73c_repo_self_improvement_outcome_ledger(
+    *,
+    repo_root: Path,
+    candidate_outcome_observation_record: RepoCandidateOutcomeObservationRecord | None = None,
+    outcome_regression_register: RepoOutcomeRegressionRegister | None = None,
+    tool_fitness_drift_register: RepoToolFitnessDriftRegister | None = None,
+) -> RepoSelfImprovementOutcomeLedger:
+    observation = candidate_outcome_observation_record or _load_v73b_observation(repo_root)
+    regression = outcome_regression_register or _load_v73b_regression(repo_root)
+    tool_fitness = tool_fitness_drift_register or _load_v73b_tool_fitness(repo_root)
+    rows = [
+        RepoSelfImprovementOutcomeLedgerRow(
+            ledger_ref="ledger:v73c:self-evidencing:positive-review-signal",
+            candidate_ref="candidate:internal:self_evidencing_workflow_type_emergence",
+            entry_refs=["entry:v73a:self-evidencing:outcome-review"],
+            observation_refs=["observation:v73b:self-evidencing:bounded-benefit"],
+            regression_refs=["regression:v73b:self-evidencing:no-schema-regression"],
+            tool_fitness_refs=["tool-fitness:v73b:arc-closeout-check:target-bound"],
+            operator_cognition_signal_refs=[
+                "operator-signal:v73c:self-evidencing:workflow-type-emergence"
+            ],
+            outcome_ledger_posture="positive_signal_recorded",
+            carried_forward_gap_refs=[],
+            limitation_note="Ledger records a bounded positive review signal for later review.",
+        )
+    ]
+    payload = {
+        "schema": REPO_SELF_IMPROVEMENT_OUTCOME_LEDGER_SCHEMA,
+        "review_id": observation.review_id,
+        "snapshot_id": observation.snapshot_id,
+        "source_set_id": observation.source_set_id,
+        "outcome_observation_record_id": observation.outcome_observation_record_id,
+        "outcome_regression_register_id": regression.outcome_regression_register_id,
+        "tool_fitness_drift_register_id": tool_fitness.tool_fitness_drift_register_id,
+        "ledger_rows": [
+            row.model_dump(mode="json") for row in sorted(rows, key=lambda row: row.ledger_ref)
+        ],
+        "non_self_approval_summary": _V73C_LEDGER_SUMMARY,
+    }
+    payload["self_improvement_outcome_ledger_id"] = _surface_id(
+        "repo_self_improvement_outcome_ledger",
+        REPO_SELF_IMPROVEMENT_OUTCOME_LEDGER_SCHEMA,
+        payload,
+        "self_improvement_outcome_ledger_id",
+    )
+    return RepoSelfImprovementOutcomeLedger.model_validate(payload)
+
+
+def derive_v73c_repo_operator_cognition_outcome_signal(
+    *,
+    repo_root: Path,
+    candidate_outcome_observation_record: RepoCandidateOutcomeObservationRecord | None = None,
+) -> RepoOperatorCognitionOutcomeSignal:
+    observation = candidate_outcome_observation_record or _load_v73b_observation(repo_root)
+    rows = [
+        RepoOperatorCognitionOutcomeSignalRow(
+            operator_signal_ref=(
+                "operator-signal:v73c:self-evidencing:workflow-type-emergence"
+            ),
+            candidate_ref="candidate:internal:self_evidencing_workflow_type_emergence",
+            source_refs=[
+                "docs/DRAFT_ADEU_CANDIDATE_OUTCOME_REVIEW_V73C_IMPLEMENTATION_MAPPING_v0.md",
+                "docs/DRAFT_STOP_GATE_DECISION_vNEXT_PLUS204.md",
+            ],
+            signal_kind="workflow_exposed_missing_type",
+            signal_posture="signal_recorded_for_review",
+            workflow_residue_refs=["residue:self-evidencing-workflow-type-emergence"],
+            non_authority_guardrail=(
+                "Operator signal is no transcript truth, no lock authority, no release "
+                "authority, no product authority, no runtime permission, and no dispatch "
+                "authority."
+            ),
+            limitation_note=(
+                "Operator cognition signal is evidence for later review only and stays bounded."
+            ),
+        )
+    ]
+    payload = {
+        "schema": REPO_OPERATOR_COGNITION_OUTCOME_SIGNAL_SCHEMA,
+        "review_id": observation.review_id,
+        "snapshot_id": observation.snapshot_id,
+        "source_set_id": observation.source_set_id,
+        "outcome_observation_record_id": observation.outcome_observation_record_id,
+        "operator_signal_rows": [
+            row.model_dump(mode="json")
+            for row in sorted(rows, key=lambda row: row.operator_signal_ref)
+        ],
+        "non_authority_summary": _V73C_OPERATOR_NON_AUTHORITY_SUMMARY,
+    }
+    payload["operator_cognition_outcome_signal_id"] = _surface_id(
+        "repo_operator_cognition_outcome_signal",
+        REPO_OPERATOR_COGNITION_OUTCOME_SIGNAL_SCHEMA,
+        payload,
+        "operator_cognition_outcome_signal_id",
+    )
+    return RepoOperatorCognitionOutcomeSignal.model_validate(payload)
+
+
+def derive_v73c_repo_outcome_promotion_demotion_recommendation(
+    *,
+    repo_root: Path,
+    self_improvement_outcome_ledger: RepoSelfImprovementOutcomeLedger | None = None,
+    operator_cognition_outcome_signal: RepoOperatorCognitionOutcomeSignal | None = None,
+) -> RepoOutcomePromotionDemotionRecommendation:
+    ledger = self_improvement_outcome_ledger or derive_v73c_repo_self_improvement_outcome_ledger(
+        repo_root=repo_root
+    )
+    operator_signal = (
+        operator_cognition_outcome_signal
+        or derive_v73c_repo_operator_cognition_outcome_signal(repo_root=repo_root)
+    )
+    rows = [
+        RepoOutcomePromotionDemotionRecommendationRow(
+            recommendation_ref="recommendation:v73c:self-evidencing:promote-for-later-review",
+            candidate_ref="candidate:internal:self_evidencing_workflow_type_emergence",
+            ledger_refs=["ledger:v73c:self-evidencing:positive-review-signal"],
+            observation_refs=["observation:v73b:self-evidencing:bounded-benefit"],
+            regression_refs=["regression:v73b:self-evidencing:no-schema-regression"],
+            tool_fitness_refs=["tool-fitness:v73b:arc-closeout-check:target-bound"],
+            operator_signal_refs=[
+                "operator-signal:v73c:self-evidencing:workflow-type-emergence"
+            ],
+            recommendation_posture="recommend_promote_for_later_review",
+            required_next_surface="v74_operator_projection_review",
+            required_later_authority="human_ratification_required",
+            forbidden_downstream_roles=sorted(_V73A_FORBIDDEN_ROLE_SET),
+            limitation_note=(
+                "Recommend promote for later review only; no downstream authority is granted."
+            ),
+        )
+    ]
+    payload = {
+        "schema": REPO_OUTCOME_PROMOTION_DEMOTION_RECOMMENDATION_SCHEMA,
+        "review_id": ledger.review_id,
+        "snapshot_id": ledger.snapshot_id,
+        "source_set_id": ledger.source_set_id,
+        "self_improvement_outcome_ledger_id": ledger.self_improvement_outcome_ledger_id,
+        "operator_cognition_outcome_signal_id": (
+            operator_signal.operator_cognition_outcome_signal_id
+        ),
+        "recommendation_rows": [
+            row.model_dump(mode="json")
+            for row in sorted(rows, key=lambda row: row.recommendation_ref)
+        ],
+        "recommendation_boundary_summary": _V73C_RECOMMENDATION_BOUNDARY_SUMMARY,
+    }
+    payload["outcome_promotion_demotion_recommendation_id"] = _surface_id(
+        "repo_outcome_promotion_demotion_recommendation",
+        REPO_OUTCOME_PROMOTION_DEMOTION_RECOMMENDATION_SCHEMA,
+        payload,
+        "outcome_promotion_demotion_recommendation_id",
+    )
+    return RepoOutcomePromotionDemotionRecommendation.model_validate(payload)
+
+
+def derive_v73c_repo_outcome_review_family_closeout_alignment(
+    *,
+    repo_root: Path,
+    self_improvement_outcome_ledger: RepoSelfImprovementOutcomeLedger | None = None,
+    outcome_promotion_demotion_recommendation: (
+        RepoOutcomePromotionDemotionRecommendation | None
+    ) = None,
+) -> RepoOutcomeReviewFamilyCloseoutAlignment:
+    ledger = self_improvement_outcome_ledger or derive_v73c_repo_self_improvement_outcome_ledger(
+        repo_root=repo_root
+    )
+    recommendation = (
+        outcome_promotion_demotion_recommendation
+        or derive_v73c_repo_outcome_promotion_demotion_recommendation(
+            repo_root=repo_root,
+            self_improvement_outcome_ledger=ledger,
+        )
+    )
+    rows = [
+        RepoOutcomeReviewFamilyCloseoutAlignmentRow(
+            family_ref="V73",
+            closed_slice_refs=["V73-A", "V73-B", "V73-C"],
+            emitted_surface_refs=sorted(_V73_SURFACE_SET),
+            reviewed_candidate_refs=["candidate:internal:self_evidencing_workflow_type_emergence"],
+            ledger_refs=["ledger:v73c:self-evidencing:positive-review-signal"],
+            operator_signal_refs=[
+                "operator-signal:v73c:self-evidencing:workflow-type-emergence"
+            ],
+            recommendation_refs=[
+                "recommendation:v73c:self-evidencing:promote-for-later-review"
+            ],
+            non_authority_guardrail_refs=["guardrail:v73c:family-closeout:no-authority"],
+            future_family_refs=["V43", "V74", "V75"],
+            closeout_alignment_posture="family_closed_review_machinery_only",
+            limitation_note="Family closeout records review machinery closure only.",
+        )
+    ]
+    payload = {
+        "schema": REPO_OUTCOME_REVIEW_FAMILY_CLOSEOUT_ALIGNMENT_SCHEMA,
+        "review_id": ledger.review_id,
+        "snapshot_id": ledger.snapshot_id,
+        "source_set_id": ledger.source_set_id,
+        "self_improvement_outcome_ledger_id": ledger.self_improvement_outcome_ledger_id,
+        "outcome_promotion_demotion_recommendation_id": (
+            recommendation.outcome_promotion_demotion_recommendation_id
+        ),
+        "alignment_rows": [
+            row.model_dump(mode="json") for row in sorted(rows, key=lambda row: row.family_ref)
+        ],
+        "family_closeout_boundary_summary": _V73C_FAMILY_CLOSEOUT_SUMMARY,
+    }
+    payload["outcome_review_family_closeout_alignment_id"] = _surface_id(
+        "repo_outcome_review_family_closeout_alignment",
+        REPO_OUTCOME_REVIEW_FAMILY_CLOSEOUT_ALIGNMENT_SCHEMA,
+        payload,
+        "outcome_review_family_closeout_alignment_id",
+    )
+    return RepoOutcomeReviewFamilyCloseoutAlignment.model_validate(payload)
+
+
+def validate_v73c_candidate_outcome_review_closeout_bundle(
+    *,
+    candidate_outcome_observation_record: RepoCandidateOutcomeObservationRecord,
+    outcome_regression_register: RepoOutcomeRegressionRegister,
+    tool_fitness_drift_register: RepoToolFitnessDriftRegister,
+    self_improvement_outcome_ledger: RepoSelfImprovementOutcomeLedger,
+    operator_cognition_outcome_signal: RepoOperatorCognitionOutcomeSignal,
+    outcome_promotion_demotion_recommendation: RepoOutcomePromotionDemotionRecommendation,
+    outcome_review_family_closeout_alignment: RepoOutcomeReviewFamilyCloseoutAlignment,
+) -> None:
+    if (
+        self_improvement_outcome_ledger.outcome_observation_record_id
+        != candidate_outcome_observation_record.outcome_observation_record_id
+    ):
+        raise ValueError("ledger must reference released V73-B observation record")
+    if (
+        self_improvement_outcome_ledger.outcome_regression_register_id
+        != outcome_regression_register.outcome_regression_register_id
+    ):
+        raise ValueError("ledger must reference released V73-B regression register")
+    if (
+        self_improvement_outcome_ledger.tool_fitness_drift_register_id
+        != tool_fitness_drift_register.tool_fitness_drift_register_id
+    ):
+        raise ValueError("ledger must reference released V73-B tool-fitness register")
+    if (
+        operator_cognition_outcome_signal.outcome_observation_record_id
+        != candidate_outcome_observation_record.outcome_observation_record_id
+    ):
+        raise ValueError("operator signals must reference released V73-B observation record")
+    if (
+        outcome_promotion_demotion_recommendation.self_improvement_outcome_ledger_id
+        != self_improvement_outcome_ledger.self_improvement_outcome_ledger_id
+    ):
+        raise ValueError("recommendations must reference self-improvement ledger")
+    if (
+        outcome_promotion_demotion_recommendation.operator_cognition_outcome_signal_id
+        != operator_cognition_outcome_signal.operator_cognition_outcome_signal_id
+    ):
+        raise ValueError("recommendations must reference operator-cognition signal surface")
+    if (
+        outcome_review_family_closeout_alignment.self_improvement_outcome_ledger_id
+        != self_improvement_outcome_ledger.self_improvement_outcome_ledger_id
+    ):
+        raise ValueError("family closeout alignment must reference self-improvement ledger")
+    if (
+        outcome_review_family_closeout_alignment.outcome_promotion_demotion_recommendation_id
+        != outcome_promotion_demotion_recommendation.outcome_promotion_demotion_recommendation_id
+    ):
+        raise ValueError("family closeout alignment must reference recommendation surface")
+    if not (
+        candidate_outcome_observation_record.review_id
+        == outcome_regression_register.review_id
+        == tool_fitness_drift_register.review_id
+        == self_improvement_outcome_ledger.review_id
+        == operator_cognition_outcome_signal.review_id
+        == outcome_promotion_demotion_recommendation.review_id
+        == outcome_review_family_closeout_alignment.review_id
+        and candidate_outcome_observation_record.snapshot_id
+        == outcome_regression_register.snapshot_id
+        == tool_fitness_drift_register.snapshot_id
+        == self_improvement_outcome_ledger.snapshot_id
+        == operator_cognition_outcome_signal.snapshot_id
+        == outcome_promotion_demotion_recommendation.snapshot_id
+        == outcome_review_family_closeout_alignment.snapshot_id
+        and candidate_outcome_observation_record.source_set_id
+        == outcome_regression_register.source_set_id
+        == tool_fitness_drift_register.source_set_id
+        == self_improvement_outcome_ledger.source_set_id
+        == operator_cognition_outcome_signal.source_set_id
+        == outcome_promotion_demotion_recommendation.source_set_id
+        == outcome_review_family_closeout_alignment.source_set_id
+    ):
+        raise ValueError("V73-C review_id, snapshot_id, and source_set_id must match")
+
+    observations = {
+        row.observation_ref: row for row in candidate_outcome_observation_record.observation_rows
+    }
+    regressions = {row.regression_ref: row for row in outcome_regression_register.regression_rows}
+    tool_fitness_rows = {
+        row.tool_fitness_ref: row for row in tool_fitness_drift_register.tool_fitness_rows
+    }
+    ledger_rows = {row.ledger_ref: row for row in self_improvement_outcome_ledger.ledger_rows}
+    operator_rows = {
+        row.operator_signal_ref: row
+        for row in operator_cognition_outcome_signal.operator_signal_rows
+    }
+    recommendation_rows = {
+        row.recommendation_ref: row
+        for row in outcome_promotion_demotion_recommendation.recommendation_rows
+    }
+
+    for ledger in self_improvement_outcome_ledger.ledger_rows:
+        for observation_ref in ledger.observation_refs:
+            observation = observations.get(observation_ref)
+            if observation is None:
+                raise ValueError("ledger rows must reference known released V73-B observation refs")
+            if observation.candidate_ref != ledger.candidate_ref:
+                raise ValueError("ledger candidate_ref must match observation candidate_ref")
+        blocking_regressions = [
+            regression
+            for regression in regressions.values()
+            if regression.candidate_ref == ledger.candidate_ref
+            and regression.blocking_for_recommendation
+        ]
+        hidden_blockers = sorted(
+            regression.regression_ref
+            for regression in blocking_regressions
+            if regression.regression_ref not in ledger.carried_forward_gap_refs
+        )
+        if ledger.outcome_ledger_posture == "positive_signal_recorded" and hidden_blockers:
+            raise ValueError(
+                "positive ledger signals must carry forward blocking regression refs: "
+                f"{hidden_blockers}"
+            )
+        for regression_ref in ledger.regression_refs:
+            regression = regressions.get(regression_ref)
+            if regression is None:
+                raise ValueError("ledger rows must reference known released V73-B regression refs")
+            if regression.candidate_ref != ledger.candidate_ref:
+                raise ValueError("ledger candidate_ref must match regression candidate_ref")
+        for tool_fitness_ref in ledger.tool_fitness_refs:
+            tool_fitness = tool_fitness_rows.get(tool_fitness_ref)
+            if tool_fitness is None:
+                raise ValueError(
+                    "ledger rows must reference known released V73-B tool-fitness refs"
+                )
+            if tool_fitness.candidate_ref != ledger.candidate_ref:
+                raise ValueError("ledger candidate_ref must match tool-fitness candidate_ref")
+        for operator_signal_ref in ledger.operator_cognition_signal_refs:
+            operator_signal = operator_rows.get(operator_signal_ref)
+            if operator_signal is None:
+                raise ValueError("ledger rows must reference known operator signal refs")
+            if operator_signal.candidate_ref != ledger.candidate_ref:
+                raise ValueError("ledger candidate_ref must match operator signal candidate_ref")
+
+    for recommendation in outcome_promotion_demotion_recommendation.recommendation_rows:
+        for ledger_ref in recommendation.ledger_refs:
+            ledger = ledger_rows.get(ledger_ref)
+            if ledger is None:
+                raise ValueError("recommendation rows must reference known ledger rows")
+            if ledger.candidate_ref != recommendation.candidate_ref:
+                raise ValueError("recommendation candidate_ref must match ledger candidate_ref")
+        for operator_signal_ref in recommendation.operator_signal_refs:
+            operator_signal = operator_rows.get(operator_signal_ref)
+            if operator_signal is None:
+                raise ValueError("recommendation rows must reference known operator signal rows")
+            if operator_signal.candidate_ref != recommendation.candidate_ref:
+                raise ValueError(
+                    "recommendation candidate_ref must match operator signal candidate_ref"
+                )
+        if (
+            recommendation.recommendation_posture == "recommend_promote_for_later_review"
+            and recommendation.required_next_surface == "deferred_no_selection"
+        ):
+            raise ValueError("promotion recommendations require a later review surface")
+        if (
+            recommendation.required_later_authority == "product_authority_required"
+            and recommendation.required_next_surface != "v74_operator_projection_review"
+        ):
+            raise ValueError("product recommendations require V74 review")
+
+    for alignment in outcome_review_family_closeout_alignment.alignment_rows:
+        for ledger_ref in alignment.ledger_refs:
+            if ledger_ref not in ledger_rows:
+                raise ValueError("family closeout alignment must reference known ledger rows")
+        for operator_signal_ref in alignment.operator_signal_refs:
+            if operator_signal_ref not in operator_rows:
+                raise ValueError(
+                    "family closeout alignment must reference known operator signal rows"
+                )
+        for recommendation_ref in alignment.recommendation_refs:
+            if recommendation_ref not in recommendation_rows:
+                raise ValueError(
+                    "family closeout alignment must reference known recommendation rows"
+                )
+
+
+def derive_v73c_repo_candidate_outcome_review_closeout_bundle(
+    *,
+    repo_root: Path,
+) -> tuple[
+    RepoCandidateOutcomeObservationRecord,
+    RepoOutcomeRegressionRegister,
+    RepoToolFitnessDriftRegister,
+    RepoSelfImprovementOutcomeLedger,
+    RepoOperatorCognitionOutcomeSignal,
+    RepoOutcomePromotionDemotionRecommendation,
+    RepoOutcomeReviewFamilyCloseoutAlignment,
+]:
+    observation = _load_v73b_observation(repo_root)
+    regression = _load_v73b_regression(repo_root)
+    tool_fitness = _load_v73b_tool_fitness(repo_root)
+    ledger = derive_v73c_repo_self_improvement_outcome_ledger(
+        repo_root=repo_root,
+        candidate_outcome_observation_record=observation,
+        outcome_regression_register=regression,
+        tool_fitness_drift_register=tool_fitness,
+    )
+    operator_signal = derive_v73c_repo_operator_cognition_outcome_signal(
+        repo_root=repo_root,
+        candidate_outcome_observation_record=observation,
+    )
+    recommendation = derive_v73c_repo_outcome_promotion_demotion_recommendation(
+        repo_root=repo_root,
+        self_improvement_outcome_ledger=ledger,
+        operator_cognition_outcome_signal=operator_signal,
+    )
+    alignment = derive_v73c_repo_outcome_review_family_closeout_alignment(
+        repo_root=repo_root,
+        self_improvement_outcome_ledger=ledger,
+        outcome_promotion_demotion_recommendation=recommendation,
+    )
+    validate_v73c_candidate_outcome_review_closeout_bundle(
+        candidate_outcome_observation_record=observation,
+        outcome_regression_register=regression,
+        tool_fitness_drift_register=tool_fitness,
+        self_improvement_outcome_ledger=ledger,
+        operator_cognition_outcome_signal=operator_signal,
+        outcome_promotion_demotion_recommendation=recommendation,
+        outcome_review_family_closeout_alignment=alignment,
+    )
+    return observation, regression, tool_fitness, ledger, operator_signal, recommendation, alignment

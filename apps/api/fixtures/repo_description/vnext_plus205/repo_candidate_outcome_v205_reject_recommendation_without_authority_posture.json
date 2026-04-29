@@ -1,0 +1,47 @@
+{
+  "operator_cognition_outcome_signal_id": "repo_operator_cognition_outcome_signal_f0f5e8f604128b8ce0758c4c",
+  "outcome_promotion_demotion_recommendation_id": "repo_outcome_promotion_demotion_recommendation_2fb04a55483c23828aded406",
+  "recommendation_boundary_summary": "Outcome recommendation separates posture, next review surface, and later authority: no adoption, no release, no automatic revert, no product work, no runtime permission, no dispatch selection, and no self-approval.",
+  "recommendation_rows": [
+    {
+      "candidate_ref": "candidate:internal:self_evidencing_workflow_type_emergence",
+      "forbidden_downstream_roles": [
+        "adoption_authority",
+        "commit_release_authority",
+        "demotion_authority",
+        "dispatch_authority",
+        "external_contest_authority",
+        "merge_authority",
+        "product_authorization",
+        "promotion_authority",
+        "released_truth",
+        "runtime_permission"
+      ],
+      "ledger_refs": [
+        "ledger:v73c:self-evidencing:positive-review-signal"
+      ],
+      "limitation_note": "Recommend promote for later review only; no downstream authority is granted.",
+      "observation_refs": [
+        "observation:v73b:self-evidencing:bounded-benefit"
+      ],
+      "operator_signal_refs": [
+        "operator-signal:v73c:self-evidencing:workflow-type-emergence"
+      ],
+      "recommendation_posture": "recommend_promote_for_later_review",
+      "recommendation_ref": "recommendation:v73c:self-evidencing:promote-for-later-review",
+      "regression_refs": [
+        "regression:v73b:self-evidencing:no-schema-regression"
+      ],
+      "required_later_authority": "none_for_no_action",
+      "required_next_surface": "v74_operator_projection_review",
+      "tool_fitness_refs": [
+        "tool-fitness:v73b:arc-closeout-check:target-bound"
+      ]
+    }
+  ],
+  "review_id": "review:v73a:outcome-entry",
+  "schema": "repo_outcome_promotion_demotion_recommendation@1",
+  "self_improvement_outcome_ledger_id": "repo_self_improvement_outcome_ledger_f2249a5a0b33523adba7155a",
+  "snapshot_id": "vNext+200-prestart-on-main",
+  "source_set_id": "source-set:v70a:released-v69c-handoff"
+}
