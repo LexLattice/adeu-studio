@@ -1,0 +1,150 @@
+{
+  "$defs": {
+    "RepoOperatorProjectionSourceRow": {
+      "additionalProperties": false,
+      "properties": {
+        "authority_layer": {
+          "enum": [
+            "lock",
+            "architecture",
+            "planning",
+            "support",
+            "schema",
+            "fixture",
+            "closeout_evidence"
+          ],
+          "title": "Authority Layer",
+          "type": "string"
+        },
+        "limitation_note": {
+          "title": "Limitation Note",
+          "type": "string"
+        },
+        "projection_source_role": {
+          "enum": [
+            "primary_projection_source",
+            "outcome_ledger_source",
+            "operator_signal_source",
+            "recommendation_source",
+            "family_closeout_source",
+            "dogfood_source",
+            "review_source",
+            "ratification_source",
+            "integration_source",
+            "conceptual_diff_source",
+            "product_wedge_source",
+            "prompt_source",
+            "model_output_source",
+            "adjudicator_schema_source",
+            "absence_marker"
+          ],
+          "title": "Projection Source Role",
+          "type": "string"
+        },
+        "source_kind": {
+          "enum": [
+            "planning_doc",
+            "architecture_doc",
+            "support_doc",
+            "review_input",
+            "closeout_doc",
+            "evidence_artifact",
+            "schema_file",
+            "fixture_file",
+            "operator_turn",
+            "transcript_artifact",
+            "model_output",
+            "repo_observation",
+            "external_artifact"
+          ],
+          "title": "Source Kind",
+          "type": "string"
+        },
+        "source_presence_posture": {
+          "enum": [
+            "present",
+            "missing_expected_support_artifact",
+            "not_uploaded_in_review_snapshot",
+            "generated_later",
+            "external_unavailable",
+            "operator_turn_not_committed"
+          ],
+          "title": "Source Presence Posture",
+          "type": "string"
+        },
+        "source_ref": {
+          "title": "Source Ref",
+          "type": "string"
+        },
+        "source_status": {
+          "enum": [
+            "integrated_shaping_source",
+            "available_but_not_integrated",
+            "review_pending_input",
+            "rejected_or_superseded_source"
+          ],
+          "title": "Source Status",
+          "type": "string"
+        }
+      },
+      "required": [
+        "source_ref",
+        "source_kind",
+        "authority_layer",
+        "source_status",
+        "source_presence_posture",
+        "projection_source_role",
+        "limitation_note"
+      ],
+      "title": "RepoOperatorProjectionSourceRow",
+      "type": "object"
+    }
+  },
+  "additionalProperties": false,
+  "properties": {
+    "operator_projection_source_index_id": {
+      "title": "Operator Projection Source Index Id",
+      "type": "string"
+    },
+    "projection_source_summary": {
+      "title": "Projection Source Summary",
+      "type": "string"
+    },
+    "review_id": {
+      "title": "Review Id",
+      "type": "string"
+    },
+    "schema": {
+      "const": "repo_operator_projection_source_index@1",
+      "default": "repo_operator_projection_source_index@1",
+      "title": "Schema",
+      "type": "string"
+    },
+    "snapshot_id": {
+      "title": "Snapshot Id",
+      "type": "string"
+    },
+    "source_rows": {
+      "items": {
+        "$ref": "#/$defs/RepoOperatorProjectionSourceRow"
+      },
+      "minItems": 1,
+      "title": "Source Rows",
+      "type": "array"
+    },
+    "source_set_id": {
+      "title": "Source Set Id",
+      "type": "string"
+    }
+  },
+  "required": [
+    "operator_projection_source_index_id",
+    "review_id",
+    "snapshot_id",
+    "source_set_id",
+    "source_rows",
+    "projection_source_summary"
+  ],
+  "title": "RepoOperatorProjectionSourceIndex",
+  "type": "object"
+}

@@ -1,0 +1,82 @@
+{
+  "operator_projection_source_index_id": "repo_operator_projection_source_index_c2d01649e94f6fdd20bd1ff5",
+  "projection_source_summary": "Projection source rows record concrete sources and absence posture; no prose memory and no authority is minted by source visibility.",
+  "review_id": "review:v74a:operator-projection",
+  "schema": "repo_operator_projection_source_index@1",
+  "snapshot_id": "vNext+206-prestart-on-main",
+  "source_rows": [
+    {
+      "authority_layer": "fixture",
+      "limitation_note": "Released V73-C operator signal fixture is projection source only.",
+      "projection_source_role": "family_closeout_source",
+      "source_kind": "fixture_file",
+      "source_presence_posture": "missing_expected_support_artifact",
+      "source_ref": "apps/api/fixtures/repo_description/vnext_plus205/repo_operator_cognition_outcome_signal_v205_reference.json",
+      "source_status": "integrated_shaping_source"
+    },
+    {
+      "authority_layer": "fixture",
+      "limitation_note": "Released V73-C recommendation fixture is projection source only.",
+      "projection_source_role": "recommendation_source",
+      "source_kind": "fixture_file",
+      "source_presence_posture": "present",
+      "source_ref": "apps/api/fixtures/repo_description/vnext_plus205/repo_outcome_promotion_demotion_recommendation_v205_reference.json",
+      "source_status": "integrated_shaping_source"
+    },
+    {
+      "authority_layer": "fixture",
+      "limitation_note": "Released V73-C family closeout fixture is projection source only.",
+      "projection_source_role": "family_closeout_source",
+      "source_kind": "fixture_file",
+      "source_presence_posture": "present",
+      "source_ref": "apps/api/fixtures/repo_description/vnext_plus205/repo_outcome_review_family_closeout_alignment_v205_reference.json",
+      "source_status": "integrated_shaping_source"
+    },
+    {
+      "authority_layer": "fixture",
+      "limitation_note": "Released V73-C ledger fixture is projection source only.",
+      "projection_source_role": "outcome_ledger_source",
+      "source_kind": "fixture_file",
+      "source_presence_posture": "present",
+      "source_ref": "apps/api/fixtures/repo_description/vnext_plus205/repo_self_improvement_outcome_ledger_v205_reference.json",
+      "source_status": "integrated_shaping_source"
+    },
+    {
+      "authority_layer": "closeout_evidence",
+      "limitation_note": "V73 family closeout alignment is projection source only.",
+      "projection_source_role": "family_closeout_source",
+      "source_kind": "evidence_artifact",
+      "source_presence_posture": "present",
+      "source_ref": "artifacts/agent_harness/v205/evidence_inputs/v73_family_closeout_alignment_v205.json",
+      "source_status": "integrated_shaping_source"
+    },
+    {
+      "authority_layer": "closeout_evidence",
+      "limitation_note": "V73-C closeout evidence is projection source only.",
+      "projection_source_role": "primary_projection_source",
+      "source_kind": "evidence_artifact",
+      "source_presence_posture": "present",
+      "source_ref": "artifacts/agent_harness/v205/evidence_inputs/v73c_candidate_outcome_closeout_evidence_v205.json",
+      "source_status": "integrated_shaping_source"
+    },
+    {
+      "authority_layer": "support",
+      "limitation_note": "Product wedge support doc is not product authority.",
+      "projection_source_role": "product_wedge_source",
+      "source_kind": "support_doc",
+      "source_presence_posture": "present",
+      "source_ref": "docs/support/arc_series_mapping/DRAFT_ADEU_TYPED_ADJUDICATION_PRODUCT_WEDGE_v0.md",
+      "source_status": "integrated_shaping_source"
+    },
+    {
+      "authority_layer": "support",
+      "limitation_note": "Combined dogfood result is support projection source only.",
+      "projection_source_role": "dogfood_source",
+      "source_kind": "support_doc",
+      "source_presence_posture": "present",
+      "source_ref": "docs/support/arc_series_mapping/V68_V69_V70_V71_V72_V73_COMBINED_DOGFOOD_TEST_v0.json",
+      "source_status": "integrated_shaping_source"
+    }
+  ],
+  "source_set_id": "source-set:v74a:released-v73c-projection"
+}

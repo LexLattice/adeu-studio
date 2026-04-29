@@ -44,6 +44,9 @@ from adeu_repo_description import (
     REPO_INTEGRATION_ROLLBACK_READINESS_SCHEMA,
     REPO_INTEGRATION_TARGET_BOUNDARY_SCHEMA,
     REPO_OPERATOR_INGRESS_CANDIDATE_BINDING_SCHEMA,
+    REPO_OPERATOR_PROJECTION_CASE_VIEW_SCHEMA,
+    REPO_OPERATOR_PROJECTION_NON_AUTHORITY_GUARDRAIL_SCHEMA,
+    REPO_OPERATOR_PROJECTION_SOURCE_INDEX_SCHEMA,
     REPO_OPTIMIZATION_REGISTER_SCHEMA,
     REPO_OUTCOME_EVIDENCE_SOURCE_INDEX_SCHEMA,
     REPO_OUTCOME_REGRESSION_REGISTER_SCHEMA,
@@ -511,6 +514,30 @@ def _schema_pairs() -> dict[str, tuple[Path, Path]]:
             / "schema"
             / "repo_tool_fitness_drift_register.v1.json",
             root / "spec" / "repo_tool_fitness_drift_register.schema.json",
+        ),
+        REPO_OPERATOR_PROJECTION_CASE_VIEW_SCHEMA: (
+            root
+            / "packages"
+            / "adeu_repo_description"
+            / "schema"
+            / "repo_operator_projection_case_view.v1.json",
+            root / "spec" / "repo_operator_projection_case_view.schema.json",
+        ),
+        REPO_OPERATOR_PROJECTION_SOURCE_INDEX_SCHEMA: (
+            root
+            / "packages"
+            / "adeu_repo_description"
+            / "schema"
+            / "repo_operator_projection_source_index.v1.json",
+            root / "spec" / "repo_operator_projection_source_index.schema.json",
+        ),
+        REPO_OPERATOR_PROJECTION_NON_AUTHORITY_GUARDRAIL_SCHEMA: (
+            root
+            / "packages"
+            / "adeu_repo_description"
+            / "schema"
+            / "repo_operator_projection_non_authority_guardrail.v1.json",
+            root / "spec" / "repo_operator_projection_non_authority_guardrail.schema.json",
         ),
     }
 
