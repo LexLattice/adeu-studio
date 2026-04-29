@@ -1,0 +1,36 @@
+{
+  "exception_rows": [
+    {
+      "blocking_posture": "warning_only",
+      "candidate_refs": [
+        "candidate:internal:self_evidencing_workflow_type_emergence"
+      ],
+      "case_view_refs": [
+        "case-view:v74a:self-evidencing:operator-projection"
+      ],
+      "comparison_projection_refs": [
+        "comparison-projection:v74b:self-evidencing:model-output-comparison"
+      ],
+      "exception_kind": "comparison_axis_unchecked",
+      "exception_ref": "exception:v74b:comparison-axis:operator-legibility-unchecked",
+      "limitation_note": "Operator-legibility axis remains visible and not resolved by V74-B.",
+      "required_next_surface": "v74c_visibility_contract",
+      "source_refs": [
+        "docs/support/arc_series_mapping/DRAFT_ARC_SERIES_ODEU_CONCEPTUAL_DIFF_v0.report.json"
+      ],
+      "typed_case_refs": [
+        "typed-case:v74b:self-evidencing:conceptual-diff"
+      ],
+      "visible_decision_state": "recommended_more_evidence"
+    }
+  ],
+  "exception_visibility_summary": "Exceptions remain visible and not resolved by V74-B: no product authorization, no release authority, and no dispatch authority.",
+  "model_output_comparison_projection_id": "repo_model_output_comparison_projection_516de0a60430bdc9e483f4fa",
+  "operator_projection_case_view_id": "repo_operator_projection_case_view_ede72a38ad769c9142e33026",
+  "projection_exception_visibility_register_id": "repo_projection_exception_visibility_register_6897a6a4ba990f3b6f9982f9",
+  "review_id": "review:v74b:typed-adjudication-projection",
+  "schema": "repo_projection_exception_visibility_register@1",
+  "snapshot_id": "vNext+207-prestart-on-main",
+  "source_set_id": "source-set:v74a:released-v73c-projection",
+  "typed_adjudication_case_view_id": "repo_typed_adjudication_case_view_e3c25e5d947e1ed831291f1e"
+}

@@ -82,9 +82,12 @@ from .models import (
     RepoTestIntentMatrix,
 )
 from .operator_projection import (
+    RepoModelOutputComparisonProjection,
     RepoOperatorProjectionCaseView,
     RepoOperatorProjectionNonAuthorityGuardrail,
     RepoOperatorProjectionSourceIndex,
+    RepoProjectionExceptionVisibilityRegister,
+    RepoTypedAdjudicationCaseView,
 )
 from .recursive_candidate_intake import (
     RepoCandidateNonAdoptionGuardrail,
@@ -293,11 +296,11 @@ def main() -> None:
     tool_fitness_drift_register_schema = RepoToolFitnessDriftRegister.model_json_schema(
         by_alias=True
     )
-    self_improvement_outcome_ledger_schema = (
-        RepoSelfImprovementOutcomeLedger.model_json_schema(by_alias=True)
+    self_improvement_outcome_ledger_schema = RepoSelfImprovementOutcomeLedger.model_json_schema(
+        by_alias=True
     )
-    operator_cognition_outcome_signal_schema = (
-        RepoOperatorCognitionOutcomeSignal.model_json_schema(by_alias=True)
+    operator_cognition_outcome_signal_schema = RepoOperatorCognitionOutcomeSignal.model_json_schema(
+        by_alias=True
     )
     outcome_promotion_demotion_recommendation_schema = (
         RepoOutcomePromotionDemotionRecommendation.model_json_schema(by_alias=True)
@@ -313,6 +316,15 @@ def main() -> None:
     )
     operator_projection_non_authority_guardrail_schema = (
         RepoOperatorProjectionNonAuthorityGuardrail.model_json_schema(by_alias=True)
+    )
+    typed_adjudication_case_view_schema = RepoTypedAdjudicationCaseView.model_json_schema(
+        by_alias=True
+    )
+    model_output_comparison_projection_schema = (
+        RepoModelOutputComparisonProjection.model_json_schema(by_alias=True)
+    )
+    projection_exception_visibility_register_schema = (
+        RepoProjectionExceptionVisibilityRegister.model_json_schema(by_alias=True)
     )
 
     _assert_no_absolute_path_material(dependency_register_v1_schema, repo_root_path=root)
@@ -433,6 +445,15 @@ def main() -> None:
     _assert_no_absolute_path_material(operator_projection_source_index_schema, repo_root_path=root)
     _assert_no_absolute_path_material(
         operator_projection_non_authority_guardrail_schema,
+        repo_root_path=root,
+    )
+    _assert_no_absolute_path_material(typed_adjudication_case_view_schema, repo_root_path=root)
+    _assert_no_absolute_path_material(
+        model_output_comparison_projection_schema,
+        repo_root_path=root,
+    )
+    _assert_no_absolute_path_material(
+        projection_exception_visibility_register_schema,
         repo_root_path=root,
     )
 
@@ -1215,6 +1236,42 @@ def main() -> None:
     _write_schema(
         root / "spec" / "repo_operator_projection_non_authority_guardrail.schema.json",
         operator_projection_non_authority_guardrail_schema,
+    )
+    _write_schema(
+        root
+        / "packages"
+        / "adeu_repo_description"
+        / "schema"
+        / "repo_typed_adjudication_case_view.v1.json",
+        typed_adjudication_case_view_schema,
+    )
+    _write_schema(
+        root / "spec" / "repo_typed_adjudication_case_view.schema.json",
+        typed_adjudication_case_view_schema,
+    )
+    _write_schema(
+        root
+        / "packages"
+        / "adeu_repo_description"
+        / "schema"
+        / "repo_model_output_comparison_projection.v1.json",
+        model_output_comparison_projection_schema,
+    )
+    _write_schema(
+        root / "spec" / "repo_model_output_comparison_projection.schema.json",
+        model_output_comparison_projection_schema,
+    )
+    _write_schema(
+        root
+        / "packages"
+        / "adeu_repo_description"
+        / "schema"
+        / "repo_projection_exception_visibility_register.v1.json",
+        projection_exception_visibility_register_schema,
+    )
+    _write_schema(
+        root / "spec" / "repo_projection_exception_visibility_register.schema.json",
+        projection_exception_visibility_register_schema,
     )
 
 

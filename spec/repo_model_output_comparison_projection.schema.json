@@ -1,0 +1,318 @@
+{
+  "$defs": {
+    "RepoComparisonAxisRow": {
+      "additionalProperties": false,
+      "properties": {
+        "axis_kind": {
+          "enum": [
+            "source_binding",
+            "authority_boundary_preservation",
+            "odeu_lane_separation",
+            "evidence_classification_fit",
+            "ratification_boundary_fit",
+            "implementation_safety",
+            "utility_next_slice_fit",
+            "conceptual_completeness",
+            "operator_legibility"
+          ],
+          "title": "Axis Kind",
+          "type": "string"
+        },
+        "axis_ref": {
+          "title": "Axis Ref",
+          "type": "string"
+        },
+        "axis_source_refs": {
+          "items": {
+            "type": "string"
+          },
+          "minItems": 1,
+          "title": "Axis Source Refs",
+          "type": "array"
+        },
+        "bounded_claim_horizon": {
+          "title": "Bounded Claim Horizon",
+          "type": "string"
+        },
+        "complementarity_refs": {
+          "items": {
+            "type": "string"
+          },
+          "title": "Complementarity Refs",
+          "type": "array"
+        },
+        "confidence_posture": {
+          "enum": [
+            "high_with_bounded_evidence",
+            "moderate_with_limitations",
+            "low_or_inconclusive",
+            "blocked_by_missing_source",
+            "not_applicable"
+          ],
+          "title": "Confidence Posture",
+          "type": "string"
+        },
+        "contradiction_refs": {
+          "items": {
+            "type": "string"
+          },
+          "title": "Contradiction Refs",
+          "type": "array"
+        },
+        "exception_refs": {
+          "items": {
+            "type": "string"
+          },
+          "title": "Exception Refs",
+          "type": "array"
+        },
+        "limitation_note": {
+          "title": "Limitation Note",
+          "type": "string"
+        },
+        "non_benchmark_guardrail": {
+          "title": "Non Benchmark Guardrail",
+          "type": "string"
+        },
+        "observed_difference_posture": {
+          "enum": [
+            "variant_a_stronger_on_axis",
+            "variant_b_stronger_on_axis",
+            "variants_complementary_on_axis",
+            "variants_conflict_on_axis",
+            "no_material_difference_observed",
+            "axis_unchecked",
+            "axis_blocked_by_missing_source"
+          ],
+          "title": "Observed Difference Posture",
+          "type": "string"
+        }
+      },
+      "required": [
+        "axis_ref",
+        "axis_kind",
+        "bounded_claim_horizon",
+        "axis_source_refs",
+        "observed_difference_posture",
+        "confidence_posture",
+        "non_benchmark_guardrail",
+        "limitation_note"
+      ],
+      "title": "RepoComparisonAxisRow",
+      "type": "object"
+    },
+    "RepoModelOutputComparisonProjectionRow": {
+      "additionalProperties": false,
+      "properties": {
+        "adjudicator_schema_refs": {
+          "items": {
+            "type": "string"
+          },
+          "minItems": 1,
+          "title": "Adjudicator Schema Refs",
+          "type": "array"
+        },
+        "comparison_axis_rows": {
+          "items": {
+            "$ref": "#/$defs/RepoComparisonAxisRow"
+          },
+          "minItems": 1,
+          "title": "Comparison Axis Rows",
+          "type": "array"
+        },
+        "comparison_projection_posture": {
+          "enum": [
+            "projection_ready",
+            "blocked_by_missing_prompt_source",
+            "blocked_by_missing_model_output_source",
+            "blocked_by_missing_adjudicator_schema",
+            "blocked_by_unresolved_conflict",
+            "future_family_only",
+            "rejected_out_of_scope"
+          ],
+          "title": "Comparison Projection Posture",
+          "type": "string"
+        },
+        "comparison_projection_ref": {
+          "title": "Comparison Projection Ref",
+          "type": "string"
+        },
+        "complementarity_refs": {
+          "items": {
+            "type": "string"
+          },
+          "title": "Complementarity Refs",
+          "type": "array"
+        },
+        "contradiction_refs": {
+          "items": {
+            "type": "string"
+          },
+          "title": "Contradiction Refs",
+          "type": "array"
+        },
+        "exception_refs": {
+          "items": {
+            "type": "string"
+          },
+          "title": "Exception Refs",
+          "type": "array"
+        },
+        "limitation_note": {
+          "title": "Limitation Note",
+          "type": "string"
+        },
+        "model_output_refs": {
+          "items": {
+            "type": "string"
+          },
+          "minItems": 1,
+          "title": "Model Output Refs",
+          "type": "array"
+        },
+        "model_output_source_rows": {
+          "items": {
+            "$ref": "#/$defs/RepoModelOutputSourceRow"
+          },
+          "minItems": 1,
+          "title": "Model Output Source Rows",
+          "type": "array"
+        },
+        "non_benchmark_guardrail": {
+          "title": "Non Benchmark Guardrail",
+          "type": "string"
+        },
+        "prompt_source_refs": {
+          "items": {
+            "type": "string"
+          },
+          "minItems": 1,
+          "title": "Prompt Source Refs",
+          "type": "array"
+        },
+        "typed_case_ref": {
+          "title": "Typed Case Ref",
+          "type": "string"
+        }
+      },
+      "required": [
+        "comparison_projection_ref",
+        "typed_case_ref",
+        "prompt_source_refs",
+        "model_output_refs",
+        "model_output_source_rows",
+        "adjudicator_schema_refs",
+        "comparison_axis_rows",
+        "comparison_projection_posture",
+        "non_benchmark_guardrail",
+        "limitation_note"
+      ],
+      "title": "RepoModelOutputComparisonProjectionRow",
+      "type": "object"
+    },
+    "RepoModelOutputSourceRow": {
+      "additionalProperties": false,
+      "properties": {
+        "limitation_note": {
+          "title": "Limitation Note",
+          "type": "string"
+        },
+        "model_identity_ref": {
+          "title": "Model Identity Ref",
+          "type": "string"
+        },
+        "model_output_ref": {
+          "title": "Model Output Ref",
+          "type": "string"
+        },
+        "output_capture_ref": {
+          "title": "Output Capture Ref",
+          "type": "string"
+        },
+        "prompt_source_ref": {
+          "title": "Prompt Source Ref",
+          "type": "string"
+        },
+        "run_context_ref": {
+          "title": "Run Context Ref",
+          "type": "string"
+        },
+        "source_presence_posture": {
+          "enum": [
+            "present",
+            "missing_expected_support_artifact",
+            "not_uploaded_in_review_snapshot",
+            "generated_later",
+            "external_unavailable",
+            "operator_turn_not_committed"
+          ],
+          "title": "Source Presence Posture",
+          "type": "string"
+        }
+      },
+      "required": [
+        "model_output_ref",
+        "prompt_source_ref",
+        "model_identity_ref",
+        "output_capture_ref",
+        "run_context_ref",
+        "source_presence_posture",
+        "limitation_note"
+      ],
+      "title": "RepoModelOutputSourceRow",
+      "type": "object"
+    }
+  },
+  "additionalProperties": false,
+  "properties": {
+    "comparison_boundary_summary": {
+      "title": "Comparison Boundary Summary",
+      "type": "string"
+    },
+    "comparison_projection_rows": {
+      "items": {
+        "$ref": "#/$defs/RepoModelOutputComparisonProjectionRow"
+      },
+      "minItems": 1,
+      "title": "Comparison Projection Rows",
+      "type": "array"
+    },
+    "model_output_comparison_projection_id": {
+      "title": "Model Output Comparison Projection Id",
+      "type": "string"
+    },
+    "review_id": {
+      "title": "Review Id",
+      "type": "string"
+    },
+    "schema": {
+      "const": "repo_model_output_comparison_projection@1",
+      "default": "repo_model_output_comparison_projection@1",
+      "title": "Schema",
+      "type": "string"
+    },
+    "snapshot_id": {
+      "title": "Snapshot Id",
+      "type": "string"
+    },
+    "source_set_id": {
+      "title": "Source Set Id",
+      "type": "string"
+    },
+    "typed_adjudication_case_view_id": {
+      "title": "Typed Adjudication Case View Id",
+      "type": "string"
+    }
+  },
+  "required": [
+    "model_output_comparison_projection_id",
+    "review_id",
+    "snapshot_id",
+    "source_set_id",
+    "typed_adjudication_case_view_id",
+    "comparison_projection_rows",
+    "comparison_boundary_summary"
+  ],
+  "title": "RepoModelOutputComparisonProjection",
+  "type": "object"
+}

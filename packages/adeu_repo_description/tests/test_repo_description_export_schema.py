@@ -43,6 +43,7 @@ from adeu_repo_description import (
     REPO_INTEGRATION_NON_RELEASE_GUARDRAIL_SCHEMA,
     REPO_INTEGRATION_ROLLBACK_READINESS_SCHEMA,
     REPO_INTEGRATION_TARGET_BOUNDARY_SCHEMA,
+    REPO_MODEL_OUTPUT_COMPARISON_PROJECTION_SCHEMA,
     REPO_OPERATOR_INGRESS_CANDIDATE_BINDING_SCHEMA,
     REPO_OPERATOR_PROJECTION_CASE_VIEW_SCHEMA,
     REPO_OPERATOR_PROJECTION_NON_AUTHORITY_GUARDRAIL_SCHEMA,
@@ -53,6 +54,7 @@ from adeu_repo_description import (
     REPO_OUTCOME_REVIEW_BOUNDARY_GUARDRAIL_SCHEMA,
     REPO_POST_INTEGRATION_OUTCOME_REVIEW_HANDOFF_SCHEMA,
     REPO_POST_RATIFICATION_HANDOFF_SCHEMA,
+    REPO_PROJECTION_EXCEPTION_VISIBILITY_REGISTER_SCHEMA,
     REPO_RATIFICATION_AMENDMENT_SCOPE_BOUNDARY_SCHEMA,
     REPO_RATIFICATION_AUTHORITY_PROFILE_SCHEMA,
     REPO_RATIFICATION_DISSENT_REGISTER_SCHEMA,
@@ -66,6 +68,7 @@ from adeu_repo_description import (
     REPO_SYMBOL_CATALOG_SCHEMA,
     REPO_TEST_INTENT_MATRIX_SCHEMA,
     REPO_TOOL_FITNESS_DRIFT_REGISTER_SCHEMA,
+    REPO_TYPED_ADJUDICATION_CASE_VIEW_SCHEMA,
 )
 from adeu_repo_description.export_schema import main as export_schema_main
 
@@ -538,6 +541,30 @@ def _schema_pairs() -> dict[str, tuple[Path, Path]]:
             / "schema"
             / "repo_operator_projection_non_authority_guardrail.v1.json",
             root / "spec" / "repo_operator_projection_non_authority_guardrail.schema.json",
+        ),
+        REPO_TYPED_ADJUDICATION_CASE_VIEW_SCHEMA: (
+            root
+            / "packages"
+            / "adeu_repo_description"
+            / "schema"
+            / "repo_typed_adjudication_case_view.v1.json",
+            root / "spec" / "repo_typed_adjudication_case_view.schema.json",
+        ),
+        REPO_MODEL_OUTPUT_COMPARISON_PROJECTION_SCHEMA: (
+            root
+            / "packages"
+            / "adeu_repo_description"
+            / "schema"
+            / "repo_model_output_comparison_projection.v1.json",
+            root / "spec" / "repo_model_output_comparison_projection.schema.json",
+        ),
+        REPO_PROJECTION_EXCEPTION_VISIBILITY_REGISTER_SCHEMA: (
+            root
+            / "packages"
+            / "adeu_repo_description"
+            / "schema"
+            / "repo_projection_exception_visibility_register.v1.json",
+            root / "spec" / "repo_projection_exception_visibility_register.schema.json",
         ),
     }
 

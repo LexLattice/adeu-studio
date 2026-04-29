@@ -1,0 +1,172 @@
+{
+  "$defs": {
+    "RepoTypedAdjudicationCaseViewRow": {
+      "additionalProperties": false,
+      "properties": {
+        "candidate_refs": {
+          "items": {
+            "type": "string"
+          },
+          "minItems": 1,
+          "title": "Candidate Refs",
+          "type": "array"
+        },
+        "comparison_projection_refs": {
+          "items": {
+            "type": "string"
+          },
+          "title": "Comparison Projection Refs",
+          "type": "array"
+        },
+        "conceptual_diff_refs": {
+          "items": {
+            "type": "string"
+          },
+          "title": "Conceptual Diff Refs",
+          "type": "array"
+        },
+        "exception_refs": {
+          "items": {
+            "type": "string"
+          },
+          "title": "Exception Refs",
+          "type": "array"
+        },
+        "guardrail_refs": {
+          "items": {
+            "type": "string"
+          },
+          "minItems": 1,
+          "title": "Guardrail Refs",
+          "type": "array"
+        },
+        "limitation_note": {
+          "title": "Limitation Note",
+          "type": "string"
+        },
+        "odeu_lanes": {
+          "items": {
+            "enum": [
+              "ontological",
+              "deontic",
+              "epistemic",
+              "utility"
+            ],
+            "type": "string"
+          },
+          "minItems": 1,
+          "title": "Odeu Lanes",
+          "type": "array"
+        },
+        "outcome_recommendation_refs": {
+          "items": {
+            "type": "string"
+          },
+          "title": "Outcome Recommendation Refs",
+          "type": "array"
+        },
+        "ratification_refs": {
+          "items": {
+            "type": "string"
+          },
+          "title": "Ratification Refs",
+          "type": "array"
+        },
+        "review_classification_refs": {
+          "items": {
+            "type": "string"
+          },
+          "title": "Review Classification Refs",
+          "type": "array"
+        },
+        "source_case_view_refs": {
+          "items": {
+            "type": "string"
+          },
+          "minItems": 1,
+          "title": "Source Case View Refs",
+          "type": "array"
+        },
+        "typed_case_posture": {
+          "enum": [
+            "projection_ready",
+            "blocked_by_missing_conceptual_diff_source",
+            "blocked_by_missing_review_source",
+            "blocked_by_unresolved_exception",
+            "future_family_only",
+            "rejected_out_of_scope"
+          ],
+          "title": "Typed Case Posture",
+          "type": "string"
+        },
+        "typed_case_ref": {
+          "title": "Typed Case Ref",
+          "type": "string"
+        }
+      },
+      "required": [
+        "typed_case_ref",
+        "source_case_view_refs",
+        "candidate_refs",
+        "typed_case_posture",
+        "odeu_lanes",
+        "guardrail_refs",
+        "limitation_note"
+      ],
+      "title": "RepoTypedAdjudicationCaseViewRow",
+      "type": "object"
+    }
+  },
+  "additionalProperties": false,
+  "properties": {
+    "operator_projection_case_view_id": {
+      "title": "Operator Projection Case View Id",
+      "type": "string"
+    },
+    "review_id": {
+      "title": "Review Id",
+      "type": "string"
+    },
+    "schema": {
+      "const": "repo_typed_adjudication_case_view@1",
+      "default": "repo_typed_adjudication_case_view@1",
+      "title": "Schema",
+      "type": "string"
+    },
+    "snapshot_id": {
+      "title": "Snapshot Id",
+      "type": "string"
+    },
+    "source_set_id": {
+      "title": "Source Set Id",
+      "type": "string"
+    },
+    "typed_adjudication_case_view_id": {
+      "title": "Typed Adjudication Case View Id",
+      "type": "string"
+    },
+    "typed_case_boundary_summary": {
+      "title": "Typed Case Boundary Summary",
+      "type": "string"
+    },
+    "typed_case_rows": {
+      "items": {
+        "$ref": "#/$defs/RepoTypedAdjudicationCaseViewRow"
+      },
+      "minItems": 1,
+      "title": "Typed Case Rows",
+      "type": "array"
+    }
+  },
+  "required": [
+    "typed_adjudication_case_view_id",
+    "review_id",
+    "snapshot_id",
+    "source_set_id",
+    "operator_projection_case_view_id",
+    "typed_case_rows",
+    "typed_case_boundary_summary"
+  ],
+  "title": "RepoTypedAdjudicationCaseView",
+  "type": "object"
+}

@@ -1,0 +1,92 @@
+{
+  "comparison_boundary_summary": "Model-output comparison projection is bounded, not benchmark truth, no model selection, and no dispatch authority.",
+  "comparison_projection_rows": [
+    {
+      "adjudicator_schema_refs": [
+        "docs/support/arc_series_mapping/odeu_conceptual_diff_report.schema.json"
+      ],
+      "comparison_axis_rows": [
+        {
+          "axis_kind": "authority_boundary_preservation",
+          "axis_ref": "axis:v74b:self-evidencing:authority-boundary",
+          "axis_source_refs": [
+            "docs/support/arc_series_mapping/DRAFT_ARC_SERIES_ODEU_CONCEPTUAL_DIFF_v0.report.json",
+            "docs/support/arc_series_mapping/V68_V69_V70_V71_V72_V73_COMBINED_DOGFOOD_TEST_v0.json"
+          ],
+          "bounded_claim_horizon": "Bounded to the V74-B typed projection source rows and the fixed conceptual-diff support artifacts.",
+          "complementarity_refs": [
+            "complementarity:v74b:high-operational-xhigh-envelope"
+          ],
+          "confidence_posture": "moderate_with_limitations",
+          "contradiction_refs": [],
+          "exception_refs": [],
+          "limitation_note": "Authority-boundary difference is visible for operator review only.",
+          "non_benchmark_guardrail": "This axis is bounded comparison only, not benchmark truth and no model selection.",
+          "observed_difference_posture": "variants_complementary_on_axis"
+        },
+        {
+          "axis_kind": "operator_legibility",
+          "axis_ref": "axis:v74b:self-evidencing:operator-legibility",
+          "axis_source_refs": [
+            "docs/support/arc_series_mapping/DRAFT_ARC_SERIES_ODEU_CONCEPTUAL_DIFF_v0.report.json"
+          ],
+          "bounded_claim_horizon": "Bounded to operator legibility of the existing V68-V73 dogfood and conceptual-diff support artifacts.",
+          "complementarity_refs": [],
+          "confidence_posture": "low_or_inconclusive",
+          "contradiction_refs": [],
+          "exception_refs": [
+            "exception:v74b:comparison-axis:operator-legibility-unchecked"
+          ],
+          "limitation_note": "Operator legibility needs later visibility-contract review.",
+          "non_benchmark_guardrail": "This unchecked axis is bounded comparison only, not benchmark truth and no model selection.",
+          "observed_difference_posture": "axis_unchecked"
+        }
+      ],
+      "comparison_projection_posture": "blocked_by_unresolved_conflict",
+      "comparison_projection_ref": "comparison-projection:v74b:self-evidencing:model-output-comparison",
+      "complementarity_refs": [
+        "complementarity:v74b:high-operational-xhigh-envelope"
+      ],
+      "contradiction_refs": [],
+      "exception_refs": [
+        "exception:v74b:comparison-axis:operator-legibility-unchecked"
+      ],
+      "limitation_note": "Comparison projection is visible for later review only with no ratification, no product authority, no release authority, no runtime permission, and no dispatch.",
+      "model_output_refs": [
+        "model-output:v74b:gpt-5.5-high:conceptual-diff",
+        "model-output:v74b:gpt-5.5-xhigh:conceptual-diff"
+      ],
+      "model_output_source_rows": [
+        {
+          "limitation_note": "Model output provenance is bounded comparison context only.",
+          "model_identity_ref": "model:gpt-5.5-high",
+          "model_output_ref": "model-output:v74b:gpt-5.5-high:conceptual-diff",
+          "output_capture_ref": "docs/support/arc_series_mapping/DRAFT_ARC_SERIES_ODEU_CONCEPTUAL_DIFF_v0.report.json",
+          "prompt_source_ref": "docs/support/arc_series_mapping/V68_V69_V70_V71_V72_V73_COMBINED_DOGFOOD_TEST_v0.json",
+          "run_context_ref": "run-context:v74b:fixed-prompt-fixed-repo-substrate",
+          "source_presence_posture": "present"
+        },
+        {
+          "limitation_note": "Model output provenance is bounded comparison context only.",
+          "model_identity_ref": "model:gpt-5.5-xhigh",
+          "model_output_ref": "model-output:v74b:gpt-5.5-xhigh:conceptual-diff",
+          "output_capture_ref": "docs/support/arc_series_mapping/DRAFT_ARC_SERIES_ODEU_CONCEPTUAL_DIFF_v0.report.json",
+          "prompt_source_ref": "docs/support/arc_series_mapping/V68_V69_V70_V71_V72_V73_COMBINED_DOGFOOD_TEST_v0.json",
+          "run_context_ref": "run-context:v74b:fixed-prompt-fixed-repo-substrate",
+          "source_presence_posture": "present"
+        }
+      ],
+      "non_benchmark_guardrail": "The model-output comparison is bounded to fixed sources, not benchmark truth and no model selection.",
+      "prompt_source_refs": [
+        "docs/support/arc_series_mapping/V68_V69_V70_V71_V72_V73_COMBINED_DOGFOOD_TEST_v0.json"
+      ],
+      "typed_case_ref": "typed-case:v74b:self-evidencing:conceptual-diff"
+    }
+  ],
+  "model_output_comparison_projection_id": "repo_model_output_comparison_projection_516de0a60430bdc9e483f4fa",
+  "review_id": "review:v74b:typed-adjudication-projection",
+  "schema": "repo_model_output_comparison_projection@1",
+  "snapshot_id": "vNext+207-prestart-on-main",
+  "source_set_id": "source-set:v74a:released-v73c-projection",
+  "typed_adjudication_case_view_id": "repo_typed_adjudication_case_view_e3c25e5d947e1ed831291f1e"
+}

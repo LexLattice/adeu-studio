@@ -1,0 +1,77 @@
+{
+  "operator_projection_case_view_id": "repo_operator_projection_case_view_ede72a38ad769c9142e33026",
+  "review_id": "review:v74b:typed-adjudication-projection",
+  "schema": "repo_typed_adjudication_case_view@1",
+  "snapshot_id": "vNext+207-prestart-on-main",
+  "source_set_id": "source-set:v74a:released-v73c-projection",
+  "typed_adjudication_case_view_id": "repo_typed_adjudication_case_view_e3c25e5d947e1ed831291f1e",
+  "typed_case_boundary_summary": "Typed adjudication case view is projection only: no ratification, no adoption, no product authorization, no release authority, no runtime permission, and no dispatch authority.",
+  "typed_case_rows": [
+    {
+      "candidate_refs": [
+        "candidate:internal:typed_adjudication_product_wedge"
+      ],
+      "comparison_projection_refs": [],
+      "conceptual_diff_refs": [
+        "docs/support/arc_series_mapping/DRAFT_ADEU_TYPED_ADJUDICATION_PRODUCT_WEDGE_v0.md"
+      ],
+      "exception_refs": [
+        "blocker:v74a:product-wedge:product-authority-gap"
+      ],
+      "guardrail_refs": [
+        "guardrail:v74a:product-wedge:no-product-authority"
+      ],
+      "limitation_note": "Product wedge typed case is projection only: no ratification, no adoption, no product authority, no release authority, no runtime permission, and no dispatch.",
+      "odeu_lanes": [
+        "deontic",
+        "epistemic",
+        "utility"
+      ],
+      "outcome_recommendation_refs": [],
+      "ratification_refs": [],
+      "review_classification_refs": [
+        "review-classification:v70:product-wedge:future-family"
+      ],
+      "source_case_view_refs": [
+        "case-view:v74a:product-wedge:future-family"
+      ],
+      "typed_case_posture": "blocked_by_unresolved_exception",
+      "typed_case_ref": "typed-case:v74b:product-wedge:authority-gap"
+    },
+    {
+      "candidate_refs": [
+        "candidate:internal:self_evidencing_workflow_type_emergence"
+      ],
+      "comparison_projection_refs": [
+        "comparison-projection:v74b:self-evidencing:model-output-comparison"
+      ],
+      "conceptual_diff_refs": [
+        "docs/support/arc_series_mapping/DRAFT_ARC_SERIES_ODEU_CONCEPTUAL_DIFF_v0.report.json"
+      ],
+      "exception_refs": [],
+      "guardrail_refs": [
+        "guardrail:v74a:self-evidencing:no-authority"
+      ],
+      "limitation_note": "Self-evidencing typed case is projection only: no ratification, no adoption, no product authority, no release authority, no runtime permission, and no dispatch.",
+      "odeu_lanes": [
+        "deontic",
+        "epistemic",
+        "utility"
+      ],
+      "outcome_recommendation_refs": [
+        "recommendation:v73c:self-evidencing:promote-for-later-review"
+      ],
+      "ratification_refs": [
+        "ratification:v71:self-evidencing:later-review-only"
+      ],
+      "review_classification_refs": [
+        "review-classification:v70:self-evidencing:bounded"
+      ],
+      "source_case_view_refs": [
+        "case-view:v74a:self-evidencing:operator-projection"
+      ],
+      "typed_case_posture": "projection_ready",
+      "typed_case_ref": "typed-case:v74b:self-evidencing:conceptual-diff"
+    }
+  ]
+}
