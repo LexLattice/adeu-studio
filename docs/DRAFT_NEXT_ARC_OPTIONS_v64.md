@@ -145,8 +145,7 @@ Later `V74` surfaces should remain support-layer until their own starter locks:
 - `repo_post_projection_handoff@1`
 - `repo_operator_projection_family_closeout_alignment@1`
 
-Post-`V74-A` continuation posture: after `vNext+206` closes on `main`, select
-`V74-B` as the next default candidate for the next canonical starter bundle.
+Post-`V74-A` continuation posture: after `vNext+206` closes on `main`, select `V74-B` as the next default candidate for the next canonical starter bundle.
 That selection remains inside the already selected `V74` family and does not
 create a new next-arc-options selector version.
 
