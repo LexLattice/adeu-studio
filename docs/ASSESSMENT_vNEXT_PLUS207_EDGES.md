@@ -1,8 +1,8 @@
 # Assessment vNext+207 Edges
 
-Status: pre-lock edge assessment for `V74-B` (April 29, 2026 UTC).
+Status: post-closeout edge assessment for `V74-B` (April 29, 2026 UTC).
 
-Authority layer: draft assessment scaffold; not closeout evidence.
+Authority layer: closeout evidence on `main` only.
 
 ## Assessment-State Marker (Machine-Checkable)
 
@@ -10,8 +10,8 @@ Authority layer: draft assessment scaffold; not closeout evidence.
 {
   "schema": "assessment_artifact_state@1",
   "artifact": "docs/ASSESSMENT_vNEXT_PLUS207_EDGES.md",
-  "phase": "pre_lock_assessment",
-  "authoritative": false,
+  "phase": "post_closeout_assessment",
+  "authoritative": true,
   "required_in_decision": true
 }
 ```
@@ -20,93 +20,99 @@ Authority layer: draft assessment scaffold; not closeout evidence.
 
 ### Edge 1: Typed Adjudication Could Become Ratification
 
-- Risk:
-  typed adjudication case views may be overread as adoption, ratification, or
-  outcome truth.
-- Required containment:
-  typed case rows must remain projection substrate over released `V74-A` rows
-  and must not create new ratification, adoption, outcome verdict, product, or
-  release authority.
+- Closeout containment:
+  typed case rows remain projection substrate over released `V74-A` rows.
+- Result:
+  pass. Typed case rows that create new ratification or outcome verdicts
+  reject.
 
 ### Edge 2: Conceptual-Diff Support Could Be Laundered As Released Schema
 
-- Risk:
-  conceptual-diff support artifacts may be treated as released schema or
-  architecture authority.
-- Required containment:
-  support docs may be source lineage only; released schema authority must come
-  from emitted `repo_*` schema surfaces.
+- Closeout containment:
+  conceptual-diff support artifacts may be source lineage only.
+- Result:
+  pass. Conceptual-diff support doc as released schema rejects.
 
 ### Edge 3: Model Comparison Could Become Benchmark Truth
 
-- Risk:
-  model-output comparison projection may be overread as global model ranking,
-  model selection, or benchmark result.
-- Required containment:
-  comparison projection must bind to fixed prompt, fixed outputs, fixed source
-  rows, structured comparison axes, and non-benchmark guardrails.
+- Closeout containment:
+  comparison projection binds to fixed prompts, fixed outputs, fixed source
+  rows, structured axes, and non-benchmark guardrails.
+- Result:
+  pass. Global model ranking and benchmark-selection postures reject.
 
 ### Edge 4: Comparison Axes Could Become Narrative Or Unbounded
 
-- Risk:
-  comparison axes could become prose-only claims with no bounded horizon.
-- Required containment:
-  axis rows must carry `axis_ref`, `axis_kind`, bounded claim horizon, source
-  refs, observed difference posture, confidence posture, exception refs where
-  needed, and non-benchmark guardrails.
+- Closeout containment:
+  comparison axis rows carry bounded claim horizons, source refs,
+  confidence posture, observed-difference posture, and non-benchmark guardrail.
+- Result:
+  pass. Axis rows without source evidence or bounded guardrail reject.
 
 ### Edge 5: Model-Output Provenance Could Be Missing
 
-- Risk:
-  comparison projection could compare model outputs without prompt, model
-  identity, captured output, or run-context refs.
-- Required containment:
-  model-output source rows must preserve prompt source, model identity, output
-  capture, run context, source presence posture, and limitation note.
+- Closeout containment:
+  model-output source rows preserve prompt source, model identity, captured
+  output, run context, source presence posture, and limitation note.
+- Result:
+  pass. Comparison projection without model-output provenance rows rejects.
 
 ### Edge 6: Exceptions Could Be Hidden Or Resolved
 
-- Risk:
-  exception visibility rows could omit known blockers or mark exceptions
-  resolved in `V74-B`.
-- Required containment:
-  exception rows must keep source gaps, dissent, regressions, review conflicts,
+- Closeout containment:
+  exception rows keep source gaps, dissent, regressions, review conflicts,
   evidence gaps, product/runtime/dispatch authority gaps, unchecked axes, and
-  provenance gaps visible; `V74-B` must not resolve them.
+  provenance gaps visible; `V74-B` cannot resolve them.
+- Result:
+  pass. Known-blocker omission and exception-resolution rows reject.
 
 ### Edge 7: Product Wedge Could Become Product Authorization
 
-- Risk:
-  typed adjudication product-pressure cases could be interpreted as product
-  selection.
-- Required containment:
-  product-pressure projection must remain product-authority-missing,
+- Closeout containment:
+  product-pressure projection remains product-authority-missing,
   future-product-review, rejected, or out-of-scope.
+- Result:
+  pass. Product wedge projected as product authorization rejects.
 
 ### Edge 8: V74-B Could Begin V74-C Or V75
 
-- Risk:
-  typed adjudication and exception visibility could drift into visibility
-  contracts, workbench projection, post-projection handoff, or dispatch.
-- Required containment:
-  `V74-C` and `V75` remain deferred; no live UI, operator command surface,
-  runtime permission, release, dispatch, or external contest participation
-  lands in this slice.
+- Closeout containment:
+  `V74-B` emits only typed adjudication case-view, model-output comparison
+  projection, and exception visibility register surfaces.
+- Result:
+  pass. Decision visibility contracts, ratification-review workbench
+  projection, post-projection handoff, live UI, runtime permission, release,
+  dispatch, and external contest participation remain deferred.
 
 ### Edge 9: Source Absence Could Become Memory
 
-- Risk:
-  missing prompt, model-output, adjudicator-schema, or conceptual-diff source
-  material could be reconstructed from prose.
-- Required containment:
-  absence remains row data with source presence posture, never unstated
-  memory.
+- Closeout containment:
+  missing prompt, model-output, adjudicator-schema, conceptual-diff, and
+  exception source material remains row data with source presence posture.
+- Result:
+  pass. Source-bound reference and reject fixtures preserve explicit source
+  posture.
 
-## Closeout Expectations
+## Residual Edges
 
-- A successful `V74-B` closeout should prove that typed adjudication,
-  model-output comparison, and exception visibility are machine-checkable and
-  source-bound.
-- It should preserve the V74 authority boundary: projection improves operator
-  legibility, but does not ratify, adopt, implement, productize, release, grant
-  runtime permission, dispatch, or select a model globally.
+- `V74-C` must define decision visibility contracts, review-workbench
+  projection, post-projection handoff, and family closeout alignment without
+  creating a live command surface.
+- `V74-C` must keep workbench language review-only: no ratification action,
+  no product authorization, no release authority, no runtime permission, and
+  no dispatch.
+- `V75` remains unselected dispatch / multi-worker orchestration review.
+- Product-facing typed adjudication pressure remains visible but
+  non-authorizing until a later family or authority surface selects it.
+
+## Closeout Judgment
+
+- `V74-B` is closed on `main` as a bounded typed adjudication case-view,
+  model-output comparison projection, and projection exception visibility
+  register slice.
+- `V74` remains open for `V74-C`.
+- The shipped slice preserves the intended authority boundary: projection can
+  make typed comparison and exception state visible; it does not ratify, adopt,
+  implement, commit, merge, release, productize, grant runtime permission,
+  dispatch, select a model globally, produce benchmark truth, or participate in
+  external contests.
