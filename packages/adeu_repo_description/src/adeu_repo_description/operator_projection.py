@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import re
 from pathlib import Path
 from typing import Literal
 
@@ -293,13 +294,27 @@ _FORBIDDEN_V74B_AUTHORITY_PHRASES = _FORBIDDEN_AUTHORITY_PHRASES + (
 )
 
 
+def _has_unnegated_phrase(value: str, phrase: str) -> bool:
+    phrase_pattern = r"\b" + r"\s+".join(re.escape(part) for part in phrase.split()) + r"\b"
+    negated_pattern = re.compile(
+        r"(?:\bno\b|\bnot\b|\bwithout\b)\s+" + phrase_pattern,
+        flags=re.IGNORECASE,
+    )
+    for match in re.finditer(phrase_pattern, value, flags=re.IGNORECASE):
+        if not any(
+            negated.start() <= match.start() and match.end() <= negated.end()
+            for negated in negated_pattern.finditer(value)
+        ):
+            return True
+    return False
+
+
 def _v74a_note(value: str, *, field_name: str) -> str:
     normalized = _non_empty(value, field_name=field_name)
-    lowered = normalized.lower()
     for phrase in _FORBIDDEN_AUTHORITY_PHRASES:
-        if phrase in lowered and f"no {phrase}" not in lowered and f"not {phrase}" not in lowered:
+        if _has_unnegated_phrase(normalized, phrase):
             raise ValueError(f"{field_name} may not carry projection authority")
-    if "case view is source truth" in lowered:
+    if _has_unnegated_phrase(normalized, "case view is source truth"):
         raise ValueError(f"{field_name} may not treat case view as source truth")
     return normalized
 
@@ -716,9 +731,8 @@ class RepoOperatorProjectionNonAuthorityGuardrail(_CartographyBase):
 
 def _v74b_note(value: str, *, field_name: str) -> str:
     normalized = _v74a_note(value, field_name=field_name)
-    lowered = normalized.lower()
     for phrase in _FORBIDDEN_V74B_AUTHORITY_PHRASES:
-        if phrase in lowered and f"no {phrase}" not in lowered and f"not {phrase}" not in lowered:
+        if _has_unnegated_phrase(normalized, phrase):
             raise ValueError(f"{field_name} may not carry typed projection authority")
     return normalized
 
@@ -1111,8 +1125,7 @@ class RepoProjectionExceptionVisibilityRow(_CartographyBase):
             self.required_next_surface != "future_product_review"
         ):
             raise ValueError("product authority exceptions require future_product_review")
-        lowered_note = self.limitation_note.lower()
-        if "resolved" in lowered_note and "not resolved" not in lowered_note:
+        if _has_unnegated_phrase(self.limitation_note, "resolved"):
             raise ValueError("V74-B exception rows cannot mark exceptions resolved")
         return self
 

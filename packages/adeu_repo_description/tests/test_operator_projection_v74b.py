@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import json
+from copy import deepcopy
 from pathlib import Path
 from typing import Any
 
@@ -262,6 +263,33 @@ def test_v207_reject_fixtures_fail_validation(
 ) -> None:
     with pytest.raises(ValidationError, match=match):
         model_type.model_validate(_load_fixture("vnext_plus207", fixture_name))
+
+
+def test_v207_rejects_authority_phrase_after_separate_negated_phrase() -> None:
+    payload = deepcopy(
+        _load_fixture("vnext_plus206", "repo_operator_projection_source_index_v206_reference.json")
+    )
+    payload["source_rows"][0]["limitation_note"] = (
+        "This row is not dispatch authorized. It later claims dispatch authorized execution."
+    )
+
+    with pytest.raises(ValidationError, match="may not carry projection authority"):
+        RepoOperatorProjectionSourceIndex.model_validate(payload)
+
+
+def test_v207_rejects_exception_resolution_after_separate_not_resolved_phrase() -> None:
+    payload = deepcopy(
+        _load_fixture(
+            "vnext_plus207",
+            "repo_projection_exception_visibility_register_v207_reference.json",
+        )
+    )
+    payload["exception_rows"][0]["limitation_note"] = (
+        "This exception is not resolved by V74-B. It later claims resolved by release authority."
+    )
+
+    with pytest.raises(ValidationError, match="cannot mark exceptions resolved"):
+        RepoProjectionExceptionVisibilityRegister.model_validate(payload)
 
 
 def test_v207_bundle_rejects_omitted_known_v74a_blocker() -> None:
