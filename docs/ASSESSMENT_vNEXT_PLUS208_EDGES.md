@@ -1,8 +1,8 @@
 # Assessment vNext+208 Edges
 
-Status: pre-lock edge assessment for `V74-C` (April 29, 2026 UTC).
+Status: post-closeout edge assessment for `V74-C` (April 30, 2026 UTC).
 
-Authority layer: draft assessment scaffold; not closeout evidence.
+Authority layer: closeout evidence on `main` only.
 
 ## Assessment-State Marker (Machine-Checkable)
 
@@ -10,8 +10,8 @@ Authority layer: draft assessment scaffold; not closeout evidence.
 {
   "schema": "assessment_artifact_state@1",
   "artifact": "docs/ASSESSMENT_vNEXT_PLUS208_EDGES.md",
-  "phase": "pre_lock_assessment",
-  "authoritative": false,
+  "phase": "post_closeout_assessment",
+  "authoritative": true,
   "required_in_decision": true
 }
 ```
@@ -20,92 +20,104 @@ Authority layer: draft assessment scaffold; not closeout evidence.
 
 ### Edge 1: Visibility Contract Could Become Authority
 
-- Risk:
-  decision visibility contracts may be overread as ratification, adoption,
-  implementation, release, product, runtime, or dispatch authority.
-- Required containment:
-  contract rows must separate visible state from non-derivable authority kinds
-  and must keep forbidden downstream authority explicit.
+- Closeout containment:
+  decision visibility contracts separate visible state, visibility obligations,
+  non-derivable authority kinds, operator action postures, and required later
+  authority rows.
+- Result:
+  pass. Contract rows cannot ratify, adopt, implement, release, productize,
+  grant runtime permission, dispatch, or self-approve.
 
 ### Edge 2: Visibility Obligations Could Be Mixed With Non-Derivable Authority
 
-- Risk:
-  hidden-source obligations and non-derivable release/product/runtime/dispatch
-  authority states could collapse into one loose list.
-- Required containment:
-  `visibility_obligation_kinds` and `non_derivable_authority_kinds` must be
+- Closeout containment:
+  `visibility_obligation_kinds` and `non_derivable_authority_kinds` are
   separate typed fields.
+- Result:
+  pass. The mixed visibility / authority reject fixture fails validation.
 
 ### Edge 3: Later Authority Could Float Free
 
-- Risk:
-  rows could say that product, release, runtime, dispatch, or ratification
-  authority is required without source-bound authority requirement rows.
-- Required containment:
-  `required_later_authority_rows` must carry authority requirement refs,
-  authority kind, source refs or source absence posture, and required-before
-  action.
+- Closeout containment:
+  later authority must be carried through source-bound authority requirement
+  rows, and each authority kind maps to the matching required-before action.
+- Result:
+  pass. Free-floating product authority rejects, and the later-authority phase
+  mapping validator covers human ratification, maintainer release, product,
+  runtime, dispatch, and external contest authority.
 
 ### Edge 4: Workbench Projection Could Ratify
 
-- Risk:
-  `repo_ratification_review_workbench_projection@1` could be read as a
-  ratification action surface.
-- Required containment:
-  the surface is review visibility only; permitted operator action postures
-  must remain inspect, acknowledge, request-later-review, annotate-source-gap,
-  export-support-report, or no-action.
+- Closeout containment:
+  `repo_ratification_review_workbench_projection@1` is ratification-review
+  visibility only.
+- Result:
+  pass. Workbench rows that permit ratify, adopt, implement, commit, merge,
+  release, product authorization, runtime permission, dispatch, or external
+  contest action reject.
 
 ### Edge 5: Operator Action Could Become Command Execution
 
-- Risk:
-  operator projection rows could permit implement, commit, merge, release,
-  product authorization, runtime permission, dispatch, or external contest
-  action.
-- Required containment:
-  forbidden action postures must reject every command/execution authority in
-  this slice.
+- Closeout containment:
+  permitted operator action postures remain inspect-only, acknowledge-only,
+  request-later-review-only, source-gap annotation, support-report export, or
+  no action.
+- Result:
+  pass. Command/execution/action authority remains forbidden in `V74-C`.
 
 ### Edge 6: Post-Projection Handoff Could Perform V75
 
-- Risk:
-  a `v75_dispatch_review` handoff could be overread as dispatch, worker
-  assignment, runtime permission, or execution.
-- Required containment:
-  V75 handoff rows must include non-dispatch guardrails and required dispatch
-  authority requirements, and remain later-review requests only.
+- Closeout containment:
+  post-projection handoff rows request later review only. `v75_dispatch_review`
+  requires non-dispatch guardrail text and a dispatch authority requirement.
+- Result:
+  pass. Handoff rows that perform dispatch or omit dispatch-authority
+  requirements reject.
 
 ### Edge 7: Blocking Exceptions Could Be Hidden
 
-- Risk:
-  source gaps, dissent, regressions, authority blockers, and product/runtime/
-  dispatch gaps could disappear when contract or handoff rows are summarized.
-- Required containment:
-  known exceptions must remain visible and carried forward; blocking carried
-  exceptions cannot be marked ready for later review.
+- Closeout containment:
+  known source gaps, dissent, regressions, authority blockers, and
+  product/runtime/dispatch gaps remain visible and carried forward.
+- Result:
+  pass. Ready handoff with blocking carried exceptions rejects.
 
 ### Edge 8: Product Wedge Could Become Product Selection
 
-- Risk:
-  typed-adjudication product pressure could be projected as product-selected or
-  product-authorized.
-- Required containment:
-  product pressure remains future-product-review, product-authority-missing,
-  rejected, or out-of-scope.
+- Closeout containment:
+  product pressure remains visible as future-product-review or
+  product-authority-missing posture.
+- Result:
+  pass. Product wedge projected as product-selected rejects.
 
 ### Edge 9: Family Closeout Could Claim Downstream Completion
 
-- Risk:
-  closing `V74` could be overread as closing product, runtime, dispatch,
-  release, or external contest authority.
-- Required containment:
+- Closeout containment:
   family closeout alignment may close `V74` as operator projection only.
+- Result:
+  pass. Family closeout claiming product launch, release authority, runtime
+  permission, dispatch, or external contest authority rejects.
 
-## Closeout Expectations
+## Residual Edges
 
-- A successful `V74-C` closeout should prove that decision visibility,
-  ratification-review workbench projection, post-projection handoff, and family
-  closeout alignment are machine-checkable and source-bound.
-- It should preserve the V74 authority boundary: projection improves operator
-  legibility, but does not ratify, adopt, implement, productize, release, grant
-  runtime permission, dispatch, execute commands, or select a model globally.
+- `V75` remains unselected dispatch / multi-worker orchestration review.
+- Product-facing typed adjudication pressure remains visible but
+  non-authorizing until a later family or authority surface selects it.
+- Live UI, operator command execution, runtime permission, release authority,
+  and external contest participation remain outside `V74`.
+- Operator projection improves legibility, but it is not itself a decision,
+  source truth, ratification, product authorization, dispatch, or recursive
+  policy amendment.
+
+## Closeout Judgment
+
+- `V74-C` is closed on `main` as a bounded decision visibility contract,
+  ratification-review workbench projection, post-projection handoff, and
+  family closeout alignment slice.
+- `V74` is closed on `main` as the operator projection family.
+- The shipped family preserves the intended authority boundary: projection can
+  make case views, typed adjudication, model-output comparison, exceptions,
+  decision visibility, workbench visibility, and later-review handoff visible;
+  it does not ratify, adopt, implement, commit, merge, release, productize,
+  grant runtime permission, dispatch, select a model globally, produce
+  benchmark truth, participate in external contests, or self-approve.

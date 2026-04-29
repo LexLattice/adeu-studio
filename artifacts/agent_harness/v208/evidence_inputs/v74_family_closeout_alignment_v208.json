@@ -1,0 +1,35 @@
+{
+  "closed_by_arc": "vNext+208",
+  "closed_by_merge_commit": "31c29314b658c025241475e871a42bf0e42c7880",
+  "closed_slice_ladder": [
+    "V74-A:vNext+206",
+    "V74-B:vNext+207",
+    "V74-C:vNext+208"
+  ],
+  "family": "V74",
+  "family_closed_on_main": true,
+  "future_family_authority": "none",
+  "schema": "v74_family_closeout_alignment@1",
+  "shipped_record_shapes": [
+    "repo_operator_projection_case_view@1",
+    "repo_operator_projection_source_index@1",
+    "repo_operator_projection_non_authority_guardrail@1",
+    "repo_typed_adjudication_case_view@1",
+    "repo_model_output_comparison_projection@1",
+    "repo_projection_exception_visibility_register@1",
+    "repo_decision_visibility_contract@1",
+    "repo_ratification_review_workbench_projection@1",
+    "repo_post_projection_handoff@1",
+    "repo_operator_projection_family_closeout_alignment@1"
+  ],
+  "unselected_future_surfaces": [
+    "V75 dispatch review and execution widening",
+    "live product UI",
+    "operator command execution",
+    "product authorization",
+    "release authority",
+    "runtime permission",
+    "external contest participation"
+  ],
+  "v74_authority_boundary": "operator_projection_family_only_no_ratification_adoption_implementation_product_release_runtime_dispatch_external_contest_model_selection_benchmark_truth_or_self_approval_authority"
+}
