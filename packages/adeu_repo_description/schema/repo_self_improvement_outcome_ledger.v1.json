@@ -1,0 +1,149 @@
+{
+  "$defs": {
+    "RepoSelfImprovementOutcomeLedgerRow": {
+      "additionalProperties": false,
+      "properties": {
+        "candidate_ref": {
+          "title": "Candidate Ref",
+          "type": "string"
+        },
+        "carried_forward_gap_refs": {
+          "items": {
+            "type": "string"
+          },
+          "title": "Carried Forward Gap Refs",
+          "type": "array"
+        },
+        "entry_refs": {
+          "items": {
+            "type": "string"
+          },
+          "minItems": 1,
+          "title": "Entry Refs",
+          "type": "array"
+        },
+        "ledger_ref": {
+          "title": "Ledger Ref",
+          "type": "string"
+        },
+        "limitation_note": {
+          "title": "Limitation Note",
+          "type": "string"
+        },
+        "observation_refs": {
+          "items": {
+            "type": "string"
+          },
+          "minItems": 1,
+          "title": "Observation Refs",
+          "type": "array"
+        },
+        "operator_cognition_signal_refs": {
+          "items": {
+            "type": "string"
+          },
+          "title": "Operator Cognition Signal Refs",
+          "type": "array"
+        },
+        "outcome_ledger_posture": {
+          "enum": [
+            "positive_signal_recorded",
+            "negative_signal_recorded",
+            "mixed_signal_recorded",
+            "inconclusive_signal_recorded",
+            "deferred_signal_recorded",
+            "out_of_scope_signal_recorded"
+          ],
+          "title": "Outcome Ledger Posture",
+          "type": "string"
+        },
+        "regression_refs": {
+          "items": {
+            "type": "string"
+          },
+          "title": "Regression Refs",
+          "type": "array"
+        },
+        "tool_fitness_refs": {
+          "items": {
+            "type": "string"
+          },
+          "title": "Tool Fitness Refs",
+          "type": "array"
+        }
+      },
+      "required": [
+        "ledger_ref",
+        "candidate_ref",
+        "entry_refs",
+        "observation_refs",
+        "outcome_ledger_posture",
+        "limitation_note"
+      ],
+      "title": "RepoSelfImprovementOutcomeLedgerRow",
+      "type": "object"
+    }
+  },
+  "additionalProperties": false,
+  "properties": {
+    "ledger_rows": {
+      "items": {
+        "$ref": "#/$defs/RepoSelfImprovementOutcomeLedgerRow"
+      },
+      "minItems": 1,
+      "title": "Ledger Rows",
+      "type": "array"
+    },
+    "non_self_approval_summary": {
+      "title": "Non Self Approval Summary",
+      "type": "string"
+    },
+    "outcome_observation_record_id": {
+      "title": "Outcome Observation Record Id",
+      "type": "string"
+    },
+    "outcome_regression_register_id": {
+      "title": "Outcome Regression Register Id",
+      "type": "string"
+    },
+    "review_id": {
+      "title": "Review Id",
+      "type": "string"
+    },
+    "schema": {
+      "const": "repo_self_improvement_outcome_ledger@1",
+      "default": "repo_self_improvement_outcome_ledger@1",
+      "title": "Schema",
+      "type": "string"
+    },
+    "self_improvement_outcome_ledger_id": {
+      "title": "Self Improvement Outcome Ledger Id",
+      "type": "string"
+    },
+    "snapshot_id": {
+      "title": "Snapshot Id",
+      "type": "string"
+    },
+    "source_set_id": {
+      "title": "Source Set Id",
+      "type": "string"
+    },
+    "tool_fitness_drift_register_id": {
+      "title": "Tool Fitness Drift Register Id",
+      "type": "string"
+    }
+  },
+  "required": [
+    "self_improvement_outcome_ledger_id",
+    "review_id",
+    "snapshot_id",
+    "source_set_id",
+    "outcome_observation_record_id",
+    "outcome_regression_register_id",
+    "tool_fitness_drift_register_id",
+    "ledger_rows",
+    "non_self_approval_summary"
+  ],
+  "title": "RepoSelfImprovementOutcomeLedger",
+  "type": "object"
+}

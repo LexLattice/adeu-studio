@@ -1,0 +1,125 @@
+{
+  "$defs": {
+    "RepoOperatorCognitionOutcomeSignalRow": {
+      "additionalProperties": false,
+      "properties": {
+        "candidate_ref": {
+          "title": "Candidate Ref",
+          "type": "string"
+        },
+        "limitation_note": {
+          "title": "Limitation Note",
+          "type": "string"
+        },
+        "non_authority_guardrail": {
+          "title": "Non Authority Guardrail",
+          "type": "string"
+        },
+        "operator_signal_ref": {
+          "title": "Operator Signal Ref",
+          "type": "string"
+        },
+        "signal_kind": {
+          "enum": [
+            "operator_conceptual_state_changed",
+            "workflow_generated_new_task",
+            "workflow_exposed_missing_type",
+            "reviewer_decision_pressure_changed",
+            "no_operator_signal_recorded"
+          ],
+          "title": "Signal Kind",
+          "type": "string"
+        },
+        "signal_posture": {
+          "enum": [
+            "signal_recorded_for_review",
+            "signal_requires_later_projection",
+            "signal_inconclusive",
+            "signal_not_authority",
+            "signal_not_applicable"
+          ],
+          "title": "Signal Posture",
+          "type": "string"
+        },
+        "source_refs": {
+          "items": {
+            "type": "string"
+          },
+          "minItems": 1,
+          "title": "Source Refs",
+          "type": "array"
+        },
+        "workflow_residue_refs": {
+          "items": {
+            "type": "string"
+          },
+          "title": "Workflow Residue Refs",
+          "type": "array"
+        }
+      },
+      "required": [
+        "operator_signal_ref",
+        "candidate_ref",
+        "source_refs",
+        "signal_kind",
+        "signal_posture",
+        "non_authority_guardrail",
+        "limitation_note"
+      ],
+      "title": "RepoOperatorCognitionOutcomeSignalRow",
+      "type": "object"
+    }
+  },
+  "additionalProperties": false,
+  "properties": {
+    "non_authority_summary": {
+      "title": "Non Authority Summary",
+      "type": "string"
+    },
+    "operator_cognition_outcome_signal_id": {
+      "title": "Operator Cognition Outcome Signal Id",
+      "type": "string"
+    },
+    "operator_signal_rows": {
+      "items": {
+        "$ref": "#/$defs/RepoOperatorCognitionOutcomeSignalRow"
+      },
+      "minItems": 1,
+      "title": "Operator Signal Rows",
+      "type": "array"
+    },
+    "outcome_observation_record_id": {
+      "title": "Outcome Observation Record Id",
+      "type": "string"
+    },
+    "review_id": {
+      "title": "Review Id",
+      "type": "string"
+    },
+    "schema": {
+      "const": "repo_operator_cognition_outcome_signal@1",
+      "default": "repo_operator_cognition_outcome_signal@1",
+      "title": "Schema",
+      "type": "string"
+    },
+    "snapshot_id": {
+      "title": "Snapshot Id",
+      "type": "string"
+    },
+    "source_set_id": {
+      "title": "Source Set Id",
+      "type": "string"
+    }
+  },
+  "required": [
+    "operator_cognition_outcome_signal_id",
+    "review_id",
+    "snapshot_id",
+    "source_set_id",
+    "outcome_observation_record_id",
+    "operator_signal_rows",
+    "non_authority_summary"
+  ],
+  "title": "RepoOperatorCognitionOutcomeSignal",
+  "type": "object"
+}

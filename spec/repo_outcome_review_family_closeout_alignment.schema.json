@@ -1,0 +1,158 @@
+{
+  "$defs": {
+    "RepoOutcomeReviewFamilyCloseoutAlignmentRow": {
+      "additionalProperties": false,
+      "properties": {
+        "closed_slice_refs": {
+          "items": {
+            "type": "string"
+          },
+          "minItems": 1,
+          "title": "Closed Slice Refs",
+          "type": "array"
+        },
+        "closeout_alignment_posture": {
+          "enum": [
+            "family_closed_review_machinery_only",
+            "family_closeout_deferred_by_gap",
+            "family_closeout_blocked"
+          ],
+          "title": "Closeout Alignment Posture",
+          "type": "string"
+        },
+        "emitted_surface_refs": {
+          "items": {
+            "type": "string"
+          },
+          "minItems": 1,
+          "title": "Emitted Surface Refs",
+          "type": "array"
+        },
+        "family_ref": {
+          "title": "Family Ref",
+          "type": "string"
+        },
+        "future_family_refs": {
+          "items": {
+            "type": "string"
+          },
+          "title": "Future Family Refs",
+          "type": "array"
+        },
+        "ledger_refs": {
+          "items": {
+            "type": "string"
+          },
+          "minItems": 1,
+          "title": "Ledger Refs",
+          "type": "array"
+        },
+        "limitation_note": {
+          "title": "Limitation Note",
+          "type": "string"
+        },
+        "non_authority_guardrail_refs": {
+          "items": {
+            "type": "string"
+          },
+          "minItems": 1,
+          "title": "Non Authority Guardrail Refs",
+          "type": "array"
+        },
+        "operator_signal_refs": {
+          "items": {
+            "type": "string"
+          },
+          "title": "Operator Signal Refs",
+          "type": "array"
+        },
+        "recommendation_refs": {
+          "items": {
+            "type": "string"
+          },
+          "minItems": 1,
+          "title": "Recommendation Refs",
+          "type": "array"
+        },
+        "reviewed_candidate_refs": {
+          "items": {
+            "type": "string"
+          },
+          "minItems": 1,
+          "title": "Reviewed Candidate Refs",
+          "type": "array"
+        }
+      },
+      "required": [
+        "family_ref",
+        "closed_slice_refs",
+        "emitted_surface_refs",
+        "reviewed_candidate_refs",
+        "ledger_refs",
+        "recommendation_refs",
+        "non_authority_guardrail_refs",
+        "closeout_alignment_posture",
+        "limitation_note"
+      ],
+      "title": "RepoOutcomeReviewFamilyCloseoutAlignmentRow",
+      "type": "object"
+    }
+  },
+  "additionalProperties": false,
+  "properties": {
+    "alignment_rows": {
+      "items": {
+        "$ref": "#/$defs/RepoOutcomeReviewFamilyCloseoutAlignmentRow"
+      },
+      "minItems": 1,
+      "title": "Alignment Rows",
+      "type": "array"
+    },
+    "family_closeout_boundary_summary": {
+      "title": "Family Closeout Boundary Summary",
+      "type": "string"
+    },
+    "outcome_promotion_demotion_recommendation_id": {
+      "title": "Outcome Promotion Demotion Recommendation Id",
+      "type": "string"
+    },
+    "outcome_review_family_closeout_alignment_id": {
+      "title": "Outcome Review Family Closeout Alignment Id",
+      "type": "string"
+    },
+    "review_id": {
+      "title": "Review Id",
+      "type": "string"
+    },
+    "schema": {
+      "const": "repo_outcome_review_family_closeout_alignment@1",
+      "default": "repo_outcome_review_family_closeout_alignment@1",
+      "title": "Schema",
+      "type": "string"
+    },
+    "self_improvement_outcome_ledger_id": {
+      "title": "Self Improvement Outcome Ledger Id",
+      "type": "string"
+    },
+    "snapshot_id": {
+      "title": "Snapshot Id",
+      "type": "string"
+    },
+    "source_set_id": {
+      "title": "Source Set Id",
+      "type": "string"
+    }
+  },
+  "required": [
+    "outcome_review_family_closeout_alignment_id",
+    "review_id",
+    "snapshot_id",
+    "source_set_id",
+    "self_improvement_outcome_ledger_id",
+    "outcome_promotion_demotion_recommendation_id",
+    "alignment_rows",
+    "family_closeout_boundary_summary"
+  ],
+  "title": "RepoOutcomeReviewFamilyCloseoutAlignment",
+  "type": "object"
+}

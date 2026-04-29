@@ -1,0 +1,181 @@
+{
+  "$defs": {
+    "RepoOutcomePromotionDemotionRecommendationRow": {
+      "additionalProperties": false,
+      "properties": {
+        "candidate_ref": {
+          "title": "Candidate Ref",
+          "type": "string"
+        },
+        "forbidden_downstream_roles": {
+          "items": {
+            "enum": [
+              "promotion_authority",
+              "demotion_authority",
+              "adoption_authority",
+              "commit_release_authority",
+              "merge_authority",
+              "released_truth",
+              "product_authorization",
+              "runtime_permission",
+              "dispatch_authority",
+              "external_contest_authority"
+            ],
+            "type": "string"
+          },
+          "minItems": 1,
+          "title": "Forbidden Downstream Roles",
+          "type": "array"
+        },
+        "ledger_refs": {
+          "items": {
+            "type": "string"
+          },
+          "minItems": 1,
+          "title": "Ledger Refs",
+          "type": "array"
+        },
+        "limitation_note": {
+          "title": "Limitation Note",
+          "type": "string"
+        },
+        "observation_refs": {
+          "items": {
+            "type": "string"
+          },
+          "title": "Observation Refs",
+          "type": "array"
+        },
+        "operator_signal_refs": {
+          "items": {
+            "type": "string"
+          },
+          "title": "Operator Signal Refs",
+          "type": "array"
+        },
+        "recommendation_posture": {
+          "enum": [
+            "recommend_promote_for_later_review",
+            "recommend_demote_or_revert_for_later_review",
+            "recommend_repeat_trial",
+            "recommend_more_evidence",
+            "recommend_future_family_review",
+            "recommend_no_action",
+            "recommend_reject_out_of_scope"
+          ],
+          "title": "Recommendation Posture",
+          "type": "string"
+        },
+        "recommendation_ref": {
+          "title": "Recommendation Ref",
+          "type": "string"
+        },
+        "regression_refs": {
+          "items": {
+            "type": "string"
+          },
+          "title": "Regression Refs",
+          "type": "array"
+        },
+        "required_later_authority": {
+          "enum": [
+            "human_ratification_required",
+            "maintainer_release_authority_required",
+            "product_authority_required",
+            "dispatch_authority_required",
+            "none_for_no_action"
+          ],
+          "title": "Required Later Authority",
+          "type": "string"
+        },
+        "required_next_surface": {
+          "enum": [
+            "v74_operator_projection_review",
+            "v72_repeat_trial_review",
+            "future_ratification_or_policy_review",
+            "future_family_review",
+            "deferred_no_selection"
+          ],
+          "title": "Required Next Surface",
+          "type": "string"
+        },
+        "tool_fitness_refs": {
+          "items": {
+            "type": "string"
+          },
+          "title": "Tool Fitness Refs",
+          "type": "array"
+        }
+      },
+      "required": [
+        "recommendation_ref",
+        "candidate_ref",
+        "ledger_refs",
+        "recommendation_posture",
+        "required_next_surface",
+        "required_later_authority",
+        "forbidden_downstream_roles",
+        "limitation_note"
+      ],
+      "title": "RepoOutcomePromotionDemotionRecommendationRow",
+      "type": "object"
+    }
+  },
+  "additionalProperties": false,
+  "properties": {
+    "operator_cognition_outcome_signal_id": {
+      "title": "Operator Cognition Outcome Signal Id",
+      "type": "string"
+    },
+    "outcome_promotion_demotion_recommendation_id": {
+      "title": "Outcome Promotion Demotion Recommendation Id",
+      "type": "string"
+    },
+    "recommendation_boundary_summary": {
+      "title": "Recommendation Boundary Summary",
+      "type": "string"
+    },
+    "recommendation_rows": {
+      "items": {
+        "$ref": "#/$defs/RepoOutcomePromotionDemotionRecommendationRow"
+      },
+      "minItems": 1,
+      "title": "Recommendation Rows",
+      "type": "array"
+    },
+    "review_id": {
+      "title": "Review Id",
+      "type": "string"
+    },
+    "schema": {
+      "const": "repo_outcome_promotion_demotion_recommendation@1",
+      "default": "repo_outcome_promotion_demotion_recommendation@1",
+      "title": "Schema",
+      "type": "string"
+    },
+    "self_improvement_outcome_ledger_id": {
+      "title": "Self Improvement Outcome Ledger Id",
+      "type": "string"
+    },
+    "snapshot_id": {
+      "title": "Snapshot Id",
+      "type": "string"
+    },
+    "source_set_id": {
+      "title": "Source Set Id",
+      "type": "string"
+    }
+  },
+  "required": [
+    "outcome_promotion_demotion_recommendation_id",
+    "review_id",
+    "snapshot_id",
+    "source_set_id",
+    "self_improvement_outcome_ledger_id",
+    "operator_cognition_outcome_signal_id",
+    "recommendation_rows",
+    "recommendation_boundary_summary"
+  ],
+  "title": "RepoOutcomePromotionDemotionRecommendation",
+  "type": "object"
+}
