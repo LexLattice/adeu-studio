@@ -192,6 +192,7 @@ RequiredBeforeAction = Literal[
     "before_runtime_review",
     "before_dispatch_review",
     "before_release_review",
+    "before_external_contest_review",
     "not_selected_here",
 ]
 ForbiddenOperatorActionPosture = Literal[
@@ -414,6 +415,16 @@ _REQUIRED_FORBIDDEN_OPERATOR_ACTIONS = {
     "grant_runtime_permission_now",
     "dispatch_now",
     "enter_external_contest_now",
+}
+_REQUIRED_BEFORE_ACTION_BY_AUTHORITY_KIND: dict[
+    ProjectionRequiredLaterAuthority, RequiredBeforeAction
+] = {
+    "human_ratification_required": "before_ratification_review",
+    "maintainer_release_authority_required": "before_release_review",
+    "product_authority_required": "before_product_review",
+    "runtime_authority_required": "before_runtime_review",
+    "dispatch_authority_required": "before_dispatch_review",
+    "external_contest_authority_required": "before_external_contest_review",
 }
 
 
@@ -1360,19 +1371,12 @@ class RepoProjectionLaterAuthorityRequirementRow(_CartographyBase):
             and not self.authority_source_refs
         ):
             raise ValueError("present authority requirements require source refs")
-        if (
-            self.authority_kind == "dispatch_authority_required"
-            and self.required_before_action != "before_dispatch_review"
-        ):
+        expected_action = _REQUIRED_BEFORE_ACTION_BY_AUTHORITY_KIND.get(self.authority_kind)
+        if expected_action is None:
+            raise ValueError("later-authority requirement rows must use a known authority kind")
+        if self.required_before_action != expected_action:
             raise ValueError(
-                "dispatch authority requirements must be required before dispatch review"
-            )
-        if (
-            self.authority_kind == "product_authority_required"
-            and self.required_before_action != "before_product_review"
-        ):
-            raise ValueError(
-                "product authority requirements must be required before product review"
+                f"{self.authority_kind} must be required before {expected_action}"
             )
         return self
 

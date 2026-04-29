@@ -105,7 +105,7 @@
           "authority_source_refs": [
             "docs/LOCKED_CONTINUATION_vNEXT_PLUS208.md"
           ],
-          "limitation_note": "Invalid free-floating product authority requirement row.",
+          "limitation_note": "Invalid because product authority is not listed in the parent required_later_authority list for this self-evidencing visibility contract; V74-C must not carry unreferenced later-authority rows.",
           "required_before_action": "before_product_review",
           "source_presence_posture": "present"
         },

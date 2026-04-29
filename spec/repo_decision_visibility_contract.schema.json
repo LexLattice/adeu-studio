@@ -203,6 +203,7 @@
             "before_runtime_review",
             "before_dispatch_review",
             "before_release_review",
+            "before_external_contest_review",
             "not_selected_here"
           ],
           "title": "Required Before Action",

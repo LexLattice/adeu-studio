@@ -17,6 +17,7 @@ from adeu_repo_description import (
     RepoOperatorProjectionSourceIndex,
     RepoPostProjectionHandoff,
     RepoProjectionExceptionVisibilityRegister,
+    RepoProjectionLaterAuthorityRequirementRow,
     RepoRatificationReviewWorkbenchProjection,
     RepoTypedAdjudicationCaseView,
     derive_v74c_operator_projection_bundle,
@@ -219,6 +220,51 @@ def test_v208_derivation_helper_matches_reference_fixtures() -> None:
         "vnext_plus208",
         "repo_operator_projection_family_closeout_alignment_v208_reference.json",
     )
+
+
+@pytest.mark.parametrize(
+    ("authority_kind", "required_before_action"),
+    [
+        ("human_ratification_required", "before_ratification_review"),
+        ("maintainer_release_authority_required", "before_release_review"),
+        ("product_authority_required", "before_product_review"),
+        ("runtime_authority_required", "before_runtime_review"),
+        ("dispatch_authority_required", "before_dispatch_review"),
+        ("external_contest_authority_required", "before_external_contest_review"),
+    ],
+)
+def test_v208_later_authority_requirements_enforce_phase_mapping(
+    authority_kind: str,
+    required_before_action: str,
+) -> None:
+    RepoProjectionLaterAuthorityRequirementRow.model_validate(
+        {
+            "authority_requirement_ref": f"authority:v74c:test:{authority_kind}",
+            "authority_kind": authority_kind,
+            "authority_source_refs": ["docs/LOCKED_CONTINUATION_vNEXT_PLUS208.md"],
+            "source_presence_posture": "present",
+            "required_before_action": required_before_action,
+            "limitation_note": (
+                "Authority requirement row is source-bound and required before the matching "
+                "later review phase."
+            ),
+        }
+    )
+
+    with pytest.raises(ValidationError, match=f"{authority_kind} must be required before"):
+        RepoProjectionLaterAuthorityRequirementRow.model_validate(
+            {
+                "authority_requirement_ref": f"authority:v74c:test:{authority_kind}:wrong",
+                "authority_kind": authority_kind,
+                "authority_source_refs": ["docs/LOCKED_CONTINUATION_vNEXT_PLUS208.md"],
+                "source_presence_posture": "present",
+                "required_before_action": "not_selected_here",
+                "limitation_note": (
+                    "Authority requirement row is source-bound but intentionally uses the wrong "
+                    "later review phase."
+                ),
+            }
+        )
 
 
 @pytest.mark.parametrize(
