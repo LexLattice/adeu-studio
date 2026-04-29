@@ -1,0 +1,108 @@
+{
+  "assertions": [
+    "family_closeout_artifacts_exist_through_v73",
+    "candidate_set_preserved_from_v69c_through_v72b",
+    "v72c_narrows_to_eligible_self_evidencing_candidate_only",
+    "v73a_entries_match_v72c_ready_handoff_candidate",
+    "v73b_observation_regression_and_tool_fitness_rows_match_v73a_candidate",
+    "v73c_ledger_signal_and_recommendation_rows_match_v73b_candidate",
+    "v73c_recommendation_requires_v74_review_and_later_human_authority",
+    "v73_family_closeout_preserves_future_family_boundaries",
+    "conceptual_diff_and_product_wedge_do_not_enter_v73_outcome_review",
+    "no_v73_surface_claims_self_approval_adoption_release_product_runtime_or_dispatch_authority"
+  ],
+  "candidate_count_preserved_through_v72b": 3,
+  "candidate_set_preserved_through_v72b": true,
+  "carry_forward_findings": [
+    {
+      "finding": "V68 and V69 family alignment artifacts still use older closeout vocabulary without explicit future_family_authority, while V70 through V73 include explicit future_family_authority fields in their family-alignment artifacts.",
+      "posture": "support_harness_schema_drift_note",
+      "result": "not_family_failure"
+    },
+    {
+      "finding": "V73 outcome review currently operates only on the single V72-C ready candidate; blocked/deferred candidates remain represented upstream rather than entering V73 fixtures.",
+      "posture": "intended_narrowing_observed",
+      "result": "not_family_failure"
+    }
+  ],
+  "failures": [],
+  "families_checked": [
+    "V68",
+    "V69",
+    "V70",
+    "V71",
+    "V72",
+    "V73"
+  ],
+  "family_closeout_schemas": {
+    "v68_closeout": "v68_family_closeout_alignment@1",
+    "v69_closeout": "v69_family_closeout_alignment@1",
+    "v70_closeout": "v70_family_closeout_alignment@1",
+    "v71_closeout": "v71_family_closeout_alignment@1",
+    "v72_closeout": "v72_family_closeout_alignment@1",
+    "v73_closeout": "v73_family_closeout_alignment@1"
+  },
+  "initial_probe_finding": {
+    "finding": "First local V68-V73 continuity attempt used stale V72-C authority row key authority_rows instead of shipped authority_posture_rows; adjusted probe to released fixture shape.",
+    "posture": "support_harness_schema_drift_note",
+    "result": "not_family_failure"
+  },
+  "postures": {
+    "odeu_conceptual_diff": {
+      "v70c": "blocked_by_conflict",
+      "v71c": "blocked_by_dissent",
+      "v72a": "blocked_by_dissent",
+      "v72b": "trial_blocked",
+      "v73": "not_entered_outcome_review"
+    },
+    "self_evidencing_workflow_type_emergence": {
+      "v72c": "ready_for_v73_review",
+      "v73a": "eligible_for_outcome_review",
+      "v73b_confidence": "moderate_with_limitations",
+      "v73b_observation": "benefit_observed",
+      "v73b_regression": "no_regression_observed",
+      "v73b_tool_fitness": "tool_fit_confirmed",
+      "v73c_ledger": "positive_signal_recorded",
+      "v73c_operator_signal": "signal_recorded_for_review",
+      "v73c_recommendation": "recommend_promote_for_later_review",
+      "v73c_required_later_authority": "human_ratification_required",
+      "v73c_required_next_surface": "v74_operator_projection_review"
+    },
+    "typed_adjudication_product_wedge": {
+      "v70c": "deferred_to_future_family",
+      "v71c": "deferred_to_future_family",
+      "v72a": "future_family_only",
+      "v72b": "trial_blocked",
+      "v73": "not_entered_outcome_review"
+    }
+  },
+  "pytest_result": {
+    "focused_repo_description_tests_passed": true,
+    "passed_count": 314,
+    "warning_count": 85
+  },
+  "result": "pass",
+  "schema": "v68_v69_v70_v71_v72_v73_combined_dogfood_test@1",
+  "terminal_closeout_arcs": [
+    "vNext+190",
+    "vNext+193",
+    "vNext+196",
+    "vNext+199",
+    "vNext+202",
+    "vNext+205"
+  ],
+  "terminal_closeout_checks_passed": true,
+  "v72c_selected_candidate_count": 1,
+  "v72c_selected_candidates": [
+    "candidate:internal:self_evidencing_workflow_type_emergence"
+  ],
+  "v73_candidate_chain_matches_v72c_ready_handoff": true,
+  "v73a_entry_count": 1,
+  "v73b_observation_count": 1,
+  "v73b_regression_count": 1,
+  "v73b_tool_fitness_count": 1,
+  "v73c_family_alignment_count": 1,
+  "v73c_ledger_count": 1,
+  "v73c_operator_signal_count": 1,
+  "v73c_recommendation_count": 1
+}
