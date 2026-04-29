@@ -1616,6 +1616,17 @@ class RepoOutcomePromotionDemotionRecommendationRow(_CartographyBase):
         ):
             raise ValueError("demotion recommendations require later authority posture")
         if (
+            self.recommendation_posture
+            in {
+                "recommend_promote_for_later_review",
+                "recommend_demote_or_revert_for_later_review",
+            }
+            and self.required_next_surface == "deferred_no_selection"
+        ):
+            raise ValueError(
+                "promotion and demotion recommendations require a later review surface"
+            )
+        if (
             self.recommendation_posture == "recommend_no_action"
             and self.required_later_authority != "none_for_no_action"
         ):
@@ -3078,6 +3089,9 @@ def validate_v73c_candidate_outcome_review_closeout_bundle(
         row.observation_ref: row for row in candidate_outcome_observation_record.observation_rows
     }
     regressions = {row.regression_ref: row for row in outcome_regression_register.regression_rows}
+    regressions_by_candidate: dict[str, list[RepoOutcomeRegressionRow]] = {}
+    for regression in outcome_regression_register.regression_rows:
+        regressions_by_candidate.setdefault(regression.candidate_ref, []).append(regression)
     tool_fitness_rows = {
         row.tool_fitness_ref: row for row in tool_fitness_drift_register.tool_fitness_rows
     }
@@ -3100,9 +3114,8 @@ def validate_v73c_candidate_outcome_review_closeout_bundle(
                 raise ValueError("ledger candidate_ref must match observation candidate_ref")
         blocking_regressions = [
             regression
-            for regression in regressions.values()
-            if regression.candidate_ref == ledger.candidate_ref
-            and regression.blocking_for_recommendation
+            for regression in regressions_by_candidate.get(ledger.candidate_ref, [])
+            if regression.blocking_for_recommendation
         ]
         hidden_blockers = sorted(
             regression.regression_ref
@@ -3150,31 +3163,57 @@ def validate_v73c_candidate_outcome_review_closeout_bundle(
                 raise ValueError(
                     "recommendation candidate_ref must match operator signal candidate_ref"
                 )
-        if (
-            recommendation.recommendation_posture == "recommend_promote_for_later_review"
-            and recommendation.required_next_surface == "deferred_no_selection"
-        ):
-            raise ValueError("promotion recommendations require a later review surface")
-        if (
-            recommendation.required_later_authority == "product_authority_required"
-            and recommendation.required_next_surface != "v74_operator_projection_review"
-        ):
-            raise ValueError("product recommendations require V74 review")
+        for observation_ref in recommendation.observation_refs:
+            observation = observations.get(observation_ref)
+            if observation is None:
+                raise ValueError("recommendation rows must reference known V73-B observation rows")
+            if observation.candidate_ref != recommendation.candidate_ref:
+                raise ValueError(
+                    "recommendation candidate_ref must match observation candidate_ref"
+                )
+        for regression_ref in recommendation.regression_refs:
+            regression = regressions.get(regression_ref)
+            if regression is None:
+                raise ValueError("recommendation rows must reference known V73-B regression rows")
+            if regression.candidate_ref != recommendation.candidate_ref:
+                raise ValueError("recommendation candidate_ref must match regression candidate_ref")
+        for tool_fitness_ref in recommendation.tool_fitness_refs:
+            tool_fitness = tool_fitness_rows.get(tool_fitness_ref)
+            if tool_fitness is None:
+                raise ValueError(
+                    "recommendation rows must reference known V73-B tool-fitness rows"
+                )
+            if tool_fitness.candidate_ref != recommendation.candidate_ref:
+                raise ValueError(
+                    "recommendation candidate_ref must match tool-fitness candidate_ref"
+                )
 
     for alignment in outcome_review_family_closeout_alignment.alignment_rows:
+        referenced_candidates: set[str] = set()
         for ledger_ref in alignment.ledger_refs:
-            if ledger_ref not in ledger_rows:
+            ledger = ledger_rows.get(ledger_ref)
+            if ledger is None:
                 raise ValueError("family closeout alignment must reference known ledger rows")
+            referenced_candidates.add(ledger.candidate_ref)
         for operator_signal_ref in alignment.operator_signal_refs:
-            if operator_signal_ref not in operator_rows:
+            operator_signal = operator_rows.get(operator_signal_ref)
+            if operator_signal is None:
                 raise ValueError(
                     "family closeout alignment must reference known operator signal rows"
                 )
+            referenced_candidates.add(operator_signal.candidate_ref)
         for recommendation_ref in alignment.recommendation_refs:
-            if recommendation_ref not in recommendation_rows:
+            recommendation = recommendation_rows.get(recommendation_ref)
+            if recommendation is None:
                 raise ValueError(
                     "family closeout alignment must reference known recommendation rows"
                 )
+            referenced_candidates.add(recommendation.candidate_ref)
+        if set(alignment.reviewed_candidate_refs) != referenced_candidates:
+            raise ValueError(
+                "family closeout alignment reviewed_candidate_refs must match referenced "
+                "V73-C row candidates"
+            )
 
 
 def derive_v73c_repo_candidate_outcome_review_closeout_bundle(

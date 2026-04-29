@@ -298,3 +298,90 @@ def test_v205_rejects_positive_signal_with_hidden_blocking_regression() -> None:
         match="positive ledger signals must carry forward blocking regression refs",
     ):
         _validate_reference_bundle_with(regression=regression, ledger=ledger)
+
+
+def test_v205_rejects_recommendation_unknown_v73b_evidence_ref() -> None:
+    recommendation = _v73c_recommendation()
+    recommendation = recommendation.model_copy(
+        update={
+            "recommendation_rows": [
+                row.model_copy(update={"observation_refs": ["observation:v73b:missing"]})
+                for row in recommendation.recommendation_rows
+            ]
+        }
+    )
+
+    with pytest.raises(
+        ValueError,
+        match="recommendation rows must reference known V73-B observation rows",
+    ):
+        _validate_reference_bundle_with(recommendation=recommendation)
+
+
+def test_v205_rejects_recommendation_cross_candidate_evidence_ref() -> None:
+    regression = _v73b_regression()
+    extra_regression_ref = "regression:v73b:other-candidate"
+    regression = regression.model_copy(
+        update={
+            "regression_rows": regression.regression_rows
+            + [
+                regression.regression_rows[0].model_copy(
+                    update={
+                        "regression_ref": extra_regression_ref,
+                        "candidate_ref": "candidate:internal:other",
+                        "blocking_for_recommendation": False,
+                    }
+                )
+            ]
+        }
+    )
+    recommendation = _v73c_recommendation()
+    recommendation = recommendation.model_copy(
+        update={
+            "recommendation_rows": [
+                row.model_copy(update={"regression_refs": [extra_regression_ref]})
+                for row in recommendation.recommendation_rows
+            ]
+        }
+    )
+
+    with pytest.raises(
+        ValueError,
+        match="recommendation candidate_ref must match regression candidate_ref",
+    ):
+        _validate_reference_bundle_with(regression=regression, recommendation=recommendation)
+
+
+def test_v205_rejects_family_closeout_reviewed_candidate_mismatch() -> None:
+    alignment = _v73c_alignment()
+    alignment = alignment.model_copy(
+        update={
+            "alignment_rows": [
+                row.model_copy(update={"reviewed_candidate_refs": ["candidate:internal:other"]})
+                for row in alignment.alignment_rows
+            ]
+        }
+    )
+
+    with pytest.raises(
+        ValueError,
+        match="reviewed_candidate_refs must match referenced V73-C row candidates",
+    ):
+        _validate_reference_bundle_with(alignment=alignment)
+
+
+def test_v205_rejects_demotion_without_later_review_surface() -> None:
+    payload = _load_fixture(
+        "vnext_plus205",
+        "repo_outcome_promotion_demotion_recommendation_v205_reference.json",
+    )
+    payload["recommendation_rows"][0]["recommendation_posture"] = (
+        "recommend_demote_or_revert_for_later_review"
+    )
+    payload["recommendation_rows"][0]["required_next_surface"] = "deferred_no_selection"
+
+    with pytest.raises(
+        ValidationError,
+        match="promotion and demotion recommendations require a later review surface",
+    ):
+        RepoOutcomePromotionDemotionRecommendation.model_validate(payload)
