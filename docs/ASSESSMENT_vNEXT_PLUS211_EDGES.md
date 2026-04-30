@@ -1,8 +1,9 @@
 # Assessment vNext+211 Edges
 
-Status: pre-lock edge assessment for `V75-C` (May 1, 2026 UTC).
+Status: post-closeout edge assessment for `V75-C` and `V75` family closeout
+(May 1, 2026 UTC).
 
-Authority layer: planning / pre-start scaffold only.
+Authority layer: closeout evidence on `main` only.
 
 ## Assessment-State Marker (Machine-Checkable)
 
@@ -10,8 +11,8 @@ Authority layer: planning / pre-start scaffold only.
 {
   "schema": "assessment_artifact_state@1",
   "artifact": "docs/ASSESSMENT_vNEXT_PLUS211_EDGES.md",
-  "phase": "pre_lock_assessment",
-  "authoritative": false,
+  "phase": "post_closeout_assessment",
+  "authoritative": true,
   "required_in_decision": true
 }
 ```
@@ -20,77 +21,85 @@ Authority layer: planning / pre-start scaffold only.
 
 ### Edge 1: Reconciliation Plan Could Become Dispatch Execution
 
-- Containment:
-  reconciliation rows must carry `dispatch_execution_posture =
-  no_dispatch_executed_by_v75`.
-- Required proof:
-  reject fixture for reconciliation row claiming dispatch execution.
+- Closeout containment:
+  reconciliation rows carry `dispatch_execution_posture =
+  no_dispatch_executed_by_v75`, and the dispatch-executed reject fixture fails.
+- Result:
+  pass. V75-C records reconciliation posture, not dispatch execution.
 
 ### Edge 2: Projected Output Could Become Observed Output
 
-- Containment:
-  projected output slot refs and observed worker output refs must be separate;
-  `projected_not_observed` rows cannot carry observed worker output refs.
-- Required proof:
-  reject fixture for projected-not-observed row with observed output refs.
+- Closeout containment:
+  projected output slot refs and observed worker output refs are separate;
+  `projected_not_observed` rows reject observed worker output refs.
+- Result:
+  pass. Projected slots remain projection substrate only.
 
 ### Edge 3: Worker Output Could Become Truth
 
-- Containment:
-  reconciliation plans and contracts must carry non-truth guardrails and
-  forbidden inferences.
-- Required proof:
-  reject fixture for worker-output-as-truth.
+- Closeout containment:
+  reconciliation plans and contracts carry non-truth guardrails and forbidden
+  inferences.
+- Result:
+  pass. Worker-output-as-truth fixture rejects.
 
-### Edge 4: Relation Rows Could Settle Conflicts As Truth
+### Edge 4: Relation Rows Could Mix Candidate Traces
 
-- Containment:
-  relation rows may expose conflict, complementarity, duplication,
-  orthogonality, unclear relation, or single-output posture; they cannot settle
-  the relation as authority.
-- Required proof:
-  reject fixture for relation row without source refs or explicit absence
-  posture.
+- Closeout containment:
+  relation rows are source-bound, reference known projected output refs, and
+  bundle validation checks that each reconciliation plan's relation refs are
+  scoped to that plan's output refs.
+- Result:
+  pass. Source-free relation rows and cross-plan relation refs reject.
 
-### Edge 5: Contract Could Omit Forbidden Inferences
+### Edge 5: Contract Could Omit Forbidden Inferences Or Stale Handoff Refs
 
-- Containment:
-  dispatch reconciliation contracts must state forbidden inferences including
-  worker output as truth, model output as benchmark truth, tool pass as scope
-  expansion, assignment plan as execution, and dispatch review as runtime
-  permission.
-- Required proof:
-  reject fixture for contract without forbidden inferences.
+- Closeout containment:
+  dispatch reconciliation contracts must carry the required forbidden
+  inference set and must resolve `handoff_refs` to emitted
+  post-dispatch-review handoff rows.
+- Result:
+  pass. Missing forbidden inference and stale handoff ref paths reject.
 
 ### Edge 6: Post-Dispatch-Review Handoff Could Imply Hidden Dispatch
 
-- Containment:
+- Closeout containment:
   `post_dispatch_review` means after dispatch review, not after dispatch
-  execution; handoff rows must include `handoff_subject_horizon`.
-- Required proof:
-  reject fixture for handoff claiming dispatch execution or omitting subject
-  horizon for future outcome review.
+  execution; handoff rows include `handoff_subject_horizon` and reject hidden
+  execution claims.
+- Result:
+  pass. Future outcome-review handoff is scoped to the dispatch-review process,
+  not a hidden worker run.
 
 ### Edge 7: Blocking Exceptions Could Be Smoothed Into Readiness
 
-- Containment:
+- Closeout containment:
   blocking exceptions prevent `ready_for_later_review` unless the handoff is
   explicitly a future reconciliation / arbiter settlement request and carries
   the blocker forward.
-- Required proof:
-  reject fixture for ready handoff carrying blocking exceptions outside
-  settlement posture.
+- Result:
+  pass. Blocking exception / ready handoff reject fixture passes.
 
 ### Edge 8: Family Closeout Could Overclaim V75 Authority
 
-- Containment:
-  family closeout alignment may close `V75` as dispatch-review and
+- Closeout containment:
+  family closeout alignment closes `V75` as dispatch review and
   orchestration posture only.
-- Required proof:
-  reject fixture for family closeout claiming runtime permission, product
+- Result:
+  pass. Family-closeout-overclaim fixture rejects runtime permission, product
   launch, release, dispatch execution, external contest participation,
-  benchmark truth, model selection, living-memory authority, or recursive
+  benchmark truth, model selection, living-memory authority, and recursive
   policy amendment.
+
+### Edge 9: V75 Closeout Could Select The Next Family
+
+- Closeout containment:
+  the family closeout document records future pressure but explicitly does not
+  select reconciliation / arbiter hardening, runtime permission, productized
+  typed adjudication, external branch activation, cross-corpus governance, or
+  living decision-graph work.
+- Result:
+  pass. Future territory remains non-selected.
 
 ## Residual Edges
 
@@ -98,16 +107,23 @@ Authority layer: planning / pre-start scaffold only.
 - Productized typed adjudication remains visible but non-authorizing.
 - External contest participation and `V43` activation remain conditional
   future branches.
-- Future reconciliation / arbiter hardening may be selected after `V75` closes,
-  but `V75-C` must not create a new family selector for its own sub-lane.
+- Future reconciliation / arbiter hardening may be selected after `V75`, but
+  this closeout does not select it.
+- Cross-corpus governance and living decision-graph work remain mapped
+  pressure, not authority.
 
-## Pre-Lock Judgment
+## Closeout Judgment
 
-- `V75-C` is appropriately scoped as bounded reconciliation, contract, handoff,
-  and family closeout alignment.
-- The starter may create projected-output reconciliation, forbidden-inference
-  contracts, post-dispatch-review handoff, and family closeout alignment
-  substrate only.
-- The highest-risk seams are hidden dispatch execution, worker-output-as-truth,
-  observed-output overclaim, exception smoothing, future outcome-review
-  ambiguity, and family closeout overclaim.
+- `V75-C` is closed on `main` as a bounded worker-output reconciliation plan,
+  dispatch reconciliation contract, post-dispatch-review handoff, and
+  dispatch-review family closeout alignment slice.
+- `V75` is closed on `main` as a dispatch-review and multi-worker
+  orchestration-posture family.
+- The shipped family preserves the intended authority boundary: dispatch
+  review can make dispatch pressure, source status, non-execution guardrails,
+  worker-role capacity, assignment planning, IO contracts, tool applicability,
+  exceptions, projected output reconciliation, contracts, and later-review
+  handoffs reviewable; it does not assign workers, execute commands, grant
+  runtime permission, productize, open PRs, commit, merge, release, select
+  models globally, produce benchmark truth, establish living-memory authority,
+  adopt recursive policy amendments, or participate in external contests.
