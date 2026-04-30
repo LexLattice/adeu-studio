@@ -1,0 +1,131 @@
+{
+  "dispatch_review_boundary_summary": "Dispatch review request is review only: no worker assignment, no command, no runtime permission, no product authorization, and no release.",
+  "dispatch_review_request_id": "repo_dispatch_review_request_0df0c64cd6ce6e7828d3d046",
+  "dispatch_source_index_id": "repo_dispatch_source_index_e69f0fb399ee9e4f73416d7a",
+  "request_rows": [
+    {
+      "candidate_ref": "candidate:internal:typed_adjudication_product_wedge",
+      "carried_exception_origin": "v74_post_projection_handoff",
+      "carried_upstream_exception_refs": [
+        "blocker:v74a:product-wedge:product-authority-gap"
+      ],
+      "case_view_refs": [
+        "case-view:v74a:product-wedge:future-family"
+      ],
+      "dispatch_request_ref": "dispatch-request:v75a:product-wedge:blocked",
+      "dispatch_review_posture": "blocked_by_required_later_authority",
+      "guardrail_refs": [
+        "guardrail:v75a:product-wedge:non-execution"
+      ],
+      "limitation_note": "Product pressure is preserved as blocked review pressure with no product authority, no runtime permission, no worker assignment, and no dispatch.",
+      "odeu_lanes": [
+        "deontic",
+        "utility"
+      ],
+      "post_projection_handoff_refs": [
+        "handoff:v74c:product-wedge:future-product-review"
+      ],
+      "requested_orchestration_horizon": "product_review_later",
+      "required_later_authority_refs": [
+        "authority:v75a:product-wedge:product-review"
+      ],
+      "required_later_authority_rows": [
+        {
+          "authority_gap_posture": "authority_gap_present",
+          "authority_kind": "product_authorization",
+          "authority_requirement_ref": "authority:v75a:product-wedge:product-review",
+          "candidate_ref": "candidate:internal:typed_adjudication_product_wedge",
+          "limitation_note": "Product authorization remains missing before any future product review.",
+          "required_before_surface": "before_product_review",
+          "source_presence_posture": "present",
+          "source_refs": [
+            "docs/LOCKED_CONTINUATION_vNEXT_PLUS209.md"
+          ]
+        }
+      ],
+      "source_refs": [
+        "apps/api/fixtures/repo_description/vnext_plus208/repo_decision_visibility_contract_v208_reference.json",
+        "apps/api/fixtures/repo_description/vnext_plus208/repo_post_projection_handoff_v208_reference.json",
+        "apps/api/fixtures/repo_description/vnext_plus208/repo_ratification_review_workbench_projection_v208_reference.json",
+        "docs/DRAFT_ADEU_OPERATOR_PROJECTION_V74_FAMILY_CLOSEOUT_v0.md",
+        "docs/support/arc_series_mapping/V68_V69_V70_V71_V72_V73_V74_COMBINED_DOGFOOD_TEST_v0.json"
+      ],
+      "visibility_contract_refs": [
+        "visibility-contract:v74c:product-wedge:authority-gap"
+      ],
+      "workbench_projection_refs": [
+        "workbench:v74c:product-wedge:authority-gap"
+      ]
+    },
+    {
+      "candidate_ref": "candidate:internal:self_evidencing_workflow_type_emergence",
+      "carried_exception_origin": "v74_post_projection_handoff",
+      "carried_upstream_exception_refs": [
+        "exception:v74b:comparison-axis:operator-legibility-unchecked"
+      ],
+      "case_view_refs": [
+        "case-view:v74a:self-evidencing:operator-projection"
+      ],
+      "dispatch_request_ref": "dispatch-request:v75a:self-evidencing:review",
+      "dispatch_review_posture": "eligible_for_dispatch_review",
+      "guardrail_refs": [
+        "guardrail:v75a:self-evidencing:non-execution"
+      ],
+      "limitation_note": "Eligible for dispatch-review request only with no worker assignment, no command, no runtime permission, no product authority, and no release.",
+      "odeu_lanes": [
+        "deontic",
+        "epistemic",
+        "utility"
+      ],
+      "post_projection_handoff_refs": [],
+      "requested_orchestration_horizon": "multi_worker_orchestration_review",
+      "required_later_authority_refs": [
+        "authority:v75a:self-evidencing:dispatch-execution",
+        "authority:v75a:self-evidencing:human-review"
+      ],
+      "required_later_authority_rows": [
+        {
+          "authority_gap_posture": "authority_gap_present",
+          "authority_kind": "dispatch_execution_authority",
+          "authority_requirement_ref": "authority:v75a:self-evidencing:dispatch-execution",
+          "candidate_ref": "candidate:internal:self_evidencing_workflow_type_emergence",
+          "limitation_note": "Dispatch execution authority remains missing before any worker review.",
+          "required_before_surface": "before_worker_assignment_review",
+          "source_presence_posture": "present",
+          "source_refs": [
+            "docs/LOCKED_CONTINUATION_vNEXT_PLUS209.md"
+          ]
+        },
+        {
+          "authority_gap_posture": "authority_gap_present",
+          "authority_kind": "human_or_maintainer_review",
+          "authority_requirement_ref": "authority:v75a:self-evidencing:human-review",
+          "candidate_ref": "candidate:internal:self_evidencing_workflow_type_emergence",
+          "limitation_note": "Human or maintainer review remains required before later review.",
+          "required_before_surface": "before_dispatch_review",
+          "source_presence_posture": "present",
+          "source_refs": [
+            "docs/LOCKED_CONTINUATION_vNEXT_PLUS209.md"
+          ]
+        }
+      ],
+      "source_refs": [
+        "apps/api/fixtures/repo_description/vnext_plus208/repo_decision_visibility_contract_v208_reference.json",
+        "apps/api/fixtures/repo_description/vnext_plus208/repo_post_projection_handoff_v208_reference.json",
+        "apps/api/fixtures/repo_description/vnext_plus208/repo_ratification_review_workbench_projection_v208_reference.json",
+        "docs/DRAFT_ADEU_OPERATOR_PROJECTION_V74_FAMILY_CLOSEOUT_v0.md",
+        "docs/support/arc_series_mapping/V68_V69_V70_V71_V72_V73_V74_COMBINED_DOGFOOD_TEST_v0.json"
+      ],
+      "visibility_contract_refs": [
+        "visibility-contract:v74c:self-evidencing:operator-review"
+      ],
+      "workbench_projection_refs": [
+        "workbench:v74c:self-evidencing:operator-review"
+      ]
+    }
+  ],
+  "review_id": "review:v75a:dispatch-review-request",
+  "schema": "repo_dispatch_review_request@1",
+  "snapshot_id": "vNext+208-closed-on-main",
+  "source_set_id": "source-set:v75a:released-v74c-dispatch-pressure"
+}

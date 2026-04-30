@@ -70,6 +70,11 @@ from .contained_integration_review import (
     RepoIntegrationTargetBoundary,
     RepoPostIntegrationOutcomeReviewHandoff,
 )
+from .dispatch_review import (
+    RepoDispatchNonExecutionGuardrail,
+    RepoDispatchReviewRequest,
+    RepoDispatchSourceIndex,
+)
 from .models import (
     RepoArcDependencyRegister,
     RepoArcDependencyRegisterV1,
@@ -340,6 +345,11 @@ def main() -> None:
     operator_projection_family_closeout_alignment_schema = (
         RepoOperatorProjectionFamilyCloseoutAlignment.model_json_schema(by_alias=True)
     )
+    dispatch_source_index_schema = RepoDispatchSourceIndex.model_json_schema(by_alias=True)
+    dispatch_review_request_schema = RepoDispatchReviewRequest.model_json_schema(by_alias=True)
+    dispatch_non_execution_guardrail_schema = RepoDispatchNonExecutionGuardrail.model_json_schema(
+        by_alias=True
+    )
 
     _assert_no_absolute_path_material(dependency_register_v1_schema, repo_root_path=root)
     _assert_no_absolute_path_material(dependency_register_schema, repo_root_path=root)
@@ -480,6 +490,9 @@ def main() -> None:
         operator_projection_family_closeout_alignment_schema,
         repo_root_path=root,
     )
+    _assert_no_absolute_path_material(dispatch_source_index_schema, repo_root_path=root)
+    _assert_no_absolute_path_material(dispatch_review_request_schema, repo_root_path=root)
+    _assert_no_absolute_path_material(dispatch_non_execution_guardrail_schema, repo_root_path=root)
 
     _write_schema(
         root
@@ -1344,6 +1357,42 @@ def main() -> None:
     _write_schema(
         root / "spec" / "repo_operator_projection_family_closeout_alignment.schema.json",
         operator_projection_family_closeout_alignment_schema,
+    )
+    _write_schema(
+        root
+        / "packages"
+        / "adeu_repo_description"
+        / "schema"
+        / "repo_dispatch_source_index.v1.json",
+        dispatch_source_index_schema,
+    )
+    _write_schema(
+        root / "spec" / "repo_dispatch_source_index.schema.json",
+        dispatch_source_index_schema,
+    )
+    _write_schema(
+        root
+        / "packages"
+        / "adeu_repo_description"
+        / "schema"
+        / "repo_dispatch_review_request.v1.json",
+        dispatch_review_request_schema,
+    )
+    _write_schema(
+        root / "spec" / "repo_dispatch_review_request.schema.json",
+        dispatch_review_request_schema,
+    )
+    _write_schema(
+        root
+        / "packages"
+        / "adeu_repo_description"
+        / "schema"
+        / "repo_dispatch_non_execution_guardrail.v1.json",
+        dispatch_non_execution_guardrail_schema,
+    )
+    _write_schema(
+        root / "spec" / "repo_dispatch_non_execution_guardrail.schema.json",
+        dispatch_non_execution_guardrail_schema,
     )
 
 

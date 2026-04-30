@@ -1,0 +1,50 @@
+{
+  "dispatch_non_execution_guardrail_id": "repo_dispatch_non_execution_guardrail_3ee26ff2642250db3d402803",
+  "dispatch_review_request_id": "repo_dispatch_review_request_cff168be545e3c00b04412d4",
+  "guardrail_rows": [
+    {
+      "allowed_next_review_surfaces": [
+        "future_family_review",
+        "future_product_review"
+      ],
+      "candidate_ref": "candidate:internal:typed_adjudication_product_wedge",
+      "dispatch_request_refs": [
+        "dispatch-request:v75a:product-wedge:blocked"
+      ],
+      "forbidden_action_kinds": [],
+      "guardrail_ref": "guardrail:v75a:product-wedge:non-execution",
+      "limitation_note": "V75-A has no worker assignment, no command run, no PR opening, no commit, no merge, no release, no productization, no external contest entry, and no self approval.",
+      "non_execution_guardrail": "This V75-A row is review only: no worker assignment, no command, no runtime permission, no product authorization, no release, and no dispatch."
+    },
+    {
+      "allowed_next_review_surfaces": [
+        "v75b_worker_orchestration_review",
+        "v75c_reconciliation_review"
+      ],
+      "candidate_ref": "candidate:internal:self_evidencing_workflow_type_emergence",
+      "dispatch_request_refs": [
+        "dispatch-request:v75a:self-evidencing:review"
+      ],
+      "forbidden_action_kinds": [
+        "assign_worker_now",
+        "authorize_product_now",
+        "commit_now",
+        "enter_external_contest_now",
+        "grant_runtime_permission_now",
+        "merge_now",
+        "open_pr_now",
+        "release_now",
+        "run_command_now",
+        "self_approve_now"
+      ],
+      "guardrail_ref": "guardrail:v75a:self-evidencing:non-execution",
+      "limitation_note": "V75-A has no worker assignment, no command run, no PR opening, no commit, no merge, no release, no productization, no external contest entry, and no self approval.",
+      "non_execution_guardrail": "This V75-A row is review only: no worker assignment, no command, no runtime permission, no product authorization, no release, and no dispatch."
+    }
+  ],
+  "non_execution_summary": "Dispatch non-execution guardrails preserve review only: no worker assignment, no command, no runtime permission, no product authorization, no release, and no dispatch.",
+  "review_id": "review:v75a:dispatch-review-request",
+  "schema": "repo_dispatch_non_execution_guardrail@1",
+  "snapshot_id": "vNext+208-closed-on-main",
+  "source_set_id": "source-set:v75a:released-v74c-dispatch-pressure"
+}
