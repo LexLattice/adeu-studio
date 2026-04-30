@@ -1,0 +1,105 @@
+{
+  "assertions": [
+    "family_closeout_artifacts_exist_through_v75",
+    "candidate_set_preserved_from_v69c_through_v72b",
+    "v74c_handoff_feeds_v75a_dispatch_review_request",
+    "v75a_dispatch_review_requests_remain_non_executing",
+    "v75b_assignment_plans_remain_no_execution_authorized",
+    "v75c_reconciliation_plans_remain_projected_not_observed",
+    "v75c_relation_rows_are_plan_scoped",
+    "v75c_contracts_carry_forbidden_inferences_and_resolve_handoffs",
+    "v75c_handoffs_are_after_dispatch_review_not_after_dispatch_execution",
+    "v75_family_closeout_closes_without_downstream_authority"
+  ],
+  "candidate_count_preserved_through_v72b": 3,
+  "candidate_set_preserved_through_v72b": true,
+  "carry_forward_findings": [
+    {
+      "finding": "V75 closes dispatch review and orchestration posture without selecting runtime permission; a future runtime/effect-envelope family is still needed before any command execution authority can exist.",
+      "posture": "future_family_pressure_visible_not_selected",
+      "result": "not_family_failure"
+    },
+    {
+      "finding": "V75-C names reconciliation/arbiter review as future pressure, but shipped only projected output reconciliation plans and contracts; no worker output was observed by V75.",
+      "posture": "intended_projection_without_execution",
+      "result": "not_family_failure"
+    }
+  ],
+  "failures": [],
+  "families_checked": [
+    "V68",
+    "V69",
+    "V70",
+    "V71",
+    "V72",
+    "V73",
+    "V74",
+    "V75"
+  ],
+  "family_closeout_schemas": {
+    "V68": "v68_family_closeout_alignment@1",
+    "V69": "v69_family_closeout_alignment@1",
+    "V70": "v70_family_closeout_alignment@1",
+    "V71": "v71_family_closeout_alignment@1",
+    "V72": "v72_family_closeout_alignment@1",
+    "V73": "v73_family_closeout_alignment@1",
+    "V74": "v74_family_closeout_alignment@1",
+    "V75": "v75_family_closeout_alignment@1"
+  },
+  "initial_probe_finding": {
+    "finding": "First local V68-V75 continuity attempt checked V74-C handoff fields as non_projection_guardrail / required_later_authority_refs and treated any worker-language in V75-A as assignment leakage. Released V74-C uses non_dispatch_guardrail / required_later_authority, and V75-A may name worker orchestration as review horizon without carrying assignment refs. Adjusted probe to released fixture shapes.",
+    "posture": "support_harness_schema_drift_note",
+    "result": "not_family_failure"
+  },
+  "postures": {
+    "self_evidencing_workflow_type_emergence": {
+      "v74c_handoff_posture": "ready_for_later_review",
+      "v74c_handoff_target": "v75_dispatch_review",
+      "v75a_dispatch_review_posture": "eligible_for_dispatch_review",
+      "v75b_assignment_execution_posture": "no_execution_authorized",
+      "v75b_assignment_plan_posture": "plan_ready_for_review",
+      "v75c_dispatch_execution_posture": "no_dispatch_executed_by_v75",
+      "v75c_output_presence_posture": "projected_not_observed"
+    },
+    "typed_adjudication_product_wedge": {
+      "v75a_dispatch_review_posture": "blocked_by_required_later_authority",
+      "v75b_exception_posture": "blocking",
+      "v75c_handoff_posture": "blocked_by_required_later_authority",
+      "v75c_handoff_target": "future_reconciliation_or_arbiter_review"
+    }
+  },
+  "pytest_result": {
+    "collected_count": 414,
+    "focused_repo_description_tests_passed": true,
+    "warnings_suppressed": true
+  },
+  "result": "pass",
+  "schema": "v68_v69_v70_v71_v72_v73_v74_v75_combined_dogfood_test@1",
+  "terminal_closeout_arcs": [
+    "vNext+190",
+    "vNext+193",
+    "vNext+196",
+    "vNext+199",
+    "vNext+202",
+    "vNext+205",
+    "vNext+208",
+    "vNext+211"
+  ],
+  "terminal_closeout_checks_passed": true,
+  "v72c_selected_candidate_count": 1,
+  "v72c_selected_candidates": [
+    "candidate:internal:self_evidencing_workflow_type_emergence"
+  ],
+  "v74c_v75_review_handoff_count": 1,
+  "v75a_dispatch_request_count": 2,
+  "v75a_dispatch_source_count": 5,
+  "v75a_guardrail_count": 2,
+  "v75b_assignment_plan_count": 2,
+  "v75b_exception_count": 2,
+  "v75c_contract_count": 1,
+  "v75c_family_closeout_fixture_schema": "repo_dispatch_review_family_closeout_alignment@1",
+  "v75c_handoff_count": 2,
+  "v75c_projected_output_slot_count": 2,
+  "v75c_reconciliation_plan_count": 2,
+  "v75c_relation_count": 2
+}
