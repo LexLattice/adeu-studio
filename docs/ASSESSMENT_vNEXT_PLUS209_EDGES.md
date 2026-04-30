@@ -1,8 +1,8 @@
 # Assessment vNext+209 Edges
 
-Status: pre-lock edge assessment for `V75-A` (May 1, 2026 UTC).
+Status: post-closeout edge assessment for `V75-A` (May 1, 2026 UTC).
 
-Authority layer: planning / pre-start scaffold only.
+Authority layer: closeout evidence on `main` only.
 
 ## Assessment-State Marker (Machine-Checkable)
 
@@ -10,8 +10,8 @@ Authority layer: planning / pre-start scaffold only.
 {
   "schema": "assessment_artifact_state@1",
   "artifact": "docs/ASSESSMENT_vNEXT_PLUS209_EDGES.md",
-  "phase": "pre_lock_assessment",
-  "authoritative": false,
+  "phase": "post_closeout_assessment",
+  "authoritative": true,
   "required_in_decision": true
 }
 ```
@@ -20,95 +20,101 @@ Authority layer: planning / pre-start scaffold only.
 
 ### Edge 1: Dispatch Review Could Become Dispatch
 
-- Containment:
+- Closeout containment:
   `V75-A` emits dispatch-review request, source index, and non-execution
   guardrail rows only.
-- Required proof:
-  reject fixtures for worker assignment, command execution, and dispatch
-  claims.
+- Result:
+  pass. Worker assignment and command execution reject.
 
 ### Edge 2: Support Context Could Become Eligibility Source
 
-- Containment:
+- Closeout containment:
   `eligible_for_dispatch_review` requires released `V74-C` handoff, visibility
   contract, and workbench projection source roles.
-- Required proof:
-  reject fixture where support / roadmap / review sources are the only
-  eligibility sources.
+- Result:
+  pass. Support-only eligibility rejects at bundle validation.
 
 ### Edge 3: Upstream Exceptions Could Float Free
 
-- Containment:
-  `V75-A` carries upstream `V74-C` exception refs with explicit exception
-  origin; native dispatch exceptions are deferred to `V75-B`.
-- Required proof:
-  reject fixture for native `V75-B` exception refs or exception refs without
-  origin in `V75-A`.
+- Closeout containment:
+  `V75-A` carries upstream `V74` exception refs only; native dispatch exception
+  registers remain deferred to `V75-B`.
+- Result:
+  pass. Native `V75-B` exception refs reject in `V75-A`.
 
 ### Edge 4: Required Later Authority Could Become Prose
 
-- Containment:
-  runtime, product, release, external, dispatch-execution, human / maintainer,
-  and recursive-policy authority gaps must use row-shaped authority
-  requirements.
-- Required proof:
-  reject fixture for free-floating later-authority claims.
+- Closeout containment:
+  authority gaps are represented as row-shaped required-later-authority
+  records.
+- Result:
+  pass. Free-floating authority refs reject.
 
-### Edge 5: Product Or Runtime Pressure Could Be Smuggled Into Dispatch
+### Edge 5: Product, Runtime, Or External Pressure Could Be Smuggled Into Dispatch
 
-- Containment:
-  product, runtime, release, and external branch authority gaps block or defer
-  dispatch-review requests unless a later selected family handles them.
-- Required proof:
-  reject fixtures for product dispatch laundering and runtime command
-  laundering.
+- Closeout containment:
+  product, runtime, and external branch pressure must carry appropriate
+  blockers and cannot be treated as dispatch execution.
+- Result:
+  pass. Product/runtime authority blocker checks and external-branch V43 source
+  checks are enforced.
 
 ### Edge 6: Workbench Projection Could Become Authorization
 
-- Containment:
-  `V75-A` can consume workbench projection rows as sources, but cannot treat
-  workbench actions as authorization.
-- Required proof:
-  reject fixture for workbench action as dispatch authority.
+- Closeout containment:
+  `V75-A` may consume workbench projection rows as sources, but cannot treat a
+  workbench action as authorization.
+- Result:
+  pass. Workbench action as dispatch authority rejects.
 
 ### Edge 7: Guardrails Could Become Empty Labels
 
-- Containment:
-  non-execution guardrails require non-empty forbidden action kinds.
-- Required proof:
-  reject fixture for empty guardrail forbidden action kinds.
+- Closeout containment:
+  non-execution guardrails require all forbidden action kinds and map allowed
+  next review surfaces by orchestration horizon.
+- Result:
+  pass. Empty guardrail actions reject, and review hardening added
+  horizon-sensitive guardrail validation.
 
-### Edge 8: V75-A Could Begin V75-B Or V75-C
+### Edge 8: Bundle Provenance Could Be Mixed
 
-- Containment:
+- Closeout containment:
+  source index, request, and guardrail surfaces must share review, snapshot, and
+  source-set provenance.
+- Result:
+  pass. Mixed-provenance bundles reject.
+
+### Edge 9: V75-A Could Begin V75-B Or V75-C
+
+- Closeout containment:
   worker role profiles, assignment plans, IO contracts, tool matrices,
   dispatch exception registers, reconciliation plans, reconciliation contracts,
   post-dispatch-review handoffs, and family closeout alignment remain deferred.
-- Required proof:
-  tests or fixtures proving `V75-A` rows do not emit later-slice surfaces.
-
-### Edge 9: External Branch Could Sneak In
-
-- Containment:
-  external contest pressure remains blocked or future-family-only unless `V43`
-  branch posture is selected by a later authority surface.
-- Required proof:
-  reject fixture for external contest pressure without `V43` branch posture.
+- Result:
+  pass. `V75-A` evidence records later-slice selections as false.
 
 ## Residual Edges
 
-- `V75-B` must later keep worker role, assignment, IO, tool, and exception
-  posture non-executing.
-- `V75-C` must later keep output reconciliation non-truth and
-  post-dispatch-review handoff distinct from dispatch execution.
+- `V75-B` must keep worker role, assignment, IO, tool, and exception posture
+  non-executing.
+- `V75-B` must separate tool applicability from tool-run permission.
+- `V75-B` must keep assignment plans as plans, not dispatch or worker
+  execution.
+- `V75-B` must preserve upstream `V75-A` non-execution guardrails and authority
+  blockers.
+- `V75-C` remains deferred for reconciliation planning and
+  post-dispatch-review handoff.
 - Runtime permission, productized typed adjudication, external contest
   participation, graph / memory, cross-corpus governance, and recursive
   experiment authority remain mapped but unselected.
 
-## Pre-Lock Judgment
+## Closeout Judgment
 
-- `V75-A` is appropriately scoped as a bounded dispatch-review starter slice.
-- The starter may create source-bound request and guardrail substrate only.
-- The highest-risk seams are source eligibility, upstream exception origin,
-  row-shaped later authority, workbench action laundering, and dispatch /
-  runtime / product / external authority laundering.
+- `V75-A` is closed on `main` as a bounded dispatch-review request, source
+  index, and non-execution guardrail slice.
+- `V75` remains open for `V75-B`.
+- The shipped slice preserves the intended authority boundary: dispatch
+  pressure can be reviewed and guarded; it does not assign workers, execute
+  commands, open PRs, commit, merge, release, authorize products, grant runtime
+  permission, activate external contests, select models, produce benchmark
+  truth, mint living-memory authority, or amend recursive policy.
