@@ -1,0 +1,58 @@
+{
+  "closed_by_arc": "vNext+211",
+  "closed_slice_ladder": [
+    "V75-A",
+    "V75-B",
+    "V75-C"
+  ],
+  "consumed_source_families": [
+    "V68",
+    "V69",
+    "V70",
+    "V71",
+    "V72",
+    "V73",
+    "V74",
+    "V75-A",
+    "V75-B"
+  ],
+  "dispatch_review_authority_boundary": "Dispatch executed and release now.",
+  "dispatch_review_family_closeout_alignment_id": "repo_dispatch_review_family_closeout_alignment_99ceaa906e57fea6e843c376",
+  "family": "V75",
+  "future_family_authority": [
+    "future_experiment_review",
+    "future_external_branch_review",
+    "future_product_review",
+    "future_reconciliation_or_arbiter_review",
+    "future_runtime_permission_review"
+  ],
+  "limitation_note": "Family closeout alignment records dispatch review only; no dispatch execution, no command, no product launch, no release, no model selection, and no policy amendment.",
+  "review_id": "review:v75c:reconciliation-contract-handoff-closeout",
+  "schema": "repo_dispatch_review_family_closeout_alignment@1",
+  "shipped_record_shapes": [
+    "repo_dispatch_exception_register@1",
+    "repo_dispatch_non_execution_guardrail@1",
+    "repo_dispatch_reconciliation_contract@1",
+    "repo_dispatch_review_family_closeout_alignment@1",
+    "repo_dispatch_review_request@1",
+    "repo_dispatch_source_index@1",
+    "repo_multi_worker_assignment_plan@1",
+    "repo_post_dispatch_review_handoff@1",
+    "repo_worker_io_contract@1",
+    "repo_worker_output_reconciliation_plan@1",
+    "repo_worker_role_capacity_profile@1",
+    "repo_worker_tool_applicability_matrix@1"
+  ],
+  "snapshot_id": "vNext+210-closed-on-main",
+  "source_set_id": "source-set:v75c:released-v75a-v75b-dispatch-review",
+  "unselected_future_surfaces": [
+    "dispatch_execution",
+    "external_contest_participation",
+    "model_selection",
+    "product_authorization",
+    "recursive_policy_amendment",
+    "release_authority",
+    "runtime_permission",
+    "worker_assignment"
+  ]
+}

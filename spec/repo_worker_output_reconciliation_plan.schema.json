@@ -1,0 +1,332 @@
+{
+  "$defs": {
+    "RepoProjectedWorkerOutputSlotRow": {
+      "additionalProperties": false,
+      "properties": {
+        "assignment_plan_refs": {
+          "items": {
+            "type": "string"
+          },
+          "minItems": 1,
+          "title": "Assignment Plan Refs",
+          "type": "array"
+        },
+        "expected_output_kind": {
+          "title": "Expected Output Kind",
+          "type": "string"
+        },
+        "io_contract_refs": {
+          "items": {
+            "type": "string"
+          },
+          "minItems": 1,
+          "title": "Io Contract Refs",
+          "type": "array"
+        },
+        "limitation_note": {
+          "title": "Limitation Note",
+          "type": "string"
+        },
+        "non_truth_guardrail": {
+          "title": "Non Truth Guardrail",
+          "type": "string"
+        },
+        "output_presence_posture": {
+          "enum": [
+            "projected_not_observed",
+            "observed_from_authorized_prior_run",
+            "observed_from_support_artifact",
+            "missing_expected_output",
+            "not_applicable"
+          ],
+          "title": "Output Presence Posture",
+          "type": "string"
+        },
+        "projected_output_slot_ref": {
+          "title": "Projected Output Slot Ref",
+          "type": "string"
+        },
+        "source_refs": {
+          "items": {
+            "type": "string"
+          },
+          "minItems": 1,
+          "title": "Source Refs",
+          "type": "array"
+        }
+      },
+      "required": [
+        "projected_output_slot_ref",
+        "assignment_plan_refs",
+        "io_contract_refs",
+        "expected_output_kind",
+        "output_presence_posture",
+        "source_refs",
+        "non_truth_guardrail",
+        "limitation_note"
+      ],
+      "title": "RepoProjectedWorkerOutputSlotRow",
+      "type": "object"
+    },
+    "RepoWorkerOutputReconciliationPlanRow": {
+      "additionalProperties": false,
+      "properties": {
+        "assignment_plan_refs": {
+          "items": {
+            "type": "string"
+          },
+          "minItems": 1,
+          "title": "Assignment Plan Refs",
+          "type": "array"
+        },
+        "dispatch_execution_posture": {
+          "const": "no_dispatch_executed_by_v75",
+          "title": "Dispatch Execution Posture",
+          "type": "string"
+        },
+        "dispatch_request_refs": {
+          "items": {
+            "type": "string"
+          },
+          "minItems": 1,
+          "title": "Dispatch Request Refs",
+          "type": "array"
+        },
+        "exception_refs": {
+          "items": {
+            "type": "string"
+          },
+          "title": "Exception Refs",
+          "type": "array"
+        },
+        "io_contract_refs": {
+          "items": {
+            "type": "string"
+          },
+          "minItems": 1,
+          "title": "Io Contract Refs",
+          "type": "array"
+        },
+        "limitation_note": {
+          "title": "Limitation Note",
+          "type": "string"
+        },
+        "non_truth_guardrail": {
+          "title": "Non Truth Guardrail",
+          "type": "string"
+        },
+        "observed_worker_output_refs": {
+          "items": {
+            "type": "string"
+          },
+          "title": "Observed Worker Output Refs",
+          "type": "array"
+        },
+        "output_presence_posture": {
+          "enum": [
+            "projected_not_observed",
+            "observed_from_authorized_prior_run",
+            "observed_from_support_artifact",
+            "missing_expected_output",
+            "not_applicable"
+          ],
+          "title": "Output Presence Posture",
+          "type": "string"
+        },
+        "projected_output_slot_refs": {
+          "items": {
+            "type": "string"
+          },
+          "title": "Projected Output Slot Refs",
+          "type": "array"
+        },
+        "reconciliation_plan_ref": {
+          "title": "Reconciliation Plan Ref",
+          "type": "string"
+        },
+        "relation_refs": {
+          "items": {
+            "type": "string"
+          },
+          "minItems": 1,
+          "title": "Relation Refs",
+          "type": "array"
+        }
+      },
+      "required": [
+        "reconciliation_plan_ref",
+        "dispatch_request_refs",
+        "assignment_plan_refs",
+        "io_contract_refs",
+        "output_presence_posture",
+        "dispatch_execution_posture",
+        "relation_refs",
+        "non_truth_guardrail",
+        "limitation_note"
+      ],
+      "title": "RepoWorkerOutputReconciliationPlanRow",
+      "type": "object"
+    },
+    "RepoWorkerOutputRelationRow": {
+      "additionalProperties": false,
+      "properties": {
+        "authority_boundary_posture": {
+          "title": "Authority Boundary Posture",
+          "type": "string"
+        },
+        "claim_horizon": {
+          "title": "Claim Horizon",
+          "type": "string"
+        },
+        "left_output_ref": {
+          "title": "Left Output Ref",
+          "type": "string"
+        },
+        "limitation_note": {
+          "title": "Limitation Note",
+          "type": "string"
+        },
+        "relation_kind": {
+          "enum": [
+            "conflict",
+            "complementarity",
+            "duplicate",
+            "orthogonal",
+            "unclear_relation",
+            "single_output_no_relation"
+          ],
+          "title": "Relation Kind",
+          "type": "string"
+        },
+        "relation_ref": {
+          "title": "Relation Ref",
+          "type": "string"
+        },
+        "required_next_review_surface": {
+          "enum": [
+            "future_runtime_permission_review",
+            "future_product_review",
+            "future_external_branch_review",
+            "future_outcome_review",
+            "future_reconciliation_or_arbiter_review",
+            "future_experiment_review",
+            "future_family_review",
+            "deferred_no_selection"
+          ],
+          "title": "Required Next Review Surface",
+          "type": "string"
+        },
+        "right_output_ref": {
+          "title": "Right Output Ref",
+          "type": "string"
+        },
+        "source_refs": {
+          "items": {
+            "type": "string"
+          },
+          "minItems": 1,
+          "title": "Source Refs",
+          "type": "array"
+        }
+      },
+      "required": [
+        "relation_ref",
+        "left_output_ref",
+        "right_output_ref",
+        "claim_horizon",
+        "relation_kind",
+        "source_refs",
+        "authority_boundary_posture",
+        "required_next_review_surface",
+        "limitation_note"
+      ],
+      "title": "RepoWorkerOutputRelationRow",
+      "type": "object"
+    }
+  },
+  "additionalProperties": false,
+  "properties": {
+    "dispatch_exception_register_id": {
+      "title": "Dispatch Exception Register Id",
+      "type": "string"
+    },
+    "dispatch_review_request_id": {
+      "title": "Dispatch Review Request Id",
+      "type": "string"
+    },
+    "multi_worker_assignment_plan_id": {
+      "title": "Multi Worker Assignment Plan Id",
+      "type": "string"
+    },
+    "projected_output_slot_rows": {
+      "items": {
+        "$ref": "#/$defs/RepoProjectedWorkerOutputSlotRow"
+      },
+      "minItems": 1,
+      "title": "Projected Output Slot Rows",
+      "type": "array"
+    },
+    "reconciliation_plan_rows": {
+      "items": {
+        "$ref": "#/$defs/RepoWorkerOutputReconciliationPlanRow"
+      },
+      "minItems": 1,
+      "title": "Reconciliation Plan Rows",
+      "type": "array"
+    },
+    "reconciliation_summary": {
+      "title": "Reconciliation Summary",
+      "type": "string"
+    },
+    "relation_rows": {
+      "items": {
+        "$ref": "#/$defs/RepoWorkerOutputRelationRow"
+      },
+      "minItems": 1,
+      "title": "Relation Rows",
+      "type": "array"
+    },
+    "review_id": {
+      "title": "Review Id",
+      "type": "string"
+    },
+    "schema": {
+      "const": "repo_worker_output_reconciliation_plan@1",
+      "default": "repo_worker_output_reconciliation_plan@1",
+      "title": "Schema",
+      "type": "string"
+    },
+    "snapshot_id": {
+      "title": "Snapshot Id",
+      "type": "string"
+    },
+    "source_set_id": {
+      "title": "Source Set Id",
+      "type": "string"
+    },
+    "worker_io_contract_id": {
+      "title": "Worker Io Contract Id",
+      "type": "string"
+    },
+    "worker_output_reconciliation_plan_id": {
+      "title": "Worker Output Reconciliation Plan Id",
+      "type": "string"
+    }
+  },
+  "required": [
+    "worker_output_reconciliation_plan_id",
+    "dispatch_review_request_id",
+    "multi_worker_assignment_plan_id",
+    "worker_io_contract_id",
+    "dispatch_exception_register_id",
+    "review_id",
+    "snapshot_id",
+    "source_set_id",
+    "projected_output_slot_rows",
+    "relation_rows",
+    "reconciliation_plan_rows",
+    "reconciliation_summary"
+  ],
+  "title": "RepoWorkerOutputReconciliationPlan",
+  "type": "object"
+}

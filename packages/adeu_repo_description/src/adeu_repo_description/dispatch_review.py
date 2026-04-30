@@ -29,6 +29,12 @@ REPO_MULTI_WORKER_ASSIGNMENT_PLAN_SCHEMA = "repo_multi_worker_assignment_plan@1"
 REPO_WORKER_IO_CONTRACT_SCHEMA = "repo_worker_io_contract@1"
 REPO_WORKER_TOOL_APPLICABILITY_MATRIX_SCHEMA = "repo_worker_tool_applicability_matrix@1"
 REPO_DISPATCH_EXCEPTION_REGISTER_SCHEMA = "repo_dispatch_exception_register@1"
+REPO_WORKER_OUTPUT_RECONCILIATION_PLAN_SCHEMA = "repo_worker_output_reconciliation_plan@1"
+REPO_DISPATCH_RECONCILIATION_CONTRACT_SCHEMA = "repo_dispatch_reconciliation_contract@1"
+REPO_POST_DISPATCH_REVIEW_HANDOFF_SCHEMA = "repo_post_dispatch_review_handoff@1"
+REPO_DISPATCH_REVIEW_FAMILY_CLOSEOUT_ALIGNMENT_SCHEMA = (
+    "repo_dispatch_review_family_closeout_alignment@1"
+)
 
 DispatchSourceRole = Literal[
     "v74_post_projection_handoff_source",
@@ -193,6 +199,75 @@ TargetNamespaceKind = Literal[
     "candidate",
     "claim_horizon",
 ]
+OutputPresencePosture = Literal[
+    "projected_not_observed",
+    "observed_from_authorized_prior_run",
+    "observed_from_support_artifact",
+    "missing_expected_output",
+    "not_applicable",
+]
+V75CDispatchExecutionPosture = Literal["no_dispatch_executed_by_v75"]
+WorkerOutputRelationKind = Literal[
+    "conflict",
+    "complementarity",
+    "duplicate",
+    "orthogonal",
+    "unclear_relation",
+    "single_output_no_relation",
+]
+ReconciliationRequiredNextReviewSurface = Literal[
+    "future_runtime_permission_review",
+    "future_product_review",
+    "future_external_branch_review",
+    "future_outcome_review",
+    "future_reconciliation_or_arbiter_review",
+    "future_experiment_review",
+    "future_family_review",
+    "deferred_no_selection",
+]
+DispatchForbiddenInference = Literal[
+    "worker_output_as_truth",
+    "model_output_as_benchmark_truth",
+    "tool_pass_as_scope_expansion",
+    "assignment_plan_as_execution",
+    "dispatch_review_as_runtime_permission",
+]
+DispatchSettlementPosture = Literal[
+    "preserve_for_later_review",
+    "requires_adversarial_review",
+    "requires_human_ratification",
+    "requires_runtime_permission_review",
+    "requires_product_review",
+    "requires_external_branch_review",
+    "deferred_no_selection",
+]
+PostDispatchReviewHandoffTarget = Literal[
+    "future_runtime_permission_review",
+    "future_product_review",
+    "future_external_branch_review",
+    "future_outcome_review",
+    "future_reconciliation_or_arbiter_review",
+    "future_experiment_review",
+    "future_family_review",
+    "deferred_no_selection",
+]
+PostDispatchReviewHandoffSubjectHorizon = Literal[
+    "dispatch_review_process_outcome",
+    "projected_orchestration_plan_review",
+    "authorized_prior_worker_run_output",
+    "future_runtime_execution_outcome",
+    "product_review_pressure",
+    "external_branch_review_pressure",
+    "experiment_design_pressure",
+]
+PostDispatchReviewHandoffPosture = Literal[
+    "ready_for_later_review",
+    "blocked_by_unresolved_exception",
+    "blocked_by_required_later_authority",
+    "blocked_by_output_truth_boundary",
+    "deferred_to_future_family",
+    "rejected_out_of_scope",
+]
 
 _ELIGIBILITY_SOURCE_ROLES = {
     "v74_post_projection_handoff_source",
@@ -253,6 +328,19 @@ _WORKER_PLANNING_SCHEMA_NAMES = {
     REPO_WORKER_IO_CONTRACT_SCHEMA,
     REPO_WORKER_TOOL_APPLICABILITY_MATRIX_SCHEMA,
     REPO_DISPATCH_EXCEPTION_REGISTER_SCHEMA,
+}
+_V75C_SCHEMA_NAMES = {
+    REPO_WORKER_OUTPUT_RECONCILIATION_PLAN_SCHEMA,
+    REPO_DISPATCH_RECONCILIATION_CONTRACT_SCHEMA,
+    REPO_POST_DISPATCH_REVIEW_HANDOFF_SCHEMA,
+    REPO_DISPATCH_REVIEW_FAMILY_CLOSEOUT_ALIGNMENT_SCHEMA,
+}
+_REQUIRED_DISPATCH_FORBIDDEN_INFERENCES = {
+    "worker_output_as_truth",
+    "model_output_as_benchmark_truth",
+    "tool_pass_as_scope_expansion",
+    "assignment_plan_as_execution",
+    "dispatch_review_as_runtime_permission",
 }
 
 
@@ -2108,3 +2196,1053 @@ def derive_v75b_worker_orchestration_bundle(
         dispatch_exception_register=exception_register,
     )
     return role_profile, assignment_plan, io_contract, tool_matrix, exception_register
+
+
+class RepoProjectedWorkerOutputSlotRow(_CartographyBase):
+    projected_output_slot_ref: str
+    assignment_plan_refs: list[str] = Field(min_length=1)
+    io_contract_refs: list[str] = Field(min_length=1)
+    expected_output_kind: str
+    output_presence_posture: OutputPresencePosture
+    source_refs: list[str] = Field(min_length=1)
+    non_truth_guardrail: str
+    limitation_note: str
+
+    @model_validator(mode="after")
+    def _validate_projected_output_slot_row(self) -> RepoProjectedWorkerOutputSlotRow:
+        _non_empty(self.projected_output_slot_ref, field_name="projected_output_slot_ref")
+        _non_empty(self.expected_output_kind, field_name="expected_output_kind")
+        for field_name in ("assignment_plan_refs", "io_contract_refs", "source_refs"):
+            object.__setattr__(
+                self,
+                field_name,
+                _sorted_unique(getattr(self, field_name), field_name=field_name),
+            )
+        for source_ref in self.source_refs:
+            _repo_ref(source_ref, field_name="source_refs")
+        _reject_unnegated_authority_claim(
+            self.non_truth_guardrail, field_name="non_truth_guardrail"
+        )
+        _reject_unnegated_authority_claim(self.limitation_note, field_name="limitation_note")
+        _require_terms(
+            self.non_truth_guardrail,
+            field_name="non_truth_guardrail",
+            terms=("not truth", "review"),
+        )
+        if self.output_presence_posture == "projected_not_observed":
+            _require_terms(
+                self.limitation_note,
+                field_name="limitation_note",
+                terms=("projected", "not observed", "no dispatch"),
+            )
+        return self
+
+
+class RepoWorkerOutputRelationRow(_CartographyBase):
+    relation_ref: str
+    left_output_ref: str
+    right_output_ref: str
+    claim_horizon: str
+    relation_kind: WorkerOutputRelationKind
+    source_refs: list[str] = Field(min_length=1)
+    authority_boundary_posture: str
+    required_next_review_surface: ReconciliationRequiredNextReviewSurface
+    limitation_note: str
+
+    @model_validator(mode="after")
+    def _validate_worker_output_relation_row(self) -> RepoWorkerOutputRelationRow:
+        _non_empty(self.relation_ref, field_name="relation_ref")
+        _non_empty(self.left_output_ref, field_name="left_output_ref")
+        _non_empty(self.right_output_ref, field_name="right_output_ref")
+        _non_empty(self.claim_horizon, field_name="claim_horizon")
+        object.__setattr__(
+            self,
+            "source_refs",
+            _sorted_unique(self.source_refs, field_name="source_refs"),
+        )
+        for source_ref in self.source_refs:
+            _repo_ref(source_ref, field_name="source_refs")
+        _reject_unnegated_authority_claim(
+            self.authority_boundary_posture,
+            field_name="authority_boundary_posture",
+        )
+        _reject_unnegated_authority_claim(self.limitation_note, field_name="limitation_note")
+        _require_terms(
+            self.limitation_note,
+            field_name="limitation_note",
+            terms=("relation", "not truth"),
+        )
+        return self
+
+
+class RepoWorkerOutputReconciliationPlanRow(_CartographyBase):
+    reconciliation_plan_ref: str
+    dispatch_request_refs: list[str] = Field(min_length=1)
+    assignment_plan_refs: list[str] = Field(min_length=1)
+    io_contract_refs: list[str] = Field(min_length=1)
+    projected_output_slot_refs: list[str] = Field(default_factory=list)
+    observed_worker_output_refs: list[str] = Field(default_factory=list)
+    output_presence_posture: OutputPresencePosture
+    dispatch_execution_posture: V75CDispatchExecutionPosture
+    relation_refs: list[str] = Field(min_length=1)
+    exception_refs: list[str] = Field(default_factory=list)
+    non_truth_guardrail: str
+    limitation_note: str
+
+    @model_validator(mode="after")
+    def _validate_worker_output_reconciliation_plan_row(
+        self,
+    ) -> RepoWorkerOutputReconciliationPlanRow:
+        _non_empty(self.reconciliation_plan_ref, field_name="reconciliation_plan_ref")
+        for field_name in (
+            "dispatch_request_refs",
+            "assignment_plan_refs",
+            "io_contract_refs",
+            "projected_output_slot_refs",
+            "observed_worker_output_refs",
+            "relation_refs",
+            "exception_refs",
+        ):
+            object.__setattr__(
+                self,
+                field_name,
+                _sorted_unique(getattr(self, field_name), field_name=field_name),
+            )
+        if self.output_presence_posture == "projected_not_observed":
+            if self.observed_worker_output_refs:
+                raise ValueError("projected output rows must not carry observed worker outputs")
+            if not self.projected_output_slot_refs:
+                raise ValueError("projected output rows require projected output slot refs")
+        if (
+            self.output_presence_posture
+            in {
+                "observed_from_authorized_prior_run",
+                "observed_from_support_artifact",
+            }
+            and not self.observed_worker_output_refs
+        ):
+            raise ValueError("observed output posture requires observed worker output refs")
+        _reject_unnegated_authority_claim(
+            self.non_truth_guardrail, field_name="non_truth_guardrail"
+        )
+        _reject_unnegated_authority_claim(self.limitation_note, field_name="limitation_note")
+        _require_terms(
+            self.non_truth_guardrail,
+            field_name="non_truth_guardrail",
+            terms=("not truth", "review"),
+        )
+        _require_terms(
+            self.limitation_note,
+            field_name="limitation_note",
+            terms=("no dispatch", "no command"),
+        )
+        return self
+
+
+class RepoWorkerOutputReconciliationPlan(_CartographyBase):
+    schema: Literal["repo_worker_output_reconciliation_plan@1"] = (
+        REPO_WORKER_OUTPUT_RECONCILIATION_PLAN_SCHEMA
+    )
+    worker_output_reconciliation_plan_id: str
+    dispatch_review_request_id: str
+    multi_worker_assignment_plan_id: str
+    worker_io_contract_id: str
+    dispatch_exception_register_id: str
+    review_id: str
+    snapshot_id: str
+    source_set_id: str
+    projected_output_slot_rows: list[RepoProjectedWorkerOutputSlotRow] = Field(min_length=1)
+    relation_rows: list[RepoWorkerOutputRelationRow] = Field(min_length=1)
+    reconciliation_plan_rows: list[RepoWorkerOutputReconciliationPlanRow] = Field(min_length=1)
+    reconciliation_summary: str
+
+    @model_validator(mode="after")
+    def _validate_worker_output_reconciliation_plan(
+        self,
+    ) -> RepoWorkerOutputReconciliationPlan:
+        object.__setattr__(
+            self,
+            "projected_output_slot_rows",
+            _sorted_unique_by_ref(
+                self.projected_output_slot_rows,
+                attr="projected_output_slot_ref",
+                field_name="projected_output_slot_rows",
+            ),
+        )
+        object.__setattr__(
+            self,
+            "relation_rows",
+            _sorted_unique_by_ref(
+                self.relation_rows,
+                attr="relation_ref",
+                field_name="relation_rows",
+            ),
+        )
+        object.__setattr__(
+            self,
+            "reconciliation_plan_rows",
+            _sorted_unique_by_ref(
+                self.reconciliation_plan_rows,
+                attr="reconciliation_plan_ref",
+                field_name="reconciliation_plan_rows",
+            ),
+        )
+        _require_terms(
+            self.reconciliation_summary,
+            field_name="reconciliation_summary",
+            terms=("projected", "not truth", "no dispatch"),
+        )
+        expected_id = _surface_id(
+            "repo_worker_output_reconciliation_plan",
+            self.schema,
+            self.model_dump(mode="json"),
+            "worker_output_reconciliation_plan_id",
+        )
+        if self.worker_output_reconciliation_plan_id != expected_id:
+            raise ValueError(
+                "worker_output_reconciliation_plan_id does not match canonical payload hash"
+            )
+        return self
+
+
+class RepoDispatchReconciliationContractRow(_CartographyBase):
+    contract_ref: str
+    reconciliation_plan_refs: list[str] = Field(min_length=1)
+    required_review_roles: list[WorkerRoleKind] = Field(min_length=1)
+    required_authority_refs: list[str] = Field(min_length=1)
+    allowed_settlement_postures: list[DispatchSettlementPosture] = Field(min_length=1)
+    forbidden_inferences: list[DispatchForbiddenInference] = Field(min_length=1)
+    handoff_refs: list[str] = Field(default_factory=list)
+    limitation_note: str
+
+    @model_validator(mode="after")
+    def _validate_dispatch_reconciliation_contract_row(
+        self,
+    ) -> RepoDispatchReconciliationContractRow:
+        _non_empty(self.contract_ref, field_name="contract_ref")
+        for field_name in (
+            "reconciliation_plan_refs",
+            "required_review_roles",
+            "required_authority_refs",
+            "allowed_settlement_postures",
+            "forbidden_inferences",
+            "handoff_refs",
+        ):
+            object.__setattr__(
+                self,
+                field_name,
+                _sorted_unique(getattr(self, field_name), field_name=field_name),
+            )
+        missing = _REQUIRED_DISPATCH_FORBIDDEN_INFERENCES.difference(self.forbidden_inferences)
+        if missing:
+            raise ValueError(
+                f"dispatch reconciliation contracts omit forbidden inferences: {sorted(missing)}"
+            )
+        _reject_unnegated_authority_claim(self.limitation_note, field_name="limitation_note")
+        _require_terms(
+            self.limitation_note,
+            field_name="limitation_note",
+            terms=("contract", "forbidden", "no dispatch"),
+        )
+        return self
+
+
+class RepoDispatchReconciliationContract(_CartographyBase):
+    schema: Literal["repo_dispatch_reconciliation_contract@1"] = (
+        REPO_DISPATCH_RECONCILIATION_CONTRACT_SCHEMA
+    )
+    dispatch_reconciliation_contract_id: str
+    worker_output_reconciliation_plan_id: str
+    review_id: str
+    snapshot_id: str
+    source_set_id: str
+    contract_rows: list[RepoDispatchReconciliationContractRow] = Field(min_length=1)
+    contract_summary: str
+
+    @model_validator(mode="after")
+    def _validate_dispatch_reconciliation_contract(
+        self,
+    ) -> RepoDispatchReconciliationContract:
+        object.__setattr__(
+            self,
+            "contract_rows",
+            _sorted_unique_by_ref(
+                self.contract_rows,
+                attr="contract_ref",
+                field_name="contract_rows",
+            ),
+        )
+        _require_terms(
+            self.contract_summary,
+            field_name="contract_summary",
+            terms=("forbidden", "not truth", "no dispatch"),
+        )
+        expected_id = _surface_id(
+            "repo_dispatch_reconciliation_contract",
+            self.schema,
+            self.model_dump(mode="json"),
+            "dispatch_reconciliation_contract_id",
+        )
+        if self.dispatch_reconciliation_contract_id != expected_id:
+            raise ValueError(
+                "dispatch_reconciliation_contract_id does not match canonical payload hash"
+            )
+        return self
+
+
+class RepoPostDispatchReviewHandoffRow(_CartographyBase):
+    handoff_ref: str
+    dispatch_request_refs: list[str] = Field(min_length=1)
+    assignment_plan_refs: list[str] = Field(min_length=1)
+    reconciliation_plan_refs: list[str] = Field(min_length=1)
+    reconciliation_contract_refs: list[str] = Field(min_length=1)
+    handoff_target: PostDispatchReviewHandoffTarget
+    handoff_subject_horizon: PostDispatchReviewHandoffSubjectHorizon
+    handoff_posture: PostDispatchReviewHandoffPosture
+    carried_exception_refs: list[str] = Field(default_factory=list)
+    required_later_authority_refs: list[str] = Field(default_factory=list)
+    non_execution_guardrail: str
+    limitation_note: str
+
+    @model_validator(mode="after")
+    def _validate_post_dispatch_review_handoff_row(self) -> RepoPostDispatchReviewHandoffRow:
+        _non_empty(self.handoff_ref, field_name="handoff_ref")
+        for field_name in (
+            "dispatch_request_refs",
+            "assignment_plan_refs",
+            "reconciliation_plan_refs",
+            "reconciliation_contract_refs",
+            "carried_exception_refs",
+            "required_later_authority_refs",
+        ):
+            object.__setattr__(
+                self,
+                field_name,
+                _sorted_unique(getattr(self, field_name), field_name=field_name),
+            )
+        _reject_unnegated_authority_claim(
+            self.non_execution_guardrail, field_name="non_execution_guardrail"
+        )
+        _reject_unnegated_authority_claim(self.limitation_note, field_name="limitation_note")
+        _require_terms(
+            self.non_execution_guardrail,
+            field_name="non_execution_guardrail",
+            terms=("no dispatch", "no command", "no runtime", "no product", "no release"),
+        )
+        if self.handoff_target == "future_outcome_review":
+            if self.handoff_subject_horizon not in {
+                "dispatch_review_process_outcome",
+                "projected_orchestration_plan_review",
+                "authorized_prior_worker_run_output",
+                "future_runtime_execution_outcome",
+            }:
+                raise ValueError("future outcome review handoff requires subject horizon")
+        return self
+
+
+class RepoPostDispatchReviewHandoff(_CartographyBase):
+    schema: Literal["repo_post_dispatch_review_handoff@1"] = (
+        REPO_POST_DISPATCH_REVIEW_HANDOFF_SCHEMA
+    )
+    post_dispatch_review_handoff_id: str
+    worker_output_reconciliation_plan_id: str
+    dispatch_reconciliation_contract_id: str
+    review_id: str
+    snapshot_id: str
+    source_set_id: str
+    handoff_rows: list[RepoPostDispatchReviewHandoffRow] = Field(min_length=1)
+    handoff_summary: str
+
+    @model_validator(mode="after")
+    def _validate_post_dispatch_review_handoff(self) -> RepoPostDispatchReviewHandoff:
+        object.__setattr__(
+            self,
+            "handoff_rows",
+            _sorted_unique_by_ref(
+                self.handoff_rows,
+                attr="handoff_ref",
+                field_name="handoff_rows",
+            ),
+        )
+        _require_terms(
+            self.handoff_summary,
+            field_name="handoff_summary",
+            terms=("review", "no dispatch", "no runtime", "no release"),
+        )
+        expected_id = _surface_id(
+            "repo_post_dispatch_review_handoff",
+            self.schema,
+            self.model_dump(mode="json"),
+            "post_dispatch_review_handoff_id",
+        )
+        if self.post_dispatch_review_handoff_id != expected_id:
+            raise ValueError(
+                "post_dispatch_review_handoff_id does not match canonical payload hash"
+            )
+        return self
+
+
+class RepoDispatchReviewFamilyCloseoutAlignment(_CartographyBase):
+    schema: Literal["repo_dispatch_review_family_closeout_alignment@1"] = (
+        REPO_DISPATCH_REVIEW_FAMILY_CLOSEOUT_ALIGNMENT_SCHEMA
+    )
+    dispatch_review_family_closeout_alignment_id: str
+    family: Literal["V75"]
+    closed_by_arc: Literal["vNext+211"]
+    review_id: str
+    snapshot_id: str
+    source_set_id: str
+    closed_slice_ladder: list[Literal["V75-A", "V75-B", "V75-C"]] = Field(min_length=3)
+    shipped_record_shapes: list[str] = Field(min_length=1)
+    consumed_source_families: list[str] = Field(min_length=1)
+    future_family_authority: list[str] = Field(min_length=1)
+    unselected_future_surfaces: list[str] = Field(min_length=1)
+    dispatch_review_authority_boundary: str
+    limitation_note: str
+
+    @model_validator(mode="after")
+    def _validate_dispatch_review_family_closeout_alignment(
+        self,
+    ) -> RepoDispatchReviewFamilyCloseoutAlignment:
+        for field_name in (
+            "closed_slice_ladder",
+            "shipped_record_shapes",
+            "consumed_source_families",
+            "future_family_authority",
+            "unselected_future_surfaces",
+        ):
+            object.__setattr__(
+                self,
+                field_name,
+                _sorted_unique(getattr(self, field_name), field_name=field_name),
+            )
+        if set(self.closed_slice_ladder) != {"V75-A", "V75-B", "V75-C"}:
+            raise ValueError("V75 family closeout alignment must close A/B/C ladder")
+        for shape in _V75C_SCHEMA_NAMES:
+            if shape not in self.shipped_record_shapes:
+                raise ValueError("V75-C family closeout alignment omits shipped C surfaces")
+        _reject_unnegated_authority_claim(
+            self.dispatch_review_authority_boundary,
+            field_name="dispatch_review_authority_boundary",
+        )
+        _reject_unnegated_authority_claim(self.limitation_note, field_name="limitation_note")
+        _require_terms(
+            self.dispatch_review_authority_boundary,
+            field_name="dispatch_review_authority_boundary",
+            terms=("dispatch review", "no dispatch", "no runtime", "no release"),
+        )
+        expected_id = _surface_id(
+            "repo_dispatch_review_family_closeout_alignment",
+            self.schema,
+            self.model_dump(mode="json"),
+            "dispatch_review_family_closeout_alignment_id",
+        )
+        if self.dispatch_review_family_closeout_alignment_id != expected_id:
+            raise ValueError(
+                "dispatch_review_family_closeout_alignment_id does not match canonical payload hash"
+            )
+        return self
+
+
+def _v75c_base_payload(
+    *,
+    schema: str,
+    dispatch_review_request: RepoDispatchReviewRequest,
+) -> dict[str, str]:
+    return {
+        "schema": schema,
+        "review_id": "review:v75c:reconciliation-contract-handoff-closeout",
+        "snapshot_id": "vNext+210-closed-on-main",
+        "source_set_id": "source-set:v75c:released-v75a-v75b-dispatch-review",
+        "dispatch_review_request_id": dispatch_review_request.dispatch_review_request_id,
+    }
+
+
+def derive_v75c_repo_worker_output_reconciliation_plan(
+    *,
+    repo_root: Path | None = None,
+    dispatch_review_request: RepoDispatchReviewRequest | None = None,
+    multi_worker_assignment_plan: RepoMultiWorkerAssignmentPlan | None = None,
+    worker_io_contract: RepoWorkerIOContract | None = None,
+    dispatch_exception_register: RepoDispatchExceptionRegister | None = None,
+) -> RepoWorkerOutputReconciliationPlan:
+    _ = repo_root
+    source_index, request, guardrail = derive_v75a_dispatch_review_bundle()
+    role_profile, assignment_plan, io_contract, tool_matrix, exception_register = (
+        derive_v75b_worker_orchestration_bundle()
+    )
+    _ = source_index, guardrail, role_profile, tool_matrix
+    request = dispatch_review_request or request
+    assignment_plan = multi_worker_assignment_plan or assignment_plan
+    io_contract = worker_io_contract or io_contract
+    exception_register = dispatch_exception_register or exception_register
+    payload = {
+        **_v75c_base_payload(
+            schema=REPO_WORKER_OUTPUT_RECONCILIATION_PLAN_SCHEMA,
+            dispatch_review_request=request,
+        ),
+        "worker_output_reconciliation_plan_id": "",
+        "multi_worker_assignment_plan_id": assignment_plan.multi_worker_assignment_plan_id,
+        "worker_io_contract_id": io_contract.worker_io_contract_id,
+        "dispatch_exception_register_id": exception_register.dispatch_exception_register_id,
+        "projected_output_slot_rows": [
+            {
+                "projected_output_slot_ref": "projected-output:v75c:product-wedge:blocked-note",
+                "assignment_plan_refs": ["assignment-plan:v75b:product-wedge:blocked"],
+                "io_contract_refs": ["io-contract:v75b:product-wedge:external-branch-review"],
+                "expected_output_kind": "blocked_external_branch_review_note",
+                "output_presence_posture": "projected_not_observed",
+                "source_refs": [
+                    "apps/api/fixtures/repo_description/vnext_plus210/"
+                    "repo_worker_io_contract_v210_reference.json"
+                ],
+                "non_truth_guardrail": "Projected worker output is for review and not truth.",
+                "limitation_note": (
+                    "Projected not observed output slot only; no dispatch and no command."
+                ),
+            },
+            {
+                "projected_output_slot_ref": "projected-output:v75c:self-evidencing:review-note",
+                "assignment_plan_refs": ["assignment-plan:v75b:self-evidencing:review-only"],
+                "io_contract_refs": ["io-contract:v75b:self-evidencing:evidence-review"],
+                "expected_output_kind": "worker_review_note_for_reconciliation",
+                "output_presence_posture": "projected_not_observed",
+                "source_refs": [
+                    "apps/api/fixtures/repo_description/vnext_plus210/"
+                    "repo_worker_io_contract_v210_reference.json"
+                ],
+                "non_truth_guardrail": "Projected worker output is for review and not truth.",
+                "limitation_note": (
+                    "Projected not observed output slot only; no dispatch and no command."
+                ),
+            },
+        ],
+        "relation_rows": [
+            {
+                "relation_ref": "relation:v75c:self-evidencing:single-projected-output",
+                "left_output_ref": "projected-output:v75c:self-evidencing:review-note",
+                "right_output_ref": "projected-output:v75c:self-evidencing:review-note",
+                "claim_horizon": (
+                    "Single projected output slot; no observed worker output relation yet."
+                ),
+                "relation_kind": "single_output_no_relation",
+                "source_refs": [
+                    "apps/api/fixtures/repo_description/vnext_plus210/"
+                    "repo_multi_worker_assignment_plan_v210_reference.json"
+                ],
+                "authority_boundary_posture": (
+                    "Relation posture is review-only and not worker output truth."
+                ),
+                "required_next_review_surface": "future_reconciliation_or_arbiter_review",
+                "limitation_note": (
+                    "Projected relation is not truth and requires later relation review."
+                ),
+            },
+            {
+                "relation_ref": "relation:v75c:product-wedge:blocked-projected-output",
+                "left_output_ref": "projected-output:v75c:product-wedge:blocked-note",
+                "right_output_ref": "projected-output:v75c:product-wedge:blocked-note",
+                "claim_horizon": (
+                    "Blocked product/external branch projected output slot; no observed output."
+                ),
+                "relation_kind": "single_output_no_relation",
+                "source_refs": [
+                    "apps/api/fixtures/repo_description/vnext_plus210/"
+                    "repo_dispatch_exception_register_v210_reference.json"
+                ],
+                "authority_boundary_posture": (
+                    "Relation posture carries blocker for review and is not truth."
+                ),
+                "required_next_review_surface": "future_reconciliation_or_arbiter_review",
+                "limitation_note": (
+                    "Blocked projected relation is not truth and carries blocker for review."
+                ),
+            },
+        ],
+        "reconciliation_plan_rows": [
+            {
+                "reconciliation_plan_ref": "reconciliation-plan:v75c:product-wedge:blocked",
+                "dispatch_request_refs": ["dispatch-request:v75a:product-wedge:blocked"],
+                "assignment_plan_refs": ["assignment-plan:v75b:product-wedge:blocked"],
+                "io_contract_refs": ["io-contract:v75b:product-wedge:external-branch-review"],
+                "projected_output_slot_refs": ["projected-output:v75c:product-wedge:blocked-note"],
+                "observed_worker_output_refs": [],
+                "output_presence_posture": "projected_not_observed",
+                "dispatch_execution_posture": "no_dispatch_executed_by_v75",
+                "relation_refs": ["relation:v75c:product-wedge:blocked-projected-output"],
+                "exception_refs": ["dispatch-exception:v75b:product-wedge:authority"],
+                "non_truth_guardrail": "Projected worker output is for review and not truth.",
+                "limitation_note": (
+                    "Reconciliation plan is projected with no dispatch, no command, and "
+                    "blocking authority carried forward."
+                ),
+            },
+            {
+                "reconciliation_plan_ref": "reconciliation-plan:v75c:self-evidencing:projected",
+                "dispatch_request_refs": ["dispatch-request:v75a:self-evidencing:review"],
+                "assignment_plan_refs": ["assignment-plan:v75b:self-evidencing:review-only"],
+                "io_contract_refs": ["io-contract:v75b:self-evidencing:evidence-review"],
+                "projected_output_slot_refs": ["projected-output:v75c:self-evidencing:review-note"],
+                "observed_worker_output_refs": [],
+                "output_presence_posture": "projected_not_observed",
+                "dispatch_execution_posture": "no_dispatch_executed_by_v75",
+                "relation_refs": ["relation:v75c:self-evidencing:single-projected-output"],
+                "exception_refs": ["dispatch-exception:v75b:self-evidencing:upstream"],
+                "non_truth_guardrail": "Projected worker output is for review and not truth.",
+                "limitation_note": (
+                    "Reconciliation plan is projected with no dispatch, no command, and "
+                    "no observed worker output."
+                ),
+            },
+        ],
+        "reconciliation_summary": (
+            "Projected worker output reconciliation is not truth and records no dispatch."
+        ),
+    }
+    payload["projected_output_slot_rows"] = sorted(
+        payload["projected_output_slot_rows"],
+        key=lambda row: row["projected_output_slot_ref"],
+    )
+    payload["relation_rows"] = sorted(payload["relation_rows"], key=lambda row: row["relation_ref"])
+    payload["reconciliation_plan_rows"] = sorted(
+        payload["reconciliation_plan_rows"],
+        key=lambda row: row["reconciliation_plan_ref"],
+    )
+    payload["worker_output_reconciliation_plan_id"] = _surface_id(
+        "repo_worker_output_reconciliation_plan",
+        REPO_WORKER_OUTPUT_RECONCILIATION_PLAN_SCHEMA,
+        payload,
+        "worker_output_reconciliation_plan_id",
+    )
+    return RepoWorkerOutputReconciliationPlan.model_validate(payload)
+
+
+def derive_v75c_repo_dispatch_reconciliation_contract(
+    *,
+    repo_root: Path | None = None,
+    worker_output_reconciliation_plan: RepoWorkerOutputReconciliationPlan | None = None,
+) -> RepoDispatchReconciliationContract:
+    _ = repo_root
+    plan = worker_output_reconciliation_plan or derive_v75c_repo_worker_output_reconciliation_plan()
+    payload = {
+        "schema": REPO_DISPATCH_RECONCILIATION_CONTRACT_SCHEMA,
+        "dispatch_reconciliation_contract_id": "",
+        "worker_output_reconciliation_plan_id": plan.worker_output_reconciliation_plan_id,
+        "review_id": plan.review_id,
+        "snapshot_id": plan.snapshot_id,
+        "source_set_id": plan.source_set_id,
+        "contract_rows": [
+            {
+                "contract_ref": "contract:v75c:dispatch-reconciliation:review-only",
+                "reconciliation_plan_refs": [
+                    row.reconciliation_plan_ref for row in plan.reconciliation_plan_rows
+                ],
+                "required_review_roles": ["adversarial_review_worker", "reconciliation_worker"],
+                "required_authority_refs": sorted(
+                    [
+                        "authority:v75a:self-evidencing:dispatch-execution",
+                        "authority:v75a:self-evidencing:human-review",
+                        "authority:v75a:product-wedge:product-review",
+                    ]
+                ),
+                "allowed_settlement_postures": sorted(
+                    [
+                        "preserve_for_later_review",
+                        "requires_adversarial_review",
+                        "requires_human_ratification",
+                        "requires_product_review",
+                        "deferred_no_selection",
+                    ]
+                ),
+                "forbidden_inferences": sorted(_REQUIRED_DISPATCH_FORBIDDEN_INFERENCES),
+                "handoff_refs": ["handoff:v75c:self-evidencing:future-outcome-review"],
+                "limitation_note": (
+                    "Dispatch reconciliation contract states forbidden inferences with no dispatch."
+                ),
+            }
+        ],
+        "contract_summary": ("Forbidden inferences keep worker output not truth with no dispatch."),
+    }
+    payload["contract_rows"] = sorted(
+        payload["contract_rows"],
+        key=lambda row: row["contract_ref"],
+    )
+    payload["dispatch_reconciliation_contract_id"] = _surface_id(
+        "repo_dispatch_reconciliation_contract",
+        REPO_DISPATCH_RECONCILIATION_CONTRACT_SCHEMA,
+        payload,
+        "dispatch_reconciliation_contract_id",
+    )
+    return RepoDispatchReconciliationContract.model_validate(payload)
+
+
+def derive_v75c_repo_post_dispatch_review_handoff(
+    *,
+    repo_root: Path | None = None,
+    worker_output_reconciliation_plan: RepoWorkerOutputReconciliationPlan | None = None,
+    dispatch_reconciliation_contract: RepoDispatchReconciliationContract | None = None,
+) -> RepoPostDispatchReviewHandoff:
+    _ = repo_root
+    plan = worker_output_reconciliation_plan or derive_v75c_repo_worker_output_reconciliation_plan()
+    contract = (
+        dispatch_reconciliation_contract
+        or derive_v75c_repo_dispatch_reconciliation_contract(worker_output_reconciliation_plan=plan)
+    )
+    payload = {
+        "schema": REPO_POST_DISPATCH_REVIEW_HANDOFF_SCHEMA,
+        "post_dispatch_review_handoff_id": "",
+        "worker_output_reconciliation_plan_id": plan.worker_output_reconciliation_plan_id,
+        "dispatch_reconciliation_contract_id": contract.dispatch_reconciliation_contract_id,
+        "review_id": plan.review_id,
+        "snapshot_id": plan.snapshot_id,
+        "source_set_id": plan.source_set_id,
+        "handoff_rows": [
+            {
+                "handoff_ref": "handoff:v75c:product-wedge:arbiter-settlement",
+                "dispatch_request_refs": ["dispatch-request:v75a:product-wedge:blocked"],
+                "assignment_plan_refs": ["assignment-plan:v75b:product-wedge:blocked"],
+                "reconciliation_plan_refs": ["reconciliation-plan:v75c:product-wedge:blocked"],
+                "reconciliation_contract_refs": [
+                    "contract:v75c:dispatch-reconciliation:review-only"
+                ],
+                "handoff_target": "future_reconciliation_or_arbiter_review",
+                "handoff_subject_horizon": "product_review_pressure",
+                "handoff_posture": "blocked_by_required_later_authority",
+                "carried_exception_refs": ["dispatch-exception:v75b:product-wedge:authority"],
+                "required_later_authority_refs": ["authority:v75a:product-wedge:product-review"],
+                "non_execution_guardrail": (
+                    "Handoff is review-only with no dispatch, no command, no runtime, "
+                    "no product authorization, and no release."
+                ),
+                "limitation_note": (
+                    "Product pressure remains blocked and carried for later review with "
+                    "no dispatch execution."
+                ),
+            },
+            {
+                "handoff_ref": "handoff:v75c:self-evidencing:future-outcome-review",
+                "dispatch_request_refs": ["dispatch-request:v75a:self-evidencing:review"],
+                "assignment_plan_refs": ["assignment-plan:v75b:self-evidencing:review-only"],
+                "reconciliation_plan_refs": ["reconciliation-plan:v75c:self-evidencing:projected"],
+                "reconciliation_contract_refs": [
+                    "contract:v75c:dispatch-reconciliation:review-only"
+                ],
+                "handoff_target": "future_outcome_review",
+                "handoff_subject_horizon": "dispatch_review_process_outcome",
+                "handoff_posture": "ready_for_later_review",
+                "carried_exception_refs": ["dispatch-exception:v75b:self-evidencing:upstream"],
+                "required_later_authority_refs": [
+                    "authority:v75a:self-evidencing:dispatch-execution",
+                    "authority:v75a:self-evidencing:human-review",
+                ],
+                "non_execution_guardrail": (
+                    "Handoff is review-only with no dispatch, no command, no runtime, "
+                    "no product authorization, and no release."
+                ),
+                "limitation_note": (
+                    "Future outcome review is for the dispatch review process with no dispatch."
+                ),
+            },
+        ],
+        "handoff_summary": (
+            "Post-dispatch-review handoff means review after dispatch review: "
+            "no dispatch, no runtime permission, and no release."
+        ),
+    }
+    payload["handoff_rows"] = sorted(payload["handoff_rows"], key=lambda row: row["handoff_ref"])
+    payload["post_dispatch_review_handoff_id"] = _surface_id(
+        "repo_post_dispatch_review_handoff",
+        REPO_POST_DISPATCH_REVIEW_HANDOFF_SCHEMA,
+        payload,
+        "post_dispatch_review_handoff_id",
+    )
+    return RepoPostDispatchReviewHandoff.model_validate(payload)
+
+
+def derive_v75c_repo_dispatch_review_family_closeout_alignment(
+    *,
+    repo_root: Path | None = None,
+) -> RepoDispatchReviewFamilyCloseoutAlignment:
+    _ = repo_root
+    payload = {
+        "schema": REPO_DISPATCH_REVIEW_FAMILY_CLOSEOUT_ALIGNMENT_SCHEMA,
+        "dispatch_review_family_closeout_alignment_id": "",
+        "family": "V75",
+        "closed_by_arc": "vNext+211",
+        "review_id": "review:v75c:reconciliation-contract-handoff-closeout",
+        "snapshot_id": "vNext+210-closed-on-main",
+        "source_set_id": "source-set:v75c:released-v75a-v75b-dispatch-review",
+        "closed_slice_ladder": ["V75-A", "V75-B", "V75-C"],
+        "shipped_record_shapes": sorted(
+            [
+                REPO_DISPATCH_REVIEW_REQUEST_SCHEMA,
+                REPO_DISPATCH_SOURCE_INDEX_SCHEMA,
+                REPO_DISPATCH_NON_EXECUTION_GUARDRAIL_SCHEMA,
+                REPO_WORKER_ROLE_CAPACITY_PROFILE_SCHEMA,
+                REPO_MULTI_WORKER_ASSIGNMENT_PLAN_SCHEMA,
+                REPO_WORKER_IO_CONTRACT_SCHEMA,
+                REPO_WORKER_TOOL_APPLICABILITY_MATRIX_SCHEMA,
+                REPO_DISPATCH_EXCEPTION_REGISTER_SCHEMA,
+                REPO_WORKER_OUTPUT_RECONCILIATION_PLAN_SCHEMA,
+                REPO_DISPATCH_RECONCILIATION_CONTRACT_SCHEMA,
+                REPO_POST_DISPATCH_REVIEW_HANDOFF_SCHEMA,
+                REPO_DISPATCH_REVIEW_FAMILY_CLOSEOUT_ALIGNMENT_SCHEMA,
+            ]
+        ),
+        "consumed_source_families": sorted(
+            [
+                "V68",
+                "V69",
+                "V70",
+                "V71",
+                "V72",
+                "V73",
+                "V74",
+                "V75-A",
+                "V75-B",
+            ]
+        ),
+        "future_family_authority": sorted(
+            [
+                "future_runtime_permission_review",
+                "future_product_review",
+                "future_external_branch_review",
+                "future_reconciliation_or_arbiter_review",
+                "future_experiment_review",
+            ]
+        ),
+        "unselected_future_surfaces": [
+            "dispatch_execution",
+            "external_contest_participation",
+            "model_selection",
+            "product_authorization",
+            "recursive_policy_amendment",
+            "release_authority",
+            "runtime_permission",
+            "worker_assignment",
+        ],
+        "dispatch_review_authority_boundary": (
+            "V75 closes as dispatch review posture with no dispatch, no runtime permission, "
+            "no product authorization, and no release."
+        ),
+        "limitation_note": (
+            "Family closeout alignment records dispatch review only; no dispatch execution, "
+            "no command, no product launch, no release, no model selection, and no policy "
+            "amendment."
+        ),
+    }
+    payload["dispatch_review_family_closeout_alignment_id"] = _surface_id(
+        "repo_dispatch_review_family_closeout_alignment",
+        REPO_DISPATCH_REVIEW_FAMILY_CLOSEOUT_ALIGNMENT_SCHEMA,
+        payload,
+        "dispatch_review_family_closeout_alignment_id",
+    )
+    return RepoDispatchReviewFamilyCloseoutAlignment.model_validate(payload)
+
+
+def validate_v75c_dispatch_review_closeout_bundle(
+    *,
+    dispatch_source_index: RepoDispatchSourceIndex,
+    dispatch_review_request: RepoDispatchReviewRequest,
+    dispatch_non_execution_guardrail: RepoDispatchNonExecutionGuardrail,
+    worker_role_capacity_profile: RepoWorkerRoleCapacityProfile,
+    multi_worker_assignment_plan: RepoMultiWorkerAssignmentPlan,
+    worker_io_contract: RepoWorkerIOContract,
+    worker_tool_applicability_matrix: RepoWorkerToolApplicabilityMatrix,
+    dispatch_exception_register: RepoDispatchExceptionRegister,
+    worker_output_reconciliation_plan: RepoWorkerOutputReconciliationPlan,
+    dispatch_reconciliation_contract: RepoDispatchReconciliationContract,
+    post_dispatch_review_handoff: RepoPostDispatchReviewHandoff,
+    dispatch_review_family_closeout_alignment: RepoDispatchReviewFamilyCloseoutAlignment,
+) -> None:
+    validate_v75b_worker_orchestration_bundle(
+        dispatch_source_index=dispatch_source_index,
+        dispatch_review_request=dispatch_review_request,
+        dispatch_non_execution_guardrail=dispatch_non_execution_guardrail,
+        worker_role_capacity_profile=worker_role_capacity_profile,
+        multi_worker_assignment_plan=multi_worker_assignment_plan,
+        worker_io_contract=worker_io_contract,
+        worker_tool_applicability_matrix=worker_tool_applicability_matrix,
+        dispatch_exception_register=dispatch_exception_register,
+    )
+    surfaces = [
+        worker_output_reconciliation_plan,
+        dispatch_reconciliation_contract,
+        post_dispatch_review_handoff,
+        dispatch_review_family_closeout_alignment,
+    ]
+    for surface in surfaces:
+        if (
+            surface.review_id,
+            surface.snapshot_id,
+            surface.source_set_id,
+        ) != (
+            "review:v75c:reconciliation-contract-handoff-closeout",
+            "vNext+210-closed-on-main",
+            "source-set:v75c:released-v75a-v75b-dispatch-review",
+        ):
+            raise ValueError("V75-C surfaces must share reconciliation closeout provenance")
+
+    if (
+        worker_output_reconciliation_plan.dispatch_review_request_id
+        != dispatch_review_request.dispatch_review_request_id
+    ):
+        raise ValueError("reconciliation plan must reference released V75-A request surface")
+    if (
+        worker_output_reconciliation_plan.multi_worker_assignment_plan_id
+        != multi_worker_assignment_plan.multi_worker_assignment_plan_id
+    ):
+        raise ValueError("reconciliation plan must reference released V75-B assignment plan")
+    if (
+        worker_output_reconciliation_plan.worker_io_contract_id
+        != worker_io_contract.worker_io_contract_id
+    ):
+        raise ValueError("reconciliation plan must reference released V75-B IO contract")
+    if (
+        worker_output_reconciliation_plan.dispatch_exception_register_id
+        != dispatch_exception_register.dispatch_exception_register_id
+    ):
+        raise ValueError("reconciliation plan must reference released V75-B exception register")
+    if (
+        dispatch_reconciliation_contract.worker_output_reconciliation_plan_id
+        != worker_output_reconciliation_plan.worker_output_reconciliation_plan_id
+    ):
+        raise ValueError("reconciliation contract must reference the reconciliation plan")
+    if (
+        post_dispatch_review_handoff.worker_output_reconciliation_plan_id
+        != worker_output_reconciliation_plan.worker_output_reconciliation_plan_id
+    ):
+        raise ValueError("post-dispatch handoff must reference the reconciliation plan")
+    if (
+        post_dispatch_review_handoff.dispatch_reconciliation_contract_id
+        != dispatch_reconciliation_contract.dispatch_reconciliation_contract_id
+    ):
+        raise ValueError("post-dispatch handoff must reference reconciliation contract")
+
+    request_rows = {row.dispatch_request_ref: row for row in dispatch_review_request.request_rows}
+    assignment_rows = {
+        row.assignment_plan_ref: row for row in multi_worker_assignment_plan.assignment_plan_rows
+    }
+    io_rows = {row.io_contract_ref: row for row in worker_io_contract.io_contract_rows}
+    exception_rows = {
+        row.dispatch_exception_ref: row for row in dispatch_exception_register.exception_rows
+    }
+    slot_rows = {
+        row.projected_output_slot_ref: row
+        for row in worker_output_reconciliation_plan.projected_output_slot_rows
+    }
+    relation_rows = {
+        row.relation_ref: row for row in worker_output_reconciliation_plan.relation_rows
+    }
+    plan_rows = {
+        row.reconciliation_plan_ref: row
+        for row in worker_output_reconciliation_plan.reconciliation_plan_rows
+    }
+    contract_rows = {
+        row.contract_ref: row for row in dispatch_reconciliation_contract.contract_rows
+    }
+
+    for slot_row in worker_output_reconciliation_plan.projected_output_slot_rows:
+        if any(ref not in assignment_rows for ref in slot_row.assignment_plan_refs):
+            raise ValueError("projected output slots must reference known assignment rows")
+        if any(ref not in io_rows for ref in slot_row.io_contract_refs):
+            raise ValueError("projected output slots must reference known IO rows")
+
+    for relation_row in worker_output_reconciliation_plan.relation_rows:
+        known_output_refs = set(slot_rows)
+        if relation_row.left_output_ref not in known_output_refs:
+            raise ValueError("relation rows must reference known projected output refs")
+        if relation_row.right_output_ref not in known_output_refs:
+            raise ValueError("relation rows must reference known projected output refs")
+
+    for plan_row in worker_output_reconciliation_plan.reconciliation_plan_rows:
+        if any(ref not in request_rows for ref in plan_row.dispatch_request_refs):
+            raise ValueError("reconciliation plans must reference released V75-A requests")
+        if any(ref not in assignment_rows for ref in plan_row.assignment_plan_refs):
+            raise ValueError("reconciliation plans must reference released V75-B assignments")
+        if any(ref not in io_rows for ref in plan_row.io_contract_refs):
+            raise ValueError("reconciliation plans must reference released V75-B IO contracts")
+        if any(ref not in slot_rows for ref in plan_row.projected_output_slot_refs):
+            raise ValueError("reconciliation plans must reference known projected output slots")
+        if any(ref not in relation_rows for ref in plan_row.relation_refs):
+            raise ValueError("reconciliation plans must reference known relation rows")
+        if any(ref not in exception_rows for ref in plan_row.exception_refs):
+            raise ValueError("reconciliation plans must reference known dispatch exceptions")
+        if any(
+            exception_rows[ref].blocking_posture == "blocking" for ref in plan_row.exception_refs
+        ):
+            if plan_row.output_presence_posture != "projected_not_observed":
+                raise ValueError("blocking exceptions must remain projected and not observed")
+
+    for contract_row in dispatch_reconciliation_contract.contract_rows:
+        if any(ref not in plan_rows for ref in contract_row.reconciliation_plan_refs):
+            raise ValueError("reconciliation contracts must reference known reconciliation plans")
+
+    for handoff_row in post_dispatch_review_handoff.handoff_rows:
+        if any(ref not in request_rows for ref in handoff_row.dispatch_request_refs):
+            raise ValueError("post-dispatch handoffs must reference released V75-A requests")
+        if any(ref not in assignment_rows for ref in handoff_row.assignment_plan_refs):
+            raise ValueError("post-dispatch handoffs must reference released V75-B assignments")
+        if any(ref not in plan_rows for ref in handoff_row.reconciliation_plan_refs):
+            raise ValueError("post-dispatch handoffs must reference reconciliation plans")
+        if any(ref not in contract_rows for ref in handoff_row.reconciliation_contract_refs):
+            raise ValueError("post-dispatch handoffs must reference reconciliation contracts")
+        if any(ref not in exception_rows for ref in handoff_row.carried_exception_refs):
+            raise ValueError("post-dispatch handoffs must carry known dispatch exceptions")
+        has_blocking_exception = any(
+            exception_rows[ref].blocking_posture == "blocking"
+            for ref in handoff_row.carried_exception_refs
+        )
+        if has_blocking_exception and handoff_row.handoff_posture == "ready_for_later_review":
+            if handoff_row.handoff_target != "future_reconciliation_or_arbiter_review":
+                raise ValueError("blocking exceptions prevent ready handoff outside arbiter review")
+            if "settlement" not in handoff_row.limitation_note.lower():
+                raise ValueError("blocking ready arbiter handoff must carry blocker for settlement")
+
+
+def derive_v75c_dispatch_review_closeout_bundle(
+    *, repo_root: Path | None = None
+) -> tuple[
+    RepoWorkerOutputReconciliationPlan,
+    RepoDispatchReconciliationContract,
+    RepoPostDispatchReviewHandoff,
+    RepoDispatchReviewFamilyCloseoutAlignment,
+]:
+    source_index, request, guardrail = derive_v75a_dispatch_review_bundle(repo_root=repo_root)
+    role_profile, assignment_plan, io_contract, tool_matrix, exception_register = (
+        derive_v75b_worker_orchestration_bundle(repo_root=repo_root)
+    )
+    reconciliation_plan = derive_v75c_repo_worker_output_reconciliation_plan(
+        repo_root=repo_root,
+        dispatch_review_request=request,
+        multi_worker_assignment_plan=assignment_plan,
+        worker_io_contract=io_contract,
+        dispatch_exception_register=exception_register,
+    )
+    contract = derive_v75c_repo_dispatch_reconciliation_contract(
+        repo_root=repo_root,
+        worker_output_reconciliation_plan=reconciliation_plan,
+    )
+    handoff = derive_v75c_repo_post_dispatch_review_handoff(
+        repo_root=repo_root,
+        worker_output_reconciliation_plan=reconciliation_plan,
+        dispatch_reconciliation_contract=contract,
+    )
+    family_closeout = derive_v75c_repo_dispatch_review_family_closeout_alignment(
+        repo_root=repo_root
+    )
+    validate_v75c_dispatch_review_closeout_bundle(
+        dispatch_source_index=source_index,
+        dispatch_review_request=request,
+        dispatch_non_execution_guardrail=guardrail,
+        worker_role_capacity_profile=role_profile,
+        multi_worker_assignment_plan=assignment_plan,
+        worker_io_contract=io_contract,
+        worker_tool_applicability_matrix=tool_matrix,
+        dispatch_exception_register=exception_register,
+        worker_output_reconciliation_plan=reconciliation_plan,
+        dispatch_reconciliation_contract=contract,
+        post_dispatch_review_handoff=handoff,
+        dispatch_review_family_closeout_alignment=family_closeout,
+    )
+    return reconciliation_plan, contract, handoff, family_closeout

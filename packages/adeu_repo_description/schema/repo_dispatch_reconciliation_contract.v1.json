@@ -1,0 +1,153 @@
+{
+  "$defs": {
+    "RepoDispatchReconciliationContractRow": {
+      "additionalProperties": false,
+      "properties": {
+        "allowed_settlement_postures": {
+          "items": {
+            "enum": [
+              "preserve_for_later_review",
+              "requires_adversarial_review",
+              "requires_human_ratification",
+              "requires_runtime_permission_review",
+              "requires_product_review",
+              "requires_external_branch_review",
+              "deferred_no_selection"
+            ],
+            "type": "string"
+          },
+          "minItems": 1,
+          "title": "Allowed Settlement Postures",
+          "type": "array"
+        },
+        "contract_ref": {
+          "title": "Contract Ref",
+          "type": "string"
+        },
+        "forbidden_inferences": {
+          "items": {
+            "enum": [
+              "worker_output_as_truth",
+              "model_output_as_benchmark_truth",
+              "tool_pass_as_scope_expansion",
+              "assignment_plan_as_execution",
+              "dispatch_review_as_runtime_permission"
+            ],
+            "type": "string"
+          },
+          "minItems": 1,
+          "title": "Forbidden Inferences",
+          "type": "array"
+        },
+        "handoff_refs": {
+          "items": {
+            "type": "string"
+          },
+          "title": "Handoff Refs",
+          "type": "array"
+        },
+        "limitation_note": {
+          "title": "Limitation Note",
+          "type": "string"
+        },
+        "reconciliation_plan_refs": {
+          "items": {
+            "type": "string"
+          },
+          "minItems": 1,
+          "title": "Reconciliation Plan Refs",
+          "type": "array"
+        },
+        "required_authority_refs": {
+          "items": {
+            "type": "string"
+          },
+          "minItems": 1,
+          "title": "Required Authority Refs",
+          "type": "array"
+        },
+        "required_review_roles": {
+          "items": {
+            "enum": [
+              "source_index_worker",
+              "evidence_review_worker",
+              "adversarial_review_worker",
+              "schema_validation_worker",
+              "tool_run_worker",
+              "reconciliation_worker",
+              "operator_projection_worker",
+              "external_branch_review_worker"
+            ],
+            "type": "string"
+          },
+          "minItems": 1,
+          "title": "Required Review Roles",
+          "type": "array"
+        }
+      },
+      "required": [
+        "contract_ref",
+        "reconciliation_plan_refs",
+        "required_review_roles",
+        "required_authority_refs",
+        "allowed_settlement_postures",
+        "forbidden_inferences",
+        "limitation_note"
+      ],
+      "title": "RepoDispatchReconciliationContractRow",
+      "type": "object"
+    }
+  },
+  "additionalProperties": false,
+  "properties": {
+    "contract_rows": {
+      "items": {
+        "$ref": "#/$defs/RepoDispatchReconciliationContractRow"
+      },
+      "minItems": 1,
+      "title": "Contract Rows",
+      "type": "array"
+    },
+    "contract_summary": {
+      "title": "Contract Summary",
+      "type": "string"
+    },
+    "dispatch_reconciliation_contract_id": {
+      "title": "Dispatch Reconciliation Contract Id",
+      "type": "string"
+    },
+    "review_id": {
+      "title": "Review Id",
+      "type": "string"
+    },
+    "schema": {
+      "const": "repo_dispatch_reconciliation_contract@1",
+      "default": "repo_dispatch_reconciliation_contract@1",
+      "title": "Schema",
+      "type": "string"
+    },
+    "snapshot_id": {
+      "title": "Snapshot Id",
+      "type": "string"
+    },
+    "source_set_id": {
+      "title": "Source Set Id",
+      "type": "string"
+    },
+    "worker_output_reconciliation_plan_id": {
+      "title": "Worker Output Reconciliation Plan Id",
+      "type": "string"
+    }
+  },
+  "required": [
+    "dispatch_reconciliation_contract_id",
+    "worker_output_reconciliation_plan_id",
+    "review_id",
+    "snapshot_id",
+    "source_set_id",
+    "contract_rows",
+    "contract_summary"
+  ],
+  "title": "RepoDispatchReconciliationContract",
+  "type": "object"
+}

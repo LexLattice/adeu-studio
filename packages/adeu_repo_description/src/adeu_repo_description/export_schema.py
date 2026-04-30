@@ -73,10 +73,14 @@ from .contained_integration_review import (
 from .dispatch_review import (
     RepoDispatchExceptionRegister,
     RepoDispatchNonExecutionGuardrail,
+    RepoDispatchReconciliationContract,
+    RepoDispatchReviewFamilyCloseoutAlignment,
     RepoDispatchReviewRequest,
     RepoDispatchSourceIndex,
     RepoMultiWorkerAssignmentPlan,
+    RepoPostDispatchReviewHandoff,
     RepoWorkerIOContract,
+    RepoWorkerOutputReconciliationPlan,
     RepoWorkerRoleCapacityProfile,
     RepoWorkerToolApplicabilityMatrix,
 )
@@ -368,6 +372,18 @@ def main() -> None:
     dispatch_exception_register_schema = RepoDispatchExceptionRegister.model_json_schema(
         by_alias=True
     )
+    worker_output_reconciliation_plan_schema = RepoWorkerOutputReconciliationPlan.model_json_schema(
+        by_alias=True
+    )
+    dispatch_reconciliation_contract_schema = RepoDispatchReconciliationContract.model_json_schema(
+        by_alias=True
+    )
+    post_dispatch_review_handoff_schema = RepoPostDispatchReviewHandoff.model_json_schema(
+        by_alias=True
+    )
+    dispatch_review_family_closeout_alignment_schema = (
+        RepoDispatchReviewFamilyCloseoutAlignment.model_json_schema(by_alias=True)
+    )
 
     _assert_no_absolute_path_material(dependency_register_v1_schema, repo_root_path=root)
     _assert_no_absolute_path_material(dependency_register_schema, repo_root_path=root)
@@ -516,6 +532,13 @@ def main() -> None:
     _assert_no_absolute_path_material(worker_io_contract_schema, repo_root_path=root)
     _assert_no_absolute_path_material(worker_tool_applicability_matrix_schema, repo_root_path=root)
     _assert_no_absolute_path_material(dispatch_exception_register_schema, repo_root_path=root)
+    _assert_no_absolute_path_material(worker_output_reconciliation_plan_schema, repo_root_path=root)
+    _assert_no_absolute_path_material(dispatch_reconciliation_contract_schema, repo_root_path=root)
+    _assert_no_absolute_path_material(post_dispatch_review_handoff_schema, repo_root_path=root)
+    _assert_no_absolute_path_material(
+        dispatch_review_family_closeout_alignment_schema,
+        repo_root_path=root,
+    )
 
     _write_schema(
         root
@@ -1472,6 +1495,54 @@ def main() -> None:
     _write_schema(
         root / "spec" / "repo_dispatch_exception_register.schema.json",
         dispatch_exception_register_schema,
+    )
+    _write_schema(
+        root
+        / "packages"
+        / "adeu_repo_description"
+        / "schema"
+        / "repo_worker_output_reconciliation_plan.v1.json",
+        worker_output_reconciliation_plan_schema,
+    )
+    _write_schema(
+        root / "spec" / "repo_worker_output_reconciliation_plan.schema.json",
+        worker_output_reconciliation_plan_schema,
+    )
+    _write_schema(
+        root
+        / "packages"
+        / "adeu_repo_description"
+        / "schema"
+        / "repo_dispatch_reconciliation_contract.v1.json",
+        dispatch_reconciliation_contract_schema,
+    )
+    _write_schema(
+        root / "spec" / "repo_dispatch_reconciliation_contract.schema.json",
+        dispatch_reconciliation_contract_schema,
+    )
+    _write_schema(
+        root
+        / "packages"
+        / "adeu_repo_description"
+        / "schema"
+        / "repo_post_dispatch_review_handoff.v1.json",
+        post_dispatch_review_handoff_schema,
+    )
+    _write_schema(
+        root / "spec" / "repo_post_dispatch_review_handoff.schema.json",
+        post_dispatch_review_handoff_schema,
+    )
+    _write_schema(
+        root
+        / "packages"
+        / "adeu_repo_description"
+        / "schema"
+        / "repo_dispatch_review_family_closeout_alignment.v1.json",
+        dispatch_review_family_closeout_alignment_schema,
+    )
+    _write_schema(
+        root / "spec" / "repo_dispatch_review_family_closeout_alignment.schema.json",
+        dispatch_review_family_closeout_alignment_schema,
     )
 
 

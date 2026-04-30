@@ -1,0 +1,107 @@
+{
+  "additionalProperties": false,
+  "properties": {
+    "closed_by_arc": {
+      "const": "vNext+211",
+      "title": "Closed By Arc",
+      "type": "string"
+    },
+    "closed_slice_ladder": {
+      "items": {
+        "enum": [
+          "V75-A",
+          "V75-B",
+          "V75-C"
+        ],
+        "type": "string"
+      },
+      "minItems": 3,
+      "title": "Closed Slice Ladder",
+      "type": "array"
+    },
+    "consumed_source_families": {
+      "items": {
+        "type": "string"
+      },
+      "minItems": 1,
+      "title": "Consumed Source Families",
+      "type": "array"
+    },
+    "dispatch_review_authority_boundary": {
+      "title": "Dispatch Review Authority Boundary",
+      "type": "string"
+    },
+    "dispatch_review_family_closeout_alignment_id": {
+      "title": "Dispatch Review Family Closeout Alignment Id",
+      "type": "string"
+    },
+    "family": {
+      "const": "V75",
+      "title": "Family",
+      "type": "string"
+    },
+    "future_family_authority": {
+      "items": {
+        "type": "string"
+      },
+      "minItems": 1,
+      "title": "Future Family Authority",
+      "type": "array"
+    },
+    "limitation_note": {
+      "title": "Limitation Note",
+      "type": "string"
+    },
+    "review_id": {
+      "title": "Review Id",
+      "type": "string"
+    },
+    "schema": {
+      "const": "repo_dispatch_review_family_closeout_alignment@1",
+      "default": "repo_dispatch_review_family_closeout_alignment@1",
+      "title": "Schema",
+      "type": "string"
+    },
+    "shipped_record_shapes": {
+      "items": {
+        "type": "string"
+      },
+      "minItems": 1,
+      "title": "Shipped Record Shapes",
+      "type": "array"
+    },
+    "snapshot_id": {
+      "title": "Snapshot Id",
+      "type": "string"
+    },
+    "source_set_id": {
+      "title": "Source Set Id",
+      "type": "string"
+    },
+    "unselected_future_surfaces": {
+      "items": {
+        "type": "string"
+      },
+      "minItems": 1,
+      "title": "Unselected Future Surfaces",
+      "type": "array"
+    }
+  },
+  "required": [
+    "dispatch_review_family_closeout_alignment_id",
+    "family",
+    "closed_by_arc",
+    "review_id",
+    "snapshot_id",
+    "source_set_id",
+    "closed_slice_ladder",
+    "shipped_record_shapes",
+    "consumed_source_families",
+    "future_family_authority",
+    "unselected_future_surfaces",
+    "dispatch_review_authority_boundary",
+    "limitation_note"
+  ],
+  "title": "RepoDispatchReviewFamilyCloseoutAlignment",
+  "type": "object"
+}

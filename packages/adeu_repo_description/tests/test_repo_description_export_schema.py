@@ -37,6 +37,8 @@ from adeu_repo_description import (
     REPO_DECISION_VISIBILITY_CONTRACT_SCHEMA,
     REPO_DEPENDENCY_GRAPH_SCHEMA,
     REPO_DESCRIPTIVE_NORMATIVE_BINDING_FRAME_SCHEMA,
+    REPO_DISPATCH_RECONCILIATION_CONTRACT_SCHEMA,
+    REPO_DISPATCH_REVIEW_FAMILY_CLOSEOUT_ALIGNMENT_SCHEMA,
     REPO_ENTITY_CATALOG_SCHEMA,
     REPO_EVIDENCE_SURFACE_INDEX_SCHEMA,
     REPO_FAMILY_CLOSURE_REGISTER_SCHEMA,
@@ -54,6 +56,7 @@ from adeu_repo_description import (
     REPO_OUTCOME_EVIDENCE_SOURCE_INDEX_SCHEMA,
     REPO_OUTCOME_REGRESSION_REGISTER_SCHEMA,
     REPO_OUTCOME_REVIEW_BOUNDARY_GUARDRAIL_SCHEMA,
+    REPO_POST_DISPATCH_REVIEW_HANDOFF_SCHEMA,
     REPO_POST_INTEGRATION_OUTCOME_REVIEW_HANDOFF_SCHEMA,
     REPO_POST_PROJECTION_HANDOFF_SCHEMA,
     REPO_POST_RATIFICATION_HANDOFF_SCHEMA,
@@ -73,6 +76,7 @@ from adeu_repo_description import (
     REPO_TEST_INTENT_MATRIX_SCHEMA,
     REPO_TOOL_FITNESS_DRIFT_REGISTER_SCHEMA,
     REPO_TYPED_ADJUDICATION_CASE_VIEW_SCHEMA,
+    REPO_WORKER_OUTPUT_RECONCILIATION_PLAN_SCHEMA,
 )
 from adeu_repo_description.export_schema import main as export_schema_main
 
@@ -601,6 +605,38 @@ def _schema_pairs() -> dict[str, tuple[Path, Path]]:
             / "schema"
             / "repo_operator_projection_family_closeout_alignment.v1.json",
             root / "spec" / "repo_operator_projection_family_closeout_alignment.schema.json",
+        ),
+        REPO_WORKER_OUTPUT_RECONCILIATION_PLAN_SCHEMA: (
+            root
+            / "packages"
+            / "adeu_repo_description"
+            / "schema"
+            / "repo_worker_output_reconciliation_plan.v1.json",
+            root / "spec" / "repo_worker_output_reconciliation_plan.schema.json",
+        ),
+        REPO_DISPATCH_RECONCILIATION_CONTRACT_SCHEMA: (
+            root
+            / "packages"
+            / "adeu_repo_description"
+            / "schema"
+            / "repo_dispatch_reconciliation_contract.v1.json",
+            root / "spec" / "repo_dispatch_reconciliation_contract.schema.json",
+        ),
+        REPO_POST_DISPATCH_REVIEW_HANDOFF_SCHEMA: (
+            root
+            / "packages"
+            / "adeu_repo_description"
+            / "schema"
+            / "repo_post_dispatch_review_handoff.v1.json",
+            root / "spec" / "repo_post_dispatch_review_handoff.schema.json",
+        ),
+        REPO_DISPATCH_REVIEW_FAMILY_CLOSEOUT_ALIGNMENT_SCHEMA: (
+            root
+            / "packages"
+            / "adeu_repo_description"
+            / "schema"
+            / "repo_dispatch_review_family_closeout_alignment.v1.json",
+            root / "spec" / "repo_dispatch_review_family_closeout_alignment.schema.json",
         ),
     }
 

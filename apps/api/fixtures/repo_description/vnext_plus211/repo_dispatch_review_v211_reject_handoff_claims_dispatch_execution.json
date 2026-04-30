@@ -1,0 +1,65 @@
+{
+  "dispatch_reconciliation_contract_id": "repo_dispatch_reconciliation_contract_b3c09343ae3cb124c092b7f4",
+  "handoff_rows": [
+    {
+      "assignment_plan_refs": [
+        "assignment-plan:v75b:product-wedge:blocked"
+      ],
+      "carried_exception_refs": [
+        "dispatch-exception:v75b:product-wedge:authority"
+      ],
+      "dispatch_request_refs": [
+        "dispatch-request:v75a:product-wedge:blocked"
+      ],
+      "handoff_posture": "blocked_by_required_later_authority",
+      "handoff_ref": "handoff:v75c:product-wedge:arbiter-settlement",
+      "handoff_subject_horizon": "product_review_pressure",
+      "handoff_target": "future_reconciliation_or_arbiter_review",
+      "limitation_note": "Product pressure remains blocked and carried for later review with no dispatch execution.",
+      "non_execution_guardrail": "Dispatch executed and runtime permission granted.",
+      "reconciliation_contract_refs": [
+        "contract:v75c:dispatch-reconciliation:review-only"
+      ],
+      "reconciliation_plan_refs": [
+        "reconciliation-plan:v75c:product-wedge:blocked"
+      ],
+      "required_later_authority_refs": [
+        "authority:v75a:product-wedge:product-review"
+      ]
+    },
+    {
+      "assignment_plan_refs": [
+        "assignment-plan:v75b:self-evidencing:review-only"
+      ],
+      "carried_exception_refs": [
+        "dispatch-exception:v75b:self-evidencing:upstream"
+      ],
+      "dispatch_request_refs": [
+        "dispatch-request:v75a:self-evidencing:review"
+      ],
+      "handoff_posture": "ready_for_later_review",
+      "handoff_ref": "handoff:v75c:self-evidencing:future-outcome-review",
+      "handoff_subject_horizon": "dispatch_review_process_outcome",
+      "handoff_target": "future_outcome_review",
+      "limitation_note": "Future outcome review is for the dispatch review process with no dispatch.",
+      "non_execution_guardrail": "Handoff is review-only with no dispatch, no command, no runtime, no product authorization, and no release.",
+      "reconciliation_contract_refs": [
+        "contract:v75c:dispatch-reconciliation:review-only"
+      ],
+      "reconciliation_plan_refs": [
+        "reconciliation-plan:v75c:self-evidencing:projected"
+      ],
+      "required_later_authority_refs": [
+        "authority:v75a:self-evidencing:dispatch-execution",
+        "authority:v75a:self-evidencing:human-review"
+      ]
+    }
+  ],
+  "handoff_summary": "Post-dispatch-review handoff means review after dispatch review: no dispatch, no runtime permission, and no release.",
+  "post_dispatch_review_handoff_id": "repo_post_dispatch_review_handoff_b21638eca325e90f1b87945d",
+  "review_id": "review:v75c:reconciliation-contract-handoff-closeout",
+  "schema": "repo_post_dispatch_review_handoff@1",
+  "snapshot_id": "vNext+210-closed-on-main",
+  "source_set_id": "source-set:v75c:released-v75a-v75b-dispatch-review",
+  "worker_output_reconciliation_plan_id": "repo_worker_output_reconciliation_plan_050b433ac5f1151fc7ec50c8"
+}
