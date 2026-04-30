@@ -130,6 +130,36 @@ _FORBIDDEN_ACTION_KINDS = {
     "enter_external_contest_now",
     "self_approve_now",
 }
+_NEXT_REVIEW_SURFACES_BY_HORIZON: dict[
+    RequestedOrchestrationHorizon,
+    tuple[AllowedDispatchNextReviewSurface, ...],
+] = {
+    "multi_worker_orchestration_review": (
+        "v75b_worker_orchestration_review",
+        "v75c_reconciliation_review",
+    ),
+    "worker_output_reconciliation_review": ("v75c_reconciliation_review",),
+    "tool_applicability_review": (
+        "v75b_worker_orchestration_review",
+        "v75c_reconciliation_review",
+    ),
+    "product_review_later": (
+        "future_product_review",
+        "future_family_review",
+    ),
+    "runtime_permission_review_later": (
+        "future_runtime_permission_review",
+        "future_family_review",
+    ),
+    "external_branch_review_later": (
+        "future_external_branch_review",
+        "future_family_review",
+    ),
+    "future_family_review_only": (
+        "future_family_review",
+        "deferred_no_selection",
+    ),
+}
 
 
 def _reject_unnegated_authority_claim(value: str, *, field_name: str) -> str:
@@ -396,7 +426,6 @@ class RepoDispatchReviewRequestRow(_CartographyBase):
             if self.requested_orchestration_horizon in {
                 "product_review_later",
                 "runtime_permission_review_later",
-                "external_branch_review_later",
             }:
                 raise ValueError("product/runtime/external pressure is not eligible in V75-A")
         if self.requested_orchestration_horizon == "product_review_later" and not any(
@@ -409,7 +438,20 @@ class RepoDispatchReviewRequestRow(_CartographyBase):
         ):
             raise ValueError("runtime pressure requires runtime authority blocker")
         if self.requested_orchestration_horizon == "external_branch_review_later":
-            raise ValueError("external branch review requires later V43 branch posture source")
+            if self.dispatch_review_posture not in {
+                "blocked_by_required_later_authority",
+                "future_family_only",
+            }:
+                raise ValueError(
+                    "external branch review requires blocked or future-family posture in V75-A"
+                )
+            if not any(
+                row.authority_kind == "external_branch_activation"
+                for row in self.required_later_authority_rows
+            ):
+                raise ValueError(
+                    "external branch review requires external branch authority blocker"
+                )
         return self
 
 
@@ -806,9 +848,9 @@ def derive_v75a_repo_dispatch_non_execution_guardrail(
                 "dispatch_request_refs": [request_row.dispatch_request_ref],
                 "forbidden_action_kinds": sorted(_FORBIDDEN_ACTION_KINDS),
                 "allowed_next_review_surfaces": sorted(
-                    ["future_product_review", "future_family_review"]
-                    if request_row.requested_orchestration_horizon == "product_review_later"
-                    else ["v75b_worker_orchestration_review", "v75c_reconciliation_review"]
+                    _NEXT_REVIEW_SURFACES_BY_HORIZON[
+                        request_row.requested_orchestration_horizon
+                    ]
                 ),
                 "non_execution_guardrail": (
                     "This V75-A row is review only: no worker assignment, no command, "
@@ -860,10 +902,30 @@ def validate_v75a_dispatch_review_bundle(
     ):
         raise ValueError("dispatch request must reference the source index")
     if (
+        dispatch_review_request.review_id,
+        dispatch_review_request.snapshot_id,
+        dispatch_review_request.source_set_id,
+    ) != (
+        dispatch_source_index.review_id,
+        dispatch_source_index.snapshot_id,
+        dispatch_source_index.source_set_id,
+    ):
+        raise ValueError("dispatch request provenance must match the source index")
+    if (
         dispatch_non_execution_guardrail.dispatch_review_request_id
         != dispatch_review_request.dispatch_review_request_id
     ):
         raise ValueError("dispatch guardrail must reference the request surface")
+    if (
+        dispatch_non_execution_guardrail.review_id,
+        dispatch_non_execution_guardrail.snapshot_id,
+        dispatch_non_execution_guardrail.source_set_id,
+    ) != (
+        dispatch_review_request.review_id,
+        dispatch_review_request.snapshot_id,
+        dispatch_review_request.source_set_id,
+    ):
+        raise ValueError("dispatch guardrail provenance must match the request surface")
 
     source_roles = {
         row.source_ref: row.dispatch_source_role for row in dispatch_source_index.source_rows
@@ -908,8 +970,16 @@ def validate_v75a_dispatch_review_bundle(
         if any(guardrail_ref not in guardrail_rows for guardrail_ref in request_row.guardrail_refs):
             raise ValueError("dispatch request guardrail refs must be known")
         for guardrail_ref in request_row.guardrail_refs:
-            if guardrail_rows[guardrail_ref].candidate_ref != request_row.candidate_ref:
+            guardrail_row = guardrail_rows[guardrail_ref]
+            if guardrail_row.candidate_ref != request_row.candidate_ref:
                 raise ValueError("dispatch request guardrails must match candidate")
+            expected_surfaces = set(
+                _NEXT_REVIEW_SURFACES_BY_HORIZON[request_row.requested_orchestration_horizon]
+            )
+            if set(guardrail_row.allowed_next_review_surfaces) != expected_surfaces:
+                raise ValueError(
+                    "dispatch guardrail next surfaces must match orchestration horizon"
+                )
 
     for guardrail_row in dispatch_non_execution_guardrail.guardrail_rows:
         if any(ref not in request_rows for ref in guardrail_row.dispatch_request_refs):
