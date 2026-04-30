@@ -300,6 +300,28 @@ def test_v210_bundle_rejects_mismatched_upstream_exception() -> None:
         _validate_reference_bundle_with(assignment_plan=assignment_plan)
 
 
+def test_v210_bundle_rejects_io_role_mismatch() -> None:
+    assignment_payload = _assignment_plan().model_dump(mode="json")
+    for row in assignment_payload["assignment_plan_rows"]:
+        if row["assignment_plan_ref"] == "assignment-plan:v75b:product-wedge:blocked":
+            row["io_contract_refs"] = ["io-contract:v75b:self-evidencing:evidence-review"]
+    assignment_plan = _assignment_from_payload(assignment_payload)
+
+    with pytest.raises(ValueError, match="assignment IO refs must cover assignment worker roles"):
+        _validate_reference_bundle_with(assignment_plan=assignment_plan)
+
+
+def test_v210_bundle_rejects_tool_role_mismatch() -> None:
+    assignment_payload = _assignment_plan().model_dump(mode="json")
+    for row in assignment_payload["assignment_plan_rows"]:
+        if row["assignment_plan_ref"] == "assignment-plan:v75b:product-wedge:blocked":
+            row["tool_applicability_refs"] = ["tool-matrix:v75b:self-evidencing:pytest-schema"]
+    assignment_plan = _assignment_from_payload(assignment_payload)
+
+    with pytest.raises(ValueError, match="assignment tool refs must cover assignment worker roles"):
+        _validate_reference_bundle_with(assignment_plan=assignment_plan)
+
+
 def test_v210_bundle_rejects_external_branch_plan_without_v43_or_blocker() -> None:
     assignment_payload = _assignment_plan().model_dump(mode="json")
     for row in assignment_payload["assignment_plan_rows"]:

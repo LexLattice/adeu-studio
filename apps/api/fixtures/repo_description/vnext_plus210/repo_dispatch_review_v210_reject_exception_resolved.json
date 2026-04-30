@@ -1,23 +1,29 @@
 {
-  "dispatch_exception_register_id": "repo_dispatch_exception_register_91770ba2a64dd77613a95f8b",
+  "dispatch_exception_register_id": "repo_dispatch_exception_register_0a2cbac9445d50943ea6ee11",
   "dispatch_review_request_id": "repo_dispatch_review_request_cff168be545e3c00b04412d4",
   "exception_register_summary": "Dispatch exceptions remain visible and not resolved; no dispatch.",
   "exception_rows": [
     {
-      "assignment_plan_refs": [],
+      "assignment_plan_refs": [
+        "assignment-plan:v75b:product-wedge:blocked"
+      ],
       "blocking_posture": "blocking",
       "dispatch_exception_ref": "dispatch-exception:v75b:product-wedge:authority",
       "dispatch_request_refs": [
         "dispatch-request:v75a:product-wedge:blocked"
       ],
       "exception_kind": "product_authority_gap",
-      "io_contract_refs": [],
+      "io_contract_refs": [
+        "io-contract:v75b:product-wedge:external-branch-review"
+      ],
       "limitation_note": "Upstream V74 exception is marked resolved by V75-B; no dispatch.",
       "required_next_surface": "future_product_review",
       "source_refs": [
         "apps/api/fixtures/repo_description/vnext_plus209/repo_dispatch_review_request_v209_reference.json"
       ],
-      "tool_matrix_refs": [],
+      "tool_matrix_refs": [
+        "tool-matrix:v75b:product-wedge:external-branch-blocked"
+      ],
       "worker_role_refs": [
         "worker-role:v75b:product-wedge:external-branch-review"
       ]

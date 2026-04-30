@@ -1135,7 +1135,7 @@ class RepoWorkerRoleCapacityRow(_CartographyBase):
             )
         missing = _FORBIDDEN_ACTION_KINDS.difference(self.forbidden_action_kinds)
         if missing:
-            raise ValueError("worker role profile omits forbidden action kinds")
+            raise ValueError(f"worker role profile omits forbidden action kinds: {sorted(missing)}")
         _reject_unnegated_authority_claim(self.capability_horizon, field_name="capability_horizon")
         _reject_unnegated_authority_claim(self.limitation_note, field_name="limitation_note")
         _require_terms(
@@ -1143,12 +1143,6 @@ class RepoWorkerRoleCapacityRow(_CartographyBase):
             field_name="limitation_note",
             terms=("not permission", "no command"),
         )
-        if self.allowed_tool_ids and self.tool_use_posture not in {
-            "applicability_record_only",
-            "tool_use_requires_later_runtime_permission",
-            "tool_use_not_authorized_by_v75",
-        }:
-            raise ValueError("allowed tool ids may not grant tool-use permission")
         return self
 
 
@@ -1376,7 +1370,10 @@ class RepoDispatchExceptionRow(_CartographyBase):
             _repo_ref(source_ref, field_name="source_refs")
         _reject_unnegated_authority_claim(self.limitation_note, field_name="limitation_note")
         lowered_note = self.limitation_note.lower()
-        if "marked resolved" in lowered_note or "resolved by v75-b" in lowered_note:
+        if any(
+            term in lowered_note
+            for term in ("marked resolved", "resolved by v75-b", "resolved by v75b")
+        ):
             raise ValueError("V75-B exception rows may not mark exceptions resolved")
         return self
 
@@ -1623,6 +1620,27 @@ def derive_v75b_repo_worker_io_contract(
         "worker_io_contract_id": "",
         "io_contract_rows": [
             {
+                "io_contract_ref": "io-contract:v75b:product-wedge:external-branch-review",
+                "worker_role_refs": ["worker-role:v75b:product-wedge:external-branch-review"],
+                "input_source_refs": [
+                    "apps/api/fixtures/repo_description/vnext_plus209/"
+                    "repo_dispatch_non_execution_guardrail_v209_reference.json",
+                    "apps/api/fixtures/repo_description/vnext_plus209/"
+                    "repo_dispatch_review_request_v209_reference.json",
+                ],
+                "input_claim_horizon": (
+                    "Blocked future-family external branch review of V75-A product pressure."
+                ),
+                "expected_output_kind": "blocked_external_branch_review_note",
+                "output_schema_ref": "future:repo_worker_output_reconciliation_plan@1",
+                "output_authority_posture": "output_for_review_only",
+                "non_truth_guardrail": "Expected worker output is for review and not truth.",
+                "limitation_note": (
+                    "IO contract describes blocked future-family output only; no command, "
+                    "no dispatch, and output is not truth."
+                ),
+            },
+            {
                 "io_contract_ref": "io-contract:v75b:self-evidencing:evidence-review",
                 "worker_role_refs": ["worker-role:v75b:self-evidencing:evidence-review"],
                 "input_source_refs": [
@@ -1642,12 +1660,16 @@ def derive_v75b_repo_worker_io_contract(
                     "IO contract describes expected output only; no command, no dispatch, "
                     "and output is not truth."
                 ),
-            }
+            },
         ],
         "io_contract_summary": (
             "Worker IO contracts are review-only and not truth; no dispatch is authorized."
         ),
     }
+    payload["io_contract_rows"] = sorted(
+        payload["io_contract_rows"],
+        key=lambda row: row["io_contract_ref"],
+    )
     payload["worker_io_contract_id"] = _surface_id(
         "repo_worker_io_contract",
         REPO_WORKER_IO_CONTRACT_SCHEMA,
@@ -1672,6 +1694,26 @@ def derive_v75b_repo_worker_tool_applicability_matrix(
         "worker_tool_applicability_matrix_id": "",
         "tool_matrix_rows": [
             {
+                "tool_matrix_ref": "tool-matrix:v75b:product-wedge:external-branch-blocked",
+                "worker_role_refs": ["worker-role:v75b:product-wedge:external-branch-review"],
+                "tool_id": "not_selected_here",
+                "target_claim_refs": [
+                    "dispatch-request:v75a:product-wedge:blocked",
+                    "guardrail:v75a:product-wedge:non-execution",
+                ],
+                "target_namespace_kind": "dispatch_request",
+                "claim_horizon": (
+                    "Target-bound and horizon-bound blocked posture for future external branch "
+                    "review only."
+                ),
+                "applicability_posture": "not_applicable_for_target_horizon",
+                "observed_or_required_result_refs": ["docs/LOCKED_CONTINUATION_vNEXT_PLUS210.md"],
+                "limitation_note": (
+                    "Tool applicability is target-bound and horizon-bound with no command "
+                    "permission and no dispatch."
+                ),
+            },
+            {
                 "tool_matrix_ref": "tool-matrix:v75b:self-evidencing:pytest-schema",
                 "worker_role_refs": ["worker-role:v75b:self-evidencing:evidence-review"],
                 "tool_id": "pytest",
@@ -1689,13 +1731,17 @@ def derive_v75b_repo_worker_tool_applicability_matrix(
                     "Tool applicability is target-bound and horizon-bound with no command "
                     "permission and no dispatch."
                 ),
-            }
+            },
         ],
         "tool_applicability_summary": (
             "Worker tool applicability rows are target-bound and horizon-bound; "
             "no command and no dispatch are authorized."
         ),
     }
+    payload["tool_matrix_rows"] = sorted(
+        payload["tool_matrix_rows"],
+        key=lambda row: row["tool_matrix_ref"],
+    )
     payload["worker_tool_applicability_matrix_id"] = _surface_id(
         "repo_worker_tool_applicability_matrix",
         REPO_WORKER_TOOL_APPLICABILITY_MATRIX_SCHEMA,
@@ -1740,10 +1786,10 @@ def derive_v75b_repo_dispatch_exception_register(
             {
                 "dispatch_exception_ref": "dispatch-exception:v75b:product-wedge:authority",
                 "dispatch_request_refs": ["dispatch-request:v75a:product-wedge:blocked"],
-                "assignment_plan_refs": [],
+                "assignment_plan_refs": ["assignment-plan:v75b:product-wedge:blocked"],
                 "worker_role_refs": ["worker-role:v75b:product-wedge:external-branch-review"],
-                "io_contract_refs": [],
-                "tool_matrix_refs": [],
+                "io_contract_refs": ["io-contract:v75b:product-wedge:external-branch-review"],
+                "tool_matrix_refs": ["tool-matrix:v75b:product-wedge:external-branch-blocked"],
                 "exception_kind": "product_authority_gap",
                 "source_refs": [
                     "apps/api/fixtures/repo_description/vnext_plus209/"
@@ -1832,8 +1878,10 @@ def derive_v75b_repo_multi_worker_assignment_plan(
                 "assignment_plan_ref": "assignment-plan:v75b:product-wedge:blocked",
                 "dispatch_request_refs": ["dispatch-request:v75a:product-wedge:blocked"],
                 "worker_role_refs": ["worker-role:v75b:product-wedge:external-branch-review"],
-                "io_contract_refs": ["io-contract:v75b:self-evidencing:evidence-review"],
-                "tool_applicability_refs": ["tool-matrix:v75b:self-evidencing:pytest-schema"],
+                "io_contract_refs": ["io-contract:v75b:product-wedge:external-branch-review"],
+                "tool_applicability_refs": [
+                    "tool-matrix:v75b:product-wedge:external-branch-blocked"
+                ],
                 "exception_refs": ["dispatch-exception:v75b:product-wedge:authority"],
                 "required_later_authority_refs": ["authority:v75a:product-wedge:product-review"],
                 "assignment_plan_posture": "blocked_by_later_authority",
@@ -1969,28 +2017,40 @@ def validate_v75b_worker_orchestration_bundle(
         if any(ref not in guardrail_rows for ref in assignment_row.non_execution_guardrail_refs):
             raise ValueError("assignment plans must reference V75-A non-execution guardrails")
 
+        assignment_role_refs = set(assignment_row.worker_role_refs)
+        assignment_io_role_refs: set[str] = set()
+        for io_ref in assignment_row.io_contract_refs:
+            assignment_io_role_refs.update(io_rows[io_ref].worker_role_refs)
+        if not assignment_role_refs.issubset(assignment_io_role_refs):
+            raise ValueError("assignment IO refs must cover assignment worker roles")
+        if not assignment_io_role_refs.issubset(assignment_role_refs):
+            raise ValueError("assignment IO refs must be scoped to assignment worker roles")
+
+        assignment_tool_role_refs: set[str] = set()
+        for tool_ref in assignment_row.tool_applicability_refs:
+            assignment_tool_role_refs.update(tool_rows[tool_ref].worker_role_refs)
+        if not assignment_role_refs.issubset(assignment_tool_role_refs):
+            raise ValueError("assignment tool refs must cover assignment worker roles")
+        if not assignment_tool_role_refs.issubset(assignment_role_refs):
+            raise ValueError("assignment tool refs must be scoped to assignment worker roles")
+
         authority_refs: set[str] = set()
-        upstream_exception_refs: set[str] = set()
         request_source_roles: set[str] = set()
         for request_ref in assignment_row.dispatch_request_refs:
             request_row = request_rows[request_ref]
             authority_refs.update(request_row.required_later_authority_refs)
-            upstream_exception_refs.update(request_row.carried_upstream_exception_refs)
             request_source_roles.update(
                 source_roles[source_ref]
                 for source_ref in request_row.source_refs
                 if source_ref in source_roles
             )
+            if request_row.carried_upstream_exception_refs and not any(
+                request_ref in exception_rows[exception_ref].dispatch_request_refs
+                for exception_ref in assignment_row.exception_refs
+            ):
+                raise ValueError("assignment plans must carry upstream exception refs")
         if not authority_refs.issubset(set(assignment_row.required_later_authority_refs)):
             raise ValueError("assignment plans must carry required later authority refs")
-        if upstream_exception_refs:
-            carries_upstream_exception = any(
-                request_ref in exception_rows[exception_ref].dispatch_request_refs
-                for request_ref in assignment_row.dispatch_request_refs
-                for exception_ref in assignment_row.exception_refs
-            )
-            if not carries_upstream_exception:
-                raise ValueError("assignment plans must carry upstream exception refs")
 
         assignment_roles = [role_rows[role_ref] for role_ref in assignment_row.worker_role_refs]
         if any(role.role_kind == "external_branch_review_worker" for role in assignment_roles):

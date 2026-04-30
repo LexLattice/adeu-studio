@@ -2,6 +2,22 @@
   "dispatch_review_request_id": "repo_dispatch_review_request_cff168be545e3c00b04412d4",
   "io_contract_rows": [
     {
+      "expected_output_kind": "blocked_external_branch_review_note",
+      "input_claim_horizon": "Blocked future-family external branch review of V75-A product pressure.",
+      "input_source_refs": [
+        "apps/api/fixtures/repo_description/vnext_plus209/repo_dispatch_non_execution_guardrail_v209_reference.json",
+        "apps/api/fixtures/repo_description/vnext_plus209/repo_dispatch_review_request_v209_reference.json"
+      ],
+      "io_contract_ref": "io-contract:v75b:product-wedge:external-branch-review",
+      "limitation_note": "IO contract describes blocked future-family output only; no command, no dispatch, and output is not truth.",
+      "non_truth_guardrail": "Expected worker output is for review and not truth.",
+      "output_authority_posture": "output_for_review_only",
+      "output_schema_ref": "future:repo_worker_output_reconciliation_plan@1",
+      "worker_role_refs": [
+        "worker-role:v75b:product-wedge:external-branch-review"
+      ]
+    },
+    {
       "expected_output_kind": "worker_review_note_for_reconciliation",
       "input_claim_horizon": "Bounded review of V75-A self-evidencing dispatch-review request.",
       "input_source_refs": [
@@ -23,5 +39,5 @@
   "schema": "repo_worker_io_contract@1",
   "snapshot_id": "vNext+209-closed-on-main",
   "source_set_id": "source-set:v75b:released-v75a-dispatch-review",
-  "worker_io_contract_id": "repo_worker_io_contract_53ac44a60938306d900e7bd2"
+  "worker_io_contract_id": "repo_worker_io_contract_4140039eda42ac582a7027f9"
 }
