@@ -11,6 +11,7 @@ from adeu_repo_description import (
     REPO_DESCRIPTIVE_NORMATIVE_BINDING_FRAME_SCHEMA,
     RepoDescriptiveNormativeBindingFrame,
     compute_repo_arc_dependency_register_id,
+    compute_repo_descriptive_normative_binding_entry_id,
     compute_repo_descriptive_normative_binding_frame_id,
     default_v45f_source_paths,
     derive_v45a_repo_description_bundle,
@@ -117,9 +118,10 @@ def test_v105_binding_frame_id_is_deterministic() -> None:
     payload = _load_v105("repo_descriptive_normative_binding_frame_v105_reference.json")
     without_id = deepcopy(payload)
     without_id.pop("repo_descriptive_normative_binding_frame_id")
-    assert compute_repo_descriptive_normative_binding_frame_id(without_id) == payload[
-        "repo_descriptive_normative_binding_frame_id"
-    ]
+    assert (
+        compute_repo_descriptive_normative_binding_frame_id(without_id)
+        == payload["repo_descriptive_normative_binding_frame_id"]
+    )
 
 
 def test_v105_exported_schema_accepts_reference_fixture() -> None:
@@ -180,6 +182,44 @@ def test_v105_rejects_descriptive_input_ref_outside_bound_baseline() -> None:
         bound_test_intent_matrix_payload=bound_test_intent_matrix,
         bound_arc_dependency_register_payload=bound_arc_dependency_register,
     )
+    descriptive_ref_map = {
+        "repo_entity_catalog": bound_entity_catalog["repo_entity_catalog_id"],
+        "repo_schema_family_registry": bound_schema_registry["schema_family_registry_id"],
+        "repo_symbol_catalog": bound_symbol_catalog["repo_symbol_catalog_id"],
+        "repo_dependency_graph": bound_dependency_graph["repo_dependency_graph_id"],
+        "repo_test_intent_matrix": bound_test_intent_matrix["repo_test_intent_matrix_id"],
+        "repo_optimization_register": bound_optimization_register["repo_optimization_register_id"],
+    }
+    payload = deepcopy(payload)
+    payload["bound_entity_catalog_ref"] = bound_entity_catalog["repo_entity_catalog_id"]
+    payload["bound_schema_family_registry_ref"] = bound_schema_registry["schema_family_registry_id"]
+    payload["bound_symbol_catalog_ref"] = bound_symbol_catalog["repo_symbol_catalog_id"]
+    payload["bound_dependency_graph_ref"] = bound_dependency_graph["repo_dependency_graph_id"]
+    payload["bound_test_intent_matrix_ref"] = bound_test_intent_matrix["repo_test_intent_matrix_id"]
+    payload["bound_optimization_register_ref"] = bound_optimization_register[
+        "repo_optimization_register_id"
+    ]
+    payload["repo_snapshot_id"] = bound_symbol_catalog["repo_snapshot_id"]
+    payload["repo_snapshot_hash"] = bound_symbol_catalog["repo_snapshot_hash"]
+    for entry in payload["binding_entries"]:
+        if entry["descriptive_input_ref"] != "repo_dependency_graph_outside_bound_baseline":
+            entry["descriptive_input_ref"] = descriptive_ref_map[entry["descriptive_input_kind"]]
+        entry["entry_id"] = compute_repo_descriptive_normative_binding_entry_id(
+            {key: value for key, value in entry.items() if key != "entry_id"}
+        )
+    payload["binding_entries"] = sorted(
+        payload["binding_entries"],
+        key=lambda entry: entry["entry_id"],
+    )
+    payload["repo_descriptive_normative_binding_frame_id"] = (
+        compute_repo_descriptive_normative_binding_frame_id(
+            {
+                key: value
+                for key, value in payload.items()
+                if key != "repo_descriptive_normative_binding_frame_id"
+            }
+        )
+    )
 
     with pytest.raises(
         ValueError,
@@ -202,9 +242,7 @@ def test_v105_rejects_descriptive_input_ref_outside_bound_baseline() -> None:
 
 def test_v105_reference_fixture_binds_v45c_explicitly() -> None:
     payload = _load_v105("repo_descriptive_normative_binding_frame_v105_reference.json")
-    assert payload["bound_arc_dependency_register_ref"].startswith(
-        "repo_arc_dependency_register_"
-    )
+    assert payload["bound_arc_dependency_register_ref"].startswith("repo_arc_dependency_register_")
 
 
 def test_v45f_propagates_historical_snapshot_validity_to_nested_derivations() -> None:

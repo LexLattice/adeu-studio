@@ -1,0 +1,60 @@
+{
+  "dispatch_source_index_id": "repo_dispatch_source_index_3b56969a51d2c7437931f68b",
+  "dispatch_source_summary": "Dispatch source rows separate eligibility from context with no prose memory and no dispatch.",
+  "review_id": "review:v75a:dispatch-review-request",
+  "schema": "repo_dispatch_source_index@1",
+  "snapshot_id": "vNext+208-closed-on-main",
+  "source_rows": [
+    {
+      "authority_layer": "fixture",
+      "dispatch_source_role": "visibility_contract_source",
+      "limitation_note": "Eligibility source for visibility posture only; no dispatch.",
+      "source_horizon": "Released V74-C visibility contract rows.",
+      "source_kind": "fixture_file",
+      "source_presence_posture": "missing_expected_support_artifact",
+      "source_ref": "apps/api/fixtures/repo_description/vnext_plus208/repo_decision_visibility_contract_v208_reference.json",
+      "source_status": "integrated_shaping_source"
+    },
+    {
+      "authority_layer": "fixture",
+      "dispatch_source_role": "v74_post_projection_handoff_source",
+      "limitation_note": "Eligibility source for dispatch-review requests only; no dispatch.",
+      "source_horizon": "Released V74-C post-projection handoff rows.",
+      "source_kind": "fixture_file",
+      "source_presence_posture": "present",
+      "source_ref": "apps/api/fixtures/repo_description/vnext_plus208/repo_post_projection_handoff_v208_reference.json",
+      "source_status": "integrated_shaping_source"
+    },
+    {
+      "authority_layer": "fixture",
+      "dispatch_source_role": "workbench_projection_source",
+      "limitation_note": "Eligibility source for review visibility only; no dispatch.",
+      "source_horizon": "Released V74-C review-only workbench projection rows.",
+      "source_kind": "fixture_file",
+      "source_presence_posture": "present",
+      "source_ref": "apps/api/fixtures/repo_description/vnext_plus208/repo_ratification_review_workbench_projection_v208_reference.json",
+      "source_status": "integrated_shaping_source"
+    },
+    {
+      "authority_layer": "planning",
+      "dispatch_source_role": "family_closeout_source",
+      "limitation_note": "Context source only and not sufficient for eligibility; no dispatch.",
+      "source_horizon": "V74 family closeout context.",
+      "source_kind": "planning_doc",
+      "source_presence_posture": "present",
+      "source_ref": "docs/DRAFT_ADEU_OPERATOR_PROJECTION_V74_FAMILY_CLOSEOUT_v0.md",
+      "source_status": "integrated_shaping_source"
+    },
+    {
+      "authority_layer": "support",
+      "dispatch_source_role": "dogfood_source",
+      "limitation_note": "Context source only and not sufficient for eligibility; no dispatch.",
+      "source_horizon": "Combined V68-V74 dogfood context.",
+      "source_kind": "support_doc",
+      "source_presence_posture": "present",
+      "source_ref": "docs/support/arc_series_mapping/V68_V69_V70_V71_V72_V73_V74_COMBINED_DOGFOOD_TEST_v0.json",
+      "source_status": "integrated_shaping_source"
+    }
+  ],
+  "source_set_id": "source-set:v75a:released-v74c-dispatch-pressure"
+}

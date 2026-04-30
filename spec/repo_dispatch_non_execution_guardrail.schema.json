@@ -1,0 +1,133 @@
+{
+  "$defs": {
+    "RepoDispatchNonExecutionGuardrailRow": {
+      "additionalProperties": false,
+      "properties": {
+        "allowed_next_review_surfaces": {
+          "items": {
+            "enum": [
+              "v75b_worker_orchestration_review",
+              "v75c_reconciliation_review",
+              "future_runtime_permission_review",
+              "future_product_review",
+              "future_external_branch_review",
+              "future_family_review",
+              "deferred_no_selection"
+            ],
+            "type": "string"
+          },
+          "minItems": 1,
+          "title": "Allowed Next Review Surfaces",
+          "type": "array"
+        },
+        "candidate_ref": {
+          "title": "Candidate Ref",
+          "type": "string"
+        },
+        "dispatch_request_refs": {
+          "items": {
+            "type": "string"
+          },
+          "minItems": 1,
+          "title": "Dispatch Request Refs",
+          "type": "array"
+        },
+        "forbidden_action_kinds": {
+          "items": {
+            "enum": [
+              "assign_worker_now",
+              "run_command_now",
+              "open_pr_now",
+              "commit_now",
+              "merge_now",
+              "release_now",
+              "authorize_product_now",
+              "grant_runtime_permission_now",
+              "enter_external_contest_now",
+              "self_approve_now"
+            ],
+            "type": "string"
+          },
+          "minItems": 1,
+          "title": "Forbidden Action Kinds",
+          "type": "array"
+        },
+        "guardrail_ref": {
+          "title": "Guardrail Ref",
+          "type": "string"
+        },
+        "limitation_note": {
+          "title": "Limitation Note",
+          "type": "string"
+        },
+        "non_execution_guardrail": {
+          "title": "Non Execution Guardrail",
+          "type": "string"
+        }
+      },
+      "required": [
+        "guardrail_ref",
+        "candidate_ref",
+        "dispatch_request_refs",
+        "forbidden_action_kinds",
+        "allowed_next_review_surfaces",
+        "non_execution_guardrail",
+        "limitation_note"
+      ],
+      "title": "RepoDispatchNonExecutionGuardrailRow",
+      "type": "object"
+    }
+  },
+  "additionalProperties": false,
+  "properties": {
+    "dispatch_non_execution_guardrail_id": {
+      "title": "Dispatch Non Execution Guardrail Id",
+      "type": "string"
+    },
+    "dispatch_review_request_id": {
+      "title": "Dispatch Review Request Id",
+      "type": "string"
+    },
+    "guardrail_rows": {
+      "items": {
+        "$ref": "#/$defs/RepoDispatchNonExecutionGuardrailRow"
+      },
+      "minItems": 1,
+      "title": "Guardrail Rows",
+      "type": "array"
+    },
+    "non_execution_summary": {
+      "title": "Non Execution Summary",
+      "type": "string"
+    },
+    "review_id": {
+      "title": "Review Id",
+      "type": "string"
+    },
+    "schema": {
+      "const": "repo_dispatch_non_execution_guardrail@1",
+      "default": "repo_dispatch_non_execution_guardrail@1",
+      "title": "Schema",
+      "type": "string"
+    },
+    "snapshot_id": {
+      "title": "Snapshot Id",
+      "type": "string"
+    },
+    "source_set_id": {
+      "title": "Source Set Id",
+      "type": "string"
+    }
+  },
+  "required": [
+    "dispatch_non_execution_guardrail_id",
+    "dispatch_review_request_id",
+    "review_id",
+    "snapshot_id",
+    "source_set_id",
+    "guardrail_rows",
+    "non_execution_summary"
+  ],
+  "title": "RepoDispatchNonExecutionGuardrail",
+  "type": "object"
+}

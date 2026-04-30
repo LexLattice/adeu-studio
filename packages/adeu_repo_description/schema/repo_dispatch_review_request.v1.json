@@ -1,0 +1,287 @@
+{
+  "$defs": {
+    "RepoDispatchRequiredLaterAuthorityRow": {
+      "additionalProperties": false,
+      "properties": {
+        "authority_gap_posture": {
+          "enum": [
+            "authority_gap_present",
+            "authority_checked_absent",
+            "authority_not_applicable",
+            "unknown_needs_review"
+          ],
+          "title": "Authority Gap Posture",
+          "type": "string"
+        },
+        "authority_kind": {
+          "enum": [
+            "runtime_permission",
+            "product_authorization",
+            "release_authority",
+            "external_branch_activation",
+            "dispatch_execution_authority",
+            "human_or_maintainer_review",
+            "recursive_policy_authority"
+          ],
+          "title": "Authority Kind",
+          "type": "string"
+        },
+        "authority_requirement_ref": {
+          "title": "Authority Requirement Ref",
+          "type": "string"
+        },
+        "candidate_ref": {
+          "title": "Candidate Ref",
+          "type": "string"
+        },
+        "limitation_note": {
+          "title": "Limitation Note",
+          "type": "string"
+        },
+        "required_before_surface": {
+          "enum": [
+            "before_dispatch_review",
+            "before_worker_assignment_review",
+            "before_runtime_permission_review",
+            "before_product_review",
+            "before_release_review",
+            "before_external_branch_review",
+            "before_human_or_maintainer_review",
+            "before_recursive_policy_review",
+            "not_selected_here"
+          ],
+          "title": "Required Before Surface",
+          "type": "string"
+        },
+        "source_presence_posture": {
+          "enum": [
+            "present",
+            "missing_expected_support_artifact",
+            "not_uploaded_in_review_snapshot",
+            "generated_later",
+            "external_unavailable",
+            "operator_turn_not_committed"
+          ],
+          "title": "Source Presence Posture",
+          "type": "string"
+        },
+        "source_refs": {
+          "items": {
+            "type": "string"
+          },
+          "minItems": 1,
+          "title": "Source Refs",
+          "type": "array"
+        }
+      },
+      "required": [
+        "authority_requirement_ref",
+        "candidate_ref",
+        "authority_kind",
+        "required_before_surface",
+        "source_refs",
+        "source_presence_posture",
+        "authority_gap_posture",
+        "limitation_note"
+      ],
+      "title": "RepoDispatchRequiredLaterAuthorityRow",
+      "type": "object"
+    },
+    "RepoDispatchReviewRequestRow": {
+      "additionalProperties": false,
+      "properties": {
+        "candidate_ref": {
+          "title": "Candidate Ref",
+          "type": "string"
+        },
+        "carried_exception_origin": {
+          "enum": [
+            "v74_exception_visibility",
+            "v74_visibility_contract",
+            "v74_post_projection_handoff",
+            "absence_marker"
+          ],
+          "title": "Carried Exception Origin",
+          "type": "string"
+        },
+        "carried_upstream_exception_refs": {
+          "items": {
+            "type": "string"
+          },
+          "title": "Carried Upstream Exception Refs",
+          "type": "array"
+        },
+        "case_view_refs": {
+          "items": {
+            "type": "string"
+          },
+          "title": "Case View Refs",
+          "type": "array"
+        },
+        "dispatch_request_ref": {
+          "title": "Dispatch Request Ref",
+          "type": "string"
+        },
+        "dispatch_review_posture": {
+          "enum": [
+            "eligible_for_dispatch_review",
+            "blocked_by_required_later_authority",
+            "blocked_by_unresolved_exception",
+            "blocked_by_missing_source",
+            "future_family_only",
+            "rejected_out_of_scope"
+          ],
+          "title": "Dispatch Review Posture",
+          "type": "string"
+        },
+        "guardrail_refs": {
+          "items": {
+            "type": "string"
+          },
+          "minItems": 1,
+          "title": "Guardrail Refs",
+          "type": "array"
+        },
+        "limitation_note": {
+          "title": "Limitation Note",
+          "type": "string"
+        },
+        "odeu_lanes": {
+          "items": {
+            "enum": [
+              "ontological",
+              "deontic",
+              "epistemic",
+              "utility"
+            ],
+            "type": "string"
+          },
+          "minItems": 1,
+          "title": "Odeu Lanes",
+          "type": "array"
+        },
+        "post_projection_handoff_refs": {
+          "items": {
+            "type": "string"
+          },
+          "title": "Post Projection Handoff Refs",
+          "type": "array"
+        },
+        "requested_orchestration_horizon": {
+          "enum": [
+            "multi_worker_orchestration_review",
+            "worker_output_reconciliation_review",
+            "tool_applicability_review",
+            "product_review_later",
+            "runtime_permission_review_later",
+            "external_branch_review_later",
+            "future_family_review_only"
+          ],
+          "title": "Requested Orchestration Horizon",
+          "type": "string"
+        },
+        "required_later_authority_refs": {
+          "items": {
+            "type": "string"
+          },
+          "title": "Required Later Authority Refs",
+          "type": "array"
+        },
+        "required_later_authority_rows": {
+          "items": {
+            "$ref": "#/$defs/RepoDispatchRequiredLaterAuthorityRow"
+          },
+          "title": "Required Later Authority Rows",
+          "type": "array"
+        },
+        "source_refs": {
+          "items": {
+            "type": "string"
+          },
+          "minItems": 1,
+          "title": "Source Refs",
+          "type": "array"
+        },
+        "visibility_contract_refs": {
+          "items": {
+            "type": "string"
+          },
+          "title": "Visibility Contract Refs",
+          "type": "array"
+        },
+        "workbench_projection_refs": {
+          "items": {
+            "type": "string"
+          },
+          "title": "Workbench Projection Refs",
+          "type": "array"
+        }
+      },
+      "required": [
+        "dispatch_request_ref",
+        "candidate_ref",
+        "source_refs",
+        "carried_exception_origin",
+        "dispatch_review_posture",
+        "requested_orchestration_horizon",
+        "odeu_lanes",
+        "guardrail_refs",
+        "limitation_note"
+      ],
+      "title": "RepoDispatchReviewRequestRow",
+      "type": "object"
+    }
+  },
+  "additionalProperties": false,
+  "properties": {
+    "dispatch_review_boundary_summary": {
+      "title": "Dispatch Review Boundary Summary",
+      "type": "string"
+    },
+    "dispatch_review_request_id": {
+      "title": "Dispatch Review Request Id",
+      "type": "string"
+    },
+    "dispatch_source_index_id": {
+      "title": "Dispatch Source Index Id",
+      "type": "string"
+    },
+    "request_rows": {
+      "items": {
+        "$ref": "#/$defs/RepoDispatchReviewRequestRow"
+      },
+      "minItems": 1,
+      "title": "Request Rows",
+      "type": "array"
+    },
+    "review_id": {
+      "title": "Review Id",
+      "type": "string"
+    },
+    "schema": {
+      "const": "repo_dispatch_review_request@1",
+      "default": "repo_dispatch_review_request@1",
+      "title": "Schema",
+      "type": "string"
+    },
+    "snapshot_id": {
+      "title": "Snapshot Id",
+      "type": "string"
+    },
+    "source_set_id": {
+      "title": "Source Set Id",
+      "type": "string"
+    }
+  },
+  "required": [
+    "dispatch_review_request_id",
+    "dispatch_source_index_id",
+    "review_id",
+    "snapshot_id",
+    "source_set_id",
+    "request_rows",
+    "dispatch_review_boundary_summary"
+  ],
+  "title": "RepoDispatchReviewRequest",
+  "type": "object"
+}
