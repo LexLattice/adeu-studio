@@ -1,0 +1,126 @@
+{
+  "dispatch_exception_register_id": "repo_dispatch_exception_register_0a2cbac9445d50943ea6ee11",
+  "dispatch_review_request_id": "repo_dispatch_review_request_cff168be545e3c00b04412d4",
+  "multi_worker_assignment_plan_id": "repo_multi_worker_assignment_plan_c963f71227e67f56aea52054",
+  "projected_output_slot_rows": [
+    {
+      "assignment_plan_refs": [
+        "assignment-plan:v75b:product-wedge:blocked"
+      ],
+      "expected_output_kind": "blocked_external_branch_review_note",
+      "io_contract_refs": [
+        "io-contract:v75b:product-wedge:external-branch-review"
+      ],
+      "limitation_note": "Projected not observed output slot only; no dispatch and no command.",
+      "non_truth_guardrail": "Projected worker output is for review and not truth.",
+      "output_presence_posture": "projected_not_observed",
+      "projected_output_slot_ref": "projected-output:v75c:product-wedge:blocked-note",
+      "source_refs": [
+        "apps/api/fixtures/repo_description/vnext_plus210/repo_worker_io_contract_v210_reference.json"
+      ]
+    },
+    {
+      "assignment_plan_refs": [
+        "assignment-plan:v75b:self-evidencing:review-only"
+      ],
+      "expected_output_kind": "worker_review_note_for_reconciliation",
+      "io_contract_refs": [
+        "io-contract:v75b:self-evidencing:evidence-review"
+      ],
+      "limitation_note": "Projected not observed output slot only; no dispatch and no command.",
+      "non_truth_guardrail": "Projected worker output is for review and not truth.",
+      "output_presence_posture": "projected_not_observed",
+      "projected_output_slot_ref": "projected-output:v75c:self-evidencing:review-note",
+      "source_refs": [
+        "apps/api/fixtures/repo_description/vnext_plus210/repo_worker_io_contract_v210_reference.json"
+      ]
+    }
+  ],
+  "reconciliation_plan_rows": [
+    {
+      "assignment_plan_refs": [
+        "assignment-plan:v75b:product-wedge:blocked"
+      ],
+      "dispatch_execution_posture": "no_dispatch_executed_by_v75",
+      "dispatch_request_refs": [
+        "dispatch-request:v75a:product-wedge:blocked"
+      ],
+      "exception_refs": [
+        "dispatch-exception:v75b:product-wedge:authority"
+      ],
+      "io_contract_refs": [
+        "io-contract:v75b:product-wedge:external-branch-review"
+      ],
+      "limitation_note": "Reconciliation plan is projected with no dispatch, no command, and blocking authority carried forward.",
+      "non_truth_guardrail": "Projected worker output is for review and not truth.",
+      "observed_worker_output_refs": [],
+      "output_presence_posture": "projected_not_observed",
+      "projected_output_slot_refs": [
+        "projected-output:v75c:product-wedge:blocked-note"
+      ],
+      "reconciliation_plan_ref": "reconciliation-plan:v75c:product-wedge:blocked",
+      "relation_refs": [
+        "relation:v75c:product-wedge:blocked-projected-output"
+      ]
+    },
+    {
+      "assignment_plan_refs": [
+        "assignment-plan:v75b:self-evidencing:review-only"
+      ],
+      "dispatch_execution_posture": "no_dispatch_executed_by_v75",
+      "dispatch_request_refs": [
+        "dispatch-request:v75a:self-evidencing:review"
+      ],
+      "exception_refs": [
+        "dispatch-exception:v75b:self-evidencing:upstream"
+      ],
+      "io_contract_refs": [
+        "io-contract:v75b:self-evidencing:evidence-review"
+      ],
+      "limitation_note": "Reconciliation plan is projected with no dispatch, no command, and no observed worker output.",
+      "non_truth_guardrail": "Projected worker output is for review and not truth.",
+      "observed_worker_output_refs": [],
+      "output_presence_posture": "projected_not_observed",
+      "projected_output_slot_refs": [
+        "projected-output:v75c:self-evidencing:review-note"
+      ],
+      "reconciliation_plan_ref": "reconciliation-plan:v75c:self-evidencing:projected",
+      "relation_refs": [
+        "relation:v75c:self-evidencing:single-projected-output"
+      ]
+    }
+  ],
+  "reconciliation_summary": "Projected worker output reconciliation is not truth and records no dispatch.",
+  "relation_rows": [
+    {
+      "authority_boundary_posture": "Relation posture carries blocker for review and is not truth.",
+      "claim_horizon": "Blocked product/external branch projected output slot; no observed output.",
+      "left_output_ref": "projected-output:v75c:product-wedge:blocked-note",
+      "limitation_note": "Blocked projected relation is not truth and carries blocker for review.",
+      "relation_kind": "single_output_no_relation",
+      "relation_ref": "relation:v75c:product-wedge:blocked-projected-output",
+      "required_next_review_surface": "future_reconciliation_or_arbiter_review",
+      "right_output_ref": "projected-output:v75c:product-wedge:blocked-note",
+      "source_refs": []
+    },
+    {
+      "authority_boundary_posture": "Relation posture is review-only and not worker output truth.",
+      "claim_horizon": "Single projected output slot; no observed worker output relation yet.",
+      "left_output_ref": "projected-output:v75c:self-evidencing:review-note",
+      "limitation_note": "Projected relation is not truth and requires later relation review.",
+      "relation_kind": "single_output_no_relation",
+      "relation_ref": "relation:v75c:self-evidencing:single-projected-output",
+      "required_next_review_surface": "future_reconciliation_or_arbiter_review",
+      "right_output_ref": "projected-output:v75c:self-evidencing:review-note",
+      "source_refs": [
+        "apps/api/fixtures/repo_description/vnext_plus210/repo_multi_worker_assignment_plan_v210_reference.json"
+      ]
+    }
+  ],
+  "review_id": "review:v75c:reconciliation-contract-handoff-closeout",
+  "schema": "repo_worker_output_reconciliation_plan@1",
+  "snapshot_id": "vNext+210-closed-on-main",
+  "source_set_id": "source-set:v75c:released-v75a-v75b-dispatch-review",
+  "worker_io_contract_id": "repo_worker_io_contract_4140039eda42ac582a7027f9",
+  "worker_output_reconciliation_plan_id": "repo_worker_output_reconciliation_plan_050b433ac5f1151fc7ec50c8"
+}

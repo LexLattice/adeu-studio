@@ -1,0 +1,177 @@
+{
+  "$defs": {
+    "RepoPostDispatchReviewHandoffRow": {
+      "additionalProperties": false,
+      "properties": {
+        "assignment_plan_refs": {
+          "items": {
+            "type": "string"
+          },
+          "minItems": 1,
+          "title": "Assignment Plan Refs",
+          "type": "array"
+        },
+        "carried_exception_refs": {
+          "items": {
+            "type": "string"
+          },
+          "title": "Carried Exception Refs",
+          "type": "array"
+        },
+        "dispatch_request_refs": {
+          "items": {
+            "type": "string"
+          },
+          "minItems": 1,
+          "title": "Dispatch Request Refs",
+          "type": "array"
+        },
+        "handoff_posture": {
+          "enum": [
+            "ready_for_later_review",
+            "blocked_by_unresolved_exception",
+            "blocked_by_required_later_authority",
+            "blocked_by_output_truth_boundary",
+            "deferred_to_future_family",
+            "rejected_out_of_scope"
+          ],
+          "title": "Handoff Posture",
+          "type": "string"
+        },
+        "handoff_ref": {
+          "title": "Handoff Ref",
+          "type": "string"
+        },
+        "handoff_subject_horizon": {
+          "enum": [
+            "dispatch_review_process_outcome",
+            "projected_orchestration_plan_review",
+            "authorized_prior_worker_run_output",
+            "future_runtime_execution_outcome",
+            "product_review_pressure",
+            "external_branch_review_pressure",
+            "experiment_design_pressure"
+          ],
+          "title": "Handoff Subject Horizon",
+          "type": "string"
+        },
+        "handoff_target": {
+          "enum": [
+            "future_runtime_permission_review",
+            "future_product_review",
+            "future_external_branch_review",
+            "future_outcome_review",
+            "future_reconciliation_or_arbiter_review",
+            "future_experiment_review",
+            "future_family_review",
+            "deferred_no_selection"
+          ],
+          "title": "Handoff Target",
+          "type": "string"
+        },
+        "limitation_note": {
+          "title": "Limitation Note",
+          "type": "string"
+        },
+        "non_execution_guardrail": {
+          "title": "Non Execution Guardrail",
+          "type": "string"
+        },
+        "reconciliation_contract_refs": {
+          "items": {
+            "type": "string"
+          },
+          "minItems": 1,
+          "title": "Reconciliation Contract Refs",
+          "type": "array"
+        },
+        "reconciliation_plan_refs": {
+          "items": {
+            "type": "string"
+          },
+          "minItems": 1,
+          "title": "Reconciliation Plan Refs",
+          "type": "array"
+        },
+        "required_later_authority_refs": {
+          "items": {
+            "type": "string"
+          },
+          "title": "Required Later Authority Refs",
+          "type": "array"
+        }
+      },
+      "required": [
+        "handoff_ref",
+        "dispatch_request_refs",
+        "assignment_plan_refs",
+        "reconciliation_plan_refs",
+        "reconciliation_contract_refs",
+        "handoff_target",
+        "handoff_subject_horizon",
+        "handoff_posture",
+        "non_execution_guardrail",
+        "limitation_note"
+      ],
+      "title": "RepoPostDispatchReviewHandoffRow",
+      "type": "object"
+    }
+  },
+  "additionalProperties": false,
+  "properties": {
+    "dispatch_reconciliation_contract_id": {
+      "title": "Dispatch Reconciliation Contract Id",
+      "type": "string"
+    },
+    "handoff_rows": {
+      "items": {
+        "$ref": "#/$defs/RepoPostDispatchReviewHandoffRow"
+      },
+      "minItems": 1,
+      "title": "Handoff Rows",
+      "type": "array"
+    },
+    "handoff_summary": {
+      "title": "Handoff Summary",
+      "type": "string"
+    },
+    "post_dispatch_review_handoff_id": {
+      "title": "Post Dispatch Review Handoff Id",
+      "type": "string"
+    },
+    "review_id": {
+      "title": "Review Id",
+      "type": "string"
+    },
+    "schema": {
+      "const": "repo_post_dispatch_review_handoff@1",
+      "default": "repo_post_dispatch_review_handoff@1",
+      "title": "Schema",
+      "type": "string"
+    },
+    "snapshot_id": {
+      "title": "Snapshot Id",
+      "type": "string"
+    },
+    "source_set_id": {
+      "title": "Source Set Id",
+      "type": "string"
+    },
+    "worker_output_reconciliation_plan_id": {
+      "title": "Worker Output Reconciliation Plan Id",
+      "type": "string"
+    }
+  },
+  "required": [
+    "post_dispatch_review_handoff_id",
+    "worker_output_reconciliation_plan_id",
+    "dispatch_reconciliation_contract_id",
+    "review_id",
+    "snapshot_id",
+    "source_set_id",
+    "handoff_rows",
+    "handoff_summary"
+  ],
+  "title": "RepoPostDispatchReviewHandoff",
+  "type": "object"
+}
