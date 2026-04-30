@@ -161,6 +161,16 @@ def _handoff_from_payload(payload: dict[str, Any]) -> RepoPostDispatchReviewHand
     return RepoPostDispatchReviewHandoff.model_validate(payload)
 
 
+def _contract_from_payload(payload: dict[str, Any]) -> RepoDispatchReconciliationContract:
+    payload["dispatch_reconciliation_contract_id"] = _surface_id(
+        "repo_dispatch_reconciliation_contract",
+        REPO_DISPATCH_RECONCILIATION_CONTRACT_SCHEMA,
+        payload,
+        "dispatch_reconciliation_contract_id",
+    )
+    return RepoDispatchReconciliationContract.model_validate(payload)
+
+
 def _validate_reference_bundle_with(
     *,
     reconciliation_plan: RepoWorkerOutputReconciliationPlan | None = None,
@@ -387,3 +397,49 @@ def test_v211_bundle_rejects_missing_v75b_assignment_ref() -> None:
             contract=contract,
             handoff=handoff,
         )
+
+
+def test_v211_bundle_rejects_relation_ref_scoped_to_other_plan_outputs() -> None:
+    payload = _reconciliation_plan().model_dump(mode="json")
+    for row in payload["reconciliation_plan_rows"]:
+        if row["reconciliation_plan_ref"] == "reconciliation-plan:v75c:self-evidencing:projected":
+            row["relation_refs"] = ["relation:v75c:product-wedge:blocked-projected-output"]
+    payload["worker_output_reconciliation_plan_id"] = _surface_id(
+        "repo_worker_output_reconciliation_plan",
+        REPO_WORKER_OUTPUT_RECONCILIATION_PLAN_SCHEMA,
+        payload,
+        "worker_output_reconciliation_plan_id",
+    )
+    reconciliation_plan = RepoWorkerOutputReconciliationPlan.model_validate(payload)
+    contract = derive_v75c_repo_dispatch_reconciliation_contract(
+        worker_output_reconciliation_plan=reconciliation_plan
+    )
+    handoff = derive_v75c_repo_post_dispatch_review_handoff(
+        worker_output_reconciliation_plan=reconciliation_plan,
+        dispatch_reconciliation_contract=contract,
+    )
+
+    with pytest.raises(
+        ValueError,
+        match="reconciliation plan relations must be scoped to that plan's outputs",
+    ):
+        _validate_reference_bundle_with(
+            reconciliation_plan=reconciliation_plan,
+            contract=contract,
+            handoff=handoff,
+        )
+
+
+def test_v211_bundle_rejects_contract_handoff_ref_not_emitted_by_handoff_surface() -> None:
+    payload = _contract().model_dump(mode="json")
+    payload["contract_rows"][0]["handoff_refs"] = ["handoff:v75c:missing"]
+    contract = _contract_from_payload(payload)
+    handoff = derive_v75c_repo_post_dispatch_review_handoff(
+        dispatch_reconciliation_contract=contract,
+    )
+
+    with pytest.raises(
+        ValueError,
+        match="reconciliation contracts must reference known handoff rows",
+    ):
+        _validate_reference_bundle_with(contract=contract, handoff=handoff)

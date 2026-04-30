@@ -2666,10 +2666,9 @@ def derive_v75c_repo_worker_output_reconciliation_plan(
     worker_io_contract: RepoWorkerIOContract | None = None,
     dispatch_exception_register: RepoDispatchExceptionRegister | None = None,
 ) -> RepoWorkerOutputReconciliationPlan:
-    _ = repo_root
-    source_index, request, guardrail = derive_v75a_dispatch_review_bundle()
+    source_index, request, guardrail = derive_v75a_dispatch_review_bundle(repo_root=repo_root)
     role_profile, assignment_plan, io_contract, tool_matrix, exception_register = (
-        derive_v75b_worker_orchestration_bundle()
+        derive_v75b_worker_orchestration_bundle(repo_root=repo_root)
     )
     _ = source_index, guardrail, role_profile, tool_matrix
     request = dispatch_review_request or request
@@ -2822,8 +2821,10 @@ def derive_v75c_repo_dispatch_reconciliation_contract(
     repo_root: Path | None = None,
     worker_output_reconciliation_plan: RepoWorkerOutputReconciliationPlan | None = None,
 ) -> RepoDispatchReconciliationContract:
-    _ = repo_root
-    plan = worker_output_reconciliation_plan or derive_v75c_repo_worker_output_reconciliation_plan()
+    plan = (
+        worker_output_reconciliation_plan
+        or derive_v75c_repo_worker_output_reconciliation_plan(repo_root=repo_root)
+    )
     payload = {
         "schema": REPO_DISPATCH_RECONCILIATION_CONTRACT_SCHEMA,
         "dispatch_reconciliation_contract_id": "",
@@ -2882,11 +2883,16 @@ def derive_v75c_repo_post_dispatch_review_handoff(
     worker_output_reconciliation_plan: RepoWorkerOutputReconciliationPlan | None = None,
     dispatch_reconciliation_contract: RepoDispatchReconciliationContract | None = None,
 ) -> RepoPostDispatchReviewHandoff:
-    _ = repo_root
-    plan = worker_output_reconciliation_plan or derive_v75c_repo_worker_output_reconciliation_plan()
+    plan = (
+        worker_output_reconciliation_plan
+        or derive_v75c_repo_worker_output_reconciliation_plan(repo_root=repo_root)
+    )
     contract = (
         dispatch_reconciliation_contract
-        or derive_v75c_repo_dispatch_reconciliation_contract(worker_output_reconciliation_plan=plan)
+        or derive_v75c_repo_dispatch_reconciliation_contract(
+            repo_root=repo_root,
+            worker_output_reconciliation_plan=plan,
+        )
     )
     payload = {
         "schema": REPO_POST_DISPATCH_REVIEW_HANDOFF_SCHEMA,
@@ -3141,6 +3147,7 @@ def validate_v75c_dispatch_review_closeout_bundle(
     contract_rows = {
         row.contract_ref: row for row in dispatch_reconciliation_contract.contract_rows
     }
+    handoff_rows = {row.handoff_ref: row for row in post_dispatch_review_handoff.handoff_rows}
 
     for slot_row in worker_output_reconciliation_plan.projected_output_slot_rows:
         if any(ref not in assignment_rows for ref in slot_row.assignment_plan_refs):
@@ -3149,10 +3156,9 @@ def validate_v75c_dispatch_review_closeout_bundle(
             raise ValueError("projected output slots must reference known IO rows")
 
     for relation_row in worker_output_reconciliation_plan.relation_rows:
-        known_output_refs = set(slot_rows)
-        if relation_row.left_output_ref not in known_output_refs:
+        if relation_row.left_output_ref not in slot_rows:
             raise ValueError("relation rows must reference known projected output refs")
-        if relation_row.right_output_ref not in known_output_refs:
+        if relation_row.right_output_ref not in slot_rows:
             raise ValueError("relation rows must reference known projected output refs")
 
     for plan_row in worker_output_reconciliation_plan.reconciliation_plan_rows:
@@ -3166,6 +3172,18 @@ def validate_v75c_dispatch_review_closeout_bundle(
             raise ValueError("reconciliation plans must reference known projected output slots")
         if any(ref not in relation_rows for ref in plan_row.relation_refs):
             raise ValueError("reconciliation plans must reference known relation rows")
+        plan_output_refs = set(plan_row.projected_output_slot_refs) | set(
+            plan_row.observed_worker_output_refs
+        )
+        for relation_ref in plan_row.relation_refs:
+            relation_row = relation_rows[relation_ref]
+            if (
+                relation_row.left_output_ref not in plan_output_refs
+                or relation_row.right_output_ref not in plan_output_refs
+            ):
+                raise ValueError(
+                    "reconciliation plan relations must be scoped to that plan's outputs"
+                )
         if any(ref not in exception_rows for ref in plan_row.exception_refs):
             raise ValueError("reconciliation plans must reference known dispatch exceptions")
         if any(
@@ -3177,6 +3195,8 @@ def validate_v75c_dispatch_review_closeout_bundle(
     for contract_row in dispatch_reconciliation_contract.contract_rows:
         if any(ref not in plan_rows for ref in contract_row.reconciliation_plan_refs):
             raise ValueError("reconciliation contracts must reference known reconciliation plans")
+        if any(ref not in handoff_rows for ref in contract_row.handoff_refs):
+            raise ValueError("reconciliation contracts must reference known handoff rows")
 
     for handoff_row in post_dispatch_review_handoff.handoff_rows:
         if any(ref not in request_rows for ref in handoff_row.dispatch_request_refs):
