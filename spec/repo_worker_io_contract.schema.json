@@ -1,0 +1,125 @@
+{
+  "$defs": {
+    "RepoWorkerIOContractRow": {
+      "additionalProperties": false,
+      "properties": {
+        "expected_output_kind": {
+          "title": "Expected Output Kind",
+          "type": "string"
+        },
+        "input_claim_horizon": {
+          "title": "Input Claim Horizon",
+          "type": "string"
+        },
+        "input_source_refs": {
+          "items": {
+            "type": "string"
+          },
+          "minItems": 1,
+          "title": "Input Source Refs",
+          "type": "array"
+        },
+        "io_contract_ref": {
+          "title": "Io Contract Ref",
+          "type": "string"
+        },
+        "limitation_note": {
+          "title": "Limitation Note",
+          "type": "string"
+        },
+        "non_truth_guardrail": {
+          "title": "Non Truth Guardrail",
+          "type": "string"
+        },
+        "output_authority_posture": {
+          "enum": [
+            "output_for_review_only",
+            "output_requires_reconciliation",
+            "output_requires_adversarial_review",
+            "output_requires_human_ratification",
+            "output_not_truth"
+          ],
+          "title": "Output Authority Posture",
+          "type": "string"
+        },
+        "output_schema_ref": {
+          "title": "Output Schema Ref",
+          "type": "string"
+        },
+        "worker_role_refs": {
+          "items": {
+            "type": "string"
+          },
+          "minItems": 1,
+          "title": "Worker Role Refs",
+          "type": "array"
+        }
+      },
+      "required": [
+        "io_contract_ref",
+        "worker_role_refs",
+        "input_source_refs",
+        "input_claim_horizon",
+        "expected_output_kind",
+        "output_schema_ref",
+        "output_authority_posture",
+        "non_truth_guardrail",
+        "limitation_note"
+      ],
+      "title": "RepoWorkerIOContractRow",
+      "type": "object"
+    }
+  },
+  "additionalProperties": false,
+  "properties": {
+    "dispatch_review_request_id": {
+      "title": "Dispatch Review Request Id",
+      "type": "string"
+    },
+    "io_contract_rows": {
+      "items": {
+        "$ref": "#/$defs/RepoWorkerIOContractRow"
+      },
+      "minItems": 1,
+      "title": "Io Contract Rows",
+      "type": "array"
+    },
+    "io_contract_summary": {
+      "title": "Io Contract Summary",
+      "type": "string"
+    },
+    "review_id": {
+      "title": "Review Id",
+      "type": "string"
+    },
+    "schema": {
+      "const": "repo_worker_io_contract@1",
+      "default": "repo_worker_io_contract@1",
+      "title": "Schema",
+      "type": "string"
+    },
+    "snapshot_id": {
+      "title": "Snapshot Id",
+      "type": "string"
+    },
+    "source_set_id": {
+      "title": "Source Set Id",
+      "type": "string"
+    },
+    "worker_io_contract_id": {
+      "title": "Worker Io Contract Id",
+      "type": "string"
+    }
+  },
+  "required": [
+    "worker_io_contract_id",
+    "dispatch_review_request_id",
+    "review_id",
+    "snapshot_id",
+    "source_set_id",
+    "io_contract_rows",
+    "io_contract_summary"
+  ],
+  "title": "RepoWorkerIOContract",
+  "type": "object"
+}

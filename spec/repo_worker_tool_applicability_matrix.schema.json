@@ -1,0 +1,139 @@
+{
+  "$defs": {
+    "RepoWorkerToolApplicabilityRow": {
+      "additionalProperties": false,
+      "properties": {
+        "applicability_posture": {
+          "enum": [
+            "applicable_for_target_horizon",
+            "blocked_by_missing_source",
+            "blocked_by_missing_tool_evidence",
+            "not_applicable_for_target_horizon",
+            "requires_negative_control",
+            "requires_human_review",
+            "unknown_needs_review"
+          ],
+          "title": "Applicability Posture",
+          "type": "string"
+        },
+        "claim_horizon": {
+          "title": "Claim Horizon",
+          "type": "string"
+        },
+        "limitation_note": {
+          "title": "Limitation Note",
+          "type": "string"
+        },
+        "observed_or_required_result_refs": {
+          "items": {
+            "type": "string"
+          },
+          "minItems": 1,
+          "title": "Observed Or Required Result Refs",
+          "type": "array"
+        },
+        "target_claim_refs": {
+          "items": {
+            "type": "string"
+          },
+          "minItems": 1,
+          "title": "Target Claim Refs",
+          "type": "array"
+        },
+        "target_namespace_kind": {
+          "enum": [
+            "dispatch_request",
+            "worker_role",
+            "io_contract",
+            "tool_matrix",
+            "candidate",
+            "claim_horizon"
+          ],
+          "title": "Target Namespace Kind",
+          "type": "string"
+        },
+        "tool_id": {
+          "title": "Tool Id",
+          "type": "string"
+        },
+        "tool_matrix_ref": {
+          "title": "Tool Matrix Ref",
+          "type": "string"
+        },
+        "worker_role_refs": {
+          "items": {
+            "type": "string"
+          },
+          "minItems": 1,
+          "title": "Worker Role Refs",
+          "type": "array"
+        }
+      },
+      "required": [
+        "tool_matrix_ref",
+        "worker_role_refs",
+        "tool_id",
+        "target_claim_refs",
+        "target_namespace_kind",
+        "claim_horizon",
+        "applicability_posture",
+        "observed_or_required_result_refs",
+        "limitation_note"
+      ],
+      "title": "RepoWorkerToolApplicabilityRow",
+      "type": "object"
+    }
+  },
+  "additionalProperties": false,
+  "properties": {
+    "dispatch_review_request_id": {
+      "title": "Dispatch Review Request Id",
+      "type": "string"
+    },
+    "review_id": {
+      "title": "Review Id",
+      "type": "string"
+    },
+    "schema": {
+      "const": "repo_worker_tool_applicability_matrix@1",
+      "default": "repo_worker_tool_applicability_matrix@1",
+      "title": "Schema",
+      "type": "string"
+    },
+    "snapshot_id": {
+      "title": "Snapshot Id",
+      "type": "string"
+    },
+    "source_set_id": {
+      "title": "Source Set Id",
+      "type": "string"
+    },
+    "tool_applicability_summary": {
+      "title": "Tool Applicability Summary",
+      "type": "string"
+    },
+    "tool_matrix_rows": {
+      "items": {
+        "$ref": "#/$defs/RepoWorkerToolApplicabilityRow"
+      },
+      "minItems": 1,
+      "title": "Tool Matrix Rows",
+      "type": "array"
+    },
+    "worker_tool_applicability_matrix_id": {
+      "title": "Worker Tool Applicability Matrix Id",
+      "type": "string"
+    }
+  },
+  "required": [
+    "worker_tool_applicability_matrix_id",
+    "dispatch_review_request_id",
+    "review_id",
+    "snapshot_id",
+    "source_set_id",
+    "tool_matrix_rows",
+    "tool_applicability_summary"
+  ],
+  "title": "RepoWorkerToolApplicabilityMatrix",
+  "type": "object"
+}

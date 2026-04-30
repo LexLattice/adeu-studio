@@ -1,0 +1,47 @@
+{
+  "dispatch_review_request_id": "repo_dispatch_review_request_cff168be545e3c00b04412d4",
+  "review_id": "review:v75b:worker-orchestration-planning",
+  "schema": "repo_worker_tool_applicability_matrix@1",
+  "snapshot_id": "vNext+209-closed-on-main",
+  "source_set_id": "source-set:v75b:released-v75a-dispatch-review",
+  "tool_applicability_summary": "Worker tool applicability rows are target-bound and horizon-bound; no command and no dispatch are authorized.",
+  "tool_matrix_rows": [
+    {
+      "applicability_posture": "not_applicable_for_target_horizon",
+      "claim_horizon": "Target-bound and horizon-bound blocked posture for future external branch review only.",
+      "limitation_note": "Tool applicability is target-bound and horizon-bound with no command permission and no dispatch.",
+      "observed_or_required_result_refs": [
+        "docs/LOCKED_CONTINUATION_vNEXT_PLUS210.md"
+      ],
+      "target_claim_refs": [
+        "dispatch-request:v75a:product-wedge:blocked",
+        "guardrail:v75a:product-wedge:non-execution"
+      ],
+      "target_namespace_kind": "dispatch_request",
+      "tool_id": "not_selected_here",
+      "tool_matrix_ref": "tool-matrix:v75b:product-wedge:external-branch-blocked",
+      "worker_role_refs": [
+        "worker-role:v75b:product-wedge:external-branch-review"
+      ]
+    },
+    {
+      "applicability_posture": "applicable_for_target_horizon",
+      "claim_horizon": "Applicability to V75-A fixture and validator tests only.",
+      "limitation_note": "Tool applicability is target-bound and horizon-bound with no command permission and no dispatch.",
+      "observed_or_required_result_refs": [
+        "packages/adeu_repo_description/tests/test_dispatch_review_v75a.py"
+      ],
+      "target_claim_refs": [
+        "dispatch-request:v75a:self-evidencing:review",
+        "guardrail:v75a:self-evidencing:non-execution"
+      ],
+      "target_namespace_kind": "dispatch_request",
+      "tool_id": "pytest",
+      "tool_matrix_ref": "tool-matrix:v75b:self-evidencing:pytest-schema",
+      "worker_role_refs": [
+        "worker-role:v75b:self-evidencing:evidence-review"
+      ]
+    }
+  ],
+  "worker_tool_applicability_matrix_id": "repo_worker_tool_applicability_matrix_25d5e3cfa3352dfb4380ab81"
+}

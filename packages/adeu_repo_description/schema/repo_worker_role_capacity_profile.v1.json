@@ -1,0 +1,160 @@
+{
+  "$defs": {
+    "RepoWorkerRoleCapacityRow": {
+      "additionalProperties": false,
+      "properties": {
+        "allowed_input_kinds": {
+          "items": {
+            "type": "string"
+          },
+          "minItems": 1,
+          "title": "Allowed Input Kinds",
+          "type": "array"
+        },
+        "allowed_tool_ids": {
+          "items": {
+            "type": "string"
+          },
+          "title": "Allowed Tool Ids",
+          "type": "array"
+        },
+        "authority_boundary_refs": {
+          "items": {
+            "type": "string"
+          },
+          "minItems": 1,
+          "title": "Authority Boundary Refs",
+          "type": "array"
+        },
+        "capability_horizon": {
+          "title": "Capability Horizon",
+          "type": "string"
+        },
+        "expected_output_kinds": {
+          "items": {
+            "type": "string"
+          },
+          "minItems": 1,
+          "title": "Expected Output Kinds",
+          "type": "array"
+        },
+        "forbidden_action_kinds": {
+          "items": {
+            "enum": [
+              "assign_worker_now",
+              "run_command_now",
+              "open_pr_now",
+              "commit_now",
+              "merge_now",
+              "release_now",
+              "authorize_product_now",
+              "grant_runtime_permission_now",
+              "enter_external_contest_now",
+              "self_approve_now"
+            ],
+            "type": "string"
+          },
+          "minItems": 1,
+          "title": "Forbidden Action Kinds",
+          "type": "array"
+        },
+        "limitation_note": {
+          "title": "Limitation Note",
+          "type": "string"
+        },
+        "role_kind": {
+          "enum": [
+            "source_index_worker",
+            "evidence_review_worker",
+            "adversarial_review_worker",
+            "schema_validation_worker",
+            "tool_run_worker",
+            "reconciliation_worker",
+            "operator_projection_worker",
+            "external_branch_review_worker"
+          ],
+          "title": "Role Kind",
+          "type": "string"
+        },
+        "tool_use_posture": {
+          "enum": [
+            "applicability_record_only",
+            "tool_use_requires_later_runtime_permission",
+            "tool_use_not_authorized_by_v75"
+          ],
+          "title": "Tool Use Posture",
+          "type": "string"
+        },
+        "worker_role_ref": {
+          "title": "Worker Role Ref",
+          "type": "string"
+        }
+      },
+      "required": [
+        "worker_role_ref",
+        "role_kind",
+        "capability_horizon",
+        "allowed_input_kinds",
+        "expected_output_kinds",
+        "tool_use_posture",
+        "forbidden_action_kinds",
+        "authority_boundary_refs",
+        "limitation_note"
+      ],
+      "title": "RepoWorkerRoleCapacityRow",
+      "type": "object"
+    }
+  },
+  "additionalProperties": false,
+  "properties": {
+    "dispatch_review_request_id": {
+      "title": "Dispatch Review Request Id",
+      "type": "string"
+    },
+    "review_id": {
+      "title": "Review Id",
+      "type": "string"
+    },
+    "role_capacity_summary": {
+      "title": "Role Capacity Summary",
+      "type": "string"
+    },
+    "schema": {
+      "const": "repo_worker_role_capacity_profile@1",
+      "default": "repo_worker_role_capacity_profile@1",
+      "title": "Schema",
+      "type": "string"
+    },
+    "snapshot_id": {
+      "title": "Snapshot Id",
+      "type": "string"
+    },
+    "source_set_id": {
+      "title": "Source Set Id",
+      "type": "string"
+    },
+    "worker_role_capacity_profile_id": {
+      "title": "Worker Role Capacity Profile Id",
+      "type": "string"
+    },
+    "worker_role_rows": {
+      "items": {
+        "$ref": "#/$defs/RepoWorkerRoleCapacityRow"
+      },
+      "minItems": 1,
+      "title": "Worker Role Rows",
+      "type": "array"
+    }
+  },
+  "required": [
+    "worker_role_capacity_profile_id",
+    "dispatch_review_request_id",
+    "review_id",
+    "snapshot_id",
+    "source_set_id",
+    "worker_role_rows",
+    "role_capacity_summary"
+  ],
+  "title": "RepoWorkerRoleCapacityProfile",
+  "type": "object"
+}

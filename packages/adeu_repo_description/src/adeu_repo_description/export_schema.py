@@ -71,9 +71,14 @@ from .contained_integration_review import (
     RepoPostIntegrationOutcomeReviewHandoff,
 )
 from .dispatch_review import (
+    RepoDispatchExceptionRegister,
     RepoDispatchNonExecutionGuardrail,
     RepoDispatchReviewRequest,
     RepoDispatchSourceIndex,
+    RepoMultiWorkerAssignmentPlan,
+    RepoWorkerIOContract,
+    RepoWorkerRoleCapacityProfile,
+    RepoWorkerToolApplicabilityMatrix,
 )
 from .models import (
     RepoArcDependencyRegister,
@@ -350,6 +355,19 @@ def main() -> None:
     dispatch_non_execution_guardrail_schema = RepoDispatchNonExecutionGuardrail.model_json_schema(
         by_alias=True
     )
+    worker_role_capacity_profile_schema = RepoWorkerRoleCapacityProfile.model_json_schema(
+        by_alias=True
+    )
+    multi_worker_assignment_plan_schema = RepoMultiWorkerAssignmentPlan.model_json_schema(
+        by_alias=True
+    )
+    worker_io_contract_schema = RepoWorkerIOContract.model_json_schema(by_alias=True)
+    worker_tool_applicability_matrix_schema = RepoWorkerToolApplicabilityMatrix.model_json_schema(
+        by_alias=True
+    )
+    dispatch_exception_register_schema = RepoDispatchExceptionRegister.model_json_schema(
+        by_alias=True
+    )
 
     _assert_no_absolute_path_material(dependency_register_v1_schema, repo_root_path=root)
     _assert_no_absolute_path_material(dependency_register_schema, repo_root_path=root)
@@ -493,6 +511,11 @@ def main() -> None:
     _assert_no_absolute_path_material(dispatch_source_index_schema, repo_root_path=root)
     _assert_no_absolute_path_material(dispatch_review_request_schema, repo_root_path=root)
     _assert_no_absolute_path_material(dispatch_non_execution_guardrail_schema, repo_root_path=root)
+    _assert_no_absolute_path_material(worker_role_capacity_profile_schema, repo_root_path=root)
+    _assert_no_absolute_path_material(multi_worker_assignment_plan_schema, repo_root_path=root)
+    _assert_no_absolute_path_material(worker_io_contract_schema, repo_root_path=root)
+    _assert_no_absolute_path_material(worker_tool_applicability_matrix_schema, repo_root_path=root)
+    _assert_no_absolute_path_material(dispatch_exception_register_schema, repo_root_path=root)
 
     _write_schema(
         root
@@ -1393,6 +1416,62 @@ def main() -> None:
     _write_schema(
         root / "spec" / "repo_dispatch_non_execution_guardrail.schema.json",
         dispatch_non_execution_guardrail_schema,
+    )
+    _write_schema(
+        root
+        / "packages"
+        / "adeu_repo_description"
+        / "schema"
+        / "repo_worker_role_capacity_profile.v1.json",
+        worker_role_capacity_profile_schema,
+    )
+    _write_schema(
+        root / "spec" / "repo_worker_role_capacity_profile.schema.json",
+        worker_role_capacity_profile_schema,
+    )
+    _write_schema(
+        root
+        / "packages"
+        / "adeu_repo_description"
+        / "schema"
+        / "repo_multi_worker_assignment_plan.v1.json",
+        multi_worker_assignment_plan_schema,
+    )
+    _write_schema(
+        root / "spec" / "repo_multi_worker_assignment_plan.schema.json",
+        multi_worker_assignment_plan_schema,
+    )
+    _write_schema(
+        root / "packages" / "adeu_repo_description" / "schema" / "repo_worker_io_contract.v1.json",
+        worker_io_contract_schema,
+    )
+    _write_schema(
+        root / "spec" / "repo_worker_io_contract.schema.json",
+        worker_io_contract_schema,
+    )
+    _write_schema(
+        root
+        / "packages"
+        / "adeu_repo_description"
+        / "schema"
+        / "repo_worker_tool_applicability_matrix.v1.json",
+        worker_tool_applicability_matrix_schema,
+    )
+    _write_schema(
+        root / "spec" / "repo_worker_tool_applicability_matrix.schema.json",
+        worker_tool_applicability_matrix_schema,
+    )
+    _write_schema(
+        root
+        / "packages"
+        / "adeu_repo_description"
+        / "schema"
+        / "repo_dispatch_exception_register.v1.json",
+        dispatch_exception_register_schema,
+    )
+    _write_schema(
+        root / "spec" / "repo_dispatch_exception_register.schema.json",
+        dispatch_exception_register_schema,
     )
 
 

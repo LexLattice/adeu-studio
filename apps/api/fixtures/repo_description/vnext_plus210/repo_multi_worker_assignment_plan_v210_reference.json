@@ -1,0 +1,70 @@
+{
+  "assignment_plan_rows": [
+    {
+      "assignment_execution_posture": "no_execution_authorized",
+      "assignment_plan_posture": "blocked_by_later_authority",
+      "assignment_plan_ref": "assignment-plan:v75b:product-wedge:blocked",
+      "dispatch_request_refs": [
+        "dispatch-request:v75a:product-wedge:blocked"
+      ],
+      "exception_refs": [
+        "dispatch-exception:v75b:product-wedge:authority"
+      ],
+      "io_contract_refs": [
+        "io-contract:v75b:product-wedge:external-branch-review"
+      ],
+      "limitation_note": "External branch/product pressure remains blocked plan posture with no worker assignment, no command, and no dispatch.",
+      "non_execution_guardrail_refs": [
+        "guardrail:v75a:product-wedge:non-execution"
+      ],
+      "required_later_authority_refs": [
+        "authority:v75a:product-wedge:product-review"
+      ],
+      "tool_applicability_refs": [
+        "tool-matrix:v75b:product-wedge:external-branch-blocked"
+      ],
+      "worker_role_refs": [
+        "worker-role:v75b:product-wedge:external-branch-review"
+      ]
+    },
+    {
+      "assignment_execution_posture": "no_execution_authorized",
+      "assignment_plan_posture": "plan_ready_for_review",
+      "assignment_plan_ref": "assignment-plan:v75b:self-evidencing:review-only",
+      "dispatch_request_refs": [
+        "dispatch-request:v75a:self-evidencing:review"
+      ],
+      "exception_refs": [
+        "dispatch-exception:v75b:self-evidencing:upstream"
+      ],
+      "io_contract_refs": [
+        "io-contract:v75b:self-evidencing:evidence-review"
+      ],
+      "limitation_note": "This is an orchestration plan with no worker assignment, no command, and no dispatch.",
+      "non_execution_guardrail_refs": [
+        "guardrail:v75a:self-evidencing:non-execution"
+      ],
+      "required_later_authority_refs": [
+        "authority:v75a:self-evidencing:dispatch-execution",
+        "authority:v75a:self-evidencing:human-review"
+      ],
+      "tool_applicability_refs": [
+        "tool-matrix:v75b:self-evidencing:pytest-schema"
+      ],
+      "worker_role_refs": [
+        "worker-role:v75b:self-evidencing:evidence-review"
+      ]
+    }
+  ],
+  "assignment_plan_summary": "Multi-worker assignment plans remain plans only: no worker assignment, no command, and no dispatch.",
+  "dispatch_exception_register_id": "repo_dispatch_exception_register_0a2cbac9445d50943ea6ee11",
+  "dispatch_review_request_id": "repo_dispatch_review_request_cff168be545e3c00b04412d4",
+  "multi_worker_assignment_plan_id": "repo_multi_worker_assignment_plan_c963f71227e67f56aea52054",
+  "review_id": "review:v75b:worker-orchestration-planning",
+  "schema": "repo_multi_worker_assignment_plan@1",
+  "snapshot_id": "vNext+209-closed-on-main",
+  "source_set_id": "source-set:v75b:released-v75a-dispatch-review",
+  "worker_io_contract_id": "repo_worker_io_contract_4140039eda42ac582a7027f9",
+  "worker_role_capacity_profile_id": "repo_worker_role_capacity_profile_4f8e35220aae9768a261369a",
+  "worker_tool_applicability_matrix_id": "repo_worker_tool_applicability_matrix_25d5e3cfa3352dfb4380ab81"
+}
