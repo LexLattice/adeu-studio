@@ -1,0 +1,162 @@
+{
+  "$defs": {
+    "RepoDispatchExceptionRow": {
+      "additionalProperties": false,
+      "properties": {
+        "assignment_plan_refs": {
+          "items": {
+            "type": "string"
+          },
+          "title": "Assignment Plan Refs",
+          "type": "array"
+        },
+        "blocking_posture": {
+          "enum": [
+            "blocking",
+            "warning_only",
+            "carried_forward",
+            "not_applicable",
+            "unknown_needs_review"
+          ],
+          "title": "Blocking Posture",
+          "type": "string"
+        },
+        "dispatch_exception_ref": {
+          "title": "Dispatch Exception Ref",
+          "type": "string"
+        },
+        "dispatch_request_refs": {
+          "items": {
+            "type": "string"
+          },
+          "title": "Dispatch Request Refs",
+          "type": "array"
+        },
+        "exception_kind": {
+          "enum": [
+            "missing_dispatch_source",
+            "unresolved_projection_exception",
+            "missing_role_profile",
+            "missing_io_contract",
+            "tool_applicability_gap",
+            "required_later_authority_missing",
+            "product_authority_gap",
+            "runtime_authority_gap",
+            "external_branch_boundary_gap",
+            "worker_output_truth_gap",
+            "unknown_needs_review"
+          ],
+          "title": "Exception Kind",
+          "type": "string"
+        },
+        "io_contract_refs": {
+          "items": {
+            "type": "string"
+          },
+          "title": "Io Contract Refs",
+          "type": "array"
+        },
+        "limitation_note": {
+          "title": "Limitation Note",
+          "type": "string"
+        },
+        "required_next_surface": {
+          "enum": [
+            "v75c_reconciliation_review",
+            "future_runtime_permission_review",
+            "future_product_review",
+            "future_external_branch_review",
+            "future_family_review",
+            "deferred_no_selection"
+          ],
+          "title": "Required Next Surface",
+          "type": "string"
+        },
+        "source_refs": {
+          "items": {
+            "type": "string"
+          },
+          "minItems": 1,
+          "title": "Source Refs",
+          "type": "array"
+        },
+        "tool_matrix_refs": {
+          "items": {
+            "type": "string"
+          },
+          "title": "Tool Matrix Refs",
+          "type": "array"
+        },
+        "worker_role_refs": {
+          "items": {
+            "type": "string"
+          },
+          "title": "Worker Role Refs",
+          "type": "array"
+        }
+      },
+      "required": [
+        "dispatch_exception_ref",
+        "exception_kind",
+        "source_refs",
+        "blocking_posture",
+        "required_next_surface",
+        "limitation_note"
+      ],
+      "title": "RepoDispatchExceptionRow",
+      "type": "object"
+    }
+  },
+  "additionalProperties": false,
+  "properties": {
+    "dispatch_exception_register_id": {
+      "title": "Dispatch Exception Register Id",
+      "type": "string"
+    },
+    "dispatch_review_request_id": {
+      "title": "Dispatch Review Request Id",
+      "type": "string"
+    },
+    "exception_register_summary": {
+      "title": "Exception Register Summary",
+      "type": "string"
+    },
+    "exception_rows": {
+      "items": {
+        "$ref": "#/$defs/RepoDispatchExceptionRow"
+      },
+      "minItems": 1,
+      "title": "Exception Rows",
+      "type": "array"
+    },
+    "review_id": {
+      "title": "Review Id",
+      "type": "string"
+    },
+    "schema": {
+      "const": "repo_dispatch_exception_register@1",
+      "default": "repo_dispatch_exception_register@1",
+      "title": "Schema",
+      "type": "string"
+    },
+    "snapshot_id": {
+      "title": "Snapshot Id",
+      "type": "string"
+    },
+    "source_set_id": {
+      "title": "Source Set Id",
+      "type": "string"
+    }
+  },
+  "required": [
+    "dispatch_exception_register_id",
+    "dispatch_review_request_id",
+    "review_id",
+    "snapshot_id",
+    "source_set_id",
+    "exception_rows",
+    "exception_register_summary"
+  ],
+  "title": "RepoDispatchExceptionRegister",
+  "type": "object"
+}

@@ -1,0 +1,55 @@
+{
+  "dispatch_exception_register_id": "repo_dispatch_exception_register_91770ba2a64dd77613a95f8b",
+  "dispatch_review_request_id": "repo_dispatch_review_request_cff168be545e3c00b04412d4",
+  "exception_register_summary": "Dispatch exceptions remain visible and not resolved; no dispatch.",
+  "exception_rows": [
+    {
+      "assignment_plan_refs": [],
+      "blocking_posture": "blocking",
+      "dispatch_exception_ref": "dispatch-exception:v75b:product-wedge:authority",
+      "dispatch_request_refs": [
+        "dispatch-request:v75a:product-wedge:blocked"
+      ],
+      "exception_kind": "product_authority_gap",
+      "io_contract_refs": [],
+      "limitation_note": "Upstream V74 exception is marked resolved by V75-B; no dispatch.",
+      "required_next_surface": "future_product_review",
+      "source_refs": [
+        "apps/api/fixtures/repo_description/vnext_plus209/repo_dispatch_review_request_v209_reference.json"
+      ],
+      "tool_matrix_refs": [],
+      "worker_role_refs": [
+        "worker-role:v75b:product-wedge:external-branch-review"
+      ]
+    },
+    {
+      "assignment_plan_refs": [
+        "assignment-plan:v75b:self-evidencing:review-only"
+      ],
+      "blocking_posture": "carried_forward",
+      "dispatch_exception_ref": "dispatch-exception:v75b:self-evidencing:upstream",
+      "dispatch_request_refs": [
+        "dispatch-request:v75a:self-evidencing:review"
+      ],
+      "exception_kind": "unresolved_projection_exception",
+      "io_contract_refs": [
+        "io-contract:v75b:self-evidencing:evidence-review"
+      ],
+      "limitation_note": "Upstream V74 exception is carried forward and not resolved; no dispatch.",
+      "required_next_surface": "v75c_reconciliation_review",
+      "source_refs": [
+        "apps/api/fixtures/repo_description/vnext_plus209/repo_dispatch_review_request_v209_reference.json"
+      ],
+      "tool_matrix_refs": [
+        "tool-matrix:v75b:self-evidencing:pytest-schema"
+      ],
+      "worker_role_refs": [
+        "worker-role:v75b:self-evidencing:evidence-review"
+      ]
+    }
+  ],
+  "review_id": "review:v75b:worker-orchestration-planning",
+  "schema": "repo_dispatch_exception_register@1",
+  "snapshot_id": "vNext+209-closed-on-main",
+  "source_set_id": "source-set:v75b:released-v75a-dispatch-review"
+}

@@ -24,6 +24,11 @@ from .recursive_candidate_intake import (
 REPO_DISPATCH_REVIEW_REQUEST_SCHEMA = "repo_dispatch_review_request@1"
 REPO_DISPATCH_SOURCE_INDEX_SCHEMA = "repo_dispatch_source_index@1"
 REPO_DISPATCH_NON_EXECUTION_GUARDRAIL_SCHEMA = "repo_dispatch_non_execution_guardrail@1"
+REPO_WORKER_ROLE_CAPACITY_PROFILE_SCHEMA = "repo_worker_role_capacity_profile@1"
+REPO_MULTI_WORKER_ASSIGNMENT_PLAN_SCHEMA = "repo_multi_worker_assignment_plan@1"
+REPO_WORKER_IO_CONTRACT_SCHEMA = "repo_worker_io_contract@1"
+REPO_WORKER_TOOL_APPLICABILITY_MATRIX_SCHEMA = "repo_worker_tool_applicability_matrix@1"
+REPO_DISPATCH_EXCEPTION_REGISTER_SCHEMA = "repo_dispatch_exception_register@1"
 
 DispatchSourceRole = Literal[
     "v74_post_projection_handoff_source",
@@ -106,6 +111,88 @@ AllowedDispatchNextReviewSurface = Literal[
     "future_family_review",
     "deferred_no_selection",
 ]
+WorkerRoleKind = Literal[
+    "source_index_worker",
+    "evidence_review_worker",
+    "adversarial_review_worker",
+    "schema_validation_worker",
+    "tool_run_worker",
+    "reconciliation_worker",
+    "operator_projection_worker",
+    "external_branch_review_worker",
+]
+WorkerToolUsePosture = Literal[
+    "applicability_record_only",
+    "tool_use_requires_later_runtime_permission",
+    "tool_use_not_authorized_by_v75",
+]
+AssignmentPlanPosture = Literal[
+    "plan_ready_for_review",
+    "blocked_by_missing_role_profile",
+    "blocked_by_missing_io_contract",
+    "blocked_by_tool_applicability_gap",
+    "blocked_by_unresolved_exception",
+    "blocked_by_later_authority",
+    "future_family_only",
+    "rejected_out_of_scope",
+]
+AssignmentExecutionPosture = Literal[
+    "no_execution_authorized",
+    "review_plan_only",
+    "blocked_pending_later_authority",
+]
+WorkerOutputAuthorityPosture = Literal[
+    "output_for_review_only",
+    "output_requires_reconciliation",
+    "output_requires_adversarial_review",
+    "output_requires_human_ratification",
+    "output_not_truth",
+]
+WorkerToolApplicabilityPosture = Literal[
+    "applicable_for_target_horizon",
+    "blocked_by_missing_source",
+    "blocked_by_missing_tool_evidence",
+    "not_applicable_for_target_horizon",
+    "requires_negative_control",
+    "requires_human_review",
+    "unknown_needs_review",
+]
+DispatchExceptionKind = Literal[
+    "missing_dispatch_source",
+    "unresolved_projection_exception",
+    "missing_role_profile",
+    "missing_io_contract",
+    "tool_applicability_gap",
+    "required_later_authority_missing",
+    "product_authority_gap",
+    "runtime_authority_gap",
+    "external_branch_boundary_gap",
+    "worker_output_truth_gap",
+    "unknown_needs_review",
+]
+DispatchExceptionBlockingPosture = Literal[
+    "blocking",
+    "warning_only",
+    "carried_forward",
+    "not_applicable",
+    "unknown_needs_review",
+]
+DispatchExceptionNextSurface = Literal[
+    "v75c_reconciliation_review",
+    "future_runtime_permission_review",
+    "future_product_review",
+    "future_external_branch_review",
+    "future_family_review",
+    "deferred_no_selection",
+]
+TargetNamespaceKind = Literal[
+    "dispatch_request",
+    "worker_role",
+    "io_contract",
+    "tool_matrix",
+    "candidate",
+    "claim_horizon",
+]
 
 _ELIGIBILITY_SOURCE_ROLES = {
     "v74_post_projection_handoff_source",
@@ -159,6 +246,13 @@ _NEXT_REVIEW_SURFACES_BY_HORIZON: dict[
         "future_family_review",
         "deferred_no_selection",
     ),
+}
+_WORKER_PLANNING_SCHEMA_NAMES = {
+    REPO_WORKER_ROLE_CAPACITY_PROFILE_SCHEMA,
+    REPO_MULTI_WORKER_ASSIGNMENT_PLAN_SCHEMA,
+    REPO_WORKER_IO_CONTRACT_SCHEMA,
+    REPO_WORKER_TOOL_APPLICABILITY_MATRIX_SCHEMA,
+    REPO_DISPATCH_EXCEPTION_REGISTER_SCHEMA,
 }
 
 
@@ -848,9 +942,7 @@ def derive_v75a_repo_dispatch_non_execution_guardrail(
                 "dispatch_request_refs": [request_row.dispatch_request_ref],
                 "forbidden_action_kinds": sorted(_FORBIDDEN_ACTION_KINDS),
                 "allowed_next_review_surfaces": sorted(
-                    _NEXT_REVIEW_SURFACES_BY_HORIZON[
-                        request_row.requested_orchestration_horizon
-                    ]
+                    _NEXT_REVIEW_SURFACES_BY_HORIZON[request_row.requested_orchestration_horizon]
                 ),
                 "non_execution_guardrail": (
                     "This V75-A row is review only: no worker assignment, no command, "
@@ -1011,3 +1103,948 @@ def derive_v75a_dispatch_review_bundle(
         dispatch_non_execution_guardrail=guardrail,
     )
     return source_index, request, guardrail
+
+
+class RepoWorkerRoleCapacityRow(_CartographyBase):
+    worker_role_ref: str
+    role_kind: WorkerRoleKind
+    capability_horizon: str
+    allowed_input_kinds: list[str] = Field(min_length=1)
+    expected_output_kinds: list[str] = Field(min_length=1)
+    allowed_tool_ids: list[str] = Field(default_factory=list)
+    tool_use_posture: WorkerToolUsePosture
+    forbidden_action_kinds: list[ForbiddenDispatchActionKind] = Field(min_length=1)
+    authority_boundary_refs: list[str] = Field(min_length=1)
+    limitation_note: str
+
+    @model_validator(mode="after")
+    def _validate_worker_role_capacity_row(self) -> RepoWorkerRoleCapacityRow:
+        _non_empty(self.worker_role_ref, field_name="worker_role_ref")
+        _non_empty(self.capability_horizon, field_name="capability_horizon")
+        for field_name in (
+            "allowed_input_kinds",
+            "expected_output_kinds",
+            "allowed_tool_ids",
+            "forbidden_action_kinds",
+            "authority_boundary_refs",
+        ):
+            object.__setattr__(
+                self,
+                field_name,
+                _sorted_unique(getattr(self, field_name), field_name=field_name),
+            )
+        missing = _FORBIDDEN_ACTION_KINDS.difference(self.forbidden_action_kinds)
+        if missing:
+            raise ValueError("worker role profile omits forbidden action kinds")
+        _reject_unnegated_authority_claim(self.capability_horizon, field_name="capability_horizon")
+        _reject_unnegated_authority_claim(self.limitation_note, field_name="limitation_note")
+        _require_terms(
+            self.limitation_note,
+            field_name="limitation_note",
+            terms=("not permission", "no command"),
+        )
+        if self.allowed_tool_ids and self.tool_use_posture not in {
+            "applicability_record_only",
+            "tool_use_requires_later_runtime_permission",
+            "tool_use_not_authorized_by_v75",
+        }:
+            raise ValueError("allowed tool ids may not grant tool-use permission")
+        return self
+
+
+class RepoWorkerRoleCapacityProfile(_CartographyBase):
+    schema: Literal["repo_worker_role_capacity_profile@1"] = (
+        REPO_WORKER_ROLE_CAPACITY_PROFILE_SCHEMA
+    )
+    worker_role_capacity_profile_id: str
+    dispatch_review_request_id: str
+    review_id: str
+    snapshot_id: str
+    source_set_id: str
+    worker_role_rows: list[RepoWorkerRoleCapacityRow] = Field(min_length=1)
+    role_capacity_summary: str
+
+    @model_validator(mode="after")
+    def _validate_worker_role_capacity_profile(self) -> RepoWorkerRoleCapacityProfile:
+        object.__setattr__(
+            self,
+            "worker_role_rows",
+            _sorted_unique_by_ref(
+                self.worker_role_rows,
+                attr="worker_role_ref",
+                field_name="worker_role_rows",
+            ),
+        )
+        _require_terms(
+            self.role_capacity_summary,
+            field_name="role_capacity_summary",
+            terms=("capacity", "not permission", "no command", "no dispatch"),
+        )
+        expected_id = _surface_id(
+            "repo_worker_role_capacity_profile",
+            self.schema,
+            self.model_dump(mode="json"),
+            "worker_role_capacity_profile_id",
+        )
+        if self.worker_role_capacity_profile_id != expected_id:
+            raise ValueError(
+                "worker_role_capacity_profile_id does not match canonical payload hash"
+            )
+        return self
+
+
+class RepoWorkerIOContractRow(_CartographyBase):
+    io_contract_ref: str
+    worker_role_refs: list[str] = Field(min_length=1)
+    input_source_refs: list[str] = Field(min_length=1)
+    input_claim_horizon: str
+    expected_output_kind: str
+    output_schema_ref: str
+    output_authority_posture: WorkerOutputAuthorityPosture
+    non_truth_guardrail: str
+    limitation_note: str
+
+    @model_validator(mode="after")
+    def _validate_worker_io_contract_row(self) -> RepoWorkerIOContractRow:
+        _non_empty(self.io_contract_ref, field_name="io_contract_ref")
+        _non_empty(self.input_claim_horizon, field_name="input_claim_horizon")
+        _non_empty(self.expected_output_kind, field_name="expected_output_kind")
+        _non_empty(self.output_schema_ref, field_name="output_schema_ref")
+        for field_name in ("worker_role_refs", "input_source_refs"):
+            object.__setattr__(
+                self,
+                field_name,
+                _sorted_unique(getattr(self, field_name), field_name=field_name),
+            )
+        for source_ref in self.input_source_refs:
+            _repo_ref(source_ref, field_name="input_source_refs")
+        _reject_unnegated_authority_claim(
+            self.non_truth_guardrail, field_name="non_truth_guardrail"
+        )
+        _reject_unnegated_authority_claim(self.limitation_note, field_name="limitation_note")
+        _require_terms(
+            self.non_truth_guardrail,
+            field_name="non_truth_guardrail",
+            terms=("not truth", "review"),
+        )
+        return self
+
+
+class RepoWorkerIOContract(_CartographyBase):
+    schema: Literal["repo_worker_io_contract@1"] = REPO_WORKER_IO_CONTRACT_SCHEMA
+    worker_io_contract_id: str
+    dispatch_review_request_id: str
+    review_id: str
+    snapshot_id: str
+    source_set_id: str
+    io_contract_rows: list[RepoWorkerIOContractRow] = Field(min_length=1)
+    io_contract_summary: str
+
+    @model_validator(mode="after")
+    def _validate_worker_io_contract(self) -> RepoWorkerIOContract:
+        object.__setattr__(
+            self,
+            "io_contract_rows",
+            _sorted_unique_by_ref(
+                self.io_contract_rows,
+                attr="io_contract_ref",
+                field_name="io_contract_rows",
+            ),
+        )
+        _require_terms(
+            self.io_contract_summary,
+            field_name="io_contract_summary",
+            terms=("review", "not truth", "no dispatch"),
+        )
+        expected_id = _surface_id(
+            "repo_worker_io_contract",
+            self.schema,
+            self.model_dump(mode="json"),
+            "worker_io_contract_id",
+        )
+        if self.worker_io_contract_id != expected_id:
+            raise ValueError("worker_io_contract_id does not match canonical payload hash")
+        return self
+
+
+class RepoWorkerToolApplicabilityRow(_CartographyBase):
+    tool_matrix_ref: str
+    worker_role_refs: list[str] = Field(min_length=1)
+    tool_id: str
+    target_claim_refs: list[str] = Field(min_length=1)
+    target_namespace_kind: TargetNamespaceKind
+    claim_horizon: str
+    applicability_posture: WorkerToolApplicabilityPosture
+    observed_or_required_result_refs: list[str] = Field(min_length=1)
+    limitation_note: str
+
+    @model_validator(mode="after")
+    def _validate_worker_tool_applicability_row(self) -> RepoWorkerToolApplicabilityRow:
+        _non_empty(self.tool_matrix_ref, field_name="tool_matrix_ref")
+        _non_empty(self.tool_id, field_name="tool_id")
+        _non_empty(self.claim_horizon, field_name="claim_horizon")
+        for field_name in (
+            "worker_role_refs",
+            "target_claim_refs",
+            "observed_or_required_result_refs",
+        ):
+            object.__setattr__(
+                self,
+                field_name,
+                _sorted_unique(getattr(self, field_name), field_name=field_name),
+            )
+        _reject_unnegated_authority_claim(self.limitation_note, field_name="limitation_note")
+        _require_terms(
+            self.limitation_note,
+            field_name="limitation_note",
+            terms=("target-bound", "horizon-bound", "no command"),
+        )
+        return self
+
+
+class RepoWorkerToolApplicabilityMatrix(_CartographyBase):
+    schema: Literal["repo_worker_tool_applicability_matrix@1"] = (
+        REPO_WORKER_TOOL_APPLICABILITY_MATRIX_SCHEMA
+    )
+    worker_tool_applicability_matrix_id: str
+    dispatch_review_request_id: str
+    review_id: str
+    snapshot_id: str
+    source_set_id: str
+    tool_matrix_rows: list[RepoWorkerToolApplicabilityRow] = Field(min_length=1)
+    tool_applicability_summary: str
+
+    @model_validator(mode="after")
+    def _validate_worker_tool_applicability_matrix(self) -> RepoWorkerToolApplicabilityMatrix:
+        object.__setattr__(
+            self,
+            "tool_matrix_rows",
+            _sorted_unique_by_ref(
+                self.tool_matrix_rows,
+                attr="tool_matrix_ref",
+                field_name="tool_matrix_rows",
+            ),
+        )
+        _require_terms(
+            self.tool_applicability_summary,
+            field_name="tool_applicability_summary",
+            terms=("target-bound", "horizon-bound", "no command", "no dispatch"),
+        )
+        expected_id = _surface_id(
+            "repo_worker_tool_applicability_matrix",
+            self.schema,
+            self.model_dump(mode="json"),
+            "worker_tool_applicability_matrix_id",
+        )
+        if self.worker_tool_applicability_matrix_id != expected_id:
+            raise ValueError(
+                "worker_tool_applicability_matrix_id does not match canonical payload hash"
+            )
+        return self
+
+
+class RepoDispatchExceptionRow(_CartographyBase):
+    dispatch_exception_ref: str
+    dispatch_request_refs: list[str] = Field(default_factory=list)
+    assignment_plan_refs: list[str] = Field(default_factory=list)
+    worker_role_refs: list[str] = Field(default_factory=list)
+    io_contract_refs: list[str] = Field(default_factory=list)
+    tool_matrix_refs: list[str] = Field(default_factory=list)
+    exception_kind: DispatchExceptionKind
+    source_refs: list[str] = Field(min_length=1)
+    blocking_posture: DispatchExceptionBlockingPosture
+    required_next_surface: DispatchExceptionNextSurface
+    limitation_note: str
+
+    @model_validator(mode="after")
+    def _validate_dispatch_exception_row(self) -> RepoDispatchExceptionRow:
+        _non_empty(self.dispatch_exception_ref, field_name="dispatch_exception_ref")
+        for field_name in (
+            "dispatch_request_refs",
+            "assignment_plan_refs",
+            "worker_role_refs",
+            "io_contract_refs",
+            "tool_matrix_refs",
+            "source_refs",
+        ):
+            object.__setattr__(
+                self,
+                field_name,
+                _sorted_unique(getattr(self, field_name), field_name=field_name),
+            )
+        for source_ref in self.source_refs:
+            _repo_ref(source_ref, field_name="source_refs")
+        _reject_unnegated_authority_claim(self.limitation_note, field_name="limitation_note")
+        lowered_note = self.limitation_note.lower()
+        if "marked resolved" in lowered_note or "resolved by v75-b" in lowered_note:
+            raise ValueError("V75-B exception rows may not mark exceptions resolved")
+        return self
+
+
+class RepoDispatchExceptionRegister(_CartographyBase):
+    schema: Literal["repo_dispatch_exception_register@1"] = REPO_DISPATCH_EXCEPTION_REGISTER_SCHEMA
+    dispatch_exception_register_id: str
+    dispatch_review_request_id: str
+    review_id: str
+    snapshot_id: str
+    source_set_id: str
+    exception_rows: list[RepoDispatchExceptionRow] = Field(min_length=1)
+    exception_register_summary: str
+
+    @model_validator(mode="after")
+    def _validate_dispatch_exception_register(self) -> RepoDispatchExceptionRegister:
+        object.__setattr__(
+            self,
+            "exception_rows",
+            _sorted_unique_by_ref(
+                self.exception_rows,
+                attr="dispatch_exception_ref",
+                field_name="exception_rows",
+            ),
+        )
+        _require_terms(
+            self.exception_register_summary,
+            field_name="exception_register_summary",
+            terms=("visible", "not resolved", "no dispatch"),
+        )
+        expected_id = _surface_id(
+            "repo_dispatch_exception_register",
+            self.schema,
+            self.model_dump(mode="json"),
+            "dispatch_exception_register_id",
+        )
+        if self.dispatch_exception_register_id != expected_id:
+            raise ValueError("dispatch_exception_register_id does not match canonical payload hash")
+        return self
+
+
+class RepoMultiWorkerAssignmentPlanRow(_CartographyBase):
+    assignment_plan_ref: str
+    dispatch_request_refs: list[str] = Field(min_length=1)
+    worker_role_refs: list[str] = Field(min_length=1)
+    io_contract_refs: list[str] = Field(min_length=1)
+    tool_applicability_refs: list[str] = Field(min_length=1)
+    exception_refs: list[str] = Field(min_length=1)
+    required_later_authority_refs: list[str] = Field(min_length=1)
+    assignment_plan_posture: AssignmentPlanPosture
+    assignment_execution_posture: AssignmentExecutionPosture
+    non_execution_guardrail_refs: list[str] = Field(min_length=1)
+    limitation_note: str
+
+    @model_validator(mode="after")
+    def _validate_assignment_plan_row(self) -> RepoMultiWorkerAssignmentPlanRow:
+        _non_empty(self.assignment_plan_ref, field_name="assignment_plan_ref")
+        for field_name in (
+            "dispatch_request_refs",
+            "worker_role_refs",
+            "io_contract_refs",
+            "tool_applicability_refs",
+            "exception_refs",
+            "required_later_authority_refs",
+            "non_execution_guardrail_refs",
+        ):
+            object.__setattr__(
+                self,
+                field_name,
+                _sorted_unique(getattr(self, field_name), field_name=field_name),
+            )
+        _reject_unnegated_authority_claim(self.limitation_note, field_name="limitation_note")
+        if self.assignment_execution_posture != "no_execution_authorized":
+            raise ValueError("assignment plans must have no execution authorized")
+        _require_terms(
+            self.limitation_note,
+            field_name="limitation_note",
+            terms=("plan", "no worker", "no command", "no dispatch"),
+        )
+        return self
+
+
+class RepoMultiWorkerAssignmentPlan(_CartographyBase):
+    schema: Literal["repo_multi_worker_assignment_plan@1"] = (
+        REPO_MULTI_WORKER_ASSIGNMENT_PLAN_SCHEMA
+    )
+    multi_worker_assignment_plan_id: str
+    dispatch_review_request_id: str
+    worker_role_capacity_profile_id: str
+    worker_io_contract_id: str
+    worker_tool_applicability_matrix_id: str
+    dispatch_exception_register_id: str
+    review_id: str
+    snapshot_id: str
+    source_set_id: str
+    assignment_plan_rows: list[RepoMultiWorkerAssignmentPlanRow] = Field(min_length=1)
+    assignment_plan_summary: str
+
+    @model_validator(mode="after")
+    def _validate_multi_worker_assignment_plan(self) -> RepoMultiWorkerAssignmentPlan:
+        object.__setattr__(
+            self,
+            "assignment_plan_rows",
+            _sorted_unique_by_ref(
+                self.assignment_plan_rows,
+                attr="assignment_plan_ref",
+                field_name="assignment_plan_rows",
+            ),
+        )
+        _require_terms(
+            self.assignment_plan_summary,
+            field_name="assignment_plan_summary",
+            terms=("plan", "no worker", "no command", "no dispatch"),
+        )
+        expected_id = _surface_id(
+            "repo_multi_worker_assignment_plan",
+            self.schema,
+            self.model_dump(mode="json"),
+            "multi_worker_assignment_plan_id",
+        )
+        if self.multi_worker_assignment_plan_id != expected_id:
+            raise ValueError(
+                "multi_worker_assignment_plan_id does not match canonical payload hash"
+            )
+        return self
+
+
+def _v75b_base_payload(
+    *,
+    schema: str,
+    dispatch_review_request: RepoDispatchReviewRequest,
+) -> dict[str, str]:
+    return {
+        "schema": schema,
+        "dispatch_review_request_id": dispatch_review_request.dispatch_review_request_id,
+        "review_id": "review:v75b:worker-orchestration-planning",
+        "snapshot_id": "vNext+209-closed-on-main",
+        "source_set_id": "source-set:v75b:released-v75a-dispatch-review",
+    }
+
+
+def derive_v75b_repo_worker_role_capacity_profile(
+    *,
+    repo_root: Path | None = None,
+    dispatch_review_request: RepoDispatchReviewRequest | None = None,
+) -> RepoWorkerRoleCapacityProfile:
+    _ = repo_root
+    request = dispatch_review_request or derive_v75a_repo_dispatch_review_request()
+    payload = {
+        **_v75b_base_payload(
+            schema=REPO_WORKER_ROLE_CAPACITY_PROFILE_SCHEMA,
+            dispatch_review_request=request,
+        ),
+        "worker_role_capacity_profile_id": "",
+        "worker_role_rows": [
+            {
+                "worker_role_ref": "worker-role:v75b:self-evidencing:evidence-review",
+                "role_kind": "evidence_review_worker",
+                "capability_horizon": (
+                    "Review-only evidence and source posture analysis for the selected "
+                    "dispatch-review request."
+                ),
+                "allowed_input_kinds": sorted(
+                    [
+                        "repo_dispatch_review_request@1",
+                        "repo_dispatch_source_index@1",
+                        "repo_dispatch_non_execution_guardrail@1",
+                    ]
+                ),
+                "expected_output_kinds": ["worker_review_note_for_reconciliation"],
+                "allowed_tool_ids": ["pytest", "schema_validator"],
+                "tool_use_posture": "applicability_record_only",
+                "forbidden_action_kinds": sorted(_FORBIDDEN_ACTION_KINDS),
+                "authority_boundary_refs": sorted(
+                    [
+                        "guardrail:v75a:self-evidencing:non-execution",
+                        "authority:v75a:self-evidencing:dispatch-execution",
+                    ]
+                ),
+                "limitation_note": (
+                    "Worker role is a capacity profile, not permission; no command, "
+                    "no worker assignment, and no dispatch."
+                ),
+            },
+            {
+                "worker_role_ref": "worker-role:v75b:product-wedge:external-branch-review",
+                "role_kind": "external_branch_review_worker",
+                "capability_horizon": (
+                    "Future-family-only external branch review posture for blocked product "
+                    "pressure."
+                ),
+                "allowed_input_kinds": sorted(
+                    [
+                        "repo_dispatch_review_request@1",
+                        "repo_dispatch_non_execution_guardrail@1",
+                    ]
+                ),
+                "expected_output_kinds": ["blocked_external_branch_review_note"],
+                "allowed_tool_ids": [],
+                "tool_use_posture": "tool_use_not_authorized_by_v75",
+                "forbidden_action_kinds": sorted(_FORBIDDEN_ACTION_KINDS),
+                "authority_boundary_refs": sorted(
+                    [
+                        "guardrail:v75a:product-wedge:non-execution",
+                        "authority:v75a:product-wedge:product-review",
+                    ]
+                ),
+                "limitation_note": (
+                    "External branch role is future-family posture, not permission; "
+                    "no command, no contest entry, and no dispatch."
+                ),
+            },
+        ],
+        "role_capacity_summary": (
+            "Worker role capacity profiles describe capacity, not permission: "
+            "no command and no dispatch."
+        ),
+    }
+    payload["worker_role_rows"] = sorted(
+        payload["worker_role_rows"],
+        key=lambda row: row["worker_role_ref"],
+    )
+    payload["worker_role_capacity_profile_id"] = _surface_id(
+        "repo_worker_role_capacity_profile",
+        REPO_WORKER_ROLE_CAPACITY_PROFILE_SCHEMA,
+        payload,
+        "worker_role_capacity_profile_id",
+    )
+    return RepoWorkerRoleCapacityProfile.model_validate(payload)
+
+
+def derive_v75b_repo_worker_io_contract(
+    *,
+    repo_root: Path | None = None,
+    dispatch_review_request: RepoDispatchReviewRequest | None = None,
+) -> RepoWorkerIOContract:
+    _ = repo_root
+    request = dispatch_review_request or derive_v75a_repo_dispatch_review_request()
+    payload = {
+        **_v75b_base_payload(
+            schema=REPO_WORKER_IO_CONTRACT_SCHEMA,
+            dispatch_review_request=request,
+        ),
+        "worker_io_contract_id": "",
+        "io_contract_rows": [
+            {
+                "io_contract_ref": "io-contract:v75b:self-evidencing:evidence-review",
+                "worker_role_refs": ["worker-role:v75b:self-evidencing:evidence-review"],
+                "input_source_refs": [
+                    "apps/api/fixtures/repo_description/vnext_plus209/"
+                    "repo_dispatch_review_request_v209_reference.json",
+                    "apps/api/fixtures/repo_description/vnext_plus209/"
+                    "repo_dispatch_source_index_v209_reference.json",
+                ],
+                "input_claim_horizon": (
+                    "Bounded review of V75-A self-evidencing dispatch-review request."
+                ),
+                "expected_output_kind": "worker_review_note_for_reconciliation",
+                "output_schema_ref": "future:repo_worker_output_reconciliation_plan@1",
+                "output_authority_posture": "output_for_review_only",
+                "non_truth_guardrail": "Expected worker output is for review and not truth.",
+                "limitation_note": (
+                    "IO contract describes expected output only; no command, no dispatch, "
+                    "and output is not truth."
+                ),
+            }
+        ],
+        "io_contract_summary": (
+            "Worker IO contracts are review-only and not truth; no dispatch is authorized."
+        ),
+    }
+    payload["worker_io_contract_id"] = _surface_id(
+        "repo_worker_io_contract",
+        REPO_WORKER_IO_CONTRACT_SCHEMA,
+        payload,
+        "worker_io_contract_id",
+    )
+    return RepoWorkerIOContract.model_validate(payload)
+
+
+def derive_v75b_repo_worker_tool_applicability_matrix(
+    *,
+    repo_root: Path | None = None,
+    dispatch_review_request: RepoDispatchReviewRequest | None = None,
+) -> RepoWorkerToolApplicabilityMatrix:
+    _ = repo_root
+    request = dispatch_review_request or derive_v75a_repo_dispatch_review_request()
+    payload = {
+        **_v75b_base_payload(
+            schema=REPO_WORKER_TOOL_APPLICABILITY_MATRIX_SCHEMA,
+            dispatch_review_request=request,
+        ),
+        "worker_tool_applicability_matrix_id": "",
+        "tool_matrix_rows": [
+            {
+                "tool_matrix_ref": "tool-matrix:v75b:self-evidencing:pytest-schema",
+                "worker_role_refs": ["worker-role:v75b:self-evidencing:evidence-review"],
+                "tool_id": "pytest",
+                "target_claim_refs": [
+                    "dispatch-request:v75a:self-evidencing:review",
+                    "guardrail:v75a:self-evidencing:non-execution",
+                ],
+                "target_namespace_kind": "dispatch_request",
+                "claim_horizon": ("Applicability to V75-A fixture and validator tests only."),
+                "applicability_posture": "applicable_for_target_horizon",
+                "observed_or_required_result_refs": [
+                    "packages/adeu_repo_description/tests/test_dispatch_review_v75a.py"
+                ],
+                "limitation_note": (
+                    "Tool applicability is target-bound and horizon-bound with no command "
+                    "permission and no dispatch."
+                ),
+            }
+        ],
+        "tool_applicability_summary": (
+            "Worker tool applicability rows are target-bound and horizon-bound; "
+            "no command and no dispatch are authorized."
+        ),
+    }
+    payload["worker_tool_applicability_matrix_id"] = _surface_id(
+        "repo_worker_tool_applicability_matrix",
+        REPO_WORKER_TOOL_APPLICABILITY_MATRIX_SCHEMA,
+        payload,
+        "worker_tool_applicability_matrix_id",
+    )
+    return RepoWorkerToolApplicabilityMatrix.model_validate(payload)
+
+
+def derive_v75b_repo_dispatch_exception_register(
+    *,
+    repo_root: Path | None = None,
+    dispatch_review_request: RepoDispatchReviewRequest | None = None,
+) -> RepoDispatchExceptionRegister:
+    _ = repo_root
+    request = dispatch_review_request or derive_v75a_repo_dispatch_review_request()
+    payload = {
+        **_v75b_base_payload(
+            schema=REPO_DISPATCH_EXCEPTION_REGISTER_SCHEMA,
+            dispatch_review_request=request,
+        ),
+        "dispatch_exception_register_id": "",
+        "exception_rows": [
+            {
+                "dispatch_exception_ref": "dispatch-exception:v75b:self-evidencing:upstream",
+                "dispatch_request_refs": ["dispatch-request:v75a:self-evidencing:review"],
+                "assignment_plan_refs": ["assignment-plan:v75b:self-evidencing:review-only"],
+                "worker_role_refs": ["worker-role:v75b:self-evidencing:evidence-review"],
+                "io_contract_refs": ["io-contract:v75b:self-evidencing:evidence-review"],
+                "tool_matrix_refs": ["tool-matrix:v75b:self-evidencing:pytest-schema"],
+                "exception_kind": "unresolved_projection_exception",
+                "source_refs": [
+                    "apps/api/fixtures/repo_description/vnext_plus209/"
+                    "repo_dispatch_review_request_v209_reference.json"
+                ],
+                "blocking_posture": "carried_forward",
+                "required_next_surface": "v75c_reconciliation_review",
+                "limitation_note": (
+                    "Upstream V74 exception is carried forward and not resolved; no dispatch."
+                ),
+            },
+            {
+                "dispatch_exception_ref": "dispatch-exception:v75b:product-wedge:authority",
+                "dispatch_request_refs": ["dispatch-request:v75a:product-wedge:blocked"],
+                "assignment_plan_refs": [],
+                "worker_role_refs": ["worker-role:v75b:product-wedge:external-branch-review"],
+                "io_contract_refs": [],
+                "tool_matrix_refs": [],
+                "exception_kind": "product_authority_gap",
+                "source_refs": [
+                    "apps/api/fixtures/repo_description/vnext_plus209/"
+                    "repo_dispatch_review_request_v209_reference.json"
+                ],
+                "blocking_posture": "blocking",
+                "required_next_surface": "future_product_review",
+                "limitation_note": (
+                    "Product authority gap remains blocking and not resolved; no dispatch."
+                ),
+            },
+        ],
+        "exception_register_summary": (
+            "Dispatch exceptions remain visible and not resolved; no dispatch."
+        ),
+    }
+    payload["exception_rows"] = sorted(
+        payload["exception_rows"],
+        key=lambda row: row["dispatch_exception_ref"],
+    )
+    payload["dispatch_exception_register_id"] = _surface_id(
+        "repo_dispatch_exception_register",
+        REPO_DISPATCH_EXCEPTION_REGISTER_SCHEMA,
+        payload,
+        "dispatch_exception_register_id",
+    )
+    return RepoDispatchExceptionRegister.model_validate(payload)
+
+
+def derive_v75b_repo_multi_worker_assignment_plan(
+    *,
+    repo_root: Path | None = None,
+    dispatch_review_request: RepoDispatchReviewRequest | None = None,
+    worker_role_capacity_profile: RepoWorkerRoleCapacityProfile | None = None,
+    worker_io_contract: RepoWorkerIOContract | None = None,
+    worker_tool_applicability_matrix: RepoWorkerToolApplicabilityMatrix | None = None,
+    dispatch_exception_register: RepoDispatchExceptionRegister | None = None,
+) -> RepoMultiWorkerAssignmentPlan:
+    _ = repo_root
+    request = dispatch_review_request or derive_v75a_repo_dispatch_review_request()
+    role_profile = worker_role_capacity_profile or derive_v75b_repo_worker_role_capacity_profile(
+        dispatch_review_request=request
+    )
+    io_contract = worker_io_contract or derive_v75b_repo_worker_io_contract(
+        dispatch_review_request=request
+    )
+    tool_matrix = (
+        worker_tool_applicability_matrix
+        or derive_v75b_repo_worker_tool_applicability_matrix(dispatch_review_request=request)
+    )
+    exception_register = (
+        dispatch_exception_register
+        or derive_v75b_repo_dispatch_exception_register(dispatch_review_request=request)
+    )
+    payload = {
+        **_v75b_base_payload(
+            schema=REPO_MULTI_WORKER_ASSIGNMENT_PLAN_SCHEMA,
+            dispatch_review_request=request,
+        ),
+        "multi_worker_assignment_plan_id": "",
+        "worker_role_capacity_profile_id": role_profile.worker_role_capacity_profile_id,
+        "worker_io_contract_id": io_contract.worker_io_contract_id,
+        "worker_tool_applicability_matrix_id": tool_matrix.worker_tool_applicability_matrix_id,
+        "dispatch_exception_register_id": exception_register.dispatch_exception_register_id,
+        "assignment_plan_rows": [
+            {
+                "assignment_plan_ref": "assignment-plan:v75b:self-evidencing:review-only",
+                "dispatch_request_refs": ["dispatch-request:v75a:self-evidencing:review"],
+                "worker_role_refs": ["worker-role:v75b:self-evidencing:evidence-review"],
+                "io_contract_refs": ["io-contract:v75b:self-evidencing:evidence-review"],
+                "tool_applicability_refs": ["tool-matrix:v75b:self-evidencing:pytest-schema"],
+                "exception_refs": ["dispatch-exception:v75b:self-evidencing:upstream"],
+                "required_later_authority_refs": [
+                    "authority:v75a:self-evidencing:dispatch-execution",
+                    "authority:v75a:self-evidencing:human-review",
+                ],
+                "assignment_plan_posture": "plan_ready_for_review",
+                "assignment_execution_posture": "no_execution_authorized",
+                "non_execution_guardrail_refs": ["guardrail:v75a:self-evidencing:non-execution"],
+                "limitation_note": (
+                    "This is an orchestration plan with no worker assignment, no command, "
+                    "and no dispatch."
+                ),
+            },
+            {
+                "assignment_plan_ref": "assignment-plan:v75b:product-wedge:blocked",
+                "dispatch_request_refs": ["dispatch-request:v75a:product-wedge:blocked"],
+                "worker_role_refs": ["worker-role:v75b:product-wedge:external-branch-review"],
+                "io_contract_refs": ["io-contract:v75b:self-evidencing:evidence-review"],
+                "tool_applicability_refs": ["tool-matrix:v75b:self-evidencing:pytest-schema"],
+                "exception_refs": ["dispatch-exception:v75b:product-wedge:authority"],
+                "required_later_authority_refs": ["authority:v75a:product-wedge:product-review"],
+                "assignment_plan_posture": "blocked_by_later_authority",
+                "assignment_execution_posture": "no_execution_authorized",
+                "non_execution_guardrail_refs": ["guardrail:v75a:product-wedge:non-execution"],
+                "limitation_note": (
+                    "External branch/product pressure remains blocked plan posture with "
+                    "no worker assignment, no command, and no dispatch."
+                ),
+            },
+        ],
+        "assignment_plan_summary": (
+            "Multi-worker assignment plans remain plans only: no worker assignment, "
+            "no command, and no dispatch."
+        ),
+    }
+    payload["assignment_plan_rows"] = sorted(
+        payload["assignment_plan_rows"],
+        key=lambda row: row["assignment_plan_ref"],
+    )
+    payload["multi_worker_assignment_plan_id"] = _surface_id(
+        "repo_multi_worker_assignment_plan",
+        REPO_MULTI_WORKER_ASSIGNMENT_PLAN_SCHEMA,
+        payload,
+        "multi_worker_assignment_plan_id",
+    )
+    return RepoMultiWorkerAssignmentPlan.model_validate(payload)
+
+
+def validate_v75b_worker_orchestration_bundle(
+    *,
+    dispatch_source_index: RepoDispatchSourceIndex,
+    dispatch_review_request: RepoDispatchReviewRequest,
+    dispatch_non_execution_guardrail: RepoDispatchNonExecutionGuardrail,
+    worker_role_capacity_profile: RepoWorkerRoleCapacityProfile,
+    multi_worker_assignment_plan: RepoMultiWorkerAssignmentPlan,
+    worker_io_contract: RepoWorkerIOContract,
+    worker_tool_applicability_matrix: RepoWorkerToolApplicabilityMatrix,
+    dispatch_exception_register: RepoDispatchExceptionRegister,
+) -> None:
+    validate_v75a_dispatch_review_bundle(
+        dispatch_source_index=dispatch_source_index,
+        dispatch_review_request=dispatch_review_request,
+        dispatch_non_execution_guardrail=dispatch_non_execution_guardrail,
+    )
+    surfaces = [
+        worker_role_capacity_profile,
+        multi_worker_assignment_plan,
+        worker_io_contract,
+        worker_tool_applicability_matrix,
+        dispatch_exception_register,
+    ]
+    for surface in surfaces:
+        if surface.dispatch_review_request_id != dispatch_review_request.dispatch_review_request_id:
+            raise ValueError("V75-B surfaces must reference released V75-A request surface")
+        if (
+            surface.review_id,
+            surface.snapshot_id,
+            surface.source_set_id,
+        ) != (
+            "review:v75b:worker-orchestration-planning",
+            "vNext+209-closed-on-main",
+            "source-set:v75b:released-v75a-dispatch-review",
+        ):
+            raise ValueError("V75-B surfaces must share worker-planning provenance")
+
+    if (
+        multi_worker_assignment_plan.worker_role_capacity_profile_id
+        != worker_role_capacity_profile.worker_role_capacity_profile_id
+    ):
+        raise ValueError("assignment plan must reference worker role profile")
+    if (
+        multi_worker_assignment_plan.worker_io_contract_id
+        != worker_io_contract.worker_io_contract_id
+    ):
+        raise ValueError("assignment plan must reference worker IO contract")
+    if (
+        multi_worker_assignment_plan.worker_tool_applicability_matrix_id
+        != worker_tool_applicability_matrix.worker_tool_applicability_matrix_id
+    ):
+        raise ValueError("assignment plan must reference tool applicability matrix")
+    if (
+        multi_worker_assignment_plan.dispatch_exception_register_id
+        != dispatch_exception_register.dispatch_exception_register_id
+    ):
+        raise ValueError("assignment plan must reference dispatch exception register")
+
+    request_rows = {row.dispatch_request_ref: row for row in dispatch_review_request.request_rows}
+    guardrail_rows = {
+        row.guardrail_ref: row for row in dispatch_non_execution_guardrail.guardrail_rows
+    }
+    source_roles = {
+        row.source_ref: row.dispatch_source_role for row in dispatch_source_index.source_rows
+    }
+    role_rows = {row.worker_role_ref: row for row in worker_role_capacity_profile.worker_role_rows}
+    io_rows = {row.io_contract_ref: row for row in worker_io_contract.io_contract_rows}
+    tool_rows = {
+        row.tool_matrix_ref: row for row in worker_tool_applicability_matrix.tool_matrix_rows
+    }
+    exception_rows = {
+        row.dispatch_exception_ref: row for row in dispatch_exception_register.exception_rows
+    }
+
+    for io_row in worker_io_contract.io_contract_rows:
+        if any(role_ref not in role_rows for role_ref in io_row.worker_role_refs):
+            raise ValueError("worker IO contracts must reference known worker roles")
+
+    for tool_row in worker_tool_applicability_matrix.tool_matrix_rows:
+        if any(role_ref not in role_rows for role_ref in tool_row.worker_role_refs):
+            raise ValueError("tool applicability rows must reference known worker roles")
+
+    for exception_row in dispatch_exception_register.exception_rows:
+        if any(ref not in request_rows for ref in exception_row.dispatch_request_refs):
+            raise ValueError("dispatch exceptions must reference known V75-A requests")
+        if any(ref not in role_rows for ref in exception_row.worker_role_refs):
+            raise ValueError("dispatch exceptions must reference known worker roles")
+        if any(ref not in io_rows for ref in exception_row.io_contract_refs):
+            raise ValueError("dispatch exceptions must reference known IO contracts")
+        if any(ref not in tool_rows for ref in exception_row.tool_matrix_refs):
+            raise ValueError("dispatch exceptions must reference known tool rows")
+
+    for assignment_row in multi_worker_assignment_plan.assignment_plan_rows:
+        if any(ref not in request_rows for ref in assignment_row.dispatch_request_refs):
+            raise ValueError("assignment plans must reference released V75-A request rows")
+        if any(ref not in role_rows for ref in assignment_row.worker_role_refs):
+            raise ValueError("assignment plans must reference known worker roles")
+        if any(ref not in io_rows for ref in assignment_row.io_contract_refs):
+            raise ValueError("assignment plans must reference known IO contracts")
+        if any(ref not in tool_rows for ref in assignment_row.tool_applicability_refs):
+            raise ValueError("assignment plans must reference known tool applicability rows")
+        if any(ref not in exception_rows for ref in assignment_row.exception_refs):
+            raise ValueError("assignment plans must reference known dispatch exceptions")
+        if any(ref not in guardrail_rows for ref in assignment_row.non_execution_guardrail_refs):
+            raise ValueError("assignment plans must reference V75-A non-execution guardrails")
+
+        authority_refs: set[str] = set()
+        upstream_exception_refs: set[str] = set()
+        request_source_roles: set[str] = set()
+        for request_ref in assignment_row.dispatch_request_refs:
+            request_row = request_rows[request_ref]
+            authority_refs.update(request_row.required_later_authority_refs)
+            upstream_exception_refs.update(request_row.carried_upstream_exception_refs)
+            request_source_roles.update(
+                source_roles[source_ref]
+                for source_ref in request_row.source_refs
+                if source_ref in source_roles
+            )
+        if not authority_refs.issubset(set(assignment_row.required_later_authority_refs)):
+            raise ValueError("assignment plans must carry required later authority refs")
+        if upstream_exception_refs:
+            carries_upstream_exception = any(
+                request_ref in exception_rows[exception_ref].dispatch_request_refs
+                for request_ref in assignment_row.dispatch_request_refs
+                for exception_ref in assignment_row.exception_refs
+            )
+            if not carries_upstream_exception:
+                raise ValueError("assignment plans must carry upstream exception refs")
+
+        assignment_roles = [role_rows[role_ref] for role_ref in assignment_row.worker_role_refs]
+        if any(role.role_kind == "external_branch_review_worker" for role in assignment_roles):
+            if "v43_branch_posture_source" not in request_source_roles and (
+                assignment_row.assignment_plan_posture
+                not in {"blocked_by_later_authority", "future_family_only"}
+            ):
+                raise ValueError(
+                    "external branch worker plans require V43 source or blocked posture"
+                )
+
+
+def derive_v75b_worker_orchestration_bundle(
+    *, repo_root: Path | None = None
+) -> tuple[
+    RepoWorkerRoleCapacityProfile,
+    RepoMultiWorkerAssignmentPlan,
+    RepoWorkerIOContract,
+    RepoWorkerToolApplicabilityMatrix,
+    RepoDispatchExceptionRegister,
+]:
+    source_index, request, guardrail = derive_v75a_dispatch_review_bundle(repo_root=repo_root)
+    role_profile = derive_v75b_repo_worker_role_capacity_profile(
+        repo_root=repo_root,
+        dispatch_review_request=request,
+    )
+    io_contract = derive_v75b_repo_worker_io_contract(
+        repo_root=repo_root,
+        dispatch_review_request=request,
+    )
+    tool_matrix = derive_v75b_repo_worker_tool_applicability_matrix(
+        repo_root=repo_root,
+        dispatch_review_request=request,
+    )
+    exception_register = derive_v75b_repo_dispatch_exception_register(
+        repo_root=repo_root,
+        dispatch_review_request=request,
+    )
+    assignment_plan = derive_v75b_repo_multi_worker_assignment_plan(
+        repo_root=repo_root,
+        dispatch_review_request=request,
+        worker_role_capacity_profile=role_profile,
+        worker_io_contract=io_contract,
+        worker_tool_applicability_matrix=tool_matrix,
+        dispatch_exception_register=exception_register,
+    )
+    validate_v75b_worker_orchestration_bundle(
+        dispatch_source_index=source_index,
+        dispatch_review_request=request,
+        dispatch_non_execution_guardrail=guardrail,
+        worker_role_capacity_profile=role_profile,
+        multi_worker_assignment_plan=assignment_plan,
+        worker_io_contract=io_contract,
+        worker_tool_applicability_matrix=tool_matrix,
+        dispatch_exception_register=exception_register,
+    )
+    return role_profile, assignment_plan, io_contract, tool_matrix, exception_register

@@ -1,0 +1,183 @@
+{
+  "$defs": {
+    "RepoMultiWorkerAssignmentPlanRow": {
+      "additionalProperties": false,
+      "properties": {
+        "assignment_execution_posture": {
+          "enum": [
+            "no_execution_authorized",
+            "review_plan_only",
+            "blocked_pending_later_authority"
+          ],
+          "title": "Assignment Execution Posture",
+          "type": "string"
+        },
+        "assignment_plan_posture": {
+          "enum": [
+            "plan_ready_for_review",
+            "blocked_by_missing_role_profile",
+            "blocked_by_missing_io_contract",
+            "blocked_by_tool_applicability_gap",
+            "blocked_by_unresolved_exception",
+            "blocked_by_later_authority",
+            "future_family_only",
+            "rejected_out_of_scope"
+          ],
+          "title": "Assignment Plan Posture",
+          "type": "string"
+        },
+        "assignment_plan_ref": {
+          "title": "Assignment Plan Ref",
+          "type": "string"
+        },
+        "dispatch_request_refs": {
+          "items": {
+            "type": "string"
+          },
+          "minItems": 1,
+          "title": "Dispatch Request Refs",
+          "type": "array"
+        },
+        "exception_refs": {
+          "items": {
+            "type": "string"
+          },
+          "minItems": 1,
+          "title": "Exception Refs",
+          "type": "array"
+        },
+        "io_contract_refs": {
+          "items": {
+            "type": "string"
+          },
+          "minItems": 1,
+          "title": "Io Contract Refs",
+          "type": "array"
+        },
+        "limitation_note": {
+          "title": "Limitation Note",
+          "type": "string"
+        },
+        "non_execution_guardrail_refs": {
+          "items": {
+            "type": "string"
+          },
+          "minItems": 1,
+          "title": "Non Execution Guardrail Refs",
+          "type": "array"
+        },
+        "required_later_authority_refs": {
+          "items": {
+            "type": "string"
+          },
+          "minItems": 1,
+          "title": "Required Later Authority Refs",
+          "type": "array"
+        },
+        "tool_applicability_refs": {
+          "items": {
+            "type": "string"
+          },
+          "minItems": 1,
+          "title": "Tool Applicability Refs",
+          "type": "array"
+        },
+        "worker_role_refs": {
+          "items": {
+            "type": "string"
+          },
+          "minItems": 1,
+          "title": "Worker Role Refs",
+          "type": "array"
+        }
+      },
+      "required": [
+        "assignment_plan_ref",
+        "dispatch_request_refs",
+        "worker_role_refs",
+        "io_contract_refs",
+        "tool_applicability_refs",
+        "exception_refs",
+        "required_later_authority_refs",
+        "assignment_plan_posture",
+        "assignment_execution_posture",
+        "non_execution_guardrail_refs",
+        "limitation_note"
+      ],
+      "title": "RepoMultiWorkerAssignmentPlanRow",
+      "type": "object"
+    }
+  },
+  "additionalProperties": false,
+  "properties": {
+    "assignment_plan_rows": {
+      "items": {
+        "$ref": "#/$defs/RepoMultiWorkerAssignmentPlanRow"
+      },
+      "minItems": 1,
+      "title": "Assignment Plan Rows",
+      "type": "array"
+    },
+    "assignment_plan_summary": {
+      "title": "Assignment Plan Summary",
+      "type": "string"
+    },
+    "dispatch_exception_register_id": {
+      "title": "Dispatch Exception Register Id",
+      "type": "string"
+    },
+    "dispatch_review_request_id": {
+      "title": "Dispatch Review Request Id",
+      "type": "string"
+    },
+    "multi_worker_assignment_plan_id": {
+      "title": "Multi Worker Assignment Plan Id",
+      "type": "string"
+    },
+    "review_id": {
+      "title": "Review Id",
+      "type": "string"
+    },
+    "schema": {
+      "const": "repo_multi_worker_assignment_plan@1",
+      "default": "repo_multi_worker_assignment_plan@1",
+      "title": "Schema",
+      "type": "string"
+    },
+    "snapshot_id": {
+      "title": "Snapshot Id",
+      "type": "string"
+    },
+    "source_set_id": {
+      "title": "Source Set Id",
+      "type": "string"
+    },
+    "worker_io_contract_id": {
+      "title": "Worker Io Contract Id",
+      "type": "string"
+    },
+    "worker_role_capacity_profile_id": {
+      "title": "Worker Role Capacity Profile Id",
+      "type": "string"
+    },
+    "worker_tool_applicability_matrix_id": {
+      "title": "Worker Tool Applicability Matrix Id",
+      "type": "string"
+    }
+  },
+  "required": [
+    "multi_worker_assignment_plan_id",
+    "dispatch_review_request_id",
+    "worker_role_capacity_profile_id",
+    "worker_io_contract_id",
+    "worker_tool_applicability_matrix_id",
+    "dispatch_exception_register_id",
+    "review_id",
+    "snapshot_id",
+    "source_set_id",
+    "assignment_plan_rows",
+    "assignment_plan_summary"
+  ],
+  "title": "RepoMultiWorkerAssignmentPlan",
+  "type": "object"
+}
