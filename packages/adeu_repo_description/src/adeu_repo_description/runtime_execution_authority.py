@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import re
+from collections.abc import Iterable
 from pathlib import Path
 from typing import Literal
 
@@ -1675,6 +1676,22 @@ def _request_row_by_candidate(
     raise ValueError(f"missing V78-A request row for {candidate_ref}")
 
 
+def _single_ref_by_candidate(
+    rows: Iterable[object],
+    *,
+    ref_attr: str,
+    field_name: str,
+) -> dict[str, str]:
+    refs_by_candidate: dict[str, str] = {}
+    for row in rows:
+        candidate_ref = getattr(row, "candidate_ref")
+        row_ref = getattr(row, ref_attr)
+        if candidate_ref in refs_by_candidate:
+            raise ValueError(f"{field_name} must contain at most one row per candidate")
+        refs_by_candidate[candidate_ref] = row_ref
+    return refs_by_candidate
+
+
 def _v78b_base_request_bundle(
     runtime_execution_authority_request: RepoRuntimeExecutionAuthorityRequest | None,
     runtime_authority_non_action_guardrail: RepoRuntimeAuthorityNonActionGuardrail | None,
@@ -1899,9 +1916,11 @@ def derive_v78b_repo_tool_use_permission_envelope(
             runtime_authority_exception_register=exceptions,
         )
     )
-    command_scope_by_candidate = {
-        row.candidate_ref: row.command_scope_ref for row in command_scope.command_scope_rows
-    }
+    command_scope_by_candidate = _single_ref_by_candidate(
+        command_scope.command_scope_rows,
+        ref_attr="command_scope_ref",
+        field_name="command scope rows",
+    )
     known_exceptions = {row.exception_ref for row in exceptions.exception_rows}
     self_candidate = "candidate:internal:self_evidencing_workflow_type_emergence"
     product_candidate = "candidate:internal:typed_adjudication_product_wedge"
@@ -2025,15 +2044,21 @@ def derive_v78b_repo_runtime_execution_authority_decision(
             runtime_authority_exception_register=exceptions,
         )
     )
-    command_scope_by_candidate = {
-        row.candidate_ref: row.command_scope_ref for row in command_scope.command_scope_rows
-    }
-    tool_permission_by_candidate = {
-        row.candidate_ref: row.tool_permission_ref for row in tool_permission.permission_rows
-    }
-    exception_by_candidate = {
-        row.candidate_ref: row.exception_ref for row in exceptions.exception_rows
-    }
+    command_scope_by_candidate = _single_ref_by_candidate(
+        command_scope.command_scope_rows,
+        ref_attr="command_scope_ref",
+        field_name="command scope rows",
+    )
+    tool_permission_by_candidate = _single_ref_by_candidate(
+        tool_permission.permission_rows,
+        ref_attr="tool_permission_ref",
+        field_name="tool permission rows",
+    )
+    exception_by_candidate = _single_ref_by_candidate(
+        exceptions.exception_rows,
+        ref_attr="exception_ref",
+        field_name="runtime authority exception rows",
+    )
     self_candidate = "candidate:internal:self_evidencing_workflow_type_emergence"
     product_candidate = "candidate:internal:typed_adjudication_product_wedge"
     self_request = _request_row_by_candidate(request, self_candidate)
@@ -2139,6 +2164,16 @@ def validate_v78b_runtime_execution_authority_bundle(
         != runtime_authority_non_action_guardrail.runtime_authority_non_action_guardrail_id
     ):
         raise ValueError("runtime authority decisions must reference V78-A guardrails")
+    if (
+        runtime_execution_authority_decision.review_id,
+        runtime_execution_authority_decision.snapshot_id,
+        runtime_execution_authority_decision.source_set_id,
+    ) != (
+        runtime_execution_authority_request.review_id,
+        runtime_execution_authority_request.snapshot_id,
+        runtime_execution_authority_request.source_set_id,
+    ):
+        raise ValueError("runtime authority decision provenance must match V78-A requests")
     for surface_name, surface in (
         ("tool-use permission", tool_use_permission_envelope),
         ("command-scope boundary", command_scope_authorization_boundary),
@@ -2253,10 +2288,19 @@ def validate_v78b_runtime_execution_authority_bundle(
             raise ValueError("runtime authority decision source refs must be V78-A authority refs")
         if any(ref not in permission_rows for ref in row.tool_use_permission_refs):
             raise ValueError("runtime authority decisions must reference known tool permissions")
+        for ref in row.tool_use_permission_refs:
+            if permission_rows[ref].candidate_ref != row.candidate_ref:
+                raise ValueError("runtime authority decision tool permissions must match candidate")
         if any(ref not in command_scope_rows for ref in row.command_scope_boundary_refs):
             raise ValueError("runtime authority decisions must reference known command scopes")
+        for ref in row.command_scope_boundary_refs:
+            if command_scope_rows[ref].candidate_ref != row.candidate_ref:
+                raise ValueError("runtime authority decision command scopes must match candidate")
         if any(ref not in exception_rows for ref in row.exception_refs):
             raise ValueError("runtime authority decisions must reference known exceptions")
+        for ref in row.exception_refs:
+            if exception_rows[ref].candidate_ref != row.candidate_ref:
+                raise ValueError("runtime authority decision exceptions must match candidate")
         if row.decision_posture in _GRANT_DECISION_POSTURES:
             for command_scope_ref in row.command_scope_boundary_refs:
                 command_scope = command_scope_rows[command_scope_ref]

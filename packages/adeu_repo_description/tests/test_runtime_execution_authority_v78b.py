@@ -17,9 +17,12 @@ from adeu_repo_description import (
     RepoRuntimeExecutionAuthorityDecision,
     RepoRuntimeExecutionAuthorityRequest,
     RepoToolUsePermissionEnvelope,
+    derive_v78b_repo_runtime_execution_authority_decision,
+    derive_v78b_repo_tool_use_permission_envelope,
     derive_v78b_runtime_execution_authority_bundle,
     validate_v78b_runtime_execution_authority_bundle,
 )
+from adeu_repo_description.candidate_review_classification import _surface_id
 from jsonschema import Draft202012Validator
 from pydantic import ValidationError
 
@@ -115,6 +118,17 @@ def _validate_reference_bundle_with(
         command_scope_authorization_boundary=command_scope or _v78b_command_scope(),
         runtime_authority_exception_register=exceptions or _v78b_exceptions(),
     )
+
+
+def _rehash_surface(
+    payload: dict[str, Any],
+    *,
+    surface_name: str,
+    schema: str,
+    id_field: str,
+) -> dict[str, Any]:
+    payload[id_field] = _surface_id(surface_name, schema, payload, id_field)
+    return payload
 
 
 def test_v219_reference_bundle_validates() -> None:
@@ -286,3 +300,120 @@ def test_v219_bundle_rejects_unknown_tool_permission_ref() -> None:
         match="runtime authority decisions must reference known tool permissions",
     ):
         _validate_reference_bundle_with(decision=decision)
+
+
+def test_v219_bundle_rejects_stale_decision_provenance() -> None:
+    decision_payload = _v78b_decision().model_dump(mode="json")
+    decision_payload["snapshot_id"] = "vNext+217-stale-mixed-snapshot"
+    decision = RepoRuntimeExecutionAuthorityDecision.model_validate(
+        _rehash_surface(
+            decision_payload,
+            surface_name="repo_runtime_execution_authority_decision",
+            schema=REPO_RUNTIME_EXECUTION_AUTHORITY_DECISION_SCHEMA,
+            id_field="runtime_execution_authority_decision_id",
+        )
+    )
+
+    with pytest.raises(
+        ValueError,
+        match="runtime authority decision provenance must match V78-A requests",
+    ):
+        _validate_reference_bundle_with(decision=decision)
+
+
+def test_v219_bundle_rejects_decision_tool_permission_candidate_mismatch() -> None:
+    decision_payload = _v78b_decision().model_dump(mode="json")
+    decision_payload["decision_rows"][0]["tool_use_permission_refs"] = [
+        "tool-permission:v78b:self-evidencing:python-review"
+    ]
+    decision = RepoRuntimeExecutionAuthorityDecision.model_validate(
+        _rehash_surface(
+            decision_payload,
+            surface_name="repo_runtime_execution_authority_decision",
+            schema=REPO_RUNTIME_EXECUTION_AUTHORITY_DECISION_SCHEMA,
+            id_field="runtime_execution_authority_decision_id",
+        )
+    )
+
+    with pytest.raises(
+        ValueError,
+        match="runtime authority decision tool permissions must match candidate",
+    ):
+        _validate_reference_bundle_with(decision=decision)
+
+
+def test_v219_bundle_rejects_decision_command_scope_candidate_mismatch() -> None:
+    decision_payload = _v78b_decision().model_dump(mode="json")
+    decision_payload["decision_rows"][0]["command_scope_boundary_refs"] = [
+        "command-scope:v78b:self-evidencing:runtime-authority-module"
+    ]
+    decision = RepoRuntimeExecutionAuthorityDecision.model_validate(
+        _rehash_surface(
+            decision_payload,
+            surface_name="repo_runtime_execution_authority_decision",
+            schema=REPO_RUNTIME_EXECUTION_AUTHORITY_DECISION_SCHEMA,
+            id_field="runtime_execution_authority_decision_id",
+        )
+    )
+
+    with pytest.raises(
+        ValueError,
+        match="runtime authority decision command scopes must match candidate",
+    ):
+        _validate_reference_bundle_with(decision=decision)
+
+
+def test_v219_tool_permission_derivation_rejects_candidate_scope_collisions() -> None:
+    command_scope_payload = _v78b_command_scope().model_dump(mode="json")
+    duplicate_row = dict(command_scope_payload["command_scope_rows"][1])
+    duplicate_row["command_scope_ref"] = (
+        "command-scope:v78b:self-evidencing:runtime-authority-module-duplicate"
+    )
+    command_scope_payload["command_scope_rows"].append(duplicate_row)
+    command_scope = RepoCommandScopeAuthorizationBoundary.model_validate(
+        _rehash_surface(
+            command_scope_payload,
+            surface_name="repo_command_scope_authorization_boundary",
+            schema=REPO_COMMAND_SCOPE_AUTHORIZATION_BOUNDARY_SCHEMA,
+            id_field="command_scope_authorization_boundary_id",
+        )
+    )
+
+    with pytest.raises(
+        ValueError,
+        match="command scope rows must contain at most one row per candidate",
+    ):
+        derive_v78b_repo_tool_use_permission_envelope(
+            runtime_execution_authority_request=_v78a_request(),
+            command_scope_authorization_boundary=command_scope,
+            runtime_authority_exception_register=_v78b_exceptions(),
+        )
+
+
+def test_v219_decision_derivation_rejects_candidate_permission_collisions() -> None:
+    permission_payload = _v78b_tool_permission().model_dump(mode="json")
+    duplicate_row = dict(permission_payload["permission_rows"][1])
+    duplicate_row["tool_permission_ref"] = (
+        "tool-permission:v78b:self-evidencing:python-review-duplicate"
+    )
+    permission_payload["permission_rows"].append(duplicate_row)
+    tool_permission = RepoToolUsePermissionEnvelope.model_validate(
+        _rehash_surface(
+            permission_payload,
+            surface_name="repo_tool_use_permission_envelope",
+            schema=REPO_TOOL_USE_PERMISSION_ENVELOPE_SCHEMA,
+            id_field="tool_use_permission_envelope_id",
+        )
+    )
+
+    with pytest.raises(
+        ValueError,
+        match="tool permission rows must contain at most one row per candidate",
+    ):
+        derive_v78b_repo_runtime_execution_authority_decision(
+            runtime_execution_authority_request=_v78a_request(),
+            runtime_authority_non_action_guardrail=_v78a_guardrail(),
+            tool_use_permission_envelope=tool_permission,
+            command_scope_authorization_boundary=_v78b_command_scope(),
+            runtime_authority_exception_register=_v78b_exceptions(),
+        )
