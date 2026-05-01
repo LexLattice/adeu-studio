@@ -1,8 +1,8 @@
 # Assessment vNext+213 Edges
 
-Status: planning-edge assessment for `V76-B`.
+Status: post-closeout edge assessment for `V76-B` (May 1, 2026 UTC).
 
-Authority layer: pre-lock assessment, not closeout evidence.
+Authority layer: closeout evidence on `main` only.
 
 ## Assessment-State Marker (Machine-Checkable)
 
@@ -10,97 +10,112 @@ Authority layer: pre-lock assessment, not closeout evidence.
 {
   "schema": "assessment_artifact_state@1",
   "artifact": "docs/ASSESSMENT_vNEXT_PLUS213_EDGES.md",
-  "phase": "pre_lock_assessment",
-  "authoritative": false,
+  "phase": "post_closeout_assessment",
+  "authoritative": true,
   "required_in_decision": true
 }
 ```
 
-## Open Edges
+## Edge Review
 
 ### Edge 1: Arbiter Authority Could Become Truth Authority
 
-- Risk:
-  an authority profile could be overread as permission for an arbiter, model,
-  tool, support doc, or transcript to declare truth.
-- Response:
-  split actor kind from grant source kind; constrain allowed actions to
-  review-only actions; require explicit forbidden authority kinds.
+- Closeout containment:
+  authority profiles split actor kind from grant source kind, constrain
+  allowed actions to review-only actions, and require explicit forbidden
+  authority kinds. Support docs, transcripts, tools, and models cannot become
+  truth or settlement authority.
+- Result:
+  pass.
 
 ### Edge 2: Settlement Request Could Become Settlement
 
-- Risk:
-  a request for later settlement review could be read as settling a relation or
-  ratifying a claim.
-- Response:
-  keep settlement request posture separate from settlement outcome; reject
-  rows that perform settlement, ratification, or truth declaration.
+- Closeout containment:
+  settlement rows remain requests for later review. Validators reject
+  settlement, ratification, truth declaration, and unnegated settlement
+  overclaims across repeated phrase occurrences.
+- Result:
+  pass.
 
 ### Edge 3: Settlement Horizon Could Exceed Authority Profile
 
-- Risk:
-  a request could cite an authority profile that is not allowed to review the
-  requested horizon.
-- Response:
-  require every request's settlement horizon to appear in every referenced
-  authority profile's allowed relation horizons.
+- Closeout containment:
+  every settlement request horizon must be allowed by every referenced
+  authority profile.
+- Result:
+  pass. Horizon mismatch reject fixture passed.
 
 ### Edge 4: Adversarial Review Could Become Unchecked Confidence
 
-- Risk:
-  no-counterevidence posture could be asserted without checked horizon or
-  negative controls.
-- Response:
-  require checked horizon or negative-control refs; preserve inconclusive and
-  blocked-by-source postures.
+- Closeout containment:
+  no-counterevidence posture requires a checked horizon or negative-control
+  refs. Missing-source and inconclusive postures remain available.
+- Result:
+  pass.
 
 ### Edge 5: Dissent Could Be Bypassed
 
-- Risk:
-  blocking dissent from `V76-A` could be ignored by settlement request rows.
-- Response:
-  settlement request validators must carry dissent refs or block readiness
-  until dissent is reviewed.
+- Closeout containment:
+  settlement requests must carry dissent refs or block readiness when blocking
+  dissent remains.
+- Result:
+  pass.
 
 ### Edge 6: Majority Agreement Could Become Correctness
 
-- Risk:
-  agreement across projected/model outputs could be treated as correctness.
-- Response:
-  reject majority-as-correctness unless bounded relation review and authority
-  coverage remain non-truth and non-settling.
+- Closeout containment:
+  majority agreement remains relation evidence only. It cannot become
+  correctness or settlement readiness without source-bound relation review and
+  authority-profile coverage.
+- Result:
+  pass.
 
 ### Edge 7: Gap Scan Could Become Implementation Priority
 
-- Risk:
-  gap rows could be treated as a work queue or implementation authorization.
-- Response:
-  gap scan rows remain review metadata only and carry required next surfaces
-  without selecting downstream work.
+- Closeout containment:
+  gap rows stay review metadata. They carry required next surfaces but cannot
+  select implementation or downstream authority.
+- Result:
+  pass.
 
 ### Edge 8: Downstream Authority Gaps Could Be Laundered
 
-- Risk:
-  product, runtime, release, external branch, dispatch-execution, or
-  recursive-policy gaps could be converted into settlement readiness.
-- Response:
-  preserve those gaps as blockers or future-family pressure. `V76-B` cannot
-  grant downstream authority.
+- Closeout containment:
+  product, runtime, release, external branch, dispatch-execution, benchmark,
+  and recursive-policy gaps remain blockers or future-family pressure.
+- Result:
+  pass.
 
 ### Edge 9: V76-B Could Begin V76-C
 
-- Risk:
-  the starter could accidentally add summary, handoff, or family closeout
-  surfaces.
-- Response:
-  ship only authority profile, settlement request, adversarial relation
-  review, and gap scan surfaces in `V76-B`; defer summaries and handoffs.
+- Closeout containment:
+  shipped surfaces are limited to arbiter authority profile, reconciliation
+  settlement request, adversarial relation review, and reconciliation gap scan.
+  No summary, handoff, or family closeout alignment surface shipped.
+- Result:
+  pass.
 
-## Current Judgment
+## Residual Edges
 
-- `V76-B` is worth drafting now because `V76-A` has closed the source-bound
-  claim / relation / dissent map on `main`.
-- The second slice should stay review-only: it can make arbiter authority,
-  settlement requests, adversarial relation review, and gap posture
-  machine-checkable. It should not settle, ratify, execute, productize,
-  release, activate external branches, or dispatch.
+- `V76-C` must summarize released `V76-A` and `V76-B` rows without converting
+  summary into truth, settlement, ratification, runtime permission, product
+  authorization, external branch activation, release, or recursive policy
+  authority.
+- `V76-C` must preserve blocking dissent, unresolved relation gaps, required
+  later authority, and non-truth guardrails in post-reconciliation handoff
+  rows.
+- `V76-C` may record future runtime, product, external, experiment, or
+  reconciliation pressure, but it must not select `V77` or complete any later
+  family.
+
+## Closeout Judgment
+
+- `V76-B` is closed on `main` as a bounded arbiter-authority,
+  settlement-request, adversarial-review, and gap-scan slice.
+- `V76` remains open for `V76-C`.
+- The shipped slice preserves the intended authority boundary: arbiter review
+  can make authority posture, settlement-request posture, adversarial review,
+  and gaps machine-checkable; it does not make worker or arbiter output true,
+  settle relations, ratify candidates, assign workers, execute dispatch, grant
+  runtime/product/release/external authority, select models globally,
+  establish living-memory authority, or adopt recursive policy amendments.
