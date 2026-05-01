@@ -1,0 +1,178 @@
+{
+  "$defs": {
+    "RepoActionEffectEnvelopeRow": {
+      "additionalProperties": false,
+      "properties": {
+        "allowed_effect_surface_refs": {
+          "items": {
+            "type": "string"
+          },
+          "title": "Allowed Effect Surface Refs",
+          "type": "array"
+        },
+        "candidate_ref": {
+          "title": "Candidate Ref",
+          "type": "string"
+        },
+        "effect_acceptance_posture": {
+          "enum": [
+            "no_effect_accepted",
+            "effect_requires_later_review",
+            "effect_not_observed",
+            "effect_observed_from_prior_authorized_artifact"
+          ],
+          "title": "Effect Acceptance Posture",
+          "type": "string"
+        },
+        "effect_envelope_posture": {
+          "enum": [
+            "effect_envelope_for_review_only",
+            "effect_envelope_blocked_by_missing_target",
+            "effect_envelope_blocked_by_missing_telemetry",
+            "effect_envelope_blocked_by_missing_rollback",
+            "effect_envelope_future_family_only",
+            "effect_envelope_rejected_out_of_scope"
+          ],
+          "title": "Effect Envelope Posture",
+          "type": "string"
+        },
+        "effect_envelope_ref": {
+          "title": "Effect Envelope Ref",
+          "type": "string"
+        },
+        "effect_horizon": {
+          "title": "Effect Horizon",
+          "type": "string"
+        },
+        "forbidden_effect_surface_refs": {
+          "items": {
+            "type": "string"
+          },
+          "minItems": 1,
+          "title": "Forbidden Effect Surface Refs",
+          "type": "array"
+        },
+        "limitation_note": {
+          "title": "Limitation Note",
+          "type": "string"
+        },
+        "non_execution_guardrail_refs": {
+          "items": {
+            "type": "string"
+          },
+          "minItems": 1,
+          "title": "Non Execution Guardrail Refs",
+          "type": "array"
+        },
+        "preflight_refs": {
+          "items": {
+            "type": "string"
+          },
+          "minItems": 1,
+          "title": "Preflight Refs",
+          "type": "array"
+        },
+        "runtime_review_refs": {
+          "items": {
+            "type": "string"
+          },
+          "minItems": 1,
+          "title": "Runtime Review Refs",
+          "type": "array"
+        },
+        "source_refs": {
+          "items": {
+            "type": "string"
+          },
+          "minItems": 1,
+          "title": "Source Refs",
+          "type": "array"
+        },
+        "target_boundary_refs": {
+          "items": {
+            "type": "string"
+          },
+          "title": "Target Boundary Refs",
+          "type": "array"
+        }
+      },
+      "required": [
+        "effect_envelope_ref",
+        "runtime_review_refs",
+        "preflight_refs",
+        "candidate_ref",
+        "forbidden_effect_surface_refs",
+        "effect_horizon",
+        "effect_envelope_posture",
+        "effect_acceptance_posture",
+        "source_refs",
+        "non_execution_guardrail_refs",
+        "limitation_note"
+      ],
+      "title": "RepoActionEffectEnvelopeRow",
+      "type": "object"
+    }
+  },
+  "additionalProperties": false,
+  "properties": {
+    "action_effect_envelope_id": {
+      "title": "Action Effect Envelope Id",
+      "type": "string"
+    },
+    "command_preflight_contract_id": {
+      "title": "Command Preflight Contract Id",
+      "type": "string"
+    },
+    "effect_boundary_summary": {
+      "title": "Effect Boundary Summary",
+      "type": "string"
+    },
+    "effect_envelope_rows": {
+      "items": {
+        "$ref": "#/$defs/RepoActionEffectEnvelopeRow"
+      },
+      "minItems": 1,
+      "title": "Effect Envelope Rows",
+      "type": "array"
+    },
+    "review_id": {
+      "title": "Review Id",
+      "type": "string"
+    },
+    "runtime_non_execution_guardrail_id": {
+      "title": "Runtime Non Execution Guardrail Id",
+      "type": "string"
+    },
+    "runtime_permission_review_request_id": {
+      "title": "Runtime Permission Review Request Id",
+      "type": "string"
+    },
+    "schema": {
+      "const": "repo_action_effect_envelope@1",
+      "default": "repo_action_effect_envelope@1",
+      "title": "Schema",
+      "type": "string"
+    },
+    "snapshot_id": {
+      "title": "Snapshot Id",
+      "type": "string"
+    },
+    "source_set_id": {
+      "title": "Source Set Id",
+      "type": "string"
+    }
+  },
+  "required": [
+    "action_effect_envelope_id",
+    "command_preflight_contract_id",
+    "runtime_permission_review_request_id",
+    "runtime_non_execution_guardrail_id",
+    "review_id",
+    "snapshot_id",
+    "source_set_id",
+    "effect_envelope_rows",
+    "effect_boundary_summary"
+  ],
+  "title": "RepoActionEffectEnvelope",
+  "type": "object"
+}

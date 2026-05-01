@@ -1,0 +1,160 @@
+{
+  "$defs": {
+    "RepoRuntimeRollbackContractRow": {
+      "additionalProperties": false,
+      "properties": {
+        "blocking_gap_refs": {
+          "items": {
+            "type": "string"
+          },
+          "title": "Blocking Gap Refs",
+          "type": "array"
+        },
+        "candidate_ref": {
+          "title": "Candidate Ref",
+          "type": "string"
+        },
+        "effect_envelope_refs": {
+          "items": {
+            "type": "string"
+          },
+          "minItems": 1,
+          "title": "Effect Envelope Refs",
+          "type": "array"
+        },
+        "limitation_note": {
+          "title": "Limitation Note",
+          "type": "string"
+        },
+        "preflight_refs": {
+          "items": {
+            "type": "string"
+          },
+          "minItems": 1,
+          "title": "Preflight Refs",
+          "type": "array"
+        },
+        "required_rollback_source_refs": {
+          "items": {
+            "type": "string"
+          },
+          "title": "Required Rollback Source Refs",
+          "type": "array"
+        },
+        "rollback_contract_ref": {
+          "title": "Rollback Contract Ref",
+          "type": "string"
+        },
+        "rollback_posture": {
+          "enum": [
+            "rollback_required_later",
+            "rollback_source_present_for_prior_artifact",
+            "rollback_missing_expected_source",
+            "rollback_blocked",
+            "rollback_not_applicable",
+            "rollback_future_family_only"
+          ],
+          "title": "Rollback Posture",
+          "type": "string"
+        },
+        "rollback_surface_kind": {
+          "enum": [
+            "source_revert_plan",
+            "fixture_revert_plan",
+            "schema_revert_plan",
+            "not_applicable"
+          ],
+          "title": "Rollback Surface Kind",
+          "type": "string"
+        },
+        "runtime_review_refs": {
+          "items": {
+            "type": "string"
+          },
+          "minItems": 1,
+          "title": "Runtime Review Refs",
+          "type": "array"
+        }
+      },
+      "required": [
+        "rollback_contract_ref",
+        "runtime_review_refs",
+        "preflight_refs",
+        "effect_envelope_refs",
+        "candidate_ref",
+        "rollback_surface_kind",
+        "rollback_posture",
+        "limitation_note"
+      ],
+      "title": "RepoRuntimeRollbackContractRow",
+      "type": "object"
+    }
+  },
+  "additionalProperties": false,
+  "properties": {
+    "action_effect_envelope_id": {
+      "title": "Action Effect Envelope Id",
+      "type": "string"
+    },
+    "command_preflight_contract_id": {
+      "title": "Command Preflight Contract Id",
+      "type": "string"
+    },
+    "review_id": {
+      "title": "Review Id",
+      "type": "string"
+    },
+    "rollback_boundary_summary": {
+      "title": "Rollback Boundary Summary",
+      "type": "string"
+    },
+    "rollback_contract_rows": {
+      "items": {
+        "$ref": "#/$defs/RepoRuntimeRollbackContractRow"
+      },
+      "minItems": 1,
+      "title": "Rollback Contract Rows",
+      "type": "array"
+    },
+    "runtime_non_execution_guardrail_id": {
+      "title": "Runtime Non Execution Guardrail Id",
+      "type": "string"
+    },
+    "runtime_permission_review_request_id": {
+      "title": "Runtime Permission Review Request Id",
+      "type": "string"
+    },
+    "runtime_rollback_contract_id": {
+      "title": "Runtime Rollback Contract Id",
+      "type": "string"
+    },
+    "schema": {
+      "const": "repo_runtime_rollback_contract@1",
+      "default": "repo_runtime_rollback_contract@1",
+      "title": "Schema",
+      "type": "string"
+    },
+    "snapshot_id": {
+      "title": "Snapshot Id",
+      "type": "string"
+    },
+    "source_set_id": {
+      "title": "Source Set Id",
+      "type": "string"
+    }
+  },
+  "required": [
+    "runtime_rollback_contract_id",
+    "command_preflight_contract_id",
+    "action_effect_envelope_id",
+    "runtime_permission_review_request_id",
+    "runtime_non_execution_guardrail_id",
+    "review_id",
+    "snapshot_id",
+    "source_set_id",
+    "rollback_contract_rows",
+    "rollback_boundary_summary"
+  ],
+  "title": "RepoRuntimeRollbackContract",
+  "type": "object"
+}

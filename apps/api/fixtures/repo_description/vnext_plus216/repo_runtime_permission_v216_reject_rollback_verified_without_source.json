@@ -1,0 +1,52 @@
+{
+  "action_effect_envelope_id": "repo_action_effect_envelope_dc5fed1bb306be8e947472a8",
+  "command_preflight_contract_id": "repo_command_preflight_contract_ef09f664bf59451e2e568daa",
+  "review_id": "review:v77a:runtime-permission-review-request",
+  "rollback_boundary_summary": "Runtime rollback rows are requirements, not rollback verification, and no runtime permission is granted.",
+  "rollback_contract_rows": [
+    {
+      "blocking_gap_refs": [],
+      "candidate_ref": "candidate:internal:typed_adjudication_product_wedge",
+      "effect_envelope_refs": [
+        "effect-envelope:v77b:product-wedge:blocked"
+      ],
+      "limitation_note": "Rollback is future-family only and not rollback verification; no runtime permission is granted.",
+      "preflight_refs": [
+        "preflight:v77b:product-wedge:blocked"
+      ],
+      "required_rollback_source_refs": [],
+      "rollback_contract_ref": "rollback:v77b:product-wedge:blocked",
+      "rollback_posture": "rollback_source_present_for_prior_artifact",
+      "rollback_surface_kind": "not_applicable",
+      "runtime_review_refs": [
+        "runtime-review:v77a:product-wedge:blocked"
+      ]
+    },
+    {
+      "blocking_gap_refs": [],
+      "candidate_ref": "candidate:internal:self_evidencing_workflow_type_emergence",
+      "effect_envelope_refs": [
+        "effect-envelope:v77b:self-evidencing:preflight"
+      ],
+      "limitation_note": "Rollback is required later and is not rollback verification; no runtime permission is granted.",
+      "preflight_refs": [
+        "preflight:v77b:self-evidencing:preflight"
+      ],
+      "required_rollback_source_refs": [
+        "rollback-source:v77b:self-evidencing:future-clean-revert"
+      ],
+      "rollback_contract_ref": "rollback:v77b:self-evidencing:required",
+      "rollback_posture": "rollback_required_later",
+      "rollback_surface_kind": "source_revert_plan",
+      "runtime_review_refs": [
+        "runtime-review:v77a:self-evidencing:preflight"
+      ]
+    }
+  ],
+  "runtime_non_execution_guardrail_id": "repo_runtime_non_execution_guardrail_096f50099358c2e2180841b8",
+  "runtime_permission_review_request_id": "repo_runtime_permission_review_request_09fa5c6b528a4104be450b64",
+  "runtime_rollback_contract_id": "repo_runtime_rollback_contract_c55b60eabc981eec582537b7",
+  "schema": "repo_runtime_rollback_contract@1",
+  "snapshot_id": "vNext+214-closed-on-main",
+  "source_set_id": "source-set:v77a:released-v76c-runtime-pressure"
+}

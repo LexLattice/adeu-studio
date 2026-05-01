@@ -1,0 +1,233 @@
+{
+  "$defs": {
+    "RepoCommandPreflightRow": {
+      "additionalProperties": false,
+      "properties": {
+        "candidate_ref": {
+          "title": "Candidate Ref",
+          "type": "string"
+        },
+        "command_intent_kind": {
+          "enum": [
+            "no_command_intent",
+            "shell_command_later_review",
+            "python_tool_later_review",
+            "repo_script_later_review",
+            "api_call_later_review",
+            "external_tool_later_review",
+            "future_family_only"
+          ],
+          "title": "Command Intent Kind",
+          "type": "string"
+        },
+        "command_intent_label": {
+          "title": "Command Intent Label",
+          "type": "string"
+        },
+        "command_ref_posture": {
+          "enum": [
+            "command_reference_absent_review_only",
+            "command_label_review_only",
+            "script_label_review_only",
+            "future_family_only"
+          ],
+          "title": "Command Ref Posture",
+          "type": "string"
+        },
+        "execution_posture": {
+          "enum": [
+            "no_execution_authorized",
+            "execution_requires_later_authority",
+            "execution_forbidden_by_this_family"
+          ],
+          "title": "Execution Posture",
+          "type": "string"
+        },
+        "forbidden_inferences": {
+          "items": {
+            "enum": [
+              "command_execution",
+              "runtime_permission_grant",
+              "tool_use_permission",
+              "target_change_authority",
+              "accepted_effect",
+              "observed_telemetry",
+              "rollback_verification",
+              "product_authorization",
+              "external_branch_activation",
+              "release_authority",
+              "v77c_surface_emission"
+            ],
+            "type": "string"
+          },
+          "minItems": 1,
+          "title": "Forbidden Inferences",
+          "type": "array"
+        },
+        "limitation_note": {
+          "title": "Limitation Note",
+          "type": "string"
+        },
+        "non_execution_guardrail_refs": {
+          "items": {
+            "type": "string"
+          },
+          "minItems": 1,
+          "title": "Non Execution Guardrail Refs",
+          "type": "array"
+        },
+        "preflight_posture": {
+          "enum": [
+            "preflight_contract_for_review_only",
+            "preflight_blocked_by_missing_source",
+            "preflight_blocked_by_missing_authority",
+            "preflight_blocked_by_target_boundary",
+            "preflight_blocked_by_missing_telemetry",
+            "preflight_blocked_by_missing_rollback",
+            "preflight_future_family_only",
+            "preflight_rejected_out_of_scope"
+          ],
+          "title": "Preflight Posture",
+          "type": "string"
+        },
+        "preflight_ref": {
+          "title": "Preflight Ref",
+          "type": "string"
+        },
+        "required_authority_refs": {
+          "items": {
+            "type": "string"
+          },
+          "title": "Required Authority Refs",
+          "type": "array"
+        },
+        "required_rollback_refs": {
+          "items": {
+            "type": "string"
+          },
+          "title": "Required Rollback Refs",
+          "type": "array"
+        },
+        "required_source_refs": {
+          "items": {
+            "type": "string"
+          },
+          "minItems": 1,
+          "title": "Required Source Refs",
+          "type": "array"
+        },
+        "required_telemetry_refs": {
+          "items": {
+            "type": "string"
+          },
+          "title": "Required Telemetry Refs",
+          "type": "array"
+        },
+        "runtime_review_refs": {
+          "items": {
+            "type": "string"
+          },
+          "minItems": 1,
+          "title": "Runtime Review Refs",
+          "type": "array"
+        },
+        "target_boundary_refs": {
+          "items": {
+            "type": "string"
+          },
+          "title": "Target Boundary Refs",
+          "type": "array"
+        },
+        "target_resolution_kind": {
+          "enum": [
+            "concrete_file_ref",
+            "concrete_schema_ref",
+            "concrete_fixture_ref",
+            "concrete_test_ref",
+            "concrete_doc_ref",
+            "concrete_script_ref",
+            "bounded_package_surface_with_child_refs",
+            "external_endpoint_ref",
+            "no_target_boundary"
+          ],
+          "title": "Target Resolution Kind",
+          "type": "string"
+        }
+      },
+      "required": [
+        "preflight_ref",
+        "runtime_review_refs",
+        "candidate_ref",
+        "command_intent_kind",
+        "command_intent_label",
+        "command_ref_posture",
+        "target_resolution_kind",
+        "required_source_refs",
+        "non_execution_guardrail_refs",
+        "preflight_posture",
+        "execution_posture",
+        "forbidden_inferences",
+        "limitation_note"
+      ],
+      "title": "RepoCommandPreflightRow",
+      "type": "object"
+    }
+  },
+  "additionalProperties": false,
+  "properties": {
+    "command_preflight_contract_id": {
+      "title": "Command Preflight Contract Id",
+      "type": "string"
+    },
+    "preflight_boundary_summary": {
+      "title": "Preflight Boundary Summary",
+      "type": "string"
+    },
+    "preflight_rows": {
+      "items": {
+        "$ref": "#/$defs/RepoCommandPreflightRow"
+      },
+      "minItems": 1,
+      "title": "Preflight Rows",
+      "type": "array"
+    },
+    "review_id": {
+      "title": "Review Id",
+      "type": "string"
+    },
+    "runtime_non_execution_guardrail_id": {
+      "title": "Runtime Non Execution Guardrail Id",
+      "type": "string"
+    },
+    "runtime_permission_review_request_id": {
+      "title": "Runtime Permission Review Request Id",
+      "type": "string"
+    },
+    "schema": {
+      "const": "repo_command_preflight_contract@1",
+      "default": "repo_command_preflight_contract@1",
+      "title": "Schema",
+      "type": "string"
+    },
+    "snapshot_id": {
+      "title": "Snapshot Id",
+      "type": "string"
+    },
+    "source_set_id": {
+      "title": "Source Set Id",
+      "type": "string"
+    }
+  },
+  "required": [
+    "command_preflight_contract_id",
+    "runtime_permission_review_request_id",
+    "runtime_non_execution_guardrail_id",
+    "review_id",
+    "snapshot_id",
+    "source_set_id",
+    "preflight_rows",
+    "preflight_boundary_summary"
+  ],
+  "title": "RepoCommandPreflightContract",
+  "type": "object"
+}

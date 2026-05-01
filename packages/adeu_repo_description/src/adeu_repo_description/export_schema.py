@@ -134,9 +134,13 @@ from .recursive_candidate_intake_handoff import (
     RepoRecursiveWorkflowResidueIntakeReport,
 )
 from .runtime_permission_review import (
+    RepoActionEffectEnvelope,
+    RepoCommandPreflightContract,
     RepoRuntimeNonExecutionGuardrail,
     RepoRuntimePermissionReviewRequest,
     RepoRuntimePermissionSourceIndex,
+    RepoRuntimeRollbackContract,
+    RepoRuntimeTelemetryRequirement,
 )
 
 _WINDOWS_ABSOLUTE_PATH_RE = re.compile(r"[A-Za-z]:\\")
@@ -440,6 +444,16 @@ def main() -> None:
     runtime_non_execution_guardrail_schema = (
         RepoRuntimeNonExecutionGuardrail.model_json_schema(by_alias=True)
     )
+    command_preflight_contract_schema = RepoCommandPreflightContract.model_json_schema(
+        by_alias=True
+    )
+    action_effect_envelope_schema = RepoActionEffectEnvelope.model_json_schema(by_alias=True)
+    runtime_telemetry_requirement_schema = (
+        RepoRuntimeTelemetryRequirement.model_json_schema(by_alias=True)
+    )
+    runtime_rollback_contract_schema = RepoRuntimeRollbackContract.model_json_schema(
+        by_alias=True
+    )
 
     _assert_no_absolute_path_material(dependency_register_v1_schema, repo_root_path=root)
     _assert_no_absolute_path_material(dependency_register_schema, repo_root_path=root)
@@ -617,6 +631,10 @@ def main() -> None:
     _assert_no_absolute_path_material(runtime_permission_source_index_schema, repo_root_path=root)
     _assert_no_absolute_path_material(runtime_permission_review_request_schema, repo_root_path=root)
     _assert_no_absolute_path_material(runtime_non_execution_guardrail_schema, repo_root_path=root)
+    _assert_no_absolute_path_material(command_preflight_contract_schema, repo_root_path=root)
+    _assert_no_absolute_path_material(action_effect_envelope_schema, repo_root_path=root)
+    _assert_no_absolute_path_material(runtime_telemetry_requirement_schema, repo_root_path=root)
+    _assert_no_absolute_path_material(runtime_rollback_contract_schema, repo_root_path=root)
 
     _write_schema(
         root
@@ -1777,6 +1795,54 @@ def main() -> None:
     _write_schema(
         root / "spec" / "repo_runtime_non_execution_guardrail.schema.json",
         runtime_non_execution_guardrail_schema,
+    )
+    _write_schema(
+        root
+        / "packages"
+        / "adeu_repo_description"
+        / "schema"
+        / "repo_command_preflight_contract.v1.json",
+        command_preflight_contract_schema,
+    )
+    _write_schema(
+        root / "spec" / "repo_command_preflight_contract.schema.json",
+        command_preflight_contract_schema,
+    )
+    _write_schema(
+        root
+        / "packages"
+        / "adeu_repo_description"
+        / "schema"
+        / "repo_action_effect_envelope.v1.json",
+        action_effect_envelope_schema,
+    )
+    _write_schema(
+        root / "spec" / "repo_action_effect_envelope.schema.json",
+        action_effect_envelope_schema,
+    )
+    _write_schema(
+        root
+        / "packages"
+        / "adeu_repo_description"
+        / "schema"
+        / "repo_runtime_telemetry_requirement.v1.json",
+        runtime_telemetry_requirement_schema,
+    )
+    _write_schema(
+        root / "spec" / "repo_runtime_telemetry_requirement.schema.json",
+        runtime_telemetry_requirement_schema,
+    )
+    _write_schema(
+        root
+        / "packages"
+        / "adeu_repo_description"
+        / "schema"
+        / "repo_runtime_rollback_contract.v1.json",
+        runtime_rollback_contract_schema,
+    )
+    _write_schema(
+        root / "spec" / "repo_runtime_rollback_contract.schema.json",
+        runtime_rollback_contract_schema,
     )
 
 
