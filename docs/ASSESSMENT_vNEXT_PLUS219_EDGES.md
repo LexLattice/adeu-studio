@@ -1,8 +1,8 @@
 # Assessment vNext+219 Edges
 
-Status: planning-edge assessment for `V78-B`.
+Status: closeout-edge assessment for `V78-B`.
 
-Authority layer: pre-lock assessment, not closeout evidence.
+Authority layer: closeout evidence on `main`.
 
 ## Assessment-State Marker (Machine-Checkable)
 
@@ -10,102 +10,122 @@ Authority layer: pre-lock assessment, not closeout evidence.
 {
   "schema": "assessment_artifact_state@1",
   "artifact": "docs/ASSESSMENT_vNEXT_PLUS219_EDGES.md",
-  "phase": "pre_lock_assessment",
-  "authoritative": false,
+  "phase": "post_closeout_assessment",
+  "authoritative": true,
   "required_in_decision": true
 }
 ```
 
-## Open Edges
+## Edge Review
 
 ### Edge 1: Authority Decision Could Become Execution Authorization
 
-- Risk:
-  grant-like decision language could be overread as permission to execute a
-  command.
-- Response:
-  `V78-B` rows must carry later-review-only horizon fields and
-  `execution_authorization_posture = execution_not_authorized_by_v78`.
+- Closeout containment:
+  grant-like decision rows require concrete authority source refs,
+  later-review-only horizon fields, and `execution_authorization_posture =
+  execution_not_authorized_by_v78`.
+- Result:
+  pass.
 
 ### Edge 2: Tool-Use Permission Could Become Tool Invocation
 
-- Risk:
-  tool-use permission envelopes could be treated as permission to invoke tools
-  inside `V78`.
-- Response:
-  tool-use envelopes are target-bound and horizon-bound review records only,
-  and every reference row preserves non-invocation posture.
+- Closeout containment:
+  tool-use permission envelopes are target-bound and horizon-bound review
+  records only. Tool invocation remains rejected in this slice.
+- Result:
+  pass.
 
 ### Edge 3: Tool Applicability Could Become Permission
 
-- Risk:
-  earlier tool applicability rows from `V75` or `V77` could be laundered into
-  tool-use permission.
-- Response:
-  applicability is context only. `V78-B` permission envelopes require their
-  own authority source refs and target horizon.
+- Closeout containment:
+  earlier tool applicability remains context only. `V78-B` permission
+  envelopes require their own authority source refs and target horizon.
+- Result:
+  pass.
 
 ### Edge 4: Command Scope Could Become Target Mutation Authority
 
-- Risk:
-  command-scope authorization boundaries could be read as permission to mutate
-  concrete files, schemas, fixtures, scripts, endpoints, or package surfaces.
-- Response:
-  command-scope rows constrain later review only; they are not command
-  execution and not permission to change target state inside `V78`.
+- Closeout containment:
+  command-scope authorization boundaries constrain later review only. They do
+  not execute commands and do not authorize target mutation inside `V78`.
+- Result:
+  pass.
 
 ### Edge 5: Globs Could Become Concrete Target Boundaries
 
-- Risk:
-  discovery patterns could become unbounded command-scope authorization.
-- Response:
-  globs may be discovery context only. Concrete scope requires concrete target
-  refs or bounded package surfaces with child refs.
+- Closeout containment:
+  globs remain discovery context only. Concrete command scope requires concrete
+  target refs or bounded package surfaces with child refs.
+- Result:
+  pass.
 
 ### Edge 6: Local Command Output Could Become Authority Evidence
 
-- Risk:
-  a passing local command or tool output could be treated as authority source
-  for a grant-like decision.
-- Response:
-  local command output and passing tool results remain non-authority unless a
-  prior authorized source explicitly admits them. `V78-B` must reject
-  command-output-only authority.
+- Closeout containment:
+  local command output and passing tool results are rejected as sole authority
+  evidence for grant-like decision rows.
+- Result:
+  pass.
 
 ### Edge 7: Product Or External Pressure Could Launder Runtime Authority
 
-- Risk:
-  product or external-branch pressure could be converted into runtime
-  execution authority.
-- Response:
-  product and external pressure must remain blocked, future-family-routed, or
-  backed by matching authority refs. External branch activation still requires
-  concrete `V43` posture or explicit external authority.
+- Closeout containment:
+  product and external pressure remain blocked, future-family-routed, or
+  backed by matching authority refs. No product or external pressure is granted
+  as runtime execution authority.
+- Result:
+  pass.
 
 ### Edge 8: Exception Rows Could Resolve Blockers By Prose
 
-- Risk:
-  runtime authority exceptions could be marked resolved without source-bound
-  decision rows.
-- Response:
-  exception rows may be blocking, warning-only, carried, not applicable, or
-  future-family-only. They cannot be resolved by prose or by command output.
+- Closeout containment:
+  exception rows may carry blocking, warning-only, carried, not-applicable, or
+  future-family-only posture, but they cannot be resolved by prose or by
+  command output.
+- Result:
+  pass.
 
 ### Edge 9: V78-B Could Start V78-C Early
 
-- Risk:
-  authority decisions and permission envelopes could emit readiness summaries,
-  handoffs, or family closeout rows.
-- Response:
-  `V78-B` selects only decision, tool-permission, command-scope, and exception
-  surfaces. `V78-C` requires its own future starter trio.
+- Closeout containment:
+  shipped surfaces are limited to
+  `repo_runtime_execution_authority_decision@1`,
+  `repo_tool_use_permission_envelope@1`,
+  `repo_command_scope_authorization_boundary@1`, and
+  `repo_runtime_authority_exception_register@1`.
+- Result:
+  pass.
+
+### Edge 10: Runtime, Product, External, Or Release Authority Could Re-enter
+
+- Closeout containment:
+  `V78-B` rows remain non-action review metadata. No command execution, tool
+  invocation, worker assignment, dispatch execution, product authorization,
+  external branch activation, PR creation, commit, merge, release, benchmark
+  truth, model selection, living-memory authority, recursive policy amendment,
+  or later-family selection shipped.
+- Result:
+  pass.
+
+## Residual Edges
+
+- `V78-C` must summarize `V78-A` and `V78-B` without smoothing blockers into
+  readiness.
+- `V78-C` must keep pre-execution-authority-review handoffs as later-review
+  requests, not execution scheduling.
+- `V78-C` must keep product, external branch, release, model-selection,
+  living-memory, and recursive-policy pressure as unselected future seams.
+- `V78-C` must close `V78` without selecting `V79` or any later family.
 
 ## Current Judgment
 
-- `V78-B` is worth drafting now because `V78-A` closed runtime execution
-  authority request / source / guardrail substrate on `main`.
-- The starter slice should stay later-review-only: it can make authority
-  decisions, permission envelopes, command scope, and exceptions
-  machine-checkable, but it must not execute commands, invoke tools, assign
-  workers, dispatch, productize, release, activate external branches, or
-  select a later family.
+- `V78-B` is closed on `main` as a bounded runtime execution authority
+  decision, tool-use permission envelope, command-scope authorization boundary,
+  and runtime authority exception register slice.
+- `V78` remains open for `V78-C`.
+- The shipped slice preserves the intended authority boundary: runtime
+  execution authority decisions and permission envelopes can be source-bound
+  and machine-checkable, but they do not execute commands, invoke tools,
+  assign workers, dispatch, productize, activate external branches, release,
+  select models globally, establish living-memory authority, adopt recursive
+  policy amendments, or select a later family.

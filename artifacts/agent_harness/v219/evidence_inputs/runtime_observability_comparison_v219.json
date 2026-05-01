@@ -1,0 +1,11 @@
+{
+  "baseline_arc": "vNext+218",
+  "baseline_elapsed_ms": 68,
+  "baseline_source": "artifacts/stop_gate/report_v218_closeout.md",
+  "current_arc": "vNext+219",
+  "current_elapsed_ms": 87,
+  "current_source": "artifacts/stop_gate/report_v219_closeout.md",
+  "delta_ms": 19,
+  "notes": "v219 closeout keeps the frozen stop-gate schema family and exact metric keyset unchanged while closing the bounded V78-B runtime execution authority decision / permission-envelope / command-scope / exception slice on main: repo-owned adeu_repo_description package only, four repo_* V78-B surfaces, released V78-A request / source / guardrail substrate consumed, decision rows remain later-review-only, execution authorization is explicitly absent, tool-use permission stays target-bound and non-invoking, command-scope boundaries reject globs as concrete authorization, product and external pressure remain blocked or future-family-routed, local command output and passing tool results stay non-authorizing, exceptions cannot be resolved by prose, and no command execution, tool invocation, worker assignment, dispatch execution, product authorization, external branch activation, PR, commit, merge, release, benchmark truth, model selection, living-memory authority, or recursive policy amendment.",
+  "schema": "runtime_observability_comparison@1"
+}
