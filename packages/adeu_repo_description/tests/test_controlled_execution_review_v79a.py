@@ -271,6 +271,50 @@ def test_v221_bundle_rejects_unknown_source_ref() -> None:
         _validate_reference_bundle_with(request=request, guardrail=guardrail)
 
 
+@pytest.mark.parametrize(
+    ("source_name_fragment", "match"),
+    [
+        (
+            "repo_runtime_authority_readiness_summary",
+            "V78-C summary refs require a readiness-summary source",
+        ),
+        (
+            "repo_pre_execution_authority_review_handoff",
+            "V78-C handoff refs require a pre-execution handoff source",
+        ),
+    ],
+)
+def test_v221_bundle_rejects_v78_refs_without_matching_source_role(
+    source_name_fragment: str,
+    match: str,
+) -> None:
+    request_payload = _v79a_request().model_dump(mode="json")
+    request_row = next(
+        row
+        for row in request_payload["request_rows"]
+        if row["candidate_ref"] == "candidate:internal:self_evidencing_workflow_type_emergence"
+    )
+    request_row["source_refs"] = [
+        source_ref
+        for source_ref in request_row["source_refs"]
+        if source_name_fragment not in source_ref
+    ]
+    request_payload["controlled_execution_review_request_id"] = _surface_id(
+        "repo_controlled_execution_review_request",
+        REPO_CONTROLLED_EXECUTION_REVIEW_REQUEST_SCHEMA,
+        request_payload,
+        "controlled_execution_review_request_id",
+    )
+    request = RepoControlledExecutionReviewRequest.model_validate(request_payload)
+    guardrail = derive_v79a_repo_controlled_execution_non_execution_guardrail(
+        repo_root=_repo_root(),
+        controlled_execution_review_request=request,
+    )
+
+    with pytest.raises(ValueError, match=match):
+        _validate_reference_bundle_with(request=request, guardrail=guardrail)
+
+
 def test_v221_bundle_rejects_mismatched_request_provenance() -> None:
     request_payload = _v79a_request().model_dump(mode="json")
     request_payload["source_set_id"] = "source-set:v79a:mixed-provenance"

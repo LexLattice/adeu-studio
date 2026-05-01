@@ -933,6 +933,16 @@ def validate_v79a_controlled_execution_review_bundle(
                 raise ValueError(
                     "eligible controlled execution requests require released V78-C sources"
                 )
+        if (
+            request_row.v78_summary_refs
+            and "v78_readiness_summary_source" not in roles
+        ):
+            raise ValueError("V78-C summary refs require a readiness-summary source")
+        if (
+            request_row.v78_handoff_refs
+            and "v78_pre_execution_authority_review_handoff_source" not in roles
+        ):
+            raise ValueError("V78-C handoff refs require a pre-execution handoff source")
         if any(guardrail_ref not in guardrail_rows for guardrail_ref in request_row.guardrail_refs):
             raise ValueError("controlled execution request guardrail refs must be known")
         for guardrail_ref in request_row.guardrail_refs:
