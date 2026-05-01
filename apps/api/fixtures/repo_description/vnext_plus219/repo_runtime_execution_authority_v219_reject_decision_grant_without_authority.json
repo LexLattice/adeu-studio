@@ -1,0 +1,80 @@
+{
+  "authority_decision_summary": "Runtime execution authority decisions are later review records only: no execution, no tool invocation, and no release.",
+  "decision_rows": [
+    {
+      "authority_actor_refs": [],
+      "authority_decision_ref": "authority-decision:v78b:product-wedge:future-family-only",
+      "authority_grant_horizon": "future_family_review_only",
+      "authority_request_refs": [
+        "authority-request:v78a:product-wedge:blocked"
+      ],
+      "authority_source_refs": [
+        "authority:v78a:product-wedge:product-review"
+      ],
+      "authorized_surface_kind": "future_family_review_surface",
+      "candidate_ref": "candidate:internal:typed_adjudication_product_wedge",
+      "command_scope_boundary_refs": [
+        "command-scope:v78b:product-wedge:no-target"
+      ],
+      "decision_horizon": "future_product_runtime_review",
+      "decision_posture": "review_authority_future_family_only",
+      "exception_refs": [
+        "exception:v78b:product-wedge:product-authority-gap"
+      ],
+      "execution_authorization_posture": "execution_not_authorized_by_v78",
+      "execution_posture": "no_execution_performed_by_v78",
+      "limitation_note": "Product pressure is future-family-only for later review with no execution and no product authorization.",
+      "non_action_guardrail_refs": [
+        "guardrail:v78a:product-wedge:non-action"
+      ],
+      "rollback_requirement_refs": [],
+      "telemetry_requirement_refs": [],
+      "tool_use_permission_refs": [
+        "tool-permission:v78b:product-wedge:not-applicable"
+      ]
+    },
+    {
+      "authority_actor_refs": [
+        "authority-actor:v78b:maintainer-review-source"
+      ],
+      "authority_decision_ref": "authority-decision:v78b:self-evidencing:later-execution-review",
+      "authority_grant_horizon": "later_execution_review_only",
+      "authority_request_refs": [
+        "authority-request:v78a:self-evidencing:runtime-execution-review"
+      ],
+      "authority_source_refs": [],
+      "authorized_surface_kind": "later_execution_review_surface",
+      "candidate_ref": "candidate:internal:self_evidencing_workflow_type_emergence",
+      "command_scope_boundary_refs": [
+        "command-scope:v78b:self-evidencing:runtime-authority-module"
+      ],
+      "decision_horizon": "bounded_repo_script_execution_review",
+      "decision_posture": "review_authority_granted_for_bounded_execution_surface",
+      "exception_refs": [
+        "exception:v78b:self-evidencing:review-only-warning"
+      ],
+      "execution_authorization_posture": "execution_not_authorized_by_v78",
+      "execution_posture": "no_execution_performed_by_v78",
+      "limitation_note": "Decision grants only a bounded later review surface with no execution and no tool invocation.",
+      "non_action_guardrail_refs": [
+        "guardrail:v78a:self-evidencing:non-action"
+      ],
+      "rollback_requirement_refs": [
+        "rollback:v77b:self-evidencing:required"
+      ],
+      "telemetry_requirement_refs": [
+        "telemetry:v77b:self-evidencing:required"
+      ],
+      "tool_use_permission_refs": [
+        "tool-permission:v78b:self-evidencing:python-review"
+      ]
+    }
+  ],
+  "review_id": "review:v78a:runtime-execution-authority-request",
+  "runtime_authority_non_action_guardrail_id": "repo_runtime_authority_non_action_guardrail_290db32895611dab35719d3f",
+  "runtime_execution_authority_decision_id": "repo_runtime_execution_authority_decision_4a31e7f41da7d9cad8e06951",
+  "runtime_execution_authority_request_id": "repo_runtime_execution_authority_request_ec2a026424c63dccdb5a540c",
+  "schema": "repo_runtime_execution_authority_decision@1",
+  "snapshot_id": "vNext+217-closed-on-main",
+  "source_set_id": "source-set:v78a:released-v77c-runtime-authority-pressure"
+}

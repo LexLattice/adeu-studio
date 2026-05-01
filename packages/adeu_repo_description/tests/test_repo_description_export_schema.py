@@ -35,6 +35,7 @@ from adeu_repo_description import (
     REPO_CANDIDATE_REVIEW_GAP_SCAN_SCHEMA,
     REPO_CANDIDATE_SOURCE_REGISTER_SCHEMA,
     REPO_COMMAND_PREFLIGHT_CONTRACT_SCHEMA,
+    REPO_COMMAND_SCOPE_AUTHORIZATION_BOUNDARY_SCHEMA,
     REPO_COMMIT_RELEASE_AUTHORITY_POSTURE_SCHEMA,
     REPO_CONTAINED_INTEGRATION_CANDIDATE_PLAN_SCHEMA,
     REPO_CONTAINED_INTEGRATION_FAMILY_CLOSEOUT_ALIGNMENT_SCHEMA,
@@ -83,6 +84,11 @@ from adeu_repo_description import (
     REPO_RECURSIVE_COORDINATE_EMISSION_PLAN_SCHEMA,
     REPO_RECURSIVE_WORKFLOW_RESIDUE_INTAKE_REPORT_SCHEMA,
     REPO_REVIEW_SETTLEMENT_RECORD_SCHEMA,
+    REPO_RUNTIME_AUTHORITY_EXCEPTION_REGISTER_SCHEMA,
+    REPO_RUNTIME_AUTHORITY_NON_ACTION_GUARDRAIL_SCHEMA,
+    REPO_RUNTIME_AUTHORITY_SOURCE_INDEX_SCHEMA,
+    REPO_RUNTIME_EXECUTION_AUTHORITY_DECISION_SCHEMA,
+    REPO_RUNTIME_EXECUTION_AUTHORITY_REQUEST_SCHEMA,
     REPO_RUNTIME_NON_EXECUTION_GUARDRAIL_SCHEMA,
     REPO_RUNTIME_PERMISSION_AUTHORITY_POSTURE_SCHEMA,
     REPO_RUNTIME_PERMISSION_FAMILY_CLOSEOUT_ALIGNMENT_SCHEMA,
@@ -96,6 +102,7 @@ from adeu_repo_description import (
     REPO_SYMBOL_CATALOG_SCHEMA,
     REPO_TEST_INTENT_MATRIX_SCHEMA,
     REPO_TOOL_FITNESS_DRIFT_REGISTER_SCHEMA,
+    REPO_TOOL_USE_PERMISSION_ENVELOPE_SCHEMA,
     REPO_TYPED_ADJUDICATION_CASE_VIEW_SCHEMA,
     REPO_WORKER_OUTPUT_RECONCILIATION_PLAN_SCHEMA,
 )
@@ -826,6 +833,62 @@ def _schema_pairs() -> dict[str, tuple[Path, Path]]:
             / "schema"
             / "repo_runtime_permission_family_closeout_alignment.v1.json",
             root / "spec" / "repo_runtime_permission_family_closeout_alignment.schema.json",
+        ),
+        REPO_RUNTIME_AUTHORITY_SOURCE_INDEX_SCHEMA: (
+            root
+            / "packages"
+            / "adeu_repo_description"
+            / "schema"
+            / "repo_runtime_authority_source_index.v1.json",
+            root / "spec" / "repo_runtime_authority_source_index.schema.json",
+        ),
+        REPO_RUNTIME_EXECUTION_AUTHORITY_REQUEST_SCHEMA: (
+            root
+            / "packages"
+            / "adeu_repo_description"
+            / "schema"
+            / "repo_runtime_execution_authority_request.v1.json",
+            root / "spec" / "repo_runtime_execution_authority_request.schema.json",
+        ),
+        REPO_RUNTIME_AUTHORITY_NON_ACTION_GUARDRAIL_SCHEMA: (
+            root
+            / "packages"
+            / "adeu_repo_description"
+            / "schema"
+            / "repo_runtime_authority_non_action_guardrail.v1.json",
+            root / "spec" / "repo_runtime_authority_non_action_guardrail.schema.json",
+        ),
+        REPO_RUNTIME_EXECUTION_AUTHORITY_DECISION_SCHEMA: (
+            root
+            / "packages"
+            / "adeu_repo_description"
+            / "schema"
+            / "repo_runtime_execution_authority_decision.v1.json",
+            root / "spec" / "repo_runtime_execution_authority_decision.schema.json",
+        ),
+        REPO_TOOL_USE_PERMISSION_ENVELOPE_SCHEMA: (
+            root
+            / "packages"
+            / "adeu_repo_description"
+            / "schema"
+            / "repo_tool_use_permission_envelope.v1.json",
+            root / "spec" / "repo_tool_use_permission_envelope.schema.json",
+        ),
+        REPO_COMMAND_SCOPE_AUTHORIZATION_BOUNDARY_SCHEMA: (
+            root
+            / "packages"
+            / "adeu_repo_description"
+            / "schema"
+            / "repo_command_scope_authorization_boundary.v1.json",
+            root / "spec" / "repo_command_scope_authorization_boundary.schema.json",
+        ),
+        REPO_RUNTIME_AUTHORITY_EXCEPTION_REGISTER_SCHEMA: (
+            root
+            / "packages"
+            / "adeu_repo_description"
+            / "schema"
+            / "repo_runtime_authority_exception_register.v1.json",
+            root / "spec" / "repo_runtime_authority_exception_register.schema.json",
         ),
     }
 

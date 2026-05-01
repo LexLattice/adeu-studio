@@ -1,0 +1,193 @@
+{
+  "$defs": {
+    "RepoCommandScopeAuthorizationBoundaryRow": {
+      "additionalProperties": false,
+      "properties": {
+        "allowed_effect_surface_refs": {
+          "items": {
+            "type": "string"
+          },
+          "title": "Allowed Effect Surface Refs",
+          "type": "array"
+        },
+        "authority_request_refs": {
+          "items": {
+            "type": "string"
+          },
+          "minItems": 1,
+          "title": "Authority Request Refs",
+          "type": "array"
+        },
+        "authority_source_refs": {
+          "items": {
+            "type": "string"
+          },
+          "title": "Authority Source Refs",
+          "type": "array"
+        },
+        "authorized_scope_posture": {
+          "enum": [
+            "bounded_scope_authorized_for_later_execution_review",
+            "scope_denied",
+            "scope_deferred",
+            "scope_blocked_by_missing_target",
+            "scope_blocked_by_unbounded_target",
+            "scope_blocked_by_missing_telemetry",
+            "scope_blocked_by_missing_rollback",
+            "scope_future_family_only"
+          ],
+          "title": "Authorized Scope Posture",
+          "type": "string"
+        },
+        "candidate_ref": {
+          "title": "Candidate Ref",
+          "type": "string"
+        },
+        "command_intent_kind": {
+          "enum": [
+            "no_command_intent",
+            "shell_command_later_review",
+            "python_tool_later_review",
+            "repo_script_later_review",
+            "api_call_later_review",
+            "external_tool_later_review",
+            "future_family_only"
+          ],
+          "title": "Command Intent Kind",
+          "type": "string"
+        },
+        "command_scope_ref": {
+          "title": "Command Scope Ref",
+          "type": "string"
+        },
+        "exception_refs": {
+          "items": {
+            "type": "string"
+          },
+          "title": "Exception Refs",
+          "type": "array"
+        },
+        "execution_posture": {
+          "enum": [
+            "no_execution_performed_by_v78",
+            "execution_requires_later_family",
+            "execution_forbidden_by_this_family"
+          ],
+          "title": "Execution Posture",
+          "type": "string"
+        },
+        "forbidden_effect_surface_refs": {
+          "items": {
+            "type": "string"
+          },
+          "title": "Forbidden Effect Surface Refs",
+          "type": "array"
+        },
+        "limitation_note": {
+          "title": "Limitation Note",
+          "type": "string"
+        },
+        "rollback_requirement_refs": {
+          "items": {
+            "type": "string"
+          },
+          "title": "Rollback Requirement Refs",
+          "type": "array"
+        },
+        "target_refs": {
+          "items": {
+            "type": "string"
+          },
+          "title": "Target Refs",
+          "type": "array"
+        },
+        "target_resolution_kind": {
+          "enum": [
+            "concrete_file_ref",
+            "concrete_schema_ref",
+            "concrete_fixture_ref",
+            "concrete_test_ref",
+            "concrete_doc_ref",
+            "concrete_script_ref",
+            "bounded_package_surface_with_child_refs",
+            "external_endpoint_ref",
+            "no_target_boundary"
+          ],
+          "title": "Target Resolution Kind",
+          "type": "string"
+        },
+        "telemetry_requirement_refs": {
+          "items": {
+            "type": "string"
+          },
+          "title": "Telemetry Requirement Refs",
+          "type": "array"
+        }
+      },
+      "required": [
+        "command_scope_ref",
+        "authority_request_refs",
+        "candidate_ref",
+        "command_intent_kind",
+        "target_resolution_kind",
+        "authorized_scope_posture",
+        "execution_posture",
+        "limitation_note"
+      ],
+      "title": "RepoCommandScopeAuthorizationBoundaryRow",
+      "type": "object"
+    }
+  },
+  "additionalProperties": false,
+  "properties": {
+    "command_scope_authorization_boundary_id": {
+      "title": "Command Scope Authorization Boundary Id",
+      "type": "string"
+    },
+    "command_scope_rows": {
+      "items": {
+        "$ref": "#/$defs/RepoCommandScopeAuthorizationBoundaryRow"
+      },
+      "minItems": 1,
+      "title": "Command Scope Rows",
+      "type": "array"
+    },
+    "command_scope_summary": {
+      "title": "Command Scope Summary",
+      "type": "string"
+    },
+    "review_id": {
+      "title": "Review Id",
+      "type": "string"
+    },
+    "runtime_execution_authority_request_id": {
+      "title": "Runtime Execution Authority Request Id",
+      "type": "string"
+    },
+    "schema": {
+      "const": "repo_command_scope_authorization_boundary@1",
+      "default": "repo_command_scope_authorization_boundary@1",
+      "title": "Schema",
+      "type": "string"
+    },
+    "snapshot_id": {
+      "title": "Snapshot Id",
+      "type": "string"
+    },
+    "source_set_id": {
+      "title": "Source Set Id",
+      "type": "string"
+    }
+  },
+  "required": [
+    "command_scope_authorization_boundary_id",
+    "runtime_execution_authority_request_id",
+    "review_id",
+    "snapshot_id",
+    "source_set_id",
+    "command_scope_rows",
+    "command_scope_summary"
+  ],
+  "title": "RepoCommandScopeAuthorizationBoundary",
+  "type": "object"
+}

@@ -134,9 +134,13 @@ from .recursive_candidate_intake_handoff import (
     RepoRecursiveWorkflowResidueIntakeReport,
 )
 from .runtime_execution_authority import (
+    RepoCommandScopeAuthorizationBoundary,
+    RepoRuntimeAuthorityExceptionRegister,
     RepoRuntimeAuthorityNonActionGuardrail,
     RepoRuntimeAuthoritySourceIndex,
+    RepoRuntimeExecutionAuthorityDecision,
     RepoRuntimeExecutionAuthorityRequest,
+    RepoToolUsePermissionEnvelope,
 )
 from .runtime_permission_review import (
     RepoActionEffectEnvelope,
@@ -484,6 +488,18 @@ def main() -> None:
     runtime_authority_non_action_guardrail_schema = (
         RepoRuntimeAuthorityNonActionGuardrail.model_json_schema(by_alias=True)
     )
+    runtime_execution_authority_decision_schema = (
+        RepoRuntimeExecutionAuthorityDecision.model_json_schema(by_alias=True)
+    )
+    tool_use_permission_envelope_schema = (
+        RepoToolUsePermissionEnvelope.model_json_schema(by_alias=True)
+    )
+    command_scope_authorization_boundary_schema = (
+        RepoCommandScopeAuthorizationBoundary.model_json_schema(by_alias=True)
+    )
+    runtime_authority_exception_register_schema = (
+        RepoRuntimeAuthorityExceptionRegister.model_json_schema(by_alias=True)
+    )
 
     _assert_no_absolute_path_material(dependency_register_v1_schema, repo_root_path=root)
     _assert_no_absolute_path_material(dependency_register_schema, repo_root_path=root)
@@ -688,6 +704,19 @@ def main() -> None:
     )
     _assert_no_absolute_path_material(
         runtime_authority_non_action_guardrail_schema,
+        repo_root_path=root,
+    )
+    _assert_no_absolute_path_material(
+        runtime_execution_authority_decision_schema,
+        repo_root_path=root,
+    )
+    _assert_no_absolute_path_material(tool_use_permission_envelope_schema, repo_root_path=root)
+    _assert_no_absolute_path_material(
+        command_scope_authorization_boundary_schema,
+        repo_root_path=root,
+    )
+    _assert_no_absolute_path_material(
+        runtime_authority_exception_register_schema,
         repo_root_path=root,
     )
 
@@ -1982,6 +2011,54 @@ def main() -> None:
     _write_schema(
         root / "spec" / "repo_runtime_authority_non_action_guardrail.schema.json",
         runtime_authority_non_action_guardrail_schema,
+    )
+    _write_schema(
+        root
+        / "packages"
+        / "adeu_repo_description"
+        / "schema"
+        / "repo_runtime_execution_authority_decision.v1.json",
+        runtime_execution_authority_decision_schema,
+    )
+    _write_schema(
+        root / "spec" / "repo_runtime_execution_authority_decision.schema.json",
+        runtime_execution_authority_decision_schema,
+    )
+    _write_schema(
+        root
+        / "packages"
+        / "adeu_repo_description"
+        / "schema"
+        / "repo_tool_use_permission_envelope.v1.json",
+        tool_use_permission_envelope_schema,
+    )
+    _write_schema(
+        root / "spec" / "repo_tool_use_permission_envelope.schema.json",
+        tool_use_permission_envelope_schema,
+    )
+    _write_schema(
+        root
+        / "packages"
+        / "adeu_repo_description"
+        / "schema"
+        / "repo_command_scope_authorization_boundary.v1.json",
+        command_scope_authorization_boundary_schema,
+    )
+    _write_schema(
+        root / "spec" / "repo_command_scope_authorization_boundary.schema.json",
+        command_scope_authorization_boundary_schema,
+    )
+    _write_schema(
+        root
+        / "packages"
+        / "adeu_repo_description"
+        / "schema"
+        / "repo_runtime_authority_exception_register.v1.json",
+        runtime_authority_exception_register_schema,
+    )
+    _write_schema(
+        root / "spec" / "repo_runtime_authority_exception_register.schema.json",
+        runtime_authority_exception_register_schema,
     )
 
 

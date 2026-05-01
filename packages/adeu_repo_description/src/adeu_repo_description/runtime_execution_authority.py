@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import re
+from collections.abc import Iterable
 from pathlib import Path
 from typing import Literal
 
@@ -28,6 +29,16 @@ REPO_RUNTIME_EXECUTION_AUTHORITY_REQUEST_SCHEMA = (
 REPO_RUNTIME_AUTHORITY_SOURCE_INDEX_SCHEMA = "repo_runtime_authority_source_index@1"
 REPO_RUNTIME_AUTHORITY_NON_ACTION_GUARDRAIL_SCHEMA = (
     "repo_runtime_authority_non_action_guardrail@1"
+)
+REPO_RUNTIME_EXECUTION_AUTHORITY_DECISION_SCHEMA = (
+    "repo_runtime_execution_authority_decision@1"
+)
+REPO_TOOL_USE_PERMISSION_ENVELOPE_SCHEMA = "repo_tool_use_permission_envelope@1"
+REPO_COMMAND_SCOPE_AUTHORIZATION_BOUNDARY_SCHEMA = (
+    "repo_command_scope_authorization_boundary@1"
+)
+REPO_RUNTIME_AUTHORITY_EXCEPTION_REGISTER_SCHEMA = (
+    "repo_runtime_authority_exception_register@1"
 )
 
 RuntimeAuthoritySourceRole = Literal[
@@ -112,6 +123,93 @@ RuntimeAuthorityForbiddenDownstreamAuthority = Literal[
     "living_memory_authority",
     "recursive_policy_amendment",
 ]
+RuntimeExecutionAuthorityDecisionPosture = Literal[
+    "review_authority_granted_for_bounded_execution_surface",
+    "review_authority_denied",
+    "review_authority_deferred",
+    "review_authority_blocked_by_missing_source",
+    "review_authority_blocked_by_missing_scope",
+    "review_authority_blocked_by_missing_telemetry",
+    "review_authority_blocked_by_missing_rollback",
+    "review_authority_future_family_only",
+    "review_authority_rejected_out_of_scope",
+]
+RuntimeAuthorizedSurfaceKind = Literal[
+    "later_execution_review_surface",
+    "later_tool_invocation_review_surface",
+    "later_telemetry_review_surface",
+    "later_rollback_review_surface",
+    "future_family_review_surface",
+]
+RuntimeAuthorityGrantHorizon = Literal[
+    "later_execution_review_only",
+    "later_tool_invocation_review_only",
+    "later_telemetry_review_only",
+    "later_rollback_review_only",
+    "future_family_review_only",
+]
+RuntimeExecutionAuthorizationPosture = Literal[
+    "execution_not_authorized_by_v78",
+    "execution_requires_later_family",
+    "execution_forbidden_by_this_family",
+]
+ToolUsePermissionPosture = Literal[
+    "tool_use_permission_granted_for_later_execution_review",
+    "tool_use_permission_denied",
+    "tool_use_permission_deferred",
+    "tool_use_permission_blocked_by_missing_authority",
+    "tool_use_permission_future_family_only",
+    "tool_use_not_applicable",
+]
+RuntimeTargetResolutionKind = Literal[
+    "concrete_file_ref",
+    "concrete_schema_ref",
+    "concrete_fixture_ref",
+    "concrete_test_ref",
+    "concrete_doc_ref",
+    "concrete_script_ref",
+    "bounded_package_surface_with_child_refs",
+    "external_endpoint_ref",
+    "no_target_boundary",
+]
+RuntimeAuthorizedScopePosture = Literal[
+    "bounded_scope_authorized_for_later_execution_review",
+    "scope_denied",
+    "scope_deferred",
+    "scope_blocked_by_missing_target",
+    "scope_blocked_by_unbounded_target",
+    "scope_blocked_by_missing_telemetry",
+    "scope_blocked_by_missing_rollback",
+    "scope_future_family_only",
+]
+RuntimeAuthorityExceptionKind = Literal[
+    "missing_authority_source",
+    "missing_command_scope",
+    "unbounded_target",
+    "missing_telemetry_requirement",
+    "missing_rollback_requirement",
+    "tool_permission_gap",
+    "product_authority_gap",
+    "external_branch_authority_gap",
+    "release_authority_gap",
+    "command_output_without_prior_authority",
+    "unknown_needs_review",
+]
+RuntimeAuthorityExceptionPosture = Literal[
+    "blocking",
+    "warning_only",
+    "carried_forward",
+    "not_applicable",
+    "future_family_only",
+]
+RuntimeAuthorityRequiredNextSurface = Literal[
+    "later_execution_review_surface",
+    "later_tool_invocation_review_surface",
+    "future_product_review",
+    "future_external_branch_review",
+    "future_family_review",
+    "none",
+]
 
 _ELIGIBILITY_SOURCE_ROLES = {
     "v77_authority_posture_source",
@@ -146,6 +244,13 @@ _FORBIDDEN_DOWNSTREAM_AUTHORITIES = {
     "model_selection",
     "living_memory_authority",
     "recursive_policy_amendment",
+}
+_GRANT_DECISION_POSTURES = {"review_authority_granted_for_bounded_execution_surface"}
+_LATER_REVIEW_SURFACE_KINDS = {
+    "later_execution_review_surface",
+    "later_tool_invocation_review_surface",
+    "later_telemetry_review_surface",
+    "later_rollback_review_surface",
 }
 
 
@@ -1141,3 +1246,1120 @@ def derive_v78a_runtime_execution_authority_bundle(
         runtime_authority_non_action_guardrail=guardrail,
     )
     return source_index, request, guardrail
+
+
+class RepoRuntimeExecutionAuthorityDecisionRow(_CartographyBase):
+    authority_decision_ref: str
+    authority_request_refs: list[str] = Field(min_length=1)
+    candidate_ref: str
+    decision_posture: RuntimeExecutionAuthorityDecisionPosture
+    decision_horizon: RequestedRuntimeAuthorityHorizon
+    authorized_surface_kind: RuntimeAuthorizedSurfaceKind
+    authority_grant_horizon: RuntimeAuthorityGrantHorizon
+    authority_source_refs: list[str] = Field(default_factory=list)
+    authority_actor_refs: list[str] = Field(default_factory=list)
+    tool_use_permission_refs: list[str] = Field(default_factory=list)
+    command_scope_boundary_refs: list[str] = Field(default_factory=list)
+    telemetry_requirement_refs: list[str] = Field(default_factory=list)
+    rollback_requirement_refs: list[str] = Field(default_factory=list)
+    exception_refs: list[str] = Field(default_factory=list)
+    execution_posture: RuntimeAuthorityExecutionPosture
+    execution_authorization_posture: RuntimeExecutionAuthorizationPosture
+    non_action_guardrail_refs: list[str] = Field(min_length=1)
+    limitation_note: str
+
+    @model_validator(mode="after")
+    def _validate_runtime_authority_decision_row(
+        self,
+    ) -> RepoRuntimeExecutionAuthorityDecisionRow:
+        _non_empty(self.authority_decision_ref, field_name="authority_decision_ref")
+        _non_empty(self.candidate_ref, field_name="candidate_ref")
+        for field_name in (
+            "authority_request_refs",
+            "authority_source_refs",
+            "authority_actor_refs",
+            "tool_use_permission_refs",
+            "command_scope_boundary_refs",
+            "telemetry_requirement_refs",
+            "rollback_requirement_refs",
+            "exception_refs",
+            "non_action_guardrail_refs",
+        ):
+            object.__setattr__(
+                self,
+                field_name,
+                _sorted_unique(getattr(self, field_name), field_name=field_name),
+            )
+        if self.execution_posture != "no_execution_performed_by_v78":
+            raise ValueError("runtime authority decisions must not perform execution")
+        if self.execution_authorization_posture != "execution_not_authorized_by_v78":
+            raise ValueError("V78-B decisions must not authorize execution")
+        _reject_v78_action_claim(self.limitation_note, field_name="limitation_note")
+        _require_terms(
+            self.limitation_note,
+            field_name="limitation_note",
+            terms=("later review", "no execution"),
+        )
+        if self.decision_posture in _GRANT_DECISION_POSTURES:
+            if not self.authority_source_refs:
+                raise ValueError("grant-like decisions require authority source refs")
+            if not self.non_action_guardrail_refs:
+                raise ValueError("grant-like decisions require non-action guardrails")
+            if not self.command_scope_boundary_refs:
+                raise ValueError("grant-like decisions require command-scope refs")
+            if self.authorized_surface_kind not in _LATER_REVIEW_SURFACE_KINDS:
+                raise ValueError("grant-like decisions require a later-review surface")
+            if not self.authority_grant_horizon.startswith("later_"):
+                raise ValueError("grant-like decisions require later-review-only horizon")
+            if self.decision_horizon in {
+                "future_product_runtime_review",
+                "future_external_branch_runtime_review",
+            }:
+                raise ValueError("product/external pressure cannot be granted by V78-B")
+        return self
+
+
+class RepoRuntimeExecutionAuthorityDecision(_CartographyBase):
+    schema: Literal["repo_runtime_execution_authority_decision@1"] = (
+        REPO_RUNTIME_EXECUTION_AUTHORITY_DECISION_SCHEMA
+    )
+    runtime_execution_authority_decision_id: str
+    runtime_execution_authority_request_id: str
+    runtime_authority_non_action_guardrail_id: str
+    review_id: str
+    snapshot_id: str
+    source_set_id: str
+    decision_rows: list[RepoRuntimeExecutionAuthorityDecisionRow] = Field(min_length=1)
+    authority_decision_summary: str
+
+    @model_validator(mode="after")
+    def _validate_runtime_authority_decision(
+        self,
+    ) -> RepoRuntimeExecutionAuthorityDecision:
+        object.__setattr__(
+            self,
+            "decision_rows",
+            _sorted_unique_by_ref(
+                self.decision_rows,
+                attr="authority_decision_ref",
+                field_name="decision_rows",
+            ),
+        )
+        _require_terms(
+            self.authority_decision_summary,
+            field_name="authority_decision_summary",
+            terms=("later review", "no execution", "no tool invocation"),
+        )
+        expected_id = _surface_id(
+            "repo_runtime_execution_authority_decision",
+            self.schema,
+            self.model_dump(mode="json"),
+            "runtime_execution_authority_decision_id",
+        )
+        if self.runtime_execution_authority_decision_id != expected_id:
+            raise ValueError(
+                "runtime_execution_authority_decision_id does not match canonical hash"
+            )
+        return self
+
+
+class RepoToolUsePermissionEnvelopeRow(_CartographyBase):
+    tool_permission_ref: str
+    authority_request_refs: list[str] = Field(min_length=1)
+    candidate_ref: str
+    tool_id: str
+    tool_target_horizon: RequestedRuntimeAuthorityHorizon
+    tool_target_refs: list[str] = Field(default_factory=list)
+    permission_posture: ToolUsePermissionPosture
+    permission_scope_boundary_refs: list[str] = Field(default_factory=list)
+    authority_source_refs: list[str] = Field(default_factory=list)
+    telemetry_requirement_refs: list[str] = Field(default_factory=list)
+    rollback_requirement_refs: list[str] = Field(default_factory=list)
+    exception_refs: list[str] = Field(default_factory=list)
+    tool_invocation_posture: RuntimeAuthorityToolInvocationPosture
+    limitation_note: str
+
+    @model_validator(mode="after")
+    def _validate_tool_use_permission_row(self) -> RepoToolUsePermissionEnvelopeRow:
+        _non_empty(self.tool_permission_ref, field_name="tool_permission_ref")
+        _non_empty(self.candidate_ref, field_name="candidate_ref")
+        _non_empty(self.tool_id, field_name="tool_id")
+        for field_name in (
+            "authority_request_refs",
+            "tool_target_refs",
+            "permission_scope_boundary_refs",
+            "authority_source_refs",
+            "telemetry_requirement_refs",
+            "rollback_requirement_refs",
+            "exception_refs",
+        ):
+            object.__setattr__(
+                self,
+                field_name,
+                _sorted_unique(getattr(self, field_name), field_name=field_name),
+            )
+        for target_ref in self.tool_target_refs:
+            _reject_glob_ref(target_ref, field_name="tool_target_refs")
+            _repo_ref(target_ref, field_name="tool_target_refs")
+        if self.tool_id in {"*", "global", "all_tools", "tool:*"}:
+            raise ValueError("tool-use permission may not be global")
+        if self.tool_invocation_posture != "no_tool_invocation_performed_by_v78":
+            raise ValueError("tool-use permission envelopes must not invoke tools")
+        _reject_v78_action_claim(self.limitation_note, field_name="limitation_note")
+        _require_terms(
+            self.limitation_note,
+            field_name="limitation_note",
+            terms=("later review", "no tool invocation"),
+        )
+        if (
+            self.permission_posture
+            == "tool_use_permission_granted_for_later_execution_review"
+        ):
+            if not self.tool_target_refs:
+                raise ValueError("tool-use permission grants require target refs")
+            if not self.permission_scope_boundary_refs:
+                raise ValueError("tool-use permission grants require scope boundary refs")
+            if not self.authority_source_refs:
+                raise ValueError("tool-use permission grants require authority refs")
+        return self
+
+
+class RepoToolUsePermissionEnvelope(_CartographyBase):
+    schema: Literal["repo_tool_use_permission_envelope@1"] = (
+        REPO_TOOL_USE_PERMISSION_ENVELOPE_SCHEMA
+    )
+    tool_use_permission_envelope_id: str
+    runtime_execution_authority_request_id: str
+    review_id: str
+    snapshot_id: str
+    source_set_id: str
+    permission_rows: list[RepoToolUsePermissionEnvelopeRow] = Field(min_length=1)
+    tool_permission_summary: str
+
+    @model_validator(mode="after")
+    def _validate_tool_use_permission_envelope(
+        self,
+    ) -> RepoToolUsePermissionEnvelope:
+        object.__setattr__(
+            self,
+            "permission_rows",
+            _sorted_unique_by_ref(
+                self.permission_rows,
+                attr="tool_permission_ref",
+                field_name="permission_rows",
+            ),
+        )
+        _require_terms(
+            self.tool_permission_summary,
+            field_name="tool_permission_summary",
+            terms=("target-bound", "later review", "no tool invocation"),
+        )
+        expected_id = _surface_id(
+            "repo_tool_use_permission_envelope",
+            self.schema,
+            self.model_dump(mode="json"),
+            "tool_use_permission_envelope_id",
+        )
+        if self.tool_use_permission_envelope_id != expected_id:
+            raise ValueError("tool_use_permission_envelope_id does not match canonical hash")
+        return self
+
+
+class RepoCommandScopeAuthorizationBoundaryRow(_CartographyBase):
+    command_scope_ref: str
+    authority_request_refs: list[str] = Field(min_length=1)
+    candidate_ref: str
+    command_intent_kind: Literal[
+        "no_command_intent",
+        "shell_command_later_review",
+        "python_tool_later_review",
+        "repo_script_later_review",
+        "api_call_later_review",
+        "external_tool_later_review",
+        "future_family_only",
+    ]
+    target_resolution_kind: RuntimeTargetResolutionKind
+    target_refs: list[str] = Field(default_factory=list)
+    authorized_scope_posture: RuntimeAuthorizedScopePosture
+    allowed_effect_surface_refs: list[str] = Field(default_factory=list)
+    forbidden_effect_surface_refs: list[str] = Field(default_factory=list)
+    telemetry_requirement_refs: list[str] = Field(default_factory=list)
+    rollback_requirement_refs: list[str] = Field(default_factory=list)
+    authority_source_refs: list[str] = Field(default_factory=list)
+    exception_refs: list[str] = Field(default_factory=list)
+    execution_posture: RuntimeAuthorityExecutionPosture
+    limitation_note: str
+
+    @model_validator(mode="after")
+    def _validate_command_scope_boundary_row(
+        self,
+    ) -> RepoCommandScopeAuthorizationBoundaryRow:
+        _non_empty(self.command_scope_ref, field_name="command_scope_ref")
+        _non_empty(self.candidate_ref, field_name="candidate_ref")
+        for field_name in (
+            "authority_request_refs",
+            "target_refs",
+            "allowed_effect_surface_refs",
+            "forbidden_effect_surface_refs",
+            "telemetry_requirement_refs",
+            "rollback_requirement_refs",
+            "authority_source_refs",
+            "exception_refs",
+        ):
+            object.__setattr__(
+                self,
+                field_name,
+                _sorted_unique(getattr(self, field_name), field_name=field_name),
+            )
+        for target_ref in self.target_refs:
+            _reject_glob_ref(target_ref, field_name="target_refs")
+            _repo_ref(target_ref, field_name="target_refs")
+        if self.execution_posture != "no_execution_performed_by_v78":
+            raise ValueError("command-scope boundaries must not perform execution")
+        _reject_v78_action_claim(self.limitation_note, field_name="limitation_note")
+        _require_terms(
+            self.limitation_note,
+            field_name="limitation_note",
+            terms=("later review", "no execution"),
+        )
+        if (
+            self.authorized_scope_posture
+            == "bounded_scope_authorized_for_later_execution_review"
+        ):
+            if not self.target_refs:
+                raise ValueError("bounded command scope requires target refs")
+            if self.target_resolution_kind == "no_target_boundary":
+                raise ValueError("bounded command scope requires concrete targets")
+            if not self.telemetry_requirement_refs:
+                raise ValueError("bounded command scope requires telemetry refs")
+            if not self.rollback_requirement_refs:
+                raise ValueError("bounded command scope requires rollback refs")
+            if not self.authority_source_refs:
+                raise ValueError("bounded command scope requires authority refs")
+        if (
+            self.target_resolution_kind == "bounded_package_surface_with_child_refs"
+            and not self.target_refs
+        ):
+            raise ValueError("bounded package surfaces require child target refs")
+        return self
+
+
+class RepoCommandScopeAuthorizationBoundary(_CartographyBase):
+    schema: Literal["repo_command_scope_authorization_boundary@1"] = (
+        REPO_COMMAND_SCOPE_AUTHORIZATION_BOUNDARY_SCHEMA
+    )
+    command_scope_authorization_boundary_id: str
+    runtime_execution_authority_request_id: str
+    review_id: str
+    snapshot_id: str
+    source_set_id: str
+    command_scope_rows: list[RepoCommandScopeAuthorizationBoundaryRow] = Field(
+        min_length=1
+    )
+    command_scope_summary: str
+
+    @model_validator(mode="after")
+    def _validate_command_scope_boundary(
+        self,
+    ) -> RepoCommandScopeAuthorizationBoundary:
+        object.__setattr__(
+            self,
+            "command_scope_rows",
+            _sorted_unique_by_ref(
+                self.command_scope_rows,
+                attr="command_scope_ref",
+                field_name="command_scope_rows",
+            ),
+        )
+        _require_terms(
+            self.command_scope_summary,
+            field_name="command_scope_summary",
+            terms=("later review", "concrete target", "no execution"),
+        )
+        expected_id = _surface_id(
+            "repo_command_scope_authorization_boundary",
+            self.schema,
+            self.model_dump(mode="json"),
+            "command_scope_authorization_boundary_id",
+        )
+        if self.command_scope_authorization_boundary_id != expected_id:
+            raise ValueError(
+                "command_scope_authorization_boundary_id does not match canonical hash"
+            )
+        return self
+
+
+class RepoRuntimeAuthorityExceptionRegisterRow(_CartographyBase):
+    exception_ref: str
+    candidate_ref: str
+    authority_request_refs: list[str] = Field(min_length=1)
+    exception_kind: RuntimeAuthorityExceptionKind
+    exception_posture: RuntimeAuthorityExceptionPosture
+    blocking_surface_refs: list[str] = Field(default_factory=list)
+    source_refs: list[str] = Field(min_length=1)
+    required_next_surface: RuntimeAuthorityRequiredNextSurface
+    limitation_note: str
+
+    @model_validator(mode="after")
+    def _validate_runtime_authority_exception_row(
+        self,
+    ) -> RepoRuntimeAuthorityExceptionRegisterRow:
+        _non_empty(self.exception_ref, field_name="exception_ref")
+        _non_empty(self.candidate_ref, field_name="candidate_ref")
+        for field_name in ("authority_request_refs", "blocking_surface_refs", "source_refs"):
+            object.__setattr__(
+                self,
+                field_name,
+                _sorted_unique(getattr(self, field_name), field_name=field_name),
+            )
+        for source_ref in self.source_refs:
+            _repo_ref(source_ref, field_name="source_refs")
+        _reject_v78_action_claim(self.limitation_note, field_name="limitation_note")
+        lowered = self.limitation_note.lower()
+        if "resolved by prose" in lowered or "command output resolves" in lowered:
+            raise ValueError("runtime authority exceptions cannot be resolved by prose")
+        if self.exception_posture == "blocking" and not self.blocking_surface_refs:
+            raise ValueError("blocking exceptions require blocking surface refs")
+        return self
+
+
+class RepoRuntimeAuthorityExceptionRegister(_CartographyBase):
+    schema: Literal["repo_runtime_authority_exception_register@1"] = (
+        REPO_RUNTIME_AUTHORITY_EXCEPTION_REGISTER_SCHEMA
+    )
+    runtime_authority_exception_register_id: str
+    runtime_execution_authority_request_id: str
+    review_id: str
+    snapshot_id: str
+    source_set_id: str
+    exception_rows: list[RepoRuntimeAuthorityExceptionRegisterRow] = Field(min_length=1)
+    exception_register_summary: str
+
+    @model_validator(mode="after")
+    def _validate_runtime_authority_exception_register(
+        self,
+    ) -> RepoRuntimeAuthorityExceptionRegister:
+        object.__setattr__(
+            self,
+            "exception_rows",
+            _sorted_unique_by_ref(
+                self.exception_rows,
+                attr="exception_ref",
+                field_name="exception_rows",
+            ),
+        )
+        _require_terms(
+            self.exception_register_summary,
+            field_name="exception_register_summary",
+            terms=("exception", "no execution", "no prose"),
+        )
+        expected_id = _surface_id(
+            "repo_runtime_authority_exception_register",
+            self.schema,
+            self.model_dump(mode="json"),
+            "runtime_authority_exception_register_id",
+        )
+        if self.runtime_authority_exception_register_id != expected_id:
+            raise ValueError(
+                "runtime_authority_exception_register_id does not match canonical hash"
+            )
+        return self
+
+
+def _request_row_by_candidate(
+    request: RepoRuntimeExecutionAuthorityRequest,
+    candidate_ref: str,
+) -> RepoRuntimeExecutionAuthorityRequestRow:
+    for row in request.request_rows:
+        if row.candidate_ref == candidate_ref:
+            return row
+    raise ValueError(f"missing V78-A request row for {candidate_ref}")
+
+
+def _single_ref_by_candidate(
+    rows: Iterable[object],
+    *,
+    ref_attr: str,
+    field_name: str,
+) -> dict[str, str]:
+    refs_by_candidate: dict[str, str] = {}
+    for row in rows:
+        candidate_ref = getattr(row, "candidate_ref")
+        row_ref = getattr(row, ref_attr)
+        if candidate_ref in refs_by_candidate:
+            raise ValueError(f"{field_name} must contain at most one row per candidate")
+        refs_by_candidate[candidate_ref] = row_ref
+    return refs_by_candidate
+
+
+def _v78b_base_request_bundle(
+    runtime_execution_authority_request: RepoRuntimeExecutionAuthorityRequest | None,
+    runtime_authority_non_action_guardrail: RepoRuntimeAuthorityNonActionGuardrail | None,
+) -> tuple[RepoRuntimeExecutionAuthorityRequest, RepoRuntimeAuthorityNonActionGuardrail]:
+    if runtime_execution_authority_request is None:
+        _, request, guardrail = derive_v78a_runtime_execution_authority_bundle()
+        return request, runtime_authority_non_action_guardrail or guardrail
+    if runtime_authority_non_action_guardrail is None:
+        guardrail = derive_v78a_repo_runtime_authority_non_action_guardrail(
+            runtime_execution_authority_request=runtime_execution_authority_request,
+        )
+        return runtime_execution_authority_request, guardrail
+    return runtime_execution_authority_request, runtime_authority_non_action_guardrail
+
+
+def derive_v78b_repo_runtime_authority_exception_register(
+    *,
+    repo_root: Path | None = None,
+    runtime_execution_authority_request: RepoRuntimeExecutionAuthorityRequest | None = None,
+) -> RepoRuntimeAuthorityExceptionRegister:
+    _ = repo_root
+    request, _guardrail = _v78b_base_request_bundle(
+        runtime_execution_authority_request,
+        None,
+    )
+    self_candidate = "candidate:internal:self_evidencing_workflow_type_emergence"
+    product_candidate = "candidate:internal:typed_adjudication_product_wedge"
+    self_request = _request_row_by_candidate(request, self_candidate)
+    product_request = _request_row_by_candidate(request, product_candidate)
+    payload = {
+        "schema": REPO_RUNTIME_AUTHORITY_EXCEPTION_REGISTER_SCHEMA,
+        "runtime_authority_exception_register_id": "",
+        "runtime_execution_authority_request_id": request.runtime_execution_authority_request_id,
+        "review_id": request.review_id,
+        "snapshot_id": request.snapshot_id,
+        "source_set_id": request.source_set_id,
+        "exception_rows": [
+            {
+                "exception_ref": "exception:v78b:self-evidencing:review-only-warning",
+                "candidate_ref": self_candidate,
+                "authority_request_refs": [self_request.authority_request_ref],
+                "exception_kind": "unknown_needs_review",
+                "exception_posture": "warning_only",
+                "blocking_surface_refs": [
+                    "authority-decision:v78b:self-evidencing:later-execution-review",
+                    "command-scope:v78b:self-evidencing:runtime-authority-module",
+                ],
+                "source_refs": self_request.source_refs,
+                "required_next_surface": "later_execution_review_surface",
+                "limitation_note": (
+                    "Exception is visible for later review only; no execution and "
+                    "no prose resolution."
+                ),
+            },
+            {
+                "exception_ref": "exception:v78b:product-wedge:product-authority-gap",
+                "candidate_ref": product_candidate,
+                "authority_request_refs": [product_request.authority_request_ref],
+                "exception_kind": "product_authority_gap",
+                "exception_posture": "blocking",
+                "blocking_surface_refs": [
+                    "authority-decision:v78b:product-wedge:future-family-only"
+                ],
+                "source_refs": product_request.source_refs,
+                "required_next_surface": "future_product_review",
+                "limitation_note": (
+                    "Product authority gap remains blocking for later review only; "
+                    "no execution and no prose resolution."
+                ),
+            },
+        ],
+        "exception_register_summary": (
+            "Runtime authority exception register keeps exception rows visible with "
+            "no execution and no prose resolution."
+        ),
+    }
+    payload["exception_rows"] = sorted(
+        payload["exception_rows"],
+        key=lambda row: row["exception_ref"],
+    )
+    payload["runtime_authority_exception_register_id"] = _surface_id(
+        "repo_runtime_authority_exception_register",
+        REPO_RUNTIME_AUTHORITY_EXCEPTION_REGISTER_SCHEMA,
+        payload,
+        "runtime_authority_exception_register_id",
+    )
+    return RepoRuntimeAuthorityExceptionRegister.model_validate(payload)
+
+
+def derive_v78b_repo_command_scope_authorization_boundary(
+    *,
+    repo_root: Path | None = None,
+    runtime_execution_authority_request: RepoRuntimeExecutionAuthorityRequest | None = None,
+    runtime_authority_exception_register: RepoRuntimeAuthorityExceptionRegister | None = None,
+) -> RepoCommandScopeAuthorizationBoundary:
+    _ = repo_root
+    request, _guardrail = _v78b_base_request_bundle(
+        runtime_execution_authority_request,
+        None,
+    )
+    exceptions = (
+        runtime_authority_exception_register
+        or derive_v78b_repo_runtime_authority_exception_register(
+            runtime_execution_authority_request=request,
+        )
+    )
+    known_exceptions = {row.exception_ref for row in exceptions.exception_rows}
+    self_candidate = "candidate:internal:self_evidencing_workflow_type_emergence"
+    product_candidate = "candidate:internal:typed_adjudication_product_wedge"
+    self_request = _request_row_by_candidate(request, self_candidate)
+    product_request = _request_row_by_candidate(request, product_candidate)
+    payload = {
+        "schema": REPO_COMMAND_SCOPE_AUTHORIZATION_BOUNDARY_SCHEMA,
+        "command_scope_authorization_boundary_id": "",
+        "runtime_execution_authority_request_id": request.runtime_execution_authority_request_id,
+        "review_id": request.review_id,
+        "snapshot_id": request.snapshot_id,
+        "source_set_id": request.source_set_id,
+        "command_scope_rows": [
+            {
+                "command_scope_ref": (
+                    "command-scope:v78b:self-evidencing:runtime-authority-module"
+                ),
+                "authority_request_refs": [self_request.authority_request_ref],
+                "candidate_ref": self_candidate,
+                "command_intent_kind": "repo_script_later_review",
+                "target_resolution_kind": "concrete_file_ref",
+                "target_refs": self_request.target_boundary_refs,
+                "authorized_scope_posture": (
+                    "bounded_scope_authorized_for_later_execution_review"
+                ),
+                "allowed_effect_surface_refs": [
+                    "effect-surface:v78b:self-evidencing:review-only-schema-and-fixture"
+                ],
+                "forbidden_effect_surface_refs": sorted([
+                    "effect-surface:v78b:command-execution",
+                    "effect-surface:v78b:tool-invocation",
+                    "effect-surface:v78b:release",
+                ]),
+                "telemetry_requirement_refs": self_request.telemetry_requirement_refs,
+                "rollback_requirement_refs": self_request.rollback_requirement_refs,
+                "authority_source_refs": self_request.required_authority_source_refs,
+                "exception_refs": sorted(
+                    {
+                        "exception:v78b:self-evidencing:review-only-warning"
+                    }.intersection(known_exceptions)
+                ),
+                "execution_posture": "no_execution_performed_by_v78",
+                "limitation_note": (
+                    "Command scope is bounded for later review with concrete target refs; "
+                    "no execution and no target mutation in V78."
+                ),
+            },
+            {
+                "command_scope_ref": "command-scope:v78b:product-wedge:no-target",
+                "authority_request_refs": [product_request.authority_request_ref],
+                "candidate_ref": product_candidate,
+                "command_intent_kind": "future_family_only",
+                "target_resolution_kind": "no_target_boundary",
+                "target_refs": [],
+                "authorized_scope_posture": "scope_future_family_only",
+                "allowed_effect_surface_refs": [],
+                "forbidden_effect_surface_refs": sorted([
+                    "effect-surface:v78b:product-authorization",
+                    "effect-surface:v78b:release",
+                ]),
+                "telemetry_requirement_refs": [],
+                "rollback_requirement_refs": [],
+                "authority_source_refs": product_request.required_authority_source_refs,
+                "exception_refs": sorted(
+                    {
+                        "exception:v78b:product-wedge:product-authority-gap"
+                    }.intersection(known_exceptions)
+                ),
+                "execution_posture": "no_execution_performed_by_v78",
+                "limitation_note": (
+                    "Product wedge command scope is future-family-only for later review; "
+                    "no execution and no product authorization."
+                ),
+            },
+        ],
+        "command_scope_summary": (
+            "Command scope boundaries are later review records with concrete target "
+            "constraints and no execution."
+        ),
+    }
+    payload["command_scope_rows"] = sorted(
+        payload["command_scope_rows"],
+        key=lambda row: row["command_scope_ref"],
+    )
+    payload["command_scope_authorization_boundary_id"] = _surface_id(
+        "repo_command_scope_authorization_boundary",
+        REPO_COMMAND_SCOPE_AUTHORIZATION_BOUNDARY_SCHEMA,
+        payload,
+        "command_scope_authorization_boundary_id",
+    )
+    return RepoCommandScopeAuthorizationBoundary.model_validate(payload)
+
+
+def derive_v78b_repo_tool_use_permission_envelope(
+    *,
+    repo_root: Path | None = None,
+    runtime_execution_authority_request: RepoRuntimeExecutionAuthorityRequest | None = None,
+    command_scope_authorization_boundary: RepoCommandScopeAuthorizationBoundary | None = None,
+    runtime_authority_exception_register: RepoRuntimeAuthorityExceptionRegister | None = None,
+) -> RepoToolUsePermissionEnvelope:
+    _ = repo_root
+    request, _guardrail = _v78b_base_request_bundle(
+        runtime_execution_authority_request,
+        None,
+    )
+    exceptions = (
+        runtime_authority_exception_register
+        or derive_v78b_repo_runtime_authority_exception_register(
+            runtime_execution_authority_request=request,
+        )
+    )
+    command_scope = (
+        command_scope_authorization_boundary
+        or derive_v78b_repo_command_scope_authorization_boundary(
+            runtime_execution_authority_request=request,
+            runtime_authority_exception_register=exceptions,
+        )
+    )
+    command_scope_by_candidate = _single_ref_by_candidate(
+        command_scope.command_scope_rows,
+        ref_attr="command_scope_ref",
+        field_name="command scope rows",
+    )
+    known_exceptions = {row.exception_ref for row in exceptions.exception_rows}
+    self_candidate = "candidate:internal:self_evidencing_workflow_type_emergence"
+    product_candidate = "candidate:internal:typed_adjudication_product_wedge"
+    self_request = _request_row_by_candidate(request, self_candidate)
+    product_request = _request_row_by_candidate(request, product_candidate)
+    payload = {
+        "schema": REPO_TOOL_USE_PERMISSION_ENVELOPE_SCHEMA,
+        "tool_use_permission_envelope_id": "",
+        "runtime_execution_authority_request_id": request.runtime_execution_authority_request_id,
+        "review_id": request.review_id,
+        "snapshot_id": request.snapshot_id,
+        "source_set_id": request.source_set_id,
+        "permission_rows": [
+            {
+                "tool_permission_ref": "tool-permission:v78b:self-evidencing:python-review",
+                "authority_request_refs": [self_request.authority_request_ref],
+                "candidate_ref": self_candidate,
+                "tool_id": "tool:python-review-runtime-description",
+                "tool_target_horizon": "bounded_tool_invocation_review",
+                "tool_target_refs": self_request.target_boundary_refs,
+                "permission_posture": (
+                    "tool_use_permission_granted_for_later_execution_review"
+                ),
+                "permission_scope_boundary_refs": [
+                    command_scope_by_candidate[self_candidate]
+                ],
+                "authority_source_refs": [
+                    ref
+                    for ref in self_request.required_authority_source_refs
+                    if "tool-use" in ref
+                ],
+                "telemetry_requirement_refs": self_request.telemetry_requirement_refs,
+                "rollback_requirement_refs": self_request.rollback_requirement_refs,
+                "exception_refs": sorted(
+                    {
+                        "exception:v78b:self-evidencing:review-only-warning"
+                    }.intersection(known_exceptions)
+                ),
+                "tool_invocation_posture": "no_tool_invocation_performed_by_v78",
+                "limitation_note": (
+                    "Tool-use permission is target-bound for later review only with "
+                    "no tool invocation."
+                ),
+            },
+            {
+                "tool_permission_ref": "tool-permission:v78b:product-wedge:not-applicable",
+                "authority_request_refs": [product_request.authority_request_ref],
+                "candidate_ref": product_candidate,
+                "tool_id": "tool:none-product-authority-blocked",
+                "tool_target_horizon": "future_product_runtime_review",
+                "tool_target_refs": [],
+                "permission_posture": "tool_use_not_applicable",
+                "permission_scope_boundary_refs": [
+                    command_scope_by_candidate[product_candidate]
+                ],
+                "authority_source_refs": product_request.required_authority_source_refs,
+                "telemetry_requirement_refs": [],
+                "rollback_requirement_refs": [],
+                "exception_refs": sorted(
+                    {
+                        "exception:v78b:product-wedge:product-authority-gap"
+                    }.intersection(known_exceptions)
+                ),
+                "tool_invocation_posture": "no_tool_invocation_performed_by_v78",
+                "limitation_note": (
+                    "Product wedge tool-use permission is not applicable pending later "
+                    "review with no tool invocation."
+                ),
+            },
+        ],
+        "tool_permission_summary": (
+            "Tool-use permission envelopes are target-bound later review records "
+            "with no tool invocation."
+        ),
+    }
+    payload["permission_rows"] = sorted(
+        payload["permission_rows"],
+        key=lambda row: row["tool_permission_ref"],
+    )
+    payload["tool_use_permission_envelope_id"] = _surface_id(
+        "repo_tool_use_permission_envelope",
+        REPO_TOOL_USE_PERMISSION_ENVELOPE_SCHEMA,
+        payload,
+        "tool_use_permission_envelope_id",
+    )
+    return RepoToolUsePermissionEnvelope.model_validate(payload)
+
+
+def derive_v78b_repo_runtime_execution_authority_decision(
+    *,
+    repo_root: Path | None = None,
+    runtime_execution_authority_request: RepoRuntimeExecutionAuthorityRequest | None = None,
+    runtime_authority_non_action_guardrail: RepoRuntimeAuthorityNonActionGuardrail | None = None,
+    tool_use_permission_envelope: RepoToolUsePermissionEnvelope | None = None,
+    command_scope_authorization_boundary: RepoCommandScopeAuthorizationBoundary | None = None,
+    runtime_authority_exception_register: RepoRuntimeAuthorityExceptionRegister | None = None,
+) -> RepoRuntimeExecutionAuthorityDecision:
+    _ = repo_root
+    request, guardrail = _v78b_base_request_bundle(
+        runtime_execution_authority_request,
+        runtime_authority_non_action_guardrail,
+    )
+    exceptions = (
+        runtime_authority_exception_register
+        or derive_v78b_repo_runtime_authority_exception_register(
+            runtime_execution_authority_request=request,
+        )
+    )
+    command_scope = (
+        command_scope_authorization_boundary
+        or derive_v78b_repo_command_scope_authorization_boundary(
+            runtime_execution_authority_request=request,
+            runtime_authority_exception_register=exceptions,
+        )
+    )
+    tool_permission = (
+        tool_use_permission_envelope
+        or derive_v78b_repo_tool_use_permission_envelope(
+            runtime_execution_authority_request=request,
+            command_scope_authorization_boundary=command_scope,
+            runtime_authority_exception_register=exceptions,
+        )
+    )
+    command_scope_by_candidate = _single_ref_by_candidate(
+        command_scope.command_scope_rows,
+        ref_attr="command_scope_ref",
+        field_name="command scope rows",
+    )
+    tool_permission_by_candidate = _single_ref_by_candidate(
+        tool_permission.permission_rows,
+        ref_attr="tool_permission_ref",
+        field_name="tool permission rows",
+    )
+    exception_by_candidate = _single_ref_by_candidate(
+        exceptions.exception_rows,
+        ref_attr="exception_ref",
+        field_name="runtime authority exception rows",
+    )
+    self_candidate = "candidate:internal:self_evidencing_workflow_type_emergence"
+    product_candidate = "candidate:internal:typed_adjudication_product_wedge"
+    self_request = _request_row_by_candidate(request, self_candidate)
+    product_request = _request_row_by_candidate(request, product_candidate)
+    payload = {
+        "schema": REPO_RUNTIME_EXECUTION_AUTHORITY_DECISION_SCHEMA,
+        "runtime_execution_authority_decision_id": "",
+        "runtime_execution_authority_request_id": request.runtime_execution_authority_request_id,
+        "runtime_authority_non_action_guardrail_id": (
+            guardrail.runtime_authority_non_action_guardrail_id
+        ),
+        "review_id": request.review_id,
+        "snapshot_id": request.snapshot_id,
+        "source_set_id": request.source_set_id,
+        "decision_rows": [
+            {
+                "authority_decision_ref": (
+                    "authority-decision:v78b:self-evidencing:later-execution-review"
+                ),
+                "authority_request_refs": [self_request.authority_request_ref],
+                "candidate_ref": self_candidate,
+                "decision_posture": (
+                    "review_authority_granted_for_bounded_execution_surface"
+                ),
+                "decision_horizon": "bounded_repo_script_execution_review",
+                "authorized_surface_kind": "later_execution_review_surface",
+                "authority_grant_horizon": "later_execution_review_only",
+                "authority_source_refs": self_request.required_authority_source_refs,
+                "authority_actor_refs": ["authority-actor:v78b:maintainer-review-source"],
+                "tool_use_permission_refs": [tool_permission_by_candidate[self_candidate]],
+                "command_scope_boundary_refs": [command_scope_by_candidate[self_candidate]],
+                "telemetry_requirement_refs": self_request.telemetry_requirement_refs,
+                "rollback_requirement_refs": self_request.rollback_requirement_refs,
+                "exception_refs": [exception_by_candidate[self_candidate]],
+                "execution_posture": "no_execution_performed_by_v78",
+                "execution_authorization_posture": "execution_not_authorized_by_v78",
+                "non_action_guardrail_refs": self_request.guardrail_refs,
+                "limitation_note": (
+                    "Decision grants only a bounded later review surface with "
+                    "no execution and no tool invocation."
+                ),
+            },
+            {
+                "authority_decision_ref": (
+                    "authority-decision:v78b:product-wedge:future-family-only"
+                ),
+                "authority_request_refs": [product_request.authority_request_ref],
+                "candidate_ref": product_candidate,
+                "decision_posture": "review_authority_future_family_only",
+                "decision_horizon": "future_product_runtime_review",
+                "authorized_surface_kind": "future_family_review_surface",
+                "authority_grant_horizon": "future_family_review_only",
+                "authority_source_refs": product_request.required_authority_source_refs,
+                "authority_actor_refs": [],
+                "tool_use_permission_refs": [tool_permission_by_candidate[product_candidate]],
+                "command_scope_boundary_refs": [command_scope_by_candidate[product_candidate]],
+                "telemetry_requirement_refs": [],
+                "rollback_requirement_refs": [],
+                "exception_refs": [exception_by_candidate[product_candidate]],
+                "execution_posture": "no_execution_performed_by_v78",
+                "execution_authorization_posture": "execution_not_authorized_by_v78",
+                "non_action_guardrail_refs": product_request.guardrail_refs,
+                "limitation_note": (
+                    "Product pressure is future-family-only for later review with "
+                    "no execution and no product authorization."
+                ),
+            },
+        ],
+        "authority_decision_summary": (
+            "Runtime execution authority decisions are later review records only: "
+            "no execution, no tool invocation, and no release."
+        ),
+    }
+    payload["decision_rows"] = sorted(
+        payload["decision_rows"],
+        key=lambda row: row["authority_decision_ref"],
+    )
+    payload["runtime_execution_authority_decision_id"] = _surface_id(
+        "repo_runtime_execution_authority_decision",
+        REPO_RUNTIME_EXECUTION_AUTHORITY_DECISION_SCHEMA,
+        payload,
+        "runtime_execution_authority_decision_id",
+    )
+    return RepoRuntimeExecutionAuthorityDecision.model_validate(payload)
+
+
+def validate_v78b_runtime_execution_authority_bundle(
+    *,
+    runtime_execution_authority_request: RepoRuntimeExecutionAuthorityRequest,
+    runtime_authority_non_action_guardrail: RepoRuntimeAuthorityNonActionGuardrail,
+    runtime_execution_authority_decision: RepoRuntimeExecutionAuthorityDecision,
+    tool_use_permission_envelope: RepoToolUsePermissionEnvelope,
+    command_scope_authorization_boundary: RepoCommandScopeAuthorizationBoundary,
+    runtime_authority_exception_register: RepoRuntimeAuthorityExceptionRegister,
+) -> None:
+    if (
+        runtime_execution_authority_decision.runtime_execution_authority_request_id
+        != runtime_execution_authority_request.runtime_execution_authority_request_id
+    ):
+        raise ValueError("runtime authority decisions must reference V78-A requests")
+    if (
+        runtime_execution_authority_decision.runtime_authority_non_action_guardrail_id
+        != runtime_authority_non_action_guardrail.runtime_authority_non_action_guardrail_id
+    ):
+        raise ValueError("runtime authority decisions must reference V78-A guardrails")
+    if (
+        runtime_execution_authority_decision.review_id,
+        runtime_execution_authority_decision.snapshot_id,
+        runtime_execution_authority_decision.source_set_id,
+    ) != (
+        runtime_execution_authority_request.review_id,
+        runtime_execution_authority_request.snapshot_id,
+        runtime_execution_authority_request.source_set_id,
+    ):
+        raise ValueError("runtime authority decision provenance must match V78-A requests")
+    for surface_name, surface in (
+        ("tool-use permission", tool_use_permission_envelope),
+        ("command-scope boundary", command_scope_authorization_boundary),
+        ("runtime authority exception", runtime_authority_exception_register),
+    ):
+        if (
+            surface.runtime_execution_authority_request_id
+            != runtime_execution_authority_request.runtime_execution_authority_request_id
+        ):
+            raise ValueError(f"{surface_name} surface must reference V78-A requests")
+        if (
+            surface.review_id,
+            surface.snapshot_id,
+            surface.source_set_id,
+        ) != (
+            runtime_execution_authority_request.review_id,
+            runtime_execution_authority_request.snapshot_id,
+            runtime_execution_authority_request.source_set_id,
+        ):
+            raise ValueError(f"{surface_name} provenance must match V78-A requests")
+
+    request_rows = {
+        row.authority_request_ref: row
+        for row in runtime_execution_authority_request.request_rows
+    }
+    request_candidate_by_ref = {
+        row.authority_request_ref: row.candidate_ref
+        for row in runtime_execution_authority_request.request_rows
+    }
+    request_source_refs = {
+        source_ref
+        for row in runtime_execution_authority_request.request_rows
+        for source_ref in row.source_refs
+    }
+    authority_requirement_refs = {
+        authority_ref
+        for row in runtime_execution_authority_request.request_rows
+        for authority_ref in row.required_authority_source_refs
+    }
+    guardrail_rows = {
+        row.guardrail_ref: row
+        for row in runtime_authority_non_action_guardrail.guardrail_rows
+    }
+    permission_rows = {
+        row.tool_permission_ref: row for row in tool_use_permission_envelope.permission_rows
+    }
+    command_scope_rows = {
+        row.command_scope_ref: row
+        for row in command_scope_authorization_boundary.command_scope_rows
+    }
+    exception_rows = {
+        row.exception_ref: row for row in runtime_authority_exception_register.exception_rows
+    }
+
+    for row in command_scope_authorization_boundary.command_scope_rows:
+        if any(ref not in request_rows for ref in row.authority_request_refs):
+            raise ValueError("command-scope rows must reference known V78-A requests")
+        for ref in row.authority_request_refs:
+            if request_candidate_by_ref[ref] != row.candidate_ref:
+                raise ValueError("command-scope rows must preserve request candidate")
+        if any(ref not in authority_requirement_refs for ref in row.authority_source_refs):
+            raise ValueError("command-scope authority refs must be V78-A authority refs")
+        if any(ref not in exception_rows for ref in row.exception_refs):
+            raise ValueError("command-scope exception refs must be known")
+
+    for row in tool_use_permission_envelope.permission_rows:
+        if any(ref not in request_rows for ref in row.authority_request_refs):
+            raise ValueError("tool permission rows must reference known V78-A requests")
+        for ref in row.authority_request_refs:
+            if request_candidate_by_ref[ref] != row.candidate_ref:
+                raise ValueError("tool permission rows must preserve request candidate")
+        if any(ref not in command_scope_rows for ref in row.permission_scope_boundary_refs):
+            raise ValueError("tool permission scope refs must be known")
+        if any(ref not in authority_requirement_refs for ref in row.authority_source_refs):
+            raise ValueError("tool permission authority refs must be V78-A authority refs")
+        if any(ref not in exception_rows for ref in row.exception_refs):
+            raise ValueError("tool permission exception refs must be known")
+
+    for row in runtime_authority_exception_register.exception_rows:
+        if any(ref not in request_rows for ref in row.authority_request_refs):
+            raise ValueError("runtime authority exceptions must reference known requests")
+        for ref in row.authority_request_refs:
+            if request_candidate_by_ref[ref] != row.candidate_ref:
+                raise ValueError("runtime authority exceptions must preserve request candidate")
+        if any(ref not in request_source_refs for ref in row.source_refs):
+            raise ValueError("runtime authority exception source refs must be V78-A sources")
+        known_blocking_refs = {
+            *request_rows,
+            *command_scope_rows,
+            *permission_rows,
+            *exception_rows,
+            *{
+                decision.authority_decision_ref
+                for decision in runtime_execution_authority_decision.decision_rows
+            },
+        }
+        if any(ref not in known_blocking_refs for ref in row.blocking_surface_refs):
+            raise ValueError("runtime authority exception blocking refs must be known")
+
+    for row in runtime_execution_authority_decision.decision_rows:
+        if any(ref not in request_rows for ref in row.authority_request_refs):
+            raise ValueError("runtime authority decisions must reference known requests")
+        for ref in row.authority_request_refs:
+            if request_candidate_by_ref[ref] != row.candidate_ref:
+                raise ValueError("runtime authority decisions must preserve request candidate")
+        if any(ref not in guardrail_rows for ref in row.non_action_guardrail_refs):
+            raise ValueError("runtime authority decisions must reference known guardrails")
+        for ref in row.non_action_guardrail_refs:
+            if guardrail_rows[ref].candidate_ref != row.candidate_ref:
+                raise ValueError("runtime authority decision guardrails must match candidate")
+        if any(ref not in authority_requirement_refs for ref in row.authority_source_refs):
+            raise ValueError("runtime authority decision source refs must be V78-A authority refs")
+        if any(ref not in permission_rows for ref in row.tool_use_permission_refs):
+            raise ValueError("runtime authority decisions must reference known tool permissions")
+        for ref in row.tool_use_permission_refs:
+            if permission_rows[ref].candidate_ref != row.candidate_ref:
+                raise ValueError("runtime authority decision tool permissions must match candidate")
+        if any(ref not in command_scope_rows for ref in row.command_scope_boundary_refs):
+            raise ValueError("runtime authority decisions must reference known command scopes")
+        for ref in row.command_scope_boundary_refs:
+            if command_scope_rows[ref].candidate_ref != row.candidate_ref:
+                raise ValueError("runtime authority decision command scopes must match candidate")
+        if any(ref not in exception_rows for ref in row.exception_refs):
+            raise ValueError("runtime authority decisions must reference known exceptions")
+        for ref in row.exception_refs:
+            if exception_rows[ref].candidate_ref != row.candidate_ref:
+                raise ValueError("runtime authority decision exceptions must match candidate")
+        if row.decision_posture in _GRANT_DECISION_POSTURES:
+            for command_scope_ref in row.command_scope_boundary_refs:
+                command_scope = command_scope_rows[command_scope_ref]
+                if (
+                    command_scope.authorized_scope_posture
+                    != "bounded_scope_authorized_for_later_execution_review"
+                ):
+                    raise ValueError("grant-like decisions require bounded command scope")
+            for tool_permission_ref in row.tool_use_permission_refs:
+                tool_permission = permission_rows[tool_permission_ref]
+                if (
+                    tool_permission.permission_posture
+                    != "tool_use_permission_granted_for_later_execution_review"
+                ):
+                    raise ValueError("grant-like decisions require bounded tool permission")
+
+
+def derive_v78b_runtime_execution_authority_bundle(
+    *, repo_root: Path | None = None
+) -> tuple[
+    RepoRuntimeExecutionAuthorityRequest,
+    RepoRuntimeAuthorityNonActionGuardrail,
+    RepoRuntimeAuthorityExceptionRegister,
+    RepoCommandScopeAuthorizationBoundary,
+    RepoToolUsePermissionEnvelope,
+    RepoRuntimeExecutionAuthorityDecision,
+]:
+    _source_index, request, guardrail = derive_v78a_runtime_execution_authority_bundle(
+        repo_root=repo_root
+    )
+    exceptions = derive_v78b_repo_runtime_authority_exception_register(
+        repo_root=repo_root,
+        runtime_execution_authority_request=request,
+    )
+    command_scope = derive_v78b_repo_command_scope_authorization_boundary(
+        repo_root=repo_root,
+        runtime_execution_authority_request=request,
+        runtime_authority_exception_register=exceptions,
+    )
+    tool_permission = derive_v78b_repo_tool_use_permission_envelope(
+        repo_root=repo_root,
+        runtime_execution_authority_request=request,
+        command_scope_authorization_boundary=command_scope,
+        runtime_authority_exception_register=exceptions,
+    )
+    decision = derive_v78b_repo_runtime_execution_authority_decision(
+        repo_root=repo_root,
+        runtime_execution_authority_request=request,
+        runtime_authority_non_action_guardrail=guardrail,
+        tool_use_permission_envelope=tool_permission,
+        command_scope_authorization_boundary=command_scope,
+        runtime_authority_exception_register=exceptions,
+    )
+    validate_v78b_runtime_execution_authority_bundle(
+        runtime_execution_authority_request=request,
+        runtime_authority_non_action_guardrail=guardrail,
+        runtime_execution_authority_decision=decision,
+        tool_use_permission_envelope=tool_permission,
+        command_scope_authorization_boundary=command_scope,
+        runtime_authority_exception_register=exceptions,
+    )
+    return request, guardrail, exceptions, command_scope, tool_permission, decision

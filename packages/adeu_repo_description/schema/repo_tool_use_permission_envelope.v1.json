@@ -1,0 +1,175 @@
+{
+  "$defs": {
+    "RepoToolUsePermissionEnvelopeRow": {
+      "additionalProperties": false,
+      "properties": {
+        "authority_request_refs": {
+          "items": {
+            "type": "string"
+          },
+          "minItems": 1,
+          "title": "Authority Request Refs",
+          "type": "array"
+        },
+        "authority_source_refs": {
+          "items": {
+            "type": "string"
+          },
+          "title": "Authority Source Refs",
+          "type": "array"
+        },
+        "candidate_ref": {
+          "title": "Candidate Ref",
+          "type": "string"
+        },
+        "exception_refs": {
+          "items": {
+            "type": "string"
+          },
+          "title": "Exception Refs",
+          "type": "array"
+        },
+        "limitation_note": {
+          "title": "Limitation Note",
+          "type": "string"
+        },
+        "permission_posture": {
+          "enum": [
+            "tool_use_permission_granted_for_later_execution_review",
+            "tool_use_permission_denied",
+            "tool_use_permission_deferred",
+            "tool_use_permission_blocked_by_missing_authority",
+            "tool_use_permission_future_family_only",
+            "tool_use_not_applicable"
+          ],
+          "title": "Permission Posture",
+          "type": "string"
+        },
+        "permission_scope_boundary_refs": {
+          "items": {
+            "type": "string"
+          },
+          "title": "Permission Scope Boundary Refs",
+          "type": "array"
+        },
+        "rollback_requirement_refs": {
+          "items": {
+            "type": "string"
+          },
+          "title": "Rollback Requirement Refs",
+          "type": "array"
+        },
+        "telemetry_requirement_refs": {
+          "items": {
+            "type": "string"
+          },
+          "title": "Telemetry Requirement Refs",
+          "type": "array"
+        },
+        "tool_id": {
+          "title": "Tool Id",
+          "type": "string"
+        },
+        "tool_invocation_posture": {
+          "enum": [
+            "no_tool_invocation_performed_by_v78",
+            "tool_invocation_requires_later_family",
+            "tool_invocation_forbidden_by_this_family"
+          ],
+          "title": "Tool Invocation Posture",
+          "type": "string"
+        },
+        "tool_permission_ref": {
+          "title": "Tool Permission Ref",
+          "type": "string"
+        },
+        "tool_target_horizon": {
+          "enum": [
+            "bounded_command_execution_review",
+            "bounded_tool_invocation_review",
+            "bounded_repo_script_execution_review",
+            "bounded_api_call_execution_review",
+            "telemetry_observation_review",
+            "rollback_execution_review",
+            "future_product_runtime_review",
+            "future_external_branch_runtime_review",
+            "future_family_review"
+          ],
+          "title": "Tool Target Horizon",
+          "type": "string"
+        },
+        "tool_target_refs": {
+          "items": {
+            "type": "string"
+          },
+          "title": "Tool Target Refs",
+          "type": "array"
+        }
+      },
+      "required": [
+        "tool_permission_ref",
+        "authority_request_refs",
+        "candidate_ref",
+        "tool_id",
+        "tool_target_horizon",
+        "permission_posture",
+        "tool_invocation_posture",
+        "limitation_note"
+      ],
+      "title": "RepoToolUsePermissionEnvelopeRow",
+      "type": "object"
+    }
+  },
+  "additionalProperties": false,
+  "properties": {
+    "permission_rows": {
+      "items": {
+        "$ref": "#/$defs/RepoToolUsePermissionEnvelopeRow"
+      },
+      "minItems": 1,
+      "title": "Permission Rows",
+      "type": "array"
+    },
+    "review_id": {
+      "title": "Review Id",
+      "type": "string"
+    },
+    "runtime_execution_authority_request_id": {
+      "title": "Runtime Execution Authority Request Id",
+      "type": "string"
+    },
+    "schema": {
+      "const": "repo_tool_use_permission_envelope@1",
+      "default": "repo_tool_use_permission_envelope@1",
+      "title": "Schema",
+      "type": "string"
+    },
+    "snapshot_id": {
+      "title": "Snapshot Id",
+      "type": "string"
+    },
+    "source_set_id": {
+      "title": "Source Set Id",
+      "type": "string"
+    },
+    "tool_permission_summary": {
+      "title": "Tool Permission Summary",
+      "type": "string"
+    },
+    "tool_use_permission_envelope_id": {
+      "title": "Tool Use Permission Envelope Id",
+      "type": "string"
+    }
+  },
+  "required": [
+    "tool_use_permission_envelope_id",
+    "runtime_execution_authority_request_id",
+    "review_id",
+    "snapshot_id",
+    "source_set_id",
+    "permission_rows",
+    "tool_permission_summary"
+  ],
+  "title": "RepoToolUsePermissionEnvelope",
+  "type": "object"
+}

@@ -1,0 +1,65 @@
+{
+  "permission_rows": [
+    {
+      "authority_request_refs": [
+        "authority-request:v78a:product-wedge:blocked"
+      ],
+      "authority_source_refs": [
+        "authority:v78a:product-wedge:product-review"
+      ],
+      "candidate_ref": "candidate:internal:typed_adjudication_product_wedge",
+      "exception_refs": [
+        "exception:v78b:product-wedge:product-authority-gap"
+      ],
+      "limitation_note": "Product wedge tool-use permission is not applicable pending later review with no tool invocation.",
+      "permission_posture": "tool_use_not_applicable",
+      "permission_scope_boundary_refs": [
+        "command-scope:v78b:product-wedge:no-target"
+      ],
+      "rollback_requirement_refs": [],
+      "telemetry_requirement_refs": [],
+      "tool_id": "tool:none-product-authority-blocked",
+      "tool_invocation_posture": "no_tool_invocation_performed_by_v78",
+      "tool_permission_ref": "tool-permission:v78b:product-wedge:not-applicable",
+      "tool_target_horizon": "future_product_runtime_review",
+      "tool_target_refs": []
+    },
+    {
+      "authority_request_refs": [
+        "authority-request:v78a:self-evidencing:runtime-execution-review"
+      ],
+      "authority_source_refs": [
+        "authority:v78a:self-evidencing:tool-use-review"
+      ],
+      "candidate_ref": "candidate:internal:self_evidencing_workflow_type_emergence",
+      "exception_refs": [
+        "exception:v78b:self-evidencing:review-only-warning"
+      ],
+      "limitation_note": "Tool-use permission is target-bound for later review only with no tool invocation.",
+      "permission_posture": "tool_use_permission_granted_for_later_execution_review",
+      "permission_scope_boundary_refs": [
+        "command-scope:v78b:self-evidencing:runtime-authority-module"
+      ],
+      "rollback_requirement_refs": [
+        "rollback:v77b:self-evidencing:required"
+      ],
+      "telemetry_requirement_refs": [
+        "telemetry:v77b:self-evidencing:required"
+      ],
+      "tool_id": "*",
+      "tool_invocation_posture": "no_tool_invocation_performed_by_v78",
+      "tool_permission_ref": "tool-permission:v78b:self-evidencing:python-review",
+      "tool_target_horizon": "bounded_tool_invocation_review",
+      "tool_target_refs": [
+        "packages/adeu_repo_description/src/adeu_repo_description/runtime_execution_authority.py"
+      ]
+    }
+  ],
+  "review_id": "review:v78a:runtime-execution-authority-request",
+  "runtime_execution_authority_request_id": "repo_runtime_execution_authority_request_ec2a026424c63dccdb5a540c",
+  "schema": "repo_tool_use_permission_envelope@1",
+  "snapshot_id": "vNext+217-closed-on-main",
+  "source_set_id": "source-set:v78a:released-v77c-runtime-authority-pressure",
+  "tool_permission_summary": "Tool-use permission envelopes are target-bound later review records with no tool invocation.",
+  "tool_use_permission_envelope_id": "repo_tool_use_permission_envelope_9fa8d398ab79ee092d925338"
+}
