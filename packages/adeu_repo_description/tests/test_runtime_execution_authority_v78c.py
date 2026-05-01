@@ -8,6 +8,7 @@ import pytest
 from adeu_ir.repo import repo_root
 from adeu_repo_description import (
     REPO_PRE_EXECUTION_AUTHORITY_REVIEW_HANDOFF_SCHEMA,
+    REPO_RUNTIME_AUTHORITY_EXCEPTION_REGISTER_SCHEMA,
     REPO_RUNTIME_AUTHORITY_READINESS_SUMMARY_SCHEMA,
     REPO_RUNTIME_EXECUTION_AUTHORITY_FAMILY_CLOSEOUT_ALIGNMENT_SCHEMA,
     RepoCommandScopeAuthorizationBoundary,
@@ -19,6 +20,8 @@ from adeu_repo_description import (
     RepoRuntimeExecutionAuthorityFamilyCloseoutAlignment,
     RepoRuntimeExecutionAuthorityRequest,
     RepoToolUsePermissionEnvelope,
+    derive_v78c_repo_pre_execution_authority_review_handoff,
+    derive_v78c_repo_runtime_authority_readiness_summary,
     derive_v78c_runtime_execution_authority_closeout_bundle,
     validate_v78c_runtime_execution_authority_closeout_bundle,
 )
@@ -307,3 +310,152 @@ def test_v220_bundle_rejects_unknown_authority_request_ref() -> None:
         match="runtime authority summaries must reference known requests",
     ):
         _validate_reference_bundle_with(summary=summary, handoff=handoff, closeout=closeout)
+
+
+def test_v220_derivation_keeps_non_product_blockers_blocked() -> None:
+    exceptions_payload = _v78b_exceptions().model_dump(mode="json")
+    for row in exceptions_payload["exception_rows"]:
+        if row["candidate_ref"] == "candidate:internal:self_evidencing_workflow_type_emergence":
+            row["exception_kind"] = "missing_telemetry_requirement"
+            row["exception_posture"] = "blocking"
+            row["limitation_note"] = (
+                "Missing telemetry blocks later review; no execution and no tool invocation."
+            )
+    exceptions = RepoRuntimeAuthorityExceptionRegister.model_validate(
+        _rehash_surface(
+            exceptions_payload,
+            surface_name="repo_runtime_authority_exception_register",
+            schema=REPO_RUNTIME_AUTHORITY_EXCEPTION_REGISTER_SCHEMA,
+            id_field="runtime_authority_exception_register_id",
+        )
+    )
+
+    summary = derive_v78c_repo_runtime_authority_readiness_summary(
+        runtime_execution_authority_request=_v78a_request(),
+        runtime_execution_authority_decision=_v78b_decision(),
+        tool_use_permission_envelope=_v78b_tool_permission(),
+        command_scope_authorization_boundary=_v78b_command_scope(),
+        runtime_authority_exception_register=exceptions,
+    )
+    handoff = derive_v78c_repo_pre_execution_authority_review_handoff(
+        runtime_execution_authority_request=_v78a_request(),
+        runtime_execution_authority_decision=_v78b_decision(),
+        tool_use_permission_envelope=_v78b_tool_permission(),
+        command_scope_authorization_boundary=_v78b_command_scope(),
+        runtime_authority_exception_register=exceptions,
+        runtime_authority_readiness_summary=summary,
+    )
+
+    self_summary = next(
+        row
+        for row in summary.summary_rows
+        if row.candidate_ref == "candidate:internal:self_evidencing_workflow_type_emergence"
+    )
+    self_handoff = next(
+        row
+        for row in handoff.handoff_rows
+        if row.candidate_ref == "candidate:internal:self_evidencing_workflow_type_emergence"
+    )
+
+    assert self_summary.summary_posture == "blocked_by_missing_telemetry"
+    assert self_summary.ready_basis_posture == "not_ready_blockers_remain"
+    assert self_handoff.handoff_posture == "blocked_by_telemetry_gap"
+    assert self_handoff.handoff_target == "future_runtime_execution_review"
+
+
+def test_v220_bundle_rejects_warning_ready_summary_hiding_blocking_exception() -> None:
+    summary_payload = _v78c_summary().model_dump(mode="json")
+    product_exception_ref = next(
+        row.exception_ref
+        for row in _v78b_exceptions().exception_rows
+        if row.exception_posture == "blocking"
+    )
+    for row in summary_payload["summary_rows"]:
+        if row["summary_posture"] == "authority_ready_with_nonblocking_warnings":
+            row["exception_refs"].append(product_exception_ref)
+            row["exception_refs"] = sorted(set(row["exception_refs"]))
+    summary = RepoRuntimeAuthorityReadinessSummary.model_validate(
+        _rehash_surface(
+            summary_payload,
+            surface_name="repo_runtime_authority_readiness_summary",
+            schema=REPO_RUNTIME_AUTHORITY_READINESS_SUMMARY_SCHEMA,
+            id_field="runtime_authority_readiness_summary_id",
+        )
+    )
+
+    handoff_payload = _v78c_handoff().model_dump(mode="json")
+    handoff_payload["runtime_authority_readiness_summary_id"] = (
+        summary.runtime_authority_readiness_summary_id
+    )
+    handoff = RepoPreExecutionAuthorityReviewHandoff.model_validate(
+        _rehash_surface(
+            handoff_payload,
+            surface_name="repo_pre_execution_authority_review_handoff",
+            schema=REPO_PRE_EXECUTION_AUTHORITY_REVIEW_HANDOFF_SCHEMA,
+            id_field="pre_execution_authority_review_handoff_id",
+        )
+    )
+
+    closeout_payload = _v78c_closeout().model_dump(mode="json")
+    closeout_payload["runtime_authority_readiness_summary_id"] = (
+        summary.runtime_authority_readiness_summary_id
+    )
+    closeout_payload["pre_execution_authority_review_handoff_id"] = (
+        handoff.pre_execution_authority_review_handoff_id
+    )
+    closeout = RepoRuntimeExecutionAuthorityFamilyCloseoutAlignment.model_validate(
+        _rehash_surface(
+            closeout_payload,
+            surface_name="repo_runtime_execution_authority_family_closeout_alignment",
+            schema=REPO_RUNTIME_EXECUTION_AUTHORITY_FAMILY_CLOSEOUT_ALIGNMENT_SCHEMA,
+            id_field="runtime_execution_authority_family_closeout_alignment_id",
+        )
+    )
+
+    with pytest.raises(ValueError, match="ready summaries cannot hide blocking exceptions"):
+        _validate_reference_bundle_with(summary=summary, handoff=handoff, closeout=closeout)
+
+
+def test_v220_handoff_derivation_rejects_summary_without_decision_refs() -> None:
+    summary_payload = _v78c_summary().model_dump(mode="json")
+    summary_payload["summary_rows"][0]["authority_decision_refs"] = []
+    summary = RepoRuntimeAuthorityReadinessSummary.model_validate(
+        _rehash_surface(
+            summary_payload,
+            surface_name="repo_runtime_authority_readiness_summary",
+            schema=REPO_RUNTIME_AUTHORITY_READINESS_SUMMARY_SCHEMA,
+            id_field="runtime_authority_readiness_summary_id",
+        )
+    )
+
+    with pytest.raises(
+        ValueError,
+        match="pre-execution handoff derivation requires summary decision refs",
+    ):
+        derive_v78c_repo_pre_execution_authority_review_handoff(
+            runtime_execution_authority_request=_v78a_request(),
+            runtime_execution_authority_decision=_v78b_decision(),
+            tool_use_permission_envelope=_v78b_tool_permission(),
+            command_scope_authorization_boundary=_v78b_command_scope(),
+            runtime_authority_exception_register=_v78b_exceptions(),
+            runtime_authority_readiness_summary=summary,
+        )
+
+
+def test_v220_bundle_rejects_closeout_provenance_mismatch() -> None:
+    closeout_payload = _v78c_closeout().model_dump(mode="json")
+    closeout_payload["source_set_id"] = "source-set:v78c:stale"
+    closeout = RepoRuntimeExecutionAuthorityFamilyCloseoutAlignment.model_validate(
+        _rehash_surface(
+            closeout_payload,
+            surface_name="repo_runtime_execution_authority_family_closeout_alignment",
+            schema=REPO_RUNTIME_EXECUTION_AUTHORITY_FAMILY_CLOSEOUT_ALIGNMENT_SCHEMA,
+            id_field="runtime_execution_authority_family_closeout_alignment_id",
+        )
+    )
+
+    with pytest.raises(
+        ValueError,
+        match="runtime authority closeout provenance must match V78-C handoff",
+    ):
+        _validate_reference_bundle_with(closeout=closeout)

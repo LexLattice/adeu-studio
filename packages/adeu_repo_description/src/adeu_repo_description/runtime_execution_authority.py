@@ -2429,6 +2429,10 @@ class RepoRuntimeAuthorityReadinessSummaryRow(_CartographyBase):
             if not self.carried_blocker_refs:
                 raise ValueError("warning-ready summaries must carry warning refs")
         if self.summary_posture in {
+            "blocked_by_missing_authority",
+            "blocked_by_missing_scope",
+            "blocked_by_missing_telemetry",
+            "blocked_by_missing_rollback",
             "blocked_by_product_authority_gap",
             "blocked_by_external_branch_gap",
             "future_family_only",
@@ -2763,9 +2767,26 @@ def derive_v78c_repo_runtime_authority_readiness_summary(
         warning_refs = [
             row.exception_ref for row in exception_rows if row.exception_posture == "warning_only"
         ]
-        product_only = decision_row.decision_horizon == "future_product_runtime_review"
-        if product_only:
-            summary_posture = "blocked_by_product_authority_gap"
+        blocking_kinds = {
+            row.exception_kind for row in exception_rows if row.exception_posture == "blocking"
+        }
+        if blocking_refs:
+            if "product_authority_gap" in blocking_kinds:
+                summary_posture = "blocked_by_product_authority_gap"
+            elif "external_branch_authority_gap" in blocking_kinds:
+                summary_posture = "blocked_by_external_branch_gap"
+            elif blocking_kinds & {
+                "missing_command_scope",
+                "unbounded_target",
+                "tool_permission_gap",
+            }:
+                summary_posture = "blocked_by_missing_scope"
+            elif "missing_telemetry_requirement" in blocking_kinds:
+                summary_posture = "blocked_by_missing_telemetry"
+            elif "missing_rollback_requirement" in blocking_kinds:
+                summary_posture = "blocked_by_missing_rollback"
+            else:
+                summary_posture = "blocked_by_missing_authority"
             ready_basis_posture = "not_ready_blockers_remain"
             carried_refs = blocking_refs
         elif warning_refs:
@@ -2895,8 +2916,15 @@ def derive_v78c_repo_pre_execution_authority_review_handoff(
     rows = []
     for summary_row in summary.summary_rows:
         decision_refs = summary_row.authority_decision_refs
+        if not decision_refs:
+            raise ValueError("pre-execution handoff derivation requires summary decision refs")
         decision_row = decision_by_ref[decision_refs[0]]
-        product_only = summary_row.summary_posture == "blocked_by_product_authority_gap"
+        blocked_product = summary_row.summary_posture == "blocked_by_product_authority_gap"
+        blocked_external = summary_row.summary_posture == "blocked_by_external_branch_gap"
+        blocked_scope = summary_row.summary_posture == "blocked_by_missing_scope"
+        blocked_telemetry = summary_row.summary_posture == "blocked_by_missing_telemetry"
+        blocked_rollback = summary_row.summary_posture == "blocked_by_missing_rollback"
+        blocked_authority = summary_row.summary_posture == "blocked_by_missing_authority"
         rows.append(
             {
                 "handoff_ref": summary_row.runtime_authority_summary_ref.replace(
@@ -2910,20 +2938,46 @@ def derive_v78c_repo_pre_execution_authority_review_handoff(
                 "command_scope_boundary_refs": summary_row.command_scope_boundary_refs,
                 "carried_exception_refs": summary_row.carried_blocker_refs,
                 "handoff_target": (
-                    "future_product_review" if product_only else "future_runtime_execution_review"
+                    "future_product_review"
+                    if blocked_product
+                    else (
+                        "future_external_branch_review"
+                        if blocked_external
+                        else "future_runtime_execution_review"
+                    )
                 ),
                 "handoff_subject_horizon": (
                     "Product authority review pressure only"
-                    if product_only
-                    else "Runtime execution review request only"
+                    if blocked_product
+                    else (
+                        "External branch authority review pressure only"
+                        if blocked_external
+                        else "Runtime execution review request only"
+                    )
                 ),
                 "handoff_posture": (
                     "future_family_only"
-                    if product_only
+                    if blocked_product or blocked_external
                     else (
-                        "ready_with_nonblocking_warnings"
-                        if summary_row.carried_blocker_refs
-                        else "ready_for_later_review"
+                        "blocked_by_scope_boundary"
+                        if blocked_scope
+                        else (
+                            "blocked_by_telemetry_gap"
+                            if blocked_telemetry
+                            else (
+                                "blocked_by_rollback_gap"
+                                if blocked_rollback
+                                else (
+                                    "blocked_by_required_later_authority"
+                                    if blocked_authority
+                                    else (
+                                        "ready_with_nonblocking_warnings"
+                                        if summary_row.carried_blocker_refs
+                                        else "ready_for_later_review"
+                                    )
+                                )
+                            )
+                        )
                     )
                 ),
                 "handoff_execution_status": "later_review_required_before_any_execution",
@@ -3147,6 +3201,14 @@ def validate_v78c_runtime_execution_authority_closeout_bundle(
     ):
         raise ValueError("pre-execution handoff must reference readiness summary surface")
     if (
+        runtime_execution_authority_family_closeout_alignment.review_id,
+        runtime_execution_authority_family_closeout_alignment.source_set_id,
+    ) != (
+        pre_execution_authority_review_handoff.review_id,
+        pre_execution_authority_review_handoff.source_set_id,
+    ):
+        raise ValueError("runtime authority closeout provenance must match V78-C handoff")
+    if (
         runtime_execution_authority_family_closeout_alignment.runtime_authority_readiness_summary_id
         != runtime_authority_readiness_summary.runtime_authority_readiness_summary_id
     ):
@@ -3215,7 +3277,10 @@ def validate_v78c_runtime_execution_authority_closeout_bundle(
         if summary_row.summary_posture == "authority_ready_with_nonblocking_warnings":
             if any(row.exception_posture == "blocking" for row in carried_exception_rows):
                 raise ValueError("warning-ready summaries cannot carry blocking exceptions")
-        if summary_row.summary_posture == "authority_ready_for_later_execution_review":
+        if summary_row.summary_posture in {
+            "authority_ready_for_later_execution_review",
+            "authority_ready_with_nonblocking_warnings",
+        }:
             if any(
                 exception_rows[exception_ref].exception_posture == "blocking"
                 for exception_ref in summary_row.exception_refs
