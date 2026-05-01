@@ -1,0 +1,83 @@
+{
+  "command_scope_authorization_boundary_id": "repo_command_scope_authorization_boundary_80d8e8577ec3029cf112337b",
+  "readiness_summary_boundary": "Runtime authority readiness is later review only: no execution and no tool invocation.",
+  "review_id": "review:v78a:runtime-execution-authority-request",
+  "runtime_authority_exception_register_id": "repo_runtime_authority_exception_register_aabe5e46ff7614d682dabf26",
+  "runtime_authority_readiness_summary_id": "repo_runtime_authority_readiness_summary_a957baf6407053b7d0d85913",
+  "runtime_execution_authority_decision_id": "repo_runtime_execution_authority_decision_4a31e7f41da7d9cad8e06951",
+  "runtime_execution_authority_request_id": "repo_runtime_execution_authority_request_ec2a026424c63dccdb5a540c",
+  "schema": "repo_runtime_authority_readiness_summary@1",
+  "snapshot_id": "vNext+220-runtime-authority-closeout",
+  "source_set_id": "source-set:v78a:released-v77c-runtime-authority-pressure",
+  "summary_rows": [
+    {
+      "authority_decision_refs": [
+        "authority-decision:v78b:product-wedge:future-family-only"
+      ],
+      "authority_request_refs": [
+        "authority-request:v78a:product-wedge:blocked"
+      ],
+      "candidate_ref": "candidate:internal:typed_adjudication_product_wedge",
+      "carried_blocker_refs": [
+        "exception:v78b:product-wedge:product-authority-gap"
+      ],
+      "command_scope_boundary_refs": [
+        "command-scope:v78b:product-wedge:no-target"
+      ],
+      "exception_refs": [
+        "exception:v78b:product-wedge:product-authority-gap"
+      ],
+      "execution_posture": "no_execution_performed_by_v78",
+      "limitation_note": "Runtime authority readiness is a later review summary with no execution and no tool invocation.",
+      "non_action_guardrail_refs": [
+        "guardrail:v78a:product-wedge:non-action"
+      ],
+      "ready_basis_posture": "not_ready_blockers_remain",
+      "rollback_requirement_refs": [],
+      "runtime_authority_summary_ref": "runtime-authority-summary:v78c:product-wedge:future-family-only",
+      "summary_posture": "blocked_by_product_authority_gap",
+      "telemetry_requirement_refs": [],
+      "tool_invocation_posture": "no_tool_invocation_performed_by_v78",
+      "tool_permission_refs": [
+        "tool-permission:v78b:product-wedge:not-applicable"
+      ]
+    },
+    {
+      "authority_decision_refs": [
+        "authority-decision:v78b:self-evidencing:later-execution-review"
+      ],
+      "authority_request_refs": [
+        "authority-request:v78a:self-evidencing:runtime-execution-review"
+      ],
+      "candidate_ref": "candidate:internal:self_evidencing_workflow_type_emergence",
+      "carried_blocker_refs": [
+        "exception:v78b:self-evidencing:review-only-warning"
+      ],
+      "command_scope_boundary_refs": [
+        "command-scope:v78b:self-evidencing:runtime-authority-module"
+      ],
+      "exception_refs": [
+        "exception:v78b:self-evidencing:review-only-warning"
+      ],
+      "execution_posture": "no_execution_performed_by_v78",
+      "limitation_note": "Runtime authority readiness is a later review summary with no execution and no tool invocation.",
+      "non_action_guardrail_refs": [
+        "guardrail:v78a:self-evidencing:non-action"
+      ],
+      "ready_basis_posture": "ready_with_carried_nonblocking_warnings",
+      "rollback_requirement_refs": [
+        "rollback:v77b:self-evidencing:required"
+      ],
+      "runtime_authority_summary_ref": "runtime-authority-summary:v78c:self-evidencing:later-execution-review",
+      "summary_posture": "authority_ready_with_nonblocking_warnings",
+      "telemetry_requirement_refs": [
+        "telemetry:v77b:self-evidencing:required"
+      ],
+      "tool_invocation_posture": "no_tool_invocation_performed_by_v78",
+      "tool_permission_refs": [
+        "tool-permission:v78b:self-evidencing:python-review"
+      ]
+    }
+  ],
+  "tool_use_permission_envelope_id": "repo_tool_use_permission_envelope_9fa8d398ab79ee092d925338"
+}

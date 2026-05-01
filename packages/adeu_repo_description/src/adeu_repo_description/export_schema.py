@@ -135,10 +135,13 @@ from .recursive_candidate_intake_handoff import (
 )
 from .runtime_execution_authority import (
     RepoCommandScopeAuthorizationBoundary,
+    RepoPreExecutionAuthorityReviewHandoff,
     RepoRuntimeAuthorityExceptionRegister,
     RepoRuntimeAuthorityNonActionGuardrail,
+    RepoRuntimeAuthorityReadinessSummary,
     RepoRuntimeAuthoritySourceIndex,
     RepoRuntimeExecutionAuthorityDecision,
+    RepoRuntimeExecutionAuthorityFamilyCloseoutAlignment,
     RepoRuntimeExecutionAuthorityRequest,
     RepoToolUsePermissionEnvelope,
 )
@@ -418,29 +421,21 @@ def main() -> None:
     dispatch_review_family_closeout_alignment_schema = (
         RepoDispatchReviewFamilyCloseoutAlignment.model_json_schema(by_alias=True)
     )
-    reconciliation_claim_map_schema = RepoReconciliationClaimMap.model_json_schema(
+    reconciliation_claim_map_schema = RepoReconciliationClaimMap.model_json_schema(by_alias=True)
+    arbiter_relation_register_schema = RepoArbiterRelationRegister.model_json_schema(by_alias=True)
+    reconciliation_dissent_register_schema = RepoReconciliationDissentRegister.model_json_schema(
         by_alias=True
     )
-    arbiter_relation_register_schema = RepoArbiterRelationRegister.model_json_schema(
-        by_alias=True
-    )
-    reconciliation_dissent_register_schema = (
-        RepoReconciliationDissentRegister.model_json_schema(by_alias=True)
-    )
-    arbiter_authority_profile_schema = RepoArbiterAuthorityProfile.model_json_schema(
-        by_alias=True
-    )
+    arbiter_authority_profile_schema = RepoArbiterAuthorityProfile.model_json_schema(by_alias=True)
     reconciliation_settlement_request_schema = (
         RepoReconciliationSettlementRequest.model_json_schema(by_alias=True)
     )
     adversarial_relation_review_schema = RepoAdversarialRelationReview.model_json_schema(
         by_alias=True
     )
-    reconciliation_gap_scan_schema = RepoReconciliationGapScan.model_json_schema(
+    reconciliation_gap_scan_schema = RepoReconciliationGapScan.model_json_schema(by_alias=True)
+    reconciliation_review_summary_schema = RepoReconciliationReviewSummary.model_json_schema(
         by_alias=True
-    )
-    reconciliation_review_summary_schema = (
-        RepoReconciliationReviewSummary.model_json_schema(by_alias=True)
     )
     post_reconciliation_handoff_schema = RepoPostReconciliationHandoff.model_json_schema(
         by_alias=True
@@ -448,30 +443,28 @@ def main() -> None:
     reconciliation_family_closeout_alignment_schema = (
         RepoReconciliationFamilyCloseoutAlignment.model_json_schema(by_alias=True)
     )
-    runtime_permission_source_index_schema = (
-        RepoRuntimePermissionSourceIndex.model_json_schema(by_alias=True)
+    runtime_permission_source_index_schema = RepoRuntimePermissionSourceIndex.model_json_schema(
+        by_alias=True
     )
-    runtime_permission_review_request_schema = (
-        RepoRuntimePermissionReviewRequest.model_json_schema(by_alias=True)
+    runtime_permission_review_request_schema = RepoRuntimePermissionReviewRequest.model_json_schema(
+        by_alias=True
     )
-    runtime_non_execution_guardrail_schema = (
-        RepoRuntimeNonExecutionGuardrail.model_json_schema(by_alias=True)
+    runtime_non_execution_guardrail_schema = RepoRuntimeNonExecutionGuardrail.model_json_schema(
+        by_alias=True
     )
     command_preflight_contract_schema = RepoCommandPreflightContract.model_json_schema(
         by_alias=True
     )
     action_effect_envelope_schema = RepoActionEffectEnvelope.model_json_schema(by_alias=True)
-    runtime_telemetry_requirement_schema = (
-        RepoRuntimeTelemetryRequirement.model_json_schema(by_alias=True)
-    )
-    runtime_rollback_contract_schema = RepoRuntimeRollbackContract.model_json_schema(
+    runtime_telemetry_requirement_schema = RepoRuntimeTelemetryRequirement.model_json_schema(
         by_alias=True
     )
+    runtime_rollback_contract_schema = RepoRuntimeRollbackContract.model_json_schema(by_alias=True)
     runtime_permission_authority_posture_schema = (
         RepoRuntimePermissionAuthorityPosture.model_json_schema(by_alias=True)
     )
-    runtime_permission_review_summary_schema = (
-        RepoRuntimePermissionReviewSummary.model_json_schema(by_alias=True)
+    runtime_permission_review_summary_schema = RepoRuntimePermissionReviewSummary.model_json_schema(
+        by_alias=True
     )
     post_runtime_permission_review_handoff_schema = (
         RepoPostRuntimePermissionReviewHandoff.model_json_schema(by_alias=True)
@@ -479,8 +472,8 @@ def main() -> None:
     runtime_permission_family_closeout_alignment_schema = (
         RepoRuntimePermissionFamilyCloseoutAlignment.model_json_schema(by_alias=True)
     )
-    runtime_authority_source_index_schema = (
-        RepoRuntimeAuthoritySourceIndex.model_json_schema(by_alias=True)
+    runtime_authority_source_index_schema = RepoRuntimeAuthoritySourceIndex.model_json_schema(
+        by_alias=True
     )
     runtime_execution_authority_request_schema = (
         RepoRuntimeExecutionAuthorityRequest.model_json_schema(by_alias=True)
@@ -491,14 +484,23 @@ def main() -> None:
     runtime_execution_authority_decision_schema = (
         RepoRuntimeExecutionAuthorityDecision.model_json_schema(by_alias=True)
     )
-    tool_use_permission_envelope_schema = (
-        RepoToolUsePermissionEnvelope.model_json_schema(by_alias=True)
+    tool_use_permission_envelope_schema = RepoToolUsePermissionEnvelope.model_json_schema(
+        by_alias=True
     )
     command_scope_authorization_boundary_schema = (
         RepoCommandScopeAuthorizationBoundary.model_json_schema(by_alias=True)
     )
     runtime_authority_exception_register_schema = (
         RepoRuntimeAuthorityExceptionRegister.model_json_schema(by_alias=True)
+    )
+    runtime_authority_readiness_summary_schema = (
+        RepoRuntimeAuthorityReadinessSummary.model_json_schema(by_alias=True)
+    )
+    pre_execution_authority_review_handoff_schema = (
+        RepoPreExecutionAuthorityReviewHandoff.model_json_schema(by_alias=True)
+    )
+    runtime_execution_authority_family_closeout_alignment_schema = (
+        RepoRuntimeExecutionAuthorityFamilyCloseoutAlignment.model_json_schema(by_alias=True)
     )
 
     _assert_no_absolute_path_material(dependency_register_v1_schema, repo_root_path=root)
@@ -717,6 +719,18 @@ def main() -> None:
     )
     _assert_no_absolute_path_material(
         runtime_authority_exception_register_schema,
+        repo_root_path=root,
+    )
+    _assert_no_absolute_path_material(
+        runtime_authority_readiness_summary_schema,
+        repo_root_path=root,
+    )
+    _assert_no_absolute_path_material(
+        pre_execution_authority_review_handoff_schema,
+        repo_root_path=root,
+    )
+    _assert_no_absolute_path_material(
+        runtime_execution_authority_family_closeout_alignment_schema,
         repo_root_path=root,
     )
 
@@ -2059,6 +2073,42 @@ def main() -> None:
     _write_schema(
         root / "spec" / "repo_runtime_authority_exception_register.schema.json",
         runtime_authority_exception_register_schema,
+    )
+    _write_schema(
+        root
+        / "packages"
+        / "adeu_repo_description"
+        / "schema"
+        / "repo_runtime_authority_readiness_summary.v1.json",
+        runtime_authority_readiness_summary_schema,
+    )
+    _write_schema(
+        root / "spec" / "repo_runtime_authority_readiness_summary.schema.json",
+        runtime_authority_readiness_summary_schema,
+    )
+    _write_schema(
+        root
+        / "packages"
+        / "adeu_repo_description"
+        / "schema"
+        / "repo_pre_execution_authority_review_handoff.v1.json",
+        pre_execution_authority_review_handoff_schema,
+    )
+    _write_schema(
+        root / "spec" / "repo_pre_execution_authority_review_handoff.schema.json",
+        pre_execution_authority_review_handoff_schema,
+    )
+    _write_schema(
+        root
+        / "packages"
+        / "adeu_repo_description"
+        / "schema"
+        / "repo_runtime_execution_authority_family_closeout_alignment.v1.json",
+        runtime_execution_authority_family_closeout_alignment_schema,
+    )
+    _write_schema(
+        root / "spec" / "repo_runtime_execution_authority_family_closeout_alignment.schema.json",
+        runtime_execution_authority_family_closeout_alignment_schema,
     )
 
 
