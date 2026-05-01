@@ -130,8 +130,7 @@ locks:
 - `repo_post_controlled_execution_review_handoff@1`
 - `repo_controlled_execution_review_family_closeout_alignment@1`
 
-Post-`V79-A` continuation posture: after `vNext+221` closes on `main`, select
-`V79-B` as the next default candidate for the next canonical starter bundle.
+Post-`V79-A` continuation posture: after `vNext+221` closes on `main`, select `V79-B` as the next default candidate for the next canonical starter bundle.
 That selection remains inside the already selected `V79` family and does not
 create a new next-arc-options selector version.
 

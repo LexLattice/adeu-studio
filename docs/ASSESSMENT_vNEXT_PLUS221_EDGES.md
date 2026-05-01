@@ -1,8 +1,8 @@
 # Assessment vNext+221 Edges
 
-Status: pre-lock edge assessment for `V79-A`.
+Status: closeout-edge assessment for `V79-A`.
 
-Authority layer: lock-readiness assessment.
+Authority layer: closeout evidence on `main`.
 
 ## Assessment-State Marker (Machine-Checkable)
 
@@ -10,8 +10,8 @@ Authority layer: lock-readiness assessment.
 {
   "schema": "assessment_artifact_state@1",
   "artifact": "docs/ASSESSMENT_vNEXT_PLUS221_EDGES.md",
-  "phase": "pre_lock_assessment",
-  "authoritative": false,
+  "phase": "post_closeout_assessment",
+  "authoritative": true,
   "required_in_decision": true
 }
 ```
@@ -20,80 +20,112 @@ Authority layer: lock-readiness assessment.
 
 ### Edge 1: Controlled Execution Review Could Become Controlled Execution
 
-- Starter containment:
-  `V79-A` ships request, source-index, and non-execution-guardrail surfaces
-  only. Every reference row must carry no-controlled-execution,
-  no-execution, and no-tool-invocation posture.
-- Required stance:
-  fail closed.
+- Closeout containment:
+  shipped surfaces are limited to request, source-index, and
+  non-execution-guardrail records. Every reference row carries
+  no-controlled-execution, no-execution, and no-tool-invocation posture.
+- Result:
+  pass.
 
 ### Edge 2: V79-A Could Reference Future V79-B Surfaces
 
-- Starter containment:
-  request rows use requested horizons and required postures for run-plan,
-  tool-invocation, monitoring, telemetry, rollback, and operator-confirmation
-  pressure. Refs to those future surfaces are rejected in `V79-A`.
-- Required stance:
-  fail closed.
+- Closeout containment:
+  future run-plan, tool-invocation, monitoring, telemetry, rollback, and
+  operator-confirmation pressure is represented by horizons and required
+  postures. Refs to unshipped `V79-B` surfaces reject.
+- Result:
+  pass.
 
 ### Edge 3: Support Context Could Become Eligibility
 
-- Starter containment:
-  combined dogfood and support-process rows may contextualize the family, but
-  `eligible_for_controlled_execution_review` must cite a released `V78-C`
-  readiness-summary or pre-execution-authority-review handoff source role.
-- Required stance:
-  fail closed.
+- Closeout containment:
+  combined dogfood and support-process rows remain context only. Eligible
+  controlled-execution review requests require released `V78-C` source roles.
+- Result:
+  pass.
 
-### Edge 4: V78 Authority Could Be Read As Execution Authorization
+### Edge 4: V78 Summary And Handoff Refs Could Drift From Source Roles
 
-- Starter containment:
+- Closeout containment:
+  request rows that carry `v78_summary_refs` or `v78_handoff_refs` must also
+  cite the matching readiness-summary or pre-execution-handoff source role.
+- Result:
+  pass.
+
+### Edge 5: V78 Authority Could Be Read As Execution Authorization
+
+- Closeout containment:
   `V78` authority decisions, tool-use permission envelopes, and command-scope
   boundaries remain review substrate. They are not command execution, tool
   invocation, or target mutation authority.
-- Required stance:
-  fail closed.
+- Result:
+  pass.
 
-### Edge 5: Product Or External Pressure Could Launder Execution Readiness
+### Edge 6: Product Or External Pressure Could Launder Execution Readiness
 
-- Starter containment:
+- Closeout containment:
   product-pressure rows remain product-blocked or future-product-review-routed,
   and external-branch rows remain blocked or future-family-only unless concrete
   `V43` posture exists.
-- Required stance:
-  fail closed.
+- Result:
+  pass.
 
-### Edge 6: Operator Confirmation Could Become Operator Authorization
+### Edge 7: Operator Confirmation Could Become Operator Authorization
 
-- Starter containment:
-  `V79-A` may record that operator confirmation would be required later, but
-  it cannot record an operator confirmation artifact or treat confirmation
-  requirements as authorization.
-- Required stance:
-  fail closed.
+- Closeout containment:
+  `V79-A` records required operator-confirmation posture only. It does not
+  create confirmation artifacts or treat confirmation requirements as
+  authorization.
+- Result:
+  pass.
 
-### Edge 7: Local Command Or Tool Output Could Become Authority Evidence
+### Edge 8: Local Command Or Tool Output Could Become Authority Evidence
 
-- Starter containment:
+- Closeout containment:
   command output, local tool output, model suggestion, and operator desire are
   rejected as authority evidence for `V79-A`.
-- Required stance:
-  fail closed.
+- Result:
+  pass.
 
-### Edge 8: V79-A Could Select V80
+### Edge 9: V79-A Could Start V79-B Early
 
-- Starter containment:
+- Closeout containment:
+  no `repo_execution_run_plan@1`, `repo_tool_invocation_plan@1`,
+  `repo_execution_effect_monitoring_contract@1`, or
+  `repo_controlled_execution_exception_register@1` surfaces shipped.
+- Result:
+  pass.
+
+### Edge 10: V79-A Could Select V80
+
+- Closeout containment:
   `V79-A` may carry future pressure but cannot select `V80` or any later
-  family. Later selection belongs to a future family-level selector after
-  `V79` closeout.
-- Required stance:
-  fail closed.
+  family. Later selection remains deferred to future family-level selection
+  after `V79` closeout.
+- Result:
+  pass.
+
+## Residual Edges
+
+- `V79-B` must keep run plans and tool-invocation plans as review records, not
+  command execution or tool invocation.
+- `V79-B` must keep `complete_for_review_only` distinct from ready-to-run.
+- `V79-B` must keep effect-monitoring contracts from claiming observed effects,
+  telemetry success, or rollback verification without authorized prior-source
+  evidence.
+- `V79-B` must preserve product and external blockers or route them to future
+  review, not execution readiness.
+- `V79-C` must later summarize `V79-A` and `V79-B` without hiding blockers or
+  selecting `V80`.
 
 ## Current Judgment
 
-`V79-A` is ready to start only as a bounded controlled-execution review
-intake slice. It can make source-bound review pressure visible, but it must
-not create run plans, invoke tools, execute commands, mutate targets, accept
-effects, observe telemetry, verify rollback, authorize product or external
-work, release, select models, create living-memory authority, amend recursive
-policy, or select `V80`.
+- `V79-A` is closed on `main` as a bounded controlled-execution review request,
+  source-index, and non-execution guardrail slice.
+- `V79` remains open for `V79-B`.
+- The shipped slice preserves the intended boundary: controlled-execution
+  review pressure can be source-bound and machine-checkable, but it does not
+  create run plans, invoke tools, execute commands, mutate targets, accept
+  effects, observe telemetry, verify rollback, dispatch, productize, activate
+  external branches, release, select models, create living-memory authority,
+  adopt recursive policy amendments, or select `V80`.
