@@ -1,0 +1,115 @@
+{
+  "assertions": [
+    "family_closeout_artifacts_exist_through_v78",
+    "v78b_decisions_are_later_review_only_and_non_executing",
+    "v78b_tool_permission_envelopes_do_not_invoke_tools",
+    "v78b_command_scope_boundaries_do_not_execute_or_use_globs",
+    "v78b_exceptions_remain_visible",
+    "v78c_summaries_preserve_blockers_and_warning_only_distinctions",
+    "v78c_handoffs_are_review_requests_with_no_execution_or_tool_invocation",
+    "v78c_closeout_carries_v79_as_unselected_future_surface",
+    "v78_family_closeout_closes_without_v79_selection"
+  ],
+  "carry_forward_findings": [
+    {
+      "finding": "V78 closes runtime execution authority review and tool-use permission envelope posture without executing commands or invoking tools.",
+      "posture": "closed_family_boundary",
+      "result": "not_family_failure"
+    },
+    {
+      "finding": "V78-C carries runtime execution review pressure and product review pressure forward as later-review requests; it does not select V79 or grant downstream authority.",
+      "posture": "future_family_pressure_visible_not_selected",
+      "result": "not_family_failure"
+    }
+  ],
+  "counts": {
+    "v78_shipped_record_shapes": 10,
+    "v78b_command_scope_rows": 2,
+    "v78b_decision_rows": 2,
+    "v78b_exception_rows": 2,
+    "v78b_tool_permission_rows": 2,
+    "v78c_handoff_rows": 2,
+    "v78c_summary_rows": 2
+  },
+  "failures": [],
+  "families_checked": [
+    "V68",
+    "V69",
+    "V70",
+    "V71",
+    "V72",
+    "V73",
+    "V74",
+    "V75",
+    "V76",
+    "V77",
+    "V78"
+  ],
+  "family_closeout_schemas": {
+    "V68": "v68_family_closeout_alignment@1",
+    "V69": "v69_family_closeout_alignment@1",
+    "V70": "v70_family_closeout_alignment@1",
+    "V71": "v71_family_closeout_alignment@1",
+    "V72": "v72_family_closeout_alignment@1",
+    "V73": "v73_family_closeout_alignment@1",
+    "V74": "v74_family_closeout_alignment@1",
+    "V75": "v75_family_closeout_alignment@1",
+    "V76": "v76_family_closeout_alignment@1",
+    "V77": "v77_family_closeout_alignment@1",
+    "V78": "v78_family_closeout_alignment@1"
+  },
+  "handoff_postures": {
+    "handoff:v78c:product-wedge:future-family-only": {
+      "execution_posture": "no_execution_performed_by_v78",
+      "handoff_execution_status": "later_review_required_before_any_execution",
+      "handoff_posture": "future_family_only",
+      "handoff_target": "future_product_review",
+      "required_later_authority_refs": [
+        "authority:v78a:product-wedge:product-review"
+      ],
+      "tool_invocation_posture": "no_tool_invocation_performed_by_v78"
+    },
+    "handoff:v78c:self-evidencing:later-execution-review": {
+      "execution_posture": "no_execution_performed_by_v78",
+      "handoff_execution_status": "later_review_required_before_any_execution",
+      "handoff_posture": "ready_with_nonblocking_warnings",
+      "handoff_target": "future_runtime_execution_review",
+      "required_later_authority_refs": [
+        "authority:v78a:self-evidencing:runtime-review",
+        "authority:v78a:self-evidencing:tool-use-review"
+      ],
+      "tool_invocation_posture": "no_tool_invocation_performed_by_v78"
+    }
+  },
+  "postures": {
+    "candidate:internal:self_evidencing_workflow_type_emergence": {
+      "ready_basis_posture": "ready_with_carried_nonblocking_warnings",
+      "summary_posture": "authority_ready_with_nonblocking_warnings"
+    },
+    "candidate:internal:typed_adjudication_product_wedge": {
+      "ready_basis_posture": "not_ready_blockers_remain",
+      "summary_posture": "blocked_by_product_authority_gap"
+    }
+  },
+  "pytest_result": {
+    "collected_count": 552,
+    "focused_repo_description_tests_passed": true,
+    "warnings_observed": true
+  },
+  "result": "pass",
+  "schema": "v68_v69_v70_v71_v72_v73_v74_v75_v76_v77_v78_combined_dogfood_test@1",
+  "terminal_closeout_arcs": [
+    "vNext+190",
+    "vNext+193",
+    "vNext+196",
+    "vNext+199",
+    "vNext+202",
+    "vNext+205",
+    "vNext+208",
+    "vNext+211",
+    "vNext+214",
+    "vNext+217",
+    "vNext+220"
+  ],
+  "terminal_closeout_checks_passed": true
+}
