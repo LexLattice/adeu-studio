@@ -1,0 +1,78 @@
+{
+  "command_scope_authorization_boundary_id": "repo_command_scope_authorization_boundary_80d8e8577ec3029cf112337b",
+  "handoff_boundary_summary": "Pre-execution authority handoffs request later review with no execution and no target family performed.",
+  "handoff_rows": [
+    {
+      "authority_decision_refs": [
+        "authority-decision:v78b:product-wedge:future-family-only"
+      ],
+      "candidate_ref": "candidate:internal:typed_adjudication_product_wedge",
+      "carried_exception_refs": [
+        "exception:v78b:product-wedge:product-authority-gap"
+      ],
+      "command_scope_boundary_refs": [
+        "command-scope:v78b:product-wedge:no-target"
+      ],
+      "execution_posture": "no_execution_performed_by_v78",
+      "handoff_execution_status": "later_review_required_before_any_execution",
+      "handoff_posture": "future_family_only",
+      "handoff_ref": "handoff:v78c:product-wedge:future-family-only",
+      "handoff_subject_horizon": "Product authority review pressure only",
+      "handoff_target": "future_product_review",
+      "limitation_note": "Pre-execution authority handoff requests later review only: no execution and no tool invocation.",
+      "non_action_guardrail_refs": [
+        "guardrail:v78a:product-wedge:non-action"
+      ],
+      "required_later_authority_refs": [],
+      "runtime_authority_summary_refs": [
+        "runtime-authority-summary:v78c:product-wedge:future-family-only"
+      ],
+      "tool_invocation_posture": "no_tool_invocation_performed_by_v78",
+      "tool_permission_refs": [
+        "tool-permission:v78b:product-wedge:not-applicable"
+      ]
+    },
+    {
+      "authority_decision_refs": [
+        "authority-decision:v78b:self-evidencing:later-execution-review"
+      ],
+      "candidate_ref": "candidate:internal:self_evidencing_workflow_type_emergence",
+      "carried_exception_refs": [
+        "exception:v78b:self-evidencing:review-only-warning"
+      ],
+      "command_scope_boundary_refs": [
+        "command-scope:v78b:self-evidencing:runtime-authority-module"
+      ],
+      "execution_posture": "no_execution_performed_by_v78",
+      "handoff_execution_status": "later_review_required_before_any_execution",
+      "handoff_posture": "ready_with_nonblocking_warnings",
+      "handoff_ref": "handoff:v78c:self-evidencing:later-execution-review",
+      "handoff_subject_horizon": "Runtime execution review request only",
+      "handoff_target": "future_runtime_execution_review",
+      "limitation_note": "Pre-execution authority handoff requests later review only: no execution and no tool invocation.",
+      "non_action_guardrail_refs": [
+        "guardrail:v78a:self-evidencing:non-action"
+      ],
+      "required_later_authority_refs": [
+        "authority:v78a:self-evidencing:runtime-review",
+        "authority:v78a:self-evidencing:tool-use-review"
+      ],
+      "runtime_authority_summary_refs": [
+        "runtime-authority-summary:v78c:self-evidencing:later-execution-review"
+      ],
+      "tool_invocation_posture": "no_tool_invocation_performed_by_v78",
+      "tool_permission_refs": [
+        "tool-permission:v78b:self-evidencing:python-review"
+      ]
+    }
+  ],
+  "pre_execution_authority_review_handoff_id": "repo_pre_execution_authority_review_handoff_fe0dbae4097480e1fc13c396",
+  "review_id": "review:v78a:runtime-execution-authority-request",
+  "runtime_authority_exception_register_id": "repo_runtime_authority_exception_register_aabe5e46ff7614d682dabf26",
+  "runtime_authority_readiness_summary_id": "repo_runtime_authority_readiness_summary_a957baf6407053b7d0d85913",
+  "runtime_execution_authority_decision_id": "repo_runtime_execution_authority_decision_4a31e7f41da7d9cad8e06951",
+  "schema": "repo_pre_execution_authority_review_handoff@1",
+  "snapshot_id": "vNext+220-runtime-authority-closeout",
+  "source_set_id": "source-set:v78a:released-v77c-runtime-authority-pressure",
+  "tool_use_permission_envelope_id": "repo_tool_use_permission_envelope_9fa8d398ab79ee092d925338"
+}

@@ -1,0 +1,218 @@
+{
+  "$defs": {
+    "RepoPreExecutionAuthorityReviewHandoffRow": {
+      "additionalProperties": false,
+      "properties": {
+        "authority_decision_refs": {
+          "items": {
+            "type": "string"
+          },
+          "title": "Authority Decision Refs",
+          "type": "array"
+        },
+        "candidate_ref": {
+          "title": "Candidate Ref",
+          "type": "string"
+        },
+        "carried_exception_refs": {
+          "items": {
+            "type": "string"
+          },
+          "title": "Carried Exception Refs",
+          "type": "array"
+        },
+        "command_scope_boundary_refs": {
+          "items": {
+            "type": "string"
+          },
+          "title": "Command Scope Boundary Refs",
+          "type": "array"
+        },
+        "execution_posture": {
+          "enum": [
+            "no_execution_performed_by_v78",
+            "execution_requires_later_family",
+            "execution_forbidden_by_this_family"
+          ],
+          "title": "Execution Posture",
+          "type": "string"
+        },
+        "handoff_execution_status": {
+          "enum": [
+            "no_execution_scheduled",
+            "no_execution_performed_by_v78",
+            "later_review_required_before_any_execution"
+          ],
+          "title": "Handoff Execution Status",
+          "type": "string"
+        },
+        "handoff_posture": {
+          "enum": [
+            "ready_for_later_review",
+            "ready_with_nonblocking_warnings",
+            "blocked_by_required_later_authority",
+            "blocked_by_scope_boundary",
+            "blocked_by_telemetry_gap",
+            "blocked_by_rollback_gap",
+            "future_family_only",
+            "rejected_out_of_scope"
+          ],
+          "title": "Handoff Posture",
+          "type": "string"
+        },
+        "handoff_ref": {
+          "title": "Handoff Ref",
+          "type": "string"
+        },
+        "handoff_subject_horizon": {
+          "title": "Handoff Subject Horizon",
+          "type": "string"
+        },
+        "handoff_target": {
+          "enum": [
+            "future_runtime_execution_review",
+            "future_tool_invocation_review",
+            "future_product_review",
+            "future_external_branch_review",
+            "future_outcome_or_telemetry_review",
+            "future_experiment_design_review",
+            "future_family_review",
+            "deferred_no_selection"
+          ],
+          "title": "Handoff Target",
+          "type": "string"
+        },
+        "limitation_note": {
+          "title": "Limitation Note",
+          "type": "string"
+        },
+        "non_action_guardrail_refs": {
+          "items": {
+            "type": "string"
+          },
+          "minItems": 1,
+          "title": "Non Action Guardrail Refs",
+          "type": "array"
+        },
+        "required_later_authority_refs": {
+          "items": {
+            "type": "string"
+          },
+          "title": "Required Later Authority Refs",
+          "type": "array"
+        },
+        "runtime_authority_summary_refs": {
+          "items": {
+            "type": "string"
+          },
+          "minItems": 1,
+          "title": "Runtime Authority Summary Refs",
+          "type": "array"
+        },
+        "tool_invocation_posture": {
+          "enum": [
+            "no_tool_invocation_performed_by_v78",
+            "tool_invocation_requires_later_family",
+            "tool_invocation_forbidden_by_this_family"
+          ],
+          "title": "Tool Invocation Posture",
+          "type": "string"
+        },
+        "tool_permission_refs": {
+          "items": {
+            "type": "string"
+          },
+          "title": "Tool Permission Refs",
+          "type": "array"
+        }
+      },
+      "required": [
+        "handoff_ref",
+        "candidate_ref",
+        "runtime_authority_summary_refs",
+        "handoff_target",
+        "handoff_subject_horizon",
+        "handoff_posture",
+        "handoff_execution_status",
+        "execution_posture",
+        "tool_invocation_posture",
+        "non_action_guardrail_refs",
+        "limitation_note"
+      ],
+      "title": "RepoPreExecutionAuthorityReviewHandoffRow",
+      "type": "object"
+    }
+  },
+  "additionalProperties": false,
+  "properties": {
+    "command_scope_authorization_boundary_id": {
+      "title": "Command Scope Authorization Boundary Id",
+      "type": "string"
+    },
+    "handoff_boundary_summary": {
+      "title": "Handoff Boundary Summary",
+      "type": "string"
+    },
+    "handoff_rows": {
+      "items": {
+        "$ref": "#/$defs/RepoPreExecutionAuthorityReviewHandoffRow"
+      },
+      "minItems": 1,
+      "title": "Handoff Rows",
+      "type": "array"
+    },
+    "pre_execution_authority_review_handoff_id": {
+      "title": "Pre Execution Authority Review Handoff Id",
+      "type": "string"
+    },
+    "review_id": {
+      "title": "Review Id",
+      "type": "string"
+    },
+    "runtime_authority_exception_register_id": {
+      "title": "Runtime Authority Exception Register Id",
+      "type": "string"
+    },
+    "runtime_authority_readiness_summary_id": {
+      "title": "Runtime Authority Readiness Summary Id",
+      "type": "string"
+    },
+    "runtime_execution_authority_decision_id": {
+      "title": "Runtime Execution Authority Decision Id",
+      "type": "string"
+    },
+    "schema": {
+      "const": "repo_pre_execution_authority_review_handoff@1",
+      "default": "repo_pre_execution_authority_review_handoff@1",
+      "title": "Schema",
+      "type": "string"
+    },
+    "snapshot_id": {
+      "title": "Snapshot Id",
+      "type": "string"
+    },
+    "source_set_id": {
+      "title": "Source Set Id",
+      "type": "string"
+    },
+    "tool_use_permission_envelope_id": {
+      "title": "Tool Use Permission Envelope Id",
+      "type": "string"
+    }
+  },
+  "required": [
+    "pre_execution_authority_review_handoff_id",
+    "runtime_authority_readiness_summary_id",
+    "runtime_execution_authority_decision_id",
+    "tool_use_permission_envelope_id",
+    "command_scope_authorization_boundary_id",
+    "runtime_authority_exception_register_id",
+    "review_id",
+    "snapshot_id",
+    "source_set_id",
+    "handoff_rows",
+    "handoff_boundary_summary"
+  ],
+  "title": "RepoPreExecutionAuthorityReviewHandoff",
+  "type": "object"
+}

@@ -1,0 +1,216 @@
+{
+  "$defs": {
+    "RepoRuntimeAuthorityReadinessSummaryRow": {
+      "additionalProperties": false,
+      "properties": {
+        "authority_decision_refs": {
+          "items": {
+            "type": "string"
+          },
+          "title": "Authority Decision Refs",
+          "type": "array"
+        },
+        "authority_request_refs": {
+          "items": {
+            "type": "string"
+          },
+          "minItems": 1,
+          "title": "Authority Request Refs",
+          "type": "array"
+        },
+        "candidate_ref": {
+          "title": "Candidate Ref",
+          "type": "string"
+        },
+        "carried_blocker_refs": {
+          "items": {
+            "type": "string"
+          },
+          "title": "Carried Blocker Refs",
+          "type": "array"
+        },
+        "command_scope_boundary_refs": {
+          "items": {
+            "type": "string"
+          },
+          "title": "Command Scope Boundary Refs",
+          "type": "array"
+        },
+        "exception_refs": {
+          "items": {
+            "type": "string"
+          },
+          "title": "Exception Refs",
+          "type": "array"
+        },
+        "execution_posture": {
+          "enum": [
+            "no_execution_performed_by_v78",
+            "execution_requires_later_family",
+            "execution_forbidden_by_this_family"
+          ],
+          "title": "Execution Posture",
+          "type": "string"
+        },
+        "limitation_note": {
+          "title": "Limitation Note",
+          "type": "string"
+        },
+        "non_action_guardrail_refs": {
+          "items": {
+            "type": "string"
+          },
+          "minItems": 1,
+          "title": "Non Action Guardrail Refs",
+          "type": "array"
+        },
+        "ready_basis_posture": {
+          "enum": [
+            "ready_no_blockers",
+            "ready_with_carried_nonblocking_warnings",
+            "not_ready_blockers_remain",
+            "future_family_only",
+            "rejected_out_of_scope"
+          ],
+          "title": "Ready Basis Posture",
+          "type": "string"
+        },
+        "rollback_requirement_refs": {
+          "items": {
+            "type": "string"
+          },
+          "title": "Rollback Requirement Refs",
+          "type": "array"
+        },
+        "runtime_authority_summary_ref": {
+          "title": "Runtime Authority Summary Ref",
+          "type": "string"
+        },
+        "summary_posture": {
+          "enum": [
+            "authority_ready_for_later_execution_review",
+            "authority_ready_with_nonblocking_warnings",
+            "blocked_by_missing_authority",
+            "blocked_by_missing_scope",
+            "blocked_by_missing_telemetry",
+            "blocked_by_missing_rollback",
+            "blocked_by_product_authority_gap",
+            "blocked_by_external_branch_gap",
+            "future_family_only",
+            "rejected_out_of_scope"
+          ],
+          "title": "Summary Posture",
+          "type": "string"
+        },
+        "telemetry_requirement_refs": {
+          "items": {
+            "type": "string"
+          },
+          "title": "Telemetry Requirement Refs",
+          "type": "array"
+        },
+        "tool_invocation_posture": {
+          "enum": [
+            "no_tool_invocation_performed_by_v78",
+            "tool_invocation_requires_later_family",
+            "tool_invocation_forbidden_by_this_family"
+          ],
+          "title": "Tool Invocation Posture",
+          "type": "string"
+        },
+        "tool_permission_refs": {
+          "items": {
+            "type": "string"
+          },
+          "title": "Tool Permission Refs",
+          "type": "array"
+        }
+      },
+      "required": [
+        "runtime_authority_summary_ref",
+        "candidate_ref",
+        "authority_request_refs",
+        "summary_posture",
+        "ready_basis_posture",
+        "execution_posture",
+        "tool_invocation_posture",
+        "non_action_guardrail_refs",
+        "limitation_note"
+      ],
+      "title": "RepoRuntimeAuthorityReadinessSummaryRow",
+      "type": "object"
+    }
+  },
+  "additionalProperties": false,
+  "properties": {
+    "command_scope_authorization_boundary_id": {
+      "title": "Command Scope Authorization Boundary Id",
+      "type": "string"
+    },
+    "readiness_summary_boundary": {
+      "title": "Readiness Summary Boundary",
+      "type": "string"
+    },
+    "review_id": {
+      "title": "Review Id",
+      "type": "string"
+    },
+    "runtime_authority_exception_register_id": {
+      "title": "Runtime Authority Exception Register Id",
+      "type": "string"
+    },
+    "runtime_authority_readiness_summary_id": {
+      "title": "Runtime Authority Readiness Summary Id",
+      "type": "string"
+    },
+    "runtime_execution_authority_decision_id": {
+      "title": "Runtime Execution Authority Decision Id",
+      "type": "string"
+    },
+    "runtime_execution_authority_request_id": {
+      "title": "Runtime Execution Authority Request Id",
+      "type": "string"
+    },
+    "schema": {
+      "const": "repo_runtime_authority_readiness_summary@1",
+      "default": "repo_runtime_authority_readiness_summary@1",
+      "title": "Schema",
+      "type": "string"
+    },
+    "snapshot_id": {
+      "title": "Snapshot Id",
+      "type": "string"
+    },
+    "source_set_id": {
+      "title": "Source Set Id",
+      "type": "string"
+    },
+    "summary_rows": {
+      "items": {
+        "$ref": "#/$defs/RepoRuntimeAuthorityReadinessSummaryRow"
+      },
+      "minItems": 1,
+      "title": "Summary Rows",
+      "type": "array"
+    },
+    "tool_use_permission_envelope_id": {
+      "title": "Tool Use Permission Envelope Id",
+      "type": "string"
+    }
+  },
+  "required": [
+    "runtime_authority_readiness_summary_id",
+    "runtime_execution_authority_request_id",
+    "runtime_execution_authority_decision_id",
+    "tool_use_permission_envelope_id",
+    "command_scope_authorization_boundary_id",
+    "runtime_authority_exception_register_id",
+    "review_id",
+    "snapshot_id",
+    "source_set_id",
+    "summary_rows",
+    "readiness_summary_boundary"
+  ],
+  "title": "RepoRuntimeAuthorityReadinessSummary",
+  "type": "object"
+}

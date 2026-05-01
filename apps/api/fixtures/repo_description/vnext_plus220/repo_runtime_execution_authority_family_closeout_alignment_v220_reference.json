@@ -1,0 +1,62 @@
+{
+  "closeout_boundary_summary": "V78 closes as review posture only: no execution, no tool invocation, and later family selection is not selected here.",
+  "closeout_rows": [
+    {
+      "closed_by_arc": "vNext+220",
+      "closed_slice_ladder": [
+        "V78-A",
+        "V78-B",
+        "V78-C"
+      ],
+      "consumed_source_families": [
+        "V68",
+        "V69",
+        "V70",
+        "V71",
+        "V72",
+        "V73",
+        "V74",
+        "V75",
+        "V76",
+        "V77"
+      ],
+      "family": "V78",
+      "future_family_authority": "Future runtime execution, product, external, graph-memory, and policy surfaces remain future pressure and are not selected here.",
+      "limitation_note": "Family closeout alignment is review only with no execution, no tool invocation, no product authorization, no external branch activation, no release, and no model selection.",
+      "runtime_authority_boundary": "V78 closes as runtime execution authority review posture only: no execution and no tool invocation.",
+      "shipped_record_shapes": [
+        "repo_command_scope_authorization_boundary@1",
+        "repo_pre_execution_authority_review_handoff@1",
+        "repo_runtime_authority_exception_register@1",
+        "repo_runtime_authority_non_action_guardrail@1",
+        "repo_runtime_authority_readiness_summary@1",
+        "repo_runtime_authority_source_index@1",
+        "repo_runtime_execution_authority_decision@1",
+        "repo_runtime_execution_authority_family_closeout_alignment@1",
+        "repo_runtime_execution_authority_request@1",
+        "repo_tool_use_permission_envelope@1"
+      ],
+      "unselected_future_surfaces": [
+        "V79",
+        "benchmark_truth",
+        "dispatch_execution",
+        "external_branch_activation",
+        "living_memory_authority",
+        "model_selection",
+        "product_authorization",
+        "recursive_policy_amendment",
+        "release",
+        "runtime_execution",
+        "tool_invocation",
+        "worker_assignment"
+      ]
+    }
+  ],
+  "pre_execution_authority_review_handoff_id": "repo_pre_execution_authority_review_handoff_5e04d978eefc482d14247be4",
+  "review_id": "review:v78a:runtime-execution-authority-request",
+  "runtime_authority_readiness_summary_id": "repo_runtime_authority_readiness_summary_a957baf6407053b7d0d85913",
+  "runtime_execution_authority_family_closeout_alignment_id": "repo_runtime_execution_authority_family_closeout_alignment_120526ecd5ba85ec60335490",
+  "schema": "repo_runtime_execution_authority_family_closeout_alignment@1",
+  "snapshot_id": "vNext+220-runtime-authority-closeout",
+  "source_set_id": "source-set:v78a:released-v77c-runtime-authority-pressure"
+}

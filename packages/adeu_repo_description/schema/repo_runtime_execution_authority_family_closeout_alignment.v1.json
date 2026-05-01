@@ -1,0 +1,136 @@
+{
+  "$defs": {
+    "RepoRuntimeExecutionAuthorityFamilyCloseoutAlignmentRow": {
+      "additionalProperties": false,
+      "properties": {
+        "closed_by_arc": {
+          "const": "vNext+220",
+          "title": "Closed By Arc",
+          "type": "string"
+        },
+        "closed_slice_ladder": {
+          "items": {
+            "enum": [
+              "V78-A",
+              "V78-B",
+              "V78-C"
+            ],
+            "type": "string"
+          },
+          "minItems": 3,
+          "title": "Closed Slice Ladder",
+          "type": "array"
+        },
+        "consumed_source_families": {
+          "items": {
+            "type": "string"
+          },
+          "minItems": 1,
+          "title": "Consumed Source Families",
+          "type": "array"
+        },
+        "family": {
+          "const": "V78",
+          "title": "Family",
+          "type": "string"
+        },
+        "future_family_authority": {
+          "title": "Future Family Authority",
+          "type": "string"
+        },
+        "limitation_note": {
+          "title": "Limitation Note",
+          "type": "string"
+        },
+        "runtime_authority_boundary": {
+          "title": "Runtime Authority Boundary",
+          "type": "string"
+        },
+        "shipped_record_shapes": {
+          "items": {
+            "type": "string"
+          },
+          "minItems": 1,
+          "title": "Shipped Record Shapes",
+          "type": "array"
+        },
+        "unselected_future_surfaces": {
+          "items": {
+            "type": "string"
+          },
+          "title": "Unselected Future Surfaces",
+          "type": "array"
+        }
+      },
+      "required": [
+        "family",
+        "closed_by_arc",
+        "closed_slice_ladder",
+        "consumed_source_families",
+        "shipped_record_shapes",
+        "runtime_authority_boundary",
+        "future_family_authority",
+        "limitation_note"
+      ],
+      "title": "RepoRuntimeExecutionAuthorityFamilyCloseoutAlignmentRow",
+      "type": "object"
+    }
+  },
+  "additionalProperties": false,
+  "properties": {
+    "closeout_boundary_summary": {
+      "title": "Closeout Boundary Summary",
+      "type": "string"
+    },
+    "closeout_rows": {
+      "items": {
+        "$ref": "#/$defs/RepoRuntimeExecutionAuthorityFamilyCloseoutAlignmentRow"
+      },
+      "minItems": 1,
+      "title": "Closeout Rows",
+      "type": "array"
+    },
+    "pre_execution_authority_review_handoff_id": {
+      "title": "Pre Execution Authority Review Handoff Id",
+      "type": "string"
+    },
+    "review_id": {
+      "title": "Review Id",
+      "type": "string"
+    },
+    "runtime_authority_readiness_summary_id": {
+      "title": "Runtime Authority Readiness Summary Id",
+      "type": "string"
+    },
+    "runtime_execution_authority_family_closeout_alignment_id": {
+      "title": "Runtime Execution Authority Family Closeout Alignment Id",
+      "type": "string"
+    },
+    "schema": {
+      "const": "repo_runtime_execution_authority_family_closeout_alignment@1",
+      "default": "repo_runtime_execution_authority_family_closeout_alignment@1",
+      "title": "Schema",
+      "type": "string"
+    },
+    "snapshot_id": {
+      "title": "Snapshot Id",
+      "type": "string"
+    },
+    "source_set_id": {
+      "title": "Source Set Id",
+      "type": "string"
+    }
+  },
+  "required": [
+    "runtime_execution_authority_family_closeout_alignment_id",
+    "runtime_authority_readiness_summary_id",
+    "pre_execution_authority_review_handoff_id",
+    "review_id",
+    "snapshot_id",
+    "source_set_id",
+    "closeout_rows",
+    "closeout_boundary_summary"
+  ],
+  "title": "RepoRuntimeExecutionAuthorityFamilyCloseoutAlignment",
+  "type": "object"
+}
