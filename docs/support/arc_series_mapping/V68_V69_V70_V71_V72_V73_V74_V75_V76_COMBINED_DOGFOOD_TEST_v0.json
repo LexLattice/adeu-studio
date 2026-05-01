@@ -1,0 +1,104 @@
+{
+  "assertions": [
+    "family_closeout_artifacts_exist_through_v76",
+    "v75c_projected_slots_feed_v76a_claim_maps_without_observed_output_claims",
+    "v76a_relation_rows_reference_known_claim_maps_and_v75_source_relations",
+    "v76a_dissent_search_coverage_is_machine_checkable",
+    "v76b_authority_profiles_allow_review_actions_only",
+    "v76b_settlement_requests_remain_non_settling_and_horizon_bound",
+    "v76b_gap_scan_preserves_projected_slot_and_product_authority_gaps",
+    "v76c_summaries_consume_known_v76a_and_v76b_rows",
+    "v76c_ready_handoff_does_not_erase_blockers",
+    "v76c_handoffs_are_later_review_requests_not_target_family_execution",
+    "v76_family_closeout_closes_without_downstream_authority"
+  ],
+  "carry_forward_findings": [
+    {
+      "finding": "V76 closes reconciliation / arbiter review over projected-output and relation-review pressure without settling relations or declaring claim truth.",
+      "posture": "closed_family_boundary",
+      "result": "not_family_failure"
+    },
+    {
+      "finding": "V76-C carries product pressure to future product review and self-evidencing pressure to future reconciliation / arbiter review; it does not select V77 or runtime/product/external authority.",
+      "posture": "future_family_pressure_visible_not_selected",
+      "result": "not_family_failure"
+    }
+  ],
+  "counts": {
+    "v76_shipped_record_shapes": 10,
+    "v76a_claim_map_rows": 2,
+    "v76a_dissent_rows": 2,
+    "v76a_relation_rows": 2,
+    "v76b_adversarial_review_rows": 2,
+    "v76b_authority_profile_rows": 2,
+    "v76b_gap_rows": 2,
+    "v76b_settlement_request_rows": 2,
+    "v76c_handoff_rows": 2,
+    "v76c_summary_rows": 2
+  },
+  "failures": [],
+  "families_checked": [
+    "V68",
+    "V69",
+    "V70",
+    "V71",
+    "V72",
+    "V73",
+    "V74",
+    "V75",
+    "V76"
+  ],
+  "family_closeout_schemas": {
+    "V68": "v68_family_closeout_alignment@1",
+    "V69": "v69_family_closeout_alignment@1",
+    "V70": "v70_family_closeout_alignment@1",
+    "V71": "v71_family_closeout_alignment@1",
+    "V72": "v72_family_closeout_alignment@1",
+    "V73": "v73_family_closeout_alignment@1",
+    "V74": "v74_family_closeout_alignment@1",
+    "V75": "v75_family_closeout_alignment@1",
+    "V76": "v76_family_closeout_alignment@1"
+  },
+  "initial_probe_finding": {
+    "finding": "First local V68-V76 continuity attempt treated family_closed_on_main as the only closure marker. Released V68-V71 alignment artifacts use family_status or string-valued family_scope_closed instead. Adjusted probe to released artifact schemas plus terminal closeout checks.",
+    "posture": "support_harness_schema_drift_note",
+    "result": "not_family_failure"
+  },
+  "postures": {
+    "self_evidencing_workflow_type_emergence": {
+      "v76a_claim_map_posture": "mapped_for_reconciliation_review",
+      "v76b_settlement_request_posture": "request_ready_for_later_review",
+      "v76c_handoff_posture": "ready_for_later_review",
+      "v76c_handoff_target": "future_reconciliation_or_arbiter_review",
+      "v76c_ready_basis_posture": "ready_with_carried_nonblocking_warnings",
+      "v76c_summary_posture": "ready_for_later_review"
+    },
+    "typed_adjudication_product_wedge": {
+      "v76a_claim_map_posture": "blocked_by_required_later_authority",
+      "v76b_settlement_request_posture": "blocked_by_authority_gap",
+      "v76c_handoff_posture": "blocked_by_required_later_authority",
+      "v76c_handoff_target": "future_product_review",
+      "v76c_ready_basis_posture": "not_ready_blockers_remain",
+      "v76c_summary_posture": "blocked_by_authority_gap"
+    }
+  },
+  "pytest_result": {
+    "collected_count": 456,
+    "focused_repo_description_tests_passed": true,
+    "warnings_observed": true
+  },
+  "result": "pass",
+  "schema": "v68_v69_v70_v71_v72_v73_v74_v75_v76_combined_dogfood_test@1",
+  "terminal_closeout_arcs": [
+    "vNext+190",
+    "vNext+193",
+    "vNext+196",
+    "vNext+199",
+    "vNext+202",
+    "vNext+205",
+    "vNext+208",
+    "vNext+211",
+    "vNext+214"
+  ],
+  "terminal_closeout_checks_passed": true
+}
