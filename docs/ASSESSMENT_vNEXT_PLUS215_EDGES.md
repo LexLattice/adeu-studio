@@ -1,8 +1,8 @@
 # Assessment vNext+215 Edges
 
-Status: planning-edge assessment for `V77-A`.
+Status: closeout-edge assessment for `V77-A`.
 
-Authority layer: pre-lock assessment, not closeout evidence.
+Authority layer: closeout evidence on `main`.
 
 ## Assessment-State Marker (Machine-Checkable)
 
@@ -10,8 +10,8 @@ Authority layer: pre-lock assessment, not closeout evidence.
 {
   "schema": "assessment_artifact_state@1",
   "artifact": "docs/ASSESSMENT_vNEXT_PLUS215_EDGES.md",
-  "phase": "pre_lock_assessment",
-  "authoritative": false,
+  "phase": "post_closeout_assessment",
+  "authoritative": true,
   "required_in_decision": true
 }
 ```
@@ -82,10 +82,10 @@ Authority layer: pre-lock assessment, not closeout evidence.
 
 ## Current Judgment
 
-- `V77-A` is worth drafting now because `V76` has closed reconciliation /
-  arbiter review on `main` and the combined `V68` through `V76` dogfood probe
-  confirms that runtime permission remains unselected future pressure.
-- The starter slice should stay request/source/guardrail only: it can make
-  runtime-permission review pressure visible, but it must not perform
-  preflight, define effect envelopes, grant authority, execute, productize,
-  release, activate external branches, dispatch, or select a later family.
+- `V77-A` closed the request/source/guardrail slice on `main` after `V76`
+  closed reconciliation / arbiter review.
+- The final slice stayed runtime-permission review only: it made runtime
+  pressure visible while preserving non-execution guardrails and did not
+  perform preflight, define effect envelopes, grant authority, execute,
+  productize, release, activate external branches, dispatch, or select a later
+  family.
