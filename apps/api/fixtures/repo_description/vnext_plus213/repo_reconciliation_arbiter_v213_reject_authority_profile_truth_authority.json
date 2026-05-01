@@ -1,0 +1,64 @@
+{
+  "arbiter_authority_profile_id": "repo_arbiter_authority_profile_2502c00a5af95e906d36a46a",
+  "arbiter_relation_register_id": "repo_arbiter_relation_register_4c070651455a215bdc259e9f",
+  "authority_profile_rows": [
+    {
+      "allowed_relation_horizons": [
+        "relation-horizon:v76b:product-wedge:authority-blocker"
+      ],
+      "allowed_review_actions": [
+        "classify_gap",
+        "inspect_relation",
+        "request_future_family_review"
+      ],
+      "authority_actor_kind": "support_doc_context",
+      "authority_gap_posture": "blocked_pending_later_authority",
+      "authority_grant_source_kind": "support_doc",
+      "authority_profile_ref": "authority-profile:v76b:product-wedge:authority-gap",
+      "authority_source_refs": [
+        "docs/DRAFT_ADEU_RECONCILIATION_ARBITER_V76B_IMPLEMENTATION_MAPPING_v0.md"
+      ],
+      "forbidden_authority_kinds": [
+        "authorize_product_now",
+        "declare_truth_now",
+        "ratify_claim_now",
+        "settle_relation_now"
+      ],
+      "limitation_note": "Support context is truth authority for settlement."
+    },
+    {
+      "allowed_relation_horizons": [
+        "relation-horizon:v76b:self-evidencing:projected-relation-review"
+      ],
+      "allowed_review_actions": [
+        "inspect_relation",
+        "preserve_dissent",
+        "request_adversarial_review",
+        "request_later_settlement_review"
+      ],
+      "authority_actor_kind": "maintainer",
+      "authority_gap_posture": "review_only_authority",
+      "authority_grant_source_kind": "repo_lock",
+      "authority_profile_ref": "authority-profile:v76b:self-evidencing:review-only",
+      "authority_source_refs": [
+        "docs/LOCKED_CONTINUATION_vNEXT_PLUS213.md"
+      ],
+      "forbidden_authority_kinds": [
+        "authorize_product_now",
+        "authorize_release_now",
+        "authorize_runtime_now",
+        "declare_truth_now",
+        "ratify_claim_now",
+        "settle_relation_now"
+      ],
+      "limitation_note": "Lock-bound maintainer profile may request later review; it is not truth authority and not settlement authority."
+    }
+  ],
+  "authority_profile_summary": "V76-B authority profiles are review posture only, not truth and not settlement.",
+  "reconciliation_claim_map_id": "repo_reconciliation_claim_map_89786d815b5bd15f9ba8d30e",
+  "reconciliation_dissent_register_id": "repo_reconciliation_dissent_register_e75361255ffdc1cba33b6a5a",
+  "review_id": "review:v76b:arbiter-authority-settlement-gap",
+  "schema": "repo_arbiter_authority_profile@1",
+  "snapshot_id": "vNext+212-closed-on-main",
+  "source_set_id": "source-set:v76b:released-v76a-reconciliation-arbiter"
+}

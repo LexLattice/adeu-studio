@@ -6,6 +6,8 @@ from pathlib import Path
 
 from adeu_ir.repo import repo_root
 from adeu_repo_description import (
+    REPO_ADVERSARIAL_RELATION_REVIEW_SCHEMA,
+    REPO_ARBITER_AUTHORITY_PROFILE_SCHEMA,
     REPO_ARBITER_RELATION_REGISTER_SCHEMA,
     REPO_ARC_DEPENDENCY_REGISTER_SCHEMA,
     REPO_ARC_DEPENDENCY_REGISTER_V1_SCHEMA,
@@ -69,6 +71,8 @@ from adeu_repo_description import (
     REPO_RATIFICATION_REVIEW_WORKBENCH_PROJECTION_SCHEMA,
     REPO_RECONCILIATION_CLAIM_MAP_SCHEMA,
     REPO_RECONCILIATION_DISSENT_REGISTER_SCHEMA,
+    REPO_RECONCILIATION_GAP_SCAN_SCHEMA,
+    REPO_RECONCILIATION_SETTLEMENT_REQUEST_SCHEMA,
     REPO_RECURSIVE_CANDIDATE_INTAKE_RECORD_SCHEMA,
     REPO_RECURSIVE_COORDINATE_EMISSION_PLAN_SCHEMA,
     REPO_RECURSIVE_WORKFLOW_RESIDUE_INTAKE_REPORT_SCHEMA,
@@ -664,6 +668,38 @@ def _schema_pairs() -> dict[str, tuple[Path, Path]]:
             / "schema"
             / "repo_reconciliation_dissent_register.v1.json",
             root / "spec" / "repo_reconciliation_dissent_register.schema.json",
+        ),
+        REPO_ARBITER_AUTHORITY_PROFILE_SCHEMA: (
+            root
+            / "packages"
+            / "adeu_repo_description"
+            / "schema"
+            / "repo_arbiter_authority_profile.v1.json",
+            root / "spec" / "repo_arbiter_authority_profile.schema.json",
+        ),
+        REPO_RECONCILIATION_SETTLEMENT_REQUEST_SCHEMA: (
+            root
+            / "packages"
+            / "adeu_repo_description"
+            / "schema"
+            / "repo_reconciliation_settlement_request.v1.json",
+            root / "spec" / "repo_reconciliation_settlement_request.schema.json",
+        ),
+        REPO_ADVERSARIAL_RELATION_REVIEW_SCHEMA: (
+            root
+            / "packages"
+            / "adeu_repo_description"
+            / "schema"
+            / "repo_adversarial_relation_review.v1.json",
+            root / "spec" / "repo_adversarial_relation_review.schema.json",
+        ),
+        REPO_RECONCILIATION_GAP_SCAN_SCHEMA: (
+            root
+            / "packages"
+            / "adeu_repo_description"
+            / "schema"
+            / "repo_reconciliation_gap_scan.v1.json",
+            root / "spec" / "repo_reconciliation_gap_scan.schema.json",
         ),
     }
 

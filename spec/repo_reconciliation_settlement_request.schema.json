@@ -1,0 +1,162 @@
+{
+  "$defs": {
+    "RepoReconciliationSettlementRequestRow": {
+      "additionalProperties": false,
+      "properties": {
+        "authority_profile_refs": {
+          "items": {
+            "type": "string"
+          },
+          "minItems": 1,
+          "title": "Authority Profile Refs",
+          "type": "array"
+        },
+        "carried_gap_refs": {
+          "items": {
+            "type": "string"
+          },
+          "title": "Carried Gap Refs",
+          "type": "array"
+        },
+        "claim_map_refs": {
+          "items": {
+            "type": "string"
+          },
+          "minItems": 1,
+          "title": "Claim Map Refs",
+          "type": "array"
+        },
+        "dissent_refs": {
+          "items": {
+            "type": "string"
+          },
+          "title": "Dissent Refs",
+          "type": "array"
+        },
+        "limitation_note": {
+          "title": "Limitation Note",
+          "type": "string"
+        },
+        "non_settlement_guardrail": {
+          "title": "Non Settlement Guardrail",
+          "type": "string"
+        },
+        "relation_refs": {
+          "items": {
+            "type": "string"
+          },
+          "minItems": 1,
+          "title": "Relation Refs",
+          "type": "array"
+        },
+        "requested_settlement_horizon": {
+          "title": "Requested Settlement Horizon",
+          "type": "string"
+        },
+        "required_adversarial_review_refs": {
+          "items": {
+            "type": "string"
+          },
+          "title": "Required Adversarial Review Refs",
+          "type": "array"
+        },
+        "settlement_request_posture": {
+          "enum": [
+            "request_ready_for_later_review",
+            "blocked_by_authority_gap",
+            "blocked_by_unreviewed_relation",
+            "blocked_by_dissent",
+            "blocked_by_missing_source",
+            "future_family_only",
+            "rejected_out_of_scope"
+          ],
+          "title": "Settlement Request Posture",
+          "type": "string"
+        },
+        "settlement_request_ref": {
+          "title": "Settlement Request Ref",
+          "type": "string"
+        }
+      },
+      "required": [
+        "settlement_request_ref",
+        "claim_map_refs",
+        "relation_refs",
+        "authority_profile_refs",
+        "requested_settlement_horizon",
+        "settlement_request_posture",
+        "non_settlement_guardrail",
+        "limitation_note"
+      ],
+      "title": "RepoReconciliationSettlementRequestRow",
+      "type": "object"
+    }
+  },
+  "additionalProperties": false,
+  "properties": {
+    "arbiter_authority_profile_id": {
+      "title": "Arbiter Authority Profile Id",
+      "type": "string"
+    },
+    "arbiter_relation_register_id": {
+      "title": "Arbiter Relation Register Id",
+      "type": "string"
+    },
+    "reconciliation_claim_map_id": {
+      "title": "Reconciliation Claim Map Id",
+      "type": "string"
+    },
+    "reconciliation_dissent_register_id": {
+      "title": "Reconciliation Dissent Register Id",
+      "type": "string"
+    },
+    "reconciliation_settlement_request_id": {
+      "title": "Reconciliation Settlement Request Id",
+      "type": "string"
+    },
+    "review_id": {
+      "title": "Review Id",
+      "type": "string"
+    },
+    "schema": {
+      "const": "repo_reconciliation_settlement_request@1",
+      "default": "repo_reconciliation_settlement_request@1",
+      "title": "Schema",
+      "type": "string"
+    },
+    "settlement_request_rows": {
+      "items": {
+        "$ref": "#/$defs/RepoReconciliationSettlementRequestRow"
+      },
+      "minItems": 1,
+      "title": "Settlement Request Rows",
+      "type": "array"
+    },
+    "settlement_request_summary": {
+      "title": "Settlement Request Summary",
+      "type": "string"
+    },
+    "snapshot_id": {
+      "title": "Snapshot Id",
+      "type": "string"
+    },
+    "source_set_id": {
+      "title": "Source Set Id",
+      "type": "string"
+    }
+  },
+  "required": [
+    "reconciliation_settlement_request_id",
+    "reconciliation_claim_map_id",
+    "arbiter_relation_register_id",
+    "reconciliation_dissent_register_id",
+    "arbiter_authority_profile_id",
+    "review_id",
+    "snapshot_id",
+    "source_set_id",
+    "settlement_request_rows",
+    "settlement_request_summary"
+  ],
+  "title": "RepoReconciliationSettlementRequest",
+  "type": "object"
+}

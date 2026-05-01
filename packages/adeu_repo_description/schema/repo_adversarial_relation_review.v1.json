@@ -1,0 +1,136 @@
+{
+  "$defs": {
+    "RepoAdversarialRelationReviewRow": {
+      "additionalProperties": false,
+      "properties": {
+        "adversarial_review_ref": {
+          "title": "Adversarial Review Ref",
+          "type": "string"
+        },
+        "claim_map_refs": {
+          "items": {
+            "type": "string"
+          },
+          "minItems": 1,
+          "title": "Claim Map Refs",
+          "type": "array"
+        },
+        "counterclaim_horizon": {
+          "title": "Counterclaim Horizon",
+          "type": "string"
+        },
+        "limitation_note": {
+          "title": "Limitation Note",
+          "type": "string"
+        },
+        "negative_control_refs": {
+          "items": {
+            "type": "string"
+          },
+          "title": "Negative Control Refs",
+          "type": "array"
+        },
+        "relation_refs": {
+          "items": {
+            "type": "string"
+          },
+          "minItems": 1,
+          "title": "Relation Refs",
+          "type": "array"
+        },
+        "review_perspective": {
+          "title": "Review Perspective",
+          "type": "string"
+        },
+        "review_result_posture": {
+          "enum": [
+            "counterevidence_found",
+            "complementarity_found",
+            "no_counterevidence_in_checked_horizon",
+            "inconclusive",
+            "blocked_by_missing_source"
+          ],
+          "title": "Review Result Posture",
+          "type": "string"
+        },
+        "source_refs": {
+          "items": {
+            "type": "string"
+          },
+          "minItems": 1,
+          "title": "Source Refs",
+          "type": "array"
+        }
+      },
+      "required": [
+        "adversarial_review_ref",
+        "claim_map_refs",
+        "relation_refs",
+        "review_perspective",
+        "counterclaim_horizon",
+        "review_result_posture",
+        "source_refs",
+        "limitation_note"
+      ],
+      "title": "RepoAdversarialRelationReviewRow",
+      "type": "object"
+    }
+  },
+  "additionalProperties": false,
+  "properties": {
+    "adversarial_relation_review_id": {
+      "title": "Adversarial Relation Review Id",
+      "type": "string"
+    },
+    "adversarial_review_rows": {
+      "items": {
+        "$ref": "#/$defs/RepoAdversarialRelationReviewRow"
+      },
+      "minItems": 1,
+      "title": "Adversarial Review Rows",
+      "type": "array"
+    },
+    "adversarial_review_summary": {
+      "title": "Adversarial Review Summary",
+      "type": "string"
+    },
+    "arbiter_relation_register_id": {
+      "title": "Arbiter Relation Register Id",
+      "type": "string"
+    },
+    "reconciliation_claim_map_id": {
+      "title": "Reconciliation Claim Map Id",
+      "type": "string"
+    },
+    "review_id": {
+      "title": "Review Id",
+      "type": "string"
+    },
+    "schema": {
+      "const": "repo_adversarial_relation_review@1",
+      "default": "repo_adversarial_relation_review@1",
+      "title": "Schema",
+      "type": "string"
+    },
+    "snapshot_id": {
+      "title": "Snapshot Id",
+      "type": "string"
+    },
+    "source_set_id": {
+      "title": "Source Set Id",
+      "type": "string"
+    }
+  },
+  "required": [
+    "adversarial_relation_review_id",
+    "reconciliation_claim_map_id",
+    "arbiter_relation_register_id",
+    "review_id",
+    "snapshot_id",
+    "source_set_id",
+    "adversarial_review_rows",
+    "adversarial_review_summary"
+  ],
+  "title": "RepoAdversarialRelationReview",
+  "type": "object"
+}

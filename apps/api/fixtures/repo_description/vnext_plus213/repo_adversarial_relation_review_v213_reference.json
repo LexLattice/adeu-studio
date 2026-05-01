@@ -1,0 +1,50 @@
+{
+  "adversarial_relation_review_id": "repo_adversarial_relation_review_d7ee621837b7440071e02983",
+  "adversarial_review_rows": [
+    {
+      "adversarial_review_ref": "adversarial-review:v76b:product-wedge:blocked",
+      "claim_map_refs": [
+        "claim-map:v76a:product-wedge:projected-authority-blocker"
+      ],
+      "counterclaim_horizon": "product authority gap checked as future-family pressure",
+      "limitation_note": "Product authority blocker is not truth, not settlement, and not product authorization.",
+      "negative_control_refs": [],
+      "relation_refs": [
+        "arbiter-relation:v76a:product-wedge:blocked-placeholder"
+      ],
+      "review_perspective": "product authority blocker remains outside arbiter scope",
+      "review_result_posture": "blocked_by_missing_source",
+      "source_refs": [
+        "apps/api/fixtures/repo_description/vnext_plus212/repo_reconciliation_claim_map_v212_reference.json",
+        "apps/api/fixtures/repo_description/vnext_plus212/repo_reconciliation_dissent_register_v212_reference.json"
+      ]
+    },
+    {
+      "adversarial_review_ref": "adversarial-review:v76b:self-evidencing:checked-projected-slot",
+      "claim_map_refs": [
+        "claim-map:v76a:self-evidencing:projected-relation-review"
+      ],
+      "counterclaim_horizon": "checked released V76-A projected single-output relation horizon",
+      "limitation_note": "Checked projected-only horizon; result is not truth and not settlement.",
+      "negative_control_refs": [
+        "negative-control:v76b:self-evidencing:no-observed-output-content"
+      ],
+      "relation_refs": [
+        "arbiter-relation:v76a:self-evidencing:single-projected"
+      ],
+      "review_perspective": "check whether projected relation review implies truth",
+      "review_result_posture": "no_counterevidence_in_checked_horizon",
+      "source_refs": [
+        "apps/api/fixtures/repo_description/vnext_plus212/repo_arbiter_relation_register_v212_reference.json",
+        "apps/api/fixtures/repo_description/vnext_plus212/repo_reconciliation_claim_map_v212_reference.json"
+      ]
+    }
+  ],
+  "adversarial_review_summary": "V76-B adversarial relation review is adversarial checking, not truth and not settlement.",
+  "arbiter_relation_register_id": "repo_arbiter_relation_register_4c070651455a215bdc259e9f",
+  "reconciliation_claim_map_id": "repo_reconciliation_claim_map_89786d815b5bd15f9ba8d30e",
+  "review_id": "review:v76b:arbiter-authority-settlement-gap",
+  "schema": "repo_adversarial_relation_review@1",
+  "snapshot_id": "vNext+212-closed-on-main",
+  "source_set_id": "source-set:v76b:released-v76a-reconciliation-arbiter"
+}

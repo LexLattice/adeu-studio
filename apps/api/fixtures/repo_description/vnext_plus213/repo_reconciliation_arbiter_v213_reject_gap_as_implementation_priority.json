@@ -1,0 +1,46 @@
+{
+  "arbiter_relation_register_id": "repo_arbiter_relation_register_4c070651455a215bdc259e9f",
+  "gap_rows": [
+    {
+      "blocking_posture": "blocking_until_reviewed",
+      "claim_map_refs": [
+        "claim-map:v76a:product-wedge:projected-authority-blocker"
+      ],
+      "gap_kind": "product_authority_gap",
+      "gap_ref": "gap:v76b:product-wedge:product-authority",
+      "gap_severity": "blocking",
+      "limitation_note": "This gap scan row is implementation priority.",
+      "relation_refs": [
+        "arbiter-relation:v76a:product-wedge:blocked-placeholder"
+      ],
+      "required_next_surface": "future_product_review",
+      "source_refs": [
+        "apps/api/fixtures/repo_description/vnext_plus212/repo_reconciliation_claim_map_v212_reference.json"
+      ]
+    },
+    {
+      "blocking_posture": "warning_only",
+      "claim_map_refs": [
+        "claim-map:v76a:self-evidencing:projected-relation-review"
+      ],
+      "gap_kind": "projected_slot_not_observed_for_content_claim",
+      "gap_ref": "gap:v76b:self-evidencing:projected-not-observed",
+      "gap_severity": "warning",
+      "limitation_note": "Projected slot is not observed content; gap is not authority and not truth.",
+      "relation_refs": [
+        "arbiter-relation:v76a:self-evidencing:single-projected"
+      ],
+      "required_next_surface": "future_reconciliation_or_arbiter_review",
+      "source_refs": [
+        "apps/api/fixtures/repo_description/vnext_plus212/repo_reconciliation_claim_map_v212_reference.json"
+      ]
+    }
+  ],
+  "gap_scan_summary": "V76-B gap scan preserves gap posture, not authority and not truth.",
+  "reconciliation_claim_map_id": "repo_reconciliation_claim_map_89786d815b5bd15f9ba8d30e",
+  "reconciliation_gap_scan_id": "repo_reconciliation_gap_scan_fb2752931a0097d5222434cf",
+  "review_id": "review:v76b:arbiter-authority-settlement-gap",
+  "schema": "repo_reconciliation_gap_scan@1",
+  "snapshot_id": "vNext+212-closed-on-main",
+  "source_set_id": "source-set:v76b:released-v76a-reconciliation-arbiter"
+}
