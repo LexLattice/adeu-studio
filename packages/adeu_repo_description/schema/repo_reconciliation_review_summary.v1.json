@@ -1,0 +1,209 @@
+{
+  "$defs": {
+    "RepoReconciliationReviewSummaryRow": {
+      "additionalProperties": false,
+      "properties": {
+        "adversarial_review_refs": {
+          "items": {
+            "type": "string"
+          },
+          "title": "Adversarial Review Refs",
+          "type": "array"
+        },
+        "authority_profile_refs": {
+          "items": {
+            "type": "string"
+          },
+          "minItems": 1,
+          "title": "Authority Profile Refs",
+          "type": "array"
+        },
+        "carried_blocker_refs": {
+          "items": {
+            "type": "string"
+          },
+          "title": "Carried Blocker Refs",
+          "type": "array"
+        },
+        "claim_map_refs": {
+          "items": {
+            "type": "string"
+          },
+          "minItems": 1,
+          "title": "Claim Map Refs",
+          "type": "array"
+        },
+        "dissent_refs": {
+          "items": {
+            "type": "string"
+          },
+          "title": "Dissent Refs",
+          "type": "array"
+        },
+        "gap_refs": {
+          "items": {
+            "type": "string"
+          },
+          "title": "Gap Refs",
+          "type": "array"
+        },
+        "limitation_note": {
+          "title": "Limitation Note",
+          "type": "string"
+        },
+        "non_truth_guardrail": {
+          "title": "Non Truth Guardrail",
+          "type": "string"
+        },
+        "ready_basis_posture": {
+          "enum": [
+            "ready_no_blockers",
+            "ready_with_carried_nonblocking_warnings",
+            "settlement_requested_for_blockers",
+            "not_ready_blockers_remain",
+            "future_family_only"
+          ],
+          "title": "Ready Basis Posture",
+          "type": "string"
+        },
+        "ready_handoff_conditions": {
+          "items": {
+            "type": "string"
+          },
+          "minItems": 1,
+          "title": "Ready Handoff Conditions",
+          "type": "array"
+        },
+        "relation_refs": {
+          "items": {
+            "type": "string"
+          },
+          "minItems": 1,
+          "title": "Relation Refs",
+          "type": "array"
+        },
+        "settlement_request_refs": {
+          "items": {
+            "type": "string"
+          },
+          "minItems": 1,
+          "title": "Settlement Request Refs",
+          "type": "array"
+        },
+        "summary_posture": {
+          "enum": [
+            "ready_for_later_review",
+            "blocked_by_unresolved_relation",
+            "blocked_by_dissent",
+            "blocked_by_authority_gap",
+            "blocked_by_missing_source",
+            "deferred_to_future_family",
+            "rejected_out_of_scope"
+          ],
+          "title": "Summary Posture",
+          "type": "string"
+        },
+        "summary_ref": {
+          "title": "Summary Ref",
+          "type": "string"
+        }
+      },
+      "required": [
+        "summary_ref",
+        "claim_map_refs",
+        "relation_refs",
+        "authority_profile_refs",
+        "settlement_request_refs",
+        "summary_posture",
+        "ready_basis_posture",
+        "ready_handoff_conditions",
+        "non_truth_guardrail",
+        "limitation_note"
+      ],
+      "title": "RepoReconciliationReviewSummaryRow",
+      "type": "object"
+    }
+  },
+  "additionalProperties": false,
+  "properties": {
+    "adversarial_relation_review_id": {
+      "title": "Adversarial Relation Review Id",
+      "type": "string"
+    },
+    "arbiter_authority_profile_id": {
+      "title": "Arbiter Authority Profile Id",
+      "type": "string"
+    },
+    "arbiter_relation_register_id": {
+      "title": "Arbiter Relation Register Id",
+      "type": "string"
+    },
+    "reconciliation_claim_map_id": {
+      "title": "Reconciliation Claim Map Id",
+      "type": "string"
+    },
+    "reconciliation_dissent_register_id": {
+      "title": "Reconciliation Dissent Register Id",
+      "type": "string"
+    },
+    "reconciliation_gap_scan_id": {
+      "title": "Reconciliation Gap Scan Id",
+      "type": "string"
+    },
+    "reconciliation_review_summary_id": {
+      "title": "Reconciliation Review Summary Id",
+      "type": "string"
+    },
+    "reconciliation_settlement_request_id": {
+      "title": "Reconciliation Settlement Request Id",
+      "type": "string"
+    },
+    "review_id": {
+      "title": "Review Id",
+      "type": "string"
+    },
+    "schema": {
+      "const": "repo_reconciliation_review_summary@1",
+      "default": "repo_reconciliation_review_summary@1",
+      "title": "Schema",
+      "type": "string"
+    },
+    "snapshot_id": {
+      "title": "Snapshot Id",
+      "type": "string"
+    },
+    "source_set_id": {
+      "title": "Source Set Id",
+      "type": "string"
+    },
+    "summary_note": {
+      "title": "Summary Note",
+      "type": "string"
+    },
+    "summary_rows": {
+      "items": {
+        "$ref": "#/$defs/RepoReconciliationReviewSummaryRow"
+      },
+      "minItems": 1,
+      "title": "Summary Rows",
+      "type": "array"
+    }
+  },
+  "required": [
+    "reconciliation_review_summary_id",
+    "reconciliation_claim_map_id",
+    "arbiter_relation_register_id",
+    "reconciliation_dissent_register_id",
+    "arbiter_authority_profile_id",
+    "reconciliation_settlement_request_id",
+    "adversarial_relation_review_id",
+    "reconciliation_gap_scan_id",
+    "review_id",
+    "snapshot_id",
+    "source_set_id",
+    "summary_rows",
+    "summary_note"
+  ],
+  "title": "RepoReconciliationReviewSummary",
+  "type": "object"
+}

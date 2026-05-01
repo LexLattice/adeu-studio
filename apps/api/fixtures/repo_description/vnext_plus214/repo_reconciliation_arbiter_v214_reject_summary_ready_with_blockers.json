@@ -1,0 +1,85 @@
+{
+  "adversarial_relation_review_id": "repo_adversarial_relation_review_d7ee621837b7440071e02983",
+  "arbiter_authority_profile_id": "repo_arbiter_authority_profile_4b43be83fc6e4257fab7930d",
+  "arbiter_relation_register_id": "repo_arbiter_relation_register_4c070651455a215bdc259e9f",
+  "reconciliation_claim_map_id": "repo_reconciliation_claim_map_89786d815b5bd15f9ba8d30e",
+  "reconciliation_dissent_register_id": "repo_reconciliation_dissent_register_e75361255ffdc1cba33b6a5a",
+  "reconciliation_gap_scan_id": "repo_reconciliation_gap_scan_84343354d4924c1ca2456198",
+  "reconciliation_review_summary_id": "repo_reconciliation_review_summary_b23c0e85fe961f8d4356ef55",
+  "reconciliation_settlement_request_id": "repo_reconciliation_settlement_request_eea7a882dc670ae448d573c9",
+  "review_id": "review:v76c:summary-handoff-closeout",
+  "schema": "repo_reconciliation_review_summary@1",
+  "snapshot_id": "vNext+213-closed-on-main",
+  "source_set_id": "source-set:v76c:released-v76a-v76b-reconciliation-arbiter",
+  "summary_note": "V76-C summary rows aggregate V76-A/B review posture as summary substrate, not truth and not settlement.",
+  "summary_rows": [
+    {
+      "adversarial_review_refs": [
+        "adversarial-review:v76b:product-wedge:blocked"
+      ],
+      "authority_profile_refs": [
+        "authority-profile:v76b:product-wedge:authority-gap"
+      ],
+      "carried_blocker_refs": [
+        "dissent:v76a:product-wedge:authority-blocker",
+        "gap:v76b:product-wedge:product-authority"
+      ],
+      "claim_map_refs": [
+        "claim-map:v76a:product-wedge:projected-authority-blocker"
+      ],
+      "dissent_refs": [
+        "dissent:v76a:product-wedge:authority-blocker"
+      ],
+      "gap_refs": [
+        "gap:v76b:product-wedge:product-authority"
+      ],
+      "limitation_note": "Product wedge remains blocked by later authority; no product is authorized.",
+      "non_truth_guardrail": "Reconciliation summary is for review, not truth and not settlement.",
+      "ready_basis_posture": "not_ready_blockers_remain",
+      "ready_handoff_conditions": [
+        "carry product authority blocker to future product or family review"
+      ],
+      "relation_refs": [
+        "arbiter-relation:v76a:product-wedge:blocked-placeholder"
+      ],
+      "settlement_request_refs": [
+        "settlement-request:v76b:product-wedge:blocked"
+      ],
+      "summary_posture": "ready_for_later_review",
+      "summary_ref": "summary:v76c:product-wedge:blocked"
+    },
+    {
+      "adversarial_review_refs": [
+        "adversarial-review:v76b:self-evidencing:checked-projected-slot"
+      ],
+      "authority_profile_refs": [
+        "authority-profile:v76b:self-evidencing:review-only"
+      ],
+      "carried_blocker_refs": [],
+      "claim_map_refs": [
+        "claim-map:v76a:self-evidencing:projected-relation-review"
+      ],
+      "dissent_refs": [
+        "dissent:v76a:self-evidencing:searched-none"
+      ],
+      "gap_refs": [
+        "gap:v76b:self-evidencing:projected-not-observed"
+      ],
+      "limitation_note": "Self-evidencing summary is projected-only review pressure with a warning; it is not truth and not settlement.",
+      "non_truth_guardrail": "Reconciliation summary is for review, not truth and not settlement.",
+      "ready_basis_posture": "ready_with_carried_nonblocking_warnings",
+      "ready_handoff_conditions": [
+        "carry projected-not-observed warning",
+        "preserve no-truth and no-settlement guardrail"
+      ],
+      "relation_refs": [
+        "arbiter-relation:v76a:self-evidencing:single-projected"
+      ],
+      "settlement_request_refs": [
+        "settlement-request:v76b:self-evidencing:later-review"
+      ],
+      "summary_posture": "ready_for_later_review",
+      "summary_ref": "summary:v76c:self-evidencing:later-review"
+    }
+  ]
+}

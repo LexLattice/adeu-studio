@@ -1,0 +1,206 @@
+{
+  "$defs": {
+    "RepoPostReconciliationHandoffRow": {
+      "additionalProperties": false,
+      "properties": {
+        "carried_gap_refs": {
+          "items": {
+            "type": "string"
+          },
+          "title": "Carried Gap Refs",
+          "type": "array"
+        },
+        "claim_map_refs": {
+          "items": {
+            "type": "string"
+          },
+          "minItems": 1,
+          "title": "Claim Map Refs",
+          "type": "array"
+        },
+        "dissent_refs": {
+          "items": {
+            "type": "string"
+          },
+          "title": "Dissent Refs",
+          "type": "array"
+        },
+        "handoff_posture": {
+          "enum": [
+            "ready_for_later_review",
+            "blocked_by_unresolved_relation",
+            "blocked_by_dissent",
+            "blocked_by_required_later_authority",
+            "blocked_by_output_truth_boundary",
+            "deferred_to_future_family",
+            "rejected_out_of_scope"
+          ],
+          "title": "Handoff Posture",
+          "type": "string"
+        },
+        "handoff_ref": {
+          "title": "Handoff Ref",
+          "type": "string"
+        },
+        "handoff_subject_horizon": {
+          "enum": [
+            "reconciliation_review_process_outcome",
+            "projected_relation_review",
+            "blocked_authority_pressure",
+            "future_runtime_permission_pressure",
+            "future_product_review_pressure",
+            "future_external_branch_review_pressure",
+            "future_experiment_review_pressure"
+          ],
+          "title": "Handoff Subject Horizon",
+          "type": "string"
+        },
+        "handoff_target": {
+          "enum": [
+            "future_runtime_permission_review",
+            "future_product_review",
+            "future_external_branch_review",
+            "future_outcome_review",
+            "future_reconciliation_or_arbiter_review",
+            "future_experiment_review",
+            "future_family_review",
+            "deferred_no_selection"
+          ],
+          "title": "Handoff Target",
+          "type": "string"
+        },
+        "limitation_note": {
+          "title": "Limitation Note",
+          "type": "string"
+        },
+        "non_authority_guardrail": {
+          "title": "Non Authority Guardrail",
+          "type": "string"
+        },
+        "relation_refs": {
+          "items": {
+            "type": "string"
+          },
+          "minItems": 1,
+          "title": "Relation Refs",
+          "type": "array"
+        },
+        "required_later_authority_refs": {
+          "items": {
+            "type": "string"
+          },
+          "title": "Required Later Authority Refs",
+          "type": "array"
+        },
+        "summary_refs": {
+          "items": {
+            "type": "string"
+          },
+          "minItems": 1,
+          "title": "Summary Refs",
+          "type": "array"
+        }
+      },
+      "required": [
+        "handoff_ref",
+        "summary_refs",
+        "claim_map_refs",
+        "relation_refs",
+        "handoff_target",
+        "handoff_subject_horizon",
+        "handoff_posture",
+        "non_authority_guardrail",
+        "limitation_note"
+      ],
+      "title": "RepoPostReconciliationHandoffRow",
+      "type": "object"
+    }
+  },
+  "additionalProperties": false,
+  "properties": {
+    "adversarial_relation_review_id": {
+      "title": "Adversarial Relation Review Id",
+      "type": "string"
+    },
+    "arbiter_authority_profile_id": {
+      "title": "Arbiter Authority Profile Id",
+      "type": "string"
+    },
+    "arbiter_relation_register_id": {
+      "title": "Arbiter Relation Register Id",
+      "type": "string"
+    },
+    "handoff_rows": {
+      "items": {
+        "$ref": "#/$defs/RepoPostReconciliationHandoffRow"
+      },
+      "minItems": 1,
+      "title": "Handoff Rows",
+      "type": "array"
+    },
+    "handoff_summary": {
+      "title": "Handoff Summary",
+      "type": "string"
+    },
+    "post_reconciliation_handoff_id": {
+      "title": "Post Reconciliation Handoff Id",
+      "type": "string"
+    },
+    "reconciliation_claim_map_id": {
+      "title": "Reconciliation Claim Map Id",
+      "type": "string"
+    },
+    "reconciliation_dissent_register_id": {
+      "title": "Reconciliation Dissent Register Id",
+      "type": "string"
+    },
+    "reconciliation_gap_scan_id": {
+      "title": "Reconciliation Gap Scan Id",
+      "type": "string"
+    },
+    "reconciliation_review_summary_id": {
+      "title": "Reconciliation Review Summary Id",
+      "type": "string"
+    },
+    "reconciliation_settlement_request_id": {
+      "title": "Reconciliation Settlement Request Id",
+      "type": "string"
+    },
+    "review_id": {
+      "title": "Review Id",
+      "type": "string"
+    },
+    "schema": {
+      "const": "repo_post_reconciliation_handoff@1",
+      "default": "repo_post_reconciliation_handoff@1",
+      "title": "Schema",
+      "type": "string"
+    },
+    "snapshot_id": {
+      "title": "Snapshot Id",
+      "type": "string"
+    },
+    "source_set_id": {
+      "title": "Source Set Id",
+      "type": "string"
+    }
+  },
+  "required": [
+    "post_reconciliation_handoff_id",
+    "reconciliation_review_summary_id",
+    "reconciliation_claim_map_id",
+    "arbiter_relation_register_id",
+    "reconciliation_dissent_register_id",
+    "arbiter_authority_profile_id",
+    "reconciliation_settlement_request_id",
+    "adversarial_relation_review_id",
+    "reconciliation_gap_scan_id",
+    "review_id",
+    "snapshot_id",
+    "source_set_id",
+    "handoff_rows",
+    "handoff_summary"
+  ],
+  "title": "RepoPostReconciliationHandoff",
+  "type": "object"
+}

@@ -1,0 +1,66 @@
+{
+  "adversarial_relation_review_id": "repo_adversarial_relation_review_d7ee621837b7440071e02983",
+  "arbiter_authority_profile_id": "repo_arbiter_authority_profile_4b43be83fc6e4257fab7930d",
+  "arbiter_relation_register_id": "repo_arbiter_relation_register_4c070651455a215bdc259e9f",
+  "handoff_rows": [
+    {
+      "carried_gap_refs": [
+        "gap:v76b:product-wedge:product-authority"
+      ],
+      "claim_map_refs": [
+        "claim-map:v76a:product-wedge:projected-authority-blocker"
+      ],
+      "dissent_refs": [
+        "dissent:v76a:product-wedge:authority-blocker"
+      ],
+      "handoff_posture": "blocked_by_required_later_authority",
+      "handoff_ref": "handoff:v76c:product-wedge:future-product-review",
+      "handoff_subject_horizon": "future_product_review_pressure",
+      "handoff_target": "future_product_review",
+      "limitation_note": "Product authority must be reviewed later; no product is authorized.",
+      "non_authority_guardrail": "This handoff is a request for later review, not authority and not truth.",
+      "relation_refs": [
+        "arbiter-relation:v76a:product-wedge:blocked-placeholder"
+      ],
+      "required_later_authority_refs": [],
+      "summary_refs": [
+        "summary:v76c:product-wedge:blocked"
+      ]
+    },
+    {
+      "carried_gap_refs": [
+        "gap:v76b:self-evidencing:projected-not-observed"
+      ],
+      "claim_map_refs": [
+        "claim-map:v76a:self-evidencing:projected-relation-review"
+      ],
+      "dissent_refs": [
+        "dissent:v76a:self-evidencing:searched-none"
+      ],
+      "handoff_posture": "ready_for_later_review",
+      "handoff_ref": "handoff:v76c:self-evidencing:future-arbiter-review",
+      "handoff_subject_horizon": "projected_relation_review",
+      "handoff_target": "future_reconciliation_or_arbiter_review",
+      "limitation_note": "Carried warning is for arbiter review; no dispatch or settlement is performed.",
+      "non_authority_guardrail": "This handoff is a request for later review, not authority and not truth.",
+      "relation_refs": [
+        "arbiter-relation:v76a:self-evidencing:single-projected"
+      ],
+      "required_later_authority_refs": [],
+      "summary_refs": [
+        "summary:v76c:self-evidencing:later-review"
+      ]
+    }
+  ],
+  "handoff_summary": "V76-C handoff rows request later review and preserve blockers, not authority and not truth.",
+  "post_reconciliation_handoff_id": "repo_post_reconciliation_handoff_d5cf7647a579eb77f75c0397",
+  "reconciliation_claim_map_id": "repo_reconciliation_claim_map_89786d815b5bd15f9ba8d30e",
+  "reconciliation_dissent_register_id": "repo_reconciliation_dissent_register_e75361255ffdc1cba33b6a5a",
+  "reconciliation_gap_scan_id": "repo_reconciliation_gap_scan_84343354d4924c1ca2456198",
+  "reconciliation_review_summary_id": "repo_reconciliation_review_summary_b23c0e85fe961f8d4356ef55",
+  "reconciliation_settlement_request_id": "repo_reconciliation_settlement_request_eea7a882dc670ae448d573c9",
+  "review_id": "review:v76c:summary-handoff-closeout",
+  "schema": "repo_post_reconciliation_handoff@1",
+  "snapshot_id": "vNext+213-closed-on-main",
+  "source_set_id": "source-set:v76c:released-v76a-v76b-reconciliation-arbiter"
+}
