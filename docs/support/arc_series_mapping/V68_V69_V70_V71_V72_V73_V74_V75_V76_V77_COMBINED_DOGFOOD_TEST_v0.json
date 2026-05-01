@@ -1,0 +1,110 @@
+{
+  "assertions": [
+    "family_closeout_artifacts_exist_through_v77",
+    "v77b_preflight_rows_are_non_executing",
+    "v77b_effect_envelopes_do_not_accept_effects",
+    "v77b_telemetry_requirements_do_not_observe_telemetry",
+    "v77b_rollback_contracts_do_not_verify_rollback",
+    "v77c_authority_postures_require_or_defer_authority_without_granting_it",
+    "v77c_summaries_preserve_blockers_and_do_not_emit_ready_no_blockers",
+    "v77c_handoffs_are_review_requests_with_no_runtime_permission_granted",
+    "v77c_product_and_runtime_handoffs_carry_matching_later_authority_kinds",
+    "v77_family_closeout_closes_without_downstream_authority"
+  ],
+  "carry_forward_findings": [
+    {
+      "finding": "V77 closes runtime-permission review over command intent, effect, telemetry, rollback, authority, summary, and handoff pressure without granting runtime permission or executing commands.",
+      "posture": "closed_family_boundary",
+      "result": "not_family_failure"
+    },
+    {
+      "finding": "V77-C carries product pressure to future product review and runtime / tool-use pressure to future authority review; it does not select V78 or runtime/product/external authority.",
+      "posture": "future_family_pressure_visible_not_selected",
+      "result": "not_family_failure"
+    }
+  ],
+  "counts": {
+    "v77_shipped_record_shapes": 11,
+    "v77b_effect_envelope_rows": 2,
+    "v77b_preflight_rows": 2,
+    "v77b_rollback_rows": 2,
+    "v77b_telemetry_rows": 2,
+    "v77c_authority_posture_rows": 3,
+    "v77c_handoff_rows": 2,
+    "v77c_summary_rows": 2
+  },
+  "failures": [],
+  "families_checked": [
+    "V68",
+    "V69",
+    "V70",
+    "V71",
+    "V72",
+    "V73",
+    "V74",
+    "V75",
+    "V76",
+    "V77"
+  ],
+  "family_closeout_schemas": {
+    "V68": "v68_family_closeout_alignment@1",
+    "V69": "v69_family_closeout_alignment@1",
+    "V70": "v70_family_closeout_alignment@1",
+    "V71": "v71_family_closeout_alignment@1",
+    "V72": "v72_family_closeout_alignment@1",
+    "V73": "v73_family_closeout_alignment@1",
+    "V74": "v74_family_closeout_alignment@1",
+    "V75": "v75_family_closeout_alignment@1",
+    "V76": "v76_family_closeout_alignment@1",
+    "V77": "v77_family_closeout_alignment@1"
+  },
+  "handoff_postures": {
+    "handoff:v77c:product-wedge:blocked": {
+      "handoff_posture": "deferred_to_future_family",
+      "handoff_target": "future_product_review",
+      "required_later_authority_kinds": [
+        "product_authorization"
+      ],
+      "runtime_permission_execution_posture": "no_runtime_permission_granted_by_v77"
+    },
+    "handoff:v77c:self-evidencing:preflight": {
+      "handoff_posture": "blocked_by_required_later_authority",
+      "handoff_target": "future_runtime_execution_authority_review",
+      "required_later_authority_kinds": [
+        "runtime_permission_authority",
+        "tool_use_authority"
+      ],
+      "runtime_permission_execution_posture": "no_runtime_permission_granted_by_v77"
+    }
+  },
+  "postures": {
+    "candidate:internal:self_evidencing_workflow_type_emergence": {
+      "ready_basis_posture": "not_ready_blockers_remain",
+      "summary_posture": "blocked_by_missing_authority"
+    },
+    "candidate:internal:typed_adjudication_product_wedge": {
+      "ready_basis_posture": "future_family_only",
+      "summary_posture": "future_family_only"
+    }
+  },
+  "pytest_result": {
+    "collected_count": 501,
+    "focused_repo_description_tests_passed": true,
+    "warnings_observed": true
+  },
+  "result": "pass",
+  "schema": "v68_v69_v70_v71_v72_v73_v74_v75_v76_v77_combined_dogfood_test@1",
+  "terminal_closeout_arcs": [
+    "vNext+190",
+    "vNext+193",
+    "vNext+196",
+    "vNext+199",
+    "vNext+202",
+    "vNext+205",
+    "vNext+208",
+    "vNext+211",
+    "vNext+214",
+    "vNext+217"
+  ],
+  "terminal_closeout_checks_passed": true
+}
