@@ -1,0 +1,60 @@
+{
+  "review_id": "review:v77a:runtime-permission-review-request",
+  "runtime_permission_source_index_id": "repo_runtime_permission_source_index_3139439f791bdee551abd5af",
+  "runtime_source_summary": "Runtime source rows separate eligibility from context with no prose memory and no runtime permission.",
+  "schema": "repo_runtime_permission_source_index@1",
+  "snapshot_id": "vNext+214-closed-on-main",
+  "source_rows": [
+    {
+      "authority_layer": "fixture",
+      "limitation_note": "Eligibility source for later review requests only; no runtime permission is granted.",
+      "runtime_source_role": "v76_post_reconciliation_handoff_source",
+      "source_horizon": "Released V76-C post-reconciliation handoff rows.",
+      "source_kind": "fixture_file",
+      "source_presence_posture": "present",
+      "source_ref": "apps/api/fixtures/repo_description/vnext_plus214/repo_post_reconciliation_handoff_v214_reference.json",
+      "source_status": "integrated_shaping_source"
+    },
+    {
+      "authority_layer": "fixture",
+      "limitation_note": "Eligibility source for family boundary only; no runtime permission is granted.",
+      "runtime_source_role": "v76_family_closeout_source",
+      "source_horizon": "Released V76 family closeout alignment rows.",
+      "source_kind": "fixture_file",
+      "source_presence_posture": "present",
+      "source_ref": "apps/api/fixtures/repo_description/vnext_plus214/repo_reconciliation_family_closeout_alignment_v214_reference.json",
+      "source_status": "integrated_shaping_source"
+    },
+    {
+      "authority_layer": "fixture",
+      "limitation_note": "Eligibility source for runtime-permission review only; no runtime permission is granted.",
+      "runtime_source_role": "v76_summary_source",
+      "source_horizon": "Released V76-C reconciliation review summary rows.",
+      "source_kind": "fixture_file",
+      "source_presence_posture": "present",
+      "source_ref": "apps/api/fixtures/repo_description/vnext_plus214/repo_reconciliation_review_summary_v214_reference.json",
+      "source_status": "integrated_shaping_source"
+    },
+    {
+      "authority_layer": "support",
+      "limitation_note": "Context source only and not sufficient for eligibility; no runtime permission is granted.",
+      "runtime_source_role": "support_roadmap_context",
+      "source_horizon": "V76-C closeout evidence context.",
+      "source_kind": "evidence_artifact",
+      "source_presence_posture": "present",
+      "source_ref": "artifacts/agent_harness/v214/evidence_inputs/v76c_reconciliation_arbiter_closeout_evidence_v214.json",
+      "source_status": "integrated_shaping_source"
+    },
+    {
+      "authority_layer": "support",
+      "limitation_note": "Context source only and not sufficient for eligibility; no runtime permission is granted.",
+      "runtime_source_role": "combined_dogfood_source",
+      "source_horizon": "Combined V68-V76 dogfood context.",
+      "source_kind": "support_doc",
+      "source_presence_posture": "present",
+      "source_ref": "docs/support/arc_series_mapping/V68_V69_V70_V71_V72_V73_V74_V75_V76_COMBINED_DOGFOOD_TEST_v0.json",
+      "source_status": "integrated_shaping_source"
+    }
+  ],
+  "source_set_id": "source-set:v77a:released-v76c-runtime-pressure"
+}

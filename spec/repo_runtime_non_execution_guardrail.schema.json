@@ -1,0 +1,164 @@
+{
+  "$defs": {
+    "RepoRuntimeNonExecutionGuardrailRow": {
+      "additionalProperties": false,
+      "properties": {
+        "authority_gap_refs": {
+          "items": {
+            "type": "string"
+          },
+          "title": "Authority Gap Refs",
+          "type": "array"
+        },
+        "candidate_ref": {
+          "title": "Candidate Ref",
+          "type": "string"
+        },
+        "execution_posture": {
+          "enum": [
+            "no_execution_authorized",
+            "execution_requires_later_authority",
+            "execution_forbidden_by_this_family"
+          ],
+          "title": "Execution Posture",
+          "type": "string"
+        },
+        "forbidden_downstream_authority": {
+          "items": {
+            "enum": [
+              "runtime_permission_grant",
+              "product_authorization",
+              "external_branch_activation",
+              "released_truth",
+              "benchmark_truth",
+              "model_selection",
+              "living_memory_authority",
+              "recursive_policy_amendment"
+            ],
+            "type": "string"
+          },
+          "minItems": 1,
+          "title": "Forbidden Downstream Authority",
+          "type": "array"
+        },
+        "forbidden_runtime_actions": {
+          "items": {
+            "enum": [
+              "run_command",
+              "invoke_tool_for_effect",
+              "assign_worker",
+              "dispatch_worker",
+              "open_pr",
+              "commit",
+              "merge",
+              "release",
+              "external_submission"
+            ],
+            "type": "string"
+          },
+          "minItems": 1,
+          "title": "Forbidden Runtime Actions",
+          "type": "array"
+        },
+        "guardrail_ref": {
+          "title": "Guardrail Ref",
+          "type": "string"
+        },
+        "limitation_note": {
+          "title": "Limitation Note",
+          "type": "string"
+        },
+        "runtime_review_refs": {
+          "items": {
+            "type": "string"
+          },
+          "minItems": 1,
+          "title": "Runtime Review Refs",
+          "type": "array"
+        },
+        "source_refs": {
+          "items": {
+            "type": "string"
+          },
+          "minItems": 1,
+          "title": "Source Refs",
+          "type": "array"
+        },
+        "tool_use_posture": {
+          "enum": [
+            "tool_use_not_authorized_by_v77",
+            "tool_use_requires_later_authority",
+            "tool_applicability_context_only"
+          ],
+          "title": "Tool Use Posture",
+          "type": "string"
+        }
+      },
+      "required": [
+        "guardrail_ref",
+        "candidate_ref",
+        "runtime_review_refs",
+        "forbidden_runtime_actions",
+        "forbidden_downstream_authority",
+        "execution_posture",
+        "tool_use_posture",
+        "source_refs",
+        "limitation_note"
+      ],
+      "title": "RepoRuntimeNonExecutionGuardrailRow",
+      "type": "object"
+    }
+  },
+  "additionalProperties": false,
+  "properties": {
+    "guardrail_rows": {
+      "items": {
+        "$ref": "#/$defs/RepoRuntimeNonExecutionGuardrailRow"
+      },
+      "minItems": 1,
+      "title": "Guardrail Rows",
+      "type": "array"
+    },
+    "non_execution_summary": {
+      "title": "Non Execution Summary",
+      "type": "string"
+    },
+    "review_id": {
+      "title": "Review Id",
+      "type": "string"
+    },
+    "runtime_non_execution_guardrail_id": {
+      "title": "Runtime Non Execution Guardrail Id",
+      "type": "string"
+    },
+    "runtime_permission_review_request_id": {
+      "title": "Runtime Permission Review Request Id",
+      "type": "string"
+    },
+    "schema": {
+      "const": "repo_runtime_non_execution_guardrail@1",
+      "default": "repo_runtime_non_execution_guardrail@1",
+      "title": "Schema",
+      "type": "string"
+    },
+    "snapshot_id": {
+      "title": "Snapshot Id",
+      "type": "string"
+    },
+    "source_set_id": {
+      "title": "Source Set Id",
+      "type": "string"
+    }
+  },
+  "required": [
+    "runtime_non_execution_guardrail_id",
+    "runtime_permission_review_request_id",
+    "review_id",
+    "snapshot_id",
+    "source_set_id",
+    "guardrail_rows",
+    "non_execution_summary"
+  ],
+  "title": "RepoRuntimeNonExecutionGuardrail",
+  "type": "object"
+}

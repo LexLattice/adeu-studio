@@ -1,0 +1,84 @@
+{
+  "guardrail_rows": [
+    {
+      "authority_gap_refs": [
+        "authority:v77a:product-wedge:product-review"
+      ],
+      "candidate_ref": "candidate:internal:typed_adjudication_product_wedge",
+      "execution_posture": "no_execution_authorized",
+      "forbidden_downstream_authority": [
+        "benchmark_truth",
+        "external_branch_activation",
+        "living_memory_authority",
+        "model_selection",
+        "product_authorization",
+        "recursive_policy_amendment",
+        "released_truth",
+        "runtime_permission_grant"
+      ],
+      "forbidden_runtime_actions": [],
+      "guardrail_ref": "guardrail:v77a:product-wedge:non-execution",
+      "limitation_note": "This V77-A row is review only: no command execution, no runtime permission, no tool-use permission, no product authorization, no external branch activation, and no release.",
+      "runtime_review_refs": [
+        "runtime-review:v77a:product-wedge:blocked"
+      ],
+      "source_refs": [
+        "apps/api/fixtures/repo_description/vnext_plus214/repo_post_reconciliation_handoff_v214_reference.json",
+        "apps/api/fixtures/repo_description/vnext_plus214/repo_reconciliation_family_closeout_alignment_v214_reference.json",
+        "apps/api/fixtures/repo_description/vnext_plus214/repo_reconciliation_review_summary_v214_reference.json",
+        "artifacts/agent_harness/v214/evidence_inputs/v76c_reconciliation_arbiter_closeout_evidence_v214.json",
+        "docs/support/arc_series_mapping/V68_V69_V70_V71_V72_V73_V74_V75_V76_COMBINED_DOGFOOD_TEST_v0.json"
+      ],
+      "tool_use_posture": "tool_use_not_authorized_by_v77"
+    },
+    {
+      "authority_gap_refs": [
+        "authority:v77a:self-evidencing:runtime-execution",
+        "authority:v77a:self-evidencing:tool-use"
+      ],
+      "candidate_ref": "candidate:internal:self_evidencing_workflow_type_emergence",
+      "execution_posture": "no_execution_authorized",
+      "forbidden_downstream_authority": [
+        "benchmark_truth",
+        "external_branch_activation",
+        "living_memory_authority",
+        "model_selection",
+        "product_authorization",
+        "recursive_policy_amendment",
+        "released_truth",
+        "runtime_permission_grant"
+      ],
+      "forbidden_runtime_actions": [
+        "assign_worker",
+        "commit",
+        "dispatch_worker",
+        "external_submission",
+        "invoke_tool_for_effect",
+        "merge",
+        "open_pr",
+        "release",
+        "run_command"
+      ],
+      "guardrail_ref": "guardrail:v77a:self-evidencing:non-execution",
+      "limitation_note": "This V77-A row is review only: no command execution, no runtime permission, no tool-use permission, no product authorization, no external branch activation, and no release.",
+      "runtime_review_refs": [
+        "runtime-review:v77a:self-evidencing:preflight"
+      ],
+      "source_refs": [
+        "apps/api/fixtures/repo_description/vnext_plus214/repo_post_reconciliation_handoff_v214_reference.json",
+        "apps/api/fixtures/repo_description/vnext_plus214/repo_reconciliation_family_closeout_alignment_v214_reference.json",
+        "apps/api/fixtures/repo_description/vnext_plus214/repo_reconciliation_review_summary_v214_reference.json",
+        "artifacts/agent_harness/v214/evidence_inputs/v76c_reconciliation_arbiter_closeout_evidence_v214.json",
+        "docs/support/arc_series_mapping/V68_V69_V70_V71_V72_V73_V74_V75_V76_COMBINED_DOGFOOD_TEST_v0.json"
+      ],
+      "tool_use_posture": "tool_use_not_authorized_by_v77"
+    }
+  ],
+  "non_execution_summary": "Runtime non-execution guardrails preserve review only: no command execution, no runtime permission, no tool-use permission, no product authorization, and no release.",
+  "review_id": "review:v77a:runtime-permission-review-request",
+  "runtime_non_execution_guardrail_id": "repo_runtime_non_execution_guardrail_a708b8e1173b0d039d5f801c",
+  "runtime_permission_review_request_id": "repo_runtime_permission_review_request_09fa5c6b528a4104be450b64",
+  "schema": "repo_runtime_non_execution_guardrail@1",
+  "snapshot_id": "vNext+214-closed-on-main",
+  "source_set_id": "source-set:v77a:released-v76c-runtime-pressure"
+}
