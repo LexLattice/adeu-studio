@@ -1,0 +1,64 @@
+{
+  "arbiter_authority_profile_id": "repo_arbiter_authority_profile_4b43be83fc6e4257fab7930d",
+  "arbiter_relation_register_id": "repo_arbiter_relation_register_4c070651455a215bdc259e9f",
+  "reconciliation_claim_map_id": "repo_reconciliation_claim_map_89786d815b5bd15f9ba8d30e",
+  "reconciliation_dissent_register_id": "repo_reconciliation_dissent_register_e75361255ffdc1cba33b6a5a",
+  "reconciliation_settlement_request_id": "repo_reconciliation_settlement_request_9469f64f9e07995dc2caeacd",
+  "review_id": "review:v76b:arbiter-authority-settlement-gap",
+  "schema": "repo_reconciliation_settlement_request@1",
+  "settlement_request_rows": [
+    {
+      "authority_profile_refs": [
+        "authority-profile:v76b:product-wedge:authority-gap"
+      ],
+      "carried_gap_refs": [
+        "gap:v76b:product-wedge:product-authority"
+      ],
+      "claim_map_refs": [
+        "claim-map:v76a:unknown"
+      ],
+      "dissent_refs": [
+        "dissent:v76a:product-wedge:authority-blocker"
+      ],
+      "limitation_note": "Product authority gap blocks settlement readiness and no product is authorized.",
+      "non_settlement_guardrail": "This request is for later review, not settlement and not truth.",
+      "relation_refs": [
+        "arbiter-relation:v76a:product-wedge:blocked-placeholder"
+      ],
+      "requested_settlement_horizon": "relation-horizon:v76b:product-wedge:authority-blocker",
+      "required_adversarial_review_refs": [
+        "adversarial-review:v76b:product-wedge:blocked"
+      ],
+      "settlement_request_posture": "blocked_by_authority_gap",
+      "settlement_request_ref": "settlement-request:v76b:product-wedge:blocked"
+    },
+    {
+      "authority_profile_refs": [
+        "authority-profile:v76b:self-evidencing:review-only"
+      ],
+      "carried_gap_refs": [
+        "gap:v76b:self-evidencing:projected-not-observed"
+      ],
+      "claim_map_refs": [
+        "claim-map:v76a:self-evidencing:projected-relation-review"
+      ],
+      "dissent_refs": [
+        "dissent:v76a:self-evidencing:searched-none"
+      ],
+      "limitation_note": "Ready only as a bounded later-review request; no settlement complete.",
+      "non_settlement_guardrail": "This request is for later review, not settlement and not truth.",
+      "relation_refs": [
+        "arbiter-relation:v76a:self-evidencing:single-projected"
+      ],
+      "requested_settlement_horizon": "relation-horizon:v76b:self-evidencing:projected-relation-review",
+      "required_adversarial_review_refs": [
+        "adversarial-review:v76b:self-evidencing:checked-projected-slot"
+      ],
+      "settlement_request_posture": "request_ready_for_later_review",
+      "settlement_request_ref": "settlement-request:v76b:self-evidencing:later-review"
+    }
+  ],
+  "settlement_request_summary": "V76-B settlement rows are requests for later review, not settlement and not truth.",
+  "snapshot_id": "vNext+212-closed-on-main",
+  "source_set_id": "source-set:v76b:released-v76a-reconciliation-arbiter"
+}

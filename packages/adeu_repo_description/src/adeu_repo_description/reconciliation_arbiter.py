@@ -32,6 +32,12 @@ from .recursive_candidate_intake import (
 REPO_RECONCILIATION_CLAIM_MAP_SCHEMA = "repo_reconciliation_claim_map@1"
 REPO_ARBITER_RELATION_REGISTER_SCHEMA = "repo_arbiter_relation_register@1"
 REPO_RECONCILIATION_DISSENT_REGISTER_SCHEMA = "repo_reconciliation_dissent_register@1"
+REPO_ARBITER_AUTHORITY_PROFILE_SCHEMA = "repo_arbiter_authority_profile@1"
+REPO_RECONCILIATION_SETTLEMENT_REQUEST_SCHEMA = (
+    "repo_reconciliation_settlement_request@1"
+)
+REPO_ADVERSARIAL_RELATION_REVIEW_SCHEMA = "repo_adversarial_relation_review@1"
+REPO_RECONCILIATION_GAP_SCAN_SCHEMA = "repo_reconciliation_gap_scan@1"
 
 ReconciliationSourceRole = Literal[
     "v75_reconciliation_plan_source",
@@ -135,6 +141,87 @@ DissentCarryForwardPosture = Literal[
     "not_applicable",
     "deferred_no_selection",
 ]
+ArbiterAuthorityActorKind = Literal[
+    "human_operator",
+    "maintainer",
+    "model_reviewer",
+    "tool_validator",
+    "support_doc_context",
+    "external_reviewer",
+]
+ArbiterAuthorityGrantSourceKind = Literal[
+    "repo_lock",
+    "maintainer_record",
+    "policy_doc",
+    "support_doc",
+    "transcript",
+    "tool_output",
+    "fixture_source",
+    "absence_marker",
+]
+ArbiterAllowedReviewAction = Literal[
+    "inspect_relation",
+    "request_adversarial_review",
+    "preserve_dissent",
+    "classify_gap",
+    "request_later_settlement_review",
+    "request_future_family_review",
+]
+ArbiterForbiddenAuthorityKind = Literal[
+    "settle_relation_now",
+    "ratify_claim_now",
+    "declare_truth_now",
+    "authorize_runtime_now",
+    "authorize_product_now",
+    "authorize_release_now",
+    "assign_worker_now",
+    "dispatch_now",
+    "select_model_now",
+]
+ArbiterAuthorityGapPosture = Literal[
+    "review_only_authority",
+    "authority_gap_missing",
+    "blocked_pending_later_authority",
+    "future_family_only",
+    "rejected_out_of_scope",
+]
+SettlementRequestPosture = Literal[
+    "request_ready_for_later_review",
+    "blocked_by_authority_gap",
+    "blocked_by_unreviewed_relation",
+    "blocked_by_dissent",
+    "blocked_by_missing_source",
+    "future_family_only",
+    "rejected_out_of_scope",
+]
+AdversarialReviewResultPosture = Literal[
+    "counterevidence_found",
+    "complementarity_found",
+    "no_counterevidence_in_checked_horizon",
+    "inconclusive",
+    "blocked_by_missing_source",
+]
+ReconciliationGapKind = Literal[
+    "missing_claim_map_source",
+    "missing_relation_source",
+    "unreviewed_dissent",
+    "authority_profile_missing",
+    "adversarial_review_missing",
+    "product_authority_gap",
+    "runtime_authority_gap",
+    "external_branch_gap",
+    "projected_slot_not_observed_for_content_claim",
+    "observed_output_source_authority_missing",
+    "benchmark_truth_guardrail_missing",
+    "unknown_needs_review",
+]
+ReconciliationGapSeverity = Literal["blocking", "warning", "info", "unknown"]
+ReconciliationGapBlockingPosture = Literal[
+    "blocking_until_reviewed",
+    "warning_only",
+    "carried_for_future_family",
+    "not_applicable",
+]
 
 _PROJECTED_ONLY_CLAIM_KINDS = {
     "projected_output_slot_existence",
@@ -143,27 +230,65 @@ _PROJECTED_ONLY_CLAIM_KINDS = {
 }
 
 
+def _has_local_negation(value: str, *, index: int) -> bool:
+    prefix = value[max(0, index - 18) : index]
+    return any(marker in prefix for marker in ("no ", "not ", "without ", "forbidden ", "non-"))
+
+
+def _reject_unnegated_phrases(
+    value: str,
+    *,
+    field_name: str,
+    phrases: list[str],
+    authority_kind: str,
+) -> None:
+    lowered = value.lower()
+    for phrase in phrases:
+        start = 0
+        while (index := lowered.find(phrase, start)) != -1:
+            if not _has_local_negation(lowered, index=index):
+                raise ValueError(f"{field_name} may not carry {authority_kind} authority")
+            start = index + len(phrase)
+
+
 def _reject_reconciliation_overclaim(value: str, *, field_name: str) -> str:
     _reject_unnegated_authority_claim(value, field_name=field_name)
-    lowered = value.lower()
-    forbidden = [
-        "settles truth",
-        "settled truth",
-        "declares truth",
-        "majority agreement proves",
-        "majority-as-correctness",
-        "benchmark truth",
-        "model selected",
-        "is correct",
-    ]
-    negation_markers = ("no ", "not ", "without ", "forbidden ", "non-")
-    for phrase in forbidden:
-        index = lowered.find(phrase)
-        if index == -1:
-            continue
-        prefix = lowered[max(0, index - 18) : index]
-        if not any(marker in prefix for marker in negation_markers):
-            raise ValueError(f"{field_name} may not carry truth or correctness authority")
+    _reject_unnegated_phrases(
+        value,
+        field_name=field_name,
+        phrases=[
+            "settles truth",
+            "settled truth",
+            "declares truth",
+            "majority agreement proves",
+            "majority-as-correctness",
+            "benchmark truth",
+            "model selected",
+            "is correct",
+        ],
+        authority_kind="truth or correctness",
+    )
+    return value
+
+
+def _reject_settlement_overclaim(value: str, *, field_name: str) -> str:
+    _reject_reconciliation_overclaim(value, field_name=field_name)
+    _reject_unnegated_phrases(
+        value,
+        field_name=field_name,
+        phrases=[
+            "settlement complete",
+            "settled relation",
+            "settles relation",
+            "ratifies claim",
+            "claim is true",
+            "truth authority",
+            "implementation priority",
+            "majority proves",
+            "majority agreement proves",
+        ],
+        authority_kind="settlement or truth",
+    )
     return value
 
 
@@ -489,6 +614,342 @@ class RepoReconciliationDissentRegister(_CartographyBase):
                 "reconciliation_dissent_register_id does not match canonical payload hash"
             )
         return self
+
+
+class RepoArbiterAuthorityProfileRow(_CartographyBase):
+    authority_profile_ref: str
+    authority_actor_kind: ArbiterAuthorityActorKind
+    authority_grant_source_kind: ArbiterAuthorityGrantSourceKind
+    authority_source_refs: list[str] = Field(min_length=1)
+    allowed_relation_horizons: list[str] = Field(min_length=1)
+    allowed_review_actions: list[ArbiterAllowedReviewAction] = Field(min_length=1)
+    forbidden_authority_kinds: list[ArbiterForbiddenAuthorityKind] = Field(min_length=1)
+    authority_gap_posture: ArbiterAuthorityGapPosture
+    limitation_note: str
+
+    @model_validator(mode="after")
+    def _validate_authority_profile_row(self) -> RepoArbiterAuthorityProfileRow:
+        _non_empty(self.authority_profile_ref, field_name="authority_profile_ref")
+        for field_name in (
+            "authority_source_refs",
+            "allowed_relation_horizons",
+            "allowed_review_actions",
+            "forbidden_authority_kinds",
+        ):
+            object.__setattr__(
+                self,
+                field_name,
+                _sorted_unique(getattr(self, field_name), field_name=field_name),
+            )
+        for source_ref in self.authority_source_refs:
+            _repo_ref(source_ref, field_name="authority_source_refs")
+        _reject_settlement_overclaim(self.limitation_note, field_name="limitation_note")
+        if self.authority_grant_source_kind in {
+            "support_doc",
+            "transcript",
+            "tool_output",
+        } and self.authority_gap_posture == "authority_gap_missing":
+            raise ValueError("non-lock grant sources cannot become settlement authority")
+        return self
+
+
+class RepoArbiterAuthorityProfile(_CartographyBase):
+    schema: Literal["repo_arbiter_authority_profile@1"] = (
+        REPO_ARBITER_AUTHORITY_PROFILE_SCHEMA
+    )
+    arbiter_authority_profile_id: str
+    reconciliation_claim_map_id: str
+    arbiter_relation_register_id: str
+    reconciliation_dissent_register_id: str
+    review_id: str
+    snapshot_id: str
+    source_set_id: str
+    authority_profile_rows: list[RepoArbiterAuthorityProfileRow] = Field(min_length=1)
+    authority_profile_summary: str
+
+    @model_validator(mode="after")
+    def _validate_authority_profile(self) -> RepoArbiterAuthorityProfile:
+        object.__setattr__(
+            self,
+            "authority_profile_rows",
+            _sorted_unique_by_ref(
+                self.authority_profile_rows,
+                attr="authority_profile_ref",
+                field_name="authority_profile_rows",
+            ),
+        )
+        _require_terms(
+            self.authority_profile_summary,
+            field_name="authority_profile_summary",
+            terms=("review", "not truth", "not settlement"),
+        )
+        expected_id = _surface_id(
+            "repo_arbiter_authority_profile",
+            self.schema,
+            self.model_dump(mode="json"),
+            "arbiter_authority_profile_id",
+        )
+        if self.arbiter_authority_profile_id != expected_id:
+            raise ValueError("arbiter_authority_profile_id does not match canonical payload hash")
+        return self
+
+
+class RepoReconciliationSettlementRequestRow(_CartographyBase):
+    settlement_request_ref: str
+    claim_map_refs: list[str] = Field(min_length=1)
+    relation_refs: list[str] = Field(min_length=1)
+    dissent_refs: list[str] = Field(default_factory=list)
+    authority_profile_refs: list[str] = Field(min_length=1)
+    requested_settlement_horizon: str
+    settlement_request_posture: SettlementRequestPosture
+    required_adversarial_review_refs: list[str] = Field(default_factory=list)
+    carried_gap_refs: list[str] = Field(default_factory=list)
+    non_settlement_guardrail: str
+    limitation_note: str
+
+    @model_validator(mode="after")
+    def _validate_settlement_request_row(self) -> RepoReconciliationSettlementRequestRow:
+        _non_empty(self.settlement_request_ref, field_name="settlement_request_ref")
+        _non_empty(
+            self.requested_settlement_horizon,
+            field_name="requested_settlement_horizon",
+        )
+        for field_name in (
+            "claim_map_refs",
+            "relation_refs",
+            "dissent_refs",
+            "authority_profile_refs",
+            "required_adversarial_review_refs",
+            "carried_gap_refs",
+        ):
+            object.__setattr__(
+                self,
+                field_name,
+                _sorted_unique(getattr(self, field_name), field_name=field_name),
+            )
+        _reject_settlement_overclaim(
+            self.non_settlement_guardrail,
+            field_name="non_settlement_guardrail",
+        )
+        _reject_settlement_overclaim(self.limitation_note, field_name="limitation_note")
+        _require_terms(
+            self.non_settlement_guardrail,
+            field_name="non_settlement_guardrail",
+            terms=("request", "not settlement", "not truth"),
+        )
+        return self
+
+
+class RepoReconciliationSettlementRequest(_CartographyBase):
+    schema: Literal["repo_reconciliation_settlement_request@1"] = (
+        REPO_RECONCILIATION_SETTLEMENT_REQUEST_SCHEMA
+    )
+    reconciliation_settlement_request_id: str
+    reconciliation_claim_map_id: str
+    arbiter_relation_register_id: str
+    reconciliation_dissent_register_id: str
+    arbiter_authority_profile_id: str
+    review_id: str
+    snapshot_id: str
+    source_set_id: str
+    settlement_request_rows: list[RepoReconciliationSettlementRequestRow] = Field(
+        min_length=1
+    )
+    settlement_request_summary: str
+
+    @model_validator(mode="after")
+    def _validate_settlement_request(self) -> RepoReconciliationSettlementRequest:
+        object.__setattr__(
+            self,
+            "settlement_request_rows",
+            _sorted_unique_by_ref(
+                self.settlement_request_rows,
+                attr="settlement_request_ref",
+                field_name="settlement_request_rows",
+            ),
+        )
+        _require_terms(
+            self.settlement_request_summary,
+            field_name="settlement_request_summary",
+            terms=("request", "not settlement", "not truth"),
+        )
+        expected_id = _surface_id(
+            "repo_reconciliation_settlement_request",
+            self.schema,
+            self.model_dump(mode="json"),
+            "reconciliation_settlement_request_id",
+        )
+        if self.reconciliation_settlement_request_id != expected_id:
+            raise ValueError(
+                "reconciliation_settlement_request_id does not match canonical payload hash"
+            )
+        return self
+
+
+class RepoAdversarialRelationReviewRow(_CartographyBase):
+    adversarial_review_ref: str
+    claim_map_refs: list[str] = Field(min_length=1)
+    relation_refs: list[str] = Field(min_length=1)
+    review_perspective: str
+    counterclaim_horizon: str
+    negative_control_refs: list[str] = Field(default_factory=list)
+    review_result_posture: AdversarialReviewResultPosture
+    source_refs: list[str] = Field(min_length=1)
+    limitation_note: str
+
+    @model_validator(mode="after")
+    def _validate_adversarial_review_row(self) -> RepoAdversarialRelationReviewRow:
+        for field_name in (
+            "adversarial_review_ref",
+            "review_perspective",
+            "counterclaim_horizon",
+        ):
+            _non_empty(getattr(self, field_name), field_name=field_name)
+        for field_name in (
+            "claim_map_refs",
+            "relation_refs",
+            "negative_control_refs",
+            "source_refs",
+        ):
+            object.__setattr__(
+                self,
+                field_name,
+                _sorted_unique(getattr(self, field_name), field_name=field_name),
+            )
+        for source_ref in self.source_refs:
+            _repo_ref(source_ref, field_name="source_refs")
+        if (
+            self.review_result_posture == "no_counterevidence_in_checked_horizon"
+            and not self.counterclaim_horizon
+            and not self.negative_control_refs
+        ):
+            raise ValueError("no-counterevidence review requires checked horizon or controls")
+        _reject_settlement_overclaim(self.limitation_note, field_name="limitation_note")
+        return self
+
+
+class RepoAdversarialRelationReview(_CartographyBase):
+    schema: Literal["repo_adversarial_relation_review@1"] = (
+        REPO_ADVERSARIAL_RELATION_REVIEW_SCHEMA
+    )
+    adversarial_relation_review_id: str
+    reconciliation_claim_map_id: str
+    arbiter_relation_register_id: str
+    review_id: str
+    snapshot_id: str
+    source_set_id: str
+    adversarial_review_rows: list[RepoAdversarialRelationReviewRow] = Field(min_length=1)
+    adversarial_review_summary: str
+
+    @model_validator(mode="after")
+    def _validate_adversarial_review(self) -> RepoAdversarialRelationReview:
+        object.__setattr__(
+            self,
+            "adversarial_review_rows",
+            _sorted_unique_by_ref(
+                self.adversarial_review_rows,
+                attr="adversarial_review_ref",
+                field_name="adversarial_review_rows",
+            ),
+        )
+        _require_terms(
+            self.adversarial_review_summary,
+            field_name="adversarial_review_summary",
+            terms=("adversarial", "not truth", "not settlement"),
+        )
+        expected_id = _surface_id(
+            "repo_adversarial_relation_review",
+            self.schema,
+            self.model_dump(mode="json"),
+            "adversarial_relation_review_id",
+        )
+        if self.adversarial_relation_review_id != expected_id:
+            raise ValueError(
+                "adversarial_relation_review_id does not match canonical payload hash"
+            )
+        return self
+
+
+class RepoReconciliationGapRow(_CartographyBase):
+    gap_ref: str
+    claim_map_refs: list[str] = Field(min_length=1)
+    relation_refs: list[str] = Field(min_length=1)
+    gap_kind: ReconciliationGapKind
+    gap_severity: ReconciliationGapSeverity
+    blocking_posture: ReconciliationGapBlockingPosture
+    required_next_surface: ReconciliationNextReviewSurface
+    source_refs: list[str] = Field(min_length=1)
+    limitation_note: str
+
+    @model_validator(mode="after")
+    def _validate_gap_row(self) -> RepoReconciliationGapRow:
+        _non_empty(self.gap_ref, field_name="gap_ref")
+        for field_name in ("claim_map_refs", "relation_refs", "source_refs"):
+            object.__setattr__(
+                self,
+                field_name,
+                _sorted_unique(getattr(self, field_name), field_name=field_name),
+            )
+        for source_ref in self.source_refs:
+            _repo_ref(source_ref, field_name="source_refs")
+        _reject_settlement_overclaim(self.limitation_note, field_name="limitation_note")
+        return self
+
+
+class RepoReconciliationGapScan(_CartographyBase):
+    schema: Literal["repo_reconciliation_gap_scan@1"] = REPO_RECONCILIATION_GAP_SCAN_SCHEMA
+    reconciliation_gap_scan_id: str
+    reconciliation_claim_map_id: str
+    arbiter_relation_register_id: str
+    review_id: str
+    snapshot_id: str
+    source_set_id: str
+    gap_rows: list[RepoReconciliationGapRow] = Field(min_length=1)
+    gap_scan_summary: str
+
+    @model_validator(mode="after")
+    def _validate_gap_scan(self) -> RepoReconciliationGapScan:
+        object.__setattr__(
+            self,
+            "gap_rows",
+            _sorted_unique_by_ref(self.gap_rows, attr="gap_ref", field_name="gap_rows"),
+        )
+        _require_terms(
+            self.gap_scan_summary,
+            field_name="gap_scan_summary",
+            terms=("gap", "not authority", "not truth"),
+        )
+        expected_id = _surface_id(
+            "repo_reconciliation_gap_scan",
+            self.schema,
+            self.model_dump(mode="json"),
+            "reconciliation_gap_scan_id",
+        )
+        if self.reconciliation_gap_scan_id != expected_id:
+            raise ValueError("reconciliation_gap_scan_id does not match canonical payload hash")
+        return self
+
+
+def _v76b_base_payload(
+    *,
+    schema: str,
+    reconciliation_claim_map: RepoReconciliationClaimMap,
+    arbiter_relation_register: RepoArbiterRelationRegister,
+    reconciliation_dissent_register: RepoReconciliationDissentRegister,
+) -> dict[str, str]:
+    return {
+        "schema": schema,
+        "review_id": "review:v76b:arbiter-authority-settlement-gap",
+        "snapshot_id": "vNext+212-closed-on-main",
+        "source_set_id": "source-set:v76b:released-v76a-reconciliation-arbiter",
+        "reconciliation_claim_map_id": reconciliation_claim_map.reconciliation_claim_map_id,
+        "arbiter_relation_register_id": (
+            arbiter_relation_register.arbiter_relation_register_id
+        ),
+        "reconciliation_dissent_register_id": (
+            reconciliation_dissent_register.reconciliation_dissent_register_id
+        ),
+    }
 
 
 def _v76a_base_payload(
@@ -1062,3 +1523,639 @@ def derive_v76a_reconciliation_arbiter_bundle(
         reconciliation_dissent_register=dissent_register,
     )
     return claim_map, relation_register, dissent_register
+
+
+def _resolve_v76a_reconciliation_surfaces(
+    *,
+    repo_root: Path | None = None,
+    reconciliation_claim_map: RepoReconciliationClaimMap | None = None,
+    arbiter_relation_register: RepoArbiterRelationRegister | None = None,
+    reconciliation_dissent_register: RepoReconciliationDissentRegister | None = None,
+) -> tuple[
+    RepoReconciliationClaimMap,
+    RepoArbiterRelationRegister,
+    RepoReconciliationDissentRegister,
+]:
+    if reconciliation_claim_map is None:
+        if arbiter_relation_register is not None or reconciliation_dissent_register is not None:
+            raise ValueError("partial V76-A dependencies must include the claim map")
+        return derive_v76a_reconciliation_arbiter_bundle(repo_root=repo_root)
+
+    claim_map = reconciliation_claim_map
+    relation_register = (
+        arbiter_relation_register
+        or derive_v76a_repo_arbiter_relation_register(
+            repo_root=repo_root,
+            reconciliation_claim_map=claim_map,
+        )
+    )
+    dissent_register = (
+        reconciliation_dissent_register
+        or derive_v76a_repo_reconciliation_dissent_register(
+            repo_root=repo_root,
+            reconciliation_claim_map=claim_map,
+            arbiter_relation_register=relation_register,
+        )
+    )
+    if relation_register.reconciliation_claim_map_id != claim_map.reconciliation_claim_map_id:
+        raise ValueError("partial V76-A relation register must reference the supplied claim map")
+    if dissent_register.reconciliation_claim_map_id != claim_map.reconciliation_claim_map_id:
+        raise ValueError("partial V76-A dissent register must reference the supplied claim map")
+    if (
+        dissent_register.arbiter_relation_register_id
+        != relation_register.arbiter_relation_register_id
+    ):
+        raise ValueError(
+            "partial V76-A dissent register must reference the supplied relation register"
+        )
+    return claim_map, relation_register, dissent_register
+
+
+def derive_v76b_repo_arbiter_authority_profile(
+    *,
+    repo_root: Path | None = None,
+    reconciliation_claim_map: RepoReconciliationClaimMap | None = None,
+    arbiter_relation_register: RepoArbiterRelationRegister | None = None,
+    reconciliation_dissent_register: RepoReconciliationDissentRegister | None = None,
+) -> RepoArbiterAuthorityProfile:
+    claim_map, relation_register, dissent_register = _resolve_v76a_reconciliation_surfaces(
+        repo_root=repo_root,
+        reconciliation_claim_map=reconciliation_claim_map,
+        arbiter_relation_register=arbiter_relation_register,
+        reconciliation_dissent_register=reconciliation_dissent_register,
+    )
+    payload = {
+        **_v76b_base_payload(
+            schema=REPO_ARBITER_AUTHORITY_PROFILE_SCHEMA,
+            reconciliation_claim_map=claim_map,
+            arbiter_relation_register=relation_register,
+            reconciliation_dissent_register=dissent_register,
+        ),
+        "arbiter_authority_profile_id": "",
+        "authority_profile_rows": [
+            {
+                "authority_profile_ref": "authority-profile:v76b:self-evidencing:review-only",
+                "authority_actor_kind": "maintainer",
+                "authority_grant_source_kind": "repo_lock",
+                "authority_source_refs": ["docs/LOCKED_CONTINUATION_vNEXT_PLUS213.md"],
+                "allowed_relation_horizons": [
+                    "relation-horizon:v76b:self-evidencing:projected-relation-review"
+                ],
+                "allowed_review_actions": [
+                    "inspect_relation",
+                    "preserve_dissent",
+                    "request_adversarial_review",
+                    "request_later_settlement_review",
+                ],
+                "forbidden_authority_kinds": [
+                    "authorize_product_now",
+                    "authorize_release_now",
+                    "authorize_runtime_now",
+                    "declare_truth_now",
+                    "ratify_claim_now",
+                    "settle_relation_now",
+                ],
+                "authority_gap_posture": "review_only_authority",
+                "limitation_note": (
+                    "Lock-bound maintainer profile may request later review; it is not truth "
+                    "authority and not settlement authority."
+                ),
+            },
+            {
+                "authority_profile_ref": "authority-profile:v76b:product-wedge:authority-gap",
+                "authority_actor_kind": "support_doc_context",
+                "authority_grant_source_kind": "support_doc",
+                "authority_source_refs": [
+                    "docs/DRAFT_ADEU_RECONCILIATION_ARBITER_V76B_IMPLEMENTATION_MAPPING_v0.md"
+                ],
+                "allowed_relation_horizons": [
+                    "relation-horizon:v76b:product-wedge:authority-blocker"
+                ],
+                "allowed_review_actions": [
+                    "classify_gap",
+                    "inspect_relation",
+                    "request_future_family_review",
+                ],
+                "forbidden_authority_kinds": [
+                    "authorize_product_now",
+                    "declare_truth_now",
+                    "ratify_claim_now",
+                    "settle_relation_now",
+                ],
+                "authority_gap_posture": "blocked_pending_later_authority",
+                "limitation_note": (
+                    "Support context preserves product authority gap; it is not truth "
+                    "authority and not settlement authority."
+                ),
+            },
+        ],
+        "authority_profile_summary": (
+            "V76-B authority profiles are review posture only, not truth and not settlement."
+        ),
+    }
+    payload["authority_profile_rows"] = sorted(
+        payload["authority_profile_rows"],
+        key=lambda row: row["authority_profile_ref"],
+    )
+    payload["arbiter_authority_profile_id"] = _surface_id(
+        "repo_arbiter_authority_profile",
+        REPO_ARBITER_AUTHORITY_PROFILE_SCHEMA,
+        payload,
+        "arbiter_authority_profile_id",
+    )
+    return RepoArbiterAuthorityProfile.model_validate(payload)
+
+
+def derive_v76b_repo_adversarial_relation_review(
+    *,
+    repo_root: Path | None = None,
+    reconciliation_claim_map: RepoReconciliationClaimMap | None = None,
+    arbiter_relation_register: RepoArbiterRelationRegister | None = None,
+) -> RepoAdversarialRelationReview:
+    claim_map, relation_register, _ = _resolve_v76a_reconciliation_surfaces(
+        repo_root=repo_root,
+        reconciliation_claim_map=reconciliation_claim_map,
+        arbiter_relation_register=arbiter_relation_register,
+    )
+    payload = {
+        "schema": REPO_ADVERSARIAL_RELATION_REVIEW_SCHEMA,
+        "adversarial_relation_review_id": "",
+        "reconciliation_claim_map_id": claim_map.reconciliation_claim_map_id,
+        "arbiter_relation_register_id": relation_register.arbiter_relation_register_id,
+        "review_id": "review:v76b:arbiter-authority-settlement-gap",
+        "snapshot_id": "vNext+212-closed-on-main",
+        "source_set_id": "source-set:v76b:released-v76a-reconciliation-arbiter",
+        "adversarial_review_rows": [
+            {
+                "adversarial_review_ref": (
+                    "adversarial-review:v76b:self-evidencing:checked-projected-slot"
+                ),
+                "claim_map_refs": [
+                    "claim-map:v76a:self-evidencing:projected-relation-review"
+                ],
+                "relation_refs": [
+                    "arbiter-relation:v76a:self-evidencing:single-projected"
+                ],
+                "review_perspective": "check whether projected relation review implies truth",
+                "counterclaim_horizon": (
+                    "checked released V76-A projected single-output relation horizon"
+                ),
+                "negative_control_refs": [
+                    "negative-control:v76b:self-evidencing:no-observed-output-content"
+                ],
+                "review_result_posture": "no_counterevidence_in_checked_horizon",
+                "source_refs": [
+                    "apps/api/fixtures/repo_description/vnext_plus212/"
+                    "repo_arbiter_relation_register_v212_reference.json",
+                    "apps/api/fixtures/repo_description/vnext_plus212/"
+                    "repo_reconciliation_claim_map_v212_reference.json",
+                ],
+                "limitation_note": (
+                    "Checked projected-only horizon; result is not truth and not settlement."
+                ),
+            },
+            {
+                "adversarial_review_ref": "adversarial-review:v76b:product-wedge:blocked",
+                "claim_map_refs": [
+                    "claim-map:v76a:product-wedge:projected-authority-blocker"
+                ],
+                "relation_refs": [
+                    "arbiter-relation:v76a:product-wedge:blocked-placeholder"
+                ],
+                "review_perspective": "product authority blocker remains outside arbiter scope",
+                "counterclaim_horizon": "product authority gap checked as future-family pressure",
+                "negative_control_refs": [],
+                "review_result_posture": "blocked_by_missing_source",
+                "source_refs": [
+                    "apps/api/fixtures/repo_description/vnext_plus212/"
+                    "repo_reconciliation_claim_map_v212_reference.json",
+                    "apps/api/fixtures/repo_description/vnext_plus212/"
+                    "repo_reconciliation_dissent_register_v212_reference.json",
+                ],
+                "limitation_note": (
+                    "Product authority blocker is not truth, not settlement, and not product "
+                    "authorization."
+                ),
+            },
+        ],
+        "adversarial_review_summary": (
+            "V76-B adversarial relation review is adversarial checking, not truth and "
+            "not settlement."
+        ),
+    }
+    payload["adversarial_review_rows"] = sorted(
+        payload["adversarial_review_rows"],
+        key=lambda row: row["adversarial_review_ref"],
+    )
+    payload["adversarial_relation_review_id"] = _surface_id(
+        "repo_adversarial_relation_review",
+        REPO_ADVERSARIAL_RELATION_REVIEW_SCHEMA,
+        payload,
+        "adversarial_relation_review_id",
+    )
+    return RepoAdversarialRelationReview.model_validate(payload)
+
+
+def derive_v76b_repo_reconciliation_gap_scan(
+    *,
+    repo_root: Path | None = None,
+    reconciliation_claim_map: RepoReconciliationClaimMap | None = None,
+    arbiter_relation_register: RepoArbiterRelationRegister | None = None,
+) -> RepoReconciliationGapScan:
+    claim_map, relation_register, _ = _resolve_v76a_reconciliation_surfaces(
+        repo_root=repo_root,
+        reconciliation_claim_map=reconciliation_claim_map,
+        arbiter_relation_register=arbiter_relation_register,
+    )
+    payload = {
+        "schema": REPO_RECONCILIATION_GAP_SCAN_SCHEMA,
+        "reconciliation_gap_scan_id": "",
+        "reconciliation_claim_map_id": claim_map.reconciliation_claim_map_id,
+        "arbiter_relation_register_id": relation_register.arbiter_relation_register_id,
+        "review_id": "review:v76b:arbiter-authority-settlement-gap",
+        "snapshot_id": "vNext+212-closed-on-main",
+        "source_set_id": "source-set:v76b:released-v76a-reconciliation-arbiter",
+        "gap_rows": [
+            {
+                "gap_ref": "gap:v76b:product-wedge:product-authority",
+                "claim_map_refs": [
+                    "claim-map:v76a:product-wedge:projected-authority-blocker"
+                ],
+                "relation_refs": [
+                    "arbiter-relation:v76a:product-wedge:blocked-placeholder"
+                ],
+                "gap_kind": "product_authority_gap",
+                "gap_severity": "blocking",
+                "blocking_posture": "blocking_until_reviewed",
+                "required_next_surface": "future_product_review",
+                "source_refs": [
+                    "apps/api/fixtures/repo_description/vnext_plus212/"
+                    "repo_reconciliation_claim_map_v212_reference.json"
+                ],
+                "limitation_note": (
+                    "Product authority gap remains a blocker and is not authority, not truth."
+                ),
+            },
+            {
+                "gap_ref": "gap:v76b:self-evidencing:projected-not-observed",
+                "claim_map_refs": [
+                    "claim-map:v76a:self-evidencing:projected-relation-review"
+                ],
+                "relation_refs": [
+                    "arbiter-relation:v76a:self-evidencing:single-projected"
+                ],
+                "gap_kind": "projected_slot_not_observed_for_content_claim",
+                "gap_severity": "warning",
+                "blocking_posture": "warning_only",
+                "required_next_surface": "future_reconciliation_or_arbiter_review",
+                "source_refs": [
+                    "apps/api/fixtures/repo_description/vnext_plus212/"
+                    "repo_reconciliation_claim_map_v212_reference.json"
+                ],
+                "limitation_note": (
+                    "Projected slot is not observed content; gap is not authority and not truth."
+                ),
+            },
+        ],
+        "gap_scan_summary": (
+            "V76-B gap scan preserves gap posture, not authority and not truth."
+        ),
+    }
+    payload["gap_rows"] = sorted(payload["gap_rows"], key=lambda row: row["gap_ref"])
+    payload["reconciliation_gap_scan_id"] = _surface_id(
+        "repo_reconciliation_gap_scan",
+        REPO_RECONCILIATION_GAP_SCAN_SCHEMA,
+        payload,
+        "reconciliation_gap_scan_id",
+    )
+    return RepoReconciliationGapScan.model_validate(payload)
+
+
+def derive_v76b_repo_reconciliation_settlement_request(
+    *,
+    repo_root: Path | None = None,
+    reconciliation_claim_map: RepoReconciliationClaimMap | None = None,
+    arbiter_relation_register: RepoArbiterRelationRegister | None = None,
+    reconciliation_dissent_register: RepoReconciliationDissentRegister | None = None,
+    arbiter_authority_profile: RepoArbiterAuthorityProfile | None = None,
+    adversarial_relation_review: RepoAdversarialRelationReview | None = None,
+    reconciliation_gap_scan: RepoReconciliationGapScan | None = None,
+) -> RepoReconciliationSettlementRequest:
+    claim_map, relation_register, dissent_register = _resolve_v76a_reconciliation_surfaces(
+        repo_root=repo_root,
+        reconciliation_claim_map=reconciliation_claim_map,
+        arbiter_relation_register=arbiter_relation_register,
+        reconciliation_dissent_register=reconciliation_dissent_register,
+    )
+    authority_profile = arbiter_authority_profile or derive_v76b_repo_arbiter_authority_profile(
+        repo_root=repo_root,
+        reconciliation_claim_map=claim_map,
+        arbiter_relation_register=relation_register,
+        reconciliation_dissent_register=dissent_register,
+    )
+    adversarial_review = (
+        adversarial_relation_review
+        or derive_v76b_repo_adversarial_relation_review(
+            repo_root=repo_root,
+            reconciliation_claim_map=claim_map,
+            arbiter_relation_register=relation_register,
+        )
+    )
+    gap_scan = reconciliation_gap_scan or derive_v76b_repo_reconciliation_gap_scan(
+        repo_root=repo_root,
+        reconciliation_claim_map=claim_map,
+        arbiter_relation_register=relation_register,
+    )
+    payload = {
+        **_v76b_base_payload(
+            schema=REPO_RECONCILIATION_SETTLEMENT_REQUEST_SCHEMA,
+            reconciliation_claim_map=claim_map,
+            arbiter_relation_register=relation_register,
+            reconciliation_dissent_register=dissent_register,
+        ),
+        "reconciliation_settlement_request_id": "",
+        "arbiter_authority_profile_id": authority_profile.arbiter_authority_profile_id,
+        "settlement_request_rows": [
+            {
+                "settlement_request_ref": "settlement-request:v76b:self-evidencing:later-review",
+                "claim_map_refs": [
+                    "claim-map:v76a:self-evidencing:projected-relation-review"
+                ],
+                "relation_refs": [
+                    "arbiter-relation:v76a:self-evidencing:single-projected"
+                ],
+                "dissent_refs": ["dissent:v76a:self-evidencing:searched-none"],
+                "authority_profile_refs": [
+                    "authority-profile:v76b:self-evidencing:review-only"
+                ],
+                "requested_settlement_horizon": (
+                    "relation-horizon:v76b:self-evidencing:projected-relation-review"
+                ),
+                "settlement_request_posture": "request_ready_for_later_review",
+                "required_adversarial_review_refs": [
+                    "adversarial-review:v76b:self-evidencing:checked-projected-slot"
+                ],
+                "carried_gap_refs": [
+                    "gap:v76b:self-evidencing:projected-not-observed"
+                ],
+                "non_settlement_guardrail": (
+                    "This request is for later review, not settlement and not truth."
+                ),
+                "limitation_note": (
+                    "Ready only as a bounded later-review request; no settlement complete."
+                ),
+            },
+            {
+                "settlement_request_ref": "settlement-request:v76b:product-wedge:blocked",
+                "claim_map_refs": [
+                    "claim-map:v76a:product-wedge:projected-authority-blocker"
+                ],
+                "relation_refs": [
+                    "arbiter-relation:v76a:product-wedge:blocked-placeholder"
+                ],
+                "dissent_refs": ["dissent:v76a:product-wedge:authority-blocker"],
+                "authority_profile_refs": [
+                    "authority-profile:v76b:product-wedge:authority-gap"
+                ],
+                "requested_settlement_horizon": (
+                    "relation-horizon:v76b:product-wedge:authority-blocker"
+                ),
+                "settlement_request_posture": "blocked_by_authority_gap",
+                "required_adversarial_review_refs": [
+                    "adversarial-review:v76b:product-wedge:blocked"
+                ],
+                "carried_gap_refs": ["gap:v76b:product-wedge:product-authority"],
+                "non_settlement_guardrail": (
+                    "This request is for later review, not settlement and not truth."
+                ),
+                "limitation_note": (
+                    "Product authority gap blocks settlement readiness and no product is "
+                    "authorized."
+                ),
+            },
+        ],
+        "settlement_request_summary": (
+            "V76-B settlement rows are requests for later review, not settlement and "
+            "not truth."
+        ),
+    }
+    payload["settlement_request_rows"] = sorted(
+        payload["settlement_request_rows"],
+        key=lambda row: row["settlement_request_ref"],
+    )
+    # Keep local variables live so callers can inject stale dependencies and
+    # bundle validation still sees the same objects the request was derived from.
+    _ = adversarial_review, gap_scan
+    payload["reconciliation_settlement_request_id"] = _surface_id(
+        "repo_reconciliation_settlement_request",
+        REPO_RECONCILIATION_SETTLEMENT_REQUEST_SCHEMA,
+        payload,
+        "reconciliation_settlement_request_id",
+    )
+    return RepoReconciliationSettlementRequest.model_validate(payload)
+
+
+def validate_v76b_reconciliation_arbiter_bundle(
+    *,
+    reconciliation_claim_map: RepoReconciliationClaimMap,
+    arbiter_relation_register: RepoArbiterRelationRegister,
+    reconciliation_dissent_register: RepoReconciliationDissentRegister,
+    arbiter_authority_profile: RepoArbiterAuthorityProfile,
+    reconciliation_settlement_request: RepoReconciliationSettlementRequest,
+    adversarial_relation_review: RepoAdversarialRelationReview,
+    reconciliation_gap_scan: RepoReconciliationGapScan,
+) -> None:
+    v76a_surfaces = [
+        reconciliation_claim_map,
+        arbiter_relation_register,
+        reconciliation_dissent_register,
+    ]
+    for surface in v76a_surfaces:
+        if (
+            surface.review_id,
+            surface.snapshot_id,
+            surface.source_set_id,
+        ) != (
+            "review:v76a:claim-relation-dissent-map",
+            "vNext+211-closed-on-main",
+            "source-set:v76a:released-v75c-reconciliation",
+        ):
+            raise ValueError("V76-A prerequisite surfaces must share starter provenance")
+    if (
+        arbiter_relation_register.reconciliation_claim_map_id
+        != reconciliation_claim_map.reconciliation_claim_map_id
+    ):
+        raise ValueError("V76-A relation register must reference claim map")
+    if (
+        reconciliation_dissent_register.reconciliation_claim_map_id
+        != reconciliation_claim_map.reconciliation_claim_map_id
+    ):
+        raise ValueError("V76-A dissent register must reference claim map")
+    if (
+        reconciliation_dissent_register.arbiter_relation_register_id
+        != arbiter_relation_register.arbiter_relation_register_id
+    ):
+        raise ValueError("V76-A dissent register must reference relation register")
+
+    v76b_surfaces = [
+        arbiter_authority_profile,
+        reconciliation_settlement_request,
+        adversarial_relation_review,
+        reconciliation_gap_scan,
+    ]
+    for surface in v76b_surfaces:
+        if (
+            surface.review_id,
+            surface.snapshot_id,
+            surface.source_set_id,
+        ) != (
+            "review:v76b:arbiter-authority-settlement-gap",
+            "vNext+212-closed-on-main",
+            "source-set:v76b:released-v76a-reconciliation-arbiter",
+        ):
+            raise ValueError("V76-B surfaces must share arbiter starter provenance")
+        if (
+            surface.reconciliation_claim_map_id
+            != reconciliation_claim_map.reconciliation_claim_map_id
+        ):
+            raise ValueError("V76-B surfaces must reference released V76-A claim map")
+        if (
+            surface.arbiter_relation_register_id
+            != arbiter_relation_register.arbiter_relation_register_id
+        ):
+            raise ValueError("V76-B surfaces must reference released V76-A relation register")
+    for surface in (arbiter_authority_profile, reconciliation_settlement_request):
+        if (
+            surface.reconciliation_dissent_register_id
+            != reconciliation_dissent_register.reconciliation_dissent_register_id
+        ):
+            raise ValueError("V76-B authority/request surfaces must reference dissent register")
+    if (
+        reconciliation_settlement_request.arbiter_authority_profile_id
+        != arbiter_authority_profile.arbiter_authority_profile_id
+    ):
+        raise ValueError("settlement request must reference authority profile")
+
+    claim_rows = {row.claim_map_ref: row for row in reconciliation_claim_map.claim_map_rows}
+    relation_rows = {
+        row.arbiter_relation_ref: row for row in arbiter_relation_register.relation_rows
+    }
+    dissent_rows = {
+        row.dissent_ref: row for row in reconciliation_dissent_register.dissent_rows
+    }
+    authority_rows = {
+        row.authority_profile_ref: row
+        for row in arbiter_authority_profile.authority_profile_rows
+    }
+    adversarial_rows = {
+        row.adversarial_review_ref: row
+        for row in adversarial_relation_review.adversarial_review_rows
+    }
+    gap_rows = {row.gap_ref: row for row in reconciliation_gap_scan.gap_rows}
+
+    for review_row in adversarial_relation_review.adversarial_review_rows:
+        if any(ref not in claim_rows for ref in review_row.claim_map_refs):
+            raise ValueError("adversarial review rows must reference known claim maps")
+        if any(ref not in relation_rows for ref in review_row.relation_refs):
+            raise ValueError("adversarial review rows must reference known relation rows")
+        if (
+            review_row.review_result_posture == "no_counterevidence_in_checked_horizon"
+            and not review_row.counterclaim_horizon
+            and not review_row.negative_control_refs
+        ):
+            raise ValueError("no-counterevidence review requires checked horizon or controls")
+
+    for gap_row in reconciliation_gap_scan.gap_rows:
+        if any(ref not in claim_rows for ref in gap_row.claim_map_refs):
+            raise ValueError("gap rows must reference known claim maps")
+        if any(ref not in relation_rows for ref in gap_row.relation_refs):
+            raise ValueError("gap rows must reference known relation rows")
+
+    for request_row in reconciliation_settlement_request.settlement_request_rows:
+        if any(ref not in claim_rows for ref in request_row.claim_map_refs):
+            raise ValueError("settlement requests must reference known claim maps")
+        if any(ref not in relation_rows for ref in request_row.relation_refs):
+            raise ValueError("settlement requests must reference known relation rows")
+        if any(ref not in dissent_rows for ref in request_row.dissent_refs):
+            raise ValueError("settlement requests must reference known dissent rows")
+        if any(ref not in authority_rows for ref in request_row.authority_profile_refs):
+            raise ValueError("settlement requests must reference known authority profiles")
+        if any(ref not in adversarial_rows for ref in request_row.required_adversarial_review_refs):
+            raise ValueError("settlement requests must reference known adversarial reviews")
+        if any(ref not in gap_rows for ref in request_row.carried_gap_refs):
+            raise ValueError("settlement requests must reference known gap rows")
+        for authority_ref in request_row.authority_profile_refs:
+            allowed = authority_rows[authority_ref].allowed_relation_horizons
+            if request_row.requested_settlement_horizon not in allowed:
+                raise ValueError("settlement horizon must be allowed by authority profile")
+        if request_row.settlement_request_posture == "request_ready_for_later_review":
+            for dissent_ref in request_row.dissent_refs:
+                if dissent_rows[dissent_ref].dissent_carry_forward_posture == (
+                    "blocking_until_reviewed"
+                ):
+                    raise ValueError("settlement request cannot ignore blocking dissent")
+            if any(
+                gap_rows[gap_ref].gap_kind
+                in {
+                    "product_authority_gap",
+                    "runtime_authority_gap",
+                    "external_branch_gap",
+                    "benchmark_truth_guardrail_missing",
+                }
+                for gap_ref in request_row.carried_gap_refs
+            ):
+                raise ValueError("downstream authority gaps cannot become settlement readiness")
+        for relation_ref in request_row.relation_refs:
+            relation = relation_rows[relation_ref]
+            if relation.relation_kind in {"conflict", "unclear_relation"} and not (
+                request_row.required_adversarial_review_refs or request_row.carried_gap_refs
+            ):
+                raise ValueError("conflict readiness requires adversarial review or gap")
+
+
+def derive_v76b_reconciliation_arbiter_bundle(
+    *, repo_root: Path | None = None
+) -> tuple[
+    RepoArbiterAuthorityProfile,
+    RepoReconciliationSettlementRequest,
+    RepoAdversarialRelationReview,
+    RepoReconciliationGapScan,
+]:
+    claim_map, relation_register, dissent_register = derive_v76a_reconciliation_arbiter_bundle(
+        repo_root=repo_root
+    )
+    authority_profile = derive_v76b_repo_arbiter_authority_profile(
+        repo_root=repo_root,
+        reconciliation_claim_map=claim_map,
+        arbiter_relation_register=relation_register,
+        reconciliation_dissent_register=dissent_register,
+    )
+    adversarial_review = derive_v76b_repo_adversarial_relation_review(
+        repo_root=repo_root,
+        reconciliation_claim_map=claim_map,
+        arbiter_relation_register=relation_register,
+    )
+    gap_scan = derive_v76b_repo_reconciliation_gap_scan(
+        repo_root=repo_root,
+        reconciliation_claim_map=claim_map,
+        arbiter_relation_register=relation_register,
+    )
+    settlement_request = derive_v76b_repo_reconciliation_settlement_request(
+        repo_root=repo_root,
+        reconciliation_claim_map=claim_map,
+        arbiter_relation_register=relation_register,
+        reconciliation_dissent_register=dissent_register,
+        arbiter_authority_profile=authority_profile,
+        adversarial_relation_review=adversarial_review,
+        reconciliation_gap_scan=gap_scan,
+    )
+    validate_v76b_reconciliation_arbiter_bundle(
+        reconciliation_claim_map=claim_map,
+        arbiter_relation_register=relation_register,
+        reconciliation_dissent_register=dissent_register,
+        arbiter_authority_profile=authority_profile,
+        reconciliation_settlement_request=settlement_request,
+        adversarial_relation_review=adversarial_review,
+        reconciliation_gap_scan=gap_scan,
+    )
+    return authority_profile, settlement_request, adversarial_review, gap_scan

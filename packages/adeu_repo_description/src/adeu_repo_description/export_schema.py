@@ -108,9 +108,13 @@ from .operator_projection import (
     RepoTypedAdjudicationCaseView,
 )
 from .reconciliation_arbiter import (
+    RepoAdversarialRelationReview,
+    RepoArbiterAuthorityProfile,
     RepoArbiterRelationRegister,
     RepoReconciliationClaimMap,
     RepoReconciliationDissentRegister,
+    RepoReconciliationGapScan,
+    RepoReconciliationSettlementRequest,
 )
 from .recursive_candidate_intake import (
     RepoCandidateNonAdoptionGuardrail,
@@ -398,6 +402,18 @@ def main() -> None:
     reconciliation_dissent_register_schema = (
         RepoReconciliationDissentRegister.model_json_schema(by_alias=True)
     )
+    arbiter_authority_profile_schema = RepoArbiterAuthorityProfile.model_json_schema(
+        by_alias=True
+    )
+    reconciliation_settlement_request_schema = (
+        RepoReconciliationSettlementRequest.model_json_schema(by_alias=True)
+    )
+    adversarial_relation_review_schema = RepoAdversarialRelationReview.model_json_schema(
+        by_alias=True
+    )
+    reconciliation_gap_scan_schema = RepoReconciliationGapScan.model_json_schema(
+        by_alias=True
+    )
 
     _assert_no_absolute_path_material(dependency_register_v1_schema, repo_root_path=root)
     _assert_no_absolute_path_material(dependency_register_schema, repo_root_path=root)
@@ -556,6 +572,13 @@ def main() -> None:
     _assert_no_absolute_path_material(reconciliation_claim_map_schema, repo_root_path=root)
     _assert_no_absolute_path_material(arbiter_relation_register_schema, repo_root_path=root)
     _assert_no_absolute_path_material(reconciliation_dissent_register_schema, repo_root_path=root)
+    _assert_no_absolute_path_material(arbiter_authority_profile_schema, repo_root_path=root)
+    _assert_no_absolute_path_material(
+        reconciliation_settlement_request_schema,
+        repo_root_path=root,
+    )
+    _assert_no_absolute_path_material(adversarial_relation_review_schema, repo_root_path=root)
+    _assert_no_absolute_path_material(reconciliation_gap_scan_schema, repo_root_path=root)
 
     _write_schema(
         root
@@ -1596,6 +1619,54 @@ def main() -> None:
     _write_schema(
         root / "spec" / "repo_reconciliation_dissent_register.schema.json",
         reconciliation_dissent_register_schema,
+    )
+    _write_schema(
+        root
+        / "packages"
+        / "adeu_repo_description"
+        / "schema"
+        / "repo_arbiter_authority_profile.v1.json",
+        arbiter_authority_profile_schema,
+    )
+    _write_schema(
+        root / "spec" / "repo_arbiter_authority_profile.schema.json",
+        arbiter_authority_profile_schema,
+    )
+    _write_schema(
+        root
+        / "packages"
+        / "adeu_repo_description"
+        / "schema"
+        / "repo_reconciliation_settlement_request.v1.json",
+        reconciliation_settlement_request_schema,
+    )
+    _write_schema(
+        root / "spec" / "repo_reconciliation_settlement_request.schema.json",
+        reconciliation_settlement_request_schema,
+    )
+    _write_schema(
+        root
+        / "packages"
+        / "adeu_repo_description"
+        / "schema"
+        / "repo_adversarial_relation_review.v1.json",
+        adversarial_relation_review_schema,
+    )
+    _write_schema(
+        root / "spec" / "repo_adversarial_relation_review.schema.json",
+        adversarial_relation_review_schema,
+    )
+    _write_schema(
+        root
+        / "packages"
+        / "adeu_repo_description"
+        / "schema"
+        / "repo_reconciliation_gap_scan.v1.json",
+        reconciliation_gap_scan_schema,
+    )
+    _write_schema(
+        root / "spec" / "repo_reconciliation_gap_scan.schema.json",
+        reconciliation_gap_scan_schema,
     )
 
 

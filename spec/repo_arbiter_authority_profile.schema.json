@@ -1,0 +1,180 @@
+{
+  "$defs": {
+    "RepoArbiterAuthorityProfileRow": {
+      "additionalProperties": false,
+      "properties": {
+        "allowed_relation_horizons": {
+          "items": {
+            "type": "string"
+          },
+          "minItems": 1,
+          "title": "Allowed Relation Horizons",
+          "type": "array"
+        },
+        "allowed_review_actions": {
+          "items": {
+            "enum": [
+              "inspect_relation",
+              "request_adversarial_review",
+              "preserve_dissent",
+              "classify_gap",
+              "request_later_settlement_review",
+              "request_future_family_review"
+            ],
+            "type": "string"
+          },
+          "minItems": 1,
+          "title": "Allowed Review Actions",
+          "type": "array"
+        },
+        "authority_actor_kind": {
+          "enum": [
+            "human_operator",
+            "maintainer",
+            "model_reviewer",
+            "tool_validator",
+            "support_doc_context",
+            "external_reviewer"
+          ],
+          "title": "Authority Actor Kind",
+          "type": "string"
+        },
+        "authority_gap_posture": {
+          "enum": [
+            "review_only_authority",
+            "authority_gap_missing",
+            "blocked_pending_later_authority",
+            "future_family_only",
+            "rejected_out_of_scope"
+          ],
+          "title": "Authority Gap Posture",
+          "type": "string"
+        },
+        "authority_grant_source_kind": {
+          "enum": [
+            "repo_lock",
+            "maintainer_record",
+            "policy_doc",
+            "support_doc",
+            "transcript",
+            "tool_output",
+            "fixture_source",
+            "absence_marker"
+          ],
+          "title": "Authority Grant Source Kind",
+          "type": "string"
+        },
+        "authority_profile_ref": {
+          "title": "Authority Profile Ref",
+          "type": "string"
+        },
+        "authority_source_refs": {
+          "items": {
+            "type": "string"
+          },
+          "minItems": 1,
+          "title": "Authority Source Refs",
+          "type": "array"
+        },
+        "forbidden_authority_kinds": {
+          "items": {
+            "enum": [
+              "settle_relation_now",
+              "ratify_claim_now",
+              "declare_truth_now",
+              "authorize_runtime_now",
+              "authorize_product_now",
+              "authorize_release_now",
+              "assign_worker_now",
+              "dispatch_now",
+              "select_model_now"
+            ],
+            "type": "string"
+          },
+          "minItems": 1,
+          "title": "Forbidden Authority Kinds",
+          "type": "array"
+        },
+        "limitation_note": {
+          "title": "Limitation Note",
+          "type": "string"
+        }
+      },
+      "required": [
+        "authority_profile_ref",
+        "authority_actor_kind",
+        "authority_grant_source_kind",
+        "authority_source_refs",
+        "allowed_relation_horizons",
+        "allowed_review_actions",
+        "forbidden_authority_kinds",
+        "authority_gap_posture",
+        "limitation_note"
+      ],
+      "title": "RepoArbiterAuthorityProfileRow",
+      "type": "object"
+    }
+  },
+  "additionalProperties": false,
+  "properties": {
+    "arbiter_authority_profile_id": {
+      "title": "Arbiter Authority Profile Id",
+      "type": "string"
+    },
+    "arbiter_relation_register_id": {
+      "title": "Arbiter Relation Register Id",
+      "type": "string"
+    },
+    "authority_profile_rows": {
+      "items": {
+        "$ref": "#/$defs/RepoArbiterAuthorityProfileRow"
+      },
+      "minItems": 1,
+      "title": "Authority Profile Rows",
+      "type": "array"
+    },
+    "authority_profile_summary": {
+      "title": "Authority Profile Summary",
+      "type": "string"
+    },
+    "reconciliation_claim_map_id": {
+      "title": "Reconciliation Claim Map Id",
+      "type": "string"
+    },
+    "reconciliation_dissent_register_id": {
+      "title": "Reconciliation Dissent Register Id",
+      "type": "string"
+    },
+    "review_id": {
+      "title": "Review Id",
+      "type": "string"
+    },
+    "schema": {
+      "const": "repo_arbiter_authority_profile@1",
+      "default": "repo_arbiter_authority_profile@1",
+      "title": "Schema",
+      "type": "string"
+    },
+    "snapshot_id": {
+      "title": "Snapshot Id",
+      "type": "string"
+    },
+    "source_set_id": {
+      "title": "Source Set Id",
+      "type": "string"
+    }
+  },
+  "required": [
+    "arbiter_authority_profile_id",
+    "reconciliation_claim_map_id",
+    "arbiter_relation_register_id",
+    "reconciliation_dissent_register_id",
+    "review_id",
+    "snapshot_id",
+    "source_set_id",
+    "authority_profile_rows",
+    "authority_profile_summary"
+  ],
+  "title": "RepoArbiterAuthorityProfile",
+  "type": "object"
+}

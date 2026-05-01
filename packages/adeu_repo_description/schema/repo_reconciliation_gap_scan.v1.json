@@ -1,0 +1,163 @@
+{
+  "$defs": {
+    "RepoReconciliationGapRow": {
+      "additionalProperties": false,
+      "properties": {
+        "blocking_posture": {
+          "enum": [
+            "blocking_until_reviewed",
+            "warning_only",
+            "carried_for_future_family",
+            "not_applicable"
+          ],
+          "title": "Blocking Posture",
+          "type": "string"
+        },
+        "claim_map_refs": {
+          "items": {
+            "type": "string"
+          },
+          "minItems": 1,
+          "title": "Claim Map Refs",
+          "type": "array"
+        },
+        "gap_kind": {
+          "enum": [
+            "missing_claim_map_source",
+            "missing_relation_source",
+            "unreviewed_dissent",
+            "authority_profile_missing",
+            "adversarial_review_missing",
+            "product_authority_gap",
+            "runtime_authority_gap",
+            "external_branch_gap",
+            "projected_slot_not_observed_for_content_claim",
+            "observed_output_source_authority_missing",
+            "benchmark_truth_guardrail_missing",
+            "unknown_needs_review"
+          ],
+          "title": "Gap Kind",
+          "type": "string"
+        },
+        "gap_ref": {
+          "title": "Gap Ref",
+          "type": "string"
+        },
+        "gap_severity": {
+          "enum": [
+            "blocking",
+            "warning",
+            "info",
+            "unknown"
+          ],
+          "title": "Gap Severity",
+          "type": "string"
+        },
+        "limitation_note": {
+          "title": "Limitation Note",
+          "type": "string"
+        },
+        "relation_refs": {
+          "items": {
+            "type": "string"
+          },
+          "minItems": 1,
+          "title": "Relation Refs",
+          "type": "array"
+        },
+        "required_next_surface": {
+          "enum": [
+            "future_runtime_permission_review",
+            "future_product_review",
+            "future_external_branch_review",
+            "future_outcome_review",
+            "future_reconciliation_or_arbiter_review",
+            "future_experiment_review",
+            "future_family_review",
+            "deferred_no_selection"
+          ],
+          "title": "Required Next Surface",
+          "type": "string"
+        },
+        "source_refs": {
+          "items": {
+            "type": "string"
+          },
+          "minItems": 1,
+          "title": "Source Refs",
+          "type": "array"
+        }
+      },
+      "required": [
+        "gap_ref",
+        "claim_map_refs",
+        "relation_refs",
+        "gap_kind",
+        "gap_severity",
+        "blocking_posture",
+        "required_next_surface",
+        "source_refs",
+        "limitation_note"
+      ],
+      "title": "RepoReconciliationGapRow",
+      "type": "object"
+    }
+  },
+  "additionalProperties": false,
+  "properties": {
+    "arbiter_relation_register_id": {
+      "title": "Arbiter Relation Register Id",
+      "type": "string"
+    },
+    "gap_rows": {
+      "items": {
+        "$ref": "#/$defs/RepoReconciliationGapRow"
+      },
+      "minItems": 1,
+      "title": "Gap Rows",
+      "type": "array"
+    },
+    "gap_scan_summary": {
+      "title": "Gap Scan Summary",
+      "type": "string"
+    },
+    "reconciliation_claim_map_id": {
+      "title": "Reconciliation Claim Map Id",
+      "type": "string"
+    },
+    "reconciliation_gap_scan_id": {
+      "title": "Reconciliation Gap Scan Id",
+      "type": "string"
+    },
+    "review_id": {
+      "title": "Review Id",
+      "type": "string"
+    },
+    "schema": {
+      "const": "repo_reconciliation_gap_scan@1",
+      "default": "repo_reconciliation_gap_scan@1",
+      "title": "Schema",
+      "type": "string"
+    },
+    "snapshot_id": {
+      "title": "Snapshot Id",
+      "type": "string"
+    },
+    "source_set_id": {
+      "title": "Source Set Id",
+      "type": "string"
+    }
+  },
+  "required": [
+    "reconciliation_gap_scan_id",
+    "reconciliation_claim_map_id",
+    "arbiter_relation_register_id",
+    "review_id",
+    "snapshot_id",
+    "source_set_id",
+    "gap_rows",
+    "gap_scan_summary"
+  ],
+  "title": "RepoReconciliationGapScan",
+  "type": "object"
+}
