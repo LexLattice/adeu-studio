@@ -1,0 +1,163 @@
+{
+  "request_rows": [
+    {
+      "authority_request_posture": "blocked_by_product_authority_gap",
+      "authority_request_ref": "authority-request:v78a:product-wedge:blocked",
+      "authority_requirement_rows": [
+        {
+          "authority_gap_posture": "authority_gap_present",
+          "authority_kind": "product_authorization",
+          "authority_requirement_ref": "authority:v78a:product-wedge:product-review",
+          "candidate_ref": "candidate:internal:typed_adjudication_product_wedge",
+          "limitation_note": "Product authorization remains required before product review.",
+          "required_for_horizon": "future_product_runtime_review",
+          "source_presence_posture": "present",
+          "source_refs": [
+            "apps/api/fixtures/repo_description/vnext_plus217/repo_runtime_permission_authority_posture_v217_reference.json",
+            "docs/LOCKED_CONTINUATION_vNEXT_PLUS218.md"
+          ]
+        }
+      ],
+      "candidate_ref": "candidate:internal:typed_adjudication_product_wedge",
+      "execution_posture": "no_execution_performed_by_v78",
+      "guardrail_refs": [
+        "guardrail:v78a:product-wedge:non-action"
+      ],
+      "limitation_note": "Product pressure remains blocked by later product authority with no execution, no tool invocation, and no release.",
+      "odeu_lanes": [
+        "deontic",
+        "utility"
+      ],
+      "requested_authority_horizon": "future_product_runtime_review",
+      "requested_command_scope_refs": [],
+      "requested_tool_use_refs": [],
+      "required_authority_source_refs": [
+        "authority:v78a:product-wedge:product-review"
+      ],
+      "rollback_requirement_refs": [],
+      "source_refs": [
+        "apps/api/fixtures/repo_description/vnext_plus216/repo_action_effect_envelope_v216_reference.json",
+        "apps/api/fixtures/repo_description/vnext_plus216/repo_command_preflight_contract_v216_reference.json",
+        "apps/api/fixtures/repo_description/vnext_plus216/repo_runtime_rollback_contract_v216_reference.json",
+        "apps/api/fixtures/repo_description/vnext_plus216/repo_runtime_telemetry_requirement_v216_reference.json",
+        "apps/api/fixtures/repo_description/vnext_plus217/repo_post_runtime_permission_review_handoff_v217_reference.json",
+        "apps/api/fixtures/repo_description/vnext_plus217/repo_runtime_permission_authority_posture_v217_reference.json",
+        "apps/api/fixtures/repo_description/vnext_plus217/repo_runtime_permission_family_closeout_alignment_v217_reference.json",
+        "apps/api/fixtures/repo_description/vnext_plus217/repo_runtime_permission_review_summary_v217_reference.json",
+        "docs/LOCKED_CONTINUATION_vNEXT_PLUS218.md",
+        "docs/support/arc_series_mapping/V68_V69_V70_V71_V72_V73_V74_V75_V76_V77_COMBINED_DOGFOOD_TEST_v0.json"
+      ],
+      "target_boundary_refs": [],
+      "telemetry_requirement_refs": [],
+      "tool_invocation_posture": "no_tool_invocation_performed_by_v78",
+      "v77_authority_posture_refs": [
+        "authority-posture:v77c:product-wedge:product-review"
+      ],
+      "v77_closeout_refs": [
+        "repo_runtime_permission_family_closeout_alignment_836d6f0ac44683ea0914ef7e"
+      ],
+      "v77_handoff_refs": [
+        "handoff:v77c:product-wedge:blocked"
+      ],
+      "v77_summary_refs": [
+        "runtime-summary:v77c:product-wedge:blocked"
+      ]
+    },
+    {
+      "authority_request_posture": "eligible_for_runtime_execution_authority_review",
+      "authority_request_ref": "authority-request:v78a:self-evidencing:runtime-execution-review",
+      "authority_requirement_rows": [
+        {
+          "authority_gap_posture": "authority_gap_present",
+          "authority_kind": "runtime_execution_review_authority",
+          "authority_requirement_ref": "authority:v78a:self-evidencing:runtime-review",
+          "candidate_ref": "candidate:internal:self_evidencing_workflow_type_emergence",
+          "limitation_note": "Runtime execution review authority remains required; no execution.",
+          "required_for_horizon": "bounded_repo_script_execution_review",
+          "source_presence_posture": "present",
+          "source_refs": [
+            "apps/api/fixtures/repo_description/vnext_plus217/repo_runtime_permission_authority_posture_v217_reference.json",
+            "docs/LOCKED_CONTINUATION_vNEXT_PLUS218.md"
+          ]
+        },
+        {
+          "authority_gap_posture": "authority_gap_present",
+          "authority_kind": "tool_use_review_authority",
+          "authority_requirement_ref": "authority:v78a:self-evidencing:tool-use-review",
+          "candidate_ref": "candidate:internal:self_evidencing_workflow_type_emergence",
+          "limitation_note": "Tool-use review authority remains required; no tool invocation.",
+          "required_for_horizon": "bounded_tool_invocation_review",
+          "source_presence_posture": "present",
+          "source_refs": [
+            "apps/api/fixtures/repo_description/vnext_plus217/repo_runtime_permission_authority_posture_v217_reference.json",
+            "docs/LOCKED_CONTINUATION_vNEXT_PLUS218.md"
+          ]
+        }
+      ],
+      "candidate_ref": "candidate:internal:self_evidencing_workflow_type_emergence",
+      "execution_posture": "no_execution_performed_by_v78",
+      "guardrail_refs": [
+        "guardrail:v78a:self-evidencing:non-action"
+      ],
+      "limitation_note": "Eligible for runtime execution authority request review only with no execution, no tool invocation, and no release.",
+      "odeu_lanes": [
+        "deontic",
+        "epistemic",
+        "utility"
+      ],
+      "requested_authority_horizon": "bounded_repo_script_execution_review",
+      "requested_command_scope_refs": [
+        "command-scope:v78b:bad"
+      ],
+      "requested_tool_use_refs": [
+        "tool-use-request:v78a:self-evidencing:review-only"
+      ],
+      "required_authority_source_refs": [
+        "authority:v78a:self-evidencing:runtime-review",
+        "authority:v78a:self-evidencing:tool-use-review"
+      ],
+      "rollback_requirement_refs": [
+        "rollback:v77b:self-evidencing:required"
+      ],
+      "source_refs": [
+        "apps/api/fixtures/repo_description/vnext_plus216/repo_action_effect_envelope_v216_reference.json",
+        "apps/api/fixtures/repo_description/vnext_plus216/repo_command_preflight_contract_v216_reference.json",
+        "apps/api/fixtures/repo_description/vnext_plus216/repo_runtime_rollback_contract_v216_reference.json",
+        "apps/api/fixtures/repo_description/vnext_plus216/repo_runtime_telemetry_requirement_v216_reference.json",
+        "apps/api/fixtures/repo_description/vnext_plus217/repo_post_runtime_permission_review_handoff_v217_reference.json",
+        "apps/api/fixtures/repo_description/vnext_plus217/repo_runtime_permission_authority_posture_v217_reference.json",
+        "apps/api/fixtures/repo_description/vnext_plus217/repo_runtime_permission_family_closeout_alignment_v217_reference.json",
+        "apps/api/fixtures/repo_description/vnext_plus217/repo_runtime_permission_review_summary_v217_reference.json",
+        "docs/LOCKED_CONTINUATION_vNEXT_PLUS218.md",
+        "docs/support/arc_series_mapping/V68_V69_V70_V71_V72_V73_V74_V75_V76_V77_COMBINED_DOGFOOD_TEST_v0.json"
+      ],
+      "target_boundary_refs": [
+        "packages/adeu_repo_description/src/adeu_repo_description/runtime_execution_authority.py"
+      ],
+      "telemetry_requirement_refs": [
+        "telemetry:v77b:self-evidencing:required"
+      ],
+      "tool_invocation_posture": "no_tool_invocation_performed_by_v78",
+      "v77_authority_posture_refs": [
+        "authority-posture:v77c:self-evidencing:runtime-execution",
+        "authority-posture:v77c:self-evidencing:tool-use"
+      ],
+      "v77_closeout_refs": [
+        "repo_runtime_permission_family_closeout_alignment_836d6f0ac44683ea0914ef7e"
+      ],
+      "v77_handoff_refs": [
+        "handoff:v77c:self-evidencing:preflight"
+      ],
+      "v77_summary_refs": [
+        "runtime-summary:v77c:self-evidencing:preflight"
+      ]
+    }
+  ],
+  "review_id": "review:v78a:runtime-execution-authority-request",
+  "runtime_authority_boundary_summary": "Runtime execution authority request is request only: no execution, no tool invocation, no product authorization, and no release.",
+  "runtime_authority_source_index_id": "repo_runtime_authority_source_index_7ba03883f7dc1c5a9758eebd",
+  "runtime_execution_authority_request_id": "repo_runtime_execution_authority_request_7475409566e992f5ff43b53a",
+  "schema": "repo_runtime_execution_authority_request@1",
+  "snapshot_id": "vNext+217-closed-on-main",
+  "source_set_id": "source-set:v78a:released-v77c-runtime-authority-pressure"
+}

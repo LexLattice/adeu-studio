@@ -1,0 +1,94 @@
+{
+  "guardrail_rows": [
+    {
+      "authority_gap_refs": [
+        "authority:v78a:product-wedge:product-review"
+      ],
+      "authority_request_refs": [
+        "authority-request:v78a:product-wedge:blocked"
+      ],
+      "candidate_ref": "candidate:internal:typed_adjudication_product_wedge",
+      "execution_posture": "no_execution_performed_by_v78",
+      "forbidden_downstream_authority": [],
+      "forbidden_runtime_actions": [
+        "assign_worker",
+        "commit",
+        "dispatch_worker",
+        "external_submission",
+        "invoke_tool_for_effect",
+        "merge",
+        "open_pr",
+        "release",
+        "run_command"
+      ],
+      "guardrail_ref": "guardrail:v78a:product-wedge:non-action",
+      "limitation_note": "This V78-A row is request only: no execution, no tool invocation, no product authorization, no external branch activation, and no release.",
+      "source_refs": [
+        "apps/api/fixtures/repo_description/vnext_plus216/repo_action_effect_envelope_v216_reference.json",
+        "apps/api/fixtures/repo_description/vnext_plus216/repo_command_preflight_contract_v216_reference.json",
+        "apps/api/fixtures/repo_description/vnext_plus216/repo_runtime_rollback_contract_v216_reference.json",
+        "apps/api/fixtures/repo_description/vnext_plus216/repo_runtime_telemetry_requirement_v216_reference.json",
+        "apps/api/fixtures/repo_description/vnext_plus217/repo_post_runtime_permission_review_handoff_v217_reference.json",
+        "apps/api/fixtures/repo_description/vnext_plus217/repo_runtime_permission_authority_posture_v217_reference.json",
+        "apps/api/fixtures/repo_description/vnext_plus217/repo_runtime_permission_family_closeout_alignment_v217_reference.json",
+        "apps/api/fixtures/repo_description/vnext_plus217/repo_runtime_permission_review_summary_v217_reference.json",
+        "docs/LOCKED_CONTINUATION_vNEXT_PLUS218.md",
+        "docs/support/arc_series_mapping/V68_V69_V70_V71_V72_V73_V74_V75_V76_V77_COMBINED_DOGFOOD_TEST_v0.json"
+      ],
+      "tool_invocation_posture": "no_tool_invocation_performed_by_v78"
+    },
+    {
+      "authority_gap_refs": [
+        "authority:v78a:self-evidencing:runtime-review",
+        "authority:v78a:self-evidencing:tool-use-review"
+      ],
+      "authority_request_refs": [
+        "authority-request:v78a:self-evidencing:runtime-execution-review"
+      ],
+      "candidate_ref": "candidate:internal:self_evidencing_workflow_type_emergence",
+      "execution_posture": "no_execution_performed_by_v78",
+      "forbidden_downstream_authority": [
+        "benchmark_truth",
+        "external_branch_activation",
+        "living_memory_authority",
+        "model_selection",
+        "product_authorization",
+        "recursive_policy_amendment",
+        "released_truth"
+      ],
+      "forbidden_runtime_actions": [
+        "assign_worker",
+        "commit",
+        "dispatch_worker",
+        "external_submission",
+        "invoke_tool_for_effect",
+        "merge",
+        "open_pr",
+        "release",
+        "run_command"
+      ],
+      "guardrail_ref": "guardrail:v78a:self-evidencing:non-action",
+      "limitation_note": "This V78-A row is request only: no execution, no tool invocation, no product authorization, no external branch activation, and no release.",
+      "source_refs": [
+        "apps/api/fixtures/repo_description/vnext_plus216/repo_action_effect_envelope_v216_reference.json",
+        "apps/api/fixtures/repo_description/vnext_plus216/repo_command_preflight_contract_v216_reference.json",
+        "apps/api/fixtures/repo_description/vnext_plus216/repo_runtime_rollback_contract_v216_reference.json",
+        "apps/api/fixtures/repo_description/vnext_plus216/repo_runtime_telemetry_requirement_v216_reference.json",
+        "apps/api/fixtures/repo_description/vnext_plus217/repo_post_runtime_permission_review_handoff_v217_reference.json",
+        "apps/api/fixtures/repo_description/vnext_plus217/repo_runtime_permission_authority_posture_v217_reference.json",
+        "apps/api/fixtures/repo_description/vnext_plus217/repo_runtime_permission_family_closeout_alignment_v217_reference.json",
+        "apps/api/fixtures/repo_description/vnext_plus217/repo_runtime_permission_review_summary_v217_reference.json",
+        "docs/LOCKED_CONTINUATION_vNEXT_PLUS218.md",
+        "docs/support/arc_series_mapping/V68_V69_V70_V71_V72_V73_V74_V75_V76_V77_COMBINED_DOGFOOD_TEST_v0.json"
+      ],
+      "tool_invocation_posture": "no_tool_invocation_performed_by_v78"
+    }
+  ],
+  "non_action_summary": "Runtime authority non-action guardrails preserve request only: no execution, no tool invocation, no product authorization, and no release.",
+  "review_id": "review:v78a:runtime-execution-authority-request",
+  "runtime_authority_non_action_guardrail_id": "repo_runtime_authority_non_action_guardrail_86af72c6080f0565c37a5ca2",
+  "runtime_execution_authority_request_id": "repo_runtime_execution_authority_request_ec2a026424c63dccdb5a540c",
+  "schema": "repo_runtime_authority_non_action_guardrail@1",
+  "snapshot_id": "vNext+217-closed-on-main",
+  "source_set_id": "source-set:v78a:released-v77c-runtime-authority-pressure"
+}
