@@ -326,6 +326,34 @@ def test_v217_bundle_rejects_unknown_summary_authority_ref() -> None:
         )
 
 
+def test_v217_bundle_rejects_stale_authority_v77b_surface_id() -> None:
+    authority_payload = _v77c_authority().model_dump(mode="json")
+    authority_payload["command_preflight_contract_id"] = (
+        "repo_command_preflight_contract:foreign"
+    )
+    authority = RepoRuntimePermissionAuthorityPosture.model_validate(
+        _rehash_surface(
+            authority_payload,
+            surface_name="repo_runtime_permission_authority_posture",
+            schema=REPO_RUNTIME_PERMISSION_AUTHORITY_POSTURE_SCHEMA,
+            id_field="runtime_permission_authority_posture_id",
+        )
+    )
+
+    with pytest.raises(ValueError, match="runtime authority posture must reference V77-B"):
+        validate_v77c_runtime_permission_closeout_bundle(
+            runtime_permission_review_request=_v77a_request(),
+            command_preflight_contract=_v77b_preflight(),
+            action_effect_envelope=_v77b_envelope(),
+            runtime_telemetry_requirement=_v77b_telemetry(),
+            runtime_rollback_contract=_v77b_rollback(),
+            runtime_permission_authority_posture=authority,
+            runtime_permission_review_summary=_v77c_summary(),
+            post_runtime_permission_review_handoff=_v77c_handoff(),
+            runtime_permission_family_closeout_alignment=_v77c_closeout(),
+        )
+
+
 def test_v217_bundle_rejects_handoff_authority_ref_without_resolved_kind() -> None:
     handoff_payload = _v77c_handoff().model_dump(mode="json")
     handoff_payload["handoff_rows"][0]["required_later_authority_refs"] = [
@@ -353,6 +381,47 @@ def test_v217_bundle_rejects_handoff_authority_ref_without_resolved_kind() -> No
     )
 
     with pytest.raises(ValueError, match="post-runtime handoff authority refs must be known"):
+        validate_v77c_runtime_permission_closeout_bundle(
+            runtime_permission_review_request=_v77a_request(),
+            command_preflight_contract=_v77b_preflight(),
+            action_effect_envelope=_v77b_envelope(),
+            runtime_telemetry_requirement=_v77b_telemetry(),
+            runtime_rollback_contract=_v77b_rollback(),
+            runtime_permission_authority_posture=_v77c_authority(),
+            runtime_permission_review_summary=_v77c_summary(),
+            post_runtime_permission_review_handoff=handoff,
+            runtime_permission_family_closeout_alignment=closeout,
+        )
+
+
+def test_v217_bundle_rejects_incomplete_handoff_authority_kind_coverage() -> None:
+    handoff_payload = _v77c_handoff().model_dump(mode="json")
+    for row in handoff_payload["handoff_rows"]:
+        if row["handoff_ref"] == "handoff:v77c:self-evidencing:preflight":
+            row["required_later_authority_kinds"] = ["runtime_permission_authority"]
+            break
+    handoff = RepoPostRuntimePermissionReviewHandoff.model_validate(
+        _rehash_surface(
+            handoff_payload,
+            surface_name="repo_post_runtime_permission_review_handoff",
+            schema=REPO_POST_RUNTIME_PERMISSION_REVIEW_HANDOFF_SCHEMA,
+            id_field="post_runtime_permission_review_handoff_id",
+        )
+    )
+    closeout_payload = _v77c_closeout().model_dump(mode="json")
+    closeout_payload["post_runtime_permission_review_handoff_id"] = (
+        handoff.post_runtime_permission_review_handoff_id
+    )
+    closeout = RepoRuntimePermissionFamilyCloseoutAlignment.model_validate(
+        _rehash_surface(
+            closeout_payload,
+            surface_name="repo_runtime_permission_family_closeout_alignment",
+            schema=REPO_RUNTIME_PERMISSION_FAMILY_CLOSEOUT_ALIGNMENT_SCHEMA,
+            id_field="runtime_permission_family_closeout_alignment_id",
+        )
+    )
+
+    with pytest.raises(ValueError, match="authority kinds must resolve to refs"):
         validate_v77c_runtime_permission_closeout_bundle(
             runtime_permission_review_request=_v77a_request(),
             command_preflight_contract=_v77b_preflight(),

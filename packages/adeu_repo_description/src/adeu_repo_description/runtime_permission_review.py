@@ -2227,14 +2227,6 @@ class RepoRuntimePermissionAuthorityPostureRow(_CartographyBase):
         )
         if missing:
             raise ValueError("runtime authority posture omits forbidden authority inferences")
-        if self.authority_decision_posture not in {
-            "authority_required_later",
-            "authority_missing",
-            "authority_not_applicable",
-            "authority_future_family_only",
-            "authority_rejected_out_of_scope",
-        }:
-            raise ValueError("runtime authority posture may not grant authority")
         if (
             self.authority_requirement_kind
             in {"runtime_permission_authority", "tool_use_authority"}
@@ -3048,6 +3040,23 @@ def validate_v77c_runtime_permission_closeout_bundle(
         != runtime_permission_review_request.runtime_permission_review_request_id
     ):
         raise ValueError("runtime authority posture must reference V77-A request surface")
+    expected_v77b_surface_ids = {
+        "command_preflight_contract_id": (
+            command_preflight_contract.command_preflight_contract_id
+        ),
+        "action_effect_envelope_id": action_effect_envelope.action_effect_envelope_id,
+        "runtime_telemetry_requirement_id": (
+            runtime_telemetry_requirement.runtime_telemetry_requirement_id
+        ),
+        "runtime_rollback_contract_id": runtime_rollback_contract.runtime_rollback_contract_id,
+    }
+    for surface_name, surface in (
+        ("runtime authority posture", runtime_permission_authority_posture),
+        ("runtime summary", runtime_permission_review_summary),
+    ):
+        for id_field, expected_id in expected_v77b_surface_ids.items():
+            if getattr(surface, id_field) != expected_id:
+                raise ValueError(f"{surface_name} must reference V77-B surface ids")
     for surface_name, surface in (
         ("summary", runtime_permission_review_summary),
         ("family closeout", runtime_permission_family_closeout_alignment),
@@ -3171,7 +3180,7 @@ def validate_v77c_runtime_permission_closeout_bundle(
             authority_rows[authority_ref].authority_requirement_kind
             for authority_ref in handoff_row.required_later_authority_refs
         }
-        if not set(handoff_row.required_later_authority_kinds).issubset(authority_kinds):
+        if set(handoff_row.required_later_authority_kinds) != authority_kinds:
             raise ValueError("post-runtime handoff authority kinds must resolve to refs")
 
 
