@@ -142,8 +142,7 @@ locks:
 - `repo_post_reconciliation_handoff@1`
 - `repo_reconciliation_family_closeout_alignment@1`
 
-Post-`V76-A` continuation posture: after `vNext+212` closes on `main`, select
-`V76-B` as the next default candidate for the next canonical starter bundle.
+Post-`V76-A` continuation posture: after `vNext+212` closes on `main`, select `V76-B` as the next default candidate for the next canonical starter bundle.
 That selection remains inside the already selected `V76` family and does not
 create a new next-arc-options selector version.
 

@@ -1,8 +1,8 @@
 # Assessment vNext+212 Edges
 
-Status: planning-edge assessment for `V76-A`.
+Status: post-closeout edge assessment for `V76-A` (May 1, 2026 UTC).
 
-Authority layer: pre-lock assessment, not closeout evidence.
+Authority layer: closeout evidence on `main` only.
 
 ## Assessment-State Marker (Machine-Checkable)
 
@@ -10,118 +10,106 @@ Authority layer: pre-lock assessment, not closeout evidence.
 {
   "schema": "assessment_artifact_state@1",
   "artifact": "docs/ASSESSMENT_vNEXT_PLUS212_EDGES.md",
-  "phase": "pre_lock_assessment",
-  "authoritative": false,
+  "phase": "post_closeout_assessment",
+  "authoritative": true,
   "required_in_decision": true
 }
 ```
 
-## Open Edges
+## Edge Review
 
 ### Edge 1: Reconciliation Could Become Truth
 
-- Risk:
-  claim maps or relation registers could be overread as proving which worker,
-  model, or projected output is correct.
-- Response:
-  require non-truth guardrails on claim maps and relation rows; reject arbiter
-  output as truth, worker output as truth, model output as benchmark truth, and
-  majority agreement as correctness.
+- Closeout containment:
+  claim maps and relation rows carry non-truth guardrails, and reject fixtures
+  cover relation-as-truth, worker-output-as-truth, model benchmark truth, and
+  majority-agreement-as-correctness.
+- Result:
+  pass.
 
 ### Edge 2: Projected Output Could Become Observed Output
 
-- Risk:
-  `V75-C` projected output slots could be treated as observed worker outputs
-  even though `V75` did not execute dispatch.
-- Response:
-  preserve `projected_not_observed`; require explicit authorized prior-run or
-  support-artifact source posture for any observed worker output refs; add
-  `claim_kind` so projected slots can only map slot existence,
-  relation-review need, or relation placeholders, not observed output-content
-  claims.
+- Closeout containment:
+  `claim_kind` and `output_presence_posture` preserve projected-slot
+  semantics. Projected slots cannot carry observed worker output refs or
+  observed output-content claims.
+- Result:
+  pass. Projected-slot reject fixtures passed.
 
 ### Edge 3: Relation Mapping Could Become Settlement
 
-- Risk:
-  relation kinds such as conflict, complementarity, duplicate, orthogonal, or
-  single-output/no-relation could be treated as settled conclusions.
-- Response:
-  keep `V76-A` to mapping / register posture only; defer authority profiles,
-  settlement requests, summaries, and handoffs to later `V76` slices.
+- Closeout containment:
+  relation rows remain review posture only. Authority profiles, settlement
+  requests, summary rows, and handoffs are deferred to later `V76` slices.
+- Result:
+  pass.
 
 ### Edge 4: Dissent Could Be Smoothed Away
 
-- Risk:
-  dissent absence, unknown coverage, warnings, and blockers could be collapsed
-  into a single "no dissent" posture.
-- Response:
-  make dissent presence, search horizon, checked sources, unchecked sources,
-  and coverage posture first-class; reject no-dissent claims without a searched
-  horizon.
+- Closeout containment:
+  dissent presence, search horizon, checked sources, unchecked sources, and
+  coverage posture are first-class. `searched_none_found` requires a search
+  horizon and checked sources.
+- Result:
+  pass.
 
-### Edge 5: Product Or Runtime Blockers Could Become Arbiter Readiness
+### Edge 5: V75-C Source Preconditions Could Be Ignored
 
-- Risk:
-  product pressure or runtime pressure could be rerouted through
-  reconciliation as if arbiter review grants downstream authority.
-- Response:
-  preserve required-later-authority blockers from `V75`; reject conversion of
-  product, runtime, release, external branch, dispatch-execution, or
-  recursive-policy blockers into readiness.
+- Closeout containment:
+  bundle validation checks released `V75-C` prerequisite provenance and
+  contract / handoff references instead of accepting unused dependency
+  parameters.
+- Result:
+  pass. Review-driven dependency validation tests passed.
 
-### Edge 6: V76-A Could Begin V76-B Or V76-C
+### Edge 6: Product Or Runtime Blockers Could Become Arbiter Readiness
 
-- Risk:
-  the starter could accidentally implement arbiter authority profiles,
-  settlement requests, summaries, handoffs, or family closeout alignment.
-- Response:
-  ship only claim map, relation register, and dissent register surfaces in
-  `V76-A`; defer authority, settlement, synthesis, and handoff surfaces.
+- Closeout containment:
+  product, runtime, release, external branch, dispatch-execution, and
+  recursive-policy blockers remain blocked or future-family-only. Arbiter
+  readiness cannot erase required-later-authority gaps.
+- Result:
+  pass.
 
-### Edge 7: Runtime Or Dispatch Could Re-enter Through Reconciliation
+### Edge 7: V76-A Could Begin V76-B Or V76-C
 
-- Risk:
-  because `V76` consumes dispatch-review rows, reconciliation could be mistaken
-  for dispatch execution or runtime permission.
-- Response:
-  keep all consumed `V75-C` `no_dispatch_executed_by_v75` and non-execution
-  guardrails visible; reject command execution, worker assignment, runtime
-  permission, PR creation, commit, merge, release, and product authorization.
+- Closeout containment:
+  shipped surfaces are limited to claim map, relation register, and dissent
+  register. No authority profile, settlement request, adversarial relation
+  review, gap scan, summary, handoff, or family closeout alignment shipped.
+- Result:
+  pass.
 
-### Edge 8: Source Context Could Replace Source Rows
+### Edge 8: Runtime Or Dispatch Could Re-enter Through Reconciliation
 
-- Risk:
-  roadmap, support review, or dogfood prose could be used as eligibility
-  evidence without concrete released `V75-C` rows.
-- Response:
-  require source rows over concrete `V75-C` fixtures or explicit absence
-  posture; support docs may contextualize but cannot be the only source for a
-  claim map.
+- Closeout containment:
+  the slice consumes `V75-C` reconciliation-review substrate while preserving
+  non-execution boundaries. It does not assign workers, execute commands,
+  grant runtime permission, productize, open PRs, commit, merge, release, or
+  activate external participation.
+- Result:
+  pass.
 
-### Edge 9: Relation Refs Could Become Circular
+## Residual Edges
 
-- Risk:
-  claim maps could point to new `V76-A` relation rows while relation rows point
-  back to claim maps, making upstream `V75-C` relation evidence ambiguous.
-- Response:
-  claim maps reference released `V75-C` relation rows through
-  `v75_source_relation_refs`; arbiter relation rows separately use
-  `source_relation_refs` plus `claim_map_refs`.
+- `V76-B` must define arbiter authority profiles as review-only and separate
+  actor identity from authority grant sources.
+- `V76-B` must ensure settlement requests are horizon-bound and cannot settle
+  claims immediately.
+- `V76-B` must add adversarial relation review and gap-scan rows without
+  converting majority agreement, model agreement, or tool output into truth.
+- `V76-C` must later summarize and hand off reconciliation pressure without
+  selecting runtime permission, product work, external branch activation,
+  living-memory authority, or recursive policy amendment.
 
-### Edge 10: Majority Agreement Could Become Correctness
+## Closeout Judgment
 
-- Risk:
-  several worker or model outputs could agree and be treated as correct without
-  source-bound relation review or authority coverage.
-- Response:
-  reject majority-as-correctness. Agreement can be relation evidence, but it is
-  not truth, settlement, ratification, benchmark truth, or model selection.
-
-## Current Judgment
-
-- `V76-A` is worth drafting now because `V75-C` deliberately emitted
-  reconciliation / arbiter pressure without executing dispatch or observing
-  worker output.
-- The first slice should stay narrow: map claim horizons, relation posture, and
-  dissent posture over released `V75-C` substrate. It should not settle,
-  ratify, execute, productize, release, or dispatch.
+- `V76-A` is closed on `main` as a bounded reconciliation claim map, arbiter
+  relation register, and reconciliation dissent register slice.
+- `V76` remains open for `V76-B`.
+- The shipped slice preserves the intended authority boundary: reconciliation
+  can make claim horizons, relation posture, and dissent posture reviewable; it
+  does not make worker output true, settle relations, ratify candidates, assign
+  workers, execute dispatch, grant runtime/product/release/external authority,
+  select models globally, establish living-memory authority, or adopt recursive
+  policy amendments.
