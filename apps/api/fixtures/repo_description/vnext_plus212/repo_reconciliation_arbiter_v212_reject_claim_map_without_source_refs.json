@@ -1,0 +1,142 @@
+{
+  "claim_map_rows": [
+    {
+      "candidate_ref": "candidate:internal:typed_adjudication_product_wedge",
+      "claim_horizon": "Projected product wedge output slot exists; no observed output content.",
+      "claim_kind": "projected_output_slot_existence",
+      "claim_label": "Product wedge projected slot exists with blocker",
+      "claim_map_posture": "blocked_by_required_later_authority",
+      "claim_map_ref": "claim-map:v76a:product-wedge:projected-authority-blocker",
+      "claim_presence_posture": "claim_mapped_from_projected_slot",
+      "claim_source_refs": [
+        "apps/api/fixtures/repo_description/vnext_plus211/repo_worker_output_reconciliation_plan_v211_reference.json",
+        "apps/api/fixtures/repo_description/vnext_plus211/repo_worker_output_reconciliation_plan_v211_reference.json#relation_rows"
+      ],
+      "handoff_refs": [
+        "handoff:v75c:product-wedge:arbiter-settlement"
+      ],
+      "limitation_note": "Projected product slot is not observed and remains blocked by later authority.",
+      "non_truth_guardrail": "Projected output slot is for review and not truth.",
+      "observed_worker_output_refs": [],
+      "output_claim_ref": "output-claim:v76a:product-wedge:projected-slot",
+      "output_presence_posture": "projected_not_observed",
+      "projected_output_slot_refs": [
+        "projected-output:v75c:product-wedge:blocked-note"
+      ],
+      "reconciliation_plan_refs": [
+        "reconciliation-plan:v75c:product-wedge:blocked"
+      ],
+      "source_refs": [],
+      "truth_status_forbidden": true,
+      "v75_source_relation_refs": [
+        "relation:v75c:product-wedge:blocked-projected-output"
+      ]
+    },
+    {
+      "candidate_ref": "candidate:internal:self_evidencing_workflow_type_emergence",
+      "claim_horizon": "Projected relation-review need exists; no observed output content.",
+      "claim_kind": "projected_relation_review_need",
+      "claim_label": "Self-evidencing projected slot needs relation review",
+      "claim_map_posture": "mapped_for_reconciliation_review",
+      "claim_map_ref": "claim-map:v76a:self-evidencing:projected-relation-review",
+      "claim_presence_posture": "claim_mapped_from_projected_slot",
+      "claim_source_refs": [
+        "apps/api/fixtures/repo_description/vnext_plus211/repo_worker_output_reconciliation_plan_v211_reference.json",
+        "apps/api/fixtures/repo_description/vnext_plus211/repo_worker_output_reconciliation_plan_v211_reference.json#relation_rows"
+      ],
+      "handoff_refs": [
+        "handoff:v75c:self-evidencing:future-outcome-review"
+      ],
+      "limitation_note": "Projected relation-review need is not observed output content.",
+      "non_truth_guardrail": "Projected relation-review need is for review and not truth.",
+      "observed_worker_output_refs": [],
+      "output_claim_ref": "output-claim:v76a:self-evidencing:relation-review-need",
+      "output_presence_posture": "projected_not_observed",
+      "projected_output_slot_refs": [
+        "projected-output:v75c:self-evidencing:review-note"
+      ],
+      "reconciliation_plan_refs": [
+        "reconciliation-plan:v75c:self-evidencing:projected"
+      ],
+      "source_refs": [
+        "apps/api/fixtures/repo_description/vnext_plus211/repo_post_dispatch_review_handoff_v211_reference.json",
+        "apps/api/fixtures/repo_description/vnext_plus211/repo_worker_output_reconciliation_plan_v211_reference.json",
+        "apps/api/fixtures/repo_description/vnext_plus211/repo_worker_output_reconciliation_plan_v211_reference.json#relation_rows"
+      ],
+      "truth_status_forbidden": true,
+      "v75_source_relation_refs": [
+        "relation:v75c:self-evidencing:single-projected-output"
+      ]
+    }
+  ],
+  "claim_map_summary": "V76-A maps released V75-C projected slots from V75-C as review substrate, not truth and not observed output content.",
+  "post_dispatch_review_handoff_id": "repo_post_dispatch_review_handoff_b21638eca325e90f1b87945d",
+  "reconciliation_claim_map_id": "repo_reconciliation_claim_map_89786d815b5bd15f9ba8d30e",
+  "review_id": "review:v76a:claim-relation-dissent-map",
+  "schema": "repo_reconciliation_claim_map@1",
+  "snapshot_id": "vNext+211-closed-on-main",
+  "source_rows": [
+    {
+      "authority_layer": "fixture",
+      "limitation_note": "Contract source is review substrate with no truth authority.",
+      "reconciliation_source_role": "v75_reconciliation_contract_source",
+      "source_horizon": "released V75-C reconciliation contract fixture",
+      "source_kind": "fixture_file",
+      "source_presence_posture": "present",
+      "source_ref": "apps/api/fixtures/repo_description/vnext_plus211/repo_dispatch_reconciliation_contract_v211_reference.json",
+      "source_status": "integrated_shaping_source"
+    },
+    {
+      "authority_layer": "fixture",
+      "limitation_note": "Family closeout source is review substrate with no truth authority.",
+      "reconciliation_source_role": "v75_family_closeout_source",
+      "source_horizon": "released V75 family closeout alignment fixture",
+      "source_kind": "fixture_file",
+      "source_presence_posture": "present",
+      "source_ref": "apps/api/fixtures/repo_description/vnext_plus211/repo_dispatch_review_family_closeout_alignment_v211_reference.json",
+      "source_status": "integrated_shaping_source"
+    },
+    {
+      "authority_layer": "fixture",
+      "limitation_note": "Handoff source is review-only with no dispatch authority.",
+      "reconciliation_source_role": "v75_post_dispatch_review_handoff_source",
+      "source_horizon": "released V75-C post-dispatch-review handoff fixture",
+      "source_kind": "fixture_file",
+      "source_presence_posture": "present",
+      "source_ref": "apps/api/fixtures/repo_description/vnext_plus211/repo_post_dispatch_review_handoff_v211_reference.json",
+      "source_status": "integrated_shaping_source"
+    },
+    {
+      "authority_layer": "fixture",
+      "limitation_note": "Plan source is projected review substrate with no truth authority.",
+      "reconciliation_source_role": "v75_reconciliation_plan_source",
+      "source_horizon": "released V75-C reconciliation plan fixture",
+      "source_kind": "fixture_file",
+      "source_presence_posture": "present",
+      "source_ref": "apps/api/fixtures/repo_description/vnext_plus211/repo_worker_output_reconciliation_plan_v211_reference.json",
+      "source_status": "integrated_shaping_source"
+    },
+    {
+      "authority_layer": "fixture",
+      "limitation_note": "Relation row source is review substrate with no truth authority.",
+      "reconciliation_source_role": "v75_relation_row_source",
+      "source_horizon": "released V75-C relation rows inside reconciliation plan fixture",
+      "source_kind": "fixture_file",
+      "source_presence_posture": "present",
+      "source_ref": "apps/api/fixtures/repo_description/vnext_plus211/repo_worker_output_reconciliation_plan_v211_reference.json#relation_rows",
+      "source_status": "integrated_shaping_source"
+    },
+    {
+      "authority_layer": "support",
+      "limitation_note": "Dogfood source contextualizes review and is not truth authority.",
+      "reconciliation_source_role": "combined_dogfood_source",
+      "source_horizon": "combined support dogfood says no worker output was observed",
+      "source_kind": "support_doc",
+      "source_presence_posture": "present",
+      "source_ref": "docs/support/arc_series_mapping/V68_V69_V70_V71_V72_V73_V74_V75_COMBINED_DOGFOOD_TEST_v0.json",
+      "source_status": "integrated_shaping_source"
+    }
+  ],
+  "source_set_id": "source-set:v76a:released-v75c-reconciliation",
+  "worker_output_reconciliation_plan_id": "repo_worker_output_reconciliation_plan_050b433ac5f1151fc7ec50c8"
+}

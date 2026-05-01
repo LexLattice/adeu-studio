@@ -1,0 +1,160 @@
+{
+  "$defs": {
+    "RepoArbiterRelationRow": {
+      "additionalProperties": false,
+      "properties": {
+        "arbiter_need_posture": {
+          "enum": [
+            "arbiter_review_needed_later",
+            "arbiter_not_needed_for_single_output",
+            "arbiter_blocked_by_missing_authority",
+            "arbiter_deferred_to_future_family",
+            "arbiter_rejected_out_of_scope"
+          ],
+          "title": "Arbiter Need Posture",
+          "type": "string"
+        },
+        "arbiter_relation_ref": {
+          "title": "Arbiter Relation Ref",
+          "type": "string"
+        },
+        "claim_map_refs": {
+          "items": {
+            "type": "string"
+          },
+          "minItems": 1,
+          "title": "Claim Map Refs",
+          "type": "array"
+        },
+        "limitation_note": {
+          "title": "Limitation Note",
+          "type": "string"
+        },
+        "non_truth_guardrail": {
+          "title": "Non Truth Guardrail",
+          "type": "string"
+        },
+        "relation_kind": {
+          "enum": [
+            "conflict",
+            "complementarity",
+            "duplicate",
+            "orthogonal",
+            "unclear_relation",
+            "single_output_no_relation"
+          ],
+          "title": "Relation Kind",
+          "type": "string"
+        },
+        "relation_review_posture": {
+          "enum": [
+            "visible_unsettled",
+            "requires_arbiter_review",
+            "requires_adversarial_review",
+            "blocked_by_missing_source",
+            "blocked_by_no_observed_output",
+            "deferred_no_selection"
+          ],
+          "title": "Relation Review Posture",
+          "type": "string"
+        },
+        "required_next_review_surface": {
+          "enum": [
+            "future_runtime_permission_review",
+            "future_product_review",
+            "future_external_branch_review",
+            "future_outcome_review",
+            "future_reconciliation_or_arbiter_review",
+            "future_experiment_review",
+            "future_family_review",
+            "deferred_no_selection"
+          ],
+          "title": "Required Next Review Surface",
+          "type": "string"
+        },
+        "source_refs": {
+          "items": {
+            "type": "string"
+          },
+          "minItems": 1,
+          "title": "Source Refs",
+          "type": "array"
+        },
+        "source_relation_refs": {
+          "items": {
+            "type": "string"
+          },
+          "minItems": 1,
+          "title": "Source Relation Refs",
+          "type": "array"
+        }
+      },
+      "required": [
+        "arbiter_relation_ref",
+        "claim_map_refs",
+        "source_relation_refs",
+        "relation_kind",
+        "relation_review_posture",
+        "arbiter_need_posture",
+        "required_next_review_surface",
+        "source_refs",
+        "non_truth_guardrail",
+        "limitation_note"
+      ],
+      "title": "RepoArbiterRelationRow",
+      "type": "object"
+    }
+  },
+  "additionalProperties": false,
+  "properties": {
+    "arbiter_relation_register_id": {
+      "title": "Arbiter Relation Register Id",
+      "type": "string"
+    },
+    "reconciliation_claim_map_id": {
+      "title": "Reconciliation Claim Map Id",
+      "type": "string"
+    },
+    "relation_register_summary": {
+      "title": "Relation Register Summary",
+      "type": "string"
+    },
+    "relation_rows": {
+      "items": {
+        "$ref": "#/$defs/RepoArbiterRelationRow"
+      },
+      "minItems": 1,
+      "title": "Relation Rows",
+      "type": "array"
+    },
+    "review_id": {
+      "title": "Review Id",
+      "type": "string"
+    },
+    "schema": {
+      "const": "repo_arbiter_relation_register@1",
+      "default": "repo_arbiter_relation_register@1",
+      "title": "Schema",
+      "type": "string"
+    },
+    "snapshot_id": {
+      "title": "Snapshot Id",
+      "type": "string"
+    },
+    "source_set_id": {
+      "title": "Source Set Id",
+      "type": "string"
+    }
+  },
+  "required": [
+    "arbiter_relation_register_id",
+    "reconciliation_claim_map_id",
+    "review_id",
+    "snapshot_id",
+    "source_set_id",
+    "relation_rows",
+    "relation_register_summary"
+  ],
+  "title": "RepoArbiterRelationRegister",
+  "type": "object"
+}

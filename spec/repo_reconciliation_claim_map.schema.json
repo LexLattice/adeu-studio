@@ -1,0 +1,324 @@
+{
+  "$defs": {
+    "RepoReconciliationClaimMapRow": {
+      "additionalProperties": false,
+      "properties": {
+        "candidate_ref": {
+          "title": "Candidate Ref",
+          "type": "string"
+        },
+        "claim_horizon": {
+          "title": "Claim Horizon",
+          "type": "string"
+        },
+        "claim_kind": {
+          "enum": [
+            "projected_output_slot_existence",
+            "projected_relation_review_need",
+            "observed_output_content_claim",
+            "observed_model_output_claim",
+            "support_artifact_output_claim",
+            "relation_placeholder_claim"
+          ],
+          "title": "Claim Kind",
+          "type": "string"
+        },
+        "claim_label": {
+          "title": "Claim Label",
+          "type": "string"
+        },
+        "claim_map_posture": {
+          "enum": [
+            "mapped_for_reconciliation_review",
+            "blocked_by_projected_not_observed",
+            "blocked_by_missing_relation_source",
+            "blocked_by_required_later_authority",
+            "future_family_only",
+            "rejected_out_of_scope"
+          ],
+          "title": "Claim Map Posture",
+          "type": "string"
+        },
+        "claim_map_ref": {
+          "title": "Claim Map Ref",
+          "type": "string"
+        },
+        "claim_presence_posture": {
+          "enum": [
+            "claim_mapped_from_projected_slot",
+            "claim_mapped_from_observed_output",
+            "claim_missing_expected_source",
+            "claim_absent_not_applicable",
+            "unknown_needs_review"
+          ],
+          "title": "Claim Presence Posture",
+          "type": "string"
+        },
+        "claim_source_refs": {
+          "items": {
+            "type": "string"
+          },
+          "minItems": 1,
+          "title": "Claim Source Refs",
+          "type": "array"
+        },
+        "handoff_refs": {
+          "items": {
+            "type": "string"
+          },
+          "title": "Handoff Refs",
+          "type": "array"
+        },
+        "limitation_note": {
+          "title": "Limitation Note",
+          "type": "string"
+        },
+        "non_truth_guardrail": {
+          "title": "Non Truth Guardrail",
+          "type": "string"
+        },
+        "observed_worker_output_refs": {
+          "items": {
+            "type": "string"
+          },
+          "title": "Observed Worker Output Refs",
+          "type": "array"
+        },
+        "output_claim_ref": {
+          "title": "Output Claim Ref",
+          "type": "string"
+        },
+        "output_presence_posture": {
+          "enum": [
+            "projected_not_observed",
+            "observed_from_authorized_prior_run",
+            "observed_from_support_artifact",
+            "missing_expected_output",
+            "not_applicable"
+          ],
+          "title": "Output Presence Posture",
+          "type": "string"
+        },
+        "projected_output_slot_refs": {
+          "items": {
+            "type": "string"
+          },
+          "title": "Projected Output Slot Refs",
+          "type": "array"
+        },
+        "reconciliation_plan_refs": {
+          "items": {
+            "type": "string"
+          },
+          "minItems": 1,
+          "title": "Reconciliation Plan Refs",
+          "type": "array"
+        },
+        "source_refs": {
+          "items": {
+            "type": "string"
+          },
+          "minItems": 1,
+          "title": "Source Refs",
+          "type": "array"
+        },
+        "truth_status_forbidden": {
+          "const": true,
+          "title": "Truth Status Forbidden",
+          "type": "boolean"
+        },
+        "v75_source_relation_refs": {
+          "items": {
+            "type": "string"
+          },
+          "minItems": 1,
+          "title": "V75 Source Relation Refs",
+          "type": "array"
+        }
+      },
+      "required": [
+        "claim_map_ref",
+        "candidate_ref",
+        "output_claim_ref",
+        "claim_kind",
+        "claim_label",
+        "reconciliation_plan_refs",
+        "v75_source_relation_refs",
+        "claim_horizon",
+        "claim_source_refs",
+        "claim_presence_posture",
+        "output_presence_posture",
+        "claim_map_posture",
+        "source_refs",
+        "truth_status_forbidden",
+        "non_truth_guardrail",
+        "limitation_note"
+      ],
+      "title": "RepoReconciliationClaimMapRow",
+      "type": "object"
+    },
+    "RepoReconciliationSourceRow": {
+      "additionalProperties": false,
+      "properties": {
+        "authority_layer": {
+          "enum": [
+            "lock",
+            "architecture",
+            "planning",
+            "support",
+            "schema",
+            "fixture",
+            "closeout_evidence"
+          ],
+          "title": "Authority Layer",
+          "type": "string"
+        },
+        "limitation_note": {
+          "title": "Limitation Note",
+          "type": "string"
+        },
+        "reconciliation_source_role": {
+          "enum": [
+            "v75_reconciliation_plan_source",
+            "v75_relation_row_source",
+            "v75_reconciliation_contract_source",
+            "v75_post_dispatch_review_handoff_source",
+            "v75_family_closeout_source",
+            "combined_dogfood_source",
+            "support_review_source",
+            "absence_marker"
+          ],
+          "title": "Reconciliation Source Role",
+          "type": "string"
+        },
+        "source_horizon": {
+          "title": "Source Horizon",
+          "type": "string"
+        },
+        "source_kind": {
+          "enum": [
+            "planning_doc",
+            "architecture_doc",
+            "support_doc",
+            "review_input",
+            "closeout_doc",
+            "evidence_artifact",
+            "schema_file",
+            "fixture_file",
+            "operator_turn",
+            "transcript_artifact",
+            "model_output",
+            "repo_observation",
+            "external_artifact"
+          ],
+          "title": "Source Kind",
+          "type": "string"
+        },
+        "source_presence_posture": {
+          "enum": [
+            "present",
+            "missing_expected_support_artifact",
+            "not_uploaded_in_review_snapshot",
+            "generated_later",
+            "external_unavailable",
+            "operator_turn_not_committed"
+          ],
+          "title": "Source Presence Posture",
+          "type": "string"
+        },
+        "source_ref": {
+          "title": "Source Ref",
+          "type": "string"
+        },
+        "source_status": {
+          "enum": [
+            "integrated_shaping_source",
+            "available_but_not_integrated",
+            "review_pending_input",
+            "rejected_or_superseded_source"
+          ],
+          "title": "Source Status",
+          "type": "string"
+        }
+      },
+      "required": [
+        "source_ref",
+        "source_kind",
+        "authority_layer",
+        "source_status",
+        "source_presence_posture",
+        "reconciliation_source_role",
+        "source_horizon",
+        "limitation_note"
+      ],
+      "title": "RepoReconciliationSourceRow",
+      "type": "object"
+    }
+  },
+  "additionalProperties": false,
+  "properties": {
+    "claim_map_rows": {
+      "items": {
+        "$ref": "#/$defs/RepoReconciliationClaimMapRow"
+      },
+      "minItems": 1,
+      "title": "Claim Map Rows",
+      "type": "array"
+    },
+    "claim_map_summary": {
+      "title": "Claim Map Summary",
+      "type": "string"
+    },
+    "post_dispatch_review_handoff_id": {
+      "title": "Post Dispatch Review Handoff Id",
+      "type": "string"
+    },
+    "reconciliation_claim_map_id": {
+      "title": "Reconciliation Claim Map Id",
+      "type": "string"
+    },
+    "review_id": {
+      "title": "Review Id",
+      "type": "string"
+    },
+    "schema": {
+      "const": "repo_reconciliation_claim_map@1",
+      "default": "repo_reconciliation_claim_map@1",
+      "title": "Schema",
+      "type": "string"
+    },
+    "snapshot_id": {
+      "title": "Snapshot Id",
+      "type": "string"
+    },
+    "source_rows": {
+      "items": {
+        "$ref": "#/$defs/RepoReconciliationSourceRow"
+      },
+      "minItems": 1,
+      "title": "Source Rows",
+      "type": "array"
+    },
+    "source_set_id": {
+      "title": "Source Set Id",
+      "type": "string"
+    },
+    "worker_output_reconciliation_plan_id": {
+      "title": "Worker Output Reconciliation Plan Id",
+      "type": "string"
+    }
+  },
+  "required": [
+    "reconciliation_claim_map_id",
+    "worker_output_reconciliation_plan_id",
+    "post_dispatch_review_handoff_id",
+    "review_id",
+    "snapshot_id",
+    "source_set_id",
+    "source_rows",
+    "claim_map_rows",
+    "claim_map_summary"
+  ],
+  "title": "RepoReconciliationClaimMap",
+  "type": "object"
+}

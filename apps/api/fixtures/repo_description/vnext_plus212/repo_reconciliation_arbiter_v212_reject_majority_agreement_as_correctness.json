@@ -1,0 +1,47 @@
+{
+  "arbiter_relation_register_id": "repo_arbiter_relation_register_4c070651455a215bdc259e9f",
+  "reconciliation_claim_map_id": "repo_reconciliation_claim_map_89786d815b5bd15f9ba8d30e",
+  "relation_register_summary": "V76-A registers V75-C relation rows for relation review, not truth and not settlement.",
+  "relation_rows": [
+    {
+      "arbiter_need_posture": "arbiter_blocked_by_missing_authority",
+      "arbiter_relation_ref": "arbiter-relation:v76a:product-wedge:blocked-placeholder",
+      "claim_map_refs": [
+        "claim-map:v76a:product-wedge:projected-authority-blocker"
+      ],
+      "limitation_note": "Projected relation placeholder is not truth and has no settlement.",
+      "non_truth_guardrail": "Arbiter relation placeholder is for review and not truth.",
+      "relation_kind": "single_output_no_relation",
+      "relation_review_posture": "blocked_by_no_observed_output",
+      "required_next_review_surface": "future_product_review",
+      "source_refs": [
+        "apps/api/fixtures/repo_description/vnext_plus211/repo_worker_output_reconciliation_plan_v211_reference.json#relation_rows"
+      ],
+      "source_relation_refs": [
+        "relation:v75c:product-wedge:blocked-projected-output"
+      ]
+    },
+    {
+      "arbiter_need_posture": "arbiter_review_needed_later",
+      "arbiter_relation_ref": "arbiter-relation:v76a:self-evidencing:single-projected",
+      "claim_map_refs": [
+        "claim-map:v76a:self-evidencing:projected-relation-review"
+      ],
+      "limitation_note": "Majority agreement proves this model is correct.",
+      "non_truth_guardrail": "Arbiter relation review is for review and not truth.",
+      "relation_kind": "single_output_no_relation",
+      "relation_review_posture": "requires_arbiter_review",
+      "required_next_review_surface": "future_reconciliation_or_arbiter_review",
+      "source_refs": [
+        "apps/api/fixtures/repo_description/vnext_plus211/repo_worker_output_reconciliation_plan_v211_reference.json#relation_rows"
+      ],
+      "source_relation_refs": [
+        "relation:v75c:self-evidencing:single-projected-output"
+      ]
+    }
+  ],
+  "review_id": "review:v76a:claim-relation-dissent-map",
+  "schema": "repo_arbiter_relation_register@1",
+  "snapshot_id": "vNext+211-closed-on-main",
+  "source_set_id": "source-set:v76a:released-v75c-reconciliation"
+}

@@ -1,0 +1,175 @@
+{
+  "$defs": {
+    "RepoReconciliationDissentRow": {
+      "additionalProperties": false,
+      "properties": {
+        "checked_source_refs": {
+          "items": {
+            "type": "string"
+          },
+          "title": "Checked Source Refs",
+          "type": "array"
+        },
+        "claim_map_refs": {
+          "items": {
+            "type": "string"
+          },
+          "minItems": 1,
+          "title": "Claim Map Refs",
+          "type": "array"
+        },
+        "dissent_carry_forward_posture": {
+          "enum": [
+            "carried_for_later_review",
+            "warning_only",
+            "blocking_until_reviewed",
+            "not_applicable",
+            "deferred_no_selection"
+          ],
+          "title": "Dissent Carry Forward Posture",
+          "type": "string"
+        },
+        "dissent_kind": {
+          "enum": [
+            "source_gap_dissent",
+            "relation_uncertainty_dissent",
+            "authority_boundary_dissent",
+            "product_authority_dissent",
+            "runtime_authority_dissent",
+            "no_dissent_recorded"
+          ],
+          "title": "Dissent Kind",
+          "type": "string"
+        },
+        "dissent_presence_posture": {
+          "enum": [
+            "dissent_present",
+            "searched_none_found",
+            "not_searched",
+            "not_applicable",
+            "unknown"
+          ],
+          "title": "Dissent Presence Posture",
+          "type": "string"
+        },
+        "dissent_ref": {
+          "title": "Dissent Ref",
+          "type": "string"
+        },
+        "dissent_search_coverage_posture": {
+          "enum": [
+            "searched_released_v75c_sources",
+            "partially_checked",
+            "not_searched",
+            "not_applicable",
+            "unknown"
+          ],
+          "title": "Dissent Search Coverage Posture",
+          "type": "string"
+        },
+        "dissent_search_horizon_refs": {
+          "items": {
+            "type": "string"
+          },
+          "title": "Dissent Search Horizon Refs",
+          "type": "array"
+        },
+        "dissent_source_refs": {
+          "items": {
+            "type": "string"
+          },
+          "title": "Dissent Source Refs",
+          "type": "array"
+        },
+        "limitation_note": {
+          "title": "Limitation Note",
+          "type": "string"
+        },
+        "relation_refs": {
+          "items": {
+            "type": "string"
+          },
+          "minItems": 1,
+          "title": "Relation Refs",
+          "type": "array"
+        },
+        "unchecked_source_refs": {
+          "items": {
+            "type": "string"
+          },
+          "title": "Unchecked Source Refs",
+          "type": "array"
+        }
+      },
+      "required": [
+        "dissent_ref",
+        "claim_map_refs",
+        "relation_refs",
+        "dissent_kind",
+        "dissent_presence_posture",
+        "dissent_search_coverage_posture",
+        "dissent_carry_forward_posture",
+        "limitation_note"
+      ],
+      "title": "RepoReconciliationDissentRow",
+      "type": "object"
+    }
+  },
+  "additionalProperties": false,
+  "properties": {
+    "arbiter_relation_register_id": {
+      "title": "Arbiter Relation Register Id",
+      "type": "string"
+    },
+    "dissent_register_summary": {
+      "title": "Dissent Register Summary",
+      "type": "string"
+    },
+    "dissent_rows": {
+      "items": {
+        "$ref": "#/$defs/RepoReconciliationDissentRow"
+      },
+      "minItems": 1,
+      "title": "Dissent Rows",
+      "type": "array"
+    },
+    "reconciliation_claim_map_id": {
+      "title": "Reconciliation Claim Map Id",
+      "type": "string"
+    },
+    "reconciliation_dissent_register_id": {
+      "title": "Reconciliation Dissent Register Id",
+      "type": "string"
+    },
+    "review_id": {
+      "title": "Review Id",
+      "type": "string"
+    },
+    "schema": {
+      "const": "repo_reconciliation_dissent_register@1",
+      "default": "repo_reconciliation_dissent_register@1",
+      "title": "Schema",
+      "type": "string"
+    },
+    "snapshot_id": {
+      "title": "Snapshot Id",
+      "type": "string"
+    },
+    "source_set_id": {
+      "title": "Source Set Id",
+      "type": "string"
+    }
+  },
+  "required": [
+    "reconciliation_dissent_register_id",
+    "reconciliation_claim_map_id",
+    "arbiter_relation_register_id",
+    "review_id",
+    "snapshot_id",
+    "source_set_id",
+    "dissent_rows",
+    "dissent_register_summary"
+  ],
+  "title": "RepoReconciliationDissentRegister",
+  "type": "object"
+}
