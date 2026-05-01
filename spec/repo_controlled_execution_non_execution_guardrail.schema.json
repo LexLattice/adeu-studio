@@ -1,0 +1,147 @@
+{
+  "$defs": {
+    "RepoControlledExecutionNonExecutionGuardrailRow": {
+      "additionalProperties": false,
+      "properties": {
+        "candidate_ref": {
+          "title": "Candidate Ref",
+          "type": "string"
+        },
+        "execution_review_request_refs": {
+          "items": {
+            "type": "string"
+          },
+          "minItems": 1,
+          "title": "Execution Review Request Refs",
+          "type": "array"
+        },
+        "forbidden_downstream_authority": {
+          "items": {
+            "enum": [
+              "product_authorization",
+              "external_branch_activation",
+              "released_truth",
+              "benchmark_truth",
+              "model_selection",
+              "living_memory_authority",
+              "recursive_policy_amendment",
+              "v80_selection"
+            ],
+            "type": "string"
+          },
+          "minItems": 1,
+          "title": "Forbidden Downstream Authority",
+          "type": "array"
+        },
+        "forbidden_execution_actions": {
+          "items": {
+            "enum": [
+              "run_command",
+              "invoke_tool_for_effect",
+              "mutate_target",
+              "accept_effect",
+              "observe_telemetry_as_success",
+              "verify_rollback",
+              "assign_worker",
+              "dispatch_worker",
+              "open_pr",
+              "commit",
+              "merge",
+              "release",
+              "external_submission"
+            ],
+            "type": "string"
+          },
+          "minItems": 1,
+          "title": "Forbidden Execution Actions",
+          "type": "array"
+        },
+        "guardrail_posture": {
+          "const": "non_execution_guardrail_active",
+          "title": "Guardrail Posture",
+          "type": "string"
+        },
+        "guardrail_ref": {
+          "title": "Guardrail Ref",
+          "type": "string"
+        },
+        "limitation_note": {
+          "title": "Limitation Note",
+          "type": "string"
+        },
+        "source_refs": {
+          "items": {
+            "type": "string"
+          },
+          "minItems": 1,
+          "title": "Source Refs",
+          "type": "array"
+        }
+      },
+      "required": [
+        "guardrail_ref",
+        "candidate_ref",
+        "source_refs",
+        "execution_review_request_refs",
+        "forbidden_execution_actions",
+        "forbidden_downstream_authority",
+        "guardrail_posture",
+        "limitation_note"
+      ],
+      "title": "RepoControlledExecutionNonExecutionGuardrailRow",
+      "type": "object"
+    }
+  },
+  "additionalProperties": false,
+  "properties": {
+    "controlled_execution_non_execution_guardrail_id": {
+      "title": "Controlled Execution Non Execution Guardrail Id",
+      "type": "string"
+    },
+    "controlled_execution_review_request_id": {
+      "title": "Controlled Execution Review Request Id",
+      "type": "string"
+    },
+    "guardrail_rows": {
+      "items": {
+        "$ref": "#/$defs/RepoControlledExecutionNonExecutionGuardrailRow"
+      },
+      "minItems": 1,
+      "title": "Guardrail Rows",
+      "type": "array"
+    },
+    "non_execution_summary": {
+      "title": "Non Execution Summary",
+      "type": "string"
+    },
+    "review_id": {
+      "title": "Review Id",
+      "type": "string"
+    },
+    "schema": {
+      "const": "repo_controlled_execution_non_execution_guardrail@1",
+      "default": "repo_controlled_execution_non_execution_guardrail@1",
+      "title": "Schema",
+      "type": "string"
+    },
+    "snapshot_id": {
+      "title": "Snapshot Id",
+      "type": "string"
+    },
+    "source_set_id": {
+      "title": "Source Set Id",
+      "type": "string"
+    }
+  },
+  "required": [
+    "controlled_execution_non_execution_guardrail_id",
+    "controlled_execution_review_request_id",
+    "review_id",
+    "snapshot_id",
+    "source_set_id",
+    "guardrail_rows",
+    "non_execution_summary"
+  ],
+  "title": "RepoControlledExecutionNonExecutionGuardrail",
+  "type": "object"
+}

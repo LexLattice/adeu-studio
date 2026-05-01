@@ -1,0 +1,87 @@
+{
+  "controlled_execution_non_execution_guardrail_id": "repo_controlled_execution_non_execution_guardrail_266ba905f6f220705a20ac20",
+  "controlled_execution_review_request_id": "repo_controlled_execution_review_request_5356d0d3f24006932cc4a884",
+  "guardrail_rows": [
+    {
+      "candidate_ref": "candidate:internal:typed_adjudication_product_wedge",
+      "execution_review_request_refs": [
+        "execution-review:v79a:product-wedge:blocked"
+      ],
+      "forbidden_downstream_authority": [
+        "benchmark_truth",
+        "external_branch_activation",
+        "living_memory_authority",
+        "model_selection",
+        "product_authorization",
+        "recursive_policy_amendment",
+        "released_truth",
+        "v80_selection"
+      ],
+      "forbidden_execution_actions": [],
+      "guardrail_posture": "non_execution_guardrail_active",
+      "guardrail_ref": "guardrail:v79a:product-wedge:non-execution",
+      "limitation_note": "This V79-A row is review only: no controlled execution, no execution, no tool invocation, no product authorization, no external branch activation, and no release.",
+      "source_refs": [
+        "apps/api/fixtures/repo_description/vnext_plus219/repo_command_scope_authorization_boundary_v219_reference.json",
+        "apps/api/fixtures/repo_description/vnext_plus219/repo_runtime_authority_exception_register_v219_reference.json",
+        "apps/api/fixtures/repo_description/vnext_plus219/repo_runtime_execution_authority_decision_v219_reference.json",
+        "apps/api/fixtures/repo_description/vnext_plus219/repo_tool_use_permission_envelope_v219_reference.json",
+        "apps/api/fixtures/repo_description/vnext_plus220/repo_pre_execution_authority_review_handoff_v220_reference.json",
+        "apps/api/fixtures/repo_description/vnext_plus220/repo_runtime_authority_readiness_summary_v220_reference.json",
+        "apps/api/fixtures/repo_description/vnext_plus220/repo_runtime_execution_authority_family_closeout_alignment_v220_reference.json",
+        "docs/LOCKED_CONTINUATION_vNEXT_PLUS221.md",
+        "docs/support/arc_series_mapping/V68_V69_V70_V71_V72_V73_V74_V75_V76_V77_V78_COMBINED_DOGFOOD_TEST_v0.json"
+      ]
+    },
+    {
+      "candidate_ref": "candidate:internal:self_evidencing_workflow_type_emergence",
+      "execution_review_request_refs": [
+        "execution-review:v79a:self-evidencing:controlled-execution"
+      ],
+      "forbidden_downstream_authority": [
+        "benchmark_truth",
+        "external_branch_activation",
+        "living_memory_authority",
+        "model_selection",
+        "product_authorization",
+        "recursive_policy_amendment",
+        "released_truth",
+        "v80_selection"
+      ],
+      "forbidden_execution_actions": [
+        "accept_effect",
+        "assign_worker",
+        "commit",
+        "dispatch_worker",
+        "external_submission",
+        "invoke_tool_for_effect",
+        "merge",
+        "mutate_target",
+        "observe_telemetry_as_success",
+        "open_pr",
+        "release",
+        "run_command",
+        "verify_rollback"
+      ],
+      "guardrail_posture": "non_execution_guardrail_active",
+      "guardrail_ref": "guardrail:v79a:self-evidencing:non-execution",
+      "limitation_note": "This V79-A row is review only: no controlled execution, no execution, no tool invocation, no product authorization, no external branch activation, and no release.",
+      "source_refs": [
+        "apps/api/fixtures/repo_description/vnext_plus219/repo_command_scope_authorization_boundary_v219_reference.json",
+        "apps/api/fixtures/repo_description/vnext_plus219/repo_runtime_authority_exception_register_v219_reference.json",
+        "apps/api/fixtures/repo_description/vnext_plus219/repo_runtime_execution_authority_decision_v219_reference.json",
+        "apps/api/fixtures/repo_description/vnext_plus219/repo_tool_use_permission_envelope_v219_reference.json",
+        "apps/api/fixtures/repo_description/vnext_plus220/repo_pre_execution_authority_review_handoff_v220_reference.json",
+        "apps/api/fixtures/repo_description/vnext_plus220/repo_runtime_authority_readiness_summary_v220_reference.json",
+        "apps/api/fixtures/repo_description/vnext_plus220/repo_runtime_execution_authority_family_closeout_alignment_v220_reference.json",
+        "docs/LOCKED_CONTINUATION_vNEXT_PLUS221.md",
+        "docs/support/arc_series_mapping/V68_V69_V70_V71_V72_V73_V74_V75_V76_V77_V78_COMBINED_DOGFOOD_TEST_v0.json"
+      ]
+    }
+  ],
+  "non_execution_summary": "Controlled execution non-execution guardrails preserve review only: no controlled execution, no execution, no tool invocation, and no release.",
+  "review_id": "review:v79a:controlled-execution-review",
+  "schema": "repo_controlled_execution_non_execution_guardrail@1",
+  "snapshot_id": "vNext+220-runtime-authority-closeout",
+  "source_set_id": "source-set:v79a:released-v78c-controlled-execution-pressure"
+}
