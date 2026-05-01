@@ -436,7 +436,9 @@ class RepoReconciliationDissentRow(_CartographyBase):
             _repo_ref(source_ref, field_name="source_refs")
         if self.dissent_presence_posture == "searched_none_found":
             if not self.dissent_search_horizon_refs or not self.checked_source_refs:
-                raise ValueError("searched-none dissent rows require searched horizon")
+                raise ValueError(
+                    "searched-none dissent rows require a search horizon and checked sources"
+                )
             if self.dissent_search_coverage_posture == "not_searched":
                 raise ValueError("searched-none dissent rows require checked coverage")
         if self.dissent_kind == "no_dissent_recorded" and (
@@ -511,11 +513,15 @@ def derive_v76a_repo_reconciliation_claim_map(
     worker_output_reconciliation_plan: RepoWorkerOutputReconciliationPlan | None = None,
     post_dispatch_review_handoff: RepoPostDispatchReviewHandoff | None = None,
 ) -> RepoReconciliationClaimMap:
-    reconciliation_plan, _, handoff, _ = derive_v75c_dispatch_review_closeout_bundle(
-        repo_root=repo_root
-    )
-    reconciliation_plan = worker_output_reconciliation_plan or reconciliation_plan
-    handoff = post_dispatch_review_handoff or handoff
+    if worker_output_reconciliation_plan is None or post_dispatch_review_handoff is None:
+        derived_plan, _, derived_handoff, _ = derive_v75c_dispatch_review_closeout_bundle(
+            repo_root=repo_root
+        )
+        reconciliation_plan = worker_output_reconciliation_plan or derived_plan
+        handoff = post_dispatch_review_handoff or derived_handoff
+    else:
+        reconciliation_plan = worker_output_reconciliation_plan
+        handoff = post_dispatch_review_handoff
     payload = {
         **_v76a_base_payload(
             schema=REPO_RECONCILIATION_CLAIM_MAP_SCHEMA,
@@ -875,7 +881,43 @@ def validate_v76a_reconciliation_arbiter_bundle(
     arbiter_relation_register: RepoArbiterRelationRegister,
     reconciliation_dissent_register: RepoReconciliationDissentRegister,
 ) -> None:
-    _ = dispatch_reconciliation_contract, dispatch_review_family_closeout_alignment
+    v75c_surfaces = [
+        worker_output_reconciliation_plan,
+        dispatch_reconciliation_contract,
+        post_dispatch_review_handoff,
+        dispatch_review_family_closeout_alignment,
+    ]
+    for surface in v75c_surfaces:
+        if (
+            surface.review_id,
+            surface.snapshot_id,
+            surface.source_set_id,
+        ) != (
+            "review:v75c:reconciliation-contract-handoff-closeout",
+            "vNext+210-closed-on-main",
+            "source-set:v75c:released-v75a-v75b-dispatch-review",
+        ):
+            raise ValueError("V75-C prerequisite surfaces must share closeout provenance")
+    if (
+        dispatch_reconciliation_contract.worker_output_reconciliation_plan_id
+        != worker_output_reconciliation_plan.worker_output_reconciliation_plan_id
+    ):
+        raise ValueError("V75-C contract must reference the reconciliation plan")
+    if (
+        post_dispatch_review_handoff.worker_output_reconciliation_plan_id
+        != worker_output_reconciliation_plan.worker_output_reconciliation_plan_id
+    ):
+        raise ValueError("V75-C handoff must reference the reconciliation plan")
+    if (
+        post_dispatch_review_handoff.dispatch_reconciliation_contract_id
+        != dispatch_reconciliation_contract.dispatch_reconciliation_contract_id
+    ):
+        raise ValueError("V75-C handoff must reference reconciliation contract")
+    if dispatch_review_family_closeout_alignment.family != "V75":
+        raise ValueError("V75-C family closeout alignment must be for V75")
+    if dispatch_review_family_closeout_alignment.closed_by_arc != "vNext+211":
+        raise ValueError("V75-C family closeout alignment must close vNext+211")
+
     surfaces = [
         reconciliation_claim_map,
         arbiter_relation_register,
@@ -984,11 +1026,6 @@ def validate_v76a_reconciliation_arbiter_bundle(
             raise ValueError("dissent rows must reference known claim maps")
         if any(ref not in relation_rows for ref in dissent_row.relation_refs):
             raise ValueError("dissent rows must reference known arbiter relation rows")
-        if (
-            dissent_row.dissent_presence_posture == "searched_none_found"
-            and not dissent_row.dissent_search_horizon_refs
-        ):
-            raise ValueError("searched-none dissent rows require searched horizon")
 
 
 def derive_v76a_reconciliation_arbiter_bundle(

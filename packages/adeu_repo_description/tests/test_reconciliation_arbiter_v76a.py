@@ -4,10 +4,13 @@ import json
 from pathlib import Path
 from typing import Any
 
+import adeu_repo_description.reconciliation_arbiter as reconciliation_arbiter_module
 import pytest
 from adeu_ir.repo import repo_root
 from adeu_repo_description import (
     REPO_ARBITER_RELATION_REGISTER_SCHEMA,
+    REPO_DISPATCH_RECONCILIATION_CONTRACT_SCHEMA,
+    REPO_DISPATCH_REVIEW_FAMILY_CLOSEOUT_ALIGNMENT_SCHEMA,
     REPO_RECONCILIATION_CLAIM_MAP_SCHEMA,
     REPO_RECONCILIATION_DISSENT_REGISTER_SCHEMA,
     RepoArbiterRelationRegister,
@@ -195,6 +198,78 @@ def test_v212_derivation_helper_matches_reference_fixtures() -> None:
     )
 
 
+def test_v212_claim_map_derivation_uses_supplied_deps(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    def _fail_fallback_derivation(**_: Any) -> None:
+        raise AssertionError("fallback derivation should not run when dependencies are supplied")
+
+    monkeypatch.setattr(
+        reconciliation_arbiter_module,
+        "derive_v75c_dispatch_review_closeout_bundle",
+        _fail_fallback_derivation,
+    )
+
+    claim_map = reconciliation_arbiter_module.derive_v76a_repo_reconciliation_claim_map(
+        worker_output_reconciliation_plan=_reconciliation_plan(),
+        post_dispatch_review_handoff=_handoff(),
+    )
+
+    assert claim_map.schema == REPO_RECONCILIATION_CLAIM_MAP_SCHEMA
+
+
+def test_v212_bundle_rejects_mismatched_v75c_contract() -> None:
+    payload = _load_fixture(
+        "vnext_plus211",
+        "repo_dispatch_reconciliation_contract_v211_reference.json",
+    )
+    payload["worker_output_reconciliation_plan_id"] = "reconciliation-plan-id:stale"
+    payload["dispatch_reconciliation_contract_id"] = _surface_id(
+        "repo_dispatch_reconciliation_contract",
+        REPO_DISPATCH_RECONCILIATION_CONTRACT_SCHEMA,
+        payload,
+        "dispatch_reconciliation_contract_id",
+    )
+    stale_contract = RepoDispatchReconciliationContract.model_validate(payload)
+
+    with pytest.raises(ValueError, match="V75-C contract must reference"):
+        validate_v76a_reconciliation_arbiter_bundle(
+            worker_output_reconciliation_plan=_reconciliation_plan(),
+            dispatch_reconciliation_contract=stale_contract,
+            post_dispatch_review_handoff=_handoff(),
+            dispatch_review_family_closeout_alignment=_family_closeout(),
+            reconciliation_claim_map=_claim_map(),
+            arbiter_relation_register=_relation_register(),
+            reconciliation_dissent_register=_dissent_register(),
+        )
+
+
+def test_v212_bundle_rejects_stale_v75c_closeout_provenance() -> None:
+    payload = _load_fixture(
+        "vnext_plus211",
+        "repo_dispatch_review_family_closeout_alignment_v211_reference.json",
+    )
+    payload["source_set_id"] = "source-set:v75c:stale"
+    payload["dispatch_review_family_closeout_alignment_id"] = _surface_id(
+        "repo_dispatch_review_family_closeout_alignment",
+        REPO_DISPATCH_REVIEW_FAMILY_CLOSEOUT_ALIGNMENT_SCHEMA,
+        payload,
+        "dispatch_review_family_closeout_alignment_id",
+    )
+    stale_closeout = RepoDispatchReviewFamilyCloseoutAlignment.model_validate(payload)
+
+    with pytest.raises(ValueError, match="V75-C prerequisite surfaces"):
+        validate_v76a_reconciliation_arbiter_bundle(
+            worker_output_reconciliation_plan=_reconciliation_plan(),
+            dispatch_reconciliation_contract=_contract(),
+            post_dispatch_review_handoff=_handoff(),
+            dispatch_review_family_closeout_alignment=stale_closeout,
+            reconciliation_claim_map=_claim_map(),
+            arbiter_relation_register=_relation_register(),
+            reconciliation_dissent_register=_dissent_register(),
+        )
+
+
 @pytest.mark.parametrize(
     ("fixture_name", "model_type", "match"),
     [
@@ -246,7 +321,7 @@ def test_v212_derivation_helper_matches_reference_fixtures() -> None:
         (
             "repo_reconciliation_arbiter_v212_reject_no_dissent_recorded_without_search_horizon.json",
             RepoReconciliationDissentRegister,
-            "searched-none dissent rows require searched horizon",
+            "searched-none dissent rows require a search horizon and checked sources",
         ),
     ],
 )
