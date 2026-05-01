@@ -1,0 +1,56 @@
+{
+  "arbiter_relation_register_id": "repo_arbiter_relation_register_4c070651455a215bdc259e9f",
+  "dissent_register_summary": "V76-A dissent register preserves searched and dissent states, not truth.",
+  "dissent_rows": [
+    {
+      "checked_source_refs": [
+        "apps/api/fixtures/repo_description/vnext_plus211/repo_post_dispatch_review_handoff_v211_reference.json"
+      ],
+      "claim_map_refs": [
+        "claim-map:v76a:product-wedge:projected-authority-blocker"
+      ],
+      "dissent_carry_forward_posture": "blocking_until_reviewed",
+      "dissent_kind": "product_authority_dissent",
+      "dissent_presence_posture": "dissent_present",
+      "dissent_ref": "dissent:v76a:product-wedge:authority-blocker",
+      "dissent_search_coverage_posture": "partially_checked",
+      "dissent_search_horizon_refs": [],
+      "dissent_source_refs": [
+        "apps/api/fixtures/repo_description/vnext_plus211/repo_post_dispatch_review_handoff_v211_reference.json"
+      ],
+      "limitation_note": "Product authority blocker dissent is carried with no authority.",
+      "relation_refs": [
+        "arbiter-relation:v76a:unknown"
+      ],
+      "unchecked_source_refs": []
+    },
+    {
+      "checked_source_refs": [
+        "apps/api/fixtures/repo_description/vnext_plus211/repo_worker_output_reconciliation_plan_v211_reference.json"
+      ],
+      "claim_map_refs": [
+        "claim-map:v76a:self-evidencing:projected-relation-review"
+      ],
+      "dissent_carry_forward_posture": "warning_only",
+      "dissent_kind": "no_dissent_recorded",
+      "dissent_presence_posture": "searched_none_found",
+      "dissent_ref": "dissent:v76a:self-evidencing:searched-none",
+      "dissent_search_coverage_posture": "searched_released_v75c_sources",
+      "dissent_search_horizon_refs": [
+        "horizon:v76a:self-evidencing:released-v75c-fixtures"
+      ],
+      "dissent_source_refs": [],
+      "limitation_note": "Searched released V75-C sources only; no truth authority.",
+      "relation_refs": [
+        "arbiter-relation:v76a:self-evidencing:single-projected"
+      ],
+      "unchecked_source_refs": []
+    }
+  ],
+  "reconciliation_claim_map_id": "repo_reconciliation_claim_map_89786d815b5bd15f9ba8d30e",
+  "reconciliation_dissent_register_id": "repo_reconciliation_dissent_register_9fed02e2456ebdc45985a724",
+  "review_id": "review:v76a:claim-relation-dissent-map",
+  "schema": "repo_reconciliation_dissent_register@1",
+  "snapshot_id": "vNext+211-closed-on-main",
+  "source_set_id": "source-set:v76a:released-v75c-reconciliation"
+}

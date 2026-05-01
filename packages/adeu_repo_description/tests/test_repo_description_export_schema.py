@@ -6,6 +6,7 @@ from pathlib import Path
 
 from adeu_ir.repo import repo_root
 from adeu_repo_description import (
+    REPO_ARBITER_RELATION_REGISTER_SCHEMA,
     REPO_ARC_DEPENDENCY_REGISTER_SCHEMA,
     REPO_ARC_DEPENDENCY_REGISTER_V1_SCHEMA,
     REPO_ARC_MAPPING_TOOL_APPLICABILITY_REPORT_SCHEMA,
@@ -66,6 +67,8 @@ from adeu_repo_description import (
     REPO_RATIFICATION_DISSENT_REGISTER_SCHEMA,
     REPO_RATIFICATION_REQUEST_SCOPE_BOUNDARY_SCHEMA,
     REPO_RATIFICATION_REVIEW_WORKBENCH_PROJECTION_SCHEMA,
+    REPO_RECONCILIATION_CLAIM_MAP_SCHEMA,
+    REPO_RECONCILIATION_DISSENT_REGISTER_SCHEMA,
     REPO_RECURSIVE_CANDIDATE_INTAKE_RECORD_SCHEMA,
     REPO_RECURSIVE_COORDINATE_EMISSION_PLAN_SCHEMA,
     REPO_RECURSIVE_WORKFLOW_RESIDUE_INTAKE_REPORT_SCHEMA,
@@ -637,6 +640,30 @@ def _schema_pairs() -> dict[str, tuple[Path, Path]]:
             / "schema"
             / "repo_dispatch_review_family_closeout_alignment.v1.json",
             root / "spec" / "repo_dispatch_review_family_closeout_alignment.schema.json",
+        ),
+        REPO_RECONCILIATION_CLAIM_MAP_SCHEMA: (
+            root
+            / "packages"
+            / "adeu_repo_description"
+            / "schema"
+            / "repo_reconciliation_claim_map.v1.json",
+            root / "spec" / "repo_reconciliation_claim_map.schema.json",
+        ),
+        REPO_ARBITER_RELATION_REGISTER_SCHEMA: (
+            root
+            / "packages"
+            / "adeu_repo_description"
+            / "schema"
+            / "repo_arbiter_relation_register.v1.json",
+            root / "spec" / "repo_arbiter_relation_register.schema.json",
+        ),
+        REPO_RECONCILIATION_DISSENT_REGISTER_SCHEMA: (
+            root
+            / "packages"
+            / "adeu_repo_description"
+            / "schema"
+            / "repo_reconciliation_dissent_register.v1.json",
+            root / "spec" / "repo_reconciliation_dissent_register.schema.json",
         ),
     }
 
