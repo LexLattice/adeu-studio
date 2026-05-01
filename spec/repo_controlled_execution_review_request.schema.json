@@ -1,0 +1,285 @@
+{
+  "$defs": {
+    "RepoControlledExecutionReviewRequestRow": {
+      "additionalProperties": false,
+      "properties": {
+        "candidate_ref": {
+          "title": "Candidate Ref",
+          "type": "string"
+        },
+        "controlled_execution_action_posture": {
+          "enum": [
+            "no_controlled_execution_performed_by_v79",
+            "controlled_execution_requires_later_family",
+            "controlled_execution_forbidden_by_this_family"
+          ],
+          "title": "Controlled Execution Action Posture",
+          "type": "string"
+        },
+        "execution_posture": {
+          "enum": [
+            "no_execution_performed_by_v79",
+            "execution_requires_later_family",
+            "execution_forbidden_by_this_family"
+          ],
+          "title": "Execution Posture",
+          "type": "string"
+        },
+        "execution_review_posture": {
+          "enum": [
+            "eligible_for_controlled_execution_review",
+            "blocked_by_missing_source",
+            "blocked_by_missing_authority",
+            "blocked_by_product_authority_gap",
+            "blocked_by_external_branch_gap",
+            "blocked_by_unbounded_target",
+            "blocked_by_missing_effect_monitoring",
+            "blocked_by_missing_telemetry",
+            "blocked_by_missing_rollback",
+            "future_family_only",
+            "rejected_out_of_scope"
+          ],
+          "title": "Execution Review Posture",
+          "type": "string"
+        },
+        "execution_review_request_ref": {
+          "title": "Execution Review Request Ref",
+          "type": "string"
+        },
+        "guardrail_refs": {
+          "items": {
+            "type": "string"
+          },
+          "minItems": 1,
+          "title": "Guardrail Refs",
+          "type": "array"
+        },
+        "limitation_note": {
+          "title": "Limitation Note",
+          "type": "string"
+        },
+        "odeu_lanes": {
+          "items": {
+            "enum": [
+              "ontological",
+              "deontic",
+              "epistemic",
+              "utility"
+            ],
+            "type": "string"
+          },
+          "minItems": 1,
+          "title": "Odeu Lanes",
+          "type": "array"
+        },
+        "requested_execution_review_horizon": {
+          "enum": [
+            "bounded_command_run_plan_review",
+            "bounded_tool_invocation_plan_review",
+            "bounded_repo_script_run_plan_review",
+            "future_product_review",
+            "future_external_branch_review",
+            "future_family_review"
+          ],
+          "title": "Requested Execution Review Horizon",
+          "type": "string"
+        },
+        "requested_run_plan_horizon": {
+          "enum": [
+            "bounded_run_plan_required_later",
+            "run_plan_not_selected_in_v79a",
+            "run_plan_blocked_by_missing_source",
+            "run_plan_blocked_by_missing_authority",
+            "future_family_only"
+          ],
+          "title": "Requested Run Plan Horizon",
+          "type": "string"
+        },
+        "requested_tool_invocation_horizon": {
+          "enum": [
+            "bounded_tool_invocation_plan_required_later",
+            "tool_invocation_plan_not_selected_in_v79a",
+            "tool_invocation_plan_blocked_by_missing_source",
+            "tool_invocation_plan_blocked_by_missing_authority",
+            "future_family_only"
+          ],
+          "title": "Requested Tool Invocation Horizon",
+          "type": "string"
+        },
+        "required_authority_refs": {
+          "items": {
+            "type": "string"
+          },
+          "title": "Required Authority Refs",
+          "type": "array"
+        },
+        "required_effect_monitoring_posture": {
+          "enum": [
+            "required_for_later_review",
+            "not_selected_in_v79a",
+            "not_applicable",
+            "blocked_by_missing_source",
+            "blocked_by_missing_authority",
+            "future_family_only"
+          ],
+          "title": "Required Effect Monitoring Posture",
+          "type": "string"
+        },
+        "required_operator_confirmation_posture": {
+          "enum": [
+            "required_for_later_review",
+            "not_selected_in_v79a",
+            "not_applicable",
+            "blocked_by_missing_source",
+            "blocked_by_missing_authority",
+            "future_family_only"
+          ],
+          "title": "Required Operator Confirmation Posture",
+          "type": "string"
+        },
+        "required_rollback_posture": {
+          "enum": [
+            "required_for_later_review",
+            "not_selected_in_v79a",
+            "not_applicable",
+            "blocked_by_missing_source",
+            "blocked_by_missing_authority",
+            "future_family_only"
+          ],
+          "title": "Required Rollback Posture",
+          "type": "string"
+        },
+        "required_telemetry_posture": {
+          "enum": [
+            "required_for_later_review",
+            "not_selected_in_v79a",
+            "not_applicable",
+            "blocked_by_missing_source",
+            "blocked_by_missing_authority",
+            "future_family_only"
+          ],
+          "title": "Required Telemetry Posture",
+          "type": "string"
+        },
+        "source_refs": {
+          "items": {
+            "type": "string"
+          },
+          "minItems": 1,
+          "title": "Source Refs",
+          "type": "array"
+        },
+        "target_boundary_refs": {
+          "items": {
+            "type": "string"
+          },
+          "title": "Target Boundary Refs",
+          "type": "array"
+        },
+        "tool_invocation_posture": {
+          "enum": [
+            "no_tool_invocation_performed_by_v79",
+            "tool_invocation_requires_later_family",
+            "tool_invocation_forbidden_by_this_family"
+          ],
+          "title": "Tool Invocation Posture",
+          "type": "string"
+        },
+        "v78_closeout_refs": {
+          "items": {
+            "type": "string"
+          },
+          "title": "V78 Closeout Refs",
+          "type": "array"
+        },
+        "v78_handoff_refs": {
+          "items": {
+            "type": "string"
+          },
+          "title": "V78 Handoff Refs",
+          "type": "array"
+        },
+        "v78_summary_refs": {
+          "items": {
+            "type": "string"
+          },
+          "title": "V78 Summary Refs",
+          "type": "array"
+        }
+      },
+      "required": [
+        "execution_review_request_ref",
+        "candidate_ref",
+        "source_refs",
+        "requested_execution_review_horizon",
+        "execution_review_posture",
+        "requested_run_plan_horizon",
+        "requested_tool_invocation_horizon",
+        "required_effect_monitoring_posture",
+        "required_telemetry_posture",
+        "required_rollback_posture",
+        "required_operator_confirmation_posture",
+        "guardrail_refs",
+        "controlled_execution_action_posture",
+        "execution_posture",
+        "tool_invocation_posture",
+        "odeu_lanes",
+        "limitation_note"
+      ],
+      "title": "RepoControlledExecutionReviewRequestRow",
+      "type": "object"
+    }
+  },
+  "additionalProperties": false,
+  "properties": {
+    "controlled_execution_boundary_summary": {
+      "title": "Controlled Execution Boundary Summary",
+      "type": "string"
+    },
+    "controlled_execution_review_request_id": {
+      "title": "Controlled Execution Review Request Id",
+      "type": "string"
+    },
+    "controlled_execution_source_index_id": {
+      "title": "Controlled Execution Source Index Id",
+      "type": "string"
+    },
+    "request_rows": {
+      "items": {
+        "$ref": "#/$defs/RepoControlledExecutionReviewRequestRow"
+      },
+      "minItems": 1,
+      "title": "Request Rows",
+      "type": "array"
+    },
+    "review_id": {
+      "title": "Review Id",
+      "type": "string"
+    },
+    "schema": {
+      "const": "repo_controlled_execution_review_request@1",
+      "default": "repo_controlled_execution_review_request@1",
+      "title": "Schema",
+      "type": "string"
+    },
+    "snapshot_id": {
+      "title": "Snapshot Id",
+      "type": "string"
+    },
+    "source_set_id": {
+      "title": "Source Set Id",
+      "type": "string"
+    }
+  },
+  "required": [
+    "controlled_execution_review_request_id",
+    "controlled_execution_source_index_id",
+    "review_id",
+    "snapshot_id",
+    "source_set_id",
+    "request_rows",
+    "controlled_execution_boundary_summary"
+  ],
+  "title": "RepoControlledExecutionReviewRequest",
+  "type": "object"
+}

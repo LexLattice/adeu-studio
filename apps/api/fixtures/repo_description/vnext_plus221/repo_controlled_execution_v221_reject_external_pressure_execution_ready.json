@@ -1,0 +1,109 @@
+{
+  "controlled_execution_boundary_summary": "Controlled execution review request is review only: no execution, no tool invocation, no product authorization, and no release.",
+  "controlled_execution_review_request_id": "repo_controlled_execution_review_request_5356d0d3f24006932cc4a884",
+  "controlled_execution_source_index_id": "repo_controlled_execution_source_index_c021c60fe328391015a761ed",
+  "request_rows": [
+    {
+      "candidate_ref": "candidate:conditional:v43_external_branch",
+      "controlled_execution_action_posture": "no_controlled_execution_performed_by_v79",
+      "execution_posture": "no_execution_performed_by_v79",
+      "execution_review_posture": "eligible_for_controlled_execution_review",
+      "execution_review_request_ref": "execution-review:v79a:product-wedge:blocked",
+      "guardrail_refs": [
+        "guardrail:v79a:product-wedge:non-execution"
+      ],
+      "limitation_note": "Product pressure remains blocked by later product authority with no controlled execution, no execution, no tool invocation, and no release.",
+      "odeu_lanes": [
+        "deontic",
+        "utility"
+      ],
+      "requested_execution_review_horizon": "future_external_branch_review",
+      "requested_run_plan_horizon": "future_family_only",
+      "requested_tool_invocation_horizon": "future_family_only",
+      "required_authority_refs": [
+        "authority:v79a:v43:external-branch"
+      ],
+      "required_effect_monitoring_posture": "not_applicable",
+      "required_operator_confirmation_posture": "future_family_only",
+      "required_rollback_posture": "not_applicable",
+      "required_telemetry_posture": "not_applicable",
+      "source_refs": [
+        "apps/api/fixtures/repo_description/vnext_plus219/repo_command_scope_authorization_boundary_v219_reference.json",
+        "apps/api/fixtures/repo_description/vnext_plus219/repo_runtime_authority_exception_register_v219_reference.json",
+        "apps/api/fixtures/repo_description/vnext_plus219/repo_runtime_execution_authority_decision_v219_reference.json",
+        "apps/api/fixtures/repo_description/vnext_plus219/repo_tool_use_permission_envelope_v219_reference.json",
+        "apps/api/fixtures/repo_description/vnext_plus220/repo_pre_execution_authority_review_handoff_v220_reference.json",
+        "apps/api/fixtures/repo_description/vnext_plus220/repo_runtime_authority_readiness_summary_v220_reference.json",
+        "apps/api/fixtures/repo_description/vnext_plus220/repo_runtime_execution_authority_family_closeout_alignment_v220_reference.json",
+        "docs/LOCKED_CONTINUATION_vNEXT_PLUS221.md",
+        "docs/support/arc_series_mapping/V68_V69_V70_V71_V72_V73_V74_V75_V76_V77_V78_COMBINED_DOGFOOD_TEST_v0.json"
+      ],
+      "target_boundary_refs": [],
+      "tool_invocation_posture": "no_tool_invocation_performed_by_v79",
+      "v78_closeout_refs": [
+        "repo_runtime_execution_authority_family_closeout_alignment_120526ecd5ba85ec60335490"
+      ],
+      "v78_handoff_refs": [
+        "handoff:v78c:product-wedge:future-family-only"
+      ],
+      "v78_summary_refs": [
+        "runtime-authority-summary:v78c:product-wedge:future-family-only"
+      ]
+    },
+    {
+      "candidate_ref": "candidate:internal:self_evidencing_workflow_type_emergence",
+      "controlled_execution_action_posture": "no_controlled_execution_performed_by_v79",
+      "execution_posture": "no_execution_performed_by_v79",
+      "execution_review_posture": "eligible_for_controlled_execution_review",
+      "execution_review_request_ref": "execution-review:v79a:self-evidencing:controlled-execution",
+      "guardrail_refs": [
+        "guardrail:v79a:self-evidencing:non-execution"
+      ],
+      "limitation_note": "Eligible for controlled execution review only with no controlled execution, no execution, no tool invocation, and no release.",
+      "odeu_lanes": [
+        "deontic",
+        "epistemic",
+        "utility"
+      ],
+      "requested_execution_review_horizon": "bounded_repo_script_run_plan_review",
+      "requested_run_plan_horizon": "bounded_run_plan_required_later",
+      "requested_tool_invocation_horizon": "bounded_tool_invocation_plan_required_later",
+      "required_authority_refs": [
+        "authority:v78a:self-evidencing:runtime-review",
+        "authority:v78a:self-evidencing:tool-use-review"
+      ],
+      "required_effect_monitoring_posture": "required_for_later_review",
+      "required_operator_confirmation_posture": "required_for_later_review",
+      "required_rollback_posture": "required_for_later_review",
+      "required_telemetry_posture": "required_for_later_review",
+      "source_refs": [
+        "apps/api/fixtures/repo_description/vnext_plus219/repo_command_scope_authorization_boundary_v219_reference.json",
+        "apps/api/fixtures/repo_description/vnext_plus219/repo_runtime_authority_exception_register_v219_reference.json",
+        "apps/api/fixtures/repo_description/vnext_plus219/repo_runtime_execution_authority_decision_v219_reference.json",
+        "apps/api/fixtures/repo_description/vnext_plus219/repo_tool_use_permission_envelope_v219_reference.json",
+        "apps/api/fixtures/repo_description/vnext_plus220/repo_pre_execution_authority_review_handoff_v220_reference.json",
+        "apps/api/fixtures/repo_description/vnext_plus220/repo_runtime_authority_readiness_summary_v220_reference.json",
+        "apps/api/fixtures/repo_description/vnext_plus220/repo_runtime_execution_authority_family_closeout_alignment_v220_reference.json",
+        "docs/LOCKED_CONTINUATION_vNEXT_PLUS221.md",
+        "docs/support/arc_series_mapping/V68_V69_V70_V71_V72_V73_V74_V75_V76_V77_V78_COMBINED_DOGFOOD_TEST_v0.json"
+      ],
+      "target_boundary_refs": [
+        "packages/adeu_repo_description/src/adeu_repo_description/controlled_execution_review.py"
+      ],
+      "tool_invocation_posture": "no_tool_invocation_performed_by_v79",
+      "v78_closeout_refs": [
+        "repo_runtime_execution_authority_family_closeout_alignment_120526ecd5ba85ec60335490"
+      ],
+      "v78_handoff_refs": [
+        "handoff:v78c:self-evidencing:later-execution-review"
+      ],
+      "v78_summary_refs": [
+        "runtime-authority-summary:v78c:self-evidencing:later-execution-review"
+      ]
+    }
+  ],
+  "review_id": "review:v79a:controlled-execution-review",
+  "schema": "repo_controlled_execution_review_request@1",
+  "snapshot_id": "vNext+220-runtime-authority-closeout",
+  "source_set_id": "source-set:v79a:released-v78c-controlled-execution-pressure"
+}

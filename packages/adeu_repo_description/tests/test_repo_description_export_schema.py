@@ -40,6 +40,9 @@ from adeu_repo_description import (
     REPO_CONTAINED_INTEGRATION_CANDIDATE_PLAN_SCHEMA,
     REPO_CONTAINED_INTEGRATION_FAMILY_CLOSEOUT_ALIGNMENT_SCHEMA,
     REPO_CONTAINED_INTEGRATION_TRIAL_RECORD_SCHEMA,
+    REPO_CONTROLLED_EXECUTION_NON_EXECUTION_GUARDRAIL_SCHEMA,
+    REPO_CONTROLLED_EXECUTION_REVIEW_REQUEST_SCHEMA,
+    REPO_CONTROLLED_EXECUTION_SOURCE_INDEX_SCHEMA,
     REPO_DECISION_VISIBILITY_CONTRACT_SCHEMA,
     REPO_DEPENDENCY_GRAPH_SCHEMA,
     REPO_DESCRIPTIVE_NORMATIVE_BINDING_FRAME_SCHEMA,
@@ -918,6 +921,30 @@ def _schema_pairs() -> dict[str, tuple[Path, Path]]:
             root
             / "spec"
             / "repo_runtime_execution_authority_family_closeout_alignment.schema.json",
+        ),
+        REPO_CONTROLLED_EXECUTION_SOURCE_INDEX_SCHEMA: (
+            root
+            / "packages"
+            / "adeu_repo_description"
+            / "schema"
+            / "repo_controlled_execution_source_index.v1.json",
+            root / "spec" / "repo_controlled_execution_source_index.schema.json",
+        ),
+        REPO_CONTROLLED_EXECUTION_REVIEW_REQUEST_SCHEMA: (
+            root
+            / "packages"
+            / "adeu_repo_description"
+            / "schema"
+            / "repo_controlled_execution_review_request.v1.json",
+            root / "spec" / "repo_controlled_execution_review_request.schema.json",
+        ),
+        REPO_CONTROLLED_EXECUTION_NON_EXECUTION_GUARDRAIL_SCHEMA: (
+            root
+            / "packages"
+            / "adeu_repo_description"
+            / "schema"
+            / "repo_controlled_execution_non_execution_guardrail.v1.json",
+            root / "spec" / "repo_controlled_execution_non_execution_guardrail.schema.json",
         ),
     }
 

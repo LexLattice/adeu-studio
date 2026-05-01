@@ -1,0 +1,100 @@
+{
+  "controlled_execution_source_index_id": "repo_controlled_execution_source_index_c021c60fe328391015a761ed",
+  "controlled_execution_source_summary": "Controlled execution source rows separate eligibility from context with no execution and no prose memory.",
+  "review_id": "review:v79a:controlled-execution-review",
+  "schema": "repo_controlled_execution_source_index@1",
+  "snapshot_id": "vNext+220-runtime-authority-closeout",
+  "source_rows": [
+    {
+      "authority_layer": "fixture",
+      "controlled_execution_source_role": "v78_command_scope_context",
+      "limitation_note": "Context source only and not sufficient for eligibility; no execution.",
+      "source_horizon": "Released V78-B command-scope context.",
+      "source_kind": "fixture_file",
+      "source_presence_posture": "missing_expected_support_artifact",
+      "source_ref": "apps/api/fixtures/repo_description/vnext_plus219/repo_command_scope_authorization_boundary_v219_reference.json",
+      "source_status": "integrated_shaping_source"
+    },
+    {
+      "authority_layer": "fixture",
+      "controlled_execution_source_role": "v78_exception_context",
+      "limitation_note": "Context source only and not sufficient for eligibility; no execution.",
+      "source_horizon": "Released V78-B exception context.",
+      "source_kind": "fixture_file",
+      "source_presence_posture": "present",
+      "source_ref": "apps/api/fixtures/repo_description/vnext_plus219/repo_runtime_authority_exception_register_v219_reference.json",
+      "source_status": "integrated_shaping_source"
+    },
+    {
+      "authority_layer": "fixture",
+      "controlled_execution_source_role": "v78_authority_decision_context",
+      "limitation_note": "Context source only and not sufficient for eligibility; no execution.",
+      "source_horizon": "Released V78-B authority decision context.",
+      "source_kind": "fixture_file",
+      "source_presence_posture": "present",
+      "source_ref": "apps/api/fixtures/repo_description/vnext_plus219/repo_runtime_execution_authority_decision_v219_reference.json",
+      "source_status": "integrated_shaping_source"
+    },
+    {
+      "authority_layer": "fixture",
+      "controlled_execution_source_role": "v78_tool_permission_context",
+      "limitation_note": "Context source only and not sufficient for eligibility; no tool invocation.",
+      "source_horizon": "Released V78-B tool-use permission context.",
+      "source_kind": "fixture_file",
+      "source_presence_posture": "present",
+      "source_ref": "apps/api/fixtures/repo_description/vnext_plus219/repo_tool_use_permission_envelope_v219_reference.json",
+      "source_status": "integrated_shaping_source"
+    },
+    {
+      "authority_layer": "fixture",
+      "controlled_execution_source_role": "v78_pre_execution_authority_review_handoff_source",
+      "limitation_note": "Eligibility source for controlled execution review only; no execution.",
+      "source_horizon": "Released V78-C pre-execution-authority-review handoff rows.",
+      "source_kind": "fixture_file",
+      "source_presence_posture": "present",
+      "source_ref": "apps/api/fixtures/repo_description/vnext_plus220/repo_pre_execution_authority_review_handoff_v220_reference.json",
+      "source_status": "integrated_shaping_source"
+    },
+    {
+      "authority_layer": "fixture",
+      "controlled_execution_source_role": "v78_readiness_summary_source",
+      "limitation_note": "Eligibility source for controlled execution review only; no execution.",
+      "source_horizon": "Released V78-C runtime authority readiness summary rows.",
+      "source_kind": "fixture_file",
+      "source_presence_posture": "present",
+      "source_ref": "apps/api/fixtures/repo_description/vnext_plus220/repo_runtime_authority_readiness_summary_v220_reference.json",
+      "source_status": "integrated_shaping_source"
+    },
+    {
+      "authority_layer": "fixture",
+      "controlled_execution_source_role": "v78_family_closeout_source",
+      "limitation_note": "Family closeout source for review boundary only; no execution.",
+      "source_horizon": "Released V78 family closeout alignment rows.",
+      "source_kind": "fixture_file",
+      "source_presence_posture": "present",
+      "source_ref": "apps/api/fixtures/repo_description/vnext_plus220/repo_runtime_execution_authority_family_closeout_alignment_v220_reference.json",
+      "source_status": "integrated_shaping_source"
+    },
+    {
+      "authority_layer": "lock",
+      "controlled_execution_source_role": "support_process_context",
+      "limitation_note": "Context source only and not sufficient for eligibility; no execution.",
+      "source_horizon": "Active V79-A starter lock context.",
+      "source_kind": "planning_doc",
+      "source_presence_posture": "present",
+      "source_ref": "docs/LOCKED_CONTINUATION_vNEXT_PLUS221.md",
+      "source_status": "integrated_shaping_source"
+    },
+    {
+      "authority_layer": "support",
+      "controlled_execution_source_role": "combined_dogfood_context",
+      "limitation_note": "Context source only and not sufficient for eligibility; no execution.",
+      "source_horizon": "Combined V68-V78 dogfood context.",
+      "source_kind": "support_doc",
+      "source_presence_posture": "present",
+      "source_ref": "docs/support/arc_series_mapping/V68_V69_V70_V71_V72_V73_V74_V75_V76_V77_V78_COMBINED_DOGFOOD_TEST_v0.json",
+      "source_status": "integrated_shaping_source"
+    }
+  ],
+  "source_set_id": "source-set:v79a:released-v78c-controlled-execution-pressure"
+}
