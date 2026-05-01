@@ -1,0 +1,70 @@
+{
+  "handoff_boundary_summary": "Post-runtime handoffs are requests for later review with no runtime permission and no target family performed.",
+  "handoff_rows": [
+    {
+      "authority_posture_refs": [
+        "authority-posture:v77c:product-wedge:product-review"
+      ],
+      "carried_gap_refs": [
+        "authority-posture:v77c:product-wedge:product-review"
+      ],
+      "handoff_posture": "deferred_to_future_family",
+      "handoff_ref": "handoff:v77c:product-wedge:blocked",
+      "handoff_subject_horizon": "Product pressure review request only",
+      "handoff_target": "future_product_review",
+      "limitation_note": "Post-runtime-permission-review handoff requests later review only: no runtime permission, no command execution, no tool-use permission, and no release.",
+      "non_execution_guardrail": "guardrail:v77a:product-wedge:non-execution",
+      "required_later_authority_kinds": [
+        "product_authorization"
+      ],
+      "required_later_authority_refs": [
+        "authority-posture:v77c:product-wedge:product-review"
+      ],
+      "runtime_permission_execution_posture": "runtime_permission_granted_by_v77",
+      "runtime_review_refs": [
+        "runtime-review:v77a:product-wedge:blocked"
+      ],
+      "runtime_summary_refs": [
+        "runtime-summary:v77c:product-wedge:blocked"
+      ]
+    },
+    {
+      "authority_posture_refs": [
+        "authority-posture:v77c:self-evidencing:runtime-execution",
+        "authority-posture:v77c:self-evidencing:tool-use"
+      ],
+      "carried_gap_refs": [
+        "authority-posture:v77c:self-evidencing:runtime-execution",
+        "authority-posture:v77c:self-evidencing:tool-use"
+      ],
+      "handoff_posture": "blocked_by_required_later_authority",
+      "handoff_ref": "handoff:v77c:self-evidencing:preflight",
+      "handoff_subject_horizon": "Runtime execution authority review request only",
+      "handoff_target": "future_runtime_execution_authority_review",
+      "limitation_note": "Post-runtime-permission-review handoff requests later review only: no runtime permission, no command execution, no tool-use permission, and no release.",
+      "non_execution_guardrail": "guardrail:v77a:self-evidencing:non-execution",
+      "required_later_authority_kinds": [
+        "runtime_permission_authority",
+        "tool_use_authority"
+      ],
+      "required_later_authority_refs": [
+        "authority-posture:v77c:self-evidencing:runtime-execution",
+        "authority-posture:v77c:self-evidencing:tool-use"
+      ],
+      "runtime_permission_execution_posture": "no_runtime_permission_granted_by_v77",
+      "runtime_review_refs": [
+        "runtime-review:v77a:self-evidencing:preflight"
+      ],
+      "runtime_summary_refs": [
+        "runtime-summary:v77c:self-evidencing:preflight"
+      ]
+    }
+  ],
+  "post_runtime_permission_review_handoff_id": "repo_post_runtime_permission_review_handoff_a1901bb104c049dc689d2658",
+  "review_id": "review:v77a:runtime-permission-review-request",
+  "runtime_permission_authority_posture_id": "repo_runtime_permission_authority_posture_53343e435b7d6c3ba627991c",
+  "runtime_permission_review_summary_id": "repo_runtime_permission_review_summary_d2e2ce73ea13e7f761589119",
+  "schema": "repo_post_runtime_permission_review_handoff@1",
+  "snapshot_id": "vNext+217-runtime-authority-review",
+  "source_set_id": "source-set:v77a:released-v76c-runtime-pressure"
+}

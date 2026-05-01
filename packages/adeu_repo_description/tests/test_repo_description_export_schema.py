@@ -66,6 +66,7 @@ from adeu_repo_description import (
     REPO_POST_PROJECTION_HANDOFF_SCHEMA,
     REPO_POST_RATIFICATION_HANDOFF_SCHEMA,
     REPO_POST_RECONCILIATION_HANDOFF_SCHEMA,
+    REPO_POST_RUNTIME_PERMISSION_REVIEW_HANDOFF_SCHEMA,
     REPO_PROJECTION_EXCEPTION_VISIBILITY_REGISTER_SCHEMA,
     REPO_RATIFICATION_AMENDMENT_SCOPE_BOUNDARY_SCHEMA,
     REPO_RATIFICATION_AUTHORITY_PROFILE_SCHEMA,
@@ -83,7 +84,10 @@ from adeu_repo_description import (
     REPO_RECURSIVE_WORKFLOW_RESIDUE_INTAKE_REPORT_SCHEMA,
     REPO_REVIEW_SETTLEMENT_RECORD_SCHEMA,
     REPO_RUNTIME_NON_EXECUTION_GUARDRAIL_SCHEMA,
+    REPO_RUNTIME_PERMISSION_AUTHORITY_POSTURE_SCHEMA,
+    REPO_RUNTIME_PERMISSION_FAMILY_CLOSEOUT_ALIGNMENT_SCHEMA,
     REPO_RUNTIME_PERMISSION_REVIEW_REQUEST_SCHEMA,
+    REPO_RUNTIME_PERMISSION_REVIEW_SUMMARY_SCHEMA,
     REPO_RUNTIME_PERMISSION_SOURCE_INDEX_SCHEMA,
     REPO_RUNTIME_ROLLBACK_CONTRACT_SCHEMA,
     REPO_RUNTIME_TELEMETRY_REQUIREMENT_SCHEMA,
@@ -791,6 +795,38 @@ def _schema_pairs() -> dict[str, tuple[Path, Path]]:
             / "repo_runtime_rollback_contract.v1.json",
             root / "spec" / "repo_runtime_rollback_contract.schema.json",
         ),
+        REPO_RUNTIME_PERMISSION_AUTHORITY_POSTURE_SCHEMA: (
+            root
+            / "packages"
+            / "adeu_repo_description"
+            / "schema"
+            / "repo_runtime_permission_authority_posture.v1.json",
+            root / "spec" / "repo_runtime_permission_authority_posture.schema.json",
+        ),
+        REPO_RUNTIME_PERMISSION_REVIEW_SUMMARY_SCHEMA: (
+            root
+            / "packages"
+            / "adeu_repo_description"
+            / "schema"
+            / "repo_runtime_permission_review_summary.v1.json",
+            root / "spec" / "repo_runtime_permission_review_summary.schema.json",
+        ),
+        REPO_POST_RUNTIME_PERMISSION_REVIEW_HANDOFF_SCHEMA: (
+            root
+            / "packages"
+            / "adeu_repo_description"
+            / "schema"
+            / "repo_post_runtime_permission_review_handoff.v1.json",
+            root / "spec" / "repo_post_runtime_permission_review_handoff.schema.json",
+        ),
+        REPO_RUNTIME_PERMISSION_FAMILY_CLOSEOUT_ALIGNMENT_SCHEMA: (
+            root
+            / "packages"
+            / "adeu_repo_description"
+            / "schema"
+            / "repo_runtime_permission_family_closeout_alignment.v1.json",
+            root / "spec" / "repo_runtime_permission_family_closeout_alignment.schema.json",
+        ),
     }
 
 
@@ -866,3 +902,4 @@ def test_exported_schema_has_no_absolute_path_material() -> None:
         _check_node(json.loads(mirror.read_text(encoding="utf-8")))
     for authoritative in _historical_schema_paths().values():
         _check_node(json.loads(authoritative.read_text(encoding="utf-8")))
+    REPO_POST_RUNTIME_PERMISSION_REVIEW_HANDOFF_SCHEMA,

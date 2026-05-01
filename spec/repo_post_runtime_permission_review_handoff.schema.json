@@ -1,0 +1,183 @@
+{
+  "$defs": {
+    "RepoPostRuntimePermissionReviewHandoffRow": {
+      "additionalProperties": false,
+      "properties": {
+        "authority_posture_refs": {
+          "items": {
+            "type": "string"
+          },
+          "minItems": 1,
+          "title": "Authority Posture Refs",
+          "type": "array"
+        },
+        "carried_gap_refs": {
+          "items": {
+            "type": "string"
+          },
+          "title": "Carried Gap Refs",
+          "type": "array"
+        },
+        "handoff_posture": {
+          "enum": [
+            "ready_for_later_review",
+            "blocked_by_required_later_authority",
+            "blocked_by_missing_telemetry",
+            "blocked_by_missing_rollback",
+            "blocked_by_target_boundary",
+            "deferred_to_future_family",
+            "rejected_out_of_scope"
+          ],
+          "title": "Handoff Posture",
+          "type": "string"
+        },
+        "handoff_ref": {
+          "title": "Handoff Ref",
+          "type": "string"
+        },
+        "handoff_subject_horizon": {
+          "title": "Handoff Subject Horizon",
+          "type": "string"
+        },
+        "handoff_target": {
+          "enum": [
+            "future_runtime_execution_authority_review",
+            "future_tool_use_permission_review",
+            "future_product_review",
+            "future_external_branch_review",
+            "future_outcome_review",
+            "future_experiment_review",
+            "future_family_review",
+            "deferred_no_selection"
+          ],
+          "title": "Handoff Target",
+          "type": "string"
+        },
+        "limitation_note": {
+          "title": "Limitation Note",
+          "type": "string"
+        },
+        "non_execution_guardrail": {
+          "title": "Non Execution Guardrail",
+          "type": "string"
+        },
+        "required_later_authority_kinds": {
+          "items": {
+            "enum": [
+              "human_or_maintainer_runtime_review",
+              "runtime_permission_authority",
+              "tool_use_authority",
+              "product_authorization",
+              "external_branch_activation",
+              "release_authority",
+              "recursive_policy_authority",
+              "future_family_authority"
+            ],
+            "type": "string"
+          },
+          "title": "Required Later Authority Kinds",
+          "type": "array"
+        },
+        "required_later_authority_refs": {
+          "items": {
+            "type": "string"
+          },
+          "title": "Required Later Authority Refs",
+          "type": "array"
+        },
+        "runtime_permission_execution_posture": {
+          "const": "no_runtime_permission_granted_by_v77",
+          "title": "Runtime Permission Execution Posture",
+          "type": "string"
+        },
+        "runtime_review_refs": {
+          "items": {
+            "type": "string"
+          },
+          "minItems": 1,
+          "title": "Runtime Review Refs",
+          "type": "array"
+        },
+        "runtime_summary_refs": {
+          "items": {
+            "type": "string"
+          },
+          "minItems": 1,
+          "title": "Runtime Summary Refs",
+          "type": "array"
+        }
+      },
+      "required": [
+        "handoff_ref",
+        "runtime_summary_refs",
+        "runtime_review_refs",
+        "authority_posture_refs",
+        "handoff_target",
+        "handoff_subject_horizon",
+        "handoff_posture",
+        "non_execution_guardrail",
+        "runtime_permission_execution_posture",
+        "limitation_note"
+      ],
+      "title": "RepoPostRuntimePermissionReviewHandoffRow",
+      "type": "object"
+    }
+  },
+  "additionalProperties": false,
+  "properties": {
+    "handoff_boundary_summary": {
+      "title": "Handoff Boundary Summary",
+      "type": "string"
+    },
+    "handoff_rows": {
+      "items": {
+        "$ref": "#/$defs/RepoPostRuntimePermissionReviewHandoffRow"
+      },
+      "minItems": 1,
+      "title": "Handoff Rows",
+      "type": "array"
+    },
+    "post_runtime_permission_review_handoff_id": {
+      "title": "Post Runtime Permission Review Handoff Id",
+      "type": "string"
+    },
+    "review_id": {
+      "title": "Review Id",
+      "type": "string"
+    },
+    "runtime_permission_authority_posture_id": {
+      "title": "Runtime Permission Authority Posture Id",
+      "type": "string"
+    },
+    "runtime_permission_review_summary_id": {
+      "title": "Runtime Permission Review Summary Id",
+      "type": "string"
+    },
+    "schema": {
+      "const": "repo_post_runtime_permission_review_handoff@1",
+      "default": "repo_post_runtime_permission_review_handoff@1",
+      "title": "Schema",
+      "type": "string"
+    },
+    "snapshot_id": {
+      "title": "Snapshot Id",
+      "type": "string"
+    },
+    "source_set_id": {
+      "title": "Source Set Id",
+      "type": "string"
+    }
+  },
+  "required": [
+    "post_runtime_permission_review_handoff_id",
+    "runtime_permission_review_summary_id",
+    "runtime_permission_authority_posture_id",
+    "review_id",
+    "snapshot_id",
+    "source_set_id",
+    "handoff_rows",
+    "handoff_boundary_summary"
+  ],
+  "title": "RepoPostRuntimePermissionReviewHandoff",
+  "type": "object"
+}
