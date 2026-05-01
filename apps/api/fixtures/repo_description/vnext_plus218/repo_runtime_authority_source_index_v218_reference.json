@@ -1,0 +1,110 @@
+{
+  "review_id": "review:v78a:runtime-execution-authority-request",
+  "runtime_authority_source_index_id": "repo_runtime_authority_source_index_7ba03883f7dc1c5a9758eebd",
+  "runtime_authority_source_summary": "Runtime authority source rows separate eligibility from context with no prose memory and no execution.",
+  "schema": "repo_runtime_authority_source_index@1",
+  "snapshot_id": "vNext+217-closed-on-main",
+  "source_rows": [
+    {
+      "authority_layer": "fixture",
+      "limitation_note": "Context source only and not sufficient for eligibility; no execution.",
+      "runtime_authority_source_role": "v77_effect_envelope_context",
+      "source_horizon": "Released V77-B action-effect envelope context.",
+      "source_kind": "fixture_file",
+      "source_presence_posture": "present",
+      "source_ref": "apps/api/fixtures/repo_description/vnext_plus216/repo_action_effect_envelope_v216_reference.json",
+      "source_status": "integrated_shaping_source"
+    },
+    {
+      "authority_layer": "fixture",
+      "limitation_note": "Context source only and not sufficient for eligibility; no execution.",
+      "runtime_authority_source_role": "v77_command_preflight_context",
+      "source_horizon": "Released V77-B command preflight context.",
+      "source_kind": "fixture_file",
+      "source_presence_posture": "present",
+      "source_ref": "apps/api/fixtures/repo_description/vnext_plus216/repo_command_preflight_contract_v216_reference.json",
+      "source_status": "integrated_shaping_source"
+    },
+    {
+      "authority_layer": "fixture",
+      "limitation_note": "Context source only and not sufficient for eligibility; no execution.",
+      "runtime_authority_source_role": "v77_rollback_contract_context",
+      "source_horizon": "Released V77-B rollback contract context.",
+      "source_kind": "fixture_file",
+      "source_presence_posture": "present",
+      "source_ref": "apps/api/fixtures/repo_description/vnext_plus216/repo_runtime_rollback_contract_v216_reference.json",
+      "source_status": "integrated_shaping_source"
+    },
+    {
+      "authority_layer": "fixture",
+      "limitation_note": "Context source only and not sufficient for eligibility; no execution.",
+      "runtime_authority_source_role": "v77_telemetry_requirement_context",
+      "source_horizon": "Released V77-B telemetry requirement context.",
+      "source_kind": "fixture_file",
+      "source_presence_posture": "present",
+      "source_ref": "apps/api/fixtures/repo_description/vnext_plus216/repo_runtime_telemetry_requirement_v216_reference.json",
+      "source_status": "integrated_shaping_source"
+    },
+    {
+      "authority_layer": "fixture",
+      "limitation_note": "Eligibility source for authority request review only; no execution.",
+      "runtime_authority_source_role": "v77_post_runtime_permission_review_handoff_source",
+      "source_horizon": "Released V77-C post-runtime-permission-review handoff rows.",
+      "source_kind": "fixture_file",
+      "source_presence_posture": "present",
+      "source_ref": "apps/api/fixtures/repo_description/vnext_plus217/repo_post_runtime_permission_review_handoff_v217_reference.json",
+      "source_status": "integrated_shaping_source"
+    },
+    {
+      "authority_layer": "fixture",
+      "limitation_note": "Eligibility source for authority request review only; no execution.",
+      "runtime_authority_source_role": "v77_authority_posture_source",
+      "source_horizon": "Released V77-C runtime authority posture rows.",
+      "source_kind": "fixture_file",
+      "source_presence_posture": "present",
+      "source_ref": "apps/api/fixtures/repo_description/vnext_plus217/repo_runtime_permission_authority_posture_v217_reference.json",
+      "source_status": "integrated_shaping_source"
+    },
+    {
+      "authority_layer": "fixture",
+      "limitation_note": "Eligibility source for family boundary only; no execution.",
+      "runtime_authority_source_role": "v77_family_closeout_source",
+      "source_horizon": "Released V77 family closeout alignment rows.",
+      "source_kind": "fixture_file",
+      "source_presence_posture": "present",
+      "source_ref": "apps/api/fixtures/repo_description/vnext_plus217/repo_runtime_permission_family_closeout_alignment_v217_reference.json",
+      "source_status": "integrated_shaping_source"
+    },
+    {
+      "authority_layer": "fixture",
+      "limitation_note": "Eligibility source for authority request review only; no execution.",
+      "runtime_authority_source_role": "v77_runtime_summary_source",
+      "source_horizon": "Released V77-C runtime review summary rows.",
+      "source_kind": "fixture_file",
+      "source_presence_posture": "present",
+      "source_ref": "apps/api/fixtures/repo_description/vnext_plus217/repo_runtime_permission_review_summary_v217_reference.json",
+      "source_status": "integrated_shaping_source"
+    },
+    {
+      "authority_layer": "lock",
+      "limitation_note": "Context source only and not sufficient for eligibility; no execution.",
+      "runtime_authority_source_role": "support_context",
+      "source_horizon": "Active V78-A starter lock context.",
+      "source_kind": "planning_doc",
+      "source_presence_posture": "present",
+      "source_ref": "docs/LOCKED_CONTINUATION_vNEXT_PLUS218.md",
+      "source_status": "integrated_shaping_source"
+    },
+    {
+      "authority_layer": "support",
+      "limitation_note": "Context source only and not sufficient for eligibility; no execution.",
+      "runtime_authority_source_role": "combined_dogfood_source",
+      "source_horizon": "Combined V68-V77 dogfood context.",
+      "source_kind": "support_doc",
+      "source_presence_posture": "present",
+      "source_ref": "docs/support/arc_series_mapping/V68_V69_V70_V71_V72_V73_V74_V75_V76_V77_COMBINED_DOGFOOD_TEST_v0.json",
+      "source_status": "integrated_shaping_source"
+    }
+  ],
+  "source_set_id": "source-set:v78a:released-v77c-runtime-authority-pressure"
+}
