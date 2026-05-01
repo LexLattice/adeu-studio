@@ -25,6 +25,10 @@ from .recursive_candidate_intake import (
 REPO_RUNTIME_PERMISSION_REVIEW_REQUEST_SCHEMA = "repo_runtime_permission_review_request@1"
 REPO_RUNTIME_PERMISSION_SOURCE_INDEX_SCHEMA = "repo_runtime_permission_source_index@1"
 REPO_RUNTIME_NON_EXECUTION_GUARDRAIL_SCHEMA = "repo_runtime_non_execution_guardrail@1"
+REPO_COMMAND_PREFLIGHT_CONTRACT_SCHEMA = "repo_command_preflight_contract@1"
+REPO_ACTION_EFFECT_ENVELOPE_SCHEMA = "repo_action_effect_envelope@1"
+REPO_RUNTIME_TELEMETRY_REQUIREMENT_SCHEMA = "repo_runtime_telemetry_requirement@1"
+REPO_RUNTIME_ROLLBACK_CONTRACT_SCHEMA = "repo_runtime_rollback_contract@1"
 
 RuntimeSourceRole = Literal[
     "v76_summary_source",
@@ -129,6 +133,96 @@ RuntimeToolUsePosture = Literal[
     "tool_use_requires_later_authority",
     "tool_applicability_context_only",
 ]
+V77BCommandIntentKind = Literal[
+    "no_command_intent",
+    "shell_command_later_review",
+    "python_tool_later_review",
+    "repo_script_later_review",
+    "api_call_later_review",
+    "external_tool_later_review",
+    "future_family_only",
+]
+CommandRefPosture = Literal[
+    "command_reference_absent_review_only",
+    "command_label_review_only",
+    "script_label_review_only",
+    "future_family_only",
+]
+TargetResolutionKind = Literal[
+    "concrete_file_ref",
+    "concrete_schema_ref",
+    "concrete_fixture_ref",
+    "concrete_test_ref",
+    "concrete_doc_ref",
+    "concrete_script_ref",
+    "bounded_package_surface_with_child_refs",
+    "external_endpoint_ref",
+    "no_target_boundary",
+]
+CommandPreflightPosture = Literal[
+    "preflight_contract_for_review_only",
+    "preflight_blocked_by_missing_source",
+    "preflight_blocked_by_missing_authority",
+    "preflight_blocked_by_target_boundary",
+    "preflight_blocked_by_missing_telemetry",
+    "preflight_blocked_by_missing_rollback",
+    "preflight_future_family_only",
+    "preflight_rejected_out_of_scope",
+]
+ForbiddenRuntimeInference = Literal[
+    "command_execution",
+    "runtime_permission_grant",
+    "tool_use_permission",
+    "target_change_authority",
+    "accepted_effect",
+    "observed_telemetry",
+    "rollback_verification",
+    "product_authorization",
+    "external_branch_activation",
+    "release_authority",
+    "v77c_surface_emission",
+]
+EffectEnvelopePosture = Literal[
+    "effect_envelope_for_review_only",
+    "effect_envelope_blocked_by_missing_target",
+    "effect_envelope_blocked_by_missing_telemetry",
+    "effect_envelope_blocked_by_missing_rollback",
+    "effect_envelope_future_family_only",
+    "effect_envelope_rejected_out_of_scope",
+]
+EffectAcceptancePosture = Literal[
+    "no_effect_accepted",
+    "effect_requires_later_review",
+    "effect_not_observed",
+    "effect_observed_from_prior_authorized_artifact",
+]
+TelemetrySurfaceKind = Literal[
+    "test_result_telemetry",
+    "runtime_event_stream_telemetry",
+    "schema_validation_telemetry",
+    "not_applicable",
+]
+TelemetryPosture = Literal[
+    "telemetry_required_later",
+    "telemetry_source_present_for_prior_artifact",
+    "telemetry_missing_expected_source",
+    "telemetry_not_applicable",
+    "telemetry_future_family_only",
+]
+RollbackSurfaceKind = Literal[
+    "source_revert_plan",
+    "fixture_revert_plan",
+    "schema_revert_plan",
+    "not_applicable",
+]
+RollbackPosture = Literal[
+    "rollback_required_later",
+    "rollback_source_present_for_prior_artifact",
+    "rollback_missing_expected_source",
+    "rollback_blocked",
+    "rollback_not_applicable",
+    "rollback_future_family_only",
+]
 
 _ELIGIBILITY_SOURCE_ROLES = {
     "v76_summary_source",
@@ -161,6 +255,19 @@ _FORBIDDEN_DOWNSTREAM_AUTHORITIES = {
     "model_selection",
     "living_memory_authority",
     "recursive_policy_amendment",
+}
+_FORBIDDEN_RUNTIME_INFERENCES = {
+    "command_execution",
+    "runtime_permission_grant",
+    "tool_use_permission",
+    "target_change_authority",
+    "accepted_effect",
+    "observed_telemetry",
+    "rollback_verification",
+    "product_authorization",
+    "external_branch_activation",
+    "release_authority",
+    "v77c_surface_emission",
 }
 
 
@@ -197,6 +304,29 @@ def _reject_runtime_authority_claim(value: str, *, field_name: str) -> str:
     return value
 
 
+def _reject_v77b_authority_claim(value: str, *, field_name: str) -> str:
+    _reject_runtime_authority_claim(value, field_name=field_name)
+    lowered = value.lower()
+    forbidden_patterns = [
+        r"effect (?:is |was |has been |gets |got )?accepted",
+        r"accepted effect",
+        r"telemetry (?:is |was |has been |gets |got )?successful",
+        r"telemetry success",
+        r"rollback (?:is |was |has been |gets |got )?verified",
+        r"verified rollback",
+        r"preflight (?:is |was |has been |gets |got )?authorized",
+    ]
+    negation_markers = ("no ", "not ", "without ", "forbidden ", "non-")
+    for pattern in forbidden_patterns:
+        match = re.search(pattern, lowered)
+        if match is None:
+            continue
+        prefix = lowered[max(0, match.start() - 18) : match.start()]
+        if not any(marker in prefix for marker in negation_markers):
+            raise ValueError(f"{field_name} may not carry runtime or downstream authority")
+    return value
+
+
 def _require_terms(value: str, *, field_name: str, terms: tuple[str, ...]) -> str:
     lowered = value.lower()
     missing = [term for term in terms if term not in lowered]
@@ -208,6 +338,12 @@ def _require_terms(value: str, *, field_name: str, terms: tuple[str, ...]) -> st
 def _source_path(path: str) -> str:
     _repo_ref(path, field_name="source_ref")
     return path
+
+
+def _reject_glob_ref(value: str, *, field_name: str) -> str:
+    if any(marker in value for marker in ("*", "?", "[")):
+        raise ValueError(f"{field_name} may not contain glob target boundaries")
+    return value
 
 
 class RepoRuntimePermissionSourceRow(_CartographyBase):
@@ -1046,3 +1182,891 @@ def derive_v77a_runtime_permission_review_bundle(
         runtime_non_execution_guardrail=guardrail,
     )
     return source_index, request, guardrail
+
+
+class RepoCommandPreflightRow(_CartographyBase):
+    preflight_ref: str
+    runtime_review_refs: list[str] = Field(min_length=1)
+    candidate_ref: str
+    command_intent_kind: V77BCommandIntentKind
+    command_intent_label: str
+    command_ref_posture: CommandRefPosture
+    target_boundary_refs: list[str] = Field(default_factory=list)
+    target_resolution_kind: TargetResolutionKind
+    required_source_refs: list[str] = Field(min_length=1)
+    required_authority_refs: list[str] = Field(default_factory=list)
+    required_telemetry_refs: list[str] = Field(default_factory=list)
+    required_rollback_refs: list[str] = Field(default_factory=list)
+    non_execution_guardrail_refs: list[str] = Field(min_length=1)
+    preflight_posture: CommandPreflightPosture
+    execution_posture: CommandExecutionPosture
+    forbidden_inferences: list[ForbiddenRuntimeInference] = Field(min_length=1)
+    limitation_note: str
+
+    @model_validator(mode="after")
+    def _validate_command_preflight_row(self) -> RepoCommandPreflightRow:
+        _non_empty(self.preflight_ref, field_name="preflight_ref")
+        _non_empty(self.candidate_ref, field_name="candidate_ref")
+        _reject_v77b_authority_claim(
+            self.command_intent_label,
+            field_name="command_intent_label",
+        )
+        _reject_v77b_authority_claim(self.limitation_note, field_name="limitation_note")
+        for field_name in (
+            "runtime_review_refs",
+            "target_boundary_refs",
+            "required_source_refs",
+            "required_authority_refs",
+            "required_telemetry_refs",
+            "required_rollback_refs",
+            "non_execution_guardrail_refs",
+            "forbidden_inferences",
+        ):
+            object.__setattr__(
+                self,
+                field_name,
+                _sorted_unique(getattr(self, field_name), field_name=field_name),
+            )
+        for source_ref in self.required_source_refs:
+            _repo_ref(source_ref, field_name="required_source_refs")
+        for target_ref in self.target_boundary_refs:
+            _reject_glob_ref(target_ref, field_name="target_boundary_refs")
+            if self.target_resolution_kind != "external_endpoint_ref":
+                _repo_ref(target_ref, field_name="target_boundary_refs")
+        if self.execution_posture != "no_execution_authorized":
+            raise ValueError("V77-B preflight rows must not authorize execution")
+        missing = _FORBIDDEN_RUNTIME_INFERENCES.difference(self.forbidden_inferences)
+        if missing:
+            raise ValueError("command preflight rows must carry all forbidden inferences")
+        if (
+            self.command_intent_kind != "no_command_intent"
+            and self.target_resolution_kind != "no_target_boundary"
+            and not self.target_boundary_refs
+        ):
+            raise ValueError("command preflight target refs are required for command pressure")
+        if (
+            self.command_intent_kind != "no_command_intent"
+            and self.target_resolution_kind == "no_target_boundary"
+            and self.preflight_posture
+            not in {
+                "preflight_blocked_by_target_boundary",
+                "preflight_future_family_only",
+                "preflight_rejected_out_of_scope",
+            }
+        ):
+            raise ValueError("command pressure without targets must remain blocked or deferred")
+        if (
+            self.target_resolution_kind == "bounded_package_surface_with_child_refs"
+            and not self.target_boundary_refs
+        ):
+            raise ValueError("bounded package targets require concrete child refs")
+        if self.preflight_posture == "preflight_contract_for_review_only":
+            if not self.required_telemetry_refs:
+                raise ValueError("review-only preflight rows require telemetry refs")
+            if not self.required_rollback_refs:
+                raise ValueError("review-only preflight rows require rollback refs")
+            if not self.required_authority_refs:
+                raise ValueError("review-only preflight rows require authority refs")
+        return self
+
+
+class RepoCommandPreflightContract(_CartographyBase):
+    schema: Literal["repo_command_preflight_contract@1"] = REPO_COMMAND_PREFLIGHT_CONTRACT_SCHEMA
+    command_preflight_contract_id: str
+    runtime_permission_review_request_id: str
+    runtime_non_execution_guardrail_id: str
+    review_id: str
+    snapshot_id: str
+    source_set_id: str
+    preflight_rows: list[RepoCommandPreflightRow] = Field(min_length=1)
+    preflight_boundary_summary: str
+
+    @model_validator(mode="after")
+    def _validate_command_preflight_contract(self) -> RepoCommandPreflightContract:
+        object.__setattr__(
+            self,
+            "preflight_rows",
+            _sorted_unique_by_ref(
+                self.preflight_rows,
+                attr="preflight_ref",
+                field_name="preflight_rows",
+            ),
+        )
+        _require_terms(
+            self.preflight_boundary_summary,
+            field_name="preflight_boundary_summary",
+            terms=("review", "no command execution", "no runtime permission"),
+        )
+        expected_id = _surface_id(
+            "repo_command_preflight_contract",
+            self.schema,
+            self.model_dump(mode="json"),
+            "command_preflight_contract_id",
+        )
+        if self.command_preflight_contract_id != expected_id:
+            raise ValueError("command_preflight_contract_id does not match canonical payload hash")
+        return self
+
+
+class RepoActionEffectEnvelopeRow(_CartographyBase):
+    effect_envelope_ref: str
+    runtime_review_refs: list[str] = Field(min_length=1)
+    preflight_refs: list[str] = Field(min_length=1)
+    candidate_ref: str
+    target_boundary_refs: list[str] = Field(default_factory=list)
+    allowed_effect_surface_refs: list[str] = Field(default_factory=list)
+    forbidden_effect_surface_refs: list[str] = Field(min_length=1)
+    effect_horizon: str
+    effect_envelope_posture: EffectEnvelopePosture
+    effect_acceptance_posture: EffectAcceptancePosture
+    source_refs: list[str] = Field(min_length=1)
+    non_execution_guardrail_refs: list[str] = Field(min_length=1)
+    limitation_note: str
+
+    @model_validator(mode="after")
+    def _validate_action_effect_envelope_row(self) -> RepoActionEffectEnvelopeRow:
+        _non_empty(self.effect_envelope_ref, field_name="effect_envelope_ref")
+        _non_empty(self.candidate_ref, field_name="candidate_ref")
+        _non_empty(self.effect_horizon, field_name="effect_horizon")
+        _reject_v77b_authority_claim(self.effect_horizon, field_name="effect_horizon")
+        _reject_v77b_authority_claim(self.limitation_note, field_name="limitation_note")
+        for field_name in (
+            "runtime_review_refs",
+            "preflight_refs",
+            "target_boundary_refs",
+            "allowed_effect_surface_refs",
+            "forbidden_effect_surface_refs",
+            "source_refs",
+            "non_execution_guardrail_refs",
+        ):
+            object.__setattr__(
+                self,
+                field_name,
+                _sorted_unique(getattr(self, field_name), field_name=field_name),
+            )
+        for source_ref in self.source_refs:
+            _repo_ref(source_ref, field_name="source_refs")
+        for target_ref in self.target_boundary_refs:
+            _reject_glob_ref(target_ref, field_name="target_boundary_refs")
+            _repo_ref(target_ref, field_name="target_boundary_refs")
+        if (
+            self.effect_envelope_posture == "effect_envelope_for_review_only"
+            and not self.target_boundary_refs
+        ):
+            raise ValueError("review-only effect envelopes require target boundary refs")
+        if (
+            self.effect_acceptance_posture == "effect_observed_from_prior_authorized_artifact"
+            and "prior authorized" not in self.limitation_note.lower()
+        ):
+            raise ValueError("observed effect posture requires prior authorized source note")
+        if (
+            self.effect_acceptance_posture == "effect_observed_from_prior_authorized_artifact"
+            and not self.source_refs
+        ):
+            raise ValueError("observed effect posture requires source refs")
+        return self
+
+
+class RepoActionEffectEnvelope(_CartographyBase):
+    schema: Literal["repo_action_effect_envelope@1"] = REPO_ACTION_EFFECT_ENVELOPE_SCHEMA
+    action_effect_envelope_id: str
+    command_preflight_contract_id: str
+    runtime_permission_review_request_id: str
+    runtime_non_execution_guardrail_id: str
+    review_id: str
+    snapshot_id: str
+    source_set_id: str
+    effect_envelope_rows: list[RepoActionEffectEnvelopeRow] = Field(min_length=1)
+    effect_boundary_summary: str
+
+    @model_validator(mode="after")
+    def _validate_action_effect_envelope(self) -> RepoActionEffectEnvelope:
+        object.__setattr__(
+            self,
+            "effect_envelope_rows",
+            _sorted_unique_by_ref(
+                self.effect_envelope_rows,
+                attr="effect_envelope_ref",
+                field_name="effect_envelope_rows",
+            ),
+        )
+        _require_terms(
+            self.effect_boundary_summary,
+            field_name="effect_boundary_summary",
+            terms=("review", "no accepted effect", "no runtime permission"),
+        )
+        expected_id = _surface_id(
+            "repo_action_effect_envelope",
+            self.schema,
+            self.model_dump(mode="json"),
+            "action_effect_envelope_id",
+        )
+        if self.action_effect_envelope_id != expected_id:
+            raise ValueError("action_effect_envelope_id does not match canonical payload hash")
+        return self
+
+
+class RepoRuntimeTelemetryRequirementRow(_CartographyBase):
+    telemetry_requirement_ref: str
+    runtime_review_refs: list[str] = Field(min_length=1)
+    preflight_refs: list[str] = Field(min_length=1)
+    effect_envelope_refs: list[str] = Field(min_length=1)
+    candidate_ref: str
+    telemetry_surface_kind: TelemetrySurfaceKind
+    required_telemetry_source_refs: list[str] = Field(default_factory=list)
+    checked_source_refs: list[str] = Field(default_factory=list)
+    missing_source_refs: list[str] = Field(default_factory=list)
+    telemetry_posture: TelemetryPosture
+    limitation_note: str
+
+    @model_validator(mode="after")
+    def _validate_runtime_telemetry_requirement_row(self) -> RepoRuntimeTelemetryRequirementRow:
+        _non_empty(self.telemetry_requirement_ref, field_name="telemetry_requirement_ref")
+        _non_empty(self.candidate_ref, field_name="candidate_ref")
+        _reject_v77b_authority_claim(self.limitation_note, field_name="limitation_note")
+        for field_name in (
+            "runtime_review_refs",
+            "preflight_refs",
+            "effect_envelope_refs",
+            "required_telemetry_source_refs",
+            "checked_source_refs",
+            "missing_source_refs",
+        ):
+            object.__setattr__(
+                self,
+                field_name,
+                _sorted_unique(getattr(self, field_name), field_name=field_name),
+            )
+        for source_ref in self.checked_source_refs:
+            _repo_ref(source_ref, field_name="checked_source_refs")
+        if self.telemetry_posture == "telemetry_required_later" and (
+            not self.required_telemetry_source_refs
+        ):
+            raise ValueError("telemetry required-later rows require telemetry source refs")
+        if self.telemetry_posture == "telemetry_source_present_for_prior_artifact" and (
+            not self.checked_source_refs
+        ):
+            raise ValueError("telemetry source-present rows require checked source refs")
+        if self.telemetry_posture == "telemetry_missing_expected_source" and (
+            not self.missing_source_refs
+        ):
+            raise ValueError("missing telemetry rows require missing source refs")
+        return self
+
+
+class RepoRuntimeTelemetryRequirement(_CartographyBase):
+    schema: Literal["repo_runtime_telemetry_requirement@1"] = (
+        REPO_RUNTIME_TELEMETRY_REQUIREMENT_SCHEMA
+    )
+    runtime_telemetry_requirement_id: str
+    command_preflight_contract_id: str
+    action_effect_envelope_id: str
+    runtime_permission_review_request_id: str
+    runtime_non_execution_guardrail_id: str
+    review_id: str
+    snapshot_id: str
+    source_set_id: str
+    telemetry_requirement_rows: list[RepoRuntimeTelemetryRequirementRow] = Field(min_length=1)
+    telemetry_boundary_summary: str
+
+    @model_validator(mode="after")
+    def _validate_runtime_telemetry_requirement(self) -> RepoRuntimeTelemetryRequirement:
+        object.__setattr__(
+            self,
+            "telemetry_requirement_rows",
+            _sorted_unique_by_ref(
+                self.telemetry_requirement_rows,
+                attr="telemetry_requirement_ref",
+                field_name="telemetry_requirement_rows",
+            ),
+        )
+        _require_terms(
+            self.telemetry_boundary_summary,
+            field_name="telemetry_boundary_summary",
+            terms=("requirement", "not observed telemetry", "no runtime permission"),
+        )
+        expected_id = _surface_id(
+            "repo_runtime_telemetry_requirement",
+            self.schema,
+            self.model_dump(mode="json"),
+            "runtime_telemetry_requirement_id",
+        )
+        if self.runtime_telemetry_requirement_id != expected_id:
+            raise ValueError(
+                "runtime_telemetry_requirement_id does not match canonical payload hash"
+            )
+        return self
+
+
+class RepoRuntimeRollbackContractRow(_CartographyBase):
+    rollback_contract_ref: str
+    runtime_review_refs: list[str] = Field(min_length=1)
+    preflight_refs: list[str] = Field(min_length=1)
+    effect_envelope_refs: list[str] = Field(min_length=1)
+    candidate_ref: str
+    rollback_surface_kind: RollbackSurfaceKind
+    required_rollback_source_refs: list[str] = Field(default_factory=list)
+    rollback_posture: RollbackPosture
+    blocking_gap_refs: list[str] = Field(default_factory=list)
+    limitation_note: str
+
+    @model_validator(mode="after")
+    def _validate_runtime_rollback_contract_row(self) -> RepoRuntimeRollbackContractRow:
+        _non_empty(self.rollback_contract_ref, field_name="rollback_contract_ref")
+        _non_empty(self.candidate_ref, field_name="candidate_ref")
+        _reject_v77b_authority_claim(self.limitation_note, field_name="limitation_note")
+        for field_name in (
+            "runtime_review_refs",
+            "preflight_refs",
+            "effect_envelope_refs",
+            "required_rollback_source_refs",
+            "blocking_gap_refs",
+        ):
+            object.__setattr__(
+                self,
+                field_name,
+                _sorted_unique(getattr(self, field_name), field_name=field_name),
+            )
+        if self.rollback_posture == "rollback_required_later" and (
+            not self.required_rollback_source_refs
+        ):
+            raise ValueError("rollback required-later rows require rollback source refs")
+        if self.rollback_posture == "rollback_source_present_for_prior_artifact" and (
+            not self.required_rollback_source_refs
+        ):
+            raise ValueError("rollback source-present rows require rollback source refs")
+        if self.rollback_posture == "rollback_blocked" and not self.blocking_gap_refs:
+            raise ValueError("rollback blocked rows require blocking gap refs")
+        return self
+
+
+class RepoRuntimeRollbackContract(_CartographyBase):
+    schema: Literal["repo_runtime_rollback_contract@1"] = REPO_RUNTIME_ROLLBACK_CONTRACT_SCHEMA
+    runtime_rollback_contract_id: str
+    command_preflight_contract_id: str
+    action_effect_envelope_id: str
+    runtime_permission_review_request_id: str
+    runtime_non_execution_guardrail_id: str
+    review_id: str
+    snapshot_id: str
+    source_set_id: str
+    rollback_contract_rows: list[RepoRuntimeRollbackContractRow] = Field(min_length=1)
+    rollback_boundary_summary: str
+
+    @model_validator(mode="after")
+    def _validate_runtime_rollback_contract(self) -> RepoRuntimeRollbackContract:
+        object.__setattr__(
+            self,
+            "rollback_contract_rows",
+            _sorted_unique_by_ref(
+                self.rollback_contract_rows,
+                attr="rollback_contract_ref",
+                field_name="rollback_contract_rows",
+            ),
+        )
+        _require_terms(
+            self.rollback_boundary_summary,
+            field_name="rollback_boundary_summary",
+            terms=("requirement", "not rollback verification", "no runtime permission"),
+        )
+        expected_id = _surface_id(
+            "repo_runtime_rollback_contract",
+            self.schema,
+            self.model_dump(mode="json"),
+            "runtime_rollback_contract_id",
+        )
+        if self.runtime_rollback_contract_id != expected_id:
+            raise ValueError("runtime_rollback_contract_id does not match canonical payload hash")
+        return self
+
+
+def _v77b_command_kind_from_v77a(kind: CommandIntentKind) -> V77BCommandIntentKind:
+    mapping: dict[str, V77BCommandIntentKind] = {
+        "no_command_intent": "no_command_intent",
+        "shell_command_pressure": "shell_command_later_review",
+        "python_tool_pressure": "python_tool_later_review",
+        "repo_script_pressure": "repo_script_later_review",
+        "api_call_pressure": "api_call_later_review",
+        "external_tool_pressure": "external_tool_later_review",
+        "future_family_only": "future_family_only",
+    }
+    return mapping[kind]
+
+
+def derive_v77b_repo_command_preflight_contract(
+    *,
+    repo_root: Path | None = None,
+    runtime_permission_review_request: RepoRuntimePermissionReviewRequest | None = None,
+    runtime_non_execution_guardrail: RepoRuntimeNonExecutionGuardrail | None = None,
+) -> RepoCommandPreflightContract:
+    _ = repo_root
+    request = (
+        runtime_permission_review_request
+        or derive_v77a_repo_runtime_permission_review_request()
+    )
+    guardrail = (
+        runtime_non_execution_guardrail
+        or derive_v77a_repo_runtime_non_execution_guardrail(
+            runtime_permission_review_request=request
+        )
+    )
+    rows = []
+    for request_row in request.request_rows:
+        review_only = (
+            request_row.runtime_review_posture == "eligible_for_runtime_permission_review"
+        )
+        rows.append(
+            {
+                "preflight_ref": request_row.runtime_review_ref.replace(
+                    "runtime-review:v77a",
+                    "preflight:v77b",
+                ),
+                "runtime_review_refs": [request_row.runtime_review_ref],
+                "candidate_ref": request_row.candidate_ref,
+                "command_intent_kind": _v77b_command_kind_from_v77a(
+                    request_row.command_intent_kind
+                ),
+                "command_intent_label": (
+                    "Repo-description implementation review pressure only"
+                    if review_only
+                    else "Future-family product review pressure only"
+                ),
+                "command_ref_posture": (
+                    "script_label_review_only" if review_only else "future_family_only"
+                ),
+                "target_boundary_refs": request_row.target_boundary_refs,
+                "target_resolution_kind": (
+                    "concrete_file_ref"
+                    if request_row.target_boundary_refs
+                    else "no_target_boundary"
+                ),
+                "required_source_refs": request_row.source_refs,
+                "required_authority_refs": request_row.required_later_authority_refs,
+                "required_telemetry_refs": (
+                    ["telemetry:v77b:self-evidencing:required"] if review_only else []
+                ),
+                "required_rollback_refs": (
+                    ["rollback:v77b:self-evidencing:required"] if review_only else []
+                ),
+                "non_execution_guardrail_refs": request_row.guardrail_refs,
+                "preflight_posture": (
+                    "preflight_contract_for_review_only"
+                    if review_only
+                    else "preflight_future_family_only"
+                ),
+                "execution_posture": "no_execution_authorized",
+                "forbidden_inferences": sorted(_FORBIDDEN_RUNTIME_INFERENCES),
+                "limitation_note": (
+                    "Preflight contract is review only with no command execution, "
+                    "no runtime permission, no tool-use permission, and no release."
+                ),
+            }
+        )
+    payload = {
+        "schema": REPO_COMMAND_PREFLIGHT_CONTRACT_SCHEMA,
+        "command_preflight_contract_id": "",
+        "runtime_permission_review_request_id": (
+            request.runtime_permission_review_request_id
+        ),
+        "runtime_non_execution_guardrail_id": (
+            guardrail.runtime_non_execution_guardrail_id
+        ),
+        "review_id": request.review_id,
+        "snapshot_id": request.snapshot_id,
+        "source_set_id": request.source_set_id,
+        "preflight_rows": sorted(rows, key=lambda row: row["preflight_ref"]),
+        "preflight_boundary_summary": (
+            "Command preflight is review only with no command execution and no runtime "
+            "permission."
+        ),
+    }
+    payload["command_preflight_contract_id"] = _surface_id(
+        "repo_command_preflight_contract",
+        REPO_COMMAND_PREFLIGHT_CONTRACT_SCHEMA,
+        payload,
+        "command_preflight_contract_id",
+    )
+    return RepoCommandPreflightContract.model_validate(payload)
+
+
+def derive_v77b_repo_action_effect_envelope(
+    *,
+    repo_root: Path | None = None,
+    command_preflight_contract: RepoCommandPreflightContract | None = None,
+) -> RepoActionEffectEnvelope:
+    _ = repo_root
+    preflight = command_preflight_contract or derive_v77b_repo_command_preflight_contract()
+    rows = []
+    for preflight_row in preflight.preflight_rows:
+        review_only = preflight_row.preflight_posture == "preflight_contract_for_review_only"
+        rows.append(
+            {
+                "effect_envelope_ref": preflight_row.preflight_ref.replace(
+                    "preflight:v77b",
+                    "effect-envelope:v77b",
+                ),
+                "runtime_review_refs": preflight_row.runtime_review_refs,
+                "preflight_refs": [preflight_row.preflight_ref],
+                "candidate_ref": preflight_row.candidate_ref,
+                "target_boundary_refs": preflight_row.target_boundary_refs,
+                "allowed_effect_surface_refs": (
+                    ["effect:v77b:self-evidencing:schema-review-only"] if review_only else []
+                ),
+                "forbidden_effect_surface_refs": [
+                    "effect:v77b:accepted-repository-truth",
+                    "effect:v77b:command-execution",
+                    "effect:v77b:runtime-permission-grant",
+                ],
+                "effect_horizon": (
+                    "Review-only schema, fixture, and test effect horizon"
+                    if review_only
+                    else "Future-family product effect horizon"
+                ),
+                "effect_envelope_posture": (
+                    "effect_envelope_for_review_only"
+                    if review_only
+                    else "effect_envelope_future_family_only"
+                ),
+                "effect_acceptance_posture": "no_effect_accepted",
+                "source_refs": preflight_row.required_source_refs,
+                "non_execution_guardrail_refs": preflight_row.non_execution_guardrail_refs,
+                "limitation_note": (
+                    "Action-effect envelope is review only with no accepted effect, "
+                    "no command execution, and no runtime permission."
+                ),
+            }
+        )
+    payload = {
+        "schema": REPO_ACTION_EFFECT_ENVELOPE_SCHEMA,
+        "action_effect_envelope_id": "",
+        "command_preflight_contract_id": preflight.command_preflight_contract_id,
+        "runtime_permission_review_request_id": (
+            preflight.runtime_permission_review_request_id
+        ),
+        "runtime_non_execution_guardrail_id": (
+            preflight.runtime_non_execution_guardrail_id
+        ),
+        "review_id": preflight.review_id,
+        "snapshot_id": preflight.snapshot_id,
+        "source_set_id": preflight.source_set_id,
+        "effect_envelope_rows": sorted(rows, key=lambda row: row["effect_envelope_ref"]),
+        "effect_boundary_summary": (
+            "Action-effect envelopes are review objects with no accepted effect and no "
+            "runtime permission."
+        ),
+    }
+    payload["action_effect_envelope_id"] = _surface_id(
+        "repo_action_effect_envelope",
+        REPO_ACTION_EFFECT_ENVELOPE_SCHEMA,
+        payload,
+        "action_effect_envelope_id",
+    )
+    return RepoActionEffectEnvelope.model_validate(payload)
+
+
+def derive_v77b_repo_runtime_telemetry_requirement(
+    *,
+    repo_root: Path | None = None,
+    command_preflight_contract: RepoCommandPreflightContract | None = None,
+    action_effect_envelope: RepoActionEffectEnvelope | None = None,
+) -> RepoRuntimeTelemetryRequirement:
+    _ = repo_root
+    preflight = command_preflight_contract or derive_v77b_repo_command_preflight_contract()
+    envelope = action_effect_envelope or derive_v77b_repo_action_effect_envelope(
+        command_preflight_contract=preflight
+    )
+    envelope_by_preflight = {
+        row.preflight_refs[0]: row for row in envelope.effect_envelope_rows
+    }
+    rows = []
+    for preflight_row in preflight.preflight_rows:
+        review_only = preflight_row.preflight_posture == "preflight_contract_for_review_only"
+        rows.append(
+            {
+                "telemetry_requirement_ref": (
+                    preflight_row.required_telemetry_refs[0]
+                    if preflight_row.required_telemetry_refs
+                    else preflight_row.preflight_ref.replace(
+                        "preflight:v77b",
+                        "telemetry:v77b",
+                    )
+                ),
+                "runtime_review_refs": preflight_row.runtime_review_refs,
+                "preflight_refs": [preflight_row.preflight_ref],
+                "effect_envelope_refs": [
+                    envelope_by_preflight[preflight_row.preflight_ref].effect_envelope_ref
+                ],
+                "candidate_ref": preflight_row.candidate_ref,
+                "telemetry_surface_kind": (
+                    "test_result_telemetry" if review_only else "not_applicable"
+                ),
+                "required_telemetry_source_refs": (
+                    ["telemetry-source:v77b:self-evidencing:future-test-output"]
+                    if review_only
+                    else []
+                ),
+                "checked_source_refs": [],
+                "missing_source_refs": (
+                    ["telemetry-source:v77b:self-evidencing:future-test-output"]
+                    if review_only
+                    else []
+                ),
+                "telemetry_posture": (
+                    "telemetry_required_later" if review_only else "telemetry_future_family_only"
+                ),
+                "limitation_note": (
+                    "Telemetry is required later and is not observed telemetry; no runtime "
+                    "permission is granted."
+                    if review_only
+                    else "Telemetry is future-family only and not observed telemetry; no runtime "
+                    "permission is granted."
+                ),
+            }
+        )
+    payload = {
+        "schema": REPO_RUNTIME_TELEMETRY_REQUIREMENT_SCHEMA,
+        "runtime_telemetry_requirement_id": "",
+        "command_preflight_contract_id": preflight.command_preflight_contract_id,
+        "action_effect_envelope_id": envelope.action_effect_envelope_id,
+        "runtime_permission_review_request_id": (
+            preflight.runtime_permission_review_request_id
+        ),
+        "runtime_non_execution_guardrail_id": (
+            preflight.runtime_non_execution_guardrail_id
+        ),
+        "review_id": preflight.review_id,
+        "snapshot_id": preflight.snapshot_id,
+        "source_set_id": preflight.source_set_id,
+        "telemetry_requirement_rows": sorted(
+            rows,
+            key=lambda row: row["telemetry_requirement_ref"],
+        ),
+        "telemetry_boundary_summary": (
+            "Runtime telemetry rows are requirements, not observed telemetry, and no "
+            "runtime permission is granted."
+        ),
+    }
+    payload["runtime_telemetry_requirement_id"] = _surface_id(
+        "repo_runtime_telemetry_requirement",
+        REPO_RUNTIME_TELEMETRY_REQUIREMENT_SCHEMA,
+        payload,
+        "runtime_telemetry_requirement_id",
+    )
+    return RepoRuntimeTelemetryRequirement.model_validate(payload)
+
+
+def derive_v77b_repo_runtime_rollback_contract(
+    *,
+    repo_root: Path | None = None,
+    command_preflight_contract: RepoCommandPreflightContract | None = None,
+    action_effect_envelope: RepoActionEffectEnvelope | None = None,
+) -> RepoRuntimeRollbackContract:
+    _ = repo_root
+    preflight = command_preflight_contract or derive_v77b_repo_command_preflight_contract()
+    envelope = action_effect_envelope or derive_v77b_repo_action_effect_envelope(
+        command_preflight_contract=preflight
+    )
+    envelope_by_preflight = {
+        row.preflight_refs[0]: row for row in envelope.effect_envelope_rows
+    }
+    rows = []
+    for preflight_row in preflight.preflight_rows:
+        review_only = preflight_row.preflight_posture == "preflight_contract_for_review_only"
+        rows.append(
+            {
+                "rollback_contract_ref": (
+                    preflight_row.required_rollback_refs[0]
+                    if preflight_row.required_rollback_refs
+                    else preflight_row.preflight_ref.replace(
+                        "preflight:v77b",
+                        "rollback:v77b",
+                    )
+                ),
+                "runtime_review_refs": preflight_row.runtime_review_refs,
+                "preflight_refs": [preflight_row.preflight_ref],
+                "effect_envelope_refs": [
+                    envelope_by_preflight[preflight_row.preflight_ref].effect_envelope_ref
+                ],
+                "candidate_ref": preflight_row.candidate_ref,
+                "rollback_surface_kind": (
+                    "source_revert_plan" if review_only else "not_applicable"
+                ),
+                "required_rollback_source_refs": (
+                    ["rollback-source:v77b:self-evidencing:future-clean-revert"]
+                    if review_only
+                    else []
+                ),
+                "rollback_posture": (
+                    "rollback_required_later" if review_only else "rollback_future_family_only"
+                ),
+                "blocking_gap_refs": [],
+                "limitation_note": (
+                    "Rollback is required later and is not rollback verification; no runtime "
+                    "permission is granted."
+                    if review_only
+                    else "Rollback is future-family only and not rollback verification; no "
+                    "runtime permission is granted."
+                ),
+            }
+        )
+    payload = {
+        "schema": REPO_RUNTIME_ROLLBACK_CONTRACT_SCHEMA,
+        "runtime_rollback_contract_id": "",
+        "command_preflight_contract_id": preflight.command_preflight_contract_id,
+        "action_effect_envelope_id": envelope.action_effect_envelope_id,
+        "runtime_permission_review_request_id": (
+            preflight.runtime_permission_review_request_id
+        ),
+        "runtime_non_execution_guardrail_id": (
+            preflight.runtime_non_execution_guardrail_id
+        ),
+        "review_id": preflight.review_id,
+        "snapshot_id": preflight.snapshot_id,
+        "source_set_id": preflight.source_set_id,
+        "rollback_contract_rows": sorted(rows, key=lambda row: row["rollback_contract_ref"]),
+        "rollback_boundary_summary": (
+            "Runtime rollback rows are requirements, not rollback verification, and no "
+            "runtime permission is granted."
+        ),
+    }
+    payload["runtime_rollback_contract_id"] = _surface_id(
+        "repo_runtime_rollback_contract",
+        REPO_RUNTIME_ROLLBACK_CONTRACT_SCHEMA,
+        payload,
+        "runtime_rollback_contract_id",
+    )
+    return RepoRuntimeRollbackContract.model_validate(payload)
+
+
+def validate_v77b_runtime_preflight_bundle(
+    *,
+    runtime_permission_review_request: RepoRuntimePermissionReviewRequest,
+    runtime_non_execution_guardrail: RepoRuntimeNonExecutionGuardrail,
+    command_preflight_contract: RepoCommandPreflightContract,
+    action_effect_envelope: RepoActionEffectEnvelope,
+    runtime_telemetry_requirement: RepoRuntimeTelemetryRequirement,
+    runtime_rollback_contract: RepoRuntimeRollbackContract,
+) -> None:
+    if (
+        command_preflight_contract.runtime_permission_review_request_id
+        != runtime_permission_review_request.runtime_permission_review_request_id
+    ):
+        raise ValueError("command preflight must reference V77-A request surface")
+    if (
+        command_preflight_contract.runtime_non_execution_guardrail_id
+        != runtime_non_execution_guardrail.runtime_non_execution_guardrail_id
+    ):
+        raise ValueError("command preflight must reference V77-A guardrail surface")
+    for surface_name, surface in (
+        ("effect envelope", action_effect_envelope),
+        ("telemetry requirement", runtime_telemetry_requirement),
+        ("rollback contract", runtime_rollback_contract),
+    ):
+        if surface.command_preflight_contract_id != (
+            command_preflight_contract.command_preflight_contract_id
+        ):
+            raise ValueError(f"{surface_name} must reference command preflight surface")
+        if surface.runtime_permission_review_request_id != (
+            runtime_permission_review_request.runtime_permission_review_request_id
+        ):
+            raise ValueError(f"{surface_name} must reference V77-A request surface")
+        if surface.runtime_non_execution_guardrail_id != (
+            runtime_non_execution_guardrail.runtime_non_execution_guardrail_id
+        ):
+            raise ValueError(f"{surface_name} must reference V77-A guardrail surface")
+        if (
+            surface.review_id,
+            surface.snapshot_id,
+            surface.source_set_id,
+        ) != (
+            command_preflight_contract.review_id,
+            command_preflight_contract.snapshot_id,
+            command_preflight_contract.source_set_id,
+        ):
+            raise ValueError(f"{surface_name} provenance must match command preflight")
+
+    request_rows = {
+        row.runtime_review_ref: row for row in runtime_permission_review_request.request_rows
+    }
+    guardrail_rows = {
+        row.guardrail_ref: row for row in runtime_non_execution_guardrail.guardrail_rows
+    }
+    preflight_rows = {
+        row.preflight_ref: row for row in command_preflight_contract.preflight_rows
+    }
+    effect_rows = {
+        row.effect_envelope_ref: row for row in action_effect_envelope.effect_envelope_rows
+    }
+    for preflight_row in command_preflight_contract.preflight_rows:
+        for review_ref in preflight_row.runtime_review_refs:
+            if review_ref not in request_rows:
+                raise ValueError("preflight runtime review refs must be known V77-A refs")
+            if request_rows[review_ref].candidate_ref != preflight_row.candidate_ref:
+                raise ValueError("preflight rows must match request candidate")
+        for guardrail_ref in preflight_row.non_execution_guardrail_refs:
+            if guardrail_ref not in guardrail_rows:
+                raise ValueError("preflight guardrail refs must be known V77-A refs")
+            if guardrail_rows[guardrail_ref].candidate_ref != preflight_row.candidate_ref:
+                raise ValueError("preflight guardrails must match candidate")
+    for effect_row in action_effect_envelope.effect_envelope_rows:
+        for preflight_ref in effect_row.preflight_refs:
+            if preflight_ref not in preflight_rows:
+                raise ValueError("effect envelope preflight refs must be known")
+            if preflight_rows[preflight_ref].candidate_ref != effect_row.candidate_ref:
+                raise ValueError("effect envelope rows must match preflight candidate")
+        for guardrail_ref in effect_row.non_execution_guardrail_refs:
+            if guardrail_ref not in guardrail_rows:
+                raise ValueError("effect envelope guardrail refs must be known")
+    for telemetry_row in runtime_telemetry_requirement.telemetry_requirement_rows:
+        for preflight_ref in telemetry_row.preflight_refs:
+            if preflight_ref not in preflight_rows:
+                raise ValueError("telemetry preflight refs must be known")
+        for effect_ref in telemetry_row.effect_envelope_refs:
+            if effect_ref not in effect_rows:
+                raise ValueError("telemetry effect envelope refs must be known")
+    for rollback_row in runtime_rollback_contract.rollback_contract_rows:
+        for preflight_ref in rollback_row.preflight_refs:
+            if preflight_ref not in preflight_rows:
+                raise ValueError("rollback preflight refs must be known")
+        for effect_ref in rollback_row.effect_envelope_refs:
+            if effect_ref not in effect_rows:
+                raise ValueError("rollback effect envelope refs must be known")
+
+
+def derive_v77b_runtime_preflight_bundle(
+    *, repo_root: Path | None = None
+) -> tuple[
+    RepoCommandPreflightContract,
+    RepoActionEffectEnvelope,
+    RepoRuntimeTelemetryRequirement,
+    RepoRuntimeRollbackContract,
+]:
+    _, request, guardrail = derive_v77a_runtime_permission_review_bundle(repo_root=repo_root)
+    preflight = derive_v77b_repo_command_preflight_contract(
+        repo_root=repo_root,
+        runtime_permission_review_request=request,
+        runtime_non_execution_guardrail=guardrail,
+    )
+    envelope = derive_v77b_repo_action_effect_envelope(
+        repo_root=repo_root,
+        command_preflight_contract=preflight,
+    )
+    telemetry = derive_v77b_repo_runtime_telemetry_requirement(
+        repo_root=repo_root,
+        command_preflight_contract=preflight,
+        action_effect_envelope=envelope,
+    )
+    rollback = derive_v77b_repo_runtime_rollback_contract(
+        repo_root=repo_root,
+        command_preflight_contract=preflight,
+        action_effect_envelope=envelope,
+    )
+    validate_v77b_runtime_preflight_bundle(
+        runtime_permission_review_request=request,
+        runtime_non_execution_guardrail=guardrail,
+        command_preflight_contract=preflight,
+        action_effect_envelope=envelope,
+        runtime_telemetry_requirement=telemetry,
+        runtime_rollback_contract=rollback,
+    )
+    return preflight, envelope, telemetry, rollback

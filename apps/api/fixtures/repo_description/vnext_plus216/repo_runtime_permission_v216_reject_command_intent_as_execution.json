@@ -1,0 +1,105 @@
+{
+  "command_preflight_contract_id": "repo_command_preflight_contract_ef09f664bf59451e2e568daa",
+  "preflight_boundary_summary": "Command preflight is review only with no command execution and no runtime permission.",
+  "preflight_rows": [
+    {
+      "candidate_ref": "candidate:internal:typed_adjudication_product_wedge",
+      "command_intent_kind": "future_family_only",
+      "command_intent_label": "Future-family product review pressure only",
+      "command_ref_posture": "future_family_only",
+      "execution_posture": "execution_requires_later_authority",
+      "forbidden_inferences": [
+        "accepted_effect",
+        "command_execution",
+        "external_branch_activation",
+        "observed_telemetry",
+        "product_authorization",
+        "release_authority",
+        "rollback_verification",
+        "runtime_permission_grant",
+        "target_change_authority",
+        "tool_use_permission",
+        "v77c_surface_emission"
+      ],
+      "limitation_note": "Preflight contract is review only with no command execution, no runtime permission, no tool-use permission, and no release.",
+      "non_execution_guardrail_refs": [
+        "guardrail:v77a:product-wedge:non-execution"
+      ],
+      "preflight_posture": "preflight_future_family_only",
+      "preflight_ref": "preflight:v77b:product-wedge:blocked",
+      "required_authority_refs": [
+        "authority:v77a:product-wedge:product-review"
+      ],
+      "required_rollback_refs": [],
+      "required_source_refs": [
+        "apps/api/fixtures/repo_description/vnext_plus214/repo_post_reconciliation_handoff_v214_reference.json",
+        "apps/api/fixtures/repo_description/vnext_plus214/repo_reconciliation_family_closeout_alignment_v214_reference.json",
+        "apps/api/fixtures/repo_description/vnext_plus214/repo_reconciliation_review_summary_v214_reference.json",
+        "artifacts/agent_harness/v214/evidence_inputs/v76c_reconciliation_arbiter_closeout_evidence_v214.json",
+        "docs/support/arc_series_mapping/V68_V69_V70_V71_V72_V73_V74_V75_V76_COMBINED_DOGFOOD_TEST_v0.json"
+      ],
+      "required_telemetry_refs": [],
+      "runtime_review_refs": [
+        "runtime-review:v77a:product-wedge:blocked"
+      ],
+      "target_boundary_refs": [],
+      "target_resolution_kind": "no_target_boundary"
+    },
+    {
+      "candidate_ref": "candidate:internal:self_evidencing_workflow_type_emergence",
+      "command_intent_kind": "repo_script_later_review",
+      "command_intent_label": "Repo-description implementation review pressure only",
+      "command_ref_posture": "script_label_review_only",
+      "execution_posture": "no_execution_authorized",
+      "forbidden_inferences": [
+        "accepted_effect",
+        "command_execution",
+        "external_branch_activation",
+        "observed_telemetry",
+        "product_authorization",
+        "release_authority",
+        "rollback_verification",
+        "runtime_permission_grant",
+        "target_change_authority",
+        "tool_use_permission",
+        "v77c_surface_emission"
+      ],
+      "limitation_note": "Preflight contract is review only with no command execution, no runtime permission, no tool-use permission, and no release.",
+      "non_execution_guardrail_refs": [
+        "guardrail:v77a:self-evidencing:non-execution"
+      ],
+      "preflight_posture": "preflight_contract_for_review_only",
+      "preflight_ref": "preflight:v77b:self-evidencing:preflight",
+      "required_authority_refs": [
+        "authority:v77a:self-evidencing:runtime-execution",
+        "authority:v77a:self-evidencing:tool-use"
+      ],
+      "required_rollback_refs": [
+        "rollback:v77b:self-evidencing:required"
+      ],
+      "required_source_refs": [
+        "apps/api/fixtures/repo_description/vnext_plus214/repo_post_reconciliation_handoff_v214_reference.json",
+        "apps/api/fixtures/repo_description/vnext_plus214/repo_reconciliation_family_closeout_alignment_v214_reference.json",
+        "apps/api/fixtures/repo_description/vnext_plus214/repo_reconciliation_review_summary_v214_reference.json",
+        "artifacts/agent_harness/v214/evidence_inputs/v76c_reconciliation_arbiter_closeout_evidence_v214.json",
+        "docs/support/arc_series_mapping/V68_V69_V70_V71_V72_V73_V74_V75_V76_COMBINED_DOGFOOD_TEST_v0.json"
+      ],
+      "required_telemetry_refs": [
+        "telemetry:v77b:self-evidencing:required"
+      ],
+      "runtime_review_refs": [
+        "runtime-review:v77a:self-evidencing:preflight"
+      ],
+      "target_boundary_refs": [
+        "packages/adeu_repo_description/src/adeu_repo_description/runtime_permission_review.py"
+      ],
+      "target_resolution_kind": "concrete_file_ref"
+    }
+  ],
+  "review_id": "review:v77a:runtime-permission-review-request",
+  "runtime_non_execution_guardrail_id": "repo_runtime_non_execution_guardrail_096f50099358c2e2180841b8",
+  "runtime_permission_review_request_id": "repo_runtime_permission_review_request_09fa5c6b528a4104be450b64",
+  "schema": "repo_command_preflight_contract@1",
+  "snapshot_id": "vNext+214-closed-on-main",
+  "source_set_id": "source-set:v77a:released-v76c-runtime-pressure"
+}

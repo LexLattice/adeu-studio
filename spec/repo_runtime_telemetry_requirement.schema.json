@@ -1,0 +1,166 @@
+{
+  "$defs": {
+    "RepoRuntimeTelemetryRequirementRow": {
+      "additionalProperties": false,
+      "properties": {
+        "candidate_ref": {
+          "title": "Candidate Ref",
+          "type": "string"
+        },
+        "checked_source_refs": {
+          "items": {
+            "type": "string"
+          },
+          "title": "Checked Source Refs",
+          "type": "array"
+        },
+        "effect_envelope_refs": {
+          "items": {
+            "type": "string"
+          },
+          "minItems": 1,
+          "title": "Effect Envelope Refs",
+          "type": "array"
+        },
+        "limitation_note": {
+          "title": "Limitation Note",
+          "type": "string"
+        },
+        "missing_source_refs": {
+          "items": {
+            "type": "string"
+          },
+          "title": "Missing Source Refs",
+          "type": "array"
+        },
+        "preflight_refs": {
+          "items": {
+            "type": "string"
+          },
+          "minItems": 1,
+          "title": "Preflight Refs",
+          "type": "array"
+        },
+        "required_telemetry_source_refs": {
+          "items": {
+            "type": "string"
+          },
+          "title": "Required Telemetry Source Refs",
+          "type": "array"
+        },
+        "runtime_review_refs": {
+          "items": {
+            "type": "string"
+          },
+          "minItems": 1,
+          "title": "Runtime Review Refs",
+          "type": "array"
+        },
+        "telemetry_posture": {
+          "enum": [
+            "telemetry_required_later",
+            "telemetry_source_present_for_prior_artifact",
+            "telemetry_missing_expected_source",
+            "telemetry_not_applicable",
+            "telemetry_future_family_only"
+          ],
+          "title": "Telemetry Posture",
+          "type": "string"
+        },
+        "telemetry_requirement_ref": {
+          "title": "Telemetry Requirement Ref",
+          "type": "string"
+        },
+        "telemetry_surface_kind": {
+          "enum": [
+            "test_result_telemetry",
+            "runtime_event_stream_telemetry",
+            "schema_validation_telemetry",
+            "not_applicable"
+          ],
+          "title": "Telemetry Surface Kind",
+          "type": "string"
+        }
+      },
+      "required": [
+        "telemetry_requirement_ref",
+        "runtime_review_refs",
+        "preflight_refs",
+        "effect_envelope_refs",
+        "candidate_ref",
+        "telemetry_surface_kind",
+        "telemetry_posture",
+        "limitation_note"
+      ],
+      "title": "RepoRuntimeTelemetryRequirementRow",
+      "type": "object"
+    }
+  },
+  "additionalProperties": false,
+  "properties": {
+    "action_effect_envelope_id": {
+      "title": "Action Effect Envelope Id",
+      "type": "string"
+    },
+    "command_preflight_contract_id": {
+      "title": "Command Preflight Contract Id",
+      "type": "string"
+    },
+    "review_id": {
+      "title": "Review Id",
+      "type": "string"
+    },
+    "runtime_non_execution_guardrail_id": {
+      "title": "Runtime Non Execution Guardrail Id",
+      "type": "string"
+    },
+    "runtime_permission_review_request_id": {
+      "title": "Runtime Permission Review Request Id",
+      "type": "string"
+    },
+    "runtime_telemetry_requirement_id": {
+      "title": "Runtime Telemetry Requirement Id",
+      "type": "string"
+    },
+    "schema": {
+      "const": "repo_runtime_telemetry_requirement@1",
+      "default": "repo_runtime_telemetry_requirement@1",
+      "title": "Schema",
+      "type": "string"
+    },
+    "snapshot_id": {
+      "title": "Snapshot Id",
+      "type": "string"
+    },
+    "source_set_id": {
+      "title": "Source Set Id",
+      "type": "string"
+    },
+    "telemetry_boundary_summary": {
+      "title": "Telemetry Boundary Summary",
+      "type": "string"
+    },
+    "telemetry_requirement_rows": {
+      "items": {
+        "$ref": "#/$defs/RepoRuntimeTelemetryRequirementRow"
+      },
+      "minItems": 1,
+      "title": "Telemetry Requirement Rows",
+      "type": "array"
+    }
+  },
+  "required": [
+    "runtime_telemetry_requirement_id",
+    "command_preflight_contract_id",
+    "action_effect_envelope_id",
+    "runtime_permission_review_request_id",
+    "runtime_non_execution_guardrail_id",
+    "review_id",
+    "snapshot_id",
+    "source_set_id",
+    "telemetry_requirement_rows",
+    "telemetry_boundary_summary"
+  ],
+  "title": "RepoRuntimeTelemetryRequirement",
+  "type": "object"
+}

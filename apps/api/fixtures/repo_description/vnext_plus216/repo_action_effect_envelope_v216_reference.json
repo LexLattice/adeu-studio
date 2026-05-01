@@ -1,0 +1,79 @@
+{
+  "action_effect_envelope_id": "repo_action_effect_envelope_dc5fed1bb306be8e947472a8",
+  "command_preflight_contract_id": "repo_command_preflight_contract_ef09f664bf59451e2e568daa",
+  "effect_boundary_summary": "Action-effect envelopes are review objects with no accepted effect and no runtime permission.",
+  "effect_envelope_rows": [
+    {
+      "allowed_effect_surface_refs": [],
+      "candidate_ref": "candidate:internal:typed_adjudication_product_wedge",
+      "effect_acceptance_posture": "no_effect_accepted",
+      "effect_envelope_posture": "effect_envelope_future_family_only",
+      "effect_envelope_ref": "effect-envelope:v77b:product-wedge:blocked",
+      "effect_horizon": "Future-family product effect horizon",
+      "forbidden_effect_surface_refs": [
+        "effect:v77b:accepted-repository-truth",
+        "effect:v77b:command-execution",
+        "effect:v77b:runtime-permission-grant"
+      ],
+      "limitation_note": "Action-effect envelope is review only with no accepted effect, no command execution, and no runtime permission.",
+      "non_execution_guardrail_refs": [
+        "guardrail:v77a:product-wedge:non-execution"
+      ],
+      "preflight_refs": [
+        "preflight:v77b:product-wedge:blocked"
+      ],
+      "runtime_review_refs": [
+        "runtime-review:v77a:product-wedge:blocked"
+      ],
+      "source_refs": [
+        "apps/api/fixtures/repo_description/vnext_plus214/repo_post_reconciliation_handoff_v214_reference.json",
+        "apps/api/fixtures/repo_description/vnext_plus214/repo_reconciliation_family_closeout_alignment_v214_reference.json",
+        "apps/api/fixtures/repo_description/vnext_plus214/repo_reconciliation_review_summary_v214_reference.json",
+        "artifacts/agent_harness/v214/evidence_inputs/v76c_reconciliation_arbiter_closeout_evidence_v214.json",
+        "docs/support/arc_series_mapping/V68_V69_V70_V71_V72_V73_V74_V75_V76_COMBINED_DOGFOOD_TEST_v0.json"
+      ],
+      "target_boundary_refs": []
+    },
+    {
+      "allowed_effect_surface_refs": [
+        "effect:v77b:self-evidencing:schema-review-only"
+      ],
+      "candidate_ref": "candidate:internal:self_evidencing_workflow_type_emergence",
+      "effect_acceptance_posture": "no_effect_accepted",
+      "effect_envelope_posture": "effect_envelope_for_review_only",
+      "effect_envelope_ref": "effect-envelope:v77b:self-evidencing:preflight",
+      "effect_horizon": "Review-only schema, fixture, and test effect horizon",
+      "forbidden_effect_surface_refs": [
+        "effect:v77b:accepted-repository-truth",
+        "effect:v77b:command-execution",
+        "effect:v77b:runtime-permission-grant"
+      ],
+      "limitation_note": "Action-effect envelope is review only with no accepted effect, no command execution, and no runtime permission.",
+      "non_execution_guardrail_refs": [
+        "guardrail:v77a:self-evidencing:non-execution"
+      ],
+      "preflight_refs": [
+        "preflight:v77b:self-evidencing:preflight"
+      ],
+      "runtime_review_refs": [
+        "runtime-review:v77a:self-evidencing:preflight"
+      ],
+      "source_refs": [
+        "apps/api/fixtures/repo_description/vnext_plus214/repo_post_reconciliation_handoff_v214_reference.json",
+        "apps/api/fixtures/repo_description/vnext_plus214/repo_reconciliation_family_closeout_alignment_v214_reference.json",
+        "apps/api/fixtures/repo_description/vnext_plus214/repo_reconciliation_review_summary_v214_reference.json",
+        "artifacts/agent_harness/v214/evidence_inputs/v76c_reconciliation_arbiter_closeout_evidence_v214.json",
+        "docs/support/arc_series_mapping/V68_V69_V70_V71_V72_V73_V74_V75_V76_COMBINED_DOGFOOD_TEST_v0.json"
+      ],
+      "target_boundary_refs": [
+        "packages/adeu_repo_description/src/adeu_repo_description/runtime_permission_review.py"
+      ]
+    }
+  ],
+  "review_id": "review:v77a:runtime-permission-review-request",
+  "runtime_non_execution_guardrail_id": "repo_runtime_non_execution_guardrail_096f50099358c2e2180841b8",
+  "runtime_permission_review_request_id": "repo_runtime_permission_review_request_09fa5c6b528a4104be450b64",
+  "schema": "repo_action_effect_envelope@1",
+  "snapshot_id": "vNext+214-closed-on-main",
+  "source_set_id": "source-set:v77a:released-v76c-runtime-pressure"
+}

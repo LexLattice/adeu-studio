@@ -6,6 +6,7 @@ from pathlib import Path
 
 from adeu_ir.repo import repo_root
 from adeu_repo_description import (
+    REPO_ACTION_EFFECT_ENVELOPE_SCHEMA,
     REPO_ADVERSARIAL_RELATION_REVIEW_SCHEMA,
     REPO_ARBITER_AUTHORITY_PROFILE_SCHEMA,
     REPO_ARBITER_RELATION_REGISTER_SCHEMA,
@@ -33,6 +34,7 @@ from adeu_repo_description import (
     REPO_CANDIDATE_REVIEW_CONFLICT_REGISTER_SCHEMA,
     REPO_CANDIDATE_REVIEW_GAP_SCAN_SCHEMA,
     REPO_CANDIDATE_SOURCE_REGISTER_SCHEMA,
+    REPO_COMMAND_PREFLIGHT_CONTRACT_SCHEMA,
     REPO_COMMIT_RELEASE_AUTHORITY_POSTURE_SCHEMA,
     REPO_CONTAINED_INTEGRATION_CANDIDATE_PLAN_SCHEMA,
     REPO_CONTAINED_INTEGRATION_FAMILY_CLOSEOUT_ALIGNMENT_SCHEMA,
@@ -83,6 +85,8 @@ from adeu_repo_description import (
     REPO_RUNTIME_NON_EXECUTION_GUARDRAIL_SCHEMA,
     REPO_RUNTIME_PERMISSION_REVIEW_REQUEST_SCHEMA,
     REPO_RUNTIME_PERMISSION_SOURCE_INDEX_SCHEMA,
+    REPO_RUNTIME_ROLLBACK_CONTRACT_SCHEMA,
+    REPO_RUNTIME_TELEMETRY_REQUIREMENT_SCHEMA,
     REPO_SCHEMA_FAMILY_REGISTRY_SCHEMA,
     REPO_SUPPORT_LINEAGE_REGISTER_SCHEMA,
     REPO_SYMBOL_CATALOG_SCHEMA,
@@ -754,6 +758,38 @@ def _schema_pairs() -> dict[str, tuple[Path, Path]]:
             / "schema"
             / "repo_runtime_non_execution_guardrail.v1.json",
             root / "spec" / "repo_runtime_non_execution_guardrail.schema.json",
+        ),
+        REPO_COMMAND_PREFLIGHT_CONTRACT_SCHEMA: (
+            root
+            / "packages"
+            / "adeu_repo_description"
+            / "schema"
+            / "repo_command_preflight_contract.v1.json",
+            root / "spec" / "repo_command_preflight_contract.schema.json",
+        ),
+        REPO_ACTION_EFFECT_ENVELOPE_SCHEMA: (
+            root
+            / "packages"
+            / "adeu_repo_description"
+            / "schema"
+            / "repo_action_effect_envelope.v1.json",
+            root / "spec" / "repo_action_effect_envelope.schema.json",
+        ),
+        REPO_RUNTIME_TELEMETRY_REQUIREMENT_SCHEMA: (
+            root
+            / "packages"
+            / "adeu_repo_description"
+            / "schema"
+            / "repo_runtime_telemetry_requirement.v1.json",
+            root / "spec" / "repo_runtime_telemetry_requirement.schema.json",
+        ),
+        REPO_RUNTIME_ROLLBACK_CONTRACT_SCHEMA: (
+            root
+            / "packages"
+            / "adeu_repo_description"
+            / "schema"
+            / "repo_runtime_rollback_contract.v1.json",
+            root / "spec" / "repo_runtime_rollback_contract.schema.json",
         ),
     }
 
