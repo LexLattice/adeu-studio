@@ -1,0 +1,190 @@
+{
+  "$defs": {
+    "RepoRuntimePermissionReviewSummaryRow": {
+      "additionalProperties": false,
+      "properties": {
+        "authority_posture_refs": {
+          "items": {
+            "type": "string"
+          },
+          "minItems": 1,
+          "title": "Authority Posture Refs",
+          "type": "array"
+        },
+        "candidate_ref": {
+          "title": "Candidate Ref",
+          "type": "string"
+        },
+        "carried_blocker_refs": {
+          "items": {
+            "type": "string"
+          },
+          "title": "Carried Blocker Refs",
+          "type": "array"
+        },
+        "effect_envelope_refs": {
+          "items": {
+            "type": "string"
+          },
+          "title": "Effect Envelope Refs",
+          "type": "array"
+        },
+        "limitation_note": {
+          "title": "Limitation Note",
+          "type": "string"
+        },
+        "non_execution_guardrail": {
+          "title": "Non Execution Guardrail",
+          "type": "string"
+        },
+        "preflight_refs": {
+          "items": {
+            "type": "string"
+          },
+          "title": "Preflight Refs",
+          "type": "array"
+        },
+        "ready_basis_posture": {
+          "enum": [
+            "ready_no_blockers",
+            "ready_with_carried_nonblocking_warnings",
+            "not_ready_blockers_remain",
+            "future_family_only"
+          ],
+          "title": "Ready Basis Posture",
+          "type": "string"
+        },
+        "rollback_contract_refs": {
+          "items": {
+            "type": "string"
+          },
+          "title": "Rollback Contract Refs",
+          "type": "array"
+        },
+        "runtime_review_refs": {
+          "items": {
+            "type": "string"
+          },
+          "minItems": 1,
+          "title": "Runtime Review Refs",
+          "type": "array"
+        },
+        "runtime_summary_ref": {
+          "title": "Runtime Summary Ref",
+          "type": "string"
+        },
+        "summary_posture": {
+          "enum": [
+            "review_ready_no_blockers",
+            "review_ready_with_nonblocking_warnings",
+            "blocked_by_missing_source",
+            "blocked_by_missing_authority",
+            "blocked_by_missing_telemetry",
+            "blocked_by_missing_rollback",
+            "blocked_by_target_boundary",
+            "future_family_only",
+            "rejected_out_of_scope"
+          ],
+          "title": "Summary Posture",
+          "type": "string"
+        },
+        "telemetry_requirement_refs": {
+          "items": {
+            "type": "string"
+          },
+          "title": "Telemetry Requirement Refs",
+          "type": "array"
+        }
+      },
+      "required": [
+        "runtime_summary_ref",
+        "runtime_review_refs",
+        "authority_posture_refs",
+        "candidate_ref",
+        "summary_posture",
+        "ready_basis_posture",
+        "non_execution_guardrail",
+        "limitation_note"
+      ],
+      "title": "RepoRuntimePermissionReviewSummaryRow",
+      "type": "object"
+    }
+  },
+  "additionalProperties": false,
+  "properties": {
+    "action_effect_envelope_id": {
+      "title": "Action Effect Envelope Id",
+      "type": "string"
+    },
+    "command_preflight_contract_id": {
+      "title": "Command Preflight Contract Id",
+      "type": "string"
+    },
+    "review_id": {
+      "title": "Review Id",
+      "type": "string"
+    },
+    "runtime_permission_authority_posture_id": {
+      "title": "Runtime Permission Authority Posture Id",
+      "type": "string"
+    },
+    "runtime_permission_review_request_id": {
+      "title": "Runtime Permission Review Request Id",
+      "type": "string"
+    },
+    "runtime_permission_review_summary_id": {
+      "title": "Runtime Permission Review Summary Id",
+      "type": "string"
+    },
+    "runtime_rollback_contract_id": {
+      "title": "Runtime Rollback Contract Id",
+      "type": "string"
+    },
+    "runtime_summary_boundary": {
+      "title": "Runtime Summary Boundary",
+      "type": "string"
+    },
+    "runtime_telemetry_requirement_id": {
+      "title": "Runtime Telemetry Requirement Id",
+      "type": "string"
+    },
+    "schema": {
+      "const": "repo_runtime_permission_review_summary@1",
+      "default": "repo_runtime_permission_review_summary@1",
+      "title": "Schema",
+      "type": "string"
+    },
+    "snapshot_id": {
+      "title": "Snapshot Id",
+      "type": "string"
+    },
+    "source_set_id": {
+      "title": "Source Set Id",
+      "type": "string"
+    },
+    "summary_rows": {
+      "items": {
+        "$ref": "#/$defs/RepoRuntimePermissionReviewSummaryRow"
+      },
+      "minItems": 1,
+      "title": "Summary Rows",
+      "type": "array"
+    }
+  },
+  "required": [
+    "runtime_permission_review_summary_id",
+    "runtime_permission_authority_posture_id",
+    "runtime_permission_review_request_id",
+    "command_preflight_contract_id",
+    "action_effect_envelope_id",
+    "runtime_telemetry_requirement_id",
+    "runtime_rollback_contract_id",
+    "review_id",
+    "snapshot_id",
+    "source_set_id",
+    "summary_rows",
+    "runtime_summary_boundary"
+  ],
+  "title": "RepoRuntimePermissionReviewSummary",
+  "type": "object"
+}

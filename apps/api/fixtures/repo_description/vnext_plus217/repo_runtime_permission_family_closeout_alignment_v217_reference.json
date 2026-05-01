@@ -1,0 +1,56 @@
+{
+  "closeout_boundary_summary": "V77 closes as review posture only: no runtime permission, no command execution, and later family selection is not selected here.",
+  "closeout_rows": [
+    {
+      "closed_by_arc": "vNext+217",
+      "closed_slice_ladder": [
+        "V77-A",
+        "V77-B",
+        "V77-C"
+      ],
+      "consumed_source_families": [
+        "V68",
+        "V69",
+        "V70",
+        "V71",
+        "V72",
+        "V73",
+        "V74",
+        "V75",
+        "V76"
+      ],
+      "family": "V77",
+      "future_family_authority": "Future runtime execution, product, external, graph-memory, and policy surfaces remain future pressure and are not selected here.",
+      "limitation_note": "Family closeout alignment is review only with no command execution, no runtime permission, no tool-use permission, no product authorization, no external branch activation, and no release.",
+      "runtime_authority_boundary": "V77 closes as runtime-permission review only with no runtime permission, no command execution, and no tool-use permission.",
+      "shipped_record_shapes": [
+        "repo_action_effect_envelope@1",
+        "repo_command_preflight_contract@1",
+        "repo_post_runtime_permission_review_handoff@1",
+        "repo_runtime_non_execution_guardrail@1",
+        "repo_runtime_permission_authority_posture@1",
+        "repo_runtime_permission_family_closeout_alignment@1",
+        "repo_runtime_permission_review_request@1",
+        "repo_runtime_permission_review_summary@1",
+        "repo_runtime_permission_source_index@1",
+        "repo_runtime_rollback_contract@1",
+        "repo_runtime_telemetry_requirement@1"
+      ],
+      "unselected_future_surfaces": [
+        "external_branch_activation",
+        "living_decision_graph",
+        "product_authorization",
+        "recursive_policy_amendment",
+        "runtime_execution_authority",
+        "tool_use_permission"
+      ]
+    }
+  ],
+  "post_runtime_permission_review_handoff_id": "repo_post_runtime_permission_review_handoff_a1901bb104c049dc689d2658",
+  "review_id": "review:v77a:runtime-permission-review-request",
+  "runtime_permission_family_closeout_alignment_id": "repo_runtime_permission_family_closeout_alignment_836d6f0ac44683ea0914ef7e",
+  "runtime_permission_review_summary_id": "repo_runtime_permission_review_summary_d2e2ce73ea13e7f761589119",
+  "schema": "repo_runtime_permission_family_closeout_alignment@1",
+  "snapshot_id": "vNext+217-runtime-authority-review",
+  "source_set_id": "source-set:v77a:released-v76c-runtime-pressure"
+}

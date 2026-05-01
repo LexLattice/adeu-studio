@@ -136,8 +136,12 @@ from .recursive_candidate_intake_handoff import (
 from .runtime_permission_review import (
     RepoActionEffectEnvelope,
     RepoCommandPreflightContract,
+    RepoPostRuntimePermissionReviewHandoff,
     RepoRuntimeNonExecutionGuardrail,
+    RepoRuntimePermissionAuthorityPosture,
+    RepoRuntimePermissionFamilyCloseoutAlignment,
     RepoRuntimePermissionReviewRequest,
+    RepoRuntimePermissionReviewSummary,
     RepoRuntimePermissionSourceIndex,
     RepoRuntimeRollbackContract,
     RepoRuntimeTelemetryRequirement,
@@ -454,6 +458,18 @@ def main() -> None:
     runtime_rollback_contract_schema = RepoRuntimeRollbackContract.model_json_schema(
         by_alias=True
     )
+    runtime_permission_authority_posture_schema = (
+        RepoRuntimePermissionAuthorityPosture.model_json_schema(by_alias=True)
+    )
+    runtime_permission_review_summary_schema = (
+        RepoRuntimePermissionReviewSummary.model_json_schema(by_alias=True)
+    )
+    post_runtime_permission_review_handoff_schema = (
+        RepoPostRuntimePermissionReviewHandoff.model_json_schema(by_alias=True)
+    )
+    runtime_permission_family_closeout_alignment_schema = (
+        RepoRuntimePermissionFamilyCloseoutAlignment.model_json_schema(by_alias=True)
+    )
 
     _assert_no_absolute_path_material(dependency_register_v1_schema, repo_root_path=root)
     _assert_no_absolute_path_material(dependency_register_schema, repo_root_path=root)
@@ -635,6 +651,22 @@ def main() -> None:
     _assert_no_absolute_path_material(action_effect_envelope_schema, repo_root_path=root)
     _assert_no_absolute_path_material(runtime_telemetry_requirement_schema, repo_root_path=root)
     _assert_no_absolute_path_material(runtime_rollback_contract_schema, repo_root_path=root)
+    _assert_no_absolute_path_material(
+        runtime_permission_authority_posture_schema,
+        repo_root_path=root,
+    )
+    _assert_no_absolute_path_material(
+        runtime_permission_review_summary_schema,
+        repo_root_path=root,
+    )
+    _assert_no_absolute_path_material(
+        post_runtime_permission_review_handoff_schema,
+        repo_root_path=root,
+    )
+    _assert_no_absolute_path_material(
+        runtime_permission_family_closeout_alignment_schema,
+        repo_root_path=root,
+    )
 
     _write_schema(
         root
@@ -1843,6 +1875,54 @@ def main() -> None:
     _write_schema(
         root / "spec" / "repo_runtime_rollback_contract.schema.json",
         runtime_rollback_contract_schema,
+    )
+    _write_schema(
+        root
+        / "packages"
+        / "adeu_repo_description"
+        / "schema"
+        / "repo_runtime_permission_authority_posture.v1.json",
+        runtime_permission_authority_posture_schema,
+    )
+    _write_schema(
+        root / "spec" / "repo_runtime_permission_authority_posture.schema.json",
+        runtime_permission_authority_posture_schema,
+    )
+    _write_schema(
+        root
+        / "packages"
+        / "adeu_repo_description"
+        / "schema"
+        / "repo_runtime_permission_review_summary.v1.json",
+        runtime_permission_review_summary_schema,
+    )
+    _write_schema(
+        root / "spec" / "repo_runtime_permission_review_summary.schema.json",
+        runtime_permission_review_summary_schema,
+    )
+    _write_schema(
+        root
+        / "packages"
+        / "adeu_repo_description"
+        / "schema"
+        / "repo_post_runtime_permission_review_handoff.v1.json",
+        post_runtime_permission_review_handoff_schema,
+    )
+    _write_schema(
+        root / "spec" / "repo_post_runtime_permission_review_handoff.schema.json",
+        post_runtime_permission_review_handoff_schema,
+    )
+    _write_schema(
+        root
+        / "packages"
+        / "adeu_repo_description"
+        / "schema"
+        / "repo_runtime_permission_family_closeout_alignment.v1.json",
+        runtime_permission_family_closeout_alignment_schema,
+    )
+    _write_schema(
+        root / "spec" / "repo_runtime_permission_family_closeout_alignment.schema.json",
+        runtime_permission_family_closeout_alignment_schema,
     )
 
 

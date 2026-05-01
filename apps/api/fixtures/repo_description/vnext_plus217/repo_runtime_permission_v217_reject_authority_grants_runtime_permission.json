@@ -1,0 +1,135 @@
+{
+  "action_effect_envelope_id": "repo_action_effect_envelope_dc5fed1bb306be8e947472a8",
+  "authority_boundary_summary": "Runtime authority is required or missing only: no runtime permission, no tool-use permission, and no release.",
+  "authority_posture_rows": [
+    {
+      "authority_decision_posture": "authority_future_family_only",
+      "authority_gap_posture": "authority_gap_present",
+      "authority_posture_ref": "authority-posture:v77c:product-wedge:product-review",
+      "authority_requirement_kind": "product_authorization",
+      "authority_source_refs": [
+        "docs/LOCKED_CONTINUATION_vNEXT_PLUS217.md"
+      ],
+      "candidate_ref": "candidate:internal:typed_adjudication_product_wedge",
+      "effect_envelope_refs": [
+        "effect-envelope:v77b:product-wedge:blocked"
+      ],
+      "forbidden_authority_inferences": [
+        "benchmark_truth",
+        "command_execution",
+        "dispatch_execution",
+        "external_branch_activation",
+        "living_memory_authority",
+        "model_selection",
+        "product_authorization",
+        "recursive_policy_amendment",
+        "release_authority",
+        "runtime_permission_grant",
+        "tool_use_permission",
+        "worker_assignment"
+      ],
+      "limitation_note": "Runtime permission is granted by this authority posture.",
+      "preflight_refs": [
+        "preflight:v77b:product-wedge:blocked"
+      ],
+      "rollback_contract_refs": [
+        "rollback:v77b:product-wedge:blocked"
+      ],
+      "runtime_review_refs": [
+        "runtime-review:v77a:product-wedge:blocked"
+      ],
+      "telemetry_requirement_refs": [
+        "telemetry:v77b:product-wedge:blocked"
+      ]
+    },
+    {
+      "authority_decision_posture": "authority_required_later",
+      "authority_gap_posture": "authority_gap_present",
+      "authority_posture_ref": "authority-posture:v77c:self-evidencing:runtime-execution",
+      "authority_requirement_kind": "runtime_permission_authority",
+      "authority_source_refs": [
+        "docs/LOCKED_CONTINUATION_vNEXT_PLUS217.md"
+      ],
+      "candidate_ref": "candidate:internal:self_evidencing_workflow_type_emergence",
+      "effect_envelope_refs": [
+        "effect-envelope:v77b:self-evidencing:preflight"
+      ],
+      "forbidden_authority_inferences": [
+        "benchmark_truth",
+        "command_execution",
+        "dispatch_execution",
+        "external_branch_activation",
+        "living_memory_authority",
+        "model_selection",
+        "product_authorization",
+        "recursive_policy_amendment",
+        "release_authority",
+        "runtime_permission_grant",
+        "tool_use_permission",
+        "worker_assignment"
+      ],
+      "limitation_note": "Authority is required later only: no runtime permission, no tool-use permission, no command execution, and no release.",
+      "preflight_refs": [
+        "preflight:v77b:self-evidencing:preflight"
+      ],
+      "rollback_contract_refs": [
+        "rollback:v77b:self-evidencing:required"
+      ],
+      "runtime_review_refs": [
+        "runtime-review:v77a:self-evidencing:preflight"
+      ],
+      "telemetry_requirement_refs": [
+        "telemetry:v77b:self-evidencing:required"
+      ]
+    },
+    {
+      "authority_decision_posture": "authority_required_later",
+      "authority_gap_posture": "authority_gap_present",
+      "authority_posture_ref": "authority-posture:v77c:self-evidencing:tool-use",
+      "authority_requirement_kind": "tool_use_authority",
+      "authority_source_refs": [
+        "docs/LOCKED_CONTINUATION_vNEXT_PLUS217.md"
+      ],
+      "candidate_ref": "candidate:internal:self_evidencing_workflow_type_emergence",
+      "effect_envelope_refs": [
+        "effect-envelope:v77b:self-evidencing:preflight"
+      ],
+      "forbidden_authority_inferences": [
+        "benchmark_truth",
+        "command_execution",
+        "dispatch_execution",
+        "external_branch_activation",
+        "living_memory_authority",
+        "model_selection",
+        "product_authorization",
+        "recursive_policy_amendment",
+        "release_authority",
+        "runtime_permission_grant",
+        "tool_use_permission",
+        "worker_assignment"
+      ],
+      "limitation_note": "Authority is required later only: no runtime permission, no tool-use permission, no command execution, and no release.",
+      "preflight_refs": [
+        "preflight:v77b:self-evidencing:preflight"
+      ],
+      "rollback_contract_refs": [
+        "rollback:v77b:self-evidencing:required"
+      ],
+      "runtime_review_refs": [
+        "runtime-review:v77a:self-evidencing:preflight"
+      ],
+      "telemetry_requirement_refs": [
+        "telemetry:v77b:self-evidencing:required"
+      ]
+    }
+  ],
+  "command_preflight_contract_id": "repo_command_preflight_contract_ef09f664bf59451e2e568daa",
+  "review_id": "review:v77a:runtime-permission-review-request",
+  "runtime_permission_authority_posture_id": "repo_runtime_permission_authority_posture_3f60bd475fce6e50f88cc82f",
+  "runtime_permission_review_request_id": "repo_runtime_permission_review_request_09fa5c6b528a4104be450b64",
+  "runtime_rollback_contract_id": "repo_runtime_rollback_contract_c55b60eabc981eec582537b7",
+  "runtime_telemetry_requirement_id": "repo_runtime_telemetry_requirement_8617d26033af25b60d3456bc",
+  "schema": "repo_runtime_permission_authority_posture@1",
+  "snapshot_id": "vNext+217-runtime-authority-review",
+  "source_set_id": "source-set:v77a:released-v76c-runtime-pressure"
+}

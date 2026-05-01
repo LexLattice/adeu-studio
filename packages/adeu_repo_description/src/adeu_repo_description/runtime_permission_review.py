@@ -29,6 +29,18 @@ REPO_COMMAND_PREFLIGHT_CONTRACT_SCHEMA = "repo_command_preflight_contract@1"
 REPO_ACTION_EFFECT_ENVELOPE_SCHEMA = "repo_action_effect_envelope@1"
 REPO_RUNTIME_TELEMETRY_REQUIREMENT_SCHEMA = "repo_runtime_telemetry_requirement@1"
 REPO_RUNTIME_ROLLBACK_CONTRACT_SCHEMA = "repo_runtime_rollback_contract@1"
+REPO_RUNTIME_PERMISSION_AUTHORITY_POSTURE_SCHEMA = (
+    "repo_runtime_permission_authority_posture@1"
+)
+REPO_RUNTIME_PERMISSION_REVIEW_SUMMARY_SCHEMA = (
+    "repo_runtime_permission_review_summary@1"
+)
+REPO_POST_RUNTIME_PERMISSION_REVIEW_HANDOFF_SCHEMA = (
+    "repo_post_runtime_permission_review_handoff@1"
+)
+REPO_RUNTIME_PERMISSION_FAMILY_CLOSEOUT_ALIGNMENT_SCHEMA = (
+    "repo_runtime_permission_family_closeout_alignment@1"
+)
 
 RuntimeSourceRole = Literal[
     "v76_summary_source",
@@ -223,6 +235,80 @@ RollbackPosture = Literal[
     "rollback_not_applicable",
     "rollback_future_family_only",
 ]
+RuntimePermissionAuthorityRequirementKind = Literal[
+    "human_or_maintainer_runtime_review",
+    "runtime_permission_authority",
+    "tool_use_authority",
+    "product_authorization",
+    "external_branch_activation",
+    "release_authority",
+    "recursive_policy_authority",
+    "future_family_authority",
+]
+RuntimePermissionAuthorityGapPosture = Literal[
+    "authority_gap_present",
+    "authority_checked_absent",
+    "authority_not_applicable",
+    "unknown_needs_review",
+]
+RuntimePermissionAuthorityDecisionPosture = Literal[
+    "authority_required_later",
+    "authority_missing",
+    "authority_not_applicable",
+    "authority_future_family_only",
+    "authority_rejected_out_of_scope",
+]
+RuntimePermissionSummaryPosture = Literal[
+    "review_ready_no_blockers",
+    "review_ready_with_nonblocking_warnings",
+    "blocked_by_missing_source",
+    "blocked_by_missing_authority",
+    "blocked_by_missing_telemetry",
+    "blocked_by_missing_rollback",
+    "blocked_by_target_boundary",
+    "future_family_only",
+    "rejected_out_of_scope",
+]
+RuntimePermissionReadyBasisPosture = Literal[
+    "ready_no_blockers",
+    "ready_with_carried_nonblocking_warnings",
+    "not_ready_blockers_remain",
+    "future_family_only",
+]
+PostRuntimePermissionReviewHandoffTarget = Literal[
+    "future_runtime_execution_authority_review",
+    "future_tool_use_permission_review",
+    "future_product_review",
+    "future_external_branch_review",
+    "future_outcome_review",
+    "future_experiment_review",
+    "future_family_review",
+    "deferred_no_selection",
+]
+PostRuntimePermissionReviewHandoffPosture = Literal[
+    "ready_for_later_review",
+    "blocked_by_required_later_authority",
+    "blocked_by_missing_telemetry",
+    "blocked_by_missing_rollback",
+    "blocked_by_target_boundary",
+    "deferred_to_future_family",
+    "rejected_out_of_scope",
+]
+RuntimePermissionExecutionPosture = Literal["no_runtime_permission_granted_by_v77"]
+ForbiddenV77CAuthorityInference = Literal[
+    "command_execution",
+    "runtime_permission_grant",
+    "tool_use_permission",
+    "worker_assignment",
+    "dispatch_execution",
+    "product_authorization",
+    "external_branch_activation",
+    "release_authority",
+    "benchmark_truth",
+    "model_selection",
+    "living_memory_authority",
+    "recursive_policy_amendment",
+]
 
 _ELIGIBILITY_SOURCE_ROLES = {
     "v76_summary_source",
@@ -268,6 +354,20 @@ _FORBIDDEN_RUNTIME_INFERENCES = {
     "external_branch_activation",
     "release_authority",
     "v77c_surface_emission",
+}
+_FORBIDDEN_V77C_AUTHORITY_INFERENCES = {
+    "command_execution",
+    "runtime_permission_grant",
+    "tool_use_permission",
+    "worker_assignment",
+    "dispatch_execution",
+    "product_authorization",
+    "external_branch_activation",
+    "release_authority",
+    "benchmark_truth",
+    "model_selection",
+    "living_memory_authority",
+    "recursive_policy_amendment",
 }
 
 
@@ -2080,3 +2180,1058 @@ def derive_v77b_runtime_preflight_bundle(
         runtime_rollback_contract=rollback,
     )
     return preflight, envelope, telemetry, rollback
+
+
+class RepoRuntimePermissionAuthorityPostureRow(_CartographyBase):
+    authority_posture_ref: str
+    runtime_review_refs: list[str] = Field(min_length=1)
+    preflight_refs: list[str] = Field(default_factory=list)
+    effect_envelope_refs: list[str] = Field(default_factory=list)
+    telemetry_requirement_refs: list[str] = Field(default_factory=list)
+    rollback_contract_refs: list[str] = Field(default_factory=list)
+    candidate_ref: str
+    authority_requirement_kind: RuntimePermissionAuthorityRequirementKind
+    authority_source_refs: list[str] = Field(min_length=1)
+    authority_gap_posture: RuntimePermissionAuthorityGapPosture
+    authority_decision_posture: RuntimePermissionAuthorityDecisionPosture
+    forbidden_authority_inferences: list[ForbiddenV77CAuthorityInference] = Field(
+        min_length=1
+    )
+    limitation_note: str
+
+    @model_validator(mode="after")
+    def _validate_runtime_authority_posture_row(
+        self,
+    ) -> RepoRuntimePermissionAuthorityPostureRow:
+        _non_empty(self.authority_posture_ref, field_name="authority_posture_ref")
+        _non_empty(self.candidate_ref, field_name="candidate_ref")
+        _reject_runtime_authority_claim(self.limitation_note, field_name="limitation_note")
+        for field_name in (
+            "runtime_review_refs",
+            "preflight_refs",
+            "effect_envelope_refs",
+            "telemetry_requirement_refs",
+            "rollback_contract_refs",
+            "authority_source_refs",
+            "forbidden_authority_inferences",
+        ):
+            object.__setattr__(
+                self,
+                field_name,
+                _sorted_unique(getattr(self, field_name), field_name=field_name),
+            )
+        for source_ref in self.authority_source_refs:
+            _repo_ref(source_ref, field_name="authority_source_refs")
+        missing = _FORBIDDEN_V77C_AUTHORITY_INFERENCES.difference(
+            self.forbidden_authority_inferences
+        )
+        if missing:
+            raise ValueError("runtime authority posture omits forbidden authority inferences")
+        if self.authority_decision_posture not in {
+            "authority_required_later",
+            "authority_missing",
+            "authority_not_applicable",
+            "authority_future_family_only",
+            "authority_rejected_out_of_scope",
+        }:
+            raise ValueError("runtime authority posture may not grant authority")
+        if (
+            self.authority_requirement_kind
+            in {"runtime_permission_authority", "tool_use_authority"}
+            and self.authority_decision_posture == "authority_not_applicable"
+        ):
+            raise ValueError("runtime and tool authority rows must remain required or missing")
+        return self
+
+
+class RepoRuntimePermissionAuthorityPosture(_CartographyBase):
+    schema: Literal["repo_runtime_permission_authority_posture@1"] = (
+        REPO_RUNTIME_PERMISSION_AUTHORITY_POSTURE_SCHEMA
+    )
+    runtime_permission_authority_posture_id: str
+    runtime_permission_review_request_id: str
+    command_preflight_contract_id: str
+    action_effect_envelope_id: str
+    runtime_telemetry_requirement_id: str
+    runtime_rollback_contract_id: str
+    review_id: str
+    snapshot_id: str
+    source_set_id: str
+    authority_posture_rows: list[RepoRuntimePermissionAuthorityPostureRow] = Field(
+        min_length=1
+    )
+    authority_boundary_summary: str
+
+    @model_validator(mode="after")
+    def _validate_runtime_authority_posture(
+        self,
+    ) -> RepoRuntimePermissionAuthorityPosture:
+        object.__setattr__(
+            self,
+            "authority_posture_rows",
+            _sorted_unique_by_ref(
+                self.authority_posture_rows,
+                attr="authority_posture_ref",
+                field_name="authority_posture_rows",
+            ),
+        )
+        _require_terms(
+            self.authority_boundary_summary,
+            field_name="authority_boundary_summary",
+            terms=("required", "missing", "no runtime permission", "no tool-use"),
+        )
+        expected_id = _surface_id(
+            "repo_runtime_permission_authority_posture",
+            self.schema,
+            self.model_dump(mode="json"),
+            "runtime_permission_authority_posture_id",
+        )
+        if self.runtime_permission_authority_posture_id != expected_id:
+            raise ValueError(
+                "runtime_permission_authority_posture_id does not match canonical payload hash"
+            )
+        return self
+
+
+class RepoRuntimePermissionReviewSummaryRow(_CartographyBase):
+    runtime_summary_ref: str
+    runtime_review_refs: list[str] = Field(min_length=1)
+    preflight_refs: list[str] = Field(default_factory=list)
+    effect_envelope_refs: list[str] = Field(default_factory=list)
+    telemetry_requirement_refs: list[str] = Field(default_factory=list)
+    rollback_contract_refs: list[str] = Field(default_factory=list)
+    authority_posture_refs: list[str] = Field(min_length=1)
+    candidate_ref: str
+    summary_posture: RuntimePermissionSummaryPosture
+    ready_basis_posture: RuntimePermissionReadyBasisPosture
+    carried_blocker_refs: list[str] = Field(default_factory=list)
+    non_execution_guardrail: str
+    limitation_note: str
+
+    @model_validator(mode="after")
+    def _validate_runtime_summary_row(self) -> RepoRuntimePermissionReviewSummaryRow:
+        _non_empty(self.runtime_summary_ref, field_name="runtime_summary_ref")
+        _non_empty(self.candidate_ref, field_name="candidate_ref")
+        _non_empty(self.non_execution_guardrail, field_name="non_execution_guardrail")
+        _reject_runtime_authority_claim(self.limitation_note, field_name="limitation_note")
+        for field_name in (
+            "runtime_review_refs",
+            "preflight_refs",
+            "effect_envelope_refs",
+            "telemetry_requirement_refs",
+            "rollback_contract_refs",
+            "authority_posture_refs",
+            "carried_blocker_refs",
+        ):
+            object.__setattr__(
+                self,
+                field_name,
+                _sorted_unique(getattr(self, field_name), field_name=field_name),
+            )
+        if self.summary_posture in {
+            "review_ready_no_blockers",
+            "review_ready_with_nonblocking_warnings",
+        } and self.carried_blocker_refs:
+            raise ValueError("runtime summary ready posture cannot carry blockers")
+        if self.summary_posture.startswith("blocked_by_") and not self.carried_blocker_refs:
+            raise ValueError("blocked runtime summaries require carried blocker refs")
+        if self.summary_posture.startswith("review_ready") and (
+            self.ready_basis_posture == "not_ready_blockers_remain"
+        ):
+            raise ValueError("ready runtime summaries cannot carry not-ready basis posture")
+        return self
+
+
+class RepoRuntimePermissionReviewSummary(_CartographyBase):
+    schema: Literal["repo_runtime_permission_review_summary@1"] = (
+        REPO_RUNTIME_PERMISSION_REVIEW_SUMMARY_SCHEMA
+    )
+    runtime_permission_review_summary_id: str
+    runtime_permission_authority_posture_id: str
+    runtime_permission_review_request_id: str
+    command_preflight_contract_id: str
+    action_effect_envelope_id: str
+    runtime_telemetry_requirement_id: str
+    runtime_rollback_contract_id: str
+    review_id: str
+    snapshot_id: str
+    source_set_id: str
+    summary_rows: list[RepoRuntimePermissionReviewSummaryRow] = Field(min_length=1)
+    runtime_summary_boundary: str
+
+    @model_validator(mode="after")
+    def _validate_runtime_review_summary(self) -> RepoRuntimePermissionReviewSummary:
+        object.__setattr__(
+            self,
+            "summary_rows",
+            _sorted_unique_by_ref(
+                self.summary_rows,
+                attr="runtime_summary_ref",
+                field_name="summary_rows",
+            ),
+        )
+        _require_terms(
+            self.runtime_summary_boundary,
+            field_name="runtime_summary_boundary",
+            terms=("summary", "blocker", "no runtime permission", "no command"),
+        )
+        expected_id = _surface_id(
+            "repo_runtime_permission_review_summary",
+            self.schema,
+            self.model_dump(mode="json"),
+            "runtime_permission_review_summary_id",
+        )
+        if self.runtime_permission_review_summary_id != expected_id:
+            raise ValueError(
+                "runtime_permission_review_summary_id does not match canonical payload hash"
+            )
+        return self
+
+
+class RepoPostRuntimePermissionReviewHandoffRow(_CartographyBase):
+    handoff_ref: str
+    runtime_summary_refs: list[str] = Field(min_length=1)
+    runtime_review_refs: list[str] = Field(min_length=1)
+    authority_posture_refs: list[str] = Field(min_length=1)
+    carried_gap_refs: list[str] = Field(default_factory=list)
+    handoff_target: PostRuntimePermissionReviewHandoffTarget
+    handoff_subject_horizon: str
+    handoff_posture: PostRuntimePermissionReviewHandoffPosture
+    required_later_authority_refs: list[str] = Field(default_factory=list)
+    required_later_authority_kinds: list[RuntimePermissionAuthorityRequirementKind] = Field(
+        default_factory=list
+    )
+    non_execution_guardrail: str
+    runtime_permission_execution_posture: RuntimePermissionExecutionPosture
+    limitation_note: str
+
+    @model_validator(mode="after")
+    def _validate_post_runtime_handoff_row(
+        self,
+    ) -> RepoPostRuntimePermissionReviewHandoffRow:
+        _non_empty(self.handoff_ref, field_name="handoff_ref")
+        _non_empty(self.handoff_subject_horizon, field_name="handoff_subject_horizon")
+        _non_empty(self.non_execution_guardrail, field_name="non_execution_guardrail")
+        _reject_runtime_authority_claim(self.limitation_note, field_name="limitation_note")
+        for field_name in (
+            "runtime_summary_refs",
+            "runtime_review_refs",
+            "authority_posture_refs",
+            "carried_gap_refs",
+            "required_later_authority_refs",
+            "required_later_authority_kinds",
+        ):
+            object.__setattr__(
+                self,
+                field_name,
+                _sorted_unique(getattr(self, field_name), field_name=field_name),
+            )
+        if (
+            self.runtime_permission_execution_posture
+            != "no_runtime_permission_granted_by_v77"
+        ):
+            raise ValueError("post-runtime handoffs must not grant runtime permission")
+        if self.handoff_posture == "ready_for_later_review" and self.carried_gap_refs:
+            raise ValueError("ready post-runtime handoffs cannot carry blocking gaps")
+        target_required: dict[str, RuntimePermissionAuthorityRequirementKind] = {
+            "future_runtime_execution_authority_review": "runtime_permission_authority",
+            "future_tool_use_permission_review": "tool_use_authority",
+            "future_product_review": "product_authorization",
+            "future_external_branch_review": "external_branch_activation",
+        }
+        required_kind = target_required.get(self.handoff_target)
+        if required_kind is not None and required_kind not in self.required_later_authority_kinds:
+            raise ValueError("post-runtime handoff target requires matching authority kind")
+        if self.required_later_authority_refs and not self.required_later_authority_kinds:
+            raise ValueError("required later authority refs require authority kinds")
+        return self
+
+
+class RepoPostRuntimePermissionReviewHandoff(_CartographyBase):
+    schema: Literal["repo_post_runtime_permission_review_handoff@1"] = (
+        REPO_POST_RUNTIME_PERMISSION_REVIEW_HANDOFF_SCHEMA
+    )
+    post_runtime_permission_review_handoff_id: str
+    runtime_permission_review_summary_id: str
+    runtime_permission_authority_posture_id: str
+    review_id: str
+    snapshot_id: str
+    source_set_id: str
+    handoff_rows: list[RepoPostRuntimePermissionReviewHandoffRow] = Field(min_length=1)
+    handoff_boundary_summary: str
+
+    @model_validator(mode="after")
+    def _validate_post_runtime_handoff(self) -> RepoPostRuntimePermissionReviewHandoff:
+        object.__setattr__(
+            self,
+            "handoff_rows",
+            _sorted_unique_by_ref(
+                self.handoff_rows,
+                attr="handoff_ref",
+                field_name="handoff_rows",
+            ),
+        )
+        _require_terms(
+            self.handoff_boundary_summary,
+            field_name="handoff_boundary_summary",
+            terms=("request", "no runtime permission", "no target family"),
+        )
+        expected_id = _surface_id(
+            "repo_post_runtime_permission_review_handoff",
+            self.schema,
+            self.model_dump(mode="json"),
+            "post_runtime_permission_review_handoff_id",
+        )
+        if self.post_runtime_permission_review_handoff_id != expected_id:
+            raise ValueError(
+                "post_runtime_permission_review_handoff_id does not match canonical payload hash"
+            )
+        return self
+
+
+class RepoRuntimePermissionFamilyCloseoutAlignmentRow(_CartographyBase):
+    family: Literal["V77"]
+    closed_slice_ladder: list[Literal["V77-A", "V77-B", "V77-C"]] = Field(min_length=3)
+    closed_by_arc: Literal["vNext+217"]
+    consumed_source_families: list[str] = Field(min_length=1)
+    shipped_record_shapes: list[str] = Field(min_length=1)
+    runtime_authority_boundary: str
+    future_family_authority: str
+    unselected_future_surfaces: list[str] = Field(default_factory=list)
+    limitation_note: str
+
+    @model_validator(mode="after")
+    def _validate_runtime_family_closeout_row(
+        self,
+    ) -> RepoRuntimePermissionFamilyCloseoutAlignmentRow:
+        object.__setattr__(
+            self,
+            "closed_slice_ladder",
+            _sorted_unique(self.closed_slice_ladder, field_name="closed_slice_ladder"),
+        )
+        object.__setattr__(
+            self,
+            "consumed_source_families",
+            _sorted_unique(self.consumed_source_families, field_name="consumed_source_families"),
+        )
+        object.__setattr__(
+            self,
+            "shipped_record_shapes",
+            _sorted_unique(self.shipped_record_shapes, field_name="shipped_record_shapes"),
+        )
+        object.__setattr__(
+            self,
+            "unselected_future_surfaces",
+            _sorted_unique(
+                self.unselected_future_surfaces,
+                field_name="unselected_future_surfaces",
+            ),
+        )
+        if self.closed_slice_ladder != ["V77-A", "V77-B", "V77-C"]:
+            raise ValueError("runtime closeout must close exactly V77-A, V77-B, and V77-C")
+        _require_terms(
+            self.runtime_authority_boundary,
+            field_name="runtime_authority_boundary",
+            terms=("review", "no runtime permission", "no command"),
+        )
+        _require_terms(
+            self.future_family_authority,
+            field_name="future_family_authority",
+            terms=("future", "not selected"),
+        )
+        _reject_runtime_authority_claim(self.limitation_note, field_name="limitation_note")
+        if "v78 selected" in self.future_family_authority.lower():
+            raise ValueError("runtime closeout must not select V78")
+        return self
+
+
+class RepoRuntimePermissionFamilyCloseoutAlignment(_CartographyBase):
+    schema: Literal["repo_runtime_permission_family_closeout_alignment@1"] = (
+        REPO_RUNTIME_PERMISSION_FAMILY_CLOSEOUT_ALIGNMENT_SCHEMA
+    )
+    runtime_permission_family_closeout_alignment_id: str
+    runtime_permission_review_summary_id: str
+    post_runtime_permission_review_handoff_id: str
+    review_id: str
+    snapshot_id: str
+    source_set_id: str
+    closeout_rows: list[RepoRuntimePermissionFamilyCloseoutAlignmentRow] = Field(
+        min_length=1
+    )
+    closeout_boundary_summary: str
+
+    @model_validator(mode="after")
+    def _validate_runtime_family_closeout(
+        self,
+    ) -> RepoRuntimePermissionFamilyCloseoutAlignment:
+        object.__setattr__(
+            self,
+            "closeout_rows",
+            _sorted_unique_by_ref(self.closeout_rows, attr="family", field_name="closeout_rows"),
+        )
+        _require_terms(
+            self.closeout_boundary_summary,
+            field_name="closeout_boundary_summary",
+            terms=("v77", "review", "no runtime permission", "not selected"),
+        )
+        expected_id = _surface_id(
+            "repo_runtime_permission_family_closeout_alignment",
+            self.schema,
+            self.model_dump(mode="json"),
+            "runtime_permission_family_closeout_alignment_id",
+        )
+        if self.runtime_permission_family_closeout_alignment_id != expected_id:
+            raise ValueError(
+                "runtime_permission_family_closeout_alignment_id does not match "
+                "canonical payload hash"
+            )
+        return self
+
+
+def _v77c_authority_kind_for_v77a_ref(
+    authority_ref: str,
+) -> RuntimePermissionAuthorityRequirementKind:
+    if "tool-use" in authority_ref:
+        return "tool_use_authority"
+    if "product" in authority_ref:
+        return "product_authorization"
+    if "external" in authority_ref:
+        return "external_branch_activation"
+    return "runtime_permission_authority"
+
+
+def derive_v77c_repo_runtime_permission_authority_posture(
+    *,
+    repo_root: Path | None = None,
+    runtime_permission_review_request: RepoRuntimePermissionReviewRequest | None = None,
+    command_preflight_contract: RepoCommandPreflightContract | None = None,
+    action_effect_envelope: RepoActionEffectEnvelope | None = None,
+    runtime_telemetry_requirement: RepoRuntimeTelemetryRequirement | None = None,
+    runtime_rollback_contract: RepoRuntimeRollbackContract | None = None,
+) -> RepoRuntimePermissionAuthorityPosture:
+    _ = repo_root
+    request = (
+        runtime_permission_review_request
+        or derive_v77a_repo_runtime_permission_review_request()
+    )
+    preflight = command_preflight_contract or derive_v77b_repo_command_preflight_contract(
+        runtime_permission_review_request=request
+    )
+    envelope = action_effect_envelope or derive_v77b_repo_action_effect_envelope(
+        command_preflight_contract=preflight
+    )
+    telemetry = runtime_telemetry_requirement or derive_v77b_repo_runtime_telemetry_requirement(
+        command_preflight_contract=preflight,
+        action_effect_envelope=envelope,
+    )
+    rollback = runtime_rollback_contract or derive_v77b_repo_runtime_rollback_contract(
+        command_preflight_contract=preflight,
+        action_effect_envelope=envelope,
+    )
+    preflight_by_review = {
+        review_ref: row
+        for row in preflight.preflight_rows
+        for review_ref in row.runtime_review_refs
+    }
+    effect_by_preflight = {
+        preflight_ref: row
+        for row in envelope.effect_envelope_rows
+        for preflight_ref in row.preflight_refs
+    }
+    telemetry_by_preflight = {
+        preflight_ref: row
+        for row in telemetry.telemetry_requirement_rows
+        for preflight_ref in row.preflight_refs
+    }
+    rollback_by_preflight = {
+        preflight_ref: row
+        for row in rollback.rollback_contract_rows
+        for preflight_ref in row.preflight_refs
+    }
+    rows = []
+    for request_row in request.request_rows:
+        preflight_row = preflight_by_review[request_row.runtime_review_ref]
+        effect_row = effect_by_preflight[preflight_row.preflight_ref]
+        telemetry_row = telemetry_by_preflight[preflight_row.preflight_ref]
+        rollback_row = rollback_by_preflight[preflight_row.preflight_ref]
+        for authority_ref in request_row.required_later_authority_refs:
+            authority_kind = _v77c_authority_kind_for_v77a_ref(authority_ref)
+            posture_suffix = authority_ref.removeprefix("authority:v77a:")
+            rows.append(
+                {
+                    "authority_posture_ref": f"authority-posture:v77c:{posture_suffix}",
+                    "runtime_review_refs": [request_row.runtime_review_ref],
+                    "preflight_refs": [preflight_row.preflight_ref],
+                    "effect_envelope_refs": [effect_row.effect_envelope_ref],
+                    "telemetry_requirement_refs": [telemetry_row.telemetry_requirement_ref],
+                    "rollback_contract_refs": [rollback_row.rollback_contract_ref],
+                    "candidate_ref": request_row.candidate_ref,
+                    "authority_requirement_kind": authority_kind,
+                    "authority_source_refs": ["docs/LOCKED_CONTINUATION_vNEXT_PLUS217.md"],
+                    "authority_gap_posture": "authority_gap_present",
+                    "authority_decision_posture": (
+                        "authority_future_family_only"
+                        if authority_kind in {"product_authorization", "external_branch_activation"}
+                        else "authority_required_later"
+                    ),
+                    "forbidden_authority_inferences": sorted(
+                        _FORBIDDEN_V77C_AUTHORITY_INFERENCES
+                    ),
+                    "limitation_note": (
+                        "Authority is required later only: no runtime permission, "
+                        "no tool-use permission, no command execution, and no release."
+                    ),
+                }
+            )
+    payload = {
+        "schema": REPO_RUNTIME_PERMISSION_AUTHORITY_POSTURE_SCHEMA,
+        "runtime_permission_authority_posture_id": "",
+        "runtime_permission_review_request_id": request.runtime_permission_review_request_id,
+        "command_preflight_contract_id": preflight.command_preflight_contract_id,
+        "action_effect_envelope_id": envelope.action_effect_envelope_id,
+        "runtime_telemetry_requirement_id": telemetry.runtime_telemetry_requirement_id,
+        "runtime_rollback_contract_id": rollback.runtime_rollback_contract_id,
+        "review_id": request.review_id,
+        "snapshot_id": "vNext+217-runtime-authority-review",
+        "source_set_id": request.source_set_id,
+        "authority_posture_rows": sorted(rows, key=lambda row: row["authority_posture_ref"]),
+        "authority_boundary_summary": (
+            "Runtime authority is required or missing only: no runtime permission, "
+            "no tool-use permission, and no release."
+        ),
+    }
+    payload["runtime_permission_authority_posture_id"] = _surface_id(
+        "repo_runtime_permission_authority_posture",
+        REPO_RUNTIME_PERMISSION_AUTHORITY_POSTURE_SCHEMA,
+        payload,
+        "runtime_permission_authority_posture_id",
+    )
+    return RepoRuntimePermissionAuthorityPosture.model_validate(payload)
+
+
+def derive_v77c_repo_runtime_permission_review_summary(
+    *,
+    repo_root: Path | None = None,
+    runtime_permission_review_request: RepoRuntimePermissionReviewRequest | None = None,
+    command_preflight_contract: RepoCommandPreflightContract | None = None,
+    action_effect_envelope: RepoActionEffectEnvelope | None = None,
+    runtime_telemetry_requirement: RepoRuntimeTelemetryRequirement | None = None,
+    runtime_rollback_contract: RepoRuntimeRollbackContract | None = None,
+    runtime_permission_authority_posture: RepoRuntimePermissionAuthorityPosture | None = None,
+) -> RepoRuntimePermissionReviewSummary:
+    _ = repo_root
+    request = (
+        runtime_permission_review_request
+        or derive_v77a_repo_runtime_permission_review_request()
+    )
+    preflight = command_preflight_contract or derive_v77b_repo_command_preflight_contract(
+        runtime_permission_review_request=request
+    )
+    envelope = action_effect_envelope or derive_v77b_repo_action_effect_envelope(
+        command_preflight_contract=preflight
+    )
+    telemetry = runtime_telemetry_requirement or derive_v77b_repo_runtime_telemetry_requirement(
+        command_preflight_contract=preflight,
+        action_effect_envelope=envelope,
+    )
+    rollback = runtime_rollback_contract or derive_v77b_repo_runtime_rollback_contract(
+        command_preflight_contract=preflight,
+        action_effect_envelope=envelope,
+    )
+    authority = runtime_permission_authority_posture or (
+        derive_v77c_repo_runtime_permission_authority_posture(
+            runtime_permission_review_request=request,
+            command_preflight_contract=preflight,
+            action_effect_envelope=envelope,
+            runtime_telemetry_requirement=telemetry,
+            runtime_rollback_contract=rollback,
+        )
+    )
+    preflight_by_review = {
+        review_ref: row
+        for row in preflight.preflight_rows
+        for review_ref in row.runtime_review_refs
+    }
+    effect_by_preflight = {
+        preflight_ref: row
+        for row in envelope.effect_envelope_rows
+        for preflight_ref in row.preflight_refs
+    }
+    telemetry_by_preflight = {
+        preflight_ref: row
+        for row in telemetry.telemetry_requirement_rows
+        for preflight_ref in row.preflight_refs
+    }
+    rollback_by_preflight = {
+        preflight_ref: row
+        for row in rollback.rollback_contract_rows
+        for preflight_ref in row.preflight_refs
+    }
+    authority_by_candidate: dict[str, list[str]] = {}
+    for authority_row in authority.authority_posture_rows:
+        authority_by_candidate.setdefault(authority_row.candidate_ref, []).append(
+            authority_row.authority_posture_ref
+        )
+    rows = []
+    for request_row in request.request_rows:
+        preflight_row = preflight_by_review[request_row.runtime_review_ref]
+        effect_row = effect_by_preflight[preflight_row.preflight_ref]
+        telemetry_row = telemetry_by_preflight[preflight_row.preflight_ref]
+        rollback_row = rollback_by_preflight[preflight_row.preflight_ref]
+        authority_refs = sorted(authority_by_candidate.get(request_row.candidate_ref, []))
+        product_only = request_row.requested_permission_horizon == "future_product_review"
+        rows.append(
+            {
+                "runtime_summary_ref": request_row.runtime_review_ref.replace(
+                    "runtime-review:v77a",
+                    "runtime-summary:v77c",
+                ),
+                "runtime_review_refs": [request_row.runtime_review_ref],
+                "preflight_refs": [preflight_row.preflight_ref],
+                "effect_envelope_refs": [effect_row.effect_envelope_ref],
+                "telemetry_requirement_refs": [telemetry_row.telemetry_requirement_ref],
+                "rollback_contract_refs": [rollback_row.rollback_contract_ref],
+                "authority_posture_refs": authority_refs,
+                "candidate_ref": request_row.candidate_ref,
+                "summary_posture": (
+                    "future_family_only" if product_only else "blocked_by_missing_authority"
+                ),
+                "ready_basis_posture": (
+                    "future_family_only" if product_only else "not_ready_blockers_remain"
+                ),
+                "carried_blocker_refs": authority_refs,
+                "non_execution_guardrail": request_row.guardrail_refs[0],
+                "limitation_note": (
+                    "Runtime review summary preserves blockers with no command execution, "
+                    "no runtime permission, no tool-use permission, and no release."
+                ),
+            }
+        )
+    payload = {
+        "schema": REPO_RUNTIME_PERMISSION_REVIEW_SUMMARY_SCHEMA,
+        "runtime_permission_review_summary_id": "",
+        "runtime_permission_authority_posture_id": (
+            authority.runtime_permission_authority_posture_id
+        ),
+        "runtime_permission_review_request_id": request.runtime_permission_review_request_id,
+        "command_preflight_contract_id": preflight.command_preflight_contract_id,
+        "action_effect_envelope_id": envelope.action_effect_envelope_id,
+        "runtime_telemetry_requirement_id": telemetry.runtime_telemetry_requirement_id,
+        "runtime_rollback_contract_id": rollback.runtime_rollback_contract_id,
+        "review_id": request.review_id,
+        "snapshot_id": authority.snapshot_id,
+        "source_set_id": request.source_set_id,
+        "summary_rows": sorted(rows, key=lambda row: row["runtime_summary_ref"]),
+        "runtime_summary_boundary": (
+            "Runtime summary preserves blocker state with no command execution and no "
+            "runtime permission."
+        ),
+    }
+    payload["runtime_permission_review_summary_id"] = _surface_id(
+        "repo_runtime_permission_review_summary",
+        REPO_RUNTIME_PERMISSION_REVIEW_SUMMARY_SCHEMA,
+        payload,
+        "runtime_permission_review_summary_id",
+    )
+    return RepoRuntimePermissionReviewSummary.model_validate(payload)
+
+
+def derive_v77c_repo_post_runtime_permission_review_handoff(
+    *,
+    repo_root: Path | None = None,
+    runtime_permission_review_request: RepoRuntimePermissionReviewRequest | None = None,
+    runtime_permission_authority_posture: RepoRuntimePermissionAuthorityPosture | None = None,
+    runtime_permission_review_summary: RepoRuntimePermissionReviewSummary | None = None,
+) -> RepoPostRuntimePermissionReviewHandoff:
+    _ = repo_root
+    request = (
+        runtime_permission_review_request
+        or derive_v77a_repo_runtime_permission_review_request()
+    )
+    authority = runtime_permission_authority_posture or (
+        derive_v77c_repo_runtime_permission_authority_posture(
+            runtime_permission_review_request=request
+        )
+    )
+    summary = runtime_permission_review_summary or (
+        derive_v77c_repo_runtime_permission_review_summary(
+            runtime_permission_review_request=request,
+            runtime_permission_authority_posture=authority,
+        )
+    )
+    summary_by_review = {
+        review_ref: row for row in summary.summary_rows for review_ref in row.runtime_review_refs
+    }
+    authority_rows = {
+        row.authority_posture_ref: row for row in authority.authority_posture_rows
+    }
+    rows = []
+    for request_row in request.request_rows:
+        summary_row = summary_by_review[request_row.runtime_review_ref]
+        authority_refs = summary_row.authority_posture_refs
+        authority_kinds = sorted(
+            {
+                authority_rows[authority_ref].authority_requirement_kind
+                for authority_ref in authority_refs
+            }
+        )
+        product_only = request_row.requested_permission_horizon == "future_product_review"
+        rows.append(
+            {
+                "handoff_ref": request_row.runtime_review_ref.replace(
+                    "runtime-review:v77a",
+                    "handoff:v77c",
+                ),
+                "runtime_summary_refs": [summary_row.runtime_summary_ref],
+                "runtime_review_refs": [request_row.runtime_review_ref],
+                "authority_posture_refs": authority_refs,
+                "carried_gap_refs": authority_refs,
+                "handoff_target": (
+                    "future_product_review"
+                    if product_only
+                    else "future_runtime_execution_authority_review"
+                ),
+                "handoff_subject_horizon": (
+                    "Product pressure review request only"
+                    if product_only
+                    else "Runtime execution authority review request only"
+                ),
+                "handoff_posture": (
+                    "deferred_to_future_family"
+                    if product_only
+                    else "blocked_by_required_later_authority"
+                ),
+                "required_later_authority_refs": authority_refs,
+                "required_later_authority_kinds": authority_kinds,
+                "non_execution_guardrail": request_row.guardrail_refs[0],
+                "runtime_permission_execution_posture": (
+                    "no_runtime_permission_granted_by_v77"
+                ),
+                "limitation_note": (
+                    "Post-runtime-permission-review handoff requests later review only: "
+                    "no runtime permission, no command execution, no tool-use permission, "
+                    "and no release."
+                ),
+            }
+        )
+    payload = {
+        "schema": REPO_POST_RUNTIME_PERMISSION_REVIEW_HANDOFF_SCHEMA,
+        "post_runtime_permission_review_handoff_id": "",
+        "runtime_permission_review_summary_id": summary.runtime_permission_review_summary_id,
+        "runtime_permission_authority_posture_id": (
+            authority.runtime_permission_authority_posture_id
+        ),
+        "review_id": request.review_id,
+        "snapshot_id": summary.snapshot_id,
+        "source_set_id": request.source_set_id,
+        "handoff_rows": sorted(rows, key=lambda row: row["handoff_ref"]),
+        "handoff_boundary_summary": (
+            "Post-runtime handoffs are requests for later review with no runtime "
+            "permission and no target family performed."
+        ),
+    }
+    payload["post_runtime_permission_review_handoff_id"] = _surface_id(
+        "repo_post_runtime_permission_review_handoff",
+        REPO_POST_RUNTIME_PERMISSION_REVIEW_HANDOFF_SCHEMA,
+        payload,
+        "post_runtime_permission_review_handoff_id",
+    )
+    return RepoPostRuntimePermissionReviewHandoff.model_validate(payload)
+
+
+def derive_v77c_repo_runtime_permission_family_closeout_alignment(
+    *,
+    repo_root: Path | None = None,
+    runtime_permission_review_summary: RepoRuntimePermissionReviewSummary | None = None,
+    post_runtime_permission_review_handoff: RepoPostRuntimePermissionReviewHandoff | None = None,
+) -> RepoRuntimePermissionFamilyCloseoutAlignment:
+    _ = repo_root
+    summary = (
+        runtime_permission_review_summary
+        or derive_v77c_repo_runtime_permission_review_summary()
+    )
+    handoff = post_runtime_permission_review_handoff or (
+        derive_v77c_repo_post_runtime_permission_review_handoff(
+            runtime_permission_review_summary=summary
+        )
+    )
+    payload = {
+        "schema": REPO_RUNTIME_PERMISSION_FAMILY_CLOSEOUT_ALIGNMENT_SCHEMA,
+        "runtime_permission_family_closeout_alignment_id": "",
+        "runtime_permission_review_summary_id": summary.runtime_permission_review_summary_id,
+        "post_runtime_permission_review_handoff_id": (
+            handoff.post_runtime_permission_review_handoff_id
+        ),
+        "review_id": summary.review_id,
+        "snapshot_id": summary.snapshot_id,
+        "source_set_id": summary.source_set_id,
+        "closeout_rows": [
+            {
+                "family": "V77",
+                "closed_slice_ladder": ["V77-A", "V77-B", "V77-C"],
+                "closed_by_arc": "vNext+217",
+                "consumed_source_families": [
+                    "V68",
+                    "V69",
+                    "V70",
+                    "V71",
+                    "V72",
+                    "V73",
+                    "V74",
+                    "V75",
+                    "V76",
+                ],
+                "shipped_record_shapes": sorted([
+                    REPO_RUNTIME_PERMISSION_REVIEW_REQUEST_SCHEMA,
+                    REPO_RUNTIME_PERMISSION_SOURCE_INDEX_SCHEMA,
+                    REPO_RUNTIME_NON_EXECUTION_GUARDRAIL_SCHEMA,
+                    REPO_COMMAND_PREFLIGHT_CONTRACT_SCHEMA,
+                    REPO_ACTION_EFFECT_ENVELOPE_SCHEMA,
+                    REPO_RUNTIME_TELEMETRY_REQUIREMENT_SCHEMA,
+                    REPO_RUNTIME_ROLLBACK_CONTRACT_SCHEMA,
+                    REPO_RUNTIME_PERMISSION_AUTHORITY_POSTURE_SCHEMA,
+                    REPO_RUNTIME_PERMISSION_REVIEW_SUMMARY_SCHEMA,
+                    REPO_POST_RUNTIME_PERMISSION_REVIEW_HANDOFF_SCHEMA,
+                    REPO_RUNTIME_PERMISSION_FAMILY_CLOSEOUT_ALIGNMENT_SCHEMA,
+                ]),
+                "runtime_authority_boundary": (
+                    "V77 closes as runtime-permission review only with no runtime "
+                    "permission, no command execution, and no tool-use permission."
+                ),
+                "future_family_authority": (
+                    "Future runtime execution, product, external, graph-memory, and "
+                    "policy surfaces remain future pressure and are not selected here."
+                ),
+                "unselected_future_surfaces": sorted([
+                    "runtime_execution_authority",
+                    "tool_use_permission",
+                    "product_authorization",
+                    "external_branch_activation",
+                    "living_decision_graph",
+                    "recursive_policy_amendment",
+                ]),
+                "limitation_note": (
+                    "Family closeout alignment is review only with no command execution, "
+                    "no runtime permission, no tool-use permission, no product authorization, "
+                    "no external branch activation, and no release."
+                ),
+            }
+        ],
+        "closeout_boundary_summary": (
+            "V77 closes as review posture only: no runtime permission, no command "
+            "execution, and later family selection is not selected here."
+        ),
+    }
+    payload["runtime_permission_family_closeout_alignment_id"] = _surface_id(
+        "repo_runtime_permission_family_closeout_alignment",
+        REPO_RUNTIME_PERMISSION_FAMILY_CLOSEOUT_ALIGNMENT_SCHEMA,
+        payload,
+        "runtime_permission_family_closeout_alignment_id",
+    )
+    return RepoRuntimePermissionFamilyCloseoutAlignment.model_validate(payload)
+
+
+def validate_v77c_runtime_permission_closeout_bundle(
+    *,
+    runtime_permission_review_request: RepoRuntimePermissionReviewRequest,
+    command_preflight_contract: RepoCommandPreflightContract,
+    action_effect_envelope: RepoActionEffectEnvelope,
+    runtime_telemetry_requirement: RepoRuntimeTelemetryRequirement,
+    runtime_rollback_contract: RepoRuntimeRollbackContract,
+    runtime_permission_authority_posture: RepoRuntimePermissionAuthorityPosture,
+    runtime_permission_review_summary: RepoRuntimePermissionReviewSummary,
+    post_runtime_permission_review_handoff: RepoPostRuntimePermissionReviewHandoff,
+    runtime_permission_family_closeout_alignment: RepoRuntimePermissionFamilyCloseoutAlignment,
+) -> None:
+    if (
+        runtime_permission_authority_posture.runtime_permission_review_request_id
+        != runtime_permission_review_request.runtime_permission_review_request_id
+    ):
+        raise ValueError("runtime authority posture must reference V77-A request surface")
+    for surface_name, surface in (
+        ("summary", runtime_permission_review_summary),
+        ("family closeout", runtime_permission_family_closeout_alignment),
+    ):
+        if (
+            surface.review_id,
+            surface.snapshot_id,
+            surface.source_set_id,
+        ) != (
+            runtime_permission_authority_posture.review_id,
+            runtime_permission_authority_posture.snapshot_id,
+            runtime_permission_authority_posture.source_set_id,
+        ):
+            raise ValueError(f"{surface_name} provenance must match runtime authority posture")
+    if (
+        runtime_permission_review_summary.runtime_permission_authority_posture_id
+        != runtime_permission_authority_posture.runtime_permission_authority_posture_id
+    ):
+        raise ValueError("runtime summary must reference authority posture surface")
+    if (
+        post_runtime_permission_review_handoff.runtime_permission_review_summary_id
+        != runtime_permission_review_summary.runtime_permission_review_summary_id
+    ):
+        raise ValueError("post-runtime handoff must reference runtime summary surface")
+    if (
+        post_runtime_permission_review_handoff.runtime_permission_authority_posture_id
+        != runtime_permission_authority_posture.runtime_permission_authority_posture_id
+    ):
+        raise ValueError("post-runtime handoff must reference authority posture surface")
+    if (
+        runtime_permission_family_closeout_alignment.runtime_permission_review_summary_id
+        != runtime_permission_review_summary.runtime_permission_review_summary_id
+    ):
+        raise ValueError("runtime closeout must reference runtime summary surface")
+    if (
+        runtime_permission_family_closeout_alignment.post_runtime_permission_review_handoff_id
+        != post_runtime_permission_review_handoff.post_runtime_permission_review_handoff_id
+    ):
+        raise ValueError("runtime closeout must reference post-runtime handoff surface")
+
+    request_rows = {
+        row.runtime_review_ref: row for row in runtime_permission_review_request.request_rows
+    }
+    preflight_rows = {
+        row.preflight_ref: row for row in command_preflight_contract.preflight_rows
+    }
+    effect_rows = {
+        row.effect_envelope_ref: row for row in action_effect_envelope.effect_envelope_rows
+    }
+    telemetry_rows = {
+        row.telemetry_requirement_ref: row
+        for row in runtime_telemetry_requirement.telemetry_requirement_rows
+    }
+    rollback_rows = {
+        row.rollback_contract_ref: row for row in runtime_rollback_contract.rollback_contract_rows
+    }
+    authority_rows = {
+        row.authority_posture_ref: row
+        for row in runtime_permission_authority_posture.authority_posture_rows
+    }
+    summary_rows = {
+        row.runtime_summary_ref: row for row in runtime_permission_review_summary.summary_rows
+    }
+
+    def _candidate_for_runtime_ref(ref: str) -> str:
+        return request_rows[ref].candidate_ref
+
+    for authority_row in runtime_permission_authority_posture.authority_posture_rows:
+        for runtime_ref in authority_row.runtime_review_refs:
+            if runtime_ref not in request_rows:
+                raise ValueError("authority posture runtime refs must be known V77-A refs")
+            if _candidate_for_runtime_ref(runtime_ref) != authority_row.candidate_ref:
+                raise ValueError("authority posture runtime refs must match candidate")
+        for preflight_ref in authority_row.preflight_refs:
+            if preflight_ref not in preflight_rows:
+                raise ValueError("authority posture preflight refs must be known")
+            if preflight_rows[preflight_ref].candidate_ref != authority_row.candidate_ref:
+                raise ValueError("authority posture preflight refs must match candidate")
+        for effect_ref in authority_row.effect_envelope_refs:
+            if effect_ref not in effect_rows:
+                raise ValueError("authority posture effect refs must be known")
+            if effect_rows[effect_ref].candidate_ref != authority_row.candidate_ref:
+                raise ValueError("authority posture effect refs must match candidate")
+        for telemetry_ref in authority_row.telemetry_requirement_refs:
+            if telemetry_ref not in telemetry_rows:
+                raise ValueError("authority posture telemetry refs must be known")
+            if telemetry_rows[telemetry_ref].candidate_ref != authority_row.candidate_ref:
+                raise ValueError("authority posture telemetry refs must match candidate")
+        for rollback_ref in authority_row.rollback_contract_refs:
+            if rollback_ref not in rollback_rows:
+                raise ValueError("authority posture rollback refs must be known")
+            if rollback_rows[rollback_ref].candidate_ref != authority_row.candidate_ref:
+                raise ValueError("authority posture rollback refs must match candidate")
+
+    for summary_row in runtime_permission_review_summary.summary_rows:
+        for authority_ref in summary_row.authority_posture_refs:
+            if authority_ref not in authority_rows:
+                raise ValueError("runtime summary authority refs must be known")
+            if authority_rows[authority_ref].candidate_ref != summary_row.candidate_ref:
+                raise ValueError("runtime summary authority refs must match candidate")
+        for blocker_ref in summary_row.carried_blocker_refs:
+            if blocker_ref not in authority_rows:
+                raise ValueError("runtime summary blockers must be known authority refs")
+        for runtime_ref in summary_row.runtime_review_refs:
+            if runtime_ref not in request_rows:
+                raise ValueError("runtime summary runtime refs must be known V77-A refs")
+            if request_rows[runtime_ref].candidate_ref != summary_row.candidate_ref:
+                raise ValueError("runtime summary runtime refs must match candidate")
+
+    for handoff_row in post_runtime_permission_review_handoff.handoff_rows:
+        for summary_ref in handoff_row.runtime_summary_refs:
+            if summary_ref not in summary_rows:
+                raise ValueError("post-runtime handoff summary refs must be known")
+        for authority_ref in handoff_row.authority_posture_refs:
+            if authority_ref not in authority_rows:
+                raise ValueError("post-runtime handoff authority refs must be known")
+        for authority_ref in handoff_row.required_later_authority_refs:
+            if authority_ref not in authority_rows:
+                raise ValueError("post-runtime handoff authority refs must be known")
+        authority_kinds = {
+            authority_rows[authority_ref].authority_requirement_kind
+            for authority_ref in handoff_row.required_later_authority_refs
+        }
+        if not set(handoff_row.required_later_authority_kinds).issubset(authority_kinds):
+            raise ValueError("post-runtime handoff authority kinds must resolve to refs")
+
+
+def derive_v77c_runtime_permission_closeout_bundle(
+    *, repo_root: Path | None = None
+) -> tuple[
+    RepoRuntimePermissionAuthorityPosture,
+    RepoRuntimePermissionReviewSummary,
+    RepoPostRuntimePermissionReviewHandoff,
+    RepoRuntimePermissionFamilyCloseoutAlignment,
+]:
+    _, request, guardrail = derive_v77a_runtime_permission_review_bundle(repo_root=repo_root)
+    preflight, envelope, telemetry, rollback = derive_v77b_runtime_preflight_bundle(
+        repo_root=repo_root
+    )
+    authority = derive_v77c_repo_runtime_permission_authority_posture(
+        repo_root=repo_root,
+        runtime_permission_review_request=request,
+        command_preflight_contract=preflight,
+        action_effect_envelope=envelope,
+        runtime_telemetry_requirement=telemetry,
+        runtime_rollback_contract=rollback,
+    )
+    summary = derive_v77c_repo_runtime_permission_review_summary(
+        repo_root=repo_root,
+        runtime_permission_review_request=request,
+        command_preflight_contract=preflight,
+        action_effect_envelope=envelope,
+        runtime_telemetry_requirement=telemetry,
+        runtime_rollback_contract=rollback,
+        runtime_permission_authority_posture=authority,
+    )
+    handoff = derive_v77c_repo_post_runtime_permission_review_handoff(
+        repo_root=repo_root,
+        runtime_permission_review_request=request,
+        runtime_permission_authority_posture=authority,
+        runtime_permission_review_summary=summary,
+    )
+    closeout = derive_v77c_repo_runtime_permission_family_closeout_alignment(
+        repo_root=repo_root,
+        runtime_permission_review_summary=summary,
+        post_runtime_permission_review_handoff=handoff,
+    )
+    validate_v77b_runtime_preflight_bundle(
+        runtime_permission_review_request=request,
+        runtime_non_execution_guardrail=guardrail,
+        command_preflight_contract=preflight,
+        action_effect_envelope=envelope,
+        runtime_telemetry_requirement=telemetry,
+        runtime_rollback_contract=rollback,
+    )
+    validate_v77c_runtime_permission_closeout_bundle(
+        runtime_permission_review_request=request,
+        command_preflight_contract=preflight,
+        action_effect_envelope=envelope,
+        runtime_telemetry_requirement=telemetry,
+        runtime_rollback_contract=rollback,
+        runtime_permission_authority_posture=authority,
+        runtime_permission_review_summary=summary,
+        post_runtime_permission_review_handoff=handoff,
+        runtime_permission_family_closeout_alignment=closeout,
+    )
+    return authority, summary, handoff, closeout

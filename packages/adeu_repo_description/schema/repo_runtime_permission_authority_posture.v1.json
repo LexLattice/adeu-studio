@@ -1,0 +1,207 @@
+{
+  "$defs": {
+    "RepoRuntimePermissionAuthorityPostureRow": {
+      "additionalProperties": false,
+      "properties": {
+        "authority_decision_posture": {
+          "enum": [
+            "authority_required_later",
+            "authority_missing",
+            "authority_not_applicable",
+            "authority_future_family_only",
+            "authority_rejected_out_of_scope"
+          ],
+          "title": "Authority Decision Posture",
+          "type": "string"
+        },
+        "authority_gap_posture": {
+          "enum": [
+            "authority_gap_present",
+            "authority_checked_absent",
+            "authority_not_applicable",
+            "unknown_needs_review"
+          ],
+          "title": "Authority Gap Posture",
+          "type": "string"
+        },
+        "authority_posture_ref": {
+          "title": "Authority Posture Ref",
+          "type": "string"
+        },
+        "authority_requirement_kind": {
+          "enum": [
+            "human_or_maintainer_runtime_review",
+            "runtime_permission_authority",
+            "tool_use_authority",
+            "product_authorization",
+            "external_branch_activation",
+            "release_authority",
+            "recursive_policy_authority",
+            "future_family_authority"
+          ],
+          "title": "Authority Requirement Kind",
+          "type": "string"
+        },
+        "authority_source_refs": {
+          "items": {
+            "type": "string"
+          },
+          "minItems": 1,
+          "title": "Authority Source Refs",
+          "type": "array"
+        },
+        "candidate_ref": {
+          "title": "Candidate Ref",
+          "type": "string"
+        },
+        "effect_envelope_refs": {
+          "items": {
+            "type": "string"
+          },
+          "title": "Effect Envelope Refs",
+          "type": "array"
+        },
+        "forbidden_authority_inferences": {
+          "items": {
+            "enum": [
+              "command_execution",
+              "runtime_permission_grant",
+              "tool_use_permission",
+              "worker_assignment",
+              "dispatch_execution",
+              "product_authorization",
+              "external_branch_activation",
+              "release_authority",
+              "benchmark_truth",
+              "model_selection",
+              "living_memory_authority",
+              "recursive_policy_amendment"
+            ],
+            "type": "string"
+          },
+          "minItems": 1,
+          "title": "Forbidden Authority Inferences",
+          "type": "array"
+        },
+        "limitation_note": {
+          "title": "Limitation Note",
+          "type": "string"
+        },
+        "preflight_refs": {
+          "items": {
+            "type": "string"
+          },
+          "title": "Preflight Refs",
+          "type": "array"
+        },
+        "rollback_contract_refs": {
+          "items": {
+            "type": "string"
+          },
+          "title": "Rollback Contract Refs",
+          "type": "array"
+        },
+        "runtime_review_refs": {
+          "items": {
+            "type": "string"
+          },
+          "minItems": 1,
+          "title": "Runtime Review Refs",
+          "type": "array"
+        },
+        "telemetry_requirement_refs": {
+          "items": {
+            "type": "string"
+          },
+          "title": "Telemetry Requirement Refs",
+          "type": "array"
+        }
+      },
+      "required": [
+        "authority_posture_ref",
+        "runtime_review_refs",
+        "candidate_ref",
+        "authority_requirement_kind",
+        "authority_source_refs",
+        "authority_gap_posture",
+        "authority_decision_posture",
+        "forbidden_authority_inferences",
+        "limitation_note"
+      ],
+      "title": "RepoRuntimePermissionAuthorityPostureRow",
+      "type": "object"
+    }
+  },
+  "additionalProperties": false,
+  "properties": {
+    "action_effect_envelope_id": {
+      "title": "Action Effect Envelope Id",
+      "type": "string"
+    },
+    "authority_boundary_summary": {
+      "title": "Authority Boundary Summary",
+      "type": "string"
+    },
+    "authority_posture_rows": {
+      "items": {
+        "$ref": "#/$defs/RepoRuntimePermissionAuthorityPostureRow"
+      },
+      "minItems": 1,
+      "title": "Authority Posture Rows",
+      "type": "array"
+    },
+    "command_preflight_contract_id": {
+      "title": "Command Preflight Contract Id",
+      "type": "string"
+    },
+    "review_id": {
+      "title": "Review Id",
+      "type": "string"
+    },
+    "runtime_permission_authority_posture_id": {
+      "title": "Runtime Permission Authority Posture Id",
+      "type": "string"
+    },
+    "runtime_permission_review_request_id": {
+      "title": "Runtime Permission Review Request Id",
+      "type": "string"
+    },
+    "runtime_rollback_contract_id": {
+      "title": "Runtime Rollback Contract Id",
+      "type": "string"
+    },
+    "runtime_telemetry_requirement_id": {
+      "title": "Runtime Telemetry Requirement Id",
+      "type": "string"
+    },
+    "schema": {
+      "const": "repo_runtime_permission_authority_posture@1",
+      "default": "repo_runtime_permission_authority_posture@1",
+      "title": "Schema",
+      "type": "string"
+    },
+    "snapshot_id": {
+      "title": "Snapshot Id",
+      "type": "string"
+    },
+    "source_set_id": {
+      "title": "Source Set Id",
+      "type": "string"
+    }
+  },
+  "required": [
+    "runtime_permission_authority_posture_id",
+    "runtime_permission_review_request_id",
+    "command_preflight_contract_id",
+    "action_effect_envelope_id",
+    "runtime_telemetry_requirement_id",
+    "runtime_rollback_contract_id",
+    "review_id",
+    "snapshot_id",
+    "source_set_id",
+    "authority_posture_rows",
+    "authority_boundary_summary"
+  ],
+  "title": "RepoRuntimePermissionAuthorityPosture",
+  "type": "object"
+}
