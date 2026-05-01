@@ -1,8 +1,8 @@
 # Assessment vNext+220 Edges
 
-Status: planning-edge assessment for `V78-C`.
+Status: post-closeout edge assessment for `V78-C`.
 
-Authority layer: pre-lock assessment, not closeout evidence.
+Authority layer: closeout evidence on `main`.
 
 ## Assessment-State Marker (Machine-Checkable)
 
@@ -10,8 +10,8 @@ Authority layer: pre-lock assessment, not closeout evidence.
 {
   "schema": "assessment_artifact_state@1",
   "artifact": "docs/ASSESSMENT_vNEXT_PLUS220_EDGES.md",
-  "phase": "pre_lock_assessment",
-  "authoritative": false,
+  "phase": "post_closeout_assessment",
+  "authoritative": true,
   "required_in_decision": true
 }
 ```
@@ -21,72 +21,77 @@ Authority layer: pre-lock assessment, not closeout evidence.
 ### Edge 1: Readiness Could Become Execution Authorization
 
 - Risk:
-  readiness summaries could be overread as permission to execute commands.
+  runtime authority readiness summaries could be overread as permission to
+  execute commands or invoke tools.
 - Response:
-  `V78-C` readiness is later-review posture only, and every row must preserve
+  readiness rows remain later-review posture only and must carry
   no-execution and no-tool-invocation status.
 
-### Edge 2: Handoff Could Become Execution Scheduling
+### Edge 2: Warning-Ready Could Hide Blocking Exceptions
+
+- Risk:
+  warning-ready rows could carry blocking exception refs while appearing ready
+  for later review.
+- Response:
+  validators reject ready and warning-ready summaries that hide blocking
+  exceptions.
+
+### Edge 3: Non-Product Blockers Could Be Smoothed Into Ready Posture
+
+- Risk:
+  missing authority, scope, telemetry, or rollback blockers could be converted
+  into ready-with-warning posture.
+- Response:
+  derivation now maps blocking exceptions to blocked-by-authority, scope,
+  telemetry, or rollback readiness and handoff posture.
+
+### Edge 4: Handoff Could Perform Or Schedule Execution
 
 - Risk:
   pre-execution-authority-review handoffs could sound like an execution has
   been scheduled.
 - Response:
   handoff rows must carry `handoff_execution_status =
-  later_review_required_before_any_execution` and cannot schedule execution.
+  later_review_required_before_any_execution`, `execution_posture =
+  no_execution_performed_by_v78`, and `tool_invocation_posture =
+  no_tool_invocation_performed_by_v78`.
 
-### Edge 3: Blockers Could Be Smoothed Into Ready Posture
-
-- Risk:
-  blocking exceptions, missing scope, telemetry gaps, rollback gaps, product
-  authority gaps, or external branch gaps could be hidden by a ready summary.
-- Response:
-  ready posture must preserve blocking refs or remain blocked /
-  future-family-only.
-
-### Edge 4: Product Or External Pressure Could Become Runtime Ready
+### Edge 5: Product Or External Pressure Could Become Runtime Ready
 
 - Risk:
   product or external branch pressure could be converted into runtime execution
   readiness.
 - Response:
-  product handoffs require product authority refs and external handoffs require
-  external authority refs or concrete `V43` posture. Neither may become runtime
-  execution readiness by default.
+  product handoffs require product authority refs, external handoffs require
+  external authority refs or concrete `V43` posture, and neither becomes
+  runtime execution readiness by default.
 
-### Edge 5: Tool Permission Could Become Tool Invocation
-
-- Risk:
-  bounded tool-permission envelopes could be mistaken for permission to invoke
-  tools.
-- Response:
-  tool-invocation handoffs are later-review requests only and every row must
-  carry no-tool-invocation posture.
-
-### Edge 6: Family Closeout Could Select V79
+### Edge 6: Closeout Provenance Could Drift
 
 - Risk:
-  closing `V78` could be written as selecting `V79` or a later family.
+  family closeout alignment could point at a different review/source set than
+  the released handoff surface.
 - Response:
-  `V78-C` may close the family and carry future pressure, but the next family
-  must be selected by a later family-level selector.
+  bundle validation now requires closeout `review_id` and `source_set_id` to
+  match the `V78-C` handoff provenance.
 
-### Edge 7: Release Or Product Authority Could Re-enter
+### Edge 7: Family Closeout Could Select V79
 
 - Risk:
-  closeout alignment could imply product authorization, release truth, global
-  model selection, living-memory authority, or recursive policy amendment.
+  closing `V78` could be treated as selecting runtime execution, product,
+  external branch, graph memory, experiment design, or another later family.
 - Response:
-  those remain unselected future surfaces and must be listed as forbidden
-  inferences.
+  family closeout alignment may list future pressure only. It must not select
+  `V79` or any later family.
 
 ## Current Judgment
 
-- `V78-C` is worth drafting now because `V78-B` closed runtime execution
-  authority decision / tool-permission / command-scope / exception substrate
-  on `main`.
-- The starter slice should stay summary-and-handoff-only: it can make runtime
-  authority readiness, pre-execution-authority-review handoff, and family
-  closeout alignment machine-checkable, but it must not execute commands,
-  invoke tools, assign workers, dispatch, productize, release, activate
-  external branches, or select a later family.
+- `V78-C` closed the readiness-summary / pre-execution-authority-review
+  handoff / family-closeout lane after `V78-A` and `V78-B` had already shipped
+  source-bound authority request, authority source, guardrail, decision,
+  tool-permission, command-scope, and exception surfaces on `main`.
+- The merged slice keeps required later authority and blocker carry-forward
+  visible without executing commands, invoking tools, authorizing products or
+  external branches, releasing, dispatching, or selecting a later family.
+- `V78` is closed as runtime execution authority review and tool-use permission
+  envelope substrate only.

@@ -1,8 +1,8 @@
 # Draft Stop-Gate Decision vNext+220
 
-Status: proposed gate for `V78-C`.
+Status: post-closeout decision for `V78-C`.
 
-Authority layer: starter-bundle scaffold, not closeout evidence.
+Authority layer: closeout evidence on `main`.
 
 ## Decision-State Marker (Machine-Checkable)
 
@@ -10,10 +10,10 @@ Authority layer: starter-bundle scaffold, not closeout evidence.
 {
   "schema": "decision_artifact_state@1",
   "artifact": "docs/DRAFT_STOP_GATE_DECISION_vNEXT_PLUS220.md",
-  "phase": "pre_start_scaffold",
-  "authoritative": false,
+  "phase": "post_closeout_decision",
+  "authoritative": true,
   "required_in_closeout": true,
-  "all_passed": false
+  "all_passed": true
 }
 ```
 
@@ -28,55 +28,65 @@ Authority layer: starter-bundle scaffold, not closeout evidence.
   model selection, living-memory authority, recursive policy amendment, or
   selection of `V79` / any later family.
 
-## Accept When
+## Closeout Result
 
 - `repo_runtime_authority_readiness_summary@1`,
   `repo_pre_execution_authority_review_handoff@1`, and
-  `repo_runtime_execution_authority_family_closeout_alignment@1` schemas
-  validate and export cleanly;
-- implementation stays in the repo-description lane unless a later lock
-  explicitly selects a different package;
-- reference fixtures consume released `V78-A` and `V78-B` material as concrete
-  source rows;
-- summary rows reference known `V78-A` request refs;
-- ready summary rows reference known `V78-B` decision, permission, command
-  scope, and exception rows;
-- ready posture cannot erase blocking exception refs;
-- runtime execution handoffs require command-scope refs and preserve
-  later-review-only posture;
-- tool invocation handoffs require bounded tool-permission refs and preserve
-  no-tool-invocation posture;
-- product handoffs require product authority refs and cannot become runtime
-  execution handoffs;
-- external handoffs require external authority refs or concrete `V43` branch
-  posture;
-- every handoff row carries no-execution, no-tool-invocation, and later-review
-  required status;
-- family closeout alignment records `V78-A`, `V78-B`, and `V78-C` as the
-  closed slice ladder without selecting `V79`;
-- focused tests for the new `V78-C` package surface and export-schema parity
-  pass;
-- `make check` passes before any Python implementation PR is opened.
+  `repo_runtime_execution_authority_family_closeout_alignment@1` shipped in
+  `packages/adeu_repo_description`.
+- Reference fixtures consume released `V78-A` request / source / guardrail
+  material and released `V78-B` decision / tool-permission / command-scope /
+  exception material as concrete source rows.
+- Summary rows reference known `V78-A` request refs and known `V78-B`
+  decision / permission / scope refs.
+- Ready and warning-ready summary rows cannot hide blocking exceptions.
+- Non-product blockers remain blocked by the appropriate authority, scope,
+  telemetry, or rollback posture instead of becoming warning-ready.
+- Pre-execution-authority-review handoff rows remain later-review requests,
+  fail closed if decision refs are missing, and carry no-execution /
+  no-tool-invocation status.
+- Runtime execution handoffs require command-scope refs; product and external
+  handoffs stay target-specific and cannot become runtime execution readiness.
+- Family closeout alignment lists `V78-A`, `V78-B`, and `V78-C` as the closed
+  slice ladder without selecting `V79`.
+- The merged implementation PR was `#448`, merged at
+  `1c78344a2d12edfe11fcb16aa04051dda0fbb411`.
 
-## Do Not Accept If
+## Evidence Inputs
 
-- summary rows reference unknown `V78-A` requests;
-- ready summary rows lack required `V78-B` decision / permission / scope refs;
-- blocking exceptions are omitted from ready posture;
-- handoff rows perform or schedule command execution or tool invocation;
-- runtime execution handoff lacks command-scope refs;
-- tool invocation handoff lacks bounded tool-permission refs;
-- product or external branch pressure becomes runtime execution readiness;
-- family closeout alignment claims command execution, tool invocation,
-  runtime dispatch, product authorization, external branch activation, PR /
-  commit / merge / release, benchmark truth, model selection,
-  living-memory authority, recursive policy amendment, or `V79` selection;
-- `V78-C` emits rows outside readiness summary, pre-execution-authority-review
-  handoff, and family closeout alignment.
+- `artifacts/agent_harness/v220/evidence_inputs/v78c_runtime_execution_authority_closeout_evidence_v220.json`
+- `artifacts/agent_harness/v220/evidence_inputs/v78_family_closeout_alignment_v220.json`
+- `artifacts/agent_harness/v220/evidence_inputs/metric_key_continuity_assertion_v220.json`
+- `artifacts/agent_harness/v220/evidence_inputs/runtime_observability_comparison_v220.json`
+- `artifacts/agent_harness/v220/runtime/evidence/local/urm_events.ndjson`
+- `artifacts/stop_gate/metrics_v220_closeout.json`
+- `artifacts/stop_gate/report_v220_closeout.md`
+- `artifacts/quality_dashboard_v220_closeout.json`
+
+## Metric-Key Continuity Assertion
+
+```json
+{
+  "schema": "metric_key_continuity_assertion@1",
+  "baseline_metrics_path": "artifacts/stop_gate/metrics_v219_closeout.json",
+  "current_metrics_path": "artifacts/stop_gate/metrics_v220_closeout.json",
+  "expected_relation": "exact_keyset_equality"
+}
+```
+
+## Non-Authority Result
+
+- `V78-C` did not authorize command execution, tool invocation, worker
+  assignment, dispatch execution, product authorization, external branch
+  activation, PR creation, commit, merge, release, benchmark truth, global
+  model selection, living-memory authority, recursive policy amendment, or
+  `V79` selection.
+- `V78` is closed as runtime execution authority review and tool-use permission
+  envelope substrate only.
 
 ## Local Gate
 
-- for this docs-only starter bundle:
-  - `make arc-start-check ARC=220`
-- before any Python implementation PR:
-  - `make check`
+- for this docs/artifacts-only closeout bundle:
+  - `make arc-closeout-check ARC=220`
+- full Python lane skipped for this closeout bundle because the change is
+  docs/artifacts only.

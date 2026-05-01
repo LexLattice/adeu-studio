@@ -1,0 +1,37 @@
+{
+  "closed_by_arc": "vNext+220",
+  "closed_by_merge_commit": "1c78344a2d12edfe11fcb16aa04051dda0fbb411",
+  "closed_slice_ladder": [
+    "V78-A:vNext+218",
+    "V78-B:vNext+219",
+    "V78-C:vNext+220"
+  ],
+  "family": "V78",
+  "family_closed_on_main": true,
+  "future_family_authority": "none",
+  "schema": "v78_family_closeout_alignment@1",
+  "shipped_record_shapes": [
+    "repo_runtime_execution_authority_request@1",
+    "repo_runtime_authority_source_index@1",
+    "repo_runtime_authority_non_action_guardrail@1",
+    "repo_runtime_execution_authority_decision@1",
+    "repo_tool_use_permission_envelope@1",
+    "repo_command_scope_authorization_boundary@1",
+    "repo_runtime_authority_exception_register@1",
+    "repo_runtime_authority_readiness_summary@1",
+    "repo_pre_execution_authority_review_handoff@1",
+    "repo_runtime_execution_authority_family_closeout_alignment@1"
+  ],
+  "unselected_future_surfaces": [
+    "command execution",
+    "tool invocation",
+    "worker assignment",
+    "dispatch execution",
+    "product authorization",
+    "external branch activation",
+    "self-improvement experiment design",
+    "living decision graph authority",
+    "recursive policy amendment"
+  ],
+  "v78_authority_boundary": "runtime_execution_authority_review_family_only_no_command_execution_tool_invocation_worker_assignment_dispatch_execution_product_authorization_external_branch_activation_pr_commit_merge_release_benchmark_truth_model_selection_living_memory_or_recursive_policy_authority"
+}
