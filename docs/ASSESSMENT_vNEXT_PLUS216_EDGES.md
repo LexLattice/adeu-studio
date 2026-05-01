@@ -1,8 +1,8 @@
 # Assessment vNext+216 Edges
 
-Status: planning-edge assessment for `V77-B`.
+Status: closeout-edge assessment for `V77-B`.
 
-Authority layer: pre-lock assessment, not closeout evidence.
+Authority layer: closeout evidence on `main`.
 
 ## Assessment-State Marker (Machine-Checkable)
 
@@ -10,81 +10,115 @@ Authority layer: pre-lock assessment, not closeout evidence.
 {
   "schema": "assessment_artifact_state@1",
   "artifact": "docs/ASSESSMENT_vNEXT_PLUS216_EDGES.md",
-  "phase": "pre_lock_assessment",
-  "authoritative": false,
+  "phase": "post_closeout_assessment",
+  "authoritative": true,
   "required_in_decision": true
 }
 ```
 
-## Open Edges
+## Edge Review
 
 ### Edge 1: Preflight Could Become Execution
 
-- Risk:
-  a command preflight contract could be overread as permission to execute a
-  command.
-- Response:
-  require `execution_posture = no_execution_authorized` and reject rows that
-  grant runtime permission, command execution, or tool-use permission.
+- Closeout containment:
+  preflight rows carry `execution_posture = no_execution_authorized`, and
+  validators reject command intent treated as command execution.
+- Result:
+  pass.
 
 ### Edge 2: Command Or Script Labels Could Become Permission
 
-- Risk:
-  a command string, script path, API label, or tool label could be treated as
-  authorization to run.
-- Response:
-  command intent remains later-review posture only. Command labels are
-  reviewed descriptors, not executable grants.
+- Closeout containment:
+  command intent, command labels, script paths, API labels, and tool labels
+  remain later-review descriptors. They do not grant permission to run.
+- Result:
+  pass.
 
 ### Edge 3: Target Boundaries Could Become Change Authority
 
-- Risk:
-  concrete target refs or broad package surfaces could be read as permission to
-  modify those targets.
-- Response:
-  target boundaries constrain review only. Globs are discovery context, and
-  package surfaces require concrete child refs or explicit blocker posture.
+- Closeout containment:
+  target boundary refs constrain review only. Globs are discovery context and
+  are rejected as concrete target boundaries.
+- Result:
+  pass.
 
 ### Edge 4: Effect Envelope Could Become Accepted Effect
 
-- Risk:
-  action-effect envelopes could be mistaken for observed or accepted effects.
-- Response:
-  require `effect_acceptance_posture` and reject accepted-effect claims unless
-  they point to prior authorized source artifacts.
+- Closeout containment:
+  effect envelopes carry effect-acceptance posture and reject accepted-effect
+  claims in this slice.
+- Result:
+  pass.
 
 ### Edge 5: Telemetry Requirement Could Become Telemetry Success
 
-- Risk:
-  naming a telemetry requirement could be treated as evidence that telemetry
-  already exists.
-- Response:
-  telemetry requirements must preserve required-later or missing-source posture
-  unless prior authorized source artifacts are cited.
+- Closeout containment:
+  telemetry requirements preserve required-later or source-bound posture.
+  Observed telemetry success requires prior authorized source artifacts.
+- Result:
+  pass.
 
 ### Edge 6: Rollback Contract Could Become Rollback Verification
 
-- Risk:
-  a rollback contract could be mistaken for verified rollback.
-- Response:
-  rollback contracts are requirements only unless prior authorized source
+- Closeout containment:
+  rollback contracts remain requirements unless prior authorized source
   artifacts are cited.
+- Result:
+  pass.
 
-### Edge 7: V77-B Could Start V77-C Early
+### Edge 7: Cross-Candidate Runtime Links Could Corrupt The Bundle
 
-- Risk:
-  preflight / envelope rows could include authority posture, summary, handoff,
-  or family closeout surfaces.
-- Response:
-  `V77-B` selects only preflight, effect envelope, telemetry requirement, and
-  rollback contract surfaces. `V77-C` requires its own starter trio.
+- Closeout containment:
+  review-hardening validators require preflight, effect-envelope, telemetry,
+  rollback, and non-execution guardrail references to preserve candidate
+  parity across linked rows.
+- Result:
+  pass.
+
+### Edge 8: V77-B Could Start V77-C Early
+
+- Closeout containment:
+  shipped surfaces are limited to command preflight contract,
+  action-effect envelope, runtime telemetry requirement, and runtime rollback
+  contract. `V77-C` authority posture, summary, handoff, and closeout surfaces
+  were rejected from `V77-B`.
+- Result:
+  pass.
+
+### Edge 9: Runtime, Product, External, Or Release Authority Could Re-enter
+
+- Closeout containment:
+  `V77-B` rows remain non-executing review metadata. No command execution,
+  runtime permission grant, tool-use permission, worker assignment, dispatch
+  execution, product authorization, external branch activation, PR creation,
+  commit, merge, release, benchmark truth, model selection, living-memory
+  authority, or recursive policy amendment shipped.
+- Result:
+  pass.
+
+## Residual Edges
+
+- `V77-C` must record runtime permission authority posture without granting
+  runtime permission.
+- `V77-C` must summarize released `V77-A` and `V77-B` rows without smoothing
+  source, authority, telemetry, rollback, or target blockers into ready
+  posture.
+- `V77-C` may hand off later pressure to runtime execution authority review,
+  tool-use permission review, product review, external branch review, outcome
+  review, experiment review, or future-family review, but it must not perform
+  those target reviews.
+- `V77-C` must close the `V77` family without selecting `V78` or any later
+  family.
 
 ## Current Judgment
 
-- `V77-B` is worth drafting now because `V77-A` has closed source-bound runtime
-  permission review request, source index, and non-execution guardrail surfaces
-  on `main`.
-- The starter slice should stay preflight/effect-envelope review only: it can
-  make command, target, telemetry, and rollback requirements visible, but it
-  must not execute, grant runtime permission, authorize tool use, productize,
-  release, activate external branches, dispatch, or select a later family.
+- `V77-B` is closed on `main` as a bounded command-preflight,
+  action-effect-envelope, telemetry-requirement, and rollback-contract slice.
+- `V77` remains open for `V77-C`.
+- The shipped slice preserves the intended authority boundary: runtime
+  preflight review can make command, target, effect, telemetry, and rollback
+  requirements machine-checkable; it does not run commands, grant runtime or
+  tool-use permission, accept effects, verify telemetry or rollback, assign
+  workers, execute dispatch, authorize product or external work, release,
+  select models globally, establish living-memory authority, or adopt
+  recursive policy amendments.
