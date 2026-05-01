@@ -80,6 +80,9 @@ from adeu_repo_description import (
     REPO_RECURSIVE_COORDINATE_EMISSION_PLAN_SCHEMA,
     REPO_RECURSIVE_WORKFLOW_RESIDUE_INTAKE_REPORT_SCHEMA,
     REPO_REVIEW_SETTLEMENT_RECORD_SCHEMA,
+    REPO_RUNTIME_NON_EXECUTION_GUARDRAIL_SCHEMA,
+    REPO_RUNTIME_PERMISSION_REVIEW_REQUEST_SCHEMA,
+    REPO_RUNTIME_PERMISSION_SOURCE_INDEX_SCHEMA,
     REPO_SCHEMA_FAMILY_REGISTRY_SCHEMA,
     REPO_SUPPORT_LINEAGE_REGISTER_SCHEMA,
     REPO_SYMBOL_CATALOG_SCHEMA,
@@ -727,6 +730,30 @@ def _schema_pairs() -> dict[str, tuple[Path, Path]]:
             / "schema"
             / "repo_reconciliation_family_closeout_alignment.v1.json",
             root / "spec" / "repo_reconciliation_family_closeout_alignment.schema.json",
+        ),
+        REPO_RUNTIME_PERMISSION_SOURCE_INDEX_SCHEMA: (
+            root
+            / "packages"
+            / "adeu_repo_description"
+            / "schema"
+            / "repo_runtime_permission_source_index.v1.json",
+            root / "spec" / "repo_runtime_permission_source_index.schema.json",
+        ),
+        REPO_RUNTIME_PERMISSION_REVIEW_REQUEST_SCHEMA: (
+            root
+            / "packages"
+            / "adeu_repo_description"
+            / "schema"
+            / "repo_runtime_permission_review_request.v1.json",
+            root / "spec" / "repo_runtime_permission_review_request.schema.json",
+        ),
+        REPO_RUNTIME_NON_EXECUTION_GUARDRAIL_SCHEMA: (
+            root
+            / "packages"
+            / "adeu_repo_description"
+            / "schema"
+            / "repo_runtime_non_execution_guardrail.v1.json",
+            root / "spec" / "repo_runtime_non_execution_guardrail.schema.json",
         ),
     }
 

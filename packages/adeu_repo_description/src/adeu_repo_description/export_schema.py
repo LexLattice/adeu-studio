@@ -133,6 +133,11 @@ from .recursive_candidate_intake_handoff import (
     RepoOperatorIngressCandidateBinding,
     RepoRecursiveWorkflowResidueIntakeReport,
 )
+from .runtime_permission_review import (
+    RepoRuntimeNonExecutionGuardrail,
+    RepoRuntimePermissionReviewRequest,
+    RepoRuntimePermissionSourceIndex,
+)
 
 _WINDOWS_ABSOLUTE_PATH_RE = re.compile(r"[A-Za-z]:\\")
 
@@ -426,6 +431,15 @@ def main() -> None:
     reconciliation_family_closeout_alignment_schema = (
         RepoReconciliationFamilyCloseoutAlignment.model_json_schema(by_alias=True)
     )
+    runtime_permission_source_index_schema = (
+        RepoRuntimePermissionSourceIndex.model_json_schema(by_alias=True)
+    )
+    runtime_permission_review_request_schema = (
+        RepoRuntimePermissionReviewRequest.model_json_schema(by_alias=True)
+    )
+    runtime_non_execution_guardrail_schema = (
+        RepoRuntimeNonExecutionGuardrail.model_json_schema(by_alias=True)
+    )
 
     _assert_no_absolute_path_material(dependency_register_v1_schema, repo_root_path=root)
     _assert_no_absolute_path_material(dependency_register_schema, repo_root_path=root)
@@ -600,6 +614,9 @@ def main() -> None:
         reconciliation_family_closeout_alignment_schema,
         repo_root_path=root,
     )
+    _assert_no_absolute_path_material(runtime_permission_source_index_schema, repo_root_path=root)
+    _assert_no_absolute_path_material(runtime_permission_review_request_schema, repo_root_path=root)
+    _assert_no_absolute_path_material(runtime_non_execution_guardrail_schema, repo_root_path=root)
 
     _write_schema(
         root
@@ -1724,6 +1741,42 @@ def main() -> None:
     _write_schema(
         root / "spec" / "repo_reconciliation_family_closeout_alignment.schema.json",
         reconciliation_family_closeout_alignment_schema,
+    )
+    _write_schema(
+        root
+        / "packages"
+        / "adeu_repo_description"
+        / "schema"
+        / "repo_runtime_permission_source_index.v1.json",
+        runtime_permission_source_index_schema,
+    )
+    _write_schema(
+        root / "spec" / "repo_runtime_permission_source_index.schema.json",
+        runtime_permission_source_index_schema,
+    )
+    _write_schema(
+        root
+        / "packages"
+        / "adeu_repo_description"
+        / "schema"
+        / "repo_runtime_permission_review_request.v1.json",
+        runtime_permission_review_request_schema,
+    )
+    _write_schema(
+        root / "spec" / "repo_runtime_permission_review_request.schema.json",
+        runtime_permission_review_request_schema,
+    )
+    _write_schema(
+        root
+        / "packages"
+        / "adeu_repo_description"
+        / "schema"
+        / "repo_runtime_non_execution_guardrail.v1.json",
+        runtime_non_execution_guardrail_schema,
+    )
+    _write_schema(
+        root / "spec" / "repo_runtime_non_execution_guardrail.schema.json",
+        runtime_non_execution_guardrail_schema,
     )
 
 

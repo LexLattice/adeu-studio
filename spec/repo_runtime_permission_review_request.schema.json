@@ -1,0 +1,323 @@
+{
+  "$defs": {
+    "RepoRuntimePermissionReviewRequestRow": {
+      "additionalProperties": false,
+      "properties": {
+        "candidate_ref": {
+          "title": "Candidate Ref",
+          "type": "string"
+        },
+        "command_execution_posture": {
+          "enum": [
+            "no_execution_authorized",
+            "execution_requires_later_authority",
+            "execution_forbidden_by_this_family"
+          ],
+          "title": "Command Execution Posture",
+          "type": "string"
+        },
+        "command_intent_kind": {
+          "enum": [
+            "no_command_intent",
+            "shell_command_pressure",
+            "python_tool_pressure",
+            "repo_script_pressure",
+            "api_call_pressure",
+            "external_tool_pressure",
+            "future_family_only"
+          ],
+          "title": "Command Intent Kind",
+          "type": "string"
+        },
+        "effect_envelope_needed": {
+          "title": "Effect Envelope Needed",
+          "type": "boolean"
+        },
+        "guardrail_refs": {
+          "items": {
+            "type": "string"
+          },
+          "minItems": 1,
+          "title": "Guardrail Refs",
+          "type": "array"
+        },
+        "limitation_note": {
+          "title": "Limitation Note",
+          "type": "string"
+        },
+        "odeu_lanes": {
+          "items": {
+            "enum": [
+              "ontological",
+              "deontic",
+              "epistemic",
+              "utility"
+            ],
+            "type": "string"
+          },
+          "minItems": 1,
+          "title": "Odeu Lanes",
+          "type": "array"
+        },
+        "requested_permission_horizon": {
+          "enum": [
+            "command_preflight_review",
+            "tool_use_permission_review",
+            "bounded_runtime_action_review",
+            "effect_telemetry_review",
+            "rollback_readiness_review",
+            "future_product_review",
+            "future_external_branch_review",
+            "future_family_review"
+          ],
+          "title": "Requested Permission Horizon",
+          "type": "string"
+        },
+        "required_later_authority_refs": {
+          "items": {
+            "type": "string"
+          },
+          "title": "Required Later Authority Refs",
+          "type": "array"
+        },
+        "required_later_authority_rows": {
+          "items": {
+            "$ref": "#/$defs/RepoRuntimeRequiredLaterAuthorityRow"
+          },
+          "title": "Required Later Authority Rows",
+          "type": "array"
+        },
+        "rollback_needed": {
+          "title": "Rollback Needed",
+          "type": "boolean"
+        },
+        "runtime_review_posture": {
+          "enum": [
+            "eligible_for_runtime_permission_review",
+            "blocked_by_missing_source",
+            "blocked_by_missing_authority",
+            "blocked_by_non_runtime_handoff",
+            "blocked_by_product_authority_gap",
+            "blocked_by_external_branch_gap",
+            "future_family_only",
+            "rejected_out_of_scope"
+          ],
+          "title": "Runtime Review Posture",
+          "type": "string"
+        },
+        "runtime_review_ref": {
+          "title": "Runtime Review Ref",
+          "type": "string"
+        },
+        "source_refs": {
+          "items": {
+            "type": "string"
+          },
+          "minItems": 1,
+          "title": "Source Refs",
+          "type": "array"
+        },
+        "target_boundary_posture": {
+          "enum": [
+            "target_boundary_known",
+            "target_boundary_missing",
+            "target_boundary_blocked",
+            "no_target_boundary",
+            "future_family_only"
+          ],
+          "title": "Target Boundary Posture",
+          "type": "string"
+        },
+        "target_boundary_refs": {
+          "items": {
+            "type": "string"
+          },
+          "title": "Target Boundary Refs",
+          "type": "array"
+        },
+        "telemetry_needed": {
+          "title": "Telemetry Needed",
+          "type": "boolean"
+        },
+        "v76_closeout_refs": {
+          "items": {
+            "type": "string"
+          },
+          "title": "V76 Closeout Refs",
+          "type": "array"
+        },
+        "v76_handoff_refs": {
+          "items": {
+            "type": "string"
+          },
+          "title": "V76 Handoff Refs",
+          "type": "array"
+        },
+        "v76_summary_refs": {
+          "items": {
+            "type": "string"
+          },
+          "title": "V76 Summary Refs",
+          "type": "array"
+        }
+      },
+      "required": [
+        "runtime_review_ref",
+        "candidate_ref",
+        "source_refs",
+        "requested_permission_horizon",
+        "runtime_review_posture",
+        "command_intent_kind",
+        "command_execution_posture",
+        "target_boundary_posture",
+        "effect_envelope_needed",
+        "telemetry_needed",
+        "rollback_needed",
+        "guardrail_refs",
+        "odeu_lanes",
+        "limitation_note"
+      ],
+      "title": "RepoRuntimePermissionReviewRequestRow",
+      "type": "object"
+    },
+    "RepoRuntimeRequiredLaterAuthorityRow": {
+      "additionalProperties": false,
+      "properties": {
+        "authority_gap_posture": {
+          "enum": [
+            "authority_gap_present",
+            "authority_checked_absent",
+            "authority_not_applicable",
+            "unknown_needs_review"
+          ],
+          "title": "Authority Gap Posture",
+          "type": "string"
+        },
+        "authority_kind": {
+          "enum": [
+            "runtime_execution_authority",
+            "tool_use_authority",
+            "product_authorization",
+            "external_branch_activation",
+            "release_authority",
+            "human_or_maintainer_review",
+            "recursive_policy_authority"
+          ],
+          "title": "Authority Kind",
+          "type": "string"
+        },
+        "authority_requirement_ref": {
+          "title": "Authority Requirement Ref",
+          "type": "string"
+        },
+        "candidate_ref": {
+          "title": "Candidate Ref",
+          "type": "string"
+        },
+        "limitation_note": {
+          "title": "Limitation Note",
+          "type": "string"
+        },
+        "required_before_surface": {
+          "enum": [
+            "before_runtime_permission_review",
+            "before_tool_use_permission_review",
+            "before_command_preflight_review",
+            "before_product_review",
+            "before_external_branch_review",
+            "before_release_review",
+            "before_human_or_maintainer_review",
+            "before_recursive_policy_review",
+            "not_selected_here"
+          ],
+          "title": "Required Before Surface",
+          "type": "string"
+        },
+        "source_presence_posture": {
+          "enum": [
+            "present",
+            "missing_expected_support_artifact",
+            "not_uploaded_in_review_snapshot",
+            "generated_later",
+            "external_unavailable",
+            "operator_turn_not_committed"
+          ],
+          "title": "Source Presence Posture",
+          "type": "string"
+        },
+        "source_refs": {
+          "items": {
+            "type": "string"
+          },
+          "minItems": 1,
+          "title": "Source Refs",
+          "type": "array"
+        }
+      },
+      "required": [
+        "authority_requirement_ref",
+        "candidate_ref",
+        "authority_kind",
+        "required_before_surface",
+        "source_refs",
+        "source_presence_posture",
+        "authority_gap_posture",
+        "limitation_note"
+      ],
+      "title": "RepoRuntimeRequiredLaterAuthorityRow",
+      "type": "object"
+    }
+  },
+  "additionalProperties": false,
+  "properties": {
+    "request_rows": {
+      "items": {
+        "$ref": "#/$defs/RepoRuntimePermissionReviewRequestRow"
+      },
+      "minItems": 1,
+      "title": "Request Rows",
+      "type": "array"
+    },
+    "review_id": {
+      "title": "Review Id",
+      "type": "string"
+    },
+    "runtime_permission_review_request_id": {
+      "title": "Runtime Permission Review Request Id",
+      "type": "string"
+    },
+    "runtime_permission_source_index_id": {
+      "title": "Runtime Permission Source Index Id",
+      "type": "string"
+    },
+    "runtime_review_boundary_summary": {
+      "title": "Runtime Review Boundary Summary",
+      "type": "string"
+    },
+    "schema": {
+      "const": "repo_runtime_permission_review_request@1",
+      "default": "repo_runtime_permission_review_request@1",
+      "title": "Schema",
+      "type": "string"
+    },
+    "snapshot_id": {
+      "title": "Snapshot Id",
+      "type": "string"
+    },
+    "source_set_id": {
+      "title": "Source Set Id",
+      "type": "string"
+    }
+  },
+  "required": [
+    "runtime_permission_review_request_id",
+    "runtime_permission_source_index_id",
+    "review_id",
+    "snapshot_id",
+    "source_set_id",
+    "request_rows",
+    "runtime_review_boundary_summary"
+  ],
+  "title": "RepoRuntimePermissionReviewRequest",
+  "type": "object"
+}
