@@ -963,40 +963,44 @@ def derive_v78a_repo_runtime_authority_non_action_guardrail(
     )
     grouped_rows: dict[str, dict[str, object]] = {}
     for request_row in request.request_rows:
-        guardrail_ref = request_row.guardrail_refs[0]
-        existing = grouped_rows.setdefault(
-            guardrail_ref,
-            {
-                "guardrail_ref": guardrail_ref,
-                "candidate_ref": request_row.candidate_ref,
-                "authority_request_refs": [],
-                "forbidden_runtime_actions": sorted(_FORBIDDEN_RUNTIME_ACTIONS),
-                "forbidden_downstream_authority": sorted(_FORBIDDEN_DOWNSTREAM_AUTHORITIES),
-                "execution_posture": "no_execution_performed_by_v78",
-                "tool_invocation_posture": "no_tool_invocation_performed_by_v78",
-                "authority_gap_refs": [],
-                "source_refs": [],
-                "limitation_note": (
-                    "This V78-A row is request only: no execution, no tool invocation, "
-                    "no product authorization, no external branch activation, and no release."
-                ),
-            },
-        )
-        if existing["candidate_ref"] != request_row.candidate_ref:
-            raise ValueError("runtime authority guardrail derivation cannot merge candidates")
-        existing["authority_request_refs"] = sorted(
-            {
-                *existing["authority_request_refs"],
-                request_row.authority_request_ref,
-            }
-        )
-        existing["authority_gap_refs"] = sorted(
-            {
-                *existing["authority_gap_refs"],
-                *request_row.required_authority_source_refs,
-            }
-        )
-        existing["source_refs"] = sorted({*existing["source_refs"], *request_row.source_refs})
+        for guardrail_ref in request_row.guardrail_refs:
+            existing = grouped_rows.setdefault(
+                guardrail_ref,
+                {
+                    "guardrail_ref": guardrail_ref,
+                    "candidate_ref": request_row.candidate_ref,
+                    "authority_request_refs": [],
+                    "forbidden_runtime_actions": sorted(_FORBIDDEN_RUNTIME_ACTIONS),
+                    "forbidden_downstream_authority": sorted(
+                        _FORBIDDEN_DOWNSTREAM_AUTHORITIES
+                    ),
+                    "execution_posture": "no_execution_performed_by_v78",
+                    "tool_invocation_posture": "no_tool_invocation_performed_by_v78",
+                    "authority_gap_refs": [],
+                    "source_refs": [],
+                    "limitation_note": (
+                        "This V78-A row is request only: no execution, no tool invocation, "
+                        "no product authorization, no external branch activation, and no release."
+                    ),
+                },
+            )
+            if existing["candidate_ref"] != request_row.candidate_ref:
+                raise ValueError("runtime authority guardrail derivation cannot merge candidates")
+            existing["authority_request_refs"] = sorted(
+                {
+                    *existing["authority_request_refs"],
+                    request_row.authority_request_ref,
+                }
+            )
+            existing["authority_gap_refs"] = sorted(
+                {
+                    *existing["authority_gap_refs"],
+                    *request_row.required_authority_source_refs,
+                }
+            )
+            existing["source_refs"] = sorted(
+                {*existing["source_refs"], *request_row.source_refs}
+            )
     payload = {
         "schema": REPO_RUNTIME_AUTHORITY_NON_ACTION_GUARDRAIL_SCHEMA,
         "runtime_authority_non_action_guardrail_id": "",
@@ -1086,8 +1090,6 @@ def validate_v78a_runtime_execution_authority_bundle(
                 raise ValueError(
                     "eligible runtime authority requests require released V77-C sources"
                 )
-            if roles.issubset(_CONTEXT_SOURCE_ROLES):
-                raise ValueError("support/context sources are not sufficient for eligibility")
         for requirement_row in request_row.authority_requirement_rows:
             if any(source_ref not in known_sources for source_ref in requirement_row.source_refs):
                 raise ValueError("runtime authority requirement source refs must be known")

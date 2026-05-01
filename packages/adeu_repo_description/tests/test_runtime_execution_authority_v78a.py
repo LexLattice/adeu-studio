@@ -323,6 +323,42 @@ def test_v218_bundle_rejects_guardrail_missing_authority_gap_ref() -> None:
         _validate_reference_bundle_with(guardrail=guardrail)
 
 
+def test_v218_guardrail_derivation_preserves_multiple_guardrail_refs() -> None:
+    request_payload = _v78a_request().model_dump(mode="json")
+    request_payload["request_rows"][1]["guardrail_refs"] = sorted(
+        [
+            *request_payload["request_rows"][1]["guardrail_refs"],
+            "guardrail:v78a:self-evidencing:secondary-non-action",
+        ]
+    )
+    request_payload["runtime_execution_authority_request_id"] = _surface_id(
+        "repo_runtime_execution_authority_request",
+        REPO_RUNTIME_EXECUTION_AUTHORITY_REQUEST_SCHEMA,
+        request_payload,
+        "runtime_execution_authority_request_id",
+    )
+    request = RepoRuntimeExecutionAuthorityRequest.model_validate(request_payload)
+
+    guardrail = derive_v78a_repo_runtime_authority_non_action_guardrail(
+        repo_root=_repo_root(),
+        runtime_execution_authority_request=request,
+    )
+
+    assert {
+        "guardrail:v78a:self-evidencing:non-action",
+        "guardrail:v78a:self-evidencing:secondary-non-action",
+    }.issubset({row.guardrail_ref for row in guardrail.guardrail_rows})
+    secondary = {
+        row.guardrail_ref: row
+        for row in guardrail.guardrail_rows
+    }["guardrail:v78a:self-evidencing:secondary-non-action"]
+    assert secondary.authority_request_refs == [
+        "authority-request:v78a:self-evidencing:runtime-execution-review"
+    ]
+    assert "authority:v78a:self-evidencing:runtime-review" in secondary.authority_gap_refs
+    _validate_reference_bundle_with(request=request, guardrail=guardrail)
+
+
 def test_v218_rejects_auxiliary_verb_runtime_authority_claims() -> None:
     request_payload = _v78a_request().model_dump(mode="json")
     request_payload["request_rows"][0][
