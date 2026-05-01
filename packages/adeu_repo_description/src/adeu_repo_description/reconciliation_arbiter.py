@@ -3062,17 +3062,20 @@ def validate_v76c_reconciliation_closeout_bundle(
             raise ValueError("summary rows must reference known adversarial review rows")
         if any(ref not in gap_rows for ref in summary_row.gap_refs):
             raise ValueError("summary rows must reference known gap rows")
+        if any(
+            ref not in gap_rows and ref not in dissent_rows
+            for ref in summary_row.carried_blocker_refs
+        ):
+            raise ValueError("summary rows must reference known blockers")
         blocking_refs = [
             ref
             for ref in summary_row.carried_blocker_refs
-            if ref in gap_rows and gap_rows[ref].gap_severity == "blocking"
+            if (ref in gap_rows and gap_rows[ref].gap_severity == "blocking")
+            or (
+                ref in dissent_rows
+                and dissent_rows[ref].dissent_carry_forward_posture == "blocking_until_reviewed"
+            )
         ]
-        blocking_refs.extend(
-            ref
-            for ref in summary_row.carried_blocker_refs
-            if ref in dissent_rows
-            and dissent_rows[ref].dissent_carry_forward_posture == "blocking_until_reviewed"
-        )
         if blocking_refs and summary_row.summary_posture == "ready_for_later_review":
             if summary_row.ready_basis_posture != "settlement_requested_for_blockers":
                 raise ValueError("ready summaries cannot hide blocking refs")
@@ -3088,29 +3091,11 @@ def validate_v76c_reconciliation_closeout_bundle(
             raise ValueError("handoffs must reference known dissent rows")
         if any(ref not in gap_rows for ref in handoff_row.carried_gap_refs):
             raise ValueError("handoffs must reference known carried gaps")
-        if handoff_row.handoff_target == "future_product_review" and not any(
-            "product" in ref for ref in handoff_row.required_later_authority_refs
-        ):
-            raise ValueError("product handoffs require product authority refs")
-        if handoff_row.handoff_target == "future_runtime_permission_review" and not any(
-            "runtime" in ref for ref in handoff_row.required_later_authority_refs
-        ):
-            raise ValueError("runtime handoffs require runtime authority refs")
-        if handoff_row.handoff_target == "future_external_branch_review" and not any(
-            "external" in ref or "v43" in ref.lower()
-            for ref in handoff_row.required_later_authority_refs
-        ):
-            raise ValueError("external handoffs require external or V43 authority refs")
         blocking_gap_refs = [
             ref for ref in handoff_row.carried_gap_refs if gap_rows[ref].gap_severity == "blocking"
         ]
         if blocking_gap_refs and handoff_row.handoff_posture == "ready_for_later_review":
             raise ValueError("ready handoffs cannot hide blocking carried gaps")
-
-    if reconciliation_family_closeout_alignment.family != "V76":
-        raise ValueError("V76-C closeout alignment must close V76")
-    if reconciliation_family_closeout_alignment.closed_by_arc != "vNext+214":
-        raise ValueError("V76-C closeout alignment must close vNext+214")
 
 
 def derive_v76c_reconciliation_closeout_bundle(

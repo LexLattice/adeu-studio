@@ -214,6 +214,29 @@ def test_v214_bundle_rejects_unknown_summary_claim_ref() -> None:
         )
 
 
+def test_v214_bundle_rejects_unknown_carried_blocker_ref() -> None:
+    summary = _summary()
+    rows = list(summary.summary_rows)
+    rows[0] = rows[0].model_copy(
+        update={"carried_blocker_refs": ["gap:v76b:unknown-blocker"]},
+    )
+    summary = summary.model_copy(update={"summary_rows": rows})
+
+    with pytest.raises(ValueError, match="summary rows must reference known blockers"):
+        validate_v76c_reconciliation_closeout_bundle(
+            reconciliation_claim_map=_claim_map(),
+            arbiter_relation_register=_relation_register(),
+            reconciliation_dissent_register=_dissent_register(),
+            arbiter_authority_profile=_authority_profile(),
+            reconciliation_settlement_request=_settlement_request(),
+            adversarial_relation_review=_adversarial_review(),
+            reconciliation_gap_scan=_gap_scan(),
+            reconciliation_review_summary=summary,
+            post_reconciliation_handoff=_handoff(),
+            reconciliation_family_closeout_alignment=_closeout_alignment(),
+        )
+
+
 @pytest.mark.parametrize(
     ("fixture_name", "model_type", "match"),
     [
