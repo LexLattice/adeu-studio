@@ -1,0 +1,36 @@
+{
+  "closed_by_arc": "vNext+214",
+  "closed_by_merge_commit": "89d3365cb2c1d769df98fdfb217f985e3eca1f60",
+  "closed_slice_ladder": [
+    "V76-A:vNext+212",
+    "V76-B:vNext+213",
+    "V76-C:vNext+214"
+  ],
+  "family": "V76",
+  "family_closed_on_main": true,
+  "future_family_authority": "none",
+  "schema": "v76_family_closeout_alignment@1",
+  "shipped_record_shapes": [
+    "repo_reconciliation_claim_map@1",
+    "repo_arbiter_relation_register@1",
+    "repo_reconciliation_dissent_register@1",
+    "repo_arbiter_authority_profile@1",
+    "repo_reconciliation_settlement_request@1",
+    "repo_adversarial_relation_review@1",
+    "repo_reconciliation_gap_scan@1",
+    "repo_reconciliation_review_summary@1",
+    "repo_post_reconciliation_handoff@1",
+    "repo_reconciliation_family_closeout_alignment@1"
+  ],
+  "unselected_future_surfaces": [
+    "relation settlement",
+    "claim truth",
+    "runtime permission and effect envelopes",
+    "productized typed adjudication",
+    "external branch activation",
+    "self-improvement experiment design",
+    "living decision graph authority",
+    "recursive policy amendment"
+  ],
+  "v76_authority_boundary": "reconciliation_arbiter_family_only_no_claim_truth_relation_settlement_ratification_worker_assignment_dispatch_execution_command_execution_runtime_permission_product_authorization_external_branch_activation_pr_commit_merge_release_benchmark_truth_model_selection_living_memory_or_recursive_policy_authority"
+}

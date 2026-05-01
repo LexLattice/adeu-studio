@@ -1,8 +1,8 @@
 # Assessment vNext+214 Edges
 
-Status: planning-edge assessment for `V76-C`.
+Status: closeout-edge assessment for `V76-C`.
 
-Authority layer: pre-lock assessment, not closeout evidence.
+Authority layer: closeout evidence on `main`.
 
 ## Assessment-State Marker (Machine-Checkable)
 
@@ -10,8 +10,8 @@ Authority layer: pre-lock assessment, not closeout evidence.
 {
   "schema": "assessment_artifact_state@1",
   "artifact": "docs/ASSESSMENT_vNEXT_PLUS214_EDGES.md",
-  "phase": "pre_lock_assessment",
-  "authoritative": false,
+  "phase": "post_closeout_assessment",
+  "authoritative": true,
   "required_in_decision": true
 }
 ```
@@ -82,9 +82,10 @@ Authority layer: pre-lock assessment, not closeout evidence.
 
 ## Current Judgment
 
-- `V76-C` is worth drafting now because `V76-B` has closed arbiter authority,
-  settlement-request, adversarial-review, and gap-scan posture on `main`.
-- The final slice should stay summary-and-handoff only: it can close the
-  reconciliation / arbiter review family and carry future pressure forward,
-  but it should not settle, ratify, execute, productize, release, activate
-  external branches, dispatch, or select `V77`.
+- `V76-C` closed the summary-and-handoff slice on `main` after `V76-B` closed
+  arbiter authority, settlement-request, adversarial-review, and gap-scan
+  posture.
+- The final slice stayed summary-and-handoff only: it closed the
+  reconciliation / arbiter review family and carried future pressure forward
+  without settling, ratifying, executing, productizing, releasing, activating
+  external branches, dispatching, or selecting `V77`.

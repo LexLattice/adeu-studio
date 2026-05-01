@@ -1,8 +1,8 @@
 # Draft Stop-Gate Decision vNext+214
 
-Status: proposed gate for `V76-C`.
+Status: accepted closeout gate for `V76-C`.
 
-Authority layer: starter-bundle scaffold, not closeout evidence.
+Authority layer: closeout evidence on `main`.
 
 ## Decision-State Marker (Machine-Checkable)
 
@@ -10,19 +10,21 @@ Authority layer: starter-bundle scaffold, not closeout evidence.
 {
   "schema": "decision_artifact_state@1",
   "artifact": "docs/DRAFT_STOP_GATE_DECISION_vNEXT_PLUS214.md",
-  "phase": "pre_start_scaffold",
-  "authoritative": false,
+  "phase": "post_closeout_decision",
+  "authoritative": true,
+  "authoritative_scope": "v214_closeout_stop_gate_decision_on_main",
   "required_in_closeout": true,
-  "all_passed": false
+  "all_passed": true,
+  "notes": "Pre-start scaffold markers are superseded by post-closeout evidence and final decision values in this document."
 }
 ```
 
 ## Decision Guardrail
 
-- This draft is a pre-start scaffold for `vNext+214` only.
-- It must not redefine semantics, locks, or scope from
+- This closeout decision is scoped to `vNext+214` / `V76-C` only.
+- It does not redefine semantics, locks, or scope from
   `docs/LOCKED_CONTINUATION_vNEXT_PLUS214.md`.
-- It must not use `V76-C` to authorize `V77`, relation settlement, claim truth,
+- It does not use `V76-C` to authorize `V77`, relation settlement, claim truth,
   ratification, worker assignment, dispatch execution, command execution,
   runtime permission, product authorization, external branch activation, PR
   creation, commit, merge, release, benchmark truth, global model selection,
@@ -72,7 +74,18 @@ Authority layer: starter-bundle scaffold, not closeout evidence.
 
 ## Local Gate
 
-- for this docs-only starter bundle:
-  - `make arc-start-check ARC=214`
-- before any Python implementation PR:
+- implementation PR gate:
   - `make check`
+- closeout bundle gate:
+  - `make arc-closeout-check ARC=214`
+
+## Metric-Key Continuity Assertion
+
+```json
+{
+  "schema": "metric_key_continuity_assertion@1",
+  "baseline_metrics_path": "artifacts/stop_gate/metrics_v213_closeout.json",
+  "current_metrics_path": "artifacts/stop_gate/metrics_v214_closeout.json",
+  "expected_relation": "exact_keyset_equality"
+}
+```
