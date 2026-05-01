@@ -29,6 +29,14 @@ REPO_CONTROLLED_EXECUTION_SOURCE_INDEX_SCHEMA = "repo_controlled_execution_sourc
 REPO_CONTROLLED_EXECUTION_NON_EXECUTION_GUARDRAIL_SCHEMA = (
     "repo_controlled_execution_non_execution_guardrail@1"
 )
+REPO_EXECUTION_RUN_PLAN_SCHEMA = "repo_execution_run_plan@1"
+REPO_TOOL_INVOCATION_PLAN_SCHEMA = "repo_tool_invocation_plan@1"
+REPO_EXECUTION_EFFECT_MONITORING_CONTRACT_SCHEMA = (
+    "repo_execution_effect_monitoring_contract@1"
+)
+REPO_CONTROLLED_EXECUTION_EXCEPTION_REGISTER_SCHEMA = (
+    "repo_controlled_execution_exception_register@1"
+)
 
 ControlledExecutionSourceRole = Literal[
     "v78_readiness_summary_source",
@@ -124,6 +132,110 @@ ControlledExecutionForbiddenDownstreamAuthority = Literal[
     "living_memory_authority",
     "recursive_policy_amendment",
     "v80_selection",
+]
+ExecutionRunPlanPosture = Literal[
+    "run_plan_complete_for_review_only",
+    "run_plan_incomplete_for_review",
+    "blocked_by_missing_source",
+    "blocked_by_missing_authority",
+    "blocked_by_missing_target_boundary",
+    "blocked_by_missing_monitoring",
+    "blocked_by_missing_rollback",
+    "future_family_only",
+]
+ExecutionPlanCompletenessPosture = Literal[
+    "incomplete_for_review",
+    "complete_for_review_only",
+    "blocked_by_missing_source",
+    "blocked_by_missing_authority",
+    "blocked_by_missing_target_boundary",
+    "blocked_by_missing_monitoring",
+    "blocked_by_missing_rollback",
+    "future_family_only",
+]
+ExecutionRunStatus = Literal[
+    "no_run_performed_by_v79",
+    "run_requires_later_family",
+    "run_forbidden_by_this_family",
+]
+ExecutionTargetResolutionKind = Literal[
+    "concrete_file_ref",
+    "concrete_schema_ref",
+    "concrete_fixture_ref",
+    "concrete_test_ref",
+    "concrete_doc_ref",
+    "concrete_script_ref",
+    "bounded_package_surface_with_child_refs",
+    "external_endpoint_ref",
+    "no_target_boundary",
+]
+ToolInvocationPlanPosture = Literal[
+    "tool_invocation_plan_complete_for_review_only",
+    "tool_invocation_plan_incomplete_for_review",
+    "blocked_by_missing_source",
+    "blocked_by_missing_authority",
+    "blocked_by_missing_target_boundary",
+    "blocked_by_missing_monitoring",
+    "future_family_only",
+]
+ToolInvocationStatus = Literal[
+    "no_tool_invocation_performed_by_v79",
+    "invocation_requires_later_family",
+    "invocation_forbidden_by_this_family",
+]
+ExecutionMonitoringPosture = Literal[
+    "monitoring_contract_complete_for_review_only",
+    "monitoring_contract_incomplete_for_review",
+    "blocked_by_missing_telemetry",
+    "blocked_by_missing_rollback",
+    "future_family_only",
+]
+EffectObservationPosture = Literal[
+    "no_effect_observed_by_v79",
+    "effect_requires_later_review",
+    "effect_observed_from_prior_authorized_source",
+    "effect_not_applicable",
+]
+OperatorConfirmationKind = Literal[
+    "maintainer_confirmation_required",
+    "operator_acknowledgement_required",
+    "product_authority_confirmation_required",
+    "external_branch_authority_confirmation_required",
+]
+OperatorConfirmationPosture = Literal[
+    "confirmation_required_for_later_review",
+    "confirmation_not_authorization",
+    "blocked_by_missing_authority",
+    "future_family_only",
+]
+ControlledExecutionExceptionKind = Literal[
+    "missing_source",
+    "unknown_v79a_request",
+    "missing_authority",
+    "missing_target_boundary",
+    "unbounded_target",
+    "missing_monitoring_contract",
+    "missing_telemetry_requirement",
+    "missing_rollback_requirement",
+    "operator_confirmation_authorization_gap",
+    "product_authority_gap",
+    "external_branch_authority_gap",
+    "local_command_output_as_authority",
+    "unknown_needs_review",
+]
+ControlledExecutionExceptionPosture = Literal[
+    "blocking",
+    "warning_only",
+    "carried_forward",
+    "not_applicable",
+    "future_family_only",
+]
+ControlledExecutionRequiredNextSurface = Literal[
+    "v79c_summary_review",
+    "future_product_review",
+    "future_external_branch_review",
+    "future_family_review",
+    "none",
 ]
 
 _ELIGIBILITY_SOURCE_ROLES = {
@@ -526,6 +638,481 @@ class RepoControlledExecutionNonExecutionGuardrail(_CartographyBase):
         if self.controlled_execution_non_execution_guardrail_id != expected_id:
             raise ValueError(
                 "controlled_execution_non_execution_guardrail_id does not match canonical hash"
+            )
+        return self
+
+
+class RepoExecutionRunPlanRow(_CartographyBase):
+    run_plan_ref: str
+    candidate_ref: str
+    source_refs: list[str] = Field(min_length=1)
+    execution_review_request_refs: list[str] = Field(min_length=1)
+    non_execution_guardrail_refs: list[str] = Field(min_length=1)
+    command_intent_kind: RequestedExecutionReviewHorizon
+    target_boundary_refs: list[str] = Field(default_factory=list)
+    target_resolution_kind: ExecutionTargetResolutionKind
+    authority_refs: list[str] = Field(min_length=1)
+    tool_invocation_plan_refs: list[str] = Field(default_factory=list)
+    effect_monitoring_contract_refs: list[str] = Field(default_factory=list)
+    telemetry_requirement_refs: list[str] = Field(min_length=1)
+    rollback_requirement_refs: list[str] = Field(min_length=1)
+    operator_confirmation_requirement_refs: list[str] = Field(min_length=1)
+    exception_refs: list[str] = Field(default_factory=list)
+    run_plan_posture: ExecutionRunPlanPosture
+    plan_completeness_posture: ExecutionPlanCompletenessPosture
+    run_execution_status: ExecutionRunStatus
+    execution_posture: ControlledExecutionExecutionPosture
+    limitation_note: str
+
+    @model_validator(mode="after")
+    def _validate_execution_run_plan_row(self) -> RepoExecutionRunPlanRow:
+        _non_empty(self.run_plan_ref, field_name="run_plan_ref")
+        _non_empty(self.candidate_ref, field_name="candidate_ref")
+        for field_name in (
+            "source_refs",
+            "execution_review_request_refs",
+            "non_execution_guardrail_refs",
+            "target_boundary_refs",
+            "authority_refs",
+            "tool_invocation_plan_refs",
+            "effect_monitoring_contract_refs",
+            "telemetry_requirement_refs",
+            "rollback_requirement_refs",
+            "operator_confirmation_requirement_refs",
+            "exception_refs",
+        ):
+            object.__setattr__(
+                self,
+                field_name,
+                _sorted_unique(getattr(self, field_name), field_name=field_name),
+            )
+        for source_ref in self.source_refs:
+            _repo_ref(source_ref, field_name="source_refs")
+        for target_ref in self.target_boundary_refs:
+            if self.target_resolution_kind == "external_endpoint_ref":
+                _non_empty(target_ref, field_name="target_boundary_refs")
+                if any(marker in target_ref for marker in ("*", "[")):
+                    raise ValueError("target_boundary_refs may not contain glob target boundaries")
+            else:
+                _reject_glob_ref(target_ref, field_name="target_boundary_refs")
+                _repo_ref(target_ref, field_name="target_boundary_refs")
+        if self.run_execution_status != "no_run_performed_by_v79":
+            raise ValueError("V79-B run plans must not perform runs")
+        if self.execution_posture != "no_execution_performed_by_v79":
+            raise ValueError("V79-B run plans must not execute commands")
+        if self.plan_completeness_posture == "complete_for_review_only" and (
+            self.run_plan_posture != "run_plan_complete_for_review_only"
+        ):
+            raise ValueError("complete run plans must remain complete for review only")
+        if self.target_resolution_kind == "bounded_package_surface_with_child_refs":
+            if not self.target_boundary_refs:
+                raise ValueError("bounded package targets require concrete child refs")
+        elif self.target_resolution_kind != "no_target_boundary" and not self.target_boundary_refs:
+            raise ValueError("concrete run target boundaries require target refs")
+        _reject_v79_action_claim(self.limitation_note, field_name="limitation_note")
+        _require_terms(
+            self.limitation_note,
+            field_name="limitation_note",
+            terms=("review only", "no run", "no execution"),
+        )
+        return self
+
+
+class RepoExecutionRunPlan(_CartographyBase):
+    schema: Literal["repo_execution_run_plan@1"] = REPO_EXECUTION_RUN_PLAN_SCHEMA
+    execution_run_plan_id: str
+    controlled_execution_review_request_id: str
+    controlled_execution_source_index_id: str
+    controlled_execution_non_execution_guardrail_id: str
+    review_id: str
+    snapshot_id: str
+    source_set_id: str
+    run_plan_rows: list[RepoExecutionRunPlanRow] = Field(min_length=1)
+    run_plan_summary: str
+
+    @model_validator(mode="after")
+    def _validate_execution_run_plan(self) -> RepoExecutionRunPlan:
+        object.__setattr__(
+            self,
+            "run_plan_rows",
+            _sorted_unique_by_ref(
+                self.run_plan_rows,
+                attr="run_plan_ref",
+                field_name="run_plan_rows",
+            ),
+        )
+        _require_terms(
+            self.run_plan_summary,
+            field_name="run_plan_summary",
+            terms=("review only", "no run", "no execution", "no tool invocation"),
+        )
+        expected_id = _surface_id(
+            "repo_execution_run_plan",
+            self.schema,
+            self.model_dump(mode="json"),
+            "execution_run_plan_id",
+        )
+        if self.execution_run_plan_id != expected_id:
+            raise ValueError("execution_run_plan_id does not match canonical hash")
+        return self
+
+
+class RepoToolInvocationPlanRow(_CartographyBase):
+    tool_invocation_plan_ref: str
+    candidate_ref: str
+    source_refs: list[str] = Field(min_length=1)
+    execution_review_request_refs: list[str] = Field(min_length=1)
+    non_execution_guardrail_refs: list[str] = Field(min_length=1)
+    tool_id: str
+    tool_target_refs: list[str] = Field(min_length=1)
+    tool_target_horizon: str
+    permission_refs: list[str] = Field(min_length=1)
+    authority_refs: list[str] = Field(min_length=1)
+    effect_monitoring_contract_refs: list[str] = Field(default_factory=list)
+    exception_refs: list[str] = Field(default_factory=list)
+    tool_invocation_plan_posture: ToolInvocationPlanPosture
+    plan_completeness_posture: ExecutionPlanCompletenessPosture
+    tool_invocation_status: ToolInvocationStatus
+    tool_invocation_posture: ControlledExecutionToolInvocationPosture
+    limitation_note: str
+
+    @model_validator(mode="after")
+    def _validate_tool_invocation_plan_row(self) -> RepoToolInvocationPlanRow:
+        _non_empty(self.tool_invocation_plan_ref, field_name="tool_invocation_plan_ref")
+        _non_empty(self.candidate_ref, field_name="candidate_ref")
+        _non_empty(self.tool_id, field_name="tool_id")
+        _non_empty(self.tool_target_horizon, field_name="tool_target_horizon")
+        for field_name in (
+            "source_refs",
+            "execution_review_request_refs",
+            "non_execution_guardrail_refs",
+            "tool_target_refs",
+            "permission_refs",
+            "authority_refs",
+            "effect_monitoring_contract_refs",
+            "exception_refs",
+        ):
+            object.__setattr__(
+                self,
+                field_name,
+                _sorted_unique(getattr(self, field_name), field_name=field_name),
+            )
+        for source_ref in self.source_refs:
+            _repo_ref(source_ref, field_name="source_refs")
+        for target_ref in self.tool_target_refs:
+            _reject_glob_ref(target_ref, field_name="tool_target_refs")
+            _repo_ref(target_ref, field_name="tool_target_refs")
+        if "global" in self.tool_target_horizon.lower():
+            raise ValueError("tool-invocation plans may not claim global tool permission")
+        if self.tool_invocation_status != "no_tool_invocation_performed_by_v79":
+            raise ValueError("V79-B tool plans must not invoke tools")
+        if self.tool_invocation_posture != "no_tool_invocation_performed_by_v79":
+            raise ValueError("V79-B tool plans must not invoke tools")
+        if self.plan_completeness_posture == "complete_for_review_only" and (
+            self.tool_invocation_plan_posture
+            != "tool_invocation_plan_complete_for_review_only"
+        ):
+            raise ValueError("complete tool plans must remain complete for review only")
+        _reject_v79_action_claim(self.limitation_note, field_name="limitation_note")
+        _require_terms(
+            self.limitation_note,
+            field_name="limitation_note",
+            terms=("review only", "no tool invocation", "no execution"),
+        )
+        return self
+
+
+class RepoToolInvocationPlan(_CartographyBase):
+    schema: Literal["repo_tool_invocation_plan@1"] = REPO_TOOL_INVOCATION_PLAN_SCHEMA
+    tool_invocation_plan_id: str
+    controlled_execution_review_request_id: str
+    controlled_execution_source_index_id: str
+    controlled_execution_non_execution_guardrail_id: str
+    review_id: str
+    snapshot_id: str
+    source_set_id: str
+    tool_invocation_plan_rows: list[RepoToolInvocationPlanRow] = Field(min_length=1)
+    tool_invocation_plan_summary: str
+
+    @model_validator(mode="after")
+    def _validate_tool_invocation_plan(self) -> RepoToolInvocationPlan:
+        object.__setattr__(
+            self,
+            "tool_invocation_plan_rows",
+            _sorted_unique_by_ref(
+                self.tool_invocation_plan_rows,
+                attr="tool_invocation_plan_ref",
+                field_name="tool_invocation_plan_rows",
+            ),
+        )
+        _require_terms(
+            self.tool_invocation_plan_summary,
+            field_name="tool_invocation_plan_summary",
+            terms=("review only", "no tool invocation", "no execution"),
+        )
+        expected_id = _surface_id(
+            "repo_tool_invocation_plan",
+            self.schema,
+            self.model_dump(mode="json"),
+            "tool_invocation_plan_id",
+        )
+        if self.tool_invocation_plan_id != expected_id:
+            raise ValueError("tool_invocation_plan_id does not match canonical hash")
+        return self
+
+
+class RepoOperatorConfirmationRequirementRow(_CartographyBase):
+    confirmation_requirement_ref: str
+    candidate_ref: str
+    required_confirmation_kind: OperatorConfirmationKind
+    source_refs: list[str] = Field(min_length=1)
+    authority_refs: list[str] = Field(min_length=1)
+    confirmation_posture: OperatorConfirmationPosture
+    non_authorization_guardrail: str
+    limitation_note: str
+
+    @model_validator(mode="after")
+    def _validate_operator_confirmation_requirement(
+        self,
+    ) -> RepoOperatorConfirmationRequirementRow:
+        _non_empty(self.confirmation_requirement_ref, field_name="confirmation_requirement_ref")
+        _non_empty(self.candidate_ref, field_name="candidate_ref")
+        object.__setattr__(
+            self,
+            "source_refs",
+            _sorted_unique(self.source_refs, field_name="source_refs"),
+        )
+        object.__setattr__(
+            self,
+            "authority_refs",
+            _sorted_unique(self.authority_refs, field_name="authority_refs"),
+        )
+        for source_ref in self.source_refs:
+            _repo_ref(source_ref, field_name="source_refs")
+        _require_terms(
+            self.non_authorization_guardrail,
+            field_name="non_authorization_guardrail",
+            terms=("not authorization", "no execution", "no tool invocation"),
+        )
+        _reject_v79_action_claim(self.limitation_note, field_name="limitation_note")
+        _require_terms(
+            self.limitation_note,
+            field_name="limitation_note",
+            terms=("requirement", "not authorization"),
+        )
+        return self
+
+
+class RepoExecutionEffectMonitoringContractRow(_CartographyBase):
+    effect_monitoring_contract_ref: str
+    candidate_ref: str
+    source_refs: list[str] = Field(min_length=1)
+    run_plan_refs: list[str] = Field(min_length=1)
+    tool_invocation_plan_refs: list[str] = Field(min_length=1)
+    non_execution_guardrail_refs: list[str] = Field(min_length=1)
+    expected_effect_surface_refs: list[str] = Field(min_length=1)
+    forbidden_effect_surface_refs: list[str] = Field(min_length=1)
+    telemetry_requirement_refs: list[str] = Field(min_length=1)
+    rollback_requirement_refs: list[str] = Field(min_length=1)
+    operator_confirmation_requirement_refs: list[str] = Field(min_length=1)
+    operator_confirmation_requirement_rows: list[RepoOperatorConfirmationRequirementRow] = Field(
+        min_length=1
+    )
+    monitoring_posture: ExecutionMonitoringPosture
+    effect_observation_posture: EffectObservationPosture
+    limitation_note: str
+
+    @model_validator(mode="after")
+    def _validate_effect_monitoring_contract_row(
+        self,
+    ) -> RepoExecutionEffectMonitoringContractRow:
+        _non_empty(
+            self.effect_monitoring_contract_ref,
+            field_name="effect_monitoring_contract_ref",
+        )
+        _non_empty(self.candidate_ref, field_name="candidate_ref")
+        for field_name in (
+            "source_refs",
+            "run_plan_refs",
+            "tool_invocation_plan_refs",
+            "non_execution_guardrail_refs",
+            "expected_effect_surface_refs",
+            "forbidden_effect_surface_refs",
+            "telemetry_requirement_refs",
+            "rollback_requirement_refs",
+            "operator_confirmation_requirement_refs",
+        ):
+            object.__setattr__(
+                self,
+                field_name,
+                _sorted_unique(getattr(self, field_name), field_name=field_name),
+            )
+        object.__setattr__(
+            self,
+            "operator_confirmation_requirement_rows",
+            _sorted_unique_by_ref(
+                self.operator_confirmation_requirement_rows,
+                attr="confirmation_requirement_ref",
+                field_name="operator_confirmation_requirement_rows",
+            ),
+        )
+        for source_ref in self.source_refs:
+            _repo_ref(source_ref, field_name="source_refs")
+        if self.effect_observation_posture == "effect_observed_from_prior_authorized_source":
+            if not any("prior-authorized" in source_ref for source_ref in self.source_refs):
+                raise ValueError("observed effects require prior authorized source evidence")
+        elif self.effect_observation_posture != "no_effect_observed_by_v79":
+            raise ValueError("V79-B monitoring contracts must not claim observed effects")
+        row_refs = set()
+        for row in self.operator_confirmation_requirement_rows:
+            if row.candidate_ref != self.candidate_ref:
+                raise ValueError("monitoring confirmation rows must match candidate")
+            row_refs.add(row.confirmation_requirement_ref)
+        if set(self.operator_confirmation_requirement_refs) != row_refs:
+            raise ValueError("operator confirmation requirement refs must match embedded rows")
+        _reject_v79_action_claim(self.limitation_note, field_name="limitation_note")
+        _require_terms(
+            self.limitation_note,
+            field_name="limitation_note",
+            terms=("review only", "no observed effect", "no execution"),
+        )
+        return self
+
+
+class RepoExecutionEffectMonitoringContract(_CartographyBase):
+    schema: Literal["repo_execution_effect_monitoring_contract@1"] = (
+        REPO_EXECUTION_EFFECT_MONITORING_CONTRACT_SCHEMA
+    )
+    execution_effect_monitoring_contract_id: str
+    controlled_execution_review_request_id: str
+    controlled_execution_source_index_id: str
+    controlled_execution_non_execution_guardrail_id: str
+    review_id: str
+    snapshot_id: str
+    source_set_id: str
+    effect_monitoring_contract_rows: list[RepoExecutionEffectMonitoringContractRow] = Field(
+        min_length=1
+    )
+    effect_monitoring_summary: str
+
+    @model_validator(mode="after")
+    def _validate_effect_monitoring_contract(self) -> RepoExecutionEffectMonitoringContract:
+        object.__setattr__(
+            self,
+            "effect_monitoring_contract_rows",
+            _sorted_unique_by_ref(
+                self.effect_monitoring_contract_rows,
+                attr="effect_monitoring_contract_ref",
+                field_name="effect_monitoring_contract_rows",
+            ),
+        )
+        _require_terms(
+            self.effect_monitoring_summary,
+            field_name="effect_monitoring_summary",
+            terms=("review only", "no observed effect", "no execution", "no rollback"),
+        )
+        expected_id = _surface_id(
+            "repo_execution_effect_monitoring_contract",
+            self.schema,
+            self.model_dump(mode="json"),
+            "execution_effect_monitoring_contract_id",
+        )
+        if self.execution_effect_monitoring_contract_id != expected_id:
+            raise ValueError(
+                "execution_effect_monitoring_contract_id does not match canonical hash"
+            )
+        return self
+
+
+class RepoControlledExecutionExceptionRow(_CartographyBase):
+    exception_ref: str
+    candidate_ref: str
+    source_refs: list[str] = Field(min_length=1)
+    execution_review_request_refs: list[str] = Field(default_factory=list)
+    run_plan_refs: list[str] = Field(default_factory=list)
+    tool_invocation_plan_refs: list[str] = Field(default_factory=list)
+    effect_monitoring_contract_refs: list[str] = Field(default_factory=list)
+    exception_kind: ControlledExecutionExceptionKind
+    exception_posture: ControlledExecutionExceptionPosture
+    blocking_surface_refs: list[str] = Field(default_factory=list)
+    required_next_surface: ControlledExecutionRequiredNextSurface
+    limitation_note: str
+
+    @model_validator(mode="after")
+    def _validate_controlled_execution_exception_row(
+        self,
+    ) -> RepoControlledExecutionExceptionRow:
+        _non_empty(self.exception_ref, field_name="exception_ref")
+        _non_empty(self.candidate_ref, field_name="candidate_ref")
+        for field_name in (
+            "source_refs",
+            "execution_review_request_refs",
+            "run_plan_refs",
+            "tool_invocation_plan_refs",
+            "effect_monitoring_contract_refs",
+            "blocking_surface_refs",
+        ):
+            object.__setattr__(
+                self,
+                field_name,
+                _sorted_unique(getattr(self, field_name), field_name=field_name),
+            )
+        for source_ref in self.source_refs:
+            _repo_ref(source_ref, field_name="source_refs")
+        if self.exception_posture == "blocking" and not self.blocking_surface_refs:
+            raise ValueError("blocking controlled execution exceptions require blockers")
+        if self.exception_kind == "local_command_output_as_authority":
+            raise ValueError("local command output cannot be authority evidence")
+        if self.exception_kind in {"product_authority_gap", "external_branch_authority_gap"}:
+            if self.exception_posture not in {"blocking", "future_family_only"}:
+                raise ValueError("product/external exceptions must remain blocked or deferred")
+        if "resolved" in self.limitation_note.lower():
+            raise ValueError("controlled execution exceptions cannot be resolved by prose")
+        _reject_v79_action_claim(self.limitation_note, field_name="limitation_note")
+        return self
+
+
+class RepoControlledExecutionExceptionRegister(_CartographyBase):
+    schema: Literal["repo_controlled_execution_exception_register@1"] = (
+        REPO_CONTROLLED_EXECUTION_EXCEPTION_REGISTER_SCHEMA
+    )
+    controlled_execution_exception_register_id: str
+    controlled_execution_review_request_id: str
+    controlled_execution_source_index_id: str
+    controlled_execution_non_execution_guardrail_id: str
+    review_id: str
+    snapshot_id: str
+    source_set_id: str
+    exception_rows: list[RepoControlledExecutionExceptionRow] = Field(min_length=1)
+    exception_summary: str
+
+    @model_validator(mode="after")
+    def _validate_controlled_execution_exception_register(
+        self,
+    ) -> RepoControlledExecutionExceptionRegister:
+        object.__setattr__(
+            self,
+            "exception_rows",
+            _sorted_unique_by_ref(
+                self.exception_rows,
+                attr="exception_ref",
+                field_name="exception_rows",
+            ),
+        )
+        _require_terms(
+            self.exception_summary,
+            field_name="exception_summary",
+            terms=("review only", "blocking", "no execution"),
+        )
+        expected_id = _surface_id(
+            "repo_controlled_execution_exception_register",
+            self.schema,
+            self.model_dump(mode="json"),
+            "controlled_execution_exception_register_id",
+        )
+        if self.controlled_execution_exception_register_id != expected_id:
+            raise ValueError(
+                "controlled_execution_exception_register_id does not match canonical hash"
             )
         return self
 
@@ -987,3 +1574,658 @@ def derive_v79a_controlled_execution_review_bundle(
         controlled_execution_non_execution_guardrail=guardrail,
     )
     return source_index, request, guardrail
+
+
+def _v79b_base_surfaces(
+    *,
+    repo_root: Path | None = None,
+    controlled_execution_source_index: RepoControlledExecutionSourceIndex | None = None,
+    controlled_execution_review_request: RepoControlledExecutionReviewRequest | None = None,
+    controlled_execution_non_execution_guardrail: (
+        RepoControlledExecutionNonExecutionGuardrail | None
+    ) = None,
+) -> tuple[
+    RepoControlledExecutionSourceIndex,
+    RepoControlledExecutionReviewRequest,
+    RepoControlledExecutionNonExecutionGuardrail,
+]:
+    if (
+        controlled_execution_source_index is None
+        or controlled_execution_review_request is None
+        or controlled_execution_non_execution_guardrail is None
+    ):
+        (
+            source_index,
+            request,
+            guardrail,
+        ) = derive_v79a_controlled_execution_review_bundle(repo_root=repo_root)
+        return (
+            controlled_execution_source_index or source_index,
+            controlled_execution_review_request or request,
+            controlled_execution_non_execution_guardrail or guardrail,
+        )
+    return (
+        controlled_execution_source_index,
+        controlled_execution_review_request,
+        controlled_execution_non_execution_guardrail,
+    )
+
+
+def _v79b_eligible_request_row(
+    request: RepoControlledExecutionReviewRequest,
+) -> RepoControlledExecutionReviewRequestRow:
+    for row in request.request_rows:
+        if row.execution_review_posture == "eligible_for_controlled_execution_review":
+            return row
+    raise ValueError("V79-B derivation requires an eligible V79-A request row")
+
+
+def _v79b_reference_refs(
+    request: RepoControlledExecutionReviewRequest,
+) -> dict[str, object]:
+    row = _v79b_eligible_request_row(request)
+    return {
+        "candidate_ref": row.candidate_ref,
+        "source_refs": row.source_refs,
+        "execution_review_request_refs": [row.execution_review_request_ref],
+        "non_execution_guardrail_refs": row.guardrail_refs,
+        "authority_refs": row.required_authority_refs,
+        "target_boundary_refs": row.target_boundary_refs,
+        "telemetry_requirement_refs": [
+            "telemetry-requirement:v79b:self-evidencing:required-later"
+        ],
+        "rollback_requirement_refs": [
+            "rollback-requirement:v79b:self-evidencing:required-later"
+        ],
+        "operator_confirmation_requirement_refs": [
+            "operator-confirmation:v79b:self-evidencing:required-later"
+        ],
+        "run_plan_refs": ["run-plan:v79b:self-evidencing:repo-script-review"],
+        "tool_invocation_plan_refs": [
+            "tool-plan:v79b:self-evidencing:repo-description-check-review"
+        ],
+        "effect_monitoring_contract_refs": [
+            "monitoring-contract:v79b:self-evidencing:review-only"
+        ],
+    }
+
+
+def derive_v79b_repo_execution_run_plan(
+    *,
+    repo_root: Path | None = None,
+    controlled_execution_source_index: RepoControlledExecutionSourceIndex | None = None,
+    controlled_execution_review_request: RepoControlledExecutionReviewRequest | None = None,
+    controlled_execution_non_execution_guardrail: (
+        RepoControlledExecutionNonExecutionGuardrail | None
+    ) = None,
+) -> RepoExecutionRunPlan:
+    _ = repo_root
+    source_index, request, guardrail = _v79b_base_surfaces(
+        repo_root=repo_root,
+        controlled_execution_source_index=controlled_execution_source_index,
+        controlled_execution_review_request=controlled_execution_review_request,
+        controlled_execution_non_execution_guardrail=controlled_execution_non_execution_guardrail,
+    )
+    refs = _v79b_reference_refs(request)
+    payload = {
+        "schema": REPO_EXECUTION_RUN_PLAN_SCHEMA,
+        "execution_run_plan_id": "",
+        "controlled_execution_review_request_id": request.controlled_execution_review_request_id,
+        "controlled_execution_source_index_id": source_index.controlled_execution_source_index_id,
+        "controlled_execution_non_execution_guardrail_id": (
+            guardrail.controlled_execution_non_execution_guardrail_id
+        ),
+        "review_id": request.review_id,
+        "snapshot_id": "vNext+221-controlled-execution-review-closeout",
+        "source_set_id": "source-set:v79b:released-v79a-run-plan-pressure",
+        "run_plan_rows": [
+            {
+                "run_plan_ref": refs["run_plan_refs"][0],
+                "candidate_ref": refs["candidate_ref"],
+                "source_refs": refs["source_refs"],
+                "execution_review_request_refs": refs["execution_review_request_refs"],
+                "non_execution_guardrail_refs": refs["non_execution_guardrail_refs"],
+                "command_intent_kind": "bounded_repo_script_run_plan_review",
+                "target_boundary_refs": refs["target_boundary_refs"],
+                "target_resolution_kind": "concrete_file_ref",
+                "authority_refs": refs["authority_refs"],
+                "tool_invocation_plan_refs": refs["tool_invocation_plan_refs"],
+                "effect_monitoring_contract_refs": refs["effect_monitoring_contract_refs"],
+                "telemetry_requirement_refs": refs["telemetry_requirement_refs"],
+                "rollback_requirement_refs": refs["rollback_requirement_refs"],
+                "operator_confirmation_requirement_refs": (
+                    refs["operator_confirmation_requirement_refs"]
+                ),
+                "exception_refs": [],
+                "run_plan_posture": "run_plan_complete_for_review_only",
+                "plan_completeness_posture": "complete_for_review_only",
+                "run_execution_status": "no_run_performed_by_v79",
+                "execution_posture": "no_execution_performed_by_v79",
+                "limitation_note": (
+                    "Run plan is complete for review only with no run, no execution, "
+                    "and no tool invocation."
+                ),
+            }
+        ],
+        "run_plan_summary": (
+            "Execution run plans are review only with no run, no execution, "
+            "and no tool invocation."
+        ),
+    }
+    payload["execution_run_plan_id"] = _surface_id(
+        "repo_execution_run_plan",
+        REPO_EXECUTION_RUN_PLAN_SCHEMA,
+        payload,
+        "execution_run_plan_id",
+    )
+    return RepoExecutionRunPlan.model_validate(payload)
+
+
+def derive_v79b_repo_tool_invocation_plan(
+    *,
+    repo_root: Path | None = None,
+    controlled_execution_source_index: RepoControlledExecutionSourceIndex | None = None,
+    controlled_execution_review_request: RepoControlledExecutionReviewRequest | None = None,
+    controlled_execution_non_execution_guardrail: (
+        RepoControlledExecutionNonExecutionGuardrail | None
+    ) = None,
+) -> RepoToolInvocationPlan:
+    _ = repo_root
+    source_index, request, guardrail = _v79b_base_surfaces(
+        repo_root=repo_root,
+        controlled_execution_source_index=controlled_execution_source_index,
+        controlled_execution_review_request=controlled_execution_review_request,
+        controlled_execution_non_execution_guardrail=controlled_execution_non_execution_guardrail,
+    )
+    refs = _v79b_reference_refs(request)
+    payload = {
+        "schema": REPO_TOOL_INVOCATION_PLAN_SCHEMA,
+        "tool_invocation_plan_id": "",
+        "controlled_execution_review_request_id": request.controlled_execution_review_request_id,
+        "controlled_execution_source_index_id": source_index.controlled_execution_source_index_id,
+        "controlled_execution_non_execution_guardrail_id": (
+            guardrail.controlled_execution_non_execution_guardrail_id
+        ),
+        "review_id": request.review_id,
+        "snapshot_id": "vNext+221-controlled-execution-review-closeout",
+        "source_set_id": "source-set:v79b:released-v79a-tool-plan-pressure",
+        "tool_invocation_plan_rows": [
+            {
+                "tool_invocation_plan_ref": refs["tool_invocation_plan_refs"][0],
+                "candidate_ref": refs["candidate_ref"],
+                "source_refs": refs["source_refs"],
+                "execution_review_request_refs": refs["execution_review_request_refs"],
+                "non_execution_guardrail_refs": refs["non_execution_guardrail_refs"],
+                "tool_id": "make",
+                "tool_target_refs": [
+                    "packages/adeu_repo_description/tests/"
+                    "test_controlled_execution_review_v79b.py"
+                ],
+                "tool_target_horizon": "repo-description controlled-execution review tests",
+                "permission_refs": ["permission:v78b:self-evidencing:tool-use-review"],
+                "authority_refs": refs["authority_refs"],
+                "effect_monitoring_contract_refs": refs["effect_monitoring_contract_refs"],
+                "exception_refs": [],
+                "tool_invocation_plan_posture": (
+                    "tool_invocation_plan_complete_for_review_only"
+                ),
+                "plan_completeness_posture": "complete_for_review_only",
+                "tool_invocation_status": "no_tool_invocation_performed_by_v79",
+                "tool_invocation_posture": "no_tool_invocation_performed_by_v79",
+                "limitation_note": (
+                    "Tool invocation plan is complete for review only with no tool "
+                    "invocation and no execution."
+                ),
+            }
+        ],
+        "tool_invocation_plan_summary": (
+            "Tool invocation plans are review only with no tool invocation and no execution."
+        ),
+    }
+    payload["tool_invocation_plan_id"] = _surface_id(
+        "repo_tool_invocation_plan",
+        REPO_TOOL_INVOCATION_PLAN_SCHEMA,
+        payload,
+        "tool_invocation_plan_id",
+    )
+    return RepoToolInvocationPlan.model_validate(payload)
+
+
+def derive_v79b_repo_execution_effect_monitoring_contract(
+    *,
+    repo_root: Path | None = None,
+    controlled_execution_source_index: RepoControlledExecutionSourceIndex | None = None,
+    controlled_execution_review_request: RepoControlledExecutionReviewRequest | None = None,
+    controlled_execution_non_execution_guardrail: (
+        RepoControlledExecutionNonExecutionGuardrail | None
+    ) = None,
+) -> RepoExecutionEffectMonitoringContract:
+    _ = repo_root
+    source_index, request, guardrail = _v79b_base_surfaces(
+        repo_root=repo_root,
+        controlled_execution_source_index=controlled_execution_source_index,
+        controlled_execution_review_request=controlled_execution_review_request,
+        controlled_execution_non_execution_guardrail=controlled_execution_non_execution_guardrail,
+    )
+    refs = _v79b_reference_refs(request)
+    confirmation_ref = refs["operator_confirmation_requirement_refs"][0]
+    payload = {
+        "schema": REPO_EXECUTION_EFFECT_MONITORING_CONTRACT_SCHEMA,
+        "execution_effect_monitoring_contract_id": "",
+        "controlled_execution_review_request_id": request.controlled_execution_review_request_id,
+        "controlled_execution_source_index_id": source_index.controlled_execution_source_index_id,
+        "controlled_execution_non_execution_guardrail_id": (
+            guardrail.controlled_execution_non_execution_guardrail_id
+        ),
+        "review_id": request.review_id,
+        "snapshot_id": "vNext+221-controlled-execution-review-closeout",
+        "source_set_id": "source-set:v79b:released-v79a-monitoring-pressure",
+        "effect_monitoring_contract_rows": [
+            {
+                "effect_monitoring_contract_ref": refs["effect_monitoring_contract_refs"][0],
+                "candidate_ref": refs["candidate_ref"],
+                "source_refs": refs["source_refs"],
+                "run_plan_refs": refs["run_plan_refs"],
+                "tool_invocation_plan_refs": refs["tool_invocation_plan_refs"],
+                "non_execution_guardrail_refs": refs["non_execution_guardrail_refs"],
+                "expected_effect_surface_refs": [
+                    "effect-surface:v79b:self-evidencing:planned-test-observation"
+                ],
+                "forbidden_effect_surface_refs": [
+                    "effect-surface:v79b:self-evidencing:accepted-effect",
+                    "effect-surface:v79b:self-evidencing:target-mutation",
+                ],
+                "telemetry_requirement_refs": refs["telemetry_requirement_refs"],
+                "rollback_requirement_refs": refs["rollback_requirement_refs"],
+                "operator_confirmation_requirement_refs": [confirmation_ref],
+                "operator_confirmation_requirement_rows": [
+                    {
+                        "confirmation_requirement_ref": confirmation_ref,
+                        "candidate_ref": refs["candidate_ref"],
+                        "required_confirmation_kind": "maintainer_confirmation_required",
+                        "source_refs": refs["source_refs"],
+                        "authority_refs": refs["authority_refs"],
+                        "confirmation_posture": "confirmation_required_for_later_review",
+                        "non_authorization_guardrail": (
+                            "Operator confirmation requirement is not authorization; "
+                            "no execution and no tool invocation."
+                        ),
+                        "limitation_note": (
+                            "Operator confirmation requirement remains a requirement, "
+                            "not authorization."
+                        ),
+                    }
+                ],
+                "monitoring_posture": "monitoring_contract_complete_for_review_only",
+                "effect_observation_posture": "no_effect_observed_by_v79",
+                "limitation_note": (
+                    "Effect monitoring contract is review only with no observed effect, "
+                    "no execution, and no rollback verification."
+                ),
+            }
+        ],
+        "effect_monitoring_summary": (
+            "Effect monitoring contracts are review only with no observed effect, "
+            "no execution, and no rollback verification."
+        ),
+    }
+    payload["execution_effect_monitoring_contract_id"] = _surface_id(
+        "repo_execution_effect_monitoring_contract",
+        REPO_EXECUTION_EFFECT_MONITORING_CONTRACT_SCHEMA,
+        payload,
+        "execution_effect_monitoring_contract_id",
+    )
+    return RepoExecutionEffectMonitoringContract.model_validate(payload)
+
+
+def derive_v79b_repo_controlled_execution_exception_register(
+    *,
+    repo_root: Path | None = None,
+    controlled_execution_source_index: RepoControlledExecutionSourceIndex | None = None,
+    controlled_execution_review_request: RepoControlledExecutionReviewRequest | None = None,
+    controlled_execution_non_execution_guardrail: (
+        RepoControlledExecutionNonExecutionGuardrail | None
+    ) = None,
+) -> RepoControlledExecutionExceptionRegister:
+    _ = repo_root
+    source_index, request, guardrail = _v79b_base_surfaces(
+        repo_root=repo_root,
+        controlled_execution_source_index=controlled_execution_source_index,
+        controlled_execution_review_request=controlled_execution_review_request,
+        controlled_execution_non_execution_guardrail=controlled_execution_non_execution_guardrail,
+    )
+    refs = _v79b_reference_refs(request)
+    payload = {
+        "schema": REPO_CONTROLLED_EXECUTION_EXCEPTION_REGISTER_SCHEMA,
+        "controlled_execution_exception_register_id": "",
+        "controlled_execution_review_request_id": request.controlled_execution_review_request_id,
+        "controlled_execution_source_index_id": source_index.controlled_execution_source_index_id,
+        "controlled_execution_non_execution_guardrail_id": (
+            guardrail.controlled_execution_non_execution_guardrail_id
+        ),
+        "review_id": request.review_id,
+        "snapshot_id": "vNext+221-controlled-execution-review-closeout",
+        "source_set_id": "source-set:v79b:released-v79a-exception-pressure",
+        "exception_rows": [
+            {
+                "exception_ref": "exception:v79b:self-evidencing:external-branch-blocked",
+                "candidate_ref": refs["candidate_ref"],
+                "source_refs": refs["source_refs"],
+                "execution_review_request_refs": refs["execution_review_request_refs"],
+                "run_plan_refs": refs["run_plan_refs"],
+                "tool_invocation_plan_refs": refs["tool_invocation_plan_refs"],
+                "effect_monitoring_contract_refs": refs["effect_monitoring_contract_refs"],
+                "exception_kind": "unknown_needs_review",
+                "exception_posture": "warning_only",
+                "blocking_surface_refs": [],
+                "required_next_surface": "future_external_branch_review",
+                "limitation_note": (
+                    "External branch pressure remains visible as unknown later-review "
+                    "context; it is unsettled and no execution occurs."
+                ),
+            },
+            {
+                "exception_ref": "exception:v79b:product-wedge:product-authority-blocked",
+                "candidate_ref": "candidate:internal:typed_adjudication_product_wedge",
+                "source_refs": refs["source_refs"],
+                "execution_review_request_refs": [
+                    "execution-review:v79a:product-wedge:blocked"
+                ],
+                "run_plan_refs": [],
+                "tool_invocation_plan_refs": [],
+                "effect_monitoring_contract_refs": [],
+                "exception_kind": "product_authority_gap",
+                "exception_posture": "blocking",
+                "blocking_surface_refs": [
+                    "authority:v78a:product-wedge:product-review"
+                ],
+                "required_next_surface": "future_product_review",
+                "limitation_note": (
+                    "Product pressure remains blocked for later product review "
+                    "with no execution."
+                ),
+            },
+        ],
+        "exception_summary": (
+            "Controlled execution exceptions are review only: blocking and warning "
+            "states remain visible with no execution."
+        ),
+    }
+    payload["exception_rows"] = sorted(
+        payload["exception_rows"],
+        key=lambda row: row["exception_ref"],
+    )
+    payload["controlled_execution_exception_register_id"] = _surface_id(
+        "repo_controlled_execution_exception_register",
+        REPO_CONTROLLED_EXECUTION_EXCEPTION_REGISTER_SCHEMA,
+        payload,
+        "controlled_execution_exception_register_id",
+    )
+    return RepoControlledExecutionExceptionRegister.model_validate(payload)
+
+
+def validate_v79b_controlled_execution_review_bundle(
+    *,
+    controlled_execution_source_index: RepoControlledExecutionSourceIndex,
+    controlled_execution_review_request: RepoControlledExecutionReviewRequest,
+    controlled_execution_non_execution_guardrail: RepoControlledExecutionNonExecutionGuardrail,
+    execution_run_plan: RepoExecutionRunPlan,
+    tool_invocation_plan: RepoToolInvocationPlan,
+    execution_effect_monitoring_contract: RepoExecutionEffectMonitoringContract,
+    controlled_execution_exception_register: RepoControlledExecutionExceptionRegister,
+) -> None:
+    validate_v79a_controlled_execution_review_bundle(
+        controlled_execution_source_index=controlled_execution_source_index,
+        controlled_execution_review_request=controlled_execution_review_request,
+        controlled_execution_non_execution_guardrail=controlled_execution_non_execution_guardrail,
+    )
+    expected_surface_refs = (
+        controlled_execution_review_request.controlled_execution_review_request_id,
+        controlled_execution_source_index.controlled_execution_source_index_id,
+        controlled_execution_non_execution_guardrail.controlled_execution_non_execution_guardrail_id,
+    )
+    for surface in (
+        execution_run_plan,
+        tool_invocation_plan,
+        execution_effect_monitoring_contract,
+        controlled_execution_exception_register,
+    ):
+        if (
+            surface.controlled_execution_review_request_id,
+            surface.controlled_execution_source_index_id,
+            surface.controlled_execution_non_execution_guardrail_id,
+        ) != expected_surface_refs:
+            raise ValueError("V79-B surfaces must reference released V79-A surfaces")
+
+    known_sources = {row.source_ref for row in controlled_execution_source_index.source_rows}
+    known_requests = {
+        row.execution_review_request_ref: row
+        for row in controlled_execution_review_request.request_rows
+    }
+    known_guardrails = {
+        row.guardrail_ref: row
+        for row in controlled_execution_non_execution_guardrail.guardrail_rows
+    }
+    run_rows = {row.run_plan_ref: row for row in execution_run_plan.run_plan_rows}
+    tool_rows = {
+        row.tool_invocation_plan_ref: row
+        for row in tool_invocation_plan.tool_invocation_plan_rows
+    }
+    monitoring_rows = {
+        row.effect_monitoring_contract_ref: row
+        for row in execution_effect_monitoring_contract.effect_monitoring_contract_rows
+    }
+    exception_rows = {
+        row.exception_ref: row
+        for row in controlled_execution_exception_register.exception_rows
+    }
+
+    def _require_known_refs(refs: list[str], known: set[str], message: str) -> None:
+        if any(ref not in known for ref in refs):
+            raise ValueError(message)
+
+    def _require_matching_candidate(
+        refs: list[str],
+        rows_by_ref: dict[str, _CartographyBase],
+        *,
+        candidate_ref: str,
+        message: str,
+    ) -> None:
+        for ref in refs:
+            if rows_by_ref[ref].candidate_ref != candidate_ref:
+                raise ValueError(message)
+
+    for row in execution_run_plan.run_plan_rows:
+        _require_known_refs(row.source_refs, known_sources, "run plan source refs must be known")
+        _require_known_refs(
+            row.execution_review_request_refs,
+            set(known_requests),
+            "run plan request refs must be known",
+        )
+        _require_known_refs(
+            row.non_execution_guardrail_refs,
+            set(known_guardrails),
+            "run plan guardrail refs must be known",
+        )
+        _require_known_refs(
+            row.tool_invocation_plan_refs,
+            set(tool_rows),
+            "run plan tool-plan refs must be known",
+        )
+        _require_known_refs(
+            row.effect_monitoring_contract_refs,
+            set(monitoring_rows),
+            "run plan monitoring refs must be known",
+        )
+        _require_known_refs(
+            row.exception_refs,
+            set(exception_rows),
+            "run plan exception refs must be known",
+        )
+        for request_ref in row.execution_review_request_refs:
+            if known_requests[request_ref].candidate_ref != row.candidate_ref:
+                raise ValueError("run plan request refs must match candidate")
+        _require_matching_candidate(
+            row.tool_invocation_plan_refs,
+            tool_rows,
+            candidate_ref=row.candidate_ref,
+            message="run plan tool-plan refs must match candidate",
+        )
+        _require_matching_candidate(
+            row.effect_monitoring_contract_refs,
+            monitoring_rows,
+            candidate_ref=row.candidate_ref,
+            message="run plan monitoring refs must match candidate",
+        )
+
+    for row in tool_invocation_plan.tool_invocation_plan_rows:
+        _require_known_refs(row.source_refs, known_sources, "tool plan source refs must be known")
+        _require_known_refs(
+            row.execution_review_request_refs,
+            set(known_requests),
+            "tool plan request refs must be known",
+        )
+        _require_known_refs(
+            row.non_execution_guardrail_refs,
+            set(known_guardrails),
+            "tool plan guardrail refs must be known",
+        )
+        _require_known_refs(
+            row.effect_monitoring_contract_refs,
+            set(monitoring_rows),
+            "tool plan monitoring refs must be known",
+        )
+        _require_known_refs(
+            row.exception_refs,
+            set(exception_rows),
+            "tool plan exception refs must be known",
+        )
+        for request_ref in row.execution_review_request_refs:
+            if known_requests[request_ref].candidate_ref != row.candidate_ref:
+                raise ValueError("tool plan request refs must match candidate")
+        _require_matching_candidate(
+            row.effect_monitoring_contract_refs,
+            monitoring_rows,
+            candidate_ref=row.candidate_ref,
+            message="tool plan monitoring refs must match candidate",
+        )
+
+    for row in execution_effect_monitoring_contract.effect_monitoring_contract_rows:
+        _require_known_refs(
+            row.source_refs,
+            known_sources,
+            "monitoring contract source refs must be known",
+        )
+        _require_known_refs(row.run_plan_refs, set(run_rows), "monitoring run refs must be known")
+        _require_known_refs(
+            row.tool_invocation_plan_refs,
+            set(tool_rows),
+            "monitoring tool-plan refs must be known",
+        )
+        _require_known_refs(
+            row.non_execution_guardrail_refs,
+            set(known_guardrails),
+            "monitoring guardrail refs must be known",
+        )
+        for run_ref in row.run_plan_refs:
+            if run_rows[run_ref].candidate_ref != row.candidate_ref:
+                raise ValueError("monitoring run refs must match candidate")
+        for tool_ref in row.tool_invocation_plan_refs:
+            if tool_rows[tool_ref].candidate_ref != row.candidate_ref:
+                raise ValueError("monitoring tool-plan refs must match candidate")
+
+    for row in controlled_execution_exception_register.exception_rows:
+        _require_known_refs(row.source_refs, known_sources, "exception source refs must be known")
+        _require_known_refs(
+            row.execution_review_request_refs,
+            set(known_requests),
+            "exception request refs must be known",
+        )
+        _require_known_refs(row.run_plan_refs, set(run_rows), "exception run refs must be known")
+        _require_known_refs(
+            row.tool_invocation_plan_refs,
+            set(tool_rows),
+            "exception tool-plan refs must be known",
+        )
+        _require_known_refs(
+            row.effect_monitoring_contract_refs,
+            set(monitoring_rows),
+            "exception monitoring refs must be known",
+        )
+        _require_matching_candidate(
+            row.execution_review_request_refs,
+            known_requests,
+            candidate_ref=row.candidate_ref,
+            message="exception request refs must match candidate",
+        )
+        _require_matching_candidate(
+            row.run_plan_refs,
+            run_rows,
+            candidate_ref=row.candidate_ref,
+            message="exception run refs must match candidate",
+        )
+        _require_matching_candidate(
+            row.tool_invocation_plan_refs,
+            tool_rows,
+            candidate_ref=row.candidate_ref,
+            message="exception tool-plan refs must match candidate",
+        )
+        _require_matching_candidate(
+            row.effect_monitoring_contract_refs,
+            monitoring_rows,
+            candidate_ref=row.candidate_ref,
+            message="exception monitoring refs must match candidate",
+        )
+        if row.exception_kind in {"product_authority_gap", "external_branch_authority_gap"}:
+            if row.exception_posture not in {"blocking", "future_family_only"}:
+                raise ValueError("product/external exceptions must remain blocked or deferred")
+
+
+def derive_v79b_controlled_execution_review_bundle(
+    *, repo_root: Path | None = None
+) -> tuple[
+    RepoControlledExecutionSourceIndex,
+    RepoControlledExecutionReviewRequest,
+    RepoControlledExecutionNonExecutionGuardrail,
+    RepoExecutionRunPlan,
+    RepoToolInvocationPlan,
+    RepoExecutionEffectMonitoringContract,
+    RepoControlledExecutionExceptionRegister,
+]:
+    source_index, request, guardrail = derive_v79a_controlled_execution_review_bundle(
+        repo_root=repo_root
+    )
+    run_plan = derive_v79b_repo_execution_run_plan(
+        repo_root=repo_root,
+        controlled_execution_source_index=source_index,
+        controlled_execution_review_request=request,
+        controlled_execution_non_execution_guardrail=guardrail,
+    )
+    tool_plan = derive_v79b_repo_tool_invocation_plan(
+        repo_root=repo_root,
+        controlled_execution_source_index=source_index,
+        controlled_execution_review_request=request,
+        controlled_execution_non_execution_guardrail=guardrail,
+    )
+    monitoring = derive_v79b_repo_execution_effect_monitoring_contract(
+        repo_root=repo_root,
+        controlled_execution_source_index=source_index,
+        controlled_execution_review_request=request,
+        controlled_execution_non_execution_guardrail=guardrail,
+    )
+    exceptions = derive_v79b_repo_controlled_execution_exception_register(
+        repo_root=repo_root,
+        controlled_execution_source_index=source_index,
+        controlled_execution_review_request=request,
+        controlled_execution_non_execution_guardrail=guardrail,
+    )
+    validate_v79b_controlled_execution_review_bundle(
+        controlled_execution_source_index=source_index,
+        controlled_execution_review_request=request,
+        controlled_execution_non_execution_guardrail=guardrail,
+        execution_run_plan=run_plan,
+        tool_invocation_plan=tool_plan,
+        execution_effect_monitoring_contract=monitoring,
+        controlled_execution_exception_register=exceptions,
+    )
+    return source_index, request, guardrail, run_plan, tool_plan, monitoring, exceptions

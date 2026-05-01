@@ -40,6 +40,7 @@ from adeu_repo_description import (
     REPO_CONTAINED_INTEGRATION_CANDIDATE_PLAN_SCHEMA,
     REPO_CONTAINED_INTEGRATION_FAMILY_CLOSEOUT_ALIGNMENT_SCHEMA,
     REPO_CONTAINED_INTEGRATION_TRIAL_RECORD_SCHEMA,
+    REPO_CONTROLLED_EXECUTION_EXCEPTION_REGISTER_SCHEMA,
     REPO_CONTROLLED_EXECUTION_NON_EXECUTION_GUARDRAIL_SCHEMA,
     REPO_CONTROLLED_EXECUTION_REVIEW_REQUEST_SCHEMA,
     REPO_CONTROLLED_EXECUTION_SOURCE_INDEX_SCHEMA,
@@ -50,6 +51,8 @@ from adeu_repo_description import (
     REPO_DISPATCH_REVIEW_FAMILY_CLOSEOUT_ALIGNMENT_SCHEMA,
     REPO_ENTITY_CATALOG_SCHEMA,
     REPO_EVIDENCE_SURFACE_INDEX_SCHEMA,
+    REPO_EXECUTION_EFFECT_MONITORING_CONTRACT_SCHEMA,
+    REPO_EXECUTION_RUN_PLAN_SCHEMA,
     REPO_FAMILY_CLOSURE_REGISTER_SCHEMA,
     REPO_INTEGRATION_EFFECT_SURFACE_REGISTER_SCHEMA,
     REPO_INTEGRATION_NON_RELEASE_GUARDRAIL_SCHEMA,
@@ -108,6 +111,7 @@ from adeu_repo_description import (
     REPO_SYMBOL_CATALOG_SCHEMA,
     REPO_TEST_INTENT_MATRIX_SCHEMA,
     REPO_TOOL_FITNESS_DRIFT_REGISTER_SCHEMA,
+    REPO_TOOL_INVOCATION_PLAN_SCHEMA,
     REPO_TOOL_USE_PERMISSION_ENVELOPE_SCHEMA,
     REPO_TYPED_ADJUDICATION_CASE_VIEW_SCHEMA,
     REPO_WORKER_OUTPUT_RECONCILIATION_PLAN_SCHEMA,
@@ -945,6 +949,38 @@ def _schema_pairs() -> dict[str, tuple[Path, Path]]:
             / "schema"
             / "repo_controlled_execution_non_execution_guardrail.v1.json",
             root / "spec" / "repo_controlled_execution_non_execution_guardrail.schema.json",
+        ),
+        REPO_EXECUTION_RUN_PLAN_SCHEMA: (
+            root
+            / "packages"
+            / "adeu_repo_description"
+            / "schema"
+            / "repo_execution_run_plan.v1.json",
+            root / "spec" / "repo_execution_run_plan.schema.json",
+        ),
+        REPO_TOOL_INVOCATION_PLAN_SCHEMA: (
+            root
+            / "packages"
+            / "adeu_repo_description"
+            / "schema"
+            / "repo_tool_invocation_plan.v1.json",
+            root / "spec" / "repo_tool_invocation_plan.schema.json",
+        ),
+        REPO_EXECUTION_EFFECT_MONITORING_CONTRACT_SCHEMA: (
+            root
+            / "packages"
+            / "adeu_repo_description"
+            / "schema"
+            / "repo_execution_effect_monitoring_contract.v1.json",
+            root / "spec" / "repo_execution_effect_monitoring_contract.schema.json",
+        ),
+        REPO_CONTROLLED_EXECUTION_EXCEPTION_REGISTER_SCHEMA: (
+            root
+            / "packages"
+            / "adeu_repo_description"
+            / "schema"
+            / "repo_controlled_execution_exception_register.v1.json",
+            root / "spec" / "repo_controlled_execution_exception_register.schema.json",
         ),
     }
 

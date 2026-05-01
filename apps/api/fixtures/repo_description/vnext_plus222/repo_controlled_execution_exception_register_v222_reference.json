@@ -1,0 +1,73 @@
+{
+  "controlled_execution_exception_register_id": "repo_controlled_execution_exception_register_1dfe36bf69462a4bfbb6e211",
+  "controlled_execution_non_execution_guardrail_id": "repo_controlled_execution_non_execution_guardrail_266ba905f6f220705a20ac20",
+  "controlled_execution_review_request_id": "repo_controlled_execution_review_request_5356d0d3f24006932cc4a884",
+  "controlled_execution_source_index_id": "repo_controlled_execution_source_index_c021c60fe328391015a761ed",
+  "exception_rows": [
+    {
+      "blocking_surface_refs": [
+        "authority:v78a:product-wedge:product-review"
+      ],
+      "candidate_ref": "candidate:internal:typed_adjudication_product_wedge",
+      "effect_monitoring_contract_refs": [],
+      "exception_kind": "product_authority_gap",
+      "exception_posture": "blocking",
+      "exception_ref": "exception:v79b:product-wedge:product-authority-blocked",
+      "execution_review_request_refs": [
+        "execution-review:v79a:product-wedge:blocked"
+      ],
+      "limitation_note": "Product pressure remains blocked for later product review with no execution.",
+      "required_next_surface": "future_product_review",
+      "run_plan_refs": [],
+      "source_refs": [
+        "apps/api/fixtures/repo_description/vnext_plus219/repo_command_scope_authorization_boundary_v219_reference.json",
+        "apps/api/fixtures/repo_description/vnext_plus219/repo_runtime_authority_exception_register_v219_reference.json",
+        "apps/api/fixtures/repo_description/vnext_plus219/repo_runtime_execution_authority_decision_v219_reference.json",
+        "apps/api/fixtures/repo_description/vnext_plus219/repo_tool_use_permission_envelope_v219_reference.json",
+        "apps/api/fixtures/repo_description/vnext_plus220/repo_pre_execution_authority_review_handoff_v220_reference.json",
+        "apps/api/fixtures/repo_description/vnext_plus220/repo_runtime_authority_readiness_summary_v220_reference.json",
+        "apps/api/fixtures/repo_description/vnext_plus220/repo_runtime_execution_authority_family_closeout_alignment_v220_reference.json",
+        "docs/LOCKED_CONTINUATION_vNEXT_PLUS221.md",
+        "docs/support/arc_series_mapping/V68_V69_V70_V71_V72_V73_V74_V75_V76_V77_V78_COMBINED_DOGFOOD_TEST_v0.json"
+      ],
+      "tool_invocation_plan_refs": []
+    },
+    {
+      "blocking_surface_refs": [],
+      "candidate_ref": "candidate:internal:self_evidencing_workflow_type_emergence",
+      "effect_monitoring_contract_refs": [
+        "monitoring-contract:v79b:self-evidencing:review-only"
+      ],
+      "exception_kind": "unknown_needs_review",
+      "exception_posture": "warning_only",
+      "exception_ref": "exception:v79b:self-evidencing:external-branch-blocked",
+      "execution_review_request_refs": [
+        "execution-review:v79a:self-evidencing:controlled-execution"
+      ],
+      "limitation_note": "External branch pressure remains visible as unknown later-review context; it is unsettled and no execution occurs.",
+      "required_next_surface": "future_external_branch_review",
+      "run_plan_refs": [
+        "run-plan:v79b:self-evidencing:repo-script-review"
+      ],
+      "source_refs": [
+        "apps/api/fixtures/repo_description/vnext_plus219/repo_command_scope_authorization_boundary_v219_reference.json",
+        "apps/api/fixtures/repo_description/vnext_plus219/repo_runtime_authority_exception_register_v219_reference.json",
+        "apps/api/fixtures/repo_description/vnext_plus219/repo_runtime_execution_authority_decision_v219_reference.json",
+        "apps/api/fixtures/repo_description/vnext_plus219/repo_tool_use_permission_envelope_v219_reference.json",
+        "apps/api/fixtures/repo_description/vnext_plus220/repo_pre_execution_authority_review_handoff_v220_reference.json",
+        "apps/api/fixtures/repo_description/vnext_plus220/repo_runtime_authority_readiness_summary_v220_reference.json",
+        "apps/api/fixtures/repo_description/vnext_plus220/repo_runtime_execution_authority_family_closeout_alignment_v220_reference.json",
+        "docs/LOCKED_CONTINUATION_vNEXT_PLUS221.md",
+        "docs/support/arc_series_mapping/V68_V69_V70_V71_V72_V73_V74_V75_V76_V77_V78_COMBINED_DOGFOOD_TEST_v0.json"
+      ],
+      "tool_invocation_plan_refs": [
+        "tool-plan:v79b:self-evidencing:repo-description-check-review"
+      ]
+    }
+  ],
+  "exception_summary": "Controlled execution exceptions are review only: blocking and warning states remain visible with no execution.",
+  "review_id": "review:v79a:controlled-execution-review",
+  "schema": "repo_controlled_execution_exception_register@1",
+  "snapshot_id": "vNext+221-controlled-execution-review-closeout",
+  "source_set_id": "source-set:v79b:released-v79a-exception-pressure"
+}
