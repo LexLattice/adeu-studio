@@ -1,0 +1,64 @@
+{
+  "exception_register_summary": "Runtime authority exception register keeps exception rows visible with no execution and no prose resolution.",
+  "exception_rows": [
+    {
+      "authority_request_refs": [
+        "authority-request:v78a:product-wedge:blocked"
+      ],
+      "blocking_surface_refs": [
+        "authority-decision:v78b:product-wedge:future-family-only"
+      ],
+      "candidate_ref": "candidate:internal:typed_adjudication_product_wedge",
+      "exception_kind": "product_authority_gap",
+      "exception_posture": "blocking",
+      "exception_ref": "exception:v78b:product-wedge:product-authority-gap",
+      "limitation_note": "This exception is resolved by prose, which is not allowed.",
+      "required_next_surface": "future_product_review",
+      "source_refs": [
+        "apps/api/fixtures/repo_description/vnext_plus216/repo_action_effect_envelope_v216_reference.json",
+        "apps/api/fixtures/repo_description/vnext_plus216/repo_command_preflight_contract_v216_reference.json",
+        "apps/api/fixtures/repo_description/vnext_plus216/repo_runtime_rollback_contract_v216_reference.json",
+        "apps/api/fixtures/repo_description/vnext_plus216/repo_runtime_telemetry_requirement_v216_reference.json",
+        "apps/api/fixtures/repo_description/vnext_plus217/repo_post_runtime_permission_review_handoff_v217_reference.json",
+        "apps/api/fixtures/repo_description/vnext_plus217/repo_runtime_permission_authority_posture_v217_reference.json",
+        "apps/api/fixtures/repo_description/vnext_plus217/repo_runtime_permission_family_closeout_alignment_v217_reference.json",
+        "apps/api/fixtures/repo_description/vnext_plus217/repo_runtime_permission_review_summary_v217_reference.json",
+        "docs/LOCKED_CONTINUATION_vNEXT_PLUS218.md",
+        "docs/support/arc_series_mapping/V68_V69_V70_V71_V72_V73_V74_V75_V76_V77_COMBINED_DOGFOOD_TEST_v0.json"
+      ]
+    },
+    {
+      "authority_request_refs": [
+        "authority-request:v78a:self-evidencing:runtime-execution-review"
+      ],
+      "blocking_surface_refs": [
+        "authority-decision:v78b:self-evidencing:later-execution-review",
+        "command-scope:v78b:self-evidencing:runtime-authority-module"
+      ],
+      "candidate_ref": "candidate:internal:self_evidencing_workflow_type_emergence",
+      "exception_kind": "unknown_needs_review",
+      "exception_posture": "warning_only",
+      "exception_ref": "exception:v78b:self-evidencing:review-only-warning",
+      "limitation_note": "Exception is visible for later review only; no execution and no prose resolution.",
+      "required_next_surface": "later_execution_review_surface",
+      "source_refs": [
+        "apps/api/fixtures/repo_description/vnext_plus216/repo_action_effect_envelope_v216_reference.json",
+        "apps/api/fixtures/repo_description/vnext_plus216/repo_command_preflight_contract_v216_reference.json",
+        "apps/api/fixtures/repo_description/vnext_plus216/repo_runtime_rollback_contract_v216_reference.json",
+        "apps/api/fixtures/repo_description/vnext_plus216/repo_runtime_telemetry_requirement_v216_reference.json",
+        "apps/api/fixtures/repo_description/vnext_plus217/repo_post_runtime_permission_review_handoff_v217_reference.json",
+        "apps/api/fixtures/repo_description/vnext_plus217/repo_runtime_permission_authority_posture_v217_reference.json",
+        "apps/api/fixtures/repo_description/vnext_plus217/repo_runtime_permission_family_closeout_alignment_v217_reference.json",
+        "apps/api/fixtures/repo_description/vnext_plus217/repo_runtime_permission_review_summary_v217_reference.json",
+        "docs/LOCKED_CONTINUATION_vNEXT_PLUS218.md",
+        "docs/support/arc_series_mapping/V68_V69_V70_V71_V72_V73_V74_V75_V76_V77_COMBINED_DOGFOOD_TEST_v0.json"
+      ]
+    }
+  ],
+  "review_id": "review:v78a:runtime-execution-authority-request",
+  "runtime_authority_exception_register_id": "repo_runtime_authority_exception_register_aabe5e46ff7614d682dabf26",
+  "runtime_execution_authority_request_id": "repo_runtime_execution_authority_request_ec2a026424c63dccdb5a540c",
+  "schema": "repo_runtime_authority_exception_register@1",
+  "snapshot_id": "vNext+217-closed-on-main",
+  "source_set_id": "source-set:v78a:released-v77c-runtime-authority-pressure"
+}

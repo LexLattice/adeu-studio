@@ -1,0 +1,148 @@
+{
+  "$defs": {
+    "RepoRuntimeAuthorityExceptionRegisterRow": {
+      "additionalProperties": false,
+      "properties": {
+        "authority_request_refs": {
+          "items": {
+            "type": "string"
+          },
+          "minItems": 1,
+          "title": "Authority Request Refs",
+          "type": "array"
+        },
+        "blocking_surface_refs": {
+          "items": {
+            "type": "string"
+          },
+          "title": "Blocking Surface Refs",
+          "type": "array"
+        },
+        "candidate_ref": {
+          "title": "Candidate Ref",
+          "type": "string"
+        },
+        "exception_kind": {
+          "enum": [
+            "missing_authority_source",
+            "missing_command_scope",
+            "unbounded_target",
+            "missing_telemetry_requirement",
+            "missing_rollback_requirement",
+            "tool_permission_gap",
+            "product_authority_gap",
+            "external_branch_authority_gap",
+            "release_authority_gap",
+            "command_output_without_prior_authority",
+            "unknown_needs_review"
+          ],
+          "title": "Exception Kind",
+          "type": "string"
+        },
+        "exception_posture": {
+          "enum": [
+            "blocking",
+            "warning_only",
+            "carried_forward",
+            "not_applicable",
+            "future_family_only"
+          ],
+          "title": "Exception Posture",
+          "type": "string"
+        },
+        "exception_ref": {
+          "title": "Exception Ref",
+          "type": "string"
+        },
+        "limitation_note": {
+          "title": "Limitation Note",
+          "type": "string"
+        },
+        "required_next_surface": {
+          "enum": [
+            "later_execution_review_surface",
+            "later_tool_invocation_review_surface",
+            "future_product_review",
+            "future_external_branch_review",
+            "future_family_review",
+            "none"
+          ],
+          "title": "Required Next Surface",
+          "type": "string"
+        },
+        "source_refs": {
+          "items": {
+            "type": "string"
+          },
+          "minItems": 1,
+          "title": "Source Refs",
+          "type": "array"
+        }
+      },
+      "required": [
+        "exception_ref",
+        "candidate_ref",
+        "authority_request_refs",
+        "exception_kind",
+        "exception_posture",
+        "source_refs",
+        "required_next_surface",
+        "limitation_note"
+      ],
+      "title": "RepoRuntimeAuthorityExceptionRegisterRow",
+      "type": "object"
+    }
+  },
+  "additionalProperties": false,
+  "properties": {
+    "exception_register_summary": {
+      "title": "Exception Register Summary",
+      "type": "string"
+    },
+    "exception_rows": {
+      "items": {
+        "$ref": "#/$defs/RepoRuntimeAuthorityExceptionRegisterRow"
+      },
+      "minItems": 1,
+      "title": "Exception Rows",
+      "type": "array"
+    },
+    "review_id": {
+      "title": "Review Id",
+      "type": "string"
+    },
+    "runtime_authority_exception_register_id": {
+      "title": "Runtime Authority Exception Register Id",
+      "type": "string"
+    },
+    "runtime_execution_authority_request_id": {
+      "title": "Runtime Execution Authority Request Id",
+      "type": "string"
+    },
+    "schema": {
+      "const": "repo_runtime_authority_exception_register@1",
+      "default": "repo_runtime_authority_exception_register@1",
+      "title": "Schema",
+      "type": "string"
+    },
+    "snapshot_id": {
+      "title": "Snapshot Id",
+      "type": "string"
+    },
+    "source_set_id": {
+      "title": "Source Set Id",
+      "type": "string"
+    }
+  },
+  "required": [
+    "runtime_authority_exception_register_id",
+    "runtime_execution_authority_request_id",
+    "review_id",
+    "snapshot_id",
+    "source_set_id",
+    "exception_rows",
+    "exception_register_summary"
+  ],
+  "title": "RepoRuntimeAuthorityExceptionRegister",
+  "type": "object"
+}

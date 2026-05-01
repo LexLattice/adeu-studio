@@ -1,0 +1,228 @@
+{
+  "$defs": {
+    "RepoRuntimeExecutionAuthorityDecisionRow": {
+      "additionalProperties": false,
+      "properties": {
+        "authority_actor_refs": {
+          "items": {
+            "type": "string"
+          },
+          "title": "Authority Actor Refs",
+          "type": "array"
+        },
+        "authority_decision_ref": {
+          "title": "Authority Decision Ref",
+          "type": "string"
+        },
+        "authority_grant_horizon": {
+          "enum": [
+            "later_execution_review_only",
+            "later_tool_invocation_review_only",
+            "later_telemetry_review_only",
+            "later_rollback_review_only",
+            "future_family_review_only"
+          ],
+          "title": "Authority Grant Horizon",
+          "type": "string"
+        },
+        "authority_request_refs": {
+          "items": {
+            "type": "string"
+          },
+          "minItems": 1,
+          "title": "Authority Request Refs",
+          "type": "array"
+        },
+        "authority_source_refs": {
+          "items": {
+            "type": "string"
+          },
+          "title": "Authority Source Refs",
+          "type": "array"
+        },
+        "authorized_surface_kind": {
+          "enum": [
+            "later_execution_review_surface",
+            "later_tool_invocation_review_surface",
+            "later_telemetry_review_surface",
+            "later_rollback_review_surface",
+            "future_family_review_surface"
+          ],
+          "title": "Authorized Surface Kind",
+          "type": "string"
+        },
+        "candidate_ref": {
+          "title": "Candidate Ref",
+          "type": "string"
+        },
+        "command_scope_boundary_refs": {
+          "items": {
+            "type": "string"
+          },
+          "title": "Command Scope Boundary Refs",
+          "type": "array"
+        },
+        "decision_horizon": {
+          "enum": [
+            "bounded_command_execution_review",
+            "bounded_tool_invocation_review",
+            "bounded_repo_script_execution_review",
+            "bounded_api_call_execution_review",
+            "telemetry_observation_review",
+            "rollback_execution_review",
+            "future_product_runtime_review",
+            "future_external_branch_runtime_review",
+            "future_family_review"
+          ],
+          "title": "Decision Horizon",
+          "type": "string"
+        },
+        "decision_posture": {
+          "enum": [
+            "review_authority_granted_for_bounded_execution_surface",
+            "review_authority_denied",
+            "review_authority_deferred",
+            "review_authority_blocked_by_missing_source",
+            "review_authority_blocked_by_missing_scope",
+            "review_authority_blocked_by_missing_telemetry",
+            "review_authority_blocked_by_missing_rollback",
+            "review_authority_future_family_only",
+            "review_authority_rejected_out_of_scope"
+          ],
+          "title": "Decision Posture",
+          "type": "string"
+        },
+        "exception_refs": {
+          "items": {
+            "type": "string"
+          },
+          "title": "Exception Refs",
+          "type": "array"
+        },
+        "execution_authorization_posture": {
+          "enum": [
+            "execution_not_authorized_by_v78",
+            "execution_requires_later_family",
+            "execution_forbidden_by_this_family"
+          ],
+          "title": "Execution Authorization Posture",
+          "type": "string"
+        },
+        "execution_posture": {
+          "enum": [
+            "no_execution_performed_by_v78",
+            "execution_requires_later_family",
+            "execution_forbidden_by_this_family"
+          ],
+          "title": "Execution Posture",
+          "type": "string"
+        },
+        "limitation_note": {
+          "title": "Limitation Note",
+          "type": "string"
+        },
+        "non_action_guardrail_refs": {
+          "items": {
+            "type": "string"
+          },
+          "minItems": 1,
+          "title": "Non Action Guardrail Refs",
+          "type": "array"
+        },
+        "rollback_requirement_refs": {
+          "items": {
+            "type": "string"
+          },
+          "title": "Rollback Requirement Refs",
+          "type": "array"
+        },
+        "telemetry_requirement_refs": {
+          "items": {
+            "type": "string"
+          },
+          "title": "Telemetry Requirement Refs",
+          "type": "array"
+        },
+        "tool_use_permission_refs": {
+          "items": {
+            "type": "string"
+          },
+          "title": "Tool Use Permission Refs",
+          "type": "array"
+        }
+      },
+      "required": [
+        "authority_decision_ref",
+        "authority_request_refs",
+        "candidate_ref",
+        "decision_posture",
+        "decision_horizon",
+        "authorized_surface_kind",
+        "authority_grant_horizon",
+        "execution_posture",
+        "execution_authorization_posture",
+        "non_action_guardrail_refs",
+        "limitation_note"
+      ],
+      "title": "RepoRuntimeExecutionAuthorityDecisionRow",
+      "type": "object"
+    }
+  },
+  "additionalProperties": false,
+  "properties": {
+    "authority_decision_summary": {
+      "title": "Authority Decision Summary",
+      "type": "string"
+    },
+    "decision_rows": {
+      "items": {
+        "$ref": "#/$defs/RepoRuntimeExecutionAuthorityDecisionRow"
+      },
+      "minItems": 1,
+      "title": "Decision Rows",
+      "type": "array"
+    },
+    "review_id": {
+      "title": "Review Id",
+      "type": "string"
+    },
+    "runtime_authority_non_action_guardrail_id": {
+      "title": "Runtime Authority Non Action Guardrail Id",
+      "type": "string"
+    },
+    "runtime_execution_authority_decision_id": {
+      "title": "Runtime Execution Authority Decision Id",
+      "type": "string"
+    },
+    "runtime_execution_authority_request_id": {
+      "title": "Runtime Execution Authority Request Id",
+      "type": "string"
+    },
+    "schema": {
+      "const": "repo_runtime_execution_authority_decision@1",
+      "default": "repo_runtime_execution_authority_decision@1",
+      "title": "Schema",
+      "type": "string"
+    },
+    "snapshot_id": {
+      "title": "Snapshot Id",
+      "type": "string"
+    },
+    "source_set_id": {
+      "title": "Source Set Id",
+      "type": "string"
+    }
+  },
+  "required": [
+    "runtime_execution_authority_decision_id",
+    "runtime_execution_authority_request_id",
+    "runtime_authority_non_action_guardrail_id",
+    "review_id",
+    "snapshot_id",
+    "source_set_id",
+    "decision_rows",
+    "authority_decision_summary"
+  ],
+  "title": "RepoRuntimeExecutionAuthorityDecision",
+  "type": "object"
+}

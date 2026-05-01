@@ -1,0 +1,71 @@
+{
+  "command_scope_authorization_boundary_id": "repo_command_scope_authorization_boundary_80d8e8577ec3029cf112337b",
+  "command_scope_rows": [
+    {
+      "allowed_effect_surface_refs": [],
+      "authority_request_refs": [
+        "authority-request:v78a:product-wedge:blocked"
+      ],
+      "authority_source_refs": [
+        "authority:v78a:product-wedge:product-review"
+      ],
+      "authorized_scope_posture": "scope_future_family_only",
+      "candidate_ref": "candidate:internal:typed_adjudication_product_wedge",
+      "command_intent_kind": "future_family_only",
+      "command_scope_ref": "command-scope:v78b:product-wedge:no-target",
+      "exception_refs": [
+        "exception:v78b:product-wedge:product-authority-gap"
+      ],
+      "execution_posture": "no_execution_performed_by_v78",
+      "forbidden_effect_surface_refs": [
+        "effect-surface:v78b:product-authorization",
+        "effect-surface:v78b:release"
+      ],
+      "limitation_note": "Product wedge command scope is future-family-only for later review; no execution and no product authorization.",
+      "rollback_requirement_refs": [],
+      "target_refs": [],
+      "target_resolution_kind": "no_target_boundary",
+      "telemetry_requirement_refs": []
+    },
+    {
+      "allowed_effect_surface_refs": [
+        "effect-surface:v78b:self-evidencing:review-only-schema-and-fixture"
+      ],
+      "authority_request_refs": [
+        "authority-request:v78a:self-evidencing:runtime-execution-review"
+      ],
+      "authority_source_refs": [
+        "authority:v78a:self-evidencing:runtime-review",
+        "authority:v78a:self-evidencing:tool-use-review"
+      ],
+      "authorized_scope_posture": "bounded_scope_authorized_for_later_execution_review",
+      "candidate_ref": "candidate:internal:self_evidencing_workflow_type_emergence",
+      "command_intent_kind": "repo_script_later_review",
+      "command_scope_ref": "command-scope:v78b:self-evidencing:runtime-authority-module",
+      "exception_refs": [
+        "exception:v78b:self-evidencing:review-only-warning"
+      ],
+      "execution_posture": "no_execution_performed_by_v78",
+      "forbidden_effect_surface_refs": [
+        "effect-surface:v78b:command-execution",
+        "effect-surface:v78b:release",
+        "effect-surface:v78b:tool-invocation"
+      ],
+      "limitation_note": "Command scope is bounded for later review with concrete target refs; no execution and no target mutation in V78.",
+      "rollback_requirement_refs": [
+        "rollback:v77b:self-evidencing:required"
+      ],
+      "target_refs": [
+        "packages/adeu_repo_description/src/adeu_repo_description/runtime_execution_authority.py"
+      ],
+      "target_resolution_kind": "concrete_file_ref",
+      "telemetry_requirement_refs": []
+    }
+  ],
+  "command_scope_summary": "Command scope boundaries are later review records with concrete target constraints and no execution.",
+  "review_id": "review:v78a:runtime-execution-authority-request",
+  "runtime_execution_authority_request_id": "repo_runtime_execution_authority_request_ec2a026424c63dccdb5a540c",
+  "schema": "repo_command_scope_authorization_boundary@1",
+  "snapshot_id": "vNext+217-closed-on-main",
+  "source_set_id": "source-set:v78a:released-v77c-runtime-authority-pressure"
+}
