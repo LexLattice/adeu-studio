@@ -1,0 +1,45 @@
+{
+  "closed_by_arc": "vNext+214",
+  "closed_slice_ladder": [
+    "V76-A:vNext+212",
+    "V76-B:vNext+213",
+    "V76-C:vNext+214"
+  ],
+  "consumed_source_families": [
+    "V68",
+    "V69",
+    "V70",
+    "V71",
+    "V72",
+    "V73",
+    "V74",
+    "V75",
+    "V76"
+  ],
+  "family": "V76",
+  "future_family_authority": "none",
+  "limitation_note": "Future surfaces remain mapped as pressure only; V76 does not select V77 and does not grant runtime, product, external, release, memory, or policy authority.",
+  "reconciliation_authority_boundary": "V76 closes reconciliation review records as not truth, not settlement, and not runtime or product authority.",
+  "reconciliation_family_closeout_alignment_id": "repo_reconciliation_family_closeout_alignment_9efc7012032c7b29c3829862",
+  "schema": "repo_reconciliation_family_closeout_alignment@1",
+  "shipped_record_shapes": [
+    "repo_adversarial_relation_review@1",
+    "repo_arbiter_authority_profile@1",
+    "repo_arbiter_relation_register@1",
+    "repo_post_reconciliation_handoff@1",
+    "repo_reconciliation_claim_map@1",
+    "repo_reconciliation_dissent_register@1",
+    "repo_reconciliation_family_closeout_alignment@1",
+    "repo_reconciliation_gap_scan@1",
+    "repo_reconciliation_review_summary@1",
+    "repo_reconciliation_settlement_request@1"
+  ],
+  "unselected_future_surfaces": [
+    "external_branch_activation_review",
+    "living_memory_graph_review",
+    "product_authorization_review",
+    "runtime_permission_review",
+    "self_improvement_experiment_review",
+    "v77_family_selection"
+  ]
+}

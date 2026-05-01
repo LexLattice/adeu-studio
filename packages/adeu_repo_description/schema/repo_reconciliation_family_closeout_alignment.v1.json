@@ -1,0 +1,120 @@
+{
+  "additionalProperties": false,
+  "properties": {
+    "closed_by_arc": {
+      "const": "vNext+214",
+      "title": "Closed By Arc",
+      "type": "string"
+    },
+    "closed_slice_ladder": {
+      "items": {
+        "enum": [
+          "V76-A:vNext+212",
+          "V76-B:vNext+213",
+          "V76-C:vNext+214"
+        ],
+        "type": "string"
+      },
+      "minItems": 3,
+      "title": "Closed Slice Ladder",
+      "type": "array"
+    },
+    "consumed_source_families": {
+      "items": {
+        "enum": [
+          "V68",
+          "V69",
+          "V70",
+          "V71",
+          "V72",
+          "V73",
+          "V74",
+          "V75",
+          "V76"
+        ],
+        "type": "string"
+      },
+      "minItems": 1,
+      "title": "Consumed Source Families",
+      "type": "array"
+    },
+    "family": {
+      "const": "V76",
+      "title": "Family",
+      "type": "string"
+    },
+    "future_family_authority": {
+      "const": "none",
+      "title": "Future Family Authority",
+      "type": "string"
+    },
+    "limitation_note": {
+      "title": "Limitation Note",
+      "type": "string"
+    },
+    "reconciliation_authority_boundary": {
+      "title": "Reconciliation Authority Boundary",
+      "type": "string"
+    },
+    "reconciliation_family_closeout_alignment_id": {
+      "title": "Reconciliation Family Closeout Alignment Id",
+      "type": "string"
+    },
+    "schema": {
+      "const": "repo_reconciliation_family_closeout_alignment@1",
+      "default": "repo_reconciliation_family_closeout_alignment@1",
+      "title": "Schema",
+      "type": "string"
+    },
+    "shipped_record_shapes": {
+      "items": {
+        "enum": [
+          "repo_reconciliation_claim_map@1",
+          "repo_arbiter_relation_register@1",
+          "repo_reconciliation_dissent_register@1",
+          "repo_arbiter_authority_profile@1",
+          "repo_reconciliation_settlement_request@1",
+          "repo_adversarial_relation_review@1",
+          "repo_reconciliation_gap_scan@1",
+          "repo_reconciliation_review_summary@1",
+          "repo_post_reconciliation_handoff@1",
+          "repo_reconciliation_family_closeout_alignment@1"
+        ],
+        "type": "string"
+      },
+      "minItems": 10,
+      "title": "Shipped Record Shapes",
+      "type": "array"
+    },
+    "unselected_future_surfaces": {
+      "items": {
+        "enum": [
+          "runtime_permission_review",
+          "product_authorization_review",
+          "external_branch_activation_review",
+          "living_memory_graph_review",
+          "self_improvement_experiment_review",
+          "v77_family_selection"
+        ],
+        "type": "string"
+      },
+      "minItems": 1,
+      "title": "Unselected Future Surfaces",
+      "type": "array"
+    }
+  },
+  "required": [
+    "reconciliation_family_closeout_alignment_id",
+    "family",
+    "closed_by_arc",
+    "closed_slice_ladder",
+    "consumed_source_families",
+    "shipped_record_shapes",
+    "reconciliation_authority_boundary",
+    "future_family_authority",
+    "unselected_future_surfaces",
+    "limitation_note"
+  ],
+  "title": "RepoReconciliationFamilyCloseoutAlignment",
+  "type": "object"
+}

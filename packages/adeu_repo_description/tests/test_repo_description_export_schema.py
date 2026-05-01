@@ -63,6 +63,7 @@ from adeu_repo_description import (
     REPO_POST_INTEGRATION_OUTCOME_REVIEW_HANDOFF_SCHEMA,
     REPO_POST_PROJECTION_HANDOFF_SCHEMA,
     REPO_POST_RATIFICATION_HANDOFF_SCHEMA,
+    REPO_POST_RECONCILIATION_HANDOFF_SCHEMA,
     REPO_PROJECTION_EXCEPTION_VISIBILITY_REGISTER_SCHEMA,
     REPO_RATIFICATION_AMENDMENT_SCOPE_BOUNDARY_SCHEMA,
     REPO_RATIFICATION_AUTHORITY_PROFILE_SCHEMA,
@@ -71,7 +72,9 @@ from adeu_repo_description import (
     REPO_RATIFICATION_REVIEW_WORKBENCH_PROJECTION_SCHEMA,
     REPO_RECONCILIATION_CLAIM_MAP_SCHEMA,
     REPO_RECONCILIATION_DISSENT_REGISTER_SCHEMA,
+    REPO_RECONCILIATION_FAMILY_CLOSEOUT_ALIGNMENT_SCHEMA,
     REPO_RECONCILIATION_GAP_SCAN_SCHEMA,
+    REPO_RECONCILIATION_REVIEW_SUMMARY_SCHEMA,
     REPO_RECONCILIATION_SETTLEMENT_REQUEST_SCHEMA,
     REPO_RECURSIVE_CANDIDATE_INTAKE_RECORD_SCHEMA,
     REPO_RECURSIVE_COORDINATE_EMISSION_PLAN_SCHEMA,
@@ -700,6 +703,30 @@ def _schema_pairs() -> dict[str, tuple[Path, Path]]:
             / "schema"
             / "repo_reconciliation_gap_scan.v1.json",
             root / "spec" / "repo_reconciliation_gap_scan.schema.json",
+        ),
+        REPO_RECONCILIATION_REVIEW_SUMMARY_SCHEMA: (
+            root
+            / "packages"
+            / "adeu_repo_description"
+            / "schema"
+            / "repo_reconciliation_review_summary.v1.json",
+            root / "spec" / "repo_reconciliation_review_summary.schema.json",
+        ),
+        REPO_POST_RECONCILIATION_HANDOFF_SCHEMA: (
+            root
+            / "packages"
+            / "adeu_repo_description"
+            / "schema"
+            / "repo_post_reconciliation_handoff.v1.json",
+            root / "spec" / "repo_post_reconciliation_handoff.schema.json",
+        ),
+        REPO_RECONCILIATION_FAMILY_CLOSEOUT_ALIGNMENT_SCHEMA: (
+            root
+            / "packages"
+            / "adeu_repo_description"
+            / "schema"
+            / "repo_reconciliation_family_closeout_alignment.v1.json",
+            root / "spec" / "repo_reconciliation_family_closeout_alignment.schema.json",
         ),
     }
 

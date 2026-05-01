@@ -111,9 +111,12 @@ from .reconciliation_arbiter import (
     RepoAdversarialRelationReview,
     RepoArbiterAuthorityProfile,
     RepoArbiterRelationRegister,
+    RepoPostReconciliationHandoff,
     RepoReconciliationClaimMap,
     RepoReconciliationDissentRegister,
+    RepoReconciliationFamilyCloseoutAlignment,
     RepoReconciliationGapScan,
+    RepoReconciliationReviewSummary,
     RepoReconciliationSettlementRequest,
 )
 from .recursive_candidate_intake import (
@@ -414,6 +417,15 @@ def main() -> None:
     reconciliation_gap_scan_schema = RepoReconciliationGapScan.model_json_schema(
         by_alias=True
     )
+    reconciliation_review_summary_schema = (
+        RepoReconciliationReviewSummary.model_json_schema(by_alias=True)
+    )
+    post_reconciliation_handoff_schema = RepoPostReconciliationHandoff.model_json_schema(
+        by_alias=True
+    )
+    reconciliation_family_closeout_alignment_schema = (
+        RepoReconciliationFamilyCloseoutAlignment.model_json_schema(by_alias=True)
+    )
 
     _assert_no_absolute_path_material(dependency_register_v1_schema, repo_root_path=root)
     _assert_no_absolute_path_material(dependency_register_schema, repo_root_path=root)
@@ -579,6 +591,15 @@ def main() -> None:
     )
     _assert_no_absolute_path_material(adversarial_relation_review_schema, repo_root_path=root)
     _assert_no_absolute_path_material(reconciliation_gap_scan_schema, repo_root_path=root)
+    _assert_no_absolute_path_material(
+        reconciliation_review_summary_schema,
+        repo_root_path=root,
+    )
+    _assert_no_absolute_path_material(post_reconciliation_handoff_schema, repo_root_path=root)
+    _assert_no_absolute_path_material(
+        reconciliation_family_closeout_alignment_schema,
+        repo_root_path=root,
+    )
 
     _write_schema(
         root
@@ -1667,6 +1688,42 @@ def main() -> None:
     _write_schema(
         root / "spec" / "repo_reconciliation_gap_scan.schema.json",
         reconciliation_gap_scan_schema,
+    )
+    _write_schema(
+        root
+        / "packages"
+        / "adeu_repo_description"
+        / "schema"
+        / "repo_reconciliation_review_summary.v1.json",
+        reconciliation_review_summary_schema,
+    )
+    _write_schema(
+        root / "spec" / "repo_reconciliation_review_summary.schema.json",
+        reconciliation_review_summary_schema,
+    )
+    _write_schema(
+        root
+        / "packages"
+        / "adeu_repo_description"
+        / "schema"
+        / "repo_post_reconciliation_handoff.v1.json",
+        post_reconciliation_handoff_schema,
+    )
+    _write_schema(
+        root / "spec" / "repo_post_reconciliation_handoff.schema.json",
+        post_reconciliation_handoff_schema,
+    )
+    _write_schema(
+        root
+        / "packages"
+        / "adeu_repo_description"
+        / "schema"
+        / "repo_reconciliation_family_closeout_alignment.v1.json",
+        reconciliation_family_closeout_alignment_schema,
+    )
+    _write_schema(
+        root / "spec" / "repo_reconciliation_family_closeout_alignment.schema.json",
+        reconciliation_family_closeout_alignment_schema,
     )
 
 
