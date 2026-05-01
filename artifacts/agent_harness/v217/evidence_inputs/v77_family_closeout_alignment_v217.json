@@ -1,0 +1,39 @@
+{
+  "closed_by_arc": "vNext+217",
+  "closed_by_merge_commit": "197f18bd6510f2f52b164bd6547459a718e0c74a",
+  "closed_slice_ladder": [
+    "V77-A:vNext+215",
+    "V77-B:vNext+216",
+    "V77-C:vNext+217"
+  ],
+  "family": "V77",
+  "family_closed_on_main": true,
+  "future_family_authority": "none",
+  "schema": "v77_family_closeout_alignment@1",
+  "shipped_record_shapes": [
+    "repo_runtime_permission_review_request@1",
+    "repo_runtime_permission_source_index@1",
+    "repo_runtime_non_execution_guardrail@1",
+    "repo_command_preflight_contract@1",
+    "repo_action_effect_envelope@1",
+    "repo_runtime_telemetry_requirement@1",
+    "repo_runtime_rollback_contract@1",
+    "repo_runtime_permission_authority_posture@1",
+    "repo_runtime_permission_review_summary@1",
+    "repo_post_runtime_permission_review_handoff@1",
+    "repo_runtime_permission_family_closeout_alignment@1"
+  ],
+  "unselected_future_surfaces": [
+    "runtime execution authority",
+    "tool-use permission",
+    "worker assignment",
+    "dispatch execution",
+    "product authorization",
+    "external branch activation",
+    "outcome review",
+    "experiment design",
+    "living decision graph authority",
+    "recursive policy amendment"
+  ],
+  "v77_authority_boundary": "runtime_permission_review_family_only_no_command_execution_runtime_permission_grant_tool_use_permission_worker_assignment_dispatch_execution_product_authorization_external_branch_activation_pr_commit_merge_release_benchmark_truth_model_selection_living_memory_or_recursive_policy_authority"
+}

@@ -1,8 +1,8 @@
 # Assessment vNext+217 Edges
 
-Status: planning-edge assessment for `V77-C`.
+Status: post-closeout edge assessment for `V77-C`.
 
-Authority layer: pre-lock assessment, not closeout evidence.
+Authority layer: closeout evidence on `main`.
 
 ## Assessment-State Marker (Machine-Checkable)
 
@@ -10,8 +10,8 @@ Authority layer: pre-lock assessment, not closeout evidence.
 {
   "schema": "assessment_artifact_state@1",
   "artifact": "docs/ASSESSMENT_vNEXT_PLUS217_EDGES.md",
-  "phase": "pre_lock_assessment",
-  "authoritative": false,
+  "phase": "post_closeout_assessment",
+  "authoritative": true,
   "required_in_decision": true
 }
 ```
@@ -88,12 +88,12 @@ Authority layer: pre-lock assessment, not closeout evidence.
 
 ## Current Judgment
 
-- `V77-C` is worth drafting now because `V77-A` and `V77-B` have closed
-  source-bound runtime review request, non-execution guardrail, command
-  preflight, effect-envelope, telemetry-requirement, and rollback-contract
-  surfaces on `main`.
-- The starter slice should stay authority-posture / summary / handoff /
-  family-closeout only: it can make required later authority and blocker
-  carry-forward visible, but it must not execute, grant runtime or tool-use
-  permission, authorize products or external branches, release, dispatch, or
-  select a later family.
+- `V77-C` closed the authority-posture / summary / handoff / family-closeout
+  lane after `V77-A` and `V77-B` had already shipped source-bound runtime
+  review request, non-execution guardrail, command preflight, effect-envelope,
+  telemetry-requirement, and rollback-contract surfaces on `main`.
+- The merged slice keeps required later authority and blocker carry-forward
+  visible without executing, granting runtime or tool-use permission,
+  authorizing products or external branches, releasing, dispatching, or
+  selecting a later family.
+- `V77` is closed as runtime-permission review substrate only.
