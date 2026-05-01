@@ -4,6 +4,7 @@ import json
 from pathlib import Path
 from typing import Any
 
+import adeu_repo_description.reconciliation_arbiter as reconciliation_arbiter_module
 import pytest
 from adeu_ir.repo import repo_root
 from adeu_repo_description import (
@@ -160,6 +161,59 @@ def test_v213_derivation_helper_matches_reference_fixtures() -> None:
         "vnext_plus213",
         "repo_reconciliation_gap_scan_v213_reference.json",
     )
+
+
+def test_v213_partial_derivation_chains_from_supplied_claim_map(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    def _fail_default_bundle(**_: Any) -> None:
+        raise AssertionError("full default V76-A bundle should not be derived")
+
+    monkeypatch.setattr(
+        reconciliation_arbiter_module,
+        "derive_v76a_reconciliation_arbiter_bundle",
+        _fail_default_bundle,
+    )
+
+    claim_map = _claim_map()
+    authority_profile = reconciliation_arbiter_module.derive_v76b_repo_arbiter_authority_profile(
+        repo_root=_repo_root(),
+        reconciliation_claim_map=claim_map,
+    )
+
+    assert authority_profile.reconciliation_claim_map_id == claim_map.reconciliation_claim_map_id
+
+
+def test_v213_partial_derivation_rejects_relation_without_claim_map() -> None:
+    with pytest.raises(ValueError, match="partial V76-A dependencies must include the claim map"):
+        reconciliation_arbiter_module.derive_v76b_repo_adversarial_relation_review(
+            repo_root=_repo_root(),
+            arbiter_relation_register=_relation_register(),
+        )
+
+
+def test_v213_authority_profile_rejects_non_lock_no_gap_posture() -> None:
+    payload = _load_fixture(
+        "vnext_plus213",
+        "repo_arbiter_authority_profile_v213_reference.json",
+    )
+    payload["authority_profile_rows"][0]["authority_gap_posture"] = "authority_gap_missing"
+
+    with pytest.raises(ValidationError, match="non-lock grant sources"):
+        RepoArbiterAuthorityProfile.model_validate(payload)
+
+
+def test_v213_settlement_overclaim_scans_later_unnegated_occurrences() -> None:
+    payload = _load_fixture(
+        "vnext_plus213",
+        "repo_reconciliation_settlement_request_v213_reference.json",
+    )
+    payload["settlement_request_rows"][0]["limitation_note"] = (
+        "This is not settlement complete as a review note, but settlement complete."
+    )
+
+    with pytest.raises(ValidationError, match="settlement or truth authority"):
+        RepoReconciliationSettlementRequest.model_validate(payload)
 
 
 @pytest.mark.parametrize(

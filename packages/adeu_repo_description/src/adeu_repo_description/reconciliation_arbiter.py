@@ -230,52 +230,65 @@ _PROJECTED_ONLY_CLAIM_KINDS = {
 }
 
 
+def _has_local_negation(value: str, *, index: int) -> bool:
+    prefix = value[max(0, index - 18) : index]
+    return any(marker in prefix for marker in ("no ", "not ", "without ", "forbidden ", "non-"))
+
+
+def _reject_unnegated_phrases(
+    value: str,
+    *,
+    field_name: str,
+    phrases: list[str],
+    authority_kind: str,
+) -> None:
+    lowered = value.lower()
+    for phrase in phrases:
+        start = 0
+        while (index := lowered.find(phrase, start)) != -1:
+            if not _has_local_negation(lowered, index=index):
+                raise ValueError(f"{field_name} may not carry {authority_kind} authority")
+            start = index + len(phrase)
+
+
 def _reject_reconciliation_overclaim(value: str, *, field_name: str) -> str:
     _reject_unnegated_authority_claim(value, field_name=field_name)
-    lowered = value.lower()
-    forbidden = [
-        "settles truth",
-        "settled truth",
-        "declares truth",
-        "majority agreement proves",
-        "majority-as-correctness",
-        "benchmark truth",
-        "model selected",
-        "is correct",
-    ]
-    negation_markers = ("no ", "not ", "without ", "forbidden ", "non-")
-    for phrase in forbidden:
-        index = lowered.find(phrase)
-        if index == -1:
-            continue
-        prefix = lowered[max(0, index - 18) : index]
-        if not any(marker in prefix for marker in negation_markers):
-            raise ValueError(f"{field_name} may not carry truth or correctness authority")
+    _reject_unnegated_phrases(
+        value,
+        field_name=field_name,
+        phrases=[
+            "settles truth",
+            "settled truth",
+            "declares truth",
+            "majority agreement proves",
+            "majority-as-correctness",
+            "benchmark truth",
+            "model selected",
+            "is correct",
+        ],
+        authority_kind="truth or correctness",
+    )
     return value
 
 
 def _reject_settlement_overclaim(value: str, *, field_name: str) -> str:
     _reject_reconciliation_overclaim(value, field_name=field_name)
-    lowered = value.lower()
-    forbidden = [
-        "settlement complete",
-        "settled relation",
-        "settles relation",
-        "ratifies claim",
-        "claim is true",
-        "truth authority",
-        "implementation priority",
-        "majority proves",
-        "majority agreement proves",
-    ]
-    negation_markers = ("no ", "not ", "without ", "forbidden ", "non-")
-    for phrase in forbidden:
-        index = lowered.find(phrase)
-        if index == -1:
-            continue
-        prefix = lowered[max(0, index - 18) : index]
-        if not any(marker in prefix for marker in negation_markers):
-            raise ValueError(f"{field_name} may not carry settlement or truth authority")
+    _reject_unnegated_phrases(
+        value,
+        field_name=field_name,
+        phrases=[
+            "settlement complete",
+            "settled relation",
+            "settles relation",
+            "ratifies claim",
+            "claim is true",
+            "truth authority",
+            "implementation priority",
+            "majority proves",
+            "majority agreement proves",
+        ],
+        authority_kind="settlement or truth",
+    )
     return value
 
 
@@ -635,12 +648,7 @@ class RepoArbiterAuthorityProfileRow(_CartographyBase):
             "support_doc",
             "transcript",
             "tool_output",
-        } and self.authority_gap_posture not in {
-            "review_only_authority",
-            "authority_gap_missing",
-            "blocked_pending_later_authority",
-            "future_family_only",
-        }:
+        } and self.authority_gap_posture == "authority_gap_missing":
             raise ValueError("non-lock grant sources cannot become settlement authority")
         return self
 
@@ -1517,6 +1525,52 @@ def derive_v76a_reconciliation_arbiter_bundle(
     return claim_map, relation_register, dissent_register
 
 
+def _resolve_v76a_reconciliation_surfaces(
+    *,
+    repo_root: Path | None = None,
+    reconciliation_claim_map: RepoReconciliationClaimMap | None = None,
+    arbiter_relation_register: RepoArbiterRelationRegister | None = None,
+    reconciliation_dissent_register: RepoReconciliationDissentRegister | None = None,
+) -> tuple[
+    RepoReconciliationClaimMap,
+    RepoArbiterRelationRegister,
+    RepoReconciliationDissentRegister,
+]:
+    if reconciliation_claim_map is None:
+        if arbiter_relation_register is not None or reconciliation_dissent_register is not None:
+            raise ValueError("partial V76-A dependencies must include the claim map")
+        return derive_v76a_reconciliation_arbiter_bundle(repo_root=repo_root)
+
+    claim_map = reconciliation_claim_map
+    relation_register = (
+        arbiter_relation_register
+        or derive_v76a_repo_arbiter_relation_register(
+            repo_root=repo_root,
+            reconciliation_claim_map=claim_map,
+        )
+    )
+    dissent_register = (
+        reconciliation_dissent_register
+        or derive_v76a_repo_reconciliation_dissent_register(
+            repo_root=repo_root,
+            reconciliation_claim_map=claim_map,
+            arbiter_relation_register=relation_register,
+        )
+    )
+    if relation_register.reconciliation_claim_map_id != claim_map.reconciliation_claim_map_id:
+        raise ValueError("partial V76-A relation register must reference the supplied claim map")
+    if dissent_register.reconciliation_claim_map_id != claim_map.reconciliation_claim_map_id:
+        raise ValueError("partial V76-A dissent register must reference the supplied claim map")
+    if (
+        dissent_register.arbiter_relation_register_id
+        != relation_register.arbiter_relation_register_id
+    ):
+        raise ValueError(
+            "partial V76-A dissent register must reference the supplied relation register"
+        )
+    return claim_map, relation_register, dissent_register
+
+
 def derive_v76b_repo_arbiter_authority_profile(
     *,
     repo_root: Path | None = None,
@@ -1524,21 +1578,12 @@ def derive_v76b_repo_arbiter_authority_profile(
     arbiter_relation_register: RepoArbiterRelationRegister | None = None,
     reconciliation_dissent_register: RepoReconciliationDissentRegister | None = None,
 ) -> RepoArbiterAuthorityProfile:
-    if (
-        reconciliation_claim_map is None
-        or arbiter_relation_register is None
-        or reconciliation_dissent_register is None
-    ):
-        claim_map, relation_register, dissent_register = derive_v76a_reconciliation_arbiter_bundle(
-            repo_root=repo_root
-        )
-        claim_map = reconciliation_claim_map or claim_map
-        relation_register = arbiter_relation_register or relation_register
-        dissent_register = reconciliation_dissent_register or dissent_register
-    else:
-        claim_map = reconciliation_claim_map
-        relation_register = arbiter_relation_register
-        dissent_register = reconciliation_dissent_register
+    claim_map, relation_register, dissent_register = _resolve_v76a_reconciliation_surfaces(
+        repo_root=repo_root,
+        reconciliation_claim_map=reconciliation_claim_map,
+        arbiter_relation_register=arbiter_relation_register,
+        reconciliation_dissent_register=reconciliation_dissent_register,
+    )
     payload = {
         **_v76b_base_payload(
             schema=REPO_ARBITER_AUTHORITY_PROFILE_SCHEMA,
@@ -1627,15 +1672,11 @@ def derive_v76b_repo_adversarial_relation_review(
     reconciliation_claim_map: RepoReconciliationClaimMap | None = None,
     arbiter_relation_register: RepoArbiterRelationRegister | None = None,
 ) -> RepoAdversarialRelationReview:
-    if reconciliation_claim_map is None or arbiter_relation_register is None:
-        claim_map, relation_register, _ = derive_v76a_reconciliation_arbiter_bundle(
-            repo_root=repo_root
-        )
-        claim_map = reconciliation_claim_map or claim_map
-        relation_register = arbiter_relation_register or relation_register
-    else:
-        claim_map = reconciliation_claim_map
-        relation_register = arbiter_relation_register
+    claim_map, relation_register, _ = _resolve_v76a_reconciliation_surfaces(
+        repo_root=repo_root,
+        reconciliation_claim_map=reconciliation_claim_map,
+        arbiter_relation_register=arbiter_relation_register,
+    )
     payload = {
         "schema": REPO_ADVERSARIAL_RELATION_REVIEW_SCHEMA,
         "adversarial_relation_review_id": "",
@@ -1721,15 +1762,11 @@ def derive_v76b_repo_reconciliation_gap_scan(
     reconciliation_claim_map: RepoReconciliationClaimMap | None = None,
     arbiter_relation_register: RepoArbiterRelationRegister | None = None,
 ) -> RepoReconciliationGapScan:
-    if reconciliation_claim_map is None or arbiter_relation_register is None:
-        claim_map, relation_register, _ = derive_v76a_reconciliation_arbiter_bundle(
-            repo_root=repo_root
-        )
-        claim_map = reconciliation_claim_map or claim_map
-        relation_register = arbiter_relation_register or relation_register
-    else:
-        claim_map = reconciliation_claim_map
-        relation_register = arbiter_relation_register
+    claim_map, relation_register, _ = _resolve_v76a_reconciliation_surfaces(
+        repo_root=repo_root,
+        reconciliation_claim_map=reconciliation_claim_map,
+        arbiter_relation_register=arbiter_relation_register,
+    )
     payload = {
         "schema": REPO_RECONCILIATION_GAP_SCAN_SCHEMA,
         "reconciliation_gap_scan_id": "",
@@ -1804,21 +1841,12 @@ def derive_v76b_repo_reconciliation_settlement_request(
     adversarial_relation_review: RepoAdversarialRelationReview | None = None,
     reconciliation_gap_scan: RepoReconciliationGapScan | None = None,
 ) -> RepoReconciliationSettlementRequest:
-    if (
-        reconciliation_claim_map is None
-        or arbiter_relation_register is None
-        or reconciliation_dissent_register is None
-    ):
-        claim_map, relation_register, dissent_register = derive_v76a_reconciliation_arbiter_bundle(
-            repo_root=repo_root
-        )
-        claim_map = reconciliation_claim_map or claim_map
-        relation_register = arbiter_relation_register or relation_register
-        dissent_register = reconciliation_dissent_register or dissent_register
-    else:
-        claim_map = reconciliation_claim_map
-        relation_register = arbiter_relation_register
-        dissent_register = reconciliation_dissent_register
+    claim_map, relation_register, dissent_register = _resolve_v76a_reconciliation_surfaces(
+        repo_root=repo_root,
+        reconciliation_claim_map=reconciliation_claim_map,
+        arbiter_relation_register=arbiter_relation_register,
+        reconciliation_dissent_register=reconciliation_dissent_register,
+    )
     authority_profile = arbiter_authority_profile or derive_v76b_repo_arbiter_authority_profile(
         repo_root=repo_root,
         reconciliation_claim_map=claim_map,
