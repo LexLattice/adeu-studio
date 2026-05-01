@@ -290,3 +290,97 @@ def test_v215_bundle_rejects_guardrail_missing_authority_gap_ref() -> None:
         match="runtime guardrail rows must carry authority gap refs",
     ):
         _validate_reference_bundle_with(guardrail=guardrail)
+
+
+def test_v215_guardrail_derivation_groups_many_requests_per_guardrail() -> None:
+    request_payload = _v77a_request().model_dump(mode="json")
+    duplicate_row = dict(
+        next(
+            row
+            for row in request_payload["request_rows"]
+            if row["runtime_review_ref"] == "runtime-review:v77a:self-evidencing:preflight"
+        )
+    )
+    duplicate_row["runtime_review_ref"] = "runtime-review:v77a:self-evidencing:second-pass"
+    duplicate_row["required_later_authority_refs"] = sorted(
+        [
+            *duplicate_row["required_later_authority_refs"],
+            "authority:v77a:self-evidencing:second-pass-review",
+        ]
+    )
+    duplicate_row["required_later_authority_rows"] = sorted(
+        [
+            *duplicate_row["required_later_authority_rows"],
+            {
+                "authority_gap_posture": "authority_gap_present",
+                "authority_kind": "human_or_maintainer_review",
+                "authority_requirement_ref": (
+                    "authority:v77a:self-evidencing:second-pass-review"
+                ),
+                "candidate_ref": duplicate_row["candidate_ref"],
+                "limitation_note": "Human review remains missing before any second pass.",
+                "required_before_surface": "before_human_or_maintainer_review",
+                "source_presence_posture": "present",
+                "source_refs": ["docs/LOCKED_CONTINUATION_vNEXT_PLUS215.md"],
+            },
+        ],
+        key=lambda row: row["authority_requirement_ref"],
+    )
+    request_payload["request_rows"].append(duplicate_row)
+    request_payload["runtime_permission_review_request_id"] = _surface_id(
+        "repo_runtime_permission_review_request",
+        REPO_RUNTIME_PERMISSION_REVIEW_REQUEST_SCHEMA,
+        request_payload,
+        "runtime_permission_review_request_id",
+    )
+    request = RepoRuntimePermissionReviewRequest.model_validate(request_payload)
+
+    guardrail = derive_v77a_repo_runtime_non_execution_guardrail(
+        repo_root=_repo_root(),
+        runtime_permission_review_request=request,
+    )
+
+    grouped = {
+        row.guardrail_ref: row for row in guardrail.guardrail_rows
+    }["guardrail:v77a:self-evidencing:non-execution"]
+    assert grouped.runtime_review_refs == [
+        "runtime-review:v77a:self-evidencing:preflight",
+        "runtime-review:v77a:self-evidencing:second-pass",
+    ]
+    assert (
+        "authority:v77a:self-evidencing:second-pass-review" in grouped.authority_gap_refs
+    )
+    _validate_reference_bundle_with(request=request, guardrail=guardrail)
+
+
+def test_v215_bundle_rejects_unknown_guardrail_source_ref() -> None:
+    guardrail_payload = _v77a_guardrail().model_dump(mode="json")
+    guardrail_payload["guardrail_rows"][0]["source_refs"] = sorted(
+        [
+            *guardrail_payload["guardrail_rows"][0]["source_refs"],
+            "docs/not-a-v77-guardrail-source.md",
+        ]
+    )
+    guardrail_payload["runtime_non_execution_guardrail_id"] = _surface_id(
+        "repo_runtime_non_execution_guardrail",
+        REPO_RUNTIME_NON_EXECUTION_GUARDRAIL_SCHEMA,
+        guardrail_payload,
+        "runtime_non_execution_guardrail_id",
+    )
+    guardrail = RepoRuntimeNonExecutionGuardrail.model_validate(guardrail_payload)
+
+    with pytest.raises(ValueError, match="runtime guardrail source refs must be known"):
+        _validate_reference_bundle_with(guardrail=guardrail)
+
+
+def test_v215_rejects_auxiliary_verb_runtime_authority_claims() -> None:
+    request_payload = _v77a_request().model_dump(mode="json")
+    request_payload["request_rows"][0][
+        "limitation_note"
+    ] = "This row says runtime permission is granted."
+
+    with pytest.raises(
+        ValidationError,
+        match="may not carry runtime or downstream authority",
+    ):
+        RepoRuntimePermissionReviewRequest.model_validate(request_payload)

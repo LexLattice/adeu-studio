@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import re
 from pathlib import Path
 from typing import Literal
 
@@ -165,32 +166,32 @@ _FORBIDDEN_DOWNSTREAM_AUTHORITIES = {
 
 def _reject_runtime_authority_claim(value: str, *, field_name: str) -> str:
     lowered = value.lower()
-    forbidden = [
-        "runtime permission granted",
-        "grants runtime",
-        "permission to run",
-        "command executed",
-        "command output proves",
-        "tool use authorized",
-        "assign worker",
-        "dispatch worker",
-        "open pr",
-        "commit now",
-        "merge now",
-        "release now",
-        "product authorized",
-        "external branch activated",
-        "external submission",
-        "benchmark truth",
-        "model selected",
-        "policy amended",
+    forbidden_patterns = [
+        r"runtime permission (?:is |was |has been |gets |got )?granted",
+        r"grants runtime",
+        r"permission to run",
+        r"command (?:is |was |has been |gets |got )?executed",
+        r"command output proves",
+        r"tool use (?:is |was |has been |gets |got )?authorized",
+        r"assign worker",
+        r"dispatch worker",
+        r"open pr",
+        r"commit now",
+        r"merge now",
+        r"release now",
+        r"product (?:is |was |has been |gets |got )?authorized",
+        r"external branch (?:is |was |has been |gets |got )?activated",
+        r"external submission",
+        r"benchmark truth",
+        r"model (?:is |was |has been |gets |got )?selected",
+        r"policy (?:is |was |has been |gets |got )?amended",
     ]
     negation_markers = ("no ", "not ", "without ", "forbidden ", "non-")
-    for phrase in forbidden:
-        index = lowered.find(phrase)
-        if index == -1:
+    for pattern in forbidden_patterns:
+        match = re.search(pattern, lowered)
+        if match is None:
             continue
-        prefix = lowered[max(0, index - 18) : index]
+        prefix = lowered[max(0, match.start() - 18) : match.start()]
         if not any(marker in prefix for marker in negation_markers):
             raise ValueError(f"{field_name} may not carry runtime or downstream authority")
     return value
@@ -863,26 +864,44 @@ def derive_v77a_repo_runtime_non_execution_guardrail(
         runtime_permission_review_request
         or derive_v77a_repo_runtime_permission_review_request()
     )
-    rows = []
+    grouped_rows: dict[str, dict[str, object]] = {}
     for request_row in request.request_rows:
-        rows.append(
+        guardrail_ref = request_row.guardrail_refs[0]
+        existing = grouped_rows.setdefault(
+            guardrail_ref,
             {
-                "guardrail_ref": request_row.guardrail_refs[0],
+                "guardrail_ref": guardrail_ref,
                 "candidate_ref": request_row.candidate_ref,
-                "runtime_review_refs": [request_row.runtime_review_ref],
+                "runtime_review_refs": [],
                 "forbidden_runtime_actions": sorted(_FORBIDDEN_RUNTIME_ACTIONS),
                 "forbidden_downstream_authority": sorted(_FORBIDDEN_DOWNSTREAM_AUTHORITIES),
                 "execution_posture": "no_execution_authorized",
                 "tool_use_posture": "tool_use_not_authorized_by_v77",
-                "authority_gap_refs": request_row.required_later_authority_refs,
-                "source_refs": request_row.source_refs,
+                "authority_gap_refs": [],
+                "source_refs": [],
                 "limitation_note": (
                     "This V77-A row is review only: no command execution, no runtime "
                     "permission, no tool-use permission, no product authorization, "
                     "no external branch activation, and no release."
                 ),
+            },
+        )
+        if existing["candidate_ref"] != request_row.candidate_ref:
+            raise ValueError("runtime guardrail derivation cannot merge multiple candidates")
+        existing["runtime_review_refs"] = sorted(
+            {
+                *existing["runtime_review_refs"],
+                request_row.runtime_review_ref,
             }
         )
+        existing["authority_gap_refs"] = sorted(
+            {
+                *existing["authority_gap_refs"],
+                *request_row.required_later_authority_refs,
+            }
+        )
+        existing["source_refs"] = sorted({*existing["source_refs"], *request_row.source_refs})
+    rows = list(grouped_rows.values())
     payload = {
         "schema": REPO_RUNTIME_NON_EXECUTION_GUARDRAIL_SCHEMA,
         "runtime_non_execution_guardrail_id": "",
@@ -996,6 +1015,8 @@ def validate_v77a_runtime_permission_review_bundle(
                 raise ValueError("runtime guardrail rows must carry authority gap refs")
 
     for guardrail_row in runtime_non_execution_guardrail.guardrail_rows:
+        if any(source_ref not in known_sources for source_ref in guardrail_row.source_refs):
+            raise ValueError("runtime guardrail source refs must be known")
         if any(ref not in request_rows for ref in guardrail_row.runtime_review_refs):
             raise ValueError("guardrail runtime review refs must be known")
         for ref in guardrail_row.runtime_review_refs:
