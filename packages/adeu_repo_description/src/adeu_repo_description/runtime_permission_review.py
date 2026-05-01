@@ -2017,20 +2017,30 @@ def validate_v77b_runtime_preflight_bundle(
         for guardrail_ref in effect_row.non_execution_guardrail_refs:
             if guardrail_ref not in guardrail_rows:
                 raise ValueError("effect envelope guardrail refs must be known")
+            if guardrail_rows[guardrail_ref].candidate_ref != effect_row.candidate_ref:
+                raise ValueError("effect envelope guardrails must match candidate")
     for telemetry_row in runtime_telemetry_requirement.telemetry_requirement_rows:
         for preflight_ref in telemetry_row.preflight_refs:
             if preflight_ref not in preflight_rows:
                 raise ValueError("telemetry preflight refs must be known")
+            if preflight_rows[preflight_ref].candidate_ref != telemetry_row.candidate_ref:
+                raise ValueError("telemetry rows must match preflight candidate")
         for effect_ref in telemetry_row.effect_envelope_refs:
             if effect_ref not in effect_rows:
                 raise ValueError("telemetry effect envelope refs must be known")
+            if effect_rows[effect_ref].candidate_ref != telemetry_row.candidate_ref:
+                raise ValueError("telemetry rows must match effect candidate")
     for rollback_row in runtime_rollback_contract.rollback_contract_rows:
         for preflight_ref in rollback_row.preflight_refs:
             if preflight_ref not in preflight_rows:
                 raise ValueError("rollback preflight refs must be known")
+            if preflight_rows[preflight_ref].candidate_ref != rollback_row.candidate_ref:
+                raise ValueError("rollback rows must match preflight candidate")
         for effect_ref in rollback_row.effect_envelope_refs:
             if effect_ref not in effect_rows:
                 raise ValueError("rollback effect envelope refs must be known")
+            if effect_rows[effect_ref].candidate_ref != rollback_row.candidate_ref:
+                raise ValueError("rollback rows must match effect candidate")
 
 
 def derive_v77b_runtime_preflight_bundle(

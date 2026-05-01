@@ -23,6 +23,7 @@ from adeu_repo_description import (
     derive_v77b_runtime_preflight_bundle,
     validate_v77b_runtime_preflight_bundle,
 )
+from adeu_repo_description.candidate_review_classification import _surface_id
 from jsonschema import Draft202012Validator
 from pydantic import ValidationError
 
@@ -118,6 +119,17 @@ def _validate_reference_bundle_with(
         runtime_telemetry_requirement=telemetry or _v77b_telemetry(),
         runtime_rollback_contract=rollback or _v77b_rollback(),
     )
+
+
+def _rehash_surface(
+    payload: dict[str, Any],
+    *,
+    surface_name: str,
+    schema: str,
+    id_field: str,
+) -> dict[str, Any]:
+    payload[id_field] = _surface_id(surface_name, schema, payload, id_field)
+    return payload
 
 
 def test_v216_reference_bundle_validates() -> None:
@@ -308,3 +320,74 @@ def test_v216_bundle_rejects_unknown_guardrail_ref() -> None:
             telemetry=telemetry,
             rollback=rollback,
         )
+
+
+def test_v216_bundle_rejects_effect_guardrail_candidate_mismatch() -> None:
+    envelope_payload = _v77b_envelope().model_dump(mode="json")
+    envelope_payload["effect_envelope_rows"][1]["non_execution_guardrail_refs"] = [
+        "guardrail:v77a:product-wedge:non-execution"
+    ]
+    envelope = RepoActionEffectEnvelope.model_validate(
+        _rehash_surface(
+            envelope_payload,
+            surface_name="repo_action_effect_envelope",
+            schema=REPO_ACTION_EFFECT_ENVELOPE_SCHEMA,
+            id_field="action_effect_envelope_id",
+        )
+    )
+    telemetry = derive_v77b_repo_runtime_telemetry_requirement(
+        command_preflight_contract=_v77b_preflight(),
+        action_effect_envelope=envelope,
+    )
+    rollback = derive_v77b_repo_runtime_rollback_contract(
+        command_preflight_contract=_v77b_preflight(),
+        action_effect_envelope=envelope,
+    )
+
+    with pytest.raises(
+        ValueError,
+        match="effect envelope guardrails must match candidate",
+    ):
+        _validate_reference_bundle_with(envelope=envelope, telemetry=telemetry, rollback=rollback)
+
+
+def test_v216_bundle_rejects_telemetry_candidate_mismatch() -> None:
+    telemetry_payload = _v77b_telemetry().model_dump(mode="json")
+    telemetry_payload["telemetry_requirement_rows"][1]["preflight_refs"] = [
+        "preflight:v77b:product-wedge:blocked"
+    ]
+    telemetry = RepoRuntimeTelemetryRequirement.model_validate(
+        _rehash_surface(
+            telemetry_payload,
+            surface_name="repo_runtime_telemetry_requirement",
+            schema=REPO_RUNTIME_TELEMETRY_REQUIREMENT_SCHEMA,
+            id_field="runtime_telemetry_requirement_id",
+        )
+    )
+
+    with pytest.raises(
+        ValueError,
+        match="telemetry rows must match preflight candidate",
+    ):
+        _validate_reference_bundle_with(telemetry=telemetry)
+
+
+def test_v216_bundle_rejects_rollback_candidate_mismatch() -> None:
+    rollback_payload = _v77b_rollback().model_dump(mode="json")
+    rollback_payload["rollback_contract_rows"][1]["effect_envelope_refs"] = [
+        "effect-envelope:v77b:product-wedge:blocked"
+    ]
+    rollback = RepoRuntimeRollbackContract.model_validate(
+        _rehash_surface(
+            rollback_payload,
+            surface_name="repo_runtime_rollback_contract",
+            schema=REPO_RUNTIME_ROLLBACK_CONTRACT_SCHEMA,
+            id_field="runtime_rollback_contract_id",
+        )
+    )
+
+    with pytest.raises(
+        ValueError,
+        match="rollback rows must match effect candidate",
+    ):
+        _validate_reference_bundle_with(rollback=rollback)
