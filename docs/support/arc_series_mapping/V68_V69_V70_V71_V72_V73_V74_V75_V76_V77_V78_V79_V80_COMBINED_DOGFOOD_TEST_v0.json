@@ -1,0 +1,121 @@
+{
+  "assertions": [
+    "family_closeout_artifacts_exist_through_v80",
+    "v80c_summaries_preserve_no_activation_submission_tool_invocation_data_transfer_or_result_truth",
+    "v80c_handoffs_are_review_requests_with_no_activation_submission_or_tool_invocation",
+    "v80c_product_pressure_remains_blocked_by_product_authority",
+    "v80c_self_evidencing_pressure_remains_blocked_by_missing_v43_posture",
+    "v80_family_closeout_closes_without_v81_selection"
+  ],
+  "carry_forward_findings": [
+    {
+      "finding": "V80 closes external branch activation review with source-bound request, data/tool/submission/result boundary, exception, summary, and handoff posture, but without external activation, submission, tool invocation, data transfer, endpoint mutation, or result truth.",
+      "posture": "closed_family_boundary",
+      "result": "not_family_failure"
+    },
+    {
+      "finding": "V80-C carries external-branch authority review pressure and product review pressure forward as later-review requests; it does not select V81 or grant downstream authority.",
+      "posture": "future_family_pressure_visible_not_selected",
+      "result": "not_family_failure"
+    }
+  ],
+  "counts": {
+    "v80_shipped_record_shapes": 11,
+    "v80_unselected_future_surfaces": 17,
+    "v80c_handoff_rows": 2,
+    "v80c_summary_rows": 2
+  },
+  "failures": [],
+  "families_checked": [
+    "V68",
+    "V69",
+    "V70",
+    "V71",
+    "V72",
+    "V73",
+    "V74",
+    "V75",
+    "V76",
+    "V77",
+    "V78",
+    "V79",
+    "V80"
+  ],
+  "family_closeout_schemas": {
+    "V68": "v68_family_closeout_alignment@1",
+    "V69": "v69_family_closeout_alignment@1",
+    "V70": "v70_family_closeout_alignment@1",
+    "V71": "v71_family_closeout_alignment@1",
+    "V72": "v72_family_closeout_alignment@1",
+    "V73": "v73_family_closeout_alignment@1",
+    "V74": "v74_family_closeout_alignment@1",
+    "V75": "v75_family_closeout_alignment@1",
+    "V76": "v76_family_closeout_alignment@1",
+    "V77": "v77_family_closeout_alignment@1",
+    "V78": "v78_family_closeout_alignment@1",
+    "V79": "v79_family_closeout_alignment@1",
+    "V80": "v80_family_closeout_alignment@1"
+  },
+  "handoff_postures": {
+    "handoff:v80c:product-wedge:future-product-review": {
+      "external_activation_posture": "no_external_branch_activation_performed_by_v80",
+      "external_submission_posture": "no_external_submission_performed_by_v80",
+      "external_tool_invocation_posture": "no_external_tool_invocation_performed_by_v80",
+      "handoff_external_activation_status": "no_external_branch_activation_performed_by_v80",
+      "handoff_external_authority_horizon": "branch_posture_review",
+      "handoff_posture": "blocked_by_required_later_authority",
+      "handoff_subject_horizon": "product_authority_gap",
+      "handoff_target": "future_product_review",
+      "required_later_authority_refs": [
+        "authority:v78a:product-wedge:product-review"
+      ]
+    },
+    "handoff:v80c:self-evidencing:external-authority-review": {
+      "external_activation_posture": "no_external_branch_activation_performed_by_v80",
+      "external_submission_posture": "no_external_submission_performed_by_v80",
+      "external_tool_invocation_posture": "no_external_tool_invocation_performed_by_v80",
+      "handoff_external_activation_status": "no_external_branch_activation_performed_by_v80",
+      "handoff_external_authority_horizon": "branch_posture_review",
+      "handoff_posture": "blocked_by_v43_branch_posture_gap",
+      "handoff_subject_horizon": "external_branch_review_package",
+      "handoff_target": "future_external_branch_activation_authority_review",
+      "required_later_authority_refs": [
+        "external-branch-posture:v43:current:absent"
+      ]
+    }
+  },
+  "postures": {
+    "candidate:internal:self_evidencing_workflow_type_emergence": {
+      "ready_basis_posture": "not_ready_blockers_remain",
+      "summary_posture": "blocked_by_missing_v43_branch_posture"
+    },
+    "candidate:internal:typed_adjudication_product_wedge": {
+      "ready_basis_posture": "not_ready_blockers_remain",
+      "summary_posture": "blocked_by_product_authority_gap"
+    }
+  },
+  "pytest_result": {
+    "collected_count": 660,
+    "focused_repo_description_tests_passed": true,
+    "warnings_count": 159,
+    "warnings_observed": true
+  },
+  "result": "pass",
+  "schema": "v68_v69_v70_v71_v72_v73_v74_v75_v76_v77_v78_v79_v80_combined_dogfood_test@1",
+  "terminal_closeout_arcs": [
+    "vNext+190",
+    "vNext+193",
+    "vNext+196",
+    "vNext+199",
+    "vNext+202",
+    "vNext+205",
+    "vNext+208",
+    "vNext+211",
+    "vNext+214",
+    "vNext+217",
+    "vNext+220",
+    "vNext+223",
+    "vNext+226"
+  ],
+  "terminal_closeout_checks_passed": true
+}
