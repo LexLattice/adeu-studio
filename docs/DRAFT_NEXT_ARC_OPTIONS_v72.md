@@ -149,8 +149,7 @@ locks:
 - `repo_post_corpus_ingestion_review_handoff@1`
 - `repo_corpus_ingestion_review_family_closeout_alignment@1`
 
-Post-`V82-A` continuation posture: after `vNext+230` closes on `main`, select
-`V82-B` as the next default candidate for the next canonical starter bundle.
+Post-`V82-A` continuation posture: after `vNext+230` closes on `main`, select `V82-B` as the next default candidate for the next canonical starter bundle.
 That selection remains inside the already selected `V82` family and does not
 create a new next-arc-options selector version.
 

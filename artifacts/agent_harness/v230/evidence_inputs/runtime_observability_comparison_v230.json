@@ -1,0 +1,11 @@
+{
+  "baseline_arc": "vNext+229",
+  "baseline_elapsed_ms": 101,
+  "baseline_source": "artifacts/stop_gate/report_v229_closeout.md",
+  "current_arc": "vNext+230",
+  "current_elapsed_ms": 100,
+  "current_source": "artifacts/stop_gate/report_v230_closeout.md",
+  "delta_ms": -1,
+  "notes": "v230 keeps the frozen stop-gate schema family and exact metric keyset unchanged while closing the bounded V82-A corpus-ingestion review request / source index / non-transfer guardrail slice on main: request recordability remains distinct from eligibility; descriptors, connector identifiers, endpoint identifiers, explicit absence rows, and support rows cannot create ingestion eligibility; authority refs must resolve to same-row authority requirement rows; and no corpus ingestion, data transfer, customer-data handling, connector activation, endpoint access, cross-corpus adjudication execution, product authorization, release, graph-memory authority, recursive policy amendment, or V83 selection occurs.",
+  "schema": "runtime_observability_comparison@1"
+}
