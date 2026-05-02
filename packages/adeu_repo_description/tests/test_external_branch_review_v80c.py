@@ -22,6 +22,7 @@ from adeu_repo_description import (
     RepoExternalToolBoundary,
     RepoPostExternalBranchReviewHandoff,
     derive_v80c_external_branch_review_closeout_bundle,
+    derive_v80c_repo_external_branch_readiness_summary,
     validate_v80c_external_branch_review_closeout_bundle,
 )
 from jsonschema import Draft202012Validator
@@ -234,6 +235,45 @@ def test_v226_derivation_helper_matches_reference_fixtures() -> None:
     )
 
 
+def test_v226_derivation_filters_nonblocking_exceptions_from_blockers() -> None:
+    exceptions = _exceptions()
+    warning_row = exceptions.exception_rows[1].model_copy(
+        update={
+            "exception_ref": "external-exception:v80b:self-evidencing:warning",
+            "exception_kind": "unknown_needs_review",
+            "exception_posture": "warning_only",
+            "blocking_surface_refs": [],
+            "limitation_note": (
+                "Warning-only external branch exception remains review only with "
+                "no external activation."
+            ),
+        }
+    )
+    exceptions_with_warning = exceptions.model_copy(
+        update={"exception_rows": [*exceptions.exception_rows, warning_row]}
+    )
+
+    summary = derive_v80c_repo_external_branch_readiness_summary(
+        repo_root=_repo_root(),
+        external_branch_source_index=_v80a_source_index(),
+        external_branch_review_request=_v80a_request(),
+        external_branch_non_activation_guardrail=_v80a_guardrail(),
+        external_data_boundary=_data_boundary(),
+        external_tool_boundary=_tool_boundary(),
+        external_submission_authority_review=_submission_authority(),
+        external_result_provenance_contract=_result_provenance(),
+        external_branch_exception_register=exceptions_with_warning,
+    )
+
+    self_row = next(
+        row
+        for row in summary.summary_rows
+        if row.candidate_ref == "candidate:internal:self_evidencing_workflow_type_emergence"
+    )
+    assert "external-exception:v80b:self-evidencing:warning" not in self_row.exception_refs
+    assert "external-exception:v80b:self-evidencing:warning" not in self_row.carried_blocker_refs
+
+
 @pytest.mark.parametrize(
     ("fixture_name", "model_type", "match"),
     [
@@ -287,6 +327,20 @@ def test_v226_bundle_rejects_unknown_summary_request_ref() -> None:
 
     with pytest.raises(ValueError, match="summary request refs must be known"):
         _validate_reference_bundle_with(summary=summary)
+
+
+def test_v226_bundle_rejects_summary_missing_request_candidate() -> None:
+    summary = _summary().model_copy(update={"summary_rows": _summary().summary_rows[:1]})
+
+    with pytest.raises(ValueError, match="summary must cover all request candidates"):
+        _validate_reference_bundle_with(summary=summary)
+
+
+def test_v226_bundle_rejects_handoff_missing_request_candidate() -> None:
+    handoff = _handoff().model_copy(update={"handoff_rows": _handoff().handoff_rows[:1]})
+
+    with pytest.raises(ValueError, match="handoff must cover all request candidates"):
+        _validate_reference_bundle_with(handoff=handoff)
 
 
 def test_v226_bundle_rejects_warning_ready_with_blocking_exception() -> None:

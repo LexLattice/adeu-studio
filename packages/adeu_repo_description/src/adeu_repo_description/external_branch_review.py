@@ -2415,15 +2415,21 @@ class RepoExternalBranchReadinessSummaryRow(_CartographyBase):
             "external_branch_review_ready",
             "external_branch_review_ready_with_nonblocking_warnings",
         }:
-            if self.summary_posture == "external_branch_review_ready" and (
-                self.ready_basis_posture != "ready_no_blockers"
-            ):
-                raise ValueError("ready external branch summaries require ready_no_blockers")
+            if self.summary_posture == "external_branch_review_ready":
+                if self.ready_basis_posture != "ready_no_blockers":
+                    raise ValueError("ready external branch summaries require ready_no_blockers")
+                if self.exception_refs:
+                    raise ValueError("ready summaries cannot carry exceptions")
             if (
                 self.summary_posture == "external_branch_review_ready_with_nonblocking_warnings"
                 and self.ready_basis_posture != "ready_with_nonblocking_warnings"
             ):
                 raise ValueError("warning-ready external branch summaries require warning basis")
+            if (
+                self.summary_posture == "external_branch_review_ready_with_nonblocking_warnings"
+                and not self.exception_refs
+            ):
+                raise ValueError("warning-ready summaries must carry warnings")
             if self.carried_blocker_refs:
                 raise ValueError("ready external branch summaries cannot carry blockers")
             for field_name in (
@@ -2435,11 +2441,14 @@ class RepoExternalBranchReadinessSummaryRow(_CartographyBase):
             ):
                 if not getattr(self, field_name):
                     raise ValueError("ready external branch summaries require boundary refs")
-        if self.summary_posture.startswith("blocked_by_") and self.ready_basis_posture not in {
-            "not_ready_blockers_remain",
-            "settlement_or_authority_review_requested_for_blockers",
-        }:
-            raise ValueError("blocked external branch summaries must preserve blocker basis")
+        if self.summary_posture.startswith("blocked_by_"):
+            if self.ready_basis_posture not in {
+                "not_ready_blockers_remain",
+                "settlement_or_authority_review_requested_for_blockers",
+            }:
+                raise ValueError("blocked external branch summaries must preserve blocker basis")
+            if not self.carried_blocker_refs:
+                raise ValueError("blocked summaries must carry at least one blocker")
         if self.summary_posture == "future_family_only" and (
             self.ready_basis_posture != "future_family_only"
         ):
@@ -2568,8 +2577,13 @@ class RepoPostExternalBranchReviewHandoffRow(_CartographyBase):
             raise ValueError("V80-C handoffs must not transfer external data")
         if self.result_truth_posture != "external_result_truth_not_claimed":
             raise ValueError("V80-C handoffs must not claim external result truth")
-        if self.carried_exception_refs and self.handoff_posture == "ready_for_later_review":
-            raise ValueError("handoffs with blocking exceptions cannot be ready")
+        if self.handoff_posture == "ready_for_later_review" and self.carried_exception_refs:
+            raise ValueError("ready handoffs cannot carry exceptions")
+        if (
+            self.handoff_posture == "ready_with_nonblocking_warnings"
+            and not self.carried_exception_refs
+        ):
+            raise ValueError("warning-ready handoffs must carry warnings")
         if self.handoff_target in {
             "future_external_branch_activation_authority_review",
             "future_external_participation_or_submission_review",
@@ -2798,8 +2812,18 @@ def _v80c_reference_refs(
         rows: list[_CartographyBase],
         attr: str,
         candidate_ref: str,
+        *,
+        exception_posture: str | None = None,
     ) -> list[str]:
-        return sorted(getattr(row, attr) for row in rows if row.candidate_ref == candidate_ref)
+        return sorted(
+            getattr(row, attr)
+            for row in rows
+            if row.candidate_ref == candidate_ref
+            and (
+                exception_posture is None
+                or getattr(row, "exception_posture", None) == exception_posture
+            )
+        )
 
     return {
         "candidate_ref": self_request.candidate_ref,
@@ -2839,11 +2863,13 @@ def _v80c_reference_refs(
             exceptions.exception_rows,
             "exception_ref",
             self_request.candidate_ref,
+            exception_posture="blocking",
         ),
         "product_blocking_exception_refs": _refs_for_candidate(
             exceptions.exception_rows,
             "exception_ref",
             product_request.candidate_ref,
+            exception_posture="blocking",
         ),
         "authority_refs": ["external-branch-posture:v43:current:absent"],
         "product_authority_refs": ["authority:v78a:product-wedge:product-review"],
@@ -3402,6 +3428,17 @@ def validate_v80c_external_branch_review_closeout_bundle(
         row.external_branch_summary_ref: row
         for row in external_branch_readiness_summary.summary_rows
     }
+    request_candidates = {row.candidate_ref for row in external_branch_review_request.request_rows}
+    summary_candidates = {
+        row.candidate_ref for row in external_branch_readiness_summary.summary_rows
+    }
+    handoff_candidates = {
+        row.candidate_ref for row in post_external_branch_review_handoff.handoff_rows
+    }
+    if request_candidates != summary_candidates:
+        raise ValueError("V80-C summary must cover all request candidates")
+    if request_candidates != handoff_candidates:
+        raise ValueError("V80-C handoff must cover all request candidates")
 
     def _require_known_refs(refs: list[str], known: set[str], message: str) -> None:
         if any(ref not in known for ref in refs):
@@ -3517,6 +3554,8 @@ def validate_v80c_external_branch_review_closeout_bundle(
             }
             if set(row.exception_refs) != warning_refs:
                 raise ValueError("warning-ready summaries may carry warnings only")
+            if not warning_refs:
+                raise ValueError("warning-ready summaries must carry at least one warning")
         for ref in row.carried_blocker_refs:
             if exception_rows[ref].exception_posture != "blocking":
                 raise ValueError("carried blocker refs must point to blocking exceptions")
@@ -3606,6 +3645,16 @@ def validate_v80c_external_branch_review_closeout_bundle(
         }
         if blocking_carried and row.handoff_posture == "ready_for_later_review":
             raise ValueError("handoffs with blocking exceptions cannot be ready")
+        if row.handoff_posture == "ready_with_nonblocking_warnings":
+            warning_refs = {
+                ref
+                for ref in row.carried_exception_refs
+                if exception_rows[ref].exception_posture == "warning_only"
+            }
+            if set(row.carried_exception_refs) != warning_refs:
+                raise ValueError("warning-ready handoffs may carry warnings only")
+            if not warning_refs:
+                raise ValueError("warning-ready handoffs must carry at least one warning")
 
     if (
         "v81_selection"
