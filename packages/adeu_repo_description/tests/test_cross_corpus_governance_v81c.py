@@ -310,6 +310,21 @@ def test_v229_bundle_rejects_warning_ready_with_blocking_exception() -> None:
         _validate_reference_bundle_with(summary=summary)
 
 
+def test_v229_bundle_rejects_cross_candidate_carried_summary_exception() -> None:
+    summary = _summary()
+    summary_row = summary.summary_rows[0].model_copy(
+        update={
+            "carried_blocker_refs": ["corpus-exception:v81b:product-wedge:product-gap"]
+        }
+    )
+    summary = summary.model_copy(
+        update={"summary_rows": [summary_row, *summary.summary_rows[1:]]}
+    )
+
+    with pytest.raises(ValueError, match="summary carried exception refs must be included"):
+        _validate_reference_bundle_with(summary=summary)
+
+
 def test_v229_bundle_rejects_handoff_missing_request_candidate() -> None:
     handoff = _handoff().model_copy(update={"handoff_rows": _handoff().handoff_rows[:1]})
 
@@ -327,6 +342,40 @@ def test_v229_bundle_rejects_unknown_handoff_boundary_ref() -> None:
     )
 
     with pytest.raises(ValueError, match="handoff boundary refs must be known"):
+        _validate_reference_bundle_with(handoff=handoff)
+
+
+def test_v229_bundle_rejects_unknown_handoff_required_authority_ref() -> None:
+    handoff = _handoff()
+    handoff_row = handoff.handoff_rows[0].model_copy(
+        update={
+            "required_later_authority_refs": [
+                "corpus-authority-gap:v81b:self-evidencing:privacy:unknown"
+            ]
+        }
+    )
+    handoff = handoff.model_copy(
+        update={"handoff_rows": [handoff_row, *handoff.handoff_rows[1:]]}
+    )
+
+    with pytest.raises(ValueError, match="handoff required authority refs must be known"):
+        _validate_reference_bundle_with(handoff=handoff)
+
+
+def test_v229_bundle_rejects_cross_candidate_handoff_required_authority_ref() -> None:
+    handoff = _handoff()
+    handoff_row = handoff.handoff_rows[1].model_copy(
+        update={
+            "required_later_authority_refs": [
+                "corpus-authority-gap:v81b:self-evidencing:privacy"
+            ]
+        }
+    )
+    handoff = handoff.model_copy(
+        update={"handoff_rows": [handoff.handoff_rows[0], handoff_row]}
+    )
+
+    with pytest.raises(ValueError, match="handoff required authority refs must match candidate"):
         _validate_reference_bundle_with(handoff=handoff)
 
 

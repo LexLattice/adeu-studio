@@ -3441,6 +3441,21 @@ def validate_v81c_cross_corpus_governance_closeout_bundle(
         for ref in row.carried_warning_refs:
             if exception_rows[ref].blocking_posture != "warning_only":
                 raise ValueError("carried warning refs must point to warning exceptions")
+        carried_exception_refs = set(row.carried_blocker_refs) | set(row.carried_warning_refs)
+        if not carried_exception_refs.issubset(set(row.exception_refs)):
+            raise ValueError("summary carried exception refs must be included in exception refs")
+        _require_candidate_refs(
+            row.carried_blocker_refs,
+            exception_rows,
+            candidate_ref=row.candidate_ref,
+            message="summary carried blocker refs must match candidate",
+        )
+        _require_candidate_refs(
+            row.carried_warning_refs,
+            exception_rows,
+            candidate_ref=row.candidate_ref,
+            message="summary carried warning refs must match candidate",
+        )
 
     for row in post_cross_corpus_review_handoff.handoff_rows:
         _require_known_refs(
@@ -3462,6 +3477,11 @@ def validate_v81c_cross_corpus_governance_closeout_bundle(
             row.authority_gap_refs,
             set(authority_gap_rows),
             "handoff authority gap refs must be known",
+        )
+        _require_known_refs(
+            row.required_later_authority_refs,
+            set(authority_gap_rows),
+            "handoff required authority refs must be known",
         )
         _require_known_refs(
             row.carried_exception_refs,
@@ -3498,11 +3518,21 @@ def validate_v81c_cross_corpus_governance_closeout_bundle(
             message="handoff authority gap refs must match candidate",
         )
         _require_candidate_refs(
+            row.required_later_authority_refs,
+            authority_gap_rows,
+            candidate_ref=row.candidate_ref,
+            message="handoff required authority refs must match candidate",
+        )
+        _require_candidate_refs(
             row.carried_exception_refs,
             exception_rows,
             candidate_ref=row.candidate_ref,
             message="handoff exception refs must match candidate",
         )
+        if not set(row.required_later_authority_refs).issubset(set(row.authority_gap_refs)):
+            raise ValueError(
+                "handoff required authority refs must be carried authority gap refs"
+            )
         _require_candidate_refs(
             row.guardrail_refs,
             guardrail_rows,
