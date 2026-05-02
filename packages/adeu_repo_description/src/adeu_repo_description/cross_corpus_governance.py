@@ -35,6 +35,11 @@ REPO_CROSS_CORPUS_AUTHORITY_GAP_REGISTER_SCHEMA = (
     "repo_cross_corpus_authority_gap_register@1"
 )
 REPO_CROSS_CORPUS_EXCEPTION_REGISTER_SCHEMA = "repo_cross_corpus_exception_register@1"
+REPO_CROSS_CORPUS_GOVERNANCE_SUMMARY_SCHEMA = "repo_cross_corpus_governance_summary@1"
+REPO_POST_CROSS_CORPUS_REVIEW_HANDOFF_SCHEMA = "repo_post_cross_corpus_review_handoff@1"
+REPO_CROSS_CORPUS_GOVERNANCE_FAMILY_CLOSEOUT_ALIGNMENT_SCHEMA = (
+    "repo_cross_corpus_governance_family_closeout_alignment@1"
+)
 
 CrossCorpusSourceRole = Literal[
     "v80_summary_source",
@@ -314,6 +319,123 @@ CrossCorpusRequiredNextSurface = Literal[
     "future_family_review",
     "none",
 ]
+CrossCorpusSummaryPosture = Literal[
+    "cross_corpus_review_ready_with_no_blockers",
+    "cross_corpus_review_ready_with_nonblocking_warnings",
+    "blocked_by_missing_corpus_source",
+    "blocked_by_missing_boundary",
+    "blocked_by_missing_provenance",
+    "blocked_by_missing_authority",
+    "blocked_by_missing_privacy_authority",
+    "blocked_by_missing_license_or_consent",
+    "blocked_by_missing_customer_data_authority",
+    "blocked_by_missing_connector_authority",
+    "blocked_by_product_authority_gap",
+    "blocked_by_external_branch_authority_gap",
+    "future_family_only",
+    "rejected_out_of_scope",
+]
+CrossCorpusReadyBasisPosture = Literal[
+    "ready_no_blockers",
+    "ready_with_nonblocking_warnings",
+    "not_ready_blockers_remain",
+    "authority_review_requested_for_blockers",
+    "future_family_only",
+    "rejected_out_of_scope",
+]
+ProductAuthorizationPosture = Literal[
+    "no_product_authorization_performed_by_v81",
+    "product_authorization_requires_later_family",
+    "product_authorization_forbidden_by_this_family",
+]
+ReleaseAuthorityPosture = Literal[
+    "no_release_authority_performed_by_v81",
+    "release_authority_requires_later_family",
+    "release_authority_forbidden_by_this_family",
+]
+PostCrossCorpusReviewHandoffTarget = Literal[
+    "future_corpus_ingestion_review",
+    "future_connector_authority_review",
+    "future_cross_corpus_adjudication_review",
+    "future_product_review",
+    "future_external_branch_review",
+    "future_benchmark_review",
+    "future_graph_memory_review",
+    "future_family_review",
+    "deferred_no_selection",
+]
+PostCrossCorpusReviewHandoffSubjectHorizon = Literal[
+    "corpus_boundary_review_package",
+    "imported_substrate_provenance_review",
+    "privacy_or_license_authority_gap",
+    "connector_authority_gap",
+    "benchmark_result_review",
+    "product_authority_gap",
+    "external_branch_authority_gap",
+    "graph_memory_pressure",
+]
+PostCrossCorpusReviewHandoffAuthorityHorizon = Literal[
+    "corpus_ingestion_authority_review",
+    "connector_authority_review",
+    "cross_corpus_adjudication_review",
+    "benchmark_truth_guardrail_review",
+    "product_authority_review",
+    "external_branch_authority_review",
+    "graph_memory_review",
+]
+PostCrossCorpusReviewHandoffPosture = Literal[
+    "ready_for_later_review",
+    "ready_with_nonblocking_warnings",
+    "blocked_by_carried_exceptions",
+    "authority_review_requested_for_blockers",
+    "future_family_only",
+    "rejected_out_of_scope",
+    "deferred_no_selection",
+]
+CrossCorpusClosedSlice = Literal["V81-A", "V81-B", "V81-C"]
+CrossCorpusConsumedFamily = Literal[
+    "V68",
+    "V69",
+    "V70",
+    "V71",
+    "V72",
+    "V73",
+    "V74",
+    "V75",
+    "V76",
+    "V77",
+    "V78",
+    "V79",
+    "V80",
+    "V81",
+]
+CrossCorpusShippedRecordShape = Literal[
+    "repo_cross_corpus_governance_request@1",
+    "repo_cross_corpus_source_index@1",
+    "repo_cross_corpus_non_ingestion_guardrail@1",
+    "repo_corpus_boundary_contract@1",
+    "repo_imported_substrate_provenance_register@1",
+    "repo_cross_corpus_authority_gap_register@1",
+    "repo_cross_corpus_exception_register@1",
+    "repo_cross_corpus_governance_summary@1",
+    "repo_post_cross_corpus_review_handoff@1",
+    "repo_cross_corpus_governance_family_closeout_alignment@1",
+]
+CrossCorpusUnselectedFutureSurface = Literal[
+    "corpus_ingestion",
+    "customer_data_handling",
+    "connector_activation",
+    "endpoint_access",
+    "cross_corpus_adjudication_execution",
+    "product_authorization",
+    "release",
+    "benchmark_truth",
+    "imported_result_truth",
+    "global_model_selection",
+    "living_memory_authority",
+    "recursive_policy_amendment",
+    "v82_selection",
+]
 
 _V80_ELIGIBILITY_SOURCE_ROLES = {
     "v80_summary_source",
@@ -381,6 +503,29 @@ _PRODUCT_EXTERNAL_AUTHORITY_KINDS = {
     "external_branch_activation",
     "release_authority",
 }
+_SUMMARY_READY_POSTURES = {
+    "cross_corpus_review_ready_with_no_blockers",
+    "cross_corpus_review_ready_with_nonblocking_warnings",
+}
+_SUMMARY_BLOCKED_POSTURES = {
+    "blocked_by_missing_corpus_source",
+    "blocked_by_missing_boundary",
+    "blocked_by_missing_provenance",
+    "blocked_by_missing_authority",
+    "blocked_by_missing_privacy_authority",
+    "blocked_by_missing_license_or_consent",
+    "blocked_by_missing_customer_data_authority",
+    "blocked_by_missing_connector_authority",
+    "blocked_by_product_authority_gap",
+    "blocked_by_external_branch_authority_gap",
+}
+_HANDOFF_TARGET_AUTHORITY_TERMS = {
+    "future_corpus_ingestion_review": ("privacy", "license"),
+    "future_connector_authority_review": ("connector",),
+    "future_cross_corpus_adjudication_review": ("benchmark",),
+    "future_product_review": ("product",),
+    "future_external_branch_review": ("external",),
+}
 
 
 def _source_path(path: str) -> str:
@@ -410,6 +555,9 @@ def _reject_v81_action_claim(value: str, *, field_name: str) -> str:
         r"corpus truth",
         r"benchmark truth",
         r"imported result truth",
+        r"graph[- ]memory (?:is |was |has been |gets |got )?created",
+        r"graph[- ]memory authority (?:is |was |has been |gets |got )?(?:created|granted)",
+        r"living[- ]memory authority (?:is |was |has been |gets |got )?(?:created|granted)",
         r"authority (?:is |was |has been |gets |got )?granted",
         r"product (?:is |was |has been |gets |got )?authorized",
         r"release now",
@@ -1130,6 +1278,346 @@ class RepoCrossCorpusExceptionRegister(_CartographyBase):
         )
         if self.cross_corpus_exception_register_id != expected_id:
             raise ValueError("cross_corpus_exception_register_id does not match canonical hash")
+        return self
+
+
+class RepoCrossCorpusGovernanceSummaryRow(_CartographyBase):
+    cross_corpus_summary_ref: str
+    candidate_ref: str
+    request_refs: list[str] = Field(min_length=1)
+    boundary_contract_refs: list[str] = Field(default_factory=list)
+    provenance_refs: list[str] = Field(default_factory=list)
+    authority_gap_refs: list[str] = Field(default_factory=list)
+    exception_refs: list[str] = Field(default_factory=list)
+    carried_blocker_refs: list[str] = Field(default_factory=list)
+    carried_warning_refs: list[str] = Field(default_factory=list)
+    summary_posture: CrossCorpusSummaryPosture
+    ready_basis_posture: CrossCorpusReadyBasisPosture
+    corpus_ingestion_posture: CorpusIngestionPosture
+    connector_activation_posture: ConnectorActivationPosture
+    endpoint_access_posture: ExternalEndpointAccessPosture
+    adjudication_execution_posture: AdjudicationExecutionPosture
+    product_authorization_posture: ProductAuthorizationPosture
+    release_authority_posture: ReleaseAuthorityPosture
+    guardrail_refs: list[str] = Field(min_length=1)
+    limitation_note: str
+
+    @model_validator(mode="after")
+    def _validate_cross_corpus_governance_summary_row(
+        self,
+    ) -> RepoCrossCorpusGovernanceSummaryRow:
+        _non_empty(self.cross_corpus_summary_ref, field_name="cross_corpus_summary_ref")
+        _non_empty(self.candidate_ref, field_name="candidate_ref")
+        for field_name in (
+            "request_refs",
+            "boundary_contract_refs",
+            "provenance_refs",
+            "authority_gap_refs",
+            "exception_refs",
+            "carried_blocker_refs",
+            "carried_warning_refs",
+            "guardrail_refs",
+        ):
+            object.__setattr__(
+                self,
+                field_name,
+                _sorted_unique(getattr(self, field_name), field_name=field_name),
+            )
+        if self.corpus_ingestion_posture != "no_corpus_ingestion_performed_by_v81":
+            raise ValueError("V81-C summaries must not ingest corpora")
+        if self.connector_activation_posture != "no_connector_activation_performed_by_v81":
+            raise ValueError("V81-C summaries must not activate connectors")
+        if self.endpoint_access_posture != "no_endpoint_access_performed_by_v81":
+            raise ValueError("V81-C summaries must not access endpoints")
+        if (
+            self.adjudication_execution_posture
+            != "no_cross_corpus_adjudication_performed_by_v81"
+        ):
+            raise ValueError("V81-C summaries must not execute cross-corpus adjudication")
+        if self.product_authorization_posture != "no_product_authorization_performed_by_v81":
+            raise ValueError("V81-C summaries must not authorize products")
+        if self.release_authority_posture != "no_release_authority_performed_by_v81":
+            raise ValueError("V81-C summaries must not grant release authority")
+        if self.summary_posture == "cross_corpus_review_ready_with_no_blockers":
+            if self.ready_basis_posture != "ready_no_blockers":
+                raise ValueError("ready cross-corpus summaries require ready_no_blockers")
+            if self.exception_refs or self.carried_blocker_refs or self.carried_warning_refs:
+                raise ValueError("ready cross-corpus summaries cannot carry exceptions")
+        if self.summary_posture == "cross_corpus_review_ready_with_nonblocking_warnings":
+            if self.ready_basis_posture != "ready_with_nonblocking_warnings":
+                raise ValueError("warning-ready cross-corpus summaries require warning basis")
+            if self.carried_blocker_refs:
+                raise ValueError("warning-ready summaries cannot carry blockers")
+            if not self.carried_warning_refs:
+                raise ValueError("warning-ready summaries must carry warnings")
+        if self.summary_posture in _SUMMARY_READY_POSTURES:
+            for field_name in (
+                "boundary_contract_refs",
+                "provenance_refs",
+                "authority_gap_refs",
+            ):
+                if not getattr(self, field_name):
+                    raise ValueError("ready cross-corpus summaries require released refs")
+        if self.summary_posture in _SUMMARY_BLOCKED_POSTURES:
+            if self.ready_basis_posture not in {
+                "not_ready_blockers_remain",
+                "authority_review_requested_for_blockers",
+            }:
+                raise ValueError("blocked cross-corpus summaries must preserve blocker basis")
+            if not self.carried_blocker_refs:
+                raise ValueError("blocked cross-corpus summaries must carry blockers")
+        if self.summary_posture == "future_family_only" and (
+            self.ready_basis_posture != "future_family_only"
+        ):
+            raise ValueError("future-family cross-corpus summaries require future basis")
+        if self.summary_posture == "rejected_out_of_scope" and (
+            self.ready_basis_posture != "rejected_out_of_scope"
+        ):
+            raise ValueError("rejected cross-corpus summaries require rejected basis")
+        if self.summary_posture == "blocked_by_product_authority_gap" and not any(
+            "product" in ref for ref in self.authority_gap_refs
+        ):
+            raise ValueError("product-blocked summaries require product authority gap refs")
+        _reject_v81_action_claim(self.limitation_note, field_name="limitation_note")
+        _require_terms(
+            self.limitation_note,
+            field_name="limitation_note",
+            terms=("review", "no corpus ingestion", "no connector activation"),
+        )
+        return self
+
+
+class RepoCrossCorpusGovernanceSummary(_CartographyBase):
+    schema: Literal["repo_cross_corpus_governance_summary@1"] = (
+        REPO_CROSS_CORPUS_GOVERNANCE_SUMMARY_SCHEMA
+    )
+    cross_corpus_governance_summary_id: str
+    cross_corpus_governance_request_id: str
+    cross_corpus_source_index_id: str
+    cross_corpus_non_ingestion_guardrail_id: str
+    corpus_boundary_contract_id: str
+    imported_substrate_provenance_register_id: str
+    cross_corpus_authority_gap_register_id: str
+    cross_corpus_exception_register_id: str
+    review_id: str
+    snapshot_id: str
+    source_set_id: str
+    summary_rows: list[RepoCrossCorpusGovernanceSummaryRow] = Field(min_length=1)
+    governance_summary: str
+
+    @model_validator(mode="after")
+    def _validate_cross_corpus_governance_summary(
+        self,
+    ) -> RepoCrossCorpusGovernanceSummary:
+        object.__setattr__(
+            self,
+            "summary_rows",
+            _sorted_unique_by_ref(
+                self.summary_rows,
+                attr="cross_corpus_summary_ref",
+                field_name="summary_rows",
+            ),
+        )
+        _require_terms(
+            self.governance_summary,
+            field_name="governance_summary",
+            terms=("review", "no corpus ingestion", "no connector activation", "no release"),
+        )
+        expected_id = _surface_id(
+            "repo_cross_corpus_governance_summary",
+            self.schema,
+            self.model_dump(mode="json"),
+            "cross_corpus_governance_summary_id",
+        )
+        if self.cross_corpus_governance_summary_id != expected_id:
+            raise ValueError("cross_corpus_governance_summary_id does not match canonical hash")
+        return self
+
+
+class RepoPostCrossCorpusReviewHandoffRow(_CartographyBase):
+    handoff_ref: str
+    candidate_ref: str
+    summary_refs: list[str] = Field(min_length=1)
+    boundary_contract_refs: list[str] = Field(default_factory=list)
+    provenance_refs: list[str] = Field(default_factory=list)
+    authority_gap_refs: list[str] = Field(default_factory=list)
+    carried_exception_refs: list[str] = Field(default_factory=list)
+    handoff_target: PostCrossCorpusReviewHandoffTarget
+    handoff_subject_horizon: PostCrossCorpusReviewHandoffSubjectHorizon
+    handoff_authority_horizon: PostCrossCorpusReviewHandoffAuthorityHorizon
+    handoff_posture: PostCrossCorpusReviewHandoffPosture
+    required_later_authority_refs: list[str] = Field(default_factory=list)
+    corpus_ingestion_posture: CorpusIngestionPosture
+    connector_activation_posture: ConnectorActivationPosture
+    endpoint_access_posture: ExternalEndpointAccessPosture
+    adjudication_execution_posture: AdjudicationExecutionPosture
+    guardrail_refs: list[str] = Field(min_length=1)
+    limitation_note: str
+
+    @model_validator(mode="after")
+    def _validate_post_cross_corpus_review_handoff_row(
+        self,
+    ) -> RepoPostCrossCorpusReviewHandoffRow:
+        _non_empty(self.handoff_ref, field_name="handoff_ref")
+        _non_empty(self.candidate_ref, field_name="candidate_ref")
+        for field_name in (
+            "summary_refs",
+            "boundary_contract_refs",
+            "provenance_refs",
+            "authority_gap_refs",
+            "carried_exception_refs",
+            "required_later_authority_refs",
+            "guardrail_refs",
+        ):
+            object.__setattr__(
+                self,
+                field_name,
+                _sorted_unique(getattr(self, field_name), field_name=field_name),
+            )
+        if self.corpus_ingestion_posture != "no_corpus_ingestion_performed_by_v81":
+            raise ValueError("V81-C handoffs must not ingest corpora")
+        if self.connector_activation_posture != "no_connector_activation_performed_by_v81":
+            raise ValueError("V81-C handoffs must not activate connectors")
+        if self.endpoint_access_posture != "no_endpoint_access_performed_by_v81":
+            raise ValueError("V81-C handoffs must not access endpoints")
+        if (
+            self.adjudication_execution_posture
+            != "no_cross_corpus_adjudication_performed_by_v81"
+        ):
+            raise ValueError("V81-C handoffs must not execute cross-corpus adjudication")
+        if self.handoff_posture == "ready_for_later_review" and self.carried_exception_refs:
+            raise ValueError("ready handoffs cannot carry exceptions")
+        if self.handoff_posture == "ready_with_nonblocking_warnings":
+            if not self.carried_exception_refs:
+                raise ValueError("warning-ready handoffs must carry warnings")
+        if (
+            self.handoff_posture == "blocked_by_carried_exceptions"
+            and not self.carried_exception_refs
+        ):
+            raise ValueError("blocked handoffs must carry exceptions")
+        authority_terms = _HANDOFF_TARGET_AUTHORITY_TERMS.get(self.handoff_target, ())
+        for term in authority_terms:
+            if not any(term in ref for ref in self.required_later_authority_refs):
+                raise ValueError(f"{term} handoffs require authority refs")
+        if self.handoff_target == "future_corpus_ingestion_review":
+            for field_name in ("boundary_contract_refs", "provenance_refs", "authority_gap_refs"):
+                if not getattr(self, field_name):
+                    raise ValueError("corpus ingestion handoffs require released refs")
+        if self.handoff_target == "future_cross_corpus_adjudication_review":
+            if not self.provenance_refs or not self.authority_gap_refs:
+                raise ValueError("adjudication handoffs require provenance and authority refs")
+        _reject_v81_action_claim(self.limitation_note, field_name="limitation_note")
+        _require_terms(
+            self.limitation_note,
+            field_name="limitation_note",
+            terms=("later review", "no corpus ingestion", "no connector activation"),
+        )
+        return self
+
+
+class RepoPostCrossCorpusReviewHandoff(_CartographyBase):
+    schema: Literal["repo_post_cross_corpus_review_handoff@1"] = (
+        REPO_POST_CROSS_CORPUS_REVIEW_HANDOFF_SCHEMA
+    )
+    post_cross_corpus_review_handoff_id: str
+    cross_corpus_governance_summary_id: str
+    cross_corpus_governance_request_id: str
+    cross_corpus_source_index_id: str
+    cross_corpus_non_ingestion_guardrail_id: str
+    corpus_boundary_contract_id: str
+    imported_substrate_provenance_register_id: str
+    cross_corpus_authority_gap_register_id: str
+    cross_corpus_exception_register_id: str
+    review_id: str
+    snapshot_id: str
+    source_set_id: str
+    handoff_rows: list[RepoPostCrossCorpusReviewHandoffRow] = Field(min_length=1)
+    handoff_summary: str
+
+    @model_validator(mode="after")
+    def _validate_post_cross_corpus_review_handoff(
+        self,
+    ) -> RepoPostCrossCorpusReviewHandoff:
+        object.__setattr__(
+            self,
+            "handoff_rows",
+            _sorted_unique_by_ref(self.handoff_rows, attr="handoff_ref", field_name="handoff_rows"),
+        )
+        _require_terms(
+            self.handoff_summary,
+            field_name="handoff_summary",
+            terms=("later review", "no corpus ingestion", "no connector activation", "no release"),
+        )
+        expected_id = _surface_id(
+            "repo_post_cross_corpus_review_handoff",
+            self.schema,
+            self.model_dump(mode="json"),
+            "post_cross_corpus_review_handoff_id",
+        )
+        if self.post_cross_corpus_review_handoff_id != expected_id:
+            raise ValueError("post_cross_corpus_review_handoff_id does not match canonical hash")
+        return self
+
+
+class RepoCrossCorpusGovernanceFamilyCloseoutAlignment(_CartographyBase):
+    schema: Literal["repo_cross_corpus_governance_family_closeout_alignment@1"] = (
+        REPO_CROSS_CORPUS_GOVERNANCE_FAMILY_CLOSEOUT_ALIGNMENT_SCHEMA
+    )
+    cross_corpus_governance_family_closeout_alignment_id: str
+    cross_corpus_governance_summary_id: str
+    post_cross_corpus_review_handoff_id: str
+    family: Literal["V81"]
+    closed_by_arc: Literal["vNext+229"]
+    closed_slice_ladder: list[CrossCorpusClosedSlice] = Field(min_length=3)
+    shipped_record_shapes: list[CrossCorpusShippedRecordShape] = Field(min_length=1)
+    consumed_source_families: list[CrossCorpusConsumedFamily] = Field(min_length=1)
+    family_closed_on_main: Literal["closed_after_v81c_merge"]
+    future_family_authority: Literal["next_selector_required"]
+    unselected_future_surfaces: list[CrossCorpusUnselectedFutureSurface] = Field(min_length=1)
+    cross_corpus_boundary: str
+    limitation_note: str
+
+    @model_validator(mode="after")
+    def _validate_cross_corpus_governance_family_closeout_alignment(
+        self,
+    ) -> RepoCrossCorpusGovernanceFamilyCloseoutAlignment:
+        for field_name in (
+            "closed_slice_ladder",
+            "shipped_record_shapes",
+            "consumed_source_families",
+            "unselected_future_surfaces",
+        ):
+            object.__setattr__(
+                self,
+                field_name,
+                _sorted_unique(getattr(self, field_name), field_name=field_name),
+            )
+        if self.closed_slice_ladder != ["V81-A", "V81-B", "V81-C"]:
+            raise ValueError("cross-corpus closeout must close V81-A/B/C")
+        if "v82_selection" not in self.unselected_future_surfaces:
+            raise ValueError("cross-corpus closeout must not select V82")
+        _require_terms(
+            self.cross_corpus_boundary,
+            field_name="cross_corpus_boundary",
+            terms=("no corpus ingestion", "no connector activation", "no v82 selection"),
+        )
+        _reject_v81_action_claim(self.cross_corpus_boundary, field_name="cross_corpus_boundary")
+        _reject_v81_action_claim(self.limitation_note, field_name="limitation_note")
+        _require_terms(
+            self.limitation_note,
+            field_name="limitation_note",
+            terms=("closed", "no corpus ingestion", "no connector activation", "no v82 selection"),
+        )
+        expected_id = _surface_id(
+            "repo_cross_corpus_governance_family_closeout_alignment",
+            self.schema,
+            self.model_dump(mode="json"),
+            "cross_corpus_governance_family_closeout_alignment_id",
+        )
+        if self.cross_corpus_governance_family_closeout_alignment_id != expected_id:
+            raise ValueError(
+                "cross_corpus_governance_family_closeout_alignment_id does not match canonical hash"
+            )
         return self
 
 
@@ -2325,4 +2813,825 @@ def derive_v81b_cross_corpus_boundary_bundle(
         provenance,
         authority_gap,
         exception_register,
+    )
+
+
+def derive_v81c_repo_cross_corpus_governance_summary(
+    *,
+    repo_root: Path | None = None,
+    cross_corpus_source_index: RepoCrossCorpusSourceIndex | None = None,
+    cross_corpus_governance_request: RepoCrossCorpusGovernanceRequest | None = None,
+    cross_corpus_non_ingestion_guardrail: RepoCrossCorpusNonIngestionGuardrail | None = None,
+    corpus_boundary_contract: RepoCorpusBoundaryContract | None = None,
+    imported_substrate_provenance_register: RepoImportedSubstrateProvenanceRegister
+    | None = None,
+    cross_corpus_authority_gap_register: RepoCrossCorpusAuthorityGapRegister | None = None,
+    cross_corpus_exception_register: RepoCrossCorpusExceptionRegister | None = None,
+) -> RepoCrossCorpusGovernanceSummary:
+    (
+        source_index,
+        request,
+        guardrail,
+        boundary,
+        provenance,
+        authority_gap,
+        exception_register,
+    ) = (
+        derive_v81b_cross_corpus_boundary_bundle(repo_root=repo_root)
+        if (
+            cross_corpus_source_index is None
+            and cross_corpus_governance_request is None
+            and cross_corpus_non_ingestion_guardrail is None
+            and corpus_boundary_contract is None
+            and imported_substrate_provenance_register is None
+            and cross_corpus_authority_gap_register is None
+            and cross_corpus_exception_register is None
+        )
+        else (
+            cross_corpus_source_index,
+            cross_corpus_governance_request,
+            cross_corpus_non_ingestion_guardrail,
+            corpus_boundary_contract,
+            imported_substrate_provenance_register,
+            cross_corpus_authority_gap_register,
+            cross_corpus_exception_register,
+        )
+    )
+    if any(
+        item is None
+        for item in (
+            source_index,
+            request,
+            guardrail,
+            boundary,
+            provenance,
+            authority_gap,
+            exception_register,
+        )
+    ):
+        raise ValueError("V81-C derivation requires all V81-A/B inputs when any are supplied")
+    assert source_index is not None
+    assert request is not None
+    assert guardrail is not None
+    assert boundary is not None
+    assert provenance is not None
+    assert authority_gap is not None
+    assert exception_register is not None
+    validate_v81b_cross_corpus_boundary_bundle(
+        cross_corpus_source_index=source_index,
+        cross_corpus_governance_request=request,
+        cross_corpus_non_ingestion_guardrail=guardrail,
+        corpus_boundary_contract=boundary,
+        imported_substrate_provenance_register=provenance,
+        cross_corpus_authority_gap_register=authority_gap,
+        cross_corpus_exception_register=exception_register,
+    )
+    boundary_rows = {row.candidate_ref: row for row in boundary.boundary_contract_rows}
+    provenance_rows = {row.candidate_ref: row for row in provenance.provenance_rows}
+    authority_gap_rows_by_candidate: dict[str, list[RepoCrossCorpusAuthorityGapRow]] = {}
+    for row in authority_gap.authority_gap_rows:
+        authority_gap_rows_by_candidate.setdefault(row.candidate_ref, []).append(row)
+    exception_rows = {row.candidate_ref: row for row in exception_register.exception_rows}
+    guardrail_rows = {row.candidate_ref: row for row in guardrail.guardrail_rows}
+    summary_rows: list[dict[str, object]] = []
+    for request_row in request.request_rows:
+        candidate_ref = request_row.candidate_ref
+        candidate_boundary = boundary_rows[candidate_ref]
+        candidate_provenance = provenance_rows[candidate_ref]
+        candidate_authority_gaps = authority_gap_rows_by_candidate[candidate_ref]
+        candidate_exception = exception_rows[candidate_ref]
+        if candidate_ref == "candidate:internal:typed_adjudication_product_wedge":
+            summary_posture = "blocked_by_product_authority_gap"
+            ready_basis_posture = "authority_review_requested_for_blockers"
+            limitation_note = (
+                "Product-pressure cross-corpus summary remains blocked for review with "
+                "no corpus ingestion, no connector activation, and no release."
+            )
+        else:
+            summary_posture = "blocked_by_missing_corpus_source"
+            ready_basis_posture = "not_ready_blockers_remain"
+            limitation_note = (
+                "Cross-corpus summary preserves missing corpus-source blockers for review "
+                "with no corpus ingestion, no connector activation, and no release."
+            )
+        summary_rows.append(
+            {
+                "cross_corpus_summary_ref": (
+                    "cross-corpus-summary:v81c:"
+                    f"{candidate_ref.removeprefix('candidate:internal:')}"
+                ),
+                "candidate_ref": candidate_ref,
+                "request_refs": [request_row.cross_corpus_governance_request_ref],
+                "boundary_contract_refs": [candidate_boundary.boundary_contract_ref],
+                "provenance_refs": [candidate_provenance.provenance_ref],
+                "authority_gap_refs": [
+                    row.authority_gap_ref for row in candidate_authority_gaps
+                ],
+                "exception_refs": [candidate_exception.exception_ref],
+                "carried_blocker_refs": [candidate_exception.exception_ref],
+                "carried_warning_refs": [],
+                "summary_posture": summary_posture,
+                "ready_basis_posture": ready_basis_posture,
+                "corpus_ingestion_posture": "no_corpus_ingestion_performed_by_v81",
+                "connector_activation_posture": "no_connector_activation_performed_by_v81",
+                "endpoint_access_posture": "no_endpoint_access_performed_by_v81",
+                "adjudication_execution_posture": (
+                    "no_cross_corpus_adjudication_performed_by_v81"
+                ),
+                "product_authorization_posture": (
+                    "no_product_authorization_performed_by_v81"
+                ),
+                "release_authority_posture": "no_release_authority_performed_by_v81",
+                "guardrail_refs": [guardrail_rows[candidate_ref].guardrail_ref],
+                "limitation_note": limitation_note,
+            }
+        )
+    payload = {
+        "schema": REPO_CROSS_CORPUS_GOVERNANCE_SUMMARY_SCHEMA,
+        "cross_corpus_governance_summary_id": "",
+        "cross_corpus_governance_request_id": request.cross_corpus_governance_request_id,
+        "cross_corpus_source_index_id": source_index.cross_corpus_source_index_id,
+        "cross_corpus_non_ingestion_guardrail_id": (
+            guardrail.cross_corpus_non_ingestion_guardrail_id
+        ),
+        "corpus_boundary_contract_id": boundary.corpus_boundary_contract_id,
+        "imported_substrate_provenance_register_id": (
+            provenance.imported_substrate_provenance_register_id
+        ),
+        "cross_corpus_authority_gap_register_id": (
+            authority_gap.cross_corpus_authority_gap_register_id
+        ),
+        "cross_corpus_exception_register_id": (
+            exception_register.cross_corpus_exception_register_id
+        ),
+        "review_id": request.review_id,
+        "snapshot_id": request.snapshot_id,
+        "source_set_id": request.source_set_id,
+        "summary_rows": sorted(
+            summary_rows,
+            key=lambda row: str(row["cross_corpus_summary_ref"]),
+        ),
+        "governance_summary": (
+            "V81-C summarizes released cross-corpus review substrate with no corpus "
+            "ingestion, no connector activation, no release, and no downstream authority."
+        ),
+    }
+    payload["cross_corpus_governance_summary_id"] = _surface_id(
+        "repo_cross_corpus_governance_summary",
+        REPO_CROSS_CORPUS_GOVERNANCE_SUMMARY_SCHEMA,
+        payload,
+        "cross_corpus_governance_summary_id",
+    )
+    return RepoCrossCorpusGovernanceSummary.model_validate(payload)
+
+
+def derive_v81c_repo_post_cross_corpus_review_handoff(
+    *,
+    repo_root: Path | None = None,
+    cross_corpus_source_index: RepoCrossCorpusSourceIndex | None = None,
+    cross_corpus_governance_request: RepoCrossCorpusGovernanceRequest | None = None,
+    cross_corpus_non_ingestion_guardrail: RepoCrossCorpusNonIngestionGuardrail | None = None,
+    corpus_boundary_contract: RepoCorpusBoundaryContract | None = None,
+    imported_substrate_provenance_register: RepoImportedSubstrateProvenanceRegister
+    | None = None,
+    cross_corpus_authority_gap_register: RepoCrossCorpusAuthorityGapRegister | None = None,
+    cross_corpus_exception_register: RepoCrossCorpusExceptionRegister | None = None,
+    cross_corpus_governance_summary: RepoCrossCorpusGovernanceSummary | None = None,
+) -> RepoPostCrossCorpusReviewHandoff:
+    if cross_corpus_governance_summary is None:
+        summary = derive_v81c_repo_cross_corpus_governance_summary(
+            repo_root=repo_root,
+            cross_corpus_source_index=cross_corpus_source_index,
+            cross_corpus_governance_request=cross_corpus_governance_request,
+            cross_corpus_non_ingestion_guardrail=cross_corpus_non_ingestion_guardrail,
+            corpus_boundary_contract=corpus_boundary_contract,
+            imported_substrate_provenance_register=imported_substrate_provenance_register,
+            cross_corpus_authority_gap_register=cross_corpus_authority_gap_register,
+            cross_corpus_exception_register=cross_corpus_exception_register,
+        )
+    else:
+        summary = cross_corpus_governance_summary
+    if (
+        cross_corpus_source_index is None
+        or cross_corpus_governance_request is None
+        or cross_corpus_non_ingestion_guardrail is None
+        or corpus_boundary_contract is None
+        or imported_substrate_provenance_register is None
+        or cross_corpus_authority_gap_register is None
+        or cross_corpus_exception_register is None
+    ):
+        (
+            source_index,
+            request,
+            guardrail,
+            boundary,
+            provenance,
+            authority_gap,
+            exception_register,
+        ) = derive_v81b_cross_corpus_boundary_bundle(repo_root=repo_root)
+    else:
+        source_index = cross_corpus_source_index
+        request = cross_corpus_governance_request
+        guardrail = cross_corpus_non_ingestion_guardrail
+        boundary = corpus_boundary_contract
+        provenance = imported_substrate_provenance_register
+        authority_gap = cross_corpus_authority_gap_register
+        exception_register = cross_corpus_exception_register
+    validate_v81b_cross_corpus_boundary_bundle(
+        cross_corpus_source_index=source_index,
+        cross_corpus_governance_request=request,
+        cross_corpus_non_ingestion_guardrail=guardrail,
+        corpus_boundary_contract=boundary,
+        imported_substrate_provenance_register=provenance,
+        cross_corpus_authority_gap_register=authority_gap,
+        cross_corpus_exception_register=exception_register,
+    )
+    authority_gap_by_ref = {
+        row.authority_gap_ref: row for row in authority_gap.authority_gap_rows
+    }
+    summary_rows = {row.candidate_ref: row for row in summary.summary_rows}
+    handoff_rows: list[dict[str, object]] = []
+    for candidate_ref, summary_row in summary_rows.items():
+        if candidate_ref == "candidate:internal:typed_adjudication_product_wedge":
+            target = "future_product_review"
+            subject = "product_authority_gap"
+            authority = "product_authority_review"
+            required = [
+                ref
+                for ref in summary_row.authority_gap_refs
+                if authority_gap_by_ref[ref].authority_kind == "product_authorization"
+            ]
+            note = (
+                "Product cross-corpus pressure is handed off for later review with "
+                "no corpus ingestion, no connector activation, and no product authorization."
+            )
+        else:
+            target = "future_corpus_ingestion_review"
+            subject = "corpus_boundary_review_package"
+            authority = "corpus_ingestion_authority_review"
+            required = [
+                ref
+                for ref in summary_row.authority_gap_refs
+                if "privacy" in ref or "license" in ref
+            ]
+            note = (
+                "Corpus-ingestion pressure is handed off for later review with "
+                "no corpus ingestion, no connector activation, and no endpoint access."
+            )
+        handoff_rows.append(
+            {
+                "handoff_ref": (
+                    "post-cross-corpus-handoff:v81c:"
+                    f"{candidate_ref.removeprefix('candidate:internal:')}"
+                ),
+                "candidate_ref": candidate_ref,
+                "summary_refs": [summary_row.cross_corpus_summary_ref],
+                "boundary_contract_refs": summary_row.boundary_contract_refs,
+                "provenance_refs": summary_row.provenance_refs,
+                "authority_gap_refs": summary_row.authority_gap_refs,
+                "carried_exception_refs": summary_row.carried_blocker_refs,
+                "handoff_target": target,
+                "handoff_subject_horizon": subject,
+                "handoff_authority_horizon": authority,
+                "handoff_posture": "blocked_by_carried_exceptions",
+                "required_later_authority_refs": required,
+                "corpus_ingestion_posture": "no_corpus_ingestion_performed_by_v81",
+                "connector_activation_posture": "no_connector_activation_performed_by_v81",
+                "endpoint_access_posture": "no_endpoint_access_performed_by_v81",
+                "adjudication_execution_posture": (
+                    "no_cross_corpus_adjudication_performed_by_v81"
+                ),
+                "guardrail_refs": summary_row.guardrail_refs,
+                "limitation_note": note,
+            }
+        )
+    payload = {
+        "schema": REPO_POST_CROSS_CORPUS_REVIEW_HANDOFF_SCHEMA,
+        "post_cross_corpus_review_handoff_id": "",
+        "cross_corpus_governance_summary_id": summary.cross_corpus_governance_summary_id,
+        "cross_corpus_governance_request_id": request.cross_corpus_governance_request_id,
+        "cross_corpus_source_index_id": source_index.cross_corpus_source_index_id,
+        "cross_corpus_non_ingestion_guardrail_id": (
+            guardrail.cross_corpus_non_ingestion_guardrail_id
+        ),
+        "corpus_boundary_contract_id": boundary.corpus_boundary_contract_id,
+        "imported_substrate_provenance_register_id": (
+            provenance.imported_substrate_provenance_register_id
+        ),
+        "cross_corpus_authority_gap_register_id": (
+            authority_gap.cross_corpus_authority_gap_register_id
+        ),
+        "cross_corpus_exception_register_id": (
+            exception_register.cross_corpus_exception_register_id
+        ),
+        "review_id": request.review_id,
+        "snapshot_id": request.snapshot_id,
+        "source_set_id": request.source_set_id,
+        "handoff_rows": sorted(handoff_rows, key=lambda row: str(row["handoff_ref"])),
+        "handoff_summary": (
+            "V81-C handoffs request later review with no corpus ingestion, "
+            "no connector activation, no release, and no later-family completion."
+        ),
+    }
+    payload["post_cross_corpus_review_handoff_id"] = _surface_id(
+        "repo_post_cross_corpus_review_handoff",
+        REPO_POST_CROSS_CORPUS_REVIEW_HANDOFF_SCHEMA,
+        payload,
+        "post_cross_corpus_review_handoff_id",
+    )
+    return RepoPostCrossCorpusReviewHandoff.model_validate(payload)
+
+
+def derive_v81c_repo_cross_corpus_governance_family_closeout_alignment(
+    *,
+    repo_root: Path | None = None,
+    cross_corpus_governance_summary: RepoCrossCorpusGovernanceSummary | None = None,
+    post_cross_corpus_review_handoff: RepoPostCrossCorpusReviewHandoff | None = None,
+) -> RepoCrossCorpusGovernanceFamilyCloseoutAlignment:
+    summary = cross_corpus_governance_summary or derive_v81c_repo_cross_corpus_governance_summary(
+        repo_root=repo_root
+    )
+    handoff = post_cross_corpus_review_handoff or derive_v81c_repo_post_cross_corpus_review_handoff(
+        repo_root=repo_root,
+        cross_corpus_governance_summary=summary,
+    )
+    payload = {
+        "schema": REPO_CROSS_CORPUS_GOVERNANCE_FAMILY_CLOSEOUT_ALIGNMENT_SCHEMA,
+        "cross_corpus_governance_family_closeout_alignment_id": "",
+        "cross_corpus_governance_summary_id": summary.cross_corpus_governance_summary_id,
+        "post_cross_corpus_review_handoff_id": handoff.post_cross_corpus_review_handoff_id,
+        "family": "V81",
+        "closed_by_arc": "vNext+229",
+        "closed_slice_ladder": ["V81-A", "V81-B", "V81-C"],
+        "shipped_record_shapes": sorted(
+            [
+                REPO_CROSS_CORPUS_GOVERNANCE_REQUEST_SCHEMA,
+                REPO_CROSS_CORPUS_SOURCE_INDEX_SCHEMA,
+                REPO_CROSS_CORPUS_NON_INGESTION_GUARDRAIL_SCHEMA,
+                REPO_CORPUS_BOUNDARY_CONTRACT_SCHEMA,
+                REPO_IMPORTED_SUBSTRATE_PROVENANCE_REGISTER_SCHEMA,
+                REPO_CROSS_CORPUS_AUTHORITY_GAP_REGISTER_SCHEMA,
+                REPO_CROSS_CORPUS_EXCEPTION_REGISTER_SCHEMA,
+                REPO_CROSS_CORPUS_GOVERNANCE_SUMMARY_SCHEMA,
+                REPO_POST_CROSS_CORPUS_REVIEW_HANDOFF_SCHEMA,
+                REPO_CROSS_CORPUS_GOVERNANCE_FAMILY_CLOSEOUT_ALIGNMENT_SCHEMA,
+            ]
+        ),
+        "consumed_source_families": [
+            "V68",
+            "V69",
+            "V70",
+            "V71",
+            "V72",
+            "V73",
+            "V74",
+            "V75",
+            "V76",
+            "V77",
+            "V78",
+            "V79",
+            "V80",
+            "V81",
+        ],
+        "family_closed_on_main": "closed_after_v81c_merge",
+        "future_family_authority": "next_selector_required",
+        "unselected_future_surfaces": [
+            "benchmark_truth",
+            "connector_activation",
+            "corpus_ingestion",
+            "cross_corpus_adjudication_execution",
+            "customer_data_handling",
+            "endpoint_access",
+            "global_model_selection",
+            "imported_result_truth",
+            "living_memory_authority",
+            "product_authorization",
+            "recursive_policy_amendment",
+            "release",
+            "v82_selection",
+        ],
+        "cross_corpus_boundary": (
+            "V81 closes cross-corpus governance review with no corpus ingestion, "
+            "no connector activation, no release, and no v82 selection."
+        ),
+        "limitation_note": (
+            "V81 is closed as review only with no corpus ingestion, no connector "
+            "activation, no v82 selection, and no downstream authority."
+        ),
+    }
+    payload["cross_corpus_governance_family_closeout_alignment_id"] = _surface_id(
+        "repo_cross_corpus_governance_family_closeout_alignment",
+        REPO_CROSS_CORPUS_GOVERNANCE_FAMILY_CLOSEOUT_ALIGNMENT_SCHEMA,
+        payload,
+        "cross_corpus_governance_family_closeout_alignment_id",
+    )
+    return RepoCrossCorpusGovernanceFamilyCloseoutAlignment.model_validate(payload)
+
+
+def validate_v81c_cross_corpus_governance_closeout_bundle(
+    *,
+    cross_corpus_source_index: RepoCrossCorpusSourceIndex,
+    cross_corpus_governance_request: RepoCrossCorpusGovernanceRequest,
+    cross_corpus_non_ingestion_guardrail: RepoCrossCorpusNonIngestionGuardrail,
+    corpus_boundary_contract: RepoCorpusBoundaryContract,
+    imported_substrate_provenance_register: RepoImportedSubstrateProvenanceRegister,
+    cross_corpus_authority_gap_register: RepoCrossCorpusAuthorityGapRegister,
+    cross_corpus_exception_register: RepoCrossCorpusExceptionRegister,
+    cross_corpus_governance_summary: RepoCrossCorpusGovernanceSummary,
+    post_cross_corpus_review_handoff: RepoPostCrossCorpusReviewHandoff,
+    cross_corpus_governance_family_closeout_alignment: (
+        RepoCrossCorpusGovernanceFamilyCloseoutAlignment
+    ),
+) -> None:
+    validate_v81b_cross_corpus_boundary_bundle(
+        cross_corpus_source_index=cross_corpus_source_index,
+        cross_corpus_governance_request=cross_corpus_governance_request,
+        cross_corpus_non_ingestion_guardrail=cross_corpus_non_ingestion_guardrail,
+        corpus_boundary_contract=corpus_boundary_contract,
+        imported_substrate_provenance_register=imported_substrate_provenance_register,
+        cross_corpus_authority_gap_register=cross_corpus_authority_gap_register,
+        cross_corpus_exception_register=cross_corpus_exception_register,
+    )
+    expected_ids = (
+        cross_corpus_governance_request.cross_corpus_governance_request_id,
+        cross_corpus_source_index.cross_corpus_source_index_id,
+        cross_corpus_non_ingestion_guardrail.cross_corpus_non_ingestion_guardrail_id,
+        corpus_boundary_contract.corpus_boundary_contract_id,
+        imported_substrate_provenance_register.imported_substrate_provenance_register_id,
+        cross_corpus_authority_gap_register.cross_corpus_authority_gap_register_id,
+        cross_corpus_exception_register.cross_corpus_exception_register_id,
+    )
+    if (
+        cross_corpus_governance_summary.cross_corpus_governance_request_id,
+        cross_corpus_governance_summary.cross_corpus_source_index_id,
+        cross_corpus_governance_summary.cross_corpus_non_ingestion_guardrail_id,
+        cross_corpus_governance_summary.corpus_boundary_contract_id,
+        cross_corpus_governance_summary.imported_substrate_provenance_register_id,
+        cross_corpus_governance_summary.cross_corpus_authority_gap_register_id,
+        cross_corpus_governance_summary.cross_corpus_exception_register_id,
+    ) != expected_ids:
+        raise ValueError("V81-C summary must reference released V81-A/B surfaces")
+    if (
+        post_cross_corpus_review_handoff.cross_corpus_governance_summary_id
+        != cross_corpus_governance_summary.cross_corpus_governance_summary_id
+    ):
+        raise ValueError("V81-C handoff must reference released summary surface")
+    if (
+        post_cross_corpus_review_handoff.cross_corpus_governance_request_id,
+        post_cross_corpus_review_handoff.cross_corpus_source_index_id,
+        post_cross_corpus_review_handoff.cross_corpus_non_ingestion_guardrail_id,
+        post_cross_corpus_review_handoff.corpus_boundary_contract_id,
+        post_cross_corpus_review_handoff.imported_substrate_provenance_register_id,
+        post_cross_corpus_review_handoff.cross_corpus_authority_gap_register_id,
+        post_cross_corpus_review_handoff.cross_corpus_exception_register_id,
+    ) != expected_ids:
+        raise ValueError("V81-C handoff must reference released V81-A/B surfaces")
+    if (
+        cross_corpus_governance_family_closeout_alignment.cross_corpus_governance_summary_id
+        != cross_corpus_governance_summary.cross_corpus_governance_summary_id
+        or cross_corpus_governance_family_closeout_alignment.post_cross_corpus_review_handoff_id
+        != post_cross_corpus_review_handoff.post_cross_corpus_review_handoff_id
+    ):
+        raise ValueError("V81-C closeout must reference released summary and handoff")
+
+    request_rows = {
+        row.cross_corpus_governance_request_ref: row
+        for row in cross_corpus_governance_request.request_rows
+    }
+    guardrail_rows = {
+        row.guardrail_ref: row for row in cross_corpus_non_ingestion_guardrail.guardrail_rows
+    }
+    boundary_rows = {
+        row.boundary_contract_ref: row
+        for row in corpus_boundary_contract.boundary_contract_rows
+    }
+    provenance_rows = {
+        row.provenance_ref: row
+        for row in imported_substrate_provenance_register.provenance_rows
+    }
+    authority_gap_rows = {
+        row.authority_gap_ref: row
+        for row in cross_corpus_authority_gap_register.authority_gap_rows
+    }
+    exception_rows = {
+        row.exception_ref: row for row in cross_corpus_exception_register.exception_rows
+    }
+    summary_rows = {
+        row.cross_corpus_summary_ref: row
+        for row in cross_corpus_governance_summary.summary_rows
+    }
+    request_candidates = {row.candidate_ref for row in cross_corpus_governance_request.request_rows}
+    summary_candidates = {row.candidate_ref for row in cross_corpus_governance_summary.summary_rows}
+    handoff_candidates = {
+        row.candidate_ref for row in post_cross_corpus_review_handoff.handoff_rows
+    }
+    if request_candidates != summary_candidates:
+        raise ValueError("V81-C summary must cover all request candidates")
+    if request_candidates != handoff_candidates:
+        raise ValueError("V81-C handoff must cover all request candidates")
+
+    def _require_known_refs(refs: list[str], known: set[str], message: str) -> None:
+        if any(ref not in known for ref in refs):
+            raise ValueError(message)
+
+    def _require_candidate_refs(
+        refs: list[str],
+        rows_by_ref: dict[str, _CartographyBase],
+        *,
+        candidate_ref: str,
+        message: str,
+    ) -> None:
+        for ref in refs:
+            if rows_by_ref[ref].candidate_ref != candidate_ref:
+                raise ValueError(message)
+
+    for row in cross_corpus_governance_summary.summary_rows:
+        _require_known_refs(
+            row.request_refs,
+            set(request_rows),
+            "summary request refs must be known",
+        )
+        _require_known_refs(
+            row.boundary_contract_refs,
+            set(boundary_rows),
+            "summary boundary refs must be known",
+        )
+        _require_known_refs(
+            row.provenance_refs,
+            set(provenance_rows),
+            "summary provenance refs must be known",
+        )
+        _require_known_refs(
+            row.authority_gap_refs,
+            set(authority_gap_rows),
+            "summary authority gap refs must be known",
+        )
+        _require_known_refs(
+            row.exception_refs,
+            set(exception_rows),
+            "summary exception refs must be known",
+        )
+        _require_known_refs(
+            row.carried_blocker_refs,
+            set(exception_rows),
+            "summary blocker refs must be known",
+        )
+        _require_known_refs(
+            row.carried_warning_refs,
+            set(exception_rows),
+            "summary warning refs must be known",
+        )
+        _require_known_refs(
+            row.guardrail_refs,
+            set(guardrail_rows),
+            "summary guardrail refs must be known",
+        )
+        _require_candidate_refs(
+            row.request_refs,
+            request_rows,
+            candidate_ref=row.candidate_ref,
+            message="summary request refs must match candidate",
+        )
+        _require_candidate_refs(
+            row.boundary_contract_refs,
+            boundary_rows,
+            candidate_ref=row.candidate_ref,
+            message="summary boundary refs must match candidate",
+        )
+        _require_candidate_refs(
+            row.provenance_refs,
+            provenance_rows,
+            candidate_ref=row.candidate_ref,
+            message="summary provenance refs must match candidate",
+        )
+        _require_candidate_refs(
+            row.authority_gap_refs,
+            authority_gap_rows,
+            candidate_ref=row.candidate_ref,
+            message="summary authority gap refs must match candidate",
+        )
+        _require_candidate_refs(
+            row.exception_refs,
+            exception_rows,
+            candidate_ref=row.candidate_ref,
+            message="summary exception refs must match candidate",
+        )
+        _require_candidate_refs(
+            row.guardrail_refs,
+            guardrail_rows,
+            candidate_ref=row.candidate_ref,
+            message="summary guardrail refs must match candidate",
+        )
+        blocking_refs = {
+            ref for ref in row.exception_refs if exception_rows[ref].blocking_posture == "blocking"
+        }
+        if row.summary_posture in _SUMMARY_READY_POSTURES and blocking_refs:
+            raise ValueError("ready cross-corpus summaries cannot hide blocking exceptions")
+        if row.summary_posture == "cross_corpus_review_ready_with_nonblocking_warnings":
+            warning_refs = {
+                ref
+                for ref in row.exception_refs
+                if exception_rows[ref].blocking_posture == "warning_only"
+            }
+            if set(row.exception_refs) != warning_refs:
+                raise ValueError("warning-ready summaries may carry warnings only")
+        for ref in row.carried_blocker_refs:
+            if exception_rows[ref].blocking_posture != "blocking":
+                raise ValueError("carried blocker refs must point to blocking exceptions")
+        for ref in row.carried_warning_refs:
+            if exception_rows[ref].blocking_posture != "warning_only":
+                raise ValueError("carried warning refs must point to warning exceptions")
+        carried_exception_refs = set(row.carried_blocker_refs) | set(row.carried_warning_refs)
+        if not carried_exception_refs.issubset(set(row.exception_refs)):
+            raise ValueError("summary carried exception refs must be included in exception refs")
+        _require_candidate_refs(
+            row.carried_blocker_refs,
+            exception_rows,
+            candidate_ref=row.candidate_ref,
+            message="summary carried blocker refs must match candidate",
+        )
+        _require_candidate_refs(
+            row.carried_warning_refs,
+            exception_rows,
+            candidate_ref=row.candidate_ref,
+            message="summary carried warning refs must match candidate",
+        )
+
+    for row in post_cross_corpus_review_handoff.handoff_rows:
+        _require_known_refs(
+            row.summary_refs,
+            set(summary_rows),
+            "handoff summary refs must be known",
+        )
+        _require_known_refs(
+            row.boundary_contract_refs,
+            set(boundary_rows),
+            "handoff boundary refs must be known",
+        )
+        _require_known_refs(
+            row.provenance_refs,
+            set(provenance_rows),
+            "handoff provenance refs must be known",
+        )
+        _require_known_refs(
+            row.authority_gap_refs,
+            set(authority_gap_rows),
+            "handoff authority gap refs must be known",
+        )
+        _require_known_refs(
+            row.required_later_authority_refs,
+            set(authority_gap_rows),
+            "handoff required authority refs must be known",
+        )
+        _require_known_refs(
+            row.carried_exception_refs,
+            set(exception_rows),
+            "handoff exception refs must be known",
+        )
+        _require_known_refs(
+            row.guardrail_refs,
+            set(guardrail_rows),
+            "handoff guardrail refs must be known",
+        )
+        _require_candidate_refs(
+            row.summary_refs,
+            summary_rows,
+            candidate_ref=row.candidate_ref,
+            message="handoff summary refs must match candidate",
+        )
+        _require_candidate_refs(
+            row.boundary_contract_refs,
+            boundary_rows,
+            candidate_ref=row.candidate_ref,
+            message="handoff boundary refs must match candidate",
+        )
+        _require_candidate_refs(
+            row.provenance_refs,
+            provenance_rows,
+            candidate_ref=row.candidate_ref,
+            message="handoff provenance refs must match candidate",
+        )
+        _require_candidate_refs(
+            row.authority_gap_refs,
+            authority_gap_rows,
+            candidate_ref=row.candidate_ref,
+            message="handoff authority gap refs must match candidate",
+        )
+        _require_candidate_refs(
+            row.required_later_authority_refs,
+            authority_gap_rows,
+            candidate_ref=row.candidate_ref,
+            message="handoff required authority refs must match candidate",
+        )
+        _require_candidate_refs(
+            row.carried_exception_refs,
+            exception_rows,
+            candidate_ref=row.candidate_ref,
+            message="handoff exception refs must match candidate",
+        )
+        if not set(row.required_later_authority_refs).issubset(set(row.authority_gap_refs)):
+            raise ValueError(
+                "handoff required authority refs must be carried authority gap refs"
+            )
+        _require_candidate_refs(
+            row.guardrail_refs,
+            guardrail_rows,
+            candidate_ref=row.candidate_ref,
+            message="handoff guardrail refs must match candidate",
+        )
+        blocking_refs = {
+            ref
+            for ref in row.carried_exception_refs
+            if exception_rows[ref].blocking_posture == "blocking"
+        }
+        if blocking_refs and row.handoff_posture == "ready_for_later_review":
+            raise ValueError("handoffs with blocking exceptions cannot be ready")
+        if row.handoff_posture == "ready_with_nonblocking_warnings":
+            warning_refs = {
+                ref
+                for ref in row.carried_exception_refs
+                if exception_rows[ref].blocking_posture == "warning_only"
+            }
+            if set(row.carried_exception_refs) != warning_refs:
+                raise ValueError("warning-ready handoffs may carry warnings only")
+
+    if (
+        "v82_selection"
+        not in cross_corpus_governance_family_closeout_alignment.unselected_future_surfaces
+    ):
+        raise ValueError("V81-C closeout must not select V82")
+
+
+def derive_v81c_cross_corpus_governance_closeout_bundle(
+    *, repo_root: Path | None = None
+) -> tuple[
+    RepoCrossCorpusSourceIndex,
+    RepoCrossCorpusGovernanceRequest,
+    RepoCrossCorpusNonIngestionGuardrail,
+    RepoCorpusBoundaryContract,
+    RepoImportedSubstrateProvenanceRegister,
+    RepoCrossCorpusAuthorityGapRegister,
+    RepoCrossCorpusExceptionRegister,
+    RepoCrossCorpusGovernanceSummary,
+    RepoPostCrossCorpusReviewHandoff,
+    RepoCrossCorpusGovernanceFamilyCloseoutAlignment,
+]:
+    (
+        source_index,
+        request,
+        guardrail,
+        boundary,
+        provenance,
+        authority_gap,
+        exception_register,
+    ) = derive_v81b_cross_corpus_boundary_bundle(repo_root=repo_root)
+    summary = derive_v81c_repo_cross_corpus_governance_summary(
+        repo_root=repo_root,
+        cross_corpus_source_index=source_index,
+        cross_corpus_governance_request=request,
+        cross_corpus_non_ingestion_guardrail=guardrail,
+        corpus_boundary_contract=boundary,
+        imported_substrate_provenance_register=provenance,
+        cross_corpus_authority_gap_register=authority_gap,
+        cross_corpus_exception_register=exception_register,
+    )
+    handoff = derive_v81c_repo_post_cross_corpus_review_handoff(
+        repo_root=repo_root,
+        cross_corpus_source_index=source_index,
+        cross_corpus_governance_request=request,
+        cross_corpus_non_ingestion_guardrail=guardrail,
+        corpus_boundary_contract=boundary,
+        imported_substrate_provenance_register=provenance,
+        cross_corpus_authority_gap_register=authority_gap,
+        cross_corpus_exception_register=exception_register,
+        cross_corpus_governance_summary=summary,
+    )
+    closeout = derive_v81c_repo_cross_corpus_governance_family_closeout_alignment(
+        repo_root=repo_root,
+        cross_corpus_governance_summary=summary,
+        post_cross_corpus_review_handoff=handoff,
+    )
+    validate_v81c_cross_corpus_governance_closeout_bundle(
+        cross_corpus_source_index=source_index,
+        cross_corpus_governance_request=request,
+        cross_corpus_non_ingestion_guardrail=guardrail,
+        corpus_boundary_contract=boundary,
+        imported_substrate_provenance_register=provenance,
+        cross_corpus_authority_gap_register=authority_gap,
+        cross_corpus_exception_register=exception_register,
+        cross_corpus_governance_summary=summary,
+        post_cross_corpus_review_handoff=handoff,
+        cross_corpus_governance_family_closeout_alignment=closeout,
+    )
+    return (
+        source_index,
+        request,
+        guardrail,
+        boundary,
+        provenance,
+        authority_gap,
+        exception_register,
+        summary,
+        handoff,
+        closeout,
     )

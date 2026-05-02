@@ -86,10 +86,13 @@ from .cross_corpus_governance import (
     RepoCorpusBoundaryContract,
     RepoCrossCorpusAuthorityGapRegister,
     RepoCrossCorpusExceptionRegister,
+    RepoCrossCorpusGovernanceFamilyCloseoutAlignment,
     RepoCrossCorpusGovernanceRequest,
+    RepoCrossCorpusGovernanceSummary,
     RepoCrossCorpusNonIngestionGuardrail,
     RepoCrossCorpusSourceIndex,
     RepoImportedSubstrateProvenanceRegister,
+    RepoPostCrossCorpusReviewHandoff,
 )
 from .dispatch_review import (
     RepoDispatchExceptionRegister,
@@ -613,6 +616,15 @@ def main() -> None:
     cross_corpus_exception_register_schema = RepoCrossCorpusExceptionRegister.model_json_schema(
         by_alias=True
     )
+    cross_corpus_governance_summary_schema = (
+        RepoCrossCorpusGovernanceSummary.model_json_schema(by_alias=True)
+    )
+    post_cross_corpus_review_handoff_schema = (
+        RepoPostCrossCorpusReviewHandoff.model_json_schema(by_alias=True)
+    )
+    cross_corpus_governance_family_closeout_alignment_schema = (
+        RepoCrossCorpusGovernanceFamilyCloseoutAlignment.model_json_schema(by_alias=True)
+    )
 
     _assert_no_absolute_path_material(dependency_register_v1_schema, repo_root_path=root)
     _assert_no_absolute_path_material(dependency_register_schema, repo_root_path=root)
@@ -944,6 +956,15 @@ def main() -> None:
         repo_root_path=root,
     )
     _assert_no_absolute_path_material(cross_corpus_exception_register_schema, repo_root_path=root)
+    _assert_no_absolute_path_material(cross_corpus_governance_summary_schema, repo_root_path=root)
+    _assert_no_absolute_path_material(
+        post_cross_corpus_review_handoff_schema,
+        repo_root_path=root,
+    )
+    _assert_no_absolute_path_material(
+        cross_corpus_governance_family_closeout_alignment_schema,
+        repo_root_path=root,
+    )
 
     _write_schema(
         root
@@ -2594,6 +2615,31 @@ def main() -> None:
     _write_schema(
         root / "spec" / "repo_cross_corpus_exception_register.schema.json",
         cross_corpus_exception_register_schema,
+    )
+    _write_schema(
+        repo_description_schema_root / "repo_cross_corpus_governance_summary.v1.json",
+        cross_corpus_governance_summary_schema,
+    )
+    _write_schema(
+        root / "spec" / "repo_cross_corpus_governance_summary.schema.json",
+        cross_corpus_governance_summary_schema,
+    )
+    _write_schema(
+        repo_description_schema_root / "repo_post_cross_corpus_review_handoff.v1.json",
+        post_cross_corpus_review_handoff_schema,
+    )
+    _write_schema(
+        root / "spec" / "repo_post_cross_corpus_review_handoff.schema.json",
+        post_cross_corpus_review_handoff_schema,
+    )
+    _write_schema(
+        repo_description_schema_root
+        / "repo_cross_corpus_governance_family_closeout_alignment.v1.json",
+        cross_corpus_governance_family_closeout_alignment_schema,
+    )
+    _write_schema(
+        root / "spec" / "repo_cross_corpus_governance_family_closeout_alignment.schema.json",
+        cross_corpus_governance_family_closeout_alignment_schema,
     )
 
 

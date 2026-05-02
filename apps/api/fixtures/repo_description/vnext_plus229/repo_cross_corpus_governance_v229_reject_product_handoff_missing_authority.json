@@ -1,0 +1,88 @@
+{
+  "corpus_boundary_contract_id": "repo_corpus_boundary_contract_85b3115cd0fb18e4c23da16e",
+  "cross_corpus_authority_gap_register_id": "repo_cross_corpus_authority_gap_register_96e1a22212fccfc9201828e3",
+  "cross_corpus_exception_register_id": "repo_cross_corpus_exception_register_72c61500ce9881cca60a3e97",
+  "cross_corpus_governance_request_id": "repo_cross_corpus_governance_request_37287dd9523263483a41309f",
+  "cross_corpus_governance_summary_id": "repo_cross_corpus_governance_summary_81c5c47e0182f145e1d8d5b1",
+  "cross_corpus_non_ingestion_guardrail_id": "repo_cross_corpus_non_ingestion_guardrail_69bb4462f66cae61f6bd2189",
+  "cross_corpus_source_index_id": "repo_cross_corpus_source_index_865b7414e73cd58d4aab1c6d",
+  "handoff_rows": [
+    {
+      "adjudication_execution_posture": "no_cross_corpus_adjudication_performed_by_v81",
+      "authority_gap_refs": [
+        "corpus-authority-gap:v81b:self-evidencing:connector",
+        "corpus-authority-gap:v81b:self-evidencing:license",
+        "corpus-authority-gap:v81b:self-evidencing:privacy"
+      ],
+      "boundary_contract_refs": [
+        "corpus-boundary:v81b:self-evidencing:source-absent"
+      ],
+      "candidate_ref": "candidate:internal:self_evidencing_workflow_type_emergence",
+      "carried_exception_refs": [
+        "corpus-exception:v81b:self-evidencing:missing-source"
+      ],
+      "connector_activation_posture": "no_connector_activation_performed_by_v81",
+      "corpus_ingestion_posture": "no_corpus_ingestion_performed_by_v81",
+      "endpoint_access_posture": "no_endpoint_access_performed_by_v81",
+      "guardrail_refs": [
+        "guardrail:v81a:self-evidencing:non-ingestion"
+      ],
+      "handoff_authority_horizon": "corpus_ingestion_authority_review",
+      "handoff_posture": "blocked_by_carried_exceptions",
+      "handoff_ref": "post-cross-corpus-handoff:v81c:self_evidencing_workflow_type_emergence",
+      "handoff_subject_horizon": "corpus_boundary_review_package",
+      "handoff_target": "future_corpus_ingestion_review",
+      "limitation_note": "Corpus-ingestion pressure is handed off for later review with no corpus ingestion, no connector activation, and no endpoint access.",
+      "provenance_refs": [
+        "corpus-provenance:v81b:self-evidencing:source-absent"
+      ],
+      "required_later_authority_refs": [
+        "corpus-authority-gap:v81b:self-evidencing:license",
+        "corpus-authority-gap:v81b:self-evidencing:privacy"
+      ],
+      "summary_refs": [
+        "cross-corpus-summary:v81c:self_evidencing_workflow_type_emergence"
+      ]
+    },
+    {
+      "adjudication_execution_posture": "no_cross_corpus_adjudication_performed_by_v81",
+      "authority_gap_refs": [
+        "corpus-authority-gap:v81b:product-wedge:external-branch",
+        "corpus-authority-gap:v81b:product-wedge:product"
+      ],
+      "boundary_contract_refs": [
+        "corpus-boundary:v81b:product-wedge:blocked"
+      ],
+      "candidate_ref": "candidate:internal:typed_adjudication_product_wedge",
+      "carried_exception_refs": [
+        "corpus-exception:v81b:product-wedge:product-gap"
+      ],
+      "connector_activation_posture": "no_connector_activation_performed_by_v81",
+      "corpus_ingestion_posture": "no_corpus_ingestion_performed_by_v81",
+      "endpoint_access_posture": "no_endpoint_access_performed_by_v81",
+      "guardrail_refs": [
+        "guardrail:v81a:product-wedge:non-ingestion"
+      ],
+      "handoff_authority_horizon": "product_authority_review",
+      "handoff_posture": "blocked_by_carried_exceptions",
+      "handoff_ref": "post-cross-corpus-handoff:v81c:typed_adjudication_product_wedge",
+      "handoff_subject_horizon": "product_authority_gap",
+      "handoff_target": "future_product_review",
+      "limitation_note": "Product cross-corpus pressure is handed off for later review with no corpus ingestion, no connector activation, and no product authorization.",
+      "provenance_refs": [
+        "corpus-provenance:v81b:product-wedge:blocked"
+      ],
+      "required_later_authority_refs": [],
+      "summary_refs": [
+        "cross-corpus-summary:v81c:typed_adjudication_product_wedge"
+      ]
+    }
+  ],
+  "handoff_summary": "V81-C handoffs request later review with no corpus ingestion, no connector activation, no release, and no later-family completion.",
+  "imported_substrate_provenance_register_id": "repo_imported_substrate_provenance_register_14635fa58e4cc15ae1436e4f",
+  "post_cross_corpus_review_handoff_id": "repo_post_cross_corpus_review_handoff_5aa661d780eba3d81690f408",
+  "review_id": "review:v81a:cross-corpus-governance",
+  "schema": "repo_post_cross_corpus_review_handoff@1",
+  "snapshot_id": "vNext+226-external-branch-review-closeout",
+  "source_set_id": "source-set:v81a:released-v80c-cross-corpus-pressure"
+}
