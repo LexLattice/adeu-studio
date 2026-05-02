@@ -37,6 +37,15 @@ REPO_EXECUTION_EFFECT_MONITORING_CONTRACT_SCHEMA = (
 REPO_CONTROLLED_EXECUTION_EXCEPTION_REGISTER_SCHEMA = (
     "repo_controlled_execution_exception_register@1"
 )
+REPO_CONTROLLED_EXECUTION_REVIEW_SUMMARY_SCHEMA = (
+    "repo_controlled_execution_review_summary@1"
+)
+REPO_POST_CONTROLLED_EXECUTION_REVIEW_HANDOFF_SCHEMA = (
+    "repo_post_controlled_execution_review_handoff@1"
+)
+REPO_CONTROLLED_EXECUTION_REVIEW_FAMILY_CLOSEOUT_ALIGNMENT_SCHEMA = (
+    "repo_controlled_execution_review_family_closeout_alignment@1"
+)
 
 ControlledExecutionSourceRole = Literal[
     "v78_readiness_summary_source",
@@ -236,6 +245,112 @@ ControlledExecutionRequiredNextSurface = Literal[
     "future_external_branch_review",
     "future_family_review",
     "none",
+]
+ControlledExecutionSummaryPosture = Literal[
+    "controlled_execution_review_ready",
+    "controlled_execution_review_ready_with_nonblocking_warnings",
+    "blocked_by_missing_authority",
+    "blocked_by_missing_run_plan",
+    "blocked_by_missing_tool_invocation_plan",
+    "blocked_by_missing_effect_monitoring",
+    "blocked_by_missing_telemetry",
+    "blocked_by_missing_rollback",
+    "blocked_by_product_authority_gap",
+    "blocked_by_external_branch_gap",
+    "future_family_only",
+    "rejected_out_of_scope",
+]
+ControlledExecutionReadyBasisPosture = Literal[
+    "ready_no_blockers",
+    "ready_with_nonblocking_warnings",
+    "not_ready_blockers_remain",
+    "settlement_or_authority_review_requested_for_blockers",
+    "future_family_only",
+    "rejected_out_of_scope",
+]
+PostControlledExecutionHandoffTarget = Literal[
+    "future_execution_trial_review",
+    "future_tool_invocation_review",
+    "future_product_review",
+    "future_external_branch_review",
+    "future_outcome_or_telemetry_review",
+    "future_experiment_design_review",
+    "future_family_review",
+    "deferred_no_selection",
+]
+PostControlledExecutionHandoffSubjectHorizon = Literal[
+    "controlled_execution_review_package",
+    "bounded_run_plan_review_package",
+    "bounded_tool_invocation_review_package",
+    "effect_monitoring_review_package",
+    "product_authority_gap",
+    "external_branch_authority_gap",
+    "future_experiment_pressure",
+]
+PostControlledExecutionHandoffPosture = Literal[
+    "ready_for_later_review",
+    "ready_with_nonblocking_warnings",
+    "blocked_by_required_later_authority",
+    "blocked_by_run_plan_gap",
+    "blocked_by_tool_invocation_plan_gap",
+    "blocked_by_effect_monitoring_gap",
+    "blocked_by_telemetry_gap",
+    "blocked_by_rollback_gap",
+    "future_family_only",
+    "rejected_out_of_scope",
+]
+PostControlledExecutionHandoffExecutionStatus = Literal[
+    "no_execution_scheduled",
+    "no_execution_performed_by_v79",
+    "later_review_required_before_any_execution",
+]
+ControlledExecutionClosedSlice = Literal["V79-A", "V79-B", "V79-C"]
+ControlledExecutionConsumedFamily = Literal[
+    "V68",
+    "V69",
+    "V70",
+    "V71",
+    "V72",
+    "V73",
+    "V74",
+    "V75",
+    "V76",
+    "V77",
+    "V78",
+    "V79",
+]
+ControlledExecutionShippedRecordShape = Literal[
+    "repo_controlled_execution_review_request@1",
+    "repo_controlled_execution_source_index@1",
+    "repo_controlled_execution_non_execution_guardrail@1",
+    "repo_execution_run_plan@1",
+    "repo_tool_invocation_plan@1",
+    "repo_execution_effect_monitoring_contract@1",
+    "repo_controlled_execution_exception_register@1",
+    "repo_controlled_execution_review_summary@1",
+    "repo_post_controlled_execution_review_handoff@1",
+    "repo_controlled_execution_review_family_closeout_alignment@1",
+]
+ControlledExecutionUnselectedFutureSurface = Literal[
+    "command_execution",
+    "tool_invocation",
+    "target_mutation",
+    "accepted_effect",
+    "observed_telemetry",
+    "verified_rollback",
+    "worker_assignment",
+    "dispatch_execution",
+    "product_authorization",
+    "external_branch_activation",
+    "pr_creation",
+    "commit",
+    "merge",
+    "release",
+    "benchmark_truth",
+    "model_selection",
+    "living_memory_authority",
+    "recursive_policy_amendment",
+    "v80_selection",
 ]
 
 _ELIGIBILITY_SOURCE_ROLES = {
@@ -1113,6 +1228,379 @@ class RepoControlledExecutionExceptionRegister(_CartographyBase):
         if self.controlled_execution_exception_register_id != expected_id:
             raise ValueError(
                 "controlled_execution_exception_register_id does not match canonical hash"
+            )
+        return self
+
+
+class RepoControlledExecutionReviewSummaryRow(_CartographyBase):
+    controlled_execution_summary_ref: str
+    candidate_ref: str
+    execution_review_request_refs: list[str] = Field(min_length=1)
+    run_plan_refs: list[str] = Field(default_factory=list)
+    tool_invocation_plan_refs: list[str] = Field(default_factory=list)
+    effect_monitoring_contract_refs: list[str] = Field(default_factory=list)
+    exception_refs: list[str] = Field(default_factory=list)
+    authority_refs: list[str] = Field(default_factory=list)
+    telemetry_requirement_refs: list[str] = Field(default_factory=list)
+    rollback_requirement_refs: list[str] = Field(default_factory=list)
+    operator_confirmation_requirement_refs: list[str] = Field(default_factory=list)
+    summary_posture: ControlledExecutionSummaryPosture
+    ready_basis_posture: ControlledExecutionReadyBasisPosture
+    carried_blocker_refs: list[str] = Field(default_factory=list)
+    controlled_execution_action_posture: ControlledExecutionActionPosture
+    execution_posture: ControlledExecutionExecutionPosture
+    tool_invocation_posture: ControlledExecutionToolInvocationPosture
+    non_execution_guardrail_refs: list[str] = Field(min_length=1)
+    limitation_note: str
+
+    @model_validator(mode="after")
+    def _validate_controlled_execution_review_summary_row(
+        self,
+    ) -> RepoControlledExecutionReviewSummaryRow:
+        _non_empty(
+            self.controlled_execution_summary_ref,
+            field_name="controlled_execution_summary_ref",
+        )
+        _non_empty(self.candidate_ref, field_name="candidate_ref")
+        for field_name in (
+            "execution_review_request_refs",
+            "run_plan_refs",
+            "tool_invocation_plan_refs",
+            "effect_monitoring_contract_refs",
+            "exception_refs",
+            "authority_refs",
+            "telemetry_requirement_refs",
+            "rollback_requirement_refs",
+            "operator_confirmation_requirement_refs",
+            "carried_blocker_refs",
+            "non_execution_guardrail_refs",
+        ):
+            object.__setattr__(
+                self,
+                field_name,
+                _sorted_unique(getattr(self, field_name), field_name=field_name),
+            )
+        if (
+            self.controlled_execution_action_posture
+            != "no_controlled_execution_performed_by_v79"
+        ):
+            raise ValueError("V79-C summaries must not perform controlled execution")
+        if self.execution_posture != "no_execution_performed_by_v79":
+            raise ValueError("V79-C summaries must not execute commands")
+        if self.tool_invocation_posture != "no_tool_invocation_performed_by_v79":
+            raise ValueError("V79-C summaries must not invoke tools")
+        if self.summary_posture in {
+            "controlled_execution_review_ready",
+            "controlled_execution_review_ready_with_nonblocking_warnings",
+        }:
+            if self.summary_posture == "controlled_execution_review_ready" and (
+                self.ready_basis_posture != "ready_no_blockers"
+            ):
+                raise ValueError("ready summaries require ready_no_blockers basis")
+            if (
+                self.summary_posture
+                == "controlled_execution_review_ready_with_nonblocking_warnings"
+                and self.ready_basis_posture != "ready_with_nonblocking_warnings"
+            ):
+                raise ValueError("warning-ready summaries require warning basis")
+            if self.carried_blocker_refs:
+                raise ValueError("ready summaries cannot carry blockers")
+            for field_name in (
+                "run_plan_refs",
+                "tool_invocation_plan_refs",
+                "effect_monitoring_contract_refs",
+                "telemetry_requirement_refs",
+                "rollback_requirement_refs",
+                "operator_confirmation_requirement_refs",
+                "authority_refs",
+            ):
+                if not getattr(self, field_name):
+                    raise ValueError("ready summaries require complete review package refs")
+        if self.summary_posture in {
+            "blocked_by_missing_authority",
+            "blocked_by_missing_run_plan",
+            "blocked_by_missing_tool_invocation_plan",
+            "blocked_by_missing_effect_monitoring",
+            "blocked_by_missing_telemetry",
+            "blocked_by_missing_rollback",
+            "blocked_by_product_authority_gap",
+            "blocked_by_external_branch_gap",
+        } and self.ready_basis_posture not in {
+            "not_ready_blockers_remain",
+            "settlement_or_authority_review_requested_for_blockers",
+        }:
+            raise ValueError("blocked summaries must preserve blocker basis")
+        if self.summary_posture == "future_family_only" and (
+            self.ready_basis_posture != "future_family_only"
+        ):
+            raise ValueError("future-family summaries require future_family_only basis")
+        if self.summary_posture == "rejected_out_of_scope" and (
+            self.ready_basis_posture != "rejected_out_of_scope"
+        ):
+            raise ValueError("rejected summaries require rejected_out_of_scope basis")
+        _reject_v79_action_claim(self.limitation_note, field_name="limitation_note")
+        _require_terms(
+            self.limitation_note,
+            field_name="limitation_note",
+            terms=("review", "no execution", "no tool invocation"),
+        )
+        return self
+
+
+class RepoControlledExecutionReviewSummary(_CartographyBase):
+    schema: Literal["repo_controlled_execution_review_summary@1"] = (
+        REPO_CONTROLLED_EXECUTION_REVIEW_SUMMARY_SCHEMA
+    )
+    controlled_execution_review_summary_id: str
+    controlled_execution_review_request_id: str
+    controlled_execution_source_index_id: str
+    controlled_execution_non_execution_guardrail_id: str
+    execution_run_plan_id: str
+    tool_invocation_plan_id: str
+    execution_effect_monitoring_contract_id: str
+    controlled_execution_exception_register_id: str
+    review_id: str
+    snapshot_id: str
+    source_set_id: str
+    summary_rows: list[RepoControlledExecutionReviewSummaryRow] = Field(min_length=1)
+    review_summary: str
+
+    @model_validator(mode="after")
+    def _validate_controlled_execution_review_summary(
+        self,
+    ) -> RepoControlledExecutionReviewSummary:
+        object.__setattr__(
+            self,
+            "summary_rows",
+            _sorted_unique_by_ref(
+                self.summary_rows,
+                attr="controlled_execution_summary_ref",
+                field_name="summary_rows",
+            ),
+        )
+        _require_terms(
+            self.review_summary,
+            field_name="review_summary",
+            terms=("review", "no execution", "no tool invocation", "no release"),
+        )
+        expected_id = _surface_id(
+            "repo_controlled_execution_review_summary",
+            self.schema,
+            self.model_dump(mode="json"),
+            "controlled_execution_review_summary_id",
+        )
+        if self.controlled_execution_review_summary_id != expected_id:
+            raise ValueError(
+                "controlled_execution_review_summary_id does not match canonical hash"
+            )
+        return self
+
+
+class RepoPostControlledExecutionReviewHandoffRow(_CartographyBase):
+    handoff_ref: str
+    candidate_ref: str
+    controlled_execution_summary_refs: list[str] = Field(min_length=1)
+    run_plan_refs: list[str] = Field(default_factory=list)
+    tool_invocation_plan_refs: list[str] = Field(default_factory=list)
+    effect_monitoring_contract_refs: list[str] = Field(default_factory=list)
+    carried_exception_refs: list[str] = Field(default_factory=list)
+    handoff_target: PostControlledExecutionHandoffTarget
+    handoff_subject_horizon: PostControlledExecutionHandoffSubjectHorizon
+    handoff_posture: PostControlledExecutionHandoffPosture
+    handoff_execution_status: PostControlledExecutionHandoffExecutionStatus
+    required_later_authority_refs: list[str] = Field(default_factory=list)
+    controlled_execution_action_posture: ControlledExecutionActionPosture
+    execution_posture: ControlledExecutionExecutionPosture
+    tool_invocation_posture: ControlledExecutionToolInvocationPosture
+    non_execution_guardrail_refs: list[str] = Field(min_length=1)
+    limitation_note: str
+
+    @model_validator(mode="after")
+    def _validate_post_controlled_execution_review_handoff_row(
+        self,
+    ) -> RepoPostControlledExecutionReviewHandoffRow:
+        _non_empty(self.handoff_ref, field_name="handoff_ref")
+        _non_empty(self.candidate_ref, field_name="candidate_ref")
+        for field_name in (
+            "controlled_execution_summary_refs",
+            "run_plan_refs",
+            "tool_invocation_plan_refs",
+            "effect_monitoring_contract_refs",
+            "carried_exception_refs",
+            "required_later_authority_refs",
+            "non_execution_guardrail_refs",
+        ):
+            object.__setattr__(
+                self,
+                field_name,
+                _sorted_unique(getattr(self, field_name), field_name=field_name),
+            )
+        if self.handoff_execution_status != "no_execution_performed_by_v79":
+            raise ValueError("V79-C handoffs must not schedule or perform execution")
+        if (
+            self.controlled_execution_action_posture
+            != "no_controlled_execution_performed_by_v79"
+        ):
+            raise ValueError("V79-C handoffs must not perform controlled execution")
+        if self.execution_posture != "no_execution_performed_by_v79":
+            raise ValueError("V79-C handoffs must not execute commands")
+        if self.tool_invocation_posture != "no_tool_invocation_performed_by_v79":
+            raise ValueError("V79-C handoffs must not invoke tools")
+        if self.handoff_target == "future_execution_trial_review":
+            required_fields = (
+                "run_plan_refs",
+                "effect_monitoring_contract_refs",
+                "required_later_authority_refs",
+            )
+            if any(not getattr(self, field_name) for field_name in required_fields):
+                raise ValueError("execution-trial handoffs require review package refs")
+        if self.handoff_target == "future_tool_invocation_review":
+            if not self.tool_invocation_plan_refs or not self.required_later_authority_refs:
+                raise ValueError("tool-invocation handoffs require tool and authority refs")
+        if self.handoff_target == "future_product_review":
+            if self.handoff_posture == "ready_for_later_review":
+                raise ValueError("product handoffs cannot be execution-trial ready")
+            if not any("product" in ref for ref in self.required_later_authority_refs):
+                raise ValueError("product handoffs require product authority refs")
+            if self.run_plan_refs or self.tool_invocation_plan_refs:
+                raise ValueError("product handoffs cannot carry run or tool plan refs")
+        if self.handoff_target == "future_external_branch_review":
+            has_external_authority = any(
+                "external" in ref or "v43" in ref.lower()
+                for ref in self.required_later_authority_refs
+            )
+            if not has_external_authority:
+                raise ValueError("external handoffs require external authority or V43 refs")
+        _reject_v79_action_claim(self.limitation_note, field_name="limitation_note")
+        _require_terms(
+            self.limitation_note,
+            field_name="limitation_note",
+            terms=("later review", "no execution", "no tool invocation"),
+        )
+        return self
+
+
+class RepoPostControlledExecutionReviewHandoff(_CartographyBase):
+    schema: Literal["repo_post_controlled_execution_review_handoff@1"] = (
+        REPO_POST_CONTROLLED_EXECUTION_REVIEW_HANDOFF_SCHEMA
+    )
+    post_controlled_execution_review_handoff_id: str
+    controlled_execution_review_summary_id: str
+    controlled_execution_review_request_id: str
+    controlled_execution_source_index_id: str
+    controlled_execution_non_execution_guardrail_id: str
+    execution_run_plan_id: str
+    tool_invocation_plan_id: str
+    execution_effect_monitoring_contract_id: str
+    controlled_execution_exception_register_id: str
+    review_id: str
+    snapshot_id: str
+    source_set_id: str
+    handoff_rows: list[RepoPostControlledExecutionReviewHandoffRow] = Field(min_length=1)
+    handoff_summary: str
+
+    @model_validator(mode="after")
+    def _validate_post_controlled_execution_review_handoff(
+        self,
+    ) -> RepoPostControlledExecutionReviewHandoff:
+        object.__setattr__(
+            self,
+            "handoff_rows",
+            _sorted_unique_by_ref(
+                self.handoff_rows,
+                attr="handoff_ref",
+                field_name="handoff_rows",
+            ),
+        )
+        _require_terms(
+            self.handoff_summary,
+            field_name="handoff_summary",
+            terms=("later review", "no execution", "no tool invocation", "no release"),
+        )
+        expected_id = _surface_id(
+            "repo_post_controlled_execution_review_handoff",
+            self.schema,
+            self.model_dump(mode="json"),
+            "post_controlled_execution_review_handoff_id",
+        )
+        if self.post_controlled_execution_review_handoff_id != expected_id:
+            raise ValueError(
+                "post_controlled_execution_review_handoff_id does not match canonical hash"
+            )
+        return self
+
+
+class RepoControlledExecutionReviewFamilyCloseoutAlignment(_CartographyBase):
+    schema: Literal["repo_controlled_execution_review_family_closeout_alignment@1"] = (
+        REPO_CONTROLLED_EXECUTION_REVIEW_FAMILY_CLOSEOUT_ALIGNMENT_SCHEMA
+    )
+    controlled_execution_review_family_closeout_alignment_id: str
+    controlled_execution_review_summary_id: str
+    post_controlled_execution_review_handoff_id: str
+    family: Literal["V79"]
+    closed_by_arc: Literal["vNext+223"]
+    closed_slice_ladder: list[ControlledExecutionClosedSlice] = Field(min_length=3)
+    consumed_source_families: list[ControlledExecutionConsumedFamily] = Field(min_length=1)
+    shipped_record_shapes: list[ControlledExecutionShippedRecordShape] = Field(min_length=1)
+    controlled_execution_boundary: str
+    unselected_future_surfaces: list[ControlledExecutionUnselectedFutureSurface] = Field(
+        min_length=1
+    )
+    future_family_authority: Literal["next_selector_required"]
+    limitation_note: str
+
+    @model_validator(mode="after")
+    def _validate_controlled_execution_review_family_closeout_alignment(
+        self,
+    ) -> RepoControlledExecutionReviewFamilyCloseoutAlignment:
+        object.__setattr__(
+            self,
+            "closed_slice_ladder",
+            _sorted_unique(self.closed_slice_ladder, field_name="closed_slice_ladder"),
+        )
+        object.__setattr__(
+            self,
+            "consumed_source_families",
+            _sorted_unique(self.consumed_source_families, field_name="consumed_source_families"),
+        )
+        object.__setattr__(
+            self,
+            "shipped_record_shapes",
+            _sorted_unique(self.shipped_record_shapes, field_name="shipped_record_shapes"),
+        )
+        object.__setattr__(
+            self,
+            "unselected_future_surfaces",
+            _sorted_unique(
+                self.unselected_future_surfaces,
+                field_name="unselected_future_surfaces",
+            ),
+        )
+        if self.closed_slice_ladder != ["V79-A", "V79-B", "V79-C"]:
+            raise ValueError("controlled execution closeout must close V79-A/B/C")
+        if "v80_selection" not in self.unselected_future_surfaces:
+            raise ValueError("controlled execution closeout must not select V80")
+        _require_terms(
+            self.controlled_execution_boundary,
+            field_name="controlled_execution_boundary",
+            terms=("no execution", "no tool invocation", "no release", "no v80 selection"),
+        )
+        _reject_v79_action_claim(self.limitation_note, field_name="limitation_note")
+        _require_terms(
+            self.limitation_note,
+            field_name="limitation_note",
+            terms=("closed", "no execution", "no tool invocation", "no v80 selection"),
+        )
+        expected_id = _surface_id(
+            "repo_controlled_execution_review_family_closeout_alignment",
+            self.schema,
+            self.model_dump(mode="json"),
+            "controlled_execution_review_family_closeout_alignment_id",
+        )
+        if self.controlled_execution_review_family_closeout_alignment_id != expected_id:
+            raise ValueError(
+                "controlled_execution_review_family_closeout_alignment_id "
+                "does not match canonical hash"
             )
         return self
 
@@ -2229,3 +2717,920 @@ def derive_v79b_controlled_execution_review_bundle(
         controlled_execution_exception_register=exceptions,
     )
     return source_index, request, guardrail, run_plan, tool_plan, monitoring, exceptions
+
+
+def _v79c_base_surfaces(
+    *,
+    repo_root: Path | None = None,
+    controlled_execution_source_index: RepoControlledExecutionSourceIndex | None = None,
+    controlled_execution_review_request: RepoControlledExecutionReviewRequest | None = None,
+    controlled_execution_non_execution_guardrail: (
+        RepoControlledExecutionNonExecutionGuardrail | None
+    ) = None,
+    execution_run_plan: RepoExecutionRunPlan | None = None,
+    tool_invocation_plan: RepoToolInvocationPlan | None = None,
+    execution_effect_monitoring_contract: RepoExecutionEffectMonitoringContract | None = None,
+    controlled_execution_exception_register: RepoControlledExecutionExceptionRegister | None = None,
+) -> tuple[
+    RepoControlledExecutionSourceIndex,
+    RepoControlledExecutionReviewRequest,
+    RepoControlledExecutionNonExecutionGuardrail,
+    RepoExecutionRunPlan,
+    RepoToolInvocationPlan,
+    RepoExecutionEffectMonitoringContract,
+    RepoControlledExecutionExceptionRegister,
+]:
+    if (
+        controlled_execution_source_index is None
+        or controlled_execution_review_request is None
+        or controlled_execution_non_execution_guardrail is None
+        or execution_run_plan is None
+        or tool_invocation_plan is None
+        or execution_effect_monitoring_contract is None
+        or controlled_execution_exception_register is None
+    ):
+        (
+            source_index,
+            request,
+            guardrail,
+            run_plan,
+            tool_plan,
+            monitoring,
+            exceptions,
+        ) = derive_v79b_controlled_execution_review_bundle(repo_root=repo_root)
+        return (
+            controlled_execution_source_index or source_index,
+            controlled_execution_review_request or request,
+            controlled_execution_non_execution_guardrail or guardrail,
+            execution_run_plan or run_plan,
+            tool_invocation_plan or tool_plan,
+            execution_effect_monitoring_contract or monitoring,
+            controlled_execution_exception_register or exceptions,
+        )
+    return (
+        controlled_execution_source_index,
+        controlled_execution_review_request,
+        controlled_execution_non_execution_guardrail,
+        execution_run_plan,
+        tool_invocation_plan,
+        execution_effect_monitoring_contract,
+        controlled_execution_exception_register,
+    )
+
+
+def _v79c_reference_refs(
+    *,
+    request: RepoControlledExecutionReviewRequest,
+    guardrail: RepoControlledExecutionNonExecutionGuardrail,
+    run_plan: RepoExecutionRunPlan,
+    tool_plan: RepoToolInvocationPlan,
+    monitoring: RepoExecutionEffectMonitoringContract,
+    exceptions: RepoControlledExecutionExceptionRegister,
+) -> dict[str, object]:
+    eligible_request = _v79b_eligible_request_row(request)
+    product_request = next(
+        row
+        for row in request.request_rows
+        if row.execution_review_posture == "blocked_by_product_authority_gap"
+    )
+    run_row = run_plan.run_plan_rows[0]
+    tool_row = tool_plan.tool_invocation_plan_rows[0]
+    monitoring_row = monitoring.effect_monitoring_contract_rows[0]
+    warning_exception = next(
+        row
+        for row in exceptions.exception_rows
+        if row.exception_posture == "warning_only"
+    )
+    blocking_exception = next(
+        row for row in exceptions.exception_rows if row.exception_posture == "blocking"
+    )
+    return {
+        "candidate_ref": eligible_request.candidate_ref,
+        "product_candidate_ref": product_request.candidate_ref,
+        "execution_review_request_refs": [eligible_request.execution_review_request_ref],
+        "product_execution_review_request_refs": [
+            product_request.execution_review_request_ref
+        ],
+        "run_plan_refs": [run_row.run_plan_ref],
+        "tool_invocation_plan_refs": [tool_row.tool_invocation_plan_ref],
+        "effect_monitoring_contract_refs": [monitoring_row.effect_monitoring_contract_ref],
+        "warning_exception_refs": [warning_exception.exception_ref],
+        "blocking_exception_refs": [blocking_exception.exception_ref],
+        "authority_refs": run_row.authority_refs,
+        "product_authority_refs": product_request.required_authority_refs,
+        "telemetry_requirement_refs": run_row.telemetry_requirement_refs,
+        "rollback_requirement_refs": run_row.rollback_requirement_refs,
+        "operator_confirmation_requirement_refs": (
+            run_row.operator_confirmation_requirement_refs
+        ),
+        "non_execution_guardrail_refs": [
+            row.guardrail_ref
+            for row in guardrail.guardrail_rows
+            if row.candidate_ref == eligible_request.candidate_ref
+        ],
+        "product_non_execution_guardrail_refs": [
+            row.guardrail_ref
+            for row in guardrail.guardrail_rows
+            if row.candidate_ref == product_request.candidate_ref
+        ],
+    }
+
+
+def derive_v79c_repo_controlled_execution_review_summary(
+    *,
+    repo_root: Path | None = None,
+    controlled_execution_source_index: RepoControlledExecutionSourceIndex | None = None,
+    controlled_execution_review_request: RepoControlledExecutionReviewRequest | None = None,
+    controlled_execution_non_execution_guardrail: (
+        RepoControlledExecutionNonExecutionGuardrail | None
+    ) = None,
+    execution_run_plan: RepoExecutionRunPlan | None = None,
+    tool_invocation_plan: RepoToolInvocationPlan | None = None,
+    execution_effect_monitoring_contract: RepoExecutionEffectMonitoringContract | None = None,
+    controlled_execution_exception_register: RepoControlledExecutionExceptionRegister | None = None,
+) -> RepoControlledExecutionReviewSummary:
+    _ = repo_root
+    source_index, request, guardrail, run_plan, tool_plan, monitoring, exceptions = (
+        _v79c_base_surfaces(
+            repo_root=repo_root,
+            controlled_execution_source_index=controlled_execution_source_index,
+            controlled_execution_review_request=controlled_execution_review_request,
+            controlled_execution_non_execution_guardrail=(
+                controlled_execution_non_execution_guardrail
+            ),
+            execution_run_plan=execution_run_plan,
+            tool_invocation_plan=tool_invocation_plan,
+            execution_effect_monitoring_contract=execution_effect_monitoring_contract,
+            controlled_execution_exception_register=controlled_execution_exception_register,
+        )
+    )
+    refs = _v79c_reference_refs(
+        request=request,
+        guardrail=guardrail,
+        run_plan=run_plan,
+        tool_plan=tool_plan,
+        monitoring=monitoring,
+        exceptions=exceptions,
+    )
+    payload = {
+        "schema": REPO_CONTROLLED_EXECUTION_REVIEW_SUMMARY_SCHEMA,
+        "controlled_execution_review_summary_id": "",
+        "controlled_execution_review_request_id": request.controlled_execution_review_request_id,
+        "controlled_execution_source_index_id": source_index.controlled_execution_source_index_id,
+        "controlled_execution_non_execution_guardrail_id": (
+            guardrail.controlled_execution_non_execution_guardrail_id
+        ),
+        "execution_run_plan_id": run_plan.execution_run_plan_id,
+        "tool_invocation_plan_id": tool_plan.tool_invocation_plan_id,
+        "execution_effect_monitoring_contract_id": (
+            monitoring.execution_effect_monitoring_contract_id
+        ),
+        "controlled_execution_exception_register_id": (
+            exceptions.controlled_execution_exception_register_id
+        ),
+        "review_id": request.review_id,
+        "snapshot_id": "vNext+222-controlled-execution-review-closeout",
+        "source_set_id": "source-set:v79c:released-v79ab-summary-pressure",
+        "summary_rows": [
+            {
+                "controlled_execution_summary_ref": (
+                    "controlled-execution-summary:v79c:self-evidencing:review-package"
+                ),
+                "candidate_ref": refs["candidate_ref"],
+                "execution_review_request_refs": refs["execution_review_request_refs"],
+                "run_plan_refs": refs["run_plan_refs"],
+                "tool_invocation_plan_refs": refs["tool_invocation_plan_refs"],
+                "effect_monitoring_contract_refs": refs["effect_monitoring_contract_refs"],
+                "exception_refs": refs["warning_exception_refs"],
+                "authority_refs": refs["authority_refs"],
+                "telemetry_requirement_refs": refs["telemetry_requirement_refs"],
+                "rollback_requirement_refs": refs["rollback_requirement_refs"],
+                "operator_confirmation_requirement_refs": (
+                    refs["operator_confirmation_requirement_refs"]
+                ),
+                "summary_posture": (
+                    "controlled_execution_review_ready_with_nonblocking_warnings"
+                ),
+                "ready_basis_posture": "ready_with_nonblocking_warnings",
+                "carried_blocker_refs": [],
+                "controlled_execution_action_posture": (
+                    "no_controlled_execution_performed_by_v79"
+                ),
+                "execution_posture": "no_execution_performed_by_v79",
+                "tool_invocation_posture": "no_tool_invocation_performed_by_v79",
+                "non_execution_guardrail_refs": refs["non_execution_guardrail_refs"],
+                "limitation_note": (
+                    "Controlled execution review package is ready for later review "
+                    "with warning context, no execution, and no tool invocation."
+                ),
+            },
+            {
+                "controlled_execution_summary_ref": (
+                    "controlled-execution-summary:v79c:product-wedge:blocked"
+                ),
+                "candidate_ref": refs["product_candidate_ref"],
+                "execution_review_request_refs": refs[
+                    "product_execution_review_request_refs"
+                ],
+                "run_plan_refs": [],
+                "tool_invocation_plan_refs": [],
+                "effect_monitoring_contract_refs": [],
+                "exception_refs": refs["blocking_exception_refs"],
+                "authority_refs": refs["product_authority_refs"],
+                "telemetry_requirement_refs": [],
+                "rollback_requirement_refs": [],
+                "operator_confirmation_requirement_refs": [],
+                "summary_posture": "blocked_by_product_authority_gap",
+                "ready_basis_posture": "not_ready_blockers_remain",
+                "carried_blocker_refs": refs["blocking_exception_refs"],
+                "controlled_execution_action_posture": (
+                    "no_controlled_execution_performed_by_v79"
+                ),
+                "execution_posture": "no_execution_performed_by_v79",
+                "tool_invocation_posture": "no_tool_invocation_performed_by_v79",
+                "non_execution_guardrail_refs": refs[
+                    "product_non_execution_guardrail_refs"
+                ],
+                "limitation_note": (
+                    "Product pressure remains a blocked review state with no execution "
+                    "and no tool invocation."
+                ),
+            },
+        ],
+        "review_summary": (
+            "Controlled execution review summaries are review records with no execution, "
+            "no tool invocation, and no release."
+        ),
+    }
+    payload["summary_rows"] = sorted(
+        payload["summary_rows"],
+        key=lambda row: row["controlled_execution_summary_ref"],
+    )
+    payload["controlled_execution_review_summary_id"] = _surface_id(
+        "repo_controlled_execution_review_summary",
+        REPO_CONTROLLED_EXECUTION_REVIEW_SUMMARY_SCHEMA,
+        payload,
+        "controlled_execution_review_summary_id",
+    )
+    return RepoControlledExecutionReviewSummary.model_validate(payload)
+
+
+def derive_v79c_repo_post_controlled_execution_review_handoff(
+    *,
+    repo_root: Path | None = None,
+    controlled_execution_source_index: RepoControlledExecutionSourceIndex | None = None,
+    controlled_execution_review_request: RepoControlledExecutionReviewRequest | None = None,
+    controlled_execution_non_execution_guardrail: (
+        RepoControlledExecutionNonExecutionGuardrail | None
+    ) = None,
+    execution_run_plan: RepoExecutionRunPlan | None = None,
+    tool_invocation_plan: RepoToolInvocationPlan | None = None,
+    execution_effect_monitoring_contract: RepoExecutionEffectMonitoringContract | None = None,
+    controlled_execution_exception_register: RepoControlledExecutionExceptionRegister | None = None,
+    controlled_execution_review_summary: RepoControlledExecutionReviewSummary | None = None,
+) -> RepoPostControlledExecutionReviewHandoff:
+    _ = repo_root
+    source_index, request, guardrail, run_plan, tool_plan, monitoring, exceptions = (
+        _v79c_base_surfaces(
+            repo_root=repo_root,
+            controlled_execution_source_index=controlled_execution_source_index,
+            controlled_execution_review_request=controlled_execution_review_request,
+            controlled_execution_non_execution_guardrail=(
+                controlled_execution_non_execution_guardrail
+            ),
+            execution_run_plan=execution_run_plan,
+            tool_invocation_plan=tool_invocation_plan,
+            execution_effect_monitoring_contract=execution_effect_monitoring_contract,
+            controlled_execution_exception_register=controlled_execution_exception_register,
+        )
+    )
+    summary = controlled_execution_review_summary or (
+        derive_v79c_repo_controlled_execution_review_summary(
+            repo_root=repo_root,
+            controlled_execution_source_index=source_index,
+            controlled_execution_review_request=request,
+            controlled_execution_non_execution_guardrail=guardrail,
+            execution_run_plan=run_plan,
+            tool_invocation_plan=tool_plan,
+            execution_effect_monitoring_contract=monitoring,
+            controlled_execution_exception_register=exceptions,
+        )
+    )
+    refs = _v79c_reference_refs(
+        request=request,
+        guardrail=guardrail,
+        run_plan=run_plan,
+        tool_plan=tool_plan,
+        monitoring=monitoring,
+        exceptions=exceptions,
+    )
+    summary_refs = {
+        row.candidate_ref: row.controlled_execution_summary_ref
+        for row in summary.summary_rows
+    }
+    payload = {
+        "schema": REPO_POST_CONTROLLED_EXECUTION_REVIEW_HANDOFF_SCHEMA,
+        "post_controlled_execution_review_handoff_id": "",
+        "controlled_execution_review_summary_id": (
+            summary.controlled_execution_review_summary_id
+        ),
+        "controlled_execution_review_request_id": request.controlled_execution_review_request_id,
+        "controlled_execution_source_index_id": source_index.controlled_execution_source_index_id,
+        "controlled_execution_non_execution_guardrail_id": (
+            guardrail.controlled_execution_non_execution_guardrail_id
+        ),
+        "execution_run_plan_id": run_plan.execution_run_plan_id,
+        "tool_invocation_plan_id": tool_plan.tool_invocation_plan_id,
+        "execution_effect_monitoring_contract_id": (
+            monitoring.execution_effect_monitoring_contract_id
+        ),
+        "controlled_execution_exception_register_id": (
+            exceptions.controlled_execution_exception_register_id
+        ),
+        "review_id": request.review_id,
+        "snapshot_id": "vNext+222-controlled-execution-review-closeout",
+        "source_set_id": "source-set:v79c:released-v79ab-handoff-pressure",
+        "handoff_rows": [
+            {
+                "handoff_ref": "handoff:v79c:self-evidencing:future-execution-trial-review",
+                "candidate_ref": refs["candidate_ref"],
+                "controlled_execution_summary_refs": [summary_refs[refs["candidate_ref"]]],
+                "run_plan_refs": refs["run_plan_refs"],
+                "tool_invocation_plan_refs": refs["tool_invocation_plan_refs"],
+                "effect_monitoring_contract_refs": refs["effect_monitoring_contract_refs"],
+                "carried_exception_refs": refs["warning_exception_refs"],
+                "handoff_target": "future_execution_trial_review",
+                "handoff_subject_horizon": "controlled_execution_review_package",
+                "handoff_posture": "ready_with_nonblocking_warnings",
+                "handoff_execution_status": "no_execution_performed_by_v79",
+                "required_later_authority_refs": refs["authority_refs"],
+                "controlled_execution_action_posture": (
+                    "no_controlled_execution_performed_by_v79"
+                ),
+                "execution_posture": "no_execution_performed_by_v79",
+                "tool_invocation_posture": "no_tool_invocation_performed_by_v79",
+                "non_execution_guardrail_refs": refs["non_execution_guardrail_refs"],
+                "limitation_note": (
+                    "Handoff requests later review with no execution and "
+                    "no tool invocation."
+                ),
+            },
+            {
+                "handoff_ref": "handoff:v79c:product-wedge:future-product-review",
+                "candidate_ref": refs["product_candidate_ref"],
+                "controlled_execution_summary_refs": [
+                    summary_refs[refs["product_candidate_ref"]]
+                ],
+                "run_plan_refs": [],
+                "tool_invocation_plan_refs": [],
+                "effect_monitoring_contract_refs": [],
+                "carried_exception_refs": refs["blocking_exception_refs"],
+                "handoff_target": "future_product_review",
+                "handoff_subject_horizon": "product_authority_gap",
+                "handoff_posture": "blocked_by_required_later_authority",
+                "handoff_execution_status": "no_execution_performed_by_v79",
+                "required_later_authority_refs": refs["product_authority_refs"],
+                "controlled_execution_action_posture": (
+                    "no_controlled_execution_performed_by_v79"
+                ),
+                "execution_posture": "no_execution_performed_by_v79",
+                "tool_invocation_posture": "no_tool_invocation_performed_by_v79",
+                "non_execution_guardrail_refs": refs[
+                    "product_non_execution_guardrail_refs"
+                ],
+                "limitation_note": (
+                    "Product handoff requests later review while preserving blockers "
+                    "with no execution and no tool invocation."
+                ),
+            },
+        ],
+        "handoff_summary": (
+            "Post-controlled-execution-review handoffs request later review with "
+            "no execution, no tool invocation, and no release."
+        ),
+    }
+    payload["handoff_rows"] = sorted(
+        payload["handoff_rows"],
+        key=lambda row: row["handoff_ref"],
+    )
+    payload["post_controlled_execution_review_handoff_id"] = _surface_id(
+        "repo_post_controlled_execution_review_handoff",
+        REPO_POST_CONTROLLED_EXECUTION_REVIEW_HANDOFF_SCHEMA,
+        payload,
+        "post_controlled_execution_review_handoff_id",
+    )
+    return RepoPostControlledExecutionReviewHandoff.model_validate(payload)
+
+
+def derive_v79c_repo_controlled_execution_review_family_closeout_alignment(
+    *,
+    repo_root: Path | None = None,
+    controlled_execution_review_summary: RepoControlledExecutionReviewSummary | None = None,
+    post_controlled_execution_review_handoff: (
+        RepoPostControlledExecutionReviewHandoff | None
+    ) = None,
+) -> RepoControlledExecutionReviewFamilyCloseoutAlignment:
+    if (
+        controlled_execution_review_summary is None
+        or post_controlled_execution_review_handoff is None
+    ):
+        (
+            source_index,
+            request,
+            guardrail,
+            run_plan,
+            tool_plan,
+            monitoring,
+            exceptions,
+        ) = derive_v79b_controlled_execution_review_bundle(repo_root=repo_root)
+        summary = controlled_execution_review_summary or (
+            derive_v79c_repo_controlled_execution_review_summary(
+                repo_root=repo_root,
+                controlled_execution_source_index=source_index,
+                controlled_execution_review_request=request,
+                controlled_execution_non_execution_guardrail=guardrail,
+                execution_run_plan=run_plan,
+                tool_invocation_plan=tool_plan,
+                execution_effect_monitoring_contract=monitoring,
+                controlled_execution_exception_register=exceptions,
+            )
+        )
+        handoff = post_controlled_execution_review_handoff or (
+            derive_v79c_repo_post_controlled_execution_review_handoff(
+                repo_root=repo_root,
+                controlled_execution_source_index=source_index,
+                controlled_execution_review_request=request,
+                controlled_execution_non_execution_guardrail=guardrail,
+                execution_run_plan=run_plan,
+                tool_invocation_plan=tool_plan,
+                execution_effect_monitoring_contract=monitoring,
+                controlled_execution_exception_register=exceptions,
+                controlled_execution_review_summary=summary,
+            )
+        )
+    else:
+        summary = controlled_execution_review_summary
+        handoff = post_controlled_execution_review_handoff
+    payload = {
+        "schema": REPO_CONTROLLED_EXECUTION_REVIEW_FAMILY_CLOSEOUT_ALIGNMENT_SCHEMA,
+        "controlled_execution_review_family_closeout_alignment_id": "",
+        "controlled_execution_review_summary_id": summary.controlled_execution_review_summary_id,
+        "post_controlled_execution_review_handoff_id": (
+            handoff.post_controlled_execution_review_handoff_id
+        ),
+        "family": "V79",
+        "closed_by_arc": "vNext+223",
+        "closed_slice_ladder": ["V79-A", "V79-B", "V79-C"],
+        "consumed_source_families": [
+            "V68",
+            "V69",
+            "V70",
+            "V71",
+            "V72",
+            "V73",
+            "V74",
+            "V75",
+            "V76",
+            "V77",
+            "V78",
+            "V79",
+        ],
+        "shipped_record_shapes": sorted(
+            [
+                REPO_CONTROLLED_EXECUTION_REVIEW_REQUEST_SCHEMA,
+                REPO_CONTROLLED_EXECUTION_SOURCE_INDEX_SCHEMA,
+                REPO_CONTROLLED_EXECUTION_NON_EXECUTION_GUARDRAIL_SCHEMA,
+                REPO_EXECUTION_RUN_PLAN_SCHEMA,
+                REPO_TOOL_INVOCATION_PLAN_SCHEMA,
+                REPO_EXECUTION_EFFECT_MONITORING_CONTRACT_SCHEMA,
+                REPO_CONTROLLED_EXECUTION_EXCEPTION_REGISTER_SCHEMA,
+                REPO_CONTROLLED_EXECUTION_REVIEW_SUMMARY_SCHEMA,
+                REPO_POST_CONTROLLED_EXECUTION_REVIEW_HANDOFF_SCHEMA,
+                REPO_CONTROLLED_EXECUTION_REVIEW_FAMILY_CLOSEOUT_ALIGNMENT_SCHEMA,
+            ]
+        ),
+        "controlled_execution_boundary": (
+            "V79 closes controlled execution review with no execution, no tool invocation, "
+            "no release, and no v80 selection."
+        ),
+        "unselected_future_surfaces": [
+            "accepted_effect",
+            "benchmark_truth",
+            "command_execution",
+            "commit",
+            "dispatch_execution",
+            "external_branch_activation",
+            "living_memory_authority",
+            "merge",
+            "model_selection",
+            "observed_telemetry",
+            "pr_creation",
+            "product_authorization",
+            "recursive_policy_amendment",
+            "release",
+            "target_mutation",
+            "tool_invocation",
+            "v80_selection",
+            "verified_rollback",
+            "worker_assignment",
+        ],
+        "future_family_authority": "next_selector_required",
+        "limitation_note": (
+            "V79 is closed as review only with no execution, no tool invocation, "
+            "no v80 selection, and no downstream authority."
+        ),
+    }
+    payload["controlled_execution_review_family_closeout_alignment_id"] = _surface_id(
+        "repo_controlled_execution_review_family_closeout_alignment",
+        REPO_CONTROLLED_EXECUTION_REVIEW_FAMILY_CLOSEOUT_ALIGNMENT_SCHEMA,
+        payload,
+        "controlled_execution_review_family_closeout_alignment_id",
+    )
+    return RepoControlledExecutionReviewFamilyCloseoutAlignment.model_validate(payload)
+
+
+def validate_v79c_controlled_execution_review_closeout_bundle(
+    *,
+    controlled_execution_source_index: RepoControlledExecutionSourceIndex,
+    controlled_execution_review_request: RepoControlledExecutionReviewRequest,
+    controlled_execution_non_execution_guardrail: RepoControlledExecutionNonExecutionGuardrail,
+    execution_run_plan: RepoExecutionRunPlan,
+    tool_invocation_plan: RepoToolInvocationPlan,
+    execution_effect_monitoring_contract: RepoExecutionEffectMonitoringContract,
+    controlled_execution_exception_register: RepoControlledExecutionExceptionRegister,
+    controlled_execution_review_summary: RepoControlledExecutionReviewSummary,
+    post_controlled_execution_review_handoff: RepoPostControlledExecutionReviewHandoff,
+    controlled_execution_review_family_closeout_alignment: (
+        RepoControlledExecutionReviewFamilyCloseoutAlignment
+    ),
+) -> None:
+    validate_v79b_controlled_execution_review_bundle(
+        controlled_execution_source_index=controlled_execution_source_index,
+        controlled_execution_review_request=controlled_execution_review_request,
+        controlled_execution_non_execution_guardrail=controlled_execution_non_execution_guardrail,
+        execution_run_plan=execution_run_plan,
+        tool_invocation_plan=tool_invocation_plan,
+        execution_effect_monitoring_contract=execution_effect_monitoring_contract,
+        controlled_execution_exception_register=controlled_execution_exception_register,
+    )
+    expected_ids = (
+        controlled_execution_review_request.controlled_execution_review_request_id,
+        controlled_execution_source_index.controlled_execution_source_index_id,
+        controlled_execution_non_execution_guardrail.controlled_execution_non_execution_guardrail_id,
+        execution_run_plan.execution_run_plan_id,
+        tool_invocation_plan.tool_invocation_plan_id,
+        execution_effect_monitoring_contract.execution_effect_monitoring_contract_id,
+        controlled_execution_exception_register.controlled_execution_exception_register_id,
+    )
+    if (
+        controlled_execution_review_summary.controlled_execution_review_request_id,
+        controlled_execution_review_summary.controlled_execution_source_index_id,
+        controlled_execution_review_summary.controlled_execution_non_execution_guardrail_id,
+        controlled_execution_review_summary.execution_run_plan_id,
+        controlled_execution_review_summary.tool_invocation_plan_id,
+        controlled_execution_review_summary.execution_effect_monitoring_contract_id,
+        controlled_execution_review_summary.controlled_execution_exception_register_id,
+    ) != expected_ids:
+        raise ValueError("V79-C summary must reference released V79-A/B surfaces")
+    if (
+        post_controlled_execution_review_handoff.controlled_execution_review_summary_id
+        != controlled_execution_review_summary.controlled_execution_review_summary_id
+    ):
+        raise ValueError("V79-C handoff must reference released summary surface")
+    if (
+        post_controlled_execution_review_handoff.controlled_execution_review_request_id,
+        post_controlled_execution_review_handoff.controlled_execution_source_index_id,
+        post_controlled_execution_review_handoff.controlled_execution_non_execution_guardrail_id,
+        post_controlled_execution_review_handoff.execution_run_plan_id,
+        post_controlled_execution_review_handoff.tool_invocation_plan_id,
+        post_controlled_execution_review_handoff.execution_effect_monitoring_contract_id,
+        post_controlled_execution_review_handoff.controlled_execution_exception_register_id,
+    ) != expected_ids:
+        raise ValueError("V79-C handoff must reference released V79-A/B surfaces")
+    closeout_summary_id = (
+        controlled_execution_review_family_closeout_alignment.controlled_execution_review_summary_id
+    )
+    closeout_handoff_id = (
+        controlled_execution_review_family_closeout_alignment
+        .post_controlled_execution_review_handoff_id
+    )
+    summary_id = controlled_execution_review_summary.controlled_execution_review_summary_id
+    handoff_id = (
+        post_controlled_execution_review_handoff.post_controlled_execution_review_handoff_id
+    )
+    if closeout_summary_id != summary_id or closeout_handoff_id != handoff_id:
+        raise ValueError("V79-C closeout must reference released summary and handoff")
+
+    known_requests = {
+        row.execution_review_request_ref: row
+        for row in controlled_execution_review_request.request_rows
+    }
+    known_guardrails = {
+        row.guardrail_ref: row
+        for row in controlled_execution_non_execution_guardrail.guardrail_rows
+    }
+    run_rows = {row.run_plan_ref: row for row in execution_run_plan.run_plan_rows}
+    tool_rows = {
+        row.tool_invocation_plan_ref: row
+        for row in tool_invocation_plan.tool_invocation_plan_rows
+    }
+    monitoring_rows = {
+        row.effect_monitoring_contract_ref: row
+        for row in execution_effect_monitoring_contract.effect_monitoring_contract_rows
+    }
+    exception_rows = {
+        row.exception_ref: row
+        for row in controlled_execution_exception_register.exception_rows
+    }
+    summary_rows = {
+        row.controlled_execution_summary_ref: row
+        for row in controlled_execution_review_summary.summary_rows
+    }
+    known_request_refs = set(known_requests)
+    known_guardrail_refs = set(known_guardrails)
+    run_refs = set(run_rows)
+    tool_refs = set(tool_rows)
+    monitoring_refs = set(monitoring_rows)
+    exception_refs = set(exception_rows)
+    summary_refs = set(summary_rows)
+
+    def _require_known_refs(refs: list[str], known: set[str], message: str) -> None:
+        if any(ref not in known for ref in refs):
+            raise ValueError(message)
+
+    def _require_candidate_refs(
+        refs: list[str],
+        rows_by_ref: dict[str, _CartographyBase],
+        *,
+        candidate_ref: str,
+        message: str,
+    ) -> None:
+        for ref in refs:
+            if rows_by_ref[ref].candidate_ref != candidate_ref:
+                raise ValueError(message)
+
+    for row in controlled_execution_review_summary.summary_rows:
+        _require_known_refs(
+            row.execution_review_request_refs,
+            known_request_refs,
+            "summary request refs must be known",
+        )
+        _require_known_refs(row.run_plan_refs, run_refs, "summary run refs must be known")
+        _require_known_refs(
+            row.tool_invocation_plan_refs,
+            tool_refs,
+            "summary tool-plan refs must be known",
+        )
+        _require_known_refs(
+            row.effect_monitoring_contract_refs,
+            monitoring_refs,
+            "summary monitoring refs must be known",
+        )
+        _require_known_refs(
+            row.exception_refs,
+            exception_refs,
+            "summary exception refs must be known",
+        )
+        _require_known_refs(
+            row.carried_blocker_refs,
+            exception_refs,
+            "summary blocker refs must be known",
+        )
+        _require_known_refs(
+            row.non_execution_guardrail_refs,
+            known_guardrail_refs,
+            "summary guardrail refs must be known",
+        )
+        _require_candidate_refs(
+            row.execution_review_request_refs,
+            known_requests,
+            candidate_ref=row.candidate_ref,
+            message="summary request refs must match candidate",
+        )
+        _require_candidate_refs(
+            row.run_plan_refs,
+            run_rows,
+            candidate_ref=row.candidate_ref,
+            message="summary run refs must match candidate",
+        )
+        _require_candidate_refs(
+            row.tool_invocation_plan_refs,
+            tool_rows,
+            candidate_ref=row.candidate_ref,
+            message="summary tool-plan refs must match candidate",
+        )
+        _require_candidate_refs(
+            row.effect_monitoring_contract_refs,
+            monitoring_rows,
+            candidate_ref=row.candidate_ref,
+            message="summary monitoring refs must match candidate",
+        )
+        blocking_refs = {
+            ref for ref in row.exception_refs if exception_rows[ref].exception_posture == "blocking"
+        }
+        if row.summary_posture in {
+            "controlled_execution_review_ready",
+            "controlled_execution_review_ready_with_nonblocking_warnings",
+        } and blocking_refs:
+            raise ValueError("ready summaries cannot hide blocking exceptions")
+        _require_candidate_refs(
+            row.exception_refs,
+            exception_rows,
+            candidate_ref=row.candidate_ref,
+            message="summary exception refs must match candidate",
+        )
+        _require_candidate_refs(
+            row.non_execution_guardrail_refs,
+            known_guardrails,
+            candidate_ref=row.candidate_ref,
+            message="summary guardrail refs must match candidate",
+        )
+        if row.summary_posture == "controlled_execution_review_ready_with_nonblocking_warnings":
+            warning_refs = {
+                ref
+                for ref in row.exception_refs
+                if exception_rows[ref].exception_posture == "warning_only"
+            }
+            if set(row.exception_refs) != warning_refs:
+                raise ValueError("warning-ready summaries may carry warnings only")
+        if row.carried_blocker_refs:
+            for ref in row.carried_blocker_refs:
+                if exception_rows[ref].exception_posture != "blocking":
+                    raise ValueError("carried blocker refs must point to blocking exceptions")
+
+    for row in post_controlled_execution_review_handoff.handoff_rows:
+        _require_known_refs(
+            row.controlled_execution_summary_refs,
+            summary_refs,
+            "handoff summary refs must be known",
+        )
+        _require_known_refs(row.run_plan_refs, run_refs, "handoff run refs must be known")
+        _require_known_refs(
+            row.tool_invocation_plan_refs,
+            tool_refs,
+            "handoff tool-plan refs must be known",
+        )
+        _require_known_refs(
+            row.effect_monitoring_contract_refs,
+            monitoring_refs,
+            "handoff monitoring refs must be known",
+        )
+        _require_known_refs(
+            row.carried_exception_refs,
+            exception_refs,
+            "handoff exception refs must be known",
+        )
+        _require_known_refs(
+            row.non_execution_guardrail_refs,
+            known_guardrail_refs,
+            "handoff guardrail refs must be known",
+        )
+        _require_candidate_refs(
+            row.controlled_execution_summary_refs,
+            summary_rows,
+            candidate_ref=row.candidate_ref,
+            message="handoff summary refs must match candidate",
+        )
+        _require_candidate_refs(
+            row.run_plan_refs,
+            run_rows,
+            candidate_ref=row.candidate_ref,
+            message="handoff run refs must match candidate",
+        )
+        _require_candidate_refs(
+            row.tool_invocation_plan_refs,
+            tool_rows,
+            candidate_ref=row.candidate_ref,
+            message="handoff tool-plan refs must match candidate",
+        )
+        _require_candidate_refs(
+            row.effect_monitoring_contract_refs,
+            monitoring_rows,
+            candidate_ref=row.candidate_ref,
+            message="handoff monitoring refs must match candidate",
+        )
+        _require_candidate_refs(
+            row.carried_exception_refs,
+            exception_rows,
+            candidate_ref=row.candidate_ref,
+            message="handoff exception refs must match candidate",
+        )
+        _require_candidate_refs(
+            row.non_execution_guardrail_refs,
+            known_guardrails,
+            candidate_ref=row.candidate_ref,
+            message="handoff guardrail refs must match candidate",
+        )
+        blocking_carried = {
+            ref
+            for ref in row.carried_exception_refs
+            if exception_rows[ref].exception_posture == "blocking"
+        }
+        if blocking_carried and row.handoff_posture == "ready_for_later_review":
+            raise ValueError("handoffs with blocking exceptions cannot be ready")
+        if row.handoff_target == "future_execution_trial_review":
+            for field_name in (
+                "run_plan_refs",
+                "effect_monitoring_contract_refs",
+                "required_later_authority_refs",
+            ):
+                if not getattr(row, field_name):
+                    raise ValueError("execution-trial handoffs require later review refs")
+            for summary_ref in row.controlled_execution_summary_refs:
+                summary_row = summary_rows[summary_ref]
+                if summary_row.summary_posture not in {
+                    "controlled_execution_review_ready",
+                    "controlled_execution_review_ready_with_nonblocking_warnings",
+                }:
+                    raise ValueError("execution-trial handoffs require ready summaries")
+        if row.handoff_target == "future_product_review":
+            if row.run_plan_refs or row.tool_invocation_plan_refs:
+                raise ValueError("product handoffs cannot become execution-trial readiness")
+        if row.handoff_target == "future_external_branch_review":
+            has_external_authority = any(
+                "external" in ref or "v43" in ref.lower()
+                for ref in row.required_later_authority_refs
+            )
+            if not has_external_authority:
+                raise ValueError("external handoffs require external authority or V43 refs")
+
+    if (
+        "v80_selection"
+        not in controlled_execution_review_family_closeout_alignment.unselected_future_surfaces
+    ):
+        raise ValueError("V79-C closeout must not select V80")
+
+
+def derive_v79c_controlled_execution_review_closeout_bundle(
+    *, repo_root: Path | None = None
+) -> tuple[
+    RepoControlledExecutionSourceIndex,
+    RepoControlledExecutionReviewRequest,
+    RepoControlledExecutionNonExecutionGuardrail,
+    RepoExecutionRunPlan,
+    RepoToolInvocationPlan,
+    RepoExecutionEffectMonitoringContract,
+    RepoControlledExecutionExceptionRegister,
+    RepoControlledExecutionReviewSummary,
+    RepoPostControlledExecutionReviewHandoff,
+    RepoControlledExecutionReviewFamilyCloseoutAlignment,
+]:
+    (
+        source_index,
+        request,
+        guardrail,
+        run_plan,
+        tool_plan,
+        monitoring,
+        exceptions,
+    ) = derive_v79b_controlled_execution_review_bundle(repo_root=repo_root)
+    summary = derive_v79c_repo_controlled_execution_review_summary(
+        repo_root=repo_root,
+        controlled_execution_source_index=source_index,
+        controlled_execution_review_request=request,
+        controlled_execution_non_execution_guardrail=guardrail,
+        execution_run_plan=run_plan,
+        tool_invocation_plan=tool_plan,
+        execution_effect_monitoring_contract=monitoring,
+        controlled_execution_exception_register=exceptions,
+    )
+    handoff = derive_v79c_repo_post_controlled_execution_review_handoff(
+        repo_root=repo_root,
+        controlled_execution_source_index=source_index,
+        controlled_execution_review_request=request,
+        controlled_execution_non_execution_guardrail=guardrail,
+        execution_run_plan=run_plan,
+        tool_invocation_plan=tool_plan,
+        execution_effect_monitoring_contract=monitoring,
+        controlled_execution_exception_register=exceptions,
+        controlled_execution_review_summary=summary,
+    )
+    closeout = derive_v79c_repo_controlled_execution_review_family_closeout_alignment(
+        repo_root=repo_root,
+        controlled_execution_review_summary=summary,
+        post_controlled_execution_review_handoff=handoff,
+    )
+    validate_v79c_controlled_execution_review_closeout_bundle(
+        controlled_execution_source_index=source_index,
+        controlled_execution_review_request=request,
+        controlled_execution_non_execution_guardrail=guardrail,
+        execution_run_plan=run_plan,
+        tool_invocation_plan=tool_plan,
+        execution_effect_monitoring_contract=monitoring,
+        controlled_execution_exception_register=exceptions,
+        controlled_execution_review_summary=summary,
+        post_controlled_execution_review_handoff=handoff,
+        controlled_execution_review_family_closeout_alignment=closeout,
+    )
+    return (
+        source_index,
+        request,
+        guardrail,
+        run_plan,
+        tool_plan,
+        monitoring,
+        exceptions,
+        summary,
+        handoff,
+        closeout,
+    )

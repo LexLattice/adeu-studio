@@ -1,0 +1,79 @@
+{
+  "controlled_execution_exception_register_id": "repo_controlled_execution_exception_register_1dfe36bf69462a4bfbb6e211",
+  "controlled_execution_non_execution_guardrail_id": "repo_controlled_execution_non_execution_guardrail_266ba905f6f220705a20ac20",
+  "controlled_execution_review_request_id": "repo_controlled_execution_review_request_5356d0d3f24006932cc4a884",
+  "controlled_execution_review_summary_id": "repo_controlled_execution_review_summary_7b1143d2bc0108800c1413cf",
+  "controlled_execution_source_index_id": "repo_controlled_execution_source_index_c021c60fe328391015a761ed",
+  "execution_effect_monitoring_contract_id": "repo_execution_effect_monitoring_contract_349c545f786d99154ee6cd64",
+  "execution_run_plan_id": "repo_execution_run_plan_709b34190bac1a5e31522811",
+  "handoff_rows": [
+    {
+      "candidate_ref": "candidate:internal:typed_adjudication_product_wedge",
+      "carried_exception_refs": [
+        "exception:v79b:product-wedge:product-authority-blocked"
+      ],
+      "controlled_execution_action_posture": "no_controlled_execution_performed_by_v79",
+      "controlled_execution_summary_refs": [
+        "controlled-execution-summary:v79c:product-wedge:blocked"
+      ],
+      "effect_monitoring_contract_refs": [],
+      "execution_posture": "no_execution_performed_by_v79",
+      "handoff_execution_status": "no_execution_performed_by_v79",
+      "handoff_posture": "ready_for_later_review",
+      "handoff_ref": "handoff:v79c:product-wedge:future-product-review",
+      "handoff_subject_horizon": "product_authority_gap",
+      "handoff_target": "future_product_review",
+      "limitation_note": "Product handoff requests later review while preserving blockers with no execution and no tool invocation.",
+      "non_execution_guardrail_refs": [
+        "guardrail:v79a:product-wedge:non-execution"
+      ],
+      "required_later_authority_refs": [
+        "authority:v78a:product-wedge:product-review"
+      ],
+      "run_plan_refs": [],
+      "tool_invocation_plan_refs": [],
+      "tool_invocation_posture": "no_tool_invocation_performed_by_v79"
+    },
+    {
+      "candidate_ref": "candidate:internal:self_evidencing_workflow_type_emergence",
+      "carried_exception_refs": [
+        "exception:v79b:self-evidencing:external-branch-blocked"
+      ],
+      "controlled_execution_action_posture": "no_controlled_execution_performed_by_v79",
+      "controlled_execution_summary_refs": [
+        "controlled-execution-summary:v79c:self-evidencing:review-package"
+      ],
+      "effect_monitoring_contract_refs": [
+        "monitoring-contract:v79b:self-evidencing:review-only"
+      ],
+      "execution_posture": "no_execution_performed_by_v79",
+      "handoff_execution_status": "no_execution_performed_by_v79",
+      "handoff_posture": "ready_with_nonblocking_warnings",
+      "handoff_ref": "handoff:v79c:self-evidencing:future-execution-trial-review",
+      "handoff_subject_horizon": "controlled_execution_review_package",
+      "handoff_target": "future_execution_trial_review",
+      "limitation_note": "Handoff requests later review with no execution and no tool invocation.",
+      "non_execution_guardrail_refs": [
+        "guardrail:v79a:self-evidencing:non-execution"
+      ],
+      "required_later_authority_refs": [
+        "authority:v78a:self-evidencing:runtime-review",
+        "authority:v78a:self-evidencing:tool-use-review"
+      ],
+      "run_plan_refs": [
+        "run-plan:v79b:self-evidencing:repo-script-review"
+      ],
+      "tool_invocation_plan_refs": [
+        "tool-plan:v79b:self-evidencing:repo-description-check-review"
+      ],
+      "tool_invocation_posture": "no_tool_invocation_performed_by_v79"
+    }
+  ],
+  "handoff_summary": "Post-controlled-execution-review handoffs request later review with no execution, no tool invocation, and no release.",
+  "post_controlled_execution_review_handoff_id": "repo_post_controlled_execution_review_handoff_9448d9002059f6b732db87d8",
+  "review_id": "review:v79a:controlled-execution-review",
+  "schema": "repo_post_controlled_execution_review_handoff@1",
+  "snapshot_id": "vNext+222-controlled-execution-review-closeout",
+  "source_set_id": "source-set:v79c:released-v79ab-handoff-pressure",
+  "tool_invocation_plan_id": "repo_tool_invocation_plan_d2a313a0dcab3f09bffa1f58"
+}

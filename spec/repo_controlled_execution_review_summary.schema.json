@@ -1,0 +1,253 @@
+{
+  "$defs": {
+    "RepoControlledExecutionReviewSummaryRow": {
+      "additionalProperties": false,
+      "properties": {
+        "authority_refs": {
+          "items": {
+            "type": "string"
+          },
+          "title": "Authority Refs",
+          "type": "array"
+        },
+        "candidate_ref": {
+          "title": "Candidate Ref",
+          "type": "string"
+        },
+        "carried_blocker_refs": {
+          "items": {
+            "type": "string"
+          },
+          "title": "Carried Blocker Refs",
+          "type": "array"
+        },
+        "controlled_execution_action_posture": {
+          "enum": [
+            "no_controlled_execution_performed_by_v79",
+            "controlled_execution_requires_later_family",
+            "controlled_execution_forbidden_by_this_family"
+          ],
+          "title": "Controlled Execution Action Posture",
+          "type": "string"
+        },
+        "controlled_execution_summary_ref": {
+          "title": "Controlled Execution Summary Ref",
+          "type": "string"
+        },
+        "effect_monitoring_contract_refs": {
+          "items": {
+            "type": "string"
+          },
+          "title": "Effect Monitoring Contract Refs",
+          "type": "array"
+        },
+        "exception_refs": {
+          "items": {
+            "type": "string"
+          },
+          "title": "Exception Refs",
+          "type": "array"
+        },
+        "execution_posture": {
+          "enum": [
+            "no_execution_performed_by_v79",
+            "execution_requires_later_family",
+            "execution_forbidden_by_this_family"
+          ],
+          "title": "Execution Posture",
+          "type": "string"
+        },
+        "execution_review_request_refs": {
+          "items": {
+            "type": "string"
+          },
+          "minItems": 1,
+          "title": "Execution Review Request Refs",
+          "type": "array"
+        },
+        "limitation_note": {
+          "title": "Limitation Note",
+          "type": "string"
+        },
+        "non_execution_guardrail_refs": {
+          "items": {
+            "type": "string"
+          },
+          "minItems": 1,
+          "title": "Non Execution Guardrail Refs",
+          "type": "array"
+        },
+        "operator_confirmation_requirement_refs": {
+          "items": {
+            "type": "string"
+          },
+          "title": "Operator Confirmation Requirement Refs",
+          "type": "array"
+        },
+        "ready_basis_posture": {
+          "enum": [
+            "ready_no_blockers",
+            "ready_with_nonblocking_warnings",
+            "not_ready_blockers_remain",
+            "settlement_or_authority_review_requested_for_blockers",
+            "future_family_only",
+            "rejected_out_of_scope"
+          ],
+          "title": "Ready Basis Posture",
+          "type": "string"
+        },
+        "rollback_requirement_refs": {
+          "items": {
+            "type": "string"
+          },
+          "title": "Rollback Requirement Refs",
+          "type": "array"
+        },
+        "run_plan_refs": {
+          "items": {
+            "type": "string"
+          },
+          "title": "Run Plan Refs",
+          "type": "array"
+        },
+        "summary_posture": {
+          "enum": [
+            "controlled_execution_review_ready",
+            "controlled_execution_review_ready_with_nonblocking_warnings",
+            "blocked_by_missing_authority",
+            "blocked_by_missing_run_plan",
+            "blocked_by_missing_tool_invocation_plan",
+            "blocked_by_missing_effect_monitoring",
+            "blocked_by_missing_telemetry",
+            "blocked_by_missing_rollback",
+            "blocked_by_product_authority_gap",
+            "blocked_by_external_branch_gap",
+            "future_family_only",
+            "rejected_out_of_scope"
+          ],
+          "title": "Summary Posture",
+          "type": "string"
+        },
+        "telemetry_requirement_refs": {
+          "items": {
+            "type": "string"
+          },
+          "title": "Telemetry Requirement Refs",
+          "type": "array"
+        },
+        "tool_invocation_plan_refs": {
+          "items": {
+            "type": "string"
+          },
+          "title": "Tool Invocation Plan Refs",
+          "type": "array"
+        },
+        "tool_invocation_posture": {
+          "enum": [
+            "no_tool_invocation_performed_by_v79",
+            "tool_invocation_requires_later_family",
+            "tool_invocation_forbidden_by_this_family"
+          ],
+          "title": "Tool Invocation Posture",
+          "type": "string"
+        }
+      },
+      "required": [
+        "controlled_execution_summary_ref",
+        "candidate_ref",
+        "execution_review_request_refs",
+        "summary_posture",
+        "ready_basis_posture",
+        "controlled_execution_action_posture",
+        "execution_posture",
+        "tool_invocation_posture",
+        "non_execution_guardrail_refs",
+        "limitation_note"
+      ],
+      "title": "RepoControlledExecutionReviewSummaryRow",
+      "type": "object"
+    }
+  },
+  "additionalProperties": false,
+  "properties": {
+    "controlled_execution_exception_register_id": {
+      "title": "Controlled Execution Exception Register Id",
+      "type": "string"
+    },
+    "controlled_execution_non_execution_guardrail_id": {
+      "title": "Controlled Execution Non Execution Guardrail Id",
+      "type": "string"
+    },
+    "controlled_execution_review_request_id": {
+      "title": "Controlled Execution Review Request Id",
+      "type": "string"
+    },
+    "controlled_execution_review_summary_id": {
+      "title": "Controlled Execution Review Summary Id",
+      "type": "string"
+    },
+    "controlled_execution_source_index_id": {
+      "title": "Controlled Execution Source Index Id",
+      "type": "string"
+    },
+    "execution_effect_monitoring_contract_id": {
+      "title": "Execution Effect Monitoring Contract Id",
+      "type": "string"
+    },
+    "execution_run_plan_id": {
+      "title": "Execution Run Plan Id",
+      "type": "string"
+    },
+    "review_id": {
+      "title": "Review Id",
+      "type": "string"
+    },
+    "review_summary": {
+      "title": "Review Summary",
+      "type": "string"
+    },
+    "schema": {
+      "const": "repo_controlled_execution_review_summary@1",
+      "default": "repo_controlled_execution_review_summary@1",
+      "title": "Schema",
+      "type": "string"
+    },
+    "snapshot_id": {
+      "title": "Snapshot Id",
+      "type": "string"
+    },
+    "source_set_id": {
+      "title": "Source Set Id",
+      "type": "string"
+    },
+    "summary_rows": {
+      "items": {
+        "$ref": "#/$defs/RepoControlledExecutionReviewSummaryRow"
+      },
+      "minItems": 1,
+      "title": "Summary Rows",
+      "type": "array"
+    },
+    "tool_invocation_plan_id": {
+      "title": "Tool Invocation Plan Id",
+      "type": "string"
+    }
+  },
+  "required": [
+    "controlled_execution_review_summary_id",
+    "controlled_execution_review_request_id",
+    "controlled_execution_source_index_id",
+    "controlled_execution_non_execution_guardrail_id",
+    "execution_run_plan_id",
+    "tool_invocation_plan_id",
+    "execution_effect_monitoring_contract_id",
+    "controlled_execution_exception_register_id",
+    "review_id",
+    "snapshot_id",
+    "source_set_id",
+    "summary_rows",
+    "review_summary"
+  ],
+  "title": "RepoControlledExecutionReviewSummary",
+  "type": "object"
+}

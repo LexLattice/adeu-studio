@@ -1,0 +1,254 @@
+{
+  "$defs": {
+    "RepoPostControlledExecutionReviewHandoffRow": {
+      "additionalProperties": false,
+      "properties": {
+        "candidate_ref": {
+          "title": "Candidate Ref",
+          "type": "string"
+        },
+        "carried_exception_refs": {
+          "items": {
+            "type": "string"
+          },
+          "title": "Carried Exception Refs",
+          "type": "array"
+        },
+        "controlled_execution_action_posture": {
+          "enum": [
+            "no_controlled_execution_performed_by_v79",
+            "controlled_execution_requires_later_family",
+            "controlled_execution_forbidden_by_this_family"
+          ],
+          "title": "Controlled Execution Action Posture",
+          "type": "string"
+        },
+        "controlled_execution_summary_refs": {
+          "items": {
+            "type": "string"
+          },
+          "minItems": 1,
+          "title": "Controlled Execution Summary Refs",
+          "type": "array"
+        },
+        "effect_monitoring_contract_refs": {
+          "items": {
+            "type": "string"
+          },
+          "title": "Effect Monitoring Contract Refs",
+          "type": "array"
+        },
+        "execution_posture": {
+          "enum": [
+            "no_execution_performed_by_v79",
+            "execution_requires_later_family",
+            "execution_forbidden_by_this_family"
+          ],
+          "title": "Execution Posture",
+          "type": "string"
+        },
+        "handoff_execution_status": {
+          "enum": [
+            "no_execution_scheduled",
+            "no_execution_performed_by_v79",
+            "later_review_required_before_any_execution"
+          ],
+          "title": "Handoff Execution Status",
+          "type": "string"
+        },
+        "handoff_posture": {
+          "enum": [
+            "ready_for_later_review",
+            "ready_with_nonblocking_warnings",
+            "blocked_by_required_later_authority",
+            "blocked_by_run_plan_gap",
+            "blocked_by_tool_invocation_plan_gap",
+            "blocked_by_effect_monitoring_gap",
+            "blocked_by_telemetry_gap",
+            "blocked_by_rollback_gap",
+            "future_family_only",
+            "rejected_out_of_scope"
+          ],
+          "title": "Handoff Posture",
+          "type": "string"
+        },
+        "handoff_ref": {
+          "title": "Handoff Ref",
+          "type": "string"
+        },
+        "handoff_subject_horizon": {
+          "enum": [
+            "controlled_execution_review_package",
+            "bounded_run_plan_review_package",
+            "bounded_tool_invocation_review_package",
+            "effect_monitoring_review_package",
+            "product_authority_gap",
+            "external_branch_authority_gap",
+            "future_experiment_pressure"
+          ],
+          "title": "Handoff Subject Horizon",
+          "type": "string"
+        },
+        "handoff_target": {
+          "enum": [
+            "future_execution_trial_review",
+            "future_tool_invocation_review",
+            "future_product_review",
+            "future_external_branch_review",
+            "future_outcome_or_telemetry_review",
+            "future_experiment_design_review",
+            "future_family_review",
+            "deferred_no_selection"
+          ],
+          "title": "Handoff Target",
+          "type": "string"
+        },
+        "limitation_note": {
+          "title": "Limitation Note",
+          "type": "string"
+        },
+        "non_execution_guardrail_refs": {
+          "items": {
+            "type": "string"
+          },
+          "minItems": 1,
+          "title": "Non Execution Guardrail Refs",
+          "type": "array"
+        },
+        "required_later_authority_refs": {
+          "items": {
+            "type": "string"
+          },
+          "title": "Required Later Authority Refs",
+          "type": "array"
+        },
+        "run_plan_refs": {
+          "items": {
+            "type": "string"
+          },
+          "title": "Run Plan Refs",
+          "type": "array"
+        },
+        "tool_invocation_plan_refs": {
+          "items": {
+            "type": "string"
+          },
+          "title": "Tool Invocation Plan Refs",
+          "type": "array"
+        },
+        "tool_invocation_posture": {
+          "enum": [
+            "no_tool_invocation_performed_by_v79",
+            "tool_invocation_requires_later_family",
+            "tool_invocation_forbidden_by_this_family"
+          ],
+          "title": "Tool Invocation Posture",
+          "type": "string"
+        }
+      },
+      "required": [
+        "handoff_ref",
+        "candidate_ref",
+        "controlled_execution_summary_refs",
+        "handoff_target",
+        "handoff_subject_horizon",
+        "handoff_posture",
+        "handoff_execution_status",
+        "controlled_execution_action_posture",
+        "execution_posture",
+        "tool_invocation_posture",
+        "non_execution_guardrail_refs",
+        "limitation_note"
+      ],
+      "title": "RepoPostControlledExecutionReviewHandoffRow",
+      "type": "object"
+    }
+  },
+  "additionalProperties": false,
+  "properties": {
+    "controlled_execution_exception_register_id": {
+      "title": "Controlled Execution Exception Register Id",
+      "type": "string"
+    },
+    "controlled_execution_non_execution_guardrail_id": {
+      "title": "Controlled Execution Non Execution Guardrail Id",
+      "type": "string"
+    },
+    "controlled_execution_review_request_id": {
+      "title": "Controlled Execution Review Request Id",
+      "type": "string"
+    },
+    "controlled_execution_review_summary_id": {
+      "title": "Controlled Execution Review Summary Id",
+      "type": "string"
+    },
+    "controlled_execution_source_index_id": {
+      "title": "Controlled Execution Source Index Id",
+      "type": "string"
+    },
+    "execution_effect_monitoring_contract_id": {
+      "title": "Execution Effect Monitoring Contract Id",
+      "type": "string"
+    },
+    "execution_run_plan_id": {
+      "title": "Execution Run Plan Id",
+      "type": "string"
+    },
+    "handoff_rows": {
+      "items": {
+        "$ref": "#/$defs/RepoPostControlledExecutionReviewHandoffRow"
+      },
+      "minItems": 1,
+      "title": "Handoff Rows",
+      "type": "array"
+    },
+    "handoff_summary": {
+      "title": "Handoff Summary",
+      "type": "string"
+    },
+    "post_controlled_execution_review_handoff_id": {
+      "title": "Post Controlled Execution Review Handoff Id",
+      "type": "string"
+    },
+    "review_id": {
+      "title": "Review Id",
+      "type": "string"
+    },
+    "schema": {
+      "const": "repo_post_controlled_execution_review_handoff@1",
+      "default": "repo_post_controlled_execution_review_handoff@1",
+      "title": "Schema",
+      "type": "string"
+    },
+    "snapshot_id": {
+      "title": "Snapshot Id",
+      "type": "string"
+    },
+    "source_set_id": {
+      "title": "Source Set Id",
+      "type": "string"
+    },
+    "tool_invocation_plan_id": {
+      "title": "Tool Invocation Plan Id",
+      "type": "string"
+    }
+  },
+  "required": [
+    "post_controlled_execution_review_handoff_id",
+    "controlled_execution_review_summary_id",
+    "controlled_execution_review_request_id",
+    "controlled_execution_source_index_id",
+    "controlled_execution_non_execution_guardrail_id",
+    "execution_run_plan_id",
+    "tool_invocation_plan_id",
+    "execution_effect_monitoring_contract_id",
+    "controlled_execution_exception_register_id",
+    "review_id",
+    "snapshot_id",
+    "source_set_id",
+    "handoff_rows",
+    "handoff_summary"
+  ],
+  "title": "RepoPostControlledExecutionReviewHandoff",
+  "type": "object"
+}

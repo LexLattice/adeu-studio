@@ -1,0 +1,90 @@
+{
+  "controlled_execution_exception_register_id": "repo_controlled_execution_exception_register_1dfe36bf69462a4bfbb6e211",
+  "controlled_execution_non_execution_guardrail_id": "repo_controlled_execution_non_execution_guardrail_266ba905f6f220705a20ac20",
+  "controlled_execution_review_request_id": "repo_controlled_execution_review_request_5356d0d3f24006932cc4a884",
+  "controlled_execution_review_summary_id": "repo_controlled_execution_review_summary_7b1143d2bc0108800c1413cf",
+  "controlled_execution_source_index_id": "repo_controlled_execution_source_index_c021c60fe328391015a761ed",
+  "execution_effect_monitoring_contract_id": "repo_execution_effect_monitoring_contract_349c545f786d99154ee6cd64",
+  "execution_run_plan_id": "repo_execution_run_plan_709b34190bac1a5e31522811",
+  "review_id": "review:v79a:controlled-execution-review",
+  "review_summary": "Controlled execution review summaries are review records with no execution, no tool invocation, and no release.",
+  "schema": "repo_controlled_execution_review_summary@1",
+  "snapshot_id": "vNext+222-controlled-execution-review-closeout",
+  "source_set_id": "source-set:v79c:released-v79ab-summary-pressure",
+  "summary_rows": [
+    {
+      "authority_refs": [
+        "authority:v78a:product-wedge:product-review"
+      ],
+      "candidate_ref": "candidate:internal:typed_adjudication_product_wedge",
+      "carried_blocker_refs": [
+        "exception:v79b:product-wedge:product-authority-blocked"
+      ],
+      "controlled_execution_action_posture": "no_controlled_execution_performed_by_v79",
+      "controlled_execution_summary_ref": "controlled-execution-summary:v79c:product-wedge:blocked",
+      "effect_monitoring_contract_refs": [],
+      "exception_refs": [
+        "exception:v79b:product-wedge:product-authority-blocked"
+      ],
+      "execution_posture": "no_execution_performed_by_v79",
+      "execution_review_request_refs": [
+        "execution-review:v79a:product-wedge:blocked"
+      ],
+      "limitation_note": "Product pressure remains a blocked review state with no execution and no tool invocation.",
+      "non_execution_guardrail_refs": [
+        "guardrail:v79a:product-wedge:non-execution"
+      ],
+      "operator_confirmation_requirement_refs": [],
+      "ready_basis_posture": "not_ready_blockers_remain",
+      "rollback_requirement_refs": [],
+      "run_plan_refs": [],
+      "summary_posture": "blocked_by_product_authority_gap",
+      "telemetry_requirement_refs": [],
+      "tool_invocation_plan_refs": [],
+      "tool_invocation_posture": "no_tool_invocation_performed_by_v79"
+    },
+    {
+      "authority_refs": [
+        "authority:v78a:self-evidencing:runtime-review",
+        "authority:v78a:self-evidencing:tool-use-review"
+      ],
+      "candidate_ref": "candidate:internal:self_evidencing_workflow_type_emergence",
+      "carried_blocker_refs": [],
+      "controlled_execution_action_posture": "no_controlled_execution_performed_by_v79",
+      "controlled_execution_summary_ref": "controlled-execution-summary:v79c:self-evidencing:review-package",
+      "effect_monitoring_contract_refs": [
+        "monitoring-contract:v79b:self-evidencing:review-only"
+      ],
+      "exception_refs": [
+        "exception:v79b:self-evidencing:external-branch-blocked"
+      ],
+      "execution_posture": "no_execution_performed_by_v79",
+      "execution_review_request_refs": [
+        "execution-review:v79a:self-evidencing:controlled-execution"
+      ],
+      "limitation_note": "Controlled execution review package is ready for later review with warning context, no execution, and no tool invocation.",
+      "non_execution_guardrail_refs": [
+        "guardrail:v79a:self-evidencing:non-execution"
+      ],
+      "operator_confirmation_requirement_refs": [
+        "operator-confirmation:v79b:self-evidencing:required-later"
+      ],
+      "ready_basis_posture": "ready_with_nonblocking_warnings",
+      "rollback_requirement_refs": [
+        "rollback-requirement:v79b:self-evidencing:required-later"
+      ],
+      "run_plan_refs": [
+        "run-plan:v79b:self-evidencing:repo-script-review"
+      ],
+      "summary_posture": "controlled_execution_review_ready_with_nonblocking_warnings",
+      "telemetry_requirement_refs": [
+        "telemetry-requirement:v79b:self-evidencing:required-later"
+      ],
+      "tool_invocation_plan_refs": [
+        "tool-plan:v79b:self-evidencing:repo-description-check-review"
+      ],
+      "tool_invocation_posture": "no_tool_invocation_performed_by_v79"
+    }
+  ],
+  "tool_invocation_plan_id": "repo_tool_invocation_plan_d2a313a0dcab3f09bffa1f58"
+}
