@@ -1,8 +1,8 @@
 # Assessment vNext+228 Edges
 
-Status: pre-lock assessment for `V81-B`.
+Status: closeout-edge assessment for `V81-B`.
 
-Authority layer: planning / starter scaffold.
+Authority layer: closeout evidence on `main`.
 
 ## Assessment-State Marker (Machine-Checkable)
 
@@ -10,8 +10,8 @@ Authority layer: planning / starter scaffold.
 {
   "schema": "assessment_artifact_state@1",
   "artifact": "docs/ASSESSMENT_vNEXT_PLUS228_EDGES.md",
-  "phase": "pre_lock_assessment",
-  "authoritative": false,
+  "phase": "post_closeout_assessment",
+  "authoritative": true,
   "required_in_decision": true
 }
 ```
@@ -20,84 +20,118 @@ Authority layer: planning / starter scaffold.
 
 ### Edge 1: Boundary Contract Could Become Corpus Ingestion
 
-- Required containment:
-  corpus boundary contracts are review records only. They must carry
-  no-data-handling and no-corpus-transfer posture, and must reject ingestion,
-  export, mutation, endpoint access, connector activation, and customer data
-  handling.
-- Planned result:
-  must pass in implementation.
+- Closeout containment:
+  boundary contracts are review records only. They carry no-data-handling,
+  no-corpus-transfer, no-customer-data-handling, and no-connector-activation
+  posture.
+- Result:
+  pass; data-transfer, data-handling, and connector-activation reject fixtures
+  shipped.
 
 ### Edge 2: Customer Or Non-Public Corpus Could Hide Authority Gaps
 
-- Required containment:
-  customer and non-public corpus boundary rows must carry explicit privacy,
-  license/consent, and customer-data handling blockers unless later authority
-  source rows are present.
-- Planned result:
-  must pass in implementation.
+- Closeout containment:
+  boundary rows keep privacy, license/consent, and customer-data handling
+  posture explicit. Missing or absent posture remains a blocker, not
+  clearance.
+- Result:
+  pass.
 
 ### Edge 3: Provenance Could Become Truth
 
-- Required containment:
-  imported-substrate provenance rows may record descriptors and metadata, but
-  must not claim corpus truth, benchmark truth, imported-result truth, or
-  content capture authority.
-- Planned result:
-  must pass in implementation.
+- Closeout containment:
+  imported-substrate provenance records descriptors and metadata only. They
+  cannot claim corpus truth, benchmark truth, imported-result truth, or content
+  capture authority.
+- Result:
+  pass; provenance-truth and benchmark-truth reject fixtures shipped.
 
 ### Edge 4: Authority Gap Rows Could Grant Authority
 
-- Required containment:
-  cross-corpus authority gap rows classify missing or required authority only.
-  They must not grant privacy, license, customer-data, connector, product,
-  external-branch, release, benchmark-truth, or recursive-policy authority.
-- Planned result:
-  must pass in implementation.
+- Closeout containment:
+  authority gap rows classify missing, required, future-family-only, or
+  not-applicable authority posture. They cannot grant privacy, license,
+  customer-data, connector, product, external-branch, release, benchmark-truth,
+  graph-memory, or recursive-policy authority.
+- Result:
+  pass; authority-grant reject fixture shipped.
 
 ### Edge 5: Exceptions Could Be Resolved By Prose
 
-- Required containment:
-  exception rows may make blockers, warnings, and required next surfaces
-  visible. Blocking exceptions must not be marked resolved by limitation notes
-  or narrative text.
-- Planned result:
-  must pass in implementation.
+- Closeout containment:
+  exception rows make blockers, warnings, and required next surfaces visible.
+  They may preserve unresolved blockers, but cannot mark blockers resolved by
+  prose.
+- Result:
+  pass; prose-resolution reject coverage and unresolved-blocker regression
+  shipped.
 
 ### Edge 6: Connector Or Endpoint Identifiers Could Become Access
 
-- Required containment:
-  connector identifiers and endpoint refs are identifiers only. They must not
-  become connector activation, endpoint access, endpoint mutation, or external
-  data transfer permission.
-- Planned result:
-  must pass in implementation.
+- Closeout containment:
+  connector identifiers and endpoint refs remain identifiers or source
+  metadata. They do not become connector activation, endpoint access, endpoint
+  mutation, external data transfer, or customer-data handling permission.
+- Result:
+  pass.
 
-### Edge 7: Product Or External Pressure Could Become Cross-Corpus Ready
+### Edge 7: Partial V81-A Inputs Could Be Silently Replaced
 
-- Required containment:
+- Closeout containment:
+  `V81-B` derivation now accepts either all released `V81-A` inputs or none.
+  Partial supplied inputs reject instead of falling back to generated defaults.
+- Result:
+  pass; partial-input derivation reject regression shipped.
+
+### Edge 8: Product Or External Pressure Could Become Cross-Corpus Ready
+
+- Closeout containment:
   product and external-branch gaps remain blockers or future-family pressure.
-  They must not be converted into cross-corpus adjudication readiness,
-  ingestion readiness, or product authorization.
-- Planned result:
-  must pass in implementation.
+  They are not converted into cross-corpus adjudication readiness, ingestion
+  readiness, product authorization, or external-branch authority.
+- Result:
+  pass.
 
-### Edge 8: V81-B Could Emit V81-C Or V82 Surfaces
+### Edge 9: V81-B Could Start V81-C Early
 
-- Required containment:
-  `V81-B` may emit boundary, provenance, authority-gap, and exception rows
-  only. It must not emit summaries, handoffs, family closeout alignment,
-  graph memory, product reporting, corpus ingestion, adjudication execution,
-  or `V82` selection.
-- Planned result:
-  must pass in implementation.
+- Closeout containment:
+  no `repo_cross_corpus_governance_summary@1`,
+  `repo_post_cross_corpus_review_handoff@1`, or
+  `repo_cross_corpus_governance_family_closeout_alignment@1` surfaces are
+  selected.
+- Result:
+  pass; no `V81-C` surfaces shipped in `v228`.
+
+### Edge 10: V81-B Could Select V82
+
+- Closeout containment:
+  `V81-B` may carry future pressure but cannot select `V82` or any later
+  family. Later selection remains deferred to future family-level selection
+  after `V81` closeout.
+- Result:
+  pass.
+
+## Residual Edges
+
+- `V81-C` must summarize released `V81-A` and `V81-B` substrate without hiding
+  blockers, converting warning-ready posture into readiness, ingesting
+  corpora, activating connectors, accessing endpoints, executing
+  cross-corpus adjudication, productizing, creating graph memory, or selecting
+  `V82`.
+- Any `V81-C` handoff to corpus ingestion, connector authority,
+  cross-corpus adjudication, benchmark review, product review, external-branch
+  review, or graph-memory review must remain a later-review request with
+  target-specific authority refs.
 
 ## Current Judgment
 
-- `vNext+228` is safe to use as a bounded starter only if it remains scoped to
-  `V81-B`.
-- The first implementation should prove that `V81-B` can make corpus boundary,
-  provenance, authority-gap, and exception posture machine-checkable without
-  ingesting corpora, handling customer data, activating connectors, accessing
-  endpoints, executing cross-corpus adjudication, productizing, releasing,
-  creating graph memory, or selecting `V82`.
+- `V81-B` is closed on `main` as a bounded corpus boundary / imported
+  provenance / authority-gap / exception-register slice.
+- `V81` remains open for `V81-C`.
+- The shipped slice preserves the intended boundary: released cross-corpus
+  governance requests can be made boundary-addressable, provenance-addressable,
+  authority-gap-addressable, and exception-addressable, but `V81-B` does not
+  ingest corpora, handle customer data, activate connectors, access endpoints,
+  execute cross-corpus adjudication, productize, release, claim benchmark or
+  imported-result truth, create graph-memory authority, amend recursive policy,
+  emit `V81-C` summary / handoff / closeout surfaces, or select `V82`.
