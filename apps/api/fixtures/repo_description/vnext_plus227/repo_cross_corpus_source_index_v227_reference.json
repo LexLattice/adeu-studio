@@ -1,0 +1,80 @@
+{
+  "cross_corpus_source_index_id": "repo_cross_corpus_source_index_865b7414e73cd58d4aab1c6d",
+  "cross_corpus_source_summary": "Cross-corpus source rows separate eligibility from absence and context with no corpus ingestion and no prose memory.",
+  "review_id": "review:v81a:cross-corpus-governance",
+  "schema": "repo_cross_corpus_source_index@1",
+  "snapshot_id": "vNext+226-external-branch-review-closeout",
+  "source_rows": [
+    {
+      "authority_layer": "fixture",
+      "cross_corpus_source_role": "v80_summary_source",
+      "limitation_note": "Eligibility substrate for cross-corpus review only; no corpus ingestion.",
+      "source_horizon": "Released V80-C external branch readiness summary rows.",
+      "source_kind": "fixture_file",
+      "source_presence_posture": "present",
+      "source_ref": "apps/api/fixtures/repo_description/vnext_plus226/repo_external_branch_readiness_summary_v226_reference.json",
+      "source_status": "integrated_shaping_source"
+    },
+    {
+      "authority_layer": "fixture",
+      "cross_corpus_source_role": "v80_closeout_source",
+      "limitation_note": "Family closeout context for review boundary only; no corpus ingestion.",
+      "source_horizon": "Released V80 family closeout alignment rows.",
+      "source_kind": "fixture_file",
+      "source_presence_posture": "present",
+      "source_ref": "apps/api/fixtures/repo_description/vnext_plus226/repo_external_branch_review_family_closeout_alignment_v226_reference.json",
+      "source_status": "integrated_shaping_source"
+    },
+    {
+      "authority_layer": "fixture",
+      "cross_corpus_source_role": "v80_handoff_source",
+      "limitation_note": "Handoff substrate for cross-corpus review only; no corpus ingestion.",
+      "source_horizon": "Released V80-C post-external-branch-review handoff rows.",
+      "source_kind": "fixture_file",
+      "source_presence_posture": "present",
+      "source_ref": "apps/api/fixtures/repo_description/vnext_plus226/repo_post_external_branch_review_handoff_v226_reference.json",
+      "source_status": "integrated_shaping_source"
+    },
+    {
+      "authority_layer": "support",
+      "cross_corpus_source_role": "explicit_authority_absence_marker",
+      "limitation_note": "Explicit authority absence marker only; no corpus ingestion.",
+      "source_horizon": "Customer data authority source is absent.",
+      "source_kind": "external_artifact",
+      "source_presence_posture": "external_unavailable",
+      "source_ref": "corpus-authority:customer-data:current:absent",
+      "source_status": "review_pending_input"
+    },
+    {
+      "authority_layer": "support",
+      "cross_corpus_source_role": "explicit_corpus_absence_marker",
+      "limitation_note": "Explicit absence marker only; no corpus ingestion.",
+      "source_horizon": "Current concrete cross-corpus source is absent.",
+      "source_kind": "external_artifact",
+      "source_presence_posture": "external_unavailable",
+      "source_ref": "corpus-source:cross-corpus:current:absent",
+      "source_status": "review_pending_input"
+    },
+    {
+      "authority_layer": "planning",
+      "cross_corpus_source_role": "roadmap_context",
+      "limitation_note": "Roadmap context only and not sufficient for eligibility; no corpus ingestion.",
+      "source_horizon": "Post-V74 multi-arc roadmap context.",
+      "source_kind": "planning_doc",
+      "source_presence_posture": "present",
+      "source_ref": "docs/DRAFT_MULTI_ARC_ROADMAP_POST_V74_v0.md",
+      "source_status": "integrated_shaping_source"
+    },
+    {
+      "authority_layer": "support",
+      "cross_corpus_source_role": "dogfood_context",
+      "limitation_note": "Context source only and not sufficient for eligibility; no corpus ingestion.",
+      "source_horizon": "Combined V68-V80 dogfood context.",
+      "source_kind": "support_doc",
+      "source_presence_posture": "present",
+      "source_ref": "docs/support/arc_series_mapping/V68_V69_V70_V71_V72_V73_V74_V75_V76_V77_V78_V79_V80_COMBINED_DOGFOOD_TEST_v0.json",
+      "source_status": "integrated_shaping_source"
+    }
+  ],
+  "source_set_id": "source-set:v81a:released-v80c-cross-corpus-pressure"
+}
