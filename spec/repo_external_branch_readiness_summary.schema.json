@@ -1,0 +1,264 @@
+{
+  "$defs": {
+    "RepoExternalBranchReadinessSummaryRow": {
+      "additionalProperties": false,
+      "properties": {
+        "authority_refs": {
+          "items": {
+            "type": "string"
+          },
+          "title": "Authority Refs",
+          "type": "array"
+        },
+        "candidate_ref": {
+          "title": "Candidate Ref",
+          "type": "string"
+        },
+        "carried_blocker_refs": {
+          "items": {
+            "type": "string"
+          },
+          "title": "Carried Blocker Refs",
+          "type": "array"
+        },
+        "data_boundary_refs": {
+          "items": {
+            "type": "string"
+          },
+          "title": "Data Boundary Refs",
+          "type": "array"
+        },
+        "data_transfer_posture": {
+          "enum": [
+            "no_external_data_transfer_performed_by_v80",
+            "data_transfer_requires_later_family",
+            "data_transfer_forbidden_by_this_family"
+          ],
+          "title": "Data Transfer Posture",
+          "type": "string"
+        },
+        "exception_refs": {
+          "items": {
+            "type": "string"
+          },
+          "title": "Exception Refs",
+          "type": "array"
+        },
+        "external_activation_posture": {
+          "enum": [
+            "no_external_branch_activation_performed_by_v80",
+            "external_activation_requires_later_family",
+            "external_activation_forbidden_by_this_family"
+          ],
+          "title": "External Activation Posture",
+          "type": "string"
+        },
+        "external_branch_review_request_refs": {
+          "items": {
+            "type": "string"
+          },
+          "minItems": 1,
+          "title": "External Branch Review Request Refs",
+          "type": "array"
+        },
+        "external_branch_summary_ref": {
+          "title": "External Branch Summary Ref",
+          "type": "string"
+        },
+        "external_submission_posture": {
+          "enum": [
+            "no_external_submission_performed_by_v80",
+            "submission_requires_later_family",
+            "submission_forbidden_by_this_family"
+          ],
+          "title": "External Submission Posture",
+          "type": "string"
+        },
+        "external_tool_boundary_refs": {
+          "items": {
+            "type": "string"
+          },
+          "title": "External Tool Boundary Refs",
+          "type": "array"
+        },
+        "external_tool_invocation_posture": {
+          "enum": [
+            "no_external_tool_invocation_performed_by_v80",
+            "external_tool_invocation_requires_later_family",
+            "external_tool_invocation_forbidden_by_this_family"
+          ],
+          "title": "External Tool Invocation Posture",
+          "type": "string"
+        },
+        "limitation_note": {
+          "title": "Limitation Note",
+          "type": "string"
+        },
+        "non_activation_guardrail_refs": {
+          "items": {
+            "type": "string"
+          },
+          "minItems": 1,
+          "title": "Non Activation Guardrail Refs",
+          "type": "array"
+        },
+        "ready_basis_posture": {
+          "enum": [
+            "ready_no_blockers",
+            "ready_with_nonblocking_warnings",
+            "not_ready_blockers_remain",
+            "settlement_or_authority_review_requested_for_blockers",
+            "future_family_only",
+            "rejected_out_of_scope"
+          ],
+          "title": "Ready Basis Posture",
+          "type": "string"
+        },
+        "result_provenance_contract_refs": {
+          "items": {
+            "type": "string"
+          },
+          "title": "Result Provenance Contract Refs",
+          "type": "array"
+        },
+        "result_truth_posture": {
+          "enum": [
+            "external_result_truth_not_claimed",
+            "result_truth_requires_later_review",
+            "result_truth_forbidden_by_this_family"
+          ],
+          "title": "Result Truth Posture",
+          "type": "string"
+        },
+        "submission_authority_review_refs": {
+          "items": {
+            "type": "string"
+          },
+          "title": "Submission Authority Review Refs",
+          "type": "array"
+        },
+        "summary_posture": {
+          "enum": [
+            "external_branch_review_ready",
+            "external_branch_review_ready_with_nonblocking_warnings",
+            "blocked_by_missing_v43_branch_posture",
+            "blocked_by_missing_data_boundary",
+            "blocked_by_missing_tool_boundary",
+            "blocked_by_missing_submission_authority",
+            "blocked_by_missing_result_provenance",
+            "blocked_by_missing_withdrawal_posture",
+            "blocked_by_product_authority_gap",
+            "blocked_by_runtime_authority_gap",
+            "future_family_only",
+            "rejected_out_of_scope"
+          ],
+          "title": "Summary Posture",
+          "type": "string"
+        }
+      },
+      "required": [
+        "external_branch_summary_ref",
+        "candidate_ref",
+        "external_branch_review_request_refs",
+        "summary_posture",
+        "ready_basis_posture",
+        "external_activation_posture",
+        "external_submission_posture",
+        "external_tool_invocation_posture",
+        "data_transfer_posture",
+        "result_truth_posture",
+        "non_activation_guardrail_refs",
+        "limitation_note"
+      ],
+      "title": "RepoExternalBranchReadinessSummaryRow",
+      "type": "object"
+    }
+  },
+  "additionalProperties": false,
+  "properties": {
+    "external_branch_exception_register_id": {
+      "title": "External Branch Exception Register Id",
+      "type": "string"
+    },
+    "external_branch_non_activation_guardrail_id": {
+      "title": "External Branch Non Activation Guardrail Id",
+      "type": "string"
+    },
+    "external_branch_readiness_summary_id": {
+      "title": "External Branch Readiness Summary Id",
+      "type": "string"
+    },
+    "external_branch_review_request_id": {
+      "title": "External Branch Review Request Id",
+      "type": "string"
+    },
+    "external_branch_source_index_id": {
+      "title": "External Branch Source Index Id",
+      "type": "string"
+    },
+    "external_data_boundary_id": {
+      "title": "External Data Boundary Id",
+      "type": "string"
+    },
+    "external_result_provenance_contract_id": {
+      "title": "External Result Provenance Contract Id",
+      "type": "string"
+    },
+    "external_submission_authority_review_id": {
+      "title": "External Submission Authority Review Id",
+      "type": "string"
+    },
+    "external_tool_boundary_id": {
+      "title": "External Tool Boundary Id",
+      "type": "string"
+    },
+    "readiness_summary": {
+      "title": "Readiness Summary",
+      "type": "string"
+    },
+    "review_id": {
+      "title": "Review Id",
+      "type": "string"
+    },
+    "schema": {
+      "const": "repo_external_branch_readiness_summary@1",
+      "default": "repo_external_branch_readiness_summary@1",
+      "title": "Schema",
+      "type": "string"
+    },
+    "snapshot_id": {
+      "title": "Snapshot Id",
+      "type": "string"
+    },
+    "source_set_id": {
+      "title": "Source Set Id",
+      "type": "string"
+    },
+    "summary_rows": {
+      "items": {
+        "$ref": "#/$defs/RepoExternalBranchReadinessSummaryRow"
+      },
+      "minItems": 1,
+      "title": "Summary Rows",
+      "type": "array"
+    }
+  },
+  "required": [
+    "external_branch_readiness_summary_id",
+    "external_branch_review_request_id",
+    "external_branch_source_index_id",
+    "external_branch_non_activation_guardrail_id",
+    "external_data_boundary_id",
+    "external_tool_boundary_id",
+    "external_submission_authority_review_id",
+    "external_result_provenance_contract_id",
+    "external_branch_exception_register_id",
+    "review_id",
+    "snapshot_id",
+    "source_set_id",
+    "summary_rows",
+    "readiness_summary"
+  ],
+  "title": "RepoExternalBranchReadinessSummary",
+  "type": "object"
+}

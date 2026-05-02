@@ -99,12 +99,15 @@ from .dispatch_review import (
 from .external_branch_review import (
     RepoExternalBranchExceptionRegister,
     RepoExternalBranchNonActivationGuardrail,
+    RepoExternalBranchReadinessSummary,
+    RepoExternalBranchReviewFamilyCloseoutAlignment,
     RepoExternalBranchReviewRequest,
     RepoExternalBranchSourceIndex,
     RepoExternalDataBoundary,
     RepoExternalResultProvenanceContract,
     RepoExternalSubmissionAuthorityReview,
     RepoExternalToolBoundary,
+    RepoPostExternalBranchReviewHandoff,
 )
 from .models import (
     RepoArcDependencyRegister,
@@ -571,6 +574,15 @@ def main() -> None:
     external_branch_exception_register_schema = (
         RepoExternalBranchExceptionRegister.model_json_schema(by_alias=True)
     )
+    external_branch_readiness_summary_schema = (
+        RepoExternalBranchReadinessSummary.model_json_schema(by_alias=True)
+    )
+    post_external_branch_review_handoff_schema = (
+        RepoPostExternalBranchReviewHandoff.model_json_schema(by_alias=True)
+    )
+    external_branch_review_family_closeout_alignment_schema = (
+        RepoExternalBranchReviewFamilyCloseoutAlignment.model_json_schema(by_alias=True)
+    )
 
     _assert_no_absolute_path_material(dependency_register_v1_schema, repo_root_path=root)
     _assert_no_absolute_path_material(dependency_register_schema, repo_root_path=root)
@@ -866,6 +878,18 @@ def main() -> None:
     )
     _assert_no_absolute_path_material(
         external_branch_exception_register_schema,
+        repo_root_path=root,
+    )
+    _assert_no_absolute_path_material(
+        external_branch_readiness_summary_schema,
+        repo_root_path=root,
+    )
+    _assert_no_absolute_path_material(
+        post_external_branch_review_handoff_schema,
+        repo_root_path=root,
+    )
+    _assert_no_absolute_path_material(
+        external_branch_review_family_closeout_alignment_schema,
         repo_root_path=root,
     )
 
@@ -2436,6 +2460,31 @@ def main() -> None:
     _write_schema(
         root / "spec" / "repo_external_branch_exception_register.schema.json",
         external_branch_exception_register_schema,
+    )
+    _write_schema(
+        repo_description_schema_root / "repo_external_branch_readiness_summary.v1.json",
+        external_branch_readiness_summary_schema,
+    )
+    _write_schema(
+        root / "spec" / "repo_external_branch_readiness_summary.schema.json",
+        external_branch_readiness_summary_schema,
+    )
+    _write_schema(
+        repo_description_schema_root / "repo_post_external_branch_review_handoff.v1.json",
+        post_external_branch_review_handoff_schema,
+    )
+    _write_schema(
+        root / "spec" / "repo_post_external_branch_review_handoff.schema.json",
+        post_external_branch_review_handoff_schema,
+    )
+    _write_schema(
+        repo_description_schema_root
+        / "repo_external_branch_review_family_closeout_alignment.v1.json",
+        external_branch_review_family_closeout_alignment_schema,
+    )
+    _write_schema(
+        root / "spec" / "repo_external_branch_review_family_closeout_alignment.schema.json",
+        external_branch_review_family_closeout_alignment_schema,
     )
 
 
