@@ -46,6 +46,9 @@ from adeu_repo_description import (
     REPO_CONTROLLED_EXECUTION_REVIEW_REQUEST_SCHEMA,
     REPO_CONTROLLED_EXECUTION_REVIEW_SUMMARY_SCHEMA,
     REPO_CONTROLLED_EXECUTION_SOURCE_INDEX_SCHEMA,
+    REPO_CORPUS_BOUNDARY_CONTRACT_SCHEMA,
+    REPO_CROSS_CORPUS_AUTHORITY_GAP_REGISTER_SCHEMA,
+    REPO_CROSS_CORPUS_EXCEPTION_REGISTER_SCHEMA,
     REPO_CROSS_CORPUS_GOVERNANCE_REQUEST_SCHEMA,
     REPO_CROSS_CORPUS_NON_INGESTION_GUARDRAIL_SCHEMA,
     REPO_CROSS_CORPUS_SOURCE_INDEX_SCHEMA,
@@ -69,6 +72,7 @@ from adeu_repo_description import (
     REPO_EXTERNAL_SUBMISSION_AUTHORITY_REVIEW_SCHEMA,
     REPO_EXTERNAL_TOOL_BOUNDARY_SCHEMA,
     REPO_FAMILY_CLOSURE_REGISTER_SCHEMA,
+    REPO_IMPORTED_SUBSTRATE_PROVENANCE_REGISTER_SCHEMA,
     REPO_INTEGRATION_EFFECT_SURFACE_REGISTER_SCHEMA,
     REPO_INTEGRATION_NON_RELEASE_GUARDRAIL_SCHEMA,
     REPO_INTEGRATION_ROLLBACK_READINESS_SCHEMA,
@@ -1138,6 +1142,38 @@ def _schema_pairs() -> dict[str, tuple[Path, Path]]:
             / "schema"
             / "repo_cross_corpus_non_ingestion_guardrail.v1.json",
             root / "spec" / "repo_cross_corpus_non_ingestion_guardrail.schema.json",
+        ),
+        REPO_CORPUS_BOUNDARY_CONTRACT_SCHEMA: (
+            root
+            / "packages"
+            / "adeu_repo_description"
+            / "schema"
+            / "repo_corpus_boundary_contract.v1.json",
+            root / "spec" / "repo_corpus_boundary_contract.schema.json",
+        ),
+        REPO_IMPORTED_SUBSTRATE_PROVENANCE_REGISTER_SCHEMA: (
+            root
+            / "packages"
+            / "adeu_repo_description"
+            / "schema"
+            / "repo_imported_substrate_provenance_register.v1.json",
+            root / "spec" / "repo_imported_substrate_provenance_register.schema.json",
+        ),
+        REPO_CROSS_CORPUS_AUTHORITY_GAP_REGISTER_SCHEMA: (
+            root
+            / "packages"
+            / "adeu_repo_description"
+            / "schema"
+            / "repo_cross_corpus_authority_gap_register.v1.json",
+            root / "spec" / "repo_cross_corpus_authority_gap_register.schema.json",
+        ),
+        REPO_CROSS_CORPUS_EXCEPTION_REGISTER_SCHEMA: (
+            root
+            / "packages"
+            / "adeu_repo_description"
+            / "schema"
+            / "repo_cross_corpus_exception_register.v1.json",
+            root / "spec" / "repo_cross_corpus_exception_register.schema.json",
         ),
     }
 

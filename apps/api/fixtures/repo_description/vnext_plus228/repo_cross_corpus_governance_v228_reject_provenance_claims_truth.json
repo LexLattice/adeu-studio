@@ -1,0 +1,64 @@
+{
+  "corpus_boundary_contract_id": "repo_corpus_boundary_contract_85b3115cd0fb18e4c23da16e",
+  "cross_corpus_governance_request_id": "repo_cross_corpus_governance_request_37287dd9523263483a41309f",
+  "cross_corpus_non_ingestion_guardrail_id": "repo_cross_corpus_non_ingestion_guardrail_69bb4462f66cae61f6bd2189",
+  "cross_corpus_source_index_id": "repo_cross_corpus_source_index_865b7414e73cd58d4aab1c6d",
+  "imported_substrate_provenance_register_id": "repo_imported_substrate_provenance_register_14635fa58e4cc15ae1436e4f",
+  "provenance_rows": [
+    {
+      "benchmark_truth_posture": "benchmark_truth_not_claimed",
+      "boundary_contract_refs": [
+        "corpus-boundary:v81b:product-wedge:blocked"
+      ],
+      "candidate_ref": "candidate:internal:typed_adjudication_product_wedge",
+      "capture_posture": "corpus_content_not_captured",
+      "limitation_note": "Product-pressure provenance is review only with no corpus truth, no benchmark truth, and no corpus ingestion.",
+      "provenance_ref": "corpus-provenance:v81b:product-wedge:blocked",
+      "provenance_status": "source_absent",
+      "request_refs": [
+        "cross-corpus-governance:v81a:product-wedge:product-blocked"
+      ],
+      "source_refs": [
+        "apps/api/fixtures/repo_description/vnext_plus226/repo_external_branch_readiness_summary_v226_reference.json",
+        "apps/api/fixtures/repo_description/vnext_plus226/repo_external_branch_review_family_closeout_alignment_v226_reference.json",
+        "apps/api/fixtures/repo_description/vnext_plus226/repo_post_external_branch_review_handoff_v226_reference.json",
+        "corpus-authority:customer-data:current:absent",
+        "corpus-source:cross-corpus:current:absent",
+        "docs/DRAFT_MULTI_ARC_ROADMAP_POST_V74_v0.md",
+        "docs/support/arc_series_mapping/V68_V69_V70_V71_V72_V73_V74_V75_V76_V77_V78_V79_V80_COMBINED_DOGFOOD_TEST_v0.json"
+      ],
+      "substrate_kind": "source_absence_marker",
+      "truth_status_forbidden": "truth_requires_later_review"
+    },
+    {
+      "benchmark_truth_posture": "benchmark_truth_not_claimed",
+      "boundary_contract_refs": [
+        "corpus-boundary:v81b:self-evidencing:source-absent"
+      ],
+      "candidate_ref": "candidate:internal:self_evidencing_workflow_type_emergence",
+      "capture_posture": "corpus_content_not_captured",
+      "limitation_note": "Provenance is review only for an absence marker with no corpus truth, no benchmark truth, and no corpus ingestion.",
+      "provenance_ref": "corpus-provenance:v81b:self-evidencing:source-absent",
+      "provenance_status": "source_absent",
+      "request_refs": [
+        "cross-corpus-governance:v81a:self-evidencing:source-absent"
+      ],
+      "source_refs": [
+        "apps/api/fixtures/repo_description/vnext_plus226/repo_external_branch_readiness_summary_v226_reference.json",
+        "apps/api/fixtures/repo_description/vnext_plus226/repo_external_branch_review_family_closeout_alignment_v226_reference.json",
+        "apps/api/fixtures/repo_description/vnext_plus226/repo_post_external_branch_review_handoff_v226_reference.json",
+        "corpus-authority:customer-data:current:absent",
+        "corpus-source:cross-corpus:current:absent",
+        "docs/DRAFT_MULTI_ARC_ROADMAP_POST_V74_v0.md",
+        "docs/support/arc_series_mapping/V68_V69_V70_V71_V72_V73_V74_V75_V76_V77_V78_V79_V80_COMBINED_DOGFOOD_TEST_v0.json"
+      ],
+      "substrate_kind": "source_absence_marker",
+      "truth_status_forbidden": "corpus_truth_not_claimed"
+    }
+  ],
+  "provenance_summary": "Imported-substrate provenance is review only with no corpus truth, no benchmark truth, and no corpus ingestion.",
+  "review_id": "review:v81a:cross-corpus-governance",
+  "schema": "repo_imported_substrate_provenance_register@1",
+  "snapshot_id": "vNext+226-external-branch-review-closeout",
+  "source_set_id": "source-set:v81a:released-v80c-cross-corpus-pressure"
+}

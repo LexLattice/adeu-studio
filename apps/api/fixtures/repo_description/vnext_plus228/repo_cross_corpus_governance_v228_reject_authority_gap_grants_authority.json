@@ -1,0 +1,150 @@
+{
+  "authority_gap_rows": [
+    {
+      "authority_gap_posture": "authority_future_family_only",
+      "authority_gap_ref": "corpus-authority-gap:v81b:product-wedge:external-branch",
+      "authority_kind": "external_branch_activation",
+      "boundary_contract_refs": [
+        "corpus-boundary:v81b:product-wedge:blocked"
+      ],
+      "candidate_ref": "candidate:internal:typed_adjudication_product_wedge",
+      "limitation_note": "Authority granted for corpus ingestion.",
+      "provenance_refs": [
+        "corpus-provenance:v81b:product-wedge:blocked"
+      ],
+      "request_refs": [
+        "cross-corpus-governance:v81a:product-wedge:product-blocked"
+      ],
+      "required_before_surface": "future_external_branch_review",
+      "source_presence_posture": "external_unavailable",
+      "source_refs": [
+        "apps/api/fixtures/repo_description/vnext_plus226/repo_external_branch_readiness_summary_v226_reference.json",
+        "apps/api/fixtures/repo_description/vnext_plus226/repo_external_branch_review_family_closeout_alignment_v226_reference.json",
+        "apps/api/fixtures/repo_description/vnext_plus226/repo_post_external_branch_review_handoff_v226_reference.json",
+        "corpus-authority:customer-data:current:absent",
+        "corpus-source:cross-corpus:current:absent",
+        "docs/DRAFT_MULTI_ARC_ROADMAP_POST_V74_v0.md",
+        "docs/support/arc_series_mapping/V68_V69_V70_V71_V72_V73_V74_V75_V76_V77_V78_V79_V80_COMBINED_DOGFOOD_TEST_v0.json"
+      ]
+    },
+    {
+      "authority_gap_posture": "authority_future_family_only",
+      "authority_gap_ref": "corpus-authority-gap:v81b:product-wedge:product",
+      "authority_kind": "product_authorization",
+      "boundary_contract_refs": [
+        "corpus-boundary:v81b:product-wedge:blocked"
+      ],
+      "candidate_ref": "candidate:internal:typed_adjudication_product_wedge",
+      "limitation_note": "Product authority gap is review only and future-family routed; authority gap preserved with no authority granted and no release.",
+      "provenance_refs": [
+        "corpus-provenance:v81b:product-wedge:blocked"
+      ],
+      "request_refs": [
+        "cross-corpus-governance:v81a:product-wedge:product-blocked"
+      ],
+      "required_before_surface": "future_product_review",
+      "source_presence_posture": "external_unavailable",
+      "source_refs": [
+        "apps/api/fixtures/repo_description/vnext_plus226/repo_external_branch_readiness_summary_v226_reference.json",
+        "apps/api/fixtures/repo_description/vnext_plus226/repo_external_branch_review_family_closeout_alignment_v226_reference.json",
+        "apps/api/fixtures/repo_description/vnext_plus226/repo_post_external_branch_review_handoff_v226_reference.json",
+        "corpus-authority:customer-data:current:absent",
+        "corpus-source:cross-corpus:current:absent",
+        "docs/DRAFT_MULTI_ARC_ROADMAP_POST_V74_v0.md",
+        "docs/support/arc_series_mapping/V68_V69_V70_V71_V72_V73_V74_V75_V76_V77_V78_V79_V80_COMBINED_DOGFOOD_TEST_v0.json"
+      ]
+    },
+    {
+      "authority_gap_posture": "authority_missing",
+      "authority_gap_ref": "corpus-authority-gap:v81b:self-evidencing:connector",
+      "authority_kind": "connector_authority",
+      "boundary_contract_refs": [
+        "corpus-boundary:v81b:self-evidencing:source-absent"
+      ],
+      "candidate_ref": "candidate:internal:self_evidencing_workflow_type_emergence",
+      "limitation_note": "Connector authority gap is review only; authority gap preserved with no authority granted and no connector activation.",
+      "provenance_refs": [
+        "corpus-provenance:v81b:self-evidencing:source-absent"
+      ],
+      "request_refs": [
+        "cross-corpus-governance:v81a:self-evidencing:source-absent"
+      ],
+      "required_before_surface": "future_connector_authority_review",
+      "source_presence_posture": "external_unavailable",
+      "source_refs": [
+        "apps/api/fixtures/repo_description/vnext_plus226/repo_external_branch_readiness_summary_v226_reference.json",
+        "apps/api/fixtures/repo_description/vnext_plus226/repo_external_branch_review_family_closeout_alignment_v226_reference.json",
+        "apps/api/fixtures/repo_description/vnext_plus226/repo_post_external_branch_review_handoff_v226_reference.json",
+        "corpus-authority:customer-data:current:absent",
+        "corpus-source:cross-corpus:current:absent",
+        "docs/DRAFT_MULTI_ARC_ROADMAP_POST_V74_v0.md",
+        "docs/support/arc_series_mapping/V68_V69_V70_V71_V72_V73_V74_V75_V76_V77_V78_V79_V80_COMBINED_DOGFOOD_TEST_v0.json"
+      ]
+    },
+    {
+      "authority_gap_posture": "authority_missing",
+      "authority_gap_ref": "corpus-authority-gap:v81b:self-evidencing:license",
+      "authority_kind": "license_or_consent_authority",
+      "boundary_contract_refs": [
+        "corpus-boundary:v81b:self-evidencing:source-absent"
+      ],
+      "candidate_ref": "candidate:internal:self_evidencing_workflow_type_emergence",
+      "limitation_note": "License authority gap is review only; authority gap preserved with no authority granted and no corpus ingestion.",
+      "provenance_refs": [
+        "corpus-provenance:v81b:self-evidencing:source-absent"
+      ],
+      "request_refs": [
+        "cross-corpus-governance:v81a:self-evidencing:source-absent"
+      ],
+      "required_before_surface": "future_corpus_ingestion_review",
+      "source_presence_posture": "external_unavailable",
+      "source_refs": [
+        "apps/api/fixtures/repo_description/vnext_plus226/repo_external_branch_readiness_summary_v226_reference.json",
+        "apps/api/fixtures/repo_description/vnext_plus226/repo_external_branch_review_family_closeout_alignment_v226_reference.json",
+        "apps/api/fixtures/repo_description/vnext_plus226/repo_post_external_branch_review_handoff_v226_reference.json",
+        "corpus-authority:customer-data:current:absent",
+        "corpus-source:cross-corpus:current:absent",
+        "docs/DRAFT_MULTI_ARC_ROADMAP_POST_V74_v0.md",
+        "docs/support/arc_series_mapping/V68_V69_V70_V71_V72_V73_V74_V75_V76_V77_V78_V79_V80_COMBINED_DOGFOOD_TEST_v0.json"
+      ]
+    },
+    {
+      "authority_gap_posture": "authority_missing",
+      "authority_gap_ref": "corpus-authority-gap:v81b:self-evidencing:privacy",
+      "authority_kind": "privacy_authority",
+      "boundary_contract_refs": [
+        "corpus-boundary:v81b:self-evidencing:source-absent"
+      ],
+      "candidate_ref": "candidate:internal:self_evidencing_workflow_type_emergence",
+      "limitation_note": "Privacy authority gap is review only; authority gap preserved with no authority granted and no corpus ingestion.",
+      "provenance_refs": [
+        "corpus-provenance:v81b:self-evidencing:source-absent"
+      ],
+      "request_refs": [
+        "cross-corpus-governance:v81a:self-evidencing:source-absent"
+      ],
+      "required_before_surface": "future_corpus_ingestion_review",
+      "source_presence_posture": "external_unavailable",
+      "source_refs": [
+        "apps/api/fixtures/repo_description/vnext_plus226/repo_external_branch_readiness_summary_v226_reference.json",
+        "apps/api/fixtures/repo_description/vnext_plus226/repo_external_branch_review_family_closeout_alignment_v226_reference.json",
+        "apps/api/fixtures/repo_description/vnext_plus226/repo_post_external_branch_review_handoff_v226_reference.json",
+        "corpus-authority:customer-data:current:absent",
+        "corpus-source:cross-corpus:current:absent",
+        "docs/DRAFT_MULTI_ARC_ROADMAP_POST_V74_v0.md",
+        "docs/support/arc_series_mapping/V68_V69_V70_V71_V72_V73_V74_V75_V76_V77_V78_V79_V80_COMBINED_DOGFOOD_TEST_v0.json"
+      ]
+    }
+  ],
+  "authority_gap_summary": "Cross-corpus authority gaps are review only with authority gap posture and no authority granted.",
+  "corpus_boundary_contract_id": "repo_corpus_boundary_contract_85b3115cd0fb18e4c23da16e",
+  "cross_corpus_authority_gap_register_id": "repo_cross_corpus_authority_gap_register_96e1a22212fccfc9201828e3",
+  "cross_corpus_governance_request_id": "repo_cross_corpus_governance_request_37287dd9523263483a41309f",
+  "cross_corpus_non_ingestion_guardrail_id": "repo_cross_corpus_non_ingestion_guardrail_69bb4462f66cae61f6bd2189",
+  "cross_corpus_source_index_id": "repo_cross_corpus_source_index_865b7414e73cd58d4aab1c6d",
+  "imported_substrate_provenance_register_id": "repo_imported_substrate_provenance_register_14635fa58e4cc15ae1436e4f",
+  "review_id": "review:v81a:cross-corpus-governance",
+  "schema": "repo_cross_corpus_authority_gap_register@1",
+  "snapshot_id": "vNext+226-external-branch-review-closeout",
+  "source_set_id": "source-set:v81a:released-v80c-cross-corpus-pressure"
+}

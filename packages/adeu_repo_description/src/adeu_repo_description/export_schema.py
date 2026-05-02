@@ -83,9 +83,13 @@ from .controlled_execution_review import (
     RepoToolInvocationPlan,
 )
 from .cross_corpus_governance import (
+    RepoCorpusBoundaryContract,
+    RepoCrossCorpusAuthorityGapRegister,
+    RepoCrossCorpusExceptionRegister,
     RepoCrossCorpusGovernanceRequest,
     RepoCrossCorpusNonIngestionGuardrail,
     RepoCrossCorpusSourceIndex,
+    RepoImportedSubstrateProvenanceRegister,
 )
 from .dispatch_review import (
     RepoDispatchExceptionRegister,
@@ -597,6 +601,18 @@ def main() -> None:
     cross_corpus_non_ingestion_guardrail_schema = (
         RepoCrossCorpusNonIngestionGuardrail.model_json_schema(by_alias=True)
     )
+    corpus_boundary_contract_schema = RepoCorpusBoundaryContract.model_json_schema(
+        by_alias=True
+    )
+    imported_substrate_provenance_register_schema = (
+        RepoImportedSubstrateProvenanceRegister.model_json_schema(by_alias=True)
+    )
+    cross_corpus_authority_gap_register_schema = (
+        RepoCrossCorpusAuthorityGapRegister.model_json_schema(by_alias=True)
+    )
+    cross_corpus_exception_register_schema = RepoCrossCorpusExceptionRegister.model_json_schema(
+        by_alias=True
+    )
 
     _assert_no_absolute_path_material(dependency_register_v1_schema, repo_root_path=root)
     _assert_no_absolute_path_material(dependency_register_schema, repo_root_path=root)
@@ -918,6 +934,16 @@ def main() -> None:
         cross_corpus_non_ingestion_guardrail_schema,
         repo_root_path=root,
     )
+    _assert_no_absolute_path_material(corpus_boundary_contract_schema, repo_root_path=root)
+    _assert_no_absolute_path_material(
+        imported_substrate_provenance_register_schema,
+        repo_root_path=root,
+    )
+    _assert_no_absolute_path_material(
+        cross_corpus_authority_gap_register_schema,
+        repo_root_path=root,
+    )
+    _assert_no_absolute_path_material(cross_corpus_exception_register_schema, repo_root_path=root)
 
     _write_schema(
         root
@@ -2535,6 +2561,39 @@ def main() -> None:
     _write_schema(
         root / "spec" / "repo_cross_corpus_non_ingestion_guardrail.schema.json",
         cross_corpus_non_ingestion_guardrail_schema,
+    )
+    _write_schema(
+        repo_description_schema_root / "repo_corpus_boundary_contract.v1.json",
+        corpus_boundary_contract_schema,
+    )
+    _write_schema(
+        root / "spec" / "repo_corpus_boundary_contract.schema.json",
+        corpus_boundary_contract_schema,
+    )
+    _write_schema(
+        repo_description_schema_root
+        / "repo_imported_substrate_provenance_register.v1.json",
+        imported_substrate_provenance_register_schema,
+    )
+    _write_schema(
+        root / "spec" / "repo_imported_substrate_provenance_register.schema.json",
+        imported_substrate_provenance_register_schema,
+    )
+    _write_schema(
+        repo_description_schema_root / "repo_cross_corpus_authority_gap_register.v1.json",
+        cross_corpus_authority_gap_register_schema,
+    )
+    _write_schema(
+        root / "spec" / "repo_cross_corpus_authority_gap_register.schema.json",
+        cross_corpus_authority_gap_register_schema,
+    )
+    _write_schema(
+        repo_description_schema_root / "repo_cross_corpus_exception_register.v1.json",
+        cross_corpus_exception_register_schema,
+    )
+    _write_schema(
+        root / "spec" / "repo_cross_corpus_exception_register.schema.json",
+        cross_corpus_exception_register_schema,
     )
 
 

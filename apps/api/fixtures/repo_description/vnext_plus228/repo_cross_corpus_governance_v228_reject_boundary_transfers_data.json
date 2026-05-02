@@ -1,0 +1,96 @@
+{
+  "boundary_contract_rows": [
+    {
+      "allowed_corpus_review_actions": [
+        "preserve_corpus_gap"
+      ],
+      "boundary_contract_ref": "corpus-boundary:v81b:product-wedge:blocked",
+      "boundary_resolution_kind": "no_corpus_boundary",
+      "candidate_ref": "candidate:internal:typed_adjudication_product_wedge",
+      "connector_activation_posture": "no_connector_activation_performed_by_v81",
+      "corpus_horizon_kind": "product_pressure_out_of_scope",
+      "corpus_scope_refs": [],
+      "corpus_transfer_posture": "corpus_transfer_requires_later_authority",
+      "customer_data_handling_posture": "customer_data_handling_forbidden_by_this_family",
+      "data_handling_posture": "no_data_handling_performed_by_v81",
+      "forbidden_corpus_actions": [
+        "export_repo_data_to_external_corpus",
+        "handle_customer_data",
+        "import_external_data",
+        "ingest_corpus",
+        "persist_imported_corpus_content",
+        "run_cross_corpus_adjudication",
+        "transfer_corpus_data"
+      ],
+      "guardrail_refs": [
+        "guardrail:v81a:product-wedge:non-ingestion"
+      ],
+      "license_or_consent_posture": "not_applicable",
+      "limitation_note": "Product-pressure boundary is review only and remains authority blocked with no corpus ingestion, no connector activation, and no release.",
+      "privacy_clearance_posture": "clearance_not_applicable",
+      "request_refs": [
+        "cross-corpus-governance:v81a:product-wedge:product-blocked"
+      ],
+      "source_refs": [
+        "apps/api/fixtures/repo_description/vnext_plus226/repo_external_branch_readiness_summary_v226_reference.json",
+        "apps/api/fixtures/repo_description/vnext_plus226/repo_external_branch_review_family_closeout_alignment_v226_reference.json",
+        "apps/api/fixtures/repo_description/vnext_plus226/repo_post_external_branch_review_handoff_v226_reference.json",
+        "corpus-authority:customer-data:current:absent",
+        "corpus-source:cross-corpus:current:absent",
+        "docs/DRAFT_MULTI_ARC_ROADMAP_POST_V74_v0.md",
+        "docs/support/arc_series_mapping/V68_V69_V70_V71_V72_V73_V74_V75_V76_V77_V78_V79_V80_COMBINED_DOGFOOD_TEST_v0.json"
+      ]
+    },
+    {
+      "allowed_corpus_review_actions": [
+        "preserve_corpus_gap",
+        "record_absence_posture"
+      ],
+      "boundary_contract_ref": "corpus-boundary:v81b:self-evidencing:source-absent",
+      "boundary_resolution_kind": "no_corpus_boundary",
+      "candidate_ref": "candidate:internal:self_evidencing_workflow_type_emergence",
+      "connector_activation_posture": "no_connector_activation_performed_by_v81",
+      "corpus_horizon_kind": "corpus_absence_review",
+      "corpus_scope_refs": [],
+      "corpus_transfer_posture": "no_corpus_transfer_performed_by_v81",
+      "customer_data_handling_posture": "customer_data_handling_forbidden_by_this_family",
+      "data_handling_posture": "no_data_handling_performed_by_v81",
+      "forbidden_corpus_actions": [
+        "export_repo_data_to_external_corpus",
+        "handle_customer_data",
+        "import_external_data",
+        "ingest_corpus",
+        "persist_imported_corpus_content",
+        "run_cross_corpus_adjudication",
+        "transfer_corpus_data"
+      ],
+      "guardrail_refs": [
+        "guardrail:v81a:self-evidencing:non-ingestion"
+      ],
+      "license_or_consent_posture": "explicitly_absent",
+      "limitation_note": "Boundary contract is review only over explicit corpus absence with no corpus ingestion, no connector activation, and no release.",
+      "privacy_clearance_posture": "clearance_explicitly_absent",
+      "request_refs": [
+        "cross-corpus-governance:v81a:self-evidencing:source-absent"
+      ],
+      "source_refs": [
+        "apps/api/fixtures/repo_description/vnext_plus226/repo_external_branch_readiness_summary_v226_reference.json",
+        "apps/api/fixtures/repo_description/vnext_plus226/repo_external_branch_review_family_closeout_alignment_v226_reference.json",
+        "apps/api/fixtures/repo_description/vnext_plus226/repo_post_external_branch_review_handoff_v226_reference.json",
+        "corpus-authority:customer-data:current:absent",
+        "corpus-source:cross-corpus:current:absent",
+        "docs/DRAFT_MULTI_ARC_ROADMAP_POST_V74_v0.md",
+        "docs/support/arc_series_mapping/V68_V69_V70_V71_V72_V73_V74_V75_V76_V77_V78_V79_V80_COMBINED_DOGFOOD_TEST_v0.json"
+      ]
+    }
+  ],
+  "boundary_contract_summary": "Corpus boundary contracts are review only with no corpus ingestion, no connector activation, and no release.",
+  "corpus_boundary_contract_id": "repo_corpus_boundary_contract_85b3115cd0fb18e4c23da16e",
+  "cross_corpus_governance_request_id": "repo_cross_corpus_governance_request_37287dd9523263483a41309f",
+  "cross_corpus_non_ingestion_guardrail_id": "repo_cross_corpus_non_ingestion_guardrail_69bb4462f66cae61f6bd2189",
+  "cross_corpus_source_index_id": "repo_cross_corpus_source_index_865b7414e73cd58d4aab1c6d",
+  "review_id": "review:v81a:cross-corpus-governance",
+  "schema": "repo_corpus_boundary_contract@1",
+  "snapshot_id": "vNext+226-external-branch-review-closeout",
+  "source_set_id": "source-set:v81a:released-v80c-cross-corpus-pressure"
+}

@@ -1,0 +1,253 @@
+{
+  "$defs": {
+    "RepoCorpusBoundaryContractRow": {
+      "additionalProperties": false,
+      "properties": {
+        "allowed_corpus_review_actions": {
+          "items": {
+            "enum": [
+              "describe_corpus_boundary",
+              "inspect_source_metadata",
+              "record_absence_posture",
+              "request_later_privacy_review",
+              "request_later_license_review",
+              "request_later_connector_review",
+              "preserve_corpus_gap"
+            ],
+            "type": "string"
+          },
+          "minItems": 1,
+          "title": "Allowed Corpus Review Actions",
+          "type": "array"
+        },
+        "boundary_contract_ref": {
+          "title": "Boundary Contract Ref",
+          "type": "string"
+        },
+        "boundary_resolution_kind": {
+          "enum": [
+            "concrete_repo_file_ref",
+            "concrete_external_source_ref",
+            "bounded_public_corpus_descriptor",
+            "bounded_customer_corpus_descriptor",
+            "benchmark_result_descriptor",
+            "paper_design_repo_bundle_descriptor",
+            "synthetic_corpus_descriptor",
+            "no_corpus_boundary"
+          ],
+          "title": "Boundary Resolution Kind",
+          "type": "string"
+        },
+        "candidate_ref": {
+          "title": "Candidate Ref",
+          "type": "string"
+        },
+        "connector_activation_posture": {
+          "enum": [
+            "no_connector_activation_performed_by_v81",
+            "connector_activation_requires_later_family",
+            "connector_activation_forbidden_by_this_family"
+          ],
+          "title": "Connector Activation Posture",
+          "type": "string"
+        },
+        "corpus_horizon_kind": {
+          "enum": [
+            "repo_local_corpus_governance",
+            "imported_corpus_governance",
+            "benchmark_result_governance",
+            "customer_corpus_governance",
+            "paper_design_repo_bundle_governance",
+            "synthetic_descriptor_governance",
+            "corpus_absence_review",
+            "product_pressure_out_of_scope"
+          ],
+          "title": "Corpus Horizon Kind",
+          "type": "string"
+        },
+        "corpus_scope_refs": {
+          "items": {
+            "type": "string"
+          },
+          "title": "Corpus Scope Refs",
+          "type": "array"
+        },
+        "corpus_transfer_posture": {
+          "enum": [
+            "no_corpus_transfer_performed_by_v81",
+            "corpus_transfer_requires_later_authority",
+            "corpus_transfer_forbidden_by_this_family"
+          ],
+          "title": "Corpus Transfer Posture",
+          "type": "string"
+        },
+        "customer_data_handling_posture": {
+          "enum": [
+            "no_customer_data_handling_performed_by_v81",
+            "customer_data_handling_requires_later_authority",
+            "customer_data_handling_forbidden_by_this_family"
+          ],
+          "title": "Customer Data Handling Posture",
+          "type": "string"
+        },
+        "data_handling_posture": {
+          "enum": [
+            "no_data_handling_performed_by_v81",
+            "data_handling_requires_later_authority",
+            "data_handling_forbidden_by_this_family"
+          ],
+          "title": "Data Handling Posture",
+          "type": "string"
+        },
+        "forbidden_corpus_actions": {
+          "items": {
+            "enum": [
+              "ingest_corpus",
+              "import_external_data",
+              "export_repo_data_to_external_corpus",
+              "handle_customer_data",
+              "transfer_corpus_data",
+              "persist_imported_corpus_content",
+              "run_cross_corpus_adjudication"
+            ],
+            "type": "string"
+          },
+          "minItems": 1,
+          "title": "Forbidden Corpus Actions",
+          "type": "array"
+        },
+        "guardrail_refs": {
+          "items": {
+            "type": "string"
+          },
+          "minItems": 1,
+          "title": "Guardrail Refs",
+          "type": "array"
+        },
+        "license_or_consent_posture": {
+          "enum": [
+            "license_not_present",
+            "license_requires_later_authority",
+            "consent_requires_later_authority",
+            "not_applicable",
+            "explicitly_absent"
+          ],
+          "title": "License Or Consent Posture",
+          "type": "string"
+        },
+        "limitation_note": {
+          "title": "Limitation Note",
+          "type": "string"
+        },
+        "privacy_clearance_posture": {
+          "enum": [
+            "clearance_not_present",
+            "clearance_requires_later_authority",
+            "clearance_not_applicable",
+            "clearance_explicitly_absent"
+          ],
+          "title": "Privacy Clearance Posture",
+          "type": "string"
+        },
+        "request_refs": {
+          "items": {
+            "type": "string"
+          },
+          "minItems": 1,
+          "title": "Request Refs",
+          "type": "array"
+        },
+        "source_refs": {
+          "items": {
+            "type": "string"
+          },
+          "minItems": 1,
+          "title": "Source Refs",
+          "type": "array"
+        }
+      },
+      "required": [
+        "boundary_contract_ref",
+        "candidate_ref",
+        "request_refs",
+        "source_refs",
+        "guardrail_refs",
+        "corpus_horizon_kind",
+        "boundary_resolution_kind",
+        "allowed_corpus_review_actions",
+        "forbidden_corpus_actions",
+        "privacy_clearance_posture",
+        "license_or_consent_posture",
+        "customer_data_handling_posture",
+        "data_handling_posture",
+        "corpus_transfer_posture",
+        "connector_activation_posture",
+        "limitation_note"
+      ],
+      "title": "RepoCorpusBoundaryContractRow",
+      "type": "object"
+    }
+  },
+  "additionalProperties": false,
+  "properties": {
+    "boundary_contract_rows": {
+      "items": {
+        "$ref": "#/$defs/RepoCorpusBoundaryContractRow"
+      },
+      "minItems": 1,
+      "title": "Boundary Contract Rows",
+      "type": "array"
+    },
+    "boundary_contract_summary": {
+      "title": "Boundary Contract Summary",
+      "type": "string"
+    },
+    "corpus_boundary_contract_id": {
+      "title": "Corpus Boundary Contract Id",
+      "type": "string"
+    },
+    "cross_corpus_governance_request_id": {
+      "title": "Cross Corpus Governance Request Id",
+      "type": "string"
+    },
+    "cross_corpus_non_ingestion_guardrail_id": {
+      "title": "Cross Corpus Non Ingestion Guardrail Id",
+      "type": "string"
+    },
+    "cross_corpus_source_index_id": {
+      "title": "Cross Corpus Source Index Id",
+      "type": "string"
+    },
+    "review_id": {
+      "title": "Review Id",
+      "type": "string"
+    },
+    "schema": {
+      "const": "repo_corpus_boundary_contract@1",
+      "default": "repo_corpus_boundary_contract@1",
+      "title": "Schema",
+      "type": "string"
+    },
+    "snapshot_id": {
+      "title": "Snapshot Id",
+      "type": "string"
+    },
+    "source_set_id": {
+      "title": "Source Set Id",
+      "type": "string"
+    }
+  },
+  "required": [
+    "corpus_boundary_contract_id",
+    "cross_corpus_governance_request_id",
+    "cross_corpus_source_index_id",
+    "cross_corpus_non_ingestion_guardrail_id",
+    "review_id",
+    "snapshot_id",
+    "source_set_id",
+    "boundary_contract_rows",
+    "boundary_contract_summary"
+  ],
+  "title": "RepoCorpusBoundaryContract",
+  "type": "object"
+}

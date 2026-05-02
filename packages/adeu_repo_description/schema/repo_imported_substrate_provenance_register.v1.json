@@ -1,0 +1,180 @@
+{
+  "$defs": {
+    "RepoImportedSubstrateProvenanceRow": {
+      "additionalProperties": false,
+      "properties": {
+        "benchmark_truth_posture": {
+          "enum": [
+            "benchmark_truth_not_claimed",
+            "benchmark_truth_requires_later_review",
+            "benchmark_truth_forbidden_by_this_family"
+          ],
+          "title": "Benchmark Truth Posture",
+          "type": "string"
+        },
+        "boundary_contract_refs": {
+          "items": {
+            "type": "string"
+          },
+          "minItems": 1,
+          "title": "Boundary Contract Refs",
+          "type": "array"
+        },
+        "candidate_ref": {
+          "title": "Candidate Ref",
+          "type": "string"
+        },
+        "capture_posture": {
+          "enum": [
+            "descriptor_recorded_only",
+            "source_metadata_recorded_only",
+            "provenance_requires_later_review",
+            "corpus_content_not_captured",
+            "capture_not_applicable"
+          ],
+          "title": "Capture Posture",
+          "type": "string"
+        },
+        "limitation_note": {
+          "title": "Limitation Note",
+          "type": "string"
+        },
+        "provenance_ref": {
+          "title": "Provenance Ref",
+          "type": "string"
+        },
+        "provenance_status": {
+          "enum": [
+            "source_present_unverified_truth",
+            "source_absent",
+            "source_stale_or_incomplete",
+            "provenance_requires_later_review",
+            "not_applicable"
+          ],
+          "title": "Provenance Status",
+          "type": "string"
+        },
+        "request_refs": {
+          "items": {
+            "type": "string"
+          },
+          "minItems": 1,
+          "title": "Request Refs",
+          "type": "array"
+        },
+        "source_refs": {
+          "items": {
+            "type": "string"
+          },
+          "minItems": 1,
+          "title": "Source Refs",
+          "type": "array"
+        },
+        "substrate_kind": {
+          "enum": [
+            "repo_local_descriptor",
+            "imported_corpus_descriptor",
+            "benchmark_result_descriptor",
+            "customer_corpus_descriptor",
+            "paper_design_repo_bundle_descriptor",
+            "synthetic_corpus_descriptor",
+            "source_absence_marker"
+          ],
+          "title": "Substrate Kind",
+          "type": "string"
+        },
+        "truth_status_forbidden": {
+          "enum": [
+            "corpus_truth_not_claimed",
+            "truth_requires_later_review",
+            "truth_forbidden_by_this_family"
+          ],
+          "title": "Truth Status Forbidden",
+          "type": "string"
+        }
+      },
+      "required": [
+        "provenance_ref",
+        "candidate_ref",
+        "request_refs",
+        "source_refs",
+        "boundary_contract_refs",
+        "substrate_kind",
+        "capture_posture",
+        "provenance_status",
+        "truth_status_forbidden",
+        "benchmark_truth_posture",
+        "limitation_note"
+      ],
+      "title": "RepoImportedSubstrateProvenanceRow",
+      "type": "object"
+    }
+  },
+  "additionalProperties": false,
+  "properties": {
+    "corpus_boundary_contract_id": {
+      "title": "Corpus Boundary Contract Id",
+      "type": "string"
+    },
+    "cross_corpus_governance_request_id": {
+      "title": "Cross Corpus Governance Request Id",
+      "type": "string"
+    },
+    "cross_corpus_non_ingestion_guardrail_id": {
+      "title": "Cross Corpus Non Ingestion Guardrail Id",
+      "type": "string"
+    },
+    "cross_corpus_source_index_id": {
+      "title": "Cross Corpus Source Index Id",
+      "type": "string"
+    },
+    "imported_substrate_provenance_register_id": {
+      "title": "Imported Substrate Provenance Register Id",
+      "type": "string"
+    },
+    "provenance_rows": {
+      "items": {
+        "$ref": "#/$defs/RepoImportedSubstrateProvenanceRow"
+      },
+      "minItems": 1,
+      "title": "Provenance Rows",
+      "type": "array"
+    },
+    "provenance_summary": {
+      "title": "Provenance Summary",
+      "type": "string"
+    },
+    "review_id": {
+      "title": "Review Id",
+      "type": "string"
+    },
+    "schema": {
+      "const": "repo_imported_substrate_provenance_register@1",
+      "default": "repo_imported_substrate_provenance_register@1",
+      "title": "Schema",
+      "type": "string"
+    },
+    "snapshot_id": {
+      "title": "Snapshot Id",
+      "type": "string"
+    },
+    "source_set_id": {
+      "title": "Source Set Id",
+      "type": "string"
+    }
+  },
+  "required": [
+    "imported_substrate_provenance_register_id",
+    "cross_corpus_governance_request_id",
+    "cross_corpus_source_index_id",
+    "cross_corpus_non_ingestion_guardrail_id",
+    "corpus_boundary_contract_id",
+    "review_id",
+    "snapshot_id",
+    "source_set_id",
+    "provenance_rows",
+    "provenance_summary"
+  ],
+  "title": "RepoImportedSubstrateProvenanceRegister",
+  "type": "object"
+}

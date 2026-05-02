@@ -1,0 +1,61 @@
+{
+  "corpus_boundary_contract_id": "repo_corpus_boundary_contract_85b3115cd0fb18e4c23da16e",
+  "cross_corpus_authority_gap_register_id": "repo_cross_corpus_authority_gap_register_96e1a22212fccfc9201828e3",
+  "cross_corpus_exception_register_id": "repo_cross_corpus_exception_register_72c61500ce9881cca60a3e97",
+  "cross_corpus_governance_request_id": "repo_cross_corpus_governance_request_37287dd9523263483a41309f",
+  "cross_corpus_non_ingestion_guardrail_id": "repo_cross_corpus_non_ingestion_guardrail_69bb4462f66cae61f6bd2189",
+  "cross_corpus_source_index_id": "repo_cross_corpus_source_index_865b7414e73cd58d4aab1c6d",
+  "exception_rows": [
+    {
+      "authority_gap_refs": [
+        "corpus-authority-gap:v81b:product-wedge:external-branch",
+        "corpus-authority-gap:v81b:product-wedge:product"
+      ],
+      "blocking_posture": "blocking",
+      "boundary_contract_refs": [
+        "corpus-boundary:v81b:product-wedge:blocked"
+      ],
+      "candidate_ref": "candidate:internal:typed_adjudication_product_wedge",
+      "exception_kind": "product_authority_gap",
+      "exception_ref": "corpus-exception:v81b:product-wedge:product-gap",
+      "limitation_note": "Product authority gap remains blocking for review only with no corpus ingestion and no release.",
+      "provenance_refs": [
+        "corpus-provenance:v81b:product-wedge:blocked"
+      ],
+      "request_refs": [
+        "cross-corpus-governance:v81a:product-wedge:product-blocked"
+      ],
+      "required_next_surface": "future_product_review",
+      "visibility_posture": "visible_blocking"
+    },
+    {
+      "authority_gap_refs": [
+        "corpus-authority-gap:v81b:self-evidencing:connector",
+        "corpus-authority-gap:v81b:self-evidencing:license",
+        "corpus-authority-gap:v81b:self-evidencing:privacy"
+      ],
+      "blocking_posture": "blocking",
+      "boundary_contract_refs": [
+        "corpus-boundary:v81b:self-evidencing:source-absent"
+      ],
+      "candidate_ref": "candidate:internal:self_evidencing_workflow_type_emergence",
+      "exception_kind": "missing_corpus_source",
+      "exception_ref": "corpus-exception:v81b:self-evidencing:missing-source",
+      "limitation_note": "Missing corpus source remains blocking for review only with no corpus ingestion.",
+      "provenance_refs": [
+        "corpus-provenance:v81b:self-evidencing:source-absent"
+      ],
+      "request_refs": [
+        "cross-corpus-governance:v81a:self-evidencing:source-absent"
+      ],
+      "required_next_surface": "future_corpus_ingestion_review",
+      "visibility_posture": "visible_blocking"
+    }
+  ],
+  "exception_summary": "Cross-corpus exceptions are review only, blocking where required, with no corpus ingestion.",
+  "imported_substrate_provenance_register_id": "repo_imported_substrate_provenance_register_14635fa58e4cc15ae1436e4f",
+  "review_id": "review:v81a:cross-corpus-governance",
+  "schema": "repo_cross_corpus_exception_register@1",
+  "snapshot_id": "vNext+226-external-branch-review-closeout",
+  "source_set_id": "source-set:v81a:released-v80c-cross-corpus-pressure"
+}
