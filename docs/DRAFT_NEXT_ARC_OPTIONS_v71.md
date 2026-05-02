@@ -140,8 +140,7 @@ locks:
 - `repo_post_cross_corpus_review_handoff@1`
 - `repo_cross_corpus_governance_family_closeout_alignment@1`
 
-Post-`V81-A` continuation posture: after `vNext+227` closes on `main`, select
-`V81-B` as the next default candidate for the next canonical starter bundle.
+Post-`V81-A` continuation posture: after `vNext+227` closes on `main`, select `V81-B` as the next default candidate for the next canonical starter bundle.
 That selection remains inside the already selected `V81` family and does not
 create a new next-arc-options selector version.
 
