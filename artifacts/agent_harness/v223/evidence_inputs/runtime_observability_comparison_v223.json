@@ -1,0 +1,11 @@
+{
+  "baseline_arc": "vNext+222",
+  "baseline_elapsed_ms": 106,
+  "baseline_source": "artifacts/stop_gate/report_v222_closeout.md",
+  "current_arc": "vNext+223",
+  "current_elapsed_ms": 105,
+  "current_source": "artifacts/stop_gate/report_v223_closeout.md",
+  "delta_ms": -1,
+  "notes": "v223 closeout keeps the frozen stop-gate schema family and exact metric keyset unchanged while closing the bounded V79-C controlled execution review summary / handoff / family-closeout slice on main: summaries consume released V79-A request / source / guardrail substrate and released V79-B run-plan / tool-plan / monitoring / exception substrate; ready summaries require complete review package refs; warning-ready rows cannot hide blocking exceptions; handoff refs match candidate ownership across summaries, run plans, tool plans, monitoring contracts, exceptions, and guardrails; product and external handoffs stay target-specific and authority-bound; and no command execution, tool invocation, target mutation, accepted effects, observed telemetry, verified rollback, dispatch, product authorization, external branch activation, PR / commit / merge / release, benchmark truth, model selection, living-memory authority, recursive policy amendment, or V80 selection.",
+  "schema": "runtime_observability_comparison@1"
+}
