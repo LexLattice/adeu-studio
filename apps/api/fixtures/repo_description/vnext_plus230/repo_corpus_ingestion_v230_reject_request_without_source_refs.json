@@ -1,0 +1,102 @@
+{
+  "corpus_ingestion_review_request_id": "repo_corpus_ingestion_review_request_c95888375150cbe4929ad594",
+  "corpus_ingestion_review_summary": "Corpus-ingestion review requests are review only: no corpus ingestion, no data transfer, no connector activation, no endpoint access, no cross-corpus adjudication, and no release.",
+  "corpus_ingestion_source_index_id": "repo_corpus_ingestion_source_index_c4db6e34f5a498d218b230a5",
+  "request_rows": [
+    {
+      "adjudication_execution_posture": "no_cross_corpus_adjudication_performed_by_v82",
+      "candidate_ref": "candidate:internal:typed_adjudication_product_wedge",
+      "connector_activation_posture": "no_connector_activation_performed_by_v82",
+      "corpus_ingestion_posture": "no_corpus_ingestion_performed_by_v82",
+      "corpus_ingestion_review_request_ref": "corpus-ingestion-review:v82a:product-wedge:product-blocked",
+      "corpus_source_currentness": "explicit_absence_marker",
+      "customer_data_handling_posture": "no_customer_data_handling_performed_by_v82",
+      "data_transfer_posture": "no_data_transfer_performed_by_v82",
+      "endpoint_access_posture": "no_endpoint_access_performed_by_v82",
+      "guardrail_refs": [
+        "guardrail:v82a:product-wedge:non-transfer"
+      ],
+      "ingestion_review_posture": "blocked_by_product_authority_gap",
+      "limitation_note": "Product-pressure corpus-ingestion row remains product blocked with no corpus ingestion, no data transfer, no connector activation, no endpoint access, and no release.",
+      "odeu_lanes": [
+        "deontic",
+        "utility"
+      ],
+      "requested_connector_boundary_horizon": "future_family_only",
+      "requested_corpus_ingestion_review_horizon": "future_family_only",
+      "requested_data_handling_authority_horizon": "future_family_only",
+      "requested_preflight_horizon": "future_family_only",
+      "required_connector_posture": "not_applicable",
+      "required_customer_data_posture": "not_applicable",
+      "required_endpoint_posture": "not_applicable",
+      "required_license_posture": "not_applicable",
+      "required_privacy_posture": "not_applicable",
+      "source_refs": [],
+      "v81_closeout_refs": [
+        "repo_cross_corpus_governance_family_closeout_alignment_9fb999b059ad5e0d04a9e72c"
+      ],
+      "v81_handoff_refs": [
+        "post-cross-corpus-handoff:v81c:typed_adjudication_product_wedge"
+      ],
+      "v81_summary_refs": [
+        "cross-corpus-summary:v81c:typed_adjudication_product_wedge"
+      ]
+    },
+    {
+      "adjudication_execution_posture": "no_cross_corpus_adjudication_performed_by_v82",
+      "candidate_ref": "candidate:internal:self_evidencing_workflow_type_emergence",
+      "connector_activation_posture": "no_connector_activation_performed_by_v82",
+      "corpus_ingestion_posture": "no_corpus_ingestion_performed_by_v82",
+      "corpus_ingestion_review_request_ref": "corpus-ingestion-review:v82a:self-evidencing:source-absent",
+      "corpus_source_currentness": "explicit_absence_marker",
+      "customer_data_handling_posture": "no_customer_data_handling_performed_by_v82",
+      "data_transfer_posture": "no_data_transfer_performed_by_v82",
+      "endpoint_access_posture": "no_endpoint_access_performed_by_v82",
+      "guardrail_refs": [
+        "guardrail:v82a:self-evidencing:non-transfer"
+      ],
+      "ingestion_review_posture": "blocked_by_missing_corpus_source",
+      "limitation_note": "Corpus-ingestion review is blocked by missing corpus source, privacy, license, connector, endpoint, and transfer authority with no corpus ingestion, no data transfer, no connector activation, no endpoint access, and no release.",
+      "odeu_lanes": [
+        "deontic",
+        "epistemic",
+        "utility"
+      ],
+      "requested_connector_boundary_horizon": "connector_access_authority_review",
+      "requested_corpus_ingestion_review_horizon": "corpus_ingestion_authority_review",
+      "requested_data_handling_authority_horizon": "customer_data_handling_authority_review",
+      "requested_preflight_horizon": "corpus_ingestion_authority_review",
+      "required_connector_posture": "blocked_by_missing_connector_authority",
+      "required_customer_data_posture": "not_applicable",
+      "required_endpoint_posture": "blocked_by_missing_endpoint_authority",
+      "required_license_posture": "blocked_by_missing_license_or_consent",
+      "required_privacy_posture": "blocked_by_missing_privacy_authority",
+      "source_refs": [
+        "apps/api/fixtures/repo_description/vnext_plus229/repo_cross_corpus_governance_family_closeout_alignment_v229_reference.json",
+        "apps/api/fixtures/repo_description/vnext_plus229/repo_cross_corpus_governance_summary_v229_reference.json",
+        "apps/api/fixtures/repo_description/vnext_plus229/repo_post_cross_corpus_review_handoff_v229_reference.json",
+        "connector-authority:corpus-ingestion:current:absent",
+        "corpus-source:ingestion:current:absent",
+        "docs/support/arc_series_mapping/V68_V69_V70_V71_V72_V73_V74_V75_V76_V77_V78_V79_V80_V81_COMBINED_DOGFOOD_TEST_v0.json",
+        "endpoint-authority:corpus-ingestion:current:absent",
+        "license-authority:corpus-ingestion:current:absent",
+        "privacy-authority:corpus-ingestion:current:absent",
+        "product-authority:corpus-ingestion:current:absent",
+        "transfer-boundary:corpus-ingestion:current:absent"
+      ],
+      "v81_closeout_refs": [
+        "repo_cross_corpus_governance_family_closeout_alignment_9fb999b059ad5e0d04a9e72c"
+      ],
+      "v81_handoff_refs": [
+        "post-cross-corpus-handoff:v81c:self_evidencing_workflow_type_emergence"
+      ],
+      "v81_summary_refs": [
+        "cross-corpus-summary:v81c:self_evidencing_workflow_type_emergence"
+      ]
+    }
+  ],
+  "review_id": "review:v82a:corpus-ingestion-review",
+  "schema": "repo_corpus_ingestion_review_request@1",
+  "snapshot_id": "vNext+229-cross-corpus-governance-closeout",
+  "source_set_id": "source-set:v82a:released-v81c-corpus-ingestion-pressure"
+}

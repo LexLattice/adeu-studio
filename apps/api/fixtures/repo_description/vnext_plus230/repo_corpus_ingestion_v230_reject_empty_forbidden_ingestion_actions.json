@@ -1,0 +1,234 @@
+{
+  "corpus_ingestion_non_transfer_guardrail_id": "repo_corpus_ingestion_non_transfer_guardrail_f124acde09653c4009388d6a",
+  "corpus_ingestion_review_request_id": "repo_corpus_ingestion_review_request_c95888375150cbe4929ad594",
+  "guardrail_rows": [
+    {
+      "authority_requirement_rows": [
+        {
+          "authority_gap_posture": "authority_requires_later_review",
+          "authority_kind": "product_authority",
+          "authority_requirement_ref": "authority:v82a:product-wedge:product-review",
+          "candidate_ref": "candidate:internal:typed_adjudication_product_wedge",
+          "limitation_note": "Product authority is required for later review; no corpus ingestion and no product authority granted.",
+          "required_before_surface": "future_product_review",
+          "source_presence_posture": "external_unavailable",
+          "source_refs": [
+            "product-authority:corpus-ingestion:current:absent"
+          ]
+        }
+      ],
+      "candidate_ref": "candidate:internal:typed_adjudication_product_wedge",
+      "corpus_ingestion_review_request_refs": [
+        "corpus-ingestion-review:v82a:product-wedge:product-blocked"
+      ],
+      "forbidden_connector_actions": [
+        "activate_connector",
+        "credentialed_connector_call",
+        "fetch_external_corpus",
+        "invoke_external_tool_for_corpus"
+      ],
+      "forbidden_downstream_authority": [
+        "benchmark_truth",
+        "connector_activation",
+        "corpus_ingestion",
+        "cross_corpus_adjudication_execution",
+        "customer_data_handling",
+        "data_transfer",
+        "endpoint_access",
+        "external_data_import_export",
+        "graph_memory_authority",
+        "imported_result_truth",
+        "product_authorization",
+        "recursive_policy_amendment",
+        "release_authority",
+        "v83_selection"
+      ],
+      "forbidden_endpoint_actions": [
+        "access_endpoint",
+        "credentialed_endpoint_call",
+        "mutate_endpoint",
+        "submit_payload_to_endpoint"
+      ],
+      "forbidden_ingestion_actions": [],
+      "forbidden_transfer_actions": [
+        "copy_external_corpus_content",
+        "download_external_corpus_content",
+        "transfer_corpus_data",
+        "upload_customer_data"
+      ],
+      "guardrail_ref": "guardrail:v82a:product-wedge:non-transfer",
+      "limitation_note": "This V82-A row is review only: no corpus ingestion, no data transfer, no customer data handling, no connector activation, no endpoint access, no cross-corpus adjudication, no product authorization, and no release.",
+      "non_connector_posture": "non_connector_guardrail_active",
+      "non_ingestion_posture": "non_ingestion_guardrail_active",
+      "non_transfer_posture": "non_transfer_guardrail_active",
+      "required_later_authority_refs": [
+        "authority:v82a:product-wedge:product-review"
+      ],
+      "source_refs": [
+        "apps/api/fixtures/repo_description/vnext_plus229/repo_cross_corpus_governance_family_closeout_alignment_v229_reference.json",
+        "apps/api/fixtures/repo_description/vnext_plus229/repo_cross_corpus_governance_summary_v229_reference.json",
+        "apps/api/fixtures/repo_description/vnext_plus229/repo_post_cross_corpus_review_handoff_v229_reference.json",
+        "connector-authority:corpus-ingestion:current:absent",
+        "corpus-source:ingestion:current:absent",
+        "docs/support/arc_series_mapping/V68_V69_V70_V71_V72_V73_V74_V75_V76_V77_V78_V79_V80_V81_COMBINED_DOGFOOD_TEST_v0.json",
+        "endpoint-authority:corpus-ingestion:current:absent",
+        "license-authority:corpus-ingestion:current:absent",
+        "privacy-authority:corpus-ingestion:current:absent",
+        "product-authority:corpus-ingestion:current:absent",
+        "transfer-boundary:corpus-ingestion:current:absent"
+      ]
+    },
+    {
+      "authority_requirement_rows": [
+        {
+          "authority_gap_posture": "authority_requires_later_review",
+          "authority_kind": "connector_authority",
+          "authority_requirement_ref": "authority:v82a:self-evidencing:connector-authority:corpus-ingestion:current:absent",
+          "candidate_ref": "candidate:internal:self_evidencing_workflow_type_emergence",
+          "limitation_note": "Authority source is required for later review; no corpus ingestion and no data transfer.",
+          "required_before_surface": "future_corpus_ingestion_authority_review",
+          "source_presence_posture": "external_unavailable",
+          "source_refs": [
+            "connector-authority:corpus-ingestion:current:absent"
+          ]
+        },
+        {
+          "authority_gap_posture": "authority_requires_later_review",
+          "authority_kind": "transfer_boundary_authority",
+          "authority_requirement_ref": "authority:v82a:self-evidencing:corpus-source:ingestion:current:absent",
+          "candidate_ref": "candidate:internal:self_evidencing_workflow_type_emergence",
+          "limitation_note": "Authority source is required for later review; no corpus ingestion and no data transfer.",
+          "required_before_surface": "future_corpus_ingestion_authority_review",
+          "source_presence_posture": "external_unavailable",
+          "source_refs": [
+            "corpus-source:ingestion:current:absent"
+          ]
+        },
+        {
+          "authority_gap_posture": "authority_requires_later_review",
+          "authority_kind": "endpoint_authority",
+          "authority_requirement_ref": "authority:v82a:self-evidencing:endpoint-authority:corpus-ingestion:current:absent",
+          "candidate_ref": "candidate:internal:self_evidencing_workflow_type_emergence",
+          "limitation_note": "Authority source is required for later review; no corpus ingestion and no data transfer.",
+          "required_before_surface": "future_corpus_ingestion_authority_review",
+          "source_presence_posture": "external_unavailable",
+          "source_refs": [
+            "endpoint-authority:corpus-ingestion:current:absent"
+          ]
+        },
+        {
+          "authority_gap_posture": "authority_requires_later_review",
+          "authority_kind": "license_or_consent_authority",
+          "authority_requirement_ref": "authority:v82a:self-evidencing:license-authority:corpus-ingestion:current:absent",
+          "candidate_ref": "candidate:internal:self_evidencing_workflow_type_emergence",
+          "limitation_note": "Authority source is required for later review; no corpus ingestion and no data transfer.",
+          "required_before_surface": "future_corpus_ingestion_authority_review",
+          "source_presence_posture": "external_unavailable",
+          "source_refs": [
+            "license-authority:corpus-ingestion:current:absent"
+          ]
+        },
+        {
+          "authority_gap_posture": "authority_requires_later_review",
+          "authority_kind": "privacy_authority",
+          "authority_requirement_ref": "authority:v82a:self-evidencing:privacy-authority:corpus-ingestion:current:absent",
+          "candidate_ref": "candidate:internal:self_evidencing_workflow_type_emergence",
+          "limitation_note": "Authority source is required for later review; no corpus ingestion and no data transfer.",
+          "required_before_surface": "future_corpus_ingestion_authority_review",
+          "source_presence_posture": "external_unavailable",
+          "source_refs": [
+            "privacy-authority:corpus-ingestion:current:absent"
+          ]
+        },
+        {
+          "authority_gap_posture": "authority_requires_later_review",
+          "authority_kind": "transfer_boundary_authority",
+          "authority_requirement_ref": "authority:v82a:self-evidencing:transfer-boundary:corpus-ingestion:current:absent",
+          "candidate_ref": "candidate:internal:self_evidencing_workflow_type_emergence",
+          "limitation_note": "Authority source is required for later review; no corpus ingestion and no data transfer.",
+          "required_before_surface": "future_corpus_ingestion_authority_review",
+          "source_presence_posture": "external_unavailable",
+          "source_refs": [
+            "transfer-boundary:corpus-ingestion:current:absent"
+          ]
+        }
+      ],
+      "candidate_ref": "candidate:internal:self_evidencing_workflow_type_emergence",
+      "corpus_ingestion_review_request_refs": [
+        "corpus-ingestion-review:v82a:self-evidencing:source-absent"
+      ],
+      "forbidden_connector_actions": [
+        "activate_connector",
+        "credentialed_connector_call",
+        "fetch_external_corpus",
+        "invoke_external_tool_for_corpus"
+      ],
+      "forbidden_downstream_authority": [
+        "benchmark_truth",
+        "connector_activation",
+        "corpus_ingestion",
+        "cross_corpus_adjudication_execution",
+        "customer_data_handling",
+        "data_transfer",
+        "endpoint_access",
+        "external_data_import_export",
+        "graph_memory_authority",
+        "imported_result_truth",
+        "product_authorization",
+        "recursive_policy_amendment",
+        "release_authority",
+        "v83_selection"
+      ],
+      "forbidden_endpoint_actions": [
+        "access_endpoint",
+        "credentialed_endpoint_call",
+        "mutate_endpoint",
+        "submit_payload_to_endpoint"
+      ],
+      "forbidden_ingestion_actions": [
+        "export_repo_data",
+        "handle_customer_data",
+        "import_external_data",
+        "ingest_corpus",
+        "persist_imported_corpus_content"
+      ],
+      "forbidden_transfer_actions": [
+        "copy_external_corpus_content",
+        "download_external_corpus_content",
+        "transfer_corpus_data",
+        "upload_customer_data"
+      ],
+      "guardrail_ref": "guardrail:v82a:self-evidencing:non-transfer",
+      "limitation_note": "This V82-A row is review only: no corpus ingestion, no data transfer, no customer data handling, no connector activation, no endpoint access, no cross-corpus adjudication, no product authorization, and no release.",
+      "non_connector_posture": "non_connector_guardrail_active",
+      "non_ingestion_posture": "non_ingestion_guardrail_active",
+      "non_transfer_posture": "non_transfer_guardrail_active",
+      "required_later_authority_refs": [
+        "authority:v82a:self-evidencing:connector-authority:corpus-ingestion:current:absent",
+        "authority:v82a:self-evidencing:corpus-source:ingestion:current:absent",
+        "authority:v82a:self-evidencing:endpoint-authority:corpus-ingestion:current:absent",
+        "authority:v82a:self-evidencing:license-authority:corpus-ingestion:current:absent",
+        "authority:v82a:self-evidencing:privacy-authority:corpus-ingestion:current:absent",
+        "authority:v82a:self-evidencing:transfer-boundary:corpus-ingestion:current:absent"
+      ],
+      "source_refs": [
+        "apps/api/fixtures/repo_description/vnext_plus229/repo_cross_corpus_governance_family_closeout_alignment_v229_reference.json",
+        "apps/api/fixtures/repo_description/vnext_plus229/repo_cross_corpus_governance_summary_v229_reference.json",
+        "apps/api/fixtures/repo_description/vnext_plus229/repo_post_cross_corpus_review_handoff_v229_reference.json",
+        "connector-authority:corpus-ingestion:current:absent",
+        "corpus-source:ingestion:current:absent",
+        "docs/support/arc_series_mapping/V68_V69_V70_V71_V72_V73_V74_V75_V76_V77_V78_V79_V80_V81_COMBINED_DOGFOOD_TEST_v0.json",
+        "endpoint-authority:corpus-ingestion:current:absent",
+        "license-authority:corpus-ingestion:current:absent",
+        "privacy-authority:corpus-ingestion:current:absent",
+        "product-authority:corpus-ingestion:current:absent",
+        "transfer-boundary:corpus-ingestion:current:absent"
+      ]
+    }
+  ],
+  "non_transfer_summary": "Corpus-ingestion non-transfer guardrails preserve review only: no corpus ingestion, no data transfer, no connector activation, no endpoint access, and no release.",
+  "review_id": "review:v82a:corpus-ingestion-review",
+  "schema": "repo_corpus_ingestion_non_transfer_guardrail@1",
+  "snapshot_id": "vNext+229-cross-corpus-governance-closeout",
+  "source_set_id": "source-set:v82a:released-v81c-corpus-ingestion-pressure"
+}
