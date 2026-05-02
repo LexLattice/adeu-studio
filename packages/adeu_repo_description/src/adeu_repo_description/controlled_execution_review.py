@@ -1462,6 +1462,8 @@ class RepoPostControlledExecutionReviewHandoffRow(_CartographyBase):
                 raise ValueError("product handoffs cannot be execution-trial ready")
             if not any("product" in ref for ref in self.required_later_authority_refs):
                 raise ValueError("product handoffs require product authority refs")
+            if self.run_plan_refs or self.tool_invocation_plan_refs:
+                raise ValueError("product handoffs cannot carry run or tool plan refs")
         if self.handoff_target == "future_external_branch_review":
             has_external_authority = any(
                 "external" in ref or "v43" in ref.lower()
@@ -3344,6 +3346,13 @@ def validate_v79c_controlled_execution_review_closeout_bundle(
         row.controlled_execution_summary_ref: row
         for row in controlled_execution_review_summary.summary_rows
     }
+    known_request_refs = set(known_requests)
+    known_guardrail_refs = set(known_guardrails)
+    run_refs = set(run_rows)
+    tool_refs = set(tool_rows)
+    monitoring_refs = set(monitoring_rows)
+    exception_refs = set(exception_rows)
+    summary_refs = set(summary_rows)
 
     def _require_known_refs(refs: list[str], known: set[str], message: str) -> None:
         if any(ref not in known for ref in refs):
@@ -3363,33 +3372,33 @@ def validate_v79c_controlled_execution_review_closeout_bundle(
     for row in controlled_execution_review_summary.summary_rows:
         _require_known_refs(
             row.execution_review_request_refs,
-            set(known_requests),
+            known_request_refs,
             "summary request refs must be known",
         )
-        _require_known_refs(row.run_plan_refs, set(run_rows), "summary run refs must be known")
+        _require_known_refs(row.run_plan_refs, run_refs, "summary run refs must be known")
         _require_known_refs(
             row.tool_invocation_plan_refs,
-            set(tool_rows),
+            tool_refs,
             "summary tool-plan refs must be known",
         )
         _require_known_refs(
             row.effect_monitoring_contract_refs,
-            set(monitoring_rows),
+            monitoring_refs,
             "summary monitoring refs must be known",
         )
         _require_known_refs(
             row.exception_refs,
-            set(exception_rows),
+            exception_refs,
             "summary exception refs must be known",
         )
         _require_known_refs(
             row.carried_blocker_refs,
-            set(exception_rows),
+            exception_refs,
             "summary blocker refs must be known",
         )
         _require_known_refs(
             row.non_execution_guardrail_refs,
-            set(known_guardrails),
+            known_guardrail_refs,
             "summary guardrail refs must be known",
         )
         _require_candidate_refs(
@@ -3452,28 +3461,28 @@ def validate_v79c_controlled_execution_review_closeout_bundle(
     for row in post_controlled_execution_review_handoff.handoff_rows:
         _require_known_refs(
             row.controlled_execution_summary_refs,
-            set(summary_rows),
+            summary_refs,
             "handoff summary refs must be known",
         )
-        _require_known_refs(row.run_plan_refs, set(run_rows), "handoff run refs must be known")
+        _require_known_refs(row.run_plan_refs, run_refs, "handoff run refs must be known")
         _require_known_refs(
             row.tool_invocation_plan_refs,
-            set(tool_rows),
+            tool_refs,
             "handoff tool-plan refs must be known",
         )
         _require_known_refs(
             row.effect_monitoring_contract_refs,
-            set(monitoring_rows),
+            monitoring_refs,
             "handoff monitoring refs must be known",
         )
         _require_known_refs(
             row.carried_exception_refs,
-            set(exception_rows),
+            exception_refs,
             "handoff exception refs must be known",
         )
         _require_known_refs(
             row.non_execution_guardrail_refs,
-            set(known_guardrails),
+            known_guardrail_refs,
             "handoff guardrail refs must be known",
         )
         _require_candidate_refs(
@@ -3481,6 +3490,24 @@ def validate_v79c_controlled_execution_review_closeout_bundle(
             summary_rows,
             candidate_ref=row.candidate_ref,
             message="handoff summary refs must match candidate",
+        )
+        _require_candidate_refs(
+            row.run_plan_refs,
+            run_rows,
+            candidate_ref=row.candidate_ref,
+            message="handoff run refs must match candidate",
+        )
+        _require_candidate_refs(
+            row.tool_invocation_plan_refs,
+            tool_rows,
+            candidate_ref=row.candidate_ref,
+            message="handoff tool-plan refs must match candidate",
+        )
+        _require_candidate_refs(
+            row.effect_monitoring_contract_refs,
+            monitoring_rows,
+            candidate_ref=row.candidate_ref,
+            message="handoff monitoring refs must match candidate",
         )
         _require_candidate_refs(
             row.carried_exception_refs,
@@ -3509,13 +3536,13 @@ def validate_v79c_controlled_execution_review_closeout_bundle(
             ):
                 if not getattr(row, field_name):
                     raise ValueError("execution-trial handoffs require later review refs")
-            summary_ref = row.controlled_execution_summary_refs[0]
-            summary_row = summary_rows[summary_ref]
-            if summary_row.summary_posture not in {
-                "controlled_execution_review_ready",
-                "controlled_execution_review_ready_with_nonblocking_warnings",
-            }:
-                raise ValueError("execution-trial handoffs require ready summaries")
+            for summary_ref in row.controlled_execution_summary_refs:
+                summary_row = summary_rows[summary_ref]
+                if summary_row.summary_posture not in {
+                    "controlled_execution_review_ready",
+                    "controlled_execution_review_ready_with_nonblocking_warnings",
+                }:
+                    raise ValueError("execution-trial handoffs require ready summaries")
         if row.handoff_target == "future_product_review":
             if row.run_plan_refs or row.tool_invocation_plan_refs:
                 raise ValueError("product handoffs cannot become execution-trial readiness")

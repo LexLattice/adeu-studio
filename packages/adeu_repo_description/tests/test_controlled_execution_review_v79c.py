@@ -135,6 +135,10 @@ def _closeout() -> RepoControlledExecutionReviewFamilyCloseoutAlignment:
 
 def _validate_reference_bundle_with(
     *,
+    run_plan: RepoExecutionRunPlan | None = None,
+    tool_plan: RepoToolInvocationPlan | None = None,
+    monitoring: RepoExecutionEffectMonitoringContract | None = None,
+    exceptions: RepoControlledExecutionExceptionRegister | None = None,
     summary: RepoControlledExecutionReviewSummary | None = None,
     handoff: RepoPostControlledExecutionReviewHandoff | None = None,
     closeout: RepoControlledExecutionReviewFamilyCloseoutAlignment | None = None,
@@ -143,10 +147,10 @@ def _validate_reference_bundle_with(
         controlled_execution_source_index=_v79a_source_index(),
         controlled_execution_review_request=_v79a_request(),
         controlled_execution_non_execution_guardrail=_v79a_guardrail(),
-        execution_run_plan=_run_plan(),
-        tool_invocation_plan=_tool_plan(),
-        execution_effect_monitoring_contract=_monitoring(),
-        controlled_execution_exception_register=_exceptions(),
+        execution_run_plan=run_plan or _run_plan(),
+        tool_invocation_plan=tool_plan or _tool_plan(),
+        execution_effect_monitoring_contract=monitoring or _monitoring(),
+        controlled_execution_exception_register=exceptions or _exceptions(),
         controlled_execution_review_summary=summary or _summary(),
         post_controlled_execution_review_handoff=handoff or _handoff(),
         controlled_execution_review_family_closeout_alignment=closeout or _closeout(),
@@ -316,3 +320,96 @@ def test_v223_bundle_rejects_handoff_summary_candidate_mismatch() -> None:
 
     with pytest.raises(ValueError, match="handoff summary refs must match candidate"):
         _validate_reference_bundle_with(handoff=mismatched_handoff)
+
+
+def test_v223_model_rejects_product_handoff_with_run_or_tool_plan_refs() -> None:
+    payload = _load_fixture(
+        "vnext_plus223",
+        "repo_post_controlled_execution_review_handoff_v223_reference.json",
+    )
+    payload["handoff_rows"][0]["run_plan_refs"] = [
+        "run-plan:v79b:self-evidencing:repo-script-review"
+    ]
+
+    with pytest.raises(ValidationError, match="product handoffs cannot carry run or tool"):
+        RepoPostControlledExecutionReviewHandoff.model_validate(payload)
+
+
+def test_v223_bundle_rejects_handoff_run_plan_candidate_mismatch() -> None:
+    handoff = _handoff()
+    product_row = handoff.handoff_rows[0].model_copy(
+        update={"run_plan_refs": [_run_plan().run_plan_rows[0].run_plan_ref]}
+    )
+    mismatched_handoff = handoff.model_copy(
+        update={"handoff_rows": [product_row, handoff.handoff_rows[1]]}
+    )
+
+    with pytest.raises(ValueError, match="handoff run refs must match candidate"):
+        _validate_reference_bundle_with(handoff=mismatched_handoff)
+
+
+def test_v223_bundle_rejects_handoff_tool_plan_candidate_mismatch() -> None:
+    handoff = _handoff()
+    product_row = handoff.handoff_rows[0].model_copy(
+        update={
+            "tool_invocation_plan_refs": [
+                _tool_plan().tool_invocation_plan_rows[0].tool_invocation_plan_ref
+            ]
+        }
+    )
+    mismatched_handoff = handoff.model_copy(
+        update={"handoff_rows": [product_row, handoff.handoff_rows[1]]}
+    )
+
+    with pytest.raises(ValueError, match="handoff tool-plan refs must match candidate"):
+        _validate_reference_bundle_with(handoff=mismatched_handoff)
+
+
+def test_v223_bundle_rejects_handoff_monitoring_candidate_mismatch() -> None:
+    handoff = _handoff()
+    product_row = handoff.handoff_rows[0].model_copy(
+        update={
+            "effect_monitoring_contract_refs": [
+                _monitoring()
+                .effect_monitoring_contract_rows[0]
+                .effect_monitoring_contract_ref
+            ]
+        }
+    )
+    mismatched_handoff = handoff.model_copy(
+        update={"handoff_rows": [product_row, handoff.handoff_rows[1]]}
+    )
+
+    with pytest.raises(ValueError, match="handoff monitoring refs must match candidate"):
+        _validate_reference_bundle_with(handoff=mismatched_handoff)
+
+
+def test_v223_bundle_rejects_execution_handoff_with_any_non_ready_summary_ref() -> None:
+    summary = _summary()
+    blocked_summary_row = summary.summary_rows[1].model_copy(
+        update={
+            "controlled_execution_summary_ref": (
+                "controlled-execution-summary:v79c:self-evidencing:blocked"
+            ),
+            "summary_posture": "blocked_by_missing_authority",
+            "ready_basis_posture": "not_ready_blockers_remain",
+        }
+    )
+    expanded_summary = summary.model_copy(
+        update={"summary_rows": [*summary.summary_rows, blocked_summary_row]}
+    )
+    handoff = _handoff()
+    self_evidencing_row = handoff.handoff_rows[1].model_copy(
+        update={
+            "controlled_execution_summary_refs": [
+                *handoff.handoff_rows[1].controlled_execution_summary_refs,
+                blocked_summary_row.controlled_execution_summary_ref,
+            ]
+        }
+    )
+    expanded_handoff = handoff.model_copy(
+        update={"handoff_rows": [handoff.handoff_rows[0], self_evidencing_row]}
+    )
+
+    with pytest.raises(ValueError, match="execution-trial handoffs require ready summaries"):
+        _validate_reference_bundle_with(summary=expanded_summary, handoff=expanded_handoff)
