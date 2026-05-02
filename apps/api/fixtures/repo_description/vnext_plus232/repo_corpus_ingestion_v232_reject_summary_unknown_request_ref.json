@@ -1,0 +1,115 @@
+{
+  "connector_access_review_boundary_id": "repo_connector_access_review_boundary_f572d72f630a33df7ffc8eee",
+  "corpus_data_handling_authority_review_id": "repo_corpus_data_handling_authority_review_46367fbadbf21ce975ff8cbd",
+  "corpus_ingestion_exception_register_id": "repo_corpus_ingestion_exception_register_c74feca2668ddda6d4c54b72",
+  "corpus_ingestion_non_transfer_guardrail_id": "repo_corpus_ingestion_non_transfer_guardrail_f124acde09653c4009388d6a",
+  "corpus_ingestion_preflight_contract_id": "repo_corpus_ingestion_preflight_contract_1af80719badefa5f5b92785e",
+  "corpus_ingestion_review_request_id": "repo_corpus_ingestion_review_request_c95888375150cbe4929ad594",
+  "corpus_ingestion_review_summary_id": "repo_corpus_ingestion_review_summary_0998bb7e3fbd0d26df94829a",
+  "corpus_ingestion_source_index_id": "repo_corpus_ingestion_source_index_c4db6e34f5a498d218b230a5",
+  "review_id": "review:v82a:corpus-ingestion-review",
+  "review_summary": "V82-C summarizes released corpus-ingestion review substrate with no corpus ingestion, no data transfer, no connector activation, no endpoint access, no release, and no downstream authority.",
+  "schema": "repo_corpus_ingestion_review_summary@1",
+  "snapshot_id": "vNext+229-cross-corpus-governance-closeout",
+  "source_set_id": "source-set:v82a:released-v81c-corpus-ingestion-pressure",
+  "summary_rows": [
+    {
+      "adjudication_execution_posture": "no_cross_corpus_adjudication_performed_by_v82",
+      "authority_review_refs": [
+        "authority-review:v82b:self-evidencing:connector-missing",
+        "authority-review:v82b:self-evidencing:deletion-withdrawal-missing",
+        "authority-review:v82b:self-evidencing:endpoint-missing",
+        "authority-review:v82b:self-evidencing:license-missing",
+        "authority-review:v82b:self-evidencing:privacy-missing",
+        "authority-review:v82b:self-evidencing:retention-missing",
+        "authority-review:v82b:self-evidencing:transfer-missing"
+      ],
+      "benchmark_truth_posture": "no_benchmark_truth_claimed_by_v82",
+      "candidate_ref": "candidate:internal:self_evidencing_workflow_type_emergence",
+      "carried_blocker_refs": [
+        "exception:v82b:self-evidencing:missing_connector_authority",
+        "exception:v82b:self-evidencing:missing_corpus_source",
+        "exception:v82b:self-evidencing:missing_deletion_or_withdrawal_authority",
+        "exception:v82b:self-evidencing:missing_endpoint_access_boundary",
+        "exception:v82b:self-evidencing:missing_license_or_consent",
+        "exception:v82b:self-evidencing:missing_privacy_authority",
+        "exception:v82b:self-evidencing:missing_retention_authority",
+        "exception:v82b:self-evidencing:missing_transfer_authority"
+      ],
+      "carried_warning_refs": [],
+      "connector_activation_posture": "no_connector_activation_performed_by_v82",
+      "connector_boundary_refs": [
+        "connector-boundary:v82b:self-evidencing:connector-absent"
+      ],
+      "corpus_ingestion_posture": "no_corpus_ingestion_performed_by_v82",
+      "corpus_ingestion_summary_ref": "corpus-ingestion-summary:v82c:self_evidencing_workflow_type_emergence",
+      "customer_data_handling_posture": "no_customer_data_handling_performed_by_v82",
+      "data_transfer_posture": "no_data_transfer_performed_by_v82",
+      "endpoint_access_posture": "no_endpoint_access_performed_by_v82",
+      "exception_refs": [
+        "exception:v82b:self-evidencing:missing_connector_authority",
+        "exception:v82b:self-evidencing:missing_corpus_source",
+        "exception:v82b:self-evidencing:missing_deletion_or_withdrawal_authority",
+        "exception:v82b:self-evidencing:missing_endpoint_access_boundary",
+        "exception:v82b:self-evidencing:missing_license_or_consent",
+        "exception:v82b:self-evidencing:missing_privacy_authority",
+        "exception:v82b:self-evidencing:missing_retention_authority",
+        "exception:v82b:self-evidencing:missing_transfer_authority"
+      ],
+      "graph_memory_authority_posture": "no_graph_memory_authority_created_by_v82",
+      "guardrail_refs": [
+        "guardrail:v82a:self-evidencing:non-transfer"
+      ],
+      "limitation_note": "Corpus-ingestion summary preserves missing corpus-source, privacy, license, connector, endpoint, transfer, monitoring, and rollback blockers for review with no corpus ingestion, no data transfer, no connector activation, and no endpoint access.",
+      "preflight_refs": [
+        "preflight:v82b:self-evidencing:source-authority-blocked"
+      ],
+      "product_authorization_posture": "no_product_authorization_performed_by_v82",
+      "ready_basis_posture": "not_ready_blockers_remain",
+      "release_authority_posture": "no_release_authority_performed_by_v82",
+      "request_refs": [
+        "corpus-ingestion-review:v82a:missing"
+      ],
+      "summary_posture": "blocked_by_missing_corpus_source"
+    },
+    {
+      "adjudication_execution_posture": "no_cross_corpus_adjudication_performed_by_v82",
+      "authority_review_refs": [
+        "authority-review:v82b:product-wedge:product-authority-gap"
+      ],
+      "benchmark_truth_posture": "no_benchmark_truth_claimed_by_v82",
+      "candidate_ref": "candidate:internal:typed_adjudication_product_wedge",
+      "carried_blocker_refs": [
+        "exception:v82b:product-wedge:product-authority-gap"
+      ],
+      "carried_warning_refs": [],
+      "connector_activation_posture": "no_connector_activation_performed_by_v82",
+      "connector_boundary_refs": [
+        "connector-boundary:v82b:product-wedge:future-family"
+      ],
+      "corpus_ingestion_posture": "no_corpus_ingestion_performed_by_v82",
+      "corpus_ingestion_summary_ref": "corpus-ingestion-summary:v82c:typed_adjudication_product_wedge",
+      "customer_data_handling_posture": "no_customer_data_handling_performed_by_v82",
+      "data_transfer_posture": "no_data_transfer_performed_by_v82",
+      "endpoint_access_posture": "no_endpoint_access_performed_by_v82",
+      "exception_refs": [
+        "exception:v82b:product-wedge:product-authority-gap"
+      ],
+      "graph_memory_authority_posture": "no_graph_memory_authority_created_by_v82",
+      "guardrail_refs": [
+        "guardrail:v82a:product-wedge:non-transfer"
+      ],
+      "limitation_note": "Product-pressure corpus-ingestion summary remains blocked for review with no corpus ingestion, no data transfer, no connector activation, no endpoint access, and no product authorization.",
+      "preflight_refs": [
+        "preflight:v82b:product-wedge:product-blocked"
+      ],
+      "product_authorization_posture": "no_product_authorization_performed_by_v82",
+      "ready_basis_posture": "authority_review_requested_for_blockers",
+      "release_authority_posture": "no_release_authority_performed_by_v82",
+      "request_refs": [
+        "corpus-ingestion-review:v82a:product-wedge:product-blocked"
+      ],
+      "summary_posture": "blocked_by_product_authority_gap"
+    }
+  ]
+}

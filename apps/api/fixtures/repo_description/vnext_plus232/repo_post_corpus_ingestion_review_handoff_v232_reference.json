@@ -1,0 +1,105 @@
+{
+  "connector_access_review_boundary_id": "repo_connector_access_review_boundary_f572d72f630a33df7ffc8eee",
+  "corpus_data_handling_authority_review_id": "repo_corpus_data_handling_authority_review_46367fbadbf21ce975ff8cbd",
+  "corpus_ingestion_exception_register_id": "repo_corpus_ingestion_exception_register_c74feca2668ddda6d4c54b72",
+  "corpus_ingestion_non_transfer_guardrail_id": "repo_corpus_ingestion_non_transfer_guardrail_f124acde09653c4009388d6a",
+  "corpus_ingestion_preflight_contract_id": "repo_corpus_ingestion_preflight_contract_1af80719badefa5f5b92785e",
+  "corpus_ingestion_review_request_id": "repo_corpus_ingestion_review_request_c95888375150cbe4929ad594",
+  "corpus_ingestion_review_summary_id": "repo_corpus_ingestion_review_summary_cdf94000e1b73be494de8581",
+  "corpus_ingestion_source_index_id": "repo_corpus_ingestion_source_index_c4db6e34f5a498d218b230a5",
+  "handoff_rows": [
+    {
+      "adjudication_execution_posture": "no_cross_corpus_adjudication_performed_by_v82",
+      "authority_review_refs": [
+        "authority-review:v82b:self-evidencing:connector-missing",
+        "authority-review:v82b:self-evidencing:deletion-withdrawal-missing",
+        "authority-review:v82b:self-evidencing:endpoint-missing",
+        "authority-review:v82b:self-evidencing:license-missing",
+        "authority-review:v82b:self-evidencing:privacy-missing",
+        "authority-review:v82b:self-evidencing:retention-missing",
+        "authority-review:v82b:self-evidencing:transfer-missing"
+      ],
+      "candidate_ref": "candidate:internal:self_evidencing_workflow_type_emergence",
+      "carried_exception_refs": [
+        "exception:v82b:self-evidencing:missing_connector_authority",
+        "exception:v82b:self-evidencing:missing_corpus_source",
+        "exception:v82b:self-evidencing:missing_deletion_or_withdrawal_authority",
+        "exception:v82b:self-evidencing:missing_endpoint_access_boundary",
+        "exception:v82b:self-evidencing:missing_license_or_consent",
+        "exception:v82b:self-evidencing:missing_privacy_authority",
+        "exception:v82b:self-evidencing:missing_retention_authority",
+        "exception:v82b:self-evidencing:missing_transfer_authority"
+      ],
+      "connector_activation_posture": "no_connector_activation_performed_by_v82",
+      "connector_boundary_refs": [
+        "connector-boundary:v82b:self-evidencing:connector-absent"
+      ],
+      "corpus_ingestion_posture": "no_corpus_ingestion_performed_by_v82",
+      "customer_data_handling_posture": "no_customer_data_handling_performed_by_v82",
+      "data_transfer_posture": "no_data_transfer_performed_by_v82",
+      "endpoint_access_posture": "no_endpoint_access_performed_by_v82",
+      "guardrail_refs": [
+        "guardrail:v82a:self-evidencing:non-transfer"
+      ],
+      "handoff_authority_horizon": "corpus_ingestion_authority_review",
+      "handoff_posture": "blocked_by_carried_exceptions",
+      "handoff_ref": "post-corpus-ingestion-handoff:v82c:self_evidencing_workflow_type_emergence",
+      "handoff_subject_horizon": "corpus_ingestion_review_package",
+      "handoff_target": "future_corpus_ingestion_authority_review",
+      "limitation_note": "Corpus-ingestion pressure is handed off for later review with no corpus ingestion, no data transfer, no connector activation, and no endpoint access.",
+      "preflight_refs": [
+        "preflight:v82b:self-evidencing:source-authority-blocked"
+      ],
+      "required_later_authority_refs": [
+        "authority-review:v82b:self-evidencing:license-missing",
+        "authority-review:v82b:self-evidencing:privacy-missing",
+        "authority-review:v82b:self-evidencing:transfer-missing"
+      ],
+      "summary_refs": [
+        "corpus-ingestion-summary:v82c:self_evidencing_workflow_type_emergence"
+      ]
+    },
+    {
+      "adjudication_execution_posture": "no_cross_corpus_adjudication_performed_by_v82",
+      "authority_review_refs": [
+        "authority-review:v82b:product-wedge:product-authority-gap"
+      ],
+      "candidate_ref": "candidate:internal:typed_adjudication_product_wedge",
+      "carried_exception_refs": [
+        "exception:v82b:product-wedge:product-authority-gap"
+      ],
+      "connector_activation_posture": "no_connector_activation_performed_by_v82",
+      "connector_boundary_refs": [
+        "connector-boundary:v82b:product-wedge:future-family"
+      ],
+      "corpus_ingestion_posture": "no_corpus_ingestion_performed_by_v82",
+      "customer_data_handling_posture": "no_customer_data_handling_performed_by_v82",
+      "data_transfer_posture": "no_data_transfer_performed_by_v82",
+      "endpoint_access_posture": "no_endpoint_access_performed_by_v82",
+      "guardrail_refs": [
+        "guardrail:v82a:product-wedge:non-transfer"
+      ],
+      "handoff_authority_horizon": "product_authority_review",
+      "handoff_posture": "blocked_by_carried_exceptions",
+      "handoff_ref": "post-corpus-ingestion-handoff:v82c:typed_adjudication_product_wedge",
+      "handoff_subject_horizon": "product_authority_gap",
+      "handoff_target": "future_product_review",
+      "limitation_note": "Product corpus-ingestion pressure is handed off for later review with no corpus ingestion, no data transfer, no connector activation, no endpoint access, and no product authorization.",
+      "preflight_refs": [
+        "preflight:v82b:product-wedge:product-blocked"
+      ],
+      "required_later_authority_refs": [
+        "authority-review:v82b:product-wedge:product-authority-gap"
+      ],
+      "summary_refs": [
+        "corpus-ingestion-summary:v82c:typed_adjudication_product_wedge"
+      ]
+    }
+  ],
+  "handoff_summary": "V82-C handoffs request later review with no corpus ingestion, no data transfer, no connector activation, no release, and no later-family completion.",
+  "post_corpus_ingestion_review_handoff_id": "repo_post_corpus_ingestion_review_handoff_e3c0993357764e5f39a324ad",
+  "review_id": "review:v82a:corpus-ingestion-review",
+  "schema": "repo_post_corpus_ingestion_review_handoff@1",
+  "snapshot_id": "vNext+229-cross-corpus-governance-closeout",
+  "source_set_id": "source-set:v82a:released-v81c-corpus-ingestion-pressure"
+}
