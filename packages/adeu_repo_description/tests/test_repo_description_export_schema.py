@@ -46,6 +46,9 @@ from adeu_repo_description import (
     REPO_CONTROLLED_EXECUTION_REVIEW_REQUEST_SCHEMA,
     REPO_CONTROLLED_EXECUTION_REVIEW_SUMMARY_SCHEMA,
     REPO_CONTROLLED_EXECUTION_SOURCE_INDEX_SCHEMA,
+    REPO_CROSS_CORPUS_GOVERNANCE_REQUEST_SCHEMA,
+    REPO_CROSS_CORPUS_NON_INGESTION_GUARDRAIL_SCHEMA,
+    REPO_CROSS_CORPUS_SOURCE_INDEX_SCHEMA,
     REPO_DECISION_VISIBILITY_CONTRACT_SCHEMA,
     REPO_DEPENDENCY_GRAPH_SCHEMA,
     REPO_DESCRIPTIVE_NORMATIVE_BINDING_FRAME_SCHEMA,
@@ -1111,6 +1114,30 @@ def _schema_pairs() -> dict[str, tuple[Path, Path]]:
             root
             / "spec"
             / "repo_external_branch_review_family_closeout_alignment.schema.json",
+        ),
+        REPO_CROSS_CORPUS_SOURCE_INDEX_SCHEMA: (
+            root
+            / "packages"
+            / "adeu_repo_description"
+            / "schema"
+            / "repo_cross_corpus_source_index.v1.json",
+            root / "spec" / "repo_cross_corpus_source_index.schema.json",
+        ),
+        REPO_CROSS_CORPUS_GOVERNANCE_REQUEST_SCHEMA: (
+            root
+            / "packages"
+            / "adeu_repo_description"
+            / "schema"
+            / "repo_cross_corpus_governance_request.v1.json",
+            root / "spec" / "repo_cross_corpus_governance_request.schema.json",
+        ),
+        REPO_CROSS_CORPUS_NON_INGESTION_GUARDRAIL_SCHEMA: (
+            root
+            / "packages"
+            / "adeu_repo_description"
+            / "schema"
+            / "repo_cross_corpus_non_ingestion_guardrail.v1.json",
+            root / "spec" / "repo_cross_corpus_non_ingestion_guardrail.schema.json",
         ),
     }
 

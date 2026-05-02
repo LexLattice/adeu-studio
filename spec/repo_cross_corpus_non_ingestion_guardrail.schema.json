@@ -1,0 +1,177 @@
+{
+  "$defs": {
+    "RepoCrossCorpusNonIngestionGuardrailRow": {
+      "additionalProperties": false,
+      "properties": {
+        "candidate_ref": {
+          "title": "Candidate Ref",
+          "type": "string"
+        },
+        "cross_corpus_governance_request_refs": {
+          "items": {
+            "type": "string"
+          },
+          "minItems": 1,
+          "title": "Cross Corpus Governance Request Refs",
+          "type": "array"
+        },
+        "forbidden_connector_actions": {
+          "items": {
+            "enum": [
+              "activate_connector",
+              "access_endpoint",
+              "mutate_endpoint",
+              "fetch_external_corpus",
+              "upload_customer_data",
+              "invoke_external_tool_for_corpus"
+            ],
+            "type": "string"
+          },
+          "minItems": 1,
+          "title": "Forbidden Connector Actions",
+          "type": "array"
+        },
+        "forbidden_data_actions": {
+          "items": {
+            "enum": [
+              "ingest_corpus",
+              "import_external_data",
+              "export_repo_data_to_external_corpus",
+              "handle_customer_data",
+              "transfer_corpus_data",
+              "persist_imported_corpus_content",
+              "run_cross_corpus_adjudication"
+            ],
+            "type": "string"
+          },
+          "minItems": 1,
+          "title": "Forbidden Data Actions",
+          "type": "array"
+        },
+        "forbidden_downstream_authority": {
+          "items": {
+            "enum": [
+              "corpus_ingestion",
+              "external_data_import",
+              "customer_data_handling",
+              "connector_activation",
+              "endpoint_access",
+              "cross_corpus_adjudication_execution",
+              "product_authorization",
+              "release_authority",
+              "benchmark_truth",
+              "imported_result_truth",
+              "model_selection",
+              "living_memory_authority",
+              "recursive_policy_amendment",
+              "v82_selection"
+            ],
+            "type": "string"
+          },
+          "minItems": 1,
+          "title": "Forbidden Downstream Authority",
+          "type": "array"
+        },
+        "guardrail_ref": {
+          "title": "Guardrail Ref",
+          "type": "string"
+        },
+        "limitation_note": {
+          "title": "Limitation Note",
+          "type": "string"
+        },
+        "non_connector_posture": {
+          "const": "non_connector_guardrail_active",
+          "title": "Non Connector Posture",
+          "type": "string"
+        },
+        "non_ingestion_posture": {
+          "const": "non_ingestion_guardrail_active",
+          "title": "Non Ingestion Posture",
+          "type": "string"
+        },
+        "required_later_authority_refs": {
+          "items": {
+            "type": "string"
+          },
+          "title": "Required Later Authority Refs",
+          "type": "array"
+        },
+        "source_refs": {
+          "items": {
+            "type": "string"
+          },
+          "minItems": 1,
+          "title": "Source Refs",
+          "type": "array"
+        }
+      },
+      "required": [
+        "guardrail_ref",
+        "candidate_ref",
+        "source_refs",
+        "cross_corpus_governance_request_refs",
+        "forbidden_data_actions",
+        "forbidden_connector_actions",
+        "forbidden_downstream_authority",
+        "non_ingestion_posture",
+        "non_connector_posture",
+        "limitation_note"
+      ],
+      "title": "RepoCrossCorpusNonIngestionGuardrailRow",
+      "type": "object"
+    }
+  },
+  "additionalProperties": false,
+  "properties": {
+    "cross_corpus_governance_request_id": {
+      "title": "Cross Corpus Governance Request Id",
+      "type": "string"
+    },
+    "cross_corpus_non_ingestion_guardrail_id": {
+      "title": "Cross Corpus Non Ingestion Guardrail Id",
+      "type": "string"
+    },
+    "guardrail_rows": {
+      "items": {
+        "$ref": "#/$defs/RepoCrossCorpusNonIngestionGuardrailRow"
+      },
+      "minItems": 1,
+      "title": "Guardrail Rows",
+      "type": "array"
+    },
+    "non_ingestion_summary": {
+      "title": "Non Ingestion Summary",
+      "type": "string"
+    },
+    "review_id": {
+      "title": "Review Id",
+      "type": "string"
+    },
+    "schema": {
+      "const": "repo_cross_corpus_non_ingestion_guardrail@1",
+      "default": "repo_cross_corpus_non_ingestion_guardrail@1",
+      "title": "Schema",
+      "type": "string"
+    },
+    "snapshot_id": {
+      "title": "Snapshot Id",
+      "type": "string"
+    },
+    "source_set_id": {
+      "title": "Source Set Id",
+      "type": "string"
+    }
+  },
+  "required": [
+    "cross_corpus_non_ingestion_guardrail_id",
+    "cross_corpus_governance_request_id",
+    "review_id",
+    "snapshot_id",
+    "source_set_id",
+    "guardrail_rows",
+    "non_ingestion_summary"
+  ],
+  "title": "RepoCrossCorpusNonIngestionGuardrail",
+  "type": "object"
+}

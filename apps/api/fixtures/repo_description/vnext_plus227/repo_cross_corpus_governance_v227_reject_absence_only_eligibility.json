@@ -1,0 +1,100 @@
+{
+  "cross_corpus_governance_request_id": "repo_cross_corpus_governance_request_c6530369c51516a8d2f5652f",
+  "cross_corpus_governance_summary": "Cross-corpus governance requests are review only: no corpus ingestion, no connector activation, no endpoint access, no cross-corpus adjudication, and no release.",
+  "cross_corpus_source_index_id": "repo_cross_corpus_source_index_865b7414e73cd58d4aab1c6d",
+  "request_rows": [
+    {
+      "adjudication_execution_posture": "no_cross_corpus_adjudication_performed_by_v81",
+      "candidate_ref": "candidate:internal:typed_adjudication_product_wedge",
+      "connector_activation_posture": "no_connector_activation_performed_by_v81",
+      "corpus_family_ref": "cross-corpus:product-pressure:typed-adjudication",
+      "corpus_horizon_kind": "product_pressure_out_of_scope",
+      "corpus_ingestion_posture": "no_corpus_ingestion_performed_by_v81",
+      "corpus_review_posture": "blocked_by_product_authority_gap",
+      "corpus_source_currentness": "explicit_absence_marker",
+      "cross_corpus_governance_request_ref": "cross-corpus-governance:v81a:product-wedge:product-blocked",
+      "external_endpoint_access_posture": "no_endpoint_access_performed_by_v81",
+      "guardrail_refs": [
+        "guardrail:v81a:product-wedge:non-ingestion"
+      ],
+      "limitation_note": "Product-pressure cross-corpus row remains product blocked with no corpus ingestion, no connector activation, no endpoint access, no cross-corpus adjudication, and no release.",
+      "odeu_lanes": [
+        "deontic",
+        "utility"
+      ],
+      "requested_boundary_horizon": "future_family_only",
+      "requested_provenance_horizon": "future_family_only",
+      "required_authority_posture": "blocked_by_product_authority_gap",
+      "required_connector_posture": "not_applicable",
+      "required_license_posture": "not_applicable",
+      "required_privacy_posture": "not_applicable",
+      "source_refs": [
+        "apps/api/fixtures/repo_description/vnext_plus226/repo_external_branch_readiness_summary_v226_reference.json",
+        "apps/api/fixtures/repo_description/vnext_plus226/repo_external_branch_review_family_closeout_alignment_v226_reference.json",
+        "apps/api/fixtures/repo_description/vnext_plus226/repo_post_external_branch_review_handoff_v226_reference.json",
+        "corpus-authority:customer-data:current:absent",
+        "corpus-source:cross-corpus:current:absent",
+        "docs/DRAFT_MULTI_ARC_ROADMAP_POST_V74_v0.md",
+        "docs/support/arc_series_mapping/V68_V69_V70_V71_V72_V73_V74_V75_V76_V77_V78_V79_V80_COMBINED_DOGFOOD_TEST_v0.json"
+      ],
+      "v80_closeout_refs": [
+        "repo_external_branch_review_family_closeout_alignment_c0595828b382b50633052039"
+      ],
+      "v80_handoff_refs": [
+        "handoff:v80c:product-wedge:future-product-review"
+      ],
+      "v80_summary_refs": [
+        "external-branch-summary:v80c:product-wedge:blocked"
+      ]
+    },
+    {
+      "adjudication_execution_posture": "no_cross_corpus_adjudication_performed_by_v81",
+      "candidate_ref": "candidate:internal:self_evidencing_workflow_type_emergence",
+      "connector_activation_posture": "no_connector_activation_performed_by_v81",
+      "corpus_family_ref": "cross-corpus:absent:self-evidencing",
+      "corpus_horizon_kind": "corpus_absence_review",
+      "corpus_ingestion_posture": "no_corpus_ingestion_performed_by_v81",
+      "corpus_review_posture": "eligible_for_cross_corpus_governance_review",
+      "corpus_source_currentness": "current_concrete_source",
+      "cross_corpus_governance_request_ref": "cross-corpus-governance:v81a:self-evidencing:source-absent",
+      "external_endpoint_access_posture": "no_endpoint_access_performed_by_v81",
+      "guardrail_refs": [
+        "guardrail:v81a:self-evidencing:non-ingestion"
+      ],
+      "limitation_note": "Cross-corpus governance review is intentionally marked eligible in this reject fixture while preserving no corpus ingestion, no connector activation, no endpoint access, no cross-corpus adjudication, and no release.",
+      "odeu_lanes": [
+        "deontic",
+        "epistemic",
+        "utility"
+      ],
+      "requested_boundary_horizon": "blocked_by_missing_corpus_source",
+      "requested_provenance_horizon": "blocked_by_missing_corpus_source",
+      "required_authority_posture": "blocked_by_missing_authority",
+      "required_connector_posture": "blocked_by_missing_corpus_source",
+      "required_license_posture": "blocked_by_missing_corpus_source",
+      "required_privacy_posture": "blocked_by_missing_corpus_source",
+      "source_refs": [
+        "apps/api/fixtures/repo_description/vnext_plus226/repo_external_branch_readiness_summary_v226_reference.json",
+        "apps/api/fixtures/repo_description/vnext_plus226/repo_external_branch_review_family_closeout_alignment_v226_reference.json",
+        "apps/api/fixtures/repo_description/vnext_plus226/repo_post_external_branch_review_handoff_v226_reference.json",
+        "corpus-authority:customer-data:current:absent",
+        "corpus-source:cross-corpus:current:absent",
+        "docs/DRAFT_MULTI_ARC_ROADMAP_POST_V74_v0.md",
+        "docs/support/arc_series_mapping/V68_V69_V70_V71_V72_V73_V74_V75_V76_V77_V78_V79_V80_COMBINED_DOGFOOD_TEST_v0.json"
+      ],
+      "v80_closeout_refs": [
+        "repo_external_branch_review_family_closeout_alignment_c0595828b382b50633052039"
+      ],
+      "v80_handoff_refs": [
+        "handoff:v80c:self-evidencing:external-authority-review"
+      ],
+      "v80_summary_refs": [
+        "external-branch-summary:v80c:self-evidencing:v43-blocked"
+      ]
+    }
+  ],
+  "review_id": "review:v81a:cross-corpus-governance",
+  "schema": "repo_cross_corpus_governance_request@1",
+  "snapshot_id": "vNext+226-external-branch-review-closeout",
+  "source_set_id": "source-set:v81a:released-v80c-cross-corpus-pressure"
+}

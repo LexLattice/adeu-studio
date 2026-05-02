@@ -1,0 +1,328 @@
+{
+  "$defs": {
+    "RepoCrossCorpusGovernanceRequestRow": {
+      "additionalProperties": false,
+      "properties": {
+        "adjudication_execution_posture": {
+          "enum": [
+            "no_cross_corpus_adjudication_performed_by_v81",
+            "cross_corpus_adjudication_requires_later_family",
+            "cross_corpus_adjudication_forbidden_by_this_family"
+          ],
+          "title": "Adjudication Execution Posture",
+          "type": "string"
+        },
+        "candidate_ref": {
+          "title": "Candidate Ref",
+          "type": "string"
+        },
+        "connector_activation_posture": {
+          "enum": [
+            "no_connector_activation_performed_by_v81",
+            "connector_activation_requires_later_family",
+            "connector_activation_forbidden_by_this_family"
+          ],
+          "title": "Connector Activation Posture",
+          "type": "string"
+        },
+        "corpus_family_ref": {
+          "title": "Corpus Family Ref",
+          "type": "string"
+        },
+        "corpus_horizon_kind": {
+          "enum": [
+            "repo_local_corpus_governance",
+            "imported_corpus_governance",
+            "benchmark_result_governance",
+            "customer_corpus_governance",
+            "paper_design_repo_bundle_governance",
+            "synthetic_descriptor_governance",
+            "corpus_absence_review",
+            "product_pressure_out_of_scope"
+          ],
+          "title": "Corpus Horizon Kind",
+          "type": "string"
+        },
+        "corpus_ingestion_posture": {
+          "enum": [
+            "no_corpus_ingestion_performed_by_v81",
+            "corpus_ingestion_requires_later_family",
+            "corpus_ingestion_forbidden_by_this_family"
+          ],
+          "title": "Corpus Ingestion Posture",
+          "type": "string"
+        },
+        "corpus_review_posture": {
+          "enum": [
+            "request_recorded_boundary_only",
+            "request_recorded_absence_only",
+            "eligible_for_cross_corpus_governance_review",
+            "blocked_by_missing_source",
+            "blocked_by_missing_corpus_source",
+            "blocked_by_missing_corpus_boundary",
+            "blocked_by_missing_provenance",
+            "blocked_by_missing_authority",
+            "blocked_by_missing_privacy_authority",
+            "blocked_by_missing_license_or_consent",
+            "blocked_by_missing_customer_data_authority",
+            "blocked_by_missing_connector_authority",
+            "blocked_by_benchmark_truth_guardrail",
+            "blocked_by_product_authority_gap",
+            "blocked_by_external_branch_authority_gap",
+            "future_family_only",
+            "rejected_out_of_scope"
+          ],
+          "title": "Corpus Review Posture",
+          "type": "string"
+        },
+        "corpus_source_currentness": {
+          "enum": [
+            "current_concrete_source",
+            "explicit_absence_marker",
+            "historical_context_only",
+            "stale_or_superseded",
+            "unknown_needs_review"
+          ],
+          "title": "Corpus Source Currentness",
+          "type": "string"
+        },
+        "cross_corpus_governance_request_ref": {
+          "title": "Cross Corpus Governance Request Ref",
+          "type": "string"
+        },
+        "external_endpoint_access_posture": {
+          "enum": [
+            "no_endpoint_access_performed_by_v81",
+            "endpoint_access_requires_later_family",
+            "endpoint_access_forbidden_by_this_family"
+          ],
+          "title": "External Endpoint Access Posture",
+          "type": "string"
+        },
+        "guardrail_refs": {
+          "items": {
+            "type": "string"
+          },
+          "minItems": 1,
+          "title": "Guardrail Refs",
+          "type": "array"
+        },
+        "limitation_note": {
+          "title": "Limitation Note",
+          "type": "string"
+        },
+        "odeu_lanes": {
+          "items": {
+            "enum": [
+              "ontological",
+              "deontic",
+              "epistemic",
+              "utility"
+            ],
+            "type": "string"
+          },
+          "minItems": 1,
+          "title": "Odeu Lanes",
+          "type": "array"
+        },
+        "requested_boundary_horizon": {
+          "enum": [
+            "corpus_boundary_required_later",
+            "provenance_required_later",
+            "not_selected_in_v81a",
+            "blocked_by_missing_corpus_source",
+            "blocked_by_missing_authority",
+            "future_family_only"
+          ],
+          "title": "Requested Boundary Horizon",
+          "type": "string"
+        },
+        "requested_provenance_horizon": {
+          "enum": [
+            "corpus_boundary_required_later",
+            "provenance_required_later",
+            "not_selected_in_v81a",
+            "blocked_by_missing_corpus_source",
+            "blocked_by_missing_authority",
+            "future_family_only"
+          ],
+          "title": "Requested Provenance Horizon",
+          "type": "string"
+        },
+        "required_authority_posture": {
+          "enum": [
+            "required_for_later_review",
+            "not_selected_in_v81a",
+            "not_applicable",
+            "blocked_by_missing_corpus_source",
+            "blocked_by_missing_authority",
+            "blocked_by_missing_privacy_authority",
+            "blocked_by_missing_license_or_consent",
+            "blocked_by_missing_customer_data_authority",
+            "blocked_by_missing_connector_authority",
+            "blocked_by_product_authority_gap",
+            "future_family_only"
+          ],
+          "title": "Required Authority Posture",
+          "type": "string"
+        },
+        "required_connector_posture": {
+          "enum": [
+            "required_for_later_review",
+            "not_selected_in_v81a",
+            "not_applicable",
+            "blocked_by_missing_corpus_source",
+            "blocked_by_missing_authority",
+            "blocked_by_missing_privacy_authority",
+            "blocked_by_missing_license_or_consent",
+            "blocked_by_missing_customer_data_authority",
+            "blocked_by_missing_connector_authority",
+            "blocked_by_product_authority_gap",
+            "future_family_only"
+          ],
+          "title": "Required Connector Posture",
+          "type": "string"
+        },
+        "required_license_posture": {
+          "enum": [
+            "required_for_later_review",
+            "not_selected_in_v81a",
+            "not_applicable",
+            "blocked_by_missing_corpus_source",
+            "blocked_by_missing_authority",
+            "blocked_by_missing_privacy_authority",
+            "blocked_by_missing_license_or_consent",
+            "blocked_by_missing_customer_data_authority",
+            "blocked_by_missing_connector_authority",
+            "blocked_by_product_authority_gap",
+            "future_family_only"
+          ],
+          "title": "Required License Posture",
+          "type": "string"
+        },
+        "required_privacy_posture": {
+          "enum": [
+            "required_for_later_review",
+            "not_selected_in_v81a",
+            "not_applicable",
+            "blocked_by_missing_corpus_source",
+            "blocked_by_missing_authority",
+            "blocked_by_missing_privacy_authority",
+            "blocked_by_missing_license_or_consent",
+            "blocked_by_missing_customer_data_authority",
+            "blocked_by_missing_connector_authority",
+            "blocked_by_product_authority_gap",
+            "future_family_only"
+          ],
+          "title": "Required Privacy Posture",
+          "type": "string"
+        },
+        "source_refs": {
+          "items": {
+            "type": "string"
+          },
+          "minItems": 1,
+          "title": "Source Refs",
+          "type": "array"
+        },
+        "v80_closeout_refs": {
+          "items": {
+            "type": "string"
+          },
+          "title": "V80 Closeout Refs",
+          "type": "array"
+        },
+        "v80_handoff_refs": {
+          "items": {
+            "type": "string"
+          },
+          "title": "V80 Handoff Refs",
+          "type": "array"
+        },
+        "v80_summary_refs": {
+          "items": {
+            "type": "string"
+          },
+          "title": "V80 Summary Refs",
+          "type": "array"
+        }
+      },
+      "required": [
+        "cross_corpus_governance_request_ref",
+        "candidate_ref",
+        "source_refs",
+        "corpus_family_ref",
+        "corpus_horizon_kind",
+        "corpus_source_currentness",
+        "corpus_review_posture",
+        "requested_boundary_horizon",
+        "requested_provenance_horizon",
+        "required_authority_posture",
+        "required_privacy_posture",
+        "required_license_posture",
+        "required_connector_posture",
+        "guardrail_refs",
+        "corpus_ingestion_posture",
+        "connector_activation_posture",
+        "external_endpoint_access_posture",
+        "adjudication_execution_posture",
+        "odeu_lanes",
+        "limitation_note"
+      ],
+      "title": "RepoCrossCorpusGovernanceRequestRow",
+      "type": "object"
+    }
+  },
+  "additionalProperties": false,
+  "properties": {
+    "cross_corpus_governance_request_id": {
+      "title": "Cross Corpus Governance Request Id",
+      "type": "string"
+    },
+    "cross_corpus_governance_summary": {
+      "title": "Cross Corpus Governance Summary",
+      "type": "string"
+    },
+    "cross_corpus_source_index_id": {
+      "title": "Cross Corpus Source Index Id",
+      "type": "string"
+    },
+    "request_rows": {
+      "items": {
+        "$ref": "#/$defs/RepoCrossCorpusGovernanceRequestRow"
+      },
+      "minItems": 1,
+      "title": "Request Rows",
+      "type": "array"
+    },
+    "review_id": {
+      "title": "Review Id",
+      "type": "string"
+    },
+    "schema": {
+      "const": "repo_cross_corpus_governance_request@1",
+      "default": "repo_cross_corpus_governance_request@1",
+      "title": "Schema",
+      "type": "string"
+    },
+    "snapshot_id": {
+      "title": "Snapshot Id",
+      "type": "string"
+    },
+    "source_set_id": {
+      "title": "Source Set Id",
+      "type": "string"
+    }
+  },
+  "required": [
+    "cross_corpus_governance_request_id",
+    "cross_corpus_source_index_id",
+    "review_id",
+    "snapshot_id",
+    "source_set_id",
+    "request_rows",
+    "cross_corpus_governance_summary"
+  ],
+  "title": "RepoCrossCorpusGovernanceRequest",
+  "type": "object"
+}

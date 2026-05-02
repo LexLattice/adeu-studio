@@ -1,0 +1,114 @@
+{
+  "cross_corpus_governance_request_id": "repo_cross_corpus_governance_request_37287dd9523263483a41309f",
+  "cross_corpus_non_ingestion_guardrail_id": "repo_cross_corpus_non_ingestion_guardrail_69bb4462f66cae61f6bd2189",
+  "guardrail_rows": [
+    {
+      "candidate_ref": "candidate:internal:typed_adjudication_product_wedge",
+      "cross_corpus_governance_request_refs": [
+        "cross-corpus-governance:v81a:product-wedge:product-blocked"
+      ],
+      "forbidden_connector_actions": [],
+      "forbidden_data_actions": [
+        "export_repo_data_to_external_corpus",
+        "handle_customer_data",
+        "import_external_data",
+        "ingest_corpus",
+        "persist_imported_corpus_content",
+        "run_cross_corpus_adjudication",
+        "transfer_corpus_data"
+      ],
+      "forbidden_downstream_authority": [
+        "benchmark_truth",
+        "connector_activation",
+        "corpus_ingestion",
+        "cross_corpus_adjudication_execution",
+        "customer_data_handling",
+        "endpoint_access",
+        "external_data_import",
+        "imported_result_truth",
+        "living_memory_authority",
+        "model_selection",
+        "product_authorization",
+        "recursive_policy_amendment",
+        "release_authority",
+        "v82_selection"
+      ],
+      "guardrail_ref": "guardrail:v81a:product-wedge:non-ingestion",
+      "limitation_note": "This V81-A row is review only: no corpus ingestion, no connector activation, no endpoint access, no cross-corpus adjudication, no product authorization, and no release.",
+      "non_connector_posture": "non_connector_guardrail_active",
+      "non_ingestion_posture": "non_ingestion_guardrail_active",
+      "required_later_authority_refs": [
+        "authority:v78a:product-wedge:product-review"
+      ],
+      "source_refs": [
+        "apps/api/fixtures/repo_description/vnext_plus226/repo_external_branch_readiness_summary_v226_reference.json",
+        "apps/api/fixtures/repo_description/vnext_plus226/repo_external_branch_review_family_closeout_alignment_v226_reference.json",
+        "apps/api/fixtures/repo_description/vnext_plus226/repo_post_external_branch_review_handoff_v226_reference.json",
+        "corpus-authority:customer-data:current:absent",
+        "corpus-source:cross-corpus:current:absent",
+        "docs/DRAFT_MULTI_ARC_ROADMAP_POST_V74_v0.md",
+        "docs/support/arc_series_mapping/V68_V69_V70_V71_V72_V73_V74_V75_V76_V77_V78_V79_V80_COMBINED_DOGFOOD_TEST_v0.json"
+      ]
+    },
+    {
+      "candidate_ref": "candidate:internal:self_evidencing_workflow_type_emergence",
+      "cross_corpus_governance_request_refs": [
+        "cross-corpus-governance:v81a:self-evidencing:source-absent"
+      ],
+      "forbidden_connector_actions": [
+        "access_endpoint",
+        "activate_connector",
+        "fetch_external_corpus",
+        "invoke_external_tool_for_corpus",
+        "mutate_endpoint",
+        "upload_customer_data"
+      ],
+      "forbidden_data_actions": [
+        "export_repo_data_to_external_corpus",
+        "handle_customer_data",
+        "import_external_data",
+        "ingest_corpus",
+        "persist_imported_corpus_content",
+        "run_cross_corpus_adjudication",
+        "transfer_corpus_data"
+      ],
+      "forbidden_downstream_authority": [
+        "benchmark_truth",
+        "connector_activation",
+        "corpus_ingestion",
+        "cross_corpus_adjudication_execution",
+        "customer_data_handling",
+        "endpoint_access",
+        "external_data_import",
+        "imported_result_truth",
+        "living_memory_authority",
+        "model_selection",
+        "product_authorization",
+        "recursive_policy_amendment",
+        "release_authority",
+        "v82_selection"
+      ],
+      "guardrail_ref": "guardrail:v81a:self-evidencing:non-ingestion",
+      "limitation_note": "This V81-A row is review only: no corpus ingestion, no connector activation, no endpoint access, no cross-corpus adjudication, no product authorization, and no release.",
+      "non_connector_posture": "non_connector_guardrail_active",
+      "non_ingestion_posture": "non_ingestion_guardrail_active",
+      "required_later_authority_refs": [
+        "corpus-source:cross-corpus:current:absent"
+      ],
+      "source_refs": [
+        "apps/api/fixtures/repo_description/vnext_plus226/repo_external_branch_readiness_summary_v226_reference.json",
+        "apps/api/fixtures/repo_description/vnext_plus226/repo_external_branch_review_family_closeout_alignment_v226_reference.json",
+        "apps/api/fixtures/repo_description/vnext_plus226/repo_post_external_branch_review_handoff_v226_reference.json",
+        "corpus-authority:customer-data:current:absent",
+        "corpus-source:cross-corpus:current:absent",
+        "docs/DRAFT_MULTI_ARC_ROADMAP_POST_V74_v0.md",
+        "docs/support/arc_series_mapping/V68_V69_V70_V71_V72_V73_V74_V75_V76_V77_V78_V79_V80_COMBINED_DOGFOOD_TEST_v0.json"
+      ]
+    }
+  ],
+  "non_ingestion_summary": "Cross-corpus non-ingestion guardrails preserve review only: no corpus ingestion, no connector activation, no endpoint access, and no release.",
+  "review_id": "review:v81a:cross-corpus-governance",
+  "schema": "repo_cross_corpus_non_ingestion_guardrail@1",
+  "snapshot_id": "vNext+226-external-branch-review-closeout",
+  "source_set_id": "source-set:v81a:released-v80c-cross-corpus-pressure"
+}
