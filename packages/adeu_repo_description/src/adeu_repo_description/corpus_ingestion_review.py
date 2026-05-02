@@ -312,31 +312,34 @@ def _require_terms(value: str, *, field_name: str, terms: tuple[str, ...]) -> st
 def _reject_v82_action_claim(value: str, *, field_name: str) -> str:
     lowered = value.lower()
     forbidden_patterns = [
-        r"corpus (?:is |was |has been |gets |got )?ingested",
+        r"corpus (?:is |was |has been |being |gets |got )?(?:ingested|ingestion)",
         r"ingest corpus",
-        r"data (?:is |was |has been |gets |got )?transferred",
+        r"data (?:is |was |has been |being |gets |got )?(?:transferred|transfer)",
         r"transfer data",
-        r"customer data (?:is |was |has been |gets |got )?handled",
-        r"connector (?:is |was |has been |gets |got )?activated",
+        r"customer data (?:is |was |has been |being |gets |got )?(?:handled|handling)",
+        r"connector (?:is |was |has been |being |gets |got )?(?:activated|activation)",
         r"activate connector",
-        r"endpoint (?:is |was |has been |gets |got )?accessed",
+        r"endpoint (?:is |was |has been |being |gets |got )?(?:accessed|access)",
         r"access endpoint",
-        r"cross-corpus adjudication (?:is |was |has been |gets |got )?executed",
+        (
+            r"cross-corpus adjudication "
+            r"(?:is |was |has been |being |gets |got )?(?:executed|execution)"
+        ),
         r"benchmark truth",
         r"imported result truth",
-        r"graph[- ]memory authority (?:is |was |has been |gets |got )?(?:created|granted)",
-        r"living[- ]memory authority (?:is |was |has been |gets |got )?(?:created|granted)",
-        r"authority (?:is |was |has been |gets |got )?granted",
-        r"product (?:is |was |has been |gets |got )?authorized",
-        r"release now",
-        r"v83 (?:is |was |has been |gets |got )?selected",
+        r"graph[- ]memory authority (?:is |was |has been |being |gets |got )?(?:created|granted)",
+        r"living[- ]memory authority (?:is |was |has been |being |gets |got )?(?:created|granted)",
+        r"authority (?:is |was |has been |being |gets |got )?granted",
+        r"product (?:is |was |has been |being |gets |got )?(?:authorized|authorization)",
+        r"release",
+        r"v83 (?:is |was |has been |being |gets |got )?(?:selected|selection)",
     ]
     negation_markers = ("no ", "not ", "without ", "forbidden ", "non-")
     for pattern in forbidden_patterns:
         match = re.search(pattern, lowered)
         if match is None:
             continue
-        prefix = lowered[max(0, match.start() - 24) : match.start()]
+        prefix = lowered[max(0, match.start() - 32) : match.start()]
         if not any(marker in prefix for marker in negation_markers):
             raise ValueError(f"{field_name} may not carry corpus-ingestion action authority")
     return value
@@ -1258,19 +1261,35 @@ def validate_v82a_corpus_ingestion_review_bundle(
                     not in guardrail.corpus_ingestion_review_request_refs
                 ):
                     raise ValueError("corpus-ingestion guardrail must reference request row")
-    authority_refs: set[str] = set()
+    request_rows = {
+        row.corpus_ingestion_review_request_ref: row
+        for row in corpus_ingestion_review_request.request_rows
+    }
     for guardrail_row in corpus_ingestion_non_transfer_guardrail.guardrail_rows:
         if any(source_ref not in known_sources for source_ref in guardrail_row.source_refs):
             raise ValueError("corpus-ingestion guardrail source refs must be known")
-        authority_refs.update(
+        for request_ref in guardrail_row.corpus_ingestion_review_request_refs:
+            request_row = request_rows.get(request_ref)
+            if request_row is None:
+                raise ValueError("corpus-ingestion guardrail request refs must be known")
+            if request_row.candidate_ref != guardrail_row.candidate_ref:
+                raise ValueError("corpus-ingestion guardrail request candidate must match")
+        authority_refs = {
             row.authority_requirement_ref for row in guardrail_row.authority_requirement_rows
-        )
-    resolvable = known_sources | authority_refs
-    for guardrail_row in corpus_ingestion_non_transfer_guardrail.guardrail_rows:
-        if any(ref not in resolvable for ref in guardrail_row.required_later_authority_refs):
+        }
+        for authority_row in guardrail_row.authority_requirement_rows:
+            if authority_row.candidate_ref != guardrail_row.candidate_ref:
+                raise ValueError(
+                    "corpus-ingestion authority requirement candidate must match guardrail"
+                )
+            if any(source_ref not in known_sources for source_ref in authority_row.source_refs):
+                raise ValueError(
+                    "corpus-ingestion authority requirement source refs must be known"
+                )
+        if any(ref not in authority_refs for ref in guardrail_row.required_later_authority_refs):
             raise ValueError(
                 "corpus-ingestion required later authority refs must resolve "
-                "to sources or authority requirements"
+                "to same-row authority requirements"
             )
 
 

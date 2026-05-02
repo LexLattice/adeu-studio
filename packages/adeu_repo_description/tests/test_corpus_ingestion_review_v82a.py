@@ -12,10 +12,12 @@ from adeu_repo_description import (
     REPO_CORPUS_INGESTION_SOURCE_INDEX_SCHEMA,
     RepoCorpusIngestionNonTransferGuardrail,
     RepoCorpusIngestionReviewRequest,
+    RepoCorpusIngestionReviewRequestRow,
     RepoCorpusIngestionSourceIndex,
     derive_v82a_corpus_ingestion_review_bundle,
     validate_v82a_corpus_ingestion_review_bundle,
 )
+from adeu_repo_description.corpus_ingestion_review import _surface_id
 from jsonschema import Draft202012Validator
 from pydantic import ValidationError
 
@@ -266,9 +268,72 @@ def test_v230_bundle_rejects_required_later_authority_future_ref() -> None:
 
     with pytest.raises(
         ValueError,
-        match="corpus-ingestion required later authority refs must resolve",
+        match="same-row authority requirements",
     ):
         _validate_reference_bundle_with(guardrail=guardrail)
+
+
+def test_v230_bundle_rejects_required_later_authority_source_refs() -> None:
+    payload = _load_fixture(
+        "vnext_plus230",
+        "repo_corpus_ingestion_non_transfer_guardrail_v230_reference.json",
+    )
+    payload["guardrail_rows"][0]["required_later_authority_refs"] = [
+        "product-authority:corpus-ingestion:current:absent"
+    ]
+    payload["corpus_ingestion_non_transfer_guardrail_id"] = _surface_id(
+        "repo_corpus_ingestion_non_transfer_guardrail",
+        payload["schema"],
+        payload,
+        "corpus_ingestion_non_transfer_guardrail_id",
+    )
+    guardrail = RepoCorpusIngestionNonTransferGuardrail.model_validate(payload)
+
+    with pytest.raises(
+        ValueError,
+        match="same-row authority requirements",
+    ):
+        _validate_reference_bundle_with(guardrail=guardrail)
+
+
+@pytest.mark.parametrize(
+    "limitation_note",
+    [
+        "Corpus ingestion is performed by V82.",
+        "Data transfer is now available in V82.",
+        "Customer data handling is now available in V82.",
+        "Connector activation proceeds in V82.",
+        "Endpoint access proceeds in V82.",
+        "Cross-corpus adjudication execution proceeds in V82.",
+        "Product authorization is now available in V82.",
+        "Release follows from this row.",
+        "V83 selection follows from this row.",
+    ],
+)
+def test_v230_request_rows_reject_action_claim_noun_forms(limitation_note: str) -> None:
+    row_payload = _load_fixture(
+        "vnext_plus230",
+        "repo_corpus_ingestion_review_request_v230_reference.json",
+    )["request_rows"][0]
+    row_payload["limitation_note"] = limitation_note
+
+    with pytest.raises(ValidationError, match="corpus-ingestion action authority"):
+        RepoCorpusIngestionReviewRequestRow.model_validate(row_payload)
+
+
+def test_v230_request_rows_allow_negated_action_noun_forms() -> None:
+    row_payload = _load_fixture(
+        "vnext_plus230",
+        "repo_corpus_ingestion_review_request_v230_reference.json",
+    )["request_rows"][0]
+    row_payload["limitation_note"] = (
+        "This row preserves no corpus ingestion, no data transfer, no customer data "
+        "handling, no connector activation, no endpoint access, no cross-corpus "
+        "adjudication execution, no product authorization, no release, and no V83 "
+        "selection."
+    )
+
+    RepoCorpusIngestionReviewRequestRow.model_validate(row_payload)
 
 
 def test_v230_bundle_rejects_cross_snapshot_guardrail_mix() -> None:
