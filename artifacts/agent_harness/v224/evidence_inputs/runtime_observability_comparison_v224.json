@@ -1,0 +1,11 @@
+{
+  "baseline_arc": "vNext+223",
+  "baseline_elapsed_ms": 105,
+  "baseline_source": "artifacts/stop_gate/report_v223_closeout.md",
+  "current_arc": "vNext+224",
+  "current_elapsed_ms": 103,
+  "current_source": "artifacts/stop_gate/report_v224_closeout.md",
+  "delta_ms": -2,
+  "notes": "v224 closeout keeps the frozen stop-gate schema family and exact metric keyset unchanged while closing the bounded V80-A external branch review request / source-index / non-activation guardrail slice on main: requests consume released V79-C summary / post-controlled-execution-review handoff / family closeout substrate; support and dogfood context are context-only and cannot be the only eligibility source; current V43 branch posture is required for eligibility while historical V43 planning and external objective sources remain below eligibility by themselves; future data-boundary, tool-boundary, submission-authority, result-provenance, withdrawal, and exception pressure is represented through horizons and required postures, not V80-B refs; and no external activation, V43 contest participation, external submission, external tool invocation, endpoint mutation, external data transfer, external result truth, withdrawal action, command execution, dispatch, product authorization, PR / commit / merge / release, benchmark truth, model selection, living-memory authority, recursive policy amendment, or V81 selection.",
+  "schema": "runtime_observability_comparison@1"
+}
