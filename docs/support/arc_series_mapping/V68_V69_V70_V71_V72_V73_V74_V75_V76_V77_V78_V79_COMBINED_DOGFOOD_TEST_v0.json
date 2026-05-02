@@ -1,0 +1,119 @@
+{
+  "assertions": [
+    "family_closeout_artifacts_exist_through_v79",
+    "v79c_summaries_preserve_no_execution_and_no_tool_invocation",
+    "v79c_handoffs_are_review_requests_with_no_execution_or_tool_invocation",
+    "v79c_product_pressure_remains_blocked_by_product_authority",
+    "v79c_self_evidencing_pressure_is_later_review_only",
+    "v79c_warning_ready_rows_do_not_hide_blocking_exceptions",
+    "v79c_closeout_carries_v80_as_unselected_future_surface",
+    "v79_family_closeout_closes_without_v80_selection"
+  ],
+  "carry_forward_findings": [
+    {
+      "finding": "V79 closes controlled execution review with review-only run-plan, tool-invocation-plan, monitoring, telemetry, rollback, and operator-confirmation posture, but without command execution or tool invocation.",
+      "posture": "closed_family_boundary",
+      "result": "not_family_failure"
+    },
+    {
+      "finding": "V79-C carries controlled execution trial review pressure and product review pressure forward as later-review requests; it does not select V80 or grant downstream authority.",
+      "posture": "future_family_pressure_visible_not_selected",
+      "result": "not_family_failure"
+    }
+  ],
+  "counts": {
+    "v79_shipped_record_shapes": 10,
+    "v79_unselected_future_surfaces": 19,
+    "v79c_handoff_rows": 2,
+    "v79c_summary_rows": 2
+  },
+  "failures": [],
+  "families_checked": [
+    "V68",
+    "V69",
+    "V70",
+    "V71",
+    "V72",
+    "V73",
+    "V74",
+    "V75",
+    "V76",
+    "V77",
+    "V78",
+    "V79"
+  ],
+  "family_closeout_schemas": {
+    "V68": "v68_family_closeout_alignment@1",
+    "V69": "v69_family_closeout_alignment@1",
+    "V70": "v70_family_closeout_alignment@1",
+    "V71": "v71_family_closeout_alignment@1",
+    "V72": "v72_family_closeout_alignment@1",
+    "V73": "v73_family_closeout_alignment@1",
+    "V74": "v74_family_closeout_alignment@1",
+    "V75": "v75_family_closeout_alignment@1",
+    "V76": "v76_family_closeout_alignment@1",
+    "V77": "v77_family_closeout_alignment@1",
+    "V78": "v78_family_closeout_alignment@1",
+    "V79": "repo_controlled_execution_review_family_closeout_alignment@1"
+  },
+  "handoff_postures": {
+    "handoff:v79c:product-wedge:future-product-review": {
+      "controlled_execution_action_posture": "no_controlled_execution_performed_by_v79",
+      "execution_posture": "no_execution_performed_by_v79",
+      "handoff_execution_status": "no_execution_performed_by_v79",
+      "handoff_posture": "blocked_by_required_later_authority",
+      "handoff_subject_horizon": "product_authority_gap",
+      "handoff_target": "future_product_review",
+      "required_later_authority_refs": [
+        "authority:v78a:product-wedge:product-review"
+      ],
+      "tool_invocation_posture": "no_tool_invocation_performed_by_v79"
+    },
+    "handoff:v79c:self-evidencing:future-execution-trial-review": {
+      "controlled_execution_action_posture": "no_controlled_execution_performed_by_v79",
+      "execution_posture": "no_execution_performed_by_v79",
+      "handoff_execution_status": "no_execution_performed_by_v79",
+      "handoff_posture": "ready_with_nonblocking_warnings",
+      "handoff_subject_horizon": "controlled_execution_review_package",
+      "handoff_target": "future_execution_trial_review",
+      "required_later_authority_refs": [
+        "authority:v78a:self-evidencing:runtime-review",
+        "authority:v78a:self-evidencing:tool-use-review"
+      ],
+      "tool_invocation_posture": "no_tool_invocation_performed_by_v79"
+    }
+  },
+  "postures": {
+    "candidate:internal:self_evidencing_workflow_type_emergence": {
+      "ready_basis_posture": "ready_with_nonblocking_warnings",
+      "summary_posture": "controlled_execution_review_ready_with_nonblocking_warnings"
+    },
+    "candidate:internal:typed_adjudication_product_wedge": {
+      "ready_basis_posture": "not_ready_blockers_remain",
+      "summary_posture": "blocked_by_product_authority_gap"
+    }
+  },
+  "pytest_result": {
+    "collected_count": 608,
+    "focused_repo_description_tests_passed": true,
+    "warnings_count": 148,
+    "warnings_observed": true
+  },
+  "result": "pass",
+  "schema": "v68_v69_v70_v71_v72_v73_v74_v75_v76_v77_v78_v79_combined_dogfood_test@1",
+  "terminal_closeout_arcs": [
+    "vNext+190",
+    "vNext+193",
+    "vNext+196",
+    "vNext+199",
+    "vNext+202",
+    "vNext+205",
+    "vNext+208",
+    "vNext+211",
+    "vNext+214",
+    "vNext+217",
+    "vNext+220",
+    "vNext+223"
+  ],
+  "terminal_closeout_checks_passed": true
+}
