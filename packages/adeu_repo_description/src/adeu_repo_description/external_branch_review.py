@@ -367,21 +367,27 @@ class RepoExternalBranchReviewRequestRow(_CartographyBase):
         if self.branch_review_posture == "eligible_for_external_branch_review":
             if self.branch_posture_currentness != "current_branch_posture":
                 raise ValueError("eligible external branch review requires current branch posture")
-            if not self.v79_summary_refs and not self.v79_handoff_refs:
+            if (
+                not self.v79_summary_refs
+                and not self.v79_handoff_refs
+                and not self.v79_closeout_refs
+            ):
                 raise ValueError("eligible external branch review requests require V79-C refs")
             if not any("v43" in ref.lower() or "external" in ref for ref in self.source_refs):
                 raise ValueError("eligible external branch review requests require branch source")
-            for field_name in (
-                "requested_data_boundary_horizon",
-                "requested_tool_boundary_horizon",
-                "requested_submission_authority_horizon",
-            ):
-                if getattr(self, field_name) not in {
-                    "data_boundary_required_later",
-                    "tool_boundary_required_later",
-                    "submission_authority_required_later",
-                }:
-                    raise ValueError("eligible external branch review requests require horizons")
+            expected_horizons = {
+                "requested_data_boundary_horizon": "data_boundary_required_later",
+                "requested_tool_boundary_horizon": "tool_boundary_required_later",
+                "requested_submission_authority_horizon": (
+                    "submission_authority_required_later"
+                ),
+            }
+            for field_name, expected_value in expected_horizons.items():
+                if getattr(self, field_name) != expected_value:
+                    raise ValueError(
+                        f"eligible external branch review requests require {field_name} "
+                        f"to be {expected_value}"
+                    )
         if self.branch_review_posture == "request_recorded_objective_only":
             if self.branch_posture_currentness == "current_branch_posture":
                 raise ValueError("objective-only rows must not claim current branch posture")
@@ -902,6 +908,8 @@ def validate_v80a_external_branch_review_bundle(
             and "v79_post_controlled_execution_review_handoff_source" not in roles
         ):
             raise ValueError("V79-C handoff refs require a post-review handoff source")
+        if request_row.v79_closeout_refs and "v79_family_closeout_source" not in roles:
+            raise ValueError("V79-C closeout refs require a family closeout source")
         if any(guardrail_ref not in guardrail_rows for guardrail_ref in request_row.guardrail_refs):
             raise ValueError("external branch request guardrail refs must be known")
         for guardrail_ref in request_row.guardrail_refs:

@@ -172,6 +172,11 @@ def test_v224_derivation_helper_matches_reference_fixtures() -> None:
             "product pressure must remain blocked in V80-A",
         ),
         (
+            "repo_external_branch_v224_reject_swapped_required_horizon.json",
+            RepoExternalBranchReviewRequest,
+            "requested_data_boundary_horizon to be data_boundary_required_later",
+        ),
+        (
             "repo_external_branch_v224_reject_external_activation_claim.json",
             RepoExternalBranchReviewRequest,
             "V80-A request rows must not activate external branches",
@@ -290,6 +295,10 @@ def test_v224_bundle_rejects_unknown_source_ref() -> None:
         (
             "repo_post_controlled_execution_review_handoff",
             "V79-C handoff refs require a post-review handoff source",
+        ),
+        (
+            "repo_controlled_execution_review_family_closeout_alignment",
+            "V79-C closeout refs require a family closeout source",
         ),
     ],
 )
