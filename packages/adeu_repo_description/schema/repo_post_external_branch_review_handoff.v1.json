@@ -1,0 +1,301 @@
+{
+  "$defs": {
+    "RepoPostExternalBranchReviewHandoffRow": {
+      "additionalProperties": false,
+      "properties": {
+        "candidate_ref": {
+          "title": "Candidate Ref",
+          "type": "string"
+        },
+        "carried_exception_refs": {
+          "items": {
+            "type": "string"
+          },
+          "title": "Carried Exception Refs",
+          "type": "array"
+        },
+        "data_boundary_refs": {
+          "items": {
+            "type": "string"
+          },
+          "title": "Data Boundary Refs",
+          "type": "array"
+        },
+        "data_transfer_posture": {
+          "enum": [
+            "no_external_data_transfer_performed_by_v80",
+            "data_transfer_requires_later_family",
+            "data_transfer_forbidden_by_this_family"
+          ],
+          "title": "Data Transfer Posture",
+          "type": "string"
+        },
+        "external_activation_posture": {
+          "enum": [
+            "no_external_branch_activation_performed_by_v80",
+            "external_activation_requires_later_family",
+            "external_activation_forbidden_by_this_family"
+          ],
+          "title": "External Activation Posture",
+          "type": "string"
+        },
+        "external_branch_summary_refs": {
+          "items": {
+            "type": "string"
+          },
+          "minItems": 1,
+          "title": "External Branch Summary Refs",
+          "type": "array"
+        },
+        "external_submission_posture": {
+          "enum": [
+            "no_external_submission_performed_by_v80",
+            "submission_requires_later_family",
+            "submission_forbidden_by_this_family"
+          ],
+          "title": "External Submission Posture",
+          "type": "string"
+        },
+        "external_tool_boundary_refs": {
+          "items": {
+            "type": "string"
+          },
+          "title": "External Tool Boundary Refs",
+          "type": "array"
+        },
+        "external_tool_invocation_posture": {
+          "enum": [
+            "no_external_tool_invocation_performed_by_v80",
+            "external_tool_invocation_requires_later_family",
+            "external_tool_invocation_forbidden_by_this_family"
+          ],
+          "title": "External Tool Invocation Posture",
+          "type": "string"
+        },
+        "handoff_external_activation_status": {
+          "enum": [
+            "no_external_branch_activation_performed_by_v80",
+            "external_activation_requires_later_family",
+            "external_activation_forbidden_by_this_family"
+          ],
+          "title": "Handoff External Activation Status",
+          "type": "string"
+        },
+        "handoff_external_authority_horizon": {
+          "enum": [
+            "branch_posture_review",
+            "data_boundary_review",
+            "external_tool_access_review",
+            "submission_authority_review",
+            "result_provenance_review",
+            "withdrawal_authority_review",
+            "external_participation_review"
+          ],
+          "title": "Handoff External Authority Horizon",
+          "type": "string"
+        },
+        "handoff_posture": {
+          "enum": [
+            "ready_for_later_review",
+            "ready_with_nonblocking_warnings",
+            "blocked_by_required_later_authority",
+            "blocked_by_v43_branch_posture_gap",
+            "blocked_by_data_boundary_gap",
+            "blocked_by_tool_boundary_gap",
+            "blocked_by_submission_authority_gap",
+            "blocked_by_result_provenance_gap",
+            "blocked_by_withdrawal_gap",
+            "future_family_only",
+            "rejected_out_of_scope"
+          ],
+          "title": "Handoff Posture",
+          "type": "string"
+        },
+        "handoff_ref": {
+          "title": "Handoff Ref",
+          "type": "string"
+        },
+        "handoff_subject_horizon": {
+          "enum": [
+            "external_branch_review_package",
+            "external_participation_pressure",
+            "external_result_review_pressure",
+            "product_authority_gap",
+            "runtime_authority_gap",
+            "cross_corpus_governance_pressure",
+            "future_family_pressure"
+          ],
+          "title": "Handoff Subject Horizon",
+          "type": "string"
+        },
+        "handoff_target": {
+          "enum": [
+            "future_external_branch_activation_authority_review",
+            "future_external_participation_or_submission_review",
+            "future_external_result_review",
+            "future_product_review",
+            "future_runtime_execution_review",
+            "future_cross_corpus_governance_review",
+            "future_family_review",
+            "deferred_no_selection"
+          ],
+          "title": "Handoff Target",
+          "type": "string"
+        },
+        "limitation_note": {
+          "title": "Limitation Note",
+          "type": "string"
+        },
+        "non_activation_guardrail_refs": {
+          "items": {
+            "type": "string"
+          },
+          "minItems": 1,
+          "title": "Non Activation Guardrail Refs",
+          "type": "array"
+        },
+        "required_later_authority_refs": {
+          "items": {
+            "type": "string"
+          },
+          "title": "Required Later Authority Refs",
+          "type": "array"
+        },
+        "result_provenance_contract_refs": {
+          "items": {
+            "type": "string"
+          },
+          "title": "Result Provenance Contract Refs",
+          "type": "array"
+        },
+        "result_truth_posture": {
+          "enum": [
+            "external_result_truth_not_claimed",
+            "result_truth_requires_later_review",
+            "result_truth_forbidden_by_this_family"
+          ],
+          "title": "Result Truth Posture",
+          "type": "string"
+        },
+        "submission_authority_review_refs": {
+          "items": {
+            "type": "string"
+          },
+          "title": "Submission Authority Review Refs",
+          "type": "array"
+        }
+      },
+      "required": [
+        "handoff_ref",
+        "candidate_ref",
+        "external_branch_summary_refs",
+        "handoff_target",
+        "handoff_external_authority_horizon",
+        "handoff_subject_horizon",
+        "handoff_posture",
+        "handoff_external_activation_status",
+        "external_activation_posture",
+        "external_submission_posture",
+        "external_tool_invocation_posture",
+        "data_transfer_posture",
+        "result_truth_posture",
+        "non_activation_guardrail_refs",
+        "limitation_note"
+      ],
+      "title": "RepoPostExternalBranchReviewHandoffRow",
+      "type": "object"
+    }
+  },
+  "additionalProperties": false,
+  "properties": {
+    "external_branch_exception_register_id": {
+      "title": "External Branch Exception Register Id",
+      "type": "string"
+    },
+    "external_branch_non_activation_guardrail_id": {
+      "title": "External Branch Non Activation Guardrail Id",
+      "type": "string"
+    },
+    "external_branch_readiness_summary_id": {
+      "title": "External Branch Readiness Summary Id",
+      "type": "string"
+    },
+    "external_branch_review_request_id": {
+      "title": "External Branch Review Request Id",
+      "type": "string"
+    },
+    "external_branch_source_index_id": {
+      "title": "External Branch Source Index Id",
+      "type": "string"
+    },
+    "external_data_boundary_id": {
+      "title": "External Data Boundary Id",
+      "type": "string"
+    },
+    "external_result_provenance_contract_id": {
+      "title": "External Result Provenance Contract Id",
+      "type": "string"
+    },
+    "external_submission_authority_review_id": {
+      "title": "External Submission Authority Review Id",
+      "type": "string"
+    },
+    "external_tool_boundary_id": {
+      "title": "External Tool Boundary Id",
+      "type": "string"
+    },
+    "handoff_rows": {
+      "items": {
+        "$ref": "#/$defs/RepoPostExternalBranchReviewHandoffRow"
+      },
+      "minItems": 1,
+      "title": "Handoff Rows",
+      "type": "array"
+    },
+    "handoff_summary": {
+      "title": "Handoff Summary",
+      "type": "string"
+    },
+    "post_external_branch_review_handoff_id": {
+      "title": "Post External Branch Review Handoff Id",
+      "type": "string"
+    },
+    "review_id": {
+      "title": "Review Id",
+      "type": "string"
+    },
+    "schema": {
+      "const": "repo_post_external_branch_review_handoff@1",
+      "default": "repo_post_external_branch_review_handoff@1",
+      "title": "Schema",
+      "type": "string"
+    },
+    "snapshot_id": {
+      "title": "Snapshot Id",
+      "type": "string"
+    },
+    "source_set_id": {
+      "title": "Source Set Id",
+      "type": "string"
+    }
+  },
+  "required": [
+    "post_external_branch_review_handoff_id",
+    "external_branch_readiness_summary_id",
+    "external_branch_review_request_id",
+    "external_branch_source_index_id",
+    "external_branch_non_activation_guardrail_id",
+    "external_data_boundary_id",
+    "external_tool_boundary_id",
+    "external_submission_authority_review_id",
+    "external_result_provenance_contract_id",
+    "external_branch_exception_register_id",
+    "review_id",
+    "snapshot_id",
+    "source_set_id",
+    "handoff_rows",
+    "handoff_summary"
+  ],
+  "title": "RepoPostExternalBranchReviewHandoff",
+  "type": "object"
+}

@@ -1,0 +1,89 @@
+{
+  "external_branch_exception_register_id": "repo_external_branch_exception_register_ad92bec2faeb4ff3e57bac45",
+  "external_branch_non_activation_guardrail_id": "repo_external_branch_non_activation_guardrail_14369dae907b32d8758d7390",
+  "external_branch_readiness_summary_id": "repo_external_branch_readiness_summary_786b342344ecad8c01d23c23",
+  "external_branch_review_request_id": "repo_external_branch_review_request_ff87138c0d0e8decef343620",
+  "external_branch_source_index_id": "repo_external_branch_source_index_6d9963e15a0717397293ea04",
+  "external_data_boundary_id": "repo_external_data_boundary_90e40f4d2658f8a117b92d8a",
+  "external_result_provenance_contract_id": "repo_external_result_provenance_contract_ea3c9abe145c3cc61081d573",
+  "external_submission_authority_review_id": "repo_external_submission_authority_review_9727e64996a73031f0f3c1f8",
+  "external_tool_boundary_id": "repo_external_tool_boundary_86b19ec1ac0c5e734acc0140",
+  "handoff_rows": [
+    {
+      "candidate_ref": "candidate:internal:typed_adjudication_product_wedge",
+      "carried_exception_refs": [],
+      "data_boundary_refs": [
+        "external-data-boundary:v80b:product-wedge:blocked"
+      ],
+      "data_transfer_posture": "no_external_data_transfer_performed_by_v80",
+      "external_activation_posture": "no_external_branch_activation_performed_by_v80",
+      "external_branch_summary_refs": [
+        "external-branch-summary:v80c:product-wedge:blocked"
+      ],
+      "external_submission_posture": "no_external_submission_performed_by_v80",
+      "external_tool_boundary_refs": [],
+      "external_tool_invocation_posture": "no_external_tool_invocation_performed_by_v80",
+      "handoff_external_activation_status": "no_external_branch_activation_performed_by_v80",
+      "handoff_external_authority_horizon": "branch_posture_review",
+      "handoff_posture": "ready_for_later_review",
+      "handoff_ref": "handoff:v80c:product-wedge:future-product-review",
+      "handoff_subject_horizon": "product_authority_gap",
+      "handoff_target": "future_product_review",
+      "limitation_note": "Product handoff requests later review while preserving blockers with no external activation and no external submission.",
+      "non_activation_guardrail_refs": [
+        "guardrail:v80a:product-wedge:non-activation"
+      ],
+      "required_later_authority_refs": [
+        "authority:v78a:product-wedge:product-review"
+      ],
+      "result_provenance_contract_refs": [],
+      "result_truth_posture": "external_result_truth_not_claimed",
+      "submission_authority_review_refs": []
+    },
+    {
+      "candidate_ref": "candidate:internal:self_evidencing_workflow_type_emergence",
+      "carried_exception_refs": [
+        "external-exception:v80b:self-evidencing:missing-v43"
+      ],
+      "data_boundary_refs": [
+        "external-data-boundary:v80b:self-evidencing:v43-blocked"
+      ],
+      "data_transfer_posture": "no_external_data_transfer_performed_by_v80",
+      "external_activation_posture": "no_external_branch_activation_performed_by_v80",
+      "external_branch_summary_refs": [
+        "external-branch-summary:v80c:self-evidencing:v43-blocked"
+      ],
+      "external_submission_posture": "no_external_submission_performed_by_v80",
+      "external_tool_boundary_refs": [
+        "external-tool-boundary:v80b:self-evidencing:v43-blocked"
+      ],
+      "external_tool_invocation_posture": "no_external_tool_invocation_performed_by_v80",
+      "handoff_external_activation_status": "no_external_branch_activation_performed_by_v80",
+      "handoff_external_authority_horizon": "branch_posture_review",
+      "handoff_posture": "blocked_by_v43_branch_posture_gap",
+      "handoff_ref": "handoff:v80c:self-evidencing:external-authority-review",
+      "handoff_subject_horizon": "external_branch_review_package",
+      "handoff_target": "future_external_branch_activation_authority_review",
+      "limitation_note": "Handoff requests later review while preserving V43 blockers with no external activation and no external submission.",
+      "non_activation_guardrail_refs": [
+        "guardrail:v80a:self-evidencing:non-activation"
+      ],
+      "required_later_authority_refs": [
+        "external-branch-posture:v43:current:absent"
+      ],
+      "result_provenance_contract_refs": [
+        "external-result-provenance:v80b:self-evidencing:v43-blocked"
+      ],
+      "result_truth_posture": "external_result_truth_not_claimed",
+      "submission_authority_review_refs": [
+        "external-submission-authority:v80b:self-evidencing:v43-blocked"
+      ]
+    }
+  ],
+  "handoff_summary": "Post-external-branch-review handoffs request later review with no external activation, no external submission, and no release.",
+  "post_external_branch_review_handoff_id": "repo_post_external_branch_review_handoff_4d39568d088f596b8b6d1dc3",
+  "review_id": "review:v80a:external-branch-review",
+  "schema": "repo_post_external_branch_review_handoff@1",
+  "snapshot_id": "vNext+225-external-branch-boundary-closeout",
+  "source_set_id": "source-set:v80c:released-v80ab-handoff-pressure"
+}

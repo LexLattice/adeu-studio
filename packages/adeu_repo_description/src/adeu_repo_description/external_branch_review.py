@@ -32,6 +32,11 @@ REPO_EXTERNAL_TOOL_BOUNDARY_SCHEMA = "repo_external_tool_boundary@1"
 REPO_EXTERNAL_SUBMISSION_AUTHORITY_REVIEW_SCHEMA = "repo_external_submission_authority_review@1"
 REPO_EXTERNAL_RESULT_PROVENANCE_CONTRACT_SCHEMA = "repo_external_result_provenance_contract@1"
 REPO_EXTERNAL_BRANCH_EXCEPTION_REGISTER_SCHEMA = "repo_external_branch_exception_register@1"
+REPO_EXTERNAL_BRANCH_READINESS_SUMMARY_SCHEMA = "repo_external_branch_readiness_summary@1"
+REPO_POST_EXTERNAL_BRANCH_REVIEW_HANDOFF_SCHEMA = "repo_post_external_branch_review_handoff@1"
+REPO_EXTERNAL_BRANCH_REVIEW_FAMILY_CLOSEOUT_ALIGNMENT_SCHEMA = (
+    "repo_external_branch_review_family_closeout_alignment@1"
+)
 
 ExternalBranchSourceRole = Literal[
     "v79_controlled_execution_summary_source",
@@ -244,6 +249,120 @@ ExternalBranchRequiredNextSurface = Literal[
     "future_external_branch_authority_review",
     "future_family_review",
     "none",
+]
+ExternalBranchSummaryPosture = Literal[
+    "external_branch_review_ready",
+    "external_branch_review_ready_with_nonblocking_warnings",
+    "blocked_by_missing_v43_branch_posture",
+    "blocked_by_missing_data_boundary",
+    "blocked_by_missing_tool_boundary",
+    "blocked_by_missing_submission_authority",
+    "blocked_by_missing_result_provenance",
+    "blocked_by_missing_withdrawal_posture",
+    "blocked_by_product_authority_gap",
+    "blocked_by_runtime_authority_gap",
+    "future_family_only",
+    "rejected_out_of_scope",
+]
+ExternalBranchReadyBasisPosture = Literal[
+    "ready_no_blockers",
+    "ready_with_nonblocking_warnings",
+    "not_ready_blockers_remain",
+    "settlement_or_authority_review_requested_for_blockers",
+    "future_family_only",
+    "rejected_out_of_scope",
+]
+PostExternalBranchReviewHandoffTarget = Literal[
+    "future_external_branch_activation_authority_review",
+    "future_external_participation_or_submission_review",
+    "future_external_result_review",
+    "future_product_review",
+    "future_runtime_execution_review",
+    "future_cross_corpus_governance_review",
+    "future_family_review",
+    "deferred_no_selection",
+]
+PostExternalBranchReviewHandoffExternalAuthorityHorizon = Literal[
+    "branch_posture_review",
+    "data_boundary_review",
+    "external_tool_access_review",
+    "submission_authority_review",
+    "result_provenance_review",
+    "withdrawal_authority_review",
+    "external_participation_review",
+]
+PostExternalBranchReviewHandoffSubjectHorizon = Literal[
+    "external_branch_review_package",
+    "external_participation_pressure",
+    "external_result_review_pressure",
+    "product_authority_gap",
+    "runtime_authority_gap",
+    "cross_corpus_governance_pressure",
+    "future_family_pressure",
+]
+PostExternalBranchReviewHandoffPosture = Literal[
+    "ready_for_later_review",
+    "ready_with_nonblocking_warnings",
+    "blocked_by_required_later_authority",
+    "blocked_by_v43_branch_posture_gap",
+    "blocked_by_data_boundary_gap",
+    "blocked_by_tool_boundary_gap",
+    "blocked_by_submission_authority_gap",
+    "blocked_by_result_provenance_gap",
+    "blocked_by_withdrawal_gap",
+    "future_family_only",
+    "rejected_out_of_scope",
+]
+ExternalBranchClosedSlice = Literal["V80-A", "V80-B", "V80-C"]
+ExternalBranchConsumedFamily = Literal[
+    "V68",
+    "V69",
+    "V70",
+    "V71",
+    "V72",
+    "V73",
+    "V74",
+    "V75",
+    "V76",
+    "V77",
+    "V78",
+    "V79",
+    "V80",
+]
+ExternalBranchShippedRecordShape = Literal[
+    "repo_external_branch_review_request@1",
+    "repo_external_branch_source_index@1",
+    "repo_external_branch_non_activation_guardrail@1",
+    "repo_external_data_boundary@1",
+    "repo_external_tool_boundary@1",
+    "repo_external_submission_authority_review@1",
+    "repo_external_result_provenance_contract@1",
+    "repo_external_branch_exception_register@1",
+    "repo_external_branch_readiness_summary@1",
+    "repo_post_external_branch_review_handoff@1",
+    "repo_external_branch_review_family_closeout_alignment@1",
+]
+ExternalBranchUnselectedFutureSurface = Literal[
+    "external_branch_activation",
+    "v43_contest_participation",
+    "external_submission",
+    "external_tool_invocation",
+    "endpoint_mutation",
+    "external_data_transfer",
+    "external_result_truth",
+    "withdrawal_action",
+    "command_execution",
+    "dispatch_execution",
+    "product_authorization",
+    "pr_creation",
+    "commit",
+    "merge",
+    "release",
+    "benchmark_truth",
+    "global_model_selection",
+    "living_memory_authority",
+    "recursive_policy_amendment",
+    "v81_selection",
 ]
 
 _V79_ELIGIBILITY_SOURCE_ROLES = {
@@ -2236,4 +2355,1341 @@ def derive_v80b_external_branch_boundary_bundle(
         submission_authority,
         result_provenance,
         exception_register,
+    )
+
+
+class RepoExternalBranchReadinessSummaryRow(_CartographyBase):
+    external_branch_summary_ref: str
+    candidate_ref: str
+    external_branch_review_request_refs: list[str] = Field(min_length=1)
+    data_boundary_refs: list[str] = Field(default_factory=list)
+    external_tool_boundary_refs: list[str] = Field(default_factory=list)
+    submission_authority_review_refs: list[str] = Field(default_factory=list)
+    result_provenance_contract_refs: list[str] = Field(default_factory=list)
+    exception_refs: list[str] = Field(default_factory=list)
+    authority_refs: list[str] = Field(default_factory=list)
+    summary_posture: ExternalBranchSummaryPosture
+    ready_basis_posture: ExternalBranchReadyBasisPosture
+    carried_blocker_refs: list[str] = Field(default_factory=list)
+    external_activation_posture: ExternalActivationPosture
+    external_submission_posture: ExternalSubmissionPosture
+    external_tool_invocation_posture: ExternalToolInvocationPosture
+    data_transfer_posture: ExternalDataTransferPosture
+    result_truth_posture: ExternalResultTruthPosture
+    non_activation_guardrail_refs: list[str] = Field(min_length=1)
+    limitation_note: str
+
+    @model_validator(mode="after")
+    def _validate_external_branch_readiness_summary_row(
+        self,
+    ) -> RepoExternalBranchReadinessSummaryRow:
+        _non_empty(self.external_branch_summary_ref, field_name="external_branch_summary_ref")
+        _non_empty(self.candidate_ref, field_name="candidate_ref")
+        for field_name in (
+            "external_branch_review_request_refs",
+            "data_boundary_refs",
+            "external_tool_boundary_refs",
+            "submission_authority_review_refs",
+            "result_provenance_contract_refs",
+            "exception_refs",
+            "authority_refs",
+            "carried_blocker_refs",
+            "non_activation_guardrail_refs",
+        ):
+            object.__setattr__(
+                self,
+                field_name,
+                _sorted_unique(getattr(self, field_name), field_name=field_name),
+            )
+        if self.external_activation_posture != "no_external_branch_activation_performed_by_v80":
+            raise ValueError("V80-C summaries must not activate external branches")
+        if self.external_submission_posture != "no_external_submission_performed_by_v80":
+            raise ValueError("V80-C summaries must not submit externally")
+        if self.external_tool_invocation_posture != "no_external_tool_invocation_performed_by_v80":
+            raise ValueError("V80-C summaries must not invoke external tools")
+        if self.data_transfer_posture != "no_external_data_transfer_performed_by_v80":
+            raise ValueError("V80-C summaries must not transfer external data")
+        if self.result_truth_posture != "external_result_truth_not_claimed":
+            raise ValueError("V80-C summaries must not claim external result truth")
+        if self.summary_posture in {
+            "external_branch_review_ready",
+            "external_branch_review_ready_with_nonblocking_warnings",
+        }:
+            if self.summary_posture == "external_branch_review_ready" and (
+                self.ready_basis_posture != "ready_no_blockers"
+            ):
+                raise ValueError("ready external branch summaries require ready_no_blockers")
+            if (
+                self.summary_posture == "external_branch_review_ready_with_nonblocking_warnings"
+                and self.ready_basis_posture != "ready_with_nonblocking_warnings"
+            ):
+                raise ValueError("warning-ready external branch summaries require warning basis")
+            if self.carried_blocker_refs:
+                raise ValueError("ready external branch summaries cannot carry blockers")
+            for field_name in (
+                "data_boundary_refs",
+                "external_tool_boundary_refs",
+                "submission_authority_review_refs",
+                "result_provenance_contract_refs",
+                "authority_refs",
+            ):
+                if not getattr(self, field_name):
+                    raise ValueError("ready external branch summaries require boundary refs")
+        if self.summary_posture.startswith("blocked_by_") and self.ready_basis_posture not in {
+            "not_ready_blockers_remain",
+            "settlement_or_authority_review_requested_for_blockers",
+        }:
+            raise ValueError("blocked external branch summaries must preserve blocker basis")
+        if self.summary_posture == "future_family_only" and (
+            self.ready_basis_posture != "future_family_only"
+        ):
+            raise ValueError("future-family external summaries require future_family_only basis")
+        if self.summary_posture == "rejected_out_of_scope" and (
+            self.ready_basis_posture != "rejected_out_of_scope"
+        ):
+            raise ValueError("rejected external summaries require rejected_out_of_scope basis")
+        if self.summary_posture == "blocked_by_product_authority_gap" and not any(
+            "product" in ref for ref in self.authority_refs
+        ):
+            raise ValueError("product-blocked external summaries require product authority refs")
+        _reject_v80_action_claim(self.limitation_note, field_name="limitation_note")
+        _require_terms(
+            self.limitation_note,
+            field_name="limitation_note",
+            terms=("review", "no external activation", "no external submission"),
+        )
+        return self
+
+
+class RepoExternalBranchReadinessSummary(_CartographyBase):
+    schema: Literal["repo_external_branch_readiness_summary@1"] = (
+        REPO_EXTERNAL_BRANCH_READINESS_SUMMARY_SCHEMA
+    )
+    external_branch_readiness_summary_id: str
+    external_branch_review_request_id: str
+    external_branch_source_index_id: str
+    external_branch_non_activation_guardrail_id: str
+    external_data_boundary_id: str
+    external_tool_boundary_id: str
+    external_submission_authority_review_id: str
+    external_result_provenance_contract_id: str
+    external_branch_exception_register_id: str
+    review_id: str
+    snapshot_id: str
+    source_set_id: str
+    summary_rows: list[RepoExternalBranchReadinessSummaryRow] = Field(min_length=1)
+    readiness_summary: str
+
+    @model_validator(mode="after")
+    def _validate_external_branch_readiness_summary(
+        self,
+    ) -> RepoExternalBranchReadinessSummary:
+        object.__setattr__(
+            self,
+            "summary_rows",
+            _sorted_unique_by_ref(
+                self.summary_rows,
+                attr="external_branch_summary_ref",
+                field_name="summary_rows",
+            ),
+        )
+        _require_terms(
+            self.readiness_summary,
+            field_name="readiness_summary",
+            terms=("review", "no external activation", "no external submission", "no release"),
+        )
+        expected_id = _surface_id(
+            "repo_external_branch_readiness_summary",
+            self.schema,
+            self.model_dump(mode="json"),
+            "external_branch_readiness_summary_id",
+        )
+        if self.external_branch_readiness_summary_id != expected_id:
+            raise ValueError("external_branch_readiness_summary_id does not match canonical hash")
+        return self
+
+
+class RepoPostExternalBranchReviewHandoffRow(_CartographyBase):
+    handoff_ref: str
+    candidate_ref: str
+    external_branch_summary_refs: list[str] = Field(min_length=1)
+    data_boundary_refs: list[str] = Field(default_factory=list)
+    external_tool_boundary_refs: list[str] = Field(default_factory=list)
+    submission_authority_review_refs: list[str] = Field(default_factory=list)
+    result_provenance_contract_refs: list[str] = Field(default_factory=list)
+    carried_exception_refs: list[str] = Field(default_factory=list)
+    handoff_target: PostExternalBranchReviewHandoffTarget
+    handoff_external_authority_horizon: PostExternalBranchReviewHandoffExternalAuthorityHorizon
+    handoff_subject_horizon: PostExternalBranchReviewHandoffSubjectHorizon
+    handoff_posture: PostExternalBranchReviewHandoffPosture
+    handoff_external_activation_status: ExternalActivationPosture
+    required_later_authority_refs: list[str] = Field(default_factory=list)
+    external_activation_posture: ExternalActivationPosture
+    external_submission_posture: ExternalSubmissionPosture
+    external_tool_invocation_posture: ExternalToolInvocationPosture
+    data_transfer_posture: ExternalDataTransferPosture
+    result_truth_posture: ExternalResultTruthPosture
+    non_activation_guardrail_refs: list[str] = Field(min_length=1)
+    limitation_note: str
+
+    @model_validator(mode="after")
+    def _validate_post_external_branch_review_handoff_row(
+        self,
+    ) -> RepoPostExternalBranchReviewHandoffRow:
+        _non_empty(self.handoff_ref, field_name="handoff_ref")
+        _non_empty(self.candidate_ref, field_name="candidate_ref")
+        for field_name in (
+            "external_branch_summary_refs",
+            "data_boundary_refs",
+            "external_tool_boundary_refs",
+            "submission_authority_review_refs",
+            "result_provenance_contract_refs",
+            "carried_exception_refs",
+            "required_later_authority_refs",
+            "non_activation_guardrail_refs",
+        ):
+            object.__setattr__(
+                self,
+                field_name,
+                _sorted_unique(getattr(self, field_name), field_name=field_name),
+            )
+        if (
+            self.handoff_external_activation_status
+            != "no_external_branch_activation_performed_by_v80"
+        ):
+            raise ValueError("V80-C handoffs must not activate external branches")
+        if self.external_activation_posture != "no_external_branch_activation_performed_by_v80":
+            raise ValueError("V80-C handoffs must not activate external branches")
+        if self.external_submission_posture != "no_external_submission_performed_by_v80":
+            raise ValueError("V80-C handoffs must not submit externally")
+        if self.external_tool_invocation_posture != "no_external_tool_invocation_performed_by_v80":
+            raise ValueError("V80-C handoffs must not invoke external tools")
+        if self.data_transfer_posture != "no_external_data_transfer_performed_by_v80":
+            raise ValueError("V80-C handoffs must not transfer external data")
+        if self.result_truth_posture != "external_result_truth_not_claimed":
+            raise ValueError("V80-C handoffs must not claim external result truth")
+        if self.carried_exception_refs and self.handoff_posture == "ready_for_later_review":
+            raise ValueError("handoffs with blocking exceptions cannot be ready")
+        if self.handoff_target in {
+            "future_external_branch_activation_authority_review",
+            "future_external_participation_or_submission_review",
+        }:
+            for field_name in (
+                "data_boundary_refs",
+                "external_tool_boundary_refs",
+                "submission_authority_review_refs",
+                "result_provenance_contract_refs",
+                "required_later_authority_refs",
+            ):
+                if not getattr(self, field_name):
+                    raise ValueError("external branch handoffs require boundary and authority refs")
+        if self.handoff_target == "future_product_review":
+            if self.handoff_posture == "ready_for_later_review":
+                raise ValueError("product handoffs cannot be external activation ready")
+            if not any("product" in ref for ref in self.required_later_authority_refs):
+                raise ValueError("product handoffs require product authority refs")
+        if self.handoff_target == "future_runtime_execution_review":
+            if not any("runtime" in ref for ref in self.required_later_authority_refs):
+                raise ValueError("runtime handoffs require runtime authority refs")
+        _reject_v80_action_claim(self.limitation_note, field_name="limitation_note")
+        _require_terms(
+            self.limitation_note,
+            field_name="limitation_note",
+            terms=("later review", "no external activation", "no external submission"),
+        )
+        return self
+
+
+class RepoPostExternalBranchReviewHandoff(_CartographyBase):
+    schema: Literal["repo_post_external_branch_review_handoff@1"] = (
+        REPO_POST_EXTERNAL_BRANCH_REVIEW_HANDOFF_SCHEMA
+    )
+    post_external_branch_review_handoff_id: str
+    external_branch_readiness_summary_id: str
+    external_branch_review_request_id: str
+    external_branch_source_index_id: str
+    external_branch_non_activation_guardrail_id: str
+    external_data_boundary_id: str
+    external_tool_boundary_id: str
+    external_submission_authority_review_id: str
+    external_result_provenance_contract_id: str
+    external_branch_exception_register_id: str
+    review_id: str
+    snapshot_id: str
+    source_set_id: str
+    handoff_rows: list[RepoPostExternalBranchReviewHandoffRow] = Field(min_length=1)
+    handoff_summary: str
+
+    @model_validator(mode="after")
+    def _validate_post_external_branch_review_handoff(
+        self,
+    ) -> RepoPostExternalBranchReviewHandoff:
+        object.__setattr__(
+            self,
+            "handoff_rows",
+            _sorted_unique_by_ref(
+                self.handoff_rows,
+                attr="handoff_ref",
+                field_name="handoff_rows",
+            ),
+        )
+        _require_terms(
+            self.handoff_summary,
+            field_name="handoff_summary",
+            terms=(
+                "later review",
+                "no external activation",
+                "no external submission",
+                "no release",
+            ),
+        )
+        expected_id = _surface_id(
+            "repo_post_external_branch_review_handoff",
+            self.schema,
+            self.model_dump(mode="json"),
+            "post_external_branch_review_handoff_id",
+        )
+        if self.post_external_branch_review_handoff_id != expected_id:
+            raise ValueError("post_external_branch_review_handoff_id does not match canonical hash")
+        return self
+
+
+class RepoExternalBranchReviewFamilyCloseoutAlignment(_CartographyBase):
+    schema: Literal["repo_external_branch_review_family_closeout_alignment@1"] = (
+        REPO_EXTERNAL_BRANCH_REVIEW_FAMILY_CLOSEOUT_ALIGNMENT_SCHEMA
+    )
+    external_branch_review_family_closeout_alignment_id: str
+    external_branch_readiness_summary_id: str
+    post_external_branch_review_handoff_id: str
+    family: Literal["V80"]
+    closed_by_arc: Literal["vNext+226"]
+    closed_slice_ladder: list[ExternalBranchClosedSlice] = Field(min_length=3)
+    consumed_source_families: list[ExternalBranchConsumedFamily] = Field(min_length=1)
+    shipped_record_shapes: list[ExternalBranchShippedRecordShape] = Field(min_length=1)
+    external_branch_boundary: str
+    unselected_future_surfaces: list[ExternalBranchUnselectedFutureSurface] = Field(min_length=1)
+    future_family_authority: Literal["next_selector_required"]
+    limitation_note: str
+
+    @model_validator(mode="after")
+    def _validate_external_branch_review_family_closeout_alignment(
+        self,
+    ) -> RepoExternalBranchReviewFamilyCloseoutAlignment:
+        object.__setattr__(
+            self,
+            "closed_slice_ladder",
+            _sorted_unique(self.closed_slice_ladder, field_name="closed_slice_ladder"),
+        )
+        object.__setattr__(
+            self,
+            "consumed_source_families",
+            _sorted_unique(self.consumed_source_families, field_name="consumed_source_families"),
+        )
+        object.__setattr__(
+            self,
+            "shipped_record_shapes",
+            _sorted_unique(self.shipped_record_shapes, field_name="shipped_record_shapes"),
+        )
+        object.__setattr__(
+            self,
+            "unselected_future_surfaces",
+            _sorted_unique(
+                self.unselected_future_surfaces,
+                field_name="unselected_future_surfaces",
+            ),
+        )
+        if self.closed_slice_ladder != ["V80-A", "V80-B", "V80-C"]:
+            raise ValueError("external branch closeout must close V80-A/B/C")
+        if "v81_selection" not in self.unselected_future_surfaces:
+            raise ValueError("external branch closeout must not select V81")
+        _require_terms(
+            self.external_branch_boundary,
+            field_name="external_branch_boundary",
+            terms=("no external activation", "no external submission", "no v81 selection"),
+        )
+        _reject_v80_action_claim(self.limitation_note, field_name="limitation_note")
+        _require_terms(
+            self.limitation_note,
+            field_name="limitation_note",
+            terms=(
+                "closed",
+                "no external activation",
+                "no external submission",
+                "no v81 selection",
+            ),
+        )
+        expected_id = _surface_id(
+            "repo_external_branch_review_family_closeout_alignment",
+            self.schema,
+            self.model_dump(mode="json"),
+            "external_branch_review_family_closeout_alignment_id",
+        )
+        if self.external_branch_review_family_closeout_alignment_id != expected_id:
+            raise ValueError(
+                "external_branch_review_family_closeout_alignment_id "
+                "does not match canonical hash"
+            )
+        return self
+
+
+def _v80c_base_surfaces(
+    *,
+    repo_root: Path | None = None,
+    external_branch_source_index: RepoExternalBranchSourceIndex | None = None,
+    external_branch_review_request: RepoExternalBranchReviewRequest | None = None,
+    external_branch_non_activation_guardrail: RepoExternalBranchNonActivationGuardrail
+    | None = None,
+    external_data_boundary: RepoExternalDataBoundary | None = None,
+    external_tool_boundary: RepoExternalToolBoundary | None = None,
+    external_submission_authority_review: RepoExternalSubmissionAuthorityReview
+    | None = None,
+    external_result_provenance_contract: RepoExternalResultProvenanceContract | None = None,
+    external_branch_exception_register: RepoExternalBranchExceptionRegister | None = None,
+) -> tuple[
+    RepoExternalBranchSourceIndex,
+    RepoExternalBranchReviewRequest,
+    RepoExternalBranchNonActivationGuardrail,
+    RepoExternalDataBoundary,
+    RepoExternalToolBoundary,
+    RepoExternalSubmissionAuthorityReview,
+    RepoExternalResultProvenanceContract,
+    RepoExternalBranchExceptionRegister,
+]:
+    if (
+        external_branch_source_index is not None
+        and external_branch_review_request is not None
+        and external_branch_non_activation_guardrail is not None
+        and external_data_boundary is not None
+        and external_tool_boundary is not None
+        and external_submission_authority_review is not None
+        and external_result_provenance_contract is not None
+        and external_branch_exception_register is not None
+    ):
+        return (
+            external_branch_source_index,
+            external_branch_review_request,
+            external_branch_non_activation_guardrail,
+            external_data_boundary,
+            external_tool_boundary,
+            external_submission_authority_review,
+            external_result_provenance_contract,
+            external_branch_exception_register,
+        )
+    return derive_v80b_external_branch_boundary_bundle(repo_root=repo_root)
+
+
+def _v80c_reference_refs(
+    *,
+    request: RepoExternalBranchReviewRequest,
+    guardrail: RepoExternalBranchNonActivationGuardrail,
+    data_boundary: RepoExternalDataBoundary,
+    tool_boundary: RepoExternalToolBoundary,
+    submission_authority: RepoExternalSubmissionAuthorityReview,
+    result_provenance: RepoExternalResultProvenanceContract,
+    exceptions: RepoExternalBranchExceptionRegister,
+) -> dict[str, list[str] | str]:
+    request_rows = {
+        row.external_branch_review_request_ref: row for row in request.request_rows
+    }
+    self_request = request_rows["external-branch-review:v80a:self-evidencing:v43-blocked"]
+    product_request = request_rows["external-branch-review:v80a:product-wedge:out-of-scope"]
+
+    def _refs_for_candidate(
+        rows: list[_CartographyBase],
+        attr: str,
+        candidate_ref: str,
+    ) -> list[str]:
+        return sorted(getattr(row, attr) for row in rows if row.candidate_ref == candidate_ref)
+
+    return {
+        "candidate_ref": self_request.candidate_ref,
+        "product_candidate_ref": product_request.candidate_ref,
+        "external_branch_review_request_refs": [
+            self_request.external_branch_review_request_ref
+        ],
+        "product_external_branch_review_request_refs": [
+            product_request.external_branch_review_request_ref
+        ],
+        "data_boundary_refs": _refs_for_candidate(
+            data_boundary.data_boundary_rows,
+            "data_boundary_ref",
+            self_request.candidate_ref,
+        ),
+        "product_data_boundary_refs": _refs_for_candidate(
+            data_boundary.data_boundary_rows,
+            "data_boundary_ref",
+            product_request.candidate_ref,
+        ),
+        "external_tool_boundary_refs": _refs_for_candidate(
+            tool_boundary.tool_boundary_rows,
+            "external_tool_boundary_ref",
+            self_request.candidate_ref,
+        ),
+        "submission_authority_review_refs": _refs_for_candidate(
+            submission_authority.submission_authority_review_rows,
+            "submission_authority_review_ref",
+            self_request.candidate_ref,
+        ),
+        "result_provenance_contract_refs": _refs_for_candidate(
+            result_provenance.result_provenance_contract_rows,
+            "result_provenance_contract_ref",
+            self_request.candidate_ref,
+        ),
+        "blocking_exception_refs": _refs_for_candidate(
+            exceptions.exception_rows,
+            "exception_ref",
+            self_request.candidate_ref,
+        ),
+        "product_blocking_exception_refs": _refs_for_candidate(
+            exceptions.exception_rows,
+            "exception_ref",
+            product_request.candidate_ref,
+        ),
+        "authority_refs": ["external-branch-posture:v43:current:absent"],
+        "product_authority_refs": ["authority:v78a:product-wedge:product-review"],
+        "non_activation_guardrail_refs": _refs_for_candidate(
+            guardrail.guardrail_rows,
+            "guardrail_ref",
+            self_request.candidate_ref,
+        ),
+        "product_non_activation_guardrail_refs": _refs_for_candidate(
+            guardrail.guardrail_rows,
+            "guardrail_ref",
+            product_request.candidate_ref,
+        ),
+    }
+
+
+def derive_v80c_repo_external_branch_readiness_summary(
+    *,
+    repo_root: Path | None = None,
+    external_branch_source_index: RepoExternalBranchSourceIndex | None = None,
+    external_branch_review_request: RepoExternalBranchReviewRequest | None = None,
+    external_branch_non_activation_guardrail: RepoExternalBranchNonActivationGuardrail
+    | None = None,
+    external_data_boundary: RepoExternalDataBoundary | None = None,
+    external_tool_boundary: RepoExternalToolBoundary | None = None,
+    external_submission_authority_review: RepoExternalSubmissionAuthorityReview
+    | None = None,
+    external_result_provenance_contract: RepoExternalResultProvenanceContract | None = None,
+    external_branch_exception_register: RepoExternalBranchExceptionRegister | None = None,
+) -> RepoExternalBranchReadinessSummary:
+    (
+        source_index,
+        request,
+        guardrail,
+        data_boundary,
+        tool_boundary,
+        submission_authority,
+        result_provenance,
+        exceptions,
+    ) = _v80c_base_surfaces(
+        repo_root=repo_root,
+        external_branch_source_index=external_branch_source_index,
+        external_branch_review_request=external_branch_review_request,
+        external_branch_non_activation_guardrail=external_branch_non_activation_guardrail,
+        external_data_boundary=external_data_boundary,
+        external_tool_boundary=external_tool_boundary,
+        external_submission_authority_review=external_submission_authority_review,
+        external_result_provenance_contract=external_result_provenance_contract,
+        external_branch_exception_register=external_branch_exception_register,
+    )
+    refs = _v80c_reference_refs(
+        request=request,
+        guardrail=guardrail,
+        data_boundary=data_boundary,
+        tool_boundary=tool_boundary,
+        submission_authority=submission_authority,
+        result_provenance=result_provenance,
+        exceptions=exceptions,
+    )
+    payload = {
+        "schema": REPO_EXTERNAL_BRANCH_READINESS_SUMMARY_SCHEMA,
+        "external_branch_readiness_summary_id": "",
+        "external_branch_review_request_id": request.external_branch_review_request_id,
+        "external_branch_source_index_id": source_index.external_branch_source_index_id,
+        "external_branch_non_activation_guardrail_id": (
+            guardrail.external_branch_non_activation_guardrail_id
+        ),
+        "external_data_boundary_id": data_boundary.external_data_boundary_id,
+        "external_tool_boundary_id": tool_boundary.external_tool_boundary_id,
+        "external_submission_authority_review_id": (
+            submission_authority.external_submission_authority_review_id
+        ),
+        "external_result_provenance_contract_id": (
+            result_provenance.external_result_provenance_contract_id
+        ),
+        "external_branch_exception_register_id": (
+            exceptions.external_branch_exception_register_id
+        ),
+        "review_id": request.review_id,
+        "snapshot_id": "vNext+225-external-branch-boundary-closeout",
+        "source_set_id": "source-set:v80c:released-v80ab-summary-pressure",
+        "summary_rows": [
+            {
+                "external_branch_summary_ref": (
+                    "external-branch-summary:v80c:self-evidencing:v43-blocked"
+                ),
+                "candidate_ref": refs["candidate_ref"],
+                "external_branch_review_request_refs": refs[
+                    "external_branch_review_request_refs"
+                ],
+                "data_boundary_refs": refs["data_boundary_refs"],
+                "external_tool_boundary_refs": refs["external_tool_boundary_refs"],
+                "submission_authority_review_refs": refs[
+                    "submission_authority_review_refs"
+                ],
+                "result_provenance_contract_refs": refs["result_provenance_contract_refs"],
+                "exception_refs": refs["blocking_exception_refs"],
+                "authority_refs": refs["authority_refs"],
+                "summary_posture": "blocked_by_missing_v43_branch_posture",
+                "ready_basis_posture": "not_ready_blockers_remain",
+                "carried_blocker_refs": refs["blocking_exception_refs"],
+                "external_activation_posture": (
+                    "no_external_branch_activation_performed_by_v80"
+                ),
+                "external_submission_posture": "no_external_submission_performed_by_v80",
+                "external_tool_invocation_posture": (
+                    "no_external_tool_invocation_performed_by_v80"
+                ),
+                "data_transfer_posture": "no_external_data_transfer_performed_by_v80",
+                "result_truth_posture": "external_result_truth_not_claimed",
+                "non_activation_guardrail_refs": refs["non_activation_guardrail_refs"],
+                "limitation_note": (
+                    "External branch review package remains blocked for review by "
+                    "missing V43 posture with no external activation and no external submission."
+                ),
+            },
+            {
+                "external_branch_summary_ref": (
+                    "external-branch-summary:v80c:product-wedge:blocked"
+                ),
+                "candidate_ref": refs["product_candidate_ref"],
+                "external_branch_review_request_refs": refs[
+                    "product_external_branch_review_request_refs"
+                ],
+                "data_boundary_refs": refs["product_data_boundary_refs"],
+                "external_tool_boundary_refs": [],
+                "submission_authority_review_refs": [],
+                "result_provenance_contract_refs": [],
+                "exception_refs": refs["product_blocking_exception_refs"],
+                "authority_refs": refs["product_authority_refs"],
+                "summary_posture": "blocked_by_product_authority_gap",
+                "ready_basis_posture": "not_ready_blockers_remain",
+                "carried_blocker_refs": refs["product_blocking_exception_refs"],
+                "external_activation_posture": (
+                    "no_external_branch_activation_performed_by_v80"
+                ),
+                "external_submission_posture": "no_external_submission_performed_by_v80",
+                "external_tool_invocation_posture": (
+                    "no_external_tool_invocation_performed_by_v80"
+                ),
+                "data_transfer_posture": "no_external_data_transfer_performed_by_v80",
+                "result_truth_posture": "external_result_truth_not_claimed",
+                "non_activation_guardrail_refs": refs["product_non_activation_guardrail_refs"],
+                "limitation_note": (
+                    "Product pressure remains blocked for later product review with "
+                    "no external activation and no external submission."
+                ),
+            },
+        ],
+        "readiness_summary": (
+            "External branch readiness summaries are review records with no external "
+            "activation, no external submission, and no release."
+        ),
+    }
+    payload["summary_rows"] = sorted(
+        payload["summary_rows"],
+        key=lambda row: row["external_branch_summary_ref"],
+    )
+    payload["external_branch_readiness_summary_id"] = _surface_id(
+        "repo_external_branch_readiness_summary",
+        REPO_EXTERNAL_BRANCH_READINESS_SUMMARY_SCHEMA,
+        payload,
+        "external_branch_readiness_summary_id",
+    )
+    return RepoExternalBranchReadinessSummary.model_validate(payload)
+
+
+def derive_v80c_repo_post_external_branch_review_handoff(
+    *,
+    repo_root: Path | None = None,
+    external_branch_source_index: RepoExternalBranchSourceIndex | None = None,
+    external_branch_review_request: RepoExternalBranchReviewRequest | None = None,
+    external_branch_non_activation_guardrail: RepoExternalBranchNonActivationGuardrail
+    | None = None,
+    external_data_boundary: RepoExternalDataBoundary | None = None,
+    external_tool_boundary: RepoExternalToolBoundary | None = None,
+    external_submission_authority_review: RepoExternalSubmissionAuthorityReview
+    | None = None,
+    external_result_provenance_contract: RepoExternalResultProvenanceContract | None = None,
+    external_branch_exception_register: RepoExternalBranchExceptionRegister | None = None,
+    external_branch_readiness_summary: RepoExternalBranchReadinessSummary | None = None,
+) -> RepoPostExternalBranchReviewHandoff:
+    (
+        source_index,
+        request,
+        guardrail,
+        data_boundary,
+        tool_boundary,
+        submission_authority,
+        result_provenance,
+        exceptions,
+    ) = _v80c_base_surfaces(
+        repo_root=repo_root,
+        external_branch_source_index=external_branch_source_index,
+        external_branch_review_request=external_branch_review_request,
+        external_branch_non_activation_guardrail=external_branch_non_activation_guardrail,
+        external_data_boundary=external_data_boundary,
+        external_tool_boundary=external_tool_boundary,
+        external_submission_authority_review=external_submission_authority_review,
+        external_result_provenance_contract=external_result_provenance_contract,
+        external_branch_exception_register=external_branch_exception_register,
+    )
+    summary = external_branch_readiness_summary or (
+        derive_v80c_repo_external_branch_readiness_summary(
+            repo_root=repo_root,
+            external_branch_source_index=source_index,
+            external_branch_review_request=request,
+            external_branch_non_activation_guardrail=guardrail,
+            external_data_boundary=data_boundary,
+            external_tool_boundary=tool_boundary,
+            external_submission_authority_review=submission_authority,
+            external_result_provenance_contract=result_provenance,
+            external_branch_exception_register=exceptions,
+        )
+    )
+    refs = _v80c_reference_refs(
+        request=request,
+        guardrail=guardrail,
+        data_boundary=data_boundary,
+        tool_boundary=tool_boundary,
+        submission_authority=submission_authority,
+        result_provenance=result_provenance,
+        exceptions=exceptions,
+    )
+    summary_refs = {
+        row.candidate_ref: row.external_branch_summary_ref for row in summary.summary_rows
+    }
+    payload = {
+        "schema": REPO_POST_EXTERNAL_BRANCH_REVIEW_HANDOFF_SCHEMA,
+        "post_external_branch_review_handoff_id": "",
+        "external_branch_readiness_summary_id": summary.external_branch_readiness_summary_id,
+        "external_branch_review_request_id": request.external_branch_review_request_id,
+        "external_branch_source_index_id": source_index.external_branch_source_index_id,
+        "external_branch_non_activation_guardrail_id": (
+            guardrail.external_branch_non_activation_guardrail_id
+        ),
+        "external_data_boundary_id": data_boundary.external_data_boundary_id,
+        "external_tool_boundary_id": tool_boundary.external_tool_boundary_id,
+        "external_submission_authority_review_id": (
+            submission_authority.external_submission_authority_review_id
+        ),
+        "external_result_provenance_contract_id": (
+            result_provenance.external_result_provenance_contract_id
+        ),
+        "external_branch_exception_register_id": (
+            exceptions.external_branch_exception_register_id
+        ),
+        "review_id": request.review_id,
+        "snapshot_id": "vNext+225-external-branch-boundary-closeout",
+        "source_set_id": "source-set:v80c:released-v80ab-handoff-pressure",
+        "handoff_rows": [
+            {
+                "handoff_ref": "handoff:v80c:self-evidencing:external-authority-review",
+                "candidate_ref": refs["candidate_ref"],
+                "external_branch_summary_refs": [summary_refs[refs["candidate_ref"]]],
+                "data_boundary_refs": refs["data_boundary_refs"],
+                "external_tool_boundary_refs": refs["external_tool_boundary_refs"],
+                "submission_authority_review_refs": refs[
+                    "submission_authority_review_refs"
+                ],
+                "result_provenance_contract_refs": refs["result_provenance_contract_refs"],
+                "carried_exception_refs": refs["blocking_exception_refs"],
+                "handoff_target": "future_external_branch_activation_authority_review",
+                "handoff_external_authority_horizon": "branch_posture_review",
+                "handoff_subject_horizon": "external_branch_review_package",
+                "handoff_posture": "blocked_by_v43_branch_posture_gap",
+                "handoff_external_activation_status": (
+                    "no_external_branch_activation_performed_by_v80"
+                ),
+                "required_later_authority_refs": refs["authority_refs"],
+                "external_activation_posture": (
+                    "no_external_branch_activation_performed_by_v80"
+                ),
+                "external_submission_posture": "no_external_submission_performed_by_v80",
+                "external_tool_invocation_posture": (
+                    "no_external_tool_invocation_performed_by_v80"
+                ),
+                "data_transfer_posture": "no_external_data_transfer_performed_by_v80",
+                "result_truth_posture": "external_result_truth_not_claimed",
+                "non_activation_guardrail_refs": refs["non_activation_guardrail_refs"],
+                "limitation_note": (
+                    "Handoff requests later review while preserving V43 blockers "
+                    "with no external activation and no external submission."
+                ),
+            },
+            {
+                "handoff_ref": "handoff:v80c:product-wedge:future-product-review",
+                "candidate_ref": refs["product_candidate_ref"],
+                "external_branch_summary_refs": [summary_refs[refs["product_candidate_ref"]]],
+                "data_boundary_refs": refs["product_data_boundary_refs"],
+                "external_tool_boundary_refs": [],
+                "submission_authority_review_refs": [],
+                "result_provenance_contract_refs": [],
+                "carried_exception_refs": refs["product_blocking_exception_refs"],
+                "handoff_target": "future_product_review",
+                "handoff_external_authority_horizon": "branch_posture_review",
+                "handoff_subject_horizon": "product_authority_gap",
+                "handoff_posture": "blocked_by_required_later_authority",
+                "handoff_external_activation_status": (
+                    "no_external_branch_activation_performed_by_v80"
+                ),
+                "required_later_authority_refs": refs["product_authority_refs"],
+                "external_activation_posture": (
+                    "no_external_branch_activation_performed_by_v80"
+                ),
+                "external_submission_posture": "no_external_submission_performed_by_v80",
+                "external_tool_invocation_posture": (
+                    "no_external_tool_invocation_performed_by_v80"
+                ),
+                "data_transfer_posture": "no_external_data_transfer_performed_by_v80",
+                "result_truth_posture": "external_result_truth_not_claimed",
+                "non_activation_guardrail_refs": refs["product_non_activation_guardrail_refs"],
+                "limitation_note": (
+                    "Product handoff requests later review while preserving blockers "
+                    "with no external activation and no external submission."
+                ),
+            },
+        ],
+        "handoff_summary": (
+            "Post-external-branch-review handoffs request later review with no external "
+            "activation, no external submission, and no release."
+        ),
+    }
+    payload["handoff_rows"] = sorted(payload["handoff_rows"], key=lambda row: row["handoff_ref"])
+    payload["post_external_branch_review_handoff_id"] = _surface_id(
+        "repo_post_external_branch_review_handoff",
+        REPO_POST_EXTERNAL_BRANCH_REVIEW_HANDOFF_SCHEMA,
+        payload,
+        "post_external_branch_review_handoff_id",
+    )
+    return RepoPostExternalBranchReviewHandoff.model_validate(payload)
+
+
+def derive_v80c_repo_external_branch_review_family_closeout_alignment(
+    *,
+    repo_root: Path | None = None,
+    external_branch_readiness_summary: RepoExternalBranchReadinessSummary | None = None,
+    post_external_branch_review_handoff: RepoPostExternalBranchReviewHandoff | None = None,
+) -> RepoExternalBranchReviewFamilyCloseoutAlignment:
+    if external_branch_readiness_summary is None or post_external_branch_review_handoff is None:
+        (
+            source_index,
+            request,
+            guardrail,
+            data_boundary,
+            tool_boundary,
+            submission_authority,
+            result_provenance,
+            exceptions,
+        ) = derive_v80b_external_branch_boundary_bundle(repo_root=repo_root)
+        summary = external_branch_readiness_summary or (
+            derive_v80c_repo_external_branch_readiness_summary(
+                repo_root=repo_root,
+                external_branch_source_index=source_index,
+                external_branch_review_request=request,
+                external_branch_non_activation_guardrail=guardrail,
+                external_data_boundary=data_boundary,
+                external_tool_boundary=tool_boundary,
+                external_submission_authority_review=submission_authority,
+                external_result_provenance_contract=result_provenance,
+                external_branch_exception_register=exceptions,
+            )
+        )
+        handoff = post_external_branch_review_handoff or (
+            derive_v80c_repo_post_external_branch_review_handoff(
+                repo_root=repo_root,
+                external_branch_source_index=source_index,
+                external_branch_review_request=request,
+                external_branch_non_activation_guardrail=guardrail,
+                external_data_boundary=data_boundary,
+                external_tool_boundary=tool_boundary,
+                external_submission_authority_review=submission_authority,
+                external_result_provenance_contract=result_provenance,
+                external_branch_exception_register=exceptions,
+                external_branch_readiness_summary=summary,
+            )
+        )
+    else:
+        summary = external_branch_readiness_summary
+        handoff = post_external_branch_review_handoff
+    payload = {
+        "schema": REPO_EXTERNAL_BRANCH_REVIEW_FAMILY_CLOSEOUT_ALIGNMENT_SCHEMA,
+        "external_branch_review_family_closeout_alignment_id": "",
+        "external_branch_readiness_summary_id": summary.external_branch_readiness_summary_id,
+        "post_external_branch_review_handoff_id": (
+            handoff.post_external_branch_review_handoff_id
+        ),
+        "family": "V80",
+        "closed_by_arc": "vNext+226",
+        "closed_slice_ladder": ["V80-A", "V80-B", "V80-C"],
+        "consumed_source_families": [
+            "V68",
+            "V69",
+            "V70",
+            "V71",
+            "V72",
+            "V73",
+            "V74",
+            "V75",
+            "V76",
+            "V77",
+            "V78",
+            "V79",
+            "V80",
+        ],
+        "shipped_record_shapes": sorted(
+            [
+                REPO_EXTERNAL_BRANCH_REVIEW_REQUEST_SCHEMA,
+                REPO_EXTERNAL_BRANCH_SOURCE_INDEX_SCHEMA,
+                REPO_EXTERNAL_BRANCH_NON_ACTIVATION_GUARDRAIL_SCHEMA,
+                REPO_EXTERNAL_DATA_BOUNDARY_SCHEMA,
+                REPO_EXTERNAL_TOOL_BOUNDARY_SCHEMA,
+                REPO_EXTERNAL_SUBMISSION_AUTHORITY_REVIEW_SCHEMA,
+                REPO_EXTERNAL_RESULT_PROVENANCE_CONTRACT_SCHEMA,
+                REPO_EXTERNAL_BRANCH_EXCEPTION_REGISTER_SCHEMA,
+                REPO_EXTERNAL_BRANCH_READINESS_SUMMARY_SCHEMA,
+                REPO_POST_EXTERNAL_BRANCH_REVIEW_HANDOFF_SCHEMA,
+                REPO_EXTERNAL_BRANCH_REVIEW_FAMILY_CLOSEOUT_ALIGNMENT_SCHEMA,
+            ]
+        ),
+        "external_branch_boundary": (
+            "V80 closes external branch activation review with no external activation, "
+            "no external submission, no release, and no v81 selection."
+        ),
+        "unselected_future_surfaces": [
+            "benchmark_truth",
+            "command_execution",
+            "commit",
+            "dispatch_execution",
+            "endpoint_mutation",
+            "external_branch_activation",
+            "external_data_transfer",
+            "external_result_truth",
+            "external_submission",
+            "external_tool_invocation",
+            "global_model_selection",
+            "living_memory_authority",
+            "merge",
+            "pr_creation",
+            "product_authorization",
+            "recursive_policy_amendment",
+            "release",
+            "v43_contest_participation",
+            "v81_selection",
+            "withdrawal_action",
+        ],
+        "future_family_authority": "next_selector_required",
+        "limitation_note": (
+            "V80 is closed as review only with no external activation, no external "
+            "submission, no v81 selection, and no downstream authority."
+        ),
+    }
+    payload["external_branch_review_family_closeout_alignment_id"] = _surface_id(
+        "repo_external_branch_review_family_closeout_alignment",
+        REPO_EXTERNAL_BRANCH_REVIEW_FAMILY_CLOSEOUT_ALIGNMENT_SCHEMA,
+        payload,
+        "external_branch_review_family_closeout_alignment_id",
+    )
+    return RepoExternalBranchReviewFamilyCloseoutAlignment.model_validate(payload)
+
+
+def validate_v80c_external_branch_review_closeout_bundle(
+    *,
+    external_branch_source_index: RepoExternalBranchSourceIndex,
+    external_branch_review_request: RepoExternalBranchReviewRequest,
+    external_branch_non_activation_guardrail: RepoExternalBranchNonActivationGuardrail,
+    external_data_boundary: RepoExternalDataBoundary,
+    external_tool_boundary: RepoExternalToolBoundary,
+    external_submission_authority_review: RepoExternalSubmissionAuthorityReview,
+    external_result_provenance_contract: RepoExternalResultProvenanceContract,
+    external_branch_exception_register: RepoExternalBranchExceptionRegister,
+    external_branch_readiness_summary: RepoExternalBranchReadinessSummary,
+    post_external_branch_review_handoff: RepoPostExternalBranchReviewHandoff,
+    external_branch_review_family_closeout_alignment: (
+        RepoExternalBranchReviewFamilyCloseoutAlignment
+    ),
+) -> None:
+    validate_v80b_external_branch_boundary_bundle(
+        external_branch_source_index=external_branch_source_index,
+        external_branch_review_request=external_branch_review_request,
+        external_branch_non_activation_guardrail=external_branch_non_activation_guardrail,
+        external_data_boundary=external_data_boundary,
+        external_tool_boundary=external_tool_boundary,
+        external_submission_authority_review=external_submission_authority_review,
+        external_result_provenance_contract=external_result_provenance_contract,
+        external_branch_exception_register=external_branch_exception_register,
+    )
+    expected_ids = (
+        external_branch_review_request.external_branch_review_request_id,
+        external_branch_source_index.external_branch_source_index_id,
+        external_branch_non_activation_guardrail.external_branch_non_activation_guardrail_id,
+        external_data_boundary.external_data_boundary_id,
+        external_tool_boundary.external_tool_boundary_id,
+        external_submission_authority_review.external_submission_authority_review_id,
+        external_result_provenance_contract.external_result_provenance_contract_id,
+        external_branch_exception_register.external_branch_exception_register_id,
+    )
+    if (
+        external_branch_readiness_summary.external_branch_review_request_id,
+        external_branch_readiness_summary.external_branch_source_index_id,
+        external_branch_readiness_summary.external_branch_non_activation_guardrail_id,
+        external_branch_readiness_summary.external_data_boundary_id,
+        external_branch_readiness_summary.external_tool_boundary_id,
+        external_branch_readiness_summary.external_submission_authority_review_id,
+        external_branch_readiness_summary.external_result_provenance_contract_id,
+        external_branch_readiness_summary.external_branch_exception_register_id,
+    ) != expected_ids:
+        raise ValueError("V80-C summary must reference released V80-A/B surfaces")
+    if (
+        post_external_branch_review_handoff.external_branch_readiness_summary_id
+        != external_branch_readiness_summary.external_branch_readiness_summary_id
+    ):
+        raise ValueError("V80-C handoff must reference released summary surface")
+    if (
+        post_external_branch_review_handoff.external_branch_review_request_id,
+        post_external_branch_review_handoff.external_branch_source_index_id,
+        post_external_branch_review_handoff.external_branch_non_activation_guardrail_id,
+        post_external_branch_review_handoff.external_data_boundary_id,
+        post_external_branch_review_handoff.external_tool_boundary_id,
+        post_external_branch_review_handoff.external_submission_authority_review_id,
+        post_external_branch_review_handoff.external_result_provenance_contract_id,
+        post_external_branch_review_handoff.external_branch_exception_register_id,
+    ) != expected_ids:
+        raise ValueError("V80-C handoff must reference released V80-A/B surfaces")
+    if (
+        external_branch_review_family_closeout_alignment.external_branch_readiness_summary_id
+        != external_branch_readiness_summary.external_branch_readiness_summary_id
+        or external_branch_review_family_closeout_alignment.post_external_branch_review_handoff_id
+        != post_external_branch_review_handoff.post_external_branch_review_handoff_id
+    ):
+        raise ValueError("V80-C closeout must reference released summary and handoff")
+
+    request_rows = {
+        row.external_branch_review_request_ref: row
+        for row in external_branch_review_request.request_rows
+    }
+    guardrail_rows = {
+        row.guardrail_ref: row for row in external_branch_non_activation_guardrail.guardrail_rows
+    }
+    data_rows = {row.data_boundary_ref: row for row in external_data_boundary.data_boundary_rows}
+    tool_rows = {
+        row.external_tool_boundary_ref: row for row in external_tool_boundary.tool_boundary_rows
+    }
+    submission_rows = {
+        row.submission_authority_review_ref: row
+        for row in external_submission_authority_review.submission_authority_review_rows
+    }
+    provenance_rows = {
+        row.result_provenance_contract_ref: row
+        for row in external_result_provenance_contract.result_provenance_contract_rows
+    }
+    exception_rows = {
+        row.exception_ref: row for row in external_branch_exception_register.exception_rows
+    }
+    summary_rows = {
+        row.external_branch_summary_ref: row
+        for row in external_branch_readiness_summary.summary_rows
+    }
+
+    def _require_known_refs(refs: list[str], known: set[str], message: str) -> None:
+        if any(ref not in known for ref in refs):
+            raise ValueError(message)
+
+    def _require_candidate_refs(
+        refs: list[str],
+        rows_by_ref: dict[str, _CartographyBase],
+        *,
+        candidate_ref: str,
+        message: str,
+    ) -> None:
+        for ref in refs:
+            if rows_by_ref[ref].candidate_ref != candidate_ref:
+                raise ValueError(message)
+
+    for row in external_branch_readiness_summary.summary_rows:
+        _require_known_refs(
+            row.external_branch_review_request_refs,
+            set(request_rows),
+            "summary request refs must be known",
+        )
+        _require_known_refs(
+            row.data_boundary_refs,
+            set(data_rows),
+            "summary data refs must be known",
+        )
+        _require_known_refs(
+            row.external_tool_boundary_refs,
+            set(tool_rows),
+            "summary tool refs must be known",
+        )
+        _require_known_refs(
+            row.submission_authority_review_refs,
+            set(submission_rows),
+            "summary submission refs must be known",
+        )
+        _require_known_refs(
+            row.result_provenance_contract_refs,
+            set(provenance_rows),
+            "summary provenance refs must be known",
+        )
+        _require_known_refs(
+            row.exception_refs,
+            set(exception_rows),
+            "summary exception refs must be known",
+        )
+        _require_known_refs(
+            row.carried_blocker_refs,
+            set(exception_rows),
+            "summary blocker refs must be known",
+        )
+        _require_known_refs(
+            row.non_activation_guardrail_refs,
+            set(guardrail_rows),
+            "summary guardrail refs must be known",
+        )
+        _require_candidate_refs(
+            row.external_branch_review_request_refs,
+            request_rows,
+            candidate_ref=row.candidate_ref,
+            message="summary request refs must match candidate",
+        )
+        _require_candidate_refs(
+            row.data_boundary_refs,
+            data_rows,
+            candidate_ref=row.candidate_ref,
+            message="summary data refs must match candidate",
+        )
+        _require_candidate_refs(
+            row.external_tool_boundary_refs,
+            tool_rows,
+            candidate_ref=row.candidate_ref,
+            message="summary tool refs must match candidate",
+        )
+        _require_candidate_refs(
+            row.submission_authority_review_refs,
+            submission_rows,
+            candidate_ref=row.candidate_ref,
+            message="summary submission refs must match candidate",
+        )
+        _require_candidate_refs(
+            row.result_provenance_contract_refs,
+            provenance_rows,
+            candidate_ref=row.candidate_ref,
+            message="summary provenance refs must match candidate",
+        )
+        _require_candidate_refs(
+            row.exception_refs,
+            exception_rows,
+            candidate_ref=row.candidate_ref,
+            message="summary exception refs must match candidate",
+        )
+        _require_candidate_refs(
+            row.non_activation_guardrail_refs,
+            guardrail_rows,
+            candidate_ref=row.candidate_ref,
+            message="summary guardrail refs must match candidate",
+        )
+        blocking_refs = {
+            ref for ref in row.exception_refs if exception_rows[ref].exception_posture == "blocking"
+        }
+        if row.summary_posture in {
+            "external_branch_review_ready",
+            "external_branch_review_ready_with_nonblocking_warnings",
+        } and blocking_refs:
+            raise ValueError("ready summaries cannot hide blocking exceptions")
+        if row.summary_posture == "external_branch_review_ready_with_nonblocking_warnings":
+            warning_refs = {
+                ref
+                for ref in row.exception_refs
+                if exception_rows[ref].exception_posture == "warning_only"
+            }
+            if set(row.exception_refs) != warning_refs:
+                raise ValueError("warning-ready summaries may carry warnings only")
+        for ref in row.carried_blocker_refs:
+            if exception_rows[ref].exception_posture != "blocking":
+                raise ValueError("carried blocker refs must point to blocking exceptions")
+
+    for row in post_external_branch_review_handoff.handoff_rows:
+        _require_known_refs(
+            row.external_branch_summary_refs,
+            set(summary_rows),
+            "handoff summary refs must be known",
+        )
+        _require_known_refs(
+            row.data_boundary_refs,
+            set(data_rows),
+            "handoff data refs must be known",
+        )
+        _require_known_refs(
+            row.external_tool_boundary_refs,
+            set(tool_rows),
+            "handoff tool refs must be known",
+        )
+        _require_known_refs(
+            row.submission_authority_review_refs,
+            set(submission_rows),
+            "handoff submission refs must be known",
+        )
+        _require_known_refs(
+            row.result_provenance_contract_refs,
+            set(provenance_rows),
+            "handoff provenance refs must be known",
+        )
+        _require_known_refs(
+            row.carried_exception_refs,
+            set(exception_rows),
+            "handoff exception refs must be known",
+        )
+        _require_known_refs(
+            row.non_activation_guardrail_refs,
+            set(guardrail_rows),
+            "handoff guardrail refs must be known",
+        )
+        _require_candidate_refs(
+            row.external_branch_summary_refs,
+            summary_rows,
+            candidate_ref=row.candidate_ref,
+            message="handoff summary refs must match candidate",
+        )
+        _require_candidate_refs(
+            row.data_boundary_refs,
+            data_rows,
+            candidate_ref=row.candidate_ref,
+            message="handoff data refs must match candidate",
+        )
+        _require_candidate_refs(
+            row.external_tool_boundary_refs,
+            tool_rows,
+            candidate_ref=row.candidate_ref,
+            message="handoff tool refs must match candidate",
+        )
+        _require_candidate_refs(
+            row.submission_authority_review_refs,
+            submission_rows,
+            candidate_ref=row.candidate_ref,
+            message="handoff submission refs must match candidate",
+        )
+        _require_candidate_refs(
+            row.result_provenance_contract_refs,
+            provenance_rows,
+            candidate_ref=row.candidate_ref,
+            message="handoff provenance refs must match candidate",
+        )
+        _require_candidate_refs(
+            row.carried_exception_refs,
+            exception_rows,
+            candidate_ref=row.candidate_ref,
+            message="handoff exception refs must match candidate",
+        )
+        _require_candidate_refs(
+            row.non_activation_guardrail_refs,
+            guardrail_rows,
+            candidate_ref=row.candidate_ref,
+            message="handoff guardrail refs must match candidate",
+        )
+        blocking_carried = {
+            ref
+            for ref in row.carried_exception_refs
+            if exception_rows[ref].exception_posture == "blocking"
+        }
+        if blocking_carried and row.handoff_posture == "ready_for_later_review":
+            raise ValueError("handoffs with blocking exceptions cannot be ready")
+
+    if (
+        "v81_selection"
+        not in external_branch_review_family_closeout_alignment.unselected_future_surfaces
+    ):
+        raise ValueError("V80-C closeout must not select V81")
+
+
+def derive_v80c_external_branch_review_closeout_bundle(
+    *, repo_root: Path | None = None
+) -> tuple[
+    RepoExternalBranchSourceIndex,
+    RepoExternalBranchReviewRequest,
+    RepoExternalBranchNonActivationGuardrail,
+    RepoExternalDataBoundary,
+    RepoExternalToolBoundary,
+    RepoExternalSubmissionAuthorityReview,
+    RepoExternalResultProvenanceContract,
+    RepoExternalBranchExceptionRegister,
+    RepoExternalBranchReadinessSummary,
+    RepoPostExternalBranchReviewHandoff,
+    RepoExternalBranchReviewFamilyCloseoutAlignment,
+]:
+    (
+        source_index,
+        request,
+        guardrail,
+        data_boundary,
+        tool_boundary,
+        submission_authority,
+        result_provenance,
+        exceptions,
+    ) = derive_v80b_external_branch_boundary_bundle(repo_root=repo_root)
+    summary = derive_v80c_repo_external_branch_readiness_summary(
+        repo_root=repo_root,
+        external_branch_source_index=source_index,
+        external_branch_review_request=request,
+        external_branch_non_activation_guardrail=guardrail,
+        external_data_boundary=data_boundary,
+        external_tool_boundary=tool_boundary,
+        external_submission_authority_review=submission_authority,
+        external_result_provenance_contract=result_provenance,
+        external_branch_exception_register=exceptions,
+    )
+    handoff = derive_v80c_repo_post_external_branch_review_handoff(
+        repo_root=repo_root,
+        external_branch_source_index=source_index,
+        external_branch_review_request=request,
+        external_branch_non_activation_guardrail=guardrail,
+        external_data_boundary=data_boundary,
+        external_tool_boundary=tool_boundary,
+        external_submission_authority_review=submission_authority,
+        external_result_provenance_contract=result_provenance,
+        external_branch_exception_register=exceptions,
+        external_branch_readiness_summary=summary,
+    )
+    closeout = derive_v80c_repo_external_branch_review_family_closeout_alignment(
+        repo_root=repo_root,
+        external_branch_readiness_summary=summary,
+        post_external_branch_review_handoff=handoff,
+    )
+    validate_v80c_external_branch_review_closeout_bundle(
+        external_branch_source_index=source_index,
+        external_branch_review_request=request,
+        external_branch_non_activation_guardrail=guardrail,
+        external_data_boundary=data_boundary,
+        external_tool_boundary=tool_boundary,
+        external_submission_authority_review=submission_authority,
+        external_result_provenance_contract=result_provenance,
+        external_branch_exception_register=exceptions,
+        external_branch_readiness_summary=summary,
+        post_external_branch_review_handoff=handoff,
+        external_branch_review_family_closeout_alignment=closeout,
+    )
+    return (
+        source_index,
+        request,
+        guardrail,
+        data_boundary,
+        tool_boundary,
+        submission_authority,
+        result_provenance,
+        exceptions,
+        summary,
+        handoff,
+        closeout,
     )

@@ -1,0 +1,149 @@
+{
+  "additionalProperties": false,
+  "properties": {
+    "closed_by_arc": {
+      "const": "vNext+226",
+      "title": "Closed By Arc",
+      "type": "string"
+    },
+    "closed_slice_ladder": {
+      "items": {
+        "enum": [
+          "V80-A",
+          "V80-B",
+          "V80-C"
+        ],
+        "type": "string"
+      },
+      "minItems": 3,
+      "title": "Closed Slice Ladder",
+      "type": "array"
+    },
+    "consumed_source_families": {
+      "items": {
+        "enum": [
+          "V68",
+          "V69",
+          "V70",
+          "V71",
+          "V72",
+          "V73",
+          "V74",
+          "V75",
+          "V76",
+          "V77",
+          "V78",
+          "V79",
+          "V80"
+        ],
+        "type": "string"
+      },
+      "minItems": 1,
+      "title": "Consumed Source Families",
+      "type": "array"
+    },
+    "external_branch_boundary": {
+      "title": "External Branch Boundary",
+      "type": "string"
+    },
+    "external_branch_readiness_summary_id": {
+      "title": "External Branch Readiness Summary Id",
+      "type": "string"
+    },
+    "external_branch_review_family_closeout_alignment_id": {
+      "title": "External Branch Review Family Closeout Alignment Id",
+      "type": "string"
+    },
+    "family": {
+      "const": "V80",
+      "title": "Family",
+      "type": "string"
+    },
+    "future_family_authority": {
+      "const": "next_selector_required",
+      "title": "Future Family Authority",
+      "type": "string"
+    },
+    "limitation_note": {
+      "title": "Limitation Note",
+      "type": "string"
+    },
+    "post_external_branch_review_handoff_id": {
+      "title": "Post External Branch Review Handoff Id",
+      "type": "string"
+    },
+    "schema": {
+      "const": "repo_external_branch_review_family_closeout_alignment@1",
+      "default": "repo_external_branch_review_family_closeout_alignment@1",
+      "title": "Schema",
+      "type": "string"
+    },
+    "shipped_record_shapes": {
+      "items": {
+        "enum": [
+          "repo_external_branch_review_request@1",
+          "repo_external_branch_source_index@1",
+          "repo_external_branch_non_activation_guardrail@1",
+          "repo_external_data_boundary@1",
+          "repo_external_tool_boundary@1",
+          "repo_external_submission_authority_review@1",
+          "repo_external_result_provenance_contract@1",
+          "repo_external_branch_exception_register@1",
+          "repo_external_branch_readiness_summary@1",
+          "repo_post_external_branch_review_handoff@1",
+          "repo_external_branch_review_family_closeout_alignment@1"
+        ],
+        "type": "string"
+      },
+      "minItems": 1,
+      "title": "Shipped Record Shapes",
+      "type": "array"
+    },
+    "unselected_future_surfaces": {
+      "items": {
+        "enum": [
+          "external_branch_activation",
+          "v43_contest_participation",
+          "external_submission",
+          "external_tool_invocation",
+          "endpoint_mutation",
+          "external_data_transfer",
+          "external_result_truth",
+          "withdrawal_action",
+          "command_execution",
+          "dispatch_execution",
+          "product_authorization",
+          "pr_creation",
+          "commit",
+          "merge",
+          "release",
+          "benchmark_truth",
+          "global_model_selection",
+          "living_memory_authority",
+          "recursive_policy_amendment",
+          "v81_selection"
+        ],
+        "type": "string"
+      },
+      "minItems": 1,
+      "title": "Unselected Future Surfaces",
+      "type": "array"
+    }
+  },
+  "required": [
+    "external_branch_review_family_closeout_alignment_id",
+    "external_branch_readiness_summary_id",
+    "post_external_branch_review_handoff_id",
+    "family",
+    "closed_by_arc",
+    "closed_slice_ladder",
+    "consumed_source_families",
+    "shipped_record_shapes",
+    "external_branch_boundary",
+    "unselected_future_surfaces",
+    "future_family_authority",
+    "limitation_note"
+  ],
+  "title": "RepoExternalBranchReviewFamilyCloseoutAlignment",
+  "type": "object"
+}
