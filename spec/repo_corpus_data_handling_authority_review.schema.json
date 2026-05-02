@@ -1,0 +1,233 @@
+{
+  "$defs": {
+    "RepoCorpusDataHandlingAuthorityReviewRow": {
+      "additionalProperties": false,
+      "properties": {
+        "authority_kind": {
+          "enum": [
+            "privacy_authority",
+            "license_or_consent_authority",
+            "customer_data_authority",
+            "connector_authority",
+            "endpoint_authority",
+            "transfer_authority",
+            "retention_authority",
+            "deletion_or_withdrawal_authority",
+            "product_authority",
+            "benchmark_truth_guardrail_authority",
+            "graph_memory_authority"
+          ],
+          "title": "Authority Kind",
+          "type": "string"
+        },
+        "authority_review_posture": {
+          "enum": [
+            "authority_missing",
+            "authority_requires_later_review",
+            "authority_present_for_review_only",
+            "authority_not_applicable",
+            "authority_future_family_only",
+            "authority_rejected_out_of_scope"
+          ],
+          "title": "Authority Review Posture",
+          "type": "string"
+        },
+        "authority_review_ref": {
+          "title": "Authority Review Ref",
+          "type": "string"
+        },
+        "candidate_ref": {
+          "title": "Candidate Ref",
+          "type": "string"
+        },
+        "connector_activation_posture": {
+          "enum": [
+            "no_connector_activation_performed_by_v82",
+            "connector_activation_requires_later_family",
+            "connector_activation_forbidden_by_this_family"
+          ],
+          "title": "Connector Activation Posture",
+          "type": "string"
+        },
+        "customer_data_handling_posture": {
+          "enum": [
+            "no_customer_data_handling_performed_by_v82",
+            "customer_data_handling_requires_later_family",
+            "customer_data_handling_forbidden_by_this_family"
+          ],
+          "title": "Customer Data Handling Posture",
+          "type": "string"
+        },
+        "data_transfer_posture": {
+          "enum": [
+            "no_data_transfer_performed_by_v82",
+            "data_transfer_requires_later_family",
+            "data_transfer_forbidden_by_this_family"
+          ],
+          "title": "Data Transfer Posture",
+          "type": "string"
+        },
+        "endpoint_access_posture": {
+          "enum": [
+            "no_endpoint_access_performed_by_v82",
+            "endpoint_access_requires_later_family",
+            "endpoint_access_forbidden_by_this_family"
+          ],
+          "title": "Endpoint Access Posture",
+          "type": "string"
+        },
+        "guardrail_refs": {
+          "items": {
+            "type": "string"
+          },
+          "minItems": 1,
+          "title": "Guardrail Refs",
+          "type": "array"
+        },
+        "limitation_note": {
+          "title": "Limitation Note",
+          "type": "string"
+        },
+        "privacy_or_license_posture": {
+          "enum": [
+            "clearance_not_present",
+            "clearance_requires_later_authority",
+            "license_not_present",
+            "license_requires_later_authority",
+            "consent_requires_later_authority",
+            "not_applicable",
+            "explicitly_absent"
+          ],
+          "title": "Privacy Or License Posture",
+          "type": "string"
+        },
+        "request_refs": {
+          "items": {
+            "type": "string"
+          },
+          "minItems": 1,
+          "title": "Request Refs",
+          "type": "array"
+        },
+        "required_before_surface": {
+          "enum": [
+            "v82a_corpus_ingestion_review_request",
+            "v82b_corpus_ingestion_preflight_contract",
+            "future_corpus_ingestion_authority_review",
+            "future_connector_activation_authority_review",
+            "future_endpoint_access_authority_review",
+            "future_data_transfer_authority_review",
+            "future_retention_authority_review",
+            "future_deletion_or_withdrawal_authority_review",
+            "future_product_review",
+            "future_graph_memory_review",
+            "none"
+          ],
+          "title": "Required Before Surface",
+          "type": "string"
+        },
+        "source_presence_posture": {
+          "enum": [
+            "present",
+            "missing_expected_support_artifact",
+            "not_uploaded_in_review_snapshot",
+            "generated_later",
+            "external_unavailable",
+            "operator_turn_not_committed"
+          ],
+          "title": "Source Presence Posture",
+          "type": "string"
+        },
+        "source_refs": {
+          "items": {
+            "type": "string"
+          },
+          "minItems": 1,
+          "title": "Source Refs",
+          "type": "array"
+        }
+      },
+      "required": [
+        "authority_review_ref",
+        "candidate_ref",
+        "request_refs",
+        "source_refs",
+        "guardrail_refs",
+        "authority_kind",
+        "authority_review_posture",
+        "required_before_surface",
+        "source_presence_posture",
+        "privacy_or_license_posture",
+        "customer_data_handling_posture",
+        "connector_activation_posture",
+        "endpoint_access_posture",
+        "data_transfer_posture",
+        "limitation_note"
+      ],
+      "title": "RepoCorpusDataHandlingAuthorityReviewRow",
+      "type": "object"
+    }
+  },
+  "additionalProperties": false,
+  "properties": {
+    "authority_review_rows": {
+      "items": {
+        "$ref": "#/$defs/RepoCorpusDataHandlingAuthorityReviewRow"
+      },
+      "minItems": 1,
+      "title": "Authority Review Rows",
+      "type": "array"
+    },
+    "authority_review_summary": {
+      "title": "Authority Review Summary",
+      "type": "string"
+    },
+    "corpus_data_handling_authority_review_id": {
+      "title": "Corpus Data Handling Authority Review Id",
+      "type": "string"
+    },
+    "corpus_ingestion_non_transfer_guardrail_id": {
+      "title": "Corpus Ingestion Non Transfer Guardrail Id",
+      "type": "string"
+    },
+    "corpus_ingestion_review_request_id": {
+      "title": "Corpus Ingestion Review Request Id",
+      "type": "string"
+    },
+    "corpus_ingestion_source_index_id": {
+      "title": "Corpus Ingestion Source Index Id",
+      "type": "string"
+    },
+    "review_id": {
+      "title": "Review Id",
+      "type": "string"
+    },
+    "schema": {
+      "const": "repo_corpus_data_handling_authority_review@1",
+      "default": "repo_corpus_data_handling_authority_review@1",
+      "title": "Schema",
+      "type": "string"
+    },
+    "snapshot_id": {
+      "title": "Snapshot Id",
+      "type": "string"
+    },
+    "source_set_id": {
+      "title": "Source Set Id",
+      "type": "string"
+    }
+  },
+  "required": [
+    "corpus_data_handling_authority_review_id",
+    "corpus_ingestion_source_index_id",
+    "corpus_ingestion_review_request_id",
+    "corpus_ingestion_non_transfer_guardrail_id",
+    "review_id",
+    "snapshot_id",
+    "source_set_id",
+    "authority_review_rows",
+    "authority_review_summary"
+  ],
+  "title": "RepoCorpusDataHandlingAuthorityReview",
+  "type": "object"
+}

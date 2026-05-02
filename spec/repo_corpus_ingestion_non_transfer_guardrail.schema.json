@@ -49,6 +49,8 @@
             "future_connector_activation_authority_review",
             "future_endpoint_access_authority_review",
             "future_data_transfer_authority_review",
+            "future_retention_authority_review",
+            "future_deletion_or_withdrawal_authority_review",
             "future_product_review",
             "future_graph_memory_review",
             "none"
