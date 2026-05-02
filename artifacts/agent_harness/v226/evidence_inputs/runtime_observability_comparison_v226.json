@@ -1,0 +1,11 @@
+{
+  "baseline_arc": "vNext+225",
+  "baseline_elapsed_ms": 103,
+  "baseline_source": "artifacts/stop_gate/report_v225_closeout.md",
+  "current_arc": "vNext+226",
+  "current_elapsed_ms": 104,
+  "current_source": "artifacts/stop_gate/report_v226_closeout.md",
+  "delta_ms": 1,
+  "notes": "v226 keeps the frozen stop-gate schema family and exact metric keyset unchanged while closing the bounded V80-C external branch readiness summary / handoff / family-closeout slice on main: summaries consume released V80-A request / source / guardrail substrate and released V80-B data / tool / submission / result-provenance / exception substrate; ready summaries require complete boundary refs; warning-ready rows cannot carry blocking exceptions; handoffs remain later-review requests; product and runtime pressure stay target-specific and authority-bound; and no external activation, V43 contest participation, external submission, external tool invocation, endpoint mutation, external data transfer, external result truth, withdrawal action, command execution, dispatch, product authorization, PR / commit / merge / release, benchmark truth, model selection, living-memory authority, recursive policy amendment, or V81 selection.",
+  "schema": "runtime_observability_comparison@1"
+}

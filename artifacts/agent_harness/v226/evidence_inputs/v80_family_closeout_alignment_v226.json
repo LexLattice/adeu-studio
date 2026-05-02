@@ -1,0 +1,46 @@
+{
+  "closed_by_arc": "vNext+226",
+  "closed_by_merge_commit": "9e2bcfa7c4d37065835691fc4d60344ea20c58c6",
+  "closed_slice_ladder": [
+    "V80-A:vNext+224",
+    "V80-B:vNext+225",
+    "V80-C:vNext+226"
+  ],
+  "family": "V80",
+  "family_closed_on_main": true,
+  "future_family_authority": "none",
+  "schema": "v80_family_closeout_alignment@1",
+  "shipped_record_shapes": [
+    "repo_external_branch_review_request@1",
+    "repo_external_branch_source_index@1",
+    "repo_external_branch_non_activation_guardrail@1",
+    "repo_external_data_boundary@1",
+    "repo_external_tool_boundary@1",
+    "repo_external_submission_authority_review@1",
+    "repo_external_result_provenance_contract@1",
+    "repo_external_branch_exception_register@1",
+    "repo_external_branch_readiness_summary@1",
+    "repo_post_external_branch_review_handoff@1",
+    "repo_external_branch_review_family_closeout_alignment@1"
+  ],
+  "unselected_future_surfaces": [
+    "external branch activation",
+    "V43 contest participation",
+    "external submission",
+    "external tool invocation",
+    "endpoint mutation",
+    "external data transfer",
+    "external result truth",
+    "withdrawal action",
+    "command execution",
+    "dispatch execution",
+    "product authorization",
+    "release authority",
+    "benchmark truth",
+    "global model selection",
+    "living decision graph authority",
+    "recursive policy amendment",
+    "V81 selection"
+  ],
+  "v80_authority_boundary": "external_branch_activation_review_family_only_no_external_activation_v43_contest_participation_external_submission_external_tool_invocation_endpoint_mutation_external_data_transfer_external_result_truth_withdrawal_action_command_execution_dispatch_product_authorization_pr_commit_merge_release_benchmark_truth_model_selection_living_memory_or_recursive_policy_authority"
+}
