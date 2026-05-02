@@ -49,7 +49,9 @@ from adeu_repo_description import (
     REPO_CORPUS_BOUNDARY_CONTRACT_SCHEMA,
     REPO_CROSS_CORPUS_AUTHORITY_GAP_REGISTER_SCHEMA,
     REPO_CROSS_CORPUS_EXCEPTION_REGISTER_SCHEMA,
+    REPO_CROSS_CORPUS_GOVERNANCE_FAMILY_CLOSEOUT_ALIGNMENT_SCHEMA,
     REPO_CROSS_CORPUS_GOVERNANCE_REQUEST_SCHEMA,
+    REPO_CROSS_CORPUS_GOVERNANCE_SUMMARY_SCHEMA,
     REPO_CROSS_CORPUS_NON_INGESTION_GUARDRAIL_SCHEMA,
     REPO_CROSS_CORPUS_SOURCE_INDEX_SCHEMA,
     REPO_DECISION_VISIBILITY_CONTRACT_SCHEMA,
@@ -88,6 +90,7 @@ from adeu_repo_description import (
     REPO_OUTCOME_REGRESSION_REGISTER_SCHEMA,
     REPO_OUTCOME_REVIEW_BOUNDARY_GUARDRAIL_SCHEMA,
     REPO_POST_CONTROLLED_EXECUTION_REVIEW_HANDOFF_SCHEMA,
+    REPO_POST_CROSS_CORPUS_REVIEW_HANDOFF_SCHEMA,
     REPO_POST_DISPATCH_REVIEW_HANDOFF_SCHEMA,
     REPO_POST_EXTERNAL_BRANCH_REVIEW_HANDOFF_SCHEMA,
     REPO_POST_INTEGRATION_OUTCOME_REVIEW_HANDOFF_SCHEMA,
@@ -1174,6 +1177,32 @@ def _schema_pairs() -> dict[str, tuple[Path, Path]]:
             / "schema"
             / "repo_cross_corpus_exception_register.v1.json",
             root / "spec" / "repo_cross_corpus_exception_register.schema.json",
+        ),
+        REPO_CROSS_CORPUS_GOVERNANCE_SUMMARY_SCHEMA: (
+            root
+            / "packages"
+            / "adeu_repo_description"
+            / "schema"
+            / "repo_cross_corpus_governance_summary.v1.json",
+            root / "spec" / "repo_cross_corpus_governance_summary.schema.json",
+        ),
+        REPO_POST_CROSS_CORPUS_REVIEW_HANDOFF_SCHEMA: (
+            root
+            / "packages"
+            / "adeu_repo_description"
+            / "schema"
+            / "repo_post_cross_corpus_review_handoff.v1.json",
+            root / "spec" / "repo_post_cross_corpus_review_handoff.schema.json",
+        ),
+        REPO_CROSS_CORPUS_GOVERNANCE_FAMILY_CLOSEOUT_ALIGNMENT_SCHEMA: (
+            root
+            / "packages"
+            / "adeu_repo_description"
+            / "schema"
+            / "repo_cross_corpus_governance_family_closeout_alignment.v1.json",
+            root
+            / "spec"
+            / "repo_cross_corpus_governance_family_closeout_alignment.schema.json",
         ),
     }
 

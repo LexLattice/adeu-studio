@@ -1,0 +1,84 @@
+{
+  "corpus_boundary_contract_id": "repo_corpus_boundary_contract_85b3115cd0fb18e4c23da16e",
+  "cross_corpus_authority_gap_register_id": "repo_cross_corpus_authority_gap_register_96e1a22212fccfc9201828e3",
+  "cross_corpus_exception_register_id": "repo_cross_corpus_exception_register_72c61500ce9881cca60a3e97",
+  "cross_corpus_governance_request_id": "repo_cross_corpus_governance_request_37287dd9523263483a41309f",
+  "cross_corpus_governance_summary_id": "repo_cross_corpus_governance_summary_382cfe8b96bd308cfd053008",
+  "cross_corpus_non_ingestion_guardrail_id": "repo_cross_corpus_non_ingestion_guardrail_69bb4462f66cae61f6bd2189",
+  "cross_corpus_source_index_id": "repo_cross_corpus_source_index_865b7414e73cd58d4aab1c6d",
+  "governance_summary": "V81-C summarizes released cross-corpus review substrate with no corpus ingestion, no connector activation, no release, and no downstream authority.",
+  "imported_substrate_provenance_register_id": "repo_imported_substrate_provenance_register_14635fa58e4cc15ae1436e4f",
+  "review_id": "review:v81a:cross-corpus-governance",
+  "schema": "repo_cross_corpus_governance_summary@1",
+  "snapshot_id": "vNext+226-external-branch-review-closeout",
+  "source_set_id": "source-set:v81a:released-v80c-cross-corpus-pressure",
+  "summary_rows": [
+    {
+      "adjudication_execution_posture": "no_cross_corpus_adjudication_performed_by_v81",
+      "authority_gap_refs": [
+        "corpus-authority-gap:v81b:self-evidencing:connector",
+        "corpus-authority-gap:v81b:self-evidencing:license",
+        "corpus-authority-gap:v81b:self-evidencing:privacy"
+      ],
+      "boundary_contract_refs": [],
+      "candidate_ref": "candidate:internal:self_evidencing_workflow_type_emergence",
+      "carried_blocker_refs": [],
+      "carried_warning_refs": [],
+      "connector_activation_posture": "no_connector_activation_performed_by_v81",
+      "corpus_ingestion_posture": "no_corpus_ingestion_performed_by_v81",
+      "cross_corpus_summary_ref": "cross-corpus-summary:v81c:self_evidencing_workflow_type_emergence",
+      "endpoint_access_posture": "no_endpoint_access_performed_by_v81",
+      "exception_refs": [],
+      "guardrail_refs": [
+        "guardrail:v81a:self-evidencing:non-ingestion"
+      ],
+      "limitation_note": "Cross-corpus summary preserves missing corpus-source blockers for review with no corpus ingestion, no connector activation, and no release.",
+      "product_authorization_posture": "no_product_authorization_performed_by_v81",
+      "provenance_refs": [
+        "corpus-provenance:v81b:self-evidencing:source-absent"
+      ],
+      "ready_basis_posture": "ready_no_blockers",
+      "release_authority_posture": "no_release_authority_performed_by_v81",
+      "request_refs": [
+        "cross-corpus-governance:v81a:self-evidencing:source-absent"
+      ],
+      "summary_posture": "cross_corpus_review_ready_with_no_blockers"
+    },
+    {
+      "adjudication_execution_posture": "no_cross_corpus_adjudication_performed_by_v81",
+      "authority_gap_refs": [
+        "corpus-authority-gap:v81b:product-wedge:external-branch",
+        "corpus-authority-gap:v81b:product-wedge:product"
+      ],
+      "boundary_contract_refs": [
+        "corpus-boundary:v81b:product-wedge:blocked"
+      ],
+      "candidate_ref": "candidate:internal:typed_adjudication_product_wedge",
+      "carried_blocker_refs": [
+        "corpus-exception:v81b:product-wedge:product-gap"
+      ],
+      "carried_warning_refs": [],
+      "connector_activation_posture": "no_connector_activation_performed_by_v81",
+      "corpus_ingestion_posture": "no_corpus_ingestion_performed_by_v81",
+      "cross_corpus_summary_ref": "cross-corpus-summary:v81c:typed_adjudication_product_wedge",
+      "endpoint_access_posture": "no_endpoint_access_performed_by_v81",
+      "exception_refs": [
+        "corpus-exception:v81b:product-wedge:product-gap"
+      ],
+      "guardrail_refs": [
+        "guardrail:v81a:product-wedge:non-ingestion"
+      ],
+      "limitation_note": "Product-pressure cross-corpus summary remains blocked for review with no corpus ingestion, no connector activation, and no release.",
+      "product_authorization_posture": "no_product_authorization_performed_by_v81",
+      "provenance_refs": [
+        "corpus-provenance:v81b:product-wedge:blocked"
+      ],
+      "ready_basis_posture": "authority_review_requested_for_blockers",
+      "release_authority_posture": "no_release_authority_performed_by_v81",
+      "request_refs": [
+        "cross-corpus-governance:v81a:product-wedge:product-blocked"
+      ],
+      "summary_posture": "blocked_by_product_authority_gap"
+    }
+  ]
+}

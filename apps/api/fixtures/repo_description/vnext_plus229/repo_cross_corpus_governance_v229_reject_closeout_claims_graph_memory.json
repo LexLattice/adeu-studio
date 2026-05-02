@@ -1,0 +1,60 @@
+{
+  "closed_by_arc": "vNext+229",
+  "closed_slice_ladder": [
+    "V81-A",
+    "V81-B",
+    "V81-C"
+  ],
+  "consumed_source_families": [
+    "V68",
+    "V69",
+    "V70",
+    "V71",
+    "V72",
+    "V73",
+    "V74",
+    "V75",
+    "V76",
+    "V77",
+    "V78",
+    "V79",
+    "V80",
+    "V81"
+  ],
+  "cross_corpus_boundary": "V81 closes after graph memory is created with no corpus ingestion, no connector activation, and no v82 selection.",
+  "cross_corpus_governance_family_closeout_alignment_id": "repo_cross_corpus_governance_family_closeout_alignment_7090368c3734faae8561e9e5",
+  "cross_corpus_governance_summary_id": "repo_cross_corpus_governance_summary_81c5c47e0182f145e1d8d5b1",
+  "family": "V81",
+  "family_closed_on_main": "closed_after_v81c_merge",
+  "future_family_authority": "next_selector_required",
+  "limitation_note": "V81 is closed as review only with no corpus ingestion, no connector activation, no v82 selection, and no downstream authority.",
+  "post_cross_corpus_review_handoff_id": "repo_post_cross_corpus_review_handoff_82fd81cf948481329590f43a",
+  "schema": "repo_cross_corpus_governance_family_closeout_alignment@1",
+  "shipped_record_shapes": [
+    "repo_corpus_boundary_contract@1",
+    "repo_cross_corpus_authority_gap_register@1",
+    "repo_cross_corpus_exception_register@1",
+    "repo_cross_corpus_governance_family_closeout_alignment@1",
+    "repo_cross_corpus_governance_request@1",
+    "repo_cross_corpus_governance_summary@1",
+    "repo_cross_corpus_non_ingestion_guardrail@1",
+    "repo_cross_corpus_source_index@1",
+    "repo_imported_substrate_provenance_register@1",
+    "repo_post_cross_corpus_review_handoff@1"
+  ],
+  "unselected_future_surfaces": [
+    "benchmark_truth",
+    "connector_activation",
+    "corpus_ingestion",
+    "cross_corpus_adjudication_execution",
+    "customer_data_handling",
+    "endpoint_access",
+    "global_model_selection",
+    "imported_result_truth",
+    "living_memory_authority",
+    "product_authorization",
+    "recursive_policy_amendment",
+    "release",
+    "v82_selection"
+  ]
+}

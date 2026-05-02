@@ -1,0 +1,148 @@
+{
+  "additionalProperties": false,
+  "properties": {
+    "closed_by_arc": {
+      "const": "vNext+229",
+      "title": "Closed By Arc",
+      "type": "string"
+    },
+    "closed_slice_ladder": {
+      "items": {
+        "enum": [
+          "V81-A",
+          "V81-B",
+          "V81-C"
+        ],
+        "type": "string"
+      },
+      "minItems": 3,
+      "title": "Closed Slice Ladder",
+      "type": "array"
+    },
+    "consumed_source_families": {
+      "items": {
+        "enum": [
+          "V68",
+          "V69",
+          "V70",
+          "V71",
+          "V72",
+          "V73",
+          "V74",
+          "V75",
+          "V76",
+          "V77",
+          "V78",
+          "V79",
+          "V80",
+          "V81"
+        ],
+        "type": "string"
+      },
+      "minItems": 1,
+      "title": "Consumed Source Families",
+      "type": "array"
+    },
+    "cross_corpus_boundary": {
+      "title": "Cross Corpus Boundary",
+      "type": "string"
+    },
+    "cross_corpus_governance_family_closeout_alignment_id": {
+      "title": "Cross Corpus Governance Family Closeout Alignment Id",
+      "type": "string"
+    },
+    "cross_corpus_governance_summary_id": {
+      "title": "Cross Corpus Governance Summary Id",
+      "type": "string"
+    },
+    "family": {
+      "const": "V81",
+      "title": "Family",
+      "type": "string"
+    },
+    "family_closed_on_main": {
+      "const": "closed_after_v81c_merge",
+      "title": "Family Closed On Main",
+      "type": "string"
+    },
+    "future_family_authority": {
+      "const": "next_selector_required",
+      "title": "Future Family Authority",
+      "type": "string"
+    },
+    "limitation_note": {
+      "title": "Limitation Note",
+      "type": "string"
+    },
+    "post_cross_corpus_review_handoff_id": {
+      "title": "Post Cross Corpus Review Handoff Id",
+      "type": "string"
+    },
+    "schema": {
+      "const": "repo_cross_corpus_governance_family_closeout_alignment@1",
+      "default": "repo_cross_corpus_governance_family_closeout_alignment@1",
+      "title": "Schema",
+      "type": "string"
+    },
+    "shipped_record_shapes": {
+      "items": {
+        "enum": [
+          "repo_cross_corpus_governance_request@1",
+          "repo_cross_corpus_source_index@1",
+          "repo_cross_corpus_non_ingestion_guardrail@1",
+          "repo_corpus_boundary_contract@1",
+          "repo_imported_substrate_provenance_register@1",
+          "repo_cross_corpus_authority_gap_register@1",
+          "repo_cross_corpus_exception_register@1",
+          "repo_cross_corpus_governance_summary@1",
+          "repo_post_cross_corpus_review_handoff@1",
+          "repo_cross_corpus_governance_family_closeout_alignment@1"
+        ],
+        "type": "string"
+      },
+      "minItems": 1,
+      "title": "Shipped Record Shapes",
+      "type": "array"
+    },
+    "unselected_future_surfaces": {
+      "items": {
+        "enum": [
+          "corpus_ingestion",
+          "customer_data_handling",
+          "connector_activation",
+          "endpoint_access",
+          "cross_corpus_adjudication_execution",
+          "product_authorization",
+          "release",
+          "benchmark_truth",
+          "imported_result_truth",
+          "global_model_selection",
+          "living_memory_authority",
+          "recursive_policy_amendment",
+          "v82_selection"
+        ],
+        "type": "string"
+      },
+      "minItems": 1,
+      "title": "Unselected Future Surfaces",
+      "type": "array"
+    }
+  },
+  "required": [
+    "cross_corpus_governance_family_closeout_alignment_id",
+    "cross_corpus_governance_summary_id",
+    "post_cross_corpus_review_handoff_id",
+    "family",
+    "closed_by_arc",
+    "closed_slice_ladder",
+    "shipped_record_shapes",
+    "consumed_source_families",
+    "family_closed_on_main",
+    "future_family_authority",
+    "unselected_future_surfaces",
+    "cross_corpus_boundary",
+    "limitation_note"
+  ],
+  "title": "RepoCrossCorpusGovernanceFamilyCloseoutAlignment",
+  "type": "object"
+}
