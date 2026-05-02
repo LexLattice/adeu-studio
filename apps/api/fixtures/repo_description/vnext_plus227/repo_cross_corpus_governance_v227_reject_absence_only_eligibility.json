@@ -1,5 +1,5 @@
 {
-  "cross_corpus_governance_request_id": "repo_cross_corpus_governance_request_7d01095e24f9eca979d7e054",
+  "cross_corpus_governance_request_id": "repo_cross_corpus_governance_request_c6530369c51516a8d2f5652f",
   "cross_corpus_governance_summary": "Cross-corpus governance requests are review only: no corpus ingestion, no connector activation, no endpoint access, no cross-corpus adjudication, and no release.",
   "cross_corpus_source_index_id": "repo_cross_corpus_source_index_865b7414e73cd58d4aab1c6d",
   "request_rows": [
@@ -61,7 +61,7 @@
       "guardrail_refs": [
         "guardrail:v81a:self-evidencing:non-ingestion"
       ],
-      "limitation_note": "Cross-corpus governance review is blocked by missing corpus source with no corpus ingestion, no connector activation, no endpoint access, no cross-corpus adjudication, and no release.",
+      "limitation_note": "Cross-corpus governance review is intentionally marked eligible in this reject fixture while preserving no corpus ingestion, no connector activation, no endpoint access, no cross-corpus adjudication, and no release.",
       "odeu_lanes": [
         "deontic",
         "epistemic",

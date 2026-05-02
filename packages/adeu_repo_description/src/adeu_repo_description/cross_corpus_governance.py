@@ -914,6 +914,16 @@ def validate_v81a_cross_corpus_governance_bundle(
         != cross_corpus_governance_request.cross_corpus_governance_request_id
     ):
         raise ValueError("cross-corpus guardrail must reference the request surface")
+    if (
+        cross_corpus_non_ingestion_guardrail.review_id,
+        cross_corpus_non_ingestion_guardrail.snapshot_id,
+        cross_corpus_non_ingestion_guardrail.source_set_id,
+    ) != (
+        cross_corpus_governance_request.review_id,
+        cross_corpus_governance_request.snapshot_id,
+        cross_corpus_governance_request.source_set_id,
+    ):
+        raise ValueError("cross-corpus guardrail provenance must match request")
 
     source_roles = {
         row.source_ref: row.cross_corpus_source_role

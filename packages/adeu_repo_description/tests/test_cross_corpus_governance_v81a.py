@@ -235,6 +235,18 @@ def test_v227_bundle_rejects_support_only_eligibility_sources() -> None:
         _validate_reference_bundle_with(request=request, guardrail=guardrail)
 
 
+def test_v227_bundle_rejects_cross_snapshot_guardrail_mix() -> None:
+    guardrail = _v81a_guardrail().model_copy(
+        update={"snapshot_id": "vNext+000-unrelated-cross-corpus-snapshot"}
+    )
+
+    with pytest.raises(
+        ValueError,
+        match="cross-corpus guardrail provenance must match request",
+    ):
+        _validate_reference_bundle_with(guardrail=guardrail)
+
+
 def test_v227_bundle_rejects_explicit_absence_as_eligibility() -> None:
     request = _v81a_request(
         "repo_cross_corpus_governance_v227_reject_absence_only_eligibility.json"

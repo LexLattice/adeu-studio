@@ -1,6 +1,6 @@
 {
-  "cross_corpus_governance_request_id": "repo_cross_corpus_governance_request_7d01095e24f9eca979d7e054",
-  "cross_corpus_non_ingestion_guardrail_id": "repo_cross_corpus_non_ingestion_guardrail_4e8ce0e420c3f3bc42082000",
+  "cross_corpus_governance_request_id": "repo_cross_corpus_governance_request_c6530369c51516a8d2f5652f",
+  "cross_corpus_non_ingestion_guardrail_id": "repo_cross_corpus_non_ingestion_guardrail_d522374d6087941ec4c2f5cb",
   "guardrail_rows": [
     {
       "candidate_ref": "candidate:internal:typed_adjudication_product_wedge",
