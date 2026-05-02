@@ -1,0 +1,42 @@
+{
+  "closed_by_arc": "vNext+229",
+  "closed_by_merge_commit": "7d638114c4a3543651da894664c48a21d441ac5d",
+  "closed_slice_ladder": [
+    "V81-A:vNext+227",
+    "V81-B:vNext+228",
+    "V81-C:vNext+229"
+  ],
+  "family": "V81",
+  "family_closed_on_main": true,
+  "future_family_authority": "none",
+  "schema": "v81_family_closeout_alignment@1",
+  "shipped_record_shapes": [
+    "repo_cross_corpus_governance_request@1",
+    "repo_cross_corpus_source_index@1",
+    "repo_cross_corpus_non_ingestion_guardrail@1",
+    "repo_corpus_boundary_contract@1",
+    "repo_imported_substrate_provenance_register@1",
+    "repo_cross_corpus_authority_gap_register@1",
+    "repo_cross_corpus_exception_register@1",
+    "repo_cross_corpus_governance_summary@1",
+    "repo_post_cross_corpus_review_handoff@1",
+    "repo_cross_corpus_governance_family_closeout_alignment@1"
+  ],
+  "unselected_future_surfaces": [
+    "corpus ingestion",
+    "external data import/export",
+    "customer data handling",
+    "connector activation",
+    "endpoint access",
+    "cross-corpus adjudication execution",
+    "product authorization",
+    "release authority",
+    "benchmark truth",
+    "imported result truth",
+    "global model selection",
+    "living decision graph authority",
+    "recursive policy amendment",
+    "V82 selection"
+  ],
+  "v81_authority_boundary": "cross_corpus_governance_review_family_only_no_corpus_ingestion_external_data_import_export_customer_data_handling_connector_activation_endpoint_access_cross_corpus_adjudication_execution_product_authorization_release_benchmark_truth_imported_result_truth_model_selection_living_memory_or_recursive_policy_authority"
+}

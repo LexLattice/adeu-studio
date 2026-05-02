@@ -1,0 +1,86 @@
+{
+  "arc": "vNext+229",
+  "closeout_claims_graph_memory_rejected": true,
+  "closeout_selects_v82_rejected": true,
+  "consumed_fixture_dirs": [
+    "apps/api/fixtures/repo_description/vnext_plus227",
+    "apps/api/fixtures/repo_description/vnext_plus228"
+  ],
+  "consumed_record_shapes": [
+    "repo_cross_corpus_governance_request@1",
+    "repo_cross_corpus_source_index@1",
+    "repo_cross_corpus_non_ingestion_guardrail@1",
+    "repo_corpus_boundary_contract@1",
+    "repo_imported_substrate_provenance_register@1",
+    "repo_cross_corpus_authority_gap_register@1",
+    "repo_cross_corpus_exception_register@1"
+  ],
+  "contract_source": "docs/LOCKED_CONTINUATION_vNEXT_PLUS229.md#machine-checkable-contract",
+  "corpus_ingestion_handoff_missing_authority_rejected": true,
+  "cross_candidate_carried_summary_exception_rejected": true,
+  "family": "V81",
+  "family_closeout_alignment_path": "artifacts/agent_harness/v229/evidence_inputs/v81_family_closeout_alignment_v229.json",
+  "handoff_cross_candidate_required_authority_ref_rejected": true,
+  "handoff_executes_adjudication_rejected": true,
+  "handoff_ready_with_blocker_rejected": true,
+  "handoff_unknown_boundary_ref_rejected": true,
+  "handoff_unknown_required_authority_ref_rejected": true,
+  "implementation_commits": [
+    "2ad3a17fe924b043d7216893d35ac3a9b2013337",
+    "25be7895c3435c97408de138f0ee03c5a3df6551"
+  ],
+  "implementation_packages": [
+    "adeu_repo_description"
+  ],
+  "implementation_source_path": "packages/adeu_repo_description/src/adeu_repo_description/cross_corpus_governance.py",
+  "local_closeout_gate": "make arc-closeout-check ARC=229",
+  "local_full_python_gate": "make check",
+  "merge_commit": "7d638114c4a3543651da894664c48a21d441ac5d",
+  "merged_at": "2026-05-02T19:14:58Z",
+  "merged_pr": "#457",
+  "merged_pr_url": "https://github.com/LexLattice/adeu-studio/pull/457",
+  "metric_key_continuity_assertion_path": "artifacts/agent_harness/v229/evidence_inputs/metric_key_continuity_assertion_v229.json",
+  "notes": "V81-C shipped cross-corpus governance summaries, post-cross-corpus-review handoffs, and family closeout alignment over released V81-A/B substrate without corpus ingestion, customer data handling, connector activation, endpoint access, cross-corpus adjudication execution, product authorization, release, graph memory authority, recursive policy amendment, or V82 selection.",
+  "package_export_surface_path": "packages/adeu_repo_description/src/adeu_repo_description/__init__.py",
+  "product_handoff_missing_authority_rejected": true,
+  "ready_summary_missing_boundary_rejected": true,
+  "reference_fixture_paths": [
+    "apps/api/fixtures/repo_description/vnext_plus229/repo_cross_corpus_governance_summary_v229_reference.json",
+    "apps/api/fixtures/repo_description/vnext_plus229/repo_post_cross_corpus_review_handoff_v229_reference.json",
+    "apps/api/fixtures/repo_description/vnext_plus229/repo_cross_corpus_governance_family_closeout_alignment_v229_reference.json"
+  ],
+  "reject_fixture_dir": "apps/api/fixtures/repo_description/vnext_plus229",
+  "runtime_event_stream_path": "artifacts/agent_harness/v229/runtime/evidence/local/urm_events.ndjson",
+  "runtime_observability_comparison_path": "artifacts/agent_harness/v229/evidence_inputs/runtime_observability_comparison_v229.json",
+  "schema": "v81c_cross_corpus_governance_closeout_evidence@1",
+  "schema_export_source_path": "packages/adeu_repo_description/src/adeu_repo_description/export_schema.py",
+  "schema_paths": [
+    "packages/adeu_repo_description/schema/repo_cross_corpus_governance_summary.v1.json",
+    "packages/adeu_repo_description/schema/repo_post_cross_corpus_review_handoff.v1.json",
+    "packages/adeu_repo_description/schema/repo_cross_corpus_governance_family_closeout_alignment.v1.json",
+    "spec/repo_cross_corpus_governance_summary.schema.json",
+    "spec/repo_post_cross_corpus_review_handoff.schema.json",
+    "spec/repo_cross_corpus_governance_family_closeout_alignment.schema.json"
+  ],
+  "selected_benchmark_truth_for_v81c": false,
+  "selected_connector_activation_for_v81c": false,
+  "selected_corpus_ingestion_for_v81c": false,
+  "selected_cross_corpus_adjudication_execution_for_v81c": false,
+  "selected_customer_data_handling_for_v81c": false,
+  "selected_endpoint_access_for_v81c": false,
+  "selected_graph_memory_authority_for_v81c": false,
+  "selected_imported_result_truth_for_v81c": false,
+  "selected_product_authorization_for_v81c": false,
+  "selected_record_shapes": [
+    "repo_cross_corpus_governance_summary@1",
+    "repo_post_cross_corpus_review_handoff@1",
+    "repo_cross_corpus_governance_family_closeout_alignment@1"
+  ],
+  "selected_recursive_policy_amendment_for_v81c": false,
+  "selected_release_for_v81c": false,
+  "selected_v82_for_v81c": false,
+  "slice": "V81-C",
+  "summary_ingests_corpus_rejected": true,
+  "test_reference_path": "packages/adeu_repo_description/tests/test_cross_corpus_governance_v81c.py",
+  "warning_ready_with_blocking_exception_rejected": true
+}
