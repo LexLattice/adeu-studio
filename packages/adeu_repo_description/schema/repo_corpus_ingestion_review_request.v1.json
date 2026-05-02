@@ -1,0 +1,391 @@
+{
+  "$defs": {
+    "RepoCorpusIngestionReviewRequestRow": {
+      "additionalProperties": false,
+      "properties": {
+        "adjudication_execution_posture": {
+          "enum": [
+            "no_cross_corpus_adjudication_performed_by_v82",
+            "cross_corpus_adjudication_requires_later_family",
+            "cross_corpus_adjudication_forbidden_by_this_family"
+          ],
+          "title": "Adjudication Execution Posture",
+          "type": "string"
+        },
+        "candidate_ref": {
+          "title": "Candidate Ref",
+          "type": "string"
+        },
+        "connector_activation_posture": {
+          "enum": [
+            "no_connector_activation_performed_by_v82",
+            "connector_activation_requires_later_family",
+            "connector_activation_forbidden_by_this_family"
+          ],
+          "title": "Connector Activation Posture",
+          "type": "string"
+        },
+        "corpus_ingestion_posture": {
+          "enum": [
+            "no_corpus_ingestion_performed_by_v82",
+            "corpus_ingestion_requires_later_family",
+            "corpus_ingestion_forbidden_by_this_family"
+          ],
+          "title": "Corpus Ingestion Posture",
+          "type": "string"
+        },
+        "corpus_ingestion_review_request_ref": {
+          "title": "Corpus Ingestion Review Request Ref",
+          "type": "string"
+        },
+        "corpus_source_currentness": {
+          "enum": [
+            "current_concrete_source",
+            "explicit_absence_marker",
+            "historical_context_only",
+            "stale_or_superseded",
+            "unknown_needs_review"
+          ],
+          "title": "Corpus Source Currentness",
+          "type": "string"
+        },
+        "customer_data_handling_posture": {
+          "enum": [
+            "no_customer_data_handling_performed_by_v82",
+            "customer_data_handling_requires_later_family",
+            "customer_data_handling_forbidden_by_this_family"
+          ],
+          "title": "Customer Data Handling Posture",
+          "type": "string"
+        },
+        "data_transfer_posture": {
+          "enum": [
+            "no_data_transfer_performed_by_v82",
+            "data_transfer_requires_later_family",
+            "data_transfer_forbidden_by_this_family"
+          ],
+          "title": "Data Transfer Posture",
+          "type": "string"
+        },
+        "endpoint_access_posture": {
+          "enum": [
+            "no_endpoint_access_performed_by_v82",
+            "endpoint_access_requires_later_family",
+            "endpoint_access_forbidden_by_this_family"
+          ],
+          "title": "Endpoint Access Posture",
+          "type": "string"
+        },
+        "guardrail_refs": {
+          "items": {
+            "type": "string"
+          },
+          "minItems": 1,
+          "title": "Guardrail Refs",
+          "type": "array"
+        },
+        "ingestion_review_posture": {
+          "enum": [
+            "request_recorded_absence_only",
+            "request_recorded_boundary_only",
+            "eligible_for_corpus_ingestion_review",
+            "blocked_by_missing_v81_handoff",
+            "blocked_by_missing_corpus_source",
+            "blocked_by_missing_privacy_authority",
+            "blocked_by_missing_license_or_consent",
+            "blocked_by_missing_customer_data_authority",
+            "blocked_by_missing_connector_authority",
+            "blocked_by_missing_endpoint_authority",
+            "blocked_by_missing_transfer_boundary",
+            "blocked_by_product_authority_gap",
+            "blocked_by_benchmark_truth_guardrail",
+            "blocked_by_graph_memory_authority_gap",
+            "future_family_only",
+            "rejected_out_of_scope"
+          ],
+          "title": "Ingestion Review Posture",
+          "type": "string"
+        },
+        "limitation_note": {
+          "title": "Limitation Note",
+          "type": "string"
+        },
+        "odeu_lanes": {
+          "items": {
+            "enum": [
+              "ontological",
+              "deontic",
+              "epistemic",
+              "utility"
+            ],
+            "type": "string"
+          },
+          "minItems": 1,
+          "title": "Odeu Lanes",
+          "type": "array"
+        },
+        "requested_connector_boundary_horizon": {
+          "enum": [
+            "corpus_ingestion_authority_review",
+            "connector_access_authority_review",
+            "customer_data_handling_authority_review",
+            "benchmark_descriptor_ingestion_review",
+            "repo_local_corpus_transfer_review",
+            "future_family_only"
+          ],
+          "title": "Requested Connector Boundary Horizon",
+          "type": "string"
+        },
+        "requested_corpus_ingestion_review_horizon": {
+          "enum": [
+            "corpus_ingestion_authority_review",
+            "connector_access_authority_review",
+            "customer_data_handling_authority_review",
+            "benchmark_descriptor_ingestion_review",
+            "repo_local_corpus_transfer_review",
+            "future_family_only"
+          ],
+          "title": "Requested Corpus Ingestion Review Horizon",
+          "type": "string"
+        },
+        "requested_data_handling_authority_horizon": {
+          "enum": [
+            "corpus_ingestion_authority_review",
+            "connector_access_authority_review",
+            "customer_data_handling_authority_review",
+            "benchmark_descriptor_ingestion_review",
+            "repo_local_corpus_transfer_review",
+            "future_family_only"
+          ],
+          "title": "Requested Data Handling Authority Horizon",
+          "type": "string"
+        },
+        "requested_preflight_horizon": {
+          "enum": [
+            "corpus_ingestion_authority_review",
+            "connector_access_authority_review",
+            "customer_data_handling_authority_review",
+            "benchmark_descriptor_ingestion_review",
+            "repo_local_corpus_transfer_review",
+            "future_family_only"
+          ],
+          "title": "Requested Preflight Horizon",
+          "type": "string"
+        },
+        "required_connector_posture": {
+          "enum": [
+            "required_for_later_review",
+            "present_for_review_only",
+            "not_selected_in_v82a",
+            "not_applicable",
+            "blocked_by_missing_corpus_source",
+            "blocked_by_missing_privacy_authority",
+            "blocked_by_missing_license_or_consent",
+            "blocked_by_missing_customer_data_authority",
+            "blocked_by_missing_connector_authority",
+            "blocked_by_missing_endpoint_authority",
+            "blocked_by_missing_transfer_boundary",
+            "blocked_by_product_authority_gap",
+            "blocked_by_benchmark_truth_guardrail",
+            "blocked_by_graph_memory_authority_gap",
+            "future_family_only"
+          ],
+          "title": "Required Connector Posture",
+          "type": "string"
+        },
+        "required_customer_data_posture": {
+          "enum": [
+            "required_for_later_review",
+            "present_for_review_only",
+            "not_selected_in_v82a",
+            "not_applicable",
+            "blocked_by_missing_corpus_source",
+            "blocked_by_missing_privacy_authority",
+            "blocked_by_missing_license_or_consent",
+            "blocked_by_missing_customer_data_authority",
+            "blocked_by_missing_connector_authority",
+            "blocked_by_missing_endpoint_authority",
+            "blocked_by_missing_transfer_boundary",
+            "blocked_by_product_authority_gap",
+            "blocked_by_benchmark_truth_guardrail",
+            "blocked_by_graph_memory_authority_gap",
+            "future_family_only"
+          ],
+          "title": "Required Customer Data Posture",
+          "type": "string"
+        },
+        "required_endpoint_posture": {
+          "enum": [
+            "required_for_later_review",
+            "present_for_review_only",
+            "not_selected_in_v82a",
+            "not_applicable",
+            "blocked_by_missing_corpus_source",
+            "blocked_by_missing_privacy_authority",
+            "blocked_by_missing_license_or_consent",
+            "blocked_by_missing_customer_data_authority",
+            "blocked_by_missing_connector_authority",
+            "blocked_by_missing_endpoint_authority",
+            "blocked_by_missing_transfer_boundary",
+            "blocked_by_product_authority_gap",
+            "blocked_by_benchmark_truth_guardrail",
+            "blocked_by_graph_memory_authority_gap",
+            "future_family_only"
+          ],
+          "title": "Required Endpoint Posture",
+          "type": "string"
+        },
+        "required_license_posture": {
+          "enum": [
+            "required_for_later_review",
+            "present_for_review_only",
+            "not_selected_in_v82a",
+            "not_applicable",
+            "blocked_by_missing_corpus_source",
+            "blocked_by_missing_privacy_authority",
+            "blocked_by_missing_license_or_consent",
+            "blocked_by_missing_customer_data_authority",
+            "blocked_by_missing_connector_authority",
+            "blocked_by_missing_endpoint_authority",
+            "blocked_by_missing_transfer_boundary",
+            "blocked_by_product_authority_gap",
+            "blocked_by_benchmark_truth_guardrail",
+            "blocked_by_graph_memory_authority_gap",
+            "future_family_only"
+          ],
+          "title": "Required License Posture",
+          "type": "string"
+        },
+        "required_privacy_posture": {
+          "enum": [
+            "required_for_later_review",
+            "present_for_review_only",
+            "not_selected_in_v82a",
+            "not_applicable",
+            "blocked_by_missing_corpus_source",
+            "blocked_by_missing_privacy_authority",
+            "blocked_by_missing_license_or_consent",
+            "blocked_by_missing_customer_data_authority",
+            "blocked_by_missing_connector_authority",
+            "blocked_by_missing_endpoint_authority",
+            "blocked_by_missing_transfer_boundary",
+            "blocked_by_product_authority_gap",
+            "blocked_by_benchmark_truth_guardrail",
+            "blocked_by_graph_memory_authority_gap",
+            "future_family_only"
+          ],
+          "title": "Required Privacy Posture",
+          "type": "string"
+        },
+        "source_refs": {
+          "items": {
+            "type": "string"
+          },
+          "minItems": 1,
+          "title": "Source Refs",
+          "type": "array"
+        },
+        "v81_closeout_refs": {
+          "items": {
+            "type": "string"
+          },
+          "title": "V81 Closeout Refs",
+          "type": "array"
+        },
+        "v81_handoff_refs": {
+          "items": {
+            "type": "string"
+          },
+          "title": "V81 Handoff Refs",
+          "type": "array"
+        },
+        "v81_summary_refs": {
+          "items": {
+            "type": "string"
+          },
+          "title": "V81 Summary Refs",
+          "type": "array"
+        }
+      },
+      "required": [
+        "corpus_ingestion_review_request_ref",
+        "candidate_ref",
+        "source_refs",
+        "requested_corpus_ingestion_review_horizon",
+        "ingestion_review_posture",
+        "corpus_source_currentness",
+        "required_privacy_posture",
+        "required_license_posture",
+        "required_customer_data_posture",
+        "required_connector_posture",
+        "required_endpoint_posture",
+        "requested_preflight_horizon",
+        "requested_connector_boundary_horizon",
+        "requested_data_handling_authority_horizon",
+        "guardrail_refs",
+        "corpus_ingestion_posture",
+        "data_transfer_posture",
+        "customer_data_handling_posture",
+        "connector_activation_posture",
+        "endpoint_access_posture",
+        "adjudication_execution_posture",
+        "odeu_lanes",
+        "limitation_note"
+      ],
+      "title": "RepoCorpusIngestionReviewRequestRow",
+      "type": "object"
+    }
+  },
+  "additionalProperties": false,
+  "properties": {
+    "corpus_ingestion_review_request_id": {
+      "title": "Corpus Ingestion Review Request Id",
+      "type": "string"
+    },
+    "corpus_ingestion_review_summary": {
+      "title": "Corpus Ingestion Review Summary",
+      "type": "string"
+    },
+    "corpus_ingestion_source_index_id": {
+      "title": "Corpus Ingestion Source Index Id",
+      "type": "string"
+    },
+    "request_rows": {
+      "items": {
+        "$ref": "#/$defs/RepoCorpusIngestionReviewRequestRow"
+      },
+      "minItems": 1,
+      "title": "Request Rows",
+      "type": "array"
+    },
+    "review_id": {
+      "title": "Review Id",
+      "type": "string"
+    },
+    "schema": {
+      "const": "repo_corpus_ingestion_review_request@1",
+      "default": "repo_corpus_ingestion_review_request@1",
+      "title": "Schema",
+      "type": "string"
+    },
+    "snapshot_id": {
+      "title": "Snapshot Id",
+      "type": "string"
+    },
+    "source_set_id": {
+      "title": "Source Set Id",
+      "type": "string"
+    }
+  },
+  "required": [
+    "corpus_ingestion_review_request_id",
+    "corpus_ingestion_source_index_id",
+    "review_id",
+    "snapshot_id",
+    "source_set_id",
+    "request_rows",
+    "corpus_ingestion_review_summary"
+  ],
+  "title": "RepoCorpusIngestionReviewRequest",
+  "type": "object"
+}

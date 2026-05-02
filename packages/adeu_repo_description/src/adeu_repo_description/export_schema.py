@@ -82,6 +82,11 @@ from .controlled_execution_review import (
     RepoPostControlledExecutionReviewHandoff,
     RepoToolInvocationPlan,
 )
+from .corpus_ingestion_review import (
+    RepoCorpusIngestionNonTransferGuardrail,
+    RepoCorpusIngestionReviewRequest,
+    RepoCorpusIngestionSourceIndex,
+)
 from .cross_corpus_governance import (
     RepoCorpusBoundaryContract,
     RepoCrossCorpusAuthorityGapRegister,
@@ -625,6 +630,15 @@ def main() -> None:
     cross_corpus_governance_family_closeout_alignment_schema = (
         RepoCrossCorpusGovernanceFamilyCloseoutAlignment.model_json_schema(by_alias=True)
     )
+    corpus_ingestion_source_index_schema = RepoCorpusIngestionSourceIndex.model_json_schema(
+        by_alias=True
+    )
+    corpus_ingestion_review_request_schema = RepoCorpusIngestionReviewRequest.model_json_schema(
+        by_alias=True
+    )
+    corpus_ingestion_non_transfer_guardrail_schema = (
+        RepoCorpusIngestionNonTransferGuardrail.model_json_schema(by_alias=True)
+    )
 
     _assert_no_absolute_path_material(dependency_register_v1_schema, repo_root_path=root)
     _assert_no_absolute_path_material(dependency_register_schema, repo_root_path=root)
@@ -963,6 +977,18 @@ def main() -> None:
     )
     _assert_no_absolute_path_material(
         cross_corpus_governance_family_closeout_alignment_schema,
+        repo_root_path=root,
+    )
+    _assert_no_absolute_path_material(
+        corpus_ingestion_source_index_schema,
+        repo_root_path=root,
+    )
+    _assert_no_absolute_path_material(
+        corpus_ingestion_review_request_schema,
+        repo_root_path=root,
+    )
+    _assert_no_absolute_path_material(
+        corpus_ingestion_non_transfer_guardrail_schema,
         repo_root_path=root,
     )
 
@@ -2640,6 +2666,30 @@ def main() -> None:
     _write_schema(
         root / "spec" / "repo_cross_corpus_governance_family_closeout_alignment.schema.json",
         cross_corpus_governance_family_closeout_alignment_schema,
+    )
+    _write_schema(
+        repo_description_schema_root / "repo_corpus_ingestion_source_index.v1.json",
+        corpus_ingestion_source_index_schema,
+    )
+    _write_schema(
+        root / "spec" / "repo_corpus_ingestion_source_index.schema.json",
+        corpus_ingestion_source_index_schema,
+    )
+    _write_schema(
+        repo_description_schema_root / "repo_corpus_ingestion_review_request.v1.json",
+        corpus_ingestion_review_request_schema,
+    )
+    _write_schema(
+        root / "spec" / "repo_corpus_ingestion_review_request.schema.json",
+        corpus_ingestion_review_request_schema,
+    )
+    _write_schema(
+        repo_description_schema_root / "repo_corpus_ingestion_non_transfer_guardrail.v1.json",
+        corpus_ingestion_non_transfer_guardrail_schema,
+    )
+    _write_schema(
+        root / "spec" / "repo_corpus_ingestion_non_transfer_guardrail.schema.json",
+        corpus_ingestion_non_transfer_guardrail_schema,
     )
 
 
