@@ -1,0 +1,83 @@
+{
+  "arc": "vNext+232",
+  "closeout_claims_ingestion_rejected": true,
+  "closeout_selects_v83_rejected": true,
+  "consumed_fixture_dirs": [
+    "apps/api/fixtures/repo_description/vnext_plus230",
+    "apps/api/fixtures/repo_description/vnext_plus231"
+  ],
+  "consumed_record_shapes": [
+    "repo_corpus_ingestion_review_request@1",
+    "repo_corpus_ingestion_source_index@1",
+    "repo_corpus_ingestion_non_transfer_guardrail@1",
+    "repo_corpus_ingestion_preflight_contract@1",
+    "repo_connector_access_review_boundary@1",
+    "repo_corpus_data_handling_authority_review@1",
+    "repo_corpus_ingestion_exception_register@1"
+  ],
+  "contract_source": "docs/LOCKED_CONTINUATION_vNEXT_PLUS232.md#machine-checkable-contract",
+  "family": "V82",
+  "family_closeout_alignment_path": "artifacts/agent_harness/v232/evidence_inputs/v82_family_closeout_alignment_v232.json",
+  "handoff_missing_privacy_authority_rejected": true,
+  "handoff_ready_with_blockers_rejected": true,
+  "implementation_commits": [
+    "fba6df21f0695804186323350a99cd4c44dd8bb2",
+    "ed823c928bf2b24140f72149fffb0ea07b4b3f5c"
+  ],
+  "implementation_packages": [
+    "adeu_repo_description"
+  ],
+  "implementation_source_path": "packages/adeu_repo_description/src/adeu_repo_description/corpus_ingestion_review.py",
+  "local_closeout_gate": "make arc-closeout-check ARC=232",
+  "local_full_python_gate": "make check",
+  "merge_commit": "c52aff68a9b97a92c41c15177da6ae99d7b830f9",
+  "merged_at": "2026-05-02T23:50:53Z",
+  "merged_pr": "#460",
+  "merged_pr_url": "https://github.com/LexLattice/adeu-studio/pull/460",
+  "metric_key_continuity_assertion_path": "artifacts/agent_harness/v232/evidence_inputs/metric_key_continuity_assertion_v232.json",
+  "notes": "v232 evidence pins the bounded V82-C corpus-ingestion review summary / post-corpus-ingestion-review handoff / family closeout alignment seam on main. Released V82-A request/source/guardrail rows and V82-B preflight/connector/data-handling/exception rows are consumed source-bound; summaries cannot hide blockers; warning-ready posture cannot carry blocking exceptions; handoffs remain later-review requests; closeout closes V82 only; and no corpus ingestion, data transfer, customer-data handling, connector activation, endpoint access, cross-corpus adjudication execution, product authorization, release, benchmark truth, imported-result truth, graph-memory authority, recursive policy amendment, or V83 selection occurs.",
+  "package_export_surface_path": "packages/adeu_repo_description/src/adeu_repo_description/__init__.py",
+  "reference_fixture_paths": [
+    "apps/api/fixtures/repo_description/vnext_plus232/repo_corpus_ingestion_review_summary_v232_reference.json",
+    "apps/api/fixtures/repo_description/vnext_plus232/repo_post_corpus_ingestion_review_handoff_v232_reference.json",
+    "apps/api/fixtures/repo_description/vnext_plus232/repo_corpus_ingestion_review_family_closeout_alignment_v232_reference.json"
+  ],
+  "reject_fixture_dir": "apps/api/fixtures/repo_description/vnext_plus232",
+  "runtime_event_stream_path": "artifacts/agent_harness/v232/runtime/evidence/local/urm_events.ndjson",
+  "runtime_observability_comparison_path": "artifacts/agent_harness/v232/evidence_inputs/runtime_observability_comparison_v232.json",
+  "schema": "v82c_corpus_ingestion_review_closeout_evidence@1",
+  "schema_export_source_path": "packages/adeu_repo_description/src/adeu_repo_description/export_schema.py",
+  "schema_paths": [
+    "packages/adeu_repo_description/schema/repo_corpus_ingestion_review_summary.v1.json",
+    "packages/adeu_repo_description/schema/repo_post_corpus_ingestion_review_handoff.v1.json",
+    "packages/adeu_repo_description/schema/repo_corpus_ingestion_review_family_closeout_alignment.v1.json",
+    "spec/repo_corpus_ingestion_review_summary.schema.json",
+    "spec/repo_post_corpus_ingestion_review_handoff.schema.json",
+    "spec/repo_corpus_ingestion_review_family_closeout_alignment.schema.json"
+  ],
+  "selected_benchmark_truth_for_v82c": false,
+  "selected_connector_activation_for_v82c": false,
+  "selected_corpus_ingestion_for_v82c": false,
+  "selected_cross_corpus_adjudication_execution_for_v82c": false,
+  "selected_customer_data_handling_for_v82c": false,
+  "selected_data_transfer_for_v82c": false,
+  "selected_endpoint_access_for_v82c": false,
+  "selected_graph_memory_authority_for_v82c": false,
+  "selected_imported_result_truth_for_v82c": false,
+  "selected_product_authorization_for_v82c": false,
+  "selected_record_shapes": [
+    "repo_corpus_ingestion_review_summary@1",
+    "repo_post_corpus_ingestion_review_handoff@1",
+    "repo_corpus_ingestion_review_family_closeout_alignment@1"
+  ],
+  "selected_recursive_policy_amendment_for_v82c": false,
+  "selected_release_for_v82c": false,
+  "selected_v83_for_v82c": false,
+  "slice": "V82-C",
+  "summary_ready_missing_preflight_rejected": true,
+  "summary_unknown_request_ref_rejected": true,
+  "summary_warning_with_blocker_rejected": true,
+  "test_reference_path": "packages/adeu_repo_description/tests/test_corpus_ingestion_review_v82c.py",
+  "v82a_corpus_ingestion_review_closeout_evidence_source": "artifacts/agent_harness/v230/evidence_inputs/v82a_corpus_ingestion_review_closeout_evidence_v230.json",
+  "v82b_corpus_ingestion_boundary_closeout_evidence_source": "artifacts/agent_harness/v231/evidence_inputs/v82b_corpus_ingestion_boundary_closeout_evidence_v231.json"
+}
