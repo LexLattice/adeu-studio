@@ -3239,13 +3239,63 @@ def derive_v82c_repo_corpus_ingestion_review_summary(
     guardrail_rows = {
         row.candidate_ref: row for row in corpus_ingestion_non_transfer_guardrail.guardrail_rows
     }
+
+    def _single_candidate_row(
+        rows_by_candidate: dict[str, _CartographyBase],
+        candidate_ref: str,
+        *,
+        message: str,
+    ) -> _CartographyBase:
+        row = rows_by_candidate.get(candidate_ref)
+        if row is None:
+            raise ValueError(message)
+        return row
+
+    def _candidate_row_list(
+        rows_by_candidate: dict[str, list[_CartographyBase]],
+        candidate_ref: str,
+        *,
+        message: str,
+    ) -> list[_CartographyBase]:
+        rows = rows_by_candidate.get(candidate_ref)
+        if not rows:
+            raise ValueError(message)
+        return rows
+
     rows: list[dict[str, object]] = []
     for request_row in corpus_ingestion_review_request.request_rows:
         candidate_ref = request_row.candidate_ref
         authority_refs = [
-            row.authority_review_ref for row in authority_rows_by_candidate[candidate_ref]
+            row.authority_review_ref
+            for row in _candidate_row_list(
+                authority_rows_by_candidate,
+                candidate_ref,
+                message="V82-C summary derivation requires authority rows for candidate",
+            )
         ]
-        exception_refs = [row.exception_ref for row in exceptions_by_candidate[candidate_ref]]
+        exception_refs = [
+            row.exception_ref
+            for row in _candidate_row_list(
+                exceptions_by_candidate,
+                candidate_ref,
+                message="V82-C summary derivation requires exception rows for candidate",
+            )
+        ]
+        preflight_row = _single_candidate_row(
+            preflight_rows,
+            candidate_ref,
+            message="V82-C summary derivation requires preflight row for candidate",
+        )
+        connector_row = _single_candidate_row(
+            connector_rows,
+            candidate_ref,
+            message="V82-C summary derivation requires connector boundary row for candidate",
+        )
+        guardrail_row = _single_candidate_row(
+            guardrail_rows,
+            candidate_ref,
+            message="V82-C summary derivation requires guardrail row for candidate",
+        )
         if "product" in candidate_ref:
             summary_posture = "blocked_by_product_authority_gap"
             ready_basis_posture = "authority_review_requested_for_blockers"
@@ -3271,8 +3321,8 @@ def derive_v82c_repo_corpus_ingestion_review_summary(
                 ),
                 "candidate_ref": candidate_ref,
                 "request_refs": [request_row.corpus_ingestion_review_request_ref],
-                "preflight_refs": [preflight_rows[candidate_ref].preflight_contract_ref],
-                "connector_boundary_refs": [connector_rows[candidate_ref].connector_boundary_ref],
+                "preflight_refs": [preflight_row.preflight_contract_ref],
+                "connector_boundary_refs": [connector_row.connector_boundary_ref],
                 "authority_review_refs": authority_refs,
                 "exception_refs": exception_refs,
                 "carried_blocker_refs": exception_refs,
@@ -3289,7 +3339,7 @@ def derive_v82c_repo_corpus_ingestion_review_summary(
                 "release_authority_posture": "no_release_authority_performed_by_v82",
                 "benchmark_truth_posture": "no_benchmark_truth_claimed_by_v82",
                 "graph_memory_authority_posture": "no_graph_memory_authority_created_by_v82",
-                "guardrail_refs": [guardrail_rows[candidate_ref].guardrail_ref],
+                "guardrail_refs": [guardrail_row.guardrail_ref],
                 "limitation_note": note,
             }
         )
@@ -3390,17 +3440,33 @@ def derive_v82c_repo_post_corpus_ingestion_review_handoff(
     authority_by_ref = {
         row.authority_review_ref: row for row in authority_review.authority_review_rows
     }
+
+    def _refs_with_authority_kind(
+        refs: list[str],
+        authority_kinds: set[str],
+        *,
+        message: str,
+    ) -> list[str]:
+        selected: list[str] = []
+        for ref in refs:
+            authority_row = authority_by_ref.get(ref)
+            if authority_row is None:
+                raise ValueError(message)
+            if authority_row.authority_kind in authority_kinds:
+                selected.append(ref)
+        return selected
+
     rows: list[dict[str, object]] = []
     for summary_row in summary.summary_rows:
         if "product" in summary_row.candidate_ref:
             target = "future_product_review"
             subject = "product_authority_gap"
             authority = "product_authority_review"
-            required = [
-                ref
-                for ref in summary_row.authority_review_refs
-                if authority_by_ref[ref].authority_kind == "product_authority"
-            ]
+            required = _refs_with_authority_kind(
+                summary_row.authority_review_refs,
+                {"product_authority"},
+                message="V82-C handoff derivation requires known summary authority refs",
+            )
             note = (
                 "Product corpus-ingestion pressure is handed off for later review with "
                 "no corpus ingestion, no data transfer, no connector activation, "
@@ -3410,16 +3476,15 @@ def derive_v82c_repo_post_corpus_ingestion_review_handoff(
             target = "future_corpus_ingestion_authority_review"
             subject = "corpus_ingestion_review_package"
             authority = "corpus_ingestion_authority_review"
-            required = [
-                ref
-                for ref in summary_row.authority_review_refs
-                if authority_by_ref[ref].authority_kind
-                in {
+            required = _refs_with_authority_kind(
+                summary_row.authority_review_refs,
+                {
                     "privacy_authority",
                     "license_or_consent_authority",
                     "transfer_authority",
-                }
-            ]
+                },
+                message="V82-C handoff derivation requires known summary authority refs",
+            )
             note = (
                 "Corpus-ingestion pressure is handed off for later review with "
                 "no corpus ingestion, no data transfer, no connector activation, "
@@ -3855,6 +3920,12 @@ def validate_v82c_corpus_ingestion_review_closeout_bundle(
             exception_rows,
             candidate_ref=row.candidate_ref,
             message="handoff exception refs must match candidate",
+        )
+        _require_candidate_refs(
+            row.guardrail_refs,
+            guardrail_rows,
+            candidate_ref=row.candidate_ref,
+            message="handoff guardrail refs must match candidate",
         )
         if not set(row.required_later_authority_refs).issubset(set(row.authority_review_refs)):
             raise ValueError("handoff required authority refs must be carried authority refs")

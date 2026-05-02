@@ -22,6 +22,7 @@ from adeu_repo_description import (
     RepoCorpusIngestionSourceIndex,
     RepoPostCorpusIngestionReviewHandoff,
     derive_v82c_corpus_ingestion_review_closeout_bundle,
+    derive_v82c_repo_post_corpus_ingestion_review_handoff,
     validate_v82c_corpus_ingestion_review_closeout_bundle,
 )
 from adeu_repo_description.corpus_ingestion_review import _surface_id
@@ -302,4 +303,72 @@ def test_v232_bundle_rejects_unknown_summary_request_ref() -> None:
             closeout=RepoCorpusIngestionReviewFamilyCloseoutAlignment.model_validate(
                 closeout_payload
             ),
+        )
+
+
+def test_v232_bundle_rejects_handoff_guardrail_candidate_mismatch() -> None:
+    handoff_payload = _load_fixture(
+        "vnext_plus232",
+        "repo_post_corpus_ingestion_review_handoff_v232_reference.json",
+    )
+    handoff_payload["handoff_rows"][0]["guardrail_refs"] = [
+        "guardrail:v82a:product-wedge:non-transfer"
+    ]
+    handoff_payload = _rehash(
+        handoff_payload,
+        "repo_post_corpus_ingestion_review_handoff",
+        "post_corpus_ingestion_review_handoff_id",
+    )
+    closeout_payload = _load_fixture(
+        "vnext_plus232",
+        "repo_corpus_ingestion_review_family_closeout_alignment_v232_reference.json",
+    )
+    closeout_payload["post_corpus_ingestion_review_handoff_id"] = handoff_payload[
+        "post_corpus_ingestion_review_handoff_id"
+    ]
+    closeout_payload = _rehash(
+        closeout_payload,
+        "repo_corpus_ingestion_review_family_closeout_alignment",
+        "corpus_ingestion_review_family_closeout_alignment_id",
+    )
+
+    with pytest.raises(ValueError, match="handoff guardrail refs must match candidate"):
+        _validate_reference_bundle_with(
+            handoff=RepoPostCorpusIngestionReviewHandoff.model_validate(handoff_payload),
+            closeout=RepoCorpusIngestionReviewFamilyCloseoutAlignment.model_validate(
+                closeout_payload
+            ),
+        )
+
+
+def test_v232_handoff_derivation_rejects_unknown_summary_authority_ref() -> None:
+    summary_payload = _load_fixture(
+        "vnext_plus232",
+        "repo_corpus_ingestion_review_summary_v232_reference.json",
+    )
+    summary_payload["summary_rows"][0]["authority_review_refs"].append(
+        "authority-review:v82b:missing"
+    )
+    summary_payload["summary_rows"][0]["authority_review_refs"].sort()
+    summary_payload = _rehash(
+        summary_payload,
+        "repo_corpus_ingestion_review_summary",
+        "corpus_ingestion_review_summary_id",
+    )
+    summary = RepoCorpusIngestionReviewSummary.model_validate(summary_payload)
+
+    with pytest.raises(
+        ValueError,
+        match="V82-C handoff derivation requires known summary authority refs",
+    ):
+        derive_v82c_repo_post_corpus_ingestion_review_handoff(
+            repo_root=_repo_root(),
+            corpus_ingestion_source_index=_v82a_source_index(),
+            corpus_ingestion_review_request=_v82a_request(),
+            corpus_ingestion_non_transfer_guardrail=_v82a_guardrail(),
+            corpus_ingestion_preflight_contract=_v82b_preflight(),
+            connector_access_review_boundary=_v82b_connector_boundary(),
+            corpus_data_handling_authority_review=_v82b_authority_review(),
+            corpus_ingestion_exception_register=_v82b_exception_register(),
+            corpus_ingestion_review_summary=summary,
         )
