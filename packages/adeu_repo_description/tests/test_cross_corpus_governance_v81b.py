@@ -19,8 +19,13 @@ from adeu_repo_description import (
     RepoCrossCorpusSourceIndex,
     RepoImportedSubstrateProvenanceRegister,
     derive_v81b_cross_corpus_boundary_bundle,
+    derive_v81b_repo_corpus_boundary_contract,
+    derive_v81b_repo_cross_corpus_authority_gap_register,
+    derive_v81b_repo_cross_corpus_exception_register,
+    derive_v81b_repo_imported_substrate_provenance_register,
     validate_v81b_cross_corpus_boundary_bundle,
 )
+from adeu_repo_description.candidate_review_classification import _surface_id
 from jsonschema import Draft202012Validator
 from pydantic import ValidationError
 
@@ -312,4 +317,46 @@ def test_v228_bundle_rejects_exception_row_without_request_refs() -> None:
     exception_register = exception_register.model_copy(update={"exception_rows": [exception_row]})
 
     with pytest.raises(ValueError, match="cross-corpus exception request refs must be non-empty"):
+        _validate_reference_bundle_with(exception_register=exception_register)
+
+
+@pytest.mark.parametrize(
+    "derive_helper",
+    [
+        derive_v81b_repo_corpus_boundary_contract,
+        derive_v81b_repo_imported_substrate_provenance_register,
+        derive_v81b_repo_cross_corpus_authority_gap_register,
+        derive_v81b_repo_cross_corpus_exception_register,
+    ],
+)
+def test_v228_derivation_rejects_partial_v81a_inputs(derive_helper: object) -> None:
+    with pytest.raises(ValueError, match="requires all V81-A inputs"):
+        derive_helper(cross_corpus_source_index=_v81a_source_index())  # type: ignore[operator]
+
+
+def test_v228_exception_notes_may_preserve_unresolved_blockers() -> None:
+    payload = _load_fixture(
+        "vnext_plus228",
+        "repo_cross_corpus_exception_register_v228_reference.json",
+    )
+    payload["exception_rows"][0]["limitation_note"] = (
+        "Missing corpus source remains unresolved and blocking for review only "
+        "with no corpus ingestion."
+    )
+    payload["cross_corpus_exception_register_id"] = _surface_id(
+        "repo_cross_corpus_exception_register",
+        REPO_CROSS_CORPUS_EXCEPTION_REGISTER_SCHEMA,
+        payload,
+        "cross_corpus_exception_register_id",
+    )
+
+    RepoCrossCorpusExceptionRegister.model_validate(payload)
+
+
+def test_v228_bundle_rejects_exception_authority_gap_register_mismatch() -> None:
+    exception_register = _exception_register().model_copy(
+        update={"cross_corpus_authority_gap_register_id": "repo_cross_corpus_gap:wrong"}
+    )
+
+    with pytest.raises(ValueError, match="exceptions must reference authority gap register"):
         _validate_reference_bundle_with(exception_register=exception_register)

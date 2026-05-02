@@ -1075,7 +1075,8 @@ class RepoCrossCorpusExceptionRow(_CartographyBase):
             self.boundary_contract_refs or self.provenance_refs or self.authority_gap_refs
         ):
             raise ValueError("blocking cross-corpus exceptions require blocker refs")
-        if "resolved" in self.limitation_note.lower():
+        lowered_note = self.limitation_note.lower()
+        if "resolved by prose" in lowered_note or "prose resolved" in lowered_note:
             raise ValueError("cross-corpus exceptions cannot be resolved by prose")
         if self.exception_kind in {
             "product_authority_gap",
@@ -1601,6 +1602,41 @@ def _v81b_shared_ids(
     }
 
 
+def _resolve_v81b_v81a_inputs(
+    *,
+    repo_root: Path | None = None,
+    cross_corpus_source_index: RepoCrossCorpusSourceIndex | None = None,
+    cross_corpus_governance_request: RepoCrossCorpusGovernanceRequest | None = None,
+    cross_corpus_non_ingestion_guardrail: RepoCrossCorpusNonIngestionGuardrail | None = None,
+) -> tuple[
+    RepoCrossCorpusSourceIndex,
+    RepoCrossCorpusGovernanceRequest,
+    RepoCrossCorpusNonIngestionGuardrail,
+]:
+    provided = (
+        cross_corpus_source_index,
+        cross_corpus_governance_request,
+        cross_corpus_non_ingestion_guardrail,
+    )
+    if all(item is None for item in provided):
+        return derive_v81a_cross_corpus_governance_bundle(repo_root=repo_root)
+    if any(item is None for item in provided):
+        raise ValueError("V81-B derivation requires all V81-A inputs when any are supplied")
+    assert cross_corpus_source_index is not None
+    assert cross_corpus_governance_request is not None
+    assert cross_corpus_non_ingestion_guardrail is not None
+    validate_v81a_cross_corpus_governance_bundle(
+        cross_corpus_source_index=cross_corpus_source_index,
+        cross_corpus_governance_request=cross_corpus_governance_request,
+        cross_corpus_non_ingestion_guardrail=cross_corpus_non_ingestion_guardrail,
+    )
+    return (
+        cross_corpus_source_index,
+        cross_corpus_governance_request,
+        cross_corpus_non_ingestion_guardrail,
+    )
+
+
 def derive_v81b_repo_corpus_boundary_contract(
     *,
     repo_root: Path | None = None,
@@ -1608,19 +1644,11 @@ def derive_v81b_repo_corpus_boundary_contract(
     cross_corpus_governance_request: RepoCrossCorpusGovernanceRequest | None = None,
     cross_corpus_non_ingestion_guardrail: RepoCrossCorpusNonIngestionGuardrail | None = None,
 ) -> RepoCorpusBoundaryContract:
-    _ = repo_root
-    source_index, request, guardrail = (
-        (
-            cross_corpus_source_index,
-            cross_corpus_governance_request,
-            cross_corpus_non_ingestion_guardrail,
-        )
-        if (
-            cross_corpus_source_index is not None
-            and cross_corpus_governance_request is not None
-            and cross_corpus_non_ingestion_guardrail is not None
-        )
-        else derive_v81a_cross_corpus_governance_bundle()
+    source_index, request, guardrail = _resolve_v81b_v81a_inputs(
+        repo_root=repo_root,
+        cross_corpus_source_index=cross_corpus_source_index,
+        cross_corpus_governance_request=cross_corpus_governance_request,
+        cross_corpus_non_ingestion_guardrail=cross_corpus_non_ingestion_guardrail,
     )
     source_refs = [row.source_ref for row in source_index.source_rows]
     rows_by_request = _v81b_v81a_request_rows(request)
@@ -1720,19 +1748,11 @@ def derive_v81b_repo_imported_substrate_provenance_register(
     cross_corpus_non_ingestion_guardrail: RepoCrossCorpusNonIngestionGuardrail | None = None,
     corpus_boundary_contract: RepoCorpusBoundaryContract | None = None,
 ) -> RepoImportedSubstrateProvenanceRegister:
-    _ = repo_root
-    source_index, request, guardrail = (
-        (
-            cross_corpus_source_index,
-            cross_corpus_governance_request,
-            cross_corpus_non_ingestion_guardrail,
-        )
-        if (
-            cross_corpus_source_index is not None
-            and cross_corpus_governance_request is not None
-            and cross_corpus_non_ingestion_guardrail is not None
-        )
-        else derive_v81a_cross_corpus_governance_bundle()
+    source_index, request, guardrail = _resolve_v81b_v81a_inputs(
+        repo_root=repo_root,
+        cross_corpus_source_index=cross_corpus_source_index,
+        cross_corpus_governance_request=cross_corpus_governance_request,
+        cross_corpus_non_ingestion_guardrail=cross_corpus_non_ingestion_guardrail,
     )
     boundary = corpus_boundary_contract or derive_v81b_repo_corpus_boundary_contract(
         cross_corpus_source_index=source_index,
@@ -1816,19 +1836,11 @@ def derive_v81b_repo_cross_corpus_authority_gap_register(
     imported_substrate_provenance_register: RepoImportedSubstrateProvenanceRegister
     | None = None,
 ) -> RepoCrossCorpusAuthorityGapRegister:
-    _ = repo_root
-    source_index, request, guardrail = (
-        (
-            cross_corpus_source_index,
-            cross_corpus_governance_request,
-            cross_corpus_non_ingestion_guardrail,
-        )
-        if (
-            cross_corpus_source_index is not None
-            and cross_corpus_governance_request is not None
-            and cross_corpus_non_ingestion_guardrail is not None
-        )
-        else derive_v81a_cross_corpus_governance_bundle()
+    source_index, request, guardrail = _resolve_v81b_v81a_inputs(
+        repo_root=repo_root,
+        cross_corpus_source_index=cross_corpus_source_index,
+        cross_corpus_governance_request=cross_corpus_governance_request,
+        cross_corpus_non_ingestion_guardrail=cross_corpus_non_ingestion_guardrail,
     )
     boundary = corpus_boundary_contract or derive_v81b_repo_corpus_boundary_contract(
         cross_corpus_source_index=source_index,
@@ -1978,19 +1990,11 @@ def derive_v81b_repo_cross_corpus_exception_register(
     | None = None,
     cross_corpus_authority_gap_register: RepoCrossCorpusAuthorityGapRegister | None = None,
 ) -> RepoCrossCorpusExceptionRegister:
-    _ = repo_root
-    source_index, request, guardrail = (
-        (
-            cross_corpus_source_index,
-            cross_corpus_governance_request,
-            cross_corpus_non_ingestion_guardrail,
-        )
-        if (
-            cross_corpus_source_index is not None
-            and cross_corpus_governance_request is not None
-            and cross_corpus_non_ingestion_guardrail is not None
-        )
-        else derive_v81a_cross_corpus_governance_bundle()
+    source_index, request, guardrail = _resolve_v81b_v81a_inputs(
+        repo_root=repo_root,
+        cross_corpus_source_index=cross_corpus_source_index,
+        cross_corpus_governance_request=cross_corpus_governance_request,
+        cross_corpus_non_ingestion_guardrail=cross_corpus_non_ingestion_guardrail,
     )
     boundary = corpus_boundary_contract or derive_v81b_repo_corpus_boundary_contract(
         cross_corpus_source_index=source_index,
