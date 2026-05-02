@@ -1,0 +1,260 @@
+{
+  "$defs": {
+    "RepoExecutionRunPlanRow": {
+      "additionalProperties": false,
+      "properties": {
+        "authority_refs": {
+          "items": {
+            "type": "string"
+          },
+          "minItems": 1,
+          "title": "Authority Refs",
+          "type": "array"
+        },
+        "candidate_ref": {
+          "title": "Candidate Ref",
+          "type": "string"
+        },
+        "command_intent_kind": {
+          "enum": [
+            "bounded_command_run_plan_review",
+            "bounded_tool_invocation_plan_review",
+            "bounded_repo_script_run_plan_review",
+            "future_product_review",
+            "future_external_branch_review",
+            "future_family_review"
+          ],
+          "title": "Command Intent Kind",
+          "type": "string"
+        },
+        "effect_monitoring_contract_refs": {
+          "items": {
+            "type": "string"
+          },
+          "title": "Effect Monitoring Contract Refs",
+          "type": "array"
+        },
+        "exception_refs": {
+          "items": {
+            "type": "string"
+          },
+          "title": "Exception Refs",
+          "type": "array"
+        },
+        "execution_posture": {
+          "enum": [
+            "no_execution_performed_by_v79",
+            "execution_requires_later_family",
+            "execution_forbidden_by_this_family"
+          ],
+          "title": "Execution Posture",
+          "type": "string"
+        },
+        "execution_review_request_refs": {
+          "items": {
+            "type": "string"
+          },
+          "minItems": 1,
+          "title": "Execution Review Request Refs",
+          "type": "array"
+        },
+        "limitation_note": {
+          "title": "Limitation Note",
+          "type": "string"
+        },
+        "non_execution_guardrail_refs": {
+          "items": {
+            "type": "string"
+          },
+          "minItems": 1,
+          "title": "Non Execution Guardrail Refs",
+          "type": "array"
+        },
+        "operator_confirmation_requirement_refs": {
+          "items": {
+            "type": "string"
+          },
+          "minItems": 1,
+          "title": "Operator Confirmation Requirement Refs",
+          "type": "array"
+        },
+        "plan_completeness_posture": {
+          "enum": [
+            "incomplete_for_review",
+            "complete_for_review_only",
+            "blocked_by_missing_source",
+            "blocked_by_missing_authority",
+            "blocked_by_missing_target_boundary",
+            "blocked_by_missing_monitoring",
+            "blocked_by_missing_rollback",
+            "future_family_only"
+          ],
+          "title": "Plan Completeness Posture",
+          "type": "string"
+        },
+        "rollback_requirement_refs": {
+          "items": {
+            "type": "string"
+          },
+          "minItems": 1,
+          "title": "Rollback Requirement Refs",
+          "type": "array"
+        },
+        "run_execution_status": {
+          "enum": [
+            "no_run_performed_by_v79",
+            "run_requires_later_family",
+            "run_forbidden_by_this_family"
+          ],
+          "title": "Run Execution Status",
+          "type": "string"
+        },
+        "run_plan_posture": {
+          "enum": [
+            "run_plan_complete_for_review_only",
+            "run_plan_incomplete_for_review",
+            "blocked_by_missing_source",
+            "blocked_by_missing_authority",
+            "blocked_by_missing_target_boundary",
+            "blocked_by_missing_monitoring",
+            "blocked_by_missing_rollback",
+            "future_family_only"
+          ],
+          "title": "Run Plan Posture",
+          "type": "string"
+        },
+        "run_plan_ref": {
+          "title": "Run Plan Ref",
+          "type": "string"
+        },
+        "source_refs": {
+          "items": {
+            "type": "string"
+          },
+          "minItems": 1,
+          "title": "Source Refs",
+          "type": "array"
+        },
+        "target_boundary_refs": {
+          "items": {
+            "type": "string"
+          },
+          "title": "Target Boundary Refs",
+          "type": "array"
+        },
+        "target_resolution_kind": {
+          "enum": [
+            "concrete_file_ref",
+            "concrete_schema_ref",
+            "concrete_fixture_ref",
+            "concrete_test_ref",
+            "concrete_doc_ref",
+            "concrete_script_ref",
+            "bounded_package_surface_with_child_refs",
+            "external_endpoint_ref",
+            "no_target_boundary"
+          ],
+          "title": "Target Resolution Kind",
+          "type": "string"
+        },
+        "telemetry_requirement_refs": {
+          "items": {
+            "type": "string"
+          },
+          "minItems": 1,
+          "title": "Telemetry Requirement Refs",
+          "type": "array"
+        },
+        "tool_invocation_plan_refs": {
+          "items": {
+            "type": "string"
+          },
+          "title": "Tool Invocation Plan Refs",
+          "type": "array"
+        }
+      },
+      "required": [
+        "run_plan_ref",
+        "candidate_ref",
+        "source_refs",
+        "execution_review_request_refs",
+        "non_execution_guardrail_refs",
+        "command_intent_kind",
+        "target_resolution_kind",
+        "authority_refs",
+        "telemetry_requirement_refs",
+        "rollback_requirement_refs",
+        "operator_confirmation_requirement_refs",
+        "run_plan_posture",
+        "plan_completeness_posture",
+        "run_execution_status",
+        "execution_posture",
+        "limitation_note"
+      ],
+      "title": "RepoExecutionRunPlanRow",
+      "type": "object"
+    }
+  },
+  "additionalProperties": false,
+  "properties": {
+    "controlled_execution_non_execution_guardrail_id": {
+      "title": "Controlled Execution Non Execution Guardrail Id",
+      "type": "string"
+    },
+    "controlled_execution_review_request_id": {
+      "title": "Controlled Execution Review Request Id",
+      "type": "string"
+    },
+    "controlled_execution_source_index_id": {
+      "title": "Controlled Execution Source Index Id",
+      "type": "string"
+    },
+    "execution_run_plan_id": {
+      "title": "Execution Run Plan Id",
+      "type": "string"
+    },
+    "review_id": {
+      "title": "Review Id",
+      "type": "string"
+    },
+    "run_plan_rows": {
+      "items": {
+        "$ref": "#/$defs/RepoExecutionRunPlanRow"
+      },
+      "minItems": 1,
+      "title": "Run Plan Rows",
+      "type": "array"
+    },
+    "run_plan_summary": {
+      "title": "Run Plan Summary",
+      "type": "string"
+    },
+    "schema": {
+      "const": "repo_execution_run_plan@1",
+      "default": "repo_execution_run_plan@1",
+      "title": "Schema",
+      "type": "string"
+    },
+    "snapshot_id": {
+      "title": "Snapshot Id",
+      "type": "string"
+    },
+    "source_set_id": {
+      "title": "Source Set Id",
+      "type": "string"
+    }
+  },
+  "required": [
+    "execution_run_plan_id",
+    "controlled_execution_review_request_id",
+    "controlled_execution_source_index_id",
+    "controlled_execution_non_execution_guardrail_id",
+    "review_id",
+    "snapshot_id",
+    "source_set_id",
+    "run_plan_rows",
+    "run_plan_summary"
+  ],
+  "title": "RepoExecutionRunPlan",
+  "type": "object"
+}

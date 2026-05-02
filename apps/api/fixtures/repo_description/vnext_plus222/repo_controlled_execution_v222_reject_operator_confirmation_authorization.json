@@ -1,0 +1,81 @@
+{
+  "controlled_execution_non_execution_guardrail_id": "repo_controlled_execution_non_execution_guardrail_266ba905f6f220705a20ac20",
+  "controlled_execution_review_request_id": "repo_controlled_execution_review_request_5356d0d3f24006932cc4a884",
+  "controlled_execution_source_index_id": "repo_controlled_execution_source_index_c021c60fe328391015a761ed",
+  "effect_monitoring_contract_rows": [
+    {
+      "candidate_ref": "candidate:internal:self_evidencing_workflow_type_emergence",
+      "effect_monitoring_contract_ref": "monitoring-contract:v79b:self-evidencing:review-only",
+      "effect_observation_posture": "no_effect_observed_by_v79",
+      "expected_effect_surface_refs": [
+        "effect-surface:v79b:self-evidencing:planned-test-observation"
+      ],
+      "forbidden_effect_surface_refs": [
+        "effect-surface:v79b:self-evidencing:accepted-effect",
+        "effect-surface:v79b:self-evidencing:target-mutation"
+      ],
+      "limitation_note": "Effect monitoring contract is review only with no observed effect, no execution, and no rollback verification.",
+      "monitoring_posture": "monitoring_contract_complete_for_review_only",
+      "non_execution_guardrail_refs": [
+        "guardrail:v79a:self-evidencing:non-execution"
+      ],
+      "operator_confirmation_requirement_refs": [
+        "operator-confirmation:v79b:self-evidencing:required-later"
+      ],
+      "operator_confirmation_requirement_rows": [
+        {
+          "authority_refs": [
+            "authority:v78a:self-evidencing:runtime-review",
+            "authority:v78a:self-evidencing:tool-use-review"
+          ],
+          "candidate_ref": "candidate:internal:self_evidencing_workflow_type_emergence",
+          "confirmation_posture": "confirmation_required_for_later_review",
+          "confirmation_requirement_ref": "operator-confirmation:v79b:self-evidencing:required-later",
+          "limitation_note": "Operator confirmation requirement remains a requirement, not authorization.",
+          "non_authorization_guardrail": "Operator authorization granted.",
+          "required_confirmation_kind": "maintainer_confirmation_required",
+          "source_refs": [
+            "apps/api/fixtures/repo_description/vnext_plus219/repo_command_scope_authorization_boundary_v219_reference.json",
+            "apps/api/fixtures/repo_description/vnext_plus219/repo_runtime_authority_exception_register_v219_reference.json",
+            "apps/api/fixtures/repo_description/vnext_plus219/repo_runtime_execution_authority_decision_v219_reference.json",
+            "apps/api/fixtures/repo_description/vnext_plus219/repo_tool_use_permission_envelope_v219_reference.json",
+            "apps/api/fixtures/repo_description/vnext_plus220/repo_pre_execution_authority_review_handoff_v220_reference.json",
+            "apps/api/fixtures/repo_description/vnext_plus220/repo_runtime_authority_readiness_summary_v220_reference.json",
+            "apps/api/fixtures/repo_description/vnext_plus220/repo_runtime_execution_authority_family_closeout_alignment_v220_reference.json",
+            "docs/LOCKED_CONTINUATION_vNEXT_PLUS221.md",
+            "docs/support/arc_series_mapping/V68_V69_V70_V71_V72_V73_V74_V75_V76_V77_V78_COMBINED_DOGFOOD_TEST_v0.json"
+          ]
+        }
+      ],
+      "rollback_requirement_refs": [
+        "rollback-requirement:v79b:self-evidencing:required-later"
+      ],
+      "run_plan_refs": [
+        "run-plan:v79b:self-evidencing:repo-script-review"
+      ],
+      "source_refs": [
+        "apps/api/fixtures/repo_description/vnext_plus219/repo_command_scope_authorization_boundary_v219_reference.json",
+        "apps/api/fixtures/repo_description/vnext_plus219/repo_runtime_authority_exception_register_v219_reference.json",
+        "apps/api/fixtures/repo_description/vnext_plus219/repo_runtime_execution_authority_decision_v219_reference.json",
+        "apps/api/fixtures/repo_description/vnext_plus219/repo_tool_use_permission_envelope_v219_reference.json",
+        "apps/api/fixtures/repo_description/vnext_plus220/repo_pre_execution_authority_review_handoff_v220_reference.json",
+        "apps/api/fixtures/repo_description/vnext_plus220/repo_runtime_authority_readiness_summary_v220_reference.json",
+        "apps/api/fixtures/repo_description/vnext_plus220/repo_runtime_execution_authority_family_closeout_alignment_v220_reference.json",
+        "docs/LOCKED_CONTINUATION_vNEXT_PLUS221.md",
+        "docs/support/arc_series_mapping/V68_V69_V70_V71_V72_V73_V74_V75_V76_V77_V78_COMBINED_DOGFOOD_TEST_v0.json"
+      ],
+      "telemetry_requirement_refs": [
+        "telemetry-requirement:v79b:self-evidencing:required-later"
+      ],
+      "tool_invocation_plan_refs": [
+        "tool-plan:v79b:self-evidencing:repo-description-check-review"
+      ]
+    }
+  ],
+  "effect_monitoring_summary": "Effect monitoring contracts are review only with no observed effect, no execution, and no rollback verification.",
+  "execution_effect_monitoring_contract_id": "repo_execution_effect_monitoring_contract_df5f3f22e8812c3e01cacc76",
+  "review_id": "review:v79a:controlled-execution-review",
+  "schema": "repo_execution_effect_monitoring_contract@1",
+  "snapshot_id": "vNext+221-controlled-execution-review-closeout",
+  "source_set_id": "source-set:v79b:released-v79a-monitoring-pressure"
+}

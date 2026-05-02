@@ -1,0 +1,272 @@
+{
+  "$defs": {
+    "RepoExecutionEffectMonitoringContractRow": {
+      "additionalProperties": false,
+      "properties": {
+        "candidate_ref": {
+          "title": "Candidate Ref",
+          "type": "string"
+        },
+        "effect_monitoring_contract_ref": {
+          "title": "Effect Monitoring Contract Ref",
+          "type": "string"
+        },
+        "effect_observation_posture": {
+          "enum": [
+            "no_effect_observed_by_v79",
+            "effect_requires_later_review",
+            "effect_observed_from_prior_authorized_source",
+            "effect_not_applicable"
+          ],
+          "title": "Effect Observation Posture",
+          "type": "string"
+        },
+        "expected_effect_surface_refs": {
+          "items": {
+            "type": "string"
+          },
+          "minItems": 1,
+          "title": "Expected Effect Surface Refs",
+          "type": "array"
+        },
+        "forbidden_effect_surface_refs": {
+          "items": {
+            "type": "string"
+          },
+          "minItems": 1,
+          "title": "Forbidden Effect Surface Refs",
+          "type": "array"
+        },
+        "limitation_note": {
+          "title": "Limitation Note",
+          "type": "string"
+        },
+        "monitoring_posture": {
+          "enum": [
+            "monitoring_contract_complete_for_review_only",
+            "monitoring_contract_incomplete_for_review",
+            "blocked_by_missing_telemetry",
+            "blocked_by_missing_rollback",
+            "future_family_only"
+          ],
+          "title": "Monitoring Posture",
+          "type": "string"
+        },
+        "non_execution_guardrail_refs": {
+          "items": {
+            "type": "string"
+          },
+          "minItems": 1,
+          "title": "Non Execution Guardrail Refs",
+          "type": "array"
+        },
+        "operator_confirmation_requirement_refs": {
+          "items": {
+            "type": "string"
+          },
+          "minItems": 1,
+          "title": "Operator Confirmation Requirement Refs",
+          "type": "array"
+        },
+        "operator_confirmation_requirement_rows": {
+          "items": {
+            "$ref": "#/$defs/RepoOperatorConfirmationRequirementRow"
+          },
+          "minItems": 1,
+          "title": "Operator Confirmation Requirement Rows",
+          "type": "array"
+        },
+        "rollback_requirement_refs": {
+          "items": {
+            "type": "string"
+          },
+          "minItems": 1,
+          "title": "Rollback Requirement Refs",
+          "type": "array"
+        },
+        "run_plan_refs": {
+          "items": {
+            "type": "string"
+          },
+          "minItems": 1,
+          "title": "Run Plan Refs",
+          "type": "array"
+        },
+        "source_refs": {
+          "items": {
+            "type": "string"
+          },
+          "minItems": 1,
+          "title": "Source Refs",
+          "type": "array"
+        },
+        "telemetry_requirement_refs": {
+          "items": {
+            "type": "string"
+          },
+          "minItems": 1,
+          "title": "Telemetry Requirement Refs",
+          "type": "array"
+        },
+        "tool_invocation_plan_refs": {
+          "items": {
+            "type": "string"
+          },
+          "minItems": 1,
+          "title": "Tool Invocation Plan Refs",
+          "type": "array"
+        }
+      },
+      "required": [
+        "effect_monitoring_contract_ref",
+        "candidate_ref",
+        "source_refs",
+        "run_plan_refs",
+        "tool_invocation_plan_refs",
+        "non_execution_guardrail_refs",
+        "expected_effect_surface_refs",
+        "forbidden_effect_surface_refs",
+        "telemetry_requirement_refs",
+        "rollback_requirement_refs",
+        "operator_confirmation_requirement_refs",
+        "operator_confirmation_requirement_rows",
+        "monitoring_posture",
+        "effect_observation_posture",
+        "limitation_note"
+      ],
+      "title": "RepoExecutionEffectMonitoringContractRow",
+      "type": "object"
+    },
+    "RepoOperatorConfirmationRequirementRow": {
+      "additionalProperties": false,
+      "properties": {
+        "authority_refs": {
+          "items": {
+            "type": "string"
+          },
+          "minItems": 1,
+          "title": "Authority Refs",
+          "type": "array"
+        },
+        "candidate_ref": {
+          "title": "Candidate Ref",
+          "type": "string"
+        },
+        "confirmation_posture": {
+          "enum": [
+            "confirmation_required_for_later_review",
+            "confirmation_not_authorization",
+            "blocked_by_missing_authority",
+            "future_family_only"
+          ],
+          "title": "Confirmation Posture",
+          "type": "string"
+        },
+        "confirmation_requirement_ref": {
+          "title": "Confirmation Requirement Ref",
+          "type": "string"
+        },
+        "limitation_note": {
+          "title": "Limitation Note",
+          "type": "string"
+        },
+        "non_authorization_guardrail": {
+          "title": "Non Authorization Guardrail",
+          "type": "string"
+        },
+        "required_confirmation_kind": {
+          "enum": [
+            "maintainer_confirmation_required",
+            "operator_acknowledgement_required",
+            "product_authority_confirmation_required",
+            "external_branch_authority_confirmation_required"
+          ],
+          "title": "Required Confirmation Kind",
+          "type": "string"
+        },
+        "source_refs": {
+          "items": {
+            "type": "string"
+          },
+          "minItems": 1,
+          "title": "Source Refs",
+          "type": "array"
+        }
+      },
+      "required": [
+        "confirmation_requirement_ref",
+        "candidate_ref",
+        "required_confirmation_kind",
+        "source_refs",
+        "authority_refs",
+        "confirmation_posture",
+        "non_authorization_guardrail",
+        "limitation_note"
+      ],
+      "title": "RepoOperatorConfirmationRequirementRow",
+      "type": "object"
+    }
+  },
+  "additionalProperties": false,
+  "properties": {
+    "controlled_execution_non_execution_guardrail_id": {
+      "title": "Controlled Execution Non Execution Guardrail Id",
+      "type": "string"
+    },
+    "controlled_execution_review_request_id": {
+      "title": "Controlled Execution Review Request Id",
+      "type": "string"
+    },
+    "controlled_execution_source_index_id": {
+      "title": "Controlled Execution Source Index Id",
+      "type": "string"
+    },
+    "effect_monitoring_contract_rows": {
+      "items": {
+        "$ref": "#/$defs/RepoExecutionEffectMonitoringContractRow"
+      },
+      "minItems": 1,
+      "title": "Effect Monitoring Contract Rows",
+      "type": "array"
+    },
+    "effect_monitoring_summary": {
+      "title": "Effect Monitoring Summary",
+      "type": "string"
+    },
+    "execution_effect_monitoring_contract_id": {
+      "title": "Execution Effect Monitoring Contract Id",
+      "type": "string"
+    },
+    "review_id": {
+      "title": "Review Id",
+      "type": "string"
+    },
+    "schema": {
+      "const": "repo_execution_effect_monitoring_contract@1",
+      "default": "repo_execution_effect_monitoring_contract@1",
+      "title": "Schema",
+      "type": "string"
+    },
+    "snapshot_id": {
+      "title": "Snapshot Id",
+      "type": "string"
+    },
+    "source_set_id": {
+      "title": "Source Set Id",
+      "type": "string"
+    }
+  },
+  "required": [
+    "execution_effect_monitoring_contract_id",
+    "controlled_execution_review_request_id",
+    "controlled_execution_source_index_id",
+    "controlled_execution_non_execution_guardrail_id",
+    "review_id",
+    "snapshot_id",
+    "source_set_id",
+    "effect_monitoring_contract_rows",
+    "effect_monitoring_summary"
+  ],
+  "title": "RepoExecutionEffectMonitoringContract",
+  "type": "object"
+}

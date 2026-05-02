@@ -1,0 +1,217 @@
+{
+  "$defs": {
+    "RepoToolInvocationPlanRow": {
+      "additionalProperties": false,
+      "properties": {
+        "authority_refs": {
+          "items": {
+            "type": "string"
+          },
+          "minItems": 1,
+          "title": "Authority Refs",
+          "type": "array"
+        },
+        "candidate_ref": {
+          "title": "Candidate Ref",
+          "type": "string"
+        },
+        "effect_monitoring_contract_refs": {
+          "items": {
+            "type": "string"
+          },
+          "title": "Effect Monitoring Contract Refs",
+          "type": "array"
+        },
+        "exception_refs": {
+          "items": {
+            "type": "string"
+          },
+          "title": "Exception Refs",
+          "type": "array"
+        },
+        "execution_review_request_refs": {
+          "items": {
+            "type": "string"
+          },
+          "minItems": 1,
+          "title": "Execution Review Request Refs",
+          "type": "array"
+        },
+        "limitation_note": {
+          "title": "Limitation Note",
+          "type": "string"
+        },
+        "non_execution_guardrail_refs": {
+          "items": {
+            "type": "string"
+          },
+          "minItems": 1,
+          "title": "Non Execution Guardrail Refs",
+          "type": "array"
+        },
+        "permission_refs": {
+          "items": {
+            "type": "string"
+          },
+          "minItems": 1,
+          "title": "Permission Refs",
+          "type": "array"
+        },
+        "plan_completeness_posture": {
+          "enum": [
+            "incomplete_for_review",
+            "complete_for_review_only",
+            "blocked_by_missing_source",
+            "blocked_by_missing_authority",
+            "blocked_by_missing_target_boundary",
+            "blocked_by_missing_monitoring",
+            "blocked_by_missing_rollback",
+            "future_family_only"
+          ],
+          "title": "Plan Completeness Posture",
+          "type": "string"
+        },
+        "source_refs": {
+          "items": {
+            "type": "string"
+          },
+          "minItems": 1,
+          "title": "Source Refs",
+          "type": "array"
+        },
+        "tool_id": {
+          "title": "Tool Id",
+          "type": "string"
+        },
+        "tool_invocation_plan_posture": {
+          "enum": [
+            "tool_invocation_plan_complete_for_review_only",
+            "tool_invocation_plan_incomplete_for_review",
+            "blocked_by_missing_source",
+            "blocked_by_missing_authority",
+            "blocked_by_missing_target_boundary",
+            "blocked_by_missing_monitoring",
+            "future_family_only"
+          ],
+          "title": "Tool Invocation Plan Posture",
+          "type": "string"
+        },
+        "tool_invocation_plan_ref": {
+          "title": "Tool Invocation Plan Ref",
+          "type": "string"
+        },
+        "tool_invocation_posture": {
+          "enum": [
+            "no_tool_invocation_performed_by_v79",
+            "tool_invocation_requires_later_family",
+            "tool_invocation_forbidden_by_this_family"
+          ],
+          "title": "Tool Invocation Posture",
+          "type": "string"
+        },
+        "tool_invocation_status": {
+          "enum": [
+            "no_tool_invocation_performed_by_v79",
+            "invocation_requires_later_family",
+            "invocation_forbidden_by_this_family"
+          ],
+          "title": "Tool Invocation Status",
+          "type": "string"
+        },
+        "tool_target_horizon": {
+          "title": "Tool Target Horizon",
+          "type": "string"
+        },
+        "tool_target_refs": {
+          "items": {
+            "type": "string"
+          },
+          "minItems": 1,
+          "title": "Tool Target Refs",
+          "type": "array"
+        }
+      },
+      "required": [
+        "tool_invocation_plan_ref",
+        "candidate_ref",
+        "source_refs",
+        "execution_review_request_refs",
+        "non_execution_guardrail_refs",
+        "tool_id",
+        "tool_target_refs",
+        "tool_target_horizon",
+        "permission_refs",
+        "authority_refs",
+        "tool_invocation_plan_posture",
+        "plan_completeness_posture",
+        "tool_invocation_status",
+        "tool_invocation_posture",
+        "limitation_note"
+      ],
+      "title": "RepoToolInvocationPlanRow",
+      "type": "object"
+    }
+  },
+  "additionalProperties": false,
+  "properties": {
+    "controlled_execution_non_execution_guardrail_id": {
+      "title": "Controlled Execution Non Execution Guardrail Id",
+      "type": "string"
+    },
+    "controlled_execution_review_request_id": {
+      "title": "Controlled Execution Review Request Id",
+      "type": "string"
+    },
+    "controlled_execution_source_index_id": {
+      "title": "Controlled Execution Source Index Id",
+      "type": "string"
+    },
+    "review_id": {
+      "title": "Review Id",
+      "type": "string"
+    },
+    "schema": {
+      "const": "repo_tool_invocation_plan@1",
+      "default": "repo_tool_invocation_plan@1",
+      "title": "Schema",
+      "type": "string"
+    },
+    "snapshot_id": {
+      "title": "Snapshot Id",
+      "type": "string"
+    },
+    "source_set_id": {
+      "title": "Source Set Id",
+      "type": "string"
+    },
+    "tool_invocation_plan_id": {
+      "title": "Tool Invocation Plan Id",
+      "type": "string"
+    },
+    "tool_invocation_plan_rows": {
+      "items": {
+        "$ref": "#/$defs/RepoToolInvocationPlanRow"
+      },
+      "minItems": 1,
+      "title": "Tool Invocation Plan Rows",
+      "type": "array"
+    },
+    "tool_invocation_plan_summary": {
+      "title": "Tool Invocation Plan Summary",
+      "type": "string"
+    }
+  },
+  "required": [
+    "tool_invocation_plan_id",
+    "controlled_execution_review_request_id",
+    "controlled_execution_source_index_id",
+    "controlled_execution_non_execution_guardrail_id",
+    "review_id",
+    "snapshot_id",
+    "source_set_id",
+    "tool_invocation_plan_rows",
+    "tool_invocation_plan_summary"
+  ],
+  "title": "RepoToolInvocationPlan",
+  "type": "object"
+}

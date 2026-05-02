@@ -71,9 +71,13 @@ from .contained_integration_review import (
     RepoPostIntegrationOutcomeReviewHandoff,
 )
 from .controlled_execution_review import (
+    RepoControlledExecutionExceptionRegister,
     RepoControlledExecutionNonExecutionGuardrail,
     RepoControlledExecutionReviewRequest,
     RepoControlledExecutionSourceIndex,
+    RepoExecutionEffectMonitoringContract,
+    RepoExecutionRunPlan,
+    RepoToolInvocationPlan,
 )
 from .dispatch_review import (
     RepoDispatchExceptionRegister,
@@ -516,6 +520,14 @@ def main() -> None:
     controlled_execution_non_execution_guardrail_schema = (
         RepoControlledExecutionNonExecutionGuardrail.model_json_schema(by_alias=True)
     )
+    execution_run_plan_schema = RepoExecutionRunPlan.model_json_schema(by_alias=True)
+    tool_invocation_plan_schema = RepoToolInvocationPlan.model_json_schema(by_alias=True)
+    execution_effect_monitoring_contract_schema = (
+        RepoExecutionEffectMonitoringContract.model_json_schema(by_alias=True)
+    )
+    controlled_execution_exception_register_schema = (
+        RepoControlledExecutionExceptionRegister.model_json_schema(by_alias=True)
+    )
 
     _assert_no_absolute_path_material(dependency_register_v1_schema, repo_root_path=root)
     _assert_no_absolute_path_material(dependency_register_schema, repo_root_path=root)
@@ -757,6 +769,16 @@ def main() -> None:
     )
     _assert_no_absolute_path_material(
         controlled_execution_non_execution_guardrail_schema,
+        repo_root_path=root,
+    )
+    _assert_no_absolute_path_material(execution_run_plan_schema, repo_root_path=root)
+    _assert_no_absolute_path_material(tool_invocation_plan_schema, repo_root_path=root)
+    _assert_no_absolute_path_material(
+        execution_effect_monitoring_contract_schema,
+        repo_root_path=root,
+    )
+    _assert_no_absolute_path_material(
+        controlled_execution_exception_register_schema,
         repo_root_path=root,
     )
 
@@ -2171,6 +2193,54 @@ def main() -> None:
     _write_schema(
         root / "spec" / "repo_controlled_execution_non_execution_guardrail.schema.json",
         controlled_execution_non_execution_guardrail_schema,
+    )
+    _write_schema(
+        root
+        / "packages"
+        / "adeu_repo_description"
+        / "schema"
+        / "repo_execution_run_plan.v1.json",
+        execution_run_plan_schema,
+    )
+    _write_schema(
+        root / "spec" / "repo_execution_run_plan.schema.json",
+        execution_run_plan_schema,
+    )
+    _write_schema(
+        root
+        / "packages"
+        / "adeu_repo_description"
+        / "schema"
+        / "repo_tool_invocation_plan.v1.json",
+        tool_invocation_plan_schema,
+    )
+    _write_schema(
+        root / "spec" / "repo_tool_invocation_plan.schema.json",
+        tool_invocation_plan_schema,
+    )
+    _write_schema(
+        root
+        / "packages"
+        / "adeu_repo_description"
+        / "schema"
+        / "repo_execution_effect_monitoring_contract.v1.json",
+        execution_effect_monitoring_contract_schema,
+    )
+    _write_schema(
+        root / "spec" / "repo_execution_effect_monitoring_contract.schema.json",
+        execution_effect_monitoring_contract_schema,
+    )
+    _write_schema(
+        root
+        / "packages"
+        / "adeu_repo_description"
+        / "schema"
+        / "repo_controlled_execution_exception_register.v1.json",
+        controlled_execution_exception_register_schema,
+    )
+    _write_schema(
+        root / "spec" / "repo_controlled_execution_exception_register.schema.json",
+        controlled_execution_exception_register_schema,
     )
 
 
