@@ -1,8 +1,8 @@
 # Assessment vNext+225 Edges
 
-Status: pre-lock edge assessment for `V80-B`.
+Status: closeout-edge assessment for `V80-B`.
 
-Authority layer: planning / pre-lock assessment.
+Authority layer: closeout evidence on `main`.
 
 ## Assessment-State Marker (Machine-Checkable)
 
@@ -10,8 +10,8 @@ Authority layer: planning / pre-lock assessment.
 {
   "schema": "assessment_artifact_state@1",
   "artifact": "docs/ASSESSMENT_vNEXT_PLUS225_EDGES.md",
-  "phase": "pre_lock_assessment",
-  "authoritative": false,
+  "phase": "post_closeout_assessment",
+  "authoritative": true,
   "required_in_decision": true
 }
 ```
@@ -22,11 +22,10 @@ Authority layer: planning / pre-lock assessment.
 
 - Containment:
   data-boundary rows may describe review posture and requirements only.
-  Allowed actions must be `allowed_data_review_actions`, and forbidden actions
-  must include ingestion, export, transfer, external dataset mutation, and
-  submission-payload upload.
+  Allowed actions are review actions, and forbidden actions include ingestion,
+  export, transfer, external dataset mutation, and submission-payload upload.
 - Current result:
-  pre-lock risk identified; implementation must prove this with fixtures.
+  pass; shipped validators and reject fixtures keep data transfer forbidden.
 
 ### Edge 2: External Tool Boundary Could Become Tool Invocation
 
@@ -34,32 +33,31 @@ Authority layer: planning / pre-lock assessment.
   external tool rows may identify tools, targets, and endpoint refs for review
   only. They must carry no-external-tool-invocation posture.
 - Current result:
-  pre-lock risk identified; reject fixture required.
+  pass; external-tool-invocation reject coverage shipped.
 
 ### Edge 3: Endpoint Refs Could Become Access Permission
 
 - Containment:
-  endpoint refs must carry non-authorizing `endpoint_ref_posture`. Endpoint
-  strings are identifiers only and cannot authorize access, mutation, or
-  external tool use.
+  endpoint refs carry non-authorizing `endpoint_ref_posture`. Endpoint strings
+  are identifiers only and cannot authorize access, mutation, or tool use.
 - Current result:
-  pre-lock risk identified; reject fixture required.
+  pass; endpoint-access-permission reject coverage shipped.
 
 ### Edge 4: Submission Authority Review Could Become Submission
 
 - Containment:
-  submission authority review can record required authority posture and target
-  refs, but must carry no-external-submission posture.
+  submission authority review records required authority posture and target refs
+  only. It carries no-external-submission posture.
 - Current result:
-  pre-lock risk identified; reject fixture required.
+  pass; submission-as-action reject coverage shipped.
 
 ### Edge 5: Result Provenance Could Become External Result Truth
 
 - Containment:
-  result provenance contracts can define capture and source requirements only.
-  They cannot claim external result truth.
+  result provenance contracts define capture and source requirements only. They
+  cannot claim external result truth.
 - Current result:
-  pre-lock risk identified; reject fixture required.
+  pass; result-truth reject coverage shipped.
 
 ### Edge 6: Withdrawal Requirement Could Become Withdrawal Action
 
@@ -67,16 +65,17 @@ Authority layer: planning / pre-lock assessment.
   withdrawal remains a requirement posture inside result provenance. It is not
   external-system withdrawal or contest lifecycle automation.
 - Current result:
-  pre-lock risk identified; reject fixture required.
+  pass; withdrawal-as-action reject coverage shipped.
 
 ### Edge 7: Released V80-A Blockers Could Be Smoothed Into Boundary Readiness
 
 - Containment:
-  `V80-B` rows must preserve missing current `V43` posture, product authority
-  gaps, runtime authority gaps, and other blocking exceptions rather than
-  converting them into external activation readiness.
+  `V80-B` rows preserve missing current `V43` posture, product authority gaps,
+  runtime authority gaps, and other blocking exceptions rather than converting
+  them into external activation readiness.
 - Current result:
-  pre-lock risk identified; reject fixture required.
+  pass; product-pressure external-ready and blocker-preservation coverage
+  shipped.
 
 ### Edge 8: Historical V43 Context Could Become Current Authority
 
@@ -85,16 +84,17 @@ Authority layer: planning / pre-lock assessment.
   posture source exists. `V80-B` cannot use historical context as current
   activation authority.
 - Current result:
-  pre-lock risk identified; reject fixture required.
+  pass; historical-V43-as-current-authority reject coverage shipped.
 
 ### Edge 9: Blocking Exceptions Could Be Resolved By Prose
 
 - Containment:
   `repo_external_branch_exception_register@1` can mark blocking, warning,
-  carried, or not-applicable posture. It cannot settle or resolve exceptions
-  by narrative claim.
+  carried, or not-applicable posture. It cannot settle or resolve exceptions by
+  narrative claim.
 - Current result:
-  pre-lock risk identified; reject fixture required.
+  pass; prose-resolution reject coverage shipped, and exception rows require
+  concrete request refs.
 
 ### Edge 10: V80-B Could Start V80-C Early
 
@@ -104,7 +104,7 @@ Authority layer: planning / pre-lock assessment.
   `repo_external_branch_review_family_closeout_alignment@1` surfaces are
   selected.
 - Current result:
-  pre-lock risk identified.
+  pass; no `V80-C` surfaces shipped in `v225`.
 
 ### Edge 11: V80-B Could Select V81
 
@@ -113,16 +113,21 @@ Authority layer: planning / pre-lock assessment.
   family. Later selection remains deferred to future family-level selection
   after `V80` closeout.
 - Current result:
-  pre-lock risk identified.
+  pass; no `V81` selection, external activation, product authorization, or
+  release authority shipped.
+
+## Residual Edges
+
+- `V80-C` must summarize and hand off the released `V80-A` and `V80-B`
+  substrate without converting external branch readiness into activation,
+  submission, result truth, product authority, runtime authority, or `V81`
+  selection.
+- Any `ready_for_later_review` posture in `V80-C` must remain blocker-aware:
+  blocking exceptions cannot be hidden by summary prose.
 
 ## Current Judgment
 
-- `V80-B` is ready as a bounded starter target after `V80-A` closeout.
-- The intended implementation lane is `adeu_repo_description`.
-- The starter must preserve the intended boundary: external data, tool,
-  submission, result-provenance, withdrawal, and exception pressure can be
-  source-bound and machine-checkable, but it does not activate external
-  branches, enter `V43` contest participation, submit externally, invoke
-  external tools, transfer data, mutate endpoints, claim external result truth,
-  perform withdrawal, dispatch, productize, release, amend recursive policy,
-  emit `V80-C` summary / handoff / closeout surfaces, or select `V81`.
+`V80-B` is closed on `main` as a bounded external data / tool / submission /
+result-provenance / exception register slice. The edge profile is acceptable
+for starting `V80-C`, provided the next lock selects only readiness summary,
+post-external-branch-review handoff, and family closeout alignment.
