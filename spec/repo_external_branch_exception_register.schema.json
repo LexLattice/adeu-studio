@@ -1,0 +1,160 @@
+{
+  "$defs": {
+    "RepoExternalBranchExceptionRow": {
+      "additionalProperties": false,
+      "properties": {
+        "blocking_surface_refs": {
+          "items": {
+            "type": "string"
+          },
+          "title": "Blocking Surface Refs",
+          "type": "array"
+        },
+        "candidate_ref": {
+          "title": "Candidate Ref",
+          "type": "string"
+        },
+        "exception_kind": {
+          "enum": [
+            "missing_v43_branch_posture",
+            "missing_external_data_boundary",
+            "missing_external_tool_boundary",
+            "missing_submission_authority",
+            "missing_result_provenance",
+            "missing_withdrawal_requirement",
+            "product_authority_gap",
+            "runtime_authority_gap",
+            "release_authority_gap",
+            "endpoint_access_authority_gap",
+            "historical_v43_as_current_authority",
+            "local_command_output_as_external_result_evidence",
+            "unknown_needs_review"
+          ],
+          "title": "Exception Kind",
+          "type": "string"
+        },
+        "exception_posture": {
+          "enum": [
+            "blocking",
+            "warning_only",
+            "carried_forward",
+            "not_applicable",
+            "future_family_only"
+          ],
+          "title": "Exception Posture",
+          "type": "string"
+        },
+        "exception_ref": {
+          "title": "Exception Ref",
+          "type": "string"
+        },
+        "external_branch_review_request_refs": {
+          "items": {
+            "type": "string"
+          },
+          "minItems": 1,
+          "title": "External Branch Review Request Refs",
+          "type": "array"
+        },
+        "limitation_note": {
+          "title": "Limitation Note",
+          "type": "string"
+        },
+        "required_next_surface": {
+          "enum": [
+            "v80c_external_branch_readiness_summary",
+            "future_product_review",
+            "future_runtime_review",
+            "future_external_branch_authority_review",
+            "future_family_review",
+            "none"
+          ],
+          "title": "Required Next Surface",
+          "type": "string"
+        },
+        "source_refs": {
+          "items": {
+            "type": "string"
+          },
+          "minItems": 1,
+          "title": "Source Refs",
+          "type": "array"
+        }
+      },
+      "required": [
+        "exception_ref",
+        "candidate_ref",
+        "source_refs",
+        "external_branch_review_request_refs",
+        "exception_kind",
+        "exception_posture",
+        "required_next_surface",
+        "limitation_note"
+      ],
+      "title": "RepoExternalBranchExceptionRow",
+      "type": "object"
+    }
+  },
+  "additionalProperties": false,
+  "properties": {
+    "exception_rows": {
+      "items": {
+        "$ref": "#/$defs/RepoExternalBranchExceptionRow"
+      },
+      "minItems": 1,
+      "title": "Exception Rows",
+      "type": "array"
+    },
+    "exception_summary": {
+      "title": "Exception Summary",
+      "type": "string"
+    },
+    "external_branch_exception_register_id": {
+      "title": "External Branch Exception Register Id",
+      "type": "string"
+    },
+    "external_branch_non_activation_guardrail_id": {
+      "title": "External Branch Non Activation Guardrail Id",
+      "type": "string"
+    },
+    "external_branch_review_request_id": {
+      "title": "External Branch Review Request Id",
+      "type": "string"
+    },
+    "external_branch_source_index_id": {
+      "title": "External Branch Source Index Id",
+      "type": "string"
+    },
+    "review_id": {
+      "title": "Review Id",
+      "type": "string"
+    },
+    "schema": {
+      "const": "repo_external_branch_exception_register@1",
+      "default": "repo_external_branch_exception_register@1",
+      "title": "Schema",
+      "type": "string"
+    },
+    "snapshot_id": {
+      "title": "Snapshot Id",
+      "type": "string"
+    },
+    "source_set_id": {
+      "title": "Source Set Id",
+      "type": "string"
+    }
+  },
+  "required": [
+    "external_branch_exception_register_id",
+    "external_branch_review_request_id",
+    "external_branch_source_index_id",
+    "external_branch_non_activation_guardrail_id",
+    "review_id",
+    "snapshot_id",
+    "source_set_id",
+    "exception_rows",
+    "exception_summary"
+  ],
+  "title": "RepoExternalBranchExceptionRegister",
+  "type": "object"
+}

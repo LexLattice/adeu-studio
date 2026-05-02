@@ -1,0 +1,44 @@
+{
+  "external_branch_non_activation_guardrail_id": "repo_external_branch_non_activation_guardrail_14369dae907b32d8758d7390",
+  "external_branch_review_request_id": "repo_external_branch_review_request_ff87138c0d0e8decef343620",
+  "external_branch_source_index_id": "repo_external_branch_source_index_6d9963e15a0717397293ea04",
+  "external_submission_authority_review_id": "repo_external_submission_authority_review_d9508d6fdb8a26f14fb88285",
+  "review_id": "review:v80a:external-branch-review",
+  "schema": "repo_external_submission_authority_review@1",
+  "snapshot_id": "vNext+223-controlled-execution-review-closeout",
+  "source_set_id": "source-set:v80a:released-v79c-external-branch-pressure",
+  "submission_authority_review_rows": [
+    {
+      "authority_refs": [
+        "external-branch-posture:v43:current:absent"
+      ],
+      "candidate_ref": "candidate:internal:self_evidencing_workflow_type_emergence",
+      "data_boundary_refs": [
+        "external-data-boundary:v80b:self-evidencing:v43-blocked"
+      ],
+      "external_branch_review_request_refs": [
+        "external-branch-review:v80a:self-evidencing:v43-blocked"
+      ],
+      "external_submission_posture": "submission_requires_later_family",
+      "external_tool_boundary_refs": [
+        "external-tool-boundary:v80b:self-evidencing:v43-blocked"
+      ],
+      "limitation_note": "Submission authority review is review only with no external submission and no external activation.",
+      "source_refs": [
+        "apps/api/fixtures/repo_description/vnext_plus223/repo_controlled_execution_review_family_closeout_alignment_v223_reference.json",
+        "apps/api/fixtures/repo_description/vnext_plus223/repo_controlled_execution_review_summary_v223_reference.json",
+        "apps/api/fixtures/repo_description/vnext_plus223/repo_post_controlled_execution_review_handoff_v223_reference.json",
+        "docs/DRAFT_MULTI_ARC_ROADMAP_POST_V74_v0.md",
+        "docs/DRAFT_NEXT_ARC_OPTIONS_v43.md",
+        "docs/support/arc_series_mapping/V68_V69_V70_V71_V72_V73_V74_V75_V76_V77_V78_V79_COMBINED_DOGFOOD_TEST_v0.json",
+        "external-branch-posture:v43:current:absent"
+      ],
+      "submission_authority_posture": "submission_authority_blocked_by_missing_v43_branch_posture",
+      "submission_authority_review_ref": "external-submission-authority:v80b:self-evidencing:v43-blocked",
+      "submission_target_refs": [
+        "external-submission:v43:target-placeholder"
+      ]
+    }
+  ],
+  "submission_authority_summary": "External submission authority review is review only with no external submission and no external activation."
+}

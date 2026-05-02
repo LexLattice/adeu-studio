@@ -1,0 +1,189 @@
+{
+  "$defs": {
+    "RepoExternalDataBoundaryRow": {
+      "additionalProperties": false,
+      "properties": {
+        "allowed_data_review_actions": {
+          "items": {
+            "enum": [
+              "describe_data_boundary",
+              "inspect_source_metadata",
+              "record_absence_posture",
+              "request_later_data_authority_review",
+              "preserve_data_gap"
+            ],
+            "type": "string"
+          },
+          "minItems": 1,
+          "title": "Allowed Data Review Actions",
+          "type": "array"
+        },
+        "candidate_ref": {
+          "title": "Candidate Ref",
+          "type": "string"
+        },
+        "data_boundary_posture": {
+          "enum": [
+            "data_boundary_complete_for_review_only",
+            "data_boundary_blocked_by_missing_v43_branch_posture",
+            "data_boundary_blocked_by_missing_authority",
+            "data_boundary_future_family_only"
+          ],
+          "title": "Data Boundary Posture",
+          "type": "string"
+        },
+        "data_boundary_ref": {
+          "title": "Data Boundary Ref",
+          "type": "string"
+        },
+        "data_source_refs": {
+          "items": {
+            "type": "string"
+          },
+          "title": "Data Source Refs",
+          "type": "array"
+        },
+        "data_transfer_posture": {
+          "enum": [
+            "no_external_data_transfer_performed_by_v80",
+            "data_transfer_requires_later_family",
+            "data_transfer_forbidden_by_this_family"
+          ],
+          "title": "Data Transfer Posture",
+          "type": "string"
+        },
+        "external_branch_review_request_refs": {
+          "items": {
+            "type": "string"
+          },
+          "minItems": 1,
+          "title": "External Branch Review Request Refs",
+          "type": "array"
+        },
+        "external_data_kind": {
+          "enum": [
+            "contest_prompt_metadata",
+            "external_objective_metadata",
+            "external_result_metadata",
+            "product_externalization_context",
+            "no_external_data_selected"
+          ],
+          "title": "External Data Kind",
+          "type": "string"
+        },
+        "forbidden_data_actions": {
+          "items": {
+            "enum": [
+              "ingest_external_data",
+              "export_repo_data",
+              "transfer_data",
+              "mutate_external_dataset",
+              "upload_submission_payload"
+            ],
+            "type": "string"
+          },
+          "minItems": 1,
+          "title": "Forbidden Data Actions",
+          "type": "array"
+        },
+        "limitation_note": {
+          "title": "Limitation Note",
+          "type": "string"
+        },
+        "non_activation_guardrail_refs": {
+          "items": {
+            "type": "string"
+          },
+          "minItems": 1,
+          "title": "Non Activation Guardrail Refs",
+          "type": "array"
+        },
+        "source_refs": {
+          "items": {
+            "type": "string"
+          },
+          "minItems": 1,
+          "title": "Source Refs",
+          "type": "array"
+        }
+      },
+      "required": [
+        "data_boundary_ref",
+        "candidate_ref",
+        "source_refs",
+        "external_branch_review_request_refs",
+        "non_activation_guardrail_refs",
+        "external_data_kind",
+        "allowed_data_review_actions",
+        "forbidden_data_actions",
+        "data_transfer_posture",
+        "data_boundary_posture",
+        "limitation_note"
+      ],
+      "title": "RepoExternalDataBoundaryRow",
+      "type": "object"
+    }
+  },
+  "additionalProperties": false,
+  "properties": {
+    "data_boundary_rows": {
+      "items": {
+        "$ref": "#/$defs/RepoExternalDataBoundaryRow"
+      },
+      "minItems": 1,
+      "title": "Data Boundary Rows",
+      "type": "array"
+    },
+    "data_boundary_summary": {
+      "title": "Data Boundary Summary",
+      "type": "string"
+    },
+    "external_branch_non_activation_guardrail_id": {
+      "title": "External Branch Non Activation Guardrail Id",
+      "type": "string"
+    },
+    "external_branch_review_request_id": {
+      "title": "External Branch Review Request Id",
+      "type": "string"
+    },
+    "external_branch_source_index_id": {
+      "title": "External Branch Source Index Id",
+      "type": "string"
+    },
+    "external_data_boundary_id": {
+      "title": "External Data Boundary Id",
+      "type": "string"
+    },
+    "review_id": {
+      "title": "Review Id",
+      "type": "string"
+    },
+    "schema": {
+      "const": "repo_external_data_boundary@1",
+      "default": "repo_external_data_boundary@1",
+      "title": "Schema",
+      "type": "string"
+    },
+    "snapshot_id": {
+      "title": "Snapshot Id",
+      "type": "string"
+    },
+    "source_set_id": {
+      "title": "Source Set Id",
+      "type": "string"
+    }
+  },
+  "required": [
+    "external_data_boundary_id",
+    "external_branch_review_request_id",
+    "external_branch_source_index_id",
+    "external_branch_non_activation_guardrail_id",
+    "review_id",
+    "snapshot_id",
+    "source_set_id",
+    "data_boundary_rows",
+    "data_boundary_summary"
+  ],
+  "title": "RepoExternalDataBoundary",
+  "type": "object"
+}

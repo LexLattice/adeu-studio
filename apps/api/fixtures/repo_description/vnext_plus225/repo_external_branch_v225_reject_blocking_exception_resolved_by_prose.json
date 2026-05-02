@@ -1,0 +1,59 @@
+{
+  "exception_rows": [
+    {
+      "blocking_surface_refs": [
+        "authority:v78a:product-wedge:product-review"
+      ],
+      "candidate_ref": "candidate:internal:typed_adjudication_product_wedge",
+      "exception_kind": "product_authority_gap",
+      "exception_posture": "blocking",
+      "exception_ref": "external-exception:v80b:product-wedge:authority-gap",
+      "external_branch_review_request_refs": [
+        "external-branch-review:v80a:product-wedge:out-of-scope"
+      ],
+      "limitation_note": "Blocking V43 exception resolved by prose with no external activation.",
+      "required_next_surface": "future_product_review",
+      "source_refs": [
+        "apps/api/fixtures/repo_description/vnext_plus223/repo_controlled_execution_review_family_closeout_alignment_v223_reference.json",
+        "apps/api/fixtures/repo_description/vnext_plus223/repo_controlled_execution_review_summary_v223_reference.json",
+        "apps/api/fixtures/repo_description/vnext_plus223/repo_post_controlled_execution_review_handoff_v223_reference.json",
+        "docs/DRAFT_MULTI_ARC_ROADMAP_POST_V74_v0.md",
+        "docs/DRAFT_NEXT_ARC_OPTIONS_v43.md",
+        "docs/support/arc_series_mapping/V68_V69_V70_V71_V72_V73_V74_V75_V76_V77_V78_V79_COMBINED_DOGFOOD_TEST_v0.json",
+        "external-branch-posture:v43:current:absent"
+      ]
+    },
+    {
+      "blocking_surface_refs": [
+        "external-branch-posture:v43:current:absent"
+      ],
+      "candidate_ref": "candidate:internal:self_evidencing_workflow_type_emergence",
+      "exception_kind": "missing_v43_branch_posture",
+      "exception_posture": "blocking",
+      "exception_ref": "external-exception:v80b:self-evidencing:missing-v43",
+      "external_branch_review_request_refs": [
+        "external-branch-review:v80a:self-evidencing:v43-blocked"
+      ],
+      "limitation_note": "Missing current V43 posture remains blocking for review only with no external activation.",
+      "required_next_surface": "future_external_branch_authority_review",
+      "source_refs": [
+        "apps/api/fixtures/repo_description/vnext_plus223/repo_controlled_execution_review_family_closeout_alignment_v223_reference.json",
+        "apps/api/fixtures/repo_description/vnext_plus223/repo_controlled_execution_review_summary_v223_reference.json",
+        "apps/api/fixtures/repo_description/vnext_plus223/repo_post_controlled_execution_review_handoff_v223_reference.json",
+        "docs/DRAFT_MULTI_ARC_ROADMAP_POST_V74_v0.md",
+        "docs/DRAFT_NEXT_ARC_OPTIONS_v43.md",
+        "docs/support/arc_series_mapping/V68_V69_V70_V71_V72_V73_V74_V75_V76_V77_V78_V79_COMBINED_DOGFOOD_TEST_v0.json",
+        "external-branch-posture:v43:current:absent"
+      ]
+    }
+  ],
+  "exception_summary": "External branch exceptions are review only, blocking where required, with no external activation.",
+  "external_branch_exception_register_id": "repo_external_branch_exception_register_0156d729a2593751189d0acb",
+  "external_branch_non_activation_guardrail_id": "repo_external_branch_non_activation_guardrail_14369dae907b32d8758d7390",
+  "external_branch_review_request_id": "repo_external_branch_review_request_ff87138c0d0e8decef343620",
+  "external_branch_source_index_id": "repo_external_branch_source_index_6d9963e15a0717397293ea04",
+  "review_id": "review:v80a:external-branch-review",
+  "schema": "repo_external_branch_exception_register@1",
+  "snapshot_id": "vNext+223-controlled-execution-review-closeout",
+  "source_set_id": "source-set:v80a:released-v79c-external-branch-pressure"
+}

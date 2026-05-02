@@ -1,0 +1,200 @@
+{
+  "$defs": {
+    "RepoExternalToolBoundaryRow": {
+      "additionalProperties": false,
+      "properties": {
+        "allowed_tool_review_actions": {
+          "items": {
+            "enum": [
+              "describe_tool_boundary",
+              "inspect_tool_metadata",
+              "record_endpoint_identifier",
+              "request_later_tool_authority_review",
+              "preserve_tool_gap"
+            ],
+            "type": "string"
+          },
+          "minItems": 1,
+          "title": "Allowed Tool Review Actions",
+          "type": "array"
+        },
+        "candidate_ref": {
+          "title": "Candidate Ref",
+          "type": "string"
+        },
+        "endpoint_ref_posture": {
+          "enum": [
+            "endpoint_identifier_only",
+            "endpoint_access_requires_later_authority",
+            "endpoint_access_forbidden_by_this_family",
+            "endpoint_absent_or_unknown"
+          ],
+          "title": "Endpoint Ref Posture",
+          "type": "string"
+        },
+        "external_branch_review_request_refs": {
+          "items": {
+            "type": "string"
+          },
+          "minItems": 1,
+          "title": "External Branch Review Request Refs",
+          "type": "array"
+        },
+        "external_tool_boundary_ref": {
+          "title": "External Tool Boundary Ref",
+          "type": "string"
+        },
+        "external_tool_invocation_posture": {
+          "enum": [
+            "no_external_tool_invocation_performed_by_v80",
+            "external_tool_invocation_requires_later_family",
+            "external_tool_invocation_forbidden_by_this_family"
+          ],
+          "title": "External Tool Invocation Posture",
+          "type": "string"
+        },
+        "forbidden_tool_actions": {
+          "items": {
+            "enum": [
+              "invoke_external_tool",
+              "mutate_external_endpoint",
+              "submit_payload",
+              "download_external_result",
+              "transfer_data"
+            ],
+            "type": "string"
+          },
+          "minItems": 1,
+          "title": "Forbidden Tool Actions",
+          "type": "array"
+        },
+        "limitation_note": {
+          "title": "Limitation Note",
+          "type": "string"
+        },
+        "non_activation_guardrail_refs": {
+          "items": {
+            "type": "string"
+          },
+          "minItems": 1,
+          "title": "Non Activation Guardrail Refs",
+          "type": "array"
+        },
+        "source_refs": {
+          "items": {
+            "type": "string"
+          },
+          "minItems": 1,
+          "title": "Source Refs",
+          "type": "array"
+        },
+        "tool_boundary_posture": {
+          "enum": [
+            "tool_boundary_complete_for_review_only",
+            "tool_boundary_blocked_by_missing_v43_branch_posture",
+            "tool_boundary_blocked_by_missing_authority",
+            "tool_boundary_future_family_only"
+          ],
+          "title": "Tool Boundary Posture",
+          "type": "string"
+        },
+        "tool_endpoint_refs": {
+          "items": {
+            "type": "string"
+          },
+          "title": "Tool Endpoint Refs",
+          "type": "array"
+        },
+        "tool_id": {
+          "title": "Tool Id",
+          "type": "string"
+        },
+        "tool_target_refs": {
+          "items": {
+            "type": "string"
+          },
+          "title": "Tool Target Refs",
+          "type": "array"
+        }
+      },
+      "required": [
+        "external_tool_boundary_ref",
+        "candidate_ref",
+        "source_refs",
+        "external_branch_review_request_refs",
+        "non_activation_guardrail_refs",
+        "tool_id",
+        "endpoint_ref_posture",
+        "allowed_tool_review_actions",
+        "forbidden_tool_actions",
+        "external_tool_invocation_posture",
+        "tool_boundary_posture",
+        "limitation_note"
+      ],
+      "title": "RepoExternalToolBoundaryRow",
+      "type": "object"
+    }
+  },
+  "additionalProperties": false,
+  "properties": {
+    "external_branch_non_activation_guardrail_id": {
+      "title": "External Branch Non Activation Guardrail Id",
+      "type": "string"
+    },
+    "external_branch_review_request_id": {
+      "title": "External Branch Review Request Id",
+      "type": "string"
+    },
+    "external_branch_source_index_id": {
+      "title": "External Branch Source Index Id",
+      "type": "string"
+    },
+    "external_tool_boundary_id": {
+      "title": "External Tool Boundary Id",
+      "type": "string"
+    },
+    "review_id": {
+      "title": "Review Id",
+      "type": "string"
+    },
+    "schema": {
+      "const": "repo_external_tool_boundary@1",
+      "default": "repo_external_tool_boundary@1",
+      "title": "Schema",
+      "type": "string"
+    },
+    "snapshot_id": {
+      "title": "Snapshot Id",
+      "type": "string"
+    },
+    "source_set_id": {
+      "title": "Source Set Id",
+      "type": "string"
+    },
+    "tool_boundary_rows": {
+      "items": {
+        "$ref": "#/$defs/RepoExternalToolBoundaryRow"
+      },
+      "minItems": 1,
+      "title": "Tool Boundary Rows",
+      "type": "array"
+    },
+    "tool_boundary_summary": {
+      "title": "Tool Boundary Summary",
+      "type": "string"
+    }
+  },
+  "required": [
+    "external_tool_boundary_id",
+    "external_branch_review_request_id",
+    "external_branch_source_index_id",
+    "external_branch_non_activation_guardrail_id",
+    "review_id",
+    "snapshot_id",
+    "source_set_id",
+    "tool_boundary_rows",
+    "tool_boundary_summary"
+  ],
+  "title": "RepoExternalToolBoundary",
+  "type": "object"
+}

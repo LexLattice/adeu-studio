@@ -1,0 +1,55 @@
+{
+  "external_branch_non_activation_guardrail_id": "repo_external_branch_non_activation_guardrail_14369dae907b32d8758d7390",
+  "external_branch_review_request_id": "repo_external_branch_review_request_ff87138c0d0e8decef343620",
+  "external_branch_source_index_id": "repo_external_branch_source_index_6d9963e15a0717397293ea04",
+  "external_tool_boundary_id": "repo_external_tool_boundary_86b19ec1ac0c5e734acc0140",
+  "review_id": "review:v80a:external-branch-review",
+  "schema": "repo_external_tool_boundary@1",
+  "snapshot_id": "vNext+223-controlled-execution-review-closeout",
+  "source_set_id": "source-set:v80a:released-v79c-external-branch-pressure",
+  "tool_boundary_rows": [
+    {
+      "allowed_tool_review_actions": [
+        "describe_tool_boundary",
+        "record_endpoint_identifier",
+        "request_later_tool_authority_review"
+      ],
+      "candidate_ref": "candidate:internal:self_evidencing_workflow_type_emergence",
+      "endpoint_ref_posture": "endpoint_identifier_only",
+      "external_branch_review_request_refs": [
+        "external-branch-review:v80a:self-evidencing:v43-blocked"
+      ],
+      "external_tool_boundary_ref": "external-tool-boundary:v80b:self-evidencing:v43-blocked",
+      "external_tool_invocation_posture": "no_external_tool_invocation_performed_by_v80",
+      "forbidden_tool_actions": [
+        "download_external_result",
+        "invoke_external_tool",
+        "mutate_external_endpoint",
+        "submit_payload",
+        "transfer_data"
+      ],
+      "limitation_note": "External tool boundary is review only with no external tool invocation and no external activation.",
+      "non_activation_guardrail_refs": [
+        "guardrail:v80a:self-evidencing:non-activation"
+      ],
+      "source_refs": [
+        "apps/api/fixtures/repo_description/vnext_plus223/repo_controlled_execution_review_family_closeout_alignment_v223_reference.json",
+        "apps/api/fixtures/repo_description/vnext_plus223/repo_controlled_execution_review_summary_v223_reference.json",
+        "apps/api/fixtures/repo_description/vnext_plus223/repo_post_controlled_execution_review_handoff_v223_reference.json",
+        "docs/DRAFT_MULTI_ARC_ROADMAP_POST_V74_v0.md",
+        "docs/DRAFT_NEXT_ARC_OPTIONS_v43.md",
+        "docs/support/arc_series_mapping/V68_V69_V70_V71_V72_V73_V74_V75_V76_V77_V78_V79_COMBINED_DOGFOOD_TEST_v0.json",
+        "external-branch-posture:v43:current:absent"
+      ],
+      "tool_boundary_posture": "tool_boundary_blocked_by_missing_v43_branch_posture",
+      "tool_endpoint_refs": [
+        "external-endpoint:v43:submission-api:identifier-only"
+      ],
+      "tool_id": "external-v43-submission-endpoint",
+      "tool_target_refs": [
+        "external-target:v43:submission-review-placeholder"
+      ]
+    }
+  ],
+  "tool_boundary_summary": "External tool boundaries are review only with no external tool invocation and no external activation."
+}

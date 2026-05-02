@@ -55,9 +55,14 @@ from adeu_repo_description import (
     REPO_EVIDENCE_SURFACE_INDEX_SCHEMA,
     REPO_EXECUTION_EFFECT_MONITORING_CONTRACT_SCHEMA,
     REPO_EXECUTION_RUN_PLAN_SCHEMA,
+    REPO_EXTERNAL_BRANCH_EXCEPTION_REGISTER_SCHEMA,
     REPO_EXTERNAL_BRANCH_NON_ACTIVATION_GUARDRAIL_SCHEMA,
     REPO_EXTERNAL_BRANCH_REVIEW_REQUEST_SCHEMA,
     REPO_EXTERNAL_BRANCH_SOURCE_INDEX_SCHEMA,
+    REPO_EXTERNAL_DATA_BOUNDARY_SCHEMA,
+    REPO_EXTERNAL_RESULT_PROVENANCE_CONTRACT_SCHEMA,
+    REPO_EXTERNAL_SUBMISSION_AUTHORITY_REVIEW_SCHEMA,
+    REPO_EXTERNAL_TOOL_BOUNDARY_SCHEMA,
     REPO_FAMILY_CLOSURE_REGISTER_SCHEMA,
     REPO_INTEGRATION_EFFECT_SURFACE_REGISTER_SCHEMA,
     REPO_INTEGRATION_NON_RELEASE_GUARDRAIL_SCHEMA,
@@ -1037,6 +1042,46 @@ def _schema_pairs() -> dict[str, tuple[Path, Path]]:
             / "schema"
             / "repo_external_branch_non_activation_guardrail.v1.json",
             root / "spec" / "repo_external_branch_non_activation_guardrail.schema.json",
+        ),
+        REPO_EXTERNAL_DATA_BOUNDARY_SCHEMA: (
+            root
+            / "packages"
+            / "adeu_repo_description"
+            / "schema"
+            / "repo_external_data_boundary.v1.json",
+            root / "spec" / "repo_external_data_boundary.schema.json",
+        ),
+        REPO_EXTERNAL_TOOL_BOUNDARY_SCHEMA: (
+            root
+            / "packages"
+            / "adeu_repo_description"
+            / "schema"
+            / "repo_external_tool_boundary.v1.json",
+            root / "spec" / "repo_external_tool_boundary.schema.json",
+        ),
+        REPO_EXTERNAL_SUBMISSION_AUTHORITY_REVIEW_SCHEMA: (
+            root
+            / "packages"
+            / "adeu_repo_description"
+            / "schema"
+            / "repo_external_submission_authority_review.v1.json",
+            root / "spec" / "repo_external_submission_authority_review.schema.json",
+        ),
+        REPO_EXTERNAL_RESULT_PROVENANCE_CONTRACT_SCHEMA: (
+            root
+            / "packages"
+            / "adeu_repo_description"
+            / "schema"
+            / "repo_external_result_provenance_contract.v1.json",
+            root / "spec" / "repo_external_result_provenance_contract.schema.json",
+        ),
+        REPO_EXTERNAL_BRANCH_EXCEPTION_REGISTER_SCHEMA: (
+            root
+            / "packages"
+            / "adeu_repo_description"
+            / "schema"
+            / "repo_external_branch_exception_register.v1.json",
+            root / "spec" / "repo_external_branch_exception_register.schema.json",
         ),
     }
 
