@@ -1,0 +1,104 @@
+{
+  "external_branch_non_activation_guardrail_id": "repo_external_branch_non_activation_guardrail_d6afa1e43cc2f0891b25c3bb",
+  "external_branch_review_request_id": "repo_external_branch_review_request_5962991c9d41accf8cbb2732",
+  "guardrail_rows": [
+    {
+      "candidate_ref": "candidate:internal:typed_adjudication_product_wedge",
+      "external_branch_review_request_refs": [
+        "external-branch-review:v80a:product-wedge:out-of-scope"
+      ],
+      "forbidden_downstream_authority": [
+        "benchmark_truth",
+        "external_branch_activation",
+        "external_result_truth",
+        "external_submission",
+        "external_tool_invocation",
+        "living_memory_authority",
+        "model_selection",
+        "product_authorization",
+        "recursive_policy_amendment",
+        "released_truth",
+        "v43_contest_participation",
+        "v81_selection"
+      ],
+      "forbidden_external_actions": [
+        "activate_external_branch",
+        "assign_worker",
+        "claim_external_result_truth",
+        "commit",
+        "dispatch_worker",
+        "enter_v43_contest",
+        "invoke_external_tool_for_effect",
+        "invoke_tool_for_effect",
+        "merge",
+        "mutate_external_endpoint",
+        "open_pr",
+        "release",
+        "run_command",
+        "submit_externally",
+        "transfer_external_data"
+      ],
+      "guardrail_posture": "non_activation_guardrail_active",
+      "guardrail_ref": "guardrail:v80a:product-wedge:non-activation",
+      "limitation_note": "This V80-A row is review only: no external activation, no external submission, no external tool invocation, no product authorization, and no release.",
+      "source_refs": [
+        "apps/api/fixtures/repo_description/vnext_plus223/repo_controlled_execution_review_family_closeout_alignment_v223_reference.json",
+        "apps/api/fixtures/repo_description/vnext_plus223/repo_controlled_execution_review_summary_v223_reference.json",
+        "apps/api/fixtures/repo_description/vnext_plus223/repo_post_controlled_execution_review_handoff_v223_reference.json",
+        "docs/DRAFT_MULTI_ARC_ROADMAP_POST_V74_v0.md",
+        "docs/DRAFT_NEXT_ARC_OPTIONS_v43.md",
+        "docs/support/arc_series_mapping/V68_V69_V70_V71_V72_V73_V74_V75_V76_V77_V78_V79_COMBINED_DOGFOOD_TEST_v0.json",
+        "external-branch-posture:v43:current:absent"
+      ]
+    },
+    {
+      "candidate_ref": "candidate:internal:self_evidencing_workflow_type_emergence",
+      "external_branch_review_request_refs": [
+        "external-branch-review:v80a:self-evidencing:v43-blocked"
+      ],
+      "forbidden_downstream_authority": [
+        "benchmark_truth",
+        "external_branch_activation",
+        "external_result_truth",
+        "external_submission",
+        "external_tool_invocation",
+        "living_memory_authority",
+        "model_selection",
+        "product_authorization",
+        "recursive_policy_amendment",
+        "released_truth",
+        "v43_contest_participation",
+        "v81_selection"
+      ],
+      "forbidden_external_actions": [
+        "activate_external_branch",
+        "assign_worker",
+        "claim_external_result_truth",
+        "commit",
+        "dispatch_worker",
+        "enter_v43_contest",
+        "invoke_external_tool_for_effect",
+        "invoke_tool_for_effect",
+        "merge",
+        "mutate_external_endpoint",
+        "open_pr",
+        "release",
+        "run_command",
+        "submit_externally",
+        "transfer_external_data"
+      ],
+      "guardrail_posture": "non_activation_guardrail_active",
+      "guardrail_ref": "guardrail:v80a:self-evidencing:non-activation",
+      "limitation_note": "This V80-A row is review only: no external activation, no external submission, no external tool invocation, no product authorization, and no release.",
+      "source_refs": [
+        "docs/DRAFT_MULTI_ARC_ROADMAP_POST_V74_v0.md",
+        "docs/DRAFT_NEXT_ARC_OPTIONS_v43.md"
+      ]
+    }
+  ],
+  "non_activation_summary": "External branch non-activation guardrails preserve review only: no external activation, no external submission, and no release.",
+  "review_id": "review:v80a:external-branch-review",
+  "schema": "repo_external_branch_non_activation_guardrail@1",
+  "snapshot_id": "vNext+223-controlled-execution-review-closeout",
+  "source_set_id": "source-set:v80a:released-v79c-external-branch-pressure"
+}

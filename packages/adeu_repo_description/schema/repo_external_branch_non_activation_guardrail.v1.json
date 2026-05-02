@@ -1,0 +1,153 @@
+{
+  "$defs": {
+    "RepoExternalBranchNonActivationGuardrailRow": {
+      "additionalProperties": false,
+      "properties": {
+        "candidate_ref": {
+          "title": "Candidate Ref",
+          "type": "string"
+        },
+        "external_branch_review_request_refs": {
+          "items": {
+            "type": "string"
+          },
+          "minItems": 1,
+          "title": "External Branch Review Request Refs",
+          "type": "array"
+        },
+        "forbidden_downstream_authority": {
+          "items": {
+            "enum": [
+              "external_branch_activation",
+              "v43_contest_participation",
+              "external_submission",
+              "external_tool_invocation",
+              "external_result_truth",
+              "product_authorization",
+              "released_truth",
+              "benchmark_truth",
+              "model_selection",
+              "living_memory_authority",
+              "recursive_policy_amendment",
+              "v81_selection"
+            ],
+            "type": "string"
+          },
+          "minItems": 1,
+          "title": "Forbidden Downstream Authority",
+          "type": "array"
+        },
+        "forbidden_external_actions": {
+          "items": {
+            "enum": [
+              "activate_external_branch",
+              "enter_v43_contest",
+              "submit_externally",
+              "invoke_external_tool_for_effect",
+              "mutate_external_endpoint",
+              "transfer_external_data",
+              "claim_external_result_truth",
+              "run_command",
+              "invoke_tool_for_effect",
+              "assign_worker",
+              "dispatch_worker",
+              "open_pr",
+              "commit",
+              "merge",
+              "release"
+            ],
+            "type": "string"
+          },
+          "minItems": 1,
+          "title": "Forbidden External Actions",
+          "type": "array"
+        },
+        "guardrail_posture": {
+          "const": "non_activation_guardrail_active",
+          "title": "Guardrail Posture",
+          "type": "string"
+        },
+        "guardrail_ref": {
+          "title": "Guardrail Ref",
+          "type": "string"
+        },
+        "limitation_note": {
+          "title": "Limitation Note",
+          "type": "string"
+        },
+        "source_refs": {
+          "items": {
+            "type": "string"
+          },
+          "minItems": 1,
+          "title": "Source Refs",
+          "type": "array"
+        }
+      },
+      "required": [
+        "guardrail_ref",
+        "candidate_ref",
+        "source_refs",
+        "external_branch_review_request_refs",
+        "forbidden_external_actions",
+        "forbidden_downstream_authority",
+        "guardrail_posture",
+        "limitation_note"
+      ],
+      "title": "RepoExternalBranchNonActivationGuardrailRow",
+      "type": "object"
+    }
+  },
+  "additionalProperties": false,
+  "properties": {
+    "external_branch_non_activation_guardrail_id": {
+      "title": "External Branch Non Activation Guardrail Id",
+      "type": "string"
+    },
+    "external_branch_review_request_id": {
+      "title": "External Branch Review Request Id",
+      "type": "string"
+    },
+    "guardrail_rows": {
+      "items": {
+        "$ref": "#/$defs/RepoExternalBranchNonActivationGuardrailRow"
+      },
+      "minItems": 1,
+      "title": "Guardrail Rows",
+      "type": "array"
+    },
+    "non_activation_summary": {
+      "title": "Non Activation Summary",
+      "type": "string"
+    },
+    "review_id": {
+      "title": "Review Id",
+      "type": "string"
+    },
+    "schema": {
+      "const": "repo_external_branch_non_activation_guardrail@1",
+      "default": "repo_external_branch_non_activation_guardrail@1",
+      "title": "Schema",
+      "type": "string"
+    },
+    "snapshot_id": {
+      "title": "Snapshot Id",
+      "type": "string"
+    },
+    "source_set_id": {
+      "title": "Source Set Id",
+      "type": "string"
+    }
+  },
+  "required": [
+    "external_branch_non_activation_guardrail_id",
+    "external_branch_review_request_id",
+    "review_id",
+    "snapshot_id",
+    "source_set_id",
+    "guardrail_rows",
+    "non_activation_summary"
+  ],
+  "title": "RepoExternalBranchNonActivationGuardrail",
+  "type": "object"
+}

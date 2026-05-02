@@ -55,6 +55,9 @@ from adeu_repo_description import (
     REPO_EVIDENCE_SURFACE_INDEX_SCHEMA,
     REPO_EXECUTION_EFFECT_MONITORING_CONTRACT_SCHEMA,
     REPO_EXECUTION_RUN_PLAN_SCHEMA,
+    REPO_EXTERNAL_BRANCH_NON_ACTIVATION_GUARDRAIL_SCHEMA,
+    REPO_EXTERNAL_BRANCH_REVIEW_REQUEST_SCHEMA,
+    REPO_EXTERNAL_BRANCH_SOURCE_INDEX_SCHEMA,
     REPO_FAMILY_CLOSURE_REGISTER_SCHEMA,
     REPO_INTEGRATION_EFFECT_SURFACE_REGISTER_SCHEMA,
     REPO_INTEGRATION_NON_RELEASE_GUARDRAIL_SCHEMA,
@@ -1010,6 +1013,30 @@ def _schema_pairs() -> dict[str, tuple[Path, Path]]:
             root
             / "spec"
             / "repo_controlled_execution_review_family_closeout_alignment.schema.json",
+        ),
+        REPO_EXTERNAL_BRANCH_SOURCE_INDEX_SCHEMA: (
+            root
+            / "packages"
+            / "adeu_repo_description"
+            / "schema"
+            / "repo_external_branch_source_index.v1.json",
+            root / "spec" / "repo_external_branch_source_index.schema.json",
+        ),
+        REPO_EXTERNAL_BRANCH_REVIEW_REQUEST_SCHEMA: (
+            root
+            / "packages"
+            / "adeu_repo_description"
+            / "schema"
+            / "repo_external_branch_review_request.v1.json",
+            root / "spec" / "repo_external_branch_review_request.schema.json",
+        ),
+        REPO_EXTERNAL_BRANCH_NON_ACTIVATION_GUARDRAIL_SCHEMA: (
+            root
+            / "packages"
+            / "adeu_repo_description"
+            / "schema"
+            / "repo_external_branch_non_activation_guardrail.v1.json",
+            root / "spec" / "repo_external_branch_non_activation_guardrail.schema.json",
         ),
     }
 

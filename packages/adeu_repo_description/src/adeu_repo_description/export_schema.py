@@ -96,6 +96,11 @@ from .dispatch_review import (
     RepoWorkerRoleCapacityProfile,
     RepoWorkerToolApplicabilityMatrix,
 )
+from .external_branch_review import (
+    RepoExternalBranchNonActivationGuardrail,
+    RepoExternalBranchReviewRequest,
+    RepoExternalBranchSourceIndex,
+)
 from .models import (
     RepoArcDependencyRegister,
     RepoArcDependencyRegisterV1,
@@ -540,6 +545,15 @@ def main() -> None:
     controlled_execution_review_family_closeout_alignment_schema = (
         RepoControlledExecutionReviewFamilyCloseoutAlignment.model_json_schema(by_alias=True)
     )
+    external_branch_source_index_schema = RepoExternalBranchSourceIndex.model_json_schema(
+        by_alias=True
+    )
+    external_branch_review_request_schema = (
+        RepoExternalBranchReviewRequest.model_json_schema(by_alias=True)
+    )
+    external_branch_non_activation_guardrail_schema = (
+        RepoExternalBranchNonActivationGuardrail.model_json_schema(by_alias=True)
+    )
 
     _assert_no_absolute_path_material(dependency_register_v1_schema, repo_root_path=root)
     _assert_no_absolute_path_material(dependency_register_schema, repo_root_path=root)
@@ -803,6 +817,18 @@ def main() -> None:
     )
     _assert_no_absolute_path_material(
         controlled_execution_review_family_closeout_alignment_schema,
+        repo_root_path=root,
+    )
+    _assert_no_absolute_path_material(
+        external_branch_source_index_schema,
+        repo_root_path=root,
+    )
+    _assert_no_absolute_path_material(
+        external_branch_review_request_schema,
+        repo_root_path=root,
+    )
+    _assert_no_absolute_path_material(
+        external_branch_non_activation_guardrail_schema,
         repo_root_path=root,
     )
 
@@ -2303,6 +2329,42 @@ def main() -> None:
         / "spec"
         / "repo_controlled_execution_review_family_closeout_alignment.schema.json",
         controlled_execution_review_family_closeout_alignment_schema,
+    )
+    _write_schema(
+        root
+        / "packages"
+        / "adeu_repo_description"
+        / "schema"
+        / "repo_external_branch_source_index.v1.json",
+        external_branch_source_index_schema,
+    )
+    _write_schema(
+        root / "spec" / "repo_external_branch_source_index.schema.json",
+        external_branch_source_index_schema,
+    )
+    _write_schema(
+        root
+        / "packages"
+        / "adeu_repo_description"
+        / "schema"
+        / "repo_external_branch_review_request.v1.json",
+        external_branch_review_request_schema,
+    )
+    _write_schema(
+        root / "spec" / "repo_external_branch_review_request.schema.json",
+        external_branch_review_request_schema,
+    )
+    _write_schema(
+        root
+        / "packages"
+        / "adeu_repo_description"
+        / "schema"
+        / "repo_external_branch_non_activation_guardrail.v1.json",
+        external_branch_non_activation_guardrail_schema,
+    )
+    _write_schema(
+        root / "spec" / "repo_external_branch_non_activation_guardrail.schema.json",
+        external_branch_non_activation_guardrail_schema,
     )
 
 
