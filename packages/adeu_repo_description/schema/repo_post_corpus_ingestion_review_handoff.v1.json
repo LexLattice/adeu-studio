@@ -1,0 +1,296 @@
+{
+  "$defs": {
+    "RepoPostCorpusIngestionReviewHandoffRow": {
+      "additionalProperties": false,
+      "properties": {
+        "adjudication_execution_posture": {
+          "enum": [
+            "no_cross_corpus_adjudication_performed_by_v82",
+            "cross_corpus_adjudication_requires_later_family",
+            "cross_corpus_adjudication_forbidden_by_this_family"
+          ],
+          "title": "Adjudication Execution Posture",
+          "type": "string"
+        },
+        "authority_review_refs": {
+          "items": {
+            "type": "string"
+          },
+          "title": "Authority Review Refs",
+          "type": "array"
+        },
+        "candidate_ref": {
+          "title": "Candidate Ref",
+          "type": "string"
+        },
+        "carried_exception_refs": {
+          "items": {
+            "type": "string"
+          },
+          "title": "Carried Exception Refs",
+          "type": "array"
+        },
+        "connector_activation_posture": {
+          "enum": [
+            "no_connector_activation_performed_by_v82",
+            "connector_activation_requires_later_family",
+            "connector_activation_forbidden_by_this_family"
+          ],
+          "title": "Connector Activation Posture",
+          "type": "string"
+        },
+        "connector_boundary_refs": {
+          "items": {
+            "type": "string"
+          },
+          "title": "Connector Boundary Refs",
+          "type": "array"
+        },
+        "corpus_ingestion_posture": {
+          "enum": [
+            "no_corpus_ingestion_performed_by_v82",
+            "corpus_ingestion_requires_later_family",
+            "corpus_ingestion_forbidden_by_this_family"
+          ],
+          "title": "Corpus Ingestion Posture",
+          "type": "string"
+        },
+        "customer_data_handling_posture": {
+          "enum": [
+            "no_customer_data_handling_performed_by_v82",
+            "customer_data_handling_requires_later_family",
+            "customer_data_handling_forbidden_by_this_family"
+          ],
+          "title": "Customer Data Handling Posture",
+          "type": "string"
+        },
+        "data_transfer_posture": {
+          "enum": [
+            "no_data_transfer_performed_by_v82",
+            "data_transfer_requires_later_family",
+            "data_transfer_forbidden_by_this_family"
+          ],
+          "title": "Data Transfer Posture",
+          "type": "string"
+        },
+        "endpoint_access_posture": {
+          "enum": [
+            "no_endpoint_access_performed_by_v82",
+            "endpoint_access_requires_later_family",
+            "endpoint_access_forbidden_by_this_family"
+          ],
+          "title": "Endpoint Access Posture",
+          "type": "string"
+        },
+        "guardrail_refs": {
+          "items": {
+            "type": "string"
+          },
+          "minItems": 1,
+          "title": "Guardrail Refs",
+          "type": "array"
+        },
+        "handoff_authority_horizon": {
+          "enum": [
+            "corpus_ingestion_authority_review",
+            "privacy_license_consent_authority_review",
+            "transfer_authority_review",
+            "retention_authority_review",
+            "deletion_or_withdrawal_authority_review",
+            "data_handling_clearance_review",
+            "connector_activation_authority_review",
+            "endpoint_access_authority_review",
+            "customer_data_handling_authority_review",
+            "cross_corpus_adjudication_review",
+            "benchmark_truth_guardrail_review",
+            "product_authority_review",
+            "graph_memory_review"
+          ],
+          "title": "Handoff Authority Horizon",
+          "type": "string"
+        },
+        "handoff_posture": {
+          "enum": [
+            "ready_for_later_review",
+            "ready_with_nonblocking_warnings",
+            "blocked_by_carried_exceptions",
+            "authority_review_requested_for_blockers",
+            "future_family_only",
+            "rejected_out_of_scope",
+            "deferred_no_selection"
+          ],
+          "title": "Handoff Posture",
+          "type": "string"
+        },
+        "handoff_ref": {
+          "title": "Handoff Ref",
+          "type": "string"
+        },
+        "handoff_subject_horizon": {
+          "enum": [
+            "corpus_ingestion_review_package",
+            "connector_access_review_package",
+            "endpoint_access_review_package",
+            "privacy_or_license_authority_gap",
+            "customer_data_authority_gap",
+            "transfer_boundary_review",
+            "benchmark_truth_guardrail",
+            "product_authority_gap",
+            "graph_memory_pressure"
+          ],
+          "title": "Handoff Subject Horizon",
+          "type": "string"
+        },
+        "handoff_target": {
+          "enum": [
+            "future_corpus_ingestion_authority_review",
+            "future_connector_activation_authority_review",
+            "future_endpoint_access_authority_review",
+            "future_data_transfer_authority_review",
+            "future_customer_data_handling_authority_review",
+            "future_cross_corpus_adjudication_review",
+            "future_product_review",
+            "future_benchmark_review",
+            "future_graph_memory_review",
+            "future_family_review",
+            "deferred_no_selection"
+          ],
+          "title": "Handoff Target",
+          "type": "string"
+        },
+        "limitation_note": {
+          "title": "Limitation Note",
+          "type": "string"
+        },
+        "preflight_refs": {
+          "items": {
+            "type": "string"
+          },
+          "title": "Preflight Refs",
+          "type": "array"
+        },
+        "required_later_authority_refs": {
+          "items": {
+            "type": "string"
+          },
+          "title": "Required Later Authority Refs",
+          "type": "array"
+        },
+        "summary_refs": {
+          "items": {
+            "type": "string"
+          },
+          "minItems": 1,
+          "title": "Summary Refs",
+          "type": "array"
+        }
+      },
+      "required": [
+        "handoff_ref",
+        "candidate_ref",
+        "summary_refs",
+        "handoff_target",
+        "handoff_subject_horizon",
+        "handoff_authority_horizon",
+        "handoff_posture",
+        "corpus_ingestion_posture",
+        "data_transfer_posture",
+        "customer_data_handling_posture",
+        "connector_activation_posture",
+        "endpoint_access_posture",
+        "adjudication_execution_posture",
+        "guardrail_refs",
+        "limitation_note"
+      ],
+      "title": "RepoPostCorpusIngestionReviewHandoffRow",
+      "type": "object"
+    }
+  },
+  "additionalProperties": false,
+  "properties": {
+    "connector_access_review_boundary_id": {
+      "title": "Connector Access Review Boundary Id",
+      "type": "string"
+    },
+    "corpus_data_handling_authority_review_id": {
+      "title": "Corpus Data Handling Authority Review Id",
+      "type": "string"
+    },
+    "corpus_ingestion_exception_register_id": {
+      "title": "Corpus Ingestion Exception Register Id",
+      "type": "string"
+    },
+    "corpus_ingestion_non_transfer_guardrail_id": {
+      "title": "Corpus Ingestion Non Transfer Guardrail Id",
+      "type": "string"
+    },
+    "corpus_ingestion_preflight_contract_id": {
+      "title": "Corpus Ingestion Preflight Contract Id",
+      "type": "string"
+    },
+    "corpus_ingestion_review_request_id": {
+      "title": "Corpus Ingestion Review Request Id",
+      "type": "string"
+    },
+    "corpus_ingestion_review_summary_id": {
+      "title": "Corpus Ingestion Review Summary Id",
+      "type": "string"
+    },
+    "corpus_ingestion_source_index_id": {
+      "title": "Corpus Ingestion Source Index Id",
+      "type": "string"
+    },
+    "handoff_rows": {
+      "items": {
+        "$ref": "#/$defs/RepoPostCorpusIngestionReviewHandoffRow"
+      },
+      "minItems": 1,
+      "title": "Handoff Rows",
+      "type": "array"
+    },
+    "handoff_summary": {
+      "title": "Handoff Summary",
+      "type": "string"
+    },
+    "post_corpus_ingestion_review_handoff_id": {
+      "title": "Post Corpus Ingestion Review Handoff Id",
+      "type": "string"
+    },
+    "review_id": {
+      "title": "Review Id",
+      "type": "string"
+    },
+    "schema": {
+      "const": "repo_post_corpus_ingestion_review_handoff@1",
+      "default": "repo_post_corpus_ingestion_review_handoff@1",
+      "title": "Schema",
+      "type": "string"
+    },
+    "snapshot_id": {
+      "title": "Snapshot Id",
+      "type": "string"
+    },
+    "source_set_id": {
+      "title": "Source Set Id",
+      "type": "string"
+    }
+  },
+  "required": [
+    "post_corpus_ingestion_review_handoff_id",
+    "corpus_ingestion_review_summary_id",
+    "corpus_ingestion_source_index_id",
+    "corpus_ingestion_review_request_id",
+    "corpus_ingestion_non_transfer_guardrail_id",
+    "corpus_ingestion_preflight_contract_id",
+    "connector_access_review_boundary_id",
+    "corpus_data_handling_authority_review_id",
+    "corpus_ingestion_exception_register_id",
+    "review_id",
+    "snapshot_id",
+    "source_set_id",
+    "handoff_rows",
+    "handoff_summary"
+  ],
+  "title": "RepoPostCorpusIngestionReviewHandoff",
+  "type": "object"
+}

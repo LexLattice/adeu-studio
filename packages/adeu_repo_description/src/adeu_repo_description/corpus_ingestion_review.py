@@ -31,6 +31,13 @@ REPO_CORPUS_INGESTION_PREFLIGHT_CONTRACT_SCHEMA = "repo_corpus_ingestion_preflig
 REPO_CONNECTOR_ACCESS_REVIEW_BOUNDARY_SCHEMA = "repo_connector_access_review_boundary@1"
 REPO_CORPUS_DATA_HANDLING_AUTHORITY_REVIEW_SCHEMA = "repo_corpus_data_handling_authority_review@1"
 REPO_CORPUS_INGESTION_EXCEPTION_REGISTER_SCHEMA = "repo_corpus_ingestion_exception_register@1"
+REPO_CORPUS_INGESTION_REVIEW_SUMMARY_SCHEMA = "repo_corpus_ingestion_review_summary@1"
+REPO_POST_CORPUS_INGESTION_REVIEW_HANDOFF_SCHEMA = (
+    "repo_post_corpus_ingestion_review_handoff@1"
+)
+REPO_CORPUS_INGESTION_REVIEW_FAMILY_CLOSEOUT_ALIGNMENT_SCHEMA = (
+    "repo_corpus_ingestion_review_family_closeout_alignment@1"
+)
 
 IngestionSourceRole = Literal[
     "v81_summary_source",
@@ -354,6 +361,148 @@ CorpusIngestionExceptionRequiredNextSurface = Literal[
     "future_family_review",
     "none",
 ]
+CorpusIngestionSummaryPosture = Literal[
+    "corpus_ingestion_review_ready_with_no_blockers",
+    "corpus_ingestion_review_ready_with_nonblocking_warnings",
+    "blocked_by_missing_corpus_source",
+    "blocked_by_missing_preflight",
+    "blocked_by_missing_privacy_authority",
+    "blocked_by_missing_license_or_consent",
+    "blocked_by_missing_customer_data_authority",
+    "blocked_by_missing_connector_authority",
+    "blocked_by_missing_endpoint_authority",
+    "blocked_by_missing_transfer_boundary",
+    "blocked_by_missing_monitoring",
+    "blocked_by_missing_rollback",
+    "blocked_by_product_authority_gap",
+    "blocked_by_benchmark_truth_guardrail",
+    "blocked_by_graph_memory_authority_gap",
+    "future_family_only",
+    "rejected_out_of_scope",
+]
+CorpusIngestionReadyBasisPosture = Literal[
+    "ready_no_blockers",
+    "ready_with_nonblocking_warnings",
+    "not_ready_blockers_remain",
+    "authority_review_requested_for_blockers",
+    "blocker_settlement_review_requested",
+    "future_family_only",
+    "rejected_out_of_scope",
+]
+ProductAuthorizationPostureV82 = Literal[
+    "no_product_authorization_performed_by_v82",
+    "product_authorization_requires_later_family",
+    "product_authorization_forbidden_by_this_family",
+]
+ReleaseAuthorityPostureV82 = Literal[
+    "no_release_authority_performed_by_v82",
+    "release_authority_requires_later_family",
+    "release_authority_forbidden_by_this_family",
+]
+BenchmarkTruthPostureV82 = Literal[
+    "no_benchmark_truth_claimed_by_v82",
+    "benchmark_truth_requires_later_family",
+    "benchmark_truth_forbidden_by_this_family",
+]
+GraphMemoryAuthorityPostureV82 = Literal[
+    "no_graph_memory_authority_created_by_v82",
+    "graph_memory_authority_requires_later_family",
+    "graph_memory_authority_forbidden_by_this_family",
+]
+PostCorpusIngestionReviewHandoffTarget = Literal[
+    "future_corpus_ingestion_authority_review",
+    "future_connector_activation_authority_review",
+    "future_endpoint_access_authority_review",
+    "future_data_transfer_authority_review",
+    "future_customer_data_handling_authority_review",
+    "future_cross_corpus_adjudication_review",
+    "future_product_review",
+    "future_benchmark_review",
+    "future_graph_memory_review",
+    "future_family_review",
+    "deferred_no_selection",
+]
+PostCorpusIngestionReviewHandoffSubjectHorizon = Literal[
+    "corpus_ingestion_review_package",
+    "connector_access_review_package",
+    "endpoint_access_review_package",
+    "privacy_or_license_authority_gap",
+    "customer_data_authority_gap",
+    "transfer_boundary_review",
+    "benchmark_truth_guardrail",
+    "product_authority_gap",
+    "graph_memory_pressure",
+]
+PostCorpusIngestionReviewHandoffAuthorityHorizon = Literal[
+    "corpus_ingestion_authority_review",
+    "privacy_license_consent_authority_review",
+    "transfer_authority_review",
+    "retention_authority_review",
+    "deletion_or_withdrawal_authority_review",
+    "data_handling_clearance_review",
+    "connector_activation_authority_review",
+    "endpoint_access_authority_review",
+    "customer_data_handling_authority_review",
+    "cross_corpus_adjudication_review",
+    "benchmark_truth_guardrail_review",
+    "product_authority_review",
+    "graph_memory_review",
+]
+PostCorpusIngestionReviewHandoffPosture = Literal[
+    "ready_for_later_review",
+    "ready_with_nonblocking_warnings",
+    "blocked_by_carried_exceptions",
+    "authority_review_requested_for_blockers",
+    "future_family_only",
+    "rejected_out_of_scope",
+    "deferred_no_selection",
+]
+CorpusIngestionClosedSlice = Literal["V82-A", "V82-B", "V82-C"]
+CorpusIngestionConsumedFamily = Literal[
+    "V68",
+    "V69",
+    "V70",
+    "V71",
+    "V72",
+    "V73",
+    "V74",
+    "V75",
+    "V76",
+    "V77",
+    "V78",
+    "V79",
+    "V80",
+    "V81",
+    "V82",
+]
+CorpusIngestionShippedRecordShape = Literal[
+    "repo_corpus_ingestion_review_request@1",
+    "repo_corpus_ingestion_source_index@1",
+    "repo_corpus_ingestion_non_transfer_guardrail@1",
+    "repo_corpus_ingestion_preflight_contract@1",
+    "repo_connector_access_review_boundary@1",
+    "repo_corpus_data_handling_authority_review@1",
+    "repo_corpus_ingestion_exception_register@1",
+    "repo_corpus_ingestion_review_summary@1",
+    "repo_post_corpus_ingestion_review_handoff@1",
+    "repo_corpus_ingestion_review_family_closeout_alignment@1",
+]
+CorpusIngestionUnselectedFutureSurface = Literal[
+    "corpus_ingestion",
+    "external_data_import_export",
+    "customer_data_handling",
+    "data_transfer",
+    "connector_activation",
+    "endpoint_access",
+    "cross_corpus_adjudication_execution",
+    "product_authorization",
+    "release",
+    "benchmark_truth",
+    "imported_result_truth",
+    "graph_memory_authority",
+    "recursive_policy_amendment",
+    "v83_selection",
+]
 
 _V81_ELIGIBILITY_SOURCE_ROLES = {
     "v81_summary_source",
@@ -425,6 +574,36 @@ _FORBIDDEN_DOWNSTREAM_AUTHORITIES = {
     "graph_memory_authority",
     "recursive_policy_amendment",
     "v83_selection",
+}
+_V82C_SUMMARY_READY_POSTURES = {
+    "corpus_ingestion_review_ready_with_no_blockers",
+    "corpus_ingestion_review_ready_with_nonblocking_warnings",
+}
+_V82C_SUMMARY_BLOCKED_POSTURES = {
+    "blocked_by_missing_corpus_source",
+    "blocked_by_missing_preflight",
+    "blocked_by_missing_privacy_authority",
+    "blocked_by_missing_license_or_consent",
+    "blocked_by_missing_customer_data_authority",
+    "blocked_by_missing_connector_authority",
+    "blocked_by_missing_endpoint_authority",
+    "blocked_by_missing_transfer_boundary",
+    "blocked_by_missing_monitoring",
+    "blocked_by_missing_rollback",
+    "blocked_by_product_authority_gap",
+    "blocked_by_benchmark_truth_guardrail",
+    "blocked_by_graph_memory_authority_gap",
+}
+_V82C_HANDOFF_TARGET_AUTHORITY_TERMS = {
+    "future_corpus_ingestion_authority_review": ("privacy", "license", "transfer"),
+    "future_connector_activation_authority_review": ("connector",),
+    "future_endpoint_access_authority_review": ("endpoint",),
+    "future_data_transfer_authority_review": ("transfer",),
+    "future_customer_data_handling_authority_review": ("privacy", "license"),
+    "future_cross_corpus_adjudication_review": ("benchmark",),
+    "future_product_review": ("product",),
+    "future_benchmark_review": ("benchmark",),
+    "future_graph_memory_review": ("graph",),
 }
 
 
@@ -2651,4 +2830,1201 @@ def derive_v82b_corpus_ingestion_boundary_bundle(
         connector_boundary,
         authority_review,
         exception_register,
+    )
+
+
+class RepoCorpusIngestionReviewSummaryRow(_CartographyBase):
+    corpus_ingestion_summary_ref: str
+    candidate_ref: str
+    request_refs: list[str] = Field(min_length=1)
+    preflight_refs: list[str] = Field(default_factory=list)
+    connector_boundary_refs: list[str] = Field(default_factory=list)
+    authority_review_refs: list[str] = Field(default_factory=list)
+    exception_refs: list[str] = Field(default_factory=list)
+    carried_blocker_refs: list[str] = Field(default_factory=list)
+    carried_warning_refs: list[str] = Field(default_factory=list)
+    summary_posture: CorpusIngestionSummaryPosture
+    ready_basis_posture: CorpusIngestionReadyBasisPosture
+    corpus_ingestion_posture: CorpusIngestionPosture
+    data_transfer_posture: DataTransferPosture
+    customer_data_handling_posture: CustomerDataHandlingPosture
+    connector_activation_posture: ConnectorActivationPosture
+    endpoint_access_posture: EndpointAccessPosture
+    adjudication_execution_posture: AdjudicationExecutionPosture
+    product_authorization_posture: ProductAuthorizationPostureV82
+    release_authority_posture: ReleaseAuthorityPostureV82
+    benchmark_truth_posture: BenchmarkTruthPostureV82
+    graph_memory_authority_posture: GraphMemoryAuthorityPostureV82
+    guardrail_refs: list[str] = Field(min_length=1)
+    limitation_note: str
+
+    @model_validator(mode="after")
+    def _validate_review_summary_row(self) -> RepoCorpusIngestionReviewSummaryRow:
+        _repo_ref(self.corpus_ingestion_summary_ref, field_name="corpus_ingestion_summary_ref")
+        _non_empty(self.candidate_ref, field_name="candidate_ref")
+        for field_name in (
+            "request_refs",
+            "preflight_refs",
+            "connector_boundary_refs",
+            "authority_review_refs",
+            "exception_refs",
+            "carried_blocker_refs",
+            "carried_warning_refs",
+            "guardrail_refs",
+        ):
+            object.__setattr__(
+                self,
+                field_name,
+                _sorted_unique(getattr(self, field_name), field_name=field_name),
+            )
+        if self.corpus_ingestion_posture != "no_corpus_ingestion_performed_by_v82":
+            raise ValueError("V82-C summaries must not ingest corpora")
+        if self.data_transfer_posture != "no_data_transfer_performed_by_v82":
+            raise ValueError("V82-C summaries must not transfer data")
+        if self.customer_data_handling_posture != "no_customer_data_handling_performed_by_v82":
+            raise ValueError("V82-C summaries must not handle customer data")
+        if self.connector_activation_posture != "no_connector_activation_performed_by_v82":
+            raise ValueError("V82-C summaries must not activate connectors")
+        if self.endpoint_access_posture != "no_endpoint_access_performed_by_v82":
+            raise ValueError("V82-C summaries must not access endpoints")
+        if self.adjudication_execution_posture != "no_cross_corpus_adjudication_performed_by_v82":
+            raise ValueError("V82-C summaries must not execute cross-corpus adjudication")
+        if self.product_authorization_posture != "no_product_authorization_performed_by_v82":
+            raise ValueError("V82-C summaries must not authorize products")
+        if self.release_authority_posture != "no_release_authority_performed_by_v82":
+            raise ValueError("V82-C summaries must not grant release authority")
+        if self.benchmark_truth_posture != "no_benchmark_truth_claimed_by_v82":
+            raise ValueError("V82-C summaries must not claim benchmark truth")
+        if self.graph_memory_authority_posture != "no_graph_memory_authority_created_by_v82":
+            raise ValueError("V82-C summaries must not create graph memory authority")
+        if self.summary_posture == "corpus_ingestion_review_ready_with_no_blockers":
+            if self.ready_basis_posture != "ready_no_blockers":
+                raise ValueError("ready corpus-ingestion summaries require ready_no_blockers")
+            if self.exception_refs or self.carried_blocker_refs or self.carried_warning_refs:
+                raise ValueError("ready corpus-ingestion summaries cannot carry exceptions")
+        if self.summary_posture == "corpus_ingestion_review_ready_with_nonblocking_warnings":
+            if self.ready_basis_posture != "ready_with_nonblocking_warnings":
+                raise ValueError("warning-ready corpus-ingestion summaries require warning basis")
+            if self.carried_blocker_refs:
+                raise ValueError("warning-ready summaries cannot carry blockers")
+            if not self.carried_warning_refs:
+                raise ValueError("warning-ready summaries must carry warnings")
+        if self.summary_posture in _V82C_SUMMARY_READY_POSTURES:
+            for field_name in (
+                "preflight_refs",
+                "connector_boundary_refs",
+                "authority_review_refs",
+            ):
+                if not getattr(self, field_name):
+                    raise ValueError("ready corpus-ingestion summaries require released refs")
+        if self.summary_posture in _V82C_SUMMARY_BLOCKED_POSTURES:
+            if self.ready_basis_posture not in {
+                "not_ready_blockers_remain",
+                "authority_review_requested_for_blockers",
+                "blocker_settlement_review_requested",
+            }:
+                raise ValueError("blocked corpus-ingestion summaries must preserve blocker basis")
+            if not self.carried_blocker_refs:
+                raise ValueError("blocked corpus-ingestion summaries must carry blockers")
+        if self.summary_posture == "future_family_only" and (
+            self.ready_basis_posture != "future_family_only"
+        ):
+            raise ValueError("future-family corpus-ingestion summaries require future basis")
+        if self.summary_posture == "rejected_out_of_scope" and (
+            self.ready_basis_posture != "rejected_out_of_scope"
+        ):
+            raise ValueError("rejected corpus-ingestion summaries require rejected basis")
+        if self.summary_posture == "blocked_by_product_authority_gap" and not any(
+            "product" in ref for ref in self.authority_review_refs
+        ):
+            raise ValueError("product-blocked summaries require product authority refs")
+        _reject_v82b_permission_claim(self.limitation_note, field_name="limitation_note")
+        _require_terms(
+            self.limitation_note,
+            field_name="limitation_note",
+            terms=("review", "no corpus ingestion", "no data transfer", "no connector"),
+        )
+        return self
+
+
+class RepoCorpusIngestionReviewSummary(_CartographyBase):
+    schema: Literal["repo_corpus_ingestion_review_summary@1"] = (
+        REPO_CORPUS_INGESTION_REVIEW_SUMMARY_SCHEMA
+    )
+    corpus_ingestion_review_summary_id: str
+    corpus_ingestion_source_index_id: str
+    corpus_ingestion_review_request_id: str
+    corpus_ingestion_non_transfer_guardrail_id: str
+    corpus_ingestion_preflight_contract_id: str
+    connector_access_review_boundary_id: str
+    corpus_data_handling_authority_review_id: str
+    corpus_ingestion_exception_register_id: str
+    review_id: str
+    snapshot_id: str
+    source_set_id: str
+    summary_rows: list[RepoCorpusIngestionReviewSummaryRow] = Field(min_length=1)
+    review_summary: str
+
+    @model_validator(mode="after")
+    def _validate_review_summary(self) -> RepoCorpusIngestionReviewSummary:
+        object.__setattr__(
+            self,
+            "summary_rows",
+            _sorted_unique_by_ref(
+                self.summary_rows,
+                attr="corpus_ingestion_summary_ref",
+                field_name="summary_rows",
+            ),
+        )
+        _require_terms(
+            self.review_summary,
+            field_name="review_summary",
+            terms=("review", "no corpus ingestion", "no data transfer", "no release"),
+        )
+        expected_id = _surface_id(
+            "repo_corpus_ingestion_review_summary",
+            self.schema,
+            self.model_dump(mode="json"),
+            "corpus_ingestion_review_summary_id",
+        )
+        if self.corpus_ingestion_review_summary_id != expected_id:
+            raise ValueError("corpus_ingestion_review_summary_id does not match canonical hash")
+        return self
+
+
+class RepoPostCorpusIngestionReviewHandoffRow(_CartographyBase):
+    handoff_ref: str
+    candidate_ref: str
+    summary_refs: list[str] = Field(min_length=1)
+    preflight_refs: list[str] = Field(default_factory=list)
+    connector_boundary_refs: list[str] = Field(default_factory=list)
+    authority_review_refs: list[str] = Field(default_factory=list)
+    carried_exception_refs: list[str] = Field(default_factory=list)
+    handoff_target: PostCorpusIngestionReviewHandoffTarget
+    handoff_subject_horizon: PostCorpusIngestionReviewHandoffSubjectHorizon
+    handoff_authority_horizon: PostCorpusIngestionReviewHandoffAuthorityHorizon
+    handoff_posture: PostCorpusIngestionReviewHandoffPosture
+    required_later_authority_refs: list[str] = Field(default_factory=list)
+    corpus_ingestion_posture: CorpusIngestionPosture
+    data_transfer_posture: DataTransferPosture
+    customer_data_handling_posture: CustomerDataHandlingPosture
+    connector_activation_posture: ConnectorActivationPosture
+    endpoint_access_posture: EndpointAccessPosture
+    adjudication_execution_posture: AdjudicationExecutionPosture
+    guardrail_refs: list[str] = Field(min_length=1)
+    limitation_note: str
+
+    @model_validator(mode="after")
+    def _validate_handoff_row(self) -> RepoPostCorpusIngestionReviewHandoffRow:
+        _repo_ref(self.handoff_ref, field_name="handoff_ref")
+        _non_empty(self.candidate_ref, field_name="candidate_ref")
+        for field_name in (
+            "summary_refs",
+            "preflight_refs",
+            "connector_boundary_refs",
+            "authority_review_refs",
+            "carried_exception_refs",
+            "required_later_authority_refs",
+            "guardrail_refs",
+        ):
+            object.__setattr__(
+                self,
+                field_name,
+                _sorted_unique(getattr(self, field_name), field_name=field_name),
+            )
+        if self.corpus_ingestion_posture != "no_corpus_ingestion_performed_by_v82":
+            raise ValueError("V82-C handoffs must not ingest corpora")
+        if self.data_transfer_posture != "no_data_transfer_performed_by_v82":
+            raise ValueError("V82-C handoffs must not transfer data")
+        if self.customer_data_handling_posture != "no_customer_data_handling_performed_by_v82":
+            raise ValueError("V82-C handoffs must not handle customer data")
+        if self.connector_activation_posture != "no_connector_activation_performed_by_v82":
+            raise ValueError("V82-C handoffs must not activate connectors")
+        if self.endpoint_access_posture != "no_endpoint_access_performed_by_v82":
+            raise ValueError("V82-C handoffs must not access endpoints")
+        if self.adjudication_execution_posture != "no_cross_corpus_adjudication_performed_by_v82":
+            raise ValueError("V82-C handoffs must not execute cross-corpus adjudication")
+        if self.handoff_posture == "ready_for_later_review" and self.carried_exception_refs:
+            raise ValueError("ready corpus-ingestion handoffs cannot carry exceptions")
+        if self.handoff_posture == "ready_with_nonblocking_warnings":
+            if not self.carried_exception_refs:
+                raise ValueError("warning-ready handoffs must carry warnings")
+        if (
+            self.handoff_posture == "blocked_by_carried_exceptions"
+            and not self.carried_exception_refs
+        ):
+            raise ValueError("blocked corpus-ingestion handoffs must carry exceptions")
+        authority_terms = _V82C_HANDOFF_TARGET_AUTHORITY_TERMS.get(self.handoff_target, ())
+        for term in authority_terms:
+            if not any(term in ref for ref in self.required_later_authority_refs):
+                raise ValueError(f"{term} handoffs require authority refs")
+        if self.handoff_target == "future_corpus_ingestion_authority_review":
+            for field_name in ("preflight_refs", "authority_review_refs", "guardrail_refs"):
+                if not getattr(self, field_name):
+                    raise ValueError("corpus ingestion handoffs require released refs")
+        if self.handoff_target == "future_cross_corpus_adjudication_review":
+            if not self.authority_review_refs:
+                raise ValueError("adjudication handoffs require authority refs")
+        _reject_v82b_permission_claim(self.limitation_note, field_name="limitation_note")
+        _require_terms(
+            self.limitation_note,
+            field_name="limitation_note",
+            terms=("later review", "no corpus ingestion", "no data transfer", "no connector"),
+        )
+        return self
+
+
+class RepoPostCorpusIngestionReviewHandoff(_CartographyBase):
+    schema: Literal["repo_post_corpus_ingestion_review_handoff@1"] = (
+        REPO_POST_CORPUS_INGESTION_REVIEW_HANDOFF_SCHEMA
+    )
+    post_corpus_ingestion_review_handoff_id: str
+    corpus_ingestion_review_summary_id: str
+    corpus_ingestion_source_index_id: str
+    corpus_ingestion_review_request_id: str
+    corpus_ingestion_non_transfer_guardrail_id: str
+    corpus_ingestion_preflight_contract_id: str
+    connector_access_review_boundary_id: str
+    corpus_data_handling_authority_review_id: str
+    corpus_ingestion_exception_register_id: str
+    review_id: str
+    snapshot_id: str
+    source_set_id: str
+    handoff_rows: list[RepoPostCorpusIngestionReviewHandoffRow] = Field(min_length=1)
+    handoff_summary: str
+
+    @model_validator(mode="after")
+    def _validate_handoff(self) -> RepoPostCorpusIngestionReviewHandoff:
+        object.__setattr__(
+            self,
+            "handoff_rows",
+            _sorted_unique_by_ref(self.handoff_rows, attr="handoff_ref", field_name="handoff_rows"),
+        )
+        _require_terms(
+            self.handoff_summary,
+            field_name="handoff_summary",
+            terms=("later review", "no corpus ingestion", "no data transfer", "no release"),
+        )
+        expected_id = _surface_id(
+            "repo_post_corpus_ingestion_review_handoff",
+            self.schema,
+            self.model_dump(mode="json"),
+            "post_corpus_ingestion_review_handoff_id",
+        )
+        if self.post_corpus_ingestion_review_handoff_id != expected_id:
+            raise ValueError(
+                "post_corpus_ingestion_review_handoff_id does not match canonical hash"
+            )
+        return self
+
+
+class RepoCorpusIngestionReviewFamilyCloseoutAlignment(_CartographyBase):
+    schema: Literal["repo_corpus_ingestion_review_family_closeout_alignment@1"] = (
+        REPO_CORPUS_INGESTION_REVIEW_FAMILY_CLOSEOUT_ALIGNMENT_SCHEMA
+    )
+    corpus_ingestion_review_family_closeout_alignment_id: str
+    corpus_ingestion_review_summary_id: str
+    post_corpus_ingestion_review_handoff_id: str
+    family: Literal["V82"]
+    closed_by_arc: Literal["vNext+232"]
+    closed_slice_ladder: list[CorpusIngestionClosedSlice] = Field(min_length=3)
+    shipped_record_shapes: list[CorpusIngestionShippedRecordShape] = Field(min_length=1)
+    consumed_source_families: list[CorpusIngestionConsumedFamily] = Field(min_length=1)
+    family_closed_on_main: Literal["closed_after_v82c_merge"]
+    future_family_authority: Literal["next_selector_required"]
+    unselected_future_surfaces: list[CorpusIngestionUnselectedFutureSurface] = Field(
+        min_length=1
+    )
+    corpus_ingestion_boundary: str
+    limitation_note: str
+
+    @model_validator(mode="after")
+    def _validate_family_closeout(self) -> RepoCorpusIngestionReviewFamilyCloseoutAlignment:
+        for field_name in (
+            "closed_slice_ladder",
+            "shipped_record_shapes",
+            "consumed_source_families",
+            "unselected_future_surfaces",
+        ):
+            object.__setattr__(
+                self,
+                field_name,
+                _sorted_unique(getattr(self, field_name), field_name=field_name),
+            )
+        if self.closed_slice_ladder != ["V82-A", "V82-B", "V82-C"]:
+            raise ValueError("corpus-ingestion closeout must close V82-A/B/C")
+        if "v83_selection" not in self.unselected_future_surfaces:
+            raise ValueError("corpus-ingestion closeout must not select V83")
+        _require_terms(
+            self.corpus_ingestion_boundary,
+            field_name="corpus_ingestion_boundary",
+            terms=("no corpus ingestion", "no data transfer", "no v83 selection"),
+        )
+        _reject_v82b_permission_claim(self.corpus_ingestion_boundary, field_name="boundary")
+        _reject_v82b_permission_claim(self.limitation_note, field_name="limitation_note")
+        expected_id = _surface_id(
+            "repo_corpus_ingestion_review_family_closeout_alignment",
+            self.schema,
+            self.model_dump(mode="json"),
+            "corpus_ingestion_review_family_closeout_alignment_id",
+        )
+        if self.corpus_ingestion_review_family_closeout_alignment_id != expected_id:
+            raise ValueError(
+                "corpus_ingestion_review_family_closeout_alignment_id "
+                "does not match canonical hash"
+            )
+        return self
+
+
+def derive_v82c_repo_corpus_ingestion_review_summary(
+    *,
+    repo_root: Path | None = None,
+    corpus_ingestion_source_index: RepoCorpusIngestionSourceIndex | None = None,
+    corpus_ingestion_review_request: RepoCorpusIngestionReviewRequest | None = None,
+    corpus_ingestion_non_transfer_guardrail: RepoCorpusIngestionNonTransferGuardrail | None = None,
+    corpus_ingestion_preflight_contract: RepoCorpusIngestionPreflightContract | None = None,
+    connector_access_review_boundary: RepoConnectorAccessReviewBoundary | None = None,
+    corpus_data_handling_authority_review: RepoCorpusDataHandlingAuthorityReview | None = None,
+    corpus_ingestion_exception_register: RepoCorpusIngestionExceptionRegister | None = None,
+) -> RepoCorpusIngestionReviewSummary:
+    if any(
+        item is None
+        for item in (
+            corpus_ingestion_source_index,
+            corpus_ingestion_review_request,
+            corpus_ingestion_non_transfer_guardrail,
+            corpus_ingestion_preflight_contract,
+            connector_access_review_boundary,
+            corpus_data_handling_authority_review,
+            corpus_ingestion_exception_register,
+        )
+    ):
+        (
+            corpus_ingestion_source_index,
+            corpus_ingestion_review_request,
+            corpus_ingestion_non_transfer_guardrail,
+            corpus_ingestion_preflight_contract,
+            connector_access_review_boundary,
+            corpus_data_handling_authority_review,
+            corpus_ingestion_exception_register,
+        ) = derive_v82b_corpus_ingestion_boundary_bundle(repo_root=repo_root)
+    assert corpus_ingestion_source_index is not None
+    assert corpus_ingestion_review_request is not None
+    assert corpus_ingestion_non_transfer_guardrail is not None
+    assert corpus_ingestion_preflight_contract is not None
+    assert connector_access_review_boundary is not None
+    assert corpus_data_handling_authority_review is not None
+    assert corpus_ingestion_exception_register is not None
+    validate_v82b_corpus_ingestion_boundary_bundle(
+        corpus_ingestion_source_index=corpus_ingestion_source_index,
+        corpus_ingestion_review_request=corpus_ingestion_review_request,
+        corpus_ingestion_non_transfer_guardrail=corpus_ingestion_non_transfer_guardrail,
+        corpus_ingestion_preflight_contract=corpus_ingestion_preflight_contract,
+        connector_access_review_boundary=connector_access_review_boundary,
+        corpus_data_handling_authority_review=corpus_data_handling_authority_review,
+        corpus_ingestion_exception_register=corpus_ingestion_exception_register,
+    )
+    preflight_rows = {
+        row.candidate_ref: row for row in corpus_ingestion_preflight_contract.preflight_rows
+    }
+    connector_rows = {
+        row.candidate_ref: row for row in connector_access_review_boundary.connector_boundary_rows
+    }
+    authority_rows_by_candidate: dict[str, list[RepoCorpusDataHandlingAuthorityReviewRow]] = {}
+    for row in corpus_data_handling_authority_review.authority_review_rows:
+        authority_rows_by_candidate.setdefault(row.candidate_ref, []).append(row)
+    exceptions_by_candidate: dict[str, list[RepoCorpusIngestionExceptionRow]] = {}
+    for row in corpus_ingestion_exception_register.exception_rows:
+        exceptions_by_candidate.setdefault(row.candidate_ref, []).append(row)
+    guardrail_rows = {
+        row.candidate_ref: row for row in corpus_ingestion_non_transfer_guardrail.guardrail_rows
+    }
+
+    def _single_candidate_row(
+        rows_by_candidate: dict[str, _CartographyBase],
+        candidate_ref: str,
+        *,
+        message: str,
+    ) -> _CartographyBase:
+        row = rows_by_candidate.get(candidate_ref)
+        if row is None:
+            raise ValueError(message)
+        return row
+
+    def _candidate_row_list(
+        rows_by_candidate: dict[str, list[_CartographyBase]],
+        candidate_ref: str,
+        *,
+        message: str,
+    ) -> list[_CartographyBase]:
+        rows = rows_by_candidate.get(candidate_ref)
+        if not rows:
+            raise ValueError(message)
+        return rows
+
+    rows: list[dict[str, object]] = []
+    for request_row in corpus_ingestion_review_request.request_rows:
+        candidate_ref = request_row.candidate_ref
+        authority_refs = [
+            row.authority_review_ref
+            for row in _candidate_row_list(
+                authority_rows_by_candidate,
+                candidate_ref,
+                message="V82-C summary derivation requires authority rows for candidate",
+            )
+        ]
+        exception_refs = [
+            row.exception_ref
+            for row in _candidate_row_list(
+                exceptions_by_candidate,
+                candidate_ref,
+                message="V82-C summary derivation requires exception rows for candidate",
+            )
+        ]
+        preflight_row = _single_candidate_row(
+            preflight_rows,
+            candidate_ref,
+            message="V82-C summary derivation requires preflight row for candidate",
+        )
+        connector_row = _single_candidate_row(
+            connector_rows,
+            candidate_ref,
+            message="V82-C summary derivation requires connector boundary row for candidate",
+        )
+        guardrail_row = _single_candidate_row(
+            guardrail_rows,
+            candidate_ref,
+            message="V82-C summary derivation requires guardrail row for candidate",
+        )
+        if "product" in candidate_ref:
+            summary_posture = "blocked_by_product_authority_gap"
+            ready_basis_posture = "authority_review_requested_for_blockers"
+            note = (
+                "Product-pressure corpus-ingestion summary remains blocked for review "
+                "with no corpus ingestion, no data transfer, no connector activation, "
+                "no endpoint access, and no product authorization."
+            )
+        else:
+            summary_posture = "blocked_by_missing_corpus_source"
+            ready_basis_posture = "not_ready_blockers_remain"
+            note = (
+                "Corpus-ingestion summary preserves missing corpus-source, privacy, "
+                "license, connector, endpoint, transfer, monitoring, and rollback "
+                "blockers for review with no corpus ingestion, no data transfer, "
+                "no connector activation, and no endpoint access."
+            )
+        rows.append(
+            {
+                "corpus_ingestion_summary_ref": (
+                    "corpus-ingestion-summary:v82c:"
+                    f"{candidate_ref.removeprefix('candidate:internal:')}"
+                ),
+                "candidate_ref": candidate_ref,
+                "request_refs": [request_row.corpus_ingestion_review_request_ref],
+                "preflight_refs": [preflight_row.preflight_contract_ref],
+                "connector_boundary_refs": [connector_row.connector_boundary_ref],
+                "authority_review_refs": authority_refs,
+                "exception_refs": exception_refs,
+                "carried_blocker_refs": exception_refs,
+                "carried_warning_refs": [],
+                "summary_posture": summary_posture,
+                "ready_basis_posture": ready_basis_posture,
+                "corpus_ingestion_posture": "no_corpus_ingestion_performed_by_v82",
+                "data_transfer_posture": "no_data_transfer_performed_by_v82",
+                "customer_data_handling_posture": "no_customer_data_handling_performed_by_v82",
+                "connector_activation_posture": "no_connector_activation_performed_by_v82",
+                "endpoint_access_posture": "no_endpoint_access_performed_by_v82",
+                "adjudication_execution_posture": "no_cross_corpus_adjudication_performed_by_v82",
+                "product_authorization_posture": "no_product_authorization_performed_by_v82",
+                "release_authority_posture": "no_release_authority_performed_by_v82",
+                "benchmark_truth_posture": "no_benchmark_truth_claimed_by_v82",
+                "graph_memory_authority_posture": "no_graph_memory_authority_created_by_v82",
+                "guardrail_refs": [guardrail_row.guardrail_ref],
+                "limitation_note": note,
+            }
+        )
+    payload = {
+        "schema": REPO_CORPUS_INGESTION_REVIEW_SUMMARY_SCHEMA,
+        "corpus_ingestion_review_summary_id": "",
+        "corpus_ingestion_source_index_id": (
+            corpus_ingestion_source_index.corpus_ingestion_source_index_id
+        ),
+        "corpus_ingestion_review_request_id": (
+            corpus_ingestion_review_request.corpus_ingestion_review_request_id
+        ),
+        "corpus_ingestion_non_transfer_guardrail_id": (
+            corpus_ingestion_non_transfer_guardrail.corpus_ingestion_non_transfer_guardrail_id
+        ),
+        "corpus_ingestion_preflight_contract_id": (
+            corpus_ingestion_preflight_contract.corpus_ingestion_preflight_contract_id
+        ),
+        "connector_access_review_boundary_id": (
+            connector_access_review_boundary.connector_access_review_boundary_id
+        ),
+        "corpus_data_handling_authority_review_id": (
+            corpus_data_handling_authority_review.corpus_data_handling_authority_review_id
+        ),
+        "corpus_ingestion_exception_register_id": (
+            corpus_ingestion_exception_register.corpus_ingestion_exception_register_id
+        ),
+        "review_id": corpus_ingestion_review_request.review_id,
+        "snapshot_id": corpus_ingestion_review_request.snapshot_id,
+        "source_set_id": corpus_ingestion_review_request.source_set_id,
+        "summary_rows": sorted(rows, key=lambda row: str(row["corpus_ingestion_summary_ref"])),
+        "review_summary": (
+            "V82-C summarizes released corpus-ingestion review substrate with "
+            "no corpus ingestion, no data transfer, no connector activation, "
+            "no endpoint access, no release, and no downstream authority."
+        ),
+    }
+    payload["corpus_ingestion_review_summary_id"] = _surface_id(
+        "repo_corpus_ingestion_review_summary",
+        REPO_CORPUS_INGESTION_REVIEW_SUMMARY_SCHEMA,
+        payload,
+        "corpus_ingestion_review_summary_id",
+    )
+    return RepoCorpusIngestionReviewSummary.model_validate(payload)
+
+
+def derive_v82c_repo_post_corpus_ingestion_review_handoff(
+    *,
+    repo_root: Path | None = None,
+    corpus_ingestion_source_index: RepoCorpusIngestionSourceIndex | None = None,
+    corpus_ingestion_review_request: RepoCorpusIngestionReviewRequest | None = None,
+    corpus_ingestion_non_transfer_guardrail: RepoCorpusIngestionNonTransferGuardrail | None = None,
+    corpus_ingestion_preflight_contract: RepoCorpusIngestionPreflightContract | None = None,
+    connector_access_review_boundary: RepoConnectorAccessReviewBoundary | None = None,
+    corpus_data_handling_authority_review: RepoCorpusDataHandlingAuthorityReview | None = None,
+    corpus_ingestion_exception_register: RepoCorpusIngestionExceptionRegister | None = None,
+    corpus_ingestion_review_summary: RepoCorpusIngestionReviewSummary | None = None,
+) -> RepoPostCorpusIngestionReviewHandoff:
+    if corpus_ingestion_review_summary is None:
+        summary = derive_v82c_repo_corpus_ingestion_review_summary(
+            repo_root=repo_root,
+            corpus_ingestion_source_index=corpus_ingestion_source_index,
+            corpus_ingestion_review_request=corpus_ingestion_review_request,
+            corpus_ingestion_non_transfer_guardrail=corpus_ingestion_non_transfer_guardrail,
+            corpus_ingestion_preflight_contract=corpus_ingestion_preflight_contract,
+            connector_access_review_boundary=connector_access_review_boundary,
+            corpus_data_handling_authority_review=corpus_data_handling_authority_review,
+            corpus_ingestion_exception_register=corpus_ingestion_exception_register,
+        )
+    else:
+        summary = corpus_ingestion_review_summary
+    if (
+        corpus_ingestion_source_index is None
+        or corpus_ingestion_review_request is None
+        or corpus_ingestion_non_transfer_guardrail is None
+        or corpus_ingestion_preflight_contract is None
+        or connector_access_review_boundary is None
+        or corpus_data_handling_authority_review is None
+        or corpus_ingestion_exception_register is None
+    ):
+        (
+            source_index,
+            request,
+            guardrail,
+            preflight,
+            connector_boundary,
+            authority_review,
+            exception_register,
+        ) = derive_v82b_corpus_ingestion_boundary_bundle(repo_root=repo_root)
+    else:
+        source_index = corpus_ingestion_source_index
+        request = corpus_ingestion_review_request
+        guardrail = corpus_ingestion_non_transfer_guardrail
+        preflight = corpus_ingestion_preflight_contract
+        connector_boundary = connector_access_review_boundary
+        authority_review = corpus_data_handling_authority_review
+        exception_register = corpus_ingestion_exception_register
+    authority_by_ref = {
+        row.authority_review_ref: row for row in authority_review.authority_review_rows
+    }
+
+    def _refs_with_authority_kind(
+        refs: list[str],
+        authority_kinds: set[str],
+        *,
+        message: str,
+    ) -> list[str]:
+        selected: list[str] = []
+        for ref in refs:
+            authority_row = authority_by_ref.get(ref)
+            if authority_row is None:
+                raise ValueError(message)
+            if authority_row.authority_kind in authority_kinds:
+                selected.append(ref)
+        return selected
+
+    rows: list[dict[str, object]] = []
+    for summary_row in summary.summary_rows:
+        if "product" in summary_row.candidate_ref:
+            target = "future_product_review"
+            subject = "product_authority_gap"
+            authority = "product_authority_review"
+            required = _refs_with_authority_kind(
+                summary_row.authority_review_refs,
+                {"product_authority"},
+                message="V82-C handoff derivation requires known summary authority refs",
+            )
+            note = (
+                "Product corpus-ingestion pressure is handed off for later review with "
+                "no corpus ingestion, no data transfer, no connector activation, "
+                "no endpoint access, and no product authorization."
+            )
+        else:
+            target = "future_corpus_ingestion_authority_review"
+            subject = "corpus_ingestion_review_package"
+            authority = "corpus_ingestion_authority_review"
+            required = _refs_with_authority_kind(
+                summary_row.authority_review_refs,
+                {
+                    "privacy_authority",
+                    "license_or_consent_authority",
+                    "transfer_authority",
+                },
+                message="V82-C handoff derivation requires known summary authority refs",
+            )
+            note = (
+                "Corpus-ingestion pressure is handed off for later review with "
+                "no corpus ingestion, no data transfer, no connector activation, "
+                "and no endpoint access."
+            )
+        rows.append(
+            {
+                "handoff_ref": (
+                    "post-corpus-ingestion-handoff:v82c:"
+                    f"{summary_row.candidate_ref.removeprefix('candidate:internal:')}"
+                ),
+                "candidate_ref": summary_row.candidate_ref,
+                "summary_refs": [summary_row.corpus_ingestion_summary_ref],
+                "preflight_refs": summary_row.preflight_refs,
+                "connector_boundary_refs": summary_row.connector_boundary_refs,
+                "authority_review_refs": summary_row.authority_review_refs,
+                "carried_exception_refs": summary_row.carried_blocker_refs,
+                "handoff_target": target,
+                "handoff_subject_horizon": subject,
+                "handoff_authority_horizon": authority,
+                "handoff_posture": "blocked_by_carried_exceptions",
+                "required_later_authority_refs": required,
+                "corpus_ingestion_posture": "no_corpus_ingestion_performed_by_v82",
+                "data_transfer_posture": "no_data_transfer_performed_by_v82",
+                "customer_data_handling_posture": "no_customer_data_handling_performed_by_v82",
+                "connector_activation_posture": "no_connector_activation_performed_by_v82",
+                "endpoint_access_posture": "no_endpoint_access_performed_by_v82",
+                "adjudication_execution_posture": "no_cross_corpus_adjudication_performed_by_v82",
+                "guardrail_refs": summary_row.guardrail_refs,
+                "limitation_note": note,
+            }
+        )
+    payload = {
+        "schema": REPO_POST_CORPUS_INGESTION_REVIEW_HANDOFF_SCHEMA,
+        "post_corpus_ingestion_review_handoff_id": "",
+        "corpus_ingestion_review_summary_id": summary.corpus_ingestion_review_summary_id,
+        "corpus_ingestion_source_index_id": source_index.corpus_ingestion_source_index_id,
+        "corpus_ingestion_review_request_id": request.corpus_ingestion_review_request_id,
+        "corpus_ingestion_non_transfer_guardrail_id": (
+            guardrail.corpus_ingestion_non_transfer_guardrail_id
+        ),
+        "corpus_ingestion_preflight_contract_id": preflight.corpus_ingestion_preflight_contract_id,
+        "connector_access_review_boundary_id": (
+            connector_boundary.connector_access_review_boundary_id
+        ),
+        "corpus_data_handling_authority_review_id": (
+            authority_review.corpus_data_handling_authority_review_id
+        ),
+        "corpus_ingestion_exception_register_id": (
+            exception_register.corpus_ingestion_exception_register_id
+        ),
+        "review_id": request.review_id,
+        "snapshot_id": request.snapshot_id,
+        "source_set_id": request.source_set_id,
+        "handoff_rows": sorted(rows, key=lambda row: str(row["handoff_ref"])),
+        "handoff_summary": (
+            "V82-C handoffs request later review with no corpus ingestion, "
+            "no data transfer, no connector activation, no release, and no "
+            "later-family completion."
+        ),
+    }
+    payload["post_corpus_ingestion_review_handoff_id"] = _surface_id(
+        "repo_post_corpus_ingestion_review_handoff",
+        REPO_POST_CORPUS_INGESTION_REVIEW_HANDOFF_SCHEMA,
+        payload,
+        "post_corpus_ingestion_review_handoff_id",
+    )
+    return RepoPostCorpusIngestionReviewHandoff.model_validate(payload)
+
+
+def derive_v82c_repo_corpus_ingestion_review_family_closeout_alignment(
+    *,
+    repo_root: Path | None = None,
+    corpus_ingestion_review_summary: RepoCorpusIngestionReviewSummary | None = None,
+    post_corpus_ingestion_review_handoff: RepoPostCorpusIngestionReviewHandoff | None = None,
+) -> RepoCorpusIngestionReviewFamilyCloseoutAlignment:
+    summary = corpus_ingestion_review_summary or derive_v82c_repo_corpus_ingestion_review_summary(
+        repo_root=repo_root
+    )
+    handoff = (
+        post_corpus_ingestion_review_handoff
+        or derive_v82c_repo_post_corpus_ingestion_review_handoff(
+            repo_root=repo_root,
+            corpus_ingestion_review_summary=summary,
+        )
+    )
+    payload = {
+        "schema": REPO_CORPUS_INGESTION_REVIEW_FAMILY_CLOSEOUT_ALIGNMENT_SCHEMA,
+        "corpus_ingestion_review_family_closeout_alignment_id": "",
+        "corpus_ingestion_review_summary_id": summary.corpus_ingestion_review_summary_id,
+        "post_corpus_ingestion_review_handoff_id": handoff.post_corpus_ingestion_review_handoff_id,
+        "family": "V82",
+        "closed_by_arc": "vNext+232",
+        "closed_slice_ladder": ["V82-A", "V82-B", "V82-C"],
+        "shipped_record_shapes": sorted(
+            [
+                REPO_CORPUS_INGESTION_REVIEW_REQUEST_SCHEMA,
+                REPO_CORPUS_INGESTION_SOURCE_INDEX_SCHEMA,
+                REPO_CORPUS_INGESTION_NON_TRANSFER_GUARDRAIL_SCHEMA,
+                REPO_CORPUS_INGESTION_PREFLIGHT_CONTRACT_SCHEMA,
+                REPO_CONNECTOR_ACCESS_REVIEW_BOUNDARY_SCHEMA,
+                REPO_CORPUS_DATA_HANDLING_AUTHORITY_REVIEW_SCHEMA,
+                REPO_CORPUS_INGESTION_EXCEPTION_REGISTER_SCHEMA,
+                REPO_CORPUS_INGESTION_REVIEW_SUMMARY_SCHEMA,
+                REPO_POST_CORPUS_INGESTION_REVIEW_HANDOFF_SCHEMA,
+                REPO_CORPUS_INGESTION_REVIEW_FAMILY_CLOSEOUT_ALIGNMENT_SCHEMA,
+            ]
+        ),
+        "consumed_source_families": [
+            "V68",
+            "V69",
+            "V70",
+            "V71",
+            "V72",
+            "V73",
+            "V74",
+            "V75",
+            "V76",
+            "V77",
+            "V78",
+            "V79",
+            "V80",
+            "V81",
+            "V82",
+        ],
+        "family_closed_on_main": "closed_after_v82c_merge",
+        "future_family_authority": "next_selector_required",
+        "unselected_future_surfaces": [
+            "benchmark_truth",
+            "connector_activation",
+            "corpus_ingestion",
+            "cross_corpus_adjudication_execution",
+            "customer_data_handling",
+            "data_transfer",
+            "endpoint_access",
+            "external_data_import_export",
+            "graph_memory_authority",
+            "imported_result_truth",
+            "product_authorization",
+            "recursive_policy_amendment",
+            "release",
+            "v83_selection",
+        ],
+        "corpus_ingestion_boundary": (
+            "V82 closes corpus-ingestion authority review with no corpus ingestion, "
+            "no data transfer, no connector activation, no endpoint access, "
+            "and no v83 selection."
+        ),
+        "limitation_note": (
+            "V82 is closed as review only with no corpus ingestion, no data transfer, "
+            "no connector activation, no v83 selection, and no downstream authority."
+        ),
+    }
+    payload["corpus_ingestion_review_family_closeout_alignment_id"] = _surface_id(
+        "repo_corpus_ingestion_review_family_closeout_alignment",
+        REPO_CORPUS_INGESTION_REVIEW_FAMILY_CLOSEOUT_ALIGNMENT_SCHEMA,
+        payload,
+        "corpus_ingestion_review_family_closeout_alignment_id",
+    )
+    return RepoCorpusIngestionReviewFamilyCloseoutAlignment.model_validate(payload)
+
+
+def validate_v82c_corpus_ingestion_review_closeout_bundle(
+    *,
+    corpus_ingestion_source_index: RepoCorpusIngestionSourceIndex,
+    corpus_ingestion_review_request: RepoCorpusIngestionReviewRequest,
+    corpus_ingestion_non_transfer_guardrail: RepoCorpusIngestionNonTransferGuardrail,
+    corpus_ingestion_preflight_contract: RepoCorpusIngestionPreflightContract,
+    connector_access_review_boundary: RepoConnectorAccessReviewBoundary,
+    corpus_data_handling_authority_review: RepoCorpusDataHandlingAuthorityReview,
+    corpus_ingestion_exception_register: RepoCorpusIngestionExceptionRegister,
+    corpus_ingestion_review_summary: RepoCorpusIngestionReviewSummary,
+    post_corpus_ingestion_review_handoff: RepoPostCorpusIngestionReviewHandoff,
+    corpus_ingestion_review_family_closeout_alignment: (
+        RepoCorpusIngestionReviewFamilyCloseoutAlignment
+    ),
+) -> None:
+    validate_v82b_corpus_ingestion_boundary_bundle(
+        corpus_ingestion_source_index=corpus_ingestion_source_index,
+        corpus_ingestion_review_request=corpus_ingestion_review_request,
+        corpus_ingestion_non_transfer_guardrail=corpus_ingestion_non_transfer_guardrail,
+        corpus_ingestion_preflight_contract=corpus_ingestion_preflight_contract,
+        connector_access_review_boundary=connector_access_review_boundary,
+        corpus_data_handling_authority_review=corpus_data_handling_authority_review,
+        corpus_ingestion_exception_register=corpus_ingestion_exception_register,
+    )
+    expected_ids = (
+        corpus_ingestion_source_index.corpus_ingestion_source_index_id,
+        corpus_ingestion_review_request.corpus_ingestion_review_request_id,
+        corpus_ingestion_non_transfer_guardrail.corpus_ingestion_non_transfer_guardrail_id,
+        corpus_ingestion_preflight_contract.corpus_ingestion_preflight_contract_id,
+        connector_access_review_boundary.connector_access_review_boundary_id,
+        corpus_data_handling_authority_review.corpus_data_handling_authority_review_id,
+        corpus_ingestion_exception_register.corpus_ingestion_exception_register_id,
+    )
+    if (
+        corpus_ingestion_review_summary.corpus_ingestion_source_index_id,
+        corpus_ingestion_review_summary.corpus_ingestion_review_request_id,
+        corpus_ingestion_review_summary.corpus_ingestion_non_transfer_guardrail_id,
+        corpus_ingestion_review_summary.corpus_ingestion_preflight_contract_id,
+        corpus_ingestion_review_summary.connector_access_review_boundary_id,
+        corpus_ingestion_review_summary.corpus_data_handling_authority_review_id,
+        corpus_ingestion_review_summary.corpus_ingestion_exception_register_id,
+    ) != expected_ids:
+        raise ValueError("V82-C summary must reference released V82-A/B surfaces")
+    if (
+        post_corpus_ingestion_review_handoff.corpus_ingestion_review_summary_id
+        != corpus_ingestion_review_summary.corpus_ingestion_review_summary_id
+    ):
+        raise ValueError("V82-C handoff must reference released summary surface")
+    if (
+        post_corpus_ingestion_review_handoff.corpus_ingestion_source_index_id,
+        post_corpus_ingestion_review_handoff.corpus_ingestion_review_request_id,
+        post_corpus_ingestion_review_handoff.corpus_ingestion_non_transfer_guardrail_id,
+        post_corpus_ingestion_review_handoff.corpus_ingestion_preflight_contract_id,
+        post_corpus_ingestion_review_handoff.connector_access_review_boundary_id,
+        post_corpus_ingestion_review_handoff.corpus_data_handling_authority_review_id,
+        post_corpus_ingestion_review_handoff.corpus_ingestion_exception_register_id,
+    ) != expected_ids:
+        raise ValueError("V82-C handoff must reference released V82-A/B surfaces")
+    if (
+        corpus_ingestion_review_family_closeout_alignment.corpus_ingestion_review_summary_id
+        != corpus_ingestion_review_summary.corpus_ingestion_review_summary_id
+        or corpus_ingestion_review_family_closeout_alignment.post_corpus_ingestion_review_handoff_id
+        != post_corpus_ingestion_review_handoff.post_corpus_ingestion_review_handoff_id
+    ):
+        raise ValueError("V82-C closeout must reference released summary and handoff")
+
+    request_rows = {
+        row.corpus_ingestion_review_request_ref: row
+        for row in corpus_ingestion_review_request.request_rows
+    }
+    guardrail_rows = {
+        row.guardrail_ref: row for row in corpus_ingestion_non_transfer_guardrail.guardrail_rows
+    }
+    preflight_rows = {
+        row.preflight_contract_ref: row
+        for row in corpus_ingestion_preflight_contract.preflight_rows
+    }
+    connector_rows = {
+        row.connector_boundary_ref: row
+        for row in connector_access_review_boundary.connector_boundary_rows
+    }
+    authority_rows = {
+        row.authority_review_ref: row
+        for row in corpus_data_handling_authority_review.authority_review_rows
+    }
+    exception_rows = {
+        row.exception_ref: row for row in corpus_ingestion_exception_register.exception_rows
+    }
+    summary_rows = {
+        row.corpus_ingestion_summary_ref: row
+        for row in corpus_ingestion_review_summary.summary_rows
+    }
+    request_candidates = {row.candidate_ref for row in corpus_ingestion_review_request.request_rows}
+    summary_candidates = {row.candidate_ref for row in corpus_ingestion_review_summary.summary_rows}
+    handoff_candidates = {
+        row.candidate_ref for row in post_corpus_ingestion_review_handoff.handoff_rows
+    }
+    if request_candidates != summary_candidates:
+        raise ValueError("V82-C summary must cover all request candidates")
+    if request_candidates != handoff_candidates:
+        raise ValueError("V82-C handoff must cover all request candidates")
+
+    def _require_known_refs(refs: list[str], known: set[str], message: str) -> None:
+        if any(ref not in known for ref in refs):
+            raise ValueError(message)
+
+    def _require_candidate_refs(
+        refs: list[str],
+        rows_by_ref: dict[str, _CartographyBase],
+        *,
+        candidate_ref: str,
+        message: str,
+    ) -> None:
+        for ref in refs:
+            if rows_by_ref[ref].candidate_ref != candidate_ref:
+                raise ValueError(message)
+
+    for row in corpus_ingestion_review_summary.summary_rows:
+        _require_known_refs(
+            row.request_refs, set(request_rows), "summary request refs must be known"
+        )
+        _require_known_refs(
+            row.preflight_refs, set(preflight_rows), "summary preflight refs must be known"
+        )
+        _require_known_refs(
+            row.connector_boundary_refs,
+            set(connector_rows),
+            "summary connector refs must be known",
+        )
+        _require_known_refs(
+            row.authority_review_refs,
+            set(authority_rows),
+            "summary authority refs must be known",
+        )
+        _require_known_refs(
+            row.exception_refs, set(exception_rows), "summary exception refs must be known"
+        )
+        _require_known_refs(
+            row.carried_blocker_refs,
+            set(exception_rows),
+            "summary blocker refs must be known",
+        )
+        _require_known_refs(
+            row.carried_warning_refs,
+            set(exception_rows),
+            "summary warning refs must be known",
+        )
+        _require_known_refs(
+            row.guardrail_refs, set(guardrail_rows), "summary guardrail refs must be known"
+        )
+        _require_candidate_refs(
+            row.request_refs,
+            request_rows,
+            candidate_ref=row.candidate_ref,
+            message="summary request refs must match candidate",
+        )
+        _require_candidate_refs(
+            row.preflight_refs,
+            preflight_rows,
+            candidate_ref=row.candidate_ref,
+            message="summary preflight refs must match candidate",
+        )
+        _require_candidate_refs(
+            row.connector_boundary_refs,
+            connector_rows,
+            candidate_ref=row.candidate_ref,
+            message="summary connector refs must match candidate",
+        )
+        _require_candidate_refs(
+            row.authority_review_refs,
+            authority_rows,
+            candidate_ref=row.candidate_ref,
+            message="summary authority refs must match candidate",
+        )
+        _require_candidate_refs(
+            row.exception_refs,
+            exception_rows,
+            candidate_ref=row.candidate_ref,
+            message="summary exception refs must match candidate",
+        )
+        _require_candidate_refs(
+            row.guardrail_refs,
+            guardrail_rows,
+            candidate_ref=row.candidate_ref,
+            message="summary guardrail refs must match candidate",
+        )
+        blocking_refs = {
+            ref
+            for ref in row.exception_refs
+            if exception_rows[ref].blocking_posture == "blocking_exception"
+        }
+        if row.summary_posture in _V82C_SUMMARY_READY_POSTURES and blocking_refs:
+            raise ValueError("ready corpus-ingestion summaries cannot hide blocking exceptions")
+        if row.summary_posture == "corpus_ingestion_review_ready_with_nonblocking_warnings":
+            warning_refs = {
+                ref
+                for ref in row.exception_refs
+                if exception_rows[ref].blocking_posture == "warning_only"
+            }
+            if set(row.exception_refs) != warning_refs:
+                raise ValueError("warning-ready summaries may carry warnings only")
+        for ref in row.carried_blocker_refs:
+            if exception_rows[ref].blocking_posture not in {
+                "blocking_exception",
+                "carried_forward_blocker",
+            }:
+                raise ValueError("carried blocker refs must point to blocking exceptions")
+        for ref in row.carried_warning_refs:
+            if exception_rows[ref].blocking_posture != "warning_only":
+                raise ValueError("carried warning refs must point to warning exceptions")
+        carried = set(row.carried_blocker_refs) | set(row.carried_warning_refs)
+        if not carried.issubset(set(row.exception_refs)):
+            raise ValueError("summary carried exception refs must be included in exception refs")
+
+    for row in post_corpus_ingestion_review_handoff.handoff_rows:
+        _require_known_refs(
+            row.summary_refs, set(summary_rows), "handoff summary refs must be known"
+        )
+        _require_known_refs(
+            row.preflight_refs, set(preflight_rows), "handoff preflight refs must be known"
+        )
+        _require_known_refs(
+            row.connector_boundary_refs, set(connector_rows), "handoff connector refs must be known"
+        )
+        _require_known_refs(
+            row.authority_review_refs, set(authority_rows), "handoff authority refs must be known"
+        )
+        _require_known_refs(
+            row.required_later_authority_refs,
+            set(authority_rows),
+            "handoff required authority refs must be known",
+        )
+        _require_known_refs(
+            row.carried_exception_refs, set(exception_rows), "handoff exception refs must be known"
+        )
+        _require_known_refs(
+            row.guardrail_refs, set(guardrail_rows), "handoff guardrail refs must be known"
+        )
+        _require_candidate_refs(
+            row.summary_refs,
+            summary_rows,
+            candidate_ref=row.candidate_ref,
+            message="handoff summary refs must match candidate",
+        )
+        _require_candidate_refs(
+            row.preflight_refs,
+            preflight_rows,
+            candidate_ref=row.candidate_ref,
+            message="handoff preflight refs must match candidate",
+        )
+        _require_candidate_refs(
+            row.connector_boundary_refs,
+            connector_rows,
+            candidate_ref=row.candidate_ref,
+            message="handoff connector refs must match candidate",
+        )
+        _require_candidate_refs(
+            row.authority_review_refs,
+            authority_rows,
+            candidate_ref=row.candidate_ref,
+            message="handoff authority refs must match candidate",
+        )
+        _require_candidate_refs(
+            row.required_later_authority_refs,
+            authority_rows,
+            candidate_ref=row.candidate_ref,
+            message="handoff required authority refs must match candidate",
+        )
+        _require_candidate_refs(
+            row.carried_exception_refs,
+            exception_rows,
+            candidate_ref=row.candidate_ref,
+            message="handoff exception refs must match candidate",
+        )
+        _require_candidate_refs(
+            row.guardrail_refs,
+            guardrail_rows,
+            candidate_ref=row.candidate_ref,
+            message="handoff guardrail refs must match candidate",
+        )
+        if not set(row.required_later_authority_refs).issubset(set(row.authority_review_refs)):
+            raise ValueError("handoff required authority refs must be carried authority refs")
+        blocking_refs = {
+            ref
+            for ref in row.carried_exception_refs
+            if exception_rows[ref].blocking_posture in {
+                "blocking_exception",
+                "carried_forward_blocker",
+            }
+        }
+        if blocking_refs and row.handoff_posture == "ready_for_later_review":
+            raise ValueError("handoffs with blocking exceptions cannot be ready")
+        if row.handoff_posture == "ready_with_nonblocking_warnings":
+            warning_refs = {
+                ref
+                for ref in row.carried_exception_refs
+                if exception_rows[ref].blocking_posture == "warning_only"
+            }
+            if set(row.carried_exception_refs) != warning_refs:
+                raise ValueError("warning-ready handoffs may carry warnings only")
+
+    if (
+        "v83_selection"
+        not in corpus_ingestion_review_family_closeout_alignment.unselected_future_surfaces
+    ):
+        raise ValueError("V82-C closeout must not select V83")
+
+
+def derive_v82c_corpus_ingestion_review_closeout_bundle(
+    *, repo_root: Path | None = None
+) -> tuple[
+    RepoCorpusIngestionSourceIndex,
+    RepoCorpusIngestionReviewRequest,
+    RepoCorpusIngestionNonTransferGuardrail,
+    RepoCorpusIngestionPreflightContract,
+    RepoConnectorAccessReviewBoundary,
+    RepoCorpusDataHandlingAuthorityReview,
+    RepoCorpusIngestionExceptionRegister,
+    RepoCorpusIngestionReviewSummary,
+    RepoPostCorpusIngestionReviewHandoff,
+    RepoCorpusIngestionReviewFamilyCloseoutAlignment,
+]:
+    (
+        source_index,
+        request,
+        guardrail,
+        preflight,
+        connector_boundary,
+        authority_review,
+        exception_register,
+    ) = derive_v82b_corpus_ingestion_boundary_bundle(repo_root=repo_root)
+    summary = derive_v82c_repo_corpus_ingestion_review_summary(
+        repo_root=repo_root,
+        corpus_ingestion_source_index=source_index,
+        corpus_ingestion_review_request=request,
+        corpus_ingestion_non_transfer_guardrail=guardrail,
+        corpus_ingestion_preflight_contract=preflight,
+        connector_access_review_boundary=connector_boundary,
+        corpus_data_handling_authority_review=authority_review,
+        corpus_ingestion_exception_register=exception_register,
+    )
+    handoff = derive_v82c_repo_post_corpus_ingestion_review_handoff(
+        repo_root=repo_root,
+        corpus_ingestion_source_index=source_index,
+        corpus_ingestion_review_request=request,
+        corpus_ingestion_non_transfer_guardrail=guardrail,
+        corpus_ingestion_preflight_contract=preflight,
+        connector_access_review_boundary=connector_boundary,
+        corpus_data_handling_authority_review=authority_review,
+        corpus_ingestion_exception_register=exception_register,
+        corpus_ingestion_review_summary=summary,
+    )
+    closeout = derive_v82c_repo_corpus_ingestion_review_family_closeout_alignment(
+        repo_root=repo_root,
+        corpus_ingestion_review_summary=summary,
+        post_corpus_ingestion_review_handoff=handoff,
+    )
+    validate_v82c_corpus_ingestion_review_closeout_bundle(
+        corpus_ingestion_source_index=source_index,
+        corpus_ingestion_review_request=request,
+        corpus_ingestion_non_transfer_guardrail=guardrail,
+        corpus_ingestion_preflight_contract=preflight,
+        connector_access_review_boundary=connector_boundary,
+        corpus_data_handling_authority_review=authority_review,
+        corpus_ingestion_exception_register=exception_register,
+        corpus_ingestion_review_summary=summary,
+        post_corpus_ingestion_review_handoff=handoff,
+        corpus_ingestion_review_family_closeout_alignment=closeout,
+    )
+    return (
+        source_index,
+        request,
+        guardrail,
+        preflight,
+        connector_boundary,
+        authority_review,
+        exception_register,
+        summary,
+        handoff,
+        closeout,
     )

@@ -88,8 +88,11 @@ from .corpus_ingestion_review import (
     RepoCorpusIngestionExceptionRegister,
     RepoCorpusIngestionNonTransferGuardrail,
     RepoCorpusIngestionPreflightContract,
+    RepoCorpusIngestionReviewFamilyCloseoutAlignment,
     RepoCorpusIngestionReviewRequest,
+    RepoCorpusIngestionReviewSummary,
     RepoCorpusIngestionSourceIndex,
+    RepoPostCorpusIngestionReviewHandoff,
 )
 from .cross_corpus_governance import (
     RepoCorpusBoundaryContract,
@@ -651,6 +654,15 @@ def main() -> None:
     corpus_ingestion_exception_register_schema = (
         RepoCorpusIngestionExceptionRegister.model_json_schema(by_alias=True)
     )
+    corpus_ingestion_review_summary_schema = (
+        RepoCorpusIngestionReviewSummary.model_json_schema(by_alias=True)
+    )
+    post_corpus_ingestion_review_handoff_schema = (
+        RepoPostCorpusIngestionReviewHandoff.model_json_schema(by_alias=True)
+    )
+    corpus_ingestion_review_family_closeout_alignment_schema = (
+        RepoCorpusIngestionReviewFamilyCloseoutAlignment.model_json_schema(by_alias=True)
+    )
 
     _assert_no_absolute_path_material(dependency_register_v1_schema, repo_root_path=root)
     _assert_no_absolute_path_material(dependency_register_schema, repo_root_path=root)
@@ -1017,6 +1029,18 @@ def main() -> None:
     )
     _assert_no_absolute_path_material(
         corpus_ingestion_exception_register_schema,
+        repo_root_path=root,
+    )
+    _assert_no_absolute_path_material(
+        corpus_ingestion_review_summary_schema,
+        repo_root_path=root,
+    )
+    _assert_no_absolute_path_material(
+        post_corpus_ingestion_review_handoff_schema,
+        repo_root_path=root,
+    )
+    _assert_no_absolute_path_material(
+        corpus_ingestion_review_family_closeout_alignment_schema,
         repo_root_path=root,
     )
 
@@ -2749,6 +2773,31 @@ def main() -> None:
     _write_schema(
         root / "spec" / "repo_corpus_ingestion_exception_register.schema.json",
         corpus_ingestion_exception_register_schema,
+    )
+    _write_schema(
+        repo_description_schema_root / "repo_corpus_ingestion_review_summary.v1.json",
+        corpus_ingestion_review_summary_schema,
+    )
+    _write_schema(
+        root / "spec" / "repo_corpus_ingestion_review_summary.schema.json",
+        corpus_ingestion_review_summary_schema,
+    )
+    _write_schema(
+        repo_description_schema_root / "repo_post_corpus_ingestion_review_handoff.v1.json",
+        post_corpus_ingestion_review_handoff_schema,
+    )
+    _write_schema(
+        root / "spec" / "repo_post_corpus_ingestion_review_handoff.schema.json",
+        post_corpus_ingestion_review_handoff_schema,
+    )
+    _write_schema(
+        repo_description_schema_root
+        / "repo_corpus_ingestion_review_family_closeout_alignment.v1.json",
+        corpus_ingestion_review_family_closeout_alignment_schema,
+    )
+    _write_schema(
+        root / "spec" / "repo_corpus_ingestion_review_family_closeout_alignment.schema.json",
+        corpus_ingestion_review_family_closeout_alignment_schema,
     )
 
 

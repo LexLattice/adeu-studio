@@ -1,0 +1,61 @@
+{
+  "closed_by_arc": "vNext+232",
+  "closed_slice_ladder": [
+    "V82-A",
+    "V82-B",
+    "V82-C"
+  ],
+  "consumed_source_families": [
+    "V68",
+    "V69",
+    "V70",
+    "V71",
+    "V72",
+    "V73",
+    "V74",
+    "V75",
+    "V76",
+    "V77",
+    "V78",
+    "V79",
+    "V80",
+    "V81",
+    "V82"
+  ],
+  "corpus_ingestion_boundary": "V82 closes corpus-ingestion authority review with no corpus ingestion, no data transfer, no connector activation, no endpoint access, and no v83 selection.",
+  "corpus_ingestion_review_family_closeout_alignment_id": "repo_corpus_ingestion_review_family_closeout_alignment_3638ed83e680c813d26a036a",
+  "corpus_ingestion_review_summary_id": "repo_corpus_ingestion_review_summary_cdf94000e1b73be494de8581",
+  "family": "V82",
+  "family_closed_on_main": "closed_after_v82c_merge",
+  "future_family_authority": "next_selector_required",
+  "limitation_note": "V82 is closed as review only with no corpus ingestion, no data transfer, no connector activation, no v83 selection, and no downstream authority.",
+  "post_corpus_ingestion_review_handoff_id": "repo_post_corpus_ingestion_review_handoff_e3c0993357764e5f39a324ad",
+  "schema": "repo_corpus_ingestion_review_family_closeout_alignment@1",
+  "shipped_record_shapes": [
+    "repo_connector_access_review_boundary@1",
+    "repo_corpus_data_handling_authority_review@1",
+    "repo_corpus_ingestion_exception_register@1",
+    "repo_corpus_ingestion_non_transfer_guardrail@1",
+    "repo_corpus_ingestion_preflight_contract@1",
+    "repo_corpus_ingestion_review_family_closeout_alignment@1",
+    "repo_corpus_ingestion_review_request@1",
+    "repo_corpus_ingestion_review_summary@1",
+    "repo_corpus_ingestion_source_index@1",
+    "repo_post_corpus_ingestion_review_handoff@1"
+  ],
+  "unselected_future_surfaces": [
+    "benchmark_truth",
+    "connector_activation",
+    "corpus_ingestion",
+    "cross_corpus_adjudication_execution",
+    "customer_data_handling",
+    "data_transfer",
+    "endpoint_access",
+    "external_data_import_export",
+    "graph_memory_authority",
+    "imported_result_truth",
+    "product_authorization",
+    "recursive_policy_amendment",
+    "release"
+  ]
+}
