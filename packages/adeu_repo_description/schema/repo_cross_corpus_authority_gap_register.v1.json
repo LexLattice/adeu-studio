@@ -1,0 +1,190 @@
+{
+  "$defs": {
+    "RepoCrossCorpusAuthorityGapRow": {
+      "additionalProperties": false,
+      "properties": {
+        "authority_gap_posture": {
+          "enum": [
+            "authority_missing",
+            "authority_requires_later_review",
+            "authority_not_applicable",
+            "authority_future_family_only",
+            "authority_rejected_out_of_scope"
+          ],
+          "title": "Authority Gap Posture",
+          "type": "string"
+        },
+        "authority_gap_ref": {
+          "title": "Authority Gap Ref",
+          "type": "string"
+        },
+        "authority_kind": {
+          "enum": [
+            "maintainer_authority",
+            "privacy_authority",
+            "license_or_consent_authority",
+            "customer_data_authority",
+            "connector_authority",
+            "benchmark_result_authority",
+            "product_authorization",
+            "external_branch_activation",
+            "release_authority",
+            "recursive_policy_authority"
+          ],
+          "title": "Authority Kind",
+          "type": "string"
+        },
+        "boundary_contract_refs": {
+          "items": {
+            "type": "string"
+          },
+          "title": "Boundary Contract Refs",
+          "type": "array"
+        },
+        "candidate_ref": {
+          "title": "Candidate Ref",
+          "type": "string"
+        },
+        "limitation_note": {
+          "title": "Limitation Note",
+          "type": "string"
+        },
+        "provenance_refs": {
+          "items": {
+            "type": "string"
+          },
+          "title": "Provenance Refs",
+          "type": "array"
+        },
+        "request_refs": {
+          "items": {
+            "type": "string"
+          },
+          "minItems": 1,
+          "title": "Request Refs",
+          "type": "array"
+        },
+        "required_before_surface": {
+          "enum": [
+            "v81c_cross_corpus_governance_summary",
+            "future_corpus_ingestion_review",
+            "future_connector_authority_review",
+            "future_cross_corpus_adjudication_review",
+            "future_product_review",
+            "future_external_branch_review",
+            "future_release_review",
+            "future_family_review",
+            "none"
+          ],
+          "title": "Required Before Surface",
+          "type": "string"
+        },
+        "source_presence_posture": {
+          "enum": [
+            "present",
+            "missing_expected_support_artifact",
+            "not_uploaded_in_review_snapshot",
+            "generated_later",
+            "external_unavailable",
+            "operator_turn_not_committed"
+          ],
+          "title": "Source Presence Posture",
+          "type": "string"
+        },
+        "source_refs": {
+          "items": {
+            "type": "string"
+          },
+          "minItems": 1,
+          "title": "Source Refs",
+          "type": "array"
+        }
+      },
+      "required": [
+        "authority_gap_ref",
+        "candidate_ref",
+        "request_refs",
+        "source_refs",
+        "authority_kind",
+        "authority_gap_posture",
+        "required_before_surface",
+        "source_presence_posture",
+        "limitation_note"
+      ],
+      "title": "RepoCrossCorpusAuthorityGapRow",
+      "type": "object"
+    }
+  },
+  "additionalProperties": false,
+  "properties": {
+    "authority_gap_rows": {
+      "items": {
+        "$ref": "#/$defs/RepoCrossCorpusAuthorityGapRow"
+      },
+      "minItems": 1,
+      "title": "Authority Gap Rows",
+      "type": "array"
+    },
+    "authority_gap_summary": {
+      "title": "Authority Gap Summary",
+      "type": "string"
+    },
+    "corpus_boundary_contract_id": {
+      "title": "Corpus Boundary Contract Id",
+      "type": "string"
+    },
+    "cross_corpus_authority_gap_register_id": {
+      "title": "Cross Corpus Authority Gap Register Id",
+      "type": "string"
+    },
+    "cross_corpus_governance_request_id": {
+      "title": "Cross Corpus Governance Request Id",
+      "type": "string"
+    },
+    "cross_corpus_non_ingestion_guardrail_id": {
+      "title": "Cross Corpus Non Ingestion Guardrail Id",
+      "type": "string"
+    },
+    "cross_corpus_source_index_id": {
+      "title": "Cross Corpus Source Index Id",
+      "type": "string"
+    },
+    "imported_substrate_provenance_register_id": {
+      "title": "Imported Substrate Provenance Register Id",
+      "type": "string"
+    },
+    "review_id": {
+      "title": "Review Id",
+      "type": "string"
+    },
+    "schema": {
+      "const": "repo_cross_corpus_authority_gap_register@1",
+      "default": "repo_cross_corpus_authority_gap_register@1",
+      "title": "Schema",
+      "type": "string"
+    },
+    "snapshot_id": {
+      "title": "Snapshot Id",
+      "type": "string"
+    },
+    "source_set_id": {
+      "title": "Source Set Id",
+      "type": "string"
+    }
+  },
+  "required": [
+    "cross_corpus_authority_gap_register_id",
+    "cross_corpus_governance_request_id",
+    "cross_corpus_source_index_id",
+    "cross_corpus_non_ingestion_guardrail_id",
+    "corpus_boundary_contract_id",
+    "imported_substrate_provenance_register_id",
+    "review_id",
+    "snapshot_id",
+    "source_set_id",
+    "authority_gap_rows",
+    "authority_gap_summary"
+  ],
+  "title": "RepoCrossCorpusAuthorityGapRegister",
+  "type": "object"
+}

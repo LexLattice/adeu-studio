@@ -1,0 +1,194 @@
+{
+  "$defs": {
+    "RepoCrossCorpusExceptionRow": {
+      "additionalProperties": false,
+      "properties": {
+        "authority_gap_refs": {
+          "items": {
+            "type": "string"
+          },
+          "title": "Authority Gap Refs",
+          "type": "array"
+        },
+        "blocking_posture": {
+          "enum": [
+            "blocking",
+            "warning_only",
+            "carried_forward",
+            "not_applicable",
+            "future_family_only"
+          ],
+          "title": "Blocking Posture",
+          "type": "string"
+        },
+        "boundary_contract_refs": {
+          "items": {
+            "type": "string"
+          },
+          "title": "Boundary Contract Refs",
+          "type": "array"
+        },
+        "candidate_ref": {
+          "title": "Candidate Ref",
+          "type": "string"
+        },
+        "exception_kind": {
+          "enum": [
+            "missing_corpus_source",
+            "stale_or_historical_corpus_source",
+            "missing_corpus_boundary",
+            "missing_imported_provenance",
+            "privacy_authority_gap",
+            "license_or_consent_gap",
+            "customer_data_authority_gap",
+            "connector_authority_gap",
+            "benchmark_truth_guardrail_gap",
+            "product_authority_gap",
+            "external_branch_authority_gap",
+            "release_authority_gap",
+            "unknown_needs_review"
+          ],
+          "title": "Exception Kind",
+          "type": "string"
+        },
+        "exception_ref": {
+          "title": "Exception Ref",
+          "type": "string"
+        },
+        "limitation_note": {
+          "title": "Limitation Note",
+          "type": "string"
+        },
+        "provenance_refs": {
+          "items": {
+            "type": "string"
+          },
+          "title": "Provenance Refs",
+          "type": "array"
+        },
+        "request_refs": {
+          "items": {
+            "type": "string"
+          },
+          "minItems": 1,
+          "title": "Request Refs",
+          "type": "array"
+        },
+        "required_next_surface": {
+          "enum": [
+            "v81c_cross_corpus_governance_summary",
+            "future_corpus_ingestion_review",
+            "future_connector_authority_review",
+            "future_cross_corpus_adjudication_review",
+            "future_product_review",
+            "future_external_branch_review",
+            "future_release_review",
+            "future_family_review",
+            "none"
+          ],
+          "title": "Required Next Surface",
+          "type": "string"
+        },
+        "visibility_posture": {
+          "enum": [
+            "visible_to_later_review",
+            "visible_warning_only",
+            "visible_blocking",
+            "not_applicable"
+          ],
+          "title": "Visibility Posture",
+          "type": "string"
+        }
+      },
+      "required": [
+        "exception_ref",
+        "candidate_ref",
+        "request_refs",
+        "exception_kind",
+        "blocking_posture",
+        "visibility_posture",
+        "required_next_surface",
+        "limitation_note"
+      ],
+      "title": "RepoCrossCorpusExceptionRow",
+      "type": "object"
+    }
+  },
+  "additionalProperties": false,
+  "properties": {
+    "corpus_boundary_contract_id": {
+      "title": "Corpus Boundary Contract Id",
+      "type": "string"
+    },
+    "cross_corpus_authority_gap_register_id": {
+      "title": "Cross Corpus Authority Gap Register Id",
+      "type": "string"
+    },
+    "cross_corpus_exception_register_id": {
+      "title": "Cross Corpus Exception Register Id",
+      "type": "string"
+    },
+    "cross_corpus_governance_request_id": {
+      "title": "Cross Corpus Governance Request Id",
+      "type": "string"
+    },
+    "cross_corpus_non_ingestion_guardrail_id": {
+      "title": "Cross Corpus Non Ingestion Guardrail Id",
+      "type": "string"
+    },
+    "cross_corpus_source_index_id": {
+      "title": "Cross Corpus Source Index Id",
+      "type": "string"
+    },
+    "exception_rows": {
+      "items": {
+        "$ref": "#/$defs/RepoCrossCorpusExceptionRow"
+      },
+      "minItems": 1,
+      "title": "Exception Rows",
+      "type": "array"
+    },
+    "exception_summary": {
+      "title": "Exception Summary",
+      "type": "string"
+    },
+    "imported_substrate_provenance_register_id": {
+      "title": "Imported Substrate Provenance Register Id",
+      "type": "string"
+    },
+    "review_id": {
+      "title": "Review Id",
+      "type": "string"
+    },
+    "schema": {
+      "const": "repo_cross_corpus_exception_register@1",
+      "default": "repo_cross_corpus_exception_register@1",
+      "title": "Schema",
+      "type": "string"
+    },
+    "snapshot_id": {
+      "title": "Snapshot Id",
+      "type": "string"
+    },
+    "source_set_id": {
+      "title": "Source Set Id",
+      "type": "string"
+    }
+  },
+  "required": [
+    "cross_corpus_exception_register_id",
+    "cross_corpus_governance_request_id",
+    "cross_corpus_source_index_id",
+    "cross_corpus_non_ingestion_guardrail_id",
+    "corpus_boundary_contract_id",
+    "imported_substrate_provenance_register_id",
+    "cross_corpus_authority_gap_register_id",
+    "review_id",
+    "snapshot_id",
+    "source_set_id",
+    "exception_rows",
+    "exception_summary"
+  ],
+  "title": "RepoCrossCorpusExceptionRegister",
+  "type": "object"
+}

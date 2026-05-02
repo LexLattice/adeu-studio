@@ -27,6 +27,14 @@ REPO_CROSS_CORPUS_SOURCE_INDEX_SCHEMA = "repo_cross_corpus_source_index@1"
 REPO_CROSS_CORPUS_NON_INGESTION_GUARDRAIL_SCHEMA = (
     "repo_cross_corpus_non_ingestion_guardrail@1"
 )
+REPO_CORPUS_BOUNDARY_CONTRACT_SCHEMA = "repo_corpus_boundary_contract@1"
+REPO_IMPORTED_SUBSTRATE_PROVENANCE_REGISTER_SCHEMA = (
+    "repo_imported_substrate_provenance_register@1"
+)
+REPO_CROSS_CORPUS_AUTHORITY_GAP_REGISTER_SCHEMA = (
+    "repo_cross_corpus_authority_gap_register@1"
+)
+REPO_CROSS_CORPUS_EXCEPTION_REGISTER_SCHEMA = "repo_cross_corpus_exception_register@1"
 
 CrossCorpusSourceRole = Literal[
     "v80_summary_source",
@@ -157,6 +165,155 @@ ForbiddenCrossCorpusDownstreamAuthority = Literal[
 ]
 NonIngestionPosture = Literal["non_ingestion_guardrail_active"]
 NonConnectorPosture = Literal["non_connector_guardrail_active"]
+CorpusBoundaryResolutionKind = Literal[
+    "concrete_repo_file_ref",
+    "concrete_external_source_ref",
+    "bounded_public_corpus_descriptor",
+    "bounded_customer_corpus_descriptor",
+    "benchmark_result_descriptor",
+    "paper_design_repo_bundle_descriptor",
+    "synthetic_corpus_descriptor",
+    "no_corpus_boundary",
+]
+AllowedCorpusReviewAction = Literal[
+    "describe_corpus_boundary",
+    "inspect_source_metadata",
+    "record_absence_posture",
+    "request_later_privacy_review",
+    "request_later_license_review",
+    "request_later_connector_review",
+    "preserve_corpus_gap",
+]
+PrivacyClearancePosture = Literal[
+    "clearance_not_present",
+    "clearance_requires_later_authority",
+    "clearance_not_applicable",
+    "clearance_explicitly_absent",
+]
+LicenseOrConsentPosture = Literal[
+    "license_not_present",
+    "license_requires_later_authority",
+    "consent_requires_later_authority",
+    "not_applicable",
+    "explicitly_absent",
+]
+CustomerDataHandlingPosture = Literal[
+    "no_customer_data_handling_performed_by_v81",
+    "customer_data_handling_requires_later_authority",
+    "customer_data_handling_forbidden_by_this_family",
+]
+DataHandlingPosture = Literal[
+    "no_data_handling_performed_by_v81",
+    "data_handling_requires_later_authority",
+    "data_handling_forbidden_by_this_family",
+]
+CorpusTransferPosture = Literal[
+    "no_corpus_transfer_performed_by_v81",
+    "corpus_transfer_requires_later_authority",
+    "corpus_transfer_forbidden_by_this_family",
+]
+SubstrateKind = Literal[
+    "repo_local_descriptor",
+    "imported_corpus_descriptor",
+    "benchmark_result_descriptor",
+    "customer_corpus_descriptor",
+    "paper_design_repo_bundle_descriptor",
+    "synthetic_corpus_descriptor",
+    "source_absence_marker",
+]
+CapturePosture = Literal[
+    "descriptor_recorded_only",
+    "source_metadata_recorded_only",
+    "provenance_requires_later_review",
+    "corpus_content_not_captured",
+    "capture_not_applicable",
+]
+ProvenanceStatus = Literal[
+    "source_present_unverified_truth",
+    "source_absent",
+    "source_stale_or_incomplete",
+    "provenance_requires_later_review",
+    "not_applicable",
+]
+TruthStatusForbidden = Literal[
+    "corpus_truth_not_claimed",
+    "truth_requires_later_review",
+    "truth_forbidden_by_this_family",
+]
+BenchmarkTruthPosture = Literal[
+    "benchmark_truth_not_claimed",
+    "benchmark_truth_requires_later_review",
+    "benchmark_truth_forbidden_by_this_family",
+]
+CrossCorpusAuthorityKind = Literal[
+    "maintainer_authority",
+    "privacy_authority",
+    "license_or_consent_authority",
+    "customer_data_authority",
+    "connector_authority",
+    "benchmark_result_authority",
+    "product_authorization",
+    "external_branch_activation",
+    "release_authority",
+    "recursive_policy_authority",
+]
+CrossCorpusAuthorityGapPosture = Literal[
+    "authority_missing",
+    "authority_requires_later_review",
+    "authority_not_applicable",
+    "authority_future_family_only",
+    "authority_rejected_out_of_scope",
+]
+CrossCorpusRequiredBeforeSurface = Literal[
+    "v81c_cross_corpus_governance_summary",
+    "future_corpus_ingestion_review",
+    "future_connector_authority_review",
+    "future_cross_corpus_adjudication_review",
+    "future_product_review",
+    "future_external_branch_review",
+    "future_release_review",
+    "future_family_review",
+    "none",
+]
+CrossCorpusExceptionKind = Literal[
+    "missing_corpus_source",
+    "stale_or_historical_corpus_source",
+    "missing_corpus_boundary",
+    "missing_imported_provenance",
+    "privacy_authority_gap",
+    "license_or_consent_gap",
+    "customer_data_authority_gap",
+    "connector_authority_gap",
+    "benchmark_truth_guardrail_gap",
+    "product_authority_gap",
+    "external_branch_authority_gap",
+    "release_authority_gap",
+    "unknown_needs_review",
+]
+CrossCorpusBlockingPosture = Literal[
+    "blocking",
+    "warning_only",
+    "carried_forward",
+    "not_applicable",
+    "future_family_only",
+]
+CrossCorpusVisibilityPosture = Literal[
+    "visible_to_later_review",
+    "visible_warning_only",
+    "visible_blocking",
+    "not_applicable",
+]
+CrossCorpusRequiredNextSurface = Literal[
+    "v81c_cross_corpus_governance_summary",
+    "future_corpus_ingestion_review",
+    "future_connector_authority_review",
+    "future_cross_corpus_adjudication_review",
+    "future_product_review",
+    "future_external_branch_review",
+    "future_release_review",
+    "future_family_review",
+    "none",
+]
 
 _V80_ELIGIBILITY_SOURCE_ROLES = {
     "v80_summary_source",
@@ -214,6 +371,16 @@ _FORBIDDEN_DOWNSTREAM_AUTHORITIES = {
     "recursive_policy_amendment",
     "v82_selection",
 }
+_CUSTOMER_BOUNDARY_RESOLUTION_KINDS = {"bounded_customer_corpus_descriptor"}
+_NON_PUBLIC_BOUNDARY_RESOLUTION_KINDS = {
+    "bounded_customer_corpus_descriptor",
+    "concrete_external_source_ref",
+}
+_PRODUCT_EXTERNAL_AUTHORITY_KINDS = {
+    "product_authorization",
+    "external_branch_activation",
+    "release_authority",
+}
 
 
 def _source_path(path: str) -> str:
@@ -240,8 +407,10 @@ def _reject_v81_action_claim(value: str, *, field_name: str) -> str:
         r"endpoint (?:is |was |has been |gets |got )?accessed",
         r"access endpoint",
         r"cross-corpus adjudication (?:is |was |has been |gets |got )?executed",
+        r"corpus truth",
         r"benchmark truth",
         r"imported result truth",
+        r"authority (?:is |was |has been |gets |got )?granted",
         r"product (?:is |was |has been |gets |got )?authorized",
         r"release now",
         r"v82 (?:is |was |has been |gets |got )?selected",
@@ -568,6 +737,399 @@ class RepoCrossCorpusNonIngestionGuardrail(_CartographyBase):
             raise ValueError(
                 "cross_corpus_non_ingestion_guardrail_id does not match canonical hash"
             )
+        return self
+
+
+class RepoCorpusBoundaryContractRow(_CartographyBase):
+    boundary_contract_ref: str
+    candidate_ref: str
+    request_refs: list[str] = Field(min_length=1)
+    source_refs: list[str] = Field(min_length=1)
+    guardrail_refs: list[str] = Field(min_length=1)
+    corpus_horizon_kind: CorpusHorizonKind
+    corpus_scope_refs: list[str] = Field(default_factory=list)
+    boundary_resolution_kind: CorpusBoundaryResolutionKind
+    allowed_corpus_review_actions: list[AllowedCorpusReviewAction] = Field(min_length=1)
+    forbidden_corpus_actions: list[ForbiddenCorpusDataAction] = Field(min_length=1)
+    privacy_clearance_posture: PrivacyClearancePosture
+    license_or_consent_posture: LicenseOrConsentPosture
+    customer_data_handling_posture: CustomerDataHandlingPosture
+    data_handling_posture: DataHandlingPosture
+    corpus_transfer_posture: CorpusTransferPosture
+    connector_activation_posture: ConnectorActivationPosture
+    limitation_note: str
+
+    @model_validator(mode="after")
+    def _validate_corpus_boundary_contract_row(self) -> RepoCorpusBoundaryContractRow:
+        _non_empty(self.boundary_contract_ref, field_name="boundary_contract_ref")
+        _non_empty(self.candidate_ref, field_name="candidate_ref")
+        for field_name in (
+            "request_refs",
+            "source_refs",
+            "guardrail_refs",
+            "corpus_scope_refs",
+            "allowed_corpus_review_actions",
+            "forbidden_corpus_actions",
+        ):
+            object.__setattr__(
+                self,
+                field_name,
+                _sorted_unique(getattr(self, field_name), field_name=field_name),
+            )
+        for source_ref in self.source_refs:
+            _repo_ref(source_ref, field_name="source_refs")
+        for scope_ref in self.corpus_scope_refs:
+            _non_empty(scope_ref, field_name="corpus_scope_refs")
+        missing = _FORBIDDEN_DATA_ACTIONS.difference(self.forbidden_corpus_actions)
+        if missing:
+            raise ValueError("corpus boundary contract omits forbidden corpus actions")
+        if self.data_handling_posture != "no_data_handling_performed_by_v81":
+            raise ValueError("V81-B boundary contracts must not handle corpus data")
+        if self.corpus_transfer_posture != "no_corpus_transfer_performed_by_v81":
+            raise ValueError("V81-B boundary contracts must not transfer corpus data")
+        if self.connector_activation_posture != "no_connector_activation_performed_by_v81":
+            raise ValueError("V81-B boundary contracts must not activate connectors")
+        if (
+            self.boundary_resolution_kind != "no_corpus_boundary"
+            and not self.corpus_scope_refs
+        ):
+            raise ValueError("corpus boundary contracts require source-bound scope refs")
+        if self.boundary_resolution_kind in _NON_PUBLIC_BOUNDARY_RESOLUTION_KINDS:
+            if self.privacy_clearance_posture == "clearance_not_applicable":
+                raise ValueError("non-public corpus boundaries require privacy posture")
+            if self.license_or_consent_posture == "not_applicable":
+                raise ValueError("non-public corpus boundaries require license or consent posture")
+        if self.boundary_resolution_kind in _CUSTOMER_BOUNDARY_RESOLUTION_KINDS:
+            if (
+                self.customer_data_handling_posture
+                == "no_customer_data_handling_performed_by_v81"
+            ):
+                raise ValueError("customer corpus boundaries require customer-data blocker")
+        _reject_v81_action_claim(self.limitation_note, field_name="limitation_note")
+        _require_terms(
+            self.limitation_note,
+            field_name="limitation_note",
+            terms=("review only", "no corpus ingestion", "no connector activation"),
+        )
+        return self
+
+
+class RepoCorpusBoundaryContract(_CartographyBase):
+    schema: Literal["repo_corpus_boundary_contract@1"] = REPO_CORPUS_BOUNDARY_CONTRACT_SCHEMA
+    corpus_boundary_contract_id: str
+    cross_corpus_governance_request_id: str
+    cross_corpus_source_index_id: str
+    cross_corpus_non_ingestion_guardrail_id: str
+    review_id: str
+    snapshot_id: str
+    source_set_id: str
+    boundary_contract_rows: list[RepoCorpusBoundaryContractRow] = Field(min_length=1)
+    boundary_contract_summary: str
+
+    @model_validator(mode="after")
+    def _validate_corpus_boundary_contract(self) -> RepoCorpusBoundaryContract:
+        object.__setattr__(
+            self,
+            "boundary_contract_rows",
+            _sorted_unique_by_ref(
+                self.boundary_contract_rows,
+                attr="boundary_contract_ref",
+                field_name="boundary_contract_rows",
+            ),
+        )
+        _require_terms(
+            self.boundary_contract_summary,
+            field_name="boundary_contract_summary",
+            terms=("review only", "no corpus ingestion", "no connector activation"),
+        )
+        expected_id = _surface_id(
+            "repo_corpus_boundary_contract",
+            self.schema,
+            self.model_dump(mode="json"),
+            "corpus_boundary_contract_id",
+        )
+        if self.corpus_boundary_contract_id != expected_id:
+            raise ValueError("corpus_boundary_contract_id does not match canonical hash")
+        return self
+
+
+class RepoImportedSubstrateProvenanceRow(_CartographyBase):
+    provenance_ref: str
+    candidate_ref: str
+    request_refs: list[str] = Field(min_length=1)
+    source_refs: list[str] = Field(min_length=1)
+    boundary_contract_refs: list[str] = Field(min_length=1)
+    substrate_kind: SubstrateKind
+    capture_posture: CapturePosture
+    provenance_status: ProvenanceStatus
+    truth_status_forbidden: TruthStatusForbidden
+    benchmark_truth_posture: BenchmarkTruthPosture
+    limitation_note: str
+
+    @model_validator(mode="after")
+    def _validate_imported_substrate_provenance_row(
+        self,
+    ) -> RepoImportedSubstrateProvenanceRow:
+        _non_empty(self.provenance_ref, field_name="provenance_ref")
+        _non_empty(self.candidate_ref, field_name="candidate_ref")
+        for field_name in ("request_refs", "source_refs", "boundary_contract_refs"):
+            object.__setattr__(
+                self,
+                field_name,
+                _sorted_unique(getattr(self, field_name), field_name=field_name),
+            )
+        for source_ref in self.source_refs:
+            _repo_ref(source_ref, field_name="source_refs")
+        if self.capture_posture not in {
+            "descriptor_recorded_only",
+            "source_metadata_recorded_only",
+            "provenance_requires_later_review",
+            "corpus_content_not_captured",
+            "capture_not_applicable",
+        }:
+            raise ValueError("provenance capture posture must not capture corpus content")
+        if self.truth_status_forbidden != "corpus_truth_not_claimed":
+            raise ValueError("V81-B provenance rows must not claim corpus truth")
+        if self.benchmark_truth_posture != "benchmark_truth_not_claimed":
+            raise ValueError("V81-B provenance rows must not claim benchmark truth")
+        _reject_v81_action_claim(self.limitation_note, field_name="limitation_note")
+        _require_terms(
+            self.limitation_note,
+            field_name="limitation_note",
+            terms=("review only", "no corpus truth", "no benchmark truth"),
+        )
+        return self
+
+
+class RepoImportedSubstrateProvenanceRegister(_CartographyBase):
+    schema: Literal["repo_imported_substrate_provenance_register@1"] = (
+        REPO_IMPORTED_SUBSTRATE_PROVENANCE_REGISTER_SCHEMA
+    )
+    imported_substrate_provenance_register_id: str
+    cross_corpus_governance_request_id: str
+    cross_corpus_source_index_id: str
+    cross_corpus_non_ingestion_guardrail_id: str
+    corpus_boundary_contract_id: str
+    review_id: str
+    snapshot_id: str
+    source_set_id: str
+    provenance_rows: list[RepoImportedSubstrateProvenanceRow] = Field(min_length=1)
+    provenance_summary: str
+
+    @model_validator(mode="after")
+    def _validate_imported_substrate_provenance_register(
+        self,
+    ) -> RepoImportedSubstrateProvenanceRegister:
+        object.__setattr__(
+            self,
+            "provenance_rows",
+            _sorted_unique_by_ref(
+                self.provenance_rows,
+                attr="provenance_ref",
+                field_name="provenance_rows",
+            ),
+        )
+        _require_terms(
+            self.provenance_summary,
+            field_name="provenance_summary",
+            terms=("review only", "no corpus truth", "no benchmark truth"),
+        )
+        expected_id = _surface_id(
+            "repo_imported_substrate_provenance_register",
+            self.schema,
+            self.model_dump(mode="json"),
+            "imported_substrate_provenance_register_id",
+        )
+        if self.imported_substrate_provenance_register_id != expected_id:
+            raise ValueError(
+                "imported_substrate_provenance_register_id does not match canonical hash"
+            )
+        return self
+
+
+class RepoCrossCorpusAuthorityGapRow(_CartographyBase):
+    authority_gap_ref: str
+    candidate_ref: str
+    request_refs: list[str] = Field(min_length=1)
+    source_refs: list[str] = Field(min_length=1)
+    boundary_contract_refs: list[str] = Field(default_factory=list)
+    provenance_refs: list[str] = Field(default_factory=list)
+    authority_kind: CrossCorpusAuthorityKind
+    authority_gap_posture: CrossCorpusAuthorityGapPosture
+    required_before_surface: CrossCorpusRequiredBeforeSurface
+    source_presence_posture: CandidateSourcePresencePosture
+    limitation_note: str
+
+    @model_validator(mode="after")
+    def _validate_cross_corpus_authority_gap_row(self) -> RepoCrossCorpusAuthorityGapRow:
+        _non_empty(self.authority_gap_ref, field_name="authority_gap_ref")
+        _non_empty(self.candidate_ref, field_name="candidate_ref")
+        for field_name in (
+            "request_refs",
+            "source_refs",
+            "boundary_contract_refs",
+            "provenance_refs",
+        ):
+            object.__setattr__(
+                self,
+                field_name,
+                _sorted_unique(getattr(self, field_name), field_name=field_name),
+            )
+        for source_ref in self.source_refs:
+            _repo_ref(source_ref, field_name="source_refs")
+        if (
+            self.authority_kind in _PRODUCT_EXTERNAL_AUTHORITY_KINDS
+            and self.authority_gap_posture
+            not in {
+                "authority_missing",
+                "authority_requires_later_review",
+                "authority_future_family_only",
+            }
+        ):
+            raise ValueError("product/external/release authority gaps must remain blocked")
+        _reject_v81_action_claim(self.limitation_note, field_name="limitation_note")
+        _require_terms(
+            self.limitation_note,
+            field_name="limitation_note",
+            terms=("review only", "authority gap", "no authority granted"),
+        )
+        return self
+
+
+class RepoCrossCorpusAuthorityGapRegister(_CartographyBase):
+    schema: Literal["repo_cross_corpus_authority_gap_register@1"] = (
+        REPO_CROSS_CORPUS_AUTHORITY_GAP_REGISTER_SCHEMA
+    )
+    cross_corpus_authority_gap_register_id: str
+    cross_corpus_governance_request_id: str
+    cross_corpus_source_index_id: str
+    cross_corpus_non_ingestion_guardrail_id: str
+    corpus_boundary_contract_id: str
+    imported_substrate_provenance_register_id: str
+    review_id: str
+    snapshot_id: str
+    source_set_id: str
+    authority_gap_rows: list[RepoCrossCorpusAuthorityGapRow] = Field(min_length=1)
+    authority_gap_summary: str
+
+    @model_validator(mode="after")
+    def _validate_cross_corpus_authority_gap_register(
+        self,
+    ) -> RepoCrossCorpusAuthorityGapRegister:
+        object.__setattr__(
+            self,
+            "authority_gap_rows",
+            _sorted_unique_by_ref(
+                self.authority_gap_rows,
+                attr="authority_gap_ref",
+                field_name="authority_gap_rows",
+            ),
+        )
+        _require_terms(
+            self.authority_gap_summary,
+            field_name="authority_gap_summary",
+            terms=("review only", "authority gap", "no authority granted"),
+        )
+        expected_id = _surface_id(
+            "repo_cross_corpus_authority_gap_register",
+            self.schema,
+            self.model_dump(mode="json"),
+            "cross_corpus_authority_gap_register_id",
+        )
+        if self.cross_corpus_authority_gap_register_id != expected_id:
+            raise ValueError(
+                "cross_corpus_authority_gap_register_id does not match canonical hash"
+            )
+        return self
+
+
+class RepoCrossCorpusExceptionRow(_CartographyBase):
+    exception_ref: str
+    candidate_ref: str
+    request_refs: list[str] = Field(min_length=1)
+    boundary_contract_refs: list[str] = Field(default_factory=list)
+    provenance_refs: list[str] = Field(default_factory=list)
+    authority_gap_refs: list[str] = Field(default_factory=list)
+    exception_kind: CrossCorpusExceptionKind
+    blocking_posture: CrossCorpusBlockingPosture
+    visibility_posture: CrossCorpusVisibilityPosture
+    required_next_surface: CrossCorpusRequiredNextSurface
+    limitation_note: str
+
+    @model_validator(mode="after")
+    def _validate_cross_corpus_exception_row(self) -> RepoCrossCorpusExceptionRow:
+        _non_empty(self.exception_ref, field_name="exception_ref")
+        _non_empty(self.candidate_ref, field_name="candidate_ref")
+        for field_name in (
+            "request_refs",
+            "boundary_contract_refs",
+            "provenance_refs",
+            "authority_gap_refs",
+        ):
+            object.__setattr__(
+                self,
+                field_name,
+                _sorted_unique(getattr(self, field_name), field_name=field_name),
+            )
+        if self.blocking_posture == "blocking" and not (
+            self.boundary_contract_refs or self.provenance_refs or self.authority_gap_refs
+        ):
+            raise ValueError("blocking cross-corpus exceptions require blocker refs")
+        lowered_note = self.limitation_note.lower()
+        if "resolved by prose" in lowered_note or "prose resolved" in lowered_note:
+            raise ValueError("cross-corpus exceptions cannot be resolved by prose")
+        if self.exception_kind in {
+            "product_authority_gap",
+            "external_branch_authority_gap",
+            "release_authority_gap",
+        }:
+            if self.blocking_posture not in {"blocking", "future_family_only"}:
+                raise ValueError("product/external/release exceptions must remain blocked")
+        _reject_v81_action_claim(self.limitation_note, field_name="limitation_note")
+        return self
+
+
+class RepoCrossCorpusExceptionRegister(_CartographyBase):
+    schema: Literal["repo_cross_corpus_exception_register@1"] = (
+        REPO_CROSS_CORPUS_EXCEPTION_REGISTER_SCHEMA
+    )
+    cross_corpus_exception_register_id: str
+    cross_corpus_governance_request_id: str
+    cross_corpus_source_index_id: str
+    cross_corpus_non_ingestion_guardrail_id: str
+    corpus_boundary_contract_id: str
+    imported_substrate_provenance_register_id: str
+    cross_corpus_authority_gap_register_id: str
+    review_id: str
+    snapshot_id: str
+    source_set_id: str
+    exception_rows: list[RepoCrossCorpusExceptionRow] = Field(min_length=1)
+    exception_summary: str
+
+    @model_validator(mode="after")
+    def _validate_cross_corpus_exception_register(self) -> RepoCrossCorpusExceptionRegister:
+        object.__setattr__(
+            self,
+            "exception_rows",
+            _sorted_unique_by_ref(
+                self.exception_rows,
+                attr="exception_ref",
+                field_name="exception_rows",
+            ),
+        )
+        _require_terms(
+            self.exception_summary,
+            field_name="exception_summary",
+            terms=("review only", "blocking", "no corpus ingestion"),
+        )
+        expected_id = _surface_id(
+            "repo_cross_corpus_exception_register",
+            self.schema,
+            self.model_dump(mode="json"),
+            "cross_corpus_exception_register_id",
+        )
+        if self.cross_corpus_exception_register_id != expected_id:
+            raise ValueError("cross_corpus_exception_register_id does not match canonical hash")
         return self
 
 
@@ -1012,3 +1574,755 @@ def derive_v81a_cross_corpus_governance_bundle(
         cross_corpus_non_ingestion_guardrail=guardrail,
     )
     return source_index, request, guardrail
+
+
+def _v81b_v81a_request_rows(
+    request: RepoCrossCorpusGovernanceRequest,
+) -> dict[str, RepoCrossCorpusGovernanceRequestRow]:
+    return {
+        row.cross_corpus_governance_request_ref: row for row in request.request_rows
+    }
+
+
+def _v81b_shared_ids(
+    *,
+    request: RepoCrossCorpusGovernanceRequest,
+    source_index: RepoCrossCorpusSourceIndex,
+    guardrail: RepoCrossCorpusNonIngestionGuardrail,
+) -> dict[str, str]:
+    return {
+        "cross_corpus_governance_request_id": request.cross_corpus_governance_request_id,
+        "cross_corpus_source_index_id": source_index.cross_corpus_source_index_id,
+        "cross_corpus_non_ingestion_guardrail_id": (
+            guardrail.cross_corpus_non_ingestion_guardrail_id
+        ),
+        "review_id": request.review_id,
+        "snapshot_id": request.snapshot_id,
+        "source_set_id": request.source_set_id,
+    }
+
+
+def _resolve_v81b_v81a_inputs(
+    *,
+    repo_root: Path | None = None,
+    cross_corpus_source_index: RepoCrossCorpusSourceIndex | None = None,
+    cross_corpus_governance_request: RepoCrossCorpusGovernanceRequest | None = None,
+    cross_corpus_non_ingestion_guardrail: RepoCrossCorpusNonIngestionGuardrail | None = None,
+) -> tuple[
+    RepoCrossCorpusSourceIndex,
+    RepoCrossCorpusGovernanceRequest,
+    RepoCrossCorpusNonIngestionGuardrail,
+]:
+    provided = (
+        cross_corpus_source_index,
+        cross_corpus_governance_request,
+        cross_corpus_non_ingestion_guardrail,
+    )
+    if all(item is None for item in provided):
+        return derive_v81a_cross_corpus_governance_bundle(repo_root=repo_root)
+    if any(item is None for item in provided):
+        raise ValueError("V81-B derivation requires all V81-A inputs when any are supplied")
+    assert cross_corpus_source_index is not None
+    assert cross_corpus_governance_request is not None
+    assert cross_corpus_non_ingestion_guardrail is not None
+    validate_v81a_cross_corpus_governance_bundle(
+        cross_corpus_source_index=cross_corpus_source_index,
+        cross_corpus_governance_request=cross_corpus_governance_request,
+        cross_corpus_non_ingestion_guardrail=cross_corpus_non_ingestion_guardrail,
+    )
+    return (
+        cross_corpus_source_index,
+        cross_corpus_governance_request,
+        cross_corpus_non_ingestion_guardrail,
+    )
+
+
+def derive_v81b_repo_corpus_boundary_contract(
+    *,
+    repo_root: Path | None = None,
+    cross_corpus_source_index: RepoCrossCorpusSourceIndex | None = None,
+    cross_corpus_governance_request: RepoCrossCorpusGovernanceRequest | None = None,
+    cross_corpus_non_ingestion_guardrail: RepoCrossCorpusNonIngestionGuardrail | None = None,
+) -> RepoCorpusBoundaryContract:
+    source_index, request, guardrail = _resolve_v81b_v81a_inputs(
+        repo_root=repo_root,
+        cross_corpus_source_index=cross_corpus_source_index,
+        cross_corpus_governance_request=cross_corpus_governance_request,
+        cross_corpus_non_ingestion_guardrail=cross_corpus_non_ingestion_guardrail,
+    )
+    source_refs = [row.source_ref for row in source_index.source_rows]
+    rows_by_request = _v81b_v81a_request_rows(request)
+    self_request = rows_by_request[
+        "cross-corpus-governance:v81a:self-evidencing:source-absent"
+    ]
+    product_request = rows_by_request[
+        "cross-corpus-governance:v81a:product-wedge:product-blocked"
+    ]
+    payload = {
+        "schema": REPO_CORPUS_BOUNDARY_CONTRACT_SCHEMA,
+        "corpus_boundary_contract_id": "",
+        **_v81b_shared_ids(request=request, source_index=source_index, guardrail=guardrail),
+        "boundary_contract_rows": [
+            {
+                "boundary_contract_ref": (
+                    "corpus-boundary:v81b:self-evidencing:source-absent"
+                ),
+                "candidate_ref": self_request.candidate_ref,
+                "request_refs": [self_request.cross_corpus_governance_request_ref],
+                "source_refs": source_refs,
+                "guardrail_refs": self_request.guardrail_refs,
+                "corpus_horizon_kind": self_request.corpus_horizon_kind,
+                "corpus_scope_refs": [],
+                "boundary_resolution_kind": "no_corpus_boundary",
+                "allowed_corpus_review_actions": [
+                    "preserve_corpus_gap",
+                    "record_absence_posture",
+                ],
+                "forbidden_corpus_actions": sorted(_FORBIDDEN_DATA_ACTIONS),
+                "privacy_clearance_posture": "clearance_explicitly_absent",
+                "license_or_consent_posture": "explicitly_absent",
+                "customer_data_handling_posture": (
+                    "customer_data_handling_forbidden_by_this_family"
+                ),
+                "data_handling_posture": "no_data_handling_performed_by_v81",
+                "corpus_transfer_posture": "no_corpus_transfer_performed_by_v81",
+                "connector_activation_posture": (
+                    "no_connector_activation_performed_by_v81"
+                ),
+                "limitation_note": (
+                    "Boundary contract is review only over explicit corpus absence "
+                    "with no corpus ingestion, no connector activation, and no release."
+                ),
+            },
+            {
+                "boundary_contract_ref": "corpus-boundary:v81b:product-wedge:blocked",
+                "candidate_ref": product_request.candidate_ref,
+                "request_refs": [product_request.cross_corpus_governance_request_ref],
+                "source_refs": source_refs,
+                "guardrail_refs": product_request.guardrail_refs,
+                "corpus_horizon_kind": product_request.corpus_horizon_kind,
+                "corpus_scope_refs": [],
+                "boundary_resolution_kind": "no_corpus_boundary",
+                "allowed_corpus_review_actions": ["preserve_corpus_gap"],
+                "forbidden_corpus_actions": sorted(_FORBIDDEN_DATA_ACTIONS),
+                "privacy_clearance_posture": "clearance_not_applicable",
+                "license_or_consent_posture": "not_applicable",
+                "customer_data_handling_posture": (
+                    "customer_data_handling_forbidden_by_this_family"
+                ),
+                "data_handling_posture": "no_data_handling_performed_by_v81",
+                "corpus_transfer_posture": "no_corpus_transfer_performed_by_v81",
+                "connector_activation_posture": (
+                    "no_connector_activation_performed_by_v81"
+                ),
+                "limitation_note": (
+                    "Product-pressure boundary is review only and remains authority "
+                    "blocked with no corpus ingestion, no connector activation, "
+                    "and no release."
+                ),
+            },
+        ],
+        "boundary_contract_summary": (
+            "Corpus boundary contracts are review only with no corpus ingestion, "
+            "no connector activation, and no release."
+        ),
+    }
+    payload["boundary_contract_rows"] = sorted(
+        payload["boundary_contract_rows"],
+        key=lambda row: row["boundary_contract_ref"],
+    )
+    payload["corpus_boundary_contract_id"] = _surface_id(
+        "repo_corpus_boundary_contract",
+        REPO_CORPUS_BOUNDARY_CONTRACT_SCHEMA,
+        payload,
+        "corpus_boundary_contract_id",
+    )
+    return RepoCorpusBoundaryContract.model_validate(payload)
+
+
+def derive_v81b_repo_imported_substrate_provenance_register(
+    *,
+    repo_root: Path | None = None,
+    cross_corpus_source_index: RepoCrossCorpusSourceIndex | None = None,
+    cross_corpus_governance_request: RepoCrossCorpusGovernanceRequest | None = None,
+    cross_corpus_non_ingestion_guardrail: RepoCrossCorpusNonIngestionGuardrail | None = None,
+    corpus_boundary_contract: RepoCorpusBoundaryContract | None = None,
+) -> RepoImportedSubstrateProvenanceRegister:
+    source_index, request, guardrail = _resolve_v81b_v81a_inputs(
+        repo_root=repo_root,
+        cross_corpus_source_index=cross_corpus_source_index,
+        cross_corpus_governance_request=cross_corpus_governance_request,
+        cross_corpus_non_ingestion_guardrail=cross_corpus_non_ingestion_guardrail,
+    )
+    boundary = corpus_boundary_contract or derive_v81b_repo_corpus_boundary_contract(
+        cross_corpus_source_index=source_index,
+        cross_corpus_governance_request=request,
+        cross_corpus_non_ingestion_guardrail=guardrail,
+    )
+    source_refs = [row.source_ref for row in source_index.source_rows]
+    rows_by_request = _v81b_v81a_request_rows(request)
+    self_request = rows_by_request[
+        "cross-corpus-governance:v81a:self-evidencing:source-absent"
+    ]
+    product_request = rows_by_request[
+        "cross-corpus-governance:v81a:product-wedge:product-blocked"
+    ]
+    payload = {
+        "schema": REPO_IMPORTED_SUBSTRATE_PROVENANCE_REGISTER_SCHEMA,
+        "imported_substrate_provenance_register_id": "",
+        **_v81b_shared_ids(request=request, source_index=source_index, guardrail=guardrail),
+        "corpus_boundary_contract_id": boundary.corpus_boundary_contract_id,
+        "provenance_rows": [
+            {
+                "provenance_ref": "corpus-provenance:v81b:self-evidencing:source-absent",
+                "candidate_ref": self_request.candidate_ref,
+                "request_refs": [self_request.cross_corpus_governance_request_ref],
+                "source_refs": source_refs,
+                "boundary_contract_refs": [
+                    "corpus-boundary:v81b:self-evidencing:source-absent"
+                ],
+                "substrate_kind": "source_absence_marker",
+                "capture_posture": "corpus_content_not_captured",
+                "provenance_status": "source_absent",
+                "truth_status_forbidden": "corpus_truth_not_claimed",
+                "benchmark_truth_posture": "benchmark_truth_not_claimed",
+                "limitation_note": (
+                    "Provenance is review only for an absence marker with no corpus "
+                    "truth, no benchmark truth, and no corpus ingestion."
+                ),
+            },
+            {
+                "provenance_ref": "corpus-provenance:v81b:product-wedge:blocked",
+                "candidate_ref": product_request.candidate_ref,
+                "request_refs": [product_request.cross_corpus_governance_request_ref],
+                "source_refs": source_refs,
+                "boundary_contract_refs": ["corpus-boundary:v81b:product-wedge:blocked"],
+                "substrate_kind": "source_absence_marker",
+                "capture_posture": "corpus_content_not_captured",
+                "provenance_status": "source_absent",
+                "truth_status_forbidden": "corpus_truth_not_claimed",
+                "benchmark_truth_posture": "benchmark_truth_not_claimed",
+                "limitation_note": (
+                    "Product-pressure provenance is review only with no corpus truth, "
+                    "no benchmark truth, and no corpus ingestion."
+                ),
+            },
+        ],
+        "provenance_summary": (
+            "Imported-substrate provenance is review only with no corpus truth, "
+            "no benchmark truth, and no corpus ingestion."
+        ),
+    }
+    payload["provenance_rows"] = sorted(
+        payload["provenance_rows"],
+        key=lambda row: row["provenance_ref"],
+    )
+    payload["imported_substrate_provenance_register_id"] = _surface_id(
+        "repo_imported_substrate_provenance_register",
+        REPO_IMPORTED_SUBSTRATE_PROVENANCE_REGISTER_SCHEMA,
+        payload,
+        "imported_substrate_provenance_register_id",
+    )
+    return RepoImportedSubstrateProvenanceRegister.model_validate(payload)
+
+
+def derive_v81b_repo_cross_corpus_authority_gap_register(
+    *,
+    repo_root: Path | None = None,
+    cross_corpus_source_index: RepoCrossCorpusSourceIndex | None = None,
+    cross_corpus_governance_request: RepoCrossCorpusGovernanceRequest | None = None,
+    cross_corpus_non_ingestion_guardrail: RepoCrossCorpusNonIngestionGuardrail | None = None,
+    corpus_boundary_contract: RepoCorpusBoundaryContract | None = None,
+    imported_substrate_provenance_register: RepoImportedSubstrateProvenanceRegister
+    | None = None,
+) -> RepoCrossCorpusAuthorityGapRegister:
+    source_index, request, guardrail = _resolve_v81b_v81a_inputs(
+        repo_root=repo_root,
+        cross_corpus_source_index=cross_corpus_source_index,
+        cross_corpus_governance_request=cross_corpus_governance_request,
+        cross_corpus_non_ingestion_guardrail=cross_corpus_non_ingestion_guardrail,
+    )
+    boundary = corpus_boundary_contract or derive_v81b_repo_corpus_boundary_contract(
+        cross_corpus_source_index=source_index,
+        cross_corpus_governance_request=request,
+        cross_corpus_non_ingestion_guardrail=guardrail,
+    )
+    provenance = imported_substrate_provenance_register or (
+        derive_v81b_repo_imported_substrate_provenance_register(
+            cross_corpus_source_index=source_index,
+            cross_corpus_governance_request=request,
+            cross_corpus_non_ingestion_guardrail=guardrail,
+            corpus_boundary_contract=boundary,
+        )
+    )
+    source_refs = [row.source_ref for row in source_index.source_rows]
+    rows_by_request = _v81b_v81a_request_rows(request)
+    self_request = rows_by_request[
+        "cross-corpus-governance:v81a:self-evidencing:source-absent"
+    ]
+    product_request = rows_by_request[
+        "cross-corpus-governance:v81a:product-wedge:product-blocked"
+    ]
+    payload = {
+        "schema": REPO_CROSS_CORPUS_AUTHORITY_GAP_REGISTER_SCHEMA,
+        "cross_corpus_authority_gap_register_id": "",
+        **_v81b_shared_ids(request=request, source_index=source_index, guardrail=guardrail),
+        "corpus_boundary_contract_id": boundary.corpus_boundary_contract_id,
+        "imported_substrate_provenance_register_id": (
+            provenance.imported_substrate_provenance_register_id
+        ),
+        "authority_gap_rows": [
+            {
+                "authority_gap_ref": "corpus-authority-gap:v81b:self-evidencing:privacy",
+                "candidate_ref": self_request.candidate_ref,
+                "request_refs": [self_request.cross_corpus_governance_request_ref],
+                "source_refs": source_refs,
+                "boundary_contract_refs": [
+                    "corpus-boundary:v81b:self-evidencing:source-absent"
+                ],
+                "provenance_refs": ["corpus-provenance:v81b:self-evidencing:source-absent"],
+                "authority_kind": "privacy_authority",
+                "authority_gap_posture": "authority_missing",
+                "required_before_surface": "future_corpus_ingestion_review",
+                "source_presence_posture": "external_unavailable",
+                "limitation_note": (
+                    "Privacy authority gap is review only; authority gap preserved "
+                    "with no authority granted and no corpus ingestion."
+                ),
+            },
+            {
+                "authority_gap_ref": "corpus-authority-gap:v81b:self-evidencing:license",
+                "candidate_ref": self_request.candidate_ref,
+                "request_refs": [self_request.cross_corpus_governance_request_ref],
+                "source_refs": source_refs,
+                "boundary_contract_refs": [
+                    "corpus-boundary:v81b:self-evidencing:source-absent"
+                ],
+                "provenance_refs": ["corpus-provenance:v81b:self-evidencing:source-absent"],
+                "authority_kind": "license_or_consent_authority",
+                "authority_gap_posture": "authority_missing",
+                "required_before_surface": "future_corpus_ingestion_review",
+                "source_presence_posture": "external_unavailable",
+                "limitation_note": (
+                    "License authority gap is review only; authority gap preserved "
+                    "with no authority granted and no corpus ingestion."
+                ),
+            },
+            {
+                "authority_gap_ref": "corpus-authority-gap:v81b:self-evidencing:connector",
+                "candidate_ref": self_request.candidate_ref,
+                "request_refs": [self_request.cross_corpus_governance_request_ref],
+                "source_refs": source_refs,
+                "boundary_contract_refs": [
+                    "corpus-boundary:v81b:self-evidencing:source-absent"
+                ],
+                "provenance_refs": ["corpus-provenance:v81b:self-evidencing:source-absent"],
+                "authority_kind": "connector_authority",
+                "authority_gap_posture": "authority_missing",
+                "required_before_surface": "future_connector_authority_review",
+                "source_presence_posture": "external_unavailable",
+                "limitation_note": (
+                    "Connector authority gap is review only; authority gap preserved "
+                    "with no authority granted and no connector activation."
+                ),
+            },
+            {
+                "authority_gap_ref": "corpus-authority-gap:v81b:product-wedge:product",
+                "candidate_ref": product_request.candidate_ref,
+                "request_refs": [product_request.cross_corpus_governance_request_ref],
+                "source_refs": source_refs,
+                "boundary_contract_refs": ["corpus-boundary:v81b:product-wedge:blocked"],
+                "provenance_refs": ["corpus-provenance:v81b:product-wedge:blocked"],
+                "authority_kind": "product_authorization",
+                "authority_gap_posture": "authority_future_family_only",
+                "required_before_surface": "future_product_review",
+                "source_presence_posture": "external_unavailable",
+                "limitation_note": (
+                    "Product authority gap is review only and future-family routed; "
+                    "authority gap preserved with no authority granted and no release."
+                ),
+            },
+            {
+                "authority_gap_ref": (
+                    "corpus-authority-gap:v81b:product-wedge:external-branch"
+                ),
+                "candidate_ref": product_request.candidate_ref,
+                "request_refs": [product_request.cross_corpus_governance_request_ref],
+                "source_refs": source_refs,
+                "boundary_contract_refs": ["corpus-boundary:v81b:product-wedge:blocked"],
+                "provenance_refs": ["corpus-provenance:v81b:product-wedge:blocked"],
+                "authority_kind": "external_branch_activation",
+                "authority_gap_posture": "authority_future_family_only",
+                "required_before_surface": "future_external_branch_review",
+                "source_presence_posture": "external_unavailable",
+                "limitation_note": (
+                    "External branch authority gap is review only and future-family "
+                    "routed; authority gap preserved with no authority granted."
+                ),
+            },
+        ],
+        "authority_gap_summary": (
+            "Cross-corpus authority gaps are review only with authority gap posture "
+            "and no authority granted."
+        ),
+    }
+    payload["authority_gap_rows"] = sorted(
+        payload["authority_gap_rows"],
+        key=lambda row: row["authority_gap_ref"],
+    )
+    payload["cross_corpus_authority_gap_register_id"] = _surface_id(
+        "repo_cross_corpus_authority_gap_register",
+        REPO_CROSS_CORPUS_AUTHORITY_GAP_REGISTER_SCHEMA,
+        payload,
+        "cross_corpus_authority_gap_register_id",
+    )
+    return RepoCrossCorpusAuthorityGapRegister.model_validate(payload)
+
+
+def derive_v81b_repo_cross_corpus_exception_register(
+    *,
+    repo_root: Path | None = None,
+    cross_corpus_source_index: RepoCrossCorpusSourceIndex | None = None,
+    cross_corpus_governance_request: RepoCrossCorpusGovernanceRequest | None = None,
+    cross_corpus_non_ingestion_guardrail: RepoCrossCorpusNonIngestionGuardrail | None = None,
+    corpus_boundary_contract: RepoCorpusBoundaryContract | None = None,
+    imported_substrate_provenance_register: RepoImportedSubstrateProvenanceRegister
+    | None = None,
+    cross_corpus_authority_gap_register: RepoCrossCorpusAuthorityGapRegister | None = None,
+) -> RepoCrossCorpusExceptionRegister:
+    source_index, request, guardrail = _resolve_v81b_v81a_inputs(
+        repo_root=repo_root,
+        cross_corpus_source_index=cross_corpus_source_index,
+        cross_corpus_governance_request=cross_corpus_governance_request,
+        cross_corpus_non_ingestion_guardrail=cross_corpus_non_ingestion_guardrail,
+    )
+    boundary = corpus_boundary_contract or derive_v81b_repo_corpus_boundary_contract(
+        cross_corpus_source_index=source_index,
+        cross_corpus_governance_request=request,
+        cross_corpus_non_ingestion_guardrail=guardrail,
+    )
+    provenance = imported_substrate_provenance_register or (
+        derive_v81b_repo_imported_substrate_provenance_register(
+            cross_corpus_source_index=source_index,
+            cross_corpus_governance_request=request,
+            cross_corpus_non_ingestion_guardrail=guardrail,
+            corpus_boundary_contract=boundary,
+        )
+    )
+    authority_gap = cross_corpus_authority_gap_register or (
+        derive_v81b_repo_cross_corpus_authority_gap_register(
+            cross_corpus_source_index=source_index,
+            cross_corpus_governance_request=request,
+            cross_corpus_non_ingestion_guardrail=guardrail,
+            corpus_boundary_contract=boundary,
+            imported_substrate_provenance_register=provenance,
+        )
+    )
+    rows_by_request = _v81b_v81a_request_rows(request)
+    self_request = rows_by_request[
+        "cross-corpus-governance:v81a:self-evidencing:source-absent"
+    ]
+    product_request = rows_by_request[
+        "cross-corpus-governance:v81a:product-wedge:product-blocked"
+    ]
+    payload = {
+        "schema": REPO_CROSS_CORPUS_EXCEPTION_REGISTER_SCHEMA,
+        "cross_corpus_exception_register_id": "",
+        **_v81b_shared_ids(request=request, source_index=source_index, guardrail=guardrail),
+        "corpus_boundary_contract_id": boundary.corpus_boundary_contract_id,
+        "imported_substrate_provenance_register_id": (
+            provenance.imported_substrate_provenance_register_id
+        ),
+        "cross_corpus_authority_gap_register_id": (
+            authority_gap.cross_corpus_authority_gap_register_id
+        ),
+        "exception_rows": [
+            {
+                "exception_ref": "corpus-exception:v81b:self-evidencing:missing-source",
+                "candidate_ref": self_request.candidate_ref,
+                "request_refs": [self_request.cross_corpus_governance_request_ref],
+                "boundary_contract_refs": [
+                    "corpus-boundary:v81b:self-evidencing:source-absent"
+                ],
+                "provenance_refs": ["corpus-provenance:v81b:self-evidencing:source-absent"],
+                "authority_gap_refs": sorted([
+                    "corpus-authority-gap:v81b:self-evidencing:privacy",
+                    "corpus-authority-gap:v81b:self-evidencing:license",
+                    "corpus-authority-gap:v81b:self-evidencing:connector",
+                ]),
+                "exception_kind": "missing_corpus_source",
+                "blocking_posture": "blocking",
+                "visibility_posture": "visible_blocking",
+                "required_next_surface": "future_corpus_ingestion_review",
+                "limitation_note": (
+                    "Missing corpus source remains blocking for review only with "
+                    "no corpus ingestion."
+                ),
+            },
+            {
+                "exception_ref": "corpus-exception:v81b:product-wedge:product-gap",
+                "candidate_ref": product_request.candidate_ref,
+                "request_refs": [product_request.cross_corpus_governance_request_ref],
+                "boundary_contract_refs": ["corpus-boundary:v81b:product-wedge:blocked"],
+                "provenance_refs": ["corpus-provenance:v81b:product-wedge:blocked"],
+                "authority_gap_refs": sorted([
+                    "corpus-authority-gap:v81b:product-wedge:product",
+                    "corpus-authority-gap:v81b:product-wedge:external-branch",
+                ]),
+                "exception_kind": "product_authority_gap",
+                "blocking_posture": "blocking",
+                "visibility_posture": "visible_blocking",
+                "required_next_surface": "future_product_review",
+                "limitation_note": (
+                    "Product authority gap remains blocking for review only with "
+                    "no corpus ingestion and no release."
+                ),
+            },
+        ],
+        "exception_summary": (
+            "Cross-corpus exceptions are review only, blocking where required, "
+            "with no corpus ingestion."
+        ),
+    }
+    payload["exception_rows"] = sorted(
+        payload["exception_rows"],
+        key=lambda row: row["exception_ref"],
+    )
+    payload["cross_corpus_exception_register_id"] = _surface_id(
+        "repo_cross_corpus_exception_register",
+        REPO_CROSS_CORPUS_EXCEPTION_REGISTER_SCHEMA,
+        payload,
+        "cross_corpus_exception_register_id",
+    )
+    return RepoCrossCorpusExceptionRegister.model_validate(payload)
+
+
+def validate_v81b_cross_corpus_boundary_bundle(
+    *,
+    cross_corpus_source_index: RepoCrossCorpusSourceIndex,
+    cross_corpus_governance_request: RepoCrossCorpusGovernanceRequest,
+    cross_corpus_non_ingestion_guardrail: RepoCrossCorpusNonIngestionGuardrail,
+    corpus_boundary_contract: RepoCorpusBoundaryContract,
+    imported_substrate_provenance_register: RepoImportedSubstrateProvenanceRegister,
+    cross_corpus_authority_gap_register: RepoCrossCorpusAuthorityGapRegister,
+    cross_corpus_exception_register: RepoCrossCorpusExceptionRegister,
+) -> None:
+    validate_v81a_cross_corpus_governance_bundle(
+        cross_corpus_source_index=cross_corpus_source_index,
+        cross_corpus_governance_request=cross_corpus_governance_request,
+        cross_corpus_non_ingestion_guardrail=cross_corpus_non_ingestion_guardrail,
+    )
+    surface_ids = (
+        cross_corpus_governance_request.cross_corpus_governance_request_id,
+        cross_corpus_source_index.cross_corpus_source_index_id,
+        cross_corpus_non_ingestion_guardrail.cross_corpus_non_ingestion_guardrail_id,
+    )
+    for surface in (
+        corpus_boundary_contract,
+        imported_substrate_provenance_register,
+        cross_corpus_authority_gap_register,
+        cross_corpus_exception_register,
+    ):
+        if (
+            surface.cross_corpus_governance_request_id,
+            surface.cross_corpus_source_index_id,
+            surface.cross_corpus_non_ingestion_guardrail_id,
+        ) != surface_ids:
+            raise ValueError("V81-B surfaces must reference released V81-A surfaces")
+        if (
+            surface.review_id,
+            surface.snapshot_id,
+            surface.source_set_id,
+        ) != (
+            cross_corpus_governance_request.review_id,
+            cross_corpus_governance_request.snapshot_id,
+            cross_corpus_governance_request.source_set_id,
+        ):
+            raise ValueError("V81-B surface provenance must match V81-A request")
+    if (
+        imported_substrate_provenance_register.corpus_boundary_contract_id
+        != corpus_boundary_contract.corpus_boundary_contract_id
+        or cross_corpus_authority_gap_register.corpus_boundary_contract_id
+        != corpus_boundary_contract.corpus_boundary_contract_id
+        or cross_corpus_exception_register.corpus_boundary_contract_id
+        != corpus_boundary_contract.corpus_boundary_contract_id
+    ):
+        raise ValueError("V81-B downstream surfaces must reference boundary contract")
+    if (
+        cross_corpus_authority_gap_register.imported_substrate_provenance_register_id
+        != imported_substrate_provenance_register.imported_substrate_provenance_register_id
+        or cross_corpus_exception_register.imported_substrate_provenance_register_id
+        != imported_substrate_provenance_register.imported_substrate_provenance_register_id
+    ):
+        raise ValueError("V81-B downstream surfaces must reference provenance register")
+    if (
+        cross_corpus_exception_register.cross_corpus_authority_gap_register_id
+        != cross_corpus_authority_gap_register.cross_corpus_authority_gap_register_id
+    ):
+        raise ValueError("V81-B exceptions must reference authority gap register")
+
+    known_sources = {row.source_ref for row in cross_corpus_source_index.source_rows}
+    request_rows = {
+        row.cross_corpus_governance_request_ref: row
+        for row in cross_corpus_governance_request.request_rows
+    }
+    guardrail_rows = {
+        row.guardrail_ref: row for row in cross_corpus_non_ingestion_guardrail.guardrail_rows
+    }
+    boundary_rows = {
+        row.boundary_contract_ref: row
+        for row in corpus_boundary_contract.boundary_contract_rows
+    }
+    provenance_rows = {
+        row.provenance_ref: row
+        for row in imported_substrate_provenance_register.provenance_rows
+    }
+    authority_gap_rows = {
+        row.authority_gap_ref: row
+        for row in cross_corpus_authority_gap_register.authority_gap_rows
+    }
+
+    def _check_sources(source_refs: list[str], *, label: str) -> None:
+        if any(source_ref not in known_sources for source_ref in source_refs):
+            raise ValueError(f"{label} source refs must be known")
+
+    def _check_request_refs(
+        refs: list[str],
+        *,
+        candidate_ref: str,
+        label: str,
+    ) -> None:
+        if not refs:
+            raise ValueError(f"{label} request refs must be non-empty")
+        if any(ref not in request_rows for ref in refs):
+            raise ValueError(f"{label} request refs must be known")
+        for ref in refs:
+            if request_rows[ref].candidate_ref != candidate_ref:
+                raise ValueError(f"{label} request refs must match candidate")
+
+    for row in corpus_boundary_contract.boundary_contract_rows:
+        _check_sources(row.source_refs, label="corpus boundary contract")
+        _check_request_refs(
+            row.request_refs,
+            candidate_ref=row.candidate_ref,
+            label="corpus boundary contract",
+        )
+        if any(ref not in guardrail_rows for ref in row.guardrail_refs):
+            raise ValueError("corpus boundary guardrail refs must be known")
+        for ref in row.guardrail_refs:
+            if guardrail_rows[ref].candidate_ref != row.candidate_ref:
+                raise ValueError("corpus boundary guardrail refs must match candidate")
+    for row in imported_substrate_provenance_register.provenance_rows:
+        _check_sources(row.source_refs, label="imported substrate provenance")
+        _check_request_refs(
+            row.request_refs,
+            candidate_ref=row.candidate_ref,
+            label="imported substrate provenance",
+        )
+        if any(ref not in boundary_rows for ref in row.boundary_contract_refs):
+            raise ValueError("provenance boundary refs must be known")
+        for ref in row.boundary_contract_refs:
+            if boundary_rows[ref].candidate_ref != row.candidate_ref:
+                raise ValueError("provenance boundary refs must match candidate")
+    for row in cross_corpus_authority_gap_register.authority_gap_rows:
+        _check_sources(row.source_refs, label="cross-corpus authority gap")
+        _check_request_refs(
+            row.request_refs,
+            candidate_ref=row.candidate_ref,
+            label="cross-corpus authority gap",
+        )
+        if any(ref not in boundary_rows for ref in row.boundary_contract_refs):
+            raise ValueError("authority gap boundary refs must be known")
+        if any(ref not in provenance_rows for ref in row.provenance_refs):
+            raise ValueError("authority gap provenance refs must be known")
+        for ref in row.boundary_contract_refs:
+            if boundary_rows[ref].candidate_ref != row.candidate_ref:
+                raise ValueError("authority gap boundary refs must match candidate")
+        for ref in row.provenance_refs:
+            if provenance_rows[ref].candidate_ref != row.candidate_ref:
+                raise ValueError("authority gap provenance refs must match candidate")
+    for row in cross_corpus_exception_register.exception_rows:
+        _check_request_refs(
+            row.request_refs,
+            candidate_ref=row.candidate_ref,
+            label="cross-corpus exception",
+        )
+        if any(ref not in boundary_rows for ref in row.boundary_contract_refs):
+            raise ValueError("cross-corpus exception boundary refs must be known")
+        if any(ref not in provenance_rows for ref in row.provenance_refs):
+            raise ValueError("cross-corpus exception provenance refs must be known")
+        if any(ref not in authority_gap_rows for ref in row.authority_gap_refs):
+            raise ValueError("cross-corpus exception authority gap refs must be known")
+        for ref in row.boundary_contract_refs:
+            if boundary_rows[ref].candidate_ref != row.candidate_ref:
+                raise ValueError("cross-corpus exception boundary refs must match candidate")
+        for ref in row.provenance_refs:
+            if provenance_rows[ref].candidate_ref != row.candidate_ref:
+                raise ValueError("cross-corpus exception provenance refs must match candidate")
+        for ref in row.authority_gap_refs:
+            if authority_gap_rows[ref].candidate_ref != row.candidate_ref:
+                raise ValueError("cross-corpus exception authority gap refs must match candidate")
+
+
+def derive_v81b_cross_corpus_boundary_bundle(
+    *, repo_root: Path | None = None
+) -> tuple[
+    RepoCrossCorpusSourceIndex,
+    RepoCrossCorpusGovernanceRequest,
+    RepoCrossCorpusNonIngestionGuardrail,
+    RepoCorpusBoundaryContract,
+    RepoImportedSubstrateProvenanceRegister,
+    RepoCrossCorpusAuthorityGapRegister,
+    RepoCrossCorpusExceptionRegister,
+]:
+    source_index, request, guardrail = derive_v81a_cross_corpus_governance_bundle(
+        repo_root=repo_root
+    )
+    boundary = derive_v81b_repo_corpus_boundary_contract(
+        repo_root=repo_root,
+        cross_corpus_source_index=source_index,
+        cross_corpus_governance_request=request,
+        cross_corpus_non_ingestion_guardrail=guardrail,
+    )
+    provenance = derive_v81b_repo_imported_substrate_provenance_register(
+        repo_root=repo_root,
+        cross_corpus_source_index=source_index,
+        cross_corpus_governance_request=request,
+        cross_corpus_non_ingestion_guardrail=guardrail,
+        corpus_boundary_contract=boundary,
+    )
+    authority_gap = derive_v81b_repo_cross_corpus_authority_gap_register(
+        repo_root=repo_root,
+        cross_corpus_source_index=source_index,
+        cross_corpus_governance_request=request,
+        cross_corpus_non_ingestion_guardrail=guardrail,
+        corpus_boundary_contract=boundary,
+        imported_substrate_provenance_register=provenance,
+    )
+    exception_register = derive_v81b_repo_cross_corpus_exception_register(
+        repo_root=repo_root,
+        cross_corpus_source_index=source_index,
+        cross_corpus_governance_request=request,
+        cross_corpus_non_ingestion_guardrail=guardrail,
+        corpus_boundary_contract=boundary,
+        imported_substrate_provenance_register=provenance,
+        cross_corpus_authority_gap_register=authority_gap,
+    )
+    validate_v81b_cross_corpus_boundary_bundle(
+        cross_corpus_source_index=source_index,
+        cross_corpus_governance_request=request,
+        cross_corpus_non_ingestion_guardrail=guardrail,
+        corpus_boundary_contract=boundary,
+        imported_substrate_provenance_register=provenance,
+        cross_corpus_authority_gap_register=authority_gap,
+        cross_corpus_exception_register=exception_register,
+    )
+    return (
+        source_index,
+        request,
+        guardrail,
+        boundary,
+        provenance,
+        authority_gap,
+        exception_register,
+    )
