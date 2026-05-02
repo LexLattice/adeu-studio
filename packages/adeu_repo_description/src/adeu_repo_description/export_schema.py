@@ -83,7 +83,11 @@ from .controlled_execution_review import (
     RepoToolInvocationPlan,
 )
 from .corpus_ingestion_review import (
+    RepoConnectorAccessReviewBoundary,
+    RepoCorpusDataHandlingAuthorityReview,
+    RepoCorpusIngestionExceptionRegister,
     RepoCorpusIngestionNonTransferGuardrail,
+    RepoCorpusIngestionPreflightContract,
     RepoCorpusIngestionReviewRequest,
     RepoCorpusIngestionSourceIndex,
 )
@@ -591,8 +595,8 @@ def main() -> None:
     external_branch_exception_register_schema = (
         RepoExternalBranchExceptionRegister.model_json_schema(by_alias=True)
     )
-    external_branch_readiness_summary_schema = (
-        RepoExternalBranchReadinessSummary.model_json_schema(by_alias=True)
+    external_branch_readiness_summary_schema = RepoExternalBranchReadinessSummary.model_json_schema(
+        by_alias=True
     )
     post_external_branch_review_handoff_schema = (
         RepoPostExternalBranchReviewHandoff.model_json_schema(by_alias=True)
@@ -600,18 +604,14 @@ def main() -> None:
     external_branch_review_family_closeout_alignment_schema = (
         RepoExternalBranchReviewFamilyCloseoutAlignment.model_json_schema(by_alias=True)
     )
-    cross_corpus_source_index_schema = RepoCrossCorpusSourceIndex.model_json_schema(
+    cross_corpus_source_index_schema = RepoCrossCorpusSourceIndex.model_json_schema(by_alias=True)
+    cross_corpus_governance_request_schema = RepoCrossCorpusGovernanceRequest.model_json_schema(
         by_alias=True
-    )
-    cross_corpus_governance_request_schema = (
-        RepoCrossCorpusGovernanceRequest.model_json_schema(by_alias=True)
     )
     cross_corpus_non_ingestion_guardrail_schema = (
         RepoCrossCorpusNonIngestionGuardrail.model_json_schema(by_alias=True)
     )
-    corpus_boundary_contract_schema = RepoCorpusBoundaryContract.model_json_schema(
-        by_alias=True
-    )
+    corpus_boundary_contract_schema = RepoCorpusBoundaryContract.model_json_schema(by_alias=True)
     imported_substrate_provenance_register_schema = (
         RepoImportedSubstrateProvenanceRegister.model_json_schema(by_alias=True)
     )
@@ -621,11 +621,11 @@ def main() -> None:
     cross_corpus_exception_register_schema = RepoCrossCorpusExceptionRegister.model_json_schema(
         by_alias=True
     )
-    cross_corpus_governance_summary_schema = (
-        RepoCrossCorpusGovernanceSummary.model_json_schema(by_alias=True)
+    cross_corpus_governance_summary_schema = RepoCrossCorpusGovernanceSummary.model_json_schema(
+        by_alias=True
     )
-    post_cross_corpus_review_handoff_schema = (
-        RepoPostCrossCorpusReviewHandoff.model_json_schema(by_alias=True)
+    post_cross_corpus_review_handoff_schema = RepoPostCrossCorpusReviewHandoff.model_json_schema(
+        by_alias=True
     )
     cross_corpus_governance_family_closeout_alignment_schema = (
         RepoCrossCorpusGovernanceFamilyCloseoutAlignment.model_json_schema(by_alias=True)
@@ -638,6 +638,18 @@ def main() -> None:
     )
     corpus_ingestion_non_transfer_guardrail_schema = (
         RepoCorpusIngestionNonTransferGuardrail.model_json_schema(by_alias=True)
+    )
+    corpus_ingestion_preflight_contract_schema = (
+        RepoCorpusIngestionPreflightContract.model_json_schema(by_alias=True)
+    )
+    connector_access_review_boundary_schema = RepoConnectorAccessReviewBoundary.model_json_schema(
+        by_alias=True
+    )
+    corpus_data_handling_authority_review_schema = (
+        RepoCorpusDataHandlingAuthorityReview.model_json_schema(by_alias=True)
+    )
+    corpus_ingestion_exception_register_schema = (
+        RepoCorpusIngestionExceptionRegister.model_json_schema(by_alias=True)
     )
 
     _assert_no_absolute_path_material(dependency_register_v1_schema, repo_root_path=root)
@@ -989,6 +1001,22 @@ def main() -> None:
     )
     _assert_no_absolute_path_material(
         corpus_ingestion_non_transfer_guardrail_schema,
+        repo_root_path=root,
+    )
+    _assert_no_absolute_path_material(
+        corpus_ingestion_preflight_contract_schema,
+        repo_root_path=root,
+    )
+    _assert_no_absolute_path_material(
+        connector_access_review_boundary_schema,
+        repo_root_path=root,
+    )
+    _assert_no_absolute_path_material(
+        corpus_data_handling_authority_review_schema,
+        repo_root_path=root,
+    )
+    _assert_no_absolute_path_material(
+        corpus_ingestion_exception_register_schema,
         repo_root_path=root,
     )
 
@@ -2618,8 +2646,7 @@ def main() -> None:
         corpus_boundary_contract_schema,
     )
     _write_schema(
-        repo_description_schema_root
-        / "repo_imported_substrate_provenance_register.v1.json",
+        repo_description_schema_root / "repo_imported_substrate_provenance_register.v1.json",
         imported_substrate_provenance_register_schema,
     )
     _write_schema(
@@ -2690,6 +2717,38 @@ def main() -> None:
     _write_schema(
         root / "spec" / "repo_corpus_ingestion_non_transfer_guardrail.schema.json",
         corpus_ingestion_non_transfer_guardrail_schema,
+    )
+    _write_schema(
+        repo_description_schema_root / "repo_corpus_ingestion_preflight_contract.v1.json",
+        corpus_ingestion_preflight_contract_schema,
+    )
+    _write_schema(
+        root / "spec" / "repo_corpus_ingestion_preflight_contract.schema.json",
+        corpus_ingestion_preflight_contract_schema,
+    )
+    _write_schema(
+        repo_description_schema_root / "repo_connector_access_review_boundary.v1.json",
+        connector_access_review_boundary_schema,
+    )
+    _write_schema(
+        root / "spec" / "repo_connector_access_review_boundary.schema.json",
+        connector_access_review_boundary_schema,
+    )
+    _write_schema(
+        repo_description_schema_root / "repo_corpus_data_handling_authority_review.v1.json",
+        corpus_data_handling_authority_review_schema,
+    )
+    _write_schema(
+        root / "spec" / "repo_corpus_data_handling_authority_review.schema.json",
+        corpus_data_handling_authority_review_schema,
+    )
+    _write_schema(
+        repo_description_schema_root / "repo_corpus_ingestion_exception_register.v1.json",
+        corpus_ingestion_exception_register_schema,
+    )
+    _write_schema(
+        root / "spec" / "repo_corpus_ingestion_exception_register.schema.json",
+        corpus_ingestion_exception_register_schema,
     )
 
 

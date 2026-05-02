@@ -1,0 +1,265 @@
+{
+  "$defs": {
+    "RepoCorpusIngestionPreflightContractRow": {
+      "additionalProperties": false,
+      "properties": {
+        "adjudication_execution_posture": {
+          "enum": [
+            "no_cross_corpus_adjudication_performed_by_v82",
+            "cross_corpus_adjudication_requires_later_family",
+            "cross_corpus_adjudication_forbidden_by_this_family"
+          ],
+          "title": "Adjudication Execution Posture",
+          "type": "string"
+        },
+        "candidate_ref": {
+          "title": "Candidate Ref",
+          "type": "string"
+        },
+        "connector_activation_posture": {
+          "enum": [
+            "no_connector_activation_performed_by_v82",
+            "connector_activation_requires_later_family",
+            "connector_activation_forbidden_by_this_family"
+          ],
+          "title": "Connector Activation Posture",
+          "type": "string"
+        },
+        "connector_boundary_refs": {
+          "items": {
+            "type": "string"
+          },
+          "title": "Connector Boundary Refs",
+          "type": "array"
+        },
+        "corpus_ingestion_posture": {
+          "enum": [
+            "no_corpus_ingestion_performed_by_v82",
+            "corpus_ingestion_requires_later_family",
+            "corpus_ingestion_forbidden_by_this_family"
+          ],
+          "title": "Corpus Ingestion Posture",
+          "type": "string"
+        },
+        "customer_data_handling_posture": {
+          "enum": [
+            "no_customer_data_handling_performed_by_v82",
+            "customer_data_handling_requires_later_family",
+            "customer_data_handling_forbidden_by_this_family"
+          ],
+          "title": "Customer Data Handling Posture",
+          "type": "string"
+        },
+        "data_handling_authority_refs": {
+          "items": {
+            "type": "string"
+          },
+          "title": "Data Handling Authority Refs",
+          "type": "array"
+        },
+        "data_transfer_posture": {
+          "enum": [
+            "no_data_transfer_performed_by_v82",
+            "data_transfer_requires_later_family",
+            "data_transfer_forbidden_by_this_family"
+          ],
+          "title": "Data Transfer Posture",
+          "type": "string"
+        },
+        "endpoint_access_posture": {
+          "enum": [
+            "no_endpoint_access_performed_by_v82",
+            "endpoint_access_requires_later_family",
+            "endpoint_access_forbidden_by_this_family"
+          ],
+          "title": "Endpoint Access Posture",
+          "type": "string"
+        },
+        "guardrail_refs": {
+          "items": {
+            "type": "string"
+          },
+          "minItems": 1,
+          "title": "Guardrail Refs",
+          "type": "array"
+        },
+        "limitation_note": {
+          "title": "Limitation Note",
+          "type": "string"
+        },
+        "monitoring_requirement_posture": {
+          "enum": [
+            "requirement_recorded_for_review_only",
+            "missing_required_monitoring",
+            "monitoring_requires_later_authority",
+            "not_applicable"
+          ],
+          "title": "Monitoring Requirement Posture",
+          "type": "string"
+        },
+        "plan_completeness_posture": {
+          "enum": [
+            "incomplete_for_review",
+            "complete_for_review_only",
+            "blocked_by_missing_source",
+            "blocked_by_missing_authority",
+            "blocked_by_missing_connector_boundary",
+            "blocked_by_missing_monitoring",
+            "blocked_by_missing_rollback",
+            "future_family_only"
+          ],
+          "title": "Plan Completeness Posture",
+          "type": "string"
+        },
+        "preflight_contract_ref": {
+          "title": "Preflight Contract Ref",
+          "type": "string"
+        },
+        "preflight_observation_posture": {
+          "enum": [
+            "requirements_recorded_only",
+            "prior_authorized_preflight_observed",
+            "preflight_not_observed",
+            "preflight_observation_requires_later_authority"
+          ],
+          "title": "Preflight Observation Posture",
+          "type": "string"
+        },
+        "preflight_posture": {
+          "enum": [
+            "preflight_recorded_for_review_only",
+            "preflight_blocked_by_missing_source",
+            "preflight_blocked_by_missing_authority",
+            "preflight_future_family_only",
+            "preflight_rejected_out_of_scope"
+          ],
+          "title": "Preflight Posture",
+          "type": "string"
+        },
+        "request_refs": {
+          "items": {
+            "type": "string"
+          },
+          "minItems": 1,
+          "title": "Request Refs",
+          "type": "array"
+        },
+        "rollback_requirement_posture": {
+          "enum": [
+            "requirement_recorded_for_review_only",
+            "missing_required_rollback",
+            "rollback_requires_later_authority",
+            "not_applicable"
+          ],
+          "title": "Rollback Requirement Posture",
+          "type": "string"
+        },
+        "source_refs": {
+          "items": {
+            "type": "string"
+          },
+          "minItems": 1,
+          "title": "Source Refs",
+          "type": "array"
+        },
+        "upstream_corpus_boundary_refs": {
+          "items": {
+            "type": "string"
+          },
+          "title": "Upstream Corpus Boundary Refs",
+          "type": "array"
+        },
+        "upstream_provenance_refs": {
+          "items": {
+            "type": "string"
+          },
+          "title": "Upstream Provenance Refs",
+          "type": "array"
+        }
+      },
+      "required": [
+        "preflight_contract_ref",
+        "candidate_ref",
+        "request_refs",
+        "source_refs",
+        "guardrail_refs",
+        "monitoring_requirement_posture",
+        "rollback_requirement_posture",
+        "preflight_observation_posture",
+        "preflight_posture",
+        "plan_completeness_posture",
+        "corpus_ingestion_posture",
+        "data_transfer_posture",
+        "customer_data_handling_posture",
+        "connector_activation_posture",
+        "endpoint_access_posture",
+        "adjudication_execution_posture",
+        "limitation_note"
+      ],
+      "title": "RepoCorpusIngestionPreflightContractRow",
+      "type": "object"
+    }
+  },
+  "additionalProperties": false,
+  "properties": {
+    "corpus_ingestion_non_transfer_guardrail_id": {
+      "title": "Corpus Ingestion Non Transfer Guardrail Id",
+      "type": "string"
+    },
+    "corpus_ingestion_preflight_contract_id": {
+      "title": "Corpus Ingestion Preflight Contract Id",
+      "type": "string"
+    },
+    "corpus_ingestion_review_request_id": {
+      "title": "Corpus Ingestion Review Request Id",
+      "type": "string"
+    },
+    "corpus_ingestion_source_index_id": {
+      "title": "Corpus Ingestion Source Index Id",
+      "type": "string"
+    },
+    "preflight_rows": {
+      "items": {
+        "$ref": "#/$defs/RepoCorpusIngestionPreflightContractRow"
+      },
+      "minItems": 1,
+      "title": "Preflight Rows",
+      "type": "array"
+    },
+    "preflight_summary": {
+      "title": "Preflight Summary",
+      "type": "string"
+    },
+    "review_id": {
+      "title": "Review Id",
+      "type": "string"
+    },
+    "schema": {
+      "const": "repo_corpus_ingestion_preflight_contract@1",
+      "default": "repo_corpus_ingestion_preflight_contract@1",
+      "title": "Schema",
+      "type": "string"
+    },
+    "snapshot_id": {
+      "title": "Snapshot Id",
+      "type": "string"
+    },
+    "source_set_id": {
+      "title": "Source Set Id",
+      "type": "string"
+    }
+  },
+  "required": [
+    "corpus_ingestion_preflight_contract_id",
+    "corpus_ingestion_source_index_id",
+    "corpus_ingestion_review_request_id",
+    "corpus_ingestion_non_transfer_guardrail_id",
+    "review_id",
+    "snapshot_id",
+    "source_set_id",
+    "preflight_rows",
+    "preflight_summary"
+  ],
+  "title": "RepoCorpusIngestionPreflightContract",
+  "type": "object"
+}

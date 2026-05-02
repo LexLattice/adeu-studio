@@ -1,0 +1,105 @@
+{
+  "corpus_ingestion_non_transfer_guardrail_id": "repo_corpus_ingestion_non_transfer_guardrail_f124acde09653c4009388d6a",
+  "corpus_ingestion_preflight_contract_id": "repo_corpus_ingestion_preflight_contract_1af80719badefa5f5b92785e",
+  "corpus_ingestion_review_request_id": "repo_corpus_ingestion_review_request_c95888375150cbe4929ad594",
+  "corpus_ingestion_source_index_id": "repo_corpus_ingestion_source_index_c4db6e34f5a498d218b230a5",
+  "preflight_rows": [
+    {
+      "adjudication_execution_posture": "no_cross_corpus_adjudication_performed_by_v82",
+      "candidate_ref": "candidate:internal:typed_adjudication_product_wedge",
+      "connector_activation_posture": "no_connector_activation_performed_by_v82",
+      "connector_boundary_refs": [
+        "connector-boundary:v82b:product-wedge:future-family"
+      ],
+      "corpus_ingestion_posture": "corpus_ingestion_requires_later_family",
+      "customer_data_handling_posture": "no_customer_data_handling_performed_by_v82",
+      "data_handling_authority_refs": [
+        "authority-review:v82b:product-wedge:product-authority-gap"
+      ],
+      "data_transfer_posture": "no_data_transfer_performed_by_v82",
+      "endpoint_access_posture": "no_endpoint_access_performed_by_v82",
+      "guardrail_refs": [
+        "guardrail:v82a:product-wedge:non-transfer"
+      ],
+      "limitation_note": "Product-pressure preflight remains future-family review only with no corpus ingestion, no data transfer, no connector activation, no endpoint access, and no authority granted.",
+      "monitoring_requirement_posture": "not_applicable",
+      "plan_completeness_posture": "future_family_only",
+      "preflight_contract_ref": "preflight:v82b:product-wedge:product-blocked",
+      "preflight_observation_posture": "requirements_recorded_only",
+      "preflight_posture": "preflight_future_family_only",
+      "request_refs": [
+        "corpus-ingestion-review:v82a:product-wedge:product-blocked"
+      ],
+      "rollback_requirement_posture": "not_applicable",
+      "source_refs": [
+        "apps/api/fixtures/repo_description/vnext_plus229/repo_cross_corpus_governance_family_closeout_alignment_v229_reference.json",
+        "apps/api/fixtures/repo_description/vnext_plus229/repo_cross_corpus_governance_summary_v229_reference.json",
+        "apps/api/fixtures/repo_description/vnext_plus229/repo_post_cross_corpus_review_handoff_v229_reference.json",
+        "connector-authority:corpus-ingestion:current:absent",
+        "corpus-source:ingestion:current:absent",
+        "docs/support/arc_series_mapping/V68_V69_V70_V71_V72_V73_V74_V75_V76_V77_V78_V79_V80_V81_COMBINED_DOGFOOD_TEST_v0.json",
+        "endpoint-authority:corpus-ingestion:current:absent",
+        "license-authority:corpus-ingestion:current:absent",
+        "privacy-authority:corpus-ingestion:current:absent",
+        "product-authority:corpus-ingestion:current:absent",
+        "transfer-boundary:corpus-ingestion:current:absent"
+      ],
+      "upstream_corpus_boundary_refs": [],
+      "upstream_provenance_refs": []
+    },
+    {
+      "adjudication_execution_posture": "no_cross_corpus_adjudication_performed_by_v82",
+      "candidate_ref": "candidate:internal:self_evidencing_workflow_type_emergence",
+      "connector_activation_posture": "no_connector_activation_performed_by_v82",
+      "connector_boundary_refs": [
+        "connector-boundary:v82b:self-evidencing:connector-absent"
+      ],
+      "corpus_ingestion_posture": "no_corpus_ingestion_performed_by_v82",
+      "customer_data_handling_posture": "no_customer_data_handling_performed_by_v82",
+      "data_handling_authority_refs": [
+        "authority-review:v82b:self-evidencing:connector-missing",
+        "authority-review:v82b:self-evidencing:deletion-withdrawal-missing",
+        "authority-review:v82b:self-evidencing:endpoint-missing",
+        "authority-review:v82b:self-evidencing:license-missing",
+        "authority-review:v82b:self-evidencing:privacy-missing",
+        "authority-review:v82b:self-evidencing:retention-missing",
+        "authority-review:v82b:self-evidencing:transfer-missing"
+      ],
+      "data_transfer_posture": "no_data_transfer_performed_by_v82",
+      "endpoint_access_posture": "no_endpoint_access_performed_by_v82",
+      "guardrail_refs": [
+        "guardrail:v82a:self-evidencing:non-transfer"
+      ],
+      "limitation_note": "Preflight requirements are recorded for review while corpus source, monitoring, rollback, connector, endpoint, privacy, license, and transfer authority gaps remain visible; no corpus ingestion, no data transfer, no connector activation, and no endpoint access.",
+      "monitoring_requirement_posture": "missing_required_monitoring",
+      "plan_completeness_posture": "blocked_by_missing_source",
+      "preflight_contract_ref": "preflight:v82b:self-evidencing:source-authority-blocked",
+      "preflight_observation_posture": "requirements_recorded_only",
+      "preflight_posture": "preflight_blocked_by_missing_source",
+      "request_refs": [
+        "corpus-ingestion-review:v82a:self-evidencing:source-absent"
+      ],
+      "rollback_requirement_posture": "missing_required_rollback",
+      "source_refs": [
+        "apps/api/fixtures/repo_description/vnext_plus229/repo_cross_corpus_governance_family_closeout_alignment_v229_reference.json",
+        "apps/api/fixtures/repo_description/vnext_plus229/repo_cross_corpus_governance_summary_v229_reference.json",
+        "apps/api/fixtures/repo_description/vnext_plus229/repo_post_cross_corpus_review_handoff_v229_reference.json",
+        "connector-authority:corpus-ingestion:current:absent",
+        "corpus-source:ingestion:current:absent",
+        "docs/support/arc_series_mapping/V68_V69_V70_V71_V72_V73_V74_V75_V76_V77_V78_V79_V80_V81_COMBINED_DOGFOOD_TEST_v0.json",
+        "endpoint-authority:corpus-ingestion:current:absent",
+        "license-authority:corpus-ingestion:current:absent",
+        "privacy-authority:corpus-ingestion:current:absent",
+        "product-authority:corpus-ingestion:current:absent",
+        "transfer-boundary:corpus-ingestion:current:absent"
+      ],
+      "upstream_corpus_boundary_refs": [],
+      "upstream_provenance_refs": []
+    }
+  ],
+  "preflight_summary": "Corpus-ingestion preflight contracts are review-only records with no corpus ingestion, no data transfer, no connector activation, and no endpoint access.",
+  "review_id": "review:v82a:corpus-ingestion-review",
+  "schema": "repo_corpus_ingestion_preflight_contract@1",
+  "snapshot_id": "vNext+229-cross-corpus-governance-closeout",
+  "source_set_id": "source-set:v82a:released-v81c-corpus-ingestion-pressure"
+}

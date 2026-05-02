@@ -1,0 +1,224 @@
+{
+  "$defs": {
+    "RepoConnectorAccessReviewBoundaryRow": {
+      "additionalProperties": false,
+      "properties": {
+        "allowed_connector_review_actions": {
+          "items": {
+            "enum": [
+              "describe_connector_boundary",
+              "inspect_connector_metadata",
+              "record_absence_posture",
+              "request_later_connector_authority_review",
+              "preserve_connector_gap"
+            ],
+            "type": "string"
+          },
+          "minItems": 1,
+          "title": "Allowed Connector Review Actions",
+          "type": "array"
+        },
+        "allowed_data_review_actions": {
+          "items": {
+            "enum": [
+              "describe_data_boundary",
+              "inspect_source_metadata",
+              "record_absence_posture",
+              "request_later_data_authority_review",
+              "preserve_data_gap"
+            ],
+            "type": "string"
+          },
+          "minItems": 1,
+          "title": "Allowed Data Review Actions",
+          "type": "array"
+        },
+        "candidate_ref": {
+          "title": "Candidate Ref",
+          "type": "string"
+        },
+        "connector_activation_posture": {
+          "enum": [
+            "no_connector_activation_performed_by_v82",
+            "connector_activation_requires_later_family",
+            "connector_activation_forbidden_by_this_family"
+          ],
+          "title": "Connector Activation Posture",
+          "type": "string"
+        },
+        "connector_boundary_ref": {
+          "title": "Connector Boundary Ref",
+          "type": "string"
+        },
+        "connector_identifier_refs": {
+          "items": {
+            "type": "string"
+          },
+          "title": "Connector Identifier Refs",
+          "type": "array"
+        },
+        "endpoint_access_posture": {
+          "enum": [
+            "no_endpoint_access_performed_by_v82",
+            "endpoint_access_requires_later_family",
+            "endpoint_access_forbidden_by_this_family"
+          ],
+          "title": "Endpoint Access Posture",
+          "type": "string"
+        },
+        "endpoint_identifier_refs": {
+          "items": {
+            "type": "string"
+          },
+          "title": "Endpoint Identifier Refs",
+          "type": "array"
+        },
+        "endpoint_ref_posture": {
+          "enum": [
+            "endpoint_identifier_only",
+            "endpoint_access_requires_later_authority",
+            "endpoint_access_forbidden_by_this_family",
+            "endpoint_absent_or_unknown"
+          ],
+          "title": "Endpoint Ref Posture",
+          "type": "string"
+        },
+        "forbidden_connector_actions": {
+          "items": {
+            "enum": [
+              "activate_connector",
+              "fetch_external_corpus",
+              "invoke_external_tool_for_corpus",
+              "credentialed_connector_call"
+            ],
+            "type": "string"
+          },
+          "minItems": 1,
+          "title": "Forbidden Connector Actions",
+          "type": "array"
+        },
+        "forbidden_endpoint_actions": {
+          "items": {
+            "enum": [
+              "access_endpoint",
+              "mutate_endpoint",
+              "credentialed_endpoint_call",
+              "submit_payload_to_endpoint"
+            ],
+            "type": "string"
+          },
+          "minItems": 1,
+          "title": "Forbidden Endpoint Actions",
+          "type": "array"
+        },
+        "guardrail_refs": {
+          "items": {
+            "type": "string"
+          },
+          "minItems": 1,
+          "title": "Guardrail Refs",
+          "type": "array"
+        },
+        "limitation_note": {
+          "title": "Limitation Note",
+          "type": "string"
+        },
+        "request_refs": {
+          "items": {
+            "type": "string"
+          },
+          "minItems": 1,
+          "title": "Request Refs",
+          "type": "array"
+        },
+        "source_refs": {
+          "items": {
+            "type": "string"
+          },
+          "minItems": 1,
+          "title": "Source Refs",
+          "type": "array"
+        }
+      },
+      "required": [
+        "connector_boundary_ref",
+        "candidate_ref",
+        "request_refs",
+        "source_refs",
+        "guardrail_refs",
+        "endpoint_ref_posture",
+        "connector_activation_posture",
+        "endpoint_access_posture",
+        "allowed_connector_review_actions",
+        "allowed_data_review_actions",
+        "forbidden_connector_actions",
+        "forbidden_endpoint_actions",
+        "limitation_note"
+      ],
+      "title": "RepoConnectorAccessReviewBoundaryRow",
+      "type": "object"
+    }
+  },
+  "additionalProperties": false,
+  "properties": {
+    "connector_access_review_boundary_id": {
+      "title": "Connector Access Review Boundary Id",
+      "type": "string"
+    },
+    "connector_boundary_rows": {
+      "items": {
+        "$ref": "#/$defs/RepoConnectorAccessReviewBoundaryRow"
+      },
+      "minItems": 1,
+      "title": "Connector Boundary Rows",
+      "type": "array"
+    },
+    "connector_boundary_summary": {
+      "title": "Connector Boundary Summary",
+      "type": "string"
+    },
+    "corpus_ingestion_non_transfer_guardrail_id": {
+      "title": "Corpus Ingestion Non Transfer Guardrail Id",
+      "type": "string"
+    },
+    "corpus_ingestion_review_request_id": {
+      "title": "Corpus Ingestion Review Request Id",
+      "type": "string"
+    },
+    "corpus_ingestion_source_index_id": {
+      "title": "Corpus Ingestion Source Index Id",
+      "type": "string"
+    },
+    "review_id": {
+      "title": "Review Id",
+      "type": "string"
+    },
+    "schema": {
+      "const": "repo_connector_access_review_boundary@1",
+      "default": "repo_connector_access_review_boundary@1",
+      "title": "Schema",
+      "type": "string"
+    },
+    "snapshot_id": {
+      "title": "Snapshot Id",
+      "type": "string"
+    },
+    "source_set_id": {
+      "title": "Source Set Id",
+      "type": "string"
+    }
+  },
+  "required": [
+    "connector_access_review_boundary_id",
+    "corpus_ingestion_source_index_id",
+    "corpus_ingestion_review_request_id",
+    "corpus_ingestion_non_transfer_guardrail_id",
+    "review_id",
+    "snapshot_id",
+    "source_set_id",
+    "connector_boundary_rows",
+    "connector_boundary_summary"
+  ],
+  "title": "RepoConnectorAccessReviewBoundary",
+  "type": "object"
+}

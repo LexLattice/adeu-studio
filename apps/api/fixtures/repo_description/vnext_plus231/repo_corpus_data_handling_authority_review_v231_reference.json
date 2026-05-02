@@ -1,0 +1,197 @@
+{
+  "authority_review_rows": [
+    {
+      "authority_kind": "product_authority",
+      "authority_review_posture": "authority_requires_later_review",
+      "authority_review_ref": "authority-review:v82b:product-wedge:product-authority-gap",
+      "candidate_ref": "candidate:internal:typed_adjudication_product_wedge",
+      "connector_activation_posture": "no_connector_activation_performed_by_v82",
+      "customer_data_handling_posture": "no_customer_data_handling_performed_by_v82",
+      "data_transfer_posture": "no_data_transfer_performed_by_v82",
+      "endpoint_access_posture": "no_endpoint_access_performed_by_v82",
+      "guardrail_refs": [
+        "guardrail:v82a:product-wedge:non-transfer"
+      ],
+      "limitation_note": "Product authority is required for later review; no authority granted, no data transfer, no connector activation, and no endpoint access.",
+      "privacy_or_license_posture": "not_applicable",
+      "request_refs": [
+        "corpus-ingestion-review:v82a:product-wedge:product-blocked"
+      ],
+      "required_before_surface": "future_product_review",
+      "source_presence_posture": "external_unavailable",
+      "source_refs": [
+        "product-authority:corpus-ingestion:current:absent"
+      ]
+    },
+    {
+      "authority_kind": "connector_authority",
+      "authority_review_posture": "authority_requires_later_review",
+      "authority_review_ref": "authority-review:v82b:self-evidencing:connector-missing",
+      "candidate_ref": "candidate:internal:self_evidencing_workflow_type_emergence",
+      "connector_activation_posture": "no_connector_activation_performed_by_v82",
+      "customer_data_handling_posture": "no_customer_data_handling_performed_by_v82",
+      "data_transfer_posture": "no_data_transfer_performed_by_v82",
+      "endpoint_access_posture": "no_endpoint_access_performed_by_v82",
+      "guardrail_refs": [
+        "guardrail:v82a:self-evidencing:non-transfer"
+      ],
+      "limitation_note": "Authority source remains required for later review; no authority granted, no data transfer, no connector activation, and no endpoint access.",
+      "privacy_or_license_posture": "explicitly_absent",
+      "request_refs": [
+        "corpus-ingestion-review:v82a:self-evidencing:source-absent"
+      ],
+      "required_before_surface": "future_connector_activation_authority_review",
+      "source_presence_posture": "external_unavailable",
+      "source_refs": [
+        "connector-authority:corpus-ingestion:current:absent"
+      ]
+    },
+    {
+      "authority_kind": "deletion_or_withdrawal_authority",
+      "authority_review_posture": "authority_requires_later_review",
+      "authority_review_ref": "authority-review:v82b:self-evidencing:deletion-withdrawal-missing",
+      "candidate_ref": "candidate:internal:self_evidencing_workflow_type_emergence",
+      "connector_activation_posture": "no_connector_activation_performed_by_v82",
+      "customer_data_handling_posture": "no_customer_data_handling_performed_by_v82",
+      "data_transfer_posture": "no_data_transfer_performed_by_v82",
+      "endpoint_access_posture": "no_endpoint_access_performed_by_v82",
+      "guardrail_refs": [
+        "guardrail:v82a:self-evidencing:non-transfer"
+      ],
+      "limitation_note": "Authority source remains required for later review; no authority granted, no data transfer, no connector activation, and no endpoint access.",
+      "privacy_or_license_posture": "explicitly_absent",
+      "request_refs": [
+        "corpus-ingestion-review:v82a:self-evidencing:source-absent"
+      ],
+      "required_before_surface": "future_deletion_or_withdrawal_authority_review",
+      "source_presence_posture": "external_unavailable",
+      "source_refs": [
+        "transfer-boundary:corpus-ingestion:current:absent"
+      ]
+    },
+    {
+      "authority_kind": "endpoint_authority",
+      "authority_review_posture": "authority_requires_later_review",
+      "authority_review_ref": "authority-review:v82b:self-evidencing:endpoint-missing",
+      "candidate_ref": "candidate:internal:self_evidencing_workflow_type_emergence",
+      "connector_activation_posture": "no_connector_activation_performed_by_v82",
+      "customer_data_handling_posture": "no_customer_data_handling_performed_by_v82",
+      "data_transfer_posture": "no_data_transfer_performed_by_v82",
+      "endpoint_access_posture": "no_endpoint_access_performed_by_v82",
+      "guardrail_refs": [
+        "guardrail:v82a:self-evidencing:non-transfer"
+      ],
+      "limitation_note": "Authority source remains required for later review; no authority granted, no data transfer, no connector activation, and no endpoint access.",
+      "privacy_or_license_posture": "explicitly_absent",
+      "request_refs": [
+        "corpus-ingestion-review:v82a:self-evidencing:source-absent"
+      ],
+      "required_before_surface": "future_endpoint_access_authority_review",
+      "source_presence_posture": "external_unavailable",
+      "source_refs": [
+        "endpoint-authority:corpus-ingestion:current:absent"
+      ]
+    },
+    {
+      "authority_kind": "license_or_consent_authority",
+      "authority_review_posture": "authority_requires_later_review",
+      "authority_review_ref": "authority-review:v82b:self-evidencing:license-missing",
+      "candidate_ref": "candidate:internal:self_evidencing_workflow_type_emergence",
+      "connector_activation_posture": "no_connector_activation_performed_by_v82",
+      "customer_data_handling_posture": "no_customer_data_handling_performed_by_v82",
+      "data_transfer_posture": "no_data_transfer_performed_by_v82",
+      "endpoint_access_posture": "no_endpoint_access_performed_by_v82",
+      "guardrail_refs": [
+        "guardrail:v82a:self-evidencing:non-transfer"
+      ],
+      "limitation_note": "Authority source remains required for later review; no authority granted, no data transfer, no connector activation, and no endpoint access.",
+      "privacy_or_license_posture": "license_not_present",
+      "request_refs": [
+        "corpus-ingestion-review:v82a:self-evidencing:source-absent"
+      ],
+      "required_before_surface": "future_corpus_ingestion_authority_review",
+      "source_presence_posture": "external_unavailable",
+      "source_refs": [
+        "license-authority:corpus-ingestion:current:absent"
+      ]
+    },
+    {
+      "authority_kind": "privacy_authority",
+      "authority_review_posture": "authority_requires_later_review",
+      "authority_review_ref": "authority-review:v82b:self-evidencing:privacy-missing",
+      "candidate_ref": "candidate:internal:self_evidencing_workflow_type_emergence",
+      "connector_activation_posture": "no_connector_activation_performed_by_v82",
+      "customer_data_handling_posture": "no_customer_data_handling_performed_by_v82",
+      "data_transfer_posture": "no_data_transfer_performed_by_v82",
+      "endpoint_access_posture": "no_endpoint_access_performed_by_v82",
+      "guardrail_refs": [
+        "guardrail:v82a:self-evidencing:non-transfer"
+      ],
+      "limitation_note": "Authority source remains required for later review; no authority granted, no data transfer, no connector activation, and no endpoint access.",
+      "privacy_or_license_posture": "clearance_not_present",
+      "request_refs": [
+        "corpus-ingestion-review:v82a:self-evidencing:source-absent"
+      ],
+      "required_before_surface": "future_corpus_ingestion_authority_review",
+      "source_presence_posture": "external_unavailable",
+      "source_refs": [
+        "privacy-authority:corpus-ingestion:current:absent"
+      ]
+    },
+    {
+      "authority_kind": "retention_authority",
+      "authority_review_posture": "authority_requires_later_review",
+      "authority_review_ref": "authority-review:v82b:self-evidencing:retention-missing",
+      "candidate_ref": "candidate:internal:self_evidencing_workflow_type_emergence",
+      "connector_activation_posture": "no_connector_activation_performed_by_v82",
+      "customer_data_handling_posture": "no_customer_data_handling_performed_by_v82",
+      "data_transfer_posture": "no_data_transfer_performed_by_v82",
+      "endpoint_access_posture": "no_endpoint_access_performed_by_v82",
+      "guardrail_refs": [
+        "guardrail:v82a:self-evidencing:non-transfer"
+      ],
+      "limitation_note": "Authority source remains required for later review; no authority granted, no data transfer, no connector activation, and no endpoint access.",
+      "privacy_or_license_posture": "explicitly_absent",
+      "request_refs": [
+        "corpus-ingestion-review:v82a:self-evidencing:source-absent"
+      ],
+      "required_before_surface": "future_retention_authority_review",
+      "source_presence_posture": "external_unavailable",
+      "source_refs": [
+        "transfer-boundary:corpus-ingestion:current:absent"
+      ]
+    },
+    {
+      "authority_kind": "transfer_authority",
+      "authority_review_posture": "authority_requires_later_review",
+      "authority_review_ref": "authority-review:v82b:self-evidencing:transfer-missing",
+      "candidate_ref": "candidate:internal:self_evidencing_workflow_type_emergence",
+      "connector_activation_posture": "no_connector_activation_performed_by_v82",
+      "customer_data_handling_posture": "no_customer_data_handling_performed_by_v82",
+      "data_transfer_posture": "no_data_transfer_performed_by_v82",
+      "endpoint_access_posture": "no_endpoint_access_performed_by_v82",
+      "guardrail_refs": [
+        "guardrail:v82a:self-evidencing:non-transfer"
+      ],
+      "limitation_note": "Authority source remains required for later review; no authority granted, no data transfer, no connector activation, and no endpoint access.",
+      "privacy_or_license_posture": "explicitly_absent",
+      "request_refs": [
+        "corpus-ingestion-review:v82a:self-evidencing:source-absent"
+      ],
+      "required_before_surface": "future_data_transfer_authority_review",
+      "source_presence_posture": "external_unavailable",
+      "source_refs": [
+        "transfer-boundary:corpus-ingestion:current:absent"
+      ]
+    }
+  ],
+  "authority_review_summary": "Corpus data-handling authority review rows record missing authority for review with no data transfer, no connector activation, and no endpoint access.",
+  "corpus_data_handling_authority_review_id": "repo_corpus_data_handling_authority_review_46367fbadbf21ce975ff8cbd",
+  "corpus_ingestion_non_transfer_guardrail_id": "repo_corpus_ingestion_non_transfer_guardrail_f124acde09653c4009388d6a",
+  "corpus_ingestion_review_request_id": "repo_corpus_ingestion_review_request_c95888375150cbe4929ad594",
+  "corpus_ingestion_source_index_id": "repo_corpus_ingestion_source_index_c4db6e34f5a498d218b230a5",
+  "review_id": "review:v82a:corpus-ingestion-review",
+  "schema": "repo_corpus_data_handling_authority_review@1",
+  "snapshot_id": "vNext+229-cross-corpus-governance-closeout",
+  "source_set_id": "source-set:v82a:released-v81c-corpus-ingestion-pressure"
+}

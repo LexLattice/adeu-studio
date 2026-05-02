@@ -1,0 +1,195 @@
+{
+  "$defs": {
+    "RepoCorpusIngestionExceptionRow": {
+      "additionalProperties": false,
+      "properties": {
+        "blocking_posture": {
+          "enum": [
+            "blocking_exception",
+            "warning_only",
+            "carried_forward_blocker",
+            "not_applicable"
+          ],
+          "title": "Blocking Posture",
+          "type": "string"
+        },
+        "candidate_ref": {
+          "title": "Candidate Ref",
+          "type": "string"
+        },
+        "connector_boundary_refs": {
+          "items": {
+            "type": "string"
+          },
+          "title": "Connector Boundary Refs",
+          "type": "array"
+        },
+        "data_handling_authority_refs": {
+          "items": {
+            "type": "string"
+          },
+          "title": "Data Handling Authority Refs",
+          "type": "array"
+        },
+        "exception_kind": {
+          "enum": [
+            "missing_corpus_source",
+            "missing_privacy_authority",
+            "missing_license_or_consent",
+            "missing_customer_data_authority",
+            "missing_connector_authority",
+            "missing_endpoint_access_boundary",
+            "missing_transfer_authority",
+            "missing_retention_authority",
+            "missing_deletion_or_withdrawal_authority",
+            "missing_data_handling_clearance",
+            "benchmark_truth_guardrail_gap",
+            "product_authority_gap",
+            "graph_memory_authority_gap",
+            "stale_or_historical_corpus_source",
+            "unknown_needs_review"
+          ],
+          "title": "Exception Kind",
+          "type": "string"
+        },
+        "exception_ref": {
+          "title": "Exception Ref",
+          "type": "string"
+        },
+        "limitation_note": {
+          "title": "Limitation Note",
+          "type": "string"
+        },
+        "preflight_contract_refs": {
+          "items": {
+            "type": "string"
+          },
+          "title": "Preflight Contract Refs",
+          "type": "array"
+        },
+        "request_refs": {
+          "items": {
+            "type": "string"
+          },
+          "minItems": 1,
+          "title": "Request Refs",
+          "type": "array"
+        },
+        "required_next_surface": {
+          "enum": [
+            "future_corpus_ingestion_authority_review",
+            "future_connector_activation_authority_review",
+            "future_endpoint_access_authority_review",
+            "future_data_transfer_authority_review",
+            "future_retention_authority_review",
+            "future_deletion_or_withdrawal_authority_review",
+            "future_product_review",
+            "future_graph_memory_review",
+            "future_family_review",
+            "none"
+          ],
+          "title": "Required Next Surface",
+          "type": "string"
+        },
+        "visibility_posture": {
+          "enum": [
+            "visible_to_later_review",
+            "visibility_requires_later_review",
+            "not_applicable"
+          ],
+          "title": "Visibility Posture",
+          "type": "string"
+        }
+      },
+      "required": [
+        "exception_ref",
+        "candidate_ref",
+        "request_refs",
+        "exception_kind",
+        "blocking_posture",
+        "visibility_posture",
+        "required_next_surface",
+        "limitation_note"
+      ],
+      "title": "RepoCorpusIngestionExceptionRow",
+      "type": "object"
+    }
+  },
+  "additionalProperties": false,
+  "properties": {
+    "connector_access_review_boundary_id": {
+      "title": "Connector Access Review Boundary Id",
+      "type": "string"
+    },
+    "corpus_data_handling_authority_review_id": {
+      "title": "Corpus Data Handling Authority Review Id",
+      "type": "string"
+    },
+    "corpus_ingestion_exception_register_id": {
+      "title": "Corpus Ingestion Exception Register Id",
+      "type": "string"
+    },
+    "corpus_ingestion_non_transfer_guardrail_id": {
+      "title": "Corpus Ingestion Non Transfer Guardrail Id",
+      "type": "string"
+    },
+    "corpus_ingestion_preflight_contract_id": {
+      "title": "Corpus Ingestion Preflight Contract Id",
+      "type": "string"
+    },
+    "corpus_ingestion_review_request_id": {
+      "title": "Corpus Ingestion Review Request Id",
+      "type": "string"
+    },
+    "corpus_ingestion_source_index_id": {
+      "title": "Corpus Ingestion Source Index Id",
+      "type": "string"
+    },
+    "exception_rows": {
+      "items": {
+        "$ref": "#/$defs/RepoCorpusIngestionExceptionRow"
+      },
+      "minItems": 1,
+      "title": "Exception Rows",
+      "type": "array"
+    },
+    "exception_summary": {
+      "title": "Exception Summary",
+      "type": "string"
+    },
+    "review_id": {
+      "title": "Review Id",
+      "type": "string"
+    },
+    "schema": {
+      "const": "repo_corpus_ingestion_exception_register@1",
+      "default": "repo_corpus_ingestion_exception_register@1",
+      "title": "Schema",
+      "type": "string"
+    },
+    "snapshot_id": {
+      "title": "Snapshot Id",
+      "type": "string"
+    },
+    "source_set_id": {
+      "title": "Source Set Id",
+      "type": "string"
+    }
+  },
+  "required": [
+    "corpus_ingestion_exception_register_id",
+    "corpus_ingestion_source_index_id",
+    "corpus_ingestion_review_request_id",
+    "corpus_ingestion_non_transfer_guardrail_id",
+    "corpus_ingestion_preflight_contract_id",
+    "connector_access_review_boundary_id",
+    "corpus_data_handling_authority_review_id",
+    "review_id",
+    "snapshot_id",
+    "source_set_id",
+    "exception_rows",
+    "exception_summary"
+  ],
+  "title": "RepoCorpusIngestionExceptionRegister",
+  "type": "object"
+}

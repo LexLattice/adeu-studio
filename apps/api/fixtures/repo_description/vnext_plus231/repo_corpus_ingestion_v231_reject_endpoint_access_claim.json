@@ -1,0 +1,127 @@
+{
+  "connector_access_review_boundary_id": "repo_connector_access_review_boundary_f572d72f630a33df7ffc8eee",
+  "connector_boundary_rows": [
+    {
+      "allowed_connector_review_actions": [
+        "describe_connector_boundary",
+        "inspect_connector_metadata",
+        "preserve_connector_gap",
+        "record_absence_posture",
+        "request_later_connector_authority_review"
+      ],
+      "allowed_data_review_actions": [
+        "describe_data_boundary",
+        "inspect_source_metadata",
+        "preserve_data_gap",
+        "record_absence_posture",
+        "request_later_data_authority_review"
+      ],
+      "candidate_ref": "candidate:internal:typed_adjudication_product_wedge",
+      "connector_activation_posture": "no_connector_activation_performed_by_v82",
+      "connector_boundary_ref": "connector-boundary:v82b:product-wedge:future-family",
+      "connector_identifier_refs": [],
+      "endpoint_access_posture": "endpoint_access_requires_later_family",
+      "endpoint_identifier_refs": [],
+      "endpoint_ref_posture": "endpoint_absent_or_unknown",
+      "forbidden_connector_actions": [
+        "activate_connector",
+        "credentialed_connector_call",
+        "fetch_external_corpus",
+        "invoke_external_tool_for_corpus"
+      ],
+      "forbidden_endpoint_actions": [
+        "access_endpoint",
+        "credentialed_endpoint_call",
+        "mutate_endpoint",
+        "submit_payload_to_endpoint"
+      ],
+      "guardrail_refs": [
+        "guardrail:v82a:product-wedge:non-transfer"
+      ],
+      "limitation_note": "Connector and endpoint review boundary is future-family only for product pressure with no connector activation and no endpoint access.",
+      "request_refs": [
+        "corpus-ingestion-review:v82a:product-wedge:product-blocked"
+      ],
+      "source_refs": [
+        "apps/api/fixtures/repo_description/vnext_plus229/repo_cross_corpus_governance_family_closeout_alignment_v229_reference.json",
+        "apps/api/fixtures/repo_description/vnext_plus229/repo_cross_corpus_governance_summary_v229_reference.json",
+        "apps/api/fixtures/repo_description/vnext_plus229/repo_post_cross_corpus_review_handoff_v229_reference.json",
+        "connector-authority:corpus-ingestion:current:absent",
+        "corpus-source:ingestion:current:absent",
+        "docs/support/arc_series_mapping/V68_V69_V70_V71_V72_V73_V74_V75_V76_V77_V78_V79_V80_V81_COMBINED_DOGFOOD_TEST_v0.json",
+        "endpoint-authority:corpus-ingestion:current:absent",
+        "license-authority:corpus-ingestion:current:absent",
+        "privacy-authority:corpus-ingestion:current:absent",
+        "product-authority:corpus-ingestion:current:absent",
+        "transfer-boundary:corpus-ingestion:current:absent"
+      ]
+    },
+    {
+      "allowed_connector_review_actions": [
+        "describe_connector_boundary",
+        "inspect_connector_metadata",
+        "preserve_connector_gap",
+        "record_absence_posture",
+        "request_later_connector_authority_review"
+      ],
+      "allowed_data_review_actions": [
+        "describe_data_boundary",
+        "inspect_source_metadata",
+        "preserve_data_gap",
+        "record_absence_posture",
+        "request_later_data_authority_review"
+      ],
+      "candidate_ref": "candidate:internal:self_evidencing_workflow_type_emergence",
+      "connector_activation_posture": "no_connector_activation_performed_by_v82",
+      "connector_boundary_ref": "connector-boundary:v82b:self-evidencing:connector-absent",
+      "connector_identifier_refs": [
+        "connector-authority:corpus-ingestion:current:absent"
+      ],
+      "endpoint_access_posture": "no_endpoint_access_performed_by_v82",
+      "endpoint_identifier_refs": [
+        "endpoint-authority:corpus-ingestion:current:absent"
+      ],
+      "endpoint_ref_posture": "endpoint_absent_or_unknown",
+      "forbidden_connector_actions": [
+        "activate_connector",
+        "credentialed_connector_call",
+        "fetch_external_corpus",
+        "invoke_external_tool_for_corpus"
+      ],
+      "forbidden_endpoint_actions": [
+        "access_endpoint",
+        "credentialed_endpoint_call",
+        "mutate_endpoint",
+        "submit_payload_to_endpoint"
+      ],
+      "guardrail_refs": [
+        "guardrail:v82a:self-evidencing:non-transfer"
+      ],
+      "limitation_note": "Connector and endpoint identifiers are absence markers for review only; no connector activation and no endpoint access.",
+      "request_refs": [
+        "corpus-ingestion-review:v82a:self-evidencing:source-absent"
+      ],
+      "source_refs": [
+        "apps/api/fixtures/repo_description/vnext_plus229/repo_cross_corpus_governance_family_closeout_alignment_v229_reference.json",
+        "apps/api/fixtures/repo_description/vnext_plus229/repo_cross_corpus_governance_summary_v229_reference.json",
+        "apps/api/fixtures/repo_description/vnext_plus229/repo_post_cross_corpus_review_handoff_v229_reference.json",
+        "connector-authority:corpus-ingestion:current:absent",
+        "corpus-source:ingestion:current:absent",
+        "docs/support/arc_series_mapping/V68_V69_V70_V71_V72_V73_V74_V75_V76_V77_V78_V79_V80_V81_COMBINED_DOGFOOD_TEST_v0.json",
+        "endpoint-authority:corpus-ingestion:current:absent",
+        "license-authority:corpus-ingestion:current:absent",
+        "privacy-authority:corpus-ingestion:current:absent",
+        "product-authority:corpus-ingestion:current:absent",
+        "transfer-boundary:corpus-ingestion:current:absent"
+      ]
+    }
+  ],
+  "connector_boundary_summary": "Connector access review boundaries preserve review-only posture with no connector activation and no endpoint access.",
+  "corpus_ingestion_non_transfer_guardrail_id": "repo_corpus_ingestion_non_transfer_guardrail_f124acde09653c4009388d6a",
+  "corpus_ingestion_review_request_id": "repo_corpus_ingestion_review_request_c95888375150cbe4929ad594",
+  "corpus_ingestion_source_index_id": "repo_corpus_ingestion_source_index_c4db6e34f5a498d218b230a5",
+  "review_id": "review:v82a:corpus-ingestion-review",
+  "schema": "repo_connector_access_review_boundary@1",
+  "snapshot_id": "vNext+229-cross-corpus-governance-closeout",
+  "source_set_id": "source-set:v82a:released-v81c-corpus-ingestion-pressure"
+}

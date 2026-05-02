@@ -1,0 +1,247 @@
+{
+  "connector_access_review_boundary_id": "repo_connector_access_review_boundary_f572d72f630a33df7ffc8eee",
+  "corpus_data_handling_authority_review_id": "repo_corpus_data_handling_authority_review_46367fbadbf21ce975ff8cbd",
+  "corpus_ingestion_exception_register_id": "repo_corpus_ingestion_exception_register_c74feca2668ddda6d4c54b72",
+  "corpus_ingestion_non_transfer_guardrail_id": "repo_corpus_ingestion_non_transfer_guardrail_f124acde09653c4009388d6a",
+  "corpus_ingestion_preflight_contract_id": "repo_corpus_ingestion_preflight_contract_1af80719badefa5f5b92785e",
+  "corpus_ingestion_review_request_id": "repo_corpus_ingestion_review_request_c95888375150cbe4929ad594",
+  "corpus_ingestion_source_index_id": "repo_corpus_ingestion_source_index_c4db6e34f5a498d218b230a5",
+  "exception_rows": [
+    {
+      "blocking_posture": "blocking_exception",
+      "candidate_ref": "candidate:internal:typed_adjudication_product_wedge",
+      "connector_boundary_refs": [],
+      "data_handling_authority_refs": [],
+      "exception_kind": "product_authority_gap",
+      "exception_ref": "exception:v82b:product-wedge:product-authority-gap",
+      "limitation_note": "Product authority gap stays visible for later review; no corpus ingestion, no data transfer, no connector activation, and no endpoint access.",
+      "preflight_contract_refs": [],
+      "request_refs": [
+        "corpus-ingestion-review:v82a:product-wedge:product-blocked"
+      ],
+      "required_next_surface": "future_product_review",
+      "visibility_posture": "visible_to_later_review"
+    },
+    {
+      "blocking_posture": "blocking_exception",
+      "candidate_ref": "candidate:internal:self_evidencing_workflow_type_emergence",
+      "connector_boundary_refs": [
+        "connector-boundary:v82b:self-evidencing:connector-absent"
+      ],
+      "data_handling_authority_refs": [
+        "authority-review:v82b:self-evidencing:connector-missing",
+        "authority-review:v82b:self-evidencing:deletion-withdrawal-missing",
+        "authority-review:v82b:self-evidencing:endpoint-missing",
+        "authority-review:v82b:self-evidencing:license-missing",
+        "authority-review:v82b:self-evidencing:privacy-missing",
+        "authority-review:v82b:self-evidencing:retention-missing",
+        "authority-review:v82b:self-evidencing:transfer-missing"
+      ],
+      "exception_kind": "missing_connector_authority",
+      "exception_ref": "exception:v82b:self-evidencing:missing_connector_authority",
+      "limitation_note": "missing_connector_authority remains visible for later review; no corpus ingestion, no data transfer, no connector activation, and no endpoint access.",
+      "preflight_contract_refs": [
+        "preflight:v82b:self-evidencing:source-authority-blocked"
+      ],
+      "request_refs": [
+        "corpus-ingestion-review:v82a:self-evidencing:source-absent"
+      ],
+      "required_next_surface": "future_connector_activation_authority_review",
+      "visibility_posture": "visible_to_later_review"
+    },
+    {
+      "blocking_posture": "blocking_exception",
+      "candidate_ref": "candidate:internal:self_evidencing_workflow_type_emergence",
+      "connector_boundary_refs": [
+        "connector-boundary:v82b:self-evidencing:connector-absent"
+      ],
+      "data_handling_authority_refs": [
+        "authority-review:v82b:self-evidencing:connector-missing",
+        "authority-review:v82b:self-evidencing:deletion-withdrawal-missing",
+        "authority-review:v82b:self-evidencing:endpoint-missing",
+        "authority-review:v82b:self-evidencing:license-missing",
+        "authority-review:v82b:self-evidencing:privacy-missing",
+        "authority-review:v82b:self-evidencing:retention-missing",
+        "authority-review:v82b:self-evidencing:transfer-missing"
+      ],
+      "exception_kind": "missing_corpus_source",
+      "exception_ref": "exception:v82b:self-evidencing:missing_corpus_source",
+      "limitation_note": "missing_corpus_source remains visible for later review; no corpus ingestion, no data transfer, no connector activation, and no endpoint access.",
+      "preflight_contract_refs": [
+        "preflight:v82b:self-evidencing:source-authority-blocked"
+      ],
+      "request_refs": [
+        "corpus-ingestion-review:v82a:self-evidencing:source-absent"
+      ],
+      "required_next_surface": "future_corpus_ingestion_authority_review",
+      "visibility_posture": "visible_to_later_review"
+    },
+    {
+      "blocking_posture": "blocking_exception",
+      "candidate_ref": "candidate:internal:self_evidencing_workflow_type_emergence",
+      "connector_boundary_refs": [
+        "connector-boundary:v82b:self-evidencing:connector-absent"
+      ],
+      "data_handling_authority_refs": [
+        "authority-review:v82b:self-evidencing:connector-missing",
+        "authority-review:v82b:self-evidencing:deletion-withdrawal-missing",
+        "authority-review:v82b:self-evidencing:endpoint-missing",
+        "authority-review:v82b:self-evidencing:license-missing",
+        "authority-review:v82b:self-evidencing:privacy-missing",
+        "authority-review:v82b:self-evidencing:retention-missing",
+        "authority-review:v82b:self-evidencing:transfer-missing"
+      ],
+      "exception_kind": "missing_deletion_or_withdrawal_authority",
+      "exception_ref": "exception:v82b:self-evidencing:missing_deletion_or_withdrawal_authority",
+      "limitation_note": "missing_deletion_or_withdrawal_authority remains visible for later review; no corpus ingestion, no data transfer, no connector activation, and no endpoint access.",
+      "preflight_contract_refs": [
+        "preflight:v82b:self-evidencing:source-authority-blocked"
+      ],
+      "request_refs": [
+        "corpus-ingestion-review:v82a:self-evidencing:source-absent"
+      ],
+      "required_next_surface": "future_deletion_or_withdrawal_authority_review",
+      "visibility_posture": "visible_to_later_review"
+    },
+    {
+      "blocking_posture": "blocking_exception",
+      "candidate_ref": "candidate:internal:self_evidencing_workflow_type_emergence",
+      "connector_boundary_refs": [
+        "connector-boundary:v82b:self-evidencing:connector-absent"
+      ],
+      "data_handling_authority_refs": [
+        "authority-review:v82b:self-evidencing:connector-missing",
+        "authority-review:v82b:self-evidencing:deletion-withdrawal-missing",
+        "authority-review:v82b:self-evidencing:endpoint-missing",
+        "authority-review:v82b:self-evidencing:license-missing",
+        "authority-review:v82b:self-evidencing:privacy-missing",
+        "authority-review:v82b:self-evidencing:retention-missing",
+        "authority-review:v82b:self-evidencing:transfer-missing"
+      ],
+      "exception_kind": "missing_endpoint_access_boundary",
+      "exception_ref": "exception:v82b:self-evidencing:missing_endpoint_access_boundary",
+      "limitation_note": "missing_endpoint_access_boundary remains visible for later review; no corpus ingestion, no data transfer, no connector activation, and no endpoint access.",
+      "preflight_contract_refs": [
+        "preflight:v82b:self-evidencing:source-authority-blocked"
+      ],
+      "request_refs": [
+        "corpus-ingestion-review:v82a:self-evidencing:source-absent"
+      ],
+      "required_next_surface": "future_endpoint_access_authority_review",
+      "visibility_posture": "visible_to_later_review"
+    },
+    {
+      "blocking_posture": "blocking_exception",
+      "candidate_ref": "candidate:internal:self_evidencing_workflow_type_emergence",
+      "connector_boundary_refs": [
+        "connector-boundary:v82b:self-evidencing:connector-absent"
+      ],
+      "data_handling_authority_refs": [
+        "authority-review:v82b:self-evidencing:connector-missing",
+        "authority-review:v82b:self-evidencing:deletion-withdrawal-missing",
+        "authority-review:v82b:self-evidencing:endpoint-missing",
+        "authority-review:v82b:self-evidencing:license-missing",
+        "authority-review:v82b:self-evidencing:privacy-missing",
+        "authority-review:v82b:self-evidencing:retention-missing",
+        "authority-review:v82b:self-evidencing:transfer-missing"
+      ],
+      "exception_kind": "missing_license_or_consent",
+      "exception_ref": "exception:v82b:self-evidencing:missing_license_or_consent",
+      "limitation_note": "missing_license_or_consent remains visible for later review; no corpus ingestion, no data transfer, no connector activation, and no endpoint access.",
+      "preflight_contract_refs": [
+        "preflight:v82b:self-evidencing:source-authority-blocked"
+      ],
+      "request_refs": [
+        "corpus-ingestion-review:v82a:self-evidencing:source-absent"
+      ],
+      "required_next_surface": "future_corpus_ingestion_authority_review",
+      "visibility_posture": "visible_to_later_review"
+    },
+    {
+      "blocking_posture": "blocking_exception",
+      "candidate_ref": "candidate:internal:self_evidencing_workflow_type_emergence",
+      "connector_boundary_refs": [
+        "connector-boundary:v82b:self-evidencing:connector-absent"
+      ],
+      "data_handling_authority_refs": [
+        "authority-review:v82b:self-evidencing:connector-missing",
+        "authority-review:v82b:self-evidencing:deletion-withdrawal-missing",
+        "authority-review:v82b:self-evidencing:endpoint-missing",
+        "authority-review:v82b:self-evidencing:license-missing",
+        "authority-review:v82b:self-evidencing:privacy-missing",
+        "authority-review:v82b:self-evidencing:retention-missing",
+        "authority-review:v82b:self-evidencing:transfer-missing"
+      ],
+      "exception_kind": "missing_privacy_authority",
+      "exception_ref": "exception:v82b:self-evidencing:missing_privacy_authority",
+      "limitation_note": "missing_privacy_authority remains visible for later review; no corpus ingestion, no data transfer, no connector activation, and no endpoint access.",
+      "preflight_contract_refs": [
+        "preflight:v82b:self-evidencing:source-authority-blocked"
+      ],
+      "request_refs": [
+        "corpus-ingestion-review:v82a:self-evidencing:source-absent"
+      ],
+      "required_next_surface": "future_corpus_ingestion_authority_review",
+      "visibility_posture": "visible_to_later_review"
+    },
+    {
+      "blocking_posture": "blocking_exception",
+      "candidate_ref": "candidate:internal:self_evidencing_workflow_type_emergence",
+      "connector_boundary_refs": [
+        "connector-boundary:v82b:self-evidencing:connector-absent"
+      ],
+      "data_handling_authority_refs": [
+        "authority-review:v82b:self-evidencing:connector-missing",
+        "authority-review:v82b:self-evidencing:deletion-withdrawal-missing",
+        "authority-review:v82b:self-evidencing:endpoint-missing",
+        "authority-review:v82b:self-evidencing:license-missing",
+        "authority-review:v82b:self-evidencing:privacy-missing",
+        "authority-review:v82b:self-evidencing:retention-missing",
+        "authority-review:v82b:self-evidencing:transfer-missing"
+      ],
+      "exception_kind": "missing_retention_authority",
+      "exception_ref": "exception:v82b:self-evidencing:missing_retention_authority",
+      "limitation_note": "missing_retention_authority remains visible for later review; no corpus ingestion, no data transfer, no connector activation, and no endpoint access.",
+      "preflight_contract_refs": [
+        "preflight:v82b:self-evidencing:source-authority-blocked"
+      ],
+      "request_refs": [
+        "corpus-ingestion-review:v82a:self-evidencing:source-absent"
+      ],
+      "required_next_surface": "future_retention_authority_review",
+      "visibility_posture": "visible_to_later_review"
+    },
+    {
+      "blocking_posture": "blocking_exception",
+      "candidate_ref": "candidate:internal:self_evidencing_workflow_type_emergence",
+      "connector_boundary_refs": [
+        "connector-boundary:v82b:self-evidencing:connector-absent"
+      ],
+      "data_handling_authority_refs": [
+        "authority-review:v82b:self-evidencing:connector-missing",
+        "authority-review:v82b:self-evidencing:deletion-withdrawal-missing",
+        "authority-review:v82b:self-evidencing:endpoint-missing",
+        "authority-review:v82b:self-evidencing:license-missing",
+        "authority-review:v82b:self-evidencing:privacy-missing",
+        "authority-review:v82b:self-evidencing:retention-missing",
+        "authority-review:v82b:self-evidencing:transfer-missing"
+      ],
+      "exception_kind": "missing_transfer_authority",
+      "exception_ref": "exception:v82b:self-evidencing:missing_transfer_authority",
+      "limitation_note": "missing_transfer_authority remains visible for later review; no corpus ingestion, no data transfer, no connector activation, and no endpoint access.",
+      "preflight_contract_refs": [
+        "preflight:v82b:self-evidencing:source-authority-blocked"
+      ],
+      "request_refs": [
+        "corpus-ingestion-review:v82a:self-evidencing:source-absent"
+      ],
+      "required_next_surface": "future_data_transfer_authority_review",
+      "visibility_posture": "visible_to_later_review"
+    }
+  ],
+  "exception_summary": "Corpus-ingestion exceptions remain visible for later review with no corpus ingestion, no data transfer, no connector activation, and no endpoint access.",
+  "review_id": "review:v82a:corpus-ingestion-review",
+  "schema": "repo_corpus_ingestion_exception_register@1",
+  "snapshot_id": "vNext+229-cross-corpus-governance-closeout",
+  "source_set_id": "source-set:v82a:released-v81c-corpus-ingestion-pressure"
+}
