@@ -1,0 +1,296 @@
+{
+  "$defs": {
+    "RepoExternalBranchReviewRequestRow": {
+      "additionalProperties": false,
+      "properties": {
+        "branch_family_ref": {
+          "title": "Branch Family Ref",
+          "type": "string"
+        },
+        "branch_posture_currentness": {
+          "enum": [
+            "current_branch_posture",
+            "historical_branch_planning_context",
+            "explicit_absence_marker",
+            "stale_or_superseded",
+            "unknown_needs_review"
+          ],
+          "title": "Branch Posture Currentness",
+          "type": "string"
+        },
+        "branch_review_posture": {
+          "enum": [
+            "request_recorded_objective_only",
+            "eligible_for_external_branch_review",
+            "blocked_by_missing_source",
+            "blocked_by_missing_v43_branch_posture",
+            "blocked_by_missing_external_objective",
+            "blocked_by_product_authority_gap",
+            "blocked_by_runtime_authority_gap",
+            "future_family_only",
+            "rejected_out_of_scope"
+          ],
+          "title": "Branch Review Posture",
+          "type": "string"
+        },
+        "candidate_ref": {
+          "title": "Candidate Ref",
+          "type": "string"
+        },
+        "execution_posture": {
+          "enum": [
+            "no_execution_performed_by_v80",
+            "execution_requires_later_family",
+            "execution_forbidden_by_this_family"
+          ],
+          "title": "Execution Posture",
+          "type": "string"
+        },
+        "external_activation_posture": {
+          "enum": [
+            "no_external_branch_activation_performed_by_v80",
+            "external_activation_requires_later_family",
+            "external_activation_forbidden_by_this_family"
+          ],
+          "title": "External Activation Posture",
+          "type": "string"
+        },
+        "external_branch_review_request_ref": {
+          "title": "External Branch Review Request Ref",
+          "type": "string"
+        },
+        "external_objective_kind": {
+          "enum": [
+            "arc_contest_participation_review",
+            "external_benchmark_review",
+            "external_corpus_ingestion_review",
+            "external_tool_endpoint_review",
+            "product_externalization_review",
+            "external_result_claim_review",
+            "future_family_only"
+          ],
+          "title": "External Objective Kind",
+          "type": "string"
+        },
+        "external_submission_posture": {
+          "enum": [
+            "no_external_submission_performed_by_v80",
+            "submission_requires_later_family",
+            "submission_forbidden_by_this_family"
+          ],
+          "title": "External Submission Posture",
+          "type": "string"
+        },
+        "external_tool_invocation_posture": {
+          "enum": [
+            "no_external_tool_invocation_performed_by_v80",
+            "external_tool_invocation_requires_later_family",
+            "external_tool_invocation_forbidden_by_this_family"
+          ],
+          "title": "External Tool Invocation Posture",
+          "type": "string"
+        },
+        "guardrail_refs": {
+          "items": {
+            "type": "string"
+          },
+          "minItems": 1,
+          "title": "Guardrail Refs",
+          "type": "array"
+        },
+        "limitation_note": {
+          "title": "Limitation Note",
+          "type": "string"
+        },
+        "odeu_lanes": {
+          "items": {
+            "enum": [
+              "ontological",
+              "deontic",
+              "epistemic",
+              "utility"
+            ],
+            "type": "string"
+          },
+          "minItems": 1,
+          "title": "Odeu Lanes",
+          "type": "array"
+        },
+        "requested_data_boundary_horizon": {
+          "enum": [
+            "data_boundary_required_later",
+            "tool_boundary_required_later",
+            "submission_authority_required_later",
+            "not_selected_in_v80a",
+            "blocked_by_missing_v43_branch_posture",
+            "blocked_by_missing_authority",
+            "future_family_only"
+          ],
+          "title": "Requested Data Boundary Horizon",
+          "type": "string"
+        },
+        "requested_submission_authority_horizon": {
+          "enum": [
+            "data_boundary_required_later",
+            "tool_boundary_required_later",
+            "submission_authority_required_later",
+            "not_selected_in_v80a",
+            "blocked_by_missing_v43_branch_posture",
+            "blocked_by_missing_authority",
+            "future_family_only"
+          ],
+          "title": "Requested Submission Authority Horizon",
+          "type": "string"
+        },
+        "requested_tool_boundary_horizon": {
+          "enum": [
+            "data_boundary_required_later",
+            "tool_boundary_required_later",
+            "submission_authority_required_later",
+            "not_selected_in_v80a",
+            "blocked_by_missing_v43_branch_posture",
+            "blocked_by_missing_authority",
+            "future_family_only"
+          ],
+          "title": "Requested Tool Boundary Horizon",
+          "type": "string"
+        },
+        "required_authority_refs": {
+          "items": {
+            "type": "string"
+          },
+          "title": "Required Authority Refs",
+          "type": "array"
+        },
+        "required_result_provenance_posture": {
+          "enum": [
+            "required_for_later_review",
+            "not_selected_in_v80a",
+            "not_applicable",
+            "blocked_by_missing_v43_branch_posture",
+            "blocked_by_missing_authority",
+            "future_family_only"
+          ],
+          "title": "Required Result Provenance Posture",
+          "type": "string"
+        },
+        "required_withdrawal_posture": {
+          "enum": [
+            "required_for_later_review",
+            "not_selected_in_v80a",
+            "not_applicable",
+            "blocked_by_missing_v43_branch_posture",
+            "blocked_by_missing_authority",
+            "future_family_only"
+          ],
+          "title": "Required Withdrawal Posture",
+          "type": "string"
+        },
+        "source_refs": {
+          "items": {
+            "type": "string"
+          },
+          "minItems": 1,
+          "title": "Source Refs",
+          "type": "array"
+        },
+        "v79_closeout_refs": {
+          "items": {
+            "type": "string"
+          },
+          "title": "V79 Closeout Refs",
+          "type": "array"
+        },
+        "v79_handoff_refs": {
+          "items": {
+            "type": "string"
+          },
+          "title": "V79 Handoff Refs",
+          "type": "array"
+        },
+        "v79_summary_refs": {
+          "items": {
+            "type": "string"
+          },
+          "title": "V79 Summary Refs",
+          "type": "array"
+        }
+      },
+      "required": [
+        "external_branch_review_request_ref",
+        "candidate_ref",
+        "source_refs",
+        "branch_family_ref",
+        "branch_posture_currentness",
+        "external_objective_kind",
+        "branch_review_posture",
+        "requested_data_boundary_horizon",
+        "requested_tool_boundary_horizon",
+        "requested_submission_authority_horizon",
+        "required_result_provenance_posture",
+        "required_withdrawal_posture",
+        "guardrail_refs",
+        "external_activation_posture",
+        "external_submission_posture",
+        "external_tool_invocation_posture",
+        "execution_posture",
+        "odeu_lanes",
+        "limitation_note"
+      ],
+      "title": "RepoExternalBranchReviewRequestRow",
+      "type": "object"
+    }
+  },
+  "additionalProperties": false,
+  "properties": {
+    "external_branch_boundary_summary": {
+      "title": "External Branch Boundary Summary",
+      "type": "string"
+    },
+    "external_branch_review_request_id": {
+      "title": "External Branch Review Request Id",
+      "type": "string"
+    },
+    "external_branch_source_index_id": {
+      "title": "External Branch Source Index Id",
+      "type": "string"
+    },
+    "request_rows": {
+      "items": {
+        "$ref": "#/$defs/RepoExternalBranchReviewRequestRow"
+      },
+      "minItems": 1,
+      "title": "Request Rows",
+      "type": "array"
+    },
+    "review_id": {
+      "title": "Review Id",
+      "type": "string"
+    },
+    "schema": {
+      "const": "repo_external_branch_review_request@1",
+      "default": "repo_external_branch_review_request@1",
+      "title": "Schema",
+      "type": "string"
+    },
+    "snapshot_id": {
+      "title": "Snapshot Id",
+      "type": "string"
+    },
+    "source_set_id": {
+      "title": "Source Set Id",
+      "type": "string"
+    }
+  },
+  "required": [
+    "external_branch_review_request_id",
+    "external_branch_source_index_id",
+    "review_id",
+    "snapshot_id",
+    "source_set_id",
+    "request_rows",
+    "external_branch_boundary_summary"
+  ],
+  "title": "RepoExternalBranchReviewRequest",
+  "type": "object"
+}

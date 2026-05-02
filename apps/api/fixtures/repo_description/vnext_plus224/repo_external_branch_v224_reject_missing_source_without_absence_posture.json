@@ -1,0 +1,80 @@
+{
+  "external_branch_source_index_id": "repo_external_branch_source_index_6d9963e15a0717397293ea04",
+  "external_branch_source_summary": "External branch source rows separate eligibility from context with no external activation and no prose memory.",
+  "review_id": "review:v80a:external-branch-review",
+  "schema": "repo_external_branch_source_index@1",
+  "snapshot_id": "vNext+223-controlled-execution-review-closeout",
+  "source_rows": [
+    {
+      "authority_layer": "fixture",
+      "external_branch_source_role": "v79_family_closeout_source",
+      "limitation_note": "Family closeout context for review boundary only; no external activation.",
+      "source_horizon": "Released V79 family closeout alignment rows.",
+      "source_kind": "fixture_file",
+      "source_presence_posture": "external_unavailable",
+      "source_ref": "apps/api/fixtures/repo_description/vnext_plus223/repo_controlled_execution_review_family_closeout_alignment_v223_reference.json",
+      "source_status": "integrated_shaping_source"
+    },
+    {
+      "authority_layer": "fixture",
+      "external_branch_source_role": "v79_controlled_execution_summary_source",
+      "limitation_note": "Eligibility context for external branch review only; no external activation.",
+      "source_horizon": "Released V79-C controlled execution review summary rows.",
+      "source_kind": "fixture_file",
+      "source_presence_posture": "present",
+      "source_ref": "apps/api/fixtures/repo_description/vnext_plus223/repo_controlled_execution_review_summary_v223_reference.json",
+      "source_status": "integrated_shaping_source"
+    },
+    {
+      "authority_layer": "fixture",
+      "external_branch_source_role": "v79_post_controlled_execution_review_handoff_source",
+      "limitation_note": "Eligibility context for external branch review only; no external activation.",
+      "source_horizon": "Released V79-C post-controlled-execution handoff rows.",
+      "source_kind": "fixture_file",
+      "source_presence_posture": "present",
+      "source_ref": "apps/api/fixtures/repo_description/vnext_plus223/repo_post_controlled_execution_review_handoff_v223_reference.json",
+      "source_status": "integrated_shaping_source"
+    },
+    {
+      "authority_layer": "planning",
+      "external_branch_source_role": "post_v74_roadmap_context",
+      "limitation_note": "Roadmap context only and not sufficient for eligibility; no external activation.",
+      "source_horizon": "Post-V74 multi-arc roadmap context.",
+      "source_kind": "planning_doc",
+      "source_presence_posture": "present",
+      "source_ref": "docs/DRAFT_MULTI_ARC_ROADMAP_POST_V74_v0.md",
+      "source_status": "integrated_shaping_source"
+    },
+    {
+      "authority_layer": "planning",
+      "external_branch_source_role": "support_process_context",
+      "limitation_note": "Historical context only; not current branch posture and no external activation.",
+      "source_horizon": "Historical V43 branch planning context.",
+      "source_kind": "planning_doc",
+      "source_presence_posture": "present",
+      "source_ref": "docs/DRAFT_NEXT_ARC_OPTIONS_v43.md",
+      "source_status": "available_but_not_integrated"
+    },
+    {
+      "authority_layer": "support",
+      "external_branch_source_role": "v79_combined_dogfood_context",
+      "limitation_note": "Context source only and not sufficient for eligibility; no external activation.",
+      "source_horizon": "Combined V68-V79 dogfood context.",
+      "source_kind": "support_doc",
+      "source_presence_posture": "present",
+      "source_ref": "docs/support/arc_series_mapping/V68_V69_V70_V71_V72_V73_V74_V75_V76_V77_V78_V79_COMBINED_DOGFOOD_TEST_v0.json",
+      "source_status": "integrated_shaping_source"
+    },
+    {
+      "authority_layer": "support",
+      "external_branch_source_role": "v43_branch_posture_absence_marker",
+      "limitation_note": "Explicit absence marker only; no external activation.",
+      "source_horizon": "Current V43 external branch posture is absent.",
+      "source_kind": "external_artifact",
+      "source_presence_posture": "external_unavailable",
+      "source_ref": "external-branch-posture:v43:current:absent",
+      "source_status": "review_pending_input"
+    }
+  ],
+  "source_set_id": "source-set:v80a:released-v79c-external-branch-pressure"
+}

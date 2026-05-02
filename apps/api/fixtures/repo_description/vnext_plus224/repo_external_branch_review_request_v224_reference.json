@@ -1,0 +1,104 @@
+{
+  "external_branch_boundary_summary": "External branch review request is review only: no external activation, no external submission, no external tool invocation, and no release.",
+  "external_branch_review_request_id": "repo_external_branch_review_request_ff87138c0d0e8decef343620",
+  "external_branch_source_index_id": "repo_external_branch_source_index_6d9963e15a0717397293ea04",
+  "request_rows": [
+    {
+      "branch_family_ref": "V80",
+      "branch_posture_currentness": "explicit_absence_marker",
+      "branch_review_posture": "blocked_by_product_authority_gap",
+      "candidate_ref": "candidate:internal:typed_adjudication_product_wedge",
+      "execution_posture": "no_execution_performed_by_v80",
+      "external_activation_posture": "no_external_branch_activation_performed_by_v80",
+      "external_branch_review_request_ref": "external-branch-review:v80a:product-wedge:out-of-scope",
+      "external_objective_kind": "product_externalization_review",
+      "external_submission_posture": "no_external_submission_performed_by_v80",
+      "external_tool_invocation_posture": "no_external_tool_invocation_performed_by_v80",
+      "guardrail_refs": [
+        "guardrail:v80a:product-wedge:non-activation"
+      ],
+      "limitation_note": "Product pressure remains blocked by product authority with no external activation, no external submission, and no release.",
+      "odeu_lanes": [
+        "deontic",
+        "utility"
+      ],
+      "requested_data_boundary_horizon": "future_family_only",
+      "requested_submission_authority_horizon": "future_family_only",
+      "requested_tool_boundary_horizon": "future_family_only",
+      "required_authority_refs": [
+        "authority:v78a:product-wedge:product-review"
+      ],
+      "required_result_provenance_posture": "future_family_only",
+      "required_withdrawal_posture": "not_applicable",
+      "source_refs": [
+        "apps/api/fixtures/repo_description/vnext_plus223/repo_controlled_execution_review_family_closeout_alignment_v223_reference.json",
+        "apps/api/fixtures/repo_description/vnext_plus223/repo_controlled_execution_review_summary_v223_reference.json",
+        "apps/api/fixtures/repo_description/vnext_plus223/repo_post_controlled_execution_review_handoff_v223_reference.json",
+        "docs/DRAFT_MULTI_ARC_ROADMAP_POST_V74_v0.md",
+        "docs/DRAFT_NEXT_ARC_OPTIONS_v43.md",
+        "docs/support/arc_series_mapping/V68_V69_V70_V71_V72_V73_V74_V75_V76_V77_V78_V79_COMBINED_DOGFOOD_TEST_v0.json",
+        "external-branch-posture:v43:current:absent"
+      ],
+      "v79_closeout_refs": [
+        "repo_controlled_execution_review_family_closeout_alignment_c529594bf82f3e0b681d8cbc"
+      ],
+      "v79_handoff_refs": [
+        "handoff:v79c:product-wedge:future-product-review"
+      ],
+      "v79_summary_refs": [
+        "controlled-execution-summary:v79c:product-wedge:blocked"
+      ]
+    },
+    {
+      "branch_family_ref": "V43",
+      "branch_posture_currentness": "explicit_absence_marker",
+      "branch_review_posture": "blocked_by_missing_v43_branch_posture",
+      "candidate_ref": "candidate:internal:self_evidencing_workflow_type_emergence",
+      "execution_posture": "no_execution_performed_by_v80",
+      "external_activation_posture": "no_external_branch_activation_performed_by_v80",
+      "external_branch_review_request_ref": "external-branch-review:v80a:self-evidencing:v43-blocked",
+      "external_objective_kind": "arc_contest_participation_review",
+      "external_submission_posture": "no_external_submission_performed_by_v80",
+      "external_tool_invocation_posture": "no_external_tool_invocation_performed_by_v80",
+      "guardrail_refs": [
+        "guardrail:v80a:self-evidencing:non-activation"
+      ],
+      "limitation_note": "External branch review is blocked by missing current V43 posture with no external activation, no external submission, and no release.",
+      "odeu_lanes": [
+        "deontic",
+        "epistemic",
+        "utility"
+      ],
+      "requested_data_boundary_horizon": "blocked_by_missing_v43_branch_posture",
+      "requested_submission_authority_horizon": "blocked_by_missing_v43_branch_posture",
+      "requested_tool_boundary_horizon": "blocked_by_missing_v43_branch_posture",
+      "required_authority_refs": [
+        "external-branch-posture:v43:current:absent"
+      ],
+      "required_result_provenance_posture": "blocked_by_missing_v43_branch_posture",
+      "required_withdrawal_posture": "blocked_by_missing_v43_branch_posture",
+      "source_refs": [
+        "apps/api/fixtures/repo_description/vnext_plus223/repo_controlled_execution_review_family_closeout_alignment_v223_reference.json",
+        "apps/api/fixtures/repo_description/vnext_plus223/repo_controlled_execution_review_summary_v223_reference.json",
+        "apps/api/fixtures/repo_description/vnext_plus223/repo_post_controlled_execution_review_handoff_v223_reference.json",
+        "docs/DRAFT_MULTI_ARC_ROADMAP_POST_V74_v0.md",
+        "docs/DRAFT_NEXT_ARC_OPTIONS_v43.md",
+        "docs/support/arc_series_mapping/V68_V69_V70_V71_V72_V73_V74_V75_V76_V77_V78_V79_COMBINED_DOGFOOD_TEST_v0.json",
+        "external-branch-posture:v43:current:absent"
+      ],
+      "v79_closeout_refs": [
+        "repo_controlled_execution_review_family_closeout_alignment_c529594bf82f3e0b681d8cbc"
+      ],
+      "v79_handoff_refs": [
+        "handoff:v79c:self-evidencing:future-execution-trial-review"
+      ],
+      "v79_summary_refs": [
+        "controlled-execution-summary:v79c:self-evidencing:review-package"
+      ]
+    }
+  ],
+  "review_id": "review:v80a:external-branch-review",
+  "schema": "repo_external_branch_review_request@1",
+  "snapshot_id": "vNext+223-controlled-execution-review-closeout",
+  "source_set_id": "source-set:v80a:released-v79c-external-branch-pressure"
+}
