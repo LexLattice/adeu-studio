@@ -1,0 +1,133 @@
+{
+  "assertions": [
+    "family_closeout_artifacts_exist_through_v81",
+    "v81c_summaries_preserve_no_ingestion_connector_endpoint_adjudication_product_or_release",
+    "v81c_handoffs_are_review_requests_with_no_ingestion_connector_endpoint_or_adjudication",
+    "v81c_product_pressure_remains_blocked_by_product_authority",
+    "v81c_self_evidencing_pressure_remains_blocked_by_missing_corpus_source",
+    "v81_family_closeout_closes_without_v82_selection"
+  ],
+  "carry_forward_findings": [
+    {
+      "finding": "V81 closes cross-corpus governance review with source-bound request, source index, non-ingestion guardrail, boundary, provenance, authority-gap, exception, summary, and handoff posture, but without corpus ingestion, connector activation, endpoint access, cross-corpus adjudication execution, product authorization, release, benchmark truth, imported-result truth, or graph-memory authority.",
+      "posture": "closed_family_boundary",
+      "result": "not_family_failure"
+    },
+    {
+      "finding": "V81-C carries corpus-ingestion review pressure and product review pressure forward as later-review requests; it does not select V82 or grant downstream authority.",
+      "posture": "future_family_pressure_visible_not_selected",
+      "result": "not_family_failure"
+    }
+  ],
+  "counts": {
+    "v81_shipped_record_shapes": 10,
+    "v81_unselected_future_surfaces": 14,
+    "v81c_handoff_rows": 2,
+    "v81c_summary_rows": 2
+  },
+  "failures": [],
+  "families_checked": [
+    "V68",
+    "V69",
+    "V70",
+    "V71",
+    "V72",
+    "V73",
+    "V74",
+    "V75",
+    "V76",
+    "V77",
+    "V78",
+    "V79",
+    "V80",
+    "V81"
+  ],
+  "family_closeout_schemas": {
+    "V68": "v68_family_closeout_alignment@1",
+    "V69": "v69_family_closeout_alignment@1",
+    "V70": "v70_family_closeout_alignment@1",
+    "V71": "v71_family_closeout_alignment@1",
+    "V72": "v72_family_closeout_alignment@1",
+    "V73": "v73_family_closeout_alignment@1",
+    "V74": "v74_family_closeout_alignment@1",
+    "V75": "v75_family_closeout_alignment@1",
+    "V76": "v76_family_closeout_alignment@1",
+    "V77": "v77_family_closeout_alignment@1",
+    "V78": "v78_family_closeout_alignment@1",
+    "V79": "v79_family_closeout_alignment@1",
+    "V80": "v80_family_closeout_alignment@1",
+    "V81": "v81_family_closeout_alignment@1"
+  },
+  "handoff_postures": {
+    "post-cross-corpus-handoff:v81c:self_evidencing_workflow_type_emergence": {
+      "adjudication_execution_posture": "no_cross_corpus_adjudication_performed_by_v81",
+      "connector_activation_posture": "no_connector_activation_performed_by_v81",
+      "corpus_ingestion_posture": "no_corpus_ingestion_performed_by_v81",
+      "endpoint_access_posture": "no_endpoint_access_performed_by_v81",
+      "handoff_authority_horizon": "corpus_ingestion_authority_review",
+      "handoff_posture": "blocked_by_carried_exceptions",
+      "handoff_subject_horizon": "corpus_boundary_review_package",
+      "handoff_target": "future_corpus_ingestion_review",
+      "required_later_authority_refs": [
+        "corpus-authority-gap:v81b:self-evidencing:license",
+        "corpus-authority-gap:v81b:self-evidencing:privacy"
+      ]
+    },
+    "post-cross-corpus-handoff:v81c:typed_adjudication_product_wedge": {
+      "adjudication_execution_posture": "no_cross_corpus_adjudication_performed_by_v81",
+      "connector_activation_posture": "no_connector_activation_performed_by_v81",
+      "corpus_ingestion_posture": "no_corpus_ingestion_performed_by_v81",
+      "endpoint_access_posture": "no_endpoint_access_performed_by_v81",
+      "handoff_authority_horizon": "product_authority_review",
+      "handoff_posture": "blocked_by_carried_exceptions",
+      "handoff_subject_horizon": "product_authority_gap",
+      "handoff_target": "future_product_review",
+      "required_later_authority_refs": [
+        "corpus-authority-gap:v81b:product-wedge:product"
+      ]
+    }
+  },
+  "postures": {
+    "candidate:internal:self_evidencing_workflow_type_emergence": {
+      "adjudication_execution_posture": "no_cross_corpus_adjudication_performed_by_v81",
+      "connector_activation_posture": "no_connector_activation_performed_by_v81",
+      "corpus_ingestion_posture": "no_corpus_ingestion_performed_by_v81",
+      "endpoint_access_posture": "no_endpoint_access_performed_by_v81",
+      "ready_basis_posture": "not_ready_blockers_remain",
+      "summary_posture": "blocked_by_missing_corpus_source"
+    },
+    "candidate:internal:typed_adjudication_product_wedge": {
+      "adjudication_execution_posture": "no_cross_corpus_adjudication_performed_by_v81",
+      "connector_activation_posture": "no_connector_activation_performed_by_v81",
+      "corpus_ingestion_posture": "no_corpus_ingestion_performed_by_v81",
+      "endpoint_access_posture": "no_endpoint_access_performed_by_v81",
+      "ready_basis_posture": "authority_review_requested_for_blockers",
+      "summary_posture": "blocked_by_product_authority_gap"
+    }
+  },
+  "pytest_result": {
+    "collected_count": 717,
+    "focused_repo_description_tests_passed": true,
+    "warnings_count": 169,
+    "warnings_observed": true
+  },
+  "result": "pass",
+  "schema": "v68_v69_v70_v71_v72_v73_v74_v75_v76_v77_v78_v79_v80_v81_combined_dogfood_test@1",
+  "terminal_closeout_arcs": [
+    "vNext+190",
+    "vNext+193",
+    "vNext+196",
+    "vNext+199",
+    "vNext+202",
+    "vNext+205",
+    "vNext+208",
+    "vNext+211",
+    "vNext+214",
+    "vNext+217",
+    "vNext+220",
+    "vNext+223",
+    "vNext+226",
+    "vNext+229"
+  ],
+  "terminal_closeout_checks_passed": true
+}
