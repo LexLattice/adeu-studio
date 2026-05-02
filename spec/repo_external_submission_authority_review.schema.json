@@ -1,0 +1,163 @@
+{
+  "$defs": {
+    "RepoExternalSubmissionAuthorityReviewRow": {
+      "additionalProperties": false,
+      "properties": {
+        "authority_refs": {
+          "items": {
+            "type": "string"
+          },
+          "minItems": 1,
+          "title": "Authority Refs",
+          "type": "array"
+        },
+        "candidate_ref": {
+          "title": "Candidate Ref",
+          "type": "string"
+        },
+        "data_boundary_refs": {
+          "items": {
+            "type": "string"
+          },
+          "minItems": 1,
+          "title": "Data Boundary Refs",
+          "type": "array"
+        },
+        "external_branch_review_request_refs": {
+          "items": {
+            "type": "string"
+          },
+          "minItems": 1,
+          "title": "External Branch Review Request Refs",
+          "type": "array"
+        },
+        "external_submission_posture": {
+          "enum": [
+            "no_external_submission_performed_by_v80",
+            "submission_requires_later_family",
+            "submission_forbidden_by_this_family"
+          ],
+          "title": "External Submission Posture",
+          "type": "string"
+        },
+        "external_tool_boundary_refs": {
+          "items": {
+            "type": "string"
+          },
+          "minItems": 1,
+          "title": "External Tool Boundary Refs",
+          "type": "array"
+        },
+        "limitation_note": {
+          "title": "Limitation Note",
+          "type": "string"
+        },
+        "source_refs": {
+          "items": {
+            "type": "string"
+          },
+          "minItems": 1,
+          "title": "Source Refs",
+          "type": "array"
+        },
+        "submission_authority_posture": {
+          "enum": [
+            "submission_authority_complete_for_review_only",
+            "submission_authority_blocked_by_missing_v43_branch_posture",
+            "submission_authority_blocked_by_missing_authority",
+            "submission_authority_future_family_only"
+          ],
+          "title": "Submission Authority Posture",
+          "type": "string"
+        },
+        "submission_authority_review_ref": {
+          "title": "Submission Authority Review Ref",
+          "type": "string"
+        },
+        "submission_target_refs": {
+          "items": {
+            "type": "string"
+          },
+          "title": "Submission Target Refs",
+          "type": "array"
+        }
+      },
+      "required": [
+        "submission_authority_review_ref",
+        "candidate_ref",
+        "source_refs",
+        "external_branch_review_request_refs",
+        "data_boundary_refs",
+        "external_tool_boundary_refs",
+        "authority_refs",
+        "submission_authority_posture",
+        "external_submission_posture",
+        "limitation_note"
+      ],
+      "title": "RepoExternalSubmissionAuthorityReviewRow",
+      "type": "object"
+    }
+  },
+  "additionalProperties": false,
+  "properties": {
+    "external_branch_non_activation_guardrail_id": {
+      "title": "External Branch Non Activation Guardrail Id",
+      "type": "string"
+    },
+    "external_branch_review_request_id": {
+      "title": "External Branch Review Request Id",
+      "type": "string"
+    },
+    "external_branch_source_index_id": {
+      "title": "External Branch Source Index Id",
+      "type": "string"
+    },
+    "external_submission_authority_review_id": {
+      "title": "External Submission Authority Review Id",
+      "type": "string"
+    },
+    "review_id": {
+      "title": "Review Id",
+      "type": "string"
+    },
+    "schema": {
+      "const": "repo_external_submission_authority_review@1",
+      "default": "repo_external_submission_authority_review@1",
+      "title": "Schema",
+      "type": "string"
+    },
+    "snapshot_id": {
+      "title": "Snapshot Id",
+      "type": "string"
+    },
+    "source_set_id": {
+      "title": "Source Set Id",
+      "type": "string"
+    },
+    "submission_authority_review_rows": {
+      "items": {
+        "$ref": "#/$defs/RepoExternalSubmissionAuthorityReviewRow"
+      },
+      "minItems": 1,
+      "title": "Submission Authority Review Rows",
+      "type": "array"
+    },
+    "submission_authority_summary": {
+      "title": "Submission Authority Summary",
+      "type": "string"
+    }
+  },
+  "required": [
+    "external_submission_authority_review_id",
+    "external_branch_review_request_id",
+    "external_branch_source_index_id",
+    "external_branch_non_activation_guardrail_id",
+    "review_id",
+    "snapshot_id",
+    "source_set_id",
+    "submission_authority_review_rows",
+    "submission_authority_summary"
+  ],
+  "title": "RepoExternalSubmissionAuthorityReview",
+  "type": "object"
+}

@@ -1,0 +1,179 @@
+{
+  "$defs": {
+    "RepoExternalResultProvenanceContractRow": {
+      "additionalProperties": false,
+      "properties": {
+        "candidate_ref": {
+          "title": "Candidate Ref",
+          "type": "string"
+        },
+        "data_boundary_refs": {
+          "items": {
+            "type": "string"
+          },
+          "minItems": 1,
+          "title": "Data Boundary Refs",
+          "type": "array"
+        },
+        "expected_result_source_refs": {
+          "items": {
+            "type": "string"
+          },
+          "title": "Expected Result Source Refs",
+          "type": "array"
+        },
+        "external_branch_review_request_refs": {
+          "items": {
+            "type": "string"
+          },
+          "minItems": 1,
+          "title": "External Branch Review Request Refs",
+          "type": "array"
+        },
+        "external_tool_boundary_refs": {
+          "items": {
+            "type": "string"
+          },
+          "minItems": 1,
+          "title": "External Tool Boundary Refs",
+          "type": "array"
+        },
+        "limitation_note": {
+          "title": "Limitation Note",
+          "type": "string"
+        },
+        "result_capture_requirement_refs": {
+          "items": {
+            "type": "string"
+          },
+          "minItems": 1,
+          "title": "Result Capture Requirement Refs",
+          "type": "array"
+        },
+        "result_provenance_contract_ref": {
+          "title": "Result Provenance Contract Ref",
+          "type": "string"
+        },
+        "result_truth_posture": {
+          "enum": [
+            "external_result_truth_not_claimed",
+            "result_truth_requires_later_review",
+            "result_truth_forbidden_by_this_family"
+          ],
+          "title": "Result Truth Posture",
+          "type": "string"
+        },
+        "source_refs": {
+          "items": {
+            "type": "string"
+          },
+          "minItems": 1,
+          "title": "Source Refs",
+          "type": "array"
+        },
+        "submission_authority_review_refs": {
+          "items": {
+            "type": "string"
+          },
+          "minItems": 1,
+          "title": "Submission Authority Review Refs",
+          "type": "array"
+        },
+        "withdrawal_posture": {
+          "enum": [
+            "withdrawal_requirement_recorded_only",
+            "withdrawal_requires_later_authority",
+            "withdrawal_not_applicable",
+            "withdrawal_action_forbidden_by_this_family"
+          ],
+          "title": "Withdrawal Posture",
+          "type": "string"
+        },
+        "withdrawal_requirement_refs": {
+          "items": {
+            "type": "string"
+          },
+          "title": "Withdrawal Requirement Refs",
+          "type": "array"
+        }
+      },
+      "required": [
+        "result_provenance_contract_ref",
+        "candidate_ref",
+        "source_refs",
+        "external_branch_review_request_refs",
+        "data_boundary_refs",
+        "external_tool_boundary_refs",
+        "submission_authority_review_refs",
+        "result_capture_requirement_refs",
+        "result_truth_posture",
+        "withdrawal_posture",
+        "limitation_note"
+      ],
+      "title": "RepoExternalResultProvenanceContractRow",
+      "type": "object"
+    }
+  },
+  "additionalProperties": false,
+  "properties": {
+    "external_branch_non_activation_guardrail_id": {
+      "title": "External Branch Non Activation Guardrail Id",
+      "type": "string"
+    },
+    "external_branch_review_request_id": {
+      "title": "External Branch Review Request Id",
+      "type": "string"
+    },
+    "external_branch_source_index_id": {
+      "title": "External Branch Source Index Id",
+      "type": "string"
+    },
+    "external_result_provenance_contract_id": {
+      "title": "External Result Provenance Contract Id",
+      "type": "string"
+    },
+    "result_provenance_contract_rows": {
+      "items": {
+        "$ref": "#/$defs/RepoExternalResultProvenanceContractRow"
+      },
+      "minItems": 1,
+      "title": "Result Provenance Contract Rows",
+      "type": "array"
+    },
+    "result_provenance_summary": {
+      "title": "Result Provenance Summary",
+      "type": "string"
+    },
+    "review_id": {
+      "title": "Review Id",
+      "type": "string"
+    },
+    "schema": {
+      "const": "repo_external_result_provenance_contract@1",
+      "default": "repo_external_result_provenance_contract@1",
+      "title": "Schema",
+      "type": "string"
+    },
+    "snapshot_id": {
+      "title": "Snapshot Id",
+      "type": "string"
+    },
+    "source_set_id": {
+      "title": "Source Set Id",
+      "type": "string"
+    }
+  },
+  "required": [
+    "external_result_provenance_contract_id",
+    "external_branch_review_request_id",
+    "external_branch_source_index_id",
+    "external_branch_non_activation_guardrail_id",
+    "review_id",
+    "snapshot_id",
+    "source_set_id",
+    "result_provenance_contract_rows",
+    "result_provenance_summary"
+  ],
+  "title": "RepoExternalResultProvenanceContract",
+  "type": "object"
+}

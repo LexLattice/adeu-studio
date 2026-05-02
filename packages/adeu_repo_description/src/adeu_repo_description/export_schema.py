@@ -97,9 +97,14 @@ from .dispatch_review import (
     RepoWorkerToolApplicabilityMatrix,
 )
 from .external_branch_review import (
+    RepoExternalBranchExceptionRegister,
     RepoExternalBranchNonActivationGuardrail,
     RepoExternalBranchReviewRequest,
     RepoExternalBranchSourceIndex,
+    RepoExternalDataBoundary,
+    RepoExternalResultProvenanceContract,
+    RepoExternalSubmissionAuthorityReview,
+    RepoExternalToolBoundary,
 )
 from .models import (
     RepoArcDependencyRegister,
@@ -228,6 +233,7 @@ def _assert_no_absolute_path_material(
 
 def main() -> None:
     root = repo_root(anchor=Path(__file__))
+    repo_description_schema_root = root / "packages" / "adeu_repo_description" / "schema"
     dependency_register_v1_schema = RepoArcDependencyRegisterV1.model_json_schema(by_alias=True)
     dependency_register_schema = RepoArcDependencyRegister.model_json_schema(by_alias=True)
     dependency_graph_schema = RepoDependencyGraph.model_json_schema(by_alias=True)
@@ -548,11 +554,22 @@ def main() -> None:
     external_branch_source_index_schema = RepoExternalBranchSourceIndex.model_json_schema(
         by_alias=True
     )
-    external_branch_review_request_schema = (
-        RepoExternalBranchReviewRequest.model_json_schema(by_alias=True)
+    external_branch_review_request_schema = RepoExternalBranchReviewRequest.model_json_schema(
+        by_alias=True
     )
     external_branch_non_activation_guardrail_schema = (
         RepoExternalBranchNonActivationGuardrail.model_json_schema(by_alias=True)
+    )
+    external_data_boundary_schema = RepoExternalDataBoundary.model_json_schema(by_alias=True)
+    external_tool_boundary_schema = RepoExternalToolBoundary.model_json_schema(by_alias=True)
+    external_submission_authority_review_schema = (
+        RepoExternalSubmissionAuthorityReview.model_json_schema(by_alias=True)
+    )
+    external_result_provenance_contract_schema = (
+        RepoExternalResultProvenanceContract.model_json_schema(by_alias=True)
+    )
+    external_branch_exception_register_schema = (
+        RepoExternalBranchExceptionRegister.model_json_schema(by_alias=True)
     )
 
     _assert_no_absolute_path_material(dependency_register_v1_schema, repo_root_path=root)
@@ -829,6 +846,26 @@ def main() -> None:
     )
     _assert_no_absolute_path_material(
         external_branch_non_activation_guardrail_schema,
+        repo_root_path=root,
+    )
+    _assert_no_absolute_path_material(
+        external_data_boundary_schema,
+        repo_root_path=root,
+    )
+    _assert_no_absolute_path_material(
+        external_tool_boundary_schema,
+        repo_root_path=root,
+    )
+    _assert_no_absolute_path_material(
+        external_submission_authority_review_schema,
+        repo_root_path=root,
+    )
+    _assert_no_absolute_path_material(
+        external_result_provenance_contract_schema,
+        repo_root_path=root,
+    )
+    _assert_no_absolute_path_material(
+        external_branch_exception_register_schema,
         repo_root_path=root,
     )
 
@@ -2245,11 +2282,7 @@ def main() -> None:
         controlled_execution_non_execution_guardrail_schema,
     )
     _write_schema(
-        root
-        / "packages"
-        / "adeu_repo_description"
-        / "schema"
-        / "repo_execution_run_plan.v1.json",
+        root / "packages" / "adeu_repo_description" / "schema" / "repo_execution_run_plan.v1.json",
         execution_run_plan_schema,
     )
     _write_schema(
@@ -2325,9 +2358,7 @@ def main() -> None:
         controlled_execution_review_family_closeout_alignment_schema,
     )
     _write_schema(
-        root
-        / "spec"
-        / "repo_controlled_execution_review_family_closeout_alignment.schema.json",
+        root / "spec" / "repo_controlled_execution_review_family_closeout_alignment.schema.json",
         controlled_execution_review_family_closeout_alignment_schema,
     )
     _write_schema(
@@ -2365,6 +2396,46 @@ def main() -> None:
     _write_schema(
         root / "spec" / "repo_external_branch_non_activation_guardrail.schema.json",
         external_branch_non_activation_guardrail_schema,
+    )
+    _write_schema(
+        repo_description_schema_root / "repo_external_data_boundary.v1.json",
+        external_data_boundary_schema,
+    )
+    _write_schema(
+        root / "spec" / "repo_external_data_boundary.schema.json",
+        external_data_boundary_schema,
+    )
+    _write_schema(
+        repo_description_schema_root / "repo_external_tool_boundary.v1.json",
+        external_tool_boundary_schema,
+    )
+    _write_schema(
+        root / "spec" / "repo_external_tool_boundary.schema.json",
+        external_tool_boundary_schema,
+    )
+    _write_schema(
+        repo_description_schema_root / "repo_external_submission_authority_review.v1.json",
+        external_submission_authority_review_schema,
+    )
+    _write_schema(
+        root / "spec" / "repo_external_submission_authority_review.schema.json",
+        external_submission_authority_review_schema,
+    )
+    _write_schema(
+        repo_description_schema_root / "repo_external_result_provenance_contract.v1.json",
+        external_result_provenance_contract_schema,
+    )
+    _write_schema(
+        root / "spec" / "repo_external_result_provenance_contract.schema.json",
+        external_result_provenance_contract_schema,
+    )
+    _write_schema(
+        repo_description_schema_root / "repo_external_branch_exception_register.v1.json",
+        external_branch_exception_register_schema,
+    )
+    _write_schema(
+        root / "spec" / "repo_external_branch_exception_register.schema.json",
+        external_branch_exception_register_schema,
     )
 
 
