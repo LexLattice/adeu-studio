@@ -1,0 +1,63 @@
+{
+  "closed_by_arc": "vNext+223",
+  "closed_slice_ladder": [
+    "V79-A",
+    "V79-B",
+    "V79-C"
+  ],
+  "consumed_source_families": [
+    "V68",
+    "V69",
+    "V70",
+    "V71",
+    "V72",
+    "V73",
+    "V74",
+    "V75",
+    "V76",
+    "V77",
+    "V78",
+    "V79"
+  ],
+  "controlled_execution_boundary": "V79 closes controlled execution review with no execution, no tool invocation, no release, and no v80 selection.",
+  "controlled_execution_review_family_closeout_alignment_id": "repo_controlled_execution_review_family_closeout_alignment_c529594bf82f3e0b681d8cbc",
+  "controlled_execution_review_summary_id": "repo_controlled_execution_review_summary_7b1143d2bc0108800c1413cf",
+  "family": "V79",
+  "future_family_authority": "next_selector_required",
+  "limitation_note": "V79 is closed as review only with no execution, no tool invocation, no v80 selection, and no downstream authority.",
+  "post_controlled_execution_review_handoff_id": "repo_post_controlled_execution_review_handoff_9448d9002059f6b732db87d8",
+  "schema": "repo_controlled_execution_review_family_closeout_alignment@1",
+  "shipped_record_shapes": [
+    "repo_controlled_execution_exception_register@1",
+    "repo_controlled_execution_non_execution_guardrail@1",
+    "repo_controlled_execution_review_family_closeout_alignment@1",
+    "repo_controlled_execution_review_request@1",
+    "repo_controlled_execution_review_summary@1",
+    "repo_controlled_execution_source_index@1",
+    "repo_execution_effect_monitoring_contract@1",
+    "repo_execution_run_plan@1",
+    "repo_post_controlled_execution_review_handoff@1",
+    "repo_tool_invocation_plan@1"
+  ],
+  "unselected_future_surfaces": [
+    "accepted_effect",
+    "benchmark_truth",
+    "command_execution",
+    "commit",
+    "dispatch_execution",
+    "external_branch_activation",
+    "living_memory_authority",
+    "merge",
+    "model_selection",
+    "observed_telemetry",
+    "pr_creation",
+    "product_authorization",
+    "recursive_policy_amendment",
+    "release",
+    "target_mutation",
+    "tool_invocation",
+    "v80_selection",
+    "verified_rollback",
+    "worker_assignment"
+  ]
+}

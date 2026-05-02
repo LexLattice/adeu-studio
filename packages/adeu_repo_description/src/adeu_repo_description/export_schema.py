@@ -73,10 +73,13 @@ from .contained_integration_review import (
 from .controlled_execution_review import (
     RepoControlledExecutionExceptionRegister,
     RepoControlledExecutionNonExecutionGuardrail,
+    RepoControlledExecutionReviewFamilyCloseoutAlignment,
     RepoControlledExecutionReviewRequest,
+    RepoControlledExecutionReviewSummary,
     RepoControlledExecutionSourceIndex,
     RepoExecutionEffectMonitoringContract,
     RepoExecutionRunPlan,
+    RepoPostControlledExecutionReviewHandoff,
     RepoToolInvocationPlan,
 )
 from .dispatch_review import (
@@ -528,6 +531,15 @@ def main() -> None:
     controlled_execution_exception_register_schema = (
         RepoControlledExecutionExceptionRegister.model_json_schema(by_alias=True)
     )
+    controlled_execution_review_summary_schema = (
+        RepoControlledExecutionReviewSummary.model_json_schema(by_alias=True)
+    )
+    post_controlled_execution_review_handoff_schema = (
+        RepoPostControlledExecutionReviewHandoff.model_json_schema(by_alias=True)
+    )
+    controlled_execution_review_family_closeout_alignment_schema = (
+        RepoControlledExecutionReviewFamilyCloseoutAlignment.model_json_schema(by_alias=True)
+    )
 
     _assert_no_absolute_path_material(dependency_register_v1_schema, repo_root_path=root)
     _assert_no_absolute_path_material(dependency_register_schema, repo_root_path=root)
@@ -779,6 +791,18 @@ def main() -> None:
     )
     _assert_no_absolute_path_material(
         controlled_execution_exception_register_schema,
+        repo_root_path=root,
+    )
+    _assert_no_absolute_path_material(
+        controlled_execution_review_summary_schema,
+        repo_root_path=root,
+    )
+    _assert_no_absolute_path_material(
+        post_controlled_execution_review_handoff_schema,
+        repo_root_path=root,
+    )
+    _assert_no_absolute_path_material(
+        controlled_execution_review_family_closeout_alignment_schema,
         repo_root_path=root,
     )
 
@@ -2241,6 +2265,44 @@ def main() -> None:
     _write_schema(
         root / "spec" / "repo_controlled_execution_exception_register.schema.json",
         controlled_execution_exception_register_schema,
+    )
+    _write_schema(
+        root
+        / "packages"
+        / "adeu_repo_description"
+        / "schema"
+        / "repo_controlled_execution_review_summary.v1.json",
+        controlled_execution_review_summary_schema,
+    )
+    _write_schema(
+        root / "spec" / "repo_controlled_execution_review_summary.schema.json",
+        controlled_execution_review_summary_schema,
+    )
+    _write_schema(
+        root
+        / "packages"
+        / "adeu_repo_description"
+        / "schema"
+        / "repo_post_controlled_execution_review_handoff.v1.json",
+        post_controlled_execution_review_handoff_schema,
+    )
+    _write_schema(
+        root / "spec" / "repo_post_controlled_execution_review_handoff.schema.json",
+        post_controlled_execution_review_handoff_schema,
+    )
+    _write_schema(
+        root
+        / "packages"
+        / "adeu_repo_description"
+        / "schema"
+        / "repo_controlled_execution_review_family_closeout_alignment.v1.json",
+        controlled_execution_review_family_closeout_alignment_schema,
+    )
+    _write_schema(
+        root
+        / "spec"
+        / "repo_controlled_execution_review_family_closeout_alignment.schema.json",
+        controlled_execution_review_family_closeout_alignment_schema,
     )
 
 

@@ -1,0 +1,146 @@
+{
+  "additionalProperties": false,
+  "properties": {
+    "closed_by_arc": {
+      "const": "vNext+223",
+      "title": "Closed By Arc",
+      "type": "string"
+    },
+    "closed_slice_ladder": {
+      "items": {
+        "enum": [
+          "V79-A",
+          "V79-B",
+          "V79-C"
+        ],
+        "type": "string"
+      },
+      "minItems": 3,
+      "title": "Closed Slice Ladder",
+      "type": "array"
+    },
+    "consumed_source_families": {
+      "items": {
+        "enum": [
+          "V68",
+          "V69",
+          "V70",
+          "V71",
+          "V72",
+          "V73",
+          "V74",
+          "V75",
+          "V76",
+          "V77",
+          "V78",
+          "V79"
+        ],
+        "type": "string"
+      },
+      "minItems": 1,
+      "title": "Consumed Source Families",
+      "type": "array"
+    },
+    "controlled_execution_boundary": {
+      "title": "Controlled Execution Boundary",
+      "type": "string"
+    },
+    "controlled_execution_review_family_closeout_alignment_id": {
+      "title": "Controlled Execution Review Family Closeout Alignment Id",
+      "type": "string"
+    },
+    "controlled_execution_review_summary_id": {
+      "title": "Controlled Execution Review Summary Id",
+      "type": "string"
+    },
+    "family": {
+      "const": "V79",
+      "title": "Family",
+      "type": "string"
+    },
+    "future_family_authority": {
+      "const": "next_selector_required",
+      "title": "Future Family Authority",
+      "type": "string"
+    },
+    "limitation_note": {
+      "title": "Limitation Note",
+      "type": "string"
+    },
+    "post_controlled_execution_review_handoff_id": {
+      "title": "Post Controlled Execution Review Handoff Id",
+      "type": "string"
+    },
+    "schema": {
+      "const": "repo_controlled_execution_review_family_closeout_alignment@1",
+      "default": "repo_controlled_execution_review_family_closeout_alignment@1",
+      "title": "Schema",
+      "type": "string"
+    },
+    "shipped_record_shapes": {
+      "items": {
+        "enum": [
+          "repo_controlled_execution_review_request@1",
+          "repo_controlled_execution_source_index@1",
+          "repo_controlled_execution_non_execution_guardrail@1",
+          "repo_execution_run_plan@1",
+          "repo_tool_invocation_plan@1",
+          "repo_execution_effect_monitoring_contract@1",
+          "repo_controlled_execution_exception_register@1",
+          "repo_controlled_execution_review_summary@1",
+          "repo_post_controlled_execution_review_handoff@1",
+          "repo_controlled_execution_review_family_closeout_alignment@1"
+        ],
+        "type": "string"
+      },
+      "minItems": 1,
+      "title": "Shipped Record Shapes",
+      "type": "array"
+    },
+    "unselected_future_surfaces": {
+      "items": {
+        "enum": [
+          "command_execution",
+          "tool_invocation",
+          "target_mutation",
+          "accepted_effect",
+          "observed_telemetry",
+          "verified_rollback",
+          "worker_assignment",
+          "dispatch_execution",
+          "product_authorization",
+          "external_branch_activation",
+          "pr_creation",
+          "commit",
+          "merge",
+          "release",
+          "benchmark_truth",
+          "model_selection",
+          "living_memory_authority",
+          "recursive_policy_amendment",
+          "v80_selection"
+        ],
+        "type": "string"
+      },
+      "minItems": 1,
+      "title": "Unselected Future Surfaces",
+      "type": "array"
+    }
+  },
+  "required": [
+    "controlled_execution_review_family_closeout_alignment_id",
+    "controlled_execution_review_summary_id",
+    "post_controlled_execution_review_handoff_id",
+    "family",
+    "closed_by_arc",
+    "closed_slice_ladder",
+    "consumed_source_families",
+    "shipped_record_shapes",
+    "controlled_execution_boundary",
+    "unselected_future_surfaces",
+    "future_family_authority",
+    "limitation_note"
+  ],
+  "title": "RepoControlledExecutionReviewFamilyCloseoutAlignment",
+  "type": "object"
+}

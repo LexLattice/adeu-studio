@@ -42,7 +42,9 @@ from adeu_repo_description import (
     REPO_CONTAINED_INTEGRATION_TRIAL_RECORD_SCHEMA,
     REPO_CONTROLLED_EXECUTION_EXCEPTION_REGISTER_SCHEMA,
     REPO_CONTROLLED_EXECUTION_NON_EXECUTION_GUARDRAIL_SCHEMA,
+    REPO_CONTROLLED_EXECUTION_REVIEW_FAMILY_CLOSEOUT_ALIGNMENT_SCHEMA,
     REPO_CONTROLLED_EXECUTION_REVIEW_REQUEST_SCHEMA,
+    REPO_CONTROLLED_EXECUTION_REVIEW_SUMMARY_SCHEMA,
     REPO_CONTROLLED_EXECUTION_SOURCE_INDEX_SCHEMA,
     REPO_DECISION_VISIBILITY_CONTRACT_SCHEMA,
     REPO_DEPENDENCY_GRAPH_SCHEMA,
@@ -68,6 +70,7 @@ from adeu_repo_description import (
     REPO_OUTCOME_EVIDENCE_SOURCE_INDEX_SCHEMA,
     REPO_OUTCOME_REGRESSION_REGISTER_SCHEMA,
     REPO_OUTCOME_REVIEW_BOUNDARY_GUARDRAIL_SCHEMA,
+    REPO_POST_CONTROLLED_EXECUTION_REVIEW_HANDOFF_SCHEMA,
     REPO_POST_DISPATCH_REVIEW_HANDOFF_SCHEMA,
     REPO_POST_INTEGRATION_OUTCOME_REVIEW_HANDOFF_SCHEMA,
     REPO_POST_PROJECTION_HANDOFF_SCHEMA,
@@ -981,6 +984,32 @@ def _schema_pairs() -> dict[str, tuple[Path, Path]]:
             / "schema"
             / "repo_controlled_execution_exception_register.v1.json",
             root / "spec" / "repo_controlled_execution_exception_register.schema.json",
+        ),
+        REPO_CONTROLLED_EXECUTION_REVIEW_SUMMARY_SCHEMA: (
+            root
+            / "packages"
+            / "adeu_repo_description"
+            / "schema"
+            / "repo_controlled_execution_review_summary.v1.json",
+            root / "spec" / "repo_controlled_execution_review_summary.schema.json",
+        ),
+        REPO_POST_CONTROLLED_EXECUTION_REVIEW_HANDOFF_SCHEMA: (
+            root
+            / "packages"
+            / "adeu_repo_description"
+            / "schema"
+            / "repo_post_controlled_execution_review_handoff.v1.json",
+            root / "spec" / "repo_post_controlled_execution_review_handoff.schema.json",
+        ),
+        REPO_CONTROLLED_EXECUTION_REVIEW_FAMILY_CLOSEOUT_ALIGNMENT_SCHEMA: (
+            root
+            / "packages"
+            / "adeu_repo_description"
+            / "schema"
+            / "repo_controlled_execution_review_family_closeout_alignment.v1.json",
+            root
+            / "spec"
+            / "repo_controlled_execution_review_family_closeout_alignment.schema.json",
         ),
     }
 
