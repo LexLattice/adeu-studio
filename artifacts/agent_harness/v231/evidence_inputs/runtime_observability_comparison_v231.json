@@ -1,0 +1,11 @@
+{
+  "baseline_arc": "vNext+230",
+  "baseline_elapsed_ms": 100,
+  "baseline_source": "artifacts/stop_gate/report_v230_closeout.md",
+  "current_arc": "vNext+231",
+  "current_elapsed_ms": 108,
+  "current_source": "artifacts/stop_gate/report_v231_closeout.md",
+  "delta_ms": 8,
+  "notes": "v231 keeps the frozen stop-gate schema family and exact metric keyset unchanged while closing the bounded V82-B corpus-ingestion preflight / connector-boundary / data-handling-authority / exception slice on main: released V82-A request, source, and guardrail rows are consumed as substrate; preflight remains requirements-recorded-only; monitoring and rollback remain requirements; connector and endpoint identifiers remain non-authorizing; data-handling authority rows do not grant clearance; exceptions cannot be resolved by V82-B; and no corpus ingestion, data transfer, customer-data handling, connector activation, endpoint access, cross-corpus adjudication execution, product authorization, release, benchmark truth, graph-memory authority, recursive policy amendment, or V83 selection occurs.",
+  "schema": "runtime_observability_comparison@1"
+}
