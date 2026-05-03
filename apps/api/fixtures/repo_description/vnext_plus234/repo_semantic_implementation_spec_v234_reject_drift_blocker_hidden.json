@@ -1,0 +1,93 @@
+{
+  "artifact_obligation_map_id": "repo_artifact_obligation_map_74d865ff548bee3a7698c465",
+  "drift_register_rows": [
+    {
+      "blocking_posture": "no_blockers",
+      "candidate_ref": "candidate:internal:intent_to_implementation_spec_institution",
+      "drift_or_ambiguity_rows": [
+        {
+          "artifact_obligation_refs": [
+            "artifact-obligation:v83b:tests"
+          ],
+          "blocking_posture": "blocking",
+          "drift_kind": "direct_oai_runtime_scope_drift",
+          "drift_ref": "drift:v83b:direct-oai-runtime-scope",
+          "limitation_note": "Direct OAI support remains warning-only scope drift; no implementation.",
+          "required_resolution_horizon": "semantic_review",
+          "semantic_edge_refs": [
+            "semantic-relation:v83b:provider:not-authority"
+          ],
+          "severity_posture": "blocking",
+          "source_refs": [
+            "external-support:direct-oai-meta-orchestrator-loop",
+            "external-support:direct-oai-upstream-profile"
+          ]
+        },
+        {
+          "artifact_obligation_refs": [],
+          "blocking_posture": "carried_for_later_review",
+          "drift_kind": "future_family_pressure_unclassified",
+          "drift_ref": "drift:v83b:general-artifact-future-family",
+          "limitation_note": "General digital artifact projection is carried as future family pressure with no implementation.",
+          "required_resolution_horizon": "future_family_review",
+          "semantic_edge_refs": [
+            "semantic-relation:v83b:authority:later-lock"
+          ],
+          "severity_posture": "informational",
+          "source_refs": [
+            "docs/DRAFT_NEXT_ARC_OPTIONS_v73.md",
+            "intent:v83a:authority-boundary:later-lock-required"
+          ]
+        },
+        {
+          "artifact_obligation_refs": [],
+          "blocking_posture": "warning_only",
+          "drift_kind": "morphic_ux_scope_drift",
+          "drift_ref": "drift:v83b:morphic-ux-scope",
+          "limitation_note": "Morphic UX support remains scoped UX projection pressure; no implementation.",
+          "required_resolution_horizon": "semantic_review",
+          "semantic_edge_refs": [
+            "semantic-relation:v83b:morphic:scoped"
+          ],
+          "severity_posture": "warning",
+          "source_refs": [
+            "docs/support/morphic_ux. v2.md"
+          ]
+        }
+      ],
+      "drift_register_ref": "drift-register:v83b:intent-to-spec",
+      "edge_decomposition_refs": [
+        "edge-decomposition:v83b:intent-to-spec"
+      ],
+      "guardrail_refs": [
+        "guardrail:v83a:direct-harness:import-gap",
+        "guardrail:v83a:general-artifact:future-family",
+        "guardrail:v83a:intent-to-spec:non-implementation"
+      ],
+      "intent_contract_refs": [
+        "semantic-intent:v83a:intent-to-implementation-spec"
+      ],
+      "limitation_note": "Drift and ambiguity remain visible for projection review; no implementation.",
+      "obligation_map_refs": [
+        "obligation-map:v83b:intent-to-spec"
+      ],
+      "required_next_surface": "v83c_projection_packet_review",
+      "source_refs": [
+        "apps/api/fixtures/repo_description/vnext_plus232/repo_corpus_ingestion_review_family_closeout_alignment_v232_reference.json",
+        "apps/api/fixtures/repo_description/vnext_plus232/repo_corpus_ingestion_review_summary_v232_reference.json",
+        "apps/api/fixtures/repo_description/vnext_plus232/repo_post_corpus_ingestion_review_handoff_v232_reference.json",
+        "docs/DRAFT_NEXT_ARC_OPTIONS_v73.md",
+        "intent:v83a:authority-boundary:later-lock-required",
+        "intent:v83a:non-goal:no-implementation"
+      ]
+    }
+  ],
+  "drift_register_summary": "V83-B semantic drift and ambiguity register preserves support-scope drift and future-family ambiguity with no implementation.",
+  "intent_edge_decomposition_id": "repo_intent_edge_decomposition_13e45c00a5f1a5d9a2d8657b",
+  "review_id": "review:v83a:semantic-implementation-spec",
+  "schema": "repo_semantic_drift_ambiguity_register@1",
+  "semantic_drift_ambiguity_register_id": "repo_semantic_drift_ambiguity_register_80373eb6087e9ab0c6c6794a",
+  "semantic_intent_contract_id": "repo_semantic_intent_contract_5e31241d28b4241b9e1268df",
+  "snapshot_id": "vNext+233-semantic-intent-contract-closeout",
+  "source_set_id": "source-set:v83a:semantic-implementation-spec-intent"
+}

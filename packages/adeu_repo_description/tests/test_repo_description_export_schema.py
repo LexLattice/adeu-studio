@@ -1266,6 +1266,30 @@ def _schema_pairs() -> dict[str, tuple[Path, Path]]:
             / "repo_corpus_ingestion_exception_register.v1.json",
             root / "spec" / "repo_corpus_ingestion_exception_register.schema.json",
         ),
+        "repo_intent_edge_decomposition@1": (
+            root
+            / "packages"
+            / "adeu_repo_description"
+            / "schema"
+            / "repo_intent_edge_decomposition.v1.json",
+            root / "spec" / "repo_intent_edge_decomposition.schema.json",
+        ),
+        "repo_artifact_obligation_map@1": (
+            root
+            / "packages"
+            / "adeu_repo_description"
+            / "schema"
+            / "repo_artifact_obligation_map.v1.json",
+            root / "spec" / "repo_artifact_obligation_map.schema.json",
+        ),
+        "repo_semantic_drift_ambiguity_register@1": (
+            root
+            / "packages"
+            / "adeu_repo_description"
+            / "schema"
+            / "repo_semantic_drift_ambiguity_register.v1.json",
+            root / "spec" / "repo_semantic_drift_ambiguity_register.schema.json",
+        ),
         REPO_INTENT_SOURCE_INDEX_SCHEMA: (
             root
             / "packages"

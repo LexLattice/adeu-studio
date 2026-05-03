@@ -1,0 +1,596 @@
+{
+  "$defs": {
+    "RepoIntentAuthorityEdgeRow": {
+      "additionalProperties": false,
+      "properties": {
+        "authority_boundary_posture": {
+          "title": "Authority Boundary Posture",
+          "type": "string"
+        },
+        "authority_edge_ref": {
+          "title": "Authority Edge Ref",
+          "type": "string"
+        },
+        "limitation_note": {
+          "title": "Limitation Note",
+          "type": "string"
+        },
+        "semantic_relation_refs": {
+          "items": {
+            "type": "string"
+          },
+          "minItems": 1,
+          "title": "Semantic Relation Refs",
+          "type": "array"
+        },
+        "source_refs": {
+          "items": {
+            "type": "string"
+          },
+          "minItems": 1,
+          "title": "Source Refs",
+          "type": "array"
+        }
+      },
+      "required": [
+        "authority_edge_ref",
+        "source_refs",
+        "semantic_relation_refs",
+        "authority_boundary_posture",
+        "limitation_note"
+      ],
+      "title": "RepoIntentAuthorityEdgeRow",
+      "type": "object"
+    },
+    "RepoIntentEdgeConstraintRow": {
+      "additionalProperties": false,
+      "properties": {
+        "constraint_posture": {
+          "title": "Constraint Posture",
+          "type": "string"
+        },
+        "constraint_ref": {
+          "title": "Constraint Ref",
+          "type": "string"
+        },
+        "limitation_note": {
+          "title": "Limitation Note",
+          "type": "string"
+        },
+        "semantic_relation_refs": {
+          "items": {
+            "type": "string"
+          },
+          "minItems": 1,
+          "title": "Semantic Relation Refs",
+          "type": "array"
+        },
+        "source_refs": {
+          "items": {
+            "type": "string"
+          },
+          "minItems": 1,
+          "title": "Source Refs",
+          "type": "array"
+        }
+      },
+      "required": [
+        "constraint_ref",
+        "source_refs",
+        "semantic_relation_refs",
+        "constraint_posture",
+        "limitation_note"
+      ],
+      "title": "RepoIntentEdgeConstraintRow",
+      "type": "object"
+    },
+    "RepoIntentEdgeDecompositionRow": {
+      "additionalProperties": false,
+      "properties": {
+        "authority_edge_rows": {
+          "items": {
+            "$ref": "#/$defs/RepoIntentAuthorityEdgeRow"
+          },
+          "title": "Authority Edge Rows",
+          "type": "array"
+        },
+        "candidate_ref": {
+          "title": "Candidate Ref",
+          "type": "string"
+        },
+        "constraint_rows": {
+          "items": {
+            "$ref": "#/$defs/RepoIntentEdgeConstraintRow"
+          },
+          "title": "Constraint Rows",
+          "type": "array"
+        },
+        "edge_decomposition_posture": {
+          "enum": [
+            "edges_decomposed_for_review",
+            "blocked_by_missing_intent_contract",
+            "blocked_by_missing_source",
+            "blocked_by_ambiguous_relation",
+            "blocked_by_authority_gap",
+            "future_family_only",
+            "rejected_out_of_scope"
+          ],
+          "title": "Edge Decomposition Posture",
+          "type": "string"
+        },
+        "edge_decomposition_ref": {
+          "title": "Edge Decomposition Ref",
+          "type": "string"
+        },
+        "guardrail_refs": {
+          "items": {
+            "type": "string"
+          },
+          "minItems": 1,
+          "title": "Guardrail Refs",
+          "type": "array"
+        },
+        "intent_contract_refs": {
+          "items": {
+            "type": "string"
+          },
+          "minItems": 1,
+          "title": "Intent Contract Refs",
+          "type": "array"
+        },
+        "limitation_note": {
+          "title": "Limitation Note",
+          "type": "string"
+        },
+        "non_goal_rows": {
+          "items": {
+            "$ref": "#/$defs/RepoIntentEdgeNonGoalRow"
+          },
+          "title": "Non Goal Rows",
+          "type": "array"
+        },
+        "semantic_closure_posture": {
+          "enum": [
+            "closure_not_claimed",
+            "edge_review_candidate_only",
+            "blocked_by_missing_edge",
+            "blocked_by_missing_validation_need",
+            "future_family_only"
+          ],
+          "title": "Semantic Closure Posture",
+          "type": "string"
+        },
+        "semantic_object_rows": {
+          "items": {
+            "$ref": "#/$defs/RepoSemanticObjectRow"
+          },
+          "minItems": 1,
+          "title": "Semantic Object Rows",
+          "type": "array"
+        },
+        "semantic_relation_rows": {
+          "items": {
+            "$ref": "#/$defs/RepoSemanticRelationRow"
+          },
+          "minItems": 1,
+          "title": "Semantic Relation Rows",
+          "type": "array"
+        },
+        "source_refs": {
+          "items": {
+            "type": "string"
+          },
+          "minItems": 1,
+          "title": "Source Refs",
+          "type": "array"
+        },
+        "validation_need_rows": {
+          "items": {
+            "$ref": "#/$defs/RepoValidationNeedRow"
+          },
+          "minItems": 1,
+          "title": "Validation Need Rows",
+          "type": "array"
+        }
+      },
+      "required": [
+        "edge_decomposition_ref",
+        "intent_contract_refs",
+        "candidate_ref",
+        "source_refs",
+        "semantic_object_rows",
+        "semantic_relation_rows",
+        "validation_need_rows",
+        "edge_decomposition_posture",
+        "semantic_closure_posture",
+        "guardrail_refs",
+        "limitation_note"
+      ],
+      "title": "RepoIntentEdgeDecompositionRow",
+      "type": "object"
+    },
+    "RepoIntentEdgeNonGoalRow": {
+      "additionalProperties": false,
+      "properties": {
+        "limitation_note": {
+          "title": "Limitation Note",
+          "type": "string"
+        },
+        "non_goal_posture": {
+          "title": "Non Goal Posture",
+          "type": "string"
+        },
+        "non_goal_ref": {
+          "title": "Non Goal Ref",
+          "type": "string"
+        },
+        "semantic_relation_refs": {
+          "items": {
+            "type": "string"
+          },
+          "minItems": 1,
+          "title": "Semantic Relation Refs",
+          "type": "array"
+        },
+        "source_refs": {
+          "items": {
+            "type": "string"
+          },
+          "minItems": 1,
+          "title": "Source Refs",
+          "type": "array"
+        }
+      },
+      "required": [
+        "non_goal_ref",
+        "source_refs",
+        "semantic_relation_refs",
+        "non_goal_posture",
+        "limitation_note"
+      ],
+      "title": "RepoIntentEdgeNonGoalRow",
+      "type": "object"
+    },
+    "RepoSemanticObjectRow": {
+      "additionalProperties": false,
+      "properties": {
+        "anticipated_artifact_kind_refs": {
+          "items": {
+            "type": "string"
+          },
+          "title": "Anticipated Artifact Kind Refs",
+          "type": "array"
+        },
+        "authority_posture": {
+          "enum": [
+            "no_authority_granted",
+            "authority_boundary_only",
+            "candidate_only_no_authority",
+            "requires_later_lock"
+          ],
+          "title": "Authority Posture",
+          "type": "string"
+        },
+        "limitation_note": {
+          "title": "Limitation Note",
+          "type": "string"
+        },
+        "mutability_posture": {
+          "enum": [
+            "review_object_only",
+            "target_requires_later_lock",
+            "immutable_boundary"
+          ],
+          "title": "Mutability Posture",
+          "type": "string"
+        },
+        "object_kind": {
+          "enum": [
+            "domain_object",
+            "repo_module",
+            "schema_surface",
+            "fixture_surface",
+            "test_surface",
+            "doc_surface",
+            "ux_surface",
+            "workflow_surface",
+            "provider_capability_surface",
+            "authority_boundary",
+            "non_goal",
+            "future_family_surface"
+          ],
+          "title": "Object Kind",
+          "type": "string"
+        },
+        "object_label": {
+          "title": "Object Label",
+          "type": "string"
+        },
+        "semantic_object_ref": {
+          "title": "Semantic Object Ref",
+          "type": "string"
+        },
+        "source_refs": {
+          "items": {
+            "type": "string"
+          },
+          "minItems": 1,
+          "title": "Source Refs",
+          "type": "array"
+        },
+        "truth_posture": {
+          "enum": [
+            "not_truth_claim",
+            "source_bound_claim_for_review",
+            "candidate_only"
+          ],
+          "title": "Truth Posture",
+          "type": "string"
+        }
+      },
+      "required": [
+        "semantic_object_ref",
+        "object_kind",
+        "object_label",
+        "source_refs",
+        "truth_posture",
+        "mutability_posture",
+        "authority_posture",
+        "limitation_note"
+      ],
+      "title": "RepoSemanticObjectRow",
+      "type": "object"
+    },
+    "RepoSemanticRelationRow": {
+      "additionalProperties": false,
+      "properties": {
+        "from_object_ref": {
+          "title": "From Object Ref",
+          "type": "string"
+        },
+        "limitation_note": {
+          "title": "Limitation Note",
+          "type": "string"
+        },
+        "preservation_requirement": {
+          "enum": [
+            "preserve_semantic_relation_for_review",
+            "preserve_as_non_goal",
+            "preserve_as_authority_boundary",
+            "preserve_as_validation_need",
+            "preserve_as_future_family_only"
+          ],
+          "title": "Preservation Requirement",
+          "type": "string"
+        },
+        "relation_kind": {
+          "enum": [
+            "requires",
+            "constrains",
+            "forbids",
+            "preserves",
+            "realizes",
+            "refines",
+            "conflicts_with",
+            "disambiguates",
+            "supersedes",
+            "non_goal_of",
+            "authority_requires",
+            "validation_requires",
+            "acceptance_requires",
+            "derives_from",
+            "must_remain_distinct_from",
+            "hands_off_to",
+            "validates",
+            "blocks",
+            "future_family_only"
+          ],
+          "title": "Relation Kind",
+          "type": "string"
+        },
+        "semantic_relation_ref": {
+          "title": "Semantic Relation Ref",
+          "type": "string"
+        },
+        "source_refs": {
+          "items": {
+            "type": "string"
+          },
+          "minItems": 1,
+          "title": "Source Refs",
+          "type": "array"
+        },
+        "to_object_ref": {
+          "title": "To Object Ref",
+          "type": "string"
+        },
+        "validation_need_refs": {
+          "items": {
+            "type": "string"
+          },
+          "minItems": 1,
+          "title": "Validation Need Refs",
+          "type": "array"
+        }
+      },
+      "required": [
+        "semantic_relation_ref",
+        "relation_kind",
+        "from_object_ref",
+        "to_object_ref",
+        "source_refs",
+        "preservation_requirement",
+        "validation_need_refs",
+        "limitation_note"
+      ],
+      "title": "RepoSemanticRelationRow",
+      "type": "object"
+    },
+    "RepoValidationNeedRow": {
+      "additionalProperties": false,
+      "properties": {
+        "acceptance_not_truth_guardrail": {
+          "const": "acceptance_evidence_is_not_semantic_truth",
+          "title": "Acceptance Not Truth Guardrail",
+          "type": "string"
+        },
+        "limitation_note": {
+          "title": "Limitation Note",
+          "type": "string"
+        },
+        "manual_review_required": {
+          "title": "Manual Review Required",
+          "type": "boolean"
+        },
+        "required_evidence_kind": {
+          "enum": [
+            "schema",
+            "validator",
+            "positive_fixture",
+            "reject_fixture",
+            "unit_test",
+            "integration_test",
+            "documentation",
+            "semantic_review",
+            "human_review",
+            "future_family_review"
+          ],
+          "title": "Required Evidence Kind",
+          "type": "string"
+        },
+        "required_positive_fixture_posture": {
+          "enum": [
+            "required",
+            "not_required",
+            "requires_later_review"
+          ],
+          "title": "Required Positive Fixture Posture",
+          "type": "string"
+        },
+        "required_reject_fixture_posture": {
+          "enum": [
+            "required",
+            "not_required",
+            "requires_later_review"
+          ],
+          "title": "Required Reject Fixture Posture",
+          "type": "string"
+        },
+        "semantic_edge_refs": {
+          "items": {
+            "type": "string"
+          },
+          "minItems": 1,
+          "title": "Semantic Edge Refs",
+          "type": "array"
+        },
+        "tool_applicability_posture": {
+          "enum": [
+            "not_applicable",
+            "review_only",
+            "requires_later_tool_permission"
+          ],
+          "title": "Tool Applicability Posture",
+          "type": "string"
+        },
+        "validation_kind": {
+          "enum": [
+            "schema_validation",
+            "validator_behavior",
+            "positive_fixture",
+            "reject_fixture",
+            "unit_test",
+            "integration_test",
+            "documentation_review",
+            "semantic_review",
+            "human_review",
+            "tool_run_review",
+            "future_family_review"
+          ],
+          "title": "Validation Kind",
+          "type": "string"
+        },
+        "validation_need_ref": {
+          "title": "Validation Need Ref",
+          "type": "string"
+        }
+      },
+      "required": [
+        "validation_need_ref",
+        "semantic_edge_refs",
+        "validation_kind",
+        "required_evidence_kind",
+        "required_positive_fixture_posture",
+        "required_reject_fixture_posture",
+        "manual_review_required",
+        "tool_applicability_posture",
+        "acceptance_not_truth_guardrail",
+        "limitation_note"
+      ],
+      "title": "RepoValidationNeedRow",
+      "type": "object"
+    }
+  },
+  "additionalProperties": false,
+  "properties": {
+    "edge_decomposition_rows": {
+      "items": {
+        "$ref": "#/$defs/RepoIntentEdgeDecompositionRow"
+      },
+      "minItems": 1,
+      "title": "Edge Decomposition Rows",
+      "type": "array"
+    },
+    "edge_decomposition_summary": {
+      "title": "Edge Decomposition Summary",
+      "type": "string"
+    },
+    "intent_edge_decomposition_id": {
+      "title": "Intent Edge Decomposition Id",
+      "type": "string"
+    },
+    "intent_non_implementation_guardrail_id": {
+      "title": "Intent Non Implementation Guardrail Id",
+      "type": "string"
+    },
+    "intent_source_index_id": {
+      "title": "Intent Source Index Id",
+      "type": "string"
+    },
+    "review_id": {
+      "title": "Review Id",
+      "type": "string"
+    },
+    "schema": {
+      "const": "repo_intent_edge_decomposition@1",
+      "default": "repo_intent_edge_decomposition@1",
+      "title": "Schema",
+      "type": "string"
+    },
+    "semantic_intent_contract_id": {
+      "title": "Semantic Intent Contract Id",
+      "type": "string"
+    },
+    "snapshot_id": {
+      "title": "Snapshot Id",
+      "type": "string"
+    },
+    "source_set_id": {
+      "title": "Source Set Id",
+      "type": "string"
+    }
+  },
+  "required": [
+    "intent_edge_decomposition_id",
+    "semantic_intent_contract_id",
+    "intent_source_index_id",
+    "intent_non_implementation_guardrail_id",
+    "review_id",
+    "snapshot_id",
+    "source_set_id",
+    "edge_decomposition_rows",
+    "edge_decomposition_summary"
+  ],
+  "title": "RepoIntentEdgeDecomposition",
+  "type": "object"
+}
