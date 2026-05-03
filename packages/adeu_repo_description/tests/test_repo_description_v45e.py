@@ -188,15 +188,16 @@ def test_v45e_current_baseline_rejects_unresolved_finding_scope() -> None:
         bound_arc_dependency_register_payload=bound_arc_dependency_register,
     )
     mutated_register = deepcopy(derived_register)
-    mutated_register["optimization_entries"][0]["finding_scope"]["cluster_member_refs"][0][
+    target_entry = next(
+        row
+        for row in mutated_register["optimization_entries"]
+        if row["finding_scope"]["cluster_member_refs"]
+    )
+    target_entry["finding_scope"]["cluster_member_refs"][0][
         "member_ref"
     ] = "packages/not_in_bound_scope.py"
-    mutated_register["optimization_entries"][0]["entry_id"] = compute_repo_optimization_entry_id(
-        {
-            key: value
-            for key, value in mutated_register["optimization_entries"][0].items()
-            if key != "entry_id"
-        }
+    target_entry["entry_id"] = compute_repo_optimization_entry_id(
+        {key: value for key, value in target_entry.items() if key != "entry_id"}
     )
     mutated_register["optimization_entries"] = sorted(
         mutated_register["optimization_entries"], key=lambda row: row["entry_id"]

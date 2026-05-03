@@ -1,0 +1,116 @@
+{
+  "artifact_obligation_map_id": "repo_artifact_obligation_map_74d865ff548bee3a7698c465",
+  "handoff_rows": [
+    {
+      "artifact_obligation_refs": [
+        "artifact-obligation:v83b:fixtures",
+        "artifact-obligation:v83b:schema:artifact-obligation-map",
+        "artifact-obligation:v83b:schema:drift-register",
+        "artifact-obligation:v83b:schema:edge-decomposition",
+        "artifact-obligation:v83b:tests"
+      ],
+      "candidate_ref": "candidate:internal:intent_to_implementation_spec_institution",
+      "carried_drift_refs": [
+        "drift:v83b:direct-oai-runtime-scope",
+        "drift:v83b:general-artifact-future-family",
+        "drift:v83b:morphic-ux-scope"
+      ],
+      "guardrail_refs": [
+        "guardrail:v83a:direct-harness:import-gap",
+        "guardrail:v83a:general-artifact:future-family",
+        "guardrail:v83a:intent-to-spec:non-implementation"
+      ],
+      "handoff_posture": "ready_for_later_review",
+      "handoff_ref": "handoff:v83c:implementation-slice-review",
+      "handoff_subject_horizon": "implementation_spec_package",
+      "handoff_target": "future_implementation_slice_review",
+      "implementation_execution_posture": "no_execution_performed_by_v83",
+      "implementation_lock_requirement": "canonical_starter_lock_required",
+      "intent_contract_refs": [
+        "semantic-intent:v83a:intent-to-implementation-spec"
+      ],
+      "limitation_note": "Handoff requests later implementation slice review under canonical lock; no implementation and no execution.",
+      "meta_orchestrator_runtime_posture": "not_applicable",
+      "projection_packet_refs": [
+        "projection-packet:v83c:intent-to-spec"
+      ],
+      "required_later_authority_refs": [
+        "intent:v83a:authority-boundary:later-lock-required"
+      ],
+      "work_packet_authority_posture": "work_packet_requires_later_lock",
+      "work_packet_execution_posture": "no_execution_performed_by_v83"
+    },
+    {
+      "artifact_obligation_refs": [],
+      "candidate_ref": "candidate:internal:intent_to_implementation_spec_institution",
+      "carried_drift_refs": [
+        "drift:v83b:morphic-ux-scope"
+      ],
+      "guardrail_refs": [
+        "guardrail:v83a:direct-harness:import-gap",
+        "guardrail:v83a:general-artifact:future-family",
+        "guardrail:v83a:intent-to-spec:non-implementation"
+      ],
+      "handoff_posture": "ready_with_nonblocking_warnings",
+      "handoff_ref": "handoff:v83c:morphic-ux-projection-review",
+      "handoff_subject_horizon": "ux_projection_spec",
+      "handoff_target": "future_morphic_ux_projection_review",
+      "implementation_execution_posture": "no_execution_performed_by_v83",
+      "implementation_lock_requirement": "canonical_starter_lock_required",
+      "intent_contract_refs": [
+        "semantic-intent:v83a:intent-to-implementation-spec"
+      ],
+      "limitation_note": "Morphic UX projection handoff is review-only with no runtime change and no implementation.",
+      "meta_orchestrator_runtime_posture": "not_applicable",
+      "projection_packet_refs": [
+        "projection-packet:v83c:intent-to-spec"
+      ],
+      "required_later_authority_refs": [
+        "intent:v83a:authority-boundary:morphic-runtime-not-selected"
+      ],
+      "work_packet_authority_posture": "work_packet_requires_later_lock",
+      "work_packet_execution_posture": "no_execution_performed_by_v83"
+    },
+    {
+      "artifact_obligation_refs": [],
+      "candidate_ref": "candidate:internal:intent_to_implementation_spec_institution",
+      "carried_drift_refs": [
+        "drift:v83b:direct-oai-runtime-scope"
+      ],
+      "guardrail_refs": [
+        "guardrail:v83a:direct-harness:import-gap",
+        "guardrail:v83a:general-artifact:future-family",
+        "guardrail:v83a:intent-to-spec:non-implementation"
+      ],
+      "handoff_posture": "ready_with_nonblocking_warnings",
+      "handoff_ref": "handoff:v83c:workflow-orchestrator-review",
+      "handoff_subject_horizon": "workflow_orchestrator_spec",
+      "handoff_target": "future_meta_orchestrator_workflow_review",
+      "implementation_execution_posture": "no_execution_performed_by_v83",
+      "implementation_lock_requirement": "canonical_starter_lock_required",
+      "intent_contract_refs": [
+        "semantic-intent:v83a:intent-to-implementation-spec"
+      ],
+      "limitation_note": "Workflow orchestrator handoff is transition review only; no workflow transition completed and no implementation.",
+      "meta_orchestrator_runtime_posture": "runtime_requires_later_family",
+      "projection_packet_refs": [
+        "projection-packet:v83c:intent-to-spec"
+      ],
+      "required_later_authority_refs": [
+        "intent:v83a:authority-boundary:direct-oai-runtime-not-selected"
+      ],
+      "work_packet_authority_posture": "work_packet_requires_later_lock",
+      "work_packet_execution_posture": "no_execution_performed_by_v83"
+    }
+  ],
+  "handoff_summary": "V83-C intent-to-work-packet handoffs request later review and later lock with no implementation.",
+  "implementation_spec_projection_packet_id": "repo_implementation_spec_projection_packet_c809c065b0e5819b0f169eb9",
+  "intent_non_implementation_guardrail_id": "repo_intent_non_implementation_guardrail_800734bad46c116eb9cad1e1",
+  "intent_to_work_packet_handoff_id": "repo_intent_to_work_packet_handoff_f39e2d580e32d4239799c98c",
+  "review_id": "review:v83a:semantic-implementation-spec",
+  "schema": "repo_intent_to_work_packet_handoff@1",
+  "semantic_drift_ambiguity_register_id": "repo_semantic_drift_ambiguity_register_80373eb6087e9ab0c6c6794a",
+  "semantic_intent_contract_id": "repo_semantic_intent_contract_5e31241d28b4241b9e1268df",
+  "snapshot_id": "vNext+234-semantic-edge-obligation-closeout",
+  "source_set_id": "source-set:v83a:semantic-implementation-spec-intent"
+}

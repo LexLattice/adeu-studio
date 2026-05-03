@@ -1,0 +1,660 @@
+{
+  "$defs": {
+    "RepoImplementationSpecProjectionPacketRow": {
+      "additionalProperties": false,
+      "properties": {
+        "candidate_ref": {
+          "title": "Candidate Ref",
+          "type": "string"
+        },
+        "carried_blocker_refs": {
+          "items": {
+            "type": "string"
+          },
+          "title": "Carried Blocker Refs",
+          "type": "array"
+        },
+        "carried_warning_refs": {
+          "items": {
+            "type": "string"
+          },
+          "title": "Carried Warning Refs",
+          "type": "array"
+        },
+        "drift_register_refs": {
+          "items": {
+            "type": "string"
+          },
+          "minItems": 1,
+          "title": "Drift Register Refs",
+          "type": "array"
+        },
+        "edge_decomposition_refs": {
+          "items": {
+            "type": "string"
+          },
+          "minItems": 1,
+          "title": "Edge Decomposition Refs",
+          "type": "array"
+        },
+        "guardrail_refs": {
+          "items": {
+            "type": "string"
+          },
+          "minItems": 1,
+          "title": "Guardrail Refs",
+          "type": "array"
+        },
+        "implementation_spec_quality_gate_rows": {
+          "items": {
+            "$ref": "#/$defs/RepoImplementationSpecQualityGateRow"
+          },
+          "minItems": 1,
+          "title": "Implementation Spec Quality Gate Rows",
+          "type": "array"
+        },
+        "implementation_spec_rows": {
+          "items": {
+            "$ref": "#/$defs/RepoImplementationSpecRow"
+          },
+          "minItems": 1,
+          "title": "Implementation Spec Rows",
+          "type": "array"
+        },
+        "intent_contract_refs": {
+          "items": {
+            "type": "string"
+          },
+          "minItems": 1,
+          "title": "Intent Contract Refs",
+          "type": "array"
+        },
+        "limitation_note": {
+          "title": "Limitation Note",
+          "type": "string"
+        },
+        "non_implementation_posture": {
+          "const": "non_implementation_guardrail_active",
+          "title": "Non Implementation Posture",
+          "type": "string"
+        },
+        "obligation_map_refs": {
+          "items": {
+            "type": "string"
+          },
+          "minItems": 1,
+          "title": "Obligation Map Refs",
+          "type": "array"
+        },
+        "projection_packet_ref": {
+          "title": "Projection Packet Ref",
+          "type": "string"
+        },
+        "projection_posture": {
+          "enum": [
+            "projection_packet_ready_for_review",
+            "projection_packet_ready_with_nonblocking_warnings",
+            "blocked_by_missing_intent_contract",
+            "blocked_by_missing_edge_decomposition",
+            "blocked_by_missing_obligation_map",
+            "blocked_by_semantic_drift",
+            "blocked_by_authority_gap",
+            "future_family_only",
+            "rejected_out_of_scope"
+          ],
+          "title": "Projection Posture",
+          "type": "string"
+        },
+        "projection_provenance_rows": {
+          "items": {
+            "$ref": "#/$defs/RepoProjectionProvenanceRow"
+          },
+          "minItems": 1,
+          "title": "Projection Provenance Rows",
+          "type": "array"
+        },
+        "ready_basis_posture": {
+          "enum": [
+            "ready_no_blockers",
+            "ready_with_nonblocking_warnings",
+            "not_ready_blockers_remain",
+            "authority_review_requested_for_blockers",
+            "future_family_only",
+            "rejected_out_of_scope"
+          ],
+          "title": "Ready Basis Posture",
+          "type": "string"
+        },
+        "semantic_coverage_posture": {
+          "enum": [
+            "all_required_edges_covered",
+            "covered_with_nonblocking_warnings",
+            "blocked_by_uncovered_edge",
+            "blocked_by_unvalidated_edge",
+            "blocked_by_ambiguous_edge",
+            "future_family_only"
+          ],
+          "title": "Semantic Coverage Posture",
+          "type": "string"
+        },
+        "source_refs": {
+          "items": {
+            "type": "string"
+          },
+          "minItems": 1,
+          "title": "Source Refs",
+          "type": "array"
+        },
+        "spec_review_checklist_rows": {
+          "items": {
+            "$ref": "#/$defs/RepoSpecReviewChecklistRow"
+          },
+          "minItems": 1,
+          "title": "Spec Review Checklist Rows",
+          "type": "array"
+        }
+      },
+      "required": [
+        "projection_packet_ref",
+        "intent_contract_refs",
+        "edge_decomposition_refs",
+        "obligation_map_refs",
+        "drift_register_refs",
+        "candidate_ref",
+        "source_refs",
+        "implementation_spec_rows",
+        "projection_provenance_rows",
+        "spec_review_checklist_rows",
+        "implementation_spec_quality_gate_rows",
+        "projection_posture",
+        "semantic_coverage_posture",
+        "ready_basis_posture",
+        "non_implementation_posture",
+        "guardrail_refs",
+        "limitation_note"
+      ],
+      "title": "RepoImplementationSpecProjectionPacketRow",
+      "type": "object"
+    },
+    "RepoImplementationSpecQualityGateRow": {
+      "additionalProperties": false,
+      "properties": {
+        "carried_blocker_refs": {
+          "items": {
+            "type": "string"
+          },
+          "title": "Carried Blocker Refs",
+          "type": "array"
+        },
+        "carried_warning_refs": {
+          "items": {
+            "type": "string"
+          },
+          "title": "Carried Warning Refs",
+          "type": "array"
+        },
+        "gate_posture": {
+          "enum": [
+            "ready_for_later_implementation_slice_review",
+            "ready_with_nonblocking_warnings",
+            "blocked_by_missing_source_binding",
+            "blocked_by_uncovered_edge",
+            "blocked_by_unbounded_target_surface",
+            "blocked_by_missing_validation_evidence",
+            "blocked_by_generated_spec_provenance_gap",
+            "blocked_by_authority_gap",
+            "future_family_only",
+            "rejected_out_of_scope"
+          ],
+          "title": "Gate Posture",
+          "type": "string"
+        },
+        "limitation_note": {
+          "title": "Limitation Note",
+          "type": "string"
+        },
+        "non_implementation_guardrail": {
+          "const": "non_implementation_guardrail_active",
+          "title": "Non Implementation Guardrail",
+          "type": "string"
+        },
+        "projection_packet_refs": {
+          "items": {
+            "type": "string"
+          },
+          "minItems": 1,
+          "title": "Projection Packet Refs",
+          "type": "array"
+        },
+        "quality_gate_ref": {
+          "title": "Quality Gate Ref",
+          "type": "string"
+        },
+        "ready_basis_posture": {
+          "enum": [
+            "ready_no_blockers",
+            "ready_with_nonblocking_warnings",
+            "not_ready_blockers_remain",
+            "authority_review_requested_for_blockers",
+            "future_family_only",
+            "rejected_out_of_scope"
+          ],
+          "title": "Ready Basis Posture",
+          "type": "string"
+        },
+        "required_check_refs": {
+          "items": {
+            "type": "string"
+          },
+          "minItems": 1,
+          "title": "Required Check Refs",
+          "type": "array"
+        }
+      },
+      "required": [
+        "quality_gate_ref",
+        "projection_packet_refs",
+        "required_check_refs",
+        "gate_posture",
+        "ready_basis_posture",
+        "non_implementation_guardrail",
+        "limitation_note"
+      ],
+      "title": "RepoImplementationSpecQualityGateRow",
+      "type": "object"
+    },
+    "RepoImplementationSpecRow": {
+      "additionalProperties": false,
+      "properties": {
+        "acceptance_evidence_requirements": {
+          "items": {
+            "type": "string"
+          },
+          "minItems": 1,
+          "title": "Acceptance Evidence Requirements",
+          "type": "array"
+        },
+        "artifact_obligation_refs": {
+          "items": {
+            "type": "string"
+          },
+          "minItems": 1,
+          "title": "Artifact Obligation Refs",
+          "type": "array"
+        },
+        "explicit_non_goals": {
+          "items": {
+            "type": "string"
+          },
+          "minItems": 1,
+          "title": "Explicit Non Goals",
+          "type": "array"
+        },
+        "implementation_execution_posture": {
+          "enum": [
+            "no_execution_performed_by_v83",
+            "execution_requires_later_lock",
+            "execution_forbidden_by_this_family"
+          ],
+          "title": "Implementation Execution Posture",
+          "type": "string"
+        },
+        "implementation_spec_ref": {
+          "title": "Implementation Spec Ref",
+          "type": "string"
+        },
+        "limitation_note": {
+          "title": "Limitation Note",
+          "type": "string"
+        },
+        "required_change_summary": {
+          "title": "Required Change Summary",
+          "type": "string"
+        },
+        "required_validation_refs": {
+          "items": {
+            "type": "string"
+          },
+          "minItems": 1,
+          "title": "Required Validation Refs",
+          "type": "array"
+        },
+        "semantic_preservation_refs": {
+          "items": {
+            "type": "string"
+          },
+          "minItems": 1,
+          "title": "Semantic Preservation Refs",
+          "type": "array"
+        },
+        "target_artifact_kind": {
+          "enum": [
+            "code_module",
+            "schema",
+            "mirror_schema",
+            "fixture",
+            "reject_fixture",
+            "test",
+            "documentation",
+            "support_artifact",
+            "ux_projection_artifact",
+            "provider_profile_artifact",
+            "workflow_contract_artifact",
+            "future_family_artifact"
+          ],
+          "title": "Target Artifact Kind",
+          "type": "string"
+        },
+        "target_surface_refs": {
+          "items": {
+            "type": "string"
+          },
+          "minItems": 1,
+          "title": "Target Surface Refs",
+          "type": "array"
+        }
+      },
+      "required": [
+        "implementation_spec_ref",
+        "artifact_obligation_refs",
+        "target_artifact_kind",
+        "target_surface_refs",
+        "required_change_summary",
+        "required_validation_refs",
+        "explicit_non_goals",
+        "semantic_preservation_refs",
+        "acceptance_evidence_requirements",
+        "implementation_execution_posture",
+        "limitation_note"
+      ],
+      "title": "RepoImplementationSpecRow",
+      "type": "object"
+    },
+    "RepoProjectionProvenanceRow": {
+      "additionalProperties": false,
+      "properties": {
+        "generated_spec_refs": {
+          "items": {
+            "type": "string"
+          },
+          "title": "Generated Spec Refs",
+          "type": "array"
+        },
+        "generation_scope_posture": {
+          "enum": [
+            "bounded_to_released_v83_inputs",
+            "bounded_to_prompt_context",
+            "unbounded_context_blocked",
+            "generated_source_missing",
+            "not_generated"
+          ],
+          "title": "Generation Scope Posture",
+          "type": "string"
+        },
+        "input_edge_decomposition_refs": {
+          "items": {
+            "type": "string"
+          },
+          "minItems": 1,
+          "title": "Input Edge Decomposition Refs",
+          "type": "array"
+        },
+        "input_intent_contract_refs": {
+          "items": {
+            "type": "string"
+          },
+          "minItems": 1,
+          "title": "Input Intent Contract Refs",
+          "type": "array"
+        },
+        "input_obligation_map_refs": {
+          "items": {
+            "type": "string"
+          },
+          "minItems": 1,
+          "title": "Input Obligation Map Refs",
+          "type": "array"
+        },
+        "limitation_note": {
+          "title": "Limitation Note",
+          "type": "string"
+        },
+        "model_or_agent_profile_refs": {
+          "items": {
+            "type": "string"
+          },
+          "title": "Model Or Agent Profile Refs",
+          "type": "array"
+        },
+        "non_authority_posture": {
+          "enum": [
+            "candidate_projection_only",
+            "review_only_no_authority",
+            "authority_requires_later_lock"
+          ],
+          "title": "Non Authority Posture",
+          "type": "string"
+        },
+        "projection_actor_kind": {
+          "enum": [
+            "human_operator",
+            "model",
+            "agent",
+            "reviewer",
+            "tool_assisted_review",
+            "mixed",
+            "unknown"
+          ],
+          "title": "Projection Actor Kind",
+          "type": "string"
+        },
+        "projection_provenance_ref": {
+          "title": "Projection Provenance Ref",
+          "type": "string"
+        },
+        "prompt_context_refs": {
+          "items": {
+            "type": "string"
+          },
+          "title": "Prompt Context Refs",
+          "type": "array"
+        },
+        "review_status": {
+          "enum": [
+            "candidate_unreviewed",
+            "reviewed_for_source_binding",
+            "reviewed_for_edge_coverage",
+            "reviewed_for_artifact_obligation_coverage",
+            "blocked_by_missing_context",
+            "blocked_by_semantic_drift",
+            "blocked_by_authority_gap"
+          ],
+          "title": "Review Status",
+          "type": "string"
+        },
+        "reviewer_amendment_refs": {
+          "items": {
+            "type": "string"
+          },
+          "title": "Reviewer Amendment Refs",
+          "type": "array"
+        }
+      },
+      "required": [
+        "projection_provenance_ref",
+        "projection_actor_kind",
+        "input_intent_contract_refs",
+        "input_edge_decomposition_refs",
+        "input_obligation_map_refs",
+        "generation_scope_posture",
+        "review_status",
+        "non_authority_posture",
+        "limitation_note"
+      ],
+      "title": "RepoProjectionProvenanceRow",
+      "type": "object"
+    },
+    "RepoSpecReviewChecklistRow": {
+      "additionalProperties": false,
+      "properties": {
+        "artifact_obligation_refs": {
+          "items": {
+            "type": "string"
+          },
+          "title": "Artifact Obligation Refs",
+          "type": "array"
+        },
+        "blocking_posture": {
+          "enum": [
+            "blocking",
+            "warning_only",
+            "not_applicable"
+          ],
+          "title": "Blocking Posture",
+          "type": "string"
+        },
+        "check_kind": {
+          "enum": [
+            "source_binding_check",
+            "non_goal_preservation_check",
+            "authority_boundary_check",
+            "target_surface_boundedness_check",
+            "edge_coverage_check",
+            "validation_evidence_check",
+            "reject_fixture_check",
+            "generated_spec_provenance_check",
+            "semantic_drift_check",
+            "future_family_boundary_check"
+          ],
+          "title": "Check Kind",
+          "type": "string"
+        },
+        "check_posture": {
+          "enum": [
+            "passed_for_review_only",
+            "blocked",
+            "warning",
+            "not_applicable",
+            "requires_later_review"
+          ],
+          "title": "Check Posture",
+          "type": "string"
+        },
+        "implementation_spec_refs": {
+          "items": {
+            "type": "string"
+          },
+          "minItems": 1,
+          "title": "Implementation Spec Refs",
+          "type": "array"
+        },
+        "limitation_note": {
+          "title": "Limitation Note",
+          "type": "string"
+        },
+        "review_check_ref": {
+          "title": "Review Check Ref",
+          "type": "string"
+        },
+        "semantic_edge_refs": {
+          "items": {
+            "type": "string"
+          },
+          "title": "Semantic Edge Refs",
+          "type": "array"
+        },
+        "source_refs": {
+          "items": {
+            "type": "string"
+          },
+          "minItems": 1,
+          "title": "Source Refs",
+          "type": "array"
+        }
+      },
+      "required": [
+        "review_check_ref",
+        "implementation_spec_refs",
+        "check_kind",
+        "check_posture",
+        "source_refs",
+        "blocking_posture",
+        "limitation_note"
+      ],
+      "title": "RepoSpecReviewChecklistRow",
+      "type": "object"
+    }
+  },
+  "additionalProperties": false,
+  "properties": {
+    "artifact_obligation_map_id": {
+      "title": "Artifact Obligation Map Id",
+      "type": "string"
+    },
+    "implementation_spec_projection_packet_id": {
+      "title": "Implementation Spec Projection Packet Id",
+      "type": "string"
+    },
+    "intent_edge_decomposition_id": {
+      "title": "Intent Edge Decomposition Id",
+      "type": "string"
+    },
+    "intent_non_implementation_guardrail_id": {
+      "title": "Intent Non Implementation Guardrail Id",
+      "type": "string"
+    },
+    "projection_packet_rows": {
+      "items": {
+        "$ref": "#/$defs/RepoImplementationSpecProjectionPacketRow"
+      },
+      "minItems": 1,
+      "title": "Projection Packet Rows",
+      "type": "array"
+    },
+    "projection_packet_summary": {
+      "title": "Projection Packet Summary",
+      "type": "string"
+    },
+    "review_id": {
+      "title": "Review Id",
+      "type": "string"
+    },
+    "schema": {
+      "const": "repo_implementation_spec_projection_packet@1",
+      "default": "repo_implementation_spec_projection_packet@1",
+      "title": "Schema",
+      "type": "string"
+    },
+    "semantic_drift_ambiguity_register_id": {
+      "title": "Semantic Drift Ambiguity Register Id",
+      "type": "string"
+    },
+    "semantic_intent_contract_id": {
+      "title": "Semantic Intent Contract Id",
+      "type": "string"
+    },
+    "snapshot_id": {
+      "title": "Snapshot Id",
+      "type": "string"
+    },
+    "source_set_id": {
+      "title": "Source Set Id",
+      "type": "string"
+    }
+  },
+  "required": [
+    "implementation_spec_projection_packet_id",
+    "semantic_intent_contract_id",
+    "intent_edge_decomposition_id",
+    "artifact_obligation_map_id",
+    "semantic_drift_ambiguity_register_id",
+    "intent_non_implementation_guardrail_id",
+    "review_id",
+    "snapshot_id",
+    "source_set_id",
+    "projection_packet_rows",
+    "projection_packet_summary"
+  ],
+  "title": "RepoImplementationSpecProjectionPacket",
+  "type": "object"
+}

@@ -81,6 +81,7 @@ from adeu_repo_description import (
     REPO_EXTERNAL_SUBMISSION_AUTHORITY_REVIEW_SCHEMA,
     REPO_EXTERNAL_TOOL_BOUNDARY_SCHEMA,
     REPO_FAMILY_CLOSURE_REGISTER_SCHEMA,
+    REPO_IMPLEMENTATION_SPEC_PROJECTION_PACKET_SCHEMA,
     REPO_IMPORTED_SUBSTRATE_PROVENANCE_REGISTER_SCHEMA,
     REPO_INTEGRATION_EFFECT_SURFACE_REGISTER_SCHEMA,
     REPO_INTEGRATION_NON_RELEASE_GUARDRAIL_SCHEMA,
@@ -88,6 +89,7 @@ from adeu_repo_description import (
     REPO_INTEGRATION_TARGET_BOUNDARY_SCHEMA,
     REPO_INTENT_NON_IMPLEMENTATION_GUARDRAIL_SCHEMA,
     REPO_INTENT_SOURCE_INDEX_SCHEMA,
+    REPO_INTENT_TO_WORK_PACKET_HANDOFF_SCHEMA,
     REPO_MODEL_OUTPUT_COMPARISON_PROJECTION_SCHEMA,
     REPO_OPERATOR_INGRESS_CANDIDATE_BINDING_SCHEMA,
     REPO_OPERATOR_PROJECTION_CASE_VIEW_SCHEMA,
@@ -140,6 +142,7 @@ from adeu_repo_description import (
     REPO_RUNTIME_ROLLBACK_CONTRACT_SCHEMA,
     REPO_RUNTIME_TELEMETRY_REQUIREMENT_SCHEMA,
     REPO_SCHEMA_FAMILY_REGISTRY_SCHEMA,
+    REPO_SEMANTIC_IMPLEMENTATION_SPEC_FAMILY_CLOSEOUT_ALIGNMENT_SCHEMA,
     REPO_SEMANTIC_INTENT_CONTRACT_SCHEMA,
     REPO_SUPPORT_LINEAGE_REGISTER_SCHEMA,
     REPO_SYMBOL_CATALOG_SCHEMA,
@@ -1313,6 +1316,32 @@ def _schema_pairs() -> dict[str, tuple[Path, Path]]:
             / "schema"
             / "repo_intent_non_implementation_guardrail.v1.json",
             root / "spec" / "repo_intent_non_implementation_guardrail.schema.json",
+        ),
+        REPO_IMPLEMENTATION_SPEC_PROJECTION_PACKET_SCHEMA: (
+            root
+            / "packages"
+            / "adeu_repo_description"
+            / "schema"
+            / "repo_implementation_spec_projection_packet.v1.json",
+            root / "spec" / "repo_implementation_spec_projection_packet.schema.json",
+        ),
+        REPO_INTENT_TO_WORK_PACKET_HANDOFF_SCHEMA: (
+            root
+            / "packages"
+            / "adeu_repo_description"
+            / "schema"
+            / "repo_intent_to_work_packet_handoff.v1.json",
+            root / "spec" / "repo_intent_to_work_packet_handoff.schema.json",
+        ),
+        REPO_SEMANTIC_IMPLEMENTATION_SPEC_FAMILY_CLOSEOUT_ALIGNMENT_SCHEMA: (
+            root
+            / "packages"
+            / "adeu_repo_description"
+            / "schema"
+            / "repo_semantic_implementation_spec_family_closeout_alignment.v1.json",
+            root
+            / "spec"
+            / "repo_semantic_implementation_spec_family_closeout_alignment.schema.json",
         ),
     }
 
