@@ -231,7 +231,7 @@ def test_v234_derivation_helper_matches_reference_fixtures() -> None:
         (
             "repo_semantic_implementation_spec_v234_reject_morphic_runtime_claim.json",
             RepoIntentEdgeDecomposition,
-            "implementation authority",
+            "limitation_note may not carry V83-B downstream authority",
         ),
         (
             "repo_semantic_implementation_spec_v234_reject_obligation_without_semantic_edge_refs.json",
@@ -285,3 +285,66 @@ def test_v234_bundle_rejects_semantic_laundering(
 
     with pytest.raises(ValueError, match=match):
         _validate_reference_bundle_with(obligation_map=obligation_map)
+
+
+def test_v234_bundle_rejects_obligation_map_parent_contract_mismatch() -> None:
+    payload = deepcopy(
+        _load_fixture("vnext_plus234", "repo_artifact_obligation_map_v234_reference.json")
+    )
+    payload["semantic_intent_contract_id"] = "repo_semantic_intent_contract:v83a:mismatched"
+    payload["artifact_obligation_map_id"] = _surface_id(
+        "repo_artifact_obligation_map",
+        payload["schema"],
+        payload,
+        "artifact_obligation_map_id",
+    )
+    obligation_map = RepoArtifactObligationMap.model_validate(payload)
+
+    with pytest.raises(
+        ValueError,
+        match="artifact obligation map must reference released V83-A intent contract",
+    ):
+        _validate_reference_bundle_with(obligation_map=obligation_map)
+
+
+def test_v234_bundle_rejects_drift_register_parent_edge_mismatch() -> None:
+    payload = deepcopy(
+        _load_fixture(
+            "vnext_plus234",
+            "repo_semantic_drift_ambiguity_register_v234_reference.json",
+        )
+    )
+    payload["intent_edge_decomposition_id"] = "repo_intent_edge_decomposition:v83b:mismatched"
+    payload["semantic_drift_ambiguity_register_id"] = _surface_id(
+        "repo_semantic_drift_ambiguity_register",
+        payload["schema"],
+        payload,
+        "semantic_drift_ambiguity_register_id",
+    )
+    drift_register = RepoSemanticDriftAmbiguityRegister.model_validate(payload)
+
+    with pytest.raises(ValueError, match="drift register must reference edge decomposition"):
+        _validate_reference_bundle_with(drift_register=drift_register)
+
+
+def test_v234_bundle_rejects_drift_register_parent_contract_mismatch() -> None:
+    payload = deepcopy(
+        _load_fixture(
+            "vnext_plus234",
+            "repo_semantic_drift_ambiguity_register_v234_reference.json",
+        )
+    )
+    payload["semantic_intent_contract_id"] = "repo_semantic_intent_contract:v83a:mismatched"
+    payload["semantic_drift_ambiguity_register_id"] = _surface_id(
+        "repo_semantic_drift_ambiguity_register",
+        payload["schema"],
+        payload,
+        "semantic_drift_ambiguity_register_id",
+    )
+    drift_register = RepoSemanticDriftAmbiguityRegister.model_validate(payload)
+
+    with pytest.raises(
+        ValueError,
+        match="drift register must reference released V83-A intent contract",
+    ):
+        _validate_reference_bundle_with(drift_register=drift_register)

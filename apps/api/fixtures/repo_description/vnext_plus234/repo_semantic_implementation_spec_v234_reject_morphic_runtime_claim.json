@@ -162,7 +162,7 @@
       "semantic_relation_rows": [
         {
           "from_object_ref": "semantic-object:v83b:schema:edge-decomposition",
-          "limitation_note": "Morphic UX runtime changed by this edge.",
+          "limitation_note": "Morphic UX runtime is authoritative for this edge.",
           "preservation_requirement": "preserve_as_validation_need",
           "relation_kind": "acceptance_requires",
           "semantic_relation_ref": "semantic-relation:v83b:acceptance:evidence-bound",

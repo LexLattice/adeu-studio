@@ -2811,10 +2811,25 @@ def validate_v83b_semantic_edge_obligation_bundle(
     ):
         raise ValueError("artifact obligation map must reference edge decomposition")
     if (
+        artifact_obligation_map.semantic_intent_contract_id
+        != semantic_intent_contract.semantic_intent_contract_id
+    ):
+        raise ValueError("artifact obligation map must reference released V83-A intent contract")
+    if (
         semantic_drift_ambiguity_register.artifact_obligation_map_id
         != artifact_obligation_map.artifact_obligation_map_id
     ):
         raise ValueError("drift register must reference artifact obligation map")
+    if (
+        semantic_drift_ambiguity_register.intent_edge_decomposition_id
+        != intent_edge_decomposition.intent_edge_decomposition_id
+    ):
+        raise ValueError("drift register must reference edge decomposition")
+    if (
+        semantic_drift_ambiguity_register.semantic_intent_contract_id
+        != semantic_intent_contract.semantic_intent_contract_id
+    ):
+        raise ValueError("drift register must reference released V83-A intent contract")
 
     known_sources = {row.source_ref for row in intent_source_index.source_rows}
     source_by_ref = {row.source_ref: row for row in intent_source_index.source_rows}
