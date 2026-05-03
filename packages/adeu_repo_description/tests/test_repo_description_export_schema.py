@@ -86,6 +86,8 @@ from adeu_repo_description import (
     REPO_INTEGRATION_NON_RELEASE_GUARDRAIL_SCHEMA,
     REPO_INTEGRATION_ROLLBACK_READINESS_SCHEMA,
     REPO_INTEGRATION_TARGET_BOUNDARY_SCHEMA,
+    REPO_INTENT_NON_IMPLEMENTATION_GUARDRAIL_SCHEMA,
+    REPO_INTENT_SOURCE_INDEX_SCHEMA,
     REPO_MODEL_OUTPUT_COMPARISON_PROJECTION_SCHEMA,
     REPO_OPERATOR_INGRESS_CANDIDATE_BINDING_SCHEMA,
     REPO_OPERATOR_PROJECTION_CASE_VIEW_SCHEMA,
@@ -138,6 +140,7 @@ from adeu_repo_description import (
     REPO_RUNTIME_ROLLBACK_CONTRACT_SCHEMA,
     REPO_RUNTIME_TELEMETRY_REQUIREMENT_SCHEMA,
     REPO_SCHEMA_FAMILY_REGISTRY_SCHEMA,
+    REPO_SEMANTIC_INTENT_CONTRACT_SCHEMA,
     REPO_SUPPORT_LINEAGE_REGISTER_SCHEMA,
     REPO_SYMBOL_CATALOG_SCHEMA,
     REPO_TEST_INTENT_MATRIX_SCHEMA,
@@ -1262,6 +1265,30 @@ def _schema_pairs() -> dict[str, tuple[Path, Path]]:
             / "schema"
             / "repo_corpus_ingestion_exception_register.v1.json",
             root / "spec" / "repo_corpus_ingestion_exception_register.schema.json",
+        ),
+        REPO_INTENT_SOURCE_INDEX_SCHEMA: (
+            root
+            / "packages"
+            / "adeu_repo_description"
+            / "schema"
+            / "repo_intent_source_index.v1.json",
+            root / "spec" / "repo_intent_source_index.schema.json",
+        ),
+        REPO_SEMANTIC_INTENT_CONTRACT_SCHEMA: (
+            root
+            / "packages"
+            / "adeu_repo_description"
+            / "schema"
+            / "repo_semantic_intent_contract.v1.json",
+            root / "spec" / "repo_semantic_intent_contract.schema.json",
+        ),
+        REPO_INTENT_NON_IMPLEMENTATION_GUARDRAIL_SCHEMA: (
+            root
+            / "packages"
+            / "adeu_repo_description"
+            / "schema"
+            / "repo_intent_non_implementation_guardrail.v1.json",
+            root / "spec" / "repo_intent_non_implementation_guardrail.schema.json",
         ),
     }
 

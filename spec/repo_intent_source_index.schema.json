@@ -1,0 +1,225 @@
+{
+  "$defs": {
+    "RepoIntentSourceRow": {
+      "additionalProperties": false,
+      "properties": {
+        "authority_layer": {
+          "enum": [
+            "lock",
+            "architecture",
+            "planning",
+            "support",
+            "schema",
+            "fixture",
+            "closeout_evidence"
+          ],
+          "title": "Authority Layer",
+          "type": "string"
+        },
+        "generation_posture": {
+          "enum": [
+            "not_generated",
+            "generated_for_review_only",
+            "generated_from_bounded_context",
+            "generated_from_unbounded_context",
+            "generated_source_missing",
+            "generated_source_unknown"
+          ],
+          "title": "Generation Posture",
+          "type": "string"
+        },
+        "intent_source_role": {
+          "enum": [
+            "v82_closeout_source",
+            "v82_summary_source",
+            "v82_handoff_source",
+            "combined_dogfood_source",
+            "operator_intent_source",
+            "repo_planning_source",
+            "repo_architecture_source",
+            "repo_support_doctrine_source",
+            "morphic_ux_support_source",
+            "external_meta_orchestrator_support_source",
+            "external_oai_profile_support_source",
+            "model_generated_spec_candidate_source",
+            "agent_generated_spec_candidate_source",
+            "reviewer_amendment_source",
+            "operator_revision_source",
+            "prompt_context_source",
+            "model_or_agent_profile_source",
+            "implementation_prior_artifact_source",
+            "implementation_context_source",
+            "authority_boundary_source",
+            "non_goal_source",
+            "explicit_absence_marker",
+            "support_process_context"
+          ],
+          "title": "Intent Source Role",
+          "type": "string"
+        },
+        "limitation_note": {
+          "title": "Limitation Note",
+          "type": "string"
+        },
+        "model_agent_authority_posture": {
+          "enum": [
+            "no_model_authority",
+            "model_output_as_candidate_only",
+            "agent_output_as_candidate_only",
+            "reviewer_output_as_review_only",
+            "authority_requires_later_lock"
+          ],
+          "title": "Model Agent Authority Posture",
+          "type": "string"
+        },
+        "source_currentness": {
+          "enum": [
+            "current_concrete_source",
+            "explicit_absence_marker",
+            "historical_context_only",
+            "stale_or_superseded",
+            "unknown_needs_review"
+          ],
+          "title": "Source Currentness",
+          "type": "string"
+        },
+        "source_horizon": {
+          "title": "Source Horizon",
+          "type": "string"
+        },
+        "source_import_posture": {
+          "enum": [
+            "repo_owned_source",
+            "external_support_source",
+            "external_import_required_before_lock",
+            "support_context_only",
+            "absence_marker",
+            "unknown_needs_review"
+          ],
+          "title": "Source Import Posture",
+          "type": "string"
+        },
+        "source_kind": {
+          "enum": [
+            "planning_doc",
+            "architecture_doc",
+            "support_doc",
+            "review_input",
+            "closeout_doc",
+            "evidence_artifact",
+            "schema_file",
+            "fixture_file",
+            "operator_turn",
+            "transcript_artifact",
+            "model_output",
+            "repo_observation",
+            "external_artifact"
+          ],
+          "title": "Source Kind",
+          "type": "string"
+        },
+        "source_presence_posture": {
+          "enum": [
+            "present",
+            "missing_expected_support_artifact",
+            "not_uploaded_in_review_snapshot",
+            "generated_later",
+            "external_unavailable",
+            "operator_turn_not_committed"
+          ],
+          "title": "Source Presence Posture",
+          "type": "string"
+        },
+        "source_ref": {
+          "title": "Source Ref",
+          "type": "string"
+        },
+        "source_scope_posture": {
+          "enum": [
+            "bounded_to_semantic_intent_review",
+            "context_only",
+            "external_import_required",
+            "absence_marker",
+            "future_family_only"
+          ],
+          "title": "Source Scope Posture",
+          "type": "string"
+        },
+        "source_status": {
+          "enum": [
+            "integrated_shaping_source",
+            "available_but_not_integrated",
+            "review_pending_input",
+            "rejected_or_superseded_source"
+          ],
+          "title": "Source Status",
+          "type": "string"
+        }
+      },
+      "required": [
+        "source_ref",
+        "source_kind",
+        "authority_layer",
+        "source_status",
+        "source_presence_posture",
+        "intent_source_role",
+        "source_horizon",
+        "source_currentness",
+        "source_scope_posture",
+        "source_import_posture",
+        "generation_posture",
+        "model_agent_authority_posture",
+        "limitation_note"
+      ],
+      "title": "RepoIntentSourceRow",
+      "type": "object"
+    }
+  },
+  "additionalProperties": false,
+  "properties": {
+    "intent_source_index_id": {
+      "title": "Intent Source Index Id",
+      "type": "string"
+    },
+    "intent_source_summary": {
+      "title": "Intent Source Summary",
+      "type": "string"
+    },
+    "review_id": {
+      "title": "Review Id",
+      "type": "string"
+    },
+    "schema": {
+      "const": "repo_intent_source_index@1",
+      "default": "repo_intent_source_index@1",
+      "title": "Schema",
+      "type": "string"
+    },
+    "snapshot_id": {
+      "title": "Snapshot Id",
+      "type": "string"
+    },
+    "source_rows": {
+      "items": {
+        "$ref": "#/$defs/RepoIntentSourceRow"
+      },
+      "minItems": 1,
+      "title": "Source Rows",
+      "type": "array"
+    },
+    "source_set_id": {
+      "title": "Source Set Id",
+      "type": "string"
+    }
+  },
+  "required": [
+    "intent_source_index_id",
+    "review_id",
+    "snapshot_id",
+    "source_set_id",
+    "source_rows",
+    "intent_source_summary"
+  ],
+  "title": "RepoIntentSourceIndex",
+  "type": "object"
+}

@@ -1,0 +1,184 @@
+{
+  "$defs": {
+    "RepoIntentNonImplementationGuardrailRow": {
+      "additionalProperties": false,
+      "properties": {
+        "candidate_ref": {
+          "title": "Candidate Ref",
+          "type": "string"
+        },
+        "forbidden_downstream_authority": {
+          "items": {
+            "enum": [
+              "implementation_authority",
+              "work_packet_authority",
+              "runtime_authority",
+              "dispatch_authority",
+              "product_authorization",
+              "release_authority",
+              "graph_memory_authority",
+              "recursive_policy_amendment",
+              "v84_selection"
+            ],
+            "type": "string"
+          },
+          "minItems": 1,
+          "title": "Forbidden Downstream Authority",
+          "type": "array"
+        },
+        "forbidden_implementation_actions": {
+          "items": {
+            "enum": [
+              "edit_code",
+              "write_implementation",
+              "create_work_packet",
+              "execute_work_packet",
+              "open_pr",
+              "commit_change",
+              "merge_change"
+            ],
+            "type": "string"
+          },
+          "minItems": 1,
+          "title": "Forbidden Implementation Actions",
+          "type": "array"
+        },
+        "forbidden_runtime_actions": {
+          "items": {
+            "enum": [
+              "run_command",
+              "invoke_tool_for_effect",
+              "dispatch_worker",
+              "mutate_meta_orchestrator_runtime",
+              "change_morphic_ux_runtime",
+              "activate_direct_oai_runtime"
+            ],
+            "type": "string"
+          },
+          "minItems": 1,
+          "title": "Forbidden Runtime Actions",
+          "type": "array"
+        },
+        "guardrail_ref": {
+          "title": "Guardrail Ref",
+          "type": "string"
+        },
+        "intent_contract_refs": {
+          "items": {
+            "type": "string"
+          },
+          "minItems": 1,
+          "title": "Intent Contract Refs",
+          "type": "array"
+        },
+        "limitation_note": {
+          "title": "Limitation Note",
+          "type": "string"
+        },
+        "non_dispatch_posture": {
+          "const": "non_dispatch_guardrail_active",
+          "title": "Non Dispatch Posture",
+          "type": "string"
+        },
+        "non_execution_posture": {
+          "const": "non_execution_guardrail_active",
+          "title": "Non Execution Posture",
+          "type": "string"
+        },
+        "non_implementation_posture": {
+          "const": "non_implementation_guardrail_active",
+          "title": "Non Implementation Posture",
+          "type": "string"
+        },
+        "non_release_posture": {
+          "const": "non_release_guardrail_active",
+          "title": "Non Release Posture",
+          "type": "string"
+        },
+        "required_later_authority_refs": {
+          "items": {
+            "type": "string"
+          },
+          "title": "Required Later Authority Refs",
+          "type": "array"
+        },
+        "source_refs": {
+          "items": {
+            "type": "string"
+          },
+          "minItems": 1,
+          "title": "Source Refs",
+          "type": "array"
+        }
+      },
+      "required": [
+        "guardrail_ref",
+        "candidate_ref",
+        "source_refs",
+        "intent_contract_refs",
+        "forbidden_implementation_actions",
+        "forbidden_runtime_actions",
+        "forbidden_downstream_authority",
+        "non_implementation_posture",
+        "non_execution_posture",
+        "non_dispatch_posture",
+        "non_release_posture",
+        "limitation_note"
+      ],
+      "title": "RepoIntentNonImplementationGuardrailRow",
+      "type": "object"
+    }
+  },
+  "additionalProperties": false,
+  "properties": {
+    "guardrail_rows": {
+      "items": {
+        "$ref": "#/$defs/RepoIntentNonImplementationGuardrailRow"
+      },
+      "minItems": 1,
+      "title": "Guardrail Rows",
+      "type": "array"
+    },
+    "intent_non_implementation_guardrail_id": {
+      "title": "Intent Non Implementation Guardrail Id",
+      "type": "string"
+    },
+    "non_implementation_summary": {
+      "title": "Non Implementation Summary",
+      "type": "string"
+    },
+    "review_id": {
+      "title": "Review Id",
+      "type": "string"
+    },
+    "schema": {
+      "const": "repo_intent_non_implementation_guardrail@1",
+      "default": "repo_intent_non_implementation_guardrail@1",
+      "title": "Schema",
+      "type": "string"
+    },
+    "semantic_intent_contract_id": {
+      "title": "Semantic Intent Contract Id",
+      "type": "string"
+    },
+    "snapshot_id": {
+      "title": "Snapshot Id",
+      "type": "string"
+    },
+    "source_set_id": {
+      "title": "Source Set Id",
+      "type": "string"
+    }
+  },
+  "required": [
+    "intent_non_implementation_guardrail_id",
+    "semantic_intent_contract_id",
+    "review_id",
+    "snapshot_id",
+    "source_set_id",
+    "guardrail_rows",
+    "non_implementation_summary"
+  ],
+  "title": "RepoIntentNonImplementationGuardrail",
+  "type": "object"
+}

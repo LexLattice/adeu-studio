@@ -207,6 +207,11 @@ from .runtime_permission_review import (
     RepoRuntimeRollbackContract,
     RepoRuntimeTelemetryRequirement,
 )
+from .semantic_implementation_spec import (
+    RepoIntentNonImplementationGuardrail,
+    RepoIntentSourceIndex,
+    RepoSemanticIntentContract,
+)
 
 _WINDOWS_ABSOLUTE_PATH_RE = re.compile(r"[A-Za-z]:\\")
 
@@ -663,6 +668,11 @@ def main() -> None:
     corpus_ingestion_review_family_closeout_alignment_schema = (
         RepoCorpusIngestionReviewFamilyCloseoutAlignment.model_json_schema(by_alias=True)
     )
+    intent_source_index_schema = RepoIntentSourceIndex.model_json_schema(by_alias=True)
+    semantic_intent_contract_schema = RepoSemanticIntentContract.model_json_schema(by_alias=True)
+    intent_non_implementation_guardrail_schema = (
+        RepoIntentNonImplementationGuardrail.model_json_schema(by_alias=True)
+    )
 
     _assert_no_absolute_path_material(dependency_register_v1_schema, repo_root_path=root)
     _assert_no_absolute_path_material(dependency_register_schema, repo_root_path=root)
@@ -1041,6 +1051,12 @@ def main() -> None:
     )
     _assert_no_absolute_path_material(
         corpus_ingestion_review_family_closeout_alignment_schema,
+        repo_root_path=root,
+    )
+    _assert_no_absolute_path_material(intent_source_index_schema, repo_root_path=root)
+    _assert_no_absolute_path_material(semantic_intent_contract_schema, repo_root_path=root)
+    _assert_no_absolute_path_material(
+        intent_non_implementation_guardrail_schema,
         repo_root_path=root,
     )
 
@@ -2798,6 +2814,30 @@ def main() -> None:
     _write_schema(
         root / "spec" / "repo_corpus_ingestion_review_family_closeout_alignment.schema.json",
         corpus_ingestion_review_family_closeout_alignment_schema,
+    )
+    _write_schema(
+        repo_description_schema_root / "repo_intent_source_index.v1.json",
+        intent_source_index_schema,
+    )
+    _write_schema(
+        root / "spec" / "repo_intent_source_index.schema.json",
+        intent_source_index_schema,
+    )
+    _write_schema(
+        repo_description_schema_root / "repo_semantic_intent_contract.v1.json",
+        semantic_intent_contract_schema,
+    )
+    _write_schema(
+        root / "spec" / "repo_semantic_intent_contract.schema.json",
+        semantic_intent_contract_schema,
+    )
+    _write_schema(
+        repo_description_schema_root / "repo_intent_non_implementation_guardrail.v1.json",
+        intent_non_implementation_guardrail_schema,
+    )
+    _write_schema(
+        root / "spec" / "repo_intent_non_implementation_guardrail.schema.json",
+        intent_non_implementation_guardrail_schema,
     )
 
 
