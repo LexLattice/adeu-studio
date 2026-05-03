@@ -1,8 +1,8 @@
 # Assessment vNext+234 Edges
 
-Status: pre-lock edge assessment for `V83-B`.
+Status: closeout-edge assessment for `V83-B`.
 
-Authority layer: planning / starter scaffold.
+Authority layer: closeout evidence on `main`.
 
 ## Assessment-State Marker (Machine-Checkable)
 
@@ -10,8 +10,8 @@ Authority layer: planning / starter scaffold.
 {
   "schema": "assessment_artifact_state@1",
   "artifact": "docs/ASSESSMENT_vNEXT_PLUS234_EDGES.md",
-  "phase": "pre_lock_assessment",
-  "authoritative": false,
+  "phase": "post_closeout_assessment",
+  "authoritative": true,
   "required_in_decision": true
 }
 ```
@@ -20,107 +20,114 @@ Authority layer: planning / starter scaffold.
 
 ### Edge 1: Edge Decomposition Could Invent Intent
 
-- Starter containment:
-  `V83-B` must reference released `V83-A` intent contracts, source rows, and
-  guardrails for every decomposition.
-- Expected implementation proof:
-  edge rows without known intent refs, source refs, or guardrail refs reject.
+- Closeout containment:
+  every edge decomposition row references known released `V83-A` intent
+  contract, source, and guardrail rows.
+- Result:
+  pass.
 
 ### Edge 2: Generated Model Or Agent Edge Could Become Authority
 
-- Starter containment:
-  generated spec candidates remain candidate-only and must resolve through
-  released `V83-A` generation / provenance source rows.
-- Expected implementation proof:
-  model-output-only edge decomposition rejects unless source-bound intent refs
-  and candidate-only provenance are present.
+- Closeout containment:
+  generated sources remain candidate-only and require bounded `V83-A`
+  provenance before they can participate in edge rows.
+- Result:
+  pass.
 
 ### Edge 3: Semantic Objects Could Become Artifact Obligations Too Early
 
-- Starter containment:
-  semantic object rows may carry anticipated artifact kind refs, while actual
+- Closeout containment:
+  semantic objects expose anticipated artifact horizons, while actual
   obligations are created only by `repo_artifact_obligation_map@1`.
-- Expected implementation proof:
-  semantic objects with required implementation changes but no obligation map
-  reject or remain blocked.
+- Result:
+  pass.
 
 ### Edge 4: Tests Could Become Semantic Preservation
 
-- Starter containment:
-  validation needs and acceptance evidence must bind to semantic edges and
-  validation rows. Passing tests are not general semantic truth.
-- Expected implementation proof:
-  test-only preservation and generic passing-test evidence rejects pass.
+- Closeout containment:
+  validation needs and acceptance evidence bind to specific semantic edges and
+  validation rows. Test/fixture evidence is not semantic truth.
+- Result:
+  pass.
 
 ### Edge 5: Artifact Obligations Could Become Implementation
 
-- Starter containment:
-  obligation maps remain non-implementation review records with bounded target
-  surface refs. They cannot claim code was changed or is correct.
-- Expected implementation proof:
-  obligation rows containing implementation, PR, commit, release, or work-
-  packet execution claims reject.
+- Closeout containment:
+  obligation rows carry non-implementation posture and bounded target refs.
+  They do not claim code was changed, merged, released, or correct.
+- Result:
+  pass.
 
 ### Edge 6: Non-Goals Could Become Required Changes
 
-- Starter containment:
-  released `V83-A` non-goal refs remain constraints and must not be mapped as
-  required implementation obligations.
-- Expected implementation proof:
-  non-goal laundering into required change rows rejects.
+- Closeout containment:
+  non-goal refs remain constraints; laundering a non-goal into a required
+  implementation obligation rejects.
+- Result:
+  pass.
 
 ### Edge 7: Authority Boundaries Could Become Permissions
 
-- Starter containment:
-  authority edge rows may constrain obligations but cannot mint runtime,
-  product, release, graph-memory, or work-packet authority.
-- Expected implementation proof:
-  authority boundary converted into permission rejects.
+- Closeout containment:
+  authority edge rows constrain obligations but do not mint runtime, product,
+  release, graph-memory, work-packet, or later-family authority.
+- Result:
+  pass.
 
 ### Edge 8: Broad Targets Could Become Bounded Surfaces
 
-- Starter containment:
-  artifact obligation target surfaces must be bounded; broad package/repo/glob
-  targets remain blockers or future-family pressure.
-- Expected implementation proof:
-  broad target surfaces marked ready for projection reject.
+- Closeout containment:
+  broad package / repo target surfaces cannot be marked ready as bounded
+  implementation targets.
+- Result:
+  pass.
 
 ### Edge 9: Drift Register Could Resolve Blockers By Prose
 
-- Starter containment:
-  drift / ambiguity rows preserve missing source, ambiguity, overbroad target,
-  non-goal, authority, Morphic UX, direct OAI, and future-family risks.
-- Expected implementation proof:
-  blocker rows marked resolved by model prose or support text reject.
+- Closeout containment:
+  semantic drift / ambiguity rows preserve missing source, ambiguity,
+  overbroad target, non-goal, authority, Morphic UX, direct OAI, and
+  future-family risks. Blocking drift cannot be hidden or resolved by prose.
+- Result:
+  pass.
 
-### Edge 10: V83-B Could Leak Into V83-C Or V84
+### Edge 10: Parent-Surface IDs Could Drift From Row Refs
 
-- Starter containment:
-  `V83-B` selects no projection packet, work-packet handoff, closeout
-  alignment, implementation, or later-family selection surfaces.
-- Expected implementation proof:
-  fixtures containing `V83-C` surfaces, implementation refs, work-packet
-  authority, or `V84` selection reject.
+- Closeout containment:
+  bundle validation checks the obligation map top-level intent contract ID and
+  the drift register top-level edge decomposition / intent contract IDs, not
+  only row-level refs.
+- Result:
+  pass.
+
+### Edge 11: V83-B Could Leak Into V83-C Or V84
+
+- Closeout containment:
+  future projection packet, handoff, closeout alignment, implementation, and
+  later-family selection refs reject inside the `V83-B` surfaces.
+- Result:
+  pass.
 
 ## Residual Edges
 
-- `V83-C` must later project released `V83-A` and `V83-B` rows into
-  implementation-spec projection packets with provenance, review checklist,
-  and quality-gate posture without treating those packets as implementation or
-  code correctness.
-- Any future implementation work-packet activation family must be selected by
-  a later family-level selector after `V83-C` emits source-bound handoff
-  pressure.
-- Morphic UX, direct OAI, generalized digital artifact projection, product,
-  graph-memory, runtime, and release pressures remain contextual or
-  future-family-only unless later locks instantiate them.
+- `V83-C` must consume released `V83-A` and `V83-B` rows to project
+  implementation-spec packets, provenance rows, review checklist rows, quality
+  gates, handoffs, and family closeout alignment without treating packets as
+  implementation, code correctness, or work-packet authority.
+- `V83-C` must preserve carried warnings and blockers from the drift register;
+  ready posture cannot erase blockers.
+- Any later implementation work-packet activation, Morphic UX projection,
+  direct OAI harness, generalized digital artifact projection, graph-memory,
+  product, runtime, release, or recursive-policy family must be selected by a
+  later lock/selector, not inferred from `V83-B`.
 
 ## Current Judgment
 
-The `vNext+234` starter scope is ready for a bounded `V83-B` implementation
-draft. The active implementation should ship only semantic edge decomposition,
-artifact obligation maps, and semantic drift / ambiguity registers. The main
-risks are invented intent, generated-spec authority drift, test-only semantic
-closure, non-goal laundering, authority-boundary laundering, broad target
-laundering, and early `V83-C` / `V84` selection; all are represented as
-required starter validators and reject fixtures.
+- `V83-B` is closed on `main` as a bounded semantic edge decomposition,
+  artifact obligation map, and semantic drift / ambiguity slice.
+- `V83` remains open for `V83-C`; no family closeout has occurred.
+- The shipped slice preserves the intended boundary: it makes intent edges and
+  artifact obligations reviewable before projection, but it does not project
+  implementation specs, hand off work packets, implement code, change runtime
+  behavior, productize, release, create graph-memory authority, adopt
+  recursive policy amendments, or select `V84`.
