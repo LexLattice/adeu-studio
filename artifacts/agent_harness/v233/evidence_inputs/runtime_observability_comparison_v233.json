@@ -1,0 +1,11 @@
+{
+  "baseline_arc": "vNext+232",
+  "baseline_elapsed_ms": 108,
+  "baseline_source": "artifacts/stop_gate/report_v232_closeout.md",
+  "current_arc": "vNext+233",
+  "current_elapsed_ms": 108,
+  "current_source": "artifacts/stop_gate/report_v233_closeout.md",
+  "delta_ms": 0,
+  "notes": "v233 keeps the frozen stop-gate schema family and exact metric keyset unchanged while closing the bounded V83-A semantic intent contract / intent source index / non-implementation guardrail slice on main: recordability remains distinct from eligibility; generated/model/agent rows remain candidate-only; support-only and absence/import-only rows cannot make intent eligible; guardrails remain non-implementation; and no V83-B, V83-C, implementation, runtime, product, release, graph-memory, recursive-policy, or V84 selection occurs.",
+  "schema": "runtime_observability_comparison@1"
+}

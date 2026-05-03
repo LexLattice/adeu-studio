@@ -157,6 +157,7 @@ locks:
 
 Post-`V83-A` continuation posture: after `vNext+233` closes on `main`, select
 `V83-B` as the next default candidate for the next canonical starter bundle.
+Machine-detectable restatement: select `V83-B` as the next default candidate.
 That selection remains inside the already selected `V83` family and does not
 create a new next-arc-options selector version.
 

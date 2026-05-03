@@ -1,0 +1,78 @@
+{
+  "arc": "vNext+233",
+  "consumed_fixture_dirs": [
+    "apps/api/fixtures/repo_description/vnext_plus232"
+  ],
+  "consumed_record_shapes": [
+    "repo_corpus_ingestion_review_summary@1",
+    "repo_post_corpus_ingestion_review_handoff@1",
+    "repo_corpus_ingestion_review_family_closeout_alignment@1"
+  ],
+  "contract_source": "docs/LOCKED_CONTINUATION_vNEXT_PLUS233.md#machine-checkable-contract",
+  "eligible_without_non_goal_refs_rejected": true,
+  "empty_forbidden_downstream_authority_rejected": true,
+  "empty_forbidden_implementation_actions_rejected": true,
+  "empty_forbidden_runtime_actions_rejected": true,
+  "family": "V83",
+  "future_surface_refs_rejected": true,
+  "generated_unbounded_eligibility_rejected": true,
+  "generated_unbounded_source_index_rejected": true,
+  "implementation_commits": [
+    "6d59e1371fbc71fddcf055d8c69ef6f2ab9c3d35",
+    "60b03dec7bec394ee4bfbc312177b8bf44e4bd5e"
+  ],
+  "implementation_packages": [
+    "adeu_repo_description"
+  ],
+  "implementation_source_path": "packages/adeu_repo_description/src/adeu_repo_description/semantic_implementation_spec.py",
+  "local_closeout_gate": "make arc-closeout-check ARC=233",
+  "local_full_python_gate": "make check",
+  "merge_commit": "734f101da6741e63129288a9ff68d225e4acf34a",
+  "merged_at": "2026-05-03T20:28:02Z",
+  "merged_pr": "#461",
+  "merged_pr_url": "https://github.com/LexLattice/adeu-studio/pull/461",
+  "metric_key_continuity_assertion_path": "artifacts/agent_harness/v233/evidence_inputs/metric_key_continuity_assertion_v233.json",
+  "notes": "v233 evidence pins the bounded V83-A semantic intent contract / intent source index / non-implementation guardrail seam on main. V83-A records intent and support sources without making generated/model/agent candidates authoritative, keeps recordability distinct from semantic-spec eligibility, requires source-bound non-goals, authority boundaries, and typed success horizons for eligible contracts, preserves non-implementation guardrails, and ships no edge decomposition, artifact obligation map, drift register, projection packet, handoff, implementation, runtime behavior, product/release/graph authority, recursive-policy amendment, or V84 selection.",
+  "package_export_surface_path": "packages/adeu_repo_description/src/adeu_repo_description/__init__.py",
+  "ready_to_implement_now_rejected": true,
+  "reference_fixture_paths": [
+    "apps/api/fixtures/repo_description/vnext_plus233/repo_semantic_intent_contract_v233_reference.json",
+    "apps/api/fixtures/repo_description/vnext_plus233/repo_intent_source_index_v233_reference.json",
+    "apps/api/fixtures/repo_description/vnext_plus233/repo_intent_non_implementation_guardrail_v233_reference.json"
+  ],
+  "reject_fixture_dir": "apps/api/fixtures/repo_description/vnext_plus233",
+  "runtime_event_stream_path": "artifacts/agent_harness/v233/runtime/evidence/local/urm_events.ndjson",
+  "runtime_observability_comparison_path": "artifacts/agent_harness/v233/evidence_inputs/runtime_observability_comparison_v233.json",
+  "schema": "v83a_semantic_intent_contract_closeout_evidence@1",
+  "schema_export_source_path": "packages/adeu_repo_description/src/adeu_repo_description/export_schema.py",
+  "schema_paths": [
+    "packages/adeu_repo_description/schema/repo_semantic_intent_contract.v1.json",
+    "packages/adeu_repo_description/schema/repo_intent_source_index.v1.json",
+    "packages/adeu_repo_description/schema/repo_intent_non_implementation_guardrail.v1.json",
+    "spec/repo_semantic_intent_contract.schema.json",
+    "spec/repo_intent_source_index.schema.json",
+    "spec/repo_intent_non_implementation_guardrail.schema.json"
+  ],
+  "selected_direct_oai_runtime_for_v83a": false,
+  "selected_graph_memory_authority_for_v83a": false,
+  "selected_implementation_for_v83a": false,
+  "selected_meta_orchestrator_runtime_for_v83a": false,
+  "selected_morphic_ux_runtime_for_v83a": false,
+  "selected_product_authorization_for_v83a": false,
+  "selected_record_shapes": [
+    "repo_semantic_intent_contract@1",
+    "repo_intent_source_index@1",
+    "repo_intent_non_implementation_guardrail@1"
+  ],
+  "selected_recursive_policy_amendment_for_v83a": false,
+  "selected_release_for_v83a": false,
+  "selected_v83b_for_v83a": false,
+  "selected_v83c_for_v83a": false,
+  "selected_v84_for_v83a": false,
+  "selected_work_packet_execution_for_v83a": false,
+  "slice": "V83-A",
+  "success_horizon_tests_only_rejected": true,
+  "support_only_eligibility_rejected": true,
+  "test_reference_path": "packages/adeu_repo_description/tests/test_semantic_implementation_spec_v83a.py",
+  "v82_family_closeout_alignment_source": "artifacts/agent_harness/v232/evidence_inputs/v82_family_closeout_alignment_v232.json"
+}

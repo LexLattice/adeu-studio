@@ -1,8 +1,8 @@
 # Draft Stop-Gate Decision vNext+233
 
-Status: pre-start scaffold decision for `V83-A`.
+Status: post-closeout decision for `V83-A`.
 
-Authority layer: planning / starter scaffold.
+Authority layer: closeout evidence on `main`.
 
 ## Decision-State Marker (Machine-Checkable)
 
@@ -10,104 +10,135 @@ Authority layer: planning / starter scaffold.
 {
   "schema": "decision_artifact_state@1",
   "artifact": "docs/DRAFT_STOP_GATE_DECISION_vNEXT_PLUS233.md",
-  "phase": "pre_start_scaffold",
-  "authoritative": false,
+  "phase": "post_closeout_decision",
+  "authoritative": true,
   "required_in_closeout": true,
-  "all_passed": false
+  "all_passed": true
 }
 ```
 
 ## Decision Guardrail
 
-- This pre-start decision is scoped to `vNext+233` / `V83-A` only.
-- It does not claim implementation has started or passed.
-- It does not redefine the lock in
+- This closeout decision is scoped to `vNext+233` / `V83-A` only.
+- It does not redefine semantics, locks, or scope from
   `docs/LOCKED_CONTINUATION_vNEXT_PLUS233.md`.
-- It does not authorize `V83-B`, `V83-C`, edge decomposition rows, artifact
-  obligation maps, drift / ambiguity registers, projection packets,
-  intent-to-work-packet handoffs, implementation, code edits, command
-  execution, tool invocation, worker dispatch, meta-orchestrator runtime,
-  Morphic UX runtime changes, direct OAI runtime behavior, product
-  authorization, PR creation, commit, merge, release, graph-memory authority,
-  recursive policy amendment, or `V84` selection.
+- It does not use `V83-A` to authorize `V83-B`, `V83-C`, edge decomposition
+  rows, artifact obligation maps, semantic drift / ambiguity registers,
+  implementation-spec projection packets, intent-to-work-packet handoffs,
+  implementation, code edits, command execution, tool invocation, worker
+  dispatch, meta-orchestrator runtime, Morphic UX runtime changes, direct OAI
+  runtime behavior, PR creation, commit, merge, release, product
+  authorization, graph-memory authority, recursive policy amendment, or `V84`
+  selection.
 
-## Starter Decision
+## Evidence Source
 
-The starter bundle is acceptable for implementation drafting if it preserves
-the following path:
+- merged implementation PR:
+  - `#461` (`[codex] Implement V83-A semantic intent contract`)
+- arc-completion merge commit:
+  - `734f101da6741e63129288a9ff68d225e4acf34a`
+- merged-at timestamp:
+  - `2026-05-03T20:28:02Z`
+- implementation commits integrated by the merge:
+  - `6d59e1371fbc71fddcf055d8c69ef6f2ab9c3d35`
+    (`Implement V83-A semantic intent contract`)
+  - `60b03dec7bec394ee4bfbc312177b8bf44e4bd5e`
+    (`Address V83-A review feedback`)
+- implementation verification recorded before merge:
+  - focused `V83-A` plus export-schema pytest
+  - `make check`
+- docs/artifacts-only closeout verification for this closeout bundle:
+  - `make arc-closeout-check ARC=233`
+- deterministic closeout artifacts:
+  - quality dashboard JSON: `artifacts/quality_dashboard_v233_closeout.json`
+  - stop-gate JSON: `artifacts/stop_gate/metrics_v233_closeout.json`
+  - stop-gate Markdown: `artifacts/stop_gate/report_v233_closeout.md`
+  - metric-key continuity evidence input:
+    `artifacts/agent_harness/v233/evidence_inputs/metric_key_continuity_assertion_v233.json`
+  - runtime observability evidence input:
+    `artifacts/agent_harness/v233/evidence_inputs/runtime_observability_comparison_v233.json`
+  - `V83-A` semantic intent contract closeout evidence input:
+    `artifacts/agent_harness/v233/evidence_inputs/v83a_semantic_intent_contract_closeout_evidence_v233.json`
+  - committed runtime event-stream witness:
+    `artifacts/agent_harness/v233/runtime/evidence/local/urm_events.ndjson`
+- closeout edge assessment:
+  - `docs/ASSESSMENT_vNEXT_PLUS233_EDGES.md`
 
-```text
-released V82-C / support doctrine / operator intent
-  -> intent source rows
-  -> semantic intent contract rows
-  -> non-implementation guardrails
-  -> later V83-B edge decomposition only after V83-A closes
+## Exit-Criteria Check
+
+| Criterion | Threshold | Current State | Evidence |
+|---|---|---|---|
+| `V83-A` merged on `main` | required | `pass` | PR `#461`, merge commit `734f101da6741e63129288a9ff68d225e4acf34a` |
+| Implementation stayed in the repo-description lane | required | `pass` | merged implementation package is `adeu_repo_description` |
+| Selected `V83-A` surfaces shipped | required | `pass` | `repo_semantic_intent_contract@1`, `repo_intent_source_index@1`, and `repo_intent_non_implementation_guardrail@1` |
+| Released `V82-C` substrate is consumed | required | `pass` | `vnext_plus233` reference fixtures carry released `V82-C` summary, handoff, and closeout source roles |
+| Recordability remains distinct from eligibility | required | `pass` | support-only, generated-only, and absence/import-only eligibility rejects passed |
+| Generated model / agent sources remain candidate-only | required | `pass` | generated unbounded source-index and generated unbounded eligibility rejects passed |
+| Intent contracts remain source-bound | required | `pass` | eligible rows require source refs, non-goal refs, authority-boundary refs, and typed success horizons |
+| Test-only success does not become semantic closure | required | `pass` | success-horizon-tests-only reject passed |
+| Guardrails remain non-implementation guardrails | required | `pass` | empty forbidden implementation, runtime, and downstream-authority rejects passed |
+| Deferred surfaces stay deferred | required | `pass` | future-surface refs and ready-to-implement-now rejects passed |
+| Stop-gate schema-family continuity retained | required | `pass` | `artifacts/stop_gate/metrics_v233_closeout.json` has `schema = stop_gate_metrics@1`, `valid = true`, `all_passed = true` |
+| Stop-gate metric-key continuity retained | required | `pass` | `artifacts/agent_harness/v233/evidence_inputs/metric_key_continuity_assertion_v233.json` records exact keyset equality versus `v232` |
+| Runtime observability captured | informational | `pass` | `artifacts/agent_harness/v233/evidence_inputs/runtime_observability_comparison_v233.json` records `108 ms` baseline, `108 ms` current, `0 ms` delta |
+
+## Stop-Gate Summary
+
+```json
+{
+  "schema": "v233_closeout_stop_gate_summary@1",
+  "arc": "vNext+233",
+  "target_path": "V83-A",
+  "stop_gate_schema_family": "stop_gate_metrics@1",
+  "metric_key_cardinality": 80,
+  "metric_key_exact_set_equal_v232": true,
+  "all_passed": true,
+  "runtime_observability_elapsed_ms": 108,
+  "runtime_observability_delta_ms": 0
+}
 ```
 
-The key starter decision is to select only the `V83-A` record shapes:
+## Metric-Key Continuity Assertion
 
-- `repo_semantic_intent_contract@1`
-- `repo_intent_source_index@1`
-- `repo_intent_non_implementation_guardrail@1`
+```json
+{"baseline_metrics_path":"artifacts/stop_gate/metrics_v232_closeout.json","current_metrics_path":"artifacts/stop_gate/metrics_v233_closeout.json","expected_relation":"exact_keyset_equality","schema":"metric_key_continuity_assertion@1"}
+```
 
-## Required Pre-Start Inputs
+## Runtime Observability Comparison
 
-Required planning / support documents:
+```json
+{"baseline_arc":"vNext+232","baseline_elapsed_ms":108,"baseline_source":"artifacts/stop_gate/report_v232_closeout.md","current_arc":"vNext+233","current_elapsed_ms":108,"current_source":"artifacts/stop_gate/report_v233_closeout.md","delta_ms":0,"schema":"runtime_observability_comparison@1"}
+```
 
-- `docs/DRAFT_NEXT_ARC_OPTIONS_v73.md`
-- `docs/ARCHITECTURE_ADEU_SEMANTIC_IMPLEMENTATION_SPECIFICATION_REVIEW_FAMILY_v0.md`
-- `docs/DRAFT_ADEU_SEMANTIC_IMPLEMENTATION_SPECIFICATION_REVIEW_V83_IMPLEMENTATION_MAPPING_v0.md`
-- `docs/DRAFT_ADEU_SEMANTIC_IMPLEMENTATION_SPECIFICATION_REVIEW_V83A_IMPLEMENTATION_MAPPING_v0.md`
-- `docs/support/arc_series_mapping/REVIEW_GPTPRO_SEMANTIC_IMPLEMENTATION_SPECIFICATION_V83_PLANNING_v0.md`
+## Recommendation
 
-Required released substrate:
-
-- `docs/LOCKED_CONTINUATION_vNEXT_PLUS232.md`
-- `docs/DRAFT_STOP_GATE_DECISION_vNEXT_PLUS232.md`
-- `docs/ASSESSMENT_vNEXT_PLUS232_EDGES.md`
-- `docs/DRAFT_ADEU_CORPUS_INGESTION_AUTHORITY_REVIEW_V82_FAMILY_CLOSEOUT_v0.md`
-- released `V82-C` reference fixtures and closeout evidence inputs cited by
-  the lock.
-
-Support sources that must be source-bound, imported, or absence-marked before
-lock-level fixture use:
-
-- `docs/support/morphic_ux. v2.md`
-- `/home/rose/work/LexLattice/codex-review-shell-direct/docs/META_ORCHESTRATOR_LOOP_ODEU_SPEC.md`
-- `/home/rose/work/LexLattice/codex-review-shell-direct/docs/OAI_CODEX_UPSTREAM_ODEU_PROFILE.md`
-
-## Exit Criteria For Future Closeout
-
-The future `vNext+233` closeout decision should be allowed to pass only if:
-
-| Criterion | Required State |
-|---|---|
-| `V83-A` implementation merged | one ready-for-review PR merged to `main` |
-| Package scope | `adeu_repo_description` only unless explicitly justified by the lock |
-| Selected surfaces | exactly `repo_semantic_intent_contract@1`, `repo_intent_source_index@1`, `repo_intent_non_implementation_guardrail@1` |
-| Recordability / eligibility | distinct fields and validators prove support-only / absence-only / generated-only rows cannot become eligible |
-| Generated spec provenance | model/agent rows are candidate-only and require prompt/profile/source/generation posture |
-| Intent shape | eligible contracts require non-goals, semantic and operational constraints, authority boundaries, and typed success horizon |
-| Support source readiness | Morphic UX and direct-harness sources are repo-owned, imported as external support, or absence-marked |
-| Guardrails | forbidden implementation, runtime, and downstream authority actions are non-empty |
-| Deferred surfaces | no `V83-B` or `V83-C` rows ship in `V83-A` |
-| Verification | focused `V83-A` tests plus export-schema parity pass, and `make check` passes before PR merge |
-| Closeout docs/artifacts | docs/artifacts-only closeout bundle passes `make arc-closeout-check ARC=233` |
-
-## Current Decision
-
-- decision: `STARTER_SCAFFOLD_READY_FOR_V83A_IMPLEMENTATION_DRAFTING`
-- current authority: pre-start scaffold only
+- gate decision:
+  - `V83A_SEMANTIC_INTENT_CONTRACT_COMPLETE_ON_MAIN`
 - rationale:
-  - the reviewed V83 planning bundle selects the correct family and slice;
-  - the lock selects only the semantic intent contract / source-index /
-    non-implementation guardrail starter seam;
-  - recordability versus eligibility, generated-spec provenance, typed success
-    horizons, source-bound non-goals, and support-source import / absence
-    posture are now explicit starter obligations;
-  - implementation, work-packet execution, runtime behavior, Morphic UX
-    runtime changes, direct OAI runtime behavior, product, release, graph
-    memory, recursive policy amendment, and `V84` remain forbidden.
-
-The decision remains non-authoritative until the implementation and closeout
-evidence are produced.
+  - `v233` closes the bounded `V83-A` semantic intent contract / intent source
+    index / non-implementation guardrail seam on `main`;
+  - the shipped slice stayed properly bounded:
+    - same repo-owned implementation package (`adeu_repo_description`) only
+    - three `repo_*` `V83-A` record surfaces
+    - source-bound consumption of released `V82-C` summary / handoff /
+      closeout substrate
+    - intent recordability stays distinct from semantic-spec eligibility
+    - generated model or agent sources remain candidate-only and
+      provenance-bound
+    - support-only, dogfood-only, Morphic-only, external-doc-only, generated-
+      only, and absence/import-only rows cannot make intent eligible
+    - eligible contracts require source-bound non-goals, authority boundaries,
+      semantic/operational constraints, and typed success horizons
+    - "passes tests" cannot be the only success horizon
+    - non-implementation guardrails carry non-empty forbidden implementation,
+      runtime, and downstream authority actions
+    - no edge decomposition, artifact obligation map, semantic drift register,
+      projection packet, work-packet handoff, implementation, code edit,
+      command execution, meta-orchestrator runtime, Morphic UX runtime change,
+      direct OAI runtime behavior, PR creation, commit, merge, release,
+      product authorization, graph-memory authority, recursive policy
+      amendment, or `V84` selection
+  - stop-gate schema-family and metric-key continuity stayed intact;
+  - runtime observability remained informational-only;
+  - `V83` remains open for the later `V83-B` edge-decomposition and artifact-
+    obligation slice, which requires its own canonical starter lock.

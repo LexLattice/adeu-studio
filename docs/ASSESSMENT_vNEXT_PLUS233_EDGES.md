@@ -1,8 +1,8 @@
 # Assessment vNext+233 Edges
 
-Status: pre-lock edge assessment for `V83-A`.
+Status: closeout-edge assessment for `V83-A`.
 
-Authority layer: planning / starter scaffold.
+Authority layer: closeout evidence on `main`.
 
 ## Assessment-State Marker (Machine-Checkable)
 
@@ -10,8 +10,8 @@ Authority layer: planning / starter scaffold.
 {
   "schema": "assessment_artifact_state@1",
   "artifact": "docs/ASSESSMENT_vNEXT_PLUS233_EDGES.md",
-  "phase": "pre_lock_assessment",
-  "authoritative": false,
+  "phase": "post_closeout_assessment",
+  "authoritative": true,
   "required_in_decision": true
 }
 ```
@@ -20,116 +20,114 @@ Authority layer: planning / starter scaffold.
 
 ### Edge 1: Intent Contract Could Become Implementation Authority
 
-- Starter containment:
-  `V83-A` selects only intent contract, source-index, and
-  non-implementation guardrail rows. Implementation, work-packet execution,
-  code edits, command execution, PR creation, commit, merge, release, and
-  product authorization are forbidden by the lock.
-- Expected implementation proof:
-  validators reject any starter row that contains `V83-B` / `V83-C` surfaces,
-  implementation refs, execution claims, or later-family selection.
+- Closeout containment:
+  `V83-A` shipped only intent contract, source-index, and
+  non-implementation guardrail rows. Ready-to-implement claims and future
+  surface refs reject.
+- Result:
+  pass.
 
 ### Edge 2: Recordability Could Become Eligibility
 
-- Starter containment:
-  source rows and intent rows must distinguish `intent_recordability_posture`
-  from `semantic_spec_eligibility_posture`.
-- Expected implementation proof:
-  support-only, dogfood-only, absence-only, Morphic-only, external-doc-only,
-  and generated-spec-only rows cannot use
-  `eligible_for_semantic_spec_review`.
+- Closeout containment:
+  intent rows distinguish `intent_recordability_posture` from
+  `semantic_spec_eligibility_posture`; support-only, generated-only, and
+  absence/import-only paths cannot become eligible.
+- Result:
+  pass.
 
 ### Edge 3: Generated Model Or Agent Spec Could Become Truth
 
-- Starter containment:
-  generated source roles are allowed only as candidate review sources with
-  `generation_posture` and `model_agent_authority_posture`.
-- Expected implementation proof:
-  model/agent output without prompt context, model/agent profile refs, bounded
-  source refs, and candidate-only posture must reject when marked eligible.
+- Closeout containment:
+  generated source rows carry generation and model/agent authority posture.
+  Unbounded generated sources and generated-only eligibility reject.
+- Result:
+  pass.
 
 ### Edge 4: Support Docs Could Become Lock Authority
 
-- Starter containment:
-  Morphic UX, direct-harness, roadmap, and support doctrine sources may
-  contextualize the family but cannot alone make a row eligible.
-- Expected implementation proof:
-  unavailable or external local sources are represented as repo-owned support,
-  external-import rows, or explicit absence markers; fixtures do not
-  reconstruct them from memory.
+- Closeout containment:
+  Morphic UX, direct-harness, roadmap, dogfood, and support doctrine sources
+  may contextualize the slice but cannot alone make an intent semantically
+  eligible.
+- Result:
+  pass.
 
 ### Edge 5: Tests Could Become Semantic Closure
 
-- Starter containment:
-  `success_horizon_kind` must be typed, and "passes tests" cannot be the only
-  success horizon for an eligible contract.
-- Expected implementation proof:
-  reject fixtures cover test-only success claims and prose-only semantic
-  closure claims.
+- Closeout containment:
+  eligible contracts require typed success horizons; passing tests alone cannot
+  be semantic closure.
+- Result:
+  pass.
 
 ### Edge 6: Non-Goals Could Become Required Work
 
-- Starter containment:
-  eligible rows require source-bound `non_goal_refs`; `V83-A` does not yet map
-  artifact obligations.
-- Expected implementation proof:
-  non-goal source rows remain non-goals and cannot appear as implementation
-  obligations in the starter fixture.
+- Closeout containment:
+  eligible contracts require source-bound non-goal refs, while `V83-A` does
+  not yet create artifact obligation rows.
+- Result:
+  pass.
 
 ### Edge 7: Authority Boundaries Could Become Permission
 
-- Starter containment:
-  authority-boundary refs are required for eligible contracts, while
-  non-implementation guardrails forbid downstream authority.
-- Expected implementation proof:
-  authority boundary rows cannot authorize implementation, runtime,
-  work-packet execution, product, release, graph memory, or policy amendment.
+- Closeout containment:
+  authority-boundary refs are required as boundaries, not grants. Guardrail
+  rows forbid implementation, runtime, and downstream authority actions.
+- Result:
+  pass.
 
-### Edge 8: Morphic UX Could Become Runtime UI Work
+### Edge 8: Morphic UX Or Direct OAI Could Become Runtime Work
 
-- Starter containment:
-  Morphic UX v2 is a support/test-case source for semantic projection, not the
-  umbrella family and not runtime UI authorization.
-- Expected implementation proof:
-  Morphic-only rows remain blocked, context-only, or scoped to future UX
-  projection review; no runtime composer or renderer change is claimed.
+- Closeout containment:
+  Morphic UX and direct OAI / meta-orchestrator docs remain support or
+  import/absence-marked context. They do not authorize runtime UI changes,
+  provider runtime transitions, or tool execution.
+- Result:
+  pass.
 
-### Edge 9: Direct OAI Harness Could Become Provider Runtime Authority
+### Edge 9: V83-B Or V83-C Surfaces Could Leak Into V83-A
 
-- Starter containment:
-  direct-harness support docs can contribute provider capability / evidence /
-  workflow-transition distinctions, not runtime authority.
-- Expected implementation proof:
-  direct OAI support rows cannot grant provider capability, tool execution,
-  meta-orchestrator runtime transition, or live harness behavior.
+- Closeout containment:
+  future edge-decomposition, artifact-obligation, drift-register,
+  projection-packet, and work-packet handoff refs reject inside the starter
+  surface.
+- Result:
+  pass.
 
 ### Edge 10: V83-A Could Select V84
 
-- Starter containment:
-  `V83-A` may carry future pressure but cannot select `V84` or any later
-  family. Likely post-`V83` implementation work-packet activation review
-  remains unselected until a future selector.
-- Expected implementation proof:
-  no fixture, schema, closeout, or handoff row claims `V84` selection.
+- Closeout containment:
+  `V83-A` closes one bounded starter slice and carries no later-family
+  selection authority. `V84` remains unselected future pressure.
+- Result:
+  pass.
 
 ## Residual Edges
 
-- `V83-B` must later bind semantic relations, validation needs, and
-  acceptance evidence to released `V83-A` intent rows without converting tests
-  into semantic truth.
-- `V83-B` must keep artifact obligations distinct from implementation.
-- `V83-C` must keep projection packets and quality gates as review posture,
-  not code correctness or work-packet authority.
-- Any future Morphic UX, direct OAI, general digital artifact projection, or
-  implementation work-packet activation family must be selected by later
-  locks/selectors, not inferred from `V83-A`.
+- `V83-B` must bind semantic objects, relations, validation needs, artifact
+  obligations, acceptance evidence, and drift / ambiguity posture to released
+  `V83-A` intent rows without treating tests, fixtures, model output, or
+  support prose as semantic truth.
+- `V83-B` must keep artifact obligations distinct from implementation and
+  preserve non-goals and authority boundaries as constraints, not required
+  changes or permissions.
+- `V83-C` must keep projection packets, quality gates, and work-packet
+  handoffs as review posture, not implementation authority or code
+  correctness.
+- Any future Morphic UX, direct OAI, generalized digital-artifact projection,
+  implementation work-packet activation, graph-memory, product, runtime, or
+  release family must be selected by later locks/selectors, not inferred from
+  `V83-A`.
 
 ## Current Judgment
 
-The `vNext+233` starter scope is ready for a bounded `V83-A` implementation
-draft. The active implementation should ship only the source-bound semantic
-intent contract, intent source index, and non-implementation guardrail
-surfaces. The main risks are recordability/eligibility drift, generated-spec
-authority drift, support-source authority drift, test-only semantic closure,
-and Morphic/direct-OAI scope laundering; all are represented as required
-starter validators and reject fixtures.
+- `V83-A` is closed on `main` as a bounded semantic intent contract, intent
+  source index, and non-implementation guardrail slice.
+- `V83` remains open for `V83-B` and `V83-C`; no family closeout has occurred.
+- The shipped slice preserves the intended boundary: it makes intent-to-
+  implementation-spec review pressure source-bound and reviewable, but it does
+  not decompose edges, map artifact obligations, project implementation specs,
+  hand off work packets, implement code, change runtime behavior, productize,
+  release, create graph-memory authority, adopt recursive policy amendments, or
+  select `V84`.
