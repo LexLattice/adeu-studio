@@ -155,6 +155,18 @@ def _handoff_with_recomputed_id(payload: dict[str, Any]) -> RepoIntentToWorkPack
     return RepoIntentToWorkPacketHandoff.model_validate(payload)
 
 
+def _handoff_for_projection(
+    projection_packet: RepoImplementationSpecProjectionPacket,
+) -> RepoIntentToWorkPacketHandoff:
+    payload = deepcopy(
+        _load_fixture("vnext_plus235", "repo_intent_to_work_packet_handoff_v235_reference.json")
+    )
+    payload["implementation_spec_projection_packet_id"] = (
+        projection_packet.implementation_spec_projection_packet_id
+    )
+    return _handoff_with_recomputed_id(payload)
+
+
 def _closeout_with_recomputed_id(
     payload: dict[str, Any],
 ) -> RepoSemanticImplementationSpecFamilyCloseoutAlignment:
@@ -165,6 +177,23 @@ def _closeout_with_recomputed_id(
         "semantic_implementation_spec_family_closeout_alignment_id",
     )
     return RepoSemanticImplementationSpecFamilyCloseoutAlignment.model_validate(payload)
+
+
+def _closeout_for_projection_and_handoff(
+    projection_packet: RepoImplementationSpecProjectionPacket,
+    handoff: RepoIntentToWorkPacketHandoff,
+) -> RepoSemanticImplementationSpecFamilyCloseoutAlignment:
+    payload = deepcopy(
+        _load_fixture(
+            "vnext_plus235",
+            "repo_semantic_implementation_spec_family_closeout_alignment_v235_reference.json",
+        )
+    )
+    payload["implementation_spec_projection_packet_id"] = (
+        projection_packet.implementation_spec_projection_packet_id
+    )
+    payload["intent_to_work_packet_handoff_id"] = handoff.intent_to_work_packet_handoff_id
+    return _closeout_with_recomputed_id(payload)
 
 
 def test_v235_reference_bundle_validates() -> None:
@@ -343,6 +372,52 @@ def test_v235_bundle_rejects_handoff_unknown_obligation_ref() -> None:
 
     with pytest.raises(ValueError, match="work-packet handoff obligation refs must be known"):
         _validate_reference_bundle_with(handoff=handoff, closeout=closeout)
+
+
+@pytest.mark.parametrize(
+    ("field_name", "bad_ref", "match"),
+    [
+        (
+            "semantic_edge_refs",
+            "semantic-relation:v83b:unknown",
+            "projection checklist semantic edge refs must be known",
+        ),
+        (
+            "artifact_obligation_refs",
+            "artifact-obligation:v83b:unknown",
+            "projection checklist obligation refs must be known",
+        ),
+        (
+            "source_refs",
+            "source:v83c:unknown",
+            "projection checklist source refs must be known",
+        ),
+    ],
+)
+def test_v235_bundle_rejects_unknown_projection_checklist_refs(
+    field_name: str,
+    bad_ref: str,
+    match: str,
+) -> None:
+    payload = deepcopy(
+        _load_fixture(
+            "vnext_plus235",
+            "repo_implementation_spec_projection_packet_v235_reference.json",
+        )
+    )
+    payload["projection_packet_rows"][0]["spec_review_checklist_rows"][0][field_name] = [
+        bad_ref
+    ]
+    projection_packet = _projection_with_recomputed_id(payload)
+    handoff = _handoff_for_projection(projection_packet)
+    closeout = _closeout_for_projection_and_handoff(projection_packet, handoff)
+
+    with pytest.raises(ValueError, match=match):
+        _validate_reference_bundle_with(
+            projection_packet=projection_packet,
+            handoff=handoff,
+            closeout=closeout,
+        )
 
 
 def test_v235_bundle_rejects_tests_only_quality_gate() -> None:

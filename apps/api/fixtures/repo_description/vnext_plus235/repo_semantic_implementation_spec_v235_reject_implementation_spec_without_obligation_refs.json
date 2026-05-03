@@ -1,6 +1,6 @@
 {
   "artifact_obligation_map_id": "repo_artifact_obligation_map_74d865ff548bee3a7698c465",
-  "implementation_spec_projection_packet_id": "repo_implementation_spec_projection_packet_c809c065b0e5819b0f169eb9",
+  "implementation_spec_projection_packet_id": "repo_implementation_spec_projection_packet_41eada6384b0e98cc8d70e8b",
   "intent_edge_decomposition_id": "repo_intent_edge_decomposition_13e45c00a5f1a5d9a2d8657b",
   "intent_non_implementation_guardrail_id": "repo_intent_non_implementation_guardrail_800734bad46c116eb9cad1e1",
   "projection_packet_rows": [
@@ -329,7 +329,7 @@
           "review_check_ref": "review-check:v83c:generated-provenance",
           "semantic_edge_refs": [],
           "source_refs": [
-            "intent:v83a:generated-spec:absence-marker"
+            "generated-spec:v83a:current:absent"
           ]
         },
         {

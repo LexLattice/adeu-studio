@@ -104,9 +104,9 @@
     }
   ],
   "handoff_summary": "V83-C intent-to-work-packet handoffs request later review and later lock with no implementation.",
-  "implementation_spec_projection_packet_id": "repo_implementation_spec_projection_packet_c809c065b0e5819b0f169eb9",
+  "implementation_spec_projection_packet_id": "repo_implementation_spec_projection_packet_2665038295f50721000e681b",
   "intent_non_implementation_guardrail_id": "repo_intent_non_implementation_guardrail_800734bad46c116eb9cad1e1",
-  "intent_to_work_packet_handoff_id": "repo_intent_to_work_packet_handoff_f39e2d580e32d4239799c98c",
+  "intent_to_work_packet_handoff_id": "repo_intent_to_work_packet_handoff_facbb13fcb725f3aecc2c8c8",
   "review_id": "review:v83a:semantic-implementation-spec",
   "schema": "repo_intent_to_work_packet_handoff@1",
   "semantic_drift_ambiguity_register_id": "repo_semantic_drift_ambiguity_register_80373eb6087e9ab0c6c6794a",

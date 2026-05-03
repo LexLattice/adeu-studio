@@ -3874,7 +3874,7 @@ def derive_v83c_repo_implementation_spec_projection_packet(
             "artifact_obligation_refs": [],
             "check_kind": "generated_spec_provenance_check",
             "check_posture": "passed_for_review_only",
-            "source_refs": ["intent:v83a:generated-spec:absence-marker"],
+            "source_refs": ["generated-spec:v83a:current:absent"],
             "blocking_posture": "not_applicable",
             "limitation_note": "No model/agent generated spec is authoritative; no implementation.",
         },
@@ -4430,7 +4430,6 @@ def validate_v83c_semantic_implementation_projection_bundle(
         row.projection_packet_ref: row
         for row in implementation_spec_projection_packet.projection_packet_rows
     }
-    known_projection_spec_refs: set[str] = set()
     for packet_row in implementation_spec_projection_packet.projection_packet_rows:
         if any(ref not in known_contracts for ref in packet_row.intent_contract_refs):
             raise ValueError("projection packet intent refs must be known")
@@ -4444,18 +4443,7 @@ def validate_v83c_semantic_implementation_projection_bundle(
             raise ValueError("projection packet source refs must be known")
         if any(ref not in known_guardrails for ref in packet_row.guardrail_refs):
             raise ValueError("projection packet guardrail refs must be known")
-        blocking_drift_refs = [
-            ref
-            for ref in packet_row.carried_blocker_refs
-            if ref in known_drift and known_drift[ref].blocking_posture == "blocking"
-        ]
-        if (
-            packet_row.projection_posture == "projection_packet_ready_for_review"
-            and blocking_drift_refs
-        ):
-            raise ValueError("ready projection packets cannot hide blocking drift")
         for spec_row in packet_row.implementation_spec_rows:
-            known_projection_spec_refs.add(spec_row.implementation_spec_ref)
             if any(ref not in known_obligations for ref in spec_row.artifact_obligation_refs):
                 raise ValueError("implementation specs must reference known artifact obligations")
             if any(ref not in known_validations for ref in spec_row.required_validation_refs):
@@ -4480,19 +4468,13 @@ def validate_v83c_semantic_implementation_projection_bundle(
                 for ref in provenance_row.input_obligation_map_refs
             ):
                 raise ValueError("projection provenance must reference known obligation maps")
-        check_kinds = {row.check_kind for row in packet_row.spec_review_checklist_rows}
-        if packet_row.projection_posture == "projection_packet_ready_for_review":
-            if {
-                "edge_coverage_check",
-                "validation_evidence_check",
-                "reject_fixture_check",
-                "source_binding_check",
-            }.difference(check_kinds):
-                raise ValueError("ready projection packets require edge-bound quality checks")
-            if check_kinds == {"validation_evidence_check"}:
-                raise ValueError(
-                    "tests alone cannot pass semantic implementation-spec quality gate"
-                )
+        for checklist_row in packet_row.spec_review_checklist_rows:
+            if any(ref not in known_edges for ref in checklist_row.semantic_edge_refs):
+                raise ValueError("projection checklist semantic edge refs must be known")
+            if any(ref not in known_obligations for ref in checklist_row.artifact_obligation_refs):
+                raise ValueError("projection checklist obligation refs must be known")
+            if any(ref not in known_sources for ref in checklist_row.source_refs):
+                raise ValueError("projection checklist source refs must be known")
 
     for handoff_row in intent_to_work_packet_handoff.handoff_rows:
         if any(ref not in known_projection_packets for ref in handoff_row.projection_packet_refs):

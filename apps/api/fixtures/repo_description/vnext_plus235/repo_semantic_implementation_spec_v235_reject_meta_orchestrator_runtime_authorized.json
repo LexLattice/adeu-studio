@@ -92,7 +92,7 @@
         "semantic-intent:v83a:intent-to-implementation-spec"
       ],
       "limitation_note": "Workflow orchestrator handoff is transition review only; no workflow transition completed and no implementation.",
-      "meta_orchestrator_runtime_posture": "runtime_requires_later_family",
+      "meta_orchestrator_runtime_posture": "not_applicable",
       "projection_packet_refs": [
         "projection-packet:v83c:intent-to-spec"
       ],
@@ -104,9 +104,9 @@
     }
   ],
   "handoff_summary": "V83-C intent-to-work-packet handoffs request later review and later lock with no implementation.",
-  "implementation_spec_projection_packet_id": "repo_implementation_spec_projection_packet_c809c065b0e5819b0f169eb9",
+  "implementation_spec_projection_packet_id": "repo_implementation_spec_projection_packet_2665038295f50721000e681b",
   "intent_non_implementation_guardrail_id": "repo_intent_non_implementation_guardrail_800734bad46c116eb9cad1e1",
-  "intent_to_work_packet_handoff_id": "repo_intent_to_work_packet_handoff_f39e2d580e32d4239799c98c",
+  "intent_to_work_packet_handoff_id": "repo_intent_to_work_packet_handoff_8b4a4a41b3250ee5afd823f3",
   "review_id": "review:v83a:semantic-implementation-spec",
   "schema": "repo_intent_to_work_packet_handoff@1",
   "semantic_drift_ambiguity_register_id": "repo_semantic_drift_ambiguity_register_80373eb6087e9ab0c6c6794a",
