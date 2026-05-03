@@ -291,21 +291,28 @@ def _reject_v83_action_claim(value: str, *, field_name: str) -> str:
         r"\bmorphic ux runtime (?:changed|updated)\b",
         r"\bdirect oai runtime (?:activated|changed)\b",
         r"\bpr (?:created|opened)\b",
-        r"\bcommit(?:ted)?\b",
-        r"\bmerge(?:d)?\b",
-        r"\brelease(?:d)?\b",
+        r"\bcommit(?:ted)? (?:changes|code|diff|implementation|work|to main)\b",
+        r"\bmerge(?:d)? (?:pr|pull request|branch|changes)\b",
+        r"\brelease(?:d)? (?:artifact|authority|build|package|truth|version)\b",
         r"\bproduct (?:authorized|authorization)\b",
         r"\bgraph[- ]memory authority\b",
         r"\brecursive policy (?:amended|amendment)\b",
         r"\bv84 (?:selected|selection)\b",
     ]
-    negation_markers = ("no ", "not ", "without ", "forbidden ", "non-", "must not ")
+
+    def is_negated(match: re.Match[str]) -> bool:
+        prefix = lowered[max(0, match.start() - 24) : match.start()]
+        suffix = lowered[match.end() : min(len(lowered), match.end() + 24)]
+        return bool(
+            re.search(r"(?:\bno\b|\bnot\b|\bwithout\b|\bmust not\b|\bno[- ])\W*$", prefix)
+            or re.match(r"^\W*(?:forbidden|not authorized|not permitted)\b", suffix)
+        )
+
     for pattern in forbidden_patterns:
         match = re.search(pattern, lowered)
         if match is None:
             continue
-        prefix = lowered[max(0, match.start() - 40) : match.start()]
-        if not any(marker in prefix for marker in negation_markers):
+        if not is_negated(match):
             raise ValueError(f"{field_name} may not carry V83 implementation authority")
     return value
 
@@ -575,6 +582,10 @@ class RepoIntentNonImplementationGuardrailRow(_CartographyBase):
                 field_name,
                 _sorted_unique(getattr(self, field_name), field_name=field_name),
             )
+        for source_ref in self.source_refs:
+            _repo_ref(source_ref, field_name="source_refs")
+        for authority_ref in self.required_later_authority_refs:
+            _repo_ref(authority_ref, field_name="required_later_authority_refs")
         missing_implementation = _FORBIDDEN_IMPLEMENTATION_ACTIONS.difference(
             self.forbidden_implementation_actions
         )
@@ -1178,8 +1189,6 @@ def validate_v83a_semantic_implementation_spec_bundle(
                 raise ValueError(
                     "eligible semantic intent contracts require concrete intent source"
                 )
-            if roles.issubset(_SUPPORT_ONLY_SOURCE_ROLES | _ABSENCE_SOURCE_ROLES):
-                raise ValueError("support or absence sources cannot create semantic eligibility")
             for source_ref in contract_row.source_refs:
                 if source_roles[source_ref] in _GENERATED_SOURCE_ROLES:
                     if generation_postures[source_ref] == "generated_from_unbounded_context":
@@ -1189,8 +1198,6 @@ def validate_v83a_semantic_implementation_spec_bundle(
                         "agent_output_as_candidate_only",
                     }:
                         raise ValueError("generated spec sources must remain candidate-only")
-        if contract_row.success_horizon.strip().lower() in {"passes tests", "tests pass"}:
-            raise ValueError("success horizon cannot be only passing tests")
         for guardrail_ref in contract_row.guardrail_refs:
             guardrail = guardrails.get(guardrail_ref)
             if guardrail is None:

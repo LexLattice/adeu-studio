@@ -11,8 +11,10 @@ from adeu_repo_description import (
     REPO_INTENT_SOURCE_INDEX_SCHEMA,
     REPO_SEMANTIC_INTENT_CONTRACT_SCHEMA,
     RepoIntentNonImplementationGuardrail,
+    RepoIntentNonImplementationGuardrailRow,
     RepoIntentSourceIndex,
     RepoSemanticIntentContract,
+    RepoSemanticIntentContractRow,
     derive_v83a_repo_intent_non_implementation_guardrail,
     derive_v83a_semantic_implementation_spec_bundle,
     validate_v83a_semantic_implementation_spec_bundle,
@@ -163,6 +165,36 @@ def test_v233_derivation_helper_matches_reference_fixtures() -> None:
         "vnext_plus233",
         "repo_intent_non_implementation_guardrail_v233_reference.json",
     )
+
+
+def test_v233_action_claim_scanner_rejects_unnegated_pr_creation() -> None:
+    row = _load_fixture("vnext_plus233", "repo_semantic_intent_contract_v233_reference.json")[
+        "intent_contract_rows"
+    ][0]
+    row["limitation_note"] = "Non-goal context says PR created."
+
+    with pytest.raises(ValidationError, match="implementation authority"):
+        RepoSemanticIntentContractRow.model_validate(row)
+
+
+def test_v233_action_claim_scanner_allows_documentation_release_terms() -> None:
+    row = _load_fixture("vnext_plus233", "repo_semantic_intent_contract_v233_reference.json")[
+        "intent_contract_rows"
+    ][0]
+    row["limitation_note"] = "Release summary documentation remains review-only."
+
+    RepoSemanticIntentContractRow.model_validate(row)
+
+
+def test_v233_guardrail_rejects_absolute_source_refs_at_row_level() -> None:
+    row = _load_fixture(
+        "vnext_plus233",
+        "repo_intent_non_implementation_guardrail_v233_reference.json",
+    )["guardrail_rows"][0]
+    row["source_refs"] = ["/tmp/not/repo/relative"]
+
+    with pytest.raises(ValidationError, match="source_refs"):
+        RepoIntentNonImplementationGuardrailRow.model_validate(row)
 
 
 @pytest.mark.parametrize(
