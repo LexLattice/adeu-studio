@@ -1,0 +1,152 @@
+{
+  "schema": "v68_v69_v70_v71_v72_v73_v74_v75_v76_v77_v78_v79_v80_v81_v82_v83_combined_dogfood_test@1",
+  "result": "pass",
+  "families_checked": [
+    "V68",
+    "V69",
+    "V70",
+    "V71",
+    "V72",
+    "V73",
+    "V74",
+    "V75",
+    "V76",
+    "V77",
+    "V78",
+    "V79",
+    "V80",
+    "V81",
+    "V82",
+    "V83"
+  ],
+  "terminal_closeout_arcs": [
+    "vNext+190",
+    "vNext+193",
+    "vNext+196",
+    "vNext+199",
+    "vNext+202",
+    "vNext+205",
+    "vNext+208",
+    "vNext+211",
+    "vNext+214",
+    "vNext+217",
+    "vNext+220",
+    "vNext+223",
+    "vNext+226",
+    "vNext+229",
+    "vNext+232",
+    "vNext+235"
+  ],
+  "terminal_closeout_checks_passed": true,
+  "pytest_result": {
+    "focused_repo_description_tests_passed": true,
+    "collected_count": 823,
+    "warnings_count": 188,
+    "warnings_observed": true
+  },
+  "family_closeout_schemas": {
+    "V68": "v68_family_closeout_alignment@1",
+    "V69": "v69_family_closeout_alignment@1",
+    "V70": "v70_family_closeout_alignment@1",
+    "V71": "v71_family_closeout_alignment@1",
+    "V72": "v72_family_closeout_alignment@1",
+    "V73": "v73_family_closeout_alignment@1",
+    "V74": "v74_family_closeout_alignment@1",
+    "V75": "v75_family_closeout_alignment@1",
+    "V76": "v76_family_closeout_alignment@1",
+    "V77": "v77_family_closeout_alignment@1",
+    "V78": "v78_family_closeout_alignment@1",
+    "V79": "v79_family_closeout_alignment@1",
+    "V80": "v80_family_closeout_alignment@1",
+    "V81": "v81_family_closeout_alignment@1",
+    "V82": "v82_family_closeout_alignment@1",
+    "V83": "v83_family_closeout_alignment@1"
+  },
+  "family_closeout_status": {
+    "V68": "closed_on_main",
+    "V69": "closed_on_main",
+    "V70": "candidate_review_classification_family_only",
+    "V71": "candidate_ratification_review_family_only",
+    "V72": true,
+    "V73": true,
+    "V74": true,
+    "V75": true,
+    "V76": true,
+    "V77": true,
+    "V78": true,
+    "V79": true,
+    "V80": true,
+    "V81": true,
+    "V82": true,
+    "V83": true
+  },
+  "counts": {
+    "v83_projection_packet_rows": 1,
+    "v83_implementation_spec_rows": 5,
+    "v83_projection_provenance_rows": 1,
+    "v83_spec_review_checklist_rows": 10,
+    "v83_quality_gate_rows": 1,
+    "v83_handoff_rows": 3,
+    "v83_fixture_shipped_record_shapes": 9,
+    "v83_fixture_unselected_future_surfaces": 10,
+    "v83_artifact_unselected_future_surfaces": 15
+  },
+  "projection_packet_posture": {
+    "projection_packet_ref": "projection-packet:v83c:intent-to-spec",
+    "projection_posture": "projection_packet_ready_for_review",
+    "ready_basis_posture": "ready_no_blockers",
+    "non_implementation_posture": "non_implementation_guardrail_active",
+    "carried_blocker_refs": []
+  },
+  "handoff_postures": {
+    "handoff:v83c:implementation-slice-review": {
+      "handoff_target": "future_implementation_slice_review",
+      "handoff_posture": "ready_for_later_review",
+      "work_packet_execution_posture": "no_execution_performed_by_v83",
+      "implementation_execution_posture": "no_execution_performed_by_v83",
+      "work_packet_authority_posture": "work_packet_requires_later_lock",
+      "implementation_lock_requirement": "canonical_starter_lock_required",
+      "meta_orchestrator_runtime_posture": "not_applicable"
+    },
+    "handoff:v83c:morphic-ux-projection-review": {
+      "handoff_target": "future_morphic_ux_projection_review",
+      "handoff_posture": "ready_with_nonblocking_warnings",
+      "work_packet_execution_posture": "no_execution_performed_by_v83",
+      "implementation_execution_posture": "no_execution_performed_by_v83",
+      "work_packet_authority_posture": "work_packet_requires_later_lock",
+      "implementation_lock_requirement": "canonical_starter_lock_required",
+      "meta_orchestrator_runtime_posture": "not_applicable"
+    },
+    "handoff:v83c:workflow-orchestrator-review": {
+      "handoff_target": "future_meta_orchestrator_workflow_review",
+      "handoff_posture": "ready_with_nonblocking_warnings",
+      "work_packet_execution_posture": "no_execution_performed_by_v83",
+      "implementation_execution_posture": "no_execution_performed_by_v83",
+      "work_packet_authority_posture": "work_packet_requires_later_lock",
+      "implementation_lock_requirement": "canonical_starter_lock_required",
+      "meta_orchestrator_runtime_posture": "workflow_transition_review_only"
+    }
+  },
+  "assertions": [
+    "family_closeout_artifacts_exist_through_v83",
+    "v83c_projection_packet_is_ready_for_review_only_without_implementation",
+    "v83c_projection_provenance_is_review_only_not_generated_authority",
+    "v83c_spec_review_checks_and_quality_gate_are_review_gate_evidence_not_semantic_truth",
+    "v83c_handoffs_require_later_canonical_lock_and_do_not_execute_work_packets",
+    "v83c_meta_orchestrator_morphic_ux_and_direct_oai_pressures_remain_review_only_or_unselected",
+    "v83_family_closeout_closes_without_v84_selection_or_downstream_authority"
+  ],
+  "carry_forward_findings": [
+    {
+      "finding": "V83 closes semantic implementation-spec review with source-bound intent contracts, intent source indexing, non-implementation guardrails, edge decomposition, artifact obligations, drift and ambiguity posture, projection packets, work-packet handoff posture, and family closeout alignment.",
+      "posture": "closed_family_boundary",
+      "result": "not_family_failure"
+    },
+    {
+      "finding": "V83-C carries future implementation-slice review, Morphic UX projection review, and meta-orchestrator workflow review pressure forward as later-lock review requests; it does not execute work packets, mutate runtime behavior, authorize product/release/graph surfaces, or select V84.",
+      "posture": "future_family_pressure_visible_not_selected",
+      "result": "not_family_failure"
+    }
+  ],
+  "failures": []
+}
