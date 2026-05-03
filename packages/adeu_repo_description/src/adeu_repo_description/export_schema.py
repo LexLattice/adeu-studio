@@ -208,8 +208,11 @@ from .runtime_permission_review import (
     RepoRuntimeTelemetryRequirement,
 )
 from .semantic_implementation_spec import (
+    RepoArtifactObligationMap,
+    RepoIntentEdgeDecomposition,
     RepoIntentNonImplementationGuardrail,
     RepoIntentSourceIndex,
+    RepoSemanticDriftAmbiguityRegister,
     RepoSemanticIntentContract,
 )
 
@@ -659,8 +662,8 @@ def main() -> None:
     corpus_ingestion_exception_register_schema = (
         RepoCorpusIngestionExceptionRegister.model_json_schema(by_alias=True)
     )
-    corpus_ingestion_review_summary_schema = (
-        RepoCorpusIngestionReviewSummary.model_json_schema(by_alias=True)
+    corpus_ingestion_review_summary_schema = RepoCorpusIngestionReviewSummary.model_json_schema(
+        by_alias=True
     )
     post_corpus_ingestion_review_handoff_schema = (
         RepoPostCorpusIngestionReviewHandoff.model_json_schema(by_alias=True)
@@ -672,6 +675,11 @@ def main() -> None:
     semantic_intent_contract_schema = RepoSemanticIntentContract.model_json_schema(by_alias=True)
     intent_non_implementation_guardrail_schema = (
         RepoIntentNonImplementationGuardrail.model_json_schema(by_alias=True)
+    )
+    intent_edge_decomposition_schema = RepoIntentEdgeDecomposition.model_json_schema(by_alias=True)
+    artifact_obligation_map_schema = RepoArtifactObligationMap.model_json_schema(by_alias=True)
+    semantic_drift_ambiguity_register_schema = RepoSemanticDriftAmbiguityRegister.model_json_schema(
+        by_alias=True
     )
 
     _assert_no_absolute_path_material(dependency_register_v1_schema, repo_root_path=root)
@@ -1057,6 +1065,12 @@ def main() -> None:
     _assert_no_absolute_path_material(semantic_intent_contract_schema, repo_root_path=root)
     _assert_no_absolute_path_material(
         intent_non_implementation_guardrail_schema,
+        repo_root_path=root,
+    )
+    _assert_no_absolute_path_material(intent_edge_decomposition_schema, repo_root_path=root)
+    _assert_no_absolute_path_material(artifact_obligation_map_schema, repo_root_path=root)
+    _assert_no_absolute_path_material(
+        semantic_drift_ambiguity_register_schema,
         repo_root_path=root,
     )
 
@@ -2838,6 +2852,30 @@ def main() -> None:
     _write_schema(
         root / "spec" / "repo_intent_non_implementation_guardrail.schema.json",
         intent_non_implementation_guardrail_schema,
+    )
+    _write_schema(
+        repo_description_schema_root / "repo_intent_edge_decomposition.v1.json",
+        intent_edge_decomposition_schema,
+    )
+    _write_schema(
+        root / "spec" / "repo_intent_edge_decomposition.schema.json",
+        intent_edge_decomposition_schema,
+    )
+    _write_schema(
+        repo_description_schema_root / "repo_artifact_obligation_map.v1.json",
+        artifact_obligation_map_schema,
+    )
+    _write_schema(
+        root / "spec" / "repo_artifact_obligation_map.schema.json",
+        artifact_obligation_map_schema,
+    )
+    _write_schema(
+        repo_description_schema_root / "repo_semantic_drift_ambiguity_register.v1.json",
+        semantic_drift_ambiguity_register_schema,
+    )
+    _write_schema(
+        root / "spec" / "repo_semantic_drift_ambiguity_register.schema.json",
+        semantic_drift_ambiguity_register_schema,
     )
 
 

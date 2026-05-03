@@ -1,0 +1,339 @@
+{
+  "$defs": {
+    "RepoAcceptanceEvidenceRequirementRow": {
+      "additionalProperties": false,
+      "properties": {
+        "evidence_kind": {
+          "enum": [
+            "schema",
+            "validator",
+            "positive_fixture",
+            "reject_fixture",
+            "unit_test",
+            "integration_test",
+            "documentation",
+            "semantic_review",
+            "human_review",
+            "future_family_review"
+          ],
+          "title": "Evidence Kind",
+          "type": "string"
+        },
+        "evidence_requirement_ref": {
+          "title": "Evidence Requirement Ref",
+          "type": "string"
+        },
+        "limitation_note": {
+          "title": "Limitation Note",
+          "type": "string"
+        },
+        "non_truth_guardrail": {
+          "const": "acceptance_evidence_is_not_semantic_truth",
+          "title": "Non Truth Guardrail",
+          "type": "string"
+        },
+        "required_artifact_refs": {
+          "items": {
+            "type": "string"
+          },
+          "minItems": 1,
+          "title": "Required Artifact Refs",
+          "type": "array"
+        },
+        "semantic_edge_refs": {
+          "items": {
+            "type": "string"
+          },
+          "minItems": 1,
+          "title": "Semantic Edge Refs",
+          "type": "array"
+        },
+        "validation_need_refs": {
+          "items": {
+            "type": "string"
+          },
+          "minItems": 1,
+          "title": "Validation Need Refs",
+          "type": "array"
+        }
+      },
+      "required": [
+        "evidence_requirement_ref",
+        "semantic_edge_refs",
+        "validation_need_refs",
+        "evidence_kind",
+        "required_artifact_refs",
+        "non_truth_guardrail",
+        "limitation_note"
+      ],
+      "title": "RepoAcceptanceEvidenceRequirementRow",
+      "type": "object"
+    },
+    "RepoArtifactObligationMapRow": {
+      "additionalProperties": false,
+      "properties": {
+        "artifact_obligation_rows": {
+          "items": {
+            "$ref": "#/$defs/RepoArtifactObligationRow"
+          },
+          "minItems": 1,
+          "title": "Artifact Obligation Rows",
+          "type": "array"
+        },
+        "candidate_ref": {
+          "title": "Candidate Ref",
+          "type": "string"
+        },
+        "coverage_posture": {
+          "enum": [
+            "obligations_cover_all_required_edges",
+            "obligations_cover_with_nonblocking_warnings",
+            "blocked_by_unmapped_edge",
+            "blocked_by_unknown_target_surface",
+            "blocked_by_missing_validation_need",
+            "future_family_only",
+            "rejected_out_of_scope"
+          ],
+          "title": "Coverage Posture",
+          "type": "string"
+        },
+        "edge_decomposition_refs": {
+          "items": {
+            "type": "string"
+          },
+          "minItems": 1,
+          "title": "Edge Decomposition Refs",
+          "type": "array"
+        },
+        "guardrail_refs": {
+          "items": {
+            "type": "string"
+          },
+          "minItems": 1,
+          "title": "Guardrail Refs",
+          "type": "array"
+        },
+        "implementation_readiness_posture": {
+          "enum": [
+            "not_ready_requires_projection_packet",
+            "ready_for_projection_review_only",
+            "blocked_by_semantic_drift",
+            "blocked_by_ambiguity",
+            "blocked_by_authority_gap",
+            "future_family_only"
+          ],
+          "title": "Implementation Readiness Posture",
+          "type": "string"
+        },
+        "intent_contract_refs": {
+          "items": {
+            "type": "string"
+          },
+          "minItems": 1,
+          "title": "Intent Contract Refs",
+          "type": "array"
+        },
+        "limitation_note": {
+          "title": "Limitation Note",
+          "type": "string"
+        },
+        "obligation_map_ref": {
+          "title": "Obligation Map Ref",
+          "type": "string"
+        },
+        "source_refs": {
+          "items": {
+            "type": "string"
+          },
+          "minItems": 1,
+          "title": "Source Refs",
+          "type": "array"
+        }
+      },
+      "required": [
+        "obligation_map_ref",
+        "intent_contract_refs",
+        "edge_decomposition_refs",
+        "candidate_ref",
+        "source_refs",
+        "artifact_obligation_rows",
+        "coverage_posture",
+        "implementation_readiness_posture",
+        "guardrail_refs",
+        "limitation_note"
+      ],
+      "title": "RepoArtifactObligationMapRow",
+      "type": "object"
+    },
+    "RepoArtifactObligationRow": {
+      "additionalProperties": false,
+      "properties": {
+        "acceptance_evidence_requirements": {
+          "items": {
+            "$ref": "#/$defs/RepoAcceptanceEvidenceRequirementRow"
+          },
+          "minItems": 1,
+          "title": "Acceptance Evidence Requirements",
+          "type": "array"
+        },
+        "artifact_kind": {
+          "enum": [
+            "code_module",
+            "schema",
+            "mirror_schema",
+            "fixture",
+            "reject_fixture",
+            "test",
+            "documentation",
+            "support_artifact",
+            "ux_projection_artifact",
+            "provider_profile_artifact",
+            "workflow_contract_artifact",
+            "future_family_artifact"
+          ],
+          "title": "Artifact Kind",
+          "type": "string"
+        },
+        "artifact_obligation_ref": {
+          "title": "Artifact Obligation Ref",
+          "type": "string"
+        },
+        "limitation_note": {
+          "title": "Limitation Note",
+          "type": "string"
+        },
+        "non_implementation_posture": {
+          "const": "non_implementation_guardrail_active",
+          "title": "Non Implementation Posture",
+          "type": "string"
+        },
+        "required_change_posture": {
+          "enum": [
+            "change_required_for_later_implementation_spec",
+            "review_obligation_only_no_change",
+            "future_family_only",
+            "blocked_by_non_goal",
+            "blocked_by_authority_gap"
+          ],
+          "title": "Required Change Posture",
+          "type": "string"
+        },
+        "required_doc_posture": {
+          "enum": [
+            "required_for_review",
+            "not_applicable",
+            "requires_later_review"
+          ],
+          "title": "Required Doc Posture",
+          "type": "string"
+        },
+        "required_fixture_posture": {
+          "enum": [
+            "required_for_review",
+            "not_applicable",
+            "requires_later_review"
+          ],
+          "title": "Required Fixture Posture",
+          "type": "string"
+        },
+        "required_test_posture": {
+          "enum": [
+            "required_for_review",
+            "not_applicable",
+            "requires_later_review"
+          ],
+          "title": "Required Test Posture",
+          "type": "string"
+        },
+        "semantic_edge_refs": {
+          "items": {
+            "type": "string"
+          },
+          "minItems": 1,
+          "title": "Semantic Edge Refs",
+          "type": "array"
+        },
+        "target_surface_refs": {
+          "items": {
+            "type": "string"
+          },
+          "minItems": 1,
+          "title": "Target Surface Refs",
+          "type": "array"
+        }
+      },
+      "required": [
+        "artifact_obligation_ref",
+        "semantic_edge_refs",
+        "artifact_kind",
+        "target_surface_refs",
+        "required_change_posture",
+        "required_fixture_posture",
+        "required_test_posture",
+        "required_doc_posture",
+        "acceptance_evidence_requirements",
+        "non_implementation_posture",
+        "limitation_note"
+      ],
+      "title": "RepoArtifactObligationRow",
+      "type": "object"
+    }
+  },
+  "additionalProperties": false,
+  "properties": {
+    "artifact_obligation_map_id": {
+      "title": "Artifact Obligation Map Id",
+      "type": "string"
+    },
+    "intent_edge_decomposition_id": {
+      "title": "Intent Edge Decomposition Id",
+      "type": "string"
+    },
+    "obligation_map_rows": {
+      "items": {
+        "$ref": "#/$defs/RepoArtifactObligationMapRow"
+      },
+      "minItems": 1,
+      "title": "Obligation Map Rows",
+      "type": "array"
+    },
+    "obligation_map_summary": {
+      "title": "Obligation Map Summary",
+      "type": "string"
+    },
+    "review_id": {
+      "title": "Review Id",
+      "type": "string"
+    },
+    "schema": {
+      "const": "repo_artifact_obligation_map@1",
+      "default": "repo_artifact_obligation_map@1",
+      "title": "Schema",
+      "type": "string"
+    },
+    "semantic_intent_contract_id": {
+      "title": "Semantic Intent Contract Id",
+      "type": "string"
+    },
+    "snapshot_id": {
+      "title": "Snapshot Id",
+      "type": "string"
+    },
+    "source_set_id": {
+      "title": "Source Set Id",
+      "type": "string"
+    }
+  },
+  "required": [
+    "artifact_obligation_map_id",
+    "intent_edge_decomposition_id",
+    "semantic_intent_contract_id",
+    "review_id",
+    "snapshot_id",
+    "source_set_id",
+    "obligation_map_rows",
+    "obligation_map_summary"
+  ],
+  "title": "RepoArtifactObligationMap",
+  "type": "object"
+}

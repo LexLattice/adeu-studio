@@ -129,9 +129,10 @@ def test_v104_optimization_register_id_is_deterministic() -> None:
     payload = _load_v104("repo_optimization_register_v104_reference.json")
     without_id = deepcopy(payload)
     without_id.pop("repo_optimization_register_id")
-    assert compute_repo_optimization_register_id(without_id) == payload[
-        "repo_optimization_register_id"
-    ]
+    assert (
+        compute_repo_optimization_register_id(without_id)
+        == payload["repo_optimization_register_id"]
+    )
 
 
 def test_v104_exported_schema_accepts_reference_fixture() -> None:
@@ -187,9 +188,9 @@ def test_v45e_current_baseline_rejects_unresolved_finding_scope() -> None:
         bound_arc_dependency_register_payload=bound_arc_dependency_register,
     )
     mutated_register = deepcopy(derived_register)
-    mutated_register["optimization_entries"][0]["finding_scope"]["finding_scope_ref"] = (
-        "packages/not_in_bound_scope.py"
-    )
+    mutated_register["optimization_entries"][0]["finding_scope"]["cluster_member_refs"][0][
+        "member_ref"
+    ] = "packages/not_in_bound_scope.py"
     mutated_register["optimization_entries"][0]["entry_id"] = compute_repo_optimization_entry_id(
         {
             key: value

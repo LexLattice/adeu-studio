@@ -1,0 +1,208 @@
+{
+  "artifact_obligation_map_id": "repo_artifact_obligation_map_9ca119540983a0b2030084de",
+  "intent_edge_decomposition_id": "repo_intent_edge_decomposition_13e45c00a5f1a5d9a2d8657b",
+  "obligation_map_rows": [
+    {
+      "artifact_obligation_rows": [
+        {
+          "acceptance_evidence_requirements": [
+            {
+              "evidence_kind": "positive_fixture",
+              "evidence_requirement_ref": "evidence-requirement:v83b:fixtures",
+              "limitation_note": "Fixture evidence is edge-bound and not semantic truth.",
+              "non_truth_guardrail": "acceptance_evidence_is_not_semantic_truth",
+              "required_artifact_refs": [
+                "apps/api/fixtures/repo_description/vnext_plus234/repo_intent_edge_decomposition_v234_reference.json"
+              ],
+              "semantic_edge_refs": [
+                "semantic-relation:v83b:validation:edge-bound"
+              ],
+              "validation_need_refs": [
+                "validation-need:v83b:validator-behavior"
+              ]
+            }
+          ],
+          "artifact_kind": "code_module",
+          "artifact_obligation_ref": "artifact-obligation:v83b:fixtures",
+          "limitation_note": "Fixture obligation is review-only with no implementation.",
+          "non_implementation_posture": "non_implementation_guardrail_active",
+          "required_change_posture": "change_required_for_later_implementation_spec",
+          "required_doc_posture": "not_applicable",
+          "required_fixture_posture": "required_for_review",
+          "required_test_posture": "required_for_review",
+          "semantic_edge_refs": [
+            "semantic-relation:v83b:authority:later-lock"
+          ],
+          "target_surface_refs": [
+            "packages/adeu_repo_description/src/adeu_repo_description/semantic_implementation_spec.py"
+          ]
+        },
+        {
+          "acceptance_evidence_requirements": [
+            {
+              "evidence_kind": "schema",
+              "evidence_requirement_ref": "evidence-requirement:v83b:schema:artifact-obligation-map",
+              "limitation_note": "Schema evidence is review-only and not semantic truth.",
+              "non_truth_guardrail": "acceptance_evidence_is_not_semantic_truth",
+              "required_artifact_refs": [
+                "packages/adeu_repo_description/schema/repo_artifact_obligation_map.v1.json"
+              ],
+              "semantic_edge_refs": [
+                "semantic-relation:v83b:validation:edge-bound"
+              ],
+              "validation_need_refs": [
+                "validation-need:v83b:validator-behavior"
+              ]
+            }
+          ],
+          "artifact_kind": "schema",
+          "artifact_obligation_ref": "artifact-obligation:v83b:schema:artifact-obligation-map",
+          "limitation_note": "Schema obligation is review-only with no implementation.",
+          "non_implementation_posture": "non_implementation_guardrail_active",
+          "required_change_posture": "change_required_for_later_implementation_spec",
+          "required_doc_posture": "required_for_review",
+          "required_fixture_posture": "required_for_review",
+          "required_test_posture": "required_for_review",
+          "semantic_edge_refs": [
+            "semantic-relation:v83b:realizes:intent"
+          ],
+          "target_surface_refs": [
+            "packages/adeu_repo_description/schema/repo_artifact_obligation_map.v1.json"
+          ]
+        },
+        {
+          "acceptance_evidence_requirements": [
+            {
+              "evidence_kind": "schema",
+              "evidence_requirement_ref": "evidence-requirement:v83b:schema:drift-register",
+              "limitation_note": "Drift schema evidence is not semantic truth.",
+              "non_truth_guardrail": "acceptance_evidence_is_not_semantic_truth",
+              "required_artifact_refs": [
+                "packages/adeu_repo_description/schema/repo_semantic_drift_ambiguity_register.v1.json"
+              ],
+              "semantic_edge_refs": [
+                "semantic-relation:v83b:validation:edge-bound"
+              ],
+              "validation_need_refs": [
+                "validation-need:v83b:validator-behavior"
+              ]
+            }
+          ],
+          "artifact_kind": "schema",
+          "artifact_obligation_ref": "artifact-obligation:v83b:schema:drift-register",
+          "limitation_note": "Drift schema obligation is review-only; no implementation.",
+          "non_implementation_posture": "non_implementation_guardrail_active",
+          "required_change_posture": "change_required_for_later_implementation_spec",
+          "required_doc_posture": "required_for_review",
+          "required_fixture_posture": "required_for_review",
+          "required_test_posture": "required_for_review",
+          "semantic_edge_refs": [
+            "semantic-relation:v83b:validation:edge-bound"
+          ],
+          "target_surface_refs": [
+            "packages/adeu_repo_description/schema/repo_semantic_drift_ambiguity_register.v1.json"
+          ]
+        },
+        {
+          "acceptance_evidence_requirements": [
+            {
+              "evidence_kind": "schema",
+              "evidence_requirement_ref": "evidence-requirement:v83b:schema:edge-decomposition",
+              "limitation_note": "Edge schema evidence is not semantic truth.",
+              "non_truth_guardrail": "acceptance_evidence_is_not_semantic_truth",
+              "required_artifact_refs": [
+                "packages/adeu_repo_description/schema/repo_intent_edge_decomposition.v1.json"
+              ],
+              "semantic_edge_refs": [
+                "semantic-relation:v83b:validation:edge-bound"
+              ],
+              "validation_need_refs": [
+                "validation-need:v83b:validator-behavior"
+              ]
+            }
+          ],
+          "artifact_kind": "schema",
+          "artifact_obligation_ref": "artifact-obligation:v83b:schema:edge-decomposition",
+          "limitation_note": "Edge schema obligation is review-only; no implementation.",
+          "non_implementation_posture": "non_implementation_guardrail_active",
+          "required_change_posture": "change_required_for_later_implementation_spec",
+          "required_doc_posture": "required_for_review",
+          "required_fixture_posture": "required_for_review",
+          "required_test_posture": "required_for_review",
+          "semantic_edge_refs": [
+            "semantic-relation:v83b:realizes:intent"
+          ],
+          "target_surface_refs": [
+            "packages/adeu_repo_description/schema/repo_intent_edge_decomposition.v1.json"
+          ]
+        },
+        {
+          "acceptance_evidence_requirements": [
+            {
+              "evidence_kind": "unit_test",
+              "evidence_requirement_ref": "evidence-requirement:v83b:tests",
+              "limitation_note": "Test evidence is edge-bound and not semantic truth.",
+              "non_truth_guardrail": "acceptance_evidence_is_not_semantic_truth",
+              "required_artifact_refs": [
+                "packages/adeu_repo_description/tests/test_semantic_implementation_spec_v83b.py"
+              ],
+              "semantic_edge_refs": [
+                "semantic-relation:v83b:acceptance:evidence-bound",
+                "semantic-relation:v83b:provider:not-authority"
+              ],
+              "validation_need_refs": [
+                "validation-need:v83b:reject-fixture",
+                "validation-need:v83b:validator-behavior"
+              ]
+            }
+          ],
+          "artifact_kind": "test",
+          "artifact_obligation_ref": "artifact-obligation:v83b:tests",
+          "limitation_note": "Test obligation is review-only with no implementation.",
+          "non_implementation_posture": "non_implementation_guardrail_active",
+          "required_change_posture": "change_required_for_later_implementation_spec",
+          "required_doc_posture": "not_applicable",
+          "required_fixture_posture": "required_for_review",
+          "required_test_posture": "required_for_review",
+          "semantic_edge_refs": [
+            "semantic-relation:v83b:acceptance:evidence-bound",
+            "semantic-relation:v83b:provider:not-authority"
+          ],
+          "target_surface_refs": [
+            "packages/adeu_repo_description/tests/test_semantic_implementation_spec_v83b.py"
+          ]
+        }
+      ],
+      "candidate_ref": "candidate:internal:intent_to_implementation_spec_institution",
+      "coverage_posture": "obligations_cover_with_nonblocking_warnings",
+      "edge_decomposition_refs": [
+        "edge-decomposition:v83b:intent-to-spec"
+      ],
+      "guardrail_refs": [
+        "guardrail:v83a:direct-harness:import-gap",
+        "guardrail:v83a:general-artifact:future-family",
+        "guardrail:v83a:intent-to-spec:non-implementation"
+      ],
+      "implementation_readiness_posture": "ready_for_projection_review_only",
+      "intent_contract_refs": [
+        "semantic-intent:v83a:intent-to-implementation-spec"
+      ],
+      "limitation_note": "Artifact obligations cover semantic edges for projection review only; no implementation.",
+      "obligation_map_ref": "obligation-map:v83b:intent-to-spec",
+      "source_refs": [
+        "apps/api/fixtures/repo_description/vnext_plus232/repo_corpus_ingestion_review_family_closeout_alignment_v232_reference.json",
+        "apps/api/fixtures/repo_description/vnext_plus232/repo_corpus_ingestion_review_summary_v232_reference.json",
+        "apps/api/fixtures/repo_description/vnext_plus232/repo_post_corpus_ingestion_review_handoff_v232_reference.json",
+        "docs/DRAFT_NEXT_ARC_OPTIONS_v73.md",
+        "intent:v83a:authority-boundary:later-lock-required",
+        "intent:v83a:non-goal:no-implementation"
+      ]
+    }
+  ],
+  "obligation_map_summary": "V83-B artifact obligation map binds artifact obligations to semantic edges with no implementation.",
+  "review_id": "review:v83a:semantic-implementation-spec",
+  "schema": "repo_artifact_obligation_map@1",
+  "semantic_intent_contract_id": "repo_semantic_intent_contract_5e31241d28b4241b9e1268df",
+  "snapshot_id": "vNext+233-semantic-intent-contract-closeout",
+  "source_set_id": "source-set:v83a:semantic-implementation-spec-intent"
+}

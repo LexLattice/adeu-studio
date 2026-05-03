@@ -1,0 +1,263 @@
+{
+  "$defs": {
+    "RepoSemanticDriftAmbiguityRegisterRow": {
+      "additionalProperties": false,
+      "properties": {
+        "blocking_posture": {
+          "enum": [
+            "no_blockers",
+            "warnings_only",
+            "blocking_drift_visible",
+            "future_family_only"
+          ],
+          "title": "Blocking Posture",
+          "type": "string"
+        },
+        "candidate_ref": {
+          "title": "Candidate Ref",
+          "type": "string"
+        },
+        "drift_or_ambiguity_rows": {
+          "items": {
+            "$ref": "#/$defs/RepoSemanticDriftAmbiguityRow"
+          },
+          "minItems": 1,
+          "title": "Drift Or Ambiguity Rows",
+          "type": "array"
+        },
+        "drift_register_ref": {
+          "title": "Drift Register Ref",
+          "type": "string"
+        },
+        "edge_decomposition_refs": {
+          "items": {
+            "type": "string"
+          },
+          "minItems": 1,
+          "title": "Edge Decomposition Refs",
+          "type": "array"
+        },
+        "guardrail_refs": {
+          "items": {
+            "type": "string"
+          },
+          "minItems": 1,
+          "title": "Guardrail Refs",
+          "type": "array"
+        },
+        "intent_contract_refs": {
+          "items": {
+            "type": "string"
+          },
+          "minItems": 1,
+          "title": "Intent Contract Refs",
+          "type": "array"
+        },
+        "limitation_note": {
+          "title": "Limitation Note",
+          "type": "string"
+        },
+        "obligation_map_refs": {
+          "items": {
+            "type": "string"
+          },
+          "minItems": 1,
+          "title": "Obligation Map Refs",
+          "type": "array"
+        },
+        "required_next_surface": {
+          "enum": [
+            "v83b_review_only",
+            "v83c_projection_packet_review",
+            "future_family_review",
+            "blocked_until_source_added"
+          ],
+          "title": "Required Next Surface",
+          "type": "string"
+        },
+        "source_refs": {
+          "items": {
+            "type": "string"
+          },
+          "minItems": 1,
+          "title": "Source Refs",
+          "type": "array"
+        }
+      },
+      "required": [
+        "drift_register_ref",
+        "intent_contract_refs",
+        "edge_decomposition_refs",
+        "obligation_map_refs",
+        "candidate_ref",
+        "source_refs",
+        "drift_or_ambiguity_rows",
+        "blocking_posture",
+        "required_next_surface",
+        "guardrail_refs",
+        "limitation_note"
+      ],
+      "title": "RepoSemanticDriftAmbiguityRegisterRow",
+      "type": "object"
+    },
+    "RepoSemanticDriftAmbiguityRow": {
+      "additionalProperties": false,
+      "properties": {
+        "artifact_obligation_refs": {
+          "items": {
+            "type": "string"
+          },
+          "title": "Artifact Obligation Refs",
+          "type": "array"
+        },
+        "blocking_posture": {
+          "enum": [
+            "blocking",
+            "warning_only",
+            "carried_for_later_review",
+            "not_applicable"
+          ],
+          "title": "Blocking Posture",
+          "type": "string"
+        },
+        "drift_kind": {
+          "enum": [
+            "missing_source",
+            "ambiguous_intent",
+            "ambiguous_artifact_horizon",
+            "semantic_edge_unmapped",
+            "implementation_target_overbroad",
+            "implementation_target_underbroad",
+            "non_goal_laundering",
+            "authority_boundary_laundering",
+            "test_coverage_mismatch",
+            "fixture_coverage_mismatch",
+            "morphic_ux_scope_drift",
+            "direct_oai_runtime_scope_drift",
+            "workflow_orchestrator_authority_drift",
+            "future_family_pressure_unclassified"
+          ],
+          "title": "Drift Kind",
+          "type": "string"
+        },
+        "drift_ref": {
+          "title": "Drift Ref",
+          "type": "string"
+        },
+        "limitation_note": {
+          "title": "Limitation Note",
+          "type": "string"
+        },
+        "required_resolution_horizon": {
+          "enum": [
+            "source_binding_review",
+            "semantic_review",
+            "artifact_obligation_review",
+            "authority_boundary_review",
+            "projection_packet_review",
+            "future_family_review"
+          ],
+          "title": "Required Resolution Horizon",
+          "type": "string"
+        },
+        "semantic_edge_refs": {
+          "items": {
+            "type": "string"
+          },
+          "title": "Semantic Edge Refs",
+          "type": "array"
+        },
+        "severity_posture": {
+          "enum": [
+            "blocking",
+            "warning",
+            "informational"
+          ],
+          "title": "Severity Posture",
+          "type": "string"
+        },
+        "source_refs": {
+          "items": {
+            "type": "string"
+          },
+          "minItems": 1,
+          "title": "Source Refs",
+          "type": "array"
+        }
+      },
+      "required": [
+        "drift_ref",
+        "drift_kind",
+        "source_refs",
+        "severity_posture",
+        "blocking_posture",
+        "required_resolution_horizon",
+        "limitation_note"
+      ],
+      "title": "RepoSemanticDriftAmbiguityRow",
+      "type": "object"
+    }
+  },
+  "additionalProperties": false,
+  "properties": {
+    "artifact_obligation_map_id": {
+      "title": "Artifact Obligation Map Id",
+      "type": "string"
+    },
+    "drift_register_rows": {
+      "items": {
+        "$ref": "#/$defs/RepoSemanticDriftAmbiguityRegisterRow"
+      },
+      "minItems": 1,
+      "title": "Drift Register Rows",
+      "type": "array"
+    },
+    "drift_register_summary": {
+      "title": "Drift Register Summary",
+      "type": "string"
+    },
+    "intent_edge_decomposition_id": {
+      "title": "Intent Edge Decomposition Id",
+      "type": "string"
+    },
+    "review_id": {
+      "title": "Review Id",
+      "type": "string"
+    },
+    "schema": {
+      "const": "repo_semantic_drift_ambiguity_register@1",
+      "default": "repo_semantic_drift_ambiguity_register@1",
+      "title": "Schema",
+      "type": "string"
+    },
+    "semantic_drift_ambiguity_register_id": {
+      "title": "Semantic Drift Ambiguity Register Id",
+      "type": "string"
+    },
+    "semantic_intent_contract_id": {
+      "title": "Semantic Intent Contract Id",
+      "type": "string"
+    },
+    "snapshot_id": {
+      "title": "Snapshot Id",
+      "type": "string"
+    },
+    "source_set_id": {
+      "title": "Source Set Id",
+      "type": "string"
+    }
+  },
+  "required": [
+    "semantic_drift_ambiguity_register_id",
+    "artifact_obligation_map_id",
+    "intent_edge_decomposition_id",
+    "semantic_intent_contract_id",
+    "review_id",
+    "snapshot_id",
+    "source_set_id",
+    "drift_register_rows",
+    "drift_register_summary"
+  ],
+  "title": "RepoSemanticDriftAmbiguityRegister",
+  "type": "object"
+}

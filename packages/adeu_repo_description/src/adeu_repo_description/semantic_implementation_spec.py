@@ -24,9 +24,10 @@ from .recursive_candidate_intake import (
 
 REPO_SEMANTIC_INTENT_CONTRACT_SCHEMA = "repo_semantic_intent_contract@1"
 REPO_INTENT_SOURCE_INDEX_SCHEMA = "repo_intent_source_index@1"
-REPO_INTENT_NON_IMPLEMENTATION_GUARDRAIL_SCHEMA = (
-    "repo_intent_non_implementation_guardrail@1"
-)
+REPO_INTENT_NON_IMPLEMENTATION_GUARDRAIL_SCHEMA = "repo_intent_non_implementation_guardrail@1"
+REPO_INTENT_EDGE_DECOMPOSITION_SCHEMA = "repo_intent_edge_decomposition@1"
+REPO_ARTIFACT_OBLIGATION_MAP_SCHEMA = "repo_artifact_obligation_map@1"
+REPO_SEMANTIC_DRIFT_AMBIGUITY_REGISTER_SCHEMA = "repo_semantic_drift_ambiguity_register@1"
 
 IntentSourceRole = Literal[
     "v82_closeout_source",
@@ -209,6 +210,202 @@ NonImplementationPosture = Literal["non_implementation_guardrail_active"]
 NonExecutionPosture = Literal["non_execution_guardrail_active"]
 NonDispatchPosture = Literal["non_dispatch_guardrail_active"]
 NonReleasePosture = Literal["non_release_guardrail_active"]
+SemanticObjectKind = Literal[
+    "domain_object",
+    "repo_module",
+    "schema_surface",
+    "fixture_surface",
+    "test_surface",
+    "doc_surface",
+    "ux_surface",
+    "workflow_surface",
+    "provider_capability_surface",
+    "authority_boundary",
+    "non_goal",
+    "future_family_surface",
+]
+SemanticTruthPosture = Literal[
+    "not_truth_claim",
+    "source_bound_claim_for_review",
+    "candidate_only",
+]
+SemanticMutabilityPosture = Literal[
+    "review_object_only",
+    "target_requires_later_lock",
+    "immutable_boundary",
+]
+SemanticAuthorityPosture = Literal[
+    "no_authority_granted",
+    "authority_boundary_only",
+    "candidate_only_no_authority",
+    "requires_later_lock",
+]
+SemanticRelationKind = Literal[
+    "requires",
+    "constrains",
+    "forbids",
+    "preserves",
+    "realizes",
+    "refines",
+    "conflicts_with",
+    "disambiguates",
+    "supersedes",
+    "non_goal_of",
+    "authority_requires",
+    "validation_requires",
+    "acceptance_requires",
+    "derives_from",
+    "must_remain_distinct_from",
+    "hands_off_to",
+    "validates",
+    "blocks",
+    "future_family_only",
+]
+PreservationRequirement = Literal[
+    "preserve_semantic_relation_for_review",
+    "preserve_as_non_goal",
+    "preserve_as_authority_boundary",
+    "preserve_as_validation_need",
+    "preserve_as_future_family_only",
+]
+ValidationKind = Literal[
+    "schema_validation",
+    "validator_behavior",
+    "positive_fixture",
+    "reject_fixture",
+    "unit_test",
+    "integration_test",
+    "documentation_review",
+    "semantic_review",
+    "human_review",
+    "tool_run_review",
+    "future_family_review",
+]
+RequiredEvidenceKind = Literal[
+    "schema",
+    "validator",
+    "positive_fixture",
+    "reject_fixture",
+    "unit_test",
+    "integration_test",
+    "documentation",
+    "semantic_review",
+    "human_review",
+    "future_family_review",
+]
+FixturePosture = Literal[
+    "required",
+    "not_required",
+    "requires_later_review",
+]
+ToolApplicabilityPosture = Literal[
+    "not_applicable",
+    "review_only",
+    "requires_later_tool_permission",
+]
+AcceptanceNotTruthGuardrail = Literal["acceptance_evidence_is_not_semantic_truth"]
+IntentEdgeDecompositionPosture = Literal[
+    "edges_decomposed_for_review",
+    "blocked_by_missing_intent_contract",
+    "blocked_by_missing_source",
+    "blocked_by_ambiguous_relation",
+    "blocked_by_authority_gap",
+    "future_family_only",
+    "rejected_out_of_scope",
+]
+SemanticClosureReviewPosture = Literal[
+    "closure_not_claimed",
+    "edge_review_candidate_only",
+    "blocked_by_missing_edge",
+    "blocked_by_missing_validation_need",
+    "future_family_only",
+]
+ArtifactKind = Literal[
+    "code_module",
+    "schema",
+    "mirror_schema",
+    "fixture",
+    "reject_fixture",
+    "test",
+    "documentation",
+    "support_artifact",
+    "ux_projection_artifact",
+    "provider_profile_artifact",
+    "workflow_contract_artifact",
+    "future_family_artifact",
+]
+RequiredChangePosture = Literal[
+    "change_required_for_later_implementation_spec",
+    "review_obligation_only_no_change",
+    "future_family_only",
+    "blocked_by_non_goal",
+    "blocked_by_authority_gap",
+]
+RequiredArtifactPosture = Literal[
+    "required_for_review",
+    "not_applicable",
+    "requires_later_review",
+]
+CoveragePosture = Literal[
+    "obligations_cover_all_required_edges",
+    "obligations_cover_with_nonblocking_warnings",
+    "blocked_by_unmapped_edge",
+    "blocked_by_unknown_target_surface",
+    "blocked_by_missing_validation_need",
+    "future_family_only",
+    "rejected_out_of_scope",
+]
+ImplementationReadinessPosture = Literal[
+    "not_ready_requires_projection_packet",
+    "ready_for_projection_review_only",
+    "blocked_by_semantic_drift",
+    "blocked_by_ambiguity",
+    "blocked_by_authority_gap",
+    "future_family_only",
+]
+DriftKind = Literal[
+    "missing_source",
+    "ambiguous_intent",
+    "ambiguous_artifact_horizon",
+    "semantic_edge_unmapped",
+    "implementation_target_overbroad",
+    "implementation_target_underbroad",
+    "non_goal_laundering",
+    "authority_boundary_laundering",
+    "test_coverage_mismatch",
+    "fixture_coverage_mismatch",
+    "morphic_ux_scope_drift",
+    "direct_oai_runtime_scope_drift",
+    "workflow_orchestrator_authority_drift",
+    "future_family_pressure_unclassified",
+]
+DriftSeverityPosture = Literal["blocking", "warning", "informational"]
+DriftBlockingPosture = Literal[
+    "blocking",
+    "warning_only",
+    "carried_for_later_review",
+    "not_applicable",
+]
+DriftRegisterBlockingPosture = Literal[
+    "no_blockers",
+    "warnings_only",
+    "blocking_drift_visible",
+    "future_family_only",
+]
+RequiredResolutionHorizon = Literal[
+    "source_binding_review",
+    "semantic_review",
+    "artifact_obligation_review",
+    "authority_boundary_review",
+    "projection_packet_review",
+    "future_family_review",
+]
+DriftRequiredNextSurface = Literal[
+    "v83b_review_only",
+    "v83c_projection_packet_review",
+    "future_family_review",
+    "blocked_until_source_added",
+]
 
 _V82_ELIGIBILITY_SOURCE_ROLES = {
     "v82_summary_source",
@@ -260,6 +457,14 @@ _FORBIDDEN_DOWNSTREAM_AUTHORITIES = {
     "graph_memory_authority",
     "recursive_policy_amendment",
     "v84_selection",
+}
+_BROAD_ARTIFACT_TARGETS = {
+    ".",
+    "packages",
+    "packages/adeu_repo_description",
+    "packages/adeu_repo_description/src",
+    "apps",
+    "docs",
 }
 
 
@@ -317,6 +522,44 @@ def _reject_v83_action_claim(value: str, *, field_name: str) -> str:
     return value
 
 
+def _reject_v83b_projection_or_runtime_claim(value: str, *, field_name: str) -> str:
+    _reject_v83_action_claim(value, field_name=field_name)
+    lowered = value.lower()
+    forbidden_patterns = [
+        r"\bprojection packet (?:created|ready|complete|authoritative)\b",
+        r"\bwork[- ]packet handoff (?:created|ready|authorized)\b",
+        r"\bsemantic truth\b",
+        r"\btests? prove(?:s|d)? semantic preservation\b",
+        r"\bmorphic ux runtime\b",
+        r"\bruntime composer\b",
+        r"\bdirect oai runtime\b",
+        r"\bprovider capability authority\b",
+        r"\bprovider runtime authority\b",
+        r"\bv83-c (?:selected|complete|implemented)\b",
+        r"\bv84 (?:selected|selection)\b",
+    ]
+    for pattern in forbidden_patterns:
+        match = re.search(pattern, lowered)
+        if match is None:
+            continue
+        prefix = lowered[max(0, match.start() - 24) : match.start()]
+        suffix = lowered[match.end() : min(len(lowered), match.end() + 24)]
+        negated = bool(
+            re.search(r"(?:\bno\b|\bnot\b|\bwithout\b|\bmust not\b|\bno[- ])\W*$", prefix)
+            or re.match(r"^\W*(?:forbidden|not authorized|not permitted)\b", suffix)
+        )
+        if not negated:
+            raise ValueError(f"{field_name} may not carry V83-B downstream authority")
+    return value
+
+
+def _validate_repo_refs(values: list[str], *, field_name: str) -> list[str]:
+    normalized = _sorted_unique(values, field_name=field_name)
+    for value in normalized:
+        _repo_ref(value, field_name=field_name)
+    return normalized
+
+
 class RepoIntentSourceRow(_CartographyBase):
     source_ref: str
     source_kind: CandidateSourceKind
@@ -348,10 +591,7 @@ class RepoIntentSourceRow(_CartographyBase):
             and self.source_presence_posture == "present"
         ):
             raise ValueError("absence intent source rows must not be present sources")
-        if (
-            self.intent_source_role in _SUPPORT_ONLY_SOURCE_ROLES
-            and self.authority_layer == "lock"
-        ):
+        if self.intent_source_role in _SUPPORT_ONLY_SOURCE_ROLES and self.authority_layer == "lock":
             raise ValueError("support context source rows may not be lock authority")
         if (
             self.intent_source_role in _GENERATED_SOURCE_ROLES
@@ -553,9 +793,7 @@ class RepoIntentNonImplementationGuardrailRow(_CartographyBase):
     intent_contract_refs: list[str] = Field(min_length=1)
     forbidden_implementation_actions: list[ForbiddenImplementationAction] = Field(min_length=1)
     forbidden_runtime_actions: list[ForbiddenRuntimeAction] = Field(min_length=1)
-    forbidden_downstream_authority: list[ForbiddenSemanticDownstreamAuthority] = Field(
-        min_length=1
-    )
+    forbidden_downstream_authority: list[ForbiddenSemanticDownstreamAuthority] = Field(min_length=1)
     required_later_authority_refs: list[str] = Field(default_factory=list)
     non_implementation_posture: NonImplementationPosture
     non_execution_posture: NonExecutionPosture
@@ -643,15 +881,11 @@ class RepoIntentNonImplementationGuardrail(_CartographyBase):
             "intent_non_implementation_guardrail_id",
         )
         if self.intent_non_implementation_guardrail_id != expected_id:
-            raise ValueError(
-                "intent_non_implementation_guardrail_id does not match canonical hash"
-            )
+            raise ValueError("intent_non_implementation_guardrail_id does not match canonical hash")
         return self
 
 
-def derive_v83a_repo_intent_source_index(
-    *, repo_root: Path | None = None
-) -> RepoIntentSourceIndex:
+def derive_v83a_repo_intent_source_index(*, repo_root: Path | None = None) -> RepoIntentSourceIndex:
     _ = repo_root
     payload = {
         "schema": REPO_INTENT_SOURCE_INDEX_SCHEMA,
@@ -1169,8 +1403,7 @@ def validate_v83a_semantic_implementation_spec_bundle(
         row.source_ref: row.generation_posture for row in intent_source_index.source_rows
     }
     model_authority_postures = {
-        row.source_ref: row.model_agent_authority_posture
-        for row in intent_source_index.source_rows
+        row.source_ref: row.model_agent_authority_posture for row in intent_source_index.source_rows
     }
     known_sources = set(source_roles)
     guardrails = {
@@ -1242,3 +1475,1488 @@ def derive_v83a_semantic_implementation_spec_bundle(
         intent_non_implementation_guardrail=guardrail,
     )
     return source_index, contract, guardrail
+
+
+class RepoSemanticObjectRow(_CartographyBase):
+    semantic_object_ref: str
+    object_kind: SemanticObjectKind
+    object_label: str
+    source_refs: list[str] = Field(min_length=1)
+    anticipated_artifact_kind_refs: list[str] = Field(default_factory=list)
+    truth_posture: SemanticTruthPosture
+    mutability_posture: SemanticMutabilityPosture
+    authority_posture: SemanticAuthorityPosture
+    limitation_note: str
+
+    @model_validator(mode="after")
+    def _validate_semantic_object(self) -> RepoSemanticObjectRow:
+        _repo_ref(self.semantic_object_ref, field_name="semantic_object_ref")
+        _non_empty(self.object_label, field_name="object_label")
+        object.__setattr__(
+            self,
+            "source_refs",
+            _validate_repo_refs(self.source_refs, field_name="source_refs"),
+        )
+        object.__setattr__(
+            self,
+            "anticipated_artifact_kind_refs",
+            _sorted_unique(
+                self.anticipated_artifact_kind_refs,
+                field_name="anticipated_artifact_kind_refs",
+            ),
+        )
+        if self.object_kind in {"non_goal", "authority_boundary"}:
+            if self.authority_posture not in {
+                "authority_boundary_only",
+                "no_authority_granted",
+            }:
+                raise ValueError("boundary semantic objects may not grant authority")
+        _reject_v83b_projection_or_runtime_claim(self.limitation_note, field_name="limitation_note")
+        return self
+
+
+class RepoSemanticRelationRow(_CartographyBase):
+    semantic_relation_ref: str
+    relation_kind: SemanticRelationKind
+    from_object_ref: str
+    to_object_ref: str
+    source_refs: list[str] = Field(min_length=1)
+    preservation_requirement: PreservationRequirement
+    validation_need_refs: list[str] = Field(min_length=1)
+    limitation_note: str
+
+    @model_validator(mode="after")
+    def _validate_semantic_relation(self) -> RepoSemanticRelationRow:
+        _repo_ref(self.semantic_relation_ref, field_name="semantic_relation_ref")
+        _repo_ref(self.from_object_ref, field_name="from_object_ref")
+        _repo_ref(self.to_object_ref, field_name="to_object_ref")
+        object.__setattr__(
+            self,
+            "source_refs",
+            _validate_repo_refs(self.source_refs, field_name="source_refs"),
+        )
+        object.__setattr__(
+            self,
+            "validation_need_refs",
+            _validate_repo_refs(self.validation_need_refs, field_name="validation_need_refs"),
+        )
+        if self.relation_kind == "non_goal_of":
+            if self.preservation_requirement != "preserve_as_non_goal":
+                raise ValueError("non-goal relations must preserve the non-goal")
+        if self.relation_kind == "authority_requires":
+            if self.preservation_requirement != "preserve_as_authority_boundary":
+                raise ValueError("authority relations must preserve authority boundary")
+        _reject_v83b_projection_or_runtime_claim(self.limitation_note, field_name="limitation_note")
+        return self
+
+
+class RepoValidationNeedRow(_CartographyBase):
+    validation_need_ref: str
+    semantic_edge_refs: list[str] = Field(min_length=1)
+    validation_kind: ValidationKind
+    required_evidence_kind: RequiredEvidenceKind
+    required_positive_fixture_posture: FixturePosture
+    required_reject_fixture_posture: FixturePosture
+    manual_review_required: bool
+    tool_applicability_posture: ToolApplicabilityPosture
+    acceptance_not_truth_guardrail: AcceptanceNotTruthGuardrail
+    limitation_note: str
+
+    @model_validator(mode="after")
+    def _validate_validation_need(self) -> RepoValidationNeedRow:
+        _repo_ref(self.validation_need_ref, field_name="validation_need_ref")
+        object.__setattr__(
+            self,
+            "semantic_edge_refs",
+            _validate_repo_refs(self.semantic_edge_refs, field_name="semantic_edge_refs"),
+        )
+        if self.validation_kind == "reject_fixture":
+            if self.required_reject_fixture_posture != "required":
+                raise ValueError("reject fixture validation needs require reject posture")
+        if self.validation_kind in {"schema_validation", "validator_behavior"}:
+            if self.required_evidence_kind not in {"schema", "validator"}:
+                raise ValueError("schema and validator needs require matching evidence")
+        _reject_v83b_projection_or_runtime_claim(self.limitation_note, field_name="limitation_note")
+        return self
+
+
+class RepoIntentEdgeConstraintRow(_CartographyBase):
+    constraint_ref: str
+    source_refs: list[str] = Field(min_length=1)
+    semantic_relation_refs: list[str] = Field(min_length=1)
+    constraint_posture: str
+    limitation_note: str
+
+    @model_validator(mode="after")
+    def _validate_constraint(self) -> RepoIntentEdgeConstraintRow:
+        _repo_ref(self.constraint_ref, field_name="constraint_ref")
+        object.__setattr__(
+            self,
+            "source_refs",
+            _validate_repo_refs(self.source_refs, field_name="source_refs"),
+        )
+        object.__setattr__(
+            self,
+            "semantic_relation_refs",
+            _validate_repo_refs(
+                self.semantic_relation_refs,
+                field_name="semantic_relation_refs",
+            ),
+        )
+        _non_empty(self.constraint_posture, field_name="constraint_posture")
+        _reject_v83b_projection_or_runtime_claim(self.limitation_note, field_name="limitation_note")
+        return self
+
+
+class RepoIntentEdgeNonGoalRow(_CartographyBase):
+    non_goal_ref: str
+    source_refs: list[str] = Field(min_length=1)
+    semantic_relation_refs: list[str] = Field(min_length=1)
+    non_goal_posture: str
+    limitation_note: str
+
+    @model_validator(mode="after")
+    def _validate_non_goal_edge(self) -> RepoIntentEdgeNonGoalRow:
+        _repo_ref(self.non_goal_ref, field_name="non_goal_ref")
+        object.__setattr__(
+            self,
+            "source_refs",
+            _validate_repo_refs(self.source_refs, field_name="source_refs"),
+        )
+        object.__setattr__(
+            self,
+            "semantic_relation_refs",
+            _validate_repo_refs(
+                self.semantic_relation_refs,
+                field_name="semantic_relation_refs",
+            ),
+        )
+        _require_terms(
+            self.non_goal_posture,
+            field_name="non_goal_posture",
+            terms=("non-goal",),
+        )
+        _reject_v83b_projection_or_runtime_claim(self.limitation_note, field_name="limitation_note")
+        return self
+
+
+class RepoIntentAuthorityEdgeRow(_CartographyBase):
+    authority_edge_ref: str
+    source_refs: list[str] = Field(min_length=1)
+    semantic_relation_refs: list[str] = Field(min_length=1)
+    authority_boundary_posture: str
+    limitation_note: str
+
+    @model_validator(mode="after")
+    def _validate_authority_edge(self) -> RepoIntentAuthorityEdgeRow:
+        _repo_ref(self.authority_edge_ref, field_name="authority_edge_ref")
+        object.__setattr__(
+            self,
+            "source_refs",
+            _validate_repo_refs(self.source_refs, field_name="source_refs"),
+        )
+        object.__setattr__(
+            self,
+            "semantic_relation_refs",
+            _validate_repo_refs(
+                self.semantic_relation_refs,
+                field_name="semantic_relation_refs",
+            ),
+        )
+        _require_terms(
+            self.authority_boundary_posture,
+            field_name="authority_boundary_posture",
+            terms=("boundary", "no authority"),
+        )
+        _reject_v83b_projection_or_runtime_claim(self.limitation_note, field_name="limitation_note")
+        return self
+
+
+class RepoIntentEdgeDecompositionRow(_CartographyBase):
+    edge_decomposition_ref: str
+    intent_contract_refs: list[str] = Field(min_length=1)
+    candidate_ref: str
+    source_refs: list[str] = Field(min_length=1)
+    semantic_object_rows: list[RepoSemanticObjectRow] = Field(min_length=1)
+    semantic_relation_rows: list[RepoSemanticRelationRow] = Field(min_length=1)
+    constraint_rows: list[RepoIntentEdgeConstraintRow] = Field(default_factory=list)
+    non_goal_rows: list[RepoIntentEdgeNonGoalRow] = Field(default_factory=list)
+    authority_edge_rows: list[RepoIntentAuthorityEdgeRow] = Field(default_factory=list)
+    validation_need_rows: list[RepoValidationNeedRow] = Field(min_length=1)
+    edge_decomposition_posture: IntentEdgeDecompositionPosture
+    semantic_closure_posture: SemanticClosureReviewPosture
+    guardrail_refs: list[str] = Field(min_length=1)
+    limitation_note: str
+
+    @model_validator(mode="after")
+    def _validate_edge_decomposition_row(self) -> RepoIntentEdgeDecompositionRow:
+        _repo_ref(self.edge_decomposition_ref, field_name="edge_decomposition_ref")
+        _non_empty(self.candidate_ref, field_name="candidate_ref")
+        for field_name in ("intent_contract_refs", "source_refs", "guardrail_refs"):
+            object.__setattr__(
+                self,
+                field_name,
+                _validate_repo_refs(getattr(self, field_name), field_name=field_name),
+            )
+        object.__setattr__(
+            self,
+            "semantic_object_rows",
+            _sorted_unique_by_ref(
+                self.semantic_object_rows,
+                attr="semantic_object_ref",
+                field_name="semantic_object_rows",
+            ),
+        )
+        object.__setattr__(
+            self,
+            "semantic_relation_rows",
+            _sorted_unique_by_ref(
+                self.semantic_relation_rows,
+                attr="semantic_relation_ref",
+                field_name="semantic_relation_rows",
+            ),
+        )
+        object.__setattr__(
+            self,
+            "constraint_rows",
+            _sorted_unique_by_ref(
+                self.constraint_rows,
+                attr="constraint_ref",
+                field_name="constraint_rows",
+            ),
+        )
+        object.__setattr__(
+            self,
+            "non_goal_rows",
+            _sorted_unique_by_ref(
+                self.non_goal_rows,
+                attr="non_goal_ref",
+                field_name="non_goal_rows",
+            ),
+        )
+        object.__setattr__(
+            self,
+            "authority_edge_rows",
+            _sorted_unique_by_ref(
+                self.authority_edge_rows,
+                attr="authority_edge_ref",
+                field_name="authority_edge_rows",
+            ),
+        )
+        object.__setattr__(
+            self,
+            "validation_need_rows",
+            _sorted_unique_by_ref(
+                self.validation_need_rows,
+                attr="validation_need_ref",
+                field_name="validation_need_rows",
+            ),
+        )
+        object_refs = {row.semantic_object_ref for row in self.semantic_object_rows}
+        validation_refs = {row.validation_need_ref for row in self.validation_need_rows}
+        relation_refs = {row.semantic_relation_ref for row in self.semantic_relation_rows}
+        for relation in self.semantic_relation_rows:
+            if (
+                relation.from_object_ref not in object_refs
+                or relation.to_object_ref not in object_refs
+            ):
+                raise ValueError("semantic relations must reference known semantic objects")
+            if any(ref not in validation_refs for ref in relation.validation_need_refs):
+                raise ValueError("semantic relations must reference known validation needs")
+        for need in self.validation_need_rows:
+            if any(ref not in relation_refs for ref in need.semantic_edge_refs):
+                raise ValueError("validation needs must reference known semantic relations")
+        if self.edge_decomposition_posture == "edges_decomposed_for_review":
+            if self.semantic_closure_posture != "edge_review_candidate_only":
+                raise ValueError("decomposed edges remain edge-review candidates only")
+        _reject_v83b_projection_or_runtime_claim(self.limitation_note, field_name="limitation_note")
+        return self
+
+
+class RepoIntentEdgeDecomposition(_CartographyBase):
+    schema: Literal["repo_intent_edge_decomposition@1"] = REPO_INTENT_EDGE_DECOMPOSITION_SCHEMA
+    intent_edge_decomposition_id: str
+    semantic_intent_contract_id: str
+    intent_source_index_id: str
+    intent_non_implementation_guardrail_id: str
+    review_id: str
+    snapshot_id: str
+    source_set_id: str
+    edge_decomposition_rows: list[RepoIntentEdgeDecompositionRow] = Field(min_length=1)
+    edge_decomposition_summary: str
+
+    @model_validator(mode="after")
+    def _validate_edge_decomposition(self) -> RepoIntentEdgeDecomposition:
+        object.__setattr__(
+            self,
+            "edge_decomposition_rows",
+            _sorted_unique_by_ref(
+                self.edge_decomposition_rows,
+                attr="edge_decomposition_ref",
+                field_name="edge_decomposition_rows",
+            ),
+        )
+        _require_terms(
+            self.edge_decomposition_summary,
+            field_name="edge_decomposition_summary",
+            terms=("edge", "review", "no implementation"),
+        )
+        expected_id = _surface_id(
+            "repo_intent_edge_decomposition",
+            self.schema,
+            self.model_dump(mode="json"),
+            "intent_edge_decomposition_id",
+        )
+        if self.intent_edge_decomposition_id != expected_id:
+            raise ValueError("intent_edge_decomposition_id does not match canonical hash")
+        return self
+
+
+class RepoAcceptanceEvidenceRequirementRow(_CartographyBase):
+    evidence_requirement_ref: str
+    semantic_edge_refs: list[str] = Field(min_length=1)
+    validation_need_refs: list[str] = Field(min_length=1)
+    evidence_kind: RequiredEvidenceKind
+    required_artifact_refs: list[str] = Field(min_length=1)
+    non_truth_guardrail: AcceptanceNotTruthGuardrail
+    limitation_note: str
+
+    @model_validator(mode="after")
+    def _validate_evidence_requirement(self) -> RepoAcceptanceEvidenceRequirementRow:
+        _repo_ref(self.evidence_requirement_ref, field_name="evidence_requirement_ref")
+        for field_name in (
+            "semantic_edge_refs",
+            "validation_need_refs",
+            "required_artifact_refs",
+        ):
+            object.__setattr__(
+                self,
+                field_name,
+                _validate_repo_refs(getattr(self, field_name), field_name=field_name),
+            )
+        _reject_v83b_projection_or_runtime_claim(self.limitation_note, field_name="limitation_note")
+        return self
+
+
+class RepoArtifactObligationRow(_CartographyBase):
+    artifact_obligation_ref: str
+    semantic_edge_refs: list[str] = Field(min_length=1)
+    artifact_kind: ArtifactKind
+    target_surface_refs: list[str] = Field(min_length=1)
+    required_change_posture: RequiredChangePosture
+    required_fixture_posture: RequiredArtifactPosture
+    required_test_posture: RequiredArtifactPosture
+    required_doc_posture: RequiredArtifactPosture
+    acceptance_evidence_requirements: list[RepoAcceptanceEvidenceRequirementRow] = Field(
+        min_length=1
+    )
+    non_implementation_posture: NonImplementationPosture
+    limitation_note: str
+
+    @model_validator(mode="after")
+    def _validate_artifact_obligation(self) -> RepoArtifactObligationRow:
+        _repo_ref(self.artifact_obligation_ref, field_name="artifact_obligation_ref")
+        for field_name in ("semantic_edge_refs", "target_surface_refs"):
+            object.__setattr__(
+                self,
+                field_name,
+                _validate_repo_refs(getattr(self, field_name), field_name=field_name),
+            )
+        object.__setattr__(
+            self,
+            "acceptance_evidence_requirements",
+            _sorted_unique_by_ref(
+                self.acceptance_evidence_requirements,
+                attr="evidence_requirement_ref",
+                field_name="acceptance_evidence_requirements",
+            ),
+        )
+        if any(target in _BROAD_ARTIFACT_TARGETS for target in self.target_surface_refs):
+            if self.required_change_posture == "change_required_for_later_implementation_spec":
+                raise ValueError("artifact obligations require bounded target surfaces")
+        if self.non_implementation_posture != "non_implementation_guardrail_active":
+            raise ValueError("artifact obligations remain non-implementation")
+        _reject_v83b_projection_or_runtime_claim(self.limitation_note, field_name="limitation_note")
+        return self
+
+
+class RepoArtifactObligationMapRow(_CartographyBase):
+    obligation_map_ref: str
+    intent_contract_refs: list[str] = Field(min_length=1)
+    edge_decomposition_refs: list[str] = Field(min_length=1)
+    candidate_ref: str
+    source_refs: list[str] = Field(min_length=1)
+    artifact_obligation_rows: list[RepoArtifactObligationRow] = Field(min_length=1)
+    coverage_posture: CoveragePosture
+    implementation_readiness_posture: ImplementationReadinessPosture
+    guardrail_refs: list[str] = Field(min_length=1)
+    limitation_note: str
+
+    @model_validator(mode="after")
+    def _validate_obligation_map_row(self) -> RepoArtifactObligationMapRow:
+        _repo_ref(self.obligation_map_ref, field_name="obligation_map_ref")
+        _non_empty(self.candidate_ref, field_name="candidate_ref")
+        for field_name in (
+            "intent_contract_refs",
+            "edge_decomposition_refs",
+            "source_refs",
+            "guardrail_refs",
+        ):
+            object.__setattr__(
+                self,
+                field_name,
+                _validate_repo_refs(getattr(self, field_name), field_name=field_name),
+            )
+        object.__setattr__(
+            self,
+            "artifact_obligation_rows",
+            _sorted_unique_by_ref(
+                self.artifact_obligation_rows,
+                attr="artifact_obligation_ref",
+                field_name="artifact_obligation_rows",
+            ),
+        )
+        if self.implementation_readiness_posture == "ready_for_projection_review_only":
+            if self.coverage_posture not in {
+                "obligations_cover_all_required_edges",
+                "obligations_cover_with_nonblocking_warnings",
+            }:
+                raise ValueError("projection-review readiness requires covered obligations")
+        _reject_v83b_projection_or_runtime_claim(self.limitation_note, field_name="limitation_note")
+        return self
+
+
+class RepoArtifactObligationMap(_CartographyBase):
+    schema: Literal["repo_artifact_obligation_map@1"] = REPO_ARTIFACT_OBLIGATION_MAP_SCHEMA
+    artifact_obligation_map_id: str
+    intent_edge_decomposition_id: str
+    semantic_intent_contract_id: str
+    review_id: str
+    snapshot_id: str
+    source_set_id: str
+    obligation_map_rows: list[RepoArtifactObligationMapRow] = Field(min_length=1)
+    obligation_map_summary: str
+
+    @model_validator(mode="after")
+    def _validate_obligation_map(self) -> RepoArtifactObligationMap:
+        object.__setattr__(
+            self,
+            "obligation_map_rows",
+            _sorted_unique_by_ref(
+                self.obligation_map_rows,
+                attr="obligation_map_ref",
+                field_name="obligation_map_rows",
+            ),
+        )
+        _require_terms(
+            self.obligation_map_summary,
+            field_name="obligation_map_summary",
+            terms=("artifact", "obligation", "no implementation"),
+        )
+        expected_id = _surface_id(
+            "repo_artifact_obligation_map",
+            self.schema,
+            self.model_dump(mode="json"),
+            "artifact_obligation_map_id",
+        )
+        if self.artifact_obligation_map_id != expected_id:
+            raise ValueError("artifact_obligation_map_id does not match canonical hash")
+        return self
+
+
+class RepoSemanticDriftAmbiguityRow(_CartographyBase):
+    drift_ref: str
+    drift_kind: DriftKind
+    semantic_edge_refs: list[str] = Field(default_factory=list)
+    artifact_obligation_refs: list[str] = Field(default_factory=list)
+    source_refs: list[str] = Field(min_length=1)
+    severity_posture: DriftSeverityPosture
+    blocking_posture: DriftBlockingPosture
+    required_resolution_horizon: RequiredResolutionHorizon
+    limitation_note: str
+
+    @model_validator(mode="after")
+    def _validate_drift_row(self) -> RepoSemanticDriftAmbiguityRow:
+        _repo_ref(self.drift_ref, field_name="drift_ref")
+        for field_name in ("semantic_edge_refs", "artifact_obligation_refs", "source_refs"):
+            object.__setattr__(
+                self,
+                field_name,
+                _validate_repo_refs(getattr(self, field_name), field_name=field_name),
+            )
+        if self.severity_posture == "blocking" and self.blocking_posture != "blocking":
+            raise ValueError("blocking drift rows must remain blocking")
+        if self.drift_kind in {"morphic_ux_scope_drift", "direct_oai_runtime_scope_drift"}:
+            if self.required_resolution_horizon not in {
+                "future_family_review",
+                "semantic_review",
+            }:
+                raise ValueError("support-scope drift requires semantic or future review")
+        _reject_v83b_projection_or_runtime_claim(self.limitation_note, field_name="limitation_note")
+        return self
+
+
+class RepoSemanticDriftAmbiguityRegisterRow(_CartographyBase):
+    drift_register_ref: str
+    intent_contract_refs: list[str] = Field(min_length=1)
+    edge_decomposition_refs: list[str] = Field(min_length=1)
+    obligation_map_refs: list[str] = Field(min_length=1)
+    candidate_ref: str
+    source_refs: list[str] = Field(min_length=1)
+    drift_or_ambiguity_rows: list[RepoSemanticDriftAmbiguityRow] = Field(min_length=1)
+    blocking_posture: DriftRegisterBlockingPosture
+    required_next_surface: DriftRequiredNextSurface
+    guardrail_refs: list[str] = Field(min_length=1)
+    limitation_note: str
+
+    @model_validator(mode="after")
+    def _validate_drift_register_row(self) -> RepoSemanticDriftAmbiguityRegisterRow:
+        _repo_ref(self.drift_register_ref, field_name="drift_register_ref")
+        _non_empty(self.candidate_ref, field_name="candidate_ref")
+        for field_name in (
+            "intent_contract_refs",
+            "edge_decomposition_refs",
+            "obligation_map_refs",
+            "source_refs",
+            "guardrail_refs",
+        ):
+            object.__setattr__(
+                self,
+                field_name,
+                _validate_repo_refs(getattr(self, field_name), field_name=field_name),
+            )
+        object.__setattr__(
+            self,
+            "drift_or_ambiguity_rows",
+            _sorted_unique_by_ref(
+                self.drift_or_ambiguity_rows,
+                attr="drift_ref",
+                field_name="drift_or_ambiguity_rows",
+            ),
+        )
+        has_blocker = any(
+            row.blocking_posture == "blocking" for row in self.drift_or_ambiguity_rows
+        )
+        if has_blocker and self.blocking_posture != "blocking_drift_visible":
+            raise ValueError("blocking drift cannot be hidden by ready posture")
+        if self.required_next_surface == "v83c_projection_packet_review" and has_blocker:
+            raise ValueError("blocking drift prevents ordinary V83-C projection readiness")
+        _reject_v83b_projection_or_runtime_claim(self.limitation_note, field_name="limitation_note")
+        return self
+
+
+class RepoSemanticDriftAmbiguityRegister(_CartographyBase):
+    schema: Literal["repo_semantic_drift_ambiguity_register@1"] = (
+        REPO_SEMANTIC_DRIFT_AMBIGUITY_REGISTER_SCHEMA
+    )
+    semantic_drift_ambiguity_register_id: str
+    artifact_obligation_map_id: str
+    intent_edge_decomposition_id: str
+    semantic_intent_contract_id: str
+    review_id: str
+    snapshot_id: str
+    source_set_id: str
+    drift_register_rows: list[RepoSemanticDriftAmbiguityRegisterRow] = Field(min_length=1)
+    drift_register_summary: str
+
+    @model_validator(mode="after")
+    def _validate_drift_register(self) -> RepoSemanticDriftAmbiguityRegister:
+        object.__setattr__(
+            self,
+            "drift_register_rows",
+            _sorted_unique_by_ref(
+                self.drift_register_rows,
+                attr="drift_register_ref",
+                field_name="drift_register_rows",
+            ),
+        )
+        _require_terms(
+            self.drift_register_summary,
+            field_name="drift_register_summary",
+            terms=("drift", "ambiguity", "no implementation"),
+        )
+        expected_id = _surface_id(
+            "repo_semantic_drift_ambiguity_register",
+            self.schema,
+            self.model_dump(mode="json"),
+            "semantic_drift_ambiguity_register_id",
+        )
+        if self.semantic_drift_ambiguity_register_id != expected_id:
+            raise ValueError("semantic_drift_ambiguity_register_id does not match canonical hash")
+        return self
+
+
+def _v83a_released_refs(
+    *,
+    source_index: RepoIntentSourceIndex,
+    semantic_intent_contract: RepoSemanticIntentContract,
+    intent_non_implementation_guardrail: RepoIntentNonImplementationGuardrail,
+) -> tuple[RepoSemanticIntentContractRow, list[str], list[str]]:
+    eligible_rows = [
+        row
+        for row in semantic_intent_contract.intent_contract_rows
+        if row.semantic_spec_eligibility_posture == "eligible_for_semantic_spec_review"
+    ]
+    if len(eligible_rows) != 1:
+        raise ValueError("V83-B derivation expects one eligible V83-A intent row")
+    source_refs = sorted({row.source_ref for row in source_index.source_rows})
+    guardrail_refs = sorted(
+        {row.guardrail_ref for row in intent_non_implementation_guardrail.guardrail_rows}
+    )
+    return eligible_rows[0], source_refs, guardrail_refs
+
+
+def derive_v83b_repo_intent_edge_decomposition(
+    *,
+    repo_root: Path | None = None,
+    intent_source_index: RepoIntentSourceIndex | None = None,
+    semantic_intent_contract: RepoSemanticIntentContract | None = None,
+    intent_non_implementation_guardrail: RepoIntentNonImplementationGuardrail | None = None,
+) -> RepoIntentEdgeDecomposition:
+    _ = repo_root
+    if (
+        intent_source_index is None
+        or semantic_intent_contract is None
+        or intent_non_implementation_guardrail is None
+    ):
+        (
+            intent_source_index,
+            semantic_intent_contract,
+            intent_non_implementation_guardrail,
+        ) = derive_v83a_semantic_implementation_spec_bundle()
+    eligible, _, guardrail_refs = _v83a_released_refs(
+        source_index=intent_source_index,
+        semantic_intent_contract=semantic_intent_contract,
+        intent_non_implementation_guardrail=intent_non_implementation_guardrail,
+    )
+    source_refs = sorted(eligible.source_refs)
+    semantic_object_rows = [
+        {
+            "semantic_object_ref": "semantic-object:v83b:authority:later-lock",
+            "object_kind": "authority_boundary",
+            "object_label": "Later implementation lock authority boundary",
+            "source_refs": sorted(eligible.authority_boundary_refs),
+            "anticipated_artifact_kind_refs": [],
+            "truth_posture": "source_bound_claim_for_review",
+            "mutability_posture": "immutable_boundary",
+            "authority_posture": "authority_boundary_only",
+            "limitation_note": "Authority boundary object for review; no implementation.",
+        },
+        {
+            "semantic_object_ref": "semantic-object:v83b:domain:intent-to-spec",
+            "object_kind": "domain_object",
+            "object_label": "Intent to implementation-spec transformation",
+            "source_refs": source_refs,
+            "anticipated_artifact_kind_refs": [
+                "artifact-kind:v83b:fixture",
+                "artifact-kind:v83b:schema",
+                "artifact-kind:v83b:test",
+            ],
+            "truth_posture": "source_bound_claim_for_review",
+            "mutability_posture": "review_object_only",
+            "authority_posture": "no_authority_granted",
+            "limitation_note": "Semantic object for edge review; no implementation.",
+        },
+        {
+            "semantic_object_ref": "semantic-object:v83b:morphic-ux:support",
+            "object_kind": "ux_surface",
+            "object_label": "Morphic UX support instantiation",
+            "source_refs": ["docs/support/morphic_ux. v2.md"],
+            "anticipated_artifact_kind_refs": ["artifact-kind:v83b:ux-projection"],
+            "truth_posture": "candidate_only",
+            "mutability_posture": "target_requires_later_lock",
+            "authority_posture": "candidate_only_no_authority",
+            "limitation_note": "Morphic UX support is scoped context only; no implementation.",
+        },
+        {
+            "semantic_object_ref": "semantic-object:v83b:non-goal:no-implementation",
+            "object_kind": "non_goal",
+            "object_label": "No implementation in V83-B",
+            "source_refs": sorted(eligible.non_goal_refs),
+            "anticipated_artifact_kind_refs": [],
+            "truth_posture": "source_bound_claim_for_review",
+            "mutability_posture": "immutable_boundary",
+            "authority_posture": "no_authority_granted",
+            "limitation_note": "Non-goal object preserved for review; no implementation.",
+        },
+        {
+            "semantic_object_ref": "semantic-object:v83b:provider:direct-oai",
+            "object_kind": "provider_capability_surface",
+            "object_label": "Direct OAI support profile pressure",
+            "source_refs": [
+                "external-support:direct-oai-meta-orchestrator-loop",
+                "external-support:direct-oai-upstream-profile",
+            ],
+            "anticipated_artifact_kind_refs": ["artifact-kind:v83b:provider-profile"],
+            "truth_posture": "candidate_only",
+            "mutability_posture": "target_requires_later_lock",
+            "authority_posture": "candidate_only_no_authority",
+            "limitation_note": "Direct OAI profile is support context only; no implementation.",
+        },
+        {
+            "semantic_object_ref": "semantic-object:v83b:schema:edge-decomposition",
+            "object_kind": "schema_surface",
+            "object_label": "Intent edge decomposition schema",
+            "source_refs": source_refs,
+            "anticipated_artifact_kind_refs": ["artifact-kind:v83b:schema"],
+            "truth_posture": "source_bound_claim_for_review",
+            "mutability_posture": "review_object_only",
+            "authority_posture": "no_authority_granted",
+            "limitation_note": "Schema surface obligation candidate; no implementation.",
+        },
+    ]
+    semantic_relation_rows = [
+        {
+            "semantic_relation_ref": "semantic-relation:v83b:acceptance:evidence-bound",
+            "relation_kind": "acceptance_requires",
+            "from_object_ref": "semantic-object:v83b:schema:edge-decomposition",
+            "to_object_ref": "semantic-object:v83b:domain:intent-to-spec",
+            "source_refs": source_refs,
+            "preservation_requirement": "preserve_as_validation_need",
+            "validation_need_refs": [
+                "validation-need:v83b:positive-fixture",
+                "validation-need:v83b:reject-fixture",
+            ],
+            "limitation_note": "Acceptance evidence is edge-bound; no semantic truth.",
+        },
+        {
+            "semantic_relation_ref": "semantic-relation:v83b:authority:later-lock",
+            "relation_kind": "authority_requires",
+            "from_object_ref": "semantic-object:v83b:domain:intent-to-spec",
+            "to_object_ref": "semantic-object:v83b:authority:later-lock",
+            "source_refs": sorted(eligible.authority_boundary_refs),
+            "preservation_requirement": "preserve_as_authority_boundary",
+            "validation_need_refs": ["validation-need:v83b:semantic-review"],
+            "limitation_note": "Later lock boundary is preserved; no implementation.",
+        },
+        {
+            "semantic_relation_ref": "semantic-relation:v83b:morphic:scoped",
+            "relation_kind": "constrains",
+            "from_object_ref": "semantic-object:v83b:morphic-ux:support",
+            "to_object_ref": "semantic-object:v83b:domain:intent-to-spec",
+            "source_refs": ["docs/support/morphic_ux. v2.md"],
+            "preservation_requirement": "preserve_semantic_relation_for_review",
+            "validation_need_refs": ["validation-need:v83b:semantic-review"],
+            "limitation_note": "Morphic UX remains scoped support context; no implementation.",
+        },
+        {
+            "semantic_relation_ref": "semantic-relation:v83b:non-goal:no-implementation",
+            "relation_kind": "non_goal_of",
+            "from_object_ref": "semantic-object:v83b:non-goal:no-implementation",
+            "to_object_ref": "semantic-object:v83b:domain:intent-to-spec",
+            "source_refs": sorted(eligible.non_goal_refs),
+            "preservation_requirement": "preserve_as_non_goal",
+            "validation_need_refs": ["validation-need:v83b:reject-fixture"],
+            "limitation_note": "Non-goal is preserved and cannot become required work.",
+        },
+        {
+            "semantic_relation_ref": "semantic-relation:v83b:provider:not-authority",
+            "relation_kind": "must_remain_distinct_from",
+            "from_object_ref": "semantic-object:v83b:provider:direct-oai",
+            "to_object_ref": "semantic-object:v83b:authority:later-lock",
+            "source_refs": [
+                "external-support:direct-oai-meta-orchestrator-loop",
+                "external-support:direct-oai-upstream-profile",
+            ],
+            "preservation_requirement": "preserve_as_authority_boundary",
+            "validation_need_refs": ["validation-need:v83b:reject-fixture"],
+            "limitation_note": "Direct OAI support cannot grant provider authority.",
+        },
+        {
+            "semantic_relation_ref": "semantic-relation:v83b:realizes:intent",
+            "relation_kind": "realizes",
+            "from_object_ref": "semantic-object:v83b:schema:edge-decomposition",
+            "to_object_ref": "semantic-object:v83b:domain:intent-to-spec",
+            "source_refs": source_refs,
+            "preservation_requirement": "preserve_semantic_relation_for_review",
+            "validation_need_refs": [
+                "validation-need:v83b:schema-validation",
+                "validation-need:v83b:validator-behavior",
+            ],
+            "limitation_note": "Edge decomposition realizes review shape; no implementation.",
+        },
+        {
+            "semantic_relation_ref": "semantic-relation:v83b:validation:edge-bound",
+            "relation_kind": "validation_requires",
+            "from_object_ref": "semantic-object:v83b:schema:edge-decomposition",
+            "to_object_ref": "semantic-object:v83b:domain:intent-to-spec",
+            "source_refs": source_refs,
+            "preservation_requirement": "preserve_as_validation_need",
+            "validation_need_refs": [
+                "validation-need:v83b:positive-fixture",
+                "validation-need:v83b:reject-fixture",
+                "validation-need:v83b:validator-behavior",
+            ],
+            "limitation_note": "Validation needs bind to semantic edges; no implementation.",
+        },
+    ]
+    validation_need_rows = [
+        {
+            "validation_need_ref": "validation-need:v83b:positive-fixture",
+            "semantic_edge_refs": [
+                "semantic-relation:v83b:acceptance:evidence-bound",
+                "semantic-relation:v83b:validation:edge-bound",
+            ],
+            "validation_kind": "positive_fixture",
+            "required_evidence_kind": "positive_fixture",
+            "required_positive_fixture_posture": "required",
+            "required_reject_fixture_posture": "not_required",
+            "manual_review_required": False,
+            "tool_applicability_posture": "review_only",
+            "acceptance_not_truth_guardrail": "acceptance_evidence_is_not_semantic_truth",
+            "limitation_note": "Positive fixture evidence is not semantic truth.",
+        },
+        {
+            "validation_need_ref": "validation-need:v83b:reject-fixture",
+            "semantic_edge_refs": [
+                "semantic-relation:v83b:acceptance:evidence-bound",
+                "semantic-relation:v83b:non-goal:no-implementation",
+                "semantic-relation:v83b:provider:not-authority",
+                "semantic-relation:v83b:validation:edge-bound",
+            ],
+            "validation_kind": "reject_fixture",
+            "required_evidence_kind": "reject_fixture",
+            "required_positive_fixture_posture": "not_required",
+            "required_reject_fixture_posture": "required",
+            "manual_review_required": False,
+            "tool_applicability_posture": "review_only",
+            "acceptance_not_truth_guardrail": "acceptance_evidence_is_not_semantic_truth",
+            "limitation_note": "Reject fixture evidence is not semantic truth.",
+        },
+        {
+            "validation_need_ref": "validation-need:v83b:schema-validation",
+            "semantic_edge_refs": ["semantic-relation:v83b:realizes:intent"],
+            "validation_kind": "schema_validation",
+            "required_evidence_kind": "schema",
+            "required_positive_fixture_posture": "required",
+            "required_reject_fixture_posture": "not_required",
+            "manual_review_required": False,
+            "tool_applicability_posture": "review_only",
+            "acceptance_not_truth_guardrail": "acceptance_evidence_is_not_semantic_truth",
+            "limitation_note": "Schema validation evidence is not semantic truth.",
+        },
+        {
+            "validation_need_ref": "validation-need:v83b:semantic-review",
+            "semantic_edge_refs": [
+                "semantic-relation:v83b:authority:later-lock",
+                "semantic-relation:v83b:morphic:scoped",
+            ],
+            "validation_kind": "semantic_review",
+            "required_evidence_kind": "semantic_review",
+            "required_positive_fixture_posture": "not_required",
+            "required_reject_fixture_posture": "required",
+            "manual_review_required": True,
+            "tool_applicability_posture": "not_applicable",
+            "acceptance_not_truth_guardrail": "acceptance_evidence_is_not_semantic_truth",
+            "limitation_note": "Semantic review evidence is not implementation truth.",
+        },
+        {
+            "validation_need_ref": "validation-need:v83b:validator-behavior",
+            "semantic_edge_refs": [
+                "semantic-relation:v83b:realizes:intent",
+                "semantic-relation:v83b:validation:edge-bound",
+            ],
+            "validation_kind": "validator_behavior",
+            "required_evidence_kind": "validator",
+            "required_positive_fixture_posture": "required",
+            "required_reject_fixture_posture": "required",
+            "manual_review_required": False,
+            "tool_applicability_posture": "review_only",
+            "acceptance_not_truth_guardrail": "acceptance_evidence_is_not_semantic_truth",
+            "limitation_note": "Validator evidence is not semantic truth.",
+        },
+    ]
+    payload = {
+        "schema": REPO_INTENT_EDGE_DECOMPOSITION_SCHEMA,
+        "intent_edge_decomposition_id": "",
+        "semantic_intent_contract_id": semantic_intent_contract.semantic_intent_contract_id,
+        "intent_source_index_id": intent_source_index.intent_source_index_id,
+        "intent_non_implementation_guardrail_id": (
+            intent_non_implementation_guardrail.intent_non_implementation_guardrail_id
+        ),
+        "review_id": semantic_intent_contract.review_id,
+        "snapshot_id": "vNext+233-semantic-intent-contract-closeout",
+        "source_set_id": semantic_intent_contract.source_set_id,
+        "edge_decomposition_rows": [
+            {
+                "edge_decomposition_ref": "edge-decomposition:v83b:intent-to-spec",
+                "intent_contract_refs": [eligible.intent_contract_ref],
+                "candidate_ref": eligible.candidate_ref,
+                "source_refs": source_refs,
+                "semantic_object_rows": sorted(
+                    semantic_object_rows,
+                    key=lambda row: row["semantic_object_ref"],
+                ),
+                "semantic_relation_rows": sorted(
+                    semantic_relation_rows,
+                    key=lambda row: row["semantic_relation_ref"],
+                ),
+                "constraint_rows": [
+                    {
+                        "constraint_ref": "constraint:v83b:test-evidence-not-truth",
+                        "source_refs": source_refs,
+                        "semantic_relation_refs": [
+                            "semantic-relation:v83b:acceptance:evidence-bound"
+                        ],
+                        "constraint_posture": "tests and fixtures are evidence requirements only",
+                        "limitation_note": (
+                            "Constraint preserves review-only evidence; no implementation."
+                        ),
+                    }
+                ],
+                "non_goal_rows": [
+                    {
+                        "non_goal_ref": "non-goal:v83b:no-implementation",
+                        "source_refs": sorted(eligible.non_goal_refs),
+                        "semantic_relation_refs": [
+                            "semantic-relation:v83b:non-goal:no-implementation"
+                        ],
+                        "non_goal_posture": "non-goal preserved as non-goal",
+                        "limitation_note": "Non-goal is visible and remains no implementation.",
+                    }
+                ],
+                "authority_edge_rows": [
+                    {
+                        "authority_edge_ref": "authority-edge:v83b:later-lock-required",
+                        "source_refs": sorted(eligible.authority_boundary_refs),
+                        "semantic_relation_refs": ["semantic-relation:v83b:authority:later-lock"],
+                        "authority_boundary_posture": "boundary only with no authority granted",
+                        "limitation_note": "Authority edge constrains review; no implementation.",
+                    }
+                ],
+                "validation_need_rows": sorted(
+                    validation_need_rows,
+                    key=lambda row: row["validation_need_ref"],
+                ),
+                "edge_decomposition_posture": "edges_decomposed_for_review",
+                "semantic_closure_posture": "edge_review_candidate_only",
+                "guardrail_refs": guardrail_refs,
+                "limitation_note": (
+                    "V83-B decomposes semantic edges for review only; no implementation."
+                ),
+            }
+        ],
+        "edge_decomposition_summary": (
+            "V83-B edge decomposition binds semantic edges to released intent rows "
+            "for review with no implementation."
+        ),
+    }
+    payload["intent_edge_decomposition_id"] = _surface_id(
+        "repo_intent_edge_decomposition",
+        REPO_INTENT_EDGE_DECOMPOSITION_SCHEMA,
+        payload,
+        "intent_edge_decomposition_id",
+    )
+    return RepoIntentEdgeDecomposition.model_validate(payload)
+
+
+def derive_v83b_repo_artifact_obligation_map(
+    *,
+    repo_root: Path | None = None,
+    semantic_intent_contract: RepoSemanticIntentContract | None = None,
+    intent_edge_decomposition: RepoIntentEdgeDecomposition | None = None,
+) -> RepoArtifactObligationMap:
+    _ = repo_root
+    if semantic_intent_contract is None or intent_edge_decomposition is None:
+        source_index, contract, guardrail = derive_v83a_semantic_implementation_spec_bundle()
+        semantic_intent_contract = contract
+        intent_edge_decomposition = derive_v83b_repo_intent_edge_decomposition(
+            intent_source_index=source_index,
+            semantic_intent_contract=contract,
+            intent_non_implementation_guardrail=guardrail,
+        )
+    edge_row = intent_edge_decomposition.edge_decomposition_rows[0]
+    source_refs = sorted(edge_row.source_refs)
+    evidence_common = {
+        "semantic_edge_refs": ["semantic-relation:v83b:validation:edge-bound"],
+        "validation_need_refs": ["validation-need:v83b:validator-behavior"],
+        "non_truth_guardrail": "acceptance_evidence_is_not_semantic_truth",
+    }
+    obligations = [
+        {
+            "artifact_obligation_ref": "artifact-obligation:v83b:fixtures",
+            "semantic_edge_refs": [
+                "semantic-relation:v83b:acceptance:evidence-bound",
+                "semantic-relation:v83b:validation:edge-bound",
+            ],
+            "artifact_kind": "fixture",
+            "target_surface_refs": ["apps/api/fixtures/repo_description/vnext_plus234"],
+            "required_change_posture": "change_required_for_later_implementation_spec",
+            "required_fixture_posture": "required_for_review",
+            "required_test_posture": "required_for_review",
+            "required_doc_posture": "not_applicable",
+            "acceptance_evidence_requirements": [
+                {
+                    "evidence_requirement_ref": "evidence-requirement:v83b:fixtures",
+                    **evidence_common,
+                    "evidence_kind": "positive_fixture",
+                    "required_artifact_refs": [
+                        "apps/api/fixtures/repo_description/vnext_plus234/"
+                        "repo_intent_edge_decomposition_v234_reference.json"
+                    ],
+                    "limitation_note": "Fixture evidence is edge-bound and not semantic truth.",
+                }
+            ],
+            "non_implementation_posture": "non_implementation_guardrail_active",
+            "limitation_note": "Fixture obligation is review-only with no implementation.",
+        },
+        {
+            "artifact_obligation_ref": "artifact-obligation:v83b:schema:artifact-obligation-map",
+            "semantic_edge_refs": ["semantic-relation:v83b:realizes:intent"],
+            "artifact_kind": "schema",
+            "target_surface_refs": [
+                "packages/adeu_repo_description/schema/repo_artifact_obligation_map.v1.json"
+            ],
+            "required_change_posture": "change_required_for_later_implementation_spec",
+            "required_fixture_posture": "required_for_review",
+            "required_test_posture": "required_for_review",
+            "required_doc_posture": "required_for_review",
+            "acceptance_evidence_requirements": [
+                {
+                    "evidence_requirement_ref": (
+                        "evidence-requirement:v83b:schema:artifact-obligation-map"
+                    ),
+                    **evidence_common,
+                    "evidence_kind": "schema",
+                    "required_artifact_refs": [
+                        "packages/adeu_repo_description/schema/repo_artifact_obligation_map.v1.json"
+                    ],
+                    "limitation_note": "Schema evidence is review-only and not semantic truth.",
+                }
+            ],
+            "non_implementation_posture": "non_implementation_guardrail_active",
+            "limitation_note": "Schema obligation is review-only with no implementation.",
+        },
+        {
+            "artifact_obligation_ref": "artifact-obligation:v83b:schema:drift-register",
+            "semantic_edge_refs": ["semantic-relation:v83b:validation:edge-bound"],
+            "artifact_kind": "schema",
+            "target_surface_refs": [
+                "packages/adeu_repo_description/schema/"
+                "repo_semantic_drift_ambiguity_register.v1.json"
+            ],
+            "required_change_posture": "change_required_for_later_implementation_spec",
+            "required_fixture_posture": "required_for_review",
+            "required_test_posture": "required_for_review",
+            "required_doc_posture": "required_for_review",
+            "acceptance_evidence_requirements": [
+                {
+                    "evidence_requirement_ref": "evidence-requirement:v83b:schema:drift-register",
+                    **evidence_common,
+                    "evidence_kind": "schema",
+                    "required_artifact_refs": [
+                        "packages/adeu_repo_description/schema/"
+                        "repo_semantic_drift_ambiguity_register.v1.json"
+                    ],
+                    "limitation_note": "Drift schema evidence is not semantic truth.",
+                }
+            ],
+            "non_implementation_posture": "non_implementation_guardrail_active",
+            "limitation_note": "Drift schema obligation is review-only; no implementation.",
+        },
+        {
+            "artifact_obligation_ref": "artifact-obligation:v83b:schema:edge-decomposition",
+            "semantic_edge_refs": ["semantic-relation:v83b:realizes:intent"],
+            "artifact_kind": "schema",
+            "target_surface_refs": [
+                "packages/adeu_repo_description/schema/repo_intent_edge_decomposition.v1.json"
+            ],
+            "required_change_posture": "change_required_for_later_implementation_spec",
+            "required_fixture_posture": "required_for_review",
+            "required_test_posture": "required_for_review",
+            "required_doc_posture": "required_for_review",
+            "acceptance_evidence_requirements": [
+                {
+                    "evidence_requirement_ref": (
+                        "evidence-requirement:v83b:schema:edge-decomposition"
+                    ),
+                    **evidence_common,
+                    "evidence_kind": "schema",
+                    "required_artifact_refs": [
+                        "packages/adeu_repo_description/schema/repo_intent_edge_decomposition.v1.json"
+                    ],
+                    "limitation_note": "Edge schema evidence is not semantic truth.",
+                }
+            ],
+            "non_implementation_posture": "non_implementation_guardrail_active",
+            "limitation_note": "Edge schema obligation is review-only; no implementation.",
+        },
+        {
+            "artifact_obligation_ref": "artifact-obligation:v83b:tests",
+            "semantic_edge_refs": [
+                "semantic-relation:v83b:acceptance:evidence-bound",
+                "semantic-relation:v83b:provider:not-authority",
+            ],
+            "artifact_kind": "test",
+            "target_surface_refs": [
+                "packages/adeu_repo_description/tests/test_semantic_implementation_spec_v83b.py"
+            ],
+            "required_change_posture": "change_required_for_later_implementation_spec",
+            "required_fixture_posture": "required_for_review",
+            "required_test_posture": "required_for_review",
+            "required_doc_posture": "not_applicable",
+            "acceptance_evidence_requirements": [
+                {
+                    "evidence_requirement_ref": "evidence-requirement:v83b:tests",
+                    "semantic_edge_refs": [
+                        "semantic-relation:v83b:acceptance:evidence-bound",
+                        "semantic-relation:v83b:provider:not-authority",
+                    ],
+                    "validation_need_refs": [
+                        "validation-need:v83b:reject-fixture",
+                        "validation-need:v83b:validator-behavior",
+                    ],
+                    "evidence_kind": "unit_test",
+                    "required_artifact_refs": [
+                        "packages/adeu_repo_description/tests/"
+                        "test_semantic_implementation_spec_v83b.py"
+                    ],
+                    "non_truth_guardrail": "acceptance_evidence_is_not_semantic_truth",
+                    "limitation_note": "Test evidence is edge-bound and not semantic truth.",
+                }
+            ],
+            "non_implementation_posture": "non_implementation_guardrail_active",
+            "limitation_note": "Test obligation is review-only with no implementation.",
+        },
+    ]
+    payload = {
+        "schema": REPO_ARTIFACT_OBLIGATION_MAP_SCHEMA,
+        "artifact_obligation_map_id": "",
+        "intent_edge_decomposition_id": intent_edge_decomposition.intent_edge_decomposition_id,
+        "semantic_intent_contract_id": semantic_intent_contract.semantic_intent_contract_id,
+        "review_id": intent_edge_decomposition.review_id,
+        "snapshot_id": intent_edge_decomposition.snapshot_id,
+        "source_set_id": intent_edge_decomposition.source_set_id,
+        "obligation_map_rows": [
+            {
+                "obligation_map_ref": "obligation-map:v83b:intent-to-spec",
+                "intent_contract_refs": edge_row.intent_contract_refs,
+                "edge_decomposition_refs": [edge_row.edge_decomposition_ref],
+                "candidate_ref": edge_row.candidate_ref,
+                "source_refs": source_refs,
+                "artifact_obligation_rows": sorted(
+                    obligations,
+                    key=lambda row: row["artifact_obligation_ref"],
+                ),
+                "coverage_posture": "obligations_cover_with_nonblocking_warnings",
+                "implementation_readiness_posture": "ready_for_projection_review_only",
+                "guardrail_refs": edge_row.guardrail_refs,
+                "limitation_note": (
+                    "Artifact obligations cover semantic edges for projection review only; "
+                    "no implementation."
+                ),
+            }
+        ],
+        "obligation_map_summary": (
+            "V83-B artifact obligation map binds artifact obligations to semantic "
+            "edges with no implementation."
+        ),
+    }
+    payload["artifact_obligation_map_id"] = _surface_id(
+        "repo_artifact_obligation_map",
+        REPO_ARTIFACT_OBLIGATION_MAP_SCHEMA,
+        payload,
+        "artifact_obligation_map_id",
+    )
+    return RepoArtifactObligationMap.model_validate(payload)
+
+
+def derive_v83b_repo_semantic_drift_ambiguity_register(
+    *,
+    repo_root: Path | None = None,
+    semantic_intent_contract: RepoSemanticIntentContract | None = None,
+    intent_edge_decomposition: RepoIntentEdgeDecomposition | None = None,
+    artifact_obligation_map: RepoArtifactObligationMap | None = None,
+) -> RepoSemanticDriftAmbiguityRegister:
+    _ = repo_root
+    if (
+        semantic_intent_contract is None
+        or intent_edge_decomposition is None
+        or artifact_obligation_map is None
+    ):
+        source_index, contract, guardrail = derive_v83a_semantic_implementation_spec_bundle()
+        semantic_intent_contract = contract
+        intent_edge_decomposition = derive_v83b_repo_intent_edge_decomposition(
+            intent_source_index=source_index,
+            semantic_intent_contract=contract,
+            intent_non_implementation_guardrail=guardrail,
+        )
+        artifact_obligation_map = derive_v83b_repo_artifact_obligation_map(
+            semantic_intent_contract=contract,
+            intent_edge_decomposition=intent_edge_decomposition,
+        )
+    edge_row = intent_edge_decomposition.edge_decomposition_rows[0]
+    obligation_row = artifact_obligation_map.obligation_map_rows[0]
+    payload = {
+        "schema": REPO_SEMANTIC_DRIFT_AMBIGUITY_REGISTER_SCHEMA,
+        "semantic_drift_ambiguity_register_id": "",
+        "artifact_obligation_map_id": artifact_obligation_map.artifact_obligation_map_id,
+        "intent_edge_decomposition_id": intent_edge_decomposition.intent_edge_decomposition_id,
+        "semantic_intent_contract_id": semantic_intent_contract.semantic_intent_contract_id,
+        "review_id": intent_edge_decomposition.review_id,
+        "snapshot_id": intent_edge_decomposition.snapshot_id,
+        "source_set_id": intent_edge_decomposition.source_set_id,
+        "drift_register_rows": [
+            {
+                "drift_register_ref": "drift-register:v83b:intent-to-spec",
+                "intent_contract_refs": edge_row.intent_contract_refs,
+                "edge_decomposition_refs": [edge_row.edge_decomposition_ref],
+                "obligation_map_refs": [obligation_row.obligation_map_ref],
+                "candidate_ref": edge_row.candidate_ref,
+                "source_refs": edge_row.source_refs,
+                "drift_or_ambiguity_rows": [
+                    {
+                        "drift_ref": "drift:v83b:direct-oai-runtime-scope",
+                        "drift_kind": "direct_oai_runtime_scope_drift",
+                        "semantic_edge_refs": ["semantic-relation:v83b:provider:not-authority"],
+                        "artifact_obligation_refs": ["artifact-obligation:v83b:tests"],
+                        "source_refs": [
+                            "external-support:direct-oai-meta-orchestrator-loop",
+                            "external-support:direct-oai-upstream-profile",
+                        ],
+                        "severity_posture": "warning",
+                        "blocking_posture": "warning_only",
+                        "required_resolution_horizon": "semantic_review",
+                        "limitation_note": (
+                            "Direct OAI support remains warning-only scope drift; "
+                            "no implementation."
+                        ),
+                    },
+                    {
+                        "drift_ref": "drift:v83b:general-artifact-future-family",
+                        "drift_kind": "future_family_pressure_unclassified",
+                        "semantic_edge_refs": ["semantic-relation:v83b:authority:later-lock"],
+                        "artifact_obligation_refs": [],
+                        "source_refs": [
+                            "docs/DRAFT_NEXT_ARC_OPTIONS_v73.md",
+                            "intent:v83a:authority-boundary:later-lock-required",
+                        ],
+                        "severity_posture": "informational",
+                        "blocking_posture": "carried_for_later_review",
+                        "required_resolution_horizon": "future_family_review",
+                        "limitation_note": (
+                            "General digital artifact projection is carried as future "
+                            "family pressure with no implementation."
+                        ),
+                    },
+                    {
+                        "drift_ref": "drift:v83b:morphic-ux-scope",
+                        "drift_kind": "morphic_ux_scope_drift",
+                        "semantic_edge_refs": ["semantic-relation:v83b:morphic:scoped"],
+                        "artifact_obligation_refs": [],
+                        "source_refs": ["docs/support/morphic_ux. v2.md"],
+                        "severity_posture": "warning",
+                        "blocking_posture": "warning_only",
+                        "required_resolution_horizon": "semantic_review",
+                        "limitation_note": (
+                            "Morphic UX support remains scoped UX projection pressure; "
+                            "no implementation."
+                        ),
+                    },
+                ],
+                "blocking_posture": "warnings_only",
+                "required_next_surface": "v83c_projection_packet_review",
+                "guardrail_refs": edge_row.guardrail_refs,
+                "limitation_note": (
+                    "Drift and ambiguity remain visible for projection review; no implementation."
+                ),
+            }
+        ],
+        "drift_register_summary": (
+            "V83-B semantic drift and ambiguity register preserves support-scope "
+            "drift and future-family ambiguity with no implementation."
+        ),
+    }
+    payload["semantic_drift_ambiguity_register_id"] = _surface_id(
+        "repo_semantic_drift_ambiguity_register",
+        REPO_SEMANTIC_DRIFT_AMBIGUITY_REGISTER_SCHEMA,
+        payload,
+        "semantic_drift_ambiguity_register_id",
+    )
+    return RepoSemanticDriftAmbiguityRegister.model_validate(payload)
+
+
+def validate_v83b_semantic_edge_obligation_bundle(
+    *,
+    intent_source_index: RepoIntentSourceIndex,
+    semantic_intent_contract: RepoSemanticIntentContract,
+    intent_non_implementation_guardrail: RepoIntentNonImplementationGuardrail,
+    intent_edge_decomposition: RepoIntentEdgeDecomposition,
+    artifact_obligation_map: RepoArtifactObligationMap,
+    semantic_drift_ambiguity_register: RepoSemanticDriftAmbiguityRegister,
+) -> None:
+    validate_v83a_semantic_implementation_spec_bundle(
+        intent_source_index=intent_source_index,
+        semantic_intent_contract=semantic_intent_contract,
+        intent_non_implementation_guardrail=intent_non_implementation_guardrail,
+    )
+    if (
+        intent_edge_decomposition.semantic_intent_contract_id
+        != semantic_intent_contract.semantic_intent_contract_id
+    ):
+        raise ValueError("edge decomposition must reference released V83-A intent contract")
+    if (
+        intent_edge_decomposition.intent_source_index_id
+        != intent_source_index.intent_source_index_id
+    ):
+        raise ValueError("edge decomposition must reference released V83-A source index")
+    if (
+        intent_edge_decomposition.intent_non_implementation_guardrail_id
+        != intent_non_implementation_guardrail.intent_non_implementation_guardrail_id
+    ):
+        raise ValueError("edge decomposition must reference released V83-A guardrail")
+    if (
+        artifact_obligation_map.intent_edge_decomposition_id
+        != intent_edge_decomposition.intent_edge_decomposition_id
+    ):
+        raise ValueError("artifact obligation map must reference edge decomposition")
+    if (
+        semantic_drift_ambiguity_register.artifact_obligation_map_id
+        != artifact_obligation_map.artifact_obligation_map_id
+    ):
+        raise ValueError("drift register must reference artifact obligation map")
+
+    known_sources = {row.source_ref for row in intent_source_index.source_rows}
+    source_by_ref = {row.source_ref: row for row in intent_source_index.source_rows}
+    known_contracts = {
+        row.intent_contract_ref: row for row in semantic_intent_contract.intent_contract_rows
+    }
+    known_guardrails = {
+        row.guardrail_ref for row in intent_non_implementation_guardrail.guardrail_rows
+    }
+    known_edges: dict[str, RepoSemanticRelationRow] = {}
+    known_validations: set[str] = set()
+    known_decompositions = {
+        row.edge_decomposition_ref: row for row in intent_edge_decomposition.edge_decomposition_rows
+    }
+
+    for edge_row in intent_edge_decomposition.edge_decomposition_rows:
+        if any(ref not in known_contracts for ref in edge_row.intent_contract_refs):
+            raise ValueError("edge decomposition intent refs must be known")
+        if any(ref not in known_sources for ref in edge_row.source_refs):
+            raise ValueError("edge decomposition source refs must be known")
+        if any(ref not in known_guardrails for ref in edge_row.guardrail_refs):
+            raise ValueError("edge decomposition guardrail refs must be known")
+        roles = {source_by_ref[ref].intent_source_role for ref in edge_row.source_refs}
+        if roles.intersection(_GENERATED_SOURCE_ROLES):
+            generated_rows = [
+                source_by_ref[ref]
+                for ref in edge_row.source_refs
+                if source_by_ref[ref].intent_source_role in _GENERATED_SOURCE_ROLES
+            ]
+            if any(
+                row.generation_posture == "generated_from_unbounded_context"
+                for row in generated_rows
+            ):
+                raise ValueError("generated spec edges require bounded V83-A provenance")
+        known_validations.update(row.validation_need_ref for row in edge_row.validation_need_rows)
+        known_edges.update(
+            {row.semantic_relation_ref: row for row in edge_row.semantic_relation_rows}
+        )
+
+    obligation_maps = {
+        row.obligation_map_ref: row for row in artifact_obligation_map.obligation_map_rows
+    }
+    known_obligations: dict[str, RepoArtifactObligationRow] = {}
+    for obligation_map_row in artifact_obligation_map.obligation_map_rows:
+        if any(ref not in known_contracts for ref in obligation_map_row.intent_contract_refs):
+            raise ValueError("obligation map intent refs must be known")
+        if any(
+            ref not in known_decompositions for ref in obligation_map_row.edge_decomposition_refs
+        ):
+            raise ValueError("obligation map edge decomposition refs must be known")
+        if any(ref not in known_sources for ref in obligation_map_row.source_refs):
+            raise ValueError("obligation map source refs must be known")
+        if any(ref not in known_guardrails for ref in obligation_map_row.guardrail_refs):
+            raise ValueError("obligation map guardrail refs must be known")
+        for obligation_row in obligation_map_row.artifact_obligation_rows:
+            known_obligations[obligation_row.artifact_obligation_ref] = obligation_row
+            if any(ref not in known_edges for ref in obligation_row.semantic_edge_refs):
+                raise ValueError("artifact obligations must reference known semantic edges")
+            for edge_ref in obligation_row.semantic_edge_refs:
+                relation = known_edges[edge_ref]
+                if (
+                    relation.relation_kind == "non_goal_of"
+                    and obligation_row.required_change_posture
+                    == "change_required_for_later_implementation_spec"
+                ):
+                    raise ValueError("non-goals cannot become implementation obligations")
+                if (
+                    relation.relation_kind == "authority_requires"
+                    and obligation_row.required_change_posture
+                    == "change_required_for_later_implementation_spec"
+                    and obligation_row.artifact_kind == "code_module"
+                ):
+                    raise ValueError("authority boundaries cannot become code permissions")
+            for evidence_row in obligation_row.acceptance_evidence_requirements:
+                if any(ref not in known_edges for ref in evidence_row.semantic_edge_refs):
+                    raise ValueError("acceptance evidence must reference known semantic edges")
+                if any(ref not in known_validations for ref in evidence_row.validation_need_refs):
+                    raise ValueError("acceptance evidence must reference known validation needs")
+
+    for drift_register_row in semantic_drift_ambiguity_register.drift_register_rows:
+        if any(ref not in known_contracts for ref in drift_register_row.intent_contract_refs):
+            raise ValueError("drift register intent refs must be known")
+        if any(
+            ref not in known_decompositions for ref in drift_register_row.edge_decomposition_refs
+        ):
+            raise ValueError("drift register decomposition refs must be known")
+        if any(ref not in obligation_maps for ref in drift_register_row.obligation_map_refs):
+            raise ValueError("drift register obligation refs must be known")
+        if any(ref not in known_guardrails for ref in drift_register_row.guardrail_refs):
+            raise ValueError("drift register guardrail refs must be known")
+        for drift_row in drift_register_row.drift_or_ambiguity_rows:
+            if any(ref not in known_edges for ref in drift_row.semantic_edge_refs):
+                raise ValueError("drift rows must reference known semantic edges")
+            if any(ref not in known_obligations for ref in drift_row.artifact_obligation_refs):
+                raise ValueError("drift rows must reference known artifact obligations")
+            if any(ref not in known_sources for ref in drift_row.source_refs):
+                raise ValueError("drift rows must reference known source rows")
+
+
+def derive_v83b_semantic_edge_obligation_bundle(
+    *, repo_root: Path | None = None
+) -> tuple[
+    RepoIntentSourceIndex,
+    RepoSemanticIntentContract,
+    RepoIntentNonImplementationGuardrail,
+    RepoIntentEdgeDecomposition,
+    RepoArtifactObligationMap,
+    RepoSemanticDriftAmbiguityRegister,
+]:
+    source_index, contract, guardrail = derive_v83a_semantic_implementation_spec_bundle(
+        repo_root=repo_root
+    )
+    edge_decomposition = derive_v83b_repo_intent_edge_decomposition(
+        repo_root=repo_root,
+        intent_source_index=source_index,
+        semantic_intent_contract=contract,
+        intent_non_implementation_guardrail=guardrail,
+    )
+    obligation_map = derive_v83b_repo_artifact_obligation_map(
+        repo_root=repo_root,
+        semantic_intent_contract=contract,
+        intent_edge_decomposition=edge_decomposition,
+    )
+    drift_register = derive_v83b_repo_semantic_drift_ambiguity_register(
+        repo_root=repo_root,
+        semantic_intent_contract=contract,
+        intent_edge_decomposition=edge_decomposition,
+        artifact_obligation_map=obligation_map,
+    )
+    validate_v83b_semantic_edge_obligation_bundle(
+        intent_source_index=source_index,
+        semantic_intent_contract=contract,
+        intent_non_implementation_guardrail=guardrail,
+        intent_edge_decomposition=edge_decomposition,
+        artifact_obligation_map=obligation_map,
+        semantic_drift_ambiguity_register=drift_register,
+    )
+    return (
+        source_index,
+        contract,
+        guardrail,
+        edge_decomposition,
+        obligation_map,
+        drift_register,
+    )

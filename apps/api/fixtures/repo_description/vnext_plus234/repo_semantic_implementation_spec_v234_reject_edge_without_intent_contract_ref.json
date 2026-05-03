@@ -1,0 +1,377 @@
+{
+  "edge_decomposition_rows": [
+    {
+      "authority_edge_rows": [
+        {
+          "authority_boundary_posture": "boundary only with no authority granted",
+          "authority_edge_ref": "authority-edge:v83b:later-lock-required",
+          "limitation_note": "Authority edge constrains review; no implementation.",
+          "semantic_relation_refs": [
+            "semantic-relation:v83b:authority:later-lock"
+          ],
+          "source_refs": [
+            "intent:v83a:authority-boundary:later-lock-required"
+          ]
+        }
+      ],
+      "candidate_ref": "candidate:internal:intent_to_implementation_spec_institution",
+      "constraint_rows": [
+        {
+          "constraint_posture": "tests and fixtures are evidence requirements only",
+          "constraint_ref": "constraint:v83b:test-evidence-not-truth",
+          "limitation_note": "Constraint preserves review-only evidence; no implementation.",
+          "semantic_relation_refs": [
+            "semantic-relation:v83b:acceptance:evidence-bound"
+          ],
+          "source_refs": [
+            "apps/api/fixtures/repo_description/vnext_plus232/repo_corpus_ingestion_review_family_closeout_alignment_v232_reference.json",
+            "apps/api/fixtures/repo_description/vnext_plus232/repo_corpus_ingestion_review_summary_v232_reference.json",
+            "apps/api/fixtures/repo_description/vnext_plus232/repo_post_corpus_ingestion_review_handoff_v232_reference.json",
+            "docs/DRAFT_NEXT_ARC_OPTIONS_v73.md",
+            "intent:v83a:authority-boundary:later-lock-required",
+            "intent:v83a:non-goal:no-implementation"
+          ]
+        }
+      ],
+      "edge_decomposition_posture": "edges_decomposed_for_review",
+      "edge_decomposition_ref": "edge-decomposition:v83b:intent-to-spec",
+      "guardrail_refs": [
+        "guardrail:v83a:direct-harness:import-gap",
+        "guardrail:v83a:general-artifact:future-family",
+        "guardrail:v83a:intent-to-spec:non-implementation"
+      ],
+      "intent_contract_refs": [],
+      "limitation_note": "V83-B decomposes semantic edges for review only; no implementation.",
+      "non_goal_rows": [
+        {
+          "limitation_note": "Non-goal is visible and remains no implementation.",
+          "non_goal_posture": "non-goal preserved as non-goal",
+          "non_goal_ref": "non-goal:v83b:no-implementation",
+          "semantic_relation_refs": [
+            "semantic-relation:v83b:non-goal:no-implementation"
+          ],
+          "source_refs": [
+            "intent:v83a:non-goal:no-implementation"
+          ]
+        }
+      ],
+      "semantic_closure_posture": "edge_review_candidate_only",
+      "semantic_object_rows": [
+        {
+          "anticipated_artifact_kind_refs": [],
+          "authority_posture": "authority_boundary_only",
+          "limitation_note": "Authority boundary object for review; no implementation.",
+          "mutability_posture": "immutable_boundary",
+          "object_kind": "authority_boundary",
+          "object_label": "Later implementation lock authority boundary",
+          "semantic_object_ref": "semantic-object:v83b:authority:later-lock",
+          "source_refs": [
+            "intent:v83a:authority-boundary:later-lock-required"
+          ],
+          "truth_posture": "source_bound_claim_for_review"
+        },
+        {
+          "anticipated_artifact_kind_refs": [
+            "artifact-kind:v83b:fixture",
+            "artifact-kind:v83b:schema",
+            "artifact-kind:v83b:test"
+          ],
+          "authority_posture": "no_authority_granted",
+          "limitation_note": "Semantic object for edge review; no implementation.",
+          "mutability_posture": "review_object_only",
+          "object_kind": "domain_object",
+          "object_label": "Intent to implementation-spec transformation",
+          "semantic_object_ref": "semantic-object:v83b:domain:intent-to-spec",
+          "source_refs": [
+            "apps/api/fixtures/repo_description/vnext_plus232/repo_corpus_ingestion_review_family_closeout_alignment_v232_reference.json",
+            "apps/api/fixtures/repo_description/vnext_plus232/repo_corpus_ingestion_review_summary_v232_reference.json",
+            "apps/api/fixtures/repo_description/vnext_plus232/repo_post_corpus_ingestion_review_handoff_v232_reference.json",
+            "docs/DRAFT_NEXT_ARC_OPTIONS_v73.md",
+            "intent:v83a:authority-boundary:later-lock-required",
+            "intent:v83a:non-goal:no-implementation"
+          ],
+          "truth_posture": "source_bound_claim_for_review"
+        },
+        {
+          "anticipated_artifact_kind_refs": [
+            "artifact-kind:v83b:ux-projection"
+          ],
+          "authority_posture": "candidate_only_no_authority",
+          "limitation_note": "Morphic UX support is scoped context only; no implementation.",
+          "mutability_posture": "target_requires_later_lock",
+          "object_kind": "ux_surface",
+          "object_label": "Morphic UX support instantiation",
+          "semantic_object_ref": "semantic-object:v83b:morphic-ux:support",
+          "source_refs": [
+            "docs/support/morphic_ux. v2.md"
+          ],
+          "truth_posture": "candidate_only"
+        },
+        {
+          "anticipated_artifact_kind_refs": [],
+          "authority_posture": "no_authority_granted",
+          "limitation_note": "Non-goal object preserved for review; no implementation.",
+          "mutability_posture": "immutable_boundary",
+          "object_kind": "non_goal",
+          "object_label": "No implementation in V83-B",
+          "semantic_object_ref": "semantic-object:v83b:non-goal:no-implementation",
+          "source_refs": [
+            "intent:v83a:non-goal:no-implementation"
+          ],
+          "truth_posture": "source_bound_claim_for_review"
+        },
+        {
+          "anticipated_artifact_kind_refs": [
+            "artifact-kind:v83b:provider-profile"
+          ],
+          "authority_posture": "candidate_only_no_authority",
+          "limitation_note": "Direct OAI profile is support context only; no implementation.",
+          "mutability_posture": "target_requires_later_lock",
+          "object_kind": "provider_capability_surface",
+          "object_label": "Direct OAI support profile pressure",
+          "semantic_object_ref": "semantic-object:v83b:provider:direct-oai",
+          "source_refs": [
+            "external-support:direct-oai-meta-orchestrator-loop",
+            "external-support:direct-oai-upstream-profile"
+          ],
+          "truth_posture": "candidate_only"
+        },
+        {
+          "anticipated_artifact_kind_refs": [
+            "artifact-kind:v83b:schema"
+          ],
+          "authority_posture": "no_authority_granted",
+          "limitation_note": "Schema surface obligation candidate; no implementation.",
+          "mutability_posture": "review_object_only",
+          "object_kind": "schema_surface",
+          "object_label": "Intent edge decomposition schema",
+          "semantic_object_ref": "semantic-object:v83b:schema:edge-decomposition",
+          "source_refs": [
+            "apps/api/fixtures/repo_description/vnext_plus232/repo_corpus_ingestion_review_family_closeout_alignment_v232_reference.json",
+            "apps/api/fixtures/repo_description/vnext_plus232/repo_corpus_ingestion_review_summary_v232_reference.json",
+            "apps/api/fixtures/repo_description/vnext_plus232/repo_post_corpus_ingestion_review_handoff_v232_reference.json",
+            "docs/DRAFT_NEXT_ARC_OPTIONS_v73.md",
+            "intent:v83a:authority-boundary:later-lock-required",
+            "intent:v83a:non-goal:no-implementation"
+          ],
+          "truth_posture": "source_bound_claim_for_review"
+        }
+      ],
+      "semantic_relation_rows": [
+        {
+          "from_object_ref": "semantic-object:v83b:schema:edge-decomposition",
+          "limitation_note": "Acceptance evidence is edge-bound; no semantic truth.",
+          "preservation_requirement": "preserve_as_validation_need",
+          "relation_kind": "acceptance_requires",
+          "semantic_relation_ref": "semantic-relation:v83b:acceptance:evidence-bound",
+          "source_refs": [
+            "apps/api/fixtures/repo_description/vnext_plus232/repo_corpus_ingestion_review_family_closeout_alignment_v232_reference.json",
+            "apps/api/fixtures/repo_description/vnext_plus232/repo_corpus_ingestion_review_summary_v232_reference.json",
+            "apps/api/fixtures/repo_description/vnext_plus232/repo_post_corpus_ingestion_review_handoff_v232_reference.json",
+            "docs/DRAFT_NEXT_ARC_OPTIONS_v73.md",
+            "intent:v83a:authority-boundary:later-lock-required",
+            "intent:v83a:non-goal:no-implementation"
+          ],
+          "to_object_ref": "semantic-object:v83b:domain:intent-to-spec",
+          "validation_need_refs": [
+            "validation-need:v83b:positive-fixture",
+            "validation-need:v83b:reject-fixture"
+          ]
+        },
+        {
+          "from_object_ref": "semantic-object:v83b:domain:intent-to-spec",
+          "limitation_note": "Later lock boundary is preserved; no implementation.",
+          "preservation_requirement": "preserve_as_authority_boundary",
+          "relation_kind": "authority_requires",
+          "semantic_relation_ref": "semantic-relation:v83b:authority:later-lock",
+          "source_refs": [
+            "intent:v83a:authority-boundary:later-lock-required"
+          ],
+          "to_object_ref": "semantic-object:v83b:authority:later-lock",
+          "validation_need_refs": [
+            "validation-need:v83b:semantic-review"
+          ]
+        },
+        {
+          "from_object_ref": "semantic-object:v83b:morphic-ux:support",
+          "limitation_note": "Morphic UX remains scoped support context; no implementation.",
+          "preservation_requirement": "preserve_semantic_relation_for_review",
+          "relation_kind": "constrains",
+          "semantic_relation_ref": "semantic-relation:v83b:morphic:scoped",
+          "source_refs": [
+            "docs/support/morphic_ux. v2.md"
+          ],
+          "to_object_ref": "semantic-object:v83b:domain:intent-to-spec",
+          "validation_need_refs": [
+            "validation-need:v83b:semantic-review"
+          ]
+        },
+        {
+          "from_object_ref": "semantic-object:v83b:non-goal:no-implementation",
+          "limitation_note": "Non-goal is preserved and cannot become required work.",
+          "preservation_requirement": "preserve_as_non_goal",
+          "relation_kind": "non_goal_of",
+          "semantic_relation_ref": "semantic-relation:v83b:non-goal:no-implementation",
+          "source_refs": [
+            "intent:v83a:non-goal:no-implementation"
+          ],
+          "to_object_ref": "semantic-object:v83b:domain:intent-to-spec",
+          "validation_need_refs": [
+            "validation-need:v83b:reject-fixture"
+          ]
+        },
+        {
+          "from_object_ref": "semantic-object:v83b:provider:direct-oai",
+          "limitation_note": "Direct OAI support cannot grant provider authority.",
+          "preservation_requirement": "preserve_as_authority_boundary",
+          "relation_kind": "must_remain_distinct_from",
+          "semantic_relation_ref": "semantic-relation:v83b:provider:not-authority",
+          "source_refs": [
+            "external-support:direct-oai-meta-orchestrator-loop",
+            "external-support:direct-oai-upstream-profile"
+          ],
+          "to_object_ref": "semantic-object:v83b:authority:later-lock",
+          "validation_need_refs": [
+            "validation-need:v83b:reject-fixture"
+          ]
+        },
+        {
+          "from_object_ref": "semantic-object:v83b:schema:edge-decomposition",
+          "limitation_note": "Edge decomposition realizes review shape; no implementation.",
+          "preservation_requirement": "preserve_semantic_relation_for_review",
+          "relation_kind": "realizes",
+          "semantic_relation_ref": "semantic-relation:v83b:realizes:intent",
+          "source_refs": [
+            "apps/api/fixtures/repo_description/vnext_plus232/repo_corpus_ingestion_review_family_closeout_alignment_v232_reference.json",
+            "apps/api/fixtures/repo_description/vnext_plus232/repo_corpus_ingestion_review_summary_v232_reference.json",
+            "apps/api/fixtures/repo_description/vnext_plus232/repo_post_corpus_ingestion_review_handoff_v232_reference.json",
+            "docs/DRAFT_NEXT_ARC_OPTIONS_v73.md",
+            "intent:v83a:authority-boundary:later-lock-required",
+            "intent:v83a:non-goal:no-implementation"
+          ],
+          "to_object_ref": "semantic-object:v83b:domain:intent-to-spec",
+          "validation_need_refs": [
+            "validation-need:v83b:schema-validation",
+            "validation-need:v83b:validator-behavior"
+          ]
+        },
+        {
+          "from_object_ref": "semantic-object:v83b:schema:edge-decomposition",
+          "limitation_note": "Validation needs bind to semantic edges; no implementation.",
+          "preservation_requirement": "preserve_as_validation_need",
+          "relation_kind": "validation_requires",
+          "semantic_relation_ref": "semantic-relation:v83b:validation:edge-bound",
+          "source_refs": [
+            "apps/api/fixtures/repo_description/vnext_plus232/repo_corpus_ingestion_review_family_closeout_alignment_v232_reference.json",
+            "apps/api/fixtures/repo_description/vnext_plus232/repo_corpus_ingestion_review_summary_v232_reference.json",
+            "apps/api/fixtures/repo_description/vnext_plus232/repo_post_corpus_ingestion_review_handoff_v232_reference.json",
+            "docs/DRAFT_NEXT_ARC_OPTIONS_v73.md",
+            "intent:v83a:authority-boundary:later-lock-required",
+            "intent:v83a:non-goal:no-implementation"
+          ],
+          "to_object_ref": "semantic-object:v83b:domain:intent-to-spec",
+          "validation_need_refs": [
+            "validation-need:v83b:positive-fixture",
+            "validation-need:v83b:reject-fixture",
+            "validation-need:v83b:validator-behavior"
+          ]
+        }
+      ],
+      "source_refs": [
+        "apps/api/fixtures/repo_description/vnext_plus232/repo_corpus_ingestion_review_family_closeout_alignment_v232_reference.json",
+        "apps/api/fixtures/repo_description/vnext_plus232/repo_corpus_ingestion_review_summary_v232_reference.json",
+        "apps/api/fixtures/repo_description/vnext_plus232/repo_post_corpus_ingestion_review_handoff_v232_reference.json",
+        "docs/DRAFT_NEXT_ARC_OPTIONS_v73.md",
+        "intent:v83a:authority-boundary:later-lock-required",
+        "intent:v83a:non-goal:no-implementation"
+      ],
+      "validation_need_rows": [
+        {
+          "acceptance_not_truth_guardrail": "acceptance_evidence_is_not_semantic_truth",
+          "limitation_note": "Positive fixture evidence is not semantic truth.",
+          "manual_review_required": false,
+          "required_evidence_kind": "positive_fixture",
+          "required_positive_fixture_posture": "required",
+          "required_reject_fixture_posture": "not_required",
+          "semantic_edge_refs": [
+            "semantic-relation:v83b:acceptance:evidence-bound",
+            "semantic-relation:v83b:validation:edge-bound"
+          ],
+          "tool_applicability_posture": "review_only",
+          "validation_kind": "positive_fixture",
+          "validation_need_ref": "validation-need:v83b:positive-fixture"
+        },
+        {
+          "acceptance_not_truth_guardrail": "acceptance_evidence_is_not_semantic_truth",
+          "limitation_note": "Reject fixture evidence is not semantic truth.",
+          "manual_review_required": false,
+          "required_evidence_kind": "reject_fixture",
+          "required_positive_fixture_posture": "not_required",
+          "required_reject_fixture_posture": "required",
+          "semantic_edge_refs": [
+            "semantic-relation:v83b:acceptance:evidence-bound",
+            "semantic-relation:v83b:non-goal:no-implementation",
+            "semantic-relation:v83b:provider:not-authority",
+            "semantic-relation:v83b:validation:edge-bound"
+          ],
+          "tool_applicability_posture": "review_only",
+          "validation_kind": "reject_fixture",
+          "validation_need_ref": "validation-need:v83b:reject-fixture"
+        },
+        {
+          "acceptance_not_truth_guardrail": "acceptance_evidence_is_not_semantic_truth",
+          "limitation_note": "Schema validation evidence is not semantic truth.",
+          "manual_review_required": false,
+          "required_evidence_kind": "schema",
+          "required_positive_fixture_posture": "required",
+          "required_reject_fixture_posture": "not_required",
+          "semantic_edge_refs": [
+            "semantic-relation:v83b:realizes:intent"
+          ],
+          "tool_applicability_posture": "review_only",
+          "validation_kind": "schema_validation",
+          "validation_need_ref": "validation-need:v83b:schema-validation"
+        },
+        {
+          "acceptance_not_truth_guardrail": "acceptance_evidence_is_not_semantic_truth",
+          "limitation_note": "Semantic review evidence is not implementation truth.",
+          "manual_review_required": true,
+          "required_evidence_kind": "semantic_review",
+          "required_positive_fixture_posture": "not_required",
+          "required_reject_fixture_posture": "required",
+          "semantic_edge_refs": [
+            "semantic-relation:v83b:authority:later-lock",
+            "semantic-relation:v83b:morphic:scoped"
+          ],
+          "tool_applicability_posture": "not_applicable",
+          "validation_kind": "semantic_review",
+          "validation_need_ref": "validation-need:v83b:semantic-review"
+        },
+        {
+          "acceptance_not_truth_guardrail": "acceptance_evidence_is_not_semantic_truth",
+          "limitation_note": "Validator evidence is not semantic truth.",
+          "manual_review_required": false,
+          "required_evidence_kind": "validator",
+          "required_positive_fixture_posture": "required",
+          "required_reject_fixture_posture": "required",
+          "semantic_edge_refs": [
+            "semantic-relation:v83b:realizes:intent",
+            "semantic-relation:v83b:validation:edge-bound"
+          ],
+          "tool_applicability_posture": "review_only",
+          "validation_kind": "validator_behavior",
+          "validation_need_ref": "validation-need:v83b:validator-behavior"
+        }
+      ]
+    }
+  ],
+  "edge_decomposition_summary": "V83-B edge decomposition binds semantic edges to released intent rows for review with no implementation.",
+  "intent_edge_decomposition_id": "repo_intent_edge_decomposition_13e45c00a5f1a5d9a2d8657b",
+  "intent_non_implementation_guardrail_id": "repo_intent_non_implementation_guardrail_800734bad46c116eb9cad1e1",
+  "intent_source_index_id": "repo_intent_source_index_4c15cc3d917a15532de3bcdb",
+  "review_id": "review:v83a:semantic-implementation-spec",
+  "schema": "repo_intent_edge_decomposition@1",
+  "semantic_intent_contract_id": "repo_semantic_intent_contract_5e31241d28b4241b9e1268df",
+  "snapshot_id": "vNext+233-semantic-intent-contract-closeout",
+  "source_set_id": "source-set:v83a:semantic-implementation-spec-intent"
+}
