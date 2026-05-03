@@ -209,10 +209,13 @@ from .runtime_permission_review import (
 )
 from .semantic_implementation_spec import (
     RepoArtifactObligationMap,
+    RepoImplementationSpecProjectionPacket,
     RepoIntentEdgeDecomposition,
     RepoIntentNonImplementationGuardrail,
     RepoIntentSourceIndex,
+    RepoIntentToWorkPacketHandoff,
     RepoSemanticDriftAmbiguityRegister,
+    RepoSemanticImplementationSpecFamilyCloseoutAlignment,
     RepoSemanticIntentContract,
 )
 
@@ -681,6 +684,15 @@ def main() -> None:
     semantic_drift_ambiguity_register_schema = RepoSemanticDriftAmbiguityRegister.model_json_schema(
         by_alias=True
     )
+    implementation_spec_projection_packet_schema = (
+        RepoImplementationSpecProjectionPacket.model_json_schema(by_alias=True)
+    )
+    intent_to_work_packet_handoff_schema = RepoIntentToWorkPacketHandoff.model_json_schema(
+        by_alias=True
+    )
+    semantic_implementation_spec_family_closeout_alignment_schema = (
+        RepoSemanticImplementationSpecFamilyCloseoutAlignment.model_json_schema(by_alias=True)
+    )
 
     _assert_no_absolute_path_material(dependency_register_v1_schema, repo_root_path=root)
     _assert_no_absolute_path_material(dependency_register_schema, repo_root_path=root)
@@ -1071,6 +1083,15 @@ def main() -> None:
     _assert_no_absolute_path_material(artifact_obligation_map_schema, repo_root_path=root)
     _assert_no_absolute_path_material(
         semantic_drift_ambiguity_register_schema,
+        repo_root_path=root,
+    )
+    _assert_no_absolute_path_material(
+        implementation_spec_projection_packet_schema,
+        repo_root_path=root,
+    )
+    _assert_no_absolute_path_material(intent_to_work_packet_handoff_schema, repo_root_path=root)
+    _assert_no_absolute_path_material(
+        semantic_implementation_spec_family_closeout_alignment_schema,
         repo_root_path=root,
     )
 
@@ -2876,6 +2897,31 @@ def main() -> None:
     _write_schema(
         root / "spec" / "repo_semantic_drift_ambiguity_register.schema.json",
         semantic_drift_ambiguity_register_schema,
+    )
+    _write_schema(
+        repo_description_schema_root / "repo_implementation_spec_projection_packet.v1.json",
+        implementation_spec_projection_packet_schema,
+    )
+    _write_schema(
+        root / "spec" / "repo_implementation_spec_projection_packet.schema.json",
+        implementation_spec_projection_packet_schema,
+    )
+    _write_schema(
+        repo_description_schema_root / "repo_intent_to_work_packet_handoff.v1.json",
+        intent_to_work_packet_handoff_schema,
+    )
+    _write_schema(
+        root / "spec" / "repo_intent_to_work_packet_handoff.schema.json",
+        intent_to_work_packet_handoff_schema,
+    )
+    _write_schema(
+        repo_description_schema_root
+        / "repo_semantic_implementation_spec_family_closeout_alignment.v1.json",
+        semantic_implementation_spec_family_closeout_alignment_schema,
+    )
+    _write_schema(
+        root / "spec" / "repo_semantic_implementation_spec_family_closeout_alignment.schema.json",
+        semantic_implementation_spec_family_closeout_alignment_schema,
     )
 
 

@@ -1,0 +1,558 @@
+{
+  "artifact_obligation_map_id": "repo_artifact_obligation_map_74d865ff548bee3a7698c465",
+  "implementation_spec_projection_packet_id": "repo_implementation_spec_projection_packet_2665038295f50721000e681b",
+  "intent_edge_decomposition_id": "repo_intent_edge_decomposition_13e45c00a5f1a5d9a2d8657b",
+  "intent_non_implementation_guardrail_id": "repo_intent_non_implementation_guardrail_800734bad46c116eb9cad1e1",
+  "projection_packet_rows": [
+    {
+      "candidate_ref": "candidate:internal:intent_to_implementation_spec_institution",
+      "carried_blocker_refs": [],
+      "carried_warning_refs": [
+        "drift:v83b:direct-oai-runtime-scope",
+        "drift:v83b:general-artifact-future-family",
+        "drift:v83b:morphic-ux-scope"
+      ],
+      "drift_register_refs": [
+        "drift-register:v83b:intent-to-spec"
+      ],
+      "edge_decomposition_refs": [
+        "edge-decomposition:v83b:intent-to-spec"
+      ],
+      "guardrail_refs": [
+        "guardrail:v83a:direct-harness:import-gap",
+        "guardrail:v83a:general-artifact:future-family",
+        "guardrail:v83a:intent-to-spec:non-implementation"
+      ],
+      "implementation_spec_quality_gate_rows": [
+        {
+          "carried_blocker_refs": [],
+          "carried_warning_refs": [
+            "drift:v83b:direct-oai-runtime-scope",
+            "drift:v83b:general-artifact-future-family",
+            "drift:v83b:morphic-ux-scope"
+          ],
+          "gate_posture": "ready_for_later_implementation_slice_review",
+          "limitation_note": "Quality gate is ready for later implementation slice review only; no implementation.",
+          "non_implementation_guardrail": "non_implementation_guardrail_active",
+          "projection_packet_refs": [
+            "projection-packet:v83c:intent-to-spec"
+          ],
+          "quality_gate_ref": "quality-gate:v83c:later-implementation-slice-review",
+          "ready_basis_posture": "ready_no_blockers",
+          "required_check_refs": [
+            "review-check:v83c:authority-boundary",
+            "review-check:v83c:edge-coverage",
+            "review-check:v83c:future-family-boundary",
+            "review-check:v83c:generated-provenance",
+            "review-check:v83c:non-goal-preservation",
+            "review-check:v83c:reject-fixture",
+            "review-check:v83c:semantic-drift",
+            "review-check:v83c:source-binding",
+            "review-check:v83c:target-surface-boundedness",
+            "review-check:v83c:validation-evidence"
+          ]
+        }
+      ],
+      "implementation_spec_rows": [
+        {
+          "acceptance_evidence_requirements": [
+            "evidence-requirement:v83b:schema:artifact-obligation-map"
+          ],
+          "artifact_obligation_refs": [
+            "artifact-obligation:v83b:schema:artifact-obligation-map"
+          ],
+          "explicit_non_goals": [
+            "intent:v83a:non-goal:no-implementation"
+          ],
+          "implementation_execution_posture": "no_execution_performed_by_v83",
+          "implementation_spec_ref": "implementation-spec:v83c:artifact-obligation-map",
+          "limitation_note": "Implementation spec row is a later-review requirement only; no implementation and no execution.",
+          "required_change_summary": "Later implementation spec must preserve source binding, semantic edge coverage, reject fixtures, and non-goals for review only.",
+          "required_validation_refs": [
+            "validation-need:v83b:validator-behavior"
+          ],
+          "semantic_preservation_refs": [
+            "semantic-relation:v83b:realizes:intent"
+          ],
+          "target_artifact_kind": "schema",
+          "target_surface_refs": [
+            "packages/adeu_repo_description/schema/repo_artifact_obligation_map.v1.json"
+          ]
+        },
+        {
+          "acceptance_evidence_requirements": [
+            "evidence-requirement:v83b:schema:drift-register"
+          ],
+          "artifact_obligation_refs": [
+            "artifact-obligation:v83b:schema:drift-register"
+          ],
+          "explicit_non_goals": [
+            "intent:v83a:non-goal:no-implementation"
+          ],
+          "implementation_execution_posture": "no_execution_performed_by_v83",
+          "implementation_spec_ref": "implementation-spec:v83c:drift-register",
+          "limitation_note": "Implementation spec row is a later-review requirement only; no implementation and no execution.",
+          "required_change_summary": "Later implementation spec must preserve source binding, semantic edge coverage, reject fixtures, and non-goals for review only.",
+          "required_validation_refs": [
+            "validation-need:v83b:validator-behavior"
+          ],
+          "semantic_preservation_refs": [
+            "semantic-relation:v83b:validation:edge-bound"
+          ],
+          "target_artifact_kind": "schema",
+          "target_surface_refs": [
+            "packages/adeu_repo_description/schema/repo_semantic_drift_ambiguity_register.v1.json"
+          ]
+        },
+        {
+          "acceptance_evidence_requirements": [
+            "evidence-requirement:v83b:schema:edge-decomposition"
+          ],
+          "artifact_obligation_refs": [
+            "artifact-obligation:v83b:schema:edge-decomposition"
+          ],
+          "explicit_non_goals": [
+            "intent:v83a:non-goal:no-implementation"
+          ],
+          "implementation_execution_posture": "no_execution_performed_by_v83",
+          "implementation_spec_ref": "implementation-spec:v83c:edge-decomposition",
+          "limitation_note": "Implementation spec row is a later-review requirement only; no implementation and no execution.",
+          "required_change_summary": "Later implementation spec must preserve source binding, semantic edge coverage, reject fixtures, and non-goals for review only.",
+          "required_validation_refs": [
+            "validation-need:v83b:validator-behavior"
+          ],
+          "semantic_preservation_refs": [
+            "semantic-relation:v83b:realizes:intent"
+          ],
+          "target_artifact_kind": "schema",
+          "target_surface_refs": [
+            "packages/adeu_repo_description/schema/repo_intent_edge_decomposition.v1.json"
+          ]
+        },
+        {
+          "acceptance_evidence_requirements": [
+            "evidence-requirement:v83b:fixtures"
+          ],
+          "artifact_obligation_refs": [
+            "artifact-obligation:v83b:fixtures"
+          ],
+          "explicit_non_goals": [
+            "intent:v83a:non-goal:no-implementation"
+          ],
+          "implementation_execution_posture": "no_execution_performed_by_v83",
+          "implementation_spec_ref": "implementation-spec:v83c:fixtures",
+          "limitation_note": "Implementation spec row is a later-review requirement only; no implementation and no execution.",
+          "required_change_summary": "Later implementation spec must preserve source binding, semantic edge coverage, reject fixtures, and non-goals for review only.",
+          "required_validation_refs": [
+            "validation-need:v83b:validator-behavior"
+          ],
+          "semantic_preservation_refs": [
+            "semantic-relation:v83b:acceptance:evidence-bound",
+            "semantic-relation:v83b:validation:edge-bound"
+          ],
+          "target_artifact_kind": "fixture",
+          "target_surface_refs": [
+            "apps/api/fixtures/repo_description/vnext_plus234"
+          ]
+        },
+        {
+          "acceptance_evidence_requirements": [
+            "evidence-requirement:v83b:tests"
+          ],
+          "artifact_obligation_refs": [
+            "artifact-obligation:v83b:tests"
+          ],
+          "explicit_non_goals": [
+            "intent:v83a:non-goal:no-implementation"
+          ],
+          "implementation_execution_posture": "no_execution_performed_by_v83",
+          "implementation_spec_ref": "implementation-spec:v83c:tests",
+          "limitation_note": "Implementation spec row is a later-review requirement only; no implementation and no execution.",
+          "required_change_summary": "Later implementation spec must preserve source binding, semantic edge coverage, reject fixtures, and non-goals for review only.",
+          "required_validation_refs": [
+            "validation-need:v83b:reject-fixture",
+            "validation-need:v83b:validator-behavior"
+          ],
+          "semantic_preservation_refs": [
+            "semantic-relation:v83b:acceptance:evidence-bound",
+            "semantic-relation:v83b:provider:not-authority"
+          ],
+          "target_artifact_kind": "test",
+          "target_surface_refs": [
+            "packages/adeu_repo_description/tests/test_semantic_implementation_spec_v83b.py"
+          ]
+        }
+      ],
+      "intent_contract_refs": [
+        "semantic-intent:v83a:intent-to-implementation-spec"
+      ],
+      "limitation_note": "V83-C projection packet is ready for later review with no implementation.",
+      "non_implementation_posture": "non_implementation_guardrail_active",
+      "obligation_map_refs": [
+        "obligation-map:v83b:intent-to-spec"
+      ],
+      "projection_packet_ref": "projection-packet:v83c:intent-to-spec",
+      "projection_posture": "projection_packet_ready_for_review",
+      "projection_provenance_rows": [
+        {
+          "generated_spec_refs": [],
+          "generation_scope_posture": "not_generated",
+          "input_edge_decomposition_refs": [
+            "edge-decomposition:v83b:intent-to-spec"
+          ],
+          "input_intent_contract_refs": [
+            "semantic-intent:v83a:intent-to-implementation-spec"
+          ],
+          "input_obligation_map_refs": [
+            "obligation-map:v83b:intent-to-spec"
+          ],
+          "limitation_note": "Reviewer projection provenance is review-only; no implementation.",
+          "model_or_agent_profile_refs": [],
+          "non_authority_posture": "review_only_no_authority",
+          "projection_actor_kind": "reviewer",
+          "projection_provenance_ref": "projection-provenance:v83c:reviewer",
+          "prompt_context_refs": [],
+          "review_status": "reviewed_for_artifact_obligation_coverage",
+          "reviewer_amendment_refs": [
+            "docs/LOCKED_CONTINUATION_vNEXT_PLUS235.md"
+          ]
+        }
+      ],
+      "ready_basis_posture": "ready_no_blockers",
+      "semantic_coverage_posture": "all_required_edges_covered",
+      "source_refs": [
+        "apps/api/fixtures/repo_description/vnext_plus232/repo_corpus_ingestion_review_family_closeout_alignment_v232_reference.json",
+        "apps/api/fixtures/repo_description/vnext_plus232/repo_corpus_ingestion_review_summary_v232_reference.json",
+        "apps/api/fixtures/repo_description/vnext_plus232/repo_post_corpus_ingestion_review_handoff_v232_reference.json",
+        "docs/DRAFT_NEXT_ARC_OPTIONS_v73.md",
+        "intent:v83a:authority-boundary:later-lock-required",
+        "intent:v83a:non-goal:no-implementation"
+      ],
+      "spec_review_checklist_rows": [
+        {
+          "artifact_obligation_refs": [
+            "artifact-obligation:v83b:fixtures",
+            "artifact-obligation:v83b:schema:artifact-obligation-map",
+            "artifact-obligation:v83b:schema:drift-register",
+            "artifact-obligation:v83b:schema:edge-decomposition",
+            "artifact-obligation:v83b:tests"
+          ],
+          "blocking_posture": "not_applicable",
+          "check_kind": "authority_boundary_check",
+          "check_posture": "passed_for_review_only",
+          "implementation_spec_refs": [
+            "implementation-spec:v83c:artifact-obligation-map",
+            "implementation-spec:v83c:drift-register",
+            "implementation-spec:v83c:edge-decomposition",
+            "implementation-spec:v83c:fixtures",
+            "implementation-spec:v83c:tests"
+          ],
+          "limitation_note": "Authority boundary check passes for review only; no implementation.",
+          "review_check_ref": "review-check:v83c:authority-boundary",
+          "semantic_edge_refs": [
+            "semantic-relation:v83b:authority:later-lock"
+          ],
+          "source_refs": [
+            "intent:v83a:authority-boundary:later-lock-required"
+          ]
+        },
+        {
+          "artifact_obligation_refs": [
+            "artifact-obligation:v83b:fixtures",
+            "artifact-obligation:v83b:schema:artifact-obligation-map",
+            "artifact-obligation:v83b:schema:drift-register",
+            "artifact-obligation:v83b:schema:edge-decomposition",
+            "artifact-obligation:v83b:tests"
+          ],
+          "blocking_posture": "not_applicable",
+          "check_kind": "edge_coverage_check",
+          "check_posture": "passed_for_review_only",
+          "implementation_spec_refs": [
+            "implementation-spec:v83c:artifact-obligation-map",
+            "implementation-spec:v83c:drift-register",
+            "implementation-spec:v83c:edge-decomposition",
+            "implementation-spec:v83c:fixtures",
+            "implementation-spec:v83c:tests"
+          ],
+          "limitation_note": "Edge coverage check is evidence for review only; no implementation.",
+          "review_check_ref": "review-check:v83c:edge-coverage",
+          "semantic_edge_refs": [
+            "semantic-relation:v83b:acceptance:evidence-bound",
+            "semantic-relation:v83b:authority:later-lock",
+            "semantic-relation:v83b:morphic:scoped",
+            "semantic-relation:v83b:non-goal:no-implementation",
+            "semantic-relation:v83b:provider:not-authority",
+            "semantic-relation:v83b:realizes:intent",
+            "semantic-relation:v83b:validation:edge-bound"
+          ],
+          "source_refs": [
+            "apps/api/fixtures/repo_description/vnext_plus232/repo_corpus_ingestion_review_family_closeout_alignment_v232_reference.json",
+            "apps/api/fixtures/repo_description/vnext_plus232/repo_corpus_ingestion_review_summary_v232_reference.json",
+            "apps/api/fixtures/repo_description/vnext_plus232/repo_post_corpus_ingestion_review_handoff_v232_reference.json",
+            "docs/DRAFT_NEXT_ARC_OPTIONS_v73.md",
+            "intent:v83a:authority-boundary:later-lock-required",
+            "intent:v83a:non-goal:no-implementation"
+          ]
+        },
+        {
+          "artifact_obligation_refs": [],
+          "blocking_posture": "warning_only",
+          "check_kind": "future_family_boundary_check",
+          "check_posture": "warning",
+          "implementation_spec_refs": [
+            "implementation-spec:v83c:artifact-obligation-map",
+            "implementation-spec:v83c:drift-register",
+            "implementation-spec:v83c:edge-decomposition",
+            "implementation-spec:v83c:fixtures",
+            "implementation-spec:v83c:tests"
+          ],
+          "limitation_note": "Future family pressure remains warning-only with no V84 selection.",
+          "review_check_ref": "review-check:v83c:future-family-boundary",
+          "semantic_edge_refs": [
+            "semantic-relation:v83b:authority:later-lock"
+          ],
+          "source_refs": [
+            "docs/DRAFT_NEXT_ARC_OPTIONS_v73.md"
+          ]
+        },
+        {
+          "artifact_obligation_refs": [],
+          "blocking_posture": "not_applicable",
+          "check_kind": "generated_spec_provenance_check",
+          "check_posture": "passed_for_review_only",
+          "implementation_spec_refs": [
+            "implementation-spec:v83c:artifact-obligation-map",
+            "implementation-spec:v83c:drift-register",
+            "implementation-spec:v83c:edge-decomposition",
+            "implementation-spec:v83c:fixtures",
+            "implementation-spec:v83c:tests"
+          ],
+          "limitation_note": "No model/agent generated spec is authoritative; no implementation.",
+          "review_check_ref": "review-check:v83c:generated-provenance",
+          "semantic_edge_refs": [],
+          "source_refs": [
+            "generated-spec:v83a:current:absent"
+          ]
+        },
+        {
+          "artifact_obligation_refs": [],
+          "blocking_posture": "not_applicable",
+          "check_kind": "non_goal_preservation_check",
+          "check_posture": "passed_for_review_only",
+          "implementation_spec_refs": [
+            "implementation-spec:v83c:artifact-obligation-map",
+            "implementation-spec:v83c:drift-register",
+            "implementation-spec:v83c:edge-decomposition",
+            "implementation-spec:v83c:fixtures",
+            "implementation-spec:v83c:tests"
+          ],
+          "limitation_note": "Non-goals remain preserved for review; no implementation.",
+          "review_check_ref": "review-check:v83c:non-goal-preservation",
+          "semantic_edge_refs": [
+            "semantic-relation:v83b:non-goal:no-implementation"
+          ],
+          "source_refs": [
+            "intent:v83a:non-goal:no-implementation"
+          ]
+        },
+        {
+          "artifact_obligation_refs": [
+            "artifact-obligation:v83b:fixtures",
+            "artifact-obligation:v83b:schema:artifact-obligation-map",
+            "artifact-obligation:v83b:schema:drift-register",
+            "artifact-obligation:v83b:schema:edge-decomposition",
+            "artifact-obligation:v83b:tests"
+          ],
+          "blocking_posture": "not_applicable",
+          "check_kind": "reject_fixture_check",
+          "check_posture": "passed_for_review_only",
+          "implementation_spec_refs": [
+            "implementation-spec:v83c:artifact-obligation-map",
+            "implementation-spec:v83c:drift-register",
+            "implementation-spec:v83c:edge-decomposition",
+            "implementation-spec:v83c:fixtures",
+            "implementation-spec:v83c:tests"
+          ],
+          "limitation_note": "Reject fixtures are required evidence, not semantic truth.",
+          "review_check_ref": "review-check:v83c:reject-fixture",
+          "semantic_edge_refs": [
+            "semantic-relation:v83b:acceptance:evidence-bound",
+            "semantic-relation:v83b:authority:later-lock",
+            "semantic-relation:v83b:morphic:scoped",
+            "semantic-relation:v83b:non-goal:no-implementation",
+            "semantic-relation:v83b:provider:not-authority",
+            "semantic-relation:v83b:realizes:intent",
+            "semantic-relation:v83b:validation:edge-bound"
+          ],
+          "source_refs": [
+            "apps/api/fixtures/repo_description/vnext_plus232/repo_corpus_ingestion_review_family_closeout_alignment_v232_reference.json",
+            "apps/api/fixtures/repo_description/vnext_plus232/repo_corpus_ingestion_review_summary_v232_reference.json",
+            "apps/api/fixtures/repo_description/vnext_plus232/repo_post_corpus_ingestion_review_handoff_v232_reference.json",
+            "docs/DRAFT_NEXT_ARC_OPTIONS_v73.md",
+            "intent:v83a:authority-boundary:later-lock-required",
+            "intent:v83a:non-goal:no-implementation"
+          ]
+        },
+        {
+          "artifact_obligation_refs": [
+            "artifact-obligation:v83b:fixtures",
+            "artifact-obligation:v83b:schema:artifact-obligation-map",
+            "artifact-obligation:v83b:schema:drift-register",
+            "artifact-obligation:v83b:schema:edge-decomposition",
+            "artifact-obligation:v83b:tests"
+          ],
+          "blocking_posture": "warning_only",
+          "check_kind": "semantic_drift_check",
+          "check_posture": "warning",
+          "implementation_spec_refs": [
+            "implementation-spec:v83c:artifact-obligation-map",
+            "implementation-spec:v83c:drift-register",
+            "implementation-spec:v83c:edge-decomposition",
+            "implementation-spec:v83c:fixtures",
+            "implementation-spec:v83c:tests"
+          ],
+          "limitation_note": "Drift warnings remain visible and nonblocking; no implementation.",
+          "review_check_ref": "review-check:v83c:semantic-drift",
+          "semantic_edge_refs": [
+            "semantic-relation:v83b:acceptance:evidence-bound",
+            "semantic-relation:v83b:authority:later-lock",
+            "semantic-relation:v83b:morphic:scoped",
+            "semantic-relation:v83b:non-goal:no-implementation",
+            "semantic-relation:v83b:provider:not-authority",
+            "semantic-relation:v83b:realizes:intent",
+            "semantic-relation:v83b:validation:edge-bound"
+          ],
+          "source_refs": [
+            "apps/api/fixtures/repo_description/vnext_plus232/repo_corpus_ingestion_review_family_closeout_alignment_v232_reference.json",
+            "apps/api/fixtures/repo_description/vnext_plus232/repo_corpus_ingestion_review_summary_v232_reference.json",
+            "apps/api/fixtures/repo_description/vnext_plus232/repo_post_corpus_ingestion_review_handoff_v232_reference.json",
+            "docs/DRAFT_NEXT_ARC_OPTIONS_v73.md",
+            "intent:v83a:authority-boundary:later-lock-required",
+            "intent:v83a:non-goal:no-implementation"
+          ]
+        },
+        {
+          "artifact_obligation_refs": [
+            "artifact-obligation:v83b:fixtures",
+            "artifact-obligation:v83b:schema:artifact-obligation-map",
+            "artifact-obligation:v83b:schema:drift-register",
+            "artifact-obligation:v83b:schema:edge-decomposition",
+            "artifact-obligation:v83b:tests"
+          ],
+          "blocking_posture": "not_applicable",
+          "check_kind": "source_binding_check",
+          "check_posture": "passed_for_review_only",
+          "implementation_spec_refs": [
+            "implementation-spec:v83c:artifact-obligation-map",
+            "implementation-spec:v83c:drift-register",
+            "implementation-spec:v83c:edge-decomposition",
+            "implementation-spec:v83c:fixtures",
+            "implementation-spec:v83c:tests"
+          ],
+          "limitation_note": "Source binding check passes for review only; no implementation.",
+          "review_check_ref": "review-check:v83c:source-binding",
+          "semantic_edge_refs": [
+            "semantic-relation:v83b:acceptance:evidence-bound",
+            "semantic-relation:v83b:authority:later-lock",
+            "semantic-relation:v83b:morphic:scoped",
+            "semantic-relation:v83b:non-goal:no-implementation",
+            "semantic-relation:v83b:provider:not-authority",
+            "semantic-relation:v83b:realizes:intent",
+            "semantic-relation:v83b:validation:edge-bound"
+          ],
+          "source_refs": [
+            "apps/api/fixtures/repo_description/vnext_plus232/repo_corpus_ingestion_review_family_closeout_alignment_v232_reference.json",
+            "apps/api/fixtures/repo_description/vnext_plus232/repo_corpus_ingestion_review_summary_v232_reference.json",
+            "apps/api/fixtures/repo_description/vnext_plus232/repo_post_corpus_ingestion_review_handoff_v232_reference.json",
+            "docs/DRAFT_NEXT_ARC_OPTIONS_v73.md",
+            "intent:v83a:authority-boundary:later-lock-required",
+            "intent:v83a:non-goal:no-implementation"
+          ]
+        },
+        {
+          "artifact_obligation_refs": [
+            "artifact-obligation:v83b:fixtures",
+            "artifact-obligation:v83b:schema:artifact-obligation-map",
+            "artifact-obligation:v83b:schema:drift-register",
+            "artifact-obligation:v83b:schema:edge-decomposition",
+            "artifact-obligation:v83b:tests"
+          ],
+          "blocking_posture": "not_applicable",
+          "check_kind": "target_surface_boundedness_check",
+          "check_posture": "passed_for_review_only",
+          "implementation_spec_refs": [
+            "implementation-spec:v83c:artifact-obligation-map",
+            "implementation-spec:v83c:drift-register",
+            "implementation-spec:v83c:edge-decomposition",
+            "implementation-spec:v83c:fixtures",
+            "implementation-spec:v83c:tests"
+          ],
+          "limitation_note": "Target surfaces are bounded for later review; no implementation.",
+          "review_check_ref": "review-check:v83c:target-surface-boundedness",
+          "semantic_edge_refs": [
+            "semantic-relation:v83b:acceptance:evidence-bound",
+            "semantic-relation:v83b:authority:later-lock",
+            "semantic-relation:v83b:morphic:scoped",
+            "semantic-relation:v83b:non-goal:no-implementation",
+            "semantic-relation:v83b:provider:not-authority",
+            "semantic-relation:v83b:realizes:intent",
+            "semantic-relation:v83b:validation:edge-bound"
+          ],
+          "source_refs": [
+            "apps/api/fixtures/repo_description/vnext_plus232/repo_corpus_ingestion_review_family_closeout_alignment_v232_reference.json",
+            "apps/api/fixtures/repo_description/vnext_plus232/repo_corpus_ingestion_review_summary_v232_reference.json",
+            "apps/api/fixtures/repo_description/vnext_plus232/repo_post_corpus_ingestion_review_handoff_v232_reference.json",
+            "docs/DRAFT_NEXT_ARC_OPTIONS_v73.md",
+            "intent:v83a:authority-boundary:later-lock-required",
+            "intent:v83a:non-goal:no-implementation"
+          ]
+        },
+        {
+          "artifact_obligation_refs": [
+            "artifact-obligation:v83b:fixtures",
+            "artifact-obligation:v83b:schema:artifact-obligation-map",
+            "artifact-obligation:v83b:schema:drift-register",
+            "artifact-obligation:v83b:schema:edge-decomposition",
+            "artifact-obligation:v83b:tests"
+          ],
+          "blocking_posture": "not_applicable",
+          "check_kind": "validation_evidence_check",
+          "check_posture": "passed_for_review_only",
+          "implementation_spec_refs": [
+            "implementation-spec:v83c:artifact-obligation-map",
+            "implementation-spec:v83c:drift-register",
+            "implementation-spec:v83c:edge-decomposition",
+            "implementation-spec:v83c:fixtures",
+            "implementation-spec:v83c:tests"
+          ],
+          "limitation_note": "Validation evidence is edge-bound and not semantic truth.",
+          "review_check_ref": "review-check:v83c:validation-evidence",
+          "semantic_edge_refs": [
+            "semantic-relation:v83b:acceptance:evidence-bound",
+            "semantic-relation:v83b:authority:later-lock",
+            "semantic-relation:v83b:morphic:scoped",
+            "semantic-relation:v83b:non-goal:no-implementation",
+            "semantic-relation:v83b:provider:not-authority",
+            "semantic-relation:v83b:realizes:intent",
+            "semantic-relation:v83b:validation:edge-bound"
+          ],
+          "source_refs": [
+            "apps/api/fixtures/repo_description/vnext_plus232/repo_corpus_ingestion_review_family_closeout_alignment_v232_reference.json",
+            "apps/api/fixtures/repo_description/vnext_plus232/repo_corpus_ingestion_review_summary_v232_reference.json",
+            "apps/api/fixtures/repo_description/vnext_plus232/repo_post_corpus_ingestion_review_handoff_v232_reference.json",
+            "docs/DRAFT_NEXT_ARC_OPTIONS_v73.md",
+            "intent:v83a:authority-boundary:later-lock-required",
+            "intent:v83a:non-goal:no-implementation"
+          ]
+        }
+      ]
+    }
+  ],
+  "projection_packet_summary": "V83-C projection packet packages semantic implementation spec obligations for review with no implementation.",
+  "review_id": "review:v83a:semantic-implementation-spec",
+  "schema": "repo_implementation_spec_projection_packet@1",
+  "semantic_drift_ambiguity_register_id": "repo_semantic_drift_ambiguity_register_80373eb6087e9ab0c6c6794a",
+  "semantic_intent_contract_id": "repo_semantic_intent_contract_5e31241d28b4241b9e1268df",
+  "snapshot_id": "vNext+234-semantic-edge-obligation-closeout",
+  "source_set_id": "source-set:v83a:semantic-implementation-spec-intent"
+}

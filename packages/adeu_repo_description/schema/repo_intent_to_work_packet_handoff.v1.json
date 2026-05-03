@@ -1,0 +1,252 @@
+{
+  "$defs": {
+    "RepoIntentToWorkPacketHandoffRow": {
+      "additionalProperties": false,
+      "properties": {
+        "artifact_obligation_refs": {
+          "items": {
+            "type": "string"
+          },
+          "title": "Artifact Obligation Refs",
+          "type": "array"
+        },
+        "candidate_ref": {
+          "title": "Candidate Ref",
+          "type": "string"
+        },
+        "carried_drift_refs": {
+          "items": {
+            "type": "string"
+          },
+          "title": "Carried Drift Refs",
+          "type": "array"
+        },
+        "guardrail_refs": {
+          "items": {
+            "type": "string"
+          },
+          "minItems": 1,
+          "title": "Guardrail Refs",
+          "type": "array"
+        },
+        "handoff_posture": {
+          "enum": [
+            "ready_for_later_review",
+            "ready_with_nonblocking_warnings",
+            "blocked_by_projection_packet_gap",
+            "blocked_by_authority_gap",
+            "blocked_by_semantic_drift",
+            "future_family_only",
+            "rejected_out_of_scope"
+          ],
+          "title": "Handoff Posture",
+          "type": "string"
+        },
+        "handoff_ref": {
+          "title": "Handoff Ref",
+          "type": "string"
+        },
+        "handoff_subject_horizon": {
+          "enum": [
+            "implementation_spec_package",
+            "code_implementation_spec",
+            "schema_fixture_test_spec",
+            "docs_support_spec",
+            "ux_projection_spec",
+            "provider_capability_profile_spec",
+            "workflow_orchestrator_spec",
+            "general_artifact_projection_pressure",
+            "product_authority_gap",
+            "graph_memory_pressure"
+          ],
+          "title": "Handoff Subject Horizon",
+          "type": "string"
+        },
+        "handoff_target": {
+          "enum": [
+            "future_implementation_slice_review",
+            "future_work_packet_review",
+            "future_meta_orchestrator_workflow_review",
+            "future_morphic_ux_projection_review",
+            "future_direct_oai_harness_review",
+            "future_general_digital_artifact_projection_review",
+            "future_product_review",
+            "future_graph_memory_review",
+            "future_family_review",
+            "deferred_no_selection"
+          ],
+          "title": "Handoff Target",
+          "type": "string"
+        },
+        "implementation_execution_posture": {
+          "enum": [
+            "no_execution_performed_by_v83",
+            "execution_requires_later_lock",
+            "execution_forbidden_by_this_family"
+          ],
+          "title": "Implementation Execution Posture",
+          "type": "string"
+        },
+        "implementation_lock_requirement": {
+          "enum": [
+            "canonical_starter_lock_required",
+            "later_selector_required",
+            "maintainer_review_required",
+            "future_family_only",
+            "not_applicable"
+          ],
+          "title": "Implementation Lock Requirement",
+          "type": "string"
+        },
+        "intent_contract_refs": {
+          "items": {
+            "type": "string"
+          },
+          "minItems": 1,
+          "title": "Intent Contract Refs",
+          "type": "array"
+        },
+        "limitation_note": {
+          "title": "Limitation Note",
+          "type": "string"
+        },
+        "meta_orchestrator_runtime_posture": {
+          "enum": [
+            "no_meta_orchestrator_runtime_performed_by_v83",
+            "workflow_transition_review_only",
+            "runtime_requires_later_family",
+            "not_applicable"
+          ],
+          "title": "Meta Orchestrator Runtime Posture",
+          "type": "string"
+        },
+        "projection_packet_refs": {
+          "items": {
+            "type": "string"
+          },
+          "minItems": 1,
+          "title": "Projection Packet Refs",
+          "type": "array"
+        },
+        "required_later_authority_refs": {
+          "items": {
+            "type": "string"
+          },
+          "minItems": 1,
+          "title": "Required Later Authority Refs",
+          "type": "array"
+        },
+        "work_packet_authority_posture": {
+          "enum": [
+            "no_work_packet_authority_granted",
+            "work_packet_requires_later_lock",
+            "work_packet_review_only",
+            "work_packet_forbidden_by_this_family"
+          ],
+          "title": "Work Packet Authority Posture",
+          "type": "string"
+        },
+        "work_packet_execution_posture": {
+          "enum": [
+            "no_execution_performed_by_v83",
+            "execution_requires_later_lock",
+            "execution_forbidden_by_this_family"
+          ],
+          "title": "Work Packet Execution Posture",
+          "type": "string"
+        }
+      },
+      "required": [
+        "handoff_ref",
+        "candidate_ref",
+        "projection_packet_refs",
+        "intent_contract_refs",
+        "handoff_target",
+        "handoff_subject_horizon",
+        "handoff_posture",
+        "required_later_authority_refs",
+        "work_packet_authority_posture",
+        "implementation_lock_requirement",
+        "work_packet_execution_posture",
+        "implementation_execution_posture",
+        "meta_orchestrator_runtime_posture",
+        "guardrail_refs",
+        "limitation_note"
+      ],
+      "title": "RepoIntentToWorkPacketHandoffRow",
+      "type": "object"
+    }
+  },
+  "additionalProperties": false,
+  "properties": {
+    "artifact_obligation_map_id": {
+      "title": "Artifact Obligation Map Id",
+      "type": "string"
+    },
+    "handoff_rows": {
+      "items": {
+        "$ref": "#/$defs/RepoIntentToWorkPacketHandoffRow"
+      },
+      "minItems": 1,
+      "title": "Handoff Rows",
+      "type": "array"
+    },
+    "handoff_summary": {
+      "title": "Handoff Summary",
+      "type": "string"
+    },
+    "implementation_spec_projection_packet_id": {
+      "title": "Implementation Spec Projection Packet Id",
+      "type": "string"
+    },
+    "intent_non_implementation_guardrail_id": {
+      "title": "Intent Non Implementation Guardrail Id",
+      "type": "string"
+    },
+    "intent_to_work_packet_handoff_id": {
+      "title": "Intent To Work Packet Handoff Id",
+      "type": "string"
+    },
+    "review_id": {
+      "title": "Review Id",
+      "type": "string"
+    },
+    "schema": {
+      "const": "repo_intent_to_work_packet_handoff@1",
+      "default": "repo_intent_to_work_packet_handoff@1",
+      "title": "Schema",
+      "type": "string"
+    },
+    "semantic_drift_ambiguity_register_id": {
+      "title": "Semantic Drift Ambiguity Register Id",
+      "type": "string"
+    },
+    "semantic_intent_contract_id": {
+      "title": "Semantic Intent Contract Id",
+      "type": "string"
+    },
+    "snapshot_id": {
+      "title": "Snapshot Id",
+      "type": "string"
+    },
+    "source_set_id": {
+      "title": "Source Set Id",
+      "type": "string"
+    }
+  },
+  "required": [
+    "intent_to_work_packet_handoff_id",
+    "implementation_spec_projection_packet_id",
+    "semantic_intent_contract_id",
+    "artifact_obligation_map_id",
+    "semantic_drift_ambiguity_register_id",
+    "intent_non_implementation_guardrail_id",
+    "review_id",
+    "snapshot_id",
+    "source_set_id",
+    "handoff_rows",
+    "handoff_summary"
+  ],
+  "title": "RepoIntentToWorkPacketHandoff",
+  "type": "object"
+}

@@ -28,6 +28,11 @@ REPO_INTENT_NON_IMPLEMENTATION_GUARDRAIL_SCHEMA = "repo_intent_non_implementatio
 REPO_INTENT_EDGE_DECOMPOSITION_SCHEMA = "repo_intent_edge_decomposition@1"
 REPO_ARTIFACT_OBLIGATION_MAP_SCHEMA = "repo_artifact_obligation_map@1"
 REPO_SEMANTIC_DRIFT_AMBIGUITY_REGISTER_SCHEMA = "repo_semantic_drift_ambiguity_register@1"
+REPO_IMPLEMENTATION_SPEC_PROJECTION_PACKET_SCHEMA = "repo_implementation_spec_projection_packet@1"
+REPO_INTENT_TO_WORK_PACKET_HANDOFF_SCHEMA = "repo_intent_to_work_packet_handoff@1"
+REPO_SEMANTIC_IMPLEMENTATION_SPEC_FAMILY_CLOSEOUT_ALIGNMENT_SCHEMA = (
+    "repo_semantic_implementation_spec_family_closeout_alignment@1"
+)
 
 IntentSourceRole = Literal[
     "v82_closeout_source",
@@ -406,6 +411,194 @@ DriftRequiredNextSurface = Literal[
     "future_family_review",
     "blocked_until_source_added",
 ]
+ProjectionPacketPosture = Literal[
+    "projection_packet_ready_for_review",
+    "projection_packet_ready_with_nonblocking_warnings",
+    "blocked_by_missing_intent_contract",
+    "blocked_by_missing_edge_decomposition",
+    "blocked_by_missing_obligation_map",
+    "blocked_by_semantic_drift",
+    "blocked_by_authority_gap",
+    "future_family_only",
+    "rejected_out_of_scope",
+]
+SemanticCoveragePosture = Literal[
+    "all_required_edges_covered",
+    "covered_with_nonblocking_warnings",
+    "blocked_by_uncovered_edge",
+    "blocked_by_unvalidated_edge",
+    "blocked_by_ambiguous_edge",
+    "future_family_only",
+]
+ProjectionReadyBasisPosture = Literal[
+    "ready_no_blockers",
+    "ready_with_nonblocking_warnings",
+    "not_ready_blockers_remain",
+    "authority_review_requested_for_blockers",
+    "future_family_only",
+    "rejected_out_of_scope",
+]
+ProjectionActorKind = Literal[
+    "human_operator",
+    "model",
+    "agent",
+    "reviewer",
+    "tool_assisted_review",
+    "mixed",
+    "unknown",
+]
+ProjectionGenerationScopePosture = Literal[
+    "bounded_to_released_v83_inputs",
+    "bounded_to_prompt_context",
+    "unbounded_context_blocked",
+    "generated_source_missing",
+    "not_generated",
+]
+ProjectionReviewStatus = Literal[
+    "candidate_unreviewed",
+    "reviewed_for_source_binding",
+    "reviewed_for_edge_coverage",
+    "reviewed_for_artifact_obligation_coverage",
+    "blocked_by_missing_context",
+    "blocked_by_semantic_drift",
+    "blocked_by_authority_gap",
+]
+ProjectionNonAuthorityPosture = Literal[
+    "candidate_projection_only",
+    "review_only_no_authority",
+    "authority_requires_later_lock",
+]
+ImplementationExecutionPosture = Literal[
+    "no_execution_performed_by_v83",
+    "execution_requires_later_lock",
+    "execution_forbidden_by_this_family",
+]
+ReviewCheckKind = Literal[
+    "source_binding_check",
+    "non_goal_preservation_check",
+    "authority_boundary_check",
+    "target_surface_boundedness_check",
+    "edge_coverage_check",
+    "validation_evidence_check",
+    "reject_fixture_check",
+    "generated_spec_provenance_check",
+    "semantic_drift_check",
+    "future_family_boundary_check",
+]
+ReviewCheckPosture = Literal[
+    "passed_for_review_only",
+    "blocked",
+    "warning",
+    "not_applicable",
+    "requires_later_review",
+]
+ReviewCheckBlockingPosture = Literal["blocking", "warning_only", "not_applicable"]
+QualityGatePosture = Literal[
+    "ready_for_later_implementation_slice_review",
+    "ready_with_nonblocking_warnings",
+    "blocked_by_missing_source_binding",
+    "blocked_by_uncovered_edge",
+    "blocked_by_unbounded_target_surface",
+    "blocked_by_missing_validation_evidence",
+    "blocked_by_generated_spec_provenance_gap",
+    "blocked_by_authority_gap",
+    "future_family_only",
+    "rejected_out_of_scope",
+]
+WorkPacketAuthorityPosture = Literal[
+    "no_work_packet_authority_granted",
+    "work_packet_requires_later_lock",
+    "work_packet_review_only",
+    "work_packet_forbidden_by_this_family",
+]
+ImplementationLockRequirement = Literal[
+    "canonical_starter_lock_required",
+    "later_selector_required",
+    "maintainer_review_required",
+    "future_family_only",
+    "not_applicable",
+]
+WorkPacketHandoffTarget = Literal[
+    "future_implementation_slice_review",
+    "future_work_packet_review",
+    "future_meta_orchestrator_workflow_review",
+    "future_morphic_ux_projection_review",
+    "future_direct_oai_harness_review",
+    "future_general_digital_artifact_projection_review",
+    "future_product_review",
+    "future_graph_memory_review",
+    "future_family_review",
+    "deferred_no_selection",
+]
+WorkPacketHandoffSubjectHorizon = Literal[
+    "implementation_spec_package",
+    "code_implementation_spec",
+    "schema_fixture_test_spec",
+    "docs_support_spec",
+    "ux_projection_spec",
+    "provider_capability_profile_spec",
+    "workflow_orchestrator_spec",
+    "general_artifact_projection_pressure",
+    "product_authority_gap",
+    "graph_memory_pressure",
+]
+WorkPacketHandoffPosture = Literal[
+    "ready_for_later_review",
+    "ready_with_nonblocking_warnings",
+    "blocked_by_projection_packet_gap",
+    "blocked_by_authority_gap",
+    "blocked_by_semantic_drift",
+    "future_family_only",
+    "rejected_out_of_scope",
+]
+MetaOrchestratorRuntimePosture = Literal[
+    "no_meta_orchestrator_runtime_performed_by_v83",
+    "workflow_transition_review_only",
+    "runtime_requires_later_family",
+    "not_applicable",
+]
+SemanticSpecClosedSlice = Literal["V83-A", "V83-B", "V83-C"]
+SemanticSpecConsumedFamily = Literal[
+    "V68",
+    "V69",
+    "V70",
+    "V71",
+    "V72",
+    "V73",
+    "V74",
+    "V75",
+    "V76",
+    "V77",
+    "V78",
+    "V79",
+    "V80",
+    "V81",
+    "V82",
+    "V83",
+]
+SemanticSpecShippedRecordShape = Literal[
+    "repo_semantic_intent_contract@1",
+    "repo_intent_source_index@1",
+    "repo_intent_non_implementation_guardrail@1",
+    "repo_intent_edge_decomposition@1",
+    "repo_artifact_obligation_map@1",
+    "repo_semantic_drift_ambiguity_register@1",
+    "repo_implementation_spec_projection_packet@1",
+    "repo_intent_to_work_packet_handoff@1",
+    "repo_semantic_implementation_spec_family_closeout_alignment@1",
+]
+SemanticSpecUnselectedFutureSurface = Literal[
+    "code_implementation",
+    "work_packet_execution",
+    "meta_orchestrator_runtime",
+    "morphic_ux_runtime_change",
+    "direct_oai_runtime_behavior",
+    "product_authorization",
+    "release",
+    "graph_memory_authority",
+    "recursive_policy_amendment",
+    "v84_selection",
+]
 
 _V82_ELIGIBILITY_SOURCE_ROLES = {
     "v82_summary_source",
@@ -550,6 +743,34 @@ def _reject_v83b_projection_or_runtime_claim(value: str, *, field_name: str) -> 
         )
         if not negated:
             raise ValueError(f"{field_name} may not carry V83-B downstream authority")
+    return value
+
+
+def _reject_v83c_execution_claim(value: str, *, field_name: str) -> str:
+    _reject_v83_action_claim(value, field_name=field_name)
+    lowered = value.lower()
+    forbidden_patterns = [
+        r"\bimplementation (?:done|completed|executed|authorized)\b",
+        r"\bwork[- ]packet (?:executed|authorized|authority granted|ready to run)\b",
+        r"\bworkflow transition (?:completed|authorized)\b",
+        r"\bmorphic ux runtime (?:changed|updated|authorized)\b",
+        r"\bdirect oai provider authority granted\b",
+        r"\bprovider authority granted\b",
+        r"\btests? prove(?:s|d)? semantic preservation\b",
+        r"\bv84 (?:selected|selection)\b",
+    ]
+    for pattern in forbidden_patterns:
+        match = re.search(pattern, lowered)
+        if match is None:
+            continue
+        prefix = lowered[max(0, match.start() - 24) : match.start()]
+        suffix = lowered[match.end() : min(len(lowered), match.end() + 24)]
+        negated = bool(
+            re.search(r"(?:\bno\b|\bnot\b|\bwithout\b|\bmust not\b|\bno[- ])\W*$", prefix)
+            or re.match(r"^\W*(?:forbidden|not authorized|not permitted)\b", suffix)
+        )
+        if not negated:
+            raise ValueError(f"{field_name} may not carry V83-C implementation authority")
     return value
 
 
@@ -2974,4 +3195,1364 @@ def derive_v83b_semantic_edge_obligation_bundle(
         edge_decomposition,
         obligation_map,
         drift_register,
+    )
+
+
+class RepoImplementationSpecRow(_CartographyBase):
+    implementation_spec_ref: str
+    artifact_obligation_refs: list[str] = Field(min_length=1)
+    target_artifact_kind: ArtifactKind
+    target_surface_refs: list[str] = Field(min_length=1)
+    required_change_summary: str
+    required_validation_refs: list[str] = Field(min_length=1)
+    explicit_non_goals: list[str] = Field(min_length=1)
+    semantic_preservation_refs: list[str] = Field(min_length=1)
+    acceptance_evidence_requirements: list[str] = Field(min_length=1)
+    implementation_execution_posture: ImplementationExecutionPosture
+    limitation_note: str
+
+    @model_validator(mode="after")
+    def _validate_implementation_spec_row(self) -> RepoImplementationSpecRow:
+        _repo_ref(self.implementation_spec_ref, field_name="implementation_spec_ref")
+        for field_name in (
+            "artifact_obligation_refs",
+            "target_surface_refs",
+            "required_validation_refs",
+            "explicit_non_goals",
+            "semantic_preservation_refs",
+            "acceptance_evidence_requirements",
+        ):
+            object.__setattr__(
+                self,
+                field_name,
+                _validate_repo_refs(getattr(self, field_name), field_name=field_name),
+            )
+        if any(target in _BROAD_ARTIFACT_TARGETS for target in self.target_surface_refs):
+            raise ValueError("implementation specs require bounded target surfaces")
+        _non_empty(self.required_change_summary, field_name="required_change_summary")
+        if self.implementation_execution_posture == "no_execution_performed_by_v83":
+            _reject_v83c_execution_claim(
+                self.required_change_summary,
+                field_name="required_change_summary",
+            )
+        _reject_v83c_execution_claim(self.limitation_note, field_name="limitation_note")
+        return self
+
+
+class RepoProjectionProvenanceRow(_CartographyBase):
+    projection_provenance_ref: str
+    projection_actor_kind: ProjectionActorKind
+    model_or_agent_profile_refs: list[str] = Field(default_factory=list)
+    prompt_context_refs: list[str] = Field(default_factory=list)
+    input_intent_contract_refs: list[str] = Field(min_length=1)
+    input_edge_decomposition_refs: list[str] = Field(min_length=1)
+    input_obligation_map_refs: list[str] = Field(min_length=1)
+    generated_spec_refs: list[str] = Field(default_factory=list)
+    reviewer_amendment_refs: list[str] = Field(default_factory=list)
+    generation_scope_posture: ProjectionGenerationScopePosture
+    review_status: ProjectionReviewStatus
+    non_authority_posture: ProjectionNonAuthorityPosture
+    limitation_note: str
+
+    @model_validator(mode="after")
+    def _validate_projection_provenance_row(self) -> RepoProjectionProvenanceRow:
+        _repo_ref(self.projection_provenance_ref, field_name="projection_provenance_ref")
+        for field_name in (
+            "model_or_agent_profile_refs",
+            "prompt_context_refs",
+            "input_intent_contract_refs",
+            "input_edge_decomposition_refs",
+            "input_obligation_map_refs",
+            "generated_spec_refs",
+            "reviewer_amendment_refs",
+        ):
+            object.__setattr__(
+                self,
+                field_name,
+                _validate_repo_refs(getattr(self, field_name), field_name=field_name),
+            )
+        if self.projection_actor_kind in {"model", "agent"}:
+            if not self.model_or_agent_profile_refs or not self.prompt_context_refs:
+                raise ValueError(
+                    "model/agent projection provenance requires profile and prompt refs"
+                )
+            if not self.generated_spec_refs:
+                raise ValueError("model/agent projection provenance requires generated spec refs")
+            if self.non_authority_posture != "candidate_projection_only":
+                raise ValueError("model/agent projection provenance must remain candidate-only")
+            if self.generation_scope_posture not in {
+                "bounded_to_released_v83_inputs",
+                "bounded_to_prompt_context",
+            }:
+                raise ValueError("model/agent projection provenance requires bounded context")
+        if self.review_status in {
+            "blocked_by_missing_context",
+            "blocked_by_semantic_drift",
+            "blocked_by_authority_gap",
+        }:
+            if self.non_authority_posture == "review_only_no_authority":
+                raise ValueError("blocked projection provenance cannot be review-ready")
+        _reject_v83c_execution_claim(self.limitation_note, field_name="limitation_note")
+        return self
+
+
+class RepoSpecReviewChecklistRow(_CartographyBase):
+    review_check_ref: str
+    implementation_spec_refs: list[str] = Field(min_length=1)
+    semantic_edge_refs: list[str] = Field(default_factory=list)
+    artifact_obligation_refs: list[str] = Field(default_factory=list)
+    check_kind: ReviewCheckKind
+    check_posture: ReviewCheckPosture
+    source_refs: list[str] = Field(min_length=1)
+    blocking_posture: ReviewCheckBlockingPosture
+    limitation_note: str
+
+    @model_validator(mode="after")
+    def _validate_review_check_row(self) -> RepoSpecReviewChecklistRow:
+        _repo_ref(self.review_check_ref, field_name="review_check_ref")
+        for field_name in (
+            "implementation_spec_refs",
+            "semantic_edge_refs",
+            "artifact_obligation_refs",
+            "source_refs",
+        ):
+            object.__setattr__(
+                self,
+                field_name,
+                _validate_repo_refs(getattr(self, field_name), field_name=field_name),
+            )
+        if self.check_posture == "blocked" and self.blocking_posture != "blocking":
+            raise ValueError("blocked review checks must remain blocking")
+        if self.check_posture == "passed_for_review_only" and self.blocking_posture == "blocking":
+            raise ValueError("passed review checks cannot carry blocking posture")
+        if self.check_kind in {
+            "edge_coverage_check",
+            "validation_evidence_check",
+            "reject_fixture_check",
+        } and not self.semantic_edge_refs:
+            raise ValueError("semantic review checks require semantic edge refs")
+        _reject_v83c_execution_claim(self.limitation_note, field_name="limitation_note")
+        return self
+
+
+class RepoImplementationSpecQualityGateRow(_CartographyBase):
+    quality_gate_ref: str
+    projection_packet_refs: list[str] = Field(min_length=1)
+    required_check_refs: list[str] = Field(min_length=1)
+    gate_posture: QualityGatePosture
+    ready_basis_posture: ProjectionReadyBasisPosture
+    carried_blocker_refs: list[str] = Field(default_factory=list)
+    carried_warning_refs: list[str] = Field(default_factory=list)
+    non_implementation_guardrail: NonImplementationPosture
+    limitation_note: str
+
+    @model_validator(mode="after")
+    def _validate_quality_gate_row(self) -> RepoImplementationSpecQualityGateRow:
+        _repo_ref(self.quality_gate_ref, field_name="quality_gate_ref")
+        for field_name in (
+            "projection_packet_refs",
+            "required_check_refs",
+            "carried_blocker_refs",
+            "carried_warning_refs",
+        ):
+            object.__setattr__(
+                self,
+                field_name,
+                _validate_repo_refs(getattr(self, field_name), field_name=field_name),
+            )
+        if self.gate_posture in {
+            "ready_for_later_implementation_slice_review",
+            "ready_with_nonblocking_warnings",
+        }:
+            if self.ready_basis_posture not in {
+                "ready_no_blockers",
+                "ready_with_nonblocking_warnings",
+            }:
+                raise ValueError("ready quality gates require blocker-aware ready basis")
+            if self.carried_blocker_refs:
+                raise ValueError("ready quality gates cannot carry blockers")
+        if self.gate_posture == "ready_for_later_implementation_slice_review":
+            if self.non_implementation_guardrail != "non_implementation_guardrail_active":
+                raise ValueError("quality gates remain non-implementation")
+        _reject_v83c_execution_claim(self.limitation_note, field_name="limitation_note")
+        return self
+
+
+class RepoImplementationSpecProjectionPacketRow(_CartographyBase):
+    projection_packet_ref: str
+    intent_contract_refs: list[str] = Field(min_length=1)
+    edge_decomposition_refs: list[str] = Field(min_length=1)
+    obligation_map_refs: list[str] = Field(min_length=1)
+    drift_register_refs: list[str] = Field(min_length=1)
+    candidate_ref: str
+    source_refs: list[str] = Field(min_length=1)
+    implementation_spec_rows: list[RepoImplementationSpecRow] = Field(min_length=1)
+    projection_provenance_rows: list[RepoProjectionProvenanceRow] = Field(min_length=1)
+    spec_review_checklist_rows: list[RepoSpecReviewChecklistRow] = Field(min_length=1)
+    implementation_spec_quality_gate_rows: list[RepoImplementationSpecQualityGateRow] = Field(
+        min_length=1
+    )
+    projection_posture: ProjectionPacketPosture
+    semantic_coverage_posture: SemanticCoveragePosture
+    ready_basis_posture: ProjectionReadyBasisPosture
+    carried_blocker_refs: list[str] = Field(default_factory=list)
+    carried_warning_refs: list[str] = Field(default_factory=list)
+    non_implementation_posture: NonImplementationPosture
+    guardrail_refs: list[str] = Field(min_length=1)
+    limitation_note: str
+
+    @model_validator(mode="after")
+    def _validate_projection_packet_row(self) -> RepoImplementationSpecProjectionPacketRow:
+        _repo_ref(self.projection_packet_ref, field_name="projection_packet_ref")
+        _non_empty(self.candidate_ref, field_name="candidate_ref")
+        for field_name in (
+            "intent_contract_refs",
+            "edge_decomposition_refs",
+            "obligation_map_refs",
+            "drift_register_refs",
+            "source_refs",
+            "carried_blocker_refs",
+            "carried_warning_refs",
+            "guardrail_refs",
+        ):
+            object.__setattr__(
+                self,
+                field_name,
+                _validate_repo_refs(getattr(self, field_name), field_name=field_name),
+            )
+        object.__setattr__(
+            self,
+            "implementation_spec_rows",
+            _sorted_unique_by_ref(
+                self.implementation_spec_rows,
+                attr="implementation_spec_ref",
+                field_name="implementation_spec_rows",
+            ),
+        )
+        object.__setattr__(
+            self,
+            "projection_provenance_rows",
+            _sorted_unique_by_ref(
+                self.projection_provenance_rows,
+                attr="projection_provenance_ref",
+                field_name="projection_provenance_rows",
+            ),
+        )
+        object.__setattr__(
+            self,
+            "spec_review_checklist_rows",
+            _sorted_unique_by_ref(
+                self.spec_review_checklist_rows,
+                attr="review_check_ref",
+                field_name="spec_review_checklist_rows",
+            ),
+        )
+        object.__setattr__(
+            self,
+            "implementation_spec_quality_gate_rows",
+            _sorted_unique_by_ref(
+                self.implementation_spec_quality_gate_rows,
+                attr="quality_gate_ref",
+                field_name="implementation_spec_quality_gate_rows",
+            ),
+        )
+        spec_refs = {row.implementation_spec_ref for row in self.implementation_spec_rows}
+        check_refs = {row.review_check_ref for row in self.spec_review_checklist_rows}
+        for check_row in self.spec_review_checklist_rows:
+            if any(ref not in spec_refs for ref in check_row.implementation_spec_refs):
+                raise ValueError(
+                    "projection review checks must reference known implementation specs"
+                )
+        for gate_row in self.implementation_spec_quality_gate_rows:
+            if any(ref not in check_refs for ref in gate_row.required_check_refs):
+                raise ValueError("quality gates must reference known review checks")
+            if any(ref != self.projection_packet_ref for ref in gate_row.projection_packet_refs):
+                raise ValueError("quality gates must reference the containing projection packet")
+        if self.projection_posture in {
+            "projection_packet_ready_for_review",
+            "projection_packet_ready_with_nonblocking_warnings",
+        }:
+            if self.ready_basis_posture not in {
+                "ready_no_blockers",
+                "ready_with_nonblocking_warnings",
+            }:
+                raise ValueError("ready projection packets require ready basis")
+            if self.carried_blocker_refs:
+                raise ValueError("ready projection packets cannot carry blockers")
+            required_checks = {
+                "source_binding_check",
+                "non_goal_preservation_check",
+                "authority_boundary_check",
+                "target_surface_boundedness_check",
+                "edge_coverage_check",
+                "validation_evidence_check",
+                "reject_fixture_check",
+                "generated_spec_provenance_check",
+                "semantic_drift_check",
+                "future_family_boundary_check",
+            }
+            observed_checks = {row.check_kind for row in self.spec_review_checklist_rows}
+            if not required_checks.issubset(observed_checks):
+                raise ValueError("ready projection packets require complete review checklist")
+            if not any(
+                row.gate_posture == "ready_for_later_implementation_slice_review"
+                for row in self.implementation_spec_quality_gate_rows
+            ):
+                raise ValueError("ready projection packets require a ready quality gate")
+        if self.semantic_coverage_posture == "all_required_edges_covered":
+            if not any(
+                row.check_kind == "edge_coverage_check"
+                for row in self.spec_review_checklist_rows
+            ):
+                raise ValueError("semantic coverage requires edge coverage check")
+        if self.non_implementation_posture != "non_implementation_guardrail_active":
+            raise ValueError("projection packets remain non-implementation")
+        _reject_v83c_execution_claim(self.limitation_note, field_name="limitation_note")
+        return self
+
+
+class RepoImplementationSpecProjectionPacket(_CartographyBase):
+    schema: Literal["repo_implementation_spec_projection_packet@1"] = (
+        REPO_IMPLEMENTATION_SPEC_PROJECTION_PACKET_SCHEMA
+    )
+    implementation_spec_projection_packet_id: str
+    semantic_intent_contract_id: str
+    intent_edge_decomposition_id: str
+    artifact_obligation_map_id: str
+    semantic_drift_ambiguity_register_id: str
+    intent_non_implementation_guardrail_id: str
+    review_id: str
+    snapshot_id: str
+    source_set_id: str
+    projection_packet_rows: list[RepoImplementationSpecProjectionPacketRow] = Field(min_length=1)
+    projection_packet_summary: str
+
+    @model_validator(mode="after")
+    def _validate_projection_packet(self) -> RepoImplementationSpecProjectionPacket:
+        object.__setattr__(
+            self,
+            "projection_packet_rows",
+            _sorted_unique_by_ref(
+                self.projection_packet_rows,
+                attr="projection_packet_ref",
+                field_name="projection_packet_rows",
+            ),
+        )
+        _require_terms(
+            self.projection_packet_summary,
+            field_name="projection_packet_summary",
+            terms=("projection packet", "review", "no implementation"),
+        )
+        expected_id = _surface_id(
+            "repo_implementation_spec_projection_packet",
+            self.schema,
+            self.model_dump(mode="json"),
+            "implementation_spec_projection_packet_id",
+        )
+        if self.implementation_spec_projection_packet_id != expected_id:
+            raise ValueError(
+                "implementation_spec_projection_packet_id does not match canonical hash"
+            )
+        return self
+
+
+class RepoIntentToWorkPacketHandoffRow(_CartographyBase):
+    handoff_ref: str
+    candidate_ref: str
+    projection_packet_refs: list[str] = Field(min_length=1)
+    intent_contract_refs: list[str] = Field(min_length=1)
+    artifact_obligation_refs: list[str] = Field(default_factory=list)
+    carried_drift_refs: list[str] = Field(default_factory=list)
+    handoff_target: WorkPacketHandoffTarget
+    handoff_subject_horizon: WorkPacketHandoffSubjectHorizon
+    handoff_posture: WorkPacketHandoffPosture
+    required_later_authority_refs: list[str] = Field(min_length=1)
+    work_packet_authority_posture: WorkPacketAuthorityPosture
+    implementation_lock_requirement: ImplementationLockRequirement
+    work_packet_execution_posture: ImplementationExecutionPosture
+    implementation_execution_posture: ImplementationExecutionPosture
+    meta_orchestrator_runtime_posture: MetaOrchestratorRuntimePosture
+    guardrail_refs: list[str] = Field(min_length=1)
+    limitation_note: str
+
+    @model_validator(mode="after")
+    def _validate_work_packet_handoff_row(self) -> RepoIntentToWorkPacketHandoffRow:
+        _repo_ref(self.handoff_ref, field_name="handoff_ref")
+        _non_empty(self.candidate_ref, field_name="candidate_ref")
+        for field_name in (
+            "projection_packet_refs",
+            "intent_contract_refs",
+            "artifact_obligation_refs",
+            "carried_drift_refs",
+            "required_later_authority_refs",
+            "guardrail_refs",
+        ):
+            object.__setattr__(
+                self,
+                field_name,
+                _validate_repo_refs(getattr(self, field_name), field_name=field_name),
+            )
+        if self.handoff_posture in {
+            "ready_for_later_review",
+            "ready_with_nonblocking_warnings",
+        }:
+            if self.work_packet_authority_posture != "work_packet_requires_later_lock":
+                raise ValueError("ready work-packet handoffs require later lock authority")
+            if self.implementation_lock_requirement != "canonical_starter_lock_required":
+                raise ValueError("ready work-packet handoffs require canonical later lock")
+        if self.handoff_target == "future_meta_orchestrator_workflow_review":
+            if self.meta_orchestrator_runtime_posture != "workflow_transition_review_only":
+                raise ValueError("meta-orchestrator handoffs remain workflow review only")
+        if self.work_packet_execution_posture != "no_execution_performed_by_v83":
+            raise ValueError("V83-C handoffs must not execute work packets")
+        if self.implementation_execution_posture != "no_execution_performed_by_v83":
+            raise ValueError("V83-C handoffs must not execute implementation")
+        _reject_v83c_execution_claim(self.limitation_note, field_name="limitation_note")
+        return self
+
+
+class RepoIntentToWorkPacketHandoff(_CartographyBase):
+    schema: Literal["repo_intent_to_work_packet_handoff@1"] = (
+        REPO_INTENT_TO_WORK_PACKET_HANDOFF_SCHEMA
+    )
+    intent_to_work_packet_handoff_id: str
+    implementation_spec_projection_packet_id: str
+    semantic_intent_contract_id: str
+    artifact_obligation_map_id: str
+    semantic_drift_ambiguity_register_id: str
+    intent_non_implementation_guardrail_id: str
+    review_id: str
+    snapshot_id: str
+    source_set_id: str
+    handoff_rows: list[RepoIntentToWorkPacketHandoffRow] = Field(min_length=1)
+    handoff_summary: str
+
+    @model_validator(mode="after")
+    def _validate_work_packet_handoff(self) -> RepoIntentToWorkPacketHandoff:
+        object.__setattr__(
+            self,
+            "handoff_rows",
+            _sorted_unique_by_ref(self.handoff_rows, attr="handoff_ref", field_name="handoff_rows"),
+        )
+        _require_terms(
+            self.handoff_summary,
+            field_name="handoff_summary",
+            terms=("later review", "later lock", "no implementation"),
+        )
+        expected_id = _surface_id(
+            "repo_intent_to_work_packet_handoff",
+            self.schema,
+            self.model_dump(mode="json"),
+            "intent_to_work_packet_handoff_id",
+        )
+        if self.intent_to_work_packet_handoff_id != expected_id:
+            raise ValueError("intent_to_work_packet_handoff_id does not match canonical hash")
+        return self
+
+
+class RepoSemanticImplementationSpecFamilyCloseoutAlignment(_CartographyBase):
+    schema: Literal["repo_semantic_implementation_spec_family_closeout_alignment@1"] = (
+        REPO_SEMANTIC_IMPLEMENTATION_SPEC_FAMILY_CLOSEOUT_ALIGNMENT_SCHEMA
+    )
+    semantic_implementation_spec_family_closeout_alignment_id: str
+    implementation_spec_projection_packet_id: str
+    intent_to_work_packet_handoff_id: str
+    family: Literal["V83"]
+    closed_by_arc: Literal["vNext+235"]
+    closed_slice_ladder: list[SemanticSpecClosedSlice] = Field(min_length=3)
+    shipped_record_shapes: list[SemanticSpecShippedRecordShape] = Field(min_length=1)
+    consumed_source_families: list[SemanticSpecConsumedFamily] = Field(min_length=1)
+    family_closed_on_main: Literal["closed_after_v83c_merge"]
+    future_family_authority: Literal["next_selector_required"]
+    unselected_future_surfaces: list[SemanticSpecUnselectedFutureSurface] = Field(min_length=1)
+    semantic_implementation_spec_boundary: str
+    limitation_note: str
+
+    @model_validator(mode="after")
+    def _validate_semantic_spec_family_closeout(
+        self,
+    ) -> RepoSemanticImplementationSpecFamilyCloseoutAlignment:
+        for field_name in (
+            "closed_slice_ladder",
+            "shipped_record_shapes",
+            "consumed_source_families",
+            "unselected_future_surfaces",
+        ):
+            object.__setattr__(
+                self,
+                field_name,
+                _sorted_unique(getattr(self, field_name), field_name=field_name),
+            )
+        if self.closed_slice_ladder != ["V83-A", "V83-B", "V83-C"]:
+            raise ValueError("semantic implementation-spec closeout must close V83-A/B/C")
+        if "v84_selection" not in self.unselected_future_surfaces:
+            raise ValueError("semantic implementation-spec closeout must not select V84")
+        _require_terms(
+            self.semantic_implementation_spec_boundary,
+            field_name="semantic_implementation_spec_boundary",
+            terms=("projection packet", "no implementation", "no v84 selection"),
+        )
+        _reject_v83c_execution_claim(
+            self.semantic_implementation_spec_boundary,
+            field_name="semantic_implementation_spec_boundary",
+        )
+        _reject_v83c_execution_claim(self.limitation_note, field_name="limitation_note")
+        expected_id = _surface_id(
+            "repo_semantic_implementation_spec_family_closeout_alignment",
+            self.schema,
+            self.model_dump(mode="json"),
+            "semantic_implementation_spec_family_closeout_alignment_id",
+        )
+        if self.semantic_implementation_spec_family_closeout_alignment_id != expected_id:
+            raise ValueError(
+                "semantic_implementation_spec_family_closeout_alignment_id "
+                "does not match canonical hash"
+            )
+        return self
+
+
+def _v83b_released_refs(
+    *,
+    intent_edge_decomposition: RepoIntentEdgeDecomposition,
+    artifact_obligation_map: RepoArtifactObligationMap,
+    semantic_drift_ambiguity_register: RepoSemanticDriftAmbiguityRegister,
+) -> tuple[
+    RepoIntentEdgeDecompositionRow,
+    RepoArtifactObligationMapRow,
+    RepoSemanticDriftAmbiguityRegisterRow,
+]:
+    if len(intent_edge_decomposition.edge_decomposition_rows) != 1:
+        raise ValueError("V83-C derivation expects one V83-B edge decomposition row")
+    if len(artifact_obligation_map.obligation_map_rows) != 1:
+        raise ValueError("V83-C derivation expects one V83-B obligation map row")
+    if len(semantic_drift_ambiguity_register.drift_register_rows) != 1:
+        raise ValueError("V83-C derivation expects one V83-B drift register row")
+    return (
+        intent_edge_decomposition.edge_decomposition_rows[0],
+        artifact_obligation_map.obligation_map_rows[0],
+        semantic_drift_ambiguity_register.drift_register_rows[0],
+    )
+
+
+def derive_v83c_repo_implementation_spec_projection_packet(
+    *,
+    repo_root: Path | None = None,
+    semantic_intent_contract: RepoSemanticIntentContract | None = None,
+    intent_non_implementation_guardrail: RepoIntentNonImplementationGuardrail | None = None,
+    intent_edge_decomposition: RepoIntentEdgeDecomposition | None = None,
+    artifact_obligation_map: RepoArtifactObligationMap | None = None,
+    semantic_drift_ambiguity_register: RepoSemanticDriftAmbiguityRegister | None = None,
+) -> RepoImplementationSpecProjectionPacket:
+    _ = repo_root
+    if any(
+        item is None
+        for item in (
+            semantic_intent_contract,
+            intent_non_implementation_guardrail,
+            intent_edge_decomposition,
+            artifact_obligation_map,
+            semantic_drift_ambiguity_register,
+        )
+    ):
+        (
+            _source_index,
+            semantic_intent_contract,
+            intent_non_implementation_guardrail,
+            intent_edge_decomposition,
+            artifact_obligation_map,
+            semantic_drift_ambiguity_register,
+        ) = derive_v83b_semantic_edge_obligation_bundle(repo_root=repo_root)
+    assert semantic_intent_contract is not None
+    assert intent_non_implementation_guardrail is not None
+    assert intent_edge_decomposition is not None
+    assert artifact_obligation_map is not None
+    assert semantic_drift_ambiguity_register is not None
+    edge_row, obligation_map_row, drift_register_row = _v83b_released_refs(
+        intent_edge_decomposition=intent_edge_decomposition,
+        artifact_obligation_map=artifact_obligation_map,
+        semantic_drift_ambiguity_register=semantic_drift_ambiguity_register,
+    )
+    eligible = semantic_intent_contract.intent_contract_rows[0]
+    source_refs = sorted(set(edge_row.source_refs).union(obligation_map_row.source_refs))
+    guardrail_refs = sorted(
+        {row.guardrail_ref for row in intent_non_implementation_guardrail.guardrail_rows}
+    )
+    obligations = sorted(
+        obligation_map_row.artifact_obligation_rows,
+        key=lambda row: row.artifact_obligation_ref,
+    )
+    semantic_refs = sorted(
+        {
+            relation.semantic_relation_ref
+            for relation in edge_row.semantic_relation_rows
+        }
+    )
+    obligation_refs = [
+        obligation.artifact_obligation_ref
+        for obligation in obligations
+    ]
+    spec_rows: list[dict[str, object]] = []
+    for obligation in obligations:
+        spec_rows.append(
+            {
+                "implementation_spec_ref": (
+                    "implementation-spec:v83c:"
+                    + obligation.artifact_obligation_ref.split(":")[-1]
+                ),
+                "artifact_obligation_refs": [obligation.artifact_obligation_ref],
+                "target_artifact_kind": obligation.artifact_kind,
+                "target_surface_refs": obligation.target_surface_refs,
+                "required_change_summary": (
+                    "Later implementation spec must preserve source binding, "
+                    "semantic edge coverage, reject fixtures, and non-goals for review only."
+                ),
+                "required_validation_refs": sorted(
+                    {
+                        evidence_ref
+                        for evidence in obligation.acceptance_evidence_requirements
+                        for evidence_ref in evidence.validation_need_refs
+                    }
+                ),
+                "explicit_non_goals": sorted(eligible.non_goal_refs),
+                "semantic_preservation_refs": obligation.semantic_edge_refs,
+                "acceptance_evidence_requirements": sorted(
+                    {
+                        evidence.evidence_requirement_ref
+                        for evidence in obligation.acceptance_evidence_requirements
+                    }
+                ),
+                "implementation_execution_posture": "no_execution_performed_by_v83",
+                "limitation_note": (
+                    "Implementation spec row is a later-review requirement only; "
+                    "no implementation and no execution."
+                ),
+            }
+        )
+    spec_refs = sorted(row["implementation_spec_ref"] for row in spec_rows)
+    checklist_rows = [
+        {
+            "review_check_ref": "review-check:v83c:authority-boundary",
+            "implementation_spec_refs": spec_refs,
+            "semantic_edge_refs": ["semantic-relation:v83b:authority:later-lock"],
+            "artifact_obligation_refs": obligation_refs,
+            "check_kind": "authority_boundary_check",
+            "check_posture": "passed_for_review_only",
+            "source_refs": sorted(eligible.authority_boundary_refs),
+            "blocking_posture": "not_applicable",
+            "limitation_note": (
+                "Authority boundary check passes for review only; no implementation."
+            ),
+        },
+        {
+            "review_check_ref": "review-check:v83c:edge-coverage",
+            "implementation_spec_refs": spec_refs,
+            "semantic_edge_refs": semantic_refs,
+            "artifact_obligation_refs": obligation_refs,
+            "check_kind": "edge_coverage_check",
+            "check_posture": "passed_for_review_only",
+            "source_refs": source_refs,
+            "blocking_posture": "not_applicable",
+            "limitation_note": (
+                "Edge coverage check is evidence for review only; no implementation."
+            ),
+        },
+        {
+            "review_check_ref": "review-check:v83c:future-family-boundary",
+            "implementation_spec_refs": spec_refs,
+            "semantic_edge_refs": ["semantic-relation:v83b:authority:later-lock"],
+            "artifact_obligation_refs": [],
+            "check_kind": "future_family_boundary_check",
+            "check_posture": "warning",
+            "source_refs": ["docs/DRAFT_NEXT_ARC_OPTIONS_v73.md"],
+            "blocking_posture": "warning_only",
+            "limitation_note": "Future family pressure remains warning-only with no V84 selection.",
+        },
+        {
+            "review_check_ref": "review-check:v83c:generated-provenance",
+            "implementation_spec_refs": spec_refs,
+            "semantic_edge_refs": [],
+            "artifact_obligation_refs": [],
+            "check_kind": "generated_spec_provenance_check",
+            "check_posture": "passed_for_review_only",
+            "source_refs": ["generated-spec:v83a:current:absent"],
+            "blocking_posture": "not_applicable",
+            "limitation_note": "No model/agent generated spec is authoritative; no implementation.",
+        },
+        {
+            "review_check_ref": "review-check:v83c:non-goal-preservation",
+            "implementation_spec_refs": spec_refs,
+            "semantic_edge_refs": ["semantic-relation:v83b:non-goal:no-implementation"],
+            "artifact_obligation_refs": [],
+            "check_kind": "non_goal_preservation_check",
+            "check_posture": "passed_for_review_only",
+            "source_refs": sorted(eligible.non_goal_refs),
+            "blocking_posture": "not_applicable",
+            "limitation_note": "Non-goals remain preserved for review; no implementation.",
+        },
+        {
+            "review_check_ref": "review-check:v83c:reject-fixture",
+            "implementation_spec_refs": spec_refs,
+            "semantic_edge_refs": semantic_refs,
+            "artifact_obligation_refs": obligation_refs,
+            "check_kind": "reject_fixture_check",
+            "check_posture": "passed_for_review_only",
+            "source_refs": source_refs,
+            "blocking_posture": "not_applicable",
+            "limitation_note": "Reject fixtures are required evidence, not semantic truth.",
+        },
+        {
+            "review_check_ref": "review-check:v83c:semantic-drift",
+            "implementation_spec_refs": spec_refs,
+            "semantic_edge_refs": semantic_refs,
+            "artifact_obligation_refs": obligation_refs,
+            "check_kind": "semantic_drift_check",
+            "check_posture": "warning",
+            "source_refs": drift_register_row.source_refs,
+            "blocking_posture": "warning_only",
+            "limitation_note": "Drift warnings remain visible and nonblocking; no implementation.",
+        },
+        {
+            "review_check_ref": "review-check:v83c:source-binding",
+            "implementation_spec_refs": spec_refs,
+            "semantic_edge_refs": semantic_refs,
+            "artifact_obligation_refs": obligation_refs,
+            "check_kind": "source_binding_check",
+            "check_posture": "passed_for_review_only",
+            "source_refs": source_refs,
+            "blocking_posture": "not_applicable",
+            "limitation_note": "Source binding check passes for review only; no implementation.",
+        },
+        {
+            "review_check_ref": "review-check:v83c:target-surface-boundedness",
+            "implementation_spec_refs": spec_refs,
+            "semantic_edge_refs": semantic_refs,
+            "artifact_obligation_refs": obligation_refs,
+            "check_kind": "target_surface_boundedness_check",
+            "check_posture": "passed_for_review_only",
+            "source_refs": source_refs,
+            "blocking_posture": "not_applicable",
+            "limitation_note": "Target surfaces are bounded for later review; no implementation.",
+        },
+        {
+            "review_check_ref": "review-check:v83c:validation-evidence",
+            "implementation_spec_refs": spec_refs,
+            "semantic_edge_refs": semantic_refs,
+            "artifact_obligation_refs": obligation_refs,
+            "check_kind": "validation_evidence_check",
+            "check_posture": "passed_for_review_only",
+            "source_refs": source_refs,
+            "blocking_posture": "not_applicable",
+            "limitation_note": "Validation evidence is edge-bound and not semantic truth.",
+        },
+    ]
+    carried_warnings = sorted(
+        drift.drift_ref
+        for drift in drift_register_row.drift_or_ambiguity_rows
+        if drift.blocking_posture in {"warning_only", "carried_for_later_review"}
+    )
+    packet_ref = "projection-packet:v83c:intent-to-spec"
+    payload = {
+        "schema": REPO_IMPLEMENTATION_SPEC_PROJECTION_PACKET_SCHEMA,
+        "implementation_spec_projection_packet_id": "",
+        "semantic_intent_contract_id": semantic_intent_contract.semantic_intent_contract_id,
+        "intent_edge_decomposition_id": intent_edge_decomposition.intent_edge_decomposition_id,
+        "artifact_obligation_map_id": artifact_obligation_map.artifact_obligation_map_id,
+        "semantic_drift_ambiguity_register_id": (
+            semantic_drift_ambiguity_register.semantic_drift_ambiguity_register_id
+        ),
+        "intent_non_implementation_guardrail_id": (
+            intent_non_implementation_guardrail.intent_non_implementation_guardrail_id
+        ),
+        "review_id": intent_edge_decomposition.review_id,
+        "snapshot_id": "vNext+234-semantic-edge-obligation-closeout",
+        "source_set_id": intent_edge_decomposition.source_set_id,
+        "projection_packet_rows": [
+            {
+                "projection_packet_ref": packet_ref,
+                "intent_contract_refs": edge_row.intent_contract_refs,
+                "edge_decomposition_refs": [edge_row.edge_decomposition_ref],
+                "obligation_map_refs": [obligation_map_row.obligation_map_ref],
+                "drift_register_refs": [drift_register_row.drift_register_ref],
+                "candidate_ref": edge_row.candidate_ref,
+                "source_refs": source_refs,
+                "implementation_spec_rows": sorted(
+                    spec_rows,
+                    key=lambda row: row["implementation_spec_ref"],
+                ),
+                "projection_provenance_rows": [
+                    {
+                        "projection_provenance_ref": "projection-provenance:v83c:reviewer",
+                        "projection_actor_kind": "reviewer",
+                        "model_or_agent_profile_refs": [],
+                        "prompt_context_refs": [],
+                        "input_intent_contract_refs": edge_row.intent_contract_refs,
+                        "input_edge_decomposition_refs": [edge_row.edge_decomposition_ref],
+                        "input_obligation_map_refs": [obligation_map_row.obligation_map_ref],
+                        "generated_spec_refs": [],
+                        "reviewer_amendment_refs": ["docs/LOCKED_CONTINUATION_vNEXT_PLUS235.md"],
+                        "generation_scope_posture": "not_generated",
+                        "review_status": "reviewed_for_artifact_obligation_coverage",
+                        "non_authority_posture": "review_only_no_authority",
+                        "limitation_note": (
+                            "Reviewer projection provenance is review-only; "
+                            "no implementation."
+                        ),
+                    }
+                ],
+                "spec_review_checklist_rows": sorted(
+                    checklist_rows,
+                    key=lambda row: row["review_check_ref"],
+                ),
+                "implementation_spec_quality_gate_rows": [
+                    {
+                        "quality_gate_ref": "quality-gate:v83c:later-implementation-slice-review",
+                        "projection_packet_refs": [packet_ref],
+                        "required_check_refs": sorted(
+                            row["review_check_ref"] for row in checklist_rows
+                        ),
+                        "gate_posture": "ready_for_later_implementation_slice_review",
+                        "ready_basis_posture": "ready_no_blockers",
+                        "carried_blocker_refs": [],
+                        "carried_warning_refs": carried_warnings,
+                        "non_implementation_guardrail": "non_implementation_guardrail_active",
+                        "limitation_note": (
+                            "Quality gate is ready for later implementation slice review "
+                            "only; no implementation."
+                        ),
+                    }
+                ],
+                "projection_posture": "projection_packet_ready_for_review",
+                "semantic_coverage_posture": "all_required_edges_covered",
+                "ready_basis_posture": "ready_no_blockers",
+                "carried_blocker_refs": [],
+                "carried_warning_refs": carried_warnings,
+                "non_implementation_posture": "non_implementation_guardrail_active",
+                "guardrail_refs": guardrail_refs,
+                "limitation_note": (
+                    "V83-C projection packet is ready for later review with no implementation."
+                ),
+            }
+        ],
+        "projection_packet_summary": (
+            "V83-C projection packet packages semantic implementation spec obligations "
+            "for review with no implementation."
+        ),
+    }
+    payload["implementation_spec_projection_packet_id"] = _surface_id(
+        "repo_implementation_spec_projection_packet",
+        REPO_IMPLEMENTATION_SPEC_PROJECTION_PACKET_SCHEMA,
+        payload,
+        "implementation_spec_projection_packet_id",
+    )
+    return RepoImplementationSpecProjectionPacket.model_validate(payload)
+
+
+def derive_v83c_repo_intent_to_work_packet_handoff(
+    *,
+    repo_root: Path | None = None,
+    semantic_intent_contract: RepoSemanticIntentContract | None = None,
+    intent_non_implementation_guardrail: RepoIntentNonImplementationGuardrail | None = None,
+    artifact_obligation_map: RepoArtifactObligationMap | None = None,
+    semantic_drift_ambiguity_register: RepoSemanticDriftAmbiguityRegister | None = None,
+    implementation_spec_projection_packet: RepoImplementationSpecProjectionPacket | None = None,
+) -> RepoIntentToWorkPacketHandoff:
+    _ = repo_root
+    if any(
+        item is None
+        for item in (
+            semantic_intent_contract,
+            intent_non_implementation_guardrail,
+            artifact_obligation_map,
+            semantic_drift_ambiguity_register,
+            implementation_spec_projection_packet,
+        )
+    ):
+        (
+            _source_index,
+            semantic_intent_contract,
+            intent_non_implementation_guardrail,
+            _edge_decomposition,
+            artifact_obligation_map,
+            semantic_drift_ambiguity_register,
+        ) = derive_v83b_semantic_edge_obligation_bundle(repo_root=repo_root)
+        implementation_spec_projection_packet = (
+            derive_v83c_repo_implementation_spec_projection_packet(
+                repo_root=repo_root,
+                semantic_intent_contract=semantic_intent_contract,
+                intent_non_implementation_guardrail=intent_non_implementation_guardrail,
+                intent_edge_decomposition=_edge_decomposition,
+                artifact_obligation_map=artifact_obligation_map,
+                semantic_drift_ambiguity_register=semantic_drift_ambiguity_register,
+            )
+        )
+    assert semantic_intent_contract is not None
+    assert intent_non_implementation_guardrail is not None
+    assert artifact_obligation_map is not None
+    assert semantic_drift_ambiguity_register is not None
+    assert implementation_spec_projection_packet is not None
+    packet_row = implementation_spec_projection_packet.projection_packet_rows[0]
+    obligation_refs = sorted(
+        {
+            obligation.artifact_obligation_ref
+            for row in artifact_obligation_map.obligation_map_rows
+            for obligation in row.artifact_obligation_rows
+        }
+    )
+    drift_refs = sorted(
+        {
+            drift.drift_ref
+            for row in semantic_drift_ambiguity_register.drift_register_rows
+            for drift in row.drift_or_ambiguity_rows
+            if drift.blocking_posture in {"warning_only", "carried_for_later_review"}
+        }
+    )
+    guardrail_refs = sorted(
+        {row.guardrail_ref for row in intent_non_implementation_guardrail.guardrail_rows}
+    )
+    rows = [
+        {
+            "handoff_ref": "handoff:v83c:implementation-slice-review",
+            "candidate_ref": packet_row.candidate_ref,
+            "projection_packet_refs": [packet_row.projection_packet_ref],
+            "intent_contract_refs": packet_row.intent_contract_refs,
+            "artifact_obligation_refs": obligation_refs,
+            "carried_drift_refs": drift_refs,
+            "handoff_target": "future_implementation_slice_review",
+            "handoff_subject_horizon": "implementation_spec_package",
+            "handoff_posture": "ready_for_later_review",
+            "required_later_authority_refs": ["intent:v83a:authority-boundary:later-lock-required"],
+            "work_packet_authority_posture": "work_packet_requires_later_lock",
+            "implementation_lock_requirement": "canonical_starter_lock_required",
+            "work_packet_execution_posture": "no_execution_performed_by_v83",
+            "implementation_execution_posture": "no_execution_performed_by_v83",
+            "meta_orchestrator_runtime_posture": "not_applicable",
+            "guardrail_refs": guardrail_refs,
+            "limitation_note": (
+                "Handoff requests later implementation slice review under canonical lock; "
+                "no implementation and no execution."
+            ),
+        },
+        {
+            "handoff_ref": "handoff:v83c:morphic-ux-projection-review",
+            "candidate_ref": packet_row.candidate_ref,
+            "projection_packet_refs": [packet_row.projection_packet_ref],
+            "intent_contract_refs": packet_row.intent_contract_refs,
+            "artifact_obligation_refs": [],
+            "carried_drift_refs": ["drift:v83b:morphic-ux-scope"],
+            "handoff_target": "future_morphic_ux_projection_review",
+            "handoff_subject_horizon": "ux_projection_spec",
+            "handoff_posture": "ready_with_nonblocking_warnings",
+            "required_later_authority_refs": [
+                "intent:v83a:authority-boundary:morphic-runtime-not-selected"
+            ],
+            "work_packet_authority_posture": "work_packet_requires_later_lock",
+            "implementation_lock_requirement": "canonical_starter_lock_required",
+            "work_packet_execution_posture": "no_execution_performed_by_v83",
+            "implementation_execution_posture": "no_execution_performed_by_v83",
+            "meta_orchestrator_runtime_posture": "not_applicable",
+            "guardrail_refs": guardrail_refs,
+            "limitation_note": (
+                "Morphic UX projection handoff is review-only with no runtime change "
+                "and no implementation."
+            ),
+        },
+        {
+            "handoff_ref": "handoff:v83c:workflow-orchestrator-review",
+            "candidate_ref": packet_row.candidate_ref,
+            "projection_packet_refs": [packet_row.projection_packet_ref],
+            "intent_contract_refs": packet_row.intent_contract_refs,
+            "artifact_obligation_refs": [],
+            "carried_drift_refs": ["drift:v83b:direct-oai-runtime-scope"],
+            "handoff_target": "future_meta_orchestrator_workflow_review",
+            "handoff_subject_horizon": "workflow_orchestrator_spec",
+            "handoff_posture": "ready_with_nonblocking_warnings",
+            "required_later_authority_refs": [
+                "intent:v83a:authority-boundary:direct-oai-runtime-not-selected"
+            ],
+            "work_packet_authority_posture": "work_packet_requires_later_lock",
+            "implementation_lock_requirement": "canonical_starter_lock_required",
+            "work_packet_execution_posture": "no_execution_performed_by_v83",
+            "implementation_execution_posture": "no_execution_performed_by_v83",
+            "meta_orchestrator_runtime_posture": "workflow_transition_review_only",
+            "guardrail_refs": guardrail_refs,
+            "limitation_note": (
+                "Workflow orchestrator handoff is transition review only; no workflow "
+                "transition completed and no implementation."
+            ),
+        },
+    ]
+    payload = {
+        "schema": REPO_INTENT_TO_WORK_PACKET_HANDOFF_SCHEMA,
+        "intent_to_work_packet_handoff_id": "",
+        "implementation_spec_projection_packet_id": (
+            implementation_spec_projection_packet.implementation_spec_projection_packet_id
+        ),
+        "semantic_intent_contract_id": semantic_intent_contract.semantic_intent_contract_id,
+        "artifact_obligation_map_id": artifact_obligation_map.artifact_obligation_map_id,
+        "semantic_drift_ambiguity_register_id": (
+            semantic_drift_ambiguity_register.semantic_drift_ambiguity_register_id
+        ),
+        "intent_non_implementation_guardrail_id": (
+            intent_non_implementation_guardrail.intent_non_implementation_guardrail_id
+        ),
+        "review_id": implementation_spec_projection_packet.review_id,
+        "snapshot_id": implementation_spec_projection_packet.snapshot_id,
+        "source_set_id": implementation_spec_projection_packet.source_set_id,
+        "handoff_rows": sorted(rows, key=lambda row: row["handoff_ref"]),
+        "handoff_summary": (
+            "V83-C intent-to-work-packet handoffs request later review and later lock "
+            "with no implementation."
+        ),
+    }
+    payload["intent_to_work_packet_handoff_id"] = _surface_id(
+        "repo_intent_to_work_packet_handoff",
+        REPO_INTENT_TO_WORK_PACKET_HANDOFF_SCHEMA,
+        payload,
+        "intent_to_work_packet_handoff_id",
+    )
+    return RepoIntentToWorkPacketHandoff.model_validate(payload)
+
+
+def derive_v83c_repo_semantic_implementation_spec_family_closeout_alignment(
+    *,
+    repo_root: Path | None = None,
+    implementation_spec_projection_packet: RepoImplementationSpecProjectionPacket | None = None,
+    intent_to_work_packet_handoff: RepoIntentToWorkPacketHandoff | None = None,
+) -> RepoSemanticImplementationSpecFamilyCloseoutAlignment:
+    if implementation_spec_projection_packet is None or intent_to_work_packet_handoff is None:
+        (
+            _source_index,
+            contract,
+            guardrail,
+            edge_decomposition,
+            obligation_map,
+            drift_register,
+        ) = derive_v83b_semantic_edge_obligation_bundle(repo_root=repo_root)
+        implementation_spec_projection_packet = (
+            derive_v83c_repo_implementation_spec_projection_packet(
+                repo_root=repo_root,
+                semantic_intent_contract=contract,
+                intent_non_implementation_guardrail=guardrail,
+                intent_edge_decomposition=edge_decomposition,
+                artifact_obligation_map=obligation_map,
+                semantic_drift_ambiguity_register=drift_register,
+            )
+        )
+        intent_to_work_packet_handoff = derive_v83c_repo_intent_to_work_packet_handoff(
+            repo_root=repo_root,
+            semantic_intent_contract=contract,
+            intent_non_implementation_guardrail=guardrail,
+            artifact_obligation_map=obligation_map,
+            semantic_drift_ambiguity_register=drift_register,
+            implementation_spec_projection_packet=implementation_spec_projection_packet,
+        )
+    payload = {
+        "schema": REPO_SEMANTIC_IMPLEMENTATION_SPEC_FAMILY_CLOSEOUT_ALIGNMENT_SCHEMA,
+        "semantic_implementation_spec_family_closeout_alignment_id": "",
+        "implementation_spec_projection_packet_id": (
+            implementation_spec_projection_packet.implementation_spec_projection_packet_id
+        ),
+        "intent_to_work_packet_handoff_id": (
+            intent_to_work_packet_handoff.intent_to_work_packet_handoff_id
+        ),
+        "family": "V83",
+        "closed_by_arc": "vNext+235",
+        "closed_slice_ladder": ["V83-A", "V83-B", "V83-C"],
+        "shipped_record_shapes": sorted(
+            [
+                REPO_INTENT_SOURCE_INDEX_SCHEMA,
+                REPO_SEMANTIC_INTENT_CONTRACT_SCHEMA,
+                REPO_INTENT_NON_IMPLEMENTATION_GUARDRAIL_SCHEMA,
+                REPO_INTENT_EDGE_DECOMPOSITION_SCHEMA,
+                REPO_ARTIFACT_OBLIGATION_MAP_SCHEMA,
+                REPO_SEMANTIC_DRIFT_AMBIGUITY_REGISTER_SCHEMA,
+                REPO_IMPLEMENTATION_SPEC_PROJECTION_PACKET_SCHEMA,
+                REPO_INTENT_TO_WORK_PACKET_HANDOFF_SCHEMA,
+                REPO_SEMANTIC_IMPLEMENTATION_SPEC_FAMILY_CLOSEOUT_ALIGNMENT_SCHEMA,
+            ]
+        ),
+        "consumed_source_families": [
+            "V68",
+            "V69",
+            "V70",
+            "V71",
+            "V72",
+            "V73",
+            "V74",
+            "V75",
+            "V76",
+            "V77",
+            "V78",
+            "V79",
+            "V80",
+            "V81",
+            "V82",
+            "V83",
+        ],
+        "family_closed_on_main": "closed_after_v83c_merge",
+        "future_family_authority": "next_selector_required",
+        "unselected_future_surfaces": [
+            "code_implementation",
+            "direct_oai_runtime_behavior",
+            "graph_memory_authority",
+            "meta_orchestrator_runtime",
+            "morphic_ux_runtime_change",
+            "product_authorization",
+            "recursive_policy_amendment",
+            "release",
+            "v84_selection",
+            "work_packet_execution",
+        ],
+        "semantic_implementation_spec_boundary": (
+            "V83 closes semantic implementation-spec projection packet review with "
+            "no implementation, no work-packet execution, and no v84 selection."
+        ),
+        "limitation_note": (
+            "V83 is closed as semantic implementation-spec review only; no implementation, "
+            "no execution, no product authority, no release, no graph-memory authority, "
+            "and no v84 selection."
+        ),
+    }
+    payload["semantic_implementation_spec_family_closeout_alignment_id"] = _surface_id(
+        "repo_semantic_implementation_spec_family_closeout_alignment",
+        REPO_SEMANTIC_IMPLEMENTATION_SPEC_FAMILY_CLOSEOUT_ALIGNMENT_SCHEMA,
+        payload,
+        "semantic_implementation_spec_family_closeout_alignment_id",
+    )
+    return RepoSemanticImplementationSpecFamilyCloseoutAlignment.model_validate(payload)
+
+
+def validate_v83c_semantic_implementation_projection_bundle(
+    *,
+    intent_source_index: RepoIntentSourceIndex,
+    semantic_intent_contract: RepoSemanticIntentContract,
+    intent_non_implementation_guardrail: RepoIntentNonImplementationGuardrail,
+    intent_edge_decomposition: RepoIntentEdgeDecomposition,
+    artifact_obligation_map: RepoArtifactObligationMap,
+    semantic_drift_ambiguity_register: RepoSemanticDriftAmbiguityRegister,
+    implementation_spec_projection_packet: RepoImplementationSpecProjectionPacket,
+    intent_to_work_packet_handoff: RepoIntentToWorkPacketHandoff,
+    semantic_implementation_spec_family_closeout_alignment: (
+        RepoSemanticImplementationSpecFamilyCloseoutAlignment
+    ),
+) -> None:
+    validate_v83b_semantic_edge_obligation_bundle(
+        intent_source_index=intent_source_index,
+        semantic_intent_contract=semantic_intent_contract,
+        intent_non_implementation_guardrail=intent_non_implementation_guardrail,
+        intent_edge_decomposition=intent_edge_decomposition,
+        artifact_obligation_map=artifact_obligation_map,
+        semantic_drift_ambiguity_register=semantic_drift_ambiguity_register,
+    )
+    expected_ids = (
+        semantic_intent_contract.semantic_intent_contract_id,
+        intent_edge_decomposition.intent_edge_decomposition_id,
+        artifact_obligation_map.artifact_obligation_map_id,
+        semantic_drift_ambiguity_register.semantic_drift_ambiguity_register_id,
+        intent_non_implementation_guardrail.intent_non_implementation_guardrail_id,
+    )
+    if (
+        implementation_spec_projection_packet.semantic_intent_contract_id,
+        implementation_spec_projection_packet.intent_edge_decomposition_id,
+        implementation_spec_projection_packet.artifact_obligation_map_id,
+        implementation_spec_projection_packet.semantic_drift_ambiguity_register_id,
+        implementation_spec_projection_packet.intent_non_implementation_guardrail_id,
+    ) != expected_ids:
+        raise ValueError("V83-C projection packet must reference released V83-A/B surfaces")
+    if (
+        intent_to_work_packet_handoff.implementation_spec_projection_packet_id
+        != implementation_spec_projection_packet.implementation_spec_projection_packet_id
+    ):
+        raise ValueError("V83-C handoff must reference released projection packet")
+    if (
+        intent_to_work_packet_handoff.semantic_intent_contract_id,
+        intent_to_work_packet_handoff.artifact_obligation_map_id,
+        intent_to_work_packet_handoff.semantic_drift_ambiguity_register_id,
+        intent_to_work_packet_handoff.intent_non_implementation_guardrail_id,
+    ) != (
+        semantic_intent_contract.semantic_intent_contract_id,
+        artifact_obligation_map.artifact_obligation_map_id,
+        semantic_drift_ambiguity_register.semantic_drift_ambiguity_register_id,
+        intent_non_implementation_guardrail.intent_non_implementation_guardrail_id,
+    ):
+        raise ValueError("V83-C handoff must reference released V83-A/B surfaces")
+    if (
+        semantic_implementation_spec_family_closeout_alignment.implementation_spec_projection_packet_id
+        != implementation_spec_projection_packet.implementation_spec_projection_packet_id
+        or semantic_implementation_spec_family_closeout_alignment.intent_to_work_packet_handoff_id
+        != intent_to_work_packet_handoff.intent_to_work_packet_handoff_id
+    ):
+        raise ValueError("V83-C closeout must reference projection packet and handoff")
+
+    known_sources = {row.source_ref for row in intent_source_index.source_rows}
+    known_contracts = {
+        row.intent_contract_ref: row for row in semantic_intent_contract.intent_contract_rows
+    }
+    known_guardrails = {
+        row.guardrail_ref for row in intent_non_implementation_guardrail.guardrail_rows
+    }
+    known_decompositions = {
+        row.edge_decomposition_ref: row for row in intent_edge_decomposition.edge_decomposition_rows
+    }
+    known_edges = {
+        relation.semantic_relation_ref: relation
+        for row in intent_edge_decomposition.edge_decomposition_rows
+        for relation in row.semantic_relation_rows
+    }
+    known_validations = {
+        validation.validation_need_ref
+        for row in intent_edge_decomposition.edge_decomposition_rows
+        for validation in row.validation_need_rows
+    }
+    known_obligation_maps = {
+        row.obligation_map_ref: row for row in artifact_obligation_map.obligation_map_rows
+    }
+    known_obligations = {
+        obligation.artifact_obligation_ref: obligation
+        for row in artifact_obligation_map.obligation_map_rows
+        for obligation in row.artifact_obligation_rows
+    }
+    known_evidence_requirements = {
+        evidence.evidence_requirement_ref
+        for obligation in known_obligations.values()
+        for evidence in obligation.acceptance_evidence_requirements
+    }
+    known_drift_registers = {
+        row.drift_register_ref: row for row in semantic_drift_ambiguity_register.drift_register_rows
+    }
+    known_drift = {
+        drift.drift_ref: drift
+        for row in semantic_drift_ambiguity_register.drift_register_rows
+        for drift in row.drift_or_ambiguity_rows
+    }
+
+    known_projection_packets = {
+        row.projection_packet_ref: row
+        for row in implementation_spec_projection_packet.projection_packet_rows
+    }
+    for packet_row in implementation_spec_projection_packet.projection_packet_rows:
+        if any(ref not in known_contracts for ref in packet_row.intent_contract_refs):
+            raise ValueError("projection packet intent refs must be known")
+        if any(ref not in known_decompositions for ref in packet_row.edge_decomposition_refs):
+            raise ValueError("projection packet edge decomposition refs must be known")
+        if any(ref not in known_obligation_maps for ref in packet_row.obligation_map_refs):
+            raise ValueError("projection packet obligation map refs must be known")
+        if any(ref not in known_drift_registers for ref in packet_row.drift_register_refs):
+            raise ValueError("projection packet drift register refs must be known")
+        if any(ref not in known_sources for ref in packet_row.source_refs):
+            raise ValueError("projection packet source refs must be known")
+        if any(ref not in known_guardrails for ref in packet_row.guardrail_refs):
+            raise ValueError("projection packet guardrail refs must be known")
+        for spec_row in packet_row.implementation_spec_rows:
+            if any(ref not in known_obligations for ref in spec_row.artifact_obligation_refs):
+                raise ValueError("implementation specs must reference known artifact obligations")
+            if any(ref not in known_validations for ref in spec_row.required_validation_refs):
+                raise ValueError("implementation specs must reference known validation needs")
+            if any(ref not in known_edges for ref in spec_row.semantic_preservation_refs):
+                raise ValueError("implementation specs must reference known semantic edges")
+            if any(
+                ref not in known_evidence_requirements
+                for ref in spec_row.acceptance_evidence_requirements
+            ):
+                raise ValueError("implementation specs must reference known acceptance evidence")
+        for provenance_row in packet_row.projection_provenance_rows:
+            if any(ref not in known_contracts for ref in provenance_row.input_intent_contract_refs):
+                raise ValueError("projection provenance must reference known intent contracts")
+            if any(
+                ref not in known_decompositions
+                for ref in provenance_row.input_edge_decomposition_refs
+            ):
+                raise ValueError("projection provenance must reference known edge decompositions")
+            if any(
+                ref not in known_obligation_maps
+                for ref in provenance_row.input_obligation_map_refs
+            ):
+                raise ValueError("projection provenance must reference known obligation maps")
+        for checklist_row in packet_row.spec_review_checklist_rows:
+            if any(ref not in known_edges for ref in checklist_row.semantic_edge_refs):
+                raise ValueError("projection checklist semantic edge refs must be known")
+            if any(ref not in known_obligations for ref in checklist_row.artifact_obligation_refs):
+                raise ValueError("projection checklist obligation refs must be known")
+            if any(ref not in known_sources for ref in checklist_row.source_refs):
+                raise ValueError("projection checklist source refs must be known")
+
+    for handoff_row in intent_to_work_packet_handoff.handoff_rows:
+        if any(ref not in known_projection_packets for ref in handoff_row.projection_packet_refs):
+            raise ValueError("work-packet handoff projection refs must be known")
+        if any(ref not in known_contracts for ref in handoff_row.intent_contract_refs):
+            raise ValueError("work-packet handoff intent refs must be known")
+        if any(ref not in known_obligations for ref in handoff_row.artifact_obligation_refs):
+            raise ValueError("work-packet handoff obligation refs must be known")
+        if any(ref not in known_drift for ref in handoff_row.carried_drift_refs):
+            raise ValueError("work-packet handoff carried drift refs must be known")
+        if any(ref not in known_guardrails for ref in handoff_row.guardrail_refs):
+            raise ValueError("work-packet handoff guardrail refs must be known")
+        if handoff_row.handoff_posture == "ready_for_later_review":
+            if handoff_row.implementation_lock_requirement != "canonical_starter_lock_required":
+                raise ValueError("ready handoffs require canonical later lock")
+
+
+def derive_v83c_semantic_implementation_projection_bundle(
+    *, repo_root: Path | None = None
+) -> tuple[
+    RepoIntentSourceIndex,
+    RepoSemanticIntentContract,
+    RepoIntentNonImplementationGuardrail,
+    RepoIntentEdgeDecomposition,
+    RepoArtifactObligationMap,
+    RepoSemanticDriftAmbiguityRegister,
+    RepoImplementationSpecProjectionPacket,
+    RepoIntentToWorkPacketHandoff,
+    RepoSemanticImplementationSpecFamilyCloseoutAlignment,
+]:
+    (
+        source_index,
+        contract,
+        guardrail,
+        edge_decomposition,
+        obligation_map,
+        drift_register,
+    ) = derive_v83b_semantic_edge_obligation_bundle(repo_root=repo_root)
+    projection_packet = derive_v83c_repo_implementation_spec_projection_packet(
+        repo_root=repo_root,
+        semantic_intent_contract=contract,
+        intent_non_implementation_guardrail=guardrail,
+        intent_edge_decomposition=edge_decomposition,
+        artifact_obligation_map=obligation_map,
+        semantic_drift_ambiguity_register=drift_register,
+    )
+    handoff = derive_v83c_repo_intent_to_work_packet_handoff(
+        repo_root=repo_root,
+        semantic_intent_contract=contract,
+        intent_non_implementation_guardrail=guardrail,
+        artifact_obligation_map=obligation_map,
+        semantic_drift_ambiguity_register=drift_register,
+        implementation_spec_projection_packet=projection_packet,
+    )
+    closeout = derive_v83c_repo_semantic_implementation_spec_family_closeout_alignment(
+        repo_root=repo_root,
+        implementation_spec_projection_packet=projection_packet,
+        intent_to_work_packet_handoff=handoff,
+    )
+    validate_v83c_semantic_implementation_projection_bundle(
+        intent_source_index=source_index,
+        semantic_intent_contract=contract,
+        intent_non_implementation_guardrail=guardrail,
+        intent_edge_decomposition=edge_decomposition,
+        artifact_obligation_map=obligation_map,
+        semantic_drift_ambiguity_register=drift_register,
+        implementation_spec_projection_packet=projection_packet,
+        intent_to_work_packet_handoff=handoff,
+        semantic_implementation_spec_family_closeout_alignment=closeout,
+    )
+    return (
+        source_index,
+        contract,
+        guardrail,
+        edge_decomposition,
+        obligation_map,
+        drift_register,
+        projection_packet,
+        handoff,
+        closeout,
     )

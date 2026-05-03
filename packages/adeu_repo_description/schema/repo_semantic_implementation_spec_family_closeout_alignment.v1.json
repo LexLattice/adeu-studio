@@ -1,0 +1,146 @@
+{
+  "additionalProperties": false,
+  "properties": {
+    "closed_by_arc": {
+      "const": "vNext+235",
+      "title": "Closed By Arc",
+      "type": "string"
+    },
+    "closed_slice_ladder": {
+      "items": {
+        "enum": [
+          "V83-A",
+          "V83-B",
+          "V83-C"
+        ],
+        "type": "string"
+      },
+      "minItems": 3,
+      "title": "Closed Slice Ladder",
+      "type": "array"
+    },
+    "consumed_source_families": {
+      "items": {
+        "enum": [
+          "V68",
+          "V69",
+          "V70",
+          "V71",
+          "V72",
+          "V73",
+          "V74",
+          "V75",
+          "V76",
+          "V77",
+          "V78",
+          "V79",
+          "V80",
+          "V81",
+          "V82",
+          "V83"
+        ],
+        "type": "string"
+      },
+      "minItems": 1,
+      "title": "Consumed Source Families",
+      "type": "array"
+    },
+    "family": {
+      "const": "V83",
+      "title": "Family",
+      "type": "string"
+    },
+    "family_closed_on_main": {
+      "const": "closed_after_v83c_merge",
+      "title": "Family Closed On Main",
+      "type": "string"
+    },
+    "future_family_authority": {
+      "const": "next_selector_required",
+      "title": "Future Family Authority",
+      "type": "string"
+    },
+    "implementation_spec_projection_packet_id": {
+      "title": "Implementation Spec Projection Packet Id",
+      "type": "string"
+    },
+    "intent_to_work_packet_handoff_id": {
+      "title": "Intent To Work Packet Handoff Id",
+      "type": "string"
+    },
+    "limitation_note": {
+      "title": "Limitation Note",
+      "type": "string"
+    },
+    "schema": {
+      "const": "repo_semantic_implementation_spec_family_closeout_alignment@1",
+      "default": "repo_semantic_implementation_spec_family_closeout_alignment@1",
+      "title": "Schema",
+      "type": "string"
+    },
+    "semantic_implementation_spec_boundary": {
+      "title": "Semantic Implementation Spec Boundary",
+      "type": "string"
+    },
+    "semantic_implementation_spec_family_closeout_alignment_id": {
+      "title": "Semantic Implementation Spec Family Closeout Alignment Id",
+      "type": "string"
+    },
+    "shipped_record_shapes": {
+      "items": {
+        "enum": [
+          "repo_semantic_intent_contract@1",
+          "repo_intent_source_index@1",
+          "repo_intent_non_implementation_guardrail@1",
+          "repo_intent_edge_decomposition@1",
+          "repo_artifact_obligation_map@1",
+          "repo_semantic_drift_ambiguity_register@1",
+          "repo_implementation_spec_projection_packet@1",
+          "repo_intent_to_work_packet_handoff@1",
+          "repo_semantic_implementation_spec_family_closeout_alignment@1"
+        ],
+        "type": "string"
+      },
+      "minItems": 1,
+      "title": "Shipped Record Shapes",
+      "type": "array"
+    },
+    "unselected_future_surfaces": {
+      "items": {
+        "enum": [
+          "code_implementation",
+          "work_packet_execution",
+          "meta_orchestrator_runtime",
+          "morphic_ux_runtime_change",
+          "direct_oai_runtime_behavior",
+          "product_authorization",
+          "release",
+          "graph_memory_authority",
+          "recursive_policy_amendment",
+          "v84_selection"
+        ],
+        "type": "string"
+      },
+      "minItems": 1,
+      "title": "Unselected Future Surfaces",
+      "type": "array"
+    }
+  },
+  "required": [
+    "semantic_implementation_spec_family_closeout_alignment_id",
+    "implementation_spec_projection_packet_id",
+    "intent_to_work_packet_handoff_id",
+    "family",
+    "closed_by_arc",
+    "closed_slice_ladder",
+    "shipped_record_shapes",
+    "consumed_source_families",
+    "family_closed_on_main",
+    "future_family_authority",
+    "unselected_future_surfaces",
+    "semantic_implementation_spec_boundary",
+    "limitation_note"
+  ],
+  "title": "RepoSemanticImplementationSpecFamilyCloseoutAlignment",
+  "type": "object"
+}

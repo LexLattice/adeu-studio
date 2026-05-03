@@ -1,0 +1,57 @@
+{
+  "closed_by_arc": "vNext+235",
+  "closed_slice_ladder": [
+    "V83-A",
+    "V83-B",
+    "V83-C"
+  ],
+  "consumed_source_families": [
+    "V68",
+    "V69",
+    "V70",
+    "V71",
+    "V72",
+    "V73",
+    "V74",
+    "V75",
+    "V76",
+    "V77",
+    "V78",
+    "V79",
+    "V80",
+    "V81",
+    "V82",
+    "V83"
+  ],
+  "family": "V83",
+  "family_closed_on_main": "closed_after_v83c_merge",
+  "future_family_authority": "next_selector_required",
+  "implementation_spec_projection_packet_id": "repo_implementation_spec_projection_packet_2665038295f50721000e681b",
+  "intent_to_work_packet_handoff_id": "repo_intent_to_work_packet_handoff_facbb13fcb725f3aecc2c8c8",
+  "limitation_note": "V83 is closed as semantic implementation-spec review only; no implementation, no execution, no product authority, no release, no graph-memory authority, and no v84 selection.",
+  "schema": "repo_semantic_implementation_spec_family_closeout_alignment@1",
+  "semantic_implementation_spec_boundary": "V83 closes semantic implementation-spec projection packet review with no implementation, no work-packet execution, and no v84 selection.",
+  "semantic_implementation_spec_family_closeout_alignment_id": "repo_semantic_implementation_spec_family_closeout_alignment_39571411965dbe641867c9c4",
+  "shipped_record_shapes": [
+    "repo_artifact_obligation_map@1",
+    "repo_implementation_spec_projection_packet@1",
+    "repo_intent_edge_decomposition@1",
+    "repo_intent_non_implementation_guardrail@1",
+    "repo_intent_source_index@1",
+    "repo_intent_to_work_packet_handoff@1",
+    "repo_semantic_drift_ambiguity_register@1",
+    "repo_semantic_implementation_spec_family_closeout_alignment@1",
+    "repo_semantic_intent_contract@1"
+  ],
+  "unselected_future_surfaces": [
+    "code_implementation",
+    "direct_oai_runtime_behavior",
+    "graph_memory_authority",
+    "meta_orchestrator_runtime",
+    "morphic_ux_runtime_change",
+    "product_authorization",
+    "recursive_policy_amendment",
+    "release",
+    "work_packet_execution"
+  ]
+}
