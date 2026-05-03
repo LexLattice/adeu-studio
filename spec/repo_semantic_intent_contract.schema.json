@@ -1,0 +1,297 @@
+{
+  "$defs": {
+    "RepoSemanticIntentContractRow": {
+      "additionalProperties": false,
+      "properties": {
+        "artifact_family_horizon": {
+          "enum": [
+            "repo_code_implementation_spec",
+            "repo_schema_implementation_spec",
+            "repo_fixture_test_spec",
+            "repo_docs_support_spec",
+            "morphic_ux_projection_spec",
+            "direct_oai_harness_spec",
+            "workflow_orchestrator_spec",
+            "general_digital_artifact_projection_future_family",
+            "future_family_only"
+          ],
+          "title": "Artifact Family Horizon",
+          "type": "string"
+        },
+        "authority_boundary_refs": {
+          "items": {
+            "type": "string"
+          },
+          "title": "Authority Boundary Refs",
+          "type": "array"
+        },
+        "candidate_ref": {
+          "title": "Candidate Ref",
+          "type": "string"
+        },
+        "expected_edge_classes": {
+          "items": {
+            "enum": [
+              "source_binding_edge",
+              "non_goal_preservation_edge",
+              "authority_boundary_edge",
+              "success_horizon_edge",
+              "target_surface_boundedness_edge",
+              "validation_evidence_edge",
+              "semantic_drift_edge",
+              "future_family_boundary_edge"
+            ],
+            "type": "string"
+          },
+          "minItems": 1,
+          "title": "Expected Edge Classes",
+          "type": "array"
+        },
+        "guardrail_refs": {
+          "items": {
+            "type": "string"
+          },
+          "minItems": 1,
+          "title": "Guardrail Refs",
+          "type": "array"
+        },
+        "implementation_surface_horizon": {
+          "enum": [
+            "repo_description_schema_surface",
+            "repo_description_fixture_surface",
+            "repo_description_test_surface",
+            "repo_docs_support_surface",
+            "morphic_ux_projection_surface",
+            "direct_oai_harness_surface",
+            "workflow_orchestrator_surface",
+            "future_family_only"
+          ],
+          "title": "Implementation Surface Horizon",
+          "type": "string"
+        },
+        "intent_contract_ref": {
+          "title": "Intent Contract Ref",
+          "type": "string"
+        },
+        "intent_recordability_posture": {
+          "enum": [
+            "recordable_from_concrete_intent_source",
+            "recordable_from_operator_turn_with_absence_markers",
+            "recordable_from_support_context_only",
+            "recordable_from_generated_spec_candidate",
+            "not_recordable_missing_intent_source"
+          ],
+          "title": "Intent Recordability Posture",
+          "type": "string"
+        },
+        "intent_revision_posture": {
+          "enum": [
+            "initial_intent_version",
+            "operator_revision_recorded",
+            "reviewer_amendment_recorded",
+            "generated_candidate_revision_recorded",
+            "revision_requires_later_review"
+          ],
+          "title": "Intent Revision Posture",
+          "type": "string"
+        },
+        "intent_statement": {
+          "title": "Intent Statement",
+          "type": "string"
+        },
+        "intent_title": {
+          "title": "Intent Title",
+          "type": "string"
+        },
+        "intent_version_ref": {
+          "title": "Intent Version Ref",
+          "type": "string"
+        },
+        "limitation_note": {
+          "title": "Limitation Note",
+          "type": "string"
+        },
+        "non_goal_refs": {
+          "items": {
+            "type": "string"
+          },
+          "title": "Non Goal Refs",
+          "type": "array"
+        },
+        "odeu_lanes": {
+          "items": {
+            "enum": [
+              "ontological",
+              "deontic",
+              "epistemic",
+              "utility"
+            ],
+            "type": "string"
+          },
+          "minItems": 1,
+          "title": "Odeu Lanes",
+          "type": "array"
+        },
+        "operational_constraint_refs": {
+          "items": {
+            "type": "string"
+          },
+          "title": "Operational Constraint Refs",
+          "type": "array"
+        },
+        "scope_posture": {
+          "enum": [
+            "bounded_semantic_spec_review",
+            "blocked_by_missing_scope_boundary",
+            "context_only",
+            "future_family_only",
+            "rejected_out_of_scope"
+          ],
+          "title": "Scope Posture",
+          "type": "string"
+        },
+        "semantic_closure_posture": {
+          "enum": [
+            "closure_not_claimed",
+            "closure_candidate_for_review",
+            "closure_blocked_by_missing_source",
+            "closure_blocked_by_missing_scope_boundary",
+            "closure_blocked_by_missing_non_goals",
+            "closure_blocked_by_missing_authority_boundary",
+            "closure_blocked_by_missing_success_horizon",
+            "closure_blocked_by_generated_spec_provenance_gap",
+            "future_family_only",
+            "rejected_out_of_scope"
+          ],
+          "title": "Semantic Closure Posture",
+          "type": "string"
+        },
+        "semantic_constraint_refs": {
+          "items": {
+            "type": "string"
+          },
+          "title": "Semantic Constraint Refs",
+          "type": "array"
+        },
+        "semantic_spec_eligibility_posture": {
+          "enum": [
+            "eligible_for_semantic_spec_review",
+            "blocked_by_missing_intent_source",
+            "blocked_by_missing_non_goals",
+            "blocked_by_missing_authority_boundary",
+            "blocked_by_missing_success_horizon",
+            "blocked_by_external_source_import_gap",
+            "blocked_by_generated_spec_provenance_gap",
+            "blocked_by_ambiguous_artifact_horizon",
+            "future_family_only",
+            "rejected_out_of_scope"
+          ],
+          "title": "Semantic Spec Eligibility Posture",
+          "type": "string"
+        },
+        "source_refs": {
+          "items": {
+            "type": "string"
+          },
+          "minItems": 1,
+          "title": "Source Refs",
+          "type": "array"
+        },
+        "success_horizon": {
+          "title": "Success Horizon",
+          "type": "string"
+        },
+        "success_horizon_kind": {
+          "enum": [
+            "schema_shape_success",
+            "validator_behavior_success",
+            "fixture_accept_reject_success",
+            "workflow_transition_success",
+            "ux_projection_success",
+            "provider_capability_profile_success",
+            "documentation_alignment_success",
+            "implementation_packet_success",
+            "future_family_only"
+          ],
+          "title": "Success Horizon Kind",
+          "type": "string"
+        }
+      },
+      "required": [
+        "intent_contract_ref",
+        "intent_version_ref",
+        "intent_revision_posture",
+        "candidate_ref",
+        "source_refs",
+        "intent_title",
+        "intent_statement",
+        "artifact_family_horizon",
+        "implementation_surface_horizon",
+        "success_horizon",
+        "success_horizon_kind",
+        "intent_recordability_posture",
+        "semantic_spec_eligibility_posture",
+        "semantic_closure_posture",
+        "scope_posture",
+        "expected_edge_classes",
+        "guardrail_refs",
+        "odeu_lanes",
+        "limitation_note"
+      ],
+      "title": "RepoSemanticIntentContractRow",
+      "type": "object"
+    }
+  },
+  "additionalProperties": false,
+  "properties": {
+    "intent_contract_rows": {
+      "items": {
+        "$ref": "#/$defs/RepoSemanticIntentContractRow"
+      },
+      "minItems": 1,
+      "title": "Intent Contract Rows",
+      "type": "array"
+    },
+    "intent_source_index_id": {
+      "title": "Intent Source Index Id",
+      "type": "string"
+    },
+    "review_id": {
+      "title": "Review Id",
+      "type": "string"
+    },
+    "schema": {
+      "const": "repo_semantic_intent_contract@1",
+      "default": "repo_semantic_intent_contract@1",
+      "title": "Schema",
+      "type": "string"
+    },
+    "semantic_intent_contract_id": {
+      "title": "Semantic Intent Contract Id",
+      "type": "string"
+    },
+    "semantic_intent_summary": {
+      "title": "Semantic Intent Summary",
+      "type": "string"
+    },
+    "snapshot_id": {
+      "title": "Snapshot Id",
+      "type": "string"
+    },
+    "source_set_id": {
+      "title": "Source Set Id",
+      "type": "string"
+    }
+  },
+  "required": [
+    "semantic_intent_contract_id",
+    "intent_source_index_id",
+    "review_id",
+    "snapshot_id",
+    "source_set_id",
+    "intent_contract_rows",
+    "semantic_intent_summary"
+  ],
+  "title": "RepoSemanticIntentContract",
+  "type": "object"
+}

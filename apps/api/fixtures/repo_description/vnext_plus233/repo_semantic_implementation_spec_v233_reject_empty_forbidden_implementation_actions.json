@@ -1,0 +1,151 @@
+{
+  "guardrail_rows": [
+    {
+      "candidate_ref": "candidate:support:direct_oai_harness_spec_pressure",
+      "forbidden_downstream_authority": [
+        "dispatch_authority",
+        "graph_memory_authority",
+        "implementation_authority",
+        "product_authorization",
+        "recursive_policy_amendment",
+        "release_authority",
+        "runtime_authority",
+        "v84_selection",
+        "work_packet_authority"
+      ],
+      "forbidden_implementation_actions": [],
+      "forbidden_runtime_actions": [
+        "activate_direct_oai_runtime",
+        "change_morphic_ux_runtime",
+        "dispatch_worker",
+        "invoke_tool_for_effect",
+        "mutate_meta_orchestrator_runtime",
+        "run_command"
+      ],
+      "guardrail_ref": "guardrail:v83a:direct-harness:import-gap",
+      "intent_contract_refs": [
+        "semantic-intent:v83a:direct-harness-import-gap"
+      ],
+      "limitation_note": "V83-A guardrail is review only: no implementation, no execution, no dispatch, no product authorization, and no release.",
+      "non_dispatch_posture": "non_dispatch_guardrail_active",
+      "non_execution_posture": "non_execution_guardrail_active",
+      "non_implementation_posture": "non_implementation_guardrail_active",
+      "non_release_posture": "non_release_guardrail_active",
+      "required_later_authority_refs": [
+        "intent:v83a:authority-boundary:later-lock-required"
+      ],
+      "source_refs": [
+        "external-support:direct-oai-meta-orchestrator-loop",
+        "external-support:direct-oai-upstream-profile",
+        "intent:v83a:authority-boundary:later-lock-required",
+        "intent:v83a:non-goal:no-implementation"
+      ]
+    },
+    {
+      "candidate_ref": "candidate:future:general_digital_artifact_projection",
+      "forbidden_downstream_authority": [
+        "dispatch_authority",
+        "graph_memory_authority",
+        "implementation_authority",
+        "product_authorization",
+        "recursive_policy_amendment",
+        "release_authority",
+        "runtime_authority",
+        "v84_selection",
+        "work_packet_authority"
+      ],
+      "forbidden_implementation_actions": [
+        "commit_change",
+        "create_work_packet",
+        "edit_code",
+        "execute_work_packet",
+        "merge_change",
+        "open_pr",
+        "write_implementation"
+      ],
+      "forbidden_runtime_actions": [
+        "activate_direct_oai_runtime",
+        "change_morphic_ux_runtime",
+        "dispatch_worker",
+        "invoke_tool_for_effect",
+        "mutate_meta_orchestrator_runtime",
+        "run_command"
+      ],
+      "guardrail_ref": "guardrail:v83a:general-artifact:future-family",
+      "intent_contract_refs": [
+        "semantic-intent:v83a:general-digital-artifact-future"
+      ],
+      "limitation_note": "V83-A guardrail is review only: no implementation, no execution, no dispatch, no product authorization, and no release.",
+      "non_dispatch_posture": "non_dispatch_guardrail_active",
+      "non_execution_posture": "non_execution_guardrail_active",
+      "non_implementation_posture": "non_implementation_guardrail_active",
+      "non_release_posture": "non_release_guardrail_active",
+      "required_later_authority_refs": [
+        "intent:v83a:authority-boundary:later-lock-required"
+      ],
+      "source_refs": [
+        "docs/DRAFT_NEXT_ARC_OPTIONS_v73.md",
+        "intent:v83a:authority-boundary:later-lock-required",
+        "intent:v83a:non-goal:no-implementation"
+      ]
+    },
+    {
+      "candidate_ref": "candidate:internal:intent_to_implementation_spec_institution",
+      "forbidden_downstream_authority": [
+        "dispatch_authority",
+        "graph_memory_authority",
+        "implementation_authority",
+        "product_authorization",
+        "recursive_policy_amendment",
+        "release_authority",
+        "runtime_authority",
+        "v84_selection",
+        "work_packet_authority"
+      ],
+      "forbidden_implementation_actions": [
+        "commit_change",
+        "create_work_packet",
+        "edit_code",
+        "execute_work_packet",
+        "merge_change",
+        "open_pr",
+        "write_implementation"
+      ],
+      "forbidden_runtime_actions": [
+        "activate_direct_oai_runtime",
+        "change_morphic_ux_runtime",
+        "dispatch_worker",
+        "invoke_tool_for_effect",
+        "mutate_meta_orchestrator_runtime",
+        "run_command"
+      ],
+      "guardrail_ref": "guardrail:v83a:intent-to-spec:non-implementation",
+      "intent_contract_refs": [
+        "semantic-intent:v83a:intent-to-implementation-spec"
+      ],
+      "limitation_note": "V83-A guardrail is review only: no implementation, no execution, no dispatch, no product authorization, and no release.",
+      "non_dispatch_posture": "non_dispatch_guardrail_active",
+      "non_execution_posture": "non_execution_guardrail_active",
+      "non_implementation_posture": "non_implementation_guardrail_active",
+      "non_release_posture": "non_release_guardrail_active",
+      "required_later_authority_refs": [
+        "intent:v83a:authority-boundary:later-lock-required"
+      ],
+      "source_refs": [
+        "apps/api/fixtures/repo_description/vnext_plus232/repo_corpus_ingestion_review_family_closeout_alignment_v232_reference.json",
+        "apps/api/fixtures/repo_description/vnext_plus232/repo_corpus_ingestion_review_summary_v232_reference.json",
+        "apps/api/fixtures/repo_description/vnext_plus232/repo_post_corpus_ingestion_review_handoff_v232_reference.json",
+        "docs/DRAFT_NEXT_ARC_OPTIONS_v73.md",
+        "intent:v83a:authority-boundary:later-lock-required",
+        "intent:v83a:non-goal:no-implementation"
+      ]
+    }
+  ],
+  "intent_non_implementation_guardrail_id": "repo_intent_non_implementation_guardrail_800734bad46c116eb9cad1e1",
+  "non_implementation_summary": "Intent non-implementation guardrails preserve no implementation, no execution, no dispatch, no release, and no downstream authority.",
+  "review_id": "review:v83a:semantic-implementation-spec",
+  "schema": "repo_intent_non_implementation_guardrail@1",
+  "semantic_intent_contract_id": "repo_semantic_intent_contract_5e31241d28b4241b9e1268df",
+  "snapshot_id": "vNext+232-corpus-ingestion-review-closeout",
+  "source_set_id": "source-set:v83a:semantic-implementation-spec-intent"
+}

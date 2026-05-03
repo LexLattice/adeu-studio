@@ -1,0 +1,161 @@
+{
+  "intent_contract_rows": [
+    {
+      "artifact_family_horizon": "direct_oai_harness_spec",
+      "authority_boundary_refs": [
+        "intent:v83a:authority-boundary:later-lock-required"
+      ],
+      "candidate_ref": "candidate:support:direct_oai_harness_spec_pressure",
+      "edge_decomposition_refs": [
+        "edge-decomposition:v83b:not-selected"
+      ],
+      "expected_edge_classes": [
+        "authority_boundary_edge",
+        "source_binding_edge"
+      ],
+      "guardrail_refs": [
+        "guardrail:v83a:direct-harness:import-gap"
+      ],
+      "implementation_surface_horizon": "direct_oai_harness_surface",
+      "intent_contract_ref": "semantic-intent:v83a:direct-harness-import-gap",
+      "intent_recordability_posture": "recordable_from_support_context_only",
+      "intent_revision_posture": "initial_intent_version",
+      "intent_statement": "The intent is to carry direct OAI harness spec pressure as context until external support sources are imported or absence-marked.",
+      "intent_title": "Direct OAI harness support remains import-blocked context",
+      "intent_version_ref": "intent-version:v83a:direct-harness:v1",
+      "limitation_note": "Direct OAI harness pressure is context only; no runtime authority and no implementation.",
+      "non_goal_refs": [
+        "intent:v83a:non-goal:no-implementation"
+      ],
+      "odeu_lanes": [
+        "deontic",
+        "epistemic"
+      ],
+      "operational_constraint_refs": [
+        "external-support:direct-oai-meta-orchestrator-loop",
+        "external-support:direct-oai-upstream-profile"
+      ],
+      "scope_posture": "context_only",
+      "semantic_closure_posture": "closure_blocked_by_missing_source",
+      "semantic_constraint_refs": [
+        "intent:v83a:authority-boundary:later-lock-required"
+      ],
+      "semantic_spec_eligibility_posture": "blocked_by_external_source_import_gap",
+      "source_refs": [
+        "external-support:direct-oai-meta-orchestrator-loop",
+        "external-support:direct-oai-upstream-profile",
+        "intent:v83a:authority-boundary:later-lock-required",
+        "intent:v83a:non-goal:no-implementation"
+      ],
+      "success_horizon": "Success means direct harness pressure is blocked by source import posture and does not grant runtime authority.",
+      "success_horizon_kind": "provider_capability_profile_success"
+    },
+    {
+      "artifact_family_horizon": "general_digital_artifact_projection_future_family",
+      "authority_boundary_refs": [
+        "intent:v83a:authority-boundary:later-lock-required"
+      ],
+      "candidate_ref": "candidate:future:general_digital_artifact_projection",
+      "expected_edge_classes": [
+        "future_family_boundary_edge",
+        "non_goal_preservation_edge"
+      ],
+      "guardrail_refs": [
+        "guardrail:v83a:general-artifact:future-family"
+      ],
+      "implementation_surface_horizon": "future_family_only",
+      "intent_contract_ref": "semantic-intent:v83a:general-digital-artifact-future",
+      "intent_recordability_posture": "recordable_from_concrete_intent_source",
+      "intent_revision_posture": "initial_intent_version",
+      "intent_statement": "The intent is to preserve generalized digital artifact projection as a future family while V83-A stays on implementation spec review.",
+      "intent_title": "General digital artifact projection remains future-family only",
+      "intent_version_ref": "intent-version:v83a:general-artifact:v1",
+      "limitation_note": "General artifact projection is future-family only with no implementation.",
+      "non_goal_refs": [
+        "intent:v83a:non-goal:no-implementation"
+      ],
+      "odeu_lanes": [
+        "ontological",
+        "utility"
+      ],
+      "operational_constraint_refs": [],
+      "scope_posture": "future_family_only",
+      "semantic_closure_posture": "future_family_only",
+      "semantic_constraint_refs": [
+        "intent:v83a:authority-boundary:later-lock-required"
+      ],
+      "semantic_spec_eligibility_posture": "future_family_only",
+      "source_refs": [
+        "docs/DRAFT_NEXT_ARC_OPTIONS_v73.md",
+        "intent:v83a:authority-boundary:later-lock-required",
+        "intent:v83a:non-goal:no-implementation"
+      ],
+      "success_horizon": "Success means the generalized artifact theory remains mapped but not selected by V83-A.",
+      "success_horizon_kind": "future_family_only"
+    },
+    {
+      "artifact_family_horizon": "repo_schema_implementation_spec",
+      "authority_boundary_refs": [
+        "intent:v83a:authority-boundary:later-lock-required"
+      ],
+      "candidate_ref": "candidate:internal:intent_to_implementation_spec_institution",
+      "expected_edge_classes": [
+        "authority_boundary_edge",
+        "future_family_boundary_edge",
+        "non_goal_preservation_edge",
+        "source_binding_edge",
+        "success_horizon_edge",
+        "target_surface_boundedness_edge",
+        "validation_evidence_edge"
+      ],
+      "guardrail_refs": [
+        "guardrail:v83a:intent-to-spec:non-implementation"
+      ],
+      "implementation_surface_horizon": "repo_description_schema_surface",
+      "intent_contract_ref": "semantic-intent:v83a:intent-to-implementation-spec",
+      "intent_recordability_posture": "recordable_from_concrete_intent_source",
+      "intent_revision_posture": "initial_intent_version",
+      "intent_statement": "The intent is to create a source-bound semantic implementation spec review layer before implementation specs or work packets are projected.",
+      "intent_title": "Institutionalize intent-to-implementation specification review",
+      "intent_version_ref": "intent-version:v83a:intent-to-spec:v1",
+      "limitation_note": "Eligible for semantic implementation spec review only; no implementation, no execution, and no release.",
+      "non_goal_refs": [
+        "intent:v83a:non-goal:no-implementation"
+      ],
+      "odeu_lanes": [
+        "deontic",
+        "epistemic",
+        "ontological",
+        "utility"
+      ],
+      "operational_constraint_refs": [
+        "apps/api/fixtures/repo_description/vnext_plus232/repo_corpus_ingestion_review_family_closeout_alignment_v232_reference.json",
+        "apps/api/fixtures/repo_description/vnext_plus232/repo_corpus_ingestion_review_summary_v232_reference.json",
+        "apps/api/fixtures/repo_description/vnext_plus232/repo_post_corpus_ingestion_review_handoff_v232_reference.json"
+      ],
+      "scope_posture": "bounded_semantic_spec_review",
+      "semantic_closure_posture": "closure_candidate_for_review",
+      "semantic_constraint_refs": [
+        "intent:v83a:authority-boundary:later-lock-required"
+      ],
+      "semantic_spec_eligibility_posture": "eligible_for_semantic_spec_review",
+      "source_refs": [
+        "apps/api/fixtures/repo_description/vnext_plus232/repo_corpus_ingestion_review_family_closeout_alignment_v232_reference.json",
+        "apps/api/fixtures/repo_description/vnext_plus232/repo_corpus_ingestion_review_summary_v232_reference.json",
+        "apps/api/fixtures/repo_description/vnext_plus232/repo_post_corpus_ingestion_review_handoff_v232_reference.json",
+        "docs/DRAFT_NEXT_ARC_OPTIONS_v73.md",
+        "intent:v83a:authority-boundary:later-lock-required",
+        "intent:v83a:non-goal:no-implementation"
+      ],
+      "success_horizon": "Success means schema shape, validator behavior, reference fixture, reject fixture, and documentation alignment preserve the semantic intent before any implementation.",
+      "success_horizon_kind": "implementation_packet_success"
+    }
+  ],
+  "intent_source_index_id": "repo_intent_source_index_4c15cc3d917a15532de3bcdb",
+  "review_id": "review:v83a:semantic-implementation-spec",
+  "schema": "repo_semantic_intent_contract@1",
+  "semantic_intent_contract_id": "repo_semantic_intent_contract_5e31241d28b4241b9e1268df",
+  "semantic_intent_summary": "Semantic implementation spec intent contracts are review only with no implementation, no execution, and no release.",
+  "snapshot_id": "vNext+232-corpus-ingestion-review-closeout",
+  "source_set_id": "source-set:v83a:semantic-implementation-spec-intent"
+}
