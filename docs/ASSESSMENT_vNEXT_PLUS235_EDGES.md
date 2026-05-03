@@ -1,8 +1,8 @@
 # Assessment vNext+235 Edges
 
-Status: pre-lock edge assessment for `V83-C`.
+Status: closeout-edge assessment for `V83-C`.
 
-Authority layer: planning / starter scaffold.
+Authority layer: closeout evidence on `main`.
 
 ## Assessment-State Marker (Machine-Checkable)
 
@@ -10,8 +10,8 @@ Authority layer: planning / starter scaffold.
 {
   "schema": "assessment_artifact_state@1",
   "artifact": "docs/ASSESSMENT_vNEXT_PLUS235_EDGES.md",
-  "phase": "pre_lock_assessment",
-  "authoritative": false,
+  "phase": "post_closeout_assessment",
+  "authoritative": true,
   "required_in_decision": true
 }
 ```
@@ -20,99 +20,122 @@ Authority layer: planning / starter scaffold.
 
 ### Edge 1: Projection Packet Could Become Implementation
 
-- Starter containment:
-  `V83-C` may emit implementation-spec projection packets for review only.
-  Packets must carry non-implementation posture and cannot claim code changed.
-- Expected implementation proof:
-  projection packets with implementation, PR, commit, merge, release, or
-  work-packet execution claims reject.
+- Closeout containment:
+  projection packets carry non-implementation posture and no work-packet
+  execution authority. The family closeout alignment rejects code
+  implementation claims and closes `V83` only.
+- Result:
+  pass.
 
 ### Edge 2: Projection Packet Could Drop Released Substrate
 
-- Starter containment:
-  every packet must reference known released `V83-A` intent rows and released
-  `V83-B` edge, obligation, and drift rows.
-- Expected implementation proof:
-  packets without known intent, edge decomposition, obligation map, or drift
-  register refs reject.
+- Closeout containment:
+  every packet references known released `V83-A` intent/source/guardrail rows
+  and released `V83-B` edge/obligation/drift rows. Missing upstream substrate
+  fails closed rather than being reconstructed from prose, support docs, model
+  preference, or fixture names.
+- Result:
+  pass.
 
 ### Edge 3: Generated Projection Could Become Authority
 
-- Starter containment:
-  model / agent / mixed projection provenance remains candidate-only and must
-  cite prompt context, actor/profile refs, and input intent / edge /
-  obligation refs.
-- Expected implementation proof:
-  model- or agent-generated projection packets without provenance rows reject.
+- Closeout containment:
+  model, agent, tool-assisted, or mixed projection provenance remains
+  candidate-only and must carry bounded profile, prompt/context, input intent,
+  edge decomposition, and obligation map refs before review-ready posture.
+- Result:
+  pass.
 
-### Edge 4: Quality Gate Could Pass From Tests Alone
+### Edge 4: Checklist Or Quality Gate Could Pass From Tests Alone
 
-- Starter containment:
-  quality gates require source binding, semantic edge coverage, validation
-  evidence, reject fixtures, non-goal preservation, authority boundary checks,
-  and future-family boundary checks.
-- Expected implementation proof:
-  gates passing with tests only and no semantic coverage reject.
+- Closeout containment:
+  checklist rows are validated against known released semantic edges, artifact
+  obligations, and source refs. Quality gates require source binding, non-goal
+  preservation, authority boundary checks, bounded target surfaces, edge
+  coverage, validation evidence, reject fixtures, generated-spec provenance,
+  semantic drift checks, and future-family boundary checks.
+- Result:
+  pass.
 
-### Edge 5: Ready Posture Could Hide Drift
+### Edge 5: Ready Posture Could Hide Drift Or Blockers
 
-- Starter containment:
-  projection packets and handoffs must carry blockers and warnings explicitly.
-  Ready posture cannot erase blocking drift.
-- Expected implementation proof:
-  ready packets or handoffs with carried blockers reject.
+- Closeout containment:
+  ready projection packets cannot carry blockers. Handoffs must preserve drift
+  and later-authority pressure, and warning-ready posture remains distinct from
+  implementation-ready authority.
+- Result:
+  pass.
 
 ### Edge 6: Implementation Spec Rows Could Use Broad Targets
 
-- Starter containment:
-  implementation spec rows must reference bounded concrete target surfaces and
-  known artifact obligations.
-- Expected implementation proof:
-  broad repo/package/glob target surfaces marked ready reject.
+- Closeout containment:
+  implementation spec rows must reference known artifact obligations and
+  bounded target surfaces. Broad repo/package/glob-like targets marked as
+  ready reject.
+- Result:
+  pass.
 
 ### Edge 7: Work-Packet Handoff Could Become Work Authority
 
-- Starter containment:
-  handoffs require `work_packet_authority_posture` and
-  `implementation_lock_requirement`; later lock authority remains required.
-- Expected implementation proof:
-  handoffs marked ready to implement now, missing canonical later-lock
-  requirement, or marked executed reject.
+- Closeout containment:
+  handoffs require later canonical lock authority and remain later-review
+  requests. Ready-to-implement-now language, missing later-lock requirements,
+  and executed work-packet posture reject.
+- Result:
+  pass.
 
 ### Edge 8: Meta-Orchestrator / Morphic / Direct OAI Could Become Runtime
 
-- Starter containment:
-  meta-orchestrator, Morphic UX, and direct OAI handoffs remain review-only or
-  future-family-only. They do not mutate workflow state, UI runtime, or
-  provider runtime behavior.
-- Expected implementation proof:
-  runtime-transition, UI-change, or provider-authority claims reject.
+- Closeout containment:
+  meta-orchestrator, Morphic UX, and direct OAI handoff pressure remains
+  workflow/spec review-only or future-family-only. It does not mutate workflow
+  state, UI runtime, provider runtime behavior, or tool/provider authority.
+- Result:
+  pass.
 
 ### Edge 9: Family Closeout Could Select V84
 
-- Starter containment:
-  closeout alignment may close `V83` only. It must carry future pressure
-  without selecting `V84` or any later family.
-- Expected implementation proof:
-  closeout rows selecting `V84`, product work, graph memory, runtime,
-  implementation, release, or recursive policy authority reject.
+- Closeout containment:
+  family closeout alignment closes `V83` only, records
+  `future_family_authority = none`, and keeps `V84` selection in the
+  unselected future-surface list.
+- Result:
+  pass.
+
+### Edge 10: V83 Could Become General Digital-Artifact Authority
+
+- Closeout containment:
+  `V83` institutionalizes semantic implementation-specification review for
+  intent-to-spec transformation, but generalized digital-artifact projection
+  remains future territory. The shipped records can carry that pressure only
+  as review/future-family posture.
+- Result:
+  pass.
 
 ## Residual Edges
 
-- A later family may need to decide whether emitted handoff pressure should
-  become implementation work-packet activation review, Morphic UX projection
-  implementation, direct OAI harness implementation, generalized digital
-  artifact projection, graph memory, or another family.
-- `V83-C` should not preselect that next family; it should only make the
-  handoff pressure source-bound and reviewable.
+- `V83` is closed, but future selectors may still need to decide whether the
+  next family should address implementation work-packet activation review,
+  Morphic UX projection implementation, direct OAI harness implementation,
+  generalized digital-artifact projection, graph memory, product reporting, or
+  another pressure emitted by the broader roadmap.
+- Any later family must consume `V83` as semantic implementation-spec review
+  substrate only. `V83` projection packets, quality gates, handoffs, and
+  closeout rows are not implementation execution, command execution, tool
+  invocation, worker dispatch, runtime transition, product authorization,
+  release authority, graph-memory authority, generalized digital-artifact
+  authority, recursive policy authority, or `V84` selection.
 
 ## Current Judgment
 
-The `vNext+235` starter scope is ready for a bounded `V83-C` implementation
-draft. The active implementation should ship only implementation-spec
-projection packet, intent-to-work-packet handoff, and family closeout alignment
-records. The main risks are projection-as-implementation, generated-spec
-authority drift, test-only quality gates, hidden drift blockers, broad target
-laundering, work-packet authority laundering, runtime-surface leakage, and
-early `V84` selection; all are represented as required starter validators and
-reject fixtures.
+- `V83-C` is closed on `main` as a bounded implementation-spec projection
+  packet, intent-to-work-packet handoff, and family closeout alignment slice.
+- `V83` is closed on `main` as a semantic implementation-specification review
+  family.
+- The shipped family preserves the intended boundary: intent can be recorded,
+  decomposed into semantic edges, mapped to artifact obligations, checked for
+  drift, projected into implementation-spec packets, and handed off for later
+  review, but `V83` does not execute downstream implementation work packets,
+  run commands, invoke tools, dispatch workers, mutate Morphic UX or direct OAI
+  runtime behavior, productize, release, create graph-memory authority, adopt
+  recursive policy amendments, or select `V84`.

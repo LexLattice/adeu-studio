@@ -1,0 +1,11 @@
+{
+  "baseline_arc": "vNext+234",
+  "baseline_elapsed_ms": 108,
+  "baseline_source": "artifacts/stop_gate/report_v234_closeout.md",
+  "current_arc": "vNext+235",
+  "current_elapsed_ms": 68,
+  "current_source": "artifacts/stop_gate/report_v235_closeout.md",
+  "delta_ms": -40,
+  "notes": "v235 keeps the frozen stop-gate schema family and exact metric keyset unchanged while closing the bounded V83-C implementation-spec projection packet / intent-to-work-packet handoff / family closeout alignment slice on main: projection packets remain review-only; generated/model/agent provenance remains candidate-only; checklist refs resolve to known released semantic edges, obligations, and sources; handoffs require later lock authority; and no downstream implementation work packet, runtime transition, Morphic UX runtime change, direct OAI runtime behavior, product authorization, release, graph-memory authority, recursive-policy amendment, or V84 selection occurs.",
+  "schema": "runtime_observability_comparison@1"
+}

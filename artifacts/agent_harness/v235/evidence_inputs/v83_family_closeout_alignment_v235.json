@@ -1,0 +1,42 @@
+{
+  "closed_by_arc": "vNext+235",
+  "closed_by_merge_commit": "0dfe8446fcfacad5147092b3d7c6895a2c3bbed7",
+  "closed_slice_ladder": [
+    "V83-A:vNext+233",
+    "V83-B:vNext+234",
+    "V83-C:vNext+235"
+  ],
+  "family": "V83",
+  "family_closed_on_main": true,
+  "future_family_authority": "none",
+  "schema": "v83_family_closeout_alignment@1",
+  "shipped_record_shapes": [
+    "repo_semantic_intent_contract@1",
+    "repo_intent_source_index@1",
+    "repo_intent_non_implementation_guardrail@1",
+    "repo_intent_edge_decomposition@1",
+    "repo_artifact_obligation_map@1",
+    "repo_semantic_drift_ambiguity_register@1",
+    "repo_implementation_spec_projection_packet@1",
+    "repo_intent_to_work_packet_handoff@1",
+    "repo_semantic_implementation_spec_family_closeout_alignment@1"
+  ],
+  "unselected_future_surfaces": [
+    "downstream implementation work-packet execution",
+    "code-change execution from generated specs",
+    "command execution",
+    "tool invocation",
+    "worker dispatch",
+    "meta-orchestrator runtime transition",
+    "Morphic UX runtime change",
+    "direct OAI runtime behavior",
+    "product authorization",
+    "PR creation",
+    "commit/merge/release authority",
+    "graph-memory authority",
+    "generalized digital-artifact authority",
+    "recursive policy amendment",
+    "V84 selection"
+  ],
+  "v83_authority_boundary": "semantic_implementation_specification_review_family_only_no_downstream_implementation_work_packet_execution_command_execution_tool_invocation_worker_dispatch_meta_orchestrator_runtime_morphic_ux_runtime_direct_oai_runtime_product_release_graph_memory_recursive_policy_or_v84_selection_authority"
+}
