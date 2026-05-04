@@ -1,0 +1,338 @@
+{
+  "$defs": {
+    "RepoImplementationTargetSurfaceBoundaryRow": {
+      "additionalProperties": false,
+      "properties": {
+        "activation_package_ref": {
+          "title": "Activation Package Ref",
+          "type": "string"
+        },
+        "activation_request_refs": {
+          "items": {
+            "type": "string"
+          },
+          "minItems": 1,
+          "title": "Activation Request Refs",
+          "type": "array"
+        },
+        "allowed_target_review_actions": {
+          "items": {
+            "enum": [
+              "describe_target_boundary",
+              "inspect_source_metadata",
+              "record_target_absence",
+              "request_later_lock_review",
+              "preserve_target_gap"
+            ],
+            "type": "string"
+          },
+          "minItems": 1,
+          "title": "Allowed Target Review Actions",
+          "type": "array"
+        },
+        "boundary_posture": {
+          "enum": [
+            "bounded_for_review_only",
+            "blocked_by_missing_child_refs",
+            "blocked_by_glob_target",
+            "blocked_by_forbidden_target",
+            "future_family_only"
+          ],
+          "title": "Boundary Posture",
+          "type": "string"
+        },
+        "candidate_ref": {
+          "title": "Candidate Ref",
+          "type": "string"
+        },
+        "forbidden_target_mutation_actions": {
+          "items": {
+            "enum": [
+              "edit_file",
+              "create_file",
+              "delete_file",
+              "mutate_schema",
+              "mutate_fixture",
+              "run_formatter_for_effect",
+              "open_pr",
+              "commit_change"
+            ],
+            "type": "string"
+          },
+          "minItems": 1,
+          "title": "Forbidden Target Mutation Actions",
+          "type": "array"
+        },
+        "guardrail_refs": {
+          "items": {
+            "type": "string"
+          },
+          "minItems": 1,
+          "title": "Guardrail Refs",
+          "type": "array"
+        },
+        "limitation_note": {
+          "title": "Limitation Note",
+          "type": "string"
+        },
+        "ownership_or_authority_refs": {
+          "items": {
+            "type": "string"
+          },
+          "title": "Ownership Or Authority Refs",
+          "type": "array"
+        },
+        "scope_contract_refs": {
+          "items": {
+            "type": "string"
+          },
+          "minItems": 1,
+          "title": "Scope Contract Refs",
+          "type": "array"
+        },
+        "source_refs": {
+          "items": {
+            "type": "string"
+          },
+          "minItems": 1,
+          "title": "Source Refs",
+          "type": "array"
+        },
+        "target_access_role_rows": {
+          "items": {
+            "$ref": "#/$defs/RepoTargetAccessRoleRow"
+          },
+          "minItems": 1,
+          "title": "Target Access Role Rows",
+          "type": "array"
+        },
+        "target_boundary_ref": {
+          "title": "Target Boundary Ref",
+          "type": "string"
+        },
+        "target_currentness_posture": {
+          "enum": [
+            "current_repo_surface",
+            "generated_future_surface",
+            "support_context_only",
+            "explicitly_absent",
+            "unknown_needs_review"
+          ],
+          "title": "Target Currentness Posture",
+          "type": "string"
+        },
+        "target_mutability_review_posture": {
+          "enum": [
+            "mutation_requires_later_lock",
+            "read_only_dependency",
+            "validation_target_only",
+            "generated_artifact_requires_later_lock",
+            "mutation_forbidden",
+            "context_only_not_mutable"
+          ],
+          "title": "Target Mutability Review Posture",
+          "type": "string"
+        },
+        "target_resolution_kind": {
+          "enum": [
+            "concrete_file_ref",
+            "concrete_schema_ref",
+            "concrete_fixture_ref",
+            "concrete_test_ref",
+            "concrete_doc_ref",
+            "bounded_directory_with_child_refs",
+            "support_artifact_ref",
+            "external_support_ref",
+            "no_target_boundary"
+          ],
+          "title": "Target Resolution Kind",
+          "type": "string"
+        },
+        "target_surface_kind": {
+          "enum": [
+            "repo_description_module",
+            "schema_file",
+            "spec_schema_file",
+            "fixture_file",
+            "test_file",
+            "support_doc",
+            "external_support_context",
+            "future_family_surface"
+          ],
+          "title": "Target Surface Kind",
+          "type": "string"
+        },
+        "target_surface_refs": {
+          "items": {
+            "type": "string"
+          },
+          "minItems": 1,
+          "title": "Target Surface Refs",
+          "type": "array"
+        }
+      },
+      "required": [
+        "target_boundary_ref",
+        "activation_package_ref",
+        "scope_contract_refs",
+        "activation_request_refs",
+        "candidate_ref",
+        "source_refs",
+        "target_surface_kind",
+        "target_surface_refs",
+        "target_resolution_kind",
+        "target_currentness_posture",
+        "target_mutability_review_posture",
+        "target_access_role_rows",
+        "allowed_target_review_actions",
+        "forbidden_target_mutation_actions",
+        "boundary_posture",
+        "guardrail_refs",
+        "limitation_note"
+      ],
+      "title": "RepoImplementationTargetSurfaceBoundaryRow",
+      "type": "object"
+    },
+    "RepoTargetAccessRoleRow": {
+      "additionalProperties": false,
+      "properties": {
+        "in_scope_counting_posture": {
+          "enum": [
+            "counts_as_bounded_later_scope",
+            "context_only_not_counted",
+            "forbidden_not_counted",
+            "validation_only_not_write_scope"
+          ],
+          "title": "In Scope Counting Posture",
+          "type": "string"
+        },
+        "limitation_note": {
+          "title": "Limitation Note",
+          "type": "string"
+        },
+        "source_refs": {
+          "items": {
+            "type": "string"
+          },
+          "minItems": 1,
+          "title": "Source Refs",
+          "type": "array"
+        },
+        "target_access_role": {
+          "enum": [
+            "read_dependency",
+            "prospective_write_target_for_later_lock",
+            "validation_target",
+            "generated_artifact_target",
+            "forbidden_target",
+            "context_only"
+          ],
+          "title": "Target Access Role",
+          "type": "string"
+        },
+        "target_access_role_ref": {
+          "title": "Target Access Role Ref",
+          "type": "string"
+        },
+        "target_mutability_review_posture": {
+          "enum": [
+            "mutation_requires_later_lock",
+            "read_only_dependency",
+            "validation_target_only",
+            "generated_artifact_requires_later_lock",
+            "mutation_forbidden",
+            "context_only_not_mutable"
+          ],
+          "title": "Target Mutability Review Posture",
+          "type": "string"
+        },
+        "target_surface_refs": {
+          "items": {
+            "type": "string"
+          },
+          "minItems": 1,
+          "title": "Target Surface Refs",
+          "type": "array"
+        }
+      },
+      "required": [
+        "target_access_role_ref",
+        "target_surface_refs",
+        "target_access_role",
+        "source_refs",
+        "target_mutability_review_posture",
+        "in_scope_counting_posture",
+        "limitation_note"
+      ],
+      "title": "RepoTargetAccessRoleRow",
+      "type": "object"
+    }
+  },
+  "additionalProperties": false,
+  "properties": {
+    "implementation_target_surface_boundary_id": {
+      "title": "Implementation Target Surface Boundary Id",
+      "type": "string"
+    },
+    "review_id": {
+      "title": "Review Id",
+      "type": "string"
+    },
+    "schema": {
+      "const": "repo_implementation_target_surface_boundary@1",
+      "title": "Schema",
+      "type": "string"
+    },
+    "snapshot_id": {
+      "title": "Snapshot Id",
+      "type": "string"
+    },
+    "source_set_id": {
+      "title": "Source Set Id",
+      "type": "string"
+    },
+    "target_boundary_rows": {
+      "items": {
+        "$ref": "#/$defs/RepoImplementationTargetSurfaceBoundaryRow"
+      },
+      "minItems": 1,
+      "title": "Target Boundary Rows",
+      "type": "array"
+    },
+    "target_boundary_summary": {
+      "title": "Target Boundary Summary",
+      "type": "string"
+    },
+    "work_packet_activation_non_execution_guardrail_id": {
+      "title": "Work Packet Activation Non Execution Guardrail Id",
+      "type": "string"
+    },
+    "work_packet_activation_review_request_id": {
+      "title": "Work Packet Activation Review Request Id",
+      "type": "string"
+    },
+    "work_packet_activation_source_index_id": {
+      "title": "Work Packet Activation Source Index Id",
+      "type": "string"
+    },
+    "work_packet_scope_contract_id": {
+      "title": "Work Packet Scope Contract Id",
+      "type": "string"
+    }
+  },
+  "required": [
+    "schema",
+    "implementation_target_surface_boundary_id",
+    "work_packet_scope_contract_id",
+    "work_packet_activation_review_request_id",
+    "work_packet_activation_source_index_id",
+    "work_packet_activation_non_execution_guardrail_id",
+    "review_id",
+    "snapshot_id",
+    "source_set_id",
+    "target_boundary_rows",
+    "target_boundary_summary"
+  ],
+  "title": "RepoImplementationTargetSurfaceBoundary",
+  "type": "object"
+}

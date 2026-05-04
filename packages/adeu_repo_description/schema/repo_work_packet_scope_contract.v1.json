@@ -1,0 +1,462 @@
+{
+  "$defs": {
+    "RepoActivationPackageLineageRow": {
+      "additionalProperties": false,
+      "properties": {
+        "activation_package_lineage_ref": {
+          "title": "Activation Package Lineage Ref",
+          "type": "string"
+        },
+        "activation_package_ref": {
+          "title": "Activation Package Ref",
+          "type": "string"
+        },
+        "candidate_ref": {
+          "title": "Candidate Ref",
+          "type": "string"
+        },
+        "implementation_spec_refs": {
+          "items": {
+            "type": "string"
+          },
+          "minItems": 1,
+          "title": "Implementation Spec Refs",
+          "type": "array"
+        },
+        "limitation_note": {
+          "title": "Limitation Note",
+          "type": "string"
+        },
+        "lineage_posture": {
+          "enum": [
+            "lineage_bound_for_review_only",
+            "lineage_incomplete",
+            "lineage_mismatch_blocked"
+          ],
+          "title": "Lineage Posture",
+          "type": "string"
+        },
+        "projection_packet_refs": {
+          "items": {
+            "type": "string"
+          },
+          "minItems": 1,
+          "title": "Projection Packet Refs",
+          "type": "array"
+        },
+        "quality_gate_refs": {
+          "items": {
+            "type": "string"
+          },
+          "minItems": 1,
+          "title": "Quality Gate Refs",
+          "type": "array"
+        },
+        "scope_contract_refs": {
+          "items": {
+            "type": "string"
+          },
+          "title": "Scope Contract Refs",
+          "type": "array"
+        },
+        "target_boundary_refs": {
+          "items": {
+            "type": "string"
+          },
+          "title": "Target Boundary Refs",
+          "type": "array"
+        },
+        "validation_plan_refs": {
+          "items": {
+            "type": "string"
+          },
+          "title": "Validation Plan Refs",
+          "type": "array"
+        }
+      },
+      "required": [
+        "activation_package_lineage_ref",
+        "activation_package_ref",
+        "candidate_ref",
+        "projection_packet_refs",
+        "quality_gate_refs",
+        "implementation_spec_refs",
+        "lineage_posture",
+        "limitation_note"
+      ],
+      "title": "RepoActivationPackageLineageRow",
+      "type": "object"
+    },
+    "RepoCanonicalLockRequirementRow": {
+      "additionalProperties": false,
+      "properties": {
+        "activation_package_ref": {
+          "title": "Activation Package Ref",
+          "type": "string"
+        },
+        "canonical_lock_requirement_ref": {
+          "title": "Canonical Lock Requirement Ref",
+          "type": "string"
+        },
+        "limitation_note": {
+          "title": "Limitation Note",
+          "type": "string"
+        },
+        "lock_not_created_by_v84": {
+          "title": "Lock Not Created By V84",
+          "type": "boolean"
+        },
+        "required_assessment_refs": {
+          "items": {
+            "type": "string"
+          },
+          "minItems": 1,
+          "title": "Required Assessment Refs",
+          "type": "array"
+        },
+        "required_closeout_refs": {
+          "items": {
+            "type": "string"
+          },
+          "minItems": 1,
+          "title": "Required Closeout Refs",
+          "type": "array"
+        },
+        "required_later_authority_refs": {
+          "items": {
+            "type": "string"
+          },
+          "title": "Required Later Authority Refs",
+          "type": "array"
+        },
+        "required_lock_guardrails": {
+          "items": {
+            "type": "string"
+          },
+          "minItems": 1,
+          "title": "Required Lock Guardrails",
+          "type": "array"
+        },
+        "required_lock_inputs": {
+          "items": {
+            "type": "string"
+          },
+          "minItems": 1,
+          "title": "Required Lock Inputs",
+          "type": "array"
+        },
+        "required_lock_kind": {
+          "enum": [
+            "schema_model_fixture_test_slice",
+            "docs_support_slice",
+            "morphic_ux_projection_slice",
+            "direct_oai_harness_slice",
+            "meta_orchestrator_workflow_slice",
+            "product_future_family_slice",
+            "graph_memory_future_family_slice",
+            "future_family_only"
+          ],
+          "title": "Required Lock Kind",
+          "type": "string"
+        },
+        "required_stop_gate_refs": {
+          "items": {
+            "type": "string"
+          },
+          "minItems": 1,
+          "title": "Required Stop Gate Refs",
+          "type": "array"
+        }
+      },
+      "required": [
+        "canonical_lock_requirement_ref",
+        "activation_package_ref",
+        "required_lock_kind",
+        "required_lock_inputs",
+        "required_lock_guardrails",
+        "required_stop_gate_refs",
+        "required_assessment_refs",
+        "required_closeout_refs",
+        "lock_not_created_by_v84",
+        "limitation_note"
+      ],
+      "title": "RepoCanonicalLockRequirementRow",
+      "type": "object"
+    },
+    "RepoWorkPacketScopeContractRow": {
+      "additionalProperties": false,
+      "properties": {
+        "activation_package_lineage_refs": {
+          "items": {
+            "type": "string"
+          },
+          "minItems": 1,
+          "title": "Activation Package Lineage Refs",
+          "type": "array"
+        },
+        "activation_package_lineage_rows": {
+          "items": {
+            "$ref": "#/$defs/RepoActivationPackageLineageRow"
+          },
+          "minItems": 1,
+          "title": "Activation Package Lineage Rows",
+          "type": "array"
+        },
+        "activation_package_ref": {
+          "title": "Activation Package Ref",
+          "type": "string"
+        },
+        "activation_request_refs": {
+          "items": {
+            "type": "string"
+          },
+          "minItems": 1,
+          "title": "Activation Request Refs",
+          "type": "array"
+        },
+        "activation_review_posture": {
+          "enum": [
+            "package_ready_for_review_only",
+            "package_incomplete_for_review",
+            "blocked_by_package_lineage_gap",
+            "blocked_by_target_boundary_gap",
+            "blocked_by_validation_gap",
+            "blocked_by_exception",
+            "future_family_only"
+          ],
+          "title": "Activation Review Posture",
+          "type": "string"
+        },
+        "candidate_ref": {
+          "title": "Candidate Ref",
+          "type": "string"
+        },
+        "canonical_lock_requirement_refs": {
+          "items": {
+            "type": "string"
+          },
+          "minItems": 1,
+          "title": "Canonical Lock Requirement Refs",
+          "type": "array"
+        },
+        "canonical_lock_requirement_rows": {
+          "items": {
+            "$ref": "#/$defs/RepoCanonicalLockRequirementRow"
+          },
+          "minItems": 1,
+          "title": "Canonical Lock Requirement Rows",
+          "type": "array"
+        },
+        "guardrail_refs": {
+          "items": {
+            "type": "string"
+          },
+          "minItems": 1,
+          "title": "Guardrail Refs",
+          "type": "array"
+        },
+        "implementation_execution_posture": {
+          "enum": [
+            "no_implementation_performed_by_v84",
+            "implementation_requires_later_lock",
+            "implementation_forbidden_by_this_family"
+          ],
+          "title": "Implementation Execution Posture",
+          "type": "string"
+        },
+        "implementation_spec_refs": {
+          "items": {
+            "type": "string"
+          },
+          "minItems": 1,
+          "title": "Implementation Spec Refs",
+          "type": "array"
+        },
+        "in_scope_artifact_refs": {
+          "items": {
+            "type": "string"
+          },
+          "minItems": 1,
+          "title": "In Scope Artifact Refs",
+          "type": "array"
+        },
+        "limitation_note": {
+          "title": "Limitation Note",
+          "type": "string"
+        },
+        "out_of_scope_artifact_refs": {
+          "items": {
+            "type": "string"
+          },
+          "title": "Out Of Scope Artifact Refs",
+          "type": "array"
+        },
+        "projection_packet_refs": {
+          "items": {
+            "type": "string"
+          },
+          "minItems": 1,
+          "title": "Projection Packet Refs",
+          "type": "array"
+        },
+        "scope_completeness_posture": {
+          "enum": [
+            "complete_for_activation_review_only",
+            "incomplete_for_review",
+            "blocked_by_missing_projection_packet",
+            "blocked_by_unbounded_target_surface",
+            "blocked_by_missing_validation_plan",
+            "blocked_by_authority_gap",
+            "future_family_only",
+            "rejected_out_of_scope"
+          ],
+          "title": "Scope Completeness Posture",
+          "type": "string"
+        },
+        "scope_contract_ref": {
+          "title": "Scope Contract Ref",
+          "type": "string"
+        },
+        "scope_statement": {
+          "title": "Scope Statement",
+          "type": "string"
+        },
+        "source_refs": {
+          "items": {
+            "type": "string"
+          },
+          "minItems": 1,
+          "title": "Source Refs",
+          "type": "array"
+        },
+        "target_boundary_refs": {
+          "items": {
+            "type": "string"
+          },
+          "minItems": 1,
+          "title": "Target Boundary Refs",
+          "type": "array"
+        },
+        "validation_plan_refs": {
+          "items": {
+            "type": "string"
+          },
+          "minItems": 1,
+          "title": "Validation Plan Refs",
+          "type": "array"
+        },
+        "work_packet_execution_posture": {
+          "enum": [
+            "no_work_packet_execution_performed_by_v84",
+            "work_packet_execution_requires_later_lock",
+            "work_packet_execution_forbidden_by_this_family"
+          ],
+          "title": "Work Packet Execution Posture",
+          "type": "string"
+        },
+        "work_packet_kind": {
+          "enum": [
+            "schema_model_fixture_test_slice",
+            "docs_support_slice",
+            "morphic_ux_projection_slice",
+            "direct_oai_harness_slice",
+            "meta_orchestrator_workflow_slice",
+            "product_future_family_slice",
+            "graph_memory_future_family_slice",
+            "future_family_only"
+          ],
+          "title": "Work Packet Kind",
+          "type": "string"
+        }
+      },
+      "required": [
+        "scope_contract_ref",
+        "activation_package_ref",
+        "activation_request_refs",
+        "projection_packet_refs",
+        "implementation_spec_refs",
+        "candidate_ref",
+        "source_refs",
+        "work_packet_kind",
+        "scope_statement",
+        "in_scope_artifact_refs",
+        "target_boundary_refs",
+        "validation_plan_refs",
+        "canonical_lock_requirement_refs",
+        "activation_package_lineage_refs",
+        "canonical_lock_requirement_rows",
+        "activation_package_lineage_rows",
+        "scope_completeness_posture",
+        "activation_review_posture",
+        "work_packet_execution_posture",
+        "implementation_execution_posture",
+        "guardrail_refs",
+        "limitation_note"
+      ],
+      "title": "RepoWorkPacketScopeContractRow",
+      "type": "object"
+    }
+  },
+  "additionalProperties": false,
+  "properties": {
+    "review_id": {
+      "title": "Review Id",
+      "type": "string"
+    },
+    "schema": {
+      "const": "repo_work_packet_scope_contract@1",
+      "title": "Schema",
+      "type": "string"
+    },
+    "scope_contract_rows": {
+      "items": {
+        "$ref": "#/$defs/RepoWorkPacketScopeContractRow"
+      },
+      "minItems": 1,
+      "title": "Scope Contract Rows",
+      "type": "array"
+    },
+    "scope_contract_summary": {
+      "title": "Scope Contract Summary",
+      "type": "string"
+    },
+    "snapshot_id": {
+      "title": "Snapshot Id",
+      "type": "string"
+    },
+    "source_set_id": {
+      "title": "Source Set Id",
+      "type": "string"
+    },
+    "work_packet_activation_non_execution_guardrail_id": {
+      "title": "Work Packet Activation Non Execution Guardrail Id",
+      "type": "string"
+    },
+    "work_packet_activation_review_request_id": {
+      "title": "Work Packet Activation Review Request Id",
+      "type": "string"
+    },
+    "work_packet_activation_source_index_id": {
+      "title": "Work Packet Activation Source Index Id",
+      "type": "string"
+    },
+    "work_packet_scope_contract_id": {
+      "title": "Work Packet Scope Contract Id",
+      "type": "string"
+    }
+  },
+  "required": [
+    "schema",
+    "work_packet_scope_contract_id",
+    "work_packet_activation_review_request_id",
+    "work_packet_activation_source_index_id",
+    "work_packet_activation_non_execution_guardrail_id",
+    "review_id",
+    "snapshot_id",
+    "source_set_id",
+    "scope_contract_rows",
+    "scope_contract_summary"
+  ],
+  "title": "RepoWorkPacketScopeContract",
+  "type": "object"
+}

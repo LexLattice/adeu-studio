@@ -1,0 +1,503 @@
+{
+  "$defs": {
+    "RepoValidationEvidenceRow": {
+      "additionalProperties": false,
+      "properties": {
+        "acceptance_not_truth_guardrail": {
+          "title": "Acceptance Not Truth Guardrail",
+          "type": "string"
+        },
+        "artifact_obligation_refs": {
+          "items": {
+            "type": "string"
+          },
+          "minItems": 1,
+          "title": "Artifact Obligation Refs",
+          "type": "array"
+        },
+        "evidence_kind": {
+          "enum": [
+            "schema_export_check",
+            "model_shape_check",
+            "validator_acceptance_check",
+            "validator_reject_check",
+            "fixture_positive_case",
+            "fixture_negative_case",
+            "unit_test_requirement",
+            "integration_test_requirement",
+            "doc_alignment_review",
+            "semantic_edge_review",
+            "manual_reviewer_check",
+            "tool_run_review_only",
+            "future_family_review"
+          ],
+          "title": "Evidence Kind",
+          "type": "string"
+        },
+        "evidence_presence_posture": {
+          "enum": [
+            "requirement_recorded_for_review_only",
+            "missing_required_evidence",
+            "evidence_requires_later_execution",
+            "not_applicable"
+          ],
+          "title": "Evidence Presence Posture",
+          "type": "string"
+        },
+        "implementation_spec_refs": {
+          "items": {
+            "type": "string"
+          },
+          "minItems": 1,
+          "title": "Implementation Spec Refs",
+          "type": "array"
+        },
+        "limitation_note": {
+          "title": "Limitation Note",
+          "type": "string"
+        },
+        "required_artifact_refs": {
+          "items": {
+            "type": "string"
+          },
+          "minItems": 1,
+          "title": "Required Artifact Refs",
+          "type": "array"
+        },
+        "required_execution_horizon": {
+          "enum": [
+            "later_lock_execution_required",
+            "manual_review_only",
+            "no_execution_required",
+            "future_family_only"
+          ],
+          "title": "Required Execution Horizon",
+          "type": "string"
+        },
+        "semantic_edge_refs": {
+          "items": {
+            "type": "string"
+          },
+          "minItems": 1,
+          "title": "Semantic Edge Refs",
+          "type": "array"
+        },
+        "validation_evidence_ref": {
+          "title": "Validation Evidence Ref",
+          "type": "string"
+        }
+      },
+      "required": [
+        "validation_evidence_ref",
+        "semantic_edge_refs",
+        "artifact_obligation_refs",
+        "implementation_spec_refs",
+        "evidence_kind",
+        "required_artifact_refs",
+        "required_execution_horizon",
+        "evidence_presence_posture",
+        "acceptance_not_truth_guardrail",
+        "limitation_note"
+      ],
+      "title": "RepoValidationEvidenceRow",
+      "type": "object"
+    },
+    "RepoValidationMatrixRow": {
+      "additionalProperties": false,
+      "properties": {
+        "acceptance_not_truth_guardrail": {
+          "title": "Acceptance Not Truth Guardrail",
+          "type": "string"
+        },
+        "artifact_obligation_refs": {
+          "items": {
+            "type": "string"
+          },
+          "minItems": 1,
+          "title": "Artifact Obligation Refs",
+          "type": "array"
+        },
+        "evidence_kind": {
+          "enum": [
+            "schema_export_check",
+            "model_shape_check",
+            "validator_acceptance_check",
+            "validator_reject_check",
+            "fixture_positive_case",
+            "fixture_negative_case",
+            "unit_test_requirement",
+            "integration_test_requirement",
+            "doc_alignment_review",
+            "semantic_edge_review",
+            "manual_reviewer_check",
+            "tool_run_review_only",
+            "future_family_review"
+          ],
+          "title": "Evidence Kind",
+          "type": "string"
+        },
+        "execution_required_later": {
+          "title": "Execution Required Later",
+          "type": "boolean"
+        },
+        "implementation_spec_refs": {
+          "items": {
+            "type": "string"
+          },
+          "minItems": 1,
+          "title": "Implementation Spec Refs",
+          "type": "array"
+        },
+        "limitation_note": {
+          "title": "Limitation Note",
+          "type": "string"
+        },
+        "manual_review_requirement": {
+          "enum": [
+            "manual_review_required_later",
+            "manual_review_not_applicable",
+            "manual_review_missing"
+          ],
+          "title": "Manual Review Requirement",
+          "type": "string"
+        },
+        "positive_evidence_requirement": {
+          "enum": [
+            "required_for_later_review",
+            "missing_required_evidence",
+            "not_applicable"
+          ],
+          "title": "Positive Evidence Requirement",
+          "type": "string"
+        },
+        "regression_evidence_requirement": {
+          "enum": [
+            "required_for_later_review",
+            "missing_required_evidence",
+            "not_applicable"
+          ],
+          "title": "Regression Evidence Requirement",
+          "type": "string"
+        },
+        "reject_evidence_requirement": {
+          "enum": [
+            "required_for_later_review",
+            "missing_required_evidence",
+            "not_applicable"
+          ],
+          "title": "Reject Evidence Requirement",
+          "type": "string"
+        },
+        "semantic_edge_refs": {
+          "items": {
+            "type": "string"
+          },
+          "minItems": 1,
+          "title": "Semantic Edge Refs",
+          "type": "array"
+        },
+        "target_boundary_refs": {
+          "items": {
+            "type": "string"
+          },
+          "minItems": 1,
+          "title": "Target Boundary Refs",
+          "type": "array"
+        },
+        "tool_applicability_posture": {
+          "enum": [
+            "tool_applicable_for_later_review",
+            "tool_run_requires_later_lock",
+            "tool_not_applicable"
+          ],
+          "title": "Tool Applicability Posture",
+          "type": "string"
+        },
+        "validation_matrix_ref": {
+          "title": "Validation Matrix Ref",
+          "type": "string"
+        }
+      },
+      "required": [
+        "validation_matrix_ref",
+        "semantic_edge_refs",
+        "artifact_obligation_refs",
+        "implementation_spec_refs",
+        "target_boundary_refs",
+        "evidence_kind",
+        "positive_evidence_requirement",
+        "reject_evidence_requirement",
+        "regression_evidence_requirement",
+        "manual_review_requirement",
+        "tool_applicability_posture",
+        "execution_required_later",
+        "acceptance_not_truth_guardrail",
+        "limitation_note"
+      ],
+      "title": "RepoValidationMatrixRow",
+      "type": "object"
+    },
+    "RepoWorkPacketValidationEvidencePlanRow": {
+      "additionalProperties": false,
+      "properties": {
+        "activation_package_ref": {
+          "title": "Activation Package Ref",
+          "type": "string"
+        },
+        "activation_request_refs": {
+          "items": {
+            "type": "string"
+          },
+          "minItems": 1,
+          "title": "Activation Request Refs",
+          "type": "array"
+        },
+        "artifact_obligation_refs": {
+          "items": {
+            "type": "string"
+          },
+          "minItems": 1,
+          "title": "Artifact Obligation Refs",
+          "type": "array"
+        },
+        "candidate_ref": {
+          "title": "Candidate Ref",
+          "type": "string"
+        },
+        "guardrail_refs": {
+          "items": {
+            "type": "string"
+          },
+          "minItems": 1,
+          "title": "Guardrail Refs",
+          "type": "array"
+        },
+        "implementation_execution_posture": {
+          "enum": [
+            "no_implementation_performed_by_v84",
+            "implementation_requires_later_lock",
+            "implementation_forbidden_by_this_family"
+          ],
+          "title": "Implementation Execution Posture",
+          "type": "string"
+        },
+        "implementation_spec_refs": {
+          "items": {
+            "type": "string"
+          },
+          "minItems": 1,
+          "title": "Implementation Spec Refs",
+          "type": "array"
+        },
+        "limitation_note": {
+          "title": "Limitation Note",
+          "type": "string"
+        },
+        "manual_review_posture": {
+          "enum": [
+            "manual_review_required_later",
+            "manual_review_not_applicable",
+            "manual_review_missing"
+          ],
+          "title": "Manual Review Posture",
+          "type": "string"
+        },
+        "required_positive_evidence_posture": {
+          "enum": [
+            "required_for_later_review",
+            "missing_required_evidence",
+            "not_applicable"
+          ],
+          "title": "Required Positive Evidence Posture",
+          "type": "string"
+        },
+        "required_reject_evidence_posture": {
+          "enum": [
+            "required_for_later_review",
+            "missing_required_evidence",
+            "not_applicable"
+          ],
+          "title": "Required Reject Evidence Posture",
+          "type": "string"
+        },
+        "scope_contract_refs": {
+          "items": {
+            "type": "string"
+          },
+          "minItems": 1,
+          "title": "Scope Contract Refs",
+          "type": "array"
+        },
+        "semantic_edge_refs": {
+          "items": {
+            "type": "string"
+          },
+          "minItems": 1,
+          "title": "Semantic Edge Refs",
+          "type": "array"
+        },
+        "source_refs": {
+          "items": {
+            "type": "string"
+          },
+          "minItems": 1,
+          "title": "Source Refs",
+          "type": "array"
+        },
+        "tests_not_truth_guardrail": {
+          "title": "Tests Not Truth Guardrail",
+          "type": "string"
+        },
+        "tool_run_posture": {
+          "enum": [
+            "no_tool_run_performed_by_v84",
+            "tool_run_requires_later_lock",
+            "tool_run_not_applicable"
+          ],
+          "title": "Tool Run Posture",
+          "type": "string"
+        },
+        "validation_evidence_rows": {
+          "items": {
+            "$ref": "#/$defs/RepoValidationEvidenceRow"
+          },
+          "minItems": 1,
+          "title": "Validation Evidence Rows",
+          "type": "array"
+        },
+        "validation_matrix_rows": {
+          "items": {
+            "$ref": "#/$defs/RepoValidationMatrixRow"
+          },
+          "minItems": 1,
+          "title": "Validation Matrix Rows",
+          "type": "array"
+        },
+        "validation_plan_posture": {
+          "enum": [
+            "plan_complete_for_review_only",
+            "plan_incomplete_for_review",
+            "blocked_by_missing_semantic_edges",
+            "blocked_by_missing_artifact_obligations",
+            "blocked_by_missing_positive_evidence",
+            "blocked_by_missing_reject_evidence",
+            "blocked_by_tests_as_truth_gap",
+            "future_family_only"
+          ],
+          "title": "Validation Plan Posture",
+          "type": "string"
+        },
+        "validation_plan_ref": {
+          "title": "Validation Plan Ref",
+          "type": "string"
+        },
+        "work_packet_execution_posture": {
+          "enum": [
+            "no_work_packet_execution_performed_by_v84",
+            "work_packet_execution_requires_later_lock",
+            "work_packet_execution_forbidden_by_this_family"
+          ],
+          "title": "Work Packet Execution Posture",
+          "type": "string"
+        }
+      },
+      "required": [
+        "validation_plan_ref",
+        "activation_package_ref",
+        "scope_contract_refs",
+        "activation_request_refs",
+        "candidate_ref",
+        "source_refs",
+        "semantic_edge_refs",
+        "artifact_obligation_refs",
+        "implementation_spec_refs",
+        "validation_evidence_rows",
+        "validation_matrix_rows",
+        "required_positive_evidence_posture",
+        "required_reject_evidence_posture",
+        "manual_review_posture",
+        "tool_run_posture",
+        "validation_plan_posture",
+        "tests_not_truth_guardrail",
+        "work_packet_execution_posture",
+        "implementation_execution_posture",
+        "guardrail_refs",
+        "limitation_note"
+      ],
+      "title": "RepoWorkPacketValidationEvidencePlanRow",
+      "type": "object"
+    }
+  },
+  "additionalProperties": false,
+  "properties": {
+    "implementation_target_surface_boundary_id": {
+      "title": "Implementation Target Surface Boundary Id",
+      "type": "string"
+    },
+    "review_id": {
+      "title": "Review Id",
+      "type": "string"
+    },
+    "schema": {
+      "const": "repo_work_packet_validation_evidence_plan@1",
+      "title": "Schema",
+      "type": "string"
+    },
+    "snapshot_id": {
+      "title": "Snapshot Id",
+      "type": "string"
+    },
+    "source_set_id": {
+      "title": "Source Set Id",
+      "type": "string"
+    },
+    "validation_plan_rows": {
+      "items": {
+        "$ref": "#/$defs/RepoWorkPacketValidationEvidencePlanRow"
+      },
+      "minItems": 1,
+      "title": "Validation Plan Rows",
+      "type": "array"
+    },
+    "validation_plan_summary": {
+      "title": "Validation Plan Summary",
+      "type": "string"
+    },
+    "work_packet_activation_non_execution_guardrail_id": {
+      "title": "Work Packet Activation Non Execution Guardrail Id",
+      "type": "string"
+    },
+    "work_packet_activation_review_request_id": {
+      "title": "Work Packet Activation Review Request Id",
+      "type": "string"
+    },
+    "work_packet_activation_source_index_id": {
+      "title": "Work Packet Activation Source Index Id",
+      "type": "string"
+    },
+    "work_packet_scope_contract_id": {
+      "title": "Work Packet Scope Contract Id",
+      "type": "string"
+    },
+    "work_packet_validation_evidence_plan_id": {
+      "title": "Work Packet Validation Evidence Plan Id",
+      "type": "string"
+    }
+  },
+  "required": [
+    "schema",
+    "work_packet_validation_evidence_plan_id",
+    "work_packet_scope_contract_id",
+    "implementation_target_surface_boundary_id",
+    "work_packet_activation_review_request_id",
+    "work_packet_activation_source_index_id",
+    "work_packet_activation_non_execution_guardrail_id",
+    "review_id",
+    "snapshot_id",
+    "source_set_id",
+    "validation_plan_rows",
+    "validation_plan_summary"
+  ],
+  "title": "RepoWorkPacketValidationEvidencePlan",
+  "type": "object"
+}

@@ -1,0 +1,71 @@
+{
+  "exception_register_rows": [
+    {
+      "activation_package_ref": "activation-package:v84a:intent-to-spec-lock-review",
+      "activation_request_refs": [
+        "activation-request:v84a:intent-to-spec-lock-review"
+      ],
+      "blocking_posture": "warning",
+      "candidate_ref": "candidate:internal:intent_to_implementation_spec_institution",
+      "exception_register_ref": "exception-register:v84b:intent-to-spec-lock-review",
+      "exception_rows": [
+        {
+          "blocking_posture": "warning",
+          "exception_kind": "later_family_boundary_unclear",
+          "exception_ref": "exception:v84b:future-family-boundary",
+          "limitation_note": "Exception remains visible for review with no implementation.",
+          "related_drift_refs": [],
+          "related_scope_refs": [
+            "scope-contract:v84b:intent-to-spec-lock-review"
+          ],
+          "related_target_refs": [
+            "target-boundary:v84b:selector-forbidden"
+          ],
+          "related_validation_refs": [
+            "validation-plan:v84b:intent-to-spec-lock-review"
+          ],
+          "required_resolution_horizon": "future_family_review",
+          "source_refs": [
+            "docs/ASSESSMENT_vNEXT_PLUS237_EDGES.md"
+          ],
+          "visibility_posture": "hidden_rejected"
+        }
+      ],
+      "guardrail_refs": [
+        "guardrail:v84a:intent-to-spec-lock-review"
+      ],
+      "limitation_note": "Exception register preserves package warnings for review with no implementation.",
+      "required_next_surface": "later_canonical_lock_review",
+      "scope_contract_refs": [
+        "scope-contract:v84b:intent-to-spec-lock-review"
+      ],
+      "source_refs": [
+        "apps/api/fixtures/repo_description/vnext_plus235/repo_implementation_spec_projection_packet_v235_reference.json",
+        "docs/ASSESSMENT_vNEXT_PLUS236_EDGES.md",
+        "docs/LOCKED_CONTINUATION_vNEXT_PLUS236.md"
+      ],
+      "target_boundary_refs": [
+        "target-boundary:v84b:fixtures",
+        "target-boundary:v84b:module",
+        "target-boundary:v84b:schemas",
+        "target-boundary:v84b:selector-forbidden",
+        "target-boundary:v84b:tests"
+      ],
+      "validation_plan_refs": [
+        "validation-plan:v84b:intent-to-spec-lock-review"
+      ]
+    }
+  ],
+  "exception_register_summary": "V84-B exception register preserves activation package warnings and blocker posture for review with no implementation.",
+  "implementation_target_surface_boundary_id": "repo_implementation_target_surface_boundary_38bdbaa14d038e4f783755b4",
+  "review_id": "vNext+237",
+  "schema": "repo_work_packet_activation_exception_register@1",
+  "snapshot_id": "vNext+237-work-packet-package-review-start",
+  "source_set_id": "source-set:v84b:work-packet-package-review",
+  "work_packet_activation_exception_register_id": "repo_work_packet_activation_exception_register_e41102f95b56c2dd56a997b3",
+  "work_packet_activation_non_execution_guardrail_id": "repo_work_packet_activation_non_execution_guardrail_78608b297248e42aa0e0e793",
+  "work_packet_activation_review_request_id": "repo_work_packet_activation_review_request_3dbe16e667563d930a6bdf88",
+  "work_packet_activation_source_index_id": "repo_work_packet_activation_source_index_00de703df72da957abb3bebe",
+  "work_packet_scope_contract_id": "repo_work_packet_scope_contract_4840ce3bd3d5ba4c7bf6ba7e",
+  "work_packet_validation_evidence_plan_id": "repo_work_packet_validation_evidence_plan_15379a5d5cae4dd4fb8fcb4e"
+}

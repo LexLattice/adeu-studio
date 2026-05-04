@@ -1,0 +1,337 @@
+{
+  "implementation_target_surface_boundary_id": "repo_implementation_target_surface_boundary_38bdbaa14d038e4f783755b4",
+  "review_id": "vNext+237",
+  "schema": "repo_implementation_target_surface_boundary@1",
+  "snapshot_id": "vNext+237-work-packet-package-review-start",
+  "source_set_id": "source-set:v84b:work-packet-package-review",
+  "target_boundary_rows": [
+    {
+      "activation_package_ref": "activation-package:v84a:intent-to-spec-lock-review",
+      "activation_request_refs": [
+        "activation-request:v84a:intent-to-spec-lock-review"
+      ],
+      "allowed_target_review_actions": [
+        "describe_target_boundary",
+        "inspect_source_metadata",
+        "request_later_lock_review"
+      ],
+      "boundary_posture": "bounded_for_review_only",
+      "candidate_ref": "candidate:internal:intent_to_implementation_spec_institution",
+      "forbidden_target_mutation_actions": [
+        "commit_change",
+        "create_file",
+        "delete_file",
+        "edit_file",
+        "mutate_fixture",
+        "mutate_schema",
+        "open_pr",
+        "run_formatter_for_effect"
+      ],
+      "guardrail_refs": [
+        "guardrail:v84a:intent-to-spec-lock-review"
+      ],
+      "limitation_note": "Target boundary is review-only with no implementation and no target mutation.",
+      "ownership_or_authority_refs": [
+        "canonical-lock-requirement:v84b:intent-to-spec-lock-review"
+      ],
+      "scope_contract_refs": [
+        "scope-contract:v84b:intent-to-spec-lock-review"
+      ],
+      "source_refs": [
+        "apps/api/fixtures/repo_description/vnext_plus235/repo_implementation_spec_projection_packet_v235_reference.json",
+        "docs/ASSESSMENT_vNEXT_PLUS236_EDGES.md",
+        "docs/LOCKED_CONTINUATION_vNEXT_PLUS236.md"
+      ],
+      "target_access_role_rows": [
+        {
+          "in_scope_counting_posture": "counts_as_bounded_later_scope",
+          "limitation_note": "Target role is recorded for review and later lock only.",
+          "source_refs": [
+            "apps/api/fixtures/repo_description/vnext_plus235/repo_implementation_spec_projection_packet_v235_reference.json",
+            "docs/ASSESSMENT_vNEXT_PLUS236_EDGES.md",
+            "docs/LOCKED_CONTINUATION_vNEXT_PLUS236.md"
+          ],
+          "target_access_role": "generated_artifact_target",
+          "target_access_role_ref": "target-access-role:fixtures",
+          "target_mutability_review_posture": "generated_artifact_requires_later_lock",
+          "target_surface_refs": [
+            "apps/api/fixtures/repo_description/vnext_plus237",
+            "apps/api/fixtures/repo_description/vnext_plus237/repo_implementation_target_surface_boundary_v237_reference.json",
+            "apps/api/fixtures/repo_description/vnext_plus237/repo_work_packet_activation_exception_register_v237_reference.json",
+            "apps/api/fixtures/repo_description/vnext_plus237/repo_work_packet_scope_contract_v237_reference.json",
+            "apps/api/fixtures/repo_description/vnext_plus237/repo_work_packet_validation_evidence_plan_v237_reference.json"
+          ]
+        }
+      ],
+      "target_boundary_ref": "target-boundary:v84b:fixtures",
+      "target_currentness_posture": "current_repo_surface",
+      "target_mutability_review_posture": "generated_artifact_requires_later_lock",
+      "target_resolution_kind": "bounded_directory_with_child_refs",
+      "target_surface_kind": "fixture_file",
+      "target_surface_refs": [
+        "apps/api/fixtures/repo_description/vnext_plus237",
+        "apps/api/fixtures/repo_description/vnext_plus237/repo_implementation_target_surface_boundary_v237_reference.json",
+        "apps/api/fixtures/repo_description/vnext_plus237/repo_work_packet_activation_exception_register_v237_reference.json",
+        "apps/api/fixtures/repo_description/vnext_plus237/repo_work_packet_scope_contract_v237_reference.json",
+        "apps/api/fixtures/repo_description/vnext_plus237/repo_work_packet_validation_evidence_plan_v237_reference.json"
+      ]
+    },
+    {
+      "activation_package_ref": "activation-package:v84a:intent-to-spec-lock-review",
+      "activation_request_refs": [
+        "activation-request:v84a:intent-to-spec-lock-review"
+      ],
+      "allowed_target_review_actions": [
+        "describe_target_boundary",
+        "inspect_source_metadata",
+        "request_later_lock_review"
+      ],
+      "boundary_posture": "bounded_for_review_only",
+      "candidate_ref": "candidate:internal:intent_to_implementation_spec_institution",
+      "forbidden_target_mutation_actions": [
+        "commit_change",
+        "create_file",
+        "delete_file",
+        "edit_file",
+        "mutate_fixture",
+        "mutate_schema",
+        "open_pr",
+        "run_formatter_for_effect"
+      ],
+      "guardrail_refs": [
+        "guardrail:v84a:intent-to-spec-lock-review"
+      ],
+      "limitation_note": "Target boundary is review-only with no implementation and no target mutation.",
+      "ownership_or_authority_refs": [
+        "canonical-lock-requirement:v84b:intent-to-spec-lock-review"
+      ],
+      "scope_contract_refs": [
+        "scope-contract:v84b:intent-to-spec-lock-review"
+      ],
+      "source_refs": [
+        "apps/api/fixtures/repo_description/vnext_plus235/repo_implementation_spec_projection_packet_v235_reference.json",
+        "docs/ASSESSMENT_vNEXT_PLUS236_EDGES.md",
+        "docs/LOCKED_CONTINUATION_vNEXT_PLUS236.md"
+      ],
+      "target_access_role_rows": [
+        {
+          "in_scope_counting_posture": "counts_as_bounded_later_scope",
+          "limitation_note": "Target role is recorded for review and later lock only.",
+          "source_refs": [
+            "apps/api/fixtures/repo_description/vnext_plus235/repo_implementation_spec_projection_packet_v235_reference.json",
+            "docs/ASSESSMENT_vNEXT_PLUS236_EDGES.md",
+            "docs/LOCKED_CONTINUATION_vNEXT_PLUS236.md"
+          ],
+          "target_access_role": "prospective_write_target_for_later_lock",
+          "target_access_role_ref": "target-access-role:module",
+          "target_mutability_review_posture": "mutation_requires_later_lock",
+          "target_surface_refs": [
+            "packages/adeu_repo_description/src/adeu_repo_description/work_packet_activation_review.py"
+          ]
+        }
+      ],
+      "target_boundary_ref": "target-boundary:v84b:module",
+      "target_currentness_posture": "current_repo_surface",
+      "target_mutability_review_posture": "mutation_requires_later_lock",
+      "target_resolution_kind": "concrete_file_ref",
+      "target_surface_kind": "repo_description_module",
+      "target_surface_refs": [
+        "packages/adeu_repo_description/src/adeu_repo_description/work_packet_activation_review.py"
+      ]
+    },
+    {
+      "activation_package_ref": "activation-package:v84a:intent-to-spec-lock-review",
+      "activation_request_refs": [
+        "activation-request:v84a:intent-to-spec-lock-review"
+      ],
+      "allowed_target_review_actions": [
+        "describe_target_boundary",
+        "inspect_source_metadata",
+        "request_later_lock_review"
+      ],
+      "boundary_posture": "bounded_for_review_only",
+      "candidate_ref": "candidate:internal:intent_to_implementation_spec_institution",
+      "forbidden_target_mutation_actions": [
+        "commit_change",
+        "create_file",
+        "delete_file",
+        "edit_file",
+        "mutate_fixture",
+        "mutate_schema",
+        "open_pr",
+        "run_formatter_for_effect"
+      ],
+      "guardrail_refs": [
+        "guardrail:v84a:intent-to-spec-lock-review"
+      ],
+      "limitation_note": "Target boundary is review-only with no implementation and no target mutation.",
+      "ownership_or_authority_refs": [
+        "canonical-lock-requirement:v84b:intent-to-spec-lock-review"
+      ],
+      "scope_contract_refs": [
+        "scope-contract:v84b:intent-to-spec-lock-review"
+      ],
+      "source_refs": [
+        "apps/api/fixtures/repo_description/vnext_plus235/repo_implementation_spec_projection_packet_v235_reference.json",
+        "docs/ASSESSMENT_vNEXT_PLUS236_EDGES.md",
+        "docs/LOCKED_CONTINUATION_vNEXT_PLUS236.md"
+      ],
+      "target_access_role_rows": [
+        {
+          "in_scope_counting_posture": "counts_as_bounded_later_scope",
+          "limitation_note": "Target role is recorded for review and later lock only.",
+          "source_refs": [
+            "apps/api/fixtures/repo_description/vnext_plus235/repo_implementation_spec_projection_packet_v235_reference.json",
+            "docs/ASSESSMENT_vNEXT_PLUS236_EDGES.md",
+            "docs/LOCKED_CONTINUATION_vNEXT_PLUS236.md"
+          ],
+          "target_access_role": "generated_artifact_target",
+          "target_access_role_ref": "target-access-role:schemas",
+          "target_mutability_review_posture": "generated_artifact_requires_later_lock",
+          "target_surface_refs": [
+            "packages/adeu_repo_description/schema"
+          ]
+        }
+      ],
+      "target_boundary_ref": "target-boundary:v84b:schemas",
+      "target_currentness_posture": "current_repo_surface",
+      "target_mutability_review_posture": "generated_artifact_requires_later_lock",
+      "target_resolution_kind": "bounded_directory_with_child_refs",
+      "target_surface_kind": "schema_file",
+      "target_surface_refs": [
+        "packages/adeu_repo_description/schema"
+      ]
+    },
+    {
+      "activation_package_ref": "activation-package:v84a:intent-to-spec-lock-review",
+      "activation_request_refs": [
+        "activation-request:v84a:intent-to-spec-lock-review"
+      ],
+      "allowed_target_review_actions": [
+        "describe_target_boundary",
+        "inspect_source_metadata",
+        "request_later_lock_review"
+      ],
+      "boundary_posture": "blocked_by_forbidden_target",
+      "candidate_ref": "candidate:internal:intent_to_implementation_spec_institution",
+      "forbidden_target_mutation_actions": [
+        "commit_change",
+        "create_file",
+        "delete_file",
+        "edit_file",
+        "mutate_fixture",
+        "mutate_schema",
+        "open_pr",
+        "run_formatter_for_effect"
+      ],
+      "guardrail_refs": [
+        "guardrail:v84a:intent-to-spec-lock-review"
+      ],
+      "limitation_note": "Target boundary is review-only with no implementation and no target mutation.",
+      "ownership_or_authority_refs": [
+        "canonical-lock-requirement:v84b:intent-to-spec-lock-review"
+      ],
+      "scope_contract_refs": [
+        "scope-contract:v84b:intent-to-spec-lock-review"
+      ],
+      "source_refs": [
+        "apps/api/fixtures/repo_description/vnext_plus235/repo_implementation_spec_projection_packet_v235_reference.json",
+        "docs/ASSESSMENT_vNEXT_PLUS236_EDGES.md",
+        "docs/LOCKED_CONTINUATION_vNEXT_PLUS236.md"
+      ],
+      "target_access_role_rows": [
+        {
+          "in_scope_counting_posture": "forbidden_not_counted",
+          "limitation_note": "Target role is recorded for review and later lock only.",
+          "source_refs": [
+            "apps/api/fixtures/repo_description/vnext_plus235/repo_implementation_spec_projection_packet_v235_reference.json",
+            "docs/ASSESSMENT_vNEXT_PLUS236_EDGES.md",
+            "docs/LOCKED_CONTINUATION_vNEXT_PLUS236.md"
+          ],
+          "target_access_role": "forbidden_target",
+          "target_access_role_ref": "target-access-role:selector-forbidden",
+          "target_mutability_review_posture": "mutation_forbidden",
+          "target_surface_refs": [
+            "docs/DRAFT_NEXT_ARC_OPTIONS_v74.md"
+          ]
+        }
+      ],
+      "target_boundary_ref": "target-boundary:v84b:selector-forbidden",
+      "target_currentness_posture": "current_repo_surface",
+      "target_mutability_review_posture": "mutation_forbidden",
+      "target_resolution_kind": "concrete_doc_ref",
+      "target_surface_kind": "support_doc",
+      "target_surface_refs": [
+        "docs/DRAFT_NEXT_ARC_OPTIONS_v74.md"
+      ]
+    },
+    {
+      "activation_package_ref": "activation-package:v84a:intent-to-spec-lock-review",
+      "activation_request_refs": [
+        "activation-request:v84a:intent-to-spec-lock-review"
+      ],
+      "allowed_target_review_actions": [
+        "describe_target_boundary",
+        "inspect_source_metadata",
+        "request_later_lock_review"
+      ],
+      "boundary_posture": "bounded_for_review_only",
+      "candidate_ref": "candidate:internal:intent_to_implementation_spec_institution",
+      "forbidden_target_mutation_actions": [
+        "commit_change",
+        "create_file",
+        "delete_file",
+        "edit_file",
+        "mutate_fixture",
+        "mutate_schema",
+        "open_pr",
+        "run_formatter_for_effect"
+      ],
+      "guardrail_refs": [
+        "guardrail:v84a:intent-to-spec-lock-review"
+      ],
+      "limitation_note": "Target boundary is review-only with no implementation and no target mutation.",
+      "ownership_or_authority_refs": [
+        "canonical-lock-requirement:v84b:intent-to-spec-lock-review"
+      ],
+      "scope_contract_refs": [
+        "scope-contract:v84b:intent-to-spec-lock-review"
+      ],
+      "source_refs": [
+        "apps/api/fixtures/repo_description/vnext_plus235/repo_implementation_spec_projection_packet_v235_reference.json",
+        "docs/ASSESSMENT_vNEXT_PLUS236_EDGES.md",
+        "docs/LOCKED_CONTINUATION_vNEXT_PLUS236.md"
+      ],
+      "target_access_role_rows": [
+        {
+          "in_scope_counting_posture": "counts_as_bounded_later_scope",
+          "limitation_note": "Target role is recorded for review and later lock only.",
+          "source_refs": [
+            "apps/api/fixtures/repo_description/vnext_plus235/repo_implementation_spec_projection_packet_v235_reference.json",
+            "docs/ASSESSMENT_vNEXT_PLUS236_EDGES.md",
+            "docs/LOCKED_CONTINUATION_vNEXT_PLUS236.md"
+          ],
+          "target_access_role": "prospective_write_target_for_later_lock",
+          "target_access_role_ref": "target-access-role:tests",
+          "target_mutability_review_posture": "mutation_requires_later_lock",
+          "target_surface_refs": [
+            "packages/adeu_repo_description/tests/test_work_packet_activation_review_v84b.py"
+          ]
+        }
+      ],
+      "target_boundary_ref": "target-boundary:v84b:tests",
+      "target_currentness_posture": "current_repo_surface",
+      "target_mutability_review_posture": "mutation_requires_later_lock",
+      "target_resolution_kind": "concrete_test_ref",
+      "target_surface_kind": "test_file",
+      "target_surface_refs": [
+        "packages/adeu_repo_description/tests/test_work_packet_activation_review_v84b.py"
+      ]
+    }
+  ],
+  "target_boundary_summary": "V84-B target boundaries classify module, schema, fixture, and test surfaces for later lock review with no implementation.",
+  "work_packet_activation_non_execution_guardrail_id": "repo_work_packet_activation_non_execution_guardrail_78608b297248e42aa0e0e793",
+  "work_packet_activation_review_request_id": "repo_work_packet_activation_review_request_3dbe16e667563d930a6bdf88",
+  "work_packet_activation_source_index_id": "repo_work_packet_activation_source_index_00de703df72da957abb3bebe",
+  "work_packet_scope_contract_id": "repo_work_packet_scope_contract_4840ce3bd3d5ba4c7bf6ba7e"
+}
