@@ -1,0 +1,45 @@
+{
+  "closed_by_arc": "vNext+238",
+  "closed_by_merge_commit": "8f7d84899c3940502df2cd2c25972b8df05a7c27",
+  "closed_slice_ladder": [
+    "V84-A:vNext+236",
+    "V84-B:vNext+237",
+    "V84-C:vNext+238"
+  ],
+  "family": "V84",
+  "family_closed_on_main": true,
+  "future_family_authority": "none",
+  "schema": "v84_family_closeout_alignment@1",
+  "shipped_record_shapes": [
+    "repo_work_packet_activation_review_request@1",
+    "repo_work_packet_activation_source_index@1",
+    "repo_work_packet_activation_non_execution_guardrail@1",
+    "repo_work_packet_scope_contract@1",
+    "repo_implementation_target_surface_boundary@1",
+    "repo_work_packet_validation_evidence_plan@1",
+    "repo_work_packet_activation_exception_register@1",
+    "repo_work_packet_activation_readiness_summary@1",
+    "repo_post_work_packet_activation_review_handoff@1",
+    "repo_work_packet_activation_family_closeout_alignment@1"
+  ],
+  "unselected_future_surfaces": [
+    "work-packet activation",
+    "work-packet execution",
+    "implementation work",
+    "code edit authority",
+    "command execution",
+    "tool invocation",
+    "target mutation",
+    "worker dispatch",
+    "meta-orchestrator runtime transition",
+    "Morphic UX runtime change",
+    "direct OAI runtime behavior",
+    "PR creation",
+    "commit/merge/release authority",
+    "product authorization",
+    "graph-memory authority",
+    "recursive policy amendment",
+    "V85 selection"
+  ],
+  "work_packet_activation_review_boundary": "work_packet_activation_review_family_only_no_work_packet_activation_work_packet_execution_implementation_code_edit_command_execution_tool_invocation_target_mutation_worker_dispatch_meta_orchestrator_runtime_morphic_ux_runtime_direct_oai_runtime_pr_commit_merge_release_product_graph_memory_recursive_policy_or_v85_selection_authority"
+}

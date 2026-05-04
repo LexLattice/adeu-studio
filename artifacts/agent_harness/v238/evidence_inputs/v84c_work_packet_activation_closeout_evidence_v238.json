@@ -1,0 +1,87 @@
+{
+  "arc": "vNext+238",
+  "activation_package_identity_preserved": true,
+  "canonical_lock_refs_union_checked": true,
+  "carried_blocker_posture_checked": true,
+  "closeout_claims_activation_rejected": true,
+  "closeout_selects_v85_rejected": true,
+  "consumed_fixture_dirs": [
+    "apps/api/fixtures/repo_description/vnext_plus236",
+    "apps/api/fixtures/repo_description/vnext_plus237"
+  ],
+  "consumed_record_shapes": [
+    "repo_work_packet_activation_review_request@1",
+    "repo_work_packet_activation_source_index@1",
+    "repo_work_packet_activation_non_execution_guardrail@1",
+    "repo_work_packet_scope_contract@1",
+    "repo_implementation_target_surface_boundary@1",
+    "repo_work_packet_validation_evidence_plan@1",
+    "repo_work_packet_activation_exception_register@1"
+  ],
+  "contract_source": "docs/LOCKED_CONTINUATION_vNEXT_PLUS238.md#machine-checkable-contract",
+  "coverage_refs_union_checked": true,
+  "focused_test_reference_path": "packages/adeu_repo_description/tests/test_work_packet_activation_review_v84c.py",
+  "handoff_carried_exception_visibility_checked": true,
+  "handoff_creates_lock_rejected": true,
+  "handoff_target_validation_identity_checked": true,
+  "implementation_commits": [
+    "0298956d9436fe730d6c0ec5572787bda5ac0760",
+    "ac3a514ac78262c2e7e608278c8cd37c661cc9c7"
+  ],
+  "implementation_packages": [
+    "adeu_repo_description"
+  ],
+  "implementation_performed_by_v84c": false,
+  "implementation_source_path": "packages/adeu_repo_description/src/adeu_repo_description/work_packet_activation_review.py",
+  "local_closeout_gate": "make arc-closeout-check ARC=238",
+  "local_full_python_gate": "make check",
+  "merge_commit": "8f7d84899c3940502df2cd2c25972b8df05a7c27",
+  "merged_at": "2026-05-04T11:54:46Z",
+  "merged_pr": "#466",
+  "merged_pr_url": "https://github.com/LexLattice/adeu-studio/pull/466",
+  "metric_key_continuity_assertion_path": "artifacts/agent_harness/v238/evidence_inputs/metric_key_continuity_assertion_v238.json",
+  "notes": "v238 evidence pins the bounded V84-C readiness summary, post-work-packet-activation-review handoff, and V84 family closeout alignment seam on main. V84-C consumes released V84-A activation-review request/source/guardrail rows and released V84-B scope/target/validation/exception rows; emits review-only readiness summary, handoff, and family closeout alignment rows; preserves activation-package identity, coverage and canonical-lock requirement union checks, carried blocker posture, warning-ready package linkage, and handoff identity checks; and ships no work-packet activation, work-packet execution, implementation, target mutation, command execution, tool invocation, PR creation, commit, merge, release, product authorization, graph-memory authority, recursive-policy amendment, or V85 selection.",
+  "package_export_surface_path": "packages/adeu_repo_description/src/adeu_repo_description/__init__.py",
+  "readiness_coverage_refs_required": true,
+  "ready_handoff_with_exceptions_rejected": true,
+  "reference_fixture_paths": [
+    "apps/api/fixtures/repo_description/vnext_plus238/repo_work_packet_activation_readiness_summary_v238_reference.json",
+    "apps/api/fixtures/repo_description/vnext_plus238/repo_post_work_packet_activation_review_handoff_v238_reference.json",
+    "apps/api/fixtures/repo_description/vnext_plus238/repo_work_packet_activation_family_closeout_alignment_v238_reference.json"
+  ],
+  "reject_fixture_dir": "apps/api/fixtures/repo_description/vnext_plus238",
+  "runtime_event_stream_path": "artifacts/agent_harness/v238/runtime/evidence/local/urm_events.ndjson",
+  "runtime_observability_comparison_path": "artifacts/agent_harness/v238/evidence_inputs/runtime_observability_comparison_v238.json",
+  "schema": "v84c_work_packet_activation_closeout_evidence@1",
+  "schema_export_source_path": "packages/adeu_repo_description/src/adeu_repo_description/export_schema.py",
+  "schema_paths": [
+    "packages/adeu_repo_description/schema/repo_work_packet_activation_readiness_summary.v1.json",
+    "packages/adeu_repo_description/schema/repo_post_work_packet_activation_review_handoff.v1.json",
+    "packages/adeu_repo_description/schema/repo_work_packet_activation_family_closeout_alignment.v1.json",
+    "spec/repo_work_packet_activation_readiness_summary.schema.json",
+    "spec/repo_post_work_packet_activation_review_handoff.schema.json",
+    "spec/repo_work_packet_activation_family_closeout_alignment.schema.json"
+  ],
+  "selected_direct_oai_runtime_for_v84c": false,
+  "selected_graph_memory_authority_for_v84c": false,
+  "selected_implementation_for_v84c": false,
+  "selected_meta_orchestrator_runtime_for_v84c": false,
+  "selected_morphic_ux_runtime_for_v84c": false,
+  "selected_product_authorization_for_v84c": false,
+  "selected_record_shapes": [
+    "repo_work_packet_activation_readiness_summary@1",
+    "repo_post_work_packet_activation_review_handoff@1",
+    "repo_work_packet_activation_family_closeout_alignment@1"
+  ],
+  "selected_recursive_policy_amendment_for_v84c": false,
+  "selected_release_for_v84c": false,
+  "selected_v85_for_v84c": false,
+  "slice": "V84-C",
+  "target_mutated_by_v84c": false,
+  "v83c_closeout_evidence_input_path": "artifacts/agent_harness/v235/evidence_inputs/v83c_semantic_projection_closeout_evidence_v235.json",
+  "v84a_closeout_evidence_input_path": "artifacts/agent_harness/v236/evidence_inputs/v84a_work_packet_activation_review_closeout_evidence_v236.json",
+  "v84b_closeout_evidence_input_path": "artifacts/agent_harness/v237/evidence_inputs/v84b_work_packet_package_review_closeout_evidence_v237.json",
+  "warning_ready_package_links_required": true,
+  "work_packet_activated_by_v84c": false,
+  "work_packet_executed_by_v84c": false
+}
