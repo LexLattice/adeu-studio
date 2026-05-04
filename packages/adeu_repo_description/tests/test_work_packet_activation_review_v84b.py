@@ -326,6 +326,57 @@ def test_v84b_bundle_rejects_unknown_request_refs() -> None:
         _validate_reference_bundle_with(scope=scope)
 
 
+def test_v84b_bundle_rejects_validation_plan_unknown_request_refs() -> None:
+    validation_plan = _v84b_validation_plan()
+    row = validation_plan.validation_plan_rows[0].model_copy(
+        update={"activation_request_refs": ["activation-request:v84a:missing"]}
+    )
+    validation_plan = validation_plan.model_copy(update={"validation_plan_rows": [row]})
+
+    with pytest.raises(ValueError, match="validation plans must reference released V84-A requests"):
+        _validate_reference_bundle_with(validation_plan=validation_plan)
+
+
+def test_v84b_bundle_rejects_validation_plan_request_scope_mismatch() -> None:
+    validation_plan = _v84b_validation_plan()
+    row = validation_plan.validation_plan_rows[0].model_copy(
+        update={
+            "activation_request_refs": ["activation-request:v84a:meta-orchestrator-review"]
+        }
+    )
+    validation_plan = validation_plan.model_copy(update={"validation_plan_rows": [row]})
+
+    with pytest.raises(ValueError, match="validation plan requests must match scope contracts"):
+        _validate_reference_bundle_with(validation_plan=validation_plan)
+
+
+def test_v84b_bundle_rejects_exception_register_unknown_request_refs() -> None:
+    exception_register = _v84b_exception_register()
+    row = exception_register.exception_register_rows[0].model_copy(
+        update={"activation_request_refs": ["activation-request:v84a:missing"]}
+    )
+    exception_register = exception_register.model_copy(update={"exception_register_rows": [row]})
+
+    with pytest.raises(
+        ValueError,
+        match="exception registers must reference released V84-A requests",
+    ):
+        _validate_reference_bundle_with(exception_register=exception_register)
+
+
+def test_v84b_bundle_rejects_exception_register_request_scope_mismatch() -> None:
+    exception_register = _v84b_exception_register()
+    row = exception_register.exception_register_rows[0].model_copy(
+        update={
+            "activation_request_refs": ["activation-request:v84a:meta-orchestrator-review"]
+        }
+    )
+    exception_register = exception_register.model_copy(update={"exception_register_rows": [row]})
+
+    with pytest.raises(ValueError, match="exception register requests must match scope contracts"):
+        _validate_reference_bundle_with(exception_register=exception_register)
+
+
 def test_v84b_bundle_rejects_forbidden_targets_in_scope() -> None:
     scope = _v84b_scope(
         "repo_work_packet_activation_v237_reject_forbidden_target_in_scope.json"

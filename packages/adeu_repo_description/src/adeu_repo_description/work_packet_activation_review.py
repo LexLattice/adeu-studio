@@ -2786,8 +2786,8 @@ def derive_v84b_repo_work_packet_scope_contract(
         _intent_source_index,
         _contract,
         _intent_guardrail,
-        edge_decomposition,
-        obligation_map,
+        _edge_decomposition,
+        _obligation_map,
         _drift_register,
         projection_packet,
         _handoff,
@@ -2796,16 +2796,6 @@ def derive_v84b_repo_work_packet_scope_contract(
     request_row = _eligible_v84a_request(work_packet_activation_review_request)
     packet_row = projection_packet.projection_packet_rows[0]
     quality_gate_ref = packet_row.implementation_spec_quality_gate_rows[0].quality_gate_ref
-    semantic_edge_refs = sorted(
-        relation.semantic_relation_ref
-        for row in edge_decomposition.edge_decomposition_rows
-        for relation in row.semantic_relation_rows
-    )
-    artifact_obligation_refs = sorted(
-        obligation.artifact_obligation_ref
-        for row in obligation_map.obligation_map_rows
-        for obligation in row.artifact_obligation_rows
-    )
     schema_targets = [
         "packages/adeu_repo_description/schema",
         "packages/adeu_repo_description/schema/repo_work_packet_scope_contract.v1.json",
@@ -2966,7 +2956,6 @@ def derive_v84b_repo_work_packet_scope_contract(
         "work_packet_scope_contract_id",
     )
     scope_contract = RepoWorkPacketScopeContract.model_validate(payload)
-    _ = semantic_edge_refs, artifact_obligation_refs
     return scope_contract
 
 
@@ -3563,6 +3552,10 @@ def validate_v84b_work_packet_package_review_bundle(
         row.validation_plan_ref: row
         for row in work_packet_validation_evidence_plan.validation_plan_rows
     }
+    scope_in_scope_sets = {
+        row.scope_contract_ref: set(row.in_scope_artifact_refs)
+        for row in work_packet_scope_contract.scope_contract_rows
+    }
 
     for scope_row in work_packet_scope_contract.scope_contract_rows:
         if any(ref not in known_requests for ref in scope_row.activation_request_refs):
@@ -3586,8 +3579,9 @@ def validate_v84b_work_packet_package_review_bundle(
             raise ValueError("scope contract implementation specs must be released V83-C specs")
         if any(ref not in known_guardrails for ref in scope_row.guardrail_refs):
             raise ValueError("scope contract guardrail refs must be released V84-A guardrails")
+        in_scope_set = scope_in_scope_sets[scope_row.scope_contract_ref]
         for forbidden_ref in scope_row.out_of_scope_artifact_refs:
-            if forbidden_ref in scope_row.in_scope_artifact_refs:
+            if forbidden_ref in in_scope_set:
                 raise ValueError("forbidden targets cannot be included in scope")
 
     for target_row in implementation_target_surface_boundary.target_boundary_rows:
@@ -3602,8 +3596,9 @@ def validate_v84b_work_packet_package_review_bundle(
             raise ValueError("target boundary package must match scope contract")
         if target_row.boundary_posture == "blocked_by_forbidden_target":
             for scope_ref in target_row.scope_contract_refs:
+                in_scope_set = scope_in_scope_sets[scope_ref]
                 if any(
-                    target_ref in scope_rows[scope_ref].in_scope_artifact_refs
+                    target_ref in in_scope_set
                     for target_ref in target_row.target_surface_refs
                 ):
                     raise ValueError("forbidden targets cannot be included in scope")
@@ -3611,6 +3606,15 @@ def validate_v84b_work_packet_package_review_bundle(
     for validation_row in work_packet_validation_evidence_plan.validation_plan_rows:
         if any(ref not in scope_rows for ref in validation_row.scope_contract_refs):
             raise ValueError("validation plans must reference released V84-B scope contracts")
+        if any(ref not in known_requests for ref in validation_row.activation_request_refs):
+            raise ValueError("validation plans must reference released V84-A requests")
+        scope_request_refs = {
+            request_ref
+            for scope_ref in validation_row.scope_contract_refs
+            for request_ref in scope_rows[scope_ref].activation_request_refs
+        }
+        if set(validation_row.activation_request_refs) != scope_request_refs:
+            raise ValueError("validation plan requests must match scope contracts")
         if any(ref not in known_edges for ref in validation_row.semantic_edge_refs):
             raise ValueError("validation plans must reference released V83-B semantic edges")
         if any(ref not in known_obligations for ref in validation_row.artifact_obligation_refs):
@@ -3642,6 +3646,15 @@ def validate_v84b_work_packet_package_review_bundle(
     ):
         if any(ref not in scope_rows for ref in exception_register_row.scope_contract_refs):
             raise ValueError("exception registers must reference scope contracts")
+        if any(ref not in known_requests for ref in exception_register_row.activation_request_refs):
+            raise ValueError("exception registers must reference released V84-A requests")
+        scope_request_refs = {
+            request_ref
+            for scope_ref in exception_register_row.scope_contract_refs
+            for request_ref in scope_rows[scope_ref].activation_request_refs
+        }
+        if set(exception_register_row.activation_request_refs) != scope_request_refs:
+            raise ValueError("exception register requests must match scope contracts")
         if any(ref not in target_rows for ref in exception_register_row.target_boundary_refs):
             raise ValueError("exception registers must reference target boundaries")
         if any(ref not in validation_rows for ref in exception_register_row.validation_plan_refs):
