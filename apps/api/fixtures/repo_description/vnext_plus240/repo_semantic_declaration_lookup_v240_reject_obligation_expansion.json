@@ -1,0 +1,535 @@
+{
+  "obligation_family_registry_id": "repo_obligation_family_registry_da31d232969e80287920006f",
+  "obligation_family_registry_summary": "V85-B obligation family registry names families for review with no implementation and no obligation expansion.",
+  "obligation_family_rows": [
+    {
+      "applies_to_class_refs": [
+        "registry:v85b:object_class:ui.menu@v1"
+      ],
+      "applies_to_operator_refs": [
+        "registry:v85b:operator:CREATE"
+      ],
+      "evidence_contract_required_posture": "evidence_contract_not_created_by_v85b",
+      "future_expansion_posture": "expansion_requires_future_family",
+      "limitation_note": "absence_null_empty_distinction@v1 is named as an obligation family for review only.",
+      "non_execution_guardrail": "No implementation and no obligation expansion occurs in V85-B.",
+      "obligation_family_activation_posture": "expansion_blocked_by_registry_gap",
+      "obligation_family_id": "absence_null_empty_distinction@v1",
+      "obligation_family_label": "absence null empty distinction",
+      "obligation_family_ref": "obligation-family:v85b:absence_null_empty_distinction@v1",
+      "obligation_family_relation_kind": "applies_by_object_class",
+      "required_future_surfaces": [
+        "V86:obligation-expansion-review"
+      ],
+      "semantic_declaration_session_ref": "semantic-declaration-session:v85a:intent-to-declaration-office",
+      "source_refs": [
+        "apps/api/fixtures/repo_description/vnext_plus239/repo_semantic_declaration_non_authority_guardrail_v239_reference.json",
+        "apps/api/fixtures/repo_description/vnext_plus239/repo_semantic_declaration_source_index_v239_reference.json",
+        "apps/api/fixtures/repo_description/vnext_plus239/repo_turn_semantic_declaration_request_v239_reference.json",
+        "docs/DRAFT_ADEU_SEMANTIC_DECLARATION_META_LOOP_V85B_IMPLEMENTATION_MAPPING_v0.md",
+        "docs/LOCKED_CONTINUATION_vNEXT_PLUS240.md"
+      ],
+      "waiver_posture": "waiver_requires_later_review"
+    },
+    {
+      "applies_to_class_refs": [
+        "registry:v85b:object_class:ui.menu@v1"
+      ],
+      "applies_to_operator_refs": [
+        "registry:v85b:operator:CREATE"
+      ],
+      "evidence_contract_required_posture": "evidence_contract_not_created_by_v85b",
+      "future_expansion_posture": "expansion_requires_future_family",
+      "limitation_note": "birth_continuation_death_algebra@v1 is named as an obligation family for review only.",
+      "non_execution_guardrail": "No implementation and no obligation expansion occurs in V85-B.",
+      "obligation_family_activation_posture": "named_for_later_expansion_only",
+      "obligation_family_id": "birth_continuation_death_algebra@v1",
+      "obligation_family_label": "birth continuation death algebra",
+      "obligation_family_ref": "obligation-family:v85b:birth_continuation_death_algebra@v1",
+      "obligation_family_relation_kind": "applies_by_object_class",
+      "required_future_surfaces": [
+        "V86:obligation-expansion-review"
+      ],
+      "semantic_declaration_session_ref": "semantic-declaration-session:v85a:intent-to-declaration-office",
+      "source_refs": [
+        "apps/api/fixtures/repo_description/vnext_plus239/repo_semantic_declaration_non_authority_guardrail_v239_reference.json",
+        "apps/api/fixtures/repo_description/vnext_plus239/repo_semantic_declaration_source_index_v239_reference.json",
+        "apps/api/fixtures/repo_description/vnext_plus239/repo_turn_semantic_declaration_request_v239_reference.json",
+        "docs/DRAFT_ADEU_SEMANTIC_DECLARATION_META_LOOP_V85B_IMPLEMENTATION_MAPPING_v0.md",
+        "docs/LOCKED_CONTINUATION_vNEXT_PLUS240.md"
+      ],
+      "waiver_posture": "waiver_requires_later_review"
+    },
+    {
+      "applies_to_class_refs": [
+        "registry:v85b:object_class:ui.menu@v1"
+      ],
+      "applies_to_operator_refs": [
+        "registry:v85b:operator:CREATE"
+      ],
+      "evidence_contract_required_posture": "evidence_contract_not_created_by_v85b",
+      "future_expansion_posture": "expansion_requires_future_family",
+      "limitation_note": "branch_specific_witness@v1 is named as an obligation family for review only.",
+      "non_execution_guardrail": "No implementation and no obligation expansion occurs in V85-B.",
+      "obligation_family_activation_posture": "named_for_later_expansion_only",
+      "obligation_family_id": "branch_specific_witness@v1",
+      "obligation_family_label": "branch specific witness",
+      "obligation_family_ref": "obligation-family:v85b:branch_specific_witness@v1",
+      "obligation_family_relation_kind": "applies_by_object_class",
+      "required_future_surfaces": [
+        "V86:obligation-expansion-review"
+      ],
+      "semantic_declaration_session_ref": "semantic-declaration-session:v85a:intent-to-declaration-office",
+      "source_refs": [
+        "apps/api/fixtures/repo_description/vnext_plus239/repo_semantic_declaration_non_authority_guardrail_v239_reference.json",
+        "apps/api/fixtures/repo_description/vnext_plus239/repo_semantic_declaration_source_index_v239_reference.json",
+        "apps/api/fixtures/repo_description/vnext_plus239/repo_turn_semantic_declaration_request_v239_reference.json",
+        "docs/DRAFT_ADEU_SEMANTIC_DECLARATION_META_LOOP_V85B_IMPLEMENTATION_MAPPING_v0.md",
+        "docs/LOCKED_CONTINUATION_vNEXT_PLUS240.md"
+      ],
+      "waiver_posture": "waiver_requires_later_review"
+    },
+    {
+      "applies_to_class_refs": [
+        "registry:v85b:object_class:ui.menu@v1"
+      ],
+      "applies_to_operator_refs": [
+        "registry:v85b:operator:CREATE"
+      ],
+      "evidence_contract_required_posture": "evidence_contract_not_created_by_v85b",
+      "future_expansion_posture": "expansion_requires_future_family",
+      "limitation_note": "capability_guard@v1 is named as an obligation family for review only.",
+      "non_execution_guardrail": "No implementation and no obligation expansion occurs in V85-B.",
+      "obligation_family_activation_posture": "named_for_later_expansion_only",
+      "obligation_family_id": "capability_guard@v1",
+      "obligation_family_label": "capability guard",
+      "obligation_family_ref": "obligation-family:v85b:capability_guard@v1",
+      "obligation_family_relation_kind": "applies_by_object_class",
+      "required_future_surfaces": [
+        "V86:obligation-expansion-review"
+      ],
+      "semantic_declaration_session_ref": "semantic-declaration-session:v85a:intent-to-declaration-office",
+      "source_refs": [
+        "apps/api/fixtures/repo_description/vnext_plus239/repo_semantic_declaration_non_authority_guardrail_v239_reference.json",
+        "apps/api/fixtures/repo_description/vnext_plus239/repo_semantic_declaration_source_index_v239_reference.json",
+        "apps/api/fixtures/repo_description/vnext_plus239/repo_turn_semantic_declaration_request_v239_reference.json",
+        "docs/DRAFT_ADEU_SEMANTIC_DECLARATION_META_LOOP_V85B_IMPLEMENTATION_MAPPING_v0.md",
+        "docs/LOCKED_CONTINUATION_vNEXT_PLUS240.md"
+      ],
+      "waiver_posture": "waiver_requires_later_review"
+    },
+    {
+      "applies_to_class_refs": [
+        "registry:v85b:object_class:ui.menu@v1"
+      ],
+      "applies_to_operator_refs": [
+        "registry:v85b:operator:CREATE"
+      ],
+      "evidence_contract_required_posture": "evidence_contract_not_created_by_v85b",
+      "future_expansion_posture": "expansion_requires_future_family",
+      "limitation_note": "cross_field_consistency@v1 is named as an obligation family for review only.",
+      "non_execution_guardrail": "No implementation and no obligation expansion occurs in V85-B.",
+      "obligation_family_activation_posture": "named_for_later_expansion_only",
+      "obligation_family_id": "cross_field_consistency@v1",
+      "obligation_family_label": "cross field consistency",
+      "obligation_family_ref": "obligation-family:v85b:cross_field_consistency@v1",
+      "obligation_family_relation_kind": "applies_by_object_class",
+      "required_future_surfaces": [
+        "V86:obligation-expansion-review"
+      ],
+      "semantic_declaration_session_ref": "semantic-declaration-session:v85a:intent-to-declaration-office",
+      "source_refs": [
+        "apps/api/fixtures/repo_description/vnext_plus239/repo_semantic_declaration_non_authority_guardrail_v239_reference.json",
+        "apps/api/fixtures/repo_description/vnext_plus239/repo_semantic_declaration_source_index_v239_reference.json",
+        "apps/api/fixtures/repo_description/vnext_plus239/repo_turn_semantic_declaration_request_v239_reference.json",
+        "docs/DRAFT_ADEU_SEMANTIC_DECLARATION_META_LOOP_V85B_IMPLEMENTATION_MAPPING_v0.md",
+        "docs/LOCKED_CONTINUATION_vNEXT_PLUS240.md"
+      ],
+      "waiver_posture": "waiver_requires_later_review"
+    },
+    {
+      "applies_to_class_refs": [
+        "registry:v85b:object_class:ui.menu@v1"
+      ],
+      "applies_to_operator_refs": [
+        "registry:v85b:operator:CREATE"
+      ],
+      "evidence_contract_required_posture": "evidence_contract_not_created_by_v85b",
+      "future_expansion_posture": "expansion_requires_future_family",
+      "limitation_note": "enum_exhaustiveness@v1 is named as an obligation family for review only.",
+      "non_execution_guardrail": "No implementation and no obligation expansion occurs in V85-B.",
+      "obligation_family_activation_posture": "named_for_later_expansion_only",
+      "obligation_family_id": "enum_exhaustiveness@v1",
+      "obligation_family_label": "enum exhaustiveness",
+      "obligation_family_ref": "obligation-family:v85b:enum_exhaustiveness@v1",
+      "obligation_family_relation_kind": "applies_by_object_class",
+      "required_future_surfaces": [
+        "V86:obligation-expansion-review"
+      ],
+      "semantic_declaration_session_ref": "semantic-declaration-session:v85a:intent-to-declaration-office",
+      "source_refs": [
+        "apps/api/fixtures/repo_description/vnext_plus239/repo_semantic_declaration_non_authority_guardrail_v239_reference.json",
+        "apps/api/fixtures/repo_description/vnext_plus239/repo_semantic_declaration_source_index_v239_reference.json",
+        "apps/api/fixtures/repo_description/vnext_plus239/repo_turn_semantic_declaration_request_v239_reference.json",
+        "docs/DRAFT_ADEU_SEMANTIC_DECLARATION_META_LOOP_V85B_IMPLEMENTATION_MAPPING_v0.md",
+        "docs/LOCKED_CONTINUATION_vNEXT_PLUS240.md"
+      ],
+      "waiver_posture": "waiver_requires_later_review"
+    },
+    {
+      "applies_to_class_refs": [
+        "registry:v85b:object_class:ui.menu@v1"
+      ],
+      "applies_to_operator_refs": [
+        "registry:v85b:operator:CREATE"
+      ],
+      "evidence_contract_required_posture": "evidence_contract_not_created_by_v85b",
+      "future_expansion_posture": "expansion_requires_future_family",
+      "limitation_note": "evidence_sufficiency@v1 is named as an obligation family for review only.",
+      "non_execution_guardrail": "No implementation and no obligation expansion occurs in V85-B.",
+      "obligation_family_activation_posture": "named_for_later_expansion_only",
+      "obligation_family_id": "evidence_sufficiency@v1",
+      "obligation_family_label": "evidence sufficiency",
+      "obligation_family_ref": "obligation-family:v85b:evidence_sufficiency@v1",
+      "obligation_family_relation_kind": "applies_by_object_class",
+      "required_future_surfaces": [
+        "V86:obligation-expansion-review"
+      ],
+      "semantic_declaration_session_ref": "semantic-declaration-session:v85a:intent-to-declaration-office",
+      "source_refs": [
+        "apps/api/fixtures/repo_description/vnext_plus239/repo_semantic_declaration_non_authority_guardrail_v239_reference.json",
+        "apps/api/fixtures/repo_description/vnext_plus239/repo_semantic_declaration_source_index_v239_reference.json",
+        "apps/api/fixtures/repo_description/vnext_plus239/repo_turn_semantic_declaration_request_v239_reference.json",
+        "docs/DRAFT_ADEU_SEMANTIC_DECLARATION_META_LOOP_V85B_IMPLEMENTATION_MAPPING_v0.md",
+        "docs/LOCKED_CONTINUATION_vNEXT_PLUS240.md"
+      ],
+      "waiver_posture": "waiver_requires_later_review"
+    },
+    {
+      "applies_to_class_refs": [
+        "registry:v85b:object_class:ui.menu@v1"
+      ],
+      "applies_to_operator_refs": [
+        "registry:v85b:operator:CREATE"
+      ],
+      "evidence_contract_required_posture": "evidence_contract_not_created_by_v85b",
+      "future_expansion_posture": "expansion_requires_future_family",
+      "limitation_note": "failure_path_fail_closed@v1 is named as an obligation family for review only.",
+      "non_execution_guardrail": "No implementation and no obligation expansion occurs in V85-B.",
+      "obligation_family_activation_posture": "named_for_later_expansion_only",
+      "obligation_family_id": "failure_path_fail_closed@v1",
+      "obligation_family_label": "failure path fail closed",
+      "obligation_family_ref": "obligation-family:v85b:failure_path_fail_closed@v1",
+      "obligation_family_relation_kind": "applies_by_object_class",
+      "required_future_surfaces": [
+        "V86:obligation-expansion-review"
+      ],
+      "semantic_declaration_session_ref": "semantic-declaration-session:v85a:intent-to-declaration-office",
+      "source_refs": [
+        "apps/api/fixtures/repo_description/vnext_plus239/repo_semantic_declaration_non_authority_guardrail_v239_reference.json",
+        "apps/api/fixtures/repo_description/vnext_plus239/repo_semantic_declaration_source_index_v239_reference.json",
+        "apps/api/fixtures/repo_description/vnext_plus239/repo_turn_semantic_declaration_request_v239_reference.json",
+        "docs/DRAFT_ADEU_SEMANTIC_DECLARATION_META_LOOP_V85B_IMPLEMENTATION_MAPPING_v0.md",
+        "docs/LOCKED_CONTINUATION_vNEXT_PLUS240.md"
+      ],
+      "waiver_posture": "waiver_requires_later_review"
+    },
+    {
+      "applies_to_class_refs": [
+        "registry:v85b:object_class:ui.menu@v1"
+      ],
+      "applies_to_operator_refs": [
+        "registry:v85b:operator:CREATE"
+      ],
+      "evidence_contract_required_posture": "evidence_contract_not_created_by_v85b",
+      "future_expansion_posture": "expansion_requires_future_family",
+      "limitation_note": "idempotence_reentry@v1 is named as an obligation family for review only.",
+      "non_execution_guardrail": "No implementation and no obligation expansion occurs in V85-B.",
+      "obligation_family_activation_posture": "named_for_later_expansion_only",
+      "obligation_family_id": "idempotence_reentry@v1",
+      "obligation_family_label": "idempotence reentry",
+      "obligation_family_ref": "obligation-family:v85b:idempotence_reentry@v1",
+      "obligation_family_relation_kind": "applies_by_object_class",
+      "required_future_surfaces": [
+        "V86:obligation-expansion-review"
+      ],
+      "semantic_declaration_session_ref": "semantic-declaration-session:v85a:intent-to-declaration-office",
+      "source_refs": [
+        "apps/api/fixtures/repo_description/vnext_plus239/repo_semantic_declaration_non_authority_guardrail_v239_reference.json",
+        "apps/api/fixtures/repo_description/vnext_plus239/repo_semantic_declaration_source_index_v239_reference.json",
+        "apps/api/fixtures/repo_description/vnext_plus239/repo_turn_semantic_declaration_request_v239_reference.json",
+        "docs/DRAFT_ADEU_SEMANTIC_DECLARATION_META_LOOP_V85B_IMPLEMENTATION_MAPPING_v0.md",
+        "docs/LOCKED_CONTINUATION_vNEXT_PLUS240.md"
+      ],
+      "waiver_posture": "waiver_requires_later_review"
+    },
+    {
+      "applies_to_class_refs": [
+        "registry:v85b:object_class:ui.menu@v1"
+      ],
+      "applies_to_operator_refs": [
+        "registry:v85b:operator:CREATE"
+      ],
+      "evidence_contract_required_posture": "evidence_contract_not_created_by_v85b",
+      "future_expansion_posture": "expansion_requires_future_family",
+      "limitation_note": "non_vacuous_validation@v1 is named as an obligation family for review only.",
+      "non_execution_guardrail": "No implementation and no obligation expansion occurs in V85-B.",
+      "obligation_family_activation_posture": "named_for_later_expansion_only",
+      "obligation_family_id": "non_vacuous_validation@v1",
+      "obligation_family_label": "non vacuous validation",
+      "obligation_family_ref": "obligation-family:v85b:non_vacuous_validation@v1",
+      "obligation_family_relation_kind": "applies_by_object_class",
+      "required_future_surfaces": [
+        "V86:obligation-expansion-review"
+      ],
+      "semantic_declaration_session_ref": "semantic-declaration-session:v85a:intent-to-declaration-office",
+      "source_refs": [
+        "apps/api/fixtures/repo_description/vnext_plus239/repo_semantic_declaration_non_authority_guardrail_v239_reference.json",
+        "apps/api/fixtures/repo_description/vnext_plus239/repo_semantic_declaration_source_index_v239_reference.json",
+        "apps/api/fixtures/repo_description/vnext_plus239/repo_turn_semantic_declaration_request_v239_reference.json",
+        "docs/DRAFT_ADEU_SEMANTIC_DECLARATION_META_LOOP_V85B_IMPLEMENTATION_MAPPING_v0.md",
+        "docs/LOCKED_CONTINUATION_vNEXT_PLUS240.md"
+      ],
+      "waiver_posture": "waiver_requires_later_review"
+    },
+    {
+      "applies_to_class_refs": [
+        "registry:v85b:object_class:ui.menu@v1"
+      ],
+      "applies_to_operator_refs": [
+        "registry:v85b:operator:CREATE"
+      ],
+      "evidence_contract_required_posture": "evidence_contract_not_created_by_v85b",
+      "future_expansion_posture": "expansion_requires_future_family",
+      "limitation_note": "partial_retry_reentry@v1 is named as an obligation family for review only.",
+      "non_execution_guardrail": "No implementation and no obligation expansion occurs in V85-B.",
+      "obligation_family_activation_posture": "named_for_later_expansion_only",
+      "obligation_family_id": "partial_retry_reentry@v1",
+      "obligation_family_label": "partial retry reentry",
+      "obligation_family_ref": "obligation-family:v85b:partial_retry_reentry@v1",
+      "obligation_family_relation_kind": "applies_by_object_class",
+      "required_future_surfaces": [
+        "V86:obligation-expansion-review"
+      ],
+      "semantic_declaration_session_ref": "semantic-declaration-session:v85a:intent-to-declaration-office",
+      "source_refs": [
+        "apps/api/fixtures/repo_description/vnext_plus239/repo_semantic_declaration_non_authority_guardrail_v239_reference.json",
+        "apps/api/fixtures/repo_description/vnext_plus239/repo_semantic_declaration_source_index_v239_reference.json",
+        "apps/api/fixtures/repo_description/vnext_plus239/repo_turn_semantic_declaration_request_v239_reference.json",
+        "docs/DRAFT_ADEU_SEMANTIC_DECLARATION_META_LOOP_V85B_IMPLEMENTATION_MAPPING_v0.md",
+        "docs/LOCKED_CONTINUATION_vNEXT_PLUS240.md"
+      ],
+      "waiver_posture": "waiver_requires_later_review"
+    },
+    {
+      "applies_to_class_refs": [
+        "registry:v85b:object_class:ui.menu@v1"
+      ],
+      "applies_to_operator_refs": [
+        "registry:v85b:operator:CREATE"
+      ],
+      "evidence_contract_required_posture": "evidence_contract_not_created_by_v85b",
+      "future_expansion_posture": "expansion_requires_future_family",
+      "limitation_note": "projection_source_integrity@v1 is named as an obligation family for review only.",
+      "non_execution_guardrail": "No implementation and no obligation expansion occurs in V85-B.",
+      "obligation_family_activation_posture": "named_for_later_expansion_only",
+      "obligation_family_id": "projection_source_integrity@v1",
+      "obligation_family_label": "projection source integrity",
+      "obligation_family_ref": "obligation-family:v85b:projection_source_integrity@v1",
+      "obligation_family_relation_kind": "applies_by_object_class",
+      "required_future_surfaces": [
+        "V86:obligation-expansion-review"
+      ],
+      "semantic_declaration_session_ref": "semantic-declaration-session:v85a:intent-to-declaration-office",
+      "source_refs": [
+        "apps/api/fixtures/repo_description/vnext_plus239/repo_semantic_declaration_non_authority_guardrail_v239_reference.json",
+        "apps/api/fixtures/repo_description/vnext_plus239/repo_semantic_declaration_source_index_v239_reference.json",
+        "apps/api/fixtures/repo_description/vnext_plus239/repo_turn_semantic_declaration_request_v239_reference.json",
+        "docs/DRAFT_ADEU_SEMANTIC_DECLARATION_META_LOOP_V85B_IMPLEMENTATION_MAPPING_v0.md",
+        "docs/LOCKED_CONTINUATION_vNEXT_PLUS240.md"
+      ],
+      "waiver_posture": "waiver_requires_later_review"
+    },
+    {
+      "applies_to_class_refs": [
+        "registry:v85b:object_class:ui.menu@v1"
+      ],
+      "applies_to_operator_refs": [
+        "registry:v85b:operator:CREATE"
+      ],
+      "evidence_contract_required_posture": "evidence_contract_not_created_by_v85b",
+      "future_expansion_posture": "expansion_requires_future_family",
+      "limitation_note": "rollback_cleanup_teardown@v1 is named as an obligation family for review only.",
+      "non_execution_guardrail": "No implementation and no obligation expansion occurs in V85-B.",
+      "obligation_family_activation_posture": "named_for_later_expansion_only",
+      "obligation_family_id": "rollback_cleanup_teardown@v1",
+      "obligation_family_label": "rollback cleanup teardown",
+      "obligation_family_ref": "obligation-family:v85b:rollback_cleanup_teardown@v1",
+      "obligation_family_relation_kind": "applies_by_object_class",
+      "required_future_surfaces": [
+        "V86:obligation-expansion-review"
+      ],
+      "semantic_declaration_session_ref": "semantic-declaration-session:v85a:intent-to-declaration-office",
+      "source_refs": [
+        "apps/api/fixtures/repo_description/vnext_plus239/repo_semantic_declaration_non_authority_guardrail_v239_reference.json",
+        "apps/api/fixtures/repo_description/vnext_plus239/repo_semantic_declaration_source_index_v239_reference.json",
+        "apps/api/fixtures/repo_description/vnext_plus239/repo_turn_semantic_declaration_request_v239_reference.json",
+        "docs/DRAFT_ADEU_SEMANTIC_DECLARATION_META_LOOP_V85B_IMPLEMENTATION_MAPPING_v0.md",
+        "docs/LOCKED_CONTINUATION_vNEXT_PLUS240.md"
+      ],
+      "waiver_posture": "waiver_requires_later_review"
+    },
+    {
+      "applies_to_class_refs": [
+        "registry:v85b:object_class:ui.menu@v1"
+      ],
+      "applies_to_operator_refs": [
+        "registry:v85b:operator:CREATE"
+      ],
+      "evidence_contract_required_posture": "evidence_contract_not_created_by_v85b",
+      "future_expansion_posture": "expansion_requires_future_family",
+      "limitation_note": "source_witness_preservation@v1 is named as an obligation family for review only.",
+      "non_execution_guardrail": "No implementation and no obligation expansion occurs in V85-B.",
+      "obligation_family_activation_posture": "named_for_later_expansion_only",
+      "obligation_family_id": "source_witness_preservation@v1",
+      "obligation_family_label": "source witness preservation",
+      "obligation_family_ref": "obligation-family:v85b:source_witness_preservation@v1",
+      "obligation_family_relation_kind": "applies_by_object_class",
+      "required_future_surfaces": [
+        "V86:obligation-expansion-review"
+      ],
+      "semantic_declaration_session_ref": "semantic-declaration-session:v85a:intent-to-declaration-office",
+      "source_refs": [
+        "apps/api/fixtures/repo_description/vnext_plus239/repo_semantic_declaration_non_authority_guardrail_v239_reference.json",
+        "apps/api/fixtures/repo_description/vnext_plus239/repo_semantic_declaration_source_index_v239_reference.json",
+        "apps/api/fixtures/repo_description/vnext_plus239/repo_turn_semantic_declaration_request_v239_reference.json",
+        "docs/DRAFT_ADEU_SEMANTIC_DECLARATION_META_LOOP_V85B_IMPLEMENTATION_MAPPING_v0.md",
+        "docs/LOCKED_CONTINUATION_vNEXT_PLUS240.md"
+      ],
+      "waiver_posture": "waiver_requires_later_review"
+    },
+    {
+      "applies_to_class_refs": [
+        "registry:v85b:object_class:ui.menu@v1"
+      ],
+      "applies_to_operator_refs": [
+        "registry:v85b:operator:CREATE"
+      ],
+      "evidence_contract_required_posture": "evidence_contract_not_created_by_v85b",
+      "future_expansion_posture": "expansion_requires_future_family",
+      "limitation_note": "staleness_invalidation@v1 is named as an obligation family for review only.",
+      "non_execution_guardrail": "No implementation and no obligation expansion occurs in V85-B.",
+      "obligation_family_activation_posture": "named_for_later_expansion_only",
+      "obligation_family_id": "staleness_invalidation@v1",
+      "obligation_family_label": "staleness invalidation",
+      "obligation_family_ref": "obligation-family:v85b:staleness_invalidation@v1",
+      "obligation_family_relation_kind": "applies_by_object_class",
+      "required_future_surfaces": [
+        "V86:obligation-expansion-review"
+      ],
+      "semantic_declaration_session_ref": "semantic-declaration-session:v85a:intent-to-declaration-office",
+      "source_refs": [
+        "apps/api/fixtures/repo_description/vnext_plus239/repo_semantic_declaration_non_authority_guardrail_v239_reference.json",
+        "apps/api/fixtures/repo_description/vnext_plus239/repo_semantic_declaration_source_index_v239_reference.json",
+        "apps/api/fixtures/repo_description/vnext_plus239/repo_turn_semantic_declaration_request_v239_reference.json",
+        "docs/DRAFT_ADEU_SEMANTIC_DECLARATION_META_LOOP_V85B_IMPLEMENTATION_MAPPING_v0.md",
+        "docs/LOCKED_CONTINUATION_vNEXT_PLUS240.md"
+      ],
+      "waiver_posture": "waiver_requires_later_review"
+    },
+    {
+      "applies_to_class_refs": [
+        "registry:v85b:object_class:ui.menu@v1"
+      ],
+      "applies_to_operator_refs": [
+        "registry:v85b:operator:CREATE"
+      ],
+      "evidence_contract_required_posture": "evidence_contract_not_created_by_v85b",
+      "future_expansion_posture": "expansion_requires_future_family",
+      "limitation_note": "stateful_lifecycle@v1 is named as an obligation family for review only.",
+      "non_execution_guardrail": "No implementation and no obligation expansion occurs in V85-B.",
+      "obligation_family_activation_posture": "named_for_later_expansion_only",
+      "obligation_family_id": "stateful_lifecycle@v1",
+      "obligation_family_label": "stateful lifecycle",
+      "obligation_family_ref": "obligation-family:v85b:stateful_lifecycle@v1",
+      "obligation_family_relation_kind": "applies_by_object_class",
+      "required_future_surfaces": [
+        "V86:obligation-expansion-review"
+      ],
+      "semantic_declaration_session_ref": "semantic-declaration-session:v85a:intent-to-declaration-office",
+      "source_refs": [
+        "apps/api/fixtures/repo_description/vnext_plus239/repo_semantic_declaration_non_authority_guardrail_v239_reference.json",
+        "apps/api/fixtures/repo_description/vnext_plus239/repo_semantic_declaration_source_index_v239_reference.json",
+        "apps/api/fixtures/repo_description/vnext_plus239/repo_turn_semantic_declaration_request_v239_reference.json",
+        "docs/DRAFT_ADEU_SEMANTIC_DECLARATION_META_LOOP_V85B_IMPLEMENTATION_MAPPING_v0.md",
+        "docs/LOCKED_CONTINUATION_vNEXT_PLUS240.md"
+      ],
+      "waiver_posture": "waiver_requires_later_review"
+    },
+    {
+      "applies_to_class_refs": [
+        "registry:v85b:object_class:ui.menu@v1"
+      ],
+      "applies_to_operator_refs": [
+        "registry:v85b:operator:CREATE"
+      ],
+      "evidence_contract_required_posture": "evidence_contract_not_created_by_v85b",
+      "future_expansion_posture": "expansion_requires_future_family",
+      "limitation_note": "unknown_case_handling@v1 is named as an obligation family for review only.",
+      "non_execution_guardrail": "No implementation and no obligation expansion occurs in V85-B.",
+      "obligation_family_activation_posture": "named_for_later_expansion_only",
+      "obligation_family_id": "unknown_case_handling@v1",
+      "obligation_family_label": "unknown case handling",
+      "obligation_family_ref": "obligation-family:v85b:unknown_case_handling@v1",
+      "obligation_family_relation_kind": "applies_by_object_class",
+      "required_future_surfaces": [
+        "V86:obligation-expansion-review"
+      ],
+      "semantic_declaration_session_ref": "semantic-declaration-session:v85a:intent-to-declaration-office",
+      "source_refs": [
+        "apps/api/fixtures/repo_description/vnext_plus239/repo_semantic_declaration_non_authority_guardrail_v239_reference.json",
+        "apps/api/fixtures/repo_description/vnext_plus239/repo_semantic_declaration_source_index_v239_reference.json",
+        "apps/api/fixtures/repo_description/vnext_plus239/repo_turn_semantic_declaration_request_v239_reference.json",
+        "docs/DRAFT_ADEU_SEMANTIC_DECLARATION_META_LOOP_V85B_IMPLEMENTATION_MAPPING_v0.md",
+        "docs/LOCKED_CONTINUATION_vNEXT_PLUS240.md"
+      ],
+      "waiver_posture": "waiver_requires_later_review"
+    },
+    {
+      "applies_to_class_refs": [
+        "registry:v85b:object_class:ui.menu@v1"
+      ],
+      "applies_to_operator_refs": [
+        "registry:v85b:operator:CREATE"
+      ],
+      "evidence_contract_required_posture": "evidence_contract_not_created_by_v85b",
+      "future_expansion_posture": "expansion_requires_future_family",
+      "limitation_note": "waiver_explicitness@v1 is named as an obligation family for review only.",
+      "non_execution_guardrail": "No implementation and no obligation expansion occurs in V85-B.",
+      "obligation_family_activation_posture": "named_for_later_expansion_only",
+      "obligation_family_id": "waiver_explicitness@v1",
+      "obligation_family_label": "waiver explicitness",
+      "obligation_family_ref": "obligation-family:v85b:waiver_explicitness@v1",
+      "obligation_family_relation_kind": "applies_by_object_class",
+      "required_future_surfaces": [
+        "V86:obligation-expansion-review"
+      ],
+      "semantic_declaration_session_ref": "semantic-declaration-session:v85a:intent-to-declaration-office",
+      "source_refs": [
+        "apps/api/fixtures/repo_description/vnext_plus239/repo_semantic_declaration_non_authority_guardrail_v239_reference.json",
+        "apps/api/fixtures/repo_description/vnext_plus239/repo_semantic_declaration_source_index_v239_reference.json",
+        "apps/api/fixtures/repo_description/vnext_plus239/repo_turn_semantic_declaration_request_v239_reference.json",
+        "docs/DRAFT_ADEU_SEMANTIC_DECLARATION_META_LOOP_V85B_IMPLEMENTATION_MAPPING_v0.md",
+        "docs/LOCKED_CONTINUATION_vNEXT_PLUS240.md"
+      ],
+      "waiver_posture": "waiver_requires_later_review"
+    }
+  ],
+  "review_id": "vNext+240",
+  "schema": "repo_obligation_family_registry@1",
+  "semantic_declaration_non_authority_guardrail_id": "repo_semantic_declaration_non_authority_guardrail_62544d11aa2f7cc904e81b7f",
+  "semantic_declaration_source_index_id": "repo_semantic_declaration_source_index_6909fbbd21c955096f26a7a7",
+  "snapshot_id": "vNext+240-semantic-lookup-start",
+  "source_set_id": "source-set:v85b:canonical-lookup-registry",
+  "turn_semantic_declaration_request_id": "repo_turn_semantic_declaration_request_8bebe71e6a4c8405bec9d58f"
+}

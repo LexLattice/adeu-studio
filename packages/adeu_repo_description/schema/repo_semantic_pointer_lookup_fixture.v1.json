@@ -1,0 +1,317 @@
+{
+  "$defs": {
+    "RepoSemanticPointerLookupFixtureRow": {
+      "additionalProperties": false,
+      "properties": {
+        "actual_result_refs": {
+          "items": {
+            "type": "string"
+          },
+          "title": "Actual Result Refs",
+          "type": "array"
+        },
+        "competency_claim_horizon": {
+          "enum": [
+            "pointer_obedience_only",
+            "exact_lookup_only",
+            "natural_binding_not_claimed",
+            "obligation_expansion_not_claimed",
+            "implementation_not_claimed"
+          ],
+          "title": "Competency Claim Horizon",
+          "type": "string"
+        },
+        "expected_conflict_posture": {
+          "enum": [
+            "conflict_absent",
+            "conflict_requires_review",
+            "conflict_blocked"
+          ],
+          "title": "Expected Conflict Posture",
+          "type": "string"
+        },
+        "expected_duplicate_posture": {
+          "enum": [
+            "duplicates_preserved",
+            "duplicates_normalized_by_rule",
+            "duplicates_absent"
+          ],
+          "title": "Expected Duplicate Posture",
+          "type": "string"
+        },
+        "expected_lookup_rows": {
+          "items": {
+            "type": "string"
+          },
+          "title": "Expected Lookup Rows",
+          "type": "array"
+        },
+        "expected_order_posture": {
+          "enum": [
+            "order_preserved",
+            "order_normalized_by_rule",
+            "order_not_applicable"
+          ],
+          "title": "Expected Order Posture",
+          "type": "string"
+        },
+        "expected_unknown_posture": {
+          "enum": [
+            "unknown_absent",
+            "unknown_pointer_abstained",
+            "unknown_registry_gap"
+          ],
+          "title": "Expected Unknown Posture",
+          "type": "string"
+        },
+        "fixture_kind": {
+          "enum": [
+            "opaque_pointer_exact_lookup",
+            "opaque_pointer_duplicate_preservation",
+            "opaque_pointer_unknown_abstain",
+            "explicit_semantic_pointer_lookup",
+            "explicit_semantic_pointer_registry_gap",
+            "distractor_ignored",
+            "conflict_requires_review"
+          ],
+          "title": "Fixture Kind",
+          "type": "string"
+        },
+        "fixture_posture": {
+          "enum": [
+            "fixture_passes_for_review_only",
+            "fixture_records_expected_abstain",
+            "fixture_records_registry_gap",
+            "fixture_blocked_by_conflict",
+            "fixture_future_family_only"
+          ],
+          "title": "Fixture Posture",
+          "type": "string"
+        },
+        "input_pointer_rows": {
+          "items": {
+            "$ref": "#/$defs/RepoSemanticPointerRow"
+          },
+          "minItems": 1,
+          "title": "Input Pointer Rows",
+          "type": "array"
+        },
+        "limitation_note": {
+          "title": "Limitation Note",
+          "type": "string"
+        },
+        "lookup_fixture_ref": {
+          "title": "Lookup Fixture Ref",
+          "type": "string"
+        },
+        "non_authority_guardrail_refs": {
+          "items": {
+            "type": "string"
+          },
+          "minItems": 1,
+          "title": "Non Authority Guardrail Refs",
+          "type": "array"
+        },
+        "pointer_competency_kind": {
+          "enum": [
+            "opaque_pointer_obedience",
+            "explicit_pointer_lookup",
+            "natural_binding_candidate_lookup",
+            "registry_gap_detection",
+            "conflict_detection",
+            "distractor_resistance"
+          ],
+          "title": "Pointer Competency Kind",
+          "type": "string"
+        },
+        "semantic_declaration_session_ref": {
+          "title": "Semantic Declaration Session Ref",
+          "type": "string"
+        },
+        "source_refs": {
+          "items": {
+            "type": "string"
+          },
+          "minItems": 1,
+          "title": "Source Refs",
+          "type": "array"
+        }
+      },
+      "required": [
+        "lookup_fixture_ref",
+        "semantic_declaration_session_ref",
+        "source_refs",
+        "fixture_kind",
+        "pointer_competency_kind",
+        "competency_claim_horizon",
+        "input_pointer_rows",
+        "expected_order_posture",
+        "expected_duplicate_posture",
+        "expected_unknown_posture",
+        "expected_conflict_posture",
+        "fixture_posture",
+        "non_authority_guardrail_refs",
+        "limitation_note"
+      ],
+      "title": "RepoSemanticPointerLookupFixtureRow",
+      "type": "object"
+    },
+    "RepoSemanticPointerRow": {
+      "additionalProperties": false,
+      "properties": {
+        "limitation_note": {
+          "title": "Limitation Note",
+          "type": "string"
+        },
+        "normalization_posture": {
+          "enum": [
+            "normalization_not_required",
+            "alias_normalized_by_registry",
+            "normalization_rejected",
+            "normalization_not_authorized",
+            "not_applicable"
+          ],
+          "title": "Normalization Posture",
+          "type": "string"
+        },
+        "parsed_class": {
+          "title": "Parsed Class",
+          "type": "string"
+        },
+        "parsed_operator": {
+          "title": "Parsed Operator",
+          "type": "string"
+        },
+        "parsed_version": {
+          "title": "Parsed Version",
+          "type": "string"
+        },
+        "pointer_parse_posture": {
+          "enum": [
+            "parsed_exact",
+            "parsed_with_alias",
+            "malformed_pointer",
+            "unknown_operator",
+            "unknown_class",
+            "unknown_version",
+            "ambiguous_parse",
+            "abstain_required"
+          ],
+          "title": "Pointer Parse Posture",
+          "type": "string"
+        },
+        "pointer_ref": {
+          "title": "Pointer Ref",
+          "type": "string"
+        },
+        "raw_pointer": {
+          "title": "Raw Pointer",
+          "type": "string"
+        },
+        "semantic_declaration_session_ref": {
+          "title": "Semantic Declaration Session Ref",
+          "type": "string"
+        },
+        "source_refs": {
+          "items": {
+            "type": "string"
+          },
+          "minItems": 1,
+          "title": "Source Refs",
+          "type": "array"
+        }
+      },
+      "required": [
+        "pointer_ref",
+        "semantic_declaration_session_ref",
+        "raw_pointer",
+        "parsed_operator",
+        "parsed_class",
+        "parsed_version",
+        "pointer_parse_posture",
+        "normalization_posture",
+        "source_refs",
+        "limitation_note"
+      ],
+      "title": "RepoSemanticPointerRow",
+      "type": "object"
+    }
+  },
+  "additionalProperties": false,
+  "properties": {
+    "canonical_meta_lookup_index_id": {
+      "title": "Canonical Meta Lookup Index Id",
+      "type": "string"
+    },
+    "lookup_fixture_rows": {
+      "items": {
+        "$ref": "#/$defs/RepoSemanticPointerLookupFixtureRow"
+      },
+      "minItems": 1,
+      "title": "Lookup Fixture Rows",
+      "type": "array"
+    },
+    "lookup_fixture_summary": {
+      "title": "Lookup Fixture Summary",
+      "type": "string"
+    },
+    "obligation_family_registry_id": {
+      "title": "Obligation Family Registry Id",
+      "type": "string"
+    },
+    "review_id": {
+      "title": "Review Id",
+      "type": "string"
+    },
+    "schema": {
+      "const": "repo_semantic_pointer_lookup_fixture@1",
+      "title": "Schema",
+      "type": "string"
+    },
+    "semantic_declaration_non_authority_guardrail_id": {
+      "title": "Semantic Declaration Non Authority Guardrail Id",
+      "type": "string"
+    },
+    "semantic_declaration_source_index_id": {
+      "title": "Semantic Declaration Source Index Id",
+      "type": "string"
+    },
+    "semantic_operator_class_registry_id": {
+      "title": "Semantic Operator Class Registry Id",
+      "type": "string"
+    },
+    "semantic_pointer_lookup_fixture_id": {
+      "title": "Semantic Pointer Lookup Fixture Id",
+      "type": "string"
+    },
+    "snapshot_id": {
+      "title": "Snapshot Id",
+      "type": "string"
+    },
+    "source_set_id": {
+      "title": "Source Set Id",
+      "type": "string"
+    },
+    "turn_semantic_declaration_request_id": {
+      "title": "Turn Semantic Declaration Request Id",
+      "type": "string"
+    }
+  },
+  "required": [
+    "schema",
+    "semantic_pointer_lookup_fixture_id",
+    "canonical_meta_lookup_index_id",
+    "semantic_operator_class_registry_id",
+    "obligation_family_registry_id",
+    "semantic_declaration_source_index_id",
+    "turn_semantic_declaration_request_id",
+    "semantic_declaration_non_authority_guardrail_id",
+    "review_id",
+    "snapshot_id",
+    "source_set_id",
+    "lookup_fixture_rows",
+    "lookup_fixture_summary"
+  ],
+  "title": "RepoSemanticPointerLookupFixture",
+  "type": "object"
+}

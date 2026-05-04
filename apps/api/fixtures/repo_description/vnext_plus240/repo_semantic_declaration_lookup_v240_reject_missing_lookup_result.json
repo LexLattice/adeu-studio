@@ -1,0 +1,239 @@
+{
+  "canonical_meta_lookup_index_id": "repo_canonical_meta_lookup_index_63c6847b869f81055d0ab708",
+  "lookup_fixture_rows": [
+    {
+      "actual_result_refs": [
+        "lookup:v85b:missing"
+      ],
+      "competency_claim_horizon": "exact_lookup_only",
+      "expected_conflict_posture": "conflict_absent",
+      "expected_duplicate_posture": "duplicates_absent",
+      "expected_lookup_rows": [
+        "obligation-family:v85b:birth_continuation_death_algebra@v1",
+        "obligation-family:v85b:failure_path_fail_closed@v1",
+        "obligation-family:v85b:rollback_cleanup_teardown@v1",
+        "obligation-family:v85b:stateful_lifecycle@v1"
+      ],
+      "expected_order_posture": "order_preserved",
+      "expected_unknown_posture": "unknown_absent",
+      "fixture_kind": "explicit_semantic_pointer_lookup",
+      "fixture_posture": "fixture_passes_for_review_only",
+      "input_pointer_rows": [
+        {
+          "limitation_note": "Pointer row is recorded for lookup review only.",
+          "normalization_posture": "normalization_not_required",
+          "parsed_class": "ui.menu@v1",
+          "parsed_operator": "CREATE",
+          "parsed_version": "v1",
+          "pointer_parse_posture": "parsed_exact",
+          "pointer_ref": "pointer:v85b:fixture:create-ui-menu",
+          "raw_pointer": "CREATE ui.menu@v1",
+          "semantic_declaration_session_ref": "semantic-declaration-session:v85a:intent-to-declaration-office",
+          "source_refs": [
+            "apps/api/fixtures/repo_description/vnext_plus239/repo_semantic_declaration_non_authority_guardrail_v239_reference.json",
+            "apps/api/fixtures/repo_description/vnext_plus239/repo_semantic_declaration_source_index_v239_reference.json",
+            "apps/api/fixtures/repo_description/vnext_plus239/repo_turn_semantic_declaration_request_v239_reference.json",
+            "docs/DRAFT_ADEU_SEMANTIC_DECLARATION_META_LOOP_V85B_IMPLEMENTATION_MAPPING_v0.md",
+            "docs/LOCKED_CONTINUATION_vNEXT_PLUS240.md"
+          ]
+        }
+      ],
+      "limitation_note": "Explicit semantic fixture is for lookup review only.",
+      "lookup_fixture_ref": "lookup-fixture:v85b:explicit-create-ui-menu",
+      "non_authority_guardrail_refs": [
+        "guardrail:v85a:intent-to-declaration-office"
+      ],
+      "pointer_competency_kind": "explicit_pointer_lookup",
+      "semantic_declaration_session_ref": "semantic-declaration-session:v85a:intent-to-declaration-office",
+      "source_refs": [
+        "apps/api/fixtures/repo_description/vnext_plus239/repo_semantic_declaration_non_authority_guardrail_v239_reference.json",
+        "apps/api/fixtures/repo_description/vnext_plus239/repo_semantic_declaration_source_index_v239_reference.json",
+        "apps/api/fixtures/repo_description/vnext_plus239/repo_turn_semantic_declaration_request_v239_reference.json",
+        "docs/DRAFT_ADEU_SEMANTIC_DECLARATION_META_LOOP_V85B_IMPLEMENTATION_MAPPING_v0.md",
+        "docs/LOCKED_CONTINUATION_vNEXT_PLUS240.md"
+      ]
+    },
+    {
+      "actual_result_refs": [
+        "lookup:v85b:opaque-m42-sequence"
+      ],
+      "competency_claim_horizon": "pointer_obedience_only",
+      "expected_conflict_posture": "conflict_absent",
+      "expected_duplicate_posture": "duplicates_preserved",
+      "expected_lookup_rows": [
+        "A1",
+        "A9",
+        "C4",
+        "Z2"
+      ],
+      "expected_order_posture": "order_preserved",
+      "expected_unknown_posture": "unknown_absent",
+      "fixture_kind": "opaque_pointer_exact_lookup",
+      "fixture_posture": "fixture_passes_for_review_only",
+      "input_pointer_rows": [
+        {
+          "limitation_note": "Pointer row is recorded for lookup review only.",
+          "normalization_posture": "normalization_not_required",
+          "parsed_class": "M-42",
+          "parsed_operator": "OPAQUE",
+          "parsed_version": "opaque",
+          "pointer_parse_posture": "parsed_exact",
+          "pointer_ref": "pointer:v85b:fixture:opaque:M-42",
+          "raw_pointer": "M-42",
+          "semantic_declaration_session_ref": "semantic-declaration-session:v85a:intent-to-declaration-office",
+          "source_refs": [
+            "apps/api/fixtures/repo_description/vnext_plus239/repo_semantic_declaration_non_authority_guardrail_v239_reference.json",
+            "apps/api/fixtures/repo_description/vnext_plus239/repo_semantic_declaration_source_index_v239_reference.json",
+            "apps/api/fixtures/repo_description/vnext_plus239/repo_turn_semantic_declaration_request_v239_reference.json",
+            "docs/DRAFT_ADEU_SEMANTIC_DECLARATION_META_LOOP_V85B_IMPLEMENTATION_MAPPING_v0.md",
+            "docs/LOCKED_CONTINUATION_vNEXT_PLUS240.md"
+          ]
+        },
+        {
+          "limitation_note": "Pointer row is recorded for lookup review only.",
+          "normalization_posture": "normalization_not_required",
+          "parsed_class": "A1",
+          "parsed_operator": "OPAQUE",
+          "parsed_version": "opaque",
+          "pointer_parse_posture": "parsed_exact",
+          "pointer_ref": "pointer:v85b:fixture:opaque:A1",
+          "raw_pointer": "A1",
+          "semantic_declaration_session_ref": "semantic-declaration-session:v85a:intent-to-declaration-office",
+          "source_refs": [
+            "apps/api/fixtures/repo_description/vnext_plus239/repo_semantic_declaration_non_authority_guardrail_v239_reference.json",
+            "apps/api/fixtures/repo_description/vnext_plus239/repo_semantic_declaration_source_index_v239_reference.json",
+            "apps/api/fixtures/repo_description/vnext_plus239/repo_turn_semantic_declaration_request_v239_reference.json",
+            "docs/DRAFT_ADEU_SEMANTIC_DECLARATION_META_LOOP_V85B_IMPLEMENTATION_MAPPING_v0.md",
+            "docs/LOCKED_CONTINUATION_vNEXT_PLUS240.md"
+          ]
+        },
+        {
+          "limitation_note": "Pointer row is recorded for lookup review only.",
+          "normalization_posture": "normalization_not_required",
+          "parsed_class": "A9",
+          "parsed_operator": "OPAQUE",
+          "parsed_version": "opaque",
+          "pointer_parse_posture": "parsed_exact",
+          "pointer_ref": "pointer:v85b:fixture:opaque:A9",
+          "raw_pointer": "A9",
+          "semantic_declaration_session_ref": "semantic-declaration-session:v85a:intent-to-declaration-office",
+          "source_refs": [
+            "apps/api/fixtures/repo_description/vnext_plus239/repo_semantic_declaration_non_authority_guardrail_v239_reference.json",
+            "apps/api/fixtures/repo_description/vnext_plus239/repo_semantic_declaration_source_index_v239_reference.json",
+            "apps/api/fixtures/repo_description/vnext_plus239/repo_turn_semantic_declaration_request_v239_reference.json",
+            "docs/DRAFT_ADEU_SEMANTIC_DECLARATION_META_LOOP_V85B_IMPLEMENTATION_MAPPING_v0.md",
+            "docs/LOCKED_CONTINUATION_vNEXT_PLUS240.md"
+          ]
+        },
+        {
+          "limitation_note": "Pointer row is recorded for lookup review only.",
+          "normalization_posture": "normalization_not_required",
+          "parsed_class": "C4",
+          "parsed_operator": "OPAQUE",
+          "parsed_version": "opaque",
+          "pointer_parse_posture": "parsed_exact",
+          "pointer_ref": "pointer:v85b:fixture:opaque:C4",
+          "raw_pointer": "C4",
+          "semantic_declaration_session_ref": "semantic-declaration-session:v85a:intent-to-declaration-office",
+          "source_refs": [
+            "apps/api/fixtures/repo_description/vnext_plus239/repo_semantic_declaration_non_authority_guardrail_v239_reference.json",
+            "apps/api/fixtures/repo_description/vnext_plus239/repo_semantic_declaration_source_index_v239_reference.json",
+            "apps/api/fixtures/repo_description/vnext_plus239/repo_turn_semantic_declaration_request_v239_reference.json",
+            "docs/DRAFT_ADEU_SEMANTIC_DECLARATION_META_LOOP_V85B_IMPLEMENTATION_MAPPING_v0.md",
+            "docs/LOCKED_CONTINUATION_vNEXT_PLUS240.md"
+          ]
+        },
+        {
+          "limitation_note": "Pointer row is recorded for lookup review only.",
+          "normalization_posture": "normalization_not_required",
+          "parsed_class": "Z2",
+          "parsed_operator": "OPAQUE",
+          "parsed_version": "opaque",
+          "pointer_parse_posture": "parsed_exact",
+          "pointer_ref": "pointer:v85b:fixture:opaque:Z2",
+          "raw_pointer": "Z2",
+          "semantic_declaration_session_ref": "semantic-declaration-session:v85a:intent-to-declaration-office",
+          "source_refs": [
+            "apps/api/fixtures/repo_description/vnext_plus239/repo_semantic_declaration_non_authority_guardrail_v239_reference.json",
+            "apps/api/fixtures/repo_description/vnext_plus239/repo_semantic_declaration_source_index_v239_reference.json",
+            "apps/api/fixtures/repo_description/vnext_plus239/repo_turn_semantic_declaration_request_v239_reference.json",
+            "docs/DRAFT_ADEU_SEMANTIC_DECLARATION_META_LOOP_V85B_IMPLEMENTATION_MAPPING_v0.md",
+            "docs/LOCKED_CONTINUATION_vNEXT_PLUS240.md"
+          ]
+        }
+      ],
+      "limitation_note": "Opaque pointer fixture proves obedience for review only.",
+      "lookup_fixture_ref": "lookup-fixture:v85b:opaque-m42-sequence",
+      "non_authority_guardrail_refs": [
+        "guardrail:v85a:intent-to-declaration-office"
+      ],
+      "pointer_competency_kind": "opaque_pointer_obedience",
+      "semantic_declaration_session_ref": "semantic-declaration-session:v85a:intent-to-declaration-office",
+      "source_refs": [
+        "apps/api/fixtures/repo_description/vnext_plus239/repo_semantic_declaration_non_authority_guardrail_v239_reference.json",
+        "apps/api/fixtures/repo_description/vnext_plus239/repo_semantic_declaration_source_index_v239_reference.json",
+        "apps/api/fixtures/repo_description/vnext_plus239/repo_turn_semantic_declaration_request_v239_reference.json",
+        "docs/DRAFT_ADEU_SEMANTIC_DECLARATION_META_LOOP_V85B_IMPLEMENTATION_MAPPING_v0.md",
+        "docs/LOCKED_CONTINUATION_vNEXT_PLUS240.md"
+      ]
+    },
+    {
+      "actual_result_refs": [
+        "lookup:v85b:unknown-class-registry-gap"
+      ],
+      "competency_claim_horizon": "natural_binding_not_claimed",
+      "expected_conflict_posture": "conflict_absent",
+      "expected_duplicate_posture": "duplicates_absent",
+      "expected_lookup_rows": [],
+      "expected_order_posture": "order_preserved",
+      "expected_unknown_posture": "unknown_registry_gap",
+      "fixture_kind": "explicit_semantic_pointer_registry_gap",
+      "fixture_posture": "fixture_records_registry_gap",
+      "input_pointer_rows": [
+        {
+          "limitation_note": "Pointer row is recorded for lookup review only.",
+          "normalization_posture": "normalization_rejected",
+          "parsed_class": "unknown.widget@v9",
+          "parsed_operator": "CREATE",
+          "parsed_version": "v9",
+          "pointer_parse_posture": "unknown_class",
+          "pointer_ref": "pointer:v85b:fixture:unknown-widget",
+          "raw_pointer": "CREATE unknown.widget@v9",
+          "semantic_declaration_session_ref": "semantic-declaration-session:v85a:intent-to-declaration-office",
+          "source_refs": [
+            "apps/api/fixtures/repo_description/vnext_plus239/repo_semantic_declaration_non_authority_guardrail_v239_reference.json",
+            "apps/api/fixtures/repo_description/vnext_plus239/repo_semantic_declaration_source_index_v239_reference.json",
+            "apps/api/fixtures/repo_description/vnext_plus239/repo_turn_semantic_declaration_request_v239_reference.json",
+            "docs/DRAFT_ADEU_SEMANTIC_DECLARATION_META_LOOP_V85B_IMPLEMENTATION_MAPPING_v0.md",
+            "docs/LOCKED_CONTINUATION_vNEXT_PLUS240.md"
+          ]
+        }
+      ],
+      "limitation_note": "Unknown class fixture routes to registry-gap review.",
+      "lookup_fixture_ref": "lookup-fixture:v85b:unknown-class-abstain",
+      "non_authority_guardrail_refs": [
+        "guardrail:v85a:unknown-class-registry-gap"
+      ],
+      "pointer_competency_kind": "registry_gap_detection",
+      "semantic_declaration_session_ref": "semantic-declaration-session:v85a:intent-to-declaration-office",
+      "source_refs": [
+        "apps/api/fixtures/repo_description/vnext_plus239/repo_semantic_declaration_non_authority_guardrail_v239_reference.json",
+        "apps/api/fixtures/repo_description/vnext_plus239/repo_semantic_declaration_source_index_v239_reference.json",
+        "apps/api/fixtures/repo_description/vnext_plus239/repo_turn_semantic_declaration_request_v239_reference.json",
+        "docs/DRAFT_ADEU_SEMANTIC_DECLARATION_META_LOOP_V85B_IMPLEMENTATION_MAPPING_v0.md",
+        "docs/LOCKED_CONTINUATION_vNEXT_PLUS240.md"
+      ]
+    }
+  ],
+  "lookup_fixture_summary": "V85-B pointer fixtures prove lookup behavior for review with no implementation.",
+  "obligation_family_registry_id": "repo_obligation_family_registry_8f08f758cfa0ee0f47030253",
+  "review_id": "vNext+240",
+  "schema": "repo_semantic_pointer_lookup_fixture@1",
+  "semantic_declaration_non_authority_guardrail_id": "repo_semantic_declaration_non_authority_guardrail_62544d11aa2f7cc904e81b7f",
+  "semantic_declaration_source_index_id": "repo_semantic_declaration_source_index_6909fbbd21c955096f26a7a7",
+  "semantic_operator_class_registry_id": "repo_semantic_operator_class_registry_b3c95c4a7c17a0202cd6b226",
+  "semantic_pointer_lookup_fixture_id": "repo_semantic_pointer_lookup_fixture_426ad7df52c63498e115731c",
+  "snapshot_id": "vNext+240-semantic-lookup-start",
+  "source_set_id": "source-set:v85b:canonical-lookup-registry",
+  "turn_semantic_declaration_request_id": "repo_turn_semantic_declaration_request_8bebe71e6a4c8405bec9d58f"
+}

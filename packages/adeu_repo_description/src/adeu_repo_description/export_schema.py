@@ -208,8 +208,12 @@ from .runtime_permission_review import (
     RepoRuntimeTelemetryRequirement,
 )
 from .semantic_declaration_meta_loop import (
+    RepoCanonicalMetaLookupIndex,
+    RepoObligationFamilyRegistry,
     RepoSemanticDeclarationNonAuthorityGuardrail,
     RepoSemanticDeclarationSourceIndex,
+    RepoSemanticOperatorClassRegistry,
+    RepoSemanticPointerLookupFixture,
     RepoTurnSemanticDeclarationRequest,
 )
 from .semantic_implementation_spec import (
@@ -738,14 +742,26 @@ def main() -> None:
     work_packet_activation_family_closeout_alignment_schema = (
         RepoWorkPacketActivationFamilyCloseoutAlignment.model_json_schema(by_alias=True)
     )
-    semantic_declaration_source_index_schema = (
-        RepoSemanticDeclarationSourceIndex.model_json_schema(by_alias=True)
+    semantic_declaration_source_index_schema = RepoSemanticDeclarationSourceIndex.model_json_schema(
+        by_alias=True
     )
-    turn_semantic_declaration_request_schema = (
-        RepoTurnSemanticDeclarationRequest.model_json_schema(by_alias=True)
+    turn_semantic_declaration_request_schema = RepoTurnSemanticDeclarationRequest.model_json_schema(
+        by_alias=True
     )
     semantic_declaration_non_authority_guardrail_schema = (
         RepoSemanticDeclarationNonAuthorityGuardrail.model_json_schema(by_alias=True)
+    )
+    canonical_meta_lookup_index_schema = RepoCanonicalMetaLookupIndex.model_json_schema(
+        by_alias=True
+    )
+    semantic_operator_class_registry_schema = RepoSemanticOperatorClassRegistry.model_json_schema(
+        by_alias=True
+    )
+    obligation_family_registry_schema = RepoObligationFamilyRegistry.model_json_schema(
+        by_alias=True
+    )
+    semantic_pointer_lookup_fixture_schema = RepoSemanticPointerLookupFixture.model_json_schema(
+        by_alias=True
     )
 
     _assert_no_absolute_path_material(dependency_register_v1_schema, repo_root_path=root)
@@ -1197,6 +1213,10 @@ def main() -> None:
         semantic_declaration_non_authority_guardrail_schema,
         repo_root_path=root,
     )
+    _assert_no_absolute_path_material(canonical_meta_lookup_index_schema, repo_root_path=root)
+    _assert_no_absolute_path_material(semantic_operator_class_registry_schema, repo_root_path=root)
+    _assert_no_absolute_path_material(obligation_family_registry_schema, repo_root_path=root)
+    _assert_no_absolute_path_material(semantic_pointer_lookup_fixture_schema, repo_root_path=root)
 
     _write_schema(
         root
@@ -3125,13 +3145,44 @@ def main() -> None:
         turn_semantic_declaration_request_schema,
     )
     _write_schema(
-        repo_description_schema_root
-        / "repo_semantic_declaration_non_authority_guardrail.v1.json",
+        repo_description_schema_root / "repo_semantic_declaration_non_authority_guardrail.v1.json",
         semantic_declaration_non_authority_guardrail_schema,
     )
     _write_schema(
         root / "spec" / "repo_semantic_declaration_non_authority_guardrail.schema.json",
         semantic_declaration_non_authority_guardrail_schema,
+    )
+    _write_schema(
+        repo_description_schema_root / "repo_canonical_meta_lookup_index.v1.json",
+        canonical_meta_lookup_index_schema,
+    )
+    _write_schema(
+        root / "spec" / "repo_canonical_meta_lookup_index.schema.json",
+        canonical_meta_lookup_index_schema,
+    )
+    _write_schema(
+        repo_description_schema_root / "repo_semantic_operator_class_registry.v1.json",
+        semantic_operator_class_registry_schema,
+    )
+    _write_schema(
+        root / "spec" / "repo_semantic_operator_class_registry.schema.json",
+        semantic_operator_class_registry_schema,
+    )
+    _write_schema(
+        repo_description_schema_root / "repo_obligation_family_registry.v1.json",
+        obligation_family_registry_schema,
+    )
+    _write_schema(
+        root / "spec" / "repo_obligation_family_registry.schema.json",
+        obligation_family_registry_schema,
+    )
+    _write_schema(
+        repo_description_schema_root / "repo_semantic_pointer_lookup_fixture.v1.json",
+        semantic_pointer_lookup_fixture_schema,
+    )
+    _write_schema(
+        root / "spec" / "repo_semantic_pointer_lookup_fixture.schema.json",
+        semantic_pointer_lookup_fixture_schema,
     )
 
 

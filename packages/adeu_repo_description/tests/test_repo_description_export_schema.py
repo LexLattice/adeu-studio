@@ -34,6 +34,7 @@ from adeu_repo_description import (
     REPO_CANDIDATE_REVIEW_CONFLICT_REGISTER_SCHEMA,
     REPO_CANDIDATE_REVIEW_GAP_SCAN_SCHEMA,
     REPO_CANDIDATE_SOURCE_REGISTER_SCHEMA,
+    REPO_CANONICAL_META_LOOKUP_INDEX_SCHEMA,
     REPO_COMMAND_PREFLIGHT_CONTRACT_SCHEMA,
     REPO_COMMAND_SCOPE_AUTHORIZATION_BOUNDARY_SCHEMA,
     REPO_COMMIT_RELEASE_AUTHORITY_POSTURE_SCHEMA,
@@ -92,6 +93,7 @@ from adeu_repo_description import (
     REPO_INTENT_SOURCE_INDEX_SCHEMA,
     REPO_INTENT_TO_WORK_PACKET_HANDOFF_SCHEMA,
     REPO_MODEL_OUTPUT_COMPARISON_PROJECTION_SCHEMA,
+    REPO_OBLIGATION_FAMILY_REGISTRY_SCHEMA,
     REPO_OPERATOR_INGRESS_CANDIDATE_BINDING_SCHEMA,
     REPO_OPERATOR_PROJECTION_CASE_VIEW_SCHEMA,
     REPO_OPERATOR_PROJECTION_FAMILY_CLOSEOUT_ALIGNMENT_SCHEMA,
@@ -148,6 +150,8 @@ from adeu_repo_description import (
     REPO_SEMANTIC_DECLARATION_SOURCE_INDEX_SCHEMA,
     REPO_SEMANTIC_IMPLEMENTATION_SPEC_FAMILY_CLOSEOUT_ALIGNMENT_SCHEMA,
     REPO_SEMANTIC_INTENT_CONTRACT_SCHEMA,
+    REPO_SEMANTIC_OPERATOR_CLASS_REGISTRY_SCHEMA,
+    REPO_SEMANTIC_POINTER_LOOKUP_FIXTURE_SCHEMA,
     REPO_SUPPORT_LINEAGE_REGISTER_SCHEMA,
     REPO_SYMBOL_CATALOG_SCHEMA,
     REPO_TEST_INTENT_MATRIX_SCHEMA,
@@ -1459,6 +1463,38 @@ def _schema_pairs() -> dict[str, tuple[Path, Path]]:
             / "schema"
             / "repo_semantic_declaration_non_authority_guardrail.v1.json",
             root / "spec" / "repo_semantic_declaration_non_authority_guardrail.schema.json",
+        ),
+        REPO_CANONICAL_META_LOOKUP_INDEX_SCHEMA: (
+            root
+            / "packages"
+            / "adeu_repo_description"
+            / "schema"
+            / "repo_canonical_meta_lookup_index.v1.json",
+            root / "spec" / "repo_canonical_meta_lookup_index.schema.json",
+        ),
+        REPO_SEMANTIC_OPERATOR_CLASS_REGISTRY_SCHEMA: (
+            root
+            / "packages"
+            / "adeu_repo_description"
+            / "schema"
+            / "repo_semantic_operator_class_registry.v1.json",
+            root / "spec" / "repo_semantic_operator_class_registry.schema.json",
+        ),
+        REPO_OBLIGATION_FAMILY_REGISTRY_SCHEMA: (
+            root
+            / "packages"
+            / "adeu_repo_description"
+            / "schema"
+            / "repo_obligation_family_registry.v1.json",
+            root / "spec" / "repo_obligation_family_registry.schema.json",
+        ),
+        REPO_SEMANTIC_POINTER_LOOKUP_FIXTURE_SCHEMA: (
+            root
+            / "packages"
+            / "adeu_repo_description"
+            / "schema"
+            / "repo_semantic_pointer_lookup_fixture.v1.json",
+            root / "spec" / "repo_semantic_pointer_lookup_fixture.schema.json",
         ),
     }
 

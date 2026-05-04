@@ -28,15 +28,15 @@ from .work_packet_activation_review import (
     derive_v84c_work_packet_activation_closeout_bundle,
 )
 
-REPO_TURN_SEMANTIC_DECLARATION_REQUEST_SCHEMA = (
-    "repo_turn_semantic_declaration_request@1"
-)
-REPO_SEMANTIC_DECLARATION_SOURCE_INDEX_SCHEMA = (
-    "repo_semantic_declaration_source_index@1"
-)
+REPO_TURN_SEMANTIC_DECLARATION_REQUEST_SCHEMA = "repo_turn_semantic_declaration_request@1"
+REPO_SEMANTIC_DECLARATION_SOURCE_INDEX_SCHEMA = "repo_semantic_declaration_source_index@1"
 REPO_SEMANTIC_DECLARATION_NON_AUTHORITY_GUARDRAIL_SCHEMA = (
     "repo_semantic_declaration_non_authority_guardrail@1"
 )
+REPO_CANONICAL_META_LOOKUP_INDEX_SCHEMA = "repo_canonical_meta_lookup_index@1"
+REPO_SEMANTIC_OPERATOR_CLASS_REGISTRY_SCHEMA = "repo_semantic_operator_class_registry@1"
+REPO_OBLIGATION_FAMILY_REGISTRY_SCHEMA = "repo_obligation_family_registry@1"
+REPO_SEMANTIC_POINTER_LOOKUP_FIXTURE_SCHEMA = "repo_semantic_pointer_lookup_fixture@1"
 
 SemanticDeclarationSourceRole = Literal[
     "v84_readiness_summary_source",
@@ -306,6 +306,207 @@ ForbiddenDownstreamAction = Literal[
     "amend_recursive_policy",
     "select_v86",
 ]
+LookupInputKind = Literal[
+    "opaque_pointer",
+    "explicit_semantic_pointer",
+    "natural_binding_candidate",
+    "registry_gap_candidate",
+    "support_context_only",
+]
+LookupPosture = Literal[
+    "exact_match_for_review_only",
+    "ambiguous_match",
+    "unknown_pointer_abstained",
+    "registry_gap",
+    "conflict_requires_review",
+    "blocked_by_missing_source",
+    "future_family_only",
+]
+V85BCanonicalLookupStatus = Literal[
+    "exact_match_for_review_only",
+    "ambiguous_match",
+    "unknown_pointer_abstained",
+    "registry_gap",
+    "conflict_requires_review",
+    "lookup_blocked_by_missing_source",
+    "future_family_only",
+]
+PointerParsePosture = Literal[
+    "parsed_exact",
+    "parsed_with_alias",
+    "malformed_pointer",
+    "unknown_operator",
+    "unknown_class",
+    "unknown_version",
+    "ambiguous_parse",
+    "abstain_required",
+]
+PointerNormalizationPosture = Literal[
+    "normalization_not_required",
+    "alias_normalized_by_registry",
+    "normalization_rejected",
+    "normalization_not_authorized",
+    "not_applicable",
+]
+PointerCompetencyKind = Literal[
+    "opaque_pointer_obedience",
+    "explicit_pointer_lookup",
+    "natural_binding_candidate_lookup",
+    "registry_gap_detection",
+    "conflict_detection",
+    "distractor_resistance",
+]
+CompetencyClaimHorizon = Literal[
+    "pointer_obedience_only",
+    "exact_lookup_only",
+    "natural_binding_not_claimed",
+    "obligation_expansion_not_claimed",
+    "implementation_not_claimed",
+]
+OrderPreservationPosture = Literal[
+    "order_preserved_for_review",
+    "order_normalized_by_declared_rule",
+    "order_not_applicable",
+]
+DuplicatePreservationPosture = Literal[
+    "duplicates_preserved_for_review",
+    "duplicates_normalized_by_declared_rule",
+    "duplicates_not_present",
+]
+UnknownPointerPosture = Literal[
+    "unknown_pointer_not_present",
+    "unknown_pointer_abstained",
+    "unknown_pointer_registry_gap",
+    "unknown_pointer_conflict_requires_review",
+]
+ConflictPosture = Literal[
+    "no_conflict",
+    "conflict_requires_review",
+    "conflict_blocked_by_registry_gap",
+    "conflict_not_applicable",
+]
+LookupObligationExpansionPosture = Literal[
+    "lookup_result_only",
+    "named_for_later_expansion_only",
+    "expansion_requires_v86_or_later",
+    "expansion_blocked_by_ambiguity",
+    "expansion_blocked_by_registry_gap",
+    "expansion_not_authorized_by_v85",
+]
+RegistryEntryKind = Literal[
+    "operator_entry",
+    "class_entry",
+    "alias_entry",
+    "support_context_entry",
+    "registry_gap_marker",
+]
+RegistryDomain = Literal[
+    "operator",
+    "object_class",
+    "source_class",
+    "target_class",
+    "modifier",
+    "relation_class",
+    "obligation_family",
+]
+RegistryEntryStatus = Literal[
+    "current_registry_entry",
+    "candidate_for_review_only",
+    "deprecated_context",
+    "registry_gap",
+]
+RegistryEntryCurrentness = Literal[
+    "current_registry_entry",
+    "support_context_only",
+    "historical_context_only",
+    "stale_or_superseded",
+    "unknown_needs_review",
+]
+RegistryEntryScopePosture = Literal[
+    "lookup_review_only",
+    "support_context_only",
+    "future_family_only",
+]
+OperatorSemanticsPosture = Literal[
+    "action_verb_for_declaration_only",
+    "guard_or_route_for_later_authority_review",
+    "not_runtime_behavior",
+]
+ClassSemanticsPosture = Literal[
+    "semantic_class_for_lookup_only",
+    "not_runtime_class_behavior",
+    "not_implementation_target",
+]
+ObligationFamilyRelationKind = Literal[
+    "applies_by_operator",
+    "applies_by_object_class",
+    "applies_by_target_context",
+    "applies_by_modifier",
+    "applies_by_negative_cue",
+    "applies_by_authority_boundary",
+    "conflict_or_exclusion",
+    "requires_later_disambiguation",
+]
+ObligationFamilyActivationPosture = Literal[
+    "lookup_result_only",
+    "named_for_later_expansion_only",
+    "expansion_requires_v86_or_later",
+    "expansion_blocked_by_ambiguity",
+    "expansion_blocked_by_registry_gap",
+    "expansion_not_authorized_by_v85",
+]
+FutureExpansionPosture = Literal[
+    "named_for_later_expansion_only",
+    "expansion_requires_future_family",
+    "expansion_blocked_by_missing_registry",
+    "expansion_not_authorized_by_v85",
+]
+EvidenceContractRequiredPosture = Literal[
+    "evidence_contract_required_later",
+    "evidence_contract_not_created_by_v85b",
+    "not_applicable",
+]
+WaiverPosture = Literal[
+    "waiver_not_present",
+    "waiver_requires_later_review",
+    "waiver_not_applicable",
+]
+LookupFixtureKind = Literal[
+    "opaque_pointer_exact_lookup",
+    "opaque_pointer_duplicate_preservation",
+    "opaque_pointer_unknown_abstain",
+    "explicit_semantic_pointer_lookup",
+    "explicit_semantic_pointer_registry_gap",
+    "distractor_ignored",
+    "conflict_requires_review",
+]
+FixturePosture = Literal[
+    "fixture_passes_for_review_only",
+    "fixture_records_expected_abstain",
+    "fixture_records_registry_gap",
+    "fixture_blocked_by_conflict",
+    "fixture_future_family_only",
+]
+ExpectedOrderPosture = Literal[
+    "order_preserved",
+    "order_normalized_by_rule",
+    "order_not_applicable",
+]
+ExpectedDuplicatePosture = Literal[
+    "duplicates_preserved",
+    "duplicates_normalized_by_rule",
+    "duplicates_absent",
+]
+ExpectedUnknownPosture = Literal[
+    "unknown_absent",
+    "unknown_pointer_abstained",
+    "unknown_registry_gap",
+]
+ExpectedConflictPosture = Literal[
+    "conflict_absent",
+    "conflict_requires_review",
+    "conflict_blocked",
+]
 
 _V84C_READINESS_FIXTURE = (
     "apps/api/fixtures/repo_description/vnext_plus238/"
@@ -319,16 +520,10 @@ _V84C_CLOSEOUT_FIXTURE = (
     "apps/api/fixtures/repo_description/vnext_plus238/"
     "repo_work_packet_activation_family_closeout_alignment_v238_reference.json"
 )
-_V84_FAMILY_CLOSEOUT_DOC = (
-    "docs/DRAFT_ADEU_WORK_PACKET_ACTIVATION_REVIEW_V84_FAMILY_CLOSEOUT_v0.md"
-)
+_V84_FAMILY_CLOSEOUT_DOC = "docs/DRAFT_ADEU_WORK_PACKET_ACTIVATION_REVIEW_V84_FAMILY_CLOSEOUT_v0.md"
 _V85_SELECTOR_DOC = "docs/DRAFT_NEXT_ARC_OPTIONS_v75.md"
-_V85_ARCHITECTURE_DOC = (
-    "docs/ARCHITECTURE_ADEU_SEMANTIC_DECLARATION_META_LOOP_FAMILY_v0.md"
-)
-_V85_MAPPING_DOC = (
-    "docs/DRAFT_ADEU_SEMANTIC_DECLARATION_META_LOOP_V85_IMPLEMENTATION_MAPPING_v0.md"
-)
+_V85_ARCHITECTURE_DOC = "docs/ARCHITECTURE_ADEU_SEMANTIC_DECLARATION_META_LOOP_FAMILY_v0.md"
+_V85_MAPPING_DOC = "docs/DRAFT_ADEU_SEMANTIC_DECLARATION_META_LOOP_V85_IMPLEMENTATION_MAPPING_v0.md"
 _V85A_MAPPING_DOC = (
     "docs/DRAFT_ADEU_SEMANTIC_DECLARATION_META_LOOP_V85A_IMPLEMENTATION_MAPPING_v0.md"
 )
@@ -341,6 +536,22 @@ _V84_COMBINED_DOGFOOD_JSON = (
     "docs/support/arc_series_mapping/"
     "V68_V69_V70_V71_V72_V73_V74_V75_V76_V77_V78_V79_V80_V81_V82_V83_V84_"
     "COMBINED_DOGFOOD_TEST_v0.json"
+)
+_V85A_SOURCE_INDEX_FIXTURE = (
+    "apps/api/fixtures/repo_description/vnext_plus239/"
+    "repo_semantic_declaration_source_index_v239_reference.json"
+)
+_V85A_REQUEST_FIXTURE = (
+    "apps/api/fixtures/repo_description/vnext_plus239/"
+    "repo_turn_semantic_declaration_request_v239_reference.json"
+)
+_V85A_GUARDRAIL_FIXTURE = (
+    "apps/api/fixtures/repo_description/vnext_plus239/"
+    "repo_semantic_declaration_non_authority_guardrail_v239_reference.json"
+)
+_V85B_LOCK_DOC = "docs/LOCKED_CONTINUATION_vNEXT_PLUS240.md"
+_V85B_MAPPING_DOC = (
+    "docs/DRAFT_ADEU_SEMANTIC_DECLARATION_META_LOOP_V85B_IMPLEMENTATION_MAPPING_v0.md"
 )
 _OPERATOR_TURN_SOURCE = "operator-turn:v85a:semantic-declaration-meta-loop-request"
 _OPAQUE_POINTER_CONTEXT = "opaque-pointer:v85a:M-42-context"
@@ -670,12 +881,8 @@ class RepoSemanticDeclarationSourceIndex(_CartographyBase):
     source_set_id: str
     source_rows: list[RepoSemanticDeclarationSourceRow] = Field(min_length=1)
     semantic_act_witness_rows: list[RepoSemanticActWitnessRow] = Field(min_length=1)
-    negative_cue_rows: list[RepoSemanticDeclarationNegativeCueRow] = Field(
-        default_factory=list
-    )
-    resident_model_competency_rows: list[RepoResidentModelCompetencyRow] = Field(
-        min_length=1
-    )
+    negative_cue_rows: list[RepoSemanticDeclarationNegativeCueRow] = Field(default_factory=list)
+    resident_model_competency_rows: list[RepoResidentModelCompetencyRow] = Field(min_length=1)
     source_index_summary: str
 
     @model_validator(mode="after")
@@ -815,12 +1022,8 @@ class RepoTurnSemanticDeclarationRequestRow(_CartographyBase):
     repo_context_refs: list[str] = Field(default_factory=list)
     declared_semantic_act_rows: list[RepoDeclaredSemanticActRow] = Field(min_length=1)
     semantic_act_witness_rows: list[RepoSemanticActWitnessRow] = Field(min_length=1)
-    negative_cue_rows: list[RepoSemanticDeclarationNegativeCueRow] = Field(
-        default_factory=list
-    )
-    resident_model_competency_rows: list[RepoResidentModelCompetencyRow] = Field(
-        min_length=1
-    )
+    negative_cue_rows: list[RepoSemanticDeclarationNegativeCueRow] = Field(default_factory=list)
+    resident_model_competency_rows: list[RepoResidentModelCompetencyRow] = Field(min_length=1)
     declaration_horizon: DeclarationHorizon
     requested_declaration_review_horizon: RequestedDeclarationReviewHorizon
     binding_posture: DeclarationBindingPosture
@@ -962,8 +1165,7 @@ class RepoTurnSemanticDeclarationRequestRow(_CartographyBase):
             if not direct_witnesses:
                 raise ValueError("eligible semantic declaration requires direct/current witnesses")
             if any(
-                act.ambiguity_posture != "not_ambiguous"
-                for act in self.declared_semantic_act_rows
+                act.ambiguity_posture != "not_ambiguous" for act in self.declared_semantic_act_rows
             ):
                 raise ValueError("ambiguous declarations cannot be eligible")
             if any(
@@ -1012,9 +1214,7 @@ class RepoTurnSemanticDeclarationRequest(_CartographyBase):
     review_id: str
     snapshot_id: str
     source_set_id: str
-    declaration_request_rows: list[RepoTurnSemanticDeclarationRequestRow] = Field(
-        min_length=1
-    )
+    declaration_request_rows: list[RepoTurnSemanticDeclarationRequestRow] = Field(min_length=1)
     declaration_review_summary: str
 
     @model_validator(mode="after")
@@ -1126,9 +1326,7 @@ class RepoSemanticDeclarationNonAuthorityGuardrail(_CartographyBase):
     review_id: str
     snapshot_id: str
     source_set_id: str
-    guardrail_rows: list[RepoSemanticDeclarationNonAuthorityGuardrailRow] = Field(
-        min_length=1
-    )
+    guardrail_rows: list[RepoSemanticDeclarationNonAuthorityGuardrailRow] = Field(min_length=1)
     guardrail_summary: str
 
     @model_validator(mode="after")
@@ -1212,8 +1410,7 @@ def _v85_source_rows() -> list[dict[str, object]]:
             "loop_authority_posture": "no_loop_authority_granted",
             "odeu_lane": "epistemic",
             "limitation_note": (
-                "Released V84-C handoff source for semantic declaration review; "
-                "no implementation."
+                "Released V84-C handoff source for semantic declaration review; no implementation."
             ),
         },
         {
@@ -1276,8 +1473,7 @@ def _v85_source_rows() -> list[dict[str, object]]:
             "loop_authority_posture": "no_loop_authority_granted",
             "odeu_lane": "utility",
             "limitation_note": (
-                "Post-V84 roadmap contextualizes semantic declaration review; "
-                "no implementation."
+                "Post-V84 roadmap contextualizes semantic declaration review; no implementation."
             ),
         },
         {
@@ -1323,8 +1519,7 @@ def _v85_source_rows() -> list[dict[str, object]]:
             "loop_authority_posture": "no_loop_authority_granted",
             "odeu_lane": "utility",
             "limitation_note": (
-                "V85 selector contextualizes declaration review sequencing; "
-                "no implementation."
+                "V85 selector contextualizes declaration review sequencing; no implementation."
             ),
         },
         {
@@ -1339,8 +1534,7 @@ def _v85_source_rows() -> list[dict[str, object]]:
             "loop_authority_posture": "no_loop_authority_granted",
             "odeu_lane": "utility",
             "limitation_note": (
-                "Morphic UX support is semantic declaration review context only; "
-                "no implementation."
+                "Morphic UX support is semantic declaration review context only; no implementation."
             ),
         },
         {
@@ -1355,8 +1549,7 @@ def _v85_source_rows() -> list[dict[str, object]]:
             "loop_authority_posture": "no_loop_authority_granted",
             "odeu_lane": "epistemic",
             "limitation_note": (
-                "Combined dogfood is context for semantic declaration review; "
-                "no implementation."
+                "Combined dogfood is context for semantic declaration review; no implementation."
             ),
         },
         {
@@ -1458,9 +1651,7 @@ def _base_competency_rows() -> list[dict[str, object]]:
                 "required_posture": "required_for_declaration_review",
                 "evidence_or_fixture_refs": [],
                 "failure_routing_posture": routing_by_kind.get(kind, "route_to_uncertainty_slot"),
-                "non_authority_guardrail_refs": [
-                    "guardrail:v85a:intent-to-declaration-office"
-                ],
+                "non_authority_guardrail_refs": ["guardrail:v85a:intent-to-declaration-office"],
             }
         )
     return rows
@@ -1634,8 +1825,7 @@ def _v85_request_rows(
             "non_authority_posture": "no_declaration_authority_granted_by_v85",
             "odeu_lanes": sorted(["epistemic", "ontological"]),
             "limitation_note": (
-                "Ambiguous binding is recorded for declaration review only; "
-                "no implementation."
+                "Ambiguous binding is recorded for declaration review only; no implementation."
             ),
         },
         {
@@ -1785,32 +1975,22 @@ def _v85_guardrail_rows(
                         request_row.semantic_declaration_session_ref
                     ),
                     "candidate_ref": request_row.candidate_ref,
-                    "source_refs": sorted(
-                        set(request_row.source_refs).union({_V85A_MAPPING_DOC})
-                    ),
+                    "source_refs": sorted(set(request_row.source_refs).union({_V85A_MAPPING_DOC})),
                     "declaration_request_refs": [request_row.declaration_request_ref],
                     "forbidden_declaration_actions": sorted(
                         _REQUIRED_FORBIDDEN_DECLARATION_ACTIONS
                     ),
-                    "forbidden_downstream_actions": sorted(
-                        _REQUIRED_FORBIDDEN_DOWNSTREAM_ACTIONS
-                    ),
+                    "forbidden_downstream_actions": sorted(_REQUIRED_FORBIDDEN_DOWNSTREAM_ACTIONS),
                     "required_later_authority_refs": [
                         "later-authority:v85a:canonical-lookup-review"
                     ],
                     "declaration_non_authority_posture": (
                         "no_declaration_authority_granted_by_v85"
                     ),
-                    "obligation_expansion_posture": (
-                        "no_obligation_expansion_performed_by_v85a"
-                    ),
+                    "obligation_expansion_posture": ("no_obligation_expansion_performed_by_v85a"),
                     "implementation_posture": "no_implementation_performed_by_v85a",
-                    "runtime_transition_posture": (
-                        "no_runtime_transition_performed_by_v85a"
-                    ),
-                    "future_family_selection_posture": (
-                        "no_future_family_selected_by_v85a"
-                    ),
+                    "runtime_transition_posture": ("no_runtime_transition_performed_by_v85a"),
+                    "future_family_selection_posture": ("no_future_family_selected_by_v85a"),
                     "limitation_note": (
                         "Guardrail keeps semantic declaration as review only with "
                         "no implementation, no obligation expansion, and no V86 selection."
@@ -1959,9 +2139,7 @@ def validate_v85a_semantic_declaration_review_bundle(
                 guardrail_row.semantic_declaration_session_ref
                 != request_row.semantic_declaration_session_ref
             ):
-                raise ValueError(
-                    "semantic declaration guardrails must match declaration session"
-                )
+                raise ValueError("semantic declaration guardrails must match declaration session")
         for competency_ref in [
             row.competency_ref for row in request_row.resident_model_competency_rows
         ]:
@@ -2045,4 +2223,1463 @@ def derive_v85a_semantic_declaration_review_bundle(
         source_index,
         request,
         guardrail,
+    )
+
+
+class RepoSemanticPointerRow(_CartographyBase):
+    pointer_ref: str
+    semantic_declaration_session_ref: str
+    raw_pointer: str
+    parsed_operator: str
+    parsed_class: str
+    parsed_version: str
+    pointer_parse_posture: PointerParsePosture
+    normalization_posture: PointerNormalizationPosture
+    source_refs: list[str] = Field(min_length=1)
+    limitation_note: str
+
+    @model_validator(mode="after")
+    def _validate_pointer_row(self) -> "RepoSemanticPointerRow":
+        for attr in (
+            "pointer_ref",
+            "semantic_declaration_session_ref",
+            "raw_pointer",
+            "parsed_operator",
+            "parsed_class",
+            "parsed_version",
+        ):
+            _non_empty(getattr(self, attr), field_name=attr)
+        _validate_repo_refs(self.source_refs, field_name="source_refs")
+        if (
+            self.pointer_parse_posture == "parsed_with_alias"
+            and self.normalization_posture != "alias_normalized_by_registry"
+        ):
+            raise ValueError("alias parses require alias normalization posture")
+        if self.pointer_parse_posture in {
+            "malformed_pointer",
+            "unknown_version",
+        } and self.normalization_posture not in {
+            "normalization_rejected",
+            "normalization_not_authorized",
+        }:
+            raise ValueError("malformed or unknown-version pointers must fail closed")
+        if (
+            self.pointer_parse_posture == "unknown_version"
+            and self.parsed_version.lower() == "latest"
+        ):
+            raise ValueError("unknown pointer versions cannot normalize to latest")
+        _reject_v85_authority_claim(
+            _require_terms(
+                self.limitation_note,
+                field_name="limitation_note",
+                terms=("pointer", "review"),
+            ),
+            field_name="limitation_note",
+        )
+        return self
+
+
+class RepoSemanticRegistryAliasRow(_CartographyBase):
+    alias_ref: str
+    alias_value: str
+    canonical_id: str
+    normalization_posture: PointerNormalizationPosture
+    source_refs: list[str] = Field(min_length=1)
+    limitation_note: str
+
+    @model_validator(mode="after")
+    def _validate_alias_row(self) -> "RepoSemanticRegistryAliasRow":
+        for attr in ("alias_ref", "alias_value", "canonical_id"):
+            _non_empty(getattr(self, attr), field_name=attr)
+        _validate_repo_refs(self.source_refs, field_name="source_refs")
+        if self.normalization_posture != "alias_normalized_by_registry":
+            raise ValueError("registry aliases must declare alias normalization")
+        _reject_v85_authority_claim(
+            _require_terms(
+                self.limitation_note,
+                field_name="limitation_note",
+                terms=("alias", "review"),
+            ),
+            field_name="limitation_note",
+        )
+        return self
+
+
+class RepoCanonicalMetaLookupRow(_CartographyBase):
+    lookup_ref: str
+    semantic_declaration_session_ref: str
+    candidate_ref: str
+    declaration_request_refs: list[str] = Field(min_length=1)
+    source_refs: list[str] = Field(min_length=1)
+    semantic_pointer: str
+    semantic_pointer_rows: list[RepoSemanticPointerRow] = Field(min_length=1)
+    operator_registry_refs: list[str] = Field(default_factory=list)
+    class_registry_refs: list[str] = Field(default_factory=list)
+    obligation_family_refs: list[str] = Field(default_factory=list)
+    lookup_input_kind: LookupInputKind
+    lookup_posture: LookupPosture
+    canonical_lookup_status: V85BCanonicalLookupStatus
+    pointer_competency_kind: PointerCompetencyKind
+    competency_claim_horizon: CompetencyClaimHorizon
+    order_preservation_posture: OrderPreservationPosture
+    duplicate_preservation_posture: DuplicatePreservationPosture
+    unknown_pointer_posture: UnknownPointerPosture
+    conflict_posture: ConflictPosture
+    obligation_expansion_posture: LookupObligationExpansionPosture
+    non_authority_guardrail_refs: list[str] = Field(min_length=1)
+    limitation_note: str
+
+    @model_validator(mode="after")
+    def _validate_lookup_row(self) -> "RepoCanonicalMetaLookupRow":
+        for attr in (
+            "lookup_ref",
+            "semantic_declaration_session_ref",
+            "candidate_ref",
+            "semantic_pointer",
+        ):
+            _non_empty(getattr(self, attr), field_name=attr)
+        for attr in (
+            "declaration_request_refs",
+            "source_refs",
+            "operator_registry_refs",
+            "class_registry_refs",
+            "obligation_family_refs",
+            "non_authority_guardrail_refs",
+        ):
+            values = getattr(self, attr)
+            if attr == "source_refs":
+                _validate_repo_refs(values, field_name=attr)
+            else:
+                _validate_sorted_refs(values, field_name=attr)
+        _sorted_unique_by_ref(
+            self.semantic_pointer_rows,
+            attr="pointer_ref",
+            field_name="semantic_pointer_rows",
+        )
+        for pointer_row in self.semantic_pointer_rows:
+            if (
+                pointer_row.semantic_declaration_session_ref
+                != self.semantic_declaration_session_ref
+            ):
+                raise ValueError("lookup pointer rows must share declaration session")
+        _reject_v85_authority_claim(
+            _require_terms(
+                self.limitation_note,
+                field_name="limitation_note",
+                terms=("lookup", "review", "no obligation"),
+            ),
+            field_name="limitation_note",
+        )
+        if self.lookup_posture == "exact_match_for_review_only":
+            if self.canonical_lookup_status != "exact_match_for_review_only":
+                raise ValueError("exact lookup rows must carry exact lookup status")
+            if self.lookup_input_kind != "opaque_pointer":
+                if not self.operator_registry_refs or not self.class_registry_refs:
+                    raise ValueError("semantic exact lookup requires operator and class refs")
+            if any(
+                pointer.pointer_parse_posture not in {"parsed_exact", "parsed_with_alias"}
+                for pointer in self.semantic_pointer_rows
+            ):
+                raise ValueError("exact lookup requires exact or alias pointer parses")
+        if self.lookup_input_kind == "opaque_pointer":
+            if self.competency_claim_horizon != "pointer_obedience_only":
+                raise ValueError("opaque lookup competence is pointer obedience only")
+            if self.obligation_family_refs:
+                raise ValueError("opaque lookup rows cannot name obligation families")
+        if self.lookup_posture in {"unknown_pointer_abstained", "registry_gap"}:
+            if self.obligation_family_refs:
+                raise ValueError("unknown or registry-gap lookup cannot name obligations")
+            if self.unknown_pointer_posture not in {
+                "unknown_pointer_abstained",
+                "unknown_pointer_registry_gap",
+            }:
+                raise ValueError("unknown lookup rows must carry unknown-pointer posture")
+        if self.lookup_posture == "registry_gap" and self.canonical_lookup_status != "registry_gap":
+            raise ValueError("registry-gap lookup rows must carry registry-gap status")
+        if self.lookup_posture == "conflict_requires_review":
+            if self.conflict_posture != "conflict_requires_review":
+                raise ValueError("conflict lookup rows must carry conflict posture")
+        if self.obligation_expansion_posture not in {
+            "lookup_result_only",
+            "named_for_later_expansion_only",
+            "expansion_requires_v86_or_later",
+            "expansion_blocked_by_ambiguity",
+            "expansion_blocked_by_registry_gap",
+            "expansion_not_authorized_by_v85",
+        }:
+            raise ValueError("lookup rows cannot expand obligations")
+        if self.obligation_family_refs and self.obligation_expansion_posture not in {
+            "lookup_result_only",
+            "named_for_later_expansion_only",
+            "expansion_requires_v86_or_later",
+        }:
+            raise ValueError("obligation families must be named for later expansion only")
+        return self
+
+
+class RepoCanonicalMetaLookupIndex(_CartographyBase):
+    schema: Literal[REPO_CANONICAL_META_LOOKUP_INDEX_SCHEMA]
+    canonical_meta_lookup_index_id: str
+    semantic_declaration_source_index_id: str
+    turn_semantic_declaration_request_id: str
+    semantic_declaration_non_authority_guardrail_id: str
+    review_id: str
+    snapshot_id: str
+    source_set_id: str
+    lookup_rows: list[RepoCanonicalMetaLookupRow] = Field(min_length=1)
+    lookup_summary: str
+
+    @model_validator(mode="after")
+    def _validate_lookup_surface(self) -> "RepoCanonicalMetaLookupIndex":
+        for attr in (
+            "canonical_meta_lookup_index_id",
+            "semantic_declaration_source_index_id",
+            "turn_semantic_declaration_request_id",
+            "semantic_declaration_non_authority_guardrail_id",
+            "review_id",
+            "snapshot_id",
+            "source_set_id",
+        ):
+            _non_empty(getattr(self, attr), field_name=attr)
+        _sorted_unique_by_ref(self.lookup_rows, attr="lookup_ref", field_name="lookup_rows")
+        _reject_v85_authority_claim(
+            _require_terms(
+                self.lookup_summary,
+                field_name="lookup_summary",
+                terms=("lookup", "review", "no obligation"),
+            ),
+            field_name="lookup_summary",
+        )
+        _assert_surface_id(
+            surface_name="repo_canonical_meta_lookup_index",
+            schema=REPO_CANONICAL_META_LOOKUP_INDEX_SCHEMA,
+            payload=self.model_dump(mode="json"),
+            id_key="canonical_meta_lookup_index_id",
+            actual=self.canonical_meta_lookup_index_id,
+        )
+        return self
+
+
+class RepoSemanticOperatorClassRegistryRow(_CartographyBase):
+    registry_ref: str
+    semantic_declaration_session_ref: str
+    source_refs: list[str] = Field(min_length=1)
+    registry_entry_kind: RegistryEntryKind
+    registry_domain: RegistryDomain
+    canonical_id: str
+    alias_rows: list[RepoSemanticRegistryAliasRow] = Field(default_factory=list)
+    entry_status: RegistryEntryStatus
+    entry_currentness: RegistryEntryCurrentness
+    entry_scope_posture: RegistryEntryScopePosture
+    operator_semantics_posture: OperatorSemanticsPosture
+    class_semantics_posture: ClassSemanticsPosture
+    non_invention_guardrail: str
+    limitation_note: str
+
+    @model_validator(mode="after")
+    def _validate_registry_row(self) -> "RepoSemanticOperatorClassRegistryRow":
+        for attr in ("registry_ref", "semantic_declaration_session_ref", "canonical_id"):
+            _non_empty(getattr(self, attr), field_name=attr)
+        _validate_repo_refs(self.source_refs, field_name="source_refs")
+        _sorted_unique_by_ref(self.alias_rows, attr="alias_ref", field_name="alias_rows")
+        for alias in self.alias_rows:
+            if alias.canonical_id != self.canonical_id:
+                raise ValueError("alias rows must normalize to the registry canonical id")
+        if self.entry_status == "current_registry_entry":
+            if self.entry_currentness != "current_registry_entry":
+                raise ValueError("current registry entries require currentness")
+            if self.entry_scope_posture != "lookup_review_only":
+                raise ValueError("current registry entries are lookup-review only")
+        if self.registry_domain == "operator":
+            if self.registry_entry_kind != "operator_entry":
+                raise ValueError("operator registry rows must use operator entry kind")
+            if self.class_semantics_posture == "semantic_class_for_lookup_only":
+                raise ValueError("operator registry rows cannot claim class semantics")
+        if self.registry_domain != "operator":
+            if self.registry_entry_kind == "operator_entry":
+                raise ValueError("non-operator registry rows cannot use operator entry kind")
+            if self.operator_semantics_posture == "action_verb_for_declaration_only":
+                raise ValueError("class registry rows cannot claim operator semantics")
+        if (
+            self.canonical_id == "GATE"
+            and self.operator_semantics_posture != "guard_or_route_for_later_authority_review"
+        ):
+            raise ValueError("GATE must remain guard or route for later authority review")
+        _reject_v85_authority_claim(
+            _require_terms(
+                self.non_invention_guardrail,
+                field_name="non_invention_guardrail",
+                terms=("registry", "review"),
+            ),
+            field_name="non_invention_guardrail",
+        )
+        _reject_v85_authority_claim(
+            _require_terms(
+                self.limitation_note,
+                field_name="limitation_note",
+                terms=("registry", "review"),
+            ),
+            field_name="limitation_note",
+        )
+        return self
+
+
+class RepoSemanticOperatorClassRegistry(_CartographyBase):
+    schema: Literal[REPO_SEMANTIC_OPERATOR_CLASS_REGISTRY_SCHEMA]
+    semantic_operator_class_registry_id: str
+    semantic_declaration_source_index_id: str
+    turn_semantic_declaration_request_id: str
+    semantic_declaration_non_authority_guardrail_id: str
+    review_id: str
+    snapshot_id: str
+    source_set_id: str
+    registry_rows: list[RepoSemanticOperatorClassRegistryRow] = Field(min_length=1)
+    registry_summary: str
+
+    @model_validator(mode="after")
+    def _validate_registry_surface(self) -> "RepoSemanticOperatorClassRegistry":
+        for attr in (
+            "semantic_operator_class_registry_id",
+            "semantic_declaration_source_index_id",
+            "turn_semantic_declaration_request_id",
+            "semantic_declaration_non_authority_guardrail_id",
+            "review_id",
+            "snapshot_id",
+            "source_set_id",
+        ):
+            _non_empty(getattr(self, attr), field_name=attr)
+        _sorted_unique_by_ref(
+            self.registry_rows,
+            attr="registry_ref",
+            field_name="registry_rows",
+        )
+        _reject_v85_authority_claim(
+            _require_terms(
+                self.registry_summary,
+                field_name="registry_summary",
+                terms=("registry", "review", "no obligation"),
+            ),
+            field_name="registry_summary",
+        )
+        _assert_surface_id(
+            surface_name="repo_semantic_operator_class_registry",
+            schema=REPO_SEMANTIC_OPERATOR_CLASS_REGISTRY_SCHEMA,
+            payload=self.model_dump(mode="json"),
+            id_key="semantic_operator_class_registry_id",
+            actual=self.semantic_operator_class_registry_id,
+        )
+        return self
+
+
+class RepoObligationFamilyRegistryRow(_CartographyBase):
+    obligation_family_ref: str
+    semantic_declaration_session_ref: str
+    source_refs: list[str] = Field(min_length=1)
+    obligation_family_id: str
+    obligation_family_label: str
+    applies_to_operator_refs: list[str] = Field(default_factory=list)
+    applies_to_class_refs: list[str] = Field(default_factory=list)
+    obligation_family_relation_kind: ObligationFamilyRelationKind
+    obligation_family_activation_posture: ObligationFamilyActivationPosture
+    required_future_surfaces: list[str] = Field(min_length=1)
+    future_expansion_posture: FutureExpansionPosture
+    evidence_contract_required_posture: EvidenceContractRequiredPosture
+    waiver_posture: WaiverPosture
+    non_execution_guardrail: str
+    limitation_note: str
+
+    @model_validator(mode="after")
+    def _validate_obligation_family_row(self) -> "RepoObligationFamilyRegistryRow":
+        for attr in (
+            "obligation_family_ref",
+            "semantic_declaration_session_ref",
+            "obligation_family_id",
+            "obligation_family_label",
+        ):
+            _non_empty(getattr(self, attr), field_name=attr)
+        _validate_repo_refs(self.source_refs, field_name="source_refs")
+        _validate_sorted_refs(self.applies_to_operator_refs, field_name="applies_to_operator_refs")
+        _validate_sorted_refs(self.applies_to_class_refs, field_name="applies_to_class_refs")
+        _validate_sorted_refs(self.required_future_surfaces, field_name="required_future_surfaces")
+        if not self.applies_to_operator_refs and not self.applies_to_class_refs:
+            if self.obligation_family_relation_kind not in {
+                "requires_later_disambiguation",
+                "conflict_or_exclusion",
+            }:
+                raise ValueError("obligation families require operator/class applicability refs")
+        if self.obligation_family_activation_posture not in {
+            "lookup_result_only",
+            "named_for_later_expansion_only",
+            "expansion_requires_v86_or_later",
+        }:
+            raise ValueError("obligation family rows cannot expand obligations in V85-B")
+        if self.future_expansion_posture not in {
+            "named_for_later_expansion_only",
+            "expansion_requires_future_family",
+            "expansion_not_authorized_by_v85",
+        }:
+            raise ValueError("obligation family expansion must remain future-bound")
+        if self.evidence_contract_required_posture != "evidence_contract_not_created_by_v85b":
+            raise ValueError("V85-B cannot create evidence contracts")
+        _reject_v85_authority_claim(
+            _require_terms(
+                self.non_execution_guardrail,
+                field_name="non_execution_guardrail",
+                terms=("no implementation", "no obligation"),
+            ),
+            field_name="non_execution_guardrail",
+        )
+        _reject_v85_authority_claim(
+            _require_terms(
+                self.limitation_note,
+                field_name="limitation_note",
+                terms=("family", "review"),
+            ),
+            field_name="limitation_note",
+        )
+        return self
+
+
+class RepoObligationFamilyRegistry(_CartographyBase):
+    schema: Literal[REPO_OBLIGATION_FAMILY_REGISTRY_SCHEMA]
+    obligation_family_registry_id: str
+    semantic_declaration_source_index_id: str
+    turn_semantic_declaration_request_id: str
+    semantic_declaration_non_authority_guardrail_id: str
+    review_id: str
+    snapshot_id: str
+    source_set_id: str
+    obligation_family_rows: list[RepoObligationFamilyRegistryRow] = Field(min_length=1)
+    obligation_family_registry_summary: str
+
+    @model_validator(mode="after")
+    def _validate_obligation_surface(self) -> "RepoObligationFamilyRegistry":
+        for attr in (
+            "obligation_family_registry_id",
+            "semantic_declaration_source_index_id",
+            "turn_semantic_declaration_request_id",
+            "semantic_declaration_non_authority_guardrail_id",
+            "review_id",
+            "snapshot_id",
+            "source_set_id",
+        ):
+            _non_empty(getattr(self, attr), field_name=attr)
+        _sorted_unique_by_ref(
+            self.obligation_family_rows,
+            attr="obligation_family_ref",
+            field_name="obligation_family_rows",
+        )
+        _reject_v85_authority_claim(
+            _require_terms(
+                self.obligation_family_registry_summary,
+                field_name="obligation_family_registry_summary",
+                terms=("obligation", "review", "no implementation"),
+            ),
+            field_name="obligation_family_registry_summary",
+        )
+        _assert_surface_id(
+            surface_name="repo_obligation_family_registry",
+            schema=REPO_OBLIGATION_FAMILY_REGISTRY_SCHEMA,
+            payload=self.model_dump(mode="json"),
+            id_key="obligation_family_registry_id",
+            actual=self.obligation_family_registry_id,
+        )
+        return self
+
+
+class RepoSemanticPointerLookupFixtureRow(_CartographyBase):
+    lookup_fixture_ref: str
+    semantic_declaration_session_ref: str
+    source_refs: list[str] = Field(min_length=1)
+    fixture_kind: LookupFixtureKind
+    pointer_competency_kind: PointerCompetencyKind
+    competency_claim_horizon: CompetencyClaimHorizon
+    input_pointer_rows: list[RepoSemanticPointerRow] = Field(min_length=1)
+    expected_lookup_rows: list[str] = Field(default_factory=list)
+    expected_order_posture: ExpectedOrderPosture
+    expected_duplicate_posture: ExpectedDuplicatePosture
+    expected_unknown_posture: ExpectedUnknownPosture
+    expected_conflict_posture: ExpectedConflictPosture
+    actual_result_refs: list[str] = Field(default_factory=list)
+    fixture_posture: FixturePosture
+    non_authority_guardrail_refs: list[str] = Field(min_length=1)
+    limitation_note: str
+
+    @model_validator(mode="after")
+    def _validate_fixture_row(self) -> "RepoSemanticPointerLookupFixtureRow":
+        _non_empty(self.lookup_fixture_ref, field_name="lookup_fixture_ref")
+        _non_empty(
+            self.semantic_declaration_session_ref,
+            field_name="semantic_declaration_session_ref",
+        )
+        _validate_repo_refs(self.source_refs, field_name="source_refs")
+        pointer_refs = [row.pointer_ref for row in self.input_pointer_rows]
+        if len(pointer_refs) != len(set(pointer_refs)):
+            raise ValueError("input_pointer_rows must not repeat pointer refs")
+        for attr in (
+            "expected_lookup_rows",
+            "actual_result_refs",
+            "non_authority_guardrail_refs",
+        ):
+            _validate_sorted_refs(getattr(self, attr), field_name=attr)
+        for pointer in self.input_pointer_rows:
+            if pointer.semantic_declaration_session_ref != self.semantic_declaration_session_ref:
+                raise ValueError("fixture pointer rows must share declaration session")
+        if self.fixture_kind.startswith("opaque_pointer"):
+            if self.competency_claim_horizon != "pointer_obedience_only":
+                raise ValueError("opaque fixtures can claim pointer obedience only")
+            if any("natural" in value.lower() for value in self.expected_lookup_rows):
+                raise ValueError("opaque fixtures cannot claim natural semantic binding")
+        if self.fixture_kind.endswith("unknown_abstain"):
+            if self.expected_unknown_posture != "unknown_pointer_abstained":
+                raise ValueError("unknown-abstain fixtures must expect abstention")
+        if (
+            self.fixture_kind.endswith("exact_lookup")
+            or self.fixture_kind == "explicit_semantic_pointer_lookup"
+        ) and not self.actual_result_refs:
+            raise ValueError("exact lookup fixtures require actual lookup refs")
+        _reject_v85_authority_claim(
+            _require_terms(
+                self.limitation_note,
+                field_name="limitation_note",
+                terms=("fixture", "review"),
+            ),
+            field_name="limitation_note",
+        )
+        return self
+
+
+class RepoSemanticPointerLookupFixture(_CartographyBase):
+    schema: Literal[REPO_SEMANTIC_POINTER_LOOKUP_FIXTURE_SCHEMA]
+    semantic_pointer_lookup_fixture_id: str
+    canonical_meta_lookup_index_id: str
+    semantic_operator_class_registry_id: str
+    obligation_family_registry_id: str
+    semantic_declaration_source_index_id: str
+    turn_semantic_declaration_request_id: str
+    semantic_declaration_non_authority_guardrail_id: str
+    review_id: str
+    snapshot_id: str
+    source_set_id: str
+    lookup_fixture_rows: list[RepoSemanticPointerLookupFixtureRow] = Field(min_length=1)
+    lookup_fixture_summary: str
+
+    @model_validator(mode="after")
+    def _validate_fixture_surface(self) -> "RepoSemanticPointerLookupFixture":
+        for attr in (
+            "semantic_pointer_lookup_fixture_id",
+            "canonical_meta_lookup_index_id",
+            "semantic_operator_class_registry_id",
+            "obligation_family_registry_id",
+            "semantic_declaration_source_index_id",
+            "turn_semantic_declaration_request_id",
+            "semantic_declaration_non_authority_guardrail_id",
+            "review_id",
+            "snapshot_id",
+            "source_set_id",
+        ):
+            _non_empty(getattr(self, attr), field_name=attr)
+        _sorted_unique_by_ref(
+            self.lookup_fixture_rows,
+            attr="lookup_fixture_ref",
+            field_name="lookup_fixture_rows",
+        )
+        _reject_v85_authority_claim(
+            _require_terms(
+                self.lookup_fixture_summary,
+                field_name="lookup_fixture_summary",
+                terms=("fixture", "review", "no implementation"),
+            ),
+            field_name="lookup_fixture_summary",
+        )
+        _assert_surface_id(
+            surface_name="repo_semantic_pointer_lookup_fixture",
+            schema=REPO_SEMANTIC_POINTER_LOOKUP_FIXTURE_SCHEMA,
+            payload=self.model_dump(mode="json"),
+            id_key="semantic_pointer_lookup_fixture_id",
+            actual=self.semantic_pointer_lookup_fixture_id,
+        )
+        return self
+
+
+def _v85b_base_source_refs() -> list[str]:
+    return sorted(
+        [
+            _V85A_SOURCE_INDEX_FIXTURE,
+            _V85A_REQUEST_FIXTURE,
+            _V85A_GUARDRAIL_FIXTURE,
+            _V85B_LOCK_DOC,
+            _V85B_MAPPING_DOC,
+        ]
+    )
+
+
+def _semantic_pointer_row(
+    *,
+    pointer_ref: str,
+    session: str,
+    raw_pointer: str,
+    parsed_operator: str,
+    parsed_class: str,
+    parsed_version: str,
+    pointer_parse_posture: PointerParsePosture = "parsed_exact",
+    normalization_posture: PointerNormalizationPosture = "normalization_not_required",
+) -> dict[str, object]:
+    return {
+        "pointer_ref": pointer_ref,
+        "semantic_declaration_session_ref": session,
+        "raw_pointer": raw_pointer,
+        "parsed_operator": parsed_operator,
+        "parsed_class": parsed_class,
+        "parsed_version": parsed_version,
+        "pointer_parse_posture": pointer_parse_posture,
+        "normalization_posture": normalization_posture,
+        "source_refs": _v85b_base_source_refs(),
+        "limitation_note": "Pointer row is recorded for lookup review only.",
+    }
+
+
+def _v85b_registry_rows(session: str) -> list[dict[str, object]]:
+    source_refs = _v85b_base_source_refs()
+    operators = [
+        "AGGREGATE",
+        "CACHE",
+        "CLOSEOUT",
+        "CONNECT",
+        "CREATE",
+        "GATE",
+        "MIGRATE",
+        "MODIFY",
+        "NORMALIZE",
+        "PERSIST",
+        "PROJECT",
+        "RECONCILE",
+        "REMOVE",
+        "REVIEW",
+        "ROUTE",
+        "SUBSCRIBE",
+        "TRANSITION",
+        "VALIDATE",
+    ]
+    classes = [
+        "audit.report@v1",
+        "cache.layer@v1",
+        "capability.gate@v1",
+        "closeout.artifact@v1",
+        "event.subscription@v1",
+        "evidence.bundle@v1",
+        "migration.plan@v1",
+        "persistence.store@v1",
+        "readiness.summary@v1",
+        "resource.handle@v1",
+        "router.dispatcher@v1",
+        "schema.binding@v1",
+        "semantic.classifier@v1",
+        "semantic.normalizer@v1",
+        "semantic.summarizer@v1",
+        "semantic.validator@v1",
+        "state.transition@v1",
+        "ui.menu@v1",
+        "ui.modal@v1",
+        "ui.popover@v1",
+        "ui.projection@v1",
+        "ui.surface@v1",
+        "worker.taskpack@v1",
+    ]
+    rows: list[dict[str, object]] = []
+    for operator in operators:
+        rows.append(
+            {
+                "registry_ref": f"registry:v85b:operator:{operator}",
+                "semantic_declaration_session_ref": session,
+                "source_refs": source_refs,
+                "registry_entry_kind": "operator_entry",
+                "registry_domain": "operator",
+                "canonical_id": operator,
+                "alias_rows": [],
+                "entry_status": "current_registry_entry",
+                "entry_currentness": "current_registry_entry",
+                "entry_scope_posture": "lookup_review_only",
+                "operator_semantics_posture": (
+                    "guard_or_route_for_later_authority_review"
+                    if operator == "GATE"
+                    else "action_verb_for_declaration_only"
+                ),
+                "class_semantics_posture": "not_runtime_class_behavior",
+                "non_invention_guardrail": (
+                    "Registry row is for review only and does not invent runtime behavior."
+                ),
+                "limitation_note": (
+                    f"{operator} is a semantic registry entry for declaration review."
+                ),
+            }
+        )
+    for class_id in classes:
+        alias_rows: list[dict[str, object]] = []
+        if class_id == "ui.menu@v1":
+            alias_rows.append(
+                {
+                    "alias_ref": "alias:v85b:ui.menu@v1:menu@v1",
+                    "alias_value": "menu@v1",
+                    "canonical_id": "ui.menu@v1",
+                    "normalization_posture": "alias_normalized_by_registry",
+                    "source_refs": source_refs,
+                    "limitation_note": "Alias row is available for lookup review only.",
+                }
+            )
+        rows.append(
+            {
+                "registry_ref": f"registry:v85b:object_class:{class_id}",
+                "semantic_declaration_session_ref": session,
+                "source_refs": source_refs,
+                "registry_entry_kind": "class_entry",
+                "registry_domain": "object_class",
+                "canonical_id": class_id,
+                "alias_rows": alias_rows,
+                "entry_status": "current_registry_entry",
+                "entry_currentness": "current_registry_entry",
+                "entry_scope_posture": "lookup_review_only",
+                "operator_semantics_posture": "not_runtime_behavior",
+                "class_semantics_posture": "semantic_class_for_lookup_only",
+                "non_invention_guardrail": (
+                    "Registry row is for review only and does not invent implementation."
+                ),
+                "limitation_note": (
+                    f"{class_id} is a semantic class registry entry for lookup review."
+                ),
+            }
+        )
+    return sorted(rows, key=lambda row: str(row["registry_ref"]))
+
+
+def _v85b_obligation_family_rows(session: str) -> list[dict[str, object]]:
+    family_ids = [
+        "absence_null_empty_distinction@v1",
+        "birth_continuation_death_algebra@v1",
+        "branch_specific_witness@v1",
+        "capability_guard@v1",
+        "cross_field_consistency@v1",
+        "enum_exhaustiveness@v1",
+        "evidence_sufficiency@v1",
+        "failure_path_fail_closed@v1",
+        "idempotence_reentry@v1",
+        "non_vacuous_validation@v1",
+        "partial_retry_reentry@v1",
+        "projection_source_integrity@v1",
+        "rollback_cleanup_teardown@v1",
+        "source_witness_preservation@v1",
+        "stateful_lifecycle@v1",
+        "staleness_invalidation@v1",
+        "unknown_case_handling@v1",
+        "waiver_explicitness@v1",
+    ]
+    source_refs = _v85b_base_source_refs()
+    rows: list[dict[str, object]] = []
+    for family_id in family_ids:
+        rows.append(
+            {
+                "obligation_family_ref": f"obligation-family:v85b:{family_id}",
+                "semantic_declaration_session_ref": session,
+                "source_refs": source_refs,
+                "obligation_family_id": family_id,
+                "obligation_family_label": family_id.replace("@v1", "").replace("_", " "),
+                "applies_to_operator_refs": ["registry:v85b:operator:CREATE"],
+                "applies_to_class_refs": ["registry:v85b:object_class:ui.menu@v1"],
+                "obligation_family_relation_kind": "applies_by_object_class",
+                "obligation_family_activation_posture": "named_for_later_expansion_only",
+                "required_future_surfaces": ["V86:obligation-expansion-review"],
+                "future_expansion_posture": "expansion_requires_future_family",
+                "evidence_contract_required_posture": "evidence_contract_not_created_by_v85b",
+                "waiver_posture": "waiver_requires_later_review",
+                "non_execution_guardrail": (
+                    "No implementation and no obligation expansion occurs in V85-B."
+                ),
+                "limitation_note": (
+                    f"{family_id} is named as an obligation family for review only."
+                ),
+            }
+        )
+    return sorted(rows, key=lambda row: str(row["obligation_family_ref"]))
+
+
+def derive_v85b_repo_semantic_operator_class_registry(
+    *,
+    repo_root: Path | None = None,
+    semantic_declaration_source_index: RepoSemanticDeclarationSourceIndex | None = None,
+    turn_semantic_declaration_request: RepoTurnSemanticDeclarationRequest | None = None,
+    semantic_declaration_non_authority_guardrail: (
+        RepoSemanticDeclarationNonAuthorityGuardrail | None
+    ) = None,
+) -> RepoSemanticOperatorClassRegistry:
+    _ = repo_root
+    if semantic_declaration_source_index is None:
+        semantic_declaration_source_index = derive_v85a_repo_semantic_declaration_source_index()
+    if turn_semantic_declaration_request is None:
+        turn_semantic_declaration_request = derive_v85a_repo_turn_semantic_declaration_request(
+            semantic_declaration_source_index=semantic_declaration_source_index
+        )
+    if semantic_declaration_non_authority_guardrail is None:
+        semantic_declaration_non_authority_guardrail = (
+            derive_v85a_repo_semantic_declaration_non_authority_guardrail(
+                semantic_declaration_source_index=semantic_declaration_source_index,
+                turn_semantic_declaration_request=turn_semantic_declaration_request,
+            )
+        )
+    session = turn_semantic_declaration_request.declaration_request_rows[
+        0
+    ].semantic_declaration_session_ref
+    payload = {
+        "schema": REPO_SEMANTIC_OPERATOR_CLASS_REGISTRY_SCHEMA,
+        "semantic_operator_class_registry_id": "",
+        "semantic_declaration_source_index_id": (
+            semantic_declaration_source_index.semantic_declaration_source_index_id
+        ),
+        "turn_semantic_declaration_request_id": (
+            turn_semantic_declaration_request.turn_semantic_declaration_request_id
+        ),
+        "semantic_declaration_non_authority_guardrail_id": (
+            semantic_declaration_non_authority_guardrail.semantic_declaration_non_authority_guardrail_id
+        ),
+        "review_id": "vNext+240",
+        "snapshot_id": "vNext+240-semantic-lookup-start",
+        "source_set_id": "source-set:v85b:canonical-lookup-registry",
+        "registry_rows": _v85b_registry_rows(session),
+        "registry_summary": (
+            "V85-B registry binds operators and classes for lookup review with "
+            "no obligation expansion."
+        ),
+    }
+    payload["semantic_operator_class_registry_id"] = _surface_id(
+        "repo_semantic_operator_class_registry",
+        REPO_SEMANTIC_OPERATOR_CLASS_REGISTRY_SCHEMA,
+        payload,
+        "semantic_operator_class_registry_id",
+    )
+    return RepoSemanticOperatorClassRegistry.model_validate(payload)
+
+
+def derive_v85b_repo_obligation_family_registry(
+    *,
+    repo_root: Path | None = None,
+    semantic_declaration_source_index: RepoSemanticDeclarationSourceIndex | None = None,
+    turn_semantic_declaration_request: RepoTurnSemanticDeclarationRequest | None = None,
+    semantic_declaration_non_authority_guardrail: (
+        RepoSemanticDeclarationNonAuthorityGuardrail | None
+    ) = None,
+) -> RepoObligationFamilyRegistry:
+    _ = repo_root
+    if semantic_declaration_source_index is None:
+        semantic_declaration_source_index = derive_v85a_repo_semantic_declaration_source_index()
+    if turn_semantic_declaration_request is None:
+        turn_semantic_declaration_request = derive_v85a_repo_turn_semantic_declaration_request(
+            semantic_declaration_source_index=semantic_declaration_source_index
+        )
+    if semantic_declaration_non_authority_guardrail is None:
+        semantic_declaration_non_authority_guardrail = (
+            derive_v85a_repo_semantic_declaration_non_authority_guardrail(
+                semantic_declaration_source_index=semantic_declaration_source_index,
+                turn_semantic_declaration_request=turn_semantic_declaration_request,
+            )
+        )
+    session = turn_semantic_declaration_request.declaration_request_rows[
+        0
+    ].semantic_declaration_session_ref
+    payload = {
+        "schema": REPO_OBLIGATION_FAMILY_REGISTRY_SCHEMA,
+        "obligation_family_registry_id": "",
+        "semantic_declaration_source_index_id": (
+            semantic_declaration_source_index.semantic_declaration_source_index_id
+        ),
+        "turn_semantic_declaration_request_id": (
+            turn_semantic_declaration_request.turn_semantic_declaration_request_id
+        ),
+        "semantic_declaration_non_authority_guardrail_id": (
+            semantic_declaration_non_authority_guardrail.semantic_declaration_non_authority_guardrail_id
+        ),
+        "review_id": "vNext+240",
+        "snapshot_id": "vNext+240-semantic-lookup-start",
+        "source_set_id": "source-set:v85b:canonical-lookup-registry",
+        "obligation_family_rows": _v85b_obligation_family_rows(session),
+        "obligation_family_registry_summary": (
+            "V85-B obligation family registry names families for review with "
+            "no implementation and no obligation expansion."
+        ),
+    }
+    payload["obligation_family_registry_id"] = _surface_id(
+        "repo_obligation_family_registry",
+        REPO_OBLIGATION_FAMILY_REGISTRY_SCHEMA,
+        payload,
+        "obligation_family_registry_id",
+    )
+    return RepoObligationFamilyRegistry.model_validate(payload)
+
+
+def _v85b_lookup_rows(
+    *,
+    session: str,
+    candidate_ref: str,
+) -> list[dict[str, object]]:
+    source_refs = _v85b_base_source_refs()
+    explicit_obligation_refs = [
+        "obligation-family:v85b:birth_continuation_death_algebra@v1",
+        "obligation-family:v85b:failure_path_fail_closed@v1",
+        "obligation-family:v85b:rollback_cleanup_teardown@v1",
+        "obligation-family:v85b:stateful_lifecycle@v1",
+    ]
+    return sorted(
+        [
+            {
+                "lookup_ref": "lookup:v85b:create-ui-menu",
+                "semantic_declaration_session_ref": session,
+                "candidate_ref": candidate_ref,
+                "declaration_request_refs": [
+                    "declaration-request:v85a:intent-to-declaration-office"
+                ],
+                "source_refs": source_refs,
+                "semantic_pointer": "CREATE ui.menu@v1",
+                "semantic_pointer_rows": [
+                    _semantic_pointer_row(
+                        pointer_ref="pointer:v85b:create-ui-menu",
+                        session=session,
+                        raw_pointer="CREATE ui.menu@v1",
+                        parsed_operator="CREATE",
+                        parsed_class="ui.menu@v1",
+                        parsed_version="v1",
+                    )
+                ],
+                "operator_registry_refs": ["registry:v85b:operator:CREATE"],
+                "class_registry_refs": ["registry:v85b:object_class:ui.menu@v1"],
+                "obligation_family_refs": explicit_obligation_refs,
+                "lookup_input_kind": "explicit_semantic_pointer",
+                "lookup_posture": "exact_match_for_review_only",
+                "canonical_lookup_status": "exact_match_for_review_only",
+                "pointer_competency_kind": "explicit_pointer_lookup",
+                "competency_claim_horizon": "exact_lookup_only",
+                "order_preservation_posture": "order_preserved_for_review",
+                "duplicate_preservation_posture": "duplicates_not_present",
+                "unknown_pointer_posture": "unknown_pointer_not_present",
+                "conflict_posture": "no_conflict",
+                "obligation_expansion_posture": "named_for_later_expansion_only",
+                "non_authority_guardrail_refs": ["guardrail:v85a:intent-to-declaration-office"],
+                "limitation_note": (
+                    "Explicit semantic lookup is exact for review with no obligation expansion."
+                ),
+            },
+            {
+                "lookup_ref": "lookup:v85b:opaque-m42-sequence",
+                "semantic_declaration_session_ref": session,
+                "candidate_ref": candidate_ref,
+                "declaration_request_refs": [
+                    "declaration-request:v85a:intent-to-declaration-office"
+                ],
+                "source_refs": source_refs,
+                "semantic_pointer": "M-42",
+                "semantic_pointer_rows": [
+                    _semantic_pointer_row(
+                        pointer_ref="pointer:v85b:opaque:M-42",
+                        session=session,
+                        raw_pointer="M-42",
+                        parsed_operator="OPAQUE",
+                        parsed_class="M-42",
+                        parsed_version="opaque",
+                    )
+                ],
+                "operator_registry_refs": [],
+                "class_registry_refs": [],
+                "obligation_family_refs": [],
+                "lookup_input_kind": "opaque_pointer",
+                "lookup_posture": "exact_match_for_review_only",
+                "canonical_lookup_status": "exact_match_for_review_only",
+                "pointer_competency_kind": "opaque_pointer_obedience",
+                "competency_claim_horizon": "pointer_obedience_only",
+                "order_preservation_posture": "order_preserved_for_review",
+                "duplicate_preservation_posture": "duplicates_preserved_for_review",
+                "unknown_pointer_posture": "unknown_pointer_not_present",
+                "conflict_posture": "no_conflict",
+                "obligation_expansion_posture": "lookup_result_only",
+                "non_authority_guardrail_refs": ["guardrail:v85a:intent-to-declaration-office"],
+                "limitation_note": (
+                    "Opaque lookup records pointer obedience for review "
+                    "with no obligation expansion."
+                ),
+            },
+            {
+                "lookup_ref": "lookup:v85b:unknown-class-registry-gap",
+                "semantic_declaration_session_ref": session,
+                "candidate_ref": candidate_ref,
+                "declaration_request_refs": ["declaration-request:v85a:unknown-class-registry-gap"],
+                "source_refs": source_refs,
+                "semantic_pointer": "CREATE unknown.widget@v9",
+                "semantic_pointer_rows": [
+                    _semantic_pointer_row(
+                        pointer_ref="pointer:v85b:unknown-widget",
+                        session=session,
+                        raw_pointer="CREATE unknown.widget@v9",
+                        parsed_operator="CREATE",
+                        parsed_class="unknown.widget@v9",
+                        parsed_version="v9",
+                        pointer_parse_posture="unknown_class",
+                        normalization_posture="normalization_rejected",
+                    )
+                ],
+                "operator_registry_refs": ["registry:v85b:operator:CREATE"],
+                "class_registry_refs": [],
+                "obligation_family_refs": [],
+                "lookup_input_kind": "registry_gap_candidate",
+                "lookup_posture": "registry_gap",
+                "canonical_lookup_status": "registry_gap",
+                "pointer_competency_kind": "registry_gap_detection",
+                "competency_claim_horizon": "natural_binding_not_claimed",
+                "order_preservation_posture": "order_preserved_for_review",
+                "duplicate_preservation_posture": "duplicates_not_present",
+                "unknown_pointer_posture": "unknown_pointer_registry_gap",
+                "conflict_posture": "conflict_blocked_by_registry_gap",
+                "obligation_expansion_posture": "expansion_blocked_by_registry_gap",
+                "non_authority_guardrail_refs": ["guardrail:v85a:unknown-class-registry-gap"],
+                "limitation_note": (
+                    "Unknown class lookup routes to registry-gap review "
+                    "with no obligation expansion."
+                ),
+            },
+        ],
+        key=lambda row: str(row["lookup_ref"]),
+    )
+
+
+def derive_v85b_repo_canonical_meta_lookup_index(
+    *,
+    repo_root: Path | None = None,
+    semantic_declaration_source_index: RepoSemanticDeclarationSourceIndex | None = None,
+    turn_semantic_declaration_request: RepoTurnSemanticDeclarationRequest | None = None,
+    semantic_declaration_non_authority_guardrail: (
+        RepoSemanticDeclarationNonAuthorityGuardrail | None
+    ) = None,
+) -> RepoCanonicalMetaLookupIndex:
+    _ = repo_root
+    if semantic_declaration_source_index is None:
+        semantic_declaration_source_index = derive_v85a_repo_semantic_declaration_source_index()
+    if turn_semantic_declaration_request is None:
+        turn_semantic_declaration_request = derive_v85a_repo_turn_semantic_declaration_request(
+            semantic_declaration_source_index=semantic_declaration_source_index
+        )
+    if semantic_declaration_non_authority_guardrail is None:
+        semantic_declaration_non_authority_guardrail = (
+            derive_v85a_repo_semantic_declaration_non_authority_guardrail(
+                semantic_declaration_source_index=semantic_declaration_source_index,
+                turn_semantic_declaration_request=turn_semantic_declaration_request,
+            )
+        )
+    session = turn_semantic_declaration_request.declaration_request_rows[
+        0
+    ].semantic_declaration_session_ref
+    candidate_ref = turn_semantic_declaration_request.declaration_request_rows[0].candidate_ref
+    payload = {
+        "schema": REPO_CANONICAL_META_LOOKUP_INDEX_SCHEMA,
+        "canonical_meta_lookup_index_id": "",
+        "semantic_declaration_source_index_id": (
+            semantic_declaration_source_index.semantic_declaration_source_index_id
+        ),
+        "turn_semantic_declaration_request_id": (
+            turn_semantic_declaration_request.turn_semantic_declaration_request_id
+        ),
+        "semantic_declaration_non_authority_guardrail_id": (
+            semantic_declaration_non_authority_guardrail.semantic_declaration_non_authority_guardrail_id
+        ),
+        "review_id": "vNext+240",
+        "snapshot_id": "vNext+240-semantic-lookup-start",
+        "source_set_id": "source-set:v85b:canonical-lookup-registry",
+        "lookup_rows": _v85b_lookup_rows(session=session, candidate_ref=candidate_ref),
+        "lookup_summary": (
+            "V85-B canonical lookup rows are for review with no obligation expansion."
+        ),
+    }
+    payload["canonical_meta_lookup_index_id"] = _surface_id(
+        "repo_canonical_meta_lookup_index",
+        REPO_CANONICAL_META_LOOKUP_INDEX_SCHEMA,
+        payload,
+        "canonical_meta_lookup_index_id",
+    )
+    return RepoCanonicalMetaLookupIndex.model_validate(payload)
+
+
+def derive_v85b_repo_semantic_pointer_lookup_fixture(
+    *,
+    repo_root: Path | None = None,
+    semantic_declaration_source_index: RepoSemanticDeclarationSourceIndex | None = None,
+    turn_semantic_declaration_request: RepoTurnSemanticDeclarationRequest | None = None,
+    semantic_declaration_non_authority_guardrail: (
+        RepoSemanticDeclarationNonAuthorityGuardrail | None
+    ) = None,
+    canonical_meta_lookup_index: RepoCanonicalMetaLookupIndex | None = None,
+    semantic_operator_class_registry: RepoSemanticOperatorClassRegistry | None = None,
+    obligation_family_registry: RepoObligationFamilyRegistry | None = None,
+) -> RepoSemanticPointerLookupFixture:
+    _ = repo_root
+    if semantic_declaration_source_index is None:
+        semantic_declaration_source_index = derive_v85a_repo_semantic_declaration_source_index()
+    if turn_semantic_declaration_request is None:
+        turn_semantic_declaration_request = derive_v85a_repo_turn_semantic_declaration_request(
+            semantic_declaration_source_index=semantic_declaration_source_index
+        )
+    if semantic_declaration_non_authority_guardrail is None:
+        semantic_declaration_non_authority_guardrail = (
+            derive_v85a_repo_semantic_declaration_non_authority_guardrail(
+                semantic_declaration_source_index=semantic_declaration_source_index,
+                turn_semantic_declaration_request=turn_semantic_declaration_request,
+            )
+        )
+    if canonical_meta_lookup_index is None:
+        canonical_meta_lookup_index = derive_v85b_repo_canonical_meta_lookup_index(
+            semantic_declaration_source_index=semantic_declaration_source_index,
+            turn_semantic_declaration_request=turn_semantic_declaration_request,
+            semantic_declaration_non_authority_guardrail=semantic_declaration_non_authority_guardrail,
+        )
+    if semantic_operator_class_registry is None:
+        semantic_operator_class_registry = derive_v85b_repo_semantic_operator_class_registry(
+            semantic_declaration_source_index=semantic_declaration_source_index,
+            turn_semantic_declaration_request=turn_semantic_declaration_request,
+            semantic_declaration_non_authority_guardrail=semantic_declaration_non_authority_guardrail,
+        )
+    if obligation_family_registry is None:
+        obligation_family_registry = derive_v85b_repo_obligation_family_registry(
+            semantic_declaration_source_index=semantic_declaration_source_index,
+            turn_semantic_declaration_request=turn_semantic_declaration_request,
+            semantic_declaration_non_authority_guardrail=semantic_declaration_non_authority_guardrail,
+        )
+    session = turn_semantic_declaration_request.declaration_request_rows[
+        0
+    ].semantic_declaration_session_ref
+    source_refs = _v85b_base_source_refs()
+    payload = {
+        "schema": REPO_SEMANTIC_POINTER_LOOKUP_FIXTURE_SCHEMA,
+        "semantic_pointer_lookup_fixture_id": "",
+        "canonical_meta_lookup_index_id": (
+            canonical_meta_lookup_index.canonical_meta_lookup_index_id
+        ),
+        "semantic_operator_class_registry_id": (
+            semantic_operator_class_registry.semantic_operator_class_registry_id
+        ),
+        "obligation_family_registry_id": obligation_family_registry.obligation_family_registry_id,
+        "semantic_declaration_source_index_id": (
+            semantic_declaration_source_index.semantic_declaration_source_index_id
+        ),
+        "turn_semantic_declaration_request_id": (
+            turn_semantic_declaration_request.turn_semantic_declaration_request_id
+        ),
+        "semantic_declaration_non_authority_guardrail_id": (
+            semantic_declaration_non_authority_guardrail.semantic_declaration_non_authority_guardrail_id
+        ),
+        "review_id": "vNext+240",
+        "snapshot_id": "vNext+240-semantic-lookup-start",
+        "source_set_id": "source-set:v85b:canonical-lookup-registry",
+        "lookup_fixture_rows": [
+            {
+                "lookup_fixture_ref": "lookup-fixture:v85b:explicit-create-ui-menu",
+                "semantic_declaration_session_ref": session,
+                "source_refs": source_refs,
+                "fixture_kind": "explicit_semantic_pointer_lookup",
+                "pointer_competency_kind": "explicit_pointer_lookup",
+                "competency_claim_horizon": "exact_lookup_only",
+                "input_pointer_rows": [
+                    _semantic_pointer_row(
+                        pointer_ref="pointer:v85b:fixture:create-ui-menu",
+                        session=session,
+                        raw_pointer="CREATE ui.menu@v1",
+                        parsed_operator="CREATE",
+                        parsed_class="ui.menu@v1",
+                        parsed_version="v1",
+                    )
+                ],
+                "expected_lookup_rows": [
+                    "obligation-family:v85b:birth_continuation_death_algebra@v1",
+                    "obligation-family:v85b:failure_path_fail_closed@v1",
+                    "obligation-family:v85b:rollback_cleanup_teardown@v1",
+                    "obligation-family:v85b:stateful_lifecycle@v1",
+                ],
+                "expected_order_posture": "order_preserved",
+                "expected_duplicate_posture": "duplicates_absent",
+                "expected_unknown_posture": "unknown_absent",
+                "expected_conflict_posture": "conflict_absent",
+                "actual_result_refs": ["lookup:v85b:create-ui-menu"],
+                "fixture_posture": "fixture_passes_for_review_only",
+                "non_authority_guardrail_refs": ["guardrail:v85a:intent-to-declaration-office"],
+                "limitation_note": ("Explicit semantic fixture is for lookup review only."),
+            },
+            {
+                "lookup_fixture_ref": "lookup-fixture:v85b:opaque-m42-sequence",
+                "semantic_declaration_session_ref": session,
+                "source_refs": source_refs,
+                "fixture_kind": "opaque_pointer_exact_lookup",
+                "pointer_competency_kind": "opaque_pointer_obedience",
+                "competency_claim_horizon": "pointer_obedience_only",
+                "input_pointer_rows": [
+                    _semantic_pointer_row(
+                        pointer_ref=f"pointer:v85b:fixture:opaque:{raw}",
+                        session=session,
+                        raw_pointer=raw,
+                        parsed_operator="OPAQUE",
+                        parsed_class=raw,
+                        parsed_version="opaque",
+                    )
+                    for raw in ["M-42", "A1", "A9", "C4", "Z2"]
+                ],
+                "expected_lookup_rows": ["A1", "A9", "C4", "Z2"],
+                "expected_order_posture": "order_preserved",
+                "expected_duplicate_posture": "duplicates_preserved",
+                "expected_unknown_posture": "unknown_absent",
+                "expected_conflict_posture": "conflict_absent",
+                "actual_result_refs": ["lookup:v85b:opaque-m42-sequence"],
+                "fixture_posture": "fixture_passes_for_review_only",
+                "non_authority_guardrail_refs": ["guardrail:v85a:intent-to-declaration-office"],
+                "limitation_note": "Opaque pointer fixture proves obedience for review only.",
+            },
+            {
+                "lookup_fixture_ref": "lookup-fixture:v85b:unknown-class-abstain",
+                "semantic_declaration_session_ref": session,
+                "source_refs": source_refs,
+                "fixture_kind": "explicit_semantic_pointer_registry_gap",
+                "pointer_competency_kind": "registry_gap_detection",
+                "competency_claim_horizon": "natural_binding_not_claimed",
+                "input_pointer_rows": [
+                    _semantic_pointer_row(
+                        pointer_ref="pointer:v85b:fixture:unknown-widget",
+                        session=session,
+                        raw_pointer="CREATE unknown.widget@v9",
+                        parsed_operator="CREATE",
+                        parsed_class="unknown.widget@v9",
+                        parsed_version="v9",
+                        pointer_parse_posture="unknown_class",
+                        normalization_posture="normalization_rejected",
+                    )
+                ],
+                "expected_lookup_rows": [],
+                "expected_order_posture": "order_preserved",
+                "expected_duplicate_posture": "duplicates_absent",
+                "expected_unknown_posture": "unknown_registry_gap",
+                "expected_conflict_posture": "conflict_absent",
+                "actual_result_refs": ["lookup:v85b:unknown-class-registry-gap"],
+                "fixture_posture": "fixture_records_registry_gap",
+                "non_authority_guardrail_refs": ["guardrail:v85a:unknown-class-registry-gap"],
+                "limitation_note": "Unknown class fixture routes to registry-gap review.",
+            },
+        ],
+        "lookup_fixture_summary": (
+            "V85-B pointer fixtures prove lookup behavior for review with no implementation."
+        ),
+    }
+    payload["semantic_pointer_lookup_fixture_id"] = _surface_id(
+        "repo_semantic_pointer_lookup_fixture",
+        REPO_SEMANTIC_POINTER_LOOKUP_FIXTURE_SCHEMA,
+        payload,
+        "semantic_pointer_lookup_fixture_id",
+    )
+    return RepoSemanticPointerLookupFixture.model_validate(payload)
+
+
+def validate_v85b_semantic_lookup_registry_bundle(
+    *,
+    semantic_declaration_source_index: RepoSemanticDeclarationSourceIndex,
+    turn_semantic_declaration_request: RepoTurnSemanticDeclarationRequest,
+    semantic_declaration_non_authority_guardrail: RepoSemanticDeclarationNonAuthorityGuardrail,
+    canonical_meta_lookup_index: RepoCanonicalMetaLookupIndex,
+    semantic_operator_class_registry: RepoSemanticOperatorClassRegistry,
+    obligation_family_registry: RepoObligationFamilyRegistry,
+    semantic_pointer_lookup_fixture: RepoSemanticPointerLookupFixture,
+) -> None:
+    if (
+        canonical_meta_lookup_index.semantic_declaration_source_index_id
+        != semantic_declaration_source_index.semantic_declaration_source_index_id
+        or semantic_operator_class_registry.semantic_declaration_source_index_id
+        != semantic_declaration_source_index.semantic_declaration_source_index_id
+        or obligation_family_registry.semantic_declaration_source_index_id
+        != semantic_declaration_source_index.semantic_declaration_source_index_id
+        or semantic_pointer_lookup_fixture.semantic_declaration_source_index_id
+        != semantic_declaration_source_index.semantic_declaration_source_index_id
+    ):
+        raise ValueError("V85-B surfaces must reference released V85-A source index")
+    if (
+        canonical_meta_lookup_index.turn_semantic_declaration_request_id
+        != turn_semantic_declaration_request.turn_semantic_declaration_request_id
+        or semantic_operator_class_registry.turn_semantic_declaration_request_id
+        != turn_semantic_declaration_request.turn_semantic_declaration_request_id
+        or obligation_family_registry.turn_semantic_declaration_request_id
+        != turn_semantic_declaration_request.turn_semantic_declaration_request_id
+        or semantic_pointer_lookup_fixture.turn_semantic_declaration_request_id
+        != turn_semantic_declaration_request.turn_semantic_declaration_request_id
+    ):
+        raise ValueError("V85-B surfaces must reference released V85-A request")
+    guardrail_id = (
+        semantic_declaration_non_authority_guardrail.semantic_declaration_non_authority_guardrail_id
+    )
+    if (
+        canonical_meta_lookup_index.semantic_declaration_non_authority_guardrail_id
+        != guardrail_id
+        or semantic_operator_class_registry.semantic_declaration_non_authority_guardrail_id
+        != guardrail_id
+        or obligation_family_registry.semantic_declaration_non_authority_guardrail_id
+        != guardrail_id
+        or semantic_pointer_lookup_fixture.semantic_declaration_non_authority_guardrail_id
+        != guardrail_id
+    ):
+        raise ValueError("V85-B surfaces must reference released V85-A guardrail")
+    shared = {
+        canonical_meta_lookup_index.review_id,
+        semantic_operator_class_registry.review_id,
+        obligation_family_registry.review_id,
+        semantic_pointer_lookup_fixture.review_id,
+    }
+    if shared != {"vNext+240"}:
+        raise ValueError("V85-B surfaces must share vNext+240 review id")
+    if (
+        semantic_pointer_lookup_fixture.canonical_meta_lookup_index_id
+        != canonical_meta_lookup_index.canonical_meta_lookup_index_id
+        or semantic_pointer_lookup_fixture.semantic_operator_class_registry_id
+        != semantic_operator_class_registry.semantic_operator_class_registry_id
+        or semantic_pointer_lookup_fixture.obligation_family_registry_id
+        != obligation_family_registry.obligation_family_registry_id
+    ):
+        raise ValueError("lookup fixture must reference supplied V85-B surfaces")
+
+    known_requests = {
+        row.declaration_request_ref: row
+        for row in turn_semantic_declaration_request.declaration_request_rows
+    }
+    known_guardrails = {
+        row.guardrail_ref: row
+        for row in semantic_declaration_non_authority_guardrail.guardrail_rows
+    }
+    known_registry_refs = {
+        row.registry_ref for row in semantic_operator_class_registry.registry_rows
+    }
+    known_aliases = {
+        alias.alias_value
+        for row in semantic_operator_class_registry.registry_rows
+        for alias in row.alias_rows
+    }
+    known_obligation_refs = {
+        row.obligation_family_ref for row in obligation_family_registry.obligation_family_rows
+    }
+    known_lookup_refs = {row.lookup_ref for row in canonical_meta_lookup_index.lookup_rows}
+    known_sessions = {
+        row.semantic_declaration_session_ref
+        for row in turn_semantic_declaration_request.declaration_request_rows
+    }
+    known_candidates = {
+        row.candidate_ref for row in turn_semantic_declaration_request.declaration_request_rows
+    }
+
+    for registry_row in semantic_operator_class_registry.registry_rows:
+        if registry_row.semantic_declaration_session_ref not in known_sessions:
+            raise ValueError("registry rows must use released declaration session")
+    for obligation_row in obligation_family_registry.obligation_family_rows:
+        if obligation_row.semantic_declaration_session_ref not in known_sessions:
+            raise ValueError("obligation rows must use released declaration session")
+        if any(ref not in known_registry_refs for ref in obligation_row.applies_to_operator_refs):
+            raise ValueError("obligation operator applicability refs must resolve")
+        if any(ref not in known_registry_refs for ref in obligation_row.applies_to_class_refs):
+            raise ValueError("obligation class applicability refs must resolve")
+    for lookup_row in canonical_meta_lookup_index.lookup_rows:
+        if lookup_row.semantic_declaration_session_ref not in known_sessions:
+            raise ValueError("lookup rows must use released declaration session")
+        if lookup_row.candidate_ref not in known_candidates:
+            raise ValueError("lookup rows must use released candidate")
+        if any(ref not in known_requests for ref in lookup_row.declaration_request_refs):
+            raise ValueError("lookup request refs must resolve to released V85-A requests")
+        if any(ref not in known_guardrails for ref in lookup_row.non_authority_guardrail_refs):
+            raise ValueError("lookup guardrail refs must resolve to released V85-A guardrails")
+        if any(ref not in known_registry_refs for ref in lookup_row.operator_registry_refs):
+            raise ValueError("lookup operator registry refs must resolve")
+        if any(ref not in known_registry_refs for ref in lookup_row.class_registry_refs):
+            raise ValueError("lookup class registry refs must resolve")
+        if any(ref not in known_obligation_refs for ref in lookup_row.obligation_family_refs):
+            raise ValueError("lookup obligation family refs must resolve")
+        for pointer_row in lookup_row.semantic_pointer_rows:
+            if pointer_row.pointer_parse_posture == "parsed_with_alias":
+                raw_parts = pointer_row.raw_pointer.split(maxsplit=1)
+                raw_class = raw_parts[1] if len(raw_parts) == 2 else pointer_row.raw_pointer
+                if raw_class not in known_aliases:
+                    raise ValueError("alias pointer lookup requires a registry alias row")
+        if (
+            lookup_row.lookup_input_kind != "opaque_pointer"
+            and lookup_row.lookup_posture == "exact_match_for_review_only"
+            and not lookup_row.obligation_family_refs
+        ):
+            raise ValueError("semantic exact lookup must name future obligation families")
+    for fixture_row in semantic_pointer_lookup_fixture.lookup_fixture_rows:
+        if fixture_row.semantic_declaration_session_ref not in known_sessions:
+            raise ValueError("fixture rows must use released declaration session")
+        if any(ref not in known_guardrails for ref in fixture_row.non_authority_guardrail_refs):
+            raise ValueError("fixture guardrail refs must resolve to released V85-A guardrails")
+        if any(ref not in known_lookup_refs for ref in fixture_row.actual_result_refs):
+            raise ValueError("fixture actual result refs must resolve to lookup rows")
+        if (
+            fixture_row.fixture_kind.startswith("opaque_pointer")
+            and fixture_row.competency_claim_horizon != "pointer_obedience_only"
+        ):
+            raise ValueError("opaque fixtures cannot claim natural semantic binding")
+
+
+def derive_v85b_semantic_lookup_registry_bundle(
+    *, repo_root: Path | None = None
+) -> tuple[
+    RepoSemanticDeclarationSourceIndex,
+    RepoTurnSemanticDeclarationRequest,
+    RepoSemanticDeclarationNonAuthorityGuardrail,
+    RepoCanonicalMetaLookupIndex,
+    RepoSemanticOperatorClassRegistry,
+    RepoObligationFamilyRegistry,
+    RepoSemanticPointerLookupFixture,
+]:
+    (
+        _v84_readiness_summary,
+        _v84_handoff,
+        _v84_closeout,
+        source_index,
+        request,
+        guardrail,
+    ) = derive_v85a_semantic_declaration_review_bundle(repo_root=repo_root)
+    lookup_index = derive_v85b_repo_canonical_meta_lookup_index(
+        repo_root=repo_root,
+        semantic_declaration_source_index=source_index,
+        turn_semantic_declaration_request=request,
+        semantic_declaration_non_authority_guardrail=guardrail,
+    )
+    registry = derive_v85b_repo_semantic_operator_class_registry(
+        repo_root=repo_root,
+        semantic_declaration_source_index=source_index,
+        turn_semantic_declaration_request=request,
+        semantic_declaration_non_authority_guardrail=guardrail,
+    )
+    obligation_registry = derive_v85b_repo_obligation_family_registry(
+        repo_root=repo_root,
+        semantic_declaration_source_index=source_index,
+        turn_semantic_declaration_request=request,
+        semantic_declaration_non_authority_guardrail=guardrail,
+    )
+    fixture = derive_v85b_repo_semantic_pointer_lookup_fixture(
+        repo_root=repo_root,
+        semantic_declaration_source_index=source_index,
+        turn_semantic_declaration_request=request,
+        semantic_declaration_non_authority_guardrail=guardrail,
+        canonical_meta_lookup_index=lookup_index,
+        semantic_operator_class_registry=registry,
+        obligation_family_registry=obligation_registry,
+    )
+    validate_v85b_semantic_lookup_registry_bundle(
+        semantic_declaration_source_index=source_index,
+        turn_semantic_declaration_request=request,
+        semantic_declaration_non_authority_guardrail=guardrail,
+        canonical_meta_lookup_index=lookup_index,
+        semantic_operator_class_registry=registry,
+        obligation_family_registry=obligation_registry,
+        semantic_pointer_lookup_fixture=fixture,
+    )
+    return (
+        source_index,
+        request,
+        guardrail,
+        lookup_index,
+        registry,
+        obligation_registry,
+        fixture,
     )

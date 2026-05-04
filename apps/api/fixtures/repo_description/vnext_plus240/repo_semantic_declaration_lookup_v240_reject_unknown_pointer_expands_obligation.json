@@ -1,0 +1,185 @@
+{
+  "canonical_meta_lookup_index_id": "repo_canonical_meta_lookup_index_e73c5b6b4ec8ba28edc94bc9",
+  "lookup_rows": [
+    {
+      "candidate_ref": "candidate:v85:semantic-declaration-office",
+      "canonical_lookup_status": "exact_match_for_review_only",
+      "class_registry_refs": [
+        "registry:v85b:object_class:ui.menu@v1"
+      ],
+      "competency_claim_horizon": "exact_lookup_only",
+      "conflict_posture": "no_conflict",
+      "declaration_request_refs": [
+        "declaration-request:v85a:intent-to-declaration-office"
+      ],
+      "duplicate_preservation_posture": "duplicates_not_present",
+      "limitation_note": "Explicit semantic lookup is exact for review with no obligation expansion.",
+      "lookup_input_kind": "explicit_semantic_pointer",
+      "lookup_posture": "exact_match_for_review_only",
+      "lookup_ref": "lookup:v85b:create-ui-menu",
+      "non_authority_guardrail_refs": [
+        "guardrail:v85a:intent-to-declaration-office"
+      ],
+      "obligation_expansion_posture": "named_for_later_expansion_only",
+      "obligation_family_refs": [
+        "obligation-family:v85b:birth_continuation_death_algebra@v1",
+        "obligation-family:v85b:failure_path_fail_closed@v1",
+        "obligation-family:v85b:rollback_cleanup_teardown@v1",
+        "obligation-family:v85b:stateful_lifecycle@v1"
+      ],
+      "operator_registry_refs": [
+        "registry:v85b:operator:CREATE"
+      ],
+      "order_preservation_posture": "order_preserved_for_review",
+      "pointer_competency_kind": "explicit_pointer_lookup",
+      "semantic_declaration_session_ref": "semantic-declaration-session:v85a:intent-to-declaration-office",
+      "semantic_pointer": "CREATE ui.menu@v1",
+      "semantic_pointer_rows": [
+        {
+          "limitation_note": "Pointer row is recorded for lookup review only.",
+          "normalization_posture": "normalization_not_required",
+          "parsed_class": "ui.menu@v1",
+          "parsed_operator": "CREATE",
+          "parsed_version": "v1",
+          "pointer_parse_posture": "parsed_exact",
+          "pointer_ref": "pointer:v85b:create-ui-menu",
+          "raw_pointer": "CREATE ui.menu@v1",
+          "semantic_declaration_session_ref": "semantic-declaration-session:v85a:intent-to-declaration-office",
+          "source_refs": [
+            "apps/api/fixtures/repo_description/vnext_plus239/repo_semantic_declaration_non_authority_guardrail_v239_reference.json",
+            "apps/api/fixtures/repo_description/vnext_plus239/repo_semantic_declaration_source_index_v239_reference.json",
+            "apps/api/fixtures/repo_description/vnext_plus239/repo_turn_semantic_declaration_request_v239_reference.json",
+            "docs/DRAFT_ADEU_SEMANTIC_DECLARATION_META_LOOP_V85B_IMPLEMENTATION_MAPPING_v0.md",
+            "docs/LOCKED_CONTINUATION_vNEXT_PLUS240.md"
+          ]
+        }
+      ],
+      "source_refs": [
+        "apps/api/fixtures/repo_description/vnext_plus239/repo_semantic_declaration_non_authority_guardrail_v239_reference.json",
+        "apps/api/fixtures/repo_description/vnext_plus239/repo_semantic_declaration_source_index_v239_reference.json",
+        "apps/api/fixtures/repo_description/vnext_plus239/repo_turn_semantic_declaration_request_v239_reference.json",
+        "docs/DRAFT_ADEU_SEMANTIC_DECLARATION_META_LOOP_V85B_IMPLEMENTATION_MAPPING_v0.md",
+        "docs/LOCKED_CONTINUATION_vNEXT_PLUS240.md"
+      ],
+      "unknown_pointer_posture": "unknown_pointer_not_present"
+    },
+    {
+      "candidate_ref": "candidate:v85:semantic-declaration-office",
+      "canonical_lookup_status": "exact_match_for_review_only",
+      "class_registry_refs": [],
+      "competency_claim_horizon": "pointer_obedience_only",
+      "conflict_posture": "no_conflict",
+      "declaration_request_refs": [
+        "declaration-request:v85a:intent-to-declaration-office"
+      ],
+      "duplicate_preservation_posture": "duplicates_preserved_for_review",
+      "limitation_note": "Opaque lookup records pointer obedience for review with no obligation expansion.",
+      "lookup_input_kind": "opaque_pointer",
+      "lookup_posture": "exact_match_for_review_only",
+      "lookup_ref": "lookup:v85b:opaque-m42-sequence",
+      "non_authority_guardrail_refs": [
+        "guardrail:v85a:intent-to-declaration-office"
+      ],
+      "obligation_expansion_posture": "lookup_result_only",
+      "obligation_family_refs": [],
+      "operator_registry_refs": [],
+      "order_preservation_posture": "order_preserved_for_review",
+      "pointer_competency_kind": "opaque_pointer_obedience",
+      "semantic_declaration_session_ref": "semantic-declaration-session:v85a:intent-to-declaration-office",
+      "semantic_pointer": "M-42",
+      "semantic_pointer_rows": [
+        {
+          "limitation_note": "Pointer row is recorded for lookup review only.",
+          "normalization_posture": "normalization_not_required",
+          "parsed_class": "M-42",
+          "parsed_operator": "OPAQUE",
+          "parsed_version": "opaque",
+          "pointer_parse_posture": "parsed_exact",
+          "pointer_ref": "pointer:v85b:opaque:M-42",
+          "raw_pointer": "M-42",
+          "semantic_declaration_session_ref": "semantic-declaration-session:v85a:intent-to-declaration-office",
+          "source_refs": [
+            "apps/api/fixtures/repo_description/vnext_plus239/repo_semantic_declaration_non_authority_guardrail_v239_reference.json",
+            "apps/api/fixtures/repo_description/vnext_plus239/repo_semantic_declaration_source_index_v239_reference.json",
+            "apps/api/fixtures/repo_description/vnext_plus239/repo_turn_semantic_declaration_request_v239_reference.json",
+            "docs/DRAFT_ADEU_SEMANTIC_DECLARATION_META_LOOP_V85B_IMPLEMENTATION_MAPPING_v0.md",
+            "docs/LOCKED_CONTINUATION_vNEXT_PLUS240.md"
+          ]
+        }
+      ],
+      "source_refs": [
+        "apps/api/fixtures/repo_description/vnext_plus239/repo_semantic_declaration_non_authority_guardrail_v239_reference.json",
+        "apps/api/fixtures/repo_description/vnext_plus239/repo_semantic_declaration_source_index_v239_reference.json",
+        "apps/api/fixtures/repo_description/vnext_plus239/repo_turn_semantic_declaration_request_v239_reference.json",
+        "docs/DRAFT_ADEU_SEMANTIC_DECLARATION_META_LOOP_V85B_IMPLEMENTATION_MAPPING_v0.md",
+        "docs/LOCKED_CONTINUATION_vNEXT_PLUS240.md"
+      ],
+      "unknown_pointer_posture": "unknown_pointer_not_present"
+    },
+    {
+      "candidate_ref": "candidate:v85:semantic-declaration-office",
+      "canonical_lookup_status": "registry_gap",
+      "class_registry_refs": [],
+      "competency_claim_horizon": "natural_binding_not_claimed",
+      "conflict_posture": "conflict_blocked_by_registry_gap",
+      "declaration_request_refs": [
+        "declaration-request:v85a:unknown-class-registry-gap"
+      ],
+      "duplicate_preservation_posture": "duplicates_not_present",
+      "limitation_note": "Unknown class lookup routes to registry-gap review with no obligation expansion.",
+      "lookup_input_kind": "registry_gap_candidate",
+      "lookup_posture": "registry_gap",
+      "lookup_ref": "lookup:v85b:unknown-class-registry-gap",
+      "non_authority_guardrail_refs": [
+        "guardrail:v85a:unknown-class-registry-gap"
+      ],
+      "obligation_expansion_posture": "expansion_blocked_by_registry_gap",
+      "obligation_family_refs": [
+        "obligation-family:v85b:stateful_lifecycle@v1"
+      ],
+      "operator_registry_refs": [
+        "registry:v85b:operator:CREATE"
+      ],
+      "order_preservation_posture": "order_preserved_for_review",
+      "pointer_competency_kind": "registry_gap_detection",
+      "semantic_declaration_session_ref": "semantic-declaration-session:v85a:intent-to-declaration-office",
+      "semantic_pointer": "CREATE unknown.widget@v9",
+      "semantic_pointer_rows": [
+        {
+          "limitation_note": "Pointer row is recorded for lookup review only.",
+          "normalization_posture": "normalization_rejected",
+          "parsed_class": "unknown.widget@v9",
+          "parsed_operator": "CREATE",
+          "parsed_version": "v9",
+          "pointer_parse_posture": "unknown_class",
+          "pointer_ref": "pointer:v85b:unknown-widget",
+          "raw_pointer": "CREATE unknown.widget@v9",
+          "semantic_declaration_session_ref": "semantic-declaration-session:v85a:intent-to-declaration-office",
+          "source_refs": [
+            "apps/api/fixtures/repo_description/vnext_plus239/repo_semantic_declaration_non_authority_guardrail_v239_reference.json",
+            "apps/api/fixtures/repo_description/vnext_plus239/repo_semantic_declaration_source_index_v239_reference.json",
+            "apps/api/fixtures/repo_description/vnext_plus239/repo_turn_semantic_declaration_request_v239_reference.json",
+            "docs/DRAFT_ADEU_SEMANTIC_DECLARATION_META_LOOP_V85B_IMPLEMENTATION_MAPPING_v0.md",
+            "docs/LOCKED_CONTINUATION_vNEXT_PLUS240.md"
+          ]
+        }
+      ],
+      "source_refs": [
+        "apps/api/fixtures/repo_description/vnext_plus239/repo_semantic_declaration_non_authority_guardrail_v239_reference.json",
+        "apps/api/fixtures/repo_description/vnext_plus239/repo_semantic_declaration_source_index_v239_reference.json",
+        "apps/api/fixtures/repo_description/vnext_plus239/repo_turn_semantic_declaration_request_v239_reference.json",
+        "docs/DRAFT_ADEU_SEMANTIC_DECLARATION_META_LOOP_V85B_IMPLEMENTATION_MAPPING_v0.md",
+        "docs/LOCKED_CONTINUATION_vNEXT_PLUS240.md"
+      ],
+      "unknown_pointer_posture": "unknown_pointer_registry_gap"
+    }
+  ],
+  "lookup_summary": "V85-B canonical lookup rows are for review with no obligation expansion.",
+  "review_id": "vNext+240",
+  "schema": "repo_canonical_meta_lookup_index@1",
+  "semantic_declaration_non_authority_guardrail_id": "repo_semantic_declaration_non_authority_guardrail_62544d11aa2f7cc904e81b7f",
+  "semantic_declaration_source_index_id": "repo_semantic_declaration_source_index_6909fbbd21c955096f26a7a7",
+  "snapshot_id": "vNext+240-semantic-lookup-start",
+  "source_set_id": "source-set:v85b:canonical-lookup-registry",
+  "turn_semantic_declaration_request_id": "repo_turn_semantic_declaration_request_8bebe71e6a4c8405bec9d58f"
+}
