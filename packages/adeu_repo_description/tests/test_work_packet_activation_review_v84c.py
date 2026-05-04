@@ -234,6 +234,36 @@ def test_v84c_reject_fixtures_fail_validation(
         model_type.model_validate(_load_fixture("vnext_plus238", fixture_name))
 
 
+def test_v84c_warning_ready_summary_requires_package_links() -> None:
+    summary_payload = _load_fixture(
+        "vnext_plus238",
+        "repo_work_packet_activation_readiness_summary_v238_reference.json",
+    )
+    summary_payload["summary_rows"][0]["scope_contract_refs"] = []
+
+    with pytest.raises(
+        ValidationError,
+        match="warning-ready summaries require package and coverage refs",
+    ):
+        RepoWorkPacketActivationReadinessSummary.model_validate(summary_payload)
+
+
+def test_v84c_bundle_rejects_carried_blocker_that_is_only_warning() -> None:
+    summary = _v84c_summary()
+    summary_row = summary.summary_rows[0].model_copy(
+        update={
+            "summary_posture": "blocked_by_missing_validation_plan",
+            "ready_basis_posture": "not_ready_blockers_remain",
+            "carried_blocker_refs": ["exception:v84b:future-family-boundary"],
+            "carried_warning_refs": [],
+        }
+    )
+    summary = summary.model_copy(update={"summary_rows": [summary_row]})
+
+    with pytest.raises(ValueError, match="carried blocker refs must point to blockers"):
+        _validate_reference_bundle_with(summary=summary)
+
+
 def test_v84c_bundle_rejects_handoff_package_mismatch() -> None:
     summary = _v84c_summary()
     handoff_payload = _load_fixture(

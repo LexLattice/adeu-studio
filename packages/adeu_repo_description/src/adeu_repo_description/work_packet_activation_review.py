@@ -4012,6 +4012,18 @@ class RepoWorkPacketActivationReadinessSummaryRow(_CartographyBase):
                 raise ValueError("warning-ready summaries must carry warnings")
             if self.coverage_posture != "edge_and_obligation_complete_for_review":
                 raise ValueError("warning-ready summaries require complete coverage")
+            for attr in (
+                "scope_contract_refs",
+                "target_boundary_refs",
+                "validation_plan_refs",
+                "exception_register_refs",
+                "canonical_lock_requirement_refs",
+                "coverage_summary_refs",
+            ):
+                if not getattr(self, attr):
+                    raise ValueError(
+                        "warning-ready summaries require package and coverage refs"
+                    )
         if self.summary_posture.startswith("blocked_by_"):
             if self.ready_basis_posture not in {
                 "not_ready_blockers_remain",
@@ -4889,11 +4901,10 @@ def validate_v84c_work_packet_activation_closeout_bundle(
                 raise ValueError(
                     "summary guardrail refs must match activation package and candidate"
                 )
-        blocking_refs = {
-            ref
-            for ref in row.carried_blocker_refs
-            if exception_rows[ref].blocking_posture == "blocking"
-        }
+        for blocker_ref in row.carried_blocker_refs:
+            if exception_rows[blocker_ref].blocking_posture != "blocking":
+                raise ValueError("carried blocker refs must point to blockers")
+        blocking_refs = set(row.carried_blocker_refs)
         if (
             row.summary_posture
             in {
@@ -4909,6 +4920,7 @@ def validate_v84c_work_packet_activation_closeout_bundle(
                 raise ValueError("carried warning refs must point to warnings")
             if warning.exception_kind in _V84C_BLOCKING_WARNING_KINDS:
                 raise ValueError("warning-ready summaries cannot carry blocker-grade warnings")
+        all_matrix_refs: set[str] = set()
         for validation_ref in row.validation_plan_refs:
             validation_row = validation_rows[validation_ref]
             covered_edges = {
@@ -4925,17 +4937,19 @@ def validate_v84c_work_packet_activation_closeout_bundle(
             }
             if not set(validation_row.artifact_obligation_refs).issubset(covered_obligations):
                 raise ValueError("summary validation plan is not obligation complete")
-            known_matrix_refs = {
-                r.validation_matrix_ref for r in validation_row.validation_matrix_rows
-            }
-            if not set(row.coverage_summary_refs).issubset(known_matrix_refs):
-                raise ValueError("summary coverage refs must resolve to validation matrix rows")
-        for scope_ref in row.scope_contract_refs:
-            scope = scope_rows[scope_ref]
-            if not set(row.canonical_lock_requirement_refs).issubset(
-                set(scope.canonical_lock_requirement_refs)
-            ):
-                raise ValueError("summary canonical lock refs must resolve to scope rows")
+            all_matrix_refs.update(
+                matrix_row.validation_matrix_ref
+                for matrix_row in validation_row.validation_matrix_rows
+            )
+        if not set(row.coverage_summary_refs).issubset(all_matrix_refs):
+            raise ValueError("summary coverage refs must resolve to validation matrix rows")
+        all_lock_refs = {
+            lock_ref
+            for scope_ref in row.scope_contract_refs
+            for lock_ref in scope_rows[scope_ref].canonical_lock_requirement_refs
+        }
+        if not set(row.canonical_lock_requirement_refs).issubset(all_lock_refs):
+            raise ValueError("summary canonical lock refs must resolve to scope rows")
         if row.summary_posture in {
             "ready_for_later_implementation_lock_review",
             "ready_with_nonblocking_warnings",
@@ -4974,6 +4988,35 @@ def validate_v84c_work_packet_activation_closeout_bundle(
             candidate_ref=row.candidate_ref,
             message="handoff scope refs must match activation package and candidate",
         )
+        _require_row_identity(
+            row.target_boundary_refs,
+            target_rows,
+            activation_package_ref=row.activation_package_ref,
+            candidate_ref=row.candidate_ref,
+            message="handoff target refs must match activation package and candidate",
+        )
+        _require_row_identity(
+            row.validation_plan_refs,
+            validation_rows,
+            activation_package_ref=row.activation_package_ref,
+            candidate_ref=row.candidate_ref,
+            message="handoff validation refs must match activation package and candidate",
+        )
+        _require_row_identity(
+            row.activation_request_refs,
+            request_rows,
+            activation_package_ref=row.activation_package_ref,
+            candidate_ref=row.candidate_ref,
+            message="handoff request refs must match activation package and candidate",
+        )
+        _require_row_identity(
+            row.guardrail_refs,
+            guardrail_rows,
+            activation_package_ref=row.activation_package_ref,
+            candidate_ref=row.candidate_ref,
+            message="handoff guardrail refs must match activation package and candidate",
+        )
+        all_summary_exceptions: set[str] = set()
         for summary_ref in row.summary_refs:
             summary_row = summary_rows[summary_ref]
             if (
@@ -4981,10 +5024,17 @@ def validate_v84c_work_packet_activation_closeout_bundle(
                 or summary_row.candidate_ref != row.candidate_ref
             ):
                 raise ValueError("handoff summary refs must match activation package and candidate")
-            if not set(row.carried_exception_refs).issubset(
-                set(summary_row.carried_blocker_refs) | set(summary_row.carried_warning_refs)
-            ):
-                raise ValueError("handoff carried exceptions must be visible in summaries")
+            all_summary_exceptions.update(summary_row.carried_blocker_refs)
+            all_summary_exceptions.update(summary_row.carried_warning_refs)
+        if not set(row.carried_exception_refs).issubset(all_summary_exceptions):
+            raise ValueError("handoff carried exceptions must be visible in summaries")
+        all_handoff_lock_refs = {
+            lock_ref
+            for scope_ref in row.scope_contract_refs
+            for lock_ref in scope_rows[scope_ref].canonical_lock_requirement_refs
+        }
+        if not set(row.canonical_lock_requirement_refs).issubset(all_handoff_lock_refs):
+            raise ValueError("handoff canonical lock refs must resolve to scope rows")
         if row.handoff_target == "future_canonical_implementation_lock_review":
             if not row.canonical_lock_requirement_refs:
                 raise ValueError("canonical implementation handoffs require lock refs")
