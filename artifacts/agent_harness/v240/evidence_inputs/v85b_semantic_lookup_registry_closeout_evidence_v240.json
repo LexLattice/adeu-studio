@@ -1,0 +1,67 @@
+{
+  "alias_rows_required_for_alias_lookup": true,
+  "arc": "vNext+240",
+  "bundle_fixture_surface_id_linkage_checked": true,
+  "canonical_lookup_truth_rejected": true,
+  "consumed_record_shapes": [
+    "repo_turn_semantic_declaration_request@1",
+    "repo_semantic_declaration_source_index@1",
+    "repo_semantic_declaration_non_authority_guardrail@1"
+  ],
+  "contract_source": "docs/LOCKED_CONTINUATION_vNEXT_PLUS240.md#machine-checkable-contract",
+  "focused_test_reference_path": "packages/adeu_repo_description/tests/test_semantic_declaration_meta_loop_v85b.py",
+  "gate_operator_authority_rejected": true,
+  "implementation_commits": [
+    "7041c16150814edaa2e40a8b4721db6a7feeb92c",
+    "90ee63e8ee2194b83b7fc2e61e16de0a1e816473"
+  ],
+  "implementation_packages": [
+    "adeu_repo_description"
+  ],
+  "implementation_source_path": "packages/adeu_repo_description/src/adeu_repo_description/semantic_declaration_meta_loop.py",
+  "local_closeout_gate": "make arc-closeout-check ARC=240",
+  "local_full_python_gate": "make check",
+  "merge_commit": "3e77c71a56ac278b43c4b48f9fddae2ace930c2c",
+  "merged_at": "2026-05-04T22:43:54Z",
+  "merged_pr": "#468",
+  "merged_pr_url": "https://github.com/LexLattice/adeu-studio/pull/468",
+  "metric_key_continuity_assertion_path": "artifacts/agent_harness/v240/evidence_inputs/metric_key_continuity_assertion_v240.json",
+  "notes": "v240 evidence pins the bounded V85-B canonical lookup and registry seam on main. V85-B consumes released V85-A turn semantic declaration request, source index, and non-authority guardrail substrate; emits review-only canonical meta lookup index, semantic operator/class registry, obligation-family registry, and semantic pointer lookup fixture rows; preserves semantic declaration session and candidate lineage; enforces alias rows for alias lookup, unknown-version fail-closed behavior, GATE non-authority, obligation-family non-expansion, opaque pointer obedience-only posture, fixture-to-surface ID linkage, and lookup result resolution; and ships no declaration review summary, post-declaration handoff, family closeout alignment, obligation expansion, evidence contract, edge probe plan, audit taskpack, deterministic transition table, implementation lock, work-packet activation, command execution, tool invocation, runtime transition, product authorization, graph-memory authority, recursive-policy amendment, or V86 selection.",
+  "obligation_family_expansion_rejected": true,
+  "opaque_pointer_truth_rejected": true,
+  "package_export_surface_path": "packages/adeu_repo_description/src/adeu_repo_description/__init__.py",
+  "reference_fixture_paths": [
+    "apps/api/fixtures/repo_description/vnext_plus240/repo_canonical_meta_lookup_index_v240_reference.json",
+    "apps/api/fixtures/repo_description/vnext_plus240/repo_semantic_operator_class_registry_v240_reference.json",
+    "apps/api/fixtures/repo_description/vnext_plus240/repo_obligation_family_registry_v240_reference.json",
+    "apps/api/fixtures/repo_description/vnext_plus240/repo_semantic_pointer_lookup_fixture_v240_reference.json"
+  ],
+  "reject_fixture_dir": "apps/api/fixtures/repo_description/vnext_plus240",
+  "runtime_event_stream_path": "artifacts/agent_harness/v240/runtime/evidence/local/urm_events.ndjson",
+  "runtime_observability_comparison_path": "artifacts/agent_harness/v240/evidence_inputs/runtime_observability_comparison_v240.json",
+  "schema": "v85b_semantic_lookup_registry_closeout_evidence@1",
+  "schema_export_source_path": "packages/adeu_repo_description/src/adeu_repo_description/export_schema.py",
+  "schema_paths": [
+    "packages/adeu_repo_description/schema/repo_canonical_meta_lookup_index.v1.json",
+    "packages/adeu_repo_description/schema/repo_semantic_operator_class_registry.v1.json",
+    "packages/adeu_repo_description/schema/repo_obligation_family_registry.v1.json",
+    "packages/adeu_repo_description/schema/repo_semantic_pointer_lookup_fixture.v1.json",
+    "spec/repo_canonical_meta_lookup_index.schema.json",
+    "spec/repo_semantic_operator_class_registry.schema.json",
+    "spec/repo_obligation_family_registry.schema.json",
+    "spec/repo_semantic_pointer_lookup_fixture.schema.json"
+  ],
+  "selected_record_shapes": [
+    "repo_canonical_meta_lookup_index@1",
+    "repo_semantic_operator_class_registry@1",
+    "repo_obligation_family_registry@1",
+    "repo_semantic_pointer_lookup_fixture@1"
+  ],
+  "selected_v85c_for_v85b": false,
+  "selected_v86_for_v85b": false,
+  "semantic_declaration_session_identity_preserved": true,
+  "slice": "V85-B",
+  "unknown_pointer_obligation_refs_rejected": true,
+  "unknown_version_latest_rejected": true,
+  "v85a_closeout_evidence_input_path": "artifacts/agent_harness/v239/evidence_inputs/v85a_semantic_declaration_review_closeout_evidence_v239.json"
+}
