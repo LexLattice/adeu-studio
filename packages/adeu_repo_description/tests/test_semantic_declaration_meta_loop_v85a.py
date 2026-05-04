@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import json
+from copy import deepcopy
 from pathlib import Path
 from typing import Any
 
@@ -66,6 +67,18 @@ def _v85a_guardrail(
     return RepoSemanticDeclarationNonAuthorityGuardrail.model_validate(
         _load_fixture("vnext_plus239", name)
     )
+
+
+def _request_payload_with_row(
+    request_ref: str = "declaration-request:v85a:intent-to-declaration-office",
+) -> tuple[dict[str, Any], dict[str, Any]]:
+    payload = deepcopy(
+        _load_fixture("vnext_plus239", "repo_turn_semantic_declaration_request_v239_reference.json")
+    )
+    for row in payload["declaration_request_rows"]:
+        if row["declaration_request_ref"] == request_ref:
+            return payload, row
+    raise AssertionError(f"missing request row {request_ref}")
 
 
 def _validate_reference_bundle_with(
@@ -251,6 +264,72 @@ def test_v85a_bundle_rejects_opaque_pointer_as_natural_binding() -> None:
 def test_v85a_authority_claim_scanner_allows_negated_suffixes() -> None:
     note = "Declaration authority granted is forbidden; no implementation occurs."
     assert _reject_v85_authority_claim(note, field_name="limitation_note") == note
+
+
+def test_v85a_authority_claim_scanner_checks_all_matches() -> None:
+    note = (
+        "No implementation lock created by V85-A. "
+        "This row says implementation lock created for execution."
+    )
+    with pytest.raises(ValueError, match="may not carry V85 declaration authority"):
+        _reject_v85_authority_claim(note, field_name="limitation_note")
+
+
+def test_v85a_request_source_refs_reject_absolute_paths() -> None:
+    payload, row = _request_payload_with_row()
+    row["source_refs"] = ["/tmp/not-repo-relative"]
+    with pytest.raises(ValidationError, match="source_refs must be repo-relative"):
+        RepoTurnSemanticDeclarationRequest.model_validate(payload)
+
+
+def test_v85a_request_binding_basis_must_resolve_to_selected_witnesses() -> None:
+    payload, row = _request_payload_with_row()
+    row["binding_basis_refs"] = ["witness:v85a:support:canonical-loop"]
+    with pytest.raises(ValueError, match="binding basis refs must be a subset"):
+        RepoTurnSemanticDeclarationRequest.model_validate(payload)
+
+
+def test_v85a_request_eligible_direct_witnesses_must_be_referenced() -> None:
+    payload, row = _request_payload_with_row()
+    row["binding_basis_refs"] = ["witness:v85a:support:canonical-loop"]
+    row["source_witness_refs"] = ["witness:v85a:support:canonical-loop"]
+    with pytest.raises(
+        ValidationError,
+        match="eligible semantic declaration requires direct/current witnesses",
+    ):
+        RepoTurnSemanticDeclarationRequest.model_validate(payload)
+
+
+def test_v85a_declared_act_rejects_ambiguous_status_without_ambiguity() -> None:
+    payload, row = _request_payload_with_row()
+    row["declared_semantic_act_rows"][0]["declaration_candidate_status"] = (
+        "ambiguous_candidate"
+    )
+    with pytest.raises(ValueError, match="ambiguous candidates must carry an ambiguous posture"):
+        RepoTurnSemanticDeclarationRequest.model_validate(payload)
+
+
+def test_v85a_request_status_must_match_declared_act_statuses() -> None:
+    payload, row = _request_payload_with_row()
+    row["declaration_candidate_status"] = "ambiguous_candidate"
+    row["declaration_review_eligibility_posture"] = "blocked_by_ambiguous_binding"
+    row["binding_posture"] = "ambiguous"
+    row["binding_resolution_posture"] = "ambiguous_requires_review"
+    with pytest.raises(ValueError, match="ambiguous request requires at least one ambiguous act"):
+        RepoTurnSemanticDeclarationRequest.model_validate(payload)
+
+
+def test_v85a_bundle_requires_core_identifier_consistency() -> None:
+    guardrail = _v85a_guardrail().model_copy(update={"snapshot_id": "mismatched-snapshot"})
+    with pytest.raises(
+        ValueError,
+        match="V85-A bundle components must share review, snapshot, and source set IDs",
+    ):
+        _validate_reference_bundle_with(
+            source_index=_v85a_source_index(),
+            request=_v85a_request(),
+            guardrail=guardrail,
+        )
 
 
 @pytest.mark.parametrize(

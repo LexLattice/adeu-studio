@@ -486,11 +486,9 @@ def _reject_v85_authority_claim(value: str, *, field_name: str) -> str:
         )
 
     for pattern in forbidden_patterns:
-        match = re.search(pattern, lowered)
-        if match is None:
-            continue
-        if not is_negated(match):
-            raise ValueError(f"{field_name} may not carry V85 declaration authority")
+        for match in re.finditer(pattern, lowered):
+            if not is_negated(match):
+                raise ValueError(f"{field_name} may not carry V85 declaration authority")
     return value
 
 
@@ -766,6 +764,8 @@ class RepoDeclaredSemanticActRow(_CartographyBase):
         _validate_sorted_refs(self.modifiers, field_name="modifiers")
         _validate_sorted_refs(self.binding_basis_refs, field_name="binding_basis_refs")
         _validate_sorted_refs(self.source_witness_refs, field_name="source_witness_refs")
+        if not set(self.binding_basis_refs).issubset(self.source_witness_refs):
+            raise ValueError("binding basis refs must be a subset of source witness refs")
         if self.declaration_selection_status != "not_selected_by_v85a":
             raise ValueError("V85-A declaration act rows cannot be selected declarations")
         if self.ambiguity_posture != "not_ambiguous" and self.declaration_candidate_status not in {
@@ -773,6 +773,16 @@ class RepoDeclaredSemanticActRow(_CartographyBase):
             "support_context_only_candidate",
         }:
             raise ValueError("ambiguous acts must remain ambiguous candidates")
+        if (
+            self.declaration_candidate_status == "ambiguous_candidate"
+            and self.ambiguity_posture == "not_ambiguous"
+        ):
+            raise ValueError("ambiguous candidates must carry an ambiguous posture")
+        if (
+            self.declaration_candidate_status == "registry_gap_candidate"
+            and self.registry_gap_posture == "no_registry_gap_claimed"
+        ):
+            raise ValueError("registry-gap candidates must carry registry-gap posture")
         if self.registry_gap_posture != "no_registry_gap_claimed":
             if self.canonical_status != "unknown_class_registry_gap":
                 raise ValueError("registry gap acts must use unknown_class_registry_gap")
@@ -838,11 +848,10 @@ class RepoTurnSemanticDeclarationRequestRow(_CartographyBase):
             "turn_ref",
         ):
             _non_empty(getattr(self, attr), field_name=attr)
+        for attr in ("source_refs", "operator_turn_refs", "repo_context_refs"):
+            _validate_repo_refs(getattr(self, attr), field_name=attr)
         for attr in (
-            "source_refs",
             "source_witness_refs",
-            "operator_turn_refs",
-            "repo_context_refs",
             "binding_basis_refs",
             "negative_cue_refs",
             "uncertainty_slot_refs",
@@ -891,6 +900,10 @@ class RepoTurnSemanticDeclarationRequestRow(_CartographyBase):
         witness_refs = {row.witness_ref for row in self.semantic_act_witness_rows}
         if any(ref not in witness_refs for ref in self.source_witness_refs):
             raise ValueError("source_witness_refs must resolve to semantic act witnesses")
+        if any(ref not in witness_refs for ref in self.binding_basis_refs):
+            raise ValueError("binding_basis_refs must resolve to semantic act witnesses")
+        if not set(self.binding_basis_refs).issubset(self.source_witness_refs):
+            raise ValueError("binding basis refs must be a subset of source witness refs")
         cue_refs = {row.negative_cue_ref for row in self.negative_cue_rows}
         if any(ref not in cue_refs for ref in self.negative_cue_refs):
             raise ValueError("negative_cue_refs must resolve to negative cue rows")
@@ -942,7 +955,8 @@ class RepoTurnSemanticDeclarationRequestRow(_CartographyBase):
             direct_witnesses = [
                 row
                 for row in self.semantic_act_witness_rows
-                if row.witness_strength == "direct"
+                if row.witness_ref in self.source_witness_refs
+                and row.witness_strength == "direct"
                 and row.witness_currentness in {"current_turn_witness", "current_repo_context"}
             ]
             if not direct_witnesses:
@@ -964,6 +978,22 @@ class RepoTurnSemanticDeclarationRequestRow(_CartographyBase):
             ]
             if blocking_cues:
                 raise ValueError("negative cue blockers cannot be eligible")
+        act_statuses = {act.declaration_candidate_status for act in self.declared_semantic_act_rows}
+        if (
+            self.declaration_candidate_status == "candidate_recorded_for_review"
+            and "candidate_recorded_for_review" not in act_statuses
+        ):
+            raise ValueError("recorded-candidate request requires at least one recorded act")
+        if (
+            self.declaration_candidate_status == "ambiguous_candidate"
+            and "ambiguous_candidate" not in act_statuses
+        ):
+            raise ValueError("ambiguous request requires at least one ambiguous act")
+        if (
+            self.declaration_candidate_status == "registry_gap_candidate"
+            and "registry_gap_candidate" not in act_statuses
+        ):
+            raise ValueError("registry-gap request requires at least one registry-gap act")
         if self.binding_resolution_posture == "abstain_declared":
             if self.declaration_candidate_status != "abstain_candidate":
                 raise ValueError("abstain declarations must remain abstain candidates")
@@ -1870,6 +1900,21 @@ def validate_v85a_semantic_declaration_review_bundle(
         != turn_semantic_declaration_request.turn_semantic_declaration_request_id
     ):
         raise ValueError("V85-A guardrails must reference released V85-A request and source index")
+    if (
+        semantic_declaration_non_authority_guardrail.review_id
+        != semantic_declaration_source_index.review_id
+        or turn_semantic_declaration_request.review_id
+        != semantic_declaration_source_index.review_id
+        or semantic_declaration_non_authority_guardrail.snapshot_id
+        != semantic_declaration_source_index.snapshot_id
+        or turn_semantic_declaration_request.snapshot_id
+        != semantic_declaration_source_index.snapshot_id
+        or semantic_declaration_non_authority_guardrail.source_set_id
+        != semantic_declaration_source_index.source_set_id
+        or turn_semantic_declaration_request.source_set_id
+        != semantic_declaration_source_index.source_set_id
+    ):
+        raise ValueError("V85-A bundle components must share review, snapshot, and source set IDs")
 
     known_source_roles = {
         row.source_ref: row.semantic_declaration_source_role
