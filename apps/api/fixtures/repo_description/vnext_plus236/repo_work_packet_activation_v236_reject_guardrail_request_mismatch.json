@@ -1,0 +1,165 @@
+{
+  "guardrail_rows": [
+    {
+      "activation_authority_posture": "no_activation_authority_granted_by_v84",
+      "activation_execution_posture": "no_activation_performed_by_v84",
+      "activation_package_ref": "activation-package:v84a:intent-to-spec-lock-review",
+      "activation_request_refs": [
+        "activation-request:v84a:meta-orchestrator-review"
+      ],
+      "candidate_ref": "candidate:internal:intent_to_implementation_spec_institution",
+      "forbidden_downstream_authority": [
+        "activation_authority",
+        "implementation_authority",
+        "product_authorization",
+        "release_authority",
+        "v85_selection",
+        "work_packet_execution_authority"
+      ],
+      "forbidden_implementation_actions": [
+        "activate_work_packet",
+        "commit_change",
+        "edit_code",
+        "execute_work_packet",
+        "merge_change",
+        "open_pr",
+        "release_change",
+        "write_implementation"
+      ],
+      "forbidden_runtime_actions": [
+        "activate_direct_oai_runtime",
+        "change_morphic_ux_runtime",
+        "dispatch_worker",
+        "invoke_tool_for_effect",
+        "mutate_meta_orchestrator_runtime",
+        "mutate_target_state",
+        "run_command"
+      ],
+      "guardrail_ref": "guardrail:v84a:intent-to-spec-lock-review",
+      "implementation_execution_posture": "no_implementation_performed_by_v84",
+      "implementation_lock_status": "no_implementation_lock_created_by_v84",
+      "limitation_note": "Guardrail preserves activation review only with no activation, no implementation, no command, no PR, and no release.",
+      "pull_request_posture": "no_pr_created_by_v84",
+      "required_later_authority_refs": [
+        "canonical-lock-requirement:v84a:intent-to-spec-lock-review"
+      ],
+      "source_refs": [
+        "apps/api/fixtures/repo_description/vnext_plus235/repo_implementation_spec_projection_packet_v235_reference.json",
+        "apps/api/fixtures/repo_description/vnext_plus235/repo_intent_to_work_packet_handoff_v235_reference.json",
+        "docs/DRAFT_ADEU_WORK_PACKET_ACTIVATION_REVIEW_V84A_IMPLEMENTATION_MAPPING_v0.md"
+      ],
+      "target_mutation_posture": "no_target_mutation_performed_by_v84",
+      "work_packet_execution_posture": "no_work_packet_execution_performed_by_v84"
+    },
+    {
+      "activation_authority_posture": "no_activation_authority_granted_by_v84",
+      "activation_execution_posture": "no_activation_performed_by_v84",
+      "activation_package_ref": "activation-package:v84a:meta-orchestrator-review",
+      "activation_request_refs": [
+        "activation-request:v84a:meta-orchestrator-review"
+      ],
+      "candidate_ref": "candidate:internal:intent_to_implementation_spec_institution",
+      "forbidden_downstream_authority": [
+        "activation_authority",
+        "implementation_authority",
+        "product_authorization",
+        "release_authority",
+        "v85_selection",
+        "work_packet_execution_authority"
+      ],
+      "forbidden_implementation_actions": [
+        "activate_work_packet",
+        "commit_change",
+        "edit_code",
+        "execute_work_packet",
+        "merge_change",
+        "open_pr",
+        "release_change",
+        "write_implementation"
+      ],
+      "forbidden_runtime_actions": [
+        "activate_direct_oai_runtime",
+        "change_morphic_ux_runtime",
+        "dispatch_worker",
+        "invoke_tool_for_effect",
+        "mutate_meta_orchestrator_runtime",
+        "mutate_target_state",
+        "run_command"
+      ],
+      "guardrail_ref": "guardrail:v84a:meta-orchestrator-review",
+      "implementation_execution_posture": "no_implementation_performed_by_v84",
+      "implementation_lock_status": "no_implementation_lock_created_by_v84",
+      "limitation_note": "Guardrail preserves activation review only with no activation, no implementation, no command, no PR, and no release.",
+      "pull_request_posture": "no_pr_created_by_v84",
+      "required_later_authority_refs": [
+        "canonical-lock-requirement:v84a:meta-orchestrator-runtime-review"
+      ],
+      "source_refs": [
+        "apps/api/fixtures/repo_description/vnext_plus235/repo_implementation_spec_projection_packet_v235_reference.json",
+        "apps/api/fixtures/repo_description/vnext_plus235/repo_intent_to_work_packet_handoff_v235_reference.json",
+        "docs/DRAFT_ADEU_WORK_PACKET_ACTIVATION_REVIEW_V84A_IMPLEMENTATION_MAPPING_v0.md"
+      ],
+      "target_mutation_posture": "no_target_mutation_performed_by_v84",
+      "work_packet_execution_posture": "no_work_packet_execution_performed_by_v84"
+    },
+    {
+      "activation_authority_posture": "no_activation_authority_granted_by_v84",
+      "activation_execution_posture": "no_activation_performed_by_v84",
+      "activation_package_ref": "activation-package:v84a:morphic-ux-review",
+      "activation_request_refs": [
+        "activation-request:v84a:morphic-ux-review"
+      ],
+      "candidate_ref": "candidate:internal:intent_to_implementation_spec_institution",
+      "forbidden_downstream_authority": [
+        "activation_authority",
+        "implementation_authority",
+        "product_authorization",
+        "release_authority",
+        "v85_selection",
+        "work_packet_execution_authority"
+      ],
+      "forbidden_implementation_actions": [
+        "activate_work_packet",
+        "commit_change",
+        "edit_code",
+        "execute_work_packet",
+        "merge_change",
+        "open_pr",
+        "release_change",
+        "write_implementation"
+      ],
+      "forbidden_runtime_actions": [
+        "activate_direct_oai_runtime",
+        "change_morphic_ux_runtime",
+        "dispatch_worker",
+        "invoke_tool_for_effect",
+        "mutate_meta_orchestrator_runtime",
+        "mutate_target_state",
+        "run_command"
+      ],
+      "guardrail_ref": "guardrail:v84a:morphic-ux-review",
+      "implementation_execution_posture": "no_implementation_performed_by_v84",
+      "implementation_lock_status": "no_implementation_lock_created_by_v84",
+      "limitation_note": "Guardrail preserves activation review only with no activation, no implementation, no command, no PR, and no release.",
+      "pull_request_posture": "no_pr_created_by_v84",
+      "required_later_authority_refs": [
+        "canonical-lock-requirement:v84a:morphic-runtime-ui-review"
+      ],
+      "source_refs": [
+        "apps/api/fixtures/repo_description/vnext_plus235/repo_implementation_spec_projection_packet_v235_reference.json",
+        "apps/api/fixtures/repo_description/vnext_plus235/repo_intent_to_work_packet_handoff_v235_reference.json",
+        "docs/DRAFT_ADEU_WORK_PACKET_ACTIVATION_REVIEW_V84A_IMPLEMENTATION_MAPPING_v0.md"
+      ],
+      "target_mutation_posture": "no_target_mutation_performed_by_v84",
+      "work_packet_execution_posture": "no_work_packet_execution_performed_by_v84"
+    }
+  ],
+  "guardrail_summary": "V84-A non-execution guardrails keep activation review from becoming activation authority, implementation, PR work, or release; no activation and no implementation.",
+  "review_id": "vNext+236",
+  "schema": "repo_work_packet_activation_non_execution_guardrail@1",
+  "snapshot_id": "vNext+236-work-packet-activation-review-start",
+  "source_set_id": "source-set:v84a:work-packet-activation-review",
+  "work_packet_activation_non_execution_guardrail_id": "repo_work_packet_activation_non_execution_guardrail_395803bac96f5f88a428d862",
+  "work_packet_activation_review_request_id": "repo_work_packet_activation_review_request_3dbe16e667563d930a6bdf88",
+  "work_packet_activation_source_index_id": "repo_work_packet_activation_source_index_00de703df72da957abb3bebe"
+}

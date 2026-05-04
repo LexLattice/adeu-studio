@@ -19,6 +19,7 @@ from adeu_repo_description import (
 from adeu_repo_description.semantic_implementation_spec import (
     derive_v83c_semantic_implementation_projection_bundle,
 )
+from adeu_repo_description.work_packet_activation_review import _reject_v84_action_claim
 from jsonschema import Draft202012Validator
 from pydantic import ValidationError
 
@@ -178,6 +179,10 @@ def test_v84a_reference_preserves_activation_review_boundary() -> None:
             "repo_work_packet_activation_v236_reject_generated_candidate_missing_provenance.json",
             "generated candidates require V83 projection and quality gate refs",
         ),
+        (
+            "repo_work_packet_activation_v236_reject_stale_source_index_id.json",
+            "work_packet_activation_source_index_id must match canonical surface id",
+        ),
     ],
 )
 def test_v84a_source_index_rejects_invalid_rows(fixture_name: str, message: str) -> None:
@@ -210,6 +215,10 @@ def test_v84a_source_index_rejects_invalid_rows(fixture_name: str, message: str)
             "repo_work_packet_activation_v236_reject_ready_to_implement_now.json",
             "may not carry V84 activation or implementation authority",
         ),
+        (
+            "repo_work_packet_activation_v236_reject_missing_guardrail_ref.json",
+            "List should have at least 1 item",
+        ),
     ],
 )
 def test_v84a_requests_reject_activation_or_implementation_leaks(
@@ -220,6 +229,19 @@ def test_v84a_requests_reject_activation_or_implementation_leaks(
         RepoWorkPacketActivationReviewRequest.model_validate(
             _load_fixture("vnext_plus236", fixture_name)
         )
+
+
+def test_v84a_bundle_rejects_request_guardrail_mismatch() -> None:
+    guardrail = _v84a_guardrail(
+        "repo_work_packet_activation_v236_reject_guardrail_request_mismatch.json"
+    )
+    with pytest.raises(ValueError, match="activation request guardrails must link back to request"):
+        _validate_reference_bundle_with(guardrail=guardrail)
+
+
+def test_v84a_action_claim_scanner_allows_negated_suffixes() -> None:
+    note = "Work-packet authority granted is forbidden; no implementation occurs."
+    assert _reject_v84_action_claim(note, field_name="limitation_note") == note
 
 
 @pytest.mark.parametrize(

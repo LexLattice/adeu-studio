@@ -127,6 +127,7 @@
           "items": {
             "type": "string"
           },
+          "minItems": 1,
           "title": "Guardrail Refs",
           "type": "array"
         },
@@ -323,6 +324,7 @@
         "activation_package_ref",
         "candidate_ref",
         "source_refs",
+        "guardrail_refs",
         "requested_work_packet_horizon",
         "requested_activation_review_horizon",
         "activation_request_recordability_posture",

@@ -2,7 +2,7 @@ from __future__ import annotations
 
 import re
 from pathlib import Path
-from typing import Literal
+from typing import Any, Literal
 
 from pydantic import Field, model_validator
 
@@ -320,6 +320,19 @@ def _validate_repo_refs(values: list[str], *, field_name: str) -> list[str]:
     return _sorted_unique(normalized, field_name=field_name)
 
 
+def _assert_surface_id(
+    *,
+    surface_name: str,
+    schema: str,
+    payload: dict[str, Any],
+    id_key: str,
+    actual: str,
+) -> None:
+    expected = _surface_id(surface_name, schema, payload, id_key)
+    if actual != expected:
+        raise ValueError(f"{id_key} must match canonical surface id")
+
+
 def _require_terms(value: str, *, field_name: str, terms: tuple[str, ...]) -> str:
     normalized = _non_empty(value, field_name=field_name)
     lowered = normalized.lower()
@@ -361,7 +374,11 @@ def _reject_v84_action_claim(value: str, *, field_name: str) -> str:
                 r"(?:\bno\b|\bnot\b|\bwithout\b|\bmust not\b|\bdoes not\b|\bno[- ])\W*$",
                 prefix,
             )
-            or re.match(r"^\W*(?:forbidden|not authorized|not permitted|requires later)\b", suffix)
+            or re.search(
+                r"\b(?:is|are|was|were|remains?|stays?)?\W*"
+                r"(?:forbidden|not authorized|not permitted|not granted|requires later)\b",
+                suffix,
+            )
         )
 
     for pattern in forbidden_patterns:
@@ -544,6 +561,13 @@ class RepoWorkPacketActivationSourceIndex(_CartographyBase):
             ),
             field_name="source_index_summary",
         )
+        _assert_surface_id(
+            surface_name="repo_work_packet_activation_source_index",
+            schema=REPO_WORK_PACKET_ACTIVATION_SOURCE_INDEX_SCHEMA,
+            payload=self.model_dump(mode="json"),
+            id_key="work_packet_activation_source_index_id",
+            actual=self.work_packet_activation_source_index_id,
+        )
         return self
 
 
@@ -562,7 +586,7 @@ class RepoWorkPacketActivationReviewRequestRow(_CartographyBase):
     handoff_refs: list[str] = Field(default_factory=list)
     generated_candidate_refs: list[str] = Field(default_factory=list)
     canonical_lock_requirement_refs: list[str] = Field(default_factory=list)
-    guardrail_refs: list[str] = Field(default_factory=list)
+    guardrail_refs: list[str] = Field(min_length=1)
     requested_work_packet_horizon: RequestedWorkPacketHorizon
     requested_activation_review_horizon: RequestedActivationReviewHorizon
     activation_request_recordability_posture: ActivationRequestRecordabilityPosture
@@ -727,6 +751,13 @@ class RepoWorkPacketActivationReviewRequest(_CartographyBase):
             ),
             field_name="activation_review_summary",
         )
+        _assert_surface_id(
+            surface_name="repo_work_packet_activation_review_request",
+            schema=REPO_WORK_PACKET_ACTIVATION_REVIEW_REQUEST_SCHEMA,
+            payload=self.model_dump(mode="json"),
+            id_key="work_packet_activation_review_request_id",
+            actual=self.work_packet_activation_review_request_id,
+        )
         return self
 
 
@@ -851,6 +882,13 @@ class RepoWorkPacketActivationNonExecutionGuardrail(_CartographyBase):
                 terms=("guardrail", "no implementation", "no activation"),
             ),
             field_name="guardrail_summary",
+        )
+        _assert_surface_id(
+            surface_name="repo_work_packet_activation_non_execution_guardrail",
+            schema=REPO_WORK_PACKET_ACTIVATION_NON_EXECUTION_GUARDRAIL_SCHEMA,
+            payload=self.model_dump(mode="json"),
+            id_key="work_packet_activation_non_execution_guardrail_id",
+            actual=self.work_packet_activation_non_execution_guardrail_id,
         )
         return self
 
@@ -1335,47 +1373,64 @@ def _v84_guardrail_rows(
     projection_source = _V83_PROJECTION_FIXTURE
     handoff_source = _V83_HANDOFF_FIXTURE
     support_source = _V84A_MAPPING_DOC
-    rows: list[dict[str, object]] = []
+    rows_by_ref: dict[str, dict[str, object]] = {}
     for request_row in activation_review_request.activation_request_rows:
-        rows.append(
-            {
-                "guardrail_ref": request_row.guardrail_refs[0],
-                "candidate_ref": request_row.candidate_ref,
-                "activation_package_ref": request_row.activation_package_ref,
-                "source_refs": sorted([handoff_source, projection_source, support_source]),
-                "activation_request_refs": [request_row.activation_request_ref],
-                "forbidden_implementation_actions": sorted(
-                    _REQUIRED_FORBIDDEN_IMPLEMENTATION_ACTIONS
-                ),
-                "forbidden_runtime_actions": sorted(
-                    _REQUIRED_FORBIDDEN_RUNTIME_ACTIONS.union(
-                        {
-                            "activate_direct_oai_runtime",
-                            "change_morphic_ux_runtime",
-                            "mutate_meta_orchestrator_runtime",
-                        }
-                    )
-                ),
-                "forbidden_downstream_authority": sorted(
-                    _REQUIRED_FORBIDDEN_DOWNSTREAM_AUTHORITIES
-                ),
-                "required_later_authority_refs": sorted(
+        for guardrail_ref in request_row.guardrail_refs:
+            row = rows_by_ref.setdefault(
+                guardrail_ref,
+                {
+                    "guardrail_ref": guardrail_ref,
+                    "candidate_ref": request_row.candidate_ref,
+                    "activation_package_ref": request_row.activation_package_ref,
+                    "source_refs": [],
+                    "activation_request_refs": [],
+                    "forbidden_implementation_actions": sorted(
+                        _REQUIRED_FORBIDDEN_IMPLEMENTATION_ACTIONS
+                    ),
+                    "forbidden_runtime_actions": sorted(
+                        _REQUIRED_FORBIDDEN_RUNTIME_ACTIONS.union(
+                            {
+                                "activate_direct_oai_runtime",
+                                "change_morphic_ux_runtime",
+                                "mutate_meta_orchestrator_runtime",
+                            }
+                        )
+                    ),
+                    "forbidden_downstream_authority": sorted(
+                        _REQUIRED_FORBIDDEN_DOWNSTREAM_AUTHORITIES
+                    ),
+                    "required_later_authority_refs": [],
+                    "activation_authority_posture": "no_activation_authority_granted_by_v84",
+                    "implementation_lock_status": "no_implementation_lock_created_by_v84",
+                    "activation_execution_posture": "no_activation_performed_by_v84",
+                    "work_packet_execution_posture": (
+                        "no_work_packet_execution_performed_by_v84"
+                    ),
+                    "implementation_execution_posture": "no_implementation_performed_by_v84",
+                    "target_mutation_posture": "no_target_mutation_performed_by_v84",
+                    "pull_request_posture": "no_pr_created_by_v84",
+                    "limitation_note": (
+                        "Guardrail preserves activation review only with no activation, "
+                        "no implementation, no command, no PR, and no release."
+                    ),
+                },
+            )
+            if row["candidate_ref"] != request_row.candidate_ref:
+                raise ValueError("shared guardrail refs must use one candidate")
+            if row["activation_package_ref"] != request_row.activation_package_ref:
+                raise ValueError("shared guardrail refs must use one activation package")
+            row["source_refs"] = sorted(
+                set(row["source_refs"]).union({handoff_source, projection_source, support_source})
+            )
+            row["activation_request_refs"] = sorted(
+                set(row["activation_request_refs"]).union({request_row.activation_request_ref})
+            )
+            row["required_later_authority_refs"] = sorted(
+                set(row["required_later_authority_refs"]).union(
                     request_row.canonical_lock_requirement_refs
-                ),
-                "activation_authority_posture": "no_activation_authority_granted_by_v84",
-                "implementation_lock_status": "no_implementation_lock_created_by_v84",
-                "activation_execution_posture": "no_activation_performed_by_v84",
-                "work_packet_execution_posture": "no_work_packet_execution_performed_by_v84",
-                "implementation_execution_posture": "no_implementation_performed_by_v84",
-                "target_mutation_posture": "no_target_mutation_performed_by_v84",
-                "pull_request_posture": "no_pr_created_by_v84",
-                "limitation_note": (
-                    "Guardrail preserves activation review only with no activation, "
-                    "no implementation, no command, no PR, and no release."
-                ),
-            }
-        )
-    return sorted(rows, key=lambda row: str(row["guardrail_ref"]))
+                )
+            )
+    return sorted(rows_by_ref.values(), key=lambda row: str(row["guardrail_ref"]))
 
 
 def derive_v84a_repo_work_packet_activation_non_execution_guardrail(
@@ -1541,16 +1596,24 @@ def validate_v84a_work_packet_activation_review_bundle(
             raise ValueError("activation request generated candidate refs must be indexed")
         if any(ref not in known_guardrails for ref in request_row.guardrail_refs):
             raise ValueError("activation request guardrail refs must be released V84-A guardrails")
+        for guardrail_ref in request_row.guardrail_refs:
+            guardrail_row = known_guardrails[guardrail_ref]
+            if request_row.activation_request_ref not in guardrail_row.activation_request_refs:
+                raise ValueError("activation request guardrails must link back to request")
+            if guardrail_row.candidate_ref != request_row.candidate_ref:
+                raise ValueError("activation request guardrails must match candidate")
+            if guardrail_row.activation_package_ref != request_row.activation_package_ref:
+                raise ValueError("activation request guardrails must match activation package")
         if request_row.activation_review_eligibility_posture == (
             "eligible_for_work_packet_activation_review"
         ):
             roles = {known_source_roles[ref] for ref in request_row.source_refs}
+            if roles.issubset(_SUPPORT_ONLY_SOURCE_ROLES):
+                raise ValueError("support-only sources cannot make activation review eligible")
             if not roles.intersection(_ELIGIBLE_SOURCE_ROLES):
                 raise ValueError(
                     "eligible activation request requires released V83 projection or handoff"
                 )
-            if roles.issubset(_SUPPORT_ONLY_SOURCE_ROLES):
-                raise ValueError("support-only sources cannot make activation review eligible")
             for generated_ref in request_row.generated_candidate_refs:
                 generated_row = known_generated[generated_ref]
                 if generated_row.candidate_authority_posture != "candidate_only":
