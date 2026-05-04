@@ -1,0 +1,67 @@
+{
+  "ambiguous_selected_binding_rejected": true,
+  "arc": "vNext+239",
+  "candidate_selection_blocked_in_v85a": true,
+  "consumed_record_shapes": [
+    "repo_work_packet_activation_readiness_summary@1",
+    "repo_post_work_packet_activation_review_handoff@1",
+    "repo_work_packet_activation_family_closeout_alignment@1"
+  ],
+  "contract_source": "docs/LOCKED_CONTINUATION_vNEXT_PLUS239.md#machine-checkable-contract",
+  "declaration_authority_granted_by_v85a": false,
+  "direct_current_witnesses_required": true,
+  "focused_test_reference_path": "packages/adeu_repo_description/tests/test_semantic_declaration_meta_loop_v85a.py",
+  "generated_candidate_missing_witnesses_rejected": true,
+  "guardrail_refs_required": true,
+  "implementation_commits": [
+    "6dcc7b964b4a8952608f5355e1494870f60602a6",
+    "882d5e9c8c8dbd067a37f49f05d54fccc7418592"
+  ],
+  "implementation_packages": [
+    "adeu_repo_description"
+  ],
+  "implementation_source_path": "packages/adeu_repo_description/src/adeu_repo_description/semantic_declaration_meta_loop.py",
+  "local_closeout_gate": "make arc-closeout-check ARC=239",
+  "local_full_python_gate": "make check",
+  "merge_commit": "a5a1079e0cb8ce360da148f1aa93537eff628ce1",
+  "merged_at": "2026-05-04T21:44:25Z",
+  "merged_pr": "#467",
+  "merged_pr_url": "https://github.com/LexLattice/adeu-studio/pull/467",
+  "metric_key_continuity_assertion_path": "artifacts/agent_harness/v239/evidence_inputs/metric_key_continuity_assertion_v239.json",
+  "notes": "v239 evidence pins the bounded V85-A turn semantic declaration request, semantic declaration source index, and non-authority guardrail seam on main. V85-A consumes released V84-C work-packet activation-review readiness, handoff, and closeout substrate; emits review-only declaration request, source index, and guardrail rows; preserves semantic declaration session identity, row-shaped source witnesses, negative cues, resident-model competency rows, recordability versus eligibility, and fail-closed ambiguity / abstain / registry-gap posture; and ships no canonical lookup index, operator/class registry, obligation-family registry, pointer fixture, declaration summary, handoff, obligation expansion, evidence contract, audit taskpack, transition table, implementation lock, work-packet activation, command execution, tool invocation, runtime transition, product authorization, graph-memory authority, recursive-policy amendment, or V86 selection.",
+  "opaque_pointer_truth_rejected": true,
+  "package_export_surface_path": "packages/adeu_repo_description/src/adeu_repo_description/__init__.py",
+  "recordability_vs_eligibility_checked": true,
+  "reference_fixture_paths": [
+    "apps/api/fixtures/repo_description/vnext_plus239/repo_turn_semantic_declaration_request_v239_reference.json",
+    "apps/api/fixtures/repo_description/vnext_plus239/repo_semantic_declaration_source_index_v239_reference.json",
+    "apps/api/fixtures/repo_description/vnext_plus239/repo_semantic_declaration_non_authority_guardrail_v239_reference.json"
+  ],
+  "reject_fixture_dir": "apps/api/fixtures/repo_description/vnext_plus239",
+  "resident_model_competency_rows_required": true,
+  "runtime_event_stream_path": "artifacts/agent_harness/v239/runtime/evidence/local/urm_events.ndjson",
+  "runtime_observability_comparison_path": "artifacts/agent_harness/v239/evidence_inputs/runtime_observability_comparison_v239.json",
+  "schema": "v85a_semantic_declaration_review_closeout_evidence@1",
+  "schema_export_source_path": "packages/adeu_repo_description/src/adeu_repo_description/export_schema.py",
+  "schema_paths": [
+    "packages/adeu_repo_description/schema/repo_turn_semantic_declaration_request.v1.json",
+    "packages/adeu_repo_description/schema/repo_semantic_declaration_source_index.v1.json",
+    "packages/adeu_repo_description/schema/repo_semantic_declaration_non_authority_guardrail.v1.json",
+    "spec/repo_turn_semantic_declaration_request.schema.json",
+    "spec/repo_semantic_declaration_source_index.schema.json",
+    "spec/repo_semantic_declaration_non_authority_guardrail.schema.json"
+  ],
+  "selected_record_shapes": [
+    "repo_turn_semantic_declaration_request@1",
+    "repo_semantic_declaration_source_index@1",
+    "repo_semantic_declaration_non_authority_guardrail@1"
+  ],
+  "selected_v85b_for_v85a": false,
+  "selected_v85c_for_v85a": false,
+  "selected_v86_for_v85a": false,
+  "semantic_declaration_session_identity_preserved": true,
+  "slice": "V85-A",
+  "support_only_eligibility_rejected": true,
+  "unknown_class_repair_rejected": true,
+  "v84c_closeout_evidence_input_path": "artifacts/agent_harness/v238/evidence_inputs/v84c_work_packet_activation_closeout_evidence_v238.json"
+}
