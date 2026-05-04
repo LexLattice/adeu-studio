@@ -1,0 +1,320 @@
+{
+  "$defs": {
+    "RepoActivationExceptionRow": {
+      "additionalProperties": false,
+      "properties": {
+        "blocking_posture": {
+          "enum": [
+            "blocking",
+            "warning",
+            "not_applicable",
+            "future_family_only"
+          ],
+          "title": "Blocking Posture",
+          "type": "string"
+        },
+        "exception_kind": {
+          "enum": [
+            "missing_released_projection_packet",
+            "missing_quality_gate",
+            "carried_semantic_drift_blocker",
+            "generated_spec_provenance_gap",
+            "unbounded_target_surface",
+            "target_glob_without_child_refs",
+            "missing_validation_plan",
+            "missing_positive_evidence_requirement",
+            "missing_reject_evidence_requirement",
+            "operator_confirmation_as_authority",
+            "implementation_authority_gap",
+            "runtime_authority_gap",
+            "product_authority_gap",
+            "release_authority_gap",
+            "graph_memory_authority_gap",
+            "activation_package_lineage_mismatch",
+            "scope_target_validation_candidate_mismatch",
+            "canonical_lock_requirement_missing_or_untyped",
+            "read_set_write_set_collision",
+            "forbidden_target_included_in_scope",
+            "generated_candidate_without_review_provenance",
+            "quality_gate_ready_but_blockers_carried",
+            "validation_plan_not_edge_complete",
+            "validation_plan_not_obligation_complete",
+            "later_family_boundary_unclear",
+            "unknown_needs_review"
+          ],
+          "title": "Exception Kind",
+          "type": "string"
+        },
+        "exception_ref": {
+          "title": "Exception Ref",
+          "type": "string"
+        },
+        "limitation_note": {
+          "title": "Limitation Note",
+          "type": "string"
+        },
+        "related_drift_refs": {
+          "items": {
+            "type": "string"
+          },
+          "title": "Related Drift Refs",
+          "type": "array"
+        },
+        "related_scope_refs": {
+          "items": {
+            "type": "string"
+          },
+          "title": "Related Scope Refs",
+          "type": "array"
+        },
+        "related_target_refs": {
+          "items": {
+            "type": "string"
+          },
+          "title": "Related Target Refs",
+          "type": "array"
+        },
+        "related_validation_refs": {
+          "items": {
+            "type": "string"
+          },
+          "title": "Related Validation Refs",
+          "type": "array"
+        },
+        "required_resolution_horizon": {
+          "enum": [
+            "later_canonical_lock_review",
+            "later_target_boundary_review",
+            "later_validation_plan_review",
+            "later_authority_review",
+            "future_family_review",
+            "not_applicable"
+          ],
+          "title": "Required Resolution Horizon",
+          "type": "string"
+        },
+        "source_refs": {
+          "items": {
+            "type": "string"
+          },
+          "minItems": 1,
+          "title": "Source Refs",
+          "type": "array"
+        },
+        "visibility_posture": {
+          "enum": [
+            "visible_to_later_lock_review",
+            "visible_warning",
+            "hidden_rejected"
+          ],
+          "title": "Visibility Posture",
+          "type": "string"
+        }
+      },
+      "required": [
+        "exception_ref",
+        "exception_kind",
+        "source_refs",
+        "blocking_posture",
+        "visibility_posture",
+        "required_resolution_horizon",
+        "limitation_note"
+      ],
+      "title": "RepoActivationExceptionRow",
+      "type": "object"
+    },
+    "RepoWorkPacketActivationExceptionRegisterRow": {
+      "additionalProperties": false,
+      "properties": {
+        "activation_package_ref": {
+          "title": "Activation Package Ref",
+          "type": "string"
+        },
+        "activation_request_refs": {
+          "items": {
+            "type": "string"
+          },
+          "minItems": 1,
+          "title": "Activation Request Refs",
+          "type": "array"
+        },
+        "blocking_posture": {
+          "enum": [
+            "blocking",
+            "warning",
+            "not_applicable",
+            "future_family_only"
+          ],
+          "title": "Blocking Posture",
+          "type": "string"
+        },
+        "candidate_ref": {
+          "title": "Candidate Ref",
+          "type": "string"
+        },
+        "exception_register_ref": {
+          "title": "Exception Register Ref",
+          "type": "string"
+        },
+        "exception_rows": {
+          "items": {
+            "$ref": "#/$defs/RepoActivationExceptionRow"
+          },
+          "minItems": 1,
+          "title": "Exception Rows",
+          "type": "array"
+        },
+        "guardrail_refs": {
+          "items": {
+            "type": "string"
+          },
+          "minItems": 1,
+          "title": "Guardrail Refs",
+          "type": "array"
+        },
+        "limitation_note": {
+          "title": "Limitation Note",
+          "type": "string"
+        },
+        "required_next_surface": {
+          "enum": [
+            "later_canonical_lock_review",
+            "later_target_boundary_review",
+            "later_validation_plan_review",
+            "later_authority_review",
+            "future_family_review",
+            "not_applicable"
+          ],
+          "title": "Required Next Surface",
+          "type": "string"
+        },
+        "scope_contract_refs": {
+          "items": {
+            "type": "string"
+          },
+          "minItems": 1,
+          "title": "Scope Contract Refs",
+          "type": "array"
+        },
+        "source_refs": {
+          "items": {
+            "type": "string"
+          },
+          "minItems": 1,
+          "title": "Source Refs",
+          "type": "array"
+        },
+        "target_boundary_refs": {
+          "items": {
+            "type": "string"
+          },
+          "minItems": 1,
+          "title": "Target Boundary Refs",
+          "type": "array"
+        },
+        "validation_plan_refs": {
+          "items": {
+            "type": "string"
+          },
+          "minItems": 1,
+          "title": "Validation Plan Refs",
+          "type": "array"
+        }
+      },
+      "required": [
+        "exception_register_ref",
+        "activation_package_ref",
+        "activation_request_refs",
+        "scope_contract_refs",
+        "target_boundary_refs",
+        "validation_plan_refs",
+        "candidate_ref",
+        "source_refs",
+        "exception_rows",
+        "blocking_posture",
+        "required_next_surface",
+        "guardrail_refs",
+        "limitation_note"
+      ],
+      "title": "RepoWorkPacketActivationExceptionRegisterRow",
+      "type": "object"
+    }
+  },
+  "additionalProperties": false,
+  "properties": {
+    "exception_register_rows": {
+      "items": {
+        "$ref": "#/$defs/RepoWorkPacketActivationExceptionRegisterRow"
+      },
+      "minItems": 1,
+      "title": "Exception Register Rows",
+      "type": "array"
+    },
+    "exception_register_summary": {
+      "title": "Exception Register Summary",
+      "type": "string"
+    },
+    "implementation_target_surface_boundary_id": {
+      "title": "Implementation Target Surface Boundary Id",
+      "type": "string"
+    },
+    "review_id": {
+      "title": "Review Id",
+      "type": "string"
+    },
+    "schema": {
+      "const": "repo_work_packet_activation_exception_register@1",
+      "title": "Schema",
+      "type": "string"
+    },
+    "snapshot_id": {
+      "title": "Snapshot Id",
+      "type": "string"
+    },
+    "source_set_id": {
+      "title": "Source Set Id",
+      "type": "string"
+    },
+    "work_packet_activation_exception_register_id": {
+      "title": "Work Packet Activation Exception Register Id",
+      "type": "string"
+    },
+    "work_packet_activation_non_execution_guardrail_id": {
+      "title": "Work Packet Activation Non Execution Guardrail Id",
+      "type": "string"
+    },
+    "work_packet_activation_review_request_id": {
+      "title": "Work Packet Activation Review Request Id",
+      "type": "string"
+    },
+    "work_packet_activation_source_index_id": {
+      "title": "Work Packet Activation Source Index Id",
+      "type": "string"
+    },
+    "work_packet_scope_contract_id": {
+      "title": "Work Packet Scope Contract Id",
+      "type": "string"
+    },
+    "work_packet_validation_evidence_plan_id": {
+      "title": "Work Packet Validation Evidence Plan Id",
+      "type": "string"
+    }
+  },
+  "required": [
+    "schema",
+    "work_packet_activation_exception_register_id",
+    "work_packet_scope_contract_id",
+    "implementation_target_surface_boundary_id",
+    "work_packet_validation_evidence_plan_id",
+    "work_packet_activation_review_request_id",
+    "work_packet_activation_source_index_id",
+    "work_packet_activation_non_execution_guardrail_id",
+    "review_id",
+    "snapshot_id",
+    "source_set_id",
+    "exception_register_rows",
+    "exception_register_summary"
+  ],
+  "title": "RepoWorkPacketActivationExceptionRegister",
+  "type": "object"
+}

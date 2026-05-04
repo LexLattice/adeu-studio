@@ -82,6 +82,7 @@ from adeu_repo_description import (
     REPO_EXTERNAL_TOOL_BOUNDARY_SCHEMA,
     REPO_FAMILY_CLOSURE_REGISTER_SCHEMA,
     REPO_IMPLEMENTATION_SPEC_PROJECTION_PACKET_SCHEMA,
+    REPO_IMPLEMENTATION_TARGET_SURFACE_BOUNDARY_SCHEMA,
     REPO_IMPORTED_SUBSTRATE_PROVENANCE_REGISTER_SCHEMA,
     REPO_INTEGRATION_EFFECT_SURFACE_REGISTER_SCHEMA,
     REPO_INTEGRATION_NON_RELEASE_GUARDRAIL_SCHEMA,
@@ -151,9 +152,12 @@ from adeu_repo_description import (
     REPO_TOOL_INVOCATION_PLAN_SCHEMA,
     REPO_TOOL_USE_PERMISSION_ENVELOPE_SCHEMA,
     REPO_TYPED_ADJUDICATION_CASE_VIEW_SCHEMA,
+    REPO_WORK_PACKET_ACTIVATION_EXCEPTION_REGISTER_SCHEMA,
     REPO_WORK_PACKET_ACTIVATION_NON_EXECUTION_GUARDRAIL_SCHEMA,
     REPO_WORK_PACKET_ACTIVATION_REVIEW_REQUEST_SCHEMA,
     REPO_WORK_PACKET_ACTIVATION_SOURCE_INDEX_SCHEMA,
+    REPO_WORK_PACKET_SCOPE_CONTRACT_SCHEMA,
+    REPO_WORK_PACKET_VALIDATION_EVIDENCE_PLAN_SCHEMA,
     REPO_WORKER_OUTPUT_RECONCILIATION_PLAN_SCHEMA,
 )
 from adeu_repo_description.export_schema import main as export_schema_main
@@ -1369,6 +1373,38 @@ def _schema_pairs() -> dict[str, tuple[Path, Path]]:
             / "schema"
             / "repo_work_packet_activation_non_execution_guardrail.v1.json",
             root / "spec" / "repo_work_packet_activation_non_execution_guardrail.schema.json",
+        ),
+        REPO_WORK_PACKET_SCOPE_CONTRACT_SCHEMA: (
+            root
+            / "packages"
+            / "adeu_repo_description"
+            / "schema"
+            / "repo_work_packet_scope_contract.v1.json",
+            root / "spec" / "repo_work_packet_scope_contract.schema.json",
+        ),
+        REPO_IMPLEMENTATION_TARGET_SURFACE_BOUNDARY_SCHEMA: (
+            root
+            / "packages"
+            / "adeu_repo_description"
+            / "schema"
+            / "repo_implementation_target_surface_boundary.v1.json",
+            root / "spec" / "repo_implementation_target_surface_boundary.schema.json",
+        ),
+        REPO_WORK_PACKET_VALIDATION_EVIDENCE_PLAN_SCHEMA: (
+            root
+            / "packages"
+            / "adeu_repo_description"
+            / "schema"
+            / "repo_work_packet_validation_evidence_plan.v1.json",
+            root / "spec" / "repo_work_packet_validation_evidence_plan.schema.json",
+        ),
+        REPO_WORK_PACKET_ACTIVATION_EXCEPTION_REGISTER_SCHEMA: (
+            root
+            / "packages"
+            / "adeu_repo_description"
+            / "schema"
+            / "repo_work_packet_activation_exception_register.v1.json",
+            root / "spec" / "repo_work_packet_activation_exception_register.schema.json",
         ),
     }
 

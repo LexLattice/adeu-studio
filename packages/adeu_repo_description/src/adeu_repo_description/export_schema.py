@@ -219,9 +219,13 @@ from .semantic_implementation_spec import (
     RepoSemanticIntentContract,
 )
 from .work_packet_activation_review import (
+    RepoImplementationTargetSurfaceBoundary,
+    RepoWorkPacketActivationExceptionRegister,
     RepoWorkPacketActivationNonExecutionGuardrail,
     RepoWorkPacketActivationReviewRequest,
     RepoWorkPacketActivationSourceIndex,
+    RepoWorkPacketScopeContract,
+    RepoWorkPacketValidationEvidencePlan,
 )
 
 _WINDOWS_ABSOLUTE_PATH_RE = re.compile(r"[A-Za-z]:\\")
@@ -707,6 +711,18 @@ def main() -> None:
     work_packet_activation_non_execution_guardrail_schema = (
         RepoWorkPacketActivationNonExecutionGuardrail.model_json_schema(by_alias=True)
     )
+    work_packet_scope_contract_schema = RepoWorkPacketScopeContract.model_json_schema(
+        by_alias=True
+    )
+    implementation_target_surface_boundary_schema = (
+        RepoImplementationTargetSurfaceBoundary.model_json_schema(by_alias=True)
+    )
+    work_packet_validation_evidence_plan_schema = (
+        RepoWorkPacketValidationEvidencePlan.model_json_schema(by_alias=True)
+    )
+    work_packet_activation_exception_register_schema = (
+        RepoWorkPacketActivationExceptionRegister.model_json_schema(by_alias=True)
+    )
 
     _assert_no_absolute_path_material(dependency_register_v1_schema, repo_root_path=root)
     _assert_no_absolute_path_material(dependency_register_schema, repo_root_path=root)
@@ -1118,6 +1134,19 @@ def main() -> None:
     )
     _assert_no_absolute_path_material(
         work_packet_activation_non_execution_guardrail_schema,
+        repo_root_path=root,
+    )
+    _assert_no_absolute_path_material(work_packet_scope_contract_schema, repo_root_path=root)
+    _assert_no_absolute_path_material(
+        implementation_target_surface_boundary_schema,
+        repo_root_path=root,
+    )
+    _assert_no_absolute_path_material(
+        work_packet_validation_evidence_plan_schema,
+        repo_root_path=root,
+    )
+    _assert_no_absolute_path_material(
+        work_packet_activation_exception_register_schema,
         repo_root_path=root,
     )
 
@@ -2973,6 +3002,39 @@ def main() -> None:
     _write_schema(
         root / "spec" / "repo_work_packet_activation_non_execution_guardrail.schema.json",
         work_packet_activation_non_execution_guardrail_schema,
+    )
+    _write_schema(
+        repo_description_schema_root / "repo_work_packet_scope_contract.v1.json",
+        work_packet_scope_contract_schema,
+    )
+    _write_schema(
+        root / "spec" / "repo_work_packet_scope_contract.schema.json",
+        work_packet_scope_contract_schema,
+    )
+    _write_schema(
+        repo_description_schema_root / "repo_implementation_target_surface_boundary.v1.json",
+        implementation_target_surface_boundary_schema,
+    )
+    _write_schema(
+        root / "spec" / "repo_implementation_target_surface_boundary.schema.json",
+        implementation_target_surface_boundary_schema,
+    )
+    _write_schema(
+        repo_description_schema_root / "repo_work_packet_validation_evidence_plan.v1.json",
+        work_packet_validation_evidence_plan_schema,
+    )
+    _write_schema(
+        root / "spec" / "repo_work_packet_validation_evidence_plan.schema.json",
+        work_packet_validation_evidence_plan_schema,
+    )
+    _write_schema(
+        repo_description_schema_root
+        / "repo_work_packet_activation_exception_register.v1.json",
+        work_packet_activation_exception_register_schema,
+    )
+    _write_schema(
+        root / "spec" / "repo_work_packet_activation_exception_register.schema.json",
+        work_packet_activation_exception_register_schema,
     )
 
 

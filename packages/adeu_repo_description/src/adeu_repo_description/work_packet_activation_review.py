@@ -43,6 +43,16 @@ REPO_WORK_PACKET_ACTIVATION_REVIEW_REQUEST_SCHEMA = (
 REPO_WORK_PACKET_ACTIVATION_NON_EXECUTION_GUARDRAIL_SCHEMA = (
     "repo_work_packet_activation_non_execution_guardrail@1"
 )
+REPO_WORK_PACKET_SCOPE_CONTRACT_SCHEMA = "repo_work_packet_scope_contract@1"
+REPO_IMPLEMENTATION_TARGET_SURFACE_BOUNDARY_SCHEMA = (
+    "repo_implementation_target_surface_boundary@1"
+)
+REPO_WORK_PACKET_VALIDATION_EVIDENCE_PLAN_SCHEMA = (
+    "repo_work_packet_validation_evidence_plan@1"
+)
+REPO_WORK_PACKET_ACTIVATION_EXCEPTION_REGISTER_SCHEMA = (
+    "repo_work_packet_activation_exception_register@1"
+)
 
 ActivationSourceRole = Literal[
     "v83_projection_packet_source",
@@ -244,6 +254,207 @@ ForbiddenDownstreamAuthority = Literal[
     "runtime_authority",
     "v85_selection",
     "work_packet_execution_authority",
+]
+WorkPacketKind = Literal[
+    "schema_model_fixture_test_slice",
+    "docs_support_slice",
+    "morphic_ux_projection_slice",
+    "direct_oai_harness_slice",
+    "meta_orchestrator_workflow_slice",
+    "product_future_family_slice",
+    "graph_memory_future_family_slice",
+    "future_family_only",
+]
+ScopeCompletenessPosture = Literal[
+    "complete_for_activation_review_only",
+    "incomplete_for_review",
+    "blocked_by_missing_projection_packet",
+    "blocked_by_unbounded_target_surface",
+    "blocked_by_missing_validation_plan",
+    "blocked_by_authority_gap",
+    "future_family_only",
+    "rejected_out_of_scope",
+]
+ActivationReviewPosture = Literal[
+    "package_ready_for_review_only",
+    "package_incomplete_for_review",
+    "blocked_by_package_lineage_gap",
+    "blocked_by_target_boundary_gap",
+    "blocked_by_validation_gap",
+    "blocked_by_exception",
+    "future_family_only",
+]
+TargetSurfaceKind = Literal[
+    "repo_description_module",
+    "schema_file",
+    "spec_schema_file",
+    "fixture_file",
+    "test_file",
+    "support_doc",
+    "external_support_context",
+    "future_family_surface",
+]
+TargetResolutionKind = Literal[
+    "concrete_file_ref",
+    "concrete_schema_ref",
+    "concrete_fixture_ref",
+    "concrete_test_ref",
+    "concrete_doc_ref",
+    "bounded_directory_with_child_refs",
+    "support_artifact_ref",
+    "external_support_ref",
+    "no_target_boundary",
+]
+TargetCurrentnessPosture = Literal[
+    "current_repo_surface",
+    "generated_future_surface",
+    "support_context_only",
+    "explicitly_absent",
+    "unknown_needs_review",
+]
+TargetMutabilityReviewPosture = Literal[
+    "mutation_requires_later_lock",
+    "read_only_dependency",
+    "validation_target_only",
+    "generated_artifact_requires_later_lock",
+    "mutation_forbidden",
+    "context_only_not_mutable",
+]
+TargetAccessRole = Literal[
+    "read_dependency",
+    "prospective_write_target_for_later_lock",
+    "validation_target",
+    "generated_artifact_target",
+    "forbidden_target",
+    "context_only",
+]
+InScopeCountingPosture = Literal[
+    "counts_as_bounded_later_scope",
+    "context_only_not_counted",
+    "forbidden_not_counted",
+    "validation_only_not_write_scope",
+]
+AllowedTargetReviewAction = Literal[
+    "describe_target_boundary",
+    "inspect_source_metadata",
+    "record_target_absence",
+    "request_later_lock_review",
+    "preserve_target_gap",
+]
+ForbiddenTargetMutationAction = Literal[
+    "edit_file",
+    "create_file",
+    "delete_file",
+    "mutate_schema",
+    "mutate_fixture",
+    "run_formatter_for_effect",
+    "open_pr",
+    "commit_change",
+]
+BoundaryPosture = Literal[
+    "bounded_for_review_only",
+    "blocked_by_missing_child_refs",
+    "blocked_by_glob_target",
+    "blocked_by_forbidden_target",
+    "future_family_only",
+]
+ValidationEvidenceKind = Literal[
+    "schema_export_check",
+    "model_shape_check",
+    "validator_acceptance_check",
+    "validator_reject_check",
+    "fixture_positive_case",
+    "fixture_negative_case",
+    "unit_test_requirement",
+    "integration_test_requirement",
+    "doc_alignment_review",
+    "semantic_edge_review",
+    "manual_reviewer_check",
+    "tool_run_review_only",
+    "future_family_review",
+]
+EvidencePresencePosture = Literal[
+    "requirement_recorded_for_review_only",
+    "missing_required_evidence",
+    "evidence_requires_later_execution",
+    "not_applicable",
+]
+ValidationRequirementPosture = Literal[
+    "required_for_later_review",
+    "missing_required_evidence",
+    "not_applicable",
+]
+ToolApplicabilityPosture = Literal[
+    "tool_applicable_for_later_review",
+    "tool_run_requires_later_lock",
+    "tool_not_applicable",
+]
+ValidationPlanPosture = Literal[
+    "plan_complete_for_review_only",
+    "plan_incomplete_for_review",
+    "blocked_by_missing_semantic_edges",
+    "blocked_by_missing_artifact_obligations",
+    "blocked_by_missing_positive_evidence",
+    "blocked_by_missing_reject_evidence",
+    "blocked_by_tests_as_truth_gap",
+    "future_family_only",
+]
+ManualReviewPosture = Literal[
+    "manual_review_required_later",
+    "manual_review_not_applicable",
+    "manual_review_missing",
+]
+ToolRunPosture = Literal[
+    "no_tool_run_performed_by_v84",
+    "tool_run_requires_later_lock",
+    "tool_run_not_applicable",
+]
+ActivationExceptionKind = Literal[
+    "missing_released_projection_packet",
+    "missing_quality_gate",
+    "carried_semantic_drift_blocker",
+    "generated_spec_provenance_gap",
+    "unbounded_target_surface",
+    "target_glob_without_child_refs",
+    "missing_validation_plan",
+    "missing_positive_evidence_requirement",
+    "missing_reject_evidence_requirement",
+    "operator_confirmation_as_authority",
+    "implementation_authority_gap",
+    "runtime_authority_gap",
+    "product_authority_gap",
+    "release_authority_gap",
+    "graph_memory_authority_gap",
+    "activation_package_lineage_mismatch",
+    "scope_target_validation_candidate_mismatch",
+    "canonical_lock_requirement_missing_or_untyped",
+    "read_set_write_set_collision",
+    "forbidden_target_included_in_scope",
+    "generated_candidate_without_review_provenance",
+    "quality_gate_ready_but_blockers_carried",
+    "validation_plan_not_edge_complete",
+    "validation_plan_not_obligation_complete",
+    "later_family_boundary_unclear",
+    "unknown_needs_review",
+]
+BlockingPosture = Literal[
+    "blocking",
+    "warning",
+    "not_applicable",
+    "future_family_only",
+]
+VisibilityPosture = Literal[
+    "visible_to_later_lock_review",
+    "visible_warning",
+    "hidden_rejected",
+]
+RequiredResolutionHorizon = Literal[
+    "later_canonical_lock_review",
+    "later_target_boundary_review",
+    "later_validation_plan_review",
+    "later_authority_review",
+    "future_family_review",
+    "not_applicable",
 ]
 
 _ELIGIBLE_SOURCE_ROLES = {
@@ -1703,4 +1914,1849 @@ def derive_v84a_work_packet_activation_review_bundle(
         source_index,
         request,
         guardrail,
+    )
+
+
+class RepoCanonicalLockRequirementRow(_CartographyBase):
+    canonical_lock_requirement_ref: str
+    activation_package_ref: str
+    required_lock_kind: WorkPacketKind
+    required_lock_inputs: list[str] = Field(min_length=1)
+    required_lock_guardrails: list[str] = Field(min_length=1)
+    required_stop_gate_refs: list[str] = Field(min_length=1)
+    required_assessment_refs: list[str] = Field(min_length=1)
+    required_closeout_refs: list[str] = Field(min_length=1)
+    required_later_authority_refs: list[str] = Field(default_factory=list)
+    lock_not_created_by_v84: bool
+    limitation_note: str
+
+    @model_validator(mode="after")
+    def _validate_canonical_lock_requirement(self) -> "RepoCanonicalLockRequirementRow":
+        for attr in ("canonical_lock_requirement_ref", "activation_package_ref"):
+            _non_empty(getattr(self, attr), field_name=attr)
+        for attr in (
+            "required_lock_inputs",
+            "required_lock_guardrails",
+            "required_stop_gate_refs",
+            "required_assessment_refs",
+            "required_closeout_refs",
+            "required_later_authority_refs",
+        ):
+            _validate_sorted_refs(getattr(self, attr), field_name=attr)
+        if not self.lock_not_created_by_v84:
+            raise ValueError("canonical lock requirements must not create locks in V84-B")
+        _reject_v84_action_claim(
+            _require_terms(
+                self.limitation_note,
+                field_name="limitation_note",
+                terms=("requirement", "later lock", "no implementation"),
+            ),
+            field_name="limitation_note",
+        )
+        return self
+
+
+class RepoActivationPackageLineageRow(_CartographyBase):
+    activation_package_lineage_ref: str
+    activation_package_ref: str
+    candidate_ref: str
+    projection_packet_refs: list[str] = Field(min_length=1)
+    quality_gate_refs: list[str] = Field(min_length=1)
+    implementation_spec_refs: list[str] = Field(min_length=1)
+    scope_contract_refs: list[str] = Field(default_factory=list)
+    target_boundary_refs: list[str] = Field(default_factory=list)
+    validation_plan_refs: list[str] = Field(default_factory=list)
+    lineage_posture: Literal[
+        "lineage_bound_for_review_only",
+        "lineage_incomplete",
+        "lineage_mismatch_blocked",
+    ]
+    limitation_note: str
+
+    @model_validator(mode="after")
+    def _validate_activation_package_lineage(self) -> "RepoActivationPackageLineageRow":
+        for attr in (
+            "activation_package_lineage_ref",
+            "activation_package_ref",
+            "candidate_ref",
+        ):
+            _non_empty(getattr(self, attr), field_name=attr)
+        for attr in (
+            "projection_packet_refs",
+            "quality_gate_refs",
+            "implementation_spec_refs",
+            "scope_contract_refs",
+            "target_boundary_refs",
+            "validation_plan_refs",
+        ):
+            _validate_sorted_refs(getattr(self, attr), field_name=attr)
+        if self.lineage_posture == "lineage_bound_for_review_only":
+            if (
+                not self.projection_packet_refs
+                or not self.quality_gate_refs
+                or not self.implementation_spec_refs
+            ):
+                raise ValueError("bound activation package lineage requires released V83-C refs")
+        _reject_v84_action_claim(
+            _require_terms(
+                self.limitation_note,
+                field_name="limitation_note",
+                terms=("lineage", "review", "no implementation"),
+            ),
+            field_name="limitation_note",
+        )
+        return self
+
+
+class RepoWorkPacketScopeContractRow(_CartographyBase):
+    scope_contract_ref: str
+    activation_package_ref: str
+    activation_request_refs: list[str] = Field(min_length=1)
+    projection_packet_refs: list[str] = Field(min_length=1)
+    implementation_spec_refs: list[str] = Field(min_length=1)
+    candidate_ref: str
+    source_refs: list[str] = Field(min_length=1)
+    work_packet_kind: WorkPacketKind
+    scope_statement: str
+    in_scope_artifact_refs: list[str] = Field(min_length=1)
+    out_of_scope_artifact_refs: list[str] = Field(default_factory=list)
+    target_boundary_refs: list[str] = Field(min_length=1)
+    validation_plan_refs: list[str] = Field(min_length=1)
+    canonical_lock_requirement_refs: list[str] = Field(min_length=1)
+    activation_package_lineage_refs: list[str] = Field(min_length=1)
+    canonical_lock_requirement_rows: list[RepoCanonicalLockRequirementRow] = Field(min_length=1)
+    activation_package_lineage_rows: list[RepoActivationPackageLineageRow] = Field(min_length=1)
+    scope_completeness_posture: ScopeCompletenessPosture
+    activation_review_posture: ActivationReviewPosture
+    work_packet_execution_posture: WorkPacketExecutionPosture
+    implementation_execution_posture: ImplementationExecutionPosture
+    guardrail_refs: list[str] = Field(min_length=1)
+    limitation_note: str
+
+    @model_validator(mode="after")
+    def _validate_scope_contract_row(self) -> "RepoWorkPacketScopeContractRow":
+        for attr in ("scope_contract_ref", "activation_package_ref", "candidate_ref"):
+            _non_empty(getattr(self, attr), field_name=attr)
+        for attr in (
+            "activation_request_refs",
+            "projection_packet_refs",
+            "implementation_spec_refs",
+            "source_refs",
+            "in_scope_artifact_refs",
+            "out_of_scope_artifact_refs",
+            "target_boundary_refs",
+            "validation_plan_refs",
+            "canonical_lock_requirement_refs",
+            "activation_package_lineage_refs",
+            "guardrail_refs",
+        ):
+            _validate_sorted_refs(getattr(self, attr), field_name=attr)
+        _sorted_unique_by_ref(
+            self.canonical_lock_requirement_rows,
+            attr="canonical_lock_requirement_ref",
+            field_name="canonical_lock_requirement_rows",
+        )
+        _sorted_unique_by_ref(
+            self.activation_package_lineage_rows,
+            attr="activation_package_lineage_ref",
+            field_name="activation_package_lineage_rows",
+        )
+        _reject_v84_action_claim(
+            _require_terms(
+                self.scope_statement,
+                field_name="scope_statement",
+                terms=("review", "later lock"),
+            ),
+            field_name="scope_statement",
+        )
+        _reject_v84_action_claim(
+            _require_terms(
+                self.limitation_note,
+                field_name="limitation_note",
+                terms=("scope", "no implementation", "later lock"),
+            ),
+            field_name="limitation_note",
+        )
+        if self.work_packet_execution_posture != "no_work_packet_execution_performed_by_v84":
+            raise ValueError("V84-B scope contracts cannot execute work packets")
+        if self.implementation_execution_posture != "no_implementation_performed_by_v84":
+            raise ValueError("V84-B scope contracts cannot perform implementation")
+        if self.scope_completeness_posture == "complete_for_activation_review_only":
+            if self.activation_review_posture != "package_ready_for_review_only":
+                raise ValueError("complete scope contracts must remain review-only ready")
+            if not self.target_boundary_refs or not self.validation_plan_refs:
+                raise ValueError("complete scope contracts require target and validation refs")
+            if not self.canonical_lock_requirement_refs:
+                raise ValueError("complete scope contracts require canonical lock refs")
+        canonical_refs = {
+            row.canonical_lock_requirement_ref for row in self.canonical_lock_requirement_rows
+        }
+        if not set(self.canonical_lock_requirement_refs).issubset(canonical_refs):
+            raise ValueError("canonical lock requirement refs must resolve to embedded rows")
+        lineage_refs = {
+            row.activation_package_lineage_ref for row in self.activation_package_lineage_rows
+        }
+        if not set(self.activation_package_lineage_refs).issubset(lineage_refs):
+            raise ValueError("activation package lineage refs must resolve to embedded rows")
+        for row in self.canonical_lock_requirement_rows:
+            if row.activation_package_ref != self.activation_package_ref:
+                raise ValueError("canonical lock requirement rows must match package")
+        for row in self.activation_package_lineage_rows:
+            if (
+                row.activation_package_ref != self.activation_package_ref
+                or row.candidate_ref != self.candidate_ref
+            ):
+                raise ValueError("activation package lineage rows must match package")
+        return self
+
+
+class RepoWorkPacketScopeContract(_CartographyBase):
+    schema: Literal[REPO_WORK_PACKET_SCOPE_CONTRACT_SCHEMA]
+    work_packet_scope_contract_id: str
+    work_packet_activation_review_request_id: str
+    work_packet_activation_source_index_id: str
+    work_packet_activation_non_execution_guardrail_id: str
+    review_id: str
+    snapshot_id: str
+    source_set_id: str
+    scope_contract_rows: list[RepoWorkPacketScopeContractRow] = Field(min_length=1)
+    scope_contract_summary: str
+
+    @model_validator(mode="after")
+    def _validate_scope_contract(self) -> "RepoWorkPacketScopeContract":
+        for attr in (
+            "work_packet_scope_contract_id",
+            "work_packet_activation_review_request_id",
+            "work_packet_activation_source_index_id",
+            "work_packet_activation_non_execution_guardrail_id",
+            "review_id",
+            "snapshot_id",
+            "source_set_id",
+        ):
+            _non_empty(getattr(self, attr), field_name=attr)
+        _sorted_unique_by_ref(
+            self.scope_contract_rows,
+            attr="scope_contract_ref",
+            field_name="scope_contract_rows",
+        )
+        _reject_v84_action_claim(
+            _require_terms(
+                self.scope_contract_summary,
+                field_name="scope_contract_summary",
+                terms=("scope", "review", "no implementation"),
+            ),
+            field_name="scope_contract_summary",
+        )
+        _assert_surface_id(
+            surface_name="repo_work_packet_scope_contract",
+            schema=REPO_WORK_PACKET_SCOPE_CONTRACT_SCHEMA,
+            payload=self.model_dump(mode="json"),
+            id_key="work_packet_scope_contract_id",
+            actual=self.work_packet_scope_contract_id,
+        )
+        return self
+
+
+class RepoTargetAccessRoleRow(_CartographyBase):
+    target_access_role_ref: str
+    target_surface_refs: list[str] = Field(min_length=1)
+    target_access_role: TargetAccessRole
+    source_refs: list[str] = Field(min_length=1)
+    target_mutability_review_posture: TargetMutabilityReviewPosture
+    in_scope_counting_posture: InScopeCountingPosture
+    limitation_note: str
+
+    @model_validator(mode="after")
+    def _validate_target_access_role(self) -> "RepoTargetAccessRoleRow":
+        _non_empty(self.target_access_role_ref, field_name="target_access_role_ref")
+        _validate_sorted_refs(self.target_surface_refs, field_name="target_surface_refs")
+        _validate_sorted_refs(self.source_refs, field_name="source_refs")
+        if self.target_access_role == "prospective_write_target_for_later_lock":
+            if self.target_mutability_review_posture != "mutation_requires_later_lock":
+                raise ValueError("prospective write targets require later lock mutation posture")
+            if self.in_scope_counting_posture != "counts_as_bounded_later_scope":
+                raise ValueError("prospective write targets must count as bounded later scope")
+        if self.target_access_role == "forbidden_target":
+            if self.in_scope_counting_posture != "forbidden_not_counted":
+                raise ValueError("forbidden targets cannot count as bounded scope")
+            if self.target_mutability_review_posture != "mutation_forbidden":
+                raise ValueError("forbidden targets require mutation-forbidden posture")
+        if self.target_access_role == "context_only":
+            if self.in_scope_counting_posture != "context_only_not_counted":
+                raise ValueError("context-only targets cannot count as bounded scope")
+        _reject_v84_action_claim(
+            _require_terms(
+                self.limitation_note,
+                field_name="limitation_note",
+                terms=("target", "review", "later lock"),
+            ),
+            field_name="limitation_note",
+        )
+        return self
+
+
+class RepoImplementationTargetSurfaceBoundaryRow(_CartographyBase):
+    target_boundary_ref: str
+    activation_package_ref: str
+    scope_contract_refs: list[str] = Field(min_length=1)
+    activation_request_refs: list[str] = Field(min_length=1)
+    candidate_ref: str
+    source_refs: list[str] = Field(min_length=1)
+    target_surface_kind: TargetSurfaceKind
+    target_surface_refs: list[str] = Field(min_length=1)
+    target_resolution_kind: TargetResolutionKind
+    target_currentness_posture: TargetCurrentnessPosture
+    target_mutability_review_posture: TargetMutabilityReviewPosture
+    target_access_role_rows: list[RepoTargetAccessRoleRow] = Field(min_length=1)
+    allowed_target_review_actions: list[AllowedTargetReviewAction] = Field(min_length=1)
+    forbidden_target_mutation_actions: list[ForbiddenTargetMutationAction] = Field(min_length=1)
+    ownership_or_authority_refs: list[str] = Field(default_factory=list)
+    boundary_posture: BoundaryPosture
+    guardrail_refs: list[str] = Field(min_length=1)
+    limitation_note: str
+
+    @model_validator(mode="after")
+    def _validate_target_boundary_row(self) -> "RepoImplementationTargetSurfaceBoundaryRow":
+        for attr in ("target_boundary_ref", "activation_package_ref", "candidate_ref"):
+            _non_empty(getattr(self, attr), field_name=attr)
+        for attr in (
+            "scope_contract_refs",
+            "activation_request_refs",
+            "source_refs",
+            "target_surface_refs",
+            "allowed_target_review_actions",
+            "forbidden_target_mutation_actions",
+            "ownership_or_authority_refs",
+            "guardrail_refs",
+        ):
+            _validate_sorted_refs(getattr(self, attr), field_name=attr)
+        _sorted_unique_by_ref(
+            self.target_access_role_rows,
+            attr="target_access_role_ref",
+            field_name="target_access_role_rows",
+        )
+        if any("*" in ref for ref in self.target_surface_refs):
+            raise ValueError("target globs cannot become implementation target boundaries")
+        if self.target_resolution_kind == "bounded_directory_with_child_refs":
+            if len(self.target_surface_refs) < 2:
+                raise ValueError("bounded directories require concrete child refs")
+            if (
+                self.boundary_posture == "bounded_for_review_only"
+                and len(self.target_surface_refs) < 2
+            ):
+                raise ValueError("bounded directory cannot be bounded without child refs")
+        if self.target_resolution_kind == "no_target_boundary":
+            if self.boundary_posture == "bounded_for_review_only":
+                raise ValueError("missing target boundary cannot be bounded")
+        if self.boundary_posture == "bounded_for_review_only":
+            if not any(
+                row.target_access_role
+                in {
+                    "generated_artifact_target",
+                    "prospective_write_target_for_later_lock",
+                }
+                for row in self.target_access_role_rows
+            ):
+                raise ValueError("bounded target boundaries require bounded target role")
+        if self.target_mutability_review_posture not in {
+            "mutation_requires_later_lock",
+            "generated_artifact_requires_later_lock",
+            "validation_target_only",
+        } and any(
+            row.target_access_role == "prospective_write_target_for_later_lock"
+            for row in self.target_access_role_rows
+        ):
+            raise ValueError("prospective write boundaries require later lock mutation posture")
+        required_forbidden = {
+            "edit_file",
+            "create_file",
+            "delete_file",
+            "open_pr",
+            "commit_change",
+        }
+        if not required_forbidden.issubset(self.forbidden_target_mutation_actions):
+            raise ValueError("target boundaries must forbid mutation actions in V84-B")
+        _reject_v84_action_claim(
+            _require_terms(
+                self.limitation_note,
+                field_name="limitation_note",
+                terms=("target", "review", "no implementation"),
+            ),
+            field_name="limitation_note",
+        )
+        return self
+
+
+class RepoImplementationTargetSurfaceBoundary(_CartographyBase):
+    schema: Literal[REPO_IMPLEMENTATION_TARGET_SURFACE_BOUNDARY_SCHEMA]
+    implementation_target_surface_boundary_id: str
+    work_packet_scope_contract_id: str
+    work_packet_activation_review_request_id: str
+    work_packet_activation_source_index_id: str
+    work_packet_activation_non_execution_guardrail_id: str
+    review_id: str
+    snapshot_id: str
+    source_set_id: str
+    target_boundary_rows: list[RepoImplementationTargetSurfaceBoundaryRow] = Field(
+        min_length=1
+    )
+    target_boundary_summary: str
+
+    @model_validator(mode="after")
+    def _validate_target_boundary(self) -> "RepoImplementationTargetSurfaceBoundary":
+        for attr in (
+            "implementation_target_surface_boundary_id",
+            "work_packet_scope_contract_id",
+            "work_packet_activation_review_request_id",
+            "work_packet_activation_source_index_id",
+            "work_packet_activation_non_execution_guardrail_id",
+            "review_id",
+            "snapshot_id",
+            "source_set_id",
+        ):
+            _non_empty(getattr(self, attr), field_name=attr)
+        _sorted_unique_by_ref(
+            self.target_boundary_rows,
+            attr="target_boundary_ref",
+            field_name="target_boundary_rows",
+        )
+        _reject_v84_action_claim(
+            _require_terms(
+                self.target_boundary_summary,
+                field_name="target_boundary_summary",
+                terms=("target", "review", "no implementation"),
+            ),
+            field_name="target_boundary_summary",
+        )
+        _assert_surface_id(
+            surface_name="repo_implementation_target_surface_boundary",
+            schema=REPO_IMPLEMENTATION_TARGET_SURFACE_BOUNDARY_SCHEMA,
+            payload=self.model_dump(mode="json"),
+            id_key="implementation_target_surface_boundary_id",
+            actual=self.implementation_target_surface_boundary_id,
+        )
+        return self
+
+
+class RepoValidationEvidenceRow(_CartographyBase):
+    validation_evidence_ref: str
+    semantic_edge_refs: list[str] = Field(min_length=1)
+    artifact_obligation_refs: list[str] = Field(min_length=1)
+    implementation_spec_refs: list[str] = Field(min_length=1)
+    evidence_kind: ValidationEvidenceKind
+    required_artifact_refs: list[str] = Field(min_length=1)
+    required_execution_horizon: Literal[
+        "later_lock_execution_required",
+        "manual_review_only",
+        "no_execution_required",
+        "future_family_only",
+    ]
+    evidence_presence_posture: EvidencePresencePosture
+    acceptance_not_truth_guardrail: str
+    limitation_note: str
+
+    @model_validator(mode="after")
+    def _validate_validation_evidence_row(self) -> "RepoValidationEvidenceRow":
+        _non_empty(self.validation_evidence_ref, field_name="validation_evidence_ref")
+        for attr in (
+            "semantic_edge_refs",
+            "artifact_obligation_refs",
+            "implementation_spec_refs",
+            "required_artifact_refs",
+        ):
+            _validate_sorted_refs(getattr(self, attr), field_name=attr)
+        _require_terms(
+            self.acceptance_not_truth_guardrail,
+            field_name="acceptance_not_truth_guardrail",
+            terms=("not truth",),
+        )
+        _reject_v84_action_claim(
+            _require_terms(
+                self.limitation_note,
+                field_name="limitation_note",
+                terms=("evidence", "review", "no implementation"),
+            ),
+            field_name="limitation_note",
+        )
+        if self.evidence_presence_posture == "requirement_recorded_for_review_only":
+            if self.required_execution_horizon == "no_execution_required":
+                return self
+        return self
+
+
+class RepoValidationMatrixRow(_CartographyBase):
+    validation_matrix_ref: str
+    semantic_edge_refs: list[str] = Field(min_length=1)
+    artifact_obligation_refs: list[str] = Field(min_length=1)
+    implementation_spec_refs: list[str] = Field(min_length=1)
+    target_boundary_refs: list[str] = Field(min_length=1)
+    evidence_kind: ValidationEvidenceKind
+    positive_evidence_requirement: ValidationRequirementPosture
+    reject_evidence_requirement: ValidationRequirementPosture
+    regression_evidence_requirement: ValidationRequirementPosture
+    manual_review_requirement: ManualReviewPosture
+    tool_applicability_posture: ToolApplicabilityPosture
+    execution_required_later: bool
+    acceptance_not_truth_guardrail: str
+    limitation_note: str
+
+    @model_validator(mode="after")
+    def _validate_validation_matrix_row(self) -> "RepoValidationMatrixRow":
+        _non_empty(self.validation_matrix_ref, field_name="validation_matrix_ref")
+        for attr in (
+            "semantic_edge_refs",
+            "artifact_obligation_refs",
+            "implementation_spec_refs",
+            "target_boundary_refs",
+        ):
+            _validate_sorted_refs(getattr(self, attr), field_name=attr)
+        _require_terms(
+            self.acceptance_not_truth_guardrail,
+            field_name="acceptance_not_truth_guardrail",
+            terms=("not truth",),
+        )
+        if self.positive_evidence_requirement == "missing_required_evidence":
+            raise ValueError("validation matrix rows require positive evidence posture")
+        if self.reject_evidence_requirement == "missing_required_evidence":
+            raise ValueError("validation matrix rows require reject evidence posture")
+        _reject_v84_action_claim(
+            _require_terms(
+                self.limitation_note,
+                field_name="limitation_note",
+                terms=("matrix", "review", "no implementation"),
+            ),
+            field_name="limitation_note",
+        )
+        return self
+
+
+class RepoWorkPacketValidationEvidencePlanRow(_CartographyBase):
+    validation_plan_ref: str
+    activation_package_ref: str
+    scope_contract_refs: list[str] = Field(min_length=1)
+    activation_request_refs: list[str] = Field(min_length=1)
+    candidate_ref: str
+    source_refs: list[str] = Field(min_length=1)
+    semantic_edge_refs: list[str] = Field(min_length=1)
+    artifact_obligation_refs: list[str] = Field(min_length=1)
+    implementation_spec_refs: list[str] = Field(min_length=1)
+    validation_evidence_rows: list[RepoValidationEvidenceRow] = Field(min_length=1)
+    validation_matrix_rows: list[RepoValidationMatrixRow] = Field(min_length=1)
+    required_positive_evidence_posture: ValidationRequirementPosture
+    required_reject_evidence_posture: ValidationRequirementPosture
+    manual_review_posture: ManualReviewPosture
+    tool_run_posture: ToolRunPosture
+    validation_plan_posture: ValidationPlanPosture
+    tests_not_truth_guardrail: str
+    work_packet_execution_posture: WorkPacketExecutionPosture
+    implementation_execution_posture: ImplementationExecutionPosture
+    guardrail_refs: list[str] = Field(min_length=1)
+    limitation_note: str
+
+    @model_validator(mode="after")
+    def _validate_validation_plan_row(self) -> "RepoWorkPacketValidationEvidencePlanRow":
+        for attr in ("validation_plan_ref", "activation_package_ref", "candidate_ref"):
+            _non_empty(getattr(self, attr), field_name=attr)
+        for attr in (
+            "scope_contract_refs",
+            "activation_request_refs",
+            "source_refs",
+            "semantic_edge_refs",
+            "artifact_obligation_refs",
+            "implementation_spec_refs",
+            "guardrail_refs",
+        ):
+            _validate_sorted_refs(getattr(self, attr), field_name=attr)
+        _sorted_unique_by_ref(
+            self.validation_evidence_rows,
+            attr="validation_evidence_ref",
+            field_name="validation_evidence_rows",
+        )
+        _sorted_unique_by_ref(
+            self.validation_matrix_rows,
+            attr="validation_matrix_ref",
+            field_name="validation_matrix_rows",
+        )
+        _require_terms(
+            self.tests_not_truth_guardrail,
+            field_name="tests_not_truth_guardrail",
+            terms=("tests", "not truth"),
+        )
+        if self.work_packet_execution_posture != "no_work_packet_execution_performed_by_v84":
+            raise ValueError("V84-B validation plans cannot execute work packets")
+        if self.implementation_execution_posture != "no_implementation_performed_by_v84":
+            raise ValueError("V84-B validation plans cannot perform implementation")
+        if self.tool_run_posture != "no_tool_run_performed_by_v84":
+            raise ValueError("V84-B validation plans cannot run tools")
+        if self.validation_plan_posture == "plan_complete_for_review_only":
+            if self.required_positive_evidence_posture != "required_for_later_review":
+                raise ValueError("complete validation plans require positive evidence posture")
+            if self.required_reject_evidence_posture != "required_for_later_review":
+                raise ValueError("complete validation plans require reject evidence posture")
+            covered_edges = {
+                ref for row in self.validation_matrix_rows for ref in row.semantic_edge_refs
+            }
+            if not set(self.semantic_edge_refs).issubset(covered_edges):
+                raise ValueError("validation plan is not complete across semantic edges")
+            covered_obligations = {
+                ref
+                for row in self.validation_matrix_rows
+                for ref in row.artifact_obligation_refs
+            }
+            if not set(self.artifact_obligation_refs).issubset(covered_obligations):
+                raise ValueError("validation plan is not complete across artifact obligations")
+        _reject_v84_action_claim(
+            _require_terms(
+                self.limitation_note,
+                field_name="limitation_note",
+                terms=("validation", "review", "no implementation"),
+            ),
+            field_name="limitation_note",
+        )
+        return self
+
+
+class RepoWorkPacketValidationEvidencePlan(_CartographyBase):
+    schema: Literal[REPO_WORK_PACKET_VALIDATION_EVIDENCE_PLAN_SCHEMA]
+    work_packet_validation_evidence_plan_id: str
+    work_packet_scope_contract_id: str
+    implementation_target_surface_boundary_id: str
+    work_packet_activation_review_request_id: str
+    work_packet_activation_source_index_id: str
+    work_packet_activation_non_execution_guardrail_id: str
+    review_id: str
+    snapshot_id: str
+    source_set_id: str
+    validation_plan_rows: list[RepoWorkPacketValidationEvidencePlanRow] = Field(
+        min_length=1
+    )
+    validation_plan_summary: str
+
+    @model_validator(mode="after")
+    def _validate_validation_plan(self) -> "RepoWorkPacketValidationEvidencePlan":
+        for attr in (
+            "work_packet_validation_evidence_plan_id",
+            "work_packet_scope_contract_id",
+            "implementation_target_surface_boundary_id",
+            "work_packet_activation_review_request_id",
+            "work_packet_activation_source_index_id",
+            "work_packet_activation_non_execution_guardrail_id",
+            "review_id",
+            "snapshot_id",
+            "source_set_id",
+        ):
+            _non_empty(getattr(self, attr), field_name=attr)
+        _sorted_unique_by_ref(
+            self.validation_plan_rows,
+            attr="validation_plan_ref",
+            field_name="validation_plan_rows",
+        )
+        _reject_v84_action_claim(
+            _require_terms(
+                self.validation_plan_summary,
+                field_name="validation_plan_summary",
+                terms=("validation", "review", "no implementation"),
+            ),
+            field_name="validation_plan_summary",
+        )
+        _assert_surface_id(
+            surface_name="repo_work_packet_validation_evidence_plan",
+            schema=REPO_WORK_PACKET_VALIDATION_EVIDENCE_PLAN_SCHEMA,
+            payload=self.model_dump(mode="json"),
+            id_key="work_packet_validation_evidence_plan_id",
+            actual=self.work_packet_validation_evidence_plan_id,
+        )
+        return self
+
+
+class RepoActivationExceptionRow(_CartographyBase):
+    exception_ref: str
+    exception_kind: ActivationExceptionKind
+    source_refs: list[str] = Field(min_length=1)
+    related_scope_refs: list[str] = Field(default_factory=list)
+    related_target_refs: list[str] = Field(default_factory=list)
+    related_validation_refs: list[str] = Field(default_factory=list)
+    related_drift_refs: list[str] = Field(default_factory=list)
+    blocking_posture: BlockingPosture
+    visibility_posture: VisibilityPosture
+    required_resolution_horizon: RequiredResolutionHorizon
+    limitation_note: str
+
+    @model_validator(mode="after")
+    def _validate_activation_exception_row(self) -> "RepoActivationExceptionRow":
+        _non_empty(self.exception_ref, field_name="exception_ref")
+        for attr in (
+            "source_refs",
+            "related_scope_refs",
+            "related_target_refs",
+            "related_validation_refs",
+            "related_drift_refs",
+        ):
+            _validate_sorted_refs(getattr(self, attr), field_name=attr)
+        if self.visibility_posture == "hidden_rejected":
+            raise ValueError("V84-B exceptions cannot be hidden")
+        if self.blocking_posture == "blocking":
+            if self.required_resolution_horizon == "not_applicable":
+                raise ValueError("blocking exceptions require a resolution horizon")
+        _reject_v84_action_claim(
+            _require_terms(
+                self.limitation_note,
+                field_name="limitation_note",
+                terms=("exception", "review", "no implementation"),
+            ),
+            field_name="limitation_note",
+        )
+        return self
+
+
+class RepoWorkPacketActivationExceptionRegisterRow(_CartographyBase):
+    exception_register_ref: str
+    activation_package_ref: str
+    activation_request_refs: list[str] = Field(min_length=1)
+    scope_contract_refs: list[str] = Field(min_length=1)
+    target_boundary_refs: list[str] = Field(min_length=1)
+    validation_plan_refs: list[str] = Field(min_length=1)
+    candidate_ref: str
+    source_refs: list[str] = Field(min_length=1)
+    exception_rows: list[RepoActivationExceptionRow] = Field(min_length=1)
+    blocking_posture: BlockingPosture
+    required_next_surface: RequiredResolutionHorizon
+    guardrail_refs: list[str] = Field(min_length=1)
+    limitation_note: str
+
+    @model_validator(mode="after")
+    def _validate_exception_register_row(self) -> "RepoWorkPacketActivationExceptionRegisterRow":
+        for attr in ("exception_register_ref", "activation_package_ref", "candidate_ref"):
+            _non_empty(getattr(self, attr), field_name=attr)
+        for attr in (
+            "activation_request_refs",
+            "scope_contract_refs",
+            "target_boundary_refs",
+            "validation_plan_refs",
+            "source_refs",
+            "guardrail_refs",
+        ):
+            _validate_sorted_refs(getattr(self, attr), field_name=attr)
+        _sorted_unique_by_ref(
+            self.exception_rows,
+            attr="exception_ref",
+            field_name="exception_rows",
+        )
+        if self.blocking_posture == "not_applicable" and any(
+            row.blocking_posture == "blocking" for row in self.exception_rows
+        ):
+            raise ValueError("exception register cannot hide blocking exceptions")
+        _reject_v84_action_claim(
+            _require_terms(
+                self.limitation_note,
+                field_name="limitation_note",
+                terms=("exception", "review", "no implementation"),
+            ),
+            field_name="limitation_note",
+        )
+        return self
+
+
+class RepoWorkPacketActivationExceptionRegister(_CartographyBase):
+    schema: Literal[REPO_WORK_PACKET_ACTIVATION_EXCEPTION_REGISTER_SCHEMA]
+    work_packet_activation_exception_register_id: str
+    work_packet_scope_contract_id: str
+    implementation_target_surface_boundary_id: str
+    work_packet_validation_evidence_plan_id: str
+    work_packet_activation_review_request_id: str
+    work_packet_activation_source_index_id: str
+    work_packet_activation_non_execution_guardrail_id: str
+    review_id: str
+    snapshot_id: str
+    source_set_id: str
+    exception_register_rows: list[RepoWorkPacketActivationExceptionRegisterRow] = Field(
+        min_length=1
+    )
+    exception_register_summary: str
+
+    @model_validator(mode="after")
+    def _validate_exception_register(self) -> "RepoWorkPacketActivationExceptionRegister":
+        for attr in (
+            "work_packet_activation_exception_register_id",
+            "work_packet_scope_contract_id",
+            "implementation_target_surface_boundary_id",
+            "work_packet_validation_evidence_plan_id",
+            "work_packet_activation_review_request_id",
+            "work_packet_activation_source_index_id",
+            "work_packet_activation_non_execution_guardrail_id",
+            "review_id",
+            "snapshot_id",
+            "source_set_id",
+        ):
+            _non_empty(getattr(self, attr), field_name=attr)
+        _sorted_unique_by_ref(
+            self.exception_register_rows,
+            attr="exception_register_ref",
+            field_name="exception_register_rows",
+        )
+        _reject_v84_action_claim(
+            _require_terms(
+                self.exception_register_summary,
+                field_name="exception_register_summary",
+                terms=("exception", "review", "no implementation"),
+            ),
+            field_name="exception_register_summary",
+        )
+        _assert_surface_id(
+            surface_name="repo_work_packet_activation_exception_register",
+            schema=REPO_WORK_PACKET_ACTIVATION_EXCEPTION_REGISTER_SCHEMA,
+            payload=self.model_dump(mode="json"),
+            id_key="work_packet_activation_exception_register_id",
+            actual=self.work_packet_activation_exception_register_id,
+        )
+        return self
+
+
+def _v84a_released_bundle(
+    repo_root: Path | None = None,
+) -> tuple[
+    RepoIntentSourceIndex,
+    RepoSemanticIntentContract,
+    RepoIntentNonImplementationGuardrail,
+    RepoIntentEdgeDecomposition,
+    RepoArtifactObligationMap,
+    RepoSemanticDriftAmbiguityRegister,
+    RepoImplementationSpecProjectionPacket,
+    RepoIntentToWorkPacketHandoff,
+    RepoSemanticImplementationSpecFamilyCloseoutAlignment,
+    RepoWorkPacketActivationSourceIndex,
+    RepoWorkPacketActivationReviewRequest,
+    RepoWorkPacketActivationNonExecutionGuardrail,
+]:
+    return derive_v84a_work_packet_activation_review_bundle(repo_root=repo_root)
+
+
+def _eligible_v84a_request(
+    request: RepoWorkPacketActivationReviewRequest,
+) -> RepoWorkPacketActivationReviewRequestRow:
+    return next(
+        row
+        for row in request.activation_request_rows
+        if row.activation_review_eligibility_posture
+        == "eligible_for_work_packet_activation_review"
+    )
+
+
+def _v83c_projection_refs(
+    projection_packet: RepoImplementationSpecProjectionPacket,
+) -> tuple[
+    RepoIntentEdgeDecomposition,
+    RepoArtifactObligationMap,
+    RepoImplementationSpecProjectionPacket,
+]:
+    _ = projection_packet
+    (
+        _intent_source_index,
+        _contract,
+        _guardrail,
+        edge_decomposition,
+        obligation_map,
+        _drift_register,
+        v83_projection_packet,
+        _handoff,
+        _closeout,
+    ) = _v83c_released_bundle()
+    return edge_decomposition, obligation_map, v83_projection_packet
+
+
+def derive_v84b_repo_work_packet_scope_contract(
+    *,
+    repo_root: Path | None = None,
+    work_packet_activation_source_index: RepoWorkPacketActivationSourceIndex | None = None,
+    work_packet_activation_review_request: RepoWorkPacketActivationReviewRequest | None = None,
+    work_packet_activation_non_execution_guardrail: (
+        RepoWorkPacketActivationNonExecutionGuardrail | None
+    ) = None,
+) -> RepoWorkPacketScopeContract:
+    if (
+        work_packet_activation_source_index is None
+        or work_packet_activation_review_request is None
+        or work_packet_activation_non_execution_guardrail is None
+    ):
+        v84a_bundle = _v84a_released_bundle(repo_root=repo_root)
+        work_packet_activation_source_index = v84a_bundle[-3]
+        work_packet_activation_review_request = v84a_bundle[-2]
+        work_packet_activation_non_execution_guardrail = v84a_bundle[-1]
+    (
+        _intent_source_index,
+        _contract,
+        _intent_guardrail,
+        _edge_decomposition,
+        _obligation_map,
+        _drift_register,
+        projection_packet,
+        _handoff,
+        _closeout,
+    ) = _v83c_released_bundle(repo_root=repo_root)
+    request_row = _eligible_v84a_request(work_packet_activation_review_request)
+    packet_row = projection_packet.projection_packet_rows[0]
+    quality_gate_ref = packet_row.implementation_spec_quality_gate_rows[0].quality_gate_ref
+    schema_targets = [
+        "packages/adeu_repo_description/schema",
+        "packages/adeu_repo_description/schema/repo_work_packet_scope_contract.v1.json",
+        "packages/adeu_repo_description/schema/repo_implementation_target_surface_boundary.v1.json",
+        "packages/adeu_repo_description/schema/repo_work_packet_validation_evidence_plan.v1.json",
+        "packages/adeu_repo_description/schema/repo_work_packet_activation_exception_register.v1.json",
+    ]
+    in_scope = sorted(
+        [
+            "apps/api/fixtures/repo_description/vnext_plus237",
+            "packages/adeu_repo_description/src/adeu_repo_description/__init__.py",
+            "packages/adeu_repo_description/src/adeu_repo_description/export_schema.py",
+            "packages/adeu_repo_description/src/adeu_repo_description/work_packet_activation_review.py",
+            "packages/adeu_repo_description/tests/test_repo_description_export_schema.py",
+            "packages/adeu_repo_description/tests/test_work_packet_activation_review_v84b.py",
+            *schema_targets,
+            "spec/repo_work_packet_scope_contract.schema.json",
+            "spec/repo_implementation_target_surface_boundary.schema.json",
+            "spec/repo_work_packet_validation_evidence_plan.schema.json",
+            "spec/repo_work_packet_activation_exception_register.schema.json",
+        ]
+    )
+    payload = {
+        "schema": REPO_WORK_PACKET_SCOPE_CONTRACT_SCHEMA,
+        "work_packet_scope_contract_id": "",
+        "work_packet_activation_review_request_id": (
+            work_packet_activation_review_request.work_packet_activation_review_request_id
+        ),
+        "work_packet_activation_source_index_id": (
+            work_packet_activation_source_index.work_packet_activation_source_index_id
+        ),
+        "work_packet_activation_non_execution_guardrail_id": (
+            work_packet_activation_non_execution_guardrail
+            .work_packet_activation_non_execution_guardrail_id
+        ),
+        "review_id": "vNext+237",
+        "snapshot_id": "vNext+237-work-packet-package-review-start",
+        "source_set_id": "source-set:v84b:work-packet-package-review",
+        "scope_contract_rows": [
+            {
+                "scope_contract_ref": "scope-contract:v84b:intent-to-spec-lock-review",
+                "activation_package_ref": request_row.activation_package_ref,
+                "activation_request_refs": [request_row.activation_request_ref],
+                "projection_packet_refs": request_row.projection_packet_refs,
+                "implementation_spec_refs": request_row.implementation_spec_refs,
+                "candidate_ref": request_row.candidate_ref,
+                "source_refs": sorted(
+                    [
+                        "docs/ASSESSMENT_vNEXT_PLUS236_EDGES.md",
+                        "docs/LOCKED_CONTINUATION_vNEXT_PLUS236.md",
+                        _V83_PROJECTION_FIXTURE,
+                    ]
+                ),
+                "work_packet_kind": "schema_model_fixture_test_slice",
+                "scope_statement": (
+                    "Review-only scope package for a later lock over V84-B schema, "
+                    "fixture, model, export, and test surfaces."
+                ),
+                "in_scope_artifact_refs": in_scope,
+                "out_of_scope_artifact_refs": sorted(
+                    [
+                        "docs/DRAFT_NEXT_ARC_OPTIONS_v74.md",
+                        "packages/adeu_repo_description/src/adeu_repo_description/semantic_implementation_spec.py",
+                    ]
+                ),
+                "target_boundary_refs": [
+                    "target-boundary:v84b:fixtures",
+                    "target-boundary:v84b:module",
+                    "target-boundary:v84b:schemas",
+                    "target-boundary:v84b:tests",
+                ],
+                "validation_plan_refs": ["validation-plan:v84b:intent-to-spec-lock-review"],
+                "canonical_lock_requirement_refs": [
+                    "canonical-lock-requirement:v84b:intent-to-spec-lock-review"
+                ],
+                "activation_package_lineage_refs": [
+                    "activation-package-lineage:v84b:intent-to-spec-lock-review"
+                ],
+                "canonical_lock_requirement_rows": [
+                    {
+                        "canonical_lock_requirement_ref": (
+                            "canonical-lock-requirement:v84b:intent-to-spec-lock-review"
+                        ),
+                        "activation_package_ref": request_row.activation_package_ref,
+                        "required_lock_kind": "schema_model_fixture_test_slice",
+                        "required_lock_inputs": [
+                            request_row.activation_request_ref,
+                            packet_row.projection_packet_ref,
+                        ],
+                        "required_lock_guardrails": request_row.guardrail_refs,
+                        "required_stop_gate_refs": [
+                            "docs/DRAFT_STOP_GATE_DECISION_vNEXT_PLUS237.md"
+                        ],
+                        "required_assessment_refs": ["docs/ASSESSMENT_vNEXT_PLUS237_EDGES.md"],
+                        "required_closeout_refs": [
+                            "docs/DRAFT_STOP_GATE_DECISION_vNEXT_PLUS236.md"
+                        ],
+                        "required_later_authority_refs": (
+                            request_row.canonical_lock_requirement_refs
+                        ),
+                        "lock_not_created_by_v84": True,
+                        "limitation_note": (
+                            "Canonical lock requirement is for later lock review with "
+                            "no implementation."
+                        ),
+                    }
+                ],
+                "activation_package_lineage_rows": [
+                    {
+                        "activation_package_lineage_ref": (
+                            "activation-package-lineage:v84b:intent-to-spec-lock-review"
+                        ),
+                        "activation_package_ref": request_row.activation_package_ref,
+                        "candidate_ref": request_row.candidate_ref,
+                        "projection_packet_refs": request_row.projection_packet_refs,
+                        "quality_gate_refs": [quality_gate_ref],
+                        "implementation_spec_refs": request_row.implementation_spec_refs,
+                        "scope_contract_refs": [
+                            "scope-contract:v84b:intent-to-spec-lock-review"
+                        ],
+                        "target_boundary_refs": [
+                            "target-boundary:v84b:fixtures",
+                            "target-boundary:v84b:module",
+                            "target-boundary:v84b:schemas",
+                            "target-boundary:v84b:tests",
+                        ],
+                        "validation_plan_refs": [
+                            "validation-plan:v84b:intent-to-spec-lock-review"
+                        ],
+                        "lineage_posture": "lineage_bound_for_review_only",
+                        "limitation_note": (
+                            "Activation package lineage binds V83 projection, "
+                            "quality gate, and V84-B package rows for review with "
+                            "no implementation."
+                        ),
+                    }
+                ],
+                "scope_completeness_posture": "complete_for_activation_review_only",
+                "activation_review_posture": "package_ready_for_review_only",
+                "work_packet_execution_posture": "no_work_packet_execution_performed_by_v84",
+                "implementation_execution_posture": "no_implementation_performed_by_v84",
+                "guardrail_refs": request_row.guardrail_refs,
+                "limitation_note": (
+                    "Scope contract assembles a later lock review package with no "
+                    "implementation and no work-packet execution."
+                ),
+            }
+        ],
+        "scope_contract_summary": (
+            "V84-B scope contracts package target and validation requirements for "
+            "review with no implementation."
+        ),
+    }
+    payload["work_packet_scope_contract_id"] = _surface_id(
+        "repo_work_packet_scope_contract",
+        REPO_WORK_PACKET_SCOPE_CONTRACT_SCHEMA,
+        payload,
+        "work_packet_scope_contract_id",
+    )
+    scope_contract = RepoWorkPacketScopeContract.model_validate(payload)
+    return scope_contract
+
+
+def _target_boundary_row(
+    *,
+    target_boundary_ref: str,
+    activation_package_ref: str,
+    scope_contract_ref: str,
+    activation_request_ref: str,
+    candidate_ref: str,
+    source_refs: list[str],
+    target_surface_kind: TargetSurfaceKind,
+    target_surface_refs: list[str],
+    target_resolution_kind: TargetResolutionKind,
+    target_access_role: TargetAccessRole,
+    target_mutability_review_posture: TargetMutabilityReviewPosture,
+    in_scope_counting_posture: InScopeCountingPosture,
+    boundary_posture: BoundaryPosture = "bounded_for_review_only",
+) -> dict[str, object]:
+    return {
+        "target_boundary_ref": target_boundary_ref,
+        "activation_package_ref": activation_package_ref,
+        "scope_contract_refs": [scope_contract_ref],
+        "activation_request_refs": [activation_request_ref],
+        "candidate_ref": candidate_ref,
+        "source_refs": sorted(source_refs),
+        "target_surface_kind": target_surface_kind,
+        "target_surface_refs": sorted(target_surface_refs),
+        "target_resolution_kind": target_resolution_kind,
+        "target_currentness_posture": "current_repo_surface",
+        "target_mutability_review_posture": target_mutability_review_posture,
+        "target_access_role_rows": [
+            {
+                "target_access_role_ref": (
+                    f"target-access-role:{target_boundary_ref.split(':')[-1]}"
+                ),
+                "target_surface_refs": sorted(target_surface_refs),
+                "target_access_role": target_access_role,
+                "source_refs": sorted(source_refs),
+                "target_mutability_review_posture": target_mutability_review_posture,
+                "in_scope_counting_posture": in_scope_counting_posture,
+                "limitation_note": (
+                    "Target role is recorded for review and later lock only."
+                ),
+            }
+        ],
+        "allowed_target_review_actions": sorted(
+            [
+                "describe_target_boundary",
+                "inspect_source_metadata",
+                "request_later_lock_review",
+            ]
+        ),
+        "forbidden_target_mutation_actions": sorted(
+            [
+                "commit_change",
+                "create_file",
+                "delete_file",
+                "edit_file",
+                "mutate_fixture",
+                "mutate_schema",
+                "open_pr",
+                "run_formatter_for_effect",
+            ]
+        ),
+        "ownership_or_authority_refs": [
+            "canonical-lock-requirement:v84b:intent-to-spec-lock-review"
+        ],
+        "boundary_posture": boundary_posture,
+        "guardrail_refs": ["guardrail:v84a:intent-to-spec-lock-review"],
+        "limitation_note": (
+            "Target boundary is review-only with no implementation and no target mutation."
+        ),
+    }
+
+
+def derive_v84b_repo_implementation_target_surface_boundary(
+    *,
+    repo_root: Path | None = None,
+    work_packet_scope_contract: RepoWorkPacketScopeContract | None = None,
+) -> RepoImplementationTargetSurfaceBoundary:
+    if work_packet_scope_contract is None:
+        *_, source_index, request, guardrail = _v84a_released_bundle(repo_root=repo_root)
+        work_packet_scope_contract = derive_v84b_repo_work_packet_scope_contract(
+            repo_root=repo_root,
+            work_packet_activation_source_index=source_index,
+            work_packet_activation_review_request=request,
+            work_packet_activation_non_execution_guardrail=guardrail,
+        )
+    scope_row = work_packet_scope_contract.scope_contract_rows[0]
+    activation_request_ref = scope_row.activation_request_refs[0]
+    source_refs = scope_row.source_refs
+    payload = {
+        "schema": REPO_IMPLEMENTATION_TARGET_SURFACE_BOUNDARY_SCHEMA,
+        "implementation_target_surface_boundary_id": "",
+        "work_packet_scope_contract_id": work_packet_scope_contract.work_packet_scope_contract_id,
+        "work_packet_activation_review_request_id": (
+            work_packet_scope_contract.work_packet_activation_review_request_id
+        ),
+        "work_packet_activation_source_index_id": (
+            work_packet_scope_contract.work_packet_activation_source_index_id
+        ),
+        "work_packet_activation_non_execution_guardrail_id": (
+            work_packet_scope_contract.work_packet_activation_non_execution_guardrail_id
+        ),
+        "review_id": work_packet_scope_contract.review_id,
+        "snapshot_id": work_packet_scope_contract.snapshot_id,
+        "source_set_id": work_packet_scope_contract.source_set_id,
+        "target_boundary_rows": sorted(
+            [
+            _target_boundary_row(
+                target_boundary_ref="target-boundary:v84b:fixtures",
+                activation_package_ref=scope_row.activation_package_ref,
+                scope_contract_ref=scope_row.scope_contract_ref,
+                activation_request_ref=activation_request_ref,
+                candidate_ref=scope_row.candidate_ref,
+                source_refs=source_refs,
+                target_surface_kind="fixture_file",
+                target_surface_refs=[
+                    "apps/api/fixtures/repo_description/vnext_plus237",
+                    "apps/api/fixtures/repo_description/vnext_plus237/repo_work_packet_scope_contract_v237_reference.json",
+                    "apps/api/fixtures/repo_description/vnext_plus237/repo_implementation_target_surface_boundary_v237_reference.json",
+                    "apps/api/fixtures/repo_description/vnext_plus237/repo_work_packet_validation_evidence_plan_v237_reference.json",
+                    "apps/api/fixtures/repo_description/vnext_plus237/repo_work_packet_activation_exception_register_v237_reference.json",
+                ],
+                target_resolution_kind="bounded_directory_with_child_refs",
+                target_access_role="generated_artifact_target",
+                target_mutability_review_posture="generated_artifact_requires_later_lock",
+                in_scope_counting_posture="counts_as_bounded_later_scope",
+            ),
+            _target_boundary_row(
+                target_boundary_ref="target-boundary:v84b:module",
+                activation_package_ref=scope_row.activation_package_ref,
+                scope_contract_ref=scope_row.scope_contract_ref,
+                activation_request_ref=activation_request_ref,
+                candidate_ref=scope_row.candidate_ref,
+                source_refs=source_refs,
+                target_surface_kind="repo_description_module",
+                target_surface_refs=[
+                    "packages/adeu_repo_description/src/adeu_repo_description/work_packet_activation_review.py"
+                ],
+                target_resolution_kind="concrete_file_ref",
+                target_access_role="prospective_write_target_for_later_lock",
+                target_mutability_review_posture="mutation_requires_later_lock",
+                in_scope_counting_posture="counts_as_bounded_later_scope",
+            ),
+            _target_boundary_row(
+                target_boundary_ref="target-boundary:v84b:schemas",
+                activation_package_ref=scope_row.activation_package_ref,
+                scope_contract_ref=scope_row.scope_contract_ref,
+                activation_request_ref=activation_request_ref,
+                candidate_ref=scope_row.candidate_ref,
+                source_refs=source_refs,
+                target_surface_kind="schema_file",
+                target_surface_refs=[
+                    "packages/adeu_repo_description/schema",
+                    "packages/adeu_repo_description/schema/repo_work_packet_scope_contract.v1.json",
+                    "packages/adeu_repo_description/schema/repo_implementation_target_surface_boundary.v1.json",
+                    "packages/adeu_repo_description/schema/repo_work_packet_validation_evidence_plan.v1.json",
+                    "packages/adeu_repo_description/schema/repo_work_packet_activation_exception_register.v1.json",
+                ],
+                target_resolution_kind="bounded_directory_with_child_refs",
+                target_access_role="generated_artifact_target",
+                target_mutability_review_posture="generated_artifact_requires_later_lock",
+                in_scope_counting_posture="counts_as_bounded_later_scope",
+            ),
+            _target_boundary_row(
+                target_boundary_ref="target-boundary:v84b:tests",
+                activation_package_ref=scope_row.activation_package_ref,
+                scope_contract_ref=scope_row.scope_contract_ref,
+                activation_request_ref=activation_request_ref,
+                candidate_ref=scope_row.candidate_ref,
+                source_refs=source_refs,
+                target_surface_kind="test_file",
+                target_surface_refs=[
+                    "packages/adeu_repo_description/tests/test_work_packet_activation_review_v84b.py"
+                ],
+                target_resolution_kind="concrete_test_ref",
+                target_access_role="prospective_write_target_for_later_lock",
+                target_mutability_review_posture="mutation_requires_later_lock",
+                in_scope_counting_posture="counts_as_bounded_later_scope",
+            ),
+            _target_boundary_row(
+                target_boundary_ref="target-boundary:v84b:selector-forbidden",
+                activation_package_ref=scope_row.activation_package_ref,
+                scope_contract_ref=scope_row.scope_contract_ref,
+                activation_request_ref=activation_request_ref,
+                candidate_ref=scope_row.candidate_ref,
+                source_refs=source_refs,
+                target_surface_kind="support_doc",
+                target_surface_refs=["docs/DRAFT_NEXT_ARC_OPTIONS_v74.md"],
+                target_resolution_kind="concrete_doc_ref",
+                target_access_role="forbidden_target",
+                target_mutability_review_posture="mutation_forbidden",
+                in_scope_counting_posture="forbidden_not_counted",
+                boundary_posture="blocked_by_forbidden_target",
+            ),
+            ],
+            key=lambda row: str(row["target_boundary_ref"]),
+        ),
+        "target_boundary_summary": (
+            "V84-B target boundaries classify module, schema, fixture, and test "
+            "surfaces for later lock review with no implementation."
+        ),
+    }
+    payload["implementation_target_surface_boundary_id"] = _surface_id(
+        "repo_implementation_target_surface_boundary",
+        REPO_IMPLEMENTATION_TARGET_SURFACE_BOUNDARY_SCHEMA,
+        payload,
+        "implementation_target_surface_boundary_id",
+    )
+    return RepoImplementationTargetSurfaceBoundary.model_validate(payload)
+
+
+def derive_v84b_repo_work_packet_validation_evidence_plan(
+    *,
+    repo_root: Path | None = None,
+    work_packet_scope_contract: RepoWorkPacketScopeContract | None = None,
+    implementation_target_surface_boundary: RepoImplementationTargetSurfaceBoundary | None = None,
+) -> RepoWorkPacketValidationEvidencePlan:
+    if work_packet_scope_contract is None:
+        work_packet_scope_contract = derive_v84b_repo_work_packet_scope_contract(
+            repo_root=repo_root
+        )
+    if implementation_target_surface_boundary is None:
+        implementation_target_surface_boundary = (
+            derive_v84b_repo_implementation_target_surface_boundary(
+                repo_root=repo_root,
+                work_packet_scope_contract=work_packet_scope_contract,
+            )
+        )
+    (
+        _intent_source_index,
+        _contract,
+        _intent_guardrail,
+        edge_decomposition,
+        obligation_map,
+        _drift_register,
+        _projection_packet,
+        _handoff,
+        _closeout,
+    ) = _v83c_released_bundle(repo_root=repo_root)
+    scope_row = work_packet_scope_contract.scope_contract_rows[0]
+    semantic_edge_refs = sorted(
+        relation.semantic_relation_ref
+        for row in edge_decomposition.edge_decomposition_rows
+        for relation in row.semantic_relation_rows
+    )
+    artifact_obligation_refs = sorted(
+        obligation.artifact_obligation_ref
+        for row in obligation_map.obligation_map_rows
+        for obligation in row.artifact_obligation_rows
+    )
+    target_boundary_refs = sorted(
+        row.target_boundary_ref
+        for row in implementation_target_surface_boundary.target_boundary_rows
+        if row.boundary_posture == "bounded_for_review_only"
+    )
+    payload = {
+        "schema": REPO_WORK_PACKET_VALIDATION_EVIDENCE_PLAN_SCHEMA,
+        "work_packet_validation_evidence_plan_id": "",
+        "work_packet_scope_contract_id": work_packet_scope_contract.work_packet_scope_contract_id,
+        "implementation_target_surface_boundary_id": (
+            implementation_target_surface_boundary.implementation_target_surface_boundary_id
+        ),
+        "work_packet_activation_review_request_id": (
+            work_packet_scope_contract.work_packet_activation_review_request_id
+        ),
+        "work_packet_activation_source_index_id": (
+            work_packet_scope_contract.work_packet_activation_source_index_id
+        ),
+        "work_packet_activation_non_execution_guardrail_id": (
+            work_packet_scope_contract.work_packet_activation_non_execution_guardrail_id
+        ),
+        "review_id": work_packet_scope_contract.review_id,
+        "snapshot_id": work_packet_scope_contract.snapshot_id,
+        "source_set_id": work_packet_scope_contract.source_set_id,
+        "validation_plan_rows": [
+            {
+                "validation_plan_ref": "validation-plan:v84b:intent-to-spec-lock-review",
+                "activation_package_ref": scope_row.activation_package_ref,
+                "scope_contract_refs": [scope_row.scope_contract_ref],
+                "activation_request_refs": scope_row.activation_request_refs,
+                "candidate_ref": scope_row.candidate_ref,
+                "source_refs": scope_row.source_refs,
+                "semantic_edge_refs": semantic_edge_refs,
+                "artifact_obligation_refs": artifact_obligation_refs,
+                "implementation_spec_refs": scope_row.implementation_spec_refs,
+                "validation_evidence_rows": [
+                    {
+                        "validation_evidence_ref": "validation-evidence:v84b:positive-fixtures",
+                        "semantic_edge_refs": semantic_edge_refs,
+                        "artifact_obligation_refs": artifact_obligation_refs,
+                        "implementation_spec_refs": scope_row.implementation_spec_refs,
+                        "evidence_kind": "fixture_positive_case",
+                        "required_artifact_refs": [
+                            "apps/api/fixtures/repo_description/vnext_plus237/repo_work_packet_scope_contract_v237_reference.json"
+                        ],
+                        "required_execution_horizon": "no_execution_required",
+                        "evidence_presence_posture": "requirement_recorded_for_review_only",
+                        "acceptance_not_truth_guardrail": "Fixture acceptance is not truth.",
+                        "limitation_note": (
+                            "Positive fixture evidence is recorded for review with "
+                            "no implementation."
+                        ),
+                    },
+                    {
+                        "validation_evidence_ref": "validation-evidence:v84b:reject-fixtures",
+                        "semantic_edge_refs": semantic_edge_refs,
+                        "artifact_obligation_refs": artifact_obligation_refs,
+                        "implementation_spec_refs": scope_row.implementation_spec_refs,
+                        "evidence_kind": "fixture_negative_case",
+                        "required_artifact_refs": [
+                            "apps/api/fixtures/repo_description/vnext_plus237/repo_work_packet_activation_v237_reject_target_glob_boundary.json"
+                        ],
+                        "required_execution_horizon": "no_execution_required",
+                        "evidence_presence_posture": "requirement_recorded_for_review_only",
+                        "acceptance_not_truth_guardrail": "Reject fixtures are not truth.",
+                        "limitation_note": (
+                            "Reject fixture evidence is recorded for review with "
+                            "no implementation."
+                        ),
+                    },
+                ],
+                "validation_matrix_rows": [
+                    {
+                        "validation_matrix_ref": "validation-matrix:v84b:edge-obligation-coverage",
+                        "semantic_edge_refs": semantic_edge_refs,
+                        "artifact_obligation_refs": artifact_obligation_refs,
+                        "implementation_spec_refs": scope_row.implementation_spec_refs,
+                        "target_boundary_refs": target_boundary_refs,
+                        "evidence_kind": "validator_acceptance_check",
+                        "positive_evidence_requirement": "required_for_later_review",
+                        "reject_evidence_requirement": "required_for_later_review",
+                        "regression_evidence_requirement": "required_for_later_review",
+                        "manual_review_requirement": "manual_review_required_later",
+                        "tool_applicability_posture": "tool_applicable_for_later_review",
+                        "execution_required_later": False,
+                        "acceptance_not_truth_guardrail": "Validation checks are not truth.",
+                        "limitation_note": (
+                            "Validation matrix covers semantic edges and obligations "
+                            "for review with no implementation."
+                        ),
+                    }
+                ],
+                "required_positive_evidence_posture": "required_for_later_review",
+                "required_reject_evidence_posture": "required_for_later_review",
+                "manual_review_posture": "manual_review_required_later",
+                "tool_run_posture": "no_tool_run_performed_by_v84",
+                "validation_plan_posture": "plan_complete_for_review_only",
+                "tests_not_truth_guardrail": "Tests are requirements, not truth.",
+                "work_packet_execution_posture": "no_work_packet_execution_performed_by_v84",
+                "implementation_execution_posture": "no_implementation_performed_by_v84",
+                "guardrail_refs": scope_row.guardrail_refs,
+                "limitation_note": (
+                    "Validation plan is edge-bound and obligation-bound for review "
+                    "with no implementation."
+                ),
+            }
+        ],
+        "validation_plan_summary": (
+            "V84-B validation evidence plans define edge-bound requirements for "
+            "review with no implementation."
+        ),
+    }
+    payload["work_packet_validation_evidence_plan_id"] = _surface_id(
+        "repo_work_packet_validation_evidence_plan",
+        REPO_WORK_PACKET_VALIDATION_EVIDENCE_PLAN_SCHEMA,
+        payload,
+        "work_packet_validation_evidence_plan_id",
+    )
+    return RepoWorkPacketValidationEvidencePlan.model_validate(payload)
+
+
+def derive_v84b_repo_work_packet_activation_exception_register(
+    *,
+    repo_root: Path | None = None,
+    work_packet_scope_contract: RepoWorkPacketScopeContract | None = None,
+    implementation_target_surface_boundary: RepoImplementationTargetSurfaceBoundary | None = None,
+    work_packet_validation_evidence_plan: RepoWorkPacketValidationEvidencePlan | None = None,
+) -> RepoWorkPacketActivationExceptionRegister:
+    if work_packet_scope_contract is None:
+        work_packet_scope_contract = derive_v84b_repo_work_packet_scope_contract(
+            repo_root=repo_root
+        )
+    if implementation_target_surface_boundary is None:
+        implementation_target_surface_boundary = (
+            derive_v84b_repo_implementation_target_surface_boundary(
+                repo_root=repo_root,
+                work_packet_scope_contract=work_packet_scope_contract,
+            )
+        )
+    if work_packet_validation_evidence_plan is None:
+        work_packet_validation_evidence_plan = (
+            derive_v84b_repo_work_packet_validation_evidence_plan(
+                repo_root=repo_root,
+                work_packet_scope_contract=work_packet_scope_contract,
+                implementation_target_surface_boundary=implementation_target_surface_boundary,
+            )
+        )
+    scope_row = work_packet_scope_contract.scope_contract_rows[0]
+    validation_row = work_packet_validation_evidence_plan.validation_plan_rows[0]
+    target_refs = sorted(
+        row.target_boundary_ref
+        for row in implementation_target_surface_boundary.target_boundary_rows
+    )
+    payload = {
+        "schema": REPO_WORK_PACKET_ACTIVATION_EXCEPTION_REGISTER_SCHEMA,
+        "work_packet_activation_exception_register_id": "",
+        "work_packet_scope_contract_id": work_packet_scope_contract.work_packet_scope_contract_id,
+        "implementation_target_surface_boundary_id": (
+            implementation_target_surface_boundary.implementation_target_surface_boundary_id
+        ),
+        "work_packet_validation_evidence_plan_id": (
+            work_packet_validation_evidence_plan.work_packet_validation_evidence_plan_id
+        ),
+        "work_packet_activation_review_request_id": (
+            work_packet_scope_contract.work_packet_activation_review_request_id
+        ),
+        "work_packet_activation_source_index_id": (
+            work_packet_scope_contract.work_packet_activation_source_index_id
+        ),
+        "work_packet_activation_non_execution_guardrail_id": (
+            work_packet_scope_contract.work_packet_activation_non_execution_guardrail_id
+        ),
+        "review_id": work_packet_scope_contract.review_id,
+        "snapshot_id": work_packet_scope_contract.snapshot_id,
+        "source_set_id": work_packet_scope_contract.source_set_id,
+        "exception_register_rows": [
+            {
+                "exception_register_ref": "exception-register:v84b:intent-to-spec-lock-review",
+                "activation_package_ref": scope_row.activation_package_ref,
+                "activation_request_refs": scope_row.activation_request_refs,
+                "scope_contract_refs": [scope_row.scope_contract_ref],
+                "target_boundary_refs": target_refs,
+                "validation_plan_refs": [validation_row.validation_plan_ref],
+                "candidate_ref": scope_row.candidate_ref,
+                "source_refs": scope_row.source_refs,
+                "exception_rows": [
+                    {
+                        "exception_ref": "exception:v84b:future-family-boundary",
+                        "exception_kind": "later_family_boundary_unclear",
+                        "source_refs": ["docs/ASSESSMENT_vNEXT_PLUS237_EDGES.md"],
+                        "related_scope_refs": [scope_row.scope_contract_ref],
+                        "related_target_refs": ["target-boundary:v84b:selector-forbidden"],
+                        "related_validation_refs": [validation_row.validation_plan_ref],
+                        "related_drift_refs": [],
+                        "blocking_posture": "warning",
+                        "visibility_posture": "visible_warning",
+                        "required_resolution_horizon": "future_family_review",
+                        "limitation_note": (
+                            "Exception remains visible for review with no implementation."
+                        ),
+                    }
+                ],
+                "blocking_posture": "warning",
+                "required_next_surface": "later_canonical_lock_review",
+                "guardrail_refs": scope_row.guardrail_refs,
+                "limitation_note": (
+                    "Exception register preserves package warnings for review with "
+                    "no implementation."
+                ),
+            }
+        ],
+        "exception_register_summary": (
+            "V84-B exception register preserves activation package warnings and "
+            "blocker posture for review with no implementation."
+        ),
+    }
+    payload["work_packet_activation_exception_register_id"] = _surface_id(
+        "repo_work_packet_activation_exception_register",
+        REPO_WORK_PACKET_ACTIVATION_EXCEPTION_REGISTER_SCHEMA,
+        payload,
+        "work_packet_activation_exception_register_id",
+    )
+    return RepoWorkPacketActivationExceptionRegister.model_validate(payload)
+
+
+def validate_v84b_work_packet_package_review_bundle(
+    *,
+    v83_intent_source_index: RepoIntentSourceIndex,
+    v83_semantic_intent_contract: RepoSemanticIntentContract,
+    v83_intent_non_implementation_guardrail: RepoIntentNonImplementationGuardrail,
+    v83_intent_edge_decomposition: RepoIntentEdgeDecomposition,
+    v83_artifact_obligation_map: RepoArtifactObligationMap,
+    v83_semantic_drift_ambiguity_register: RepoSemanticDriftAmbiguityRegister,
+    v83_implementation_spec_projection_packet: RepoImplementationSpecProjectionPacket,
+    v83_intent_to_work_packet_handoff: RepoIntentToWorkPacketHandoff,
+    v83_semantic_implementation_spec_family_closeout_alignment: (
+        RepoSemanticImplementationSpecFamilyCloseoutAlignment
+    ),
+    work_packet_activation_source_index: RepoWorkPacketActivationSourceIndex,
+    work_packet_activation_review_request: RepoWorkPacketActivationReviewRequest,
+    work_packet_activation_non_execution_guardrail: (
+        RepoWorkPacketActivationNonExecutionGuardrail
+    ),
+    work_packet_scope_contract: RepoWorkPacketScopeContract,
+    implementation_target_surface_boundary: RepoImplementationTargetSurfaceBoundary,
+    work_packet_validation_evidence_plan: RepoWorkPacketValidationEvidencePlan,
+    work_packet_activation_exception_register: RepoWorkPacketActivationExceptionRegister,
+) -> None:
+    validate_v84a_work_packet_activation_review_bundle(
+        v83_intent_source_index=v83_intent_source_index,
+        v83_semantic_intent_contract=v83_semantic_intent_contract,
+        v83_intent_non_implementation_guardrail=v83_intent_non_implementation_guardrail,
+        v83_intent_edge_decomposition=v83_intent_edge_decomposition,
+        v83_artifact_obligation_map=v83_artifact_obligation_map,
+        v83_semantic_drift_ambiguity_register=v83_semantic_drift_ambiguity_register,
+        v83_implementation_spec_projection_packet=v83_implementation_spec_projection_packet,
+        v83_intent_to_work_packet_handoff=v83_intent_to_work_packet_handoff,
+        v83_semantic_implementation_spec_family_closeout_alignment=(
+            v83_semantic_implementation_spec_family_closeout_alignment
+        ),
+        work_packet_activation_source_index=work_packet_activation_source_index,
+        work_packet_activation_review_request=work_packet_activation_review_request,
+        work_packet_activation_non_execution_guardrail=(
+            work_packet_activation_non_execution_guardrail
+        ),
+    )
+    if (
+        work_packet_scope_contract.work_packet_activation_review_request_id
+        != work_packet_activation_review_request.work_packet_activation_review_request_id
+    ):
+        raise ValueError("V84-B scope contracts must reference released V84-A request")
+    if (
+        work_packet_scope_contract.work_packet_activation_source_index_id
+        != work_packet_activation_source_index.work_packet_activation_source_index_id
+    ):
+        raise ValueError("V84-B scope contracts must reference released V84-A source index")
+    if (
+        work_packet_scope_contract.work_packet_activation_non_execution_guardrail_id
+        != work_packet_activation_non_execution_guardrail
+        .work_packet_activation_non_execution_guardrail_id
+    ):
+        raise ValueError("V84-B scope contracts must reference released V84-A guardrail")
+    if (
+        implementation_target_surface_boundary.work_packet_scope_contract_id
+        != work_packet_scope_contract.work_packet_scope_contract_id
+        or work_packet_validation_evidence_plan.work_packet_scope_contract_id
+        != work_packet_scope_contract.work_packet_scope_contract_id
+        or work_packet_activation_exception_register.work_packet_scope_contract_id
+        != work_packet_scope_contract.work_packet_scope_contract_id
+    ):
+        raise ValueError("V84-B rows must reference the released scope contract")
+    if (
+        work_packet_validation_evidence_plan.implementation_target_surface_boundary_id
+        != implementation_target_surface_boundary.implementation_target_surface_boundary_id
+        or work_packet_activation_exception_register.implementation_target_surface_boundary_id
+        != implementation_target_surface_boundary.implementation_target_surface_boundary_id
+    ):
+        raise ValueError("V84-B validation and exceptions must reference target boundaries")
+    if (
+        work_packet_activation_exception_register.work_packet_validation_evidence_plan_id
+        != work_packet_validation_evidence_plan.work_packet_validation_evidence_plan_id
+    ):
+        raise ValueError("V84-B exceptions must reference validation plan")
+
+    known_requests = {
+        row.activation_request_ref: row
+        for row in work_packet_activation_review_request.activation_request_rows
+    }
+    known_sources = {row.source_ref for row in work_packet_activation_source_index.source_rows}
+    known_guardrails = {
+        row.guardrail_ref
+        for row in work_packet_activation_non_execution_guardrail.guardrail_rows
+    }
+    known_projection_packets = {
+        row.projection_packet_ref: row
+        for row in v83_implementation_spec_projection_packet.projection_packet_rows
+    }
+    known_specs = {
+        spec.implementation_spec_ref
+        for packet in known_projection_packets.values()
+        for spec in packet.implementation_spec_rows
+    }
+    known_edges = {
+        relation.semantic_relation_ref
+        for row in v83_intent_edge_decomposition.edge_decomposition_rows
+        for relation in row.semantic_relation_rows
+    }
+    known_obligations = {
+        obligation.artifact_obligation_ref
+        for row in v83_artifact_obligation_map.obligation_map_rows
+        for obligation in row.artifact_obligation_rows
+    }
+    scope_rows = {
+        row.scope_contract_ref: row for row in work_packet_scope_contract.scope_contract_rows
+    }
+    target_rows = {
+        row.target_boundary_ref: row
+        for row in implementation_target_surface_boundary.target_boundary_rows
+    }
+    validation_rows = {
+        row.validation_plan_ref: row
+        for row in work_packet_validation_evidence_plan.validation_plan_rows
+    }
+    scope_in_scope_sets = {
+        row.scope_contract_ref: set(row.in_scope_artifact_refs)
+        for row in work_packet_scope_contract.scope_contract_rows
+    }
+
+    for scope_row in work_packet_scope_contract.scope_contract_rows:
+        if any(ref not in known_requests for ref in scope_row.activation_request_refs):
+            raise ValueError("scope contracts must reference released V84-A requests")
+        request_packages = {
+            known_requests[ref].activation_package_ref
+            for ref in scope_row.activation_request_refs
+        }
+        request_candidates = {
+            known_requests[ref].candidate_ref for ref in scope_row.activation_request_refs
+        }
+        if request_packages != {scope_row.activation_package_ref}:
+            raise ValueError("scope contract package must match activation request")
+        if request_candidates != {scope_row.candidate_ref}:
+            raise ValueError("scope contract candidate must match activation request")
+        if any(ref not in known_sources for ref in scope_row.source_refs):
+            raise ValueError("scope contract source refs must be indexed V84-A sources")
+        if any(ref not in known_projection_packets for ref in scope_row.projection_packet_refs):
+            raise ValueError("scope contract projection refs must be released V83-C packets")
+        if any(ref not in known_specs for ref in scope_row.implementation_spec_refs):
+            raise ValueError("scope contract implementation specs must be released V83-C specs")
+        if any(ref not in known_guardrails for ref in scope_row.guardrail_refs):
+            raise ValueError("scope contract guardrail refs must be released V84-A guardrails")
+        in_scope_set = scope_in_scope_sets[scope_row.scope_contract_ref]
+        for forbidden_ref in scope_row.out_of_scope_artifact_refs:
+            if forbidden_ref in in_scope_set:
+                raise ValueError("forbidden targets cannot be included in scope")
+
+    for target_row in implementation_target_surface_boundary.target_boundary_rows:
+        if any(ref not in scope_rows for ref in target_row.scope_contract_refs):
+            raise ValueError("target boundaries must reference released V84-B scope contracts")
+        if any(ref not in known_requests for ref in target_row.activation_request_refs):
+            raise ValueError("target boundaries must reference released V84-A requests")
+        scope_packages = {
+            scope_rows[ref].activation_package_ref for ref in target_row.scope_contract_refs
+        }
+        if scope_packages != {target_row.activation_package_ref}:
+            raise ValueError("target boundary package must match scope contract")
+        if target_row.boundary_posture == "blocked_by_forbidden_target":
+            for scope_ref in target_row.scope_contract_refs:
+                in_scope_set = scope_in_scope_sets[scope_ref]
+                if any(
+                    target_ref in in_scope_set
+                    for target_ref in target_row.target_surface_refs
+                ):
+                    raise ValueError("forbidden targets cannot be included in scope")
+
+    for validation_row in work_packet_validation_evidence_plan.validation_plan_rows:
+        if any(ref not in scope_rows for ref in validation_row.scope_contract_refs):
+            raise ValueError("validation plans must reference released V84-B scope contracts")
+        if any(ref not in known_requests for ref in validation_row.activation_request_refs):
+            raise ValueError("validation plans must reference released V84-A requests")
+        scope_request_refs = {
+            request_ref
+            for scope_ref in validation_row.scope_contract_refs
+            for request_ref in scope_rows[scope_ref].activation_request_refs
+        }
+        if set(validation_row.activation_request_refs) != scope_request_refs:
+            raise ValueError("validation plan requests must match scope contracts")
+        if any(ref not in known_edges for ref in validation_row.semantic_edge_refs):
+            raise ValueError("validation plans must reference released V83-B semantic edges")
+        if any(ref not in known_obligations for ref in validation_row.artifact_obligation_refs):
+            raise ValueError(
+                "validation plans must reference released V83-B artifact obligations"
+            )
+        if any(ref not in known_specs for ref in validation_row.implementation_spec_refs):
+            raise ValueError("validation plans must reference released V83-C specs")
+        for matrix_row in validation_row.validation_matrix_rows:
+            if any(ref not in target_rows for ref in matrix_row.target_boundary_refs):
+                raise ValueError("validation matrix refs must resolve to target boundaries")
+        covered_edges = {
+            ref
+            for matrix_row in validation_row.validation_matrix_rows
+            for ref in matrix_row.semantic_edge_refs
+        }
+        if not known_edges.issubset(covered_edges):
+            raise ValueError("validation plan not edge complete")
+        covered_obligations = {
+            ref
+            for matrix_row in validation_row.validation_matrix_rows
+            for ref in matrix_row.artifact_obligation_refs
+        }
+        if not known_obligations.issubset(covered_obligations):
+            raise ValueError("validation plan not obligation complete")
+
+    for exception_register_row in (
+        work_packet_activation_exception_register.exception_register_rows
+    ):
+        if any(ref not in scope_rows for ref in exception_register_row.scope_contract_refs):
+            raise ValueError("exception registers must reference scope contracts")
+        if any(ref not in known_requests for ref in exception_register_row.activation_request_refs):
+            raise ValueError("exception registers must reference released V84-A requests")
+        scope_request_refs = {
+            request_ref
+            for scope_ref in exception_register_row.scope_contract_refs
+            for request_ref in scope_rows[scope_ref].activation_request_refs
+        }
+        if set(exception_register_row.activation_request_refs) != scope_request_refs:
+            raise ValueError("exception register requests must match scope contracts")
+        if any(ref not in target_rows for ref in exception_register_row.target_boundary_refs):
+            raise ValueError("exception registers must reference target boundaries")
+        if any(ref not in validation_rows for ref in exception_register_row.validation_plan_refs):
+            raise ValueError("exception registers must reference validation plans")
+        scope_packages = {
+            scope_rows[ref].activation_package_ref
+            for ref in exception_register_row.scope_contract_refs
+        }
+        if scope_packages != {exception_register_row.activation_package_ref}:
+            raise ValueError("exception register package must match scope contract")
+
+
+def derive_v84b_work_packet_package_review_bundle(
+    *, repo_root: Path | None = None
+) -> tuple[
+    RepoIntentSourceIndex,
+    RepoSemanticIntentContract,
+    RepoIntentNonImplementationGuardrail,
+    RepoIntentEdgeDecomposition,
+    RepoArtifactObligationMap,
+    RepoSemanticDriftAmbiguityRegister,
+    RepoImplementationSpecProjectionPacket,
+    RepoIntentToWorkPacketHandoff,
+    RepoSemanticImplementationSpecFamilyCloseoutAlignment,
+    RepoWorkPacketActivationSourceIndex,
+    RepoWorkPacketActivationReviewRequest,
+    RepoWorkPacketActivationNonExecutionGuardrail,
+    RepoWorkPacketScopeContract,
+    RepoImplementationTargetSurfaceBoundary,
+    RepoWorkPacketValidationEvidencePlan,
+    RepoWorkPacketActivationExceptionRegister,
+]:
+    (
+        intent_source_index,
+        semantic_intent_contract,
+        intent_non_implementation_guardrail,
+        intent_edge_decomposition,
+        artifact_obligation_map,
+        semantic_drift_ambiguity_register,
+        implementation_spec_projection_packet,
+        intent_to_work_packet_handoff,
+        semantic_implementation_spec_family_closeout_alignment,
+        source_index,
+        request,
+        guardrail,
+    ) = _v84a_released_bundle(repo_root=repo_root)
+    scope_contract = derive_v84b_repo_work_packet_scope_contract(
+        repo_root=repo_root,
+        work_packet_activation_source_index=source_index,
+        work_packet_activation_review_request=request,
+        work_packet_activation_non_execution_guardrail=guardrail,
+    )
+    target_boundary = derive_v84b_repo_implementation_target_surface_boundary(
+        repo_root=repo_root,
+        work_packet_scope_contract=scope_contract,
+    )
+    validation_plan = derive_v84b_repo_work_packet_validation_evidence_plan(
+        repo_root=repo_root,
+        work_packet_scope_contract=scope_contract,
+        implementation_target_surface_boundary=target_boundary,
+    )
+    exception_register = derive_v84b_repo_work_packet_activation_exception_register(
+        repo_root=repo_root,
+        work_packet_scope_contract=scope_contract,
+        implementation_target_surface_boundary=target_boundary,
+        work_packet_validation_evidence_plan=validation_plan,
+    )
+    validate_v84b_work_packet_package_review_bundle(
+        v83_intent_source_index=intent_source_index,
+        v83_semantic_intent_contract=semantic_intent_contract,
+        v83_intent_non_implementation_guardrail=intent_non_implementation_guardrail,
+        v83_intent_edge_decomposition=intent_edge_decomposition,
+        v83_artifact_obligation_map=artifact_obligation_map,
+        v83_semantic_drift_ambiguity_register=semantic_drift_ambiguity_register,
+        v83_implementation_spec_projection_packet=implementation_spec_projection_packet,
+        v83_intent_to_work_packet_handoff=intent_to_work_packet_handoff,
+        v83_semantic_implementation_spec_family_closeout_alignment=(
+            semantic_implementation_spec_family_closeout_alignment
+        ),
+        work_packet_activation_source_index=source_index,
+        work_packet_activation_review_request=request,
+        work_packet_activation_non_execution_guardrail=guardrail,
+        work_packet_scope_contract=scope_contract,
+        implementation_target_surface_boundary=target_boundary,
+        work_packet_validation_evidence_plan=validation_plan,
+        work_packet_activation_exception_register=exception_register,
+    )
+    return (
+        intent_source_index,
+        semantic_intent_contract,
+        intent_non_implementation_guardrail,
+        intent_edge_decomposition,
+        artifact_obligation_map,
+        semantic_drift_ambiguity_register,
+        implementation_spec_projection_packet,
+        intent_to_work_packet_handoff,
+        semantic_implementation_spec_family_closeout_alignment,
+        source_index,
+        request,
+        guardrail,
+        scope_contract,
+        target_boundary,
+        validation_plan,
+        exception_register,
     )

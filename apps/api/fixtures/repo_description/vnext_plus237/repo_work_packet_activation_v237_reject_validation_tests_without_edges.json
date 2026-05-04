@@ -1,0 +1,171 @@
+{
+  "implementation_target_surface_boundary_id": "repo_implementation_target_surface_boundary_38bdbaa14d038e4f783755b4",
+  "review_id": "vNext+237",
+  "schema": "repo_work_packet_validation_evidence_plan@1",
+  "snapshot_id": "vNext+237-work-packet-package-review-start",
+  "source_set_id": "source-set:v84b:work-packet-package-review",
+  "validation_plan_rows": [
+    {
+      "activation_package_ref": "activation-package:v84a:intent-to-spec-lock-review",
+      "activation_request_refs": [
+        "activation-request:v84a:intent-to-spec-lock-review"
+      ],
+      "artifact_obligation_refs": [
+        "artifact-obligation:v83b:fixtures",
+        "artifact-obligation:v83b:schema:artifact-obligation-map",
+        "artifact-obligation:v83b:schema:drift-register",
+        "artifact-obligation:v83b:schema:edge-decomposition",
+        "artifact-obligation:v83b:tests"
+      ],
+      "candidate_ref": "candidate:internal:intent_to_implementation_spec_institution",
+      "guardrail_refs": [
+        "guardrail:v84a:intent-to-spec-lock-review"
+      ],
+      "implementation_execution_posture": "no_implementation_performed_by_v84",
+      "implementation_spec_refs": [
+        "implementation-spec:v83c:artifact-obligation-map",
+        "implementation-spec:v83c:drift-register",
+        "implementation-spec:v83c:edge-decomposition",
+        "implementation-spec:v83c:fixtures",
+        "implementation-spec:v83c:tests"
+      ],
+      "limitation_note": "Validation plan is edge-bound and obligation-bound for review with no implementation.",
+      "manual_review_posture": "manual_review_required_later",
+      "required_positive_evidence_posture": "required_for_later_review",
+      "required_reject_evidence_posture": "required_for_later_review",
+      "scope_contract_refs": [
+        "scope-contract:v84b:intent-to-spec-lock-review"
+      ],
+      "semantic_edge_refs": [],
+      "source_refs": [
+        "apps/api/fixtures/repo_description/vnext_plus235/repo_implementation_spec_projection_packet_v235_reference.json",
+        "docs/ASSESSMENT_vNEXT_PLUS236_EDGES.md",
+        "docs/LOCKED_CONTINUATION_vNEXT_PLUS236.md"
+      ],
+      "tests_not_truth_guardrail": "Tests are requirements, not truth.",
+      "tool_run_posture": "no_tool_run_performed_by_v84",
+      "validation_evidence_rows": [
+        {
+          "acceptance_not_truth_guardrail": "Fixture acceptance is not truth.",
+          "artifact_obligation_refs": [
+            "artifact-obligation:v83b:fixtures",
+            "artifact-obligation:v83b:schema:artifact-obligation-map",
+            "artifact-obligation:v83b:schema:drift-register",
+            "artifact-obligation:v83b:schema:edge-decomposition",
+            "artifact-obligation:v83b:tests"
+          ],
+          "evidence_kind": "fixture_positive_case",
+          "evidence_presence_posture": "requirement_recorded_for_review_only",
+          "implementation_spec_refs": [
+            "implementation-spec:v83c:artifact-obligation-map",
+            "implementation-spec:v83c:drift-register",
+            "implementation-spec:v83c:edge-decomposition",
+            "implementation-spec:v83c:fixtures",
+            "implementation-spec:v83c:tests"
+          ],
+          "limitation_note": "Positive fixture evidence is recorded for review with no implementation.",
+          "required_artifact_refs": [
+            "apps/api/fixtures/repo_description/vnext_plus237/repo_work_packet_scope_contract_v237_reference.json"
+          ],
+          "required_execution_horizon": "no_execution_required",
+          "semantic_edge_refs": [
+            "semantic-relation:v83b:acceptance:evidence-bound",
+            "semantic-relation:v83b:authority:later-lock",
+            "semantic-relation:v83b:morphic:scoped",
+            "semantic-relation:v83b:non-goal:no-implementation",
+            "semantic-relation:v83b:provider:not-authority",
+            "semantic-relation:v83b:realizes:intent",
+            "semantic-relation:v83b:validation:edge-bound"
+          ],
+          "validation_evidence_ref": "validation-evidence:v84b:positive-fixtures"
+        },
+        {
+          "acceptance_not_truth_guardrail": "Reject fixtures are not truth.",
+          "artifact_obligation_refs": [
+            "artifact-obligation:v83b:fixtures",
+            "artifact-obligation:v83b:schema:artifact-obligation-map",
+            "artifact-obligation:v83b:schema:drift-register",
+            "artifact-obligation:v83b:schema:edge-decomposition",
+            "artifact-obligation:v83b:tests"
+          ],
+          "evidence_kind": "fixture_negative_case",
+          "evidence_presence_posture": "requirement_recorded_for_review_only",
+          "implementation_spec_refs": [
+            "implementation-spec:v83c:artifact-obligation-map",
+            "implementation-spec:v83c:drift-register",
+            "implementation-spec:v83c:edge-decomposition",
+            "implementation-spec:v83c:fixtures",
+            "implementation-spec:v83c:tests"
+          ],
+          "limitation_note": "Reject fixture evidence is recorded for review with no implementation.",
+          "required_artifact_refs": [
+            "apps/api/fixtures/repo_description/vnext_plus237/repo_work_packet_activation_v237_reject_target_glob_boundary.json"
+          ],
+          "required_execution_horizon": "no_execution_required",
+          "semantic_edge_refs": [
+            "semantic-relation:v83b:acceptance:evidence-bound",
+            "semantic-relation:v83b:authority:later-lock",
+            "semantic-relation:v83b:morphic:scoped",
+            "semantic-relation:v83b:non-goal:no-implementation",
+            "semantic-relation:v83b:provider:not-authority",
+            "semantic-relation:v83b:realizes:intent",
+            "semantic-relation:v83b:validation:edge-bound"
+          ],
+          "validation_evidence_ref": "validation-evidence:v84b:reject-fixtures"
+        }
+      ],
+      "validation_matrix_rows": [
+        {
+          "acceptance_not_truth_guardrail": "Validation checks are not truth.",
+          "artifact_obligation_refs": [
+            "artifact-obligation:v83b:fixtures",
+            "artifact-obligation:v83b:schema:artifact-obligation-map",
+            "artifact-obligation:v83b:schema:drift-register",
+            "artifact-obligation:v83b:schema:edge-decomposition",
+            "artifact-obligation:v83b:tests"
+          ],
+          "evidence_kind": "validator_acceptance_check",
+          "execution_required_later": false,
+          "implementation_spec_refs": [
+            "implementation-spec:v83c:artifact-obligation-map",
+            "implementation-spec:v83c:drift-register",
+            "implementation-spec:v83c:edge-decomposition",
+            "implementation-spec:v83c:fixtures",
+            "implementation-spec:v83c:tests"
+          ],
+          "limitation_note": "Validation matrix covers semantic edges and obligations for review with no implementation.",
+          "manual_review_requirement": "manual_review_required_later",
+          "positive_evidence_requirement": "required_for_later_review",
+          "regression_evidence_requirement": "required_for_later_review",
+          "reject_evidence_requirement": "required_for_later_review",
+          "semantic_edge_refs": [
+            "semantic-relation:v83b:acceptance:evidence-bound",
+            "semantic-relation:v83b:authority:later-lock",
+            "semantic-relation:v83b:morphic:scoped",
+            "semantic-relation:v83b:non-goal:no-implementation",
+            "semantic-relation:v83b:provider:not-authority",
+            "semantic-relation:v83b:realizes:intent",
+            "semantic-relation:v83b:validation:edge-bound"
+          ],
+          "target_boundary_refs": [
+            "target-boundary:v84b:fixtures",
+            "target-boundary:v84b:module",
+            "target-boundary:v84b:schemas",
+            "target-boundary:v84b:tests"
+          ],
+          "tool_applicability_posture": "tool_applicable_for_later_review",
+          "validation_matrix_ref": "validation-matrix:v84b:edge-obligation-coverage"
+        }
+      ],
+      "validation_plan_posture": "plan_complete_for_review_only",
+      "validation_plan_ref": "validation-plan:v84b:intent-to-spec-lock-review",
+      "work_packet_execution_posture": "no_work_packet_execution_performed_by_v84"
+    }
+  ],
+  "validation_plan_summary": "V84-B validation evidence plans define edge-bound requirements for review with no implementation.",
+  "work_packet_activation_non_execution_guardrail_id": "repo_work_packet_activation_non_execution_guardrail_78608b297248e42aa0e0e793",
+  "work_packet_activation_review_request_id": "repo_work_packet_activation_review_request_3dbe16e667563d930a6bdf88",
+  "work_packet_activation_source_index_id": "repo_work_packet_activation_source_index_00de703df72da957abb3bebe",
+  "work_packet_scope_contract_id": "repo_work_packet_scope_contract_4840ce3bd3d5ba4c7bf6ba7e",
+  "work_packet_validation_evidence_plan_id": "repo_work_packet_validation_evidence_plan_15379a5d5cae4dd4fb8fcb4e"
+}
