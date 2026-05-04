@@ -1,0 +1,246 @@
+{
+  "$defs": {
+    "RepoWorkPacketActivationNonExecutionGuardrailRow": {
+      "additionalProperties": false,
+      "properties": {
+        "activation_authority_posture": {
+          "enum": [
+            "no_activation_authority_granted_by_v84",
+            "activation_requires_later_canonical_lock",
+            "activation_forbidden_by_this_family"
+          ],
+          "title": "Activation Authority Posture",
+          "type": "string"
+        },
+        "activation_execution_posture": {
+          "enum": [
+            "no_activation_performed_by_v84",
+            "activation_requires_later_canonical_lock",
+            "activation_forbidden_by_this_family"
+          ],
+          "title": "Activation Execution Posture",
+          "type": "string"
+        },
+        "activation_package_ref": {
+          "title": "Activation Package Ref",
+          "type": "string"
+        },
+        "activation_request_refs": {
+          "items": {
+            "type": "string"
+          },
+          "minItems": 1,
+          "title": "Activation Request Refs",
+          "type": "array"
+        },
+        "candidate_ref": {
+          "title": "Candidate Ref",
+          "type": "string"
+        },
+        "forbidden_downstream_authority": {
+          "items": {
+            "enum": [
+              "activation_authority",
+              "graph_memory_authority",
+              "implementation_authority",
+              "product_authorization",
+              "recursive_policy_amendment",
+              "release_authority",
+              "runtime_authority",
+              "v85_selection",
+              "work_packet_execution_authority"
+            ],
+            "type": "string"
+          },
+          "minItems": 1,
+          "title": "Forbidden Downstream Authority",
+          "type": "array"
+        },
+        "forbidden_implementation_actions": {
+          "items": {
+            "enum": [
+              "activate_work_packet",
+              "create_scope_contract",
+              "create_target_boundary",
+              "create_validation_plan",
+              "edit_code",
+              "execute_work_packet",
+              "open_pr",
+              "commit_change",
+              "merge_change",
+              "release_change",
+              "write_implementation"
+            ],
+            "type": "string"
+          },
+          "minItems": 1,
+          "title": "Forbidden Implementation Actions",
+          "type": "array"
+        },
+        "forbidden_runtime_actions": {
+          "items": {
+            "enum": [
+              "activate_direct_oai_runtime",
+              "change_morphic_ux_runtime",
+              "dispatch_worker",
+              "invoke_tool_for_effect",
+              "mutate_meta_orchestrator_runtime",
+              "mutate_target_state",
+              "run_command"
+            ],
+            "type": "string"
+          },
+          "minItems": 1,
+          "title": "Forbidden Runtime Actions",
+          "type": "array"
+        },
+        "guardrail_ref": {
+          "title": "Guardrail Ref",
+          "type": "string"
+        },
+        "implementation_execution_posture": {
+          "enum": [
+            "no_implementation_performed_by_v84",
+            "implementation_requires_later_lock",
+            "implementation_forbidden_by_this_family"
+          ],
+          "title": "Implementation Execution Posture",
+          "type": "string"
+        },
+        "implementation_lock_status": {
+          "enum": [
+            "no_implementation_lock_created_by_v84",
+            "later_implementation_lock_review_requested",
+            "later_selector_required",
+            "deferred_no_selection"
+          ],
+          "title": "Implementation Lock Status",
+          "type": "string"
+        },
+        "limitation_note": {
+          "title": "Limitation Note",
+          "type": "string"
+        },
+        "pull_request_posture": {
+          "enum": [
+            "no_pr_created_by_v84",
+            "pr_requires_later_lock",
+            "pr_forbidden_by_this_family"
+          ],
+          "title": "Pull Request Posture",
+          "type": "string"
+        },
+        "required_later_authority_refs": {
+          "items": {
+            "type": "string"
+          },
+          "title": "Required Later Authority Refs",
+          "type": "array"
+        },
+        "source_refs": {
+          "items": {
+            "type": "string"
+          },
+          "minItems": 1,
+          "title": "Source Refs",
+          "type": "array"
+        },
+        "target_mutation_posture": {
+          "enum": [
+            "no_target_mutation_performed_by_v84",
+            "target_mutation_requires_later_lock",
+            "target_mutation_forbidden_by_this_family"
+          ],
+          "title": "Target Mutation Posture",
+          "type": "string"
+        },
+        "work_packet_execution_posture": {
+          "enum": [
+            "no_work_packet_execution_performed_by_v84",
+            "work_packet_execution_requires_later_lock",
+            "work_packet_execution_forbidden_by_this_family"
+          ],
+          "title": "Work Packet Execution Posture",
+          "type": "string"
+        }
+      },
+      "required": [
+        "guardrail_ref",
+        "candidate_ref",
+        "activation_package_ref",
+        "source_refs",
+        "activation_request_refs",
+        "forbidden_implementation_actions",
+        "forbidden_runtime_actions",
+        "forbidden_downstream_authority",
+        "activation_authority_posture",
+        "implementation_lock_status",
+        "activation_execution_posture",
+        "work_packet_execution_posture",
+        "implementation_execution_posture",
+        "target_mutation_posture",
+        "pull_request_posture",
+        "limitation_note"
+      ],
+      "title": "RepoWorkPacketActivationNonExecutionGuardrailRow",
+      "type": "object"
+    }
+  },
+  "additionalProperties": false,
+  "properties": {
+    "guardrail_rows": {
+      "items": {
+        "$ref": "#/$defs/RepoWorkPacketActivationNonExecutionGuardrailRow"
+      },
+      "minItems": 1,
+      "title": "Guardrail Rows",
+      "type": "array"
+    },
+    "guardrail_summary": {
+      "title": "Guardrail Summary",
+      "type": "string"
+    },
+    "review_id": {
+      "title": "Review Id",
+      "type": "string"
+    },
+    "schema": {
+      "const": "repo_work_packet_activation_non_execution_guardrail@1",
+      "title": "Schema",
+      "type": "string"
+    },
+    "snapshot_id": {
+      "title": "Snapshot Id",
+      "type": "string"
+    },
+    "source_set_id": {
+      "title": "Source Set Id",
+      "type": "string"
+    },
+    "work_packet_activation_non_execution_guardrail_id": {
+      "title": "Work Packet Activation Non Execution Guardrail Id",
+      "type": "string"
+    },
+    "work_packet_activation_review_request_id": {
+      "title": "Work Packet Activation Review Request Id",
+      "type": "string"
+    },
+    "work_packet_activation_source_index_id": {
+      "title": "Work Packet Activation Source Index Id",
+      "type": "string"
+    }
+  },
+  "required": [
+    "schema",
+    "work_packet_activation_non_execution_guardrail_id",
+    "work_packet_activation_review_request_id",
+    "work_packet_activation_source_index_id",
+    "review_id",
+    "snapshot_id",
+    "source_set_id",
+    "guardrail_rows",
+    "guardrail_summary"
+  ],
+  "title": "RepoWorkPacketActivationNonExecutionGuardrail",
+  "type": "object"
+}

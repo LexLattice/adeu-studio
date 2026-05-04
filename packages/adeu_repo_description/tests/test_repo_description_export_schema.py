@@ -151,6 +151,9 @@ from adeu_repo_description import (
     REPO_TOOL_INVOCATION_PLAN_SCHEMA,
     REPO_TOOL_USE_PERMISSION_ENVELOPE_SCHEMA,
     REPO_TYPED_ADJUDICATION_CASE_VIEW_SCHEMA,
+    REPO_WORK_PACKET_ACTIVATION_NON_EXECUTION_GUARDRAIL_SCHEMA,
+    REPO_WORK_PACKET_ACTIVATION_REVIEW_REQUEST_SCHEMA,
+    REPO_WORK_PACKET_ACTIVATION_SOURCE_INDEX_SCHEMA,
     REPO_WORKER_OUTPUT_RECONCILIATION_PLAN_SCHEMA,
 )
 from adeu_repo_description.export_schema import main as export_schema_main
@@ -1342,6 +1345,30 @@ def _schema_pairs() -> dict[str, tuple[Path, Path]]:
             root
             / "spec"
             / "repo_semantic_implementation_spec_family_closeout_alignment.schema.json",
+        ),
+        REPO_WORK_PACKET_ACTIVATION_SOURCE_INDEX_SCHEMA: (
+            root
+            / "packages"
+            / "adeu_repo_description"
+            / "schema"
+            / "repo_work_packet_activation_source_index.v1.json",
+            root / "spec" / "repo_work_packet_activation_source_index.schema.json",
+        ),
+        REPO_WORK_PACKET_ACTIVATION_REVIEW_REQUEST_SCHEMA: (
+            root
+            / "packages"
+            / "adeu_repo_description"
+            / "schema"
+            / "repo_work_packet_activation_review_request.v1.json",
+            root / "spec" / "repo_work_packet_activation_review_request.schema.json",
+        ),
+        REPO_WORK_PACKET_ACTIVATION_NON_EXECUTION_GUARDRAIL_SCHEMA: (
+            root
+            / "packages"
+            / "adeu_repo_description"
+            / "schema"
+            / "repo_work_packet_activation_non_execution_guardrail.v1.json",
+            root / "spec" / "repo_work_packet_activation_non_execution_guardrail.schema.json",
         ),
     }
 

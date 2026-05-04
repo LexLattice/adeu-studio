@@ -218,6 +218,11 @@ from .semantic_implementation_spec import (
     RepoSemanticImplementationSpecFamilyCloseoutAlignment,
     RepoSemanticIntentContract,
 )
+from .work_packet_activation_review import (
+    RepoWorkPacketActivationNonExecutionGuardrail,
+    RepoWorkPacketActivationReviewRequest,
+    RepoWorkPacketActivationSourceIndex,
+)
 
 _WINDOWS_ABSOLUTE_PATH_RE = re.compile(r"[A-Za-z]:\\")
 
@@ -693,6 +698,15 @@ def main() -> None:
     semantic_implementation_spec_family_closeout_alignment_schema = (
         RepoSemanticImplementationSpecFamilyCloseoutAlignment.model_json_schema(by_alias=True)
     )
+    work_packet_activation_source_index_schema = (
+        RepoWorkPacketActivationSourceIndex.model_json_schema(by_alias=True)
+    )
+    work_packet_activation_review_request_schema = (
+        RepoWorkPacketActivationReviewRequest.model_json_schema(by_alias=True)
+    )
+    work_packet_activation_non_execution_guardrail_schema = (
+        RepoWorkPacketActivationNonExecutionGuardrail.model_json_schema(by_alias=True)
+    )
 
     _assert_no_absolute_path_material(dependency_register_v1_schema, repo_root_path=root)
     _assert_no_absolute_path_material(dependency_register_schema, repo_root_path=root)
@@ -1092,6 +1106,18 @@ def main() -> None:
     _assert_no_absolute_path_material(intent_to_work_packet_handoff_schema, repo_root_path=root)
     _assert_no_absolute_path_material(
         semantic_implementation_spec_family_closeout_alignment_schema,
+        repo_root_path=root,
+    )
+    _assert_no_absolute_path_material(
+        work_packet_activation_source_index_schema,
+        repo_root_path=root,
+    )
+    _assert_no_absolute_path_material(
+        work_packet_activation_review_request_schema,
+        repo_root_path=root,
+    )
+    _assert_no_absolute_path_material(
+        work_packet_activation_non_execution_guardrail_schema,
         repo_root_path=root,
     )
 
@@ -2922,6 +2948,31 @@ def main() -> None:
     _write_schema(
         root / "spec" / "repo_semantic_implementation_spec_family_closeout_alignment.schema.json",
         semantic_implementation_spec_family_closeout_alignment_schema,
+    )
+    _write_schema(
+        repo_description_schema_root / "repo_work_packet_activation_source_index.v1.json",
+        work_packet_activation_source_index_schema,
+    )
+    _write_schema(
+        root / "spec" / "repo_work_packet_activation_source_index.schema.json",
+        work_packet_activation_source_index_schema,
+    )
+    _write_schema(
+        repo_description_schema_root / "repo_work_packet_activation_review_request.v1.json",
+        work_packet_activation_review_request_schema,
+    )
+    _write_schema(
+        root / "spec" / "repo_work_packet_activation_review_request.schema.json",
+        work_packet_activation_review_request_schema,
+    )
+    _write_schema(
+        repo_description_schema_root
+        / "repo_work_packet_activation_non_execution_guardrail.v1.json",
+        work_packet_activation_non_execution_guardrail_schema,
+    )
+    _write_schema(
+        root / "spec" / "repo_work_packet_activation_non_execution_guardrail.schema.json",
+        work_packet_activation_non_execution_guardrail_schema,
     )
 
 
