@@ -1,0 +1,245 @@
+{
+  "$defs": {
+    "RepoSemanticOperatorClassRegistryRow": {
+      "additionalProperties": false,
+      "properties": {
+        "alias_rows": {
+          "items": {
+            "$ref": "#/$defs/RepoSemanticRegistryAliasRow"
+          },
+          "title": "Alias Rows",
+          "type": "array"
+        },
+        "canonical_id": {
+          "title": "Canonical Id",
+          "type": "string"
+        },
+        "class_semantics_posture": {
+          "enum": [
+            "semantic_class_for_lookup_only",
+            "not_runtime_class_behavior",
+            "not_implementation_target"
+          ],
+          "title": "Class Semantics Posture",
+          "type": "string"
+        },
+        "entry_currentness": {
+          "enum": [
+            "current_registry_entry",
+            "support_context_only",
+            "historical_context_only",
+            "stale_or_superseded",
+            "unknown_needs_review"
+          ],
+          "title": "Entry Currentness",
+          "type": "string"
+        },
+        "entry_scope_posture": {
+          "enum": [
+            "lookup_review_only",
+            "support_context_only",
+            "future_family_only"
+          ],
+          "title": "Entry Scope Posture",
+          "type": "string"
+        },
+        "entry_status": {
+          "enum": [
+            "current_registry_entry",
+            "candidate_for_review_only",
+            "deprecated_context",
+            "registry_gap"
+          ],
+          "title": "Entry Status",
+          "type": "string"
+        },
+        "limitation_note": {
+          "title": "Limitation Note",
+          "type": "string"
+        },
+        "non_invention_guardrail": {
+          "title": "Non Invention Guardrail",
+          "type": "string"
+        },
+        "operator_semantics_posture": {
+          "enum": [
+            "action_verb_for_declaration_only",
+            "guard_or_route_for_later_authority_review",
+            "not_runtime_behavior"
+          ],
+          "title": "Operator Semantics Posture",
+          "type": "string"
+        },
+        "registry_domain": {
+          "enum": [
+            "operator",
+            "object_class",
+            "source_class",
+            "target_class",
+            "modifier",
+            "relation_class",
+            "obligation_family"
+          ],
+          "title": "Registry Domain",
+          "type": "string"
+        },
+        "registry_entry_kind": {
+          "enum": [
+            "operator_entry",
+            "class_entry",
+            "alias_entry",
+            "support_context_entry",
+            "registry_gap_marker"
+          ],
+          "title": "Registry Entry Kind",
+          "type": "string"
+        },
+        "registry_ref": {
+          "title": "Registry Ref",
+          "type": "string"
+        },
+        "semantic_declaration_session_ref": {
+          "title": "Semantic Declaration Session Ref",
+          "type": "string"
+        },
+        "source_refs": {
+          "items": {
+            "type": "string"
+          },
+          "minItems": 1,
+          "title": "Source Refs",
+          "type": "array"
+        }
+      },
+      "required": [
+        "registry_ref",
+        "semantic_declaration_session_ref",
+        "source_refs",
+        "registry_entry_kind",
+        "registry_domain",
+        "canonical_id",
+        "entry_status",
+        "entry_currentness",
+        "entry_scope_posture",
+        "operator_semantics_posture",
+        "class_semantics_posture",
+        "non_invention_guardrail",
+        "limitation_note"
+      ],
+      "title": "RepoSemanticOperatorClassRegistryRow",
+      "type": "object"
+    },
+    "RepoSemanticRegistryAliasRow": {
+      "additionalProperties": false,
+      "properties": {
+        "alias_ref": {
+          "title": "Alias Ref",
+          "type": "string"
+        },
+        "alias_value": {
+          "title": "Alias Value",
+          "type": "string"
+        },
+        "canonical_id": {
+          "title": "Canonical Id",
+          "type": "string"
+        },
+        "limitation_note": {
+          "title": "Limitation Note",
+          "type": "string"
+        },
+        "normalization_posture": {
+          "enum": [
+            "normalization_not_required",
+            "alias_normalized_by_registry",
+            "normalization_rejected",
+            "normalization_not_authorized",
+            "not_applicable"
+          ],
+          "title": "Normalization Posture",
+          "type": "string"
+        },
+        "source_refs": {
+          "items": {
+            "type": "string"
+          },
+          "minItems": 1,
+          "title": "Source Refs",
+          "type": "array"
+        }
+      },
+      "required": [
+        "alias_ref",
+        "alias_value",
+        "canonical_id",
+        "normalization_posture",
+        "source_refs",
+        "limitation_note"
+      ],
+      "title": "RepoSemanticRegistryAliasRow",
+      "type": "object"
+    }
+  },
+  "additionalProperties": false,
+  "properties": {
+    "registry_rows": {
+      "items": {
+        "$ref": "#/$defs/RepoSemanticOperatorClassRegistryRow"
+      },
+      "minItems": 1,
+      "title": "Registry Rows",
+      "type": "array"
+    },
+    "registry_summary": {
+      "title": "Registry Summary",
+      "type": "string"
+    },
+    "review_id": {
+      "title": "Review Id",
+      "type": "string"
+    },
+    "schema": {
+      "const": "repo_semantic_operator_class_registry@1",
+      "title": "Schema",
+      "type": "string"
+    },
+    "semantic_declaration_non_authority_guardrail_id": {
+      "title": "Semantic Declaration Non Authority Guardrail Id",
+      "type": "string"
+    },
+    "semantic_declaration_source_index_id": {
+      "title": "Semantic Declaration Source Index Id",
+      "type": "string"
+    },
+    "semantic_operator_class_registry_id": {
+      "title": "Semantic Operator Class Registry Id",
+      "type": "string"
+    },
+    "snapshot_id": {
+      "title": "Snapshot Id",
+      "type": "string"
+    },
+    "source_set_id": {
+      "title": "Source Set Id",
+      "type": "string"
+    },
+    "turn_semantic_declaration_request_id": {
+      "title": "Turn Semantic Declaration Request Id",
+      "type": "string"
+    }
+  },
+  "required": [
+    "schema",
+    "semantic_operator_class_registry_id",
+    "semantic_declaration_source_index_id",
+    "turn_semantic_declaration_request_id",
+    "semantic_declaration_non_authority_guardrail_id",
+    "review_id",
+    "snapshot_id",
+    "source_set_id",
+    "registry_rows",
+    "registry_summary"
+  ],
+  "title": "RepoSemanticOperatorClassRegistry",
+  "type": "object"
+}

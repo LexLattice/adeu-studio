@@ -1,0 +1,357 @@
+{
+  "$defs": {
+    "RepoCanonicalMetaLookupRow": {
+      "additionalProperties": false,
+      "properties": {
+        "candidate_ref": {
+          "title": "Candidate Ref",
+          "type": "string"
+        },
+        "canonical_lookup_status": {
+          "enum": [
+            "exact_match_for_review_only",
+            "ambiguous_match",
+            "unknown_pointer_abstained",
+            "registry_gap",
+            "conflict_requires_review",
+            "lookup_blocked_by_missing_source",
+            "future_family_only"
+          ],
+          "title": "Canonical Lookup Status",
+          "type": "string"
+        },
+        "class_registry_refs": {
+          "items": {
+            "type": "string"
+          },
+          "title": "Class Registry Refs",
+          "type": "array"
+        },
+        "competency_claim_horizon": {
+          "enum": [
+            "pointer_obedience_only",
+            "exact_lookup_only",
+            "natural_binding_not_claimed",
+            "obligation_expansion_not_claimed",
+            "implementation_not_claimed"
+          ],
+          "title": "Competency Claim Horizon",
+          "type": "string"
+        },
+        "conflict_posture": {
+          "enum": [
+            "no_conflict",
+            "conflict_requires_review",
+            "conflict_blocked_by_registry_gap",
+            "conflict_not_applicable"
+          ],
+          "title": "Conflict Posture",
+          "type": "string"
+        },
+        "declaration_request_refs": {
+          "items": {
+            "type": "string"
+          },
+          "minItems": 1,
+          "title": "Declaration Request Refs",
+          "type": "array"
+        },
+        "duplicate_preservation_posture": {
+          "enum": [
+            "duplicates_preserved_for_review",
+            "duplicates_normalized_by_declared_rule",
+            "duplicates_not_present"
+          ],
+          "title": "Duplicate Preservation Posture",
+          "type": "string"
+        },
+        "limitation_note": {
+          "title": "Limitation Note",
+          "type": "string"
+        },
+        "lookup_input_kind": {
+          "enum": [
+            "opaque_pointer",
+            "explicit_semantic_pointer",
+            "natural_binding_candidate",
+            "registry_gap_candidate",
+            "support_context_only"
+          ],
+          "title": "Lookup Input Kind",
+          "type": "string"
+        },
+        "lookup_posture": {
+          "enum": [
+            "exact_match_for_review_only",
+            "ambiguous_match",
+            "unknown_pointer_abstained",
+            "registry_gap",
+            "conflict_requires_review",
+            "blocked_by_missing_source",
+            "future_family_only"
+          ],
+          "title": "Lookup Posture",
+          "type": "string"
+        },
+        "lookup_ref": {
+          "title": "Lookup Ref",
+          "type": "string"
+        },
+        "non_authority_guardrail_refs": {
+          "items": {
+            "type": "string"
+          },
+          "minItems": 1,
+          "title": "Non Authority Guardrail Refs",
+          "type": "array"
+        },
+        "obligation_expansion_posture": {
+          "enum": [
+            "lookup_result_only",
+            "named_for_later_expansion_only",
+            "expansion_requires_v86_or_later",
+            "expansion_blocked_by_ambiguity",
+            "expansion_blocked_by_registry_gap",
+            "expansion_not_authorized_by_v85"
+          ],
+          "title": "Obligation Expansion Posture",
+          "type": "string"
+        },
+        "obligation_family_refs": {
+          "items": {
+            "type": "string"
+          },
+          "title": "Obligation Family Refs",
+          "type": "array"
+        },
+        "operator_registry_refs": {
+          "items": {
+            "type": "string"
+          },
+          "title": "Operator Registry Refs",
+          "type": "array"
+        },
+        "order_preservation_posture": {
+          "enum": [
+            "order_preserved_for_review",
+            "order_normalized_by_declared_rule",
+            "order_not_applicable"
+          ],
+          "title": "Order Preservation Posture",
+          "type": "string"
+        },
+        "pointer_competency_kind": {
+          "enum": [
+            "opaque_pointer_obedience",
+            "explicit_pointer_lookup",
+            "natural_binding_candidate_lookup",
+            "registry_gap_detection",
+            "conflict_detection",
+            "distractor_resistance"
+          ],
+          "title": "Pointer Competency Kind",
+          "type": "string"
+        },
+        "semantic_declaration_session_ref": {
+          "title": "Semantic Declaration Session Ref",
+          "type": "string"
+        },
+        "semantic_pointer": {
+          "title": "Semantic Pointer",
+          "type": "string"
+        },
+        "semantic_pointer_rows": {
+          "items": {
+            "$ref": "#/$defs/RepoSemanticPointerRow"
+          },
+          "minItems": 1,
+          "title": "Semantic Pointer Rows",
+          "type": "array"
+        },
+        "source_refs": {
+          "items": {
+            "type": "string"
+          },
+          "minItems": 1,
+          "title": "Source Refs",
+          "type": "array"
+        },
+        "unknown_pointer_posture": {
+          "enum": [
+            "unknown_pointer_not_present",
+            "unknown_pointer_abstained",
+            "unknown_pointer_registry_gap",
+            "unknown_pointer_conflict_requires_review"
+          ],
+          "title": "Unknown Pointer Posture",
+          "type": "string"
+        }
+      },
+      "required": [
+        "lookup_ref",
+        "semantic_declaration_session_ref",
+        "candidate_ref",
+        "declaration_request_refs",
+        "source_refs",
+        "semantic_pointer",
+        "semantic_pointer_rows",
+        "lookup_input_kind",
+        "lookup_posture",
+        "canonical_lookup_status",
+        "pointer_competency_kind",
+        "competency_claim_horizon",
+        "order_preservation_posture",
+        "duplicate_preservation_posture",
+        "unknown_pointer_posture",
+        "conflict_posture",
+        "obligation_expansion_posture",
+        "non_authority_guardrail_refs",
+        "limitation_note"
+      ],
+      "title": "RepoCanonicalMetaLookupRow",
+      "type": "object"
+    },
+    "RepoSemanticPointerRow": {
+      "additionalProperties": false,
+      "properties": {
+        "limitation_note": {
+          "title": "Limitation Note",
+          "type": "string"
+        },
+        "normalization_posture": {
+          "enum": [
+            "normalization_not_required",
+            "alias_normalized_by_registry",
+            "normalization_rejected",
+            "normalization_not_authorized",
+            "not_applicable"
+          ],
+          "title": "Normalization Posture",
+          "type": "string"
+        },
+        "parsed_class": {
+          "title": "Parsed Class",
+          "type": "string"
+        },
+        "parsed_operator": {
+          "title": "Parsed Operator",
+          "type": "string"
+        },
+        "parsed_version": {
+          "title": "Parsed Version",
+          "type": "string"
+        },
+        "pointer_parse_posture": {
+          "enum": [
+            "parsed_exact",
+            "parsed_with_alias",
+            "malformed_pointer",
+            "unknown_operator",
+            "unknown_class",
+            "unknown_version",
+            "ambiguous_parse",
+            "abstain_required"
+          ],
+          "title": "Pointer Parse Posture",
+          "type": "string"
+        },
+        "pointer_ref": {
+          "title": "Pointer Ref",
+          "type": "string"
+        },
+        "raw_pointer": {
+          "title": "Raw Pointer",
+          "type": "string"
+        },
+        "semantic_declaration_session_ref": {
+          "title": "Semantic Declaration Session Ref",
+          "type": "string"
+        },
+        "source_refs": {
+          "items": {
+            "type": "string"
+          },
+          "minItems": 1,
+          "title": "Source Refs",
+          "type": "array"
+        }
+      },
+      "required": [
+        "pointer_ref",
+        "semantic_declaration_session_ref",
+        "raw_pointer",
+        "parsed_operator",
+        "parsed_class",
+        "parsed_version",
+        "pointer_parse_posture",
+        "normalization_posture",
+        "source_refs",
+        "limitation_note"
+      ],
+      "title": "RepoSemanticPointerRow",
+      "type": "object"
+    }
+  },
+  "additionalProperties": false,
+  "properties": {
+    "canonical_meta_lookup_index_id": {
+      "title": "Canonical Meta Lookup Index Id",
+      "type": "string"
+    },
+    "lookup_rows": {
+      "items": {
+        "$ref": "#/$defs/RepoCanonicalMetaLookupRow"
+      },
+      "minItems": 1,
+      "title": "Lookup Rows",
+      "type": "array"
+    },
+    "lookup_summary": {
+      "title": "Lookup Summary",
+      "type": "string"
+    },
+    "review_id": {
+      "title": "Review Id",
+      "type": "string"
+    },
+    "schema": {
+      "const": "repo_canonical_meta_lookup_index@1",
+      "title": "Schema",
+      "type": "string"
+    },
+    "semantic_declaration_non_authority_guardrail_id": {
+      "title": "Semantic Declaration Non Authority Guardrail Id",
+      "type": "string"
+    },
+    "semantic_declaration_source_index_id": {
+      "title": "Semantic Declaration Source Index Id",
+      "type": "string"
+    },
+    "snapshot_id": {
+      "title": "Snapshot Id",
+      "type": "string"
+    },
+    "source_set_id": {
+      "title": "Source Set Id",
+      "type": "string"
+    },
+    "turn_semantic_declaration_request_id": {
+      "title": "Turn Semantic Declaration Request Id",
+      "type": "string"
+    }
+  },
+  "required": [
+    "schema",
+    "canonical_meta_lookup_index_id",
+    "semantic_declaration_source_index_id",
+    "turn_semantic_declaration_request_id",
+    "semantic_declaration_non_authority_guardrail_id",
+    "review_id",
+    "snapshot_id",
+    "source_set_id",
+    "lookup_rows",
+    "lookup_summary"
+  ],
+  "title": "RepoCanonicalMetaLookupIndex",
+  "type": "object"
+}

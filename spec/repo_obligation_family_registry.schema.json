@@ -1,0 +1,196 @@
+{
+  "$defs": {
+    "RepoObligationFamilyRegistryRow": {
+      "additionalProperties": false,
+      "properties": {
+        "applies_to_class_refs": {
+          "items": {
+            "type": "string"
+          },
+          "title": "Applies To Class Refs",
+          "type": "array"
+        },
+        "applies_to_operator_refs": {
+          "items": {
+            "type": "string"
+          },
+          "title": "Applies To Operator Refs",
+          "type": "array"
+        },
+        "evidence_contract_required_posture": {
+          "enum": [
+            "evidence_contract_required_later",
+            "evidence_contract_not_created_by_v85b",
+            "not_applicable"
+          ],
+          "title": "Evidence Contract Required Posture",
+          "type": "string"
+        },
+        "future_expansion_posture": {
+          "enum": [
+            "named_for_later_expansion_only",
+            "expansion_requires_future_family",
+            "expansion_blocked_by_missing_registry",
+            "expansion_not_authorized_by_v85"
+          ],
+          "title": "Future Expansion Posture",
+          "type": "string"
+        },
+        "limitation_note": {
+          "title": "Limitation Note",
+          "type": "string"
+        },
+        "non_execution_guardrail": {
+          "title": "Non Execution Guardrail",
+          "type": "string"
+        },
+        "obligation_family_activation_posture": {
+          "enum": [
+            "lookup_result_only",
+            "named_for_later_expansion_only",
+            "expansion_requires_v86_or_later",
+            "expansion_blocked_by_ambiguity",
+            "expansion_blocked_by_registry_gap",
+            "expansion_not_authorized_by_v85"
+          ],
+          "title": "Obligation Family Activation Posture",
+          "type": "string"
+        },
+        "obligation_family_id": {
+          "title": "Obligation Family Id",
+          "type": "string"
+        },
+        "obligation_family_label": {
+          "title": "Obligation Family Label",
+          "type": "string"
+        },
+        "obligation_family_ref": {
+          "title": "Obligation Family Ref",
+          "type": "string"
+        },
+        "obligation_family_relation_kind": {
+          "enum": [
+            "applies_by_operator",
+            "applies_by_object_class",
+            "applies_by_target_context",
+            "applies_by_modifier",
+            "applies_by_negative_cue",
+            "applies_by_authority_boundary",
+            "conflict_or_exclusion",
+            "requires_later_disambiguation"
+          ],
+          "title": "Obligation Family Relation Kind",
+          "type": "string"
+        },
+        "required_future_surfaces": {
+          "items": {
+            "type": "string"
+          },
+          "minItems": 1,
+          "title": "Required Future Surfaces",
+          "type": "array"
+        },
+        "semantic_declaration_session_ref": {
+          "title": "Semantic Declaration Session Ref",
+          "type": "string"
+        },
+        "source_refs": {
+          "items": {
+            "type": "string"
+          },
+          "minItems": 1,
+          "title": "Source Refs",
+          "type": "array"
+        },
+        "waiver_posture": {
+          "enum": [
+            "waiver_not_present",
+            "waiver_requires_later_review",
+            "waiver_not_applicable"
+          ],
+          "title": "Waiver Posture",
+          "type": "string"
+        }
+      },
+      "required": [
+        "obligation_family_ref",
+        "semantic_declaration_session_ref",
+        "source_refs",
+        "obligation_family_id",
+        "obligation_family_label",
+        "obligation_family_relation_kind",
+        "obligation_family_activation_posture",
+        "required_future_surfaces",
+        "future_expansion_posture",
+        "evidence_contract_required_posture",
+        "waiver_posture",
+        "non_execution_guardrail",
+        "limitation_note"
+      ],
+      "title": "RepoObligationFamilyRegistryRow",
+      "type": "object"
+    }
+  },
+  "additionalProperties": false,
+  "properties": {
+    "obligation_family_registry_id": {
+      "title": "Obligation Family Registry Id",
+      "type": "string"
+    },
+    "obligation_family_registry_summary": {
+      "title": "Obligation Family Registry Summary",
+      "type": "string"
+    },
+    "obligation_family_rows": {
+      "items": {
+        "$ref": "#/$defs/RepoObligationFamilyRegistryRow"
+      },
+      "minItems": 1,
+      "title": "Obligation Family Rows",
+      "type": "array"
+    },
+    "review_id": {
+      "title": "Review Id",
+      "type": "string"
+    },
+    "schema": {
+      "const": "repo_obligation_family_registry@1",
+      "title": "Schema",
+      "type": "string"
+    },
+    "semantic_declaration_non_authority_guardrail_id": {
+      "title": "Semantic Declaration Non Authority Guardrail Id",
+      "type": "string"
+    },
+    "semantic_declaration_source_index_id": {
+      "title": "Semantic Declaration Source Index Id",
+      "type": "string"
+    },
+    "snapshot_id": {
+      "title": "Snapshot Id",
+      "type": "string"
+    },
+    "source_set_id": {
+      "title": "Source Set Id",
+      "type": "string"
+    },
+    "turn_semantic_declaration_request_id": {
+      "title": "Turn Semantic Declaration Request Id",
+      "type": "string"
+    }
+  },
+  "required": [
+    "schema",
+    "obligation_family_registry_id",
+    "semantic_declaration_source_index_id",
+    "turn_semantic_declaration_request_id",
+    "semantic_declaration_non_authority_guardrail_id",
+    "review_id",
+    "snapshot_id",
+    "source_set_id",
+    "obligation_family_rows",
+    "obligation_family_registry_summary"
+  ],
+  "title": "RepoObligationFamilyRegistry",
+  "type": "object"
+}
