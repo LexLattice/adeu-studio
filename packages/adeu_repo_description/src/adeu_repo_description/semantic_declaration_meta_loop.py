@@ -37,6 +37,15 @@ REPO_CANONICAL_META_LOOKUP_INDEX_SCHEMA = "repo_canonical_meta_lookup_index@1"
 REPO_SEMANTIC_OPERATOR_CLASS_REGISTRY_SCHEMA = "repo_semantic_operator_class_registry@1"
 REPO_OBLIGATION_FAMILY_REGISTRY_SCHEMA = "repo_obligation_family_registry@1"
 REPO_SEMANTIC_POINTER_LOOKUP_FIXTURE_SCHEMA = "repo_semantic_pointer_lookup_fixture@1"
+REPO_SEMANTIC_DECLARATION_REVIEW_SUMMARY_SCHEMA = (
+    "repo_semantic_declaration_review_summary@1"
+)
+REPO_POST_SEMANTIC_DECLARATION_REVIEW_HANDOFF_SCHEMA = (
+    "repo_post_semantic_declaration_review_handoff@1"
+)
+REPO_SEMANTIC_DECLARATION_FAMILY_CLOSEOUT_ALIGNMENT_SCHEMA = (
+    "repo_semantic_declaration_family_closeout_alignment@1"
+)
 
 SemanticDeclarationSourceRole = Literal[
     "v84_readiness_summary_source",
@@ -507,6 +516,143 @@ ExpectedConflictPosture = Literal[
     "conflict_requires_review",
     "conflict_blocked",
 ]
+SemanticDeclarationWarningKind = Literal[
+    "nonblocking_alias_warning",
+    "duplicate_preserved_warning",
+    "support_context_present_but_not_decisive",
+    "optional_obligation_family_unmapped",
+    "documentation_alignment_warning",
+    "ambiguous_binding",
+    "registry_gap",
+    "unknown_pointer",
+    "missing_guardrail",
+    "missing_source_witness",
+    "lookup_conflict",
+    "support_only_source",
+    "invented_class",
+    "obligation_expansion_attempt",
+]
+SemanticDeclarationWarningBlockingPosture = Literal[
+    "nonblocking_warning",
+    "blocking_exception",
+    "not_applicable",
+]
+SemanticDeclarationSummaryPosture = Literal[
+    "ready_for_later_obligation_expansion_review",
+    "ready_with_nonblocking_warnings",
+    "blocked_by_missing_declaration_source",
+    "blocked_by_ambiguous_binding",
+    "blocked_by_registry_gap",
+    "blocked_by_missing_lookup",
+    "blocked_by_lookup_conflict",
+    "blocked_by_missing_guardrail",
+    "blocked_by_support_only_source",
+    "future_family_only",
+    "rejected_out_of_scope",
+]
+SemanticDeclarationReadyBasisPosture = Literal[
+    "ready_no_blockers",
+    "ready_with_nonblocking_warnings",
+    "not_ready_blockers_remain",
+    "registry_or_ambiguity_review_requested",
+    "future_family_only",
+    "rejected_out_of_scope",
+]
+SemanticDeclarationLookupCoveragePosture = Literal[
+    "selected_declarations_have_lookup_rows",
+    "missing_lookup_for_selected_declaration",
+    "lookup_conflict_present",
+    "only_opaque_lookup_proven",
+    "lookup_not_applicable",
+]
+SemanticDeclarationObligationExpansionStatus = Literal[
+    "no_obligation_expansion_performed_by_v85",
+    "obligation_expansion_requires_v86_or_later",
+    "obligation_expansion_forbidden_by_this_family",
+]
+SemanticDeclarationImplementationStatus = Literal[
+    "no_implementation_performed_by_v85",
+    "implementation_requires_later_lock",
+    "implementation_forbidden_by_this_family",
+]
+SemanticDeclarationRuntimeTransitionStatus = Literal[
+    "no_runtime_transition_performed_by_v85",
+    "runtime_transition_requires_later_authority",
+    "runtime_transition_forbidden_by_this_family",
+]
+SemanticDeclarationFutureFamilySelectionStatus = Literal[
+    "no_future_family_selected_by_v85",
+    "future_family_selection_requires_later_selector",
+    "future_family_selection_forbidden_by_this_family",
+]
+SemanticDeclarationHandoffTarget = Literal[
+    "future_obligation_expansion_review",
+    "future_evidence_contract_review",
+    "future_edge_probe_plan_review",
+    "future_audit_taskpack_review",
+    "future_deterministic_closeout_transition_review",
+    "future_canonical_implementation_lock_review",
+    "future_morphic_ux_implementation_review",
+    "future_direct_oai_harness_review",
+    "future_meta_orchestrator_workflow_review",
+    "future_product_review",
+    "future_graph_memory_review",
+    "future_family_review",
+    "deferred_no_selection",
+]
+SemanticDeclarationHandoffSubjectHorizon = Literal[
+    "semantic_declaration_review_outcome",
+    "canonical_lookup_review_outcome",
+    "obligation_family_lookup_pressure",
+    "evidence_contract_pressure",
+    "audit_taskpack_pressure",
+    "closeout_transition_pressure",
+    "implementation_lock_pressure",
+    "support_doctrine_pressure",
+    "future_family_only",
+]
+SemanticDeclarationHandoffPosture = Literal[
+    "ready_for_later_review",
+    "ready_with_nonblocking_warnings",
+    "blocker_settlement_requested",
+    "future_family_only",
+    "deferred_no_selection",
+    "rejected_out_of_scope",
+]
+SemanticDeclarationHandoffSequencePosture = Literal[
+    "immediate_next_pressure",
+    "downstream_after_obligation_expansion",
+    "downstream_after_evidence_contract",
+    "downstream_after_audit",
+    "lateral_support_pressure",
+    "future_family_only",
+]
+SemanticDeclarationHandoffAuthorityHorizon = Literal[
+    "obligation_expansion_review",
+    "evidence_contract_review",
+    "edge_probe_plan_review",
+    "audit_taskpack_review",
+    "closeout_transition_review",
+    "implementation_lock_review",
+    "morphic_ux_runtime_ui_authority_review",
+    "direct_oai_provider_runtime_authority_review",
+    "meta_orchestrator_workflow_runtime_authority_review",
+    "product_authority_review",
+    "graph_memory_authority_review",
+    "recursive_policy_authority_review",
+    "future_family_review",
+]
+SemanticDeclarationFamilyAlignmentPosture = Literal[
+    "v85_closed_as_review_substrate",
+    "v85_closed_with_future_pressure",
+    "v85_blocked_by_unresolved_declaration_review",
+    "future_family_only",
+]
+SemanticDeclarationCloseoutNonAuthorityPosture = Literal[
+    "closeout_is_not_obligation_expansion",
+    "closeout_is_not_implementation_authority",
+    "closeout_is_review_alignment_only",
+]
 
 _V84C_READINESS_FIXTURE = (
     "apps/api/fixtures/repo_description/vnext_plus238/"
@@ -552,6 +698,26 @@ _V85A_GUARDRAIL_FIXTURE = (
 _V85B_LOCK_DOC = "docs/LOCKED_CONTINUATION_vNEXT_PLUS240.md"
 _V85B_MAPPING_DOC = (
     "docs/DRAFT_ADEU_SEMANTIC_DECLARATION_META_LOOP_V85B_IMPLEMENTATION_MAPPING_v0.md"
+)
+_V85B_LOOKUP_INDEX_FIXTURE = (
+    "apps/api/fixtures/repo_description/vnext_plus240/"
+    "repo_canonical_meta_lookup_index_v240_reference.json"
+)
+_V85B_OPERATOR_CLASS_REGISTRY_FIXTURE = (
+    "apps/api/fixtures/repo_description/vnext_plus240/"
+    "repo_semantic_operator_class_registry_v240_reference.json"
+)
+_V85B_OBLIGATION_FAMILY_REGISTRY_FIXTURE = (
+    "apps/api/fixtures/repo_description/vnext_plus240/"
+    "repo_obligation_family_registry_v240_reference.json"
+)
+_V85B_POINTER_LOOKUP_FIXTURE = (
+    "apps/api/fixtures/repo_description/vnext_plus240/"
+    "repo_semantic_pointer_lookup_fixture_v240_reference.json"
+)
+_V85C_LOCK_DOC = "docs/LOCKED_CONTINUATION_vNEXT_PLUS241.md"
+_V85C_MAPPING_DOC = (
+    "docs/DRAFT_ADEU_SEMANTIC_DECLARATION_META_LOOP_V85C_IMPLEMENTATION_MAPPING_v0.md"
 )
 _OPERATOR_TURN_SOURCE = "operator-turn:v85a:semantic-declaration-meta-loop-request"
 _OPAQUE_POINTER_CONTEXT = "opaque-pointer:v85a:M-42-context"
@@ -3682,4 +3848,1234 @@ def derive_v85b_semantic_lookup_registry_bundle(
         registry,
         obligation_registry,
         fixture,
+    )
+
+
+_NONBLOCKING_WARNING_KINDS = {
+    "nonblocking_alias_warning",
+    "duplicate_preserved_warning",
+    "support_context_present_but_not_decisive",
+    "optional_obligation_family_unmapped",
+    "documentation_alignment_warning",
+}
+_BLOCKING_WARNING_KINDS = {
+    "ambiguous_binding",
+    "registry_gap",
+    "unknown_pointer",
+    "missing_guardrail",
+    "missing_source_witness",
+    "lookup_conflict",
+    "support_only_source",
+    "invented_class",
+    "obligation_expansion_attempt",
+}
+_DOWNSTREAM_SEQUENCE_TARGETS = {
+    "future_evidence_contract_review",
+    "future_edge_probe_plan_review",
+    "future_audit_taskpack_review",
+    "future_deterministic_closeout_transition_review",
+}
+_V85_CLOSED_SURFACES = {
+    REPO_TURN_SEMANTIC_DECLARATION_REQUEST_SCHEMA,
+    REPO_SEMANTIC_DECLARATION_SOURCE_INDEX_SCHEMA,
+    REPO_SEMANTIC_DECLARATION_NON_AUTHORITY_GUARDRAIL_SCHEMA,
+    REPO_CANONICAL_META_LOOKUP_INDEX_SCHEMA,
+    REPO_SEMANTIC_OPERATOR_CLASS_REGISTRY_SCHEMA,
+    REPO_OBLIGATION_FAMILY_REGISTRY_SCHEMA,
+    REPO_SEMANTIC_POINTER_LOOKUP_FIXTURE_SCHEMA,
+    REPO_SEMANTIC_DECLARATION_REVIEW_SUMMARY_SCHEMA,
+    REPO_POST_SEMANTIC_DECLARATION_REVIEW_HANDOFF_SCHEMA,
+    REPO_SEMANTIC_DECLARATION_FAMILY_CLOSEOUT_ALIGNMENT_SCHEMA,
+}
+
+
+class RepoSemanticDeclarationWarningRow(_CartographyBase):
+    warning_ref: str
+    semantic_declaration_session_ref: str
+    source_refs: list[str] = Field(min_length=1)
+    warning_kind: SemanticDeclarationWarningKind
+    blocking_posture: SemanticDeclarationWarningBlockingPosture
+    limitation_note: str
+
+    @model_validator(mode="after")
+    def _validate_warning_row(self) -> "RepoSemanticDeclarationWarningRow":
+        _non_empty(self.warning_ref, field_name="warning_ref")
+        _non_empty(
+            self.semantic_declaration_session_ref,
+            field_name="semantic_declaration_session_ref",
+        )
+        _validate_repo_refs(self.source_refs, field_name="source_refs")
+        if self.warning_kind in _NONBLOCKING_WARNING_KINDS:
+            if self.blocking_posture != "nonblocking_warning":
+                raise ValueError("nonblocking warning kinds must remain warnings")
+        if self.warning_kind in _BLOCKING_WARNING_KINDS:
+            if self.blocking_posture == "nonblocking_warning":
+                raise ValueError("blocking declaration issues cannot be warning-only")
+        _reject_v85_authority_claim(
+            _require_terms(
+                self.limitation_note,
+                field_name="limitation_note",
+                terms=("warning", "review"),
+            ),
+            field_name="limitation_note",
+        )
+        return self
+
+
+class RepoSemanticDeclarationReviewSummaryRow(_CartographyBase):
+    summary_ref: str
+    semantic_declaration_session_ref: str
+    candidate_ref: str
+    source_refs: list[str] = Field(min_length=1)
+    declaration_request_refs: list[str] = Field(min_length=1)
+    source_index_refs: list[str] = Field(min_length=1)
+    guardrail_refs: list[str] = Field(min_length=1)
+    lookup_index_refs: list[str] = Field(default_factory=list)
+    operator_class_registry_refs: list[str] = Field(default_factory=list)
+    obligation_family_registry_refs: list[str] = Field(default_factory=list)
+    lookup_fixture_refs: list[str] = Field(default_factory=list)
+    selected_declaration_refs: list[str] = Field(default_factory=list)
+    declaration_selection_status_refs: list[str] = Field(default_factory=list)
+    ambiguous_declaration_refs: list[str] = Field(default_factory=list)
+    abstain_declaration_refs: list[str] = Field(default_factory=list)
+    registry_gap_refs: list[str] = Field(default_factory=list)
+    carried_blocker_refs: list[str] = Field(default_factory=list)
+    carried_warning_refs: list[str] = Field(default_factory=list)
+    warning_rows: list[RepoSemanticDeclarationWarningRow] = Field(default_factory=list)
+    summary_posture: SemanticDeclarationSummaryPosture
+    ready_basis_posture: SemanticDeclarationReadyBasisPosture
+    lookup_coverage_posture: SemanticDeclarationLookupCoveragePosture
+    declaration_non_authority_posture: DeclarationNonAuthorityPosture
+    obligation_expansion_posture: SemanticDeclarationObligationExpansionStatus
+    implementation_posture: SemanticDeclarationImplementationStatus
+    runtime_transition_posture: SemanticDeclarationRuntimeTransitionStatus
+    future_family_selection_posture: SemanticDeclarationFutureFamilySelectionStatus
+    limitation_note: str
+
+    @model_validator(mode="after")
+    def _validate_summary_row(self) -> "RepoSemanticDeclarationReviewSummaryRow":
+        for attr in ("summary_ref", "semantic_declaration_session_ref", "candidate_ref"):
+            _non_empty(getattr(self, attr), field_name=attr)
+        _validate_repo_refs(self.source_refs, field_name="source_refs")
+        for attr in (
+            "declaration_request_refs",
+            "source_index_refs",
+            "guardrail_refs",
+            "lookup_index_refs",
+            "operator_class_registry_refs",
+            "obligation_family_registry_refs",
+            "lookup_fixture_refs",
+            "selected_declaration_refs",
+            "declaration_selection_status_refs",
+            "ambiguous_declaration_refs",
+            "abstain_declaration_refs",
+            "registry_gap_refs",
+            "carried_blocker_refs",
+            "carried_warning_refs",
+        ):
+            _validate_sorted_refs(getattr(self, attr), field_name=attr)
+        _sorted_unique_by_ref(
+            self.warning_rows,
+            attr="warning_ref",
+            field_name="warning_rows",
+        )
+        for warning in self.warning_rows:
+            if warning.semantic_declaration_session_ref != self.semantic_declaration_session_ref:
+                raise ValueError("warning rows must share declaration session")
+        warning_refs = {row.warning_ref for row in self.warning_rows}
+        if any(ref not in warning_refs for ref in self.carried_warning_refs):
+            raise ValueError("carried warning refs must resolve to warning rows")
+        if self.declaration_non_authority_posture != "no_declaration_authority_granted_by_v85":
+            raise ValueError("V85-C summaries cannot grant declaration authority")
+        if self.obligation_expansion_posture != "no_obligation_expansion_performed_by_v85":
+            raise ValueError("V85-C summaries cannot expand obligations")
+        if self.implementation_posture != "no_implementation_performed_by_v85":
+            raise ValueError("V85-C summaries cannot implement")
+        if self.runtime_transition_posture != "no_runtime_transition_performed_by_v85":
+            raise ValueError("V85-C summaries cannot transition runtime")
+        if self.future_family_selection_posture != "no_future_family_selected_by_v85":
+            raise ValueError("V85-C summaries cannot select V86")
+        if self.summary_posture == "ready_for_later_obligation_expansion_review":
+            if self.ready_basis_posture != "ready_no_blockers":
+                raise ValueError("ready summary requires ready_no_blockers basis")
+            if self.carried_blocker_refs:
+                raise ValueError("ready summary cannot carry blockers")
+            if not self.selected_declaration_refs:
+                raise ValueError("ready summary requires selected declaration refs")
+            if not self.lookup_index_refs:
+                raise ValueError("ready summary requires lookup refs")
+            if not self.operator_class_registry_refs:
+                raise ValueError("ready summary requires operator/class registry refs")
+            if not self.obligation_family_registry_refs:
+                raise ValueError("ready summary requires obligation-family refs")
+            if not self.guardrail_refs:
+                raise ValueError("ready summary requires guardrail refs")
+            if self.lookup_coverage_posture != "selected_declarations_have_lookup_rows":
+                raise ValueError("ready summary requires selected declaration lookup coverage")
+        if self.summary_posture == "ready_with_nonblocking_warnings":
+            if self.ready_basis_posture != "ready_with_nonblocking_warnings":
+                raise ValueError("warning-ready summary requires warning-ready basis")
+            if self.carried_blocker_refs:
+                raise ValueError("warning-ready summary cannot carry blockers")
+            if not self.carried_warning_refs:
+                raise ValueError("warning-ready summary requires carried warnings")
+            blockers_as_warnings = [
+                row.warning_kind
+                for row in self.warning_rows
+                if row.warning_ref in self.carried_warning_refs
+                and row.warning_kind in _BLOCKING_WARNING_KINDS
+            ]
+            if blockers_as_warnings:
+                raise ValueError("warning-ready summary cannot hide blocking warning kinds")
+        if self.summary_posture.startswith("blocked_by_"):
+            if self.ready_basis_posture not in {
+                "not_ready_blockers_remain",
+                "registry_or_ambiguity_review_requested",
+            }:
+                raise ValueError("blocked summaries require blocker-aware basis")
+            if not self.carried_blocker_refs:
+                raise ValueError("blocked summaries must carry blockers")
+        _reject_v85_authority_claim(
+            _require_terms(
+                self.limitation_note,
+                field_name="limitation_note",
+                terms=("summary", "review", "no obligation"),
+            ),
+            field_name="limitation_note",
+        )
+        return self
+
+
+class RepoSemanticDeclarationReviewSummary(_CartographyBase):
+    schema: Literal[REPO_SEMANTIC_DECLARATION_REVIEW_SUMMARY_SCHEMA]
+    semantic_declaration_review_summary_id: str
+    semantic_declaration_source_index_id: str
+    turn_semantic_declaration_request_id: str
+    semantic_declaration_non_authority_guardrail_id: str
+    canonical_meta_lookup_index_id: str
+    semantic_operator_class_registry_id: str
+    obligation_family_registry_id: str
+    semantic_pointer_lookup_fixture_id: str
+    review_id: str
+    snapshot_id: str
+    source_set_id: str
+    summary_rows: list[RepoSemanticDeclarationReviewSummaryRow] = Field(min_length=1)
+    summary_text: str
+
+    @model_validator(mode="after")
+    def _validate_summary_surface(self) -> "RepoSemanticDeclarationReviewSummary":
+        for attr in (
+            "semantic_declaration_review_summary_id",
+            "semantic_declaration_source_index_id",
+            "turn_semantic_declaration_request_id",
+            "semantic_declaration_non_authority_guardrail_id",
+            "canonical_meta_lookup_index_id",
+            "semantic_operator_class_registry_id",
+            "obligation_family_registry_id",
+            "semantic_pointer_lookup_fixture_id",
+            "review_id",
+            "snapshot_id",
+            "source_set_id",
+        ):
+            _non_empty(getattr(self, attr), field_name=attr)
+        _sorted_unique_by_ref(self.summary_rows, attr="summary_ref", field_name="summary_rows")
+        _reject_v85_authority_claim(
+            _require_terms(
+                self.summary_text,
+                field_name="summary_text",
+                terms=("summary", "review", "no obligation"),
+            ),
+            field_name="summary_text",
+        )
+        _assert_surface_id(
+            surface_name="repo_semantic_declaration_review_summary",
+            schema=REPO_SEMANTIC_DECLARATION_REVIEW_SUMMARY_SCHEMA,
+            payload=self.model_dump(mode="json"),
+            id_key="semantic_declaration_review_summary_id",
+            actual=self.semantic_declaration_review_summary_id,
+        )
+        return self
+
+
+class RepoPostSemanticDeclarationReviewHandoffRow(_CartographyBase):
+    handoff_ref: str
+    semantic_declaration_session_ref: str
+    candidate_ref: str
+    source_refs: list[str] = Field(min_length=1)
+    summary_refs: list[str] = Field(min_length=1)
+    selected_declaration_refs: list[str] = Field(default_factory=list)
+    lookup_index_refs: list[str] = Field(default_factory=list)
+    operator_class_registry_refs: list[str] = Field(default_factory=list)
+    obligation_family_registry_refs: list[str] = Field(default_factory=list)
+    carried_blocker_refs: list[str] = Field(default_factory=list)
+    carried_warning_refs: list[str] = Field(default_factory=list)
+    handoff_target: SemanticDeclarationHandoffTarget
+    handoff_subject_horizon: SemanticDeclarationHandoffSubjectHorizon
+    handoff_posture: SemanticDeclarationHandoffPosture
+    handoff_sequence_posture: SemanticDeclarationHandoffSequencePosture
+    handoff_authority_horizon: SemanticDeclarationHandoffAuthorityHorizon
+    required_later_authority_refs: list[str] = Field(default_factory=list)
+    non_authority_guardrail_refs: list[str] = Field(min_length=1)
+    obligation_expansion_status: SemanticDeclarationObligationExpansionStatus
+    implementation_status: SemanticDeclarationImplementationStatus
+    runtime_transition_status: SemanticDeclarationRuntimeTransitionStatus
+    future_family_selection_status: SemanticDeclarationFutureFamilySelectionStatus
+    limitation_note: str
+
+    @model_validator(mode="after")
+    def _validate_handoff_row(self) -> "RepoPostSemanticDeclarationReviewHandoffRow":
+        for attr in ("handoff_ref", "semantic_declaration_session_ref", "candidate_ref"):
+            _non_empty(getattr(self, attr), field_name=attr)
+        _validate_repo_refs(self.source_refs, field_name="source_refs")
+        for attr in (
+            "summary_refs",
+            "selected_declaration_refs",
+            "lookup_index_refs",
+            "operator_class_registry_refs",
+            "obligation_family_registry_refs",
+            "carried_blocker_refs",
+            "carried_warning_refs",
+            "required_later_authority_refs",
+            "non_authority_guardrail_refs",
+        ):
+            _validate_sorted_refs(getattr(self, attr), field_name=attr)
+        if self.carried_blocker_refs and self.handoff_posture not in {
+            "blocker_settlement_requested",
+            "future_family_only",
+            "rejected_out_of_scope",
+        }:
+            raise ValueError("handoffs with blockers must route to settlement or future review")
+        if (
+            self.handoff_target in _DOWNSTREAM_SEQUENCE_TARGETS
+            and self.handoff_sequence_posture == "immediate_next_pressure"
+        ):
+            raise ValueError("downstream handoffs cannot skip obligation expansion review")
+        if self.handoff_target == "future_obligation_expansion_review":
+            if self.handoff_sequence_posture != "immediate_next_pressure":
+                raise ValueError("obligation expansion review is the immediate V85-C pressure")
+            if not self.lookup_index_refs or not self.obligation_family_registry_refs:
+                raise ValueError("obligation handoff requires lookup and obligation-family refs")
+        if self.obligation_expansion_status != "no_obligation_expansion_performed_by_v85":
+            raise ValueError("V85-C handoffs cannot expand obligations")
+        if self.implementation_status != "no_implementation_performed_by_v85":
+            raise ValueError("V85-C handoffs cannot implement")
+        if self.runtime_transition_status != "no_runtime_transition_performed_by_v85":
+            raise ValueError("V85-C handoffs cannot transition runtime")
+        if self.future_family_selection_status != "no_future_family_selected_by_v85":
+            raise ValueError("V85-C handoffs cannot select V86")
+        _reject_v85_authority_claim(
+            _require_terms(
+                self.limitation_note,
+                field_name="limitation_note",
+                terms=("handoff", "review", "no obligation"),
+            ),
+            field_name="limitation_note",
+        )
+        return self
+
+
+class RepoPostSemanticDeclarationReviewHandoff(_CartographyBase):
+    schema: Literal[REPO_POST_SEMANTIC_DECLARATION_REVIEW_HANDOFF_SCHEMA]
+    post_semantic_declaration_review_handoff_id: str
+    semantic_declaration_review_summary_id: str
+    semantic_declaration_source_index_id: str
+    turn_semantic_declaration_request_id: str
+    semantic_declaration_non_authority_guardrail_id: str
+    canonical_meta_lookup_index_id: str
+    semantic_operator_class_registry_id: str
+    obligation_family_registry_id: str
+    semantic_pointer_lookup_fixture_id: str
+    review_id: str
+    snapshot_id: str
+    source_set_id: str
+    handoff_rows: list[RepoPostSemanticDeclarationReviewHandoffRow] = Field(min_length=1)
+    handoff_summary: str
+
+    @model_validator(mode="after")
+    def _validate_handoff_surface(self) -> "RepoPostSemanticDeclarationReviewHandoff":
+        for attr in (
+            "post_semantic_declaration_review_handoff_id",
+            "semantic_declaration_review_summary_id",
+            "semantic_declaration_source_index_id",
+            "turn_semantic_declaration_request_id",
+            "semantic_declaration_non_authority_guardrail_id",
+            "canonical_meta_lookup_index_id",
+            "semantic_operator_class_registry_id",
+            "obligation_family_registry_id",
+            "semantic_pointer_lookup_fixture_id",
+            "review_id",
+            "snapshot_id",
+            "source_set_id",
+        ):
+            _non_empty(getattr(self, attr), field_name=attr)
+        _sorted_unique_by_ref(self.handoff_rows, attr="handoff_ref", field_name="handoff_rows")
+        _reject_v85_authority_claim(
+            _require_terms(
+                self.handoff_summary,
+                field_name="handoff_summary",
+                terms=("handoff", "review", "no obligation"),
+            ),
+            field_name="handoff_summary",
+        )
+        _assert_surface_id(
+            surface_name="repo_post_semantic_declaration_review_handoff",
+            schema=REPO_POST_SEMANTIC_DECLARATION_REVIEW_HANDOFF_SCHEMA,
+            payload=self.model_dump(mode="json"),
+            id_key="post_semantic_declaration_review_handoff_id",
+            actual=self.post_semantic_declaration_review_handoff_id,
+        )
+        return self
+
+
+class RepoSemanticDeclarationFamilyCloseoutAlignmentRow(_CartographyBase):
+    family_closeout_ref: str
+    family: str
+    closed_by_arc: str
+    semantic_declaration_session_refs: list[str] = Field(min_length=1)
+    source_refs: list[str] = Field(min_length=1)
+    summary_refs: list[str] = Field(min_length=1)
+    handoff_refs: list[str] = Field(min_length=1)
+    closed_surface_refs: list[str] = Field(min_length=1)
+    unselected_surface_refs: list[str] = Field(default_factory=list)
+    carried_future_pressure_refs: list[str] = Field(default_factory=list)
+    family_alignment_posture: SemanticDeclarationFamilyAlignmentPosture
+    non_authority_posture: SemanticDeclarationCloseoutNonAuthorityPosture
+    future_family_selection_status: SemanticDeclarationFutureFamilySelectionStatus
+    limitation_note: str
+
+    @model_validator(mode="after")
+    def _validate_closeout_row(self) -> "RepoSemanticDeclarationFamilyCloseoutAlignmentRow":
+        _non_empty(self.family_closeout_ref, field_name="family_closeout_ref")
+        _validate_repo_refs(self.source_refs, field_name="source_refs")
+        for attr in (
+            "semantic_declaration_session_refs",
+            "summary_refs",
+            "handoff_refs",
+            "closed_surface_refs",
+            "unselected_surface_refs",
+            "carried_future_pressure_refs",
+        ):
+            _validate_sorted_refs(getattr(self, attr), field_name=attr)
+        if self.family != "V85":
+            raise ValueError("semantic declaration closeout must close V85")
+        if self.closed_by_arc != "vNext+241":
+            raise ValueError("semantic declaration closeout must be closed by vNext+241")
+        missing = _V85_CLOSED_SURFACES.difference(self.closed_surface_refs)
+        if missing:
+            raise ValueError("V85 closeout must list all closed review surfaces")
+        if self.future_family_selection_status != "no_future_family_selected_by_v85":
+            raise ValueError("V85 closeout cannot select V86")
+        _reject_v85_authority_claim(
+            _require_terms(
+                self.limitation_note,
+                field_name="limitation_note",
+                terms=("closeout", "review", "no obligation"),
+            ),
+            field_name="limitation_note",
+        )
+        return self
+
+
+class RepoSemanticDeclarationFamilyCloseoutAlignment(_CartographyBase):
+    schema: Literal[REPO_SEMANTIC_DECLARATION_FAMILY_CLOSEOUT_ALIGNMENT_SCHEMA]
+    semantic_declaration_family_closeout_alignment_id: str
+    semantic_declaration_review_summary_id: str
+    post_semantic_declaration_review_handoff_id: str
+    review_id: str
+    snapshot_id: str
+    source_set_id: str
+    family_closeout_rows: list[RepoSemanticDeclarationFamilyCloseoutAlignmentRow] = Field(
+        min_length=1
+    )
+    family_closeout_summary: str
+
+    @model_validator(mode="after")
+    def _validate_closeout_surface(self) -> "RepoSemanticDeclarationFamilyCloseoutAlignment":
+        for attr in (
+            "semantic_declaration_family_closeout_alignment_id",
+            "semantic_declaration_review_summary_id",
+            "post_semantic_declaration_review_handoff_id",
+            "review_id",
+            "snapshot_id",
+            "source_set_id",
+        ):
+            _non_empty(getattr(self, attr), field_name=attr)
+        _sorted_unique_by_ref(
+            self.family_closeout_rows,
+            attr="family_closeout_ref",
+            field_name="family_closeout_rows",
+        )
+        _reject_v85_authority_claim(
+            _require_terms(
+                self.family_closeout_summary,
+                field_name="family_closeout_summary",
+                terms=("closeout", "review", "no obligation"),
+            ),
+            field_name="family_closeout_summary",
+        )
+        _assert_surface_id(
+            surface_name="repo_semantic_declaration_family_closeout_alignment",
+            schema=REPO_SEMANTIC_DECLARATION_FAMILY_CLOSEOUT_ALIGNMENT_SCHEMA,
+            payload=self.model_dump(mode="json"),
+            id_key="semantic_declaration_family_closeout_alignment_id",
+            actual=self.semantic_declaration_family_closeout_alignment_id,
+        )
+        return self
+
+
+def _v85c_base_source_refs() -> list[str]:
+    return sorted(
+        [
+            _V85A_SOURCE_INDEX_FIXTURE,
+            _V85A_REQUEST_FIXTURE,
+            _V85A_GUARDRAIL_FIXTURE,
+            _V85B_LOOKUP_INDEX_FIXTURE,
+            _V85B_OPERATOR_CLASS_REGISTRY_FIXTURE,
+            _V85B_OBLIGATION_FAMILY_REGISTRY_FIXTURE,
+            _V85B_POINTER_LOOKUP_FIXTURE,
+            _V85C_LOCK_DOC,
+            _V85C_MAPPING_DOC,
+        ]
+    )
+
+
+def _v85c_ready_lookup_row(
+    canonical_meta_lookup_index: RepoCanonicalMetaLookupIndex,
+) -> RepoCanonicalMetaLookupRow:
+    return next(
+        row
+        for row in canonical_meta_lookup_index.lookup_rows
+        if row.lookup_ref == "lookup:v85b:create-ui-menu"
+    )
+
+
+def _v85c_ready_request_row(
+    turn_semantic_declaration_request: RepoTurnSemanticDeclarationRequest,
+) -> RepoTurnSemanticDeclarationRequestRow:
+    return next(
+        row
+        for row in turn_semantic_declaration_request.declaration_request_rows
+        if row.declaration_request_ref == "declaration-request:v85a:intent-to-declaration-office"
+    )
+
+
+def _v85c_summary_rows(
+    *,
+    semantic_declaration_source_index: RepoSemanticDeclarationSourceIndex,
+    turn_semantic_declaration_request: RepoTurnSemanticDeclarationRequest,
+    semantic_declaration_non_authority_guardrail: RepoSemanticDeclarationNonAuthorityGuardrail,
+    canonical_meta_lookup_index: RepoCanonicalMetaLookupIndex,
+    semantic_pointer_lookup_fixture: RepoSemanticPointerLookupFixture,
+) -> list[dict[str, object]]:
+    source_refs = _v85c_base_source_refs()
+    ready_request = _v85c_ready_request_row(turn_semantic_declaration_request)
+    ready_lookup = _v85c_ready_lookup_row(canonical_meta_lookup_index)
+    ready_act_refs = [
+        act.semantic_act_ref
+        for act in ready_request.declared_semantic_act_rows
+        if act.declaration_candidate_status == "candidate_recorded_for_review"
+    ]
+    ready_fixture_refs = [
+        row.lookup_fixture_ref
+        for row in semantic_pointer_lookup_fixture.lookup_fixture_rows
+        if "create-ui-menu" in row.lookup_fixture_ref
+    ]
+    base_status = {
+        "source_refs": source_refs,
+        "source_index_refs": [
+            semantic_declaration_source_index.semantic_declaration_source_index_id
+        ],
+        "declaration_non_authority_posture": "no_declaration_authority_granted_by_v85",
+        "obligation_expansion_posture": "no_obligation_expansion_performed_by_v85",
+        "implementation_posture": "no_implementation_performed_by_v85",
+        "runtime_transition_posture": "no_runtime_transition_performed_by_v85",
+        "future_family_selection_posture": "no_future_family_selected_by_v85",
+    }
+    rows: list[dict[str, object]] = [
+        {
+            **base_status,
+            "summary_ref": "summary:v85c:ready-obligation-expansion-review",
+            "semantic_declaration_session_ref": ready_request.semantic_declaration_session_ref,
+            "candidate_ref": ready_request.candidate_ref,
+            "declaration_request_refs": [ready_request.declaration_request_ref],
+            "guardrail_refs": ["guardrail:v85a:intent-to-declaration-office"],
+            "lookup_index_refs": [ready_lookup.lookup_ref],
+            "operator_class_registry_refs": sorted(
+                ready_lookup.operator_registry_refs + ready_lookup.class_registry_refs
+            ),
+            "obligation_family_registry_refs": ready_lookup.obligation_family_refs,
+            "lookup_fixture_refs": ready_fixture_refs,
+            "selected_declaration_refs": ready_act_refs,
+            "declaration_selection_status_refs": [
+                "declaration-selection:v85c:create-declaration-office"
+            ],
+            "ambiguous_declaration_refs": [],
+            "abstain_declaration_refs": [],
+            "registry_gap_refs": [],
+            "carried_blocker_refs": [],
+            "carried_warning_refs": [],
+            "warning_rows": [],
+            "summary_posture": "ready_for_later_obligation_expansion_review",
+            "ready_basis_posture": "ready_no_blockers",
+            "lookup_coverage_posture": "selected_declarations_have_lookup_rows",
+            "limitation_note": (
+                "Summary records lookup review readiness with no obligation expansion."
+            ),
+        }
+    ]
+    for request_row, posture, blocker_ref, lookup_coverage in [
+        (
+            next(
+                row
+                for row in turn_semantic_declaration_request.declaration_request_rows
+                if row.declaration_request_ref
+                == "declaration-request:v85a:ambiguous-natural-binding"
+            ),
+            "blocked_by_ambiguous_binding",
+            "blocker:v85c:ambiguous-binding",
+            "lookup_not_applicable",
+        ),
+        (
+            next(
+                row
+                for row in turn_semantic_declaration_request.declaration_request_rows
+                if row.declaration_request_ref
+                == "declaration-request:v85a:unknown-class-registry-gap"
+            ),
+            "blocked_by_registry_gap",
+            "blocker:v85c:registry-gap",
+            "lookup_not_applicable",
+        ),
+        (
+            next(
+                row
+                for row in turn_semantic_declaration_request.declaration_request_rows
+                if row.declaration_request_ref == "declaration-request:v85a:support-context-only"
+            ),
+            "blocked_by_support_only_source",
+            "blocker:v85c:support-only-source",
+            "lookup_not_applicable",
+        ),
+    ]:
+        rows.append(
+            {
+                **base_status,
+                "summary_ref": f"summary:v85c:{blocker_ref.removeprefix('blocker:v85c:')}",
+                "semantic_declaration_session_ref": request_row.semantic_declaration_session_ref,
+                "candidate_ref": request_row.candidate_ref,
+                "declaration_request_refs": [request_row.declaration_request_ref],
+                "guardrail_refs": request_row.guardrail_refs,
+                "lookup_index_refs": [],
+                "operator_class_registry_refs": [],
+                "obligation_family_registry_refs": [],
+                "lookup_fixture_refs": [],
+                "selected_declaration_refs": [],
+                "declaration_selection_status_refs": [request_row.declaration_selection_status],
+                "ambiguous_declaration_refs": [
+                    act.semantic_act_ref
+                    for act in request_row.declared_semantic_act_rows
+                    if act.ambiguity_posture != "not_ambiguous"
+                ],
+                "abstain_declaration_refs": [],
+                "registry_gap_refs": [
+                    act.semantic_act_ref
+                    for act in request_row.declared_semantic_act_rows
+                    if act.registry_gap_posture != "no_registry_gap_claimed"
+                ],
+                "carried_blocker_refs": [blocker_ref],
+                "carried_warning_refs": [],
+                "warning_rows": [],
+                "summary_posture": posture,
+                "ready_basis_posture": (
+                    "registry_or_ambiguity_review_requested"
+                    if posture in {"blocked_by_ambiguous_binding", "blocked_by_registry_gap"}
+                    else "not_ready_blockers_remain"
+                ),
+                "lookup_coverage_posture": lookup_coverage,
+                "limitation_note": (
+                    "Summary records blocked declaration review outcome with "
+                    "no obligation expansion."
+                ),
+            }
+        )
+    return sorted(rows, key=lambda row: str(row["summary_ref"]))
+
+
+def derive_v85c_repo_semantic_declaration_review_summary(
+    *,
+    repo_root: Path | None = None,
+    semantic_declaration_source_index: RepoSemanticDeclarationSourceIndex | None = None,
+    turn_semantic_declaration_request: RepoTurnSemanticDeclarationRequest | None = None,
+    semantic_declaration_non_authority_guardrail: (
+        RepoSemanticDeclarationNonAuthorityGuardrail | None
+    ) = None,
+    canonical_meta_lookup_index: RepoCanonicalMetaLookupIndex | None = None,
+    semantic_operator_class_registry: RepoSemanticOperatorClassRegistry | None = None,
+    obligation_family_registry: RepoObligationFamilyRegistry | None = None,
+    semantic_pointer_lookup_fixture: RepoSemanticPointerLookupFixture | None = None,
+) -> RepoSemanticDeclarationReviewSummary:
+    _ = repo_root
+    if (
+        semantic_declaration_source_index is None
+        or turn_semantic_declaration_request is None
+        or semantic_declaration_non_authority_guardrail is None
+        or canonical_meta_lookup_index is None
+        or semantic_operator_class_registry is None
+        or obligation_family_registry is None
+        or semantic_pointer_lookup_fixture is None
+    ):
+        (
+            semantic_declaration_source_index,
+            turn_semantic_declaration_request,
+            semantic_declaration_non_authority_guardrail,
+            canonical_meta_lookup_index,
+            semantic_operator_class_registry,
+            obligation_family_registry,
+            semantic_pointer_lookup_fixture,
+        ) = derive_v85b_semantic_lookup_registry_bundle(repo_root=repo_root)
+    payload = {
+        "schema": REPO_SEMANTIC_DECLARATION_REVIEW_SUMMARY_SCHEMA,
+        "semantic_declaration_review_summary_id": "",
+        "semantic_declaration_source_index_id": (
+            semantic_declaration_source_index.semantic_declaration_source_index_id
+        ),
+        "turn_semantic_declaration_request_id": (
+            turn_semantic_declaration_request.turn_semantic_declaration_request_id
+        ),
+        "semantic_declaration_non_authority_guardrail_id": (
+            semantic_declaration_non_authority_guardrail.semantic_declaration_non_authority_guardrail_id
+        ),
+        "canonical_meta_lookup_index_id": (
+            canonical_meta_lookup_index.canonical_meta_lookup_index_id
+        ),
+        "semantic_operator_class_registry_id": (
+            semantic_operator_class_registry.semantic_operator_class_registry_id
+        ),
+        "obligation_family_registry_id": obligation_family_registry.obligation_family_registry_id,
+        "semantic_pointer_lookup_fixture_id": (
+            semantic_pointer_lookup_fixture.semantic_pointer_lookup_fixture_id
+        ),
+        "review_id": "vNext+241",
+        "snapshot_id": "vNext+241-semantic-declaration-closeout",
+        "source_set_id": "source-set:v85c:semantic-declaration-closeout",
+        "summary_rows": _v85c_summary_rows(
+            semantic_declaration_source_index=semantic_declaration_source_index,
+            turn_semantic_declaration_request=turn_semantic_declaration_request,
+            semantic_declaration_non_authority_guardrail=semantic_declaration_non_authority_guardrail,
+            canonical_meta_lookup_index=canonical_meta_lookup_index,
+            semantic_pointer_lookup_fixture=semantic_pointer_lookup_fixture,
+        ),
+        "summary_text": (
+            "V85-C summary records semantic declaration lookup review outcomes "
+            "with no obligation expansion."
+        ),
+    }
+    payload["semantic_declaration_review_summary_id"] = _surface_id(
+        "repo_semantic_declaration_review_summary",
+        REPO_SEMANTIC_DECLARATION_REVIEW_SUMMARY_SCHEMA,
+        payload,
+        "semantic_declaration_review_summary_id",
+    )
+    return RepoSemanticDeclarationReviewSummary.model_validate(payload)
+
+
+def derive_v85c_repo_post_semantic_declaration_review_handoff(
+    *,
+    repo_root: Path | None = None,
+    semantic_declaration_source_index: RepoSemanticDeclarationSourceIndex | None = None,
+    turn_semantic_declaration_request: RepoTurnSemanticDeclarationRequest | None = None,
+    semantic_declaration_non_authority_guardrail: (
+        RepoSemanticDeclarationNonAuthorityGuardrail | None
+    ) = None,
+    canonical_meta_lookup_index: RepoCanonicalMetaLookupIndex | None = None,
+    semantic_operator_class_registry: RepoSemanticOperatorClassRegistry | None = None,
+    obligation_family_registry: RepoObligationFamilyRegistry | None = None,
+    semantic_pointer_lookup_fixture: RepoSemanticPointerLookupFixture | None = None,
+    semantic_declaration_review_summary: RepoSemanticDeclarationReviewSummary | None = None,
+) -> RepoPostSemanticDeclarationReviewHandoff:
+    _ = repo_root
+    if (
+        semantic_declaration_source_index is None
+        or turn_semantic_declaration_request is None
+        or semantic_declaration_non_authority_guardrail is None
+        or canonical_meta_lookup_index is None
+        or semantic_operator_class_registry is None
+        or obligation_family_registry is None
+        or semantic_pointer_lookup_fixture is None
+    ):
+        (
+            semantic_declaration_source_index,
+            turn_semantic_declaration_request,
+            semantic_declaration_non_authority_guardrail,
+            canonical_meta_lookup_index,
+            semantic_operator_class_registry,
+            obligation_family_registry,
+            semantic_pointer_lookup_fixture,
+        ) = derive_v85b_semantic_lookup_registry_bundle(repo_root=repo_root)
+    if semantic_declaration_review_summary is None:
+        semantic_declaration_review_summary = derive_v85c_repo_semantic_declaration_review_summary(
+            semantic_declaration_source_index=semantic_declaration_source_index,
+            turn_semantic_declaration_request=turn_semantic_declaration_request,
+            semantic_declaration_non_authority_guardrail=semantic_declaration_non_authority_guardrail,
+            canonical_meta_lookup_index=canonical_meta_lookup_index,
+            semantic_operator_class_registry=semantic_operator_class_registry,
+            obligation_family_registry=obligation_family_registry,
+            semantic_pointer_lookup_fixture=semantic_pointer_lookup_fixture,
+        )
+    ready_row = next(
+        row
+        for row in semantic_declaration_review_summary.summary_rows
+        if row.summary_posture == "ready_for_later_obligation_expansion_review"
+    )
+    payload = {
+        "schema": REPO_POST_SEMANTIC_DECLARATION_REVIEW_HANDOFF_SCHEMA,
+        "post_semantic_declaration_review_handoff_id": "",
+        "semantic_declaration_review_summary_id": (
+            semantic_declaration_review_summary.semantic_declaration_review_summary_id
+        ),
+        "semantic_declaration_source_index_id": (
+            semantic_declaration_source_index.semantic_declaration_source_index_id
+        ),
+        "turn_semantic_declaration_request_id": (
+            turn_semantic_declaration_request.turn_semantic_declaration_request_id
+        ),
+        "semantic_declaration_non_authority_guardrail_id": (
+            semantic_declaration_non_authority_guardrail.semantic_declaration_non_authority_guardrail_id
+        ),
+        "canonical_meta_lookup_index_id": (
+            canonical_meta_lookup_index.canonical_meta_lookup_index_id
+        ),
+        "semantic_operator_class_registry_id": (
+            semantic_operator_class_registry.semantic_operator_class_registry_id
+        ),
+        "obligation_family_registry_id": obligation_family_registry.obligation_family_registry_id,
+        "semantic_pointer_lookup_fixture_id": (
+            semantic_pointer_lookup_fixture.semantic_pointer_lookup_fixture_id
+        ),
+        "review_id": "vNext+241",
+        "snapshot_id": "vNext+241-semantic-declaration-closeout",
+        "source_set_id": "source-set:v85c:semantic-declaration-closeout",
+        "handoff_rows": [
+            {
+                "handoff_ref": "handoff:v85c:future-obligation-expansion-review",
+                "semantic_declaration_session_ref": ready_row.semantic_declaration_session_ref,
+                "candidate_ref": ready_row.candidate_ref,
+                "source_refs": _v85c_base_source_refs(),
+                "summary_refs": [ready_row.summary_ref],
+                "selected_declaration_refs": ready_row.selected_declaration_refs,
+                "lookup_index_refs": ready_row.lookup_index_refs,
+                "operator_class_registry_refs": ready_row.operator_class_registry_refs,
+                "obligation_family_registry_refs": ready_row.obligation_family_registry_refs,
+                "carried_blocker_refs": [],
+                "carried_warning_refs": [],
+                "handoff_target": "future_obligation_expansion_review",
+                "handoff_subject_horizon": "obligation_family_lookup_pressure",
+                "handoff_posture": "ready_for_later_review",
+                "handoff_sequence_posture": "immediate_next_pressure",
+                "handoff_authority_horizon": "obligation_expansion_review",
+                "required_later_authority_refs": [
+                    "later-authority:v85c:obligation-expansion-review"
+                ],
+                "non_authority_guardrail_refs": ready_row.guardrail_refs,
+                "obligation_expansion_status": "no_obligation_expansion_performed_by_v85",
+                "implementation_status": "no_implementation_performed_by_v85",
+                "runtime_transition_status": "no_runtime_transition_performed_by_v85",
+                "future_family_selection_status": "no_future_family_selected_by_v85",
+                "limitation_note": (
+                    "Handoff requests later obligation expansion review with "
+                    "no obligation expansion in V85-C."
+                ),
+            }
+        ],
+        "handoff_summary": (
+            "V85-C handoff carries semantic declaration review pressure with "
+            "no obligation expansion."
+        ),
+    }
+    payload["post_semantic_declaration_review_handoff_id"] = _surface_id(
+        "repo_post_semantic_declaration_review_handoff",
+        REPO_POST_SEMANTIC_DECLARATION_REVIEW_HANDOFF_SCHEMA,
+        payload,
+        "post_semantic_declaration_review_handoff_id",
+    )
+    return RepoPostSemanticDeclarationReviewHandoff.model_validate(payload)
+
+
+def derive_v85c_repo_semantic_declaration_family_closeout_alignment(
+    *,
+    repo_root: Path | None = None,
+    semantic_declaration_review_summary: RepoSemanticDeclarationReviewSummary | None = None,
+    post_semantic_declaration_review_handoff: RepoPostSemanticDeclarationReviewHandoff
+    | None = None,
+) -> RepoSemanticDeclarationFamilyCloseoutAlignment:
+    _ = repo_root
+    if semantic_declaration_review_summary is None:
+        semantic_declaration_review_summary = derive_v85c_repo_semantic_declaration_review_summary(
+            repo_root=repo_root
+        )
+    if post_semantic_declaration_review_handoff is None:
+        post_semantic_declaration_review_handoff = (
+            derive_v85c_repo_post_semantic_declaration_review_handoff(
+                repo_root=repo_root,
+                semantic_declaration_review_summary=semantic_declaration_review_summary,
+            )
+        )
+    session_refs = sorted(
+        {
+            row.semantic_declaration_session_ref
+            for row in semantic_declaration_review_summary.summary_rows
+        }
+    )
+    summary_refs = sorted(
+        row.summary_ref for row in semantic_declaration_review_summary.summary_rows
+    )
+    handoff_refs = sorted(
+        row.handoff_ref for row in post_semantic_declaration_review_handoff.handoff_rows
+    )
+    payload = {
+        "schema": REPO_SEMANTIC_DECLARATION_FAMILY_CLOSEOUT_ALIGNMENT_SCHEMA,
+        "semantic_declaration_family_closeout_alignment_id": "",
+        "semantic_declaration_review_summary_id": (
+            semantic_declaration_review_summary.semantic_declaration_review_summary_id
+        ),
+        "post_semantic_declaration_review_handoff_id": (
+            post_semantic_declaration_review_handoff.post_semantic_declaration_review_handoff_id
+        ),
+        "review_id": "vNext+241",
+        "snapshot_id": "vNext+241-semantic-declaration-closeout",
+        "source_set_id": "source-set:v85c:semantic-declaration-closeout",
+        "family_closeout_rows": [
+            {
+                "family_closeout_ref": "family-closeout:v85c:semantic-declaration-meta-loop",
+                "family": "V85",
+                "closed_by_arc": "vNext+241",
+                "semantic_declaration_session_refs": session_refs,
+                "source_refs": _v85c_base_source_refs(),
+                "summary_refs": summary_refs,
+                "handoff_refs": handoff_refs,
+                "closed_surface_refs": sorted(_V85_CLOSED_SURFACES),
+                "unselected_surface_refs": [
+                    "repo_audit_taskpack@future",
+                    "repo_deterministic_transition_table@future",
+                    "repo_edge_probe_plan@future",
+                    "repo_evidence_contract@future",
+                    "repo_obligation_expansion@future",
+                ],
+                "carried_future_pressure_refs": [
+                    "handoff:v85c:future-obligation-expansion-review"
+                ],
+                "family_alignment_posture": "v85_closed_with_future_pressure",
+                "non_authority_posture": "closeout_is_review_alignment_only",
+                "future_family_selection_status": "no_future_family_selected_by_v85",
+                "limitation_note": (
+                    "Family closeout aligns V85 declaration review with "
+                    "no obligation expansion and no V86 selection."
+                ),
+            }
+        ],
+        "family_closeout_summary": (
+            "V85-C closeout closes semantic declaration review with no obligation expansion."
+        ),
+    }
+    payload["semantic_declaration_family_closeout_alignment_id"] = _surface_id(
+        "repo_semantic_declaration_family_closeout_alignment",
+        REPO_SEMANTIC_DECLARATION_FAMILY_CLOSEOUT_ALIGNMENT_SCHEMA,
+        payload,
+        "semantic_declaration_family_closeout_alignment_id",
+    )
+    return RepoSemanticDeclarationFamilyCloseoutAlignment.model_validate(payload)
+
+
+def validate_v85c_semantic_declaration_closeout_bundle(
+    *,
+    semantic_declaration_source_index: RepoSemanticDeclarationSourceIndex,
+    turn_semantic_declaration_request: RepoTurnSemanticDeclarationRequest,
+    semantic_declaration_non_authority_guardrail: RepoSemanticDeclarationNonAuthorityGuardrail,
+    canonical_meta_lookup_index: RepoCanonicalMetaLookupIndex,
+    semantic_operator_class_registry: RepoSemanticOperatorClassRegistry,
+    obligation_family_registry: RepoObligationFamilyRegistry,
+    semantic_pointer_lookup_fixture: RepoSemanticPointerLookupFixture,
+    semantic_declaration_review_summary: RepoSemanticDeclarationReviewSummary,
+    post_semantic_declaration_review_handoff: RepoPostSemanticDeclarationReviewHandoff,
+    semantic_declaration_family_closeout_alignment: (
+        RepoSemanticDeclarationFamilyCloseoutAlignment
+    ),
+) -> None:
+    validate_v85b_semantic_lookup_registry_bundle(
+        semantic_declaration_source_index=semantic_declaration_source_index,
+        turn_semantic_declaration_request=turn_semantic_declaration_request,
+        semantic_declaration_non_authority_guardrail=semantic_declaration_non_authority_guardrail,
+        canonical_meta_lookup_index=canonical_meta_lookup_index,
+        semantic_operator_class_registry=semantic_operator_class_registry,
+        obligation_family_registry=obligation_family_registry,
+        semantic_pointer_lookup_fixture=semantic_pointer_lookup_fixture,
+    )
+    if (
+        semantic_declaration_review_summary.semantic_declaration_source_index_id
+        != semantic_declaration_source_index.semantic_declaration_source_index_id
+        or post_semantic_declaration_review_handoff.semantic_declaration_source_index_id
+        != semantic_declaration_source_index.semantic_declaration_source_index_id
+    ):
+        raise ValueError("V85-C surfaces must reference released V85-A source index")
+    if (
+        semantic_declaration_review_summary.turn_semantic_declaration_request_id
+        != turn_semantic_declaration_request.turn_semantic_declaration_request_id
+        or post_semantic_declaration_review_handoff.turn_semantic_declaration_request_id
+        != turn_semantic_declaration_request.turn_semantic_declaration_request_id
+    ):
+        raise ValueError("V85-C surfaces must reference released V85-A request")
+    guardrail_surface_id = (
+        semantic_declaration_non_authority_guardrail.semantic_declaration_non_authority_guardrail_id
+    )
+    if (
+        semantic_declaration_review_summary.semantic_declaration_non_authority_guardrail_id
+        != guardrail_surface_id
+        or post_semantic_declaration_review_handoff.semantic_declaration_non_authority_guardrail_id
+        != guardrail_surface_id
+    ):
+        raise ValueError("V85-C surfaces must reference released V85-A guardrail")
+    if (
+        semantic_declaration_review_summary.canonical_meta_lookup_index_id
+        != canonical_meta_lookup_index.canonical_meta_lookup_index_id
+        or post_semantic_declaration_review_handoff.canonical_meta_lookup_index_id
+        != canonical_meta_lookup_index.canonical_meta_lookup_index_id
+        or semantic_declaration_review_summary.semantic_operator_class_registry_id
+        != semantic_operator_class_registry.semantic_operator_class_registry_id
+        or post_semantic_declaration_review_handoff.semantic_operator_class_registry_id
+        != semantic_operator_class_registry.semantic_operator_class_registry_id
+        or semantic_declaration_review_summary.obligation_family_registry_id
+        != obligation_family_registry.obligation_family_registry_id
+        or post_semantic_declaration_review_handoff.obligation_family_registry_id
+        != obligation_family_registry.obligation_family_registry_id
+        or semantic_declaration_review_summary.semantic_pointer_lookup_fixture_id
+        != semantic_pointer_lookup_fixture.semantic_pointer_lookup_fixture_id
+        or post_semantic_declaration_review_handoff.semantic_pointer_lookup_fixture_id
+        != semantic_pointer_lookup_fixture.semantic_pointer_lookup_fixture_id
+    ):
+        raise ValueError("V85-C surfaces must reference released V85-B surfaces")
+    if (
+        post_semantic_declaration_review_handoff.semantic_declaration_review_summary_id
+        != semantic_declaration_review_summary.semantic_declaration_review_summary_id
+        or semantic_declaration_family_closeout_alignment.semantic_declaration_review_summary_id
+        != semantic_declaration_review_summary.semantic_declaration_review_summary_id
+        or (
+            semantic_declaration_family_closeout_alignment.post_semantic_declaration_review_handoff_id
+        )
+        != post_semantic_declaration_review_handoff.post_semantic_declaration_review_handoff_id
+    ):
+        raise ValueError("V85-C handoff and closeout must reference supplied summary surfaces")
+    if {
+        semantic_declaration_review_summary.review_id,
+        post_semantic_declaration_review_handoff.review_id,
+        semantic_declaration_family_closeout_alignment.review_id,
+    } != {"vNext+241"}:
+        raise ValueError("V85-C surfaces must share vNext+241 review id")
+
+    known_requests = {
+        row.declaration_request_ref: row
+        for row in turn_semantic_declaration_request.declaration_request_rows
+    }
+    known_source_index_refs = {
+        semantic_declaration_source_index.semantic_declaration_source_index_id
+    }
+    known_acts = {
+        act.semantic_act_ref: (request_row, act)
+        for request_row in turn_semantic_declaration_request.declaration_request_rows
+        for act in request_row.declared_semantic_act_rows
+    }
+    known_guardrails = {
+        row.guardrail_ref: row
+        for row in semantic_declaration_non_authority_guardrail.guardrail_rows
+    }
+    known_lookup_refs = {row.lookup_ref: row for row in canonical_meta_lookup_index.lookup_rows}
+    known_registry_refs = {
+        row.registry_ref for row in semantic_operator_class_registry.registry_rows
+    }
+    known_obligation_refs = {
+        row.obligation_family_ref: row for row in obligation_family_registry.obligation_family_rows
+    }
+    known_fixture_refs = {
+        row.lookup_fixture_ref for row in semantic_pointer_lookup_fixture.lookup_fixture_rows
+    }
+    known_summary_refs = {
+        row.summary_ref: row for row in semantic_declaration_review_summary.summary_rows
+    }
+
+    for summary_row in semantic_declaration_review_summary.summary_rows:
+        if any(ref not in known_requests for ref in summary_row.declaration_request_refs):
+            raise ValueError("summary request refs must resolve to released V85-A requests")
+        if any(ref not in known_source_index_refs for ref in summary_row.source_index_refs):
+            raise ValueError(
+                "summary source index refs must resolve to released V85-A source index"
+            )
+        if any(ref not in known_guardrails for ref in summary_row.guardrail_refs):
+            raise ValueError("summary guardrail refs must resolve to released V85-A guardrails")
+        if any(ref not in known_lookup_refs for ref in summary_row.lookup_index_refs):
+            raise ValueError("summary lookup refs must resolve to released V85-B lookup rows")
+        if any(ref not in known_registry_refs for ref in summary_row.operator_class_registry_refs):
+            raise ValueError("summary registry refs must resolve to released V85-B registry rows")
+        if any(
+            ref not in known_obligation_refs
+            for ref in summary_row.obligation_family_registry_refs
+        ):
+            raise ValueError("summary obligation refs must resolve to released V85-B obligations")
+        if any(ref not in known_fixture_refs for ref in summary_row.lookup_fixture_refs):
+            raise ValueError("summary fixture refs must resolve to released V85-B fixtures")
+        if any(ref not in known_acts for ref in summary_row.selected_declaration_refs):
+            raise ValueError("summary declaration refs must resolve to released V85-A acts")
+        request_sessions = {
+            known_requests[ref].semantic_declaration_session_ref
+            for ref in summary_row.declaration_request_refs
+        }
+        request_candidates = {
+            known_requests[ref].candidate_ref for ref in summary_row.declaration_request_refs
+        }
+        if request_sessions != {summary_row.semantic_declaration_session_ref}:
+            raise ValueError("summary rows must preserve declaration session lineage")
+        if request_candidates != {summary_row.candidate_ref}:
+            raise ValueError("summary rows must preserve candidate lineage")
+        if summary_row.summary_posture == "ready_for_later_obligation_expansion_review":
+            for lookup_ref in summary_row.lookup_index_refs:
+                lookup_row = known_lookup_refs[lookup_ref]
+                if not lookup_row.obligation_family_refs:
+                    raise ValueError("ready summary lookup rows must name obligation families")
+                if (
+                    lookup_row.semantic_declaration_session_ref
+                    != summary_row.semantic_declaration_session_ref
+                ):
+                    raise ValueError("ready summary lookup rows must preserve session lineage")
+                if lookup_row.candidate_ref != summary_row.candidate_ref:
+                    raise ValueError("ready summary lookup rows must preserve candidate lineage")
+            for obligation_ref in summary_row.obligation_family_registry_refs:
+                obligation_row = known_obligation_refs[obligation_ref]
+                if (
+                    obligation_row.obligation_family_activation_posture
+                    != "named_for_later_expansion_only"
+                ):
+                    raise ValueError("ready summary obligations must be named for later expansion")
+
+    for handoff_row in post_semantic_declaration_review_handoff.handoff_rows:
+        if any(ref not in known_summary_refs for ref in handoff_row.summary_refs):
+            raise ValueError("handoff summary refs must resolve")
+        for summary_ref in handoff_row.summary_refs:
+            summary_row = known_summary_refs[summary_ref]
+            if (
+                summary_row.semantic_declaration_session_ref
+                != handoff_row.semantic_declaration_session_ref
+            ):
+                raise ValueError("handoff rows must preserve summary session lineage")
+            if summary_row.candidate_ref != handoff_row.candidate_ref:
+                raise ValueError("handoff rows must preserve summary candidate lineage")
+        if any(ref not in known_acts for ref in handoff_row.selected_declaration_refs):
+            raise ValueError("handoff declaration refs must resolve to released V85-A acts")
+        summary_selected_refs = {
+            ref
+            for summary_ref in handoff_row.summary_refs
+            for ref in known_summary_refs[summary_ref].selected_declaration_refs
+        }
+        if any(ref not in summary_selected_refs for ref in handoff_row.selected_declaration_refs):
+            raise ValueError("handoff declaration refs must match referenced summaries")
+        if any(ref not in known_guardrails for ref in handoff_row.non_authority_guardrail_refs):
+            raise ValueError("handoff guardrail refs must resolve")
+        if any(ref not in known_lookup_refs for ref in handoff_row.lookup_index_refs):
+            raise ValueError("handoff lookup refs must resolve")
+        if any(ref not in known_registry_refs for ref in handoff_row.operator_class_registry_refs):
+            raise ValueError("handoff registry refs must resolve")
+        if any(
+            ref not in known_obligation_refs
+            for ref in handoff_row.obligation_family_registry_refs
+        ):
+            raise ValueError("handoff obligation refs must resolve")
+        if handoff_row.handoff_posture == "ready_for_later_review":
+            summaries = [known_summary_refs[ref] for ref in handoff_row.summary_refs]
+            if not any(
+                row.summary_posture == "ready_for_later_obligation_expansion_review"
+                for row in summaries
+            ):
+                raise ValueError("ready handoff requires ready semantic declaration summary")
+            if handoff_row.carried_blocker_refs:
+                raise ValueError("ready handoff cannot carry blockers")
+
+    known_handoff_refs = {
+        row.handoff_ref for row in post_semantic_declaration_review_handoff.handoff_rows
+    }
+    for closeout_row in semantic_declaration_family_closeout_alignment.family_closeout_rows:
+        if any(ref not in known_summary_refs for ref in closeout_row.summary_refs):
+            raise ValueError("closeout summary refs must resolve")
+        if any(ref not in known_handoff_refs for ref in closeout_row.handoff_refs):
+            raise ValueError("closeout handoff refs must resolve")
+
+
+def derive_v85c_semantic_declaration_closeout_bundle(
+    *, repo_root: Path | None = None
+) -> tuple[
+    RepoSemanticDeclarationSourceIndex,
+    RepoTurnSemanticDeclarationRequest,
+    RepoSemanticDeclarationNonAuthorityGuardrail,
+    RepoCanonicalMetaLookupIndex,
+    RepoSemanticOperatorClassRegistry,
+    RepoObligationFamilyRegistry,
+    RepoSemanticPointerLookupFixture,
+    RepoSemanticDeclarationReviewSummary,
+    RepoPostSemanticDeclarationReviewHandoff,
+    RepoSemanticDeclarationFamilyCloseoutAlignment,
+]:
+    (
+        source_index,
+        request,
+        guardrail,
+        lookup_index,
+        registry,
+        obligation_registry,
+        fixture,
+    ) = derive_v85b_semantic_lookup_registry_bundle(repo_root=repo_root)
+    summary = derive_v85c_repo_semantic_declaration_review_summary(
+        repo_root=repo_root,
+        semantic_declaration_source_index=source_index,
+        turn_semantic_declaration_request=request,
+        semantic_declaration_non_authority_guardrail=guardrail,
+        canonical_meta_lookup_index=lookup_index,
+        semantic_operator_class_registry=registry,
+        obligation_family_registry=obligation_registry,
+        semantic_pointer_lookup_fixture=fixture,
+    )
+    handoff = derive_v85c_repo_post_semantic_declaration_review_handoff(
+        repo_root=repo_root,
+        semantic_declaration_source_index=source_index,
+        turn_semantic_declaration_request=request,
+        semantic_declaration_non_authority_guardrail=guardrail,
+        canonical_meta_lookup_index=lookup_index,
+        semantic_operator_class_registry=registry,
+        obligation_family_registry=obligation_registry,
+        semantic_pointer_lookup_fixture=fixture,
+        semantic_declaration_review_summary=summary,
+    )
+    closeout = derive_v85c_repo_semantic_declaration_family_closeout_alignment(
+        repo_root=repo_root,
+        semantic_declaration_review_summary=summary,
+        post_semantic_declaration_review_handoff=handoff,
+    )
+    validate_v85c_semantic_declaration_closeout_bundle(
+        semantic_declaration_source_index=source_index,
+        turn_semantic_declaration_request=request,
+        semantic_declaration_non_authority_guardrail=guardrail,
+        canonical_meta_lookup_index=lookup_index,
+        semantic_operator_class_registry=registry,
+        obligation_family_registry=obligation_registry,
+        semantic_pointer_lookup_fixture=fixture,
+        semantic_declaration_review_summary=summary,
+        post_semantic_declaration_review_handoff=handoff,
+        semantic_declaration_family_closeout_alignment=closeout,
+    )
+    return (
+        source_index,
+        request,
+        guardrail,
+        lookup_index,
+        registry,
+        obligation_registry,
+        fixture,
+        summary,
+        handoff,
+        closeout,
     )

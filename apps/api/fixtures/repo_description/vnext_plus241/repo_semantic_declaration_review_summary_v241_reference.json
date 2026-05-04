@@ -1,0 +1,233 @@
+{
+  "canonical_meta_lookup_index_id": "repo_canonical_meta_lookup_index_63c6847b869f81055d0ab708",
+  "obligation_family_registry_id": "repo_obligation_family_registry_8f08f758cfa0ee0f47030253",
+  "review_id": "vNext+241",
+  "schema": "repo_semantic_declaration_review_summary@1",
+  "semantic_declaration_non_authority_guardrail_id": "repo_semantic_declaration_non_authority_guardrail_62544d11aa2f7cc904e81b7f",
+  "semantic_declaration_review_summary_id": "repo_semantic_declaration_review_summary_b9cdc0ffeadf6cffe6673069",
+  "semantic_declaration_source_index_id": "repo_semantic_declaration_source_index_6909fbbd21c955096f26a7a7",
+  "semantic_operator_class_registry_id": "repo_semantic_operator_class_registry_b3c95c4a7c17a0202cd6b226",
+  "semantic_pointer_lookup_fixture_id": "repo_semantic_pointer_lookup_fixture_3bcab2fbc76f9740808c2756",
+  "snapshot_id": "vNext+241-semantic-declaration-closeout",
+  "source_set_id": "source-set:v85c:semantic-declaration-closeout",
+  "summary_rows": [
+    {
+      "abstain_declaration_refs": [],
+      "ambiguous_declaration_refs": [
+        "semantic-act:v85a:ambiguous-natural-binding"
+      ],
+      "candidate_ref": "candidate:v85:semantic-declaration-office",
+      "carried_blocker_refs": [
+        "blocker:v85c:ambiguous-binding"
+      ],
+      "carried_warning_refs": [],
+      "declaration_non_authority_posture": "no_declaration_authority_granted_by_v85",
+      "declaration_request_refs": [
+        "declaration-request:v85a:ambiguous-natural-binding"
+      ],
+      "declaration_selection_status_refs": [
+        "ambiguous_not_selected"
+      ],
+      "future_family_selection_posture": "no_future_family_selected_by_v85",
+      "guardrail_refs": [
+        "guardrail:v85a:ambiguous-natural-binding"
+      ],
+      "implementation_posture": "no_implementation_performed_by_v85",
+      "limitation_note": "Summary records blocked declaration review outcome with no obligation expansion.",
+      "lookup_coverage_posture": "lookup_not_applicable",
+      "lookup_fixture_refs": [],
+      "lookup_index_refs": [],
+      "obligation_expansion_posture": "no_obligation_expansion_performed_by_v85",
+      "obligation_family_registry_refs": [],
+      "operator_class_registry_refs": [],
+      "ready_basis_posture": "registry_or_ambiguity_review_requested",
+      "registry_gap_refs": [],
+      "runtime_transition_posture": "no_runtime_transition_performed_by_v85",
+      "selected_declaration_refs": [],
+      "semantic_declaration_session_ref": "semantic-declaration-session:v85a:intent-to-declaration-office",
+      "source_index_refs": [
+        "repo_semantic_declaration_source_index_6909fbbd21c955096f26a7a7"
+      ],
+      "source_refs": [
+        "apps/api/fixtures/repo_description/vnext_plus239/repo_semantic_declaration_non_authority_guardrail_v239_reference.json",
+        "apps/api/fixtures/repo_description/vnext_plus239/repo_semantic_declaration_source_index_v239_reference.json",
+        "apps/api/fixtures/repo_description/vnext_plus239/repo_turn_semantic_declaration_request_v239_reference.json",
+        "apps/api/fixtures/repo_description/vnext_plus240/repo_canonical_meta_lookup_index_v240_reference.json",
+        "apps/api/fixtures/repo_description/vnext_plus240/repo_obligation_family_registry_v240_reference.json",
+        "apps/api/fixtures/repo_description/vnext_plus240/repo_semantic_operator_class_registry_v240_reference.json",
+        "apps/api/fixtures/repo_description/vnext_plus240/repo_semantic_pointer_lookup_fixture_v240_reference.json",
+        "docs/DRAFT_ADEU_SEMANTIC_DECLARATION_META_LOOP_V85C_IMPLEMENTATION_MAPPING_v0.md",
+        "docs/LOCKED_CONTINUATION_vNEXT_PLUS241.md"
+      ],
+      "summary_posture": "blocked_by_ambiguous_binding",
+      "summary_ref": "summary:v85c:ambiguous-binding",
+      "warning_rows": []
+    },
+    {
+      "abstain_declaration_refs": [],
+      "ambiguous_declaration_refs": [],
+      "candidate_ref": "candidate:v85:semantic-declaration-office",
+      "carried_blocker_refs": [],
+      "carried_warning_refs": [],
+      "declaration_non_authority_posture": "no_declaration_authority_granted_by_v85",
+      "declaration_request_refs": [
+        "declaration-request:v85a:intent-to-declaration-office"
+      ],
+      "declaration_selection_status_refs": [
+        "declaration-selection:v85c:create-declaration-office"
+      ],
+      "future_family_selection_posture": "no_future_family_selected_by_v85",
+      "guardrail_refs": [
+        "guardrail:v85a:intent-to-declaration-office"
+      ],
+      "implementation_posture": "no_implementation_performed_by_v85",
+      "limitation_note": "Summary records lookup review readiness with no obligation expansion.",
+      "lookup_coverage_posture": "selected_declarations_have_lookup_rows",
+      "lookup_fixture_refs": [
+        "lookup-fixture:v85b:explicit-create-ui-menu"
+      ],
+      "lookup_index_refs": [
+        "lookup:v85b:create-ui-menu"
+      ],
+      "obligation_expansion_posture": "no_obligation_expansion_performed_by_v85",
+      "obligation_family_registry_refs": [
+        "obligation-family:v85b:birth_continuation_death_algebra@v1",
+        "obligation-family:v85b:failure_path_fail_closed@v1",
+        "obligation-family:v85b:rollback_cleanup_teardown@v1",
+        "obligation-family:v85b:stateful_lifecycle@v1"
+      ],
+      "operator_class_registry_refs": [
+        "registry:v85b:object_class:ui.menu@v1",
+        "registry:v85b:operator:CREATE"
+      ],
+      "ready_basis_posture": "ready_no_blockers",
+      "registry_gap_refs": [],
+      "runtime_transition_posture": "no_runtime_transition_performed_by_v85",
+      "selected_declaration_refs": [
+        "semantic-act:v85a:create-declaration-office"
+      ],
+      "semantic_declaration_session_ref": "semantic-declaration-session:v85a:intent-to-declaration-office",
+      "source_index_refs": [
+        "repo_semantic_declaration_source_index_6909fbbd21c955096f26a7a7"
+      ],
+      "source_refs": [
+        "apps/api/fixtures/repo_description/vnext_plus239/repo_semantic_declaration_non_authority_guardrail_v239_reference.json",
+        "apps/api/fixtures/repo_description/vnext_plus239/repo_semantic_declaration_source_index_v239_reference.json",
+        "apps/api/fixtures/repo_description/vnext_plus239/repo_turn_semantic_declaration_request_v239_reference.json",
+        "apps/api/fixtures/repo_description/vnext_plus240/repo_canonical_meta_lookup_index_v240_reference.json",
+        "apps/api/fixtures/repo_description/vnext_plus240/repo_obligation_family_registry_v240_reference.json",
+        "apps/api/fixtures/repo_description/vnext_plus240/repo_semantic_operator_class_registry_v240_reference.json",
+        "apps/api/fixtures/repo_description/vnext_plus240/repo_semantic_pointer_lookup_fixture_v240_reference.json",
+        "docs/DRAFT_ADEU_SEMANTIC_DECLARATION_META_LOOP_V85C_IMPLEMENTATION_MAPPING_v0.md",
+        "docs/LOCKED_CONTINUATION_vNEXT_PLUS241.md"
+      ],
+      "summary_posture": "ready_for_later_obligation_expansion_review",
+      "summary_ref": "summary:v85c:ready-obligation-expansion-review",
+      "warning_rows": []
+    },
+    {
+      "abstain_declaration_refs": [],
+      "ambiguous_declaration_refs": [],
+      "candidate_ref": "candidate:v85:semantic-declaration-office",
+      "carried_blocker_refs": [
+        "blocker:v85c:registry-gap"
+      ],
+      "carried_warning_refs": [],
+      "declaration_non_authority_posture": "no_declaration_authority_granted_by_v85",
+      "declaration_request_refs": [
+        "declaration-request:v85a:unknown-class-registry-gap"
+      ],
+      "declaration_selection_status_refs": [
+        "registry_gap_not_selected"
+      ],
+      "future_family_selection_posture": "no_future_family_selected_by_v85",
+      "guardrail_refs": [
+        "guardrail:v85a:unknown-class-registry-gap"
+      ],
+      "implementation_posture": "no_implementation_performed_by_v85",
+      "limitation_note": "Summary records blocked declaration review outcome with no obligation expansion.",
+      "lookup_coverage_posture": "lookup_not_applicable",
+      "lookup_fixture_refs": [],
+      "lookup_index_refs": [],
+      "obligation_expansion_posture": "no_obligation_expansion_performed_by_v85",
+      "obligation_family_registry_refs": [],
+      "operator_class_registry_refs": [],
+      "ready_basis_posture": "registry_or_ambiguity_review_requested",
+      "registry_gap_refs": [
+        "semantic-act:v85a:unknown-class-registry-gap"
+      ],
+      "runtime_transition_posture": "no_runtime_transition_performed_by_v85",
+      "selected_declaration_refs": [],
+      "semantic_declaration_session_ref": "semantic-declaration-session:v85a:intent-to-declaration-office",
+      "source_index_refs": [
+        "repo_semantic_declaration_source_index_6909fbbd21c955096f26a7a7"
+      ],
+      "source_refs": [
+        "apps/api/fixtures/repo_description/vnext_plus239/repo_semantic_declaration_non_authority_guardrail_v239_reference.json",
+        "apps/api/fixtures/repo_description/vnext_plus239/repo_semantic_declaration_source_index_v239_reference.json",
+        "apps/api/fixtures/repo_description/vnext_plus239/repo_turn_semantic_declaration_request_v239_reference.json",
+        "apps/api/fixtures/repo_description/vnext_plus240/repo_canonical_meta_lookup_index_v240_reference.json",
+        "apps/api/fixtures/repo_description/vnext_plus240/repo_obligation_family_registry_v240_reference.json",
+        "apps/api/fixtures/repo_description/vnext_plus240/repo_semantic_operator_class_registry_v240_reference.json",
+        "apps/api/fixtures/repo_description/vnext_plus240/repo_semantic_pointer_lookup_fixture_v240_reference.json",
+        "docs/DRAFT_ADEU_SEMANTIC_DECLARATION_META_LOOP_V85C_IMPLEMENTATION_MAPPING_v0.md",
+        "docs/LOCKED_CONTINUATION_vNEXT_PLUS241.md"
+      ],
+      "summary_posture": "blocked_by_registry_gap",
+      "summary_ref": "summary:v85c:registry-gap",
+      "warning_rows": []
+    },
+    {
+      "abstain_declaration_refs": [],
+      "ambiguous_declaration_refs": [],
+      "candidate_ref": "candidate:v85:semantic-declaration-office",
+      "carried_blocker_refs": [
+        "blocker:v85c:support-only-source"
+      ],
+      "carried_warning_refs": [],
+      "declaration_non_authority_posture": "no_declaration_authority_granted_by_v85",
+      "declaration_request_refs": [
+        "declaration-request:v85a:support-context-only"
+      ],
+      "declaration_selection_status_refs": [
+        "blocked_not_selected"
+      ],
+      "future_family_selection_posture": "no_future_family_selected_by_v85",
+      "guardrail_refs": [
+        "guardrail:v85a:support-context-only"
+      ],
+      "implementation_posture": "no_implementation_performed_by_v85",
+      "limitation_note": "Summary records blocked declaration review outcome with no obligation expansion.",
+      "lookup_coverage_posture": "lookup_not_applicable",
+      "lookup_fixture_refs": [],
+      "lookup_index_refs": [],
+      "obligation_expansion_posture": "no_obligation_expansion_performed_by_v85",
+      "obligation_family_registry_refs": [],
+      "operator_class_registry_refs": [],
+      "ready_basis_posture": "not_ready_blockers_remain",
+      "registry_gap_refs": [],
+      "runtime_transition_posture": "no_runtime_transition_performed_by_v85",
+      "selected_declaration_refs": [],
+      "semantic_declaration_session_ref": "semantic-declaration-session:v85a:intent-to-declaration-office",
+      "source_index_refs": [
+        "repo_semantic_declaration_source_index_6909fbbd21c955096f26a7a7"
+      ],
+      "source_refs": [
+        "apps/api/fixtures/repo_description/vnext_plus239/repo_semantic_declaration_non_authority_guardrail_v239_reference.json",
+        "apps/api/fixtures/repo_description/vnext_plus239/repo_semantic_declaration_source_index_v239_reference.json",
+        "apps/api/fixtures/repo_description/vnext_plus239/repo_turn_semantic_declaration_request_v239_reference.json",
+        "apps/api/fixtures/repo_description/vnext_plus240/repo_canonical_meta_lookup_index_v240_reference.json",
+        "apps/api/fixtures/repo_description/vnext_plus240/repo_obligation_family_registry_v240_reference.json",
+        "apps/api/fixtures/repo_description/vnext_plus240/repo_semantic_operator_class_registry_v240_reference.json",
+        "apps/api/fixtures/repo_description/vnext_plus240/repo_semantic_pointer_lookup_fixture_v240_reference.json",
+        "docs/DRAFT_ADEU_SEMANTIC_DECLARATION_META_LOOP_V85C_IMPLEMENTATION_MAPPING_v0.md",
+        "docs/LOCKED_CONTINUATION_vNEXT_PLUS241.md"
+      ],
+      "summary_posture": "blocked_by_support_only_source",
+      "summary_ref": "summary:v85c:support-only-source",
+      "warning_rows": []
+    }
+  ],
+  "summary_text": "V85-C summary records semantic declaration lookup review outcomes with no obligation expansion.",
+  "turn_semantic_declaration_request_id": "repo_turn_semantic_declaration_request_8bebe71e6a4c8405bec9d58f"
+}

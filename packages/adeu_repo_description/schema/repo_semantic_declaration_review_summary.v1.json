@@ -1,0 +1,392 @@
+{
+  "$defs": {
+    "RepoSemanticDeclarationReviewSummaryRow": {
+      "additionalProperties": false,
+      "properties": {
+        "abstain_declaration_refs": {
+          "items": {
+            "type": "string"
+          },
+          "title": "Abstain Declaration Refs",
+          "type": "array"
+        },
+        "ambiguous_declaration_refs": {
+          "items": {
+            "type": "string"
+          },
+          "title": "Ambiguous Declaration Refs",
+          "type": "array"
+        },
+        "candidate_ref": {
+          "title": "Candidate Ref",
+          "type": "string"
+        },
+        "carried_blocker_refs": {
+          "items": {
+            "type": "string"
+          },
+          "title": "Carried Blocker Refs",
+          "type": "array"
+        },
+        "carried_warning_refs": {
+          "items": {
+            "type": "string"
+          },
+          "title": "Carried Warning Refs",
+          "type": "array"
+        },
+        "declaration_non_authority_posture": {
+          "enum": [
+            "no_declaration_authority_granted_by_v85",
+            "declaration_requires_later_lookup_review",
+            "declaration_forbidden_as_authority"
+          ],
+          "title": "Declaration Non Authority Posture",
+          "type": "string"
+        },
+        "declaration_request_refs": {
+          "items": {
+            "type": "string"
+          },
+          "minItems": 1,
+          "title": "Declaration Request Refs",
+          "type": "array"
+        },
+        "declaration_selection_status_refs": {
+          "items": {
+            "type": "string"
+          },
+          "title": "Declaration Selection Status Refs",
+          "type": "array"
+        },
+        "future_family_selection_posture": {
+          "enum": [
+            "no_future_family_selected_by_v85",
+            "future_family_selection_requires_later_selector",
+            "future_family_selection_forbidden_by_this_family"
+          ],
+          "title": "Future Family Selection Posture",
+          "type": "string"
+        },
+        "guardrail_refs": {
+          "items": {
+            "type": "string"
+          },
+          "minItems": 1,
+          "title": "Guardrail Refs",
+          "type": "array"
+        },
+        "implementation_posture": {
+          "enum": [
+            "no_implementation_performed_by_v85",
+            "implementation_requires_later_lock",
+            "implementation_forbidden_by_this_family"
+          ],
+          "title": "Implementation Posture",
+          "type": "string"
+        },
+        "limitation_note": {
+          "title": "Limitation Note",
+          "type": "string"
+        },
+        "lookup_coverage_posture": {
+          "enum": [
+            "selected_declarations_have_lookup_rows",
+            "missing_lookup_for_selected_declaration",
+            "lookup_conflict_present",
+            "only_opaque_lookup_proven",
+            "lookup_not_applicable"
+          ],
+          "title": "Lookup Coverage Posture",
+          "type": "string"
+        },
+        "lookup_fixture_refs": {
+          "items": {
+            "type": "string"
+          },
+          "title": "Lookup Fixture Refs",
+          "type": "array"
+        },
+        "lookup_index_refs": {
+          "items": {
+            "type": "string"
+          },
+          "title": "Lookup Index Refs",
+          "type": "array"
+        },
+        "obligation_expansion_posture": {
+          "enum": [
+            "no_obligation_expansion_performed_by_v85",
+            "obligation_expansion_requires_v86_or_later",
+            "obligation_expansion_forbidden_by_this_family"
+          ],
+          "title": "Obligation Expansion Posture",
+          "type": "string"
+        },
+        "obligation_family_registry_refs": {
+          "items": {
+            "type": "string"
+          },
+          "title": "Obligation Family Registry Refs",
+          "type": "array"
+        },
+        "operator_class_registry_refs": {
+          "items": {
+            "type": "string"
+          },
+          "title": "Operator Class Registry Refs",
+          "type": "array"
+        },
+        "ready_basis_posture": {
+          "enum": [
+            "ready_no_blockers",
+            "ready_with_nonblocking_warnings",
+            "not_ready_blockers_remain",
+            "registry_or_ambiguity_review_requested",
+            "future_family_only",
+            "rejected_out_of_scope"
+          ],
+          "title": "Ready Basis Posture",
+          "type": "string"
+        },
+        "registry_gap_refs": {
+          "items": {
+            "type": "string"
+          },
+          "title": "Registry Gap Refs",
+          "type": "array"
+        },
+        "runtime_transition_posture": {
+          "enum": [
+            "no_runtime_transition_performed_by_v85",
+            "runtime_transition_requires_later_authority",
+            "runtime_transition_forbidden_by_this_family"
+          ],
+          "title": "Runtime Transition Posture",
+          "type": "string"
+        },
+        "selected_declaration_refs": {
+          "items": {
+            "type": "string"
+          },
+          "title": "Selected Declaration Refs",
+          "type": "array"
+        },
+        "semantic_declaration_session_ref": {
+          "title": "Semantic Declaration Session Ref",
+          "type": "string"
+        },
+        "source_index_refs": {
+          "items": {
+            "type": "string"
+          },
+          "minItems": 1,
+          "title": "Source Index Refs",
+          "type": "array"
+        },
+        "source_refs": {
+          "items": {
+            "type": "string"
+          },
+          "minItems": 1,
+          "title": "Source Refs",
+          "type": "array"
+        },
+        "summary_posture": {
+          "enum": [
+            "ready_for_later_obligation_expansion_review",
+            "ready_with_nonblocking_warnings",
+            "blocked_by_missing_declaration_source",
+            "blocked_by_ambiguous_binding",
+            "blocked_by_registry_gap",
+            "blocked_by_missing_lookup",
+            "blocked_by_lookup_conflict",
+            "blocked_by_missing_guardrail",
+            "blocked_by_support_only_source",
+            "future_family_only",
+            "rejected_out_of_scope"
+          ],
+          "title": "Summary Posture",
+          "type": "string"
+        },
+        "summary_ref": {
+          "title": "Summary Ref",
+          "type": "string"
+        },
+        "warning_rows": {
+          "items": {
+            "$ref": "#/$defs/RepoSemanticDeclarationWarningRow"
+          },
+          "title": "Warning Rows",
+          "type": "array"
+        }
+      },
+      "required": [
+        "summary_ref",
+        "semantic_declaration_session_ref",
+        "candidate_ref",
+        "source_refs",
+        "declaration_request_refs",
+        "source_index_refs",
+        "guardrail_refs",
+        "summary_posture",
+        "ready_basis_posture",
+        "lookup_coverage_posture",
+        "declaration_non_authority_posture",
+        "obligation_expansion_posture",
+        "implementation_posture",
+        "runtime_transition_posture",
+        "future_family_selection_posture",
+        "limitation_note"
+      ],
+      "title": "RepoSemanticDeclarationReviewSummaryRow",
+      "type": "object"
+    },
+    "RepoSemanticDeclarationWarningRow": {
+      "additionalProperties": false,
+      "properties": {
+        "blocking_posture": {
+          "enum": [
+            "nonblocking_warning",
+            "blocking_exception",
+            "not_applicable"
+          ],
+          "title": "Blocking Posture",
+          "type": "string"
+        },
+        "limitation_note": {
+          "title": "Limitation Note",
+          "type": "string"
+        },
+        "semantic_declaration_session_ref": {
+          "title": "Semantic Declaration Session Ref",
+          "type": "string"
+        },
+        "source_refs": {
+          "items": {
+            "type": "string"
+          },
+          "minItems": 1,
+          "title": "Source Refs",
+          "type": "array"
+        },
+        "warning_kind": {
+          "enum": [
+            "nonblocking_alias_warning",
+            "duplicate_preserved_warning",
+            "support_context_present_but_not_decisive",
+            "optional_obligation_family_unmapped",
+            "documentation_alignment_warning",
+            "ambiguous_binding",
+            "registry_gap",
+            "unknown_pointer",
+            "missing_guardrail",
+            "missing_source_witness",
+            "lookup_conflict",
+            "support_only_source",
+            "invented_class",
+            "obligation_expansion_attempt"
+          ],
+          "title": "Warning Kind",
+          "type": "string"
+        },
+        "warning_ref": {
+          "title": "Warning Ref",
+          "type": "string"
+        }
+      },
+      "required": [
+        "warning_ref",
+        "semantic_declaration_session_ref",
+        "source_refs",
+        "warning_kind",
+        "blocking_posture",
+        "limitation_note"
+      ],
+      "title": "RepoSemanticDeclarationWarningRow",
+      "type": "object"
+    }
+  },
+  "additionalProperties": false,
+  "properties": {
+    "canonical_meta_lookup_index_id": {
+      "title": "Canonical Meta Lookup Index Id",
+      "type": "string"
+    },
+    "obligation_family_registry_id": {
+      "title": "Obligation Family Registry Id",
+      "type": "string"
+    },
+    "review_id": {
+      "title": "Review Id",
+      "type": "string"
+    },
+    "schema": {
+      "const": "repo_semantic_declaration_review_summary@1",
+      "title": "Schema",
+      "type": "string"
+    },
+    "semantic_declaration_non_authority_guardrail_id": {
+      "title": "Semantic Declaration Non Authority Guardrail Id",
+      "type": "string"
+    },
+    "semantic_declaration_review_summary_id": {
+      "title": "Semantic Declaration Review Summary Id",
+      "type": "string"
+    },
+    "semantic_declaration_source_index_id": {
+      "title": "Semantic Declaration Source Index Id",
+      "type": "string"
+    },
+    "semantic_operator_class_registry_id": {
+      "title": "Semantic Operator Class Registry Id",
+      "type": "string"
+    },
+    "semantic_pointer_lookup_fixture_id": {
+      "title": "Semantic Pointer Lookup Fixture Id",
+      "type": "string"
+    },
+    "snapshot_id": {
+      "title": "Snapshot Id",
+      "type": "string"
+    },
+    "source_set_id": {
+      "title": "Source Set Id",
+      "type": "string"
+    },
+    "summary_rows": {
+      "items": {
+        "$ref": "#/$defs/RepoSemanticDeclarationReviewSummaryRow"
+      },
+      "minItems": 1,
+      "title": "Summary Rows",
+      "type": "array"
+    },
+    "summary_text": {
+      "title": "Summary Text",
+      "type": "string"
+    },
+    "turn_semantic_declaration_request_id": {
+      "title": "Turn Semantic Declaration Request Id",
+      "type": "string"
+    }
+  },
+  "required": [
+    "schema",
+    "semantic_declaration_review_summary_id",
+    "semantic_declaration_source_index_id",
+    "turn_semantic_declaration_request_id",
+    "semantic_declaration_non_authority_guardrail_id",
+    "canonical_meta_lookup_index_id",
+    "semantic_operator_class_registry_id",
+    "obligation_family_registry_id",
+    "semantic_pointer_lookup_fixture_id",
+    "review_id",
+    "snapshot_id",
+    "source_set_id",
+    "summary_rows",
+    "summary_text"
+  ],
+  "title": "RepoSemanticDeclarationReviewSummary",
+  "type": "object"
+}
