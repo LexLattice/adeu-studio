@@ -1,0 +1,69 @@
+{
+  "arc": "vNext+241",
+  "bundle_validation_resolves_handoff_selected_declaration_refs": true,
+  "bundle_validation_resolves_summary_source_index_refs": true,
+  "bundle_validation_requires_handoff_declaration_refs_to_match_summaries": true,
+  "closed_family": "V85",
+  "closed_family_doc": "docs/DRAFT_ADEU_SEMANTIC_DECLARATION_META_LOOP_V85_FAMILY_CLOSEOUT_v0.md",
+  "consumed_record_shapes": [
+    "repo_turn_semantic_declaration_request@1",
+    "repo_semantic_declaration_source_index@1",
+    "repo_semantic_declaration_non_authority_guardrail@1",
+    "repo_canonical_meta_lookup_index@1",
+    "repo_semantic_operator_class_registry@1",
+    "repo_obligation_family_registry@1",
+    "repo_semantic_pointer_lookup_fixture@1"
+  ],
+  "contract_source": "docs/LOCKED_CONTINUATION_vNEXT_PLUS241.md#machine-checkable-contract",
+  "downstream_sequence_skip_rejected": true,
+  "focused_test_reference_path": "packages/adeu_repo_description/tests/test_semantic_declaration_meta_loop_v85c.py",
+  "handoff_obligation_expansion_rejected": true,
+  "implementation_commits": [
+    "1d51c958e1548313ba6b79ab86ce5d04646f83ef",
+    "d0cd9361193b2bde2e8c2e973c4ccdcb9794e026"
+  ],
+  "implementation_packages": [
+    "adeu_repo_description"
+  ],
+  "implementation_source_path": "packages/adeu_repo_description/src/adeu_repo_description/semantic_declaration_meta_loop.py",
+  "local_closeout_gate": "make arc-closeout-check ARC=241",
+  "local_full_python_gate": "make check",
+  "merge_commit": "fd0fd4e88ba05add8d6954922906d898f43130d6",
+  "merged_at": "2026-05-04T23:46:18Z",
+  "merged_pr": "#469",
+  "merged_pr_url": "https://github.com/LexLattice/adeu-studio/pull/469",
+  "metric_key_continuity_assertion_path": "artifacts/agent_harness/v241/evidence_inputs/metric_key_continuity_assertion_v241.json",
+  "mixed_candidate_lineage_rejected": true,
+  "notes": "v241 evidence pins the bounded V85-C semantic declaration closeout seam on main. V85-C consumes released V85-A declaration request, source index, and guardrail rows plus released V85-B canonical lookup, registry, obligation-family, and pointer fixture rows; emits review-only semantic declaration summary, post-semantic-declaration-review handoff, and family closeout alignment rows; preserves session and candidate lineage; rejects missing lookup, blocker-hidden-as-warning posture, downstream handoff skips, handoff-as-obligation-expansion, mixed candidate lineage, unresolved summary source-index refs, unresolved handoff selected declaration refs, and handoff selected declarations that do not match referenced summaries; closes V85 only; and ships no obligation expansion, evidence contract, edge probe plan, audit taskpack, deterministic transition table, implementation lock, work-packet activation, command execution, tool invocation, runtime transition, product authorization, graph-memory authority, recursive-policy amendment, or V86 selection.",
+  "package_export_surface_path": "packages/adeu_repo_description/src/adeu_repo_description/__init__.py",
+  "ready_missing_lookup_rejected": true,
+  "reference_fixture_paths": [
+    "apps/api/fixtures/repo_description/vnext_plus241/repo_semantic_declaration_review_summary_v241_reference.json",
+    "apps/api/fixtures/repo_description/vnext_plus241/repo_post_semantic_declaration_review_handoff_v241_reference.json",
+    "apps/api/fixtures/repo_description/vnext_plus241/repo_semantic_declaration_family_closeout_alignment_v241_reference.json"
+  ],
+  "reject_fixture_dir": "apps/api/fixtures/repo_description/vnext_plus241",
+  "runtime_event_stream_path": "artifacts/agent_harness/v241/runtime/evidence/local/urm_events.ndjson",
+  "runtime_observability_comparison_path": "artifacts/agent_harness/v241/evidence_inputs/runtime_observability_comparison_v241.json",
+  "schema": "v85c_semantic_declaration_closeout_evidence@1",
+  "schema_export_source_path": "packages/adeu_repo_description/src/adeu_repo_description/export_schema.py",
+  "schema_paths": [
+    "packages/adeu_repo_description/schema/repo_semantic_declaration_review_summary.v1.json",
+    "packages/adeu_repo_description/schema/repo_post_semantic_declaration_review_handoff.v1.json",
+    "packages/adeu_repo_description/schema/repo_semantic_declaration_family_closeout_alignment.v1.json",
+    "spec/repo_semantic_declaration_review_summary.schema.json",
+    "spec/repo_post_semantic_declaration_review_handoff.schema.json",
+    "spec/repo_semantic_declaration_family_closeout_alignment.schema.json"
+  ],
+  "selected_record_shapes": [
+    "repo_semantic_declaration_review_summary@1",
+    "repo_post_semantic_declaration_review_handoff@1",
+    "repo_semantic_declaration_family_closeout_alignment@1"
+  ],
+  "selected_v86_for_v85c": false,
+  "semantic_declaration_session_identity_preserved": true,
+  "slice": "V85-C",
+  "v85a_closeout_evidence_input_path": "artifacts/agent_harness/v239/evidence_inputs/v85a_semantic_declaration_review_closeout_evidence_v239.json",
+  "v85b_closeout_evidence_input_path": "artifacts/agent_harness/v240/evidence_inputs/v85b_semantic_lookup_registry_closeout_evidence_v240.json",
+  "warning_hides_blocker_rejected": true
+}
