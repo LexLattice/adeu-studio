@@ -4875,6 +4875,9 @@ def validate_v85c_semantic_declaration_closeout_bundle(
         row.declaration_request_ref: row
         for row in turn_semantic_declaration_request.declaration_request_rows
     }
+    known_source_index_refs = {
+        semantic_declaration_source_index.semantic_declaration_source_index_id
+    }
     known_acts = {
         act.semantic_act_ref: (request_row, act)
         for request_row in turn_semantic_declaration_request.declaration_request_rows
@@ -4901,6 +4904,10 @@ def validate_v85c_semantic_declaration_closeout_bundle(
     for summary_row in semantic_declaration_review_summary.summary_rows:
         if any(ref not in known_requests for ref in summary_row.declaration_request_refs):
             raise ValueError("summary request refs must resolve to released V85-A requests")
+        if any(ref not in known_source_index_refs for ref in summary_row.source_index_refs):
+            raise ValueError(
+                "summary source index refs must resolve to released V85-A source index"
+            )
         if any(ref not in known_guardrails for ref in summary_row.guardrail_refs):
             raise ValueError("summary guardrail refs must resolve to released V85-A guardrails")
         if any(ref not in known_lookup_refs for ref in summary_row.lookup_index_refs):
@@ -4959,6 +4966,15 @@ def validate_v85c_semantic_declaration_closeout_bundle(
                 raise ValueError("handoff rows must preserve summary session lineage")
             if summary_row.candidate_ref != handoff_row.candidate_ref:
                 raise ValueError("handoff rows must preserve summary candidate lineage")
+        if any(ref not in known_acts for ref in handoff_row.selected_declaration_refs):
+            raise ValueError("handoff declaration refs must resolve to released V85-A acts")
+        summary_selected_refs = {
+            ref
+            for summary_ref in handoff_row.summary_refs
+            for ref in known_summary_refs[summary_ref].selected_declaration_refs
+        }
+        if any(ref not in summary_selected_refs for ref in handoff_row.selected_declaration_refs):
+            raise ValueError("handoff declaration refs must match referenced summaries")
         if any(ref not in known_guardrails for ref in handoff_row.non_authority_guardrail_refs):
             raise ValueError("handoff guardrail refs must resolve")
         if any(ref not in known_lookup_refs for ref in handoff_row.lookup_index_refs):

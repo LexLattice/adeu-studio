@@ -283,3 +283,48 @@ def test_v85c_bundle_rejects_mixed_candidate_lineage() -> None:
     closeout = RepoSemanticDeclarationFamilyCloseoutAlignment.model_validate(closeout_payload)
     with pytest.raises(ValueError, match="summary rows must preserve candidate lineage"):
         _validate_reference_bundle_with(summary=summary, handoff=handoff, closeout=closeout)
+
+
+def test_v85c_bundle_rejects_unknown_summary_source_index_ref() -> None:
+    summary = _v85c_summary()
+    summary_rows = list(summary.summary_rows)
+    summary_rows[0] = summary_rows[0].model_copy(
+        update={"source_index_refs": ["source-index:v85a:missing"]}
+    )
+    summary = summary.model_copy(update={"summary_rows": summary_rows})
+
+    with pytest.raises(
+        ValueError,
+        match="summary source index refs must resolve to released V85-A source index",
+    ):
+        _validate_reference_bundle_with(summary=summary)
+
+
+def test_v85c_bundle_rejects_unknown_handoff_selected_declaration_ref() -> None:
+    handoff = _v85c_handoff()
+    handoff_rows = list(handoff.handoff_rows)
+    handoff_rows[0] = handoff_rows[0].model_copy(
+        update={"selected_declaration_refs": ["semantic-act:v85a:missing"]}
+    )
+    handoff = handoff.model_copy(update={"handoff_rows": handoff_rows})
+
+    with pytest.raises(
+        ValueError,
+        match="handoff declaration refs must resolve to released V85-A acts",
+    ):
+        _validate_reference_bundle_with(handoff=handoff)
+
+
+def test_v85c_bundle_rejects_handoff_selected_declaration_not_in_summary() -> None:
+    handoff = _v85c_handoff()
+    handoff_rows = list(handoff.handoff_rows)
+    handoff_rows[0] = handoff_rows[0].model_copy(
+        update={"selected_declaration_refs": ["semantic-act:v85a:ambiguous-natural-binding"]}
+    )
+    handoff = handoff.model_copy(update={"handoff_rows": handoff_rows})
+
+    with pytest.raises(
+        ValueError,
+        match="handoff declaration refs must match referenced summaries",
+    ):
+        _validate_reference_bundle_with(handoff=handoff)
