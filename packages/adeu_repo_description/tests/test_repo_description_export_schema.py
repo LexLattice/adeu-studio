@@ -112,6 +112,7 @@ from adeu_repo_description import (
     REPO_POST_RATIFICATION_HANDOFF_SCHEMA,
     REPO_POST_RECONCILIATION_HANDOFF_SCHEMA,
     REPO_POST_RUNTIME_PERMISSION_REVIEW_HANDOFF_SCHEMA,
+    REPO_POST_SEMANTIC_DECLARATION_REVIEW_HANDOFF_SCHEMA,
     REPO_POST_WORK_PACKET_ACTIVATION_REVIEW_HANDOFF_SCHEMA,
     REPO_PRE_EXECUTION_AUTHORITY_REVIEW_HANDOFF_SCHEMA,
     REPO_PROJECTION_EXCEPTION_VISIBILITY_REGISTER_SCHEMA,
@@ -146,7 +147,9 @@ from adeu_repo_description import (
     REPO_RUNTIME_ROLLBACK_CONTRACT_SCHEMA,
     REPO_RUNTIME_TELEMETRY_REQUIREMENT_SCHEMA,
     REPO_SCHEMA_FAMILY_REGISTRY_SCHEMA,
+    REPO_SEMANTIC_DECLARATION_FAMILY_CLOSEOUT_ALIGNMENT_SCHEMA,
     REPO_SEMANTIC_DECLARATION_NON_AUTHORITY_GUARDRAIL_SCHEMA,
+    REPO_SEMANTIC_DECLARATION_REVIEW_SUMMARY_SCHEMA,
     REPO_SEMANTIC_DECLARATION_SOURCE_INDEX_SCHEMA,
     REPO_SEMANTIC_IMPLEMENTATION_SPEC_FAMILY_CLOSEOUT_ALIGNMENT_SCHEMA,
     REPO_SEMANTIC_INTENT_CONTRACT_SCHEMA,
@@ -1495,6 +1498,30 @@ def _schema_pairs() -> dict[str, tuple[Path, Path]]:
             / "schema"
             / "repo_semantic_pointer_lookup_fixture.v1.json",
             root / "spec" / "repo_semantic_pointer_lookup_fixture.schema.json",
+        ),
+        REPO_SEMANTIC_DECLARATION_REVIEW_SUMMARY_SCHEMA: (
+            root
+            / "packages"
+            / "adeu_repo_description"
+            / "schema"
+            / "repo_semantic_declaration_review_summary.v1.json",
+            root / "spec" / "repo_semantic_declaration_review_summary.schema.json",
+        ),
+        REPO_POST_SEMANTIC_DECLARATION_REVIEW_HANDOFF_SCHEMA: (
+            root
+            / "packages"
+            / "adeu_repo_description"
+            / "schema"
+            / "repo_post_semantic_declaration_review_handoff.v1.json",
+            root / "spec" / "repo_post_semantic_declaration_review_handoff.schema.json",
+        ),
+        REPO_SEMANTIC_DECLARATION_FAMILY_CLOSEOUT_ALIGNMENT_SCHEMA: (
+            root
+            / "packages"
+            / "adeu_repo_description"
+            / "schema"
+            / "repo_semantic_declaration_family_closeout_alignment.v1.json",
+            root / "spec" / "repo_semantic_declaration_family_closeout_alignment.schema.json",
         ),
     }
 

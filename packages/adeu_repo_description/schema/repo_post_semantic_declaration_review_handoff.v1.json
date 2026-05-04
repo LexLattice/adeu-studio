@@ -1,0 +1,318 @@
+{
+  "$defs": {
+    "RepoPostSemanticDeclarationReviewHandoffRow": {
+      "additionalProperties": false,
+      "properties": {
+        "candidate_ref": {
+          "title": "Candidate Ref",
+          "type": "string"
+        },
+        "carried_blocker_refs": {
+          "items": {
+            "type": "string"
+          },
+          "title": "Carried Blocker Refs",
+          "type": "array"
+        },
+        "carried_warning_refs": {
+          "items": {
+            "type": "string"
+          },
+          "title": "Carried Warning Refs",
+          "type": "array"
+        },
+        "future_family_selection_status": {
+          "enum": [
+            "no_future_family_selected_by_v85",
+            "future_family_selection_requires_later_selector",
+            "future_family_selection_forbidden_by_this_family"
+          ],
+          "title": "Future Family Selection Status",
+          "type": "string"
+        },
+        "handoff_authority_horizon": {
+          "enum": [
+            "obligation_expansion_review",
+            "evidence_contract_review",
+            "edge_probe_plan_review",
+            "audit_taskpack_review",
+            "closeout_transition_review",
+            "implementation_lock_review",
+            "morphic_ux_runtime_ui_authority_review",
+            "direct_oai_provider_runtime_authority_review",
+            "meta_orchestrator_workflow_runtime_authority_review",
+            "product_authority_review",
+            "graph_memory_authority_review",
+            "recursive_policy_authority_review",
+            "future_family_review"
+          ],
+          "title": "Handoff Authority Horizon",
+          "type": "string"
+        },
+        "handoff_posture": {
+          "enum": [
+            "ready_for_later_review",
+            "ready_with_nonblocking_warnings",
+            "blocker_settlement_requested",
+            "future_family_only",
+            "deferred_no_selection",
+            "rejected_out_of_scope"
+          ],
+          "title": "Handoff Posture",
+          "type": "string"
+        },
+        "handoff_ref": {
+          "title": "Handoff Ref",
+          "type": "string"
+        },
+        "handoff_sequence_posture": {
+          "enum": [
+            "immediate_next_pressure",
+            "downstream_after_obligation_expansion",
+            "downstream_after_evidence_contract",
+            "downstream_after_audit",
+            "lateral_support_pressure",
+            "future_family_only"
+          ],
+          "title": "Handoff Sequence Posture",
+          "type": "string"
+        },
+        "handoff_subject_horizon": {
+          "enum": [
+            "semantic_declaration_review_outcome",
+            "canonical_lookup_review_outcome",
+            "obligation_family_lookup_pressure",
+            "evidence_contract_pressure",
+            "audit_taskpack_pressure",
+            "closeout_transition_pressure",
+            "implementation_lock_pressure",
+            "support_doctrine_pressure",
+            "future_family_only"
+          ],
+          "title": "Handoff Subject Horizon",
+          "type": "string"
+        },
+        "handoff_target": {
+          "enum": [
+            "future_obligation_expansion_review",
+            "future_evidence_contract_review",
+            "future_edge_probe_plan_review",
+            "future_audit_taskpack_review",
+            "future_deterministic_closeout_transition_review",
+            "future_canonical_implementation_lock_review",
+            "future_morphic_ux_implementation_review",
+            "future_direct_oai_harness_review",
+            "future_meta_orchestrator_workflow_review",
+            "future_product_review",
+            "future_graph_memory_review",
+            "future_family_review",
+            "deferred_no_selection"
+          ],
+          "title": "Handoff Target",
+          "type": "string"
+        },
+        "implementation_status": {
+          "enum": [
+            "no_implementation_performed_by_v85",
+            "implementation_requires_later_lock",
+            "implementation_forbidden_by_this_family"
+          ],
+          "title": "Implementation Status",
+          "type": "string"
+        },
+        "limitation_note": {
+          "title": "Limitation Note",
+          "type": "string"
+        },
+        "lookup_index_refs": {
+          "items": {
+            "type": "string"
+          },
+          "title": "Lookup Index Refs",
+          "type": "array"
+        },
+        "non_authority_guardrail_refs": {
+          "items": {
+            "type": "string"
+          },
+          "minItems": 1,
+          "title": "Non Authority Guardrail Refs",
+          "type": "array"
+        },
+        "obligation_expansion_status": {
+          "enum": [
+            "no_obligation_expansion_performed_by_v85",
+            "obligation_expansion_requires_v86_or_later",
+            "obligation_expansion_forbidden_by_this_family"
+          ],
+          "title": "Obligation Expansion Status",
+          "type": "string"
+        },
+        "obligation_family_registry_refs": {
+          "items": {
+            "type": "string"
+          },
+          "title": "Obligation Family Registry Refs",
+          "type": "array"
+        },
+        "operator_class_registry_refs": {
+          "items": {
+            "type": "string"
+          },
+          "title": "Operator Class Registry Refs",
+          "type": "array"
+        },
+        "required_later_authority_refs": {
+          "items": {
+            "type": "string"
+          },
+          "title": "Required Later Authority Refs",
+          "type": "array"
+        },
+        "runtime_transition_status": {
+          "enum": [
+            "no_runtime_transition_performed_by_v85",
+            "runtime_transition_requires_later_authority",
+            "runtime_transition_forbidden_by_this_family"
+          ],
+          "title": "Runtime Transition Status",
+          "type": "string"
+        },
+        "selected_declaration_refs": {
+          "items": {
+            "type": "string"
+          },
+          "title": "Selected Declaration Refs",
+          "type": "array"
+        },
+        "semantic_declaration_session_ref": {
+          "title": "Semantic Declaration Session Ref",
+          "type": "string"
+        },
+        "source_refs": {
+          "items": {
+            "type": "string"
+          },
+          "minItems": 1,
+          "title": "Source Refs",
+          "type": "array"
+        },
+        "summary_refs": {
+          "items": {
+            "type": "string"
+          },
+          "minItems": 1,
+          "title": "Summary Refs",
+          "type": "array"
+        }
+      },
+      "required": [
+        "handoff_ref",
+        "semantic_declaration_session_ref",
+        "candidate_ref",
+        "source_refs",
+        "summary_refs",
+        "handoff_target",
+        "handoff_subject_horizon",
+        "handoff_posture",
+        "handoff_sequence_posture",
+        "handoff_authority_horizon",
+        "non_authority_guardrail_refs",
+        "obligation_expansion_status",
+        "implementation_status",
+        "runtime_transition_status",
+        "future_family_selection_status",
+        "limitation_note"
+      ],
+      "title": "RepoPostSemanticDeclarationReviewHandoffRow",
+      "type": "object"
+    }
+  },
+  "additionalProperties": false,
+  "properties": {
+    "canonical_meta_lookup_index_id": {
+      "title": "Canonical Meta Lookup Index Id",
+      "type": "string"
+    },
+    "handoff_rows": {
+      "items": {
+        "$ref": "#/$defs/RepoPostSemanticDeclarationReviewHandoffRow"
+      },
+      "minItems": 1,
+      "title": "Handoff Rows",
+      "type": "array"
+    },
+    "handoff_summary": {
+      "title": "Handoff Summary",
+      "type": "string"
+    },
+    "obligation_family_registry_id": {
+      "title": "Obligation Family Registry Id",
+      "type": "string"
+    },
+    "post_semantic_declaration_review_handoff_id": {
+      "title": "Post Semantic Declaration Review Handoff Id",
+      "type": "string"
+    },
+    "review_id": {
+      "title": "Review Id",
+      "type": "string"
+    },
+    "schema": {
+      "const": "repo_post_semantic_declaration_review_handoff@1",
+      "title": "Schema",
+      "type": "string"
+    },
+    "semantic_declaration_non_authority_guardrail_id": {
+      "title": "Semantic Declaration Non Authority Guardrail Id",
+      "type": "string"
+    },
+    "semantic_declaration_review_summary_id": {
+      "title": "Semantic Declaration Review Summary Id",
+      "type": "string"
+    },
+    "semantic_declaration_source_index_id": {
+      "title": "Semantic Declaration Source Index Id",
+      "type": "string"
+    },
+    "semantic_operator_class_registry_id": {
+      "title": "Semantic Operator Class Registry Id",
+      "type": "string"
+    },
+    "semantic_pointer_lookup_fixture_id": {
+      "title": "Semantic Pointer Lookup Fixture Id",
+      "type": "string"
+    },
+    "snapshot_id": {
+      "title": "Snapshot Id",
+      "type": "string"
+    },
+    "source_set_id": {
+      "title": "Source Set Id",
+      "type": "string"
+    },
+    "turn_semantic_declaration_request_id": {
+      "title": "Turn Semantic Declaration Request Id",
+      "type": "string"
+    }
+  },
+  "required": [
+    "schema",
+    "post_semantic_declaration_review_handoff_id",
+    "semantic_declaration_review_summary_id",
+    "semantic_declaration_source_index_id",
+    "turn_semantic_declaration_request_id",
+    "semantic_declaration_non_authority_guardrail_id",
+    "canonical_meta_lookup_index_id",
+    "semantic_operator_class_registry_id",
+    "obligation_family_registry_id",
+    "semantic_pointer_lookup_fixture_id",
+    "review_id",
+    "snapshot_id",
+    "source_set_id",
+    "handoff_rows",
+    "handoff_summary"
+  ],
+  "title": "RepoPostSemanticDeclarationReviewHandoff",
+  "type": "object"
+}

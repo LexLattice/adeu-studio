@@ -1,0 +1,180 @@
+{
+  "$defs": {
+    "RepoSemanticDeclarationFamilyCloseoutAlignmentRow": {
+      "additionalProperties": false,
+      "properties": {
+        "carried_future_pressure_refs": {
+          "items": {
+            "type": "string"
+          },
+          "title": "Carried Future Pressure Refs",
+          "type": "array"
+        },
+        "closed_by_arc": {
+          "title": "Closed By Arc",
+          "type": "string"
+        },
+        "closed_surface_refs": {
+          "items": {
+            "type": "string"
+          },
+          "minItems": 1,
+          "title": "Closed Surface Refs",
+          "type": "array"
+        },
+        "family": {
+          "title": "Family",
+          "type": "string"
+        },
+        "family_alignment_posture": {
+          "enum": [
+            "v85_closed_as_review_substrate",
+            "v85_closed_with_future_pressure",
+            "v85_blocked_by_unresolved_declaration_review",
+            "future_family_only"
+          ],
+          "title": "Family Alignment Posture",
+          "type": "string"
+        },
+        "family_closeout_ref": {
+          "title": "Family Closeout Ref",
+          "type": "string"
+        },
+        "future_family_selection_status": {
+          "enum": [
+            "no_future_family_selected_by_v85",
+            "future_family_selection_requires_later_selector",
+            "future_family_selection_forbidden_by_this_family"
+          ],
+          "title": "Future Family Selection Status",
+          "type": "string"
+        },
+        "handoff_refs": {
+          "items": {
+            "type": "string"
+          },
+          "minItems": 1,
+          "title": "Handoff Refs",
+          "type": "array"
+        },
+        "limitation_note": {
+          "title": "Limitation Note",
+          "type": "string"
+        },
+        "non_authority_posture": {
+          "enum": [
+            "closeout_is_not_obligation_expansion",
+            "closeout_is_not_implementation_authority",
+            "closeout_is_review_alignment_only"
+          ],
+          "title": "Non Authority Posture",
+          "type": "string"
+        },
+        "semantic_declaration_session_refs": {
+          "items": {
+            "type": "string"
+          },
+          "minItems": 1,
+          "title": "Semantic Declaration Session Refs",
+          "type": "array"
+        },
+        "source_refs": {
+          "items": {
+            "type": "string"
+          },
+          "minItems": 1,
+          "title": "Source Refs",
+          "type": "array"
+        },
+        "summary_refs": {
+          "items": {
+            "type": "string"
+          },
+          "minItems": 1,
+          "title": "Summary Refs",
+          "type": "array"
+        },
+        "unselected_surface_refs": {
+          "items": {
+            "type": "string"
+          },
+          "title": "Unselected Surface Refs",
+          "type": "array"
+        }
+      },
+      "required": [
+        "family_closeout_ref",
+        "family",
+        "closed_by_arc",
+        "semantic_declaration_session_refs",
+        "source_refs",
+        "summary_refs",
+        "handoff_refs",
+        "closed_surface_refs",
+        "family_alignment_posture",
+        "non_authority_posture",
+        "future_family_selection_status",
+        "limitation_note"
+      ],
+      "title": "RepoSemanticDeclarationFamilyCloseoutAlignmentRow",
+      "type": "object"
+    }
+  },
+  "additionalProperties": false,
+  "properties": {
+    "family_closeout_rows": {
+      "items": {
+        "$ref": "#/$defs/RepoSemanticDeclarationFamilyCloseoutAlignmentRow"
+      },
+      "minItems": 1,
+      "title": "Family Closeout Rows",
+      "type": "array"
+    },
+    "family_closeout_summary": {
+      "title": "Family Closeout Summary",
+      "type": "string"
+    },
+    "post_semantic_declaration_review_handoff_id": {
+      "title": "Post Semantic Declaration Review Handoff Id",
+      "type": "string"
+    },
+    "review_id": {
+      "title": "Review Id",
+      "type": "string"
+    },
+    "schema": {
+      "const": "repo_semantic_declaration_family_closeout_alignment@1",
+      "title": "Schema",
+      "type": "string"
+    },
+    "semantic_declaration_family_closeout_alignment_id": {
+      "title": "Semantic Declaration Family Closeout Alignment Id",
+      "type": "string"
+    },
+    "semantic_declaration_review_summary_id": {
+      "title": "Semantic Declaration Review Summary Id",
+      "type": "string"
+    },
+    "snapshot_id": {
+      "title": "Snapshot Id",
+      "type": "string"
+    },
+    "source_set_id": {
+      "title": "Source Set Id",
+      "type": "string"
+    }
+  },
+  "required": [
+    "schema",
+    "semantic_declaration_family_closeout_alignment_id",
+    "semantic_declaration_review_summary_id",
+    "post_semantic_declaration_review_handoff_id",
+    "review_id",
+    "snapshot_id",
+    "source_set_id",
+    "family_closeout_rows",
+    "family_closeout_summary"
+  ],
+  "title": "RepoSemanticDeclarationFamilyCloseoutAlignment",
+  "type": "object"
+}

@@ -210,7 +210,10 @@ from .runtime_permission_review import (
 from .semantic_declaration_meta_loop import (
     RepoCanonicalMetaLookupIndex,
     RepoObligationFamilyRegistry,
+    RepoPostSemanticDeclarationReviewHandoff,
+    RepoSemanticDeclarationFamilyCloseoutAlignment,
     RepoSemanticDeclarationNonAuthorityGuardrail,
+    RepoSemanticDeclarationReviewSummary,
     RepoSemanticDeclarationSourceIndex,
     RepoSemanticOperatorClassRegistry,
     RepoSemanticPointerLookupFixture,
@@ -763,6 +766,15 @@ def main() -> None:
     semantic_pointer_lookup_fixture_schema = RepoSemanticPointerLookupFixture.model_json_schema(
         by_alias=True
     )
+    semantic_declaration_review_summary_schema = (
+        RepoSemanticDeclarationReviewSummary.model_json_schema(by_alias=True)
+    )
+    post_semantic_declaration_review_handoff_schema = (
+        RepoPostSemanticDeclarationReviewHandoff.model_json_schema(by_alias=True)
+    )
+    semantic_declaration_family_closeout_alignment_schema = (
+        RepoSemanticDeclarationFamilyCloseoutAlignment.model_json_schema(by_alias=True)
+    )
 
     _assert_no_absolute_path_material(dependency_register_v1_schema, repo_root_path=root)
     _assert_no_absolute_path_material(dependency_register_schema, repo_root_path=root)
@@ -1217,6 +1229,18 @@ def main() -> None:
     _assert_no_absolute_path_material(semantic_operator_class_registry_schema, repo_root_path=root)
     _assert_no_absolute_path_material(obligation_family_registry_schema, repo_root_path=root)
     _assert_no_absolute_path_material(semantic_pointer_lookup_fixture_schema, repo_root_path=root)
+    _assert_no_absolute_path_material(
+        semantic_declaration_review_summary_schema,
+        repo_root_path=root,
+    )
+    _assert_no_absolute_path_material(
+        post_semantic_declaration_review_handoff_schema,
+        repo_root_path=root,
+    )
+    _assert_no_absolute_path_material(
+        semantic_declaration_family_closeout_alignment_schema,
+        repo_root_path=root,
+    )
 
     _write_schema(
         root
@@ -3183,6 +3207,31 @@ def main() -> None:
     _write_schema(
         root / "spec" / "repo_semantic_pointer_lookup_fixture.schema.json",
         semantic_pointer_lookup_fixture_schema,
+    )
+    _write_schema(
+        repo_description_schema_root / "repo_semantic_declaration_review_summary.v1.json",
+        semantic_declaration_review_summary_schema,
+    )
+    _write_schema(
+        root / "spec" / "repo_semantic_declaration_review_summary.schema.json",
+        semantic_declaration_review_summary_schema,
+    )
+    _write_schema(
+        repo_description_schema_root / "repo_post_semantic_declaration_review_handoff.v1.json",
+        post_semantic_declaration_review_handoff_schema,
+    )
+    _write_schema(
+        root / "spec" / "repo_post_semantic_declaration_review_handoff.schema.json",
+        post_semantic_declaration_review_handoff_schema,
+    )
+    _write_schema(
+        repo_description_schema_root
+        / "repo_semantic_declaration_family_closeout_alignment.v1.json",
+        semantic_declaration_family_closeout_alignment_schema,
+    )
+    _write_schema(
+        root / "spec" / "repo_semantic_declaration_family_closeout_alignment.schema.json",
+        semantic_declaration_family_closeout_alignment_schema,
     )
 
 

@@ -1,0 +1,66 @@
+{
+  "family_closeout_rows": [
+    {
+      "carried_future_pressure_refs": [
+        "handoff:v85c:future-obligation-expansion-review"
+      ],
+      "closed_by_arc": "vNext+241",
+      "closed_surface_refs": [
+        "repo_canonical_meta_lookup_index@1",
+        "repo_obligation_family_registry@1",
+        "repo_post_semantic_declaration_review_handoff@1",
+        "repo_semantic_declaration_family_closeout_alignment@1",
+        "repo_semantic_declaration_non_authority_guardrail@1",
+        "repo_semantic_declaration_review_summary@1",
+        "repo_semantic_declaration_source_index@1",
+        "repo_semantic_operator_class_registry@1",
+        "repo_semantic_pointer_lookup_fixture@1",
+        "repo_turn_semantic_declaration_request@1"
+      ],
+      "family": "V85",
+      "family_alignment_posture": "v85_closed_with_future_pressure",
+      "family_closeout_ref": "family-closeout:v85c:semantic-declaration-meta-loop",
+      "future_family_selection_status": "future_family_selection_requires_later_selector",
+      "handoff_refs": [
+        "handoff:v85c:future-obligation-expansion-review"
+      ],
+      "limitation_note": "Family closeout aligns V85 declaration review with no obligation expansion and no V86 selection.",
+      "non_authority_posture": "closeout_is_review_alignment_only",
+      "semantic_declaration_session_refs": [
+        "semantic-declaration-session:v85a:intent-to-declaration-office"
+      ],
+      "source_refs": [
+        "apps/api/fixtures/repo_description/vnext_plus239/repo_semantic_declaration_non_authority_guardrail_v239_reference.json",
+        "apps/api/fixtures/repo_description/vnext_plus239/repo_semantic_declaration_source_index_v239_reference.json",
+        "apps/api/fixtures/repo_description/vnext_plus239/repo_turn_semantic_declaration_request_v239_reference.json",
+        "apps/api/fixtures/repo_description/vnext_plus240/repo_canonical_meta_lookup_index_v240_reference.json",
+        "apps/api/fixtures/repo_description/vnext_plus240/repo_obligation_family_registry_v240_reference.json",
+        "apps/api/fixtures/repo_description/vnext_plus240/repo_semantic_operator_class_registry_v240_reference.json",
+        "apps/api/fixtures/repo_description/vnext_plus240/repo_semantic_pointer_lookup_fixture_v240_reference.json",
+        "docs/DRAFT_ADEU_SEMANTIC_DECLARATION_META_LOOP_V85C_IMPLEMENTATION_MAPPING_v0.md",
+        "docs/LOCKED_CONTINUATION_vNEXT_PLUS241.md"
+      ],
+      "summary_refs": [
+        "summary:v85c:ambiguous-binding",
+        "summary:v85c:ready-obligation-expansion-review",
+        "summary:v85c:registry-gap",
+        "summary:v85c:support-only-source"
+      ],
+      "unselected_surface_refs": [
+        "repo_audit_taskpack@future",
+        "repo_deterministic_transition_table@future",
+        "repo_edge_probe_plan@future",
+        "repo_evidence_contract@future",
+        "repo_obligation_expansion@future"
+      ]
+    }
+  ],
+  "family_closeout_summary": "V85-C closeout closes semantic declaration review with no obligation expansion.",
+  "post_semantic_declaration_review_handoff_id": "repo_post_semantic_declaration_review_handoff_9a882eb0509d5389ab0df71f",
+  "review_id": "vNext+241",
+  "schema": "repo_semantic_declaration_family_closeout_alignment@1",
+  "semantic_declaration_family_closeout_alignment_id": "repo_semantic_declaration_family_closeout_alignment_997b75f101177d27739d11dc",
+  "semantic_declaration_review_summary_id": "repo_semantic_declaration_review_summary_b9cdc0ffeadf6cffe6673069",
+  "snapshot_id": "vNext+241-semantic-declaration-closeout",
+  "source_set_id": "source-set:v85c:semantic-declaration-closeout"
+}
