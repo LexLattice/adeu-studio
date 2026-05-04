@@ -1,0 +1,332 @@
+{
+  "$defs": {
+    "RepoPostWorkPacketActivationReviewHandoffRow": {
+      "additionalProperties": false,
+      "properties": {
+        "activation_execution_posture": {
+          "enum": [
+            "no_activation_performed_by_v84",
+            "activation_requires_later_canonical_lock",
+            "activation_forbidden_by_this_family"
+          ],
+          "title": "Activation Execution Posture",
+          "type": "string"
+        },
+        "activation_package_ref": {
+          "title": "Activation Package Ref",
+          "type": "string"
+        },
+        "activation_request_refs": {
+          "items": {
+            "type": "string"
+          },
+          "minItems": 1,
+          "title": "Activation Request Refs",
+          "type": "array"
+        },
+        "candidate_ref": {
+          "title": "Candidate Ref",
+          "type": "string"
+        },
+        "canonical_lock_requirement_refs": {
+          "items": {
+            "type": "string"
+          },
+          "title": "Canonical Lock Requirement Refs",
+          "type": "array"
+        },
+        "carried_exception_refs": {
+          "items": {
+            "type": "string"
+          },
+          "title": "Carried Exception Refs",
+          "type": "array"
+        },
+        "guardrail_refs": {
+          "items": {
+            "type": "string"
+          },
+          "minItems": 1,
+          "title": "Guardrail Refs",
+          "type": "array"
+        },
+        "handoff_activation_status": {
+          "enum": [
+            "no_work_packet_activated_by_v84",
+            "later_lock_review_requested",
+            "blocker_settlement_requested",
+            "future_family_only"
+          ],
+          "title": "Handoff Activation Status",
+          "type": "string"
+        },
+        "handoff_authority_horizon": {
+          "enum": [
+            "canonical_implementation_lock_review",
+            "implementation_slice_review",
+            "work_packet_execution_authority_review",
+            "target_mutation_authority_review",
+            "test_execution_review",
+            "tool_invocation_review",
+            "morphic_ux_runtime_authority_review",
+            "direct_oai_runtime_authority_review",
+            "meta_orchestrator_runtime_authority_review",
+            "product_authority_review",
+            "graph_memory_authority_review",
+            "future_family_review"
+          ],
+          "title": "Handoff Authority Horizon",
+          "type": "string"
+        },
+        "handoff_posture": {
+          "enum": [
+            "ready_for_later_review",
+            "ready_with_nonblocking_warnings",
+            "blocked_by_carried_exceptions",
+            "future_family_only",
+            "deferred_no_selection"
+          ],
+          "title": "Handoff Posture",
+          "type": "string"
+        },
+        "handoff_ref": {
+          "title": "Handoff Ref",
+          "type": "string"
+        },
+        "handoff_subject_horizon": {
+          "enum": [
+            "implementation_lock_review_package",
+            "implementation_slice_review_package",
+            "morphic_ux_runtime_review_pressure",
+            "direct_oai_runtime_review_pressure",
+            "meta_orchestrator_workflow_review_pressure",
+            "product_review_pressure",
+            "graph_memory_review_pressure",
+            "future_family_pressure"
+          ],
+          "title": "Handoff Subject Horizon",
+          "type": "string"
+        },
+        "handoff_target": {
+          "enum": [
+            "future_canonical_implementation_lock_review",
+            "future_implementation_slice_review",
+            "future_morphic_ux_implementation_review",
+            "future_direct_oai_harness_implementation_review",
+            "future_meta_orchestrator_workflow_activation_review",
+            "future_product_review",
+            "future_graph_memory_review",
+            "future_family_review",
+            "deferred_no_selection"
+          ],
+          "title": "Handoff Target",
+          "type": "string"
+        },
+        "implementation_execution_posture": {
+          "enum": [
+            "no_implementation_performed_by_v84",
+            "implementation_requires_later_lock",
+            "implementation_forbidden_by_this_family"
+          ],
+          "title": "Implementation Execution Posture",
+          "type": "string"
+        },
+        "implementation_lock_status": {
+          "enum": [
+            "no_implementation_lock_created_by_v84",
+            "later_implementation_lock_review_requested",
+            "later_selector_required",
+            "deferred_no_selection"
+          ],
+          "title": "Implementation Lock Status",
+          "type": "string"
+        },
+        "limitation_note": {
+          "title": "Limitation Note",
+          "type": "string"
+        },
+        "pr_commit_release_posture": {
+          "enum": [
+            "no_pr_commit_merge_release_performed_by_v84",
+            "pr_commit_merge_release_requires_later_lock",
+            "pr_commit_merge_release_forbidden_by_this_family"
+          ],
+          "title": "Pr Commit Release Posture",
+          "type": "string"
+        },
+        "required_later_authority_refs": {
+          "items": {
+            "type": "string"
+          },
+          "title": "Required Later Authority Refs",
+          "type": "array"
+        },
+        "scope_contract_refs": {
+          "items": {
+            "type": "string"
+          },
+          "title": "Scope Contract Refs",
+          "type": "array"
+        },
+        "source_refs": {
+          "items": {
+            "type": "string"
+          },
+          "minItems": 1,
+          "title": "Source Refs",
+          "type": "array"
+        },
+        "summary_refs": {
+          "items": {
+            "type": "string"
+          },
+          "minItems": 1,
+          "title": "Summary Refs",
+          "type": "array"
+        },
+        "target_boundary_refs": {
+          "items": {
+            "type": "string"
+          },
+          "title": "Target Boundary Refs",
+          "type": "array"
+        },
+        "target_mutation_posture": {
+          "enum": [
+            "no_target_mutation_performed_by_v84",
+            "target_mutation_requires_later_lock",
+            "target_mutation_forbidden_by_this_family"
+          ],
+          "title": "Target Mutation Posture",
+          "type": "string"
+        },
+        "validation_plan_refs": {
+          "items": {
+            "type": "string"
+          },
+          "title": "Validation Plan Refs",
+          "type": "array"
+        },
+        "work_packet_execution_posture": {
+          "enum": [
+            "no_work_packet_execution_performed_by_v84",
+            "work_packet_execution_requires_later_lock",
+            "work_packet_execution_forbidden_by_this_family"
+          ],
+          "title": "Work Packet Execution Posture",
+          "type": "string"
+        }
+      },
+      "required": [
+        "handoff_ref",
+        "activation_package_ref",
+        "summary_refs",
+        "activation_request_refs",
+        "candidate_ref",
+        "source_refs",
+        "handoff_target",
+        "handoff_subject_horizon",
+        "handoff_posture",
+        "handoff_authority_horizon",
+        "handoff_activation_status",
+        "implementation_lock_status",
+        "activation_execution_posture",
+        "work_packet_execution_posture",
+        "implementation_execution_posture",
+        "target_mutation_posture",
+        "pr_commit_release_posture",
+        "guardrail_refs",
+        "limitation_note"
+      ],
+      "title": "RepoPostWorkPacketActivationReviewHandoffRow",
+      "type": "object"
+    }
+  },
+  "additionalProperties": false,
+  "properties": {
+    "handoff_rows": {
+      "items": {
+        "$ref": "#/$defs/RepoPostWorkPacketActivationReviewHandoffRow"
+      },
+      "minItems": 1,
+      "title": "Handoff Rows",
+      "type": "array"
+    },
+    "handoff_summary": {
+      "title": "Handoff Summary",
+      "type": "string"
+    },
+    "implementation_target_surface_boundary_id": {
+      "title": "Implementation Target Surface Boundary Id",
+      "type": "string"
+    },
+    "post_work_packet_activation_review_handoff_id": {
+      "title": "Post Work Packet Activation Review Handoff Id",
+      "type": "string"
+    },
+    "review_id": {
+      "title": "Review Id",
+      "type": "string"
+    },
+    "schema": {
+      "const": "repo_post_work_packet_activation_review_handoff@1",
+      "title": "Schema",
+      "type": "string"
+    },
+    "snapshot_id": {
+      "title": "Snapshot Id",
+      "type": "string"
+    },
+    "source_set_id": {
+      "title": "Source Set Id",
+      "type": "string"
+    },
+    "work_packet_activation_exception_register_id": {
+      "title": "Work Packet Activation Exception Register Id",
+      "type": "string"
+    },
+    "work_packet_activation_non_execution_guardrail_id": {
+      "title": "Work Packet Activation Non Execution Guardrail Id",
+      "type": "string"
+    },
+    "work_packet_activation_readiness_summary_id": {
+      "title": "Work Packet Activation Readiness Summary Id",
+      "type": "string"
+    },
+    "work_packet_activation_review_request_id": {
+      "title": "Work Packet Activation Review Request Id",
+      "type": "string"
+    },
+    "work_packet_activation_source_index_id": {
+      "title": "Work Packet Activation Source Index Id",
+      "type": "string"
+    },
+    "work_packet_scope_contract_id": {
+      "title": "Work Packet Scope Contract Id",
+      "type": "string"
+    },
+    "work_packet_validation_evidence_plan_id": {
+      "title": "Work Packet Validation Evidence Plan Id",
+      "type": "string"
+    }
+  },
+  "required": [
+    "schema",
+    "post_work_packet_activation_review_handoff_id",
+    "work_packet_activation_readiness_summary_id",
+    "work_packet_activation_review_request_id",
+    "work_packet_activation_source_index_id",
+    "work_packet_activation_non_execution_guardrail_id",
+    "work_packet_scope_contract_id",
+    "implementation_target_surface_boundary_id",
+    "work_packet_validation_evidence_plan_id",
+    "work_packet_activation_exception_register_id",
+    "review_id",
+    "snapshot_id",
+    "source_set_id",
+    "handoff_rows",
+    "handoff_summary"
+  ],
+  "title": "RepoPostWorkPacketActivationReviewHandoff",
+  "type": "object"
+}

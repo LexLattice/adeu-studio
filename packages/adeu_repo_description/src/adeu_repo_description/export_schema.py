@@ -220,8 +220,11 @@ from .semantic_implementation_spec import (
 )
 from .work_packet_activation_review import (
     RepoImplementationTargetSurfaceBoundary,
+    RepoPostWorkPacketActivationReviewHandoff,
     RepoWorkPacketActivationExceptionRegister,
+    RepoWorkPacketActivationFamilyCloseoutAlignment,
     RepoWorkPacketActivationNonExecutionGuardrail,
+    RepoWorkPacketActivationReadinessSummary,
     RepoWorkPacketActivationReviewRequest,
     RepoWorkPacketActivationSourceIndex,
     RepoWorkPacketScopeContract,
@@ -711,9 +714,7 @@ def main() -> None:
     work_packet_activation_non_execution_guardrail_schema = (
         RepoWorkPacketActivationNonExecutionGuardrail.model_json_schema(by_alias=True)
     )
-    work_packet_scope_contract_schema = RepoWorkPacketScopeContract.model_json_schema(
-        by_alias=True
-    )
+    work_packet_scope_contract_schema = RepoWorkPacketScopeContract.model_json_schema(by_alias=True)
     implementation_target_surface_boundary_schema = (
         RepoImplementationTargetSurfaceBoundary.model_json_schema(by_alias=True)
     )
@@ -722,6 +723,15 @@ def main() -> None:
     )
     work_packet_activation_exception_register_schema = (
         RepoWorkPacketActivationExceptionRegister.model_json_schema(by_alias=True)
+    )
+    work_packet_activation_readiness_summary_schema = (
+        RepoWorkPacketActivationReadinessSummary.model_json_schema(by_alias=True)
+    )
+    post_work_packet_activation_review_handoff_schema = (
+        RepoPostWorkPacketActivationReviewHandoff.model_json_schema(by_alias=True)
+    )
+    work_packet_activation_family_closeout_alignment_schema = (
+        RepoWorkPacketActivationFamilyCloseoutAlignment.model_json_schema(by_alias=True)
     )
 
     _assert_no_absolute_path_material(dependency_register_v1_schema, repo_root_path=root)
@@ -1147,6 +1157,18 @@ def main() -> None:
     )
     _assert_no_absolute_path_material(
         work_packet_activation_exception_register_schema,
+        repo_root_path=root,
+    )
+    _assert_no_absolute_path_material(
+        work_packet_activation_readiness_summary_schema,
+        repo_root_path=root,
+    )
+    _assert_no_absolute_path_material(
+        post_work_packet_activation_review_handoff_schema,
+        repo_root_path=root,
+    )
+    _assert_no_absolute_path_material(
+        work_packet_activation_family_closeout_alignment_schema,
         repo_root_path=root,
     )
 
@@ -3028,13 +3050,37 @@ def main() -> None:
         work_packet_validation_evidence_plan_schema,
     )
     _write_schema(
-        repo_description_schema_root
-        / "repo_work_packet_activation_exception_register.v1.json",
+        repo_description_schema_root / "repo_work_packet_activation_exception_register.v1.json",
         work_packet_activation_exception_register_schema,
     )
     _write_schema(
         root / "spec" / "repo_work_packet_activation_exception_register.schema.json",
         work_packet_activation_exception_register_schema,
+    )
+    _write_schema(
+        repo_description_schema_root / "repo_work_packet_activation_readiness_summary.v1.json",
+        work_packet_activation_readiness_summary_schema,
+    )
+    _write_schema(
+        root / "spec" / "repo_work_packet_activation_readiness_summary.schema.json",
+        work_packet_activation_readiness_summary_schema,
+    )
+    _write_schema(
+        repo_description_schema_root / "repo_post_work_packet_activation_review_handoff.v1.json",
+        post_work_packet_activation_review_handoff_schema,
+    )
+    _write_schema(
+        root / "spec" / "repo_post_work_packet_activation_review_handoff.schema.json",
+        post_work_packet_activation_review_handoff_schema,
+    )
+    _write_schema(
+        repo_description_schema_root
+        / "repo_work_packet_activation_family_closeout_alignment.v1.json",
+        work_packet_activation_family_closeout_alignment_schema,
+    )
+    _write_schema(
+        root / "spec" / "repo_work_packet_activation_family_closeout_alignment.schema.json",
+        work_packet_activation_family_closeout_alignment_schema,
     )
 
 
