@@ -144,6 +144,8 @@ from adeu_repo_description import (
     REPO_RUNTIME_ROLLBACK_CONTRACT_SCHEMA,
     REPO_RUNTIME_TELEMETRY_REQUIREMENT_SCHEMA,
     REPO_SCHEMA_FAMILY_REGISTRY_SCHEMA,
+    REPO_SEMANTIC_DECLARATION_NON_AUTHORITY_GUARDRAIL_SCHEMA,
+    REPO_SEMANTIC_DECLARATION_SOURCE_INDEX_SCHEMA,
     REPO_SEMANTIC_IMPLEMENTATION_SPEC_FAMILY_CLOSEOUT_ALIGNMENT_SCHEMA,
     REPO_SEMANTIC_INTENT_CONTRACT_SCHEMA,
     REPO_SUPPORT_LINEAGE_REGISTER_SCHEMA,
@@ -152,6 +154,7 @@ from adeu_repo_description import (
     REPO_TOOL_FITNESS_DRIFT_REGISTER_SCHEMA,
     REPO_TOOL_INVOCATION_PLAN_SCHEMA,
     REPO_TOOL_USE_PERMISSION_ENVELOPE_SCHEMA,
+    REPO_TURN_SEMANTIC_DECLARATION_REQUEST_SCHEMA,
     REPO_TYPED_ADJUDICATION_CASE_VIEW_SCHEMA,
     REPO_WORK_PACKET_ACTIVATION_EXCEPTION_REGISTER_SCHEMA,
     REPO_WORK_PACKET_ACTIVATION_FAMILY_CLOSEOUT_ALIGNMENT_SCHEMA,
@@ -1432,6 +1435,30 @@ def _schema_pairs() -> dict[str, tuple[Path, Path]]:
             / "schema"
             / "repo_work_packet_activation_family_closeout_alignment.v1.json",
             root / "spec" / "repo_work_packet_activation_family_closeout_alignment.schema.json",
+        ),
+        REPO_SEMANTIC_DECLARATION_SOURCE_INDEX_SCHEMA: (
+            root
+            / "packages"
+            / "adeu_repo_description"
+            / "schema"
+            / "repo_semantic_declaration_source_index.v1.json",
+            root / "spec" / "repo_semantic_declaration_source_index.schema.json",
+        ),
+        REPO_TURN_SEMANTIC_DECLARATION_REQUEST_SCHEMA: (
+            root
+            / "packages"
+            / "adeu_repo_description"
+            / "schema"
+            / "repo_turn_semantic_declaration_request.v1.json",
+            root / "spec" / "repo_turn_semantic_declaration_request.schema.json",
+        ),
+        REPO_SEMANTIC_DECLARATION_NON_AUTHORITY_GUARDRAIL_SCHEMA: (
+            root
+            / "packages"
+            / "adeu_repo_description"
+            / "schema"
+            / "repo_semantic_declaration_non_authority_guardrail.v1.json",
+            root / "spec" / "repo_semantic_declaration_non_authority_guardrail.schema.json",
         ),
     }
 

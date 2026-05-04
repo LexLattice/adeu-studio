@@ -1,0 +1,213 @@
+{
+  "$defs": {
+    "RepoSemanticDeclarationNonAuthorityGuardrailRow": {
+      "additionalProperties": false,
+      "properties": {
+        "candidate_ref": {
+          "title": "Candidate Ref",
+          "type": "string"
+        },
+        "declaration_non_authority_posture": {
+          "enum": [
+            "no_declaration_authority_granted_by_v85",
+            "declaration_requires_later_lookup_review",
+            "declaration_forbidden_as_authority"
+          ],
+          "title": "Declaration Non Authority Posture",
+          "type": "string"
+        },
+        "declaration_request_refs": {
+          "items": {
+            "type": "string"
+          },
+          "minItems": 1,
+          "title": "Declaration Request Refs",
+          "type": "array"
+        },
+        "forbidden_declaration_actions": {
+          "items": {
+            "enum": [
+              "expand_obligations",
+              "emit_evidence_contract",
+              "emit_edge_probe_plan",
+              "emit_reviewer_taskpack",
+              "emit_audit_report",
+              "run_closeout_transition_table",
+              "create_canonical_lookup_index",
+              "create_operator_class_registry",
+              "create_obligation_family_registry",
+              "create_pointer_lookup_fixture",
+              "create_declaration_summary",
+              "create_post_declaration_handoff"
+            ],
+            "type": "string"
+          },
+          "minItems": 1,
+          "title": "Forbidden Declaration Actions",
+          "type": "array"
+        },
+        "forbidden_downstream_actions": {
+          "items": {
+            "enum": [
+              "create_implementation_lock",
+              "activate_work_packet",
+              "execute_work_packet",
+              "edit_code",
+              "run_command",
+              "invoke_tool_for_effect",
+              "mutate_target",
+              "open_pr",
+              "commit_changes",
+              "merge_or_release",
+              "authorize_product",
+              "create_graph_memory_authority",
+              "amend_recursive_policy",
+              "select_v86"
+            ],
+            "type": "string"
+          },
+          "minItems": 1,
+          "title": "Forbidden Downstream Actions",
+          "type": "array"
+        },
+        "future_family_selection_posture": {
+          "enum": [
+            "no_future_family_selected_by_v85a",
+            "future_family_selection_requires_later_selector",
+            "future_family_selection_forbidden_by_this_slice"
+          ],
+          "title": "Future Family Selection Posture",
+          "type": "string"
+        },
+        "guardrail_ref": {
+          "title": "Guardrail Ref",
+          "type": "string"
+        },
+        "implementation_posture": {
+          "enum": [
+            "no_implementation_performed_by_v85a",
+            "implementation_requires_later_lock",
+            "implementation_forbidden_by_this_family"
+          ],
+          "title": "Implementation Posture",
+          "type": "string"
+        },
+        "limitation_note": {
+          "title": "Limitation Note",
+          "type": "string"
+        },
+        "obligation_expansion_posture": {
+          "enum": [
+            "no_obligation_expansion_performed_by_v85a",
+            "obligation_expansion_requires_v86_or_later",
+            "obligation_expansion_forbidden_by_this_slice"
+          ],
+          "title": "Obligation Expansion Posture",
+          "type": "string"
+        },
+        "required_later_authority_refs": {
+          "items": {
+            "type": "string"
+          },
+          "title": "Required Later Authority Refs",
+          "type": "array"
+        },
+        "runtime_transition_posture": {
+          "enum": [
+            "no_runtime_transition_performed_by_v85a",
+            "runtime_transition_requires_later_authority",
+            "runtime_transition_forbidden_by_this_family"
+          ],
+          "title": "Runtime Transition Posture",
+          "type": "string"
+        },
+        "semantic_declaration_session_ref": {
+          "title": "Semantic Declaration Session Ref",
+          "type": "string"
+        },
+        "source_refs": {
+          "items": {
+            "type": "string"
+          },
+          "minItems": 1,
+          "title": "Source Refs",
+          "type": "array"
+        }
+      },
+      "required": [
+        "guardrail_ref",
+        "semantic_declaration_session_ref",
+        "candidate_ref",
+        "source_refs",
+        "declaration_request_refs",
+        "forbidden_declaration_actions",
+        "forbidden_downstream_actions",
+        "declaration_non_authority_posture",
+        "obligation_expansion_posture",
+        "implementation_posture",
+        "runtime_transition_posture",
+        "future_family_selection_posture",
+        "limitation_note"
+      ],
+      "title": "RepoSemanticDeclarationNonAuthorityGuardrailRow",
+      "type": "object"
+    }
+  },
+  "additionalProperties": false,
+  "properties": {
+    "guardrail_rows": {
+      "items": {
+        "$ref": "#/$defs/RepoSemanticDeclarationNonAuthorityGuardrailRow"
+      },
+      "minItems": 1,
+      "title": "Guardrail Rows",
+      "type": "array"
+    },
+    "guardrail_summary": {
+      "title": "Guardrail Summary",
+      "type": "string"
+    },
+    "review_id": {
+      "title": "Review Id",
+      "type": "string"
+    },
+    "schema": {
+      "const": "repo_semantic_declaration_non_authority_guardrail@1",
+      "title": "Schema",
+      "type": "string"
+    },
+    "semantic_declaration_non_authority_guardrail_id": {
+      "title": "Semantic Declaration Non Authority Guardrail Id",
+      "type": "string"
+    },
+    "semantic_declaration_source_index_id": {
+      "title": "Semantic Declaration Source Index Id",
+      "type": "string"
+    },
+    "snapshot_id": {
+      "title": "Snapshot Id",
+      "type": "string"
+    },
+    "source_set_id": {
+      "title": "Source Set Id",
+      "type": "string"
+    },
+    "turn_semantic_declaration_request_id": {
+      "title": "Turn Semantic Declaration Request Id",
+      "type": "string"
+    }
+  },
+  "required": [
+    "schema",
+    "semantic_declaration_non_authority_guardrail_id",
+    "turn_semantic_declaration_request_id",
+    "semantic_declaration_source_index_id",
+    "review_id",
+    "snapshot_id",
+    "source_set_id",
+    "guardrail_rows",
+    "guardrail_summary"
+  ],
+  "title": "RepoSemanticDeclarationNonAuthorityGuardrail",
+  "type": "object"
+}

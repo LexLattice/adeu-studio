@@ -1,0 +1,222 @@
+{
+  "guardrail_rows": [
+    {
+      "candidate_ref": "candidate:v85:semantic-declaration-office",
+      "declaration_non_authority_posture": "no_declaration_authority_granted_by_v85",
+      "declaration_request_refs": [
+        "declaration-request:v85a:ambiguous-natural-binding"
+      ],
+      "forbidden_declaration_actions": [
+        "create_canonical_lookup_index",
+        "create_declaration_summary",
+        "create_obligation_family_registry",
+        "create_operator_class_registry",
+        "create_pointer_lookup_fixture",
+        "create_post_declaration_handoff",
+        "emit_audit_report",
+        "emit_edge_probe_plan",
+        "emit_evidence_contract",
+        "emit_reviewer_taskpack",
+        "expand_obligations",
+        "run_closeout_transition_table"
+      ],
+      "forbidden_downstream_actions": [
+        "activate_work_packet",
+        "amend_recursive_policy",
+        "authorize_product",
+        "commit_changes",
+        "create_graph_memory_authority",
+        "create_implementation_lock",
+        "edit_code",
+        "execute_work_packet",
+        "invoke_tool_for_effect",
+        "merge_or_release",
+        "mutate_target",
+        "open_pr",
+        "run_command",
+        "select_v86"
+      ],
+      "future_family_selection_posture": "no_future_family_selected_by_v85a",
+      "guardrail_ref": "guardrail:v85a:ambiguous-natural-binding",
+      "implementation_posture": "no_implementation_performed_by_v85a",
+      "limitation_note": "Guardrail keeps semantic declaration as review only with no implementation, no obligation expansion, and no V86 selection.",
+      "obligation_expansion_posture": "no_obligation_expansion_performed_by_v85a",
+      "required_later_authority_refs": [
+        "later-authority:v85a:canonical-lookup-review"
+      ],
+      "runtime_transition_posture": "no_runtime_transition_performed_by_v85a",
+      "semantic_declaration_session_ref": "semantic-declaration-session:v85a:intent-to-declaration-office",
+      "source_refs": [
+        "docs/DRAFT_ADEU_SEMANTIC_DECLARATION_META_LOOP_V85A_IMPLEMENTATION_MAPPING_v0.md",
+        "docs/support/ARCHITECTURE_ADEU_CANONICAL_SEMANTIC_DECLARATION_META_LOOP_v0.md",
+        "operator-turn:v85a:semantic-declaration-meta-loop-request"
+      ]
+    },
+    {
+      "candidate_ref": "candidate:v85:semantic-declaration-office",
+      "declaration_non_authority_posture": "no_declaration_authority_granted_by_v85",
+      "declaration_request_refs": [
+        "declaration-request:v85a:intent-to-declaration-office"
+      ],
+      "forbidden_declaration_actions": [
+        "create_canonical_lookup_index",
+        "create_declaration_summary",
+        "create_obligation_family_registry",
+        "create_operator_class_registry",
+        "create_pointer_lookup_fixture",
+        "create_post_declaration_handoff",
+        "emit_audit_report",
+        "emit_edge_probe_plan",
+        "emit_evidence_contract",
+        "emit_reviewer_taskpack",
+        "expand_obligations",
+        "run_closeout_transition_table"
+      ],
+      "forbidden_downstream_actions": [
+        "activate_work_packet",
+        "amend_recursive_policy",
+        "authorize_product",
+        "commit_changes",
+        "create_graph_memory_authority",
+        "create_implementation_lock",
+        "edit_code",
+        "execute_work_packet",
+        "invoke_tool_for_effect",
+        "merge_or_release",
+        "mutate_target",
+        "open_pr",
+        "run_command",
+        "select_v86"
+      ],
+      "future_family_selection_posture": "no_future_family_selected_by_v85a",
+      "guardrail_ref": "guardrail:v85a:intent-to-declaration-office",
+      "implementation_posture": "no_implementation_performed_by_v85a",
+      "limitation_note": "Guardrail keeps semantic declaration as review only with no implementation, no obligation expansion, and no V86 selection.",
+      "obligation_expansion_posture": "no_obligation_expansion_performed_by_v85a",
+      "required_later_authority_refs": [
+        "later-authority:v85a:canonical-lookup-review"
+      ],
+      "runtime_transition_posture": "no_runtime_transition_performed_by_v85a",
+      "semantic_declaration_session_ref": "semantic-declaration-session:v85a:intent-to-declaration-office",
+      "source_refs": [
+        "apps/api/fixtures/repo_description/vnext_plus238/repo_post_work_packet_activation_review_handoff_v238_reference.json",
+        "apps/api/fixtures/repo_description/vnext_plus238/repo_work_packet_activation_family_closeout_alignment_v238_reference.json",
+        "apps/api/fixtures/repo_description/vnext_plus238/repo_work_packet_activation_readiness_summary_v238_reference.json",
+        "docs/DRAFT_ADEU_SEMANTIC_DECLARATION_META_LOOP_V85A_IMPLEMENTATION_MAPPING_v0.md",
+        "docs/LOCKED_CONTINUATION_vNEXT_PLUS239.md",
+        "operator-turn:v85a:semantic-declaration-meta-loop-request"
+      ]
+    },
+    {
+      "candidate_ref": "candidate:v85:semantic-declaration-office",
+      "declaration_non_authority_posture": "no_declaration_authority_granted_by_v85",
+      "declaration_request_refs": [
+        "declaration-request:v85a:support-context-only"
+      ],
+      "forbidden_declaration_actions": [
+        "create_canonical_lookup_index",
+        "create_declaration_summary",
+        "create_obligation_family_registry",
+        "create_operator_class_registry",
+        "create_pointer_lookup_fixture",
+        "create_post_declaration_handoff",
+        "emit_audit_report",
+        "emit_edge_probe_plan",
+        "emit_evidence_contract",
+        "emit_reviewer_taskpack",
+        "expand_obligations",
+        "run_closeout_transition_table"
+      ],
+      "forbidden_downstream_actions": [
+        "activate_work_packet",
+        "amend_recursive_policy",
+        "authorize_product",
+        "commit_changes",
+        "create_graph_memory_authority",
+        "create_implementation_lock",
+        "edit_code",
+        "execute_work_packet",
+        "invoke_tool_for_effect",
+        "merge_or_release",
+        "mutate_target",
+        "open_pr",
+        "run_command",
+        "select_v86"
+      ],
+      "future_family_selection_posture": "no_future_family_selected_by_v85a",
+      "guardrail_ref": "guardrail:v85a:support-context-only",
+      "implementation_posture": "no_implementation_performed_by_v85a",
+      "limitation_note": "Guardrail keeps semantic declaration as review only with no implementation, no obligation expansion, and no V86 selection.",
+      "obligation_expansion_posture": "no_obligation_expansion_performed_by_v85a",
+      "required_later_authority_refs": [
+        "later-authority:v85a:canonical-lookup-review"
+      ],
+      "runtime_transition_posture": "no_runtime_transition_performed_by_v85a",
+      "semantic_declaration_session_ref": "semantic-declaration-session:v85a:intent-to-declaration-office",
+      "source_refs": [
+        "docs/DRAFT_ADEU_SEMANTIC_DECLARATION_META_LOOP_V85A_IMPLEMENTATION_MAPPING_v0.md",
+        "docs/DRAFT_MULTI_ARC_ROADMAP_POST_V84_v0.md",
+        "docs/support/ARCHITECTURE_ADEU_CANONICAL_SEMANTIC_DECLARATION_META_LOOP_v0.md"
+      ]
+    },
+    {
+      "candidate_ref": "candidate:v85:semantic-declaration-office",
+      "declaration_non_authority_posture": "no_declaration_authority_granted_by_v85",
+      "declaration_request_refs": [
+        "declaration-request:v85a:unknown-class-registry-gap"
+      ],
+      "forbidden_declaration_actions": [
+        "create_canonical_lookup_index",
+        "create_declaration_summary",
+        "create_obligation_family_registry",
+        "create_operator_class_registry",
+        "create_pointer_lookup_fixture",
+        "create_post_declaration_handoff",
+        "emit_audit_report",
+        "emit_edge_probe_plan",
+        "emit_evidence_contract",
+        "emit_reviewer_taskpack",
+        "expand_obligations",
+        "run_closeout_transition_table"
+      ],
+      "forbidden_downstream_actions": [
+        "activate_work_packet",
+        "amend_recursive_policy",
+        "authorize_product",
+        "commit_changes",
+        "create_graph_memory_authority",
+        "create_implementation_lock",
+        "edit_code",
+        "execute_work_packet",
+        "invoke_tool_for_effect",
+        "merge_or_release",
+        "mutate_target",
+        "open_pr",
+        "run_command",
+        "select_v86"
+      ],
+      "future_family_selection_posture": "no_future_family_selected_by_v85a",
+      "guardrail_ref": "guardrail:v85a:unknown-class-registry-gap",
+      "implementation_posture": "no_implementation_performed_by_v85a",
+      "limitation_note": "Guardrail keeps semantic declaration as review only with no implementation, no obligation expansion, and no V86 selection.",
+      "obligation_expansion_posture": "no_obligation_expansion_performed_by_v85a",
+      "required_later_authority_refs": [
+        "later-authority:v85a:canonical-lookup-review"
+      ],
+      "runtime_transition_posture": "no_runtime_transition_performed_by_v85a",
+      "semantic_declaration_session_ref": "semantic-declaration-session:v85a:intent-to-declaration-office",
+      "source_refs": [
+        "docs/DRAFT_ADEU_SEMANTIC_DECLARATION_META_LOOP_V85A_IMPLEMENTATION_MAPPING_v0.md",
+        "operator-turn:v85a:semantic-declaration-meta-loop-request"
+      ]
+    }
+  ],
+  "guardrail_summary": "V85-A non-authority guardrails keep semantic declaration from becoming obligation expansion, implementation, runtime transition, or later-family selection; no implementation and no obligation expansion.",
+  "review_id": "vNext+239",
+  "schema": "repo_semantic_declaration_non_authority_guardrail@1",
+  "semantic_declaration_non_authority_guardrail_id": "repo_semantic_declaration_non_authority_guardrail_62544d11aa2f7cc904e81b7f",
+  "semantic_declaration_source_index_id": "repo_semantic_declaration_source_index_6909fbbd21c955096f26a7a7",
+  "snapshot_id": "vNext+239-semantic-declaration-start",
+  "source_set_id": "source-set:v85a:semantic-declaration-review",
+  "turn_semantic_declaration_request_id": "repo_turn_semantic_declaration_request_8bebe71e6a4c8405bec9d58f"
+}
