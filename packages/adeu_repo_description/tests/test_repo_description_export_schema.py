@@ -110,6 +110,7 @@ from adeu_repo_description import (
     REPO_POST_RATIFICATION_HANDOFF_SCHEMA,
     REPO_POST_RECONCILIATION_HANDOFF_SCHEMA,
     REPO_POST_RUNTIME_PERMISSION_REVIEW_HANDOFF_SCHEMA,
+    REPO_POST_WORK_PACKET_ACTIVATION_REVIEW_HANDOFF_SCHEMA,
     REPO_PRE_EXECUTION_AUTHORITY_REVIEW_HANDOFF_SCHEMA,
     REPO_PROJECTION_EXCEPTION_VISIBILITY_REGISTER_SCHEMA,
     REPO_RATIFICATION_AMENDMENT_SCOPE_BOUNDARY_SCHEMA,
@@ -153,7 +154,9 @@ from adeu_repo_description import (
     REPO_TOOL_USE_PERMISSION_ENVELOPE_SCHEMA,
     REPO_TYPED_ADJUDICATION_CASE_VIEW_SCHEMA,
     REPO_WORK_PACKET_ACTIVATION_EXCEPTION_REGISTER_SCHEMA,
+    REPO_WORK_PACKET_ACTIVATION_FAMILY_CLOSEOUT_ALIGNMENT_SCHEMA,
     REPO_WORK_PACKET_ACTIVATION_NON_EXECUTION_GUARDRAIL_SCHEMA,
+    REPO_WORK_PACKET_ACTIVATION_READINESS_SUMMARY_SCHEMA,
     REPO_WORK_PACKET_ACTIVATION_REVIEW_REQUEST_SCHEMA,
     REPO_WORK_PACKET_ACTIVATION_SOURCE_INDEX_SCHEMA,
     REPO_WORK_PACKET_SCOPE_CONTRACT_SCHEMA,
@@ -1405,6 +1408,30 @@ def _schema_pairs() -> dict[str, tuple[Path, Path]]:
             / "schema"
             / "repo_work_packet_activation_exception_register.v1.json",
             root / "spec" / "repo_work_packet_activation_exception_register.schema.json",
+        ),
+        REPO_WORK_PACKET_ACTIVATION_READINESS_SUMMARY_SCHEMA: (
+            root
+            / "packages"
+            / "adeu_repo_description"
+            / "schema"
+            / "repo_work_packet_activation_readiness_summary.v1.json",
+            root / "spec" / "repo_work_packet_activation_readiness_summary.schema.json",
+        ),
+        REPO_POST_WORK_PACKET_ACTIVATION_REVIEW_HANDOFF_SCHEMA: (
+            root
+            / "packages"
+            / "adeu_repo_description"
+            / "schema"
+            / "repo_post_work_packet_activation_review_handoff.v1.json",
+            root / "spec" / "repo_post_work_packet_activation_review_handoff.schema.json",
+        ),
+        REPO_WORK_PACKET_ACTIVATION_FAMILY_CLOSEOUT_ALIGNMENT_SCHEMA: (
+            root
+            / "packages"
+            / "adeu_repo_description"
+            / "schema"
+            / "repo_work_packet_activation_family_closeout_alignment.v1.json",
+            root / "spec" / "repo_work_packet_activation_family_closeout_alignment.schema.json",
         ),
     }
 

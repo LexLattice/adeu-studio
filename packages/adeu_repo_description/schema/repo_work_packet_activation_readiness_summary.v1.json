@@ -1,0 +1,338 @@
+{
+  "$defs": {
+    "RepoWorkPacketActivationReadinessSummaryRow": {
+      "additionalProperties": false,
+      "properties": {
+        "activation_authority_posture": {
+          "enum": [
+            "no_activation_authority_granted_by_v84",
+            "activation_requires_later_canonical_lock",
+            "activation_forbidden_by_this_family"
+          ],
+          "title": "Activation Authority Posture",
+          "type": "string"
+        },
+        "activation_execution_posture": {
+          "enum": [
+            "no_activation_performed_by_v84",
+            "activation_requires_later_canonical_lock",
+            "activation_forbidden_by_this_family"
+          ],
+          "title": "Activation Execution Posture",
+          "type": "string"
+        },
+        "activation_package_ref": {
+          "title": "Activation Package Ref",
+          "type": "string"
+        },
+        "activation_request_refs": {
+          "items": {
+            "type": "string"
+          },
+          "minItems": 1,
+          "title": "Activation Request Refs",
+          "type": "array"
+        },
+        "candidate_ref": {
+          "title": "Candidate Ref",
+          "type": "string"
+        },
+        "canonical_lock_requirement_refs": {
+          "items": {
+            "type": "string"
+          },
+          "title": "Canonical Lock Requirement Refs",
+          "type": "array"
+        },
+        "carried_blocker_refs": {
+          "items": {
+            "type": "string"
+          },
+          "title": "Carried Blocker Refs",
+          "type": "array"
+        },
+        "carried_warning_refs": {
+          "items": {
+            "type": "string"
+          },
+          "title": "Carried Warning Refs",
+          "type": "array"
+        },
+        "coverage_posture": {
+          "enum": [
+            "edge_and_obligation_complete_for_review",
+            "missing_semantic_edge_coverage",
+            "missing_artifact_obligation_coverage",
+            "missing_target_boundary_coverage",
+            "missing_reject_evidence_coverage",
+            "future_family_only"
+          ],
+          "title": "Coverage Posture",
+          "type": "string"
+        },
+        "coverage_summary_refs": {
+          "items": {
+            "type": "string"
+          },
+          "title": "Coverage Summary Refs",
+          "type": "array"
+        },
+        "exception_register_refs": {
+          "items": {
+            "type": "string"
+          },
+          "title": "Exception Register Refs",
+          "type": "array"
+        },
+        "guardrail_refs": {
+          "items": {
+            "type": "string"
+          },
+          "minItems": 1,
+          "title": "Guardrail Refs",
+          "type": "array"
+        },
+        "implementation_execution_posture": {
+          "enum": [
+            "no_implementation_performed_by_v84",
+            "implementation_requires_later_lock",
+            "implementation_forbidden_by_this_family"
+          ],
+          "title": "Implementation Execution Posture",
+          "type": "string"
+        },
+        "implementation_lock_status": {
+          "enum": [
+            "no_implementation_lock_created_by_v84",
+            "later_implementation_lock_review_requested",
+            "later_selector_required",
+            "deferred_no_selection"
+          ],
+          "title": "Implementation Lock Status",
+          "type": "string"
+        },
+        "limitation_note": {
+          "title": "Limitation Note",
+          "type": "string"
+        },
+        "pr_commit_release_posture": {
+          "enum": [
+            "no_pr_commit_merge_release_performed_by_v84",
+            "pr_commit_merge_release_requires_later_lock",
+            "pr_commit_merge_release_forbidden_by_this_family"
+          ],
+          "title": "Pr Commit Release Posture",
+          "type": "string"
+        },
+        "projection_packet_refs": {
+          "items": {
+            "type": "string"
+          },
+          "minItems": 1,
+          "title": "Projection Packet Refs",
+          "type": "array"
+        },
+        "quality_gate_refs": {
+          "items": {
+            "type": "string"
+          },
+          "minItems": 1,
+          "title": "Quality Gate Refs",
+          "type": "array"
+        },
+        "ready_basis_posture": {
+          "enum": [
+            "ready_no_blockers",
+            "ready_with_nonblocking_warnings",
+            "not_ready_blockers_remain",
+            "authority_review_requested_for_blockers",
+            "blocker_settlement_review_requested",
+            "future_family_only",
+            "rejected_out_of_scope"
+          ],
+          "title": "Ready Basis Posture",
+          "type": "string"
+        },
+        "required_later_authority_refs": {
+          "items": {
+            "type": "string"
+          },
+          "title": "Required Later Authority Refs",
+          "type": "array"
+        },
+        "scope_contract_refs": {
+          "items": {
+            "type": "string"
+          },
+          "title": "Scope Contract Refs",
+          "type": "array"
+        },
+        "source_refs": {
+          "items": {
+            "type": "string"
+          },
+          "minItems": 1,
+          "title": "Source Refs",
+          "type": "array"
+        },
+        "summary_posture": {
+          "enum": [
+            "ready_for_later_implementation_lock_review",
+            "ready_with_nonblocking_warnings",
+            "blocked_by_missing_projection_packet",
+            "blocked_by_missing_scope_contract",
+            "blocked_by_unbounded_target_surface",
+            "blocked_by_missing_validation_plan",
+            "blocked_by_carried_semantic_drift",
+            "blocked_by_authority_gap",
+            "future_family_only",
+            "rejected_out_of_scope"
+          ],
+          "title": "Summary Posture",
+          "type": "string"
+        },
+        "summary_ref": {
+          "title": "Summary Ref",
+          "type": "string"
+        },
+        "target_boundary_refs": {
+          "items": {
+            "type": "string"
+          },
+          "title": "Target Boundary Refs",
+          "type": "array"
+        },
+        "target_mutation_posture": {
+          "enum": [
+            "no_target_mutation_performed_by_v84",
+            "target_mutation_requires_later_lock",
+            "target_mutation_forbidden_by_this_family"
+          ],
+          "title": "Target Mutation Posture",
+          "type": "string"
+        },
+        "validation_plan_refs": {
+          "items": {
+            "type": "string"
+          },
+          "title": "Validation Plan Refs",
+          "type": "array"
+        },
+        "work_packet_execution_posture": {
+          "enum": [
+            "no_work_packet_execution_performed_by_v84",
+            "work_packet_execution_requires_later_lock",
+            "work_packet_execution_forbidden_by_this_family"
+          ],
+          "title": "Work Packet Execution Posture",
+          "type": "string"
+        }
+      },
+      "required": [
+        "summary_ref",
+        "activation_package_ref",
+        "activation_request_refs",
+        "projection_packet_refs",
+        "quality_gate_refs",
+        "candidate_ref",
+        "source_refs",
+        "summary_posture",
+        "ready_basis_posture",
+        "coverage_posture",
+        "activation_authority_posture",
+        "implementation_lock_status",
+        "activation_execution_posture",
+        "work_packet_execution_posture",
+        "implementation_execution_posture",
+        "target_mutation_posture",
+        "pr_commit_release_posture",
+        "guardrail_refs",
+        "limitation_note"
+      ],
+      "title": "RepoWorkPacketActivationReadinessSummaryRow",
+      "type": "object"
+    }
+  },
+  "additionalProperties": false,
+  "properties": {
+    "implementation_target_surface_boundary_id": {
+      "title": "Implementation Target Surface Boundary Id",
+      "type": "string"
+    },
+    "readiness_summary": {
+      "title": "Readiness Summary",
+      "type": "string"
+    },
+    "review_id": {
+      "title": "Review Id",
+      "type": "string"
+    },
+    "schema": {
+      "const": "repo_work_packet_activation_readiness_summary@1",
+      "title": "Schema",
+      "type": "string"
+    },
+    "snapshot_id": {
+      "title": "Snapshot Id",
+      "type": "string"
+    },
+    "source_set_id": {
+      "title": "Source Set Id",
+      "type": "string"
+    },
+    "summary_rows": {
+      "items": {
+        "$ref": "#/$defs/RepoWorkPacketActivationReadinessSummaryRow"
+      },
+      "minItems": 1,
+      "title": "Summary Rows",
+      "type": "array"
+    },
+    "work_packet_activation_exception_register_id": {
+      "title": "Work Packet Activation Exception Register Id",
+      "type": "string"
+    },
+    "work_packet_activation_non_execution_guardrail_id": {
+      "title": "Work Packet Activation Non Execution Guardrail Id",
+      "type": "string"
+    },
+    "work_packet_activation_readiness_summary_id": {
+      "title": "Work Packet Activation Readiness Summary Id",
+      "type": "string"
+    },
+    "work_packet_activation_review_request_id": {
+      "title": "Work Packet Activation Review Request Id",
+      "type": "string"
+    },
+    "work_packet_activation_source_index_id": {
+      "title": "Work Packet Activation Source Index Id",
+      "type": "string"
+    },
+    "work_packet_scope_contract_id": {
+      "title": "Work Packet Scope Contract Id",
+      "type": "string"
+    },
+    "work_packet_validation_evidence_plan_id": {
+      "title": "Work Packet Validation Evidence Plan Id",
+      "type": "string"
+    }
+  },
+  "required": [
+    "schema",
+    "work_packet_activation_readiness_summary_id",
+    "work_packet_activation_review_request_id",
+    "work_packet_activation_source_index_id",
+    "work_packet_activation_non_execution_guardrail_id",
+    "work_packet_scope_contract_id",
+    "implementation_target_surface_boundary_id",
+    "work_packet_validation_evidence_plan_id",
+    "work_packet_activation_exception_register_id",
+    "review_id",
+    "snapshot_id",
+    "source_set_id",
+    "summary_rows",
+    "readiness_summary"
+  ],
+  "title": "RepoWorkPacketActivationReadinessSummary",
+  "type": "object"
+}

@@ -1,0 +1,74 @@
+{
+  "handoff_rows": [
+    {
+      "activation_execution_posture": "no_activation_performed_by_v84",
+      "activation_package_ref": "activation-package:v84a:intent-to-spec-lock-review",
+      "activation_request_refs": [
+        "activation-request:v84a:intent-to-spec-lock-review"
+      ],
+      "candidate_ref": "candidate:internal:intent_to_implementation_spec_institution",
+      "canonical_lock_requirement_refs": [
+        "canonical-lock-requirement:v84b:intent-to-spec-lock-review"
+      ],
+      "carried_exception_refs": [
+        "exception:v84b:future-family-boundary"
+      ],
+      "guardrail_refs": [
+        "guardrail:v84a:intent-to-spec-lock-review"
+      ],
+      "handoff_activation_status": "later_lock_review_requested",
+      "handoff_authority_horizon": "canonical_implementation_lock_review",
+      "handoff_posture": "ready_for_later_review",
+      "handoff_ref": "post-activation-review-handoff:v84c:intent-to-spec-lock-review",
+      "handoff_subject_horizon": "implementation_lock_review_package",
+      "handoff_target": "future_canonical_implementation_lock_review",
+      "implementation_execution_posture": "no_implementation_performed_by_v84",
+      "implementation_lock_status": "no_implementation_lock_created_by_v84",
+      "limitation_note": "Handoff requests later review with no implementation, no activation, and no implementation lock created.",
+      "pr_commit_release_posture": "no_pr_commit_merge_release_performed_by_v84",
+      "required_later_authority_refs": [
+        "canonical-lock-requirement:v84b:intent-to-spec-lock-review"
+      ],
+      "scope_contract_refs": [
+        "scope-contract:v84b:intent-to-spec-lock-review"
+      ],
+      "source_refs": [
+        "apps/api/fixtures/repo_description/vnext_plus236/repo_work_packet_activation_non_execution_guardrail_v236_reference.json",
+        "apps/api/fixtures/repo_description/vnext_plus236/repo_work_packet_activation_review_request_v236_reference.json",
+        "apps/api/fixtures/repo_description/vnext_plus236/repo_work_packet_activation_source_index_v236_reference.json",
+        "apps/api/fixtures/repo_description/vnext_plus237/repo_implementation_target_surface_boundary_v237_reference.json",
+        "apps/api/fixtures/repo_description/vnext_plus237/repo_work_packet_activation_exception_register_v237_reference.json",
+        "apps/api/fixtures/repo_description/vnext_plus237/repo_work_packet_scope_contract_v237_reference.json",
+        "apps/api/fixtures/repo_description/vnext_plus237/repo_work_packet_validation_evidence_plan_v237_reference.json"
+      ],
+      "summary_refs": [
+        "readiness-summary:v84c:intent-to-spec-lock-review"
+      ],
+      "target_boundary_refs": [
+        "target-boundary:v84b:fixtures",
+        "target-boundary:v84b:module",
+        "target-boundary:v84b:schemas",
+        "target-boundary:v84b:tests"
+      ],
+      "target_mutation_posture": "no_target_mutation_performed_by_v84",
+      "validation_plan_refs": [
+        "validation-plan:v84b:intent-to-spec-lock-review"
+      ],
+      "work_packet_execution_posture": "no_work_packet_execution_performed_by_v84"
+    }
+  ],
+  "handoff_summary": "V84-C handoffs request later review with no implementation, no activation, no target mutation, and no release.",
+  "implementation_target_surface_boundary_id": "repo_implementation_target_surface_boundary_38bdbaa14d038e4f783755b4",
+  "post_work_packet_activation_review_handoff_id": "repo_post_work_packet_activation_review_handoff_268a7652591147de74b9d250",
+  "review_id": "vNext+238",
+  "schema": "repo_post_work_packet_activation_review_handoff@1",
+  "snapshot_id": "vNext+238-work-packet-activation-readiness-start",
+  "source_set_id": "source-set:v84c:work-packet-activation-readiness",
+  "work_packet_activation_exception_register_id": "repo_work_packet_activation_exception_register_e41102f95b56c2dd56a997b3",
+  "work_packet_activation_non_execution_guardrail_id": "repo_work_packet_activation_non_execution_guardrail_78608b297248e42aa0e0e793",
+  "work_packet_activation_readiness_summary_id": "repo_work_packet_activation_readiness_summary_feabb3515a76910fd933d86a",
+  "work_packet_activation_review_request_id": "repo_work_packet_activation_review_request_3dbe16e667563d930a6bdf88",
+  "work_packet_activation_source_index_id": "repo_work_packet_activation_source_index_00de703df72da957abb3bebe",
+  "work_packet_scope_contract_id": "repo_work_packet_scope_contract_4840ce3bd3d5ba4c7bf6ba7e",
+  "work_packet_validation_evidence_plan_id": "repo_work_packet_validation_evidence_plan_15379a5d5cae4dd4fb8fcb4e"
+}

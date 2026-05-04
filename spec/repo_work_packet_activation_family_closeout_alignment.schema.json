@@ -1,0 +1,153 @@
+{
+  "additionalProperties": false,
+  "properties": {
+    "closed_by_arc": {
+      "const": "vNext+238",
+      "title": "Closed By Arc",
+      "type": "string"
+    },
+    "closed_slice_ladder": {
+      "items": {
+        "enum": [
+          "V84-A",
+          "V84-B",
+          "V84-C"
+        ],
+        "type": "string"
+      },
+      "minItems": 3,
+      "title": "Closed Slice Ladder",
+      "type": "array"
+    },
+    "consumed_source_families": {
+      "items": {
+        "enum": [
+          "V68",
+          "V69",
+          "V70",
+          "V71",
+          "V72",
+          "V73",
+          "V74",
+          "V75",
+          "V76",
+          "V77",
+          "V78",
+          "V79",
+          "V80",
+          "V81",
+          "V82",
+          "V83",
+          "V84"
+        ],
+        "type": "string"
+      },
+      "minItems": 1,
+      "title": "Consumed Source Families",
+      "type": "array"
+    },
+    "family": {
+      "const": "V84",
+      "title": "Family",
+      "type": "string"
+    },
+    "family_closed_on_main": {
+      "const": "closed_after_v84c_merge",
+      "title": "Family Closed On Main",
+      "type": "string"
+    },
+    "future_family_authority": {
+      "const": "next_selector_required",
+      "title": "Future Family Authority",
+      "type": "string"
+    },
+    "limitation_note": {
+      "title": "Limitation Note",
+      "type": "string"
+    },
+    "post_work_packet_activation_review_handoff_id": {
+      "title": "Post Work Packet Activation Review Handoff Id",
+      "type": "string"
+    },
+    "schema": {
+      "const": "repo_work_packet_activation_family_closeout_alignment@1",
+      "title": "Schema",
+      "type": "string"
+    },
+    "shipped_record_shapes": {
+      "items": {
+        "enum": [
+          "repo_work_packet_activation_review_request@1",
+          "repo_work_packet_activation_source_index@1",
+          "repo_work_packet_activation_non_execution_guardrail@1",
+          "repo_work_packet_scope_contract@1",
+          "repo_implementation_target_surface_boundary@1",
+          "repo_work_packet_validation_evidence_plan@1",
+          "repo_work_packet_activation_exception_register@1",
+          "repo_work_packet_activation_readiness_summary@1",
+          "repo_post_work_packet_activation_review_handoff@1",
+          "repo_work_packet_activation_family_closeout_alignment@1"
+        ],
+        "type": "string"
+      },
+      "minItems": 1,
+      "title": "Shipped Record Shapes",
+      "type": "array"
+    },
+    "unselected_future_surfaces": {
+      "items": {
+        "enum": [
+          "command_execution",
+          "direct_oai_runtime_behavior",
+          "graph_memory_authority",
+          "implementation_execution",
+          "implementation_lock_creation",
+          "meta_orchestrator_runtime_transition",
+          "morphic_ux_runtime_change",
+          "pr_commit_merge_release",
+          "product_authorization",
+          "recursive_policy_amendment",
+          "target_mutation",
+          "tool_invocation",
+          "v85_selection",
+          "work_packet_activation",
+          "work_packet_execution"
+        ],
+        "type": "string"
+      },
+      "minItems": 1,
+      "title": "Unselected Future Surfaces",
+      "type": "array"
+    },
+    "work_packet_activation_family_closeout_alignment_id": {
+      "title": "Work Packet Activation Family Closeout Alignment Id",
+      "type": "string"
+    },
+    "work_packet_activation_readiness_summary_id": {
+      "title": "Work Packet Activation Readiness Summary Id",
+      "type": "string"
+    },
+    "work_packet_activation_review_boundary": {
+      "title": "Work Packet Activation Review Boundary",
+      "type": "string"
+    }
+  },
+  "required": [
+    "schema",
+    "work_packet_activation_family_closeout_alignment_id",
+    "work_packet_activation_readiness_summary_id",
+    "post_work_packet_activation_review_handoff_id",
+    "family",
+    "closed_by_arc",
+    "closed_slice_ladder",
+    "shipped_record_shapes",
+    "consumed_source_families",
+    "family_closed_on_main",
+    "future_family_authority",
+    "unselected_future_surfaces",
+    "work_packet_activation_review_boundary",
+    "limitation_note"
+  ],
+  "title": "RepoWorkPacketActivationFamilyCloseoutAlignment",
+  "type": "object"
+}
