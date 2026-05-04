@@ -3530,6 +3530,15 @@ def validate_v85b_semantic_lookup_registry_bundle(
     }
     if shared != {"vNext+240"}:
         raise ValueError("V85-B surfaces must share vNext+240 review id")
+    if (
+        semantic_pointer_lookup_fixture.canonical_meta_lookup_index_id
+        != canonical_meta_lookup_index.canonical_meta_lookup_index_id
+        or semantic_pointer_lookup_fixture.semantic_operator_class_registry_id
+        != semantic_operator_class_registry.semantic_operator_class_registry_id
+        or semantic_pointer_lookup_fixture.obligation_family_registry_id
+        != obligation_family_registry.obligation_family_registry_id
+    ):
+        raise ValueError("lookup fixture must reference supplied V85-B surfaces")
 
     known_requests = {
         row.declaration_request_ref: row

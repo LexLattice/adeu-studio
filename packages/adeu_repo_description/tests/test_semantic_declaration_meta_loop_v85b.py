@@ -272,10 +272,14 @@ def test_v85b_bundle_rejects_alias_lookup_without_registry_alias() -> None:
         row.model_copy(update={"alias_rows": []}) if row.canonical_id == "ui.menu@v1" else row
         for row in registry.registry_rows
     ]
+    fixture = _v85b_fixture().model_copy(
+        update={"canonical_meta_lookup_index_id": lookup.canonical_meta_lookup_index_id}
+    )
     with pytest.raises(ValueError, match="alias pointer lookup requires a registry alias row"):
         _validate_reference_bundle_with(
             lookup=lookup,
             registry=registry.model_copy(update={"registry_rows": registry_rows}),
+            fixture=fixture,
         )
 
 
@@ -287,6 +291,14 @@ def test_v85b_bundle_rejects_fixture_result_refs_that_do_not_resolve() -> None:
         )
     )
     with pytest.raises(ValueError, match="fixture actual result refs must resolve"):
+        _validate_reference_bundle_with(fixture=fixture)
+
+
+def test_v85b_bundle_rejects_fixture_linked_to_stale_surface_ids() -> None:
+    fixture = _v85b_fixture().model_copy(
+        update={"canonical_meta_lookup_index_id": "repo_canonical_meta_lookup_index:stale"}
+    )
+    with pytest.raises(ValueError, match="lookup fixture must reference supplied V85-B surfaces"):
         _validate_reference_bundle_with(fixture=fixture)
 
 
