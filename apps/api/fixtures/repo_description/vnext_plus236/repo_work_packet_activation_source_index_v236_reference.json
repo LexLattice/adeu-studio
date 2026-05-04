@@ -1,0 +1,170 @@
+{
+  "generated_work_packet_candidate_rows": [
+    {
+      "candidate_authority_posture": "candidate_only",
+      "generated_candidate_ref": "generated-candidate:v84a:intent-to-spec-work-packet",
+      "generated_output_refs": [
+        "docs/DRAFT_ADEU_WORK_PACKET_ACTIVATION_REVIEW_V84A_IMPLEMENTATION_MAPPING_v0.md"
+      ],
+      "generating_actor_kind": "agent",
+      "generation_scope_posture": "generated_for_review_only",
+      "input_projection_packet_refs": [
+        "projection-packet:v83c:intent-to-spec"
+      ],
+      "input_quality_gate_refs": [
+        "quality-gate:v83c:later-implementation-slice-review"
+      ],
+      "limitation_note": "Generated work-packet candidate remains candidate-only for review; no implementation.",
+      "model_or_agent_profile_refs": [
+        "docs/LOCKED_CONTINUATION_vNEXT_PLUS236.md"
+      ],
+      "prompt_context_refs": [
+        "docs/DRAFT_NEXT_ARC_OPTIONS_v74.md"
+      ],
+      "reviewer_amendment_refs": [
+        "docs/ASSESSMENT_vNEXT_PLUS236_EDGES.md"
+      ],
+      "source_refs": [
+        "docs/DRAFT_ADEU_WORK_PACKET_ACTIVATION_REVIEW_V84_IMPLEMENTATION_MAPPING_v0.md"
+      ]
+    }
+  ],
+  "review_id": "vNext+236",
+  "schema": "repo_work_packet_activation_source_index@1",
+  "snapshot_id": "vNext+236-work-packet-activation-review-start",
+  "source_index_summary": "V84-A source index binds released V83 projection and handoff sources plus support context for activation review with no implementation.",
+  "source_rows": [
+    {
+      "activation_source_role": "v83_projection_packet_source",
+      "generation_posture": "not_generated",
+      "limitation_note": "Released V83-C projection packet source for activation review only; no implementation.",
+      "odeu_lane": "epistemic",
+      "projection_authority_posture": "projection_source_for_review_only",
+      "source_currentness": "current_released_source",
+      "source_kind": "fixture_file",
+      "source_presence_posture": "present",
+      "source_ref": "apps/api/fixtures/repo_description/vnext_plus235/repo_implementation_spec_projection_packet_v235_reference.json",
+      "source_status": "integrated_shaping_source",
+      "work_packet_authority_posture": "work_packet_requires_later_lock"
+    },
+    {
+      "activation_source_role": "v83_handoff_source",
+      "generation_posture": "not_generated",
+      "limitation_note": "Released V83-C handoff source for activation review only; no implementation.",
+      "odeu_lane": "epistemic",
+      "projection_authority_posture": "projection_source_for_review_only",
+      "source_currentness": "current_released_source",
+      "source_kind": "fixture_file",
+      "source_presence_posture": "present",
+      "source_ref": "apps/api/fixtures/repo_description/vnext_plus235/repo_intent_to_work_packet_handoff_v235_reference.json",
+      "source_status": "integrated_shaping_source",
+      "work_packet_authority_posture": "work_packet_requires_later_lock"
+    },
+    {
+      "activation_source_role": "v83_closeout_source",
+      "generation_posture": "not_generated",
+      "limitation_note": "Released V83 family closeout source for activation review only; no implementation.",
+      "odeu_lane": "epistemic",
+      "projection_authority_posture": "projection_source_for_review_only",
+      "source_currentness": "current_released_source",
+      "source_kind": "fixture_file",
+      "source_presence_posture": "present",
+      "source_ref": "apps/api/fixtures/repo_description/vnext_plus235/repo_semantic_implementation_spec_family_closeout_alignment_v235_reference.json",
+      "source_status": "integrated_shaping_source",
+      "work_packet_authority_posture": "work_packet_requires_later_lock"
+    },
+    {
+      "activation_source_role": "canonical_lock_requirement_source",
+      "generation_posture": "not_generated",
+      "limitation_note": "V84-A assessment records later lock requirements for review; no implementation.",
+      "odeu_lane": "deontic",
+      "projection_authority_posture": "support_context_only",
+      "source_currentness": "current_released_source",
+      "source_kind": "planning_doc",
+      "source_presence_posture": "present",
+      "source_ref": "docs/ASSESSMENT_vNEXT_PLUS236_EDGES.md",
+      "source_status": "integrated_shaping_source",
+      "work_packet_authority_posture": "work_packet_requires_later_lock"
+    },
+    {
+      "activation_source_role": "support_process_context",
+      "generation_posture": "not_generated",
+      "limitation_note": "V84-A support mapping contextualizes activation review; no implementation.",
+      "odeu_lane": "utility",
+      "projection_authority_posture": "support_context_only",
+      "source_currentness": "context_only",
+      "source_kind": "planning_doc",
+      "source_presence_posture": "present",
+      "source_ref": "docs/DRAFT_ADEU_WORK_PACKET_ACTIVATION_REVIEW_V84A_IMPLEMENTATION_MAPPING_v0.md",
+      "source_status": "integrated_shaping_source",
+      "work_packet_authority_posture": "work_packet_review_only"
+    },
+    {
+      "activation_source_role": "generated_work_packet_candidate_review_source",
+      "generation_posture": "generated_for_review_only",
+      "limitation_note": "Generated work-packet candidate context is candidate review only; no implementation.",
+      "odeu_lane": "utility",
+      "projection_authority_posture": "generated_candidate_source_only",
+      "source_currentness": "context_only",
+      "source_kind": "planning_doc",
+      "source_presence_posture": "present",
+      "source_ref": "docs/DRAFT_ADEU_WORK_PACKET_ACTIVATION_REVIEW_V84_IMPLEMENTATION_MAPPING_v0.md",
+      "source_status": "integrated_shaping_source",
+      "work_packet_authority_posture": "work_packet_review_only"
+    },
+    {
+      "activation_source_role": "support_process_context",
+      "generation_posture": "not_generated",
+      "limitation_note": "V84 selector is support context for activation review; no implementation.",
+      "odeu_lane": "utility",
+      "projection_authority_posture": "support_context_only",
+      "source_currentness": "context_only",
+      "source_kind": "planning_doc",
+      "source_presence_posture": "present",
+      "source_ref": "docs/DRAFT_NEXT_ARC_OPTIONS_v74.md",
+      "source_status": "integrated_shaping_source",
+      "work_packet_authority_posture": "work_packet_review_only"
+    },
+    {
+      "activation_source_role": "canonical_lock_requirement_source",
+      "generation_posture": "not_generated",
+      "limitation_note": "V84-A lock defines review scope and later lock requirements; no implementation.",
+      "odeu_lane": "deontic",
+      "projection_authority_posture": "support_context_only",
+      "source_currentness": "current_released_source",
+      "source_kind": "planning_doc",
+      "source_presence_posture": "present",
+      "source_ref": "docs/LOCKED_CONTINUATION_vNEXT_PLUS236.md",
+      "source_status": "integrated_shaping_source",
+      "work_packet_authority_posture": "work_packet_requires_later_lock"
+    },
+    {
+      "activation_source_role": "combined_dogfood_context",
+      "generation_posture": "not_generated",
+      "limitation_note": "Combined dogfood is context for activation review only; no implementation.",
+      "odeu_lane": "epistemic",
+      "projection_authority_posture": "support_context_only",
+      "source_currentness": "context_only",
+      "source_kind": "support_doc",
+      "source_presence_posture": "present",
+      "source_ref": "docs/support/arc_series_mapping/V68_V69_V70_V71_V72_V73_V74_V75_V76_V77_V78_V79_V80_V81_V82_V83_COMBINED_DOGFOOD_TEST_v0.json",
+      "source_status": "integrated_shaping_source",
+      "work_packet_authority_posture": "work_packet_review_only"
+    },
+    {
+      "activation_source_role": "morphic_ux_support_context",
+      "generation_posture": "not_generated",
+      "limitation_note": "Morphic UX support remains runtime-UI context for review only; no implementation.",
+      "odeu_lane": "utility",
+      "projection_authority_posture": "support_context_only",
+      "source_currentness": "context_only",
+      "source_kind": "support_doc",
+      "source_presence_posture": "present",
+      "source_ref": "docs/support/morphic_ux. v2.md",
+      "source_status": "integrated_shaping_source",
+      "work_packet_authority_posture": "work_packet_review_only"
+    }
+  ],
+  "source_set_id": "source-set:v84a:work-packet-activation-review",
+  "work_packet_activation_source_index_id": "repo_work_packet_activation_source_index_00de703df72da957abb3bebe"
+}

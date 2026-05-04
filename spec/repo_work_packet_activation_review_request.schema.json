@@ -1,0 +1,402 @@
+{
+  "$defs": {
+    "RepoWorkPacketActivationReviewRequestRow": {
+      "additionalProperties": false,
+      "properties": {
+        "activation_authority_posture": {
+          "enum": [
+            "no_activation_authority_granted_by_v84",
+            "activation_requires_later_canonical_lock",
+            "activation_forbidden_by_this_family"
+          ],
+          "title": "Activation Authority Posture",
+          "type": "string"
+        },
+        "activation_execution_posture": {
+          "enum": [
+            "no_activation_performed_by_v84",
+            "activation_requires_later_canonical_lock",
+            "activation_forbidden_by_this_family"
+          ],
+          "title": "Activation Execution Posture",
+          "type": "string"
+        },
+        "activation_package_ref": {
+          "title": "Activation Package Ref",
+          "type": "string"
+        },
+        "activation_request_recordability_posture": {
+          "enum": [
+            "recordable_from_released_v83_projection",
+            "recordable_from_released_v83_handoff",
+            "recordable_from_generated_work_packet_candidate",
+            "recordable_from_operator_request_with_absence_markers",
+            "recordable_from_support_context_only",
+            "not_recordable_missing_projection_source"
+          ],
+          "title": "Activation Request Recordability Posture",
+          "type": "string"
+        },
+        "activation_request_ref": {
+          "title": "Activation Request Ref",
+          "type": "string"
+        },
+        "activation_review_eligibility_posture": {
+          "enum": [
+            "eligible_for_work_packet_activation_review",
+            "request_recorded_for_review_only",
+            "blocked_by_missing_projection_packet",
+            "blocked_by_missing_quality_gate",
+            "blocked_by_carried_semantic_drift",
+            "blocked_by_generated_candidate_provenance_gap",
+            "blocked_by_unbounded_target_surface",
+            "blocked_by_missing_validation_evidence",
+            "blocked_by_missing_canonical_lock_requirement",
+            "blocked_by_authority_gap",
+            "future_family_only",
+            "rejected_out_of_scope"
+          ],
+          "title": "Activation Review Eligibility Posture",
+          "type": "string"
+        },
+        "artifact_obligation_refs": {
+          "items": {
+            "type": "string"
+          },
+          "title": "Artifact Obligation Refs",
+          "type": "array"
+        },
+        "candidate_ref": {
+          "title": "Candidate Ref",
+          "type": "string"
+        },
+        "canonical_lock_requirement": {
+          "enum": [
+            "canonical_implementation_lock_required",
+            "morphic_ux_runtime_authority_review_required",
+            "direct_oai_runtime_authority_review_required",
+            "meta_orchestrator_runtime_authority_review_required",
+            "future_family_only"
+          ],
+          "title": "Canonical Lock Requirement",
+          "type": "string"
+        },
+        "canonical_lock_requirement_refs": {
+          "items": {
+            "type": "string"
+          },
+          "title": "Canonical Lock Requirement Refs",
+          "type": "array"
+        },
+        "carried_blocker_refs": {
+          "items": {
+            "type": "string"
+          },
+          "title": "Carried Blocker Refs",
+          "type": "array"
+        },
+        "carried_warning_refs": {
+          "items": {
+            "type": "string"
+          },
+          "title": "Carried Warning Refs",
+          "type": "array"
+        },
+        "drift_register_refs": {
+          "items": {
+            "type": "string"
+          },
+          "title": "Drift Register Refs",
+          "type": "array"
+        },
+        "edge_decomposition_refs": {
+          "items": {
+            "type": "string"
+          },
+          "title": "Edge Decomposition Refs",
+          "type": "array"
+        },
+        "generated_candidate_refs": {
+          "items": {
+            "type": "string"
+          },
+          "title": "Generated Candidate Refs",
+          "type": "array"
+        },
+        "guardrail_refs": {
+          "items": {
+            "type": "string"
+          },
+          "title": "Guardrail Refs",
+          "type": "array"
+        },
+        "handoff_refs": {
+          "items": {
+            "type": "string"
+          },
+          "title": "Handoff Refs",
+          "type": "array"
+        },
+        "implementation_execution_posture": {
+          "enum": [
+            "no_implementation_performed_by_v84",
+            "implementation_requires_later_lock",
+            "implementation_forbidden_by_this_family"
+          ],
+          "title": "Implementation Execution Posture",
+          "type": "string"
+        },
+        "implementation_lock_status": {
+          "enum": [
+            "no_implementation_lock_created_by_v84",
+            "later_implementation_lock_review_requested",
+            "later_selector_required",
+            "deferred_no_selection"
+          ],
+          "title": "Implementation Lock Status",
+          "type": "string"
+        },
+        "implementation_spec_refs": {
+          "items": {
+            "type": "string"
+          },
+          "title": "Implementation Spec Refs",
+          "type": "array"
+        },
+        "intent_contract_refs": {
+          "items": {
+            "type": "string"
+          },
+          "title": "Intent Contract Refs",
+          "type": "array"
+        },
+        "limitation_note": {
+          "title": "Limitation Note",
+          "type": "string"
+        },
+        "odeu_lanes": {
+          "items": {
+            "enum": [
+              "ontological",
+              "deontic",
+              "epistemic",
+              "utility"
+            ],
+            "type": "string"
+          },
+          "minItems": 1,
+          "title": "Odeu Lanes",
+          "type": "array"
+        },
+        "projection_authority_posture": {
+          "enum": [
+            "projection_source_for_review_only",
+            "quality_gate_source_for_review_only",
+            "generated_candidate_source_only",
+            "support_context_only",
+            "projection_missing",
+            "projection_blocked_by_carried_drift",
+            "not_applicable"
+          ],
+          "title": "Projection Authority Posture",
+          "type": "string"
+        },
+        "projection_packet_refs": {
+          "items": {
+            "type": "string"
+          },
+          "title": "Projection Packet Refs",
+          "type": "array"
+        },
+        "pull_request_posture": {
+          "enum": [
+            "no_pr_created_by_v84",
+            "pr_requires_later_lock",
+            "pr_forbidden_by_this_family"
+          ],
+          "title": "Pull Request Posture",
+          "type": "string"
+        },
+        "quality_gate_refs": {
+          "items": {
+            "type": "string"
+          },
+          "title": "Quality Gate Refs",
+          "type": "array"
+        },
+        "requested_activation_review_horizon": {
+          "enum": [
+            "implementation_lock_review_package",
+            "morphic_ux_runtime_ui_authority_review_package",
+            "direct_oai_provider_runtime_authority_review_package",
+            "meta_orchestrator_workflow_runtime_authority_review_package",
+            "future_family_only"
+          ],
+          "title": "Requested Activation Review Horizon",
+          "type": "string"
+        },
+        "requested_work_packet_horizon": {
+          "enum": [
+            "repo_description_implementation_slice_review",
+            "morphic_ux_projection_implementation_review",
+            "direct_oai_harness_implementation_review",
+            "meta_orchestrator_workflow_activation_review",
+            "product_implementation_review",
+            "graph_memory_implementation_review",
+            "future_family_only"
+          ],
+          "title": "Requested Work Packet Horizon",
+          "type": "string"
+        },
+        "source_refs": {
+          "items": {
+            "type": "string"
+          },
+          "minItems": 1,
+          "title": "Source Refs",
+          "type": "array"
+        },
+        "target_family_boundary_posture": {
+          "enum": [
+            "repo_description_implementation_allowed_for_later_lock_review",
+            "morphic_ux_requires_runtime_ui_authority_review",
+            "direct_oai_requires_provider_runtime_authority_review",
+            "meta_orchestrator_requires_workflow_runtime_authority_review",
+            "product_requires_product_authority_review",
+            "graph_requires_graph_memory_authority_review",
+            "future_family_only"
+          ],
+          "title": "Target Family Boundary Posture",
+          "type": "string"
+        },
+        "target_mutation_posture": {
+          "enum": [
+            "no_target_mutation_performed_by_v84",
+            "target_mutation_requires_later_lock",
+            "target_mutation_forbidden_by_this_family"
+          ],
+          "title": "Target Mutation Posture",
+          "type": "string"
+        },
+        "target_surface_posture": {
+          "enum": [
+            "bounded_for_later_review",
+            "warning_future_family_boundary",
+            "blocked_by_unbounded_target_surface",
+            "future_family_only"
+          ],
+          "title": "Target Surface Posture",
+          "type": "string"
+        },
+        "validation_evidence_posture": {
+          "enum": [
+            "edge_bound_for_later_review",
+            "tests_listed_not_sufficient",
+            "blocked_by_missing_validation_evidence",
+            "future_family_only"
+          ],
+          "title": "Validation Evidence Posture",
+          "type": "string"
+        },
+        "work_packet_authority_posture": {
+          "enum": [
+            "work_packet_requires_later_lock",
+            "work_packet_review_only",
+            "no_work_packet_authority_granted",
+            "work_packet_forbidden_by_this_family"
+          ],
+          "title": "Work Packet Authority Posture",
+          "type": "string"
+        },
+        "work_packet_execution_posture": {
+          "enum": [
+            "no_work_packet_execution_performed_by_v84",
+            "work_packet_execution_requires_later_lock",
+            "work_packet_execution_forbidden_by_this_family"
+          ],
+          "title": "Work Packet Execution Posture",
+          "type": "string"
+        }
+      },
+      "required": [
+        "activation_request_ref",
+        "activation_package_ref",
+        "candidate_ref",
+        "source_refs",
+        "requested_work_packet_horizon",
+        "requested_activation_review_horizon",
+        "activation_request_recordability_posture",
+        "activation_review_eligibility_posture",
+        "projection_authority_posture",
+        "work_packet_authority_posture",
+        "target_surface_posture",
+        "validation_evidence_posture",
+        "canonical_lock_requirement",
+        "activation_authority_posture",
+        "implementation_lock_status",
+        "target_family_boundary_posture",
+        "activation_execution_posture",
+        "work_packet_execution_posture",
+        "implementation_execution_posture",
+        "target_mutation_posture",
+        "pull_request_posture",
+        "odeu_lanes",
+        "limitation_note"
+      ],
+      "title": "RepoWorkPacketActivationReviewRequestRow",
+      "type": "object"
+    }
+  },
+  "additionalProperties": false,
+  "properties": {
+    "activation_request_rows": {
+      "items": {
+        "$ref": "#/$defs/RepoWorkPacketActivationReviewRequestRow"
+      },
+      "minItems": 1,
+      "title": "Activation Request Rows",
+      "type": "array"
+    },
+    "activation_review_summary": {
+      "title": "Activation Review Summary",
+      "type": "string"
+    },
+    "review_id": {
+      "title": "Review Id",
+      "type": "string"
+    },
+    "schema": {
+      "const": "repo_work_packet_activation_review_request@1",
+      "title": "Schema",
+      "type": "string"
+    },
+    "snapshot_id": {
+      "title": "Snapshot Id",
+      "type": "string"
+    },
+    "source_set_id": {
+      "title": "Source Set Id",
+      "type": "string"
+    },
+    "work_packet_activation_review_request_id": {
+      "title": "Work Packet Activation Review Request Id",
+      "type": "string"
+    },
+    "work_packet_activation_source_index_id": {
+      "title": "Work Packet Activation Source Index Id",
+      "type": "string"
+    }
+  },
+  "required": [
+    "schema",
+    "work_packet_activation_review_request_id",
+    "work_packet_activation_source_index_id",
+    "review_id",
+    "snapshot_id",
+    "source_set_id",
+    "activation_request_rows",
+    "activation_review_summary"
+  ],
+  "title": "RepoWorkPacketActivationReviewRequest",
+  "type": "object"
+}

@@ -1,0 +1,216 @@
+{
+  "activation_request_rows": [
+    {
+      "activation_authority_posture": "no_activation_authority_granted_by_v84",
+      "activation_execution_posture": "no_activation_performed_by_v84",
+      "activation_package_ref": "activation-package:v84a:intent-to-spec-lock-review",
+      "activation_request_recordability_posture": "recordable_from_released_v83_projection",
+      "activation_request_ref": "activation-request:v84a:intent-to-spec-lock-review",
+      "activation_review_eligibility_posture": "eligible_for_work_packet_activation_review",
+      "artifact_obligation_refs": [
+        "artifact-obligation:v83b:fixtures",
+        "artifact-obligation:v83b:schema:artifact-obligation-map",
+        "artifact-obligation:v83b:schema:drift-register",
+        "artifact-obligation:v83b:schema:edge-decomposition",
+        "artifact-obligation:v83b:tests"
+      ],
+      "candidate_ref": "candidate:internal:intent_to_implementation_spec_institution",
+      "canonical_lock_requirement": "canonical_implementation_lock_required",
+      "canonical_lock_requirement_refs": [
+        "canonical-lock-requirement:v84a:intent-to-spec-lock-review"
+      ],
+      "carried_blocker_refs": [
+        "blocker:v84a:semantic-drift"
+      ],
+      "carried_warning_refs": [],
+      "drift_register_refs": [
+        "drift-register:v83b:intent-to-spec"
+      ],
+      "edge_decomposition_refs": [
+        "edge-decomposition:v83b:intent-to-spec"
+      ],
+      "generated_candidate_refs": [
+        "generated-candidate:v84a:intent-to-spec-work-packet"
+      ],
+      "guardrail_refs": [
+        "guardrail:v84a:intent-to-spec-lock-review"
+      ],
+      "handoff_refs": [
+        "handoff:v83c:implementation-slice-review"
+      ],
+      "implementation_execution_posture": "no_implementation_performed_by_v84",
+      "implementation_lock_status": "no_implementation_lock_created_by_v84",
+      "implementation_spec_refs": [
+        "implementation-spec:v83c:artifact-obligation-map",
+        "implementation-spec:v83c:drift-register",
+        "implementation-spec:v83c:edge-decomposition",
+        "implementation-spec:v83c:fixtures",
+        "implementation-spec:v83c:tests"
+      ],
+      "intent_contract_refs": [
+        "semantic-intent:v83a:intent-to-implementation-spec"
+      ],
+      "limitation_note": "Activation review is eligible only for later lock package review; no implementation and no later lock is created here.",
+      "odeu_lanes": [
+        "deontic",
+        "epistemic",
+        "utility"
+      ],
+      "projection_authority_posture": "projection_source_for_review_only",
+      "projection_packet_refs": [
+        "projection-packet:v83c:intent-to-spec"
+      ],
+      "pull_request_posture": "no_pr_created_by_v84",
+      "quality_gate_refs": [
+        "quality-gate:v83c:later-implementation-slice-review"
+      ],
+      "requested_activation_review_horizon": "implementation_lock_review_package",
+      "requested_work_packet_horizon": "repo_description_implementation_slice_review",
+      "source_refs": [
+        "apps/api/fixtures/repo_description/vnext_plus235/repo_implementation_spec_projection_packet_v235_reference.json",
+        "apps/api/fixtures/repo_description/vnext_plus235/repo_intent_to_work_packet_handoff_v235_reference.json",
+        "apps/api/fixtures/repo_description/vnext_plus235/repo_semantic_implementation_spec_family_closeout_alignment_v235_reference.json",
+        "docs/ASSESSMENT_vNEXT_PLUS236_EDGES.md",
+        "docs/LOCKED_CONTINUATION_vNEXT_PLUS236.md"
+      ],
+      "target_family_boundary_posture": "repo_description_implementation_allowed_for_later_lock_review",
+      "target_mutation_posture": "no_target_mutation_performed_by_v84",
+      "target_surface_posture": "bounded_for_later_review",
+      "validation_evidence_posture": "edge_bound_for_later_review",
+      "work_packet_authority_posture": "work_packet_requires_later_lock",
+      "work_packet_execution_posture": "no_work_packet_execution_performed_by_v84"
+    },
+    {
+      "activation_authority_posture": "no_activation_authority_granted_by_v84",
+      "activation_execution_posture": "no_activation_performed_by_v84",
+      "activation_package_ref": "activation-package:v84a:meta-orchestrator-review",
+      "activation_request_recordability_posture": "recordable_from_released_v83_handoff",
+      "activation_request_ref": "activation-request:v84a:meta-orchestrator-review",
+      "activation_review_eligibility_posture": "request_recorded_for_review_only",
+      "artifact_obligation_refs": [],
+      "candidate_ref": "candidate:internal:intent_to_implementation_spec_institution",
+      "canonical_lock_requirement": "meta_orchestrator_runtime_authority_review_required",
+      "canonical_lock_requirement_refs": [
+        "canonical-lock-requirement:v84a:meta-orchestrator-runtime-review"
+      ],
+      "carried_blocker_refs": [],
+      "carried_warning_refs": [
+        "drift:v83b:direct-oai-runtime-scope"
+      ],
+      "drift_register_refs": [
+        "drift-register:v83b:intent-to-spec"
+      ],
+      "edge_decomposition_refs": [
+        "edge-decomposition:v83b:intent-to-spec"
+      ],
+      "generated_candidate_refs": [],
+      "guardrail_refs": [
+        "guardrail:v84a:meta-orchestrator-review"
+      ],
+      "handoff_refs": [
+        "handoff:v83c:workflow-orchestrator-review"
+      ],
+      "implementation_execution_posture": "no_implementation_performed_by_v84",
+      "implementation_lock_status": "no_implementation_lock_created_by_v84",
+      "implementation_spec_refs": [],
+      "intent_contract_refs": [
+        "semantic-intent:v83a:intent-to-implementation-spec"
+      ],
+      "limitation_note": "Meta-orchestrator pressure is recorded for later lock review; no implementation and no runtime transition occurs.",
+      "odeu_lanes": [
+        "deontic",
+        "utility"
+      ],
+      "projection_authority_posture": "projection_source_for_review_only",
+      "projection_packet_refs": [
+        "projection-packet:v83c:intent-to-spec"
+      ],
+      "pull_request_posture": "no_pr_created_by_v84",
+      "quality_gate_refs": [
+        "quality-gate:v83c:later-implementation-slice-review"
+      ],
+      "requested_activation_review_horizon": "meta_orchestrator_workflow_runtime_authority_review_package",
+      "requested_work_packet_horizon": "meta_orchestrator_workflow_activation_review",
+      "source_refs": [
+        "apps/api/fixtures/repo_description/vnext_plus235/repo_intent_to_work_packet_handoff_v235_reference.json",
+        "docs/DRAFT_ADEU_WORK_PACKET_ACTIVATION_REVIEW_V84A_IMPLEMENTATION_MAPPING_v0.md"
+      ],
+      "target_family_boundary_posture": "meta_orchestrator_requires_workflow_runtime_authority_review",
+      "target_mutation_posture": "no_target_mutation_performed_by_v84",
+      "target_surface_posture": "warning_future_family_boundary",
+      "validation_evidence_posture": "future_family_only",
+      "work_packet_authority_posture": "work_packet_requires_later_lock",
+      "work_packet_execution_posture": "no_work_packet_execution_performed_by_v84"
+    },
+    {
+      "activation_authority_posture": "no_activation_authority_granted_by_v84",
+      "activation_execution_posture": "no_activation_performed_by_v84",
+      "activation_package_ref": "activation-package:v84a:morphic-ux-review",
+      "activation_request_recordability_posture": "recordable_from_released_v83_handoff",
+      "activation_request_ref": "activation-request:v84a:morphic-ux-review",
+      "activation_review_eligibility_posture": "request_recorded_for_review_only",
+      "artifact_obligation_refs": [],
+      "candidate_ref": "candidate:internal:intent_to_implementation_spec_institution",
+      "canonical_lock_requirement": "morphic_ux_runtime_authority_review_required",
+      "canonical_lock_requirement_refs": [
+        "canonical-lock-requirement:v84a:morphic-runtime-ui-review"
+      ],
+      "carried_blocker_refs": [],
+      "carried_warning_refs": [
+        "drift:v83b:morphic-ux-scope"
+      ],
+      "drift_register_refs": [
+        "drift-register:v83b:intent-to-spec"
+      ],
+      "edge_decomposition_refs": [
+        "edge-decomposition:v83b:intent-to-spec"
+      ],
+      "generated_candidate_refs": [],
+      "guardrail_refs": [
+        "guardrail:v84a:morphic-ux-review"
+      ],
+      "handoff_refs": [
+        "handoff:v83c:morphic-ux-projection-review"
+      ],
+      "implementation_execution_posture": "no_implementation_performed_by_v84",
+      "implementation_lock_status": "no_implementation_lock_created_by_v84",
+      "implementation_spec_refs": [],
+      "intent_contract_refs": [
+        "semantic-intent:v83a:intent-to-implementation-spec"
+      ],
+      "limitation_note": "Morphic UX pressure is recorded for later lock review; no implementation and no runtime UI change.",
+      "odeu_lanes": [
+        "deontic",
+        "utility"
+      ],
+      "projection_authority_posture": "projection_source_for_review_only",
+      "projection_packet_refs": [
+        "projection-packet:v83c:intent-to-spec"
+      ],
+      "pull_request_posture": "no_pr_created_by_v84",
+      "quality_gate_refs": [
+        "quality-gate:v83c:later-implementation-slice-review"
+      ],
+      "requested_activation_review_horizon": "morphic_ux_runtime_ui_authority_review_package",
+      "requested_work_packet_horizon": "morphic_ux_projection_implementation_review",
+      "source_refs": [
+        "apps/api/fixtures/repo_description/vnext_plus235/repo_intent_to_work_packet_handoff_v235_reference.json",
+        "docs/DRAFT_ADEU_WORK_PACKET_ACTIVATION_REVIEW_V84A_IMPLEMENTATION_MAPPING_v0.md",
+        "docs/support/morphic_ux. v2.md"
+      ],
+      "target_family_boundary_posture": "morphic_ux_requires_runtime_ui_authority_review",
+      "target_mutation_posture": "no_target_mutation_performed_by_v84",
+      "target_surface_posture": "warning_future_family_boundary",
+      "validation_evidence_posture": "future_family_only",
+      "work_packet_authority_posture": "work_packet_requires_later_lock",
+      "work_packet_execution_posture": "no_work_packet_execution_performed_by_v84"
+    }
+  ],
+  "activation_review_summary": "V84-A records activation review requests for later lock packages with no implementation and no later lock created here.",
+  "review_id": "vNext+236",
+  "schema": "repo_work_packet_activation_review_request@1",
+  "snapshot_id": "vNext+236-work-packet-activation-review-start",
+  "source_set_id": "source-set:v84a:work-packet-activation-review",
+  "work_packet_activation_review_request_id": "repo_work_packet_activation_review_request_3dbe16e667563d930a6bdf88",
+  "work_packet_activation_source_index_id": "repo_work_packet_activation_source_index_00de703df72da957abb3bebe"
+}
