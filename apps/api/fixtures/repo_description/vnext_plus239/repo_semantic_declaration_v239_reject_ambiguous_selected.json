@@ -1,0 +1,938 @@
+{
+  "declaration_request_rows": [
+    {
+      "binding_basis_refs": [
+        "witness:v85a:support:canonical-loop"
+      ],
+      "binding_posture": "ambiguous",
+      "binding_resolution_posture": "ambiguous_requires_review",
+      "candidate_ref": "candidate:v85:semantic-declaration-office",
+      "canonical_lookup_required_posture": "lookup_required_later",
+      "canonical_lookup_status": "lookup_required_later",
+      "declaration_candidate_status": "ambiguous_candidate",
+      "declaration_horizon": "semantic_act_declaration",
+      "declaration_recordability_posture": "recordable_from_concrete_operator_turn",
+      "declaration_request_ref": "declaration-request:v85a:ambiguous-natural-binding",
+      "declaration_review_eligibility_posture": "blocked_by_ambiguous_binding",
+      "declaration_selection_status": "ambiguous_not_selected",
+      "declared_semantic_act_rows": [
+        {
+          "ambiguity_posture": "ambiguous_requires_review",
+          "binding_basis_refs": [
+            "witness:v85a:direct:object-class",
+            "witness:v85a:direct:operator",
+            "witness:v85a:direct:target-context"
+          ],
+          "canonical_status": "candidate_class_only",
+          "declaration_candidate_status": "ambiguous_candidate",
+          "declaration_selection_status": "not_selected_by_v85a",
+          "limitation_note": "Ambiguous semantic act remains candidate-only for review; no implementation.",
+          "modifiers": [
+            "candidate_only",
+            "review_only"
+          ],
+          "object_class": "semantic.declaration@v1",
+          "operator": "CREATE",
+          "registry_gap_posture": "no_registry_gap_claimed",
+          "semantic_act_ref": "semantic-act:v85a:ambiguous-natural-binding",
+          "semantic_declaration_session_ref": "semantic-declaration-session:v85a:intent-to-declaration-office",
+          "source_class": null,
+          "source_witness_refs": [
+            "witness:v85a:direct:object-class",
+            "witness:v85a:direct:operator",
+            "witness:v85a:direct:target-context"
+          ],
+          "target_class": "repo.review_surface@v1",
+          "target_context_refs": [
+            "packages/adeu_repo_description"
+          ]
+        }
+      ],
+      "guardrail_refs": [
+        "guardrail:v85a:ambiguous-natural-binding"
+      ],
+      "limitation_note": "Ambiguous binding is recorded for declaration review only; no implementation.",
+      "negative_cue_refs": [],
+      "negative_cue_rows": [],
+      "non_authority_posture": "no_declaration_authority_granted_by_v85",
+      "odeu_lanes": [
+        "epistemic",
+        "ontological"
+      ],
+      "operator_turn_refs": [
+        "operator-turn:v85a:semantic-declaration-meta-loop-request"
+      ],
+      "repo_context_refs": [],
+      "requested_declaration_review_horizon": "ambiguity_review",
+      "resident_model_competency_rows": [
+        {
+          "competency_kind": "artifact_shape_obedience",
+          "competency_ref": "competency:v85a:artifact_shape_obedience",
+          "evidence_or_fixture_refs": [],
+          "failure_routing_posture": "route_to_uncertainty_slot",
+          "non_authority_guardrail_refs": [
+            "guardrail:v85a:intent-to-declaration-office"
+          ],
+          "required_posture": "required_for_declaration_review",
+          "semantic_declaration_session_ref": "semantic-declaration-session:v85a:intent-to-declaration-office"
+        },
+        {
+          "competency_kind": "bounded_local_judgment",
+          "competency_ref": "competency:v85a:bounded_local_judgment",
+          "evidence_or_fixture_refs": [],
+          "failure_routing_posture": "route_to_uncertainty_slot",
+          "non_authority_guardrail_refs": [
+            "guardrail:v85a:intent-to-declaration-office"
+          ],
+          "required_posture": "required_for_declaration_review",
+          "semantic_declaration_session_ref": "semantic-declaration-session:v85a:intent-to-declaration-office"
+        },
+        {
+          "competency_kind": "declared_uncertainty_routing",
+          "competency_ref": "competency:v85a:declared_uncertainty_routing",
+          "evidence_or_fixture_refs": [],
+          "failure_routing_posture": "route_to_uncertainty_slot",
+          "non_authority_guardrail_refs": [
+            "guardrail:v85a:intent-to-declaration-office"
+          ],
+          "required_posture": "required_for_declaration_review",
+          "semantic_declaration_session_ref": "semantic-declaration-session:v85a:intent-to-declaration-office"
+        },
+        {
+          "competency_kind": "duplicate_preservation",
+          "competency_ref": "competency:v85a:duplicate_preservation",
+          "evidence_or_fixture_refs": [],
+          "failure_routing_posture": "route_to_uncertainty_slot",
+          "non_authority_guardrail_refs": [
+            "guardrail:v85a:intent-to-declaration-office"
+          ],
+          "required_posture": "required_for_declaration_review",
+          "semantic_declaration_session_ref": "semantic-declaration-session:v85a:intent-to-declaration-office"
+        },
+        {
+          "competency_kind": "no_unauthorized_transition",
+          "competency_ref": "competency:v85a:no_unauthorized_transition",
+          "evidence_or_fixture_refs": [],
+          "failure_routing_posture": "route_to_guardrail",
+          "non_authority_guardrail_refs": [
+            "guardrail:v85a:intent-to-declaration-office"
+          ],
+          "required_posture": "required_for_declaration_review",
+          "semantic_declaration_session_ref": "semantic-declaration-session:v85a:intent-to-declaration-office"
+        },
+        {
+          "competency_kind": "order_preservation",
+          "competency_ref": "competency:v85a:order_preservation",
+          "evidence_or_fixture_refs": [],
+          "failure_routing_posture": "route_to_uncertainty_slot",
+          "non_authority_guardrail_refs": [
+            "guardrail:v85a:intent-to-declaration-office"
+          ],
+          "required_posture": "required_for_declaration_review",
+          "semantic_declaration_session_ref": "semantic-declaration-session:v85a:intent-to-declaration-office"
+        },
+        {
+          "competency_kind": "pointer_obedience",
+          "competency_ref": "competency:v85a:pointer_obedience",
+          "evidence_or_fixture_refs": [],
+          "failure_routing_posture": "route_to_uncertainty_slot",
+          "non_authority_guardrail_refs": [
+            "guardrail:v85a:intent-to-declaration-office"
+          ],
+          "required_posture": "required_for_declaration_review",
+          "semantic_declaration_session_ref": "semantic-declaration-session:v85a:intent-to-declaration-office"
+        },
+        {
+          "competency_kind": "stop_at_schema_boundary",
+          "competency_ref": "competency:v85a:stop_at_schema_boundary",
+          "evidence_or_fixture_refs": [],
+          "failure_routing_posture": "route_to_uncertainty_slot",
+          "non_authority_guardrail_refs": [
+            "guardrail:v85a:intent-to-declaration-office"
+          ],
+          "required_posture": "required_for_declaration_review",
+          "semantic_declaration_session_ref": "semantic-declaration-session:v85a:intent-to-declaration-office"
+        },
+        {
+          "competency_kind": "unknown_pointer_abstention",
+          "competency_ref": "competency:v85a:unknown_pointer_abstention",
+          "evidence_or_fixture_refs": [],
+          "failure_routing_posture": "route_to_abstain",
+          "non_authority_guardrail_refs": [
+            "guardrail:v85a:intent-to-declaration-office"
+          ],
+          "required_posture": "required_for_declaration_review",
+          "semantic_declaration_session_ref": "semantic-declaration-session:v85a:intent-to-declaration-office"
+        }
+      ],
+      "semantic_act_witness_rows": [
+        {
+          "limitation_note": "Direct witness for candidate object class in declaration review.",
+          "semantic_declaration_session_ref": "semantic-declaration-session:v85a:intent-to-declaration-office",
+          "source_refs": [
+            "operator-turn:v85a:semantic-declaration-meta-loop-request"
+          ],
+          "witness_currentness": "current_turn_witness",
+          "witness_ref": "witness:v85a:direct:object-class",
+          "witness_strength": "direct",
+          "witnessed_element": "object_class"
+        },
+        {
+          "limitation_note": "Direct witness for declaration operator in review.",
+          "semantic_declaration_session_ref": "semantic-declaration-session:v85a:intent-to-declaration-office",
+          "source_refs": [
+            "operator-turn:v85a:semantic-declaration-meta-loop-request"
+          ],
+          "witness_currentness": "current_turn_witness",
+          "witness_ref": "witness:v85a:direct:operator",
+          "witness_strength": "direct",
+          "witnessed_element": "operator"
+        },
+        {
+          "limitation_note": "Direct repo context witness for declaration review target.",
+          "semantic_declaration_session_ref": "semantic-declaration-session:v85a:intent-to-declaration-office",
+          "source_refs": [
+            "docs/LOCKED_CONTINUATION_vNEXT_PLUS239.md"
+          ],
+          "witness_currentness": "current_repo_context",
+          "witness_ref": "witness:v85a:direct:target-context",
+          "witness_strength": "direct",
+          "witnessed_element": "target_context"
+        },
+        {
+          "limitation_note": "Support witness contextualizes declaration review only.",
+          "semantic_declaration_session_ref": "semantic-declaration-session:v85a:intent-to-declaration-office",
+          "source_refs": [
+            "docs/support/ARCHITECTURE_ADEU_CANONICAL_SEMANTIC_DECLARATION_META_LOOP_v0.md"
+          ],
+          "witness_currentness": "support_context_only",
+          "witness_ref": "witness:v85a:support:canonical-loop",
+          "witness_strength": "support_only",
+          "witnessed_element": "modifier"
+        }
+      ],
+      "semantic_declaration_session_ref": "semantic-declaration-session:v85a:intent-to-declaration-office",
+      "source_refs": [
+        "docs/support/ARCHITECTURE_ADEU_CANONICAL_SEMANTIC_DECLARATION_META_LOOP_v0.md",
+        "operator-turn:v85a:semantic-declaration-meta-loop-request"
+      ],
+      "source_witness_refs": [
+        "witness:v85a:support:canonical-loop"
+      ],
+      "turn_ref": "turn:v85a:ambiguous-natural-binding",
+      "uncertainty_slot_refs": [
+        "uncertainty:v85a:ambiguous-natural-binding"
+      ]
+    },
+    {
+      "binding_basis_refs": [
+        "witness:v85a:direct:object-class",
+        "witness:v85a:direct:operator",
+        "witness:v85a:direct:target-context"
+      ],
+      "binding_posture": "selected",
+      "binding_resolution_posture": "selected_for_later_lookup_review",
+      "candidate_ref": "candidate:v85:semantic-declaration-office",
+      "canonical_lookup_required_posture": "lookup_required_later",
+      "canonical_lookup_status": "lookup_required_later",
+      "declaration_candidate_status": "candidate_recorded_for_review",
+      "declaration_horizon": "semantic_act_declaration",
+      "declaration_recordability_posture": "recordable_from_concrete_operator_turn",
+      "declaration_request_ref": "declaration-request:v85a:intent-to-declaration-office",
+      "declaration_review_eligibility_posture": "eligible_for_semantic_declaration_review",
+      "declaration_selection_status": "not_selected_by_v85a",
+      "declared_semantic_act_rows": [
+        {
+          "ambiguity_posture": "ambiguous_requires_review",
+          "binding_basis_refs": [
+            "witness:v85a:direct:object-class",
+            "witness:v85a:direct:operator",
+            "witness:v85a:direct:target-context"
+          ],
+          "canonical_status": "canonical_status_unverified_by_v85a",
+          "declaration_candidate_status": "ambiguous_candidate",
+          "declaration_selection_status": "not_selected_by_v85a",
+          "limitation_note": "Declared semantic act remains a candidate for review; no implementation.",
+          "modifiers": [
+            "candidate_only",
+            "review_only"
+          ],
+          "object_class": "semantic.declaration@v1",
+          "operator": "CREATE",
+          "registry_gap_posture": "no_registry_gap_claimed",
+          "semantic_act_ref": "semantic-act:v85a:create-declaration-office",
+          "semantic_declaration_session_ref": "semantic-declaration-session:v85a:intent-to-declaration-office",
+          "source_class": null,
+          "source_witness_refs": [
+            "witness:v85a:direct:object-class",
+            "witness:v85a:direct:operator",
+            "witness:v85a:direct:target-context"
+          ],
+          "target_class": "repo.review_surface@v1",
+          "target_context_refs": [
+            "packages/adeu_repo_description"
+          ]
+        }
+      ],
+      "guardrail_refs": [
+        "guardrail:v85a:intent-to-declaration-office"
+      ],
+      "limitation_note": "Semantic declaration request is eligible for review only; no implementation and no obligation expansion.",
+      "negative_cue_refs": [],
+      "negative_cue_rows": [],
+      "non_authority_posture": "no_declaration_authority_granted_by_v85",
+      "odeu_lanes": [
+        "deontic",
+        "epistemic",
+        "ontological",
+        "utility"
+      ],
+      "operator_turn_refs": [
+        "operator-turn:v85a:semantic-declaration-meta-loop-request"
+      ],
+      "repo_context_refs": [
+        "docs/LOCKED_CONTINUATION_vNEXT_PLUS239.md"
+      ],
+      "requested_declaration_review_horizon": "semantic_declaration_review",
+      "resident_model_competency_rows": [
+        {
+          "competency_kind": "artifact_shape_obedience",
+          "competency_ref": "competency:v85a:artifact_shape_obedience",
+          "evidence_or_fixture_refs": [],
+          "failure_routing_posture": "route_to_uncertainty_slot",
+          "non_authority_guardrail_refs": [
+            "guardrail:v85a:intent-to-declaration-office"
+          ],
+          "required_posture": "required_for_declaration_review",
+          "semantic_declaration_session_ref": "semantic-declaration-session:v85a:intent-to-declaration-office"
+        },
+        {
+          "competency_kind": "bounded_local_judgment",
+          "competency_ref": "competency:v85a:bounded_local_judgment",
+          "evidence_or_fixture_refs": [],
+          "failure_routing_posture": "route_to_uncertainty_slot",
+          "non_authority_guardrail_refs": [
+            "guardrail:v85a:intent-to-declaration-office"
+          ],
+          "required_posture": "required_for_declaration_review",
+          "semantic_declaration_session_ref": "semantic-declaration-session:v85a:intent-to-declaration-office"
+        },
+        {
+          "competency_kind": "declared_uncertainty_routing",
+          "competency_ref": "competency:v85a:declared_uncertainty_routing",
+          "evidence_or_fixture_refs": [],
+          "failure_routing_posture": "route_to_uncertainty_slot",
+          "non_authority_guardrail_refs": [
+            "guardrail:v85a:intent-to-declaration-office"
+          ],
+          "required_posture": "required_for_declaration_review",
+          "semantic_declaration_session_ref": "semantic-declaration-session:v85a:intent-to-declaration-office"
+        },
+        {
+          "competency_kind": "duplicate_preservation",
+          "competency_ref": "competency:v85a:duplicate_preservation",
+          "evidence_or_fixture_refs": [],
+          "failure_routing_posture": "route_to_uncertainty_slot",
+          "non_authority_guardrail_refs": [
+            "guardrail:v85a:intent-to-declaration-office"
+          ],
+          "required_posture": "required_for_declaration_review",
+          "semantic_declaration_session_ref": "semantic-declaration-session:v85a:intent-to-declaration-office"
+        },
+        {
+          "competency_kind": "no_unauthorized_transition",
+          "competency_ref": "competency:v85a:no_unauthorized_transition",
+          "evidence_or_fixture_refs": [],
+          "failure_routing_posture": "route_to_guardrail",
+          "non_authority_guardrail_refs": [
+            "guardrail:v85a:intent-to-declaration-office"
+          ],
+          "required_posture": "required_for_declaration_review",
+          "semantic_declaration_session_ref": "semantic-declaration-session:v85a:intent-to-declaration-office"
+        },
+        {
+          "competency_kind": "order_preservation",
+          "competency_ref": "competency:v85a:order_preservation",
+          "evidence_or_fixture_refs": [],
+          "failure_routing_posture": "route_to_uncertainty_slot",
+          "non_authority_guardrail_refs": [
+            "guardrail:v85a:intent-to-declaration-office"
+          ],
+          "required_posture": "required_for_declaration_review",
+          "semantic_declaration_session_ref": "semantic-declaration-session:v85a:intent-to-declaration-office"
+        },
+        {
+          "competency_kind": "pointer_obedience",
+          "competency_ref": "competency:v85a:pointer_obedience",
+          "evidence_or_fixture_refs": [],
+          "failure_routing_posture": "route_to_uncertainty_slot",
+          "non_authority_guardrail_refs": [
+            "guardrail:v85a:intent-to-declaration-office"
+          ],
+          "required_posture": "required_for_declaration_review",
+          "semantic_declaration_session_ref": "semantic-declaration-session:v85a:intent-to-declaration-office"
+        },
+        {
+          "competency_kind": "stop_at_schema_boundary",
+          "competency_ref": "competency:v85a:stop_at_schema_boundary",
+          "evidence_or_fixture_refs": [],
+          "failure_routing_posture": "route_to_uncertainty_slot",
+          "non_authority_guardrail_refs": [
+            "guardrail:v85a:intent-to-declaration-office"
+          ],
+          "required_posture": "required_for_declaration_review",
+          "semantic_declaration_session_ref": "semantic-declaration-session:v85a:intent-to-declaration-office"
+        },
+        {
+          "competency_kind": "unknown_pointer_abstention",
+          "competency_ref": "competency:v85a:unknown_pointer_abstention",
+          "evidence_or_fixture_refs": [],
+          "failure_routing_posture": "route_to_abstain",
+          "non_authority_guardrail_refs": [
+            "guardrail:v85a:intent-to-declaration-office"
+          ],
+          "required_posture": "required_for_declaration_review",
+          "semantic_declaration_session_ref": "semantic-declaration-session:v85a:intent-to-declaration-office"
+        }
+      ],
+      "semantic_act_witness_rows": [
+        {
+          "limitation_note": "Direct witness for candidate object class in declaration review.",
+          "semantic_declaration_session_ref": "semantic-declaration-session:v85a:intent-to-declaration-office",
+          "source_refs": [
+            "operator-turn:v85a:semantic-declaration-meta-loop-request"
+          ],
+          "witness_currentness": "current_turn_witness",
+          "witness_ref": "witness:v85a:direct:object-class",
+          "witness_strength": "direct",
+          "witnessed_element": "object_class"
+        },
+        {
+          "limitation_note": "Direct witness for declaration operator in review.",
+          "semantic_declaration_session_ref": "semantic-declaration-session:v85a:intent-to-declaration-office",
+          "source_refs": [
+            "operator-turn:v85a:semantic-declaration-meta-loop-request"
+          ],
+          "witness_currentness": "current_turn_witness",
+          "witness_ref": "witness:v85a:direct:operator",
+          "witness_strength": "direct",
+          "witnessed_element": "operator"
+        },
+        {
+          "limitation_note": "Direct repo context witness for declaration review target.",
+          "semantic_declaration_session_ref": "semantic-declaration-session:v85a:intent-to-declaration-office",
+          "source_refs": [
+            "docs/LOCKED_CONTINUATION_vNEXT_PLUS239.md"
+          ],
+          "witness_currentness": "current_repo_context",
+          "witness_ref": "witness:v85a:direct:target-context",
+          "witness_strength": "direct",
+          "witnessed_element": "target_context"
+        },
+        {
+          "limitation_note": "Support witness contextualizes declaration review only.",
+          "semantic_declaration_session_ref": "semantic-declaration-session:v85a:intent-to-declaration-office",
+          "source_refs": [
+            "docs/support/ARCHITECTURE_ADEU_CANONICAL_SEMANTIC_DECLARATION_META_LOOP_v0.md"
+          ],
+          "witness_currentness": "support_context_only",
+          "witness_ref": "witness:v85a:support:canonical-loop",
+          "witness_strength": "support_only",
+          "witnessed_element": "modifier"
+        }
+      ],
+      "semantic_declaration_session_ref": "semantic-declaration-session:v85a:intent-to-declaration-office",
+      "source_refs": [
+        "apps/api/fixtures/repo_description/vnext_plus238/repo_post_work_packet_activation_review_handoff_v238_reference.json",
+        "apps/api/fixtures/repo_description/vnext_plus238/repo_work_packet_activation_family_closeout_alignment_v238_reference.json",
+        "apps/api/fixtures/repo_description/vnext_plus238/repo_work_packet_activation_readiness_summary_v238_reference.json",
+        "docs/LOCKED_CONTINUATION_vNEXT_PLUS239.md",
+        "operator-turn:v85a:semantic-declaration-meta-loop-request"
+      ],
+      "source_witness_refs": [
+        "witness:v85a:direct:object-class",
+        "witness:v85a:direct:operator",
+        "witness:v85a:direct:target-context"
+      ],
+      "turn_ref": "turn:v85a:implement-slice-a",
+      "uncertainty_slot_refs": []
+    },
+    {
+      "binding_basis_refs": [
+        "witness:v85a:support:canonical-loop"
+      ],
+      "binding_posture": "blocked_by_missing_source",
+      "binding_resolution_posture": "support_only_not_selected",
+      "candidate_ref": "candidate:v85:semantic-declaration-office",
+      "canonical_lookup_required_posture": "lookup_not_selected_by_v85a",
+      "canonical_lookup_status": "lookup_not_selected_by_v85a",
+      "declaration_candidate_status": "support_context_only_candidate",
+      "declaration_horizon": "semantic_act_declaration",
+      "declaration_recordability_posture": "recordable_from_support_context_only",
+      "declaration_request_ref": "declaration-request:v85a:support-context-only",
+      "declaration_review_eligibility_posture": "blocked_by_support_only_source",
+      "declaration_selection_status": "blocked_not_selected",
+      "declared_semantic_act_rows": [
+        {
+          "ambiguity_posture": "not_ambiguous",
+          "binding_basis_refs": [
+            "witness:v85a:direct:object-class",
+            "witness:v85a:direct:operator",
+            "witness:v85a:direct:target-context"
+          ],
+          "canonical_status": "candidate_class_only",
+          "declaration_candidate_status": "support_context_only_candidate",
+          "declaration_selection_status": "not_selected_by_v85a",
+          "limitation_note": "Support-context semantic act remains candidate-only for review; no implementation.",
+          "modifiers": [
+            "candidate_only",
+            "review_only"
+          ],
+          "object_class": "semantic.declaration@v1",
+          "operator": "CREATE",
+          "registry_gap_posture": "no_registry_gap_claimed",
+          "semantic_act_ref": "semantic-act:v85a:support-context-only",
+          "semantic_declaration_session_ref": "semantic-declaration-session:v85a:intent-to-declaration-office",
+          "source_class": null,
+          "source_witness_refs": [
+            "witness:v85a:direct:object-class",
+            "witness:v85a:direct:operator",
+            "witness:v85a:direct:target-context"
+          ],
+          "target_class": "repo.review_surface@v1",
+          "target_context_refs": [
+            "packages/adeu_repo_description"
+          ]
+        }
+      ],
+      "guardrail_refs": [
+        "guardrail:v85a:support-context-only"
+      ],
+      "limitation_note": "Support-context declaration is recorded for review only; no implementation.",
+      "negative_cue_refs": [
+        "negative-cue:v85a:asks-to-implement",
+        "negative-cue:v85a:select-v86"
+      ],
+      "negative_cue_rows": [
+        {
+          "cue_kind": "asks_to_implement_now",
+          "effect_on_declaration": "routes_to_guardrail",
+          "limitation_note": "Implementation-shaped cue routes to guardrail during review.",
+          "negative_cue_ref": "negative-cue:v85a:asks-to-implement",
+          "semantic_declaration_session_ref": "semantic-declaration-session:v85a:intent-to-declaration-office",
+          "source_refs": [
+            "operator-turn:v85a:semantic-declaration-meta-loop-request"
+          ]
+        },
+        {
+          "cue_kind": "asks_to_select_next_family",
+          "effect_on_declaration": "routes_to_future_family_only",
+          "limitation_note": "Future-family cue routes to later selector review.",
+          "negative_cue_ref": "negative-cue:v85a:select-v86",
+          "semantic_declaration_session_ref": "semantic-declaration-session:v85a:intent-to-declaration-office",
+          "source_refs": [
+            "docs/DRAFT_NEXT_ARC_OPTIONS_v75.md"
+          ]
+        }
+      ],
+      "non_authority_posture": "no_declaration_authority_granted_by_v85",
+      "odeu_lanes": [
+        "ontological",
+        "utility"
+      ],
+      "operator_turn_refs": [],
+      "repo_context_refs": [],
+      "requested_declaration_review_horizon": "support_context_review",
+      "resident_model_competency_rows": [
+        {
+          "competency_kind": "artifact_shape_obedience",
+          "competency_ref": "competency:v85a:artifact_shape_obedience",
+          "evidence_or_fixture_refs": [],
+          "failure_routing_posture": "route_to_uncertainty_slot",
+          "non_authority_guardrail_refs": [
+            "guardrail:v85a:intent-to-declaration-office"
+          ],
+          "required_posture": "required_for_declaration_review",
+          "semantic_declaration_session_ref": "semantic-declaration-session:v85a:intent-to-declaration-office"
+        },
+        {
+          "competency_kind": "bounded_local_judgment",
+          "competency_ref": "competency:v85a:bounded_local_judgment",
+          "evidence_or_fixture_refs": [],
+          "failure_routing_posture": "route_to_uncertainty_slot",
+          "non_authority_guardrail_refs": [
+            "guardrail:v85a:intent-to-declaration-office"
+          ],
+          "required_posture": "required_for_declaration_review",
+          "semantic_declaration_session_ref": "semantic-declaration-session:v85a:intent-to-declaration-office"
+        },
+        {
+          "competency_kind": "declared_uncertainty_routing",
+          "competency_ref": "competency:v85a:declared_uncertainty_routing",
+          "evidence_or_fixture_refs": [],
+          "failure_routing_posture": "route_to_uncertainty_slot",
+          "non_authority_guardrail_refs": [
+            "guardrail:v85a:intent-to-declaration-office"
+          ],
+          "required_posture": "required_for_declaration_review",
+          "semantic_declaration_session_ref": "semantic-declaration-session:v85a:intent-to-declaration-office"
+        },
+        {
+          "competency_kind": "duplicate_preservation",
+          "competency_ref": "competency:v85a:duplicate_preservation",
+          "evidence_or_fixture_refs": [],
+          "failure_routing_posture": "route_to_uncertainty_slot",
+          "non_authority_guardrail_refs": [
+            "guardrail:v85a:intent-to-declaration-office"
+          ],
+          "required_posture": "required_for_declaration_review",
+          "semantic_declaration_session_ref": "semantic-declaration-session:v85a:intent-to-declaration-office"
+        },
+        {
+          "competency_kind": "no_unauthorized_transition",
+          "competency_ref": "competency:v85a:no_unauthorized_transition",
+          "evidence_or_fixture_refs": [],
+          "failure_routing_posture": "route_to_guardrail",
+          "non_authority_guardrail_refs": [
+            "guardrail:v85a:intent-to-declaration-office"
+          ],
+          "required_posture": "required_for_declaration_review",
+          "semantic_declaration_session_ref": "semantic-declaration-session:v85a:intent-to-declaration-office"
+        },
+        {
+          "competency_kind": "order_preservation",
+          "competency_ref": "competency:v85a:order_preservation",
+          "evidence_or_fixture_refs": [],
+          "failure_routing_posture": "route_to_uncertainty_slot",
+          "non_authority_guardrail_refs": [
+            "guardrail:v85a:intent-to-declaration-office"
+          ],
+          "required_posture": "required_for_declaration_review",
+          "semantic_declaration_session_ref": "semantic-declaration-session:v85a:intent-to-declaration-office"
+        },
+        {
+          "competency_kind": "pointer_obedience",
+          "competency_ref": "competency:v85a:pointer_obedience",
+          "evidence_or_fixture_refs": [],
+          "failure_routing_posture": "route_to_uncertainty_slot",
+          "non_authority_guardrail_refs": [
+            "guardrail:v85a:intent-to-declaration-office"
+          ],
+          "required_posture": "required_for_declaration_review",
+          "semantic_declaration_session_ref": "semantic-declaration-session:v85a:intent-to-declaration-office"
+        },
+        {
+          "competency_kind": "stop_at_schema_boundary",
+          "competency_ref": "competency:v85a:stop_at_schema_boundary",
+          "evidence_or_fixture_refs": [],
+          "failure_routing_posture": "route_to_uncertainty_slot",
+          "non_authority_guardrail_refs": [
+            "guardrail:v85a:intent-to-declaration-office"
+          ],
+          "required_posture": "required_for_declaration_review",
+          "semantic_declaration_session_ref": "semantic-declaration-session:v85a:intent-to-declaration-office"
+        },
+        {
+          "competency_kind": "unknown_pointer_abstention",
+          "competency_ref": "competency:v85a:unknown_pointer_abstention",
+          "evidence_or_fixture_refs": [],
+          "failure_routing_posture": "route_to_abstain",
+          "non_authority_guardrail_refs": [
+            "guardrail:v85a:intent-to-declaration-office"
+          ],
+          "required_posture": "required_for_declaration_review",
+          "semantic_declaration_session_ref": "semantic-declaration-session:v85a:intent-to-declaration-office"
+        }
+      ],
+      "semantic_act_witness_rows": [
+        {
+          "limitation_note": "Direct witness for candidate object class in declaration review.",
+          "semantic_declaration_session_ref": "semantic-declaration-session:v85a:intent-to-declaration-office",
+          "source_refs": [
+            "operator-turn:v85a:semantic-declaration-meta-loop-request"
+          ],
+          "witness_currentness": "current_turn_witness",
+          "witness_ref": "witness:v85a:direct:object-class",
+          "witness_strength": "direct",
+          "witnessed_element": "object_class"
+        },
+        {
+          "limitation_note": "Direct witness for declaration operator in review.",
+          "semantic_declaration_session_ref": "semantic-declaration-session:v85a:intent-to-declaration-office",
+          "source_refs": [
+            "operator-turn:v85a:semantic-declaration-meta-loop-request"
+          ],
+          "witness_currentness": "current_turn_witness",
+          "witness_ref": "witness:v85a:direct:operator",
+          "witness_strength": "direct",
+          "witnessed_element": "operator"
+        },
+        {
+          "limitation_note": "Direct repo context witness for declaration review target.",
+          "semantic_declaration_session_ref": "semantic-declaration-session:v85a:intent-to-declaration-office",
+          "source_refs": [
+            "docs/LOCKED_CONTINUATION_vNEXT_PLUS239.md"
+          ],
+          "witness_currentness": "current_repo_context",
+          "witness_ref": "witness:v85a:direct:target-context",
+          "witness_strength": "direct",
+          "witnessed_element": "target_context"
+        },
+        {
+          "limitation_note": "Support witness contextualizes declaration review only.",
+          "semantic_declaration_session_ref": "semantic-declaration-session:v85a:intent-to-declaration-office",
+          "source_refs": [
+            "docs/support/ARCHITECTURE_ADEU_CANONICAL_SEMANTIC_DECLARATION_META_LOOP_v0.md"
+          ],
+          "witness_currentness": "support_context_only",
+          "witness_ref": "witness:v85a:support:canonical-loop",
+          "witness_strength": "support_only",
+          "witnessed_element": "modifier"
+        }
+      ],
+      "semantic_declaration_session_ref": "semantic-declaration-session:v85a:intent-to-declaration-office",
+      "source_refs": [
+        "docs/DRAFT_MULTI_ARC_ROADMAP_POST_V84_v0.md",
+        "docs/support/ARCHITECTURE_ADEU_CANONICAL_SEMANTIC_DECLARATION_META_LOOP_v0.md"
+      ],
+      "source_witness_refs": [
+        "witness:v85a:support:canonical-loop"
+      ],
+      "turn_ref": "turn:v85a:support-context-only",
+      "uncertainty_slot_refs": [
+        "uncertainty:v85a:support-context-only"
+      ]
+    },
+    {
+      "binding_basis_refs": [
+        "witness:v85a:direct:object-class"
+      ],
+      "binding_posture": "registry_gap",
+      "binding_resolution_posture": "registry_gap_declared",
+      "candidate_ref": "candidate:v85:semantic-declaration-office",
+      "canonical_lookup_required_posture": "lookup_blocked_by_registry_gap",
+      "canonical_lookup_status": "lookup_blocked_by_registry_gap",
+      "declaration_candidate_status": "registry_gap_candidate",
+      "declaration_horizon": "semantic_pointer_candidate",
+      "declaration_recordability_posture": "recordable_from_concrete_operator_turn",
+      "declaration_request_ref": "declaration-request:v85a:unknown-class-registry-gap",
+      "declaration_review_eligibility_posture": "blocked_by_registry_gap",
+      "declaration_selection_status": "registry_gap_not_selected",
+      "declared_semantic_act_rows": [
+        {
+          "ambiguity_posture": "not_ambiguous",
+          "binding_basis_refs": [
+            "witness:v85a:direct:object-class",
+            "witness:v85a:direct:operator",
+            "witness:v85a:direct:target-context"
+          ],
+          "canonical_status": "unknown_class_registry_gap",
+          "declaration_candidate_status": "registry_gap_candidate",
+          "declaration_selection_status": "not_selected_by_v85a",
+          "limitation_note": "Unknown class remains registry-gap candidate for review; no implementation.",
+          "modifiers": [
+            "candidate_only",
+            "review_only"
+          ],
+          "object_class": "semantic.declaration.office@v1",
+          "operator": "CREATE",
+          "registry_gap_posture": "unknown_class_registry_gap",
+          "semantic_act_ref": "semantic-act:v85a:unknown-class-registry-gap",
+          "semantic_declaration_session_ref": "semantic-declaration-session:v85a:intent-to-declaration-office",
+          "source_class": null,
+          "source_witness_refs": [
+            "witness:v85a:direct:object-class",
+            "witness:v85a:direct:operator",
+            "witness:v85a:direct:target-context"
+          ],
+          "target_class": "repo.review_surface@v1",
+          "target_context_refs": [
+            "packages/adeu_repo_description"
+          ]
+        }
+      ],
+      "guardrail_refs": [
+        "guardrail:v85a:unknown-class-registry-gap"
+      ],
+      "limitation_note": "Registry-gap declaration is recorded for review only; no implementation.",
+      "negative_cue_refs": [],
+      "negative_cue_rows": [],
+      "non_authority_posture": "no_declaration_authority_granted_by_v85",
+      "odeu_lanes": [
+        "epistemic",
+        "ontological"
+      ],
+      "operator_turn_refs": [
+        "operator-turn:v85a:semantic-declaration-meta-loop-request"
+      ],
+      "repo_context_refs": [],
+      "requested_declaration_review_horizon": "registry_gap_review",
+      "resident_model_competency_rows": [
+        {
+          "competency_kind": "artifact_shape_obedience",
+          "competency_ref": "competency:v85a:artifact_shape_obedience",
+          "evidence_or_fixture_refs": [],
+          "failure_routing_posture": "route_to_uncertainty_slot",
+          "non_authority_guardrail_refs": [
+            "guardrail:v85a:intent-to-declaration-office"
+          ],
+          "required_posture": "required_for_declaration_review",
+          "semantic_declaration_session_ref": "semantic-declaration-session:v85a:intent-to-declaration-office"
+        },
+        {
+          "competency_kind": "bounded_local_judgment",
+          "competency_ref": "competency:v85a:bounded_local_judgment",
+          "evidence_or_fixture_refs": [],
+          "failure_routing_posture": "route_to_uncertainty_slot",
+          "non_authority_guardrail_refs": [
+            "guardrail:v85a:intent-to-declaration-office"
+          ],
+          "required_posture": "required_for_declaration_review",
+          "semantic_declaration_session_ref": "semantic-declaration-session:v85a:intent-to-declaration-office"
+        },
+        {
+          "competency_kind": "declared_uncertainty_routing",
+          "competency_ref": "competency:v85a:declared_uncertainty_routing",
+          "evidence_or_fixture_refs": [],
+          "failure_routing_posture": "route_to_uncertainty_slot",
+          "non_authority_guardrail_refs": [
+            "guardrail:v85a:intent-to-declaration-office"
+          ],
+          "required_posture": "required_for_declaration_review",
+          "semantic_declaration_session_ref": "semantic-declaration-session:v85a:intent-to-declaration-office"
+        },
+        {
+          "competency_kind": "duplicate_preservation",
+          "competency_ref": "competency:v85a:duplicate_preservation",
+          "evidence_or_fixture_refs": [],
+          "failure_routing_posture": "route_to_uncertainty_slot",
+          "non_authority_guardrail_refs": [
+            "guardrail:v85a:intent-to-declaration-office"
+          ],
+          "required_posture": "required_for_declaration_review",
+          "semantic_declaration_session_ref": "semantic-declaration-session:v85a:intent-to-declaration-office"
+        },
+        {
+          "competency_kind": "no_unauthorized_transition",
+          "competency_ref": "competency:v85a:no_unauthorized_transition",
+          "evidence_or_fixture_refs": [],
+          "failure_routing_posture": "route_to_guardrail",
+          "non_authority_guardrail_refs": [
+            "guardrail:v85a:intent-to-declaration-office"
+          ],
+          "required_posture": "required_for_declaration_review",
+          "semantic_declaration_session_ref": "semantic-declaration-session:v85a:intent-to-declaration-office"
+        },
+        {
+          "competency_kind": "order_preservation",
+          "competency_ref": "competency:v85a:order_preservation",
+          "evidence_or_fixture_refs": [],
+          "failure_routing_posture": "route_to_uncertainty_slot",
+          "non_authority_guardrail_refs": [
+            "guardrail:v85a:intent-to-declaration-office"
+          ],
+          "required_posture": "required_for_declaration_review",
+          "semantic_declaration_session_ref": "semantic-declaration-session:v85a:intent-to-declaration-office"
+        },
+        {
+          "competency_kind": "pointer_obedience",
+          "competency_ref": "competency:v85a:pointer_obedience",
+          "evidence_or_fixture_refs": [],
+          "failure_routing_posture": "route_to_uncertainty_slot",
+          "non_authority_guardrail_refs": [
+            "guardrail:v85a:intent-to-declaration-office"
+          ],
+          "required_posture": "required_for_declaration_review",
+          "semantic_declaration_session_ref": "semantic-declaration-session:v85a:intent-to-declaration-office"
+        },
+        {
+          "competency_kind": "stop_at_schema_boundary",
+          "competency_ref": "competency:v85a:stop_at_schema_boundary",
+          "evidence_or_fixture_refs": [],
+          "failure_routing_posture": "route_to_uncertainty_slot",
+          "non_authority_guardrail_refs": [
+            "guardrail:v85a:intent-to-declaration-office"
+          ],
+          "required_posture": "required_for_declaration_review",
+          "semantic_declaration_session_ref": "semantic-declaration-session:v85a:intent-to-declaration-office"
+        },
+        {
+          "competency_kind": "unknown_pointer_abstention",
+          "competency_ref": "competency:v85a:unknown_pointer_abstention",
+          "evidence_or_fixture_refs": [],
+          "failure_routing_posture": "route_to_abstain",
+          "non_authority_guardrail_refs": [
+            "guardrail:v85a:intent-to-declaration-office"
+          ],
+          "required_posture": "required_for_declaration_review",
+          "semantic_declaration_session_ref": "semantic-declaration-session:v85a:intent-to-declaration-office"
+        }
+      ],
+      "semantic_act_witness_rows": [
+        {
+          "limitation_note": "Direct witness for candidate object class in declaration review.",
+          "semantic_declaration_session_ref": "semantic-declaration-session:v85a:intent-to-declaration-office",
+          "source_refs": [
+            "operator-turn:v85a:semantic-declaration-meta-loop-request"
+          ],
+          "witness_currentness": "current_turn_witness",
+          "witness_ref": "witness:v85a:direct:object-class",
+          "witness_strength": "direct",
+          "witnessed_element": "object_class"
+        },
+        {
+          "limitation_note": "Direct witness for declaration operator in review.",
+          "semantic_declaration_session_ref": "semantic-declaration-session:v85a:intent-to-declaration-office",
+          "source_refs": [
+            "operator-turn:v85a:semantic-declaration-meta-loop-request"
+          ],
+          "witness_currentness": "current_turn_witness",
+          "witness_ref": "witness:v85a:direct:operator",
+          "witness_strength": "direct",
+          "witnessed_element": "operator"
+        },
+        {
+          "limitation_note": "Direct repo context witness for declaration review target.",
+          "semantic_declaration_session_ref": "semantic-declaration-session:v85a:intent-to-declaration-office",
+          "source_refs": [
+            "docs/LOCKED_CONTINUATION_vNEXT_PLUS239.md"
+          ],
+          "witness_currentness": "current_repo_context",
+          "witness_ref": "witness:v85a:direct:target-context",
+          "witness_strength": "direct",
+          "witnessed_element": "target_context"
+        },
+        {
+          "limitation_note": "Support witness contextualizes declaration review only.",
+          "semantic_declaration_session_ref": "semantic-declaration-session:v85a:intent-to-declaration-office",
+          "source_refs": [
+            "docs/support/ARCHITECTURE_ADEU_CANONICAL_SEMANTIC_DECLARATION_META_LOOP_v0.md"
+          ],
+          "witness_currentness": "support_context_only",
+          "witness_ref": "witness:v85a:support:canonical-loop",
+          "witness_strength": "support_only",
+          "witnessed_element": "modifier"
+        }
+      ],
+      "semantic_declaration_session_ref": "semantic-declaration-session:v85a:intent-to-declaration-office",
+      "source_refs": [
+        "docs/DRAFT_ADEU_SEMANTIC_DECLARATION_META_LOOP_V85A_IMPLEMENTATION_MAPPING_v0.md",
+        "operator-turn:v85a:semantic-declaration-meta-loop-request"
+      ],
+      "source_witness_refs": [
+        "witness:v85a:direct:object-class"
+      ],
+      "turn_ref": "turn:v85a:unknown-class-registry-gap",
+      "uncertainty_slot_refs": [
+        "uncertainty:v85a:unknown-class-registry-gap"
+      ]
+    }
+  ],
+  "declaration_review_summary": "V85-A records semantic declaration requests for review with no implementation and no obligation expansion.",
+  "review_id": "vNext+239",
+  "schema": "repo_turn_semantic_declaration_request@1",
+  "semantic_declaration_source_index_id": "repo_semantic_declaration_source_index_6909fbbd21c955096f26a7a7",
+  "snapshot_id": "vNext+239-semantic-declaration-start",
+  "source_set_id": "source-set:v85a:semantic-declaration-review",
+  "turn_semantic_declaration_request_id": "repo_turn_semantic_declaration_request_8bebe71e6a4c8405bec9d58f"
+}

@@ -1,0 +1,324 @@
+{
+  "negative_cue_rows": [
+    {
+      "cue_kind": "asks_to_implement_now",
+      "effect_on_declaration": "routes_to_guardrail",
+      "limitation_note": "Implementation-shaped cue routes to guardrail during review.",
+      "negative_cue_ref": "negative-cue:v85a:asks-to-implement",
+      "semantic_declaration_session_ref": "semantic-declaration-session:v85a:intent-to-declaration-office",
+      "source_refs": [
+        "operator-turn:v85a:semantic-declaration-meta-loop-request"
+      ]
+    },
+    {
+      "cue_kind": "asks_to_select_next_family",
+      "effect_on_declaration": "routes_to_future_family_only",
+      "limitation_note": "Future-family cue routes to later selector review.",
+      "negative_cue_ref": "negative-cue:v85a:select-v86",
+      "semantic_declaration_session_ref": "semantic-declaration-session:v85a:intent-to-declaration-office",
+      "source_refs": [
+        "docs/DRAFT_NEXT_ARC_OPTIONS_v75.md"
+      ]
+    }
+  ],
+  "resident_model_competency_rows": [
+    {
+      "competency_kind": "artifact_shape_obedience",
+      "competency_ref": "competency:v85a:artifact_shape_obedience",
+      "evidence_or_fixture_refs": [],
+      "failure_routing_posture": "route_to_uncertainty_slot",
+      "non_authority_guardrail_refs": [
+        "guardrail:v85a:intent-to-declaration-office"
+      ],
+      "required_posture": "required_for_declaration_review",
+      "semantic_declaration_session_ref": "semantic-declaration-session:v85a:intent-to-declaration-office"
+    },
+    {
+      "competency_kind": "bounded_local_judgment",
+      "competency_ref": "competency:v85a:bounded_local_judgment",
+      "evidence_or_fixture_refs": [],
+      "failure_routing_posture": "route_to_uncertainty_slot",
+      "non_authority_guardrail_refs": [
+        "guardrail:v85a:intent-to-declaration-office"
+      ],
+      "required_posture": "required_for_declaration_review",
+      "semantic_declaration_session_ref": "semantic-declaration-session:v85a:intent-to-declaration-office"
+    },
+    {
+      "competency_kind": "declared_uncertainty_routing",
+      "competency_ref": "competency:v85a:declared_uncertainty_routing",
+      "evidence_or_fixture_refs": [],
+      "failure_routing_posture": "route_to_uncertainty_slot",
+      "non_authority_guardrail_refs": [
+        "guardrail:v85a:intent-to-declaration-office"
+      ],
+      "required_posture": "required_for_declaration_review",
+      "semantic_declaration_session_ref": "semantic-declaration-session:v85a:intent-to-declaration-office"
+    },
+    {
+      "competency_kind": "duplicate_preservation",
+      "competency_ref": "competency:v85a:duplicate_preservation",
+      "evidence_or_fixture_refs": [],
+      "failure_routing_posture": "route_to_uncertainty_slot",
+      "non_authority_guardrail_refs": [
+        "guardrail:v85a:intent-to-declaration-office"
+      ],
+      "required_posture": "required_for_declaration_review",
+      "semantic_declaration_session_ref": "semantic-declaration-session:v85a:intent-to-declaration-office"
+    },
+    {
+      "competency_kind": "no_unauthorized_transition",
+      "competency_ref": "competency:v85a:no_unauthorized_transition",
+      "evidence_or_fixture_refs": [],
+      "failure_routing_posture": "route_to_guardrail",
+      "non_authority_guardrail_refs": [
+        "guardrail:v85a:intent-to-declaration-office"
+      ],
+      "required_posture": "required_for_declaration_review",
+      "semantic_declaration_session_ref": "semantic-declaration-session:v85a:intent-to-declaration-office"
+    },
+    {
+      "competency_kind": "order_preservation",
+      "competency_ref": "competency:v85a:order_preservation",
+      "evidence_or_fixture_refs": [],
+      "failure_routing_posture": "route_to_uncertainty_slot",
+      "non_authority_guardrail_refs": [
+        "guardrail:v85a:intent-to-declaration-office"
+      ],
+      "required_posture": "required_for_declaration_review",
+      "semantic_declaration_session_ref": "semantic-declaration-session:v85a:intent-to-declaration-office"
+    },
+    {
+      "competency_kind": "stop_at_schema_boundary",
+      "competency_ref": "competency:v85a:stop_at_schema_boundary",
+      "evidence_or_fixture_refs": [],
+      "failure_routing_posture": "route_to_uncertainty_slot",
+      "non_authority_guardrail_refs": [
+        "guardrail:v85a:intent-to-declaration-office"
+      ],
+      "required_posture": "required_for_declaration_review",
+      "semantic_declaration_session_ref": "semantic-declaration-session:v85a:intent-to-declaration-office"
+    },
+    {
+      "competency_kind": "unknown_pointer_abstention",
+      "competency_ref": "competency:v85a:unknown_pointer_abstention",
+      "evidence_or_fixture_refs": [],
+      "failure_routing_posture": "route_to_abstain",
+      "non_authority_guardrail_refs": [
+        "guardrail:v85a:intent-to-declaration-office"
+      ],
+      "required_posture": "required_for_declaration_review",
+      "semantic_declaration_session_ref": "semantic-declaration-session:v85a:intent-to-declaration-office"
+    }
+  ],
+  "review_id": "vNext+239",
+  "schema": "repo_semantic_declaration_source_index@1",
+  "semantic_act_witness_rows": [
+    {
+      "limitation_note": "Direct witness for candidate object class in declaration review.",
+      "semantic_declaration_session_ref": "semantic-declaration-session:v85a:intent-to-declaration-office",
+      "source_refs": [
+        "operator-turn:v85a:semantic-declaration-meta-loop-request"
+      ],
+      "witness_currentness": "current_turn_witness",
+      "witness_ref": "witness:v85a:direct:object-class",
+      "witness_strength": "direct",
+      "witnessed_element": "object_class"
+    },
+    {
+      "limitation_note": "Direct witness for declaration operator in review.",
+      "semantic_declaration_session_ref": "semantic-declaration-session:v85a:intent-to-declaration-office",
+      "source_refs": [
+        "operator-turn:v85a:semantic-declaration-meta-loop-request"
+      ],
+      "witness_currentness": "current_turn_witness",
+      "witness_ref": "witness:v85a:direct:operator",
+      "witness_strength": "direct",
+      "witnessed_element": "operator"
+    },
+    {
+      "limitation_note": "Direct repo context witness for declaration review target.",
+      "semantic_declaration_session_ref": "semantic-declaration-session:v85a:intent-to-declaration-office",
+      "source_refs": [
+        "docs/LOCKED_CONTINUATION_vNEXT_PLUS239.md"
+      ],
+      "witness_currentness": "current_repo_context",
+      "witness_ref": "witness:v85a:direct:target-context",
+      "witness_strength": "direct",
+      "witnessed_element": "target_context"
+    },
+    {
+      "limitation_note": "Support witness contextualizes declaration review only.",
+      "semantic_declaration_session_ref": "semantic-declaration-session:v85a:intent-to-declaration-office",
+      "source_refs": [
+        "docs/support/ARCHITECTURE_ADEU_CANONICAL_SEMANTIC_DECLARATION_META_LOOP_v0.md"
+      ],
+      "witness_currentness": "support_context_only",
+      "witness_ref": "witness:v85a:support:canonical-loop",
+      "witness_strength": "support_only",
+      "witnessed_element": "modifier"
+    }
+  ],
+  "semantic_declaration_source_index_id": "repo_semantic_declaration_source_index_6909fbbd21c955096f26a7a7",
+  "snapshot_id": "vNext+239-semantic-declaration-start",
+  "source_index_summary": "V85-A source index binds released V84-C substrate, current operator turn context, and support doctrine for semantic declaration review with no implementation.",
+  "source_rows": [
+    {
+      "authority_layer": "fixture",
+      "declaration_authority_posture": "source_for_review_only",
+      "limitation_note": "Released V84-C handoff source for semantic declaration review; no implementation.",
+      "loop_authority_posture": "no_loop_authority_granted",
+      "odeu_lane": "epistemic",
+      "semantic_declaration_source_role": "v84_handoff_source",
+      "source_currentness": "current_concrete_source",
+      "source_kind": "fixture_file",
+      "source_presence_posture": "present",
+      "source_ref": "apps/api/fixtures/repo_description/vnext_plus238/repo_post_work_packet_activation_review_handoff_v238_reference.json",
+      "source_status": "integrated_shaping_source"
+    },
+    {
+      "authority_layer": "fixture",
+      "declaration_authority_posture": "source_for_review_only",
+      "limitation_note": "Released V84 family closeout source for semantic declaration review; no implementation.",
+      "loop_authority_posture": "no_loop_authority_granted",
+      "odeu_lane": "epistemic",
+      "semantic_declaration_source_role": "v84_closeout_source",
+      "source_currentness": "current_concrete_source",
+      "source_kind": "fixture_file",
+      "source_presence_posture": "present",
+      "source_ref": "apps/api/fixtures/repo_description/vnext_plus238/repo_work_packet_activation_family_closeout_alignment_v238_reference.json",
+      "source_status": "integrated_shaping_source"
+    },
+    {
+      "authority_layer": "fixture",
+      "declaration_authority_posture": "source_for_review_only",
+      "limitation_note": "Released V84-C readiness source for semantic declaration review; no implementation.",
+      "loop_authority_posture": "no_loop_authority_granted",
+      "odeu_lane": "epistemic",
+      "semantic_declaration_source_role": "v84_readiness_summary_source",
+      "source_currentness": "current_concrete_source",
+      "source_kind": "fixture_file",
+      "source_presence_posture": "present",
+      "source_ref": "apps/api/fixtures/repo_description/vnext_plus238/repo_work_packet_activation_readiness_summary_v238_reference.json",
+      "source_status": "integrated_shaping_source"
+    },
+    {
+      "authority_layer": "support",
+      "declaration_authority_posture": "support_context_not_authority",
+      "limitation_note": "V85-A support mapping contextualizes declaration review; no implementation.",
+      "loop_authority_posture": "no_loop_authority_granted",
+      "odeu_lane": "utility",
+      "semantic_declaration_source_role": "support_process_context",
+      "source_currentness": "support_context_only",
+      "source_kind": "planning_doc",
+      "source_presence_posture": "present",
+      "source_ref": "docs/DRAFT_ADEU_SEMANTIC_DECLARATION_META_LOOP_V85A_IMPLEMENTATION_MAPPING_v0.md",
+      "source_status": "integrated_shaping_source"
+    },
+    {
+      "authority_layer": "planning",
+      "declaration_authority_posture": "support_context_not_authority",
+      "limitation_note": "Post-V84 roadmap contextualizes semantic declaration review; no implementation.",
+      "loop_authority_posture": "no_loop_authority_granted",
+      "odeu_lane": "utility",
+      "semantic_declaration_source_role": "post_v84_roadmap_source",
+      "source_currentness": "support_context_only",
+      "source_kind": "planning_doc",
+      "source_presence_posture": "present",
+      "source_ref": "docs/DRAFT_MULTI_ARC_ROADMAP_POST_V84_v0.md",
+      "source_status": "integrated_shaping_source"
+    },
+    {
+      "authority_layer": "planning",
+      "declaration_authority_posture": "support_context_not_authority",
+      "limitation_note": "V85 selector contextualizes declaration review sequencing; no implementation.",
+      "loop_authority_posture": "no_loop_authority_granted",
+      "odeu_lane": "utility",
+      "semantic_declaration_source_role": "support_process_context",
+      "source_currentness": "support_context_only",
+      "source_kind": "planning_doc",
+      "source_presence_posture": "present",
+      "source_ref": "docs/DRAFT_NEXT_ARC_OPTIONS_v75.md",
+      "source_status": "integrated_shaping_source"
+    },
+    {
+      "authority_layer": "lock",
+      "declaration_authority_posture": "source_for_review_only",
+      "limitation_note": "V85-A lock is repo task context for declaration review; no implementation authority beyond this bounded slice.",
+      "loop_authority_posture": "transition_requires_later_table",
+      "odeu_lane": "deontic",
+      "semantic_declaration_source_role": "repo_task_context_source",
+      "source_currentness": "current_concrete_source",
+      "source_kind": "planning_doc",
+      "source_presence_posture": "present",
+      "source_ref": "docs/LOCKED_CONTINUATION_vNEXT_PLUS239.md",
+      "source_status": "integrated_shaping_source"
+    },
+    {
+      "authority_layer": "support",
+      "declaration_authority_posture": "support_context_not_authority",
+      "limitation_note": "Canonical meta-loop support remains doctrine context for review; no implementation.",
+      "loop_authority_posture": "loop_sequence_meaning_owned_by_harness",
+      "odeu_lane": "ontological",
+      "semantic_declaration_source_role": "canonical_meta_loop_support_source",
+      "source_currentness": "support_context_only",
+      "source_kind": "support_doc",
+      "source_presence_posture": "present",
+      "source_ref": "docs/support/ARCHITECTURE_ADEU_CANONICAL_SEMANTIC_DECLARATION_META_LOOP_v0.md",
+      "source_status": "integrated_shaping_source"
+    },
+    {
+      "authority_layer": "support",
+      "declaration_authority_posture": "support_context_not_authority",
+      "limitation_note": "Combined dogfood is context for semantic declaration review; no implementation.",
+      "loop_authority_posture": "no_loop_authority_granted",
+      "odeu_lane": "epistemic",
+      "semantic_declaration_source_role": "combined_dogfood_context",
+      "source_currentness": "support_context_only",
+      "source_kind": "support_doc",
+      "source_presence_posture": "present",
+      "source_ref": "docs/support/arc_series_mapping/V68_V69_V70_V71_V72_V73_V74_V75_V76_V77_V78_V79_V80_V81_V82_V83_V84_COMBINED_DOGFOOD_TEST_v0.json",
+      "source_status": "integrated_shaping_source"
+    },
+    {
+      "authority_layer": "support",
+      "declaration_authority_posture": "support_context_not_authority",
+      "limitation_note": "Morphic UX support is semantic declaration review context only; no implementation.",
+      "loop_authority_posture": "no_loop_authority_granted",
+      "odeu_lane": "utility",
+      "semantic_declaration_source_role": "morphic_ux_support_context",
+      "source_currentness": "support_context_only",
+      "source_kind": "support_doc",
+      "source_presence_posture": "present",
+      "source_ref": "docs/support/morphic_ux. v2.md",
+      "source_status": "integrated_shaping_source"
+    },
+    {
+      "authority_layer": "support",
+      "declaration_authority_posture": "support_context_not_authority",
+      "limitation_note": "Opaque pointer context may test obedience for review; no implementation.",
+      "loop_authority_posture": "model_output_candidate_only",
+      "odeu_lane": "epistemic",
+      "semantic_declaration_source_role": "opaque_pointer_context",
+      "source_currentness": "support_context_only",
+      "source_kind": "model_output",
+      "source_presence_posture": "present",
+      "source_ref": "opaque-pointer:v85a:M-42-context",
+      "source_status": "integrated_shaping_source"
+    },
+    {
+      "authority_layer": "support",
+      "declaration_authority_posture": "source_for_review_only",
+      "limitation_note": "Operator turn asks for V85-A implementation as semantic declaration review pressure; no implementation authority.",
+      "loop_authority_posture": "model_output_candidate_only",
+      "odeu_lane": "ontological",
+      "semantic_declaration_source_role": "operator_turn_source",
+      "source_currentness": "current_operator_turn",
+      "source_kind": "operator_turn",
+      "source_presence_posture": "present",
+      "source_ref": "operator-turn:v85a:semantic-declaration-meta-loop-request",
+      "source_status": "integrated_shaping_source"
+    }
+  ],
+  "source_set_id": "source-set:v85a:semantic-declaration-review"
+}

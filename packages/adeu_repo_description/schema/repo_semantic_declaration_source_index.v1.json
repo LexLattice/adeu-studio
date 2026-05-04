@@ -1,0 +1,436 @@
+{
+  "$defs": {
+    "RepoResidentModelCompetencyRow": {
+      "additionalProperties": false,
+      "properties": {
+        "competency_kind": {
+          "enum": [
+            "pointer_obedience",
+            "artifact_shape_obedience",
+            "bounded_local_judgment",
+            "declared_uncertainty_routing",
+            "order_preservation",
+            "duplicate_preservation",
+            "unknown_pointer_abstention",
+            "no_unauthorized_transition",
+            "stop_at_schema_boundary"
+          ],
+          "title": "Competency Kind",
+          "type": "string"
+        },
+        "competency_ref": {
+          "title": "Competency Ref",
+          "type": "string"
+        },
+        "evidence_or_fixture_refs": {
+          "items": {
+            "type": "string"
+          },
+          "title": "Evidence Or Fixture Refs",
+          "type": "array"
+        },
+        "failure_routing_posture": {
+          "enum": [
+            "route_to_uncertainty_slot",
+            "route_to_abstain",
+            "route_to_registry_gap",
+            "route_to_guardrail",
+            "route_to_future_family_only"
+          ],
+          "title": "Failure Routing Posture",
+          "type": "string"
+        },
+        "non_authority_guardrail_refs": {
+          "items": {
+            "type": "string"
+          },
+          "title": "Non Authority Guardrail Refs",
+          "type": "array"
+        },
+        "required_posture": {
+          "enum": [
+            "required_for_declaration_review",
+            "required_for_future_lookup_review",
+            "not_claimed_by_v85a"
+          ],
+          "title": "Required Posture",
+          "type": "string"
+        },
+        "semantic_declaration_session_ref": {
+          "title": "Semantic Declaration Session Ref",
+          "type": "string"
+        }
+      },
+      "required": [
+        "competency_ref",
+        "semantic_declaration_session_ref",
+        "competency_kind",
+        "required_posture",
+        "failure_routing_posture"
+      ],
+      "title": "RepoResidentModelCompetencyRow",
+      "type": "object"
+    },
+    "RepoSemanticActWitnessRow": {
+      "additionalProperties": false,
+      "properties": {
+        "limitation_note": {
+          "title": "Limitation Note",
+          "type": "string"
+        },
+        "semantic_declaration_session_ref": {
+          "title": "Semantic Declaration Session Ref",
+          "type": "string"
+        },
+        "source_refs": {
+          "items": {
+            "type": "string"
+          },
+          "minItems": 1,
+          "title": "Source Refs",
+          "type": "array"
+        },
+        "witness_currentness": {
+          "enum": [
+            "current_turn_witness",
+            "current_repo_context",
+            "support_context_only",
+            "explicit_absence_marker",
+            "stale_or_superseded",
+            "unknown_needs_review"
+          ],
+          "title": "Witness Currentness",
+          "type": "string"
+        },
+        "witness_ref": {
+          "title": "Witness Ref",
+          "type": "string"
+        },
+        "witness_strength": {
+          "enum": [
+            "direct",
+            "indirect",
+            "contextual",
+            "support_only",
+            "absence_marker",
+            "conflict_marker"
+          ],
+          "title": "Witness Strength",
+          "type": "string"
+        },
+        "witnessed_element": {
+          "enum": [
+            "operator",
+            "object_class",
+            "source_class",
+            "target_class",
+            "target_context",
+            "modifier",
+            "negative_cue",
+            "uncertainty"
+          ],
+          "title": "Witnessed Element",
+          "type": "string"
+        }
+      },
+      "required": [
+        "witness_ref",
+        "semantic_declaration_session_ref",
+        "source_refs",
+        "witnessed_element",
+        "witness_strength",
+        "witness_currentness",
+        "limitation_note"
+      ],
+      "title": "RepoSemanticActWitnessRow",
+      "type": "object"
+    },
+    "RepoSemanticDeclarationNegativeCueRow": {
+      "additionalProperties": false,
+      "properties": {
+        "cue_kind": {
+          "enum": [
+            "asks_to_implement_now",
+            "asks_to_execute_now",
+            "asks_to_select_next_family",
+            "asks_to_authorize_runtime",
+            "asks_to_productize",
+            "asks_to_release",
+            "asks_to_expand_obligations_now",
+            "asks_to_skip_lookup",
+            "asks_to_invent_class"
+          ],
+          "title": "Cue Kind",
+          "type": "string"
+        },
+        "effect_on_declaration": {
+          "enum": [
+            "blocks_eligibility",
+            "routes_to_guardrail",
+            "routes_to_future_family_only",
+            "allowed_context_only"
+          ],
+          "title": "Effect On Declaration",
+          "type": "string"
+        },
+        "limitation_note": {
+          "title": "Limitation Note",
+          "type": "string"
+        },
+        "negative_cue_ref": {
+          "title": "Negative Cue Ref",
+          "type": "string"
+        },
+        "semantic_declaration_session_ref": {
+          "title": "Semantic Declaration Session Ref",
+          "type": "string"
+        },
+        "source_refs": {
+          "items": {
+            "type": "string"
+          },
+          "minItems": 1,
+          "title": "Source Refs",
+          "type": "array"
+        }
+      },
+      "required": [
+        "negative_cue_ref",
+        "semantic_declaration_session_ref",
+        "source_refs",
+        "cue_kind",
+        "effect_on_declaration",
+        "limitation_note"
+      ],
+      "title": "RepoSemanticDeclarationNegativeCueRow",
+      "type": "object"
+    },
+    "RepoSemanticDeclarationSourceRow": {
+      "additionalProperties": false,
+      "properties": {
+        "authority_layer": {
+          "enum": [
+            "lock",
+            "architecture",
+            "planning",
+            "support",
+            "schema",
+            "fixture",
+            "closeout_evidence"
+          ],
+          "title": "Authority Layer",
+          "type": "string"
+        },
+        "declaration_authority_posture": {
+          "enum": [
+            "source_for_review_only",
+            "candidate_only",
+            "support_context_not_authority",
+            "authority_requires_later_lock",
+            "authority_explicitly_absent",
+            "not_applicable"
+          ],
+          "title": "Declaration Authority Posture",
+          "type": "string"
+        },
+        "limitation_note": {
+          "title": "Limitation Note",
+          "type": "string"
+        },
+        "loop_authority_posture": {
+          "enum": [
+            "loop_sequence_meaning_owned_by_harness",
+            "model_output_candidate_only",
+            "transition_requires_later_table",
+            "no_loop_authority_granted",
+            "not_applicable"
+          ],
+          "title": "Loop Authority Posture",
+          "type": "string"
+        },
+        "odeu_lane": {
+          "enum": [
+            "ontological",
+            "deontic",
+            "epistemic",
+            "utility"
+          ],
+          "title": "Odeu Lane",
+          "type": "string"
+        },
+        "semantic_declaration_source_role": {
+          "enum": [
+            "v84_readiness_summary_source",
+            "v84_handoff_source",
+            "v84_closeout_source",
+            "v83_projection_packet_context",
+            "combined_dogfood_context",
+            "post_v84_roadmap_source",
+            "canonical_meta_loop_support_source",
+            "morphic_ux_support_context",
+            "direct_oai_support_context",
+            "meta_orchestrator_support_context",
+            "operator_turn_source",
+            "repo_task_context_source",
+            "natural_task_context_source",
+            "code_context_source",
+            "canonical_pointer_context",
+            "opaque_pointer_context",
+            "generated_declaration_candidate_source",
+            "model_or_agent_profile_source",
+            "reviewer_amendment_source",
+            "explicit_absence_marker",
+            "support_process_context"
+          ],
+          "title": "Semantic Declaration Source Role",
+          "type": "string"
+        },
+        "source_currentness": {
+          "enum": [
+            "current_concrete_source",
+            "current_operator_turn",
+            "support_context_only",
+            "historical_context_only",
+            "explicit_absence_marker",
+            "stale_or_superseded",
+            "unknown_needs_review"
+          ],
+          "title": "Source Currentness",
+          "type": "string"
+        },
+        "source_kind": {
+          "enum": [
+            "planning_doc",
+            "architecture_doc",
+            "support_doc",
+            "review_input",
+            "closeout_doc",
+            "evidence_artifact",
+            "schema_file",
+            "fixture_file",
+            "operator_turn",
+            "transcript_artifact",
+            "model_output",
+            "repo_observation",
+            "external_artifact"
+          ],
+          "title": "Source Kind",
+          "type": "string"
+        },
+        "source_presence_posture": {
+          "enum": [
+            "present",
+            "missing_expected_support_artifact",
+            "not_uploaded_in_review_snapshot",
+            "generated_later",
+            "external_unavailable",
+            "operator_turn_not_committed"
+          ],
+          "title": "Source Presence Posture",
+          "type": "string"
+        },
+        "source_ref": {
+          "title": "Source Ref",
+          "type": "string"
+        },
+        "source_status": {
+          "enum": [
+            "integrated_shaping_source",
+            "available_but_not_integrated",
+            "review_pending_input",
+            "rejected_or_superseded_source"
+          ],
+          "title": "Source Status",
+          "type": "string"
+        }
+      },
+      "required": [
+        "source_ref",
+        "source_kind",
+        "authority_layer",
+        "source_status",
+        "source_presence_posture",
+        "semantic_declaration_source_role",
+        "source_currentness",
+        "declaration_authority_posture",
+        "loop_authority_posture",
+        "odeu_lane",
+        "limitation_note"
+      ],
+      "title": "RepoSemanticDeclarationSourceRow",
+      "type": "object"
+    }
+  },
+  "additionalProperties": false,
+  "properties": {
+    "negative_cue_rows": {
+      "items": {
+        "$ref": "#/$defs/RepoSemanticDeclarationNegativeCueRow"
+      },
+      "title": "Negative Cue Rows",
+      "type": "array"
+    },
+    "resident_model_competency_rows": {
+      "items": {
+        "$ref": "#/$defs/RepoResidentModelCompetencyRow"
+      },
+      "minItems": 1,
+      "title": "Resident Model Competency Rows",
+      "type": "array"
+    },
+    "review_id": {
+      "title": "Review Id",
+      "type": "string"
+    },
+    "schema": {
+      "const": "repo_semantic_declaration_source_index@1",
+      "title": "Schema",
+      "type": "string"
+    },
+    "semantic_act_witness_rows": {
+      "items": {
+        "$ref": "#/$defs/RepoSemanticActWitnessRow"
+      },
+      "minItems": 1,
+      "title": "Semantic Act Witness Rows",
+      "type": "array"
+    },
+    "semantic_declaration_source_index_id": {
+      "title": "Semantic Declaration Source Index Id",
+      "type": "string"
+    },
+    "snapshot_id": {
+      "title": "Snapshot Id",
+      "type": "string"
+    },
+    "source_index_summary": {
+      "title": "Source Index Summary",
+      "type": "string"
+    },
+    "source_rows": {
+      "items": {
+        "$ref": "#/$defs/RepoSemanticDeclarationSourceRow"
+      },
+      "minItems": 1,
+      "title": "Source Rows",
+      "type": "array"
+    },
+    "source_set_id": {
+      "title": "Source Set Id",
+      "type": "string"
+    }
+  },
+  "required": [
+    "schema",
+    "semantic_declaration_source_index_id",
+    "review_id",
+    "snapshot_id",
+    "source_set_id",
+    "source_rows",
+    "semantic_act_witness_rows",
+    "resident_model_competency_rows",
+    "source_index_summary"
+  ],
+  "title": "RepoSemanticDeclarationSourceIndex",
+  "type": "object"
+}
