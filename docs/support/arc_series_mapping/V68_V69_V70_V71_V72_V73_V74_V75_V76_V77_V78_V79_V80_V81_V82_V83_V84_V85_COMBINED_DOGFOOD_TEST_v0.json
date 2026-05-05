@@ -1,0 +1,145 @@
+{
+  "assertions": [
+    "family_closeout_artifacts_exist_through_v85",
+    "v85c_summary_ready_for_later_obligation_expansion_review_only",
+    "v85c_summary_has_no_carried_blockers",
+    "v85c_summary_preserves_no_obligation_expansion_no_implementation_no_runtime_no_v86",
+    "v85c_handoff_requests_later_obligation_expansion_review_without_expanding_obligations",
+    "v85c_handoff_preserves_no_implementation_no_runtime_no_v86",
+    "v85_family_closeout_closes_without_v86_selection_or_downstream_authority"
+  ],
+  "carry_forward_findings": [
+    {
+      "finding": "V85 closes semantic declaration and canonical lookup review with source-bound request intake, source indexing, non-authority guardrails, canonical lookup, operator/class registry, obligation-family registry, pointer fixtures, summaries, handoffs, and family closeout alignment.",
+      "posture": "closed_family_boundary",
+      "result": "not_family_failure"
+    },
+    {
+      "finding": "V85-C carries future obligation-expansion review pressure forward as a later-review request; it does not expand obligations, create evidence contracts, run audit taskpacks, execute transitions, implement code, transition runtime, authorize product/graph surfaces, or select V86.",
+      "posture": "future_family_pressure_visible_not_selected",
+      "result": "not_family_failure"
+    }
+  ],
+  "counts": {
+    "v85_carried_future_pressure_refs": 1,
+    "v85_closed_surface_refs": 10,
+    "v85_handoff_rows": 1,
+    "v85_ready_summary_rows": 1,
+    "v85_summary_rows": 4,
+    "v85_unselected_surface_refs": 5
+  },
+  "failures": [],
+  "families_checked": [
+    "V68",
+    "V69",
+    "V70",
+    "V71",
+    "V72",
+    "V73",
+    "V74",
+    "V75",
+    "V76",
+    "V77",
+    "V78",
+    "V79",
+    "V80",
+    "V81",
+    "V82",
+    "V83",
+    "V84",
+    "V85"
+  ],
+  "family_closeout_schemas": {
+    "V68": "v68_family_closeout_alignment@1",
+    "V69": "v69_family_closeout_alignment@1",
+    "V70": "v70_family_closeout_alignment@1",
+    "V71": "v71_family_closeout_alignment@1",
+    "V72": "v72_family_closeout_alignment@1",
+    "V73": "v73_family_closeout_alignment@1",
+    "V74": "v74_family_closeout_alignment@1",
+    "V75": "v75_family_closeout_alignment@1",
+    "V76": "v76_family_closeout_alignment@1",
+    "V77": "v77_family_closeout_alignment@1",
+    "V78": "v78_family_closeout_alignment@1",
+    "V79": "v79_family_closeout_alignment@1",
+    "V80": "v80_family_closeout_alignment@1",
+    "V81": "v81_family_closeout_alignment@1",
+    "V82": "v82_family_closeout_alignment@1",
+    "V83": "v83_family_closeout_alignment@1",
+    "V84": "v84_family_closeout_alignment@1",
+    "V85": "repo_semantic_declaration_family_closeout_alignment@1"
+  },
+  "family_closeout_status": {
+    "V68": "closed_on_main",
+    "V69": "closed_on_main",
+    "V70": "candidate_review_classification_family_only",
+    "V71": "candidate_ratification_review_family_only",
+    "V72": true,
+    "V73": true,
+    "V74": true,
+    "V75": true,
+    "V76": true,
+    "V77": true,
+    "V78": true,
+    "V79": true,
+    "V80": true,
+    "V81": true,
+    "V82": true,
+    "V83": true,
+    "V84": true,
+    "V85": "v85_closed_with_future_pressure"
+  },
+  "handoff_postures": {
+    "handoff:v85c:future-obligation-expansion-review": {
+      "future_family_selection_status": "no_future_family_selected_by_v85",
+      "handoff_authority_horizon": "obligation_expansion_review",
+      "handoff_posture": "ready_for_later_review",
+      "handoff_sequence_posture": "immediate_next_pressure",
+      "handoff_target": "future_obligation_expansion_review",
+      "implementation_status": "no_implementation_performed_by_v85",
+      "obligation_expansion_status": "no_obligation_expansion_performed_by_v85",
+      "runtime_transition_status": "no_runtime_transition_performed_by_v85"
+    }
+  },
+  "pytest_result": {
+    "collected_count": 931,
+    "focused_repo_description_tests_passed": true,
+    "warnings_count": 208,
+    "warnings_observed": true
+  },
+  "readiness_summary_posture": {
+    "carried_blocker_refs_count": 0,
+    "carried_warning_refs_count": 0,
+    "future_family_selection_posture": "no_future_family_selected_by_v85",
+    "implementation_posture": "no_implementation_performed_by_v85",
+    "lookup_coverage_posture": "selected_declarations_have_lookup_rows",
+    "obligation_expansion_posture": "no_obligation_expansion_performed_by_v85",
+    "ready_basis_posture": "ready_no_blockers",
+    "runtime_transition_posture": "no_runtime_transition_performed_by_v85",
+    "summary_posture": "ready_for_later_obligation_expansion_review",
+    "summary_ref": "summary:v85c:ready-obligation-expansion-review"
+  },
+  "result": "pass",
+  "schema": "v68_v69_v70_v71_v72_v73_v74_v75_v76_v77_v78_v79_v80_v81_v82_v83_v84_v85_combined_dogfood_test@1",
+  "terminal_closeout_arcs": [
+    "vNext+190",
+    "vNext+193",
+    "vNext+196",
+    "vNext+199",
+    "vNext+202",
+    "vNext+205",
+    "vNext+208",
+    "vNext+211",
+    "vNext+214",
+    "vNext+217",
+    "vNext+220",
+    "vNext+223",
+    "vNext+226",
+    "vNext+229",
+    "vNext+232",
+    "vNext+235",
+    "vNext+238",
+    "vNext+241"
+  ],
+  "terminal_closeout_checks_passed": true
+}
