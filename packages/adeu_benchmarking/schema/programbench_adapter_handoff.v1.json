@@ -1,0 +1,97 @@
+{
+  "additionalProperties": false,
+  "properties": {
+    "adapter_candidate_ref": {
+      "title": "Adapter Candidate Ref",
+      "type": "string"
+    },
+    "benchmark_result_authority_posture": {
+      "const": "no_benchmark_result_authority_granted_by_pb_adapter_0c",
+      "title": "Benchmark Result Authority Posture",
+      "type": "string"
+    },
+    "case_packet_ref": {
+      "title": "Case Packet Ref",
+      "type": "string"
+    },
+    "execution_authority_posture": {
+      "const": "no_execution_authority_granted_by_pb_adapter_0c",
+      "title": "Execution Authority Posture",
+      "type": "string"
+    },
+    "future_family_selection_posture": {
+      "const": "no_future_family_selected_by_pb_adapter_0c",
+      "title": "Future Family Selection Posture",
+      "type": "string"
+    },
+    "handoff_ref": {
+      "title": "Handoff Ref",
+      "type": "string"
+    },
+    "handoff_sequence_posture": {
+      "enum": [
+        "future_review_pressure_only",
+        "future_family_only"
+      ],
+      "title": "Handoff Sequence Posture",
+      "type": "string"
+    },
+    "handoff_target": {
+      "enum": [
+        "future_cleanroom_reconstruction_execution_review",
+        "future_local_fixture_matrix_expansion_review",
+        "future_programbench_evaluation_governance_review",
+        "future_official_programbench_participation_review",
+        "future_conceptual_broker_review",
+        "future_family_only"
+      ],
+      "title": "Handoff Target",
+      "type": "string"
+    },
+    "implementation_authority_posture": {
+      "const": "no_implementation_authority_granted_by_pb_adapter_0c",
+      "title": "Implementation Authority Posture",
+      "type": "string"
+    },
+    "limitation_note": {
+      "title": "Limitation Note",
+      "type": "string"
+    },
+    "official_programbench_authority_posture": {
+      "const": "no_official_programbench_authority_granted_by_pb_adapter_0c",
+      "title": "Official Programbench Authority Posture",
+      "type": "string"
+    },
+    "readiness_summary_ref": {
+      "title": "Readiness Summary Ref",
+      "type": "string"
+    },
+    "schema": {
+      "const": "programbench_adapter_handoff@1",
+      "title": "Schema",
+      "type": "string"
+    },
+    "task_instance_ref": {
+      "title": "Task Instance Ref",
+      "type": "string"
+    }
+  },
+  "required": [
+    "schema",
+    "handoff_ref",
+    "case_packet_ref",
+    "readiness_summary_ref",
+    "adapter_candidate_ref",
+    "task_instance_ref",
+    "handoff_target",
+    "handoff_sequence_posture",
+    "execution_authority_posture",
+    "official_programbench_authority_posture",
+    "implementation_authority_posture",
+    "benchmark_result_authority_posture",
+    "future_family_selection_posture",
+    "limitation_note"
+  ],
+  "title": "ProgrambenchAdapterHandoff",
+  "type": "object"
+}

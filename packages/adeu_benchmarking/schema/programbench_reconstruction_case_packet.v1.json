@@ -1,0 +1,148 @@
+{
+  "additionalProperties": false,
+  "properties": {
+    "adapter_candidate_ref": {
+      "title": "Adapter Candidate Ref",
+      "type": "string"
+    },
+    "benchmark_truth_posture": {
+      "const": "not_benchmark_truth",
+      "title": "Benchmark Truth Posture",
+      "type": "string"
+    },
+    "case_packet_ref": {
+      "title": "Case Packet Ref",
+      "type": "string"
+    },
+    "case_packet_scope_posture": {
+      "enum": [
+        "released_adapter_refs_packet_only",
+        "future_family_only"
+      ],
+      "title": "Case Packet Scope Posture",
+      "type": "string"
+    },
+    "guardrail_refs": {
+      "items": {
+        "type": "string"
+      },
+      "minItems": 1,
+      "title": "Guardrail Refs",
+      "type": "array"
+    },
+    "io_artifact_index_refs": {
+      "items": {
+        "type": "string"
+      },
+      "minItems": 1,
+      "title": "Io Artifact Index Refs",
+      "type": "array"
+    },
+    "limitation_note": {
+      "title": "Limitation Note",
+      "type": "string"
+    },
+    "official_participation_posture": {
+      "const": "no_official_programbench_participation_by_pb_adapter_0c",
+      "title": "Official Participation Posture",
+      "type": "string"
+    },
+    "pb_py_0_fixture_refs": {
+      "items": {
+        "type": "string"
+      },
+      "minItems": 1,
+      "title": "Pb Py 0 Fixture Refs",
+      "type": "array"
+    },
+    "pb_py_0_profile_refs": {
+      "items": {
+        "type": "string"
+      },
+      "minItems": 1,
+      "title": "Pb Py 0 Profile Refs",
+      "type": "array"
+    },
+    "pb_py_0_realization_pack_refs": {
+      "items": {
+        "type": "string"
+      },
+      "minItems": 1,
+      "title": "Pb Py 0 Realization Pack Refs",
+      "type": "array"
+    },
+    "probe_observation_refs": {
+      "items": {
+        "type": "string"
+      },
+      "minItems": 1,
+      "title": "Probe Observation Refs",
+      "type": "array"
+    },
+    "probe_plan_refs": {
+      "items": {
+        "type": "string"
+      },
+      "minItems": 1,
+      "title": "Probe Plan Refs",
+      "type": "array"
+    },
+    "schema": {
+      "const": "programbench_reconstruction_case_packet@1",
+      "title": "Schema",
+      "type": "string"
+    },
+    "side_effect_observation_refs": {
+      "items": {
+        "type": "string"
+      },
+      "minItems": 1,
+      "title": "Side Effect Observation Refs",
+      "type": "array"
+    },
+    "task_artifact_manifest_ref": {
+      "title": "Task Artifact Manifest Ref",
+      "type": "string"
+    },
+    "task_instance_ref": {
+      "title": "Task Instance Ref",
+      "type": "string"
+    },
+    "task_intake_ref": {
+      "title": "Task Intake Ref",
+      "type": "string"
+    },
+    "visibility_manifest_ref": {
+      "title": "Visibility Manifest Ref",
+      "type": "string"
+    },
+    "worker_access_contract_ref": {
+      "title": "Worker Access Contract Ref",
+      "type": "string"
+    }
+  },
+  "required": [
+    "schema",
+    "case_packet_ref",
+    "adapter_candidate_ref",
+    "task_instance_ref",
+    "task_intake_ref",
+    "task_artifact_manifest_ref",
+    "visibility_manifest_ref",
+    "worker_access_contract_ref",
+    "guardrail_refs",
+    "probe_plan_refs",
+    "probe_observation_refs",
+    "io_artifact_index_refs",
+    "side_effect_observation_refs",
+    "pb_py_0_profile_refs",
+    "pb_py_0_realization_pack_refs",
+    "pb_py_0_fixture_refs",
+    "case_packet_scope_posture",
+    "official_participation_posture",
+    "benchmark_truth_posture",
+    "limitation_note"
+  ],
+  "title": "ProgrambenchReconstructionCasePacket",
+  "type": "object"
+}

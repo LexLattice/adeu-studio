@@ -1,0 +1,25 @@
+{
+  "benchmark_truth_non_authority_posture": "no_benchmark_truth_claimed_by_pb_adapter_0",
+  "case_packet_refs": [
+    "case-packet:pb-adapter-0c:reference"
+  ],
+  "closed_family_ref": "PB-ADAPTER-0",
+  "closed_slice_refs": [
+    "PB-ADAPTER-0-A",
+    "PB-ADAPTER-0-B",
+    "PB-ADAPTER-0-C"
+  ],
+  "family_alignment_posture": "pb_adapter_0_closed_case_packet_only",
+  "family_closeout_ref": "family-closeout:pb-adapter-0c:reject-future",
+  "future_family_selection_posture": "future_family_selected",
+  "handoff_refs": [
+    "handoff:pb-adapter-0c:reference"
+  ],
+  "hidden_test_non_inference_posture": "hidden_tests_not_used_as_inference_by_pb_adapter_0",
+  "limitation_note": "Reject fixture: family closeout cannot select a future family.",
+  "official_programbench_non_authority_posture": "no_official_programbench_participation_by_pb_adapter_0",
+  "readiness_summary_refs": [
+    "readiness-summary:pb-adapter-0c:reference"
+  ],
+  "schema": "programbench_cleanroom_adapter_family_closeout_alignment@1"
+}

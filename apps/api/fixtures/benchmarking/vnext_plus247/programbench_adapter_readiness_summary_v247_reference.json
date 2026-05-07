@@ -1,0 +1,74 @@
+{
+  "access_contract_violation_refs": [],
+  "adapter_candidate_ref": "adapter-candidate:pb-adapter-0a:reference",
+  "carried_blocker_refs": [],
+  "carried_warning_refs": [],
+  "case_packet_ref": "case-packet:pb-adapter-0c:reference",
+  "contamination_rows": [],
+  "contamination_status": "clean",
+  "coverage_summary_rows": [
+    {
+      "coverage_kind": "visibility_manifest",
+      "coverage_posture": "covered_for_case_packet",
+      "coverage_ref": "coverage:pb-adapter-0c:visibility",
+      "covered_ref": "visibility-manifest:pb-adapter-0a:reference",
+      "limitation_note": "Visibility manifest ref is released by PB-ADAPTER-0-A."
+    },
+    {
+      "coverage_kind": "worker_access_contract",
+      "coverage_posture": "covered_for_case_packet",
+      "coverage_ref": "coverage:pb-adapter-0c:access-contract",
+      "covered_ref": "worker-access-contract:pb-adapter-0a:reference",
+      "limitation_note": "Worker access contract ref is released by PB-ADAPTER-0-A."
+    },
+    {
+      "coverage_kind": "guardrail",
+      "coverage_posture": "covered_for_case_packet",
+      "coverage_ref": "coverage:pb-adapter-0c:guardrail",
+      "covered_ref": "guardrail:pb-adapter-0a:reference",
+      "limitation_note": "Guardrail ref is released by PB-ADAPTER-0-A."
+    },
+    {
+      "coverage_kind": "probe_plan",
+      "coverage_posture": "covered_for_case_packet",
+      "coverage_ref": "coverage:pb-adapter-0c:probe-plan",
+      "covered_ref": "probe-plan:pb-adapter-0b:reference",
+      "limitation_note": "Probe plan ref is released by PB-ADAPTER-0-B."
+    },
+    {
+      "coverage_kind": "probe_observation",
+      "coverage_posture": "covered_for_case_packet",
+      "coverage_ref": "coverage:pb-adapter-0c:probe-observation",
+      "covered_ref": "probe-observation:pb-adapter-0b:toy-cli-help",
+      "limitation_note": "Probe observation ref is released by PB-ADAPTER-0-B."
+    },
+    {
+      "coverage_kind": "io_artifact_index",
+      "coverage_posture": "covered_for_case_packet",
+      "coverage_ref": "coverage:pb-adapter-0c:io-index",
+      "covered_ref": "io-artifact-index:pb-adapter-0b:reference",
+      "limitation_note": "I/O artifact index ref is released by PB-ADAPTER-0-B."
+    },
+    {
+      "coverage_kind": "side_effect_observation",
+      "coverage_posture": "covered_for_case_packet",
+      "coverage_ref": "coverage:pb-adapter-0c:side-effect",
+      "covered_ref": "side-effect:pb-adapter-0b:toy-cli-help",
+      "limitation_note": "Filesystem side-effect observation ref is released by PB-ADAPTER-0-B."
+    }
+  ],
+  "derived_summary_exposure_refs": [],
+  "forbidden_evidence_exposure_posture": "no_forbidden_evidence_exposed",
+  "forbidden_source_exposure_refs": [],
+  "hidden_evidence_exposure_refs": [],
+  "hidden_test_boundary_posture": "hidden_tests_not_visible_not_inference_evidence",
+  "limitation_note": "Readiness is for later cleanroom reconstruction review only; local probe evidence is not benchmark truth.",
+  "local_probe_truth_posture": "local_probe_not_benchmark_truth_or_hidden_test_equivalence",
+  "probe_observation_coverage_posture": "probe_observation_coverage_complete",
+  "probe_scope_violation_refs": [],
+  "readiness_posture": "ready_for_later_cleanroom_reconstruction_review",
+  "readiness_summary_ref": "readiness-summary:pb-adapter-0c:reference",
+  "schema": "programbench_adapter_readiness_summary@1",
+  "task_instance_ref": "task-instance:pb-adapter-0a:toy-cli",
+  "visibility_closure_posture": "visibility_manifest_refs_closed"
+}

@@ -78,22 +78,30 @@ from .models import (
     ProceduralDepthRunTrace,
 )
 from .programbench_cleanroom_adapter import (
+    PROGRAMBENCH_ADAPTER_HANDOFF_SCHEMA,
     PROGRAMBENCH_ADAPTER_NON_AUTHORITY_GUARDRAIL_SCHEMA,
     PROGRAMBENCH_ADAPTER_PROBE_PLAN_SCHEMA,
+    PROGRAMBENCH_ADAPTER_READINESS_SUMMARY_SCHEMA,
     PROGRAMBENCH_ADAPTER_WORKER_ACCESS_CONTRACT_SCHEMA,
+    PROGRAMBENCH_CLEANROOM_ADAPTER_FAMILY_CLOSEOUT_ALIGNMENT_SCHEMA,
     PROGRAMBENCH_CLEANROOM_TASK_INTAKE_SCHEMA,
     PROGRAMBENCH_FILESYSTEM_SIDE_EFFECT_OBSERVATION_SCHEMA,
     PROGRAMBENCH_IO_ARTIFACT_OBSERVATION_INDEX_SCHEMA,
     PROGRAMBENCH_PROBE_OBSERVATION_LOG_SCHEMA,
+    PROGRAMBENCH_RECONSTRUCTION_CASE_PACKET_SCHEMA,
     PROGRAMBENCH_TASK_ARTIFACT_MANIFEST_SCHEMA,
     PROGRAMBENCH_TASK_VISIBILITY_MANIFEST_SCHEMA,
+    ProgrambenchAdapterHandoff,
     ProgrambenchAdapterNonAuthorityGuardrail,
     ProgrambenchAdapterProbePlan,
+    ProgrambenchAdapterReadinessSummary,
     ProgrambenchAdapterWorkerAccessContract,
+    ProgrambenchCleanroomAdapterFamilyCloseoutAlignment,
     ProgrambenchCleanroomTaskIntake,
     ProgrambenchFilesystemSideEffectObservation,
     ProgrambenchIOArtifactObservationIndex,
     ProgrambenchProbeObservationLog,
+    ProgrambenchReconstructionCasePacket,
     ProgrambenchTaskArtifactManifest,
     ProgrambenchTaskVisibilityManifest,
 )
@@ -570,6 +578,48 @@ def main() -> None:
             / "schema"
             / "programbench_filesystem_side_effect_observation.v1.json",
             root / "spec" / "programbench_filesystem_side_effect_observation.schema.json",
+        ),
+        (
+            ProgrambenchReconstructionCasePacket,
+            PROGRAMBENCH_RECONSTRUCTION_CASE_PACKET_SCHEMA,
+            root
+            / "packages"
+            / "adeu_benchmarking"
+            / "schema"
+            / "programbench_reconstruction_case_packet.v1.json",
+            root / "spec" / "programbench_reconstruction_case_packet.schema.json",
+        ),
+        (
+            ProgrambenchAdapterReadinessSummary,
+            PROGRAMBENCH_ADAPTER_READINESS_SUMMARY_SCHEMA,
+            root
+            / "packages"
+            / "adeu_benchmarking"
+            / "schema"
+            / "programbench_adapter_readiness_summary.v1.json",
+            root / "spec" / "programbench_adapter_readiness_summary.schema.json",
+        ),
+        (
+            ProgrambenchAdapterHandoff,
+            PROGRAMBENCH_ADAPTER_HANDOFF_SCHEMA,
+            root
+            / "packages"
+            / "adeu_benchmarking"
+            / "schema"
+            / "programbench_adapter_handoff.v1.json",
+            root / "spec" / "programbench_adapter_handoff.schema.json",
+        ),
+        (
+            ProgrambenchCleanroomAdapterFamilyCloseoutAlignment,
+            PROGRAMBENCH_CLEANROOM_ADAPTER_FAMILY_CLOSEOUT_ALIGNMENT_SCHEMA,
+            root
+            / "packages"
+            / "adeu_benchmarking"
+            / "schema"
+            / "programbench_cleanroom_adapter_family_closeout_alignment.v1.json",
+            root
+            / "spec"
+            / "programbench_cleanroom_adapter_family_closeout_alignment.schema.json",
         ),
     ]
 

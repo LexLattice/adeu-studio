@@ -1,0 +1,45 @@
+{
+  "access_contract_violation_refs": [],
+  "adapter_candidate_ref": "adapter-candidate:pb-adapter-0a:reference",
+  "carried_blocker_refs": [],
+  "carried_warning_refs": [],
+  "case_packet_ref": "case-packet:pb-adapter-0c:reference",
+  "contamination_rows": [
+    {
+      "contamination_kind": "forbidden_source_exposure",
+      "contamination_ref": "contamination:pb-adapter-0c:forbidden-source",
+      "contamination_status": "forbidden_source_exposure",
+      "limitation_note": "Forbidden source exposure must block ready posture.",
+      "source_refs": [
+        "store:original-source"
+      ],
+      "worker_inference_effect": "blocks_ready_posture"
+    }
+  ],
+  "contamination_status": "forbidden_source_exposure",
+  "coverage_summary_rows": [
+    {
+      "coverage_kind": "visibility_manifest",
+      "coverage_posture": "covered_for_case_packet",
+      "coverage_ref": "coverage:pb-adapter-0c:visibility",
+      "covered_ref": "visibility-manifest:pb-adapter-0a:reference",
+      "limitation_note": "Coverage row remains valid; contamination should still block ready posture."
+    }
+  ],
+  "derived_summary_exposure_refs": [],
+  "forbidden_evidence_exposure_posture": "forbidden_evidence_exposure_detected",
+  "forbidden_source_exposure_refs": [
+    "store:original-source"
+  ],
+  "hidden_evidence_exposure_refs": [],
+  "hidden_test_boundary_posture": "hidden_tests_not_visible_not_inference_evidence",
+  "limitation_note": "Reject fixture: contaminated readiness cannot be ready.",
+  "local_probe_truth_posture": "local_probe_not_benchmark_truth_or_hidden_test_equivalence",
+  "probe_observation_coverage_posture": "probe_observation_coverage_complete",
+  "probe_scope_violation_refs": [],
+  "readiness_posture": "ready_for_later_cleanroom_reconstruction_review",
+  "readiness_summary_ref": "readiness-summary:pb-adapter-0c:reject-forbidden",
+  "schema": "programbench_adapter_readiness_summary@1",
+  "task_instance_ref": "task-instance:pb-adapter-0a:toy-cli",
+  "visibility_closure_posture": "visibility_manifest_refs_closed"
+}
