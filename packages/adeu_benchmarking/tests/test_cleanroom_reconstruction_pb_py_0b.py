@@ -328,6 +328,50 @@ def test_pb_py_0b_bundle_rejects_unresolved_witness_ref() -> None:
         )
 
 
+def test_pb_py_0b_bundle_rejects_unresolved_required_witness_ref() -> None:
+    profile, concept_seed, source_index, guardrail, fixture_contract = _load_a_bundle()
+    realization_records, realization_pack, reconstruction_plan, witness_templates = _load_b_bundle()
+    record_payload = realization_records[0].model_dump(mode="json", by_alias=True)
+    record_payload["required_witness_refs"] = ["witness-template:pb-py-0b:missing-required-witness"]
+    realization_records = [ConceptRealizationRecord.model_validate(record_payload)]
+
+    with pytest.raises(ValueError, match="required witnesses missing"):
+        validate_pb_py_0b_python_realization_bundle(
+            profile=profile,
+            concept_seed=concept_seed,
+            source_index=source_index,
+            guardrail=guardrail,
+            fixture_contract=fixture_contract,
+            realization_records=realization_records,
+            realization_pack=realization_pack,
+            reconstruction_plan=reconstruction_plan,
+            witness_templates=witness_templates,
+        )
+
+
+def test_pb_py_0b_bundle_rejects_unresolved_nested_pack_source_ref() -> None:
+    profile, concept_seed, source_index, guardrail, fixture_contract = _load_a_bundle()
+    realization_records, realization_pack, reconstruction_plan, witness_templates = _load_b_bundle()
+    pack_payload = realization_pack.model_dump(mode="json", by_alias=True)
+    pack_payload["boundary_condition_rows"][0]["source_refs"] = [
+        "source:pb-py-0b:missing-source-row"
+    ]
+    realization_pack = PythonReconstructionRealizationPack.model_validate(pack_payload)
+
+    with pytest.raises(ValueError, match="source refs missing source rows"):
+        validate_pb_py_0b_python_realization_bundle(
+            profile=profile,
+            concept_seed=concept_seed,
+            source_index=source_index,
+            guardrail=guardrail,
+            fixture_contract=fixture_contract,
+            realization_records=realization_records,
+            realization_pack=realization_pack,
+            reconstruction_plan=reconstruction_plan,
+            witness_templates=witness_templates,
+        )
+
+
 @pytest.mark.parametrize(
     ("fixture_name", "model"),
     [
@@ -387,3 +431,18 @@ def test_pb_py_0b_plan_rejects_commands_and_paths_programmatically() -> None:
 
     with pytest.raises(ValidationError, match="executable file paths"):
         PythonReconstructionPlan.model_validate(payload)
+
+    payload = deepcopy(_load_b_fixture("python_reconstruction_plan_v243_reference.json"))
+    payload["planned_obligation_rows"][0]["obligation_statement"] = (
+        "SCRIPT.PY carries the diagnostic behavior"
+    )
+
+    with pytest.raises(ValidationError, match="executable file paths"):
+        PythonReconstructionPlan.model_validate(payload)
+
+    payload = deepcopy(_load_b_fixture("python_reconstruction_plan_v243_reference.json"))
+    payload["planned_obligation_rows"][0]["obligation_statement"] = (
+        "Input / Output labels remain documentation text."
+    )
+
+    PythonReconstructionPlan.model_validate(payload)

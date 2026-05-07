@@ -267,7 +267,9 @@ _CODE_OR_COMMAND_MARKERS = (
     " && ",
     "$ ",
 )
-_EXECUTABLE_PATH_RE = re.compile(r"(^|\s)(/|\./|[A-Za-z]:\\|[A-Za-z0-9_.-]+\.py\b|packages/|apps/)")
+_EXECUTABLE_PATH_RE = re.compile(
+    r"(^|\s)(/[^ \t\n]+|\./|[a-z]:\\|[a-z0-9_.-]+\.py\b|packages/|apps/)"
+)
 _REQUIRED_PHASES = [
     "inference_phase",
     "local_development_phase",
@@ -326,8 +328,19 @@ def _ensure_no_code_command_or_path_payload(value: object, *, field_name: str) -
     lowered = value.lower()
     if any(marker in lowered for marker in _CODE_OR_COMMAND_MARKERS):
         raise ValueError(f"{field_name} must not contain source code or command payloads")
-    if _EXECUTABLE_PATH_RE.search(value):
+    if _EXECUTABLE_PATH_RE.search(lowered):
         raise ValueError(f"{field_name} must not contain executable file paths")
+
+
+def _ensure_source_refs_resolve(
+    source_refs: list[str],
+    *,
+    row_ref: str,
+    source_refs_by_ref: set[str],
+) -> None:
+    missing = set(source_refs) - source_refs_by_ref
+    if missing:
+        raise ValueError(f"{row_ref} source refs missing source rows: {sorted(missing)}")
 
 
 class _CleanroomBase(BaseModel):
@@ -903,6 +916,7 @@ def validate_pb_py_0b_python_realization_bundle(
     witness_templates_by_ref = {row.witness_template_ref: row for row in witness_templates}
     if len(witness_templates_by_ref) != len(witness_templates):
         raise ValueError("witness_templates must not repeat witness_template_ref")
+    source_refs_by_ref = {row.source_ref for row in source_index.source_rows}
 
     for record in realization_records:
         seed_row = seed_rows_by_ref.get(record.concept_seed_ref)
@@ -910,10 +924,18 @@ def validate_pb_py_0b_python_realization_bundle(
             raise ValueError(f"realization record missing concept seed: {record.realization_ref}")
         if seed_row.concept_id != record.concept_id:
             raise ValueError("realization record concept_id must match concept seed row")
-        missing_templates = set(record.probe_template_refs) - set(witness_templates_by_ref)
-        if missing_templates:
+        missing_probe_templates = set(record.probe_template_refs) - set(witness_templates_by_ref)
+        if missing_probe_templates:
             raise ValueError(
-                f"realization record probe templates missing: {sorted(missing_templates)}"
+                f"realization record probe templates missing: {sorted(missing_probe_templates)}"
+            )
+        missing_witness_templates = set(record.required_witness_refs) - set(
+            witness_templates_by_ref
+        )
+        if missing_witness_templates:
+            raise ValueError(
+                "realization record required witnesses missing: "
+                f"{sorted(missing_witness_templates)}"
             )
 
     if profile.profile_ref not in realization_pack.source_profile_refs:
@@ -935,6 +957,30 @@ def validate_pb_py_0b_python_realization_bundle(
     if missing_witnesses:
         raise ValueError(
             f"realization pack witness refs missing templates: {sorted(missing_witnesses)}"
+        )
+    for row in realization_pack.stdlib_surface_rows:
+        _ensure_source_refs_resolve(
+            row.source_refs,
+            row_ref=row.surface_ref,
+            source_refs_by_ref=source_refs_by_ref,
+        )
+    for row in realization_pack.boundary_condition_rows:
+        _ensure_source_refs_resolve(
+            row.source_refs,
+            row_ref=row.boundary_condition_ref,
+            source_refs_by_ref=source_refs_by_ref,
+        )
+    for row in realization_pack.failure_mode_rows:
+        _ensure_source_refs_resolve(
+            row.source_refs,
+            row_ref=row.failure_mode_ref,
+            source_refs_by_ref=source_refs_by_ref,
+        )
+    for row in realization_pack.contraindicated_pattern_rows:
+        _ensure_source_refs_resolve(
+            row.source_refs,
+            row_ref=row.contraindicated_pattern_ref,
+            source_refs_by_ref=source_refs_by_ref,
         )
 
     if profile.profile_ref not in reconstruction_plan.source_profile_refs:
