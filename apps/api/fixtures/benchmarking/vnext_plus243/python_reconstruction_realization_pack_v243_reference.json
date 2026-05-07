@@ -1,0 +1,263 @@
+{
+  "schema": "python_reconstruction_realization_pack@1",
+  "pack_ref": "realization-pack:pb-py-0b:python-stdlib-seed",
+  "target_language": "python",
+  "source_profile_refs": [
+    "profile:pb-py-0a:programbench-cleanroom-reconstruction"
+  ],
+  "concept_seed_refs": [
+    "concept-seed-set:pb-py-0a:program-odeu"
+  ],
+  "source_index_refs": [
+    "source-index:pb-py-0a:programbench-cleanroom"
+  ],
+  "guardrail_refs": [
+    "guardrail:pb-py-0a:cleanroom-non-authority"
+  ],
+  "fixture_contract_refs": [
+    "fixture-contract:pb-py-0a:local-cleanroom-program"
+  ],
+  "realization_record_refs": [
+    "realization:pb-py-0b:stderr-diagnostic-python"
+  ],
+  "stdlib_surface_rows": [
+    {
+      "surface_ref": "stdlib:python:argparse",
+      "stdlib_surface": "argparse",
+      "realization_role_refs": [
+        "cli_argument_parsing"
+      ],
+      "source_refs": [
+        "source:pb-py-0a:support-direction-v0"
+      ],
+      "surface_use_posture": "realization_option_only",
+      "implementation_authority_posture": "no_execution_or_implementation_authority",
+      "limitation_note": "Python standard library surface recorded as a realization option only."
+    },
+    {
+      "surface_ref": "stdlib:python:sys_argv",
+      "stdlib_surface": "sys_argv",
+      "realization_role_refs": [
+        "cli_argument_parsing"
+      ],
+      "source_refs": [
+        "source:pb-py-0a:support-direction-v0"
+      ],
+      "surface_use_posture": "realization_option_only",
+      "implementation_authority_posture": "no_execution_or_implementation_authority",
+      "limitation_note": "Python standard library surface recorded as a realization option only."
+    },
+    {
+      "surface_ref": "stdlib:python:sys_stdin",
+      "stdlib_surface": "sys_stdin",
+      "realization_role_refs": [
+        "stdin_stdout_stderr_io"
+      ],
+      "source_refs": [
+        "source:pb-py-0a:support-direction-v0"
+      ],
+      "surface_use_posture": "realization_option_only",
+      "implementation_authority_posture": "no_execution_or_implementation_authority",
+      "limitation_note": "Python standard library surface recorded as a realization option only."
+    },
+    {
+      "surface_ref": "stdlib:python:sys_stdout",
+      "stdlib_surface": "sys_stdout",
+      "realization_role_refs": [
+        "stdin_stdout_stderr_io"
+      ],
+      "source_refs": [
+        "source:pb-py-0a:support-direction-v0"
+      ],
+      "surface_use_posture": "realization_option_only",
+      "implementation_authority_posture": "no_execution_or_implementation_authority",
+      "limitation_note": "Python standard library surface recorded as a realization option only."
+    },
+    {
+      "surface_ref": "stdlib:python:sys_stderr",
+      "stdlib_surface": "sys_stderr",
+      "realization_role_refs": [
+        "error_diagnostic_behavior",
+        "stdin_stdout_stderr_io"
+      ],
+      "source_refs": [
+        "source:pb-py-0a:support-direction-v0"
+      ],
+      "surface_use_posture": "realization_option_only",
+      "implementation_authority_posture": "no_execution_or_implementation_authority",
+      "limitation_note": "Python standard library surface recorded as a realization option only."
+    },
+    {
+      "surface_ref": "stdlib:python:pathlib",
+      "stdlib_surface": "pathlib",
+      "realization_role_refs": [
+        "file_path_io"
+      ],
+      "source_refs": [
+        "source:pb-py-0a:support-direction-v0"
+      ],
+      "surface_use_posture": "realization_option_only",
+      "implementation_authority_posture": "no_execution_or_implementation_authority",
+      "limitation_note": "Python standard library surface recorded as a realization option only."
+    },
+    {
+      "surface_ref": "stdlib:python:open",
+      "stdlib_surface": "open",
+      "realization_role_refs": [
+        "file_path_io"
+      ],
+      "source_refs": [
+        "source:pb-py-0a:support-direction-v0"
+      ],
+      "surface_use_posture": "realization_option_only",
+      "implementation_authority_posture": "no_execution_or_implementation_authority",
+      "limitation_note": "Python standard library surface recorded as a realization option only."
+    },
+    {
+      "surface_ref": "stdlib:python:json",
+      "stdlib_surface": "json",
+      "realization_role_refs": [
+        "config_data_loading"
+      ],
+      "source_refs": [
+        "source:pb-py-0a:support-direction-v0"
+      ],
+      "surface_use_posture": "realization_option_only",
+      "implementation_authority_posture": "no_execution_or_implementation_authority",
+      "limitation_note": "Python standard library surface recorded as a realization option only."
+    },
+    {
+      "surface_ref": "stdlib:python:csv",
+      "stdlib_surface": "csv",
+      "realization_role_refs": [
+        "config_data_loading"
+      ],
+      "source_refs": [
+        "source:pb-py-0a:support-direction-v0"
+      ],
+      "surface_use_posture": "realization_option_only",
+      "implementation_authority_posture": "no_execution_or_implementation_authority",
+      "limitation_note": "Python standard library surface recorded as a realization option only."
+    },
+    {
+      "surface_ref": "stdlib:python:configparser",
+      "stdlib_surface": "configparser",
+      "realization_role_refs": [
+        "config_data_loading"
+      ],
+      "source_refs": [
+        "source:pb-py-0a:support-direction-v0"
+      ],
+      "surface_use_posture": "realization_option_only",
+      "implementation_authority_posture": "no_execution_or_implementation_authority",
+      "limitation_note": "Python standard library surface recorded as a realization option only."
+    },
+    {
+      "surface_ref": "stdlib:python:tomllib",
+      "stdlib_surface": "tomllib",
+      "realization_role_refs": [
+        "config_data_loading"
+      ],
+      "source_refs": [
+        "source:pb-py-0a:support-direction-v0"
+      ],
+      "surface_use_posture": "realization_option_only",
+      "implementation_authority_posture": "no_execution_or_implementation_authority",
+      "limitation_note": "Python standard library surface recorded as a realization option only."
+    },
+    {
+      "surface_ref": "stdlib:python:os_environ",
+      "stdlib_surface": "os_environ",
+      "realization_role_refs": [
+        "environment_variable_loading"
+      ],
+      "source_refs": [
+        "source:pb-py-0a:support-direction-v0"
+      ],
+      "surface_use_posture": "realization_option_only",
+      "implementation_authority_posture": "no_execution_or_implementation_authority",
+      "limitation_note": "Python standard library surface recorded as a realization option only."
+    },
+    {
+      "surface_ref": "stdlib:python:glob",
+      "stdlib_surface": "glob",
+      "realization_role_refs": [
+        "file_path_io"
+      ],
+      "source_refs": [
+        "source:pb-py-0a:support-direction-v0"
+      ],
+      "surface_use_posture": "realization_option_only",
+      "implementation_authority_posture": "no_execution_or_implementation_authority",
+      "limitation_note": "Python standard library surface recorded as a realization option only."
+    },
+    {
+      "surface_ref": "stdlib:python:text_binary_mode",
+      "stdlib_surface": "text_binary_mode",
+      "realization_role_refs": [
+        "file_path_io"
+      ],
+      "source_refs": [
+        "source:pb-py-0a:support-direction-v0"
+      ],
+      "surface_use_posture": "realization_option_only",
+      "implementation_authority_posture": "no_execution_or_implementation_authority",
+      "limitation_note": "Python standard library surface recorded as a realization option only."
+    },
+    {
+      "surface_ref": "stdlib:python:subprocess_for_probe_only",
+      "stdlib_surface": "subprocess_for_probe_only",
+      "realization_role_refs": [
+        "error_diagnostic_behavior"
+      ],
+      "source_refs": [
+        "source:pb-py-0a:support-direction-v0"
+      ],
+      "surface_use_posture": "probe_surface_only_no_execution_authority",
+      "implementation_authority_posture": "no_execution_or_implementation_authority",
+      "limitation_note": "Probe-only surface is recorded without PB-PY-0-B execution authority."
+    }
+  ],
+  "boundary_condition_rows": [
+    {
+      "boundary_condition_ref": "boundary-condition:pb-py-0b:stderr-split",
+      "concept_id": "stderr_diagnostic",
+      "boundary_condition": "Diagnostic stream observations must stay distinguishable from normal stdout observations.",
+      "source_refs": [
+        "source:pb-py-0a:support-direction-v0"
+      ],
+      "limitation_note": "Boundary row records realization constraints only."
+    }
+  ],
+  "failure_mode_rows": [
+    {
+      "failure_mode_ref": "failure-mode:pb-py-0b:stderr-to-stdout",
+      "concept_id": "stderr_diagnostic",
+      "failure_mode": "Diagnostic text is emitted on stdout and falsely counted as stderr behavior.",
+      "source_refs": [
+        "source:pb-py-0a:support-direction-v0"
+      ],
+      "limitation_note": "Failure mode is advisory for later witness planning."
+    }
+  ],
+  "witness_template_refs": [
+    "witness-template:pb-py-0b:stderr-diagnostic"
+  ],
+  "contraindicated_pattern_rows": [
+    {
+      "contraindicated_pattern_ref": "contraindicated-pattern:pb-py-0b:bare-print-diagnostic",
+      "concept_id": "stderr_diagnostic",
+      "pattern_label": "bare print for diagnostics",
+      "contraindication_reason": "The diagnostic stream would not be witnessed separately from stdout.",
+      "source_refs": [
+        "source:pb-py-0a:support-direction-v0"
+      ],
+      "limitation_note": "Contraindicated pattern records a realization warning only."
+    }
+  ],
+  "pack_scope_posture": "python_stdlib_realization_overlay_only",
+  "fixture_authority_posture": "no_fixture_implemented_by_pb_py_0b",
+  "benchmark_truth_posture": "not_benchmark_truth",
+  "implementation_authority_posture": "no_implementation_authority_granted_by_pb_py_0b",
+  "limitation_note": "The pack records Python standard library realization options only; no fixture, implementation, runner, score, or benchmark truth is created."
+}

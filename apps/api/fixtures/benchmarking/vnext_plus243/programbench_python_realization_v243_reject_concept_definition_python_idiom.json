@@ -1,0 +1,35 @@
+{
+  "schema": "concept_realization_record@1",
+  "realization_ref": "realization:pb-py-0b:reject-python-idiom-definition",
+  "concept_seed_ref": "concept-seed:stderr_diagnostic",
+  "concept_id": "stderr_diagnostic",
+  "target_language": "python",
+  "realization_role": "error_diagnostic_behavior",
+  "canonical_instruction": "Diagnostic text must be written to stderr, not stdout.",
+  "preferred_stdlib_surfaces": [
+    "sys_stderr"
+  ],
+  "implementation_patterns": [
+    "sys.stderr surface used as an output stream"
+  ],
+  "contraindicated_patterns": [
+    "bare print for diagnostics"
+  ],
+  "boundary_conditions": [
+    "diagnostic stream must be separate from stdout"
+  ],
+  "failure_modes": [
+    "diagnostic accidentally emitted on stdout"
+  ],
+  "required_witness_refs": [
+    "witness-template:pb-py-0b:stderr-diagnostic"
+  ],
+  "probe_template_refs": [
+    "witness-template:pb-py-0b:stderr-diagnostic"
+  ],
+  "example_snippets_advisory": [],
+  "example_snippet_posture": "advisory_only_not_generated_implementation",
+  "concept_definition_posture": "python_idiom_defines_concept",
+  "implementation_authority_posture": "no_implementation_authority_granted_by_pb_py_0b",
+  "limitation_note": "Invalid: a language realization option cannot define the canonical program concept."
+}

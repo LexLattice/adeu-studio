@@ -1,0 +1,146 @@
+{
+  "$defs": {
+    "PythonPlannedObligationRow": {
+      "additionalProperties": false,
+      "properties": {
+        "concept_id": {
+          "title": "Concept Id",
+          "type": "string"
+        },
+        "concept_realization_refs": {
+          "items": {
+            "type": "string"
+          },
+          "minItems": 1,
+          "title": "Concept Realization Refs",
+          "type": "array"
+        },
+        "limitation_note": {
+          "title": "Limitation Note",
+          "type": "string"
+        },
+        "obligation_scope_posture": {
+          "const": "planned_obligation_only_not_implementation",
+          "title": "Obligation Scope Posture",
+          "type": "string"
+        },
+        "obligation_statement": {
+          "title": "Obligation Statement",
+          "type": "string"
+        },
+        "planned_obligation_ref": {
+          "title": "Planned Obligation Ref",
+          "type": "string"
+        }
+      },
+      "required": [
+        "planned_obligation_ref",
+        "concept_id",
+        "concept_realization_refs",
+        "obligation_statement",
+        "obligation_scope_posture",
+        "limitation_note"
+      ],
+      "title": "PythonPlannedObligationRow",
+      "type": "object"
+    }
+  },
+  "additionalProperties": false,
+  "properties": {
+    "benchmark_truth_posture": {
+      "const": "not_benchmark_truth",
+      "title": "Benchmark Truth Posture",
+      "type": "string"
+    },
+    "code_generation_posture": {
+      "const": "no_code_generated_by_pb_py_0b",
+      "title": "Code Generation Posture",
+      "type": "string"
+    },
+    "concept_realization_refs": {
+      "items": {
+        "type": "string"
+      },
+      "minItems": 1,
+      "title": "Concept Realization Refs",
+      "type": "array"
+    },
+    "execution_authority_posture": {
+      "const": "no_execution_authority_granted_by_pb_py_0b",
+      "title": "Execution Authority Posture",
+      "type": "string"
+    },
+    "fixture_authority_posture": {
+      "const": "no_fixture_implemented_by_pb_py_0b",
+      "title": "Fixture Authority Posture",
+      "type": "string"
+    },
+    "limitation_note": {
+      "title": "Limitation Note",
+      "type": "string"
+    },
+    "plan_ref": {
+      "title": "Plan Ref",
+      "type": "string"
+    },
+    "plan_scope_posture": {
+      "const": "review_plan_only_not_implementation_packet",
+      "title": "Plan Scope Posture",
+      "type": "string"
+    },
+    "planned_obligation_rows": {
+      "items": {
+        "$ref": "#/$defs/PythonPlannedObligationRow"
+      },
+      "minItems": 1,
+      "title": "Planned Obligation Rows",
+      "type": "array"
+    },
+    "planned_witness_refs": {
+      "items": {
+        "type": "string"
+      },
+      "minItems": 1,
+      "title": "Planned Witness Refs",
+      "type": "array"
+    },
+    "realization_pack_refs": {
+      "items": {
+        "type": "string"
+      },
+      "minItems": 1,
+      "title": "Realization Pack Refs",
+      "type": "array"
+    },
+    "schema": {
+      "const": "python_reconstruction_plan@1",
+      "title": "Schema",
+      "type": "string"
+    },
+    "source_profile_refs": {
+      "items": {
+        "type": "string"
+      },
+      "minItems": 1,
+      "title": "Source Profile Refs",
+      "type": "array"
+    }
+  },
+  "required": [
+    "schema",
+    "plan_ref",
+    "source_profile_refs",
+    "realization_pack_refs",
+    "concept_realization_refs",
+    "planned_obligation_rows",
+    "planned_witness_refs",
+    "plan_scope_posture",
+    "code_generation_posture",
+    "execution_authority_posture",
+    "fixture_authority_posture",
+    "benchmark_truth_posture",
+    "limitation_note"
+  ],
+  "title": "PythonReconstructionPlan",
+  "type": "object"
+}

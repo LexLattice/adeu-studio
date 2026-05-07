@@ -1,0 +1,122 @@
+{
+  "additionalProperties": false,
+  "properties": {
+    "concept_id": {
+      "title": "Concept Id",
+      "type": "string"
+    },
+    "execution_authority_posture": {
+      "const": "probe_template_only_no_execution_by_pb_py_0b",
+      "title": "Execution Authority Posture",
+      "type": "string"
+    },
+    "exit_code_required": {
+      "title": "Exit Code Required",
+      "type": "boolean"
+    },
+    "expected_observation_kind": {
+      "enum": [
+        "help_text",
+        "stdout_text",
+        "stderr_text",
+        "exit_code",
+        "stdout_stderr_split",
+        "filesystem_observation",
+        "deterministic_order",
+        "parse_error",
+        "runtime_error"
+      ],
+      "title": "Expected Observation Kind",
+      "type": "string"
+    },
+    "filesystem_observation_required": {
+      "title": "Filesystem Observation Required",
+      "type": "boolean"
+    },
+    "hidden_test_equivalence_posture": {
+      "const": "local_probe_not_hidden_test_equivalence",
+      "title": "Hidden Test Equivalence Posture",
+      "type": "string"
+    },
+    "limitation_note": {
+      "title": "Limitation Note",
+      "type": "string"
+    },
+    "negative_witness_requirement": {
+      "title": "Negative Witness Requirement",
+      "type": "string"
+    },
+    "positive_witness_requirement": {
+      "title": "Positive Witness Requirement",
+      "type": "string"
+    },
+    "probe_command_shape": {
+      "title": "Probe Command Shape",
+      "type": "string"
+    },
+    "probe_kind": {
+      "enum": [
+        "help_probe",
+        "missing_value_probe",
+        "invalid_flag_probe",
+        "repeated_flag_probe",
+        "stdin_stdout_probe",
+        "stderr_diagnostic_probe",
+        "exit_code_probe",
+        "missing_file_probe",
+        "malformed_config_probe",
+        "deterministic_sorting_probe",
+        "generated_file_probe",
+        "directory_side_effect_probe"
+      ],
+      "title": "Probe Kind",
+      "type": "string"
+    },
+    "realization_refs": {
+      "items": {
+        "type": "string"
+      },
+      "minItems": 1,
+      "title": "Realization Refs",
+      "type": "array"
+    },
+    "schema": {
+      "const": "python_realization_witness_template@1",
+      "title": "Schema",
+      "type": "string"
+    },
+    "stdout_stderr_split_required": {
+      "title": "Stdout Stderr Split Required",
+      "type": "boolean"
+    },
+    "target_language": {
+      "const": "python",
+      "title": "Target Language",
+      "type": "string"
+    },
+    "witness_template_ref": {
+      "title": "Witness Template Ref",
+      "type": "string"
+    }
+  },
+  "required": [
+    "schema",
+    "witness_template_ref",
+    "concept_id",
+    "target_language",
+    "realization_refs",
+    "probe_kind",
+    "probe_command_shape",
+    "expected_observation_kind",
+    "positive_witness_requirement",
+    "negative_witness_requirement",
+    "stdout_stderr_split_required",
+    "exit_code_required",
+    "filesystem_observation_required",
+    "hidden_test_equivalence_posture",
+    "execution_authority_posture",
+    "limitation_note"
+  ],
+  "title": "PythonRealizationWitnessTemplate",
+  "type": "object"
+}

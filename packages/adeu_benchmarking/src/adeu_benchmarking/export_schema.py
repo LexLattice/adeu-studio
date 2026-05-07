@@ -8,16 +8,24 @@ from typing import Any
 from adeu_ir.repo import repo_root
 
 from .cleanroom_reconstruction import (
+    CONCEPT_REALIZATION_RECORD_SCHEMA,
     PROGRAM_ODEU_CONCEPT_BOUNDARY_SEED_SCHEMA,
     PROGRAMBENCH_CLEANROOM_EVIDENCE_SOURCE_INDEX_SCHEMA,
     PROGRAMBENCH_CLEANROOM_RECONSTRUCTION_PROFILE_SCHEMA,
     PROGRAMBENCH_LOCAL_CLEANROOM_FIXTURE_CONTRACT_SCHEMA,
     PROGRAMBENCH_RECONSTRUCTION_NON_AUTHORITY_GUARDRAIL_SCHEMA,
+    PYTHON_REALIZATION_WITNESS_TEMPLATE_SCHEMA,
+    PYTHON_RECONSTRUCTION_PLAN_SCHEMA,
+    PYTHON_RECONSTRUCTION_REALIZATION_PACK_SCHEMA,
+    ConceptRealizationRecord,
     ProgrambenchCleanroomEvidenceSourceIndex,
     ProgrambenchCleanroomReconstructionProfile,
     ProgrambenchLocalCleanroomFixtureContract,
     ProgrambenchReconstructionNonAuthorityGuardrail,
     ProgramOdeuConceptBoundarySeed,
+    PythonRealizationWitnessTemplate,
+    PythonReconstructionPlan,
+    PythonReconstructionRealizationPack,
 )
 from .models import (
     ADEU_BENCHMARK_CONSUMER_ADVISORY_REPORT_SCHEMA,
@@ -283,9 +291,7 @@ def main() -> None:
             / "adeu_benchmarking"
             / "schema"
             / "adeu_procedural_depth_benchmark_validation_report.v1.json",
-            root
-            / "spec"
-            / "adeu_procedural_depth_benchmark_validation_report.schema.json",
+            root / "spec" / "adeu_procedural_depth_benchmark_validation_report.schema.json",
         ),
         (
             CrossSubjectComparisonCase,
@@ -315,9 +321,7 @@ def main() -> None:
             / "adeu_benchmarking"
             / "schema"
             / "adeu_cross_subject_comparison_validation_report.v1.json",
-            root
-            / "spec"
-            / "adeu_cross_subject_comparison_validation_report.schema.json",
+            root / "spec" / "adeu_cross_subject_comparison_validation_report.schema.json",
         ),
         (
             ProgrambenchCleanroomReconstructionProfile,
@@ -368,6 +372,46 @@ def main() -> None:
             / "schema"
             / "programbench_local_cleanroom_fixture_contract.v1.json",
             root / "spec" / "programbench_local_cleanroom_fixture_contract.schema.json",
+        ),
+        (
+            ConceptRealizationRecord,
+            CONCEPT_REALIZATION_RECORD_SCHEMA,
+            root
+            / "packages"
+            / "adeu_benchmarking"
+            / "schema"
+            / "concept_realization_record.v1.json",
+            root / "spec" / "concept_realization_record.schema.json",
+        ),
+        (
+            PythonReconstructionRealizationPack,
+            PYTHON_RECONSTRUCTION_REALIZATION_PACK_SCHEMA,
+            root
+            / "packages"
+            / "adeu_benchmarking"
+            / "schema"
+            / "python_reconstruction_realization_pack.v1.json",
+            root / "spec" / "python_reconstruction_realization_pack.schema.json",
+        ),
+        (
+            PythonReconstructionPlan,
+            PYTHON_RECONSTRUCTION_PLAN_SCHEMA,
+            root
+            / "packages"
+            / "adeu_benchmarking"
+            / "schema"
+            / "python_reconstruction_plan.v1.json",
+            root / "spec" / "python_reconstruction_plan.schema.json",
+        ),
+        (
+            PythonRealizationWitnessTemplate,
+            PYTHON_REALIZATION_WITNESS_TEMPLATE_SCHEMA,
+            root
+            / "packages"
+            / "adeu_benchmarking"
+            / "schema"
+            / "python_realization_witness_template.v1.json",
+            root / "spec" / "python_realization_witness_template.schema.json",
         ),
     ]
 
