@@ -1,0 +1,10 @@
+{
+  "baseline_arc": "vNext+245",
+  "baseline_elapsed_ms": 75,
+  "baseline_source": "artifacts/stop_gate/report_v245_closeout.md",
+  "current_arc": "vNext+246",
+  "current_elapsed_ms": 73,
+  "current_source": "artifacts/stop_gate/report_v246_closeout.md",
+  "delta_ms": -2,
+  "schema": "runtime_observability_comparison@1"
+}

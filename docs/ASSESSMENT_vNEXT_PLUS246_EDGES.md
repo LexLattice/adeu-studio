@@ -1,8 +1,8 @@
 # Assessment vNext+246 Edges
 
-Status: pre-lock edge assessment for `PB-ADAPTER-0-B`.
+Status: closeout-edge assessment for `PB-ADAPTER-0-B`.
 
-Authority layer: planning / pre-lock assessment.
+Authority layer: closeout evidence on `main`.
 
 ## Assessment-State Marker (Machine-Checkable)
 
@@ -10,8 +10,8 @@ Authority layer: planning / pre-lock assessment.
 {
   "schema": "assessment_artifact_state@1",
   "artifact": "docs/ASSESSMENT_vNEXT_PLUS246_EDGES.md",
-  "phase": "pre_lock_assessment",
-  "authoritative": false,
+  "phase": "post_closeout_assessment",
+  "authoritative": true,
   "required_in_decision": true
 }
 ```
@@ -20,88 +20,110 @@ Authority layer: planning / pre-lock assessment.
 
 ### Edge 1: Probe Plan Could Become Open Command Authority
 
-- Pre-lock judgment: `must_fail_closed`.
-- Planned control:
-  probe command rows must be argv-shaped by default and must not be raw shell
-  strings unless explicitly marked `shell_wrapped_with_reason`.
-- Residual:
-  implementation should reject shell-shaped command payloads that lack a
-  declared wrapper reason and bounded command scope.
+- Closeout containment:
+  probe command rows are argv-shaped by default; shell wrapping requires an
+  explicit reason, and raw shell command rows fail closed.
+- Result:
+  pass.
 
 ### Edge 2: Observation Rows Could Bypass Released A Access Contract
 
-- Pre-lock judgment: `requires_released_a_refs`.
-- Planned control:
-  every probe plan and observation row must resolve to released
-  `PB-ADAPTER-0-A` task intake, visibility manifest, worker access contract,
-  and guardrail refs.
-- Residual:
-  B must not reassemble a different task surface from loose source refs.
+- Closeout containment:
+  B bundle validation first validates the released A task intake, artifact
+  manifest, visibility manifest, worker access contract, and guardrail, then
+  requires B rows to preserve that lineage.
+- Result:
+  pass.
 
 ### Edge 3: Probe Observation Could Become Hidden-Test Equivalence
 
-- Pre-lock judgment: `must_fail_closed`.
-- Planned control:
-  local/reference probe rows require hidden-test-equivalence posture that keeps
-  observations as reconstruction evidence only.
-- Residual:
-  later readiness summaries must still decide whether observation coverage is
-  sufficient; B itself cannot make that readiness claim.
+- Closeout containment:
+  observation logs require `local_probe_not_hidden_test_equivalence`, and the
+  reject fixture for hidden-test equivalence claims fails closed.
+- Result:
+  pass.
 
 ### Edge 4: Hidden Or Forbidden Evidence Could Become Probe Evidence
 
-- Pre-lock judgment: `must_fail_closed`.
-- Planned control:
-  hidden evaluator, original source, decompilation, internet, external repo,
-  host-secret, and Docker-socket sources remain forbidden or hidden for
-  inference and cannot be cited as observation evidence.
-- Residual:
-  postmortem-only material remains outside reconstruction inference unless a
-  later family selects hidden-result governance.
+- Closeout containment:
+  hidden evaluator observations are not selectable for B inference evidence.
+  B still consumes the A visibility/access membrane rather than reclassifying
+  forbidden stores locally.
+- Result:
+  pass.
 
 ### Edge 5: Local Probe Pass Could Become Benchmark Truth
 
-- Pre-lock judgment: `must_fail_closed`.
-- Planned control:
-  observation rows must preserve local probe not truth / not benchmark score /
-  not model ranking posture.
-- Residual:
-  official ProgramBench participation and benchmark result governance remain
-  unselected.
+- Closeout containment:
+  I/O artifact indexes require `local_probe_artifacts_not_benchmark_truth`,
+  and benchmark-truth reject fixtures fail closed.
+- Result:
+  pass.
 
 ### Edge 6: Filesystem Side Effects Could Widen Target Scope
 
-- Pre-lock judgment: `requires_path_scope_contract`.
-- Planned control:
-  side-effect observation rows must record created, modified, deleted, and
-  untouched path refs under bounded path-scope posture.
-- Residual:
-  B should reject side-effect rows outside the released access contract and
-  allowed write scope.
+- Closeout containment:
+  side-effect rows require bounded path-scope posture and reject outside-scope
+  side effects.
+- Result:
+  pass.
 
 ### Edge 7: Observation Logs Could Store Unbounded Output
 
-- Pre-lock judgment: `requires_bounded_excerpt_hash`.
-- Planned control:
-  stdout and stderr observations should record hashes plus bounded excerpts,
-  not unbounded captured streams.
-- Residual:
-  large binary or directory artifacts should be represented by artifact refs
-  and hashes rather than embedded payloads.
+- Closeout containment:
+  stdout/stderr observations carry hashes and bounded excerpts rather than
+  unbounded streams.
+- Result:
+  pass.
 
 ### Edge 8: B Could Prematurely Create Case Packets Or Readiness
 
-- Pre-lock judgment: `must_defer_c_surface`.
-- Planned control:
-  `PB-ADAPTER-0-B` emits only probe plan, observation log, I/O artifact index,
-  and filesystem side-effect observation shapes.
-- Residual:
-  reconstruction case packets, readiness summaries, handoffs, and family
-  closeout alignment remain `PB-ADAPTER-0-C`.
+- Closeout containment:
+  B emitted only probe plan, observation log, I/O artifact index, and
+  filesystem side-effect observation shapes.
+- Result:
+  pass.
+
+### Edge 9: Observation Evidence Could Be Sparse Or Inconsistent
+
+- Closeout containment:
+  I/O artifact indexes must cover exactly the probe observations, filesystem
+  side-effect rows must cover exactly the probe observations, duplicate
+  side-effect coverage is rejected, and artifact refs cannot overlap across
+  stdout/stderr/generated/directory/binary categories.
+- Result:
+  pass.
+
+## Residual Edges
+
+- `PB-ADAPTER-0-C` must consume released `PB-ADAPTER-0-A` and
+  `PB-ADAPTER-0-B` refs before assembling reconstruction case packets.
+- `PB-ADAPTER-0-C` must detect contamination explicitly:
+  forbidden-source exposure, hidden-evidence exposure, derived-summary
+  exposure, access-contract violations, and probe-scope violations must block
+  ready posture.
+- `PB-ADAPTER-0-C` must distinguish ready, warning-ready, blocked, and
+  future-family-only readiness without treating local probes as benchmark
+  truth or hidden-test equivalence.
+- `PB-ADAPTER-0-C` handoffs may express later reconstruction/evaluation
+  pressure but must not grant implementation, execution, official
+  ProgramBench, benchmark-result, model-ranking, product, graph, release, or
+  future-family authority.
+- Official ProgramBench participation, official evaluator integration,
+  hidden-test result governance, generated submissions, benchmark scoring,
+  model ranking, broader conceptual broker implementation, V86/V87/V88
+  continuations, product, graph, release, or recursive-policy work remain
+  unselected.
 
 ## Current Judgment
 
-- `PB-ADAPTER-0-B` is a coherent second slice after `PB-ADAPTER-0-A`.
-- The starter should proceed as a docs/artifacts-only lock bundle before
-  implementation.
-- Implementation should wait until this `vNext+246` starter bundle is accepted.
+- `PB-ADAPTER-0-B` is closed on `main` as a bounded probe plan and observation
+  adapter slice.
+- `PB-ADAPTER-0` remains open for `PB-ADAPTER-0-C`; no family closeout has
+  occurred.
+- The shipped slice preserves the intended cleanroom membrane: it records
+  local/reference probe evidence under released A visibility/access law, but it
+  does not assemble reconstruction case packets, claim readiness, hand off
+  execution, run official ProgramBench, expose forbidden evidence, claim
+  benchmark truth, rank models, generate submissions, execute arbitrary
+  commands or tools, transition runtime, or select a future family.
