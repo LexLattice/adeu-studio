@@ -201,3 +201,14 @@ Select `PB-ADAPTER-0` as the next family-level planning candidate. The first
 slice should be `PB-ADAPTER-0-A`, but the `vNext+245` lock, stop-gate decision,
 and edge assessment are intentionally left for the later per-slice starter
 bundle after this family bundle is reviewed.
+
+Post-`PB-ADAPTER-0-A` continuation posture: after `vNext+245` closes on
+`main`, select `PB-ADAPTER-0-B` as the next default candidate for the next
+canonical starter bundle. That selection remains inside the already selected
+`PB-ADAPTER-0` family and does not create a new next-arc-options selector
+version.
+
+Post-`PB-ADAPTER-0-B` continuation posture: after `PB-ADAPTER-0-B` closes on
+`main`, select `PB-ADAPTER-0-C` as the next default candidate for the next
+canonical starter bundle. That selection remains inside the already selected
+`PB-ADAPTER-0` family.
