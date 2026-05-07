@@ -1,0 +1,20 @@
+{
+  "schema": "python_realization_witness_template@1",
+  "witness_template_ref": "witness-template:pb-py-0b:reject-hidden-equivalence",
+  "concept_id": "stderr_diagnostic",
+  "target_language": "python",
+  "realization_refs": [
+    "realization:pb-py-0b:stderr-diagnostic-python"
+  ],
+  "probe_kind": "stderr_diagnostic_probe",
+  "probe_command_shape": "template_only_stderr_diagnostic_probe_shape",
+  "expected_observation_kind": "stderr_text",
+  "positive_witness_requirement": "A diagnostic observation is captured on stderr with stdout separately observed.",
+  "negative_witness_requirement": "A diagnostic observation on stdout alone does not satisfy the witness.",
+  "stdout_stderr_split_required": true,
+  "exit_code_required": true,
+  "filesystem_observation_required": false,
+  "hidden_test_equivalence_posture": "hidden_test_equivalence_claimed",
+  "execution_authority_posture": "probe_template_only_no_execution_by_pb_py_0b",
+  "limitation_note": "Invalid: a local witness template cannot claim hidden-test equivalence."
+}

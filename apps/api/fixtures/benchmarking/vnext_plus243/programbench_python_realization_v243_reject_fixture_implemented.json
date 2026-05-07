@@ -1,0 +1,49 @@
+{
+  "schema": "python_reconstruction_realization_pack@1",
+  "pack_ref": "realization-pack:pb-py-0b:reject-fixture-implemented",
+  "target_language": "python",
+  "source_profile_refs": [
+    "profile:pb-py-0a:programbench-cleanroom-reconstruction"
+  ],
+  "concept_seed_refs": [
+    "concept-seed-set:pb-py-0a:program-odeu"
+  ],
+  "source_index_refs": [
+    "source-index:pb-py-0a:programbench-cleanroom"
+  ],
+  "guardrail_refs": [
+    "guardrail:pb-py-0a:cleanroom-non-authority"
+  ],
+  "fixture_contract_refs": [
+    "fixture-contract:pb-py-0a:local-cleanroom-program"
+  ],
+  "realization_record_refs": [
+    "realization:pb-py-0b:stderr-diagnostic-python"
+  ],
+  "stdlib_surface_rows": [
+    {
+      "surface_ref": "stdlib:python:argparse",
+      "stdlib_surface": "argparse",
+      "realization_role_refs": [
+        "cli_argument_parsing"
+      ],
+      "source_refs": [
+        "source:pb-py-0a:support-direction-v0"
+      ],
+      "surface_use_posture": "realization_option_only",
+      "implementation_authority_posture": "no_execution_or_implementation_authority",
+      "limitation_note": "Invalid fixture authority posture below."
+    }
+  ],
+  "boundary_condition_rows": [],
+  "failure_mode_rows": [],
+  "witness_template_refs": [
+    "witness-template:pb-py-0b:stderr-diagnostic"
+  ],
+  "contraindicated_pattern_rows": [],
+  "pack_scope_posture": "python_stdlib_realization_overlay_only",
+  "fixture_authority_posture": "fixture_implemented_by_pb_py_0b",
+  "benchmark_truth_posture": "not_benchmark_truth",
+  "implementation_authority_posture": "no_implementation_authority_granted_by_pb_py_0b",
+  "limitation_note": "Reject fixture."
+}

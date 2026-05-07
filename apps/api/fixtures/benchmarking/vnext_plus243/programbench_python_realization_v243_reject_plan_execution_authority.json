@@ -1,0 +1,34 @@
+{
+  "schema": "python_reconstruction_plan@1",
+  "plan_ref": "plan:pb-py-0b:reject-execution-authority",
+  "source_profile_refs": [
+    "profile:pb-py-0a:programbench-cleanroom-reconstruction"
+  ],
+  "realization_pack_refs": [
+    "realization-pack:pb-py-0b:python-stdlib-seed"
+  ],
+  "concept_realization_refs": [
+    "realization:pb-py-0b:stderr-diagnostic-python"
+  ],
+  "planned_obligation_rows": [
+    {
+      "planned_obligation_ref": "planned-obligation:pb-py-0b:reject-execution-authority",
+      "concept_id": "stderr_diagnostic",
+      "concept_realization_refs": [
+        "realization:pb-py-0b:stderr-diagnostic-python"
+      ],
+      "obligation_statement": "Diagnostic output must be witnessed on stderr separately from stdout.",
+      "obligation_scope_posture": "planned_obligation_only_not_implementation",
+      "limitation_note": "Invalid authority posture below."
+    }
+  ],
+  "planned_witness_refs": [
+    "witness-template:pb-py-0b:stderr-diagnostic"
+  ],
+  "plan_scope_posture": "review_plan_only_not_implementation_packet",
+  "code_generation_posture": "no_code_generated_by_pb_py_0b",
+  "execution_authority_posture": "execution_authority_granted_by_pb_py_0b",
+  "fixture_authority_posture": "no_fixture_implemented_by_pb_py_0b",
+  "benchmark_truth_posture": "not_benchmark_truth",
+  "limitation_note": "Reject fixture."
+}

@@ -1,0 +1,167 @@
+{
+  "additionalProperties": false,
+  "properties": {
+    "boundary_conditions": {
+      "items": {
+        "type": "string"
+      },
+      "title": "Boundary Conditions",
+      "type": "array"
+    },
+    "canonical_instruction": {
+      "title": "Canonical Instruction",
+      "type": "string"
+    },
+    "concept_definition_posture": {
+      "const": "realization_option_not_concept_definition",
+      "title": "Concept Definition Posture",
+      "type": "string"
+    },
+    "concept_id": {
+      "title": "Concept Id",
+      "type": "string"
+    },
+    "concept_seed_ref": {
+      "title": "Concept Seed Ref",
+      "type": "string"
+    },
+    "contraindicated_patterns": {
+      "items": {
+        "type": "string"
+      },
+      "title": "Contraindicated Patterns",
+      "type": "array"
+    },
+    "example_snippet_posture": {
+      "const": "advisory_only_not_generated_implementation",
+      "title": "Example Snippet Posture",
+      "type": "string"
+    },
+    "example_snippets_advisory": {
+      "items": {
+        "type": "string"
+      },
+      "title": "Example Snippets Advisory",
+      "type": "array"
+    },
+    "failure_modes": {
+      "items": {
+        "type": "string"
+      },
+      "title": "Failure Modes",
+      "type": "array"
+    },
+    "implementation_authority_posture": {
+      "const": "no_implementation_authority_granted_by_pb_py_0b",
+      "title": "Implementation Authority Posture",
+      "type": "string"
+    },
+    "implementation_patterns": {
+      "items": {
+        "type": "string"
+      },
+      "minItems": 1,
+      "title": "Implementation Patterns",
+      "type": "array"
+    },
+    "limitation_note": {
+      "title": "Limitation Note",
+      "type": "string"
+    },
+    "preferred_stdlib_surfaces": {
+      "items": {
+        "enum": [
+          "argparse",
+          "sys_argv",
+          "sys_stdin",
+          "sys_stdout",
+          "sys_stderr",
+          "pathlib",
+          "open",
+          "json",
+          "csv",
+          "configparser",
+          "tomllib",
+          "os_environ",
+          "glob",
+          "text_binary_mode",
+          "subprocess_for_probe_only"
+        ],
+        "type": "string"
+      },
+      "minItems": 1,
+      "title": "Preferred Stdlib Surfaces",
+      "type": "array"
+    },
+    "probe_template_refs": {
+      "items": {
+        "type": "string"
+      },
+      "minItems": 1,
+      "title": "Probe Template Refs",
+      "type": "array"
+    },
+    "realization_ref": {
+      "title": "Realization Ref",
+      "type": "string"
+    },
+    "realization_role": {
+      "enum": [
+        "cli_argument_parsing",
+        "stdin_stdout_stderr_io",
+        "file_path_io",
+        "config_data_loading",
+        "environment_variable_loading",
+        "precedence_resolution",
+        "exit_code_behavior",
+        "deterministic_output_ordering",
+        "error_diagnostic_behavior",
+        "generated_artifact_behavior",
+        "filesystem_side_effect_behavior"
+      ],
+      "title": "Realization Role",
+      "type": "string"
+    },
+    "required_witness_refs": {
+      "items": {
+        "type": "string"
+      },
+      "minItems": 1,
+      "title": "Required Witness Refs",
+      "type": "array"
+    },
+    "schema": {
+      "const": "concept_realization_record@1",
+      "title": "Schema",
+      "type": "string"
+    },
+    "target_language": {
+      "const": "python",
+      "title": "Target Language",
+      "type": "string"
+    }
+  },
+  "required": [
+    "schema",
+    "realization_ref",
+    "concept_seed_ref",
+    "concept_id",
+    "target_language",
+    "realization_role",
+    "canonical_instruction",
+    "preferred_stdlib_surfaces",
+    "implementation_patterns",
+    "contraindicated_patterns",
+    "boundary_conditions",
+    "failure_modes",
+    "required_witness_refs",
+    "probe_template_refs",
+    "example_snippets_advisory",
+    "example_snippet_posture",
+    "concept_definition_posture",
+    "implementation_authority_posture",
+    "limitation_note"
+  ],
+  "title": "ConceptRealizationRecord",
+  "type": "object"
+}

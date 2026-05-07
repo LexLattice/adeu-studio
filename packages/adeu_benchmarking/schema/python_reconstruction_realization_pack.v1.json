@@ -1,0 +1,359 @@
+{
+  "$defs": {
+    "PythonBoundaryConditionRow": {
+      "additionalProperties": false,
+      "properties": {
+        "boundary_condition": {
+          "title": "Boundary Condition",
+          "type": "string"
+        },
+        "boundary_condition_ref": {
+          "title": "Boundary Condition Ref",
+          "type": "string"
+        },
+        "concept_id": {
+          "title": "Concept Id",
+          "type": "string"
+        },
+        "limitation_note": {
+          "title": "Limitation Note",
+          "type": "string"
+        },
+        "source_refs": {
+          "items": {
+            "type": "string"
+          },
+          "minItems": 1,
+          "title": "Source Refs",
+          "type": "array"
+        }
+      },
+      "required": [
+        "boundary_condition_ref",
+        "concept_id",
+        "boundary_condition",
+        "source_refs",
+        "limitation_note"
+      ],
+      "title": "PythonBoundaryConditionRow",
+      "type": "object"
+    },
+    "PythonContraindicatedPatternRow": {
+      "additionalProperties": false,
+      "properties": {
+        "concept_id": {
+          "title": "Concept Id",
+          "type": "string"
+        },
+        "contraindicated_pattern_ref": {
+          "title": "Contraindicated Pattern Ref",
+          "type": "string"
+        },
+        "contraindication_reason": {
+          "title": "Contraindication Reason",
+          "type": "string"
+        },
+        "limitation_note": {
+          "title": "Limitation Note",
+          "type": "string"
+        },
+        "pattern_label": {
+          "title": "Pattern Label",
+          "type": "string"
+        },
+        "source_refs": {
+          "items": {
+            "type": "string"
+          },
+          "minItems": 1,
+          "title": "Source Refs",
+          "type": "array"
+        }
+      },
+      "required": [
+        "contraindicated_pattern_ref",
+        "concept_id",
+        "pattern_label",
+        "contraindication_reason",
+        "source_refs",
+        "limitation_note"
+      ],
+      "title": "PythonContraindicatedPatternRow",
+      "type": "object"
+    },
+    "PythonFailureModeRow": {
+      "additionalProperties": false,
+      "properties": {
+        "concept_id": {
+          "title": "Concept Id",
+          "type": "string"
+        },
+        "failure_mode": {
+          "title": "Failure Mode",
+          "type": "string"
+        },
+        "failure_mode_ref": {
+          "title": "Failure Mode Ref",
+          "type": "string"
+        },
+        "limitation_note": {
+          "title": "Limitation Note",
+          "type": "string"
+        },
+        "source_refs": {
+          "items": {
+            "type": "string"
+          },
+          "minItems": 1,
+          "title": "Source Refs",
+          "type": "array"
+        }
+      },
+      "required": [
+        "failure_mode_ref",
+        "concept_id",
+        "failure_mode",
+        "source_refs",
+        "limitation_note"
+      ],
+      "title": "PythonFailureModeRow",
+      "type": "object"
+    },
+    "PythonStdlibSurfaceRow": {
+      "additionalProperties": false,
+      "properties": {
+        "implementation_authority_posture": {
+          "const": "no_execution_or_implementation_authority",
+          "title": "Implementation Authority Posture",
+          "type": "string"
+        },
+        "limitation_note": {
+          "title": "Limitation Note",
+          "type": "string"
+        },
+        "realization_role_refs": {
+          "items": {
+            "enum": [
+              "cli_argument_parsing",
+              "stdin_stdout_stderr_io",
+              "file_path_io",
+              "config_data_loading",
+              "environment_variable_loading",
+              "precedence_resolution",
+              "exit_code_behavior",
+              "deterministic_output_ordering",
+              "error_diagnostic_behavior",
+              "generated_artifact_behavior",
+              "filesystem_side_effect_behavior"
+            ],
+            "type": "string"
+          },
+          "minItems": 1,
+          "title": "Realization Role Refs",
+          "type": "array"
+        },
+        "source_refs": {
+          "items": {
+            "type": "string"
+          },
+          "minItems": 1,
+          "title": "Source Refs",
+          "type": "array"
+        },
+        "stdlib_surface": {
+          "enum": [
+            "argparse",
+            "sys_argv",
+            "sys_stdin",
+            "sys_stdout",
+            "sys_stderr",
+            "pathlib",
+            "open",
+            "json",
+            "csv",
+            "configparser",
+            "tomllib",
+            "os_environ",
+            "glob",
+            "text_binary_mode",
+            "subprocess_for_probe_only"
+          ],
+          "title": "Stdlib Surface",
+          "type": "string"
+        },
+        "surface_ref": {
+          "title": "Surface Ref",
+          "type": "string"
+        },
+        "surface_use_posture": {
+          "enum": [
+            "realization_option_only",
+            "probe_surface_only_no_execution_authority"
+          ],
+          "title": "Surface Use Posture",
+          "type": "string"
+        }
+      },
+      "required": [
+        "surface_ref",
+        "stdlib_surface",
+        "realization_role_refs",
+        "source_refs",
+        "surface_use_posture",
+        "implementation_authority_posture",
+        "limitation_note"
+      ],
+      "title": "PythonStdlibSurfaceRow",
+      "type": "object"
+    }
+  },
+  "additionalProperties": false,
+  "properties": {
+    "benchmark_truth_posture": {
+      "const": "not_benchmark_truth",
+      "title": "Benchmark Truth Posture",
+      "type": "string"
+    },
+    "boundary_condition_rows": {
+      "items": {
+        "$ref": "#/$defs/PythonBoundaryConditionRow"
+      },
+      "title": "Boundary Condition Rows",
+      "type": "array"
+    },
+    "concept_seed_refs": {
+      "items": {
+        "type": "string"
+      },
+      "minItems": 1,
+      "title": "Concept Seed Refs",
+      "type": "array"
+    },
+    "contraindicated_pattern_rows": {
+      "items": {
+        "$ref": "#/$defs/PythonContraindicatedPatternRow"
+      },
+      "title": "Contraindicated Pattern Rows",
+      "type": "array"
+    },
+    "failure_mode_rows": {
+      "items": {
+        "$ref": "#/$defs/PythonFailureModeRow"
+      },
+      "title": "Failure Mode Rows",
+      "type": "array"
+    },
+    "fixture_authority_posture": {
+      "const": "no_fixture_implemented_by_pb_py_0b",
+      "title": "Fixture Authority Posture",
+      "type": "string"
+    },
+    "fixture_contract_refs": {
+      "items": {
+        "type": "string"
+      },
+      "minItems": 1,
+      "title": "Fixture Contract Refs",
+      "type": "array"
+    },
+    "guardrail_refs": {
+      "items": {
+        "type": "string"
+      },
+      "minItems": 1,
+      "title": "Guardrail Refs",
+      "type": "array"
+    },
+    "implementation_authority_posture": {
+      "const": "no_implementation_authority_granted_by_pb_py_0b",
+      "title": "Implementation Authority Posture",
+      "type": "string"
+    },
+    "limitation_note": {
+      "title": "Limitation Note",
+      "type": "string"
+    },
+    "pack_ref": {
+      "title": "Pack Ref",
+      "type": "string"
+    },
+    "pack_scope_posture": {
+      "const": "python_stdlib_realization_overlay_only",
+      "title": "Pack Scope Posture",
+      "type": "string"
+    },
+    "realization_record_refs": {
+      "items": {
+        "type": "string"
+      },
+      "minItems": 1,
+      "title": "Realization Record Refs",
+      "type": "array"
+    },
+    "schema": {
+      "const": "python_reconstruction_realization_pack@1",
+      "title": "Schema",
+      "type": "string"
+    },
+    "source_index_refs": {
+      "items": {
+        "type": "string"
+      },
+      "minItems": 1,
+      "title": "Source Index Refs",
+      "type": "array"
+    },
+    "source_profile_refs": {
+      "items": {
+        "type": "string"
+      },
+      "minItems": 1,
+      "title": "Source Profile Refs",
+      "type": "array"
+    },
+    "stdlib_surface_rows": {
+      "items": {
+        "$ref": "#/$defs/PythonStdlibSurfaceRow"
+      },
+      "minItems": 1,
+      "title": "Stdlib Surface Rows",
+      "type": "array"
+    },
+    "target_language": {
+      "const": "python",
+      "title": "Target Language",
+      "type": "string"
+    },
+    "witness_template_refs": {
+      "items": {
+        "type": "string"
+      },
+      "minItems": 1,
+      "title": "Witness Template Refs",
+      "type": "array"
+    }
+  },
+  "required": [
+    "schema",
+    "pack_ref",
+    "target_language",
+    "source_profile_refs",
+    "concept_seed_refs",
+    "source_index_refs",
+    "guardrail_refs",
+    "fixture_contract_refs",
+    "realization_record_refs",
+    "stdlib_surface_rows",
+    "boundary_condition_rows",
+    "failure_mode_rows",
+    "witness_template_refs",
+    "contraindicated_pattern_rows",
+    "pack_scope_posture",
+    "fixture_authority_posture",
+    "benchmark_truth_posture",
+    "implementation_authority_posture",
+    "limitation_note"
+  ],
+  "title": "PythonReconstructionRealizationPack",
+  "type": "object"
+}
