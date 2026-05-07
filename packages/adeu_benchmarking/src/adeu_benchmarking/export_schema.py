@@ -7,6 +7,18 @@ from typing import Any
 
 from adeu_ir.repo import repo_root
 
+from .cleanroom_reconstruction import (
+    PROGRAM_ODEU_CONCEPT_BOUNDARY_SEED_SCHEMA,
+    PROGRAMBENCH_CLEANROOM_EVIDENCE_SOURCE_INDEX_SCHEMA,
+    PROGRAMBENCH_CLEANROOM_RECONSTRUCTION_PROFILE_SCHEMA,
+    PROGRAMBENCH_LOCAL_CLEANROOM_FIXTURE_CONTRACT_SCHEMA,
+    PROGRAMBENCH_RECONSTRUCTION_NON_AUTHORITY_GUARDRAIL_SCHEMA,
+    ProgrambenchCleanroomEvidenceSourceIndex,
+    ProgrambenchCleanroomReconstructionProfile,
+    ProgrambenchLocalCleanroomFixtureContract,
+    ProgrambenchReconstructionNonAuthorityGuardrail,
+    ProgramOdeuConceptBoundarySeed,
+)
 from .models import (
     ADEU_BENCHMARK_CONSUMER_ADVISORY_REPORT_SCHEMA,
     ADEU_BENCHMARK_CONSUMER_CASE_SCHEMA,
@@ -306,6 +318,56 @@ def main() -> None:
             root
             / "spec"
             / "adeu_cross_subject_comparison_validation_report.schema.json",
+        ),
+        (
+            ProgrambenchCleanroomReconstructionProfile,
+            PROGRAMBENCH_CLEANROOM_RECONSTRUCTION_PROFILE_SCHEMA,
+            root
+            / "packages"
+            / "adeu_benchmarking"
+            / "schema"
+            / "programbench_cleanroom_reconstruction_profile.v1.json",
+            root / "spec" / "programbench_cleanroom_reconstruction_profile.schema.json",
+        ),
+        (
+            ProgramOdeuConceptBoundarySeed,
+            PROGRAM_ODEU_CONCEPT_BOUNDARY_SEED_SCHEMA,
+            root
+            / "packages"
+            / "adeu_benchmarking"
+            / "schema"
+            / "program_odeu_concept_boundary_seed.v1.json",
+            root / "spec" / "program_odeu_concept_boundary_seed.schema.json",
+        ),
+        (
+            ProgrambenchCleanroomEvidenceSourceIndex,
+            PROGRAMBENCH_CLEANROOM_EVIDENCE_SOURCE_INDEX_SCHEMA,
+            root
+            / "packages"
+            / "adeu_benchmarking"
+            / "schema"
+            / "programbench_cleanroom_evidence_source_index.v1.json",
+            root / "spec" / "programbench_cleanroom_evidence_source_index.schema.json",
+        ),
+        (
+            ProgrambenchReconstructionNonAuthorityGuardrail,
+            PROGRAMBENCH_RECONSTRUCTION_NON_AUTHORITY_GUARDRAIL_SCHEMA,
+            root
+            / "packages"
+            / "adeu_benchmarking"
+            / "schema"
+            / "programbench_reconstruction_non_authority_guardrail.v1.json",
+            root / "spec" / "programbench_reconstruction_non_authority_guardrail.schema.json",
+        ),
+        (
+            ProgrambenchLocalCleanroomFixtureContract,
+            PROGRAMBENCH_LOCAL_CLEANROOM_FIXTURE_CONTRACT_SCHEMA,
+            root
+            / "packages"
+            / "adeu_benchmarking"
+            / "schema"
+            / "programbench_local_cleanroom_fixture_contract.v1.json",
+            root / "spec" / "programbench_local_cleanroom_fixture_contract.schema.json",
         ),
     ]
 

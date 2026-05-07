@@ -1,0 +1,203 @@
+{
+  "$defs": {
+    "ProgrambenchCleanroomEvidenceSourceRow": {
+      "additionalProperties": false,
+      "properties": {
+        "authority_layer": {
+          "enum": [
+            "lock",
+            "architecture",
+            "planning",
+            "support",
+            "fixture",
+            "oracle"
+          ],
+          "title": "Authority Layer",
+          "type": "string"
+        },
+        "benchmark_truth_posture": {
+          "enum": [
+            "not_benchmark_truth",
+            "public_descriptor_context_only",
+            "local_fixture_research_only",
+            "official_benchmark_authority_required",
+            "no_benchmark_truth_claimed_by_pb_py_0a"
+          ],
+          "title": "Benchmark Truth Posture",
+          "type": "string"
+        },
+        "cleanroom_visibility_class": {
+          "enum": [
+            "cleanroom_visible",
+            "worker_generated_probe",
+            "worker_generated_submission",
+            "evaluation_oracle_hidden",
+            "forbidden_original_source",
+            "forbidden_decompilation",
+            "forbidden_internet_lookup",
+            "forbidden_external_repo",
+            "forbidden_host_secret",
+            "forbidden_docker_socket",
+            "support_context_only",
+            "public_descriptor_context",
+            "postmortem_only"
+          ],
+          "title": "Cleanroom Visibility Class",
+          "type": "string"
+        },
+        "inference_admissibility_posture": {
+          "enum": [
+            "admissible_for_inference",
+            "context_only_not_decisive",
+            "forbidden_for_inference",
+            "postmortem_only_not_inference"
+          ],
+          "title": "Inference Admissibility Posture",
+          "type": "string"
+        },
+        "limitation_note": {
+          "title": "Limitation Note",
+          "type": "string"
+        },
+        "phase_visibility": {
+          "enum": [
+            "visible_during_inference",
+            "visible_during_local_development",
+            "visible_during_evaluation_only",
+            "visible_during_postmortem_only",
+            "never_worker_visible"
+          ],
+          "title": "Phase Visibility",
+          "type": "string"
+        },
+        "postmortem_admissibility_posture": {
+          "enum": [
+            "admissible_for_postmortem_research",
+            "not_admissible",
+            "not_applicable"
+          ],
+          "title": "Postmortem Admissibility Posture",
+          "type": "string"
+        },
+        "source_access_posture": {
+          "enum": [
+            "registered_cleanroom_visible",
+            "registered_local_development_only",
+            "registered_evaluation_oracle_only",
+            "registered_postmortem_only",
+            "registered_or_mounted_for_worker",
+            "queried_by_worker",
+            "exposed_to_worker",
+            "not_registered_or_mounted"
+          ],
+          "title": "Source Access Posture",
+          "type": "string"
+        },
+        "source_currentness": {
+          "enum": [
+            "current",
+            "current_public_observation",
+            "support_context_only",
+            "historical_context_only",
+            "stale",
+            "unknown_needs_review"
+          ],
+          "title": "Source Currentness",
+          "type": "string"
+        },
+        "source_kind": {
+          "enum": [
+            "cleanroom_usage_doc",
+            "reference_executable_observation",
+            "worker_generated_probe",
+            "worker_generated_submission",
+            "evaluation_oracle_hidden",
+            "original_source",
+            "decompilation_artifact",
+            "internet_lookup",
+            "external_repository",
+            "host_secret",
+            "docker_socket",
+            "support_doc",
+            "public_programbench_descriptor",
+            "postmortem_observation"
+          ],
+          "title": "Source Kind",
+          "type": "string"
+        },
+        "source_presence_posture": {
+          "enum": [
+            "present",
+            "explicit_absence_marker",
+            "not_registered",
+            "unknown_needs_review"
+          ],
+          "title": "Source Presence Posture",
+          "type": "string"
+        },
+        "source_ref": {
+          "title": "Source Ref",
+          "type": "string"
+        },
+        "worker_visibility_posture": {
+          "enum": [
+            "worker_visible",
+            "not_worker_visible",
+            "worker_visible_after_inference_only"
+          ],
+          "title": "Worker Visibility Posture",
+          "type": "string"
+        }
+      },
+      "required": [
+        "source_ref",
+        "source_kind",
+        "authority_layer",
+        "phase_visibility",
+        "cleanroom_visibility_class",
+        "source_currentness",
+        "source_presence_posture",
+        "source_access_posture",
+        "worker_visibility_posture",
+        "inference_admissibility_posture",
+        "postmortem_admissibility_posture",
+        "benchmark_truth_posture",
+        "limitation_note"
+      ],
+      "title": "ProgrambenchCleanroomEvidenceSourceRow",
+      "type": "object"
+    }
+  },
+  "additionalProperties": false,
+  "properties": {
+    "limitation_note": {
+      "title": "Limitation Note",
+      "type": "string"
+    },
+    "schema": {
+      "const": "programbench_cleanroom_evidence_source_index@1",
+      "title": "Schema",
+      "type": "string"
+    },
+    "source_index_ref": {
+      "title": "Source Index Ref",
+      "type": "string"
+    },
+    "source_rows": {
+      "items": {
+        "$ref": "#/$defs/ProgrambenchCleanroomEvidenceSourceRow"
+      },
+      "minItems": 1,
+      "title": "Source Rows",
+      "type": "array"
+    }
+  },
+  "required": [
+    "schema",
+    "source_index_ref",
+    "source_rows",
+    "limitation_note"
+  ],
+  "title": "ProgrambenchCleanroomEvidenceSourceIndex",
+  "type": "object"
+}

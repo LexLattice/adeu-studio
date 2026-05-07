@@ -1,0 +1,82 @@
+{
+  "schema": "programbench_cleanroom_evidence_source_index@1",
+  "source_index_ref": "source-index:pb-py-0a:programbench-cleanroom",
+  "source_rows": [
+    {
+      "source_ref": "source:pb-py-0a:support-direction-v0",
+      "source_kind": "support_doc",
+      "authority_layer": "support",
+      "phase_visibility": "visible_during_inference",
+      "cleanroom_visibility_class": "support_context_only",
+      "source_currentness": "support_context_only",
+      "source_presence_posture": "present",
+      "source_access_posture": "registered_cleanroom_visible",
+      "worker_visibility_posture": "worker_visible",
+      "inference_admissibility_posture": "context_only_not_decisive",
+      "postmortem_admissibility_posture": "admissible_for_postmortem_research",
+      "benchmark_truth_posture": "not_benchmark_truth",
+      "limitation_note": "Support doctrine can frame the reconstruction substrate but cannot prove task behavior."
+    },
+    {
+      "source_ref": "source:pb-py-0a:programbench-public-descriptor",
+      "source_kind": "public_programbench_descriptor",
+      "authority_layer": "support",
+      "phase_visibility": "visible_during_inference",
+      "cleanroom_visibility_class": "public_descriptor_context",
+      "source_currentness": "current_public_observation",
+      "source_presence_posture": "present",
+      "source_access_posture": "registered_cleanroom_visible",
+      "worker_visibility_posture": "worker_visible",
+      "inference_admissibility_posture": "context_only_not_decisive",
+      "postmortem_admissibility_posture": "admissible_for_postmortem_research",
+      "benchmark_truth_posture": "public_descriptor_context_only",
+      "limitation_note": "Public benchmark descriptors are advisory context only and are not evaluation truth."
+    },
+    {
+      "source_ref": "source:pb-py-0a:local-usage-docs-contract",
+      "source_kind": "cleanroom_usage_doc",
+      "authority_layer": "fixture",
+      "phase_visibility": "visible_during_inference",
+      "cleanroom_visibility_class": "cleanroom_visible",
+      "source_currentness": "current",
+      "source_presence_posture": "present",
+      "source_access_posture": "registered_cleanroom_visible",
+      "worker_visibility_posture": "worker_visible",
+      "inference_admissibility_posture": "admissible_for_inference",
+      "postmortem_admissibility_posture": "admissible_for_postmortem_research",
+      "benchmark_truth_posture": "not_benchmark_truth",
+      "limitation_note": "The A slice records the source class for later local fixtures without building one."
+    },
+    {
+      "source_ref": "source:pb-py-0a:hidden-evaluation-oracle",
+      "source_kind": "evaluation_oracle_hidden",
+      "authority_layer": "oracle",
+      "phase_visibility": "visible_during_evaluation_only",
+      "cleanroom_visibility_class": "evaluation_oracle_hidden",
+      "source_currentness": "current",
+      "source_presence_posture": "explicit_absence_marker",
+      "source_access_posture": "registered_evaluation_oracle_only",
+      "worker_visibility_posture": "not_worker_visible",
+      "inference_admissibility_posture": "forbidden_for_inference",
+      "postmortem_admissibility_posture": "not_applicable",
+      "benchmark_truth_posture": "official_benchmark_authority_required",
+      "limitation_note": "Hidden tests may judge an artifact later but are not inference evidence."
+    },
+    {
+      "source_ref": "source:pb-py-0a:forbidden-original-source",
+      "source_kind": "original_source",
+      "authority_layer": "fixture",
+      "phase_visibility": "never_worker_visible",
+      "cleanroom_visibility_class": "forbidden_original_source",
+      "source_currentness": "unknown_needs_review",
+      "source_presence_posture": "not_registered",
+      "source_access_posture": "not_registered_or_mounted",
+      "worker_visibility_posture": "not_worker_visible",
+      "inference_admissibility_posture": "forbidden_for_inference",
+      "postmortem_admissibility_posture": "not_admissible",
+      "benchmark_truth_posture": "not_benchmark_truth",
+      "limitation_note": "Original source stores must be unreachable during inference, not merely labeled forbidden."
+    }
+  ],
+  "limitation_note": "PB-PY-0-A records evidence visibility law only; it does not create a fixture or run ProgramBench."
+}

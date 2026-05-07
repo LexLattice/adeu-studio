@@ -1,0 +1,111 @@
+{
+  "additionalProperties": false,
+  "properties": {
+    "allowed_inference_sources": {
+      "items": {
+        "type": "string"
+      },
+      "minItems": 1,
+      "title": "Allowed Inference Sources",
+      "type": "array"
+    },
+    "evaluation_oracle_posture": {
+      "const": "local_oracle_contract_only_no_hidden_test_authority",
+      "title": "Evaluation Oracle Posture",
+      "type": "string"
+    },
+    "expected_submission_shape": {
+      "title": "Expected Submission Shape",
+      "type": "string"
+    },
+    "fixture_id": {
+      "title": "Fixture Id",
+      "type": "string"
+    },
+    "fixture_implementation_posture": {
+      "const": "contract_only_no_fixture_implemented_by_pb_py_0a",
+      "title": "Fixture Implementation Posture",
+      "type": "string"
+    },
+    "forbidden_inference_sources": {
+      "items": {
+        "type": "string"
+      },
+      "title": "Forbidden Inference Sources",
+      "type": "array"
+    },
+    "limitation_note": {
+      "title": "Limitation Note",
+      "type": "string"
+    },
+    "network_policy": {
+      "const": "network_disabled_during_inference",
+      "title": "Network Policy",
+      "type": "string"
+    },
+    "non_benchmark_truth_posture": {
+      "const": "local_fixture_contract_not_benchmark_truth",
+      "title": "Non Benchmark Truth Posture",
+      "type": "string"
+    },
+    "probe_allowed_commands": {
+      "items": {
+        "type": "string"
+      },
+      "title": "Probe Allowed Commands",
+      "type": "array"
+    },
+    "reference_executable_ref": {
+      "title": "Reference Executable Ref",
+      "type": "string"
+    },
+    "schema": {
+      "const": "programbench_local_cleanroom_fixture_contract@1",
+      "title": "Schema",
+      "type": "string"
+    },
+    "source_visibility_policy": {
+      "const": "forbidden_sources_unreachable_during_inference",
+      "title": "Source Visibility Policy",
+      "type": "string"
+    },
+    "usage_docs_ref": {
+      "title": "Usage Docs Ref",
+      "type": "string"
+    },
+    "worker_hidden_files": {
+      "items": {
+        "type": "string"
+      },
+      "title": "Worker Hidden Files",
+      "type": "array"
+    },
+    "worker_visible_files": {
+      "items": {
+        "type": "string"
+      },
+      "title": "Worker Visible Files",
+      "type": "array"
+    }
+  },
+  "required": [
+    "schema",
+    "fixture_id",
+    "reference_executable_ref",
+    "usage_docs_ref",
+    "allowed_inference_sources",
+    "forbidden_inference_sources",
+    "worker_visible_files",
+    "worker_hidden_files",
+    "probe_allowed_commands",
+    "network_policy",
+    "source_visibility_policy",
+    "expected_submission_shape",
+    "evaluation_oracle_posture",
+    "non_benchmark_truth_posture",
+    "fixture_implementation_posture",
+    "limitation_note"
+  ],
+  "title": "ProgrambenchLocalCleanroomFixtureContract",
+  "type": "object"
+}

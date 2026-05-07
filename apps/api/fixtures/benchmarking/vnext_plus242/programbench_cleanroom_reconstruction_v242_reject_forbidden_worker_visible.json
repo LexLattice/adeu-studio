@@ -1,0 +1,22 @@
+{
+  "schema": "programbench_cleanroom_evidence_source_index@1",
+  "source_index_ref": "source-index:pb-py-0a:reject-forbidden-worker-visible",
+  "source_rows": [
+    {
+      "source_ref": "source:reject:original-source-worker-visible",
+      "source_kind": "original_source",
+      "authority_layer": "fixture",
+      "phase_visibility": "visible_during_inference",
+      "cleanroom_visibility_class": "forbidden_original_source",
+      "source_currentness": "current",
+      "source_presence_posture": "present",
+      "source_access_posture": "registered_or_mounted_for_worker",
+      "worker_visibility_posture": "worker_visible",
+      "inference_admissibility_posture": "forbidden_for_inference",
+      "postmortem_admissibility_posture": "not_admissible",
+      "benchmark_truth_posture": "not_benchmark_truth",
+      "limitation_note": "Invalid: forbidden original source is worker-visible and mounted."
+    }
+  ],
+  "limitation_note": "Reject fixture."
+}

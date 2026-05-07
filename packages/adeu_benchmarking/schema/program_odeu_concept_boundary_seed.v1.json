@@ -1,0 +1,222 @@
+{
+  "$defs": {
+    "ProgramOdeuConceptBoundarySeedRow": {
+      "additionalProperties": false,
+      "properties": {
+        "boundary_outline_advisory": {
+          "title": "Boundary Outline Advisory",
+          "type": "string"
+        },
+        "concept_boundary_posture": {
+          "enum": [
+            "boundary_seeded_incomplete",
+            "boundary_context_only",
+            "boundary_requires_later_realization",
+            "boundary_not_claimed_for_task"
+          ],
+          "title": "Concept Boundary Posture",
+          "type": "string"
+        },
+        "concept_id": {
+          "title": "Concept Id",
+          "type": "string"
+        },
+        "concept_label": {
+          "title": "Concept Label",
+          "type": "string"
+        },
+        "concept_role": {
+          "enum": [
+            "program_ontology_seed",
+            "io_behavior_seed",
+            "cli_behavior_seed",
+            "config_behavior_seed",
+            "error_behavior_seed",
+            "artifact_behavior_seed",
+            "probe_behavior_seed"
+          ],
+          "title": "Concept Role",
+          "type": "string"
+        },
+        "concept_seed_ref": {
+          "title": "Concept Seed Ref",
+          "type": "string"
+        },
+        "distinguishing_question_rows": {
+          "items": {
+            "$ref": "#/$defs/ProgramOdeuDistinguishingQuestionRow"
+          },
+          "title": "Distinguishing Question Rows",
+          "type": "array"
+        },
+        "implementation_authority_posture": {
+          "const": "no_implementation_authority_granted_by_pb_py_0a",
+          "title": "Implementation Authority Posture",
+          "type": "string"
+        },
+        "invalid_witness_kind_refs": {
+          "items": {
+            "type": "string"
+          },
+          "title": "Invalid Witness Kind Refs",
+          "type": "array"
+        },
+        "later_realization_posture": {
+          "const": "seed_only_realization_deferred_to_pb_py_0b",
+          "title": "Later Realization Posture",
+          "type": "string"
+        },
+        "limitation_note": {
+          "title": "Limitation Note",
+          "type": "string"
+        },
+        "nearest_confusable_concept_ids": {
+          "items": {
+            "type": "string"
+          },
+          "title": "Nearest Confusable Concept Ids",
+          "type": "array"
+        },
+        "negative_example_labels": {
+          "items": {
+            "type": "string"
+          },
+          "title": "Negative Example Labels",
+          "type": "array"
+        },
+        "positive_example_labels": {
+          "items": {
+            "type": "string"
+          },
+          "minItems": 1,
+          "title": "Positive Example Labels",
+          "type": "array"
+        },
+        "required_witness_kind_refs": {
+          "items": {
+            "type": "string"
+          },
+          "minItems": 1,
+          "title": "Required Witness Kind Refs",
+          "type": "array"
+        },
+        "source_refs": {
+          "items": {
+            "type": "string"
+          },
+          "minItems": 1,
+          "title": "Source Refs",
+          "type": "array"
+        }
+      },
+      "required": [
+        "concept_seed_ref",
+        "concept_id",
+        "concept_label",
+        "concept_boundary_posture",
+        "concept_role",
+        "boundary_outline_advisory",
+        "positive_example_labels",
+        "negative_example_labels",
+        "nearest_confusable_concept_ids",
+        "required_witness_kind_refs",
+        "invalid_witness_kind_refs",
+        "distinguishing_question_rows",
+        "source_refs",
+        "later_realization_posture",
+        "implementation_authority_posture",
+        "limitation_note"
+      ],
+      "title": "ProgramOdeuConceptBoundarySeedRow",
+      "type": "object"
+    },
+    "ProgramOdeuDistinguishingQuestionRow": {
+      "additionalProperties": false,
+      "properties": {
+        "distinguishes_from_concept_ids": {
+          "items": {
+            "type": "string"
+          },
+          "title": "Distinguishes From Concept Ids",
+          "type": "array"
+        },
+        "question_ref": {
+          "title": "Question Ref",
+          "type": "string"
+        },
+        "question_text": {
+          "title": "Question Text",
+          "type": "string"
+        },
+        "required_witness_kind_refs": {
+          "items": {
+            "type": "string"
+          },
+          "title": "Required Witness Kind Refs",
+          "type": "array"
+        }
+      },
+      "required": [
+        "question_ref",
+        "question_text",
+        "distinguishes_from_concept_ids",
+        "required_witness_kind_refs"
+      ],
+      "title": "ProgramOdeuDistinguishingQuestionRow",
+      "type": "object"
+    }
+  },
+  "additionalProperties": false,
+  "properties": {
+    "concept_seed_rows": {
+      "items": {
+        "$ref": "#/$defs/ProgramOdeuConceptBoundarySeedRow"
+      },
+      "minItems": 1,
+      "title": "Concept Seed Rows",
+      "type": "array"
+    },
+    "concept_seed_set_ref": {
+      "title": "Concept Seed Set Ref",
+      "type": "string"
+    },
+    "implementation_authority_posture": {
+      "const": "no_implementation_authority_granted_by_pb_py_0a",
+      "title": "Implementation Authority Posture",
+      "type": "string"
+    },
+    "later_realization_posture": {
+      "const": "seed_set_only_realization_deferred_to_pb_py_0b",
+      "title": "Later Realization Posture",
+      "type": "string"
+    },
+    "limitation_note": {
+      "title": "Limitation Note",
+      "type": "string"
+    },
+    "schema": {
+      "const": "program_odeu_concept_boundary_seed@1",
+      "title": "Schema",
+      "type": "string"
+    },
+    "source_refs": {
+      "items": {
+        "type": "string"
+      },
+      "minItems": 1,
+      "title": "Source Refs",
+      "type": "array"
+    }
+  },
+  "required": [
+    "schema",
+    "concept_seed_set_ref",
+    "source_refs",
+    "concept_seed_rows",
+    "later_realization_posture",
+    "implementation_authority_posture",
+    "limitation_note"
+  ],
+  "title": "ProgramOdeuConceptBoundarySeed",
+  "type": "object"
+}

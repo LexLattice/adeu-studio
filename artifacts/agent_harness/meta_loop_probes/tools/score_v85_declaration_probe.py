@@ -13,7 +13,6 @@ from collections import Counter
 from pathlib import Path
 from typing import Any
 
-
 REQUIRED_TOP_LEVEL_KEYS = [
     "schema",
     "probe_case_id",

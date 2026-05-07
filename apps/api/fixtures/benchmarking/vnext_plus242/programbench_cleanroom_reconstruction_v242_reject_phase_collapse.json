@@ -1,0 +1,38 @@
+{
+  "schema": "programbench_cleanroom_reconstruction_profile@1",
+  "profile_ref": "profile:pb-py-0a:reject-phase-collapse",
+  "profile_kind": "programbench_cleanroom_reconstruction_profile",
+  "program_family_ref": "program-family:programbench-python-reconstruction-realization",
+  "source_index_refs": [
+    "source-index:pb-py-0a:programbench-cleanroom"
+  ],
+  "concept_boundary_seed_refs": [
+    "concept-seed-set:pb-py-0a:program-odeu"
+  ],
+  "phase_rows": [
+    {
+      "phase_ref": "phase:reject:inference-collapse",
+      "phase": "inference_phase",
+      "allowed_visibility_classes": [
+        "cleanroom_visible",
+        "evaluation_oracle_hidden"
+      ],
+      "forbidden_visibility_classes": [
+        "forbidden_original_source"
+      ],
+      "phase_law": "Invalid: inference tries to allow evaluation oracle material."
+    }
+  ],
+  "cleanroom_visibility_posture": "cleanroom_visible_evidence_only_during_inference",
+  "public_descriptor_observation_refs": [],
+  "public_descriptor_observation_rows": [],
+  "allowed_inference_source_refs": [],
+  "forbidden_inference_source_refs": [],
+  "worker_probe_posture": "worker_generated_probes_allowed_local_development_only",
+  "local_development_posture": "local_development_without_forbidden_evidence",
+  "evaluation_oracle_posture": "hidden_tests_external_court_not_inference_evidence",
+  "postmortem_posture": "postmortem_research_not_retroactive_inference",
+  "benchmark_truth_posture": "not_benchmark_truth",
+  "implementation_authority_posture": "no_implementation_authority_granted_by_pb_py_0a",
+  "limitation_note": "Invalid: phase separation collapsed."
+}

@@ -1,0 +1,34 @@
+{
+  "schema": "programbench_local_cleanroom_fixture_contract@1",
+  "fixture_id": "fixture-contract:pb-py-0a:local-cleanroom-program",
+  "reference_executable_ref": "fixture-ref:pb-py-0c:deferred-reference-executable",
+  "usage_docs_ref": "source:pb-py-0a:local-usage-docs-contract",
+  "allowed_inference_sources": [
+    "source:pb-py-0a:local-usage-docs-contract",
+    "source:pb-py-0a:programbench-public-descriptor",
+    "source:pb-py-0a:support-direction-v0"
+  ],
+  "forbidden_inference_sources": [
+    "source:pb-py-0a:forbidden-original-source",
+    "source:pb-py-0a:hidden-evaluation-oracle"
+  ],
+  "worker_visible_files": [
+    "fixture-visible:usage-docs",
+    "fixture-visible:probe-notes"
+  ],
+  "worker_hidden_files": [
+    "fixture-hidden:local-oracle",
+    "fixture-hidden:reference-executable"
+  ],
+  "probe_allowed_commands": [
+    "python submission.py --help",
+    "python submission.py < input.txt"
+  ],
+  "network_policy": "network_disabled_during_inference",
+  "source_visibility_policy": "forbidden_sources_unreachable_during_inference",
+  "expected_submission_shape": "single Python stdlib-only submission file in later PB-PY-0-C fixture",
+  "evaluation_oracle_posture": "local_oracle_contract_only_no_hidden_test_authority",
+  "non_benchmark_truth_posture": "local_fixture_contract_not_benchmark_truth",
+  "fixture_implementation_posture": "contract_only_no_fixture_implemented_by_pb_py_0a",
+  "limitation_note": "The contract defines constraints for a later synthetic local fixture; PB-PY-0-A implements no fixture."
+}

@@ -1,0 +1,45 @@
+{
+  "schema": "programbench_reconstruction_non_authority_guardrail@1",
+  "guardrail_ref": "guardrail:pb-py-0a:cleanroom-non-authority",
+  "source_refs": [
+    "source:pb-py-0a:local-usage-docs-contract",
+    "source:pb-py-0a:programbench-public-descriptor",
+    "source:pb-py-0a:support-direction-v0"
+  ],
+  "forbidden_inference_actions": [
+    "decompilation",
+    "external_repo_lookup_for_task",
+    "hidden_test_inference",
+    "internet_lookup_for_task",
+    "original_source_lookup"
+  ],
+  "forbidden_downstream_actions": [
+    "benchmark_score_created",
+    "comparison_packet_created",
+    "concept_realization_record_created",
+    "generated_python_code",
+    "hidden_test_handling",
+    "hidden_test_inference",
+    "local_fixture_implemented",
+    "model_ranking_claimed",
+    "official_programbench_runner_integrated",
+    "official_programbench_task_executed",
+    "probe_equivalence_audit_created",
+    "python_realization_witness_template_created",
+    "python_reconstruction_plan_created",
+    "v86_selection",
+    "v87_selection",
+    "v88_selection"
+  ],
+  "required_later_authority_refs": [
+    "later-lock:pb-py-0b:python-realization-overlay",
+    "later-lock:pb-py-0c:local-fixture-comparison"
+  ],
+  "benchmark_truth_posture": "no_benchmark_truth_claimed_by_pb_py_0a",
+  "implementation_posture": "no_implementation_performed_by_pb_py_0a",
+  "python_realization_posture": "no_python_realization_records_created_by_pb_py_0a",
+  "fixture_implementation_posture": "no_fixture_implemented_by_pb_py_0a",
+  "official_programbench_posture": "no_official_programbench_participation_by_pb_py_0a",
+  "future_family_selection_posture": "no_future_family_selected_by_pb_py_0a",
+  "limitation_note": "PB-PY-0-A may record posture and constraints only; all realization, fixture, benchmark, and future-family authority is deferred."
+}

@@ -9,7 +9,6 @@ from collections import Counter
 from pathlib import Path
 from typing import Any
 
-
 REQUIRED_KEYS = [
     "case_id",
     "operator_admission_branch",
@@ -186,7 +185,8 @@ def score_probe(probe_dir: Path) -> dict[str, Any]:
         counts["consistency_pass" if not consistency_errors else "consistency_remand"] += 1
         counts["overall_pass" if not all_errors else "overall_remand"] += 1
         if isinstance(body, dict):
-            if body.get("full_pointer_admission_branch") in NULL_FULL_POINTER_BRANCHES or case_id == "known_full_pointer":
+            full_pointer_branch = body.get("full_pointer_admission_branch")
+            if full_pointer_branch in NULL_FULL_POINTER_BRANCHES or case_id == "known_full_pointer":
                 counts["full_pointer_policy_pass"] += 1
         for error in all_errors:
             counts[error] += 1
