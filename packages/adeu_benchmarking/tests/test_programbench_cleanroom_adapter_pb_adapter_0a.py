@@ -247,6 +247,31 @@ def test_pb_adapter_0a_bundle_rejects_artifact_identity_drift() -> None:
         )
 
 
+def test_pb_adapter_0a_visibility_manifest_rejects_worker_ref_drift() -> None:
+    payload = deepcopy(_load_fixture("programbench_task_visibility_manifest_v245_reference.json"))
+    payload["worker_visible_file_refs"] = list(reversed(payload["worker_visible_file_refs"]))
+
+    with pytest.raises(ValidationError, match="lexicographically sorted"):
+        ProgrambenchTaskVisibilityManifest.model_validate(payload)
+
+    payload = deepcopy(_load_fixture("programbench_task_visibility_manifest_v245_reference.json"))
+    payload["worker_hidden_file_refs"].append(payload["worker_hidden_file_refs"][0])
+
+    with pytest.raises(ValidationError, match="duplicates"):
+        ProgrambenchTaskVisibilityManifest.model_validate(payload)
+
+
+def test_pb_adapter_0a_visibility_manifest_rejects_hidden_inference_exposure_policy() -> None:
+    payload = deepcopy(_load_fixture("programbench_task_visibility_manifest_v245_reference.json"))
+    for row in payload["worker_exposure_policy_rows"]:
+        if row["store_ref"] == "store:hidden-evaluator":
+            row["worker_exposure_policy"] = "worker_visible_allowed"
+            break
+
+    with pytest.raises(ValidationError, match="hidden or forbidden stores"):
+        ProgrambenchTaskVisibilityManifest.model_validate(payload)
+
+
 @pytest.mark.parametrize(
     ("fixture_name", "model"),
     [

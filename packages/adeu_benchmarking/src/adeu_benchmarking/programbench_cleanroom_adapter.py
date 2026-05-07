@@ -133,6 +133,12 @@ def _ensure_non_empty_unique(values: list[str], *, field_name: str) -> None:
         raise ValueError(f"{field_name} must not contain duplicates")
 
 
+def _ensure_sorted_unique(values: list[str], *, field_name: str) -> None:
+    _ensure_non_empty_unique(values, field_name=field_name)
+    if values != sorted(values):
+        raise ValueError(f"{field_name} must be lexicographically sorted")
+
+
 def _ensure_hash(value: str, *, field_name: str) -> None:
     if not _SHA256_RE.fullmatch(value):
         raise ValueError(f"{field_name} must be a sha256:<64 lowercase hex> hash")
@@ -389,6 +395,8 @@ class ProgrambenchTaskVisibilityManifest(_AdapterBase):
 
     @model_validator(mode="after")
     def _validate_visibility_manifest(self) -> "ProgrambenchTaskVisibilityManifest":
+        for field_name in ("worker_visible_file_refs", "worker_hidden_file_refs"):
+            _ensure_sorted_unique(getattr(self, field_name), field_name=field_name)
         store_rows = (
             self.visible_store_rows
             + self.hidden_store_rows
@@ -430,6 +438,9 @@ class ProgrambenchTaskVisibilityManifest(_AdapterBase):
                 f"{sorted(hidden_visible_file_overlap)}"
             )
         known_store_refs = set(store_refs)
+        visibility_by_store_ref = {
+            row.store_ref: (row.visibility_class, row.visibility_basis) for row in store_rows
+        }
         for rows, ref_field in (
             (self.visibility_basis_rows, "basis_ref"),
             (self.store_presence_rows, "presence_ref"),
@@ -443,6 +454,29 @@ class ProgrambenchTaskVisibilityManifest(_AdapterBase):
             if missing_store_refs:
                 raise ValueError(
                     f"{ref_field} rows reference unknown stores: {sorted(missing_store_refs)}"
+                )
+        for row in self.derived_summary_policy_rows:
+            visibility_class, visibility_basis = visibility_by_store_ref[row.store_ref]
+            _visibility_blocks_worker_exposure(
+                visibility_class=visibility_class,
+                visibility_basis=visibility_basis,
+                worker_exposure_policy=(
+                    "worker_visible_allowed"
+                    if row.worker_summary_visibility_posture == "cleanroom_visible_to_worker"
+                    else "worker_exposure_forbidden"
+                ),
+                derived_summary_policy=row.derived_summary_policy,
+                field_name=row.policy_ref,
+            )
+        for row in self.worker_exposure_policy_rows:
+            visibility_class, visibility_basis = visibility_by_store_ref[row.store_ref]
+            if row.phase == "inference_phase":
+                _visibility_blocks_worker_exposure(
+                    visibility_class=visibility_class,
+                    visibility_basis=visibility_basis,
+                    worker_exposure_policy=row.worker_exposure_policy,
+                    derived_summary_policy="no_summary_available",
+                    field_name=row.exposure_policy_ref,
                 )
         return self
 
