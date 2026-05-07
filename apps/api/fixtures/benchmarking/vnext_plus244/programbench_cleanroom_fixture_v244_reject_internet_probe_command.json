@@ -1,0 +1,54 @@
+{
+  "schema": "programbench_local_cleanroom_fixture@1",
+  "fixture_ref": "fixture:pb-py-0c:stderr-diagnostic-local",
+  "fixture_contract_ref": "fixture-contract:pb-py-0a:local-cleanroom-program",
+  "reference_executable_ref": "fixture-ref:pb-py-0c:deferred-reference-executable",
+  "usage_docs_ref": "source:pb-py-0a:local-usage-docs-contract",
+  "worker_visible_file_refs": [
+    "fixture-visible:probe-notes",
+    "fixture-visible:submission-interface",
+    "fixture-visible:usage-docs"
+  ],
+  "worker_hidden_file_refs": [
+    "fixture-hidden:local-oracle",
+    "fixture-hidden:reference-executable"
+  ],
+  "allowed_probe_command_rows": [
+    {
+      "probe_command_ref": "probe-command:pb-py-0c:internet",
+      "command_shape": "curl https://example.com/oracle",
+      "command_authority_posture": "local_probe_shape_only_no_execution_authority",
+      "network_policy": "network_disabled_during_inference",
+      "limitation_note": "Internet lookup command shapes must fail closed."
+    }
+  ],
+  "forbidden_source_rows": [
+    {
+      "source_ref": "source:pb-py-0a:forbidden-original-source",
+      "source_kind": "original_source",
+      "cleanroom_visibility_class": "forbidden_original_source",
+      "source_access_posture": "not_registered_or_mounted",
+      "worker_visibility_posture": "not_worker_visible",
+      "inference_admissibility_posture": "forbidden_for_inference",
+      "limitation_note": "Original source stores remain unreachable during inference."
+    }
+  ],
+  "fixture_origin_posture": "synthetic_local_fixture",
+  "network_policy": "network_disabled_during_inference",
+  "source_visibility_policy": "forbidden_sources_unreachable_during_inference",
+  "expected_submission_shape": "single Python stdlib-only submission file inside the synthetic local fixture",
+  "evaluation_oracle_rows": [
+    {
+      "oracle_ref": "oracle:pb-py-0c:local-stderr-behavior",
+      "oracle_visibility_posture": "local_oracle_hidden_from_worker",
+      "evaluation_oracle_posture": "local_oracle_only_not_hidden_test_authority",
+      "benchmark_truth_posture": "local_fixture_research_only_not_benchmark_truth",
+      "worker_visibility_posture": "not_worker_visible",
+      "limitation_note": "This local oracle can judge the synthetic fixture only and is not hidden-test or benchmark authority."
+    }
+  ],
+  "local_fixture_scope_posture": "one_local_cleanroom_fixture_only",
+  "official_programbench_posture": "no_official_programbench_participation_by_pb_py_0c",
+  "benchmark_truth_posture": "local_fixture_research_only_not_benchmark_truth",
+  "limitation_note": "Internet probe command shapes must fail closed."
+}

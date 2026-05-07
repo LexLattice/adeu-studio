@@ -1,0 +1,62 @@
+{
+  "schema": "programbench_probe_equivalence_audit@1",
+  "audit_ref": "audit:pb-py-0c:stderr-diagnostic-local-probes",
+  "fixture_ref": "fixture:pb-py-0c:stderr-diagnostic-local",
+  "comparison_packet_ref": "comparison:pb-py-0c:stderr-diagnostic-abc",
+  "local_probe_rows": [
+    {
+      "local_probe_ref": "probe:pb-py-0c:stderr-diagnostic-split",
+      "fixture_ref": "fixture:pb-py-0c:stderr-diagnostic-local",
+      "probe_kind": "stderr_diagnostic_probe",
+      "local_probe_status": "local_probe_passed",
+      "local_probe_scope_posture": "local_probe_only_not_hidden_test_equivalence",
+      "benchmark_truth_posture": "not_benchmark_truth",
+      "limitation_note": "The probe is a local synthetic fixture observation only."
+    }
+  ],
+  "positive_observation_rows": [
+    {
+      "observation_ref": "observation:pb-py-0c:stderr-positive",
+      "local_probe_ref": "probe:pb-py-0c:stderr-diagnostic-split",
+      "observed_value": "diagnostic text is observed on stderr",
+      "observation_posture": "local_observation_only_not_benchmark_truth",
+      "limitation_note": "Positive local observation does not claim hidden-test equivalence."
+    }
+  ],
+  "negative_observation_rows": [
+    {
+      "observation_ref": "observation:pb-py-0c:stdout-negative",
+      "local_probe_ref": "probe:pb-py-0c:stderr-diagnostic-split",
+      "observed_value": "diagnostic text on stdout alone is not accepted",
+      "observation_posture": "local_observation_only_not_benchmark_truth",
+      "limitation_note": "Negative local observation remains local fixture research only."
+    }
+  ],
+  "stdout_stderr_observation_rows": [
+    {
+      "observation_ref": "observation:pb-py-0c:stdout-stderr-split",
+      "local_probe_ref": "probe:pb-py-0c:stderr-diagnostic-split",
+      "observed_value": "stdout and stderr are observed separately",
+      "observation_posture": "local_observation_only_not_benchmark_truth",
+      "limitation_note": "Stream split observation is a witness requirement only."
+    }
+  ],
+  "exit_code_observation_rows": [
+    {
+      "observation_ref": "observation:pb-py-0c:exit-code",
+      "local_probe_ref": "probe:pb-py-0c:stderr-diagnostic-split",
+      "observed_value": "exit code is observed separately from stderr text",
+      "observation_posture": "local_observation_only_not_benchmark_truth",
+      "limitation_note": "Exit code observation remains local and non-benchmark-truth-bearing."
+    }
+  ],
+  "filesystem_observation_rows": [],
+  "known_limitation_rows": [
+    "local probe pass is not hidden-test equivalence",
+    "synthetic fixture outcome is not official benchmark score"
+  ],
+  "hidden_test_equivalence_posture": "local_probe_pass_not_hidden_test_equivalence",
+  "benchmark_truth_posture": "local_audit_not_benchmark_truth",
+  "postmortem_feedback_posture": "no_hidden_test_feedback_used_for_inference",
+  "limitation_note": "The audit records local probe evidence without official ProgramBench or hidden-test authority."
+}

@@ -29,6 +29,14 @@ CONCEPT_REALIZATION_RECORD_SCHEMA = "concept_realization_record@1"
 PYTHON_RECONSTRUCTION_REALIZATION_PACK_SCHEMA = "python_reconstruction_realization_pack@1"
 PYTHON_RECONSTRUCTION_PLAN_SCHEMA = "python_reconstruction_plan@1"
 PYTHON_REALIZATION_WITNESS_TEMPLATE_SCHEMA = "python_realization_witness_template@1"
+PROGRAMBENCH_LOCAL_CLEANROOM_FIXTURE_SCHEMA = "programbench_local_cleanroom_fixture@1"
+PROGRAMBENCH_RECONSTRUCTION_COMPARISON_PACKET_SCHEMA = (
+    "programbench_reconstruction_comparison_packet@1"
+)
+PROGRAMBENCH_PROBE_EQUIVALENCE_AUDIT_SCHEMA = "programbench_probe_equivalence_audit@1"
+PROGRAMBENCH_REALIZATION_FAMILY_CLOSEOUT_ALIGNMENT_SCHEMA = (
+    "programbench_realization_family_closeout_alignment@1"
+)
 
 PROGRAM_ODEU_CONCEPT_ID_VOCABULARY = [
     "program_behavior",
@@ -214,6 +222,28 @@ ExpectedObservationKind = Literal[
     "parse_error",
     "runtime_error",
 ]
+FixtureOriginPosture = Literal[
+    "synthetic_local_fixture",
+    "repo_internal_fixture",
+    "toy_cleanroom_fixture",
+    "official_programbench_task_forbidden_in_pb_py_0c",
+]
+ComparisonLaneId = Literal[
+    "base_adeu_harness",
+    "adeu_plus_conceptual_profile",
+    "adeu_plus_conceptual_profile_plus_python_overlay",
+]
+ComparisonContaminationStatus = Literal[
+    "same_condition_controls_closed",
+    "contaminated_conditions_detected",
+    "non_comparable_conditions",
+]
+ComparisonLaneDeltaPosture = Literal[
+    "base_no_conceptual_profile_no_python_overlay",
+    "conceptual_profile_only",
+    "conceptual_profile_plus_python_overlay",
+]
+FullPointerLocalProbeStatus = Literal["local_probe_passed", "local_probe_failed"]
 
 _FORBIDDEN_VISIBILITY_CLASSES = {
     "forbidden_original_source",
@@ -253,6 +283,16 @@ _PYTHON_STDLIB_SURFACE_VOCABULARY = [
     "text_binary_mode",
     "subprocess_for_probe_only",
 ]
+_PB_PY_0C_LANE_IDS = [
+    "base_adeu_harness",
+    "adeu_plus_conceptual_profile",
+    "adeu_plus_conceptual_profile_plus_python_overlay",
+]
+_PB_PY_0_CLOSED_SLICE_REFS = [
+    "PB-PY-0-A",
+    "PB-PY-0-B",
+    "PB-PY-0-C",
+]
 _CODE_OR_COMMAND_MARKERS = (
     "\n",
     "def ",
@@ -266,6 +306,16 @@ _CODE_OR_COMMAND_MARKERS = (
     "bash ",
     " && ",
     "$ ",
+)
+_INTERNET_OR_EXTERNAL_SOURCE_MARKERS = (
+    "curl ",
+    "wget ",
+    "git clone",
+    "pip install",
+    "http://",
+    "https://",
+    "internet lookup",
+    "external repo",
 )
 _EXECUTABLE_PATH_RE = re.compile(
     r"(^|\s)(/[^ \t\n]+|\./|[a-z]:\\|[a-z0-9_.-]+\.py\b|packages/|apps/)"
@@ -330,6 +380,12 @@ def _ensure_no_code_command_or_path_payload(value: object, *, field_name: str) -
         raise ValueError(f"{field_name} must not contain source code or command payloads")
     if _EXECUTABLE_PATH_RE.search(lowered):
         raise ValueError(f"{field_name} must not contain executable file paths")
+
+
+def _ensure_no_internet_or_external_lookup(value: str, *, field_name: str) -> None:
+    lowered = value.lower()
+    if any(marker in lowered for marker in _INTERNET_OR_EXTERNAL_SOURCE_MARKERS):
+        raise ValueError(f"{field_name} must not authorize internet or external source lookup")
 
 
 def _ensure_source_refs_resolve(
@@ -854,6 +910,314 @@ class PythonRealizationWitnessTemplate(_CleanroomBase):
         return self
 
 
+class ProgrambenchAllowedProbeCommandRow(_CleanroomBase):
+    probe_command_ref: str
+    command_shape: str
+    command_authority_posture: Literal["local_probe_shape_only_no_execution_authority"]
+    network_policy: Literal["network_disabled_during_inference"]
+    limitation_note: str
+
+    @model_validator(mode="after")
+    def _validate_probe_command(self) -> "ProgrambenchAllowedProbeCommandRow":
+        _ensure_no_internet_or_external_lookup(self.command_shape, field_name="command_shape")
+        return self
+
+
+class ProgrambenchForbiddenSourceRow(_CleanroomBase):
+    source_ref: str
+    source_kind: SourceKind
+    cleanroom_visibility_class: CleanroomVisibilityClass
+    source_access_posture: SourceAccessPosture
+    worker_visibility_posture: WorkerVisibilityPosture
+    inference_admissibility_posture: InferenceAdmissibilityPosture
+    limitation_note: str
+
+    @model_validator(mode="after")
+    def _validate_forbidden_source(self) -> "ProgrambenchForbiddenSourceRow":
+        if self.cleanroom_visibility_class not in _INFERENCE_FORBIDDEN_VISIBILITY_CLASSES:
+            raise ValueError("forbidden_source_rows must use forbidden or hidden source classes")
+        if self.worker_visibility_posture != "not_worker_visible":
+            raise ValueError("forbidden source rows must not be worker-visible")
+        if self.inference_admissibility_posture not in {
+            "forbidden_for_inference",
+            "postmortem_only_not_inference",
+        }:
+            raise ValueError("forbidden source rows must not be inference-admissible")
+        if self.source_access_posture in _WORKER_ACCESS_POSTURES:
+            raise ValueError("forbidden source rows must not be mounted, queried, or exposed")
+        return self
+
+
+class ProgrambenchEvaluationOracleRow(_CleanroomBase):
+    oracle_ref: str
+    oracle_visibility_posture: Literal["local_oracle_hidden_from_worker"]
+    evaluation_oracle_posture: Literal["local_oracle_only_not_hidden_test_authority"]
+    benchmark_truth_posture: Literal["local_fixture_research_only_not_benchmark_truth"]
+    worker_visibility_posture: Literal["not_worker_visible"]
+    limitation_note: str
+
+
+class ProgrambenchLocalCleanroomFixture(_CleanroomBase):
+    schema_id: Literal[PROGRAMBENCH_LOCAL_CLEANROOM_FIXTURE_SCHEMA] = Field(alias="schema")
+    fixture_ref: str
+    fixture_contract_ref: str
+    reference_executable_ref: str
+    usage_docs_ref: str
+    worker_visible_file_refs: list[str] = Field(min_length=1)
+    worker_hidden_file_refs: list[str] = Field(min_length=1)
+    allowed_probe_command_rows: list[ProgrambenchAllowedProbeCommandRow] = Field(min_length=1)
+    forbidden_source_rows: list[ProgrambenchForbiddenSourceRow] = Field(min_length=1)
+    fixture_origin_posture: FixtureOriginPosture
+    network_policy: Literal["network_disabled_during_inference"]
+    source_visibility_policy: Literal["forbidden_sources_unreachable_during_inference"]
+    expected_submission_shape: str
+    evaluation_oracle_rows: list[ProgrambenchEvaluationOracleRow] = Field(min_length=1)
+    local_fixture_scope_posture: Literal["one_local_cleanroom_fixture_only"]
+    official_programbench_posture: Literal[
+        "no_official_programbench_participation_by_pb_py_0c"
+    ]
+    benchmark_truth_posture: Literal["local_fixture_research_only_not_benchmark_truth"]
+    limitation_note: str
+
+    @model_validator(mode="after")
+    def _validate_local_fixture(self) -> "ProgrambenchLocalCleanroomFixture":
+        if self.fixture_origin_posture == "official_programbench_task_forbidden_in_pb_py_0c":
+            raise ValueError("official ProgramBench tasks cannot be used as local fixtures")
+        hidden_visible = set(self.worker_hidden_file_refs) & set(self.worker_visible_file_refs)
+        if hidden_visible:
+            raise ValueError(
+                f"worker-hidden files cannot be worker-visible: {sorted(hidden_visible)}"
+            )
+        command_refs = [row.probe_command_ref for row in self.allowed_probe_command_rows]
+        if len(command_refs) != len(set(command_refs)):
+            raise ValueError("allowed_probe_command_rows must not repeat probe_command_ref")
+        forbidden_refs = [row.source_ref for row in self.forbidden_source_rows]
+        if len(forbidden_refs) != len(set(forbidden_refs)):
+            raise ValueError("forbidden_source_rows must not repeat source_ref")
+        oracle_refs = [row.oracle_ref for row in self.evaluation_oracle_rows]
+        if len(oracle_refs) != len(set(oracle_refs)):
+            raise ValueError("evaluation_oracle_rows must not repeat oracle_ref")
+        for field_name in (
+            "reference_executable_ref",
+            "usage_docs_ref",
+            "expected_submission_shape",
+        ):
+            _ensure_no_internet_or_external_lookup(getattr(self, field_name), field_name=field_name)
+        return self
+
+
+class ProgrambenchComparisonControlRow(_CleanroomBase):
+    control_ref: str
+    shared_fixture_ref: str
+    shared_model_or_worker_profile_ref: str
+    shared_budget_policy: str
+    shared_allowed_tool_policy: str
+    shared_cleanroom_policy: str
+    shared_probe_budget: str
+    shared_submission_shape: str
+    shared_evaluation_oracle_rows: list[str] = Field(min_length=1)
+    lane_difference_declaration: Literal[
+        "only_profile_and_python_overlay_substrate_varies_across_lanes"
+    ]
+
+
+class ProgrambenchComparisonLaneRow(_CleanroomBase):
+    lane_ref: str
+    lane_id: ComparisonLaneId
+    fixture_ref: str
+    model_or_worker_profile_ref: str
+    budget_policy: str
+    allowed_tool_policy: str
+    cleanroom_policy: str
+    probe_budget: str
+    submission_shape: str
+    evaluation_oracle_refs: list[str] = Field(min_length=1)
+    profile_refs: list[str]
+    realization_pack_refs: list[str]
+    lane_delta_posture: ComparisonLaneDeltaPosture
+    benchmark_truth_posture: Literal["not_benchmark_truth"]
+    model_ranking_posture: Literal["no_model_ranking_claimed_by_pb_py_0c"]
+    limitation_note: str
+
+    @model_validator(mode="after")
+    def _validate_lane_delta(self) -> "ProgrambenchComparisonLaneRow":
+        if self.lane_id == "base_adeu_harness":
+            if self.profile_refs or self.realization_pack_refs:
+                raise ValueError("base lane must not consume profile or Python overlay refs")
+            if self.lane_delta_posture != "base_no_conceptual_profile_no_python_overlay":
+                raise ValueError("base lane delta posture mismatch")
+        if self.lane_id == "adeu_plus_conceptual_profile":
+            if not self.profile_refs or self.realization_pack_refs:
+                raise ValueError("conceptual profile lane must consume profile refs only")
+            if self.lane_delta_posture != "conceptual_profile_only":
+                raise ValueError("conceptual profile lane delta posture mismatch")
+        if self.lane_id == "adeu_plus_conceptual_profile_plus_python_overlay":
+            if not self.profile_refs or not self.realization_pack_refs:
+                raise ValueError("overlay lane must consume profile and realization pack refs")
+            if self.lane_delta_posture != "conceptual_profile_plus_python_overlay":
+                raise ValueError("overlay lane delta posture mismatch")
+        return self
+
+
+class ProgrambenchReconstructionComparisonPacket(_CleanroomBase):
+    schema_id: Literal[PROGRAMBENCH_RECONSTRUCTION_COMPARISON_PACKET_SCHEMA] = Field(
+        alias="schema"
+    )
+    comparison_packet_ref: str
+    fixture_ref: str
+    comparison_control_rows: list[ProgrambenchComparisonControlRow] = Field(min_length=1)
+    comparison_lane_rows: list[ProgrambenchComparisonLaneRow] = Field(min_length=3)
+    profile_refs: list[str]
+    realization_pack_refs: list[str]
+    witness_template_refs: list[str]
+    local_probe_refs: list[str] = Field(min_length=1)
+    comparison_scope_posture: Literal["local_fixture_research_comparison_only"]
+    comparison_contamination_status: ComparisonContaminationStatus
+    benchmark_truth_posture: Literal["not_benchmark_truth"]
+    model_ranking_posture: Literal["no_model_ranking_claimed_by_pb_py_0c"]
+    limitation_note: str
+
+    @model_validator(mode="after")
+    def _validate_comparison_packet(self) -> "ProgrambenchReconstructionComparisonPacket":
+        lane_ids = [row.lane_id for row in self.comparison_lane_rows]
+        if lane_ids != _PB_PY_0C_LANE_IDS:
+            raise ValueError("comparison_lane_rows must use the PB-PY-0-C lane ids in order")
+        control_refs = [row.control_ref for row in self.comparison_control_rows]
+        if len(control_refs) != len(set(control_refs)):
+            raise ValueError("comparison_control_rows must not repeat control_ref")
+        if len(self.comparison_control_rows) != 1:
+            raise ValueError("PB-PY-0-C comparison packet must use one shared control row")
+        control = self.comparison_control_rows[0]
+        contaminated_fields: list[str] = []
+        for lane in self.comparison_lane_rows:
+            if lane.fixture_ref != control.shared_fixture_ref:
+                contaminated_fields.append("fixture")
+            if lane.model_or_worker_profile_ref != control.shared_model_or_worker_profile_ref:
+                contaminated_fields.append("model_or_worker_profile")
+            if lane.budget_policy != control.shared_budget_policy:
+                contaminated_fields.append("budget")
+            if lane.allowed_tool_policy != control.shared_allowed_tool_policy:
+                contaminated_fields.append("allowed_tool")
+            if lane.cleanroom_policy != control.shared_cleanroom_policy:
+                contaminated_fields.append("cleanroom_policy")
+            if lane.probe_budget != control.shared_probe_budget:
+                contaminated_fields.append("probe_budget")
+            if lane.submission_shape != control.shared_submission_shape:
+                contaminated_fields.append("submission_shape")
+            if lane.evaluation_oracle_refs != control.shared_evaluation_oracle_rows:
+                contaminated_fields.append("evaluation_oracle")
+        if contaminated_fields and self.comparison_contamination_status == (
+            "same_condition_controls_closed"
+        ):
+            raise ValueError(
+                "contaminated comparison conditions cannot be marked same-condition clean: "
+                f"{sorted(set(contaminated_fields))}"
+            )
+        if not contaminated_fields and self.comparison_contamination_status != (
+            "same_condition_controls_closed"
+        ):
+            raise ValueError("same-condition controls are closed but comparison is marked dirty")
+        return self
+
+
+class ProgrambenchLocalProbeRow(_CleanroomBase):
+    local_probe_ref: str
+    fixture_ref: str
+    probe_kind: PythonProbeKind
+    local_probe_status: FullPointerLocalProbeStatus
+    local_probe_scope_posture: Literal["local_probe_only_not_hidden_test_equivalence"]
+    benchmark_truth_posture: Literal["not_benchmark_truth"]
+    limitation_note: str
+
+
+class ProgrambenchProbeObservationRow(_CleanroomBase):
+    observation_ref: str
+    local_probe_ref: str
+    observed_value: str
+    observation_posture: Literal["local_observation_only_not_benchmark_truth"]
+    limitation_note: str
+
+
+class ProgrambenchProbeEquivalenceAudit(_CleanroomBase):
+    schema_id: Literal[PROGRAMBENCH_PROBE_EQUIVALENCE_AUDIT_SCHEMA] = Field(alias="schema")
+    audit_ref: str
+    fixture_ref: str
+    comparison_packet_ref: str
+    local_probe_rows: list[ProgrambenchLocalProbeRow] = Field(min_length=1)
+    positive_observation_rows: list[ProgrambenchProbeObservationRow]
+    negative_observation_rows: list[ProgrambenchProbeObservationRow]
+    stdout_stderr_observation_rows: list[ProgrambenchProbeObservationRow]
+    exit_code_observation_rows: list[ProgrambenchProbeObservationRow]
+    filesystem_observation_rows: list[ProgrambenchProbeObservationRow]
+    known_limitation_rows: list[str]
+    hidden_test_equivalence_posture: Literal["local_probe_pass_not_hidden_test_equivalence"]
+    benchmark_truth_posture: Literal["local_audit_not_benchmark_truth"]
+    postmortem_feedback_posture: Literal["no_hidden_test_feedback_used_for_inference"]
+    limitation_note: str
+
+    @model_validator(mode="after")
+    def _validate_probe_audit(self) -> "ProgrambenchProbeEquivalenceAudit":
+        probe_refs = [row.local_probe_ref for row in self.local_probe_rows]
+        if len(probe_refs) != len(set(probe_refs)):
+            raise ValueError("local_probe_rows must not repeat local_probe_ref")
+        if any(row.fixture_ref != self.fixture_ref for row in self.local_probe_rows):
+            raise ValueError("local probe rows must reference the audit fixture")
+        probe_ref_set = set(probe_refs)
+        for rows, field_name in (
+            (self.positive_observation_rows, "positive_observation_rows"),
+            (self.negative_observation_rows, "negative_observation_rows"),
+            (self.stdout_stderr_observation_rows, "stdout_stderr_observation_rows"),
+            (self.exit_code_observation_rows, "exit_code_observation_rows"),
+            (self.filesystem_observation_rows, "filesystem_observation_rows"),
+        ):
+            refs = [row.observation_ref for row in rows]
+            if len(refs) != len(set(refs)):
+                raise ValueError(f"{field_name} must not repeat observation_ref")
+            missing = {row.local_probe_ref for row in rows} - probe_ref_set
+            if missing:
+                raise ValueError(f"{field_name} references missing local probes: {sorted(missing)}")
+        return self
+
+
+class ProgrambenchRealizationFamilyCloseoutAlignment(_CleanroomBase):
+    schema_id: Literal[PROGRAMBENCH_REALIZATION_FAMILY_CLOSEOUT_ALIGNMENT_SCHEMA] = Field(
+        alias="schema"
+    )
+    family_closeout_ref: str
+    family: Literal["PB-PY-0"]
+    closed_slice_refs: list[str] = Field(min_length=3)
+    released_profile_refs: list[str] = Field(min_length=1)
+    released_source_index_refs: list[str] = Field(min_length=1)
+    released_concept_seed_refs: list[str] = Field(min_length=1)
+    released_fixture_contract_refs: list[str] = Field(min_length=1)
+    released_realization_pack_refs: list[str] = Field(min_length=1)
+    released_fixture_refs: list[str] = Field(min_length=1)
+    released_comparison_packet_refs: list[str] = Field(min_length=1)
+    released_audit_refs: list[str] = Field(min_length=1)
+    family_alignment_posture: Literal["pb_py_0_closed_local_research_fixture_only"]
+    official_programbench_posture: Literal["no_official_programbench_participation_by_pb_py_0"]
+    benchmark_truth_posture: Literal["no_benchmark_truth_claimed_by_pb_py_0"]
+    future_family_selection_status: Literal["no_future_family_selected_by_pb_py_0"]
+    limitation_note: str
+
+    @model_validator(mode="after")
+    def _validate_family_closeout(self) -> "ProgrambenchRealizationFamilyCloseoutAlignment":
+        if self.closed_slice_refs != _PB_PY_0_CLOSED_SLICE_REFS:
+            raise ValueError("closed_slice_refs must close PB-PY-0-A/B/C in order")
+        for field_name in (
+            "released_profile_refs",
+            "released_source_index_refs",
+            "released_concept_seed_refs",
+            "released_fixture_contract_refs",
+            "released_realization_pack_refs",
+            "released_fixture_refs",
+            "released_comparison_packet_refs",
+            "released_audit_refs",
+        ):
+            _sorted_unique(getattr(self, field_name), field_name=field_name)
+        return self
+
+
 def validate_pb_py_0a_cleanroom_reconstruction_bundle(
     *,
     profile: ProgrambenchCleanroomReconstructionProfile,
@@ -1016,3 +1380,110 @@ def validate_pb_py_0b_python_realization_bundle(
             raise ValueError(
                 f"witness template refs missing records: {sorted(missing_template_records)}"
             )
+
+
+def validate_pb_py_0c_local_fixture_comparison_bundle(
+    *,
+    profile: ProgrambenchCleanroomReconstructionProfile,
+    concept_seed: ProgramOdeuConceptBoundarySeed,
+    source_index: ProgrambenchCleanroomEvidenceSourceIndex,
+    guardrail: ProgrambenchReconstructionNonAuthorityGuardrail,
+    fixture_contract: ProgrambenchLocalCleanroomFixtureContract,
+    realization_records: list[ConceptRealizationRecord],
+    realization_pack: PythonReconstructionRealizationPack,
+    reconstruction_plan: PythonReconstructionPlan,
+    witness_templates: list[PythonRealizationWitnessTemplate],
+    local_fixture: ProgrambenchLocalCleanroomFixture,
+    comparison_packet: ProgrambenchReconstructionComparisonPacket,
+    probe_audit: ProgrambenchProbeEquivalenceAudit,
+    family_closeout: ProgrambenchRealizationFamilyCloseoutAlignment,
+) -> None:
+    validate_pb_py_0b_python_realization_bundle(
+        profile=profile,
+        concept_seed=concept_seed,
+        source_index=source_index,
+        guardrail=guardrail,
+        fixture_contract=fixture_contract,
+        realization_records=realization_records,
+        realization_pack=realization_pack,
+        reconstruction_plan=reconstruction_plan,
+        witness_templates=witness_templates,
+    )
+    source_refs_by_ref = {row.source_ref for row in source_index.source_rows}
+    witness_templates_by_ref = {row.witness_template_ref for row in witness_templates}
+
+    if local_fixture.fixture_contract_ref != fixture_contract.fixture_id:
+        raise ValueError("local fixture must reference the released fixture contract")
+    if local_fixture.reference_executable_ref != fixture_contract.reference_executable_ref:
+        raise ValueError("local fixture must preserve the contract reference executable ref")
+    if local_fixture.usage_docs_ref != fixture_contract.usage_docs_ref:
+        raise ValueError("local fixture must preserve the contract usage docs ref")
+    missing_forbidden_sources = {
+        row.source_ref for row in local_fixture.forbidden_source_rows
+    } - source_refs_by_ref
+    if missing_forbidden_sources:
+        raise ValueError(
+            f"local fixture forbidden source rows missing source refs: "
+            f"{sorted(missing_forbidden_sources)}"
+        )
+    hidden_visible = set(local_fixture.worker_hidden_file_refs) & set(
+        local_fixture.worker_visible_file_refs
+    )
+    if hidden_visible:
+        raise ValueError(f"local fixture hidden refs visible to worker: {sorted(hidden_visible)}")
+
+    if comparison_packet.fixture_ref != local_fixture.fixture_ref:
+        raise ValueError("comparison packet must reference the local fixture")
+    missing_comparison_profiles = set(comparison_packet.profile_refs) - {profile.profile_ref}
+    if missing_comparison_profiles:
+        raise ValueError(
+            f"comparison packet profile refs missing released profile: "
+            f"{sorted(missing_comparison_profiles)}"
+        )
+    missing_comparison_packs = set(comparison_packet.realization_pack_refs) - {
+        realization_pack.pack_ref
+    }
+    if missing_comparison_packs:
+        raise ValueError(
+            f"comparison packet realization pack refs missing released pack: "
+            f"{sorted(missing_comparison_packs)}"
+        )
+    missing_comparison_witnesses = set(comparison_packet.witness_template_refs) - set(
+        witness_templates_by_ref
+    )
+    if missing_comparison_witnesses:
+        raise ValueError(
+            "comparison packet witness template refs missing released templates: "
+            f"{sorted(missing_comparison_witnesses)}"
+        )
+
+    if probe_audit.fixture_ref != local_fixture.fixture_ref:
+        raise ValueError("probe audit must reference the local fixture")
+    if probe_audit.comparison_packet_ref != comparison_packet.comparison_packet_ref:
+        raise ValueError("probe audit must reference the comparison packet")
+    audit_probe_refs = {row.local_probe_ref for row in probe_audit.local_probe_rows}
+    missing_probe_refs = set(comparison_packet.local_probe_refs) - audit_probe_refs
+    if missing_probe_refs:
+        raise ValueError(
+            f"comparison packet local probe refs missing audit rows: {sorted(missing_probe_refs)}"
+        )
+
+    if profile.profile_ref not in family_closeout.released_profile_refs:
+        raise ValueError("family closeout must reference the released profile")
+    if source_index.source_index_ref not in family_closeout.released_source_index_refs:
+        raise ValueError("family closeout must reference the released source index")
+    if concept_seed.concept_seed_set_ref not in family_closeout.released_concept_seed_refs:
+        raise ValueError("family closeout must reference the released concept seed")
+    if fixture_contract.fixture_id not in family_closeout.released_fixture_contract_refs:
+        raise ValueError("family closeout must reference the released fixture contract")
+    if realization_pack.pack_ref not in family_closeout.released_realization_pack_refs:
+        raise ValueError("family closeout must reference the released realization pack")
+    if local_fixture.fixture_ref not in family_closeout.released_fixture_refs:
+        raise ValueError("family closeout must reference the released local fixture")
+    if (
+        comparison_packet.comparison_packet_ref
+        not in family_closeout.released_comparison_packet_refs
+    ):
+        raise ValueError("family closeout must reference the released comparison packet")
+    if probe_audit.audit_ref not in family_closeout.released_audit_refs:
+        raise ValueError("family closeout must reference the released probe audit")

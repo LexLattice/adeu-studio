@@ -1,0 +1,308 @@
+{
+  "$defs": {
+    "ProgrambenchAllowedProbeCommandRow": {
+      "additionalProperties": false,
+      "properties": {
+        "command_authority_posture": {
+          "const": "local_probe_shape_only_no_execution_authority",
+          "title": "Command Authority Posture",
+          "type": "string"
+        },
+        "command_shape": {
+          "title": "Command Shape",
+          "type": "string"
+        },
+        "limitation_note": {
+          "title": "Limitation Note",
+          "type": "string"
+        },
+        "network_policy": {
+          "const": "network_disabled_during_inference",
+          "title": "Network Policy",
+          "type": "string"
+        },
+        "probe_command_ref": {
+          "title": "Probe Command Ref",
+          "type": "string"
+        }
+      },
+      "required": [
+        "probe_command_ref",
+        "command_shape",
+        "command_authority_posture",
+        "network_policy",
+        "limitation_note"
+      ],
+      "title": "ProgrambenchAllowedProbeCommandRow",
+      "type": "object"
+    },
+    "ProgrambenchEvaluationOracleRow": {
+      "additionalProperties": false,
+      "properties": {
+        "benchmark_truth_posture": {
+          "const": "local_fixture_research_only_not_benchmark_truth",
+          "title": "Benchmark Truth Posture",
+          "type": "string"
+        },
+        "evaluation_oracle_posture": {
+          "const": "local_oracle_only_not_hidden_test_authority",
+          "title": "Evaluation Oracle Posture",
+          "type": "string"
+        },
+        "limitation_note": {
+          "title": "Limitation Note",
+          "type": "string"
+        },
+        "oracle_ref": {
+          "title": "Oracle Ref",
+          "type": "string"
+        },
+        "oracle_visibility_posture": {
+          "const": "local_oracle_hidden_from_worker",
+          "title": "Oracle Visibility Posture",
+          "type": "string"
+        },
+        "worker_visibility_posture": {
+          "const": "not_worker_visible",
+          "title": "Worker Visibility Posture",
+          "type": "string"
+        }
+      },
+      "required": [
+        "oracle_ref",
+        "oracle_visibility_posture",
+        "evaluation_oracle_posture",
+        "benchmark_truth_posture",
+        "worker_visibility_posture",
+        "limitation_note"
+      ],
+      "title": "ProgrambenchEvaluationOracleRow",
+      "type": "object"
+    },
+    "ProgrambenchForbiddenSourceRow": {
+      "additionalProperties": false,
+      "properties": {
+        "cleanroom_visibility_class": {
+          "enum": [
+            "cleanroom_visible",
+            "worker_generated_probe",
+            "worker_generated_submission",
+            "evaluation_oracle_hidden",
+            "forbidden_original_source",
+            "forbidden_decompilation",
+            "forbidden_internet_lookup",
+            "forbidden_external_repo",
+            "forbidden_host_secret",
+            "forbidden_docker_socket",
+            "support_context_only",
+            "public_descriptor_context",
+            "postmortem_only"
+          ],
+          "title": "Cleanroom Visibility Class",
+          "type": "string"
+        },
+        "inference_admissibility_posture": {
+          "enum": [
+            "admissible_for_inference",
+            "context_only_not_decisive",
+            "forbidden_for_inference",
+            "postmortem_only_not_inference"
+          ],
+          "title": "Inference Admissibility Posture",
+          "type": "string"
+        },
+        "limitation_note": {
+          "title": "Limitation Note",
+          "type": "string"
+        },
+        "source_access_posture": {
+          "enum": [
+            "registered_cleanroom_visible",
+            "registered_local_development_only",
+            "registered_evaluation_oracle_only",
+            "registered_postmortem_only",
+            "registered_or_mounted_for_worker",
+            "queried_by_worker",
+            "exposed_to_worker",
+            "not_registered_or_mounted"
+          ],
+          "title": "Source Access Posture",
+          "type": "string"
+        },
+        "source_kind": {
+          "enum": [
+            "cleanroom_usage_doc",
+            "reference_executable_observation",
+            "worker_generated_probe",
+            "worker_generated_submission",
+            "evaluation_oracle_hidden",
+            "original_source",
+            "decompilation_artifact",
+            "internet_lookup",
+            "external_repository",
+            "host_secret",
+            "docker_socket",
+            "support_doc",
+            "public_programbench_descriptor",
+            "postmortem_observation"
+          ],
+          "title": "Source Kind",
+          "type": "string"
+        },
+        "source_ref": {
+          "title": "Source Ref",
+          "type": "string"
+        },
+        "worker_visibility_posture": {
+          "enum": [
+            "worker_visible",
+            "not_worker_visible",
+            "worker_visible_after_inference_only"
+          ],
+          "title": "Worker Visibility Posture",
+          "type": "string"
+        }
+      },
+      "required": [
+        "source_ref",
+        "source_kind",
+        "cleanroom_visibility_class",
+        "source_access_posture",
+        "worker_visibility_posture",
+        "inference_admissibility_posture",
+        "limitation_note"
+      ],
+      "title": "ProgrambenchForbiddenSourceRow",
+      "type": "object"
+    }
+  },
+  "additionalProperties": false,
+  "properties": {
+    "allowed_probe_command_rows": {
+      "items": {
+        "$ref": "#/$defs/ProgrambenchAllowedProbeCommandRow"
+      },
+      "minItems": 1,
+      "title": "Allowed Probe Command Rows",
+      "type": "array"
+    },
+    "benchmark_truth_posture": {
+      "const": "local_fixture_research_only_not_benchmark_truth",
+      "title": "Benchmark Truth Posture",
+      "type": "string"
+    },
+    "evaluation_oracle_rows": {
+      "items": {
+        "$ref": "#/$defs/ProgrambenchEvaluationOracleRow"
+      },
+      "minItems": 1,
+      "title": "Evaluation Oracle Rows",
+      "type": "array"
+    },
+    "expected_submission_shape": {
+      "title": "Expected Submission Shape",
+      "type": "string"
+    },
+    "fixture_contract_ref": {
+      "title": "Fixture Contract Ref",
+      "type": "string"
+    },
+    "fixture_origin_posture": {
+      "enum": [
+        "synthetic_local_fixture",
+        "repo_internal_fixture",
+        "toy_cleanroom_fixture",
+        "official_programbench_task_forbidden_in_pb_py_0c"
+      ],
+      "title": "Fixture Origin Posture",
+      "type": "string"
+    },
+    "fixture_ref": {
+      "title": "Fixture Ref",
+      "type": "string"
+    },
+    "forbidden_source_rows": {
+      "items": {
+        "$ref": "#/$defs/ProgrambenchForbiddenSourceRow"
+      },
+      "minItems": 1,
+      "title": "Forbidden Source Rows",
+      "type": "array"
+    },
+    "limitation_note": {
+      "title": "Limitation Note",
+      "type": "string"
+    },
+    "local_fixture_scope_posture": {
+      "const": "one_local_cleanroom_fixture_only",
+      "title": "Local Fixture Scope Posture",
+      "type": "string"
+    },
+    "network_policy": {
+      "const": "network_disabled_during_inference",
+      "title": "Network Policy",
+      "type": "string"
+    },
+    "official_programbench_posture": {
+      "const": "no_official_programbench_participation_by_pb_py_0c",
+      "title": "Official Programbench Posture",
+      "type": "string"
+    },
+    "reference_executable_ref": {
+      "title": "Reference Executable Ref",
+      "type": "string"
+    },
+    "schema": {
+      "const": "programbench_local_cleanroom_fixture@1",
+      "title": "Schema",
+      "type": "string"
+    },
+    "source_visibility_policy": {
+      "const": "forbidden_sources_unreachable_during_inference",
+      "title": "Source Visibility Policy",
+      "type": "string"
+    },
+    "usage_docs_ref": {
+      "title": "Usage Docs Ref",
+      "type": "string"
+    },
+    "worker_hidden_file_refs": {
+      "items": {
+        "type": "string"
+      },
+      "minItems": 1,
+      "title": "Worker Hidden File Refs",
+      "type": "array"
+    },
+    "worker_visible_file_refs": {
+      "items": {
+        "type": "string"
+      },
+      "minItems": 1,
+      "title": "Worker Visible File Refs",
+      "type": "array"
+    }
+  },
+  "required": [
+    "schema",
+    "fixture_ref",
+    "fixture_contract_ref",
+    "reference_executable_ref",
+    "usage_docs_ref",
+    "worker_visible_file_refs",
+    "worker_hidden_file_refs",
+    "allowed_probe_command_rows",
+    "forbidden_source_rows",
+    "fixture_origin_posture",
+    "network_policy",
+    "source_visibility_policy",
+    "expected_submission_shape",
+    "evaluation_oracle_rows",
+    "local_fixture_scope_posture",
+    "official_programbench_posture",
+    "benchmark_truth_posture",
+    "limitation_note"
+  ],
+  "title": "ProgrambenchLocalCleanroomFixture",
+  "type": "object"
+}
