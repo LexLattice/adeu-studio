@@ -1,0 +1,127 @@
+{
+  "additionalProperties": false,
+  "properties": {
+    "adapter_candidate_ref": {
+      "title": "Adapter Candidate Ref",
+      "type": "string"
+    },
+    "allowed_command_posture": {
+      "const": "no_command_execution_authority_by_pb_adapter_0a",
+      "title": "Allowed Command Posture",
+      "type": "string"
+    },
+    "allowed_inference_source_refs": {
+      "items": {
+        "type": "string"
+      },
+      "minItems": 1,
+      "title": "Allowed Inference Source Refs",
+      "type": "array"
+    },
+    "allowed_network_posture": {
+      "const": "network_disabled_during_inference",
+      "title": "Allowed Network Posture",
+      "type": "string"
+    },
+    "decompilation_posture": {
+      "const": "decompilation_forbidden_during_inference",
+      "title": "Decompilation Posture",
+      "type": "string"
+    },
+    "docker_socket_posture": {
+      "const": "docker_socket_forbidden_during_inference",
+      "title": "Docker Socket Posture",
+      "type": "string"
+    },
+    "external_repo_lookup_posture": {
+      "const": "external_repo_lookup_forbidden_during_inference",
+      "title": "External Repo Lookup Posture",
+      "type": "string"
+    },
+    "forbidden_inference_source_refs": {
+      "items": {
+        "type": "string"
+      },
+      "title": "Forbidden Inference Source Refs",
+      "type": "array"
+    },
+    "host_secret_posture": {
+      "const": "host_secret_access_forbidden_during_inference",
+      "title": "Host Secret Posture",
+      "type": "string"
+    },
+    "internet_lookup_posture": {
+      "const": "internet_lookup_forbidden_during_inference",
+      "title": "Internet Lookup Posture",
+      "type": "string"
+    },
+    "limitation_note": {
+      "title": "Limitation Note",
+      "type": "string"
+    },
+    "probe_execution_authority_posture": {
+      "const": "no_probe_execution_authority_by_pb_adapter_0a",
+      "title": "Probe Execution Authority Posture",
+      "type": "string"
+    },
+    "schema": {
+      "const": "programbench_adapter_worker_access_contract@1",
+      "title": "Schema",
+      "type": "string"
+    },
+    "source_lookup_posture": {
+      "const": "source_lookup_forbidden_during_inference",
+      "title": "Source Lookup Posture",
+      "type": "string"
+    },
+    "submission_generation_posture": {
+      "const": "no_submission_generation_authority_by_pb_adapter_0a",
+      "title": "Submission Generation Posture",
+      "type": "string"
+    },
+    "task_artifact_manifest_ref": {
+      "title": "Task Artifact Manifest Ref",
+      "type": "string"
+    },
+    "task_instance_ref": {
+      "title": "Task Instance Ref",
+      "type": "string"
+    },
+    "task_intake_ref": {
+      "title": "Task Intake Ref",
+      "type": "string"
+    },
+    "visibility_manifest_ref": {
+      "title": "Visibility Manifest Ref",
+      "type": "string"
+    },
+    "worker_access_contract_ref": {
+      "title": "Worker Access Contract Ref",
+      "type": "string"
+    }
+  },
+  "required": [
+    "schema",
+    "worker_access_contract_ref",
+    "task_intake_ref",
+    "task_artifact_manifest_ref",
+    "visibility_manifest_ref",
+    "adapter_candidate_ref",
+    "task_instance_ref",
+    "allowed_inference_source_refs",
+    "forbidden_inference_source_refs",
+    "allowed_network_posture",
+    "internet_lookup_posture",
+    "external_repo_lookup_posture",
+    "source_lookup_posture",
+    "decompilation_posture",
+    "docker_socket_posture",
+    "host_secret_posture",
+    "allowed_command_posture",
+    "probe_execution_authority_posture",
+    "submission_generation_posture",
+    "limitation_note"
+  ],
+  "title": "ProgrambenchAdapterWorkerAccessContract",
+  "type": "object"
+}

@@ -1,0 +1,112 @@
+{
+  "additionalProperties": false,
+  "properties": {
+    "benchmark_truth_posture": {
+      "const": "not_benchmark_truth",
+      "title": "Benchmark Truth Posture",
+      "type": "string"
+    },
+    "forbidden_future_artifact_kinds": {
+      "items": {
+        "type": "string"
+      },
+      "minItems": 1,
+      "title": "Forbidden Future Artifact Kinds",
+      "type": "array"
+    },
+    "future_family_selection_posture": {
+      "const": "no_future_family_selected_by_pb_adapter_0a",
+      "title": "Future Family Selection Posture",
+      "type": "string"
+    },
+    "guardrail_ref": {
+      "title": "Guardrail Ref",
+      "type": "string"
+    },
+    "hidden_test_posture": {
+      "const": "hidden_tests_not_visible_not_inference_evidence",
+      "title": "Hidden Test Posture",
+      "type": "string"
+    },
+    "limitation_note": {
+      "title": "Limitation Note",
+      "type": "string"
+    },
+    "model_ranking_posture": {
+      "const": "no_model_ranking_claimed_by_pb_adapter_0a",
+      "title": "Model Ranking Posture",
+      "type": "string"
+    },
+    "non_authority_posture": {
+      "const": "adapter_metadata_only_no_execution_authority",
+      "title": "Non Authority Posture",
+      "type": "string"
+    },
+    "official_programbench_posture": {
+      "const": "no_official_programbench_participation_by_pb_adapter_0a",
+      "title": "Official Programbench Posture",
+      "type": "string"
+    },
+    "schema": {
+      "const": "programbench_adapter_non_authority_guardrail@1",
+      "title": "Schema",
+      "type": "string"
+    },
+    "submission_authority_posture": {
+      "const": "no_submission_authority_by_pb_adapter_0a",
+      "title": "Submission Authority Posture",
+      "type": "string"
+    },
+    "task_artifact_manifest_refs": {
+      "items": {
+        "type": "string"
+      },
+      "minItems": 1,
+      "title": "Task Artifact Manifest Refs",
+      "type": "array"
+    },
+    "task_intake_refs": {
+      "items": {
+        "type": "string"
+      },
+      "minItems": 1,
+      "title": "Task Intake Refs",
+      "type": "array"
+    },
+    "visibility_manifest_refs": {
+      "items": {
+        "type": "string"
+      },
+      "minItems": 1,
+      "title": "Visibility Manifest Refs",
+      "type": "array"
+    },
+    "worker_access_contract_refs": {
+      "items": {
+        "type": "string"
+      },
+      "minItems": 1,
+      "title": "Worker Access Contract Refs",
+      "type": "array"
+    }
+  },
+  "required": [
+    "schema",
+    "guardrail_ref",
+    "task_intake_refs",
+    "task_artifact_manifest_refs",
+    "visibility_manifest_refs",
+    "worker_access_contract_refs",
+    "forbidden_future_artifact_kinds",
+    "non_authority_posture",
+    "official_programbench_posture",
+    "hidden_test_posture",
+    "benchmark_truth_posture",
+    "submission_authority_posture",
+    "model_ranking_posture",
+    "future_family_selection_posture",
+    "limitation_note"
+  ],
+  "title": "ProgrambenchAdapterNonAuthorityGuardrail",
+  "type": "object"
+}

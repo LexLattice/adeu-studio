@@ -1,0 +1,211 @@
+{
+  "adapter_candidate_ref": "adapter-candidate:pb-adapter-0a:reference",
+  "derived_summary_policy_rows": [
+    {
+      "derived_summary_policy": "cleanroom_visible_summary_allowed",
+      "limitation_note": "Usage docs may be summarized for worker inference.",
+      "policy_ref": "summary-policy:usage-doc",
+      "source_visibility_basis": "known_visible",
+      "source_visibility_class": "cleanroom_visible",
+      "store_ref": "artifact:usage-doc:toy-cli",
+      "worker_summary_visibility_posture": "cleanroom_visible_to_worker"
+    },
+    {
+      "derived_summary_policy": "hidden_summary_forbidden_for_worker",
+      "limitation_note": "Hidden evaluator material cannot be summarized for worker inference.",
+      "policy_ref": "summary-policy:hidden-evaluator",
+      "source_visibility_basis": "known_hidden",
+      "source_visibility_class": "evaluation_oracle_hidden",
+      "store_ref": "store:hidden-evaluator",
+      "worker_summary_visibility_posture": "not_worker_visible"
+    },
+    {
+      "derived_summary_policy": "forbidden_summary_forbidden_for_worker",
+      "limitation_note": "Original source cannot be summarized for worker inference.",
+      "policy_ref": "summary-policy:original-source",
+      "source_visibility_basis": "known_forbidden",
+      "source_visibility_class": "forbidden_original_source",
+      "store_ref": "store:original-source",
+      "worker_summary_visibility_posture": "not_worker_visible"
+    }
+  ],
+  "forbidden_store_reachability_posture": "forbidden_and_hidden_stores_unreachable_during_inference",
+  "forbidden_store_rows": [
+    {
+      "derived_summary_policy": "forbidden_summary_forbidden_for_worker",
+      "limitation_note": "Original source exists only as a forbidden category marker.",
+      "source_refs": [
+        "source:forbidden-original-source-marker"
+      ],
+      "store_presence_posture": "present",
+      "store_ref": "store:original-source",
+      "visibility_basis": "known_forbidden",
+      "visibility_class": "forbidden_original_source",
+      "worker_exposure_policy": "worker_exposure_forbidden"
+    }
+  ],
+  "hidden_store_rows": [
+    {
+      "derived_summary_policy": "hidden_summary_forbidden_for_worker",
+      "limitation_note": "Hidden evaluator material is not worker-visible or inference evidence.",
+      "source_refs": [
+        "source:hidden-evaluator-marker"
+      ],
+      "store_presence_posture": "present",
+      "store_ref": "store:hidden-evaluator",
+      "visibility_basis": "known_hidden",
+      "visibility_class": "evaluation_oracle_hidden",
+      "worker_exposure_policy": "worker_exposure_forbidden"
+    }
+  ],
+  "inference_visibility_posture": "cleanroom_visible_artifacts_only",
+  "limitation_note": "Reference manifest exposes only cleanroom-visible task artifacts.",
+  "schema": "programbench_task_visibility_manifest@1",
+  "source_visibility_policy": "hidden_and_forbidden_sources_not_summarized_for_worker",
+  "store_presence_rows": [
+    {
+      "limitation_note": "Usage docs are present.",
+      "presence_ref": "presence:usage-doc",
+      "presence_source_refs": [
+        "artifact:usage-doc:toy-cli"
+      ],
+      "store_presence_posture": "present",
+      "store_ref": "artifact:usage-doc:toy-cli"
+    },
+    {
+      "limitation_note": "Hidden evaluator is known but not visible.",
+      "presence_ref": "presence:hidden-evaluator",
+      "presence_source_refs": [
+        "source:hidden-evaluator-marker"
+      ],
+      "store_presence_posture": "present",
+      "store_ref": "store:hidden-evaluator"
+    },
+    {
+      "limitation_note": "Original source is known but forbidden.",
+      "presence_ref": "presence:original-source",
+      "presence_source_refs": [
+        "source:forbidden-original-source-marker"
+      ],
+      "store_presence_posture": "present",
+      "store_ref": "store:original-source"
+    }
+  ],
+  "support_context_rows": [
+    {
+      "derived_summary_policy": "support_summary_context_only",
+      "limitation_note": "Public descriptor context is support-only and not decisive task truth.",
+      "source_refs": [
+        "source:public-programbench-descriptor:context"
+      ],
+      "store_presence_posture": "present",
+      "store_ref": "store:public-descriptor-context",
+      "visibility_basis": "known_support_only",
+      "visibility_class": "public_descriptor_context",
+      "worker_exposure_policy": "support_context_only_not_decisive"
+    }
+  ],
+  "task_artifact_manifest_ref": "artifact-manifest:pb-adapter-0a:reference",
+  "task_instance_ref": "task-instance:pb-adapter-0a:toy-cli",
+  "task_intake_ref": "task-intake:pb-adapter-0a:reference",
+  "visibility_basis_rows": [
+    {
+      "basis_ref": "basis:usage-doc",
+      "basis_source_refs": [
+        "artifact:usage-doc:toy-cli"
+      ],
+      "limitation_note": "Usage docs are cleanroom visible.",
+      "store_ref": "artifact:usage-doc:toy-cli",
+      "visibility_basis": "known_visible"
+    },
+    {
+      "basis_ref": "basis:hidden-evaluator",
+      "basis_source_refs": [
+        "source:hidden-evaluator-marker"
+      ],
+      "limitation_note": "Hidden evaluator is known hidden.",
+      "store_ref": "store:hidden-evaluator",
+      "visibility_basis": "known_hidden"
+    },
+    {
+      "basis_ref": "basis:original-source",
+      "basis_source_refs": [
+        "source:forbidden-original-source-marker"
+      ],
+      "limitation_note": "Original source is known forbidden.",
+      "store_ref": "store:original-source",
+      "visibility_basis": "known_forbidden"
+    }
+  ],
+  "visibility_manifest_ref": "visibility-manifest:pb-adapter-0a:reference",
+  "visible_store_rows": [
+    {
+      "derived_summary_policy": "cleanroom_visible_summary_allowed",
+      "limitation_note": "Usage docs are task-visible cleanroom evidence.",
+      "source_refs": [
+        "artifact:usage-doc:toy-cli"
+      ],
+      "store_presence_posture": "present",
+      "store_ref": "artifact:usage-doc:toy-cli",
+      "visibility_basis": "known_visible",
+      "visibility_class": "cleanroom_visible",
+      "worker_exposure_policy": "worker_visible_allowed"
+    },
+    {
+      "derived_summary_policy": "cleanroom_visible_summary_allowed",
+      "limitation_note": "Reference executable identity is task-visible without source visibility.",
+      "source_refs": [
+        "artifact:reference-executable:toy-cli"
+      ],
+      "store_presence_posture": "present",
+      "store_ref": "artifact:reference-executable:toy-cli",
+      "visibility_basis": "known_visible",
+      "visibility_class": "reference_executable_observation",
+      "worker_exposure_policy": "worker_visible_allowed"
+    },
+    {
+      "derived_summary_policy": "cleanroom_visible_summary_allowed",
+      "limitation_note": "Sample input is task-visible cleanroom evidence.",
+      "source_refs": [
+        "artifact:input:sample-a"
+      ],
+      "store_presence_posture": "present",
+      "store_ref": "artifact:input:sample-a",
+      "visibility_basis": "known_visible",
+      "visibility_class": "cleanroom_visible",
+      "worker_exposure_policy": "worker_visible_allowed"
+    }
+  ],
+  "worker_exposure_policy_rows": [
+    {
+      "exposure_policy_ref": "exposure:usage-doc",
+      "limitation_note": "Usage docs may be worker visible during inference.",
+      "phase": "inference_phase",
+      "store_ref": "artifact:usage-doc:toy-cli",
+      "worker_exposure_policy": "worker_visible_allowed"
+    },
+    {
+      "exposure_policy_ref": "exposure:hidden-evaluator",
+      "limitation_note": "Hidden evaluator is not worker visible.",
+      "phase": "inference_phase",
+      "store_ref": "store:hidden-evaluator",
+      "worker_exposure_policy": "worker_exposure_forbidden"
+    },
+    {
+      "exposure_policy_ref": "exposure:original-source",
+      "limitation_note": "Original source is not worker visible.",
+      "phase": "inference_phase",
+      "store_ref": "store:original-source",
+      "worker_exposure_policy": "worker_exposure_forbidden"
+    }
+  ],
+  "worker_hidden_file_refs": [
+    "store:hidden-evaluator",
+    "store:original-source"
+  ],
+  "worker_visible_file_refs": [
+    "artifact:input:sample-a",
+    "artifact:reference-executable:toy-cli",
+    "artifact:usage-doc:toy-cli"
+  ]
+}

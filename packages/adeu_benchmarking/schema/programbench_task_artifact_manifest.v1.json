@@ -1,0 +1,158 @@
+{
+  "$defs": {
+    "ProgrambenchArtifactHashRow": {
+      "additionalProperties": false,
+      "properties": {
+        "artifact_hash": {
+          "title": "Artifact Hash",
+          "type": "string"
+        },
+        "artifact_ref": {
+          "title": "Artifact Ref",
+          "type": "string"
+        },
+        "artifact_role": {
+          "enum": [
+            "reference_executable",
+            "usage_doc",
+            "visible_input_artifact",
+            "source_set"
+          ],
+          "title": "Artifact Role",
+          "type": "string"
+        },
+        "limitation_note": {
+          "title": "Limitation Note",
+          "type": "string"
+        },
+        "observed_at": {
+          "title": "Observed At",
+          "type": "string"
+        },
+        "snapshot_ref": {
+          "title": "Snapshot Ref",
+          "type": "string"
+        }
+      },
+      "required": [
+        "artifact_ref",
+        "artifact_hash",
+        "artifact_role",
+        "observed_at",
+        "snapshot_ref",
+        "limitation_note"
+      ],
+      "title": "ProgrambenchArtifactHashRow",
+      "type": "object"
+    }
+  },
+  "additionalProperties": false,
+  "properties": {
+    "adapter_candidate_ref": {
+      "title": "Adapter Candidate Ref",
+      "type": "string"
+    },
+    "artifact_identity_posture": {
+      "const": "hashes_and_snapshot_bound",
+      "title": "Artifact Identity Posture",
+      "type": "string"
+    },
+    "artifact_origin_posture": {
+      "enum": [
+        "synthetic_local_task_artifact",
+        "repo_internal_task_artifact",
+        "programbench_style_public_context_only",
+        "official_programbench_artifact_not_selected",
+        "unknown_origin_blocked"
+      ],
+      "title": "Artifact Origin Posture",
+      "type": "string"
+    },
+    "ingestion_method": {
+      "enum": [
+        "repo_snapshot",
+        "local_synthetic_fixture_snapshot",
+        "public_descriptor_observation",
+        "manual_cleanroom_manifest"
+      ],
+      "title": "Ingestion Method",
+      "type": "string"
+    },
+    "limitation_note": {
+      "title": "Limitation Note",
+      "type": "string"
+    },
+    "observed_at": {
+      "title": "Observed At",
+      "type": "string"
+    },
+    "reference_executable_hash": {
+      "title": "Reference Executable Hash",
+      "type": "string"
+    },
+    "reference_executable_ref": {
+      "title": "Reference Executable Ref",
+      "type": "string"
+    },
+    "schema": {
+      "const": "programbench_task_artifact_manifest@1",
+      "title": "Schema",
+      "type": "string"
+    },
+    "snapshot_ref": {
+      "title": "Snapshot Ref",
+      "type": "string"
+    },
+    "source_set_hash": {
+      "title": "Source Set Hash",
+      "type": "string"
+    },
+    "task_artifact_manifest_ref": {
+      "title": "Task Artifact Manifest Ref",
+      "type": "string"
+    },
+    "task_instance_ref": {
+      "title": "Task Instance Ref",
+      "type": "string"
+    },
+    "task_intake_ref": {
+      "title": "Task Intake Ref",
+      "type": "string"
+    },
+    "usage_docs_hash_rows": {
+      "items": {
+        "$ref": "#/$defs/ProgrambenchArtifactHashRow"
+      },
+      "minItems": 1,
+      "title": "Usage Docs Hash Rows",
+      "type": "array"
+    },
+    "visible_input_artifact_hash_rows": {
+      "items": {
+        "$ref": "#/$defs/ProgrambenchArtifactHashRow"
+      },
+      "title": "Visible Input Artifact Hash Rows",
+      "type": "array"
+    }
+  },
+  "required": [
+    "schema",
+    "task_artifact_manifest_ref",
+    "task_intake_ref",
+    "adapter_candidate_ref",
+    "task_instance_ref",
+    "reference_executable_ref",
+    "reference_executable_hash",
+    "usage_docs_hash_rows",
+    "visible_input_artifact_hash_rows",
+    "source_set_hash",
+    "artifact_origin_posture",
+    "observed_at",
+    "snapshot_ref",
+    "ingestion_method",
+    "artifact_identity_posture",
+    "limitation_note"
+  ],
+  "title": "ProgrambenchTaskArtifactManifest",
+  "type": "object"
+}

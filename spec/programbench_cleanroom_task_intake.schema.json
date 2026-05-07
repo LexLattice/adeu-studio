@@ -1,0 +1,145 @@
+{
+  "additionalProperties": false,
+  "properties": {
+    "adapter_candidate_ref": {
+      "title": "Adapter Candidate Ref",
+      "type": "string"
+    },
+    "benchmark_context_refs": {
+      "items": {
+        "type": "string"
+      },
+      "title": "Benchmark Context Refs",
+      "type": "array"
+    },
+    "benchmark_truth_posture": {
+      "const": "not_benchmark_truth",
+      "title": "Benchmark Truth Posture",
+      "type": "string"
+    },
+    "forbidden_inference_source_refs": {
+      "items": {
+        "type": "string"
+      },
+      "title": "Forbidden Inference Source Refs",
+      "type": "array"
+    },
+    "limitation_note": {
+      "title": "Limitation Note",
+      "type": "string"
+    },
+    "official_participation_posture": {
+      "const": "no_official_programbench_participation_by_pb_adapter_0a",
+      "title": "Official Participation Posture",
+      "type": "string"
+    },
+    "pb_py_0_fixture_contract_refs": {
+      "items": {
+        "type": "string"
+      },
+      "minItems": 1,
+      "title": "Pb Py 0 Fixture Contract Refs",
+      "type": "array"
+    },
+    "pb_py_0_profile_refs": {
+      "items": {
+        "type": "string"
+      },
+      "minItems": 1,
+      "title": "Pb Py 0 Profile Refs",
+      "type": "array"
+    },
+    "reference_executable_ref": {
+      "title": "Reference Executable Ref",
+      "type": "string"
+    },
+    "schema": {
+      "const": "programbench_cleanroom_task_intake@1",
+      "title": "Schema",
+      "type": "string"
+    },
+    "source_refs": {
+      "items": {
+        "type": "string"
+      },
+      "minItems": 1,
+      "title": "Source Refs",
+      "type": "array"
+    },
+    "target_language_posture": {
+      "const": "python_target_language_for_later_reconstruction_review",
+      "title": "Target Language Posture",
+      "type": "string"
+    },
+    "task_artifact_manifest_ref": {
+      "title": "Task Artifact Manifest Ref",
+      "type": "string"
+    },
+    "task_identifier_posture": {
+      "enum": [
+        "stable_task_instance_ref_declared",
+        "task_identifier_context_only",
+        "unknown_task_identifier_blocked"
+      ],
+      "title": "Task Identifier Posture",
+      "type": "string"
+    },
+    "task_instance_ref": {
+      "title": "Task Instance Ref",
+      "type": "string"
+    },
+    "task_intake_ref": {
+      "title": "Task Intake Ref",
+      "type": "string"
+    },
+    "task_origin_posture": {
+      "enum": [
+        "synthetic_local_task",
+        "repo_internal_task",
+        "programbench_style_public_context_only",
+        "official_programbench_task_not_selected",
+        "unknown_origin_blocked"
+      ],
+      "title": "Task Origin Posture",
+      "type": "string"
+    },
+    "usage_docs_refs": {
+      "items": {
+        "type": "string"
+      },
+      "minItems": 1,
+      "title": "Usage Docs Refs",
+      "type": "array"
+    },
+    "visible_input_artifact_refs": {
+      "items": {
+        "type": "string"
+      },
+      "title": "Visible Input Artifact Refs",
+      "type": "array"
+    }
+  },
+  "required": [
+    "schema",
+    "task_intake_ref",
+    "adapter_candidate_ref",
+    "task_instance_ref",
+    "source_refs",
+    "task_artifact_manifest_ref",
+    "task_origin_posture",
+    "task_identifier_posture",
+    "benchmark_context_refs",
+    "pb_py_0_profile_refs",
+    "pb_py_0_fixture_contract_refs",
+    "target_language_posture",
+    "reference_executable_ref",
+    "usage_docs_refs",
+    "visible_input_artifact_refs",
+    "forbidden_inference_source_refs",
+    "official_participation_posture",
+    "benchmark_truth_posture",
+    "limitation_note"
+  ],
+  "title": "ProgrambenchCleanroomTaskIntake",
+  "type": "object"
+}
