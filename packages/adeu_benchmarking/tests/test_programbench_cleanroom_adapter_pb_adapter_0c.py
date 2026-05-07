@@ -351,7 +351,7 @@ def test_pb_adapter_0c_bundle_rejects_missing_readiness_coverage() -> None:
         update={"coverage_summary_rows": readiness_summary.coverage_summary_rows[:1]}
     )
 
-    with pytest.raises(ValueError, match="readiness coverage missing required refs"):
+    with pytest.raises(ValueError, match="readiness coverage missing required ref/kind pairs"):
         validate_pb_adapter_0c_case_packet_bundle(
             task_intake=task_intake,
             artifact_manifest=artifact_manifest,
@@ -367,6 +367,58 @@ def test_pb_adapter_0c_bundle_rejects_missing_readiness_coverage() -> None:
             handoff=handoff,
             family_closeout=family_closeout,
         )
+
+
+def test_pb_adapter_0c_bundle_rejects_wrong_readiness_coverage_kind() -> None:
+    (
+        task_intake,
+        artifact_manifest,
+        visibility_manifest,
+        worker_access_contract,
+        guardrail,
+    ) = _load_a_bundle()
+    (
+        probe_plan,
+        observation_logs,
+        io_artifact_index,
+        filesystem_side_effect_observations,
+    ) = _load_b_bundle()
+    case_packet, readiness_summary, handoff, family_closeout = _load_c_bundle()
+    drifted_rows = list(readiness_summary.coverage_summary_rows)
+    drifted_rows[1] = drifted_rows[1].model_copy(
+        update={"coverage_kind": "visibility_manifest"}
+    )
+    drifted_summary = readiness_summary.model_copy(
+        update={"coverage_summary_rows": drifted_rows}
+    )
+
+    with pytest.raises(ValueError, match="readiness coverage missing required ref/kind pairs"):
+        validate_pb_adapter_0c_case_packet_bundle(
+            task_intake=task_intake,
+            artifact_manifest=artifact_manifest,
+            visibility_manifest=visibility_manifest,
+            worker_access_contract=worker_access_contract,
+            guardrail=guardrail,
+            probe_plan=probe_plan,
+            observation_logs=observation_logs,
+            io_artifact_index=io_artifact_index,
+            filesystem_side_effect_observations=filesystem_side_effect_observations,
+            case_packet=case_packet,
+            readiness_summary=drifted_summary,
+            handoff=handoff,
+            family_closeout=family_closeout,
+        )
+
+
+def test_pb_adapter_0c_readiness_rejects_sparse_contamination_status() -> None:
+    payload = _load_c_fixture("programbench_adapter_readiness_summary_v247_reference.json")
+    payload["contamination_status"] = "forbidden_source_exposure"
+    payload["forbidden_evidence_exposure_posture"] = "forbidden_evidence_exposure_detected"
+    payload["forbidden_source_exposure_refs"] = ["store:original-source"]
+    payload["readiness_posture"] = "blocked_by_forbidden_evidence_exposure"
+
+    with pytest.raises(ValidationError, match="must carry contamination rows"):
+        ProgrambenchAdapterReadinessSummary.model_validate(payload)
 
 
 @pytest.mark.parametrize(

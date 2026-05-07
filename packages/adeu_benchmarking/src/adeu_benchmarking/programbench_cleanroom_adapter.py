@@ -1122,6 +1122,12 @@ class ProgrambenchAdapterReadinessSummary(_AdapterBase):
         )
         if self.contamination_status == "clean" and self.contamination_rows:
             raise ValueError("clean readiness summaries cannot carry contamination rows")
+        if self.contamination_status != "clean" and not self.contamination_rows:
+            raise ValueError("contaminated readiness summaries must carry contamination rows")
+        if self.contamination_status != "clean" and self.contamination_status not in {
+            row.contamination_status for row in self.contamination_rows
+        }:
+            raise ValueError("contaminated readiness summaries need a matching row status")
         if self.contamination_status != "clean" and self.readiness_posture in ready_like:
             raise ValueError("contaminated readiness summaries cannot be ready")
         if exposure_refs and self.readiness_posture in ready_like:
@@ -1518,25 +1524,34 @@ def validate_pb_adapter_0c_case_packet_bundle(
         raise ValueError("readiness summary must preserve adapter candidate lineage")
     if readiness_summary.task_instance_ref != case_packet.task_instance_ref:
         raise ValueError("readiness summary must preserve task instance lineage")
-    required_coverage_refs = {
-        case_packet.visibility_manifest_ref,
-        case_packet.worker_access_contract_ref,
-        *case_packet.guardrail_refs,
-        *case_packet.probe_plan_refs,
-        *case_packet.probe_observation_refs,
-        *case_packet.io_artifact_index_refs,
-        *case_packet.side_effect_observation_refs,
+    required_coverage_pairs = {
+        (case_packet.visibility_manifest_ref, "visibility_manifest"),
+        (case_packet.worker_access_contract_ref, "worker_access_contract"),
+        *((ref, "guardrail") for ref in case_packet.guardrail_refs),
+        *((ref, "probe_plan") for ref in case_packet.probe_plan_refs),
+        *((ref, "probe_observation") for ref in case_packet.probe_observation_refs),
+        *((ref, "io_artifact_index") for ref in case_packet.io_artifact_index_refs),
+        *(
+            (ref, "side_effect_observation")
+            for ref in case_packet.side_effect_observation_refs
+        ),
     }
-    observed_coverage_refs = {
-        row.covered_ref
+    observed_coverage_pairs = {
+        (row.covered_ref, row.coverage_kind)
         for row in readiness_summary.coverage_summary_rows
         if row.coverage_posture == "covered_for_case_packet"
     }
-    missing_coverage = required_coverage_refs - observed_coverage_refs
+    missing_coverage = required_coverage_pairs - observed_coverage_pairs
     if missing_coverage:
         raise ValueError(
-            "readiness coverage missing required refs: "
+            "readiness coverage missing required ref/kind pairs: "
             f"{sorted(missing_coverage)}"
+        )
+    unexpected_coverage = observed_coverage_pairs - required_coverage_pairs
+    if unexpected_coverage:
+        raise ValueError(
+            "readiness coverage includes unexpected ref/kind pairs: "
+            f"{sorted(unexpected_coverage)}"
         )
 
     if handoff.case_packet_ref != case_packet.case_packet_ref:
