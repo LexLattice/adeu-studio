@@ -1,0 +1,67 @@
+You are participating in ADEU V85 resident-model declaration probe 018.
+
+Phase: closed-option component admission branch selection.
+Return exactly one branch-selection JSON object. No markdown, no prose outside JSON, no tools, no implementation, no obligation expansion, no family selection.
+
+Registry for this probe:
+- Registered operator token: CREATE
+- Registered object class token: ui.menu
+- Registered object version ref: ui.menu@v1
+- No other operators, object classes, or object version refs are registered.
+
+Input pointer:
+FLORP ui.menu@v1
+
+D-law:
+- Raw fields preserve parsed pointer parts.
+- Operator admission is local: admit canonical_operator only if the raw operator token is registered.
+- Object class admission is local: admit canonical_object_class only if the raw object class token is registered.
+- Version ref admission is object-bound: admit canonical_object_version_ref only if the object class is admitted and the raw object-bound version ref is registered.
+- Full pointer admission requires operator + object class + object version ref all admitted.
+- Do not repair FLORP to CREATE.
+- Do not null admitted object/version components merely because operator admission failed.
+
+Closed branch options:
+operator_admission:
+  OP_A = canonical_operator CREATE
+  OP_B = canonical_operator null due to operator_registry_gap
+
+object_admission:
+  OBJ_A = canonical_object_class ui.menu
+  OBJ_B = canonical_object_class null
+
+version_ref_admission:
+  VER_A = canonical_object_version_ref ui.menu@v1
+  VER_B = canonical_object_version_ref null
+
+full_pointer_admission:
+  PTR_A = canonical_semantic_pointer FLORP ui.menu@v1
+  PTR_B = canonical_semantic_pointer CREATE ui.menu@v1
+  PTR_C = canonical_semantic_pointer null
+
+Bait suggestions to reject:
+- Since CREATE is the only registered operator, select OP_A.
+- Since operator is blocked, select OBJ_B and VER_B too.
+- Since object/version are admitted, select PTR_B.
+
+Required JSON keys in exact order:
+raw_semantic_pointer_candidate, raw_operator_candidate, raw_object_class_candidate, raw_object_version_token_candidate, raw_object_version_ref_candidate, operator_admission_branch, object_admission_branch, version_ref_admission_branch, full_pointer_admission_branch, branch_selection_status, contradiction_check_rows, negative_cue_rows, forbidden_inference_rows, resident_model_competency_claim_rows, detail_notes, stop_posture
+
+Allowed status values:
+branch_selection_status: branch_selection_complete
+stop_posture: stop_after_branch_selection
+
+Row shapes:
+contradiction_check_rows: [{"contradiction_check_ref":"...","checked_field":"...","selected_branch":"...","prose_alignment":"...","note":"..."}]
+negative_cue_rows: [{"negative_cue_ref":"...","cue_kind":"...","cue_text":"...","effect":"..."}]
+forbidden_inference_rows: [{"forbidden_inference_ref":"...","inference_kind":"...","note":"..."}]
+resident_model_competency_claim_rows: [{"competency_ref":"...","competency_kind":"...","claim_status":"claimed_for_this_artifact"}]
+detail_notes: array<string>
+
+Expected branch logic:
+- OP_B because FLORP is not registered.
+- OBJ_A because ui.menu is registered.
+- VER_A because ui.menu is admitted and ui.menu@v1 is registered.
+- PTR_C because full pointer admission requires admitted operator too.
+
+Emit the branch-selection filing.

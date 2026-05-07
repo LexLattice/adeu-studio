@@ -1,0 +1,35 @@
+{
+  "schema": "adeu_meta_loop_probe_assessment@1",
+  "probe_id": "2026-05-05_v85_declaration_probe_014_sparse_remand_correction",
+  "assessed_date": "2026-05-05",
+  "specimen_count": 4,
+  "summary_counts": {
+    "initial_body_json_parse_pass": 4,
+    "initial_remand_required": 4,
+    "corrected_body_json_parse_pass": 4,
+    "corrected_accepted_filing": 3,
+    "corrected_remand_required": 1,
+    "semantic_task_preserved": 4,
+    "detail_notes_array_policy_pass": 4,
+    "silent_repair": 0,
+    "implementation_or_obligation_expansion": 0
+  },
+  "primary_findings": [
+    "Sparse remand correction worked for fixed-field pollution, malformed uncertainty row, and bad competency claim status.",
+    "Sparse remand did not fully work for the unknown-class case: the model restored ui.toast object class/version but set canonical_semantic_pointer to CREATE ui.toast@v3 instead of null.",
+    "The failed unknown-class case is useful evidence: without explicit route restatement, registry-gap correction is harder than local shape correction.",
+    "All corrected bodies obeyed the new detail_notes array<string> policy.",
+    "No correction introduced implementation, obligation expansion, family selection, or nearest-class repair to ui.menu."
+  ],
+  "evidence_boundary": [
+    "Probe 014 proves sparse remand can fix local filing defects in simple cases.",
+    "Probe 014 does not prove sparse remand can recover null-canonical registry-gap posture reliably.",
+    "The correct next hardening is a D-law rule: registry_gap implies canonical_semantic_pointer must be null unless an explicit registry authority row exists."
+  ],
+  "recommended_next_iteration": [
+    "Run a targeted Probe 015 for registry-gap sparse remand with explicit D-law but no full route restatement.",
+    "Test conflicting-remand bait: remand says registry gap but includes a tempting ui.menu repair suggestion.",
+    "Move stop_posture toward harness ownership after the sparse-remand series stabilizes."
+  ],
+  "overall_assessment": "Probe 014 is a partial pass and a useful failure. Sparse remand works for local shape defects, but the registry-gap canonical-null rule needs to be made explicit as harness law before sparse remand can be trusted for unknown-class correction."
+}

@@ -1,0 +1,28 @@
+{
+  "schema": "adeu_meta_loop_probe_assessment@1",
+  "probe_id": "2026-05-05_v85_declaration_probe_016_split_raw_canonical_admission",
+  "assessed_date": "2026-05-05",
+  "specimen_count": 8,
+  "summary_counts": {
+    "strict_body_shape_pass": 8,
+    "component_admission_pass": 7,
+    "component_admission_remand": 1,
+    "canonical_full_pointer_policy_pass": 8,
+    "nearest_repair_or_raw_promotion_leak": 0,
+    "raw_version_shape_token_only": 3,
+    "raw_version_shape_object_bound": 5
+  },
+  "primary_findings": [
+    "The split raw/canonical body shape was stable across all eight specimens.",
+    "All eight specimens kept canonical_semantic_pointer null unless operator, object class, and object version were all registry-backed.",
+    "One gpt-5.4-mini specimen blocked CREATE along with the unregistered object/version, showing that independent component admission needs to be explicit.",
+    "Version candidate shape remains ambiguous: some outputs used token-only versions while others used object-bound version refs."
+  ],
+  "recommended_next_iteration": [
+    "Add an explicit independent-component D-law: blocking one component must not erase other admitted components.",
+    "Split raw_object_version_candidate into raw_object_version_token_candidate and raw_object_version_ref_candidate.",
+    "Keep canonical_object_version_ref as the admitted registry-backed value.",
+    "Add bait that suggests nulling the admitted operator when object/version admission fails."
+  ],
+  "overall_assessment": "Probe 016 supports the raw/canonical split and full-pointer fail-closed rule, but it exposes two schema hardening needs: independent component admission and clearer version-token/ref fields."
+}

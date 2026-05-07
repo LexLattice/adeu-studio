@@ -1,0 +1,123 @@
+{
+  "counts": {
+    "branch_pass": 10,
+    "consistency_pass": 10,
+    "full_pointer_policy_pass": 10,
+    "overall_pass": 10,
+    "shape_pass": 10
+  },
+  "probe_dir": "artifacts/agent_harness/meta_loop_probes/2026-05-06_v85_declaration_probe_019_harness_parsed_branch_matrix",
+  "specimen_count": 10,
+  "specimens": [
+    {
+      "branch_errors": [],
+      "branch_status": "pass",
+      "case_id": "known_full_pointer",
+      "consistency_errors": [],
+      "consistency_status": "pass",
+      "overall_status": "pass",
+      "shape_errors": [],
+      "shape_status": "pass",
+      "specimen_id": "p019-mini-known-full-001"
+    },
+    {
+      "branch_errors": [],
+      "branch_status": "pass",
+      "case_id": "unknown_object_version",
+      "consistency_errors": [],
+      "consistency_status": "pass",
+      "overall_status": "pass",
+      "shape_errors": [],
+      "shape_status": "pass",
+      "specimen_id": "p019-mini-unknown-object-version-001"
+    },
+    {
+      "branch_errors": [],
+      "branch_status": "pass",
+      "case_id": "unknown_operator",
+      "consistency_errors": [],
+      "consistency_status": "pass",
+      "overall_status": "pass",
+      "shape_errors": [],
+      "shape_status": "pass",
+      "specimen_id": "p019-mini-unknown-operator-001"
+    },
+    {
+      "branch_errors": [],
+      "branch_status": "pass",
+      "case_id": "unknown_version",
+      "consistency_errors": [],
+      "consistency_status": "pass",
+      "overall_status": "pass",
+      "shape_errors": [],
+      "shape_status": "pass",
+      "specimen_id": "p019-mini-unknown-version-001"
+    },
+    {
+      "branch_errors": [],
+      "branch_status": "pass",
+      "case_id": "unknown_all",
+      "consistency_errors": [],
+      "consistency_status": "pass",
+      "overall_status": "pass",
+      "shape_errors": [],
+      "shape_status": "pass",
+      "specimen_id": "p019-mini-unknown-all-001"
+    },
+    {
+      "branch_errors": [],
+      "branch_status": "pass",
+      "case_id": "known_full_pointer",
+      "consistency_errors": [],
+      "consistency_status": "pass",
+      "overall_status": "pass",
+      "shape_errors": [],
+      "shape_status": "pass",
+      "specimen_id": "p019-gpt54-known-full-001"
+    },
+    {
+      "branch_errors": [],
+      "branch_status": "pass",
+      "case_id": "unknown_object_version",
+      "consistency_errors": [],
+      "consistency_status": "pass",
+      "overall_status": "pass",
+      "shape_errors": [],
+      "shape_status": "pass",
+      "specimen_id": "p019-gpt54-unknown-object-version-001"
+    },
+    {
+      "branch_errors": [],
+      "branch_status": "pass",
+      "case_id": "unknown_operator",
+      "consistency_errors": [],
+      "consistency_status": "pass",
+      "overall_status": "pass",
+      "shape_errors": [],
+      "shape_status": "pass",
+      "specimen_id": "p019-gpt54-unknown-operator-001"
+    },
+    {
+      "branch_errors": [],
+      "branch_status": "pass",
+      "case_id": "unknown_version",
+      "consistency_errors": [],
+      "consistency_status": "pass",
+      "overall_status": "pass",
+      "shape_errors": [],
+      "shape_status": "pass",
+      "specimen_id": "p019-gpt54-unknown-version-001"
+    },
+    {
+      "branch_errors": [],
+      "branch_status": "pass",
+      "case_id": "unknown_all",
+      "consistency_errors": [],
+      "consistency_status": "pass",
+      "overall_status": "pass",
+      "shape_errors": [],
+      "shape_status": "pass",
+      "specimen_id": "p019-gpt54-unknown-all-001"
+    }
+  ]
+}

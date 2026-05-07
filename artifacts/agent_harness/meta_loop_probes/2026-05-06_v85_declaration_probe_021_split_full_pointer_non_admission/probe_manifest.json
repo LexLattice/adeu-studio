@@ -1,0 +1,125 @@
+{
+  "schema": "adeu_meta_loop_probe_manifest@1",
+  "probe_id": "2026-05-06_v85_declaration_probe_021_split_full_pointer_non_admission",
+  "created_date": "2026-05-06",
+  "arc_context": "post_v85_dogfood_resident_model_meta_loop",
+  "iteration": 14,
+  "purpose": "Test split full-pointer non-admission branches so full pointer not-admitted cannot be confused with component nulling or repair status.",
+  "body_shape_policy": "harness_parsed_split_full_pointer_non_admission",
+  "detail_notes_policy": "array_string",
+  "active_task_phase": "semantic_declaration_review",
+  "registry": {
+    "registered_operator_tokens": [
+      "CREATE",
+      "MODIFY",
+      "PROJECT"
+    ],
+    "registered_object_class_tokens": [
+      "ui.menu"
+    ],
+    "registered_object_version_refs": [
+      "ui.menu@v1"
+    ],
+    "admitted_operator_object_pairs_for_phase": [
+      "CREATE/ui.menu",
+      "MODIFY/ui.menu"
+    ],
+    "phase_admissible_operators": [
+      "CREATE",
+      "MODIFY",
+      "PROJECT"
+    ]
+  },
+  "models": [
+    {
+      "model": "gpt-5.4-mini",
+      "reasoning_effort": "medium",
+      "specimens": 4
+    },
+    {
+      "model": "gpt-5.4",
+      "reasoning_effort": "medium",
+      "specimens": 4
+    }
+  ],
+  "probe_cases": [
+    {
+      "case_id": "delete_menu_operator_gap",
+      "input_pointer": "DELETE ui.menu@v1",
+      "prompt_file": "prompts/delete_menu_operator_gap.txt",
+      "prompt_sha256": "058e46667b4f94456a9f45283544091ceadb564e67ba9042a6aeda426b353a13",
+      "expected_branches": {
+        "operator_admission_branch": "O2",
+        "object_admission_branch": "C4",
+        "version_ref_admission_branch": "V6",
+        "operator_object_compatibility_branch": "P5",
+        "task_phase_admissibility_branch": "T7",
+        "full_pointer_admission_branch": "F3",
+        "full_pointer_non_admission_reason_branch": "R2",
+        "repair_status_branch": "E4",
+        "component_preservation_branch": "K6"
+      }
+    },
+    {
+      "case_id": "project_menu_pair_gap",
+      "input_pointer": "PROJECT ui.menu@v1",
+      "prompt_file": "prompts/project_menu_pair_gap.txt",
+      "prompt_sha256": "bab44313f9aff2c9f1a1af2d89bf6c48c248092c323ac41b5106a5b64f0eee16",
+      "expected_branches": {
+        "operator_admission_branch": "O5",
+        "object_admission_branch": "C9",
+        "version_ref_admission_branch": "V3",
+        "operator_object_compatibility_branch": "P1",
+        "task_phase_admissibility_branch": "T6",
+        "full_pointer_admission_branch": "F6",
+        "full_pointer_non_admission_reason_branch": "R6",
+        "repair_status_branch": "E1",
+        "component_preservation_branch": "K2"
+      }
+    },
+    {
+      "case_id": "create_menu_version_gap",
+      "input_pointer": "CREATE ui.menu@v2",
+      "prompt_file": "prompts/create_menu_version_gap.txt",
+      "prompt_sha256": "676595b244f464f87eacde63cb35799a29ce160e84f7d03f06697fa490a55ba0",
+      "expected_branches": {
+        "operator_admission_branch": "O8",
+        "object_admission_branch": "C7",
+        "version_ref_admission_branch": "V9",
+        "operator_object_compatibility_branch": "P2",
+        "task_phase_admissibility_branch": "T5",
+        "full_pointer_admission_branch": "F4",
+        "full_pointer_non_admission_reason_branch": "R7",
+        "repair_status_branch": "E6",
+        "component_preservation_branch": "K4"
+      }
+    },
+    {
+      "case_id": "create_menu_full",
+      "input_pointer": "CREATE ui.menu@v1",
+      "prompt_file": "prompts/create_menu_full.txt",
+      "prompt_sha256": "cab268657ed956cd3ee54318d2a85b01789d9f1aeb81e06b10ec312bac9970b5",
+      "expected_branches": {
+        "operator_admission_branch": "O6",
+        "object_admission_branch": "C5",
+        "version_ref_admission_branch": "V1",
+        "operator_object_compatibility_branch": "P6",
+        "task_phase_admissibility_branch": "T3",
+        "full_pointer_admission_branch": "F2",
+        "full_pointer_non_admission_reason_branch": "R1",
+        "repair_status_branch": "E3",
+        "component_preservation_branch": "K8"
+      }
+    }
+  ],
+  "scoring_targets": [
+    "opaque_branch_selection_exactness",
+    "full_pointer_non_admission_reason_exactness",
+    "repair_status_no_repair",
+    "component_preservation_exactness",
+    "shape_obedience",
+    "no_nearest_repair",
+    "no_component_nulling"
+  ],
+  "architecture_hypothesis": "Splitting full-pointer admission, non-admission reason, repair status, and component preservation removes the ambiguity exposed in Probe 020."
+}

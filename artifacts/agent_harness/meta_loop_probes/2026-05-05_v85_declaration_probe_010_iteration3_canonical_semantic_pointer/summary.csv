@@ -1,0 +1,9 @@
+specimen_id,model,reasoning_effort,agent_nickname,input_case_id,expected_route_status,raw_pointer_status,canonical_semantic_pointer_status,boundary_status,shape_status,failure_tags
+v85-probe-010-s01-mini-low-exact-menu,gpt-5.4-mini,low,Hume,exact_menu_declaration,pass,pass,pass,pass,warning_competency_claim_status_drift,competency_claim_status_drift
+v85-probe-010-s02-mini-low-unknown-class,gpt-5.4-mini,low,Bernoulli,unknown_class_registry_gap,safe_with_selection_status_drift,pass,pass,pass,warning_competency_claim_status_drift,selection_status_drift;competency_claim_status_drift
+v85-probe-010-s03-mini-medium-opaque-pointer,gpt-5.4-mini,medium,Jason,opaque_pointer_obedience_only,safe_with_selection_status_drift,pass,pass,pass,warning_competency_claim_status_drift,selection_status_drift;competency_claim_status_drift
+v85-probe-010-s04-mini-medium-ambiguous-abstain,gpt-5.4-mini,medium,Mill,ambiguous_task_abstain,pass,pass,pass,pass,fail_artifact_kind_shortened,artifact_kind_shortened;competency_claim_status_drift
+v85-probe-010-s05-gpt54-low-exact-menu,gpt-5.4,low,Confucius,exact_menu_declaration,pass,pass,pass,pass,warning_competency_claim_status_drift,competency_claim_status_drift
+v85-probe-010-s06-gpt54-low-unknown-class,gpt-5.4,low,Tesla,unknown_class_registry_gap,pass,pass,pass,pass,warning_competency_claim_status_drift,competency_claim_status_drift
+v85-probe-010-s07-gpt54-medium-opaque-pointer,gpt-5.4,medium,Kepler,opaque_pointer_obedience_only,pass,pass,pass,pass,pass,
+v85-probe-010-s08-gpt54-medium-ambiguous-abstain,gpt-5.4,medium,Dalton,ambiguous_task_abstain,pass,pass,pass,pass,pass,

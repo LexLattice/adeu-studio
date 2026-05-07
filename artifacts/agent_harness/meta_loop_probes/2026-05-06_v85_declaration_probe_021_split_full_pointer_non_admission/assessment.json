@@ -1,0 +1,42 @@
+{
+  "schema": "adeu_meta_loop_probe_assessment@1",
+  "probe_id": "2026-05-06_v85_declaration_probe_021_split_full_pointer_non_admission",
+  "assessment_date": "2026-05-06",
+  "verdict": "clean_pass",
+  "headline_counts": {
+    "specimen_count": 8,
+    "shape_pass": 8,
+    "branch_pass": 8,
+    "policy_pass": 8,
+    "overall_pass": 8,
+    "component_preservation_pass": 8,
+    "repair_status_pass": 8
+  },
+  "model_breakdown": [
+    {
+      "model": "gpt-5.4-mini",
+      "reasoning_effort": "medium",
+      "specimens": 4,
+      "overall_pass": 4
+    },
+    {
+      "model": "gpt-5.4",
+      "reasoning_effort": "medium",
+      "specimens": 4,
+      "overall_pass": 4
+    }
+  ],
+  "proven": [
+    "Splitting full-pointer admission, non-admission reason, repair status, and component preservation removed the Probe 020 ambiguity.",
+    "The prior gpt-5.4 DELETE failure was corrected: operator gap, admitted object/version components, no repair, full pointer not admitted, and component preservation were all selected together.",
+    "Pair-gap and version-gap non-admissions selected the correct reason branches without component nulling or repair.",
+    "Full pointer admission selected not_applicable for non-admission reason and did not expand into implementation authority."
+  ],
+  "not_proven": [
+    "Large-registry generalization.",
+    "Hidden-route semantic binding without explicit D-law and parsed candidates.",
+    "Stable operation when the harness withholds branch meaning labels entirely."
+  ],
+  "architecture_read": "The branch vocabulary should keep full-pointer admission, non-admission reason, repair status, and component preservation separate. This makes a stochastic resident reliable inside the harness for this bounded semantic filing role.",
+  "recommended_next_probe": "Probe 022 should test a larger or partially hidden registry where branch labels are less self-descriptive, while preserving the split-branch structure that passed here."
+}

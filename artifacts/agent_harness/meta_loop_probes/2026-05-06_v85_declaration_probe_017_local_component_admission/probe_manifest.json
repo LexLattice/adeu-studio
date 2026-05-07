@@ -1,0 +1,95 @@
+{
+  "schema": "adeu_meta_loop_probe_manifest@1",
+  "probe_id": "2026-05-06_v85_declaration_probe_017_local_component_admission",
+  "created_date": "2026-05-06",
+  "arc_context": "post_v85_dogfood_resident_model_meta_loop",
+  "iteration": 10,
+  "purpose": "Test explicit local/conditional component admission D-law, split raw version token/ref fields, closed status values, and bait against safe over-blocking or unsafe repair.",
+  "body_shape_policy": "local_component_admission_with_split_version_ref",
+  "detail_notes_policy": "array_string",
+  "registry": {
+    "registered_operator_tokens": [
+      "CREATE"
+    ],
+    "registered_object_class_tokens": [
+      "ui.menu"
+    ],
+    "registered_object_version_refs": [
+      "ui.menu@v1"
+    ]
+  },
+  "models": [
+    {
+      "model": "gpt-5.4-mini",
+      "reasoning_effort": "medium",
+      "specimens": 4
+    },
+    {
+      "model": "gpt-5.4",
+      "reasoning_effort": "medium",
+      "specimens": 4
+    }
+  ],
+  "probe_cases": [
+    {
+      "case_id": "known_full_pointer",
+      "input_pointer": "CREATE ui.menu@v1",
+      "prompt_file": "prompts/known_full_pointer.txt",
+      "prompt_sha256": "44871b7c4ec481d8574de074914c0ad402f1dcf479bf27f4eabefdb70c04a137",
+      "expected_result": "full_admission"
+    },
+    {
+      "case_id": "unknown_object_version",
+      "input_pointer": "CREATE ui.toast@v3",
+      "prompt_file": "prompts/unknown_object_version.txt",
+      "prompt_sha256": "97c8ffbd96fb1e15f80a62f6e15ed205b035a237f972aa3ca7d67765fe1b525a",
+      "expected_result": "operator_only_admission"
+    },
+    {
+      "case_id": "unknown_operator",
+      "input_pointer": "FLORP ui.menu@v1",
+      "prompt_file": "prompts/unknown_operator.txt",
+      "prompt_sha256": "9b08f99843e5a8da4feb3f14cdad5e593b644dd1b61210a0e3c70dbb5a4b2137",
+      "expected_result": "object_version_only_admission"
+    },
+    {
+      "case_id": "unknown_version",
+      "input_pointer": "CREATE ui.menu@v99",
+      "prompt_file": "prompts/unknown_version.txt",
+      "prompt_sha256": "2d30e49b6c5c18d955af5199b2f4ae8a1249564b1ddfadc258f0767ae2e900ac",
+      "expected_result": "operator_object_only_admission"
+    }
+  ],
+  "local_component_dlaw": [
+    "canonical_operator is admitted iff the operator token is registered.",
+    "canonical_object_class is admitted iff the object class token is registered.",
+    "canonical_object_version_ref is admitted iff the object class is admitted and the object-bound version ref is registered.",
+    "canonical_semantic_pointer is admitted iff canonical_operator, canonical_object_class, and canonical_object_version_ref are all admitted.",
+    "Blocking one component must not erase independently registered components.",
+    "Syntactic version tokens do not create canonical version refs.",
+    "Nearest-class, nearest-operator, latest-version, and over-blocking repairs are forbidden."
+  ],
+  "closed_status_values": {
+    "pointer_kind": [
+      "explicit_pointer_candidate"
+    ],
+    "component_admission_status": [
+      "full_admission",
+      "operator_only_admission",
+      "object_version_only_admission",
+      "operator_object_only_admission"
+    ],
+    "canonical_lookup_status": [
+      "full_registry_match",
+      "object_class_version_registry_gap",
+      "operator_registry_gap",
+      "object_version_registry_gap"
+    ],
+    "selection_status": [
+      "candidate_only"
+    ],
+    "stop_posture": [
+      "stop_after_component_admission_filing"
+    ]
+  }
+}

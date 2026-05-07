@@ -1,0 +1,105 @@
+{
+  "counts": {
+    "branch_pass": 6,
+    "consistency_pass": 6,
+    "overall_pass": 4,
+    "overall_remand": 2,
+    "raw_object_version_token_candidate_raw_parse_mismatch": 2,
+    "raw_parse_pass": 4,
+    "raw_parse_remand": 2,
+    "shape_pass": 6,
+    "status_pass": 6
+  },
+  "probe_dir": "artifacts/agent_harness/meta_loop_probes/2026-05-06_v85_declaration_probe_018_closed_option_component_selection",
+  "specimen_count": 6,
+  "specimens": [
+    {
+      "branch_errors": [],
+      "branch_status": "pass",
+      "consistency_errors": [],
+      "consistency_status": "pass",
+      "overall_status": "pass",
+      "raw_parse_errors": [],
+      "raw_parse_status": "pass",
+      "shape_errors": [],
+      "shape_status": "pass",
+      "specimen_id": "v85-probe-018-s01-mini-medium-florp",
+      "status_errors": [],
+      "status_status": "pass"
+    },
+    {
+      "branch_errors": [],
+      "branch_status": "pass",
+      "consistency_errors": [],
+      "consistency_status": "pass",
+      "overall_status": "pass",
+      "raw_parse_errors": [],
+      "raw_parse_status": "pass",
+      "shape_errors": [],
+      "shape_status": "pass",
+      "specimen_id": "v85-probe-018-s02-mini-medium-florp",
+      "status_errors": [],
+      "status_status": "pass"
+    },
+    {
+      "branch_errors": [],
+      "branch_status": "pass",
+      "consistency_errors": [],
+      "consistency_status": "pass",
+      "overall_status": "pass",
+      "raw_parse_errors": [],
+      "raw_parse_status": "pass",
+      "shape_errors": [],
+      "shape_status": "pass",
+      "specimen_id": "v85-probe-018-s03-mini-medium-florp",
+      "status_errors": [],
+      "status_status": "pass"
+    },
+    {
+      "branch_errors": [],
+      "branch_status": "pass",
+      "consistency_errors": [],
+      "consistency_status": "pass",
+      "overall_status": "pass",
+      "raw_parse_errors": [],
+      "raw_parse_status": "pass",
+      "shape_errors": [],
+      "shape_status": "pass",
+      "specimen_id": "v85-probe-018-s04-mini-medium-florp",
+      "status_errors": [],
+      "status_status": "pass"
+    },
+    {
+      "branch_errors": [],
+      "branch_status": "pass",
+      "consistency_errors": [],
+      "consistency_status": "pass",
+      "overall_status": "remand_required",
+      "raw_parse_errors": [
+        "raw_object_version_token_candidate_raw_parse_mismatch"
+      ],
+      "raw_parse_status": "remand_required",
+      "shape_errors": [],
+      "shape_status": "pass",
+      "specimen_id": "v85-probe-018-s05-gpt54-medium-florp",
+      "status_errors": [],
+      "status_status": "pass"
+    },
+    {
+      "branch_errors": [],
+      "branch_status": "pass",
+      "consistency_errors": [],
+      "consistency_status": "pass",
+      "overall_status": "remand_required",
+      "raw_parse_errors": [
+        "raw_object_version_token_candidate_raw_parse_mismatch"
+      ],
+      "raw_parse_status": "remand_required",
+      "shape_errors": [],
+      "shape_status": "pass",
+      "specimen_id": "v85-probe-018-s06-gpt54-medium-florp",
+      "status_errors": [],
+      "status_status": "pass"
+    }
+  ]
+}

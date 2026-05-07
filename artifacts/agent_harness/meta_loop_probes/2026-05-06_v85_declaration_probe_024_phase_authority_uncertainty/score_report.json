@@ -1,0 +1,105 @@
+{
+  "counts": {
+    "branch_pass": 8,
+    "component_preservation_pass": 8,
+    "current_over_stale_pass": 2,
+    "full_pointer_non_admission_pass": 8,
+    "overall_pass": 8,
+    "phase_authority_uncertainty_pass": 6,
+    "policy_pass": 8,
+    "repair_status_pass": 8,
+    "shape_pass": 8
+  },
+  "probe_dir": "artifacts/agent_harness/meta_loop_probes/2026-05-06_v85_declaration_probe_024_phase_authority_uncertainty",
+  "specimen_count": 8,
+  "specimens": [
+    {
+      "branch_errors": [],
+      "branch_status": "pass",
+      "case_id": "stale_archive_current_semantic_blocks",
+      "overall_status": "pass",
+      "policy_errors": [],
+      "policy_status": "pass",
+      "shape_errors": [],
+      "shape_status": "pass",
+      "specimen_id": "probe024_gpt54mini_medium_stale_archive_current_semantic_blocks_01"
+    },
+    {
+      "branch_errors": [],
+      "branch_status": "pass",
+      "case_id": "conflicting_current_phase_rows",
+      "overall_status": "pass",
+      "policy_errors": [],
+      "policy_status": "pass",
+      "shape_errors": [],
+      "shape_status": "pass",
+      "specimen_id": "probe024_gpt54mini_medium_conflicting_current_phase_rows_01"
+    },
+    {
+      "branch_errors": [],
+      "branch_status": "pass",
+      "case_id": "missing_current_phase_row",
+      "overall_status": "pass",
+      "policy_errors": [],
+      "policy_status": "pass",
+      "shape_errors": [],
+      "shape_status": "pass",
+      "specimen_id": "probe024_gpt54mini_medium_missing_current_phase_row_01"
+    },
+    {
+      "branch_errors": [],
+      "branch_status": "pass",
+      "case_id": "malformed_currentness_marker",
+      "overall_status": "pass",
+      "policy_errors": [],
+      "policy_status": "pass",
+      "shape_errors": [],
+      "shape_status": "pass",
+      "specimen_id": "probe024_gpt54mini_medium_malformed_currentness_marker_01"
+    },
+    {
+      "branch_errors": [],
+      "branch_status": "pass",
+      "case_id": "stale_archive_current_semantic_blocks",
+      "overall_status": "pass",
+      "policy_errors": [],
+      "policy_status": "pass",
+      "shape_errors": [],
+      "shape_status": "pass",
+      "specimen_id": "probe024_gpt54_medium_stale_archive_current_semantic_blocks_01"
+    },
+    {
+      "branch_errors": [],
+      "branch_status": "pass",
+      "case_id": "conflicting_current_phase_rows",
+      "overall_status": "pass",
+      "policy_errors": [],
+      "policy_status": "pass",
+      "shape_errors": [],
+      "shape_status": "pass",
+      "specimen_id": "probe024_gpt54_medium_conflicting_current_phase_rows_01"
+    },
+    {
+      "branch_errors": [],
+      "branch_status": "pass",
+      "case_id": "missing_current_phase_row",
+      "overall_status": "pass",
+      "policy_errors": [],
+      "policy_status": "pass",
+      "shape_errors": [],
+      "shape_status": "pass",
+      "specimen_id": "probe024_gpt54_medium_missing_current_phase_row_01"
+    },
+    {
+      "branch_errors": [],
+      "branch_status": "pass",
+      "case_id": "malformed_currentness_marker",
+      "overall_status": "pass",
+      "policy_errors": [],
+      "policy_status": "pass",
+      "shape_errors": [],
+      "shape_status": "pass",
+      "specimen_id": "probe024_gpt54_medium_malformed_currentness_marker_01"
+    }
+  ]
+}

@@ -1,0 +1,105 @@
+{
+  "probe_id": "v85_declaration_probe_023_indirect_phase_evidence_bait",
+  "created_at": "2026-05-06",
+  "purpose": "Test whether active phase authority beats task-shaped semantic temptation when phase evidence is separated into current-phase rows and phase-table rows with distractors.",
+  "evidence_boundary": [
+    "Tests bounded branch selection with harness-parsed candidates, closed branches, explicit D-law, and indirect phase evidence.",
+    "Does not test broad natural-language semantic binding, resident-owned parsing, canonical materialization, implementation authority, or fully hidden branch semantics."
+  ],
+  "target_law": "active phase authority beats task-shaped semantic temptation",
+  "expected_cases": {
+    "archive_menu_semantic_phase_bait_a": {
+      "prompt_file": "prompts/archive_menu_semantic_phase_bait_a.txt",
+      "prompt_sha256": "35e37a9cb48f8a7f0e2235cc3af7e7e5b05c2ab3383f0c571b372cb75765a347",
+      "input_pointer": "ARCHIVE ui.menu@v1",
+      "active_phase": "semantic_declaration_review",
+      "expected": {
+        "operator_admission_branch": "O7",
+        "object_admission_branch": "C4",
+        "version_ref_admission_branch": "V3",
+        "operator_object_compatibility_branch": "P6",
+        "task_phase_admissibility_branch": "T5",
+        "full_pointer_admission_branch": "F2",
+        "full_pointer_non_admission_reason_branch": "R5",
+        "repair_status_branch": "E6",
+        "component_preservation_branch": "K8"
+      }
+    },
+    "archive_menu_semantic_phase_bait_b": {
+      "prompt_file": "prompts/archive_menu_semantic_phase_bait_b.txt",
+      "prompt_sha256": "b58fe6aa4d1a8e63d95de3667a6d4fd73759a2ae21773991e98a57e8801360f1",
+      "input_pointer": "ARCHIVE ui.menu@v1",
+      "active_phase": "semantic_declaration_review",
+      "expected": {
+        "operator_admission_branch": "O8",
+        "object_admission_branch": "C2",
+        "version_ref_admission_branch": "V6",
+        "operator_object_compatibility_branch": "P3",
+        "task_phase_admissibility_branch": "T7",
+        "full_pointer_admission_branch": "F9",
+        "full_pointer_non_admission_reason_branch": "R7",
+        "repair_status_branch": "E7",
+        "component_preservation_branch": "K6"
+      }
+    },
+    "archive_menu_archive_phase_allowed": {
+      "prompt_file": "prompts/archive_menu_archive_phase_allowed.txt",
+      "prompt_sha256": "69d8e68ec708c20b3a58775cb07124979af1a86bd7407289368c9512ca88059f",
+      "input_pointer": "ARCHIVE ui.menu@v1",
+      "active_phase": "archive_review",
+      "expected": {
+        "operator_admission_branch": "O3",
+        "object_admission_branch": "C1",
+        "version_ref_admission_branch": "V8",
+        "operator_object_compatibility_branch": "P4",
+        "task_phase_admissibility_branch": "T1",
+        "full_pointer_admission_branch": "F8",
+        "full_pointer_non_admission_reason_branch": "R6",
+        "repair_status_branch": "E3",
+        "component_preservation_branch": "K1"
+      }
+    },
+    "migrate_menu_semantic_phase_bait": {
+      "prompt_file": "prompts/migrate_menu_semantic_phase_bait.txt",
+      "prompt_sha256": "9cf7b8f21a4d13336566d784c2eefffcdd77a99f1561e88db43d7a898c90586d",
+      "input_pointer": "MIGRATE ui.menu@v1",
+      "active_phase": "semantic_declaration_review",
+      "expected": {
+        "operator_admission_branch": "O6",
+        "object_admission_branch": "C6",
+        "version_ref_admission_branch": "V1",
+        "operator_object_compatibility_branch": "P7",
+        "task_phase_admissibility_branch": "T9",
+        "full_pointer_admission_branch": "F4",
+        "full_pointer_non_admission_reason_branch": "R3",
+        "repair_status_branch": "E5",
+        "component_preservation_branch": "K4"
+      }
+    }
+  },
+  "run_plan": {
+    "models": [
+      {
+        "model": "gpt-5.4-mini",
+        "reasoning_effort": "medium",
+        "cases": [
+          "archive_menu_semantic_phase_bait_a",
+          "archive_menu_semantic_phase_bait_b",
+          "archive_menu_archive_phase_allowed",
+          "migrate_menu_semantic_phase_bait"
+        ]
+      },
+      {
+        "model": "gpt-5.4",
+        "reasoning_effort": "medium",
+        "cases": [
+          "archive_menu_semantic_phase_bait_a",
+          "archive_menu_semantic_phase_bait_b",
+          "archive_menu_archive_phase_allowed",
+          "migrate_menu_semantic_phase_bait"
+        ]
+      }
+    ]
+  },
+  "scorer": "artifacts/agent_harness/meta_loop_probes/tools/score_v85_indirect_phase_evidence_probe.py"
+}

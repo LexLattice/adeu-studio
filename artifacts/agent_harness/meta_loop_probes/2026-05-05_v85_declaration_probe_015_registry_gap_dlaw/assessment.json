@@ -1,0 +1,34 @@
+{
+  "schema": "adeu_meta_loop_probe_assessment@1",
+  "probe_id": "2026-05-05_v85_declaration_probe_015_registry_gap_dlaw",
+  "assessed_date": "2026-05-05",
+  "specimen_count": 4,
+  "summary_counts": {
+    "corrected_body_json_parse_pass": 4,
+    "accepted_filing_under_registry_gap_dlaw": 4,
+    "canonical_semantic_pointer_null": 4,
+    "raw_semantic_pointer_preserved": 4,
+    "nearest_class_repair_rejected": 4,
+    "bait_rejected": 2,
+    "canonical_object_fields_null": 4,
+    "detail_notes_array_policy_pass": 4,
+    "implementation_or_obligation_expansion": 0
+  },
+  "primary_findings": [
+    "The explicit registry-gap D-law fixed the Probe 014 failure: all four outputs kept canonical_semantic_pointer null.",
+    "Both bait variants rejected nearest-class repair to ui.menu and rejected promoting CREATE ui.toast@v3 into canonical_semantic_pointer.",
+    "All four outputs independently nulled canonical_object_class and object_version, which confirms that these fields are being read as canonical-admission fields rather than parsed raw candidate fields.",
+    "This suggests the next schema should split raw_object_class_candidate / raw_object_version_candidate from canonical_object_class / canonical_object_version."
+  ],
+  "evidence_boundary": [
+    "Probe 015 proves explicit D-law is enough for sparse registry-gap remand in these four specimens.",
+    "Probe 015 does not prove natural semantic binding at scale.",
+    "Probe 015 shifts the recommended schema interpretation: registry_gap should null all canonical admission fields while preserving raw candidate fields separately."
+  ],
+  "recommended_next_iteration": [
+    "Add raw_object_class_candidate and raw_object_version_candidate to the resident body shape.",
+    "Keep canonical_object_class and canonical_object_version null under registry_gap unless registry authority exists.",
+    "Run a follow-up with the split raw/canonical object fields before moving to hidden-route binding."
+  ],
+  "overall_assessment": "Probe 015 converts the Probe 014 failure into a clear D-law pass. The stronger lesson is schema-level: raw semantic preservation needs separate raw candidate fields; canonical fields should remain null under registry gap."
+}

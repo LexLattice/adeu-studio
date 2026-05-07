@@ -1,0 +1,46 @@
+{
+  "schema": "adeu_meta_loop_probe_assessment@1",
+  "probe_id": "2026-05-06_v85_declaration_probe_022_task_phase_admissibility_gate",
+  "assessment_date": "2026-05-06",
+  "verdict": "clean_pass",
+  "headline_counts": {
+    "specimen_count": 8,
+    "shape_pass": 8,
+    "branch_pass": 8,
+    "policy_pass": 8,
+    "overall_pass": 8,
+    "component_preservation_pass": 8,
+    "repair_status_pass": 8,
+    "full_pointer_non_admission_pass": 4,
+    "task_phase_block_pass": 2
+  },
+  "model_breakdown": [
+    {
+      "model": "gpt-5.4-mini",
+      "reasoning_effort": "medium",
+      "specimens": 4,
+      "overall_pass": 4
+    },
+    {
+      "model": "gpt-5.4",
+      "reasoning_effort": "medium",
+      "specimens": 4,
+      "overall_pass": 4
+    }
+  ],
+  "proven": [
+    "Task-phase admissibility can be selected as an independent gate after component admission and operator-object compatibility.",
+    "ARCHIVE ui.menu@v1 was blocked in semantic_declaration_review even though the operator, object class, version ref, and operator-object pair were all admitted.",
+    "The phase-blocked cases preserved admitted components and selected no_repair rather than repairing ARCHIVE to CREATE.",
+    "ARCHIVE ui.menu@v1 was admitted in archive_review, confirming that phase blocking is context-sensitive rather than a global operator rejection.",
+    "ARCHIVE ui.menu@v2 in archive_review selected version_ref_gap, not task_phase_blocked, confirming that the non-admission reason stayed precise when phase was admitted."
+  ],
+  "not_proven": [
+    "Natural task to semantic pointer binding.",
+    "Large-registry generalization beyond this small phase table.",
+    "Selection when branch meanings are fully opaque or when phase evidence is noisy, stale, or contradictory.",
+    "Resident-owned parsing or canonical materialization."
+  ],
+  "architecture_read": "The full-pointer admission gate now decomposes cleanly into component admission, operator-object compatibility, task-phase admissibility, full-pointer admission, non-admission reason, repair status, and component preservation. A phase block is not component erasure and not permission to repair to a phase-admissible operator.",
+  "recommended_next_probe": "Probe 023 should keep harness-parsed candidates and split branches but make phase evidence less direct: move phase admissibility into separate evidence rows, include irrelevant phase rows and bait from user intent, and test that residents follow the active phase row instead of the nearest task-shaped operator."
+}

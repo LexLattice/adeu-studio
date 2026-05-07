@@ -1,0 +1,64 @@
+You are participating in ADEU V85 resident-model declaration probe 019.
+
+Phase: harness-parsed closed branch matrix.
+The harness already parsed the pointer. Return exactly one branch-selection JSON object. No markdown, no prose outside JSON, no tools, no implementation, no obligation expansion, no family selection.
+
+case_id:
+known_full_pointer
+
+Registry evidence:
+- registered operator token: CREATE
+- registered object class token: ui.menu
+- registered object version ref: ui.menu@v1
+- no other operators, object classes, or object version refs are registered
+
+Harness-parsed candidates:
+{
+  "raw_semantic_pointer_candidate": "CREATE ui.menu@v1",
+  "raw_operator_candidate": "CREATE",
+  "raw_object_class_candidate": "ui.menu",
+  "raw_object_version_token_candidate": "v1",
+  "raw_object_version_ref_candidate": "ui.menu@v1"
+}
+
+D-law:
+- Select operator admission only by matching the raw operator candidate against the registry.
+- Select object admission only by matching the raw object class candidate against the registry.
+- Select version-ref admission only if the object class is admitted and the raw object version ref is registered.
+- Select full pointer admission only if operator, object class, and object version ref are all admitted.
+- Do not repair to a nearest registered component.
+- Do not null admitted components because another component failed.
+
+Opaque branch options:
+operator_admission:
+  Z7 = canonical_operator null due to operator_registry_gap
+  K2 = canonical_operator CREATE
+
+object_admission:
+  M8 = canonical_object_class ui.menu
+  Q4 = canonical_object_class null due to object_class_registry_gap
+
+version_ref_admission:
+  T5 = canonical_object_version_ref null due to object_version_registry_gap
+  B1 = canonical_object_version_ref ui.menu@v1
+
+full_pointer_admission:
+  H9 = canonical_semantic_pointer null
+  R3 = canonical_semantic_pointer CREATE ui.menu@v1
+  F6 = canonical_semantic_pointer repaired_or_unknown
+
+Required JSON keys in exact order:
+case_id, operator_admission_branch, object_admission_branch, version_ref_admission_branch, full_pointer_admission_branch, branch_selection_status, contradiction_check_rows, negative_cue_rows, forbidden_inference_rows, resident_model_competency_claim_rows, detail_notes, stop_posture
+
+Allowed status values:
+branch_selection_status: branch_selection_complete
+stop_posture: stop_after_branch_selection
+
+Row shapes:
+contradiction_check_rows: [{"contradiction_check_ref":"...","checked_branch":"...","selected_branch":"...","prose_alignment":"...","note":"..."}]
+negative_cue_rows: [{"negative_cue_ref":"...","cue_kind":"...","cue_text":"...","effect":"..."}]
+forbidden_inference_rows: [{"forbidden_inference_ref":"...","inference_kind":"...","note":"..."}]
+resident_model_competency_claim_rows: [{"competency_ref":"...","competency_kind":"...","claim_status":"claimed_for_this_artifact"}]
+detail_notes: array<string>
+
+Emit the branch-selection filing.

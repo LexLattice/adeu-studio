@@ -1,0 +1,51 @@
+{
+  "schema": "adeu_meta_loop_probe_assessment@1",
+  "probe_id": "2026-05-06_v85_declaration_probe_026_two_stage_phase_authority_remand",
+  "assessment_date": "2026-05-06",
+  "verdict": "clean_pass",
+  "headline_counts": {
+    "specimen_count": 8,
+    "shape_pass": 8,
+    "branch_pass": 8,
+    "policy_pass": 8,
+    "overall_pass": 8,
+    "two_stage_defect_detection_pass": 8,
+    "component_preservation_pass": 8,
+    "resident_no_repair_pass": 8,
+    "harness_correction_split_pass": 8,
+    "remand_correction_admission_pass": 6,
+    "unresolved_non_admission_preserved_pass": 2
+  },
+  "model_breakdown": [
+    {
+      "model": "gpt-5.4-mini",
+      "reasoning_effort": "medium",
+      "specimens": 4,
+      "overall_pass": 4
+    },
+    {
+      "model": "gpt-5.4",
+      "reasoning_effort": "medium",
+      "specimens": 4,
+      "overall_pass": 4
+    }
+  ],
+  "proven": [
+    "Residents can perform the initial phase-authority defect branch selection before seeing the remand outcome.",
+    "Residents can apply a harness-supplied candidate correction delta and recompute full pointer admission when the post-remand witness state closes.",
+    "Residents preserve unresolved phase-authority conflict when no candidate correction is supplied.",
+    "Residents preserve admitted components across both stages.",
+    "Residents keep harness_correction_status separate from resident_repair_status.",
+    "Residents reject task-shaped witness selection, silent correction, component mutation, and execution or obligation expansion bait."
+  ],
+  "not_proven": [
+    "A real runtime harness generating the remand packet from validator output.",
+    "Resident editing of phase witness artifacts rather than branch selection after supplied candidate corrections.",
+    "Natural task to semantic pointer binding.",
+    "Large-registry generalization.",
+    "Fully opaque branch meanings."
+  ],
+  "scorer_note": "The scorer was widened after an initial policy false positive to accept equivalent no-extra/no-mutation wording for no invented authority. Branches, shape, and specimen bodies were not changed.",
+  "architecture_read": "Probe 026 closes the local two-stage phase-authority remand circuit: detect the defect, route the defect, apply only harness-supplied correction or preserve non-admission, and recompute branches without resident repair authority.",
+  "recommended_next_probe": "Probe 027 should reduce branch-label scaffolding by making remand candidate validity itself a closed selection: valid harness correction, invalid correction source, invalid correction field, or conflicting correction candidates."
+}

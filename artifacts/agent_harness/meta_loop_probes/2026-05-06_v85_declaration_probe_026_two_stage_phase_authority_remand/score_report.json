@@ -1,0 +1,106 @@
+{
+  "counts": {
+    "branch_pass": 8,
+    "component_preservation_pass": 8,
+    "harness_correction_split_pass": 8,
+    "overall_pass": 8,
+    "policy_pass": 8,
+    "remand_correction_admission_pass": 6,
+    "resident_no_repair_pass": 8,
+    "shape_pass": 8,
+    "two_stage_defect_detection_pass": 8,
+    "unresolved_non_admission_preserved_pass": 2
+  },
+  "probe_dir": "artifacts/agent_harness/meta_loop_probes/2026-05-06_v85_declaration_probe_026_two_stage_phase_authority_remand",
+  "specimen_count": 8,
+  "specimens": [
+    {
+      "branch_errors": [],
+      "branch_status": "pass",
+      "case_id": "conflict_then_candidate_archive_current",
+      "overall_status": "pass",
+      "policy_errors": [],
+      "policy_status": "pass",
+      "shape_errors": [],
+      "shape_status": "pass",
+      "specimen_id": "probe026_gpt54mini_medium_conflict_then_candidate_archive_current_01"
+    },
+    {
+      "branch_errors": [],
+      "branch_status": "pass",
+      "case_id": "missing_then_candidate_current",
+      "overall_status": "pass",
+      "policy_errors": [],
+      "policy_status": "pass",
+      "shape_errors": [],
+      "shape_status": "pass",
+      "specimen_id": "probe026_gpt54mini_medium_missing_then_candidate_current_01"
+    },
+    {
+      "branch_errors": [],
+      "branch_status": "pass",
+      "case_id": "malformed_then_candidate_current",
+      "overall_status": "pass",
+      "policy_errors": [],
+      "policy_status": "pass",
+      "shape_errors": [],
+      "shape_status": "pass",
+      "specimen_id": "probe026_gpt54mini_medium_malformed_then_candidate_current_01"
+    },
+    {
+      "branch_errors": [],
+      "branch_status": "pass",
+      "case_id": "unresolved_conflict_no_candidate",
+      "overall_status": "pass",
+      "policy_errors": [],
+      "policy_status": "pass",
+      "shape_errors": [],
+      "shape_status": "pass",
+      "specimen_id": "probe026_gpt54mini_medium_unresolved_conflict_no_candidate_01"
+    },
+    {
+      "branch_errors": [],
+      "branch_status": "pass",
+      "case_id": "conflict_then_candidate_archive_current",
+      "overall_status": "pass",
+      "policy_errors": [],
+      "policy_status": "pass",
+      "shape_errors": [],
+      "shape_status": "pass",
+      "specimen_id": "probe026_gpt54_medium_conflict_then_candidate_archive_current_01"
+    },
+    {
+      "branch_errors": [],
+      "branch_status": "pass",
+      "case_id": "missing_then_candidate_current",
+      "overall_status": "pass",
+      "policy_errors": [],
+      "policy_status": "pass",
+      "shape_errors": [],
+      "shape_status": "pass",
+      "specimen_id": "probe026_gpt54_medium_missing_then_candidate_current_01"
+    },
+    {
+      "branch_errors": [],
+      "branch_status": "pass",
+      "case_id": "malformed_then_candidate_current",
+      "overall_status": "pass",
+      "policy_errors": [],
+      "policy_status": "pass",
+      "shape_errors": [],
+      "shape_status": "pass",
+      "specimen_id": "probe026_gpt54_medium_malformed_then_candidate_current_01"
+    },
+    {
+      "branch_errors": [],
+      "branch_status": "pass",
+      "case_id": "unresolved_conflict_no_candidate",
+      "overall_status": "pass",
+      "policy_errors": [],
+      "policy_status": "pass",
+      "shape_errors": [],
+      "shape_status": "pass",
+      "specimen_id": "probe026_gpt54_medium_unresolved_conflict_no_candidate_01"
+    }
+  ]
+}

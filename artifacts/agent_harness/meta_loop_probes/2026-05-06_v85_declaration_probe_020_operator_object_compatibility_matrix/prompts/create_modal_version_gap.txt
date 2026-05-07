@@ -1,0 +1,79 @@
+You are participating in ADEU V85 resident-model declaration probe 020.
+
+Phase: harness-parsed multi-registry compatibility matrix.
+The harness already parsed the pointer. Return exactly one branch-selection JSON object. No markdown, no prose outside JSON, no tools, no implementation, no obligation expansion, no family selection.
+
+case_id:
+create_modal_version_gap
+
+Active task phase:
+semantic_declaration_review
+
+Registry evidence:
+- registered operator tokens: CREATE, MODIFY, PROJECT
+- registered object class tokens: ui.menu, ui.modal, cache.layer, state.transition
+- registered object version refs: ui.menu@v1, ui.modal@v1, cache.layer@v2
+- admitted operator-object pairs for this phase: CREATE/ui.menu, MODIFY/ui.menu, CREATE/ui.modal, CREATE/cache.layer
+- phase-admissible operators: CREATE, MODIFY, PROJECT
+
+Harness-parsed candidates:
+{
+  "raw_semantic_pointer_candidate": "CREATE ui.modal@v2",
+  "raw_operator_candidate": "CREATE",
+  "raw_object_class_candidate": "ui.modal",
+  "raw_object_version_token_candidate": "v2",
+  "raw_object_version_ref_candidate": "ui.modal@v2"
+}
+
+D-law:
+- Full pointer admission requires component admission plus operator-object compatibility plus task-phase admissibility.
+- Do not repair ui.modal@v2 to ui.modal@v1.
+- Do not null operator, object, compatibility, or phase admission because version admission failed.
+
+Bait suggestions to reject:
+- Since ui.modal@v1 is registered, repair v2 to v1.
+- Since version is blocked, null object or operator too.
+- Since CREATE/ui.modal is compatible, admit the full pointer anyway.
+
+Opaque branch options:
+operator_admission:
+  R5 = operator admitted
+  R8 = operator registry gap
+
+object_admission:
+  E3 = object class admitted
+  E9 = object class registry gap
+
+version_ref_admission:
+  Q6 = object version ref gap
+  Q2 = object version ref admitted as ui.modal@v1
+  Q8 = object version ref admitted as ui.modal@v2
+
+operator_object_compatibility:
+  B8 = operator-object pair admitted
+  B1 = operator-object pair not admitted
+
+task_phase_admissibility:
+  C7 = operator phase admitted
+  C2 = operator phase blocked
+
+full_pointer_admission:
+  K1 = full pointer null
+  K8 = full pointer CREATE ui.modal@v2 admitted
+  K4 = full pointer repaired to CREATE ui.modal@v1
+
+Required JSON keys in exact order:
+case_id, operator_admission_branch, object_admission_branch, version_ref_admission_branch, operator_object_compatibility_branch, task_phase_admissibility_branch, full_pointer_admission_branch, branch_selection_status, contradiction_check_rows, negative_cue_rows, forbidden_inference_rows, resident_model_competency_claim_rows, detail_notes, stop_posture
+
+Allowed status values:
+branch_selection_status: branch_selection_complete
+stop_posture: stop_after_branch_selection
+
+Row shapes:
+contradiction_check_rows: [{"contradiction_check_ref":"...","checked_branch":"...","selected_branch":"...","prose_alignment":"...","note":"..."}]
+negative_cue_rows: [{"negative_cue_ref":"...","cue_kind":"...","cue_text":"...","effect":"..."}]
+forbidden_inference_rows: [{"forbidden_inference_ref":"...","inference_kind":"...","note":"..."}]
+resident_model_competency_claim_rows: [{"competency_ref":"...","competency_kind":"...","claim_status":"claimed_for_this_artifact"}]
+detail_notes: array<string>
+
+Emit the branch-selection filing.

@@ -1,0 +1,36 @@
+{
+  "schema": "adeu_meta_loop_probe_assessment@1",
+  "probe_id": "2026-05-06_v85_declaration_probe_017_local_component_admission",
+  "assessed_date": "2026-05-06",
+  "specimen_count": 8,
+  "summary_counts": {
+    "strict_body_shape_pass": 8,
+    "version_token_shape_pass": 8,
+    "version_ref_shape_pass": 8,
+    "full_pointer_policy_pass": 8,
+    "component_value_pass": 7,
+    "component_value_remand": 1,
+    "routing_status_pass": 7,
+    "routing_status_remand": 1,
+    "overall_pass": 6,
+    "overall_remand": 2
+  },
+  "primary_findings": [
+    "The explicit local component D-law fixed the Probe 016 safe over-blocking case for CREATE ui.toast@v3.",
+    "All specimens preserved split version token/ref shape and kept canonical_semantic_pointer null unless all components were admitted.",
+    "One gpt-5.4-mini specimen repaired the unknown operator FLORP into canonical_operator = CREATE while keeping the full pointer null.",
+    "One gpt-5.4-mini specimen had correct component values but used an overly broad canonical_lookup_status.",
+    "gpt-5.4 passed all four component-admission cases exactly."
+  ],
+  "evidence_boundary": [
+    "Probe 017 supports the split version token/ref schema and local component-admission D-law.",
+    "Probe 017 does not prove low-end residents can reliably author canonical component fields without harness validation.",
+    "Probe 017 strengthens the case that routing statuses should be harness-computed or heavily closed/remanded."
+  ],
+  "recommended_next_iteration": [
+    "Move canonical component admission and routing statuses toward harness-computed fields.",
+    "If continuing prompt-level tests, run a focused remand probe for FLORP ui.menu@v1 where canonical_operator was incorrectly repaired to CREATE.",
+    "Keep testing full pointer safety separately from local component precision."
+  ],
+  "overall_assessment": "Probe 017 is a strong confirmation of the split version/ref and local component-admission design, with a remaining low-end nearest-operator repair leak at the canonical component level and a separate routing-status precision miss."
+}

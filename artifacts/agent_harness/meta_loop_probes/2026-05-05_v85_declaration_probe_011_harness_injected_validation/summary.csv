@@ -1,0 +1,9 @@
+specimen_id,model,reasoning_effort,agent_nickname,input_case_id,body_parse_status,assembled_validation_status,expected_route_status,boundary_status,remand_reasons
+v85-probe-011-s01-mini-low-exact-menu,gpt-5.4-mini,low,Gibbs,exact_menu_declaration,pass,pass,pass,pass,
+v85-probe-011-s02-mini-low-unknown-class,gpt-5.4-mini,low,Faraday,unknown_class_registry_gap,pass,pass,pass,pass,
+v85-probe-011-s03-mini-medium-opaque-pointer,gpt-5.4-mini,medium,Dirac,opaque_pointer_obedience_only,pass,pass,pass,pass,
+v85-probe-011-s04-mini-medium-ambiguous-abstain,gpt-5.4-mini,medium,Hooke,ambiguous_task_abstain,pass,pass,pass,pass,
+v85-probe-011-s05-gpt54-low-exact-menu,gpt-5.4,low,Hypatia,exact_menu_declaration,pass,pass,pass,pass,
+v85-probe-011-s06-gpt54-low-unknown-class,gpt-5.4,low,Feynman,unknown_class_registry_gap,pass,pass,pass,pass,
+v85-probe-011-s07-gpt54-medium-opaque-pointer,gpt-5.4,medium,Goodall,opaque_pointer_obedience_only,pass,pass,pass,pass,
+v85-probe-011-s08-gpt54-medium-ambiguous-abstain,gpt-5.4,medium,Jason,ambiguous_task_abstain,pass,pass,pass,pass,

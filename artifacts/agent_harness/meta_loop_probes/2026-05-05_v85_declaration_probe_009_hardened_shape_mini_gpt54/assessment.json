@@ -1,0 +1,74 @@
+{
+  "schema": "adeu_meta_loop_probe_assessment@1",
+  "probe_id": "2026-05-05_v85_declaration_probe_009_hardened_shape_mini_gpt54",
+  "assessed_date": "2026-05-05",
+  "specimen_count": 8,
+  "models": [
+    "gpt-5.4-mini",
+    "gpt-5.4"
+  ],
+  "aggregate_counts": {
+    "json_parse_pass": 8,
+    "single_json_object": 8,
+    "required_top_level_keys_present": 8,
+    "boundary_status_pass": 8,
+    "uncertainty_routing_pass": 8,
+    "stopped_at_required_artifact": 8,
+    "expected_safe_route_pass": 8,
+    "raw_pointer_exact_when_applicable": 6,
+    "canonical_pointer_null_correct_for_unknown_opaque_abstain": 6,
+    "operator_class_version_split_correct": 8,
+    "closed_pointer_kind_status_pass": 8,
+    "exact_artifact_kind": 4
+  },
+  "model_summary": {
+    "gpt-5.4-mini": {
+      "specimen_count": 4,
+      "boundary_status_pass": 4,
+      "expected_safe_route_pass": 4,
+      "raw_pointer_exact_when_applicable": 2,
+      "exact_artifact_kind": 1,
+      "notable_issues": [
+        "artifact_kind drifted to candidate or missing candidate suffix",
+        "unknown-class raw pointer dropped CREATE",
+        "ambiguous no-pointer row used lookup_required_later instead of not_applicable",
+        "row shapes often remained plain strings"
+      ]
+    },
+    "gpt-5.4": {
+      "specimen_count": 4,
+      "boundary_status_pass": 4,
+      "expected_safe_route_pass": 4,
+      "raw_pointer_exact_when_applicable": 4,
+      "exact_artifact_kind": 4,
+      "notable_issues": [
+        "canonical_pointer field ambiguity: exact-menu rows used ui.menu rather than full CREATE ui.menu@v1",
+        "resident_model_competency_claims often empty",
+        "session refs often null"
+      ]
+    }
+  },
+  "observed_strengths": [
+    "The hardened shape substantially reduced candidate/tentative decoration inside parseable fields.",
+    "Splitting raw_pointer_candidate from canonical_pointer improved unknown and opaque pointer handling.",
+    "All specimens kept unknown, opaque, and ambiguous cases fail-closed.",
+    "All specimens avoided implementation, runtime, obligation expansion, and next-family authority.",
+    "The object_class/object_version split worked well across both model families."
+  ],
+  "observed_failure_modes": [
+    "The prompt underspecified canonical_pointer: exact-menu rows interpreted it as object pointer ui.menu rather than full semantic pointer CREATE ui.menu@v1.",
+    "Row shapes were still not closed: uncertainty, negative-cue, and forbidden-inference rows varied between strings and objects.",
+    "Harness-owned session refs remained null, unknown, or ad hoc because no harness supplied them.",
+    "Mini still struggled with exact artifact_kind and raw pointer preservation under unknown-class pressure.",
+    "resident_model_competency_claims often came back empty when row schema was not specified."
+  ],
+  "recommended_harness_hardening": [
+    "Rename canonical_pointer to canonical_semantic_pointer and require full operator/class/version form, or remove it and derive it from proposed_operator + object_class + object_version.",
+    "Add raw_object_pointer and canonical_object_pointer if object-only pointer values are useful.",
+    "Define exact row schemas for uncertainty_rows, negative_cue_rows, forbidden_inference_rows, and resident_model_competency_claims.",
+    "Have the harness inject semantic_declaration_session_ref rather than asking the model to invent it.",
+    "Make artifact_kind an enum or harness-provided constant.",
+    "Use deterministic post-parse normalization only for display fields, not for authority-bearing canonical fields."
+  ],
+  "assessment_posture": "hardened_shape_improved_boundary_and_pointer_separation_but_canonical_pointer_semantics_need_renaming_or_derivation"
+}

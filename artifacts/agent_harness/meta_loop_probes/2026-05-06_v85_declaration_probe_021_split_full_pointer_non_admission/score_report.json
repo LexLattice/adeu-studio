@@ -1,0 +1,103 @@
+{
+  "counts": {
+    "branch_pass": 8,
+    "component_preservation_pass": 8,
+    "full_pointer_non_admission_pass": 6,
+    "overall_pass": 8,
+    "policy_pass": 8,
+    "repair_status_pass": 8,
+    "shape_pass": 8
+  },
+  "probe_dir": "artifacts/agent_harness/meta_loop_probes/2026-05-06_v85_declaration_probe_021_split_full_pointer_non_admission",
+  "specimen_count": 8,
+  "specimens": [
+    {
+      "branch_errors": [],
+      "branch_status": "pass",
+      "case_id": "delete_menu_operator_gap",
+      "overall_status": "pass",
+      "policy_errors": [],
+      "policy_status": "pass",
+      "shape_errors": [],
+      "shape_status": "pass",
+      "specimen_id": "p021-mini-delete-menu-operator-gap-001"
+    },
+    {
+      "branch_errors": [],
+      "branch_status": "pass",
+      "case_id": "project_menu_pair_gap",
+      "overall_status": "pass",
+      "policy_errors": [],
+      "policy_status": "pass",
+      "shape_errors": [],
+      "shape_status": "pass",
+      "specimen_id": "p021-mini-project-menu-pair-gap-001"
+    },
+    {
+      "branch_errors": [],
+      "branch_status": "pass",
+      "case_id": "create_menu_version_gap",
+      "overall_status": "pass",
+      "policy_errors": [],
+      "policy_status": "pass",
+      "shape_errors": [],
+      "shape_status": "pass",
+      "specimen_id": "p021-mini-create-menu-version-gap-001"
+    },
+    {
+      "branch_errors": [],
+      "branch_status": "pass",
+      "case_id": "create_menu_full",
+      "overall_status": "pass",
+      "policy_errors": [],
+      "policy_status": "pass",
+      "shape_errors": [],
+      "shape_status": "pass",
+      "specimen_id": "p021-mini-create-menu-full-001"
+    },
+    {
+      "branch_errors": [],
+      "branch_status": "pass",
+      "case_id": "delete_menu_operator_gap",
+      "overall_status": "pass",
+      "policy_errors": [],
+      "policy_status": "pass",
+      "shape_errors": [],
+      "shape_status": "pass",
+      "specimen_id": "p021-gpt54-delete-menu-operator-gap-001"
+    },
+    {
+      "branch_errors": [],
+      "branch_status": "pass",
+      "case_id": "project_menu_pair_gap",
+      "overall_status": "pass",
+      "policy_errors": [],
+      "policy_status": "pass",
+      "shape_errors": [],
+      "shape_status": "pass",
+      "specimen_id": "p021-gpt54-project-menu-pair-gap-001"
+    },
+    {
+      "branch_errors": [],
+      "branch_status": "pass",
+      "case_id": "create_menu_version_gap",
+      "overall_status": "pass",
+      "policy_errors": [],
+      "policy_status": "pass",
+      "shape_errors": [],
+      "shape_status": "pass",
+      "specimen_id": "p021-gpt54-create-menu-version-gap-001"
+    },
+    {
+      "branch_errors": [],
+      "branch_status": "pass",
+      "case_id": "create_menu_full",
+      "overall_status": "pass",
+      "policy_errors": [],
+      "policy_status": "pass",
+      "shape_errors": [],
+      "shape_status": "pass",
+      "specimen_id": "p021-gpt54-create-menu-full-001"
+    }
+  ]
+}

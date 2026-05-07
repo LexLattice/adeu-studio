@@ -1,0 +1,38 @@
+{
+  "schema": "adeu_meta_loop_probe_assessment@1",
+  "probe_id": "2026-05-05_v85_declaration_probe_012_remand_circuit_negative_control",
+  "assessed_date": "2026-05-05",
+  "specimen_count": 4,
+  "summary_counts": {
+    "body_json_parse_pass": 4,
+    "remand_required": 4,
+    "accepted_filing": 0,
+    "remand_filing_recorded": 4,
+    "fixed_field_pollution_detected": 1,
+    "route_mismatch_detected": 1,
+    "row_shape_violation_detected": 4,
+    "closed_enum_violation_detected": 1,
+    "silent_repair": 0
+  },
+  "primary_findings": [
+    "The remand branch works: all four intentionally malformed resident bodies were routed to remand_required.",
+    "The harness did not silently repair polluted fixed fields, nearest-class repair, malformed row objects, or bad competency claim status.",
+    "Negative-control prompting produced extra row-shape violations beyond the targeted errors, which is useful because the remand circuit preserves the complete error set.",
+    "Together with probe 011, this establishes a two-outcome local circuit: accepted_filing for valid assembled artifacts and remand_required for malformed or semantically unsafe filings."
+  ],
+  "comparison_to_probe_011": {
+    "probe_011_valid_bodies": 8,
+    "probe_011_accepted_filings": 8,
+    "probe_011_remands": 0,
+    "probe_012_negative_control_bodies": 4,
+    "probe_012_accepted_filings": 0,
+    "probe_012_remands": 4
+  },
+  "recommended_next_iteration": [
+    "Add a real remand-response round: give the model the remand filing and ask it to produce a corrected body.",
+    "Track whether correction preserves the original semantic route or overcorrects by changing intent.",
+    "Add a transition artifact that records declaration_body_submitted -> remand_required -> corrected_body_submitted -> accepted_filing.",
+    "Keep automatic repair forbidden; the model must resubmit a corrected body and the harness must validate it."
+  ],
+  "overall_assessment": "Probe 012 validates the fail-closed half of the meta-loop circuit. The harness can reject malformed or semantically unsafe resident filings and record explicit remand reasons without pretending the filing was accepted."
+}

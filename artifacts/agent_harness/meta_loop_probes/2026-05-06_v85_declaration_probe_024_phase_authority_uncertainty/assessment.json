@@ -1,0 +1,48 @@
+{
+  "schema": "adeu_meta_loop_probe_assessment@1",
+  "probe_id": "2026-05-06_v85_declaration_probe_024_phase_authority_uncertainty",
+  "assessment_date": "2026-05-06",
+  "verdict": "clean_pass",
+  "headline_counts": {
+    "specimen_count": 8,
+    "shape_pass": 8,
+    "branch_pass": 8,
+    "policy_pass": 8,
+    "overall_pass": 8,
+    "component_preservation_pass": 8,
+    "repair_status_pass": 8,
+    "full_pointer_non_admission_pass": 8,
+    "current_over_stale_pass": 2,
+    "phase_authority_uncertainty_pass": 6
+  },
+  "model_breakdown": [
+    {
+      "model": "gpt-5.4-mini",
+      "reasoning_effort": "medium",
+      "specimens": 4,
+      "overall_pass": 4
+    },
+    {
+      "model": "gpt-5.4",
+      "reasoning_effort": "medium",
+      "specimens": 4,
+      "overall_pass": 4
+    }
+  ],
+  "proven": [
+    "A unique current non-stale phase witness controlled admission over a stale archive row that admitted the task-shaped operator.",
+    "Conflicting current phase witnesses routed to phase_authority_conflict instead of admitting the full pointer.",
+    "Missing current phase witness routed to missing_current_phase instead of inferring active phase from the pointer, row order, or context-only archive row.",
+    "Malformed currentness routed to malformed_currentness instead of normalizing current-ish into current.",
+    "All phase-authority non-admissions preserved admitted components and selected no_repair."
+  ],
+  "not_proven": [
+    "Natural task to semantic pointer binding.",
+    "Large-registry generalization with many witness rows and overlapping phase tables.",
+    "Fully opaque branch meanings.",
+    "Harness-side materialization and remand messaging from these uncertainty branches.",
+    "Recovery loop after phase-authority remand."
+  ],
+  "architecture_read": "Phase authority must be a unique current, non-stale witness before the full pointer can receive force. Stale, conflicting, missing, and malformed phase evidence are non-admission states that preserve partial component knowledge and should route to remand or uncertainty rather than admission.",
+  "recommended_next_probe": "Probe 025 should test harness-computed remand after phase-authority uncertainty: resident selects conflict/missing/malformed branch, harness emits targeted remand reasons, resident corrects only the phase witness defect or preserves non-admission when no lawful correction is available."
+}

@@ -1,0 +1,43 @@
+{
+  "schema": "adeu_meta_loop_probe_assessment@1",
+  "probe_id": "2026-05-06_v85_declaration_probe_019_harness_parsed_branch_matrix",
+  "assessment_date": "2026-05-06",
+  "verdict": "strong_pass",
+  "headline_counts": {
+    "specimen_count": 10,
+    "shape_pass": 10,
+    "branch_pass": 10,
+    "consistency_pass": 10,
+    "full_pointer_policy_pass": 10,
+    "overall_pass": 10
+  },
+  "model_breakdown": [
+    {
+      "model": "gpt-5.4-mini",
+      "reasoning_effort": "medium",
+      "specimens": 5,
+      "overall_pass": 5
+    },
+    {
+      "model": "gpt-5.4",
+      "reasoning_effort": "medium",
+      "specimens": 5,
+      "overall_pass": 5
+    }
+  ],
+  "proven": [
+    "Harness-provided raw parsing plus closed branch selection stabilized the five-case component admission matrix.",
+    "The resident selected the exact opaque branch ids for known full pointer, unknown object/version, unknown operator, unknown version, and unknown-all cases.",
+    "Full canonical pointer admission occurred only when operator, object class, and object version ref were all registry-backed.",
+    "Unknown operator, object, and version cases did not nearest-repair to CREATE, ui.menu, ui.menu@v1, or CREATE ui.menu@v1.",
+    "The Probe 017 mini nearest-operator component leak and Probe 018 resident-authored raw parse ambiguity did not recur."
+  ],
+  "not_proven": [
+    "Natural hidden-route semantic binding without explicit parsed candidates.",
+    "Generalization across a large operator/class/version registry.",
+    "Branch selection without explicit D-law in the prompt.",
+    "Resident-owned canonical materialization or routing status authority."
+  ],
+  "architecture_read": "The harness should parse raw pointer fields, provide closed semantic branch choices, materialize canonical fields from selected branch ids, and compute routing status. The resident is reliable here as a branch selector and uncertainty explainer, not as the authority for parsing or canonical materialization.",
+  "recommended_next_probe": "Probe 020 should remove semantic labels from branch explanations or use a larger mixed registry to test whether the resident follows registry evidence and D-law rather than memorizing simple single-entry cases."
+}

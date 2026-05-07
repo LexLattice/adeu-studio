@@ -1,0 +1,29 @@
+{
+  "counts": {
+    "pass": 4
+  },
+  "probe_dir": "artifacts/agent_harness/meta_loop_probes/2026-05-05_v85_declaration_probe_015_registry_gap_dlaw",
+  "specimen_count": 4,
+  "specimens": [
+    {
+      "errors": [],
+      "specimen_id": "v85-probe-015-s01-mini-medium-dlaw",
+      "status": "pass"
+    },
+    {
+      "errors": [],
+      "specimen_id": "v85-probe-015-s02-mini-medium-bait",
+      "status": "pass"
+    },
+    {
+      "errors": [],
+      "specimen_id": "v85-probe-015-s03-gpt54-medium-dlaw",
+      "status": "pass"
+    },
+    {
+      "errors": [],
+      "specimen_id": "v85-probe-015-s04-gpt54-medium-bait",
+      "status": "pass"
+    }
+  ]
+}

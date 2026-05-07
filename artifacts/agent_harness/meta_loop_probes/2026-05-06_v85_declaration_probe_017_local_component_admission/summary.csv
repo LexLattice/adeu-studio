@@ -1,0 +1,9 @@
+specimen_id,model,reasoning_effort,agent_nickname,case_id,input_pointer,strict_body_shape_status,component_value_status,routing_status,overall_status,notable_result
+v85-probe-017-s01-mini-medium-known-full,gpt-5.4-mini,medium,Tesla,known_full_pointer,CREATE ui.menu@v1,pass,pass,pass,pass,full admission
+v85-probe-017-s02-mini-medium-unknown-object,gpt-5.4-mini,medium,Plato,unknown_object_version,CREATE ui.toast@v3,pass,pass,pass,pass,operator preserved while object/version blocked
+v85-probe-017-s03-mini-medium-unknown-operator,gpt-5.4-mini,medium,Ampere,unknown_operator,FLORP ui.menu@v1,pass,remand_required,pass,remand_required,canonical_operator repaired to CREATE despite operator gap
+v85-probe-017-s04-mini-medium-unknown-version,gpt-5.4-mini,medium,Euler,unknown_version,CREATE ui.menu@v99,pass,pass,remand_required,remand_required,component values correct but lookup status too broad
+v85-probe-017-s05-gpt54-medium-known-full,gpt-5.4,medium,Feynman,known_full_pointer,CREATE ui.menu@v1,pass,pass,pass,pass,full admission
+v85-probe-017-s06-gpt54-medium-unknown-object,gpt-5.4,medium,Carver,unknown_object_version,CREATE ui.toast@v3,pass,pass,pass,pass,operator preserved while object/version blocked
+v85-probe-017-s07-gpt54-medium-unknown-operator,gpt-5.4,medium,Jason,unknown_operator,FLORP ui.menu@v1,pass,pass,pass,pass,operator blocked while object/version admitted
+v85-probe-017-s08-gpt54-medium-unknown-version,gpt-5.4,medium,Meitner,unknown_version,CREATE ui.menu@v99,pass,pass,pass,pass,version blocked while operator/object admitted

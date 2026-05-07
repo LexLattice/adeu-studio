@@ -1,0 +1,128 @@
+{
+  "probe_id": "v85_declaration_probe_022_task_phase_admissibility_gate",
+  "created_at": "2026-05-06",
+  "purpose": "Test task-phase admissibility as an independent gate after component admission, operator-object compatibility, split non-admission reason, repair status, and component preservation.",
+  "evidence_boundary": [
+    "Tests bounded compliance with harness-parsed candidates, explicit registry evidence, explicit D-law, and closed branch selections.",
+    "Does not test broad natural-language semantic binding, resident-owned parsing, obligation expansion, implementation authority, or opaque hidden-route execution."
+  ],
+  "registry_evidence": {
+    "registered_operator_tokens": [
+      "CREATE",
+      "ARCHIVE"
+    ],
+    "registered_object_class_tokens": [
+      "ui.menu"
+    ],
+    "registered_object_version_refs": [
+      "ui.menu@v1"
+    ],
+    "admitted_operator_object_pairs": [
+      "CREATE/ui.menu",
+      "ARCHIVE/ui.menu"
+    ],
+    "phase_admissible_operators": {
+      "archive_review": [
+        "ARCHIVE"
+      ],
+      "semantic_declaration_review": [
+        "CREATE"
+      ]
+    }
+  },
+  "expected_cases": {
+    "archive_menu_phase_blocked": {
+      "prompt_file": "prompts/archive_menu_phase_blocked.txt",
+      "prompt_sha256": "f6ed8be39954dc75f58896ec962dcf437d574854f001dff79fdf24fcdae13214",
+      "input_pointer": "ARCHIVE ui.menu@v1",
+      "active_task_phase": "semantic_declaration_review",
+      "expected": {
+        "operator_admission_branch": "O4",
+        "object_admission_branch": "C2",
+        "version_ref_admission_branch": "V5",
+        "operator_object_compatibility_branch": "P3",
+        "task_phase_admissibility_branch": "T6",
+        "full_pointer_admission_branch": "F5",
+        "full_pointer_non_admission_reason_branch": "R4",
+        "repair_status_branch": "E1",
+        "component_preservation_branch": "K3"
+      }
+    },
+    "archive_menu_phase_allowed": {
+      "prompt_file": "prompts/archive_menu_phase_allowed.txt",
+      "prompt_sha256": "ba78bef23e9aa1e71bb10fd90a423a24c5efaf269a88e2007385264905a9ded5",
+      "input_pointer": "ARCHIVE ui.menu@v1",
+      "active_task_phase": "archive_review",
+      "expected": {
+        "operator_admission_branch": "O2",
+        "object_admission_branch": "C5",
+        "version_ref_admission_branch": "V1",
+        "operator_object_compatibility_branch": "P6",
+        "task_phase_admissibility_branch": "T4",
+        "full_pointer_admission_branch": "F2",
+        "full_pointer_non_admission_reason_branch": "R3",
+        "repair_status_branch": "E4",
+        "component_preservation_branch": "K1"
+      }
+    },
+    "create_menu_phase_allowed": {
+      "prompt_file": "prompts/create_menu_phase_allowed.txt",
+      "prompt_sha256": "6bc3eff575dbbd654eb17c0412ddf195c7ff98105337027076cd6676a2ad0b23",
+      "input_pointer": "CREATE ui.menu@v1",
+      "active_task_phase": "semantic_declaration_review",
+      "expected": {
+        "operator_admission_branch": "O5",
+        "object_admission_branch": "C4",
+        "version_ref_admission_branch": "V7",
+        "operator_object_compatibility_branch": "P4",
+        "task_phase_admissibility_branch": "T2",
+        "full_pointer_admission_branch": "F8",
+        "full_pointer_non_admission_reason_branch": "R6",
+        "repair_status_branch": "E8",
+        "component_preservation_branch": "K7"
+      }
+    },
+    "archive_menu_version_gap_allowed_phase": {
+      "prompt_file": "prompts/archive_menu_version_gap_allowed_phase.txt",
+      "prompt_sha256": "63d61624ed1eeb97b998975b7e823bd4d9d9acafcced1db462ebbe26c3453143",
+      "input_pointer": "ARCHIVE ui.menu@v2",
+      "active_task_phase": "archive_review",
+      "expected": {
+        "operator_admission_branch": "O8",
+        "object_admission_branch": "C6",
+        "version_ref_admission_branch": "V4",
+        "operator_object_compatibility_branch": "P1",
+        "task_phase_admissibility_branch": "T9",
+        "full_pointer_admission_branch": "F6",
+        "full_pointer_non_admission_reason_branch": "R5",
+        "repair_status_branch": "E5",
+        "component_preservation_branch": "K4"
+      }
+    }
+  },
+  "run_plan": {
+    "models": [
+      {
+        "model": "gpt-5.4-mini",
+        "reasoning_effort": "medium",
+        "cases": [
+          "archive_menu_phase_blocked",
+          "archive_menu_phase_allowed",
+          "create_menu_phase_allowed",
+          "archive_menu_version_gap_allowed_phase"
+        ]
+      },
+      {
+        "model": "gpt-5.4",
+        "reasoning_effort": "medium",
+        "cases": [
+          "archive_menu_phase_blocked",
+          "archive_menu_phase_allowed",
+          "create_menu_phase_allowed",
+          "archive_menu_version_gap_allowed_phase"
+        ]
+      }
+    ]
+  },
+  "scorer": "artifacts/agent_harness/meta_loop_probes/tools/score_v85_task_phase_admissibility_probe.py"
+}

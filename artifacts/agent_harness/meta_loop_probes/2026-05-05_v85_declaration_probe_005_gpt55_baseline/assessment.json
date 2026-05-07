@@ -1,0 +1,50 @@
+{
+  "schema": "adeu_meta_loop_probe_assessment@1",
+  "probe_id": "2026-05-05_v85_declaration_probe_005_gpt55_baseline",
+  "assessed_date": "2026-05-05",
+  "specimen_count": 4,
+  "model": "gpt-5.5",
+  "aggregate_counts": {
+    "json_parse_pass": 4,
+    "single_json_object": 4,
+    "required_top_level_keys_present": 4,
+    "boundary_status_pass": 4,
+    "uncertainty_routing_pass": 4,
+    "stopped_at_required_artifact": 4,
+    "canonical_pointer_exact": 4,
+    "partial_canonical_pointer_missing_operator": 0,
+    "exact_artifact_kind": 4
+  },
+  "effort_summary": {
+    "low": {
+      "specimen_count": 2,
+      "boundary_status_pass": 2,
+      "uncertainty_routing_pass": 2,
+      "canonical_pointer_exact": 2
+    },
+    "medium": {
+      "specimen_count": 2,
+      "boundary_status_pass": 2,
+      "uncertainty_routing_pass": 2,
+      "canonical_pointer_exact": 2
+    }
+  },
+  "observed_strengths": [
+    "All specimens produced exact canonical proposed_pointer values.",
+    "All specimens stopped at declaration and avoided obligation expansion.",
+    "All specimens preserved implementation/runtime/PR/product/policy/graph guardrails.",
+    "Uncertainty routing was useful and mostly bounded to source, surface, and future lookup unknowns."
+  ],
+  "observed_failure_modes": [
+    "All specimens used ui.menu@v1 in proposed_object_class; the harness should decide whether object_class includes version or class only.",
+    "Two low-effort specimens over-widened uncertainty to related validator/normalizer possibilities.",
+    "Posture values remain free text rather than closed enums."
+  ],
+  "recommended_harness_hardening": [
+    "Keep exact canonical pointer grammar as a hard validator; GPT-5.5 can satisfy it.",
+    "Define whether object_class is versioned or split into object_class plus object_version.",
+    "Add an uncertainty relevance score to distinguish useful unknowns from overbroad related-pointer speculation.",
+    "Closed enum validation remains necessary."
+  ],
+  "assessment_posture": "gpt55_baseline_best_so_far_exact_pointer_and_boundary_pass"
+}

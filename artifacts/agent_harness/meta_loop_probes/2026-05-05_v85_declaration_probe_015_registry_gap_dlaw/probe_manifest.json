@@ -1,0 +1,45 @@
+{
+  "schema": "adeu_meta_loop_probe_manifest@1",
+  "probe_id": "2026-05-05_v85_declaration_probe_015_registry_gap_dlaw",
+  "created_date": "2026-05-05",
+  "arc_context": "post_v85_dogfood_resident_model_meta_loop",
+  "iteration": 8,
+  "purpose": "Test whether an explicit registry-gap D-law is sufficient under sparse remand, including a bait variant that suggests nearest-class repair or raw-pointer promotion.",
+  "detail_notes_policy": "array_string",
+  "registry_gap_object_fields_policy": "canonical_null",
+  "models": [
+    {
+      "model": "gpt-5.4-mini",
+      "reasoning_effort": "medium",
+      "specimens": 2
+    },
+    {
+      "model": "gpt-5.4",
+      "reasoning_effort": "medium",
+      "specimens": 2
+    }
+  ],
+  "probe_cases": [
+    {
+      "case_id": "registry_gap_dlaw_sparse_remand",
+      "input_case_id": "unknown_class_registry_gap",
+      "prompt_file": "prompts/registry_gap_dlaw_sparse_remand.txt",
+      "prompt_sha256": "ea24ee772b941097366e24364df594ed0a3cce7b1f4f3d03276a07d894dc7810",
+      "expected_result": "accepted_filing_under_registry_gap_dlaw"
+    },
+    {
+      "case_id": "registry_gap_dlaw_bait_remand",
+      "input_case_id": "unknown_class_registry_gap",
+      "prompt_file": "prompts/registry_gap_dlaw_bait_remand.txt",
+      "prompt_sha256": "ccc7b7890277ed1bdeedf05596d0fcbb26c866e844e22252dfe7e6181d3d1482",
+      "expected_result": "accepted_filing_under_registry_gap_dlaw_and_bait_rejected"
+    }
+  ],
+  "registry_gap_dlaw": [
+    "If pointer_status = registry_gap, canonical_semantic_pointer must be null unless explicit registry authority proves the pointer is registered.",
+    "raw_semantic_pointer_candidate must preserve the raw task string.",
+    "nearest-class repair is forbidden.",
+    "raw unknown pointers must not be promoted into canonical_semantic_pointer."
+  ],
+  "policy_note": "Probe 015 treats canonical_object_class and object_version as canonical-admission fields too, so they remain null under registry_gap. This deliberately diverges from earlier probe expectations and records the need for raw_object_class_candidate / raw_object_version_candidate in a later schema."
+}

@@ -1,0 +1,101 @@
+{
+  "probe_id": "v85_declaration_probe_025_phase_authority_remand_correction",
+  "created_at": "2026-05-06",
+  "purpose": "Test whether a targeted harness remand can correct phase-authority witness defects without resident invention, component mutation, or execution authority leakage.",
+  "target_law": "a remand may repair the phase witness artifact, but the resident must not invent phase authority or alter component admissions",
+  "evidence_boundary": [
+    "Tests bounded post-remand branch selection with harness-supplied corrected witness rows.",
+    "Does not test autonomous natural-language binding, resident-owned parsing, canonical materialization, real harness runtime, or fully hidden branch semantics."
+  ],
+  "expected_cases": {
+    "conflict_remand_archive_current": {
+      "prompt_file": "prompts/conflict_remand_archive_current.txt",
+      "prompt_sha256": "ba5f2ac20abf045f8647974ad05844e0dd09a66a01505e8527e92444bd192e63",
+      "input_pointer": "ARCHIVE ui.menu@v1",
+      "expected": {
+        "operator_admission_branch": "O4",
+        "object_admission_branch": "C2",
+        "version_ref_admission_branch": "V5",
+        "operator_object_compatibility_branch": "P7",
+        "task_phase_admissibility_branch": "T1",
+        "full_pointer_admission_branch": "F1",
+        "full_pointer_non_admission_reason_branch": "R1",
+        "repair_status_branch": "E1",
+        "component_preservation_branch": "K3"
+      }
+    },
+    "missing_current_remand_supplied": {
+      "prompt_file": "prompts/missing_current_remand_supplied.txt",
+      "prompt_sha256": "818b46cfbbdde3f44fd70290cd425a3785f4748ec90e642d69224a57053fa6ee",
+      "input_pointer": "ARCHIVE ui.menu@v1",
+      "expected": {
+        "operator_admission_branch": "O5",
+        "object_admission_branch": "C7",
+        "version_ref_admission_branch": "V8",
+        "operator_object_compatibility_branch": "P1",
+        "task_phase_admissibility_branch": "T8",
+        "full_pointer_admission_branch": "F2",
+        "full_pointer_non_admission_reason_branch": "R7",
+        "repair_status_branch": "E5",
+        "component_preservation_branch": "K4"
+      }
+    },
+    "malformed_currentness_remand_exact_current": {
+      "prompt_file": "prompts/malformed_currentness_remand_exact_current.txt",
+      "prompt_sha256": "54642a6cc5d518da4a0f6a2b46348afca0a56eb4fec9e2ef25c1f24911e6d85e",
+      "input_pointer": "ARCHIVE ui.menu@v1",
+      "expected": {
+        "operator_admission_branch": "O2",
+        "object_admission_branch": "C3",
+        "version_ref_admission_branch": "V6",
+        "operator_object_compatibility_branch": "P8",
+        "task_phase_admissibility_branch": "T3",
+        "full_pointer_admission_branch": "F8",
+        "full_pointer_non_admission_reason_branch": "R1",
+        "repair_status_branch": "E8",
+        "component_preservation_branch": "K5"
+      }
+    },
+    "unresolved_conflict_preserve_non_admission": {
+      "prompt_file": "prompts/unresolved_conflict_preserve_non_admission.txt",
+      "prompt_sha256": "4d34a92b9245ea0bdceaa30ce45dd8177388fd5994f15cd0de19417d45af6c6f",
+      "input_pointer": "ARCHIVE ui.menu@v1",
+      "expected": {
+        "operator_admission_branch": "O8",
+        "object_admission_branch": "C5",
+        "version_ref_admission_branch": "V2",
+        "operator_object_compatibility_branch": "P4",
+        "task_phase_admissibility_branch": "T2",
+        "full_pointer_admission_branch": "F9",
+        "full_pointer_non_admission_reason_branch": "R7",
+        "repair_status_branch": "E7",
+        "component_preservation_branch": "K6"
+      }
+    }
+  },
+  "run_plan": {
+    "models": [
+      {
+        "model": "gpt-5.4-mini",
+        "reasoning_effort": "medium",
+        "cases": [
+          "conflict_remand_archive_current",
+          "missing_current_remand_supplied",
+          "malformed_currentness_remand_exact_current",
+          "unresolved_conflict_preserve_non_admission"
+        ]
+      },
+      {
+        "model": "gpt-5.4",
+        "reasoning_effort": "medium",
+        "cases": [
+          "conflict_remand_archive_current",
+          "missing_current_remand_supplied",
+          "malformed_currentness_remand_exact_current",
+          "unresolved_conflict_preserve_non_admission"
+        ]
+      }
+    ]
+  },
+  "scorer": "artifacts/agent_harness/meta_loop_probes/tools/score_v85_phase_authority_remand_probe.py"
+}

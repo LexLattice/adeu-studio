@@ -1,0 +1,7 @@
+specimen_id,model,reasoning_effort,agent_nickname,input_pointer,shape_status,raw_parse_status,branch_status,status_status,consistency_status,overall_status,notable_result
+v85-probe-018-s01-mini-medium-florp,gpt-5.4-mini,medium,Aristotle,FLORP ui.menu@v1,pass,pass,pass,pass,pass,pass,closed branches exact
+v85-probe-018-s02-mini-medium-florp,gpt-5.4-mini,medium,Beauvoir,FLORP ui.menu@v1,pass,pass,pass,pass,pass,pass,closed branches exact
+v85-probe-018-s03-mini-medium-florp,gpt-5.4-mini,medium,Kuhn,FLORP ui.menu@v1,pass,pass,pass,pass,pass,pass,closed branches exact
+v85-probe-018-s04-mini-medium-florp,gpt-5.4-mini,medium,Dirac,FLORP ui.menu@v1,pass,pass,pass,pass,pass,pass,closed branches exact
+v85-probe-018-s05-gpt54-medium-florp,gpt-5.4,medium,Copernicus,FLORP ui.menu@v1,pass,remand_required,pass,pass,pass,remand_required,branch exact but version token field used object-bound ref
+v85-probe-018-s06-gpt54-medium-florp,gpt-5.4,medium,Harvey,FLORP ui.menu@v1,pass,remand_required,pass,pass,pass,remand_required,branch exact but version token field used object-bound ref

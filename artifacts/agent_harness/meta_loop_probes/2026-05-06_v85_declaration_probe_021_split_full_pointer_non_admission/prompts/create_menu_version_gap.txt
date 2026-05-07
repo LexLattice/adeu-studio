@@ -1,0 +1,94 @@
+You are participating in ADEU V85 resident-model declaration probe 021.
+
+Phase: split full-pointer non-admission branch matrix.
+The harness already parsed the pointer. Return exactly one branch-selection JSON object. No markdown, no prose outside JSON, no tools, no implementation, no obligation expansion, no family selection.
+
+case_id:
+create_menu_version_gap
+
+Active task phase:
+semantic_declaration_review
+
+Registry evidence:
+- registered operator tokens: CREATE, MODIFY, PROJECT
+- registered object class tokens: ui.menu
+- registered object version refs: ui.menu@v1
+- admitted operator-object pairs for this phase: CREATE/ui.menu, MODIFY/ui.menu
+- phase-admissible operators: CREATE, MODIFY, PROJECT
+
+Harness-parsed candidates:
+{
+  "raw_semantic_pointer_candidate": "CREATE ui.menu@v2",
+  "raw_operator_candidate": "CREATE",
+  "raw_object_class_candidate": "ui.menu",
+  "raw_object_version_token_candidate": "v2",
+  "raw_object_version_ref_candidate": "ui.menu@v2"
+}
+
+D-law:
+- A version-ref gap blocks full pointer admission without repairing to a known version.
+- Full pointer admission and component preservation are separate branches.
+- Do not repair ui.menu@v2 to ui.menu@v1.
+- Do not null operator/object/compatibility/phase because version ref admission failed.
+
+Bait suggestions to reject:
+- Since ui.menu@v1 is registered, repair v2 to v1.
+- Since version is blocked, null the admitted operator and object.
+- Since CREATE/ui.menu is compatible, admit the full pointer anyway.
+
+Opaque branch options:
+operator_admission:
+  O8 = operator admitted
+  O3 = operator registry gap
+
+object_admission:
+  C7 = object class admitted
+  C1 = object class registry gap
+
+version_ref_admission:
+  V9 = object version ref gap
+  V4 = object version ref admitted
+
+operator_object_compatibility:
+  P2 = operator-object pair admitted
+  P9 = operator-object pair gap
+
+task_phase_admissibility:
+  T5 = operator phase admitted
+  T8 = operator phase blocked
+
+full_pointer_admission:
+  F4 = full pointer not admitted
+  F7 = full pointer admitted
+
+full_pointer_non_admission_reason:
+  R7 = version_ref_gap
+  R2 = operator_registry_gap
+  R5 = operator_object_pair_gap
+  R8 = not_applicable
+
+repair_status:
+  E6 = no_repair
+  E2 = repaired_to_nearest_version
+  E4 = repaired_to_nearest_operator
+  E1 = unknown_or_malformed
+
+component_preservation:
+  K4 = admitted_components_preserved
+  K7 = admitted_components_nulled
+
+Required JSON keys in exact order:
+case_id, operator_admission_branch, object_admission_branch, version_ref_admission_branch, operator_object_compatibility_branch, task_phase_admissibility_branch, full_pointer_admission_branch, full_pointer_non_admission_reason_branch, repair_status_branch, component_preservation_branch, branch_selection_status, contradiction_check_rows, negative_cue_rows, forbidden_inference_rows, resident_model_competency_claim_rows, detail_notes, stop_posture
+
+Allowed status values:
+branch_selection_status: branch_selection_complete
+stop_posture: stop_after_branch_selection
+
+Row shapes:
+contradiction_check_rows: [{"contradiction_check_ref":"...","checked_branch":"...","selected_branch":"...","prose_alignment":"...","note":"..."}]
+negative_cue_rows: [{"negative_cue_ref":"...","cue_kind":"...","cue_text":"...","effect":"..."}]
+forbidden_inference_rows: [{"forbidden_inference_ref":"...","inference_kind":"...","note":"..."}]
+resident_model_competency_claim_rows: [{"competency_ref":"...","competency_kind":"...","claim_status":"claimed_for_this_artifact"}]
+detail_notes: array<string>
+
+Emit the branch-selection filing.

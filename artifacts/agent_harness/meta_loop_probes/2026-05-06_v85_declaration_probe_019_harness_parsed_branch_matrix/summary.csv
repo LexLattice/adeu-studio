@@ -1,0 +1,11 @@
+specimen_id,model,reasoning_effort,agent_nickname,input_pointer,case_id,shape_status,branch_status,consistency_status,overall_status,notable_result
+p019-mini-known-full-001,gpt-5.4-mini,medium,Heisenberg,CREATE ui.menu@v1,known_full_pointer,pass,pass,pass,pass,full canonical pointer admitted
+p019-mini-unknown-object-version-001,gpt-5.4-mini,medium,Franklin,CREATE ui.toast@v3,unknown_object_version,pass,pass,pass,pass,operator admitted; object/version/full pointer blocked
+p019-mini-unknown-operator-001,gpt-5.4-mini,medium,Ohm,FLORP ui.menu@v1,unknown_operator,pass,pass,pass,pass,operator blocked; object/version admitted; full pointer blocked
+p019-mini-unknown-version-001,gpt-5.4-mini,medium,Pasteur,CREATE ui.menu@v99,unknown_version,pass,pass,pass,pass,operator/object admitted; version/full pointer blocked
+p019-mini-unknown-all-001,gpt-5.4-mini,medium,Hilbert,FLORP ui.toast@v99,unknown_all,pass,pass,pass,pass,all components blocked; full pointer blocked
+p019-gpt54-known-full-001,gpt-5.4,medium,Bohr,CREATE ui.menu@v1,known_full_pointer,pass,pass,pass,pass,full canonical pointer admitted
+p019-gpt54-unknown-object-version-001,gpt-5.4,medium,Banach,CREATE ui.toast@v3,unknown_object_version,pass,pass,pass,pass,operator admitted; object/version/full pointer blocked
+p019-gpt54-unknown-operator-001,gpt-5.4,medium,Halley,FLORP ui.menu@v1,unknown_operator,pass,pass,pass,pass,operator blocked; object/version admitted; full pointer blocked
+p019-gpt54-unknown-version-001,gpt-5.4,medium,Maxwell,CREATE ui.menu@v99,unknown_version,pass,pass,pass,pass,operator/object admitted; version/full pointer blocked
+p019-gpt54-unknown-all-001,gpt-5.4,medium,James,FLORP ui.toast@v99,unknown_all,pass,pass,pass,pass,all components blocked; full pointer blocked

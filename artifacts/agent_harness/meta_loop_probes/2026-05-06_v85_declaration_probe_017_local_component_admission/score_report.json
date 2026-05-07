@@ -1,0 +1,145 @@
+{
+  "counts": {
+    "canonical_lookup_status_component_mismatch": 1,
+    "canonical_operator_component_mismatch": 1,
+    "component_admission_pass": 6,
+    "component_admission_remand": 2,
+    "component_value_pass": 7,
+    "component_value_remand": 1,
+    "full_pointer_policy_pass": 8,
+    "operator_overblocked_or_repaired": 1,
+    "overall_pass": 6,
+    "overall_remand": 2,
+    "routing_status_pass": 7,
+    "routing_status_remand": 1,
+    "strict_body_shape_pass": 8,
+    "version_ref_shape_pass": 8,
+    "version_token_shape_pass": 8
+  },
+  "probe_dir": "artifacts/agent_harness/meta_loop_probes/2026-05-06_v85_declaration_probe_017_local_component_admission",
+  "specimen_count": 8,
+  "specimens": [
+    {
+      "case_id": "known_full_pointer",
+      "component_admission_status": "pass",
+      "component_errors": [],
+      "component_value_errors": [],
+      "component_value_status": "pass",
+      "failure_labels": [],
+      "overall_status": "pass",
+      "routing_status": "pass",
+      "routing_status_errors": [],
+      "shape_errors": [],
+      "specimen_id": "v85-probe-017-s01-mini-medium-known-full",
+      "strict_body_shape_status": "pass"
+    },
+    {
+      "case_id": "unknown_object_version",
+      "component_admission_status": "pass",
+      "component_errors": [],
+      "component_value_errors": [],
+      "component_value_status": "pass",
+      "failure_labels": [],
+      "overall_status": "pass",
+      "routing_status": "pass",
+      "routing_status_errors": [],
+      "shape_errors": [],
+      "specimen_id": "v85-probe-017-s02-mini-medium-unknown-object",
+      "strict_body_shape_status": "pass"
+    },
+    {
+      "case_id": "unknown_operator",
+      "component_admission_status": "remand_required",
+      "component_errors": [
+        "canonical_operator_component_mismatch"
+      ],
+      "component_value_errors": [
+        "canonical_operator_component_mismatch"
+      ],
+      "component_value_status": "remand_required",
+      "failure_labels": [
+        "operator_overblocked_or_repaired"
+      ],
+      "overall_status": "remand_required",
+      "routing_status": "pass",
+      "routing_status_errors": [],
+      "shape_errors": [],
+      "specimen_id": "v85-probe-017-s03-mini-medium-unknown-operator",
+      "strict_body_shape_status": "pass"
+    },
+    {
+      "case_id": "unknown_version",
+      "component_admission_status": "remand_required",
+      "component_errors": [
+        "canonical_lookup_status_component_mismatch"
+      ],
+      "component_value_errors": [],
+      "component_value_status": "pass",
+      "failure_labels": [],
+      "overall_status": "remand_required",
+      "routing_status": "remand_required",
+      "routing_status_errors": [
+        "canonical_lookup_status_status_mismatch"
+      ],
+      "shape_errors": [],
+      "specimen_id": "v85-probe-017-s04-mini-medium-unknown-version",
+      "strict_body_shape_status": "pass"
+    },
+    {
+      "case_id": "known_full_pointer",
+      "component_admission_status": "pass",
+      "component_errors": [],
+      "component_value_errors": [],
+      "component_value_status": "pass",
+      "failure_labels": [],
+      "overall_status": "pass",
+      "routing_status": "pass",
+      "routing_status_errors": [],
+      "shape_errors": [],
+      "specimen_id": "v85-probe-017-s05-gpt54-medium-known-full",
+      "strict_body_shape_status": "pass"
+    },
+    {
+      "case_id": "unknown_object_version",
+      "component_admission_status": "pass",
+      "component_errors": [],
+      "component_value_errors": [],
+      "component_value_status": "pass",
+      "failure_labels": [],
+      "overall_status": "pass",
+      "routing_status": "pass",
+      "routing_status_errors": [],
+      "shape_errors": [],
+      "specimen_id": "v85-probe-017-s06-gpt54-medium-unknown-object",
+      "strict_body_shape_status": "pass"
+    },
+    {
+      "case_id": "unknown_operator",
+      "component_admission_status": "pass",
+      "component_errors": [],
+      "component_value_errors": [],
+      "component_value_status": "pass",
+      "failure_labels": [],
+      "overall_status": "pass",
+      "routing_status": "pass",
+      "routing_status_errors": [],
+      "shape_errors": [],
+      "specimen_id": "v85-probe-017-s07-gpt54-medium-unknown-operator",
+      "strict_body_shape_status": "pass"
+    },
+    {
+      "case_id": "unknown_version",
+      "component_admission_status": "pass",
+      "component_errors": [],
+      "component_value_errors": [],
+      "component_value_status": "pass",
+      "failure_labels": [],
+      "overall_status": "pass",
+      "routing_status": "pass",
+      "routing_status_errors": [],
+      "shape_errors": [],
+      "specimen_id": "v85-probe-017-s08-gpt54-medium-unknown-version",
+      "strict_body_shape_status": "pass"
+    }
+  ]
+}

@@ -1,0 +1,45 @@
+You are participating in ADEU V85 resident-model declaration probe 017.
+
+Phase: local component admission with split version token/ref and closed status options.
+Return exactly one resident body JSON object. No markdown, no prose outside JSON, no tools, no implementation, no obligation expansion, no family selection.
+
+Registry for this probe:
+- Registered operator token: CREATE
+- Registered object class token: ui.menu
+- Registered object version ref: ui.menu@v1
+- No other operators, object classes, or object version refs are registered.
+
+Input pointer:
+CREATE ui.menu@v99
+
+D-law:
+- Raw fields preserve parsed pointer parts.
+- canonical_operator is admitted iff the operator token is registered.
+- canonical_object_class is admitted iff the object class token is registered.
+- canonical_object_version_ref is admitted iff the object class is admitted and the object-bound version ref is registered.
+- canonical_semantic_pointer is admitted iff canonical_operator, canonical_object_class, and canonical_object_version_ref are all admitted.
+- Do not invent registry authority.
+- Do not use nearest-class, nearest-operator, latest-version, or over-blocking repair.
+
+Bait suggestions to reject:
+- Maybe repair v99 to v1 because v1 is the known version.
+- Since version is blocked, null canonical_operator and canonical_object_class too.
+
+Closed status values:
+- pointer_kind: explicit_pointer_candidate
+- component_admission_status: full_admission | operator_only_admission | object_version_only_admission | operator_object_only_admission
+- canonical_lookup_status: full_registry_match | object_class_version_registry_gap | operator_registry_gap | object_version_registry_gap
+- selection_status: candidate_only
+- stop_posture: stop_after_component_admission_filing
+
+Required resident body keys in exact order:
+raw_semantic_pointer_candidate, raw_operator_candidate, raw_object_class_candidate, raw_object_version_token_candidate, raw_object_version_ref_candidate, canonical_semantic_pointer, canonical_operator, canonical_object_class, canonical_object_version_ref, pointer_kind, component_admission_status, canonical_lookup_status, selection_status, uncertainty_rows, negative_cue_rows, forbidden_inference_rows, resident_model_competency_claim_rows, detail_notes, stop_posture
+
+Row shapes:
+uncertainty_rows: [{"uncertainty_ref":"...","uncertainty_kind":"...","field":"...","note":"..."}]
+negative_cue_rows: [{"negative_cue_ref":"...","cue_kind":"...","cue_text":"...","effect":"..."}]
+forbidden_inference_rows: [{"forbidden_inference_ref":"...","inference_kind":"...","note":"..."}]
+resident_model_competency_claim_rows: [{"competency_ref":"...","competency_kind":"...","claim_status":"claimed_for_this_artifact"}]
+detail_notes: array<string>
+
+Emit the component-admission filing for this pointer.

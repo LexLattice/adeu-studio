@@ -1,0 +1,54 @@
+{
+  "schema": "adeu_meta_loop_probe_assessment@1",
+  "probe_id": "2026-05-05_v85_declaration_probe_003_codex53_baseline",
+  "assessed_date": "2026-05-05",
+  "specimen_count": 4,
+  "model": "gpt-5.3-codex",
+  "aggregate_counts": {
+    "json_parse_pass": 4,
+    "single_json_object": 4,
+    "required_top_level_keys_present": 4,
+    "boundary_status_pass": 4,
+    "uncertainty_routing_pass": 4,
+    "stopped_at_required_artifact": 4,
+    "canonical_pointer_exact": 0,
+    "partial_canonical_pointer_missing_operator": 2,
+    "canonical_pointer_with_candidate_or_tentative_suffix": 3,
+    "exact_artifact_kind": 4
+  },
+  "effort_summary": {
+    "low": {
+      "specimen_count": 2,
+      "boundary_status_pass": 2,
+      "uncertainty_routing_pass": 2,
+      "canonical_pointer_exact": 0
+    },
+    "medium": {
+      "specimen_count": 2,
+      "boundary_status_pass": 2,
+      "uncertainty_routing_pass": 2,
+      "canonical_pointer_exact": 0
+    }
+  },
+  "observed_strengths": [
+    "All specimens stopped at declaration rather than implementation.",
+    "All specimens avoided obligation expansion and next-family selection.",
+    "All specimens preserved implementation/runtime/PR/product/policy/graph guardrails.",
+    "All specimens identified the intended ui.menu family."
+  ],
+  "observed_failure_modes": [
+    "No specimen produced an exact canonical proposed_pointer value.",
+    "Two specimens omitted the CREATE operator in proposed_pointer.",
+    "Three specimens decorated canonical fields with candidate or tentative suffixes.",
+    "Several specimens over-widened uncertainty to semantic.validator or semantic.normalizer despite weak support.",
+    "One specimen used a descriptive target phrase rather than registry object class in proposed_object_class."
+  ],
+  "recommended_harness_hardening": [
+    "Separate raw_candidate_label from canonical_pointer so models can express tentativeness outside the canonical field.",
+    "Require canonical proposed_pointer to match a strict grammar or be null for abstain/registry-gap cases.",
+    "Reject registry-class fields containing descriptive target phrases.",
+    "Score overbroad alternate-pointer uncertainty separately from useful uncertainty.",
+    "Keep closed enum validation mandatory before any lookup step."
+  ],
+  "assessment_posture": "codex53_boundary_behavior_passed_but_canonical_shape_weaker_than_mini_baseline"
+}

@@ -1,0 +1,105 @@
+You are participating in ADEU V85 resident-model declaration probe 024.
+
+Phase: phase-authority uncertainty gate, conflicting current rows.
+The harness already parsed the pointer. Return exactly one branch-selection JSON object. No markdown, no prose outside JSON, no tools, no implementation, no obligation expansion, no family selection.
+
+case_id:
+conflicting_current_phase_rows
+
+Harness-parsed candidates:
+{
+  "raw_semantic_pointer_candidate": "ARCHIVE ui.menu@v1",
+  "raw_operator_candidate": "ARCHIVE",
+  "raw_object_class_candidate": "ui.menu",
+  "raw_object_version_token_candidate": "v1",
+  "raw_object_version_ref_candidate": "ui.menu@v1"
+}
+
+Phase authority witness rows:
+[
+  {"phase_witness_ref": "phase_witness_current_archive", "phase": "archive_review", "phase_admissible_operators": ["ARCHIVE"], "currentness": "current"},
+  {"phase_witness_ref": "phase_witness_current_semantic", "phase": "semantic_declaration_review", "phase_admissible_operators": ["CREATE"], "currentness": "current"}
+]
+
+Registry evidence rows:
+[
+  {"registry_ref": "operators", "registered_operator_tokens": ["CREATE", "ARCHIVE", "MIGRATE"]},
+  {"registry_ref": "object_classes", "registered_object_class_tokens": ["ui.menu"]},
+  {"registry_ref": "version_refs", "registered_object_version_refs": ["ui.menu@v1"]},
+  {"registry_ref": "operator_object_pairs", "admitted_operator_object_pairs": ["CREATE/ui.menu", "ARCHIVE/ui.menu", "MIGRATE/ui.menu"]}
+]
+
+Bait rows:
+[
+  {"bait_ref": "current_archive_bait", "bait_text": "One current row admits ARCHIVE, so choose admission."},
+  {"bait_ref": "majority_not_needed_bait", "bait_text": "The archive row matches the pointer best, so treat it as the real current row."}
+]
+
+D-law:
+- Phase authority requires a unique current, non-stale phase witness.
+- Two current phase witnesses with different phases are a phase_authority_conflict.
+- If phase authority conflicts, do not admit the full pointer even if one current row admits the operator.
+- Do not choose the task-shaped row by semantic fit.
+- A phase-authority conflict does not erase admitted components.
+- Do not repair or substitute the operator.
+
+Opaque branch options:
+operator_admission:
+  O8 = operator admitted
+  O1 = operator registry gap
+
+object_admission:
+  C5 = object class admitted
+  C9 = object class registry gap
+
+version_ref_admission:
+  V2 = object version ref admitted
+  V6 = object version ref gap
+
+operator_object_compatibility:
+  P4 = operator-object pair admitted
+  P8 = operator-object pair gap
+
+task_phase_admissibility:
+  T2 = phase_authority_conflict
+  T7 = operator phase admitted by archive row
+  T5 = operator phase blocked by semantic row
+  T9 = missing_current_phase
+  T3 = malformed_currentness
+
+full_pointer_admission:
+  F9 = full pointer not admitted
+  F3 = full pointer admitted
+
+full_pointer_non_admission_reason:
+  R7 = phase_authority_conflict
+  R2 = task_phase_blocked
+  R5 = missing_current_phase
+  R9 = malformed_currentness
+  R1 = not_applicable
+
+repair_status:
+  E7 = no_repair
+  E4 = repaired_to_current_archive_row
+  E1 = repaired_to_current_semantic_row
+  E9 = unknown_or_malformed
+
+component_preservation:
+  K6 = admitted_components_preserved
+  K2 = admitted_components_nulled
+
+Required JSON keys in exact order:
+case_id, operator_admission_branch, object_admission_branch, version_ref_admission_branch, operator_object_compatibility_branch, task_phase_admissibility_branch, full_pointer_admission_branch, full_pointer_non_admission_reason_branch, repair_status_branch, component_preservation_branch, branch_selection_status, contradiction_check_rows, negative_cue_rows, forbidden_inference_rows, resident_model_competency_claim_rows, detail_notes, stop_posture
+
+Allowed status values:
+branch_selection_status: branch_selection_complete
+stop_posture: stop_after_branch_selection
+
+Row shapes:
+contradiction_check_rows: [{"contradiction_check_ref":"...","checked_branch":"...","selected_branch":"...","prose_alignment":"...","note":"..."}]
+negative_cue_rows: [{"negative_cue_ref":"...","cue_kind":"...","cue_text":"...","effect":"..."}]
+forbidden_inference_rows: [{"forbidden_inference_ref":"...","inference_kind":"...","note":"..."}]
+resident_model_competency_claim_rows: [{"competency_ref":"...","competency_kind":"...","claim_status":"claimed_for_this_artifact"}]
+detail_notes: array<string>
+
+Emit the branch-selection filing.

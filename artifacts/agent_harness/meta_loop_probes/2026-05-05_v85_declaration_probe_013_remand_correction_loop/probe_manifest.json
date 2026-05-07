@@ -1,0 +1,70 @@
+{
+  "schema": "adeu_meta_loop_probe_manifest@1",
+  "probe_id": "2026-05-05_v85_declaration_probe_013_remand_correction_loop",
+  "created_date": "2026-05-05",
+  "arc_context": "post_v85_dogfood_resident_model_meta_loop",
+  "iteration": 6,
+  "purpose": "Test the correction branch of the remand circuit: same resident agent receives remand reasons, emits a corrected semantic body, and preserves the original semantic route.",
+  "models": [
+    {
+      "model": "gpt-5.4-mini",
+      "reasoning_efforts": [
+        "low",
+        "medium"
+      ],
+      "specimens": 2
+    },
+    {
+      "model": "gpt-5.4",
+      "reasoning_efforts": [
+        "low",
+        "medium"
+      ],
+      "specimens": 2
+    }
+  ],
+  "correction_cases": [
+    {
+      "case_id": "fixed_field_pollution",
+      "input_case_id": "exact_menu_declaration",
+      "initial_prompt_sha256": "f180b97c1220e29686ea6b4b6558524574a548a58c64edef79a89b5c03341cae",
+      "remand_prompt_sha256": "548cbb58e0978bcb0fefa1709bd68ed4c26329984ba3592d5741678944aefa3a",
+      "expected_initial_status": "remand_required",
+      "expected_final_status": "accepted_filing"
+    },
+    {
+      "case_id": "nearest_class_repair",
+      "input_case_id": "unknown_class_registry_gap",
+      "initial_prompt_sha256": "91a530d4d1345d57047287e9a300553c00f1ef104d5e4553d1c832ab6db48d52",
+      "remand_prompt_sha256": "c07ae30136123c5b0a63f8898843de07c0a5059890105df14843534fcaf7372a",
+      "expected_initial_status": "remand_required",
+      "expected_final_status": "accepted_filing"
+    },
+    {
+      "case_id": "malformed_uncertainty_row",
+      "input_case_id": "opaque_pointer_obedience_only",
+      "initial_prompt_sha256": "8149c604129e3028c8d26e86107d0027443416da726bc216a2144d1bdf164b2e",
+      "remand_prompt_sha256": "f877a4235069aaf9e3b8a3dc70c02c774e4e3a961e84f8e6d8178a161d03d0b2",
+      "expected_initial_status": "remand_required",
+      "expected_final_status": "accepted_filing"
+    },
+    {
+      "case_id": "bad_competency_claim_status",
+      "input_case_id": "ambiguous_task_abstain",
+      "initial_prompt_sha256": "da143cfd3d92c54f39262c75bda1e0d2492c5630683f80e3997b5ddec12701f0",
+      "remand_prompt_sha256": "f9844c2b6b1e06aeb4ceedd9b332a6145ed09a98d43c467673e533c2fdc48bbf",
+      "expected_initial_status": "remand_required",
+      "expected_final_status": "accepted_filing"
+    }
+  ],
+  "harness_behavior_under_test": [
+    "Emit remand_required for a surgical invalid body.",
+    "Send remand reasons back to the same resident agent thread.",
+    "Require corrected body output without implementation, obligation expansion, or route change.",
+    "Accept only a corrected assembled filing that preserves the original semantic route."
+  ],
+  "persistence_notes": [
+    "SERIES_INTERPRETATION_v0.md records the current evidence boundary and the no-overclaim rule for the probe series.",
+    "The corrected body is also stored as raw_agent_body / assembled_artifact so the generic scorer validates the accepted final filing."
+  ]
+}

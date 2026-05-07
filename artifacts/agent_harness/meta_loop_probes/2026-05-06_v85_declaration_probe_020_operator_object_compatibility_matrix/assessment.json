@@ -1,0 +1,51 @@
+{
+  "schema": "adeu_meta_loop_probe_assessment@1",
+  "probe_id": "2026-05-06_v85_declaration_probe_020_operator_object_compatibility_matrix",
+  "assessment_date": "2026-05-06",
+  "verdict": "partial_pass_with_useful_failure",
+  "headline_counts": {
+    "specimen_count": 14,
+    "shape_pass": 14,
+    "branch_pass": 13,
+    "policy_pass": 13,
+    "overall_pass": 13,
+    "overall_remand": 1
+  },
+  "model_breakdown": [
+    {
+      "model": "gpt-5.4-mini",
+      "reasoning_effort": "medium",
+      "specimens": 7,
+      "overall_pass": 7,
+      "overall_remand": 0
+    },
+    {
+      "model": "gpt-5.4",
+      "reasoning_effort": "medium",
+      "specimens": 7,
+      "overall_pass": 6,
+      "overall_remand": 1
+    }
+  ],
+  "failure": {
+    "specimen_id": "p020-gpt54-delete-menu-operator-gap-001",
+    "case_id": "delete_menu_operator_gap",
+    "expected_full_pointer_branch": "S9",
+    "observed_full_pointer_branch": "S2",
+    "failure_kind": "full_pointer_null_vs_repaired_or_unknown_confusion",
+    "interpretation": "The resident preserved the raw operator gap and component admissions, but treated the explicit full-pointer null branch as if it would null admitted object/version components. It chose the repaired_or_unknown branch while its prose claimed an unrepaired non-admitted outcome."
+  },
+  "proven": [
+    "The multi-registry compatibility gate works for most cases under harness-parsed closed branch selection.",
+    "Component existence alone did not cause full pointer admission in the PROJECT/ui.menu compatibility-block case.",
+    "Version gaps blocked full pointer admission without nearest-version repair in ui.modal@v2 and ui.menu@v2 cases.",
+    "gpt-5.4-mini passed all seven cases in the bounded branch-selection role."
+  ],
+  "not_proven": [
+    "That the current full-pointer null branch wording is unambiguous under operator-gap cases.",
+    "That residents reliably distinguish full pointer null from component nulling without an explicit separate component-preservation branch.",
+    "That larger registries or hidden D-law binding will remain stable."
+  ],
+  "architecture_read": "Probe 020 confirms the next D-law: full pointer admission requires component admission, operator-object compatibility, and task-phase admissibility. It also shows that full-pointer non-admission should be represented separately from component nulling and from repaired/unknown pointer states.",
+  "recommended_next_probe": "Probe 021 should isolate the DELETE/operator-gap failure with split fields: full_pointer_admission = admitted/not_admitted, full_pointer_non_admission_reason = operator_registry_gap, and component_preservation branches for object/version. This should test whether residents stop treating full pointer null as erasing admitted components."
+}

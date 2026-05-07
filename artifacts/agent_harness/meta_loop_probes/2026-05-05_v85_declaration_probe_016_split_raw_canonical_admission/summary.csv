@@ -1,0 +1,9 @@
+specimen_id,model,reasoning_effort,agent_nickname,case_id,input_pointer,strict_body_shape_status,component_admission_status,raw_version_shape,notable_result
+v85-probe-016-s01-mini-medium-known-full,gpt-5.4-mini,medium,Anscombe,known_full_pointer,CREATE ui.menu@v1,pass,pass,object_bound_version,full canonical admission
+v85-probe-016-s02-mini-medium-unknown-object,gpt-5.4-mini,medium,Huygens,unknown_object_version,CREATE ui.toast@v3,pass,remand_required,version_token_only,missed registered operator admission while blocking object/version
+v85-probe-016-s03-mini-medium-unknown-operator,gpt-5.4-mini,medium,Feynman,unknown_operator,FLORP ui.menu@v1,pass,pass,version_token_only,operator blocked while object/version admitted
+v85-probe-016-s04-mini-medium-unknown-version,gpt-5.4-mini,medium,Dewey,unknown_version,CREATE ui.menu@v99,pass,pass,version_token_only,version blocked while operator/object admitted
+v85-probe-016-s05-gpt54-medium-known-full,gpt-5.4,medium,Hegel,known_full_pointer,CREATE ui.menu@v1,pass,pass,object_bound_version,full canonical admission
+v85-probe-016-s06-gpt54-medium-unknown-object,gpt-5.4,medium,Maxwell,unknown_object_version,CREATE ui.toast@v3,pass,pass,object_bound_version,operator admitted while object/version blocked
+v85-probe-016-s07-gpt54-medium-unknown-operator,gpt-5.4,medium,Curie,unknown_operator,FLORP ui.menu@v1,pass,pass,object_bound_version,operator blocked while object/version admitted
+v85-probe-016-s08-gpt54-medium-unknown-version,gpt-5.4,medium,Euclid,unknown_version,CREATE ui.menu@v99,pass,pass,object_bound_version,version blocked while operator/object admitted

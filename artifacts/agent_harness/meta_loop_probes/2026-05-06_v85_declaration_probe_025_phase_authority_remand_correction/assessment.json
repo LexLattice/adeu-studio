@@ -1,0 +1,49 @@
+{
+  "schema": "adeu_meta_loop_probe_assessment@1",
+  "probe_id": "2026-05-06_v85_declaration_probe_025_phase_authority_remand_correction",
+  "assessment_date": "2026-05-06",
+  "verdict": "clean_pass",
+  "headline_counts": {
+    "specimen_count": 8,
+    "shape_pass": 8,
+    "branch_pass": 8,
+    "policy_pass": 8,
+    "overall_pass": 8,
+    "component_preservation_pass": 8,
+    "repair_status_pass": 8,
+    "remand_correction_admission_pass": 6,
+    "unresolved_non_admission_preserved_pass": 2
+  },
+  "model_breakdown": [
+    {
+      "model": "gpt-5.4-mini",
+      "reasoning_effort": "medium",
+      "specimens": 4,
+      "overall_pass": 4
+    },
+    {
+      "model": "gpt-5.4",
+      "reasoning_effort": "medium",
+      "specimens": 4,
+      "overall_pass": 4
+    }
+  ],
+  "proven": [
+    "Residents can apply harness-supplied phase-witness remand corrections and recompute admission from the corrected witness state.",
+    "A conflict remand can become admission when the harness supplies a unique current non-stale archive witness.",
+    "A missing-current remand can become admission when the harness supplies the missing current archive witness.",
+    "A malformed-currentness remand can become admission when the harness supplies an exact current marker.",
+    "An unresolved conflict remains non-admitted when the remand supplies no lawful unique current witness.",
+    "Both models preserved admitted components, selected no_repair, rejected witness invention, and did not expand full pointer admission into execution or obligation authority."
+  ],
+  "not_proven": [
+    "A real runtime harness generating remand packets from validation failures.",
+    "Resident diagnosis from sparse remand reasons without supplied corrected witness rows.",
+    "Natural task to semantic pointer binding.",
+    "Large-registry generalization with many phase witnesses and overlapping operator tables.",
+    "Fully opaque branch meanings.",
+    "Multi-turn recovery where the resident edits the witness artifact rather than selecting branches after a supplied correction."
+  ],
+  "architecture_read": "Probe 025 confirms the remand-correction branch for phase authority. The resident can recompute closed branch selections from harness-supplied corrected witness rows, while unresolved phase-authority defects remain non-admission states. The harness, not the resident, supplies or withholds phase-authority repair.",
+  "recommended_next_probe": "Probe 026 should reduce scaffolding by testing a two-stage remand loop: the resident first selects a phase-authority defect branch, then receives a sparse remand packet with either a candidate corrected witness or only failure reasons, and must preserve component admissions while avoiding invented phase authority."
+}

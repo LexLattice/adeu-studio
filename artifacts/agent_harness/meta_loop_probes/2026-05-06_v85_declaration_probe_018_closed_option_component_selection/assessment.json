@@ -1,0 +1,33 @@
+{
+  "schema": "adeu_meta_loop_probe_assessment@1",
+  "probe_id": "2026-05-06_v85_declaration_probe_018_closed_option_component_selection",
+  "assessed_date": "2026-05-06",
+  "specimen_count": 6,
+  "summary_counts": {
+    "shape_pass": 6,
+    "branch_pass": 6,
+    "status_pass": 6,
+    "consistency_pass": 6,
+    "raw_parse_pass": 4,
+    "raw_parse_remand": 2,
+    "overall_pass": 4,
+    "overall_remand": 2
+  },
+  "primary_findings": [
+    "Closed-option branch selection fixed the Probe 017 gpt-5.4-mini nearest-operator repair leak.",
+    "All four gpt-5.4-mini specimens selected OP_B / OBJ_A / VER_A / PTR_C exactly.",
+    "All six specimens rejected full pointer admission and preserved object/version branches despite operator gap.",
+    "The only remands were raw parse token/ref mismatches in the two gpt-5.4 control specimens."
+  ],
+  "evidence_boundary": [
+    "Probe 018 proves closed branch choices can stabilize the FLORP operator-gap case in this prompt frame.",
+    "Probe 018 does not prove resident-authored raw token parsing is reliable.",
+    "Probe 018 strengthens the case for harness-owned raw parsing plus resident branch selection."
+  ],
+  "recommended_next_iteration": [
+    "Move raw pointer parsing into harness-owned fields.",
+    "Ask resident models to select branch IDs over harness-provided raw operator/object/version candidates.",
+    "Continue using contradiction checks to catch field/prose disagreement when free fields remain."
+  ],
+  "overall_assessment": "Probe 018 is a strong confirmation that closed-option branch selection removes the mini component-repair leak. Remaining failures are raw parse token/ref precision, not semantic branch choice."
+}

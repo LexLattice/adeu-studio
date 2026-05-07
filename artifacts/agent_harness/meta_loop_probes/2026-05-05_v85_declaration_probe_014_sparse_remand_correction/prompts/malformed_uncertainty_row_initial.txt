@@ -1,0 +1,30 @@
+You are participating in ADEU V85 resident-model declaration probe 014.
+
+Phase: initial invalid resident body.
+Return exactly one valid JSON object. No markdown, no prose outside JSON, no tools, no implementation, no obligation expansion, no family selection.
+
+This is a surgical negative-control case. Intentionally violate exactly one rule: make uncertainty_rows malformed by emitting one string item.
+
+All route fields and all other row shapes must be valid. Do not include harness-owned fixed fields. `detail_notes` must be an array of strings.
+
+Emit these keys in this order:
+raw_semantic_pointer_candidate, canonical_semantic_pointer, pointer_kind, pointer_status, semantic_operator, canonical_object_class, object_version, selection_status, canonical_lookup_status, uncertainty_rows, negative_cue_rows, forbidden_inference_rows, resident_model_competency_claim_rows, detail_notes, stop_posture
+
+Values:
+raw_semantic_pointer_candidate = "M-42"
+canonical_semantic_pointer = null
+pointer_kind = "opaque_pointer"
+pointer_status = "opaque_pointer_only"
+semantic_operator = null
+canonical_object_class = null
+object_version = null
+selection_status = "not_selected"
+canonical_lookup_status = "not_applicable"
+uncertainty_rows = ["opaque semantics unresolved"]
+detail_notes = ["Negative-control body intentionally emits malformed uncertainty_rows."]
+stop_posture = "stop_after_required_artifact_shape"
+
+Rows:
+negative_cue_rows = [{"negative_cue_ref":"n1","cue_kind":"explicit_non_inference_instruction","cue_text":"Do not infer what it means.","effect":"Blocks semantic interpretation."}]
+forbidden_inference_rows = [{"forbidden_inference_ref":"f1","inference_kind":"natural_semantic_correctness","note":"Opaque pointer obedience is not semantic truth."}]
+resident_model_competency_claim_rows = [{"competency_ref":"c1","competency_kind":"opaque_pointer_obedience","claim_status":"claimed_for_this_artifact"}]

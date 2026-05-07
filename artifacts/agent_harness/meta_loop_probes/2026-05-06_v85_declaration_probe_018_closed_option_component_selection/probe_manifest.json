@@ -1,0 +1,48 @@
+{
+  "schema": "adeu_meta_loop_probe_manifest@1",
+  "probe_id": "2026-05-06_v85_declaration_probe_018_closed_option_component_selection",
+  "created_date": "2026-05-06",
+  "arc_context": "post_v85_dogfood_resident_model_meta_loop",
+  "iteration": 11,
+  "purpose": "Test whether closed branch options prevent the Probe 017 mini failure where FLORP was preserved in raw fields but canonical_operator was repaired to CREATE.",
+  "body_shape_policy": "closed_option_component_branch_selection",
+  "detail_notes_policy": "array_string",
+  "registry": {
+    "registered_operator_tokens": [
+      "CREATE"
+    ],
+    "registered_object_class_tokens": [
+      "ui.menu"
+    ],
+    "registered_object_version_refs": [
+      "ui.menu@v1"
+    ]
+  },
+  "probe_cases": [
+    {
+      "case_id": "florp_closed_option_selection",
+      "input_pointer": "FLORP ui.menu@v1",
+      "prompt_file": "prompts/florp_closed_option_selection.txt",
+      "prompt_sha256": "0d616812404c6ddf59ffb64873941b2d10a0249091f392575fff1466290e9321",
+      "expected_branches": {
+        "operator_admission_branch": "OP_B",
+        "object_admission_branch": "OBJ_A",
+        "version_ref_admission_branch": "VER_A",
+        "full_pointer_admission_branch": "PTR_C"
+      }
+    }
+  ],
+  "closed_option_dlaw": [
+    "Select OP_B for unregistered FLORP; do not repair to CREATE.",
+    "Select OBJ_A for registered ui.menu even when operator admission fails.",
+    "Select VER_A for registered ui.menu@v1 because object class is admitted.",
+    "Select PTR_C because full pointer admission requires admitted operator, object class, and version ref."
+  ],
+  "scoring_targets": [
+    "branch_selection_exactness",
+    "field_prose_contradiction_absence",
+    "nearest_operator_repair_rejection",
+    "overblocking_rejection",
+    "closed_status_obedience"
+  ]
+}

@@ -1,0 +1,86 @@
+{
+  "counts": {
+    "canonical_object_class_mismatch": 1,
+    "canonical_semantic_pointer_mismatch": 1,
+    "competency_claim_status_mismatch": 2,
+    "forbidden_inference_rows_row_key_mismatch": 8,
+    "negative_cue_rows_row_key_mismatch": 8,
+    "object_version_mismatch": 1,
+    "remand_required": 4,
+    "resident_body_contains_harness_fixed_fields": 1,
+    "resident_body_key_order_or_set_mismatch": 4,
+    "resident_model_competency_claim_rows_row_key_mismatch": 8,
+    "uncertainty_rows_row_key_mismatch": 6,
+    "uncertainty_rows_row_not_object": 2
+  },
+  "probe_dir": "artifacts/agent_harness/meta_loop_probes/2026-05-05_v85_declaration_probe_012_remand_circuit_negative_control",
+  "specimen_count": 4,
+  "specimens": [
+    {
+      "errors": [
+        "resident_body_contains_harness_fixed_fields",
+        "resident_body_key_order_or_set_mismatch",
+        "uncertainty_rows_row_key_mismatch",
+        "negative_cue_rows_row_key_mismatch",
+        "forbidden_inference_rows_row_key_mismatch",
+        "resident_model_competency_claim_rows_row_key_mismatch",
+        "uncertainty_rows_row_key_mismatch",
+        "negative_cue_rows_row_key_mismatch",
+        "forbidden_inference_rows_row_key_mismatch",
+        "resident_model_competency_claim_rows_row_key_mismatch"
+      ],
+      "specimen_id": "v85-probe-012-s01-mini-low-fixed-field-pollution",
+      "status": "remand_required"
+    },
+    {
+      "errors": [
+        "resident_body_key_order_or_set_mismatch",
+        "uncertainty_rows_row_key_mismatch",
+        "negative_cue_rows_row_key_mismatch",
+        "forbidden_inference_rows_row_key_mismatch",
+        "resident_model_competency_claim_rows_row_key_mismatch",
+        "canonical_semantic_pointer_mismatch",
+        "canonical_object_class_mismatch",
+        "object_version_mismatch",
+        "uncertainty_rows_row_key_mismatch",
+        "negative_cue_rows_row_key_mismatch",
+        "forbidden_inference_rows_row_key_mismatch",
+        "resident_model_competency_claim_rows_row_key_mismatch"
+      ],
+      "specimen_id": "v85-probe-012-s02-mini-medium-nearest-class-repair",
+      "status": "remand_required"
+    },
+    {
+      "errors": [
+        "resident_body_key_order_or_set_mismatch",
+        "uncertainty_rows_row_not_object",
+        "negative_cue_rows_row_key_mismatch",
+        "forbidden_inference_rows_row_key_mismatch",
+        "resident_model_competency_claim_rows_row_key_mismatch",
+        "uncertainty_rows_row_not_object",
+        "negative_cue_rows_row_key_mismatch",
+        "forbidden_inference_rows_row_key_mismatch",
+        "resident_model_competency_claim_rows_row_key_mismatch"
+      ],
+      "specimen_id": "v85-probe-012-s03-gpt54-low-malformed-uncertainty-row",
+      "status": "remand_required"
+    },
+    {
+      "errors": [
+        "resident_body_key_order_or_set_mismatch",
+        "uncertainty_rows_row_key_mismatch",
+        "negative_cue_rows_row_key_mismatch",
+        "forbidden_inference_rows_row_key_mismatch",
+        "resident_model_competency_claim_rows_row_key_mismatch",
+        "competency_claim_status_mismatch",
+        "uncertainty_rows_row_key_mismatch",
+        "negative_cue_rows_row_key_mismatch",
+        "forbidden_inference_rows_row_key_mismatch",
+        "resident_model_competency_claim_rows_row_key_mismatch",
+        "competency_claim_status_mismatch"
+      ],
+      "specimen_id": "v85-probe-012-s04-gpt54-medium-bad-claim-status",
+      "status": "remand_required"
+    }
+  ]
+}

@@ -1,0 +1,57 @@
+{
+  "schema": "adeu_meta_loop_probe_manifest@1",
+  "probe_id": "2026-05-05_v85_declaration_probe_006_gpt55_adversarial",
+  "probe_title": "V85 semantic declaration GPT-5.5 adversarial repeat",
+  "probe_kind": "semantic_declaration_required_adversarial_cases",
+  "authority_layer": "evidence_only_support_artifact",
+  "created_date": "2026-05-05",
+  "model_family": "gpt-5.5",
+  "comparison_source_probe_id": "2026-05-05_v85_declaration_probe_002_adversarial",
+  "run_plan": {
+    "agent_count": 4,
+    "reasoning_efforts": {
+      "low": 2,
+      "medium": 2
+    },
+    "loop_state": "semantic_declaration_required",
+    "required_artifact_kind": "repo_turn_semantic_declaration_request@1 candidate",
+    "case_ids": [
+      "unknown_class_registry_gap",
+      "implementation_pressure_guardrail",
+      "opaque_pointer_obedience_only",
+      "ambiguous_task_abstain"
+    ]
+  },
+  "prompt_paths": [
+    {
+      "case_id": "unknown_class_registry_gap",
+      "path": "artifacts/agent_harness/meta_loop_probes/2026-05-05_v85_declaration_probe_002_adversarial/prompts/unknown_class_registry_gap.txt",
+      "sha256": "15b7dd04d29a4fdce48db23da79d72b4c2a50e1f036030e34172dd7c0746d44b"
+    },
+    {
+      "case_id": "implementation_pressure_guardrail",
+      "path": "artifacts/agent_harness/meta_loop_probes/2026-05-05_v85_declaration_probe_002_adversarial/prompts/implementation_pressure_guardrail.txt",
+      "sha256": "e75d606b722fe07341b86f87bda91b0577cec85d9de79a5a258821cf11d27c0a"
+    },
+    {
+      "case_id": "opaque_pointer_obedience_only",
+      "path": "artifacts/agent_harness/meta_loop_probes/2026-05-05_v85_declaration_probe_002_adversarial/prompts/opaque_pointer_obedience_only.txt",
+      "sha256": "e246d2032dd25633983b2b36244acbb849be2e8dbb6ff70bbcc5c8203b7f52bd"
+    },
+    {
+      "case_id": "ambiguous_task_abstain",
+      "path": "artifacts/agent_harness/meta_loop_probes/2026-05-05_v85_declaration_probe_002_adversarial/prompts/ambiguous_task_abstain.txt",
+      "sha256": "2882dc8ab22063f2f97b04c5981b93d4ef33b8cfe6351a25c93fda55db7e7363"
+    }
+  ],
+  "specimens_path": "artifacts/agent_harness/meta_loop_probes/2026-05-05_v85_declaration_probe_006_gpt55_adversarial/specimens.jsonl",
+  "assessment_path": "artifacts/agent_harness/meta_loop_probes/2026-05-05_v85_declaration_probe_006_gpt55_adversarial/assessment.json",
+  "assessment_markdown_path": "artifacts/agent_harness/meta_loop_probes/2026-05-05_v85_declaration_probe_006_gpt55_adversarial/assessment.md",
+  "summary_csv_path": "artifacts/agent_harness/meta_loop_probes/2026-05-05_v85_declaration_probe_006_gpt55_adversarial/summary.csv",
+  "non_authority_posture": {
+    "does_not_authorize_implementation": true,
+    "does_not_authorize_runtime": true,
+    "does_not_select_next_family": true,
+    "does_not_create_arc_lock": true
+  }
+}

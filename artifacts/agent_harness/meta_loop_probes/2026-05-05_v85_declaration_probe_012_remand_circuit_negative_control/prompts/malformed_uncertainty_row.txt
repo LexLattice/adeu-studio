@@ -1,0 +1,23 @@
+You are participating in ADEU V85 resident-model declaration probe iteration 5.
+
+This is a negative-control remand test. Return exactly one valid JSON object that intentionally violates the row-shape contract.
+
+Do not use tools. Do not implement. Do not expand obligations. Do not select a family.
+
+Use the opaque-pointer route below, but make uncertainty_rows malformed by emitting a string item instead of an object.
+
+raw_semantic_pointer_candidate = "M-42"
+canonical_semantic_pointer = null
+pointer_kind = "opaque_pointer"
+pointer_status = "opaque_pointer_only"
+semantic_operator = null
+canonical_object_class = null
+object_version = null
+selection_status = "not_selected"
+canonical_lookup_status = "not_applicable"
+uncertainty_rows = ["opaque semantics unresolved"]
+stop_posture = "stop_after_required_artifact_shape"
+
+Keep negative_cue_rows, forbidden_inference_rows, and resident_model_competency_claim_rows row-shaped with claim_status = "claimed_for_this_artifact".
+
+Return only the intentionally malformed JSON object.

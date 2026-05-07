@@ -1,0 +1,69 @@
+{
+  "schema": "adeu_meta_loop_probe_manifest@1",
+  "probe_id": "2026-05-05_v85_declaration_probe_016_split_raw_canonical_admission",
+  "created_date": "2026-05-05",
+  "arc_context": "post_v85_dogfood_resident_model_meta_loop",
+  "iteration": 9,
+  "purpose": "Test split raw/canonical component admission after Probe 015 showed that raw semantic preservation and canonical authority must be separated.",
+  "body_shape_policy": "split_raw_canonical_component_admission",
+  "detail_notes_policy": "array_string",
+  "registry": {
+    "registered_operators": [
+      "CREATE"
+    ],
+    "registered_object_classes": [
+      "ui.menu"
+    ],
+    "registered_object_versions": [
+      "ui.menu@v1"
+    ]
+  },
+  "models": [
+    {
+      "model": "gpt-5.4-mini",
+      "reasoning_effort": "medium",
+      "specimens": 4
+    },
+    {
+      "model": "gpt-5.4",
+      "reasoning_effort": "medium",
+      "specimens": 4
+    }
+  ],
+  "probe_cases": [
+    {
+      "case_id": "known_full_pointer",
+      "input_pointer": "CREATE ui.menu@v1",
+      "prompt_file": "prompts/known_full_pointer.txt",
+      "prompt_sha256": "fd2b71f060a2221ae8b9f497ba62b014f584aa969f1d56e823566a9735465f49",
+      "expected_result": "full_canonical_pointer_admitted_for_review_only"
+    },
+    {
+      "case_id": "unknown_object_version",
+      "input_pointer": "CREATE ui.toast@v3",
+      "prompt_file": "prompts/unknown_object_version.txt",
+      "prompt_sha256": "5f59629bf2c60eaa596f114a58b48eb8ce5d6ef89bcbf997ecb7ab8bc097ac27",
+      "expected_result": "operator_admitted_object_and_version_blocked"
+    },
+    {
+      "case_id": "unknown_operator",
+      "input_pointer": "FLORP ui.menu@v1",
+      "prompt_file": "prompts/unknown_operator.txt",
+      "prompt_sha256": "3d88c9b4bfa00470eaaee48a9a14479ba557ee57fb47442a4da50345596782a2",
+      "expected_result": "operator_blocked_object_and_version_admitted"
+    },
+    {
+      "case_id": "unknown_version",
+      "input_pointer": "CREATE ui.menu@v99",
+      "prompt_file": "prompts/unknown_version.txt",
+      "prompt_sha256": "356a44b6fe86b96717eae3f5bbb2e15604237623375343db8a79c34fc2d0ef4d",
+      "expected_result": "operator_and_object_admitted_version_blocked"
+    }
+  ],
+  "split_admission_dlaw": [
+    "Raw fields preserve parsed pointer parts.",
+    "Canonical fields admit only registry-backed components.",
+    "canonical_semantic_pointer is non-null only when operator, object class, and object version are all admitted.",
+    "Nearest-class, nearest-operator, and latest-version repair are forbidden."
+  ]
+}

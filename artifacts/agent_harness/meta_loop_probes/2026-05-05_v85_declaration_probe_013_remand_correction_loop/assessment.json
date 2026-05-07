@@ -1,0 +1,33 @@
+{
+  "schema": "adeu_meta_loop_probe_assessment@1",
+  "probe_id": "2026-05-05_v85_declaration_probe_013_remand_correction_loop",
+  "assessed_date": "2026-05-05",
+  "specimen_count": 4,
+  "summary_counts": {
+    "initial_body_json_parse_pass": 4,
+    "initial_remand_required": 4,
+    "corrected_body_json_parse_pass": 4,
+    "corrected_accepted_filing": 4,
+    "route_preserved_after_correction": 4,
+    "silent_repair": 0,
+    "implementation_or_obligation_expansion": 0
+  },
+  "primary_findings": [
+    "The correction loop worked across all four surgical cases.",
+    "Each initial invalid body was remanded with a targeted reason.",
+    "Each same-agent correction produced a valid resident body and accepted assembled filing.",
+    "The most important semantic case passed: CREATE ui.toast@v3 remained a registry gap after correction and was not repaired into CREATE ui.menu@v1.",
+    "This proves a fuller local circuit: body submitted -> remand_required -> corrected body submitted -> accepted_filing."
+  ],
+  "evidence_boundary": [
+    "This proves harnessable filing, remand, and correction for declared routes.",
+    "It still does not prove broad autonomous natural semantic binding at scale.",
+    "Opaque pointer handling here remains discrimination and correction, not full opaque meta-list execution."
+  ],
+  "recommended_next_iteration": [
+    "Run hidden-route binding probes where the expected semantic route is not explicitly given in the prompt.",
+    "Run a pure opaque sequence probe that checks order, duplicates, unknown IDs, and step-index advancement.",
+    "Move stop_posture toward harness ownership in the next harness design, because it is procedural closure law rather than semantic content."
+  ],
+  "overall_assessment": "Probe 013 validates the remand-correction branch of the resident-model meta-loop. The resident model can receive precise remand reasons, correct only the invalid filing surface, and preserve the semantic route under harness validation."
+}

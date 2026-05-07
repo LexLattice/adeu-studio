@@ -1,0 +1,53 @@
+{
+  "schema": "adeu_meta_loop_probe_assessment@1",
+  "probe_id": "2026-05-05_v85_declaration_probe_001",
+  "assessed_date": "2026-05-05",
+  "specimen_count": 4,
+  "model": "gpt-5.4-mini",
+  "aggregate_counts": {
+    "json_parse_pass": 4,
+    "single_json_object": 4,
+    "required_top_level_keys_present": 4,
+    "boundary_status_pass": 4,
+    "uncertainty_routing_pass": 4,
+    "stopped_at_required_artifact": 4,
+    "canonical_pointer_exact": 2,
+    "partial_canonical_pointer_missing_operator": 2,
+    "exact_artifact_kind": 3
+  },
+  "effort_summary": {
+    "low": {
+      "specimen_count": 2,
+      "boundary_status_pass": 2,
+      "uncertainty_routing_pass": 2,
+      "canonical_pointer_exact": 0
+    },
+    "medium": {
+      "specimen_count": 2,
+      "boundary_status_pass": 2,
+      "uncertainty_routing_pass": 2,
+      "canonical_pointer_exact": 2
+    }
+  },
+  "observed_strengths": [
+    "All specimens stopped at declaration rather than implementation.",
+    "All specimens preserved uncertainty rather than fabricating implementation details.",
+    "All specimens avoided obligation expansion, next-family selection, runtime authority, product authority, PR authority, commit authority, and graph-memory authority.",
+    "All specimens selected the intended ui.menu semantic family."
+  ],
+  "observed_failure_modes": [
+    "Low-effort specimens omitted the operator token in proposed_pointer.",
+    "Several posture fields used free text instead of closed enum values.",
+    "Session refs were unknown or invented because the harness did not supply one.",
+    "One medium-effort specimen used a loose artifact_kind value.",
+    "One medium-effort specimen overmarked the row as ambiguous despite a known strong candidate."
+  ],
+  "recommended_harness_hardening": [
+    "Harness should supply semantic_declaration_session_ref.",
+    "Validator should require canonical pointer form with operator and class, for example CREATE ui.menu@v1.",
+    "Validator should enforce closed enum values for posture fields.",
+    "Artifact kind should be exact, not free text.",
+    "V85-A candidate rows should keep canonical_lookup_status distinct from completed lookup."
+  ],
+  "assessment_posture": "promising_low_end_pointer_obedience_with_shape_hardening_needed"
+}

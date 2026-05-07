@@ -1,0 +1,101 @@
+{
+  "probe_id": "v85_declaration_probe_024_phase_authority_uncertainty",
+  "created_at": "2026-05-06",
+  "purpose": "Test whether phase authority requires a unique current, non-stale phase witness before full pointer admission.",
+  "target_law": "phase authority requires a unique current, non-stale phase witness",
+  "evidence_boundary": [
+    "Tests bounded branch selection with harness-parsed candidates, closed branches, explicit D-law, and phase authority witness rows.",
+    "Does not test natural-language semantic binding, resident-owned parsing, canonical materialization, implementation authority, or fully hidden branch semantics."
+  ],
+  "expected_cases": {
+    "stale_archive_current_semantic_blocks": {
+      "prompt_file": "prompts/stale_archive_current_semantic_blocks.txt",
+      "prompt_sha256": "14a45e6b6a3162c2120d0fa322fd090434555588b883fe5963c526f97d4c7dcc",
+      "input_pointer": "ARCHIVE ui.menu@v1",
+      "expected": {
+        "operator_admission_branch": "O4",
+        "object_admission_branch": "C2",
+        "version_ref_admission_branch": "V5",
+        "operator_object_compatibility_branch": "P7",
+        "task_phase_admissibility_branch": "T6",
+        "full_pointer_admission_branch": "F5",
+        "full_pointer_non_admission_reason_branch": "R4",
+        "repair_status_branch": "E1",
+        "component_preservation_branch": "K3"
+      }
+    },
+    "conflicting_current_phase_rows": {
+      "prompt_file": "prompts/conflicting_current_phase_rows.txt",
+      "prompt_sha256": "b1dd739ff2ca18706463d22bbdadd826e05c1942922eb949c28b5cda610298e4",
+      "input_pointer": "ARCHIVE ui.menu@v1",
+      "expected": {
+        "operator_admission_branch": "O8",
+        "object_admission_branch": "C5",
+        "version_ref_admission_branch": "V2",
+        "operator_object_compatibility_branch": "P4",
+        "task_phase_admissibility_branch": "T2",
+        "full_pointer_admission_branch": "F9",
+        "full_pointer_non_admission_reason_branch": "R7",
+        "repair_status_branch": "E7",
+        "component_preservation_branch": "K6"
+      }
+    },
+    "missing_current_phase_row": {
+      "prompt_file": "prompts/missing_current_phase_row.txt",
+      "prompt_sha256": "ddf0524178a3f32e2073a92038033afeafb4c7236a7b6d69319cf941b79f6421",
+      "input_pointer": "ARCHIVE ui.menu@v1",
+      "expected": {
+        "operator_admission_branch": "O5",
+        "object_admission_branch": "C7",
+        "version_ref_admission_branch": "V8",
+        "operator_object_compatibility_branch": "P1",
+        "task_phase_admissibility_branch": "T4",
+        "full_pointer_admission_branch": "F6",
+        "full_pointer_non_admission_reason_branch": "R2",
+        "repair_status_branch": "E5",
+        "component_preservation_branch": "K4"
+      }
+    },
+    "malformed_currentness_marker": {
+      "prompt_file": "prompts/malformed_currentness_marker.txt",
+      "prompt_sha256": "91ef1b38c5c7dca052939d016b98071d4137adff53c645672bac7224dcd68a89",
+      "input_pointer": "ARCHIVE ui.menu@v1",
+      "expected": {
+        "operator_admission_branch": "O2",
+        "object_admission_branch": "C3",
+        "version_ref_admission_branch": "V6",
+        "operator_object_compatibility_branch": "P8",
+        "task_phase_admissibility_branch": "T9",
+        "full_pointer_admission_branch": "F4",
+        "full_pointer_non_admission_reason_branch": "R7",
+        "repair_status_branch": "E8",
+        "component_preservation_branch": "K5"
+      }
+    }
+  },
+  "run_plan": {
+    "models": [
+      {
+        "model": "gpt-5.4-mini",
+        "reasoning_effort": "medium",
+        "cases": [
+          "stale_archive_current_semantic_blocks",
+          "conflicting_current_phase_rows",
+          "missing_current_phase_row",
+          "malformed_currentness_marker"
+        ]
+      },
+      {
+        "model": "gpt-5.4",
+        "reasoning_effort": "medium",
+        "cases": [
+          "stale_archive_current_semantic_blocks",
+          "conflicting_current_phase_rows",
+          "missing_current_phase_row",
+          "malformed_currentness_marker"
+        ]
+      }
+    ]
+  },
+  "scorer": "artifacts/agent_harness/meta_loop_probes/tools/score_v85_phase_authority_uncertainty_probe.py"
+}

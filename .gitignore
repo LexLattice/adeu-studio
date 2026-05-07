@@ -39,6 +39,9 @@ artifacts/stop_gate/*
 !artifacts/stop_gate/report_v*_closeout*.md
 !artifacts/agent_harness/
 artifacts/agent_harness/*
+!artifacts/agent_harness/meta_loop_probes/
+!artifacts/agent_harness/meta_loop_probes/**
+artifacts/agent_harness/meta_loop_probes/*.zip
 # Generic versioned closeout evidence allowlist for current v9x / v1xx arcs
 # (keep other harness output ignored).
 !artifacts/agent_harness/v9*/

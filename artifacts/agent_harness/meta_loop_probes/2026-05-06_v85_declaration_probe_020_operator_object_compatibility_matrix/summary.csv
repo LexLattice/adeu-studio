@@ -1,0 +1,15 @@
+specimen_id,model,reasoning_effort,agent_nickname,input_pointer,case_id,shape_status,branch_status,policy_status,overall_status,notable_result
+p020-mini-create-menu-full-001,gpt-5.4-mini,medium,Ptolemy,CREATE ui.menu@v1,create_menu_full,pass,pass,pass,pass,full pointer admitted
+p020-mini-modify-menu-full-001,gpt-5.4-mini,medium,Poincare,MODIFY ui.menu@v1,modify_menu_full,pass,pass,pass,pass,full pointer admitted through compatible MODIFY/ui.menu pair
+p020-mini-project-menu-pair-blocked-001,gpt-5.4-mini,medium,Helmholtz,PROJECT ui.menu@v1,project_menu_pair_blocked,pass,pass,pass,pass,component admissions preserved; full pointer blocked by compatibility
+p020-mini-create-modal-version-gap-001,gpt-5.4-mini,medium,Laplace,CREATE ui.modal@v2,create_modal_version_gap,pass,pass,pass,pass,version gap blocked full pointer without null cascade
+p020-mini-delete-menu-operator-gap-001,gpt-5.4-mini,medium,Confucius,DELETE ui.menu@v1,delete_menu_operator_gap,pass,pass,pass,pass,operator gap blocked compatibility/phase/full pointer
+p020-mini-create-cache-full-001,gpt-5.4-mini,medium,Hubble,CREATE cache.layer@v2,create_cache_full,pass,pass,pass,pass,non-UI object family fully admitted
+p020-mini-create-menu-version-gap-001,gpt-5.4-mini,medium,Bacon,CREATE ui.menu@v2,create_menu_version_gap,pass,pass,pass,pass,no repair to ui.menu@v1
+p020-gpt54-create-menu-full-001,gpt-5.4,medium,Mencius,CREATE ui.menu@v1,create_menu_full,pass,pass,pass,pass,full pointer admitted
+p020-gpt54-modify-menu-full-001,gpt-5.4,medium,Avicenna,MODIFY ui.menu@v1,modify_menu_full,pass,pass,pass,pass,full pointer admitted through compatible MODIFY/ui.menu pair
+p020-gpt54-project-menu-pair-blocked-001,gpt-5.4,medium,Lorentz,PROJECT ui.menu@v1,project_menu_pair_blocked,pass,pass,pass,pass,component admissions preserved; full pointer blocked by compatibility
+p020-gpt54-create-modal-version-gap-001,gpt-5.4,medium,Faraday,CREATE ui.modal@v2,create_modal_version_gap,pass,pass,pass,pass,version gap blocked full pointer without repair
+p020-gpt54-delete-menu-operator-gap-001,gpt-5.4,medium,Schrodinger,DELETE ui.menu@v1,delete_menu_operator_gap,pass,remand_required,remand_required,remand_required,chose repaired_or_unknown full-pointer branch S2 instead of explicit null branch S9
+p020-gpt54-create-cache-full-001,gpt-5.4,medium,Gibbs,CREATE cache.layer@v2,create_cache_full,pass,pass,pass,pass,non-UI object family fully admitted
+p020-gpt54-create-menu-version-gap-001,gpt-5.4,medium,Gauss,CREATE ui.menu@v2,create_menu_version_gap,pass,pass,pass,pass,no repair to ui.menu@v1

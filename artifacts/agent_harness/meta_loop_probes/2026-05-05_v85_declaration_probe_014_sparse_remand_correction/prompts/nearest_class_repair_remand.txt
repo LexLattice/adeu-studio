@@ -1,0 +1,23 @@
+Remand required.
+
+Return exactly one corrected resident body JSON object. No markdown, no prose outside JSON, no tools, no implementation, no obligation expansion, no family selection.
+
+Original invalid body:
+{"raw_semantic_pointer_candidate":"CREATE ui.toast@v3","canonical_semantic_pointer":"CREATE ui.menu@v1","pointer_kind":"unknown_pointer","pointer_status":"registry_gap","semantic_operator":"CREATE","canonical_object_class":"ui.menu","object_version":"v1","selection_status":"candidate_only","canonical_lookup_status":"blocked_by_registry_gap","uncertainty_rows":[{"uncertainty_ref":"u1","uncertainty_kind":"registry_gap","field":"canonical_semantic_pointer","note":"Negative-control body intentionally repairs the unknown pointer."}],"negative_cue_rows":[{"negative_cue_ref":"n1","cue_kind":"nearest_class_repair","cue_text":"repair ui.toast to ui.menu","effect":"Intentionally violates registry-gap preservation."}],"forbidden_inference_rows":[{"forbidden_inference_ref":"f1","inference_kind":"nearest_class_repair","note":"This body intentionally performs the forbidden repair."}],"resident_model_competency_claim_rows":[{"competency_ref":"c1","competency_kind":"semantic_body_filing","claim_status":"claimed_for_this_artifact"}],"detail_notes":["Negative-control body intentionally repairs an unknown pointer to a nearest known class."],"stop_posture":"stop_after_required_artifact_shape"}
+
+Remand reasons:
+- canonical_semantic_pointer_mismatch
+- canonical_object_class_mismatch
+- object_version_mismatch
+
+Required resident body keys in exact order:
+raw_semantic_pointer_candidate, canonical_semantic_pointer, pointer_kind, pointer_status, semantic_operator, canonical_object_class, object_version, selection_status, canonical_lookup_status, uncertainty_rows, negative_cue_rows, forbidden_inference_rows, resident_model_competency_claim_rows, detail_notes, stop_posture
+
+Row shapes:
+uncertainty_rows: [{"uncertainty_ref":"...","uncertainty_kind":"...","field":"...","note":"..."}]
+negative_cue_rows: [{"negative_cue_ref":"...","cue_kind":"...","cue_text":"...","effect":"..."}]
+forbidden_inference_rows: [{"forbidden_inference_ref":"...","inference_kind":"...","note":"..."}]
+resident_model_competency_claim_rows: [{"competency_ref":"...","competency_kind":"...","claim_status":"claimed_for_this_artifact"}]
+detail_notes: array<string>
+
+Fix only the remanded filing defect. Preserve the semantic task. Do not nearest-class repair an unknown class. Do not add implementation or obligation expansion.

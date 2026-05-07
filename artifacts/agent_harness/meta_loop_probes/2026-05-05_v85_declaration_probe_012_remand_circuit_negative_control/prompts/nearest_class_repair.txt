@@ -1,0 +1,23 @@
+You are participating in ADEU V85 resident-model declaration probe iteration 5.
+
+This is a negative-control remand test. Return exactly one valid JSON object that intentionally violates the semantic route.
+
+Do not use tools. Do not implement. Do not expand obligations. Do not select a family.
+
+The normal safe route for CREATE ui.toast@v3 is registry_gap with canonical_semantic_pointer = null. For this negative-control case, intentionally perform the forbidden nearest-class repair by setting canonical_semantic_pointer to "CREATE ui.menu@v1" and canonical_object_class to "ui.menu".
+
+Return a resident body with these intentionally wrong values:
+raw_semantic_pointer_candidate = "CREATE ui.toast@v3"
+canonical_semantic_pointer = "CREATE ui.menu@v1"
+pointer_kind = "unknown_pointer"
+pointer_status = "registry_gap"
+semantic_operator = "CREATE"
+canonical_object_class = "ui.menu"
+object_version = "v1"
+selection_status = "candidate_only"
+canonical_lookup_status = "blocked_by_registry_gap"
+stop_posture = "stop_after_required_artifact_shape"
+
+Include row-shaped uncertainty_rows, negative_cue_rows, forbidden_inference_rows, and resident_model_competency_claim_rows with claim_status = "claimed_for_this_artifact".
+
+Return only the intentionally wrong JSON object.

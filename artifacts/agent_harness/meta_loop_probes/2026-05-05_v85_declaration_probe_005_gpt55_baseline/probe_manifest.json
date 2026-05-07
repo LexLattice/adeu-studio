@@ -1,0 +1,31 @@
+{
+  "schema": "adeu_meta_loop_probe_manifest@1",
+  "probe_id": "2026-05-05_v85_declaration_probe_005_gpt55_baseline",
+  "probe_title": "V85 semantic declaration GPT-5.5 baseline repeat",
+  "probe_kind": "semantic_declaration_required_single_state",
+  "authority_layer": "evidence_only_support_artifact",
+  "created_date": "2026-05-05",
+  "model_family": "gpt-5.5",
+  "comparison_source_probe_id": "2026-05-05_v85_declaration_probe_001",
+  "run_plan": {
+    "agent_count": 4,
+    "reasoning_efforts": {
+      "low": 2,
+      "medium": 2
+    },
+    "loop_state": "semantic_declaration_required",
+    "required_artifact_kind": "repo_turn_semantic_declaration_request@1 candidate"
+  },
+  "prompt_path": "artifacts/agent_harness/meta_loop_probes/2026-05-05_v85_declaration_probe_001/prompt.txt",
+  "prompt_sha256": "cc175e41a7fa23f73e76ea1f9070d18ebeea272fd6d1d799673805ecd656d9c1",
+  "specimens_path": "artifacts/agent_harness/meta_loop_probes/2026-05-05_v85_declaration_probe_005_gpt55_baseline/specimens.jsonl",
+  "assessment_path": "artifacts/agent_harness/meta_loop_probes/2026-05-05_v85_declaration_probe_005_gpt55_baseline/assessment.json",
+  "assessment_markdown_path": "artifacts/agent_harness/meta_loop_probes/2026-05-05_v85_declaration_probe_005_gpt55_baseline/assessment.md",
+  "summary_csv_path": "artifacts/agent_harness/meta_loop_probes/2026-05-05_v85_declaration_probe_005_gpt55_baseline/summary.csv",
+  "non_authority_posture": {
+    "does_not_authorize_implementation": true,
+    "does_not_authorize_runtime": true,
+    "does_not_select_next_family": true,
+    "does_not_create_arc_lock": true
+  }
+}

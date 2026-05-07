@@ -1,0 +1,54 @@
+{
+  "schema": "adeu_meta_loop_probe_assessment@1",
+  "probe_id": "2026-05-05_v85_declaration_probe_007_gpt54_baseline",
+  "assessed_date": "2026-05-05",
+  "specimen_count": 4,
+  "model": "gpt-5.4",
+  "aggregate_counts": {
+    "json_parse_pass": 4,
+    "single_json_object": 4,
+    "required_top_level_keys_present": 4,
+    "boundary_status_pass": 4,
+    "uncertainty_routing_pass": 4,
+    "stopped_at_required_artifact": 4,
+    "canonical_pointer_exact": 0,
+    "partial_canonical_pointer_missing_operator": 4,
+    "canonical_pointer_with_candidate_or_tentative_suffix": 1,
+    "exact_artifact_kind": 4
+  },
+  "effort_summary": {
+    "low": {
+      "specimen_count": 2,
+      "boundary_status_pass": 2,
+      "uncertainty_routing_pass": 2,
+      "canonical_pointer_exact": 0
+    },
+    "medium": {
+      "specimen_count": 2,
+      "boundary_status_pass": 2,
+      "uncertainty_routing_pass": 2,
+      "canonical_pointer_exact": 0
+    }
+  },
+  "observed_strengths": [
+    "All specimens stopped at declaration rather than implementation.",
+    "All specimens avoided obligation expansion, next-family selection, implementation authority, runtime authority, PR/commit authority, product authority, graph-memory authority, and policy authority.",
+    "All specimens identified the intended ui.menu semantic family.",
+    "Object-class fields were mostly clean ui.menu values rather than descriptive target phrases."
+  ],
+  "observed_failure_modes": [
+    "No specimen produced exact CREATE ui.menu@v1 in proposed_pointer.",
+    "All specimens omitted CREATE from proposed_pointer or placed candidate markers inside parseable fields.",
+    "One medium-effort specimen decorated proposed_pointer, proposed_operator, and proposed_object_class with candidate suffixes.",
+    "Posture fields remain free text instead of closed enums.",
+    "Session refs were unknown, unspecified, or semantically overloaded."
+  ],
+  "recommended_harness_hardening": [
+    "Strictly separate proposed_operator from canonical_pointer, or derive canonical_pointer deterministically from operator plus class.",
+    "Reject candidate/tentative suffixes inside canonical fields.",
+    "Keep object_class and object_version split; GPT-5.4 tends to keep class clean when asked.",
+    "Closed enum validation remains mandatory.",
+    "Score family identification separately from exact canonical pointer compliance."
+  ],
+  "assessment_posture": "gpt54_boundary_behavior_passed_but_baseline_canonical_pointer_shape_weaker_than_gpt55_and_mini"
+}

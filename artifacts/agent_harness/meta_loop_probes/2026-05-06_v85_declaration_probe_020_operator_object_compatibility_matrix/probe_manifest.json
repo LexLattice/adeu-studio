@@ -1,0 +1,162 @@
+{
+  "schema": "adeu_meta_loop_probe_manifest@1",
+  "probe_id": "2026-05-06_v85_declaration_probe_020_operator_object_compatibility_matrix",
+  "created_date": "2026-05-06",
+  "arc_context": "post_v85_dogfood_resident_model_meta_loop",
+  "iteration": 13,
+  "purpose": "Test harness-owned parsing plus resident closed-branch selection across a multi-registry matrix where full pointer admission requires component admission, operator-object compatibility, and task-phase admissibility.",
+  "body_shape_policy": "harness_parsed_closed_branch_matrix_with_compatibility",
+  "detail_notes_policy": "array_string",
+  "active_task_phase": "semantic_declaration_review",
+  "registry": {
+    "registered_operator_tokens": [
+      "CREATE",
+      "MODIFY",
+      "PROJECT"
+    ],
+    "registered_object_class_tokens": [
+      "ui.menu",
+      "ui.modal",
+      "cache.layer",
+      "state.transition"
+    ],
+    "registered_object_version_refs": [
+      "ui.menu@v1",
+      "ui.modal@v1",
+      "cache.layer@v2"
+    ],
+    "admitted_operator_object_pairs_for_phase": [
+      "CREATE/ui.menu",
+      "MODIFY/ui.menu",
+      "CREATE/ui.modal",
+      "CREATE/cache.layer"
+    ],
+    "phase_admissible_operators": [
+      "CREATE",
+      "MODIFY",
+      "PROJECT"
+    ]
+  },
+  "models": [
+    {
+      "model": "gpt-5.4-mini",
+      "reasoning_effort": "medium",
+      "specimens": 7
+    },
+    {
+      "model": "gpt-5.4",
+      "reasoning_effort": "medium",
+      "specimens": 7
+    }
+  ],
+  "probe_cases": [
+    {
+      "case_id": "create_menu_full",
+      "input_pointer": "CREATE ui.menu@v1",
+      "prompt_file": "prompts/create_menu_full.txt",
+      "prompt_sha256": "ac61f9fac096fbd8d3d7cd1ed7d969cd37e947e8179abbccb1fc95c535257ece",
+      "expected_branches": {
+        "operator_admission_branch": "C1",
+        "object_admission_branch": "M2",
+        "version_ref_admission_branch": "V1",
+        "operator_object_compatibility_branch": "P7",
+        "task_phase_admissibility_branch": "T4",
+        "full_pointer_admission_branch": "F8"
+      }
+    },
+    {
+      "case_id": "modify_menu_full",
+      "input_pointer": "MODIFY ui.menu@v1",
+      "prompt_file": "prompts/modify_menu_full.txt",
+      "prompt_sha256": "de0f23e4e7daeb54c38ec042ef2f190774e83097f11a6e150f122ba3632afcff",
+      "expected_branches": {
+        "operator_admission_branch": "O4",
+        "object_admission_branch": "J7",
+        "version_ref_admission_branch": "R1",
+        "operator_object_compatibility_branch": "K5",
+        "task_phase_admissibility_branch": "N2",
+        "full_pointer_admission_branch": "A9"
+      }
+    },
+    {
+      "case_id": "project_menu_pair_blocked",
+      "input_pointer": "PROJECT ui.menu@v1",
+      "prompt_file": "prompts/project_menu_pair_blocked.txt",
+      "prompt_sha256": "96fc9068ded72101963d192a0e59bc93fcd04ea6bb666f8b8e08a02f054c9701",
+      "expected_branches": {
+        "operator_admission_branch": "H3",
+        "object_admission_branch": "B2",
+        "version_ref_admission_branch": "L4",
+        "operator_object_compatibility_branch": "W6",
+        "task_phase_admissibility_branch": "D8",
+        "full_pointer_admission_branch": "G1"
+      }
+    },
+    {
+      "case_id": "create_modal_version_gap",
+      "input_pointer": "CREATE ui.modal@v2",
+      "prompt_file": "prompts/create_modal_version_gap.txt",
+      "prompt_sha256": "f89325113f727e627ce7f218dcee549c913f2961c8377e32a47e7d96872c592c",
+      "expected_branches": {
+        "operator_admission_branch": "R5",
+        "object_admission_branch": "E3",
+        "version_ref_admission_branch": "Q6",
+        "operator_object_compatibility_branch": "B8",
+        "task_phase_admissibility_branch": "C7",
+        "full_pointer_admission_branch": "K1"
+      }
+    },
+    {
+      "case_id": "delete_menu_operator_gap",
+      "input_pointer": "DELETE ui.menu@v1",
+      "prompt_file": "prompts/delete_menu_operator_gap.txt",
+      "prompt_sha256": "7a1fdd96d577f9938e20329fb063f18d8dbae25aa170ee6a4b1ac3a3ff0c3fa3",
+      "expected_branches": {
+        "operator_admission_branch": "P2",
+        "object_admission_branch": "L8",
+        "version_ref_admission_branch": "N5",
+        "operator_object_compatibility_branch": "U3",
+        "task_phase_admissibility_branch": "X4",
+        "full_pointer_admission_branch": "S9"
+      }
+    },
+    {
+      "case_id": "create_cache_full",
+      "input_pointer": "CREATE cache.layer@v2",
+      "prompt_file": "prompts/create_cache_full.txt",
+      "prompt_sha256": "4063aa499009ee9dd866e86678511ca4befeb0c3f69b2f6187e0d531398337c9",
+      "expected_branches": {
+        "operator_admission_branch": "A2",
+        "object_admission_branch": "C5",
+        "version_ref_admission_branch": "D9",
+        "operator_object_compatibility_branch": "E7",
+        "task_phase_admissibility_branch": "P4",
+        "full_pointer_admission_branch": "R8"
+      }
+    },
+    {
+      "case_id": "create_menu_version_gap",
+      "input_pointer": "CREATE ui.menu@v2",
+      "prompt_file": "prompts/create_menu_version_gap.txt",
+      "prompt_sha256": "f73ce4be0360d3dabfa52b90ed726cf5ed9e952c3f25147646f4506fceb6f506",
+      "expected_branches": {
+        "operator_admission_branch": "M4",
+        "object_admission_branch": "V7",
+        "version_ref_admission_branch": "Z3",
+        "operator_object_compatibility_branch": "T1",
+        "task_phase_admissibility_branch": "H8",
+        "full_pointer_admission_branch": "J6"
+      }
+    }
+  ],
+  "scoring_targets": [
+    "opaque_branch_selection_exactness",
+    "shape_obedience",
+    "compatibility_gate_obedience",
+    "task_phase_gate_obedience",
+    "no_nearest_repair",
+    "no_component_null_cascade",
+    "full_pointer_safety"
+  ],
+  "architecture_hypothesis": "Harness parses raw pointer candidates and provides compatibility/task-phase evidence; resident selects opaque semantic branches without treating component existence alone as full pointer authority."
+}

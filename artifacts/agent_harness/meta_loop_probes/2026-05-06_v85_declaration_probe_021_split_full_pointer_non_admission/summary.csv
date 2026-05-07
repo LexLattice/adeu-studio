@@ -1,0 +1,9 @@
+specimen_id,model,reasoning_effort,agent_nickname,input_pointer,case_id,shape_status,branch_status,policy_status,overall_status,notable_result
+p021-mini-delete-menu-operator-gap-001,gpt-5.4-mini,medium,Sartre,DELETE ui.menu@v1,delete_menu_operator_gap,pass,pass,pass,pass,operator gap; full pointer not admitted; components preserved; no repair
+p021-mini-project-menu-pair-gap-001,gpt-5.4-mini,medium,Galileo,PROJECT ui.menu@v1,project_menu_pair_gap,pass,pass,pass,pass,pair gap; full pointer not admitted; components preserved; no repair
+p021-mini-create-menu-version-gap-001,gpt-5.4-mini,medium,Sagan,CREATE ui.menu@v2,create_menu_version_gap,pass,pass,pass,pass,version gap; full pointer not admitted; components preserved; no repair
+p021-mini-create-menu-full-001,gpt-5.4-mini,medium,Laplace,CREATE ui.menu@v1,create_menu_full,pass,pass,pass,pass,full pointer admitted; non-admission reason not applicable
+p021-gpt54-delete-menu-operator-gap-001,gpt-5.4,medium,Faraday,DELETE ui.menu@v1,delete_menu_operator_gap,pass,pass,pass,pass,prior Probe 020 failure fixed by split fields
+p021-gpt54-project-menu-pair-gap-001,gpt-5.4,medium,Hegel,PROJECT ui.menu@v1,project_menu_pair_gap,pass,pass,pass,pass,pair gap; full pointer not admitted; components preserved; no repair
+p021-gpt54-create-menu-version-gap-001,gpt-5.4,medium,Bohr,CREATE ui.menu@v2,create_menu_version_gap,pass,pass,pass,pass,version gap; full pointer not admitted; components preserved; no repair
+p021-gpt54-create-menu-full-001,gpt-5.4,medium,Noether,CREATE ui.menu@v1,create_menu_full,pass,pass,pass,pass,full pointer admitted; non-admission reason not applicable

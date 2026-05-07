@@ -1,0 +1,104 @@
+{
+  "schema": "adeu_meta_loop_probe_manifest@1",
+  "probe_id": "2026-05-06_v85_declaration_probe_019_harness_parsed_branch_matrix",
+  "created_date": "2026-05-06",
+  "arc_context": "post_v85_dogfood_resident_model_meta_loop",
+  "iteration": 12,
+  "purpose": "Test harness-owned parsing plus resident closed-branch selection across a five-case component-admission matrix with opaque per-case branch ids.",
+  "body_shape_policy": "harness_parsed_closed_branch_matrix",
+  "detail_notes_policy": "array_string",
+  "registry": {
+    "registered_operator_tokens": [
+      "CREATE"
+    ],
+    "registered_object_class_tokens": [
+      "ui.menu"
+    ],
+    "registered_object_version_refs": [
+      "ui.menu@v1"
+    ]
+  },
+  "models": [
+    {
+      "model": "gpt-5.4-mini",
+      "reasoning_effort": "medium",
+      "specimens": 5
+    },
+    {
+      "model": "gpt-5.4",
+      "reasoning_effort": "medium",
+      "specimens": 5
+    }
+  ],
+  "probe_cases": [
+    {
+      "case_id": "known_full_pointer",
+      "input_pointer": "CREATE ui.menu@v1",
+      "prompt_file": "prompts/known_full_pointer.txt",
+      "prompt_sha256": "27a8982f69ee8bb44a234e65c1a3830f153370af20d87dc7a6a885c91f959884",
+      "expected_branches": {
+        "operator_admission_branch": "K2",
+        "object_admission_branch": "M8",
+        "version_ref_admission_branch": "B1",
+        "full_pointer_admission_branch": "R3"
+      }
+    },
+    {
+      "case_id": "unknown_object_version",
+      "input_pointer": "CREATE ui.toast@v3",
+      "prompt_file": "prompts/unknown_object_version.txt",
+      "prompt_sha256": "289f57a00341f1c1e452ab42d74ae5ef931ad88596799ee8f627c415819f083e",
+      "expected_branches": {
+        "operator_admission_branch": "A6",
+        "object_admission_branch": "C9",
+        "version_ref_admission_branch": "N8",
+        "full_pointer_admission_branch": "E2"
+      }
+    },
+    {
+      "case_id": "unknown_operator",
+      "input_pointer": "FLORP ui.menu@v1",
+      "prompt_file": "prompts/unknown_operator.txt",
+      "prompt_sha256": "fba14e854af23aac15dabf0d8cd57a4fadd08e44814c1911eb5c506cb950e9e1",
+      "expected_branches": {
+        "operator_admission_branch": "U5",
+        "object_admission_branch": "B6",
+        "version_ref_admission_branch": "X1",
+        "full_pointer_admission_branch": "R9"
+      }
+    },
+    {
+      "case_id": "unknown_version",
+      "input_pointer": "CREATE ui.menu@v99",
+      "prompt_file": "prompts/unknown_version.txt",
+      "prompt_sha256": "1ac0d932e1aef7f4860963b64ee13a7e7c0d28b71b7ae16d0bda490e68e9eaa7",
+      "expected_branches": {
+        "operator_admission_branch": "D2",
+        "object_admission_branch": "L6",
+        "version_ref_admission_branch": "K7",
+        "full_pointer_admission_branch": "H1"
+      }
+    },
+    {
+      "case_id": "unknown_all",
+      "input_pointer": "FLORP ui.toast@v99",
+      "prompt_file": "prompts/unknown_all.txt",
+      "prompt_sha256": "2a98e7f83a395ae239623c7a92a35cb5951083f31d680d32fa2409067d0830b9",
+      "expected_branches": {
+        "operator_admission_branch": "T2",
+        "object_admission_branch": "R4",
+        "version_ref_admission_branch": "Q1",
+        "full_pointer_admission_branch": "C2"
+      }
+    }
+  ],
+  "scoring_targets": [
+    "opaque_branch_selection_exactness",
+    "shape_obedience",
+    "status_obedience",
+    "bait_rejection",
+    "full_pointer_safety",
+    "branch_prose_consistency"
+  ],
+  "architecture_hypothesis": "Harness parses raw pointer candidates and materializes canonical fields; resident selects opaque semantic branches and explains uncertainty."
+}

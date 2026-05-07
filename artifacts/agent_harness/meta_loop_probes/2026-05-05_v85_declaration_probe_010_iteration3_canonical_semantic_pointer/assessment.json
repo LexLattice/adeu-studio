@@ -1,0 +1,41 @@
+{
+  "schema": "adeu_meta_loop_probe_assessment@1",
+  "probe_id": "2026-05-05_v85_declaration_probe_010_iteration3_canonical_semantic_pointer",
+  "assessed_date": "2026-05-05",
+  "specimen_count": 8,
+  "summary_counts": {
+    "json_parse_pass": 8,
+    "canonical_semantic_pointer_contract_pass": 8,
+    "raw_pointer_preservation_pass": 8,
+    "boundary_preservation_pass": 8,
+    "uncertainty_routing_pass": 8,
+    "exact_route_pass": 6,
+    "safe_route_with_minor_selection_status_drift": 2,
+    "exact_artifact_kind_pass": 7,
+    "competency_claim_status_exact_pass": 2
+  },
+  "primary_findings": [
+    "The iteration-3 raw/canonical split fixed the main probe-009 ambiguity. Exact-menu specimens used canonical_semantic_pointer = CREATE ui.menu@v1 while keeping canonical_object_class = ui.menu and object_version = v1.",
+    "All registry-gap, opaque-pointer, and ambiguous-abstain specimens preserved the boundary against pointer invention, nearest-class repair, obligation expansion, implementation authority, and family selection.",
+    "The remaining failures are shape discipline rather than semantic drift: one mini specimen shortened artifact_kind to candidate, two mini specimens drifted selection_status while preserving the safe route, and six specimens used a plausible but non-canonical competency claim status.",
+    "The prompt-only harness is now good enough to elicit the intended semantic route, but it is not strong enough to enforce closed subfield enums consistently without a validator or field injection layer."
+  ],
+  "model_notes": [
+    {
+      "model": "gpt-5.4-mini",
+      "note": "All four mini outputs stayed inside the declaration loop and preserved raw/canonical pointer boundaries. Mini still showed the most schema slippage: one artifact_kind shortening, two selection_status drifts, and competency claim status drift across all four."
+    },
+    {
+      "model": "gpt-5.4",
+      "note": "All four GPT-5.4 outputs preserved route, pointer boundaries, and authority boundaries. The low-effort runs used non-canonical competency claim statuses, while the medium-effort runs were fully clean under this assessment."
+    }
+  ],
+  "recommended_next_iteration": [
+    "Move fixed fields such as schema, artifact_kind, loop_state, and semantic_declaration_session_ref into harness-injected values rather than asking the resident model to restate them.",
+    "Represent resident_model_competency_claim_rows as a closed enum contract and validate claim_status mechanically.",
+    "Make selection_status case-specific and mechanically checked: registry-gap candidates remain candidate_only, opaque/no-pointer cases remain not_selected.",
+    "Add an automated score script for the specimens so future probes produce consistent parse, route, shape, and boundary metrics.",
+    "Use the next run to compare prompt-only generation against a wrapper that validates and remands malformed fields."
+  ],
+  "overall_assessment": "Iteration 3 materially improved semantic-pointer fidelity and preserved the non-authority doctrine across all specimens. The next useful step is no longer another prompt wording tweak; it is a thin harness validator/injector that turns semantic route success into strict artifact validity."
+}

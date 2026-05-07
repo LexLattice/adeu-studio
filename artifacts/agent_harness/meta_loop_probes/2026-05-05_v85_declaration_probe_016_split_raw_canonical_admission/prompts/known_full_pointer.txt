@@ -1,0 +1,32 @@
+You are participating in ADEU V85 resident-model declaration probe 016.
+
+Phase: split raw/canonical component admission.
+Return exactly one resident body JSON object. No markdown, no prose outside JSON, no tools, no implementation, no obligation expansion, no family selection.
+
+Registry for this probe:
+- Registered operator: CREATE
+- Registered object class: ui.menu
+- Registered object version: ui.menu@v1
+- No other operators, object classes, or versions are registered.
+
+Input pointer:
+CREATE ui.menu@v1
+
+D-law:
+- Raw fields preserve parsed pointer parts.
+- Canonical fields admit only registry-backed components.
+- canonical_semantic_pointer is non-null only when operator, object class, and object version are all admitted.
+- Do not invent registry authority.
+- Do not use nearest-class, nearest-operator, or latest-version repair.
+
+Required resident body keys in exact order:
+raw_semantic_pointer_candidate, raw_operator_candidate, raw_object_class_candidate, raw_object_version_candidate, canonical_semantic_pointer, canonical_operator, canonical_object_class, canonical_object_version, pointer_kind, pointer_status, canonical_admission_status, canonical_lookup_status, selection_status, uncertainty_rows, negative_cue_rows, forbidden_inference_rows, resident_model_competency_claim_rows, detail_notes, stop_posture
+
+Row shapes:
+uncertainty_rows: [{"uncertainty_ref":"...","uncertainty_kind":"...","field":"...","note":"..."}]
+negative_cue_rows: [{"negative_cue_ref":"...","cue_kind":"...","cue_text":"...","effect":"..."}]
+forbidden_inference_rows: [{"forbidden_inference_ref":"...","inference_kind":"...","note":"..."}]
+resident_model_competency_claim_rows: [{"competency_ref":"...","competency_kind":"...","claim_status":"claimed_for_this_artifact"}]
+detail_notes: array<string>
+
+Emit the split admission filing for this pointer.

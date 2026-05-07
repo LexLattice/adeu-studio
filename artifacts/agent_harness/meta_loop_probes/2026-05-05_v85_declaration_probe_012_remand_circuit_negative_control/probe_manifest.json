@@ -1,0 +1,68 @@
+{
+  "schema": "adeu_meta_loop_probe_manifest@1",
+  "probe_id": "2026-05-05_v85_declaration_probe_012_remand_circuit_negative_control",
+  "created_date": "2026-05-05",
+  "arc_context": "post_v85_dogfood_resident_model_meta_loop",
+  "iteration": 5,
+  "purpose": "Test the remand branch of the thin harness circuit by feeding intentionally malformed resident-model bodies and verifying that the harness records remand_required rather than repairing silently.",
+  "models": [
+    {
+      "model": "gpt-5.4-mini",
+      "reasoning_efforts": [
+        "low",
+        "medium"
+      ],
+      "specimens": 2
+    },
+    {
+      "model": "gpt-5.4",
+      "reasoning_efforts": [
+        "low",
+        "medium"
+      ],
+      "specimens": 2
+    }
+  ],
+  "negative_control_cases": [
+    {
+      "input_case_id": "fixed_field_pollution",
+      "expected_status": "remand_required",
+      "expected_error_family": "resident body includes harness-owned fixed field and malformed rows",
+      "prompt_file": "prompts/fixed_field_pollution.txt",
+      "prompt_sha256": "f851abe7c9d2a3e8769ad99735a9711bd0448acaa02773fddba06b47ca41cf09"
+    },
+    {
+      "input_case_id": "nearest_class_repair",
+      "expected_status": "remand_required",
+      "expected_error_family": "unknown registry pointer repaired to nearest known class",
+      "prompt_file": "prompts/nearest_class_repair.txt",
+      "prompt_sha256": "c59573d5f99c0f470c01fd911b4be71e7c30291e258c7f5c06e080ef8acd6c33"
+    },
+    {
+      "input_case_id": "malformed_uncertainty_row",
+      "expected_status": "remand_required",
+      "expected_error_family": "row-shape violation",
+      "prompt_file": "prompts/malformed_uncertainty_row.txt",
+      "prompt_sha256": "929e962883e6c228a8774e8f66f679823b6d6d43b64563eb04a07d6e5ca3c394"
+    },
+    {
+      "input_case_id": "bad_competency_claim_status",
+      "expected_status": "remand_required",
+      "expected_error_family": "closed enum violation",
+      "prompt_file": "prompts/bad_competency_claim_status.txt",
+      "prompt_sha256": "db637369664be35b81f26764b3de3fbd9f6c4db3e97bf93f8f32160fc4e95a64"
+    }
+  ],
+  "harness_behavior_under_test": [
+    "Reject resident-body pollution with harness-owned fixed fields.",
+    "Reject route-field mismatches such as nearest-class repair.",
+    "Reject row-shape violations.",
+    "Reject closed-enum violations.",
+    "Emit explicit remand_required filings with reasons instead of repairing malformed bodies."
+  ],
+  "execution_notes": [
+    "The four specimens were spawned as real subagents.",
+    "Prompts intentionally requested malformed JSON bodies while still requiring valid JSON syntax.",
+    "The harness assembly in specimens preserves raw agent bodies and records remand filings."
+  ]
+}

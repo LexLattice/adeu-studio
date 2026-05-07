@@ -1,0 +1,39 @@
+{
+  "schema": "adeu_meta_loop_probe_assessment@1",
+  "probe_id": "2026-05-05_v85_declaration_probe_011_harness_injected_validation",
+  "assessed_date": "2026-05-05",
+  "specimen_count": 8,
+  "summary_counts": {
+    "body_json_parse_pass": 8,
+    "assembled_validation_pass": 8,
+    "remand_required": 0,
+    "fixed_field_injection_success": 8,
+    "route_field_pass": 8,
+    "row_shape_pass": 8,
+    "competency_claim_status_pass": 8,
+    "boundary_preservation_pass": 8
+  },
+  "primary_findings": [
+    "Harness injection eliminated the fixed-field filing failures observed in probe 010. The model no longer had to restate schema, loop_state, artifact_kind, probe_case_id, or session_ref.",
+    "All eight assembled artifacts passed the strict local validator.",
+    "Body-only prompting also improved closed-enum discipline for resident_model_competency_claim_rows[].claim_status: all eight used claimed_for_this_artifact.",
+    "The remaining resident-model role is now properly modest: fill the semantic body, preserve uncertainty, avoid forbidden inference, and stop. The harness owns filing identity and validity."
+  ],
+  "comparison_to_probe_010": {
+    "probe_010_specimens": 8,
+    "probe_010_exact_artifact_kind_pass": 7,
+    "probe_010_competency_claim_status_exact_pass": 2,
+    "probe_010_exact_route_pass": 6,
+    "probe_011_specimens": 8,
+    "probe_011_assembled_validation_pass": 8,
+    "probe_011_competency_claim_status_pass": 8,
+    "probe_011_exact_route_pass": 8
+  },
+  "recommended_next_iteration": [
+    "Add a remand loop by intentionally corrupting one or two body fields and requiring the harness to emit remand filings instead of repairing silently.",
+    "Add a body-only probe for generated extra fixed fields to test whether the harness rejects resident-model field pollution.",
+    "Move from one-shot validation to a two-state circuit: declaration_body_submitted -> accepted_declaration_filing or remand_required.",
+    "Keep these experiments artifact-local until the next selected family decides whether to formalize this as repo-owned harness code."
+  ],
+  "overall_assessment": "Probe 011 validates the architectural inversion: put the model inside the institution. Fixed fields and filing validity belong to the harness; the resident model supplies bounded local semantic judgment. This moved the run from semantically correct but shape-fragile to fully valid assembled filings across all eight specimens."
+}

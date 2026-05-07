@@ -1,0 +1,5 @@
+specimen_id,model,reasoning_effort,agent_nickname,case_id,input_case_id,initial_status,remand_reasons,correction_status,semantic_task_preserved,final_validation_status,final_failure
+v85-probe-014-s01-mini-low-fixed-field-pollution,gpt-5.4-mini,low,Gauss,fixed_field_pollution,exact_menu_declaration,remand_required,resident_body_contains_harness_fixed_fields,corrected,true,accepted_filing,
+v85-probe-014-s02-mini-medium-nearest-class-repair,gpt-5.4-mini,medium,Arendt,nearest_class_repair,unknown_class_registry_gap,remand_required,canonical_semantic_pointer_mismatch;canonical_object_class_mismatch;object_version_mismatch,partially_corrected,true,remand_required,canonical_semantic_pointer_mismatch
+v85-probe-014-s03-gpt54-low-malformed-uncertainty-row,gpt-5.4,low,Aristotle,malformed_uncertainty_row,opaque_pointer_obedience_only,remand_required,uncertainty_rows_row_not_object,corrected,true,accepted_filing,
+v85-probe-014-s04-gpt54-medium-bad-claim-status,gpt-5.4,medium,Archimedes,bad_competency_claim_status,ambiguous_task_abstain,remand_required,competency_claim_status_mismatch,corrected,true,accepted_filing,

@@ -1,0 +1,29 @@
+{
+  "counts": {
+    "pass": 4
+  },
+  "probe_dir": "artifacts/agent_harness/meta_loop_probes/2026-05-05_v85_declaration_probe_013_remand_correction_loop",
+  "specimen_count": 4,
+  "specimens": [
+    {
+      "errors": [],
+      "specimen_id": "v85-probe-013-s01-mini-low-fixed-field-pollution",
+      "status": "pass"
+    },
+    {
+      "errors": [],
+      "specimen_id": "v85-probe-013-s02-mini-medium-nearest-class-repair",
+      "status": "pass"
+    },
+    {
+      "errors": [],
+      "specimen_id": "v85-probe-013-s03-gpt54-low-malformed-uncertainty-row",
+      "status": "pass"
+    },
+    {
+      "errors": [],
+      "specimen_id": "v85-probe-013-s04-gpt54-medium-bad-claim-status",
+      "status": "pass"
+    }
+  ]
+}

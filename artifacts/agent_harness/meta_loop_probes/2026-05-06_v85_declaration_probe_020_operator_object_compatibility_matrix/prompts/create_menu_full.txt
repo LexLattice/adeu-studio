@@ -1,0 +1,78 @@
+You are participating in ADEU V85 resident-model declaration probe 020.
+
+Phase: harness-parsed multi-registry compatibility matrix.
+The harness already parsed the pointer. Return exactly one branch-selection JSON object. No markdown, no prose outside JSON, no tools, no implementation, no obligation expansion, no family selection.
+
+case_id:
+create_menu_full
+
+Active task phase:
+semantic_declaration_review
+
+Registry evidence:
+- registered operator tokens: CREATE, MODIFY, PROJECT
+- registered object class tokens: ui.menu, ui.modal, cache.layer, state.transition
+- registered object version refs: ui.menu@v1, ui.modal@v1, cache.layer@v2
+- admitted operator-object pairs for this phase: CREATE/ui.menu, MODIFY/ui.menu, CREATE/ui.modal, CREATE/cache.layer
+- phase-admissible operators: CREATE, MODIFY, PROJECT
+
+Harness-parsed candidates:
+{
+  "raw_semantic_pointer_candidate": "CREATE ui.menu@v1",
+  "raw_operator_candidate": "CREATE",
+  "raw_object_class_candidate": "ui.menu",
+  "raw_object_version_token_candidate": "v1",
+  "raw_object_version_ref_candidate": "ui.menu@v1"
+}
+
+D-law:
+- Select operator admission only by matching the raw operator candidate against the operator registry.
+- Select object admission only by matching the raw object class candidate against the object registry.
+- Select version-ref admission only if the object class is admitted and the raw object version ref is registered.
+- Select compatibility admission only if operator and object are admitted and the raw operator-object pair is listed as admitted for this phase.
+- Select task-phase admission only if the operator is admitted and listed as phase-admissible.
+- Select full pointer admission only if operator, object, version ref, compatibility, and task phase are all admitted.
+- Do not repair to a nearest registered component, pair, version, or pointer.
+- Do not null admitted components because another component or compatibility branch failed.
+
+Opaque branch options:
+operator_admission:
+  C1 = operator admitted
+  C9 = operator registry gap
+
+object_admission:
+  M2 = object class admitted
+  M7 = object class registry gap
+
+version_ref_admission:
+  V1 = object version ref admitted
+  V8 = object version ref gap
+
+operator_object_compatibility:
+  P7 = operator-object pair admitted
+  P3 = operator-object pair not admitted
+
+task_phase_admissibility:
+  T4 = operator phase admitted
+  T9 = operator phase blocked
+
+full_pointer_admission:
+  F8 = full pointer admitted
+  F2 = full pointer null
+  F5 = repaired_or_unknown pointer
+
+Required JSON keys in exact order:
+case_id, operator_admission_branch, object_admission_branch, version_ref_admission_branch, operator_object_compatibility_branch, task_phase_admissibility_branch, full_pointer_admission_branch, branch_selection_status, contradiction_check_rows, negative_cue_rows, forbidden_inference_rows, resident_model_competency_claim_rows, detail_notes, stop_posture
+
+Allowed status values:
+branch_selection_status: branch_selection_complete
+stop_posture: stop_after_branch_selection
+
+Row shapes:
+contradiction_check_rows: [{"contradiction_check_ref":"...","checked_branch":"...","selected_branch":"...","prose_alignment":"...","note":"..."}]
+negative_cue_rows: [{"negative_cue_ref":"...","cue_kind":"...","cue_text":"...","effect":"..."}]
+forbidden_inference_rows: [{"forbidden_inference_ref":"...","inference_kind":"...","note":"..."}]
+resident_model_competency_claim_rows: [{"competency_ref":"...","competency_kind":"...","claim_status":"claimed_for_this_artifact"}]
+detail_notes: array<string>
+
+Emit the branch-selection filing.

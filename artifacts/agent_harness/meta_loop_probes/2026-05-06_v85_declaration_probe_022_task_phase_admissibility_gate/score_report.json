@@ -1,0 +1,104 @@
+{
+  "counts": {
+    "branch_pass": 8,
+    "component_preservation_pass": 8,
+    "full_pointer_non_admission_pass": 4,
+    "overall_pass": 8,
+    "policy_pass": 8,
+    "repair_status_pass": 8,
+    "shape_pass": 8,
+    "task_phase_block_pass": 2
+  },
+  "probe_dir": "artifacts/agent_harness/meta_loop_probes/2026-05-06_v85_declaration_probe_022_task_phase_admissibility_gate",
+  "specimen_count": 8,
+  "specimens": [
+    {
+      "branch_errors": [],
+      "branch_status": "pass",
+      "case_id": "archive_menu_phase_blocked",
+      "overall_status": "pass",
+      "policy_errors": [],
+      "policy_status": "pass",
+      "shape_errors": [],
+      "shape_status": "pass",
+      "specimen_id": "probe022_gpt54mini_medium_archive_menu_phase_blocked_01"
+    },
+    {
+      "branch_errors": [],
+      "branch_status": "pass",
+      "case_id": "archive_menu_phase_allowed",
+      "overall_status": "pass",
+      "policy_errors": [],
+      "policy_status": "pass",
+      "shape_errors": [],
+      "shape_status": "pass",
+      "specimen_id": "probe022_gpt54mini_medium_archive_menu_phase_allowed_01"
+    },
+    {
+      "branch_errors": [],
+      "branch_status": "pass",
+      "case_id": "create_menu_phase_allowed",
+      "overall_status": "pass",
+      "policy_errors": [],
+      "policy_status": "pass",
+      "shape_errors": [],
+      "shape_status": "pass",
+      "specimen_id": "probe022_gpt54mini_medium_create_menu_phase_allowed_01"
+    },
+    {
+      "branch_errors": [],
+      "branch_status": "pass",
+      "case_id": "archive_menu_version_gap_allowed_phase",
+      "overall_status": "pass",
+      "policy_errors": [],
+      "policy_status": "pass",
+      "shape_errors": [],
+      "shape_status": "pass",
+      "specimen_id": "probe022_gpt54mini_medium_archive_menu_version_gap_allowed_phase_01"
+    },
+    {
+      "branch_errors": [],
+      "branch_status": "pass",
+      "case_id": "archive_menu_phase_blocked",
+      "overall_status": "pass",
+      "policy_errors": [],
+      "policy_status": "pass",
+      "shape_errors": [],
+      "shape_status": "pass",
+      "specimen_id": "probe022_gpt54_medium_archive_menu_phase_blocked_01"
+    },
+    {
+      "branch_errors": [],
+      "branch_status": "pass",
+      "case_id": "archive_menu_phase_allowed",
+      "overall_status": "pass",
+      "policy_errors": [],
+      "policy_status": "pass",
+      "shape_errors": [],
+      "shape_status": "pass",
+      "specimen_id": "probe022_gpt54_medium_archive_menu_phase_allowed_01"
+    },
+    {
+      "branch_errors": [],
+      "branch_status": "pass",
+      "case_id": "create_menu_phase_allowed",
+      "overall_status": "pass",
+      "policy_errors": [],
+      "policy_status": "pass",
+      "shape_errors": [],
+      "shape_status": "pass",
+      "specimen_id": "probe022_gpt54_medium_create_menu_phase_allowed_01"
+    },
+    {
+      "branch_errors": [],
+      "branch_status": "pass",
+      "case_id": "archive_menu_version_gap_allowed_phase",
+      "overall_status": "pass",
+      "policy_errors": [],
+      "policy_status": "pass",
+      "shape_errors": [],
+      "shape_status": "pass",
+      "specimen_id": "probe022_gpt54_medium_archive_menu_version_gap_allowed_phase_01"
+    }
+  ]
+}

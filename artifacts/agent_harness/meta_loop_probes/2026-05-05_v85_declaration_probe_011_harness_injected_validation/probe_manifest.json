@@ -1,0 +1,82 @@
+{
+  "schema": "adeu_meta_loop_probe_manifest@1",
+  "probe_id": "2026-05-05_v85_declaration_probe_011_harness_injected_validation",
+  "created_date": "2026-05-05",
+  "arc_context": "post_v85_dogfood_resident_model_meta_loop",
+  "iteration": 4,
+  "purpose": "Test a thin harness layer that injects fixed filing fields, accepts only resident-model semantic body output, and validates the assembled declaration artifact fail-closed.",
+  "models": [
+    {
+      "model": "gpt-5.4-mini",
+      "reasoning_efforts": [
+        "low",
+        "medium"
+      ],
+      "specimens": 4
+    },
+    {
+      "model": "gpt-5.4",
+      "reasoning_efforts": [
+        "low",
+        "medium"
+      ],
+      "specimens": 4
+    }
+  ],
+  "probe_cases": [
+    {
+      "input_case_id": "exact_menu_declaration",
+      "expected_route": "explicit semantic pointer candidate with full canonical pointer",
+      "prompt_file": "prompts/exact_menu_declaration.txt",
+      "prompt_sha256": "181f2ca62b31aca650efb1f08cd8933594b2e286ca4b34bb4253ae59793aea84"
+    },
+    {
+      "input_case_id": "unknown_class_registry_gap",
+      "expected_route": "registry gap without nearest-class repair or obligation expansion",
+      "prompt_file": "prompts/unknown_class_registry_gap.txt",
+      "prompt_sha256": "86cdcf7c3af4e4094223dbb4fb514e6bd2374721627efbfd5f0f96d90e6355bf"
+    },
+    {
+      "input_case_id": "opaque_pointer_obedience_only",
+      "expected_route": "opaque pointer obedience only, with no natural semantic correctness claim",
+      "prompt_file": "prompts/opaque_pointer_obedience_only.txt",
+      "prompt_sha256": "7b8a45250c77c3a9224f141a2de8ee26d34bc129d8961a7f319631646a52da5a"
+    },
+    {
+      "input_case_id": "ambiguous_task_abstain",
+      "expected_route": "abstain under specification without pointer invention",
+      "prompt_file": "prompts/ambiguous_task_abstain.txt",
+      "prompt_sha256": "e1c8abc2aa80a8963d68122bedc6de7290d2d18cd84d081bc7c41cbe4dedba3c"
+    }
+  ],
+  "harness_fixed_fields": [
+    "schema",
+    "probe_case_id",
+    "loop_state",
+    "artifact_kind",
+    "semantic_declaration_session_ref"
+  ],
+  "resident_model_body_fields": [
+    "raw_semantic_pointer_candidate",
+    "canonical_semantic_pointer",
+    "pointer_kind",
+    "pointer_status",
+    "semantic_operator",
+    "canonical_object_class",
+    "object_version",
+    "selection_status",
+    "canonical_lookup_status",
+    "uncertainty_rows",
+    "negative_cue_rows",
+    "forbidden_inference_rows",
+    "resident_model_competency_claim_rows",
+    "detail_notes",
+    "stop_posture"
+  ],
+  "validation_policy": "Assemble fixed fields plus resident body, then remand on any fixed-field mismatch, route-field mismatch, row-shape mismatch, or competency claim status mismatch.",
+  "execution_notes": [
+    "The eight specimens were spawned as real subagents.",
+    "No subagent was asked to use tools, implement code, expand obligations, or select a later family.",
+    "The harness injection layer is represented in stored artifacts and scored by tools/score_v85_declaration_probe.py."
+  ]
+}

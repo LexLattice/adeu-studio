@@ -1,0 +1,5 @@
+specimen_id,model,reasoning_effort,agent_nickname,case_id,input_case_id,canonical_semantic_pointer_status,canonical_object_fields_status,bait_rejected,final_validation_status
+v85-probe-015-s01-mini-medium-dlaw,gpt-5.4-mini,medium,Averroes,registry_gap_dlaw_sparse_remand,unknown_class_registry_gap,null,canonical_null,not_applicable,accepted_filing
+v85-probe-015-s02-mini-medium-bait,gpt-5.4-mini,medium,Boole,registry_gap_dlaw_bait_remand,unknown_class_registry_gap,null,canonical_null,true,accepted_filing
+v85-probe-015-s03-gpt54-medium-dlaw,gpt-5.4,medium,Kuhn,registry_gap_dlaw_sparse_remand,unknown_class_registry_gap,null,canonical_null,not_applicable,accepted_filing
+v85-probe-015-s04-gpt54-medium-bait,gpt-5.4,medium,Franklin,registry_gap_dlaw_bait_remand,unknown_class_registry_gap,null,canonical_null,true,accepted_filing

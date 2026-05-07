@@ -1,0 +1,65 @@
+{
+  "schema": "adeu_meta_loop_probe_manifest@1",
+  "probe_id": "2026-05-05_v85_declaration_probe_010_iteration3_canonical_semantic_pointer",
+  "created_date": "2026-05-05",
+  "arc_context": "post_v85_dogfood_resident_model_meta_loop",
+  "iteration": 3,
+  "purpose": "Test the iteration-3 declaration schema repair: full canonical_semantic_pointer, separate canonical_object_class and object_version, harness-supplied session refs, exact artifact kind, and row-object shapes.",
+  "models": [
+    {
+      "model": "gpt-5.4-mini",
+      "reasoning_efforts": [
+        "low",
+        "medium"
+      ],
+      "specimens": 4
+    },
+    {
+      "model": "gpt-5.4",
+      "reasoning_efforts": [
+        "low",
+        "medium"
+      ],
+      "specimens": 4
+    }
+  ],
+  "probe_cases": [
+    {
+      "input_case_id": "exact_menu_declaration",
+      "expected_route": "explicit semantic pointer candidate with full canonical pointer",
+      "prompt_file": "prompts/exact_menu_declaration.txt",
+      "prompt_sha256": "ea231fb442efef20cc1c3f9071268f0d96d000f06a682788556e4cddb44e2f4f"
+    },
+    {
+      "input_case_id": "unknown_class_registry_gap",
+      "expected_route": "registry gap without nearest-class repair or obligation expansion",
+      "prompt_file": "prompts/unknown_class_registry_gap.txt",
+      "prompt_sha256": "3e86e6fb9ef44cba5735779b484feb045d0580c69b370ad31fdbf53e939c05d1"
+    },
+    {
+      "input_case_id": "opaque_pointer_obedience_only",
+      "expected_route": "opaque pointer obedience only, with no natural semantic correctness claim",
+      "prompt_file": "prompts/opaque_pointer_obedience_only.txt",
+      "prompt_sha256": "5dc1eabd0750635f86976346f43c1b7a75a076313e6e38da4f08940450485506"
+    },
+    {
+      "input_case_id": "ambiguous_task_abstain",
+      "expected_route": "abstain under specification without pointer invention",
+      "prompt_file": "prompts/ambiguous_task_abstain.txt",
+      "prompt_sha256": "2301dc0fc28be0300d291a16885f920518c639c7593c79716f3d118c60f2b2fe"
+    }
+  ],
+  "expected_key_repairs": [
+    "Distinguish raw_semantic_pointer_candidate from canonical_semantic_pointer.",
+    "Require canonical_semantic_pointer to carry the full operator/class/version pointer when present.",
+    "Separate semantic_operator, canonical_object_class, and object_version.",
+    "Use not_applicable canonical_lookup_status for opaque-pointer and no-pointer cases.",
+    "Use harness-supplied semantic_declaration_session_ref.",
+    "Require row-object shapes for uncertainty, negative cues, forbidden inferences, and resident-model competency claims."
+  ],
+  "execution_notes": [
+    "The eight specimens were spawned as real subagents.",
+    "No subagent was asked to use tools, implement code, expand obligations, or select a later family.",
+    "Prompt files in this artifact directory capture the iteration-3 harness prompt templates used for assessment."
+  ]
+}

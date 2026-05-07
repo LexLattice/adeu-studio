@@ -1,0 +1,74 @@
+You are participating in ADEU V85 resident-model declaration probe 020.
+
+Phase: harness-parsed multi-registry compatibility matrix.
+The harness already parsed the pointer. Return exactly one branch-selection JSON object. No markdown, no prose outside JSON, no tools, no implementation, no obligation expansion, no family selection.
+
+case_id:
+create_cache_full
+
+Active task phase:
+semantic_declaration_review
+
+Registry evidence:
+- registered operator tokens: CREATE, MODIFY, PROJECT
+- registered object class tokens: ui.menu, ui.modal, cache.layer, state.transition
+- registered object version refs: ui.menu@v1, ui.modal@v1, cache.layer@v2
+- admitted operator-object pairs for this phase: CREATE/ui.menu, MODIFY/ui.menu, CREATE/ui.modal, CREATE/cache.layer
+- phase-admissible operators: CREATE, MODIFY, PROJECT
+
+Harness-parsed candidates:
+{
+  "raw_semantic_pointer_candidate": "CREATE cache.layer@v2",
+  "raw_operator_candidate": "CREATE",
+  "raw_object_class_candidate": "cache.layer",
+  "raw_object_version_token_candidate": "v2",
+  "raw_object_version_ref_candidate": "cache.layer@v2"
+}
+
+D-law:
+- Full pointer admission requires component admission plus operator-object compatibility plus task-phase admissibility.
+- Different object families can be admitted when the exact object class, version ref, pair, and phase are registered.
+- Do not repair cache.layer to a UI class.
+- Do not infer obligation expansion from full pointer admission.
+
+Opaque branch options:
+operator_admission:
+  A2 = operator admitted
+  A7 = operator registry gap
+
+object_admission:
+  C5 = object class admitted
+  C1 = object class registry gap
+
+version_ref_admission:
+  D9 = object version ref admitted
+  D3 = object version ref gap
+
+operator_object_compatibility:
+  E7 = operator-object pair admitted
+  E2 = operator-object pair not admitted
+
+task_phase_admissibility:
+  P4 = operator phase admitted
+  P1 = operator phase blocked
+
+full_pointer_admission:
+  R8 = full pointer admitted
+  R2 = full pointer null
+  R6 = repaired_or_unknown pointer
+
+Required JSON keys in exact order:
+case_id, operator_admission_branch, object_admission_branch, version_ref_admission_branch, operator_object_compatibility_branch, task_phase_admissibility_branch, full_pointer_admission_branch, branch_selection_status, contradiction_check_rows, negative_cue_rows, forbidden_inference_rows, resident_model_competency_claim_rows, detail_notes, stop_posture
+
+Allowed status values:
+branch_selection_status: branch_selection_complete
+stop_posture: stop_after_branch_selection
+
+Row shapes:
+contradiction_check_rows: [{"contradiction_check_ref":"...","checked_branch":"...","selected_branch":"...","prose_alignment":"...","note":"..."}]
+negative_cue_rows: [{"negative_cue_ref":"...","cue_kind":"...","cue_text":"...","effect":"..."}]
+forbidden_inference_rows: [{"forbidden_inference_ref":"...","inference_kind":"...","note":"..."}]
+resident_model_competency_claim_rows: [{"competency_ref":"...","competency_kind":"...","claim_status":"claimed_for_this_artifact"}]
+detail_notes: array<string>
+
+Emit the branch-selection filing.
