@@ -1,0 +1,71 @@
+{
+  "arc": "vNext+243",
+  "bundle_resolves_nested_pack_source_refs": true,
+  "bundle_resolves_probe_template_refs": true,
+  "bundle_resolves_required_witness_refs": true,
+  "concept_definition_python_idiom_rejected": true,
+  "consumed_record_shapes": [
+    "programbench_cleanroom_reconstruction_profile@1",
+    "program_odeu_concept_boundary_seed@1",
+    "programbench_cleanroom_evidence_source_index@1",
+    "programbench_reconstruction_non_authority_guardrail@1",
+    "programbench_local_cleanroom_fixture_contract@1"
+  ],
+  "contract_source": "docs/LOCKED_CONTINUATION_vNEXT_PLUS243.md#machine-checkable-contract",
+  "fixture_implementation_rejected": true,
+  "focused_test_reference_path": "packages/adeu_benchmarking/tests/test_cleanroom_reconstruction_pb_py_0b.py",
+  "implementation_commits": [
+    "1aafd2c07b1ee9520d4c3c468bf093172c863c9b",
+    "67e487a5874b1ed03753d5854a3e0a514566d8bf"
+  ],
+  "implementation_packages": [
+    "adeu_benchmarking"
+  ],
+  "implementation_source_path": "packages/adeu_benchmarking/src/adeu_benchmarking/cleanroom_reconstruction.py",
+  "local_closeout_gate": "make arc-closeout-check ARC=243",
+  "local_full_python_gate": "make check",
+  "merge_commit": "f61ecbfc76b2826b529fa9b0d14150edcbe01e21",
+  "merged_at": "2026-05-07T20:26:42Z",
+  "merged_pr": "#471",
+  "merged_pr_url": "https://github.com/LexLattice/adeu-studio/pull/471",
+  "metric_key_continuity_assertion_path": "artifacts/agent_harness/v243/evidence_inputs/metric_key_continuity_assertion_v243.json",
+  "notes": "v243 evidence pins the bounded PB-PY-0-B Python realization overlay on main. PB-PY-0-B consumes released PB-PY-0-A cleanroom substrate; emits concept realization records, Python reconstruction realization packs, Python reconstruction plans, and Python realization witness templates; keeps Python idioms as realization options rather than concept definitions; keeps plans free of source code, shell commands, executable paths, generated implementation artifacts, execution authority, and fixture payloads; keeps witness templates local and non-hidden-test-equivalent; and ships no local fixture instance, comparison packet, official ProgramBench runner, hidden-test handling, benchmark score, model ranking, command execution, tool invocation, runtime transition, product authority, graph-memory authority, recursive-policy amendment, or future-family selection.",
+  "package_export_surface_path": "packages/adeu_benchmarking/src/adeu_benchmarking/__init__.py",
+  "path_separator_false_positive_allowed": true,
+  "plan_executable_path_rejected": true,
+  "plan_execution_authority_rejected": true,
+  "plan_generated_code_rejected": true,
+  "plan_shell_command_rejected": true,
+  "reference_fixture_paths": [
+    "apps/api/fixtures/benchmarking/vnext_plus243/concept_realization_record_v243_reference.json",
+    "apps/api/fixtures/benchmarking/vnext_plus243/python_reconstruction_realization_pack_v243_reference.json",
+    "apps/api/fixtures/benchmarking/vnext_plus243/python_reconstruction_plan_v243_reference.json",
+    "apps/api/fixtures/benchmarking/vnext_plus243/python_realization_witness_template_v243_reference.json"
+  ],
+  "reject_fixture_dir": "apps/api/fixtures/benchmarking/vnext_plus243",
+  "runtime_event_stream_path": "artifacts/agent_harness/v243/runtime/evidence/local/urm_events.ndjson",
+  "runtime_observability_comparison_path": "artifacts/agent_harness/v243/evidence_inputs/runtime_observability_comparison_v243.json",
+  "schema": "pb_py_0b_python_realization_overlay_closeout_evidence@1",
+  "schema_export_source_path": "packages/adeu_benchmarking/src/adeu_benchmarking/export_schema.py",
+  "schema_paths": [
+    "packages/adeu_benchmarking/schema/concept_realization_record.v1.json",
+    "packages/adeu_benchmarking/schema/python_reconstruction_realization_pack.v1.json",
+    "packages/adeu_benchmarking/schema/python_reconstruction_plan.v1.json",
+    "packages/adeu_benchmarking/schema/python_realization_witness_template.v1.json",
+    "spec/concept_realization_record.schema.json",
+    "spec/python_reconstruction_realization_pack.schema.json",
+    "spec/python_reconstruction_plan.schema.json",
+    "spec/python_realization_witness_template.schema.json"
+  ],
+  "selected_pb_py_0c_for_pb_py_0b": false,
+  "selected_record_shapes": [
+    "concept_realization_record@1",
+    "python_reconstruction_realization_pack@1",
+    "python_reconstruction_plan@1",
+    "python_realization_witness_template@1"
+  ],
+  "slice": "PB-PY-0-B",
+  "subprocess_command_authority_rejected": true,
+  "uppercase_python_path_rejected": true,
+  "witness_hidden_test_equivalence_rejected": true
+}

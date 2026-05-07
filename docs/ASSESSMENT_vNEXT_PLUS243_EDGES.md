@@ -1,8 +1,8 @@
 # Assessment vNext+243 Edges
 
-Status: pre-lock edge assessment for `PB-PY-0-B`.
+Status: closeout-edge assessment for `PB-PY-0-B`.
 
-Authority layer: planning / pre-lock assessment.
+Authority layer: closeout evidence on `main`.
 
 ## Assessment-State Marker (Machine-Checkable)
 
@@ -10,8 +10,8 @@ Authority layer: planning / pre-lock assessment.
 {
   "schema": "assessment_artifact_state@1",
   "artifact": "docs/ASSESSMENT_vNEXT_PLUS243_EDGES.md",
-  "phase": "pre_lock_assessment",
-  "authoritative": false,
+  "phase": "post_closeout_assessment",
+  "authoritative": true,
   "required_in_decision": true
 }
 ```
@@ -20,91 +20,96 @@ Authority layer: planning / pre-lock assessment.
 
 ### Edge 1: Python Realization Could Become Concept Definition
 
-- Required containment:
-  `concept_realization_record@1` must keep Python stdlib surfaces and
+- Closeout containment:
+  `concept_realization_record@1` keeps Python stdlib surfaces and
   implementation patterns as realization options, not canonical concept
   definitions.
-- Starter expectation:
-  reject realization rows with concept-definition authority or rows that treat
-  `argparse`, `dict` merge, `print(file=sys.stderr)`, or other Python idioms as
-  the concept itself.
+- Result:
+  pass.
 
 ### Edge 2: Reconstruction Plan Could Become Code Generation
 
-- Required containment:
-  `python_reconstruction_plan@1` must contain no source code, executable file
-  paths, shell commands, command invocations, generated implementation
-  artifacts, or fixture payloads.
-- Starter expectation:
-  reject any plan row containing code-shaped payloads or generated artifact
-  authority.
+- Closeout containment:
+  `python_reconstruction_plan@1` rejects source code, command-shaped payloads,
+  executable file paths, generated artifacts, and fixture payloads.
+- Result:
+  pass.
 
 ### Edge 3: Reconstruction Plan Could Become Execution Authority
 
-- Required containment:
-  plan rows must carry `no_execution_authority_granted_by_pb_py_0b` and may not
+- Closeout containment:
+  plan rows require `no_execution_authority_granted_by_pb_py_0b` and cannot
   authorize commands, tools, implementation locks, runtime transition, or
   target mutation.
-- Starter expectation:
-  reject execution-authorizing plan rows.
+- Result:
+  pass.
 
 ### Edge 4: Witness Template Could Become Hidden-Test Equivalence
 
-- Required containment:
-  witness templates may describe local probe requirements only. They must not
-  claim hidden-test equivalence, official benchmark truth, or evaluator access.
-- Starter expectation:
-  reject witness templates that equate local probes with hidden tests.
+- Closeout containment:
+  witness templates describe local probe requirements only and reject
+  hidden-test equivalence, official benchmark truth, and evaluator access.
+- Result:
+  pass.
 
 ### Edge 5: `subprocess_for_probe_only` Could Become Command Authority
 
-- Required containment:
-  `subprocess_for_probe_only` may be used only as a witness/probe surface, not
-  arbitrary command execution, ProgramBench runner integration, or fixture
-  execution authority.
-- Starter expectation:
-  reject subprocess rows outside probe-template posture.
+- Closeout containment:
+  `subprocess_for_probe_only` is accepted only as a probe-template surface and
+  rejected as arbitrary command authority, official runner integration, or
+  fixture execution authority.
+- Result:
+  pass.
 
 ### Edge 6: PB-PY-0-B Could Build The Local Fixture
 
-- Required containment:
-  local cleanroom fixture instances remain `PB-PY-0-C` work.
-- Starter expectation:
-  reject fixture implementation claims or local fixture payload rows.
+- Closeout containment:
+  local cleanroom fixture instances remain `PB-PY-0-C` work, and fixture
+  implementation claims fail closed in B.
+- Result:
+  pass.
 
 ### Edge 7: Official ProgramBench Participation Could Be Smuggled In
 
-- Required containment:
+- Closeout containment:
   no official runner, official task execution, hidden-test handling,
-  benchmark score, benchmark truth, or model ranking may ship in B.
-- Starter expectation:
-  reject official benchmark participation claims.
+  benchmark score, benchmark truth, or model ranking shipped.
+- Result:
+  pass.
 
 ### Edge 8: Released A Rows Could Be Ignored Or Rewritten
 
-- Required containment:
-  B rows must consume released `PB-PY-0-A` profile, concept seed, source index,
-  guardrail, and fixture contract refs without rewriting them or using them as
-  implementation authority.
-- Starter expectation:
-  reject unresolved, missing, or authority-promoted A refs.
+- Closeout containment:
+  B rows consume released `PB-PY-0-A` profile, concept seed, source index,
+  guardrail, and fixture contract refs. Required witness refs, probe template
+  refs, and nested pack source refs are resolved instead of rewritten.
+- Result:
+  pass.
 
 ### Edge 9: Example Snippets Could Become Canonical Implementation
 
-- Required containment:
-  advisory snippets, if present, remain advisory examples inside realization
+- Closeout containment:
+  advisory snippets remain bounded advisory examples inside realization
   records only and cannot become generated code or implementation truth.
-- Starter expectation:
-  reject snippet rows marked canonical implementation.
+- Result:
+  pass.
 
 ### Edge 10: PB-PY-0-B Could Select PB-PY-0-C Or A Future Family
 
-- Required containment:
-  B may carry deferred pressure only. It must not select `PB-PY-0-C`,
-  official ProgramBench work, V86/V87/V88, product, graph, release, or
-  recursive-policy work.
-- Starter expectation:
-  reject later-slice or future-family selection claims.
+- Closeout containment:
+  B carries deferred pressure only. It does not select `PB-PY-0-C`, official
+  ProgramBench work, V86/V87/V88, product, graph, release, or recursive-policy
+  work.
+- Result:
+  pass.
+
+### Edge 11: Path-Shaped Payload Detection Could Over- Or Under-Reject
+
+- Closeout containment:
+  uppercase Python path-shaped payloads are rejected while ordinary prose using
+  path separators is not treated as executable path authority.
+- Result:
+  pass.
 
 ## Residual Edges
 
@@ -113,6 +118,11 @@ Authority layer: planning / pre-lock assessment.
 - `PB-PY-0-C` comparison packets must keep same-condition controls explicit:
   shared fixture, worker/model profile, budget, allowed tools, cleanroom
   policy, probe budget, submission shape, and evaluation oracle.
+- `PB-PY-0-C` must mark comparisons contaminated or non-comparable when lane
+  deltas exceed the intended A/B/C substrate differences.
+- Local probe passes in `PB-PY-0-C` must remain local research evidence, not
+  hidden-test equivalence, official benchmark truth, model ranking, or official
+  ProgramBench scoring.
 - Any official ProgramBench participation, hidden evaluator governance,
   broader conceptual broker implementation, V86/V87/V88 continuation, product,
   graph, release, or recursive-policy family must be selected by a later
@@ -120,12 +130,12 @@ Authority layer: planning / pre-lock assessment.
 
 ## Current Judgment
 
-- `PB-PY-0-B` is starter-ready if the lock, decision, and assessment pass the
-  local arc-start gate.
-- The selected slice is narrow enough to start: it defines concept realization
-  records, Python realization packs, reconstruction plans, and witness
-  templates only.
-- The most important implementation risk is code-authority leakage:
-  realization overlays and plans must help later reconstruction without
-  generating code, executing probes, building fixtures, or claiming benchmark
-  truth inside this slice.
+- `PB-PY-0-B` is closed on `main` as a bounded Python realization overlay
+  slice.
+- `PB-PY-0` remains open for `PB-PY-0-C`; no family closeout has occurred.
+- The shipped slice preserves the intended boundary: it maps released
+  cleanroom program concept seeds to Python realization options, packs,
+  plans, and witness templates, but it does not define the concepts as Python
+  idioms, generate code, execute probes, build fixtures, run ProgramBench,
+  infer from hidden tests, claim benchmark truth, rank models, transition
+  runtime, or select a future family.
