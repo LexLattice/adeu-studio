@@ -1,0 +1,34 @@
+{
+  "benchmark_truth_posture": "not_benchmark_truth",
+  "forbidden_future_artifact_kinds": [
+    "programbench_adapter_handoff@1",
+    "programbench_adapter_probe_plan@1",
+    "programbench_adapter_readiness_summary@1",
+    "programbench_cleanroom_adapter_family_closeout_alignment@1",
+    "programbench_filesystem_side_effect_observation@1",
+    "programbench_io_artifact_observation_index@1",
+    "programbench_probe_observation_log@1",
+    "programbench_reconstruction_case_packet@1"
+  ],
+  "future_family_selection_posture": "no_future_family_selected_by_pb_adapter_0a",
+  "guardrail_ref": "guardrail:pb-adapter-0a:reference",
+  "hidden_test_posture": "hidden_tests_not_visible_not_inference_evidence",
+  "limitation_note": "Slice A is metadata and access law only.",
+  "model_ranking_posture": "no_model_ranking_claimed_by_pb_adapter_0a",
+  "non_authority_posture": "adapter_metadata_only_no_execution_authority",
+  "official_programbench_posture": "no_official_programbench_participation_by_pb_adapter_0a",
+  "schema": "programbench_adapter_non_authority_guardrail@1",
+  "submission_authority_posture": "no_submission_authority_by_pb_adapter_0a",
+  "task_artifact_manifest_refs": [
+    "artifact-manifest:pb-adapter-0a:reference"
+  ],
+  "task_intake_refs": [
+    "task-intake:pb-adapter-0a:reference"
+  ],
+  "visibility_manifest_refs": [
+    "visibility-manifest:pb-adapter-0a:reference"
+  ],
+  "worker_access_contract_refs": [
+    "worker-access-contract:pb-adapter-0a:reference"
+  ]
+}

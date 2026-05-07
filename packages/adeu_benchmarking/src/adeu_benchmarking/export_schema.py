@@ -77,6 +77,18 @@ from .models import (
     ProceduralDepthPerturbationCase,
     ProceduralDepthRunTrace,
 )
+from .programbench_cleanroom_adapter import (
+    PROGRAMBENCH_ADAPTER_NON_AUTHORITY_GUARDRAIL_SCHEMA,
+    PROGRAMBENCH_ADAPTER_WORKER_ACCESS_CONTRACT_SCHEMA,
+    PROGRAMBENCH_CLEANROOM_TASK_INTAKE_SCHEMA,
+    PROGRAMBENCH_TASK_ARTIFACT_MANIFEST_SCHEMA,
+    PROGRAMBENCH_TASK_VISIBILITY_MANIFEST_SCHEMA,
+    ProgrambenchAdapterNonAuthorityGuardrail,
+    ProgrambenchAdapterWorkerAccessContract,
+    ProgrambenchCleanroomTaskIntake,
+    ProgrambenchTaskArtifactManifest,
+    ProgrambenchTaskVisibilityManifest,
+)
 
 _WINDOWS_ABSOLUTE_PATH_RE = re.compile(r"[A-Za-z]:\\")
 
@@ -460,6 +472,56 @@ def main() -> None:
             / "schema"
             / "programbench_realization_family_closeout_alignment.v1.json",
             root / "spec" / "programbench_realization_family_closeout_alignment.schema.json",
+        ),
+        (
+            ProgrambenchCleanroomTaskIntake,
+            PROGRAMBENCH_CLEANROOM_TASK_INTAKE_SCHEMA,
+            root
+            / "packages"
+            / "adeu_benchmarking"
+            / "schema"
+            / "programbench_cleanroom_task_intake.v1.json",
+            root / "spec" / "programbench_cleanroom_task_intake.schema.json",
+        ),
+        (
+            ProgrambenchTaskArtifactManifest,
+            PROGRAMBENCH_TASK_ARTIFACT_MANIFEST_SCHEMA,
+            root
+            / "packages"
+            / "adeu_benchmarking"
+            / "schema"
+            / "programbench_task_artifact_manifest.v1.json",
+            root / "spec" / "programbench_task_artifact_manifest.schema.json",
+        ),
+        (
+            ProgrambenchTaskVisibilityManifest,
+            PROGRAMBENCH_TASK_VISIBILITY_MANIFEST_SCHEMA,
+            root
+            / "packages"
+            / "adeu_benchmarking"
+            / "schema"
+            / "programbench_task_visibility_manifest.v1.json",
+            root / "spec" / "programbench_task_visibility_manifest.schema.json",
+        ),
+        (
+            ProgrambenchAdapterWorkerAccessContract,
+            PROGRAMBENCH_ADAPTER_WORKER_ACCESS_CONTRACT_SCHEMA,
+            root
+            / "packages"
+            / "adeu_benchmarking"
+            / "schema"
+            / "programbench_adapter_worker_access_contract.v1.json",
+            root / "spec" / "programbench_adapter_worker_access_contract.schema.json",
+        ),
+        (
+            ProgrambenchAdapterNonAuthorityGuardrail,
+            PROGRAMBENCH_ADAPTER_NON_AUTHORITY_GUARDRAIL_SCHEMA,
+            root
+            / "packages"
+            / "adeu_benchmarking"
+            / "schema"
+            / "programbench_adapter_non_authority_guardrail.v1.json",
+            root / "spec" / "programbench_adapter_non_authority_guardrail.schema.json",
         ),
     ]
 

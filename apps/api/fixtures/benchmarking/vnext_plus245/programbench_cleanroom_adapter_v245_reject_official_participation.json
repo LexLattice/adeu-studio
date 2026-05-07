@@ -1,0 +1,36 @@
+{
+  "adapter_candidate_ref": "adapter-candidate:pb-adapter-0a:reference",
+  "benchmark_context_refs": [
+    "source:public-programbench-descriptor:context"
+  ],
+  "benchmark_truth_posture": "not_benchmark_truth",
+  "forbidden_inference_source_refs": [
+    "store:hidden-evaluator",
+    "store:original-source"
+  ],
+  "limitation_note": "Invalid: claims official participation.",
+  "official_participation_posture": "official_programbench_participation_claimed",
+  "pb_py_0_fixture_contract_refs": [
+    "fixture-contract:pb-py-0a:reference"
+  ],
+  "pb_py_0_profile_refs": [
+    "profile:pb-py-0a:reference"
+  ],
+  "reference_executable_ref": "artifact:reference-executable:toy-cli",
+  "schema": "programbench_cleanroom_task_intake@1",
+  "source_refs": [
+    "docs:DRAFT_NEXT_ARC_OPTIONS_v77"
+  ],
+  "target_language_posture": "python_target_language_for_later_reconstruction_review",
+  "task_artifact_manifest_ref": "artifact-manifest:pb-adapter-0a:reference",
+  "task_identifier_posture": "stable_task_instance_ref_declared",
+  "task_instance_ref": "task-instance:pb-adapter-0a:toy-cli",
+  "task_intake_ref": "task-intake:pb-adapter-0a:reference",
+  "task_origin_posture": "synthetic_local_task",
+  "usage_docs_refs": [
+    "artifact:usage-doc:toy-cli"
+  ],
+  "visible_input_artifact_refs": [
+    "artifact:input:sample-a"
+  ]
+}

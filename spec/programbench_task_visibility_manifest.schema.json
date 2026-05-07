@@ -1,0 +1,457 @@
+{
+  "$defs": {
+    "ProgrambenchDerivedSummaryPolicyRow": {
+      "additionalProperties": false,
+      "properties": {
+        "derived_summary_policy": {
+          "enum": [
+            "cleanroom_visible_summary_allowed",
+            "hidden_summary_forbidden_for_worker",
+            "forbidden_summary_forbidden_for_worker",
+            "support_summary_context_only",
+            "no_summary_available"
+          ],
+          "title": "Derived Summary Policy",
+          "type": "string"
+        },
+        "limitation_note": {
+          "title": "Limitation Note",
+          "type": "string"
+        },
+        "policy_ref": {
+          "title": "Policy Ref",
+          "type": "string"
+        },
+        "source_visibility_basis": {
+          "enum": [
+            "known_visible",
+            "known_hidden",
+            "known_forbidden",
+            "known_support_only",
+            "unknown_not_indexed",
+            "declared_absent"
+          ],
+          "title": "Source Visibility Basis",
+          "type": "string"
+        },
+        "source_visibility_class": {
+          "enum": [
+            "cleanroom_visible",
+            "worker_generated_probe",
+            "worker_generated_submission",
+            "reference_executable_observation",
+            "public_descriptor_context",
+            "support_context_only",
+            "postmortem_only",
+            "evaluation_oracle_hidden",
+            "forbidden_original_source",
+            "forbidden_decompilation",
+            "forbidden_internet_lookup",
+            "forbidden_external_repo",
+            "forbidden_host_secret",
+            "forbidden_docker_socket"
+          ],
+          "title": "Source Visibility Class",
+          "type": "string"
+        },
+        "store_ref": {
+          "title": "Store Ref",
+          "type": "string"
+        },
+        "worker_summary_visibility_posture": {
+          "enum": [
+            "cleanroom_visible_to_worker",
+            "not_worker_visible",
+            "support_context_only_not_decisive"
+          ],
+          "title": "Worker Summary Visibility Posture",
+          "type": "string"
+        }
+      },
+      "required": [
+        "policy_ref",
+        "store_ref",
+        "source_visibility_class",
+        "source_visibility_basis",
+        "derived_summary_policy",
+        "worker_summary_visibility_posture",
+        "limitation_note"
+      ],
+      "title": "ProgrambenchDerivedSummaryPolicyRow",
+      "type": "object"
+    },
+    "ProgrambenchStorePresenceRow": {
+      "additionalProperties": false,
+      "properties": {
+        "limitation_note": {
+          "title": "Limitation Note",
+          "type": "string"
+        },
+        "presence_ref": {
+          "title": "Presence Ref",
+          "type": "string"
+        },
+        "presence_source_refs": {
+          "items": {
+            "type": "string"
+          },
+          "title": "Presence Source Refs",
+          "type": "array"
+        },
+        "store_presence_posture": {
+          "enum": [
+            "present",
+            "declared_absent",
+            "unknown_not_indexed"
+          ],
+          "title": "Store Presence Posture",
+          "type": "string"
+        },
+        "store_ref": {
+          "title": "Store Ref",
+          "type": "string"
+        }
+      },
+      "required": [
+        "presence_ref",
+        "store_ref",
+        "store_presence_posture",
+        "presence_source_refs",
+        "limitation_note"
+      ],
+      "title": "ProgrambenchStorePresenceRow",
+      "type": "object"
+    },
+    "ProgrambenchTaskVisibilityStoreRow": {
+      "additionalProperties": false,
+      "properties": {
+        "derived_summary_policy": {
+          "enum": [
+            "cleanroom_visible_summary_allowed",
+            "hidden_summary_forbidden_for_worker",
+            "forbidden_summary_forbidden_for_worker",
+            "support_summary_context_only",
+            "no_summary_available"
+          ],
+          "title": "Derived Summary Policy",
+          "type": "string"
+        },
+        "limitation_note": {
+          "title": "Limitation Note",
+          "type": "string"
+        },
+        "source_refs": {
+          "items": {
+            "type": "string"
+          },
+          "title": "Source Refs",
+          "type": "array"
+        },
+        "store_presence_posture": {
+          "enum": [
+            "present",
+            "declared_absent",
+            "unknown_not_indexed"
+          ],
+          "title": "Store Presence Posture",
+          "type": "string"
+        },
+        "store_ref": {
+          "title": "Store Ref",
+          "type": "string"
+        },
+        "visibility_basis": {
+          "enum": [
+            "known_visible",
+            "known_hidden",
+            "known_forbidden",
+            "known_support_only",
+            "unknown_not_indexed",
+            "declared_absent"
+          ],
+          "title": "Visibility Basis",
+          "type": "string"
+        },
+        "visibility_class": {
+          "enum": [
+            "cleanroom_visible",
+            "worker_generated_probe",
+            "worker_generated_submission",
+            "reference_executable_observation",
+            "public_descriptor_context",
+            "support_context_only",
+            "postmortem_only",
+            "evaluation_oracle_hidden",
+            "forbidden_original_source",
+            "forbidden_decompilation",
+            "forbidden_internet_lookup",
+            "forbidden_external_repo",
+            "forbidden_host_secret",
+            "forbidden_docker_socket"
+          ],
+          "title": "Visibility Class",
+          "type": "string"
+        },
+        "worker_exposure_policy": {
+          "enum": [
+            "worker_visible_allowed",
+            "worker_hidden",
+            "worker_exposure_forbidden",
+            "support_context_only_not_decisive"
+          ],
+          "title": "Worker Exposure Policy",
+          "type": "string"
+        }
+      },
+      "required": [
+        "store_ref",
+        "source_refs",
+        "visibility_class",
+        "visibility_basis",
+        "store_presence_posture",
+        "derived_summary_policy",
+        "worker_exposure_policy",
+        "limitation_note"
+      ],
+      "title": "ProgrambenchTaskVisibilityStoreRow",
+      "type": "object"
+    },
+    "ProgrambenchVisibilityBasisRow": {
+      "additionalProperties": false,
+      "properties": {
+        "basis_ref": {
+          "title": "Basis Ref",
+          "type": "string"
+        },
+        "basis_source_refs": {
+          "items": {
+            "type": "string"
+          },
+          "minItems": 1,
+          "title": "Basis Source Refs",
+          "type": "array"
+        },
+        "limitation_note": {
+          "title": "Limitation Note",
+          "type": "string"
+        },
+        "store_ref": {
+          "title": "Store Ref",
+          "type": "string"
+        },
+        "visibility_basis": {
+          "enum": [
+            "known_visible",
+            "known_hidden",
+            "known_forbidden",
+            "known_support_only",
+            "unknown_not_indexed",
+            "declared_absent"
+          ],
+          "title": "Visibility Basis",
+          "type": "string"
+        }
+      },
+      "required": [
+        "basis_ref",
+        "store_ref",
+        "visibility_basis",
+        "basis_source_refs",
+        "limitation_note"
+      ],
+      "title": "ProgrambenchVisibilityBasisRow",
+      "type": "object"
+    },
+    "ProgrambenchWorkerExposurePolicyRow": {
+      "additionalProperties": false,
+      "properties": {
+        "exposure_policy_ref": {
+          "title": "Exposure Policy Ref",
+          "type": "string"
+        },
+        "limitation_note": {
+          "title": "Limitation Note",
+          "type": "string"
+        },
+        "phase": {
+          "enum": [
+            "intake_phase",
+            "inference_phase",
+            "probe_observation_phase"
+          ],
+          "title": "Phase",
+          "type": "string"
+        },
+        "store_ref": {
+          "title": "Store Ref",
+          "type": "string"
+        },
+        "worker_exposure_policy": {
+          "enum": [
+            "worker_visible_allowed",
+            "worker_hidden",
+            "worker_exposure_forbidden",
+            "support_context_only_not_decisive"
+          ],
+          "title": "Worker Exposure Policy",
+          "type": "string"
+        }
+      },
+      "required": [
+        "exposure_policy_ref",
+        "store_ref",
+        "worker_exposure_policy",
+        "phase",
+        "limitation_note"
+      ],
+      "title": "ProgrambenchWorkerExposurePolicyRow",
+      "type": "object"
+    }
+  },
+  "additionalProperties": false,
+  "properties": {
+    "adapter_candidate_ref": {
+      "title": "Adapter Candidate Ref",
+      "type": "string"
+    },
+    "derived_summary_policy_rows": {
+      "items": {
+        "$ref": "#/$defs/ProgrambenchDerivedSummaryPolicyRow"
+      },
+      "minItems": 1,
+      "title": "Derived Summary Policy Rows",
+      "type": "array"
+    },
+    "forbidden_store_reachability_posture": {
+      "const": "forbidden_and_hidden_stores_unreachable_during_inference",
+      "title": "Forbidden Store Reachability Posture",
+      "type": "string"
+    },
+    "forbidden_store_rows": {
+      "items": {
+        "$ref": "#/$defs/ProgrambenchTaskVisibilityStoreRow"
+      },
+      "title": "Forbidden Store Rows",
+      "type": "array"
+    },
+    "hidden_store_rows": {
+      "items": {
+        "$ref": "#/$defs/ProgrambenchTaskVisibilityStoreRow"
+      },
+      "title": "Hidden Store Rows",
+      "type": "array"
+    },
+    "inference_visibility_posture": {
+      "const": "cleanroom_visible_artifacts_only",
+      "title": "Inference Visibility Posture",
+      "type": "string"
+    },
+    "limitation_note": {
+      "title": "Limitation Note",
+      "type": "string"
+    },
+    "schema": {
+      "const": "programbench_task_visibility_manifest@1",
+      "title": "Schema",
+      "type": "string"
+    },
+    "source_visibility_policy": {
+      "const": "hidden_and_forbidden_sources_not_summarized_for_worker",
+      "title": "Source Visibility Policy",
+      "type": "string"
+    },
+    "store_presence_rows": {
+      "items": {
+        "$ref": "#/$defs/ProgrambenchStorePresenceRow"
+      },
+      "minItems": 1,
+      "title": "Store Presence Rows",
+      "type": "array"
+    },
+    "support_context_rows": {
+      "items": {
+        "$ref": "#/$defs/ProgrambenchTaskVisibilityStoreRow"
+      },
+      "title": "Support Context Rows",
+      "type": "array"
+    },
+    "task_artifact_manifest_ref": {
+      "title": "Task Artifact Manifest Ref",
+      "type": "string"
+    },
+    "task_instance_ref": {
+      "title": "Task Instance Ref",
+      "type": "string"
+    },
+    "task_intake_ref": {
+      "title": "Task Intake Ref",
+      "type": "string"
+    },
+    "visibility_basis_rows": {
+      "items": {
+        "$ref": "#/$defs/ProgrambenchVisibilityBasisRow"
+      },
+      "minItems": 1,
+      "title": "Visibility Basis Rows",
+      "type": "array"
+    },
+    "visibility_manifest_ref": {
+      "title": "Visibility Manifest Ref",
+      "type": "string"
+    },
+    "visible_store_rows": {
+      "items": {
+        "$ref": "#/$defs/ProgrambenchTaskVisibilityStoreRow"
+      },
+      "minItems": 1,
+      "title": "Visible Store Rows",
+      "type": "array"
+    },
+    "worker_exposure_policy_rows": {
+      "items": {
+        "$ref": "#/$defs/ProgrambenchWorkerExposurePolicyRow"
+      },
+      "minItems": 1,
+      "title": "Worker Exposure Policy Rows",
+      "type": "array"
+    },
+    "worker_hidden_file_refs": {
+      "items": {
+        "type": "string"
+      },
+      "title": "Worker Hidden File Refs",
+      "type": "array"
+    },
+    "worker_visible_file_refs": {
+      "items": {
+        "type": "string"
+      },
+      "title": "Worker Visible File Refs",
+      "type": "array"
+    }
+  },
+  "required": [
+    "schema",
+    "visibility_manifest_ref",
+    "task_intake_ref",
+    "task_artifact_manifest_ref",
+    "adapter_candidate_ref",
+    "task_instance_ref",
+    "visible_store_rows",
+    "hidden_store_rows",
+    "forbidden_store_rows",
+    "support_context_rows",
+    "visibility_basis_rows",
+    "store_presence_rows",
+    "derived_summary_policy_rows",
+    "worker_exposure_policy_rows",
+    "worker_visible_file_refs",
+    "worker_hidden_file_refs",
+    "inference_visibility_posture",
+    "forbidden_store_reachability_posture",
+    "source_visibility_policy",
+    "limitation_note"
+  ],
+  "title": "ProgrambenchTaskVisibilityManifest",
+  "type": "object"
+}

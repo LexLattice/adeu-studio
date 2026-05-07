@@ -1,0 +1,36 @@
+{
+  "adapter_candidate_ref": "adapter-candidate:pb-adapter-0a:reference",
+  "artifact_identity_posture": "hashes_and_snapshot_bound",
+  "artifact_origin_posture": "synthetic_local_task_artifact",
+  "ingestion_method": "local_synthetic_fixture_snapshot",
+  "limitation_note": "Hashes bind the task-visible artifact set; they do not authorize hidden or forbidden exposure.",
+  "observed_at": "2026-05-08T00:00:00Z",
+  "reference_executable_hash": "sha256:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+  "reference_executable_ref": "artifact:reference-executable:toy-cli",
+  "schema": "programbench_task_artifact_manifest@1",
+  "snapshot_ref": "snapshot:pb-adapter-0a:reference",
+  "source_set_hash": "sha256:dddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddd",
+  "task_artifact_manifest_ref": "artifact-manifest:pb-adapter-0a:reference",
+  "task_instance_ref": "task-instance:pb-adapter-0a:toy-cli",
+  "task_intake_ref": "task-intake:pb-adapter-0a:reference",
+  "usage_docs_hash_rows": [
+    {
+      "artifact_hash": "sha256:bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb",
+      "artifact_ref": "artifact:usage-doc:toy-cli",
+      "artifact_role": "usage_doc",
+      "limitation_note": "Synthetic usage docs hash.",
+      "observed_at": "2026-05-08T00:00:00Z",
+      "snapshot_ref": "snapshot:pb-adapter-0a:reference"
+    }
+  ],
+  "visible_input_artifact_hash_rows": [
+    {
+      "artifact_hash": "sha256:cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc",
+      "artifact_ref": "artifact:input:sample-a",
+      "artifact_role": "visible_input_artifact",
+      "limitation_note": "Synthetic visible input hash.",
+      "observed_at": "2026-05-08T00:00:00Z",
+      "snapshot_ref": "snapshot:pb-adapter-0a:reference"
+    }
+  ]
+}

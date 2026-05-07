@@ -1,0 +1,26 @@
+{
+  "adapter_candidate_ref": "adapter-candidate:pb-adapter-0a:reference",
+  "allowed_command_posture": "no_command_execution_authority_by_pb_adapter_0a",
+  "allowed_inference_source_refs": [
+    "artifact:usage-doc:toy-cli"
+  ],
+  "allowed_network_posture": "network_disabled_during_inference",
+  "decompilation_posture": "decompilation_forbidden_during_inference",
+  "docker_socket_posture": "docker_socket_forbidden_during_inference",
+  "external_repo_lookup_posture": "external_repo_lookup_forbidden_during_inference",
+  "forbidden_inference_source_refs": [
+    "store:hidden-evaluator"
+  ],
+  "host_secret_posture": "host_secret_access_forbidden_during_inference",
+  "internet_lookup_posture": "internet_lookup_forbidden_during_inference",
+  "limitation_note": "Invalid: probe execution authority granted in slice A.",
+  "probe_execution_authority_posture": "probe_execution_authority_granted",
+  "schema": "programbench_adapter_worker_access_contract@1",
+  "source_lookup_posture": "source_lookup_forbidden_during_inference",
+  "submission_generation_posture": "no_submission_generation_authority_by_pb_adapter_0a",
+  "task_artifact_manifest_ref": "artifact-manifest:pb-adapter-0a:reference",
+  "task_instance_ref": "task-instance:pb-adapter-0a:toy-cli",
+  "task_intake_ref": "task-intake:pb-adapter-0a:reference",
+  "visibility_manifest_ref": "visibility-manifest:pb-adapter-0a:reference",
+  "worker_access_contract_ref": "worker-access-contract:pb-adapter-0a:reference"
+}
