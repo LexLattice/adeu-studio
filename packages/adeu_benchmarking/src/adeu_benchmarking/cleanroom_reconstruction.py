@@ -399,6 +399,23 @@ def _ensure_source_refs_resolve(
         raise ValueError(f"{row_ref} source refs missing source rows: {sorted(missing)}")
 
 
+def _ensure_released_refs_resolve(
+    observed_refs: list[str],
+    *,
+    field_label: str,
+    released_refs: set[str],
+) -> None:
+    observed_ref_set = set(observed_refs)
+    if len(observed_refs) != len(observed_ref_set):
+        raise ValueError(f"{field_label} must not repeat refs")
+    missing_released_refs = released_refs - observed_ref_set
+    if missing_released_refs:
+        raise ValueError(f"{field_label} missing released refs: {sorted(missing_released_refs)}")
+    unreleased_refs = observed_ref_set - released_refs
+    if unreleased_refs:
+        raise ValueError(f"{field_label} references unreleased refs: {sorted(unreleased_refs)}")
+
+
 class _CleanroomBase(BaseModel):
     model_config = MODEL_CONFIG
 
@@ -1426,36 +1443,24 @@ def validate_pb_py_0c_local_fixture_comparison_bundle(
             f"local fixture forbidden source rows missing source refs: "
             f"{sorted(missing_forbidden_sources)}"
         )
-    hidden_visible = set(local_fixture.worker_hidden_file_refs) & set(
-        local_fixture.worker_visible_file_refs
-    )
-    if hidden_visible:
-        raise ValueError(f"local fixture hidden refs visible to worker: {sorted(hidden_visible)}")
 
     if comparison_packet.fixture_ref != local_fixture.fixture_ref:
         raise ValueError("comparison packet must reference the local fixture")
-    missing_comparison_profiles = set(comparison_packet.profile_refs) - {profile.profile_ref}
-    if missing_comparison_profiles:
-        raise ValueError(
-            f"comparison packet profile refs missing released profile: "
-            f"{sorted(missing_comparison_profiles)}"
-        )
-    missing_comparison_packs = set(comparison_packet.realization_pack_refs) - {
-        realization_pack.pack_ref
-    }
-    if missing_comparison_packs:
-        raise ValueError(
-            f"comparison packet realization pack refs missing released pack: "
-            f"{sorted(missing_comparison_packs)}"
-        )
-    missing_comparison_witnesses = set(comparison_packet.witness_template_refs) - set(
-        witness_templates_by_ref
+    _ensure_released_refs_resolve(
+        comparison_packet.profile_refs,
+        field_label="comparison packet profile refs",
+        released_refs={profile.profile_ref},
     )
-    if missing_comparison_witnesses:
-        raise ValueError(
-            "comparison packet witness template refs missing released templates: "
-            f"{sorted(missing_comparison_witnesses)}"
-        )
+    _ensure_released_refs_resolve(
+        comparison_packet.realization_pack_refs,
+        field_label="comparison packet realization pack refs",
+        released_refs={realization_pack.pack_ref},
+    )
+    _ensure_released_refs_resolve(
+        comparison_packet.witness_template_refs,
+        field_label="comparison packet witness template refs",
+        released_refs=set(witness_templates_by_ref),
+    )
 
     if probe_audit.fixture_ref != local_fixture.fixture_ref:
         raise ValueError("probe audit must reference the local fixture")

@@ -181,6 +181,36 @@ def _load_c_bundle() -> tuple[
     return local_fixture, comparison_packet, probe_audit, family_closeout
 
 
+def _assert_pb_py_0c_bundle_rejects_comparison_payload(
+    comparison_payload: dict[str, Any],
+    *,
+    match: str,
+) -> None:
+    profile, concept_seed, source_index, guardrail, fixture_contract = _load_a_bundle()
+    realization_records, realization_pack, reconstruction_plan, witness_templates = _load_b_bundle()
+    local_fixture, _, probe_audit, family_closeout = _load_c_bundle()
+    comparison_packet = ProgrambenchReconstructionComparisonPacket.model_validate(
+        comparison_payload
+    )
+
+    with pytest.raises(ValueError, match=match):
+        validate_pb_py_0c_local_fixture_comparison_bundle(
+            profile=profile,
+            concept_seed=concept_seed,
+            source_index=source_index,
+            guardrail=guardrail,
+            fixture_contract=fixture_contract,
+            realization_records=realization_records,
+            realization_pack=realization_pack,
+            reconstruction_plan=reconstruction_plan,
+            witness_templates=witness_templates,
+            local_fixture=local_fixture,
+            comparison_packet=comparison_packet,
+            probe_audit=probe_audit,
+            family_closeout=family_closeout,
+        )
+
+
 def test_pb_py_0c_schema_exports_mirror_root_spec_files() -> None:
     export_schema_main()
     for schema_name, authoritative_path, mirror_path in _schema_pairs():
@@ -279,32 +309,39 @@ def test_pb_py_0c_comparison_can_mark_contamination_without_clean_claim() -> Non
     assert comparison_packet.comparison_contamination_status == "contaminated_conditions_detected"
 
 
-def test_pb_py_0c_bundle_rejects_missing_released_b_pack_ref() -> None:
-    profile, concept_seed, source_index, guardrail, fixture_contract = _load_a_bundle()
-    realization_records, realization_pack, reconstruction_plan, witness_templates = _load_b_bundle()
-    local_fixture, comparison_packet, probe_audit, family_closeout = _load_c_bundle()
+def test_pb_py_0c_bundle_rejects_unreleased_b_pack_ref() -> None:
+    _, comparison_packet, _, _ = _load_c_bundle()
     comparison_payload = comparison_packet.model_dump(mode="json", by_alias=True)
-    comparison_payload["realization_pack_refs"] = ["realization-pack:pb-py-0b:missing-pack"]
-    comparison_packet = ProgrambenchReconstructionComparisonPacket.model_validate(
-        comparison_payload
+    comparison_payload["realization_pack_refs"].append(
+        "realization-pack:pb-py-0b:missing-pack"
     )
 
-    with pytest.raises(ValueError, match="realization pack refs missing"):
-        validate_pb_py_0c_local_fixture_comparison_bundle(
-            profile=profile,
-            concept_seed=concept_seed,
-            source_index=source_index,
-            guardrail=guardrail,
-            fixture_contract=fixture_contract,
-            realization_records=realization_records,
-            realization_pack=realization_pack,
-            reconstruction_plan=reconstruction_plan,
-            witness_templates=witness_templates,
-            local_fixture=local_fixture,
-            comparison_packet=comparison_packet,
-            probe_audit=probe_audit,
-            family_closeout=family_closeout,
-        )
+    _assert_pb_py_0c_bundle_rejects_comparison_payload(
+        comparison_payload,
+        match="comparison packet realization pack refs references unreleased refs",
+    )
+
+
+def test_pb_py_0c_bundle_rejects_omitted_released_profile_ref() -> None:
+    _, comparison_packet, _, _ = _load_c_bundle()
+    comparison_payload = comparison_packet.model_dump(mode="json", by_alias=True)
+    comparison_payload["profile_refs"] = []
+
+    _assert_pb_py_0c_bundle_rejects_comparison_payload(
+        comparison_payload,
+        match="comparison packet profile refs missing released refs",
+    )
+
+
+def test_pb_py_0c_bundle_rejects_omitted_released_b_pack_ref() -> None:
+    _, comparison_packet, _, _ = _load_c_bundle()
+    comparison_payload = comparison_packet.model_dump(mode="json", by_alias=True)
+    comparison_payload["realization_pack_refs"] = []
+
+    _assert_pb_py_0c_bundle_rejects_comparison_payload(
+        comparison_payload,
+        match="comparison packet realization pack refs missing released refs",
+    )
 
 
 def test_pb_py_0c_bundle_rejects_missing_probe_audit_ref() -> None:
