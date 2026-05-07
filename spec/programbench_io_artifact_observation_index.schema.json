@@ -1,0 +1,151 @@
+{
+  "$defs": {
+    "ProgrambenchIOArtifactVisibilityRow": {
+      "additionalProperties": false,
+      "properties": {
+        "artifact_ref": {
+          "title": "Artifact Ref",
+          "type": "string"
+        },
+        "artifact_visibility_class": {
+          "enum": [
+            "cleanroom_visible",
+            "worker_generated_probe",
+            "worker_generated_submission",
+            "reference_executable_observation",
+            "public_descriptor_context",
+            "support_context_only",
+            "postmortem_only",
+            "evaluation_oracle_hidden",
+            "forbidden_original_source",
+            "forbidden_decompilation",
+            "forbidden_internet_lookup",
+            "forbidden_external_repo",
+            "forbidden_host_secret",
+            "forbidden_docker_socket"
+          ],
+          "title": "Artifact Visibility Class",
+          "type": "string"
+        },
+        "limitation_note": {
+          "title": "Limitation Note",
+          "type": "string"
+        },
+        "source_observation_ref": {
+          "title": "Source Observation Ref",
+          "type": "string"
+        },
+        "worker_visibility_posture": {
+          "enum": [
+            "cleanroom_visible_probe_artifact",
+            "hidden_or_forbidden_artifact_not_worker_visible",
+            "support_context_only_not_decisive"
+          ],
+          "title": "Worker Visibility Posture",
+          "type": "string"
+        }
+      },
+      "required": [
+        "artifact_ref",
+        "source_observation_ref",
+        "artifact_visibility_class",
+        "worker_visibility_posture",
+        "limitation_note"
+      ],
+      "title": "ProgrambenchIOArtifactVisibilityRow",
+      "type": "object"
+    }
+  },
+  "additionalProperties": false,
+  "properties": {
+    "artifact_truth_posture": {
+      "const": "local_probe_artifacts_not_benchmark_truth",
+      "title": "Artifact Truth Posture",
+      "type": "string"
+    },
+    "artifact_visibility_rows": {
+      "items": {
+        "$ref": "#/$defs/ProgrambenchIOArtifactVisibilityRow"
+      },
+      "minItems": 1,
+      "title": "Artifact Visibility Rows",
+      "type": "array"
+    },
+    "binary_output_artifact_refs": {
+      "items": {
+        "type": "string"
+      },
+      "title": "Binary Output Artifact Refs",
+      "type": "array"
+    },
+    "directory_output_artifact_refs": {
+      "items": {
+        "type": "string"
+      },
+      "title": "Directory Output Artifact Refs",
+      "type": "array"
+    },
+    "generated_output_artifact_refs": {
+      "items": {
+        "type": "string"
+      },
+      "title": "Generated Output Artifact Refs",
+      "type": "array"
+    },
+    "io_artifact_index_ref": {
+      "title": "Io Artifact Index Ref",
+      "type": "string"
+    },
+    "limitation_note": {
+      "title": "Limitation Note",
+      "type": "string"
+    },
+    "probe_observation_refs": {
+      "items": {
+        "type": "string"
+      },
+      "minItems": 1,
+      "title": "Probe Observation Refs",
+      "type": "array"
+    },
+    "schema": {
+      "const": "programbench_io_artifact_observation_index@1",
+      "title": "Schema",
+      "type": "string"
+    },
+    "stderr_artifact_refs": {
+      "items": {
+        "type": "string"
+      },
+      "title": "Stderr Artifact Refs",
+      "type": "array"
+    },
+    "stdout_artifact_refs": {
+      "items": {
+        "type": "string"
+      },
+      "title": "Stdout Artifact Refs",
+      "type": "array"
+    },
+    "task_intake_ref": {
+      "title": "Task Intake Ref",
+      "type": "string"
+    }
+  },
+  "required": [
+    "schema",
+    "io_artifact_index_ref",
+    "probe_observation_refs",
+    "task_intake_ref",
+    "stdout_artifact_refs",
+    "stderr_artifact_refs",
+    "generated_output_artifact_refs",
+    "directory_output_artifact_refs",
+    "binary_output_artifact_refs",
+    "artifact_visibility_rows",
+    "artifact_truth_posture",
+    "limitation_note"
+  ],
+  "title": "ProgrambenchIOArtifactObservationIndex",
+  "type": "object"
+}

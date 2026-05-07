@@ -1,0 +1,94 @@
+{
+  "additionalProperties": false,
+  "properties": {
+    "created_path_refs": {
+      "items": {
+        "type": "string"
+      },
+      "title": "Created Path Refs",
+      "type": "array"
+    },
+    "deleted_path_refs": {
+      "items": {
+        "type": "string"
+      },
+      "title": "Deleted Path Refs",
+      "type": "array"
+    },
+    "hidden_test_equivalence_posture": {
+      "const": "local_probe_not_hidden_test_equivalence",
+      "title": "Hidden Test Equivalence Posture",
+      "type": "string"
+    },
+    "limitation_note": {
+      "title": "Limitation Note",
+      "type": "string"
+    },
+    "modified_path_refs": {
+      "items": {
+        "type": "string"
+      },
+      "title": "Modified Path Refs",
+      "type": "array"
+    },
+    "path_scope_posture": {
+      "enum": [
+        "within_allowed_write_scope",
+        "outside_allowed_write_scope_blocked",
+        "unbounded_path_scope_blocked"
+      ],
+      "title": "Path Scope Posture",
+      "type": "string"
+    },
+    "probe_observation_ref": {
+      "title": "Probe Observation Ref",
+      "type": "string"
+    },
+    "schema": {
+      "const": "programbench_filesystem_side_effect_observation@1",
+      "title": "Schema",
+      "type": "string"
+    },
+    "side_effect_expectedness_posture": {
+      "enum": [
+        "expected_side_effects_observed",
+        "no_side_effects_expected",
+        "unexpected_side_effects_observed_review_only",
+        "unknown_expectedness_blocked"
+      ],
+      "title": "Side Effect Expectedness Posture",
+      "type": "string"
+    },
+    "side_effect_observation_ref": {
+      "title": "Side Effect Observation Ref",
+      "type": "string"
+    },
+    "task_intake_ref": {
+      "title": "Task Intake Ref",
+      "type": "string"
+    },
+    "untouched_path_refs": {
+      "items": {
+        "type": "string"
+      },
+      "title": "Untouched Path Refs",
+      "type": "array"
+    }
+  },
+  "required": [
+    "schema",
+    "side_effect_observation_ref",
+    "probe_observation_ref",
+    "task_intake_ref",
+    "created_path_refs",
+    "modified_path_refs",
+    "deleted_path_refs",
+    "untouched_path_refs",
+    "side_effect_expectedness_posture",
+    "path_scope_posture",
+    "hidden_test_equivalence_posture",
+    "limitation_note"
+  ],
+  "title": "ProgrambenchFilesystemSideEffectObservation",
+  "type": "object"
+}

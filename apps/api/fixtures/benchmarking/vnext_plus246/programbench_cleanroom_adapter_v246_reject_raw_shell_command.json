@@ -1,0 +1,41 @@
+{
+  "adapter_candidate_ref": "adapter-candidate:pb-adapter-0a:reference",
+  "allowed_probe_command_rows": [
+    {
+      "command_argv": [
+        "artifact:reference-executable:toy-cli --help"
+      ],
+      "command_label": "toy-cli-help",
+      "command_scope_posture": "allowed_probe_command_plan_only",
+      "command_shape_kind": "raw_shell_string",
+      "command_shape_ref": "command-shape:pb-adapter-0b:toy-cli-help",
+      "limitation_note": "Raw shell strings are forbidden for PB-ADAPTER-0-B command rows.",
+      "shell_wrapper_reason": "not_applicable"
+    }
+  ],
+  "allowed_write_scope": "bounded_temp_workspace_only",
+  "command_argv_shape": "argv_rows_only",
+  "environment_policy": "minimal_cleanroom_environment",
+  "forbidden_probe_command_rows": [],
+  "hidden_evaluator_posture": "hidden_evaluator_not_visible_not_probe_evidence",
+  "limitation_note": "Reject fixture: raw shell string command.",
+  "local_probe_not_truth_guardrail": "local_probe_not_benchmark_truth_or_hidden_test_equivalence",
+  "network_policy": "network_disabled_during_probe",
+  "post_state_snapshot_ref": "fs-snapshot:pb-adapter-0b:post",
+  "pre_state_snapshot_ref": "fs-snapshot:pb-adapter-0b:pre",
+  "probe_phase_posture": "plan_only_no_execution_by_this_row",
+  "probe_plan_ref": "probe-plan:pb-adapter-0b:raw-shell-reject",
+  "reference_executable_probe_posture": "reference_executable_probe_observation_allowed_by_b",
+  "resource_limit_policy": "bounded_resource_limits_required",
+  "schema": "programbench_adapter_probe_plan@1",
+  "side_effect_capture_policy": "capture_pre_post_and_diff",
+  "source_visibility_policy": "released_a_visibility_contract_controls_probe",
+  "stdin_fixture_ref": "stdin-fixture:pb-adapter-0b:none",
+  "task_instance_ref": "task-instance:pb-adapter-0a:toy-cli",
+  "task_intake_ref": "task-intake:pb-adapter-0a:reference",
+  "timeout_policy": "bounded_timeout_required",
+  "visibility_manifest_ref": "visibility-manifest:pb-adapter-0a:reference",
+  "worker_access_contract_ref": "worker-access-contract:pb-adapter-0a:reference",
+  "worker_submission_probe_posture": "worker_submission_probe_not_selected_by_pb_adapter_0b",
+  "working_directory_ref": "workspace:pb-adapter-0b:local-cleanroom"
+}

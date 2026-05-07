@@ -1,0 +1,18 @@
+{
+  "created_path_refs": [
+    "path:temp-output:toy-cli-help.log"
+  ],
+  "deleted_path_refs": [],
+  "hidden_test_equivalence_posture": "local_probe_not_hidden_test_equivalence",
+  "limitation_note": "Bounded local side-effect observation; not official evaluator evidence.",
+  "modified_path_refs": [],
+  "path_scope_posture": "within_allowed_write_scope",
+  "probe_observation_ref": "probe-observation:pb-adapter-0b:toy-cli-help",
+  "schema": "programbench_filesystem_side_effect_observation@1",
+  "side_effect_expectedness_posture": "expected_side_effects_observed",
+  "side_effect_observation_ref": "side-effect:pb-adapter-0b:toy-cli-help",
+  "task_intake_ref": "task-intake:pb-adapter-0a:reference",
+  "untouched_path_refs": [
+    "path:input:sample-a"
+  ]
+}

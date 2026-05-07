@@ -21,6 +21,14 @@ PROGRAMBENCH_ADAPTER_WORKER_ACCESS_CONTRACT_SCHEMA = (
 PROGRAMBENCH_ADAPTER_NON_AUTHORITY_GUARDRAIL_SCHEMA = (
     "programbench_adapter_non_authority_guardrail@1"
 )
+PROGRAMBENCH_ADAPTER_PROBE_PLAN_SCHEMA = "programbench_adapter_probe_plan@1"
+PROGRAMBENCH_PROBE_OBSERVATION_LOG_SCHEMA = "programbench_probe_observation_log@1"
+PROGRAMBENCH_IO_ARTIFACT_OBSERVATION_INDEX_SCHEMA = (
+    "programbench_io_artifact_observation_index@1"
+)
+PROGRAMBENCH_FILESYSTEM_SIDE_EFFECT_OBSERVATION_SCHEMA = (
+    "programbench_filesystem_side_effect_observation@1"
+)
 
 PB_ADAPTER_0A_ARTIFACT_KINDS = {
     PROGRAMBENCH_CLEANROOM_TASK_INTAKE_SCHEMA,
@@ -30,10 +38,10 @@ PB_ADAPTER_0A_ARTIFACT_KINDS = {
     PROGRAMBENCH_ADAPTER_NON_AUTHORITY_GUARDRAIL_SCHEMA,
 }
 PB_ADAPTER_0B_ARTIFACT_KINDS = {
-    "programbench_adapter_probe_plan@1",
-    "programbench_probe_observation_log@1",
-    "programbench_io_artifact_observation_index@1",
-    "programbench_filesystem_side_effect_observation@1",
+    PROGRAMBENCH_ADAPTER_PROBE_PLAN_SCHEMA,
+    PROGRAMBENCH_PROBE_OBSERVATION_LOG_SCHEMA,
+    PROGRAMBENCH_IO_ARTIFACT_OBSERVATION_INDEX_SCHEMA,
+    PROGRAMBENCH_FILESYSTEM_SIDE_EFFECT_OBSERVATION_SCHEMA,
 }
 PB_ADAPTER_0C_ARTIFACT_KINDS = {
     "programbench_reconstruction_case_packet@1",
@@ -123,18 +131,38 @@ ArtifactOriginPosture = Literal[
     "official_programbench_artifact_not_selected",
     "unknown_origin_blocked",
 ]
+ProbeObservationSourceKind = Literal[
+    "reference_executable_observation",
+    "worker_generated_probe_observation",
+    "worker_generated_submission_observation",
+    "support_context_only_observation",
+    "postmortem_only_observation",
+    "hidden_evaluator_observation_forbidden_in_inference",
+]
 
 
-def _ensure_non_empty_unique(values: list[str], *, field_name: str) -> None:
+def _ensure_non_empty_trimmed(values: list[str], *, field_name: str) -> None:
     for value in values:
         if not isinstance(value, str) or not value or value != value.strip():
             raise ValueError(f"{field_name} entries must be non-empty trimmed strings")
+
+
+def _ensure_non_empty_unique(values: list[str], *, field_name: str) -> None:
+    _ensure_non_empty_trimmed(values, field_name=field_name)
     if len(values) != len(set(values)):
         raise ValueError(f"{field_name} must not contain duplicates")
 
 
 def _ensure_sorted_unique(values: list[str], *, field_name: str) -> None:
     _ensure_non_empty_unique(values, field_name=field_name)
+    if values != sorted(values):
+        raise ValueError(f"{field_name} must be lexicographically sorted")
+
+
+def _ensure_sorted_unique_allow_empty(values: list[str], *, field_name: str) -> None:
+    _ensure_non_empty_trimmed(values, field_name=field_name)
+    if len(values) != len(set(values)):
+        raise ValueError(f"{field_name} must not contain duplicates")
     if values != sorted(values):
         raise ValueError(f"{field_name} must be lexicographically sorted")
 
@@ -572,6 +600,308 @@ class ProgrambenchAdapterNonAuthorityGuardrail(_AdapterBase):
         return self
 
 
+class ProgrambenchProbeCommandRow(_AdapterBase):
+    command_shape_ref: str
+    command_label: str
+    command_argv: list[str] = Field(min_length=1)
+    command_shape_kind: Literal[
+        "argv",
+        "shell_wrapped_with_reason",
+    ]
+    shell_wrapper_reason: str
+    command_scope_posture: Literal[
+        "allowed_probe_command_plan_only",
+        "forbidden_probe_command",
+    ]
+    limitation_note: str
+
+    @model_validator(mode="after")
+    def _validate_probe_command_row(self) -> "ProgrambenchProbeCommandRow":
+        _ensure_non_empty_trimmed(self.command_argv, field_name="command_argv")
+        if self.command_shape_kind == "shell_wrapped_with_reason":
+            if (
+                not self.shell_wrapper_reason
+                or self.shell_wrapper_reason == "not_applicable"
+                or self.shell_wrapper_reason != self.shell_wrapper_reason.strip()
+            ):
+                raise ValueError("shell wrapped command rows require a reason")
+        elif self.shell_wrapper_reason != "not_applicable":
+            raise ValueError("argv command rows must use not_applicable shell wrapper reason")
+        return self
+
+
+class ProgrambenchAdapterProbePlan(_AdapterBase):
+    schema_id: Literal[PROGRAMBENCH_ADAPTER_PROBE_PLAN_SCHEMA] = Field(alias="schema")
+    probe_plan_ref: str
+    task_intake_ref: str
+    visibility_manifest_ref: str
+    worker_access_contract_ref: str
+    adapter_candidate_ref: str
+    task_instance_ref: str
+    probe_phase_posture: Literal[
+        "plan_only_no_execution_by_this_row",
+        "local_reference_probe_allowed_by_later_lock",
+        "worker_generated_probe_allowed_by_later_lock",
+        "official_evaluator_probe_forbidden",
+        "future_family_only",
+    ]
+    command_argv_shape: Literal[
+        "argv_rows_only",
+        "shell_wrapped_with_reason_allowed",
+        "raw_shell_strings_forbidden",
+    ]
+    working_directory_ref: str
+    environment_policy: Literal[
+        "minimal_cleanroom_environment",
+        "explicit_env_allowlist_only",
+        "host_environment_forbidden",
+    ]
+    stdin_fixture_ref: str
+    timeout_policy: Literal["bounded_timeout_required"]
+    resource_limit_policy: Literal["bounded_resource_limits_required"]
+    allowed_write_scope: Literal[
+        "read_only_probe",
+        "bounded_temp_workspace_only",
+        "declared_output_artifact_scope_only",
+    ]
+    pre_state_snapshot_ref: str
+    post_state_snapshot_ref: str
+    side_effect_capture_policy: Literal["capture_pre_post_and_diff"]
+    allowed_probe_command_rows: list[ProgrambenchProbeCommandRow] = Field(min_length=1)
+    forbidden_probe_command_rows: list[ProgrambenchProbeCommandRow]
+    reference_executable_probe_posture: Literal[
+        "reference_executable_probe_plan_only",
+        "reference_executable_probe_observation_allowed_by_b",
+        "official_evaluator_probe_forbidden",
+    ]
+    worker_submission_probe_posture: Literal[
+        "worker_submission_probe_not_selected_by_pb_adapter_0b",
+        "worker_generated_probe_observation_allowed",
+        "generated_submission_authority_forbidden",
+    ]
+    network_policy: Literal["network_disabled_during_probe"]
+    source_visibility_policy: Literal["released_a_visibility_contract_controls_probe"]
+    hidden_evaluator_posture: Literal["hidden_evaluator_not_visible_not_probe_evidence"]
+    local_probe_not_truth_guardrail: Literal[
+        "local_probe_not_benchmark_truth_or_hidden_test_equivalence"
+    ]
+    limitation_note: str
+
+    @model_validator(mode="after")
+    def _validate_probe_plan(self) -> "ProgrambenchAdapterProbePlan":
+        if self.probe_phase_posture in {
+            "official_evaluator_probe_forbidden",
+            "future_family_only",
+        }:
+            raise ValueError("probe plan posture is not selectable for PB-ADAPTER-0-B")
+        allowed_refs = [row.command_shape_ref for row in self.allowed_probe_command_rows]
+        forbidden_refs = [row.command_shape_ref for row in self.forbidden_probe_command_rows]
+        _ensure_non_empty_unique(allowed_refs, field_name="allowed_probe_command_rows")
+        _ensure_sorted_unique_allow_empty(
+            forbidden_refs,
+            field_name="forbidden_probe_command_rows",
+        )
+        overlap = set(allowed_refs) & set(forbidden_refs)
+        if overlap:
+            raise ValueError(
+                "probe command rows cannot be both allowed and forbidden: "
+                f"{sorted(overlap)}"
+            )
+        for row in self.allowed_probe_command_rows:
+            if row.command_scope_posture != "allowed_probe_command_plan_only":
+                raise ValueError("allowed probe command rows must use allowed scope posture")
+            if row.command_shape_kind == "shell_wrapped_with_reason" and (
+                self.command_argv_shape == "argv_rows_only"
+            ):
+                raise ValueError(
+                    "shell wrapped rows require "
+                    "shell_wrapped_with_reason_allowed plan posture"
+                )
+        for row in self.forbidden_probe_command_rows:
+            if row.command_scope_posture != "forbidden_probe_command":
+                raise ValueError("forbidden probe command rows must use forbidden scope posture")
+        return self
+
+
+class ProgrambenchProbeObservationLog(_AdapterBase):
+    schema_id: Literal[PROGRAMBENCH_PROBE_OBSERVATION_LOG_SCHEMA] = Field(alias="schema")
+    probe_observation_ref: str
+    probe_plan_ref: str
+    task_intake_ref: str
+    adapter_candidate_ref: str
+    task_instance_ref: str
+    observation_source_kind: ProbeObservationSourceKind
+    command_shape_ref: str
+    stdin_observation_ref: str
+    stdout_observation_ref: str
+    stdout_hash: str
+    stdout_excerpt_bounded: str = Field(max_length=512)
+    stderr_observation_ref: str
+    stderr_hash: str
+    stderr_excerpt_bounded: str = Field(max_length=512)
+    exit_code_observation_ref: str
+    exit_code: int
+    duration_ms: int = Field(ge=0)
+    timeout_status: Literal[
+        "completed_without_timeout",
+        "timed_out",
+        "not_run_plan_only",
+    ]
+    pre_fs_manifest_ref: str
+    post_fs_manifest_ref: str
+    fs_diff_ref: str
+    observation_replay_limitations: list[str] = Field(min_length=1)
+    observation_currentness: Literal[
+        "current_for_snapshot",
+        "stale_context_only",
+        "unknown_currentness_blocked",
+    ]
+    hidden_test_equivalence_posture: Literal["local_probe_not_hidden_test_equivalence"]
+    limitation_note: str
+
+    @model_validator(mode="after")
+    def _validate_probe_observation_log(self) -> "ProgrambenchProbeObservationLog":
+        _ensure_hash(self.stdout_hash, field_name="stdout_hash")
+        _ensure_hash(self.stderr_hash, field_name="stderr_hash")
+        _ensure_non_empty_unique(
+            self.observation_replay_limitations,
+            field_name="observation_replay_limitations",
+        )
+        if self.observation_source_kind in {
+            "worker_generated_submission_observation",
+            "support_context_only_observation",
+            "postmortem_only_observation",
+            "hidden_evaluator_observation_forbidden_in_inference",
+        }:
+            raise ValueError("observation source kind is not selectable for PB-ADAPTER-0-B")
+        if self.observation_currentness != "current_for_snapshot":
+            raise ValueError("probe observations must be current for the selected snapshot")
+        if self.timeout_status == "not_run_plan_only":
+            raise ValueError("probe observation logs must represent an observed probe result")
+        return self
+
+
+class ProgrambenchIOArtifactVisibilityRow(_AdapterBase):
+    artifact_ref: str
+    source_observation_ref: str
+    artifact_visibility_class: AdapterVisibilityClass
+    worker_visibility_posture: Literal[
+        "cleanroom_visible_probe_artifact",
+        "hidden_or_forbidden_artifact_not_worker_visible",
+        "support_context_only_not_decisive",
+    ]
+    limitation_note: str
+
+    @model_validator(mode="after")
+    def _validate_io_artifact_visibility_row(self) -> "ProgrambenchIOArtifactVisibilityRow":
+        if self.artifact_visibility_class in _EXPOSURE_FORBIDDEN_VISIBILITY_CLASSES:
+            raise ValueError("hidden or forbidden artifacts cannot be probe evidence")
+        if self.artifact_visibility_class in {"support_context_only", "postmortem_only"}:
+            raise ValueError("support or postmortem artifacts cannot be probe evidence")
+        if self.worker_visibility_posture != "cleanroom_visible_probe_artifact":
+            raise ValueError("probe artifacts must be cleanroom visible")
+        return self
+
+
+class ProgrambenchIOArtifactObservationIndex(_AdapterBase):
+    schema_id: Literal[PROGRAMBENCH_IO_ARTIFACT_OBSERVATION_INDEX_SCHEMA] = Field(
+        alias="schema"
+    )
+    io_artifact_index_ref: str
+    probe_observation_refs: list[str] = Field(min_length=1)
+    task_intake_ref: str
+    stdout_artifact_refs: list[str]
+    stderr_artifact_refs: list[str]
+    generated_output_artifact_refs: list[str]
+    directory_output_artifact_refs: list[str]
+    binary_output_artifact_refs: list[str]
+    artifact_visibility_rows: list[ProgrambenchIOArtifactVisibilityRow] = Field(
+        min_length=1
+    )
+    artifact_truth_posture: Literal["local_probe_artifacts_not_benchmark_truth"]
+    limitation_note: str
+
+    @model_validator(mode="after")
+    def _validate_io_artifact_index(self) -> "ProgrambenchIOArtifactObservationIndex":
+        for field_name in (
+            "probe_observation_refs",
+            "stdout_artifact_refs",
+            "stderr_artifact_refs",
+            "generated_output_artifact_refs",
+            "directory_output_artifact_refs",
+            "binary_output_artifact_refs",
+        ):
+            _ensure_sorted_unique_allow_empty(getattr(self, field_name), field_name=field_name)
+        visibility_refs = [row.artifact_ref for row in self.artifact_visibility_rows]
+        _ensure_non_empty_unique(visibility_refs, field_name="artifact_visibility_rows")
+        known_artifact_refs = set().union(
+            self.stdout_artifact_refs,
+            self.stderr_artifact_refs,
+            self.generated_output_artifact_refs,
+            self.directory_output_artifact_refs,
+            self.binary_output_artifact_refs,
+        )
+        missing_visibility_refs = known_artifact_refs - set(visibility_refs)
+        if missing_visibility_refs:
+            raise ValueError(
+                "all probe artifacts need visibility rows: "
+                f"{sorted(missing_visibility_refs)}"
+            )
+        unknown_visibility_refs = set(visibility_refs) - known_artifact_refs
+        if unknown_visibility_refs:
+            raise ValueError(
+                "artifact visibility rows reference unknown probe artifacts: "
+                f"{sorted(unknown_visibility_refs)}"
+            )
+        return self
+
+
+class ProgrambenchFilesystemSideEffectObservation(_AdapterBase):
+    schema_id: Literal[PROGRAMBENCH_FILESYSTEM_SIDE_EFFECT_OBSERVATION_SCHEMA] = Field(
+        alias="schema"
+    )
+    side_effect_observation_ref: str
+    probe_observation_ref: str
+    task_intake_ref: str
+    created_path_refs: list[str]
+    modified_path_refs: list[str]
+    deleted_path_refs: list[str]
+    untouched_path_refs: list[str]
+    side_effect_expectedness_posture: Literal[
+        "expected_side_effects_observed",
+        "no_side_effects_expected",
+        "unexpected_side_effects_observed_review_only",
+        "unknown_expectedness_blocked",
+    ]
+    path_scope_posture: Literal[
+        "within_allowed_write_scope",
+        "outside_allowed_write_scope_blocked",
+        "unbounded_path_scope_blocked",
+    ]
+    hidden_test_equivalence_posture: Literal["local_probe_not_hidden_test_equivalence"]
+    limitation_note: str
+
+    @model_validator(mode="after")
+    def _validate_side_effect_observation(self) -> "ProgrambenchFilesystemSideEffectObservation":
+        all_refs: list[str] = []
+        for field_name in (
+            "created_path_refs",
+            "modified_path_refs",
+            "deleted_path_refs",
+            "untouched_path_refs",
+        ):
+            values = getattr(self, field_name)
+            _ensure_sorted_unique_allow_empty(values, field_name=field_name)
+            all_refs.extend(values)
+        if len(all_refs) != len(set(all_refs)):
+            raise ValueError("filesystem side-effect path refs must not overlap")
+        if self.path_scope_posture != "within_allowed_write_scope":
+            raise ValueError("filesystem side effects must stay within allowed write scope")
+        if self.side_effect_expectedness_posture == "unknown_expectedness_blocked":
+            raise ValueError("unknown side-effect expectedness is blocked")
+        return self
+
+
 def validate_pb_adapter_0a_task_intake_bundle(
     *,
     task_intake: ProgrambenchCleanroomTaskIntake,
@@ -665,3 +995,73 @@ def validate_pb_adapter_0a_task_intake_bundle(
         not in guardrail.worker_access_contract_refs
     ):
         raise ValueError("guardrail must reference the worker access contract")
+
+
+def validate_pb_adapter_0b_probe_observation_bundle(
+    *,
+    task_intake: ProgrambenchCleanroomTaskIntake,
+    artifact_manifest: ProgrambenchTaskArtifactManifest,
+    visibility_manifest: ProgrambenchTaskVisibilityManifest,
+    worker_access_contract: ProgrambenchAdapterWorkerAccessContract,
+    guardrail: ProgrambenchAdapterNonAuthorityGuardrail,
+    probe_plan: ProgrambenchAdapterProbePlan,
+    observation_logs: list[ProgrambenchProbeObservationLog],
+    io_artifact_index: ProgrambenchIOArtifactObservationIndex,
+    filesystem_side_effect_observations: list[ProgrambenchFilesystemSideEffectObservation],
+) -> None:
+    validate_pb_adapter_0a_task_intake_bundle(
+        task_intake=task_intake,
+        artifact_manifest=artifact_manifest,
+        visibility_manifest=visibility_manifest,
+        worker_access_contract=worker_access_contract,
+        guardrail=guardrail,
+    )
+    if not observation_logs:
+        raise ValueError("PB-ADAPTER-0-B requires at least one probe observation log")
+    if not filesystem_side_effect_observations:
+        raise ValueError("PB-ADAPTER-0-B requires filesystem side-effect observations")
+    if probe_plan.adapter_candidate_ref != task_intake.adapter_candidate_ref:
+        raise ValueError("probe plan must preserve released adapter candidate lineage")
+    if probe_plan.task_instance_ref != task_intake.task_instance_ref:
+        raise ValueError("probe plan must preserve released task instance lineage")
+    if probe_plan.task_intake_ref != task_intake.task_intake_ref:
+        raise ValueError("probe plan must reference released task intake")
+    if probe_plan.visibility_manifest_ref != visibility_manifest.visibility_manifest_ref:
+        raise ValueError("probe plan must reference released visibility manifest")
+    if (
+        probe_plan.worker_access_contract_ref
+        != worker_access_contract.worker_access_contract_ref
+    ):
+        raise ValueError("probe plan must reference released worker access contract")
+
+    allowed_command_refs = {
+        row.command_shape_ref for row in probe_plan.allowed_probe_command_rows
+    }
+    observation_refs = {row.probe_observation_ref for row in observation_logs}
+    if len(observation_refs) != len(observation_logs):
+        raise ValueError("probe observation refs must not repeat")
+    for observation in observation_logs:
+        if observation.probe_plan_ref != probe_plan.probe_plan_ref:
+            raise ValueError("probe observations must reference the probe plan")
+        if observation.task_intake_ref != task_intake.task_intake_ref:
+            raise ValueError("probe observations must reference released task intake")
+        if observation.adapter_candidate_ref != task_intake.adapter_candidate_ref:
+            raise ValueError("probe observations must preserve adapter candidate lineage")
+        if observation.task_instance_ref != task_intake.task_instance_ref:
+            raise ValueError("probe observations must preserve task instance lineage")
+        if observation.command_shape_ref not in allowed_command_refs:
+            raise ValueError("probe observations must use allowed probe command rows")
+
+    if set(io_artifact_index.probe_observation_refs) != observation_refs:
+        raise ValueError("I/O artifact index must cover exactly the probe observations")
+    if io_artifact_index.task_intake_ref != task_intake.task_intake_ref:
+        raise ValueError("I/O artifact index must reference released task intake")
+    for row in io_artifact_index.artifact_visibility_rows:
+        if row.source_observation_ref not in observation_refs:
+            raise ValueError("I/O artifact visibility rows reference unknown observations")
+
+    for side_effect in filesystem_side_effect_observations:
+        if side_effect.probe_observation_ref not in observation_refs:
+            raise ValueError("filesystem side effects reference unknown probe observations")
+        if side_effect.task_intake_ref != task_intake.task_intake_ref:
+            raise ValueError("filesystem side effects must reference released task intake")

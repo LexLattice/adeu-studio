@@ -1,0 +1,30 @@
+{
+  "adapter_candidate_ref": "adapter-candidate:pb-adapter-0a:reference",
+  "command_shape_ref": "command-shape:pb-adapter-0b:toy-cli-help",
+  "duration_ms": 12,
+  "exit_code": 0,
+  "exit_code_observation_ref": "exit-code:pb-adapter-0b:toy-cli-help",
+  "fs_diff_ref": "fs-diff:pb-adapter-0b:toy-cli-help",
+  "hidden_test_equivalence_posture": "local_probe_not_hidden_test_equivalence",
+  "limitation_note": "Local reference executable observation; not official evaluator output or benchmark truth.",
+  "observation_currentness": "current_for_snapshot",
+  "observation_replay_limitations": [
+    "local_synthetic_reference_observation_only"
+  ],
+  "observation_source_kind": "reference_executable_observation",
+  "post_fs_manifest_ref": "fs-snapshot:pb-adapter-0b:post",
+  "pre_fs_manifest_ref": "fs-snapshot:pb-adapter-0b:pre",
+  "probe_observation_ref": "probe-observation:pb-adapter-0b:toy-cli-help",
+  "probe_plan_ref": "probe-plan:pb-adapter-0b:reference",
+  "schema": "programbench_probe_observation_log@1",
+  "stderr_excerpt_bounded": "",
+  "stderr_hash": "sha256:bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb",
+  "stderr_observation_ref": "stderr:pb-adapter-0b:toy-cli-help",
+  "stdin_observation_ref": "stdin:pb-adapter-0b:none",
+  "stdout_excerpt_bounded": "usage: toy-cli [--help] INPUT",
+  "stdout_hash": "sha256:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+  "stdout_observation_ref": "stdout:pb-adapter-0b:toy-cli-help",
+  "task_instance_ref": "task-instance:pb-adapter-0a:toy-cli",
+  "task_intake_ref": "task-intake:pb-adapter-0a:reference",
+  "timeout_status": "completed_without_timeout"
+}
