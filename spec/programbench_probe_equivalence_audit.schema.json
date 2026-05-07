@@ -1,0 +1,211 @@
+{
+  "$defs": {
+    "ProgrambenchLocalProbeRow": {
+      "additionalProperties": false,
+      "properties": {
+        "benchmark_truth_posture": {
+          "const": "not_benchmark_truth",
+          "title": "Benchmark Truth Posture",
+          "type": "string"
+        },
+        "fixture_ref": {
+          "title": "Fixture Ref",
+          "type": "string"
+        },
+        "limitation_note": {
+          "title": "Limitation Note",
+          "type": "string"
+        },
+        "local_probe_ref": {
+          "title": "Local Probe Ref",
+          "type": "string"
+        },
+        "local_probe_scope_posture": {
+          "const": "local_probe_only_not_hidden_test_equivalence",
+          "title": "Local Probe Scope Posture",
+          "type": "string"
+        },
+        "local_probe_status": {
+          "enum": [
+            "local_probe_passed",
+            "local_probe_failed"
+          ],
+          "title": "Local Probe Status",
+          "type": "string"
+        },
+        "probe_kind": {
+          "enum": [
+            "help_probe",
+            "missing_value_probe",
+            "invalid_flag_probe",
+            "repeated_flag_probe",
+            "stdin_stdout_probe",
+            "stderr_diagnostic_probe",
+            "exit_code_probe",
+            "missing_file_probe",
+            "malformed_config_probe",
+            "deterministic_sorting_probe",
+            "generated_file_probe",
+            "directory_side_effect_probe"
+          ],
+          "title": "Probe Kind",
+          "type": "string"
+        }
+      },
+      "required": [
+        "local_probe_ref",
+        "fixture_ref",
+        "probe_kind",
+        "local_probe_status",
+        "local_probe_scope_posture",
+        "benchmark_truth_posture",
+        "limitation_note"
+      ],
+      "title": "ProgrambenchLocalProbeRow",
+      "type": "object"
+    },
+    "ProgrambenchProbeObservationRow": {
+      "additionalProperties": false,
+      "properties": {
+        "limitation_note": {
+          "title": "Limitation Note",
+          "type": "string"
+        },
+        "local_probe_ref": {
+          "title": "Local Probe Ref",
+          "type": "string"
+        },
+        "observation_posture": {
+          "const": "local_observation_only_not_benchmark_truth",
+          "title": "Observation Posture",
+          "type": "string"
+        },
+        "observation_ref": {
+          "title": "Observation Ref",
+          "type": "string"
+        },
+        "observed_value": {
+          "title": "Observed Value",
+          "type": "string"
+        }
+      },
+      "required": [
+        "observation_ref",
+        "local_probe_ref",
+        "observed_value",
+        "observation_posture",
+        "limitation_note"
+      ],
+      "title": "ProgrambenchProbeObservationRow",
+      "type": "object"
+    }
+  },
+  "additionalProperties": false,
+  "properties": {
+    "audit_ref": {
+      "title": "Audit Ref",
+      "type": "string"
+    },
+    "benchmark_truth_posture": {
+      "const": "local_audit_not_benchmark_truth",
+      "title": "Benchmark Truth Posture",
+      "type": "string"
+    },
+    "comparison_packet_ref": {
+      "title": "Comparison Packet Ref",
+      "type": "string"
+    },
+    "exit_code_observation_rows": {
+      "items": {
+        "$ref": "#/$defs/ProgrambenchProbeObservationRow"
+      },
+      "title": "Exit Code Observation Rows",
+      "type": "array"
+    },
+    "filesystem_observation_rows": {
+      "items": {
+        "$ref": "#/$defs/ProgrambenchProbeObservationRow"
+      },
+      "title": "Filesystem Observation Rows",
+      "type": "array"
+    },
+    "fixture_ref": {
+      "title": "Fixture Ref",
+      "type": "string"
+    },
+    "hidden_test_equivalence_posture": {
+      "const": "local_probe_pass_not_hidden_test_equivalence",
+      "title": "Hidden Test Equivalence Posture",
+      "type": "string"
+    },
+    "known_limitation_rows": {
+      "items": {
+        "type": "string"
+      },
+      "title": "Known Limitation Rows",
+      "type": "array"
+    },
+    "limitation_note": {
+      "title": "Limitation Note",
+      "type": "string"
+    },
+    "local_probe_rows": {
+      "items": {
+        "$ref": "#/$defs/ProgrambenchLocalProbeRow"
+      },
+      "minItems": 1,
+      "title": "Local Probe Rows",
+      "type": "array"
+    },
+    "negative_observation_rows": {
+      "items": {
+        "$ref": "#/$defs/ProgrambenchProbeObservationRow"
+      },
+      "title": "Negative Observation Rows",
+      "type": "array"
+    },
+    "positive_observation_rows": {
+      "items": {
+        "$ref": "#/$defs/ProgrambenchProbeObservationRow"
+      },
+      "title": "Positive Observation Rows",
+      "type": "array"
+    },
+    "postmortem_feedback_posture": {
+      "const": "no_hidden_test_feedback_used_for_inference",
+      "title": "Postmortem Feedback Posture",
+      "type": "string"
+    },
+    "schema": {
+      "const": "programbench_probe_equivalence_audit@1",
+      "title": "Schema",
+      "type": "string"
+    },
+    "stdout_stderr_observation_rows": {
+      "items": {
+        "$ref": "#/$defs/ProgrambenchProbeObservationRow"
+      },
+      "title": "Stdout Stderr Observation Rows",
+      "type": "array"
+    }
+  },
+  "required": [
+    "schema",
+    "audit_ref",
+    "fixture_ref",
+    "comparison_packet_ref",
+    "local_probe_rows",
+    "positive_observation_rows",
+    "negative_observation_rows",
+    "stdout_stderr_observation_rows",
+    "exit_code_observation_rows",
+    "filesystem_observation_rows",
+    "known_limitation_rows",
+    "hidden_test_equivalence_posture",
+    "benchmark_truth_posture",
+    "postmortem_feedback_posture",
+    "limitation_note"
+  ],
+  "title": "ProgrambenchProbeEquivalenceAudit",
+  "type": "object"
+}

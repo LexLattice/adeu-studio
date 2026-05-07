@@ -1,0 +1,39 @@
+{
+  "schema": "programbench_realization_family_closeout_alignment@1",
+  "family_closeout_ref": "family-closeout:pb-py-0:local-python-realization",
+  "family": "PB-PY-0",
+  "closed_slice_refs": [
+    "PB-PY-0-A",
+    "PB-PY-0-B",
+    "PB-PY-0-C"
+  ],
+  "released_profile_refs": [
+    "profile:pb-py-0a:programbench-cleanroom-reconstruction"
+  ],
+  "released_source_index_refs": [
+    "source-index:pb-py-0a:programbench-cleanroom"
+  ],
+  "released_concept_seed_refs": [
+    "concept-seed-set:pb-py-0a:program-odeu"
+  ],
+  "released_fixture_contract_refs": [
+    "fixture-contract:pb-py-0a:local-cleanroom-program"
+  ],
+  "released_realization_pack_refs": [
+    "realization-pack:pb-py-0b:python-stdlib-seed"
+  ],
+  "released_fixture_refs": [
+    "fixture:pb-py-0c:stderr-diagnostic-local"
+  ],
+  "released_comparison_packet_refs": [
+    "comparison:pb-py-0c:stderr-diagnostic-abc"
+  ],
+  "released_audit_refs": [
+    "audit:pb-py-0c:stderr-diagnostic-local-probes"
+  ],
+  "family_alignment_posture": "pb_py_0_closed_local_research_fixture_only",
+  "official_programbench_posture": "no_official_programbench_participation_by_pb_py_0",
+  "benchmark_truth_posture": "no_benchmark_truth_claimed_by_pb_py_0",
+  "future_family_selection_status": "no_future_family_selected_by_pb_py_0",
+  "limitation_note": "PB-PY-0 closes only as a local cleanroom research fixture family; official ProgramBench and future families remain unselected."
+}

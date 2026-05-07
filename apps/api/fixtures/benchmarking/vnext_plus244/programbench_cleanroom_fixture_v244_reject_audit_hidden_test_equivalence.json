@@ -1,0 +1,29 @@
+{
+  "schema": "programbench_probe_equivalence_audit@1",
+  "audit_ref": "audit:pb-py-0c:stderr-diagnostic-local-probes",
+  "fixture_ref": "fixture:pb-py-0c:stderr-diagnostic-local",
+  "comparison_packet_ref": "comparison:pb-py-0c:stderr-diagnostic-abc",
+  "local_probe_rows": [
+    {
+      "local_probe_ref": "probe:pb-py-0c:stderr-diagnostic-split",
+      "fixture_ref": "fixture:pb-py-0c:stderr-diagnostic-local",
+      "probe_kind": "stderr_diagnostic_probe",
+      "local_probe_status": "local_probe_passed",
+      "local_probe_scope_posture": "local_probe_only_not_hidden_test_equivalence",
+      "benchmark_truth_posture": "not_benchmark_truth",
+      "limitation_note": "The probe is a local synthetic fixture observation only."
+    }
+  ],
+  "positive_observation_rows": [],
+  "negative_observation_rows": [],
+  "stdout_stderr_observation_rows": [],
+  "exit_code_observation_rows": [],
+  "filesystem_observation_rows": [],
+  "known_limitation_rows": [
+    "local probe pass is not hidden-test equivalence"
+  ],
+  "hidden_test_equivalence_posture": "hidden_test_equivalence_claimed",
+  "benchmark_truth_posture": "local_audit_not_benchmark_truth",
+  "postmortem_feedback_posture": "no_hidden_test_feedback_used_for_inference",
+  "limitation_note": "Hidden-test equivalence posture must fail closed."
+}

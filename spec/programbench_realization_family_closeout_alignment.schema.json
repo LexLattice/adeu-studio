@@ -1,0 +1,136 @@
+{
+  "additionalProperties": false,
+  "properties": {
+    "benchmark_truth_posture": {
+      "const": "no_benchmark_truth_claimed_by_pb_py_0",
+      "title": "Benchmark Truth Posture",
+      "type": "string"
+    },
+    "closed_slice_refs": {
+      "items": {
+        "type": "string"
+      },
+      "minItems": 3,
+      "title": "Closed Slice Refs",
+      "type": "array"
+    },
+    "family": {
+      "const": "PB-PY-0",
+      "title": "Family",
+      "type": "string"
+    },
+    "family_alignment_posture": {
+      "const": "pb_py_0_closed_local_research_fixture_only",
+      "title": "Family Alignment Posture",
+      "type": "string"
+    },
+    "family_closeout_ref": {
+      "title": "Family Closeout Ref",
+      "type": "string"
+    },
+    "future_family_selection_status": {
+      "const": "no_future_family_selected_by_pb_py_0",
+      "title": "Future Family Selection Status",
+      "type": "string"
+    },
+    "limitation_note": {
+      "title": "Limitation Note",
+      "type": "string"
+    },
+    "official_programbench_posture": {
+      "const": "no_official_programbench_participation_by_pb_py_0",
+      "title": "Official Programbench Posture",
+      "type": "string"
+    },
+    "released_audit_refs": {
+      "items": {
+        "type": "string"
+      },
+      "minItems": 1,
+      "title": "Released Audit Refs",
+      "type": "array"
+    },
+    "released_comparison_packet_refs": {
+      "items": {
+        "type": "string"
+      },
+      "minItems": 1,
+      "title": "Released Comparison Packet Refs",
+      "type": "array"
+    },
+    "released_concept_seed_refs": {
+      "items": {
+        "type": "string"
+      },
+      "minItems": 1,
+      "title": "Released Concept Seed Refs",
+      "type": "array"
+    },
+    "released_fixture_contract_refs": {
+      "items": {
+        "type": "string"
+      },
+      "minItems": 1,
+      "title": "Released Fixture Contract Refs",
+      "type": "array"
+    },
+    "released_fixture_refs": {
+      "items": {
+        "type": "string"
+      },
+      "minItems": 1,
+      "title": "Released Fixture Refs",
+      "type": "array"
+    },
+    "released_profile_refs": {
+      "items": {
+        "type": "string"
+      },
+      "minItems": 1,
+      "title": "Released Profile Refs",
+      "type": "array"
+    },
+    "released_realization_pack_refs": {
+      "items": {
+        "type": "string"
+      },
+      "minItems": 1,
+      "title": "Released Realization Pack Refs",
+      "type": "array"
+    },
+    "released_source_index_refs": {
+      "items": {
+        "type": "string"
+      },
+      "minItems": 1,
+      "title": "Released Source Index Refs",
+      "type": "array"
+    },
+    "schema": {
+      "const": "programbench_realization_family_closeout_alignment@1",
+      "title": "Schema",
+      "type": "string"
+    }
+  },
+  "required": [
+    "schema",
+    "family_closeout_ref",
+    "family",
+    "closed_slice_refs",
+    "released_profile_refs",
+    "released_source_index_refs",
+    "released_concept_seed_refs",
+    "released_fixture_contract_refs",
+    "released_realization_pack_refs",
+    "released_fixture_refs",
+    "released_comparison_packet_refs",
+    "released_audit_refs",
+    "family_alignment_posture",
+    "official_programbench_posture",
+    "benchmark_truth_posture",
+    "future_family_selection_status",
+    "limitation_note"
+  ],
+  "title": "ProgrambenchRealizationFamilyCloseoutAlignment",
+  "type": "object"
+}

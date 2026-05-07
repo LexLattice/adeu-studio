@@ -13,6 +13,10 @@ from .cleanroom_reconstruction import (
     PROGRAMBENCH_CLEANROOM_EVIDENCE_SOURCE_INDEX_SCHEMA,
     PROGRAMBENCH_CLEANROOM_RECONSTRUCTION_PROFILE_SCHEMA,
     PROGRAMBENCH_LOCAL_CLEANROOM_FIXTURE_CONTRACT_SCHEMA,
+    PROGRAMBENCH_LOCAL_CLEANROOM_FIXTURE_SCHEMA,
+    PROGRAMBENCH_PROBE_EQUIVALENCE_AUDIT_SCHEMA,
+    PROGRAMBENCH_REALIZATION_FAMILY_CLOSEOUT_ALIGNMENT_SCHEMA,
+    PROGRAMBENCH_RECONSTRUCTION_COMPARISON_PACKET_SCHEMA,
     PROGRAMBENCH_RECONSTRUCTION_NON_AUTHORITY_GUARDRAIL_SCHEMA,
     PYTHON_REALIZATION_WITNESS_TEMPLATE_SCHEMA,
     PYTHON_RECONSTRUCTION_PLAN_SCHEMA,
@@ -20,7 +24,11 @@ from .cleanroom_reconstruction import (
     ConceptRealizationRecord,
     ProgrambenchCleanroomEvidenceSourceIndex,
     ProgrambenchCleanroomReconstructionProfile,
+    ProgrambenchLocalCleanroomFixture,
     ProgrambenchLocalCleanroomFixtureContract,
+    ProgrambenchProbeEquivalenceAudit,
+    ProgrambenchRealizationFamilyCloseoutAlignment,
+    ProgrambenchReconstructionComparisonPacket,
     ProgrambenchReconstructionNonAuthorityGuardrail,
     ProgramOdeuConceptBoundarySeed,
     PythonRealizationWitnessTemplate,
@@ -412,6 +420,46 @@ def main() -> None:
             / "schema"
             / "python_realization_witness_template.v1.json",
             root / "spec" / "python_realization_witness_template.schema.json",
+        ),
+        (
+            ProgrambenchLocalCleanroomFixture,
+            PROGRAMBENCH_LOCAL_CLEANROOM_FIXTURE_SCHEMA,
+            root
+            / "packages"
+            / "adeu_benchmarking"
+            / "schema"
+            / "programbench_local_cleanroom_fixture.v1.json",
+            root / "spec" / "programbench_local_cleanroom_fixture.schema.json",
+        ),
+        (
+            ProgrambenchReconstructionComparisonPacket,
+            PROGRAMBENCH_RECONSTRUCTION_COMPARISON_PACKET_SCHEMA,
+            root
+            / "packages"
+            / "adeu_benchmarking"
+            / "schema"
+            / "programbench_reconstruction_comparison_packet.v1.json",
+            root / "spec" / "programbench_reconstruction_comparison_packet.schema.json",
+        ),
+        (
+            ProgrambenchProbeEquivalenceAudit,
+            PROGRAMBENCH_PROBE_EQUIVALENCE_AUDIT_SCHEMA,
+            root
+            / "packages"
+            / "adeu_benchmarking"
+            / "schema"
+            / "programbench_probe_equivalence_audit.v1.json",
+            root / "spec" / "programbench_probe_equivalence_audit.schema.json",
+        ),
+        (
+            ProgrambenchRealizationFamilyCloseoutAlignment,
+            PROGRAMBENCH_REALIZATION_FAMILY_CLOSEOUT_ALIGNMENT_SCHEMA,
+            root
+            / "packages"
+            / "adeu_benchmarking"
+            / "schema"
+            / "programbench_realization_family_closeout_alignment.v1.json",
+            root / "spec" / "programbench_realization_family_closeout_alignment.schema.json",
         ),
     ]
 

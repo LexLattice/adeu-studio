@@ -1,0 +1,106 @@
+{
+  "schema": "programbench_reconstruction_comparison_packet@1",
+  "comparison_packet_ref": "comparison:pb-py-0c:stderr-diagnostic-abc",
+  "fixture_ref": "fixture:pb-py-0c:stderr-diagnostic-local",
+  "comparison_control_rows": [
+    {
+      "control_ref": "comparison-control:pb-py-0c:same-condition",
+      "shared_fixture_ref": "fixture:pb-py-0c:stderr-diagnostic-local",
+      "shared_model_or_worker_profile_ref": "worker-profile:pb-py-0c:constant-resident-worker",
+      "shared_budget_policy": "shared-budget:pb-py-0c:two-local-probes",
+      "shared_allowed_tool_policy": "shared-tools:pb-py-0c:local-probe-only-no-network",
+      "shared_cleanroom_policy": "shared-cleanroom:pb-py-0c:released-a-b-substrate",
+      "shared_probe_budget": "shared-probe-budget:pb-py-0c:two-probes",
+      "shared_submission_shape": "single Python stdlib-only submission file inside the synthetic local fixture",
+      "shared_evaluation_oracle_rows": [
+        "oracle:pb-py-0c:local-stderr-behavior"
+      ],
+      "lane_difference_declaration": "only_profile_and_python_overlay_substrate_varies_across_lanes"
+    }
+  ],
+  "comparison_lane_rows": [
+    {
+      "lane_ref": "lane:pb-py-0c:base",
+      "lane_id": "base_adeu_harness",
+      "fixture_ref": "fixture:pb-py-0c:stderr-diagnostic-local",
+      "model_or_worker_profile_ref": "worker-profile:pb-py-0c:constant-resident-worker",
+      "budget_policy": "shared-budget:pb-py-0c:two-local-probes",
+      "allowed_tool_policy": "shared-tools:pb-py-0c:local-probe-only-no-network",
+      "cleanroom_policy": "shared-cleanroom:pb-py-0c:released-a-b-substrate",
+      "probe_budget": "shared-probe-budget:pb-py-0c:two-probes",
+      "submission_shape": "single Python stdlib-only submission file inside the synthetic local fixture",
+      "evaluation_oracle_refs": [
+        "oracle:pb-py-0c:local-stderr-behavior"
+      ],
+      "profile_refs": [],
+      "realization_pack_refs": [],
+      "lane_delta_posture": "base_no_conceptual_profile_no_python_overlay",
+      "benchmark_truth_posture": "not_benchmark_truth",
+      "model_ranking_posture": "no_model_ranking_claimed_by_pb_py_0c",
+      "limitation_note": "Base lane receives no conceptual profile and no Python overlay."
+    },
+    {
+      "lane_ref": "lane:pb-py-0c:conceptual-profile",
+      "lane_id": "adeu_plus_conceptual_profile",
+      "fixture_ref": "fixture:pb-py-0c:stderr-diagnostic-local",
+      "model_or_worker_profile_ref": "worker-profile:pb-py-0c:constant-resident-worker",
+      "budget_policy": "shared-budget:pb-py-0c:two-local-probes",
+      "allowed_tool_policy": "shared-tools:pb-py-0c:local-probe-only-no-network",
+      "cleanroom_policy": "shared-cleanroom:pb-py-0c:released-a-b-substrate",
+      "probe_budget": "shared-probe-budget:pb-py-0c:two-probes",
+      "submission_shape": "single Python stdlib-only submission file inside the synthetic local fixture",
+      "evaluation_oracle_refs": [
+        "oracle:pb-py-0c:local-stderr-behavior"
+      ],
+      "profile_refs": [
+        "profile:pb-py-0a:programbench-cleanroom-reconstruction"
+      ],
+      "realization_pack_refs": [],
+      "lane_delta_posture": "conceptual_profile_only",
+      "benchmark_truth_posture": "not_benchmark_truth",
+      "model_ranking_posture": "no_model_ranking_claimed_by_pb_py_0c",
+      "limitation_note": "Conceptual-profile lane receives the released profile only."
+    },
+    {
+      "lane_ref": "lane:pb-py-0c:profile-plus-python-overlay",
+      "lane_id": "adeu_plus_conceptual_profile_plus_python_overlay",
+      "fixture_ref": "fixture:pb-py-0c:stderr-diagnostic-local",
+      "model_or_worker_profile_ref": "worker-profile:pb-py-0c:constant-resident-worker",
+      "budget_policy": "shared-budget:pb-py-0c:two-local-probes",
+      "allowed_tool_policy": "shared-tools:pb-py-0c:local-probe-only-no-network",
+      "cleanroom_policy": "shared-cleanroom:pb-py-0c:released-a-b-substrate",
+      "probe_budget": "shared-probe-budget:pb-py-0c:two-probes",
+      "submission_shape": "single Python stdlib-only submission file inside the synthetic local fixture",
+      "evaluation_oracle_refs": [
+        "oracle:pb-py-0c:local-stderr-behavior"
+      ],
+      "profile_refs": [
+        "profile:pb-py-0a:programbench-cleanroom-reconstruction"
+      ],
+      "realization_pack_refs": [
+        "realization-pack:pb-py-0b:python-stdlib-seed"
+      ],
+      "lane_delta_posture": "conceptual_profile_plus_python_overlay",
+      "benchmark_truth_posture": "not_benchmark_truth",
+      "model_ranking_posture": "no_model_ranking_claimed_by_pb_py_0c",
+      "limitation_note": "Overlay lane receives the released profile and Python realization pack."
+    }
+  ],
+  "profile_refs": [
+    "profile:pb-py-0a:programbench-cleanroom-reconstruction"
+  ],
+  "realization_pack_refs": [
+    "realization-pack:pb-py-0b:python-stdlib-seed"
+  ],
+  "witness_template_refs": [
+    "witness-template:pb-py-0b:stderr-diagnostic"
+  ],
+  "local_probe_refs": [
+    "probe:pb-py-0c:stderr-diagnostic-split"
+  ],
+  "comparison_scope_posture": "local_fixture_research_comparison_only",
+  "comparison_contamination_status": "same_condition_controls_closed",
+  "benchmark_truth_posture": "not_benchmark_truth",
+  "model_ranking_posture": "model_ranking_claimed_by_pb_py_0c",
+  "limitation_note": "Model ranking posture must fail closed."
+}

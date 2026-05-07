@@ -1,0 +1,286 @@
+{
+  "$defs": {
+    "ProgrambenchComparisonControlRow": {
+      "additionalProperties": false,
+      "properties": {
+        "control_ref": {
+          "title": "Control Ref",
+          "type": "string"
+        },
+        "lane_difference_declaration": {
+          "const": "only_profile_and_python_overlay_substrate_varies_across_lanes",
+          "title": "Lane Difference Declaration",
+          "type": "string"
+        },
+        "shared_allowed_tool_policy": {
+          "title": "Shared Allowed Tool Policy",
+          "type": "string"
+        },
+        "shared_budget_policy": {
+          "title": "Shared Budget Policy",
+          "type": "string"
+        },
+        "shared_cleanroom_policy": {
+          "title": "Shared Cleanroom Policy",
+          "type": "string"
+        },
+        "shared_evaluation_oracle_rows": {
+          "items": {
+            "type": "string"
+          },
+          "minItems": 1,
+          "title": "Shared Evaluation Oracle Rows",
+          "type": "array"
+        },
+        "shared_fixture_ref": {
+          "title": "Shared Fixture Ref",
+          "type": "string"
+        },
+        "shared_model_or_worker_profile_ref": {
+          "title": "Shared Model Or Worker Profile Ref",
+          "type": "string"
+        },
+        "shared_probe_budget": {
+          "title": "Shared Probe Budget",
+          "type": "string"
+        },
+        "shared_submission_shape": {
+          "title": "Shared Submission Shape",
+          "type": "string"
+        }
+      },
+      "required": [
+        "control_ref",
+        "shared_fixture_ref",
+        "shared_model_or_worker_profile_ref",
+        "shared_budget_policy",
+        "shared_allowed_tool_policy",
+        "shared_cleanroom_policy",
+        "shared_probe_budget",
+        "shared_submission_shape",
+        "shared_evaluation_oracle_rows",
+        "lane_difference_declaration"
+      ],
+      "title": "ProgrambenchComparisonControlRow",
+      "type": "object"
+    },
+    "ProgrambenchComparisonLaneRow": {
+      "additionalProperties": false,
+      "properties": {
+        "allowed_tool_policy": {
+          "title": "Allowed Tool Policy",
+          "type": "string"
+        },
+        "benchmark_truth_posture": {
+          "const": "not_benchmark_truth",
+          "title": "Benchmark Truth Posture",
+          "type": "string"
+        },
+        "budget_policy": {
+          "title": "Budget Policy",
+          "type": "string"
+        },
+        "cleanroom_policy": {
+          "title": "Cleanroom Policy",
+          "type": "string"
+        },
+        "evaluation_oracle_refs": {
+          "items": {
+            "type": "string"
+          },
+          "minItems": 1,
+          "title": "Evaluation Oracle Refs",
+          "type": "array"
+        },
+        "fixture_ref": {
+          "title": "Fixture Ref",
+          "type": "string"
+        },
+        "lane_delta_posture": {
+          "enum": [
+            "base_no_conceptual_profile_no_python_overlay",
+            "conceptual_profile_only",
+            "conceptual_profile_plus_python_overlay"
+          ],
+          "title": "Lane Delta Posture",
+          "type": "string"
+        },
+        "lane_id": {
+          "enum": [
+            "base_adeu_harness",
+            "adeu_plus_conceptual_profile",
+            "adeu_plus_conceptual_profile_plus_python_overlay"
+          ],
+          "title": "Lane Id",
+          "type": "string"
+        },
+        "lane_ref": {
+          "title": "Lane Ref",
+          "type": "string"
+        },
+        "limitation_note": {
+          "title": "Limitation Note",
+          "type": "string"
+        },
+        "model_or_worker_profile_ref": {
+          "title": "Model Or Worker Profile Ref",
+          "type": "string"
+        },
+        "model_ranking_posture": {
+          "const": "no_model_ranking_claimed_by_pb_py_0c",
+          "title": "Model Ranking Posture",
+          "type": "string"
+        },
+        "probe_budget": {
+          "title": "Probe Budget",
+          "type": "string"
+        },
+        "profile_refs": {
+          "items": {
+            "type": "string"
+          },
+          "title": "Profile Refs",
+          "type": "array"
+        },
+        "realization_pack_refs": {
+          "items": {
+            "type": "string"
+          },
+          "title": "Realization Pack Refs",
+          "type": "array"
+        },
+        "submission_shape": {
+          "title": "Submission Shape",
+          "type": "string"
+        }
+      },
+      "required": [
+        "lane_ref",
+        "lane_id",
+        "fixture_ref",
+        "model_or_worker_profile_ref",
+        "budget_policy",
+        "allowed_tool_policy",
+        "cleanroom_policy",
+        "probe_budget",
+        "submission_shape",
+        "evaluation_oracle_refs",
+        "profile_refs",
+        "realization_pack_refs",
+        "lane_delta_posture",
+        "benchmark_truth_posture",
+        "model_ranking_posture",
+        "limitation_note"
+      ],
+      "title": "ProgrambenchComparisonLaneRow",
+      "type": "object"
+    }
+  },
+  "additionalProperties": false,
+  "properties": {
+    "benchmark_truth_posture": {
+      "const": "not_benchmark_truth",
+      "title": "Benchmark Truth Posture",
+      "type": "string"
+    },
+    "comparison_contamination_status": {
+      "enum": [
+        "same_condition_controls_closed",
+        "contaminated_conditions_detected",
+        "non_comparable_conditions"
+      ],
+      "title": "Comparison Contamination Status",
+      "type": "string"
+    },
+    "comparison_control_rows": {
+      "items": {
+        "$ref": "#/$defs/ProgrambenchComparisonControlRow"
+      },
+      "minItems": 1,
+      "title": "Comparison Control Rows",
+      "type": "array"
+    },
+    "comparison_lane_rows": {
+      "items": {
+        "$ref": "#/$defs/ProgrambenchComparisonLaneRow"
+      },
+      "minItems": 3,
+      "title": "Comparison Lane Rows",
+      "type": "array"
+    },
+    "comparison_packet_ref": {
+      "title": "Comparison Packet Ref",
+      "type": "string"
+    },
+    "comparison_scope_posture": {
+      "const": "local_fixture_research_comparison_only",
+      "title": "Comparison Scope Posture",
+      "type": "string"
+    },
+    "fixture_ref": {
+      "title": "Fixture Ref",
+      "type": "string"
+    },
+    "limitation_note": {
+      "title": "Limitation Note",
+      "type": "string"
+    },
+    "local_probe_refs": {
+      "items": {
+        "type": "string"
+      },
+      "minItems": 1,
+      "title": "Local Probe Refs",
+      "type": "array"
+    },
+    "model_ranking_posture": {
+      "const": "no_model_ranking_claimed_by_pb_py_0c",
+      "title": "Model Ranking Posture",
+      "type": "string"
+    },
+    "profile_refs": {
+      "items": {
+        "type": "string"
+      },
+      "title": "Profile Refs",
+      "type": "array"
+    },
+    "realization_pack_refs": {
+      "items": {
+        "type": "string"
+      },
+      "title": "Realization Pack Refs",
+      "type": "array"
+    },
+    "schema": {
+      "const": "programbench_reconstruction_comparison_packet@1",
+      "title": "Schema",
+      "type": "string"
+    },
+    "witness_template_refs": {
+      "items": {
+        "type": "string"
+      },
+      "title": "Witness Template Refs",
+      "type": "array"
+    }
+  },
+  "required": [
+    "schema",
+    "comparison_packet_ref",
+    "fixture_ref",
+    "comparison_control_rows",
+    "comparison_lane_rows",
+    "profile_refs",
+    "realization_pack_refs",
+    "witness_template_refs",
+    "local_probe_refs",
+    "comparison_scope_posture",
+    "comparison_contamination_status",
+    "benchmark_truth_posture",
+    "model_ranking_posture",
+    "limitation_note"
+  ],
+  "title": "ProgrambenchReconstructionComparisonPacket",
+  "type": "object"
+}
