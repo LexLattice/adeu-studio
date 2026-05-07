@@ -166,6 +166,15 @@ _INFERENCE_FORBIDDEN_VISIBILITY_CLASSES = _FORBIDDEN_VISIBILITY_CLASSES | {
     "evaluation_oracle_hidden",
     "postmortem_only",
 }
+_WORKER_ACCESS_POSTURES = {
+    "registered_or_mounted_for_worker",
+    "queried_by_worker",
+    "exposed_to_worker",
+}
+_PROFILE_ALLOWED_INFERENCE_POSTURES = {
+    "admissible_for_inference",
+    "context_only_not_decisive",
+}
 _REQUIRED_PHASES = [
     "inference_phase",
     "local_development_phase",
@@ -198,7 +207,9 @@ def _sorted_unique(values: list[str], *, field_name: str) -> list[str]:
             raise ValueError(f"{field_name} entries must be non-empty trimmed strings")
     if len(values) != len(set(values)):
         raise ValueError(f"{field_name} must not contain duplicates")
-    return sorted(values)
+    if values != sorted(values):
+        raise ValueError(f"{field_name} must be sorted for deterministic review")
+    return values
 
 
 class _CleanroomBase(BaseModel):
@@ -225,6 +236,11 @@ class ProgrambenchCleanroomPhaseRow(_CleanroomBase):
 
     @model_validator(mode="after")
     def _phase_visibility_law(self) -> "ProgrambenchCleanroomPhaseRow":
+        overlap = set(self.allowed_visibility_classes) & set(self.forbidden_visibility_classes)
+        if overlap:
+            raise ValueError(
+                f"phase visibility classes cannot be both allowed and forbidden: {sorted(overlap)}"
+            )
         if self.phase == "inference_phase":
             forbidden_allowed = _INFERENCE_FORBIDDEN_VISIBILITY_CLASSES & set(
                 self.allowed_visibility_classes
@@ -266,6 +282,14 @@ class ProgrambenchCleanroomReconstructionProfile(_CleanroomBase):
             raise ValueError("phase_rows must include each PB-PY-0-A phase exactly once")
         if self.benchmark_truth_posture != "not_benchmark_truth":
             raise ValueError("cleanroom reconstruction profile must not claim benchmark truth")
+        source_overlap = set(self.allowed_inference_source_refs) & set(
+            self.forbidden_inference_source_refs
+        )
+        if source_overlap:
+            raise ValueError(
+                "inference source refs cannot be both allowed and forbidden: "
+                f"{sorted(source_overlap)}"
+            )
         observed_descriptor_refs = {
             row.observation_ref for row in self.public_descriptor_observation_rows
         }
@@ -301,17 +325,17 @@ class ProgramOdeuConceptBoundarySeedRow(_CleanroomBase):
     limitation_note: str
 
     @model_validator(mode="after")
-    def _normalize_unique_lists(self) -> "ProgramOdeuConceptBoundarySeedRow":
+    def _validate_unique_lists(self) -> "ProgramOdeuConceptBoundarySeedRow":
         if self.concept_id not in PROGRAM_ODEU_CONCEPT_ID_VOCABULARY:
             raise ValueError(f"unsupported concept_id: {self.concept_id}")
-        _sorted_unique(self.positive_example_labels, field_name="positive_example_labels")
-        _sorted_unique(self.negative_example_labels, field_name="negative_example_labels")
-        _sorted_unique(
-            self.nearest_confusable_concept_ids,
-            field_name="nearest_confusable_concept_ids",
-        )
-        _sorted_unique(self.required_witness_kind_refs, field_name="required_witness_kind_refs")
-        _sorted_unique(self.invalid_witness_kind_refs, field_name="invalid_witness_kind_refs")
+        for field_name in (
+            "positive_example_labels",
+            "negative_example_labels",
+            "nearest_confusable_concept_ids",
+            "required_witness_kind_refs",
+            "invalid_witness_kind_refs",
+        ):
+            _sorted_unique(getattr(self, field_name), field_name=field_name)
         return self
 
 
@@ -327,8 +351,10 @@ class ProgramOdeuConceptBoundarySeed(_CleanroomBase):
     @model_validator(mode="after")
     def _validate_seed_set(self) -> "ProgramOdeuConceptBoundarySeed":
         observed = [row.concept_id for row in self.concept_seed_rows]
-        if sorted(observed) != sorted(PROGRAM_ODEU_CONCEPT_ID_VOCABULARY):
-            raise ValueError("concept_seed_rows must include the PB-PY-0-A seed ids exactly")
+        if observed != PROGRAM_ODEU_CONCEPT_ID_VOCABULARY:
+            raise ValueError(
+                "concept_seed_rows must include the PB-PY-0-A seed ids in canonical order"
+            )
         return self
 
 
@@ -354,11 +380,7 @@ class ProgrambenchCleanroomEvidenceSourceRow(_CleanroomBase):
                 raise ValueError("forbidden evidence must not be worker-visible")
             if self.inference_admissibility_posture != "forbidden_for_inference":
                 raise ValueError("forbidden evidence must be forbidden for inference")
-            if self.source_access_posture in {
-                "registered_or_mounted_for_worker",
-                "queried_by_worker",
-                "exposed_to_worker",
-            }:
+            if self.source_access_posture in _WORKER_ACCESS_POSTURES:
                 raise ValueError(
                     "forbidden evidence must not be registered, mounted, queried, or exposed"
                 )
@@ -367,6 +389,13 @@ class ProgrambenchCleanroomEvidenceSourceRow(_CleanroomBase):
                 raise ValueError("hidden evaluation oracle cannot be inference evidence")
             if self.worker_visibility_posture != "not_worker_visible":
                 raise ValueError("hidden evaluation oracle must not be worker-visible")
+            if self.source_access_posture in _WORKER_ACCESS_POSTURES:
+                raise ValueError(
+                    "hidden evaluation oracle must not be registered, mounted, queried, or exposed"
+                )
+        if self.cleanroom_visibility_class == "postmortem_only":
+            if self.inference_admissibility_posture != "postmortem_only_not_inference":
+                raise ValueError("postmortem-only evidence cannot be inference evidence")
         if self.cleanroom_visibility_class == "public_descriptor_context":
             if self.benchmark_truth_posture != "public_descriptor_context_only":
                 raise ValueError("public descriptors must remain advisory context only")
@@ -465,10 +494,20 @@ def validate_pb_py_0a_cleanroom_reconstruction_bundle(
         raise ValueError("profile must reference the released source index")
     if concept_seed.concept_seed_set_ref not in profile.concept_boundary_seed_refs:
         raise ValueError("profile must reference the concept boundary seed set")
-    source_refs = {row.source_ref for row in source_index.source_rows}
+    source_rows_by_ref = {row.source_ref: row for row in source_index.source_rows}
+    source_refs = set(source_rows_by_ref)
     missing_allowed = set(profile.allowed_inference_source_refs) - source_refs
     if missing_allowed:
         raise ValueError(f"profile allowed inference refs missing source rows: {missing_allowed}")
+    for source_ref in profile.allowed_inference_source_refs:
+        source_row = source_rows_by_ref[source_ref]
+        if (
+            source_row.inference_admissibility_posture
+            not in _PROFILE_ALLOWED_INFERENCE_POSTURES
+        ):
+            raise ValueError(
+                f"profile allowed inference ref is not inference-admissible: {source_ref}"
+            )
     missing_forbidden = set(profile.forbidden_inference_source_refs) - source_refs
     if missing_forbidden:
         raise ValueError(

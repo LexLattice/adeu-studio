@@ -23,8 +23,8 @@
         "probe_log"
       ],
       "required_witness_kind_refs": [
-        "usage_doc_observation",
-        "probe_observation"
+        "probe_observation",
+        "usage_doc_observation"
       ],
       "invalid_witness_kind_refs": [
         "original_source_listing"
@@ -63,8 +63,8 @@
         "positional file path"
       ],
       "nearest_confusable_concept_ids": [
-        "subcommand",
-        "positional_argument"
+        "positional_argument",
+        "subcommand"
       ],
       "required_witness_kind_refs": [
         "usage_doc_observation"
@@ -132,12 +132,12 @@
       "concept_role": "cli_behavior_seed",
       "boundary_outline_advisory": "Named command-line option that changes behavior or supplies a value.",
       "positive_example_labels": [
-        "--verbose",
-        "--config path.json"
+        "--config path.json",
+        "--verbose"
       ],
       "negative_example_labels": [
-        "stdin payload",
-        "environment variable"
+        "environment variable",
+        "stdin payload"
       ],
       "nearest_confusable_concept_ids": [
         "environment_variable",
@@ -198,8 +198,8 @@
         "data piped into program"
       ],
       "negative_example_labels": [
-        "config file path",
-        "CLI flag"
+        "CLI flag",
+        "config file path"
       ],
       "nearest_confusable_concept_ids": [
         "config_file",
@@ -363,8 +363,8 @@
         "ENV_NAME changes output mode"
       ],
       "negative_example_labels": [
-        "config file key",
-        "CLI flag"
+        "CLI flag",
+        "config file key"
       ],
       "nearest_confusable_concept_ids": [
         "cli_flag",
@@ -464,8 +464,8 @@
         "stderr_diagnostic"
       ],
       "required_witness_kind_refs": [
-        "invalid_flag_probe",
-        "exit_code_observation"
+        "exit_code_observation",
+        "invalid_flag_probe"
       ],
       "invalid_witness_kind_refs": [],
       "distinguishing_question_rows": [],

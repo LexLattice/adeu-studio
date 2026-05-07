@@ -2,6 +2,7 @@ from __future__ import annotations
 
 import json
 import re
+from copy import deepcopy
 from pathlib import Path
 from typing import Any
 
@@ -190,6 +191,60 @@ def test_pb_py_0a_reference_bundle_preserves_cleanroom_boundary() -> None:
     )
 
 
+def test_pb_py_0a_bundle_rejects_allowed_forbidden_source_ref() -> None:
+    profile_payload = deepcopy(
+        _load_fixture("programbench_cleanroom_reconstruction_profile_v242_reference.json")
+    )
+    forbidden_source_ref = "source:pb-py-0a:forbidden-original-source"
+    profile_payload["allowed_inference_source_refs"].append(forbidden_source_ref)
+    profile_payload["forbidden_inference_source_refs"].remove(forbidden_source_ref)
+
+    profile = ProgrambenchCleanroomReconstructionProfile.model_validate(profile_payload)
+    concept_seed = ProgramOdeuConceptBoundarySeed.model_validate(
+        _load_fixture("program_odeu_concept_boundary_seed_v242_reference.json")
+    )
+    source_index = ProgrambenchCleanroomEvidenceSourceIndex.model_validate(
+        _load_fixture("programbench_cleanroom_evidence_source_index_v242_reference.json")
+    )
+    guardrail = ProgrambenchReconstructionNonAuthorityGuardrail.model_validate(
+        _load_fixture("programbench_reconstruction_non_authority_guardrail_v242_reference.json")
+    )
+    fixture_contract = ProgrambenchLocalCleanroomFixtureContract.model_validate(
+        _load_fixture("programbench_local_cleanroom_fixture_contract_v242_reference.json")
+    )
+
+    with pytest.raises(ValueError, match="not inference-admissible"):
+        validate_pb_py_0a_cleanroom_reconstruction_bundle(
+            profile=profile,
+            concept_seed=concept_seed,
+            source_index=source_index,
+            guardrail=guardrail,
+            fixture_contract=fixture_contract,
+        )
+
+
+def test_pb_py_0a_profile_rejects_allowed_forbidden_source_overlap() -> None:
+    payload = deepcopy(
+        _load_fixture("programbench_cleanroom_reconstruction_profile_v242_reference.json")
+    )
+    payload["forbidden_inference_source_refs"].append(
+        payload["allowed_inference_source_refs"][0]
+    )
+
+    with pytest.raises(ValidationError, match="both allowed and forbidden"):
+        ProgrambenchCleanroomReconstructionProfile.model_validate(payload)
+
+
+def test_pb_py_0a_profile_rejects_phase_visibility_overlap() -> None:
+    payload = deepcopy(
+        _load_fixture("programbench_cleanroom_reconstruction_profile_v242_reference.json")
+    )
+    payload["phase_rows"][0]["forbidden_visibility_classes"].append("cleanroom_visible")
+
+    with pytest.raises(ValidationError, match="both allowed and forbidden"):
+        ProgrambenchCleanroomReconstructionProfile.model_validate(payload)
+
+
 def test_pb_py_0a_concept_boundary_seed_is_complete_but_non_operational() -> None:
     concept_seed = ProgramOdeuConceptBoundarySeed.model_validate(
         _load_fixture("program_odeu_concept_boundary_seed_v242_reference.json")
@@ -207,6 +262,27 @@ def test_pb_py_0a_concept_boundary_seed_is_complete_but_non_operational() -> Non
         stderr_seed.implementation_authority_posture
         == "no_implementation_authority_granted_by_pb_py_0a"
     )
+
+
+def test_pb_py_0a_concept_boundary_seed_requires_canonical_order() -> None:
+    payload = deepcopy(_load_fixture("program_odeu_concept_boundary_seed_v242_reference.json"))
+    payload["concept_seed_rows"][0], payload["concept_seed_rows"][1] = (
+        payload["concept_seed_rows"][1],
+        payload["concept_seed_rows"][0],
+    )
+
+    with pytest.raises(ValidationError, match="canonical order"):
+        ProgramOdeuConceptBoundarySeed.model_validate(payload)
+
+
+def test_pb_py_0a_concept_boundary_seed_requires_sorted_advisory_lists() -> None:
+    payload = deepcopy(_load_fixture("program_odeu_concept_boundary_seed_v242_reference.json"))
+    payload["concept_seed_rows"][0]["positive_example_labels"] = list(
+        reversed(payload["concept_seed_rows"][0]["positive_example_labels"])
+    )
+
+    with pytest.raises(ValidationError, match="must be sorted"):
+        ProgramOdeuConceptBoundarySeed.model_validate(payload)
 
 
 def test_pb_py_0a_source_index_keeps_forbidden_stores_unreachable() -> None:
@@ -230,6 +306,32 @@ def test_pb_py_0a_source_index_keeps_forbidden_stores_unreachable() -> None:
     }.isdisjoint({row.source_access_posture for row in forbidden_rows})
 
 
+def test_pb_py_0a_source_index_rejects_postmortem_only_inference_evidence() -> None:
+    payload = deepcopy(
+        _load_fixture("programbench_cleanroom_evidence_source_index_v242_reference.json")
+    )
+    payload["source_rows"].append(
+        {
+            "source_ref": "source:reject:postmortem-inference",
+            "source_kind": "postmortem_observation",
+            "authority_layer": "support",
+            "phase_visibility": "visible_during_postmortem_only",
+            "cleanroom_visibility_class": "postmortem_only",
+            "source_currentness": "historical_context_only",
+            "source_presence_posture": "present",
+            "source_access_posture": "registered_postmortem_only",
+            "worker_visibility_posture": "not_worker_visible",
+            "inference_admissibility_posture": "context_only_not_decisive",
+            "postmortem_admissibility_posture": "admissible_for_postmortem_research",
+            "benchmark_truth_posture": "not_benchmark_truth",
+            "limitation_note": "Invalid: postmortem-only evidence is admitted into inference.",
+        }
+    )
+
+    with pytest.raises(ValidationError, match="postmortem-only evidence"):
+        ProgrambenchCleanroomEvidenceSourceIndex.model_validate(payload)
+
+
 @pytest.mark.parametrize(
     ("fixture_name", "model"),
     [
@@ -239,6 +341,10 @@ def test_pb_py_0a_source_index_keeps_forbidden_stores_unreachable() -> None:
         ),
         (
             "programbench_cleanroom_reconstruction_v242_reject_hidden_test_inference.json",
+            ProgrambenchCleanroomEvidenceSourceIndex,
+        ),
+        (
+            "programbench_cleanroom_reconstruction_v242_reject_hidden_oracle_worker_access.json",
             ProgrambenchCleanroomEvidenceSourceIndex,
         ),
         (
