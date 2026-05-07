@@ -2,6 +2,7 @@ from __future__ import annotations
 
 import json
 import re
+from copy import deepcopy
 from pathlib import Path
 from typing import Any
 
@@ -337,6 +338,96 @@ def test_pb_adapter_0b_bundle_rejects_unknown_io_artifact_observation_ref() -> N
             io_artifact_index=drifted_index,
             filesystem_side_effect_observations=filesystem_side_effect_observations,
         )
+
+
+def test_pb_adapter_0b_bundle_requires_side_effect_coverage_for_each_observation() -> None:
+    (
+        task_intake,
+        artifact_manifest,
+        visibility_manifest,
+        worker_access_contract,
+        guardrail,
+    ) = _load_a_bundle()
+    (
+        probe_plan,
+        observation_logs,
+        io_artifact_index,
+        filesystem_side_effect_observations,
+    ) = _load_b_bundle()
+    second_observation = observation_logs[0].model_copy(
+        update={
+            "probe_observation_ref": "probe-observation:pb-adapter-0b:toy-cli-version",
+            "stdout_observation_ref": "stdout:pb-adapter-0b:toy-cli-version",
+            "stderr_observation_ref": "stderr:pb-adapter-0b:toy-cli-version",
+            "exit_code_observation_ref": "exit-code:pb-adapter-0b:toy-cli-version",
+        }
+    )
+    expanded_index = io_artifact_index.model_copy(
+        update={
+            "probe_observation_refs": [
+                "probe-observation:pb-adapter-0b:toy-cli-help",
+                "probe-observation:pb-adapter-0b:toy-cli-version",
+            ]
+        }
+    )
+
+    with pytest.raises(ValueError, match="filesystem side effects must cover exactly"):
+        validate_pb_adapter_0b_probe_observation_bundle(
+            task_intake=task_intake,
+            artifact_manifest=artifact_manifest,
+            visibility_manifest=visibility_manifest,
+            worker_access_contract=worker_access_contract,
+            guardrail=guardrail,
+            probe_plan=probe_plan,
+            observation_logs=[observation_logs[0], second_observation],
+            io_artifact_index=expanded_index,
+            filesystem_side_effect_observations=filesystem_side_effect_observations,
+        )
+
+
+def test_pb_adapter_0b_bundle_rejects_duplicate_side_effect_observation_coverage() -> None:
+    (
+        task_intake,
+        artifact_manifest,
+        visibility_manifest,
+        worker_access_contract,
+        guardrail,
+    ) = _load_a_bundle()
+    (
+        probe_plan,
+        observation_logs,
+        io_artifact_index,
+        filesystem_side_effect_observations,
+    ) = _load_b_bundle()
+    duplicate_side_effect = filesystem_side_effect_observations[0].model_copy(
+        update={"side_effect_observation_ref": "side-effect:pb-adapter-0b:duplicate"}
+    )
+
+    with pytest.raises(ValueError, match="filesystem side-effect observation refs"):
+        validate_pb_adapter_0b_probe_observation_bundle(
+            task_intake=task_intake,
+            artifact_manifest=artifact_manifest,
+            visibility_manifest=visibility_manifest,
+            worker_access_contract=worker_access_contract,
+            guardrail=guardrail,
+            probe_plan=probe_plan,
+            observation_logs=observation_logs,
+            io_artifact_index=io_artifact_index,
+            filesystem_side_effect_observations=[
+                filesystem_side_effect_observations[0],
+                duplicate_side_effect,
+            ],
+        )
+
+
+def test_pb_adapter_0b_io_artifact_index_rejects_cross_category_overlap() -> None:
+    payload = deepcopy(
+        _load_b_fixture("programbench_io_artifact_observation_index_v246_reference.json")
+    )
+    payload["generated_output_artifact_refs"] = payload["stdout_artifact_refs"]
+
+    with pytest.raises(ValidationError, match="artifact refs must not overlap"):
+        ProgrambenchIOArtifactObservationIndex.model_validate(payload)
 
 
 @pytest.mark.parametrize(

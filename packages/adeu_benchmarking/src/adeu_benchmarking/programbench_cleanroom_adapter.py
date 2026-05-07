@@ -823,24 +823,26 @@ class ProgrambenchIOArtifactObservationIndex(_AdapterBase):
 
     @model_validator(mode="after")
     def _validate_io_artifact_index(self) -> "ProgrambenchIOArtifactObservationIndex":
-        for field_name in (
-            "probe_observation_refs",
+        _ensure_sorted_unique_allow_empty(
+            self.probe_observation_refs, field_name="probe_observation_refs"
+        )
+        artifact_categories = (
             "stdout_artifact_refs",
             "stderr_artifact_refs",
             "generated_output_artifact_refs",
             "directory_output_artifact_refs",
             "binary_output_artifact_refs",
-        ):
-            _ensure_sorted_unique_allow_empty(getattr(self, field_name), field_name=field_name)
+        )
+        all_artifact_refs: list[str] = []
+        for field_name in artifact_categories:
+            values = getattr(self, field_name)
+            _ensure_sorted_unique_allow_empty(values, field_name=field_name)
+            all_artifact_refs.extend(values)
+        if len(all_artifact_refs) != len(set(all_artifact_refs)):
+            raise ValueError("artifact refs must not overlap across categories")
         visibility_refs = [row.artifact_ref for row in self.artifact_visibility_rows]
         _ensure_non_empty_unique(visibility_refs, field_name="artifact_visibility_rows")
-        known_artifact_refs = set().union(
-            self.stdout_artifact_refs,
-            self.stderr_artifact_refs,
-            self.generated_output_artifact_refs,
-            self.directory_output_artifact_refs,
-            self.binary_output_artifact_refs,
-        )
+        known_artifact_refs = set(all_artifact_refs)
         missing_visibility_refs = known_artifact_refs - set(visibility_refs)
         if missing_visibility_refs:
             raise ValueError(
@@ -1060,8 +1062,14 @@ def validate_pb_adapter_0b_probe_observation_bundle(
         if row.source_observation_ref not in observation_refs:
             raise ValueError("I/O artifact visibility rows reference unknown observations")
 
+    side_effect_refs = {
+        side_effect.probe_observation_ref
+        for side_effect in filesystem_side_effect_observations
+    }
+    if len(side_effect_refs) != len(filesystem_side_effect_observations):
+        raise ValueError("filesystem side-effect observation refs must not repeat")
+    if side_effect_refs != observation_refs:
+        raise ValueError("filesystem side effects must cover exactly the probe observations")
     for side_effect in filesystem_side_effect_observations:
-        if side_effect.probe_observation_ref not in observation_refs:
-            raise ValueError("filesystem side effects reference unknown probe observations")
         if side_effect.task_intake_ref != task_intake.task_intake_ref:
             raise ValueError("filesystem side effects must reference released task intake")
