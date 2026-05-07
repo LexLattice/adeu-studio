@@ -79,13 +79,21 @@ from .models import (
 )
 from .programbench_cleanroom_adapter import (
     PROGRAMBENCH_ADAPTER_NON_AUTHORITY_GUARDRAIL_SCHEMA,
+    PROGRAMBENCH_ADAPTER_PROBE_PLAN_SCHEMA,
     PROGRAMBENCH_ADAPTER_WORKER_ACCESS_CONTRACT_SCHEMA,
     PROGRAMBENCH_CLEANROOM_TASK_INTAKE_SCHEMA,
+    PROGRAMBENCH_FILESYSTEM_SIDE_EFFECT_OBSERVATION_SCHEMA,
+    PROGRAMBENCH_IO_ARTIFACT_OBSERVATION_INDEX_SCHEMA,
+    PROGRAMBENCH_PROBE_OBSERVATION_LOG_SCHEMA,
     PROGRAMBENCH_TASK_ARTIFACT_MANIFEST_SCHEMA,
     PROGRAMBENCH_TASK_VISIBILITY_MANIFEST_SCHEMA,
     ProgrambenchAdapterNonAuthorityGuardrail,
+    ProgrambenchAdapterProbePlan,
     ProgrambenchAdapterWorkerAccessContract,
     ProgrambenchCleanroomTaskIntake,
+    ProgrambenchFilesystemSideEffectObservation,
+    ProgrambenchIOArtifactObservationIndex,
+    ProgrambenchProbeObservationLog,
     ProgrambenchTaskArtifactManifest,
     ProgrambenchTaskVisibilityManifest,
 )
@@ -522,6 +530,46 @@ def main() -> None:
             / "schema"
             / "programbench_adapter_non_authority_guardrail.v1.json",
             root / "spec" / "programbench_adapter_non_authority_guardrail.schema.json",
+        ),
+        (
+            ProgrambenchAdapterProbePlan,
+            PROGRAMBENCH_ADAPTER_PROBE_PLAN_SCHEMA,
+            root
+            / "packages"
+            / "adeu_benchmarking"
+            / "schema"
+            / "programbench_adapter_probe_plan.v1.json",
+            root / "spec" / "programbench_adapter_probe_plan.schema.json",
+        ),
+        (
+            ProgrambenchProbeObservationLog,
+            PROGRAMBENCH_PROBE_OBSERVATION_LOG_SCHEMA,
+            root
+            / "packages"
+            / "adeu_benchmarking"
+            / "schema"
+            / "programbench_probe_observation_log.v1.json",
+            root / "spec" / "programbench_probe_observation_log.schema.json",
+        ),
+        (
+            ProgrambenchIOArtifactObservationIndex,
+            PROGRAMBENCH_IO_ARTIFACT_OBSERVATION_INDEX_SCHEMA,
+            root
+            / "packages"
+            / "adeu_benchmarking"
+            / "schema"
+            / "programbench_io_artifact_observation_index.v1.json",
+            root / "spec" / "programbench_io_artifact_observation_index.schema.json",
+        ),
+        (
+            ProgrambenchFilesystemSideEffectObservation,
+            PROGRAMBENCH_FILESYSTEM_SIDE_EFFECT_OBSERVATION_SCHEMA,
+            root
+            / "packages"
+            / "adeu_benchmarking"
+            / "schema"
+            / "programbench_filesystem_side_effect_observation.v1.json",
+            root / "spec" / "programbench_filesystem_side_effect_observation.schema.json",
         ),
     ]
 

@@ -1,0 +1,249 @@
+{
+  "$defs": {
+    "ProgrambenchProbeCommandRow": {
+      "additionalProperties": false,
+      "properties": {
+        "command_argv": {
+          "items": {
+            "type": "string"
+          },
+          "minItems": 1,
+          "title": "Command Argv",
+          "type": "array"
+        },
+        "command_label": {
+          "title": "Command Label",
+          "type": "string"
+        },
+        "command_scope_posture": {
+          "enum": [
+            "allowed_probe_command_plan_only",
+            "forbidden_probe_command"
+          ],
+          "title": "Command Scope Posture",
+          "type": "string"
+        },
+        "command_shape_kind": {
+          "enum": [
+            "argv",
+            "shell_wrapped_with_reason"
+          ],
+          "title": "Command Shape Kind",
+          "type": "string"
+        },
+        "command_shape_ref": {
+          "title": "Command Shape Ref",
+          "type": "string"
+        },
+        "limitation_note": {
+          "title": "Limitation Note",
+          "type": "string"
+        },
+        "shell_wrapper_reason": {
+          "title": "Shell Wrapper Reason",
+          "type": "string"
+        }
+      },
+      "required": [
+        "command_shape_ref",
+        "command_label",
+        "command_argv",
+        "command_shape_kind",
+        "shell_wrapper_reason",
+        "command_scope_posture",
+        "limitation_note"
+      ],
+      "title": "ProgrambenchProbeCommandRow",
+      "type": "object"
+    }
+  },
+  "additionalProperties": false,
+  "properties": {
+    "adapter_candidate_ref": {
+      "title": "Adapter Candidate Ref",
+      "type": "string"
+    },
+    "allowed_probe_command_rows": {
+      "items": {
+        "$ref": "#/$defs/ProgrambenchProbeCommandRow"
+      },
+      "minItems": 1,
+      "title": "Allowed Probe Command Rows",
+      "type": "array"
+    },
+    "allowed_write_scope": {
+      "enum": [
+        "read_only_probe",
+        "bounded_temp_workspace_only",
+        "declared_output_artifact_scope_only"
+      ],
+      "title": "Allowed Write Scope",
+      "type": "string"
+    },
+    "command_argv_shape": {
+      "enum": [
+        "argv_rows_only",
+        "shell_wrapped_with_reason_allowed",
+        "raw_shell_strings_forbidden"
+      ],
+      "title": "Command Argv Shape",
+      "type": "string"
+    },
+    "environment_policy": {
+      "enum": [
+        "minimal_cleanroom_environment",
+        "explicit_env_allowlist_only",
+        "host_environment_forbidden"
+      ],
+      "title": "Environment Policy",
+      "type": "string"
+    },
+    "forbidden_probe_command_rows": {
+      "items": {
+        "$ref": "#/$defs/ProgrambenchProbeCommandRow"
+      },
+      "title": "Forbidden Probe Command Rows",
+      "type": "array"
+    },
+    "hidden_evaluator_posture": {
+      "const": "hidden_evaluator_not_visible_not_probe_evidence",
+      "title": "Hidden Evaluator Posture",
+      "type": "string"
+    },
+    "limitation_note": {
+      "title": "Limitation Note",
+      "type": "string"
+    },
+    "local_probe_not_truth_guardrail": {
+      "const": "local_probe_not_benchmark_truth_or_hidden_test_equivalence",
+      "title": "Local Probe Not Truth Guardrail",
+      "type": "string"
+    },
+    "network_policy": {
+      "const": "network_disabled_during_probe",
+      "title": "Network Policy",
+      "type": "string"
+    },
+    "post_state_snapshot_ref": {
+      "title": "Post State Snapshot Ref",
+      "type": "string"
+    },
+    "pre_state_snapshot_ref": {
+      "title": "Pre State Snapshot Ref",
+      "type": "string"
+    },
+    "probe_phase_posture": {
+      "enum": [
+        "plan_only_no_execution_by_this_row",
+        "local_reference_probe_allowed_by_later_lock",
+        "worker_generated_probe_allowed_by_later_lock",
+        "official_evaluator_probe_forbidden",
+        "future_family_only"
+      ],
+      "title": "Probe Phase Posture",
+      "type": "string"
+    },
+    "probe_plan_ref": {
+      "title": "Probe Plan Ref",
+      "type": "string"
+    },
+    "reference_executable_probe_posture": {
+      "enum": [
+        "reference_executable_probe_plan_only",
+        "reference_executable_probe_observation_allowed_by_b",
+        "official_evaluator_probe_forbidden"
+      ],
+      "title": "Reference Executable Probe Posture",
+      "type": "string"
+    },
+    "resource_limit_policy": {
+      "const": "bounded_resource_limits_required",
+      "title": "Resource Limit Policy",
+      "type": "string"
+    },
+    "schema": {
+      "const": "programbench_adapter_probe_plan@1",
+      "title": "Schema",
+      "type": "string"
+    },
+    "side_effect_capture_policy": {
+      "const": "capture_pre_post_and_diff",
+      "title": "Side Effect Capture Policy",
+      "type": "string"
+    },
+    "source_visibility_policy": {
+      "const": "released_a_visibility_contract_controls_probe",
+      "title": "Source Visibility Policy",
+      "type": "string"
+    },
+    "stdin_fixture_ref": {
+      "title": "Stdin Fixture Ref",
+      "type": "string"
+    },
+    "task_instance_ref": {
+      "title": "Task Instance Ref",
+      "type": "string"
+    },
+    "task_intake_ref": {
+      "title": "Task Intake Ref",
+      "type": "string"
+    },
+    "timeout_policy": {
+      "const": "bounded_timeout_required",
+      "title": "Timeout Policy",
+      "type": "string"
+    },
+    "visibility_manifest_ref": {
+      "title": "Visibility Manifest Ref",
+      "type": "string"
+    },
+    "worker_access_contract_ref": {
+      "title": "Worker Access Contract Ref",
+      "type": "string"
+    },
+    "worker_submission_probe_posture": {
+      "enum": [
+        "worker_submission_probe_not_selected_by_pb_adapter_0b",
+        "worker_generated_probe_observation_allowed",
+        "generated_submission_authority_forbidden"
+      ],
+      "title": "Worker Submission Probe Posture",
+      "type": "string"
+    },
+    "working_directory_ref": {
+      "title": "Working Directory Ref",
+      "type": "string"
+    }
+  },
+  "required": [
+    "schema",
+    "probe_plan_ref",
+    "task_intake_ref",
+    "visibility_manifest_ref",
+    "worker_access_contract_ref",
+    "adapter_candidate_ref",
+    "task_instance_ref",
+    "probe_phase_posture",
+    "command_argv_shape",
+    "working_directory_ref",
+    "environment_policy",
+    "stdin_fixture_ref",
+    "timeout_policy",
+    "resource_limit_policy",
+    "allowed_write_scope",
+    "pre_state_snapshot_ref",
+    "post_state_snapshot_ref",
+    "side_effect_capture_policy",
+    "allowed_probe_command_rows",
+    "forbidden_probe_command_rows",
+    "reference_executable_probe_posture",
+    "worker_submission_probe_posture",
+    "network_policy",
+    "source_visibility_policy",
+    "hidden_evaluator_posture",
+    "local_probe_not_truth_guardrail",
+    "limitation_note"
+  ],
+  "title": "ProgrambenchAdapterProbePlan",
+  "type": "object"
+}

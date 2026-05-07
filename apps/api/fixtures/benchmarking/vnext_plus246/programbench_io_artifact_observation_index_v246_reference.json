@@ -1,0 +1,35 @@
+{
+  "artifact_truth_posture": "local_probe_artifacts_not_benchmark_truth",
+  "artifact_visibility_rows": [
+    {
+      "artifact_ref": "artifact:stderr:pb-adapter-0b:toy-cli-help",
+      "artifact_visibility_class": "reference_executable_observation",
+      "limitation_note": "Stderr observation is a local cleanroom probe artifact only.",
+      "source_observation_ref": "probe-observation:pb-adapter-0b:toy-cli-help",
+      "worker_visibility_posture": "cleanroom_visible_probe_artifact"
+    },
+    {
+      "artifact_ref": "artifact:stdout:pb-adapter-0b:toy-cli-help",
+      "artifact_visibility_class": "reference_executable_observation",
+      "limitation_note": "Stdout observation is a local cleanroom probe artifact only.",
+      "source_observation_ref": "probe-observation:pb-adapter-0b:toy-cli-help",
+      "worker_visibility_posture": "cleanroom_visible_probe_artifact"
+    }
+  ],
+  "binary_output_artifact_refs": [],
+  "directory_output_artifact_refs": [],
+  "generated_output_artifact_refs": [],
+  "io_artifact_index_ref": "io-artifact-index:pb-adapter-0b:reference",
+  "limitation_note": "Indexes local stdout/stderr artifacts without claiming benchmark truth.",
+  "probe_observation_refs": [
+    "probe-observation:pb-adapter-0b:toy-cli-help"
+  ],
+  "schema": "programbench_io_artifact_observation_index@1",
+  "stderr_artifact_refs": [
+    "artifact:stderr:pb-adapter-0b:toy-cli-help"
+  ],
+  "stdout_artifact_refs": [
+    "artifact:stdout:pb-adapter-0b:toy-cli-help"
+  ],
+  "task_intake_ref": "task-intake:pb-adapter-0a:reference"
+}

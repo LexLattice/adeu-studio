@@ -1,0 +1,166 @@
+{
+  "additionalProperties": false,
+  "properties": {
+    "adapter_candidate_ref": {
+      "title": "Adapter Candidate Ref",
+      "type": "string"
+    },
+    "command_shape_ref": {
+      "title": "Command Shape Ref",
+      "type": "string"
+    },
+    "duration_ms": {
+      "minimum": 0,
+      "title": "Duration Ms",
+      "type": "integer"
+    },
+    "exit_code": {
+      "title": "Exit Code",
+      "type": "integer"
+    },
+    "exit_code_observation_ref": {
+      "title": "Exit Code Observation Ref",
+      "type": "string"
+    },
+    "fs_diff_ref": {
+      "title": "Fs Diff Ref",
+      "type": "string"
+    },
+    "hidden_test_equivalence_posture": {
+      "const": "local_probe_not_hidden_test_equivalence",
+      "title": "Hidden Test Equivalence Posture",
+      "type": "string"
+    },
+    "limitation_note": {
+      "title": "Limitation Note",
+      "type": "string"
+    },
+    "observation_currentness": {
+      "enum": [
+        "current_for_snapshot",
+        "stale_context_only",
+        "unknown_currentness_blocked"
+      ],
+      "title": "Observation Currentness",
+      "type": "string"
+    },
+    "observation_replay_limitations": {
+      "items": {
+        "type": "string"
+      },
+      "minItems": 1,
+      "title": "Observation Replay Limitations",
+      "type": "array"
+    },
+    "observation_source_kind": {
+      "enum": [
+        "reference_executable_observation",
+        "worker_generated_probe_observation",
+        "worker_generated_submission_observation",
+        "support_context_only_observation",
+        "postmortem_only_observation",
+        "hidden_evaluator_observation_forbidden_in_inference"
+      ],
+      "title": "Observation Source Kind",
+      "type": "string"
+    },
+    "post_fs_manifest_ref": {
+      "title": "Post Fs Manifest Ref",
+      "type": "string"
+    },
+    "pre_fs_manifest_ref": {
+      "title": "Pre Fs Manifest Ref",
+      "type": "string"
+    },
+    "probe_observation_ref": {
+      "title": "Probe Observation Ref",
+      "type": "string"
+    },
+    "probe_plan_ref": {
+      "title": "Probe Plan Ref",
+      "type": "string"
+    },
+    "schema": {
+      "const": "programbench_probe_observation_log@1",
+      "title": "Schema",
+      "type": "string"
+    },
+    "stderr_excerpt_bounded": {
+      "maxLength": 512,
+      "title": "Stderr Excerpt Bounded",
+      "type": "string"
+    },
+    "stderr_hash": {
+      "title": "Stderr Hash",
+      "type": "string"
+    },
+    "stderr_observation_ref": {
+      "title": "Stderr Observation Ref",
+      "type": "string"
+    },
+    "stdin_observation_ref": {
+      "title": "Stdin Observation Ref",
+      "type": "string"
+    },
+    "stdout_excerpt_bounded": {
+      "maxLength": 512,
+      "title": "Stdout Excerpt Bounded",
+      "type": "string"
+    },
+    "stdout_hash": {
+      "title": "Stdout Hash",
+      "type": "string"
+    },
+    "stdout_observation_ref": {
+      "title": "Stdout Observation Ref",
+      "type": "string"
+    },
+    "task_instance_ref": {
+      "title": "Task Instance Ref",
+      "type": "string"
+    },
+    "task_intake_ref": {
+      "title": "Task Intake Ref",
+      "type": "string"
+    },
+    "timeout_status": {
+      "enum": [
+        "completed_without_timeout",
+        "timed_out",
+        "not_run_plan_only"
+      ],
+      "title": "Timeout Status",
+      "type": "string"
+    }
+  },
+  "required": [
+    "schema",
+    "probe_observation_ref",
+    "probe_plan_ref",
+    "task_intake_ref",
+    "adapter_candidate_ref",
+    "task_instance_ref",
+    "observation_source_kind",
+    "command_shape_ref",
+    "stdin_observation_ref",
+    "stdout_observation_ref",
+    "stdout_hash",
+    "stdout_excerpt_bounded",
+    "stderr_observation_ref",
+    "stderr_hash",
+    "stderr_excerpt_bounded",
+    "exit_code_observation_ref",
+    "exit_code",
+    "duration_ms",
+    "timeout_status",
+    "pre_fs_manifest_ref",
+    "post_fs_manifest_ref",
+    "fs_diff_ref",
+    "observation_replay_limitations",
+    "observation_currentness",
+    "hidden_test_equivalence_posture",
+    "limitation_note"
+  ],
+  "title": "ProgrambenchProbeObservationLog",
+  "type": "object"
+}

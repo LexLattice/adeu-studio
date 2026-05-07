@@ -1,0 +1,18 @@
+{
+  "created_path_refs": [
+    "path:outside-scope:official-output"
+  ],
+  "deleted_path_refs": [],
+  "hidden_test_equivalence_posture": "local_probe_not_hidden_test_equivalence",
+  "limitation_note": "Reject fixture: side effect outside allowed write scope.",
+  "modified_path_refs": [],
+  "path_scope_posture": "outside_allowed_write_scope_blocked",
+  "probe_observation_ref": "probe-observation:pb-adapter-0b:toy-cli-help",
+  "schema": "programbench_filesystem_side_effect_observation@1",
+  "side_effect_expectedness_posture": "unexpected_side_effects_observed_review_only",
+  "side_effect_observation_ref": "side-effect:pb-adapter-0b:outside-scope",
+  "task_intake_ref": "task-intake:pb-adapter-0a:reference",
+  "untouched_path_refs": [
+    "path:input:sample-a"
+  ]
+}
