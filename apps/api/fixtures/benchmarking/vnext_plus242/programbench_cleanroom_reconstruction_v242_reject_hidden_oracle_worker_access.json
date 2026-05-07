@@ -1,0 +1,22 @@
+{
+  "schema": "programbench_cleanroom_evidence_source_index@1",
+  "source_index_ref": "source-index:pb-py-0a:reject-hidden-oracle-worker-access",
+  "source_rows": [
+    {
+      "source_ref": "source:reject:hidden-oracle-worker-access",
+      "source_kind": "evaluation_oracle_hidden",
+      "authority_layer": "oracle",
+      "phase_visibility": "visible_during_evaluation_only",
+      "cleanroom_visibility_class": "evaluation_oracle_hidden",
+      "source_currentness": "current",
+      "source_presence_posture": "present",
+      "source_access_posture": "registered_or_mounted_for_worker",
+      "worker_visibility_posture": "not_worker_visible",
+      "inference_admissibility_posture": "forbidden_for_inference",
+      "postmortem_admissibility_posture": "not_applicable",
+      "benchmark_truth_posture": "official_benchmark_authority_required",
+      "limitation_note": "Invalid: hidden oracle material is mounted for the worker while marked non-visible."
+    }
+  ],
+  "limitation_note": "Reject fixture."
+}

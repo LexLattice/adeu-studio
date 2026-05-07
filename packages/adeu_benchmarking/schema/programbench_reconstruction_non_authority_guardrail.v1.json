@@ -1,0 +1,96 @@
+{
+  "additionalProperties": false,
+  "properties": {
+    "benchmark_truth_posture": {
+      "const": "no_benchmark_truth_claimed_by_pb_py_0a",
+      "title": "Benchmark Truth Posture",
+      "type": "string"
+    },
+    "fixture_implementation_posture": {
+      "const": "no_fixture_implemented_by_pb_py_0a",
+      "title": "Fixture Implementation Posture",
+      "type": "string"
+    },
+    "forbidden_downstream_actions": {
+      "items": {
+        "type": "string"
+      },
+      "minItems": 1,
+      "title": "Forbidden Downstream Actions",
+      "type": "array"
+    },
+    "forbidden_inference_actions": {
+      "items": {
+        "type": "string"
+      },
+      "minItems": 1,
+      "title": "Forbidden Inference Actions",
+      "type": "array"
+    },
+    "future_family_selection_posture": {
+      "const": "no_future_family_selected_by_pb_py_0a",
+      "title": "Future Family Selection Posture",
+      "type": "string"
+    },
+    "guardrail_ref": {
+      "title": "Guardrail Ref",
+      "type": "string"
+    },
+    "implementation_posture": {
+      "const": "no_implementation_performed_by_pb_py_0a",
+      "title": "Implementation Posture",
+      "type": "string"
+    },
+    "limitation_note": {
+      "title": "Limitation Note",
+      "type": "string"
+    },
+    "official_programbench_posture": {
+      "const": "no_official_programbench_participation_by_pb_py_0a",
+      "title": "Official Programbench Posture",
+      "type": "string"
+    },
+    "python_realization_posture": {
+      "const": "no_python_realization_records_created_by_pb_py_0a",
+      "title": "Python Realization Posture",
+      "type": "string"
+    },
+    "required_later_authority_refs": {
+      "items": {
+        "type": "string"
+      },
+      "title": "Required Later Authority Refs",
+      "type": "array"
+    },
+    "schema": {
+      "const": "programbench_reconstruction_non_authority_guardrail@1",
+      "title": "Schema",
+      "type": "string"
+    },
+    "source_refs": {
+      "items": {
+        "type": "string"
+      },
+      "minItems": 1,
+      "title": "Source Refs",
+      "type": "array"
+    }
+  },
+  "required": [
+    "schema",
+    "guardrail_ref",
+    "source_refs",
+    "forbidden_inference_actions",
+    "forbidden_downstream_actions",
+    "required_later_authority_refs",
+    "benchmark_truth_posture",
+    "implementation_posture",
+    "python_realization_posture",
+    "fixture_implementation_posture",
+    "official_programbench_posture",
+    "future_family_selection_posture",
+    "limitation_note"
+  ],
+  "title": "ProgrambenchReconstructionNonAuthorityGuardrail",
+  "type": "object"
+}

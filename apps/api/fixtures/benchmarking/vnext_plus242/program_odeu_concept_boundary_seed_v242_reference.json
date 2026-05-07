@@ -1,0 +1,616 @@
+{
+  "schema": "program_odeu_concept_boundary_seed@1",
+  "concept_seed_set_ref": "concept-seed-set:pb-py-0a:program-odeu",
+  "source_refs": [
+    "source:pb-py-0a:support-direction-v0"
+  ],
+  "concept_seed_rows": [
+    {
+      "concept_seed_ref": "concept-seed:program_behavior",
+      "concept_id": "program_behavior",
+      "concept_label": "Program behavior",
+      "concept_boundary_posture": "boundary_seeded_incomplete",
+      "concept_role": "program_ontology_seed",
+      "boundary_outline_advisory": "Externally observable behavior contract for a cleanroom-reconstructed program.",
+      "positive_example_labels": [
+        "documented command behavior",
+        "observed input/output behavior"
+      ],
+      "negative_example_labels": [
+        "source-code implementation detail"
+      ],
+      "nearest_confusable_concept_ids": [
+        "probe_log"
+      ],
+      "required_witness_kind_refs": [
+        "probe_observation",
+        "usage_doc_observation"
+      ],
+      "invalid_witness_kind_refs": [
+        "original_source_listing"
+      ],
+      "distinguishing_question_rows": [
+        {
+          "question_ref": "dq:program_behavior:observable",
+          "question_text": "Is the claim about externally observable behavior rather than source implementation?",
+          "distinguishes_from_concept_ids": [
+            "probe_log"
+          ],
+          "required_witness_kind_refs": [
+            "usage_doc_observation"
+          ]
+        }
+      ],
+      "source_refs": [
+        "source:pb-py-0a:support-direction-v0"
+      ],
+      "later_realization_posture": "seed_only_realization_deferred_to_pb_py_0b",
+      "implementation_authority_posture": "no_implementation_authority_granted_by_pb_py_0a",
+      "limitation_note": "The seed does not prove any concrete task behavior."
+    },
+    {
+      "concept_seed_ref": "concept-seed:command",
+      "concept_id": "command",
+      "concept_label": "Command",
+      "concept_boundary_posture": "boundary_seeded_incomplete",
+      "concept_role": "cli_behavior_seed",
+      "boundary_outline_advisory": "Top-level invocation shape selected by the user or usage docs.",
+      "positive_example_labels": [
+        "program invoked with a command verb"
+      ],
+      "negative_example_labels": [
+        "flag value",
+        "positional file path"
+      ],
+      "nearest_confusable_concept_ids": [
+        "positional_argument",
+        "subcommand"
+      ],
+      "required_witness_kind_refs": [
+        "usage_doc_observation"
+      ],
+      "invalid_witness_kind_refs": [
+        "hidden_test_name"
+      ],
+      "distinguishing_question_rows": [
+        {
+          "question_ref": "dq:command:top-level",
+          "question_text": "Does the token select a top-level action rather than modify another action?",
+          "distinguishes_from_concept_ids": [
+            "subcommand",
+            "cli_flag"
+          ],
+          "required_witness_kind_refs": [
+            "help_probe_observation"
+          ]
+        }
+      ],
+      "source_refs": [
+        "source:pb-py-0a:support-direction-v0"
+      ],
+      "later_realization_posture": "seed_only_realization_deferred_to_pb_py_0b",
+      "implementation_authority_posture": "no_implementation_authority_granted_by_pb_py_0a",
+      "limitation_note": "No command parser implementation is authorized here."
+    },
+    {
+      "concept_seed_ref": "concept-seed:subcommand",
+      "concept_id": "subcommand",
+      "concept_label": "Subcommand",
+      "concept_boundary_posture": "boundary_seeded_incomplete",
+      "concept_role": "cli_behavior_seed",
+      "boundary_outline_advisory": "Nested invocation action beneath a command surface.",
+      "positive_example_labels": [
+        "program action selected after the executable name"
+      ],
+      "negative_example_labels": [
+        "boolean flag",
+        "option value"
+      ],
+      "nearest_confusable_concept_ids": [
+        "command",
+        "positional_argument"
+      ],
+      "required_witness_kind_refs": [
+        "help_probe_observation"
+      ],
+      "invalid_witness_kind_refs": [
+        "source_function_name"
+      ],
+      "distinguishing_question_rows": [],
+      "source_refs": [
+        "source:pb-py-0a:support-direction-v0"
+      ],
+      "later_realization_posture": "seed_only_realization_deferred_to_pb_py_0b",
+      "implementation_authority_posture": "no_implementation_authority_granted_by_pb_py_0a",
+      "limitation_note": "Subcommand realization is deferred."
+    },
+    {
+      "concept_seed_ref": "concept-seed:cli_flag",
+      "concept_id": "cli_flag",
+      "concept_label": "CLI flag",
+      "concept_boundary_posture": "boundary_seeded_incomplete",
+      "concept_role": "cli_behavior_seed",
+      "boundary_outline_advisory": "Named command-line option that changes behavior or supplies a value.",
+      "positive_example_labels": [
+        "--config path.json",
+        "--verbose"
+      ],
+      "negative_example_labels": [
+        "environment variable",
+        "stdin payload"
+      ],
+      "nearest_confusable_concept_ids": [
+        "environment_variable",
+        "positional_argument"
+      ],
+      "required_witness_kind_refs": [
+        "help_probe_observation",
+        "invalid_flag_probe"
+      ],
+      "invalid_witness_kind_refs": [
+        "unwitnessed argparse default"
+      ],
+      "distinguishing_question_rows": [],
+      "source_refs": [
+        "source:pb-py-0a:support-direction-v0"
+      ],
+      "later_realization_posture": "seed_only_realization_deferred_to_pb_py_0b",
+      "implementation_authority_posture": "no_implementation_authority_granted_by_pb_py_0a",
+      "limitation_note": "Flag realization records are PB-PY-0-B work."
+    },
+    {
+      "concept_seed_ref": "concept-seed:positional_argument",
+      "concept_id": "positional_argument",
+      "concept_label": "Positional argument",
+      "concept_boundary_posture": "boundary_seeded_incomplete",
+      "concept_role": "cli_behavior_seed",
+      "boundary_outline_advisory": "Command-line value whose meaning derives from position rather than flag name.",
+      "positive_example_labels": [
+        "input path after command"
+      ],
+      "negative_example_labels": [
+        "--flag value"
+      ],
+      "nearest_confusable_concept_ids": [
+        "cli_flag",
+        "stdin_input"
+      ],
+      "required_witness_kind_refs": [
+        "usage_doc_observation"
+      ],
+      "invalid_witness_kind_refs": [],
+      "distinguishing_question_rows": [],
+      "source_refs": [
+        "source:pb-py-0a:support-direction-v0"
+      ],
+      "later_realization_posture": "seed_only_realization_deferred_to_pb_py_0b",
+      "implementation_authority_posture": "no_implementation_authority_granted_by_pb_py_0a",
+      "limitation_note": "The seed names a boundary but no parser."
+    },
+    {
+      "concept_seed_ref": "concept-seed:stdin_input",
+      "concept_id": "stdin_input",
+      "concept_label": "stdin input",
+      "concept_boundary_posture": "boundary_seeded_incomplete",
+      "concept_role": "io_behavior_seed",
+      "boundary_outline_advisory": "Input bytes or text read from standard input.",
+      "positive_example_labels": [
+        "data piped into program"
+      ],
+      "negative_example_labels": [
+        "CLI flag",
+        "config file path"
+      ],
+      "nearest_confusable_concept_ids": [
+        "config_file",
+        "positional_argument"
+      ],
+      "required_witness_kind_refs": [
+        "stdin_stdout_probe"
+      ],
+      "invalid_witness_kind_refs": [],
+      "distinguishing_question_rows": [],
+      "source_refs": [
+        "source:pb-py-0a:support-direction-v0"
+      ],
+      "later_realization_posture": "seed_only_realization_deferred_to_pb_py_0b",
+      "implementation_authority_posture": "no_implementation_authority_granted_by_pb_py_0a",
+      "limitation_note": "I/O realization is deferred."
+    },
+    {
+      "concept_seed_ref": "concept-seed:stdout_output",
+      "concept_id": "stdout_output",
+      "concept_label": "stdout output",
+      "concept_boundary_posture": "boundary_seeded_incomplete",
+      "concept_role": "io_behavior_seed",
+      "boundary_outline_advisory": "Normal program output written to stdout.",
+      "positive_example_labels": [
+        "result text emitted on stdout"
+      ],
+      "negative_example_labels": [
+        "diagnostic emitted on stderr"
+      ],
+      "nearest_confusable_concept_ids": [
+        "stderr_diagnostic"
+      ],
+      "required_witness_kind_refs": [
+        "stdout_stderr_split_observation"
+      ],
+      "invalid_witness_kind_refs": [
+        "uncaptured terminal transcript"
+      ],
+      "distinguishing_question_rows": [],
+      "source_refs": [
+        "source:pb-py-0a:support-direction-v0"
+      ],
+      "later_realization_posture": "seed_only_realization_deferred_to_pb_py_0b",
+      "implementation_authority_posture": "no_implementation_authority_granted_by_pb_py_0a",
+      "limitation_note": "stdout semantics require later witness templates."
+    },
+    {
+      "concept_seed_ref": "concept-seed:stderr_diagnostic",
+      "concept_id": "stderr_diagnostic",
+      "concept_label": "stderr diagnostic",
+      "concept_boundary_posture": "boundary_seeded_incomplete",
+      "concept_role": "error_behavior_seed",
+      "boundary_outline_advisory": "Diagnostic text emitted on stderr rather than stdout.",
+      "positive_example_labels": [
+        "diagnostic emitted on stderr"
+      ],
+      "negative_example_labels": [
+        "normal stdout output",
+        "unwitnessed Python traceback"
+      ],
+      "nearest_confusable_concept_ids": [
+        "parser_error",
+        "runtime_error",
+        "stdout_output"
+      ],
+      "required_witness_kind_refs": [
+        "exit_code_observation",
+        "stdout_stderr_split_observation"
+      ],
+      "invalid_witness_kind_refs": [
+        "stdout_only_capture"
+      ],
+      "distinguishing_question_rows": [
+        {
+          "question_ref": "dq:stderr_diagnostic:stream",
+          "question_text": "Was the diagnostic observed on stderr rather than stdout?",
+          "distinguishes_from_concept_ids": [
+            "stdout_output"
+          ],
+          "required_witness_kind_refs": [
+            "stdout_stderr_split_observation"
+          ]
+        }
+      ],
+      "source_refs": [
+        "source:pb-py-0a:support-direction-v0"
+      ],
+      "later_realization_posture": "seed_only_realization_deferred_to_pb_py_0b",
+      "implementation_authority_posture": "no_implementation_authority_granted_by_pb_py_0a",
+      "limitation_note": "This seed does not authorize print(file=sys.stderr)."
+    },
+    {
+      "concept_seed_ref": "concept-seed:exit_code",
+      "concept_id": "exit_code",
+      "concept_label": "Exit code",
+      "concept_boundary_posture": "boundary_seeded_incomplete",
+      "concept_role": "error_behavior_seed",
+      "boundary_outline_advisory": "Process status code observed after program termination.",
+      "positive_example_labels": [
+        "nonzero exit for parse error",
+        "zero exit for success"
+      ],
+      "negative_example_labels": [
+        "stderr text alone"
+      ],
+      "nearest_confusable_concept_ids": [
+        "parser_error",
+        "runtime_error"
+      ],
+      "required_witness_kind_refs": [
+        "exit_code_observation"
+      ],
+      "invalid_witness_kind_refs": [],
+      "distinguishing_question_rows": [],
+      "source_refs": [
+        "source:pb-py-0a:support-direction-v0"
+      ],
+      "later_realization_posture": "seed_only_realization_deferred_to_pb_py_0b",
+      "implementation_authority_posture": "no_implementation_authority_granted_by_pb_py_0a",
+      "limitation_note": "No process behavior is executed by A."
+    },
+    {
+      "concept_seed_ref": "concept-seed:config_file",
+      "concept_id": "config_file",
+      "concept_label": "Config file",
+      "concept_boundary_posture": "boundary_seeded_incomplete",
+      "concept_role": "config_behavior_seed",
+      "boundary_outline_advisory": "File-sourced configuration values read by the program.",
+      "positive_example_labels": [
+        "JSON configuration file"
+      ],
+      "negative_example_labels": [
+        "CLI flag",
+        "environment variable"
+      ],
+      "nearest_confusable_concept_ids": [
+        "cli_flag",
+        "environment_variable"
+      ],
+      "required_witness_kind_refs": [
+        "config_loading_observation"
+      ],
+      "invalid_witness_kind_refs": [],
+      "distinguishing_question_rows": [],
+      "source_refs": [
+        "source:pb-py-0a:support-direction-v0"
+      ],
+      "later_realization_posture": "seed_only_realization_deferred_to_pb_py_0b",
+      "implementation_authority_posture": "no_implementation_authority_granted_by_pb_py_0a",
+      "limitation_note": "Config realization remains deferred."
+    },
+    {
+      "concept_seed_ref": "concept-seed:environment_variable",
+      "concept_id": "environment_variable",
+      "concept_label": "Environment variable",
+      "concept_boundary_posture": "boundary_seeded_incomplete",
+      "concept_role": "config_behavior_seed",
+      "boundary_outline_advisory": "Process environment value that influences behavior.",
+      "positive_example_labels": [
+        "ENV_NAME changes output mode"
+      ],
+      "negative_example_labels": [
+        "CLI flag",
+        "config file key"
+      ],
+      "nearest_confusable_concept_ids": [
+        "cli_flag",
+        "config_file"
+      ],
+      "required_witness_kind_refs": [
+        "environment_observation"
+      ],
+      "invalid_witness_kind_refs": [
+        "host_secret_value"
+      ],
+      "distinguishing_question_rows": [],
+      "source_refs": [
+        "source:pb-py-0a:support-direction-v0"
+      ],
+      "later_realization_posture": "seed_only_realization_deferred_to_pb_py_0b",
+      "implementation_authority_posture": "no_implementation_authority_granted_by_pb_py_0a",
+      "limitation_note": "Host secrets remain forbidden evidence."
+    },
+    {
+      "concept_seed_ref": "concept-seed:default_value",
+      "concept_id": "default_value",
+      "concept_label": "Default value",
+      "concept_boundary_posture": "boundary_seeded_incomplete",
+      "concept_role": "config_behavior_seed",
+      "boundary_outline_advisory": "Behavior value used when stronger input sources are absent.",
+      "positive_example_labels": [
+        "documented fallback value"
+      ],
+      "negative_example_labels": [
+        "hardcoded implementation constant without witness"
+      ],
+      "nearest_confusable_concept_ids": [
+        "precedence_rule"
+      ],
+      "required_witness_kind_refs": [
+        "missing_input_probe"
+      ],
+      "invalid_witness_kind_refs": [
+        "source_constant_scan"
+      ],
+      "distinguishing_question_rows": [],
+      "source_refs": [
+        "source:pb-py-0a:support-direction-v0"
+      ],
+      "later_realization_posture": "seed_only_realization_deferred_to_pb_py_0b",
+      "implementation_authority_posture": "no_implementation_authority_granted_by_pb_py_0a",
+      "limitation_note": "Default-value obligations are not expanded in A."
+    },
+    {
+      "concept_seed_ref": "concept-seed:precedence_rule",
+      "concept_id": "precedence_rule",
+      "concept_label": "Precedence rule",
+      "concept_boundary_posture": "boundary_seeded_incomplete",
+      "concept_role": "config_behavior_seed",
+      "boundary_outline_advisory": "Ordered rule resolving conflicts among defaults, config, env, and flags.",
+      "positive_example_labels": [
+        "CLI flag overrides config value"
+      ],
+      "negative_example_labels": [
+        "unordered dict merge as concept definition"
+      ],
+      "nearest_confusable_concept_ids": [
+        "config_file",
+        "default_value",
+        "environment_variable"
+      ],
+      "required_witness_kind_refs": [
+        "conflicting_input_probe"
+      ],
+      "invalid_witness_kind_refs": [
+        "implementation_order_without_probe"
+      ],
+      "distinguishing_question_rows": [],
+      "source_refs": [
+        "source:pb-py-0a:support-direction-v0"
+      ],
+      "later_realization_posture": "seed_only_realization_deferred_to_pb_py_0b",
+      "implementation_authority_posture": "no_implementation_authority_granted_by_pb_py_0a",
+      "limitation_note": "Precedence is a program-law concept, not a Python dict merge."
+    },
+    {
+      "concept_seed_ref": "concept-seed:parser_error",
+      "concept_id": "parser_error",
+      "concept_label": "Parser error",
+      "concept_boundary_posture": "boundary_seeded_incomplete",
+      "concept_role": "error_behavior_seed",
+      "boundary_outline_advisory": "Invalid invocation or input-shape error before normal behavior runs.",
+      "positive_example_labels": [
+        "missing required flag value"
+      ],
+      "negative_example_labels": [
+        "missing runtime file"
+      ],
+      "nearest_confusable_concept_ids": [
+        "runtime_error",
+        "stderr_diagnostic"
+      ],
+      "required_witness_kind_refs": [
+        "exit_code_observation",
+        "invalid_flag_probe"
+      ],
+      "invalid_witness_kind_refs": [],
+      "distinguishing_question_rows": [],
+      "source_refs": [
+        "source:pb-py-0a:support-direction-v0"
+      ],
+      "later_realization_posture": "seed_only_realization_deferred_to_pb_py_0b",
+      "implementation_authority_posture": "no_implementation_authority_granted_by_pb_py_0a",
+      "limitation_note": "Parser behavior is not implemented in A."
+    },
+    {
+      "concept_seed_ref": "concept-seed:runtime_error",
+      "concept_id": "runtime_error",
+      "concept_label": "Runtime error",
+      "concept_boundary_posture": "boundary_seeded_incomplete",
+      "concept_role": "error_behavior_seed",
+      "boundary_outline_advisory": "Error raised during behavior execution, such as missing file or malformed config.",
+      "positive_example_labels": [
+        "missing file diagnostic"
+      ],
+      "negative_example_labels": [
+        "unknown flag parse error"
+      ],
+      "nearest_confusable_concept_ids": [
+        "parser_error",
+        "stderr_diagnostic"
+      ],
+      "required_witness_kind_refs": [
+        "runtime_failure_probe"
+      ],
+      "invalid_witness_kind_refs": [
+        "unhandled_traceback_without_witness"
+      ],
+      "distinguishing_question_rows": [],
+      "source_refs": [
+        "source:pb-py-0a:support-direction-v0"
+      ],
+      "later_realization_posture": "seed_only_realization_deferred_to_pb_py_0b",
+      "implementation_authority_posture": "no_implementation_authority_granted_by_pb_py_0a",
+      "limitation_note": "Runtime error handling remains a later witness obligation."
+    },
+    {
+      "concept_seed_ref": "concept-seed:generated_output_artifact",
+      "concept_id": "generated_output_artifact",
+      "concept_label": "Generated output artifact",
+      "concept_boundary_posture": "boundary_seeded_incomplete",
+      "concept_role": "artifact_behavior_seed",
+      "boundary_outline_advisory": "File or directory artifact produced by program behavior.",
+      "positive_example_labels": [
+        "output file written by command"
+      ],
+      "negative_example_labels": [
+        "stdout text only"
+      ],
+      "nearest_confusable_concept_ids": [
+        "filesystem_side_effect",
+        "stdout_output"
+      ],
+      "required_witness_kind_refs": [
+        "filesystem_observation"
+      ],
+      "invalid_witness_kind_refs": [],
+      "distinguishing_question_rows": [],
+      "source_refs": [
+        "source:pb-py-0a:support-direction-v0"
+      ],
+      "later_realization_posture": "seed_only_realization_deferred_to_pb_py_0b",
+      "implementation_authority_posture": "no_implementation_authority_granted_by_pb_py_0a",
+      "limitation_note": "Artifact obligations are not expanded in A."
+    },
+    {
+      "concept_seed_ref": "concept-seed:filesystem_side_effect",
+      "concept_id": "filesystem_side_effect",
+      "concept_label": "Filesystem side effect",
+      "concept_boundary_posture": "boundary_seeded_incomplete",
+      "concept_role": "artifact_behavior_seed",
+      "boundary_outline_advisory": "Observable filesystem mutation caused by the program.",
+      "positive_example_labels": [
+        "directory created",
+        "file removed"
+      ],
+      "negative_example_labels": [
+        "stdout result"
+      ],
+      "nearest_confusable_concept_ids": [
+        "generated_output_artifact"
+      ],
+      "required_witness_kind_refs": [
+        "filesystem_observation"
+      ],
+      "invalid_witness_kind_refs": [
+        "source_path_inspection"
+      ],
+      "distinguishing_question_rows": [],
+      "source_refs": [
+        "source:pb-py-0a:support-direction-v0"
+      ],
+      "later_realization_posture": "seed_only_realization_deferred_to_pb_py_0b",
+      "implementation_authority_posture": "no_implementation_authority_granted_by_pb_py_0a",
+      "limitation_note": "No filesystem mutation is authorized by this slice."
+    },
+    {
+      "concept_seed_ref": "concept-seed:probe_log",
+      "concept_id": "probe_log",
+      "concept_label": "Probe log",
+      "concept_boundary_posture": "boundary_seeded_incomplete",
+      "concept_role": "probe_behavior_seed",
+      "boundary_outline_advisory": "Worker-generated observation record from local development probes.",
+      "positive_example_labels": [
+        "stdout/stderr/exit-code probe record"
+      ],
+      "negative_example_labels": [
+        "hidden-test result",
+        "official benchmark score"
+      ],
+      "nearest_confusable_concept_ids": [
+        "program_behavior"
+      ],
+      "required_witness_kind_refs": [
+        "probe_observation"
+      ],
+      "invalid_witness_kind_refs": [
+        "hidden_test_feedback"
+      ],
+      "distinguishing_question_rows": [
+        {
+          "question_ref": "dq:probe_log:not-truth",
+          "question_text": "Is this a local observation rather than benchmark truth?",
+          "distinguishes_from_concept_ids": [
+            "program_behavior"
+          ],
+          "required_witness_kind_refs": [
+            "probe_observation"
+          ]
+        }
+      ],
+      "source_refs": [
+        "source:pb-py-0a:support-direction-v0"
+      ],
+      "later_realization_posture": "seed_only_realization_deferred_to_pb_py_0b",
+      "implementation_authority_posture": "no_implementation_authority_granted_by_pb_py_0a",
+      "limitation_note": "Local probes are useful evidence but not hidden-test equivalence."
+    }
+  ],
+  "later_realization_posture": "seed_set_only_realization_deferred_to_pb_py_0b",
+  "implementation_authority_posture": "no_implementation_authority_granted_by_pb_py_0a",
+  "limitation_note": "The A slice seeds concept boundaries only; Python realization overlays are deferred to PB-PY-0-B."
+}

@@ -9,7 +9,6 @@ from collections import Counter
 from pathlib import Path
 from typing import Any
 
-
 REQUIRED_BODY_KEYS = [
     "raw_semantic_pointer_candidate",
     "raw_operator_candidate",

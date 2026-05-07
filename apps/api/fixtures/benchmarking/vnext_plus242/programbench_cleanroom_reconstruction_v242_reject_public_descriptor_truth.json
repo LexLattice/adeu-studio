@@ -1,0 +1,22 @@
+{
+  "schema": "programbench_cleanroom_evidence_source_index@1",
+  "source_index_ref": "source-index:pb-py-0a:reject-public-descriptor-truth",
+  "source_rows": [
+    {
+      "source_ref": "source:reject:public-descriptor-truth",
+      "source_kind": "public_programbench_descriptor",
+      "authority_layer": "support",
+      "phase_visibility": "visible_during_inference",
+      "cleanroom_visibility_class": "public_descriptor_context",
+      "source_currentness": "current_public_observation",
+      "source_presence_posture": "present",
+      "source_access_posture": "registered_cleanroom_visible",
+      "worker_visibility_posture": "worker_visible",
+      "inference_admissibility_posture": "context_only_not_decisive",
+      "postmortem_admissibility_posture": "admissible_for_postmortem_research",
+      "benchmark_truth_posture": "not_benchmark_truth",
+      "limitation_note": "Invalid: public descriptor row lacks public-descriptor-context-only posture."
+    }
+  ],
+  "limitation_note": "Reject fixture."
+}

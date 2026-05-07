@@ -9,7 +9,6 @@ from collections import Counter
 from pathlib import Path
 from typing import Any
 
-
 REQUIRED_KEYS = [
     "raw_semantic_pointer_candidate",
     "raw_operator_candidate",
@@ -145,7 +144,12 @@ def contradiction_errors(body: Any) -> list[str]:
 
     errors = []
     text_parts: list[str] = []
-    for field in ("negative_cue_rows", "forbidden_inference_rows", "detail_notes", "contradiction_check_rows"):
+    for field in (
+        "negative_cue_rows",
+        "forbidden_inference_rows",
+        "detail_notes",
+        "contradiction_check_rows",
+    ):
         value = body.get(field)
         if isinstance(value, list):
             text_parts.extend(json.dumps(item, sort_keys=True) for item in value)
@@ -171,7 +175,13 @@ def score_probe(probe_dir: Path) -> dict[str, Any]:
         branch_errors = validate_expected_fields(body, BRANCH_FIELDS, "branch_mismatch")
         status_errors = validate_expected_fields(body, STATUS_FIELDS, "status_mismatch")
         consistency_errors = contradiction_errors(body)
-        all_errors = shape_errors + raw_parse_errors + branch_errors + status_errors + consistency_errors
+        all_errors = (
+            shape_errors
+            + raw_parse_errors
+            + branch_errors
+            + status_errors
+            + consistency_errors
+        )
 
         counts["shape_pass" if not shape_errors else "shape_remand"] += 1
         counts["raw_parse_pass" if not raw_parse_errors else "raw_parse_remand"] += 1

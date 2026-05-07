@@ -1,0 +1,35 @@
+{
+  "schema": "programbench_reconstruction_non_authority_guardrail@1",
+  "guardrail_ref": "guardrail:pb-py-0a:reject-missing-bc-artifact",
+  "source_refs": [
+    "source:pb-py-0a:support-direction-v0"
+  ],
+  "forbidden_inference_actions": [
+    "hidden_test_inference"
+  ],
+  "forbidden_downstream_actions": [
+    "benchmark_score_created",
+    "comparison_packet_created",
+    "concept_realization_record_created",
+    "generated_python_code",
+    "hidden_test_handling",
+    "hidden_test_inference",
+    "local_fixture_implemented",
+    "model_ranking_claimed",
+    "official_programbench_runner_integrated",
+    "official_programbench_task_executed",
+    "probe_equivalence_audit_created",
+    "python_realization_witness_template_created",
+    "v86_selection",
+    "v87_selection",
+    "v88_selection"
+  ],
+  "required_later_authority_refs": [],
+  "benchmark_truth_posture": "no_benchmark_truth_claimed_by_pb_py_0a",
+  "implementation_posture": "no_implementation_performed_by_pb_py_0a",
+  "python_realization_posture": "no_python_realization_records_created_by_pb_py_0a",
+  "fixture_implementation_posture": "no_fixture_implemented_by_pb_py_0a",
+  "official_programbench_posture": "no_official_programbench_participation_by_pb_py_0a",
+  "future_family_selection_posture": "no_future_family_selected_by_pb_py_0a",
+  "limitation_note": "Invalid: guardrail omitted python_reconstruction_plan_created."
+}

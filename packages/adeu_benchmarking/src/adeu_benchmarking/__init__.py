@@ -1,5 +1,24 @@
 from urm_runtime.hashing import canonical_json, sha256_canonical_json
 
+from .cleanroom_reconstruction import (
+    PROGRAM_ODEU_CONCEPT_BOUNDARY_SEED_SCHEMA,
+    PROGRAM_ODEU_CONCEPT_ID_VOCABULARY,
+    PROGRAMBENCH_CLEANROOM_EVIDENCE_SOURCE_INDEX_SCHEMA,
+    PROGRAMBENCH_CLEANROOM_RECONSTRUCTION_PROFILE_SCHEMA,
+    PROGRAMBENCH_LOCAL_CLEANROOM_FIXTURE_CONTRACT_SCHEMA,
+    PROGRAMBENCH_RECONSTRUCTION_NON_AUTHORITY_GUARDRAIL_SCHEMA,
+    ProgrambenchCleanroomEvidenceSourceIndex,
+    ProgrambenchCleanroomEvidenceSourceRow,
+    ProgrambenchCleanroomPhaseRow,
+    ProgrambenchCleanroomReconstructionProfile,
+    ProgrambenchLocalCleanroomFixtureContract,
+    ProgrambenchPublicDescriptorObservationRow,
+    ProgrambenchReconstructionNonAuthorityGuardrail,
+    ProgramOdeuConceptBoundarySeed,
+    ProgramOdeuConceptBoundarySeedRow,
+    ProgramOdeuDistinguishingQuestionRow,
+    validate_pb_py_0a_cleanroom_reconstruction_bundle,
+)
 from .export_schema import main as export_schema_main
 from .models import (
     ADEU_BENCHMARK_CONSUMER_ADVISORY_REPORT_SCHEMA,
@@ -196,6 +215,12 @@ from .procedural_depth import (
 )
 
 __all__ = [
+    "PROGRAMBENCH_CLEANROOM_EVIDENCE_SOURCE_INDEX_SCHEMA",
+    "PROGRAMBENCH_CLEANROOM_RECONSTRUCTION_PROFILE_SCHEMA",
+    "PROGRAMBENCH_LOCAL_CLEANROOM_FIXTURE_CONTRACT_SCHEMA",
+    "PROGRAMBENCH_RECONSTRUCTION_NON_AUTHORITY_GUARDRAIL_SCHEMA",
+    "PROGRAM_ODEU_CONCEPT_BOUNDARY_SEED_SCHEMA",
+    "PROGRAM_ODEU_CONCEPT_ID_VOCABULARY",
     "ADEU_BENCHMARK_EXECUTION_CONTEXT_SCHEMA",
     "ADEU_BENCHMARK_CONSUMER_ADVISORY_REPORT_SCHEMA",
     "ADEU_BENCHMARK_CONSUMER_CASE_SCHEMA",
@@ -344,6 +369,16 @@ __all__ = [
     "materialize_procedural_depth_run_trace_payload",
     "PERTURBATION_KIND_VOCABULARY",
     "PerturbationKind",
+    "ProgramOdeuConceptBoundarySeed",
+    "ProgramOdeuConceptBoundarySeedRow",
+    "ProgramOdeuDistinguishingQuestionRow",
+    "ProgrambenchCleanroomEvidenceSourceIndex",
+    "ProgrambenchCleanroomEvidenceSourceRow",
+    "ProgrambenchCleanroomPhaseRow",
+    "ProgrambenchCleanroomReconstructionProfile",
+    "ProgrambenchLocalCleanroomFixtureContract",
+    "ProgrambenchPublicDescriptorObservationRow",
+    "ProgrambenchReconstructionNonAuthorityGuardrail",
     "ProceduralDepthBenchmarkValidationCaseResult",
     "ProceduralDepthBenchmarkValidationReport",
     "PROCEDURAL_DEPTH_DIAGNOSTIC_EPISTEMIC_POSTURE_VOCABULARY",
@@ -384,6 +419,7 @@ __all__ = [
     "SubjectUnderTestClass",
     "TRACE_ROLE_VOCABULARY",
     "TraceRole",
+    "validate_pb_py_0a_cleanroom_reconstruction_bundle",
     "validate_procedural_depth_gold_trace_against_instance",
     "validate_procedural_depth_run_trace_against_instance",
     "VALIDATION_SCOPE_VOCABULARY",

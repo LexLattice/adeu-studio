@@ -1,0 +1,22 @@
+{
+  "schema": "programbench_local_cleanroom_fixture_contract@1",
+  "fixture_id": "fixture-contract:pb-py-0a:reject-implemented",
+  "reference_executable_ref": "fixture-ref:implemented-too-early",
+  "usage_docs_ref": "source:pb-py-0a:local-usage-docs-contract",
+  "allowed_inference_sources": [
+    "source:pb-py-0a:local-usage-docs-contract"
+  ],
+  "forbidden_inference_sources": [],
+  "worker_visible_files": [
+    "fixture-visible:usage-docs"
+  ],
+  "worker_hidden_files": [],
+  "probe_allowed_commands": [],
+  "network_policy": "network_disabled_during_inference",
+  "source_visibility_policy": "forbidden_sources_unreachable_during_inference",
+  "expected_submission_shape": "single Python file",
+  "evaluation_oracle_posture": "local_oracle_contract_only_no_hidden_test_authority",
+  "non_benchmark_truth_posture": "local_fixture_contract_not_benchmark_truth",
+  "fixture_implementation_posture": "fixture_implemented_by_pb_py_0a",
+  "limitation_note": "Invalid: A may define a contract only, not a fixture."
+}

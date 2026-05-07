@@ -1,0 +1,40 @@
+{
+  "schema": "program_odeu_concept_boundary_seed@1",
+  "concept_seed_set_ref": "concept-seed-set:pb-py-0a:reject-realization-authority",
+  "source_refs": [
+    "source:pb-py-0a:support-direction-v0"
+  ],
+  "concept_seed_rows": [
+    {
+      "concept_seed_ref": "concept-seed:reject:stderr",
+      "concept_id": "stderr_diagnostic",
+      "concept_label": "stderr diagnostic",
+      "concept_boundary_posture": "boundary_seeded_incomplete",
+      "concept_role": "error_behavior_seed",
+      "boundary_outline_advisory": "Diagnostic emitted on stderr.",
+      "positive_example_labels": [
+        "diagnostic emitted on stderr"
+      ],
+      "negative_example_labels": [
+        "normal stdout output"
+      ],
+      "nearest_confusable_concept_ids": [
+        "stdout_output"
+      ],
+      "required_witness_kind_refs": [
+        "stdout_stderr_split_observation"
+      ],
+      "invalid_witness_kind_refs": [],
+      "distinguishing_question_rows": [],
+      "source_refs": [
+        "source:pb-py-0a:support-direction-v0"
+      ],
+      "later_realization_posture": "seed_only_realization_deferred_to_pb_py_0b",
+      "implementation_authority_posture": "python_realization_authorized_by_pb_py_0a",
+      "limitation_note": "Invalid: concept seed row claims Python realization authority."
+    }
+  ],
+  "later_realization_posture": "seed_set_only_realization_deferred_to_pb_py_0b",
+  "implementation_authority_posture": "no_implementation_authority_granted_by_pb_py_0a",
+  "limitation_note": "Reject fixture."
+}

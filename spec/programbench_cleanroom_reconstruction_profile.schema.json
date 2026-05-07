@@ -1,0 +1,275 @@
+{
+  "$defs": {
+    "ProgrambenchCleanroomPhaseRow": {
+      "additionalProperties": false,
+      "properties": {
+        "allowed_visibility_classes": {
+          "items": {
+            "enum": [
+              "cleanroom_visible",
+              "worker_generated_probe",
+              "worker_generated_submission",
+              "evaluation_oracle_hidden",
+              "forbidden_original_source",
+              "forbidden_decompilation",
+              "forbidden_internet_lookup",
+              "forbidden_external_repo",
+              "forbidden_host_secret",
+              "forbidden_docker_socket",
+              "support_context_only",
+              "public_descriptor_context",
+              "postmortem_only"
+            ],
+            "type": "string"
+          },
+          "minItems": 1,
+          "title": "Allowed Visibility Classes",
+          "type": "array"
+        },
+        "forbidden_visibility_classes": {
+          "items": {
+            "enum": [
+              "cleanroom_visible",
+              "worker_generated_probe",
+              "worker_generated_submission",
+              "evaluation_oracle_hidden",
+              "forbidden_original_source",
+              "forbidden_decompilation",
+              "forbidden_internet_lookup",
+              "forbidden_external_repo",
+              "forbidden_host_secret",
+              "forbidden_docker_socket",
+              "support_context_only",
+              "public_descriptor_context",
+              "postmortem_only"
+            ],
+            "type": "string"
+          },
+          "minItems": 1,
+          "title": "Forbidden Visibility Classes",
+          "type": "array"
+        },
+        "phase": {
+          "enum": [
+            "inference_phase",
+            "local_development_phase",
+            "evaluation_phase",
+            "postmortem_phase"
+          ],
+          "title": "Phase",
+          "type": "string"
+        },
+        "phase_law": {
+          "title": "Phase Law",
+          "type": "string"
+        },
+        "phase_ref": {
+          "title": "Phase Ref",
+          "type": "string"
+        }
+      },
+      "required": [
+        "phase_ref",
+        "phase",
+        "allowed_visibility_classes",
+        "forbidden_visibility_classes",
+        "phase_law"
+      ],
+      "title": "ProgrambenchCleanroomPhaseRow",
+      "type": "object"
+    },
+    "ProgrambenchPublicDescriptorObservationRow": {
+      "additionalProperties": false,
+      "properties": {
+        "advisory_posture": {
+          "const": "advisory_only",
+          "title": "Advisory Posture",
+          "type": "string"
+        },
+        "benchmark_truth_posture": {
+          "const": "public_descriptor_context_only",
+          "title": "Benchmark Truth Posture",
+          "type": "string"
+        },
+        "descriptor_summary": {
+          "title": "Descriptor Summary",
+          "type": "string"
+        },
+        "evaluation_truth_posture": {
+          "const": "not_used_as_evaluation_truth",
+          "title": "Evaluation Truth Posture",
+          "type": "string"
+        },
+        "limitation_note": {
+          "title": "Limitation Note",
+          "type": "string"
+        },
+        "observation_ref": {
+          "title": "Observation Ref",
+          "type": "string"
+        },
+        "retrieved_at": {
+          "title": "Retrieved At",
+          "type": "string"
+        },
+        "source_url": {
+          "title": "Source Url",
+          "type": "string"
+        }
+      },
+      "required": [
+        "observation_ref",
+        "source_url",
+        "retrieved_at",
+        "descriptor_summary",
+        "advisory_posture",
+        "evaluation_truth_posture",
+        "benchmark_truth_posture",
+        "limitation_note"
+      ],
+      "title": "ProgrambenchPublicDescriptorObservationRow",
+      "type": "object"
+    }
+  },
+  "additionalProperties": false,
+  "properties": {
+    "allowed_inference_source_refs": {
+      "items": {
+        "type": "string"
+      },
+      "title": "Allowed Inference Source Refs",
+      "type": "array"
+    },
+    "benchmark_truth_posture": {
+      "enum": [
+        "not_benchmark_truth",
+        "public_descriptor_context_only",
+        "local_fixture_research_only",
+        "official_benchmark_authority_required",
+        "no_benchmark_truth_claimed_by_pb_py_0a"
+      ],
+      "title": "Benchmark Truth Posture",
+      "type": "string"
+    },
+    "cleanroom_visibility_posture": {
+      "const": "cleanroom_visible_evidence_only_during_inference",
+      "title": "Cleanroom Visibility Posture",
+      "type": "string"
+    },
+    "concept_boundary_seed_refs": {
+      "items": {
+        "type": "string"
+      },
+      "minItems": 1,
+      "title": "Concept Boundary Seed Refs",
+      "type": "array"
+    },
+    "evaluation_oracle_posture": {
+      "const": "hidden_tests_external_court_not_inference_evidence",
+      "title": "Evaluation Oracle Posture",
+      "type": "string"
+    },
+    "forbidden_inference_source_refs": {
+      "items": {
+        "type": "string"
+      },
+      "title": "Forbidden Inference Source Refs",
+      "type": "array"
+    },
+    "implementation_authority_posture": {
+      "const": "no_implementation_authority_granted_by_pb_py_0a",
+      "title": "Implementation Authority Posture",
+      "type": "string"
+    },
+    "limitation_note": {
+      "title": "Limitation Note",
+      "type": "string"
+    },
+    "local_development_posture": {
+      "const": "local_development_without_forbidden_evidence",
+      "title": "Local Development Posture",
+      "type": "string"
+    },
+    "phase_rows": {
+      "items": {
+        "$ref": "#/$defs/ProgrambenchCleanroomPhaseRow"
+      },
+      "minItems": 4,
+      "title": "Phase Rows",
+      "type": "array"
+    },
+    "postmortem_posture": {
+      "const": "postmortem_research_not_retroactive_inference",
+      "title": "Postmortem Posture",
+      "type": "string"
+    },
+    "profile_kind": {
+      "const": "programbench_cleanroom_reconstruction_profile",
+      "title": "Profile Kind",
+      "type": "string"
+    },
+    "profile_ref": {
+      "title": "Profile Ref",
+      "type": "string"
+    },
+    "program_family_ref": {
+      "title": "Program Family Ref",
+      "type": "string"
+    },
+    "public_descriptor_observation_refs": {
+      "items": {
+        "type": "string"
+      },
+      "title": "Public Descriptor Observation Refs",
+      "type": "array"
+    },
+    "public_descriptor_observation_rows": {
+      "items": {
+        "$ref": "#/$defs/ProgrambenchPublicDescriptorObservationRow"
+      },
+      "title": "Public Descriptor Observation Rows",
+      "type": "array"
+    },
+    "schema": {
+      "const": "programbench_cleanroom_reconstruction_profile@1",
+      "title": "Schema",
+      "type": "string"
+    },
+    "source_index_refs": {
+      "items": {
+        "type": "string"
+      },
+      "minItems": 1,
+      "title": "Source Index Refs",
+      "type": "array"
+    },
+    "worker_probe_posture": {
+      "const": "worker_generated_probes_allowed_local_development_only",
+      "title": "Worker Probe Posture",
+      "type": "string"
+    }
+  },
+  "required": [
+    "schema",
+    "profile_ref",
+    "profile_kind",
+    "program_family_ref",
+    "source_index_refs",
+    "concept_boundary_seed_refs",
+    "phase_rows",
+    "cleanroom_visibility_posture",
+    "public_descriptor_observation_refs",
+    "public_descriptor_observation_rows",
+    "allowed_inference_source_refs",
+    "forbidden_inference_source_refs",
+    "worker_probe_posture",
+    "local_development_posture",
+    "evaluation_oracle_posture",
+    "postmortem_posture",
+    "benchmark_truth_posture",
+    "implementation_authority_posture",
+    "limitation_note"
+  ],
+  "title": "ProgrambenchCleanroomReconstructionProfile",
+  "type": "object"
+}
