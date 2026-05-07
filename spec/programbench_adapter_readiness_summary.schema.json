@@ -1,0 +1,303 @@
+{
+  "$defs": {
+    "ProgrambenchAdapterContaminationRow": {
+      "additionalProperties": false,
+      "properties": {
+        "contamination_kind": {
+          "enum": [
+            "forbidden_source_exposure",
+            "hidden_evidence_exposure",
+            "derived_summary_exposure",
+            "access_contract_violation",
+            "probe_scope_violation",
+            "unknown_contamination"
+          ],
+          "title": "Contamination Kind",
+          "type": "string"
+        },
+        "contamination_ref": {
+          "title": "Contamination Ref",
+          "type": "string"
+        },
+        "contamination_status": {
+          "enum": [
+            "clean",
+            "forbidden_source_exposure",
+            "hidden_evidence_exposure",
+            "derived_summary_exposure",
+            "access_contract_violation",
+            "probe_scope_violation",
+            "unknown_contamination_blocked"
+          ],
+          "title": "Contamination Status",
+          "type": "string"
+        },
+        "limitation_note": {
+          "title": "Limitation Note",
+          "type": "string"
+        },
+        "source_refs": {
+          "items": {
+            "type": "string"
+          },
+          "minItems": 1,
+          "title": "Source Refs",
+          "type": "array"
+        },
+        "worker_inference_effect": {
+          "enum": [
+            "blocks_ready_posture",
+            "not_worker_visible_postmortem_only"
+          ],
+          "title": "Worker Inference Effect",
+          "type": "string"
+        }
+      },
+      "required": [
+        "contamination_ref",
+        "source_refs",
+        "contamination_status",
+        "contamination_kind",
+        "worker_inference_effect",
+        "limitation_note"
+      ],
+      "title": "ProgrambenchAdapterContaminationRow",
+      "type": "object"
+    },
+    "ProgrambenchAdapterCoverageSummaryRow": {
+      "additionalProperties": false,
+      "properties": {
+        "coverage_kind": {
+          "enum": [
+            "visibility_manifest",
+            "worker_access_contract",
+            "guardrail",
+            "probe_plan",
+            "probe_observation",
+            "io_artifact_index",
+            "side_effect_observation"
+          ],
+          "title": "Coverage Kind",
+          "type": "string"
+        },
+        "coverage_posture": {
+          "enum": [
+            "covered_for_case_packet",
+            "missing_required_ref",
+            "not_applicable"
+          ],
+          "title": "Coverage Posture",
+          "type": "string"
+        },
+        "coverage_ref": {
+          "title": "Coverage Ref",
+          "type": "string"
+        },
+        "covered_ref": {
+          "title": "Covered Ref",
+          "type": "string"
+        },
+        "limitation_note": {
+          "title": "Limitation Note",
+          "type": "string"
+        }
+      },
+      "required": [
+        "coverage_ref",
+        "covered_ref",
+        "coverage_kind",
+        "coverage_posture",
+        "limitation_note"
+      ],
+      "title": "ProgrambenchAdapterCoverageSummaryRow",
+      "type": "object"
+    }
+  },
+  "additionalProperties": false,
+  "properties": {
+    "access_contract_violation_refs": {
+      "items": {
+        "type": "string"
+      },
+      "title": "Access Contract Violation Refs",
+      "type": "array"
+    },
+    "adapter_candidate_ref": {
+      "title": "Adapter Candidate Ref",
+      "type": "string"
+    },
+    "carried_blocker_refs": {
+      "items": {
+        "type": "string"
+      },
+      "title": "Carried Blocker Refs",
+      "type": "array"
+    },
+    "carried_warning_refs": {
+      "items": {
+        "type": "string"
+      },
+      "title": "Carried Warning Refs",
+      "type": "array"
+    },
+    "case_packet_ref": {
+      "title": "Case Packet Ref",
+      "type": "string"
+    },
+    "contamination_rows": {
+      "items": {
+        "$ref": "#/$defs/ProgrambenchAdapterContaminationRow"
+      },
+      "title": "Contamination Rows",
+      "type": "array"
+    },
+    "contamination_status": {
+      "enum": [
+        "clean",
+        "forbidden_source_exposure",
+        "hidden_evidence_exposure",
+        "derived_summary_exposure",
+        "access_contract_violation",
+        "probe_scope_violation",
+        "unknown_contamination_blocked"
+      ],
+      "title": "Contamination Status",
+      "type": "string"
+    },
+    "coverage_summary_rows": {
+      "items": {
+        "$ref": "#/$defs/ProgrambenchAdapterCoverageSummaryRow"
+      },
+      "minItems": 1,
+      "title": "Coverage Summary Rows",
+      "type": "array"
+    },
+    "derived_summary_exposure_refs": {
+      "items": {
+        "type": "string"
+      },
+      "title": "Derived Summary Exposure Refs",
+      "type": "array"
+    },
+    "forbidden_evidence_exposure_posture": {
+      "enum": [
+        "no_forbidden_evidence_exposed",
+        "forbidden_evidence_exposure_detected"
+      ],
+      "title": "Forbidden Evidence Exposure Posture",
+      "type": "string"
+    },
+    "forbidden_source_exposure_refs": {
+      "items": {
+        "type": "string"
+      },
+      "title": "Forbidden Source Exposure Refs",
+      "type": "array"
+    },
+    "hidden_evidence_exposure_refs": {
+      "items": {
+        "type": "string"
+      },
+      "title": "Hidden Evidence Exposure Refs",
+      "type": "array"
+    },
+    "hidden_test_boundary_posture": {
+      "enum": [
+        "hidden_tests_not_visible_not_inference_evidence",
+        "hidden_test_boundary_violation"
+      ],
+      "title": "Hidden Test Boundary Posture",
+      "type": "string"
+    },
+    "limitation_note": {
+      "title": "Limitation Note",
+      "type": "string"
+    },
+    "local_probe_truth_posture": {
+      "enum": [
+        "local_probe_not_benchmark_truth_or_hidden_test_equivalence",
+        "local_probe_truth_claim_blocked"
+      ],
+      "title": "Local Probe Truth Posture",
+      "type": "string"
+    },
+    "probe_observation_coverage_posture": {
+      "enum": [
+        "probe_observation_coverage_complete",
+        "blocked_by_missing_probe_observation_coverage",
+        "future_family_only"
+      ],
+      "title": "Probe Observation Coverage Posture",
+      "type": "string"
+    },
+    "probe_scope_violation_refs": {
+      "items": {
+        "type": "string"
+      },
+      "title": "Probe Scope Violation Refs",
+      "type": "array"
+    },
+    "readiness_posture": {
+      "enum": [
+        "ready_for_later_cleanroom_reconstruction_review",
+        "ready_with_nonblocking_warnings",
+        "blocked_by_forbidden_evidence_exposure",
+        "blocked_by_missing_visibility_manifest",
+        "blocked_by_missing_access_contract",
+        "blocked_by_missing_probe_observation_coverage",
+        "blocked_by_hidden_test_boundary_violation",
+        "future_family_only"
+      ],
+      "title": "Readiness Posture",
+      "type": "string"
+    },
+    "readiness_summary_ref": {
+      "title": "Readiness Summary Ref",
+      "type": "string"
+    },
+    "schema": {
+      "const": "programbench_adapter_readiness_summary@1",
+      "title": "Schema",
+      "type": "string"
+    },
+    "task_instance_ref": {
+      "title": "Task Instance Ref",
+      "type": "string"
+    },
+    "visibility_closure_posture": {
+      "enum": [
+        "visibility_manifest_refs_closed",
+        "blocked_by_missing_visibility_manifest",
+        "future_family_only"
+      ],
+      "title": "Visibility Closure Posture",
+      "type": "string"
+    }
+  },
+  "required": [
+    "schema",
+    "readiness_summary_ref",
+    "case_packet_ref",
+    "adapter_candidate_ref",
+    "task_instance_ref",
+    "coverage_summary_rows",
+    "contamination_status",
+    "contamination_rows",
+    "forbidden_source_exposure_refs",
+    "hidden_evidence_exposure_refs",
+    "derived_summary_exposure_refs",
+    "access_contract_violation_refs",
+    "probe_scope_violation_refs",
+    "visibility_closure_posture",
+    "probe_observation_coverage_posture",
+    "forbidden_evidence_exposure_posture",
+    "hidden_test_boundary_posture",
+    "local_probe_truth_posture",
+    "readiness_posture",
+    "carried_blocker_refs",
+    "carried_warning_refs",
+    "limitation_note"
+  ],
+  "title": "ProgrambenchAdapterReadinessSummary",
+  "type": "object"
+}

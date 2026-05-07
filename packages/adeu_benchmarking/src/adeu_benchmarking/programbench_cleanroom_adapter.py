@@ -29,6 +29,16 @@ PROGRAMBENCH_IO_ARTIFACT_OBSERVATION_INDEX_SCHEMA = (
 PROGRAMBENCH_FILESYSTEM_SIDE_EFFECT_OBSERVATION_SCHEMA = (
     "programbench_filesystem_side_effect_observation@1"
 )
+PROGRAMBENCH_RECONSTRUCTION_CASE_PACKET_SCHEMA = (
+    "programbench_reconstruction_case_packet@1"
+)
+PROGRAMBENCH_ADAPTER_READINESS_SUMMARY_SCHEMA = (
+    "programbench_adapter_readiness_summary@1"
+)
+PROGRAMBENCH_ADAPTER_HANDOFF_SCHEMA = "programbench_adapter_handoff@1"
+PROGRAMBENCH_CLEANROOM_ADAPTER_FAMILY_CLOSEOUT_ALIGNMENT_SCHEMA = (
+    "programbench_cleanroom_adapter_family_closeout_alignment@1"
+)
 
 PB_ADAPTER_0A_ARTIFACT_KINDS = {
     PROGRAMBENCH_CLEANROOM_TASK_INTAKE_SCHEMA,
@@ -44,14 +54,19 @@ PB_ADAPTER_0B_ARTIFACT_KINDS = {
     PROGRAMBENCH_FILESYSTEM_SIDE_EFFECT_OBSERVATION_SCHEMA,
 }
 PB_ADAPTER_0C_ARTIFACT_KINDS = {
-    "programbench_reconstruction_case_packet@1",
-    "programbench_adapter_readiness_summary@1",
-    "programbench_adapter_handoff@1",
-    "programbench_cleanroom_adapter_family_closeout_alignment@1",
+    PROGRAMBENCH_RECONSTRUCTION_CASE_PACKET_SCHEMA,
+    PROGRAMBENCH_ADAPTER_READINESS_SUMMARY_SCHEMA,
+    PROGRAMBENCH_ADAPTER_HANDOFF_SCHEMA,
+    PROGRAMBENCH_CLEANROOM_ADAPTER_FAMILY_CLOSEOUT_ALIGNMENT_SCHEMA,
 }
 PB_ADAPTER_0A_REQUIRED_FORBIDDEN_FUTURE_ARTIFACT_KINDS = (
     PB_ADAPTER_0B_ARTIFACT_KINDS | PB_ADAPTER_0C_ARTIFACT_KINDS
 )
+PB_ADAPTER_0_CLOSED_SLICE_REFS = [
+    "PB-ADAPTER-0-A",
+    "PB-ADAPTER-0-B",
+    "PB-ADAPTER-0-C",
+]
 
 _SHA256_RE = re.compile(r"^sha256:[0-9a-f]{64}$")
 _EXPOSURE_FORBIDDEN_VISIBILITY_CLASSES = {
@@ -139,6 +154,15 @@ ProbeObservationSourceKind = Literal[
     "postmortem_only_observation",
     "hidden_evaluator_observation_forbidden_in_inference",
 ]
+AdapterContaminationStatus = Literal[
+    "clean",
+    "forbidden_source_exposure",
+    "hidden_evidence_exposure",
+    "derived_summary_exposure",
+    "access_contract_violation",
+    "probe_scope_violation",
+    "unknown_contamination_blocked",
+]
 
 
 def _ensure_non_empty_trimmed(values: list[str], *, field_name: str) -> None:
@@ -165,6 +189,21 @@ def _ensure_sorted_unique_allow_empty(values: list[str], *, field_name: str) -> 
         raise ValueError(f"{field_name} must not contain duplicates")
     if values != sorted(values):
         raise ValueError(f"{field_name} must be lexicographically sorted")
+
+
+def _ensure_released_refs_resolve(
+    values: list[str],
+    *,
+    field_label: str,
+    released_refs: set[str],
+) -> None:
+    value_set = set(values)
+    missing = released_refs - value_set
+    if missing:
+        raise ValueError(f"{field_label} missing released refs: {sorted(missing)}")
+    unknown = value_set - released_refs
+    if unknown:
+        raise ValueError(f"{field_label} references unreleased refs: {sorted(unknown)}")
 
 
 def _ensure_hash(value: str, *, field_name: str) -> None:
@@ -904,6 +943,326 @@ class ProgrambenchFilesystemSideEffectObservation(_AdapterBase):
         return self
 
 
+class ProgrambenchAdapterCoverageSummaryRow(_AdapterBase):
+    coverage_ref: str
+    covered_ref: str
+    coverage_kind: Literal[
+        "visibility_manifest",
+        "worker_access_contract",
+        "guardrail",
+        "probe_plan",
+        "probe_observation",
+        "io_artifact_index",
+        "side_effect_observation",
+    ]
+    coverage_posture: Literal[
+        "covered_for_case_packet",
+        "missing_required_ref",
+        "not_applicable",
+    ]
+    limitation_note: str
+
+
+class ProgrambenchAdapterContaminationRow(_AdapterBase):
+    contamination_ref: str
+    source_refs: list[str] = Field(min_length=1)
+    contamination_status: AdapterContaminationStatus
+    contamination_kind: Literal[
+        "forbidden_source_exposure",
+        "hidden_evidence_exposure",
+        "derived_summary_exposure",
+        "access_contract_violation",
+        "probe_scope_violation",
+        "unknown_contamination",
+    ]
+    worker_inference_effect: Literal[
+        "blocks_ready_posture",
+        "not_worker_visible_postmortem_only",
+    ]
+    limitation_note: str
+
+    @model_validator(mode="after")
+    def _validate_contamination_row(self) -> "ProgrambenchAdapterContaminationRow":
+        _ensure_non_empty_unique(self.source_refs, field_name="source_refs")
+        if self.contamination_status == "clean":
+            raise ValueError("contamination rows cannot use clean status")
+        return self
+
+
+class ProgrambenchReconstructionCasePacket(_AdapterBase):
+    schema_id: Literal[PROGRAMBENCH_RECONSTRUCTION_CASE_PACKET_SCHEMA] = Field(
+        alias="schema"
+    )
+    case_packet_ref: str
+    adapter_candidate_ref: str
+    task_instance_ref: str
+    task_intake_ref: str
+    task_artifact_manifest_ref: str
+    visibility_manifest_ref: str
+    worker_access_contract_ref: str
+    guardrail_refs: list[str] = Field(min_length=1)
+    probe_plan_refs: list[str] = Field(min_length=1)
+    probe_observation_refs: list[str] = Field(min_length=1)
+    io_artifact_index_refs: list[str] = Field(min_length=1)
+    side_effect_observation_refs: list[str] = Field(min_length=1)
+    pb_py_0_profile_refs: list[str] = Field(min_length=1)
+    pb_py_0_realization_pack_refs: list[str] = Field(min_length=1)
+    pb_py_0_fixture_refs: list[str] = Field(min_length=1)
+    case_packet_scope_posture: Literal[
+        "released_adapter_refs_packet_only",
+        "future_family_only",
+    ]
+    official_participation_posture: Literal[
+        "no_official_programbench_participation_by_pb_adapter_0c"
+    ]
+    benchmark_truth_posture: Literal["not_benchmark_truth"]
+    limitation_note: str
+
+    @model_validator(mode="after")
+    def _validate_case_packet(self) -> "ProgrambenchReconstructionCasePacket":
+        if self.case_packet_scope_posture == "future_family_only":
+            raise ValueError("case packets must assemble released adapter refs")
+        for field_name in (
+            "guardrail_refs",
+            "probe_plan_refs",
+            "probe_observation_refs",
+            "io_artifact_index_refs",
+            "side_effect_observation_refs",
+            "pb_py_0_profile_refs",
+            "pb_py_0_realization_pack_refs",
+            "pb_py_0_fixture_refs",
+        ):
+            _ensure_sorted_unique(getattr(self, field_name), field_name=field_name)
+        return self
+
+
+class ProgrambenchAdapterReadinessSummary(_AdapterBase):
+    schema_id: Literal[PROGRAMBENCH_ADAPTER_READINESS_SUMMARY_SCHEMA] = Field(
+        alias="schema"
+    )
+    readiness_summary_ref: str
+    case_packet_ref: str
+    adapter_candidate_ref: str
+    task_instance_ref: str
+    coverage_summary_rows: list[ProgrambenchAdapterCoverageSummaryRow] = Field(
+        min_length=1
+    )
+    contamination_status: AdapterContaminationStatus
+    contamination_rows: list[ProgrambenchAdapterContaminationRow]
+    forbidden_source_exposure_refs: list[str]
+    hidden_evidence_exposure_refs: list[str]
+    derived_summary_exposure_refs: list[str]
+    access_contract_violation_refs: list[str]
+    probe_scope_violation_refs: list[str]
+    visibility_closure_posture: Literal[
+        "visibility_manifest_refs_closed",
+        "blocked_by_missing_visibility_manifest",
+        "future_family_only",
+    ]
+    probe_observation_coverage_posture: Literal[
+        "probe_observation_coverage_complete",
+        "blocked_by_missing_probe_observation_coverage",
+        "future_family_only",
+    ]
+    forbidden_evidence_exposure_posture: Literal[
+        "no_forbidden_evidence_exposed",
+        "forbidden_evidence_exposure_detected",
+    ]
+    hidden_test_boundary_posture: Literal[
+        "hidden_tests_not_visible_not_inference_evidence",
+        "hidden_test_boundary_violation",
+    ]
+    local_probe_truth_posture: Literal[
+        "local_probe_not_benchmark_truth_or_hidden_test_equivalence",
+        "local_probe_truth_claim_blocked",
+    ]
+    readiness_posture: Literal[
+        "ready_for_later_cleanroom_reconstruction_review",
+        "ready_with_nonblocking_warnings",
+        "blocked_by_forbidden_evidence_exposure",
+        "blocked_by_missing_visibility_manifest",
+        "blocked_by_missing_access_contract",
+        "blocked_by_missing_probe_observation_coverage",
+        "blocked_by_hidden_test_boundary_violation",
+        "future_family_only",
+    ]
+    carried_blocker_refs: list[str]
+    carried_warning_refs: list[str]
+    limitation_note: str
+
+    @model_validator(mode="after")
+    def _validate_readiness_summary(self) -> "ProgrambenchAdapterReadinessSummary":
+        coverage_refs = [row.coverage_ref for row in self.coverage_summary_rows]
+        _ensure_non_empty_unique(coverage_refs, field_name="coverage_summary_rows")
+        contamination_refs = [row.contamination_ref for row in self.contamination_rows]
+        _ensure_sorted_unique_allow_empty(
+            contamination_refs, field_name="contamination_rows"
+        )
+        for field_name in (
+            "forbidden_source_exposure_refs",
+            "hidden_evidence_exposure_refs",
+            "derived_summary_exposure_refs",
+            "access_contract_violation_refs",
+            "probe_scope_violation_refs",
+            "carried_blocker_refs",
+            "carried_warning_refs",
+        ):
+            _ensure_sorted_unique_allow_empty(getattr(self, field_name), field_name=field_name)
+
+        ready_like = {
+            "ready_for_later_cleanroom_reconstruction_review",
+            "ready_with_nonblocking_warnings",
+        }
+        exposure_refs = (
+            self.forbidden_source_exposure_refs
+            + self.hidden_evidence_exposure_refs
+            + self.derived_summary_exposure_refs
+            + self.access_contract_violation_refs
+            + self.probe_scope_violation_refs
+        )
+        if self.contamination_status == "clean" and self.contamination_rows:
+            raise ValueError("clean readiness summaries cannot carry contamination rows")
+        if self.contamination_status != "clean" and self.readiness_posture in ready_like:
+            raise ValueError("contaminated readiness summaries cannot be ready")
+        if exposure_refs and self.readiness_posture in ready_like:
+            raise ValueError("exposure or scope violation refs cannot be ready")
+        if self.carried_blocker_refs and self.readiness_posture in ready_like:
+            raise ValueError("blocker refs cannot be ready or warning-ready")
+        if self.readiness_posture == "ready_for_later_cleanroom_reconstruction_review":
+            if self.carried_warning_refs:
+                raise ValueError("ready summaries cannot carry warnings")
+            if any(
+                row.coverage_posture != "covered_for_case_packet"
+                for row in self.coverage_summary_rows
+            ):
+                raise ValueError("ready summaries require complete coverage rows")
+            if self.visibility_closure_posture != "visibility_manifest_refs_closed":
+                raise ValueError("ready summaries require closed visibility refs")
+            if self.probe_observation_coverage_posture != "probe_observation_coverage_complete":
+                raise ValueError("ready summaries require complete probe observation coverage")
+            if self.forbidden_evidence_exposure_posture != "no_forbidden_evidence_exposed":
+                raise ValueError("ready summaries require no forbidden evidence exposure")
+            if self.hidden_test_boundary_posture != (
+                "hidden_tests_not_visible_not_inference_evidence"
+            ):
+                raise ValueError("ready summaries require hidden-test boundary closure")
+            if self.local_probe_truth_posture != (
+                "local_probe_not_benchmark_truth_or_hidden_test_equivalence"
+            ):
+                raise ValueError("ready summaries require local probe non-truth posture")
+        if self.readiness_posture == "ready_with_nonblocking_warnings":
+            if not self.carried_warning_refs:
+                raise ValueError("warning-ready summaries require warning refs")
+            if any(
+                row.coverage_posture != "covered_for_case_packet"
+                for row in self.coverage_summary_rows
+            ):
+                raise ValueError("warning-ready summaries require complete coverage rows")
+            if self.visibility_closure_posture != "visibility_manifest_refs_closed":
+                raise ValueError("warning-ready summaries require closed visibility refs")
+            if self.probe_observation_coverage_posture != "probe_observation_coverage_complete":
+                raise ValueError(
+                    "warning-ready summaries require complete probe observation coverage"
+                )
+            if self.forbidden_evidence_exposure_posture != "no_forbidden_evidence_exposed":
+                raise ValueError("warning-ready summaries cannot carry exposure issues")
+            if self.hidden_test_boundary_posture != (
+                "hidden_tests_not_visible_not_inference_evidence"
+            ):
+                raise ValueError("warning-ready summaries cannot carry hidden-test violations")
+            if self.local_probe_truth_posture != (
+                "local_probe_not_benchmark_truth_or_hidden_test_equivalence"
+            ):
+                raise ValueError("warning-ready summaries cannot carry benchmark truth claims")
+        return self
+
+
+class ProgrambenchAdapterHandoff(_AdapterBase):
+    schema_id: Literal[PROGRAMBENCH_ADAPTER_HANDOFF_SCHEMA] = Field(alias="schema")
+    handoff_ref: str
+    case_packet_ref: str
+    readiness_summary_ref: str
+    adapter_candidate_ref: str
+    task_instance_ref: str
+    handoff_target: Literal[
+        "future_cleanroom_reconstruction_execution_review",
+        "future_local_fixture_matrix_expansion_review",
+        "future_programbench_evaluation_governance_review",
+        "future_official_programbench_participation_review",
+        "future_conceptual_broker_review",
+        "future_family_only",
+    ]
+    handoff_sequence_posture: Literal[
+        "future_review_pressure_only",
+        "future_family_only",
+    ]
+    execution_authority_posture: Literal[
+        "no_execution_authority_granted_by_pb_adapter_0c"
+    ]
+    official_programbench_authority_posture: Literal[
+        "no_official_programbench_authority_granted_by_pb_adapter_0c"
+    ]
+    implementation_authority_posture: Literal[
+        "no_implementation_authority_granted_by_pb_adapter_0c"
+    ]
+    benchmark_result_authority_posture: Literal[
+        "no_benchmark_result_authority_granted_by_pb_adapter_0c"
+    ]
+    future_family_selection_posture: Literal[
+        "no_future_family_selected_by_pb_adapter_0c"
+    ]
+    limitation_note: str
+
+    @model_validator(mode="after")
+    def _validate_handoff(self) -> "ProgrambenchAdapterHandoff":
+        if self.handoff_target == "future_family_only":
+            if self.handoff_sequence_posture != "future_family_only":
+                raise ValueError("future-family handoff target requires future-family posture")
+        elif self.handoff_sequence_posture != "future_review_pressure_only":
+            raise ValueError("handoff targets may express review pressure only")
+        return self
+
+
+class ProgrambenchCleanroomAdapterFamilyCloseoutAlignment(_AdapterBase):
+    schema_id: Literal[
+        PROGRAMBENCH_CLEANROOM_ADAPTER_FAMILY_CLOSEOUT_ALIGNMENT_SCHEMA
+    ] = Field(alias="schema")
+    family_closeout_ref: str
+    closed_family_ref: Literal["PB-ADAPTER-0"]
+    closed_slice_refs: list[str] = Field(min_length=3)
+    case_packet_refs: list[str] = Field(min_length=1)
+    readiness_summary_refs: list[str] = Field(min_length=1)
+    handoff_refs: list[str] = Field(min_length=1)
+    family_alignment_posture: Literal["pb_adapter_0_closed_case_packet_only"]
+    official_programbench_non_authority_posture: Literal[
+        "no_official_programbench_participation_by_pb_adapter_0"
+    ]
+    hidden_test_non_inference_posture: Literal[
+        "hidden_tests_not_used_as_inference_by_pb_adapter_0"
+    ]
+    benchmark_truth_non_authority_posture: Literal[
+        "no_benchmark_truth_claimed_by_pb_adapter_0"
+    ]
+    future_family_selection_posture: Literal[
+        "no_future_family_selected_by_pb_adapter_0"
+    ]
+    limitation_note: str
+
+    @model_validator(mode="after")
+    def _validate_family_closeout(
+        self,
+    ) -> "ProgrambenchCleanroomAdapterFamilyCloseoutAlignment":
+        if self.closed_slice_refs != PB_ADAPTER_0_CLOSED_SLICE_REFS:
+            raise ValueError("closed_slice_refs must close PB-ADAPTER-0-A/B/C in order")
+        for field_name in (
+            "case_packet_refs",
+            "readiness_summary_refs",
+            "handoff_refs",
+        ):
+            _ensure_sorted_unique(getattr(self, field_name), field_name=field_name)
+        return self
+
+
 def validate_pb_adapter_0a_task_intake_bundle(
     *,
     task_intake: ProgrambenchCleanroomTaskIntake,
@@ -1073,3 +1432,128 @@ def validate_pb_adapter_0b_probe_observation_bundle(
     for side_effect in filesystem_side_effect_observations:
         if side_effect.task_intake_ref != task_intake.task_intake_ref:
             raise ValueError("filesystem side effects must reference released task intake")
+
+
+def validate_pb_adapter_0c_case_packet_bundle(
+    *,
+    task_intake: ProgrambenchCleanroomTaskIntake,
+    artifact_manifest: ProgrambenchTaskArtifactManifest,
+    visibility_manifest: ProgrambenchTaskVisibilityManifest,
+    worker_access_contract: ProgrambenchAdapterWorkerAccessContract,
+    guardrail: ProgrambenchAdapterNonAuthorityGuardrail,
+    probe_plan: ProgrambenchAdapterProbePlan,
+    observation_logs: list[ProgrambenchProbeObservationLog],
+    io_artifact_index: ProgrambenchIOArtifactObservationIndex,
+    filesystem_side_effect_observations: list[ProgrambenchFilesystemSideEffectObservation],
+    case_packet: ProgrambenchReconstructionCasePacket,
+    readiness_summary: ProgrambenchAdapterReadinessSummary,
+    handoff: ProgrambenchAdapterHandoff,
+    family_closeout: ProgrambenchCleanroomAdapterFamilyCloseoutAlignment,
+) -> None:
+    validate_pb_adapter_0b_probe_observation_bundle(
+        task_intake=task_intake,
+        artifact_manifest=artifact_manifest,
+        visibility_manifest=visibility_manifest,
+        worker_access_contract=worker_access_contract,
+        guardrail=guardrail,
+        probe_plan=probe_plan,
+        observation_logs=observation_logs,
+        io_artifact_index=io_artifact_index,
+        filesystem_side_effect_observations=filesystem_side_effect_observations,
+    )
+    if case_packet.adapter_candidate_ref != task_intake.adapter_candidate_ref:
+        raise ValueError("case packet must preserve released adapter candidate lineage")
+    if case_packet.task_instance_ref != task_intake.task_instance_ref:
+        raise ValueError("case packet must preserve released task instance lineage")
+    if case_packet.task_intake_ref != task_intake.task_intake_ref:
+        raise ValueError("case packet must reference released task intake")
+    if case_packet.task_artifact_manifest_ref != artifact_manifest.task_artifact_manifest_ref:
+        raise ValueError("case packet must reference released task artifact manifest")
+    if case_packet.visibility_manifest_ref != visibility_manifest.visibility_manifest_ref:
+        raise ValueError("case packet must reference released visibility manifest")
+    if (
+        case_packet.worker_access_contract_ref
+        != worker_access_contract.worker_access_contract_ref
+    ):
+        raise ValueError("case packet must reference released worker access contract")
+
+    _ensure_released_refs_resolve(
+        case_packet.guardrail_refs,
+        field_label="case packet guardrail refs",
+        released_refs={guardrail.guardrail_ref},
+    )
+    _ensure_released_refs_resolve(
+        case_packet.probe_plan_refs,
+        field_label="case packet probe plan refs",
+        released_refs={probe_plan.probe_plan_ref},
+    )
+    observation_refs = {row.probe_observation_ref for row in observation_logs}
+    _ensure_released_refs_resolve(
+        case_packet.probe_observation_refs,
+        field_label="case packet probe observation refs",
+        released_refs=observation_refs,
+    )
+    _ensure_released_refs_resolve(
+        case_packet.io_artifact_index_refs,
+        field_label="case packet I/O artifact index refs",
+        released_refs={io_artifact_index.io_artifact_index_ref},
+    )
+    side_effect_refs = {
+        row.side_effect_observation_ref for row in filesystem_side_effect_observations
+    }
+    _ensure_released_refs_resolve(
+        case_packet.side_effect_observation_refs,
+        field_label="case packet side-effect observation refs",
+        released_refs=side_effect_refs,
+    )
+    _ensure_released_refs_resolve(
+        case_packet.pb_py_0_profile_refs,
+        field_label="case packet PB-PY-0 profile refs",
+        released_refs=set(task_intake.pb_py_0_profile_refs),
+    )
+
+    if readiness_summary.case_packet_ref != case_packet.case_packet_ref:
+        raise ValueError("readiness summary must reference the case packet")
+    if readiness_summary.adapter_candidate_ref != case_packet.adapter_candidate_ref:
+        raise ValueError("readiness summary must preserve adapter candidate lineage")
+    if readiness_summary.task_instance_ref != case_packet.task_instance_ref:
+        raise ValueError("readiness summary must preserve task instance lineage")
+    required_coverage_refs = {
+        case_packet.visibility_manifest_ref,
+        case_packet.worker_access_contract_ref,
+        *case_packet.guardrail_refs,
+        *case_packet.probe_plan_refs,
+        *case_packet.probe_observation_refs,
+        *case_packet.io_artifact_index_refs,
+        *case_packet.side_effect_observation_refs,
+    }
+    observed_coverage_refs = {
+        row.covered_ref
+        for row in readiness_summary.coverage_summary_rows
+        if row.coverage_posture == "covered_for_case_packet"
+    }
+    missing_coverage = required_coverage_refs - observed_coverage_refs
+    if missing_coverage:
+        raise ValueError(
+            "readiness coverage missing required refs: "
+            f"{sorted(missing_coverage)}"
+        )
+
+    if handoff.case_packet_ref != case_packet.case_packet_ref:
+        raise ValueError("handoff must reference the case packet")
+    if handoff.readiness_summary_ref != readiness_summary.readiness_summary_ref:
+        raise ValueError("handoff must reference the readiness summary")
+    if handoff.adapter_candidate_ref != case_packet.adapter_candidate_ref:
+        raise ValueError("handoff must preserve adapter candidate lineage")
+    if handoff.task_instance_ref != case_packet.task_instance_ref:
+        raise ValueError("handoff must preserve task instance lineage")
+
+    if case_packet.case_packet_ref not in family_closeout.case_packet_refs:
+        raise ValueError("family closeout must reference the case packet")
+    if (
+        readiness_summary.readiness_summary_ref
+        not in family_closeout.readiness_summary_refs
+    ):
+        raise ValueError("family closeout must reference the readiness summary")
+    if handoff.handoff_ref not in family_closeout.handoff_refs:
+        raise ValueError("family closeout must reference the handoff")

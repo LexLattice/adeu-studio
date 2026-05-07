@@ -1,0 +1,16 @@
+{
+  "adapter_candidate_ref": "adapter-candidate:pb-adapter-0a:reference",
+  "benchmark_result_authority_posture": "no_benchmark_result_authority_granted_by_pb_adapter_0c",
+  "case_packet_ref": "case-packet:pb-adapter-0c:reference",
+  "execution_authority_posture": "no_execution_authority_granted_by_pb_adapter_0c",
+  "future_family_selection_posture": "no_future_family_selected_by_pb_adapter_0c",
+  "handoff_ref": "handoff:pb-adapter-0c:reference",
+  "handoff_sequence_posture": "future_review_pressure_only",
+  "handoff_target": "future_cleanroom_reconstruction_execution_review",
+  "implementation_authority_posture": "no_implementation_authority_granted_by_pb_adapter_0c",
+  "limitation_note": "Handoff records later review pressure only; it does not execute reconstruction or select a next family.",
+  "official_programbench_authority_posture": "no_official_programbench_authority_granted_by_pb_adapter_0c",
+  "readiness_summary_ref": "readiness-summary:pb-adapter-0c:reference",
+  "schema": "programbench_adapter_handoff@1",
+  "task_instance_ref": "task-instance:pb-adapter-0a:toy-cli"
+}

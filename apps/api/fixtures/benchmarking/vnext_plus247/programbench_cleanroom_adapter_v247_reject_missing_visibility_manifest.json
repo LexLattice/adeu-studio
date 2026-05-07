@@ -1,0 +1,38 @@
+{
+  "adapter_candidate_ref": "adapter-candidate:pb-adapter-0a:reference",
+  "benchmark_truth_posture": "not_benchmark_truth",
+  "case_packet_ref": "case-packet:pb-adapter-0c:reference",
+  "case_packet_scope_posture": "released_adapter_refs_packet_only",
+  "guardrail_refs": [
+    "guardrail:pb-adapter-0a:reference"
+  ],
+  "io_artifact_index_refs": [
+    "io-artifact-index:pb-adapter-0b:reference"
+  ],
+  "limitation_note": "Reject fixture: visibility manifest ref is not the released A ref.",
+  "official_participation_posture": "no_official_programbench_participation_by_pb_adapter_0c",
+  "pb_py_0_fixture_refs": [
+    "fixture:pb-py-0c:stderr-diagnostic-local"
+  ],
+  "pb_py_0_profile_refs": [
+    "profile:pb-py-0a:reference"
+  ],
+  "pb_py_0_realization_pack_refs": [
+    "realization-pack:pb-py-0b:python-stdlib-seed"
+  ],
+  "probe_observation_refs": [
+    "probe-observation:pb-adapter-0b:toy-cli-help"
+  ],
+  "probe_plan_refs": [
+    "probe-plan:pb-adapter-0b:reference"
+  ],
+  "schema": "programbench_reconstruction_case_packet@1",
+  "side_effect_observation_refs": [
+    "side-effect:pb-adapter-0b:toy-cli-help"
+  ],
+  "task_artifact_manifest_ref": "artifact-manifest:pb-adapter-0a:reference",
+  "task_instance_ref": "task-instance:pb-adapter-0a:toy-cli",
+  "task_intake_ref": "task-intake:pb-adapter-0a:reference",
+  "visibility_manifest_ref": "visibility-manifest:pb-adapter-0a:missing",
+  "worker_access_contract_ref": "worker-access-contract:pb-adapter-0a:reference"
+}
