@@ -1,0 +1,243 @@
+{
+  "$defs": {
+    "ProgrambenchLocalRetryAllowedActionRow": {
+      "additionalProperties": false,
+      "properties": {
+        "action_kind": {
+          "enum": [
+            "local_retry_instruction",
+            "remand_focused_obligation",
+            "worker_uncertainty_clarification"
+          ],
+          "title": "Action Kind",
+          "type": "string"
+        },
+        "action_scope_posture": {
+          "const": "allowed_for_later_pb_retry_0b_only",
+          "title": "Action Scope Posture",
+          "type": "string"
+        },
+        "allowed_action_ref": {
+          "title": "Allowed Action Ref",
+          "type": "string"
+        },
+        "limitation_note": {
+          "title": "Limitation Note",
+          "type": "string"
+        },
+        "source_refs": {
+          "items": {
+            "type": "string"
+          },
+          "minItems": 1,
+          "title": "Source Refs",
+          "type": "array"
+        }
+      },
+      "required": [
+        "allowed_action_ref",
+        "action_kind",
+        "action_scope_posture",
+        "source_refs",
+        "limitation_note"
+      ],
+      "title": "ProgrambenchLocalRetryAllowedActionRow",
+      "type": "object"
+    },
+    "ProgrambenchLocalRetryForbiddenActionRow": {
+      "additionalProperties": false,
+      "properties": {
+        "action_kind": {
+          "enum": [
+            "add_evidence_source",
+            "add_tool",
+            "benchmark_scoring",
+            "decompilation",
+            "docker_socket_access",
+            "external_repo_lookup",
+            "hidden_test_access",
+            "host_secret_access",
+            "internet_lookup",
+            "model_ranking",
+            "network_access",
+            "official_submission",
+            "source_lookup",
+            "widen_write_scope"
+          ],
+          "title": "Action Kind",
+          "type": "string"
+        },
+        "forbiddance_posture": {
+          "const": "forbidden_by_pb_retry_0a",
+          "title": "Forbiddance Posture",
+          "type": "string"
+        },
+        "forbidden_action_ref": {
+          "title": "Forbidden Action Ref",
+          "type": "string"
+        },
+        "limitation_note": {
+          "title": "Limitation Note",
+          "type": "string"
+        }
+      },
+      "required": [
+        "forbidden_action_ref",
+        "action_kind",
+        "forbiddance_posture",
+        "limitation_note"
+      ],
+      "title": "ProgrambenchLocalRetryForbiddenActionRow",
+      "type": "object"
+    }
+  },
+  "additionalProperties": false,
+  "properties": {
+    "allowed_retry_action_rows": {
+      "items": {
+        "$ref": "#/$defs/ProgrambenchLocalRetryAllowedActionRow"
+      },
+      "minItems": 1,
+      "title": "Allowed Retry Action Rows",
+      "type": "array"
+    },
+    "forbidden_retry_action_rows": {
+      "items": {
+        "$ref": "#/$defs/ProgrambenchLocalRetryForbiddenActionRow"
+      },
+      "minItems": 1,
+      "title": "Forbidden Retry Action Rows",
+      "type": "array"
+    },
+    "limitation_note": {
+      "title": "Limitation Note",
+      "type": "string"
+    },
+    "retry_chain_posture": {
+      "const": "single_retry_only_no_chain_authority",
+      "title": "Retry Chain Posture",
+      "type": "string"
+    },
+    "retry_depth_limit": {
+      "minimum": 1,
+      "title": "Retry Depth Limit",
+      "type": "integer"
+    },
+    "retry_lineage_ref": {
+      "title": "Retry Lineage Ref",
+      "type": "string"
+    },
+    "retry_request_ref": {
+      "title": "Retry Request Ref",
+      "type": "string"
+    },
+    "retry_scope_contract_ref": {
+      "title": "Retry Scope Contract Ref",
+      "type": "string"
+    },
+    "retry_scope_delta_manifest_hash": {
+      "title": "Retry Scope Delta Manifest Hash",
+      "type": "string"
+    },
+    "retry_scope_delta_refs": {
+      "items": {
+        "type": "string"
+      },
+      "minItems": 1,
+      "title": "Retry Scope Delta Refs",
+      "type": "array"
+    },
+    "schema": {
+      "const": "programbench_local_retry_scope_contract@1",
+      "title": "Schema",
+      "type": "string"
+    },
+    "scope_authority_posture": {
+      "const": "no_scope_widening_authority_granted_by_pb_retry_0a",
+      "title": "Scope Authority Posture",
+      "type": "string"
+    },
+    "unchanged_forbidden_source_refs": {
+      "items": {
+        "type": "string"
+      },
+      "minItems": 1,
+      "title": "Unchanged Forbidden Source Refs",
+      "type": "array"
+    },
+    "unchanged_forbidden_source_set_hash": {
+      "title": "Unchanged Forbidden Source Set Hash",
+      "type": "string"
+    },
+    "unchanged_network_policy_hash": {
+      "title": "Unchanged Network Policy Hash",
+      "type": "string"
+    },
+    "unchanged_sandbox_policy_hash": {
+      "title": "Unchanged Sandbox Policy Hash",
+      "type": "string"
+    },
+    "unchanged_sandbox_policy_refs": {
+      "items": {
+        "type": "string"
+      },
+      "minItems": 1,
+      "title": "Unchanged Sandbox Policy Refs",
+      "type": "array"
+    },
+    "unchanged_tool_policy_hash": {
+      "title": "Unchanged Tool Policy Hash",
+      "type": "string"
+    },
+    "unchanged_tool_policy_refs": {
+      "items": {
+        "type": "string"
+      },
+      "minItems": 1,
+      "title": "Unchanged Tool Policy Refs",
+      "type": "array"
+    },
+    "unchanged_worker_visible_source_refs": {
+      "items": {
+        "type": "string"
+      },
+      "minItems": 1,
+      "title": "Unchanged Worker Visible Source Refs",
+      "type": "array"
+    },
+    "unchanged_worker_visible_source_set_hash": {
+      "title": "Unchanged Worker Visible Source Set Hash",
+      "type": "string"
+    },
+    "unchanged_write_scope_hash": {
+      "title": "Unchanged Write Scope Hash",
+      "type": "string"
+    }
+  },
+  "required": [
+    "schema",
+    "retry_scope_contract_ref",
+    "retry_request_ref",
+    "retry_lineage_ref",
+    "retry_scope_delta_refs",
+    "retry_scope_delta_manifest_hash",
+    "unchanged_worker_visible_source_refs",
+    "unchanged_forbidden_source_refs",
+    "unchanged_tool_policy_refs",
+    "unchanged_sandbox_policy_refs",
+    "unchanged_worker_visible_source_set_hash",
+    "unchanged_forbidden_source_set_hash",
+    "unchanged_tool_policy_hash",
+    "unchanged_sandbox_policy_hash",
+    "unchanged_write_scope_hash",
+    "unchanged_network_policy_hash",
+    "allowed_retry_action_rows",
+    "forbidden_retry_action_rows",
+    "retry_depth_limit",
+    "retry_chain_posture",
+    "scope_authority_posture",
+    "limitation_note"
+  ],
+  "title": "ProgrambenchLocalRetryScopeContract",
+  "type": "object"
+}

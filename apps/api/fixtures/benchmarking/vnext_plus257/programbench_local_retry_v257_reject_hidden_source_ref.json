@@ -1,0 +1,40 @@
+{
+  "blocked_source_refs": [],
+  "forbidden_source_refs": [],
+  "hidden_or_forbidden_exposure_posture": "hidden_and_forbidden_sources_not_exposed_or_summarized",
+  "limitation_note": "Invalid source index leaks hidden material as retryable source.",
+  "local_non_retryable_source_refs": [],
+  "local_retryable_source_refs": [
+    "remand-row:pb-trial-0c:runbook-gap"
+  ],
+  "remand_source_index_ref": "remand-source-index:pb-retry-0a:reference",
+  "remand_source_rows": [
+    {
+      "limitation_note": "Invalid row cites a hidden source ref.",
+      "remand_source_kind": "runbook_satisfaction_gap",
+      "remand_source_ref": "remand-row:pb-trial-0c:runbook-gap",
+      "retryability_posture": "local_retryable",
+      "source_content_shape_posture": "category_only_no_source_identifying_content",
+      "source_refs": [
+        "hidden-test:programbench:case-001"
+      ]
+    }
+  ],
+  "retry_rationale_rows": [
+    {
+      "content_shape_posture": "category_only_no_source_identifying_content",
+      "limitation_note": "Retry rationale appears local.",
+      "rationale_posture": "local_retry_rationale_only_no_dispatch_authority",
+      "retry_rationale_kind": "runbook_satisfaction_gap",
+      "retry_rationale_ref": "retry-rationale:pb-retry-0a:runbook-gap",
+      "source_refs": [
+        "remand-row:pb-trial-0c:runbook-gap"
+      ]
+    }
+  ],
+  "retry_request_ref": "retry-request:pb-retry-0a:reference",
+  "schema": "programbench_trial_remand_source_index@1",
+  "source_visibility_posture": "local_remand_sources_only",
+  "support_only_source_refs": [],
+  "trial_remand_decision_ref": "trial-remand-decision:pb-trial-0c:reference"
+}

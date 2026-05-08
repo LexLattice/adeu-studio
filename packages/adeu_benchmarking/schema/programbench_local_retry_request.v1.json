@@ -1,0 +1,119 @@
+{
+  "additionalProperties": false,
+  "properties": {
+    "limitation_note": {
+      "title": "Limitation Note",
+      "type": "string"
+    },
+    "model_ranking_posture": {
+      "const": "no_model_ranking_claimed_by_pb_retry_0a",
+      "title": "Model Ranking Posture",
+      "type": "string"
+    },
+    "official_benchmark_authority_posture": {
+      "const": "no_official_programbench_authority_granted_by_pb_retry_0a",
+      "title": "Official Benchmark Authority Posture",
+      "type": "string"
+    },
+    "prior_retry_request_refs": {
+      "items": {
+        "type": "string"
+      },
+      "title": "Prior Retry Request Refs",
+      "type": "array"
+    },
+    "requested_retry_horizon": {
+      "const": "later_local_retry_dispatch_review",
+      "title": "Requested Retry Horizon",
+      "type": "string"
+    },
+    "retry_depth_limit": {
+      "minimum": 1,
+      "title": "Retry Depth Limit",
+      "type": "integer"
+    },
+    "retry_dispatch_authority_posture": {
+      "const": "no_retry_dispatch_authority_granted_by_pb_retry_0a",
+      "title": "Retry Dispatch Authority Posture",
+      "type": "string"
+    },
+    "retry_lineage_ref": {
+      "title": "Retry Lineage Ref",
+      "type": "string"
+    },
+    "retry_lineage_registry_ref": {
+      "title": "Retry Lineage Registry Ref",
+      "type": "string"
+    },
+    "retry_request_ref": {
+      "title": "Retry Request Ref",
+      "type": "string"
+    },
+    "retry_sequence_index": {
+      "minimum": 1,
+      "title": "Retry Sequence Index",
+      "type": "integer"
+    },
+    "retry_uniqueness_posture": {
+      "const": "one_eligible_retry_for_trial_remand",
+      "title": "Retry Uniqueness Posture",
+      "type": "string"
+    },
+    "schema": {
+      "const": "programbench_local_retry_request@1",
+      "title": "Schema",
+      "type": "string"
+    },
+    "source_remand_decision_ref": {
+      "title": "Source Remand Decision Ref",
+      "type": "string"
+    },
+    "source_trial_ref": {
+      "title": "Source Trial Ref",
+      "type": "string"
+    },
+    "trial_family_closeout_ref": {
+      "title": "Trial Family Closeout Ref",
+      "type": "string"
+    },
+    "trial_lineage_ref": {
+      "title": "Trial Lineage Ref",
+      "type": "string"
+    },
+    "trial_observation_summary_ref": {
+      "title": "Trial Observation Summary Ref",
+      "type": "string"
+    },
+    "trial_outcome_audit_ref": {
+      "title": "Trial Outcome Audit Ref",
+      "type": "string"
+    },
+    "trial_remand_decision_ref": {
+      "title": "Trial Remand Decision Ref",
+      "type": "string"
+    }
+  },
+  "required": [
+    "schema",
+    "retry_request_ref",
+    "retry_lineage_ref",
+    "trial_lineage_ref",
+    "source_trial_ref",
+    "source_remand_decision_ref",
+    "retry_lineage_registry_ref",
+    "retry_sequence_index",
+    "trial_outcome_audit_ref",
+    "trial_observation_summary_ref",
+    "trial_remand_decision_ref",
+    "trial_family_closeout_ref",
+    "requested_retry_horizon",
+    "retry_depth_limit",
+    "retry_uniqueness_posture",
+    "retry_dispatch_authority_posture",
+    "official_benchmark_authority_posture",
+    "model_ranking_posture",
+    "limitation_note"
+  ],
+  "title": "ProgrambenchLocalRetryRequest",
+  "type": "object"
+}

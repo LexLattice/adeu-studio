@@ -1,0 +1,218 @@
+{
+  "$defs": {
+    "ProgrambenchLocalRetryRationaleRow": {
+      "additionalProperties": false,
+      "properties": {
+        "content_shape_posture": {
+          "const": "category_only_no_source_identifying_content",
+          "title": "Content Shape Posture",
+          "type": "string"
+        },
+        "limitation_note": {
+          "title": "Limitation Note",
+          "type": "string"
+        },
+        "rationale_posture": {
+          "const": "local_retry_rationale_only_no_dispatch_authority",
+          "title": "Rationale Posture",
+          "type": "string"
+        },
+        "retry_rationale_kind": {
+          "enum": [
+            "lifecycle_projection_gap",
+            "local_candidate_snapshot_gap",
+            "local_evidence_inconclusive",
+            "local_output_capture_gap",
+            "local_probe_failure",
+            "runbook_satisfaction_gap",
+            "worker_declared_uncertainty"
+          ],
+          "title": "Retry Rationale Kind",
+          "type": "string"
+        },
+        "retry_rationale_ref": {
+          "title": "Retry Rationale Ref",
+          "type": "string"
+        },
+        "source_refs": {
+          "items": {
+            "type": "string"
+          },
+          "minItems": 1,
+          "title": "Source Refs",
+          "type": "array"
+        }
+      },
+      "required": [
+        "retry_rationale_ref",
+        "retry_rationale_kind",
+        "rationale_posture",
+        "source_refs",
+        "content_shape_posture",
+        "limitation_note"
+      ],
+      "title": "ProgrambenchLocalRetryRationaleRow",
+      "type": "object"
+    },
+    "ProgrambenchTrialRemandSourceRow": {
+      "additionalProperties": false,
+      "properties": {
+        "limitation_note": {
+          "title": "Limitation Note",
+          "type": "string"
+        },
+        "remand_source_kind": {
+          "enum": [
+            "lifecycle_projection_gap",
+            "local_candidate_snapshot_gap",
+            "local_evidence_inconclusive",
+            "local_output_capture_gap",
+            "local_probe_failure",
+            "runbook_satisfaction_gap",
+            "worker_declared_uncertainty"
+          ],
+          "title": "Remand Source Kind",
+          "type": "string"
+        },
+        "remand_source_ref": {
+          "title": "Remand Source Ref",
+          "type": "string"
+        },
+        "retryability_posture": {
+          "enum": [
+            "blocked",
+            "forbidden",
+            "local_non_retryable",
+            "local_retryable",
+            "support_only"
+          ],
+          "title": "Retryability Posture",
+          "type": "string"
+        },
+        "source_content_shape_posture": {
+          "const": "category_only_no_source_identifying_content",
+          "title": "Source Content Shape Posture",
+          "type": "string"
+        },
+        "source_refs": {
+          "items": {
+            "type": "string"
+          },
+          "minItems": 1,
+          "title": "Source Refs",
+          "type": "array"
+        }
+      },
+      "required": [
+        "remand_source_ref",
+        "remand_source_kind",
+        "retryability_posture",
+        "source_refs",
+        "source_content_shape_posture",
+        "limitation_note"
+      ],
+      "title": "ProgrambenchTrialRemandSourceRow",
+      "type": "object"
+    }
+  },
+  "additionalProperties": false,
+  "properties": {
+    "blocked_source_refs": {
+      "items": {
+        "type": "string"
+      },
+      "title": "Blocked Source Refs",
+      "type": "array"
+    },
+    "forbidden_source_refs": {
+      "items": {
+        "type": "string"
+      },
+      "title": "Forbidden Source Refs",
+      "type": "array"
+    },
+    "hidden_or_forbidden_exposure_posture": {
+      "const": "hidden_and_forbidden_sources_not_exposed_or_summarized",
+      "title": "Hidden Or Forbidden Exposure Posture",
+      "type": "string"
+    },
+    "limitation_note": {
+      "title": "Limitation Note",
+      "type": "string"
+    },
+    "local_non_retryable_source_refs": {
+      "items": {
+        "type": "string"
+      },
+      "title": "Local Non Retryable Source Refs",
+      "type": "array"
+    },
+    "local_retryable_source_refs": {
+      "items": {
+        "type": "string"
+      },
+      "minItems": 1,
+      "title": "Local Retryable Source Refs",
+      "type": "array"
+    },
+    "remand_source_index_ref": {
+      "title": "Remand Source Index Ref",
+      "type": "string"
+    },
+    "remand_source_rows": {
+      "items": {
+        "$ref": "#/$defs/ProgrambenchTrialRemandSourceRow"
+      },
+      "minItems": 1,
+      "title": "Remand Source Rows",
+      "type": "array"
+    },
+    "retry_rationale_rows": {
+      "items": {
+        "$ref": "#/$defs/ProgrambenchLocalRetryRationaleRow"
+      },
+      "minItems": 1,
+      "title": "Retry Rationale Rows",
+      "type": "array"
+    },
+    "retry_request_ref": {
+      "title": "Retry Request Ref",
+      "type": "string"
+    },
+    "schema": {
+      "const": "programbench_trial_remand_source_index@1",
+      "title": "Schema",
+      "type": "string"
+    },
+    "source_visibility_posture": {
+      "const": "local_remand_sources_only",
+      "title": "Source Visibility Posture",
+      "type": "string"
+    },
+    "support_only_source_refs": {
+      "items": {
+        "type": "string"
+      },
+      "title": "Support Only Source Refs",
+      "type": "array"
+    },
+    "trial_remand_decision_ref": {
+      "title": "Trial Remand Decision Ref",
+      "type": "string"
+    }
+  },
+  "required": [
+    "schema",
+    "remand_source_index_ref",
+    "retry_request_ref",
+    "trial_remand_decision_ref",
+    "remand_source_rows",
+    "retry_rationale_rows",
+    "local_retryable_source_refs",
+    "source_visibility_posture",
+    "hidden_or_forbidden_exposure_posture",
+    "limitation_note"
+  ],
+  "title": "ProgrambenchTrialRemandSourceIndex",
+  "type": "object"
+}

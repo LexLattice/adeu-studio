@@ -161,6 +161,20 @@ from .programbench_cleanroom_reconstruction import (
     ProgrambenchReconstructionWorkerContextPacket,
     ProgrambenchReconstructionWorkOrder,
 )
+from .programbench_cleanroom_retry import (
+    PROGRAMBENCH_LOCAL_RETRY_ELIGIBILITY_REVIEW_SCHEMA,
+    PROGRAMBENCH_LOCAL_RETRY_LINEAGE_REGISTRY_SCHEMA,
+    PROGRAMBENCH_LOCAL_RETRY_NON_AUTHORITY_GUARDRAIL_SCHEMA,
+    PROGRAMBENCH_LOCAL_RETRY_REQUEST_SCHEMA,
+    PROGRAMBENCH_LOCAL_RETRY_SCOPE_CONTRACT_SCHEMA,
+    PROGRAMBENCH_TRIAL_REMAND_SOURCE_INDEX_SCHEMA,
+    ProgrambenchLocalRetryEligibilityReview,
+    ProgrambenchLocalRetryLineageRegistry,
+    ProgrambenchLocalRetryNonAuthorityGuardrail,
+    ProgrambenchLocalRetryRequest,
+    ProgrambenchLocalRetryScopeContract,
+    ProgrambenchTrialRemandSourceIndex,
+)
 from .programbench_cleanroom_trial import (
     PROGRAMBENCH_LOCAL_RECONSTRUCTION_TRIAL_DOCKET_SCHEMA,
     PROGRAMBENCH_LOCAL_TRIAL_CANDIDATE_ARTIFACT_SNAPSHOT_SCHEMA,
@@ -1100,6 +1114,66 @@ def main() -> None:
             root
             / "spec"
             / "programbench_local_trial_family_closeout_alignment.schema.json",
+        ),
+        (
+            ProgrambenchLocalRetryRequest,
+            PROGRAMBENCH_LOCAL_RETRY_REQUEST_SCHEMA,
+            root
+            / "packages"
+            / "adeu_benchmarking"
+            / "schema"
+            / "programbench_local_retry_request.v1.json",
+            root / "spec" / "programbench_local_retry_request.schema.json",
+        ),
+        (
+            ProgrambenchLocalRetryLineageRegistry,
+            PROGRAMBENCH_LOCAL_RETRY_LINEAGE_REGISTRY_SCHEMA,
+            root
+            / "packages"
+            / "adeu_benchmarking"
+            / "schema"
+            / "programbench_local_retry_lineage_registry.v1.json",
+            root / "spec" / "programbench_local_retry_lineage_registry.schema.json",
+        ),
+        (
+            ProgrambenchTrialRemandSourceIndex,
+            PROGRAMBENCH_TRIAL_REMAND_SOURCE_INDEX_SCHEMA,
+            root
+            / "packages"
+            / "adeu_benchmarking"
+            / "schema"
+            / "programbench_trial_remand_source_index.v1.json",
+            root / "spec" / "programbench_trial_remand_source_index.schema.json",
+        ),
+        (
+            ProgrambenchLocalRetryEligibilityReview,
+            PROGRAMBENCH_LOCAL_RETRY_ELIGIBILITY_REVIEW_SCHEMA,
+            root
+            / "packages"
+            / "adeu_benchmarking"
+            / "schema"
+            / "programbench_local_retry_eligibility_review.v1.json",
+            root / "spec" / "programbench_local_retry_eligibility_review.schema.json",
+        ),
+        (
+            ProgrambenchLocalRetryScopeContract,
+            PROGRAMBENCH_LOCAL_RETRY_SCOPE_CONTRACT_SCHEMA,
+            root
+            / "packages"
+            / "adeu_benchmarking"
+            / "schema"
+            / "programbench_local_retry_scope_contract.v1.json",
+            root / "spec" / "programbench_local_retry_scope_contract.schema.json",
+        ),
+        (
+            ProgrambenchLocalRetryNonAuthorityGuardrail,
+            PROGRAMBENCH_LOCAL_RETRY_NON_AUTHORITY_GUARDRAIL_SCHEMA,
+            root
+            / "packages"
+            / "adeu_benchmarking"
+            / "schema"
+            / "programbench_local_retry_non_authority_guardrail.v1.json",
+            root / "spec" / "programbench_local_retry_non_authority_guardrail.schema.json",
         ),
     ]
 

@@ -1,0 +1,138 @@
+{
+  "allowed_retry_action_rows": [
+    {
+      "action_kind": "local_retry_instruction",
+      "action_scope_posture": "allowed_for_later_pb_retry_0b_only",
+      "allowed_action_ref": "allowed-action:pb-retry-0a:local-instruction",
+      "limitation_note": "Later retry may receive local retry instructions scoped to the remand.",
+      "source_refs": [
+        "remand-row:pb-trial-0c:runbook-gap"
+      ]
+    },
+    {
+      "action_kind": "remand_focused_obligation",
+      "action_scope_posture": "allowed_for_later_pb_retry_0b_only",
+      "allowed_action_ref": "allowed-action:pb-retry-0a:remand-obligation",
+      "limitation_note": "Later retry may focus on the declared local remand obligation only.",
+      "source_refs": [
+        "remand-row:pb-trial-0c:runbook-gap"
+      ]
+    }
+  ],
+  "forbidden_retry_action_rows": [
+    {
+      "action_kind": "add_evidence_source",
+      "forbiddance_posture": "forbidden_by_pb_retry_0a",
+      "forbidden_action_ref": "forbidden-action:pb-retry-0a:add-evidence-source",
+      "limitation_note": "Retry cannot add evidence sources."
+    },
+    {
+      "action_kind": "add_tool",
+      "forbiddance_posture": "forbidden_by_pb_retry_0a",
+      "forbidden_action_ref": "forbidden-action:pb-retry-0a:add-tool",
+      "limitation_note": "Retry cannot add tools."
+    },
+    {
+      "action_kind": "benchmark_scoring",
+      "forbiddance_posture": "forbidden_by_pb_retry_0a",
+      "forbidden_action_ref": "forbidden-action:pb-retry-0a:benchmark-scoring",
+      "limitation_note": "Retry cannot score benchmarks."
+    },
+    {
+      "action_kind": "decompilation",
+      "forbiddance_posture": "forbidden_by_pb_retry_0a",
+      "forbidden_action_ref": "forbidden-action:pb-retry-0a:decompilation",
+      "limitation_note": "Retry cannot use decompilation."
+    },
+    {
+      "action_kind": "docker_socket_access",
+      "forbiddance_posture": "forbidden_by_pb_retry_0a",
+      "forbidden_action_ref": "forbidden-action:pb-retry-0a:docker-socket-access",
+      "limitation_note": "Retry cannot access Docker socket."
+    },
+    {
+      "action_kind": "external_repo_lookup",
+      "forbiddance_posture": "forbidden_by_pb_retry_0a",
+      "forbidden_action_ref": "forbidden-action:pb-retry-0a:external-repo-lookup",
+      "limitation_note": "Retry cannot inspect external repos."
+    },
+    {
+      "action_kind": "hidden_test_access",
+      "forbiddance_posture": "forbidden_by_pb_retry_0a",
+      "forbidden_action_ref": "forbidden-action:pb-retry-0a:hidden-test-access",
+      "limitation_note": "Retry cannot access excluded evaluator material."
+    },
+    {
+      "action_kind": "host_secret_access",
+      "forbiddance_posture": "forbidden_by_pb_retry_0a",
+      "forbidden_action_ref": "forbidden-action:pb-retry-0a:host-secret-access",
+      "limitation_note": "Retry cannot access host secrets."
+    },
+    {
+      "action_kind": "internet_lookup",
+      "forbiddance_posture": "forbidden_by_pb_retry_0a",
+      "forbidden_action_ref": "forbidden-action:pb-retry-0a:internet-lookup",
+      "limitation_note": "Retry cannot use internet lookup."
+    },
+    {
+      "action_kind": "model_ranking",
+      "forbiddance_posture": "forbidden_by_pb_retry_0a",
+      "forbidden_action_ref": "forbidden-action:pb-retry-0a:model-ranking",
+      "limitation_note": "Retry cannot rank models."
+    },
+    {
+      "action_kind": "network_access",
+      "forbiddance_posture": "forbidden_by_pb_retry_0a",
+      "forbidden_action_ref": "forbidden-action:pb-retry-0a:network-access",
+      "limitation_note": "Retry cannot add network access."
+    },
+    {
+      "action_kind": "official_submission",
+      "forbiddance_posture": "forbidden_by_pb_retry_0a",
+      "forbidden_action_ref": "forbidden-action:pb-retry-0a:official-submission",
+      "limitation_note": "Retry cannot create official submissions."
+    },
+    {
+      "action_kind": "source_lookup",
+      "forbiddance_posture": "forbidden_by_pb_retry_0a",
+      "forbidden_action_ref": "forbidden-action:pb-retry-0a:source-lookup",
+      "limitation_note": "Retry cannot use source lookup."
+    },
+    {
+      "action_kind": "widen_write_scope",
+      "forbiddance_posture": "forbidden_by_pb_retry_0a",
+      "forbidden_action_ref": "forbidden-action:pb-retry-0a:widen-write-scope",
+      "limitation_note": "Retry cannot widen write scope."
+    }
+  ],
+  "limitation_note": "Reference scope contract preserves all cleanroom boundaries and adds only remand-focused local retry instructions.",
+  "retry_chain_posture": "single_retry_only_no_chain_authority",
+  "retry_depth_limit": 1,
+  "retry_lineage_ref": "retry-lineage:pb-retry-0:reference",
+  "retry_request_ref": "retry-request:pb-retry-0a:reference",
+  "retry_scope_contract_ref": "retry-scope-contract:pb-retry-0a:reference",
+  "retry_scope_delta_manifest_hash": "sha256:1111111111111111111111111111111111111111111111111111111111111111",
+  "retry_scope_delta_refs": [
+    "retry-delta:pb-retry-0a:runbook-gap"
+  ],
+  "schema": "programbench_local_retry_scope_contract@1",
+  "scope_authority_posture": "no_scope_widening_authority_granted_by_pb_retry_0a",
+  "unchanged_forbidden_source_refs": [
+    "forbidden-source-set:pb-adapter-0a:reference"
+  ],
+  "unchanged_forbidden_source_set_hash": "sha256:2222222222222222222222222222222222222222222222222222222222222222",
+  "unchanged_network_policy_hash": "sha256:3333333333333333333333333333333333333333333333333333333333333333",
+  "unchanged_sandbox_policy_hash": "sha256:4444444444444444444444444444444444444444444444444444444444444444",
+  "unchanged_sandbox_policy_refs": [
+    "sandbox-policy:pb-recon-0a:reference"
+  ],
+  "unchanged_tool_policy_hash": "sha256:5555555555555555555555555555555555555555555555555555555555555555",
+  "unchanged_tool_policy_refs": [
+    "tool-policy:pb-trial-0a:reference"
+  ],
+  "unchanged_worker_visible_source_refs": [
+    "worker-visible-source-set:pb-adapter-0a:reference"
+  ],
+  "unchanged_worker_visible_source_set_hash": "sha256:6666666666666666666666666666666666666666666666666666666666666666",
+  "unchanged_write_scope_hash": "sha256:7777777777777777777777777777777777777777777777777777777777777777"
+}
