@@ -954,7 +954,6 @@ class ProgrambenchLocalTrialOutcomeAudit(_TrialBase):
     carried_blocker_refs: list[str] = Field(default_factory=list)
     carried_warning_refs: list[str] = Field(default_factory=list)
     local_outcome_posture: Literal[
-        "future_family_only",
         "trial_blocked_by_lifecycle_projection_gap",
         "trial_blocked_by_output_capture_gap",
         "trial_blocked_by_sandbox_violation",
@@ -988,8 +987,6 @@ class ProgrambenchLocalTrialOutcomeAudit(_TrialBase):
             self.carried_warning_refs,
             field_name="carried_warning_refs",
         )
-        if self.local_outcome_posture == "future_family_only":
-            raise ValueError("PB-TRIAL-0-C outcome audit cannot route itself future-family-only")
         if self.local_outcome_posture == "trial_locally_accepted":
             if self.carried_blocker_refs:
                 raise ValueError("local acceptance cannot carry blockers")
@@ -1011,6 +1008,8 @@ class ProgrambenchLocalTrialOutcomeAudit(_TrialBase):
                 "candidate_snapshot_inside_write_scope",
                 "execution_capture_available",
                 "lifecycle_projection_validated",
+                "runbook_satisfaction_reviewed",
+                "sandbox_satisfaction_reviewed",
             }
             observed = {row.evidence_kind for row in self.local_evidence_rows}
             missing = sorted(required_evidence - observed)
@@ -1096,10 +1095,10 @@ class ProgrambenchLocalTrialRemandDecision(_TrialBase):
     def _validate_remand_decision(self) -> "ProgrambenchLocalTrialRemandDecision":
         row_refs = [row.remand_decision_row_ref for row in self.remand_decision_rows]
         _ensure_sorted_unique_allow_empty(row_refs, field_name="remand_decision_rows")
-        if len(self.remand_source_kinds) != len(set(self.remand_source_kinds)):
-            raise ValueError("remand_source_kinds must not contain duplicates")
-        if self.remand_source_kinds != sorted(self.remand_source_kinds):
-            raise ValueError("remand_source_kinds must be lexicographically sorted")
+        _ensure_sorted_unique_allow_empty(
+            self.remand_source_kinds,
+            field_name="remand_source_kinds",
+        )
         row_kinds = sorted({row.remand_source_kind for row in self.remand_decision_rows})
         if row_kinds != self.remand_source_kinds:
             raise ValueError("remand source kinds must match remand decision rows")

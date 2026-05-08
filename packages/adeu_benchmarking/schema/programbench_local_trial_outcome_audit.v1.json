@@ -188,7 +188,6 @@
     },
     "local_outcome_posture": {
       "enum": [
-        "future_family_only",
         "trial_blocked_by_lifecycle_projection_gap",
         "trial_blocked_by_output_capture_gap",
         "trial_blocked_by_sandbox_violation",
