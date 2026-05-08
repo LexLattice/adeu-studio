@@ -1,0 +1,117 @@
+{
+  "additionalProperties": false,
+  "properties": {
+    "carried_blocker_refs": {
+      "items": {
+        "type": "string"
+      },
+      "title": "Carried Blocker Refs",
+      "type": "array"
+    },
+    "carried_warning_refs": {
+      "items": {
+        "type": "string"
+      },
+      "title": "Carried Warning Refs",
+      "type": "array"
+    },
+    "cleanroom_continuity_refs": {
+      "items": {
+        "type": "string"
+      },
+      "minItems": 1,
+      "title": "Cleanroom Continuity Refs",
+      "type": "array"
+    },
+    "eligibility_posture": {
+      "enum": [
+        "blocked_by_contamination",
+        "blocked_by_hidden_or_forbidden_source",
+        "blocked_by_missing_local_remand",
+        "blocked_by_missing_trial_closeout",
+        "blocked_by_prior_local_acceptance",
+        "blocked_by_retry_uniqueness_violation",
+        "blocked_by_sandbox_violation",
+        "blocked_by_scope_widening",
+        "eligible_for_later_local_retry_dispatch_review",
+        "future_family_only"
+      ],
+      "title": "Eligibility Posture",
+      "type": "string"
+    },
+    "limitation_note": {
+      "title": "Limitation Note",
+      "type": "string"
+    },
+    "non_authority_guardrail_refs": {
+      "items": {
+        "type": "string"
+      },
+      "minItems": 1,
+      "title": "Non Authority Guardrail Refs",
+      "type": "array"
+    },
+    "ready_basis_posture": {
+      "enum": [
+        "ready_no_blockers",
+        "blocked",
+        "future_family_only"
+      ],
+      "title": "Ready Basis Posture",
+      "type": "string"
+    },
+    "released_trial_lineage_refs": {
+      "items": {
+        "type": "string"
+      },
+      "minItems": 1,
+      "title": "Released Trial Lineage Refs",
+      "type": "array"
+    },
+    "remand_source_index_ref": {
+      "title": "Remand Source Index Ref",
+      "type": "string"
+    },
+    "retry_eligibility_review_ref": {
+      "title": "Retry Eligibility Review Ref",
+      "type": "string"
+    },
+    "retry_lineage_registry_ref": {
+      "title": "Retry Lineage Registry Ref",
+      "type": "string"
+    },
+    "retry_request_ref": {
+      "title": "Retry Request Ref",
+      "type": "string"
+    },
+    "retry_scope_contract_refs": {
+      "items": {
+        "type": "string"
+      },
+      "minItems": 1,
+      "title": "Retry Scope Contract Refs",
+      "type": "array"
+    },
+    "schema": {
+      "const": "programbench_local_retry_eligibility_review@1",
+      "title": "Schema",
+      "type": "string"
+    }
+  },
+  "required": [
+    "schema",
+    "retry_eligibility_review_ref",
+    "retry_request_ref",
+    "retry_lineage_registry_ref",
+    "remand_source_index_ref",
+    "released_trial_lineage_refs",
+    "cleanroom_continuity_refs",
+    "retry_scope_contract_refs",
+    "eligibility_posture",
+    "ready_basis_posture",
+    "non_authority_guardrail_refs",
+    "limitation_note"
+  ],
+  "title": "ProgrambenchLocalRetryEligibilityReview",
+  "type": "object"
+}

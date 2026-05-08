@@ -1,0 +1,110 @@
+{
+  "$defs": {
+    "ProgrambenchLocalRetrySequenceRow": {
+      "additionalProperties": false,
+      "properties": {
+        "limitation_note": {
+          "title": "Limitation Note",
+          "type": "string"
+        },
+        "retry_request_ref": {
+          "title": "Retry Request Ref",
+          "type": "string"
+        },
+        "retry_sequence_index": {
+          "minimum": 1,
+          "title": "Retry Sequence Index",
+          "type": "integer"
+        },
+        "retry_sequence_ref": {
+          "title": "Retry Sequence Ref",
+          "type": "string"
+        },
+        "sequence_posture": {
+          "const": "single_pb_retry_0_candidate",
+          "title": "Sequence Posture",
+          "type": "string"
+        }
+      },
+      "required": [
+        "retry_sequence_ref",
+        "retry_request_ref",
+        "retry_sequence_index",
+        "sequence_posture",
+        "limitation_note"
+      ],
+      "title": "ProgrambenchLocalRetrySequenceRow",
+      "type": "object"
+    }
+  },
+  "additionalProperties": false,
+  "properties": {
+    "eligible_retry_request_refs": {
+      "items": {
+        "type": "string"
+      },
+      "minItems": 1,
+      "title": "Eligible Retry Request Refs",
+      "type": "array"
+    },
+    "existing_retry_request_refs": {
+      "items": {
+        "type": "string"
+      },
+      "title": "Existing Retry Request Refs",
+      "type": "array"
+    },
+    "limitation_note": {
+      "title": "Limitation Note",
+      "type": "string"
+    },
+    "retry_chain_authority_posture": {
+      "const": "no_retry_chain_authority_granted_by_pb_retry_0a",
+      "title": "Retry Chain Authority Posture",
+      "type": "string"
+    },
+    "retry_lineage_registry_ref": {
+      "title": "Retry Lineage Registry Ref",
+      "type": "string"
+    },
+    "retry_sequence_rows": {
+      "items": {
+        "$ref": "#/$defs/ProgrambenchLocalRetrySequenceRow"
+      },
+      "minItems": 1,
+      "title": "Retry Sequence Rows",
+      "type": "array"
+    },
+    "retry_uniqueness_posture": {
+      "const": "one_eligible_retry_for_trial_remand",
+      "title": "Retry Uniqueness Posture",
+      "type": "string"
+    },
+    "schema": {
+      "const": "programbench_local_retry_lineage_registry@1",
+      "title": "Schema",
+      "type": "string"
+    },
+    "trial_lineage_ref": {
+      "title": "Trial Lineage Ref",
+      "type": "string"
+    },
+    "trial_remand_decision_ref": {
+      "title": "Trial Remand Decision Ref",
+      "type": "string"
+    }
+  },
+  "required": [
+    "schema",
+    "retry_lineage_registry_ref",
+    "trial_lineage_ref",
+    "trial_remand_decision_ref",
+    "eligible_retry_request_refs",
+    "retry_sequence_rows",
+    "retry_uniqueness_posture",
+    "retry_chain_authority_posture",
+    "limitation_note"
+  ],
+  "title": "ProgrambenchLocalRetryLineageRegistry",
+  "type": "object"
+}

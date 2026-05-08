@@ -1,0 +1,25 @@
+{
+  "carried_blocker_refs": [],
+  "carried_warning_refs": [],
+  "cleanroom_continuity_refs": [
+    "retry-scope-contract:pb-retry-0a:reference"
+  ],
+  "eligibility_posture": "eligible_for_later_local_retry_dispatch_review",
+  "limitation_note": "Reference eligibility review is ready for later local retry dispatch review only.",
+  "non_authority_guardrail_refs": [
+    "retry-guardrail:pb-retry-0a:reference"
+  ],
+  "ready_basis_posture": "ready_no_blockers",
+  "released_trial_lineage_refs": [
+    "family-closeout:pb-trial-0c:reference",
+    "trial-remand-decision:pb-trial-0c:reference"
+  ],
+  "remand_source_index_ref": "remand-source-index:pb-retry-0a:reference",
+  "retry_eligibility_review_ref": "retry-eligibility:pb-retry-0a:reference",
+  "retry_lineage_registry_ref": "retry-lineage-registry:pb-retry-0a:reference",
+  "retry_request_ref": "retry-request:pb-retry-0a:reference",
+  "retry_scope_contract_refs": [
+    "retry-scope-contract:pb-retry-0a:reference"
+  ],
+  "schema": "programbench_local_retry_eligibility_review@1"
+}

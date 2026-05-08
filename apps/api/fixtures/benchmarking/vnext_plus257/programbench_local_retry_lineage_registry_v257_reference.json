@@ -1,0 +1,22 @@
+{
+  "eligible_retry_request_refs": [
+    "retry-request:pb-retry-0a:reference"
+  ],
+  "existing_retry_request_refs": [],
+  "limitation_note": "Reference lineage registry allows exactly one eligible retry for this trial remand.",
+  "retry_chain_authority_posture": "no_retry_chain_authority_granted_by_pb_retry_0a",
+  "retry_lineage_registry_ref": "retry-lineage-registry:pb-retry-0a:reference",
+  "retry_sequence_rows": [
+    {
+      "limitation_note": "This is the first and only retry candidate in PB-RETRY-0-A.",
+      "retry_request_ref": "retry-request:pb-retry-0a:reference",
+      "retry_sequence_index": 1,
+      "retry_sequence_ref": "retry-sequence:pb-retry-0a:001",
+      "sequence_posture": "single_pb_retry_0_candidate"
+    }
+  ],
+  "retry_uniqueness_posture": "one_eligible_retry_for_trial_remand",
+  "schema": "programbench_local_retry_lineage_registry@1",
+  "trial_lineage_ref": "trial-lineage:pb-trial-0:reference",
+  "trial_remand_decision_ref": "trial-remand-decision:pb-trial-0c:reference"
+}

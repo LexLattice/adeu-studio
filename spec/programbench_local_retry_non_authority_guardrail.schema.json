@@ -1,0 +1,153 @@
+{
+  "$defs": {
+    "ProgrambenchLocalRetryForbiddenAuthorityRow": {
+      "additionalProperties": false,
+      "properties": {
+        "authority_kind": {
+          "enum": [
+            "benchmark_truth",
+            "command_execution",
+            "future_family_selection",
+            "hidden_test_inference",
+            "model_ranking",
+            "multi_attempt_comparison",
+            "official_programbench_participation",
+            "official_submission",
+            "remand_settlement",
+            "retry_candidate_delta_snapshot",
+            "retry_dispatch",
+            "retry_execution_capture",
+            "retry_lifecycle_projection",
+            "retry_outcome_audit",
+            "second_retry",
+            "source_lookup"
+          ],
+          "title": "Authority Kind",
+          "type": "string"
+        },
+        "forbiddance_posture": {
+          "const": "forbidden_by_pb_retry_0a",
+          "title": "Forbiddance Posture",
+          "type": "string"
+        },
+        "forbidden_authority_ref": {
+          "title": "Forbidden Authority Ref",
+          "type": "string"
+        },
+        "limitation_note": {
+          "title": "Limitation Note",
+          "type": "string"
+        }
+      },
+      "required": [
+        "forbidden_authority_ref",
+        "authority_kind",
+        "forbiddance_posture",
+        "limitation_note"
+      ],
+      "title": "ProgrambenchLocalRetryForbiddenAuthorityRow",
+      "type": "object"
+    }
+  },
+  "additionalProperties": false,
+  "properties": {
+    "benchmark_truth_posture": {
+      "const": "not_benchmark_truth",
+      "title": "Benchmark Truth Posture",
+      "type": "string"
+    },
+    "forbidden_future_artifact_kinds": {
+      "items": {
+        "type": "string"
+      },
+      "minItems": 1,
+      "title": "Forbidden Future Artifact Kinds",
+      "type": "array"
+    },
+    "future_family_posture": {
+      "const": "no_future_family_selected_by_pb_retry_0a",
+      "title": "Future Family Posture",
+      "type": "string"
+    },
+    "guardrail_source_refs": {
+      "items": {
+        "type": "string"
+      },
+      "minItems": 1,
+      "title": "Guardrail Source Refs",
+      "type": "array"
+    },
+    "hidden_test_posture": {
+      "const": "hidden_tests_not_visible_not_inference_evidence",
+      "title": "Hidden Test Posture",
+      "type": "string"
+    },
+    "limitation_note": {
+      "title": "Limitation Note",
+      "type": "string"
+    },
+    "model_ranking_posture": {
+      "const": "no_model_ranking_claimed_by_pb_retry_0a",
+      "title": "Model Ranking Posture",
+      "type": "string"
+    },
+    "non_authority_rows": {
+      "items": {
+        "$ref": "#/$defs/ProgrambenchLocalRetryForbiddenAuthorityRow"
+      },
+      "minItems": 1,
+      "title": "Non Authority Rows",
+      "type": "array"
+    },
+    "official_programbench_posture": {
+      "const": "no_official_programbench_authority_granted_by_pb_retry_0a",
+      "title": "Official Programbench Posture",
+      "type": "string"
+    },
+    "retry_dispatch_posture": {
+      "const": "no_retry_dispatch_authority_granted_by_pb_retry_0a",
+      "title": "Retry Dispatch Posture",
+      "type": "string"
+    },
+    "retry_guardrail_ref": {
+      "title": "Retry Guardrail Ref",
+      "type": "string"
+    },
+    "retry_request_refs": {
+      "items": {
+        "type": "string"
+      },
+      "minItems": 1,
+      "title": "Retry Request Refs",
+      "type": "array"
+    },
+    "schema": {
+      "const": "programbench_local_retry_non_authority_guardrail@1",
+      "title": "Schema",
+      "type": "string"
+    },
+    "second_retry_posture": {
+      "const": "no_second_retry_authority_granted_by_pb_retry_0a",
+      "title": "Second Retry Posture",
+      "type": "string"
+    }
+  },
+  "required": [
+    "schema",
+    "retry_guardrail_ref",
+    "retry_request_refs",
+    "guardrail_source_refs",
+    "non_authority_rows",
+    "forbidden_future_artifact_kinds",
+    "retry_dispatch_posture",
+    "official_programbench_posture",
+    "hidden_test_posture",
+    "benchmark_truth_posture",
+    "model_ranking_posture",
+    "second_retry_posture",
+    "future_family_posture",
+    "limitation_note"
+  ],
+  "title": "ProgrambenchLocalRetryNonAuthorityGuardrail",
+  "type": "object"
+}

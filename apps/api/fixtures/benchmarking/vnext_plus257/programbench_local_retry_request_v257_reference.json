@@ -1,0 +1,22 @@
+{
+  "limitation_note": "Reference retry request records one local remand-to-retry candidate and grants no dispatch authority.",
+  "model_ranking_posture": "no_model_ranking_claimed_by_pb_retry_0a",
+  "official_benchmark_authority_posture": "no_official_programbench_authority_granted_by_pb_retry_0a",
+  "prior_retry_request_refs": [],
+  "requested_retry_horizon": "later_local_retry_dispatch_review",
+  "retry_depth_limit": 1,
+  "retry_dispatch_authority_posture": "no_retry_dispatch_authority_granted_by_pb_retry_0a",
+  "retry_lineage_ref": "retry-lineage:pb-retry-0:reference",
+  "retry_lineage_registry_ref": "retry-lineage-registry:pb-retry-0a:reference",
+  "retry_request_ref": "retry-request:pb-retry-0a:reference",
+  "retry_sequence_index": 1,
+  "retry_uniqueness_posture": "one_eligible_retry_for_trial_remand",
+  "schema": "programbench_local_retry_request@1",
+  "source_remand_decision_ref": "trial-remand-decision:pb-trial-0c:reference",
+  "source_trial_ref": "trial-docket:pb-trial-0a:reference",
+  "trial_family_closeout_ref": "family-closeout:pb-trial-0c:reference",
+  "trial_lineage_ref": "trial-lineage:pb-trial-0:reference",
+  "trial_observation_summary_ref": "trial-observation-summary:pb-trial-0c:reference",
+  "trial_outcome_audit_ref": "trial-outcome-audit:pb-trial-0c:reference",
+  "trial_remand_decision_ref": "trial-remand-decision:pb-trial-0c:reference"
+}

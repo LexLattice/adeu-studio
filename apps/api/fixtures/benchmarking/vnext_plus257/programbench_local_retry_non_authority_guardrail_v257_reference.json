@@ -1,0 +1,127 @@
+{
+  "benchmark_truth_posture": "not_benchmark_truth",
+  "forbidden_future_artifact_kinds": [
+    "programbench_local_retry_candidate_delta_snapshot@1",
+    "programbench_local_retry_delta_observation_summary@1",
+    "programbench_local_retry_dispatch_record@1",
+    "programbench_local_retry_execution_capture@1",
+    "programbench_local_retry_family_closeout_alignment@1",
+    "programbench_local_retry_lifecycle_projection@1",
+    "programbench_local_retry_outcome_audit@1",
+    "programbench_local_retry_remand_settlement@1",
+    "programbench_local_retry_sandbox_application_trace@1"
+  ],
+  "future_family_posture": "no_future_family_selected_by_pb_retry_0a",
+  "guardrail_source_refs": [
+    "docs/LOCKED_CONTINUATION_vNEXT_PLUS257.md"
+  ],
+  "hidden_test_posture": "hidden_tests_not_visible_not_inference_evidence",
+  "limitation_note": "Reference retry guardrail denies dispatch, execution, benchmark, ranking, second retry, and future-family authority.",
+  "model_ranking_posture": "no_model_ranking_claimed_by_pb_retry_0a",
+  "non_authority_rows": [
+    {
+      "authority_kind": "benchmark_truth",
+      "forbidden_authority_ref": "forbidden-authority:pb-retry-0a:benchmark-truth",
+      "forbiddance_posture": "forbidden_by_pb_retry_0a",
+      "limitation_note": "A retry request is not benchmark truth."
+    },
+    {
+      "authority_kind": "command_execution",
+      "forbidden_authority_ref": "forbidden-authority:pb-retry-0a:command-execution",
+      "forbiddance_posture": "forbidden_by_pb_retry_0a",
+      "limitation_note": "A retry request cannot execute commands."
+    },
+    {
+      "authority_kind": "future_family_selection",
+      "forbidden_authority_ref": "forbidden-authority:pb-retry-0a:future-family-selection",
+      "forbiddance_posture": "forbidden_by_pb_retry_0a",
+      "limitation_note": "A retry request cannot select the next family."
+    },
+    {
+      "authority_kind": "hidden_test_inference",
+      "forbidden_authority_ref": "forbidden-authority:pb-retry-0a:hidden-test-inference",
+      "forbiddance_posture": "forbidden_by_pb_retry_0a",
+      "limitation_note": "A retry request cannot use excluded evaluator material."
+    },
+    {
+      "authority_kind": "model_ranking",
+      "forbidden_authority_ref": "forbidden-authority:pb-retry-0a:model-ranking",
+      "forbiddance_posture": "forbidden_by_pb_retry_0a",
+      "limitation_note": "A retry request cannot rank models."
+    },
+    {
+      "authority_kind": "multi_attempt_comparison",
+      "forbidden_authority_ref": "forbidden-authority:pb-retry-0a:multi-attempt-comparison",
+      "forbiddance_posture": "forbidden_by_pb_retry_0a",
+      "limitation_note": "A retry request cannot compare unrelated attempts."
+    },
+    {
+      "authority_kind": "official_programbench_participation",
+      "forbidden_authority_ref": "forbidden-authority:pb-retry-0a:official-programbench",
+      "forbiddance_posture": "forbidden_by_pb_retry_0a",
+      "limitation_note": "A retry request cannot participate officially."
+    },
+    {
+      "authority_kind": "official_submission",
+      "forbidden_authority_ref": "forbidden-authority:pb-retry-0a:official-submission",
+      "forbiddance_posture": "forbidden_by_pb_retry_0a",
+      "limitation_note": "A retry request cannot create official submissions."
+    },
+    {
+      "authority_kind": "remand_settlement",
+      "forbidden_authority_ref": "forbidden-authority:pb-retry-0a:remand-settlement",
+      "forbiddance_posture": "forbidden_by_pb_retry_0a",
+      "limitation_note": "A retry request cannot settle remand."
+    },
+    {
+      "authority_kind": "retry_candidate_delta_snapshot",
+      "forbidden_authority_ref": "forbidden-authority:pb-retry-0a:retry-candidate-delta",
+      "forbiddance_posture": "forbidden_by_pb_retry_0a",
+      "limitation_note": "A retry request cannot snapshot candidate deltas."
+    },
+    {
+      "authority_kind": "retry_dispatch",
+      "forbidden_authority_ref": "forbidden-authority:pb-retry-0a:retry-dispatch",
+      "forbiddance_posture": "forbidden_by_pb_retry_0a",
+      "limitation_note": "A retry request cannot dispatch."
+    },
+    {
+      "authority_kind": "retry_execution_capture",
+      "forbidden_authority_ref": "forbidden-authority:pb-retry-0a:retry-execution-capture",
+      "forbiddance_posture": "forbidden_by_pb_retry_0a",
+      "limitation_note": "A retry request cannot capture retry execution."
+    },
+    {
+      "authority_kind": "retry_lifecycle_projection",
+      "forbidden_authority_ref": "forbidden-authority:pb-retry-0a:retry-lifecycle-projection",
+      "forbiddance_posture": "forbidden_by_pb_retry_0a",
+      "limitation_note": "A retry request cannot project retry lifecycle rows."
+    },
+    {
+      "authority_kind": "retry_outcome_audit",
+      "forbidden_authority_ref": "forbidden-authority:pb-retry-0a:retry-outcome-audit",
+      "forbiddance_posture": "forbidden_by_pb_retry_0a",
+      "limitation_note": "A retry request cannot audit retry outcome."
+    },
+    {
+      "authority_kind": "second_retry",
+      "forbidden_authority_ref": "forbidden-authority:pb-retry-0a:second-retry",
+      "forbiddance_posture": "forbidden_by_pb_retry_0a",
+      "limitation_note": "A retry request cannot authorize another retry."
+    },
+    {
+      "authority_kind": "source_lookup",
+      "forbidden_authority_ref": "forbidden-authority:pb-retry-0a:source-lookup",
+      "forbiddance_posture": "forbidden_by_pb_retry_0a",
+      "limitation_note": "A retry request cannot use source lookup."
+    }
+  ],
+  "official_programbench_posture": "no_official_programbench_authority_granted_by_pb_retry_0a",
+  "retry_dispatch_posture": "no_retry_dispatch_authority_granted_by_pb_retry_0a",
+  "retry_guardrail_ref": "retry-guardrail:pb-retry-0a:reference",
+  "retry_request_refs": [
+    "retry-request:pb-retry-0a:reference"
+  ],
+  "schema": "programbench_local_retry_non_authority_guardrail@1",
+  "second_retry_posture": "no_second_retry_authority_granted_by_pb_retry_0a"
+}
