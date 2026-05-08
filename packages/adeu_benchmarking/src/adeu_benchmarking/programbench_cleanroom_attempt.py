@@ -6,8 +6,12 @@ from typing import Literal
 from pydantic import BaseModel, ConfigDict, Field, model_validator
 
 from .programbench_cleanroom_reconstruction import (
+    ProgrambenchReconstructionCandidateArtifactManifest,
     ProgrambenchReconstructionContextExclusionManifest,
     ProgrambenchReconstructionEquivalenceAudit,
+    ProgrambenchReconstructionLocalRunTrace,
+    ProgrambenchReconstructionProbeResultLog,
+    ProgrambenchReconstructionRemandCorrectionRecord,
     ProgrambenchReconstructionResultSummary,
     ProgrambenchReconstructionRunBudget,
     ProgrambenchReconstructionSandboxPolicy,
@@ -135,7 +139,8 @@ def _ensure_sorted_unique(values: list[str], *, field_name: str) -> None:
 
 
 def _ensure_sorted_unique_allow_empty(values: list[str], *, field_name: str) -> None:
-    _ensure_non_empty_trimmed(values, field_name=field_name)
+    if values:
+        _ensure_non_empty_trimmed(values, field_name=field_name)
     if len(values) != len(set(values)):
         raise ValueError(f"{field_name} must not contain duplicates")
     if values != sorted(values):
@@ -1411,6 +1416,10 @@ def validate_pb_attempt_0c_closeout_bundle(
     output_capture: ProgrambenchReconstructionAttemptOutputCapture,
     candidate_materialization: ProgrambenchReconstructionAttemptCandidateMaterialization,
     sandbox_application_trace: ProgrambenchReconstructionAttemptSandboxApplicationTrace,
+    workbench_candidate_artifact_manifest: ProgrambenchReconstructionCandidateArtifactManifest,
+    workbench_local_run_traces: list[ProgrambenchReconstructionLocalRunTrace],
+    workbench_probe_result_log: ProgrambenchReconstructionProbeResultLog,
+    workbench_remand_correction_records: list[ProgrambenchReconstructionRemandCorrectionRecord],
     workbench_equivalence_audit: ProgrambenchReconstructionEquivalenceAudit,
     workbench_result_summary: ProgrambenchReconstructionResultSummary,
     workbench_family_closeout: ProgrambenchReconstructionWorkbenchFamilyCloseoutAlignment,
@@ -1461,8 +1470,43 @@ def validate_pb_attempt_0c_closeout_bundle(
         sandbox_application_trace.sandbox_application_trace_ref
     ):
         raise ValueError("workbench evidence export must reference sandbox trace")
-    if workbench_evidence_export.export_validation_posture != "valid":
-        raise ValueError("attempt result review requires valid workbench evidence export")
+    if not workbench_local_run_traces:
+        raise ValueError("attempt evidence export validation requires local run traces")
+    if not workbench_remand_correction_records:
+        raise ValueError("attempt evidence export validation requires remand records")
+    workbench_local_run_trace_refs = [
+        trace.local_run_trace_ref for trace in workbench_local_run_traces
+    ]
+    _ensure_sorted_unique(workbench_local_run_trace_refs, field_name="workbench_local_run_traces")
+    workbench_remand_record_refs = [
+        record.remand_correction_record_ref for record in workbench_remand_correction_records
+    ]
+    _ensure_sorted_unique(
+        workbench_remand_record_refs,
+        field_name="workbench_remand_correction_records",
+    )
+    if set(workbench_evidence_export.exported_candidate_artifact_manifest_refs) != {
+        workbench_candidate_artifact_manifest.candidate_artifact_manifest_ref
+    }:
+        raise ValueError(
+            "workbench evidence export must reference released PB-RECON candidate artifact manifest"
+        )
+    if set(workbench_evidence_export.exported_local_run_trace_refs) != set(
+        workbench_local_run_trace_refs
+    ):
+        raise ValueError("workbench evidence export must reference released PB-RECON local runs")
+    if set(workbench_evidence_export.exported_probe_result_log_refs) != {
+        workbench_probe_result_log.probe_result_log_ref
+    }:
+        raise ValueError(
+            "workbench evidence export must reference released PB-RECON probe result log"
+        )
+    if set(workbench_evidence_export.exported_remand_correction_record_refs) != set(
+        workbench_remand_record_refs
+    ):
+        raise ValueError(
+            "workbench evidence export must reference released PB-RECON remand records"
+        )
     if set(workbench_evidence_export.exported_equivalence_audit_refs) != {
         workbench_equivalence_audit.equivalence_audit_ref
     }:
@@ -1473,6 +1517,22 @@ def validate_pb_attempt_0c_closeout_bundle(
         raise ValueError(
             "workbench evidence export must reference released PB-RECON result summary"
         )
+    if workbench_result_summary.candidate_artifact_manifest_refs != (
+        workbench_evidence_export.exported_candidate_artifact_manifest_refs
+    ):
+        raise ValueError("attempt export must preserve result summary candidate artifacts")
+    if workbench_result_summary.local_run_trace_refs != (
+        workbench_evidence_export.exported_local_run_trace_refs
+    ):
+        raise ValueError("attempt export must preserve result summary local runs")
+    if workbench_result_summary.probe_result_log_refs != (
+        workbench_evidence_export.exported_probe_result_log_refs
+    ):
+        raise ValueError("attempt export must preserve result summary probe result logs")
+    if workbench_result_summary.remand_correction_record_refs != (
+        workbench_evidence_export.exported_remand_correction_record_refs
+    ):
+        raise ValueError("attempt export must preserve result summary remand records")
 
     if attempt_result_review.attempt_request_ref != attempt_request.attempt_request_ref:
         raise ValueError("attempt result review must reference attempt request")
@@ -1494,6 +1554,25 @@ def validate_pb_attempt_0c_closeout_bundle(
         and attempt_result_review.local_attempt_posture != "attempt_locally_accepted"
     ):
         raise ValueError("local_accepted workbench summaries require accepted attempt review")
+    if (
+        workbench_result_summary.result_posture == "blocked_by_contamination"
+        and attempt_result_review.local_attempt_posture != "attempt_blocked_by_contamination"
+    ):
+        raise ValueError(
+            "contamination-blocked workbench summaries require contamination attempt posture"
+        )
+    if (
+        workbench_result_summary.result_posture == "blocked_by_sandbox_violation"
+        and attempt_result_review.local_attempt_posture != "attempt_blocked_by_sandbox_violation"
+    ):
+        raise ValueError(
+            "sandbox-blocked workbench summaries require sandbox violation attempt posture"
+        )
+    if (
+        workbench_evidence_export.export_validation_posture != "valid"
+        and attempt_result_review.local_attempt_posture != "attempt_blocked_by_export_gap"
+    ):
+        raise ValueError("invalid attempt evidence exports require export-gap attempt posture")
 
     if remand_queue.attempt_request_ref != attempt_request.attempt_request_ref:
         raise ValueError("remand queue must reference attempt request")

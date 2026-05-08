@@ -23,7 +23,11 @@ from adeu_benchmarking import (
     ProgrambenchReconstructionAttemptWorkbenchEvidenceExport,
     ProgrambenchReconstructionAttemptWorkerInputPacket,
     ProgrambenchReconstructionAttemptWorkerInvocationRecord,
+    ProgrambenchReconstructionCandidateArtifactManifest,
     ProgrambenchReconstructionEquivalenceAudit,
+    ProgrambenchReconstructionLocalRunTrace,
+    ProgrambenchReconstructionProbeResultLog,
+    ProgrambenchReconstructionRemandCorrectionRecord,
     ProgrambenchReconstructionResultSummary,
     ProgrambenchReconstructionRunBudget,
     ProgrambenchReconstructionSandboxPolicy,
@@ -50,6 +54,10 @@ def _fixture_root_recon_c() -> Path:
     return _repo_root() / "apps" / "api" / "fixtures" / "benchmarking" / "vnext_plus250"
 
 
+def _fixture_root_recon_b() -> Path:
+    return _repo_root() / "apps" / "api" / "fixtures" / "benchmarking" / "vnext_plus249"
+
+
 def _fixture_root_attempt_a() -> Path:
     return _repo_root() / "apps" / "api" / "fixtures" / "benchmarking" / "vnext_plus251"
 
@@ -74,6 +82,10 @@ def _load_recon_a_fixture(name: str) -> dict[str, Any]:
 
 def _load_recon_c_fixture(name: str) -> dict[str, Any]:
     return _load_fixture(_fixture_root_recon_c(), name)
+
+
+def _load_recon_b_fixture(name: str) -> dict[str, Any]:
+    return _load_fixture(_fixture_root_recon_b(), name)
 
 
 def _load_attempt_a_fixture(name: str) -> dict[str, Any]:
@@ -204,6 +216,40 @@ def _load_attempt_b_rows() -> tuple[
     )
 
 
+def _load_recon_b_rows() -> tuple[
+    ProgrambenchReconstructionCandidateArtifactManifest,
+    list[ProgrambenchReconstructionLocalRunTrace],
+    ProgrambenchReconstructionProbeResultLog,
+    list[ProgrambenchReconstructionRemandCorrectionRecord],
+]:
+    return (
+        ProgrambenchReconstructionCandidateArtifactManifest.model_validate(
+            _load_recon_b_fixture(
+                "programbench_reconstruction_candidate_artifact_manifest_v249_reference.json"
+            )
+        ),
+        [
+            ProgrambenchReconstructionLocalRunTrace.model_validate(
+                _load_recon_b_fixture(
+                    "programbench_reconstruction_local_run_trace_v249_reference.json"
+                )
+            )
+        ],
+        ProgrambenchReconstructionProbeResultLog.model_validate(
+            _load_recon_b_fixture(
+                "programbench_reconstruction_probe_result_log_v249_reference.json"
+            )
+        ),
+        [
+            ProgrambenchReconstructionRemandCorrectionRecord.model_validate(
+                _load_recon_b_fixture(
+                    "programbench_reconstruction_remand_correction_record_v249_reference.json"
+                )
+            )
+        ],
+    )
+
+
 def _load_attempt_c_rows() -> tuple[
     ProgrambenchReconstructionAttemptWorkbenchEvidenceExport,
     ProgrambenchReconstructionAttemptResultReview,
@@ -308,6 +354,7 @@ def test_pb_attempt_0c_reference_bundle_records_remand_pressure_only() -> None:
     worker_invocation, output_capture, candidate_materialization, sandbox_trace = (
         _load_attempt_b_rows()
     )
+    candidate_manifest, local_run_traces, probe_log, remand_records = _load_recon_b_rows()
     workbench_audit, workbench_summary, workbench_closeout = _load_recon_c_rows()
     workbench_export, attempt_review, remand_queue, family_closeout = _load_attempt_c_rows()
 
@@ -322,6 +369,10 @@ def test_pb_attempt_0c_reference_bundle_records_remand_pressure_only() -> None:
         output_capture=output_capture,
         candidate_materialization=candidate_materialization,
         sandbox_application_trace=sandbox_trace,
+        workbench_candidate_artifact_manifest=candidate_manifest,
+        workbench_local_run_traces=local_run_traces,
+        workbench_probe_result_log=probe_log,
+        workbench_remand_correction_records=remand_records,
         workbench_equivalence_audit=workbench_audit,
         workbench_result_summary=workbench_summary,
         workbench_family_closeout=workbench_closeout,
@@ -360,6 +411,7 @@ def test_pb_attempt_0c_local_acceptance_requires_accepted_workbench_summary() ->
     worker_invocation, output_capture, candidate_materialization, sandbox_trace = (
         _load_attempt_b_rows()
     )
+    candidate_manifest, local_run_traces, probe_log, remand_records = _load_recon_b_rows()
     workbench_audit, workbench_summary, workbench_closeout = _load_recon_c_rows()
     workbench_export, _attempt_review, remand_queue, family_closeout = _load_attempt_c_rows()
     premature_review = ProgrambenchReconstructionAttemptResultReview.model_validate(
@@ -380,6 +432,10 @@ def test_pb_attempt_0c_local_acceptance_requires_accepted_workbench_summary() ->
             output_capture=output_capture,
             candidate_materialization=candidate_materialization,
             sandbox_application_trace=sandbox_trace,
+            workbench_candidate_artifact_manifest=candidate_manifest,
+            workbench_local_run_traces=local_run_traces,
+            workbench_probe_result_log=probe_log,
+            workbench_remand_correction_records=remand_records,
             workbench_equivalence_audit=workbench_audit,
             workbench_result_summary=workbench_summary,
             workbench_family_closeout=workbench_closeout,
@@ -388,6 +444,146 @@ def test_pb_attempt_0c_local_acceptance_requires_accepted_workbench_summary() ->
             remand_queue=remand_queue,
             family_closeout=family_closeout,
         )
+
+
+def test_pb_attempt_0c_rejects_export_rows_not_released_by_workbench_summary() -> None:
+    attempt_request, worker_input_packet, dispatch_preflight, guardrail = _load_attempt_a_rows()
+    sandbox_policy = ProgrambenchReconstructionSandboxPolicy.model_validate(
+        _load_recon_a_fixture("programbench_reconstruction_sandbox_policy_v248_reference.json")
+    )
+    run_budget = ProgrambenchReconstructionRunBudget.model_validate(
+        _load_recon_a_fixture("programbench_reconstruction_run_budget_v248_reference.json")
+    )
+    worker_invocation, output_capture, candidate_materialization, sandbox_trace = (
+        _load_attempt_b_rows()
+    )
+    candidate_manifest, local_run_traces, probe_log, remand_records = _load_recon_b_rows()
+    workbench_audit, workbench_summary, workbench_closeout = _load_recon_c_rows()
+    workbench_export, attempt_review, remand_queue, family_closeout = _load_attempt_c_rows()
+    drifted_export = workbench_export.model_copy(
+        update={"exported_local_run_trace_refs": ["local-run:pb-recon-0b:unreleased"]}
+    )
+
+    with pytest.raises(ValueError, match="released PB-RECON local runs"):
+        validate_pb_attempt_0c_closeout_bundle(
+            attempt_request=attempt_request,
+            worker_input_packet=worker_input_packet,
+            dispatch_preflight=dispatch_preflight,
+            guardrail=guardrail,
+            sandbox_policy=sandbox_policy,
+            run_budget=run_budget,
+            worker_invocation_record=worker_invocation,
+            output_capture=output_capture,
+            candidate_materialization=candidate_materialization,
+            sandbox_application_trace=sandbox_trace,
+            workbench_candidate_artifact_manifest=candidate_manifest,
+            workbench_local_run_traces=local_run_traces,
+            workbench_probe_result_log=probe_log,
+            workbench_remand_correction_records=remand_records,
+            workbench_equivalence_audit=workbench_audit,
+            workbench_result_summary=workbench_summary,
+            workbench_family_closeout=workbench_closeout,
+            workbench_evidence_export=drifted_export,
+            attempt_result_review=attempt_review,
+            remand_queue=remand_queue,
+            family_closeout=family_closeout,
+        )
+
+
+def test_pb_attempt_0c_preserves_contamination_blocked_workbench_posture() -> None:
+    attempt_request, worker_input_packet, dispatch_preflight, guardrail = _load_attempt_a_rows()
+    sandbox_policy = ProgrambenchReconstructionSandboxPolicy.model_validate(
+        _load_recon_a_fixture("programbench_reconstruction_sandbox_policy_v248_reference.json")
+    )
+    run_budget = ProgrambenchReconstructionRunBudget.model_validate(
+        _load_recon_a_fixture("programbench_reconstruction_run_budget_v248_reference.json")
+    )
+    worker_invocation, output_capture, candidate_materialization, sandbox_trace = (
+        _load_attempt_b_rows()
+    )
+    candidate_manifest, local_run_traces, probe_log, remand_records = _load_recon_b_rows()
+    workbench_audit, workbench_summary, workbench_closeout = _load_recon_c_rows()
+    workbench_export, attempt_review, remand_queue, family_closeout = _load_attempt_c_rows()
+    contaminated_summary = workbench_summary.model_copy(
+        update={
+            "contamination_refs": ["contamination:pb-recon-0c:hidden-source-summary"],
+            "result_posture": "blocked_by_contamination",
+        }
+    )
+
+    with pytest.raises(ValueError, match="contamination attempt posture"):
+        validate_pb_attempt_0c_closeout_bundle(
+            attempt_request=attempt_request,
+            worker_input_packet=worker_input_packet,
+            dispatch_preflight=dispatch_preflight,
+            guardrail=guardrail,
+            sandbox_policy=sandbox_policy,
+            run_budget=run_budget,
+            worker_invocation_record=worker_invocation,
+            output_capture=output_capture,
+            candidate_materialization=candidate_materialization,
+            sandbox_application_trace=sandbox_trace,
+            workbench_candidate_artifact_manifest=candidate_manifest,
+            workbench_local_run_traces=local_run_traces,
+            workbench_probe_result_log=probe_log,
+            workbench_remand_correction_records=remand_records,
+            workbench_equivalence_audit=workbench_audit,
+            workbench_result_summary=contaminated_summary,
+            workbench_family_closeout=workbench_closeout,
+            workbench_evidence_export=workbench_export,
+            attempt_result_review=attempt_review,
+            remand_queue=remand_queue,
+            family_closeout=family_closeout,
+        )
+
+
+def test_pb_attempt_0c_allows_export_gap_only_as_blocked_attempt_posture() -> None:
+    attempt_request, worker_input_packet, dispatch_preflight, guardrail = _load_attempt_a_rows()
+    sandbox_policy = ProgrambenchReconstructionSandboxPolicy.model_validate(
+        _load_recon_a_fixture("programbench_reconstruction_sandbox_policy_v248_reference.json")
+    )
+    run_budget = ProgrambenchReconstructionRunBudget.model_validate(
+        _load_recon_a_fixture("programbench_reconstruction_run_budget_v248_reference.json")
+    )
+    worker_invocation, output_capture, candidate_materialization, sandbox_trace = (
+        _load_attempt_b_rows()
+    )
+    candidate_manifest, local_run_traces, probe_log, remand_records = _load_recon_b_rows()
+    workbench_audit, workbench_summary, workbench_closeout = _load_recon_c_rows()
+    workbench_export, attempt_review, remand_queue, family_closeout = _load_attempt_c_rows()
+    blocked_export = workbench_export.model_copy(
+        update={"export_validation_posture": "blocked_by_export_gap"}
+    )
+    blocked_review = attempt_review.model_copy(
+        update={
+            "carried_blocker_refs": ["workbench-evidence-export:pb-attempt-0c:reference"],
+            "local_attempt_posture": "attempt_blocked_by_export_gap",
+        }
+    )
+
+    validate_pb_attempt_0c_closeout_bundle(
+        attempt_request=attempt_request,
+        worker_input_packet=worker_input_packet,
+        dispatch_preflight=dispatch_preflight,
+        guardrail=guardrail,
+        sandbox_policy=sandbox_policy,
+        run_budget=run_budget,
+        worker_invocation_record=worker_invocation,
+        output_capture=output_capture,
+        candidate_materialization=candidate_materialization,
+        sandbox_application_trace=sandbox_trace,
+        workbench_candidate_artifact_manifest=candidate_manifest,
+        workbench_local_run_traces=local_run_traces,
+        workbench_probe_result_log=probe_log,
+        workbench_remand_correction_records=remand_records,
+        workbench_equivalence_audit=workbench_audit,
+        workbench_result_summary=workbench_summary,
+        workbench_family_closeout=workbench_closeout,
+        workbench_evidence_export=blocked_export,
+        attempt_result_review=blocked_review,
+        remand_queue=remand_queue,
+        family_closeout=family_closeout,
+    )
 
 
 def test_pb_attempt_0c_remand_queue_rejects_nonlocal_source_refs() -> None:
@@ -401,6 +597,7 @@ def test_pb_attempt_0c_remand_queue_rejects_nonlocal_source_refs() -> None:
     worker_invocation, output_capture, candidate_materialization, sandbox_trace = (
         _load_attempt_b_rows()
     )
+    candidate_manifest, local_run_traces, probe_log, remand_records = _load_recon_b_rows()
     workbench_audit, workbench_summary, workbench_closeout = _load_recon_c_rows()
     workbench_export, attempt_review, remand_queue, family_closeout = _load_attempt_c_rows()
     bad_row = remand_queue.remand_queue_rows[0].model_copy(
@@ -420,6 +617,10 @@ def test_pb_attempt_0c_remand_queue_rejects_nonlocal_source_refs() -> None:
             output_capture=output_capture,
             candidate_materialization=candidate_materialization,
             sandbox_application_trace=sandbox_trace,
+            workbench_candidate_artifact_manifest=candidate_manifest,
+            workbench_local_run_traces=local_run_traces,
+            workbench_probe_result_log=probe_log,
+            workbench_remand_correction_records=remand_records,
             workbench_equivalence_audit=workbench_audit,
             workbench_result_summary=workbench_summary,
             workbench_family_closeout=workbench_closeout,
