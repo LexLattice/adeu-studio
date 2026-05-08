@@ -23,6 +23,10 @@ from adeu_benchmarking import (
     ProgrambenchLocalTrialRemandDecision,
     ProgrambenchLocalTrialSandboxReadinessReview,
     ProgrambenchLocalTrialWorkerDispatchRecord,
+    ProgrambenchReconstructionAttemptCandidateMaterialization,
+    ProgrambenchReconstructionAttemptOutputCapture,
+    ProgrambenchReconstructionAttemptSandboxApplicationTrace,
+    ProgrambenchReconstructionAttemptWorkerInvocationRecord,
     validate_pb_trial_0c_closeout_bundle,
 )
 from adeu_benchmarking.export_schema import main as export_schema_main
@@ -49,6 +53,10 @@ def _fixture_root_trial_c() -> Path:
     return _repo_root() / "apps" / "api" / "fixtures" / "benchmarking" / "vnext_plus256"
 
 
+def _fixture_root_attempt_b() -> Path:
+    return _repo_root() / "apps" / "api" / "fixtures" / "benchmarking" / "vnext_plus252"
+
+
 def _load_fixture(root: Path, name: str) -> dict[str, Any]:
     payload = json.loads((root / name).read_text(encoding="utf-8"))
     assert isinstance(payload, dict)
@@ -65,6 +73,10 @@ def _load_trial_b_fixture(name: str) -> dict[str, Any]:
 
 def _load_trial_c_fixture(name: str) -> dict[str, Any]:
     return _load_fixture(_fixture_root_trial_c(), name)
+
+
+def _load_attempt_b_fixture(name: str) -> dict[str, Any]:
+    return _load_fixture(_fixture_root_attempt_b(), name)
 
 
 def _schema_validator(schema_filename: str) -> Draft202012Validator:
@@ -201,6 +213,78 @@ def _load_trial_c_rows() -> tuple[
     )
 
 
+def _load_attempt_b_rows() -> tuple[
+    ProgrambenchReconstructionAttemptWorkerInvocationRecord,
+    ProgrambenchReconstructionAttemptOutputCapture,
+    ProgrambenchReconstructionAttemptCandidateMaterialization,
+    ProgrambenchReconstructionAttemptSandboxApplicationTrace,
+]:
+    return (
+        ProgrambenchReconstructionAttemptWorkerInvocationRecord.model_validate(
+            _load_attempt_b_fixture(
+                "programbench_reconstruction_attempt_worker_invocation_record_v252_reference.json"
+            )
+        ),
+        ProgrambenchReconstructionAttemptOutputCapture.model_validate(
+            _load_attempt_b_fixture(
+                "programbench_reconstruction_attempt_output_capture_v252_reference.json"
+            )
+        ),
+        ProgrambenchReconstructionAttemptCandidateMaterialization.model_validate(
+            _load_attempt_b_fixture(
+                "programbench_reconstruction_attempt_candidate_materialization_v252_reference.json"
+            )
+        ),
+        ProgrambenchReconstructionAttemptSandboxApplicationTrace.model_validate(
+            _load_attempt_b_fixture(
+                "programbench_reconstruction_attempt_sandbox_application_trace_v252_reference.json"
+            )
+        ),
+    )
+
+
+def _validate_pb_trial_0c_closeout_bundle(
+    *,
+    trial_docket: ProgrambenchLocalReconstructionTrialDocket,
+    execution_runbook: ProgrambenchLocalTrialExecutionRunbook,
+    sandbox_readiness_review: ProgrambenchLocalTrialSandboxReadinessReview,
+    trial_guardrail: ProgrambenchLocalTrialNonAuthorityGuardrail,
+    worker_dispatch_record: ProgrambenchLocalTrialWorkerDispatchRecord,
+    execution_capture: ProgrambenchLocalTrialExecutionCapture,
+    candidate_artifact_snapshot: ProgrambenchLocalTrialCandidateArtifactSnapshot,
+    lifecycle_projection: ProgrambenchLocalTrialLifecycleProjection,
+    outcome_audit: ProgrambenchLocalTrialOutcomeAudit,
+    observation_summary: ProgrambenchLocalTrialObservationSummary,
+    remand_decision: ProgrambenchLocalTrialRemandDecision,
+    family_closeout: ProgrambenchLocalTrialFamilyCloseoutAlignment,
+) -> None:
+    (
+        released_attempt_worker_invocation,
+        released_attempt_output_capture,
+        released_attempt_candidate_materialization,
+        released_attempt_sandbox_trace,
+    ) = _load_attempt_b_rows()
+
+    validate_pb_trial_0c_closeout_bundle(
+        trial_docket=trial_docket,
+        execution_runbook=execution_runbook,
+        sandbox_readiness_review=sandbox_readiness_review,
+        trial_guardrail=trial_guardrail,
+        released_attempt_worker_invocation=released_attempt_worker_invocation,
+        released_attempt_output_capture=released_attempt_output_capture,
+        released_attempt_candidate_materialization=released_attempt_candidate_materialization,
+        released_attempt_sandbox_trace=released_attempt_sandbox_trace,
+        worker_dispatch_record=worker_dispatch_record,
+        execution_capture=execution_capture,
+        candidate_artifact_snapshot=candidate_artifact_snapshot,
+        lifecycle_projection=lifecycle_projection,
+        outcome_audit=outcome_audit,
+        observation_summary=observation_summary,
+        remand_decision=remand_decision,
+        family_closeout=family_closeout,
+    )
+
+
 @pytest.mark.parametrize(
     ("schema_name", "schema_filename", "fixture_name", "model"),
     [
@@ -262,7 +346,7 @@ def test_pb_trial_0c_reference_bundle_closes_single_local_trial() -> None:
         family_closeout,
     ) = _load_trial_c_rows()
 
-    validate_pb_trial_0c_closeout_bundle(
+    _validate_pb_trial_0c_closeout_bundle(
         trial_docket=trial_docket,
         execution_runbook=execution_runbook,
         sandbox_readiness_review=sandbox_readiness_review,
@@ -357,7 +441,7 @@ def test_pb_trial_0c_rejects_outcome_without_lifecycle_projection() -> None:
     )
 
     with pytest.raises(ValueError, match="lifecycle projection"):
-        validate_pb_trial_0c_closeout_bundle(
+        _validate_pb_trial_0c_closeout_bundle(
             trial_docket=trial_docket,
             execution_runbook=execution_runbook,
             sandbox_readiness_review=sandbox_readiness_review,
@@ -367,6 +451,46 @@ def test_pb_trial_0c_rejects_outcome_without_lifecycle_projection() -> None:
             candidate_artifact_snapshot=candidate_artifact_snapshot,
             lifecycle_projection=lifecycle_projection,
             outcome_audit=drifted_audit,
+            observation_summary=observation_summary,
+            remand_decision=remand_decision,
+            family_closeout=family_closeout,
+        )
+
+
+def test_pb_trial_0c_revalidates_pb_trial_0b_lineage() -> None:
+    (
+        trial_docket,
+        execution_runbook,
+        sandbox_readiness_review,
+        trial_guardrail,
+    ) = _load_trial_a_rows()
+    (
+        worker_dispatch_record,
+        execution_capture,
+        candidate_artifact_snapshot,
+        lifecycle_projection,
+    ) = _load_trial_b_rows()
+    (
+        outcome_audit,
+        observation_summary,
+        remand_decision,
+        family_closeout,
+    ) = _load_trial_c_rows()
+    drifted_dispatch = worker_dispatch_record.model_copy(
+        update={"trial_runbook_ref": "trial-runbook:pb-trial-0a:stale"}
+    )
+
+    with pytest.raises(ValueError, match="worker dispatch must reference trial runbook"):
+        _validate_pb_trial_0c_closeout_bundle(
+            trial_docket=trial_docket,
+            execution_runbook=execution_runbook,
+            sandbox_readiness_review=sandbox_readiness_review,
+            trial_guardrail=trial_guardrail,
+            worker_dispatch_record=drifted_dispatch,
+            execution_capture=execution_capture,
+            candidate_artifact_snapshot=candidate_artifact_snapshot,
+            lifecycle_projection=lifecycle_projection,
+            outcome_audit=outcome_audit,
             observation_summary=observation_summary,
             remand_decision=remand_decision,
             family_closeout=family_closeout,
@@ -396,8 +520,8 @@ def test_pb_trial_0c_rejects_local_acceptance_without_snapshot_inside_scope() ->
         update={"snapshot_inside_write_scope": False}
     )
 
-    with pytest.raises(ValueError, match="snapshot inside released write scope"):
-        validate_pb_trial_0c_closeout_bundle(
+    with pytest.raises(ValueError, match="inside released write scope"):
+        _validate_pb_trial_0c_closeout_bundle(
             trial_docket=trial_docket,
             execution_runbook=execution_runbook,
             sandbox_readiness_review=sandbox_readiness_review,
@@ -441,7 +565,7 @@ def test_pb_trial_0c_rejects_observation_hash_drift() -> None:
     )
 
     with pytest.raises(ValueError, match="candidate snapshot hash"):
-        validate_pb_trial_0c_closeout_bundle(
+        _validate_pb_trial_0c_closeout_bundle(
             trial_docket=trial_docket,
             execution_runbook=execution_runbook,
             sandbox_readiness_review=sandbox_readiness_review,

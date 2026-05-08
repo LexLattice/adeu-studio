@@ -1357,6 +1357,12 @@ def validate_pb_trial_0c_closeout_bundle(
     execution_runbook: ProgrambenchLocalTrialExecutionRunbook,
     sandbox_readiness_review: ProgrambenchLocalTrialSandboxReadinessReview,
     trial_guardrail: ProgrambenchLocalTrialNonAuthorityGuardrail,
+    released_attempt_worker_invocation: ProgrambenchReconstructionAttemptWorkerInvocationRecord,
+    released_attempt_output_capture: ProgrambenchReconstructionAttemptOutputCapture,
+    released_attempt_candidate_materialization: (
+        ProgrambenchReconstructionAttemptCandidateMaterialization
+    ),
+    released_attempt_sandbox_trace: ProgrambenchReconstructionAttemptSandboxApplicationTrace,
     worker_dispatch_record: ProgrambenchLocalTrialWorkerDispatchRecord,
     execution_capture: ProgrambenchLocalTrialExecutionCapture,
     candidate_artifact_snapshot: ProgrambenchLocalTrialCandidateArtifactSnapshot,
@@ -1366,6 +1372,21 @@ def validate_pb_trial_0c_closeout_bundle(
     remand_decision: ProgrambenchLocalTrialRemandDecision,
     family_closeout: ProgrambenchLocalTrialFamilyCloseoutAlignment,
 ) -> None:
+    validate_pb_trial_0b_execution_bundle(
+        trial_docket=trial_docket,
+        execution_runbook=execution_runbook,
+        sandbox_readiness_review=sandbox_readiness_review,
+        trial_guardrail=trial_guardrail,
+        released_attempt_worker_invocation=released_attempt_worker_invocation,
+        released_attempt_output_capture=released_attempt_output_capture,
+        released_attempt_candidate_materialization=released_attempt_candidate_materialization,
+        released_attempt_sandbox_trace=released_attempt_sandbox_trace,
+        worker_dispatch_record=worker_dispatch_record,
+        execution_capture=execution_capture,
+        candidate_artifact_snapshot=candidate_artifact_snapshot,
+        lifecycle_projection=lifecycle_projection,
+    )
+
     if execution_runbook.trial_docket_ref != trial_docket.trial_docket_ref:
         raise ValueError("execution runbook must reference trial docket")
     if sandbox_readiness_review.trial_docket_ref != trial_docket.trial_docket_ref:
