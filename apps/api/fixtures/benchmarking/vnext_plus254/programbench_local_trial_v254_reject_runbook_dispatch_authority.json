@@ -1,0 +1,29 @@
+{
+  "allowed_step_rows": [],
+  "capture_obligation_rows": [],
+  "dispatch_authority_posture": "worker_dispatch_authorized",
+  "environment_policy_ref": "environment-policy:pb-trial-0a:local-only",
+  "execution_authority_posture": "no_command_execution_authority_granted_by_pb_trial_0a",
+  "forbidden_step_rows": [],
+  "limitation_note": "Reject fixture grants dispatch authority.",
+  "run_budget_ref": "run-budget:pb-recon-0a:reference",
+  "runbook_hash": "sha256:7777777777777777777777777777777777777777777777777777777777777777",
+  "runbook_scope_posture": "execution_plan_only_no_dispatch_by_pb_trial_0a",
+  "sandbox_policy_ref": "sandbox-policy:pb-recon-0a:reference",
+  "sandbox_witness_requirement_refs": [
+    "bounded_write_scope"
+  ],
+  "schema": "programbench_local_trial_execution_runbook@1",
+  "timeout_policy_ref": "timeout-policy:pb-trial-0a:bounded",
+  "tool_manifest_refs": [
+    "tool-manifest:pb-trial-0a:closed"
+  ],
+  "trial_docket_ref": "trial-docket:pb-trial-0a:reference",
+  "trial_input_materialization_policy_ref": "input-materialization-policy:pb-trial-0a:hash-bound",
+  "trial_runbook_ref": "trial-runbook:pb-trial-0a:reference",
+  "worker_input_packet_hash": "sha256:3333333333333333333333333333333333333333333333333333333333333333",
+  "worker_visible_context_hash": "sha256:6666666666666666666666666666666666666666666666666666666666666666",
+  "write_scope_refs": [
+    "write-scope:pb-recon-0a:sandbox"
+  ]
+}

@@ -1,0 +1,210 @@
+{
+  "allowed_step_rows": [
+    {
+      "command_shape_posture": "not_command_shaped",
+      "evidence_refs": [
+        "worker-input:pb-attempt-0a:reference"
+      ],
+      "limitation_note": "The worker input packet may be materialized later only under the released B lock.",
+      "step_kind": "worker_input_materialization_later",
+      "step_ref": "allowed-step:pb-trial-0a:input-materialization",
+      "step_scope_posture": "planned_for_later_pb_trial_0b_only"
+    },
+    {
+      "command_shape_posture": "argv_shaped_if_command_like",
+      "evidence_refs": [
+        "dispatch-preflight:pb-attempt-0a:reference"
+      ],
+      "limitation_note": "Local worker dispatch is planned for later B only and grants no authority in A.",
+      "step_kind": "local_worker_dispatch_later",
+      "step_ref": "allowed-step:pb-trial-0a:local-dispatch",
+      "step_scope_posture": "planned_for_later_pb_trial_0b_only"
+    },
+    {
+      "command_shape_posture": "not_command_shaped",
+      "evidence_refs": [
+        "trial-runbook:pb-trial-0a:reference"
+      ],
+      "limitation_note": "Execution capture obligations are declared for later B.",
+      "step_kind": "execution_capture_later",
+      "step_ref": "allowed-step:pb-trial-0a:execution-capture",
+      "step_scope_posture": "planned_for_later_pb_trial_0b_only"
+    },
+    {
+      "command_shape_posture": "not_command_shaped",
+      "evidence_refs": [
+        "sandbox-policy:pb-recon-0a:reference"
+      ],
+      "limitation_note": "Candidate snapshots may be captured later only inside released write scope.",
+      "step_kind": "candidate_snapshot_later",
+      "step_ref": "allowed-step:pb-trial-0a:candidate-snapshot",
+      "step_scope_posture": "planned_for_later_pb_trial_0b_only"
+    },
+    {
+      "command_shape_posture": "not_command_shaped",
+      "evidence_refs": [
+        "family-closeout:pb-attempt-0c:reference"
+      ],
+      "limitation_note": "Lifecycle projection to PB-ATTEMPT evidence is deferred to later B.",
+      "step_kind": "lifecycle_projection_later",
+      "step_ref": "allowed-step:pb-trial-0a:lifecycle-projection",
+      "step_scope_posture": "planned_for_later_pb_trial_0b_only"
+    }
+  ],
+  "capture_obligation_rows": [
+    {
+      "capture_kind": "candidate_snapshot_manifest_hash",
+      "capture_obligation_ref": "capture-obligation:pb-trial-0a:candidate-snapshot",
+      "capture_scope_posture": "required_for_later_pb_trial_0b",
+      "limitation_note": "Any later candidate snapshot must record a manifest hash.",
+      "witness_requirement_refs": [
+        "bounded_write_scope"
+      ]
+    },
+    {
+      "capture_kind": "full_transcript_hash",
+      "capture_obligation_ref": "capture-obligation:pb-trial-0a:transcript-hash",
+      "capture_scope_posture": "required_for_later_pb_trial_0b",
+      "limitation_note": "The later worker dispatch transcript must be hash-bound.",
+      "witness_requirement_refs": [
+        "closed_tool_manifest"
+      ]
+    },
+    {
+      "capture_kind": "sandbox_witness_bundle",
+      "capture_obligation_ref": "capture-obligation:pb-trial-0a:sandbox-witnesses",
+      "capture_scope_posture": "required_for_later_pb_trial_0b",
+      "limitation_note": "The later execution slice must prove sandbox witness closure.",
+      "witness_requirement_refs": [
+        "bounded_write_scope",
+        "closed_tool_manifest",
+        "decompilation_disabled",
+        "docker_socket_absent",
+        "host_secrets_absent",
+        "network_disabled",
+        "run_budget_bound",
+        "source_lookup_disabled"
+      ]
+    },
+    {
+      "capture_kind": "stderr_hash_and_bounded_excerpt",
+      "capture_obligation_ref": "capture-obligation:pb-trial-0a:stderr",
+      "capture_scope_posture": "required_for_later_pb_trial_0b",
+      "limitation_note": "Later stderr capture must include hash and bounded excerpt.",
+      "witness_requirement_refs": [
+        "closed_tool_manifest"
+      ]
+    },
+    {
+      "capture_kind": "stdout_hash_and_bounded_excerpt",
+      "capture_obligation_ref": "capture-obligation:pb-trial-0a:stdout",
+      "capture_scope_posture": "required_for_later_pb_trial_0b",
+      "limitation_note": "Later stdout capture must include hash and bounded excerpt.",
+      "witness_requirement_refs": [
+        "closed_tool_manifest"
+      ]
+    },
+    {
+      "capture_kind": "tool_manifest_hashes",
+      "capture_obligation_ref": "capture-obligation:pb-trial-0a:tool-manifest",
+      "capture_scope_posture": "required_for_later_pb_trial_0b",
+      "limitation_note": "Later execution must bind allowed and forbidden tool manifests.",
+      "witness_requirement_refs": [
+        "closed_tool_manifest"
+      ]
+    }
+  ],
+  "dispatch_authority_posture": "no_worker_dispatch_authority_granted_by_pb_trial_0a",
+  "environment_policy_ref": "environment-policy:pb-trial-0a:local-only",
+  "execution_authority_posture": "no_command_execution_authority_granted_by_pb_trial_0a",
+  "forbidden_step_rows": [
+    {
+      "forbidden_step_kind": "benchmark_scoring",
+      "forbidden_step_ref": "forbidden-step:pb-trial-0a:benchmark-scoring",
+      "forbiddance_posture": "forbidden_by_pb_trial_0a",
+      "limitation_note": "A cannot create benchmark scores."
+    },
+    {
+      "forbidden_step_kind": "decompilation",
+      "forbidden_step_ref": "forbidden-step:pb-trial-0a:decompilation",
+      "forbiddance_posture": "forbidden_by_pb_trial_0a",
+      "limitation_note": "A cannot authorize decompilation."
+    },
+    {
+      "forbidden_step_kind": "external_repo_lookup",
+      "forbidden_step_ref": "forbidden-step:pb-trial-0a:external-repo",
+      "forbiddance_posture": "forbidden_by_pb_trial_0a",
+      "limitation_note": "A cannot authorize external repository lookup."
+    },
+    {
+      "forbidden_step_kind": "hidden_test_access",
+      "forbidden_step_ref": "forbidden-step:pb-trial-0a:hidden-test",
+      "forbiddance_posture": "forbidden_by_pb_trial_0a",
+      "limitation_note": "A cannot authorize hidden-test access."
+    },
+    {
+      "forbidden_step_kind": "internet_lookup",
+      "forbidden_step_ref": "forbidden-step:pb-trial-0a:internet",
+      "forbiddance_posture": "forbidden_by_pb_trial_0a",
+      "limitation_note": "A cannot authorize internet lookup inside ProgramBench tasks."
+    },
+    {
+      "forbidden_step_kind": "model_ranking",
+      "forbidden_step_ref": "forbidden-step:pb-trial-0a:model-ranking",
+      "forbiddance_posture": "forbidden_by_pb_trial_0a",
+      "limitation_note": "A cannot rank models."
+    },
+    {
+      "forbidden_step_kind": "official_programbench_runner_contact",
+      "forbidden_step_ref": "forbidden-step:pb-trial-0a:official-runner",
+      "forbiddance_posture": "forbidden_by_pb_trial_0a",
+      "limitation_note": "A cannot contact official ProgramBench runner or evaluator."
+    },
+    {
+      "forbidden_step_kind": "official_submission",
+      "forbidden_step_ref": "forbidden-step:pb-trial-0a:official-submission",
+      "forbiddance_posture": "forbidden_by_pb_trial_0a",
+      "limitation_note": "A cannot create official submissions."
+    },
+    {
+      "forbidden_step_kind": "original_source_lookup",
+      "forbidden_step_ref": "forbidden-step:pb-trial-0a:original-source",
+      "forbiddance_posture": "forbidden_by_pb_trial_0a",
+      "limitation_note": "A cannot authorize original source lookup."
+    },
+    {
+      "forbidden_step_kind": "retry_dispatch",
+      "forbidden_step_ref": "forbidden-step:pb-trial-0a:retry-dispatch",
+      "forbiddance_posture": "forbidden_by_pb_trial_0a",
+      "limitation_note": "A cannot grant retry dispatch authority."
+    }
+  ],
+  "limitation_note": "Reference runbook is execution-plan-only and defines later witness requirements without dispatching a worker.",
+  "run_budget_ref": "run-budget:pb-recon-0a:reference",
+  "runbook_hash": "sha256:7777777777777777777777777777777777777777777777777777777777777777",
+  "runbook_scope_posture": "execution_plan_only_no_dispatch_by_pb_trial_0a",
+  "sandbox_policy_ref": "sandbox-policy:pb-recon-0a:reference",
+  "sandbox_witness_requirement_refs": [
+    "bounded_write_scope",
+    "closed_tool_manifest",
+    "decompilation_disabled",
+    "docker_socket_absent",
+    "host_secrets_absent",
+    "network_disabled",
+    "run_budget_bound",
+    "source_lookup_disabled"
+  ],
+  "schema": "programbench_local_trial_execution_runbook@1",
+  "timeout_policy_ref": "timeout-policy:pb-trial-0a:bounded",
+  "tool_manifest_refs": [
+    "tool-manifest:pb-trial-0a:closed"
+  ],
+  "trial_docket_ref": "trial-docket:pb-trial-0a:reference",
+  "trial_input_materialization_policy_ref": "input-materialization-policy:pb-trial-0a:hash-bound",
+  "trial_runbook_ref": "trial-runbook:pb-trial-0a:reference",
+  "worker_input_packet_hash": "sha256:3333333333333333333333333333333333333333333333333333333333333333",
+  "worker_visible_context_hash": "sha256:6666666666666666666666666666666666666666666666666666666666666666",
+  "write_scope_refs": [
+    "write-scope:pb-recon-0a:sandbox"
+  ]
+}

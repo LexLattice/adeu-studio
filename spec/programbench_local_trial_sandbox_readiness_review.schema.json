@@ -1,0 +1,194 @@
+{
+  "$defs": {
+    "ProgrambenchLocalTrialReadinessCheckRow": {
+      "additionalProperties": false,
+      "properties": {
+        "check_kind": {
+          "enum": [
+            "bounded_write_scope",
+            "closed_tool_manifest",
+            "decompilation_disabled",
+            "docker_socket_absent",
+            "host_secrets_absent",
+            "network_disabled",
+            "run_budget_bound",
+            "source_lookup_disabled"
+          ],
+          "title": "Check Kind",
+          "type": "string"
+        },
+        "check_posture": {
+          "enum": [
+            "blocked",
+            "passed"
+          ],
+          "title": "Check Posture",
+          "type": "string"
+        },
+        "evidence_refs": {
+          "items": {
+            "type": "string"
+          },
+          "minItems": 1,
+          "title": "Evidence Refs",
+          "type": "array"
+        },
+        "limitation_note": {
+          "title": "Limitation Note",
+          "type": "string"
+        },
+        "readiness_check_ref": {
+          "title": "Readiness Check Ref",
+          "type": "string"
+        },
+        "witness_requirement_ref": {
+          "title": "Witness Requirement Ref",
+          "type": "string"
+        }
+      },
+      "required": [
+        "readiness_check_ref",
+        "check_kind",
+        "check_posture",
+        "witness_requirement_ref",
+        "evidence_refs",
+        "limitation_note"
+      ],
+      "title": "ProgrambenchLocalTrialReadinessCheckRow",
+      "type": "object"
+    }
+  },
+  "additionalProperties": false,
+  "properties": {
+    "budget_readiness_posture": {
+      "const": "run_budget_bound",
+      "title": "Budget Readiness Posture",
+      "type": "string"
+    },
+    "decompilation_readiness_posture": {
+      "const": "decompilation_disabled",
+      "title": "Decompilation Readiness Posture",
+      "type": "string"
+    },
+    "docker_socket_readiness_posture": {
+      "const": "docker_socket_absent",
+      "title": "Docker Socket Readiness Posture",
+      "type": "string"
+    },
+    "execution_authority_posture": {
+      "const": "no_command_execution_authority_granted_by_pb_trial_0a",
+      "title": "Execution Authority Posture",
+      "type": "string"
+    },
+    "host_secret_readiness_posture": {
+      "const": "host_secrets_absent",
+      "title": "Host Secret Readiness Posture",
+      "type": "string"
+    },
+    "limitation_note": {
+      "title": "Limitation Note",
+      "type": "string"
+    },
+    "network_readiness_posture": {
+      "const": "network_disabled",
+      "title": "Network Readiness Posture",
+      "type": "string"
+    },
+    "readiness_check_rows": {
+      "items": {
+        "$ref": "#/$defs/ProgrambenchLocalTrialReadinessCheckRow"
+      },
+      "minItems": 1,
+      "title": "Readiness Check Rows",
+      "type": "array"
+    },
+    "readiness_posture": {
+      "enum": [
+        "blocked_by_budget_gap",
+        "blocked_by_guardrail_gap",
+        "blocked_by_missing_released_attempt_ref",
+        "blocked_by_sandbox_gap",
+        "blocked_by_tool_manifest_gap",
+        "blocked_by_worker_input_hash_gap",
+        "future_family_only",
+        "ready_for_later_local_trial_execution_review"
+      ],
+      "title": "Readiness Posture",
+      "type": "string"
+    },
+    "run_budget_ref": {
+      "title": "Run Budget Ref",
+      "type": "string"
+    },
+    "sandbox_policy_ref": {
+      "title": "Sandbox Policy Ref",
+      "type": "string"
+    },
+    "sandbox_readiness_review_ref": {
+      "title": "Sandbox Readiness Review Ref",
+      "type": "string"
+    },
+    "sandbox_witness_requirement_refs": {
+      "items": {
+        "type": "string"
+      },
+      "minItems": 1,
+      "title": "Sandbox Witness Requirement Refs",
+      "type": "array"
+    },
+    "schema": {
+      "const": "programbench_local_trial_sandbox_readiness_review@1",
+      "title": "Schema",
+      "type": "string"
+    },
+    "source_lookup_readiness_posture": {
+      "const": "source_lookup_disabled",
+      "title": "Source Lookup Readiness Posture",
+      "type": "string"
+    },
+    "tool_manifest_readiness_posture": {
+      "enum": [
+        "closed_tool_manifest",
+        "tool_manifest_gap"
+      ],
+      "title": "Tool Manifest Readiness Posture",
+      "type": "string"
+    },
+    "trial_docket_ref": {
+      "title": "Trial Docket Ref",
+      "type": "string"
+    },
+    "trial_runbook_ref": {
+      "title": "Trial Runbook Ref",
+      "type": "string"
+    },
+    "write_scope_readiness_posture": {
+      "const": "bounded_write_scope",
+      "title": "Write Scope Readiness Posture",
+      "type": "string"
+    }
+  },
+  "required": [
+    "schema",
+    "sandbox_readiness_review_ref",
+    "trial_docket_ref",
+    "trial_runbook_ref",
+    "sandbox_policy_ref",
+    "run_budget_ref",
+    "readiness_check_rows",
+    "sandbox_witness_requirement_refs",
+    "network_readiness_posture",
+    "source_lookup_readiness_posture",
+    "decompilation_readiness_posture",
+    "docker_socket_readiness_posture",
+    "host_secret_readiness_posture",
+    "write_scope_readiness_posture",
+    "tool_manifest_readiness_posture",
+    "budget_readiness_posture",
+    "readiness_posture",
+    "execution_authority_posture",
+    "limitation_note"
+  ],
+  "title": "ProgrambenchLocalTrialSandboxReadinessReview",
+  "type": "object"
+}

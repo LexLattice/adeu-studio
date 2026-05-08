@@ -1,0 +1,288 @@
+{
+  "$defs": {
+    "ProgrambenchLocalTrialAllowedStepRow": {
+      "additionalProperties": false,
+      "properties": {
+        "command_shape_posture": {
+          "enum": [
+            "argv_shaped_if_command_like",
+            "not_command_shaped"
+          ],
+          "title": "Command Shape Posture",
+          "type": "string"
+        },
+        "evidence_refs": {
+          "items": {
+            "type": "string"
+          },
+          "minItems": 1,
+          "title": "Evidence Refs",
+          "type": "array"
+        },
+        "limitation_note": {
+          "title": "Limitation Note",
+          "type": "string"
+        },
+        "step_kind": {
+          "enum": [
+            "candidate_snapshot_later",
+            "execution_capture_later",
+            "lifecycle_projection_later",
+            "local_worker_dispatch_later",
+            "worker_input_materialization_later"
+          ],
+          "title": "Step Kind",
+          "type": "string"
+        },
+        "step_ref": {
+          "title": "Step Ref",
+          "type": "string"
+        },
+        "step_scope_posture": {
+          "const": "planned_for_later_pb_trial_0b_only",
+          "title": "Step Scope Posture",
+          "type": "string"
+        }
+      },
+      "required": [
+        "step_ref",
+        "step_kind",
+        "step_scope_posture",
+        "command_shape_posture",
+        "evidence_refs",
+        "limitation_note"
+      ],
+      "title": "ProgrambenchLocalTrialAllowedStepRow",
+      "type": "object"
+    },
+    "ProgrambenchLocalTrialCaptureObligationRow": {
+      "additionalProperties": false,
+      "properties": {
+        "capture_kind": {
+          "enum": [
+            "candidate_snapshot_manifest_hash",
+            "full_transcript_hash",
+            "sandbox_witness_bundle",
+            "stderr_hash_and_bounded_excerpt",
+            "stdout_hash_and_bounded_excerpt",
+            "tool_manifest_hashes"
+          ],
+          "title": "Capture Kind",
+          "type": "string"
+        },
+        "capture_obligation_ref": {
+          "title": "Capture Obligation Ref",
+          "type": "string"
+        },
+        "capture_scope_posture": {
+          "const": "required_for_later_pb_trial_0b",
+          "title": "Capture Scope Posture",
+          "type": "string"
+        },
+        "limitation_note": {
+          "title": "Limitation Note",
+          "type": "string"
+        },
+        "witness_requirement_refs": {
+          "items": {
+            "type": "string"
+          },
+          "minItems": 1,
+          "title": "Witness Requirement Refs",
+          "type": "array"
+        }
+      },
+      "required": [
+        "capture_obligation_ref",
+        "capture_kind",
+        "capture_scope_posture",
+        "witness_requirement_refs",
+        "limitation_note"
+      ],
+      "title": "ProgrambenchLocalTrialCaptureObligationRow",
+      "type": "object"
+    },
+    "ProgrambenchLocalTrialForbiddenStepRow": {
+      "additionalProperties": false,
+      "properties": {
+        "forbiddance_posture": {
+          "const": "forbidden_by_pb_trial_0a",
+          "title": "Forbiddance Posture",
+          "type": "string"
+        },
+        "forbidden_step_kind": {
+          "enum": [
+            "benchmark_scoring",
+            "decompilation",
+            "external_repo_lookup",
+            "hidden_test_access",
+            "internet_lookup",
+            "model_ranking",
+            "official_programbench_runner_contact",
+            "official_submission",
+            "original_source_lookup",
+            "retry_dispatch"
+          ],
+          "title": "Forbidden Step Kind",
+          "type": "string"
+        },
+        "forbidden_step_ref": {
+          "title": "Forbidden Step Ref",
+          "type": "string"
+        },
+        "limitation_note": {
+          "title": "Limitation Note",
+          "type": "string"
+        }
+      },
+      "required": [
+        "forbidden_step_ref",
+        "forbidden_step_kind",
+        "forbiddance_posture",
+        "limitation_note"
+      ],
+      "title": "ProgrambenchLocalTrialForbiddenStepRow",
+      "type": "object"
+    }
+  },
+  "additionalProperties": false,
+  "properties": {
+    "allowed_step_rows": {
+      "items": {
+        "$ref": "#/$defs/ProgrambenchLocalTrialAllowedStepRow"
+      },
+      "minItems": 1,
+      "title": "Allowed Step Rows",
+      "type": "array"
+    },
+    "capture_obligation_rows": {
+      "items": {
+        "$ref": "#/$defs/ProgrambenchLocalTrialCaptureObligationRow"
+      },
+      "minItems": 1,
+      "title": "Capture Obligation Rows",
+      "type": "array"
+    },
+    "dispatch_authority_posture": {
+      "const": "no_worker_dispatch_authority_granted_by_pb_trial_0a",
+      "title": "Dispatch Authority Posture",
+      "type": "string"
+    },
+    "environment_policy_ref": {
+      "title": "Environment Policy Ref",
+      "type": "string"
+    },
+    "execution_authority_posture": {
+      "const": "no_command_execution_authority_granted_by_pb_trial_0a",
+      "title": "Execution Authority Posture",
+      "type": "string"
+    },
+    "forbidden_step_rows": {
+      "items": {
+        "$ref": "#/$defs/ProgrambenchLocalTrialForbiddenStepRow"
+      },
+      "minItems": 1,
+      "title": "Forbidden Step Rows",
+      "type": "array"
+    },
+    "limitation_note": {
+      "title": "Limitation Note",
+      "type": "string"
+    },
+    "run_budget_ref": {
+      "title": "Run Budget Ref",
+      "type": "string"
+    },
+    "runbook_hash": {
+      "title": "Runbook Hash",
+      "type": "string"
+    },
+    "runbook_scope_posture": {
+      "const": "execution_plan_only_no_dispatch_by_pb_trial_0a",
+      "title": "Runbook Scope Posture",
+      "type": "string"
+    },
+    "sandbox_policy_ref": {
+      "title": "Sandbox Policy Ref",
+      "type": "string"
+    },
+    "sandbox_witness_requirement_refs": {
+      "items": {
+        "type": "string"
+      },
+      "minItems": 1,
+      "title": "Sandbox Witness Requirement Refs",
+      "type": "array"
+    },
+    "schema": {
+      "const": "programbench_local_trial_execution_runbook@1",
+      "title": "Schema",
+      "type": "string"
+    },
+    "timeout_policy_ref": {
+      "title": "Timeout Policy Ref",
+      "type": "string"
+    },
+    "tool_manifest_refs": {
+      "items": {
+        "type": "string"
+      },
+      "minItems": 1,
+      "title": "Tool Manifest Refs",
+      "type": "array"
+    },
+    "trial_docket_ref": {
+      "title": "Trial Docket Ref",
+      "type": "string"
+    },
+    "trial_input_materialization_policy_ref": {
+      "title": "Trial Input Materialization Policy Ref",
+      "type": "string"
+    },
+    "trial_runbook_ref": {
+      "title": "Trial Runbook Ref",
+      "type": "string"
+    },
+    "worker_input_packet_hash": {
+      "title": "Worker Input Packet Hash",
+      "type": "string"
+    },
+    "worker_visible_context_hash": {
+      "title": "Worker Visible Context Hash",
+      "type": "string"
+    },
+    "write_scope_refs": {
+      "items": {
+        "type": "string"
+      },
+      "minItems": 1,
+      "title": "Write Scope Refs",
+      "type": "array"
+    }
+  },
+  "required": [
+    "schema",
+    "trial_runbook_ref",
+    "trial_docket_ref",
+    "worker_input_packet_hash",
+    "worker_visible_context_hash",
+    "runbook_hash",
+    "trial_input_materialization_policy_ref",
+    "sandbox_policy_ref",
+    "run_budget_ref",
+    "allowed_step_rows",
+    "forbidden_step_rows",
+    "capture_obligation_rows",
+    "write_scope_refs",
+    "tool_manifest_refs",
+    "timeout_policy_ref",
+    "environment_policy_ref",
+    "sandbox_witness_requirement_refs",
+    "runbook_scope_posture",
+    "dispatch_authority_posture",
+    "execution_authority_posture",
+    "limitation_note"
+  ],
+  "title": "ProgrambenchLocalTrialExecutionRunbook",
+  "type": "object"
+}
