@@ -1,0 +1,20 @@
+{
+  "attempt_request_ref": "attempt-request:pb-attempt-0a:reference",
+  "attempt_result_review_ref": "attempt-result-review:pb-attempt-0c:reference",
+  "benchmark_truth_posture": "not_benchmark_truth",
+  "carried_blocker_refs": [
+    "probe-result:pb-recon-0b:help"
+  ],
+  "carried_warning_refs": [],
+  "hidden_test_equivalence_posture": "not_hidden_test_equivalence",
+  "limitation_note": "Reference review records local remand pressure only; it is not benchmark truth or official submission authority.",
+  "local_acceptance_scope_posture": "not_locally_accepted",
+  "local_attempt_posture": "attempt_remand_required",
+  "model_ranking_posture": "no_model_ranking_claimed_by_pb_attempt_0c",
+  "official_submission_posture": "no_official_submission_or_submission_authority_by_pb_attempt_0c",
+  "result_summary_refs": [
+    "result-summary:pb-recon-0c:reference"
+  ],
+  "schema": "programbench_reconstruction_attempt_result_review@1",
+  "workbench_evidence_export_ref": "workbench-evidence-export:pb-attempt-0c:reference"
+}

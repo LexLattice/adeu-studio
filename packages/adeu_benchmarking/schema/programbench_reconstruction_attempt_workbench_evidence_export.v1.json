@@ -1,0 +1,151 @@
+{
+  "additionalProperties": false,
+  "properties": {
+    "attempt_request_ref": {
+      "title": "Attempt Request Ref",
+      "type": "string"
+    },
+    "benchmark_truth_posture": {
+      "const": "not_benchmark_truth",
+      "title": "Benchmark Truth Posture",
+      "type": "string"
+    },
+    "candidate_materialization_ref": {
+      "title": "Candidate Materialization Ref",
+      "type": "string"
+    },
+    "export_validation_posture": {
+      "enum": [
+        "blocked_by_export_gap",
+        "blocked_by_missing_pb_recon_validation",
+        "future_family_only",
+        "valid"
+      ],
+      "title": "Export Validation Posture",
+      "type": "string"
+    },
+    "exported_candidate_artifact_manifest_refs": {
+      "items": {
+        "type": "string"
+      },
+      "minItems": 1,
+      "title": "Exported Candidate Artifact Manifest Refs",
+      "type": "array"
+    },
+    "exported_equivalence_audit_refs": {
+      "items": {
+        "type": "string"
+      },
+      "minItems": 1,
+      "title": "Exported Equivalence Audit Refs",
+      "type": "array"
+    },
+    "exported_local_run_trace_refs": {
+      "items": {
+        "type": "string"
+      },
+      "minItems": 1,
+      "title": "Exported Local Run Trace Refs",
+      "type": "array"
+    },
+    "exported_probe_result_log_refs": {
+      "items": {
+        "type": "string"
+      },
+      "minItems": 1,
+      "title": "Exported Probe Result Log Refs",
+      "type": "array"
+    },
+    "exported_remand_correction_record_refs": {
+      "items": {
+        "type": "string"
+      },
+      "minItems": 1,
+      "title": "Exported Remand Correction Record Refs",
+      "type": "array"
+    },
+    "exported_result_summary_refs": {
+      "items": {
+        "type": "string"
+      },
+      "minItems": 1,
+      "title": "Exported Result Summary Refs",
+      "type": "array"
+    },
+    "hidden_test_equivalence_posture": {
+      "const": "not_hidden_test_equivalence",
+      "title": "Hidden Test Equivalence Posture",
+      "type": "string"
+    },
+    "limitation_note": {
+      "title": "Limitation Note",
+      "type": "string"
+    },
+    "official_submission_posture": {
+      "const": "no_official_submission_or_submission_authority_by_pb_attempt_0c",
+      "title": "Official Submission Posture",
+      "type": "string"
+    },
+    "output_capture_ref": {
+      "title": "Output Capture Ref",
+      "type": "string"
+    },
+    "pb_recon_validation_result_refs": {
+      "items": {
+        "type": "string"
+      },
+      "minItems": 1,
+      "title": "Pb Recon Validation Result Refs",
+      "type": "array"
+    },
+    "pb_recon_validator_binding_refs": {
+      "items": {
+        "type": "string"
+      },
+      "minItems": 1,
+      "title": "Pb Recon Validator Binding Refs",
+      "type": "array"
+    },
+    "sandbox_application_trace_ref": {
+      "title": "Sandbox Application Trace Ref",
+      "type": "string"
+    },
+    "schema": {
+      "const": "programbench_reconstruction_attempt_workbench_evidence_export@1",
+      "title": "Schema",
+      "type": "string"
+    },
+    "workbench_evidence_export_ref": {
+      "title": "Workbench Evidence Export Ref",
+      "type": "string"
+    },
+    "worker_invocation_ref": {
+      "title": "Worker Invocation Ref",
+      "type": "string"
+    }
+  },
+  "required": [
+    "schema",
+    "workbench_evidence_export_ref",
+    "attempt_request_ref",
+    "worker_invocation_ref",
+    "output_capture_ref",
+    "candidate_materialization_ref",
+    "sandbox_application_trace_ref",
+    "exported_candidate_artifact_manifest_refs",
+    "exported_local_run_trace_refs",
+    "exported_probe_result_log_refs",
+    "exported_remand_correction_record_refs",
+    "exported_equivalence_audit_refs",
+    "exported_result_summary_refs",
+    "export_validation_posture",
+    "pb_recon_validator_binding_refs",
+    "pb_recon_validation_result_refs",
+    "benchmark_truth_posture",
+    "hidden_test_equivalence_posture",
+    "official_submission_posture",
+    "limitation_note"
+  ],
+  "title": "ProgrambenchReconstructionAttemptWorkbenchEvidenceExport",
+  "type": "object"
+}

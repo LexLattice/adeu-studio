@@ -1,0 +1,107 @@
+{
+  "additionalProperties": false,
+  "properties": {
+    "attempt_request_ref": {
+      "title": "Attempt Request Ref",
+      "type": "string"
+    },
+    "attempt_result_review_ref": {
+      "title": "Attempt Result Review Ref",
+      "type": "string"
+    },
+    "benchmark_truth_posture": {
+      "const": "not_benchmark_truth",
+      "title": "Benchmark Truth Posture",
+      "type": "string"
+    },
+    "carried_blocker_refs": {
+      "items": {
+        "type": "string"
+      },
+      "title": "Carried Blocker Refs",
+      "type": "array"
+    },
+    "carried_warning_refs": {
+      "items": {
+        "type": "string"
+      },
+      "title": "Carried Warning Refs",
+      "type": "array"
+    },
+    "hidden_test_equivalence_posture": {
+      "const": "not_hidden_test_equivalence",
+      "title": "Hidden Test Equivalence Posture",
+      "type": "string"
+    },
+    "limitation_note": {
+      "title": "Limitation Note",
+      "type": "string"
+    },
+    "local_acceptance_scope_posture": {
+      "enum": [
+        "accepted_only_against_exported_local_workbench_result_not_hidden_tests",
+        "not_locally_accepted"
+      ],
+      "title": "Local Acceptance Scope Posture",
+      "type": "string"
+    },
+    "local_attempt_posture": {
+      "enum": [
+        "attempt_blocked_by_contamination",
+        "attempt_blocked_by_export_gap",
+        "attempt_blocked_by_sandbox_violation",
+        "attempt_inconclusive_local_only",
+        "attempt_locally_accepted",
+        "attempt_remand_required",
+        "future_family_only"
+      ],
+      "title": "Local Attempt Posture",
+      "type": "string"
+    },
+    "model_ranking_posture": {
+      "const": "no_model_ranking_claimed_by_pb_attempt_0c",
+      "title": "Model Ranking Posture",
+      "type": "string"
+    },
+    "official_submission_posture": {
+      "const": "no_official_submission_or_submission_authority_by_pb_attempt_0c",
+      "title": "Official Submission Posture",
+      "type": "string"
+    },
+    "result_summary_refs": {
+      "items": {
+        "type": "string"
+      },
+      "minItems": 1,
+      "title": "Result Summary Refs",
+      "type": "array"
+    },
+    "schema": {
+      "const": "programbench_reconstruction_attempt_result_review@1",
+      "title": "Schema",
+      "type": "string"
+    },
+    "workbench_evidence_export_ref": {
+      "title": "Workbench Evidence Export Ref",
+      "type": "string"
+    }
+  },
+  "required": [
+    "schema",
+    "attempt_result_review_ref",
+    "attempt_request_ref",
+    "workbench_evidence_export_ref",
+    "result_summary_refs",
+    "local_attempt_posture",
+    "carried_blocker_refs",
+    "carried_warning_refs",
+    "local_acceptance_scope_posture",
+    "hidden_test_equivalence_posture",
+    "benchmark_truth_posture",
+    "model_ranking_posture",
+    "official_submission_posture",
+    "limitation_note"
+  ],
+  "title": "ProgrambenchReconstructionAttemptResultReview",
+  "type": "object"
+}

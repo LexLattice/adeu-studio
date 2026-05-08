@@ -1,0 +1,44 @@
+{
+  "attempt_request_ref": "attempt-request:pb-attempt-0a:reference",
+  "benchmark_truth_posture": "not_benchmark_truth",
+  "candidate_materialization_ref": "candidate-materialization:pb-attempt-0b:reference",
+  "export_validation_posture": "valid",
+  "exported_candidate_artifact_manifest_refs": [
+    "candidate-artifact-manifest:pb-recon-0b:reference"
+  ],
+  "exported_equivalence_audit_refs": [
+    "equivalence-audit:pb-recon-0c:reference"
+  ],
+  "exported_local_run_trace_refs": [
+    "local-run:pb-recon-0b:attempt-1-help"
+  ],
+  "exported_probe_result_log_refs": [
+    "probe-result-log:pb-recon-0b:reference"
+  ],
+  "exported_remand_correction_record_refs": [
+    "remand:pb-recon-0b:attempt-1-help"
+  ],
+  "exported_result_summary_refs": [
+    "result-summary:pb-recon-0c:reference"
+  ],
+  "hidden_test_equivalence_posture": "not_hidden_test_equivalence",
+  "limitation_note": "Reference export maps the captured local attempt back into released PB-RECON workbench evidence rows only.",
+  "official_submission_posture": "no_official_submission_or_submission_authority_by_pb_attempt_0c",
+  "output_capture_ref": "output-capture:pb-attempt-0b:reference",
+  "pb_recon_validation_result_refs": [
+    "pb-recon-validation:pb-attempt-0c:candidate-artifact",
+    "pb-recon-validation:pb-attempt-0c:equivalence-audit",
+    "pb-recon-validation:pb-attempt-0c:local-run",
+    "pb-recon-validation:pb-attempt-0c:probe-result-log",
+    "pb-recon-validation:pb-attempt-0c:remand-record",
+    "pb-recon-validation:pb-attempt-0c:result-summary"
+  ],
+  "pb_recon_validator_binding_refs": [
+    "pb-recon-validator:pb-attempt-0c:local-audit-bundle",
+    "pb-recon-validator:pb-attempt-0c:local-evidence-bundle"
+  ],
+  "sandbox_application_trace_ref": "sandbox-trace:pb-attempt-0b:reference",
+  "schema": "programbench_reconstruction_attempt_workbench_evidence_export@1",
+  "workbench_evidence_export_ref": "workbench-evidence-export:pb-attempt-0c:reference",
+  "worker_invocation_ref": "worker-invocation:pb-attempt-0b:reference"
+}

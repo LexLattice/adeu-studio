@@ -6,7 +6,12 @@ from typing import Literal
 from pydantic import BaseModel, ConfigDict, Field, model_validator
 
 from .programbench_cleanroom_reconstruction import (
+    ProgrambenchReconstructionCandidateArtifactManifest,
     ProgrambenchReconstructionContextExclusionManifest,
+    ProgrambenchReconstructionEquivalenceAudit,
+    ProgrambenchReconstructionLocalRunTrace,
+    ProgrambenchReconstructionProbeResultLog,
+    ProgrambenchReconstructionRemandCorrectionRecord,
     ProgrambenchReconstructionResultSummary,
     ProgrambenchReconstructionRunBudget,
     ProgrambenchReconstructionSandboxPolicy,
@@ -129,6 +134,15 @@ def _ensure_non_empty_unique(values: list[str], *, field_name: str) -> None:
 
 def _ensure_sorted_unique(values: list[str], *, field_name: str) -> None:
     _ensure_non_empty_unique(values, field_name=field_name)
+    if values != sorted(values):
+        raise ValueError(f"{field_name} must be lexicographically sorted")
+
+
+def _ensure_sorted_unique_allow_empty(values: list[str], *, field_name: str) -> None:
+    if values:
+        _ensure_non_empty_trimmed(values, field_name=field_name)
+    if len(values) != len(set(values)):
+        raise ValueError(f"{field_name} must not contain duplicates")
     if values != sorted(values):
         raise ValueError(f"{field_name} must be lexicographically sorted")
 
@@ -823,6 +837,238 @@ class ProgrambenchReconstructionAttemptSandboxApplicationTrace(_AttemptBase):
         return self
 
 
+class ProgrambenchReconstructionAttemptWorkbenchEvidenceExport(_AttemptBase):
+    schema_id: Literal[PROGRAMBENCH_RECONSTRUCTION_ATTEMPT_WORKBENCH_EVIDENCE_EXPORT_SCHEMA] = (
+        Field(alias="schema")
+    )
+    workbench_evidence_export_ref: str
+    attempt_request_ref: str
+    worker_invocation_ref: str
+    output_capture_ref: str
+    candidate_materialization_ref: str
+    sandbox_application_trace_ref: str
+    exported_candidate_artifact_manifest_refs: list[str] = Field(min_length=1)
+    exported_local_run_trace_refs: list[str] = Field(min_length=1)
+    exported_probe_result_log_refs: list[str] = Field(min_length=1)
+    exported_remand_correction_record_refs: list[str] = Field(min_length=1)
+    exported_equivalence_audit_refs: list[str] = Field(min_length=1)
+    exported_result_summary_refs: list[str] = Field(min_length=1)
+    export_validation_posture: Literal[
+        "blocked_by_export_gap",
+        "blocked_by_missing_pb_recon_validation",
+        "future_family_only",
+        "valid",
+    ]
+    pb_recon_validator_binding_refs: list[str] = Field(min_length=1)
+    pb_recon_validation_result_refs: list[str] = Field(min_length=1)
+    benchmark_truth_posture: Literal["not_benchmark_truth"]
+    hidden_test_equivalence_posture: Literal["not_hidden_test_equivalence"]
+    official_submission_posture: Literal[
+        "no_official_submission_or_submission_authority_by_pb_attempt_0c"
+    ]
+    limitation_note: str
+
+    @model_validator(mode="after")
+    def _validate_workbench_evidence_export(
+        self,
+    ) -> "ProgrambenchReconstructionAttemptWorkbenchEvidenceExport":
+        if self.export_validation_posture == "future_family_only":
+            raise ValueError("attempt evidence export must summarize local attempt evidence")
+        for field_name in (
+            "exported_candidate_artifact_manifest_refs",
+            "exported_local_run_trace_refs",
+            "exported_probe_result_log_refs",
+            "exported_remand_correction_record_refs",
+            "exported_equivalence_audit_refs",
+            "exported_result_summary_refs",
+            "pb_recon_validator_binding_refs",
+            "pb_recon_validation_result_refs",
+        ):
+            _ensure_sorted_unique(getattr(self, field_name), field_name=field_name)
+        if self.export_validation_posture == "valid":
+            exported_ref_count = sum(
+                len(getattr(self, field_name))
+                for field_name in (
+                    "exported_candidate_artifact_manifest_refs",
+                    "exported_local_run_trace_refs",
+                    "exported_probe_result_log_refs",
+                    "exported_remand_correction_record_refs",
+                    "exported_equivalence_audit_refs",
+                    "exported_result_summary_refs",
+                )
+            )
+            if len(self.pb_recon_validation_result_refs) < exported_ref_count:
+                raise ValueError(
+                    "valid exports require PB-RECON validation result refs for every "
+                    "mapped workbench evidence row"
+                )
+        return self
+
+
+class ProgrambenchReconstructionAttemptResultReview(_AttemptBase):
+    schema_id: Literal[PROGRAMBENCH_RECONSTRUCTION_ATTEMPT_RESULT_REVIEW_SCHEMA] = Field(
+        alias="schema"
+    )
+    attempt_result_review_ref: str
+    attempt_request_ref: str
+    workbench_evidence_export_ref: str
+    result_summary_refs: list[str] = Field(min_length=1)
+    local_attempt_posture: Literal[
+        "attempt_blocked_by_contamination",
+        "attempt_blocked_by_export_gap",
+        "attempt_blocked_by_sandbox_violation",
+        "attempt_inconclusive_local_only",
+        "attempt_locally_accepted",
+        "attempt_remand_required",
+        "future_family_only",
+    ]
+    carried_blocker_refs: list[str]
+    carried_warning_refs: list[str]
+    local_acceptance_scope_posture: Literal[
+        "accepted_only_against_exported_local_workbench_result_not_hidden_tests",
+        "not_locally_accepted",
+    ]
+    hidden_test_equivalence_posture: Literal["not_hidden_test_equivalence"]
+    benchmark_truth_posture: Literal["not_benchmark_truth"]
+    model_ranking_posture: Literal["no_model_ranking_claimed_by_pb_attempt_0c"]
+    official_submission_posture: Literal[
+        "no_official_submission_or_submission_authority_by_pb_attempt_0c"
+    ]
+    limitation_note: str
+
+    @model_validator(mode="after")
+    def _validate_attempt_result_review(
+        self,
+    ) -> "ProgrambenchReconstructionAttemptResultReview":
+        if self.local_attempt_posture == "future_family_only":
+            raise ValueError("attempt result reviews must review local attempt evidence")
+        _ensure_sorted_unique(self.result_summary_refs, field_name="result_summary_refs")
+        for field_name in ("carried_blocker_refs", "carried_warning_refs"):
+            _ensure_sorted_unique_allow_empty(getattr(self, field_name), field_name=field_name)
+        if self.local_attempt_posture == "attempt_locally_accepted":
+            if self.local_acceptance_scope_posture != (
+                "accepted_only_against_exported_local_workbench_result_not_hidden_tests"
+            ):
+                raise ValueError("accepted attempts require exported local workbench scope")
+            if self.carried_blocker_refs:
+                raise ValueError("accepted attempts cannot carry blockers")
+        else:
+            if self.local_acceptance_scope_posture != "not_locally_accepted":
+                raise ValueError("non-accepted attempts must not claim local acceptance")
+            if (
+                self.local_attempt_posture
+                in {
+                    "attempt_blocked_by_contamination",
+                    "attempt_blocked_by_export_gap",
+                    "attempt_blocked_by_sandbox_violation",
+                    "attempt_remand_required",
+                }
+                and not self.carried_blocker_refs
+            ):
+                raise ValueError("blocked or remanded attempt reviews require blockers")
+        return self
+
+
+class ProgrambenchReconstructionAttemptRemandQueueRow(_AttemptBase):
+    remand_queue_row_ref: str
+    remand_row_source_kind: Literal[
+        "exported_workbench_gap",
+        "local_output_capture_gap",
+        "local_probe_failure",
+        "materialization_gap",
+        "sandbox_application_failure",
+        "worker_declared_uncertainty",
+    ]
+    source_evidence_refs: list[str] = Field(min_length=1)
+    remand_pressure_posture: Literal["local_retry_pressure_only"]
+    limitation_note: str
+
+    @model_validator(mode="after")
+    def _validate_remand_queue_row(
+        self,
+    ) -> "ProgrambenchReconstructionAttemptRemandQueueRow":
+        _ensure_sorted_unique(self.source_evidence_refs, field_name="source_evidence_refs")
+        return self
+
+
+class ProgrambenchReconstructionAttemptRemandQueue(_AttemptBase):
+    schema_id: Literal[PROGRAMBENCH_RECONSTRUCTION_ATTEMPT_REMAND_QUEUE_SCHEMA] = Field(
+        alias="schema"
+    )
+    remand_queue_ref: str
+    attempt_request_ref: str
+    attempt_result_review_ref: str
+    remand_queue_rows: list[ProgrambenchReconstructionAttemptRemandQueueRow] = Field(
+        default_factory=list
+    )
+    retry_budget_ref: str
+    remand_row_source_kinds: list[
+        Literal[
+            "exported_workbench_gap",
+            "local_output_capture_gap",
+            "local_probe_failure",
+            "materialization_gap",
+            "sandbox_application_failure",
+            "worker_declared_uncertainty",
+        ]
+    ] = Field(default_factory=list)
+    remand_source_posture: Literal["local_attempt_and_workbench_evidence_only"]
+    hidden_test_diagnostic_posture: Literal["hidden_tests_not_diagnostics"]
+    source_lookup_posture: Literal["source_lookup_forbidden"]
+    queue_authority_posture: Literal["remand_queue_pressure_only_no_retry_authority"]
+    limitation_note: str
+
+    @model_validator(mode="after")
+    def _validate_remand_queue(self) -> "ProgrambenchReconstructionAttemptRemandQueue":
+        row_refs = [row.remand_queue_row_ref for row in self.remand_queue_rows]
+        _ensure_sorted_unique_allow_empty(row_refs, field_name="remand_queue_rows")
+        kinds = [row.remand_row_source_kind for row in self.remand_queue_rows]
+        if self.remand_row_source_kinds != sorted(set(kinds)):
+            raise ValueError("remand_row_source_kinds must match row source kinds")
+        return self
+
+
+class ProgrambenchReconstructionAttemptFamilyCloseoutAlignment(_AttemptBase):
+    schema_id: Literal[PROGRAMBENCH_RECONSTRUCTION_ATTEMPT_FAMILY_CLOSEOUT_ALIGNMENT_SCHEMA] = (
+        Field(alias="schema")
+    )
+    family_closeout_ref: str
+    closed_family_ref: str
+    closed_slice_refs: list[str] = Field(min_length=3)
+    attempt_request_refs: list[str] = Field(min_length=1)
+    worker_invocation_refs: list[str] = Field(min_length=1)
+    workbench_evidence_export_refs: list[str] = Field(min_length=1)
+    attempt_result_review_refs: list[str] = Field(min_length=1)
+    remand_queue_refs: list[str] = Field(min_length=1)
+    family_alignment_posture: Literal["pb_attempt_0_closed_local_attempt_only"]
+    official_programbench_non_authority_posture: Literal["no_official_programbench_authority"]
+    hidden_test_non_inference_posture: Literal["hidden_tests_not_inference_evidence"]
+    benchmark_truth_non_authority_posture: Literal["not_benchmark_truth"]
+    model_ranking_non_authority_posture: Literal["not_model_ranking"]
+    future_family_selection_posture: Literal["no_future_family_selected_by_pb_attempt_0c"]
+    limitation_note: str
+
+    @model_validator(mode="after")
+    def _validate_attempt_family_closeout(
+        self,
+    ) -> "ProgrambenchReconstructionAttemptFamilyCloseoutAlignment":
+        if self.closed_family_ref != "PB-ATTEMPT-0":
+            raise ValueError("attempt family closeout must close only PB-ATTEMPT-0")
+        expected_slices = ["PB-ATTEMPT-0-A", "PB-ATTEMPT-0-B", "PB-ATTEMPT-0-C"]
+        if self.closed_slice_refs != expected_slices:
+            raise ValueError("attempt family closeout must close exactly PB-ATTEMPT-0 A/B/C")
+        for field_name in (
+            "closed_slice_refs",
+            "attempt_request_refs",
+            "worker_invocation_refs",
+            "workbench_evidence_export_refs",
+            "attempt_result_review_refs",
+            "remand_queue_refs",
+        ):
+            _ensure_sorted_unique(getattr(self, field_name), field_name=field_name)
+        return self
+
+
 def _excluded_refs_by_category(
     manifest: ProgrambenchReconstructionContextExclusionManifest,
 ) -> dict[str, list[str]]:
@@ -1156,3 +1402,220 @@ def validate_pb_attempt_0b_invocation_bundle(
         raise ValueError("sandbox trace must preserve attempt sandbox policy")
     if sandbox_application_trace.run_budget_ref != attempt_request.run_budget_ref:
         raise ValueError("sandbox trace must preserve attempt run budget")
+
+
+def validate_pb_attempt_0c_closeout_bundle(
+    *,
+    attempt_request: ProgrambenchReconstructionAttemptRequest,
+    worker_input_packet: ProgrambenchReconstructionAttemptWorkerInputPacket,
+    dispatch_preflight: ProgrambenchReconstructionAttemptDispatchPreflight,
+    guardrail: ProgrambenchReconstructionAttemptNonAuthorityGuardrail,
+    sandbox_policy: ProgrambenchReconstructionSandboxPolicy,
+    run_budget: ProgrambenchReconstructionRunBudget,
+    worker_invocation_record: ProgrambenchReconstructionAttemptWorkerInvocationRecord,
+    output_capture: ProgrambenchReconstructionAttemptOutputCapture,
+    candidate_materialization: ProgrambenchReconstructionAttemptCandidateMaterialization,
+    sandbox_application_trace: ProgrambenchReconstructionAttemptSandboxApplicationTrace,
+    workbench_candidate_artifact_manifest: ProgrambenchReconstructionCandidateArtifactManifest,
+    workbench_local_run_traces: list[ProgrambenchReconstructionLocalRunTrace],
+    workbench_probe_result_log: ProgrambenchReconstructionProbeResultLog,
+    workbench_remand_correction_records: list[ProgrambenchReconstructionRemandCorrectionRecord],
+    workbench_equivalence_audit: ProgrambenchReconstructionEquivalenceAudit,
+    workbench_result_summary: ProgrambenchReconstructionResultSummary,
+    workbench_family_closeout: ProgrambenchReconstructionWorkbenchFamilyCloseoutAlignment,
+    workbench_evidence_export: ProgrambenchReconstructionAttemptWorkbenchEvidenceExport,
+    attempt_result_review: ProgrambenchReconstructionAttemptResultReview,
+    remand_queue: ProgrambenchReconstructionAttemptRemandQueue,
+    family_closeout: ProgrambenchReconstructionAttemptFamilyCloseoutAlignment,
+) -> None:
+    validate_pb_attempt_0b_invocation_bundle(
+        attempt_request=attempt_request,
+        worker_input_packet=worker_input_packet,
+        dispatch_preflight=dispatch_preflight,
+        guardrail=guardrail,
+        sandbox_policy=sandbox_policy,
+        run_budget=run_budget,
+        worker_invocation_record=worker_invocation_record,
+        output_capture=output_capture,
+        candidate_materialization=candidate_materialization,
+        sandbox_application_trace=sandbox_application_trace,
+    )
+
+    if workbench_result_summary.equivalence_audit_ref != (
+        workbench_equivalence_audit.equivalence_audit_ref
+    ):
+        raise ValueError("workbench result summary must reference workbench audit")
+    if workbench_equivalence_audit.equivalence_audit_ref not in (
+        workbench_family_closeout.equivalence_audit_refs
+    ):
+        raise ValueError("workbench closeout must release equivalence audit")
+    if workbench_result_summary.result_summary_ref not in (
+        workbench_family_closeout.result_summary_refs
+    ):
+        raise ValueError("workbench closeout must release result summary")
+
+    if workbench_evidence_export.attempt_request_ref != attempt_request.attempt_request_ref:
+        raise ValueError("workbench evidence export must reference attempt request")
+    if workbench_evidence_export.worker_invocation_ref != (
+        worker_invocation_record.worker_invocation_ref
+    ):
+        raise ValueError("workbench evidence export must reference worker invocation")
+    if workbench_evidence_export.output_capture_ref != output_capture.output_capture_ref:
+        raise ValueError("workbench evidence export must reference output capture")
+    if workbench_evidence_export.candidate_materialization_ref != (
+        candidate_materialization.candidate_materialization_ref
+    ):
+        raise ValueError("workbench evidence export must reference candidate materialization")
+    if workbench_evidence_export.sandbox_application_trace_ref != (
+        sandbox_application_trace.sandbox_application_trace_ref
+    ):
+        raise ValueError("workbench evidence export must reference sandbox trace")
+    if not workbench_local_run_traces:
+        raise ValueError("attempt evidence export validation requires local run traces")
+    if not workbench_remand_correction_records:
+        raise ValueError("attempt evidence export validation requires remand records")
+    workbench_local_run_trace_refs = [
+        trace.local_run_trace_ref for trace in workbench_local_run_traces
+    ]
+    _ensure_sorted_unique(workbench_local_run_trace_refs, field_name="workbench_local_run_traces")
+    workbench_remand_record_refs = [
+        record.remand_correction_record_ref for record in workbench_remand_correction_records
+    ]
+    _ensure_sorted_unique(
+        workbench_remand_record_refs,
+        field_name="workbench_remand_correction_records",
+    )
+    if set(workbench_evidence_export.exported_candidate_artifact_manifest_refs) != {
+        workbench_candidate_artifact_manifest.candidate_artifact_manifest_ref
+    }:
+        raise ValueError(
+            "workbench evidence export must reference released PB-RECON candidate artifact manifest"
+        )
+    if set(workbench_evidence_export.exported_local_run_trace_refs) != set(
+        workbench_local_run_trace_refs
+    ):
+        raise ValueError("workbench evidence export must reference released PB-RECON local runs")
+    if set(workbench_evidence_export.exported_probe_result_log_refs) != {
+        workbench_probe_result_log.probe_result_log_ref
+    }:
+        raise ValueError(
+            "workbench evidence export must reference released PB-RECON probe result log"
+        )
+    if set(workbench_evidence_export.exported_remand_correction_record_refs) != set(
+        workbench_remand_record_refs
+    ):
+        raise ValueError(
+            "workbench evidence export must reference released PB-RECON remand records"
+        )
+    if set(workbench_evidence_export.exported_equivalence_audit_refs) != {
+        workbench_equivalence_audit.equivalence_audit_ref
+    }:
+        raise ValueError("workbench evidence export must reference released PB-RECON audit")
+    if set(workbench_evidence_export.exported_result_summary_refs) != {
+        workbench_result_summary.result_summary_ref
+    }:
+        raise ValueError(
+            "workbench evidence export must reference released PB-RECON result summary"
+        )
+    if workbench_result_summary.candidate_artifact_manifest_refs != (
+        workbench_evidence_export.exported_candidate_artifact_manifest_refs
+    ):
+        raise ValueError("attempt export must preserve result summary candidate artifacts")
+    if workbench_result_summary.local_run_trace_refs != (
+        workbench_evidence_export.exported_local_run_trace_refs
+    ):
+        raise ValueError("attempt export must preserve result summary local runs")
+    if workbench_result_summary.probe_result_log_refs != (
+        workbench_evidence_export.exported_probe_result_log_refs
+    ):
+        raise ValueError("attempt export must preserve result summary probe result logs")
+    if workbench_result_summary.remand_correction_record_refs != (
+        workbench_evidence_export.exported_remand_correction_record_refs
+    ):
+        raise ValueError("attempt export must preserve result summary remand records")
+
+    if attempt_result_review.attempt_request_ref != attempt_request.attempt_request_ref:
+        raise ValueError("attempt result review must reference attempt request")
+    if attempt_result_review.workbench_evidence_export_ref != (
+        workbench_evidence_export.workbench_evidence_export_ref
+    ):
+        raise ValueError("attempt result review must reference workbench evidence export")
+    if set(attempt_result_review.result_summary_refs) != {
+        workbench_result_summary.result_summary_ref
+    }:
+        raise ValueError("attempt result review must reference exported workbench result summary")
+    if attempt_result_review.local_attempt_posture == "attempt_locally_accepted":
+        if workbench_result_summary.result_posture != "local_accepted":
+            raise ValueError("accepted attempts require PB-RECON local_accepted result summary")
+        if workbench_evidence_export.export_validation_posture != "valid":
+            raise ValueError("accepted attempts require valid workbench evidence export")
+    elif (
+        workbench_result_summary.result_posture == "local_accepted"
+        and attempt_result_review.local_attempt_posture != "attempt_locally_accepted"
+    ):
+        raise ValueError("local_accepted workbench summaries require accepted attempt review")
+    if (
+        workbench_result_summary.result_posture == "blocked_by_contamination"
+        and attempt_result_review.local_attempt_posture != "attempt_blocked_by_contamination"
+    ):
+        raise ValueError(
+            "contamination-blocked workbench summaries require contamination attempt posture"
+        )
+    if (
+        workbench_result_summary.result_posture == "blocked_by_sandbox_violation"
+        and attempt_result_review.local_attempt_posture != "attempt_blocked_by_sandbox_violation"
+    ):
+        raise ValueError(
+            "sandbox-blocked workbench summaries require sandbox violation attempt posture"
+        )
+    if (
+        workbench_evidence_export.export_validation_posture != "valid"
+        and attempt_result_review.local_attempt_posture != "attempt_blocked_by_export_gap"
+    ):
+        raise ValueError("invalid attempt evidence exports require export-gap attempt posture")
+
+    if remand_queue.attempt_request_ref != attempt_request.attempt_request_ref:
+        raise ValueError("remand queue must reference attempt request")
+    if remand_queue.attempt_result_review_ref != (attempt_result_review.attempt_result_review_ref):
+        raise ValueError("remand queue must reference attempt result review")
+    if remand_queue.retry_budget_ref != run_budget.run_budget_ref:
+        raise ValueError("remand queue must preserve released run budget")
+    if attempt_result_review.local_attempt_posture == "attempt_locally_accepted":
+        if remand_queue.remand_queue_rows:
+            raise ValueError("accepted attempts cannot carry remand queue rows")
+    elif not remand_queue.remand_queue_rows:
+        raise ValueError("non-accepted attempts require remand queue rows")
+    local_remand_evidence_refs = {
+        attempt_result_review.attempt_result_review_ref,
+        candidate_materialization.candidate_materialization_ref,
+        output_capture.output_capture_ref,
+        sandbox_application_trace.sandbox_application_trace_ref,
+        workbench_evidence_export.workbench_evidence_export_ref,
+        workbench_result_summary.result_summary_ref,
+    }
+    for row in remand_queue.remand_queue_rows:
+        unknown_refs = set(row.source_evidence_refs) - local_remand_evidence_refs
+        if unknown_refs:
+            raise ValueError(
+                "remand queue rows must cite local attempt/workbench evidence refs: "
+                f"{sorted(unknown_refs)}"
+            )
+
+    if family_closeout.closed_family_ref != "PB-ATTEMPT-0":
+        raise ValueError("attempt family closeout must close only PB-ATTEMPT-0")
+    if attempt_request.attempt_request_ref not in family_closeout.attempt_request_refs:
+        raise ValueError("attempt family closeout must reference attempt request")
+    if worker_invocation_record.worker_invocation_ref not in (
+        family_closeout.worker_invocation_refs
+    ):
+        raise ValueError("attempt family closeout must reference worker invocation")
+    if workbench_evidence_export.workbench_evidence_export_ref not in (
+        family_closeout.workbench_evidence_export_refs
+    ):
+        raise ValueError("attempt family closeout must reference workbench evidence export")
+    if attempt_result_review.attempt_result_review_ref not in (
+        family_closeout.attempt_result_review_refs
+    ):
+        raise ValueError("attempt family closeout must reference attempt result review")
+    if remand_queue.remand_queue_ref not in family_closeout.remand_queue_refs:
+        raise ValueError("attempt family closeout must reference remand queue")
