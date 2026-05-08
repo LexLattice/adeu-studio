@@ -1,0 +1,91 @@
+{
+  "additionalProperties": false,
+  "properties": {
+    "benchmark_result_authority_posture": {
+      "const": "no_benchmark_result_authority_granted_by_pb_recon_0c",
+      "title": "Benchmark Result Authority Posture",
+      "type": "string"
+    },
+    "equivalence_audit_ref": {
+      "title": "Equivalence Audit Ref",
+      "type": "string"
+    },
+    "execution_authority_posture": {
+      "const": "no_execution_authority_granted_by_pb_recon_0c",
+      "title": "Execution Authority Posture",
+      "type": "string"
+    },
+    "future_family_selection_posture": {
+      "const": "no_future_family_selected_by_pb_recon_0c",
+      "title": "Future Family Selection Posture",
+      "type": "string"
+    },
+    "handoff_ref": {
+      "title": "Handoff Ref",
+      "type": "string"
+    },
+    "handoff_sequence_posture": {
+      "enum": [
+        "handoff_pressure_only_no_selection",
+        "blocked_no_handoff"
+      ],
+      "title": "Handoff Sequence Posture",
+      "type": "string"
+    },
+    "handoff_target": {
+      "enum": [
+        "future_cleanroom_reconstruction_review",
+        "future_local_workbench_iteration_review",
+        "future_local_equivalence_audit_review",
+        "blocked_no_handoff",
+        "future_family_only"
+      ],
+      "title": "Handoff Target",
+      "type": "string"
+    },
+    "limitation_note": {
+      "title": "Limitation Note",
+      "type": "string"
+    },
+    "model_ranking_authority_posture": {
+      "const": "no_model_ranking_authority_granted_by_pb_recon_0c",
+      "title": "Model Ranking Authority Posture",
+      "type": "string"
+    },
+    "official_programbench_authority_posture": {
+      "const": "no_official_programbench_authority_granted_by_pb_recon_0c",
+      "title": "Official Programbench Authority Posture",
+      "type": "string"
+    },
+    "result_summary_ref": {
+      "title": "Result Summary Ref",
+      "type": "string"
+    },
+    "schema": {
+      "const": "programbench_reconstruction_handoff@1",
+      "title": "Schema",
+      "type": "string"
+    },
+    "work_order_ref": {
+      "title": "Work Order Ref",
+      "type": "string"
+    }
+  },
+  "required": [
+    "schema",
+    "handoff_ref",
+    "work_order_ref",
+    "equivalence_audit_ref",
+    "result_summary_ref",
+    "handoff_target",
+    "handoff_sequence_posture",
+    "execution_authority_posture",
+    "official_programbench_authority_posture",
+    "benchmark_result_authority_posture",
+    "model_ranking_authority_posture",
+    "future_family_selection_posture",
+    "limitation_note"
+  ],
+  "title": "ProgrambenchReconstructionHandoff",
+  "type": "object"
+}

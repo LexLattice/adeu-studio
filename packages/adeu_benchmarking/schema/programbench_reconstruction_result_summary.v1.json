@@ -1,0 +1,157 @@
+{
+  "additionalProperties": false,
+  "properties": {
+    "benchmark_truth_posture": {
+      "const": "not_benchmark_truth",
+      "title": "Benchmark Truth Posture",
+      "type": "string"
+    },
+    "candidate_artifact_manifest_refs": {
+      "items": {
+        "type": "string"
+      },
+      "minItems": 1,
+      "title": "Candidate Artifact Manifest Refs",
+      "type": "array"
+    },
+    "carried_blocker_refs": {
+      "items": {
+        "type": "string"
+      },
+      "title": "Carried Blocker Refs",
+      "type": "array"
+    },
+    "carried_warning_refs": {
+      "items": {
+        "type": "string"
+      },
+      "title": "Carried Warning Refs",
+      "type": "array"
+    },
+    "contamination_refs": {
+      "items": {
+        "type": "string"
+      },
+      "title": "Contamination Refs",
+      "type": "array"
+    },
+    "equivalence_audit_ref": {
+      "title": "Equivalence Audit Ref",
+      "type": "string"
+    },
+    "future_family_selection_posture": {
+      "const": "no_future_family_selected_by_pb_recon_0c",
+      "title": "Future Family Selection Posture",
+      "type": "string"
+    },
+    "hidden_test_equivalence_posture": {
+      "const": "not_hidden_test_equivalence",
+      "title": "Hidden Test Equivalence Posture",
+      "type": "string"
+    },
+    "limitation_note": {
+      "title": "Limitation Note",
+      "type": "string"
+    },
+    "local_acceptance_scope_posture": {
+      "enum": [
+        "accepted_only_against_declared_local_probe_set_not_hidden_tests",
+        "not_locally_accepted"
+      ],
+      "title": "Local Acceptance Scope Posture",
+      "type": "string"
+    },
+    "local_run_trace_refs": {
+      "items": {
+        "type": "string"
+      },
+      "minItems": 1,
+      "title": "Local Run Trace Refs",
+      "type": "array"
+    },
+    "model_ranking_posture": {
+      "const": "no_model_ranking_claimed_by_pb_recon_0c",
+      "title": "Model Ranking Posture",
+      "type": "string"
+    },
+    "official_submission_posture": {
+      "const": "no_official_submission_or_submission_authority_by_pb_recon_0c",
+      "title": "Official Submission Posture",
+      "type": "string"
+    },
+    "probe_result_log_refs": {
+      "items": {
+        "type": "string"
+      },
+      "minItems": 1,
+      "title": "Probe Result Log Refs",
+      "type": "array"
+    },
+    "remand_correction_record_refs": {
+      "items": {
+        "type": "string"
+      },
+      "minItems": 1,
+      "title": "Remand Correction Record Refs",
+      "type": "array"
+    },
+    "result_posture": {
+      "enum": [
+        "local_accepted",
+        "local_remand_required",
+        "local_rejected",
+        "blocked_by_contamination",
+        "blocked_by_sandbox_violation",
+        "blocked_by_missing_evidence",
+        "inconclusive_local_audit",
+        "future_family_only"
+      ],
+      "title": "Result Posture",
+      "type": "string"
+    },
+    "result_summary_ref": {
+      "title": "Result Summary Ref",
+      "type": "string"
+    },
+    "sandbox_violation_refs": {
+      "items": {
+        "type": "string"
+      },
+      "title": "Sandbox Violation Refs",
+      "type": "array"
+    },
+    "schema": {
+      "const": "programbench_reconstruction_result_summary@1",
+      "title": "Schema",
+      "type": "string"
+    },
+    "work_order_ref": {
+      "title": "Work Order Ref",
+      "type": "string"
+    }
+  },
+  "required": [
+    "schema",
+    "result_summary_ref",
+    "work_order_ref",
+    "equivalence_audit_ref",
+    "candidate_artifact_manifest_refs",
+    "local_run_trace_refs",
+    "probe_result_log_refs",
+    "remand_correction_record_refs",
+    "result_posture",
+    "carried_blocker_refs",
+    "carried_warning_refs",
+    "contamination_refs",
+    "sandbox_violation_refs",
+    "local_acceptance_scope_posture",
+    "hidden_test_equivalence_posture",
+    "benchmark_truth_posture",
+    "official_submission_posture",
+    "model_ranking_posture",
+    "future_family_selection_posture",
+    "limitation_note"
+  ],
+  "title": "ProgrambenchReconstructionResultSummary",
+  "type": "object"
+}

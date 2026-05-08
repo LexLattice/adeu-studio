@@ -1,0 +1,32 @@
+{
+  "benchmark_truth_posture": "not_benchmark_truth",
+  "candidate_artifact_manifest_refs": [
+    "candidate-artifact-manifest:pb-recon-0b:reference"
+  ],
+  "carried_blocker_refs": [
+    "probe-result:pb-recon-0b:help"
+  ],
+  "carried_warning_refs": [],
+  "contamination_refs": [],
+  "equivalence_audit_ref": "equivalence-audit:pb-recon-0c:reference",
+  "future_family_selection_posture": "no_future_family_selected_by_pb_recon_0c",
+  "hidden_test_equivalence_posture": "not_hidden_test_equivalence",
+  "limitation_note": "Reject: local summary cannot rank models.",
+  "local_acceptance_scope_posture": "not_locally_accepted",
+  "local_run_trace_refs": [
+    "local-run:pb-recon-0b:attempt-1-help"
+  ],
+  "model_ranking_posture": "model_ranking_claimed",
+  "official_submission_posture": "no_official_submission_or_submission_authority_by_pb_recon_0c",
+  "probe_result_log_refs": [
+    "probe-result-log:pb-recon-0b:reference"
+  ],
+  "remand_correction_record_refs": [
+    "remand:pb-recon-0b:attempt-1-help"
+  ],
+  "result_posture": "local_remand_required",
+  "result_summary_ref": "result-summary:pb-recon-0c:reject-ranking",
+  "sandbox_violation_refs": [],
+  "schema": "programbench_reconstruction_result_summary@1",
+  "work_order_ref": "work-order:pb-recon-0a:reference"
+}

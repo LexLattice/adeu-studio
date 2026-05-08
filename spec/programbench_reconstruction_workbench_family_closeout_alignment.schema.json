@@ -1,0 +1,111 @@
+{
+  "additionalProperties": false,
+  "properties": {
+    "benchmark_truth_non_authority_posture": {
+      "const": "not_benchmark_truth",
+      "title": "Benchmark Truth Non Authority Posture",
+      "type": "string"
+    },
+    "closed_family_ref": {
+      "title": "Closed Family Ref",
+      "type": "string"
+    },
+    "closed_slice_refs": {
+      "items": {
+        "type": "string"
+      },
+      "minItems": 3,
+      "title": "Closed Slice Refs",
+      "type": "array"
+    },
+    "equivalence_audit_refs": {
+      "items": {
+        "type": "string"
+      },
+      "minItems": 1,
+      "title": "Equivalence Audit Refs",
+      "type": "array"
+    },
+    "family_alignment_posture": {
+      "const": "pb_recon_0_closed_local_workbench_only",
+      "title": "Family Alignment Posture",
+      "type": "string"
+    },
+    "family_closeout_ref": {
+      "title": "Family Closeout Ref",
+      "type": "string"
+    },
+    "future_family_selection_posture": {
+      "const": "no_future_family_selected_by_pb_recon_0c",
+      "title": "Future Family Selection Posture",
+      "type": "string"
+    },
+    "handoff_refs": {
+      "items": {
+        "type": "string"
+      },
+      "minItems": 1,
+      "title": "Handoff Refs",
+      "type": "array"
+    },
+    "hidden_test_non_inference_posture": {
+      "const": "hidden_tests_not_inference_evidence",
+      "title": "Hidden Test Non Inference Posture",
+      "type": "string"
+    },
+    "limitation_note": {
+      "title": "Limitation Note",
+      "type": "string"
+    },
+    "model_ranking_non_authority_posture": {
+      "const": "not_model_ranking",
+      "title": "Model Ranking Non Authority Posture",
+      "type": "string"
+    },
+    "official_programbench_non_authority_posture": {
+      "const": "no_official_programbench_authority",
+      "title": "Official Programbench Non Authority Posture",
+      "type": "string"
+    },
+    "result_summary_refs": {
+      "items": {
+        "type": "string"
+      },
+      "minItems": 1,
+      "title": "Result Summary Refs",
+      "type": "array"
+    },
+    "schema": {
+      "const": "programbench_reconstruction_workbench_family_closeout_alignment@1",
+      "title": "Schema",
+      "type": "string"
+    },
+    "work_order_refs": {
+      "items": {
+        "type": "string"
+      },
+      "minItems": 1,
+      "title": "Work Order Refs",
+      "type": "array"
+    }
+  },
+  "required": [
+    "schema",
+    "family_closeout_ref",
+    "closed_family_ref",
+    "closed_slice_refs",
+    "work_order_refs",
+    "equivalence_audit_refs",
+    "result_summary_refs",
+    "handoff_refs",
+    "family_alignment_posture",
+    "official_programbench_non_authority_posture",
+    "hidden_test_non_inference_posture",
+    "benchmark_truth_non_authority_posture",
+    "model_ranking_non_authority_posture",
+    "future_family_selection_posture",
+    "limitation_note"
+  ],
+  "title": "ProgrambenchReconstructionWorkbenchFamilyCloseoutAlignment",
+  "type": "object"
+}

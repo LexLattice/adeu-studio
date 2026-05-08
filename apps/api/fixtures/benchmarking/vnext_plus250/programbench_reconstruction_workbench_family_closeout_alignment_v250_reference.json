@@ -1,0 +1,29 @@
+{
+  "benchmark_truth_non_authority_posture": "not_benchmark_truth",
+  "closed_family_ref": "PB-RECON-0",
+  "closed_slice_refs": [
+    "PB-RECON-0-A",
+    "PB-RECON-0-B",
+    "PB-RECON-0-C"
+  ],
+  "equivalence_audit_refs": [
+    "equivalence-audit:pb-recon-0c:reference"
+  ],
+  "family_alignment_posture": "pb_recon_0_closed_local_workbench_only",
+  "family_closeout_ref": "family-closeout:pb-recon-0c:reference",
+  "future_family_selection_posture": "no_future_family_selected_by_pb_recon_0c",
+  "handoff_refs": [
+    "handoff:pb-recon-0c:reference"
+  ],
+  "hidden_test_non_inference_posture": "hidden_tests_not_inference_evidence",
+  "limitation_note": "Closeout aligns PB-RECON-0 as a local cleanroom reconstruction workbench only.",
+  "model_ranking_non_authority_posture": "not_model_ranking",
+  "official_programbench_non_authority_posture": "no_official_programbench_authority",
+  "result_summary_refs": [
+    "result-summary:pb-recon-0c:reference"
+  ],
+  "schema": "programbench_reconstruction_workbench_family_closeout_alignment@1",
+  "work_order_refs": [
+    "work-order:pb-recon-0a:reference"
+  ]
+}

@@ -1,0 +1,234 @@
+{
+  "$defs": {
+    "ProgrambenchReconstructionCoverageRow": {
+      "additionalProperties": false,
+      "properties": {
+        "coverage_posture": {
+          "enum": [
+            "covered_by_local_probe",
+            "missing_required_evidence",
+            "not_applicable_with_reason"
+          ],
+          "title": "Coverage Posture",
+          "type": "string"
+        },
+        "coverage_ref": {
+          "title": "Coverage Ref",
+          "type": "string"
+        },
+        "expected_behavior_ref": {
+          "title": "Expected Behavior Ref",
+          "type": "string"
+        },
+        "limitation_note": {
+          "title": "Limitation Note",
+          "type": "string"
+        },
+        "observed_behavior_ref": {
+          "title": "Observed Behavior Ref",
+          "type": "string"
+        },
+        "probe_result_refs": {
+          "items": {
+            "type": "string"
+          },
+          "minItems": 1,
+          "title": "Probe Result Refs",
+          "type": "array"
+        }
+      },
+      "required": [
+        "coverage_ref",
+        "expected_behavior_ref",
+        "observed_behavior_ref",
+        "probe_result_refs",
+        "coverage_posture",
+        "limitation_note"
+      ],
+      "title": "ProgrambenchReconstructionCoverageRow",
+      "type": "object"
+    },
+    "ProgrambenchReconstructionProbeAuditRow": {
+      "additionalProperties": false,
+      "properties": {
+        "limitation_note": {
+          "title": "Limitation Note",
+          "type": "string"
+        },
+        "probe_audit_ref": {
+          "title": "Probe Audit Ref",
+          "type": "string"
+        },
+        "probe_pass_posture": {
+          "enum": [
+            "passed_local_probe",
+            "failed_local_probe",
+            "inconclusive_local_probe",
+            "not_applicable_with_reason"
+          ],
+          "title": "Probe Pass Posture",
+          "type": "string"
+        },
+        "probe_requirement_kind": {
+          "enum": [
+            "positive_probe",
+            "negative_probe",
+            "regression_probe"
+          ],
+          "title": "Probe Requirement Kind",
+          "type": "string"
+        },
+        "probe_result_ref": {
+          "title": "Probe Result Ref",
+          "type": "string"
+        },
+        "requirement_posture": {
+          "enum": [
+            "required",
+            "not_applicable_with_reason"
+          ],
+          "title": "Requirement Posture",
+          "type": "string"
+        }
+      },
+      "required": [
+        "probe_audit_ref",
+        "probe_result_ref",
+        "probe_requirement_kind",
+        "requirement_posture",
+        "probe_pass_posture",
+        "limitation_note"
+      ],
+      "title": "ProgrambenchReconstructionProbeAuditRow",
+      "type": "object"
+    }
+  },
+  "additionalProperties": false,
+  "properties": {
+    "benchmark_truth_posture": {
+      "const": "not_benchmark_truth",
+      "title": "Benchmark Truth Posture",
+      "type": "string"
+    },
+    "candidate_artifact_manifest_ref": {
+      "title": "Candidate Artifact Manifest Ref",
+      "type": "string"
+    },
+    "case_packet_ref": {
+      "title": "Case Packet Ref",
+      "type": "string"
+    },
+    "coverage_rows": {
+      "items": {
+        "$ref": "#/$defs/ProgrambenchReconstructionCoverageRow"
+      },
+      "minItems": 1,
+      "title": "Coverage Rows",
+      "type": "array"
+    },
+    "equivalence_audit_ref": {
+      "title": "Equivalence Audit Ref",
+      "type": "string"
+    },
+    "expected_behavior_refs": {
+      "items": {
+        "type": "string"
+      },
+      "minItems": 1,
+      "title": "Expected Behavior Refs",
+      "type": "array"
+    },
+    "hidden_test_equivalence_posture": {
+      "const": "not_hidden_test_equivalence",
+      "title": "Hidden Test Equivalence Posture",
+      "type": "string"
+    },
+    "limitation_note": {
+      "title": "Limitation Note",
+      "type": "string"
+    },
+    "local_equivalence_posture": {
+      "enum": [
+        "local_equivalence_satisfied",
+        "local_equivalence_failed",
+        "local_equivalence_inconclusive",
+        "future_family_only"
+      ],
+      "title": "Local Equivalence Posture",
+      "type": "string"
+    },
+    "negative_probe_rows": {
+      "items": {
+        "$ref": "#/$defs/ProgrambenchReconstructionProbeAuditRow"
+      },
+      "title": "Negative Probe Rows",
+      "type": "array"
+    },
+    "observed_behavior_refs": {
+      "items": {
+        "type": "string"
+      },
+      "minItems": 1,
+      "title": "Observed Behavior Refs",
+      "type": "array"
+    },
+    "official_programbench_posture": {
+      "const": "no_official_programbench_participation_by_pb_recon_0c",
+      "title": "Official Programbench Posture",
+      "type": "string"
+    },
+    "positive_probe_rows": {
+      "items": {
+        "$ref": "#/$defs/ProgrambenchReconstructionProbeAuditRow"
+      },
+      "minItems": 1,
+      "title": "Positive Probe Rows",
+      "type": "array"
+    },
+    "probe_result_log_refs": {
+      "items": {
+        "type": "string"
+      },
+      "minItems": 1,
+      "title": "Probe Result Log Refs",
+      "type": "array"
+    },
+    "regression_probe_rows": {
+      "items": {
+        "$ref": "#/$defs/ProgrambenchReconstructionProbeAuditRow"
+      },
+      "title": "Regression Probe Rows",
+      "type": "array"
+    },
+    "schema": {
+      "const": "programbench_reconstruction_equivalence_audit@1",
+      "title": "Schema",
+      "type": "string"
+    },
+    "work_order_ref": {
+      "title": "Work Order Ref",
+      "type": "string"
+    }
+  },
+  "required": [
+    "schema",
+    "equivalence_audit_ref",
+    "work_order_ref",
+    "case_packet_ref",
+    "candidate_artifact_manifest_ref",
+    "probe_result_log_refs",
+    "expected_behavior_refs",
+    "observed_behavior_refs",
+    "coverage_rows",
+    "positive_probe_rows",
+    "negative_probe_rows",
+    "regression_probe_rows",
+    "local_equivalence_posture",
+    "hidden_test_equivalence_posture",
+    "benchmark_truth_posture",
+    "official_programbench_posture",
+    "limitation_note"
+  ],
+  "title": "ProgrambenchReconstructionEquivalenceAudit",
+  "type": "object"
+}
