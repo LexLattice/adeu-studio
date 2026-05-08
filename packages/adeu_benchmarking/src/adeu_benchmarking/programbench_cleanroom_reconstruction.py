@@ -626,10 +626,13 @@ class ProgrambenchReconstructionCandidateArtifactManifest(_WorkbenchBase):
         _ensure_sorted_unique(generated_path_refs, field_name="generated_file_paths")
         hash_refs = [row.artifact_hash_ref for row in self.generated_artifact_hash_rows]
         _ensure_sorted_unique(hash_refs, field_name="generated_artifact_hash_rows")
-        hashed_file_refs = {
+        hashed_file_refs = [
             row.generated_file_ref for row in self.generated_artifact_hash_rows
-        }
-        if hashed_file_refs != set(generated_file_refs):
+        ]
+        _ensure_non_empty_unique(
+            hashed_file_refs, field_name="generated_artifact_hash_file_refs"
+        )
+        if set(hashed_file_refs) != set(generated_file_refs):
             raise ValueError(
                 "generated artifact hash rows must cover exactly generated files"
             )
@@ -721,6 +724,8 @@ class ProgrambenchReconstructionLocalRunTrace(_WorkbenchBase):
         argv_refs = [row.argv_ref for row in self.command_argv_rows]
         _ensure_sorted_unique(argv_refs, field_name="command_argv_rows")
         indices = [row.arg_index for row in self.command_argv_rows]
+        if indices != sorted(indices):
+            raise ValueError("command argv rows must be sorted by arg_index")
         if indices != list(range(len(indices))):
             raise ValueError("command argv rows must use contiguous arg_index values")
         if self.command_argv_rows[0].argv_role != "executable":
@@ -857,7 +862,7 @@ class ProgrambenchReconstructionRemandCorrectionRecord(_WorkbenchBase):
     )
     correction_attempt_rows: list[
         ProgrambenchReconstructionCorrectionAttemptRow
-    ] = Field(min_length=1)
+    ]
     semantic_route_preservation_posture: Literal[
         "semantic_route_preserved",
         "semantic_route_not_assessed",
@@ -884,7 +889,7 @@ class ProgrambenchReconstructionRemandCorrectionRecord(_WorkbenchBase):
         correction_refs = [
             row.correction_attempt_ref for row in self.correction_attempt_rows
         ]
-        _ensure_sorted_unique(
+        _ensure_sorted_unique_allow_empty(
             correction_refs, field_name="correction_attempt_rows"
         )
         _ensure_sorted_unique(
@@ -894,6 +899,16 @@ class ProgrambenchReconstructionRemandCorrectionRecord(_WorkbenchBase):
             self.remand_reason_source
         }:
             raise ValueError("remand reason rows must match remand_reason_source")
+        if (
+            self.remand_outcome_posture == "corrected_for_local_reprobe"
+            and not self.correction_attempt_rows
+        ):
+            raise ValueError("corrected remand records require correction attempts")
+        if (
+            self.remand_outcome_posture == "remand_recorded_no_correction"
+            and self.correction_attempt_rows
+        ):
+            raise ValueError("no-correction remand records must not include corrections")
         for row in self.correction_attempt_rows:
             if row.candidate_attempt_ref != self.candidate_attempt_ref:
                 raise ValueError("correction attempts must preserve candidate attempt ref")
@@ -1199,6 +1214,16 @@ def validate_pb_recon_0b_local_evidence_bundle(
         run_budget.max_candidate_artifact_count
     ):
         raise ValueError("candidate artifact manifest exceeds candidate artifact budget")
+    allowed_write_scope_refs = set(sandbox_policy.allowed_write_scope_refs)
+    manifest_write_scope_refs = {
+        row.write_scope_ref for row in candidate_artifact_manifest.generated_file_rows
+    }
+    unallowed_write_scope_refs = manifest_write_scope_refs - allowed_write_scope_refs
+    if unallowed_write_scope_refs:
+        raise ValueError(
+            "candidate artifact manifest write scopes must be allowed by sandbox policy: "
+            f"{sorted(unallowed_write_scope_refs)}"
+        )
 
     trace_refs = [trace.local_run_trace_ref for trace in local_run_traces]
     _ensure_sorted_unique(trace_refs, field_name="local_run_traces")

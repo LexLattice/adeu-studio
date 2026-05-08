@@ -348,6 +348,43 @@ def test_pb_recon_0b_bundle_rejects_candidate_artifact_budget_overrun() -> None:
         )
 
 
+def test_pb_recon_0b_bundle_rejects_candidate_artifact_outside_write_scope() -> None:
+    (
+        work_order,
+        worker_context_packet,
+        context_exclusion_manifest,
+        sandbox_policy,
+        run_budget,
+        guardrail,
+    ) = _load_recon_a_bundle()
+    (
+        candidate_artifact_manifest,
+        local_run_traces,
+        probe_result_log,
+        remand_correction_records,
+    ) = _load_recon_b_bundle()
+    out_of_scope_file = candidate_artifact_manifest.generated_file_rows[0].model_copy(
+        update={"write_scope_ref": "workspace:host-secret-outside-sandbox"}
+    )
+    drifted_manifest = candidate_artifact_manifest.model_copy(
+        update={"generated_file_rows": [out_of_scope_file]}
+    )
+
+    with pytest.raises(ValueError, match="write scopes must be allowed"):
+        validate_pb_recon_0b_local_evidence_bundle(
+            work_order=work_order,
+            worker_context_packet=worker_context_packet,
+            context_exclusion_manifest=context_exclusion_manifest,
+            sandbox_policy=sandbox_policy,
+            run_budget=run_budget,
+            guardrail=guardrail,
+            candidate_artifact_manifest=drifted_manifest,
+            local_run_traces=local_run_traces,
+            probe_result_log=probe_result_log,
+            remand_correction_records=remand_correction_records,
+        )
+
+
 def test_pb_recon_0b_bundle_rejects_sandbox_violation_as_passed_probe() -> None:
     (
         work_order,
@@ -421,6 +458,55 @@ def test_pb_recon_0b_bundle_rejects_remand_budget_overrun() -> None:
                 duplicate_remand,
             ],
         )
+
+
+def test_pb_recon_0b_candidate_manifest_rejects_duplicate_file_hash_rows() -> None:
+    payload = _load_recon_b_fixture(
+        "programbench_reconstruction_candidate_artifact_manifest_v249_reference.json"
+    )
+    duplicate_hash = dict(payload["generated_artifact_hash_rows"][0])
+    duplicate_hash["artifact_hash_ref"] = "artifact-hash:pb-recon-0b:zz-duplicate"
+    duplicate_hash["content_hash"] = (
+        "sha256:7777777777777777777777777777777777777777777777777777777777777777"
+    )
+    payload["generated_artifact_hash_rows"].append(duplicate_hash)
+
+    with pytest.raises(ValidationError, match="generated_artifact_hash_file_refs"):
+        ProgrambenchReconstructionCandidateArtifactManifest.model_validate(payload)
+
+
+def test_pb_recon_0b_local_run_trace_requires_argv_rows_sorted_by_index() -> None:
+    payload = _load_recon_b_fixture(
+        "programbench_reconstruction_local_run_trace_v249_reference.json"
+    )
+    payload["command_argv_rows"][0]["arg_index"] = 1
+    payload["command_argv_rows"][1]["arg_index"] = 0
+
+    with pytest.raises(ValidationError, match="sorted by arg_index"):
+        ProgrambenchReconstructionLocalRunTrace.model_validate(payload)
+
+
+def test_pb_recon_0b_remand_record_allows_no_correction_outcome_without_attempts() -> None:
+    payload = _load_recon_b_fixture(
+        "programbench_reconstruction_remand_correction_record_v249_reference.json"
+    )
+    payload["correction_attempt_rows"] = []
+    payload["remand_outcome_posture"] = "remand_recorded_no_correction"
+
+    record = ProgrambenchReconstructionRemandCorrectionRecord.model_validate(payload)
+
+    assert record.correction_attempt_rows == []
+    assert record.remand_outcome_posture == "remand_recorded_no_correction"
+
+
+def test_pb_recon_0b_corrected_remand_record_requires_correction_attempts() -> None:
+    payload = _load_recon_b_fixture(
+        "programbench_reconstruction_remand_correction_record_v249_reference.json"
+    )
+    payload["correction_attempt_rows"] = []
+
+    with pytest.raises(ValidationError, match="require correction attempts"):
+        ProgrambenchReconstructionRemandCorrectionRecord.model_validate(payload)
 
 
 @pytest.mark.parametrize(

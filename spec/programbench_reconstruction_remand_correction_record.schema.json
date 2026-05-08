@@ -110,7 +110,6 @@
       "items": {
         "$ref": "#/$defs/ProgrambenchReconstructionCorrectionAttemptRow"
       },
-      "minItems": 1,
       "title": "Correction Attempt Rows",
       "type": "array"
     },
