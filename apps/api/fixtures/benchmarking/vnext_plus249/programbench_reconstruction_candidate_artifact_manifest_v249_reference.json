@@ -1,0 +1,34 @@
+{
+  "adapter_candidate_ref": "adapter-candidate:pb-adapter-0a:reference",
+  "artifact_visibility_posture": "local_workbench_artifacts_only",
+  "candidate_artifact_manifest_ref": "candidate-artifact-manifest:pb-recon-0b:reference",
+  "candidate_attempt_ref": "candidate-attempt:pb-recon-0b:attempt-1",
+  "generated_artifact_hash_rows": [
+    {
+      "artifact_hash_ref": "artifact-hash:pb-recon-0b:solution-py",
+      "content_hash": "sha256:3333333333333333333333333333333333333333333333333333333333333333",
+      "generated_file_ref": "generated-file:pb-recon-0b:solution-py",
+      "hash_role": "candidate_artifact_content_hash",
+      "limitation_note": "Hash binds the local candidate artifact for the reference fixture."
+    }
+  ],
+  "generated_file_rows": [
+    {
+      "artifact_visibility_posture": "local_workbench_generated_artifact",
+      "file_role": "candidate_source_file",
+      "generated_file_ref": "generated-file:pb-recon-0b:solution-py",
+      "limitation_note": "Local candidate source file generated under the released work order.",
+      "path_ref": "path:pb-recon-0a:candidate-output/solution.py",
+      "write_scope_ref": "workspace:pb-recon-0a:candidate-output"
+    }
+  ],
+  "limitation_note": "Reference candidate manifest records local workbench output only; it is not an official ProgramBench submission.",
+  "official_programbench_posture": "no_official_programbench_participation_by_pb_recon_0b",
+  "run_budget_ref": "run-budget:pb-recon-0a:reference",
+  "sandbox_policy_ref": "sandbox-policy:pb-recon-0a:reference",
+  "schema": "programbench_reconstruction_candidate_artifact_manifest@1",
+  "submission_authority_posture": "no_official_submission_authority_by_pb_recon_0b",
+  "task_instance_ref": "task-instance:pb-adapter-0a:toy-cli",
+  "work_order_ref": "work-order:pb-recon-0a:reference",
+  "worker_context_packet_ref": "worker-context:pb-recon-0a:reference"
+}

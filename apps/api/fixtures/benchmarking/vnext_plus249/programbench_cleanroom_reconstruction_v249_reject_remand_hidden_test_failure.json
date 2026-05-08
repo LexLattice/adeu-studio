@@ -1,0 +1,35 @@
+{
+  "budget_consumption_refs": [
+    "run-budget:pb-recon-0a:reference"
+  ],
+  "candidate_attempt_ref": "candidate-attempt:pb-recon-0b:attempt-1",
+  "case_packet_mutation_posture": "released_case_packet_not_mutated",
+  "correction_attempt_rows": [
+    {
+      "candidate_attempt_ref": "candidate-attempt:pb-recon-0b:attempt-1",
+      "changed_artifact_refs": [
+        "generated-file:pb-recon-0b:solution-py"
+      ],
+      "correction_attempt_ref": "correction:pb-recon-0b:attempt-1-help",
+      "correction_scope_posture": "local_candidate_artifact_only",
+      "limitation_note": "Correction is limited to the local candidate artifact."
+    }
+  ],
+  "hidden_evidence_use_posture": "no_hidden_or_forbidden_evidence_used",
+  "limitation_note": "Reject fixture uses hidden-test failure as a remand source.",
+  "remand_correction_record_ref": "remand:pb-recon-0b:attempt-1-help",
+  "remand_outcome_posture": "corrected_for_local_reprobe",
+  "remand_reason_rows": [
+    {
+      "limitation_note": "Hidden test result must not be a remand source.",
+      "reason_kind": "local_probe_failure",
+      "remand_reason_ref": "remand-reason:pb-recon-0b:hidden-test",
+      "severity": "blocking",
+      "source_ref": "hidden-test:pb-recon-0b:forbidden"
+    }
+  ],
+  "remand_reason_source": "hidden_test_failure",
+  "schema": "programbench_reconstruction_remand_correction_record@1",
+  "semantic_route_preservation_posture": "semantic_route_preserved",
+  "work_order_ref": "work-order:pb-recon-0a:reference"
+}

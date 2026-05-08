@@ -1,0 +1,35 @@
+{
+  "budget_consumption_refs": [
+    "run-budget:pb-recon-0a:reference"
+  ],
+  "candidate_attempt_ref": "candidate-attempt:pb-recon-0b:attempt-1",
+  "case_packet_mutation_posture": "released_case_packet_not_mutated",
+  "correction_attempt_rows": [
+    {
+      "candidate_attempt_ref": "candidate-attempt:pb-recon-0b:attempt-1",
+      "changed_artifact_refs": [
+        "generated-file:pb-recon-0b:solution-py"
+      ],
+      "correction_attempt_ref": "correction:pb-recon-0b:attempt-1-help",
+      "correction_scope_posture": "local_candidate_artifact_only",
+      "limitation_note": "Correction is limited to the local candidate artifact."
+    }
+  ],
+  "hidden_evidence_use_posture": "no_hidden_or_forbidden_evidence_used",
+  "limitation_note": "Reference remand is sourced only from local probe failure.",
+  "remand_correction_record_ref": "remand:pb-recon-0b:attempt-1-help",
+  "remand_outcome_posture": "corrected_for_local_reprobe",
+  "remand_reason_rows": [
+    {
+      "limitation_note": "Local help probe exit code and stderr differed from the declared local expectation.",
+      "reason_kind": "local_probe_failure",
+      "remand_reason_ref": "remand-reason:pb-recon-0b:help-failure",
+      "severity": "blocking",
+      "source_ref": "probe-result:pb-recon-0b:help"
+    }
+  ],
+  "remand_reason_source": "local_probe_failure",
+  "schema": "programbench_reconstruction_remand_correction_record@1",
+  "semantic_route_preservation_posture": "semantic_route_preserved",
+  "work_order_ref": "work-order:pb-recon-0a:reference"
+}

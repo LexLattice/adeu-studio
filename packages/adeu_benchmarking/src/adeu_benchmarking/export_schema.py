@@ -106,13 +106,21 @@ from .programbench_cleanroom_adapter import (
     ProgrambenchTaskVisibilityManifest,
 )
 from .programbench_cleanroom_reconstruction import (
+    PROGRAMBENCH_RECONSTRUCTION_CANDIDATE_ARTIFACT_MANIFEST_SCHEMA,
     PROGRAMBENCH_RECONSTRUCTION_CONTEXT_EXCLUSION_MANIFEST_SCHEMA,
+    PROGRAMBENCH_RECONSTRUCTION_LOCAL_RUN_TRACE_SCHEMA,
+    PROGRAMBENCH_RECONSTRUCTION_PROBE_RESULT_LOG_SCHEMA,
+    PROGRAMBENCH_RECONSTRUCTION_REMAND_CORRECTION_RECORD_SCHEMA,
     PROGRAMBENCH_RECONSTRUCTION_RUN_BUDGET_SCHEMA,
     PROGRAMBENCH_RECONSTRUCTION_SANDBOX_POLICY_SCHEMA,
     PROGRAMBENCH_RECONSTRUCTION_WORK_ORDER_SCHEMA,
     PROGRAMBENCH_RECONSTRUCTION_WORKBENCH_NON_AUTHORITY_GUARDRAIL_SCHEMA,
     PROGRAMBENCH_RECONSTRUCTION_WORKER_CONTEXT_PACKET_SCHEMA,
+    ProgrambenchReconstructionCandidateArtifactManifest,
     ProgrambenchReconstructionContextExclusionManifest,
+    ProgrambenchReconstructionLocalRunTrace,
+    ProgrambenchReconstructionProbeResultLog,
+    ProgrambenchReconstructionRemandCorrectionRecord,
     ProgrambenchReconstructionRunBudget,
     ProgrambenchReconstructionSandboxPolicy,
     ProgrambenchReconstructionWorkbenchNonAuthorityGuardrail,
@@ -700,6 +708,52 @@ def main() -> None:
             root
             / "spec"
             / "programbench_reconstruction_workbench_non_authority_guardrail.schema.json",
+        ),
+        (
+            ProgrambenchReconstructionCandidateArtifactManifest,
+            PROGRAMBENCH_RECONSTRUCTION_CANDIDATE_ARTIFACT_MANIFEST_SCHEMA,
+            root
+            / "packages"
+            / "adeu_benchmarking"
+            / "schema"
+            / "programbench_reconstruction_candidate_artifact_manifest.v1.json",
+            root
+            / "spec"
+            / "programbench_reconstruction_candidate_artifact_manifest.schema.json",
+        ),
+        (
+            ProgrambenchReconstructionLocalRunTrace,
+            PROGRAMBENCH_RECONSTRUCTION_LOCAL_RUN_TRACE_SCHEMA,
+            root
+            / "packages"
+            / "adeu_benchmarking"
+            / "schema"
+            / "programbench_reconstruction_local_run_trace.v1.json",
+            root / "spec" / "programbench_reconstruction_local_run_trace.schema.json",
+        ),
+        (
+            ProgrambenchReconstructionProbeResultLog,
+            PROGRAMBENCH_RECONSTRUCTION_PROBE_RESULT_LOG_SCHEMA,
+            root
+            / "packages"
+            / "adeu_benchmarking"
+            / "schema"
+            / "programbench_reconstruction_probe_result_log.v1.json",
+            root
+            / "spec"
+            / "programbench_reconstruction_probe_result_log.schema.json",
+        ),
+        (
+            ProgrambenchReconstructionRemandCorrectionRecord,
+            PROGRAMBENCH_RECONSTRUCTION_REMAND_CORRECTION_RECORD_SCHEMA,
+            root
+            / "packages"
+            / "adeu_benchmarking"
+            / "schema"
+            / "programbench_reconstruction_remand_correction_record.v1.json",
+            root
+            / "spec"
+            / "programbench_reconstruction_remand_correction_record.schema.json",
         ),
     ]
 
