@@ -19,6 +19,10 @@ from adeu_benchmarking import (
     ProgrambenchLocalTrialNonAuthorityGuardrail,
     ProgrambenchLocalTrialSandboxReadinessReview,
     ProgrambenchLocalTrialWorkerDispatchRecord,
+    ProgrambenchReconstructionAttemptCandidateMaterialization,
+    ProgrambenchReconstructionAttemptOutputCapture,
+    ProgrambenchReconstructionAttemptSandboxApplicationTrace,
+    ProgrambenchReconstructionAttemptWorkerInvocationRecord,
     validate_pb_trial_0b_execution_bundle,
 )
 from adeu_benchmarking.export_schema import main as export_schema_main
@@ -41,6 +45,10 @@ def _fixture_root_trial_b() -> Path:
     return _repo_root() / "apps" / "api" / "fixtures" / "benchmarking" / "vnext_plus255"
 
 
+def _fixture_root_attempt_b() -> Path:
+    return _repo_root() / "apps" / "api" / "fixtures" / "benchmarking" / "vnext_plus252"
+
+
 def _load_fixture(root: Path, name: str) -> dict[str, Any]:
     payload = json.loads((root / name).read_text(encoding="utf-8"))
     assert isinstance(payload, dict)
@@ -53,6 +61,10 @@ def _load_trial_a_fixture(name: str) -> dict[str, Any]:
 
 def _load_trial_b_fixture(name: str) -> dict[str, Any]:
     return _load_fixture(_fixture_root_trial_b(), name)
+
+
+def _load_attempt_b_fixture(name: str) -> dict[str, Any]:
+    return _load_fixture(_fixture_root_attempt_b(), name)
 
 
 def _schema_validator(schema_filename: str) -> Draft202012Validator:
@@ -165,6 +177,36 @@ def _load_trial_b_rows() -> tuple[
     )
 
 
+def _load_attempt_b_rows() -> tuple[
+    ProgrambenchReconstructionAttemptWorkerInvocationRecord,
+    ProgrambenchReconstructionAttemptOutputCapture,
+    ProgrambenchReconstructionAttemptCandidateMaterialization,
+    ProgrambenchReconstructionAttemptSandboxApplicationTrace,
+]:
+    return (
+        ProgrambenchReconstructionAttemptWorkerInvocationRecord.model_validate(
+            _load_attempt_b_fixture(
+                "programbench_reconstruction_attempt_worker_invocation_record_v252_reference.json"
+            )
+        ),
+        ProgrambenchReconstructionAttemptOutputCapture.model_validate(
+            _load_attempt_b_fixture(
+                "programbench_reconstruction_attempt_output_capture_v252_reference.json"
+            )
+        ),
+        ProgrambenchReconstructionAttemptCandidateMaterialization.model_validate(
+            _load_attempt_b_fixture(
+                "programbench_reconstruction_attempt_candidate_materialization_v252_reference.json"
+            )
+        ),
+        ProgrambenchReconstructionAttemptSandboxApplicationTrace.model_validate(
+            _load_attempt_b_fixture(
+                "programbench_reconstruction_attempt_sandbox_application_trace_v252_reference.json"
+            )
+        ),
+    )
+
+
 @pytest.mark.parametrize(
     ("schema_name", "schema_filename", "fixture_name", "model"),
     [
@@ -219,12 +261,22 @@ def test_pb_trial_0b_reference_bundle_records_one_local_specimen() -> None:
         candidate_artifact_snapshot,
         lifecycle_projection,
     ) = _load_trial_b_rows()
+    (
+        released_attempt_worker_invocation,
+        released_attempt_output_capture,
+        released_attempt_candidate_materialization,
+        released_attempt_sandbox_trace,
+    ) = _load_attempt_b_rows()
 
     validate_pb_trial_0b_execution_bundle(
         trial_docket=trial_docket,
         execution_runbook=execution_runbook,
         sandbox_readiness_review=sandbox_readiness_review,
         trial_guardrail=trial_guardrail,
+        released_attempt_worker_invocation=released_attempt_worker_invocation,
+        released_attempt_output_capture=released_attempt_output_capture,
+        released_attempt_candidate_materialization=released_attempt_candidate_materialization,
+        released_attempt_sandbox_trace=released_attempt_sandbox_trace,
         worker_dispatch_record=worker_dispatch_record,
         execution_capture=execution_capture,
         candidate_artifact_snapshot=candidate_artifact_snapshot,
@@ -284,6 +336,12 @@ def test_pb_trial_0b_rejects_dispatch_without_ready_a_readiness() -> None:
         candidate_artifact_snapshot,
         lifecycle_projection,
     ) = _load_trial_b_rows()
+    (
+        released_attempt_worker_invocation,
+        released_attempt_output_capture,
+        released_attempt_candidate_materialization,
+        released_attempt_sandbox_trace,
+    ) = _load_attempt_b_rows()
     blocked_readiness = sandbox_readiness_review.model_copy(
         update={"readiness_posture": "blocked_by_sandbox_gap"}
     )
@@ -294,6 +352,10 @@ def test_pb_trial_0b_rejects_dispatch_without_ready_a_readiness() -> None:
             execution_runbook=execution_runbook,
             sandbox_readiness_review=blocked_readiness,
             trial_guardrail=trial_guardrail,
+            released_attempt_worker_invocation=released_attempt_worker_invocation,
+            released_attempt_output_capture=released_attempt_output_capture,
+            released_attempt_candidate_materialization=released_attempt_candidate_materialization,
+            released_attempt_sandbox_trace=released_attempt_sandbox_trace,
             worker_dispatch_record=worker_dispatch_record,
             execution_capture=execution_capture,
             candidate_artifact_snapshot=candidate_artifact_snapshot,
@@ -314,6 +376,12 @@ def test_pb_trial_0b_rejects_snapshot_when_forbidden_screening_blocks() -> None:
         candidate_artifact_snapshot,
         lifecycle_projection,
     ) = _load_trial_b_rows()
+    (
+        released_attempt_worker_invocation,
+        released_attempt_output_capture,
+        released_attempt_candidate_materialization,
+        released_attempt_sandbox_trace,
+    ) = _load_attempt_b_rows()
     blocked_capture = execution_capture.model_copy(
         update={"forbidden_content_screen_verdict": "inconclusive_requires_review"}
     )
@@ -324,6 +392,10 @@ def test_pb_trial_0b_rejects_snapshot_when_forbidden_screening_blocks() -> None:
             execution_runbook=execution_runbook,
             sandbox_readiness_review=sandbox_readiness_review,
             trial_guardrail=trial_guardrail,
+            released_attempt_worker_invocation=released_attempt_worker_invocation,
+            released_attempt_output_capture=released_attempt_output_capture,
+            released_attempt_candidate_materialization=released_attempt_candidate_materialization,
+            released_attempt_sandbox_trace=released_attempt_sandbox_trace,
             worker_dispatch_record=worker_dispatch_record,
             execution_capture=blocked_capture,
             candidate_artifact_snapshot=candidate_artifact_snapshot,
@@ -344,6 +416,12 @@ def test_pb_trial_0b_rejects_snapshot_outside_released_write_scope() -> None:
         candidate_artifact_snapshot,
         lifecycle_projection,
     ) = _load_trial_b_rows()
+    (
+        released_attempt_worker_invocation,
+        released_attempt_output_capture,
+        released_attempt_candidate_materialization,
+        released_attempt_sandbox_trace,
+    ) = _load_attempt_b_rows()
     drifted_snapshot = candidate_artifact_snapshot.model_copy(
         update={"write_scope_ref": "write-scope:pb-trial-0b:outside"}
     )
@@ -354,10 +432,54 @@ def test_pb_trial_0b_rejects_snapshot_outside_released_write_scope() -> None:
             execution_runbook=execution_runbook,
             sandbox_readiness_review=sandbox_readiness_review,
             trial_guardrail=trial_guardrail,
+            released_attempt_worker_invocation=released_attempt_worker_invocation,
+            released_attempt_output_capture=released_attempt_output_capture,
+            released_attempt_candidate_materialization=released_attempt_candidate_materialization,
+            released_attempt_sandbox_trace=released_attempt_sandbox_trace,
             worker_dispatch_record=worker_dispatch_record,
             execution_capture=execution_capture,
             candidate_artifact_snapshot=drifted_snapshot,
             lifecycle_projection=lifecycle_projection,
+        )
+
+
+def test_pb_trial_0b_rejects_lifecycle_projection_to_unreleased_attempt_refs() -> None:
+    (
+        trial_docket,
+        execution_runbook,
+        sandbox_readiness_review,
+        trial_guardrail,
+    ) = _load_trial_a_rows()
+    (
+        worker_dispatch_record,
+        execution_capture,
+        candidate_artifact_snapshot,
+        lifecycle_projection,
+    ) = _load_trial_b_rows()
+    (
+        released_attempt_worker_invocation,
+        released_attempt_output_capture,
+        released_attempt_candidate_materialization,
+        released_attempt_sandbox_trace,
+    ) = _load_attempt_b_rows()
+    drifted_projection = lifecycle_projection.model_copy(
+        update={"mapped_attempt_invocation_refs": ["worker-invocation:pb-attempt-0b:stale"]}
+    )
+
+    with pytest.raises(ValueError, match="released PB-ATTEMPT invocation"):
+        validate_pb_trial_0b_execution_bundle(
+            trial_docket=trial_docket,
+            execution_runbook=execution_runbook,
+            sandbox_readiness_review=sandbox_readiness_review,
+            trial_guardrail=trial_guardrail,
+            released_attempt_worker_invocation=released_attempt_worker_invocation,
+            released_attempt_output_capture=released_attempt_output_capture,
+            released_attempt_candidate_materialization=released_attempt_candidate_materialization,
+            released_attempt_sandbox_trace=released_attempt_sandbox_trace,
+            worker_dispatch_record=worker_dispatch_record,
+            execution_capture=execution_capture,
+            candidate_artifact_snapshot=candidate_artifact_snapshot,
+            lifecycle_projection=drifted_projection,
         )
 
 

@@ -6,12 +6,16 @@ from typing import Literal
 from pydantic import BaseModel, ConfigDict, Field, model_validator
 
 from .programbench_cleanroom_attempt import (
+    ProgrambenchReconstructionAttemptCandidateMaterialization,
     ProgrambenchReconstructionAttemptDispatchPreflight,
     ProgrambenchReconstructionAttemptFamilyCloseoutAlignment,
     ProgrambenchReconstructionAttemptNonAuthorityGuardrail,
+    ProgrambenchReconstructionAttemptOutputCapture,
     ProgrambenchReconstructionAttemptRequest,
     ProgrambenchReconstructionAttemptResultReview,
+    ProgrambenchReconstructionAttemptSandboxApplicationTrace,
     ProgrambenchReconstructionAttemptWorkerInputPacket,
+    ProgrambenchReconstructionAttemptWorkerInvocationRecord,
 )
 
 MODEL_CONFIG = ConfigDict(
@@ -612,7 +616,10 @@ class ProgrambenchLocalTrialWorkerDispatchRecord(_TrialBase):
     @model_validator(mode="after")
     def _validate_worker_dispatch(self) -> "ProgrambenchLocalTrialWorkerDispatchRecord":
         if self.dispatch_index != 1:
-            raise ValueError("PB-TRIAL-0-B allows exactly one dispatch specimen per docket")
+            raise ValueError(
+                "PB-TRIAL-0-B allows exactly one dispatch specimen per docket, "
+                f"found: {self.dispatch_index}"
+            )
         if self.dispatch_authority_ref != _PB_TRIAL_0B_DISPATCH_AUTHORITY_REF:
             raise ValueError("dispatch authority must be the released PB-TRIAL-0-B lock")
         for field_name in (
@@ -889,6 +896,12 @@ def validate_pb_trial_0b_execution_bundle(
     execution_runbook: ProgrambenchLocalTrialExecutionRunbook,
     sandbox_readiness_review: ProgrambenchLocalTrialSandboxReadinessReview,
     trial_guardrail: ProgrambenchLocalTrialNonAuthorityGuardrail,
+    released_attempt_worker_invocation: ProgrambenchReconstructionAttemptWorkerInvocationRecord,
+    released_attempt_output_capture: ProgrambenchReconstructionAttemptOutputCapture,
+    released_attempt_candidate_materialization: (
+        ProgrambenchReconstructionAttemptCandidateMaterialization
+    ),
+    released_attempt_sandbox_trace: ProgrambenchReconstructionAttemptSandboxApplicationTrace,
     worker_dispatch_record: ProgrambenchLocalTrialWorkerDispatchRecord,
     execution_capture: ProgrambenchLocalTrialExecutionCapture,
     candidate_artifact_snapshot: ProgrambenchLocalTrialCandidateArtifactSnapshot,
@@ -970,3 +983,19 @@ def validate_pb_trial_0b_execution_bundle(
         "no_new_evidence_law_defined_by_pb_trial_0b"
     ):
         raise ValueError("lifecycle projection cannot define new evidence law")
+    if lifecycle_projection.mapped_attempt_invocation_refs != [
+        released_attempt_worker_invocation.worker_invocation_ref
+    ]:
+        raise ValueError("lifecycle projection must map released PB-ATTEMPT invocation ref")
+    if lifecycle_projection.mapped_attempt_output_capture_refs != [
+        released_attempt_output_capture.output_capture_ref
+    ]:
+        raise ValueError("lifecycle projection must map released PB-ATTEMPT output capture ref")
+    if lifecycle_projection.mapped_attempt_materialization_refs != [
+        released_attempt_candidate_materialization.candidate_materialization_ref
+    ]:
+        raise ValueError("lifecycle projection must map released PB-ATTEMPT materialization ref")
+    if lifecycle_projection.mapped_attempt_sandbox_trace_refs != [
+        released_attempt_sandbox_trace.sandbox_application_trace_ref
+    ]:
+        raise ValueError("lifecycle projection must map released PB-ATTEMPT sandbox trace ref")
