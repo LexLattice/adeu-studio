@@ -1,0 +1,65 @@
+{
+  "auditor_only_posture": "auditor_only_not_worker_visible",
+  "case_packet_ref": "case-packet:pb-adapter-0c:reference",
+  "context_exclusion_manifest_ref": "context-exclusion:pb-recon-0a:reference",
+  "excluded_derived_summary_refs": [
+    "summary:pb-adapter-0a:original-source-derived"
+  ],
+  "exclusion_reason_rows": [
+    {
+      "excluded_ref": "summary:pb-adapter-0a:original-source-derived",
+      "exclusion_kind": "excluded_derived_summary",
+      "exclusion_reason_posture": "excluded_from_worker_context",
+      "exclusion_ref": "exclusion:pb-recon-0a:derived-summary",
+      "limitation_note": "Derived summary from forbidden source is audit-only and not worker-visible.",
+      "source_refs": [
+        "docs/LOCKED_CONTINUATION_vNEXT_PLUS248.md"
+      ]
+    },
+    {
+      "excluded_ref": "store:pb-adapter-0a:original-source",
+      "exclusion_kind": "forbidden_source",
+      "exclusion_reason_posture": "auditor_only_evidence",
+      "exclusion_ref": "exclusion:pb-recon-0a:forbidden-source",
+      "limitation_note": "Original source stays forbidden inference evidence.",
+      "source_refs": [
+        "docs/LOCKED_CONTINUATION_vNEXT_PLUS248.md"
+      ]
+    },
+    {
+      "excluded_ref": "hidden-store:pb-adapter-0a:evaluation-oracle",
+      "exclusion_kind": "worker_hidden_source",
+      "exclusion_reason_posture": "auditor_only_evidence",
+      "exclusion_ref": "exclusion:pb-recon-0a:hidden-source",
+      "limitation_note": "Evaluation oracle hidden material is not worker-visible.",
+      "source_refs": [
+        "docs/LOCKED_CONTINUATION_vNEXT_PLUS248.md"
+      ]
+    },
+    {
+      "excluded_ref": "postmortem:pb-adapter-0a:hidden-eval-result",
+      "exclusion_kind": "postmortem_only",
+      "exclusion_reason_posture": "auditor_only_evidence",
+      "exclusion_ref": "exclusion:pb-recon-0a:postmortem",
+      "limitation_note": "Postmortem material cannot become inference context.",
+      "source_refs": [
+        "docs/LOCKED_CONTINUATION_vNEXT_PLUS248.md"
+      ]
+    }
+  ],
+  "forbidden_source_refs": [
+    "store:pb-adapter-0a:original-source"
+  ],
+  "limitation_note": "Exclusion manifest is auditor-only and must not be served into worker context.",
+  "postmortem_only_refs": [
+    "postmortem:pb-adapter-0a:hidden-eval-result"
+  ],
+  "schema": "programbench_reconstruction_context_exclusion_manifest@1",
+  "task_instance_ref": "task-instance:pb-adapter-0a:toy-cli",
+  "worker_context_packet_ref": "worker-context:pb-recon-0a:reference",
+  "worker_hidden_source_refs": [
+    "hidden-store:pb-adapter-0a:evaluation-oracle"
+  ],
+  "worker_visibility_posture": "not_worker_visible",
+  "work_order_ref": "work-order:pb-recon-0a:reference"
+}

@@ -15,7 +15,7 @@
     "fixture:pb-py-0c:stderr-diagnostic-local"
   ],
   "pb_py_0_profile_refs": [
-    "profile:pb-py-0a:reference"
+    "profile:pb-py-0a:programbench-cleanroom-reconstruction"
   ],
   "pb_py_0_realization_pack_refs": [
     "realization-pack:pb-py-0b:python-stdlib-seed"

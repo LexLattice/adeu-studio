@@ -1,0 +1,89 @@
+{
+  "advisory_realization_refs": [
+    "realization-pack:pb-py-0b:python-stdlib-seed"
+  ],
+  "case_packet_ref": "case-packet:pb-adapter-0c:reference",
+  "concept_profile_refs": [
+    "profile:pb-py-0a:programbench-cleanroom-reconstruction"
+  ],
+  "context_derivation_hash_rows": [
+    {
+      "context_hash": "sha256:1111111111111111111111111111111111111111111111111111111111111111",
+      "context_ref": "worker-context:pb-recon-0a:reference",
+      "derivation_hash_ref": "hash:pb-recon-0a:source-set",
+      "hash_role": "worker_context_source_set",
+      "limitation_note": "Hash binds the worker-visible context source set for the reference fixture.",
+      "source_refs": [
+        "artifact-manifest:pb-adapter-0a:reference",
+        "fixture:pb-py-0c:stderr-diagnostic-local",
+        "guardrail:pb-adapter-0a:reference",
+        "io-artifact-index:pb-adapter-0b:reference",
+        "probe-observation:pb-adapter-0b:toy-cli-help",
+        "probe-plan:pb-adapter-0b:reference",
+        "profile:pb-py-0a:programbench-cleanroom-reconstruction",
+        "realization-pack:pb-py-0b:python-stdlib-seed",
+        "side-effect:pb-adapter-0b:toy-cli-help",
+        "task-intake:pb-adapter-0a:reference",
+        "visibility-manifest:pb-adapter-0a:reference",
+        "worker-access-contract:pb-adapter-0a:reference"
+      ]
+    }
+  ],
+  "context_derivation_rows": [
+    {
+      "derivation_kind": "advisory_realization_ref",
+      "derivation_ref": "derivation:pb-recon-0a:advisory-realization",
+      "derived_ref": "realization-pack:pb-py-0b:python-stdlib-seed",
+      "limitation_note": "Python realization pack is advisory reconstruction substrate only.",
+      "source_ref": "realization-pack:pb-py-0b:python-stdlib-seed",
+      "worker_visibility_posture": "worker_visible_cleanroom_context"
+    },
+    {
+      "derivation_kind": "cleanroom_visible_case_packet_ref",
+      "derivation_ref": "derivation:pb-recon-0a:case-intake",
+      "derived_ref": "task-intake:pb-adapter-0a:reference",
+      "limitation_note": "Task intake is cleanroom-visible through the released case packet.",
+      "source_ref": "task-intake:pb-adapter-0a:reference",
+      "worker_visibility_posture": "worker_visible_cleanroom_context"
+    },
+    {
+      "derivation_kind": "local_probe_observation_ref",
+      "derivation_ref": "derivation:pb-recon-0a:probe-observation",
+      "derived_ref": "probe-observation:pb-adapter-0b:toy-cli-help",
+      "limitation_note": "Local probe observation is visible as local evidence, not benchmark truth.",
+      "source_ref": "probe-observation:pb-adapter-0b:toy-cli-help",
+      "worker_visibility_posture": "worker_visible_cleanroom_context"
+    }
+  ],
+  "context_source_set_hash": "sha256:2222222222222222222222222222222222222222222222222222222222222222",
+  "context_visibility_posture": "worker_context_cleanroom_visible_only",
+  "derived_summary_policy": "no_hidden_or_forbidden_derived_summaries_in_worker_context",
+  "io_artifact_index_refs": [
+    "io-artifact-index:pb-adapter-0b:reference"
+  ],
+  "limitation_note": "Worker-facing context contains only cleanroom-visible released case-packet refs.",
+  "probe_observation_refs": [
+    "probe-observation:pb-adapter-0b:toy-cli-help"
+  ],
+  "schema": "programbench_reconstruction_worker_context_packet@1",
+  "side_effect_observation_refs": [
+    "side-effect:pb-adapter-0b:toy-cli-help"
+  ],
+  "task_instance_ref": "task-instance:pb-adapter-0a:toy-cli",
+  "work_order_ref": "work-order:pb-recon-0a:reference",
+  "worker_context_packet_ref": "worker-context:pb-recon-0a:reference",
+  "worker_visible_source_refs": [
+    "artifact-manifest:pb-adapter-0a:reference",
+    "fixture:pb-py-0c:stderr-diagnostic-local",
+    "guardrail:pb-adapter-0a:reference",
+    "io-artifact-index:pb-adapter-0b:reference",
+    "probe-observation:pb-adapter-0b:toy-cli-help",
+    "probe-plan:pb-adapter-0b:reference",
+    "profile:pb-py-0a:programbench-cleanroom-reconstruction",
+    "realization-pack:pb-py-0b:python-stdlib-seed",
+    "side-effect:pb-adapter-0b:toy-cli-help",
+    "task-intake:pb-adapter-0a:reference",
+    "visibility-manifest:pb-adapter-0a:reference",
+    "worker-access-contract:pb-adapter-0a:reference"
+  ]
+}

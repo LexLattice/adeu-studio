@@ -87,7 +87,7 @@ Expected starter implementation surfaces, when the first slice begins:
 | `programbench_reconstruction_context_exclusion_manifest@1` | `PB-RECON-0-A` | auditor-only ledger for hidden, forbidden, postmortem-only, and excluded derived-summary refs |
 | `programbench_reconstruction_sandbox_policy@1` | `PB-RECON-0-A` | local sandbox, network, dependency, filesystem, and command boundary |
 | `programbench_reconstruction_run_budget@1` | `PB-RECON-0-A` | local attempt, timeout, probe, and remand budget without execution |
-| `programbench_reconstruction_non_authority_guardrail@1` | `PB-RECON-0-A` | guardrail preventing workbench rows from becoming official benchmark authority |
+| `programbench_reconstruction_workbench_non_authority_guardrail@1` | `PB-RECON-0-A` | guardrail preventing workbench rows from becoming official benchmark authority |
 | `programbench_reconstruction_candidate_artifact_manifest@1` | `PB-RECON-0-B` | worker-generated candidate files and hashes |
 | `programbench_reconstruction_local_run_trace@1` | `PB-RECON-0-B` | local sandbox command traces and bounded output evidence |
 | `programbench_reconstruction_probe_result_log@1` | `PB-RECON-0-B` | local probe result rows under the work order |

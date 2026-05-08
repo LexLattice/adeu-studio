@@ -1,0 +1,30 @@
+{
+  "adapter_candidate_ref": "adapter-candidate:pb-adapter-0a:reference",
+  "adapter_handoff_ref": "handoff:pb-adapter-0c:reference",
+  "adapter_readiness_summary_ref": "readiness-summary:pb-adapter-0c:reference",
+  "benchmark_truth_posture": "not_benchmark_truth",
+  "case_packet_readiness_posture": "blocked_case_packet_rejected",
+  "case_packet_ref": "case-packet:pb-adapter-0c:reference",
+  "contamination_gate_posture": "contamination_blocked",
+  "context_exclusion_manifest_ref": "context-exclusion:pb-recon-0a:reference",
+  "dispatch_authority_posture": "no_worker_dispatch_authority_granted_by_pb_recon_0a",
+  "execution_authority_posture": "no_execution_authority_granted_by_pb_recon_0a",
+  "guardrail_refs": [
+    "guardrail:pb-recon-0a:reference"
+  ],
+  "limitation_note": "Reject fixture: blocked case packet cannot become work order.",
+  "official_programbench_posture": "no_official_programbench_participation_by_pb_recon_0a",
+  "pb_py_0_profile_refs": [
+    "profile:pb-py-0a:programbench-cleanroom-reconstruction"
+  ],
+  "python_realization_pack_refs": [
+    "realization-pack:pb-py-0b:python-stdlib-seed"
+  ],
+  "run_budget_ref": "run-budget:pb-recon-0a:reference",
+  "sandbox_policy_ref": "sandbox-policy:pb-recon-0a:reference",
+  "schema": "programbench_reconstruction_work_order@1",
+  "task_instance_ref": "task-instance:pb-adapter-0a:toy-cli",
+  "work_order_ref": "work-order:pb-recon-0a:reference",
+  "work_order_scope_posture": "local_reconstruction_boundary_definition_only",
+  "worker_context_packet_ref": "worker-context:pb-recon-0a:reference"
+}

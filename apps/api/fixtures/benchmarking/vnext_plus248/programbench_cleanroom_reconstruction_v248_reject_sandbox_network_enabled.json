@@ -1,0 +1,37 @@
+{
+  "allowed_runtime_kind": "python_stdlib_local_sandbox",
+  "allowed_write_scope_refs": [
+    "workspace:pb-recon-0a:candidate-output"
+  ],
+  "command_shape_policy": "argv_shaped_commands_only",
+  "context_exclusion_manifest_ref": "context-exclusion:pb-recon-0a:reference",
+  "decompilation_policy": "decompilation_forbidden",
+  "dependency_policy": "stdlib_only",
+  "docker_socket_policy": "docker_socket_forbidden",
+  "environment_policy": "minimal_cleanroom_environment",
+  "external_repo_lookup_policy": "external_repo_lookup_forbidden",
+  "filesystem_policy": "bounded_filesystem_write_scope",
+  "forbidden_path_refs": [
+    "path:pb-recon-0a:host-secret",
+    "path:pb-recon-0a:source-tree"
+  ],
+  "limitation_note": "Reject fixture: network cannot be enabled in sandbox policy.",
+  "network_policy": "network_enabled",
+  "resource_limit_policy": "bounded_resource_limits_required",
+  "sandbox_enforcement_witness_requirements": [
+    "argv_shaped_command_policy",
+    "bounded_filesystem_write_scope",
+    "network_disabled",
+    "no_decompilation",
+    "no_docker_socket",
+    "no_host_secrets",
+    "no_source_lookup"
+  ],
+  "sandbox_policy_ref": "sandbox-policy:pb-recon-0a:reference",
+  "schema": "programbench_reconstruction_sandbox_policy@1",
+  "secret_exposure_policy": "host_secrets_forbidden",
+  "source_lookup_policy": "source_lookup_forbidden",
+  "timeout_policy": "bounded_timeout_required",
+  "work_order_ref": "work-order:pb-recon-0a:reference",
+  "worker_context_packet_ref": "worker-context:pb-recon-0a:reference"
+}

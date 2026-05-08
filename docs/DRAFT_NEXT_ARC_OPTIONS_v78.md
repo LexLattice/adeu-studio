@@ -132,7 +132,7 @@ selection, artifact capture, and remand/closeout routing.
 - `programbench_reconstruction_context_exclusion_manifest@1`
 - `programbench_reconstruction_sandbox_policy@1`
 - `programbench_reconstruction_run_budget@1`
-- `programbench_reconstruction_non_authority_guardrail@1`
+- `programbench_reconstruction_workbench_non_authority_guardrail@1`
 
 Recommended package ownership:
 
@@ -157,7 +157,7 @@ evaluation, submission, or ranking authority that this family does not select.
 3. `programbench_reconstruction_context_exclusion_manifest@1`
 4. `programbench_reconstruction_sandbox_policy@1`
 5. `programbench_reconstruction_run_budget@1`
-6. `programbench_reconstruction_non_authority_guardrail@1`
+6. `programbench_reconstruction_workbench_non_authority_guardrail@1`
 7. deferred handoff notes for `PB-RECON-0-B` and `PB-RECON-0-C`
 
 `PB-RECON-0-A` must make the worker boundary stable enough to answer:

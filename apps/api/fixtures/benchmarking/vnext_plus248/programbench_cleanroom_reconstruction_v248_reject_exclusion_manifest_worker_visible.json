@@ -1,0 +1,29 @@
+{
+  "auditor_only_posture": "auditor_only_not_worker_visible",
+  "case_packet_ref": "case-packet:pb-adapter-0c:reference",
+  "context_exclusion_manifest_ref": "context-exclusion:pb-recon-0a:reference",
+  "excluded_derived_summary_refs": [
+    "summary:pb-adapter-0a:original-source-derived"
+  ],
+  "exclusion_reason_rows": [
+    {
+      "excluded_ref": "summary:pb-adapter-0a:original-source-derived",
+      "exclusion_kind": "excluded_derived_summary",
+      "exclusion_reason_posture": "excluded_from_worker_context",
+      "exclusion_ref": "exclusion:pb-recon-0a:derived-summary",
+      "limitation_note": "Reject fixture: exclusion manifest cannot be worker-visible.",
+      "source_refs": [
+        "docs/LOCKED_CONTINUATION_vNEXT_PLUS248.md"
+      ]
+    }
+  ],
+  "forbidden_source_refs": [],
+  "limitation_note": "Reject fixture: exclusion manifest was marked worker-visible.",
+  "postmortem_only_refs": [],
+  "schema": "programbench_reconstruction_context_exclusion_manifest@1",
+  "task_instance_ref": "task-instance:pb-adapter-0a:toy-cli",
+  "worker_context_packet_ref": "worker-context:pb-recon-0a:reference",
+  "worker_hidden_source_refs": [],
+  "worker_visibility_posture": "worker_visible",
+  "work_order_ref": "work-order:pb-recon-0a:reference"
+}

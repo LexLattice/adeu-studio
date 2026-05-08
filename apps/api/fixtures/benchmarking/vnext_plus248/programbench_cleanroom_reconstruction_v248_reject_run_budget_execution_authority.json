@@ -1,0 +1,14 @@
+{
+  "budget_authority_posture": "execution_authority_granted",
+  "filesystem_budget_policy": "bounded_filesystem_budget_declared",
+  "limitation_note": "Reject fixture: run budget cannot grant execution authority in slice A.",
+  "max_candidate_artifact_count": 1,
+  "max_local_run_count": 2,
+  "max_probe_run_count": 3,
+  "max_remand_count": 1,
+  "run_budget_ref": "run-budget:pb-recon-0a:reference",
+  "schema": "programbench_reconstruction_run_budget@1",
+  "timeout_budget_policy": "bounded_timeout_budget_declared",
+  "token_budget_policy": "bounded_token_budget_declared",
+  "work_order_ref": "work-order:pb-recon-0a:reference"
+}

@@ -14,7 +14,7 @@
     "fixture-contract:pb-py-0a:reference"
   ],
   "pb_py_0_profile_refs": [
-    "profile:pb-py-0a:reference"
+    "profile:pb-py-0a:programbench-cleanroom-reconstruction"
   ],
   "reference_executable_ref": "artifact:reference-executable:toy-cli",
   "schema": "programbench_cleanroom_task_intake@1",

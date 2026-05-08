@@ -1,0 +1,38 @@
+{
+  "benchmark_truth_posture": "not_benchmark_truth",
+  "context_exclusion_manifest_refs": [
+    "context-exclusion:pb-recon-0a:reference"
+  ],
+  "execution_posture": "no_execution_authority_granted_by_pb_recon_0a",
+  "forbidden_future_artifact_kinds": [
+    "programbench_reconstruction_candidate_artifact_manifest@1",
+    "programbench_reconstruction_equivalence_audit@1",
+    "programbench_reconstruction_handoff@1",
+    "programbench_reconstruction_local_run_trace@1",
+    "programbench_reconstruction_probe_result_log@1",
+    "programbench_reconstruction_remand_correction_record@1",
+    "programbench_reconstruction_result_summary@1",
+    "programbench_reconstruction_workbench_family_closeout_alignment@1"
+  ],
+  "future_family_selection_posture": "no_future_family_selected_by_pb_recon_0a",
+  "guardrail_ref": "guardrail:pb-recon-0a:reference",
+  "hidden_test_posture": "hidden_tests_not_visible_not_inference_evidence",
+  "limitation_note": "Guardrail prevents PB-RECON-0-A from becoming execution, official benchmark, submission, scoring, ranking, or future-family authority.",
+  "model_ranking_posture": "no_model_ranking_claimed_by_pb_recon_0a",
+  "non_authority_posture": "reconstruction_workbench_metadata_only_no_execution_authority",
+  "official_programbench_posture": "no_official_programbench_participation_by_pb_recon_0a",
+  "run_budget_refs": [
+    "run-budget:pb-recon-0a:reference"
+  ],
+  "sandbox_policy_refs": [
+    "sandbox-policy:pb-recon-0a:reference"
+  ],
+  "schema": "programbench_reconstruction_workbench_non_authority_guardrail@1",
+  "submission_authority_posture": "no_submission_authority_by_pb_recon_0a",
+  "work_order_refs": [
+    "work-order:pb-recon-0a:reference"
+  ],
+  "worker_context_packet_refs": [
+    "worker-context:pb-recon-0a:reference"
+  ]
+}
