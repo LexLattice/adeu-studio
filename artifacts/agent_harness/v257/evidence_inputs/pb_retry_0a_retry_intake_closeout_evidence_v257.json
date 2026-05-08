@@ -1,0 +1,33 @@
+{
+  "arc": "vNext+257",
+  "benchmark_truth_authority_granted": false,
+  "closed_slice": "PB-RETRY-0-A",
+  "command_execution_authority_granted": false,
+  "family": "PB-RETRY-0",
+  "focused_test": "packages/adeu_benchmarking/tests/test_programbench_cleanroom_retry_pb_retry_0a.py",
+  "future_family_selection_granted": false,
+  "hidden_test_access_rejected": true,
+  "implementation_package": "packages/adeu_benchmarking",
+  "merged_pr": "#485",
+  "model_ranking_authority_granted": false,
+  "official_programbench_authority_granted": false,
+  "reference_fixture_root": "apps/api/fixtures/benchmarking/vnext_plus257",
+  "retry_dispatch_authority_granted": false,
+  "retry_lineage_uniqueness_enforced": true,
+  "retry_scope_widening_rejected": true,
+  "schema": "pb_retry_0a_retry_intake_closeout_evidence@1",
+  "second_retry_authority_granted": false,
+  "selected_record_shapes": [
+    "programbench_local_retry_request@1",
+    "programbench_local_retry_lineage_registry@1",
+    "programbench_trial_remand_source_index@1",
+    "programbench_local_retry_eligibility_review@1",
+    "programbench_local_retry_scope_contract@1",
+    "programbench_local_retry_non_authority_guardrail@1"
+  ],
+  "verification_commands": [
+    ".venv/bin/python -m pytest packages/adeu_benchmarking/tests/test_programbench_cleanroom_retry_pb_retry_0a.py -q",
+    "make lint",
+    "make check"
+  ]
+}
