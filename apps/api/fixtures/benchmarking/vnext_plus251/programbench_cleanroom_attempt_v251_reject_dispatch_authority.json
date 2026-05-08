@@ -1,0 +1,43 @@
+{
+  "attempt_request_ref": "attempt-request:pb-attempt-0a:reference",
+  "budget_enforcement_requirement_refs": [
+    "bounded_filesystem_budget_declared",
+    "bounded_timeout_budget_declared",
+    "bounded_token_budget_declared",
+    "max_candidate_artifact_count_declared",
+    "max_local_run_count_declared",
+    "max_probe_run_count_declared",
+    "max_remand_count_declared"
+  ],
+  "dispatch_authority_posture": "worker_dispatch_authority_granted",
+  "dispatch_preflight_ref": "dispatch-preflight:pb-attempt-0a:reference",
+  "execution_authority_posture": "no_execution_authority_granted_by_pb_attempt_0a",
+  "guardrail_ref": "guardrail:pb-attempt-0a:reference",
+  "limitation_note": "Reject fixture attempts to turn preflight into worker dispatch authority.",
+  "preflight_check_rows": [
+    {
+      "check_kind": "guardrail_bound",
+      "check_posture": "passed",
+      "evidence_refs": [
+        "guardrail:pb-attempt-0a:reference"
+      ],
+      "limitation_note": "Attempt guardrail is bound to the request.",
+      "preflight_check_ref": "preflight-check:pb-attempt-0a:guardrail"
+    }
+  ],
+  "preflight_posture": "preflight_passed_for_later_local_attempt_review",
+  "preflight_scope_posture": "eligibility_review_only_no_invocation",
+  "run_budget_ref": "run-budget:pb-recon-0a:reference",
+  "sandbox_enforcement_requirement_refs": [
+    "argv_shaped_command_policy",
+    "bounded_filesystem_write_scope",
+    "network_disabled",
+    "no_decompilation",
+    "no_docker_socket",
+    "no_host_secrets",
+    "no_source_lookup"
+  ],
+  "sandbox_policy_ref": "sandbox-policy:pb-recon-0a:reference",
+  "schema": "programbench_reconstruction_attempt_dispatch_preflight@1",
+  "worker_input_packet_ref": "worker-input:pb-attempt-0a:reference"
+}

@@ -1,0 +1,10 @@
+{
+  "authority_posture": "auditor_only_summary_not_worker_context",
+  "excluded_ref_count": 1,
+  "exclusion_category": "forbidden_source",
+  "exclusion_summary_ref": "exclusion-summary:pb-attempt-0a:forbidden",
+  "limitation_note": "Reject fixture leaks a source-identifying field through a worker-visible exclusion summary.",
+  "non_exposure_statement": "no_source_identity_or_content_exposed",
+  "reason_code": "forbidden_not_worker_visible",
+  "source_name": "original-source.py"
+}

@@ -1,0 +1,99 @@
+{
+  "attempt_request_ref": "attempt-request:pb-attempt-0a:reference",
+  "benchmark_truth_non_authority_posture": "not_benchmark_truth",
+  "dispatch_non_authority_posture": "no_worker_dispatch_authority_granted_by_pb_attempt_0a",
+  "execution_non_authority_posture": "no_execution_authority_granted_by_pb_attempt_0a",
+  "forbidden_authority_rows": [
+    {
+      "authority_kind": "benchmark_truth",
+      "forbidden_authority_ref": "forbidden-authority:pb-attempt-0a:benchmark-truth",
+      "forbiddance_posture": "forbidden_by_pb_attempt_0a",
+      "limitation_note": "PB-ATTEMPT-0-A cannot create benchmark truth."
+    },
+    {
+      "authority_kind": "candidate_materialization",
+      "forbidden_authority_ref": "forbidden-authority:pb-attempt-0a:candidate-materialization",
+      "forbiddance_posture": "forbidden_by_pb_attempt_0a",
+      "limitation_note": "PB-ATTEMPT-0-A cannot materialize candidate artifacts."
+    },
+    {
+      "authority_kind": "command_execution",
+      "forbidden_authority_ref": "forbidden-authority:pb-attempt-0a:command-execution",
+      "forbiddance_posture": "forbidden_by_pb_attempt_0a",
+      "limitation_note": "PB-ATTEMPT-0-A cannot execute commands."
+    },
+    {
+      "authority_kind": "future_family_selection",
+      "forbidden_authority_ref": "forbidden-authority:pb-attempt-0a:future-family-selection",
+      "forbiddance_posture": "forbidden_by_pb_attempt_0a",
+      "limitation_note": "PB-ATTEMPT-0-A cannot select a future family."
+    },
+    {
+      "authority_kind": "hidden_test_inference",
+      "forbidden_authority_ref": "forbidden-authority:pb-attempt-0a:hidden-test-inference",
+      "forbiddance_posture": "forbidden_by_pb_attempt_0a",
+      "limitation_note": "PB-ATTEMPT-0-A cannot use hidden tests as inference evidence."
+    },
+    {
+      "authority_kind": "local_probe_execution",
+      "forbidden_authority_ref": "forbidden-authority:pb-attempt-0a:local-probe-execution",
+      "forbiddance_posture": "forbidden_by_pb_attempt_0a",
+      "limitation_note": "PB-ATTEMPT-0-A cannot run local probes."
+    },
+    {
+      "authority_kind": "model_ranking",
+      "forbidden_authority_ref": "forbidden-authority:pb-attempt-0a:model-ranking",
+      "forbiddance_posture": "forbidden_by_pb_attempt_0a",
+      "limitation_note": "PB-ATTEMPT-0-A cannot rank models."
+    },
+    {
+      "authority_kind": "official_programbench_participation",
+      "forbidden_authority_ref": "forbidden-authority:pb-attempt-0a:official-programbench-participation",
+      "forbiddance_posture": "forbidden_by_pb_attempt_0a",
+      "limitation_note": "PB-ATTEMPT-0-A cannot participate in official ProgramBench."
+    },
+    {
+      "authority_kind": "official_submission",
+      "forbidden_authority_ref": "forbidden-authority:pb-attempt-0a:official-submission",
+      "forbiddance_posture": "forbidden_by_pb_attempt_0a",
+      "limitation_note": "PB-ATTEMPT-0-A cannot create or submit official benchmark submissions."
+    },
+    {
+      "authority_kind": "source_lookup",
+      "forbidden_authority_ref": "forbidden-authority:pb-attempt-0a:source-lookup",
+      "forbiddance_posture": "forbidden_by_pb_attempt_0a",
+      "limitation_note": "PB-ATTEMPT-0-A cannot perform source lookup."
+    },
+    {
+      "authority_kind": "workbench_evidence_export",
+      "forbidden_authority_ref": "forbidden-authority:pb-attempt-0a:workbench-evidence-export",
+      "forbiddance_posture": "forbidden_by_pb_attempt_0a",
+      "limitation_note": "PB-ATTEMPT-0-A cannot export workbench evidence."
+    },
+    {
+      "authority_kind": "worker_invocation",
+      "forbidden_authority_ref": "forbidden-authority:pb-attempt-0a:worker-invocation",
+      "forbiddance_posture": "forbidden_by_pb_attempt_0a",
+      "limitation_note": "PB-ATTEMPT-0-A cannot invoke a worker."
+    }
+  ],
+  "forbidden_future_artifact_kinds": [
+    "programbench_reconstruction_attempt_candidate_materialization@1",
+    "programbench_reconstruction_attempt_family_closeout_alignment@1",
+    "programbench_reconstruction_attempt_output_capture@1",
+    "programbench_reconstruction_attempt_remand_queue@1",
+    "programbench_reconstruction_attempt_result_review@1",
+    "programbench_reconstruction_attempt_sandbox_application_trace@1",
+    "programbench_reconstruction_attempt_workbench_evidence_export@1",
+    "programbench_reconstruction_attempt_worker_invocation_record@1"
+  ],
+  "future_family_selection_posture": "no_future_family_selected_by_pb_attempt_0a",
+  "guardrail_ref": "guardrail:pb-attempt-0a:reference",
+  "hidden_test_non_inference_posture": "hidden_tests_not_visible_not_inference_evidence",
+  "limitation_note": "Reference guardrail keeps PB-ATTEMPT-0-A at attempt request/input/preflight posture only.",
+  "model_ranking_non_authority_posture": "no_model_ranking_claimed_by_pb_attempt_0a",
+  "official_programbench_non_authority_posture": "no_official_programbench_authority_by_pb_attempt_0a",
+  "schema": "programbench_reconstruction_attempt_non_authority_guardrail@1",
+  "source_lookup_non_authority_posture": "source_lookup_forbidden_by_pb_attempt_0a",
+  "submission_non_authority_posture": "no_submission_authority_by_pb_attempt_0a"
+}

@@ -1,0 +1,19 @@
+{
+  "attempt_purpose": "local_remand_correction_attempt",
+  "attempt_request_ref": "attempt-request:pb-attempt-0a:reference",
+  "attempt_scope_posture": "local_cleanroom_attempt_packaging_only",
+  "benchmark_truth_posture": "not_benchmark_truth",
+  "context_exclusion_manifest_ref": "context-exclusion:pb-recon-0a:reference",
+  "dispatch_authority_posture": "no_worker_dispatch_authority_granted_by_pb_attempt_0a",
+  "limitation_note": "Reference attempt request packages a later local cleanroom worker attempt and grants no worker dispatch authority.",
+  "model_ranking_posture": "no_model_ranking_claimed_by_pb_attempt_0a",
+  "official_programbench_posture": "no_official_programbench_participation_by_pb_attempt_0a",
+  "result_summary_ref": "result-summary:pb-recon-0c:reference",
+  "run_budget_ref": "run-budget:pb-recon-0a:reference",
+  "sandbox_policy_ref": "sandbox-policy:pb-recon-0a:reference",
+  "schema": "programbench_reconstruction_attempt_request@1",
+  "work_order_ref": "work-order:pb-recon-0a:reference",
+  "workbench_family_closeout_ref": "family-closeout:pb-recon-0c:reference",
+  "worker_context_packet_ref": "worker-context:pb-recon-0a:reference",
+  "worker_profile_ref": "worker-profile:pb-attempt-0a:cleanroom-resident"
+}

@@ -1,0 +1,158 @@
+{
+  "$defs": {
+    "ProgrambenchReconstructionAttemptPreflightCheckRow": {
+      "additionalProperties": false,
+      "properties": {
+        "check_kind": {
+          "enum": [
+            "excluded_ref_non_exposure",
+            "guardrail_bound",
+            "released_workbench_refs",
+            "result_summary_compatible",
+            "run_budget_bound",
+            "sandbox_policy_bound",
+            "worker_input_visibility"
+          ],
+          "title": "Check Kind",
+          "type": "string"
+        },
+        "check_posture": {
+          "enum": [
+            "blocked",
+            "passed"
+          ],
+          "title": "Check Posture",
+          "type": "string"
+        },
+        "evidence_refs": {
+          "items": {
+            "type": "string"
+          },
+          "minItems": 1,
+          "title": "Evidence Refs",
+          "type": "array"
+        },
+        "limitation_note": {
+          "title": "Limitation Note",
+          "type": "string"
+        },
+        "preflight_check_ref": {
+          "title": "Preflight Check Ref",
+          "type": "string"
+        }
+      },
+      "required": [
+        "preflight_check_ref",
+        "check_kind",
+        "check_posture",
+        "evidence_refs",
+        "limitation_note"
+      ],
+      "title": "ProgrambenchReconstructionAttemptPreflightCheckRow",
+      "type": "object"
+    }
+  },
+  "additionalProperties": false,
+  "properties": {
+    "attempt_request_ref": {
+      "title": "Attempt Request Ref",
+      "type": "string"
+    },
+    "budget_enforcement_requirement_refs": {
+      "items": {
+        "type": "string"
+      },
+      "minItems": 1,
+      "title": "Budget Enforcement Requirement Refs",
+      "type": "array"
+    },
+    "dispatch_authority_posture": {
+      "const": "no_worker_dispatch_authority_granted_by_pb_attempt_0a",
+      "title": "Dispatch Authority Posture",
+      "type": "string"
+    },
+    "dispatch_preflight_ref": {
+      "title": "Dispatch Preflight Ref",
+      "type": "string"
+    },
+    "execution_authority_posture": {
+      "const": "no_execution_authority_granted_by_pb_attempt_0a",
+      "title": "Execution Authority Posture",
+      "type": "string"
+    },
+    "guardrail_ref": {
+      "title": "Guardrail Ref",
+      "type": "string"
+    },
+    "limitation_note": {
+      "title": "Limitation Note",
+      "type": "string"
+    },
+    "preflight_check_rows": {
+      "items": {
+        "$ref": "#/$defs/ProgrambenchReconstructionAttemptPreflightCheckRow"
+      },
+      "minItems": 1,
+      "title": "Preflight Check Rows",
+      "type": "array"
+    },
+    "preflight_posture": {
+      "enum": [
+        "blocked_no_dispatch_eligible",
+        "preflight_passed_for_later_local_attempt_review",
+        "future_family_only"
+      ],
+      "title": "Preflight Posture",
+      "type": "string"
+    },
+    "preflight_scope_posture": {
+      "const": "eligibility_review_only_no_invocation",
+      "title": "Preflight Scope Posture",
+      "type": "string"
+    },
+    "run_budget_ref": {
+      "title": "Run Budget Ref",
+      "type": "string"
+    },
+    "sandbox_enforcement_requirement_refs": {
+      "items": {
+        "type": "string"
+      },
+      "minItems": 1,
+      "title": "Sandbox Enforcement Requirement Refs",
+      "type": "array"
+    },
+    "sandbox_policy_ref": {
+      "title": "Sandbox Policy Ref",
+      "type": "string"
+    },
+    "schema": {
+      "const": "programbench_reconstruction_attempt_dispatch_preflight@1",
+      "title": "Schema",
+      "type": "string"
+    },
+    "worker_input_packet_ref": {
+      "title": "Worker Input Packet Ref",
+      "type": "string"
+    }
+  },
+  "required": [
+    "schema",
+    "dispatch_preflight_ref",
+    "attempt_request_ref",
+    "worker_input_packet_ref",
+    "sandbox_policy_ref",
+    "run_budget_ref",
+    "guardrail_ref",
+    "preflight_check_rows",
+    "sandbox_enforcement_requirement_refs",
+    "budget_enforcement_requirement_refs",
+    "preflight_scope_posture",
+    "preflight_posture",
+    "dispatch_authority_posture",
+    "execution_authority_posture",
+    "limitation_note"
+  ],
+  "title": "ProgrambenchReconstructionAttemptDispatchPreflight",
+  "type": "object"
+}

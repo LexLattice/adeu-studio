@@ -1,0 +1,105 @@
+{
+  "additionalProperties": false,
+  "properties": {
+    "attempt_purpose": {
+      "enum": [
+        "local_evidence_gap_remediation_attempt",
+        "local_remand_correction_attempt",
+        "future_family_only"
+      ],
+      "title": "Attempt Purpose",
+      "type": "string"
+    },
+    "attempt_request_ref": {
+      "title": "Attempt Request Ref",
+      "type": "string"
+    },
+    "attempt_scope_posture": {
+      "const": "local_cleanroom_attempt_packaging_only",
+      "title": "Attempt Scope Posture",
+      "type": "string"
+    },
+    "benchmark_truth_posture": {
+      "const": "not_benchmark_truth",
+      "title": "Benchmark Truth Posture",
+      "type": "string"
+    },
+    "context_exclusion_manifest_ref": {
+      "title": "Context Exclusion Manifest Ref",
+      "type": "string"
+    },
+    "dispatch_authority_posture": {
+      "const": "no_worker_dispatch_authority_granted_by_pb_attempt_0a",
+      "title": "Dispatch Authority Posture",
+      "type": "string"
+    },
+    "limitation_note": {
+      "title": "Limitation Note",
+      "type": "string"
+    },
+    "model_ranking_posture": {
+      "const": "no_model_ranking_claimed_by_pb_attempt_0a",
+      "title": "Model Ranking Posture",
+      "type": "string"
+    },
+    "official_programbench_posture": {
+      "const": "no_official_programbench_participation_by_pb_attempt_0a",
+      "title": "Official Programbench Posture",
+      "type": "string"
+    },
+    "result_summary_ref": {
+      "title": "Result Summary Ref",
+      "type": "string"
+    },
+    "run_budget_ref": {
+      "title": "Run Budget Ref",
+      "type": "string"
+    },
+    "sandbox_policy_ref": {
+      "title": "Sandbox Policy Ref",
+      "type": "string"
+    },
+    "schema": {
+      "const": "programbench_reconstruction_attempt_request@1",
+      "title": "Schema",
+      "type": "string"
+    },
+    "work_order_ref": {
+      "title": "Work Order Ref",
+      "type": "string"
+    },
+    "workbench_family_closeout_ref": {
+      "title": "Workbench Family Closeout Ref",
+      "type": "string"
+    },
+    "worker_context_packet_ref": {
+      "title": "Worker Context Packet Ref",
+      "type": "string"
+    },
+    "worker_profile_ref": {
+      "title": "Worker Profile Ref",
+      "type": "string"
+    }
+  },
+  "required": [
+    "schema",
+    "attempt_request_ref",
+    "work_order_ref",
+    "worker_context_packet_ref",
+    "context_exclusion_manifest_ref",
+    "sandbox_policy_ref",
+    "run_budget_ref",
+    "result_summary_ref",
+    "workbench_family_closeout_ref",
+    "worker_profile_ref",
+    "attempt_purpose",
+    "attempt_scope_posture",
+    "dispatch_authority_posture",
+    "official_programbench_posture",
+    "benchmark_truth_posture",
+    "model_ranking_posture",
+    "limitation_note"
+  ],
+  "title": "ProgrambenchReconstructionAttemptRequest",
+  "type": "object"
+}

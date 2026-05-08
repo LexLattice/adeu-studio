@@ -1,0 +1,254 @@
+{
+  "$defs": {
+    "ProgrambenchReconstructionAttemptContextDerivationRow": {
+      "additionalProperties": false,
+      "properties": {
+        "derivation_kind": {
+          "enum": [
+            "advisory_concept_profile_ref",
+            "advisory_realization_ref",
+            "probe_expectation_ref",
+            "released_worker_context_ref",
+            "run_budget_summary_ref",
+            "sandbox_summary_ref"
+          ],
+          "title": "Derivation Kind",
+          "type": "string"
+        },
+        "derivation_ref": {
+          "title": "Derivation Ref",
+          "type": "string"
+        },
+        "derived_ref": {
+          "title": "Derived Ref",
+          "type": "string"
+        },
+        "limitation_note": {
+          "title": "Limitation Note",
+          "type": "string"
+        },
+        "source_ref": {
+          "title": "Source Ref",
+          "type": "string"
+        },
+        "worker_visibility_posture": {
+          "const": "worker_visible_attempt_input",
+          "title": "Worker Visibility Posture",
+          "type": "string"
+        }
+      },
+      "required": [
+        "derivation_ref",
+        "source_ref",
+        "derived_ref",
+        "derivation_kind",
+        "worker_visibility_posture",
+        "limitation_note"
+      ],
+      "title": "ProgrambenchReconstructionAttemptContextDerivationRow",
+      "type": "object"
+    },
+    "ProgrambenchReconstructionAttemptExcludedRefSummaryRow": {
+      "additionalProperties": false,
+      "properties": {
+        "authority_posture": {
+          "const": "auditor_only_summary_not_worker_context",
+          "title": "Authority Posture",
+          "type": "string"
+        },
+        "excluded_ref_count": {
+          "minimum": 1,
+          "title": "Excluded Ref Count",
+          "type": "integer"
+        },
+        "exclusion_category": {
+          "enum": [
+            "excluded_derived_summary",
+            "forbidden_source",
+            "postmortem_only",
+            "worker_hidden_source"
+          ],
+          "title": "Exclusion Category",
+          "type": "string"
+        },
+        "exclusion_summary_ref": {
+          "title": "Exclusion Summary Ref",
+          "type": "string"
+        },
+        "limitation_note": {
+          "title": "Limitation Note",
+          "type": "string"
+        },
+        "non_exposure_statement": {
+          "const": "no_source_identity_or_content_exposed",
+          "title": "Non Exposure Statement",
+          "type": "string"
+        },
+        "reason_code": {
+          "enum": [
+            "excluded_derived_not_worker_visible",
+            "forbidden_not_worker_visible",
+            "hidden_not_worker_visible",
+            "postmortem_only_not_worker_visible"
+          ],
+          "title": "Reason Code",
+          "type": "string"
+        }
+      },
+      "required": [
+        "exclusion_summary_ref",
+        "exclusion_category",
+        "excluded_ref_count",
+        "reason_code",
+        "authority_posture",
+        "non_exposure_statement",
+        "limitation_note"
+      ],
+      "title": "ProgrambenchReconstructionAttemptExcludedRefSummaryRow",
+      "type": "object"
+    }
+  },
+  "additionalProperties": false,
+  "properties": {
+    "advisory_concept_profile_refs": {
+      "items": {
+        "type": "string"
+      },
+      "minItems": 1,
+      "title": "Advisory Concept Profile Refs",
+      "type": "array"
+    },
+    "advisory_realization_refs": {
+      "items": {
+        "type": "string"
+      },
+      "minItems": 1,
+      "title": "Advisory Realization Refs",
+      "type": "array"
+    },
+    "attempt_request_ref": {
+      "title": "Attempt Request Ref",
+      "type": "string"
+    },
+    "context_derivation_rows": {
+      "items": {
+        "$ref": "#/$defs/ProgrambenchReconstructionAttemptContextDerivationRow"
+      },
+      "minItems": 1,
+      "title": "Context Derivation Rows",
+      "type": "array"
+    },
+    "context_exclusion_manifest_ref": {
+      "title": "Context Exclusion Manifest Ref",
+      "type": "string"
+    },
+    "excluded_ref_summary_rows": {
+      "items": {
+        "$ref": "#/$defs/ProgrambenchReconstructionAttemptExcludedRefSummaryRow"
+      },
+      "minItems": 1,
+      "title": "Excluded Ref Summary Rows",
+      "type": "array"
+    },
+    "forbidden_ref_exposure_check_hash": {
+      "title": "Forbidden Ref Exposure Check Hash",
+      "type": "string"
+    },
+    "input_materialization_posture": {
+      "const": "no_candidate_materialization_by_pb_attempt_0a",
+      "title": "Input Materialization Posture",
+      "type": "string"
+    },
+    "limitation_note": {
+      "title": "Limitation Note",
+      "type": "string"
+    },
+    "probe_expectation_refs": {
+      "items": {
+        "type": "string"
+      },
+      "minItems": 1,
+      "title": "Probe Expectation Refs",
+      "type": "array"
+    },
+    "run_budget_summary_refs": {
+      "items": {
+        "type": "string"
+      },
+      "minItems": 1,
+      "title": "Run Budget Summary Refs",
+      "type": "array"
+    },
+    "sandbox_summary_refs": {
+      "items": {
+        "type": "string"
+      },
+      "minItems": 1,
+      "title": "Sandbox Summary Refs",
+      "type": "array"
+    },
+    "schema": {
+      "const": "programbench_reconstruction_attempt_worker_input_packet@1",
+      "title": "Schema",
+      "type": "string"
+    },
+    "work_order_ref": {
+      "title": "Work Order Ref",
+      "type": "string"
+    },
+    "worker_context_packet_ref": {
+      "title": "Worker Context Packet Ref",
+      "type": "string"
+    },
+    "worker_input_manifest_hash": {
+      "title": "Worker Input Manifest Hash",
+      "type": "string"
+    },
+    "worker_input_packet_ref": {
+      "title": "Worker Input Packet Ref",
+      "type": "string"
+    },
+    "worker_visibility_posture": {
+      "const": "worker_input_cleanroom_visible_only",
+      "title": "Worker Visibility Posture",
+      "type": "string"
+    },
+    "worker_visible_ref_count": {
+      "minimum": 1,
+      "title": "Worker Visible Ref Count",
+      "type": "integer"
+    },
+    "worker_visible_source_refs": {
+      "items": {
+        "type": "string"
+      },
+      "minItems": 1,
+      "title": "Worker Visible Source Refs",
+      "type": "array"
+    }
+  },
+  "required": [
+    "schema",
+    "worker_input_packet_ref",
+    "attempt_request_ref",
+    "work_order_ref",
+    "worker_context_packet_ref",
+    "context_exclusion_manifest_ref",
+    "worker_visible_source_refs",
+    "advisory_concept_profile_refs",
+    "advisory_realization_refs",
+    "probe_expectation_refs",
+    "sandbox_summary_refs",
+    "run_budget_summary_refs",
+    "excluded_ref_summary_rows",
+    "context_derivation_rows",
+    "worker_input_manifest_hash",
+    "worker_visible_ref_count",
+    "forbidden_ref_exposure_check_hash",
+    "worker_visibility_posture",
+    "input_materialization_posture",
+    "limitation_note"
+  ],
+  "title": "ProgrambenchReconstructionAttemptWorkerInputPacket",
+  "type": "object"
+}

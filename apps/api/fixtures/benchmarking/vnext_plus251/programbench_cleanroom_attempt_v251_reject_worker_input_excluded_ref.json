@@ -1,0 +1,65 @@
+{
+  "advisory_concept_profile_refs": [
+    "profile:pb-py-0a:programbench-cleanroom-reconstruction"
+  ],
+  "advisory_realization_refs": [
+    "realization-pack:pb-py-0b:python-stdlib-seed"
+  ],
+  "attempt_request_ref": "attempt-request:pb-attempt-0a:reference",
+  "context_derivation_rows": [
+    {
+      "derivation_kind": "advisory_realization_ref",
+      "derivation_ref": "derivation:pb-attempt-0a:advisory-realization",
+      "derived_ref": "realization-pack:pb-py-0b:python-stdlib-seed",
+      "limitation_note": "The Python realization pack is included as advisory worker-visible context, not implementation authority.",
+      "source_ref": "realization-pack:pb-py-0b:python-stdlib-seed",
+      "worker_visibility_posture": "worker_visible_attempt_input"
+    }
+  ],
+  "context_exclusion_manifest_ref": "context-exclusion:pb-recon-0a:reference",
+  "excluded_ref_summary_rows": [
+    {
+      "authority_posture": "auditor_only_summary_not_worker_context",
+      "excluded_ref_count": 1,
+      "exclusion_category": "forbidden_source",
+      "exclusion_summary_ref": "exclusion-summary:pb-attempt-0a:forbidden",
+      "limitation_note": "The worker input packet records only that forbidden source material exists; it exposes no identity or content.",
+      "non_exposure_statement": "no_source_identity_or_content_exposed",
+      "reason_code": "forbidden_not_worker_visible"
+    }
+  ],
+  "forbidden_ref_exposure_check_hash": "sha256:4444444444444444444444444444444444444444444444444444444444444444",
+  "input_materialization_posture": "no_candidate_materialization_by_pb_attempt_0a",
+  "limitation_note": "Reject fixture leaks an auditor-only source ref into worker-visible input.",
+  "probe_expectation_refs": [
+    "probe-observation:pb-adapter-0b:toy-cli-help"
+  ],
+  "run_budget_summary_refs": [
+    "run-budget:pb-recon-0a:reference"
+  ],
+  "sandbox_summary_refs": [
+    "sandbox-policy:pb-recon-0a:reference"
+  ],
+  "schema": "programbench_reconstruction_attempt_worker_input_packet@1",
+  "worker_context_packet_ref": "worker-context:pb-recon-0a:reference",
+  "worker_input_manifest_hash": "sha256:3333333333333333333333333333333333333333333333333333333333333333",
+  "worker_input_packet_ref": "worker-input:pb-attempt-0a:reference",
+  "worker_visibility_posture": "worker_input_cleanroom_visible_only",
+  "worker_visible_ref_count": 15,
+  "worker_visible_source_refs": [
+    "artifact-manifest:pb-adapter-0a:reference",
+    "fixture:pb-py-0c:stderr-diagnostic-local",
+    "guardrail:pb-adapter-0a:reference",
+    "io-artifact-index:pb-adapter-0b:reference",
+    "probe-observation:pb-adapter-0b:toy-cli-help",
+    "probe-plan:pb-adapter-0b:reference",
+    "profile:pb-py-0a:programbench-cleanroom-reconstruction",
+    "realization-pack:pb-py-0b:python-stdlib-seed",
+    "side-effect:pb-adapter-0b:toy-cli-help",
+    "store:pb-adapter-0a:original-source",
+    "task-intake:pb-adapter-0a:reference",
+    "visibility-manifest:pb-adapter-0a:reference",
+    "worker-access-contract:pb-adapter-0a:reference"
+  ],
+  "work_order_ref": "work-order:pb-recon-0a:reference"
+}

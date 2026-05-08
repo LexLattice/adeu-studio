@@ -105,6 +105,16 @@ from .programbench_cleanroom_adapter import (
     ProgrambenchTaskArtifactManifest,
     ProgrambenchTaskVisibilityManifest,
 )
+from .programbench_cleanroom_attempt import (
+    PROGRAMBENCH_RECONSTRUCTION_ATTEMPT_DISPATCH_PREFLIGHT_SCHEMA,
+    PROGRAMBENCH_RECONSTRUCTION_ATTEMPT_NON_AUTHORITY_GUARDRAIL_SCHEMA,
+    PROGRAMBENCH_RECONSTRUCTION_ATTEMPT_REQUEST_SCHEMA,
+    PROGRAMBENCH_RECONSTRUCTION_ATTEMPT_WORKER_INPUT_PACKET_SCHEMA,
+    ProgrambenchReconstructionAttemptDispatchPreflight,
+    ProgrambenchReconstructionAttemptNonAuthorityGuardrail,
+    ProgrambenchReconstructionAttemptRequest,
+    ProgrambenchReconstructionAttemptWorkerInputPacket,
+)
 from .programbench_cleanroom_reconstruction import (
     PROGRAMBENCH_RECONSTRUCTION_CANDIDATE_ARTIFACT_MANIFEST_SCHEMA,
     PROGRAMBENCH_RECONSTRUCTION_CONTEXT_EXCLUSION_MANIFEST_SCHEMA,
@@ -806,6 +816,54 @@ def main() -> None:
             root
             / "spec"
             / "programbench_reconstruction_workbench_family_closeout_alignment.schema.json",
+        ),
+        (
+            ProgrambenchReconstructionAttemptRequest,
+            PROGRAMBENCH_RECONSTRUCTION_ATTEMPT_REQUEST_SCHEMA,
+            root
+            / "packages"
+            / "adeu_benchmarking"
+            / "schema"
+            / "programbench_reconstruction_attempt_request.v1.json",
+            root
+            / "spec"
+            / "programbench_reconstruction_attempt_request.schema.json",
+        ),
+        (
+            ProgrambenchReconstructionAttemptWorkerInputPacket,
+            PROGRAMBENCH_RECONSTRUCTION_ATTEMPT_WORKER_INPUT_PACKET_SCHEMA,
+            root
+            / "packages"
+            / "adeu_benchmarking"
+            / "schema"
+            / "programbench_reconstruction_attempt_worker_input_packet.v1.json",
+            root
+            / "spec"
+            / "programbench_reconstruction_attempt_worker_input_packet.schema.json",
+        ),
+        (
+            ProgrambenchReconstructionAttemptDispatchPreflight,
+            PROGRAMBENCH_RECONSTRUCTION_ATTEMPT_DISPATCH_PREFLIGHT_SCHEMA,
+            root
+            / "packages"
+            / "adeu_benchmarking"
+            / "schema"
+            / "programbench_reconstruction_attempt_dispatch_preflight.v1.json",
+            root
+            / "spec"
+            / "programbench_reconstruction_attempt_dispatch_preflight.schema.json",
+        ),
+        (
+            ProgrambenchReconstructionAttemptNonAuthorityGuardrail,
+            PROGRAMBENCH_RECONSTRUCTION_ATTEMPT_NON_AUTHORITY_GUARDRAIL_SCHEMA,
+            root
+            / "packages"
+            / "adeu_benchmarking"
+            / "schema"
+            / "programbench_reconstruction_attempt_non_authority_guardrail.v1.json",
+            root
+            / "spec"
+            / "programbench_reconstruction_attempt_non_authority_guardrail.schema.json",
         ),
     ]
 
