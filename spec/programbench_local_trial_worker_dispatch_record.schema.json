@@ -1,0 +1,195 @@
+{
+  "additionalProperties": false,
+  "properties": {
+    "allowed_tool_manifest_hash": {
+      "title": "Allowed Tool Manifest Hash",
+      "type": "string"
+    },
+    "benchmark_truth_posture": {
+      "const": "not_benchmark_truth",
+      "title": "Benchmark Truth Posture",
+      "type": "string"
+    },
+    "decompilation_posture": {
+      "const": "decompilation_forbidden",
+      "title": "Decompilation Posture",
+      "type": "string"
+    },
+    "dispatch_authority_ref": {
+      "title": "Dispatch Authority Ref",
+      "type": "string"
+    },
+    "dispatch_completion_posture": {
+      "enum": [
+        "completed_with_execution_capture",
+        "failed_with_execution_capture"
+      ],
+      "title": "Dispatch Completion Posture",
+      "type": "string"
+    },
+    "dispatch_index": {
+      "minimum": 1,
+      "title": "Dispatch Index",
+      "type": "integer"
+    },
+    "dispatch_start_posture": {
+      "const": "started_under_released_pb_trial_0b_lock",
+      "title": "Dispatch Start Posture",
+      "type": "string"
+    },
+    "docker_socket_access_posture": {
+      "const": "docker_socket_absent",
+      "title": "Docker Socket Access Posture",
+      "type": "string"
+    },
+    "external_repo_access_posture": {
+      "const": "external_repo_access_forbidden",
+      "title": "External Repo Access Posture",
+      "type": "string"
+    },
+    "forbidden_tool_manifest_hash": {
+      "title": "Forbidden Tool Manifest Hash",
+      "type": "string"
+    },
+    "hidden_test_access_posture": {
+      "const": "hidden_tests_not_visible_not_accessed",
+      "title": "Hidden Test Access Posture",
+      "type": "string"
+    },
+    "host_secret_access_posture": {
+      "const": "host_secrets_absent",
+      "title": "Host Secret Access Posture",
+      "type": "string"
+    },
+    "input_packet_materialization_hash": {
+      "title": "Input Packet Materialization Hash",
+      "type": "string"
+    },
+    "internet_lookup_posture": {
+      "const": "internet_lookup_forbidden",
+      "title": "Internet Lookup Posture",
+      "type": "string"
+    },
+    "limitation_note": {
+      "title": "Limitation Note",
+      "type": "string"
+    },
+    "model_ranking_posture": {
+      "const": "no_model_ranking_claimed_by_pb_trial_0b",
+      "title": "Model Ranking Posture",
+      "type": "string"
+    },
+    "network_access_posture": {
+      "const": "network_disabled",
+      "title": "Network Access Posture",
+      "type": "string"
+    },
+    "official_programbench_posture": {
+      "const": "no_official_programbench_participation_by_pb_trial_0b",
+      "title": "Official Programbench Posture",
+      "type": "string"
+    },
+    "official_submission_posture": {
+      "const": "no_official_submission_authority_by_pb_trial_0b",
+      "title": "Official Submission Posture",
+      "type": "string"
+    },
+    "retry_authority_posture": {
+      "const": "no_retry_authority_granted_by_pb_trial_0b",
+      "title": "Retry Authority Posture",
+      "type": "string"
+    },
+    "sandbox_attestation_bundle_ref": {
+      "title": "Sandbox Attestation Bundle Ref",
+      "type": "string"
+    },
+    "sandbox_instance_ref": {
+      "title": "Sandbox Instance Ref",
+      "type": "string"
+    },
+    "sandbox_readiness_review_ref": {
+      "title": "Sandbox Readiness Review Ref",
+      "type": "string"
+    },
+    "schema": {
+      "const": "programbench_local_trial_worker_dispatch_record@1",
+      "title": "Schema",
+      "type": "string"
+    },
+    "source_lookup_posture": {
+      "const": "source_lookup_forbidden",
+      "title": "Source Lookup Posture",
+      "type": "string"
+    },
+    "tool_access_posture": {
+      "const": "released_tool_manifest_only",
+      "title": "Tool Access Posture",
+      "type": "string"
+    },
+    "tool_manifest_ref": {
+      "title": "Tool Manifest Ref",
+      "type": "string"
+    },
+    "trial_docket_ref": {
+      "title": "Trial Docket Ref",
+      "type": "string"
+    },
+    "trial_runbook_ref": {
+      "title": "Trial Runbook Ref",
+      "type": "string"
+    },
+    "trial_worker_dispatch_ref": {
+      "title": "Trial Worker Dispatch Ref",
+      "type": "string"
+    },
+    "worker_input_packet_hash": {
+      "title": "Worker Input Packet Hash",
+      "type": "string"
+    },
+    "worker_profile_ref": {
+      "title": "Worker Profile Ref",
+      "type": "string"
+    },
+    "worker_visible_context_hash": {
+      "title": "Worker Visible Context Hash",
+      "type": "string"
+    }
+  },
+  "required": [
+    "schema",
+    "trial_worker_dispatch_ref",
+    "trial_docket_ref",
+    "trial_runbook_ref",
+    "sandbox_readiness_review_ref",
+    "worker_profile_ref",
+    "dispatch_index",
+    "dispatch_authority_ref",
+    "sandbox_instance_ref",
+    "sandbox_attestation_bundle_ref",
+    "input_packet_materialization_hash",
+    "worker_input_packet_hash",
+    "worker_visible_context_hash",
+    "tool_manifest_ref",
+    "allowed_tool_manifest_hash",
+    "forbidden_tool_manifest_hash",
+    "dispatch_start_posture",
+    "dispatch_completion_posture",
+    "tool_access_posture",
+    "network_access_posture",
+    "source_lookup_posture",
+    "internet_lookup_posture",
+    "decompilation_posture",
+    "external_repo_access_posture",
+    "docker_socket_access_posture",
+    "host_secret_access_posture",
+    "hidden_test_access_posture",
+    "official_programbench_posture",
+    "benchmark_truth_posture",
+    "model_ranking_posture",
+    "official_submission_posture",
+    "retry_authority_posture",
+    "limitation_note"
+  ],
+  "title": "ProgrambenchLocalTrialWorkerDispatchRecord",
+  "type": "object"
+}

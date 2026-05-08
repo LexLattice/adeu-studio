@@ -1,0 +1,185 @@
+{
+  "$defs": {
+    "ProgrambenchLocalTrialGeneratedFileHashRow": {
+      "additionalProperties": false,
+      "properties": {
+        "content_hash": {
+          "title": "Content Hash",
+          "type": "string"
+        },
+        "generated_file_hash_ref": {
+          "title": "Generated File Hash Ref",
+          "type": "string"
+        },
+        "hash_role": {
+          "const": "local_trial_candidate_content_hash",
+          "title": "Hash Role",
+          "type": "string"
+        },
+        "limitation_note": {
+          "title": "Limitation Note",
+          "type": "string"
+        },
+        "materialized_file_ref": {
+          "title": "Materialized File Ref",
+          "type": "string"
+        }
+      },
+      "required": [
+        "generated_file_hash_ref",
+        "materialized_file_ref",
+        "content_hash",
+        "hash_role",
+        "limitation_note"
+      ],
+      "title": "ProgrambenchLocalTrialGeneratedFileHashRow",
+      "type": "object"
+    },
+    "ProgrambenchLocalTrialMaterializedFileRow": {
+      "additionalProperties": false,
+      "properties": {
+        "file_role": {
+          "enum": [
+            "candidate_config_file",
+            "candidate_source_file",
+            "candidate_support_file",
+            "generated_output_artifact"
+          ],
+          "title": "File Role",
+          "type": "string"
+        },
+        "limitation_note": {
+          "title": "Limitation Note",
+          "type": "string"
+        },
+        "materialization_posture": {
+          "const": "local_trial_sandbox_materialized_file",
+          "title": "Materialization Posture",
+          "type": "string"
+        },
+        "materialized_file_ref": {
+          "title": "Materialized File Ref",
+          "type": "string"
+        },
+        "path_ref": {
+          "title": "Path Ref",
+          "type": "string"
+        },
+        "write_scope_ref": {
+          "title": "Write Scope Ref",
+          "type": "string"
+        }
+      },
+      "required": [
+        "materialized_file_ref",
+        "path_ref",
+        "file_role",
+        "write_scope_ref",
+        "materialization_posture",
+        "limitation_note"
+      ],
+      "title": "ProgrambenchLocalTrialMaterializedFileRow",
+      "type": "object"
+    }
+  },
+  "additionalProperties": false,
+  "properties": {
+    "benchmark_truth_posture": {
+      "const": "not_benchmark_truth",
+      "title": "Benchmark Truth Posture",
+      "type": "string"
+    },
+    "candidate_artifact_snapshot_ref": {
+      "title": "Candidate Artifact Snapshot Ref",
+      "type": "string"
+    },
+    "fs_diff_ref": {
+      "title": "Fs Diff Ref",
+      "type": "string"
+    },
+    "generated_file_hash_rows": {
+      "items": {
+        "$ref": "#/$defs/ProgrambenchLocalTrialGeneratedFileHashRow"
+      },
+      "minItems": 1,
+      "title": "Generated File Hash Rows",
+      "type": "array"
+    },
+    "limitation_note": {
+      "title": "Limitation Note",
+      "type": "string"
+    },
+    "materialized_file_rows": {
+      "items": {
+        "$ref": "#/$defs/ProgrambenchLocalTrialMaterializedFileRow"
+      },
+      "minItems": 1,
+      "title": "Materialized File Rows",
+      "type": "array"
+    },
+    "official_submission_posture": {
+      "const": "no_official_submission_authority_by_pb_trial_0b",
+      "title": "Official Submission Posture",
+      "type": "string"
+    },
+    "post_state_manifest_ref": {
+      "title": "Post State Manifest Ref",
+      "type": "string"
+    },
+    "pre_state_manifest_ref": {
+      "title": "Pre State Manifest Ref",
+      "type": "string"
+    },
+    "schema": {
+      "const": "programbench_local_trial_candidate_artifact_snapshot@1",
+      "title": "Schema",
+      "type": "string"
+    },
+    "snapshot_inside_write_scope": {
+      "const": true,
+      "title": "Snapshot Inside Write Scope",
+      "type": "boolean"
+    },
+    "snapshot_manifest_hash": {
+      "title": "Snapshot Manifest Hash",
+      "type": "string"
+    },
+    "snapshot_posture": {
+      "const": "local_candidate_snapshot_inside_released_write_scope",
+      "title": "Snapshot Posture",
+      "type": "string"
+    },
+    "trial_docket_ref": {
+      "title": "Trial Docket Ref",
+      "type": "string"
+    },
+    "trial_execution_capture_ref": {
+      "title": "Trial Execution Capture Ref",
+      "type": "string"
+    },
+    "write_scope_ref": {
+      "title": "Write Scope Ref",
+      "type": "string"
+    }
+  },
+  "required": [
+    "schema",
+    "candidate_artifact_snapshot_ref",
+    "trial_execution_capture_ref",
+    "trial_docket_ref",
+    "write_scope_ref",
+    "pre_state_manifest_ref",
+    "post_state_manifest_ref",
+    "fs_diff_ref",
+    "snapshot_manifest_hash",
+    "materialized_file_rows",
+    "generated_file_hash_rows",
+    "official_submission_posture",
+    "benchmark_truth_posture",
+    "snapshot_inside_write_scope",
+    "snapshot_posture",
+    "limitation_note"
+  ],
+  "title": "ProgrambenchLocalTrialCandidateArtifactSnapshot",
+  "type": "object"
+}

@@ -163,13 +163,21 @@ from .programbench_cleanroom_reconstruction import (
 )
 from .programbench_cleanroom_trial import (
     PROGRAMBENCH_LOCAL_RECONSTRUCTION_TRIAL_DOCKET_SCHEMA,
+    PROGRAMBENCH_LOCAL_TRIAL_CANDIDATE_ARTIFACT_SNAPSHOT_SCHEMA,
+    PROGRAMBENCH_LOCAL_TRIAL_EXECUTION_CAPTURE_SCHEMA,
     PROGRAMBENCH_LOCAL_TRIAL_EXECUTION_RUNBOOK_SCHEMA,
+    PROGRAMBENCH_LOCAL_TRIAL_LIFECYCLE_PROJECTION_SCHEMA,
     PROGRAMBENCH_LOCAL_TRIAL_NON_AUTHORITY_GUARDRAIL_SCHEMA,
     PROGRAMBENCH_LOCAL_TRIAL_SANDBOX_READINESS_REVIEW_SCHEMA,
+    PROGRAMBENCH_LOCAL_TRIAL_WORKER_DISPATCH_RECORD_SCHEMA,
     ProgrambenchLocalReconstructionTrialDocket,
+    ProgrambenchLocalTrialCandidateArtifactSnapshot,
+    ProgrambenchLocalTrialExecutionCapture,
     ProgrambenchLocalTrialExecutionRunbook,
+    ProgrambenchLocalTrialLifecycleProjection,
     ProgrambenchLocalTrialNonAuthorityGuardrail,
     ProgrambenchLocalTrialSandboxReadinessReview,
+    ProgrambenchLocalTrialWorkerDispatchRecord,
 )
 
 _WINDOWS_ABSOLUTE_PATH_RE = re.compile(r"[A-Za-z]:\\")
@@ -1000,6 +1008,48 @@ def main() -> None:
             / "schema"
             / "programbench_local_trial_non_authority_guardrail.v1.json",
             root / "spec" / "programbench_local_trial_non_authority_guardrail.schema.json",
+        ),
+        (
+            ProgrambenchLocalTrialWorkerDispatchRecord,
+            PROGRAMBENCH_LOCAL_TRIAL_WORKER_DISPATCH_RECORD_SCHEMA,
+            root
+            / "packages"
+            / "adeu_benchmarking"
+            / "schema"
+            / "programbench_local_trial_worker_dispatch_record.v1.json",
+            root / "spec" / "programbench_local_trial_worker_dispatch_record.schema.json",
+        ),
+        (
+            ProgrambenchLocalTrialExecutionCapture,
+            PROGRAMBENCH_LOCAL_TRIAL_EXECUTION_CAPTURE_SCHEMA,
+            root
+            / "packages"
+            / "adeu_benchmarking"
+            / "schema"
+            / "programbench_local_trial_execution_capture.v1.json",
+            root / "spec" / "programbench_local_trial_execution_capture.schema.json",
+        ),
+        (
+            ProgrambenchLocalTrialCandidateArtifactSnapshot,
+            PROGRAMBENCH_LOCAL_TRIAL_CANDIDATE_ARTIFACT_SNAPSHOT_SCHEMA,
+            root
+            / "packages"
+            / "adeu_benchmarking"
+            / "schema"
+            / "programbench_local_trial_candidate_artifact_snapshot.v1.json",
+            root
+            / "spec"
+            / "programbench_local_trial_candidate_artifact_snapshot.schema.json",
+        ),
+        (
+            ProgrambenchLocalTrialLifecycleProjection,
+            PROGRAMBENCH_LOCAL_TRIAL_LIFECYCLE_PROJECTION_SCHEMA,
+            root
+            / "packages"
+            / "adeu_benchmarking"
+            / "schema"
+            / "programbench_local_trial_lifecycle_projection.v1.json",
+            root / "spec" / "programbench_local_trial_lifecycle_projection.schema.json",
         ),
     ]
 
