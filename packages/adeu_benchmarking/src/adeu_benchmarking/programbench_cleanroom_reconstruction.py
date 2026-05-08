@@ -915,6 +915,318 @@ class ProgrambenchReconstructionRemandCorrectionRecord(_WorkbenchBase):
         return self
 
 
+class ProgrambenchReconstructionCoverageRow(_WorkbenchBase):
+    coverage_ref: str
+    expected_behavior_ref: str
+    observed_behavior_ref: str
+    probe_result_refs: list[str] = Field(min_length=1)
+    coverage_posture: Literal[
+        "covered_by_local_probe",
+        "missing_required_evidence",
+        "not_applicable_with_reason",
+    ]
+    limitation_note: str
+
+    @model_validator(mode="after")
+    def _validate_coverage_row(self) -> "ProgrambenchReconstructionCoverageRow":
+        _ensure_sorted_unique(self.probe_result_refs, field_name="probe_result_refs")
+        return self
+
+
+class ProgrambenchReconstructionProbeAuditRow(_WorkbenchBase):
+    probe_audit_ref: str
+    probe_result_ref: str
+    probe_requirement_kind: Literal[
+        "positive_probe",
+        "negative_probe",
+        "regression_probe",
+    ]
+    requirement_posture: Literal["required", "not_applicable_with_reason"]
+    probe_pass_posture: Literal[
+        "passed_local_probe",
+        "failed_local_probe",
+        "inconclusive_local_probe",
+        "not_applicable_with_reason",
+    ]
+    limitation_note: str
+
+    @model_validator(mode="after")
+    def _validate_probe_audit_row(self) -> "ProgrambenchReconstructionProbeAuditRow":
+        if (
+            self.requirement_posture == "not_applicable_with_reason"
+            and self.probe_pass_posture != "not_applicable_with_reason"
+        ):
+            raise ValueError(
+                "not-applicable probe requirements require not-applicable pass posture"
+            )
+        if (
+            self.requirement_posture == "required"
+            and self.probe_pass_posture == "not_applicable_with_reason"
+        ):
+            raise ValueError("required probe audit rows cannot use not-applicable pass posture")
+        return self
+
+
+class ProgrambenchReconstructionEquivalenceAudit(_WorkbenchBase):
+    schema_id: Literal[PROGRAMBENCH_RECONSTRUCTION_EQUIVALENCE_AUDIT_SCHEMA] = Field(
+        alias="schema"
+    )
+    equivalence_audit_ref: str
+    work_order_ref: str
+    case_packet_ref: str
+    candidate_artifact_manifest_ref: str
+    probe_result_log_refs: list[str] = Field(min_length=1)
+    expected_behavior_refs: list[str] = Field(min_length=1)
+    observed_behavior_refs: list[str] = Field(min_length=1)
+    coverage_rows: list[ProgrambenchReconstructionCoverageRow] = Field(min_length=1)
+    positive_probe_rows: list[ProgrambenchReconstructionProbeAuditRow] = Field(
+        min_length=1
+    )
+    negative_probe_rows: list[ProgrambenchReconstructionProbeAuditRow]
+    regression_probe_rows: list[ProgrambenchReconstructionProbeAuditRow]
+    local_equivalence_posture: Literal[
+        "local_equivalence_satisfied",
+        "local_equivalence_failed",
+        "local_equivalence_inconclusive",
+        "future_family_only",
+    ]
+    hidden_test_equivalence_posture: Literal["not_hidden_test_equivalence"]
+    benchmark_truth_posture: Literal["not_benchmark_truth"]
+    official_programbench_posture: Literal[
+        "no_official_programbench_participation_by_pb_recon_0c"
+    ]
+    limitation_note: str
+
+    @model_validator(mode="after")
+    def _validate_equivalence_audit(self) -> "ProgrambenchReconstructionEquivalenceAudit":
+        if self.local_equivalence_posture == "future_family_only":
+            raise ValueError("equivalence audit must summarize local evidence, not defer itself")
+        for field_name in (
+            "probe_result_log_refs",
+            "expected_behavior_refs",
+            "observed_behavior_refs",
+        ):
+            _ensure_sorted_unique(getattr(self, field_name), field_name=field_name)
+        coverage_refs = [row.coverage_ref for row in self.coverage_rows]
+        _ensure_sorted_unique(coverage_refs, field_name="coverage_rows")
+        expected_refs = set(self.expected_behavior_refs)
+        observed_refs = set(self.observed_behavior_refs)
+        for row in self.coverage_rows:
+            if row.expected_behavior_ref not in expected_refs:
+                raise ValueError("coverage rows must reference expected behavior refs")
+            if row.observed_behavior_ref not in observed_refs:
+                raise ValueError("coverage rows must reference observed behavior refs")
+        self._validate_probe_audit_rows(
+            self.positive_probe_rows,
+            field_name="positive_probe_rows",
+            expected_kind="positive_probe",
+        )
+        self._validate_probe_audit_rows(
+            self.negative_probe_rows,
+            field_name="negative_probe_rows",
+            expected_kind="negative_probe",
+            allow_empty=True,
+        )
+        self._validate_probe_audit_rows(
+            self.regression_probe_rows,
+            field_name="regression_probe_rows",
+            expected_kind="regression_probe",
+            allow_empty=True,
+        )
+        return self
+
+    @staticmethod
+    def _validate_probe_audit_rows(
+        rows: list[ProgrambenchReconstructionProbeAuditRow],
+        *,
+        field_name: str,
+        expected_kind: str,
+        allow_empty: bool = False,
+    ) -> None:
+        row_refs = [row.probe_audit_ref for row in rows]
+        if allow_empty:
+            _ensure_sorted_unique_allow_empty(row_refs, field_name=field_name)
+        else:
+            _ensure_sorted_unique(row_refs, field_name=field_name)
+        bad_kinds = [
+            row.probe_audit_ref
+            for row in rows
+            if row.probe_requirement_kind != expected_kind
+        ]
+        if bad_kinds:
+            raise ValueError(f"{field_name} rows must use {expected_kind}: {bad_kinds}")
+
+
+class ProgrambenchReconstructionResultSummary(_WorkbenchBase):
+    schema_id: Literal[PROGRAMBENCH_RECONSTRUCTION_RESULT_SUMMARY_SCHEMA] = Field(
+        alias="schema"
+    )
+    result_summary_ref: str
+    work_order_ref: str
+    equivalence_audit_ref: str
+    candidate_artifact_manifest_refs: list[str] = Field(min_length=1)
+    local_run_trace_refs: list[str] = Field(min_length=1)
+    probe_result_log_refs: list[str] = Field(min_length=1)
+    remand_correction_record_refs: list[str] = Field(min_length=1)
+    result_posture: Literal[
+        "local_accepted",
+        "local_remand_required",
+        "local_rejected",
+        "blocked_by_contamination",
+        "blocked_by_sandbox_violation",
+        "blocked_by_missing_evidence",
+        "inconclusive_local_audit",
+        "future_family_only",
+    ]
+    carried_blocker_refs: list[str]
+    carried_warning_refs: list[str]
+    contamination_refs: list[str]
+    sandbox_violation_refs: list[str]
+    local_acceptance_scope_posture: Literal[
+        "accepted_only_against_declared_local_probe_set_not_hidden_tests",
+        "not_locally_accepted",
+    ]
+    hidden_test_equivalence_posture: Literal["not_hidden_test_equivalence"]
+    benchmark_truth_posture: Literal["not_benchmark_truth"]
+    official_submission_posture: Literal[
+        "no_official_submission_or_submission_authority_by_pb_recon_0c"
+    ]
+    model_ranking_posture: Literal["no_model_ranking_claimed_by_pb_recon_0c"]
+    future_family_selection_posture: Literal["no_future_family_selected_by_pb_recon_0c"]
+    limitation_note: str
+
+    @model_validator(mode="after")
+    def _validate_result_summary(self) -> "ProgrambenchReconstructionResultSummary":
+        if self.result_posture == "future_family_only":
+            raise ValueError("result summaries must summarize local workbench evidence")
+        for field_name in (
+            "candidate_artifact_manifest_refs",
+            "local_run_trace_refs",
+            "probe_result_log_refs",
+            "remand_correction_record_refs",
+        ):
+            _ensure_sorted_unique(getattr(self, field_name), field_name=field_name)
+        for field_name in (
+            "carried_blocker_refs",
+            "carried_warning_refs",
+            "contamination_refs",
+            "sandbox_violation_refs",
+        ):
+            _ensure_sorted_unique_allow_empty(getattr(self, field_name), field_name=field_name)
+        if self.result_posture == "local_accepted":
+            if self.local_acceptance_scope_posture != (
+                "accepted_only_against_declared_local_probe_set_not_hidden_tests"
+            ):
+                raise ValueError("local accepted summaries require local-only acceptance scope")
+            if self.carried_blocker_refs:
+                raise ValueError("local accepted summaries cannot carry blockers")
+            if self.contamination_refs:
+                raise ValueError("local accepted summaries cannot carry contamination refs")
+            if self.sandbox_violation_refs:
+                raise ValueError("local accepted summaries cannot carry sandbox violations")
+        else:
+            if self.local_acceptance_scope_posture != "not_locally_accepted":
+                raise ValueError("non-accepted result summaries must not claim local acceptance")
+        if self.result_posture == "blocked_by_contamination" and not self.contamination_refs:
+            raise ValueError("contamination-blocked summaries require contamination refs")
+        if (
+            self.result_posture == "blocked_by_sandbox_violation"
+            and not self.sandbox_violation_refs
+        ):
+            raise ValueError("sandbox-blocked summaries require sandbox violation refs")
+        if (
+            self.result_posture in {"blocked_by_missing_evidence", "local_remand_required"}
+            and not self.carried_blocker_refs
+        ):
+            raise ValueError("blocked or remanded summaries require carried blockers")
+        return self
+
+
+class ProgrambenchReconstructionHandoff(_WorkbenchBase):
+    schema_id: Literal[PROGRAMBENCH_RECONSTRUCTION_HANDOFF_SCHEMA] = Field(
+        alias="schema"
+    )
+    handoff_ref: str
+    work_order_ref: str
+    equivalence_audit_ref: str
+    result_summary_ref: str
+    handoff_target: Literal[
+        "future_cleanroom_reconstruction_review",
+        "future_local_workbench_iteration_review",
+        "future_local_equivalence_audit_review",
+        "blocked_no_handoff",
+        "future_family_only",
+    ]
+    handoff_sequence_posture: Literal[
+        "handoff_pressure_only_no_selection",
+        "blocked_no_handoff",
+    ]
+    execution_authority_posture: Literal["no_execution_authority_granted_by_pb_recon_0c"]
+    official_programbench_authority_posture: Literal[
+        "no_official_programbench_authority_granted_by_pb_recon_0c"
+    ]
+    benchmark_result_authority_posture: Literal[
+        "no_benchmark_result_authority_granted_by_pb_recon_0c"
+    ]
+    model_ranking_authority_posture: Literal[
+        "no_model_ranking_authority_granted_by_pb_recon_0c"
+    ]
+    future_family_selection_posture: Literal["no_future_family_selected_by_pb_recon_0c"]
+    limitation_note: str
+
+    @model_validator(mode="after")
+    def _validate_handoff(self) -> "ProgrambenchReconstructionHandoff":
+        if self.handoff_target == "future_family_only":
+            raise ValueError("PB-RECON-0-C handoff may carry pressure but not defer itself")
+        if self.handoff_target == "blocked_no_handoff":
+            if self.handoff_sequence_posture != "blocked_no_handoff":
+                raise ValueError("blocked handoffs require blocked sequence posture")
+        elif self.handoff_sequence_posture != "handoff_pressure_only_no_selection":
+            raise ValueError("handoffs may only carry pressure without selection")
+        return self
+
+
+class ProgrambenchReconstructionWorkbenchFamilyCloseoutAlignment(_WorkbenchBase):
+    schema_id: Literal[
+        PROGRAMBENCH_RECONSTRUCTION_WORKBENCH_FAMILY_CLOSEOUT_ALIGNMENT_SCHEMA
+    ] = Field(alias="schema")
+    family_closeout_ref: str
+    closed_family_ref: str
+    closed_slice_refs: list[str] = Field(min_length=3)
+    work_order_refs: list[str] = Field(min_length=1)
+    equivalence_audit_refs: list[str] = Field(min_length=1)
+    result_summary_refs: list[str] = Field(min_length=1)
+    handoff_refs: list[str] = Field(min_length=1)
+    family_alignment_posture: Literal["pb_recon_0_closed_local_workbench_only"]
+    official_programbench_non_authority_posture: Literal[
+        "no_official_programbench_authority"
+    ]
+    hidden_test_non_inference_posture: Literal["hidden_tests_not_inference_evidence"]
+    benchmark_truth_non_authority_posture: Literal["not_benchmark_truth"]
+    model_ranking_non_authority_posture: Literal["not_model_ranking"]
+    future_family_selection_posture: Literal["no_future_family_selected_by_pb_recon_0c"]
+    limitation_note: str
+
+    @model_validator(mode="after")
+    def _validate_family_closeout(
+        self,
+    ) -> "ProgrambenchReconstructionWorkbenchFamilyCloseoutAlignment":
+        if self.closed_family_ref != "PB-RECON-0":
+            raise ValueError("family closeout must close only PB-RECON-0")
+        expected_slices = ["PB-RECON-0-A", "PB-RECON-0-B", "PB-RECON-0-C"]
+        if self.closed_slice_refs != expected_slices:
+            raise ValueError("family closeout must close exactly PB-RECON-0 A/B/C")
+        for field_name in (
+            "closed_slice_refs",
+            "work_order_refs",
+            "equivalence_audit_refs",
+            "result_summary_refs",
+            "handoff_refs",
+        ):
+            _ensure_sorted_unique(getattr(self, field_name), field_name=field_name)
+        return self
+
+
 def validate_pb_recon_0a_work_order_bundle(
     *,
     case_packet: ProgrambenchReconstructionCasePacket,
@@ -1275,3 +1587,193 @@ def validate_pb_recon_0b_local_evidence_bundle(
             raise ValueError("remand/correction records must preserve candidate attempt")
         if run_budget.run_budget_ref not in record.budget_consumption_refs:
             raise ValueError("remand/correction records must reference run budget")
+
+
+def _required_probe_rows_pass(
+    rows: list[ProgrambenchReconstructionProbeAuditRow],
+    *,
+    field_label: str,
+    allow_not_applicable: bool,
+) -> None:
+    for row in rows:
+        if row.requirement_posture == "not_applicable_with_reason":
+            if not allow_not_applicable:
+                raise ValueError(f"{field_label} cannot be marked not applicable")
+            continue
+        if row.probe_pass_posture != "passed_local_probe":
+            raise ValueError(f"{field_label} required probes must pass for local accepted")
+
+
+def validate_pb_recon_0c_local_audit_bundle(
+    *,
+    work_order: ProgrambenchReconstructionWorkOrder,
+    worker_context_packet: ProgrambenchReconstructionWorkerContextPacket,
+    context_exclusion_manifest: ProgrambenchReconstructionContextExclusionManifest,
+    sandbox_policy: ProgrambenchReconstructionSandboxPolicy,
+    run_budget: ProgrambenchReconstructionRunBudget,
+    guardrail: ProgrambenchReconstructionWorkbenchNonAuthorityGuardrail,
+    candidate_artifact_manifest: ProgrambenchReconstructionCandidateArtifactManifest,
+    local_run_traces: list[ProgrambenchReconstructionLocalRunTrace],
+    probe_result_log: ProgrambenchReconstructionProbeResultLog,
+    remand_correction_records: list[ProgrambenchReconstructionRemandCorrectionRecord],
+    equivalence_audit: ProgrambenchReconstructionEquivalenceAudit,
+    result_summary: ProgrambenchReconstructionResultSummary,
+    handoff: ProgrambenchReconstructionHandoff,
+    family_closeout: ProgrambenchReconstructionWorkbenchFamilyCloseoutAlignment,
+) -> None:
+    validate_pb_recon_0b_local_evidence_bundle(
+        work_order=work_order,
+        worker_context_packet=worker_context_packet,
+        context_exclusion_manifest=context_exclusion_manifest,
+        sandbox_policy=sandbox_policy,
+        run_budget=run_budget,
+        guardrail=guardrail,
+        candidate_artifact_manifest=candidate_artifact_manifest,
+        local_run_traces=local_run_traces,
+        probe_result_log=probe_result_log,
+        remand_correction_records=remand_correction_records,
+    )
+    trace_refs = [trace.local_run_trace_ref for trace in local_run_traces]
+    remand_refs = [
+        record.remand_correction_record_ref for record in remand_correction_records
+    ]
+    probe_result_refs = {
+        row.probe_result_ref for row in probe_result_log.probe_result_rows
+    }
+
+    if equivalence_audit.work_order_ref != work_order.work_order_ref:
+        raise ValueError("equivalence audit must reference released work order")
+    if equivalence_audit.case_packet_ref != work_order.case_packet_ref:
+        raise ValueError("equivalence audit must preserve released case packet lineage")
+    if (
+        equivalence_audit.candidate_artifact_manifest_ref
+        != candidate_artifact_manifest.candidate_artifact_manifest_ref
+    ):
+        raise ValueError("equivalence audit must reference candidate artifact manifest")
+    if set(equivalence_audit.probe_result_log_refs) != {
+        probe_result_log.probe_result_log_ref
+    }:
+        raise ValueError("equivalence audit must cover released probe result log")
+    if set(equivalence_audit.expected_behavior_refs) != set(
+        probe_result_log.expected_behavior_refs
+    ):
+        raise ValueError("equivalence audit must preserve expected behavior refs")
+    if set(equivalence_audit.observed_behavior_refs) != set(
+        probe_result_log.observed_behavior_refs
+    ):
+        raise ValueError("equivalence audit must preserve observed behavior refs")
+    for row in equivalence_audit.coverage_rows:
+        unknown_probe_refs = set(row.probe_result_refs) - probe_result_refs
+        if unknown_probe_refs:
+            raise ValueError(
+                "coverage rows reference unknown probe results: "
+                f"{sorted(unknown_probe_refs)}"
+            )
+    for field_label, rows in (
+        ("positive probe audit rows", equivalence_audit.positive_probe_rows),
+        ("negative probe audit rows", equivalence_audit.negative_probe_rows),
+        ("regression probe audit rows", equivalence_audit.regression_probe_rows),
+    ):
+        unknown_probe_refs = {row.probe_result_ref for row in rows} - probe_result_refs
+        if unknown_probe_refs:
+            raise ValueError(
+                f"{field_label} reference unknown probe results: {sorted(unknown_probe_refs)}"
+            )
+
+    if result_summary.work_order_ref != work_order.work_order_ref:
+        raise ValueError("result summary must reference released work order")
+    if result_summary.equivalence_audit_ref != equivalence_audit.equivalence_audit_ref:
+        raise ValueError("result summary must reference equivalence audit")
+    if set(result_summary.candidate_artifact_manifest_refs) != {
+        candidate_artifact_manifest.candidate_artifact_manifest_ref
+    }:
+        raise ValueError("result summary must cover candidate artifact manifest")
+    if set(result_summary.local_run_trace_refs) != set(trace_refs):
+        raise ValueError("result summary must cover local run traces")
+    if set(result_summary.probe_result_log_refs) != {
+        probe_result_log.probe_result_log_ref
+    }:
+        raise ValueError("result summary must cover probe result log")
+    if set(result_summary.remand_correction_record_refs) != set(remand_refs):
+        raise ValueError("result summary must cover remand/correction records")
+    trace_sandbox_violation_refs = set().union(
+        *(set(trace.sandbox_violation_refs) for trace in local_run_traces)
+    )
+    if set(result_summary.sandbox_violation_refs) != trace_sandbox_violation_refs:
+        raise ValueError("result summary sandbox violations must match local run traces")
+
+    if result_summary.result_posture == "local_accepted":
+        if equivalence_audit.local_equivalence_posture != "local_equivalence_satisfied":
+            raise ValueError("local accepted requires satisfied local equivalence audit")
+        missing_coverage_refs = [
+            row.coverage_ref
+            for row in equivalence_audit.coverage_rows
+            if row.coverage_posture == "missing_required_evidence"
+        ]
+        if missing_coverage_refs:
+            raise ValueError(
+                "local accepted cannot carry missing evidence coverage rows: "
+                f"{missing_coverage_refs}"
+            )
+        _required_probe_rows_pass(
+            equivalence_audit.positive_probe_rows,
+            field_label="positive probe audit rows",
+            allow_not_applicable=False,
+        )
+        _required_probe_rows_pass(
+            equivalence_audit.negative_probe_rows,
+            field_label="negative probe audit rows",
+            allow_not_applicable=True,
+        )
+        _required_probe_rows_pass(
+            equivalence_audit.regression_probe_rows,
+            field_label="regression probe audit rows",
+            allow_not_applicable=True,
+        )
+        failed_probe_result_refs = [
+            row.probe_result_ref
+            for row in probe_result_log.probe_result_rows
+            if row.result_posture != "passed_local_probe"
+        ]
+        if failed_probe_result_refs:
+            raise ValueError(
+                "local accepted requires all declared local probes to pass: "
+                f"{failed_probe_result_refs}"
+            )
+        if probe_result_log.stdout_stderr_separation_posture != (
+            "stdout_stderr_separation_satisfied"
+        ):
+            raise ValueError("local accepted requires stdout/stderr expectations satisfied")
+        if probe_result_log.exit_code_posture != "exit_code_expectation_satisfied":
+            raise ValueError("local accepted requires exit-code expectations satisfied")
+        if probe_result_log.filesystem_side_effect_posture not in {
+            "filesystem_side_effect_expectation_satisfied",
+            "not_applicable_with_reason",
+        }:
+            raise ValueError(
+                "local accepted requires filesystem side-effect expectations satisfied"
+            )
+
+    if handoff.work_order_ref != work_order.work_order_ref:
+        raise ValueError("handoff must reference released work order")
+    if handoff.equivalence_audit_ref != equivalence_audit.equivalence_audit_ref:
+        raise ValueError("handoff must reference equivalence audit")
+    if handoff.result_summary_ref != result_summary.result_summary_ref:
+        raise ValueError("handoff must reference result summary")
+    if (
+        result_summary.result_posture
+        in {"local_remand_required", "local_rejected", "blocked_by_missing_evidence"}
+        and handoff.handoff_target == "future_cleanroom_reconstruction_review"
+    ):
+        raise ValueError("blocked local summaries cannot hand off as reconstruction-ready")
+
+    if work_order.work_order_ref not in family_closeout.work_order_refs:
+        raise ValueError("family closeout must reference work order")
+    if equivalence_audit.equivalence_audit_ref not in (
+        family_closeout.equivalence_audit_refs
+    ):
+        raise ValueError("family closeout must reference equivalence audit")
+    if result_summary.result_summary_ref not in family_closeout.result_summary_refs:
+        raise ValueError("family closeout must reference result summary")
+    if handoff.handoff_ref not in family_closeout.handoff_refs:
+        raise ValueError("family closeout must reference handoff")

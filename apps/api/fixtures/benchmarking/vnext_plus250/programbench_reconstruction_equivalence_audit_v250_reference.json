@@ -1,0 +1,47 @@
+{
+  "benchmark_truth_posture": "not_benchmark_truth",
+  "candidate_artifact_manifest_ref": "candidate-artifact-manifest:pb-recon-0b:reference",
+  "case_packet_ref": "case-packet:pb-adapter-0c:reference",
+  "coverage_rows": [
+    {
+      "coverage_posture": "covered_by_local_probe",
+      "coverage_ref": "coverage:pb-recon-0c:help",
+      "expected_behavior_ref": "behavior:pb-recon-0b:help-exit-code-zero",
+      "limitation_note": "The local help probe covers the declared help exit-code behavior in the local oracle only.",
+      "observed_behavior_ref": "observed:pb-recon-0b:exit-code-two",
+      "probe_result_refs": [
+        "probe-result:pb-recon-0b:help"
+      ]
+    }
+  ],
+  "equivalence_audit_ref": "equivalence-audit:pb-recon-0c:reference",
+  "expected_behavior_refs": [
+    "behavior:pb-recon-0b:help-exit-code-zero",
+    "behavior:pb-recon-0b:stderr-empty"
+  ],
+  "hidden_test_equivalence_posture": "not_hidden_test_equivalence",
+  "limitation_note": "Reference audit records local probe failure only; it is not hidden-test equivalence or benchmark truth.",
+  "local_equivalence_posture": "local_equivalence_failed",
+  "negative_probe_rows": [],
+  "observed_behavior_refs": [
+    "observed:pb-recon-0b:exit-code-two",
+    "observed:pb-recon-0b:stderr-usage-error"
+  ],
+  "official_programbench_posture": "no_official_programbench_participation_by_pb_recon_0c",
+  "positive_probe_rows": [
+    {
+      "limitation_note": "The required local help probe failed; local acceptance is therefore unavailable.",
+      "probe_audit_ref": "probe-audit:pb-recon-0c:positive-help",
+      "probe_pass_posture": "failed_local_probe",
+      "probe_requirement_kind": "positive_probe",
+      "probe_result_ref": "probe-result:pb-recon-0b:help",
+      "requirement_posture": "required"
+    }
+  ],
+  "probe_result_log_refs": [
+    "probe-result-log:pb-recon-0b:reference"
+  ],
+  "regression_probe_rows": [],
+  "schema": "programbench_reconstruction_equivalence_audit@1",
+  "work_order_ref": "work-order:pb-recon-0a:reference"
+}

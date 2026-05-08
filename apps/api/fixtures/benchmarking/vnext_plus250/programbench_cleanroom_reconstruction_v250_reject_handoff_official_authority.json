@@ -1,0 +1,15 @@
+{
+  "benchmark_result_authority_posture": "no_benchmark_result_authority_granted_by_pb_recon_0c",
+  "equivalence_audit_ref": "equivalence-audit:pb-recon-0c:reference",
+  "execution_authority_posture": "no_execution_authority_granted_by_pb_recon_0c",
+  "future_family_selection_posture": "no_future_family_selected_by_pb_recon_0c",
+  "handoff_ref": "handoff:pb-recon-0c:reject-official",
+  "handoff_sequence_posture": "blocked_no_handoff",
+  "handoff_target": "blocked_no_handoff",
+  "limitation_note": "Reject: handoff cannot grant official ProgramBench authority.",
+  "model_ranking_authority_posture": "no_model_ranking_authority_granted_by_pb_recon_0c",
+  "official_programbench_authority_posture": "official_programbench_authority_granted",
+  "result_summary_ref": "result-summary:pb-recon-0c:reference",
+  "schema": "programbench_reconstruction_handoff@1",
+  "work_order_ref": "work-order:pb-recon-0a:reference"
+}

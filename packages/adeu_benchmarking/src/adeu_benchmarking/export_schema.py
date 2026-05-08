@@ -108,21 +108,29 @@ from .programbench_cleanroom_adapter import (
 from .programbench_cleanroom_reconstruction import (
     PROGRAMBENCH_RECONSTRUCTION_CANDIDATE_ARTIFACT_MANIFEST_SCHEMA,
     PROGRAMBENCH_RECONSTRUCTION_CONTEXT_EXCLUSION_MANIFEST_SCHEMA,
+    PROGRAMBENCH_RECONSTRUCTION_EQUIVALENCE_AUDIT_SCHEMA,
+    PROGRAMBENCH_RECONSTRUCTION_HANDOFF_SCHEMA,
     PROGRAMBENCH_RECONSTRUCTION_LOCAL_RUN_TRACE_SCHEMA,
     PROGRAMBENCH_RECONSTRUCTION_PROBE_RESULT_LOG_SCHEMA,
     PROGRAMBENCH_RECONSTRUCTION_REMAND_CORRECTION_RECORD_SCHEMA,
+    PROGRAMBENCH_RECONSTRUCTION_RESULT_SUMMARY_SCHEMA,
     PROGRAMBENCH_RECONSTRUCTION_RUN_BUDGET_SCHEMA,
     PROGRAMBENCH_RECONSTRUCTION_SANDBOX_POLICY_SCHEMA,
     PROGRAMBENCH_RECONSTRUCTION_WORK_ORDER_SCHEMA,
+    PROGRAMBENCH_RECONSTRUCTION_WORKBENCH_FAMILY_CLOSEOUT_ALIGNMENT_SCHEMA,
     PROGRAMBENCH_RECONSTRUCTION_WORKBENCH_NON_AUTHORITY_GUARDRAIL_SCHEMA,
     PROGRAMBENCH_RECONSTRUCTION_WORKER_CONTEXT_PACKET_SCHEMA,
     ProgrambenchReconstructionCandidateArtifactManifest,
     ProgrambenchReconstructionContextExclusionManifest,
+    ProgrambenchReconstructionEquivalenceAudit,
+    ProgrambenchReconstructionHandoff,
     ProgrambenchReconstructionLocalRunTrace,
     ProgrambenchReconstructionProbeResultLog,
     ProgrambenchReconstructionRemandCorrectionRecord,
+    ProgrambenchReconstructionResultSummary,
     ProgrambenchReconstructionRunBudget,
     ProgrambenchReconstructionSandboxPolicy,
+    ProgrambenchReconstructionWorkbenchFamilyCloseoutAlignment,
     ProgrambenchReconstructionWorkbenchNonAuthorityGuardrail,
     ProgrambenchReconstructionWorkerContextPacket,
     ProgrambenchReconstructionWorkOrder,
@@ -754,6 +762,50 @@ def main() -> None:
             root
             / "spec"
             / "programbench_reconstruction_remand_correction_record.schema.json",
+        ),
+        (
+            ProgrambenchReconstructionEquivalenceAudit,
+            PROGRAMBENCH_RECONSTRUCTION_EQUIVALENCE_AUDIT_SCHEMA,
+            root
+            / "packages"
+            / "adeu_benchmarking"
+            / "schema"
+            / "programbench_reconstruction_equivalence_audit.v1.json",
+            root
+            / "spec"
+            / "programbench_reconstruction_equivalence_audit.schema.json",
+        ),
+        (
+            ProgrambenchReconstructionResultSummary,
+            PROGRAMBENCH_RECONSTRUCTION_RESULT_SUMMARY_SCHEMA,
+            root
+            / "packages"
+            / "adeu_benchmarking"
+            / "schema"
+            / "programbench_reconstruction_result_summary.v1.json",
+            root / "spec" / "programbench_reconstruction_result_summary.schema.json",
+        ),
+        (
+            ProgrambenchReconstructionHandoff,
+            PROGRAMBENCH_RECONSTRUCTION_HANDOFF_SCHEMA,
+            root
+            / "packages"
+            / "adeu_benchmarking"
+            / "schema"
+            / "programbench_reconstruction_handoff.v1.json",
+            root / "spec" / "programbench_reconstruction_handoff.schema.json",
+        ),
+        (
+            ProgrambenchReconstructionWorkbenchFamilyCloseoutAlignment,
+            PROGRAMBENCH_RECONSTRUCTION_WORKBENCH_FAMILY_CLOSEOUT_ALIGNMENT_SCHEMA,
+            root
+            / "packages"
+            / "adeu_benchmarking"
+            / "schema"
+            / "programbench_reconstruction_workbench_family_closeout_alignment.v1.json",
+            root
+            / "spec"
+            / "programbench_reconstruction_workbench_family_closeout_alignment.schema.json",
         ),
     ]
 
