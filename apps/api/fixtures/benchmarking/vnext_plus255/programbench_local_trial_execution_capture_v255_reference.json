@@ -1,0 +1,70 @@
+{
+  "bounded_transcript_excerpt": "worker produced one local candidate artifact and declared no hidden evidence access",
+  "captured_transcript_hash": "sha256:bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb",
+  "declared_uncertainty_rows": [],
+  "duration_ms": 42,
+  "execution_capture_posture": "captured_local_trial_execution_only",
+  "exit_code": 0,
+  "forbidden_content_screen_verdict": "passed",
+  "forbidden_content_screening_posture": "screened_local_trial_output_for_forbidden_content",
+  "forbidden_content_screening_rows": [
+    {
+      "evidence_refs": [
+        "trial-execution-capture:pb-trial-0b:reference"
+      ],
+      "limitation_note": "No excluded-derived content appeared in the bounded local output.",
+      "screening_kind": "excluded_derived_content",
+      "screening_posture": "passed",
+      "screening_ref": "screening:pb-trial-0b:excluded-derived"
+    },
+    {
+      "evidence_refs": [
+        "trial-execution-capture:pb-trial-0b:reference"
+      ],
+      "limitation_note": "No forbidden source content appeared in the bounded local output.",
+      "screening_kind": "forbidden_source_content",
+      "screening_posture": "passed",
+      "screening_ref": "screening:pb-trial-0b:forbidden-source"
+    },
+    {
+      "evidence_refs": [
+        "trial-execution-capture:pb-trial-0b:reference"
+      ],
+      "limitation_note": "No hidden evidence content appeared in the bounded local output.",
+      "screening_kind": "hidden_evidence_content",
+      "screening_posture": "passed",
+      "screening_ref": "screening:pb-trial-0b:hidden-evidence"
+    },
+    {
+      "evidence_refs": [
+        "trial-execution-capture:pb-trial-0b:reference"
+      ],
+      "limitation_note": "No postmortem-only content appeared in the bounded local output.",
+      "screening_kind": "postmortem_only_content",
+      "screening_posture": "passed",
+      "screening_ref": "screening:pb-trial-0b:postmortem-only"
+    }
+  ],
+  "full_output_capture_policy_ref": "output-capture-policy:pb-trial-0b:bounded",
+  "limitation_note": "Reference execution capture records local output only and does not audit trial outcome.",
+  "sandbox_witness_refs": [
+    "bounded_write_scope",
+    "closed_tool_manifest",
+    "decompilation_disabled",
+    "docker_socket_absent",
+    "host_secrets_absent",
+    "network_disabled",
+    "run_budget_bound",
+    "source_lookup_disabled"
+  ],
+  "schema": "programbench_local_trial_execution_capture@1",
+  "stderr_excerpt_bounded": "",
+  "stderr_hash": "sha256:dddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddd",
+  "stdout_excerpt_bounded": "candidate artifact materialized inside sandbox write scope",
+  "stdout_hash": "sha256:cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc",
+  "timeout_status": "not_timed_out",
+  "trial_docket_ref": "trial-docket:pb-trial-0a:reference",
+  "trial_execution_capture_ref": "trial-execution-capture:pb-trial-0b:reference",
+  "trial_worker_dispatch_ref": "trial-dispatch:pb-trial-0b:reference",
+  "worker_tool_call_manifest_ref": "tool-call-manifest:pb-trial-0b:reference"
+}

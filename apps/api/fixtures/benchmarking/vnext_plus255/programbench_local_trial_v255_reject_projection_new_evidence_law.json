@@ -1,0 +1,24 @@
+{
+  "candidate_artifact_snapshot_ref": "candidate-snapshot:pb-trial-0b:reference",
+  "limitation_note": "Reject fixture attempts to define new evidence law from a trial projection.",
+  "mapped_attempt_invocation_refs": [
+    "worker-invocation:pb-attempt-0b:reference"
+  ],
+  "mapped_attempt_materialization_refs": [
+    "candidate-materialization:pb-attempt-0b:reference"
+  ],
+  "mapped_attempt_output_capture_refs": [
+    "output-capture:pb-attempt-0b:reference"
+  ],
+  "mapped_attempt_sandbox_trace_refs": [
+    "sandbox-trace:pb-attempt-0b:reference"
+  ],
+  "new_evidence_law_posture": "new_evidence_law_defined_by_pb_trial_0b",
+  "projection_posture": "projected_to_released_pb_attempt_lifecycle_refs",
+  "projection_validation_rows": [],
+  "schema": "programbench_local_trial_lifecycle_projection@1",
+  "trial_docket_ref": "trial-docket:pb-trial-0a:reference",
+  "trial_execution_capture_ref": "trial-execution-capture:pb-trial-0b:reference",
+  "trial_lifecycle_projection_ref": "trial-lifecycle-projection:pb-trial-0b:reference",
+  "trial_worker_dispatch_ref": "trial-dispatch:pb-trial-0b:reference"
+}

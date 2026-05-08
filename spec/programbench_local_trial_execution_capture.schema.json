@@ -1,0 +1,242 @@
+{
+  "$defs": {
+    "ProgrambenchLocalTrialDeclaredUncertaintyRow": {
+      "additionalProperties": false,
+      "properties": {
+        "evidence_refs": {
+          "items": {
+            "type": "string"
+          },
+          "minItems": 1,
+          "title": "Evidence Refs",
+          "type": "array"
+        },
+        "limitation_note": {
+          "title": "Limitation Note",
+          "type": "string"
+        },
+        "uncertainty_kind": {
+          "enum": [
+            "candidate_behavior_gap_declared",
+            "execution_observation_gap_declared",
+            "sandbox_witness_gap_declared"
+          ],
+          "title": "Uncertainty Kind",
+          "type": "string"
+        },
+        "uncertainty_posture": {
+          "const": "worker_declared_uncertainty_not_outcome_or_remand_authority",
+          "title": "Uncertainty Posture",
+          "type": "string"
+        },
+        "uncertainty_ref": {
+          "title": "Uncertainty Ref",
+          "type": "string"
+        }
+      },
+      "required": [
+        "uncertainty_ref",
+        "uncertainty_kind",
+        "uncertainty_posture",
+        "evidence_refs",
+        "limitation_note"
+      ],
+      "title": "ProgrambenchLocalTrialDeclaredUncertaintyRow",
+      "type": "object"
+    },
+    "ProgrambenchLocalTrialForbiddenContentScreeningRow": {
+      "additionalProperties": false,
+      "properties": {
+        "evidence_refs": {
+          "items": {
+            "type": "string"
+          },
+          "minItems": 1,
+          "title": "Evidence Refs",
+          "type": "array"
+        },
+        "limitation_note": {
+          "title": "Limitation Note",
+          "type": "string"
+        },
+        "screening_kind": {
+          "enum": [
+            "excluded_derived_content",
+            "forbidden_source_content",
+            "hidden_evidence_content",
+            "postmortem_only_content"
+          ],
+          "title": "Screening Kind",
+          "type": "string"
+        },
+        "screening_posture": {
+          "enum": [
+            "blocked",
+            "passed"
+          ],
+          "title": "Screening Posture",
+          "type": "string"
+        },
+        "screening_ref": {
+          "title": "Screening Ref",
+          "type": "string"
+        }
+      },
+      "required": [
+        "screening_ref",
+        "screening_kind",
+        "screening_posture",
+        "evidence_refs",
+        "limitation_note"
+      ],
+      "title": "ProgrambenchLocalTrialForbiddenContentScreeningRow",
+      "type": "object"
+    }
+  },
+  "additionalProperties": false,
+  "properties": {
+    "bounded_transcript_excerpt": {
+      "maxLength": 512,
+      "title": "Bounded Transcript Excerpt",
+      "type": "string"
+    },
+    "captured_transcript_hash": {
+      "title": "Captured Transcript Hash",
+      "type": "string"
+    },
+    "declared_uncertainty_rows": {
+      "items": {
+        "$ref": "#/$defs/ProgrambenchLocalTrialDeclaredUncertaintyRow"
+      },
+      "title": "Declared Uncertainty Rows",
+      "type": "array"
+    },
+    "duration_ms": {
+      "minimum": 0,
+      "title": "Duration Ms",
+      "type": "integer"
+    },
+    "execution_capture_posture": {
+      "const": "captured_local_trial_execution_only",
+      "title": "Execution Capture Posture",
+      "type": "string"
+    },
+    "exit_code": {
+      "title": "Exit Code",
+      "type": "integer"
+    },
+    "forbidden_content_screen_verdict": {
+      "enum": [
+        "blocked_excluded_derived",
+        "blocked_forbidden_source",
+        "blocked_hidden_evidence",
+        "blocked_postmortem_only",
+        "inconclusive_requires_review",
+        "passed"
+      ],
+      "title": "Forbidden Content Screen Verdict",
+      "type": "string"
+    },
+    "forbidden_content_screening_posture": {
+      "const": "screened_local_trial_output_for_forbidden_content",
+      "title": "Forbidden Content Screening Posture",
+      "type": "string"
+    },
+    "forbidden_content_screening_rows": {
+      "items": {
+        "$ref": "#/$defs/ProgrambenchLocalTrialForbiddenContentScreeningRow"
+      },
+      "minItems": 1,
+      "title": "Forbidden Content Screening Rows",
+      "type": "array"
+    },
+    "full_output_capture_policy_ref": {
+      "title": "Full Output Capture Policy Ref",
+      "type": "string"
+    },
+    "limitation_note": {
+      "title": "Limitation Note",
+      "type": "string"
+    },
+    "sandbox_witness_refs": {
+      "items": {
+        "type": "string"
+      },
+      "minItems": 1,
+      "title": "Sandbox Witness Refs",
+      "type": "array"
+    },
+    "schema": {
+      "const": "programbench_local_trial_execution_capture@1",
+      "title": "Schema",
+      "type": "string"
+    },
+    "stderr_excerpt_bounded": {
+      "maxLength": 512,
+      "title": "Stderr Excerpt Bounded",
+      "type": "string"
+    },
+    "stderr_hash": {
+      "title": "Stderr Hash",
+      "type": "string"
+    },
+    "stdout_excerpt_bounded": {
+      "maxLength": 512,
+      "title": "Stdout Excerpt Bounded",
+      "type": "string"
+    },
+    "stdout_hash": {
+      "title": "Stdout Hash",
+      "type": "string"
+    },
+    "timeout_status": {
+      "enum": [
+        "not_timed_out",
+        "timed_out_with_capture"
+      ],
+      "title": "Timeout Status",
+      "type": "string"
+    },
+    "trial_docket_ref": {
+      "title": "Trial Docket Ref",
+      "type": "string"
+    },
+    "trial_execution_capture_ref": {
+      "title": "Trial Execution Capture Ref",
+      "type": "string"
+    },
+    "trial_worker_dispatch_ref": {
+      "title": "Trial Worker Dispatch Ref",
+      "type": "string"
+    },
+    "worker_tool_call_manifest_ref": {
+      "title": "Worker Tool Call Manifest Ref",
+      "type": "string"
+    }
+  },
+  "required": [
+    "schema",
+    "trial_execution_capture_ref",
+    "trial_worker_dispatch_ref",
+    "trial_docket_ref",
+    "captured_transcript_hash",
+    "bounded_transcript_excerpt",
+    "stdout_hash",
+    "stdout_excerpt_bounded",
+    "stderr_hash",
+    "stderr_excerpt_bounded",
+    "exit_code",
+    "duration_ms",
+    "timeout_status",
+    "full_output_capture_policy_ref",
+    "worker_tool_call_manifest_ref",
+    "forbidden_content_screening_rows",
+    "forbidden_content_screen_verdict",
+    "forbidden_content_screening_posture",
+    "sandbox_witness_refs",
+    "execution_capture_posture",
+    "limitation_note"
+  ],
+  "title": "ProgrambenchLocalTrialExecutionCapture",
+  "type": "object"
+}

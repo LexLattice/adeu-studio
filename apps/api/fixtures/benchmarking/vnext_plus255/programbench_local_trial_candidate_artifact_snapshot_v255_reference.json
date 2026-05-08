@@ -1,0 +1,35 @@
+{
+  "benchmark_truth_posture": "not_benchmark_truth",
+  "candidate_artifact_snapshot_ref": "candidate-snapshot:pb-trial-0b:reference",
+  "fs_diff_ref": "fs-diff:pb-trial-0b:reference",
+  "generated_file_hash_rows": [
+    {
+      "content_hash": "sha256:5555555555555555555555555555555555555555555555555555555555555555",
+      "generated_file_hash_ref": "generated-file-hash:pb-trial-0b:solution",
+      "hash_role": "local_trial_candidate_content_hash",
+      "limitation_note": "Candidate content hash is local-only and not an official submission hash.",
+      "materialized_file_ref": "materialized-file:pb-trial-0b:solution"
+    }
+  ],
+  "limitation_note": "Reference snapshot records a local candidate artifact inside the released write scope without claiming benchmark truth or submission authority.",
+  "materialized_file_rows": [
+    {
+      "file_role": "candidate_source_file",
+      "limitation_note": "The local candidate file remains inside the released sandbox write scope.",
+      "materialization_posture": "local_trial_sandbox_materialized_file",
+      "materialized_file_ref": "materialized-file:pb-trial-0b:solution",
+      "path_ref": "path:pb-trial-0b:write-scope/solution.py",
+      "write_scope_ref": "write-scope:pb-recon-0a:sandbox"
+    }
+  ],
+  "official_submission_posture": "no_official_submission_authority_by_pb_trial_0b",
+  "post_state_manifest_ref": "fs-manifest:pb-trial-0b:post",
+  "pre_state_manifest_ref": "fs-manifest:pb-trial-0b:pre",
+  "schema": "programbench_local_trial_candidate_artifact_snapshot@1",
+  "snapshot_inside_write_scope": true,
+  "snapshot_manifest_hash": "sha256:4444444444444444444444444444444444444444444444444444444444444444",
+  "snapshot_posture": "local_candidate_snapshot_inside_released_write_scope",
+  "trial_docket_ref": "trial-docket:pb-trial-0a:reference",
+  "trial_execution_capture_ref": "trial-execution-capture:pb-trial-0b:reference",
+  "write_scope_ref": "write-scope:pb-recon-0a:sandbox"
+}

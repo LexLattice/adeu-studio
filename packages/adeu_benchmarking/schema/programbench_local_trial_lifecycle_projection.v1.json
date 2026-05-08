@@ -1,0 +1,150 @@
+{
+  "$defs": {
+    "ProgrambenchLocalTrialProjectionValidationRow": {
+      "additionalProperties": false,
+      "properties": {
+        "evidence_refs": {
+          "items": {
+            "type": "string"
+          },
+          "minItems": 1,
+          "title": "Evidence Refs",
+          "type": "array"
+        },
+        "limitation_note": {
+          "title": "Limitation Note",
+          "type": "string"
+        },
+        "projection_validation_ref": {
+          "title": "Projection Validation Ref",
+          "type": "string"
+        },
+        "validation_kind": {
+          "enum": [
+            "candidate_snapshot_mapped",
+            "execution_capture_mapped",
+            "mapped_attempt_lifecycle_refs_present",
+            "new_evidence_law_absent",
+            "worker_dispatch_mapped"
+          ],
+          "title": "Validation Kind",
+          "type": "string"
+        },
+        "validation_posture": {
+          "const": "passed",
+          "title": "Validation Posture",
+          "type": "string"
+        }
+      },
+      "required": [
+        "projection_validation_ref",
+        "validation_kind",
+        "validation_posture",
+        "evidence_refs",
+        "limitation_note"
+      ],
+      "title": "ProgrambenchLocalTrialProjectionValidationRow",
+      "type": "object"
+    }
+  },
+  "additionalProperties": false,
+  "properties": {
+    "candidate_artifact_snapshot_ref": {
+      "title": "Candidate Artifact Snapshot Ref",
+      "type": "string"
+    },
+    "limitation_note": {
+      "title": "Limitation Note",
+      "type": "string"
+    },
+    "mapped_attempt_invocation_refs": {
+      "items": {
+        "type": "string"
+      },
+      "minItems": 1,
+      "title": "Mapped Attempt Invocation Refs",
+      "type": "array"
+    },
+    "mapped_attempt_materialization_refs": {
+      "items": {
+        "type": "string"
+      },
+      "minItems": 1,
+      "title": "Mapped Attempt Materialization Refs",
+      "type": "array"
+    },
+    "mapped_attempt_output_capture_refs": {
+      "items": {
+        "type": "string"
+      },
+      "minItems": 1,
+      "title": "Mapped Attempt Output Capture Refs",
+      "type": "array"
+    },
+    "mapped_attempt_sandbox_trace_refs": {
+      "items": {
+        "type": "string"
+      },
+      "minItems": 1,
+      "title": "Mapped Attempt Sandbox Trace Refs",
+      "type": "array"
+    },
+    "new_evidence_law_posture": {
+      "const": "no_new_evidence_law_defined_by_pb_trial_0b",
+      "title": "New Evidence Law Posture",
+      "type": "string"
+    },
+    "projection_posture": {
+      "const": "projected_to_released_pb_attempt_lifecycle_refs",
+      "title": "Projection Posture",
+      "type": "string"
+    },
+    "projection_validation_rows": {
+      "items": {
+        "$ref": "#/$defs/ProgrambenchLocalTrialProjectionValidationRow"
+      },
+      "minItems": 1,
+      "title": "Projection Validation Rows",
+      "type": "array"
+    },
+    "schema": {
+      "const": "programbench_local_trial_lifecycle_projection@1",
+      "title": "Schema",
+      "type": "string"
+    },
+    "trial_docket_ref": {
+      "title": "Trial Docket Ref",
+      "type": "string"
+    },
+    "trial_execution_capture_ref": {
+      "title": "Trial Execution Capture Ref",
+      "type": "string"
+    },
+    "trial_lifecycle_projection_ref": {
+      "title": "Trial Lifecycle Projection Ref",
+      "type": "string"
+    },
+    "trial_worker_dispatch_ref": {
+      "title": "Trial Worker Dispatch Ref",
+      "type": "string"
+    }
+  },
+  "required": [
+    "schema",
+    "trial_lifecycle_projection_ref",
+    "trial_docket_ref",
+    "trial_worker_dispatch_ref",
+    "trial_execution_capture_ref",
+    "candidate_artifact_snapshot_ref",
+    "mapped_attempt_invocation_refs",
+    "mapped_attempt_output_capture_refs",
+    "mapped_attempt_materialization_refs",
+    "mapped_attempt_sandbox_trace_refs",
+    "projection_validation_rows",
+    "projection_posture",
+    "new_evidence_law_posture",
+    "limitation_note"
+  ],
+  "title": "ProgrambenchLocalTrialLifecycleProjection",
+  "type": "object"
+}
