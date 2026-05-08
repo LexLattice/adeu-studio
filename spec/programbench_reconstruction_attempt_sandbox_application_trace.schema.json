@@ -1,0 +1,148 @@
+{
+  "$defs": {
+    "ProgrambenchReconstructionAttemptApplicationStepRow": {
+      "additionalProperties": false,
+      "properties": {
+        "application_step_ref": {
+          "title": "Application Step Ref",
+          "type": "string"
+        },
+        "evidence_refs": {
+          "items": {
+            "type": "string"
+          },
+          "minItems": 1,
+          "title": "Evidence Refs",
+          "type": "array"
+        },
+        "limitation_note": {
+          "title": "Limitation Note",
+          "type": "string"
+        },
+        "step_index": {
+          "minimum": 0,
+          "title": "Step Index",
+          "type": "integer"
+        },
+        "step_kind": {
+          "enum": [
+            "candidate_materialization",
+            "filesystem_manifest_capture",
+            "sandbox_absence_attestation",
+            "sandbox_policy_application"
+          ],
+          "title": "Step Kind",
+          "type": "string"
+        },
+        "step_posture": {
+          "const": "passed",
+          "title": "Step Posture",
+          "type": "string"
+        }
+      },
+      "required": [
+        "application_step_ref",
+        "step_index",
+        "step_kind",
+        "step_posture",
+        "evidence_refs",
+        "limitation_note"
+      ],
+      "title": "ProgrambenchReconstructionAttemptApplicationStepRow",
+      "type": "object"
+    }
+  },
+  "additionalProperties": false,
+  "properties": {
+    "application_posture": {
+      "const": "local_sandbox_application_recorded",
+      "title": "Application Posture",
+      "type": "string"
+    },
+    "application_step_rows": {
+      "items": {
+        "$ref": "#/$defs/ProgrambenchReconstructionAttemptApplicationStepRow"
+      },
+      "minItems": 1,
+      "title": "Application Step Rows",
+      "type": "array"
+    },
+    "attempt_request_ref": {
+      "title": "Attempt Request Ref",
+      "type": "string"
+    },
+    "candidate_materialization_ref": {
+      "title": "Candidate Materialization Ref",
+      "type": "string"
+    },
+    "docker_socket_absence_attestation_ref": {
+      "title": "Docker Socket Absence Attestation Ref",
+      "type": "string"
+    },
+    "fs_diff_ref": {
+      "title": "Fs Diff Ref",
+      "type": "string"
+    },
+    "limitation_note": {
+      "title": "Limitation Note",
+      "type": "string"
+    },
+    "network_attestation_ref": {
+      "title": "Network Attestation Ref",
+      "type": "string"
+    },
+    "post_state_manifest_ref": {
+      "title": "Post State Manifest Ref",
+      "type": "string"
+    },
+    "pre_state_manifest_ref": {
+      "title": "Pre State Manifest Ref",
+      "type": "string"
+    },
+    "run_budget_ref": {
+      "title": "Run Budget Ref",
+      "type": "string"
+    },
+    "sandbox_application_trace_ref": {
+      "title": "Sandbox Application Trace Ref",
+      "type": "string"
+    },
+    "sandbox_policy_ref": {
+      "title": "Sandbox Policy Ref",
+      "type": "string"
+    },
+    "schema": {
+      "const": "programbench_reconstruction_attempt_sandbox_application_trace@1",
+      "title": "Schema",
+      "type": "string"
+    },
+    "secret_absence_attestation_ref": {
+      "title": "Secret Absence Attestation Ref",
+      "type": "string"
+    },
+    "source_lookup_absence_attestation_ref": {
+      "title": "Source Lookup Absence Attestation Ref",
+      "type": "string"
+    }
+  },
+  "required": [
+    "schema",
+    "sandbox_application_trace_ref",
+    "attempt_request_ref",
+    "candidate_materialization_ref",
+    "sandbox_policy_ref",
+    "run_budget_ref",
+    "application_step_rows",
+    "pre_state_manifest_ref",
+    "post_state_manifest_ref",
+    "fs_diff_ref",
+    "network_attestation_ref",
+    "secret_absence_attestation_ref",
+    "docker_socket_absence_attestation_ref",
+    "source_lookup_absence_attestation_ref",
+    "application_posture",
+    "limitation_note"
+  ],
+  "title": "ProgrambenchReconstructionAttemptSandboxApplicationTrace",
+  "type": "object"
+}

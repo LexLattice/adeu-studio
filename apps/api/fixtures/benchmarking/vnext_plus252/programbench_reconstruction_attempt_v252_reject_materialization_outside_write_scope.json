@@ -1,0 +1,35 @@
+{
+  "attempt_request_ref": "attempt-request:pb-attempt-0a:reference",
+  "benchmark_truth_posture": "not_benchmark_truth",
+  "candidate_materialization_ref": "candidate-materialization:pb-attempt-0b:outside-write-scope",
+  "generated_file_hash_rows": [
+    {
+      "content_hash": "sha256:eeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee",
+      "generated_file_hash_ref": "generated-file-hash:pb-attempt-0b:solution-py",
+      "hash_role": "materialized_candidate_content_hash",
+      "limitation_note": "Hash binds an invalid out-of-scope candidate file.",
+      "materialized_file_ref": "materialized-file:pb-attempt-0b:solution-py"
+    }
+  ],
+  "limitation_note": "Reject fixture: materialization outside released sandbox write scope.",
+  "materialization_input_hash": "sha256:eeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee",
+  "materialization_output_manifest_hash": "sha256:2222222222222222222222222222222222222222222222222222222222222222",
+  "materialization_posture": "local_candidate_materialized_inside_sandbox_write_scope",
+  "materialized_file_rows": [
+    {
+      "file_role": "candidate_source_file",
+      "limitation_note": "Invalid candidate source file outside allowed write scope.",
+      "materialization_posture": "local_sandbox_materialized_file",
+      "materialized_file_ref": "materialized-file:pb-attempt-0b:solution-py",
+      "path_ref": "path:pb-attempt-0b:outside/solution.py",
+      "write_scope_ref": "workspace:pb-attempt-0b:outside"
+    }
+  ],
+  "materialized_inside_write_scope": true,
+  "official_submission_posture": "no_official_submission_authority_by_pb_attempt_0b",
+  "output_capture_ref": "output-capture:pb-attempt-0b:reference",
+  "sandbox_policy_ref": "sandbox-policy:pb-recon-0a:reference",
+  "schema": "programbench_reconstruction_attempt_candidate_materialization@1",
+  "write_scope_attestation_ref": "attestation:pb-attempt-0b:write-scope",
+  "write_scope_ref": "workspace:pb-attempt-0b:outside"
+}

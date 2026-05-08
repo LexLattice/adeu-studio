@@ -1,0 +1,115 @@
+{
+  "attempt_request_ref": "attempt-request:pb-attempt-0a:reference",
+  "bounded_excerpt_rows": [
+    {
+      "captured_output_ref": "captured-output:pb-attempt-0b:candidate-file",
+      "excerpt_posture": "bounded_debug_excerpt_not_complete_output_identity",
+      "excerpt_ref": "excerpt:pb-attempt-0b:candidate-file",
+      "excerpt_text": "def main():\\n    return 0\\n",
+      "limitation_note": "Candidate file excerpt is bounded and advisory; the output hash is authoritative for identity."
+    },
+    {
+      "captured_output_ref": "captured-output:pb-attempt-0b:stderr",
+      "excerpt_posture": "bounded_debug_excerpt_not_complete_output_identity",
+      "excerpt_ref": "excerpt:pb-attempt-0b:stderr",
+      "excerpt_text": "",
+      "limitation_note": "Empty stderr excerpt is bounded and advisory."
+    },
+    {
+      "captured_output_ref": "captured-output:pb-attempt-0b:stdout",
+      "excerpt_posture": "bounded_debug_excerpt_not_complete_output_identity",
+      "excerpt_ref": "excerpt:pb-attempt-0b:stdout",
+      "excerpt_text": "candidate ready",
+      "limitation_note": "Stdout excerpt is bounded and advisory."
+    }
+  ],
+  "candidate_materialization_authority_posture": "candidate_materialization_allowed_after_screening_passed",
+  "captured_output_rows": [
+    {
+      "capture_posture": "captured_local_worker_output_only",
+      "captured_output_ref": "captured-output:pb-attempt-0b:candidate-file",
+      "limitation_note": "Candidate file body is captured as local worker output only.",
+      "output_kind": "worker_declared_candidate_file"
+    },
+    {
+      "capture_posture": "captured_local_worker_output_only",
+      "captured_output_ref": "captured-output:pb-attempt-0b:stderr",
+      "limitation_note": "Worker stderr is captured as local attempt output only.",
+      "output_kind": "worker_stderr"
+    },
+    {
+      "capture_posture": "captured_local_worker_output_only",
+      "captured_output_ref": "captured-output:pb-attempt-0b:stdout",
+      "limitation_note": "Worker stdout is captured as local attempt output only.",
+      "output_kind": "worker_stdout"
+    }
+  ],
+  "declared_uncertainty_rows": [],
+  "forbidden_content_screening_posture": "passed",
+  "forbidden_content_screening_rows": [
+    {
+      "evidence_refs": [
+        "output-capture:pb-attempt-0b:reference"
+      ],
+      "limitation_note": "No excluded-derived content appears in the reference output capture.",
+      "screening_kind": "excluded_derived_content",
+      "screening_posture": "passed",
+      "screening_ref": "screening:pb-attempt-0b:excluded-derived"
+    },
+    {
+      "evidence_refs": [
+        "output-capture:pb-attempt-0b:reference"
+      ],
+      "limitation_note": "No forbidden source content appears in the reference output capture.",
+      "screening_kind": "forbidden_source_content",
+      "screening_posture": "passed",
+      "screening_ref": "screening:pb-attempt-0b:forbidden-source"
+    },
+    {
+      "evidence_refs": [
+        "output-capture:pb-attempt-0b:reference"
+      ],
+      "limitation_note": "No hidden evidence appears in the reference output capture.",
+      "screening_kind": "hidden_evidence_content",
+      "screening_posture": "passed",
+      "screening_ref": "screening:pb-attempt-0b:hidden-evidence"
+    },
+    {
+      "evidence_refs": [
+        "output-capture:pb-attempt-0b:reference"
+      ],
+      "limitation_note": "No postmortem-only content appears in the reference output capture.",
+      "screening_kind": "postmortem_only_content",
+      "screening_posture": "passed",
+      "screening_ref": "screening:pb-attempt-0b:postmortem-only"
+    }
+  ],
+  "limitation_note": "Reference output capture records local worker output only and grants no official submission authority.",
+  "output_capture_posture": "captured_local_candidate_material_only",
+  "output_capture_ref": "output-capture:pb-attempt-0b:reference",
+  "output_hash_rows": [
+    {
+      "captured_output_ref": "captured-output:pb-attempt-0b:candidate-file",
+      "hash_role": "local_worker_output_hash",
+      "limitation_note": "Hash binds the candidate-file output identity.",
+      "output_hash": "sha256:eeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee",
+      "output_hash_ref": "output-hash:pb-attempt-0b:candidate-file"
+    },
+    {
+      "captured_output_ref": "captured-output:pb-attempt-0b:stderr",
+      "hash_role": "local_worker_output_hash",
+      "limitation_note": "Hash binds the stderr output identity.",
+      "output_hash": "sha256:ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff",
+      "output_hash_ref": "output-hash:pb-attempt-0b:stderr"
+    },
+    {
+      "captured_output_ref": "captured-output:pb-attempt-0b:stdout",
+      "hash_role": "local_worker_output_hash",
+      "limitation_note": "Hash binds the stdout output identity.",
+      "output_hash": "sha256:1111111111111111111111111111111111111111111111111111111111111111",
+      "output_hash_ref": "output-hash:pb-attempt-0b:stdout"
+    }
+  ],
+  "schema": "programbench_reconstruction_attempt_output_capture@1",
+  "worker_invocation_ref": "worker-invocation:pb-attempt-0b:reference"
+}

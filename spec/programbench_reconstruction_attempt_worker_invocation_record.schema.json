@@ -1,0 +1,157 @@
+{
+  "additionalProperties": false,
+  "properties": {
+    "allowed_tool_manifest_hash": {
+      "title": "Allowed Tool Manifest Hash",
+      "type": "string"
+    },
+    "attempt_invocation_index": {
+      "minimum": 1,
+      "title": "Attempt Invocation Index",
+      "type": "integer"
+    },
+    "attempt_request_ref": {
+      "title": "Attempt Request Ref",
+      "type": "string"
+    },
+    "benchmark_truth_posture": {
+      "const": "not_benchmark_truth",
+      "title": "Benchmark Truth Posture",
+      "type": "string"
+    },
+    "bounded_transcript_excerpt": {
+      "maxLength": 512,
+      "title": "Bounded Transcript Excerpt",
+      "type": "string"
+    },
+    "dispatch_preflight_ref": {
+      "title": "Dispatch Preflight Ref",
+      "type": "string"
+    },
+    "forbidden_tool_manifest_hash": {
+      "title": "Forbidden Tool Manifest Hash",
+      "type": "string"
+    },
+    "hidden_test_access_posture": {
+      "const": "hidden_tests_not_visible_not_accessed",
+      "title": "Hidden Test Access Posture",
+      "type": "string"
+    },
+    "input_packet_hash": {
+      "title": "Input Packet Hash",
+      "type": "string"
+    },
+    "invocation_completion_posture": {
+      "enum": [
+        "completed_with_output_capture",
+        "failed_with_output_capture",
+        "blocked_before_invocation"
+      ],
+      "title": "Invocation Completion Posture",
+      "type": "string"
+    },
+    "invocation_kind": {
+      "const": "local_cleanroom_worker_invocation",
+      "title": "Invocation Kind",
+      "type": "string"
+    },
+    "invocation_start_posture": {
+      "const": "started_after_preflight_passed",
+      "title": "Invocation Start Posture",
+      "type": "string"
+    },
+    "invocation_transcript_hash": {
+      "title": "Invocation Transcript Hash",
+      "type": "string"
+    },
+    "limitation_note": {
+      "title": "Limitation Note",
+      "type": "string"
+    },
+    "model_ranking_posture": {
+      "const": "no_model_ranking_claimed_by_pb_attempt_0b",
+      "title": "Model Ranking Posture",
+      "type": "string"
+    },
+    "network_access_posture": {
+      "const": "network_disabled",
+      "title": "Network Access Posture",
+      "type": "string"
+    },
+    "official_programbench_posture": {
+      "const": "no_official_programbench_participation_by_pb_attempt_0b",
+      "title": "Official Programbench Posture",
+      "type": "string"
+    },
+    "official_submission_posture": {
+      "const": "no_official_submission_authority_by_pb_attempt_0b",
+      "title": "Official Submission Posture",
+      "type": "string"
+    },
+    "schema": {
+      "const": "programbench_reconstruction_attempt_worker_invocation_record@1",
+      "title": "Schema",
+      "type": "string"
+    },
+    "source_lookup_posture": {
+      "const": "source_lookup_forbidden",
+      "title": "Source Lookup Posture",
+      "type": "string"
+    },
+    "tool_access_posture": {
+      "const": "released_tool_manifest_only",
+      "title": "Tool Access Posture",
+      "type": "string"
+    },
+    "tool_manifest_ref": {
+      "title": "Tool Manifest Ref",
+      "type": "string"
+    },
+    "worker_input_packet_ref": {
+      "title": "Worker Input Packet Ref",
+      "type": "string"
+    },
+    "worker_invocation_ref": {
+      "title": "Worker Invocation Ref",
+      "type": "string"
+    },
+    "worker_profile_ref": {
+      "title": "Worker Profile Ref",
+      "type": "string"
+    },
+    "worker_visible_context_hash": {
+      "title": "Worker Visible Context Hash",
+      "type": "string"
+    }
+  },
+  "required": [
+    "schema",
+    "worker_invocation_ref",
+    "attempt_request_ref",
+    "worker_input_packet_ref",
+    "dispatch_preflight_ref",
+    "worker_profile_ref",
+    "attempt_invocation_index",
+    "input_packet_hash",
+    "worker_visible_context_hash",
+    "tool_manifest_ref",
+    "allowed_tool_manifest_hash",
+    "forbidden_tool_manifest_hash",
+    "invocation_kind",
+    "invocation_start_posture",
+    "invocation_completion_posture",
+    "tool_access_posture",
+    "network_access_posture",
+    "source_lookup_posture",
+    "hidden_test_access_posture",
+    "official_programbench_posture",
+    "benchmark_truth_posture",
+    "model_ranking_posture",
+    "official_submission_posture",
+    "invocation_transcript_hash",
+    "bounded_transcript_excerpt",
+    "limitation_note"
+  ],
+  "title": "ProgrambenchReconstructionAttemptWorkerInvocationRecord",
+  "type": "object"
+}

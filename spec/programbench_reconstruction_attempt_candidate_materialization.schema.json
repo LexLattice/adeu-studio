@@ -1,0 +1,185 @@
+{
+  "$defs": {
+    "ProgrambenchReconstructionAttemptGeneratedFileHashRow": {
+      "additionalProperties": false,
+      "properties": {
+        "content_hash": {
+          "title": "Content Hash",
+          "type": "string"
+        },
+        "generated_file_hash_ref": {
+          "title": "Generated File Hash Ref",
+          "type": "string"
+        },
+        "hash_role": {
+          "const": "materialized_candidate_content_hash",
+          "title": "Hash Role",
+          "type": "string"
+        },
+        "limitation_note": {
+          "title": "Limitation Note",
+          "type": "string"
+        },
+        "materialized_file_ref": {
+          "title": "Materialized File Ref",
+          "type": "string"
+        }
+      },
+      "required": [
+        "generated_file_hash_ref",
+        "materialized_file_ref",
+        "content_hash",
+        "hash_role",
+        "limitation_note"
+      ],
+      "title": "ProgrambenchReconstructionAttemptGeneratedFileHashRow",
+      "type": "object"
+    },
+    "ProgrambenchReconstructionAttemptMaterializedFileRow": {
+      "additionalProperties": false,
+      "properties": {
+        "file_role": {
+          "enum": [
+            "candidate_config_file",
+            "candidate_source_file",
+            "candidate_support_file",
+            "generated_output_artifact"
+          ],
+          "title": "File Role",
+          "type": "string"
+        },
+        "limitation_note": {
+          "title": "Limitation Note",
+          "type": "string"
+        },
+        "materialization_posture": {
+          "const": "local_sandbox_materialized_file",
+          "title": "Materialization Posture",
+          "type": "string"
+        },
+        "materialized_file_ref": {
+          "title": "Materialized File Ref",
+          "type": "string"
+        },
+        "path_ref": {
+          "title": "Path Ref",
+          "type": "string"
+        },
+        "write_scope_ref": {
+          "title": "Write Scope Ref",
+          "type": "string"
+        }
+      },
+      "required": [
+        "materialized_file_ref",
+        "path_ref",
+        "file_role",
+        "write_scope_ref",
+        "materialization_posture",
+        "limitation_note"
+      ],
+      "title": "ProgrambenchReconstructionAttemptMaterializedFileRow",
+      "type": "object"
+    }
+  },
+  "additionalProperties": false,
+  "properties": {
+    "attempt_request_ref": {
+      "title": "Attempt Request Ref",
+      "type": "string"
+    },
+    "benchmark_truth_posture": {
+      "const": "not_benchmark_truth",
+      "title": "Benchmark Truth Posture",
+      "type": "string"
+    },
+    "candidate_materialization_ref": {
+      "title": "Candidate Materialization Ref",
+      "type": "string"
+    },
+    "generated_file_hash_rows": {
+      "items": {
+        "$ref": "#/$defs/ProgrambenchReconstructionAttemptGeneratedFileHashRow"
+      },
+      "minItems": 1,
+      "title": "Generated File Hash Rows",
+      "type": "array"
+    },
+    "limitation_note": {
+      "title": "Limitation Note",
+      "type": "string"
+    },
+    "materialization_input_hash": {
+      "title": "Materialization Input Hash",
+      "type": "string"
+    },
+    "materialization_output_manifest_hash": {
+      "title": "Materialization Output Manifest Hash",
+      "type": "string"
+    },
+    "materialization_posture": {
+      "const": "local_candidate_materialized_inside_sandbox_write_scope",
+      "title": "Materialization Posture",
+      "type": "string"
+    },
+    "materialized_file_rows": {
+      "items": {
+        "$ref": "#/$defs/ProgrambenchReconstructionAttemptMaterializedFileRow"
+      },
+      "minItems": 1,
+      "title": "Materialized File Rows",
+      "type": "array"
+    },
+    "materialized_inside_write_scope": {
+      "const": true,
+      "title": "Materialized Inside Write Scope",
+      "type": "boolean"
+    },
+    "official_submission_posture": {
+      "const": "no_official_submission_authority_by_pb_attempt_0b",
+      "title": "Official Submission Posture",
+      "type": "string"
+    },
+    "output_capture_ref": {
+      "title": "Output Capture Ref",
+      "type": "string"
+    },
+    "sandbox_policy_ref": {
+      "title": "Sandbox Policy Ref",
+      "type": "string"
+    },
+    "schema": {
+      "const": "programbench_reconstruction_attempt_candidate_materialization@1",
+      "title": "Schema",
+      "type": "string"
+    },
+    "write_scope_attestation_ref": {
+      "title": "Write Scope Attestation Ref",
+      "type": "string"
+    },
+    "write_scope_ref": {
+      "title": "Write Scope Ref",
+      "type": "string"
+    }
+  },
+  "required": [
+    "schema",
+    "candidate_materialization_ref",
+    "attempt_request_ref",
+    "output_capture_ref",
+    "sandbox_policy_ref",
+    "materialization_input_hash",
+    "materialization_output_manifest_hash",
+    "materialized_file_rows",
+    "generated_file_hash_rows",
+    "write_scope_ref",
+    "write_scope_attestation_ref",
+    "official_submission_posture",
+    "benchmark_truth_posture",
+    "materialized_inside_write_scope",
+    "materialization_posture",
+    "limitation_note"
+  ],
+  "title": "ProgrambenchReconstructionAttemptCandidateMaterialization",
+  "type": "object"
+}
