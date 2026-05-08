@@ -1,0 +1,89 @@
+{
+  "additionalProperties": false,
+  "properties": {
+    "attempt_lifecycle_projection_refs": {
+      "items": {
+        "type": "string"
+      },
+      "minItems": 1,
+      "title": "Attempt Lifecycle Projection Refs",
+      "type": "array"
+    },
+    "limitation_note": {
+      "title": "Limitation Note",
+      "type": "string"
+    },
+    "new_evidence_law_posture": {
+      "const": "no_new_evidence_law_defined_by_pb_retry_0b",
+      "title": "New Evidence Law Posture",
+      "type": "string"
+    },
+    "pb_attempt_validator_binding_refs": {
+      "items": {
+        "type": "string"
+      },
+      "minItems": 1,
+      "title": "Pb Attempt Validator Binding Refs",
+      "type": "array"
+    },
+    "pb_trial_validator_binding_refs": {
+      "items": {
+        "type": "string"
+      },
+      "minItems": 1,
+      "title": "Pb Trial Validator Binding Refs",
+      "type": "array"
+    },
+    "projection_validation_posture": {
+      "const": "projected_to_released_trial_and_attempt_lifecycle_refs",
+      "title": "Projection Validation Posture",
+      "type": "string"
+    },
+    "retry_candidate_delta_snapshot_ref": {
+      "title": "Retry Candidate Delta Snapshot Ref",
+      "type": "string"
+    },
+    "retry_dispatch_record_ref": {
+      "title": "Retry Dispatch Record Ref",
+      "type": "string"
+    },
+    "retry_execution_capture_ref": {
+      "title": "Retry Execution Capture Ref",
+      "type": "string"
+    },
+    "retry_lifecycle_projection_ref": {
+      "title": "Retry Lifecycle Projection Ref",
+      "type": "string"
+    },
+    "retry_request_ref": {
+      "title": "Retry Request Ref",
+      "type": "string"
+    },
+    "schema": {
+      "const": "programbench_local_retry_lifecycle_projection@1",
+      "title": "Schema",
+      "type": "string"
+    },
+    "trial_lifecycle_projection_ref": {
+      "title": "Trial Lifecycle Projection Ref",
+      "type": "string"
+    }
+  },
+  "required": [
+    "schema",
+    "retry_lifecycle_projection_ref",
+    "retry_request_ref",
+    "retry_dispatch_record_ref",
+    "retry_execution_capture_ref",
+    "retry_candidate_delta_snapshot_ref",
+    "trial_lifecycle_projection_ref",
+    "attempt_lifecycle_projection_refs",
+    "pb_trial_validator_binding_refs",
+    "pb_attempt_validator_binding_refs",
+    "projection_validation_posture",
+    "new_evidence_law_posture",
+    "limitation_note"
+  ],
+  "title": "ProgrambenchLocalRetryLifecycleProjection",
+  "type": "object"
+}

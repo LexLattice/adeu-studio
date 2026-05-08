@@ -1,0 +1,21 @@
+{
+  "attempt_lifecycle_projection_refs": [
+    "trial-lifecycle-projection:pb-trial-0b:reference"
+  ],
+  "limitation_note": "Reject fixture tries to define a new retry evidence law.",
+  "new_evidence_law_posture": "new_evidence_law_defined_by_pb_retry_0b",
+  "pb_attempt_validator_binding_refs": [
+    "validator-binding:pb-attempt-0b:reference"
+  ],
+  "pb_trial_validator_binding_refs": [
+    "validator-binding:pb-trial-0b:reference"
+  ],
+  "projection_validation_posture": "projected_to_released_trial_and_attempt_lifecycle_refs",
+  "retry_candidate_delta_snapshot_ref": "retry-candidate-delta:pb-retry-0b:reference",
+  "retry_dispatch_record_ref": "retry-dispatch:pb-retry-0b:reference",
+  "retry_execution_capture_ref": "retry-execution-capture:pb-retry-0b:reference",
+  "retry_lifecycle_projection_ref": "retry-lifecycle-projection:pb-retry-0b:reference",
+  "retry_request_ref": "retry-request:pb-retry-0a:reference",
+  "schema": "programbench_local_retry_lifecycle_projection@1",
+  "trial_lifecycle_projection_ref": "trial-lifecycle-projection:pb-trial-0b:reference"
+}

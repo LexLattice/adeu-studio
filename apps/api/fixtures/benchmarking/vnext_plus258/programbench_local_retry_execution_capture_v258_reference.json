@@ -1,0 +1,26 @@
+{
+  "duration_ms": 51,
+  "exit_code": 0,
+  "forbidden_content_screen_verdict": "passed",
+  "forbidden_content_screening_basis_refs": [
+    "screening-policy:pb-retry-0b:bounded-output"
+  ],
+  "full_output_capture_policy_ref": "output-capture-policy:pb-retry-0b:bounded",
+  "limitation_note": "Reference retry execution capture records local retry output only and grants no benchmark truth.",
+  "retry_dispatch_record_ref": "retry-dispatch:pb-retry-0b:reference",
+  "retry_execution_capture_ref": "retry-execution-capture:pb-retry-0b:reference",
+  "sandbox_violation_refs": [],
+  "schema": "programbench_local_retry_execution_capture@1",
+  "screened_output_hashes": [
+    "sha256:abababababababababababababababababababababababababababababababab"
+  ],
+  "screening_reviewer_or_policy_ref": "screening-policy:pb-retry-0b:reference",
+  "stderr_excerpt_bounded": "",
+  "stderr_hash": "sha256:dddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddd",
+  "stdout_excerpt_bounded": "retry candidate delta materialized inside unchanged write scope",
+  "stdout_hash": "sha256:cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc",
+  "timeout_status": "not_timed_out",
+  "transcript_excerpt_bounded": "worker produced one local retry delta and declared no hidden evidence access",
+  "transcript_hash": "sha256:bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb",
+  "worker_tool_call_manifest_ref": "tool-call-manifest:pb-retry-0b:reference"
+}
