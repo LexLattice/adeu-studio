@@ -1,0 +1,148 @@
+{
+  "$defs": {
+    "ProgrambenchReconstructionAttemptForbiddenAuthorityRow": {
+      "additionalProperties": false,
+      "properties": {
+        "authority_kind": {
+          "enum": [
+            "benchmark_truth",
+            "candidate_materialization",
+            "command_execution",
+            "future_family_selection",
+            "hidden_test_inference",
+            "local_probe_execution",
+            "model_ranking",
+            "official_programbench_participation",
+            "official_submission",
+            "source_lookup",
+            "worker_invocation",
+            "workbench_evidence_export"
+          ],
+          "title": "Authority Kind",
+          "type": "string"
+        },
+        "forbiddance_posture": {
+          "const": "forbidden_by_pb_attempt_0a",
+          "title": "Forbiddance Posture",
+          "type": "string"
+        },
+        "forbidden_authority_ref": {
+          "title": "Forbidden Authority Ref",
+          "type": "string"
+        },
+        "limitation_note": {
+          "title": "Limitation Note",
+          "type": "string"
+        }
+      },
+      "required": [
+        "forbidden_authority_ref",
+        "authority_kind",
+        "forbiddance_posture",
+        "limitation_note"
+      ],
+      "title": "ProgrambenchReconstructionAttemptForbiddenAuthorityRow",
+      "type": "object"
+    }
+  },
+  "additionalProperties": false,
+  "properties": {
+    "attempt_request_ref": {
+      "title": "Attempt Request Ref",
+      "type": "string"
+    },
+    "benchmark_truth_non_authority_posture": {
+      "const": "not_benchmark_truth",
+      "title": "Benchmark Truth Non Authority Posture",
+      "type": "string"
+    },
+    "dispatch_non_authority_posture": {
+      "const": "no_worker_dispatch_authority_granted_by_pb_attempt_0a",
+      "title": "Dispatch Non Authority Posture",
+      "type": "string"
+    },
+    "execution_non_authority_posture": {
+      "const": "no_execution_authority_granted_by_pb_attempt_0a",
+      "title": "Execution Non Authority Posture",
+      "type": "string"
+    },
+    "forbidden_authority_rows": {
+      "items": {
+        "$ref": "#/$defs/ProgrambenchReconstructionAttemptForbiddenAuthorityRow"
+      },
+      "minItems": 1,
+      "title": "Forbidden Authority Rows",
+      "type": "array"
+    },
+    "forbidden_future_artifact_kinds": {
+      "items": {
+        "type": "string"
+      },
+      "minItems": 1,
+      "title": "Forbidden Future Artifact Kinds",
+      "type": "array"
+    },
+    "future_family_selection_posture": {
+      "const": "no_future_family_selected_by_pb_attempt_0a",
+      "title": "Future Family Selection Posture",
+      "type": "string"
+    },
+    "guardrail_ref": {
+      "title": "Guardrail Ref",
+      "type": "string"
+    },
+    "hidden_test_non_inference_posture": {
+      "const": "hidden_tests_not_visible_not_inference_evidence",
+      "title": "Hidden Test Non Inference Posture",
+      "type": "string"
+    },
+    "limitation_note": {
+      "title": "Limitation Note",
+      "type": "string"
+    },
+    "model_ranking_non_authority_posture": {
+      "const": "no_model_ranking_claimed_by_pb_attempt_0a",
+      "title": "Model Ranking Non Authority Posture",
+      "type": "string"
+    },
+    "official_programbench_non_authority_posture": {
+      "const": "no_official_programbench_authority_by_pb_attempt_0a",
+      "title": "Official Programbench Non Authority Posture",
+      "type": "string"
+    },
+    "schema": {
+      "const": "programbench_reconstruction_attempt_non_authority_guardrail@1",
+      "title": "Schema",
+      "type": "string"
+    },
+    "source_lookup_non_authority_posture": {
+      "const": "source_lookup_forbidden_by_pb_attempt_0a",
+      "title": "Source Lookup Non Authority Posture",
+      "type": "string"
+    },
+    "submission_non_authority_posture": {
+      "const": "no_submission_authority_by_pb_attempt_0a",
+      "title": "Submission Non Authority Posture",
+      "type": "string"
+    }
+  },
+  "required": [
+    "schema",
+    "guardrail_ref",
+    "attempt_request_ref",
+    "forbidden_authority_rows",
+    "forbidden_future_artifact_kinds",
+    "dispatch_non_authority_posture",
+    "execution_non_authority_posture",
+    "official_programbench_non_authority_posture",
+    "hidden_test_non_inference_posture",
+    "source_lookup_non_authority_posture",
+    "submission_non_authority_posture",
+    "benchmark_truth_non_authority_posture",
+    "model_ranking_non_authority_posture",
+    "future_family_selection_posture",
+    "limitation_note"
+  ],
+  "title": "ProgrambenchReconstructionAttemptNonAuthorityGuardrail",
+  "type": "object"
+}
