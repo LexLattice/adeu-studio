@@ -248,3 +248,8 @@ select PB-TRIAL-0 as the next ProgramBench practical family
 select PB-TRIAL-0-A as the next slice candidate after review
 do not select official ProgramBench participation or retry/multi-attempt work
 ```
+
+Post-`PB-TRIAL-0-A` continuation posture: after `vNext+254` closes on
+`main`, select `PB-TRIAL-0-B` as the next default candidate inside the already
+selected `PB-TRIAL-0` family, subject to its own `vNext+255` lock, stop-gate
+decision, and edge assessment.
