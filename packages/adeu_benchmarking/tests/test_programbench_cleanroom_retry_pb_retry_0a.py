@@ -336,6 +336,36 @@ def test_pb_retry_0a_bundle_rejects_existing_prior_retry() -> None:
         )
 
 
+def test_pb_retry_0a_bundle_rejects_request_prior_retry_refs() -> None:
+    outcome, observation, remand, closeout = _load_remanded_trial_rows()
+    request, registry, source_index, eligibility, scope, guardrail = _load_retry_rows()
+    request = request.model_copy(update={"prior_retry_request_refs": ["retry-request:old"]})
+
+    with pytest.raises(ValueError, match="prior retry request"):
+        validate_pb_retry_0a_retry_bundle(
+            trial_outcome_audit=outcome,
+            trial_observation_summary=observation,
+            trial_remand_decision=remand,
+            trial_family_closeout=closeout,
+            retry_request=request,
+            retry_lineage_registry=registry,
+            remand_source_index=source_index,
+            retry_eligibility_review=eligibility,
+            retry_scope_contract=scope,
+            retry_guardrail=guardrail,
+        )
+
+
+def test_pb_retry_0a_source_index_rejects_retryability_list_mismatch() -> None:
+    payload = _load_retry_a_fixture("programbench_trial_remand_source_index_v257_reference.json")
+    payload["remand_source_rows"][0]["retryability_posture"] = "blocked"
+    payload["blocked_source_refs"] = []
+    payload["local_retryable_source_refs"] = ["remand-row:pb-trial-0c:runbook-gap"]
+
+    with pytest.raises(ValidationError, match="classification refs"):
+        ProgrambenchTrialRemandSourceIndex.model_validate(payload)
+
+
 @pytest.mark.parametrize(
     ("fixture_name", "model"),
     [

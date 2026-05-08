@@ -423,6 +423,32 @@ class ProgrambenchTrialRemandSourceIndex(_RetryBase):
             unknown = sorted(set(getattr(self, field_name)) - all_row_refs)
             if unknown:
                 raise ValueError(f"{field_name} contains unknown remand source refs: {unknown}")
+        expected_refs_by_posture = {
+            "blocked": set(self.blocked_source_refs),
+            "forbidden": set(self.forbidden_source_refs),
+            "local_non_retryable": set(self.local_non_retryable_source_refs),
+            "local_retryable": set(self.local_retryable_source_refs),
+            "support_only": set(self.support_only_source_refs),
+        }
+        row_refs_by_posture: dict[str, set[str]] = {
+            "blocked": set(),
+            "forbidden": set(),
+            "local_non_retryable": set(),
+            "local_retryable": set(),
+            "support_only": set(),
+        }
+        for row in self.remand_source_rows:
+            row_refs_by_posture[row.retryability_posture].add(row.remand_source_ref)
+        mismatched_postures = sorted(
+            posture
+            for posture, row_refs in row_refs_by_posture.items()
+            if row_refs != expected_refs_by_posture[posture]
+        )
+        if mismatched_postures:
+            raise ValueError(
+                "remand source classification refs must match row retryability "
+                f"postures: {mismatched_postures}"
+            )
         rationale_kinds = {row.retry_rationale_kind for row in self.retry_rationale_rows}
         invalid = sorted(rationale_kinds - _ALLOWED_RETRY_RATIONALE_KINDS)
         if invalid:
@@ -694,6 +720,8 @@ def validate_pb_retry_0a_retry_bundle(
         raise ValueError("retry lineage registry must reference trial remand decision")
     if retry_lineage_registry.eligible_retry_request_refs != [retry_request.retry_request_ref]:
         raise ValueError("retry lineage registry must release exactly this retry request")
+    if retry_request.prior_retry_request_refs:
+        raise ValueError("prior retry request refs block PB-RETRY-0-A eligibility")
     if retry_lineage_registry.existing_retry_request_refs:
         raise ValueError("prior retry request refs block PB-RETRY-0-A eligibility")
 
