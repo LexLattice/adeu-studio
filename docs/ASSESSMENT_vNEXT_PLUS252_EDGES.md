@@ -1,8 +1,8 @@
 # Assessment vNext+252 Edges
 
-Status: pre-lock edge assessment for `PB-ATTEMPT-0-B`.
+Status: closeout-edge assessment for `PB-ATTEMPT-0-B`.
 
-Authority layer: planning / pre-lock assessment.
+Authority layer: closeout evidence on `main`.
 
 ## Assessment-State Marker (Machine-Checkable)
 
@@ -10,8 +10,8 @@ Authority layer: planning / pre-lock assessment.
 {
   "schema": "assessment_artifact_state@1",
   "artifact": "docs/ASSESSMENT_vNEXT_PLUS252_EDGES.md",
-  "phase": "pre_lock_assessment",
-  "authoritative": false,
+  "phase": "post_closeout_assessment",
+  "authoritative": true,
   "required_in_decision": true
 }
 ```
@@ -20,124 +20,145 @@ Authority layer: planning / pre-lock assessment.
 
 ### Edge 1: B Rows Could Bypass Released A Attempt Law
 
-- Pre-lock judgment: `must_fail_closed`.
-- Planned control:
-  invocation, output capture, materialization, and sandbox trace rows must bind
-  to released attempt request, worker input packet, dispatch preflight, and
-  non-authority guardrail refs.
-- Residual:
-  implementation must reject orphaned or mismatched A refs.
+- Closeout containment:
+  invocation, output capture, materialization, and sandbox trace rows bind to
+  released attempt request, worker input packet, dispatch preflight, and
+  non-authority guardrail refs before bundle validation succeeds.
+- Result:
+  pass.
 
 ### Edge 2: Blocked Preflight Could Still Produce Invocation Rows
 
-- Pre-lock judgment: `must_fail_closed`.
-- Planned control:
+- Closeout containment:
   worker invocation records cannot validate unless the released A dispatch
   preflight is passed for later local attempt review.
-- Residual:
-  preflight repair remains A/remand territory, not B invocation territory.
+- Result:
+  pass.
 
 ### Edge 3: Multiple Invocations Could Hide Retries
 
-- Pre-lock judgment: `must_fail_closed`.
-- Planned control:
-  one worker invocation per attempt request unless a later lock introduces
-  retry parent and retry authority rows.
-- Residual:
-  retry orchestration is unselected.
+- Closeout containment:
+  worker invocation records require `attempt_invocation_index = 1`; retry
+  parent and retry authority rows remain unselected.
+- Result:
+  pass.
 
 ### Edge 4: Invocation Could Drift From The Preflighted Input Packet
 
-- Pre-lock judgment: `must_fail_closed`.
-- Planned control:
+- Closeout containment:
   invocation records require input packet hash, worker-visible context hash,
   tool manifest ref, allowed tool manifest hash, and forbidden tool manifest
   hash.
-- Residual:
-  C must continue to treat these as evidence boundaries, not benchmark truth.
+- Result:
+  pass.
 
 ### Edge 5: Invocation Could Use Hidden, Source, Internet, Or Secret Channels
 
-- Pre-lock judgment: `must_fail_closed`.
-- Planned control:
+- Closeout containment:
   invocation and sandbox trace rows reject hidden-test access, source lookup,
   internet lookup, decompilation, external repo access, Docker socket access,
   host-secret access, and official runner/evaluator contact.
-- Residual:
-  mechanical sandbox implementation details remain local harness work, not
-  official ProgramBench integration.
+- Result:
+  pass.
 
 ### Edge 6: Worker Output Could Launder Forbidden Content
 
-- Pre-lock judgment: `must_fail_closed`.
-- Planned control:
-  output capture requires forbidden-content screening posture, and
-  materialization is blocked unless the posture is `passed`.
-- Residual:
-  inconclusive screening must route to review, not materialization.
+- Closeout containment:
+  output capture requires forbidden-content screening posture; non-passing
+  screening blocks candidate materialization; blocked top-level screening
+  postures require matching blocked-row evidence.
+- Result:
+  pass.
 
 ### Edge 7: Bounded Excerpts Could Replace Output Hashes
 
-- Pre-lock judgment: `must_fail_closed`.
-- Planned control:
-  output capture rows require output hashes and bounded excerpts; excerpts are
-  advisory/debug evidence, not complete output identity.
-- Residual:
-  C export must preserve hash identity.
+- Closeout containment:
+  every captured output row requires exactly one output hash and one bounded
+  excerpt row.
+- Result:
+  pass.
 
-### Edge 8: Candidate Materialization Could Escape Released Write Scope
+### Edge 8: Candidate Materialization Could Use Unscreened Output Bytes
 
-- Pre-lock judgment: `must_fail_closed`.
-- Planned control:
+- Closeout containment:
+  materialization input hash must match the screened
+  `worker_declared_candidate_file` output hash, and the output capture must
+  contain exactly one such candidate-file row.
+- Result:
+  pass.
+
+### Edge 9: Candidate Materialization Could Escape Released Write Scope
+
+- Closeout containment:
   materialization rows require write-scope ref, write-scope attestation,
   materialization input hash, materialization output manifest hash, generated
   file hashes, and `materialized_inside_write_scope = true`.
-- Residual:
-  target mutation outside released local sandbox remains forbidden.
+- Result:
+  pass.
 
-### Edge 9: Sandbox Trace Could Become Official Execution Or Evaluation
+### Edge 10: Sandbox Trace Could Become Official Execution Or Evaluation
 
-- Pre-lock judgment: `must_fail_closed`.
-- Planned control:
+- Closeout containment:
   sandbox application traces describe local sandbox application only and
   cannot claim official ProgramBench execution, official evaluator contact,
   hidden-test equivalence, benchmark score, model ranking, or official
   submission.
-- Residual:
-  official participation remains unselected.
+- Result:
+  pass.
 
-### Edge 10: Candidate Materialization Could Become Official Submission
+### Edge 11: Candidate Materialization Could Become Official Submission
 
-- Pre-lock judgment: `must_fail_closed`.
-- Planned control:
+- Closeout containment:
   candidate materialization requires local-only posture, no official
   submission posture, and no benchmark truth posture.
-- Residual:
-  generated official submission review remains unselected.
+- Result:
+  pass.
 
-### Edge 11: B Could Prematurely Emit C Artifacts
+### Edge 12: B Could Prematurely Emit C Artifacts
 
-- Pre-lock judgment: `must_fail_closed`.
-- Planned control:
-  B emits only invocation record, output capture, candidate materialization,
+- Closeout containment:
+  B emitted only invocation record, output capture, candidate materialization,
   and sandbox application trace shapes.
-- Residual:
-  evidence export, result review, remand queue, and family closeout alignment
-  remain `PB-ATTEMPT-0-C` territory.
+- Result:
+  pass.
 
-### Edge 12: B Rows Could Select Future Family Or Rank Models
+### Edge 13: B Rows Could Select Future Family Or Rank Models
 
-- Pre-lock judgment: `must_fail_closed`.
-- Planned control:
+- Closeout containment:
   invocation and materialization rows carry no future-family selection,
   benchmark score, leaderboard, or model-ranking authority.
-- Residual:
-  future arc selection remains operator/selector work after family closeout.
+- Result:
+  pass.
+
+## Residual Edges
+
+- `PB-ATTEMPT-0-C` must consume released `PB-ATTEMPT-0-A` and
+  `PB-ATTEMPT-0-B` refs before exporting workbench evidence, reviewing attempt
+  results, queuing remand pressure, or closing the family.
+- `PB-ATTEMPT-0-C` must bind any workbench evidence export to released
+  `PB-RECON-0` validator bindings and validation result refs so attempt output
+  cannot launder itself into accepted workbench evidence.
+- `PB-ATTEMPT-0-C` must gate `attempt_locally_accepted` on exported
+  `PB-RECON-0` local-accepted summaries and must fail closed on contamination,
+  sandbox violations, export gaps, hidden-test equivalence, official
+  submission posture, or missing validator results.
+- `PB-ATTEMPT-0-C` remand queues must carry local retry pressure only and must
+  not become retry authority or use hidden-test, official evaluator,
+  original-source, decompilation, internet, or external-repo facts.
+- Official ProgramBench participation, hidden evaluator integration,
+  benchmark scoring, model ranking, official submissions, broader benchmark
+  result governance, product, graph, release, or recursive-policy work remain
+  unselected.
 
 ## Current Judgment
 
-- `PB-ATTEMPT-0-B` is the coherent next slice after the released
-  `PB-ATTEMPT-0-A` attempt-preflight boundary.
-- The starter should proceed as a docs-only lock bundle before implementation.
-- Implementation should wait until this `vNext+252` starter bundle is
-  accepted.
+- `PB-ATTEMPT-0-B` is closed on `main` as a bounded invocation-capture slice.
+- `PB-ATTEMPT-0` remains open for `PB-ATTEMPT-0-C`; no family closeout has
+  occurred.
+- The shipped slice preserves the intended attempt membrane: it records one
+  local worker invocation, bounded worker output capture, screened local
+  candidate materialization, and sandbox application trace evidence, but it
+  does not export workbench evidence, review the attempt result, queue remand,
+  run official ProgramBench, expose hidden tests, claim benchmark truth, score
+  benchmarks, rank models, create official submissions, transition runtime, or
+  select a future family.

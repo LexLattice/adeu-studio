@@ -1,0 +1,22 @@
+{
+  "arc": "vNext+252",
+  "schema": "pb_attempt_0b_invocation_capture_closeout_evidence@1",
+  "target_path": "PB-ATTEMPT-0-B",
+  "implementation_pr": "https://github.com/LexLattice/adeu-studio/pull/480",
+  "merge_commit": "2662e608d62a127d061fcaf231408f0f5b6fe615",
+  "implementation_commits": [
+    "a3b40df44b863034343329d80b44f83a198b496c",
+    "9bba02d86f3d497e6a5c213781c790c14d6cc4e2"
+  ],
+  "lock_doc_path": "docs/LOCKED_CONTINUATION_vNEXT_PLUS252.md",
+  "decision_doc_path": "docs/DRAFT_STOP_GATE_DECISION_vNEXT_PLUS252.md",
+  "assessment_doc_path": "docs/ASSESSMENT_vNEXT_PLUS252_EDGES.md",
+  "shipped_shapes": [
+    "programbench_reconstruction_attempt_worker_invocation_record@1",
+    "programbench_reconstruction_attempt_output_capture@1",
+    "programbench_reconstruction_attempt_candidate_materialization@1",
+    "programbench_reconstruction_attempt_sandbox_application_trace@1"
+  ],
+  "closeout_posture": "invocation_capture_slice_closed_on_main",
+  "non_authority_posture": "no_workbench_evidence_export_no_attempt_result_review_no_remand_queue_no_family_closeout_alignment_no_official_programbench_authority_no_benchmark_truth_no_model_ranking_no_future_family_selection"
+}
