@@ -1,8 +1,8 @@
 # Assessment vNext+253 Edges
 
-Status: pre-lock edge assessment for `PB-ATTEMPT-0-C`.
+Status: closeout-edge assessment for `PB-ATTEMPT-0-C`.
 
-Authority layer: planning / pre-lock assessment.
+Authority layer: closeout evidence on `main`.
 
 ## Assessment-State Marker (Machine-Checkable)
 
@@ -10,8 +10,8 @@ Authority layer: planning / pre-lock assessment.
 {
   "schema": "assessment_artifact_state@1",
   "artifact": "docs/ASSESSMENT_vNEXT_PLUS253_EDGES.md",
-  "phase": "pre_lock_assessment",
-  "authoritative": false,
+  "phase": "post_closeout_assessment",
+  "authoritative": true,
   "required_in_decision": true
 }
 ```
@@ -20,122 +20,155 @@ Authority layer: planning / pre-lock assessment.
 
 ### Edge 1: C Rows Could Bypass Released A/B Attempt Law
 
-- Pre-lock judgment: `must_fail_closed`.
-- Planned control:
-  evidence export, result review, remand queue, and family closeout rows must
-  bind to released `PB-ATTEMPT-0-A` and `PB-ATTEMPT-0-B` refs.
-- Residual:
-  implementation must reject orphaned or mismatched attempt lifecycle refs.
+- Closeout containment:
+  workbench evidence export, attempt result review, remand queue, and family
+  closeout rows bind to released `PB-ATTEMPT-0-A` request/input/preflight/
+  guardrail refs and released `PB-ATTEMPT-0-B` invocation/output/
+  materialization/sandbox-trace refs before closeout validation succeeds.
+- Result:
+  pass.
 
 ### Edge 2: Attempt Export Could Launder Worker Output Into Workbench Evidence
 
-- Pre-lock judgment: `must_fail_closed`.
-- Planned control:
-  export rows must bind to released `PB-RECON-0` validator binding refs and
-  `pb_recon_validation_result_refs` before `export_validation_posture = valid`
-  is accepted.
-- Residual:
-  workbench evidence law remains owned by `PB-RECON-0`; C only maps into it.
+- Closeout containment:
+  export rows require released `PB-RECON-0` candidate artifact manifest, local
+  run trace, probe result log, remand/correction record, equivalence audit,
+  result summary, and workbench family closeout refs. Valid export requires
+  PB-RECON validator binding refs and validation result refs for every mapped
+  evidence row.
+- Result:
+  pass.
 
-### Edge 3: Export Could Claim Benchmark Truth Or Hidden-Test Equivalence
+### Edge 3: Exported Evidence Could Drift From The Workbench Result Summary
 
-- Pre-lock judgment: `must_fail_closed`.
-- Planned control:
-  evidence export rows require no benchmark truth, no hidden-test equivalence,
-  and no official submission posture.
-- Residual:
-  official benchmark result governance remains unselected.
+- Closeout containment:
+  the C bundle validator checks that exported candidate, local-run,
+  probe-log, and remand-record refs match the released PB-RECON result
+  summary rows, not merely that the audit and summary refs are present.
+- Result:
+  pass.
 
-### Edge 4: Attempt Review Could Accept Without Exported Workbench Acceptance
+### Edge 4: Export Could Claim Benchmark Truth Or Hidden-Test Equivalence
 
-- Pre-lock judgment: `must_fail_closed`.
-- Planned control:
-  `attempt_locally_accepted` requires exported workbench result summaries that
-  are `local_accepted` under released `PB-RECON-0` law.
-- Residual:
-  local acceptance remains scoped to declared local workbench evidence, not
-  hidden tests.
+- Closeout containment:
+  evidence export rows require `not_benchmark_truth`,
+  `not_hidden_test_equivalence`, and no official submission posture.
+- Result:
+  pass.
 
-### Edge 5: Attempt Review Could Ignore Contamination Or Sandbox Violations
+### Edge 5: Attempt Review Could Accept Without Exported Workbench Acceptance
 
-- Pre-lock judgment: `must_fail_closed`.
-- Planned control:
-  local accepted posture must fail closed on contamination blockers, sandbox
-  violation blockers, export gaps, hidden-test equivalence posture, and
-  official submission posture.
-- Residual:
-  blocked and remand postures must remain distinct from accepted posture.
+- Closeout containment:
+  `attempt_locally_accepted` requires a PB-RECON `local_accepted` result
+  summary and valid workbench evidence export. Non-accepted reviews cannot
+  claim local-acceptance scope.
+- Result:
+  pass.
 
-### Edge 6: Result Review Could Become Model Ranking Or Benchmark Score
+### Edge 6: Attempt Review Could Ignore Contamination Or Sandbox Violations
 
-- Pre-lock judgment: `must_fail_closed`.
-- Planned control:
-  result review rows require no model-ranking posture, no benchmark truth,
-  and no official submission authority.
-- Residual:
-  leaderboard and score semantics remain unselected.
+- Closeout containment:
+  PB-RECON `blocked_by_contamination` summaries require
+  `attempt_blocked_by_contamination`; PB-RECON
+  `blocked_by_sandbox_violation` summaries require
+  `attempt_blocked_by_sandbox_violation`.
+- Result:
+  pass.
 
-### Edge 7: Remand Queue Could Become Retry Dispatch Authority
+### Edge 7: Export Gaps Could Be Misreported As Remand Or Acceptance
 
-- Pre-lock judgment: `must_fail_closed`.
-- Planned control:
-  remand queues may record local retry pressure only and must carry no retry
-  authority.
-- Residual:
-  any retry invocation requires a later lock or explicit authority surface.
+- Closeout containment:
+  non-valid export posture can validate only under
+  `attempt_blocked_by_export_gap`; accepted attempts still require valid
+  export.
+- Result:
+  pass.
 
-### Edge 8: Remand Queue Could Use Forbidden Diagnostics
+### Edge 8: Result Review Could Become Model Ranking Or Benchmark Score
 
-- Pre-lock judgment: `must_fail_closed`.
-- Planned control:
-  remand row source kinds are closed to local probe failure, local output
-  capture gap, materialization gap, sandbox application failure, exported
-  workbench gap, and worker-declared uncertainty.
-- Residual:
-  hidden-test, official evaluator, original-source, decompilation, internet,
-  and external-repo diagnostics remain forbidden.
+- Closeout containment:
+  result review rows require no benchmark truth, no hidden-test equivalence,
+  no model-ranking claim, and no official submission authority.
+- Result:
+  pass.
 
-### Edge 9: C Could Reopen Worker Invocation Or Candidate Materialization
+### Edge 9: Remand Queue Could Become Retry Dispatch Authority
 
-- Pre-lock judgment: `must_fail_closed`.
-- Planned control:
-  C emits export, review, remand queue, and family closeout rows only; worker
-  invocation and candidate materialization remain released B evidence.
-- Residual:
-  new attempt execution is unselected.
+- Closeout containment:
+  remand queues require `remand_queue_pressure_only_no_retry_authority`, and
+  accepted attempts cannot carry remand queue rows. Non-accepted attempts must
+  carry remand rows so pressure is explicit and bounded.
+- Result:
+  pass.
 
-### Edge 10: Family Closeout Could Close The Wrong Family
+### Edge 10: Remand Queue Could Use Forbidden Diagnostics
 
-- Pre-lock judgment: `must_fail_closed`.
-- Planned control:
-  family closeout alignment must close exactly `PB-ATTEMPT-0-A`,
-  `PB-ATTEMPT-0-B`, and `PB-ATTEMPT-0-C`.
-- Residual:
-  any broader ProgramBench participation arc needs a separate selector or
-  canonical lock.
+- Closeout containment:
+  remand row source kinds are closed to local attempt/workbench evidence
+  categories, and remand rows must cite local attempt/workbench evidence refs.
+  Hidden-test, official evaluator, original-source, decompilation, internet,
+  and external-repo diagnostics are rejected.
+- Result:
+  pass.
 
-### Edge 11: Family Closeout Could Select A Future Family
+### Edge 11: C Could Reopen Worker Invocation Or Candidate Materialization
 
-- Pre-lock judgment: `must_fail_closed`.
-- Planned control:
-  closeout alignment carries no future-family selection posture.
-- Residual:
-  next-family choice remains operator/selector work after closeout.
+- Closeout containment:
+  C emitted only workbench evidence export, result review, remand queue, and
+  family closeout rows. Worker invocation, output capture, candidate
+  materialization, and sandbox trace remain released B evidence.
+- Result:
+  pass.
 
-### Edge 12: C Rows Could Claim Official ProgramBench Participation
+### Edge 12: Family Closeout Could Close The Wrong Family
 
-- Pre-lock judgment: `must_fail_closed`.
-- Planned control:
+- Closeout containment:
+  family closeout alignment closes exactly `PB-ATTEMPT-0-A`,
+  `PB-ATTEMPT-0-B`, and `PB-ATTEMPT-0-C`, and its closed family ref must be
+  `PB-ATTEMPT-0`.
+- Result:
+  pass.
+
+### Edge 13: Family Closeout Could Select A Future Family
+
+- Closeout containment:
+  family closeout alignment requires no future-family selection posture.
+- Result:
+  pass.
+
+### Edge 14: C Rows Could Claim Official ProgramBench Participation
+
+- Closeout containment:
   export, review, remand, and closeout rows reject official runner/evaluator,
-  hidden-test handling, official submission, benchmark result, and model
-  ranking authority.
-- Residual:
-  official participation remains unselected.
+  hidden-test handling, official submission, benchmark result, benchmark
+  score, model ranking, and benchmark truth authority.
+- Result:
+  pass.
+
+## Residual Edges
+
+- A future arc may choose to use the `PB-ATTEMPT-0` lifecycle for a real local
+  cleanroom reconstruction attempt, but that requires a new selector or
+  canonical lock.
+- Retry dispatch authority remains unselected; the remand queue is pressure
+  only.
+- Official ProgramBench participation, hidden evaluator integration,
+  benchmark scoring, model ranking, official submissions, broader benchmark
+  result governance, product, graph, release, or recursive-policy work remain
+  unselected.
+- Larger fixture matrices, multi-attempt comparison, natural task-to-program
+  profile inference, and broader conceptual broker work remain later-family
+  seams.
 
 ## Current Judgment
 
-- `PB-ATTEMPT-0-C` is the coherent next slice after the released
-  `PB-ATTEMPT-0-B` invocation-capture boundary.
-- The starter should proceed as a docs-only lock bundle before implementation.
-- Implementation should wait until this `vNext+253` starter bundle is
-  accepted.
+- `PB-ATTEMPT-0-C` is closed on `main` as a bounded attempt-closeout slice.
+- `PB-ATTEMPT-0` now has a complete A/B/C ladder on `main`.
+- The shipped family records a local cleanroom reconstruction attempt
+  lifecycle: preflighted worker input, one bounded local invocation, screened
+  output and materialization, local sandbox trace, workbench evidence export,
+  local result review, remand pressure, and family closeout.
+- The family does not run official ProgramBench, expose hidden tests, infer
+  from hidden tests, claim benchmark truth, score benchmarks, rank models,
+  create official submissions, dispatch retries, transition runtime, or select
+  a future family.

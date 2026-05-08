@@ -1,0 +1,44 @@
+{
+  "arc": "vNext+253",
+  "schema": "pb_attempt_0c_attempt_closeout_evidence@1",
+  "target_path": "PB-ATTEMPT-0-C",
+  "implementation_pr": "https://github.com/LexLattice/adeu-studio/pull/481",
+  "merge_commit": "1fb5f8ea792ff38281da462ed17c40864c81a438",
+  "implementation_commits": [
+    "80bb8fa84c16491ed342eb47089b63689f1fcbfa",
+    "b6cdc00b6172219e1518ea9d552ed991958a65f1"
+  ],
+  "lock_doc_path": "docs/LOCKED_CONTINUATION_vNEXT_PLUS253.md",
+  "decision_doc_path": "docs/DRAFT_STOP_GATE_DECISION_vNEXT_PLUS253.md",
+  "assessment_doc_path": "docs/ASSESSMENT_vNEXT_PLUS253_EDGES.md",
+  "family_closeout_doc_path": "docs/DRAFT_ADEU_PROGRAMBENCH_CLEANROOM_RECONSTRUCTION_ATTEMPT_PB_ATTEMPT_0_FAMILY_CLOSEOUT_v0.md",
+  "family_alignment_artifact_path": "apps/api/fixtures/benchmarking/vnext_plus253/programbench_reconstruction_attempt_family_closeout_alignment_v253_reference.json",
+  "shipped_shapes": [
+    "programbench_reconstruction_attempt_workbench_evidence_export@1",
+    "programbench_reconstruction_attempt_result_review@1",
+    "programbench_reconstruction_attempt_remand_queue@1",
+    "programbench_reconstruction_attempt_family_closeout_alignment@1"
+  ],
+  "consumed_released_attempt_shapes": [
+    "programbench_reconstruction_attempt_request@1",
+    "programbench_reconstruction_attempt_worker_input_packet@1",
+    "programbench_reconstruction_attempt_dispatch_preflight@1",
+    "programbench_reconstruction_attempt_non_authority_guardrail@1",
+    "programbench_reconstruction_attempt_worker_invocation_record@1",
+    "programbench_reconstruction_attempt_output_capture@1",
+    "programbench_reconstruction_attempt_candidate_materialization@1",
+    "programbench_reconstruction_attempt_sandbox_application_trace@1"
+  ],
+  "consumed_released_workbench_shapes": [
+    "programbench_reconstruction_candidate_artifact_manifest@1",
+    "programbench_reconstruction_local_run_trace@1",
+    "programbench_reconstruction_probe_result_log@1",
+    "programbench_reconstruction_remand_correction_record@1",
+    "programbench_reconstruction_equivalence_audit@1",
+    "programbench_reconstruction_result_summary@1",
+    "programbench_reconstruction_workbench_family_closeout_alignment@1"
+  ],
+  "closeout_posture": "attempt_closeout_slice_closed_on_main",
+  "family_posture": "pb_attempt_0_family_closed_on_main",
+  "non_authority_posture": "no_retry_dispatch_no_official_programbench_authority_no_hidden_test_equivalence_no_benchmark_truth_no_model_ranking_no_official_submission_no_future_family_selection"
+}
