@@ -253,3 +253,8 @@ Post-`PB-TRIAL-0-A` continuation posture: after `vNext+254` closes on
 `main`, select `PB-TRIAL-0-B` as the next default candidate inside the already
 selected `PB-TRIAL-0` family, subject to its own `vNext+255` lock, stop-gate
 decision, and edge assessment.
+
+Post-`PB-TRIAL-0-B` continuation posture: after `vNext+255` closes on
+`main`, select `PB-TRIAL-0-C` as the next default candidate inside the already
+selected `PB-TRIAL-0` family, subject to its own `vNext+256` lock, stop-gate
+decision, and edge assessment.

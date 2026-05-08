@@ -1,0 +1,31 @@
+{
+  "arc": "vNext+255",
+  "benchmark_truth_authority_granted": false,
+  "candidate_snapshot_authority_granted": true,
+  "closed_slice": "PB-TRIAL-0-B",
+  "command_execution_authority_granted": false,
+  "family": "PB-TRIAL-0",
+  "focused_test": "packages/adeu_benchmarking/tests/test_programbench_cleanroom_trial_pb_trial_0b.py",
+  "future_family_selection_granted": false,
+  "hidden_test_access_rejected": true,
+  "implementation_package": "packages/adeu_benchmarking",
+  "lifecycle_projection_requires_released_attempt_refs": true,
+  "local_outcome_audit_authority_granted": false,
+  "merged_pr": "#483",
+  "model_ranking_authority_granted": false,
+  "official_programbench_authority_granted": false,
+  "outcome_acceptance_authority_granted": false,
+  "reference_fixture_root": "apps/api/fixtures/benchmarking/vnext_plus255",
+  "retry_authority_granted": false,
+  "schema": "pb_trial_0b_execution_specimen_closeout_evidence@1",
+  "selected_record_shapes": [
+    "programbench_local_trial_worker_dispatch_record@1",
+    "programbench_local_trial_execution_capture@1",
+    "programbench_local_trial_candidate_artifact_snapshot@1",
+    "programbench_local_trial_lifecycle_projection@1"
+  ],
+  "verification_commands": [
+    ".venv/bin/python -m pytest packages/adeu_benchmarking/tests/test_programbench_cleanroom_trial_pb_trial_0b.py",
+    "make check"
+  ]
+}
