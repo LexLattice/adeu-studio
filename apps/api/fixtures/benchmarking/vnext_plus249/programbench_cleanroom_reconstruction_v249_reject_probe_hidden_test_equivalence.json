@@ -1,0 +1,33 @@
+{
+  "candidate_artifact_manifest_ref": "candidate-artifact-manifest:pb-recon-0b:reference",
+  "exit_code_posture": "exit_code_expectation_failed",
+  "expected_behavior_refs": [
+    "behavior:pb-recon-0b:help-exit-code-zero"
+  ],
+  "filesystem_side_effect_posture": "not_applicable_with_reason",
+  "hidden_test_equivalence_posture": "hidden_test_equivalence_claimed",
+  "limitation_note": "Reject fixture treats local probes as hidden-test equivalence.",
+  "local_run_trace_refs": [
+    "local-run:pb-recon-0b:attempt-1-help"
+  ],
+  "observed_behavior_refs": [
+    "observed:pb-recon-0b:exit-code-two"
+  ],
+  "probe_result_log_ref": "probe-result-log:pb-recon-0b:reference",
+  "probe_result_rows": [
+    {
+      "evidence_refs": [
+        "local-run:pb-recon-0b:attempt-1-help"
+      ],
+      "limitation_note": "Local help probe failed against the declared local oracle.",
+      "local_run_trace_ref": "local-run:pb-recon-0b:attempt-1-help",
+      "probe_ref": "probe:pb-recon-0b:help",
+      "probe_result_ref": "probe-result:pb-recon-0b:help",
+      "result_posture": "failed_local_probe"
+    }
+  ],
+  "probe_truth_posture": "local_probe_evidence_only_not_benchmark_truth",
+  "schema": "programbench_reconstruction_probe_result_log@1",
+  "stdout_stderr_separation_posture": "stdout_stderr_separation_failed",
+  "work_order_ref": "work-order:pb-recon-0a:reference"
+}

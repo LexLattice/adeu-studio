@@ -1,0 +1,163 @@
+{
+  "$defs": {
+    "ProgrambenchReconstructionProbeResultRow": {
+      "additionalProperties": false,
+      "properties": {
+        "evidence_refs": {
+          "items": {
+            "type": "string"
+          },
+          "minItems": 1,
+          "title": "Evidence Refs",
+          "type": "array"
+        },
+        "limitation_note": {
+          "title": "Limitation Note",
+          "type": "string"
+        },
+        "local_run_trace_ref": {
+          "title": "Local Run Trace Ref",
+          "type": "string"
+        },
+        "probe_ref": {
+          "title": "Probe Ref",
+          "type": "string"
+        },
+        "probe_result_ref": {
+          "title": "Probe Result Ref",
+          "type": "string"
+        },
+        "result_posture": {
+          "enum": [
+            "passed_local_probe",
+            "failed_local_probe",
+            "inconclusive_local_probe"
+          ],
+          "title": "Result Posture",
+          "type": "string"
+        }
+      },
+      "required": [
+        "probe_result_ref",
+        "local_run_trace_ref",
+        "probe_ref",
+        "result_posture",
+        "evidence_refs",
+        "limitation_note"
+      ],
+      "title": "ProgrambenchReconstructionProbeResultRow",
+      "type": "object"
+    }
+  },
+  "additionalProperties": false,
+  "properties": {
+    "candidate_artifact_manifest_ref": {
+      "title": "Candidate Artifact Manifest Ref",
+      "type": "string"
+    },
+    "exit_code_posture": {
+      "enum": [
+        "exit_code_expectation_satisfied",
+        "exit_code_expectation_failed",
+        "not_applicable_with_reason"
+      ],
+      "title": "Exit Code Posture",
+      "type": "string"
+    },
+    "expected_behavior_refs": {
+      "items": {
+        "type": "string"
+      },
+      "minItems": 1,
+      "title": "Expected Behavior Refs",
+      "type": "array"
+    },
+    "filesystem_side_effect_posture": {
+      "enum": [
+        "filesystem_side_effect_expectation_satisfied",
+        "filesystem_side_effect_expectation_failed",
+        "not_applicable_with_reason"
+      ],
+      "title": "Filesystem Side Effect Posture",
+      "type": "string"
+    },
+    "hidden_test_equivalence_posture": {
+      "const": "local_probe_not_hidden_test_equivalence",
+      "title": "Hidden Test Equivalence Posture",
+      "type": "string"
+    },
+    "limitation_note": {
+      "title": "Limitation Note",
+      "type": "string"
+    },
+    "local_run_trace_refs": {
+      "items": {
+        "type": "string"
+      },
+      "minItems": 1,
+      "title": "Local Run Trace Refs",
+      "type": "array"
+    },
+    "observed_behavior_refs": {
+      "items": {
+        "type": "string"
+      },
+      "minItems": 1,
+      "title": "Observed Behavior Refs",
+      "type": "array"
+    },
+    "probe_result_log_ref": {
+      "title": "Probe Result Log Ref",
+      "type": "string"
+    },
+    "probe_result_rows": {
+      "items": {
+        "$ref": "#/$defs/ProgrambenchReconstructionProbeResultRow"
+      },
+      "minItems": 1,
+      "title": "Probe Result Rows",
+      "type": "array"
+    },
+    "probe_truth_posture": {
+      "const": "local_probe_evidence_only_not_benchmark_truth",
+      "title": "Probe Truth Posture",
+      "type": "string"
+    },
+    "schema": {
+      "const": "programbench_reconstruction_probe_result_log@1",
+      "title": "Schema",
+      "type": "string"
+    },
+    "stdout_stderr_separation_posture": {
+      "enum": [
+        "stdout_stderr_separation_satisfied",
+        "stdout_stderr_separation_failed",
+        "not_applicable_with_reason"
+      ],
+      "title": "Stdout Stderr Separation Posture",
+      "type": "string"
+    },
+    "work_order_ref": {
+      "title": "Work Order Ref",
+      "type": "string"
+    }
+  },
+  "required": [
+    "schema",
+    "probe_result_log_ref",
+    "work_order_ref",
+    "candidate_artifact_manifest_ref",
+    "local_run_trace_refs",
+    "probe_result_rows",
+    "expected_behavior_refs",
+    "observed_behavior_refs",
+    "stdout_stderr_separation_posture",
+    "exit_code_posture",
+    "filesystem_side_effect_posture",
+    "probe_truth_posture",
+    "hidden_test_equivalence_posture",
+    "limitation_note"
+  ],
+  "title": "ProgrambenchReconstructionProbeResultLog",
+  "type": "object"
+}

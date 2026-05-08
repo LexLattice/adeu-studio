@@ -1,0 +1,194 @@
+{
+  "$defs": {
+    "ProgrambenchReconstructionCorrectionAttemptRow": {
+      "additionalProperties": false,
+      "properties": {
+        "candidate_attempt_ref": {
+          "title": "Candidate Attempt Ref",
+          "type": "string"
+        },
+        "changed_artifact_refs": {
+          "items": {
+            "type": "string"
+          },
+          "title": "Changed Artifact Refs",
+          "type": "array"
+        },
+        "correction_attempt_ref": {
+          "title": "Correction Attempt Ref",
+          "type": "string"
+        },
+        "correction_scope_posture": {
+          "enum": [
+            "local_candidate_artifact_only",
+            "future_family_only"
+          ],
+          "title": "Correction Scope Posture",
+          "type": "string"
+        },
+        "limitation_note": {
+          "title": "Limitation Note",
+          "type": "string"
+        }
+      },
+      "required": [
+        "correction_attempt_ref",
+        "candidate_attempt_ref",
+        "correction_scope_posture",
+        "changed_artifact_refs",
+        "limitation_note"
+      ],
+      "title": "ProgrambenchReconstructionCorrectionAttemptRow",
+      "type": "object"
+    },
+    "ProgrambenchReconstructionRemandReasonRow": {
+      "additionalProperties": false,
+      "properties": {
+        "limitation_note": {
+          "title": "Limitation Note",
+          "type": "string"
+        },
+        "reason_kind": {
+          "enum": [
+            "local_probe_failure",
+            "local_sandbox_violation",
+            "missing_required_artifact",
+            "unsupported_behavior_gap",
+            "inconclusive_trace"
+          ],
+          "title": "Reason Kind",
+          "type": "string"
+        },
+        "remand_reason_ref": {
+          "title": "Remand Reason Ref",
+          "type": "string"
+        },
+        "severity": {
+          "enum": [
+            "blocking",
+            "nonblocking"
+          ],
+          "title": "Severity",
+          "type": "string"
+        },
+        "source_ref": {
+          "title": "Source Ref",
+          "type": "string"
+        }
+      },
+      "required": [
+        "remand_reason_ref",
+        "source_ref",
+        "reason_kind",
+        "severity",
+        "limitation_note"
+      ],
+      "title": "ProgrambenchReconstructionRemandReasonRow",
+      "type": "object"
+    }
+  },
+  "additionalProperties": false,
+  "properties": {
+    "budget_consumption_refs": {
+      "items": {
+        "type": "string"
+      },
+      "minItems": 1,
+      "title": "Budget Consumption Refs",
+      "type": "array"
+    },
+    "candidate_attempt_ref": {
+      "title": "Candidate Attempt Ref",
+      "type": "string"
+    },
+    "case_packet_mutation_posture": {
+      "const": "released_case_packet_not_mutated",
+      "title": "Case Packet Mutation Posture",
+      "type": "string"
+    },
+    "correction_attempt_rows": {
+      "items": {
+        "$ref": "#/$defs/ProgrambenchReconstructionCorrectionAttemptRow"
+      },
+      "minItems": 1,
+      "title": "Correction Attempt Rows",
+      "type": "array"
+    },
+    "hidden_evidence_use_posture": {
+      "const": "no_hidden_or_forbidden_evidence_used",
+      "title": "Hidden Evidence Use Posture",
+      "type": "string"
+    },
+    "limitation_note": {
+      "title": "Limitation Note",
+      "type": "string"
+    },
+    "remand_correction_record_ref": {
+      "title": "Remand Correction Record Ref",
+      "type": "string"
+    },
+    "remand_outcome_posture": {
+      "enum": [
+        "corrected_for_local_reprobe",
+        "remand_recorded_no_correction",
+        "blocked_after_remand"
+      ],
+      "title": "Remand Outcome Posture",
+      "type": "string"
+    },
+    "remand_reason_rows": {
+      "items": {
+        "$ref": "#/$defs/ProgrambenchReconstructionRemandReasonRow"
+      },
+      "minItems": 1,
+      "title": "Remand Reason Rows",
+      "type": "array"
+    },
+    "remand_reason_source": {
+      "enum": [
+        "local_probe_failure",
+        "local_sandbox_violation",
+        "missing_required_artifact",
+        "unsupported_behavior_gap",
+        "inconclusive_trace"
+      ],
+      "title": "Remand Reason Source",
+      "type": "string"
+    },
+    "schema": {
+      "const": "programbench_reconstruction_remand_correction_record@1",
+      "title": "Schema",
+      "type": "string"
+    },
+    "semantic_route_preservation_posture": {
+      "enum": [
+        "semantic_route_preserved",
+        "semantic_route_not_assessed",
+        "semantic_route_mutated_forbidden"
+      ],
+      "title": "Semantic Route Preservation Posture",
+      "type": "string"
+    },
+    "work_order_ref": {
+      "title": "Work Order Ref",
+      "type": "string"
+    }
+  },
+  "required": [
+    "schema",
+    "remand_correction_record_ref",
+    "work_order_ref",
+    "candidate_attempt_ref",
+    "remand_reason_source",
+    "remand_reason_rows",
+    "correction_attempt_rows",
+    "semantic_route_preservation_posture",
+    "case_packet_mutation_posture",
+    "hidden_evidence_use_posture",
+    "budget_consumption_refs",
+    "remand_outcome_posture",
+    "limitation_note"
+  ],
+  "title": "ProgrambenchReconstructionRemandCorrectionRecord",
+  "type": "object"
+}

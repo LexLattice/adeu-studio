@@ -85,6 +85,7 @@ PB_RECON_0C_ARTIFACT_KINDS = {
 PB_RECON_0A_REQUIRED_FORBIDDEN_FUTURE_ARTIFACT_KINDS = (
     PB_RECON_0B_ARTIFACT_KINDS | PB_RECON_0C_ARTIFACT_KINDS
 )
+PB_RECON_0B_REQUIRED_FORBIDDEN_FUTURE_ARTIFACT_KINDS = PB_RECON_0C_ARTIFACT_KINDS
 
 _SHA256_RE = re.compile(r"^sha256:[0-9a-f]{64}$")
 _REQUIRED_SANDBOX_WITNESSES = {
@@ -559,6 +560,346 @@ class ProgrambenchReconstructionWorkbenchNonAuthorityGuardrail(_WorkbenchBase):
         return self
 
 
+class ProgrambenchReconstructionGeneratedFileRow(_WorkbenchBase):
+    generated_file_ref: str
+    path_ref: str
+    file_role: Literal[
+        "candidate_source_file",
+        "candidate_config_file",
+        "candidate_support_file",
+        "generated_output_artifact",
+    ]
+    write_scope_ref: str
+    artifact_visibility_posture: Literal["local_workbench_generated_artifact"]
+    limitation_note: str
+
+
+class ProgrambenchReconstructionGeneratedArtifactHashRow(_WorkbenchBase):
+    artifact_hash_ref: str
+    generated_file_ref: str
+    content_hash: str
+    hash_role: Literal["candidate_artifact_content_hash"]
+    limitation_note: str
+
+    @model_validator(mode="after")
+    def _validate_hash_row(
+        self,
+    ) -> "ProgrambenchReconstructionGeneratedArtifactHashRow":
+        _ensure_hash(self.content_hash, field_name="content_hash")
+        return self
+
+
+class ProgrambenchReconstructionCandidateArtifactManifest(_WorkbenchBase):
+    schema_id: Literal[
+        PROGRAMBENCH_RECONSTRUCTION_CANDIDATE_ARTIFACT_MANIFEST_SCHEMA
+    ] = Field(alias="schema")
+    candidate_artifact_manifest_ref: str
+    work_order_ref: str
+    worker_context_packet_ref: str
+    sandbox_policy_ref: str
+    run_budget_ref: str
+    adapter_candidate_ref: str
+    task_instance_ref: str
+    candidate_attempt_ref: str
+    generated_file_rows: list[ProgrambenchReconstructionGeneratedFileRow] = Field(
+        min_length=1
+    )
+    generated_artifact_hash_rows: list[
+        ProgrambenchReconstructionGeneratedArtifactHashRow
+    ] = Field(min_length=1)
+    artifact_visibility_posture: Literal["local_workbench_artifacts_only"]
+    submission_authority_posture: Literal[
+        "no_official_submission_authority_by_pb_recon_0b"
+    ]
+    official_programbench_posture: Literal[
+        "no_official_programbench_participation_by_pb_recon_0b"
+    ]
+    limitation_note: str
+
+    @model_validator(mode="after")
+    def _validate_candidate_artifact_manifest(
+        self,
+    ) -> "ProgrambenchReconstructionCandidateArtifactManifest":
+        generated_file_refs = [row.generated_file_ref for row in self.generated_file_rows]
+        _ensure_sorted_unique(generated_file_refs, field_name="generated_file_rows")
+        generated_path_refs = [row.path_ref for row in self.generated_file_rows]
+        _ensure_sorted_unique(generated_path_refs, field_name="generated_file_paths")
+        hash_refs = [row.artifact_hash_ref for row in self.generated_artifact_hash_rows]
+        _ensure_sorted_unique(hash_refs, field_name="generated_artifact_hash_rows")
+        hashed_file_refs = {
+            row.generated_file_ref for row in self.generated_artifact_hash_rows
+        }
+        if hashed_file_refs != set(generated_file_refs):
+            raise ValueError(
+                "generated artifact hash rows must cover exactly generated files"
+            )
+        return self
+
+
+class ProgrambenchReconstructionCommandArgvRow(_WorkbenchBase):
+    argv_ref: str
+    arg_index: int = Field(ge=0)
+    argv_value: str
+    argv_role: Literal[
+        "executable",
+        "flag",
+        "argument",
+        "input_path",
+        "output_path",
+    ]
+    command_shape_posture: Literal["argv_token_no_shell"]
+    limitation_note: str
+
+    @model_validator(mode="after")
+    def _validate_command_argv_row(self) -> "ProgrambenchReconstructionCommandArgvRow":
+        if not self.argv_value or self.argv_value != self.argv_value.strip():
+            raise ValueError("argv_value must be a non-empty trimmed string")
+        return self
+
+
+class ProgrambenchReconstructionLocalRunTrace(_WorkbenchBase):
+    schema_id: Literal[PROGRAMBENCH_RECONSTRUCTION_LOCAL_RUN_TRACE_SCHEMA] = Field(
+        alias="schema"
+    )
+    local_run_trace_ref: str
+    candidate_artifact_manifest_ref: str
+    work_order_ref: str
+    sandbox_policy_ref: str
+    run_budget_ref: str
+    command_authority_ref: str
+    command_allowlist_match_ref: str
+    sandbox_attestation_ref: str
+    network_attestation_ref: str
+    secret_absence_attestation_ref: str
+    dependency_resolution_posture: Literal[
+        "stdlib_only_resolved",
+        "declared_allowlist_resolved",
+        "blocked_dependency_resolution",
+        "unknown_dependency_resolution_blocked",
+    ]
+    write_scope_attestation_ref: str
+    artifact_capture_policy_ref: str
+    command_argv_rows: list[ProgrambenchReconstructionCommandArgvRow] = Field(
+        min_length=1
+    )
+    working_directory_ref: str
+    environment_ref: str
+    stdin_artifact_ref: str
+    stdout_hash: str
+    stdout_excerpt_bounded: str = Field(max_length=512)
+    stderr_hash: str
+    stderr_excerpt_bounded: str = Field(max_length=512)
+    exit_code: int
+    duration_ms: int = Field(ge=0)
+    timeout_status: Literal[
+        "completed_without_timeout",
+        "timed_out",
+        "not_run_plan_only",
+    ]
+    pre_fs_manifest_ref: str
+    post_fs_manifest_ref: str
+    fs_diff_ref: str
+    sandbox_violation_refs: list[str]
+    hidden_test_posture: Literal["hidden_tests_not_visible_not_inference_evidence"]
+    benchmark_truth_posture: Literal["not_benchmark_truth"]
+    limitation_note: str
+
+    @model_validator(mode="after")
+    def _validate_local_run_trace(self) -> "ProgrambenchReconstructionLocalRunTrace":
+        if self.dependency_resolution_posture not in {
+            "stdlib_only_resolved",
+            "declared_allowlist_resolved",
+        }:
+            raise ValueError("local run traces require resolved dependencies")
+        if self.timeout_status == "not_run_plan_only":
+            raise ValueError("local run traces must capture an observed local run")
+        _ensure_hash(self.stdout_hash, field_name="stdout_hash")
+        _ensure_hash(self.stderr_hash, field_name="stderr_hash")
+        _ensure_sorted_unique_allow_empty(
+            self.sandbox_violation_refs, field_name="sandbox_violation_refs"
+        )
+        argv_refs = [row.argv_ref for row in self.command_argv_rows]
+        _ensure_sorted_unique(argv_refs, field_name="command_argv_rows")
+        indices = [row.arg_index for row in self.command_argv_rows]
+        if indices != list(range(len(indices))):
+            raise ValueError("command argv rows must use contiguous arg_index values")
+        if self.command_argv_rows[0].argv_role != "executable":
+            raise ValueError("first command argv row must be the executable")
+        return self
+
+
+class ProgrambenchReconstructionProbeResultRow(_WorkbenchBase):
+    probe_result_ref: str
+    local_run_trace_ref: str
+    probe_ref: str
+    result_posture: Literal[
+        "passed_local_probe",
+        "failed_local_probe",
+        "inconclusive_local_probe",
+    ]
+    evidence_refs: list[str] = Field(min_length=1)
+    limitation_note: str
+
+    @model_validator(mode="after")
+    def _validate_probe_result_row(self) -> "ProgrambenchReconstructionProbeResultRow":
+        _ensure_sorted_unique(self.evidence_refs, field_name="evidence_refs")
+        return self
+
+
+class ProgrambenchReconstructionProbeResultLog(_WorkbenchBase):
+    schema_id: Literal[PROGRAMBENCH_RECONSTRUCTION_PROBE_RESULT_LOG_SCHEMA] = Field(
+        alias="schema"
+    )
+    probe_result_log_ref: str
+    work_order_ref: str
+    candidate_artifact_manifest_ref: str
+    local_run_trace_refs: list[str] = Field(min_length=1)
+    probe_result_rows: list[ProgrambenchReconstructionProbeResultRow] = Field(
+        min_length=1
+    )
+    expected_behavior_refs: list[str] = Field(min_length=1)
+    observed_behavior_refs: list[str] = Field(min_length=1)
+    stdout_stderr_separation_posture: Literal[
+        "stdout_stderr_separation_satisfied",
+        "stdout_stderr_separation_failed",
+        "not_applicable_with_reason",
+    ]
+    exit_code_posture: Literal[
+        "exit_code_expectation_satisfied",
+        "exit_code_expectation_failed",
+        "not_applicable_with_reason",
+    ]
+    filesystem_side_effect_posture: Literal[
+        "filesystem_side_effect_expectation_satisfied",
+        "filesystem_side_effect_expectation_failed",
+        "not_applicable_with_reason",
+    ]
+    probe_truth_posture: Literal["local_probe_evidence_only_not_benchmark_truth"]
+    hidden_test_equivalence_posture: Literal["local_probe_not_hidden_test_equivalence"]
+    limitation_note: str
+
+    @model_validator(mode="after")
+    def _validate_probe_result_log(
+        self,
+    ) -> "ProgrambenchReconstructionProbeResultLog":
+        _ensure_sorted_unique(self.local_run_trace_refs, field_name="local_run_trace_refs")
+        _ensure_sorted_unique(
+            self.expected_behavior_refs, field_name="expected_behavior_refs"
+        )
+        _ensure_sorted_unique(
+            self.observed_behavior_refs, field_name="observed_behavior_refs"
+        )
+        result_refs = [row.probe_result_ref for row in self.probe_result_rows]
+        _ensure_sorted_unique(result_refs, field_name="probe_result_rows")
+        unknown_trace_refs = {
+            row.local_run_trace_ref for row in self.probe_result_rows
+        } - set(self.local_run_trace_refs)
+        if unknown_trace_refs:
+            raise ValueError(
+                "probe result rows reference unknown local run traces: "
+                f"{sorted(unknown_trace_refs)}"
+            )
+        return self
+
+
+class ProgrambenchReconstructionRemandReasonRow(_WorkbenchBase):
+    remand_reason_ref: str
+    source_ref: str
+    reason_kind: Literal[
+        "local_probe_failure",
+        "local_sandbox_violation",
+        "missing_required_artifact",
+        "unsupported_behavior_gap",
+        "inconclusive_trace",
+    ]
+    severity: Literal["blocking", "nonblocking"]
+    limitation_note: str
+
+
+class ProgrambenchReconstructionCorrectionAttemptRow(_WorkbenchBase):
+    correction_attempt_ref: str
+    candidate_attempt_ref: str
+    correction_scope_posture: Literal[
+        "local_candidate_artifact_only",
+        "future_family_only",
+    ]
+    changed_artifact_refs: list[str]
+    limitation_note: str
+
+    @model_validator(mode="after")
+    def _validate_correction_attempt(
+        self,
+    ) -> "ProgrambenchReconstructionCorrectionAttemptRow":
+        if self.correction_scope_posture != "local_candidate_artifact_only":
+            raise ValueError("correction attempts must stay local to candidate artifacts")
+        _ensure_sorted_unique_allow_empty(
+            self.changed_artifact_refs, field_name="changed_artifact_refs"
+        )
+        return self
+
+
+class ProgrambenchReconstructionRemandCorrectionRecord(_WorkbenchBase):
+    schema_id: Literal[
+        PROGRAMBENCH_RECONSTRUCTION_REMAND_CORRECTION_RECORD_SCHEMA
+    ] = Field(alias="schema")
+    remand_correction_record_ref: str
+    work_order_ref: str
+    candidate_attempt_ref: str
+    remand_reason_source: Literal[
+        "local_probe_failure",
+        "local_sandbox_violation",
+        "missing_required_artifact",
+        "unsupported_behavior_gap",
+        "inconclusive_trace",
+    ]
+    remand_reason_rows: list[ProgrambenchReconstructionRemandReasonRow] = Field(
+        min_length=1
+    )
+    correction_attempt_rows: list[
+        ProgrambenchReconstructionCorrectionAttemptRow
+    ] = Field(min_length=1)
+    semantic_route_preservation_posture: Literal[
+        "semantic_route_preserved",
+        "semantic_route_not_assessed",
+        "semantic_route_mutated_forbidden",
+    ]
+    case_packet_mutation_posture: Literal["released_case_packet_not_mutated"]
+    hidden_evidence_use_posture: Literal["no_hidden_or_forbidden_evidence_used"]
+    budget_consumption_refs: list[str] = Field(min_length=1)
+    remand_outcome_posture: Literal[
+        "corrected_for_local_reprobe",
+        "remand_recorded_no_correction",
+        "blocked_after_remand",
+    ]
+    limitation_note: str
+
+    @model_validator(mode="after")
+    def _validate_remand_correction_record(
+        self,
+    ) -> "ProgrambenchReconstructionRemandCorrectionRecord":
+        if self.semantic_route_preservation_posture == "semantic_route_mutated_forbidden":
+            raise ValueError("remand records must preserve the semantic route")
+        reason_refs = [row.remand_reason_ref for row in self.remand_reason_rows]
+        _ensure_sorted_unique(reason_refs, field_name="remand_reason_rows")
+        correction_refs = [
+            row.correction_attempt_ref for row in self.correction_attempt_rows
+        ]
+        _ensure_sorted_unique(
+            correction_refs, field_name="correction_attempt_rows"
+        )
+        _ensure_sorted_unique(
+            self.budget_consumption_refs, field_name="budget_consumption_refs"
+        )
+        if {row.reason_kind for row in self.remand_reason_rows} != {
+            self.remand_reason_source
+        }:
+            raise ValueError("remand reason rows must match remand_reason_source")
+        for row in self.correction_attempt_rows:
+            if row.candidate_attempt_ref != self.candidate_attempt_ref:
+                raise ValueError("correction attempts must preserve candidate attempt ref")
+        return self
+
+
 def validate_pb_recon_0a_work_order_bundle(
     *,
     case_packet: ProgrambenchReconstructionCasePacket,
@@ -772,3 +1113,140 @@ def validate_pb_recon_0a_work_order_bundle(
         field_label="work order guardrail refs",
         released_refs={guardrail.guardrail_ref},
     )
+
+
+def _validate_pb_recon_0a_row_linkage(
+    *,
+    work_order: ProgrambenchReconstructionWorkOrder,
+    worker_context_packet: ProgrambenchReconstructionWorkerContextPacket,
+    context_exclusion_manifest: ProgrambenchReconstructionContextExclusionManifest,
+    sandbox_policy: ProgrambenchReconstructionSandboxPolicy,
+    run_budget: ProgrambenchReconstructionRunBudget,
+    guardrail: ProgrambenchReconstructionWorkbenchNonAuthorityGuardrail,
+) -> None:
+    if worker_context_packet.work_order_ref != work_order.work_order_ref:
+        raise ValueError("worker context packet must reference work order")
+    if (
+        context_exclusion_manifest.work_order_ref != work_order.work_order_ref
+        or context_exclusion_manifest.worker_context_packet_ref
+        != worker_context_packet.worker_context_packet_ref
+    ):
+        raise ValueError("context exclusion manifest must preserve A workbench linkage")
+    if (
+        sandbox_policy.work_order_ref != work_order.work_order_ref
+        or sandbox_policy.worker_context_packet_ref
+        != worker_context_packet.worker_context_packet_ref
+        or sandbox_policy.context_exclusion_manifest_ref
+        != context_exclusion_manifest.context_exclusion_manifest_ref
+    ):
+        raise ValueError("sandbox policy must preserve A workbench linkage")
+    if run_budget.work_order_ref != work_order.work_order_ref:
+        raise ValueError("run budget must reference work order")
+    if work_order.work_order_ref not in guardrail.work_order_refs:
+        raise ValueError("guardrail must reference work order")
+    if worker_context_packet.worker_context_packet_ref not in (
+        guardrail.worker_context_packet_refs
+    ):
+        raise ValueError("guardrail must reference worker context packet")
+    if sandbox_policy.sandbox_policy_ref not in guardrail.sandbox_policy_refs:
+        raise ValueError("guardrail must reference sandbox policy")
+    if run_budget.run_budget_ref not in guardrail.run_budget_refs:
+        raise ValueError("guardrail must reference run budget")
+
+
+def validate_pb_recon_0b_local_evidence_bundle(
+    *,
+    work_order: ProgrambenchReconstructionWorkOrder,
+    worker_context_packet: ProgrambenchReconstructionWorkerContextPacket,
+    context_exclusion_manifest: ProgrambenchReconstructionContextExclusionManifest,
+    sandbox_policy: ProgrambenchReconstructionSandboxPolicy,
+    run_budget: ProgrambenchReconstructionRunBudget,
+    guardrail: ProgrambenchReconstructionWorkbenchNonAuthorityGuardrail,
+    candidate_artifact_manifest: ProgrambenchReconstructionCandidateArtifactManifest,
+    local_run_traces: list[ProgrambenchReconstructionLocalRunTrace],
+    probe_result_log: ProgrambenchReconstructionProbeResultLog,
+    remand_correction_records: list[ProgrambenchReconstructionRemandCorrectionRecord],
+) -> None:
+    _validate_pb_recon_0a_row_linkage(
+        work_order=work_order,
+        worker_context_packet=worker_context_packet,
+        context_exclusion_manifest=context_exclusion_manifest,
+        sandbox_policy=sandbox_policy,
+        run_budget=run_budget,
+        guardrail=guardrail,
+    )
+    if not local_run_traces:
+        raise ValueError("PB-RECON-0-B requires at least one local run trace")
+    if not remand_correction_records:
+        raise ValueError("PB-RECON-0-B requires remand/correction records")
+
+    if candidate_artifact_manifest.work_order_ref != work_order.work_order_ref:
+        raise ValueError("candidate artifact manifest must reference work order")
+    if (
+        candidate_artifact_manifest.worker_context_packet_ref
+        != worker_context_packet.worker_context_packet_ref
+    ):
+        raise ValueError("candidate artifact manifest must reference worker context")
+    if candidate_artifact_manifest.sandbox_policy_ref != sandbox_policy.sandbox_policy_ref:
+        raise ValueError("candidate artifact manifest must reference sandbox policy")
+    if candidate_artifact_manifest.run_budget_ref != run_budget.run_budget_ref:
+        raise ValueError("candidate artifact manifest must reference run budget")
+    if candidate_artifact_manifest.adapter_candidate_ref != work_order.adapter_candidate_ref:
+        raise ValueError("candidate artifact manifest must preserve adapter lineage")
+    if candidate_artifact_manifest.task_instance_ref != work_order.task_instance_ref:
+        raise ValueError("candidate artifact manifest must preserve task lineage")
+    if len(candidate_artifact_manifest.generated_file_rows) > (
+        run_budget.max_candidate_artifact_count
+    ):
+        raise ValueError("candidate artifact manifest exceeds candidate artifact budget")
+
+    trace_refs = [trace.local_run_trace_ref for trace in local_run_traces]
+    _ensure_sorted_unique(trace_refs, field_name="local_run_traces")
+    if len(local_run_traces) > run_budget.max_local_run_count:
+        raise ValueError("local run traces exceed released run budget")
+
+    trace_by_ref = {trace.local_run_trace_ref: trace for trace in local_run_traces}
+    for trace in local_run_traces:
+        if (
+            trace.candidate_artifact_manifest_ref
+            != candidate_artifact_manifest.candidate_artifact_manifest_ref
+        ):
+            raise ValueError("local run traces must reference candidate artifact manifest")
+        if trace.work_order_ref != work_order.work_order_ref:
+            raise ValueError("local run traces must reference work order")
+        if trace.sandbox_policy_ref != sandbox_policy.sandbox_policy_ref:
+            raise ValueError("local run traces must reference sandbox policy")
+        if trace.run_budget_ref != run_budget.run_budget_ref:
+            raise ValueError("local run traces must reference run budget")
+
+    if probe_result_log.work_order_ref != work_order.work_order_ref:
+        raise ValueError("probe result log must reference work order")
+    if (
+        probe_result_log.candidate_artifact_manifest_ref
+        != candidate_artifact_manifest.candidate_artifact_manifest_ref
+    ):
+        raise ValueError("probe result log must reference candidate artifact manifest")
+    if set(probe_result_log.local_run_trace_refs) != set(trace_refs):
+        raise ValueError("probe result log must cover exactly local run traces")
+    if len(probe_result_log.probe_result_rows) > run_budget.max_probe_run_count:
+        raise ValueError("probe result rows exceed released probe budget")
+    for row in probe_result_log.probe_result_rows:
+        trace = trace_by_ref[row.local_run_trace_ref]
+        if trace.sandbox_violation_refs and row.result_posture == "passed_local_probe":
+            raise ValueError("sandbox violations cannot be treated as passed probes")
+
+    remand_refs = [
+        record.remand_correction_record_ref for record in remand_correction_records
+    ]
+    _ensure_sorted_unique(remand_refs, field_name="remand_correction_records")
+    if len(remand_correction_records) > run_budget.max_remand_count:
+        raise ValueError("remand/correction records exceed released remand budget")
+    for record in remand_correction_records:
+        if record.work_order_ref != work_order.work_order_ref:
+            raise ValueError("remand/correction records must reference work order")
+        if record.candidate_attempt_ref != (
+            candidate_artifact_manifest.candidate_attempt_ref
+        ):
+            raise ValueError("remand/correction records must preserve candidate attempt")
+        if run_budget.run_budget_ref not in record.budget_consumption_refs:
+            raise ValueError("remand/correction records must reference run budget")

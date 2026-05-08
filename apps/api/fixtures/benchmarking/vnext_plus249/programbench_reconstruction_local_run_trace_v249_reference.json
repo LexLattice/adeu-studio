@@ -1,0 +1,59 @@
+{
+  "artifact_capture_policy_ref": "artifact-capture-policy:pb-recon-0b:bounded-local",
+  "benchmark_truth_posture": "not_benchmark_truth",
+  "candidate_artifact_manifest_ref": "candidate-artifact-manifest:pb-recon-0b:reference",
+  "command_allowlist_match_ref": "command-allowlist-match:pb-recon-0b:python-help",
+  "command_argv_rows": [
+    {
+      "arg_index": 0,
+      "argv_ref": "argv:pb-recon-0b:00",
+      "argv_role": "executable",
+      "argv_value": "python",
+      "command_shape_posture": "argv_token_no_shell",
+      "limitation_note": "Executable token only; no shell wrapping."
+    },
+    {
+      "arg_index": 1,
+      "argv_ref": "argv:pb-recon-0b:01",
+      "argv_role": "argument",
+      "argv_value": "solution.py",
+      "command_shape_posture": "argv_token_no_shell",
+      "limitation_note": "Candidate artifact path is represented as an argv token."
+    },
+    {
+      "arg_index": 2,
+      "argv_ref": "argv:pb-recon-0b:02",
+      "argv_role": "flag",
+      "argv_value": "--help",
+      "command_shape_posture": "argv_token_no_shell",
+      "limitation_note": "Local help probe flag is argv-shaped."
+    }
+  ],
+  "command_authority_ref": "command-authority:pb-recon-0b:released-sandbox-allowlist",
+  "dependency_resolution_posture": "stdlib_only_resolved",
+  "duration_ms": 17,
+  "environment_ref": "env:pb-recon-0b:minimal",
+  "exit_code": 2,
+  "fs_diff_ref": "fs-diff:pb-recon-0b:attempt-1-help",
+  "hidden_test_posture": "hidden_tests_not_visible_not_inference_evidence",
+  "limitation_note": "Reference local run trace captures bounded local evidence only.",
+  "local_run_trace_ref": "local-run:pb-recon-0b:attempt-1-help",
+  "network_attestation_ref": "attestation:pb-recon-0b:network-disabled",
+  "post_fs_manifest_ref": "fs-manifest:pb-recon-0b:post-help",
+  "pre_fs_manifest_ref": "fs-manifest:pb-recon-0b:pre-help",
+  "run_budget_ref": "run-budget:pb-recon-0a:reference",
+  "sandbox_attestation_ref": "attestation:pb-recon-0b:sandbox",
+  "sandbox_policy_ref": "sandbox-policy:pb-recon-0a:reference",
+  "sandbox_violation_refs": [],
+  "schema": "programbench_reconstruction_local_run_trace@1",
+  "secret_absence_attestation_ref": "attestation:pb-recon-0b:no-host-secrets",
+  "stderr_excerpt_bounded": "usage error: missing command",
+  "stderr_hash": "sha256:5555555555555555555555555555555555555555555555555555555555555555",
+  "stdin_artifact_ref": "stdin:pb-recon-0b:empty",
+  "stdout_excerpt_bounded": "",
+  "stdout_hash": "sha256:4444444444444444444444444444444444444444444444444444444444444444",
+  "timeout_status": "completed_without_timeout",
+  "work_order_ref": "work-order:pb-recon-0a:reference",
+  "working_directory_ref": "workspace:pb-recon-0a:candidate-output",
+  "write_scope_attestation_ref": "attestation:pb-recon-0b:write-scope"
+}

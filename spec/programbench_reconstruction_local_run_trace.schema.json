@@ -1,0 +1,243 @@
+{
+  "$defs": {
+    "ProgrambenchReconstructionCommandArgvRow": {
+      "additionalProperties": false,
+      "properties": {
+        "arg_index": {
+          "minimum": 0,
+          "title": "Arg Index",
+          "type": "integer"
+        },
+        "argv_ref": {
+          "title": "Argv Ref",
+          "type": "string"
+        },
+        "argv_role": {
+          "enum": [
+            "executable",
+            "flag",
+            "argument",
+            "input_path",
+            "output_path"
+          ],
+          "title": "Argv Role",
+          "type": "string"
+        },
+        "argv_value": {
+          "title": "Argv Value",
+          "type": "string"
+        },
+        "command_shape_posture": {
+          "const": "argv_token_no_shell",
+          "title": "Command Shape Posture",
+          "type": "string"
+        },
+        "limitation_note": {
+          "title": "Limitation Note",
+          "type": "string"
+        }
+      },
+      "required": [
+        "argv_ref",
+        "arg_index",
+        "argv_value",
+        "argv_role",
+        "command_shape_posture",
+        "limitation_note"
+      ],
+      "title": "ProgrambenchReconstructionCommandArgvRow",
+      "type": "object"
+    }
+  },
+  "additionalProperties": false,
+  "properties": {
+    "artifact_capture_policy_ref": {
+      "title": "Artifact Capture Policy Ref",
+      "type": "string"
+    },
+    "benchmark_truth_posture": {
+      "const": "not_benchmark_truth",
+      "title": "Benchmark Truth Posture",
+      "type": "string"
+    },
+    "candidate_artifact_manifest_ref": {
+      "title": "Candidate Artifact Manifest Ref",
+      "type": "string"
+    },
+    "command_allowlist_match_ref": {
+      "title": "Command Allowlist Match Ref",
+      "type": "string"
+    },
+    "command_argv_rows": {
+      "items": {
+        "$ref": "#/$defs/ProgrambenchReconstructionCommandArgvRow"
+      },
+      "minItems": 1,
+      "title": "Command Argv Rows",
+      "type": "array"
+    },
+    "command_authority_ref": {
+      "title": "Command Authority Ref",
+      "type": "string"
+    },
+    "dependency_resolution_posture": {
+      "enum": [
+        "stdlib_only_resolved",
+        "declared_allowlist_resolved",
+        "blocked_dependency_resolution",
+        "unknown_dependency_resolution_blocked"
+      ],
+      "title": "Dependency Resolution Posture",
+      "type": "string"
+    },
+    "duration_ms": {
+      "minimum": 0,
+      "title": "Duration Ms",
+      "type": "integer"
+    },
+    "environment_ref": {
+      "title": "Environment Ref",
+      "type": "string"
+    },
+    "exit_code": {
+      "title": "Exit Code",
+      "type": "integer"
+    },
+    "fs_diff_ref": {
+      "title": "Fs Diff Ref",
+      "type": "string"
+    },
+    "hidden_test_posture": {
+      "const": "hidden_tests_not_visible_not_inference_evidence",
+      "title": "Hidden Test Posture",
+      "type": "string"
+    },
+    "limitation_note": {
+      "title": "Limitation Note",
+      "type": "string"
+    },
+    "local_run_trace_ref": {
+      "title": "Local Run Trace Ref",
+      "type": "string"
+    },
+    "network_attestation_ref": {
+      "title": "Network Attestation Ref",
+      "type": "string"
+    },
+    "post_fs_manifest_ref": {
+      "title": "Post Fs Manifest Ref",
+      "type": "string"
+    },
+    "pre_fs_manifest_ref": {
+      "title": "Pre Fs Manifest Ref",
+      "type": "string"
+    },
+    "run_budget_ref": {
+      "title": "Run Budget Ref",
+      "type": "string"
+    },
+    "sandbox_attestation_ref": {
+      "title": "Sandbox Attestation Ref",
+      "type": "string"
+    },
+    "sandbox_policy_ref": {
+      "title": "Sandbox Policy Ref",
+      "type": "string"
+    },
+    "sandbox_violation_refs": {
+      "items": {
+        "type": "string"
+      },
+      "title": "Sandbox Violation Refs",
+      "type": "array"
+    },
+    "schema": {
+      "const": "programbench_reconstruction_local_run_trace@1",
+      "title": "Schema",
+      "type": "string"
+    },
+    "secret_absence_attestation_ref": {
+      "title": "Secret Absence Attestation Ref",
+      "type": "string"
+    },
+    "stderr_excerpt_bounded": {
+      "maxLength": 512,
+      "title": "Stderr Excerpt Bounded",
+      "type": "string"
+    },
+    "stderr_hash": {
+      "title": "Stderr Hash",
+      "type": "string"
+    },
+    "stdin_artifact_ref": {
+      "title": "Stdin Artifact Ref",
+      "type": "string"
+    },
+    "stdout_excerpt_bounded": {
+      "maxLength": 512,
+      "title": "Stdout Excerpt Bounded",
+      "type": "string"
+    },
+    "stdout_hash": {
+      "title": "Stdout Hash",
+      "type": "string"
+    },
+    "timeout_status": {
+      "enum": [
+        "completed_without_timeout",
+        "timed_out",
+        "not_run_plan_only"
+      ],
+      "title": "Timeout Status",
+      "type": "string"
+    },
+    "work_order_ref": {
+      "title": "Work Order Ref",
+      "type": "string"
+    },
+    "working_directory_ref": {
+      "title": "Working Directory Ref",
+      "type": "string"
+    },
+    "write_scope_attestation_ref": {
+      "title": "Write Scope Attestation Ref",
+      "type": "string"
+    }
+  },
+  "required": [
+    "schema",
+    "local_run_trace_ref",
+    "candidate_artifact_manifest_ref",
+    "work_order_ref",
+    "sandbox_policy_ref",
+    "run_budget_ref",
+    "command_authority_ref",
+    "command_allowlist_match_ref",
+    "sandbox_attestation_ref",
+    "network_attestation_ref",
+    "secret_absence_attestation_ref",
+    "dependency_resolution_posture",
+    "write_scope_attestation_ref",
+    "artifact_capture_policy_ref",
+    "command_argv_rows",
+    "working_directory_ref",
+    "environment_ref",
+    "stdin_artifact_ref",
+    "stdout_hash",
+    "stdout_excerpt_bounded",
+    "stderr_hash",
+    "stderr_excerpt_bounded",
+    "exit_code",
+    "duration_ms",
+    "timeout_status",
+    "pre_fs_manifest_ref",
+    "post_fs_manifest_ref",
+    "fs_diff_ref",
+    "sandbox_violation_refs",
+    "hidden_test_posture",
+    "benchmark_truth_posture",
+    "limitation_note"
+  ],
+  "title": "ProgrambenchReconstructionLocalRunTrace",
+  "type": "object"
+}

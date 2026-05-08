@@ -1,0 +1,179 @@
+{
+  "$defs": {
+    "ProgrambenchReconstructionGeneratedArtifactHashRow": {
+      "additionalProperties": false,
+      "properties": {
+        "artifact_hash_ref": {
+          "title": "Artifact Hash Ref",
+          "type": "string"
+        },
+        "content_hash": {
+          "title": "Content Hash",
+          "type": "string"
+        },
+        "generated_file_ref": {
+          "title": "Generated File Ref",
+          "type": "string"
+        },
+        "hash_role": {
+          "const": "candidate_artifact_content_hash",
+          "title": "Hash Role",
+          "type": "string"
+        },
+        "limitation_note": {
+          "title": "Limitation Note",
+          "type": "string"
+        }
+      },
+      "required": [
+        "artifact_hash_ref",
+        "generated_file_ref",
+        "content_hash",
+        "hash_role",
+        "limitation_note"
+      ],
+      "title": "ProgrambenchReconstructionGeneratedArtifactHashRow",
+      "type": "object"
+    },
+    "ProgrambenchReconstructionGeneratedFileRow": {
+      "additionalProperties": false,
+      "properties": {
+        "artifact_visibility_posture": {
+          "const": "local_workbench_generated_artifact",
+          "title": "Artifact Visibility Posture",
+          "type": "string"
+        },
+        "file_role": {
+          "enum": [
+            "candidate_source_file",
+            "candidate_config_file",
+            "candidate_support_file",
+            "generated_output_artifact"
+          ],
+          "title": "File Role",
+          "type": "string"
+        },
+        "generated_file_ref": {
+          "title": "Generated File Ref",
+          "type": "string"
+        },
+        "limitation_note": {
+          "title": "Limitation Note",
+          "type": "string"
+        },
+        "path_ref": {
+          "title": "Path Ref",
+          "type": "string"
+        },
+        "write_scope_ref": {
+          "title": "Write Scope Ref",
+          "type": "string"
+        }
+      },
+      "required": [
+        "generated_file_ref",
+        "path_ref",
+        "file_role",
+        "write_scope_ref",
+        "artifact_visibility_posture",
+        "limitation_note"
+      ],
+      "title": "ProgrambenchReconstructionGeneratedFileRow",
+      "type": "object"
+    }
+  },
+  "additionalProperties": false,
+  "properties": {
+    "adapter_candidate_ref": {
+      "title": "Adapter Candidate Ref",
+      "type": "string"
+    },
+    "artifact_visibility_posture": {
+      "const": "local_workbench_artifacts_only",
+      "title": "Artifact Visibility Posture",
+      "type": "string"
+    },
+    "candidate_artifact_manifest_ref": {
+      "title": "Candidate Artifact Manifest Ref",
+      "type": "string"
+    },
+    "candidate_attempt_ref": {
+      "title": "Candidate Attempt Ref",
+      "type": "string"
+    },
+    "generated_artifact_hash_rows": {
+      "items": {
+        "$ref": "#/$defs/ProgrambenchReconstructionGeneratedArtifactHashRow"
+      },
+      "minItems": 1,
+      "title": "Generated Artifact Hash Rows",
+      "type": "array"
+    },
+    "generated_file_rows": {
+      "items": {
+        "$ref": "#/$defs/ProgrambenchReconstructionGeneratedFileRow"
+      },
+      "minItems": 1,
+      "title": "Generated File Rows",
+      "type": "array"
+    },
+    "limitation_note": {
+      "title": "Limitation Note",
+      "type": "string"
+    },
+    "official_programbench_posture": {
+      "const": "no_official_programbench_participation_by_pb_recon_0b",
+      "title": "Official Programbench Posture",
+      "type": "string"
+    },
+    "run_budget_ref": {
+      "title": "Run Budget Ref",
+      "type": "string"
+    },
+    "sandbox_policy_ref": {
+      "title": "Sandbox Policy Ref",
+      "type": "string"
+    },
+    "schema": {
+      "const": "programbench_reconstruction_candidate_artifact_manifest@1",
+      "title": "Schema",
+      "type": "string"
+    },
+    "submission_authority_posture": {
+      "const": "no_official_submission_authority_by_pb_recon_0b",
+      "title": "Submission Authority Posture",
+      "type": "string"
+    },
+    "task_instance_ref": {
+      "title": "Task Instance Ref",
+      "type": "string"
+    },
+    "work_order_ref": {
+      "title": "Work Order Ref",
+      "type": "string"
+    },
+    "worker_context_packet_ref": {
+      "title": "Worker Context Packet Ref",
+      "type": "string"
+    }
+  },
+  "required": [
+    "schema",
+    "candidate_artifact_manifest_ref",
+    "work_order_ref",
+    "worker_context_packet_ref",
+    "sandbox_policy_ref",
+    "run_budget_ref",
+    "adapter_candidate_ref",
+    "task_instance_ref",
+    "candidate_attempt_ref",
+    "generated_file_rows",
+    "generated_artifact_hash_rows",
+    "artifact_visibility_posture",
+    "submission_authority_posture",
+    "official_programbench_posture",
+    "limitation_note"
+  ],
+  "title": "ProgrambenchReconstructionCandidateArtifactManifest",
+  "type": "object"
+}
