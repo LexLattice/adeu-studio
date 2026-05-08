@@ -1,0 +1,162 @@
+{
+  "additionalProperties": false,
+  "properties": {
+    "allowed_runtime_kind": {
+      "enum": [
+        "python_stdlib_local_sandbox",
+        "future_family_only"
+      ],
+      "title": "Allowed Runtime Kind",
+      "type": "string"
+    },
+    "allowed_write_scope_refs": {
+      "items": {
+        "type": "string"
+      },
+      "minItems": 1,
+      "title": "Allowed Write Scope Refs",
+      "type": "array"
+    },
+    "command_shape_policy": {
+      "const": "argv_shaped_commands_only",
+      "title": "Command Shape Policy",
+      "type": "string"
+    },
+    "context_exclusion_manifest_ref": {
+      "title": "Context Exclusion Manifest Ref",
+      "type": "string"
+    },
+    "decompilation_policy": {
+      "const": "decompilation_forbidden",
+      "title": "Decompilation Policy",
+      "type": "string"
+    },
+    "dependency_policy": {
+      "enum": [
+        "stdlib_only",
+        "declared_dependency_allowlist_only"
+      ],
+      "title": "Dependency Policy",
+      "type": "string"
+    },
+    "docker_socket_policy": {
+      "const": "docker_socket_forbidden",
+      "title": "Docker Socket Policy",
+      "type": "string"
+    },
+    "environment_policy": {
+      "enum": [
+        "minimal_cleanroom_environment",
+        "explicit_env_allowlist_only"
+      ],
+      "title": "Environment Policy",
+      "type": "string"
+    },
+    "external_repo_lookup_policy": {
+      "const": "external_repo_lookup_forbidden",
+      "title": "External Repo Lookup Policy",
+      "type": "string"
+    },
+    "filesystem_policy": {
+      "const": "bounded_filesystem_write_scope",
+      "title": "Filesystem Policy",
+      "type": "string"
+    },
+    "forbidden_path_refs": {
+      "items": {
+        "type": "string"
+      },
+      "title": "Forbidden Path Refs",
+      "type": "array"
+    },
+    "limitation_note": {
+      "title": "Limitation Note",
+      "type": "string"
+    },
+    "network_policy": {
+      "const": "network_disabled",
+      "title": "Network Policy",
+      "type": "string"
+    },
+    "resource_limit_policy": {
+      "const": "bounded_resource_limits_required",
+      "title": "Resource Limit Policy",
+      "type": "string"
+    },
+    "sandbox_enforcement_witness_requirements": {
+      "items": {
+        "enum": [
+          "network_disabled",
+          "no_source_lookup",
+          "no_decompilation",
+          "no_docker_socket",
+          "no_host_secrets",
+          "bounded_filesystem_write_scope",
+          "argv_shaped_command_policy"
+        ],
+        "type": "string"
+      },
+      "minItems": 7,
+      "title": "Sandbox Enforcement Witness Requirements",
+      "type": "array"
+    },
+    "sandbox_policy_ref": {
+      "title": "Sandbox Policy Ref",
+      "type": "string"
+    },
+    "schema": {
+      "const": "programbench_reconstruction_sandbox_policy@1",
+      "title": "Schema",
+      "type": "string"
+    },
+    "secret_exposure_policy": {
+      "const": "host_secrets_forbidden",
+      "title": "Secret Exposure Policy",
+      "type": "string"
+    },
+    "source_lookup_policy": {
+      "const": "source_lookup_forbidden",
+      "title": "Source Lookup Policy",
+      "type": "string"
+    },
+    "timeout_policy": {
+      "const": "bounded_timeout_required",
+      "title": "Timeout Policy",
+      "type": "string"
+    },
+    "work_order_ref": {
+      "title": "Work Order Ref",
+      "type": "string"
+    },
+    "worker_context_packet_ref": {
+      "title": "Worker Context Packet Ref",
+      "type": "string"
+    }
+  },
+  "required": [
+    "schema",
+    "sandbox_policy_ref",
+    "work_order_ref",
+    "worker_context_packet_ref",
+    "context_exclusion_manifest_ref",
+    "allowed_runtime_kind",
+    "network_policy",
+    "filesystem_policy",
+    "dependency_policy",
+    "environment_policy",
+    "command_shape_policy",
+    "allowed_write_scope_refs",
+    "forbidden_path_refs",
+    "timeout_policy",
+    "resource_limit_policy",
+    "sandbox_enforcement_witness_requirements",
+    "secret_exposure_policy",
+    "docker_socket_policy",
+    "source_lookup_policy",
+    "decompilation_policy",
+    "external_repo_lookup_policy",
+    "limitation_note"
+  ],
+  "title": "ProgrambenchReconstructionSandboxPolicy",
+  "type": "object"
+}

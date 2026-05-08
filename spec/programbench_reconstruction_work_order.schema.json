@@ -1,0 +1,150 @@
+{
+  "additionalProperties": false,
+  "properties": {
+    "adapter_candidate_ref": {
+      "title": "Adapter Candidate Ref",
+      "type": "string"
+    },
+    "adapter_handoff_ref": {
+      "title": "Adapter Handoff Ref",
+      "type": "string"
+    },
+    "adapter_readiness_summary_ref": {
+      "title": "Adapter Readiness Summary Ref",
+      "type": "string"
+    },
+    "benchmark_truth_posture": {
+      "const": "not_benchmark_truth",
+      "title": "Benchmark Truth Posture",
+      "type": "string"
+    },
+    "case_packet_readiness_posture": {
+      "enum": [
+        "released_ready_case_packet",
+        "blocked_case_packet_rejected",
+        "future_family_only"
+      ],
+      "title": "Case Packet Readiness Posture",
+      "type": "string"
+    },
+    "case_packet_ref": {
+      "title": "Case Packet Ref",
+      "type": "string"
+    },
+    "contamination_gate_posture": {
+      "enum": [
+        "clean_contamination_gate_closed",
+        "contamination_blocked",
+        "unknown_contamination_blocked"
+      ],
+      "title": "Contamination Gate Posture",
+      "type": "string"
+    },
+    "context_exclusion_manifest_ref": {
+      "title": "Context Exclusion Manifest Ref",
+      "type": "string"
+    },
+    "dispatch_authority_posture": {
+      "const": "no_worker_dispatch_authority_granted_by_pb_recon_0a",
+      "title": "Dispatch Authority Posture",
+      "type": "string"
+    },
+    "execution_authority_posture": {
+      "const": "no_execution_authority_granted_by_pb_recon_0a",
+      "title": "Execution Authority Posture",
+      "type": "string"
+    },
+    "guardrail_refs": {
+      "items": {
+        "type": "string"
+      },
+      "minItems": 1,
+      "title": "Guardrail Refs",
+      "type": "array"
+    },
+    "limitation_note": {
+      "title": "Limitation Note",
+      "type": "string"
+    },
+    "official_programbench_posture": {
+      "const": "no_official_programbench_participation_by_pb_recon_0a",
+      "title": "Official Programbench Posture",
+      "type": "string"
+    },
+    "pb_py_0_profile_refs": {
+      "items": {
+        "type": "string"
+      },
+      "minItems": 1,
+      "title": "Pb Py 0 Profile Refs",
+      "type": "array"
+    },
+    "python_realization_pack_refs": {
+      "items": {
+        "type": "string"
+      },
+      "minItems": 1,
+      "title": "Python Realization Pack Refs",
+      "type": "array"
+    },
+    "run_budget_ref": {
+      "title": "Run Budget Ref",
+      "type": "string"
+    },
+    "sandbox_policy_ref": {
+      "title": "Sandbox Policy Ref",
+      "type": "string"
+    },
+    "schema": {
+      "const": "programbench_reconstruction_work_order@1",
+      "title": "Schema",
+      "type": "string"
+    },
+    "task_instance_ref": {
+      "title": "Task Instance Ref",
+      "type": "string"
+    },
+    "work_order_ref": {
+      "title": "Work Order Ref",
+      "type": "string"
+    },
+    "work_order_scope_posture": {
+      "enum": [
+        "local_reconstruction_boundary_definition_only",
+        "future_family_only"
+      ],
+      "title": "Work Order Scope Posture",
+      "type": "string"
+    },
+    "worker_context_packet_ref": {
+      "title": "Worker Context Packet Ref",
+      "type": "string"
+    }
+  },
+  "required": [
+    "schema",
+    "work_order_ref",
+    "case_packet_ref",
+    "adapter_readiness_summary_ref",
+    "adapter_handoff_ref",
+    "adapter_candidate_ref",
+    "task_instance_ref",
+    "pb_py_0_profile_refs",
+    "python_realization_pack_refs",
+    "worker_context_packet_ref",
+    "context_exclusion_manifest_ref",
+    "sandbox_policy_ref",
+    "run_budget_ref",
+    "guardrail_refs",
+    "case_packet_readiness_posture",
+    "contamination_gate_posture",
+    "work_order_scope_posture",
+    "dispatch_authority_posture",
+    "execution_authority_posture",
+    "official_programbench_posture",
+    "benchmark_truth_posture",
+    "limitation_note"
+  ],
+  "title": "ProgrambenchReconstructionWorkOrder",
+  "type": "object"
+}

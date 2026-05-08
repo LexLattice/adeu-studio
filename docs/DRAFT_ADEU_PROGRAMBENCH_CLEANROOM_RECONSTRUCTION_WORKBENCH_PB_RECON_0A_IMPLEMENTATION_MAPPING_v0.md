@@ -28,7 +28,7 @@ The slice should implement only:
 - `programbench_reconstruction_context_exclusion_manifest@1`
 - `programbench_reconstruction_sandbox_policy@1`
 - `programbench_reconstruction_run_budget@1`
-- `programbench_reconstruction_non_authority_guardrail@1`
+- `programbench_reconstruction_workbench_non_authority_guardrail@1`
 
 ## Candidate Schema Fields
 
@@ -169,7 +169,7 @@ Minimum fields:
 Budget rows constrain later work. They do not authorize execution in
 `PB-RECON-0-A`.
 
-### `programbench_reconstruction_non_authority_guardrail@1`
+### `programbench_reconstruction_workbench_non_authority_guardrail@1`
 
 Minimum fields:
 
@@ -201,7 +201,7 @@ If selected by a later `vNext+248` lock, likely touched files:
 - `packages/adeu_benchmarking/schema/programbench_reconstruction_context_exclusion_manifest.v1.json`
 - `packages/adeu_benchmarking/schema/programbench_reconstruction_sandbox_policy.v1.json`
 - `packages/adeu_benchmarking/schema/programbench_reconstruction_run_budget.v1.json`
-- `packages/adeu_benchmarking/schema/programbench_reconstruction_non_authority_guardrail.v1.json`
+- `packages/adeu_benchmarking/schema/programbench_reconstruction_workbench_non_authority_guardrail.v1.json`
 - matching mirror schemas under `spec/`
 - `packages/adeu_benchmarking/tests/test_programbench_cleanroom_reconstruction_pb_recon_0a.py`
 - `packages/adeu_benchmarking/tests/test_benchmarking_export_schema.py`

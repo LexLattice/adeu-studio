@@ -1,0 +1,153 @@
+{
+  "$defs": {
+    "ProgrambenchReconstructionExclusionReasonRow": {
+      "additionalProperties": false,
+      "properties": {
+        "excluded_ref": {
+          "title": "Excluded Ref",
+          "type": "string"
+        },
+        "exclusion_kind": {
+          "enum": [
+            "worker_hidden_source",
+            "forbidden_source",
+            "postmortem_only",
+            "excluded_derived_summary"
+          ],
+          "title": "Exclusion Kind",
+          "type": "string"
+        },
+        "exclusion_reason_posture": {
+          "enum": [
+            "excluded_from_worker_context",
+            "auditor_only_evidence"
+          ],
+          "title": "Exclusion Reason Posture",
+          "type": "string"
+        },
+        "exclusion_ref": {
+          "title": "Exclusion Ref",
+          "type": "string"
+        },
+        "limitation_note": {
+          "title": "Limitation Note",
+          "type": "string"
+        },
+        "source_refs": {
+          "items": {
+            "type": "string"
+          },
+          "minItems": 1,
+          "title": "Source Refs",
+          "type": "array"
+        }
+      },
+      "required": [
+        "exclusion_ref",
+        "excluded_ref",
+        "exclusion_kind",
+        "exclusion_reason_posture",
+        "source_refs",
+        "limitation_note"
+      ],
+      "title": "ProgrambenchReconstructionExclusionReasonRow",
+      "type": "object"
+    }
+  },
+  "additionalProperties": false,
+  "properties": {
+    "auditor_only_posture": {
+      "const": "auditor_only_not_worker_visible",
+      "title": "Auditor Only Posture",
+      "type": "string"
+    },
+    "case_packet_ref": {
+      "title": "Case Packet Ref",
+      "type": "string"
+    },
+    "context_exclusion_manifest_ref": {
+      "title": "Context Exclusion Manifest Ref",
+      "type": "string"
+    },
+    "excluded_derived_summary_refs": {
+      "items": {
+        "type": "string"
+      },
+      "title": "Excluded Derived Summary Refs",
+      "type": "array"
+    },
+    "exclusion_reason_rows": {
+      "items": {
+        "$ref": "#/$defs/ProgrambenchReconstructionExclusionReasonRow"
+      },
+      "minItems": 1,
+      "title": "Exclusion Reason Rows",
+      "type": "array"
+    },
+    "forbidden_source_refs": {
+      "items": {
+        "type": "string"
+      },
+      "title": "Forbidden Source Refs",
+      "type": "array"
+    },
+    "limitation_note": {
+      "title": "Limitation Note",
+      "type": "string"
+    },
+    "postmortem_only_refs": {
+      "items": {
+        "type": "string"
+      },
+      "title": "Postmortem Only Refs",
+      "type": "array"
+    },
+    "schema": {
+      "const": "programbench_reconstruction_context_exclusion_manifest@1",
+      "title": "Schema",
+      "type": "string"
+    },
+    "task_instance_ref": {
+      "title": "Task Instance Ref",
+      "type": "string"
+    },
+    "work_order_ref": {
+      "title": "Work Order Ref",
+      "type": "string"
+    },
+    "worker_context_packet_ref": {
+      "title": "Worker Context Packet Ref",
+      "type": "string"
+    },
+    "worker_hidden_source_refs": {
+      "items": {
+        "type": "string"
+      },
+      "title": "Worker Hidden Source Refs",
+      "type": "array"
+    },
+    "worker_visibility_posture": {
+      "const": "not_worker_visible",
+      "title": "Worker Visibility Posture",
+      "type": "string"
+    }
+  },
+  "required": [
+    "schema",
+    "context_exclusion_manifest_ref",
+    "work_order_ref",
+    "worker_context_packet_ref",
+    "case_packet_ref",
+    "task_instance_ref",
+    "worker_hidden_source_refs",
+    "forbidden_source_refs",
+    "postmortem_only_refs",
+    "excluded_derived_summary_refs",
+    "exclusion_reason_rows",
+    "auditor_only_posture",
+    "worker_visibility_posture",
+    "limitation_note"
+  ],
+  "title": "ProgrambenchReconstructionContextExclusionManifest",
+  "type": "object"
+}

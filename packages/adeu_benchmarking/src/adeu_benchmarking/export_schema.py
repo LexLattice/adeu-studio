@@ -105,6 +105,20 @@ from .programbench_cleanroom_adapter import (
     ProgrambenchTaskArtifactManifest,
     ProgrambenchTaskVisibilityManifest,
 )
+from .programbench_cleanroom_reconstruction import (
+    PROGRAMBENCH_RECONSTRUCTION_CONTEXT_EXCLUSION_MANIFEST_SCHEMA,
+    PROGRAMBENCH_RECONSTRUCTION_RUN_BUDGET_SCHEMA,
+    PROGRAMBENCH_RECONSTRUCTION_SANDBOX_POLICY_SCHEMA,
+    PROGRAMBENCH_RECONSTRUCTION_WORK_ORDER_SCHEMA,
+    PROGRAMBENCH_RECONSTRUCTION_WORKBENCH_NON_AUTHORITY_GUARDRAIL_SCHEMA,
+    PROGRAMBENCH_RECONSTRUCTION_WORKER_CONTEXT_PACKET_SCHEMA,
+    ProgrambenchReconstructionContextExclusionManifest,
+    ProgrambenchReconstructionRunBudget,
+    ProgrambenchReconstructionSandboxPolicy,
+    ProgrambenchReconstructionWorkbenchNonAuthorityGuardrail,
+    ProgrambenchReconstructionWorkerContextPacket,
+    ProgrambenchReconstructionWorkOrder,
+)
 
 _WINDOWS_ABSOLUTE_PATH_RE = re.compile(r"[A-Za-z]:\\")
 
@@ -620,6 +634,72 @@ def main() -> None:
             root
             / "spec"
             / "programbench_cleanroom_adapter_family_closeout_alignment.schema.json",
+        ),
+        (
+            ProgrambenchReconstructionWorkOrder,
+            PROGRAMBENCH_RECONSTRUCTION_WORK_ORDER_SCHEMA,
+            root
+            / "packages"
+            / "adeu_benchmarking"
+            / "schema"
+            / "programbench_reconstruction_work_order.v1.json",
+            root / "spec" / "programbench_reconstruction_work_order.schema.json",
+        ),
+        (
+            ProgrambenchReconstructionWorkerContextPacket,
+            PROGRAMBENCH_RECONSTRUCTION_WORKER_CONTEXT_PACKET_SCHEMA,
+            root
+            / "packages"
+            / "adeu_benchmarking"
+            / "schema"
+            / "programbench_reconstruction_worker_context_packet.v1.json",
+            root
+            / "spec"
+            / "programbench_reconstruction_worker_context_packet.schema.json",
+        ),
+        (
+            ProgrambenchReconstructionContextExclusionManifest,
+            PROGRAMBENCH_RECONSTRUCTION_CONTEXT_EXCLUSION_MANIFEST_SCHEMA,
+            root
+            / "packages"
+            / "adeu_benchmarking"
+            / "schema"
+            / "programbench_reconstruction_context_exclusion_manifest.v1.json",
+            root
+            / "spec"
+            / "programbench_reconstruction_context_exclusion_manifest.schema.json",
+        ),
+        (
+            ProgrambenchReconstructionSandboxPolicy,
+            PROGRAMBENCH_RECONSTRUCTION_SANDBOX_POLICY_SCHEMA,
+            root
+            / "packages"
+            / "adeu_benchmarking"
+            / "schema"
+            / "programbench_reconstruction_sandbox_policy.v1.json",
+            root / "spec" / "programbench_reconstruction_sandbox_policy.schema.json",
+        ),
+        (
+            ProgrambenchReconstructionRunBudget,
+            PROGRAMBENCH_RECONSTRUCTION_RUN_BUDGET_SCHEMA,
+            root
+            / "packages"
+            / "adeu_benchmarking"
+            / "schema"
+            / "programbench_reconstruction_run_budget.v1.json",
+            root / "spec" / "programbench_reconstruction_run_budget.schema.json",
+        ),
+        (
+            ProgrambenchReconstructionWorkbenchNonAuthorityGuardrail,
+            PROGRAMBENCH_RECONSTRUCTION_WORKBENCH_NON_AUTHORITY_GUARDRAIL_SCHEMA,
+            root
+            / "packages"
+            / "adeu_benchmarking"
+            / "schema"
+            / "programbench_reconstruction_workbench_non_authority_guardrail.v1.json",
+            root
+            / "spec"
+            / "programbench_reconstruction_workbench_non_authority_guardrail.schema.json",
         ),
     ]
 

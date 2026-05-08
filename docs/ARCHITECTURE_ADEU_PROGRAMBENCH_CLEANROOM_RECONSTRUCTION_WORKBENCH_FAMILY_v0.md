@@ -93,7 +93,7 @@ Starter surfaces:
 - `programbench_reconstruction_context_exclusion_manifest@1`
 - `programbench_reconstruction_sandbox_policy@1`
 - `programbench_reconstruction_run_budget@1`
-- `programbench_reconstruction_non_authority_guardrail@1`
+- `programbench_reconstruction_workbench_non_authority_guardrail@1`
 
 Purpose:
 

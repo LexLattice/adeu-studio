@@ -1,0 +1,226 @@
+{
+  "$defs": {
+    "ProgrambenchReconstructionContextDerivationHashRow": {
+      "additionalProperties": false,
+      "properties": {
+        "context_hash": {
+          "title": "Context Hash",
+          "type": "string"
+        },
+        "context_ref": {
+          "title": "Context Ref",
+          "type": "string"
+        },
+        "derivation_hash_ref": {
+          "title": "Derivation Hash Ref",
+          "type": "string"
+        },
+        "hash_role": {
+          "enum": [
+            "worker_context_source_set",
+            "derived_context_entry"
+          ],
+          "title": "Hash Role",
+          "type": "string"
+        },
+        "limitation_note": {
+          "title": "Limitation Note",
+          "type": "string"
+        },
+        "source_refs": {
+          "items": {
+            "type": "string"
+          },
+          "minItems": 1,
+          "title": "Source Refs",
+          "type": "array"
+        }
+      },
+      "required": [
+        "derivation_hash_ref",
+        "context_ref",
+        "source_refs",
+        "context_hash",
+        "hash_role",
+        "limitation_note"
+      ],
+      "title": "ProgrambenchReconstructionContextDerivationHashRow",
+      "type": "object"
+    },
+    "ProgrambenchReconstructionContextDerivationRow": {
+      "additionalProperties": false,
+      "properties": {
+        "derivation_kind": {
+          "enum": [
+            "cleanroom_visible_case_packet_ref",
+            "advisory_realization_ref",
+            "concept_profile_ref",
+            "local_probe_observation_ref",
+            "io_artifact_index_ref",
+            "side_effect_observation_ref"
+          ],
+          "title": "Derivation Kind",
+          "type": "string"
+        },
+        "derivation_ref": {
+          "title": "Derivation Ref",
+          "type": "string"
+        },
+        "derived_ref": {
+          "title": "Derived Ref",
+          "type": "string"
+        },
+        "limitation_note": {
+          "title": "Limitation Note",
+          "type": "string"
+        },
+        "source_ref": {
+          "title": "Source Ref",
+          "type": "string"
+        },
+        "worker_visibility_posture": {
+          "const": "worker_visible_cleanroom_context",
+          "title": "Worker Visibility Posture",
+          "type": "string"
+        }
+      },
+      "required": [
+        "derivation_ref",
+        "source_ref",
+        "derived_ref",
+        "derivation_kind",
+        "worker_visibility_posture",
+        "limitation_note"
+      ],
+      "title": "ProgrambenchReconstructionContextDerivationRow",
+      "type": "object"
+    }
+  },
+  "additionalProperties": false,
+  "properties": {
+    "advisory_realization_refs": {
+      "items": {
+        "type": "string"
+      },
+      "minItems": 1,
+      "title": "Advisory Realization Refs",
+      "type": "array"
+    },
+    "case_packet_ref": {
+      "title": "Case Packet Ref",
+      "type": "string"
+    },
+    "concept_profile_refs": {
+      "items": {
+        "type": "string"
+      },
+      "minItems": 1,
+      "title": "Concept Profile Refs",
+      "type": "array"
+    },
+    "context_derivation_hash_rows": {
+      "items": {
+        "$ref": "#/$defs/ProgrambenchReconstructionContextDerivationHashRow"
+      },
+      "minItems": 1,
+      "title": "Context Derivation Hash Rows",
+      "type": "array"
+    },
+    "context_derivation_rows": {
+      "items": {
+        "$ref": "#/$defs/ProgrambenchReconstructionContextDerivationRow"
+      },
+      "minItems": 1,
+      "title": "Context Derivation Rows",
+      "type": "array"
+    },
+    "context_source_set_hash": {
+      "title": "Context Source Set Hash",
+      "type": "string"
+    },
+    "context_visibility_posture": {
+      "const": "worker_context_cleanroom_visible_only",
+      "title": "Context Visibility Posture",
+      "type": "string"
+    },
+    "derived_summary_policy": {
+      "const": "no_hidden_or_forbidden_derived_summaries_in_worker_context",
+      "title": "Derived Summary Policy",
+      "type": "string"
+    },
+    "io_artifact_index_refs": {
+      "items": {
+        "type": "string"
+      },
+      "minItems": 1,
+      "title": "Io Artifact Index Refs",
+      "type": "array"
+    },
+    "limitation_note": {
+      "title": "Limitation Note",
+      "type": "string"
+    },
+    "probe_observation_refs": {
+      "items": {
+        "type": "string"
+      },
+      "minItems": 1,
+      "title": "Probe Observation Refs",
+      "type": "array"
+    },
+    "schema": {
+      "const": "programbench_reconstruction_worker_context_packet@1",
+      "title": "Schema",
+      "type": "string"
+    },
+    "side_effect_observation_refs": {
+      "items": {
+        "type": "string"
+      },
+      "minItems": 1,
+      "title": "Side Effect Observation Refs",
+      "type": "array"
+    },
+    "task_instance_ref": {
+      "title": "Task Instance Ref",
+      "type": "string"
+    },
+    "work_order_ref": {
+      "title": "Work Order Ref",
+      "type": "string"
+    },
+    "worker_context_packet_ref": {
+      "title": "Worker Context Packet Ref",
+      "type": "string"
+    },
+    "worker_visible_source_refs": {
+      "items": {
+        "type": "string"
+      },
+      "minItems": 1,
+      "title": "Worker Visible Source Refs",
+      "type": "array"
+    }
+  },
+  "required": [
+    "schema",
+    "worker_context_packet_ref",
+    "work_order_ref",
+    "case_packet_ref",
+    "task_instance_ref",
+    "worker_visible_source_refs",
+    "advisory_realization_refs",
+    "concept_profile_refs",
+    "probe_observation_refs",
+    "io_artifact_index_refs",
+    "side_effect_observation_refs",
+    "context_derivation_rows",
+    "context_derivation_hash_rows",
+    "context_source_set_hash",
+    "context_visibility_posture",
+    "derived_summary_policy",
+    "limitation_note"
+  ],
+  "title": "ProgrambenchReconstructionWorkerContextPacket",
+  "type": "object"
+}

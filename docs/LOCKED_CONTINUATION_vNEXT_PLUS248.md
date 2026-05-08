@@ -84,7 +84,7 @@ commands, run probes, score results, or claim benchmark truth.
     - `programbench_reconstruction_context_exclusion_manifest@1`
     - `programbench_reconstruction_sandbox_policy@1`
     - `programbench_reconstruction_run_budget@1`
-    - `programbench_reconstruction_non_authority_guardrail@1`
+    - `programbench_reconstruction_workbench_non_authority_guardrail@1`
 
 ## Required Starter Vocabulary
 
@@ -217,7 +217,7 @@ Minimum `programbench_reconstruction_run_budget@1` fields:
 Budget rows constrain later work. They do not authorize execution in
 `PB-RECON-0-A`.
 
-Minimum `programbench_reconstruction_non_authority_guardrail@1` fields:
+Minimum `programbench_reconstruction_workbench_non_authority_guardrail@1` fields:
 
 - `guardrail_ref`
 - `work_order_refs`
@@ -243,7 +243,7 @@ Minimum `programbench_reconstruction_non_authority_guardrail@1` fields:
   - `programbench_reconstruction_context_exclusion_manifest@1`
   - `programbench_reconstruction_sandbox_policy@1`
   - `programbench_reconstruction_run_budget@1`
-  - `programbench_reconstruction_non_authority_guardrail@1`
+  - `programbench_reconstruction_workbench_non_authority_guardrail@1`
 - deterministic reference and reject fixtures under
   `apps/api/fixtures/benchmarking/vnext_plus248/`;
 - validators that prove:
@@ -342,7 +342,7 @@ Minimum `programbench_reconstruction_non_authority_guardrail@1` fields:
     "programbench_reconstruction_context_exclusion_manifest@1",
     "programbench_reconstruction_sandbox_policy@1",
     "programbench_reconstruction_run_budget@1",
-    "programbench_reconstruction_non_authority_guardrail@1"
+    "programbench_reconstruction_workbench_non_authority_guardrail@1"
   ],
   "forbidden_claims": [
     "worker_dispatch_authority",
