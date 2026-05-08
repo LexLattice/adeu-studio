@@ -1011,6 +1011,20 @@ class ProgrambenchReconstructionEquivalenceAudit(_WorkbenchBase):
         _ensure_sorted_unique(coverage_refs, field_name="coverage_rows")
         expected_refs = set(self.expected_behavior_refs)
         observed_refs = set(self.observed_behavior_refs)
+        coverage_expected_refs = {row.expected_behavior_ref for row in self.coverage_rows}
+        coverage_observed_refs = {row.observed_behavior_ref for row in self.coverage_rows}
+        missing_expected_refs = expected_refs - coverage_expected_refs
+        missing_observed_refs = observed_refs - coverage_observed_refs
+        if missing_expected_refs:
+            raise ValueError(
+                "coverage rows must cover every expected behavior ref: "
+                f"{sorted(missing_expected_refs)}"
+            )
+        if missing_observed_refs:
+            raise ValueError(
+                "coverage rows must cover every observed behavior ref: "
+                f"{sorted(missing_observed_refs)}"
+            )
         for row in self.coverage_rows:
             if row.expected_behavior_ref not in expected_refs:
                 raise ValueError("coverage rows must reference expected behavior refs")
@@ -1033,6 +1047,16 @@ class ProgrambenchReconstructionEquivalenceAudit(_WorkbenchBase):
             expected_kind="regression_probe",
             allow_empty=True,
         )
+        all_probe_audit_refs = [
+            row.probe_audit_ref
+            for row in (
+                self.positive_probe_rows
+                + self.negative_probe_rows
+                + self.regression_probe_rows
+            )
+        ]
+        if len(set(all_probe_audit_refs)) != len(all_probe_audit_refs):
+            raise ValueError("probe audit refs must be unique across all categories")
         return self
 
     @staticmethod
@@ -1135,10 +1159,15 @@ class ProgrambenchReconstructionResultSummary(_WorkbenchBase):
         ):
             raise ValueError("sandbox-blocked summaries require sandbox violation refs")
         if (
-            self.result_posture in {"blocked_by_missing_evidence", "local_remand_required"}
+            self.result_posture
+            in {
+                "blocked_by_missing_evidence",
+                "local_rejected",
+                "local_remand_required",
+            }
             and not self.carried_blocker_refs
         ):
-            raise ValueError("blocked or remanded summaries require carried blockers")
+            raise ValueError("blocked, rejected, or remanded summaries require carried blockers")
         return self
 
 
@@ -1761,11 +1790,12 @@ def validate_pb_recon_0c_local_audit_bundle(
     if handoff.result_summary_ref != result_summary.result_summary_ref:
         raise ValueError("handoff must reference result summary")
     if (
-        result_summary.result_posture
-        in {"local_remand_required", "local_rejected", "blocked_by_missing_evidence"}
+        result_summary.result_posture != "local_accepted"
         and handoff.handoff_target == "future_cleanroom_reconstruction_review"
     ):
-        raise ValueError("blocked local summaries cannot hand off as reconstruction-ready")
+        raise ValueError(
+            "non-accepted local summaries cannot hand off as reconstruction-ready"
+        )
 
     if work_order.work_order_ref not in family_closeout.work_order_refs:
         raise ValueError("family closeout must reference work order")

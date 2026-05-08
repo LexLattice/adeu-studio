@@ -525,6 +525,86 @@ def test_pb_recon_0c_equivalence_audit_must_cover_released_probe_log() -> None:
         )
 
 
+def test_pb_recon_0c_equivalence_audit_requires_complete_behavior_coverage() -> None:
+    payload = _load_recon_c_fixture(
+        "programbench_reconstruction_equivalence_audit_v250_reference.json"
+    )
+    payload["coverage_rows"] = payload["coverage_rows"][:1]
+
+    with pytest.raises(ValidationError, match="cover every expected behavior ref"):
+        ProgrambenchReconstructionEquivalenceAudit.model_validate(payload)
+
+
+def test_pb_recon_0c_probe_audit_refs_are_unique_across_categories() -> None:
+    payload = _load_recon_c_fixture(
+        "programbench_reconstruction_equivalence_audit_v250_reference.json"
+    )
+    duplicate_negative_row = dict(payload["positive_probe_rows"][0])
+    duplicate_negative_row["probe_requirement_kind"] = "negative_probe"
+    payload["negative_probe_rows"] = [duplicate_negative_row]
+
+    with pytest.raises(ValidationError, match="unique across all categories"):
+        ProgrambenchReconstructionEquivalenceAudit.model_validate(payload)
+
+
+def test_pb_recon_0c_local_rejected_requires_carried_blocker_refs() -> None:
+    payload = _load_recon_c_fixture(
+        "programbench_reconstruction_result_summary_v250_reference.json"
+    )
+    payload["carried_blocker_refs"] = []
+    payload["result_posture"] = "local_rejected"
+
+    with pytest.raises(ValidationError, match="rejected"):
+        ProgrambenchReconstructionResultSummary.model_validate(payload)
+
+
+def test_pb_recon_0c_non_accepted_summary_cannot_handoff_as_ready() -> None:
+    (
+        work_order,
+        worker_context_packet,
+        context_exclusion_manifest,
+        sandbox_policy,
+        run_budget,
+        guardrail,
+    ) = _load_recon_a_bundle()
+    (
+        candidate_artifact_manifest,
+        local_run_traces,
+        probe_result_log,
+        remand_correction_records,
+    ) = _load_recon_b_bundle()
+    (
+        equivalence_audit,
+        result_summary,
+        handoff,
+        family_closeout,
+    ) = _load_recon_c_bundle()
+    premature_handoff = handoff.model_copy(
+        update={
+            "handoff_sequence_posture": "handoff_pressure_only_no_selection",
+            "handoff_target": "future_cleanroom_reconstruction_review",
+        }
+    )
+
+    with pytest.raises(ValueError, match="non-accepted local summaries"):
+        validate_pb_recon_0c_local_audit_bundle(
+            work_order=work_order,
+            worker_context_packet=worker_context_packet,
+            context_exclusion_manifest=context_exclusion_manifest,
+            sandbox_policy=sandbox_policy,
+            run_budget=run_budget,
+            guardrail=guardrail,
+            candidate_artifact_manifest=candidate_artifact_manifest,
+            local_run_traces=local_run_traces,
+            probe_result_log=probe_result_log,
+            remand_correction_records=remand_correction_records,
+            equivalence_audit=equivalence_audit,
+            result_summary=result_summary,
+            handoff=premature_handoff,
+            family_closeout=family_closeout,
+        )
+
+
 @pytest.mark.parametrize(
     ("fixture_name", "model"),
     [

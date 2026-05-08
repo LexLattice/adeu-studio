@@ -12,6 +12,16 @@
       "probe_result_refs": [
         "probe-result:pb-recon-0b:help"
       ]
+    },
+    {
+      "coverage_posture": "covered_by_local_probe",
+      "coverage_ref": "coverage:pb-recon-0c:stderr",
+      "expected_behavior_ref": "behavior:pb-recon-0b:stderr-empty",
+      "limitation_note": "The local help probe also covers the declared stderr behavior in the local oracle only.",
+      "observed_behavior_ref": "observed:pb-recon-0b:stderr-usage-error",
+      "probe_result_refs": [
+        "probe-result:pb-recon-0b:help"
+      ]
     }
   ],
   "equivalence_audit_ref": "equivalence-audit:pb-recon-0c:reference",
