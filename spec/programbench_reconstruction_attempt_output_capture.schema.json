@@ -1,0 +1,307 @@
+{
+  "$defs": {
+    "ProgrambenchReconstructionAttemptBoundedExcerptRow": {
+      "additionalProperties": false,
+      "properties": {
+        "captured_output_ref": {
+          "title": "Captured Output Ref",
+          "type": "string"
+        },
+        "excerpt_posture": {
+          "const": "bounded_debug_excerpt_not_complete_output_identity",
+          "title": "Excerpt Posture",
+          "type": "string"
+        },
+        "excerpt_ref": {
+          "title": "Excerpt Ref",
+          "type": "string"
+        },
+        "excerpt_text": {
+          "maxLength": 512,
+          "title": "Excerpt Text",
+          "type": "string"
+        },
+        "limitation_note": {
+          "title": "Limitation Note",
+          "type": "string"
+        }
+      },
+      "required": [
+        "excerpt_ref",
+        "captured_output_ref",
+        "excerpt_text",
+        "excerpt_posture",
+        "limitation_note"
+      ],
+      "title": "ProgrambenchReconstructionAttemptBoundedExcerptRow",
+      "type": "object"
+    },
+    "ProgrambenchReconstructionAttemptCapturedOutputRow": {
+      "additionalProperties": false,
+      "properties": {
+        "capture_posture": {
+          "const": "captured_local_worker_output_only",
+          "title": "Capture Posture",
+          "type": "string"
+        },
+        "captured_output_ref": {
+          "title": "Captured Output Ref",
+          "type": "string"
+        },
+        "limitation_note": {
+          "title": "Limitation Note",
+          "type": "string"
+        },
+        "output_kind": {
+          "enum": [
+            "worker_declared_candidate_file",
+            "worker_stderr",
+            "worker_stdout",
+            "worker_transcript"
+          ],
+          "title": "Output Kind",
+          "type": "string"
+        }
+      },
+      "required": [
+        "captured_output_ref",
+        "output_kind",
+        "capture_posture",
+        "limitation_note"
+      ],
+      "title": "ProgrambenchReconstructionAttemptCapturedOutputRow",
+      "type": "object"
+    },
+    "ProgrambenchReconstructionAttemptDeclaredUncertaintyRow": {
+      "additionalProperties": false,
+      "properties": {
+        "evidence_refs": {
+          "items": {
+            "type": "string"
+          },
+          "minItems": 1,
+          "title": "Evidence Refs",
+          "type": "array"
+        },
+        "limitation_note": {
+          "title": "Limitation Note",
+          "type": "string"
+        },
+        "uncertainty_kind": {
+          "enum": [
+            "behavior_gap_declared",
+            "implementation_gap_declared",
+            "probe_expectation_gap_declared"
+          ],
+          "title": "Uncertainty Kind",
+          "type": "string"
+        },
+        "uncertainty_posture": {
+          "const": "worker_declared_uncertainty_not_remand_authority",
+          "title": "Uncertainty Posture",
+          "type": "string"
+        },
+        "uncertainty_ref": {
+          "title": "Uncertainty Ref",
+          "type": "string"
+        }
+      },
+      "required": [
+        "uncertainty_ref",
+        "uncertainty_kind",
+        "uncertainty_posture",
+        "evidence_refs",
+        "limitation_note"
+      ],
+      "title": "ProgrambenchReconstructionAttemptDeclaredUncertaintyRow",
+      "type": "object"
+    },
+    "ProgrambenchReconstructionAttemptForbiddenContentScreeningRow": {
+      "additionalProperties": false,
+      "properties": {
+        "evidence_refs": {
+          "items": {
+            "type": "string"
+          },
+          "minItems": 1,
+          "title": "Evidence Refs",
+          "type": "array"
+        },
+        "limitation_note": {
+          "title": "Limitation Note",
+          "type": "string"
+        },
+        "screening_kind": {
+          "enum": [
+            "excluded_derived_content",
+            "forbidden_source_content",
+            "hidden_evidence_content",
+            "postmortem_only_content"
+          ],
+          "title": "Screening Kind",
+          "type": "string"
+        },
+        "screening_posture": {
+          "enum": [
+            "blocked",
+            "passed"
+          ],
+          "title": "Screening Posture",
+          "type": "string"
+        },
+        "screening_ref": {
+          "title": "Screening Ref",
+          "type": "string"
+        }
+      },
+      "required": [
+        "screening_ref",
+        "screening_kind",
+        "screening_posture",
+        "evidence_refs",
+        "limitation_note"
+      ],
+      "title": "ProgrambenchReconstructionAttemptForbiddenContentScreeningRow",
+      "type": "object"
+    },
+    "ProgrambenchReconstructionAttemptOutputHashRow": {
+      "additionalProperties": false,
+      "properties": {
+        "captured_output_ref": {
+          "title": "Captured Output Ref",
+          "type": "string"
+        },
+        "hash_role": {
+          "const": "local_worker_output_hash",
+          "title": "Hash Role",
+          "type": "string"
+        },
+        "limitation_note": {
+          "title": "Limitation Note",
+          "type": "string"
+        },
+        "output_hash": {
+          "title": "Output Hash",
+          "type": "string"
+        },
+        "output_hash_ref": {
+          "title": "Output Hash Ref",
+          "type": "string"
+        }
+      },
+      "required": [
+        "output_hash_ref",
+        "captured_output_ref",
+        "output_hash",
+        "hash_role",
+        "limitation_note"
+      ],
+      "title": "ProgrambenchReconstructionAttemptOutputHashRow",
+      "type": "object"
+    }
+  },
+  "additionalProperties": false,
+  "properties": {
+    "attempt_request_ref": {
+      "title": "Attempt Request Ref",
+      "type": "string"
+    },
+    "bounded_excerpt_rows": {
+      "items": {
+        "$ref": "#/$defs/ProgrambenchReconstructionAttemptBoundedExcerptRow"
+      },
+      "minItems": 1,
+      "title": "Bounded Excerpt Rows",
+      "type": "array"
+    },
+    "candidate_materialization_authority_posture": {
+      "enum": [
+        "candidate_materialization_allowed_after_screening_passed",
+        "candidate_materialization_blocked_by_screening"
+      ],
+      "title": "Candidate Materialization Authority Posture",
+      "type": "string"
+    },
+    "captured_output_rows": {
+      "items": {
+        "$ref": "#/$defs/ProgrambenchReconstructionAttemptCapturedOutputRow"
+      },
+      "minItems": 1,
+      "title": "Captured Output Rows",
+      "type": "array"
+    },
+    "declared_uncertainty_rows": {
+      "items": {
+        "$ref": "#/$defs/ProgrambenchReconstructionAttemptDeclaredUncertaintyRow"
+      },
+      "title": "Declared Uncertainty Rows",
+      "type": "array"
+    },
+    "forbidden_content_screening_posture": {
+      "enum": [
+        "blocked_excluded_derived",
+        "blocked_forbidden_source",
+        "blocked_hidden_evidence",
+        "blocked_postmortem_only",
+        "inconclusive_requires_review",
+        "passed"
+      ],
+      "title": "Forbidden Content Screening Posture",
+      "type": "string"
+    },
+    "forbidden_content_screening_rows": {
+      "items": {
+        "$ref": "#/$defs/ProgrambenchReconstructionAttemptForbiddenContentScreeningRow"
+      },
+      "minItems": 1,
+      "title": "Forbidden Content Screening Rows",
+      "type": "array"
+    },
+    "limitation_note": {
+      "title": "Limitation Note",
+      "type": "string"
+    },
+    "output_capture_posture": {
+      "const": "captured_local_candidate_material_only",
+      "title": "Output Capture Posture",
+      "type": "string"
+    },
+    "output_capture_ref": {
+      "title": "Output Capture Ref",
+      "type": "string"
+    },
+    "output_hash_rows": {
+      "items": {
+        "$ref": "#/$defs/ProgrambenchReconstructionAttemptOutputHashRow"
+      },
+      "minItems": 1,
+      "title": "Output Hash Rows",
+      "type": "array"
+    },
+    "schema": {
+      "const": "programbench_reconstruction_attempt_output_capture@1",
+      "title": "Schema",
+      "type": "string"
+    },
+    "worker_invocation_ref": {
+      "title": "Worker Invocation Ref",
+      "type": "string"
+    }
+  },
+  "required": [
+    "schema",
+    "output_capture_ref",
+    "worker_invocation_ref",
+    "attempt_request_ref",
+    "captured_output_rows",
+    "forbidden_content_screening_rows",
+    "forbidden_content_screening_posture",
+    "output_hash_rows",
+    "bounded_excerpt_rows",
+    "output_capture_posture",
+    "candidate_materialization_authority_posture",
+    "limitation_note"
+  ],
+  "title": "ProgrambenchReconstructionAttemptOutputCapture",
+  "type": "object"
+}

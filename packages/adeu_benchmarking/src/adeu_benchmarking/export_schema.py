@@ -106,14 +106,22 @@ from .programbench_cleanroom_adapter import (
     ProgrambenchTaskVisibilityManifest,
 )
 from .programbench_cleanroom_attempt import (
+    PROGRAMBENCH_RECONSTRUCTION_ATTEMPT_CANDIDATE_MATERIALIZATION_SCHEMA,
     PROGRAMBENCH_RECONSTRUCTION_ATTEMPT_DISPATCH_PREFLIGHT_SCHEMA,
     PROGRAMBENCH_RECONSTRUCTION_ATTEMPT_NON_AUTHORITY_GUARDRAIL_SCHEMA,
+    PROGRAMBENCH_RECONSTRUCTION_ATTEMPT_OUTPUT_CAPTURE_SCHEMA,
     PROGRAMBENCH_RECONSTRUCTION_ATTEMPT_REQUEST_SCHEMA,
+    PROGRAMBENCH_RECONSTRUCTION_ATTEMPT_SANDBOX_APPLICATION_TRACE_SCHEMA,
     PROGRAMBENCH_RECONSTRUCTION_ATTEMPT_WORKER_INPUT_PACKET_SCHEMA,
+    PROGRAMBENCH_RECONSTRUCTION_ATTEMPT_WORKER_INVOCATION_RECORD_SCHEMA,
+    ProgrambenchReconstructionAttemptCandidateMaterialization,
     ProgrambenchReconstructionAttemptDispatchPreflight,
     ProgrambenchReconstructionAttemptNonAuthorityGuardrail,
+    ProgrambenchReconstructionAttemptOutputCapture,
     ProgrambenchReconstructionAttemptRequest,
+    ProgrambenchReconstructionAttemptSandboxApplicationTrace,
     ProgrambenchReconstructionAttemptWorkerInputPacket,
+    ProgrambenchReconstructionAttemptWorkerInvocationRecord,
 )
 from .programbench_cleanroom_reconstruction import (
     PROGRAMBENCH_RECONSTRUCTION_CANDIDATE_ARTIFACT_MANIFEST_SCHEMA,
@@ -657,9 +665,7 @@ def main() -> None:
             / "adeu_benchmarking"
             / "schema"
             / "programbench_cleanroom_adapter_family_closeout_alignment.v1.json",
-            root
-            / "spec"
-            / "programbench_cleanroom_adapter_family_closeout_alignment.schema.json",
+            root / "spec" / "programbench_cleanroom_adapter_family_closeout_alignment.schema.json",
         ),
         (
             ProgrambenchReconstructionWorkOrder,
@@ -679,9 +685,7 @@ def main() -> None:
             / "adeu_benchmarking"
             / "schema"
             / "programbench_reconstruction_worker_context_packet.v1.json",
-            root
-            / "spec"
-            / "programbench_reconstruction_worker_context_packet.schema.json",
+            root / "spec" / "programbench_reconstruction_worker_context_packet.schema.json",
         ),
         (
             ProgrambenchReconstructionContextExclusionManifest,
@@ -691,9 +695,7 @@ def main() -> None:
             / "adeu_benchmarking"
             / "schema"
             / "programbench_reconstruction_context_exclusion_manifest.v1.json",
-            root
-            / "spec"
-            / "programbench_reconstruction_context_exclusion_manifest.schema.json",
+            root / "spec" / "programbench_reconstruction_context_exclusion_manifest.schema.json",
         ),
         (
             ProgrambenchReconstructionSandboxPolicy,
@@ -735,9 +737,7 @@ def main() -> None:
             / "adeu_benchmarking"
             / "schema"
             / "programbench_reconstruction_candidate_artifact_manifest.v1.json",
-            root
-            / "spec"
-            / "programbench_reconstruction_candidate_artifact_manifest.schema.json",
+            root / "spec" / "programbench_reconstruction_candidate_artifact_manifest.schema.json",
         ),
         (
             ProgrambenchReconstructionLocalRunTrace,
@@ -757,9 +757,7 @@ def main() -> None:
             / "adeu_benchmarking"
             / "schema"
             / "programbench_reconstruction_probe_result_log.v1.json",
-            root
-            / "spec"
-            / "programbench_reconstruction_probe_result_log.schema.json",
+            root / "spec" / "programbench_reconstruction_probe_result_log.schema.json",
         ),
         (
             ProgrambenchReconstructionRemandCorrectionRecord,
@@ -769,9 +767,7 @@ def main() -> None:
             / "adeu_benchmarking"
             / "schema"
             / "programbench_reconstruction_remand_correction_record.v1.json",
-            root
-            / "spec"
-            / "programbench_reconstruction_remand_correction_record.schema.json",
+            root / "spec" / "programbench_reconstruction_remand_correction_record.schema.json",
         ),
         (
             ProgrambenchReconstructionEquivalenceAudit,
@@ -781,9 +777,7 @@ def main() -> None:
             / "adeu_benchmarking"
             / "schema"
             / "programbench_reconstruction_equivalence_audit.v1.json",
-            root
-            / "spec"
-            / "programbench_reconstruction_equivalence_audit.schema.json",
+            root / "spec" / "programbench_reconstruction_equivalence_audit.schema.json",
         ),
         (
             ProgrambenchReconstructionResultSummary,
@@ -825,9 +819,7 @@ def main() -> None:
             / "adeu_benchmarking"
             / "schema"
             / "programbench_reconstruction_attempt_request.v1.json",
-            root
-            / "spec"
-            / "programbench_reconstruction_attempt_request.schema.json",
+            root / "spec" / "programbench_reconstruction_attempt_request.schema.json",
         ),
         (
             ProgrambenchReconstructionAttemptWorkerInputPacket,
@@ -837,9 +829,7 @@ def main() -> None:
             / "adeu_benchmarking"
             / "schema"
             / "programbench_reconstruction_attempt_worker_input_packet.v1.json",
-            root
-            / "spec"
-            / "programbench_reconstruction_attempt_worker_input_packet.schema.json",
+            root / "spec" / "programbench_reconstruction_attempt_worker_input_packet.schema.json",
         ),
         (
             ProgrambenchReconstructionAttemptDispatchPreflight,
@@ -849,9 +839,7 @@ def main() -> None:
             / "adeu_benchmarking"
             / "schema"
             / "programbench_reconstruction_attempt_dispatch_preflight.v1.json",
-            root
-            / "spec"
-            / "programbench_reconstruction_attempt_dispatch_preflight.schema.json",
+            root / "spec" / "programbench_reconstruction_attempt_dispatch_preflight.schema.json",
         ),
         (
             ProgrambenchReconstructionAttemptNonAuthorityGuardrail,
@@ -864,6 +852,52 @@ def main() -> None:
             root
             / "spec"
             / "programbench_reconstruction_attempt_non_authority_guardrail.schema.json",
+        ),
+        (
+            ProgrambenchReconstructionAttemptWorkerInvocationRecord,
+            PROGRAMBENCH_RECONSTRUCTION_ATTEMPT_WORKER_INVOCATION_RECORD_SCHEMA,
+            root
+            / "packages"
+            / "adeu_benchmarking"
+            / "schema"
+            / "programbench_reconstruction_attempt_worker_invocation_record.v1.json",
+            root
+            / "spec"
+            / "programbench_reconstruction_attempt_worker_invocation_record.schema.json",
+        ),
+        (
+            ProgrambenchReconstructionAttemptOutputCapture,
+            PROGRAMBENCH_RECONSTRUCTION_ATTEMPT_OUTPUT_CAPTURE_SCHEMA,
+            root
+            / "packages"
+            / "adeu_benchmarking"
+            / "schema"
+            / "programbench_reconstruction_attempt_output_capture.v1.json",
+            root / "spec" / "programbench_reconstruction_attempt_output_capture.schema.json",
+        ),
+        (
+            ProgrambenchReconstructionAttemptCandidateMaterialization,
+            PROGRAMBENCH_RECONSTRUCTION_ATTEMPT_CANDIDATE_MATERIALIZATION_SCHEMA,
+            root
+            / "packages"
+            / "adeu_benchmarking"
+            / "schema"
+            / "programbench_reconstruction_attempt_candidate_materialization.v1.json",
+            root
+            / "spec"
+            / "programbench_reconstruction_attempt_candidate_materialization.schema.json",
+        ),
+        (
+            ProgrambenchReconstructionAttemptSandboxApplicationTrace,
+            PROGRAMBENCH_RECONSTRUCTION_ATTEMPT_SANDBOX_APPLICATION_TRACE_SCHEMA,
+            root
+            / "packages"
+            / "adeu_benchmarking"
+            / "schema"
+            / "programbench_reconstruction_attempt_sandbox_application_trace.v1.json",
+            root
+            / "spec"
+            / "programbench_reconstruction_attempt_sandbox_application_trace.schema.json",
         ),
     ]
 

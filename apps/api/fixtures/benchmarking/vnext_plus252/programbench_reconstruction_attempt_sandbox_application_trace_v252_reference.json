@@ -1,0 +1,64 @@
+{
+  "application_posture": "local_sandbox_application_recorded",
+  "application_step_rows": [
+    {
+      "application_step_ref": "application-step:pb-attempt-0b:00-sandbox-policy",
+      "evidence_refs": [
+        "sandbox-policy:pb-recon-0a:reference"
+      ],
+      "limitation_note": "Released sandbox policy is applied before local materialization.",
+      "step_index": 0,
+      "step_kind": "sandbox_policy_application",
+      "step_posture": "passed"
+    },
+    {
+      "application_step_ref": "application-step:pb-attempt-0b:01-materialization",
+      "evidence_refs": [
+        "candidate-materialization:pb-attempt-0b:reference"
+      ],
+      "limitation_note": "Candidate materialization is recorded inside the released write scope.",
+      "step_index": 1,
+      "step_kind": "candidate_materialization",
+      "step_posture": "passed"
+    },
+    {
+      "application_step_ref": "application-step:pb-attempt-0b:02-fs-manifest",
+      "evidence_refs": [
+        "fs-diff:pb-attempt-0b:materialization",
+        "fs-manifest:pb-attempt-0b:post",
+        "fs-manifest:pb-attempt-0b:pre"
+      ],
+      "limitation_note": "Filesystem pre/post manifests and diff are recorded locally.",
+      "step_index": 2,
+      "step_kind": "filesystem_manifest_capture",
+      "step_posture": "passed"
+    },
+    {
+      "application_step_ref": "application-step:pb-attempt-0b:03-absence",
+      "evidence_refs": [
+        "attestation:pb-attempt-0b:network-disabled",
+        "attestation:pb-attempt-0b:no-docker-socket",
+        "attestation:pb-attempt-0b:no-host-secrets",
+        "attestation:pb-attempt-0b:no-source-lookup"
+      ],
+      "limitation_note": "Sandbox absence attestations are recorded as local evidence only.",
+      "step_index": 3,
+      "step_kind": "sandbox_absence_attestation",
+      "step_posture": "passed"
+    }
+  ],
+  "attempt_request_ref": "attempt-request:pb-attempt-0a:reference",
+  "candidate_materialization_ref": "candidate-materialization:pb-attempt-0b:reference",
+  "docker_socket_absence_attestation_ref": "attestation:pb-attempt-0b:no-docker-socket",
+  "fs_diff_ref": "fs-diff:pb-attempt-0b:materialization",
+  "limitation_note": "Reference sandbox trace records local sandbox application only, not official execution or evaluation.",
+  "network_attestation_ref": "attestation:pb-attempt-0b:network-disabled",
+  "post_state_manifest_ref": "fs-manifest:pb-attempt-0b:post",
+  "pre_state_manifest_ref": "fs-manifest:pb-attempt-0b:pre",
+  "run_budget_ref": "run-budget:pb-recon-0a:reference",
+  "sandbox_application_trace_ref": "sandbox-trace:pb-attempt-0b:reference",
+  "sandbox_policy_ref": "sandbox-policy:pb-recon-0a:reference",
+  "schema": "programbench_reconstruction_attempt_sandbox_application_trace@1",
+  "secret_absence_attestation_ref": "attestation:pb-attempt-0b:no-host-secrets",
+  "source_lookup_absence_attestation_ref": "attestation:pb-attempt-0b:no-source-lookup"
+}

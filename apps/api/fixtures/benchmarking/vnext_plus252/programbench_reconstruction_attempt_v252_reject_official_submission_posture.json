@@ -1,0 +1,35 @@
+{
+  "attempt_request_ref": "attempt-request:pb-attempt-0a:reference",
+  "benchmark_truth_posture": "not_benchmark_truth",
+  "candidate_materialization_ref": "candidate-materialization:pb-attempt-0b:official-submission",
+  "generated_file_hash_rows": [
+    {
+      "content_hash": "sha256:eeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee",
+      "generated_file_hash_ref": "generated-file-hash:pb-attempt-0b:solution-py",
+      "hash_role": "materialized_candidate_content_hash",
+      "limitation_note": "Hash binds invalid official-submission materialization fixture.",
+      "materialized_file_ref": "materialized-file:pb-attempt-0b:solution-py"
+    }
+  ],
+  "limitation_note": "Reject fixture: PB-ATTEMPT-0-B cannot create official submission posture.",
+  "materialization_input_hash": "sha256:eeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee",
+  "materialization_output_manifest_hash": "sha256:2222222222222222222222222222222222222222222222222222222222222222",
+  "materialization_posture": "local_candidate_materialized_inside_sandbox_write_scope",
+  "materialized_file_rows": [
+    {
+      "file_role": "candidate_source_file",
+      "limitation_note": "Invalid official-submission fixture file.",
+      "materialization_posture": "local_sandbox_materialized_file",
+      "materialized_file_ref": "materialized-file:pb-attempt-0b:solution-py",
+      "path_ref": "path:pb-recon-0a:candidate-output/solution.py",
+      "write_scope_ref": "workspace:pb-recon-0a:candidate-output"
+    }
+  ],
+  "materialized_inside_write_scope": true,
+  "official_submission_posture": "official_submission_created",
+  "output_capture_ref": "output-capture:pb-attempt-0b:reference",
+  "sandbox_policy_ref": "sandbox-policy:pb-recon-0a:reference",
+  "schema": "programbench_reconstruction_attempt_candidate_materialization@1",
+  "write_scope_attestation_ref": "attestation:pb-attempt-0b:write-scope",
+  "write_scope_ref": "workspace:pb-recon-0a:candidate-output"
+}

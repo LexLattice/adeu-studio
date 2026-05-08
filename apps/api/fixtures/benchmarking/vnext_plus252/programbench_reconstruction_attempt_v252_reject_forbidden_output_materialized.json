@@ -1,0 +1,48 @@
+{
+  "attempt_request_ref": "attempt-request:pb-attempt-0a:reference",
+  "bounded_excerpt_rows": [
+    {
+      "captured_output_ref": "captured-output:pb-attempt-0b:candidate-file",
+      "excerpt_posture": "bounded_debug_excerpt_not_complete_output_identity",
+      "excerpt_ref": "excerpt:pb-attempt-0b:candidate-file",
+      "excerpt_text": "forbidden content marker",
+      "limitation_note": "Reject fixture excerpt is bounded but screening blocks it."
+    }
+  ],
+  "candidate_materialization_authority_posture": "candidate_materialization_blocked_by_screening",
+  "captured_output_rows": [
+    {
+      "capture_posture": "captured_local_worker_output_only",
+      "captured_output_ref": "captured-output:pb-attempt-0b:candidate-file",
+      "limitation_note": "Captured candidate output contains forbidden source content.",
+      "output_kind": "worker_declared_candidate_file"
+    }
+  ],
+  "declared_uncertainty_rows": [],
+  "forbidden_content_screening_posture": "blocked_forbidden_source",
+  "forbidden_content_screening_rows": [
+    {
+      "evidence_refs": [
+        "output-capture:pb-attempt-0b:blocked"
+      ],
+      "limitation_note": "Forbidden source content blocks candidate materialization.",
+      "screening_kind": "forbidden_source_content",
+      "screening_posture": "blocked",
+      "screening_ref": "screening:pb-attempt-0b:forbidden-source"
+    }
+  ],
+  "limitation_note": "Reject fixture: blocked screening must prevent materialization.",
+  "output_capture_posture": "captured_local_candidate_material_only",
+  "output_capture_ref": "output-capture:pb-attempt-0b:blocked",
+  "output_hash_rows": [
+    {
+      "captured_output_ref": "captured-output:pb-attempt-0b:candidate-file",
+      "hash_role": "local_worker_output_hash",
+      "limitation_note": "Hash binds the blocked candidate output.",
+      "output_hash": "sha256:eeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee",
+      "output_hash_ref": "output-hash:pb-attempt-0b:candidate-file"
+    }
+  ],
+  "schema": "programbench_reconstruction_attempt_output_capture@1",
+  "worker_invocation_ref": "worker-invocation:pb-attempt-0b:reference"
+}

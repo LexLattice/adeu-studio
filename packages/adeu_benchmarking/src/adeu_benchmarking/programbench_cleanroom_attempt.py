@@ -464,6 +464,347 @@ class ProgrambenchReconstructionAttemptNonAuthorityGuardrail(_AttemptBase):
         return self
 
 
+class ProgrambenchReconstructionAttemptCapturedOutputRow(_AttemptBase):
+    captured_output_ref: str
+    output_kind: Literal[
+        "worker_declared_candidate_file",
+        "worker_stderr",
+        "worker_stdout",
+        "worker_transcript",
+    ]
+    capture_posture: Literal["captured_local_worker_output_only"]
+    limitation_note: str
+
+
+class ProgrambenchReconstructionAttemptDeclaredUncertaintyRow(_AttemptBase):
+    uncertainty_ref: str
+    uncertainty_kind: Literal[
+        "behavior_gap_declared",
+        "implementation_gap_declared",
+        "probe_expectation_gap_declared",
+    ]
+    uncertainty_posture: Literal["worker_declared_uncertainty_not_remand_authority"]
+    evidence_refs: list[str] = Field(min_length=1)
+    limitation_note: str
+
+    @model_validator(mode="after")
+    def _validate_uncertainty_row(
+        self,
+    ) -> "ProgrambenchReconstructionAttemptDeclaredUncertaintyRow":
+        _ensure_sorted_unique(self.evidence_refs, field_name="uncertainty evidence_refs")
+        return self
+
+
+class ProgrambenchReconstructionAttemptForbiddenContentScreeningRow(_AttemptBase):
+    screening_ref: str
+    screening_kind: Literal[
+        "excluded_derived_content",
+        "forbidden_source_content",
+        "hidden_evidence_content",
+        "postmortem_only_content",
+    ]
+    screening_posture: Literal["blocked", "passed"]
+    evidence_refs: list[str] = Field(min_length=1)
+    limitation_note: str
+
+    @model_validator(mode="after")
+    def _validate_screening_row(
+        self,
+    ) -> "ProgrambenchReconstructionAttemptForbiddenContentScreeningRow":
+        _ensure_sorted_unique(self.evidence_refs, field_name="screening evidence_refs")
+        return self
+
+
+class ProgrambenchReconstructionAttemptOutputHashRow(_AttemptBase):
+    output_hash_ref: str
+    captured_output_ref: str
+    output_hash: str
+    hash_role: Literal["local_worker_output_hash"]
+    limitation_note: str
+
+    @model_validator(mode="after")
+    def _validate_output_hash_row(self) -> "ProgrambenchReconstructionAttemptOutputHashRow":
+        _ensure_hash(self.output_hash, field_name="output_hash")
+        return self
+
+
+class ProgrambenchReconstructionAttemptBoundedExcerptRow(_AttemptBase):
+    excerpt_ref: str
+    captured_output_ref: str
+    excerpt_text: str = Field(max_length=512)
+    excerpt_posture: Literal["bounded_debug_excerpt_not_complete_output_identity"]
+    limitation_note: str
+
+
+class ProgrambenchReconstructionAttemptWorkerInvocationRecord(_AttemptBase):
+    schema_id: Literal[PROGRAMBENCH_RECONSTRUCTION_ATTEMPT_WORKER_INVOCATION_RECORD_SCHEMA] = Field(
+        alias="schema"
+    )
+    worker_invocation_ref: str
+    attempt_request_ref: str
+    worker_input_packet_ref: str
+    dispatch_preflight_ref: str
+    worker_profile_ref: str
+    attempt_invocation_index: int = Field(ge=1)
+    input_packet_hash: str
+    worker_visible_context_hash: str
+    tool_manifest_ref: str
+    allowed_tool_manifest_hash: str
+    forbidden_tool_manifest_hash: str
+    invocation_kind: Literal["local_cleanroom_worker_invocation"]
+    invocation_start_posture: Literal["started_after_preflight_passed"]
+    invocation_completion_posture: Literal[
+        "completed_with_output_capture",
+        "failed_with_output_capture",
+        "blocked_before_invocation",
+    ]
+    tool_access_posture: Literal["released_tool_manifest_only"]
+    network_access_posture: Literal["network_disabled"]
+    source_lookup_posture: Literal["source_lookup_forbidden"]
+    hidden_test_access_posture: Literal["hidden_tests_not_visible_not_accessed"]
+    official_programbench_posture: Literal[
+        "no_official_programbench_participation_by_pb_attempt_0b"
+    ]
+    benchmark_truth_posture: Literal["not_benchmark_truth"]
+    model_ranking_posture: Literal["no_model_ranking_claimed_by_pb_attempt_0b"]
+    official_submission_posture: Literal["no_official_submission_authority_by_pb_attempt_0b"]
+    invocation_transcript_hash: str
+    bounded_transcript_excerpt: str = Field(max_length=512)
+    limitation_note: str
+
+    @model_validator(mode="after")
+    def _validate_invocation_record(
+        self,
+    ) -> "ProgrambenchReconstructionAttemptWorkerInvocationRecord":
+        if self.attempt_invocation_index != 1:
+            raise ValueError("PB-ATTEMPT-0-B allows exactly one invocation per attempt request")
+        if self.invocation_completion_posture == "blocked_before_invocation":
+            raise ValueError("PB-ATTEMPT-0-B invocation records must capture an invocation")
+        for field_name in (
+            "input_packet_hash",
+            "worker_visible_context_hash",
+            "allowed_tool_manifest_hash",
+            "forbidden_tool_manifest_hash",
+            "invocation_transcript_hash",
+        ):
+            _ensure_hash(getattr(self, field_name), field_name=field_name)
+        return self
+
+
+class ProgrambenchReconstructionAttemptOutputCapture(_AttemptBase):
+    schema_id: Literal[PROGRAMBENCH_RECONSTRUCTION_ATTEMPT_OUTPUT_CAPTURE_SCHEMA] = Field(
+        alias="schema"
+    )
+    output_capture_ref: str
+    worker_invocation_ref: str
+    attempt_request_ref: str
+    captured_output_rows: list[ProgrambenchReconstructionAttemptCapturedOutputRow] = Field(
+        min_length=1
+    )
+    declared_uncertainty_rows: list[ProgrambenchReconstructionAttemptDeclaredUncertaintyRow] = (
+        Field(default_factory=list)
+    )
+    forbidden_content_screening_rows: list[
+        ProgrambenchReconstructionAttemptForbiddenContentScreeningRow
+    ] = Field(min_length=1)
+    forbidden_content_screening_posture: Literal[
+        "blocked_excluded_derived",
+        "blocked_forbidden_source",
+        "blocked_hidden_evidence",
+        "blocked_postmortem_only",
+        "inconclusive_requires_review",
+        "passed",
+    ]
+    output_hash_rows: list[ProgrambenchReconstructionAttemptOutputHashRow] = Field(min_length=1)
+    bounded_excerpt_rows: list[ProgrambenchReconstructionAttemptBoundedExcerptRow] = Field(
+        min_length=1
+    )
+    output_capture_posture: Literal["captured_local_candidate_material_only"]
+    candidate_materialization_authority_posture: Literal[
+        "candidate_materialization_allowed_after_screening_passed",
+        "candidate_materialization_blocked_by_screening",
+    ]
+    limitation_note: str
+
+    @model_validator(mode="after")
+    def _validate_output_capture(self) -> "ProgrambenchReconstructionAttemptOutputCapture":
+        captured_refs = [row.captured_output_ref for row in self.captured_output_rows]
+        _ensure_sorted_unique(captured_refs, field_name="captured_output_rows")
+        hash_refs = [row.output_hash_ref for row in self.output_hash_rows]
+        _ensure_sorted_unique(hash_refs, field_name="output_hash_rows")
+        excerpt_refs = [row.excerpt_ref for row in self.bounded_excerpt_rows]
+        _ensure_sorted_unique(excerpt_refs, field_name="bounded_excerpt_rows")
+        screening_refs = [row.screening_ref for row in self.forbidden_content_screening_rows]
+        _ensure_sorted_unique(screening_refs, field_name="forbidden_content_screening_rows")
+        uncertainty_refs = [row.uncertainty_ref for row in self.declared_uncertainty_rows]
+        if uncertainty_refs:
+            _ensure_sorted_unique(uncertainty_refs, field_name="declared_uncertainty_rows")
+
+        captured_ref_set = set(captured_refs)
+        hashed_output_refs = {row.captured_output_ref for row in self.output_hash_rows}
+        excerpt_output_refs = {row.captured_output_ref for row in self.bounded_excerpt_rows}
+        if hashed_output_refs != captured_ref_set:
+            raise ValueError("output hash rows must cover exactly captured output rows")
+        if excerpt_output_refs != captured_ref_set:
+            raise ValueError("bounded excerpt rows must cover exactly captured output rows")
+
+        if self.forbidden_content_screening_posture == "passed":
+            blocked_rows = [
+                row.screening_ref
+                for row in self.forbidden_content_screening_rows
+                if row.screening_posture != "passed"
+            ]
+            if blocked_rows:
+                raise ValueError(
+                    f"passed forbidden-content screening cannot carry blocked rows: {blocked_rows}"
+                )
+            if (
+                self.candidate_materialization_authority_posture
+                != "candidate_materialization_allowed_after_screening_passed"
+            ):
+                raise ValueError("passed screening must allow later candidate materialization")
+        elif (
+            self.candidate_materialization_authority_posture
+            != "candidate_materialization_blocked_by_screening"
+        ):
+            raise ValueError("non-passing screening must block candidate materialization")
+        return self
+
+
+class ProgrambenchReconstructionAttemptMaterializedFileRow(_AttemptBase):
+    materialized_file_ref: str
+    path_ref: str
+    file_role: Literal[
+        "candidate_config_file",
+        "candidate_source_file",
+        "candidate_support_file",
+        "generated_output_artifact",
+    ]
+    write_scope_ref: str
+    materialization_posture: Literal["local_sandbox_materialized_file"]
+    limitation_note: str
+
+
+class ProgrambenchReconstructionAttemptGeneratedFileHashRow(_AttemptBase):
+    generated_file_hash_ref: str
+    materialized_file_ref: str
+    content_hash: str
+    hash_role: Literal["materialized_candidate_content_hash"]
+    limitation_note: str
+
+    @model_validator(mode="after")
+    def _validate_generated_hash_row(
+        self,
+    ) -> "ProgrambenchReconstructionAttemptGeneratedFileHashRow":
+        _ensure_hash(self.content_hash, field_name="content_hash")
+        return self
+
+
+class ProgrambenchReconstructionAttemptCandidateMaterialization(_AttemptBase):
+    schema_id: Literal[PROGRAMBENCH_RECONSTRUCTION_ATTEMPT_CANDIDATE_MATERIALIZATION_SCHEMA] = (
+        Field(alias="schema")
+    )
+    candidate_materialization_ref: str
+    attempt_request_ref: str
+    output_capture_ref: str
+    sandbox_policy_ref: str
+    materialization_input_hash: str
+    materialization_output_manifest_hash: str
+    materialized_file_rows: list[ProgrambenchReconstructionAttemptMaterializedFileRow] = Field(
+        min_length=1
+    )
+    generated_file_hash_rows: list[ProgrambenchReconstructionAttemptGeneratedFileHashRow] = Field(
+        min_length=1
+    )
+    write_scope_ref: str
+    write_scope_attestation_ref: str
+    official_submission_posture: Literal["no_official_submission_authority_by_pb_attempt_0b"]
+    benchmark_truth_posture: Literal["not_benchmark_truth"]
+    materialized_inside_write_scope: Literal[True]
+    materialization_posture: Literal["local_candidate_materialized_inside_sandbox_write_scope"]
+    limitation_note: str
+
+    @model_validator(mode="after")
+    def _validate_candidate_materialization(
+        self,
+    ) -> "ProgrambenchReconstructionAttemptCandidateMaterialization":
+        _ensure_hash(self.materialization_input_hash, field_name="materialization_input_hash")
+        _ensure_hash(
+            self.materialization_output_manifest_hash,
+            field_name="materialization_output_manifest_hash",
+        )
+        file_refs = [row.materialized_file_ref for row in self.materialized_file_rows]
+        _ensure_sorted_unique(file_refs, field_name="materialized_file_rows")
+        path_refs = [row.path_ref for row in self.materialized_file_rows]
+        _ensure_sorted_unique(path_refs, field_name="materialized_file_paths")
+        hash_refs = [row.generated_file_hash_ref for row in self.generated_file_hash_rows]
+        _ensure_sorted_unique(hash_refs, field_name="generated_file_hash_rows")
+        hashed_file_refs = {row.materialized_file_ref for row in self.generated_file_hash_rows}
+        if hashed_file_refs != set(file_refs):
+            raise ValueError("generated file hash rows must cover exactly materialized files")
+        write_scope_refs = {row.write_scope_ref for row in self.materialized_file_rows}
+        if write_scope_refs != {self.write_scope_ref}:
+            raise ValueError("materialized file rows must use the declared write scope")
+        return self
+
+
+class ProgrambenchReconstructionAttemptApplicationStepRow(_AttemptBase):
+    application_step_ref: str
+    step_index: int = Field(ge=0)
+    step_kind: Literal[
+        "candidate_materialization",
+        "filesystem_manifest_capture",
+        "sandbox_absence_attestation",
+        "sandbox_policy_application",
+    ]
+    step_posture: Literal["passed"]
+    evidence_refs: list[str] = Field(min_length=1)
+    limitation_note: str
+
+    @model_validator(mode="after")
+    def _validate_application_step_row(
+        self,
+    ) -> "ProgrambenchReconstructionAttemptApplicationStepRow":
+        _ensure_sorted_unique(self.evidence_refs, field_name="application step evidence_refs")
+        return self
+
+
+class ProgrambenchReconstructionAttemptSandboxApplicationTrace(_AttemptBase):
+    schema_id: Literal[PROGRAMBENCH_RECONSTRUCTION_ATTEMPT_SANDBOX_APPLICATION_TRACE_SCHEMA] = (
+        Field(alias="schema")
+    )
+    sandbox_application_trace_ref: str
+    attempt_request_ref: str
+    candidate_materialization_ref: str
+    sandbox_policy_ref: str
+    run_budget_ref: str
+    application_step_rows: list[ProgrambenchReconstructionAttemptApplicationStepRow] = Field(
+        min_length=1
+    )
+    pre_state_manifest_ref: str
+    post_state_manifest_ref: str
+    fs_diff_ref: str
+    network_attestation_ref: str
+    secret_absence_attestation_ref: str
+    docker_socket_absence_attestation_ref: str
+    source_lookup_absence_attestation_ref: str
+    application_posture: Literal["local_sandbox_application_recorded"]
+    limitation_note: str
+
+    @model_validator(mode="after")
+    def _validate_sandbox_application_trace(
+        self,
+    ) -> "ProgrambenchReconstructionAttemptSandboxApplicationTrace":
+        step_refs = [row.application_step_ref for row in self.application_step_rows]
+        _ensure_sorted_unique(step_refs, field_name="application_step_rows")
+        indices = [row.step_index for row in self.application_step_rows]
+        if indices != sorted(indices):
+            raise ValueError("application step rows must be sorted by step_index")
+        if indices != list(range(len(indices))):
+            raise ValueError("application step rows must use contiguous step_index values")
+        return self
+
+
 def _excluded_refs_by_category(
     manifest: ProgrambenchReconstructionContextExclusionManifest,
 ) -> dict[str, list[str]]:
@@ -685,3 +1026,96 @@ def validate_pb_attempt_0a_attempt_bundle(
 
     if guardrail.attempt_request_ref != attempt_request.attempt_request_ref:
         raise ValueError("guardrail must reference attempt request")
+
+
+def validate_pb_attempt_0b_invocation_bundle(
+    *,
+    attempt_request: ProgrambenchReconstructionAttemptRequest,
+    worker_input_packet: ProgrambenchReconstructionAttemptWorkerInputPacket,
+    dispatch_preflight: ProgrambenchReconstructionAttemptDispatchPreflight,
+    guardrail: ProgrambenchReconstructionAttemptNonAuthorityGuardrail,
+    sandbox_policy: ProgrambenchReconstructionSandboxPolicy,
+    run_budget: ProgrambenchReconstructionRunBudget,
+    worker_invocation_record: ProgrambenchReconstructionAttemptWorkerInvocationRecord,
+    output_capture: ProgrambenchReconstructionAttemptOutputCapture,
+    candidate_materialization: ProgrambenchReconstructionAttemptCandidateMaterialization,
+    sandbox_application_trace: ProgrambenchReconstructionAttemptSandboxApplicationTrace,
+) -> None:
+    if worker_input_packet.attempt_request_ref != attempt_request.attempt_request_ref:
+        raise ValueError("worker input packet must reference attempt request")
+    if dispatch_preflight.attempt_request_ref != attempt_request.attempt_request_ref:
+        raise ValueError("dispatch preflight must reference attempt request")
+    if dispatch_preflight.worker_input_packet_ref != worker_input_packet.worker_input_packet_ref:
+        raise ValueError("dispatch preflight must reference worker input packet")
+    if dispatch_preflight.guardrail_ref != guardrail.guardrail_ref:
+        raise ValueError("dispatch preflight must reference guardrail")
+    if guardrail.attempt_request_ref != attempt_request.attempt_request_ref:
+        raise ValueError("guardrail must reference attempt request")
+    if dispatch_preflight.preflight_posture != ("preflight_passed_for_later_local_attempt_review"):
+        raise ValueError("PB-ATTEMPT-0-B invocation requires a passed A preflight")
+
+    if worker_invocation_record.attempt_request_ref != attempt_request.attempt_request_ref:
+        raise ValueError("worker invocation must reference attempt request")
+    if worker_invocation_record.worker_input_packet_ref != (
+        worker_input_packet.worker_input_packet_ref
+    ):
+        raise ValueError("worker invocation must reference worker input packet")
+    if worker_invocation_record.dispatch_preflight_ref != dispatch_preflight.dispatch_preflight_ref:
+        raise ValueError("worker invocation must reference dispatch preflight")
+    if worker_invocation_record.worker_profile_ref != attempt_request.worker_profile_ref:
+        raise ValueError("worker invocation must preserve worker profile")
+    if worker_invocation_record.input_packet_hash != worker_input_packet.worker_input_manifest_hash:
+        raise ValueError("worker invocation input hash must match worker input packet manifest")
+
+    if output_capture.worker_invocation_ref != worker_invocation_record.worker_invocation_ref:
+        raise ValueError("output capture must reference worker invocation")
+    if output_capture.attempt_request_ref != attempt_request.attempt_request_ref:
+        raise ValueError("output capture must reference attempt request")
+
+    if output_capture.forbidden_content_screening_posture != "passed":
+        raise ValueError("candidate materialization requires passed forbidden-content screening")
+    if (
+        output_capture.candidate_materialization_authority_posture
+        != "candidate_materialization_allowed_after_screening_passed"
+    ):
+        raise ValueError("candidate materialization requires screening-passed authority posture")
+
+    if candidate_materialization.attempt_request_ref != attempt_request.attempt_request_ref:
+        raise ValueError("candidate materialization must reference attempt request")
+    if candidate_materialization.output_capture_ref != output_capture.output_capture_ref:
+        raise ValueError("candidate materialization must reference output capture")
+    if candidate_materialization.sandbox_policy_ref != sandbox_policy.sandbox_policy_ref:
+        raise ValueError("candidate materialization must reference sandbox policy")
+    if candidate_materialization.sandbox_policy_ref != attempt_request.sandbox_policy_ref:
+        raise ValueError("candidate materialization must preserve attempt sandbox policy")
+    if len(candidate_materialization.materialized_file_rows) > (
+        run_budget.max_candidate_artifact_count
+    ):
+        raise ValueError("candidate materialization exceeds candidate artifact budget")
+    allowed_write_scope_refs = set(sandbox_policy.allowed_write_scope_refs)
+    if candidate_materialization.write_scope_ref not in allowed_write_scope_refs:
+        raise ValueError("candidate materialization write scope must be allowed by sandbox policy")
+    row_write_scope_refs = {
+        row.write_scope_ref for row in candidate_materialization.materialized_file_rows
+    }
+    unallowed_write_scope_refs = row_write_scope_refs - allowed_write_scope_refs
+    if unallowed_write_scope_refs:
+        raise ValueError(
+            "candidate materialization file write scopes must be allowed by sandbox policy: "
+            f"{sorted(unallowed_write_scope_refs)}"
+        )
+
+    if sandbox_application_trace.attempt_request_ref != attempt_request.attempt_request_ref:
+        raise ValueError("sandbox trace must reference attempt request")
+    if sandbox_application_trace.candidate_materialization_ref != (
+        candidate_materialization.candidate_materialization_ref
+    ):
+        raise ValueError("sandbox trace must reference candidate materialization")
+    if sandbox_application_trace.sandbox_policy_ref != sandbox_policy.sandbox_policy_ref:
+        raise ValueError("sandbox trace must reference sandbox policy")
+    if sandbox_application_trace.run_budget_ref != run_budget.run_budget_ref:
+        raise ValueError("sandbox trace must reference run budget")
+    if sandbox_application_trace.sandbox_policy_ref != attempt_request.sandbox_policy_ref:
+        raise ValueError("sandbox trace must preserve attempt sandbox policy")
+    if sandbox_application_trace.run_budget_ref != attempt_request.run_budget_ref:
+        raise ValueError("sandbox trace must preserve attempt run budget")
