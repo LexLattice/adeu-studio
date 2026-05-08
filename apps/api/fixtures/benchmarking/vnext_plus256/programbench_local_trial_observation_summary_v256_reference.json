@@ -1,0 +1,72 @@
+{
+  "benchmark_truth_posture": "not_benchmark_truth",
+  "comparison_authority_posture": "no_comparison_authority_granted_by_pb_trial_0c",
+  "limitation_note": "Reference summary describes one local cleanroom trial only and carries no comparison or benchmark authority.",
+  "limitation_rows": [
+    {
+      "limitation_kind": "hidden_tests_not_consulted",
+      "limitation_note": "Hidden tests were not visible and are not inference evidence.",
+      "limitation_posture": "declared",
+      "limitation_ref": "limitation:pb-trial-0c:hidden-tests"
+    },
+    {
+      "limitation_kind": "local_trial_only",
+      "limitation_note": "The observation is scoped to one local trial specimen.",
+      "limitation_posture": "declared",
+      "limitation_ref": "limitation:pb-trial-0c:local-only"
+    },
+    {
+      "limitation_kind": "no_model_comparison",
+      "limitation_note": "No model comparison or ranking is claimed.",
+      "limitation_posture": "declared",
+      "limitation_ref": "limitation:pb-trial-0c:model-comparison"
+    },
+    {
+      "limitation_kind": "not_benchmark_truth",
+      "limitation_note": "Local acceptance is not benchmark truth.",
+      "limitation_posture": "declared",
+      "limitation_ref": "limitation:pb-trial-0c:not-benchmark-truth"
+    }
+  ],
+  "model_ranking_posture": "no_model_ranking_claimed_by_pb_trial_0c",
+  "observation_rows": [
+    {
+      "evidence_refs": [
+        "candidate-snapshot:pb-trial-0b:reference"
+      ],
+      "limitation_note": "The local candidate snapshot exists inside released write scope.",
+      "observation_kind": "candidate_snapshot_observed",
+      "observation_ref": "observation:pb-trial-0c:candidate-snapshot",
+      "observation_scope_posture": "single_local_trial_only",
+      "observation_text": "candidate snapshot was observed inside released write scope"
+    },
+    {
+      "evidence_refs": [
+        "trial-outcome-audit:pb-trial-0c:reference"
+      ],
+      "limitation_note": "The outcome audit is locally accepted only.",
+      "observation_kind": "local_outcome_observed",
+      "observation_ref": "observation:pb-trial-0c:local-outcome",
+      "observation_scope_posture": "single_local_trial_only",
+      "observation_text": "local outcome audit accepted the single trial against declared local evidence"
+    },
+    {
+      "evidence_refs": [
+        "trial-docket:pb-trial-0a:reference"
+      ],
+      "limitation_note": "The summary is scoped to one trial docket.",
+      "observation_kind": "single_trial_scope_observed",
+      "observation_ref": "observation:pb-trial-0c:scope",
+      "observation_scope_posture": "single_local_trial_only",
+      "observation_text": "single local trial scope was preserved"
+    }
+  ],
+  "observed_candidate_snapshot_hash": "sha256:4444444444444444444444444444444444444444444444444444444444444444",
+  "observed_input_packet_hash": "sha256:3333333333333333333333333333333333333333333333333333333333333333",
+  "observed_result_posture": "trial_locally_accepted",
+  "schema": "programbench_local_trial_observation_summary@1",
+  "single_trial_scope_posture": "single_local_trial_only_no_comparison",
+  "trial_docket_ref": "trial-docket:pb-trial-0a:reference",
+  "trial_observation_summary_ref": "trial-observation-summary:pb-trial-0c:reference",
+  "trial_outcome_audit_ref": "trial-outcome-audit:pb-trial-0c:reference"
+}

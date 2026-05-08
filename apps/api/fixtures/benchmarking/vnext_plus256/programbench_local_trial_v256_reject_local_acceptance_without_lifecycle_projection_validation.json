@@ -1,0 +1,61 @@
+{
+  "benchmark_truth_posture": "not_benchmark_truth",
+  "candidate_artifact_snapshot_ref": "candidate-snapshot:pb-trial-0b:reference",
+  "carried_blocker_refs": [],
+  "carried_warning_refs": [],
+  "hidden_test_equivalence_posture": "no_hidden_test_equivalence_claimed_by_pb_trial_0c",
+  "limitation_note": "Reject fixture: local acceptance lacks lifecycle projection evidence.",
+  "local_evidence_rows": [
+    {
+      "evidence_kind": "candidate_snapshot_inside_write_scope",
+      "evidence_posture": "local_trial_evidence_only",
+      "limitation_note": "Candidate snapshot stayed inside the released local write scope.",
+      "local_evidence_ref": "local-evidence:pb-trial-0c:candidate-snapshot",
+      "source_refs": [
+        "candidate-snapshot:pb-trial-0b:reference"
+      ]
+    },
+    {
+      "evidence_kind": "execution_capture_available",
+      "evidence_posture": "local_trial_evidence_only",
+      "limitation_note": "Execution capture is present.",
+      "local_evidence_ref": "local-evidence:pb-trial-0c:execution-capture",
+      "source_refs": [
+        "trial-execution-capture:pb-trial-0b:reference"
+      ]
+    }
+  ],
+  "local_outcome_posture": "trial_locally_accepted",
+  "model_ranking_posture": "no_model_ranking_claimed_by_pb_trial_0c",
+  "official_submission_posture": "no_official_submission_authority_by_pb_trial_0c",
+  "runbook_satisfaction_rows": [
+    {
+      "evidence_refs": [
+        "trial-runbook:pb-trial-0a:reference"
+      ],
+      "limitation_note": "Passed row.",
+      "runbook_satisfaction_ref": "runbook-satisfaction:pb-trial-0c:capture-obligations",
+      "satisfaction_kind": "capture_obligations_satisfied",
+      "satisfaction_posture": "passed"
+    }
+  ],
+  "sandbox_readiness_review_ref": "sandbox-readiness:pb-trial-0a:reference",
+  "sandbox_satisfaction_rows": [
+    {
+      "evidence_refs": [
+        "candidate-snapshot:pb-trial-0b:reference"
+      ],
+      "limitation_note": "Passed row.",
+      "sandbox_satisfaction_ref": "sandbox-satisfaction:pb-trial-0c:write-scope",
+      "satisfaction_kind": "write_scope_satisfied",
+      "satisfaction_posture": "passed"
+    }
+  ],
+  "schema": "programbench_local_trial_outcome_audit@1",
+  "trial_docket_ref": "trial-docket:pb-trial-0a:reference",
+  "trial_execution_capture_ref": "trial-execution-capture:pb-trial-0b:reference",
+  "trial_lifecycle_projection_ref": "trial-lifecycle-projection:pb-trial-0b:reference",
+  "trial_outcome_audit_ref": "trial-outcome-audit:pb-trial-0c:reference",
+  "trial_runbook_ref": "trial-runbook:pb-trial-0a:reference",
+  "trial_worker_dispatch_ref": "trial-dispatch:pb-trial-0b:reference"
+}

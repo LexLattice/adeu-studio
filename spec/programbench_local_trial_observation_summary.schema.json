@@ -1,0 +1,188 @@
+{
+  "$defs": {
+    "ProgrambenchLocalTrialLimitationRow": {
+      "additionalProperties": false,
+      "properties": {
+        "limitation_kind": {
+          "enum": [
+            "hidden_tests_not_consulted",
+            "local_trial_only",
+            "no_model_comparison",
+            "not_benchmark_truth"
+          ],
+          "title": "Limitation Kind",
+          "type": "string"
+        },
+        "limitation_note": {
+          "title": "Limitation Note",
+          "type": "string"
+        },
+        "limitation_posture": {
+          "const": "declared",
+          "title": "Limitation Posture",
+          "type": "string"
+        },
+        "limitation_ref": {
+          "title": "Limitation Ref",
+          "type": "string"
+        }
+      },
+      "required": [
+        "limitation_ref",
+        "limitation_kind",
+        "limitation_posture",
+        "limitation_note"
+      ],
+      "title": "ProgrambenchLocalTrialLimitationRow",
+      "type": "object"
+    },
+    "ProgrambenchLocalTrialObservationRow": {
+      "additionalProperties": false,
+      "properties": {
+        "evidence_refs": {
+          "items": {
+            "type": "string"
+          },
+          "minItems": 1,
+          "title": "Evidence Refs",
+          "type": "array"
+        },
+        "limitation_note": {
+          "title": "Limitation Note",
+          "type": "string"
+        },
+        "observation_kind": {
+          "enum": [
+            "candidate_snapshot_observed",
+            "local_outcome_observed",
+            "single_trial_scope_observed"
+          ],
+          "title": "Observation Kind",
+          "type": "string"
+        },
+        "observation_ref": {
+          "title": "Observation Ref",
+          "type": "string"
+        },
+        "observation_scope_posture": {
+          "const": "single_local_trial_only",
+          "title": "Observation Scope Posture",
+          "type": "string"
+        },
+        "observation_text": {
+          "maxLength": 320,
+          "title": "Observation Text",
+          "type": "string"
+        }
+      },
+      "required": [
+        "observation_ref",
+        "observation_kind",
+        "observation_text",
+        "observation_scope_posture",
+        "evidence_refs",
+        "limitation_note"
+      ],
+      "title": "ProgrambenchLocalTrialObservationRow",
+      "type": "object"
+    }
+  },
+  "additionalProperties": false,
+  "properties": {
+    "benchmark_truth_posture": {
+      "const": "not_benchmark_truth",
+      "title": "Benchmark Truth Posture",
+      "type": "string"
+    },
+    "comparison_authority_posture": {
+      "const": "no_comparison_authority_granted_by_pb_trial_0c",
+      "title": "Comparison Authority Posture",
+      "type": "string"
+    },
+    "limitation_note": {
+      "title": "Limitation Note",
+      "type": "string"
+    },
+    "limitation_rows": {
+      "items": {
+        "$ref": "#/$defs/ProgrambenchLocalTrialLimitationRow"
+      },
+      "minItems": 1,
+      "title": "Limitation Rows",
+      "type": "array"
+    },
+    "model_ranking_posture": {
+      "const": "no_model_ranking_claimed_by_pb_trial_0c",
+      "title": "Model Ranking Posture",
+      "type": "string"
+    },
+    "observation_rows": {
+      "items": {
+        "$ref": "#/$defs/ProgrambenchLocalTrialObservationRow"
+      },
+      "minItems": 1,
+      "title": "Observation Rows",
+      "type": "array"
+    },
+    "observed_candidate_snapshot_hash": {
+      "title": "Observed Candidate Snapshot Hash",
+      "type": "string"
+    },
+    "observed_input_packet_hash": {
+      "title": "Observed Input Packet Hash",
+      "type": "string"
+    },
+    "observed_result_posture": {
+      "enum": [
+        "trial_blocked_by_lifecycle_projection_gap",
+        "trial_blocked_by_output_capture_gap",
+        "trial_blocked_by_sandbox_violation",
+        "trial_inconclusive_local_only",
+        "trial_locally_accepted",
+        "trial_remand_recommended"
+      ],
+      "title": "Observed Result Posture",
+      "type": "string"
+    },
+    "schema": {
+      "const": "programbench_local_trial_observation_summary@1",
+      "title": "Schema",
+      "type": "string"
+    },
+    "single_trial_scope_posture": {
+      "const": "single_local_trial_only_no_comparison",
+      "title": "Single Trial Scope Posture",
+      "type": "string"
+    },
+    "trial_docket_ref": {
+      "title": "Trial Docket Ref",
+      "type": "string"
+    },
+    "trial_observation_summary_ref": {
+      "title": "Trial Observation Summary Ref",
+      "type": "string"
+    },
+    "trial_outcome_audit_ref": {
+      "title": "Trial Outcome Audit Ref",
+      "type": "string"
+    }
+  },
+  "required": [
+    "schema",
+    "trial_observation_summary_ref",
+    "trial_outcome_audit_ref",
+    "trial_docket_ref",
+    "observed_input_packet_hash",
+    "observed_candidate_snapshot_hash",
+    "observed_result_posture",
+    "observation_rows",
+    "limitation_rows",
+    "single_trial_scope_posture",
+    "benchmark_truth_posture",
+    "model_ranking_posture",
+    "comparison_authority_posture",
+    "limitation_note"
+  ],
+  "title": "ProgrambenchLocalTrialObservationSummary",
+  "type": "object"
+}

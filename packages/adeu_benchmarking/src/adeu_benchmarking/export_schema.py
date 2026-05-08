@@ -166,16 +166,24 @@ from .programbench_cleanroom_trial import (
     PROGRAMBENCH_LOCAL_TRIAL_CANDIDATE_ARTIFACT_SNAPSHOT_SCHEMA,
     PROGRAMBENCH_LOCAL_TRIAL_EXECUTION_CAPTURE_SCHEMA,
     PROGRAMBENCH_LOCAL_TRIAL_EXECUTION_RUNBOOK_SCHEMA,
+    PROGRAMBENCH_LOCAL_TRIAL_FAMILY_CLOSEOUT_ALIGNMENT_SCHEMA,
     PROGRAMBENCH_LOCAL_TRIAL_LIFECYCLE_PROJECTION_SCHEMA,
     PROGRAMBENCH_LOCAL_TRIAL_NON_AUTHORITY_GUARDRAIL_SCHEMA,
+    PROGRAMBENCH_LOCAL_TRIAL_OBSERVATION_SUMMARY_SCHEMA,
+    PROGRAMBENCH_LOCAL_TRIAL_OUTCOME_AUDIT_SCHEMA,
+    PROGRAMBENCH_LOCAL_TRIAL_REMAND_DECISION_SCHEMA,
     PROGRAMBENCH_LOCAL_TRIAL_SANDBOX_READINESS_REVIEW_SCHEMA,
     PROGRAMBENCH_LOCAL_TRIAL_WORKER_DISPATCH_RECORD_SCHEMA,
     ProgrambenchLocalReconstructionTrialDocket,
     ProgrambenchLocalTrialCandidateArtifactSnapshot,
     ProgrambenchLocalTrialExecutionCapture,
     ProgrambenchLocalTrialExecutionRunbook,
+    ProgrambenchLocalTrialFamilyCloseoutAlignment,
     ProgrambenchLocalTrialLifecycleProjection,
     ProgrambenchLocalTrialNonAuthorityGuardrail,
+    ProgrambenchLocalTrialObservationSummary,
+    ProgrambenchLocalTrialOutcomeAudit,
+    ProgrambenchLocalTrialRemandDecision,
     ProgrambenchLocalTrialSandboxReadinessReview,
     ProgrambenchLocalTrialWorkerDispatchRecord,
 )
@@ -1050,6 +1058,48 @@ def main() -> None:
             / "schema"
             / "programbench_local_trial_lifecycle_projection.v1.json",
             root / "spec" / "programbench_local_trial_lifecycle_projection.schema.json",
+        ),
+        (
+            ProgrambenchLocalTrialOutcomeAudit,
+            PROGRAMBENCH_LOCAL_TRIAL_OUTCOME_AUDIT_SCHEMA,
+            root
+            / "packages"
+            / "adeu_benchmarking"
+            / "schema"
+            / "programbench_local_trial_outcome_audit.v1.json",
+            root / "spec" / "programbench_local_trial_outcome_audit.schema.json",
+        ),
+        (
+            ProgrambenchLocalTrialObservationSummary,
+            PROGRAMBENCH_LOCAL_TRIAL_OBSERVATION_SUMMARY_SCHEMA,
+            root
+            / "packages"
+            / "adeu_benchmarking"
+            / "schema"
+            / "programbench_local_trial_observation_summary.v1.json",
+            root / "spec" / "programbench_local_trial_observation_summary.schema.json",
+        ),
+        (
+            ProgrambenchLocalTrialRemandDecision,
+            PROGRAMBENCH_LOCAL_TRIAL_REMAND_DECISION_SCHEMA,
+            root
+            / "packages"
+            / "adeu_benchmarking"
+            / "schema"
+            / "programbench_local_trial_remand_decision.v1.json",
+            root / "spec" / "programbench_local_trial_remand_decision.schema.json",
+        ),
+        (
+            ProgrambenchLocalTrialFamilyCloseoutAlignment,
+            PROGRAMBENCH_LOCAL_TRIAL_FAMILY_CLOSEOUT_ALIGNMENT_SCHEMA,
+            root
+            / "packages"
+            / "adeu_benchmarking"
+            / "schema"
+            / "programbench_local_trial_family_closeout_alignment.v1.json",
+            root
+            / "spec"
+            / "programbench_local_trial_family_closeout_alignment.schema.json",
         ),
     ]
 

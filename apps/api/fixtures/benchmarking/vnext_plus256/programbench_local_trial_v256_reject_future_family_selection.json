@@ -1,0 +1,36 @@
+{
+  "benchmark_truth_non_authority_posture": "not_benchmark_truth",
+  "candidate_artifact_snapshot_refs": [
+    "candidate-snapshot:pb-trial-0b:reference"
+  ],
+  "closed_family_ref": "PB-TRIAL-0",
+  "closed_slice_refs": [
+    "PB-TRIAL-0-A",
+    "PB-TRIAL-0-B",
+    "PB-TRIAL-0-C"
+  ],
+  "family_alignment_posture": "pb_trial_0_closed_local_trial_only",
+  "family_closeout_ref": "family-closeout:pb-trial-0c:reference",
+  "future_family_selection_posture": "future_family_selected",
+  "hidden_test_non_inference_posture": "hidden_tests_not_inference_evidence",
+  "limitation_note": "Reject fixture: family closeout cannot select the next family.",
+  "model_ranking_non_authority_posture": "no_model_ranking_claimed_by_pb_trial_0c",
+  "official_programbench_non_authority_posture": "no_official_programbench_authority_by_pb_trial_0c",
+  "retry_authority_posture": "no_retry_authority_granted_by_pb_trial_0c",
+  "schema": "programbench_local_trial_family_closeout_alignment@1",
+  "trial_docket_refs": [
+    "trial-docket:pb-trial-0a:reference"
+  ],
+  "trial_execution_capture_refs": [
+    "trial-execution-capture:pb-trial-0b:reference"
+  ],
+  "trial_observation_summary_refs": [
+    "trial-observation-summary:pb-trial-0c:reference"
+  ],
+  "trial_outcome_audit_refs": [
+    "trial-outcome-audit:pb-trial-0c:reference"
+  ],
+  "trial_remand_decision_refs": [
+    "trial-remand-decision:pb-trial-0c:reference"
+  ]
+}

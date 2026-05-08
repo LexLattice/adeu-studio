@@ -1,0 +1,136 @@
+{
+  "additionalProperties": false,
+  "properties": {
+    "benchmark_truth_non_authority_posture": {
+      "const": "not_benchmark_truth",
+      "title": "Benchmark Truth Non Authority Posture",
+      "type": "string"
+    },
+    "candidate_artifact_snapshot_refs": {
+      "items": {
+        "type": "string"
+      },
+      "minItems": 1,
+      "title": "Candidate Artifact Snapshot Refs",
+      "type": "array"
+    },
+    "closed_family_ref": {
+      "const": "PB-TRIAL-0",
+      "title": "Closed Family Ref",
+      "type": "string"
+    },
+    "closed_slice_refs": {
+      "items": {
+        "type": "string"
+      },
+      "minItems": 1,
+      "title": "Closed Slice Refs",
+      "type": "array"
+    },
+    "family_alignment_posture": {
+      "const": "pb_trial_0_closed_local_trial_only",
+      "title": "Family Alignment Posture",
+      "type": "string"
+    },
+    "family_closeout_ref": {
+      "title": "Family Closeout Ref",
+      "type": "string"
+    },
+    "future_family_selection_posture": {
+      "const": "no_future_family_selected_by_pb_trial_0c",
+      "title": "Future Family Selection Posture",
+      "type": "string"
+    },
+    "hidden_test_non_inference_posture": {
+      "const": "hidden_tests_not_inference_evidence",
+      "title": "Hidden Test Non Inference Posture",
+      "type": "string"
+    },
+    "limitation_note": {
+      "title": "Limitation Note",
+      "type": "string"
+    },
+    "model_ranking_non_authority_posture": {
+      "const": "no_model_ranking_claimed_by_pb_trial_0c",
+      "title": "Model Ranking Non Authority Posture",
+      "type": "string"
+    },
+    "official_programbench_non_authority_posture": {
+      "const": "no_official_programbench_authority_by_pb_trial_0c",
+      "title": "Official Programbench Non Authority Posture",
+      "type": "string"
+    },
+    "retry_authority_posture": {
+      "const": "no_retry_authority_granted_by_pb_trial_0c",
+      "title": "Retry Authority Posture",
+      "type": "string"
+    },
+    "schema": {
+      "const": "programbench_local_trial_family_closeout_alignment@1",
+      "title": "Schema",
+      "type": "string"
+    },
+    "trial_docket_refs": {
+      "items": {
+        "type": "string"
+      },
+      "minItems": 1,
+      "title": "Trial Docket Refs",
+      "type": "array"
+    },
+    "trial_execution_capture_refs": {
+      "items": {
+        "type": "string"
+      },
+      "minItems": 1,
+      "title": "Trial Execution Capture Refs",
+      "type": "array"
+    },
+    "trial_observation_summary_refs": {
+      "items": {
+        "type": "string"
+      },
+      "minItems": 1,
+      "title": "Trial Observation Summary Refs",
+      "type": "array"
+    },
+    "trial_outcome_audit_refs": {
+      "items": {
+        "type": "string"
+      },
+      "minItems": 1,
+      "title": "Trial Outcome Audit Refs",
+      "type": "array"
+    },
+    "trial_remand_decision_refs": {
+      "items": {
+        "type": "string"
+      },
+      "minItems": 1,
+      "title": "Trial Remand Decision Refs",
+      "type": "array"
+    }
+  },
+  "required": [
+    "schema",
+    "family_closeout_ref",
+    "closed_family_ref",
+    "closed_slice_refs",
+    "trial_docket_refs",
+    "trial_execution_capture_refs",
+    "candidate_artifact_snapshot_refs",
+    "trial_outcome_audit_refs",
+    "trial_observation_summary_refs",
+    "trial_remand_decision_refs",
+    "family_alignment_posture",
+    "official_programbench_non_authority_posture",
+    "hidden_test_non_inference_posture",
+    "benchmark_truth_non_authority_posture",
+    "model_ranking_non_authority_posture",
+    "retry_authority_posture",
+    "future_family_selection_posture",
+    "limitation_note"
+  ],
+  "title": "ProgrambenchLocalTrialFamilyCloseoutAlignment",
+  "type": "object"
+}

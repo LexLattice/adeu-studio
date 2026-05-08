@@ -1,0 +1,132 @@
+{
+  "$defs": {
+    "ProgrambenchLocalTrialRemandDecisionRow": {
+      "additionalProperties": false,
+      "properties": {
+        "evidence_refs": {
+          "items": {
+            "type": "string"
+          },
+          "minItems": 1,
+          "title": "Evidence Refs",
+          "type": "array"
+        },
+        "limitation_note": {
+          "title": "Limitation Note",
+          "type": "string"
+        },
+        "remand_decision_row_ref": {
+          "title": "Remand Decision Row Ref",
+          "type": "string"
+        },
+        "remand_posture": {
+          "const": "local_pressure_only_no_retry_authority",
+          "title": "Remand Posture",
+          "type": "string"
+        },
+        "remand_source_kind": {
+          "enum": [
+            "local_candidate_snapshot_gap",
+            "local_evidence_inconclusive",
+            "local_execution_capture_gap",
+            "local_lifecycle_projection_gap",
+            "runbook_satisfaction_gap",
+            "sandbox_readiness_or_application_gap",
+            "worker_declared_uncertainty"
+          ],
+          "title": "Remand Source Kind",
+          "type": "string"
+        }
+      },
+      "required": [
+        "remand_decision_row_ref",
+        "remand_source_kind",
+        "remand_posture",
+        "evidence_refs",
+        "limitation_note"
+      ],
+      "title": "ProgrambenchLocalTrialRemandDecisionRow",
+      "type": "object"
+    }
+  },
+  "additionalProperties": false,
+  "properties": {
+    "future_family_selection_posture": {
+      "const": "no_future_family_selected_by_pb_trial_0c",
+      "title": "Future Family Selection Posture",
+      "type": "string"
+    },
+    "hidden_test_diagnostic_posture": {
+      "const": "hidden_tests_not_used_as_diagnostics",
+      "title": "Hidden Test Diagnostic Posture",
+      "type": "string"
+    },
+    "limitation_note": {
+      "title": "Limitation Note",
+      "type": "string"
+    },
+    "remand_decision_rows": {
+      "items": {
+        "$ref": "#/$defs/ProgrambenchLocalTrialRemandDecisionRow"
+      },
+      "title": "Remand Decision Rows",
+      "type": "array"
+    },
+    "remand_source_kinds": {
+      "items": {
+        "enum": [
+          "local_candidate_snapshot_gap",
+          "local_evidence_inconclusive",
+          "local_execution_capture_gap",
+          "local_lifecycle_projection_gap",
+          "runbook_satisfaction_gap",
+          "sandbox_readiness_or_application_gap",
+          "worker_declared_uncertainty"
+        ],
+        "type": "string"
+      },
+      "title": "Remand Source Kinds",
+      "type": "array"
+    },
+    "retry_authority_posture": {
+      "const": "no_retry_authority_granted_by_pb_trial_0c",
+      "title": "Retry Authority Posture",
+      "type": "string"
+    },
+    "schema": {
+      "const": "programbench_local_trial_remand_decision@1",
+      "title": "Schema",
+      "type": "string"
+    },
+    "source_lookup_posture": {
+      "const": "source_lookup_forbidden_by_pb_trial_0c",
+      "title": "Source Lookup Posture",
+      "type": "string"
+    },
+    "trial_observation_summary_ref": {
+      "title": "Trial Observation Summary Ref",
+      "type": "string"
+    },
+    "trial_outcome_audit_ref": {
+      "title": "Trial Outcome Audit Ref",
+      "type": "string"
+    },
+    "trial_remand_decision_ref": {
+      "title": "Trial Remand Decision Ref",
+      "type": "string"
+    }
+  },
+  "required": [
+    "schema",
+    "trial_remand_decision_ref",
+    "trial_outcome_audit_ref",
+    "trial_observation_summary_ref",
+    "retry_authority_posture",
+    "hidden_test_diagnostic_posture",
+    "source_lookup_posture",
+    "future_family_selection_posture",
+    "limitation_note"
+  ],
+  "title": "ProgrambenchLocalTrialRemandDecision",
+  "type": "object"
+}
