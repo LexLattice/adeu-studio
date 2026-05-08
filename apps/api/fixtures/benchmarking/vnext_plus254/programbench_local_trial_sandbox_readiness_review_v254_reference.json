@@ -1,0 +1,111 @@
+{
+  "budget_readiness_posture": "run_budget_bound",
+  "decompilation_readiness_posture": "decompilation_disabled",
+  "docker_socket_readiness_posture": "docker_socket_absent",
+  "execution_authority_posture": "no_command_execution_authority_granted_by_pb_trial_0a",
+  "host_secret_readiness_posture": "host_secrets_absent",
+  "limitation_note": "Reference readiness review is ready for later execution review but grants no command authority in A.",
+  "network_readiness_posture": "network_disabled",
+  "readiness_check_rows": [
+    {
+      "check_kind": "bounded_write_scope",
+      "check_posture": "passed",
+      "evidence_refs": [
+        "sandbox-policy:pb-recon-0a:reference"
+      ],
+      "limitation_note": "The later trial must stay inside the released bounded write scope.",
+      "readiness_check_ref": "readiness-check:pb-trial-0a:bounded-write",
+      "witness_requirement_ref": "bounded_write_scope"
+    },
+    {
+      "check_kind": "closed_tool_manifest",
+      "check_posture": "passed",
+      "evidence_refs": [
+        "tool-manifest:pb-trial-0a:closed"
+      ],
+      "limitation_note": "The tool manifest is closed for later execution review.",
+      "readiness_check_ref": "readiness-check:pb-trial-0a:closed-tool-manifest",
+      "witness_requirement_ref": "closed_tool_manifest"
+    },
+    {
+      "check_kind": "network_disabled",
+      "check_posture": "passed",
+      "evidence_refs": [
+        "sandbox-policy:pb-recon-0a:reference"
+      ],
+      "limitation_note": "Network access must be disabled.",
+      "readiness_check_ref": "readiness-check:pb-trial-0a:network",
+      "witness_requirement_ref": "network_disabled"
+    },
+    {
+      "check_kind": "decompilation_disabled",
+      "check_posture": "passed",
+      "evidence_refs": [
+        "guardrail:pb-trial-0a:reference"
+      ],
+      "limitation_note": "Decompilation remains forbidden.",
+      "readiness_check_ref": "readiness-check:pb-trial-0a:no-decompilation",
+      "witness_requirement_ref": "decompilation_disabled"
+    },
+    {
+      "check_kind": "docker_socket_absent",
+      "check_posture": "passed",
+      "evidence_refs": [
+        "sandbox-policy:pb-recon-0a:reference"
+      ],
+      "limitation_note": "Docker socket access must be absent.",
+      "readiness_check_ref": "readiness-check:pb-trial-0a:no-docker",
+      "witness_requirement_ref": "docker_socket_absent"
+    },
+    {
+      "check_kind": "host_secrets_absent",
+      "check_posture": "passed",
+      "evidence_refs": [
+        "sandbox-policy:pb-recon-0a:reference"
+      ],
+      "limitation_note": "Host secrets must be absent.",
+      "readiness_check_ref": "readiness-check:pb-trial-0a:no-secrets",
+      "witness_requirement_ref": "host_secrets_absent"
+    },
+    {
+      "check_kind": "source_lookup_disabled",
+      "check_posture": "passed",
+      "evidence_refs": [
+        "guardrail:pb-trial-0a:reference"
+      ],
+      "limitation_note": "Source lookup remains disabled.",
+      "readiness_check_ref": "readiness-check:pb-trial-0a:no-source-lookup",
+      "witness_requirement_ref": "source_lookup_disabled"
+    },
+    {
+      "check_kind": "run_budget_bound",
+      "check_posture": "passed",
+      "evidence_refs": [
+        "run-budget:pb-recon-0a:reference"
+      ],
+      "limitation_note": "Run budget is bound for later execution review.",
+      "readiness_check_ref": "readiness-check:pb-trial-0a:run-budget",
+      "witness_requirement_ref": "run_budget_bound"
+    }
+  ],
+  "readiness_posture": "ready_for_later_local_trial_execution_review",
+  "run_budget_ref": "run-budget:pb-recon-0a:reference",
+  "sandbox_policy_ref": "sandbox-policy:pb-recon-0a:reference",
+  "sandbox_readiness_review_ref": "sandbox-readiness:pb-trial-0a:reference",
+  "sandbox_witness_requirement_refs": [
+    "bounded_write_scope",
+    "closed_tool_manifest",
+    "decompilation_disabled",
+    "docker_socket_absent",
+    "host_secrets_absent",
+    "network_disabled",
+    "run_budget_bound",
+    "source_lookup_disabled"
+  ],
+  "schema": "programbench_local_trial_sandbox_readiness_review@1",
+  "source_lookup_readiness_posture": "source_lookup_disabled",
+  "tool_manifest_readiness_posture": "closed_tool_manifest",
+  "trial_docket_ref": "trial-docket:pb-trial-0a:reference",
+  "trial_runbook_ref": "trial-runbook:pb-trial-0a:reference",
+  "write_scope_readiness_posture": "bounded_write_scope"
+}

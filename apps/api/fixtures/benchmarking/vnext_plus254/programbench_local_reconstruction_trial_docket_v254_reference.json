@@ -1,0 +1,26 @@
+{
+  "attempt_family_closeout_ref": "family-closeout:pb-attempt-0c:reference",
+  "attempt_guardrail_ref": "guardrail:pb-attempt-0a:reference",
+  "attempt_request_ref": "attempt-request:pb-attempt-0a:reference",
+  "benchmark_truth_posture": "not_benchmark_truth",
+  "case_packet_refs": [
+    "case-packet:pb-adapter-0c:reference"
+  ],
+  "dispatch_preflight_ref": "dispatch-preflight:pb-attempt-0a:reference",
+  "future_family_selection_posture": "no_future_family_selected_by_pb_trial_0a",
+  "limitation_note": "Reference trial docket selects one released local attempt lifecycle package and records prior attempt result review only as lifecycle context.",
+  "model_ranking_posture": "no_model_ranking_claimed_by_pb_trial_0a",
+  "official_programbench_posture": "no_official_programbench_participation_by_pb_trial_0a",
+  "prior_attempt_result_review_context_ref": "attempt-result-review:pb-attempt-0c:reference",
+  "retry_authority_posture": "no_retry_authority_granted_by_pb_trial_0a",
+  "schema": "programbench_local_reconstruction_trial_docket@1",
+  "trial_cardinality_posture": "single_trial_only",
+  "trial_docket_ref": "trial-docket:pb-trial-0a:reference",
+  "trial_purpose": "single_local_cleanroom_reconstruction_trial",
+  "workbench_lineage_refs": [
+    "family-closeout:pb-recon-0c:reference",
+    "work-order:pb-recon-0a:reference"
+  ],
+  "worker_input_packet_ref": "worker-input:pb-attempt-0a:reference",
+  "worker_profile_ref": "worker-profile:pb-attempt-0a:cleanroom-resident"
+}

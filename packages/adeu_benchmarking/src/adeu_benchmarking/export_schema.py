@@ -161,6 +161,16 @@ from .programbench_cleanroom_reconstruction import (
     ProgrambenchReconstructionWorkerContextPacket,
     ProgrambenchReconstructionWorkOrder,
 )
+from .programbench_cleanroom_trial import (
+    PROGRAMBENCH_LOCAL_RECONSTRUCTION_TRIAL_DOCKET_SCHEMA,
+    PROGRAMBENCH_LOCAL_TRIAL_EXECUTION_RUNBOOK_SCHEMA,
+    PROGRAMBENCH_LOCAL_TRIAL_NON_AUTHORITY_GUARDRAIL_SCHEMA,
+    PROGRAMBENCH_LOCAL_TRIAL_SANDBOX_READINESS_REVIEW_SCHEMA,
+    ProgrambenchLocalReconstructionTrialDocket,
+    ProgrambenchLocalTrialExecutionRunbook,
+    ProgrambenchLocalTrialNonAuthorityGuardrail,
+    ProgrambenchLocalTrialSandboxReadinessReview,
+)
 
 _WINDOWS_ABSOLUTE_PATH_RE = re.compile(r"[A-Za-z]:\\")
 
@@ -950,6 +960,46 @@ def main() -> None:
             root
             / "spec"
             / "programbench_reconstruction_attempt_family_closeout_alignment.schema.json",
+        ),
+        (
+            ProgrambenchLocalReconstructionTrialDocket,
+            PROGRAMBENCH_LOCAL_RECONSTRUCTION_TRIAL_DOCKET_SCHEMA,
+            root
+            / "packages"
+            / "adeu_benchmarking"
+            / "schema"
+            / "programbench_local_reconstruction_trial_docket.v1.json",
+            root / "spec" / "programbench_local_reconstruction_trial_docket.schema.json",
+        ),
+        (
+            ProgrambenchLocalTrialExecutionRunbook,
+            PROGRAMBENCH_LOCAL_TRIAL_EXECUTION_RUNBOOK_SCHEMA,
+            root
+            / "packages"
+            / "adeu_benchmarking"
+            / "schema"
+            / "programbench_local_trial_execution_runbook.v1.json",
+            root / "spec" / "programbench_local_trial_execution_runbook.schema.json",
+        ),
+        (
+            ProgrambenchLocalTrialSandboxReadinessReview,
+            PROGRAMBENCH_LOCAL_TRIAL_SANDBOX_READINESS_REVIEW_SCHEMA,
+            root
+            / "packages"
+            / "adeu_benchmarking"
+            / "schema"
+            / "programbench_local_trial_sandbox_readiness_review.v1.json",
+            root / "spec" / "programbench_local_trial_sandbox_readiness_review.schema.json",
+        ),
+        (
+            ProgrambenchLocalTrialNonAuthorityGuardrail,
+            PROGRAMBENCH_LOCAL_TRIAL_NON_AUTHORITY_GUARDRAIL_SCHEMA,
+            root
+            / "packages"
+            / "adeu_benchmarking"
+            / "schema"
+            / "programbench_local_trial_non_authority_guardrail.v1.json",
+            root / "spec" / "programbench_local_trial_non_authority_guardrail.schema.json",
         ),
     ]
 

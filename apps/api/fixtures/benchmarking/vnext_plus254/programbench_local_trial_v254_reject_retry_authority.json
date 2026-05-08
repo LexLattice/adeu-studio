@@ -1,0 +1,18 @@
+{
+  "benchmark_truth_non_authority_posture": "not_benchmark_truth",
+  "forbidden_authority_rows": [],
+  "forbidden_future_artifact_kinds": [
+    "programbench_local_trial_candidate_artifact_snapshot@1"
+  ],
+  "future_family_selection_posture": "no_future_family_selected_by_pb_trial_0a",
+  "hidden_test_non_inference_posture": "hidden_tests_not_visible_not_inference_evidence",
+  "limitation_note": "Reject fixture grants retry authority.",
+  "model_ranking_non_authority_posture": "no_model_ranking_claimed_by_pb_trial_0a",
+  "official_programbench_non_authority_posture": "no_official_programbench_authority_by_pb_trial_0a",
+  "retry_authority_posture": "retry_authority_granted",
+  "schema": "programbench_local_trial_non_authority_guardrail@1",
+  "source_lookup_non_authority_posture": "source_lookup_forbidden_by_pb_trial_0a",
+  "submission_non_authority_posture": "no_submission_authority_by_pb_trial_0a",
+  "trial_docket_ref": "trial-docket:pb-trial-0a:reference",
+  "trial_guardrail_ref": "guardrail:pb-trial-0a:reference"
+}

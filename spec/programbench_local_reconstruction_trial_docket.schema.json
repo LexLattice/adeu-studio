@@ -1,0 +1,120 @@
+{
+  "additionalProperties": false,
+  "properties": {
+    "attempt_family_closeout_ref": {
+      "title": "Attempt Family Closeout Ref",
+      "type": "string"
+    },
+    "attempt_guardrail_ref": {
+      "title": "Attempt Guardrail Ref",
+      "type": "string"
+    },
+    "attempt_request_ref": {
+      "title": "Attempt Request Ref",
+      "type": "string"
+    },
+    "benchmark_truth_posture": {
+      "const": "not_benchmark_truth",
+      "title": "Benchmark Truth Posture",
+      "type": "string"
+    },
+    "case_packet_refs": {
+      "items": {
+        "type": "string"
+      },
+      "minItems": 1,
+      "title": "Case Packet Refs",
+      "type": "array"
+    },
+    "dispatch_preflight_ref": {
+      "title": "Dispatch Preflight Ref",
+      "type": "string"
+    },
+    "future_family_selection_posture": {
+      "const": "no_future_family_selected_by_pb_trial_0a",
+      "title": "Future Family Selection Posture",
+      "type": "string"
+    },
+    "limitation_note": {
+      "title": "Limitation Note",
+      "type": "string"
+    },
+    "model_ranking_posture": {
+      "const": "no_model_ranking_claimed_by_pb_trial_0a",
+      "title": "Model Ranking Posture",
+      "type": "string"
+    },
+    "official_programbench_posture": {
+      "const": "no_official_programbench_participation_by_pb_trial_0a",
+      "title": "Official Programbench Posture",
+      "type": "string"
+    },
+    "prior_attempt_result_review_context_ref": {
+      "title": "Prior Attempt Result Review Context Ref",
+      "type": "string"
+    },
+    "retry_authority_posture": {
+      "const": "no_retry_authority_granted_by_pb_trial_0a",
+      "title": "Retry Authority Posture",
+      "type": "string"
+    },
+    "schema": {
+      "const": "programbench_local_reconstruction_trial_docket@1",
+      "title": "Schema",
+      "type": "string"
+    },
+    "trial_cardinality_posture": {
+      "const": "single_trial_only",
+      "title": "Trial Cardinality Posture",
+      "type": "string"
+    },
+    "trial_docket_ref": {
+      "title": "Trial Docket Ref",
+      "type": "string"
+    },
+    "trial_purpose": {
+      "const": "single_local_cleanroom_reconstruction_trial",
+      "title": "Trial Purpose",
+      "type": "string"
+    },
+    "workbench_lineage_refs": {
+      "items": {
+        "type": "string"
+      },
+      "minItems": 1,
+      "title": "Workbench Lineage Refs",
+      "type": "array"
+    },
+    "worker_input_packet_ref": {
+      "title": "Worker Input Packet Ref",
+      "type": "string"
+    },
+    "worker_profile_ref": {
+      "title": "Worker Profile Ref",
+      "type": "string"
+    }
+  },
+  "required": [
+    "schema",
+    "trial_docket_ref",
+    "attempt_request_ref",
+    "worker_input_packet_ref",
+    "dispatch_preflight_ref",
+    "attempt_guardrail_ref",
+    "prior_attempt_result_review_context_ref",
+    "attempt_family_closeout_ref",
+    "workbench_lineage_refs",
+    "case_packet_refs",
+    "worker_profile_ref",
+    "trial_purpose",
+    "trial_cardinality_posture",
+    "official_programbench_posture",
+    "benchmark_truth_posture",
+    "model_ranking_posture",
+    "retry_authority_posture",
+    "future_family_selection_posture",
+    "limitation_note"
+  ],
+  "title": "ProgrambenchLocalReconstructionTrialDocket",
+  "type": "object"
+}

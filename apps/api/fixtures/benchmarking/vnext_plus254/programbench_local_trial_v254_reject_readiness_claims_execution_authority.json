@@ -1,0 +1,23 @@
+{
+  "budget_readiness_posture": "run_budget_bound",
+  "decompilation_readiness_posture": "decompilation_disabled",
+  "docker_socket_readiness_posture": "docker_socket_absent",
+  "execution_authority_posture": "command_execution_authorized",
+  "host_secret_readiness_posture": "host_secrets_absent",
+  "limitation_note": "Reject fixture claims execution authority from readiness.",
+  "network_readiness_posture": "network_disabled",
+  "readiness_check_rows": [],
+  "readiness_posture": "ready_for_later_local_trial_execution_review",
+  "run_budget_ref": "run-budget:pb-recon-0a:reference",
+  "sandbox_policy_ref": "sandbox-policy:pb-recon-0a:reference",
+  "sandbox_readiness_review_ref": "sandbox-readiness:pb-trial-0a:reference",
+  "sandbox_witness_requirement_refs": [
+    "bounded_write_scope"
+  ],
+  "schema": "programbench_local_trial_sandbox_readiness_review@1",
+  "source_lookup_readiness_posture": "source_lookup_disabled",
+  "tool_manifest_readiness_posture": "closed_tool_manifest",
+  "trial_docket_ref": "trial-docket:pb-trial-0a:reference",
+  "trial_runbook_ref": "trial-runbook:pb-trial-0a:reference",
+  "write_scope_readiness_posture": "bounded_write_scope"
+}
