@@ -439,6 +439,197 @@ def test_pb_retry_0b_rejects_existing_retry_request() -> None:
         )
 
 
+def test_pb_retry_0b_rejects_eligibility_from_different_retry_request() -> None:
+    (
+        retry_request,
+        retry_lineage_registry,
+        remand_source_index,
+        retry_eligibility_review,
+        retry_scope_contract,
+        retry_guardrail,
+    ) = _load_retry_a_rows()
+    (
+        source_trial_dispatch,
+        source_trial_candidate_snapshot,
+        source_trial_lifecycle_projection,
+    ) = _load_trial_b_rows()
+    (
+        retry_dispatch_record,
+        retry_execution_capture,
+        retry_candidate_delta_snapshot,
+        retry_lifecycle_projection,
+        retry_sandbox_trace,
+    ) = _load_retry_b_rows()
+    drifted_eligibility = retry_eligibility_review.model_copy(
+        update={"retry_request_ref": "retry-request:pb-retry-0a:other"}
+    )
+
+    with pytest.raises(ValueError, match="eligibility review must reference retry request"):
+        validate_pb_retry_0b_dispatch_bundle(
+            retry_request=retry_request,
+            retry_lineage_registry=retry_lineage_registry,
+            remand_source_index=remand_source_index,
+            retry_eligibility_review=drifted_eligibility,
+            retry_scope_contract=retry_scope_contract,
+            retry_guardrail=retry_guardrail,
+            source_trial_dispatch=source_trial_dispatch,
+            source_trial_candidate_snapshot=source_trial_candidate_snapshot,
+            source_trial_lifecycle_projection=source_trial_lifecycle_projection,
+            retry_dispatch_record=retry_dispatch_record,
+            retry_execution_capture=retry_execution_capture,
+            retry_candidate_delta_snapshot=retry_candidate_delta_snapshot,
+            retry_lifecycle_projection=retry_lifecycle_projection,
+            retry_sandbox_trace=retry_sandbox_trace,
+        )
+
+
+def test_pb_retry_0b_rejects_worker_input_hash_drift_from_source_trial() -> None:
+    (
+        retry_request,
+        retry_lineage_registry,
+        remand_source_index,
+        retry_eligibility_review,
+        retry_scope_contract,
+        retry_guardrail,
+    ) = _load_retry_a_rows()
+    (
+        source_trial_dispatch,
+        source_trial_candidate_snapshot,
+        source_trial_lifecycle_projection,
+    ) = _load_trial_b_rows()
+    (
+        retry_dispatch_record,
+        retry_execution_capture,
+        retry_candidate_delta_snapshot,
+        retry_lifecycle_projection,
+        retry_sandbox_trace,
+    ) = _load_retry_b_rows()
+    drifted_input_hash = "sha256:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"
+    drifted_dispatch = retry_dispatch_record.model_copy(
+        update={
+            "retry_input_packet_hash": drifted_input_hash,
+            "worker_input_packet_hash": drifted_input_hash,
+        }
+    )
+
+    with pytest.raises(ValueError, match="source trial worker input hash"):
+        validate_pb_retry_0b_dispatch_bundle(
+            retry_request=retry_request,
+            retry_lineage_registry=retry_lineage_registry,
+            remand_source_index=remand_source_index,
+            retry_eligibility_review=retry_eligibility_review,
+            retry_scope_contract=retry_scope_contract,
+            retry_guardrail=retry_guardrail,
+            source_trial_dispatch=source_trial_dispatch,
+            source_trial_candidate_snapshot=source_trial_candidate_snapshot,
+            source_trial_lifecycle_projection=source_trial_lifecycle_projection,
+            retry_dispatch_record=drifted_dispatch,
+            retry_execution_capture=retry_execution_capture,
+            retry_candidate_delta_snapshot=retry_candidate_delta_snapshot,
+            retry_lifecycle_projection=retry_lifecycle_projection,
+            retry_sandbox_trace=retry_sandbox_trace,
+        )
+
+
+def test_pb_retry_0b_rejects_tool_manifest_hash_drift_from_source_trial() -> None:
+    (
+        retry_request,
+        retry_lineage_registry,
+        remand_source_index,
+        retry_eligibility_review,
+        retry_scope_contract,
+        retry_guardrail,
+    ) = _load_retry_a_rows()
+    (
+        source_trial_dispatch,
+        source_trial_candidate_snapshot,
+        source_trial_lifecycle_projection,
+    ) = _load_trial_b_rows()
+    (
+        retry_dispatch_record,
+        retry_execution_capture,
+        retry_candidate_delta_snapshot,
+        retry_lifecycle_projection,
+        retry_sandbox_trace,
+    ) = _load_retry_b_rows()
+    drifted_dispatch = retry_dispatch_record.model_copy(
+        update={
+            "allowed_tool_manifest_hash": (
+                "sha256:abababababababababababababababababababababababababababababababab"
+            ),
+            "retry_allowed_tool_manifest_hash": (
+                "sha256:abababababababababababababababababababababababababababababababab"
+            ),
+        }
+    )
+
+    with pytest.raises(ValueError, match="source trial allowed tool hash"):
+        validate_pb_retry_0b_dispatch_bundle(
+            retry_request=retry_request,
+            retry_lineage_registry=retry_lineage_registry,
+            remand_source_index=remand_source_index,
+            retry_eligibility_review=retry_eligibility_review,
+            retry_scope_contract=retry_scope_contract,
+            retry_guardrail=retry_guardrail,
+            source_trial_dispatch=source_trial_dispatch,
+            source_trial_candidate_snapshot=source_trial_candidate_snapshot,
+            source_trial_lifecycle_projection=source_trial_lifecycle_projection,
+            retry_dispatch_record=drifted_dispatch,
+            retry_execution_capture=retry_execution_capture,
+            retry_candidate_delta_snapshot=retry_candidate_delta_snapshot,
+            retry_lifecycle_projection=retry_lifecycle_projection,
+            retry_sandbox_trace=retry_sandbox_trace,
+        )
+
+
+def test_pb_retry_0b_rejects_sandbox_policy_hash_drift_from_a_scope() -> None:
+    (
+        retry_request,
+        retry_lineage_registry,
+        remand_source_index,
+        retry_eligibility_review,
+        retry_scope_contract,
+        retry_guardrail,
+    ) = _load_retry_a_rows()
+    (
+        source_trial_dispatch,
+        source_trial_candidate_snapshot,
+        source_trial_lifecycle_projection,
+    ) = _load_trial_b_rows()
+    (
+        retry_dispatch_record,
+        retry_execution_capture,
+        retry_candidate_delta_snapshot,
+        retry_lifecycle_projection,
+        retry_sandbox_trace,
+    ) = _load_retry_b_rows()
+    drifted_dispatch = retry_dispatch_record.model_copy(
+        update={
+            "retry_sandbox_policy_hash": (
+                "sha256:abababababababababababababababababababababababababababababababab"
+            )
+        }
+    )
+
+    with pytest.raises(ValueError, match="unchanged sandbox policy hash"):
+        validate_pb_retry_0b_dispatch_bundle(
+            retry_request=retry_request,
+            retry_lineage_registry=retry_lineage_registry,
+            remand_source_index=remand_source_index,
+            retry_eligibility_review=retry_eligibility_review,
+            retry_scope_contract=retry_scope_contract,
+            retry_guardrail=retry_guardrail,
+            source_trial_dispatch=source_trial_dispatch,
+            source_trial_candidate_snapshot=source_trial_candidate_snapshot,
+            source_trial_lifecycle_projection=source_trial_lifecycle_projection,
+            retry_dispatch_record=drifted_dispatch,
+            retry_execution_capture=retry_execution_capture,
+            retry_candidate_delta_snapshot=retry_candidate_delta_snapshot,
+            retry_lifecycle_projection=retry_lifecycle_projection,
+            retry_sandbox_trace=retry_sandbox_trace,
+        )
+
+
 def test_pb_retry_0b_rejects_snapshot_when_execution_screening_blocks() -> None:
     (
         retry_request,

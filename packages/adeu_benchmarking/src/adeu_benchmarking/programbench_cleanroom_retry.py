@@ -1036,6 +1036,20 @@ def validate_pb_retry_0b_dispatch_bundle(
         raise ValueError("PB-RETRY-0-B requires ready_no_blockers A basis")
     if retry_eligibility_review.carried_blocker_refs:
         raise ValueError("PB-RETRY-0-B cannot dispatch with A carried blockers")
+    if retry_eligibility_review.retry_request_ref != retry_request.retry_request_ref:
+        raise ValueError("retry eligibility review must reference retry request")
+    if retry_eligibility_review.retry_lineage_registry_ref != (
+        retry_lineage_registry.retry_lineage_registry_ref
+    ):
+        raise ValueError("retry eligibility review must reference retry lineage registry")
+    if retry_scope_contract.retry_scope_contract_ref not in (
+        retry_eligibility_review.retry_scope_contract_refs
+    ):
+        raise ValueError("retry eligibility review must release retry scope contract")
+    if retry_guardrail.retry_guardrail_ref not in (
+        retry_eligibility_review.non_authority_guardrail_refs
+    ):
+        raise ValueError("retry eligibility review must release retry guardrail")
     if retry_request.retry_request_ref not in retry_lineage_registry.eligible_retry_request_refs:
         raise ValueError("retry request must be released by retry lineage registry")
     if retry_request.prior_retry_request_refs or retry_lineage_registry.existing_retry_request_refs:
@@ -1075,8 +1089,36 @@ def validate_pb_retry_0b_dispatch_bundle(
         retry_scope_contract.retry_scope_delta_manifest_hash
     ):
         raise ValueError("retry dispatch must bind to A retry scope delta hash")
+    if retry_dispatch_record.retry_sandbox_policy_hash != (
+        retry_scope_contract.unchanged_sandbox_policy_hash
+    ):
+        raise ValueError("retry dispatch must preserve A unchanged sandbox policy hash")
+    if retry_dispatch_record.worker_input_packet_hash != (
+        source_trial_dispatch.worker_input_packet_hash
+    ):
+        raise ValueError("retry dispatch must preserve source trial worker input hash")
+    if retry_dispatch_record.worker_visible_context_hash != (
+        source_trial_dispatch.worker_visible_context_hash
+    ):
+        raise ValueError("retry dispatch must preserve source trial worker context hash")
     if retry_dispatch_record.worker_profile_ref != source_trial_dispatch.worker_profile_ref:
         raise ValueError("retry dispatch must preserve source trial worker profile")
+    if retry_dispatch_record.tool_manifest_ref != source_trial_dispatch.tool_manifest_ref:
+        raise ValueError("retry dispatch must preserve source trial tool manifest")
+    if retry_dispatch_record.allowed_tool_manifest_hash != (
+        source_trial_dispatch.allowed_tool_manifest_hash
+    ):
+        raise ValueError("retry dispatch must preserve source trial allowed tool hash")
+    if retry_dispatch_record.forbidden_tool_manifest_hash != (
+        source_trial_dispatch.forbidden_tool_manifest_hash
+    ):
+        raise ValueError("retry dispatch must preserve source trial forbidden tool hash")
+    if retry_dispatch_record.input_packet_materialization_hash != (
+        source_trial_dispatch.input_packet_materialization_hash
+    ):
+        raise ValueError(
+            "retry dispatch must preserve source trial input materialization hash"
+        )
 
     if retry_execution_capture.retry_dispatch_record_ref != (
         retry_dispatch_record.retry_dispatch_record_ref
